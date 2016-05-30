@@ -7,3 +7,8 @@
 /.vs/BrightWire/v14
 /bin/Release
 /obj/Release
+/bin/x64
+/obj/x64
+/packages
+/UnitTests/bin/x64/Debug
+/UnitTests/obj
