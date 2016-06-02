@@ -1,4 +1,6 @@
-﻿using ManagedCuda;
+﻿using Icbld.BrightWire.Connectionist;
+using Icbld.BrightWire.Models;
+using ManagedCuda;
 using ManagedCuda.BasicTypes;
 using ManagedCuda.CudaBlas;
 using ManagedCuda.VectorTypes;
@@ -515,6 +517,15 @@ namespace Icbld.BrightWire.LinearAlgebra
         internal CudaContext Context { get { return _cuda; } }
         internal CudaBlas Blas { get { return _blas; } }
 
+        Factory _factory = null;
+        public INeuralNetworkFactory NN
+        {
+            get
+            {
+                return _factory ?? (_factory = new Factory(this));
+            }
+        }
+
         public IVector Create(IEnumerable<float> data)
         {
             return Create(data.ToArray());
@@ -585,14 +596,14 @@ namespace Icbld.BrightWire.LinearAlgebra
             return _numerics.CreateIndexable(rows, columns, init);
         }
 
-        public IMatrix CreateMatrix(BinaryReader reader)
+        public IMatrix CreateMatrix(IReadOnlyList<FloatArray> data)
         {
-            return Create((IIndexableMatrix)_numerics.CreateMatrix(reader));
+            return Create((IIndexableMatrix)_numerics.CreateMatrix(data));
         }
 
-        public IVector CreateVector(BinaryReader reader)
+        public IVector CreateVector(FloatArray data)
         {
-            return Create((IIndexableVector)_numerics.CreateVector(reader));
+            return Create((IIndexableVector)_numerics.CreateVector(data));
         }
     }
 }

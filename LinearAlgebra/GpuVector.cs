@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Icbld.BrightWire.Models;
 
 namespace Icbld.BrightWire.LinearAlgebra
 {
@@ -20,6 +21,11 @@ namespace Icbld.BrightWire.LinearAlgebra
         static int _gid = 0;
         int _id = _gid++;
         public static int _badAlloc = -1;
+        public static int _badDispose = -1;
+
+        public bool IsValid { get { return !_disposed; } }
+#else
+        public bool IsValid { get { return true; } }
 #endif
 
         public GpuVector(CudaProvider cuda, int size, Func<int, float> init)
@@ -55,13 +61,18 @@ namespace Icbld.BrightWire.LinearAlgebra
 #if DEBUG
         ~GpuVector()
         {
-            Debug.Assert(_disposed, String.Format("Vector {0} was not disposed", _id));
+            if (!_disposed)
+                Debug.WriteLine("\tVector {0} was not disposed!!", _id);
         }
 #endif
 
         protected virtual void Dispose(bool disposing)
         {
-            if(disposing && !_disposed) {
+#if DEBUG
+            if (_id == _badDispose)
+                Debugger.Break();
+#endif
+            if (disposing && !_disposed) {
                 _data.Dispose();
                 _disposed = true;
             }
@@ -94,8 +105,36 @@ namespace Icbld.BrightWire.LinearAlgebra
             }
         }
 
+        public FloatArray Data
+        {
+            get
+            {
+                var data = new float[_size];
+                _data.CopyToHost(data);
+
+                return new FloatArray {
+                    Data = data
+                };
+            }
+
+            set
+            {
+                var data = new float[_size];
+                _data.CopyToHost(data);
+
+                if (value.Data != null) {
+                    var data2 = value.Data;
+                    for (int i = 0, len = data.Length; i < len; i++)
+                        data[i] = data2[i];
+                }
+
+                _data.CopyToDevice(data);
+            }
+        }
+
         public IVector Add(IVector vector)
         {
+            Debug.Assert(IsValid && vector.IsValid);
             var other = (GpuVector)vector;
             var ret = new CudaDeviceVariable<float>(other._data.Size);
             ret.CopyToDevice(other._data);
@@ -105,6 +144,7 @@ namespace Icbld.BrightWire.LinearAlgebra
 
         public void AddInPlace(IVector vector, float coefficient1 = 1, float coefficient2 = 1)
         {
+            Debug.Assert(IsValid && vector.IsValid);
             var other = (GpuVector)vector;
             _cuda.AddInPlace(_data, other._data, _size, coefficient1, coefficient2);
         }
@@ -118,6 +158,7 @@ namespace Icbld.BrightWire.LinearAlgebra
 
         public IVector Clone()
         {
+            Debug.Assert(IsValid);
             var data = new CudaDeviceVariable<float>(_size);
             data.CopyToDevice(_data);
             return new GpuVector(_cuda, _size, data);
@@ -125,12 +166,14 @@ namespace Icbld.BrightWire.LinearAlgebra
 
         public void CopyFrom(IVector vector)
         {
+            Debug.Assert(vector.IsValid);
             var other = (GpuVector)vector;
             _data.CopyToDevice(other._data);
         }
 
         public float DotProduct(IVector vector)
         {
+            Debug.Assert(IsValid && vector.IsValid);
             var other = (GpuVector)vector;
             return _cuda.Blas.Dot(_data, 1, other._data, 1);
         }
@@ -143,51 +186,45 @@ namespace Icbld.BrightWire.LinearAlgebra
 
         public float L2Norm()
         {
+            Debug.Assert(IsValid);
             return _cuda.Blas.Norm2(_data, 1);
         }
 
         public int MaximumIndex()
         {
+            Debug.Assert(IsValid);
             return _cuda.Blas.Max(_data, 1) - 1;
         }
 
         public int MinimumIndex()
         {
+            Debug.Assert(IsValid);
             return _cuda.Blas.Min(_data, 1) - 1;
         }
 
         public void Multiply(float scalar)
         {
+            Debug.Assert(IsValid);
             _cuda.Blas.Scale(scalar, _data, 1);
         }
 
         public IVector PointwiseMultiply(IVector vector)
         {
+            Debug.Assert(IsValid && vector.IsValid);
             var other = (GpuVector)vector;
             return new GpuVector(_cuda, _size, _cuda.PointwiseMultiply(_data, other._data, _size));
         }
 
-        public void ReadFrom(BinaryReader reader)
-        {
-            var count = reader.ReadInt32();
-            var data = new float[_size];
-
-            for (var j = 0; j < count; j++) {
-                var val = reader.ReadSingle();
-                if (j < _size)
-                    data[j] = val;
-            }
-            _data.CopyToDevice(data);
-        }
-
         public IVector Sqrt()
         {
+            Debug.Assert(IsValid);
             var ret = _cuda.Sqrt(_data, _size, 0);
             return new GpuVector(_cuda, _size, ret);
         }
 
         public IVector Subtract(IVector vector)
         {
+            Debug.Assert(IsValid && vector.IsValid);
             var other = (GpuVector)vector;
             var ret = new CudaDeviceVariable<float>(_data.Size);
             ret.CopyToDevice(_data);
@@ -197,12 +234,14 @@ namespace Icbld.BrightWire.LinearAlgebra
 
         public void SubtractInPlace(IVector vector, float coefficient1 = 1, float coefficient2 = 1)
         {
+            Debug.Assert(IsValid && vector.IsValid);
             var other = (GpuVector)vector;
             _cuda.SubtractInPlace(_data, other._data, _size, coefficient1, coefficient2);
         }
 
         public IMatrix ToColumnMatrix(int numCols = 1)
         {
+            Debug.Assert(IsValid);
             var ret = new CudaDeviceVariable<float>(_data.Size);
             ret.CopyToDevice(_data);
             return new GpuMatrix(_cuda, _size, 1, ret);
@@ -210,19 +249,10 @@ namespace Icbld.BrightWire.LinearAlgebra
 
         public IMatrix ToRowMatrix(int numRows = 1)
         {
+            Debug.Assert(IsValid);
             var ret = new CudaDeviceVariable<float>(_data.Size);
             ret.CopyToDevice(_data);
             return new GpuMatrix(_cuda, 1, _size, ret);
-        }
-
-        public void WriteTo(BinaryWriter writer)
-        {
-            var data = new float[_size];
-            _data.CopyToHost(data);
-
-            writer.Write(_size);
-            for (var i = 0; i < _size; i++)
-                writer.Write(data[i]);
         }
 
         public float EuclideanDistance(IVector vector)

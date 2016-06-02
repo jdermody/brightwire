@@ -5,12 +5,15 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Icbld.BrightWire.Models;
 
 namespace Icbld.BrightWire.LinearAlgebra
 {
     public class CpuVector : IIndexableVector
     {
         readonly Vector<float> _vector;
+
+        public bool IsValid { get { return true; } }
 
         public CpuVector(DenseVector vector)
         {
@@ -123,22 +126,41 @@ namespace Icbld.BrightWire.LinearAlgebra
             return _vector.ToVectorString();
         }
 
-        public void WriteTo(BinaryWriter writer)
+        public FloatArray Data
         {
-            writer.Write(_vector.Count);
-            for (var i = 0; i < _vector.Count; i++)
-                writer.Write(_vector[i]);
-        }
+            get
+            {
+                return new FloatArray {
+                    Data = _vector.ToArray()
+                };
+            }
 
-        public void ReadFrom(BinaryReader reader)
-        {
-            var count = reader.ReadInt32();
-            for (var j = 0; j < count; j++) {
-                var val = reader.ReadSingle();
-                if (j < _vector.Count)
-                    _vector[j] = val;
+            set
+            {
+                if(value.Data != null) {
+                    var data = value.Data;
+                    for (int i = 0, len = data.Length; i < len; i++)
+                        _vector[i] = data[i];
+                }
             }
         }
+
+        //public void WriteTo(BinaryWriter writer)
+        //{
+        //    writer.Write(_vector.Count);
+        //    for (var i = 0; i < _vector.Count; i++)
+        //        writer.Write(_vector[i]);
+        //}
+
+        //public void ReadFrom(BinaryReader reader)
+        //{
+        //    var count = reader.ReadInt32();
+        //    for (var j = 0; j < count; j++) {
+        //        var val = reader.ReadSingle();
+        //        if (j < _vector.Count)
+        //            _vector[j] = val;
+        //    }
+        //}
 
         public IIndexableVector AsIndexable()
         {
@@ -157,7 +179,7 @@ namespace Icbld.BrightWire.LinearAlgebra
             return _vector.DotProduct(other);
         }
 
-        public IEnumerable<float> Data
+        public IEnumerable<float> Values
         {
             get
             {

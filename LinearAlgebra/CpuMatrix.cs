@@ -8,12 +8,15 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Icbld.BrightWire.Models;
 
 namespace Icbld.BrightWire.LinearAlgebra
 {
     public class CpuMatrix : IIndexableMatrix
     {
         readonly Matrix<float> _matrix;
+
+        public bool IsValid { get { return true; } }
 
         public CpuMatrix(DenseMatrix matrix)
         {
@@ -257,26 +260,36 @@ namespace Icbld.BrightWire.LinearAlgebra
             _matrix.MapIndexedInplace((j, k, v) => v + other[j]);
         }
 
-        public void WriteTo(BinaryWriter writer)
+        public FloatArray[] Data
         {
-            writer.Write(_matrix.RowCount);
-            writer.Write(_matrix.ColumnCount);
-            for (var i = 0; i < _matrix.RowCount; i++) {
-                for (var j = 0; j < _matrix.ColumnCount; j++) {
-                    writer.Write(_matrix[i, j]);
+            get
+            {
+                var ret = new FloatArray[_matrix.RowCount];
+                for (var i = 0; i < _matrix.RowCount; i++) {
+                    var row = new float[_matrix.ColumnCount];
+                    for (var j = 0; j < _matrix.ColumnCount; j++) {
+                        row[j] = _matrix[i, j];
+                    }
+                    ret[i] = new FloatArray {
+                        Data = row
+                    };
                 }
+                return ret;
             }
-        }
 
-        public void ReadFrom(BinaryReader reader)
-        {
-            var rowCount = reader.ReadInt32();
-            var columnCount = reader.ReadInt32();
-            for (var i = 0; i < rowCount; i++) {
-                for (var j = 0; j < columnCount; j++) {
-                    var val = reader.ReadSingle();
-                    if (i < _matrix.RowCount && j < _matrix.ColumnCount)
-                        _matrix[i, j] = val;
+            set
+            {
+                var rowCount = value.Length;
+                for(var i = 0; i < rowCount; i++) {
+                    var row = value[i];
+                    if (row.Data != null) {
+                        var data = row.Data;
+                        var columnCount = data.Length;
+                        for (var j = 0; j < columnCount; j++) {
+                            if (i < _matrix.RowCount && j < _matrix.ColumnCount)
+                                _matrix[i, j] = data[j];
+                        }
+                    }
                 }
             }
         }

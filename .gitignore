@@ -12,3 +12,4 @@
 /packages
 /UnitTests/bin/x64/Debug
 /UnitTests/obj
+/UnitTests/bin/x64/Release

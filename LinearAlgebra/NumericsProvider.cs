@@ -1,4 +1,6 @@
-﻿using MathNet.Numerics.LinearAlgebra.Single;
+﻿using Icbld.BrightWire.Connectionist;
+using Icbld.BrightWire.Models;
+using MathNet.Numerics.LinearAlgebra.Single;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -72,24 +74,33 @@ namespace Icbld.BrightWire.LinearAlgebra
         public IIndexableMatrix CreateIndexable(int rows, int columns, Func<int, int, float> init) { return Create(rows, columns, init).AsIndexable(); }
         public IIndexableMatrix CreateIndexable(int rows, int columns, float value) { return Create(rows, columns, value).AsIndexable(); }
 
-        public IVector CreateVector(BinaryReader reader)
+        public IVector CreateVector(FloatArray data)
         {
-            var size = reader.ReadInt32();
-            return new CpuVector(DenseVector.Create(size, i => reader.ReadSingle()));
+            var size = data.Data.Length;
+            return new CpuVector(DenseVector.Create(size, i => data.Data[i]));
         }
 
-        public IMatrix CreateMatrix(BinaryReader reader)
+        public IMatrix CreateMatrix(IReadOnlyList<FloatArray> data)
         {
-            var rowCount = reader.ReadInt32();
-            var columnCount = reader.ReadInt32();
+            var rowCount = data.Count;
+            var columnCount = data.First().Data.Length;
             var ret = new CpuMatrix(DenseMatrix.Create(rowCount, columnCount, 0f));
 
             for (var i = 0; i < rowCount; i++) {
                 for (var j = 0; j < columnCount; j++) {
-                    ret[i, j] = reader.ReadSingle();
+                    ret[i, j] = data[i].Data[j];
                 }
             }
             return ret;
+        }
+
+        Factory _factory = null;
+        public INeuralNetworkFactory NN
+        {
+            get
+            {
+                return _factory ?? (_factory = new Factory(this));
+            }
         }
     }
 }

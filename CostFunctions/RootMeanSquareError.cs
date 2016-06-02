@@ -11,7 +11,7 @@ namespace Icbld.BrightWire.CostFunction
     {
         public float Calculate(IIndexableVector output, IIndexableVector expectedOutput)
         {
-            return Convert.ToSingle(Math.Sqrt(output.Data.Zip(expectedOutput.Data, (a, e) => BoundMath.Pow(a - e, 2)).Average()));
+            return Convert.ToSingle(Math.Sqrt(output.Values.Zip(expectedOutput.Values, (a, e) => BoundMath.Pow(a - e, 2)).Average()));
         }
     }
 }

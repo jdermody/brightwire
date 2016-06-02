@@ -11,9 +11,18 @@ namespace UnitTests
     [TestClass]
     public class CudaLinearAlgebraTests
     {
-        ILinearAlgebraProvider ProviderToTest()
+        static ILinearAlgebraProvider _cuda;
+
+        [ClassInitialize]
+        public static void Load(TestContext context)
         {
-            return new CudaProvider();
+            _cuda = new CudaProvider();
+        }
+
+        [ClassCleanup]
+        public static void Cleanup()
+        {
+            _cuda.Dispose();
         }
 
         public static unsafe int FloatToInt32Bits(float f)
@@ -72,12 +81,10 @@ namespace UnitTests
             var cpuResults = a.Multiply(b);
             IIndexableMatrix gpuResults;
 
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                using (var gpuB = cuda.Create(b))
-                using (var gpuC = gpuA.Multiply(gpuB))
-                    gpuResults = gpuC.AsIndexable();
-            }
+            using (var gpuA = _cuda.Create(a))
+            using (var gpuB = _cuda.Create(b))
+            using (var gpuC = gpuA.Multiply(gpuB))
+                gpuResults = gpuC.AsIndexable();
 
             _AssertEqual(gpuResults, cpuResults.AsIndexable());
         }
@@ -182,11 +189,9 @@ namespace UnitTests
             var aT = a.Transpose();
             IIndexableMatrix gpuResults;
 
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                using (var gpuAT = gpuA.Transpose())
-                    gpuResults = gpuAT.AsIndexable();
-            }
+            using (var gpuA = _cuda.Create(a))
+            using (var gpuAT = gpuA.Transpose())
+                gpuResults = gpuAT.AsIndexable();
 
             _AssertEqual(gpuResults, aT.AsIndexable());
         }
@@ -236,12 +241,10 @@ namespace UnitTests
             var cpuResults = a.TransposeAndMultiply(b);
             IIndexableMatrix gpuResults;
 
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                using (var gpuB = cuda.Create(b))
-                using (var gpuC = gpuA.TransposeAndMultiply(gpuB))
-                    gpuResults = gpuC.AsIndexable();
-            }
+            using (var gpuA = _cuda.Create(a))
+            using (var gpuB = _cuda.Create(b))
+            using (var gpuC = gpuA.TransposeAndMultiply(gpuB))
+                gpuResults = gpuC.AsIndexable();
 
             _AssertEqual(gpuResults, cpuResults.AsIndexable());
         }
@@ -255,12 +258,10 @@ namespace UnitTests
             var cpuResults = a.TransposeThisAndMultiply(b);
             IIndexableMatrix gpuResults;
 
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                using (var gpuB = cuda.Create(b))
-                using (var gpuC = gpuA.TransposeThisAndMultiply(gpuB))
-                    gpuResults = gpuC.AsIndexable();
-            }
+            using (var gpuA = _cuda.Create(a))
+            using (var gpuB = _cuda.Create(b))
+            using (var gpuC = gpuA.TransposeThisAndMultiply(gpuB))
+                gpuResults = gpuC.AsIndexable();
 
             _AssertEqual(gpuResults, cpuResults.AsIndexable());
         }
@@ -274,12 +275,10 @@ namespace UnitTests
             var cpuResults = a.Add(b);
 
             IIndexableMatrix gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                using (var gpuB = cuda.Create(b))
-                using (var gpuC = gpuA.Add(gpuB))
-                    gpuResults = gpuC.AsIndexable();
-            }
+            using (var gpuA = _cuda.Create(a))
+            using (var gpuB = _cuda.Create(b))
+            using (var gpuC = gpuA.Add(gpuB))
+                gpuResults = gpuC.AsIndexable();
 
             _AssertEqual(gpuResults, cpuResults.AsIndexable());
         }
@@ -292,19 +291,17 @@ namespace UnitTests
             var b = lap.Create(2, 5, (j, k) => j).AsIndexable();
 
             IIndexableMatrix gpuResults, gpuResults2;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                using (var gpuB = cuda.Create(b)) {
-                    var aStr = gpuA.ToString();
-                    var bStr = gpuB.ToString();
-                    using (var gpuC = gpuA.Subtract(gpuB))
-                    using (var gpuD = gpuB.Subtract(gpuA)) {
-                        gpuResults = gpuC.AsIndexable();
-                        gpuResults2 = gpuD.AsIndexable();
-                    }
-                    Assert.AreEqual(aStr, gpuA.ToString());
-                    Assert.AreEqual(bStr, gpuB.ToString());
+            using (var gpuA = _cuda.Create(a))
+            using (var gpuB = _cuda.Create(b)) {
+                var aStr = gpuA.ToString();
+                var bStr = gpuB.ToString();
+                using (var gpuC = gpuA.Subtract(gpuB))
+                using (var gpuD = gpuB.Subtract(gpuA)) {
+                    gpuResults = gpuC.AsIndexable();
+                    gpuResults2 = gpuD.AsIndexable();
                 }
+                Assert.AreEqual(aStr, gpuA.ToString());
+                Assert.AreEqual(bStr, gpuB.ToString());
             }
 
             var cpuResults = a.Subtract(b);
@@ -322,12 +319,10 @@ namespace UnitTests
             var cpuResults = a.PointwiseMultiply(b);
 
             IIndexableMatrix gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                using (var gpuB = cuda.Create(b))
-                using (var gpuC = gpuA.PointwiseMultiply(gpuB))
-                    gpuResults = gpuC.AsIndexable();
-            }
+            using (var gpuA = _cuda.Create(a))
+            using (var gpuB = _cuda.Create(b))
+            using (var gpuC = gpuA.PointwiseMultiply(gpuB))
+                gpuResults = gpuC.AsIndexable();
 
             _AssertEqual(gpuResults, cpuResults.AsIndexable());
         }
@@ -341,12 +336,10 @@ namespace UnitTests
             var cpuResults = a.PointwiseDivide(b);
 
             IIndexableMatrix gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                using (var gpuB = cuda.Create(b))
-                using (var gpuC = gpuA.PointwiseDivide(gpuB))
-                    gpuResults = gpuC.AsIndexable();
-            }
+            using (var gpuA = _cuda.Create(a))
+            using (var gpuB = _cuda.Create(b))
+            using (var gpuC = gpuA.PointwiseDivide(gpuB))
+                gpuResults = gpuC.AsIndexable();
 
             _AssertEqual(gpuResults, cpuResults.AsIndexable());
         }
@@ -361,11 +354,9 @@ namespace UnitTests
             var cpuResults = a.Sqrt(adjustment);
 
             IIndexableMatrix gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                using (var gpuC = gpuA.Sqrt(1e-8f))
-                    gpuResults = gpuC.AsIndexable();
-            }
+            using (var gpuA = _cuda.Create(a))
+            using (var gpuC = gpuA.Sqrt(1e-8f))
+                gpuResults = gpuC.AsIndexable();
 
             _AssertEqual(gpuResults, cpuResults.AsIndexable());
         }
@@ -378,11 +369,9 @@ namespace UnitTests
             const float scalar = 2.5f;
 
             IIndexableMatrix gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a)) {
-                    gpuA.Multiply(scalar);
-                    gpuResults = gpuA.AsIndexable();
-                }
+            using (var gpuA = _cuda.Create(a)) {
+                gpuA.Multiply(scalar);
+                gpuResults = gpuA.AsIndexable();
             }
 
             a.Multiply(scalar);
@@ -397,11 +386,9 @@ namespace UnitTests
             var matrix = a.ToColumnMatrix().AsIndexable();
 
             IIndexableMatrix gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                using (var gpuB = gpuA.ToColumnMatrix())
-                    gpuResults = gpuB.AsIndexable();
-            }
+            using (var gpuA = _cuda.Create(a))
+            using (var gpuB = gpuA.ToColumnMatrix())
+                gpuResults = gpuB.AsIndexable();
 
             _AssertEqual(matrix, gpuResults);
         }
@@ -414,11 +401,9 @@ namespace UnitTests
             var matrix = a.ToRowMatrix().AsIndexable();
 
             IIndexableMatrix gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                using (var m = gpuA.ToRowMatrix()) {
-                    gpuResults = m.AsIndexable();
-                }
+            using (var gpuA = _cuda.Create(a))
+            using (var m = gpuA.ToRowMatrix()) {
+                gpuResults = m.AsIndexable();
             }
 
             _AssertEqual(matrix, gpuResults);
@@ -433,12 +418,10 @@ namespace UnitTests
             var c = a.Add(b).AsIndexable();
 
             IIndexableVector gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                using (var gpuB = cuda.Create(b))
-                using (var gpuC = gpuA.Add(gpuB))
-                    gpuResults = gpuC.AsIndexable();
-            }
+            using (var gpuA = _cuda.Create(a))
+            using (var gpuB = _cuda.Create(b))
+            using (var gpuC = gpuA.Add(gpuB))
+                gpuResults = gpuC.AsIndexable();
 
             _AssertEqual(c, gpuResults);
         }
@@ -452,12 +435,10 @@ namespace UnitTests
             var c = a.Subtract(b).AsIndexable();
 
             IIndexableVector gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                using (var gpuB = cuda.Create(b))
-                using (var gpuC = gpuA.Subtract(gpuB))
-                    gpuResults = gpuC.AsIndexable();
-            }
+            using (var gpuA = _cuda.Create(a))
+            using (var gpuB = _cuda.Create(b))
+            using (var gpuC = gpuA.Subtract(gpuB))
+                gpuResults = gpuC.AsIndexable();
 
             _AssertEqual(c, gpuResults);
         }
@@ -471,12 +452,10 @@ namespace UnitTests
             var c = a.PointwiseMultiply(b).AsIndexable();
 
             IIndexableVector gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                using (var gpuB = cuda.Create(b))
-                using (var gpuC = gpuA.PointwiseMultiply(gpuB))
-                    gpuResults = gpuC.AsIndexable();
-            }
+            using (var gpuA = _cuda.Create(a))
+            using (var gpuB = _cuda.Create(b))
+            using (var gpuC = gpuA.PointwiseMultiply(gpuB))
+                gpuResults = gpuC.AsIndexable();
 
             _AssertEqual(c, gpuResults);
         }
@@ -490,11 +469,9 @@ namespace UnitTests
             var dot1 = a.DotProduct(b);
 
             float dot2;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                using (var gpuB = cuda.Create(b))
-                    dot2 = gpuA.DotProduct(gpuB);
-            }
+            using (var gpuA = _cuda.Create(a))
+            using (var gpuB = _cuda.Create(b))
+                dot2 = gpuA.DotProduct(gpuB);
 
             Assert.AreEqual(dot1, dot2);
         }
@@ -507,10 +484,8 @@ namespace UnitTests
             var res1 = a.L2Norm();
 
             float res2;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                    res2 = gpuA.L2Norm();
-            }
+            using (var gpuA = _cuda.Create(a))
+                res2 = gpuA.L2Norm();
             Assert.AreEqual(res1, res2);
         }
 
@@ -522,10 +497,8 @@ namespace UnitTests
             var res1 = a.MaximumIndex();
 
             int res2;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                    res2 = gpuA.MaximumIndex();
-            }
+            using (var gpuA = _cuda.Create(a))
+                res2 = gpuA.MaximumIndex();
             Assert.AreEqual(res1, res2);
         }
 
@@ -537,10 +510,8 @@ namespace UnitTests
             var res1 = a.MinimumIndex();
 
             int res2;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                    res2 = gpuA.MinimumIndex();
-            }
+            using (var gpuA = _cuda.Create(a))
+                res2 = gpuA.MinimumIndex();
             Assert.AreEqual(res1, res2);
         }
 
@@ -552,12 +523,10 @@ namespace UnitTests
             var b = np.Create(5, i => i).AsIndexable();
 
             IIndexableVector gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                using (var gpuB = cuda.Create(b)) {
-                    gpuA.AddInPlace(gpuB, 2.5f, 3.5f);
-                    gpuResults = gpuA.AsIndexable();
-                }
+            using (var gpuA = _cuda.Create(a))
+            using (var gpuB = _cuda.Create(b)) {
+                gpuA.AddInPlace(gpuB, 2.5f, 3.5f);
+                gpuResults = gpuA.AsIndexable();
             }
 
             a.AddInPlace(b, 2.5f, 3.5f);
@@ -572,12 +541,10 @@ namespace UnitTests
             var b = np.Create(5, i => i).AsIndexable();
 
             IIndexableVector gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                using (var gpuB = cuda.Create(b)) {
-                    gpuA.SubtractInPlace(gpuB, 2.5f, 3.5f);
-                    gpuResults = gpuA.AsIndexable();
-                }
+            using (var gpuA = _cuda.Create(a))
+            using (var gpuB = _cuda.Create(b)) {
+                gpuA.SubtractInPlace(gpuB, 2.5f, 3.5f);
+                gpuResults = gpuA.AsIndexable();
             }
 
             a.SubtractInPlace(b, 2.5f, 3.5f);
@@ -592,11 +559,9 @@ namespace UnitTests
             var b = a.Sqrt().AsIndexable();
 
             IIndexableVector gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                using (var gpuB = gpuA.Sqrt()) {
-                    gpuResults = gpuB.AsIndexable();
-                }
+            using (var gpuA = _cuda.Create(a))
+            using (var gpuB = gpuA.Sqrt()) {
+                gpuResults = gpuB.AsIndexable();
             }
             _AssertEqual(b, gpuResults);
         }
@@ -610,11 +575,9 @@ namespace UnitTests
             var b = a.GetNewVectorFromIndexes(array).AsIndexable();
 
             IIndexableVector gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                using (var gpuB = gpuA.GetNewVectorFromIndexes(array)) {
-                    gpuResults = gpuB.AsIndexable();
-                }
+            using (var gpuA = _cuda.Create(a))
+            using (var gpuB = gpuA.GetNewVectorFromIndexes(array)) {
+                gpuResults = gpuB.AsIndexable();
             }
             _AssertEqual(b, gpuResults);
         }
@@ -629,12 +592,10 @@ namespace UnitTests
             _AssertEqual(a, b);
 
             IIndexableVector gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                using (var gpuB = cuda.Create(10, 0)) {
-                    gpuB.CopyFrom(gpuA);
-                    gpuResults = gpuB.AsIndexable();
-                }
+            using (var gpuA = _cuda.Create(a))
+            using (var gpuB = _cuda.Create(10, 0)) {
+                gpuB.CopyFrom(gpuA);
+                gpuResults = gpuB.AsIndexable();
             }
             _AssertEqual(a, gpuResults);
         }
@@ -648,11 +609,9 @@ namespace UnitTests
             var row = a.Column(INDEX).AsIndexable();
 
             IIndexableVector gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                using (var gpuCol = gpuA.Column(INDEX))
-                    gpuResults = gpuCol.AsIndexable();
-            }
+            using (var gpuA = _cuda.Create(a))
+            using (var gpuCol = gpuA.Column(INDEX))
+                gpuResults = gpuCol.AsIndexable();
 
             _AssertEqual(gpuResults, row);
         }
@@ -666,11 +625,9 @@ namespace UnitTests
             var row = a.Row(INDEX).AsIndexable();
 
             IIndexableVector gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                using (var gpuRow = gpuA.Row(INDEX))
-                    gpuResults = gpuRow.AsIndexable();
-            }
+            using (var gpuA = _cuda.Create(a))
+            using (var gpuRow = gpuA.Row(INDEX))
+                gpuResults = gpuRow.AsIndexable();
 
             _AssertEqual(gpuResults, row);
         }
@@ -683,11 +640,9 @@ namespace UnitTests
             var rowSums = a.RowSums().AsIndexable();
 
             IIndexableVector gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                using (var gpuRowSums = gpuA.RowSums())
-                    gpuResults = gpuRowSums.AsIndexable();
-            }
+            using (var gpuA = _cuda.Create(a))
+            using (var gpuRowSums = gpuA.RowSums())
+                gpuResults = gpuRowSums.AsIndexable();
 
             _AssertEqual(gpuResults, rowSums);
         }
@@ -700,11 +655,9 @@ namespace UnitTests
             var colSums = a.ColumnSums().AsIndexable();
 
             IIndexableVector gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                using (var gpuColSums = gpuA.ColumnSums())
-                    gpuResults = gpuColSums.AsIndexable();
-            }
+            using (var gpuA = _cuda.Create(a))
+            using (var gpuColSums = gpuA.ColumnSums())
+                gpuResults = gpuColSums.AsIndexable();
 
             _AssertEqual(gpuResults, colSums);
         }
@@ -717,12 +670,10 @@ namespace UnitTests
             var b = lap.Create(2, 5, (j, k) => j).AsIndexable();
 
             IIndexableMatrix gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                using (var gpuB = cuda.Create(b)) {
-                    gpuA.AddInPlace(gpuB, 1.5f, 2.5f);
-                    gpuResults = gpuA.AsIndexable();
-                }
+            using (var gpuA = _cuda.Create(a))
+            using (var gpuB = _cuda.Create(b)) {
+                gpuA.AddInPlace(gpuB, 1.5f, 2.5f);
+                gpuResults = gpuA.AsIndexable();
             }
 
             a.AddInPlace(b, 1.5f, 2.5f);
@@ -737,12 +688,10 @@ namespace UnitTests
             var b = lap.Create(2, 5, (j, k) => j).AsIndexable();
 
             IIndexableMatrix gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                using (var gpuB = cuda.Create(b)) {
-                    gpuA.SubtractInPlace(gpuB, 1.5f, 2.5f);
-                    gpuResults = gpuA.AsIndexable();
-                }
+            using (var gpuA = _cuda.Create(a))
+            using (var gpuB = _cuda.Create(b)) {
+                gpuA.SubtractInPlace(gpuB, 1.5f, 2.5f);
+                gpuResults = gpuA.AsIndexable();
             }
 
             a.SubtractInPlace(b, 1.5f, 2.5f);
@@ -757,12 +706,10 @@ namespace UnitTests
             var b = lap.Create(5, (i) => i).AsIndexable();
 
             IIndexableMatrix gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                using (var gpuB = cuda.Create(b)) {
-                    gpuA.AddToEachRow(gpuB);
-                    gpuResults = gpuA.AsIndexable();
-                }
+            using (var gpuA = _cuda.Create(a))
+            using (var gpuB = _cuda.Create(b)) {
+                gpuA.AddToEachRow(gpuB);
+                gpuResults = gpuA.AsIndexable();
             }
 
             a.AddToEachRow(b);
@@ -777,12 +724,10 @@ namespace UnitTests
             var b = lap.Create(2, (i) => i + 5).AsIndexable();
 
             IIndexableMatrix gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                using (var gpuB = cuda.Create(b)) {
-                    gpuA.AddToEachColumn(gpuB);
-                    gpuResults = gpuA.AsIndexable();
-                }
+            using (var gpuA = _cuda.Create(a))
+            using (var gpuB = _cuda.Create(b)) {
+                gpuA.AddToEachColumn(gpuB);
+                gpuResults = gpuA.AsIndexable();
             }
 
             a.AddToEachColumn(b);
@@ -798,11 +743,9 @@ namespace UnitTests
             var b = a.SigmoidActivation().AsIndexable();
 
             IIndexableMatrix gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                using (var sigmoid = gpuA.SigmoidActivation())
-                    gpuResults = sigmoid.AsIndexable();
-            }
+            using (var gpuA = _cuda.Create(a))
+            using (var sigmoid = gpuA.SigmoidActivation())
+                gpuResults = sigmoid.AsIndexable();
 
             _AssertEqual(gpuResults, b);
         }
@@ -816,11 +759,9 @@ namespace UnitTests
             var b = a.SigmoidDerivative().AsIndexable();
 
             IIndexableMatrix gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                using (var sigmoid = gpuA.SigmoidDerivative())
-                    gpuResults = sigmoid.AsIndexable();
-            }
+            using (var gpuA = _cuda.Create(a))
+            using (var sigmoid = gpuA.SigmoidDerivative())
+                gpuResults = sigmoid.AsIndexable();
 
             _AssertEqual(gpuResults, b);
         }
@@ -834,11 +775,9 @@ namespace UnitTests
             var b = a.TanhActivation().AsIndexable();
 
             IIndexableMatrix gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                using (var tanh = gpuA.TanhActivation())
-                    gpuResults = tanh.AsIndexable();
-            }
+            using (var gpuA = _cuda.Create(a))
+            using (var tanh = gpuA.TanhActivation())
+                gpuResults = tanh.AsIndexable();
 
             _AssertEqual(gpuResults, b);
         }
@@ -852,11 +791,9 @@ namespace UnitTests
             var b = a.TanhDerivative().AsIndexable();
 
             IIndexableMatrix gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                using (var tanh = gpuA.TanhDerivative())
-                    gpuResults = tanh.AsIndexable();
-            }
+            using (var gpuA = _cuda.Create(a))
+            using (var tanh = gpuA.TanhDerivative())
+                gpuResults = tanh.AsIndexable();
 
             _AssertEqual(gpuResults, b);
         }
@@ -870,11 +807,9 @@ namespace UnitTests
             var b = a.ReluActivation().AsIndexable();
 
             IIndexableMatrix gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                using (var relu = gpuA.ReluActivation())
-                    gpuResults = relu.AsIndexable();
-            }
+            using (var gpuA = _cuda.Create(a))
+            using (var relu = gpuA.ReluActivation())
+                gpuResults = relu.AsIndexable();
 
             _AssertEqual(gpuResults, b);
         }
@@ -888,11 +823,9 @@ namespace UnitTests
             var b = a.ReluDerivative().AsIndexable();
 
             IIndexableMatrix gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                using (var relu = gpuA.ReluDerivative())
-                    gpuResults = relu.AsIndexable();
-            }
+            using (var gpuA = _cuda.Create(a))
+            using (var relu = gpuA.ReluDerivative())
+                gpuResults = relu.AsIndexable();
 
             _AssertEqual(gpuResults, b);
         }
@@ -906,11 +839,9 @@ namespace UnitTests
             var b = a.LeakyReluActivation().AsIndexable();
 
             IIndexableMatrix gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                using (var relu = gpuA.LeakyReluActivation())
-                    gpuResults = relu.AsIndexable();
-            }
+            using (var gpuA = _cuda.Create(a))
+            using (var relu = gpuA.LeakyReluActivation())
+                gpuResults = relu.AsIndexable();
 
             _AssertEqual(gpuResults, b);
         }
@@ -924,56 +855,12 @@ namespace UnitTests
             var b = a.LeakyReluDerivative().AsIndexable();
 
             IIndexableMatrix gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                using (var relu = gpuA.LeakyReluDerivative())
-                    gpuResults = relu.AsIndexable();
-            }
+            using (var gpuA = _cuda.Create(a))
+            using (var relu = gpuA.LeakyReluDerivative())
+                gpuResults = relu.AsIndexable();
 
             _AssertEqual(gpuResults, b);
         }
-
-        //[TestMethod]
-        //public void MatrixQuadraticCostDerivative()
-        //{
-        //    var lap = new NumericsProvider();
-        //    var normalDistribution = new MathNet.Numerics.Distributions.Normal(0, 1);
-        //    var a = lap.Create(10, 10, (j, k) => Convert.ToSingle(normalDistribution.Sample())).AsIndexable();
-        //    var b = lap.Create(10, 10, (j, k) => Convert.ToSingle(normalDistribution.Sample())).AsIndexable();
-        //    var c = lap.Create(10, 10, (j, k) => Convert.ToSingle(normalDistribution.Sample())).AsIndexable();
-        //    var results = a.QuadraticCostDerivative(b, c).AsIndexable();
-
-        //    IIndexableMatrix gpuResults;
-        //    using (var cuda = ProviderToTest()) {
-        //        using (var gpuA = cuda.Create(a))
-        //        using (var gpuB = cuda.Create(b))
-        //        using (var gpuC = cuda.Create(c))
-        //            gpuResults = gpuA.QuadraticCostDerivative(gpuB, gpuC).AsIndexable();
-        //    }
-
-        //    _AssertEqual(gpuResults, results);
-        //}
-
-        //[TestMethod]
-        //public void MatrixCrossEntropyCostDerivative()
-        //{
-        //    var lap = new NumericsProvider();
-        //    var normalDistribution = new MathNet.Numerics.Distributions.Normal(0, 1);
-        //    var a = lap.Create(10, 10, (j, k) => Convert.ToSingle(normalDistribution.Sample())).AsIndexable();
-        //    var b = lap.Create(10, 10, (j, k) => Convert.ToSingle(normalDistribution.Sample())).AsIndexable();
-        //    var c = lap.Create(10, 10, (j, k) => Convert.ToSingle(normalDistribution.Sample())).AsIndexable();
-        //    var results = a.CrossEntropyCostDerivative(b, c).AsIndexable();
-
-        //    IIndexableMatrix gpuResults;
-        //    using (var cuda = ProviderToTest()) {
-        //        using (var gpuA = cuda.Create(a))
-        //        using (var gpuB = cuda.Create(b))
-        //        using (var gpuC = cuda.Create(c))
-        //            gpuResults = gpuA.CrossEntropyCostDerivative(gpuB, gpuC).AsIndexable();
-        //    }
-
-        //    _AssertEqual(gpuResults, results);
-        //}
 
         [TestMethod]
         public void MatrixNewMatrixFromRows()
@@ -984,11 +871,9 @@ namespace UnitTests
             var results = a.GetNewMatrixFromRows(rows).AsIndexable();
 
             IIndexableMatrix gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                using (var m = gpuA.GetNewMatrixFromRows(rows))
-                    gpuResults = m.AsIndexable();
-            }
+            using (var gpuA = _cuda.Create(a))
+            using (var m = gpuA.GetNewMatrixFromRows(rows))
+                gpuResults = m.AsIndexable();
 
             _AssertEqual(gpuResults, results);
         }
@@ -1002,11 +887,9 @@ namespace UnitTests
             var results = a.GetNewMatrixFromColumns(cols).AsIndexable();
 
             IIndexableMatrix gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                using (var m = gpuA.GetNewMatrixFromColumns(cols))
-                    gpuResults = m.AsIndexable();
-            }
+            using (var gpuA = _cuda.Create(a))
+            using (var m = gpuA.GetNewMatrixFromColumns(cols))
+                gpuResults = m.AsIndexable();
 
             _AssertEqual(gpuResults, results);
         }
@@ -1020,11 +903,9 @@ namespace UnitTests
             a.ClearRows(rows);
 
             IIndexableMatrix gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a)) {
-                    a.ClearRows(rows);
-                    gpuResults = a.AsIndexable();
-                }
+            using (var gpuA = _cuda.Create(a)) {
+                a.ClearRows(rows);
+                gpuResults = a.AsIndexable();
             }
 
             _AssertEqual(gpuResults, a);
@@ -1039,11 +920,9 @@ namespace UnitTests
             a.ClearColumns(cols);
 
             IIndexableMatrix gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a)) {
-                    gpuA.ClearColumns(cols);
-                    gpuResults = gpuA.AsIndexable();
-                }
+            using (var gpuA = _cuda.Create(a)) {
+                gpuA.ClearColumns(cols);
+                gpuResults = gpuA.AsIndexable();
             }
 
             _AssertEqual(gpuResults, a);
@@ -1057,11 +936,9 @@ namespace UnitTests
             var a = lap.Create(5, 5, (j, k) => k + 1).AsIndexable();
 
             IIndexableMatrix gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a)) {
-                    gpuA.Clear();
-                    gpuResults = gpuA.AsIndexable();
-                }
+            using (var gpuA = _cuda.Create(a)) {
+                gpuA.Clear();
+                gpuResults = gpuA.AsIndexable();
             }
 
             a.Clear();
@@ -1077,11 +954,9 @@ namespace UnitTests
             _AssertEqual(a, b);
 
             IIndexableMatrix gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                using (var clone = gpuA.Clone()) {
-                    gpuResults = clone.AsIndexable();
-                }
+            using (var gpuA = _cuda.Create(a))
+            using (var clone = gpuA.Clone()) {
+                gpuResults = clone.AsIndexable();
             }
             _AssertEqual(gpuResults, b);
         }
@@ -1095,11 +970,9 @@ namespace UnitTests
             _AssertEqual(a, b);
 
             IIndexableVector gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                using (var clone = gpuA.Clone()) {
-                    gpuResults = clone.AsIndexable();
-                }
+            using (var gpuA = _cuda.Create(a))
+            using (var clone = gpuA.Clone()) {
+                gpuResults = clone.AsIndexable();
             }
             _AssertEqual(gpuResults, b);
         }
@@ -1112,80 +985,78 @@ namespace UnitTests
             const float OPERAND = 2f;
 
             IIndexableVector gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a)) {
-                    gpuA.Multiply(OPERAND);
-                    gpuResults = gpuA.AsIndexable();
-                }
+            using (var gpuA = _cuda.Create(a)) {
+                gpuA.Multiply(OPERAND);
+                gpuResults = gpuA.AsIndexable();
             }
 
             a.Multiply(OPERAND);
             _AssertEqual(gpuResults, a);
         }
 
-        [TestMethod]
-        public void VectorReadWrite()
-        {
-            var lap = new NumericsProvider();
-            var a = lap.Create(5, i => i).AsIndexable();
+        //[TestMethod]
+        //public void VectorReadWrite()
+        //{
+        //    var lap = new NumericsProvider();
+        //    var a = lap.Create(5, i => i).AsIndexable();
 
-            using (var stream = new MemoryStream()) {
-                using (var writer = new BinaryWriter(stream, Encoding.UTF8, true))
-                    a.WriteTo(writer);
+        //    using (var stream = new MemoryStream()) {
+        //        using (var writer = new BinaryWriter(stream, Encoding.UTF8, true))
+        //            a.WriteTo(writer);
 
-                stream.Seek(0, SeekOrigin.Begin);
-                var b = lap.CreateVector(new BinaryReader(stream));
-                _AssertEqual(a.AsIndexable(), b.AsIndexable());
+        //        stream.Seek(0, SeekOrigin.Begin);
+        //        var b = lap.CreateVector(new BinaryReader(stream));
+        //        _AssertEqual(a.AsIndexable(), b.AsIndexable());
 
-                stream.Seek(0, SeekOrigin.Begin);
-                using (var cuda = ProviderToTest()) {
-                    using (var c = cuda.CreateVector(new BinaryReader(stream))) {
-                        _AssertEqual(a.AsIndexable(), c.AsIndexable());
+        //        stream.Seek(0, SeekOrigin.Begin);
+        //        using (var cuda = ProviderToTest()) {
+        //            using (var c = cuda.CreateVector(new BinaryReader(stream))) {
+        //                _AssertEqual(a.AsIndexable(), c.AsIndexable());
 
-                        using (var stream2 = new MemoryStream()) {
-                            using (var writer2 = new BinaryWriter(stream2, Encoding.UTF8, true))
-                                c.WriteTo(writer2);
+        //                using (var stream2 = new MemoryStream()) {
+        //                    using (var writer2 = new BinaryWriter(stream2, Encoding.UTF8, true))
+        //                        c.WriteTo(writer2);
 
-                            stream2.Seek(0, SeekOrigin.Begin);
-                            var d = lap.CreateVector(new BinaryReader(stream2));
-                            _AssertEqual(a.AsIndexable(), d.AsIndexable());
-                        }
-                    }
-                }
-            }
-        }
+        //                    stream2.Seek(0, SeekOrigin.Begin);
+        //                    var d = lap.CreateVector(new BinaryReader(stream2));
+        //                    _AssertEqual(a.AsIndexable(), d.AsIndexable());
+        //                }
+        //            }
+        //        }
+        //    }
+        //}
 
-        [TestMethod]
-        public void MatrixReadWrite()
-        {
-            var lap = new NumericsProvider();
-            var a = lap.Create(5, 5, (x, y) => x * y).AsIndexable();
+        //[TestMethod]
+        //public void MatrixReadWrite()
+        //{
+        //    var lap = new NumericsProvider();
+        //    var a = lap.Create(5, 5, (x, y) => x * y).AsIndexable();
 
-            using (var stream = new MemoryStream()) {
-                using (var writer = new BinaryWriter(stream, Encoding.UTF8, true))
-                    a.WriteTo(writer);
+        //    using (var stream = new MemoryStream()) {
+        //        using (var writer = new BinaryWriter(stream, Encoding.UTF8, true))
+        //            a.WriteTo(writer);
 
-                stream.Seek(0, SeekOrigin.Begin);
-                var b = lap.CreateMatrix(new BinaryReader(stream));
-                _AssertEqual(a.AsIndexable(), b.AsIndexable());
+        //        stream.Seek(0, SeekOrigin.Begin);
+        //        var b = lap.CreateMatrix(new BinaryReader(stream));
+        //        _AssertEqual(a.AsIndexable(), b.AsIndexable());
 
-                stream.Seek(0, SeekOrigin.Begin);
-                using (var cuda = ProviderToTest()) {
-                    using (var c = cuda.CreateMatrix(new BinaryReader(stream))) {
-                        _AssertEqual(a.AsIndexable(), c.AsIndexable());
+        //        stream.Seek(0, SeekOrigin.Begin);
+        //        using (var cuda = ProviderToTest()) {
+        //            using (var c = cuda.CreateMatrix(new BinaryReader(stream))) {
+        //                _AssertEqual(a.AsIndexable(), c.AsIndexable());
 
-                        using (var stream2 = new MemoryStream()) {
-                            using (var writer2 = new BinaryWriter(stream2, Encoding.UTF8, true))
-                                c.WriteTo(writer2);
+        //                using (var stream2 = new MemoryStream()) {
+        //                    using (var writer2 = new BinaryWriter(stream2, Encoding.UTF8, true))
+        //                        c.WriteTo(writer2);
 
-                            stream2.Seek(0, SeekOrigin.Begin);
-                            var d = lap.CreateMatrix(new BinaryReader(stream2));
-                            _AssertEqual(a.AsIndexable(), d.AsIndexable());
-                        }
-                    }
-                }
-            }
-        }
+        //                    stream2.Seek(0, SeekOrigin.Begin);
+        //                    var d = lap.CreateMatrix(new BinaryReader(stream2));
+        //                    _AssertEqual(a.AsIndexable(), d.AsIndexable());
+        //                }
+        //            }
+        //        }
+        //    }
+        //}
 
         [TestMethod]
         public void MatrixConcatColumns()
@@ -1197,12 +1068,10 @@ namespace UnitTests
             var c = a.ConcatColumns(b).AsIndexable();
 
             IIndexableMatrix gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                using (var gpuB = cuda.Create(b))
-                using (var concat = gpuA.ConcatColumns(gpuB)) {
-                    gpuResults = concat.AsIndexable();
-                }
+            using (var gpuA = _cuda.Create(a))
+            using (var gpuB = _cuda.Create(b))
+            using (var concat = gpuA.ConcatColumns(gpuB)) {
+                gpuResults = concat.AsIndexable();
             }
             _AssertEqual(c, gpuResults);
         }
@@ -1217,12 +1086,10 @@ namespace UnitTests
             var c = a.ConcatRows(b).AsIndexable();
 
             IIndexableMatrix gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                using (var gpuB = cuda.Create(b))
-                using (var concat = gpuA.ConcatRows(gpuB)) {
-                    gpuResults = concat.AsIndexable();
-                }
+            using (var gpuA = _cuda.Create(a))
+            using (var gpuB = _cuda.Create(b))
+            using (var concat = gpuA.ConcatRows(gpuB)) {
+                gpuResults = concat.AsIndexable();
             }
             _AssertEqual(c, gpuResults);
         }
@@ -1237,14 +1104,12 @@ namespace UnitTests
             var r = a.SplitColumns(POSITION);
 
             IIndexableMatrix gpuResults1, gpuResults2;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a)) {
-                    var r2 = gpuA.SplitColumns(POSITION);
-                    using (var m1 = r2.Item1)
-                    using (var m2 = r2.Item2) {
-                        gpuResults1 = m1.AsIndexable();
-                        gpuResults2 = m2.AsIndexable();
-                    }
+            using (var gpuA = _cuda.Create(a)) {
+                var r2 = gpuA.SplitColumns(POSITION);
+                using (var m1 = r2.Item1)
+                using (var m2 = r2.Item2) {
+                    gpuResults1 = m1.AsIndexable();
+                    gpuResults2 = m2.AsIndexable();
                 }
             }
             _AssertEqual(gpuResults1, r.Item1.AsIndexable());
@@ -1261,14 +1126,12 @@ namespace UnitTests
             var r = a.SplitRows(POSITION);
 
             IIndexableMatrix gpuResults1, gpuResults2;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a)) {
-                    var r2 = gpuA.SplitRows(POSITION);
-                    using (var m1 = r2.Item1)
-                    using (var m2 = r2.Item2) {
-                        gpuResults1 = m1.AsIndexable();
-                        gpuResults2 = m2.AsIndexable();
-                    }
+            using (var gpuA = _cuda.Create(a)) {
+                var r2 = gpuA.SplitRows(POSITION);
+                using (var m1 = r2.Item1)
+                using (var m2 = r2.Item2) {
+                    gpuResults1 = m1.AsIndexable();
+                    gpuResults2 = m2.AsIndexable();
                 }
             }
             _AssertEqual(gpuResults1, r.Item1.AsIndexable());
@@ -1283,11 +1146,9 @@ namespace UnitTests
             const float OPERAND = 2f;
 
             IIndexableMatrix gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a)) {
-                    gpuA.L1Regularisation(OPERAND);
-                    gpuResults = gpuA.AsIndexable();
-                }
+            using (var gpuA = _cuda.Create(a)) {
+                gpuA.L1Regularisation(OPERAND);
+                gpuResults = gpuA.AsIndexable();
             }
             a.L1Regularisation(OPERAND);
             _AssertEqual(a, gpuResults);
@@ -1301,11 +1162,9 @@ namespace UnitTests
             var r = a.ColumnL2Norm().AsIndexable();
 
             IIndexableVector gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                using (var norm = gpuA.ColumnL2Norm()) {
-                    gpuResults = norm.AsIndexable();
-                }
+            using (var gpuA = _cuda.Create(a))
+            using (var norm = gpuA.ColumnL2Norm()) {
+                gpuResults = norm.AsIndexable();
             }
             _AssertEqual(r, gpuResults);
         }
@@ -1318,11 +1177,9 @@ namespace UnitTests
             var r = a.RowL2Norm().AsIndexable();
 
             IIndexableVector gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                using (var norm = gpuA.RowL2Norm()) {
-                    gpuResults = norm.AsIndexable();
-                }
+            using (var gpuA = _cuda.Create(a))
+            using (var norm = gpuA.RowL2Norm()) {
+                gpuResults = norm.AsIndexable();
             }
             _AssertEqual(r, gpuResults);
         }
@@ -1335,12 +1192,10 @@ namespace UnitTests
             var b = lap.CreateIndexable(6, i => i);
 
             IIndexableMatrix gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                using (var gpuB = cuda.Create(b)) {
-                    gpuA.PointwiseDivideRows(gpuB);
-                    gpuResults = gpuA.AsIndexable();
-                }
+            using (var gpuA = _cuda.Create(a))
+            using (var gpuB = _cuda.Create(b)) {
+                gpuA.PointwiseDivideRows(gpuB);
+                gpuResults = gpuA.AsIndexable();
             }
 
             a.PointwiseDivideRows(b);
@@ -1355,12 +1210,10 @@ namespace UnitTests
             var b = lap.CreateIndexable(3, i => i);
 
             IIndexableMatrix gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                using (var gpuB = cuda.Create(b)) {
-                    gpuA.PointwiseDivideColumns(gpuB);
-                    gpuResults = gpuA.AsIndexable();
-                }
+            using (var gpuA = _cuda.Create(a))
+            using (var gpuB = _cuda.Create(b)) {
+                gpuA.PointwiseDivideColumns(gpuB);
+                gpuResults = gpuA.AsIndexable();
             }
 
             a.PointwiseDivideColumns(b);
@@ -1375,11 +1228,9 @@ namespace UnitTests
             var d = a.Diagonal().AsIndexable();
 
             IIndexableVector gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                using (var diagonal = gpuA.Diagonal()) {
-                    gpuResults = diagonal.AsIndexable();
-                }
+            using (var gpuA = _cuda.Create(a))
+            using (var diagonal = gpuA.Diagonal()) {
+                gpuResults = diagonal.AsIndexable();
             }
             _AssertEqual(d, gpuResults);
         }
@@ -1393,11 +1244,9 @@ namespace UnitTests
             var r = a.Pow(OPERAND).AsIndexable();
 
             IIndexableMatrix gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a))
-                using (var pow = gpuA.Pow(OPERAND)) {
-                    gpuResults = pow.AsIndexable();
-                }
+            using (var gpuA = _cuda.Create(a))
+            using (var pow = gpuA.Pow(OPERAND)) {
+                gpuResults = pow.AsIndexable();
             }
             _AssertEqual(r, gpuResults);
         }
@@ -1410,11 +1259,9 @@ namespace UnitTests
             var r = lap.CreateIndexable(2, x => -1f);
 
             IIndexableMatrix gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a)) {
-                    gpuA.UpdateRow(2, r, 3);
-                    gpuResults = gpuA.AsIndexable();
-                }
+            using (var gpuA = _cuda.Create(a)) {
+                gpuA.UpdateRow(2, r, 3);
+                gpuResults = gpuA.AsIndexable();
             }
 
             a.UpdateRow(2, r, 3);
@@ -1429,11 +1276,9 @@ namespace UnitTests
             var r = lap.CreateIndexable(2, x => -1f);
 
             IIndexableMatrix gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a)) {
-                    gpuA.UpdateColumn(2, r, 3);
-                    gpuResults = gpuA.AsIndexable();
-                }
+            using (var gpuA = _cuda.Create(a)) {
+                gpuA.UpdateColumn(2, r, 3);
+                gpuResults = gpuA.AsIndexable();
             }
 
             a.UpdateColumn(2, r, 3);
@@ -1448,10 +1293,8 @@ namespace UnitTests
             var r = a.GetRowSegment(1, 2, 5).AsIndexable();
 
             IIndexableVector gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a)) {
-                    gpuResults = gpuA.GetRowSegment(1, 2, 5).AsIndexable();
-                }
+            using (var gpuA = _cuda.Create(a)) {
+                gpuResults = gpuA.GetRowSegment(1, 2, 5).AsIndexable();
             }
             _AssertEqual(r, gpuResults);
         }
@@ -1464,10 +1307,8 @@ namespace UnitTests
             var r = a.GetColumnSegment(1, 2, 5).AsIndexable();
 
             IIndexableVector gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a)) {
-                    gpuResults = gpuA.GetColumnSegment(1, 2, 5).AsIndexable();
-                }
+            using (var gpuA = _cuda.Create(a)) {
+                gpuResults = gpuA.GetColumnSegment(1, 2, 5).AsIndexable();
             }
             _AssertEqual(r, gpuResults);
         }
@@ -1480,11 +1321,9 @@ namespace UnitTests
             var a = lap.CreateIndexable(100, 100, (x, y) => Convert.ToSingle(distribution.Sample()));
 
             IIndexableMatrix gpuResults;
-            using (var cuda = ProviderToTest()) {
-                using (var gpuA = cuda.Create(a)) {
-                    gpuA.Constrain(-2f, 2f);
-                    gpuResults = gpuA.AsIndexable();
-                }
+            using (var gpuA = _cuda.Create(a)) {
+                gpuA.Constrain(-2f, 2f);
+                gpuResults = gpuA.AsIndexable();
             }
 
             a.Constrain(-2f, 2f);
