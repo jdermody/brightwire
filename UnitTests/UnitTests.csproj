@@ -58,7 +58,9 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="ConnectionistTests.cs" />
     <Compile Include="CudaLinearAlgebraTests.cs" />
+    <Compile Include="Helper\FloatingPointHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

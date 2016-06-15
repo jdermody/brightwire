@@ -5,6 +5,7 @@ using BrightWire.LinearAlgebra;
 using MathNet.Numerics.Distributions;
 using System.IO;
 using System.Text;
+using UnitTests.Helper;
 
 namespace UnitTests
 {
@@ -25,53 +26,6 @@ namespace UnitTests
             _cuda.Dispose();
         }
 
-        public static unsafe int FloatToInt32Bits(float f)
-        {
-            return *((int*)&f);
-        }
-
-        public static bool AlmostEqual2sComplement(float a, float b, int maxDeltaBits)
-        {
-            int aInt = FloatToInt32Bits(a);
-            if (aInt < 0)
-                aInt = Int32.MinValue - aInt;
-
-            int bInt = FloatToInt32Bits(b);
-            if (bInt < 0)
-                bInt = Int32.MinValue - bInt;
-
-            int intDiff = Math.Abs(aInt - bInt);
-            return intDiff <= (1 << maxDeltaBits);
-        }
-
-        void _AssertEqual(float v1, float v2)
-        {
-            if (float.IsNaN(v1) && float.IsNaN(v2))
-                return;
-            Assert.IsTrue(AlmostEqual2sComplement(v1, v2, 6));
-            //const int decimalPlaces = 4;
-            //Assert.IsTrue(Math.Round(v1, decimalPlaces) == Math.Round(v2, decimalPlaces));
-        }
-
-        void _AssertEqual(IIndexableMatrix m1, IIndexableMatrix m2)
-        {
-            Assert.AreEqual(m1.RowCount, m2.RowCount);
-            Assert.AreEqual(m1.ColumnCount, m2.ColumnCount);
-            for (var i = 0; i < m1.RowCount; i++) {
-                for (var j = 0; j < m1.ColumnCount; j++) {
-                    _AssertEqual(m1[i, j], m2[i, j]);
-                }
-            }
-        }
-
-        void _AssertEqual(IIndexableVector v1, IIndexableVector v2)
-        {
-            Assert.AreEqual(v1.Count, v2.Count);
-            for (var i = 0; i < v1.Count; i++) {
-                _AssertEqual(v1[i], v2[i]);
-            }
-        }
-
         void _MatrixMultiplication(int rowsA, int columnsArowsB, int columnsB)
         {
             var lap = new NumericsProvider();
@@ -86,7 +40,7 @@ namespace UnitTests
             using (var gpuC = gpuA.Multiply(gpuB))
                 gpuResults = gpuC.AsIndexable();
 
-            _AssertEqual(gpuResults, cpuResults.AsIndexable());
+            FloatingPointHelper.AssertEqual(gpuResults, cpuResults.AsIndexable());
         }
 
         //[TestMethod]
@@ -99,8 +53,8 @@ namespace UnitTests
         //    using (var cuda = new CudaProvider()) {
         //        var vector = cuda.Create(data);
         //        var minMax = cuda.FindMinAndMax((CudaDeviceVariable<float>)vector.WrappedObject, vector.Count);
-        //        _AssertEqual(minMax.Item1, expectedMin);
-        //        _AssertEqual(minMax.Item2, expectedMax);
+        //        FloatingPointHelper.AssertEqual(minMax.Item1, expectedMin);
+        //        FloatingPointHelper.AssertEqual(minMax.Item2, expectedMax);
         //    }
         //}
 
@@ -113,7 +67,7 @@ namespace UnitTests
         //    using (var cuda = new CudaProvider()) {
         //        var vector = cuda.Create(data);
         //        var mean = cuda.FindMean((CudaDeviceVariable<float>)vector.WrappedObject, vector.Count);
-        //        _AssertEqual(mean, expectedMean);
+        //        FloatingPointHelper.AssertEqual(mean, expectedMean);
         //    }
         //}
 
@@ -130,7 +84,7 @@ namespace UnitTests
         //    using (var cuda = new CudaProvider()) {
         //        var vector = cuda.Create(data);
         //        var stdDev = cuda.FindStdDev((CudaDeviceVariable<float>)vector.WrappedObject, vector.Count, mean);
-        //        _AssertEqual(stdDev, expectedStdDev);
+        //        FloatingPointHelper.AssertEqual(stdDev, expectedStdDev);
         //    }
         //}
 
@@ -193,7 +147,7 @@ namespace UnitTests
             using (var gpuAT = gpuA.Transpose())
                 gpuResults = gpuAT.AsIndexable();
 
-            _AssertEqual(gpuResults, aT.AsIndexable());
+            FloatingPointHelper.AssertEqual(gpuResults, aT.AsIndexable());
         }
 
         [TestMethod]
@@ -246,7 +200,7 @@ namespace UnitTests
             using (var gpuC = gpuA.TransposeAndMultiply(gpuB))
                 gpuResults = gpuC.AsIndexable();
 
-            _AssertEqual(gpuResults, cpuResults.AsIndexable());
+            FloatingPointHelper.AssertEqual(gpuResults, cpuResults.AsIndexable());
         }
 
         [TestMethod]
@@ -263,7 +217,7 @@ namespace UnitTests
             using (var gpuC = gpuA.TransposeThisAndMultiply(gpuB))
                 gpuResults = gpuC.AsIndexable();
 
-            _AssertEqual(gpuResults, cpuResults.AsIndexable());
+            FloatingPointHelper.AssertEqual(gpuResults, cpuResults.AsIndexable());
         }
 
         [TestMethod]
@@ -280,7 +234,7 @@ namespace UnitTests
             using (var gpuC = gpuA.Add(gpuB))
                 gpuResults = gpuC.AsIndexable();
 
-            _AssertEqual(gpuResults, cpuResults.AsIndexable());
+            FloatingPointHelper.AssertEqual(gpuResults, cpuResults.AsIndexable());
         }
 
         [TestMethod]
@@ -306,8 +260,8 @@ namespace UnitTests
 
             var cpuResults = a.Subtract(b);
             var cpuResults2 = b.Subtract(a);
-            _AssertEqual(gpuResults, cpuResults.AsIndexable());
-            _AssertEqual(gpuResults2, cpuResults2.AsIndexable());
+            FloatingPointHelper.AssertEqual(gpuResults, cpuResults.AsIndexable());
+            FloatingPointHelper.AssertEqual(gpuResults2, cpuResults2.AsIndexable());
         }
 
         [TestMethod]
@@ -324,7 +278,7 @@ namespace UnitTests
             using (var gpuC = gpuA.PointwiseMultiply(gpuB))
                 gpuResults = gpuC.AsIndexable();
 
-            _AssertEqual(gpuResults, cpuResults.AsIndexable());
+            FloatingPointHelper.AssertEqual(gpuResults, cpuResults.AsIndexable());
         }
 
         [TestMethod]
@@ -341,7 +295,7 @@ namespace UnitTests
             using (var gpuC = gpuA.PointwiseDivide(gpuB))
                 gpuResults = gpuC.AsIndexable();
 
-            _AssertEqual(gpuResults, cpuResults.AsIndexable());
+            FloatingPointHelper.AssertEqual(gpuResults, cpuResults.AsIndexable());
         }
 
         [TestMethod]
@@ -358,7 +312,7 @@ namespace UnitTests
             using (var gpuC = gpuA.Sqrt(1e-8f))
                 gpuResults = gpuC.AsIndexable();
 
-            _AssertEqual(gpuResults, cpuResults.AsIndexable());
+            FloatingPointHelper.AssertEqual(gpuResults, cpuResults.AsIndexable());
         }
 
         [TestMethod]
@@ -375,7 +329,7 @@ namespace UnitTests
             }
 
             a.Multiply(scalar);
-            _AssertEqual(gpuResults, a);
+            FloatingPointHelper.AssertEqual(gpuResults, a);
         }
 
         [TestMethod]
@@ -390,7 +344,7 @@ namespace UnitTests
             using (var gpuB = gpuA.ToColumnMatrix())
                 gpuResults = gpuB.AsIndexable();
 
-            _AssertEqual(matrix, gpuResults);
+            FloatingPointHelper.AssertEqual(matrix, gpuResults);
         }
 
         [TestMethod]
@@ -406,7 +360,7 @@ namespace UnitTests
                 gpuResults = m.AsIndexable();
             }
 
-            _AssertEqual(matrix, gpuResults);
+            FloatingPointHelper.AssertEqual(matrix, gpuResults);
         }
 
         [TestMethod]
@@ -423,7 +377,7 @@ namespace UnitTests
             using (var gpuC = gpuA.Add(gpuB))
                 gpuResults = gpuC.AsIndexable();
 
-            _AssertEqual(c, gpuResults);
+            FloatingPointHelper.AssertEqual(c, gpuResults);
         }
 
         [TestMethod]
@@ -440,7 +394,7 @@ namespace UnitTests
             using (var gpuC = gpuA.Subtract(gpuB))
                 gpuResults = gpuC.AsIndexable();
 
-            _AssertEqual(c, gpuResults);
+            FloatingPointHelper.AssertEqual(c, gpuResults);
         }
 
         [TestMethod]
@@ -457,7 +411,7 @@ namespace UnitTests
             using (var gpuC = gpuA.PointwiseMultiply(gpuB))
                 gpuResults = gpuC.AsIndexable();
 
-            _AssertEqual(c, gpuResults);
+            FloatingPointHelper.AssertEqual(c, gpuResults);
         }
 
         [TestMethod]
@@ -530,7 +484,7 @@ namespace UnitTests
             }
 
             a.AddInPlace(b, 2.5f, 3.5f);
-            _AssertEqual(a, gpuResults);
+            FloatingPointHelper.AssertEqual(a, gpuResults);
         }
 
         [TestMethod]
@@ -548,7 +502,7 @@ namespace UnitTests
             }
 
             a.SubtractInPlace(b, 2.5f, 3.5f);
-            _AssertEqual(a, gpuResults);
+            FloatingPointHelper.AssertEqual(a, gpuResults);
         }
 
         [TestMethod]
@@ -563,7 +517,7 @@ namespace UnitTests
             using (var gpuB = gpuA.Sqrt()) {
                 gpuResults = gpuB.AsIndexable();
             }
-            _AssertEqual(b, gpuResults);
+            FloatingPointHelper.AssertEqual(b, gpuResults);
         }
 
         [TestMethod]
@@ -579,7 +533,7 @@ namespace UnitTests
             using (var gpuB = gpuA.GetNewVectorFromIndexes(array)) {
                 gpuResults = gpuB.AsIndexable();
             }
-            _AssertEqual(b, gpuResults);
+            FloatingPointHelper.AssertEqual(b, gpuResults);
         }
 
         [TestMethod]
@@ -589,7 +543,7 @@ namespace UnitTests
             var a = np.Create(10, i => i * 2).AsIndexable();
             var b = np.Create(10, 0).AsIndexable();
             b.CopyFrom(a);
-            _AssertEqual(a, b);
+            FloatingPointHelper.AssertEqual(a, b);
 
             IIndexableVector gpuResults;
             using (var gpuA = _cuda.Create(a))
@@ -597,7 +551,7 @@ namespace UnitTests
                 gpuB.CopyFrom(gpuA);
                 gpuResults = gpuB.AsIndexable();
             }
-            _AssertEqual(a, gpuResults);
+            FloatingPointHelper.AssertEqual(a, gpuResults);
         }
 
         [TestMethod]
@@ -613,7 +567,7 @@ namespace UnitTests
             using (var gpuCol = gpuA.Column(INDEX))
                 gpuResults = gpuCol.AsIndexable();
 
-            _AssertEqual(gpuResults, row);
+            FloatingPointHelper.AssertEqual(gpuResults, row);
         }
 
         [TestMethod]
@@ -629,7 +583,7 @@ namespace UnitTests
             using (var gpuRow = gpuA.Row(INDEX))
                 gpuResults = gpuRow.AsIndexable();
 
-            _AssertEqual(gpuResults, row);
+            FloatingPointHelper.AssertEqual(gpuResults, row);
         }
 
         [TestMethod]
@@ -644,7 +598,7 @@ namespace UnitTests
             using (var gpuRowSums = gpuA.RowSums())
                 gpuResults = gpuRowSums.AsIndexable();
 
-            _AssertEqual(gpuResults, rowSums);
+            FloatingPointHelper.AssertEqual(gpuResults, rowSums);
         }
 
         [TestMethod]
@@ -659,7 +613,7 @@ namespace UnitTests
             using (var gpuColSums = gpuA.ColumnSums())
                 gpuResults = gpuColSums.AsIndexable();
 
-            _AssertEqual(gpuResults, colSums);
+            FloatingPointHelper.AssertEqual(gpuResults, colSums);
         }
 
         [TestMethod]
@@ -677,7 +631,7 @@ namespace UnitTests
             }
 
             a.AddInPlace(b, 1.5f, 2.5f);
-            _AssertEqual(gpuResults, a);
+            FloatingPointHelper.AssertEqual(gpuResults, a);
         }
 
         [TestMethod]
@@ -695,7 +649,7 @@ namespace UnitTests
             }
 
             a.SubtractInPlace(b, 1.5f, 2.5f);
-            _AssertEqual(gpuResults, a);
+            FloatingPointHelper.AssertEqual(gpuResults, a);
         }
 
         [TestMethod]
@@ -713,7 +667,7 @@ namespace UnitTests
             }
 
             a.AddToEachRow(b);
-            _AssertEqual(gpuResults, a);
+            FloatingPointHelper.AssertEqual(gpuResults, a);
         }
 
         [TestMethod]
@@ -731,7 +685,7 @@ namespace UnitTests
             }
 
             a.AddToEachColumn(b);
-            _AssertEqual(gpuResults, a);
+            FloatingPointHelper.AssertEqual(gpuResults, a);
         }
 
         [TestMethod]
@@ -747,7 +701,7 @@ namespace UnitTests
             using (var sigmoid = gpuA.SigmoidActivation())
                 gpuResults = sigmoid.AsIndexable();
 
-            _AssertEqual(gpuResults, b);
+            FloatingPointHelper.AssertEqual(gpuResults, b);
         }
 
         [TestMethod]
@@ -763,7 +717,7 @@ namespace UnitTests
             using (var sigmoid = gpuA.SigmoidDerivative())
                 gpuResults = sigmoid.AsIndexable();
 
-            _AssertEqual(gpuResults, b);
+            FloatingPointHelper.AssertEqual(gpuResults, b);
         }
 
         [TestMethod]
@@ -779,7 +733,7 @@ namespace UnitTests
             using (var tanh = gpuA.TanhActivation())
                 gpuResults = tanh.AsIndexable();
 
-            _AssertEqual(gpuResults, b);
+            FloatingPointHelper.AssertEqual(gpuResults, b);
         }
 
         [TestMethod]
@@ -795,7 +749,7 @@ namespace UnitTests
             using (var tanh = gpuA.TanhDerivative())
                 gpuResults = tanh.AsIndexable();
 
-            _AssertEqual(gpuResults, b);
+            FloatingPointHelper.AssertEqual(gpuResults, b);
         }
 
         [TestMethod]
@@ -811,7 +765,7 @@ namespace UnitTests
             using (var relu = gpuA.ReluActivation())
                 gpuResults = relu.AsIndexable();
 
-            _AssertEqual(gpuResults, b);
+            FloatingPointHelper.AssertEqual(gpuResults, b);
         }
 
         [TestMethod]
@@ -827,7 +781,7 @@ namespace UnitTests
             using (var relu = gpuA.ReluDerivative())
                 gpuResults = relu.AsIndexable();
 
-            _AssertEqual(gpuResults, b);
+            FloatingPointHelper.AssertEqual(gpuResults, b);
         }
 
         [TestMethod]
@@ -843,7 +797,7 @@ namespace UnitTests
             using (var relu = gpuA.LeakyReluActivation())
                 gpuResults = relu.AsIndexable();
 
-            _AssertEqual(gpuResults, b);
+            FloatingPointHelper.AssertEqual(gpuResults, b);
         }
 
         [TestMethod]
@@ -859,7 +813,7 @@ namespace UnitTests
             using (var relu = gpuA.LeakyReluDerivative())
                 gpuResults = relu.AsIndexable();
 
-            _AssertEqual(gpuResults, b);
+            FloatingPointHelper.AssertEqual(gpuResults, b);
         }
 
         [TestMethod]
@@ -875,7 +829,7 @@ namespace UnitTests
             using (var m = gpuA.GetNewMatrixFromRows(rows))
                 gpuResults = m.AsIndexable();
 
-            _AssertEqual(gpuResults, results);
+            FloatingPointHelper.AssertEqual(gpuResults, results);
         }
 
         [TestMethod]
@@ -891,7 +845,7 @@ namespace UnitTests
             using (var m = gpuA.GetNewMatrixFromColumns(cols))
                 gpuResults = m.AsIndexable();
 
-            _AssertEqual(gpuResults, results);
+            FloatingPointHelper.AssertEqual(gpuResults, results);
         }
 
         [TestMethod]
@@ -908,7 +862,7 @@ namespace UnitTests
                 gpuResults = a.AsIndexable();
             }
 
-            _AssertEqual(gpuResults, a);
+            FloatingPointHelper.AssertEqual(gpuResults, a);
         }
 
         [TestMethod]
@@ -925,7 +879,7 @@ namespace UnitTests
                 gpuResults = gpuA.AsIndexable();
             }
 
-            _AssertEqual(gpuResults, a);
+            FloatingPointHelper.AssertEqual(gpuResults, a);
         }
 
         [TestMethod]
@@ -942,7 +896,7 @@ namespace UnitTests
             }
 
             a.Clear();
-            _AssertEqual(gpuResults, a);
+            FloatingPointHelper.AssertEqual(gpuResults, a);
         }
 
         [TestMethod]
@@ -951,14 +905,14 @@ namespace UnitTests
             var lap = new NumericsProvider();
             var a = lap.Create(5, 5, (j, k) => k + 1).AsIndexable();
             var b = a.Clone().AsIndexable();
-            _AssertEqual(a, b);
+            FloatingPointHelper.AssertEqual(a, b);
 
             IIndexableMatrix gpuResults;
             using (var gpuA = _cuda.Create(a))
             using (var clone = gpuA.Clone()) {
                 gpuResults = clone.AsIndexable();
             }
-            _AssertEqual(gpuResults, b);
+            FloatingPointHelper.AssertEqual(gpuResults, b);
         }
 
         [TestMethod]
@@ -967,14 +921,14 @@ namespace UnitTests
             var lap = new NumericsProvider();
             var a = lap.Create(5, i => i).AsIndexable();
             var b = a.Clone().AsIndexable();
-            _AssertEqual(a, b);
+            FloatingPointHelper.AssertEqual(a, b);
 
             IIndexableVector gpuResults;
             using (var gpuA = _cuda.Create(a))
             using (var clone = gpuA.Clone()) {
                 gpuResults = clone.AsIndexable();
             }
-            _AssertEqual(gpuResults, b);
+            FloatingPointHelper.AssertEqual(gpuResults, b);
         }
 
         [TestMethod]
@@ -991,7 +945,7 @@ namespace UnitTests
             }
 
             a.Multiply(OPERAND);
-            _AssertEqual(gpuResults, a);
+            FloatingPointHelper.AssertEqual(gpuResults, a);
         }
 
         //[TestMethod]
@@ -1006,12 +960,12 @@ namespace UnitTests
 
         //        stream.Seek(0, SeekOrigin.Begin);
         //        var b = lap.CreateVector(new BinaryReader(stream));
-        //        _AssertEqual(a.AsIndexable(), b.AsIndexable());
+        //        FloatingPointHelper.AssertEqual(a.AsIndexable(), b.AsIndexable());
 
         //        stream.Seek(0, SeekOrigin.Begin);
         //        using (var cuda = ProviderToTest()) {
         //            using (var c = cuda.CreateVector(new BinaryReader(stream))) {
-        //                _AssertEqual(a.AsIndexable(), c.AsIndexable());
+        //                FloatingPointHelper.AssertEqual(a.AsIndexable(), c.AsIndexable());
 
         //                using (var stream2 = new MemoryStream()) {
         //                    using (var writer2 = new BinaryWriter(stream2, Encoding.UTF8, true))
@@ -1019,7 +973,7 @@ namespace UnitTests
 
         //                    stream2.Seek(0, SeekOrigin.Begin);
         //                    var d = lap.CreateVector(new BinaryReader(stream2));
-        //                    _AssertEqual(a.AsIndexable(), d.AsIndexable());
+        //                    FloatingPointHelper.AssertEqual(a.AsIndexable(), d.AsIndexable());
         //                }
         //            }
         //        }
@@ -1038,12 +992,12 @@ namespace UnitTests
 
         //        stream.Seek(0, SeekOrigin.Begin);
         //        var b = lap.CreateMatrix(new BinaryReader(stream));
-        //        _AssertEqual(a.AsIndexable(), b.AsIndexable());
+        //        FloatingPointHelper.AssertEqual(a.AsIndexable(), b.AsIndexable());
 
         //        stream.Seek(0, SeekOrigin.Begin);
         //        using (var cuda = ProviderToTest()) {
         //            using (var c = cuda.CreateMatrix(new BinaryReader(stream))) {
-        //                _AssertEqual(a.AsIndexable(), c.AsIndexable());
+        //                FloatingPointHelper.AssertEqual(a.AsIndexable(), c.AsIndexable());
 
         //                using (var stream2 = new MemoryStream()) {
         //                    using (var writer2 = new BinaryWriter(stream2, Encoding.UTF8, true))
@@ -1051,7 +1005,7 @@ namespace UnitTests
 
         //                    stream2.Seek(0, SeekOrigin.Begin);
         //                    var d = lap.CreateMatrix(new BinaryReader(stream2));
-        //                    _AssertEqual(a.AsIndexable(), d.AsIndexable());
+        //                    FloatingPointHelper.AssertEqual(a.AsIndexable(), d.AsIndexable());
         //                }
         //            }
         //        }
@@ -1073,7 +1027,7 @@ namespace UnitTests
             using (var concat = gpuA.ConcatColumns(gpuB)) {
                 gpuResults = concat.AsIndexable();
             }
-            _AssertEqual(c, gpuResults);
+            FloatingPointHelper.AssertEqual(c, gpuResults);
         }
 
         [TestMethod]
@@ -1091,7 +1045,7 @@ namespace UnitTests
             using (var concat = gpuA.ConcatRows(gpuB)) {
                 gpuResults = concat.AsIndexable();
             }
-            _AssertEqual(c, gpuResults);
+            FloatingPointHelper.AssertEqual(c, gpuResults);
         }
 
         [TestMethod]
@@ -1112,8 +1066,8 @@ namespace UnitTests
                     gpuResults2 = m2.AsIndexable();
                 }
             }
-            _AssertEqual(gpuResults1, r.Item1.AsIndexable());
-            _AssertEqual(gpuResults2, r.Item2.AsIndexable());
+            FloatingPointHelper.AssertEqual(gpuResults1, r.Item1.AsIndexable());
+            FloatingPointHelper.AssertEqual(gpuResults2, r.Item2.AsIndexable());
         }
 
         [TestMethod]
@@ -1134,8 +1088,8 @@ namespace UnitTests
                     gpuResults2 = m2.AsIndexable();
                 }
             }
-            _AssertEqual(gpuResults1, r.Item1.AsIndexable());
-            _AssertEqual(gpuResults2, r.Item2.AsIndexable());
+            FloatingPointHelper.AssertEqual(gpuResults1, r.Item1.AsIndexable());
+            FloatingPointHelper.AssertEqual(gpuResults2, r.Item2.AsIndexable());
         }
 
         [TestMethod]
@@ -1151,7 +1105,7 @@ namespace UnitTests
                 gpuResults = gpuA.AsIndexable();
             }
             a.L1Regularisation(OPERAND);
-            _AssertEqual(a, gpuResults);
+            FloatingPointHelper.AssertEqual(a, gpuResults);
         }
 
         [TestMethod]
@@ -1166,7 +1120,7 @@ namespace UnitTests
             using (var norm = gpuA.ColumnL2Norm()) {
                 gpuResults = norm.AsIndexable();
             }
-            _AssertEqual(r, gpuResults);
+            FloatingPointHelper.AssertEqual(r, gpuResults);
         }
 
         [TestMethod]
@@ -1181,7 +1135,7 @@ namespace UnitTests
             using (var norm = gpuA.RowL2Norm()) {
                 gpuResults = norm.AsIndexable();
             }
-            _AssertEqual(r, gpuResults);
+            FloatingPointHelper.AssertEqual(r, gpuResults);
         }
 
         [TestMethod]
@@ -1199,7 +1153,7 @@ namespace UnitTests
             }
 
             a.PointwiseDivideRows(b);
-            _AssertEqual(a, gpuResults);
+            FloatingPointHelper.AssertEqual(a, gpuResults);
         }
 
         [TestMethod]
@@ -1217,7 +1171,7 @@ namespace UnitTests
             }
 
             a.PointwiseDivideColumns(b);
-            _AssertEqual(a, gpuResults);
+            FloatingPointHelper.AssertEqual(a, gpuResults);
         }
 
         [TestMethod]
@@ -1232,7 +1186,7 @@ namespace UnitTests
             using (var diagonal = gpuA.Diagonal()) {
                 gpuResults = diagonal.AsIndexable();
             }
-            _AssertEqual(d, gpuResults);
+            FloatingPointHelper.AssertEqual(d, gpuResults);
         }
 
         [TestMethod]
@@ -1248,7 +1202,7 @@ namespace UnitTests
             using (var pow = gpuA.Pow(OPERAND)) {
                 gpuResults = pow.AsIndexable();
             }
-            _AssertEqual(r, gpuResults);
+            FloatingPointHelper.AssertEqual(r, gpuResults);
         }
 
         [TestMethod]
@@ -1265,7 +1219,7 @@ namespace UnitTests
             }
 
             a.UpdateRow(2, r, 3);
-            _AssertEqual(a, gpuResults);
+            FloatingPointHelper.AssertEqual(a, gpuResults);
         }
 
         [TestMethod]
@@ -1282,7 +1236,7 @@ namespace UnitTests
             }
 
             a.UpdateColumn(2, r, 3);
-            _AssertEqual(a, gpuResults);
+            FloatingPointHelper.AssertEqual(a, gpuResults);
         }
 
         [TestMethod]
@@ -1296,7 +1250,7 @@ namespace UnitTests
             using (var gpuA = _cuda.Create(a)) {
                 gpuResults = gpuA.GetRowSegment(1, 2, 5).AsIndexable();
             }
-            _AssertEqual(r, gpuResults);
+            FloatingPointHelper.AssertEqual(r, gpuResults);
         }
 
         [TestMethod]
@@ -1310,7 +1264,7 @@ namespace UnitTests
             using (var gpuA = _cuda.Create(a)) {
                 gpuResults = gpuA.GetColumnSegment(1, 2, 5).AsIndexable();
             }
-            _AssertEqual(r, gpuResults);
+            FloatingPointHelper.AssertEqual(r, gpuResults);
         }
 
         [TestMethod]
@@ -1327,7 +1281,7 @@ namespace UnitTests
             }
 
             a.Constrain(-2f, 2f);
-            _AssertEqual(a, gpuResults);
+            FloatingPointHelper.AssertEqual(a, gpuResults);
         }
     }
 }
