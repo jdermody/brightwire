@@ -1,13 +1,13 @@
 # Bright Wire
 
-*Bright Wire* is a machine learning library for .NET with GPU support (via CUDA).
+Bright Wire is a machine learning library for .NET with GPU support (via CUDA).
 
 ## Getting Started
 
-*Bright Wire* runs "out of the box" for CPU based computation.  For GPU based learning, you will need to install
+Bright Wire runs "out of the box" for CPU based computation.  For GPU based learning, you will need to install
 [NVIDIA CUDA Toolkit 7.5](https://developer.nvidia.com/cuda-toolkit) (and own a supported device!).
 
-To enable faster CPU based computation, *Bright Wire* supports the Intel Math Kernel Library (MKL) 
+To enable faster CPU based computation, Bright Wire supports the Intel Math Kernel Library (MKL) 
 via the [Numerics.Net Wrapper](http://numerics.mathdotnet.com/MKL.html).
 
 ## Features
@@ -20,7 +20,7 @@ via the [Numerics.Net Wrapper](http://numerics.mathdotnet.com/MKL.html).
 * RELU, LeakyRelu, Sigmoid and Tanh activation functions
 * Gaussian, Xavier and Identity weight initialisation
 * Cross entropy, Quadratic and RMSE cost functions
-* Momentum, NesterovMomentum, Adagrad, RMSprop and Adam
+* Momentum, NesterovMomentum, Adagrad, RMSprop and Adam gradient descent optimisations
 
 ## Sample Code
 ```
@@ -48,7 +48,7 @@ using (var lap = new NumericsProvider()) {
 		// train the network!
         trainer.Train(testDataProvider, 1000, trainingContext);
 
-		// execute the trained data 
+		// execute the network to get the predictions
         var results = trainer.Execute(testDataProvider);
         for (var i = 0; i < results.Count; i++) {
             var result = results[i];

@@ -57,7 +57,7 @@ namespace UnitTests
                     // train the network!
                     trainer.Train(testDataProvider, 1000, trainingContext);
 
-                    // execute the trained data 
+                    // execute the network to get the predictions
                     var results = trainer.Execute(testDataProvider);
                     for (var i = 0; i < results.Count; i++) {
                         var result = results[i];
