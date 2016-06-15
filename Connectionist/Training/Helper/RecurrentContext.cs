@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 
-namespace Icbld.BrightWire.Connectionist.Training.Helper
+namespace BrightWire.Connectionist.Training.Helper
 {
     public class RecurrentContext : IRecurrentTrainingContext
     {

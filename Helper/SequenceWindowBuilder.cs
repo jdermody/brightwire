@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Icbld.BrightWire.Helper
+namespace BrightWire.Helper
 {
     /// <summary>
     /// Creates a sequence of training feature vectors using a window of surrounding features at each point in the input sequence

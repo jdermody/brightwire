@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Icbld.BrightWire;
-using Icbld.BrightWire.LinearAlgebra;
+using BrightWire;
+using BrightWire.LinearAlgebra;
 using MathNet.Numerics.Distributions;
 using System.IO;
 using System.Text;

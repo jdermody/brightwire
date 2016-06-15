@@ -4,9 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Icbld.BrightWire.Models;
+using BrightWire.Models;
 
-namespace Icbld.BrightWire.Connectionist
+namespace BrightWire.Connectionist
 {
     public class LayerDescriptor : INeuralNetworkLayerDescriptor
     {

@@ -1,5 +1,5 @@
-﻿using Icbld.BrightWire.Connectionist.Training.Helper;
-using Icbld.BrightWire.Models;
+﻿using BrightWire.Connectionist.Training.Helper;
+using BrightWire.Models;
 using ProtoBuf;
 using System;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Icbld.BrightWire.Connectionist.Training.Manager
+namespace BrightWire.Connectionist.Training.Manager
 {
     internal class BidirectionalManager : RecurrentManagerBase, IBidirectionalRecurrentTrainingManager
     {

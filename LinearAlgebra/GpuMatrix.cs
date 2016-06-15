@@ -8,9 +8,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Icbld.BrightWire.Models;
+using BrightWire.Models;
 
-namespace Icbld.BrightWire.LinearAlgebra
+namespace BrightWire.LinearAlgebra
 {
     internal class GpuMatrix : IMatrix
     {

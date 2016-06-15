@@ -1,5 +1,5 @@
-﻿using Icbld.BrightWire.Connectionist.Execution.Layer;
-using Icbld.BrightWire.Helper;
+﻿using BrightWire.Connectionist.Execution.Layer;
+using BrightWire.Helper;
 using MathNet.Numerics.LinearAlgebra.Single;
 using System;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Icbld.BrightWire.Connectionist.Execution
+namespace BrightWire.Connectionist.Execution
 {
     public class FeedForwardExecution : IStandardExecution
     {

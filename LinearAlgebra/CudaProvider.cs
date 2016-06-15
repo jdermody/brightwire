@@ -1,5 +1,5 @@
-﻿using Icbld.BrightWire.Connectionist;
-using Icbld.BrightWire.Models;
+﻿using BrightWire.Connectionist;
+using BrightWire.Models;
 using ManagedCuda;
 using ManagedCuda.BasicTypes;
 using ManagedCuda.CudaBlas;
@@ -13,7 +13,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Icbld.BrightWire.LinearAlgebra
+namespace BrightWire.LinearAlgebra
 {
     public class CudaProvider : ILinearAlgebraProvider
     {

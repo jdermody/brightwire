@@ -1,5 +1,5 @@
-﻿using Icbld.BrightWire.Connectionist;
-using Icbld.BrightWire.Models;
+﻿using BrightWire.Connectionist;
+using BrightWire.Models;
 using MathNet.Numerics.LinearAlgebra.Single;
 using System;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Icbld.BrightWire.LinearAlgebra
+namespace BrightWire.LinearAlgebra
 {
     public class NumericsProvider : ILinearAlgebraProvider
     {

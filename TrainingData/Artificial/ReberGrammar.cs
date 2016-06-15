@@ -4,16 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Icbld.BrightWire.TrainingData.Artificial
+namespace BrightWire.TrainingData.Artificial
 {
-    public static class ReberGrammar
+    public class ReberGrammar
     {
-        static Random rnd = new Random(0);
-        static Dictionary<char, int> _ch = "BTSXPVE".ToCharArray().Select((c, i) => Tuple.Create(c, i)).ToDictionary(d => d.Item1, d => d.Item2);
+        static char[] CHARS = "BTSXPVE".ToCharArray();
+        static Dictionary<char, int> _ch = CHARS.Select((c, i) => Tuple.Create(c, i)).ToDictionary(d => d.Item1, d => d.Item2);
 
         public static char GetChar(int index)
         {
-            return "BTSXPVE".ToCharArray()[index];
+            return CHARS[index];
         }
 
         public static int GetIndex(char ch)
@@ -59,7 +59,14 @@ namespace Icbld.BrightWire.TrainingData.Artificial
 
         public static int Size { get { return _ch.Count; } }
 
-        public static IEnumerable<string> Get(int length)
+        readonly Random _rnd;
+
+        public ReberGrammar(bool stochastic = true)
+        {
+            _rnd = stochastic ? new Random() : new Random(0);
+        }
+
+        public IEnumerable<string> Get(int length)
         {
             while (true) {
                 var ret = Generate();
@@ -68,7 +75,7 @@ namespace Icbld.BrightWire.TrainingData.Artificial
             }
         }
 
-        public static IEnumerable<string> GetExtended(int? length)
+        public IEnumerable<string> GetExtended(int? length)
         {
             while (true) {
                 var ret = GenerateExtended();
@@ -77,60 +84,60 @@ namespace Icbld.BrightWire.TrainingData.Artificial
             }
         }
 
-        static string GenerateExtended()
+        string GenerateExtended()
         {
-            if (rnd.NextDouble() < 0.5)
+            if (_rnd.NextDouble() < 0.5)
                 return "BT" + Generate() + "TE";
             else
                 return "BP" + Generate() + "PE";
         }
 
-        static string Generate()
+        string Generate()
         {
             return DoNode0("B");
         }
 
-        static string DoNode0(string curr)
+        string DoNode0(string curr)
         {
-            if (rnd.NextDouble() < 0.5)
+            if (_rnd.NextDouble() < 0.5)
                 return DoNode1(curr + 'T');
             else
                 return DoNode2(curr + 'P');
         }
 
-        static string DoNode1(string curr)
+        string DoNode1(string curr)
         {
-            if (rnd.NextDouble() < 0.5)
+            if (_rnd.NextDouble() < 0.5)
                 return DoNode1(curr + 'S');
             else
                 return DoNode3(curr + 'X');
         }
 
-        static string DoNode2(string curr)
+        string DoNode2(string curr)
         {
-            if (rnd.NextDouble() < 0.5)
+            if (_rnd.NextDouble() < 0.5)
                 return DoNode2(curr + 'T');
             else
                 return DoNode4(curr + 'V');
         }
 
-        static string DoNode3(string curr)
+        string DoNode3(string curr)
         {
-            if (rnd.NextDouble() < 0.5)
+            if (_rnd.NextDouble() < 0.5)
                 return DoNode2(curr + 'X');
             else
                 return DoNode5(curr + 'S');
         }
 
-        static string DoNode4(string curr)
+        string DoNode4(string curr)
         {
-            if (rnd.NextDouble() < 0.5)
+            if (_rnd.NextDouble() < 0.5)
                 return DoNode3(curr + 'P');
             else
                 return DoNode5(curr + 'V');
         }
 
-        static string DoNode5(string curr)
+        string DoNode5(string curr)
         {
             return curr + 'E';
         }

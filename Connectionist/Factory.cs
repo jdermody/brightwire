@@ -1,20 +1,20 @@
-﻿using Icbld.BrightWire.Connectionist.Activation;
-using Icbld.BrightWire.Connectionist.Execution;
-using Icbld.BrightWire.Connectionist.Execution.Layer;
-using Icbld.BrightWire.Connectionist.Training;
-using Icbld.BrightWire.Connectionist.Training.Batch;
-using Icbld.BrightWire.Connectionist.Training.Helper;
-using Icbld.BrightWire.Connectionist.Training.Layer;
-using Icbld.BrightWire.Connectionist.Training.Manager;
-using Icbld.BrightWire.Connectionist.Training.WeightInitialisation;
-using Icbld.BrightWire.Models;
+﻿using BrightWire.Connectionist.Activation;
+using BrightWire.Connectionist.Execution;
+using BrightWire.Connectionist.Execution.Layer;
+using BrightWire.Connectionist.Training;
+using BrightWire.Connectionist.Training.Batch;
+using BrightWire.Connectionist.Training.Helper;
+using BrightWire.Connectionist.Training.Layer;
+using BrightWire.Connectionist.Training.Manager;
+using BrightWire.Connectionist.Training.WeightInitialisation;
+using BrightWire.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Icbld.BrightWire.Connectionist
+namespace BrightWire.Connectionist
 {
     public class Factory : INeuralNetworkFactory
     {

@@ -5,9 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Icbld.BrightWire.Models;
+using BrightWire.Models;
 
-namespace Icbld.BrightWire.LinearAlgebra
+namespace BrightWire.LinearAlgebra
 {
     public class CpuVector : IIndexableVector
     {

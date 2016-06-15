@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Icbld.BrightWire.Connectionist.Training
+namespace BrightWire.Connectionist.Training
 {
     internal class StandardTrainer : INeuralNetworkLayerTrainer
     {

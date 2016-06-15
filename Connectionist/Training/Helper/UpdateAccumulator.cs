@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Icbld.BrightWire.Connectionist.Training.Helper
+namespace BrightWire.Connectionist.Training.Helper
 {
     public class UpdateAccumulator : INeuralNetworkUpdateAccumulator
     {

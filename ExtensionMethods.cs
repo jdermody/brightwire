@@ -1,5 +1,5 @@
-﻿using Icbld.BrightWire.ErrorMetrics;
-using Icbld.BrightWire.Helper;
+﻿using BrightWire.ErrorMetrics;
+using BrightWire.Helper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 
-namespace Icbld.BrightWire
+namespace BrightWire
 {
     public static class ExtensionMethods
     {

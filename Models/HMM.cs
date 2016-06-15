@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Icbld.BrightWire.Models
+namespace BrightWire.Models
 {
     [ProtoContract]
     public class HMMStateTransition<T>

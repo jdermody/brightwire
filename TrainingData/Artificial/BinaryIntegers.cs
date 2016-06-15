@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Icbld.BrightWire.TrainingData.Artificial
+namespace BrightWire.TrainingData.Artificial
 {
     /// <summary>
     /// Creates random integers and returns feature vectors against binary mathematical logic

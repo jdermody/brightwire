@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Icbld.BrightWire.Helper
+namespace BrightWire.Helper
 {
     public sealed class BoundMath
     {

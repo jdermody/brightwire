@@ -1,4 +1,4 @@
-﻿using Icbld.BrightWire.Models;
+﻿using BrightWire.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 
-namespace Icbld.BrightWire
+namespace BrightWire
 {
     public interface ILinearAlgebraProvider : IDisposable
     {

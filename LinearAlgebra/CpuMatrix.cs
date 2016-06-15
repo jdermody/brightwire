@@ -1,4 +1,4 @@
-﻿using Icbld.BrightWire.Helper;
+﻿using BrightWire.Helper;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Single;
 using System;
@@ -8,9 +8,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Icbld.BrightWire.Models;
+using BrightWire.Models;
 
-namespace Icbld.BrightWire.LinearAlgebra
+namespace BrightWire.LinearAlgebra
 {
     public class CpuMatrix : IIndexableMatrix
     {

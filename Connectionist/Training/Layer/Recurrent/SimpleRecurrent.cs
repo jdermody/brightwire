@@ -5,9 +5,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Icbld.BrightWire.Models;
+using BrightWire.Models;
 
-namespace Icbld.BrightWire.Connectionist.Training.Layer.Recurrent
+namespace BrightWire.Connectionist.Training.Layer.Recurrent
 {
     /// <summary>
     /// Simple recurrent layers can be used for elman style recurrent networks

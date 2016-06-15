@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Icbld.BrightWire.ErrorMetrics
+namespace BrightWire.ErrorMetrics
 {
     public class RMSE : IErrorMetric
     {

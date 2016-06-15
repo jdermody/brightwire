@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 
-namespace Icbld.BrightWire.Models
+namespace BrightWire.Models
 {
     [ProtoContract]
     public class BidirectionalNetwork

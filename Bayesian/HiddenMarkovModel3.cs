@@ -1,4 +1,4 @@
-﻿using Icbld.BrightWire.Models;
+﻿using BrightWire.Models;
 using ProtoBuf;
 using System;
 using System.Collections.Generic;
@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Icbld.BrightWire.Bayesian
+namespace BrightWire.Bayesian
 {
     public class HiddenMarkovModel3<T>
     {

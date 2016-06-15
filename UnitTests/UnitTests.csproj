@@ -62,13 +62,13 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BrightWire.csproj">
-      <Project>{b57f4d7e-c141-4061-b67c-01f93221c930}</Project>
-      <Name>BrightWire</Name>
-    </ProjectReference>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <ProjectReference Include="..\BrightWire.Net4\BrightWire.Net4.csproj">
+      <Project>{fd8aaef6-2edb-446c-bb19-5ebee5cde982}</Project>
+      <Name>BrightWire.Net4</Name>
+    </ProjectReference>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

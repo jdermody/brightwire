@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Collections.ObjectModel;
-using Icbld.BrightWire.Helper;
+using BrightWire.Helper;
 
-namespace Icbld.BrightWire.Connectionist.Execution.Layer
+namespace BrightWire.Connectionist.Execution.Layer
 {
     public class RecurrentFeedForward : IRecurrentLayerExecution
     {

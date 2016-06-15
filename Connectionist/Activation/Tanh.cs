@@ -1,11 +1,11 @@
-﻿using Icbld.BrightWire.LinearAlgebra;
+﻿using BrightWire.LinearAlgebra;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Icbld.BrightWire.Connectionist.Activation
+namespace BrightWire.Connectionist.Activation
 {
     public class Tanh : IActivationFunction
     {

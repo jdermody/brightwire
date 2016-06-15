@@ -1,12 +1,12 @@
-﻿using Icbld.BrightWire.Connectionist.Training.Helper;
+﻿using BrightWire.Connectionist.Training.Helper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Icbld.BrightWire.Models;
+using BrightWire.Models;
 
-namespace Icbld.BrightWire.Connectionist.Training.Batch
+namespace BrightWire.Connectionist.Training.Batch
 {
     class RecurrentBatchTrainer : RecurrentBatchTrainerBase, INeuralNetworkRecurrentBatchTrainer
     {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Icbld.BrightWire.Connectionist.Training.WeightInitialisation
+namespace BrightWire.Connectionist.Training.WeightInitialisation
 {
     public class Identity : IWeightInitialisation
     {

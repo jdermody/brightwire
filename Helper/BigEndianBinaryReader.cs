@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Icbld.BrightWire.Helper
+namespace BrightWire.Helper
 {
     class BigEndianBinaryReader : BinaryReader
     {

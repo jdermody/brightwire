@@ -13,3 +13,5 @@
 /UnitTests/bin/x64/Debug
 /UnitTests/obj
 /UnitTests/bin/x64/Release
+/BrightWire.Net4/bin
+/BrightWire.Net4/obj

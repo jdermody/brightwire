@@ -4,9 +4,9 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Icbld.BrightWire.Models;
+using BrightWire.Models;
 
-namespace Icbld.BrightWire.Connectionist.Training.Layer.Recurrent
+namespace BrightWire.Connectionist.Training.Layer.Recurrent
 {
     public class FeedForward : INeuralNetworkRecurrentLayer
     {

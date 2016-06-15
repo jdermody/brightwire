@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Icbld.BrightWire.Models;
+using BrightWire.Models;
 
-namespace Icbld.BrightWire.Connectionist.Training.Layer
+namespace BrightWire.Connectionist.Training.Layer
 {
     internal class Standard : INeuralNetworkLayer
     {

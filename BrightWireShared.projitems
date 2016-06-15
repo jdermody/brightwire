@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>aeabb3c1-6ea1-430a-9c00-7c2bc1f7e79d</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>BrightWire</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Bayesian\HiddenMarkovModel2.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Bayesian\HiddenMarkovModel3.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Activation\LeakyRELU.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Activation\RELU.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Activation\Sigmoid.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Activation\Tanh.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Execution\BidirectionalExecution.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Execution\FeedForwardExecution.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Execution\Layer\LSTM.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Execution\Layer\RecurrentFeedForward.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Execution\Layer\RecurrentLayerComponent.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Execution\Layer\SimpleRecurrent.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Execution\Layer\StandardFeedForward.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Execution\RecurrentExecution.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Factory.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\LayerDescriptor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Training\Batch\BatchTrainer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Training\Batch\BidirectionalBatchTrainer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Training\Batch\RecurrentBatchTrainer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Training\Batch\RecurrentBatchTrainerBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Training\Helper\RecurrentContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Training\Helper\TrainingContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Training\Helper\UpdateAccumulator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Training\Layer\Recurrent\Bidirectional.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Training\Layer\Recurrent\FeedForward.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Training\Layer\Recurrent\LSTM.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Training\Layer\Recurrent\RecurrentLayerBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Training\Layer\Recurrent\SimpleRecurrent.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Training\Layer\Standard.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Training\Manager\BidirectionalManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Training\Manager\FeedForwardManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Training\Manager\RecurrentManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Training\Manager\RecurrentManagerBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Training\Trainer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Training\Updater.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Training\WeightInitialisation\Gaussian.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Training\WeightInitialisation\Identity.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Training\WeightInitialisation\Xavier.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CostFunctions\CrossEntropy.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CostFunctions\Quadratic.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CostFunctions\RootMeanSquareError.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ErrorMetrics\BinaryClassification.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ErrorMetrics\CrossEntropy.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ErrorMetrics\OneHot.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ErrorMetrics\RMSE.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ExtensionMethods.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helper\BigEndianBinaryReader.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helper\BoundMath.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helper\DenseTrainingDataProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helper\DisposableMatrixExecutionLine.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helper\SequenceWindowBuilder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helper\SparseDataProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helper\SparseTrainingDataProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interface.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LinearAlgebra\CpuMatrix.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LinearAlgebra\CpuVector.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LinearAlgebra\CudaProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LinearAlgebra\GpuMatrix.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LinearAlgebra\GpuVector.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LinearAlgebra\NumericsProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\BidirectionalLayer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\BidirectionalNetwork.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\FeedForwardNetwork.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\FloatArray.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\HMM.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\NetworkLayer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\RecurrentLayer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\RecurrentNetwork.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TrainingData\Artificial\BinaryIntegers.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TrainingData\Artificial\ReberGrammar.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TrainingData\Artificial\Xor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TrainingData\MNIST.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)LinearAlgebra\cuda\kernel.c" />
+    <None Include="$(MSBuildThisFileDirectory)LinearAlgebra\cuda\kernel.cu" />
+    <None Include="$(MSBuildThisFileDirectory)LinearAlgebra\cuda\kernel.cubin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)LinearAlgebra\cuda\kernel.stub.c" />
+  </ItemGroup>
+</Project>

@@ -1,4 +1,4 @@
-﻿using Icbld.BrightWire.Helper;
+﻿using BrightWire.Helper;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Icbld.BrightWire.Connectionist.Execution.Layer
+namespace BrightWire.Connectionist.Execution.Layer
 {
     public class Lstm : IRecurrentLayerExecution
     {
