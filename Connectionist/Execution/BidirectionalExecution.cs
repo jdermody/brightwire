@@ -29,7 +29,7 @@ namespace BrightWire.Connectionist.Execution
             if (disposing) {
                 foreach (var item in _layer) {
                     item.Item1.Dispose();
-                    item.Item2.Dispose();
+                    item.Item2?.Dispose();
                 }
                 _forwardMemory.Dispose();
                 _backwardMemory.Dispose();

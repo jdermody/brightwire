@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("BrightWire")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("BrightWire.Net4")]
+[assembly: AssemblyDescription("Bright Wire is an open source machine learning library for .NET with GPU support (via CUDA)")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("BrightWire")]
-[assembly: AssemblyCopyright("Copyright ©  2016")]
+[assembly: AssemblyProduct("BrightWire.Net4")]
+[assembly: AssemblyCopyright("Copyright © Jack Dermody 2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("b57f4d7e-c141-4061-b67c-01f93221c930")]
+[assembly: Guid("fd8aaef6-2edb-446c-bb19-5ebee5cde982")]
 
 // Version information for an assembly consists of the following four values:
 //

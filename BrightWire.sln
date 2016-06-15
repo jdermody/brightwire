@@ -5,19 +5,17 @@ VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{FECA7495-B22E-48E3-B50F-4BA68811B7EE}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "BrightWireShared", "BrightWireShared.shproj", "{AEABB3C1-6EA1-430A-9C00-7C2BC1F7E79D}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrightWire.Net4", "BrightWire.Net4\BrightWire.Net4.csproj", "{FD8AAEF6-2EDB-446C-BB19-5EBEE5CDE982}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1A79A663-3871-41AD-BDFF-FE606804AC1C}"
 	ProjectSection(SolutionItems) = preProject
-		LICENSE = LICENSE
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrightWire.Net4", "BrightWire.Net4.csproj", "{FD8AAEF6-2EDB-446C-BB19-5EBEE5CDE982}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "BrightWire.Shared", "BrightWire.Shared.shproj", "{AEABB3C1-6EA1-430A-9C00-7C2BC1F7E79D}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		BrightWireShared.projitems*{fd8aaef6-2edb-446c-bb19-5ebee5cde982}*SharedItemsImports = 4
 		BrightWireShared.projitems*{aeabb3c1-6ea1-430a-9c00-7c2bc1f7e79d}*SharedItemsImports = 13
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
