@@ -11,9 +11,9 @@ namespace BrightWire
 {
     public static class ExtensionMethods
     {
-        public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> seq)
+        public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> seq, int? randomSeed = null)
         {
-            var rnd = new Random();
+            var rnd = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
             return seq.OrderBy(e => rnd.Next()).ToList();
         }
 

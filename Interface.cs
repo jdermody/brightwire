@@ -284,6 +284,7 @@ namespace BrightWire
         Gaussian,
         Xavier,
         Identity,
+        Identity1,
         Identity01,
         Identity001
     }

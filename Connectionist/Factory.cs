@@ -41,8 +41,9 @@ namespace BrightWire.Connectionist
             _weightInitialisation.Add(WeightInitialisationType.Gaussian, new Gaussian(stochastic));
             _weightInitialisation.Add(WeightInitialisationType.Xavier, new Xavier(stochastic));
             _weightInitialisation.Add(WeightInitialisationType.Identity, new Identity());
-            _weightInitialisation.Add(WeightInitialisationType.Identity01, new Identity(0.1f));
-            _weightInitialisation.Add(WeightInitialisationType.Identity001, new Identity(0.01f));
+            _weightInitialisation.Add(WeightInitialisationType.Identity1, new Identity(0.1f));
+            _weightInitialisation.Add(WeightInitialisationType.Identity01, new Identity(0.01f));
+            _weightInitialisation.Add(WeightInitialisationType.Identity001, new Identity(0.001f));
         }
 
         public ILinearAlgebraProvider LinearAlgebraProvider { get { return _lap; } }
