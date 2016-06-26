@@ -41,7 +41,6 @@ namespace BrightWire.TrainingData.Artificial
                 // generate some random numbers
                 var a = Convert.ToByte(rand.Next(128));
                 var b = Convert.ToByte(rand.Next(128));
-
                 
                 var a2 = _GetBitArray(a);
                 var b2 = _GetBitArray(b);

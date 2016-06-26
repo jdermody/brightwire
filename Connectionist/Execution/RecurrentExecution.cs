@@ -1,4 +1,5 @@
 ﻿using BrightWire.Helper;
+using BrightWire.Net4.Models.ExecutionResults;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,13 +38,13 @@ namespace BrightWire.Connectionist.Execution
 
         public float[] InitialMemory { get { return _initialMemory.AsIndexable().ToArray(); } }
 
-        public IReadOnlyList<Tuple<IIndexableVector, IIndexableVector>> Execute(IReadOnlyList<IVector> inputData)
+        public IReadOnlyList<IRecurrentOutput> Execute(IReadOnlyList<IVector> inputData)
         {
             var context = new List<IDisposableMatrixExecutionLine>();
             context.Add(new DisposableMatrixExecutionLine());
             context.Add(new DisposableMatrixExecutionLine(_initialMemory.ToRowMatrix()));
 
-            var ret = new List<Tuple<IIndexableVector, IIndexableVector>>();
+            var ret = new List<RecurrentOutput>();
             foreach (var item in inputData) {
                 context[0].Assign(item.ToRowMatrix());
                         
@@ -52,18 +53,18 @@ namespace BrightWire.Connectionist.Execution
                 var memoryOutput = context[1].Current.AsIndexable().Rows.First();
 
                 var output = context[0].Current.Row(0).AsIndexable();
-                ret.Add(Tuple.Create(output, memoryOutput));
+                ret.Add(new RecurrentOutput(output, memoryOutput));
             }
             return ret;
         }
 
-        public IReadOnlyList<Tuple<IIndexableVector, IIndexableVector>> Execute(IReadOnlyList<float[]> inputData)
+        public IReadOnlyList<IRecurrentOutput> Execute(IReadOnlyList<float[]> inputData)
         {
             var context = new List<IDisposableMatrixExecutionLine>();
             context.Add(new DisposableMatrixExecutionLine());
             context.Add(new DisposableMatrixExecutionLine());
 
-            var ret = new List<Tuple<IIndexableVector, IIndexableVector>>();
+            var ret = new List<RecurrentOutput>();
             using (var m2 = _initialMemory.ToRowMatrix()) {
                 context[1].Assign(m2);
                 foreach (var item in inputData) {
@@ -76,14 +77,14 @@ namespace BrightWire.Connectionist.Execution
                         var memoryOutput = context[1].Current.AsIndexable().Rows.First();
 
                         var output = context[0].Current.Row(0).AsIndexable();
-                        ret.Add(Tuple.Create(output, memoryOutput));
+                        ret.Add(new RecurrentOutput(output, memoryOutput));
                     }
                 }
             }
             return ret;
         }
 
-        public Tuple<IIndexableVector, IIndexableVector> ExecuteSingle(float[] data, float[] memory)
+        public IRecurrentOutput ExecuteSingle(float[] data, float[] memory)
         {
             var context = new List<IDisposableMatrixExecutionLine>();
             context.Add(new DisposableMatrixExecutionLine());
@@ -102,7 +103,7 @@ namespace BrightWire.Connectionist.Execution
                     var memoryOutput = context[1].Current.AsIndexable().Rows.First();
 
                     var output = context[0].Current.Row(0).AsIndexable();
-                    return Tuple.Create(output, memoryOutput);
+                    return new RecurrentOutput(output, memoryOutput);
                 }
             }
         }

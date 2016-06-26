@@ -1,4 +1,5 @@
 ﻿using BrightWire.Helper;
+using BrightWire.Net4.Models.ExecutionResults;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,7 +44,7 @@ namespace BrightWire.Connectionist.Execution
             GC.SuppressFinalize(this);
         }
 
-        public IReadOnlyList<Tuple<IIndexableVector, IIndexableVector>> Execute(IReadOnlyList<IVector> inputData)
+        public IReadOnlyList<IRecurrentOutput> Execute(IReadOnlyList<IVector> inputData)
         {
             var forwardContext = new List<IDisposableMatrixExecutionLine>();
             forwardContext.Add(new DisposableMatrixExecutionLine());
@@ -97,16 +98,16 @@ namespace BrightWire.Connectionist.Execution
             }
 
             // return the output
-            var ret = new List<Tuple<IIndexableVector, IIndexableVector>>();
+            var ret = new List<RecurrentOutput>();
             foreach (var item in singleOutput.OrderBy(k => k.Key)) {
                 using (var ir = item.Value.Item1.Row(0))
                 using (var mr = item.Value.Item2.Row(0))
-                    ret.Add(Tuple.Create(ir.AsIndexable(), mr.AsIndexable()));
+                    ret.Add(new RecurrentOutput(ir.AsIndexable(), mr.AsIndexable()));
             }
             return ret;
         }
 
-        public IReadOnlyList<Tuple<IIndexableVector, IIndexableVector>> Execute(IReadOnlyList<float[]> inputData)
+        public IReadOnlyList<IRecurrentOutput> Execute(IReadOnlyList<float[]> inputData)
         {
             var list = inputData.Select(r => _lap.Create(r)).ToList();
             var ret = Execute(list);

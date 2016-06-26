@@ -170,11 +170,11 @@ namespace BrightWire.Connectionist
             }
         }
 
-        public IStandardExecution CreateFeedForward(IReadOnlyList<NetworkLayer> layers)
+        public IStandardExecution CreateFeedForward(FeedForwardNetwork network)
         {
             var layer = new List<StandardFeedForward>();
 
-            foreach(var item in layers)
+            foreach(var item in network.Layer)
                 layer.Add(_ReadFeedForward(item));
 
             return new FeedForwardExecution(_lap, layer);

@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 
 namespace BrightWire.Connectionist.Training.Manager
 {
@@ -35,6 +36,19 @@ namespace BrightWire.Connectionist.Training.Manager
             _backwardMemory = memory.Item2;
         }
 
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing) {
+                _trainer.Dispose();
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
         public ILinearAlgebraProvider LinearAlgebraProvider { get { return _lap; } }
 
         public Tuple<float[], float[]> Memory
@@ -58,12 +72,8 @@ namespace BrightWire.Connectionist.Training.Manager
             var ret = _trainer.Train(trainingData, _forwardMemory, _backwardMemory, numEpochs, recurrentContext);
             recurrentContext.TrainingContext.RecurrentEpochComplete -= OnEpoch;
 
-            // write the results to disk
+            // ensure best values are current
             if (_bestOutput != null) {
-                using (var stream = new FileStream(_dataFile, FileMode.Create, FileAccess.Write))
-                    Serializer.Serialize(stream, _bestOutput);
-
-                // ensure best values are current
                 _trainer.NetworkInfo = _bestOutput;
                 _forwardMemory = _bestOutput.ForwardMemory.Data;
                 _backwardMemory = _bestOutput.BackwardMemory.Data;
@@ -72,7 +82,10 @@ namespace BrightWire.Connectionist.Training.Manager
 
         private void OnEpoch(ITrainingContext context, IRecurrentTrainingContext recurrentContext)
         {
-            _AfterEpoch(context, _forwardMemory, _backwardMemory, _testData, _trainer, recurrentContext, ref _bestScore, ref _bestOutput);
+            if(_CalculateTestScore(context, _forwardMemory, _backwardMemory, _testData, _trainer, recurrentContext, ref _bestScore, ref _bestOutput)) {
+                using (var stream = new FileStream(_dataFile, FileMode.Create, FileAccess.Write))
+                    Serializer.Serialize(stream, _bestOutput);
+            }
         }
     }
 }

@@ -11,6 +11,12 @@ namespace BrightWire.Bayesian
     public class HiddenMarkovModel2<T>
     {
         readonly Dictionary<Tuple<T, T>, List<T>> _data = new Dictionary<Tuple<T, T>, List<T>>();
+        readonly int _minObservations;
+
+        public HiddenMarkovModel2(int minObservations)
+        {
+            _minObservations = minObservations;
+        }
 
         public void Add(IEnumerable<T> items)
         {
@@ -41,7 +47,7 @@ namespace BrightWire.Bayesian
                     var transitions = item.Value
                         .GroupBy(v => v)
                         .Select(g => Tuple.Create(g.Key, g.Count()))
-                        .Where(d => d.Item2 > 1)
+                        .Where(d => d.Item2 >= _minObservations)
                         .ToList()
                     ;
                     var total = (float)transitions.Sum(t => t.Item2);

@@ -26,6 +26,19 @@ namespace BrightWire.Connectionist.Training.Manager
             _memory = _Load(_trainer, _dataFile, memorySize);
         }
 
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing) {
+                _trainer.Dispose();
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
         public INeuralNetworkRecurrentBatchTrainer Trainer { get { return _trainer; } }
 
         public float[] Memory
@@ -49,11 +62,8 @@ namespace BrightWire.Connectionist.Training.Manager
             _memory = _trainer.Train(trainingData, _memory, numEpochs, recurrentContext);
             recurrentContext.TrainingContext.RecurrentEpochComplete -= OnEpochComplete;
 
+            // ensure best values are current
             if (_bestOutput != null) {
-                using (var stream = new FileStream(_dataFile, FileMode.Create, FileAccess.Write))
-                    Serializer.Serialize(stream, _bestOutput);
-
-                // ensure best values are current
                 _trainer.NetworkInfo = _bestOutput;
                 _memory = _bestOutput.Memory.Data;
             }
@@ -61,7 +71,10 @@ namespace BrightWire.Connectionist.Training.Manager
 
         private void OnEpochComplete(ITrainingContext context, IRecurrentTrainingContext recurrentContext)
         {
-            _AfterEpoch(context, _memory, _testData, _trainer, recurrentContext, ref _bestScore, ref _bestOutput);
+            if(_CalculateTestScore(context, _memory, _testData, _trainer, recurrentContext, ref _bestScore, ref _bestOutput)) {
+                using (var stream = new FileStream(_dataFile, FileMode.Create, FileAccess.Write))
+                    Serializer.Serialize(stream, _bestOutput);
+            }
         }
     }
 }

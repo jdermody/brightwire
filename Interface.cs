@@ -77,9 +77,8 @@ namespace BrightWire
         float this[int index] { get; set; }
         IEnumerable<float> Values { get; }
         float[] ToArray();
-        IIndexableVector Softmax();
-        IIndexableVector Softmax2();
         void Normalise(NormalisationType type);
+        IIndexableVector Append(IReadOnlyList<float> data);
     }
 
     public enum MatrixGrouping
@@ -113,6 +112,8 @@ namespace BrightWire
         IMatrix SigmoidDerivative();
         IMatrix TanhActivation();
         IMatrix TanhDerivative();
+        IMatrix SoftmaxActivation();
+        IMatrix SoftmaxDerivative();
         void AddToEachRow(IVector vector);
         void AddToEachColumn(IVector vector);
         FloatArray[] Data { get; set; }
@@ -276,7 +277,8 @@ namespace BrightWire
         Relu,
         LeakyRelu,
         Sigmoid,
-        Tanh
+        Tanh,
+        Softmax
     }
 
     public enum WeightInitialisationType
@@ -334,7 +336,7 @@ namespace BrightWire
     {
         ILinearAlgebraProvider LinearAlgebraProvider { get; }
 
-        IStandardExecution CreateFeedForward(IReadOnlyList<NetworkLayer> layers);
+        IStandardExecution CreateFeedForward(FeedForwardNetwork network);
         IRecurrentExecution CreateRecurrent(RecurrentNetwork network);
         IBidirectionalRecurrentExecution CreateBidirectional(BidirectionalNetwork network);
 
@@ -480,6 +482,12 @@ namespace BrightWire
         int Count { get; }
     }
 
+    public interface ISequentialTrainingDataProvider
+    {
+        Tuple<IMatrix[], IMatrix[]> GetTrainingData(int sequenceLength, IReadOnlyList<int> rows, int inputSize, int outputSize);
+        Tuple<int, int>[] Length { get; }
+    }
+
     public interface IDataProvider
     {
         IMatrix GetData(IReadOnlyList<int> rows, int inputSize);
@@ -499,15 +507,21 @@ namespace BrightWire
         IMatrix Execute(IMatrix inputData);
     }
 
+    public interface IRecurrentOutput
+    {
+        IIndexableVector Output { get; }
+        IIndexableVector Memory { get; }
+    }
+
     public interface IBidirectionalRecurrentExecution : IDisposable
     {
-        IReadOnlyList<Tuple<IIndexableVector, IIndexableVector>> Execute(IReadOnlyList<float[]> inputData);
-        IReadOnlyList<Tuple<IIndexableVector, IIndexableVector>> Execute(IReadOnlyList<IVector> inputData);
+        IReadOnlyList<IRecurrentOutput> Execute(IReadOnlyList<float[]> inputData);
+        IReadOnlyList<IRecurrentOutput> Execute(IReadOnlyList<IVector> inputData);
     }
 
     public interface IRecurrentExecution : IBidirectionalRecurrentExecution
     {
-        Tuple<IIndexableVector, IIndexableVector> ExecuteSingle(float[] data, float[] memory);
+        IRecurrentOutput ExecuteSingle(float[] data, float[] memory);
         float[] InitialMemory { get; }
     }
 
@@ -537,14 +551,14 @@ namespace BrightWire
         void Train(ITrainingDataProvider trainingData, int numEpochs, ITrainingContext context);
     }
 
-    public interface IRecurrentTrainingManager
+    public interface IRecurrentTrainingManager : IDisposable
     {
         INeuralNetworkRecurrentBatchTrainer Trainer { get; }
         void Train(IReadOnlyList<Tuple<float[], float[]>[]> trainingData, int numEpochs, ITrainingContext context, IRecurrentTrainingContext recurrentContext = null);
         float[] Memory { get; }
     }
 
-    public interface IBidirectionalRecurrentTrainingManager
+    public interface IBidirectionalRecurrentTrainingManager : IDisposable
     {
         ILinearAlgebraProvider LinearAlgebraProvider { get; }
         void Train(IReadOnlyList<Tuple<float[], float[]>[]> trainingData, int numEpochs, ITrainingContext context, IRecurrentTrainingContext recurrentContext = null);

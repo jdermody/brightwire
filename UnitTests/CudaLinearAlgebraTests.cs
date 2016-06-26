@@ -948,69 +948,57 @@ namespace UnitTests
             FloatingPointHelper.AssertEqual(gpuResults, a);
         }
 
-        //[TestMethod]
-        //public void VectorReadWrite()
-        //{
-        //    var lap = new NumericsProvider();
-        //    var a = lap.Create(5, i => i).AsIndexable();
+        [TestMethod]
+        public void VectorReadWrite()
+        {
+            var lap = new NumericsProvider();
+            var a = lap.Create(5, i => i).AsIndexable();
 
-        //    using (var stream = new MemoryStream()) {
-        //        using (var writer = new BinaryWriter(stream, Encoding.UTF8, true))
-        //            a.WriteTo(writer);
+            // test Numerics -> Numerics serialisation
+            var serialised = a.Data;
+            var b = lap.CreateVector(serialised);
+            FloatingPointHelper.AssertEqual(a.AsIndexable(), b.AsIndexable());
 
-        //        stream.Seek(0, SeekOrigin.Begin);
-        //        var b = lap.CreateVector(new BinaryReader(stream));
-        //        FloatingPointHelper.AssertEqual(a.AsIndexable(), b.AsIndexable());
+            // test Numerics -> Cuda serialisation
+            using (var c = _cuda.CreateVector(serialised)) {
+                FloatingPointHelper.AssertEqual(a.AsIndexable(), c.AsIndexable());
 
-        //        stream.Seek(0, SeekOrigin.Begin);
-        //        using (var cuda = ProviderToTest()) {
-        //            using (var c = cuda.CreateVector(new BinaryReader(stream))) {
-        //                FloatingPointHelper.AssertEqual(a.AsIndexable(), c.AsIndexable());
+                // test Cuda -> Cuda serialisation
+                var serialised2 = c.Data;
+                using (var d = _cuda.CreateVector(serialised2))
+                    FloatingPointHelper.AssertEqual(a.AsIndexable(), d.AsIndexable());
 
-        //                using (var stream2 = new MemoryStream()) {
-        //                    using (var writer2 = new BinaryWriter(stream2, Encoding.UTF8, true))
-        //                        c.WriteTo(writer2);
+                // test Cuda -> Numerics serialisation
+                var e = lap.CreateVector(c.Data);
+                FloatingPointHelper.AssertEqual(a.AsIndexable(), e.AsIndexable());
+            }
+        }
 
-        //                    stream2.Seek(0, SeekOrigin.Begin);
-        //                    var d = lap.CreateVector(new BinaryReader(stream2));
-        //                    FloatingPointHelper.AssertEqual(a.AsIndexable(), d.AsIndexable());
-        //                }
-        //            }
-        //        }
-        //    }
-        //}
+        [TestMethod]
+        public void MatrixReadWrite()
+        {
+            var lap = new NumericsProvider();
+            var a = lap.Create(7, 20, (x, y) => x * 10 + y).AsIndexable();
 
-        //[TestMethod]
-        //public void MatrixReadWrite()
-        //{
-        //    var lap = new NumericsProvider();
-        //    var a = lap.Create(5, 5, (x, y) => x * y).AsIndexable();
+            // test Numerics -> Numerics serialisation
+            var serialised = a.Data;
+            var b = lap.CreateMatrix(serialised);
+            FloatingPointHelper.AssertEqual(a.AsIndexable(), b.AsIndexable());
 
-        //    using (var stream = new MemoryStream()) {
-        //        using (var writer = new BinaryWriter(stream, Encoding.UTF8, true))
-        //            a.WriteTo(writer);
+            // test Numerics -> Cuda serialisation
+            using (var c = _cuda.CreateMatrix(serialised)) {
+                FloatingPointHelper.AssertEqual(a.AsIndexable(), c.AsIndexable());
 
-        //        stream.Seek(0, SeekOrigin.Begin);
-        //        var b = lap.CreateMatrix(new BinaryReader(stream));
-        //        FloatingPointHelper.AssertEqual(a.AsIndexable(), b.AsIndexable());
+                // test Cuda -> Cuda serialisation
+                var serialised2 = c.Data;
+                using (var d = _cuda.CreateMatrix(serialised2))
+                    FloatingPointHelper.AssertEqual(a.AsIndexable(), d.AsIndexable());
 
-        //        stream.Seek(0, SeekOrigin.Begin);
-        //        using (var cuda = ProviderToTest()) {
-        //            using (var c = cuda.CreateMatrix(new BinaryReader(stream))) {
-        //                FloatingPointHelper.AssertEqual(a.AsIndexable(), c.AsIndexable());
-
-        //                using (var stream2 = new MemoryStream()) {
-        //                    using (var writer2 = new BinaryWriter(stream2, Encoding.UTF8, true))
-        //                        c.WriteTo(writer2);
-
-        //                    stream2.Seek(0, SeekOrigin.Begin);
-        //                    var d = lap.CreateMatrix(new BinaryReader(stream2));
-        //                    FloatingPointHelper.AssertEqual(a.AsIndexable(), d.AsIndexable());
-        //                }
-        //            }
-        //        }
-        //    }
-        //}
+                // test Cuda -> Numerics serialisation
+                var e = lap.CreateMatrix(c.Data);
+                FloatingPointHelper.AssertEqual(a.AsIndexable(), e.AsIndexable());
+            }
+        }
 
         [TestMethod]
         public void MatrixConcatColumns()

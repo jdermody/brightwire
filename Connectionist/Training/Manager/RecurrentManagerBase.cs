@@ -30,7 +30,7 @@ namespace BrightWire.Connectionist.Training.Manager
             return network.Execute(data, forwardMemory, backwardMemory, context).SelectMany(d => d).Select(d => _errorMetric.Compute(d.Output, d.Target)).Average();
         }
 
-        protected void _AfterEpoch(ITrainingContext context, float[] memory, IReadOnlyList<Tuple<float[], float[]>[]> data, INeuralNetworkRecurrentBatchTrainer network, IRecurrentTrainingContext recurrentContext, ref double bestScore, ref RecurrentNetwork output)
+        protected bool _CalculateTestScore(ITrainingContext context, float[] memory, IReadOnlyList<Tuple<float[], float[]>[]> data, INeuralNetworkRecurrentBatchTrainer network, IRecurrentTrainingContext recurrentContext, ref double bestScore, ref RecurrentNetwork output)
         {
             bool flag = false;
             var score = _GetScore(data, network, memory, recurrentContext);
@@ -43,9 +43,10 @@ namespace BrightWire.Connectionist.Training.Manager
                 flag = true;
             }
             context.WriteScore(score, _errorMetric.DisplayAsPercentage, flag);
+            return flag;
         }
 
-        protected void _AfterEpoch(ITrainingContext context, float[] forwardMemory, float[] backwardMemory, IReadOnlyList<Tuple<float[], float[]>[]> data, INeuralNetworkBidirectionalBatchTrainer network, IRecurrentTrainingContext recurrentContext, ref double bestScore, ref BidirectionalNetwork output)
+        protected bool _CalculateTestScore(ITrainingContext context, float[] forwardMemory, float[] backwardMemory, IReadOnlyList<Tuple<float[], float[]>[]> data, INeuralNetworkBidirectionalBatchTrainer network, IRecurrentTrainingContext recurrentContext, ref double bestScore, ref BidirectionalNetwork output)
         {
             bool flag = false;
             var score = _GetScore(data, network, forwardMemory, backwardMemory, recurrentContext);
@@ -61,6 +62,7 @@ namespace BrightWire.Connectionist.Training.Manager
                 flag = true;
             }
             context.WriteScore(score, _errorMetric.DisplayAsPercentage, flag);
+            return flag;
         }
 
         protected float[] _Load(INeuralNetworkRecurrentBatchTrainer network, string file, int hiddenLayerSize)

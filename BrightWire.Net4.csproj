@@ -90,6 +90,7 @@
     <Compile Include="Connectionist\Activation\LeakyRELU.cs" />
     <Compile Include="Connectionist\Activation\RELU.cs" />
     <Compile Include="Connectionist\Activation\Sigmoid.cs" />
+    <Compile Include="Connectionist\Activation\Softmax.cs" />
     <Compile Include="Connectionist\Activation\Tanh.cs" />
     <Compile Include="Connectionist\Execution\BidirectionalExecution.cs" />
     <Compile Include="Connectionist\Execution\FeedForwardExecution.cs" />
@@ -99,6 +100,7 @@
     <Compile Include="Connectionist\Execution\Layer\SimpleRecurrent.cs" />
     <Compile Include="Connectionist\Execution\Layer\StandardFeedForward.cs" />
     <Compile Include="Connectionist\Execution\RecurrentExecution.cs" />
+    <Compile Include="Models\ExecutionResults\RecurrentOutput.cs" />
     <Compile Include="Connectionist\Factory.cs" />
     <Compile Include="Connectionist\LayerDescriptor.cs" />
     <Compile Include="Connectionist\Training\Batch\BatchTrainer.cs" />
@@ -133,6 +135,7 @@
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="Helper\BigEndianBinaryReader.cs" />
     <Compile Include="Helper\BoundMath.cs" />
+    <Compile Include="Helper\DenseSequentialTrainingDataProvider.cs" />
     <Compile Include="Helper\DenseTrainingDataProvider.cs" />
     <Compile Include="Helper\DisposableMatrixExecutionLine.cs" />
     <Compile Include="Helper\SequenceWindowBuilder.cs" />
@@ -162,7 +165,9 @@
   <ItemGroup>
     <None Include="LICENSE" />
     <None Include="LinearAlgebra\cuda\kernel.cu" />
-    <None Include="LinearAlgebra\cuda\kernel.cubin" />
+    <None Include="LinearAlgebra\cuda\kernel.cubin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>

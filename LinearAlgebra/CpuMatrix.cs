@@ -248,6 +248,16 @@ namespace BrightWire.LinearAlgebra
             return new CpuMatrix(_matrix.Map(_TanhDerivative));
         }
 
+        public IMatrix SoftmaxActivation()
+        {
+            throw new NotImplementedException();
+        }
+
+        public IMatrix SoftmaxDerivative()
+        {
+            throw new NotImplementedException();
+        }
+
         public void AddToEachRow(IVector vector)
         {
             var other = (Vector<float>)vector.WrappedObject;

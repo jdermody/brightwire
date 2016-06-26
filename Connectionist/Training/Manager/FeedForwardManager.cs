@@ -27,7 +27,10 @@ namespace BrightWire.Connectionist.Training.Manager
             _testData = testData;
             _errorMetric = errorMetric;
 
-            _LoadFromFile();
+            if (File.Exists(_dataFile)) {
+                using (var stream = new FileStream(_dataFile, FileMode.Open, FileAccess.Read))
+                    _trainer.NetworkInfo = Serializer.Deserialize<FeedForwardNetwork>(stream);
+            }
         }
 
         protected virtual void Dispose(bool disposing)
@@ -41,14 +44,6 @@ namespace BrightWire.Connectionist.Training.Manager
         {
             Dispose(true);
             GC.SuppressFinalize(this);
-        }
-
-        private void _LoadFromFile()
-        {
-            if (File.Exists(_dataFile)) {
-                using (var stream = new FileStream(_dataFile, FileMode.Open, FileAccess.Read))
-                    _trainer.NetworkInfo = Serializer.Deserialize<FeedForwardNetwork>(stream);
-            }
         }
 
         public INeuralNetworkTrainer Trainer { get { return _trainer; } }
@@ -68,14 +63,9 @@ namespace BrightWire.Connectionist.Training.Manager
             _trainer.Train(trainingData, numEpochs, context);
             context.EpochComplete -= OnEpochComplete;
 
-            if (_bestOutput != null) {
-                using (var stream = new FileStream(_dataFile, FileMode.Create, FileAccess.Write))
-                    Serializer.Serialize(stream, _bestOutput);
-
-                // ensure best values are current
+            // ensure best values are current
+            if (_bestOutput != null)
                 _trainer.NetworkInfo = _bestOutput;
-            }
-            _LoadFromFile();
         }
 
         private void OnEpochComplete(ITrainingContext context)
@@ -89,6 +79,11 @@ namespace BrightWire.Connectionist.Training.Manager
             }
             if((context.CurrentEpoch % _reportCadence) == 0)
                 context.WriteScore(score, _errorMetric.DisplayAsPercentage, flag);
+
+            if(flag) {
+                using (var stream = new FileStream(_dataFile, FileMode.Create, FileAccess.Write))
+                    Serializer.Serialize(stream, _bestOutput);
+            }
         }
     }
 }

@@ -145,23 +145,6 @@ namespace BrightWire.LinearAlgebra
             }
         }
 
-        //public void WriteTo(BinaryWriter writer)
-        //{
-        //    writer.Write(_vector.Count);
-        //    for (var i = 0; i < _vector.Count; i++)
-        //        writer.Write(_vector[i]);
-        //}
-
-        //public void ReadFrom(BinaryReader reader)
-        //{
-        //    var count = reader.ReadInt32();
-        //    for (var j = 0; j < count; j++) {
-        //        var val = reader.ReadSingle();
-        //        if (j < _vector.Count)
-        //            _vector[j] = val;
-        //    }
-        //}
-
         public IIndexableVector AsIndexable()
         {
             return this;
@@ -208,30 +191,6 @@ namespace BrightWire.LinearAlgebra
         public IVector Clone()
         {
             return new CpuVector(DenseVector.OfVector(_vector));
-        }
-
-        public IIndexableVector Softmax()
-        {
-            var ret = new float[Count];
-            float sum = 0f;
-            var max = _vector.Max();
-            for (var i = 0; i < Count; i++)
-                sum += (ret[i] = (float)Math.Exp(_vector[i] - max));
-            for (var i = 0; i < Count; i++)
-                ret[i] /= sum;
-            return new CpuVector(DenseVector.OfArray(ret));
-        }
-
-        public IIndexableVector Softmax2()
-        {
-            var ret = new float[Count];
-            float sum = 0f;
-            var min = _vector.Min();
-            for (var i = 0; i < Count; i++)
-                sum += (ret[i] = _vector[i] - min);
-            for (var i = 0; i < Count; i++)
-                ret[i] /= sum;
-            return new CpuVector(DenseVector.OfArray(ret));
         }
 
         public float EuclideanDistance(IVector vector)
@@ -295,6 +254,11 @@ namespace BrightWire.LinearAlgebra
                 var norm = _vector.Normalize(p);
                 norm.CopyTo(_vector);
             }
+        }
+
+        public IIndexableVector Append(IReadOnlyList<float> data)
+        {
+            return new CpuVector(DenseVector.Create(Count + data.Count, i => i < Count ? _vector[i] : data[i-Count]));
         }
     }
 }

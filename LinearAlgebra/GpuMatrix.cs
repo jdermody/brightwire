@@ -437,6 +437,16 @@ namespace BrightWire.LinearAlgebra
             return new GpuMatrix(_cuda, _rows, _columns, _cuda.SigmoidDerivative(_data, _rows, _columns));
         }
 
+        public IMatrix SoftmaxActivation()
+        {
+            throw new NotImplementedException();
+        }
+
+        public IMatrix SoftmaxDerivative()
+        {
+            throw new NotImplementedException();
+        }
+
         public Tuple<IMatrix, IMatrix> SplitColumns(int position)
         {
             Debug.Assert(IsValid);
@@ -613,22 +623,22 @@ namespace BrightWire.LinearAlgebra
             set
             {
                 Debug.Assert(IsValid);
-                var data = new float[_rows * _columns];
-                _data.CopyToHost(data);
+                var buffer = new float[_rows * _columns];
+                _data.CopyToHost(buffer);
 
                 var rowCount = value.Length;
                 for (var i = 0; i < rowCount && i < _rows; i++) {
                     var row = value[i];
                     if (row.Data != null) {
                         var data2 = row.Data;
-                        var columnCount = data.Length;
+                        var columnCount = data2.Length;
                         for (var j = 0; j < columnCount && j < _columns; j++) {
-                            data[j * _rows + i] = data2[j];
+                            buffer[j * _rows + i] = data2[j];
                         }
                     }
                 }
 
-                _data.CopyToDevice(data);
+                _data.CopyToDevice(buffer);
             }
         }
     }
