@@ -67,32 +67,32 @@ namespace BrightWire.Connectionist.Training.Manager
 
         protected float[] _Load(INeuralNetworkRecurrentBatchTrainer network, string file, int hiddenLayerSize)
         {
-            float[] ret;
+            var ret = Enumerable.Range(0, hiddenLayerSize).Select(i => 0f).ToArray();
+
             if (File.Exists(file)) {
                 using (var stream = new FileStream(file, FileMode.Open, FileAccess.Read)) {
                     var networkInfo = Serializer.Deserialize<RecurrentNetwork>(stream);
                     network.NetworkInfo = networkInfo;
-                    return networkInfo.Memory.Data;
+                    Array.Copy(networkInfo.Memory.Data, ret, Math.Min(networkInfo.Memory.Data.Length, ret.Length));
                 }
             }
-            else
-                ret = Enumerable.Range(0, hiddenLayerSize).Select(i => 0f).ToArray();
             return ret;
         }
 
         protected Tuple<float[], float[]> _Load(INeuralNetworkBidirectionalBatchTrainer network, string file, int hiddenLayerSize)
         {
-            Tuple<float[], float[]> ret;
+            var forwardMemory = Enumerable.Range(0, hiddenLayerSize).Select(i => 0f).ToArray();
+            var backwardMemory = Enumerable.Range(0, hiddenLayerSize).Select(i => 0f).ToArray();
+
             if (File.Exists(file)) {
                 using (var stream = new FileStream(file, FileMode.Open, FileAccess.Read)) {
                     var networkInfo = Serializer.Deserialize<BidirectionalNetwork>(stream);
                     network.NetworkInfo = networkInfo;
-                    return Tuple.Create(networkInfo.ForwardMemory.Data, networkInfo.BackwardMemory.Data);
+                    Array.Copy(networkInfo.ForwardMemory.Data, forwardMemory, Math.Min(networkInfo.ForwardMemory.Data.Length, forwardMemory.Length));
+                    Array.Copy(networkInfo.BackwardMemory.Data, backwardMemory, Math.Min(networkInfo.BackwardMemory.Data.Length, backwardMemory.Length));
                 }
             }
-            else
-                ret = Tuple.Create(Enumerable.Range(0, hiddenLayerSize).Select(i => 0f).ToArray(), Enumerable.Range(0, hiddenLayerSize).Select(i => 0f).ToArray());
-            return ret;
+            return Tuple.Create(forwardMemory, backwardMemory);
         }
     }
 }

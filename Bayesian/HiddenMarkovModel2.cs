@@ -13,7 +13,7 @@ namespace BrightWire.Bayesian
         readonly Dictionary<Tuple<T, T>, List<T>> _data = new Dictionary<Tuple<T, T>, List<T>>();
         readonly int _minObservations;
 
-        public HiddenMarkovModel2(int minObservations)
+        public HiddenMarkovModel2(int minObservations = 1)
         {
             _minObservations = minObservations;
         }

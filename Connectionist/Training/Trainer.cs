@@ -236,20 +236,22 @@ namespace BrightWire.Connectionist.Training
 
         protected override void _UpdateLayer(IMatrix input, IMatrix delta, ITrainingContext context, INeuralNetworkUpdateAccumulator updates)
         {
-            Debug.Assert(_filter != null && _filter2 != null);
+            if (_filter != null && _filter2 != null) {
+                // filter the updates to the bias against the filter
+                using (var columnSums = delta.ColumnSums())
+                using (var filteredColumnSums = columnSums.PointwiseMultiply(_filter2))
+                    _layerUpdater.Layer.Bias.AddInPlace(filteredColumnSums, 1f / columnSums.Count);
 
-            // filter the updates to the bias against the filter
-            using (var columnSums = delta.ColumnSums())
-            using (var filteredColumnSums = columnSums.PointwiseMultiply(_filter2))
-                _layerUpdater.Layer.Bias.AddInPlace(filteredColumnSums, 1f / columnSums.Count);
+                // filter the weight updates against the filter
+                using (var weightUpdate = input.TransposeThisAndMultiply(delta))
+                using (var filteredWeightUpdate = weightUpdate.PointwiseMultiply(_filter))
+                    _layerUpdater.Update(null, filteredWeightUpdate, context);
 
-            // filter the weight updates against the filter
-            using (var weightUpdate = input.TransposeThisAndMultiply(delta))
-            using (var filteredWeightUpdate = weightUpdate.PointwiseMultiply(_filter))
-                _layerUpdater.Update(null, filteredWeightUpdate, context);
-
-            // TODO: implement INeuralNetworkUpdateAccumulator
-            delta.Dispose();
+                // TODO: implement INeuralNetworkUpdateAccumulator
+                delta.Dispose();
+            }
+            else
+                base._UpdateLayer(input, delta, context, updates);
         }
     }
 
