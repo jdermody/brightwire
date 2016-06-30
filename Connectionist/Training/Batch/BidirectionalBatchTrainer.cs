@@ -56,7 +56,7 @@ namespace BrightWire.Connectionist.Training.Batch
             }
         }
 
-        public float CalculateCost(IReadOnlyList<Tuple<float[], float[]>[]> data, float[] forwardMemory, float[] backwardMemory, ICostFunction costFunction, IRecurrentTrainingContext context)
+        public float CalculateCost(ISequentialTrainingDataProvider data, float[] forwardMemory, float[] backwardMemory, ICostFunction costFunction, IRecurrentTrainingContext context)
         {
             return Execute(data, forwardMemory, backwardMemory, context)
                 .SelectMany(r => r)
@@ -65,7 +65,7 @@ namespace BrightWire.Connectionist.Training.Batch
             ;
         }
 
-        public IReadOnlyList<RecurrentExecutionResults[]> Execute(IReadOnlyList<Tuple<float[], float[]>[]> trainingData, float[] forwardMemory, float[] backwardMemory, IRecurrentTrainingContext context)
+        public IReadOnlyList<RecurrentExecutionResults[]> Execute(ISequentialTrainingDataProvider trainingData, float[] forwardMemory, float[] backwardMemory, IRecurrentTrainingContext context)
         {
             List<RecurrentExecutionResults> temp;
             var sequenceOutput = new Dictionary<int, List<RecurrentExecutionResults>>();
@@ -97,7 +97,7 @@ namespace BrightWire.Connectionist.Training.Batch
             return sequenceOutput.OrderBy(kv => kv.Key).Select(kv => kv.Value.ToArray()).ToList();
         }
 
-        public Tuple<float[], float[]> Train(IReadOnlyList<Tuple<float[], float[]>[]> trainingData, float[] forwardMemory, float[] backwardMemory, int numEpochs, IRecurrentTrainingContext context)
+        public Tuple<float[], float[]> Train(ISequentialTrainingDataProvider trainingData, float[] forwardMemory, float[] backwardMemory, int numEpochs, IRecurrentTrainingContext context)
         {
             var trainingContext = context.TrainingContext;
             var logger = trainingContext.Logger;

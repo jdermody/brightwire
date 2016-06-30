@@ -2,6 +2,7 @@
 using BrightWire.Connectionist;
 using BrightWire.Helper;
 using BrightWire.LinearAlgebra;
+using BrightWire.Models;
 using BrightWire.TrainingData.Artificial;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
@@ -41,6 +42,7 @@ namespace UnitTests
 
             // create a (CPU based) linear algebra provider
             using (var lap = new NumericsProvider()) {
+                FeedForwardNetwork networkData;
                 // Create some training data that the network will learn.  The XOR pattern looks like:
                 // 0 0 => 0
                 // 1 0 => 1
@@ -58,13 +60,26 @@ namespace UnitTests
                     trainer.Train(testDataProvider, 1000, trainingContext);
 
                     // execute the network to get the predictions
-                    var results = trainer.Execute(testDataProvider);
-                    for (var i = 0; i < results.Count; i++) {
-                        var result = results[i];
+                    var trainingResults = trainer.Execute(testDataProvider);
+                    for (var i = 0; i < trainingResults.Count; i++) {
+                        var result = trainingResults[i];
                         var predictedResult = Convert.ToSingle(Math.Round(result.Item1[0]));
                         var expectedResult = result.Item2[0];
                         FloatingPointHelper.AssertEqual(predictedResult, expectedResult);
                     }
+
+                    // serialise the network parameters and data
+                    networkData = trainer.NetworkInfo;
+                }
+
+                // create a new network to execute the learned network
+                var network = lap.NN.CreateFeedForward(networkData);
+                var results = XorData.Get().Select(d => Tuple.Create(network.Execute(d.Item1), d.Item2)).ToList();
+                for (var i = 0; i < results.Count; i++) {
+                    var result = results[i].Item1.AsIndexable();
+                    var predictedResult = Convert.ToSingle(Math.Round(result[0]));
+                    var expectedResult = results[i].Item2[0];
+                    FloatingPointHelper.AssertEqual(predictedResult, expectedResult);
                 }
             }
         }

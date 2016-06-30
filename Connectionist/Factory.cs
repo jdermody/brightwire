@@ -259,7 +259,7 @@ namespace BrightWire.Connectionist
         public IRecurrentTrainingManager CreateRecurrentManager(
             INeuralNetworkRecurrentBatchTrainer trainer,
             string dataFile,
-            IReadOnlyList<Tuple<float[], float[]>[]> testData,
+            ISequentialTrainingDataProvider testData,
             IErrorMetric errorMetric,
             int memorySize
         )
@@ -270,7 +270,7 @@ namespace BrightWire.Connectionist
         public IBidirectionalRecurrentTrainingManager CreateBidirectionalManager(
             INeuralNetworkBidirectionalBatchTrainer trainer,
             string dataFile,
-            IReadOnlyList<Tuple<float[], float[]>[]> testData,
+            ISequentialTrainingDataProvider testData,
             IErrorMetric errorMetric,
             int memorySize
         )

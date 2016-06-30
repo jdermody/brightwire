@@ -11,26 +11,26 @@ namespace BrightWire.Connectionist.Training.Manager
 {
     internal class RecurrentManagerBase
     {
-        protected readonly IReadOnlyList<Tuple<float[], float[]>[]> _testData;
+        protected readonly ISequentialTrainingDataProvider _testData;
         protected IErrorMetric _errorMetric;
 
-        internal RecurrentManagerBase(IReadOnlyList<Tuple<float[], float[]>[]> testData, IErrorMetric errorMetric)
+        internal RecurrentManagerBase(ISequentialTrainingDataProvider testData, IErrorMetric errorMetric)
         {
             _testData = testData;
             _errorMetric = errorMetric;
         }
 
-        protected double _GetScore(IReadOnlyList<Tuple<float[], float[]>[]> data, INeuralNetworkRecurrentBatchTrainer network, float[] memory, IRecurrentTrainingContext context)
+        protected double _GetScore(ISequentialTrainingDataProvider data, INeuralNetworkRecurrentBatchTrainer network, float[] memory, IRecurrentTrainingContext context)
         {
             return network.Execute(data, memory, context).SelectMany(d => d).Select(d => _errorMetric.Compute(d.Output, d.Target)).Average();
         }
 
-        protected double _GetScore(IReadOnlyList<Tuple<float[], float[]>[]> data, INeuralNetworkBidirectionalBatchTrainer network, float[] forwardMemory, float[] backwardMemory, IRecurrentTrainingContext context)
+        protected double _GetScore(ISequentialTrainingDataProvider data, INeuralNetworkBidirectionalBatchTrainer network, float[] forwardMemory, float[] backwardMemory, IRecurrentTrainingContext context)
         {
             return network.Execute(data, forwardMemory, backwardMemory, context).SelectMany(d => d).Select(d => _errorMetric.Compute(d.Output, d.Target)).Average();
         }
 
-        protected bool _CalculateTestScore(ITrainingContext context, float[] memory, IReadOnlyList<Tuple<float[], float[]>[]> data, INeuralNetworkRecurrentBatchTrainer network, IRecurrentTrainingContext recurrentContext, ref double bestScore, ref RecurrentNetwork output)
+        protected bool _CalculateTestScore(ITrainingContext context, float[] memory, ISequentialTrainingDataProvider data, INeuralNetworkRecurrentBatchTrainer network, IRecurrentTrainingContext recurrentContext, ref double bestScore, ref RecurrentNetwork output)
         {
             bool flag = false;
             var score = _GetScore(data, network, memory, recurrentContext);
@@ -46,7 +46,7 @@ namespace BrightWire.Connectionist.Training.Manager
             return flag;
         }
 
-        protected bool _CalculateTestScore(ITrainingContext context, float[] forwardMemory, float[] backwardMemory, IReadOnlyList<Tuple<float[], float[]>[]> data, INeuralNetworkBidirectionalBatchTrainer network, IRecurrentTrainingContext recurrentContext, ref double bestScore, ref BidirectionalNetwork output)
+        protected bool _CalculateTestScore(ITrainingContext context, float[] forwardMemory, float[] backwardMemory, ISequentialTrainingDataProvider data, INeuralNetworkBidirectionalBatchTrainer network, IRecurrentTrainingContext recurrentContext, ref double bestScore, ref BidirectionalNetwork output)
         {
             bool flag = false;
             var score = _GetScore(data, network, forwardMemory, backwardMemory, recurrentContext);

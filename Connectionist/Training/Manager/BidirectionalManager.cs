@@ -23,7 +23,7 @@ namespace BrightWire.Connectionist.Training.Manager
         public BidirectionalManager(ILinearAlgebraProvider lap,
             INeuralNetworkBidirectionalBatchTrainer trainer,
             string dataFile,
-            IReadOnlyList<Tuple<float[], float[]>[]> testData,
+            ISequentialTrainingDataProvider testData,
             IErrorMetric errorMetric,
             int memorySize) : base(testData, errorMetric)
         {
@@ -59,7 +59,7 @@ namespace BrightWire.Connectionist.Training.Manager
             }
         }
 
-        public void Train(IReadOnlyList<Tuple<float[], float[]>[]> trainingData, int numEpochs, ITrainingContext context, IRecurrentTrainingContext recurrentContext = null)
+        public void Train(ISequentialTrainingDataProvider trainingData, int numEpochs, ITrainingContext context, IRecurrentTrainingContext recurrentContext = null)
         {
             if (recurrentContext == null)
                 recurrentContext = new RecurrentContext(_lap, context);

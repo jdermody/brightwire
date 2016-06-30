@@ -51,12 +51,12 @@ namespace BrightWire.Connectionist.Training.Batch
             }
         }
 
-        public float CalculateCost(IReadOnlyList<Tuple<float[], float[]>[]> data, float[] memory, ICostFunction costFunction, IRecurrentTrainingContext context)
+        public float CalculateCost(ISequentialTrainingDataProvider data, float[] memory, ICostFunction costFunction, IRecurrentTrainingContext context)
         {
             return Execute(data, memory, context).SelectMany(r => r).Select(r => costFunction.Calculate(r.Output, r.Target)).Average();
         }
 
-        public IReadOnlyList<RecurrentExecutionResults[]> Execute(IReadOnlyList<Tuple<float[], float[]>[]> trainingData, float[] memory, IRecurrentTrainingContext context)
+        public IReadOnlyList<RecurrentExecutionResults[]> Execute(ISequentialTrainingDataProvider trainingData, float[] memory, IRecurrentTrainingContext context)
         {
             List<RecurrentExecutionResults> temp;
             var sequenceOutput = new Dictionary<int, List<RecurrentExecutionResults>>();
@@ -119,7 +119,7 @@ namespace BrightWire.Connectionist.Training.Batch
             return new RecurrentExecutionResults(output, null, memoryOutput);
         }
 
-        public float[] Train(IReadOnlyList<Tuple<float[], float[]>[]> trainingData, float[] memory, int numEpochs, IRecurrentTrainingContext context)
+        public float[] Train(ISequentialTrainingDataProvider trainingData, float[] memory, int numEpochs, IRecurrentTrainingContext context)
         {
             var trainingContext = context.TrainingContext;
             for (int i = 0; i < numEpochs; i++) {

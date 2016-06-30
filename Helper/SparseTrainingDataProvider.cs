@@ -10,16 +10,21 @@ namespace BrightWire.Helper
     {
         readonly ILinearAlgebraProvider _lap;
         readonly IReadOnlyList<Tuple<Dictionary<int, float>, Dictionary<int, float>>> _data;
+        readonly int _inputSize, _outputSize;
         IIndexableMatrix _inputCache = null, _outputCache = null;
         int _lastBatchSize = 0;
 
-        public SparseTrainingDataProvider(ILinearAlgebraProvider lap, IReadOnlyList<Tuple<Dictionary<int, float>, Dictionary<int, float>>> data)
+        public SparseTrainingDataProvider(ILinearAlgebraProvider lap, IReadOnlyList<Tuple<Dictionary<int, float>, Dictionary<int, float>>> data, int inputSize, int outputSize)
         {
             _lap = lap;
             _data = data;
+            _inputSize = inputSize;
+            _outputSize = outputSize;
         }
 
         public int Count { get { return _data.Count; } }
+        public int InputSize { get { return _inputSize; } }
+        public int OutputSize { get { return _outputSize; } }
 
         public float Get(int row, int column)
         {

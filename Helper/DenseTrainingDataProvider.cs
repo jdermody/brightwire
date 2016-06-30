@@ -10,12 +10,20 @@ namespace BrightWire.Helper
     {
         readonly IReadOnlyList<Tuple<float[], float[]>> _data;
         readonly ILinearAlgebraProvider _lap;
+        readonly int _inputSize, _outputSize;
 
         public DenseTrainingDataProvider(ILinearAlgebraProvider lap, IReadOnlyList<Tuple<float[], float[]>> data)
         {
             _lap = lap;
             _data = data;
+
+            var first = data.First();
+            _inputSize = first.Item1.Length;
+            _outputSize = first.Item2.Length;
         }
+
+        public int InputSize { get { return _inputSize; } }
+        public int OutputSize { get { return _outputSize; } }
 
         public float Get(int row, int column)
         {

@@ -406,15 +406,15 @@ namespace BrightWire
         );
         IRecurrentTrainingManager CreateRecurrentManager(
             INeuralNetworkRecurrentBatchTrainer trainer, 
-            string dataFile, 
-            IReadOnlyList<Tuple<float[], float[]>[]> testData, 
+            string dataFile,
+            ISequentialTrainingDataProvider testData, 
             IErrorMetric errorMetric,
             int memorySize
         );
         IBidirectionalRecurrentTrainingManager CreateBidirectionalManager(
             INeuralNetworkBidirectionalBatchTrainer trainer, 
-            string dataFile, 
-            IReadOnlyList<Tuple<float[], float[]>[]> testData, 
+            string dataFile,
+            ISequentialTrainingDataProvider testData, 
             IErrorMetric errorMetric,
             int memorySize
         );
@@ -450,9 +450,9 @@ namespace BrightWire
         IReadOnlyList<INeuralNetworkRecurrentLayer> Layer { get; }
         ILinearAlgebraProvider LinearAlgebraProvider { get; }
 
-        float CalculateCost(IReadOnlyList<Tuple<float[], float[]>[]> data, float[] memory, ICostFunction costFunction, IRecurrentTrainingContext context);
-        float[] Train(IReadOnlyList<Tuple<float[], float[]>[]> trainingData, float[] memory, int numEpochs, IRecurrentTrainingContext context);
-        IReadOnlyList<RecurrentExecutionResults[]> Execute(IReadOnlyList<Tuple<float[], float[]>[]> trainingData, float[] memory, IRecurrentTrainingContext context);
+        float CalculateCost(ISequentialTrainingDataProvider data, float[] memory, ICostFunction costFunction, IRecurrentTrainingContext context);
+        float[] Train(ISequentialTrainingDataProvider trainingData, float[] memory, int numEpochs, IRecurrentTrainingContext context);
+        IReadOnlyList<RecurrentExecutionResults[]> Execute(ISequentialTrainingDataProvider trainingData, float[] memory, IRecurrentTrainingContext context);
         RecurrentExecutionResults[] ExecuteSingle(Tuple<float[], float[]>[] data, float[] memory, IRecurrentTrainingContext context, int dataIndex = 0);
         RecurrentExecutionResults ExecuteSingleStep(float[] input, float[] memory);
         RecurrentNetwork NetworkInfo { get; set; }
@@ -461,9 +461,9 @@ namespace BrightWire
     public interface INeuralNetworkBidirectionalBatchTrainer : IDisposable
     {
         IReadOnlyList<INeuralNetworkBidirectionalLayer> Layer { get; }
-        float CalculateCost(IReadOnlyList<Tuple<float[], float[]>[]> data, float[] forwardMemory, float[] backwardMemory, ICostFunction costFunction, IRecurrentTrainingContext context);
-        IReadOnlyList<RecurrentExecutionResults[]> Execute(IReadOnlyList<Tuple<float[], float[]>[]> trainingData, float[] forwardMemory, float[] backwardMemory, IRecurrentTrainingContext context);
-        Tuple<float[], float[]> Train(IReadOnlyList<Tuple<float[], float[]>[]> trainingData, float[] forwardMemory, float[] backwardMemory, int numEpochs, IRecurrentTrainingContext context);
+        float CalculateCost(ISequentialTrainingDataProvider data, float[] forwardMemory, float[] backwardMemory, ICostFunction costFunction, IRecurrentTrainingContext context);
+        IReadOnlyList<RecurrentExecutionResults[]> Execute(ISequentialTrainingDataProvider trainingData, float[] forwardMemory, float[] backwardMemory, IRecurrentTrainingContext context);
+        Tuple<float[], float[]> Train(ISequentialTrainingDataProvider trainingData, float[] forwardMemory, float[] backwardMemory, int numEpochs, IRecurrentTrainingContext context);
         BidirectionalNetwork NetworkInfo { get; set; }
     }
 
@@ -480,12 +480,17 @@ namespace BrightWire
     {
         Tuple<IMatrix, IMatrix> GetTrainingData(IReadOnlyList<int> rows, int inputSize, int outputSize);
         int Count { get; }
+        int InputSize { get; }
+        int OutputSize { get; }
     }
 
     public interface ISequentialTrainingDataProvider
     {
-        Tuple<IMatrix[], IMatrix[]> GetTrainingData(int sequenceLength, IReadOnlyList<int> rows, int inputSize, int outputSize);
+        Tuple<IMatrix[], IMatrix[], int[]> GetTrainingData(int sequenceLength, IReadOnlyList<int> rows);
         Tuple<int, int>[] Length { get; }
+        int Count { get; }
+        int InputSize { get; }
+        int OutputSize { get; }
     }
 
     public interface IDataProvider
@@ -554,14 +559,14 @@ namespace BrightWire
     public interface IRecurrentTrainingManager : IDisposable
     {
         INeuralNetworkRecurrentBatchTrainer Trainer { get; }
-        void Train(IReadOnlyList<Tuple<float[], float[]>[]> trainingData, int numEpochs, ITrainingContext context, IRecurrentTrainingContext recurrentContext = null);
+        void Train(ISequentialTrainingDataProvider trainingData, int numEpochs, ITrainingContext context, IRecurrentTrainingContext recurrentContext = null);
         float[] Memory { get; }
     }
 
     public interface IBidirectionalRecurrentTrainingManager : IDisposable
     {
         ILinearAlgebraProvider LinearAlgebraProvider { get; }
-        void Train(IReadOnlyList<Tuple<float[], float[]>[]> trainingData, int numEpochs, ITrainingContext context, IRecurrentTrainingContext recurrentContext = null);
+        void Train(ISequentialTrainingDataProvider trainingData, int numEpochs, ITrainingContext context, IRecurrentTrainingContext recurrentContext = null);
         Tuple<float[], float[]> Memory { get; }
     }
 
