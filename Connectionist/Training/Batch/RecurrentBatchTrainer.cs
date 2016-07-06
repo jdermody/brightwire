@@ -122,7 +122,7 @@ namespace BrightWire.Connectionist.Training.Batch
         public float[] Train(ISequentialTrainingDataProvider trainingData, float[] memory, int numEpochs, IRecurrentTrainingContext context)
         {
             var trainingContext = context.TrainingContext;
-            for (int i = 0; i < numEpochs; i++) {
+            for (int i = 0; i < numEpochs && context.TrainingContext.ShouldContinue; i++) {
                 trainingContext.StartEpoch(trainingData.Count);
                 var batchErrorList = new List<double>();
                     

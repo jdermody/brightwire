@@ -247,6 +247,7 @@ namespace BrightWire
         long EpochMilliseconds { get; }
         double EpochSeconds { get; }
         int MiniBatchSize { get; }
+        bool ShouldContinue { get; }
 
         XmlWriter Logger { get; set; }
 

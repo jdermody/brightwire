@@ -32,6 +32,7 @@ namespace BrightWire.Connectionist.Training.Helper
         public long EpochMilliseconds { get { return _timer.ElapsedMilliseconds; } }
         public double EpochSeconds { get { return EpochMilliseconds / 1000.0; } }
         public int MiniBatchSize { get { return _miniBatchSize; } }
+        public bool ShouldContinue { get { return true; } }
 
         public XmlWriter Logger
         {

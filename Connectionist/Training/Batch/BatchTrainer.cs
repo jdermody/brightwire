@@ -81,7 +81,7 @@ namespace BrightWire.Connectionist.Training.Batch
         public void Train(ITrainingDataProvider trainingData, int numEpochs, ITrainingContext context)
         {
             IMatrix curr = null;
-            for (int i = 0; i < numEpochs; i++) {
+            for (int i = 0; i < numEpochs && context.ShouldContinue; i++) {
                 context.StartEpoch(trainingData.Count);
                 var batchErrorList = new List<double>();
 

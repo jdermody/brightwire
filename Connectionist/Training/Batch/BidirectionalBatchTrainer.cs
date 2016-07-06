@@ -45,7 +45,7 @@ namespace BrightWire.Connectionist.Training.Batch
             {
                 return new BidirectionalNetwork {
                     Padding = _padding,
-                    Layer = _layer.Select(l => l.LayerInfo).ToArray()
+                    Layer = _layer.Select(l => l.LayerInfo).ToArray(),
                 };
             }
 
@@ -101,7 +101,7 @@ namespace BrightWire.Connectionist.Training.Batch
         {
             var trainingContext = context.TrainingContext;
             var logger = trainingContext.Logger;
-            for (int i = 0; i < numEpochs; i++) {
+            for (int i = 0; i < numEpochs && context.TrainingContext.ShouldContinue; i++) {
                 trainingContext.StartEpoch(trainingData.Count);
                 var batchErrorList = new List<double>();
 
