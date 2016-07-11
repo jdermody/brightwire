@@ -12,7 +12,6 @@ namespace BrightWire.Connectionist.Training.Batch
     public class BatchTrainer : INeuralNetworkTrainer
     {
         readonly bool _stochastic, _calculateTrainingError;
-        readonly int _inputSize, _outputSize;
         readonly IReadOnlyList<INeuralNetworkLayerTrainer> _layer;
 
         const int DEFAULT_BATCH_SIZE = 128;
@@ -22,8 +21,6 @@ namespace BrightWire.Connectionist.Training.Batch
             _layer = layer;
             _stochastic = stochastic;
             _calculateTrainingError = calculateTrainingError;
-            _inputSize = layer.First().LayerUpdater.Layer.InputSize;
-            _outputSize = layer.Last().LayerUpdater.Layer.OutputSize;
         }
 
         protected virtual void Dispose(bool disposing)
@@ -74,7 +71,7 @@ namespace BrightWire.Connectionist.Training.Batch
             for (var j = 0; j < data.Count; j += batchSize) {
                 var maxRows = Math.Min(iterationOrder.Count, batchSize + j) - j;
                 var rows = iterationOrder.Skip(j).Take(maxRows).ToList();
-                yield return data.GetTrainingData(rows, _inputSize, _outputSize);
+                yield return data.GetTrainingData(rows);
             }
         }
 

@@ -35,10 +35,10 @@ namespace BrightWire.Helper
             return _data[row].Item2[column];
         }
 
-        public Tuple<IMatrix, IMatrix> GetTrainingData(IReadOnlyList<int> rows, int inputSize, int outputSize)
+        public Tuple<IMatrix, IMatrix> GetTrainingData(IReadOnlyList<int> rows)
         {
-            var input = _lap.Create(rows.Count, inputSize, (x, y) => Get(rows[x], y));
-            var output = _lap.Create(rows.Count, outputSize, (x, y) => GetPrediction(rows[x], y));
+            var input = _lap.Create(rows.Count, _inputSize, (x, y) => Get(rows[x], y));
+            var output = _lap.Create(rows.Count, _outputSize, (x, y) => GetPrediction(rows[x], y));
             return Tuple.Create(input, output);
         }
 

@@ -42,17 +42,17 @@ namespace BrightWire.Helper
             return 0f;
         }
 
-        public Tuple<IMatrix, IMatrix> GetTrainingData(IReadOnlyList<int> rows, int inputSize, int outputSize)
+        public Tuple<IMatrix, IMatrix> GetTrainingData(IReadOnlyList<int> rows)
         {
             if (_inputCache == null || _lastBatchSize != rows.Count) {
                 _inputCache?.Dispose();
-                _inputCache = _lap.CreateIndexable(rows.Count, inputSize);
+                _inputCache = _lap.CreateIndexable(rows.Count, _inputSize);
             }
             else
                 _inputCache.Clear();
             if (_outputCache == null || _lastBatchSize != rows.Count) {
                 _outputCache?.Dispose();
-                _outputCache = _lap.CreateIndexable(rows.Count, outputSize);
+                _outputCache = _lap.CreateIndexable(rows.Count, _outputSize);
             }
             else
                 _outputCache.Clear();
