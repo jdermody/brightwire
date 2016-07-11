@@ -479,7 +479,7 @@ namespace BrightWire
 
     public interface ITrainingDataProvider
     {
-        Tuple<IMatrix, IMatrix> GetTrainingData(IReadOnlyList<int> rows, int inputSize, int outputSize);
+        Tuple<IMatrix, IMatrix> GetTrainingData(IReadOnlyList<int> rows);
         int Count { get; }
         int InputSize { get; }
         int OutputSize { get; }
@@ -492,12 +492,6 @@ namespace BrightWire
         int Count { get; }
         int InputSize { get; }
         int OutputSize { get; }
-    }
-
-    public interface IDataProvider
-    {
-        IMatrix GetData(IReadOnlyList<int> rows, int inputSize);
-        int Count { get; }
     }
 
     public interface IWeightInitialisation
