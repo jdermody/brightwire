@@ -58,8 +58,8 @@
       <HintPath>..\packages\ManagedCuda-75-x64.7.5.7\lib\net45\x64\ManagedCuda.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="MathNet.Numerics, Version=3.11.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MathNet.Numerics.3.11.1\lib\net40\MathNet.Numerics.dll</HintPath>
+    <Reference Include="MathNet.Numerics, Version=3.12.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MathNet.Numerics.3.12.0\lib\net40\MathNet.Numerics.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="NPP, Version=7.5.7.0, Culture=neutral, processorArchitecture=AMD64">
@@ -70,8 +70,8 @@
       <HintPath>..\packages\ManagedCuda-75-x64.7.5.7\lib\net45\x64\NVRTC.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="protobuf-net, Version=2.0.0.668, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
-      <HintPath>..\packages\protobuf-net.2.0.0.668\lib\net40\protobuf-net.dll</HintPath>
+    <Reference Include="protobuf-net, Version=2.1.0.0, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
+      <HintPath>..\packages\protobuf-net.2.1.0\lib\net451\protobuf-net.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -139,7 +139,6 @@
     <Compile Include="Helper\DenseTrainingDataProvider.cs" />
     <Compile Include="Helper\DisposableMatrixExecutionLine.cs" />
     <Compile Include="Helper\SequenceWindowBuilder.cs" />
-    <Compile Include="Helper\SparseDataProvider.cs" />
     <Compile Include="Helper\SparseTrainingDataProvider.cs" />
     <Compile Include="Interface.cs" />
     <Compile Include="LinearAlgebra\CpuMatrix.cs" />
@@ -157,10 +156,13 @@
     <Compile Include="Models\RecurrentLayer.cs" />
     <Compile Include="Models\RecurrentNetwork.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TabularData\DataTable.cs" />
+    <Compile Include="TabularData\NumericTable.cs" />
     <Compile Include="TrainingData\Artificial\BinaryIntegers.cs" />
     <Compile Include="TrainingData\Artificial\ReberGrammar.cs" />
     <Compile Include="TrainingData\Artificial\Xor.cs" />
     <Compile Include="TrainingData\MNIST.cs" />
+    <Compile Include="Unsupervised\Clustering\KMeans.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="LICENSE" />
