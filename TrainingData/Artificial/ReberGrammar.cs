@@ -42,14 +42,15 @@ namespace BrightWire.TrainingData.Artificial
                 var sequence = new Tuple<float[], float[]>[str.Length];
                 var sb = new StringBuilder();
                 for (var i = 0; i < str.Length; i++) {
+                    var ch = str[i];
+                    sb.Append(ch);
                     var input = new float[_ch.Count];
                     var output = new float[_ch.Count];
-                    var ch = str[i];
-
                     input[_ch[ch]] = 1f;
-                    sb.Append(ch);
-                    foreach (var item in following[sb.ToString()])
-                        output[item] = 1f;
+                    if (following.ContainsKey(sb.ToString())) {
+                        foreach (var item in following[sb.ToString()])
+                            output[item] = 1f;
+                    }
                     sequence[i] = Tuple.Create(input, output);
                 }
                 ret.Add(sequence);

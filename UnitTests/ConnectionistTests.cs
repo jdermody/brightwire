@@ -1,12 +1,16 @@
 ﻿using BrightWire;
 using BrightWire.Connectionist;
+using BrightWire.Connectionist.Training.Helper;
+using BrightWire.Connectionist.Training.Layer.Recurrent;
 using BrightWire.Helper;
 using BrightWire.LinearAlgebra;
 using BrightWire.Models;
+using BrightWire.Net4.Helper;
 using BrightWire.TrainingData.Artificial;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -50,9 +54,8 @@ namespace UnitTests
                 // 1 1 => 0
                 var testDataProvider = new DenseTrainingDataProvider(_lap, XorData.Get());
 
-                // create a batch trainer.  This network has a hidden layer of size 4,
-                // and input and outputs of 2 and 1 respectively.
-                using (var trainer = _lap.NN.CreateBatchTrainer(layerTemplate, 2, 4, 1)) {
+                // create a batch trainer (hidden layer of size 4).
+                using (var trainer = _lap.NN.CreateBatchTrainer(layerTemplate, testDataProvider.InputSize, 4, testDataProvider.OutputSize)) {
                     // create a training context that will hold the training rate and batch size
                     var trainingContext = _lap.NN.CreateTrainingContext(0.03f, 2);
 
@@ -83,5 +86,57 @@ namespace UnitTests
                 }
             }
         }
+
+        //[TestMethod]
+        //public void ReberBidirectional()
+        //{
+        //    var trainingSet = BinaryIntegers.Addition(10).Select(l => l.ToArray()).ToList();
+
+        //    const int HIDDEN_SIZE = 16, NUM_EPOCHS = 100, BATCH_SIZE = 32;
+        //    var errorMetric = ErrorMetricType.BinaryClassification.Create();
+
+        //    var layerTemplate = new LayerDescriptor(0.1f) {
+        //        Activation = ActivationType.LeakyRelu,
+        //        WeightInitialisation = WeightInitialisationType.Gaussian,
+        //        DecayRate = 0.99f
+        //    };
+
+        //    var recurrentTemplate = layerTemplate.Clone();
+        //    recurrentTemplate.WeightInitialisation = WeightInitialisationType.Gaussian;
+
+        //    using (var lap = new CudaProvider()) {
+        //        var trainingDataProvider = new DenseSequentialTrainingDataProvider(lap, trainingSet);
+        //        var factory = new Factory(lap, false);
+        //        var layers = new INeuralNetworkBidirectionalLayer[] {
+        //            new Bidirectional(
+        //                factory.CreateSimpleRecurrentLayer(trainingDataProvider.InputSize, HIDDEN_SIZE, recurrentTemplate),
+        //                factory.CreateSimpleRecurrentLayer(trainingDataProvider.InputSize, HIDDEN_SIZE, recurrentTemplate)
+        //            ),
+        //            new Bidirectional(factory.CreateFeedForwardRecurrentLayer(HIDDEN_SIZE*2, trainingDataProvider.OutputSize, layerTemplate))
+        //        };
+        //        BidirectionalNetwork networkData = null;
+        //        using (var trainer = factory.CreateBidirectionalBatchTrainer(layers)) {
+        //            var forwardMemory = Enumerable.Range(0, HIDDEN_SIZE).Select(i => 0f).ToArray();
+        //            var backwardMemory = Enumerable.Range(0, HIDDEN_SIZE).Select(i => 0f).ToArray();
+        //            var trainingContext = factory.CreateTrainingContext(0.1f, BATCH_SIZE);
+        //            trainingContext.RecurrentEpochComplete += (tc, rtc) => {
+        //                Debug.WriteLine(tc.LastTrainingError);
+        //            };
+        //            trainer.Train(trainingDataProvider, forwardMemory, backwardMemory, NUM_EPOCHS, new RecurrentContext(lap, trainingContext));
+        //            networkData = trainer.NetworkInfo;
+        //            networkData.ForwardMemory = new FloatArray {
+        //                Data = forwardMemory
+        //            };
+        //            networkData.BackwardMemory = new FloatArray {
+        //                Data = backwardMemory
+        //            };
+        //        }
+
+        //        var network = factory.CreateBidirectional(networkData);
+        //        foreach(var sequence in trainingSet) {
+        //            var result = network.Execute(sequence.Select(d => d.Item1).ToList());
+        //        }
+        //    }
+        //}
     }
 }
