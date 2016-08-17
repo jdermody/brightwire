@@ -121,7 +121,11 @@ namespace BrightWire.LinearAlgebra
             _splitRows,
             _splitColumns,
             _concatRows,
-            _concatColumns
+            _concatColumns,
+            _euclideanDistance,
+            _manhattanDistance,
+            _abs,
+            _normalise
         ;
         bool _disposed = false;
 
@@ -165,6 +169,10 @@ namespace BrightWire.LinearAlgebra
             _splitColumns = _kernel.LoadFunction("SplitColumns");
             _concatRows = _kernel.LoadFunction("ConcatRows");
             _concatColumns = _kernel.LoadFunction("ConcatColumns");
+            _euclideanDistance = _kernel.LoadFunction("EuclideanDistance");
+            _manhattanDistance = _kernel.LoadFunction("ManhattanDistance");
+            _abs = _kernel.LoadFunction("Abs");
+            _normalise = _kernel.LoadFunction("Normalise");
         }
 
         protected virtual void Dispose(bool disposing)
@@ -328,6 +336,13 @@ namespace BrightWire.LinearAlgebra
             return ret;
         }
 
+        internal CudaDeviceVariable<float> Abs(CudaDeviceVariable<float> a, int size)
+        {
+            var ret = new CudaDeviceVariable<float>(size);
+            _Use(_abs, size, k => k.Run(0, a.DevicePointer, ret.DevicePointer, size));
+            return ret;
+        }
+
         internal Tuple<float, float> FindMinAndMax(CudaDeviceVariable<float> a, int size)
         {
             if (size > 0) {
@@ -370,25 +385,28 @@ namespace BrightWire.LinearAlgebra
 
         internal float FindMean(CudaDeviceVariable<float> a, int size)
         {
-            var inputSize = size;
-            if (size > 0) {
-                var ptr = a;
-                while(size > BLOCK_DIM2) {
-                    var bufferSize = (size / BLOCK_DIM2) + 1;
-                    var sumBlock = new CudaDeviceVariable<float>(bufferSize);
-                    _Use(_findSum, size, k => k.Run(BLOCK_DIM2, ptr.DevicePointer, size, sumBlock.DevicePointer));
-                    if (ptr != a)
-                        ptr.Dispose();
-                    size = bufferSize;
-                    ptr = sumBlock;
-                }
-                var total = new float[size];
-                ptr.CopyToHost(total);
+            if (size > 0)
+                return SumValues(a, size) / size;
+            return 0f;
+        }
+
+        internal float SumValues(CudaDeviceVariable<float> a, int size)
+        {
+            var ptr = a;
+            while (size > BLOCK_DIM2) {
+                var bufferSize = (size / BLOCK_DIM2) + 1;
+                var sumBlock = new CudaDeviceVariable<float>(bufferSize);
+                _Use(_findSum, size, k => k.Run(BLOCK_DIM2, ptr.DevicePointer, size, sumBlock.DevicePointer));
                 if (ptr != a)
                     ptr.Dispose();
-                return total.Sum() / inputSize;
+                size = bufferSize;
+                ptr = sumBlock;
             }
-            return 0f;
+            var total = new float[size];
+            ptr.CopyToHost(total);
+            if (ptr != a)
+                ptr.Dispose();
+            return total.Sum();
         }
 
         internal float FindStdDev(CudaDeviceVariable<float> a, int size, float mean)
@@ -438,6 +456,25 @@ namespace BrightWire.LinearAlgebra
         internal void L1Regularisation(CudaDeviceVariable<float> a, int size, float coefficient)
         {
             _Use(_l1Regularisation, size, k => k.Run(0, a.DevicePointer, size, coefficient));
+        }
+
+        internal float EuclideanDistance(CudaDeviceVariable<float> a, CudaDeviceVariable<float> b, int size)
+        {
+            var ret = new CudaDeviceVariable<float>(size);
+            _Use(_euclideanDistance, size, k => k.Run(0, a.DevicePointer, b.DevicePointer, ret.DevicePointer, size));
+            return Convert.ToSingle(Math.Sqrt(SumValues(ret, size)));
+        }
+
+        internal float ManhattanDistance(CudaDeviceVariable<float> a, CudaDeviceVariable<float> b, int size)
+        {
+            var ret = new CudaDeviceVariable<float>(size);
+            _Use(_manhattanDistance, size, k => k.Run(0, a.DevicePointer, b.DevicePointer, ret.DevicePointer, size));
+            return SumValues(ret, size);
+        }
+
+        internal void Normalise(CudaDeviceVariable<float> a, int size, float min, float range)
+        {
+            _Use(_normalise, size, k => k.Run(0, a.DevicePointer, size, min, range));
         }
 
         internal void PointwiseDivideRows(CudaDeviceVariable<float> a, CudaDeviceVariable<float> b, int rows, int columns)

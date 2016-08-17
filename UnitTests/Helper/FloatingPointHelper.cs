@@ -29,29 +29,29 @@ namespace UnitTests.Helper
             return intDiff <= (1 << maxDeltaBits);
         }
 
-        public static void AssertEqual(float v1, float v2)
+        public static void AssertEqual(float v1, float v2, int maxDifference = 6)
         {
             if (float.IsNaN(v1) && float.IsNaN(v2))
                 return;
-            Assert.IsTrue(AlmostEqual2sComplement(v1, v2, 6));
+            Assert.IsTrue(AlmostEqual2sComplement(v1, v2, maxDifference));
         }
 
-        public static void AssertEqual(IIndexableMatrix m1, IIndexableMatrix m2)
+        public static void AssertEqual(IIndexableMatrix m1, IIndexableMatrix m2, int maxDifference = 6)
         {
             Assert.AreEqual(m1.RowCount, m2.RowCount);
             Assert.AreEqual(m1.ColumnCount, m2.ColumnCount);
             for (var i = 0; i < m1.RowCount; i++) {
                 for (var j = 0; j < m1.ColumnCount; j++) {
-                    AssertEqual(m1[i, j], m2[i, j]);
+                    AssertEqual(m1[i, j], m2[i, j], maxDifference);
                 }
             }
         }
 
-        public static void AssertEqual(IIndexableVector v1, IIndexableVector v2)
+        public static void AssertEqual(IIndexableVector v1, IIndexableVector v2, int maxDifference = 6)
         {
             Assert.AreEqual(v1.Count, v2.Count);
             for (var i = 0; i < v1.Count; i++) {
-                AssertEqual(v1[i], v2[i]);
+                AssertEqual(v1[i], v2[i], maxDifference);
             }
         }
     }

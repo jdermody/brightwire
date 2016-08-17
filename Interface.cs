@@ -38,7 +38,6 @@ namespace BrightWire
         Standard,
         Manhattan,
         Euclidean,
-        Infinity,
         FeatureScale,
     }
 
@@ -51,6 +50,7 @@ namespace BrightWire
         FloatArray Data { get; set; }
         IVector Add(IVector vector);
         IVector Subtract(IVector vector);
+        float L1Norm();
         float L2Norm();
         int MaximumIndex();
         int MinimumIndex();
@@ -64,12 +64,17 @@ namespace BrightWire
         IVector GetNewVectorFromIndexes(int[] indexes);
         IVector Clone();
         IVector Sqrt();
+        IVector Abs();
         void CopyFrom(IVector vector);
         float EuclideanDistance(IVector vector);
         float CosineDistance(IVector vector);
         float ManhattanDistance(IVector vector);
         float MeanSquaredDistance(IVector vector);
         float SquaredEuclidean(IVector vector);
+        Tuple<float, float> GetMinMax();
+        float Average();
+        float StdDev(float? mean);
+        void Normalise(NormalisationType type);
     }
 
     public interface IIndexableVector : IVector
@@ -77,7 +82,6 @@ namespace BrightWire
         float this[int index] { get; set; }
         IEnumerable<float> Values { get; }
         float[] ToArray();
-        void Normalise(NormalisationType type);
         IIndexableVector Append(IReadOnlyList<float> data);
     }
 
@@ -153,7 +157,7 @@ namespace BrightWire
         IEnumerable<IIndexableVector> Rows { get; }
         IEnumerable<IIndexableVector> Columns { get; }
         IEnumerable<float> Values { get; }
-        void Normalise(MatrixGrouping group, NormalisationType type);
+        //void Normalise(MatrixGrouping group, NormalisationType type);
         IIndexableMatrix Map(Func<float, float> mutator);
         IIndexableMatrix MapIndexed(Func<int, int, float, float> mutator);
     }
@@ -578,5 +582,27 @@ namespace BrightWire
         float Compute(IIndexableVector output, IIndexableVector expectedOutput);
         bool HigherIsBetter { get; }
         bool DisplayAsPercentage { get; }
+    }
+
+    public enum ColumnType
+    {
+        Null = 0,
+        String = 1,
+        Double,
+        Float,
+        Long,
+        Int,
+        Date,
+        Boolean,
+        CategoryList,
+        WeightedCategoryList
+    }
+
+    public interface IRow
+    {
+        IReadOnlyList<object> Data { get; }
+        T GetField<T>(int index);
+        IEnumerable<float> GetNumericFields(IEnumerable<int> fields);
+        ColumnType GetType(int index);
     }
 }

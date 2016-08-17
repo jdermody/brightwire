@@ -127,6 +127,8 @@ namespace BrightWire.LinearAlgebra
         {
             Debug.Assert(IsValid && matrix.IsValid);
             var other = (GpuMatrix)matrix;
+            Debug.Assert(other._rows == _rows && other._columns == _columns);
+
             var ret = new CudaDeviceVariable<float>(other._data.Size);
             ret.CopyToDevice(other._data);
             _cuda.Blas.Axpy(1.0f, _data, 1, ret, 1);
@@ -137,6 +139,8 @@ namespace BrightWire.LinearAlgebra
         {
             Debug.Assert(IsValid && matrix.IsValid);
             var other = (GpuMatrix)matrix;
+            Debug.Assert(other._rows == _rows && other._columns == _columns);
+
             _cuda.AddInPlace(_data, other._data, _rows * _columns, coefficient1, coefficient2);
         }
 
@@ -354,6 +358,8 @@ namespace BrightWire.LinearAlgebra
         {
             Debug.Assert(IsValid && matrix.IsValid);
             var other = (GpuMatrix)matrix;
+            Debug.Assert(other._rows == _rows && other._columns == _columns);
+
             var size = _rows * _columns;
             var ret = _cuda.PointwiseDivide(_data, other._data, size);
             return new GpuMatrix(_cuda, _rows, _columns, ret);
@@ -375,6 +381,8 @@ namespace BrightWire.LinearAlgebra
         {
             Debug.Assert(IsValid && matrix.IsValid);
             var other = (GpuMatrix)matrix;
+            Debug.Assert(other._rows == _rows && other._columns == _columns);
+
             var size = _rows * _columns;
             var ret = _cuda.PointwiseMultiply(_data, other._data, size);
             return new GpuMatrix(_cuda, _rows, _columns, ret);
@@ -479,6 +487,8 @@ namespace BrightWire.LinearAlgebra
         {
             Debug.Assert(IsValid && matrix.IsValid);
             var other = (GpuMatrix)matrix;
+            Debug.Assert(other._rows == _rows && other._columns == _columns);
+
             var ret = new CudaDeviceVariable<float>(_data.Size);
             ret.CopyToDevice(_data);
             _cuda.Blas.Axpy(-1.0f, other._data, 1, ret, 1);
@@ -489,6 +499,8 @@ namespace BrightWire.LinearAlgebra
         {
             Debug.Assert(IsValid && matrix.IsValid);
             var other = (GpuMatrix)matrix;
+            Debug.Assert(other._rows == _rows && other._columns == _columns);
+
             _cuda.SubtractInPlace(_data, other._data, _rows * _columns, coefficient1, coefficient2);
         }
 

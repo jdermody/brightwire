@@ -500,4 +500,40 @@ extern "C"
 			c[j * rows + i] = val;
 		}
 	}
+
+	__global__ void EuclideanDistance(float* a, float* b, float* c, int count)
+	{
+		int i = blockDim.x * blockIdx.x + threadIdx.x;
+
+		if (i < count) {
+			c[i] = pow(a[i] - b[i], 2);
+		}
+	}
+
+	__global__ void ManhattanDistance(float* a, float* b, float* c, int count)
+	{
+		int i = blockDim.x * blockIdx.x + threadIdx.x;
+
+		if (i < count) {
+			c[i] = abs(a[i] - b[i]);
+		}
+	}
+
+	__global__ void Abs(float* a, float* b, int count)
+	{
+		int i = blockDim.x * blockIdx.x + threadIdx.x;
+
+		if (i < count) {
+			b[i] = abs(a[i]);
+		}
+	}
+
+	__global__ void Normalise(float* a, int count, float min, float range)
+	{
+		int i = blockDim.x * blockIdx.x + threadIdx.x;
+
+		if (i < count) {
+			a[i] = (a[i] - min) / range;
+		}
+	}
 }

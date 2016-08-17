@@ -136,6 +136,8 @@ namespace BrightWire.LinearAlgebra
         {
             Debug.Assert(IsValid && vector.IsValid);
             var other = (GpuVector)vector;
+            Debug.Assert(other._size == _size);
+
             var ret = new CudaDeviceVariable<float>(other._data.Size);
             ret.CopyToDevice(other._data);
             _cuda.Blas.Axpy(1.0f, _data, 1, ret, 1);
@@ -146,6 +148,8 @@ namespace BrightWire.LinearAlgebra
         {
             Debug.Assert(IsValid && vector.IsValid);
             var other = (GpuVector)vector;
+            Debug.Assert(other._size == _size);
+
             _cuda.AddInPlace(_data, other._data, _size, coefficient1, coefficient2);
         }
 
@@ -168,6 +172,8 @@ namespace BrightWire.LinearAlgebra
         {
             Debug.Assert(vector.IsValid);
             var other = (GpuVector)vector;
+            Debug.Assert(other._size == _size);
+
             _data.CopyToDevice(other._data);
         }
 
@@ -175,6 +181,8 @@ namespace BrightWire.LinearAlgebra
         {
             Debug.Assert(IsValid && vector.IsValid);
             var other = (GpuVector)vector;
+            Debug.Assert(other._size == _size);
+
             return _cuda.Blas.Dot(_data, 1, other._data, 1);
         }
 
@@ -182,6 +190,18 @@ namespace BrightWire.LinearAlgebra
         {
             // defer to CPU version
             return AsIndexable().GetNewVectorFromIndexes(indices);
+        }
+
+        public IVector Abs()
+        {
+            return new GpuVector(_cuda, _size, _cuda.Abs(_data, _size));
+        }
+
+        public float L1Norm()
+        {
+            Debug.Assert(IsValid);
+            var abs = Abs() as GpuVector;
+            return _cuda.SumValues(abs._data, _size);
         }
 
         public float L2Norm()
@@ -212,6 +232,8 @@ namespace BrightWire.LinearAlgebra
         {
             Debug.Assert(IsValid && vector.IsValid);
             var other = (GpuVector)vector;
+            Debug.Assert(other._size == _size);
+
             return new GpuVector(_cuda, _size, _cuda.PointwiseMultiply(_data, other._data, _size));
         }
 
@@ -226,6 +248,8 @@ namespace BrightWire.LinearAlgebra
         {
             Debug.Assert(IsValid && vector.IsValid);
             var other = (GpuVector)vector;
+            Debug.Assert(other._size == _size);
+
             var ret = new CudaDeviceVariable<float>(_data.Size);
             ret.CopyToDevice(_data);
             _cuda.Blas.Axpy(-1.0f, other._data, 1, ret, 1);
@@ -236,6 +260,8 @@ namespace BrightWire.LinearAlgebra
         {
             Debug.Assert(IsValid && vector.IsValid);
             var other = (GpuVector)vector;
+            Debug.Assert(other._size == _size);
+
             _cuda.SubtractInPlace(_data, other._data, _size, coefficient1, coefficient2);
         }
 
@@ -257,32 +283,85 @@ namespace BrightWire.LinearAlgebra
 
         public float EuclideanDistance(IVector vector)
         {
-            // defer to CPU version
-            return AsIndexable().EuclideanDistance(vector.AsIndexable());
+            Debug.Assert(IsValid && vector.IsValid);
+            var other = (GpuVector)vector;
+            Debug.Assert(other._size == _size);
+
+            return _cuda.EuclideanDistance(_data, other._data, _size);
         }
 
         public float CosineDistance(IVector vector)
         {
-            // defer to CPU version
-            return AsIndexable().CosineDistance(vector.AsIndexable());
+            Debug.Assert(IsValid && vector.IsValid);
+            var other = (GpuVector)vector;
+            Debug.Assert(other._size == _size);
+
+            var ab = DotProduct(other);
+            var a2 = DotProduct(this);
+            var b2 = other.DotProduct(other);
+            return (float)(1d - ab / (Math.Sqrt(a2 * b2)));
         }
 
         public float ManhattanDistance(IVector vector)
         {
-            // defer to CPU version
-            return AsIndexable().ManhattanDistance(vector.AsIndexable());
+            Debug.Assert(IsValid && vector.IsValid);
+            var other = (GpuVector)vector;
+            Debug.Assert(other._size == _size);
+
+            return _cuda.ManhattanDistance(_data, other._data, _size);
         }
 
         public float MeanSquaredDistance(IVector vector)
         {
-            // defer to CPU version
-            return AsIndexable().MeanSquaredDistance(vector.AsIndexable());
+            var norm = Subtract(vector).L2Norm();
+            return norm * norm / _size;
         }
 
         public float SquaredEuclidean(IVector vector)
         {
-            // defer to CPU version
-            return AsIndexable().SquaredEuclidean(vector.AsIndexable());
+            var norm = Subtract(vector).L2Norm();
+            return norm * norm;
+        }
+
+        public Tuple<float, float> GetMinMax()
+        {
+            return _cuda.FindMinAndMax(_data, _size);
+        }
+
+        public float Average()
+        {
+            return _cuda.SumValues(_data, _size) / _size;
+        }
+
+        public float StdDev(float? mean)
+        {
+            return _cuda.FindStdDev(_data, _size, mean ?? Average());
+        }
+
+        public void Normalise(NormalisationType type)
+        {
+            if (type == NormalisationType.FeatureScale) {
+                var minMax = GetMinMax();
+                float range = minMax.Item2 - minMax.Item1;
+                if (range > 0)
+                    _cuda.Normalise(_data, _size, minMax.Item1, range);
+            }
+            else if (type == NormalisationType.Standard) {
+                var mean = Average();
+                var stdDev = StdDev(mean);
+                if (stdDev != 0)
+                    _cuda.Normalise(_data, _size, mean, stdDev);
+            }
+            else if (type == NormalisationType.Euclidean || type == NormalisationType.Manhattan) {
+                float p = 0f;
+                if (type == NormalisationType.Manhattan)
+                    p = L1Norm();
+                else
+                    p = L2Norm();
+
+                if(p != 0f)
+                    Multiply(1f / p);
+            }
         }
     }
 }

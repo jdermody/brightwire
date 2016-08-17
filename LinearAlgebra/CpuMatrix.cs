@@ -464,45 +464,45 @@ namespace BrightWire.LinearAlgebra
             return new CpuMatrix(_matrix.Map(v => Convert.ToSingle(Math.Pow(v, power))));
         }
 
-        public void Normalise(MatrixGrouping group, NormalisationType type)
-        {
-            if (type == NormalisationType.FeatureScale) {
-                IEnumerable<Vector<float>> list = (group == MatrixGrouping.ByRow) ? _matrix.EnumerateRows() : _matrix.EnumerateColumns();
-                var norm = list.Select(row => {
-                    float min = 0f, max = 0f;
-                    foreach (var val in row.Enumerate(Zeros.AllowSkip)) {
-                        if (val > max)
-                            max = val;
-                        if (val < min)
-                            min = val;
-                    }
-                    float range = max - min;
-                    return Tuple.Create(min, range);
-                }).ToList();
+        //public void Normalise(MatrixGrouping group, NormalisationType type)
+        //{
+        //    if (type == NormalisationType.FeatureScale) {
+        //        IEnumerable<Vector<float>> list = (group == MatrixGrouping.ByRow) ? _matrix.EnumerateRows() : _matrix.EnumerateColumns();
+        //        var norm = list.Select(row => {
+        //            float min = 0f, max = 0f;
+        //            foreach (var val in row.Enumerate(Zeros.AllowSkip)) {
+        //                if (val > max)
+        //                    max = val;
+        //                if (val < min)
+        //                    min = val;
+        //            }
+        //            float range = max - min;
+        //            return Tuple.Create(min, range);
+        //        }).ToList();
 
-                if (group == MatrixGrouping.ByRow)
-                    _matrix.MapIndexedInplace((x, y, v) => norm[x].Item2 > 0 ? (v - norm[x].Item1) / norm[x].Item2 : v);
-                else
-                    _matrix.MapIndexedInplace((x, y, v) => norm[y].Item2 > 0 ? (v - norm[y].Item1) / norm[y].Item2 : v);
-            }
-            else if(type == NormalisationType.Standard) {
-                IEnumerable<Vector<float>> list = (group == MatrixGrouping.ByRow) ? _matrix.EnumerateRows() : _matrix.EnumerateColumns();
-                var norm = list.Select(row => {
-                    var mean = row.Average();
-                    var stdDev = Convert.ToSingle(Math.Sqrt(row.Average(c => Math.Pow(c - mean, 2))));
-                    return Tuple.Create(mean, stdDev);
-                }).ToList();
+        //        if (group == MatrixGrouping.ByRow)
+        //            _matrix.MapIndexedInplace((x, y, v) => norm[x].Item2 > 0 ? (v - norm[x].Item1) / norm[x].Item2 : v);
+        //        else
+        //            _matrix.MapIndexedInplace((x, y, v) => norm[y].Item2 > 0 ? (v - norm[y].Item1) / norm[y].Item2 : v);
+        //    }
+        //    else if(type == NormalisationType.Standard) {
+        //        IEnumerable<Vector<float>> list = (group == MatrixGrouping.ByRow) ? _matrix.EnumerateRows() : _matrix.EnumerateColumns();
+        //        var norm = list.Select(row => {
+        //            var mean = row.Average();
+        //            var stdDev = Convert.ToSingle(Math.Sqrt(row.Average(c => Math.Pow(c - mean, 2))));
+        //            return Tuple.Create(mean, stdDev);
+        //        }).ToList();
 
-                if(group == MatrixGrouping.ByRow)
-                    _matrix.MapIndexedInplace((x, y, v) => norm[x].Item2 != 0 ? (v - norm[x].Item1) / norm[x].Item2 : v);
-                else
-                    _matrix.MapIndexedInplace((x, y, v) => norm[y].Item2 != 0 ? (v - norm[y].Item1) / norm[y].Item2 : v);
-            }else if(type == NormalisationType.Euclidean || type == NormalisationType.Infinity || type == NormalisationType.Manhattan) {
-                var p = (type == NormalisationType.Manhattan) ? 1.0 : (type == NormalisationType.Manhattan) ? 2.0 : double.PositiveInfinity;
-                var norm = (group == MatrixGrouping.ByColumn) ? _matrix.NormalizeColumns(p) : _matrix.NormalizeRows(p);
-                norm.CopyTo(_matrix);
-            }
-        }
+        //        if(group == MatrixGrouping.ByRow)
+        //            _matrix.MapIndexedInplace((x, y, v) => norm[x].Item2 != 0 ? (v - norm[x].Item1) / norm[x].Item2 : v);
+        //        else
+        //            _matrix.MapIndexedInplace((x, y, v) => norm[y].Item2 != 0 ? (v - norm[y].Item1) / norm[y].Item2 : v);
+        //    }else if(type == NormalisationType.Euclidean || type == NormalisationType.Infinity || type == NormalisationType.Manhattan) {
+        //        var p = (type == NormalisationType.Manhattan) ? 1.0 : (type == NormalisationType.Manhattan) ? 2.0 : double.PositiveInfinity;
+        //        var norm = (group == MatrixGrouping.ByColumn) ? _matrix.NormalizeColumns(p) : _matrix.NormalizeRows(p);
+        //        norm.CopyTo(_matrix);
+        //    }
+        //}
 
         public void UpdateRow(int index, IIndexableVector vector, int columnIndex)
         {

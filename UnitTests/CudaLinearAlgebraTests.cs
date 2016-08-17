@@ -1271,5 +1271,216 @@ namespace UnitTests
             a.Constrain(-2f, 2f);
             FloatingPointHelper.AssertEqual(a, gpuResults);
         }
+
+        [TestMethod]
+        public void VectorEuclideanDistance()
+        {
+            var np = new NumericsProvider();
+            var distribution = new Normal(0, 5);
+
+            var a = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var b = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var distance = a.EuclideanDistance(b);
+
+            float distance2;
+            using (var gpuA = _cuda.Create(a))
+            using (var gpuB = _cuda.Create(b))
+                distance2 = gpuA.EuclideanDistance(gpuB);
+
+            Assert.IsTrue(FloatingPointHelper.AlmostEqual2sComplement(distance, distance2, 10));
+        }
+
+        [TestMethod]
+        public void VectorCosineDistance()
+        {
+            var np = new NumericsProvider();
+            var rand = new Random(0);
+
+            var a = np.Create(5000, i => Convert.ToSingle(rand.NextDouble())).AsIndexable();
+            var b = np.Create(5000, i => Convert.ToSingle(rand.NextDouble())).AsIndexable();
+            var distance = a.CosineDistance(b);
+
+            float distance2;
+            using (var gpuA = _cuda.Create(a))
+            using (var gpuB = _cuda.Create(b))
+                distance2 = gpuA.CosineDistance(gpuB);
+
+            Assert.IsTrue(FloatingPointHelper.AlmostEqual2sComplement(distance, distance2, 10));
+        }
+
+        [TestMethod]
+        public void VectorManhattanDistance()
+        {
+            var np = new NumericsProvider();
+            var distribution = new Normal(0, 5);
+
+            var a = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var b = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var distance = a.ManhattanDistance(b);
+
+            float distance2;
+            using (var gpuA = _cuda.Create(a))
+            using (var gpuB = _cuda.Create(b))
+                distance2 = gpuA.ManhattanDistance(gpuB);
+
+            Assert.IsTrue(FloatingPointHelper.AlmostEqual2sComplement(distance, distance2, 10));
+        }
+
+        [TestMethod]
+        public void VectorMeanSquaredDistance()
+        {
+            var np = new NumericsProvider();
+            var distribution = new Normal(0, 5);
+
+            var a = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var b = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var distance = a.MeanSquaredDistance(b);
+
+            float distance2;
+            using (var gpuA = _cuda.Create(a))
+            using (var gpuB = _cuda.Create(b))
+                distance2 = gpuA.MeanSquaredDistance(gpuB);
+
+            Assert.IsTrue(FloatingPointHelper.AlmostEqual2sComplement(distance, distance2, 11));
+        }
+
+        [TestMethod]
+        public void VectorSquaredEuclideanDistance()
+        {
+            var np = new NumericsProvider();
+            var distribution = new Normal(0, 5);
+
+            var a = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var b = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var distance = a.SquaredEuclidean(b);
+
+            float distance2;
+            using (var gpuA = _cuda.Create(a))
+            using (var gpuB = _cuda.Create(b))
+                distance2 = gpuA.SquaredEuclidean(gpuB);
+
+            Assert.IsTrue(FloatingPointHelper.AlmostEqual2sComplement(distance, distance2, 11));
+        }
+
+        [TestMethod]
+        public void VectorMinMax()
+        {
+            var np = new NumericsProvider();
+            var distribution = new Normal(0, 5);
+
+            var a = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var minMax = a.GetMinMax();
+
+            Tuple<float, float> minMax2;
+            using (var gpuA = _cuda.Create(a))
+                minMax2 = gpuA.GetMinMax();
+
+            FloatingPointHelper.AssertEqual(minMax.Item1, minMax2.Item1);
+            FloatingPointHelper.AssertEqual(minMax.Item2, minMax2.Item2);
+        }
+
+        [TestMethod]
+        public void VectorAverage()
+        {
+            var np = new NumericsProvider();
+            var distribution = new Normal(0, 5);
+
+            var a = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var average = a.Average();
+
+            float average2;
+            using (var gpuA = _cuda.Create(a))
+                average2 = gpuA.Average();
+
+            FloatingPointHelper.AssertEqual(average, average2);
+        }
+
+        [TestMethod]
+        public void VectorL1Norm()
+        {
+            var np = new NumericsProvider();
+            var distribution = new Normal(0, 5);
+
+            var a = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var v1 = a.L1Norm();
+
+            float v2;
+            using (var gpuA = _cuda.Create(a))
+                v2 = gpuA.L1Norm();
+
+            FloatingPointHelper.AssertEqual(v1, v2);
+        }
+
+        [TestMethod]
+        public void VectorAbs()
+        {
+            var np = new NumericsProvider();
+            var distribution = new Normal(0, 5);
+
+            var a = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var v1 = a.Abs().AsIndexable();
+
+            IIndexableVector v2;
+            using (var gpuA = _cuda.Create(a))
+                v2 = gpuA.Abs().AsIndexable();
+
+            FloatingPointHelper.AssertEqual(v1, v2);
+        }
+
+        [TestMethod]
+        public void VectorStdDev()
+        {
+            var np = new NumericsProvider();
+            var distribution = new Normal(0, 5);
+
+            var a = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var stdDev = a.StdDev(null);
+
+            float stdDev2;
+            using (var gpuA = _cuda.Create(a))
+                stdDev2 = gpuA.StdDev(null);
+
+            FloatingPointHelper.AssertEqual(stdDev, stdDev2);
+        }
+
+        void _TestNormalise(NormalisationType type)
+        {
+            var np = new NumericsProvider();
+            var distribution = new Normal(0, 5);
+
+            IIndexableVector v2;
+            var a = np.Create(5000, i => Convert.ToSingle(distribution.Sample()));
+            using (var gpuA = _cuda.Create(a.AsIndexable())) {
+                gpuA.Normalise(type);
+                v2 = gpuA.AsIndexable();
+            }
+            a.Normalise(type);
+            var v1 = a.AsIndexable();
+            FloatingPointHelper.AssertEqual(v1, v2, 10);
+        }
+
+        [TestMethod]
+        public void VectorFeatureScaleNormalise()
+        {
+            _TestNormalise(NormalisationType.FeatureScale);
+        }
+
+        [TestMethod]
+        public void VectorStandardNormalise()
+        {
+            _TestNormalise(NormalisationType.Standard);
+        }
+
+        [TestMethod]
+        public void VectorManhattanNormalise()
+        {
+            _TestNormalise(NormalisationType.Manhattan);
+        }
+
+        [TestMethod]
+        public void VectorEuclideanNormalise()
+        {
+            _TestNormalise(NormalisationType.Euclidean);
+        }
     }
 }

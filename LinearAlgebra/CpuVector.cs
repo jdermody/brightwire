@@ -80,6 +80,11 @@ namespace BrightWire.LinearAlgebra
             _vector.MapIndexedInplace((i, v) => (v * coefficient1) + (other[i] * coefficient2));
         }
 
+        public float L1Norm()
+        {
+            return Convert.ToSingle(_vector.L1Norm());
+        }
+
         public float L2Norm()
         {
             return Convert.ToSingle(_vector.L2Norm());
@@ -175,6 +180,11 @@ namespace BrightWire.LinearAlgebra
             return new CpuVector(DenseVector.Create(indexes.Length, i => this[indexes[i]]));
         }
 
+        public IVector Abs()
+        {
+            return new CpuVector(DenseVector.Create(_vector.Count, i => Convert.ToSingle(Math.Abs(_vector[i]))));
+        }
+
         public IVector Sqrt()
         {
             return new CpuVector(DenseVector.Create(_vector.Count, i => Convert.ToSingle(Math.Sqrt(_vector[i]))));
@@ -229,28 +239,45 @@ namespace BrightWire.LinearAlgebra
             other._vector.CopyTo(_vector);
         }
 
+        public Tuple<float, float> GetMinMax()
+        {
+            float min = 0f, max = 0f;
+            foreach (var val in _vector.Enumerate(Zeros.AllowSkip)) {
+                if (val > max)
+                    max = val;
+                if (val < min)
+                    min = val;
+            }
+            return Tuple.Create(min, max);
+        }
+
+        public float Average()
+        {
+            return _vector.Average();
+        }
+
+        public float StdDev(float? mean)
+        {
+            var mean2 = mean ?? Average();
+            return Convert.ToSingle(Math.Sqrt(_vector.Select(v => Math.Pow(v - mean2, 2)).Average()));
+        }
+
         public void Normalise(NormalisationType type)
         {
             if (type == NormalisationType.FeatureScale) {
-                float min = 0f, max = 0f;
-                foreach (var val in _vector.Enumerate(Zeros.AllowSkip)) {
-                    if (val > max)
-                        max = val;
-                    if (val < min)
-                        min = val;
-                }
-                float range = max - min;
+                var minMax = GetMinMax();
+                float range = minMax.Item2 - minMax.Item1;
                 if (range > 0)
-                    _vector.MapInplace(v => (v - min) / range);
+                    _vector.MapInplace(v => (v - minMax.Item1) / range);
             }
             else if(type == NormalisationType.Standard) {
-                var mean = _vector.Average();
-                var stdDev = Convert.ToSingle(Math.Sqrt(_vector.Select(v => Math.Pow(v - mean, 2)).Average()));
-                if(stdDev != 0)
+                var mean = Average();
+                var stdDev = StdDev(mean);
+                if (stdDev != 0)
                     _vector.MapInplace(v => (v - mean) / stdDev);
             }
-            else if (type == NormalisationType.Euclidean || type == NormalisationType.Manhattan || type == NormalisationType.Infinity) {
-                var p = (type == NormalisationType.Manhattan) ? 1.0 : (type == NormalisationType.Euclidean) ? 2.0 : double.PositiveInfinity;
+            else if (type == NormalisationType.Euclidean || type == NormalisationType.Manhattan) {
+                var p = (type == NormalisationType.Manhattan) ? 1.0 : 2.0;
                 var norm = _vector.Normalize(p);
                 norm.CopyTo(_vector);
             }
