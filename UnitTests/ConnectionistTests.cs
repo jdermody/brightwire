@@ -66,8 +66,8 @@ namespace UnitTests
                     var trainingResults = trainer.Execute(testDataProvider);
                     for (var i = 0; i < trainingResults.Count; i++) {
                         var result = trainingResults[i];
-                        var predictedResult = Convert.ToSingle(Math.Round(result.Item1[0]));
-                        var expectedResult = result.Item2[0];
+                        var predictedResult = Convert.ToSingle(Math.Round(result.Output[0]));
+                        var expectedResult = result.ExpectedOutput[0];
                         FloatingPointHelper.AssertEqual(predictedResult, expectedResult);
                     }
 
@@ -90,7 +90,7 @@ namespace UnitTests
         [TestMethod]
         public void RecurrentAddition()
         {
-            var trainingSet = BinaryIntegers.Addition(10).Select(l => l.ToArray()).ToList();
+            var trainingSet = BinaryIntegers.Addition(10, false).Select(l => l.ToArray()).ToList();
 
             const int HIDDEN_SIZE = 16, NUM_EPOCHS = 100, BATCH_SIZE = 32;
             var errorMetric = ErrorMetricType.BinaryClassification.Create();
@@ -135,7 +135,7 @@ namespace UnitTests
         [TestMethod]
         public void LSTMAddition()
         {
-            var trainingSet = BinaryIntegers.Addition(10).Select(l => l.ToArray()).ToList();
+            var trainingSet = BinaryIntegers.Addition(10, false).Select(l => l.ToArray()).ToList();
 
             const int HIDDEN_SIZE = 16, NUM_EPOCHS = 100, BATCH_SIZE = 32;
             var errorMetric = ErrorMetricType.BinaryClassification.Create();
@@ -180,7 +180,7 @@ namespace UnitTests
         [TestMethod]
         public void BidirectionalAddition()
         {
-            var trainingSet = BinaryIntegers.Addition(10).Select(l => l.ToArray()).ToList();
+            var trainingSet = BinaryIntegers.Addition(10, false).Select(l => l.ToArray()).ToList();
 
             const int HIDDEN_SIZE = 16, NUM_EPOCHS = 100, BATCH_SIZE = 32;
             var errorMetric = ErrorMetricType.BinaryClassification.Create();

@@ -43,51 +43,6 @@ namespace UnitTests
             FloatingPointHelper.AssertEqual(gpuResults, cpuResults.AsIndexable());
         }
 
-        //[TestMethod]
-        //public void CudaMinAndMax()
-        //{
-        //    var distribution = new Normal(0, 2);
-        //    var data = distribution.Samples().Take(2000000).Select(d => (float)d).ToArray();
-        //    var expectedMin = data.Min();
-        //    var expectedMax = data.Max();
-        //    using (var cuda = new CudaProvider()) {
-        //        var vector = cuda.Create(data);
-        //        var minMax = cuda.FindMinAndMax((CudaDeviceVariable<float>)vector.WrappedObject, vector.Count);
-        //        FloatingPointHelper.AssertEqual(minMax.Item1, expectedMin);
-        //        FloatingPointHelper.AssertEqual(minMax.Item2, expectedMax);
-        //    }
-        //}
-
-        //[TestMethod]
-        //public void CudaMean()
-        //{
-        //    var distribution = new Normal(0, 2);
-        //    var data = distribution.Samples().Take(1500).Select(d => (float)d).ToArray();
-        //    var expectedMean = data.Average();
-        //    using (var cuda = new CudaProvider()) {
-        //        var vector = cuda.Create(data);
-        //        var mean = cuda.FindMean((CudaDeviceVariable<float>)vector.WrappedObject, vector.Count);
-        //        FloatingPointHelper.AssertEqual(mean, expectedMean);
-        //    }
-        //}
-
-        //[TestMethod]
-        //public void CudaStdDev()
-        //{
-        //    var distribution = new Normal(0, 2);
-        //    var data = distribution.Samples().Take(1500).Select(d => (float)d).ToArray();
-        //    var mean = data.Average();
-        //    var firstBlock = data.Take(1024).Select(v => Math.Pow(v - mean, 2)).Sum();
-        //    var secondBlock = data.Skip(1024).Take(1024).Select(v => Math.Pow(v - mean, 2)).Sum();
-        //    var stdDev2 = Math.Sqrt((firstBlock + secondBlock) / 1500);
-        //    var expectedStdDev = Convert.ToSingle(Math.Sqrt(data.Select(v => Math.Pow(v - mean, 2)).Average()));
-        //    using (var cuda = new CudaProvider()) {
-        //        var vector = cuda.Create(data);
-        //        var stdDev = cuda.FindStdDev((CudaDeviceVariable<float>)vector.WrappedObject, vector.Count, mean);
-        //        FloatingPointHelper.AssertEqual(stdDev, expectedStdDev);
-        //    }
-        //}
-
         [TestMethod]
         public void MatrixMultiplication()
         {
@@ -1456,7 +1411,7 @@ namespace UnitTests
             }
             a.Normalise(type);
             var v1 = a.AsIndexable();
-            FloatingPointHelper.AssertEqual(v1, v2, 10);
+            FloatingPointHelper.AssertEqual(v1, v2, 12);
         }
 
         [TestMethod]
