@@ -102,5 +102,14 @@ namespace BrightWire.LinearAlgebra
                 return _factory ?? (_factory = new Factory(this));
             }
         }
+
+        public void PushLayer()
+        {
+            // nop
+        }
+        public void PopLayer()
+        {
+            // nop
+        }
     }
 }

@@ -32,9 +32,9 @@ namespace BrightWire.TrainingData.Artificial
         /// </summary>
         /// <param name="sampleCount">How many samples to generate</param>
         /// <returns>A list of sequences</returns>
-        public static IReadOnlyList<IReadOnlyList<Tuple<float[], float[]>>> Addition(int sampleCount)
+        public static IReadOnlyList<IReadOnlyList<Tuple<float[], float[]>>> Addition(int sampleCount, bool stochastic)
         {
-            var rand = new Random(0);
+            Random rand = stochastic ? new Random() : new Random(0);
             var ret = new List<IReadOnlyList<Tuple<float[], float[]>>>();
 
             for (var i = 0; i < sampleCount; i++) {

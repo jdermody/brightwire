@@ -72,27 +72,22 @@ namespace BrightWire.Connectionist.Training.Batch
             var batchSize = context.TrainingContext.MiniBatchSize;
 
             foreach (var miniBatch in _GetMiniBatches(trainingData, false, batchSize)) {
-                var garbage = new List<IMatrix>();
-                var sequenceLength = miniBatch.Item1.Length;
+                _lap.PushLayer();
+                var sequenceLength = miniBatch.SequenceLength;
                 context.ExecuteBidirectional(context.TrainingContext, miniBatch, _layer, forwardMemory, backwardMemory, _padding, null, (memoryOutput, output) => {
                     // store the output
                     for (var k = 0; k < sequenceLength; k++) {
                         if (!sequenceOutput.TryGetValue(k, out temp))
                             sequenceOutput.Add(k, temp = new List<RecurrentExecutionResults>());
-                        var ret = output[k].AsIndexable().Rows.Zip(miniBatch.Item2[k].AsIndexable().Rows, (a, e) => Tuple.Create(a, e));
+                        var ret = output[k].AsIndexable().Rows.Zip(miniBatch.GetExpectedOutput(output, k).AsIndexable().Rows, (a, e) => Tuple.Create(a, e));
                         temp.AddRange(ret.Zip(memoryOutput[k], (t, d) => new RecurrentExecutionResults(t.Item1, t.Item2, d)));
                     }
-                    garbage.AddRange(output);
                 });
 
                 // cleanup
-                foreach (var item in garbage)
-                    item.Dispose();
-                foreach (var item in miniBatch.Item1)
-                    item.Dispose();
-                foreach (var item in miniBatch.Item2)
-                    item.Dispose();
                 context.TrainingContext.EndBatch();
+                _lap.PopLayer();
+                miniBatch.Dispose();
             }
             return sequenceOutput.OrderBy(kv => kv.Key).Select(kv => kv.Value.ToArray()).ToList();
         }
@@ -106,9 +101,9 @@ namespace BrightWire.Connectionist.Training.Batch
                 var batchErrorList = new List<double>();
 
                 foreach (var miniBatch in _GetMiniBatches(trainingData, _stochastic, trainingContext.MiniBatchSize)) {
-                    var garbage = new List<IMatrix>();
-                    var sequenceLength = miniBatch.Item1.Length;
-                    var updateStack = new Stack<Tuple<Stack<Tuple<INeuralNetworkRecurrentBackpropagation, INeuralNetworkRecurrentBackpropagation>>, IMatrix, IMatrix, int[], int>>();
+                    _lap.PushLayer();
+                    var sequenceLength = miniBatch.SequenceLength;
+                    var updateStack = new Stack<Tuple<Stack<Tuple<INeuralNetworkRecurrentBackpropagation, INeuralNetworkRecurrentBackpropagation>>, IMatrix, IMatrix, ISequentialMiniBatch, int>>();
                     context.ExecuteBidirectional(context.TrainingContext, miniBatch, _layer, forwardMemory, backwardMemory, _padding, updateStack, null);
 
                     // backpropagate, accumulating errors across the sequence
@@ -117,7 +112,6 @@ namespace BrightWire.Connectionist.Training.Batch
                             var update = updateStack.Pop();
                             var isT0 = !updateStack.Any();
                             var actionStack = update.Item1;
-                            garbage.Add(update.Item3);
 
                             // calculate error
                             var expectedOutput = update.Item2;
@@ -178,7 +172,7 @@ namespace BrightWire.Connectionist.Training.Batch
                             // apply any filters
                             foreach (var filter in _filter) {
                                 foreach(var item in curr)
-                                    filter.AfterBackPropagation(update.Item4, update.Item5, sequenceLength, item);
+                                    filter.AfterBackPropagation(update.Item4, update.Item5, item);
                             }
 
                             // adjust the initial memory against the error signal
@@ -194,18 +188,13 @@ namespace BrightWire.Connectionist.Training.Batch
                                         backwardMemory[j] += initialDelta[j] * trainingContext.TrainingRate;
                                 }
                             }
-                            garbage.AddRange(curr);
                         }
                     }
 
                     // cleanup
-                    foreach (var item in garbage)
-                        item.Dispose();
-                    foreach (var item in miniBatch.Item1)
-                        item.Dispose();
-                    foreach (var item in miniBatch.Item2)
-                        item.Dispose();
                     trainingContext.EndBatch();
+                    _lap.PopLayer();
+                    miniBatch.Dispose();
                 }
                 trainingContext.EndRecurrentEpoch(_collectTrainingError ? batchErrorList.Average() : 0, context);
             }

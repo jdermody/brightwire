@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BrightWire.Net4.Helper;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -42,7 +43,7 @@ namespace BrightWire.Helper
             return 0f;
         }
 
-        public Tuple<IMatrix, IMatrix> GetTrainingData(IReadOnlyList<int> rows)
+        public IMiniBatch GetTrainingData(IReadOnlyList<int> rows)
         {
             if (_inputCache == null || _lastBatchSize != rows.Count) {
                 _inputCache?.Dispose();
@@ -66,7 +67,7 @@ namespace BrightWire.Helper
                     _outputCache[index, item.Key] = item.Value;
                 ++index;
             }
-            return Tuple.Create<IMatrix, IMatrix>(_inputCache, _outputCache);
+            return new MiniBatch(_inputCache, _outputCache);
         }
     }
 }

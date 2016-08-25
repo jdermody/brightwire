@@ -63,46 +63,41 @@ namespace BrightWire.Connectionist.Training.Batch
             var batchSize = context.TrainingContext.MiniBatchSize;
 
             foreach (var miniBatch in _GetMiniBatches(trainingData, false, batchSize)) {
-                var garbage = new List<IMatrix>();
+                _lap.PushLayer();
                 context.ExecuteForward(miniBatch, memory, (k, fc) => {
                     foreach (var action in _layer) {
                         action.Execute(fc, false);
                     }
                     var memoryOutput = fc[1].AsIndexable().Rows.ToList();
-                    garbage.AddRange(fc);
 
                     // store the output
                     if (!sequenceOutput.TryGetValue(k, out temp))
                         sequenceOutput.Add(k, temp = new List<RecurrentExecutionResults>());
-                    var ret = fc[0].AsIndexable().Rows.Zip(miniBatch.Item2[k].AsIndexable().Rows, (a, e) => Tuple.Create(a, e));
+                    var ret = fc[0].AsIndexable().Rows.Zip(miniBatch.GetExpectedOutput(fc, k).AsIndexable().Rows, (a, e) => Tuple.Create(a, e));
                     temp.AddRange(ret.Zip(memoryOutput, (t, d) => new RecurrentExecutionResults(t.Item1, t.Item2, d)));
                 });
 
                 // cleanup
-                foreach (var item in garbage)
-                    item.Dispose();
-                foreach (var item in miniBatch.Item1)
-                    item.Dispose();
-                foreach (var item in miniBatch.Item2)
-                    item.Dispose();
                 context.TrainingContext.EndBatch();
+                _lap.PopLayer();
+                miniBatch.Dispose();
             }
             return sequenceOutput.OrderBy(kv => kv.Key).Select(kv => kv.Value.ToArray()).ToList();
         }
 
-        public RecurrentExecutionResults[] ExecuteSingle(Tuple<float[], float[]>[] data, float[] memory, IRecurrentTrainingContext context, int dataIndex)
-        {
-            var ret = new List<RecurrentExecutionResults>();
-            context.ExecuteForwardSingle(data, memory, dataIndex, (k, fc) => {
-                foreach (var action in _layer)
-                    action.Execute(fc, false);
-                var memoryOutput = fc[1].AsIndexable().Rows.First();
+        //public RecurrentExecutionResults[] ExecuteSingle(Tuple<float[], float[]>[] data, float[] memory, IRecurrentTrainingContext context, int dataIndex)
+        //{
+        //    var ret = new List<RecurrentExecutionResults>();
+        //    context.ExecuteForwardSingle(data, memory, dataIndex, (k, fc) => {
+        //        foreach (var action in _layer)
+        //            action.Execute(fc, false);
+        //        var memoryOutput = fc[1].AsIndexable().Rows.First();
 
-                var output = fc[0].Row(0).AsIndexable();
-                ret.Add(new RecurrentExecutionResults(output, _lap.Create(data[k].Item2).AsIndexable(), memoryOutput));
-            });
-            return ret.ToArray();
-        }
+        //        var output = fc[0].Row(0).AsIndexable();
+        //        ret.Add(new RecurrentExecutionResults(output, _lap.Create(data[k].Item2).AsIndexable(), memoryOutput));
+        //    });
+        //    return ret.ToArray();
+        //}
 
         public RecurrentExecutionResults ExecuteSingleStep(float[] input, float[] memory)
         {
@@ -119,6 +114,77 @@ namespace BrightWire.Connectionist.Training.Batch
             return new RecurrentExecutionResults(output, null, memoryOutput);
         }
 
+        public void TrainOnMiniBatch(ISequentialMiniBatch miniBatch, float[] memory, IRecurrentTrainingContext context, Action<IMatrix> beforeBackProp, Action<IMatrix> afterBackProp)
+        {
+            var trainingContext = context.TrainingContext;
+
+            _lap.PushLayer();
+            var sequenceLength = miniBatch.SequenceLength;
+            var updateStack = new Stack<Tuple<Stack<INeuralNetworkRecurrentBackpropagation>, IMatrix, IMatrix, ISequentialMiniBatch, int>>();
+            context.ExecuteForward(miniBatch, memory, (k, fc) => {
+                var layerStack = new Stack<INeuralNetworkRecurrentBackpropagation>();
+                foreach (var action in _layer)
+                    layerStack.Push(action.Execute(fc, true));
+                updateStack.Push(Tuple.Create(layerStack, miniBatch.GetExpectedOutput(fc, k), fc[0], miniBatch, k));
+            });
+
+            // backpropagate, accumulating errors across the sequence
+            using (var updateAccumulator = new UpdateAccumulator(trainingContext)) {
+                IMatrix curr = null;
+                var bpt = 0;
+                while (updateStack.Any()) {
+                    var update = updateStack.Pop();
+                    var isT0 = !updateStack.Any();
+                    var actionStack = update.Item1;
+
+                    // calculate error
+                    IMatrix previousError = null;
+                    if (curr != null && bpt < context.BackpropagationThroughTime) {
+                        using (var sum = curr.RowSums(1f / curr.ColumnCount))
+                            previousError = sum.ToColumnMatrix();
+                    }
+                    var expectedOutput = update.Item2;
+                    if (expectedOutput != null) {
+                        curr = expectedOutput.Subtract(update.Item3);
+                        if (previousError != null)
+                            curr.AddInPlace(previousError);
+                    }
+                    else if (previousError != null)
+                        curr = previousError;
+                    else
+                        continue;
+
+                    // backpropagate
+                    beforeBackProp?.Invoke(curr);
+                    while (actionStack.Any()) {
+                        var backpropagationAction = actionStack.Pop();
+                        var shouldCalculateOutput = actionStack.Any() || isT0 || bpt < context.BackpropagationThroughTime;
+                        curr = backpropagationAction.Execute(curr, trainingContext, true, updateAccumulator);
+                    }
+                    afterBackProp?.Invoke(curr);
+
+                    // apply any filters
+                    foreach (var filter in _filter)
+                        filter.AfterBackPropagation(update.Item4, update.Item5, curr);
+
+                    ++bpt;
+                }
+
+                // adjust the initial memory against the error signal
+                if (curr != null) {
+                    using (var columnSums = curr.ColumnSums()) {
+                        var initialDelta = columnSums.AsIndexable();
+                        for (var j = 0; j < memory.Length; j++)
+                            memory[j] += initialDelta[j] * trainingContext.TrainingRate;
+                    }
+                }
+            }
+
+            // cleanup
+            trainingContext.EndBatch();
+            _lap.PopLayer();
+        }
+
         public float[] Train(ISequentialTrainingDataProvider trainingData, float[] memory, int numEpochs, IRecurrentTrainingContext context)
         {
             var trainingContext = context.TrainingContext;
@@ -127,65 +193,11 @@ namespace BrightWire.Connectionist.Training.Batch
                 var batchErrorList = new List<double>();
                     
                 foreach (var miniBatch in _GetMiniBatches(trainingData, _stochastic, trainingContext.MiniBatchSize)) {
-                    var sequenceLength = miniBatch.Item1.Length;
-                    var updateStack = new Stack<Tuple<Stack<INeuralNetworkRecurrentBackpropagation>, IMatrix, IMatrix, int[], int>>();
-                    var garbage = new List<IMatrix>();
-                    context.ExecuteForward(miniBatch, memory, (k, fc) => {
-                        var layerStack = new Stack<INeuralNetworkRecurrentBackpropagation>();
-                        foreach (var action in _layer) {
-                            layerStack.Push(action.Execute(fc, true));
-                            trainingContext.AddToGarbage(fc[0]);
-                        }
-                        updateStack.Push(Tuple.Create(layerStack, miniBatch.Item2[k], fc[0], miniBatch.Item3, k));
-                        garbage.Add(fc[1]);
-                    });
-
-                    // backpropagate, accumulating errors across the sequence
-                    using (var updateAccumulator = new UpdateAccumulator(trainingContext)) {
-                        while (updateStack.Any()) {
-                            var update = updateStack.Pop();
-                            var isT0 = !updateStack.Any();
-                            var actionStack = update.Item1;
-                            garbage.Add(update.Item3);
-                            IMatrix curr;
-
-                            // calculate error
-                            var expectedOutput = update.Item2;
-                            garbage.Add(curr = expectedOutput.Subtract(update.Item3));
-
-                            // get a measure of the training error
-                            if(_collectTrainingError)
-                                batchErrorList.Add(curr.AsIndexable().Values.Select(v => Math.Pow(v, 2)).Average() / 2);
-
-                            // backpropagate
-                            while (actionStack.Any()) {
-                                var backpropagationAction = actionStack.Pop();
-                                garbage.Add(curr = backpropagationAction.Execute(curr, trainingContext, actionStack.Any() || isT0, updateAccumulator));
-                            }
-
-                            // apply any filters
-                            foreach (var filter in _filter)
-                                filter.AfterBackPropagation(update.Item4, update.Item5, sequenceLength, curr);
-
-                            // adjust the initial memory against the error signal
-                            if (isT0) {
-                                using (var columnSums = curr.ColumnSums()) {
-                                    var initialDelta = columnSums.AsIndexable();
-                                    for (var j = 0; j < memory.Length; j++)
-                                        memory[j] += initialDelta[j] * trainingContext.TrainingRate;
-                                }
-                            }
-                        }
-                    }
-
-                    // cleanup
-                    foreach (var item in garbage)
-                        item.Dispose();
-                    foreach (var item in miniBatch.Item1)
-                        item.Dispose();
-                    foreach (var item in miniBatch.Item2)
-                        item.Dispose();
-                    trainingContext.EndBatch();
+                    TrainOnMiniBatch(miniBatch, memory, context, curr => {
+                        if (_collectTrainingError) // get a measure of the training error
+                            batchErrorList.Add(curr.AsIndexable().Values.Select(v => Math.Pow(v, 2)).Average() / 2);
+                    }, null);
+                    miniBatch.Dispose();
                 }
                 trainingContext.EndRecurrentEpoch(_collectTrainingError ? batchErrorList.Average() : 0, context);
             }

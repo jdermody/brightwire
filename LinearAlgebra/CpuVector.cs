@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BrightWire.Models;
+using BrightWire.Helper;
 
 namespace BrightWire.LinearAlgebra
 {
@@ -286,6 +287,18 @@ namespace BrightWire.LinearAlgebra
         public IIndexableVector Append(IReadOnlyList<float> data)
         {
             return new CpuVector(DenseVector.Create(Count + data.Count, i => i < Count ? _vector[i] : data[i-Count]));
+        }
+
+        public IVector Softmax()
+        {
+            var minMax = GetMinMax();
+            var max = minMax.Item2;
+
+            var softmax = _vector.Map(v => BoundMath.Exp(v - max));
+            var sum = softmax.Sum();
+            if(sum != 0)
+                return new CpuVector(softmax.Divide(sum));
+            return new CpuVector(softmax);
         }
     }
 }

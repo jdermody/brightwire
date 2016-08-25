@@ -31,6 +31,9 @@ namespace BrightWire
         IIndexableMatrix CreateIndexable(int rows, int columns, float value);
 
         INeuralNetworkFactory NN { get; }
+
+        void PushLayer();
+        void PopLayer();
     }
 
     public enum NormalisationType
@@ -75,6 +78,7 @@ namespace BrightWire
         float Average();
         float StdDev(float? mean);
         void Normalise(NormalisationType type);
+        IVector Softmax();
     }
 
     public interface IIndexableVector : IVector
@@ -227,17 +231,18 @@ namespace BrightWire
     public interface IRecurrentTrainingContext
     {
         ITrainingContext TrainingContext { get; }
+        int BackpropagationThroughTime { get; }
         void AddFilter(INeuralNetworkRecurrentTrainerFilter filter);
-        void ExecuteForward(Tuple<IMatrix[], IMatrix[], int[]> miniBatch, float[] memory, Action<int, List<IMatrix>> onT);
-        void ExecuteForwardSingle(Tuple<float[], float[]>[] data, float[] memory, int dataIndex, Action<int, List<IMatrix>> onT);
+        void ExecuteForward(ISequentialMiniBatch miniBatch, float[] memory, Action<int, List<IMatrix>> onT);
+        //void ExecuteForwardSingle(ISequentialMiniBatch miniBatch, float[] memory, int dataIndex, Action<int, List<IMatrix>> onT);
         void ExecuteBidirectional(
             ITrainingContext context,
-            Tuple<IMatrix[], IMatrix[], int[]> miniBatch,
+            ISequentialMiniBatch miniBatch,
             IReadOnlyList<INeuralNetworkBidirectionalLayer> layers,
             float[] memoryForward,
             float[] memoryBackward,
             int padding,
-            Stack<Tuple<Stack<Tuple<INeuralNetworkRecurrentBackpropagation, INeuralNetworkRecurrentBackpropagation>>, IMatrix, IMatrix, int[], int>> updateStack,
+            Stack<Tuple<Stack<Tuple<INeuralNetworkRecurrentBackpropagation, INeuralNetworkRecurrentBackpropagation>>, IMatrix, IMatrix, ISequentialMiniBatch, int>> updateStack,
             Action<List<IIndexableVector[]>, List<IMatrix>> onFinished
         );
     }
@@ -261,8 +266,8 @@ namespace BrightWire
         void EndBatch();
         void EndRecurrentEpoch(double trainingError, IRecurrentTrainingContext context);
         void WriteScore(double score, bool asPercentage, bool flag = false);
-        IMatrix AddToGarbage(IMatrix matrix);
-        void Cleanup();
+        void ReduceTrainingRate();
+        void ScheduleTrainingRateChange(int atEpoch, float newTrainingRate);
 
         event Action<ITrainingContext> EpochComplete;
         event Action<ITrainingContext, IRecurrentTrainingContext> RecurrentEpochComplete;
@@ -425,13 +430,19 @@ namespace BrightWire
         );
     }
 
+    public interface IFeedForwardOutput
+    {
+        IIndexableVector Output { get; }
+        IIndexableVector ExpectedOutput { get; }
+    }
+
     public interface INeuralNetworkTrainer : IDisposable
     {
         IReadOnlyList<INeuralNetworkLayerTrainer> Layer { get; }
 
         float CalculateCost(ITrainingDataProvider data, ICostFunction costFunction);
         void Train(ITrainingDataProvider trainingData, int numEpochs, ITrainingContext context);
-        IReadOnlyList<Tuple<IIndexableVector, IIndexableVector>> Execute(ITrainingDataProvider data);
+        IReadOnlyList<IFeedForwardOutput> Execute(ITrainingDataProvider data);
         FeedForwardNetwork NetworkInfo { get; set; }
         IEnumerable<IIndexableVector[]> ExecuteToLayer(ITrainingDataProvider data, int layerDepth);
     }
@@ -446,8 +457,8 @@ namespace BrightWire
 
     public interface INeuralNetworkRecurrentTrainerFilter
     {
-        void BeforeFeedForward(int[] dataIndex, int sequenceIndex, int sequenceLength, List<IMatrix> context);
-        void AfterBackPropagation(int[] dataIndex, int sequenceIndex, int sequenceLength, IMatrix errorSignal);
+        void BeforeFeedForward(ISequentialMiniBatch miniBatch, int sequenceIndex, List<IMatrix> context);
+        void AfterBackPropagation(ISequentialMiniBatch miniBatch, int sequenceIndex, IMatrix errorSignal);
     }
 
     public interface INeuralNetworkRecurrentBatchTrainer : IDisposable
@@ -457,8 +468,9 @@ namespace BrightWire
 
         float CalculateCost(ISequentialTrainingDataProvider data, float[] memory, ICostFunction costFunction, IRecurrentTrainingContext context);
         float[] Train(ISequentialTrainingDataProvider trainingData, float[] memory, int numEpochs, IRecurrentTrainingContext context);
+        void TrainOnMiniBatch(ISequentialMiniBatch miniBatch, float[] memory, IRecurrentTrainingContext context, Action<IMatrix> beforeBackProp, Action<IMatrix> afterBackProp);
         IReadOnlyList<RecurrentExecutionResults[]> Execute(ISequentialTrainingDataProvider trainingData, float[] memory, IRecurrentTrainingContext context);
-        RecurrentExecutionResults[] ExecuteSingle(Tuple<float[], float[]>[] data, float[] memory, IRecurrentTrainingContext context, int dataIndex = 0);
+        //RecurrentExecutionResults[] ExecuteSingle(Tuple<float[], float[]>[] data, float[] memory, IRecurrentTrainingContext context, int dataIndex = 0);
         RecurrentExecutionResults ExecuteSingleStep(float[] input, float[] memory);
         RecurrentNetwork NetworkInfo { get; set; }
     }
@@ -481,17 +493,32 @@ namespace BrightWire
         SquaredEuclidean
     }
 
+    public interface IMiniBatch : IDisposable
+    {
+        IMatrix Input { get; }
+        IMatrix ExpectedOutput { get; }
+    }
+
     public interface ITrainingDataProvider
     {
-        Tuple<IMatrix, IMatrix> GetTrainingData(IReadOnlyList<int> rows);
+        IMiniBatch GetTrainingData(IReadOnlyList<int> rows);
         int Count { get; }
         int InputSize { get; }
         int OutputSize { get; }
     }
 
+    public interface ISequentialMiniBatch : IDisposable
+    {
+        int SequenceLength { get; }
+        int BatchSize { get; }
+        IMatrix[] Input { get; }
+        int[] CurrentRows { get; }
+        IMatrix GetExpectedOutput(IReadOnlyList<IMatrix> output, int k);
+    }
+
     public interface ISequentialTrainingDataProvider
     {
-        Tuple<IMatrix[], IMatrix[], int[]> GetTrainingData(int sequenceLength, IReadOnlyList<int> rows);
+        ISequentialMiniBatch GetTrainingData(int sequenceLength, IReadOnlyList<int> rows);
         Tuple<int, int>[] Length { get; }
         int Count { get; }
         int InputSize { get; }
@@ -509,6 +536,7 @@ namespace BrightWire
         IVector Execute(float[] inputData);
         IVector Execute(IVector inputData);
         IMatrix Execute(IMatrix inputData);
+        IVector Execute(IVector inputData, int depth);
     }
 
     public interface IRecurrentOutput

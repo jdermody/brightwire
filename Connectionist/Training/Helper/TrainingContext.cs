@@ -12,9 +12,9 @@ namespace BrightWire.Connectionist.Training.Helper
     {
         int _currentEpoch = 0;
         readonly Stack<double> _trainingErrorDelta = new Stack<double>();
-        readonly List<IMatrix> _epochGarbage = new List<IMatrix>();
         readonly int _miniBatchSize;
         readonly Stopwatch _timer = new Stopwatch();
+        readonly Dictionary<int, float> _scheduledTrainingRate = new Dictionary<int, float>();
 
         public TrainingContext(float trainingRate, int miniBatchSize)
         {
@@ -56,7 +56,6 @@ namespace BrightWire.Connectionist.Training.Helper
 
         public void EndBatch()
         {
-            Cleanup();
         }
 
         public void EndEpoch(double trainingError)
@@ -66,9 +65,13 @@ namespace BrightWire.Connectionist.Training.Helper
             LastTrainingError = trainingError;
             _trainingErrorDelta.Push(delta);
 
-            Cleanup();
-
             EpochComplete?.Invoke(this);
+
+            float trainingRate;
+            if (_scheduledTrainingRate.TryGetValue(CurrentEpoch, out trainingRate)) {
+                TrainingRate = trainingRate;
+                Console.WriteLine("Training rate changed to " + trainingRate);
+            }
         }
 
         public void EndRecurrentEpoch(double trainingError, IRecurrentTrainingContext context)
@@ -95,17 +98,14 @@ namespace BrightWire.Connectionist.Training.Helper
             Console.WriteLine(msg);
         }
 
-        public IMatrix AddToGarbage(IMatrix matrix)
+        public void ReduceTrainingRate()
         {
-            _epochGarbage.Add(matrix);
-            return matrix;
+            TrainingRate /= 3f;
         }
 
-        public void Cleanup()
+        public void ScheduleTrainingRateChange(int atEpoch, float newTrainingRate)
         {
-            foreach (var item in _epochGarbage)
-                item.Dispose();
-            _epochGarbage.Clear();
+            _scheduledTrainingRate[atEpoch] = newTrainingRate;
         }
     }
 }

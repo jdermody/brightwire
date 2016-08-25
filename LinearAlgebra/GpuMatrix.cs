@@ -34,6 +34,7 @@ namespace BrightWire.LinearAlgebra
             _cuda = cuda;
             _rows = rows;
             _columns = columns;
+            cuda.Register(this);
 
             var count = rows * columns;
             var data = new float[count];
@@ -61,7 +62,7 @@ namespace BrightWire.LinearAlgebra
             _rows = rows;
             _columns = columns;
             _data = gpuData;
-
+            cuda.Register(this);
 #if DEBUG
             if (_id == _badAlloc)
                 Debugger.Break();

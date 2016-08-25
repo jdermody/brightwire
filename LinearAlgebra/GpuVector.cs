@@ -37,6 +37,7 @@ namespace BrightWire.LinearAlgebra
             _data = new CudaDeviceVariable<float>(cuda.Context.AllocateMemory(size * sizeof(float)));
             _data.CopyToDevice(data);
             _size = size;
+            cuda.Register(this);
 #if DEBUG
             if (_id == _badAlloc)
                 Debugger.Break();
@@ -52,6 +53,7 @@ namespace BrightWire.LinearAlgebra
             _cuda = cuda;
             _data = data;
             _size = size;
+            cuda.Register(this);
 #if DEBUG
             if (_id == _badAlloc)
                 Debugger.Break();
@@ -362,6 +364,17 @@ namespace BrightWire.LinearAlgebra
                 if(p != 0f)
                     Multiply(1f / p);
             }
+        }
+
+        public IVector Softmax()
+        {
+            var minMax = GetMinMax();
+
+            var softmax = _cuda.SoftmaxVector(_data, _size, minMax.Item2);
+            var softmaxSum = _cuda.SumValues(softmax, _size);
+            if(softmaxSum != 0)
+                _cuda.Blas.Scale(1f / softmaxSum, softmax, 1);
+            return new GpuVector(_cuda, _size, softmax);
         }
     }
 }

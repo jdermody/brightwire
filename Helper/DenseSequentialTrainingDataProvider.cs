@@ -13,6 +13,38 @@ namespace BrightWire.Net4.Helper
         readonly Dictionary<int, List<Tuple<Tuple<float[], float[]>[], int>>> _inputData;
         readonly int _inputSize, _outputSize, _totalCount;
 
+        class MiniBatch : ISequentialMiniBatch
+        {
+            readonly IMatrix[] _expectedOutput;
+
+            public int SequenceLength { get; private set; }
+            public int BatchSize { get; private set; }
+            public IMatrix[] Input { get; private set; }
+            public int[] CurrentRows { get; private set; }
+
+            public MiniBatch(IMatrix[] input, IMatrix[] output, int[] rows)
+            {
+                Input = input;
+                SequenceLength = Input.Length;
+                BatchSize = Input[0].RowCount;
+                CurrentRows = rows;
+                _expectedOutput = output;
+            }
+
+            public void Dispose()
+            {
+                foreach (var item in _expectedOutput)
+                    item.Dispose();
+                foreach (var item in Input)
+                    item.Dispose();
+            }
+
+            public IMatrix GetExpectedOutput(IReadOnlyList<IMatrix> output, int k)
+            {
+                return _expectedOutput[k];
+            }
+        }
+
         public DenseSequentialTrainingDataProvider(ILinearAlgebraProvider lap, IReadOnlyList<Tuple<float[], float[]>[]> data)
         {
             _lap = lap;
@@ -46,7 +78,7 @@ namespace BrightWire.Net4.Helper
             }
         }
 
-        public Tuple<IMatrix[], IMatrix[], int[]> GetTrainingData(int sequenceLength, IReadOnlyList<int> rows)
+        public ISequentialMiniBatch GetTrainingData(int sequenceLength, IReadOnlyList<int> rows)
         {
             var input = new IMatrix[sequenceLength];
             var output = new IMatrix[sequenceLength];
@@ -55,7 +87,7 @@ namespace BrightWire.Net4.Helper
                 input[k] = _lap.Create(rows.Count, _inputSize, (x, y) => dataGroup[rows[x]].Item1[k].Item1[y]);
                 output[k] = _lap.Create(rows.Count, _outputSize, (x, y) => dataGroup[rows[x]].Item1[k].Item2[y]);
             }
-            return Tuple.Create(input, output, rows.Select(r => dataGroup[r].Item2).ToArray());
+            return new MiniBatch(input, output, rows.Select(r => dataGroup[r].Item2).ToArray());
         }
     }
 }

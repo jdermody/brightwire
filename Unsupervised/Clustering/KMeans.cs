@@ -17,7 +17,7 @@ namespace BrightWire.Net4.Unsupervised.Clustering
             _distanceMetric = distanceMetric;
         }
 
-        public IIndexableVector Merge(IReadOnlyList<IVector> list)
+        public IVector Merge(IReadOnlyList<IVector> list)
         {
             IVector main = null;
             var denominator = 1f / list.Count;
@@ -31,12 +31,10 @@ namespace BrightWire.Net4.Unsupervised.Clustering
                     isFirst = false;
                 }
             }
-            var ret = main.AsIndexable();
-            main.Dispose();
-            return ret;
+            return main;
         }
 
-        public IVector FindFurthestFrom(IReadOnlyList<IVector> data, IReadOnlyList<IIndexableVector> clusters)
+        public IVector FindFurthestFrom(IReadOnlyList<IVector> data, IReadOnlyList<IVector> clusters)
         {
             IVector ret = null;
             float best = float.MinValue;
@@ -55,12 +53,10 @@ namespace BrightWire.Net4.Unsupervised.Clustering
             return ret;
         }
 
-        public IReadOnlyList<Tuple<IIndexableVector, IVector[]>> Cluster(IReadOnlyList<IVector> data, IReadOnlyList<IIndexableVector> initialClusters = null)
+        public IReadOnlyList<Tuple<IVector, IVector[]>> Cluster(IReadOnlyList<IVector> data, IReadOnlyList<IVector> initialClusters = null)
         {
-            //var rand = new Random();
-
             // randomly choose some initial positions
-            IReadOnlyList<IIndexableVector> clusters = initialClusters != null ? initialClusters : data.Shuffle().Take(_k).Select(v => v.AsIndexable()).ToList();
+            IReadOnlyList<IVector> clusters = initialClusters != null ? initialClusters : data.Shuffle().Take(_k).Select(v => v.AsIndexable()).ToList();
             var curr = _Cluster(data, clusters);
             clusters = curr.GroupBy(kv => kv.Value).OrderBy(g => g.Key).Select(g => Merge(g.Select(d => d.Key).ToList())).ToList();
 
@@ -77,7 +73,7 @@ namespace BrightWire.Net4.Unsupervised.Clustering
             return curr.GroupBy(kv => kv.Value).Select(g => Tuple.Create(clusters[g.Key], g.Select(d => d.Key).ToArray())).ToList();
         }
 
-        Dictionary<IVector, int> _Cluster(IReadOnlyList<IVector> data, IReadOnlyList<IIndexableVector> clusters)
+        Dictionary<IVector, int> _Cluster(IReadOnlyList<IVector> data, IReadOnlyList<IVector> clusters)
         {
             var ret = new Dictionary<IVector, int>();
             foreach (var item in data) {
@@ -91,7 +87,7 @@ namespace BrightWire.Net4.Unsupervised.Clustering
             return ret;
         }
 
-        public IEnumerable<int> Cluster2(IReadOnlyList<IIndexableVector> clusters, IReadOnlyList<IVector> data)
+        public IEnumerable<int> Cluster2(IReadOnlyList<IVector> clusters, IReadOnlyList<IVector> data)
         {
             var dataLength = data.First().Count;
 

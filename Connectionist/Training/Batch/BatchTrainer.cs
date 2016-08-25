@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BrightWire.Models;
+using BrightWire.Net4.Models.ExecutionResults;
 
 namespace BrightWire.Connectionist.Training.Batch
 {
@@ -62,7 +63,7 @@ namespace BrightWire.Connectionist.Training.Batch
             return new TrainingContext(trainingRate, batchSize);
         }
 
-        IEnumerable<Tuple<IMatrix, IMatrix>> _GetMiniBatches(ITrainingDataProvider data, bool shuffle, int batchSize)
+        IEnumerable<IMiniBatch> _GetMiniBatches(ITrainingDataProvider data, bool shuffle, int batchSize)
         {
             // shuffle the training data order
             var range = Enumerable.Range(0, data.Count);
@@ -85,7 +86,7 @@ namespace BrightWire.Connectionist.Training.Batch
                 // iterate over each mini batch
                 foreach (var miniBatch in _GetMiniBatches(trainingData, _stochastic, context.MiniBatchSize)) {
                     var garbage = new List<IMatrix>();
-                    garbage.Add(curr = miniBatch.Item1);
+                    garbage.Add(curr = miniBatch.Input);
 
                     // feed forward
                     var layerStack = new Stack<INeuralNetworkLayerTrainer>();
@@ -95,7 +96,7 @@ namespace BrightWire.Connectionist.Training.Batch
                     }
 
                     // calculate the error against the training examples
-                    using (var expectedOutput = miniBatch.Item2) {
+                    using (var expectedOutput = miniBatch.ExpectedOutput) {
                         garbage.Add(curr = expectedOutput.Subtract(curr));
 
                         // calculate the training error for this mini batch
@@ -110,8 +111,8 @@ namespace BrightWire.Connectionist.Training.Batch
                     }
 
                     // clear memory
-                    garbage.ForEach(m => m?.Dispose());
                     context.EndBatch();
+                    garbage.ForEach(m => m?.Dispose());
                 }
                 context.EndEpoch(_calculateTrainingError ? batchErrorList.Average() : 0f);
             }
@@ -119,7 +120,7 @@ namespace BrightWire.Connectionist.Training.Batch
 
         public float CalculateCost(ITrainingDataProvider data, ICostFunction costFunction)
         {
-            return Execute(data).Select(r => costFunction.Calculate(r.Item1, r.Item2)).Average();
+            return Execute(data).Select(r => costFunction.Calculate(r.Output, r.ExpectedOutput)).Average();
         }
 
         public IEnumerable<IIndexableVector[]> ExecuteToLayer(ITrainingDataProvider data, int layerDepth)
@@ -127,8 +128,8 @@ namespace BrightWire.Connectionist.Training.Batch
             IMatrix curr = null;
             foreach (var miniBatch in _GetMiniBatches(data, false, DEFAULT_BATCH_SIZE)) {
                 var garbage = new List<IMatrix>();
-                garbage.Add(curr = miniBatch.Item1);
-                garbage.Add(miniBatch.Item2);
+                garbage.Add(curr = miniBatch.Input);
+                garbage.Add(miniBatch.ExpectedOutput);
 
                 // feed forward
                 for(var i = 0; i < layerDepth; i++) {
@@ -145,22 +146,22 @@ namespace BrightWire.Connectionist.Training.Batch
             }
         }
 
-        public IReadOnlyList<Tuple<IIndexableVector, IIndexableVector>> Execute(ITrainingDataProvider data)
+        public IReadOnlyList<IFeedForwardOutput> Execute(ITrainingDataProvider data)
         {
             IMatrix curr = null;
-            var ret = new List<Tuple<IIndexableVector, IIndexableVector>>();
+            var ret = new List<IFeedForwardOutput>();
 
             foreach (var miniBatch in _GetMiniBatches(data, false, DEFAULT_BATCH_SIZE)) {
                 var garbage = new List<IMatrix>();
-                garbage.Add(curr = miniBatch.Item1);
-                garbage.Add(miniBatch.Item2);
+                garbage.Add(curr = miniBatch.Input);
+                garbage.Add(miniBatch.ExpectedOutput);
 
                 // feed forward
                 foreach (var layer in _layer)
                     garbage.Add(curr = layer.FeedForward(curr, false));
 
                 // break the output into rows
-                ret.AddRange(curr.AsIndexable().Rows.Zip(miniBatch.Item2.AsIndexable().Rows, (a, e) => Tuple.Create(a, e)));
+                ret.AddRange(curr.AsIndexable().Rows.Zip(miniBatch.ExpectedOutput.AsIndexable().Rows, (a, e) => new FeedForwardOutput(a, e)));
 
                 // clear memory
                 garbage.ForEach(m => m.Dispose());

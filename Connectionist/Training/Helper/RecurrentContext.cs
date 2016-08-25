@@ -13,14 +13,17 @@ namespace BrightWire.Connectionist.Training.Helper
         readonly ILinearAlgebraProvider _lap;
         readonly ITrainingContext _trainingContext;
         readonly List<INeuralNetworkRecurrentTrainerFilter> _filter = new List<INeuralNetworkRecurrentTrainerFilter>();
+        readonly int _backpropagationThroughTime;
 
-        public RecurrentContext(ILinearAlgebraProvider lap, ITrainingContext trainingContext)
+        public RecurrentContext(ILinearAlgebraProvider lap, ITrainingContext trainingContext, int backpropagationThroughTime = 0)
         {
             _lap = lap;
             _trainingContext = trainingContext;
+            _backpropagationThroughTime = backpropagationThroughTime;
         }
 
         public ITrainingContext TrainingContext { get { return _trainingContext; } }
+        public int BackpropagationThroughTime { get { return _backpropagationThroughTime; } }
 
         public void AddFilter(INeuralNetworkRecurrentTrainerFilter filter)
         {
@@ -29,50 +32,48 @@ namespace BrightWire.Connectionist.Training.Helper
 
         IMatrix _CreateMemory(float[] data, int columns)
         {
-            var ret = _lap.Create(columns, data.Length, (x, y) => data[y]);
-            _trainingContext.AddToGarbage(ret);
-            return ret;
+            return _lap.Create(columns, data.Length, (x, y) => data[y]);
         }
 
-        public void ExecuteForward(Tuple<IMatrix[], IMatrix[], int[]> miniBatch, float[] memory, Action<int, List<IMatrix>> onT)
+        public void ExecuteForward(ISequentialMiniBatch miniBatch, float[] memory, Action<int, List<IMatrix>> onT)
         {
-            var sequenceLength = miniBatch.Item1.Length;
+            var sequenceLength = miniBatch.SequenceLength;
             var context = new List<IMatrix>();
 
             // initialise context with initial memory and space for the input at position 0
             context.Add(null);
-            context.Add(_CreateMemory(memory, miniBatch.Item1[0].RowCount));
+            context.Add(_CreateMemory(memory, miniBatch.BatchSize));
 
             for (var k = 0; k < sequenceLength; k++) {
                 // push the sequence into context
-                context[0] = miniBatch.Item1[k];
+                context[0] = miniBatch.Input[k];
 
                 // apply any filters
                 foreach (var filter in _filter)
-                    filter.BeforeFeedForward(miniBatch.Item3, k, sequenceLength, context);
+                    filter.BeforeFeedForward(miniBatch, k, context);
 
                 onT(k, context);
             }
         }
 
-        public void ExecuteForwardSingle(Tuple<float[], float[]>[] data, float[] memory, int dataIndex, Action<int, List<IMatrix>> onT)
-        {
-            var context = new List<IMatrix>();
-            context.Add(null);
-            context.Add(_lap.Create(memory).ToRowMatrix());
+        //public void ExecuteForwardSingle(Tuple<float[], float[]>[] data, float[] memory, int dataIndex, Action<int, List<IMatrix>> onT)
+        //{
+        //    var context = new List<IMatrix>();
+        //    context.Add(null);
+        //    context.Add(_lap.Create(memory).ToRowMatrix());
 
-            var dataIndexArray = new[] { dataIndex };
-            for (var k = 0; k < data.Length; k++) {
-                // push the sequence into context
-                context[0] = _lap.Create(data[k].Item1).ToRowMatrix();
+        //    var dataIndexArray = new[] { dataIndex };
+        //    for (var k = 0; k < data.Length; k++) {
+        //        // push the sequence into context
+        //        context[0] = _lap.Create(data[k].Item1).ToRowMatrix();
 
-                // apply any filters
-                foreach (var filter in _filter)
-                    filter.BeforeFeedForward(dataIndexArray, k, data.Length, context);
+        //        // apply any filters
+        //        foreach (var filter in _filter)
+        //            filter.BeforeFeedForward(dataIndexArray, k, data.Length, context);
 
-                onT(k, context);
-            }
-        }
+        //        onT(k, context);
+        //    }
+        //}
 
         void _Add(Dictionary<Tuple<int, bool>, List<INeuralNetworkRecurrentBackpropagation>> table, Tuple<int, bool> key, INeuralNetworkRecurrentBackpropagation bp)
         {
@@ -84,12 +85,12 @@ namespace BrightWire.Connectionist.Training.Helper
 
         public void ExecuteBidirectional(
             ITrainingContext context,
-            Tuple<IMatrix[], IMatrix[], int[]> miniBatch, 
+            ISequentialMiniBatch miniBatch, 
             IReadOnlyList<INeuralNetworkBidirectionalLayer> layers, 
             float[] memoryForward,
             float[] memoryBackward,
             int padding,
-            Stack<Tuple<Stack<Tuple<INeuralNetworkRecurrentBackpropagation, INeuralNetworkRecurrentBackpropagation>>, IMatrix, IMatrix, int[], int>> updateStack,
+            Stack<Tuple<Stack<Tuple<INeuralNetworkRecurrentBackpropagation, INeuralNetworkRecurrentBackpropagation>>, IMatrix, IMatrix, ISequentialMiniBatch, int>> updateStack,
             Action<List<IIndexableVector[]>, List<IMatrix>> onFinished
         ){
             IMatrix temp;
@@ -98,8 +99,8 @@ namespace BrightWire.Connectionist.Training.Helper
             var garbage = new List<IMatrix>();
 
             // init
-            var sequenceLength = miniBatch.Item1.Length;
-            var batchSize = miniBatch.Item1[0].RowCount;
+            var sequenceLength = miniBatch.SequenceLength;
+            var batchSize = miniBatch.BatchSize;
             var shouldBackpropagate = updateStack != null;
             var lastRecurrentLayer = layers.Where(l => l.Forward.IsRecurrent).Last();
 
@@ -116,8 +117,8 @@ namespace BrightWire.Connectionist.Training.Helper
             // load the first inputs
             var input = new Dictionary<Tuple<int, bool>, IMatrix>();
             for (var k = 0; k < sequenceLength; k++) {
-                input.Add(Tuple.Create(k, true), miniBatch.Item1[k]);
-                input.Add(Tuple.Create(k, false), miniBatch.Item1[k]);
+                input.Add(Tuple.Create(k, true), miniBatch.Input[k]);
+                input.Add(Tuple.Create(k, false), miniBatch.Input[k]);
             }
 
             // execute the bidirectional layers
@@ -140,8 +141,8 @@ namespace BrightWire.Connectionist.Training.Helper
 
                     // apply any filters
                     foreach (var filter in _filter) {
-                        filter.BeforeFeedForward(miniBatch.Item3, k, sequenceLength, forwardContext);
-                        filter.BeforeFeedForward(miniBatch.Item3, bK, sequenceLength, backwardContext);
+                        filter.BeforeFeedForward(miniBatch, k, forwardContext);
+                        filter.BeforeFeedForward(miniBatch, bK, backwardContext);
                     }
 
                     // execute the layers
@@ -173,20 +174,14 @@ namespace BrightWire.Connectionist.Training.Helper
 
                     var forwardOutput = input[forwardKey];
                     var backwardOutput = input[backwardKey];
-                    context.AddToGarbage(forwardOutput);
-                    context.AddToGarbage(backwardOutput);
-                    input2.Add(context.AddToGarbage(forwardOutput.ConcatRows(backwardOutput)));
+                    input2.Add(forwardOutput.ConcatRows(backwardOutput));
 
                     var forwardMemory = memoryOutput[forwardKey];
                     var backwardMemory = memoryOutput[backwardKey];
-                    context.AddToGarbage(forwardMemory);
-                    context.AddToGarbage(backwardMemory);
                     garbage.Add(memoryOutput2[k] = forwardMemory.ConcatRows(backwardMemory));
                 }else {
                     var forwardOutput = input[forwardKey];
                     var forwardMemory = memoryOutput[forwardKey];
-                    context.AddToGarbage(forwardOutput);
-                    context.AddToGarbage(forwardMemory);
                     input2.Add(forwardOutput.ConcatRows(_lap.Create(forwardOutput.RowCount, forwardOutput.ColumnCount, 0f)));
                     garbage.Add(memoryOutput2[k] = forwardMemory.ConcatRows(_lap.Create(forwardMemory.RowCount, forwardMemory.ColumnCount, 0f)));
                 }
@@ -202,7 +197,7 @@ namespace BrightWire.Connectionist.Training.Helper
 
                     // apply any filters
                     foreach (var filter in _filter)
-                        filter.BeforeFeedForward(miniBatch.Item3, k, sequenceLength, forwardContext);
+                        filter.BeforeFeedForward(miniBatch, k, forwardContext);
 
                     var forward = layer.Forward.Execute(forwardContext, shouldBackpropagate);
                     if (shouldBackpropagate)
@@ -221,7 +216,7 @@ namespace BrightWire.Connectionist.Training.Helper
                     var stack = new Stack<Tuple<INeuralNetworkRecurrentBackpropagation, INeuralNetworkRecurrentBackpropagation>>();
                     for(var i = 0; i < Math.Max(forward.Count, backward.Count); i++)
                         stack.Push(Tuple.Create(i < forward.Count ? forward[i] : null, i < backward.Count ? backward[i] : null));
-                    updateStack.Push(Tuple.Create(stack, miniBatch.Item2[k], input2[k], miniBatch.Item3, k));
+                    updateStack.Push(Tuple.Create(stack, miniBatch.GetExpectedOutput(input2, k), input2[k], miniBatch, k));
                 }
             }
 

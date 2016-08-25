@@ -100,6 +100,9 @@
     <Compile Include="Connectionist\Execution\Layer\SimpleRecurrent.cs" />
     <Compile Include="Connectionist\Execution\Layer\StandardFeedForward.cs" />
     <Compile Include="Connectionist\Execution\RecurrentExecution.cs" />
+    <Compile Include="Helper\MiniBatch.cs" />
+    <Compile Include="Helper\SequenceToSequenceTrainingDataProvider.cs" />
+    <Compile Include="Models\ExecutionResults\FeedForwardOutput.cs" />
     <Compile Include="Models\ExecutionResults\RecurrentOutput.cs" />
     <Compile Include="Connectionist\Factory.cs" />
     <Compile Include="Connectionist\LayerDescriptor.cs" />

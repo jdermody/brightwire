@@ -48,10 +48,25 @@ namespace BrightWire.Connectionist.Execution
             }
         }
 
+        void _Execute(IDisposableMatrixExecutionLine m, int layerDepth)
+        {
+            foreach (var layer in _layer.Take(layerDepth)) {
+                layer.Activate(m);
+            }
+        }
+
         public IVector Execute(IVector inputData)
         {
             using (var m = new DisposableMatrixExecutionLine(inputData.ToRowMatrix())) {
                 _Execute(m);
+                return m.Current.Row(0);
+            }
+        }
+
+        public IVector Execute(IVector inputData, int depth)
+        {
+            using (var m = new DisposableMatrixExecutionLine(inputData.ToRowMatrix())) {
+                _Execute(m, depth);
                 return m.Current.Row(0);
             }
         }

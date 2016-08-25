@@ -20,6 +20,24 @@ namespace BrightWire.LinearAlgebra
         const int BLOCK_DIM = 32;
         const int BLOCK_DIM2 = BLOCK_DIM * BLOCK_DIM;
 
+        class AllocationLayer
+        {
+            readonly List<GpuMatrix> _matrix = new List<GpuMatrix>();
+            readonly List<GpuVector> _vector = new List<GpuVector>();
+
+            public void Add(GpuMatrix matrix) { _matrix.Add(matrix); }
+            public void Add(GpuVector vector) { _vector.Add(vector); }
+            public void Release()
+            {
+                foreach(var item in _matrix)
+                    item.Dispose();
+                foreach (var item in _vector)
+                    item.Dispose();
+                _matrix.Clear();
+                _vector.Clear();
+            }
+        }
+
         class KernelExecution
         {
             readonly CUfunction _function;
@@ -88,6 +106,7 @@ namespace BrightWire.LinearAlgebra
         readonly CudaBlas _blas;
         readonly KernelModule _kernel;
         readonly NumericsProvider _numerics = new NumericsProvider();
+        readonly Stack<AllocationLayer> _allocationLayer = new Stack<AllocationLayer>();
         readonly CUfunction
             _pointwiseMultiply,
             _addInPlace,
@@ -125,7 +144,8 @@ namespace BrightWire.LinearAlgebra
             _euclideanDistance,
             _manhattanDistance,
             _abs,
-            _normalise
+            _normalise,
+            _softmaxVector
         ;
         bool _disposed = false;
 
@@ -173,6 +193,7 @@ namespace BrightWire.LinearAlgebra
             _manhattanDistance = _kernel.LoadFunction("ManhattanDistance");
             _abs = _kernel.LoadFunction("Abs");
             _normalise = _kernel.LoadFunction("Normalise");
+            _softmaxVector = _kernel.LoadFunction("SoftmaxVector");
         }
 
         protected virtual void Dispose(bool disposing)
@@ -477,6 +498,13 @@ namespace BrightWire.LinearAlgebra
             _Use(_normalise, size, k => k.Run(0, a.DevicePointer, size, min, range));
         }
 
+        internal CudaDeviceVariable<float> SoftmaxVector(CudaDeviceVariable<float> a, int size, float max)
+        {
+            var ret = new CudaDeviceVariable<float>(size);
+            _Use(_softmaxVector, size, k => k.Run(0, a.DevicePointer, ret.DevicePointer, size, max));
+            return ret;
+        }
+
         internal void PointwiseDivideRows(CudaDeviceVariable<float> a, CudaDeviceVariable<float> b, int rows, int columns)
         {
             _Use(_pointwiseDivideRows, rows, columns, k => k.Run(0, a.DevicePointer, b.DevicePointer, rows, columns));
@@ -641,6 +669,35 @@ namespace BrightWire.LinearAlgebra
         public IVector CreateVector(FloatArray data)
         {
             return Create((IIndexableVector)_numerics.CreateVector(data));
+        }
+
+        public void PushLayer()
+        {
+            _allocationLayer.Push(new AllocationLayer());
+        }
+
+        public void PopLayer()
+        {
+            var layer = _allocationLayer.Pop();
+            layer.Release();
+        }
+
+        internal void Register(GpuVector vector)
+        {
+            if (_allocationLayer.Any()) {
+                var layer = _allocationLayer.Peek();
+                if (layer != null)
+                    layer.Add(vector);
+            }
+        }
+
+        internal void Register(GpuMatrix matrix)
+        {
+            if (_allocationLayer.Any()) {
+                var layer = _allocationLayer.Peek();
+                if (layer != null)
+                    layer.Add(matrix);
+            }
         }
     }
 }

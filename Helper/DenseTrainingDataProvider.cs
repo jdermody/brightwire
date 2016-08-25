@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BrightWire.Net4.Helper;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -35,11 +36,11 @@ namespace BrightWire.Helper
             return _data[row].Item2[column];
         }
 
-        public Tuple<IMatrix, IMatrix> GetTrainingData(IReadOnlyList<int> rows)
+        public IMiniBatch GetTrainingData(IReadOnlyList<int> rows)
         {
             var input = _lap.Create(rows.Count, _inputSize, (x, y) => Get(rows[x], y));
             var output = _lap.Create(rows.Count, _outputSize, (x, y) => GetPrediction(rows[x], y));
-            return Tuple.Create(input, output);
+            return new MiniBatch(input, output);
         }
 
         public int Count { get { return _data.Count; } }

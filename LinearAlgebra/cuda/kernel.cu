@@ -536,4 +536,13 @@ extern "C"
 			a[i] = (a[i] - min) / range;
 		}
 	}
+
+	__global__ void SoftmaxVector(float* a, float* b, int count, float max)
+	{
+		int i = blockDim.x * blockIdx.x + threadIdx.x;
+
+		if (i < count) {
+			b[i] = exp(a[i] - max);
+		}
+	}
 }
