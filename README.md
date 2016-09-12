@@ -41,9 +41,9 @@ using (var lap = new NumericsProvider()) {
 
 	// create a batch trainer.  This network has a hidden layer of size 4,
 	// and input and outputs of 2 and 1 respectively.
-    using (var trainer = _lap.NN.CreateBatchTrainer(layerTemplate, 2, 4, 1)) {
+    using (var trainer = lap.NN.CreateBatchTrainer(layerTemplate, 2, 4, 1)) {
 		// create a training context that will hold the training rate and batch size
-        var trainingContext = _lap.NN.CreateTrainingContext(0.03f, 2);
+        var trainingContext = lap.NN.CreateTrainingContext(0.03f, 2);
 
 		// train the network!
         trainer.Train(testDataProvider, 1000, trainingContext);
