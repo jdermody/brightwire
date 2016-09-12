@@ -51,9 +51,9 @@ namespace BrightWire.Connectionist.Training.Batch
             }
         }
 
-        public float CalculateCost(ISequentialTrainingDataProvider data, float[] memory, ICostFunction costFunction, IRecurrentTrainingContext context)
+        public float CalculateCost(ISequentialTrainingDataProvider data, float[] memory, IRecurrentTrainingContext context)
         {
-            return Execute(data, memory, context).SelectMany(r => r).Select(r => costFunction.Calculate(r.Output, r.Target)).Average();
+            return Execute(data, memory, context).SelectMany(r => r).Select(r => context.TrainingContext.ErrorMetric.Compute(r.Output, r.Target)).Average();
         }
 
         public IReadOnlyList<RecurrentExecutionResults[]> Execute(ISequentialTrainingDataProvider trainingData, float[] memory, IRecurrentTrainingContext context)

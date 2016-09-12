@@ -18,8 +18,8 @@ namespace BrightWire.Connectionist.Training.Manager
         RecurrentNetwork _bestOutput;
         float[] _memory;
 
-        public RecurrentManager(INeuralNetworkRecurrentBatchTrainer trainer, string dataFile, ISequentialTrainingDataProvider testData, IErrorMetric errorMetric, int memorySize)
-            : base(testData, errorMetric)
+        public RecurrentManager(INeuralNetworkRecurrentBatchTrainer trainer, string dataFile, ISequentialTrainingDataProvider testData, int memorySize)
+            : base(testData)
         {
             _trainer = trainer;
             _dataFile = dataFile;
@@ -55,7 +55,7 @@ namespace BrightWire.Connectionist.Training.Manager
                 recurrentContext = new RecurrentContext(_trainer.LinearAlgebraProvider, context);
 
             _bestScore = _GetScore(_testData, _trainer, _memory, recurrentContext);
-            Console.WriteLine(_errorMetric.DisplayAsPercentage ? "Initial score: {0:P}" : "Initial score: {0}", _bestScore);
+            Console.WriteLine(context.ErrorMetric.DisplayAsPercentage ? "Initial score: {0:P}" : "Initial score: {0}", _bestScore);
 
             _bestOutput = null;
             recurrentContext.TrainingContext.RecurrentEpochComplete += OnEpochComplete;

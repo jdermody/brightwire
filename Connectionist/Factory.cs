@@ -193,9 +193,14 @@ namespace BrightWire.Connectionist
             return new StandardFeedForward(weight, bias, _activation[descriptor.Activation]);
         }
 
-        public ITrainingContext CreateTrainingContext(float learningRate, int batchSize)
+        public ITrainingContext CreateTrainingContext(float learningRate, int batchSize, IErrorMetric errorMetric)
         {
-            return new TrainingContext(learningRate, batchSize);
+            return new TrainingContext(learningRate, batchSize, errorMetric);
+        }
+
+        public ITrainingContext CreateTrainingContext(float learningRate, int batchSize, ErrorMetricType errorMetric)
+        {
+            return new TrainingContext(learningRate, batchSize, errorMetric.Create());
         }
 
         RecurrentLayerComponent _ReadComponent(RecurrentLayer network, ActivationType activation)
@@ -249,33 +254,30 @@ namespace BrightWire.Connectionist
         public IFeedForwardTrainingManager CreateFeedForwardManager(
             INeuralNetworkTrainer trainer,
             string dataFile,
-            ITrainingDataProvider testData,
-            IErrorMetric errorMetric
+            ITrainingDataProvider testData
         )
         {
-            return new FeedForwardManager(trainer, dataFile, testData, errorMetric);
+            return new FeedForwardManager(trainer, dataFile, testData);
         }
 
         public IRecurrentTrainingManager CreateRecurrentManager(
             INeuralNetworkRecurrentBatchTrainer trainer,
             string dataFile,
             ISequentialTrainingDataProvider testData,
-            IErrorMetric errorMetric,
             int memorySize
         )
         {
-            return new RecurrentManager(trainer, dataFile, testData, errorMetric, memorySize);
+            return new RecurrentManager(trainer, dataFile, testData, memorySize);
         }
 
         public IBidirectionalRecurrentTrainingManager CreateBidirectionalManager(
             INeuralNetworkBidirectionalBatchTrainer trainer,
             string dataFile,
             ISequentialTrainingDataProvider testData,
-            IErrorMetric errorMetric,
             int memorySize
         )
         {
-            return new BidirectionalManager(_lap, trainer, dataFile, testData, errorMetric, memorySize);
+            return new BidirectionalManager(_lap, trainer, dataFile, testData, memorySize);
         }
     }
 }

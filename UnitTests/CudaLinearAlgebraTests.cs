@@ -1347,7 +1347,7 @@ namespace UnitTests
             using (var gpuA = _cuda.Create(a))
                 average2 = gpuA.Average();
 
-            FloatingPointHelper.AssertEqual(average, average2);
+            FloatingPointHelper.AssertEqual(average, average2, 7);
         }
 
         [TestMethod]

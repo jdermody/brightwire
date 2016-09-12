@@ -24,8 +24,7 @@ namespace BrightWire.Connectionist.Training.Manager
             INeuralNetworkBidirectionalBatchTrainer trainer,
             string dataFile,
             ISequentialTrainingDataProvider testData,
-            IErrorMetric errorMetric,
-            int memorySize) : base(testData, errorMetric)
+            int memorySize) : base(testData)
         {
             _lap = lap;
             _trainer = trainer;
@@ -65,7 +64,7 @@ namespace BrightWire.Connectionist.Training.Manager
                 recurrentContext = new RecurrentContext(_lap, context);
 
             _bestScore = _GetScore(_testData, _trainer, _forwardMemory, _backwardMemory, recurrentContext);
-            Console.WriteLine(_errorMetric.DisplayAsPercentage ? "Initial score: {0:P}" : "Initial score: {0}", _bestScore);
+            Console.WriteLine(context.ErrorMetric.DisplayAsPercentage ? "Initial score: {0:P}" : "Initial score: {0}", _bestScore);
 
             // train
             recurrentContext.TrainingContext.RecurrentEpochComplete += OnEpoch;

@@ -47,14 +47,14 @@ namespace BrightWire.Connectionist.Training.Layer.Recurrent
             void _Cleanup()
             {
                 _ones.Dispose();
-                _c.Dispose();
+                //_c.Dispose();
                 _ca.Dispose();
                 //_pc.Dispose();
                 _o.Dispose();
                 _a.Dispose();
                 _i.Dispose();
                 _f.Dispose();
-                _input.Dispose();
+                //_input.Dispose();
             }
 
             public IMatrix Execute(IMatrix error, ITrainingContext context, bool calculateOutput, INeuralNetworkUpdateAccumulator updateAccumulator)
@@ -217,8 +217,8 @@ namespace BrightWire.Connectionist.Training.Layer.Recurrent
                     var ones = _lap.Create(memory.RowCount, memory.ColumnCount, (x, y) => 1f);
                     return new Backpropagation(_activation, ones, ct, cta, memory, o, a, i, f, input, _uc, _wc, _ui, _wi, _uf, _wf, _uo, _wo);
                 }
-                memory.Dispose();
-                input.Dispose();
+                //memory.Dispose();
+                //input.Dispose();
                 a.Dispose();
                 i.Dispose();
                 f.Dispose();

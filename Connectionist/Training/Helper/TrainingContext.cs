@@ -10,21 +10,24 @@ namespace BrightWire.Connectionist.Training.Helper
 {
     public class TrainingContext : ITrainingContext
     {
-        int _currentEpoch = 0;
+        int _currentEpoch = 0, _noImprovementCount = 0;
         readonly Stack<double> _trainingErrorDelta = new Stack<double>();
         readonly int _miniBatchSize;
         readonly Stopwatch _timer = new Stopwatch();
         readonly Dictionary<int, float> _scheduledTrainingRate = new Dictionary<int, float>();
+        readonly IErrorMetric _errorMetric;
 
-        public TrainingContext(float trainingRate, int miniBatchSize)
+        public TrainingContext(float trainingRate, int miniBatchSize, IErrorMetric errorMetric)
         {
             _miniBatchSize = miniBatchSize;
             TrainingRate = trainingRate;
+            _errorMetric = errorMetric;
         }
 
         public event Action<ITrainingContext> EpochComplete;
         public event Action<ITrainingContext, IRecurrentTrainingContext> RecurrentEpochComplete;
 
+        public IErrorMetric ErrorMetric { get { return _errorMetric; } }
         public double LastTrainingError { get; private set; } = 0.0;
         public float TrainingRate { get; private set; }
         public int TrainingSamples { get; private set; }
@@ -95,6 +98,8 @@ namespace BrightWire.Connectionist.Training.Helper
             );
             if (flag)
                 msg += "!!";
+            else
+                ++_noImprovementCount;
             Console.WriteLine(msg);
         }
 

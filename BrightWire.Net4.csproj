@@ -100,6 +100,7 @@
     <Compile Include="Connectionist\Execution\Layer\SimpleRecurrent.cs" />
     <Compile Include="Connectionist\Execution\Layer\StandardFeedForward.cs" />
     <Compile Include="Connectionist\Execution\RecurrentExecution.cs" />
+    <Compile Include="ErrorMetrics\Quadratic.cs" />
     <Compile Include="Helper\MiniBatch.cs" />
     <Compile Include="Helper\SequenceToSequenceTrainingDataProvider.cs" />
     <Compile Include="Models\ExecutionResults\FeedForwardOutput.cs" />
@@ -128,9 +129,6 @@
     <Compile Include="Connectionist\Training\WeightInitialisation\Gaussian.cs" />
     <Compile Include="Connectionist\Training\WeightInitialisation\Identity.cs" />
     <Compile Include="Connectionist\Training\WeightInitialisation\Xavier.cs" />
-    <Compile Include="CostFunctions\CrossEntropy.cs" />
-    <Compile Include="CostFunctions\Quadratic.cs" />
-    <Compile Include="CostFunctions\RootMeanSquareError.cs" />
     <Compile Include="ErrorMetrics\BinaryClassification.cs" />
     <Compile Include="ErrorMetrics\CrossEntropy.cs" />
     <Compile Include="ErrorMetrics\OneHot.cs" />

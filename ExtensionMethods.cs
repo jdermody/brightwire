@@ -28,6 +28,8 @@ namespace BrightWire
                     return new BinaryClassification();
                 case ErrorMetricType.CrossEntropy:
                     return new CrossEntropy();
+                case ErrorMetricType.Quadratic:
+                    return new Quadratic();
             }
             throw new NotImplementedException();
         }

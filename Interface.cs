@@ -174,10 +174,10 @@ namespace BrightWire
         ActivationType Type { get; }
     }
 
-    public interface ICostFunction
-    {
-        float Calculate(IIndexableVector output, IIndexableVector expectedOutput);
-    }
+    //public interface ICostFunction
+    //{
+    //    float Calculate(IIndexableVector output, IIndexableVector expectedOutput);
+    //}
 
     public interface INeuralNetworkLayer : IDisposable
     {
@@ -249,6 +249,7 @@ namespace BrightWire
 
     public interface ITrainingContext
     {
+        IErrorMetric ErrorMetric { get; }
         float TrainingRate { get; }
         int TrainingSamples { get; }
         int CurrentEpoch { get; }
@@ -352,7 +353,8 @@ namespace BrightWire
 
         IActivationFunction GetActivation(ActivationType activation);
         IWeightInitialisation GetWeightInitialisation(WeightInitialisationType type);
-        ITrainingContext CreateTrainingContext(float learningRate, int batchSize);
+        ITrainingContext CreateTrainingContext(float learningRate, int batchSize, IErrorMetric errorMetric);
+        ITrainingContext CreateTrainingContext(float learningRate, int batchSize, ErrorMetricType errorMetric);
 
         INeuralNetworkLayer CreateLayer(
             int inputSize, 
@@ -411,21 +413,18 @@ namespace BrightWire
         IFeedForwardTrainingManager CreateFeedForwardManager(
             INeuralNetworkTrainer trainer,
             string dataFile,
-            ITrainingDataProvider testData,
-            IErrorMetric errorMetric
+            ITrainingDataProvider testData
         );
         IRecurrentTrainingManager CreateRecurrentManager(
             INeuralNetworkRecurrentBatchTrainer trainer, 
             string dataFile,
-            ISequentialTrainingDataProvider testData, 
-            IErrorMetric errorMetric,
+            ISequentialTrainingDataProvider testData,
             int memorySize
         );
         IBidirectionalRecurrentTrainingManager CreateBidirectionalManager(
             INeuralNetworkBidirectionalBatchTrainer trainer, 
             string dataFile,
-            ISequentialTrainingDataProvider testData, 
-            IErrorMetric errorMetric,
+            ISequentialTrainingDataProvider testData,
             int memorySize
         );
     }
@@ -440,7 +439,7 @@ namespace BrightWire
     {
         IReadOnlyList<INeuralNetworkLayerTrainer> Layer { get; }
 
-        float CalculateCost(ITrainingDataProvider data, ICostFunction costFunction);
+        float CalculateCost(ITrainingDataProvider data, ITrainingContext trainingContext);
         void Train(ITrainingDataProvider trainingData, int numEpochs, ITrainingContext context);
         IReadOnlyList<IFeedForwardOutput> Execute(ITrainingDataProvider data);
         FeedForwardNetwork NetworkInfo { get; set; }
@@ -466,7 +465,7 @@ namespace BrightWire
         IReadOnlyList<INeuralNetworkRecurrentLayer> Layer { get; }
         ILinearAlgebraProvider LinearAlgebraProvider { get; }
 
-        float CalculateCost(ISequentialTrainingDataProvider data, float[] memory, ICostFunction costFunction, IRecurrentTrainingContext context);
+        float CalculateCost(ISequentialTrainingDataProvider data, float[] memor, IRecurrentTrainingContext context);
         float[] Train(ISequentialTrainingDataProvider trainingData, float[] memory, int numEpochs, IRecurrentTrainingContext context);
         void TrainOnMiniBatch(ISequentialMiniBatch miniBatch, float[] memory, IRecurrentTrainingContext context, Action<IMatrix> beforeBackProp, Action<IMatrix> afterBackProp);
         IReadOnlyList<RecurrentExecutionResults[]> Execute(ISequentialTrainingDataProvider trainingData, float[] memory, IRecurrentTrainingContext context);
@@ -478,7 +477,7 @@ namespace BrightWire
     public interface INeuralNetworkBidirectionalBatchTrainer : IDisposable
     {
         IReadOnlyList<INeuralNetworkBidirectionalLayer> Layer { get; }
-        float CalculateCost(ISequentialTrainingDataProvider data, float[] forwardMemory, float[] backwardMemory, ICostFunction costFunction, IRecurrentTrainingContext context);
+        float CalculateCost(ISequentialTrainingDataProvider data, float[] forwardMemory, float[] backwardMemory, IRecurrentTrainingContext context);
         IReadOnlyList<RecurrentExecutionResults[]> Execute(ISequentialTrainingDataProvider trainingData, float[] forwardMemory, float[] backwardMemory, IRecurrentTrainingContext context);
         Tuple<float[], float[]> Train(ISequentialTrainingDataProvider trainingData, float[] forwardMemory, float[] backwardMemory, int numEpochs, IRecurrentTrainingContext context);
         BidirectionalNetwork NetworkInfo { get; set; }
@@ -602,7 +601,8 @@ namespace BrightWire
         OneHot,
         RMSE,
         BinaryClassification,
-        CrossEntropy
+        CrossEntropy,
+        Quadratic
     }
 
     public interface IErrorMetric

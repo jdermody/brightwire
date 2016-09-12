@@ -21,9 +21,9 @@ namespace BrightWire.Connectionist.Training.Batch
 
         public ILinearAlgebraProvider LinearAlgebraProvider { get { return _lap; } }
 
-        public ITrainingContext CreateContext(float trainingRate, int batchSize)
+        public ITrainingContext CreateContext(float trainingRate, int batchSize, IErrorMetric errorMetric)
         {
-            return new TrainingContext(trainingRate, batchSize);
+            return new TrainingContext(trainingRate, batchSize, errorMetric);
         }
 
         T[] _GetArray<T>(IEnumerable<T> sequence, bool shuffle)

@@ -58,11 +58,6 @@ namespace BrightWire.Connectionist.Training.Batch
             }
         }
 
-        public ITrainingContext CreateContext(float trainingRate, int batchSize)
-        {
-            return new TrainingContext(trainingRate, batchSize);
-        }
-
         IEnumerable<IMiniBatch> _GetMiniBatches(ITrainingDataProvider data, bool shuffle, int batchSize)
         {
             // shuffle the training data order
@@ -118,9 +113,9 @@ namespace BrightWire.Connectionist.Training.Batch
             }
         }
 
-        public float CalculateCost(ITrainingDataProvider data, ICostFunction costFunction)
+        public float CalculateCost(ITrainingDataProvider data, ITrainingContext trainingContext)
         {
-            return Execute(data).Select(r => costFunction.Calculate(r.Output, r.ExpectedOutput)).Average();
+            return Execute(data).Select(r => trainingContext.ErrorMetric.Compute(r.Output, r.ExpectedOutput)).Average();
         }
 
         public IEnumerable<IIndexableVector[]> ExecuteToLayer(ITrainingDataProvider data, int layerDepth)
