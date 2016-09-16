@@ -13,17 +13,14 @@ namespace BrightWire.Connectionist.Training.Helper
         readonly ILinearAlgebraProvider _lap;
         readonly ITrainingContext _trainingContext;
         readonly List<INeuralNetworkRecurrentTrainerFilter> _filter = new List<INeuralNetworkRecurrentTrainerFilter>();
-        readonly int _backpropagationThroughTime;
 
-        public RecurrentContext(ILinearAlgebraProvider lap, ITrainingContext trainingContext, int backpropagationThroughTime = 0)
+        public RecurrentContext(ILinearAlgebraProvider lap, ITrainingContext trainingContext)
         {
             _lap = lap;
             _trainingContext = trainingContext;
-            _backpropagationThroughTime = backpropagationThroughTime;
         }
 
         public ITrainingContext TrainingContext { get { return _trainingContext; } }
-        public int BackpropagationThroughTime { get { return _backpropagationThroughTime; } }
 
         public void AddFilter(INeuralNetworkRecurrentTrainerFilter filter)
         {

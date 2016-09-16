@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BrightWire.Net4.Helper
+namespace BrightWire.Helper.TrainingData
 {
     public class DenseSequentialTrainingDataProvider : ISequentialTrainingDataProvider
     {

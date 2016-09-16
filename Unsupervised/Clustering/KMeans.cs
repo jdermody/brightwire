@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BrightWire.Net4.Unsupervised.Clustering
+namespace BrightWire.Unsupervised.Clustering
 {
     public class KMeans
     {

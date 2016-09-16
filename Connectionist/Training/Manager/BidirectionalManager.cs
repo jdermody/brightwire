@@ -24,7 +24,8 @@ namespace BrightWire.Connectionist.Training.Manager
             INeuralNetworkBidirectionalBatchTrainer trainer,
             string dataFile,
             ISequentialTrainingDataProvider testData,
-            int memorySize) : base(testData)
+            int memorySize,
+            int? autoAdjustOnNoChangeCount = 5) : base(testData, autoAdjustOnNoChangeCount)
         {
             _lap = lap;
             _trainer = trainer;
@@ -72,6 +73,11 @@ namespace BrightWire.Connectionist.Training.Manager
             recurrentContext.TrainingContext.RecurrentEpochComplete -= OnEpoch;
 
             // ensure best values are current
+            ApplyBestParams();
+        }
+
+        public override void ApplyBestParams()
+        {
             if (_bestOutput != null) {
                 _trainer.NetworkInfo = _bestOutput;
                 _forwardMemory = _bestOutput.ForwardMemory.Data;

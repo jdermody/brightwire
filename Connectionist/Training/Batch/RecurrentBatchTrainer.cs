@@ -131,34 +131,21 @@ namespace BrightWire.Connectionist.Training.Batch
             // backpropagate, accumulating errors across the sequence
             using (var updateAccumulator = new UpdateAccumulator(trainingContext)) {
                 IMatrix curr = null;
-                var bpt = 0;
                 while (updateStack.Any()) {
                     var update = updateStack.Pop();
                     var isT0 = !updateStack.Any();
                     var actionStack = update.Item1;
 
                     // calculate error
-                    IMatrix previousError = null;
-                    if (curr != null && bpt < context.BackpropagationThroughTime) {
-                        using (var sum = curr.RowSums(1f / curr.ColumnCount))
-                            previousError = sum.ToColumnMatrix();
-                    }
                     var expectedOutput = update.Item2;
-                    if (expectedOutput != null) {
+                    if (expectedOutput != null)
                         curr = expectedOutput.Subtract(update.Item3);
-                        if (previousError != null)
-                            curr.AddInPlace(previousError);
-                    }
-                    else if (previousError != null)
-                        curr = previousError;
-                    else
-                        continue;
 
                     // backpropagate
                     beforeBackProp?.Invoke(curr);
                     while (actionStack.Any()) {
                         var backpropagationAction = actionStack.Pop();
-                        var shouldCalculateOutput = actionStack.Any() || isT0 || bpt < context.BackpropagationThroughTime;
+                        var shouldCalculateOutput = actionStack.Any() || isT0;
                         curr = backpropagationAction.Execute(curr, trainingContext, true, updateAccumulator);
                     }
                     afterBackProp?.Invoke(curr);
@@ -166,8 +153,6 @@ namespace BrightWire.Connectionist.Training.Batch
                     // apply any filters
                     foreach (var filter in _filter)
                         filter.AfterBackPropagation(update.Item4, update.Item5, curr);
-
-                    ++bpt;
                 }
 
                 // adjust the initial memory against the error signal

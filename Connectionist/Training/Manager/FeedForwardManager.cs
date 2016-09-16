@@ -14,16 +14,19 @@ namespace BrightWire.Connectionist.Training.Manager
         readonly INeuralNetworkTrainer _trainer;
         readonly ITrainingDataProvider _testData;
         readonly string _dataFile;
+        readonly int? _autoAdjustOnNoChangeCount;
         readonly int _reportCadence;
         double _bestScore;
+        int _noChange = 0;
         FeedForwardNetwork _bestOutput = null;
 
-        public FeedForwardManager(INeuralNetworkTrainer trainer, string dataFile, ITrainingDataProvider testData, int reportCadence = 1)
+        public FeedForwardManager(INeuralNetworkTrainer trainer, string dataFile, ITrainingDataProvider testData, int? autoAdjustOnNoChangeCount = 5, int reportCadence = 1)
         {
             _reportCadence = reportCadence;
             _trainer = trainer;
             _dataFile = dataFile;
             _testData = testData;
+            _autoAdjustOnNoChangeCount = autoAdjustOnNoChangeCount;
 
             if (File.Exists(_dataFile)) {
                 using (var stream = new FileStream(_dataFile, FileMode.Open, FileAccess.Read))
@@ -62,6 +65,11 @@ namespace BrightWire.Connectionist.Training.Manager
             context.EpochComplete -= OnEpochComplete;
 
             // ensure best values are current
+            ApplyBestParams();
+        }
+
+        public void ApplyBestParams()
+        {
             if (_bestOutput != null)
                 _trainer.NetworkInfo = _bestOutput;
         }
@@ -79,9 +87,19 @@ namespace BrightWire.Connectionist.Training.Manager
             if((context.CurrentEpoch % _reportCadence) == 0)
                 context.WriteScore(score, errorMetric.DisplayAsPercentage, flag);
 
-            if(flag) {
+            if (flag) {
                 using (var stream = new FileStream(_dataFile, FileMode.Create, FileAccess.Write))
                     Serializer.Serialize(stream, _bestOutput);
+                _noChange = 0;
+            }
+            else
+                ++_noChange;
+
+            if(_autoAdjustOnNoChangeCount.HasValue && _noChange >= _autoAdjustOnNoChangeCount.Value) {
+                _noChange = 0;
+                ApplyBestParams();
+                context.ReduceTrainingRate();
+                Console.WriteLine("Reducing training rate to " + context.TrainingRate);
             }
         }
     }

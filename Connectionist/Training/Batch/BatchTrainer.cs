@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BrightWire.Models;
-using BrightWire.Net4.Models.ExecutionResults;
+using BrightWire.Models.ExecutionResults;
 
 namespace BrightWire.Connectionist.Training.Batch
 {

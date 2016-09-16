@@ -28,12 +28,16 @@ namespace BrightWire.TrainingData.Artificial
             var following = new Dictionary<string, HashSet<int>>();
             foreach (var str in strList) {
                 var sb = new StringBuilder();
+                string prev = null;
                 foreach (var ch in str) {
                     sb.Append(ch);
                     var key = sb.ToString();
-                    if (!following.TryGetValue(key, out temp))
-                        following.Add(key, temp = new HashSet<int>());
-                    temp.Add(_ch[ch]);
+                    if (prev != null) {
+                        if (!following.TryGetValue(prev, out temp))
+                            following.Add(prev, temp = new HashSet<int>());
+                        temp.Add(_ch[ch]);
+                    }
+                    prev = key;
                 }
             }
 
@@ -67,11 +71,11 @@ namespace BrightWire.TrainingData.Artificial
             _rnd = stochastic ? new Random() : new Random(0);
         }
 
-        public IEnumerable<string> Get(int length)
+        public IEnumerable<string> Get(int? length)
         {
             while (true) {
                 var ret = Generate();
-                if (ret.Length == length)
+                if (!length.HasValue || (length.HasValue && ret.Length == length.Value))
                     yield return ret;
             }
         }

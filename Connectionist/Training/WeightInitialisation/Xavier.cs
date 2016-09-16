@@ -28,6 +28,7 @@ namespace BrightWire.Connectionist.Training.WeightInitialisation
             IContinuousDistribution distribution;
             if (!_distributionTable.TryGetValue(key, out distribution)) {
                 var stdDev = Math.Sqrt(6) / (inputSize + outputSize);
+                //var stdDev = Math.Sqrt(2 / (inputSize + outputSize));
                 _distributionTable.Add(key, distribution = new Normal(0, stdDev, _random));
             }
             return Convert.ToSingle(distribution.Sample());

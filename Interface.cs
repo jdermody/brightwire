@@ -79,6 +79,7 @@ namespace BrightWire
         float StdDev(float? mean);
         void Normalise(NormalisationType type);
         IVector Softmax();
+        IVector FindDistances(IVector[] data, DistanceMetric distance);
     }
 
     public interface IIndexableVector : IVector
@@ -231,7 +232,6 @@ namespace BrightWire
     public interface IRecurrentTrainingContext
     {
         ITrainingContext TrainingContext { get; }
-        int BackpropagationThroughTime { get; }
         void AddFilter(INeuralNetworkRecurrentTrainerFilter filter);
         void ExecuteForward(ISequentialMiniBatch miniBatch, float[] memory, Action<int, List<IMatrix>> onT);
         //void ExecuteForwardSingle(ISequentialMiniBatch miniBatch, float[] memory, int dataIndex, Action<int, List<IMatrix>> onT);
@@ -413,19 +413,22 @@ namespace BrightWire
         IFeedForwardTrainingManager CreateFeedForwardManager(
             INeuralNetworkTrainer trainer,
             string dataFile,
-            ITrainingDataProvider testData
+            ITrainingDataProvider testData,
+            int? autoAdjustOnNoChangeCount = null
         );
         IRecurrentTrainingManager CreateRecurrentManager(
             INeuralNetworkRecurrentBatchTrainer trainer, 
             string dataFile,
             ISequentialTrainingDataProvider testData,
-            int memorySize
+            int memorySize,
+            int? autoAdjustOnNoChangeCount = null
         );
         IBidirectionalRecurrentTrainingManager CreateBidirectionalManager(
             INeuralNetworkBidirectionalBatchTrainer trainer, 
             string dataFile,
             ISequentialTrainingDataProvider testData,
-            int memorySize
+            int memorySize,
+            int? autoAdjustOnNoChangeCount = null
         );
     }
 
@@ -619,18 +622,73 @@ namespace BrightWire
         Double,
         Float,
         Long,
+        Byte,
         Int,
         Date,
-        Boolean,
-        CategoryList,
-        WeightedCategoryList
+        Boolean
     }
 
     public interface IRow
     {
         IReadOnlyList<object> Data { get; }
         T GetField<T>(int index);
-        IEnumerable<float> GetNumericFields(IEnumerable<int> fields);
-        ColumnType GetType(int index);
+    }
+
+    public interface IColumn
+    {
+        string Name { get; }
+        ColumnType Type { get; }
+        int NumDistinct { get; }
+        bool IsContinuous { get; set; }
+    }
+
+    public interface IDataTable
+    {
+        int RowCount { get; }
+        int ColumnCount { get; }
+        IReadOnlyList<IColumn> Columns { get; }
+        void Process(IRowProcessor rowProcessor);
+    }
+
+    public interface IIndexableDataTable : IDataTable
+    {
+        IReadOnlyList<IRow> GetSlice(int offset, int count);
+        IReadOnlyList<IRow> GetRows(IEnumerable<int> rowIndex);
+        Tuple<IDataTable, IDataTable> Split(double trainPercentage = 0.8, bool shuffle = true);
+    }
+
+    public interface IRowProcessor
+    {
+        bool Process(IRow row);
+    }
+
+    public interface IColumnInfo
+    {
+        int ColumnIndex { get; }
+        IEnumerable<object> DistinctValues { get; }
+    }
+
+    public interface IStringColumnInfo : IColumnInfo
+    {
+        int MinLength { get; }
+        int MaxLength { get; }
+        string MostCommonString { get; }
+        int? NumDistinct { get; }
+    }
+
+    public interface INumericColumnInfo : IColumnInfo
+    {
+        double Min { get; }
+        double Max { get; }
+        double Mean { get; }
+        double? StdDev { get; }
+        double? Median { get; }
+        double? Mode { get; }
+        int? NumDistinct { get; }
+    }
+
+    public interface IFrequencyColumnInfo : IColumnInfo
+    {
+        IEnumerable<KeyValuePair<string, ulong>> Frequency { get; }
     }
 }

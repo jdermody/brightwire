@@ -1,5 +1,5 @@
 ﻿using BrightWire.Helper;
-using BrightWire.Net4.Models.ExecutionResults;
+using BrightWire.Models.ExecutionResults;
 using System;
 using System.Collections.Generic;
 using System.Linq;

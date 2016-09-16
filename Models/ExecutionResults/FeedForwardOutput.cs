@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BrightWire.Net4.Models.ExecutionResults
+namespace BrightWire.Models.ExecutionResults
 {
     public class FeedForwardOutput : IFeedForwardOutput
     {

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BrightWire.Net4.TabularData
+namespace BrightWire.TabularData
 {
     public class NumericTable
     {

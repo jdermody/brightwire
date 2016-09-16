@@ -43,6 +43,7 @@ namespace BrightWire.Connectionist.Training.Layer.Recurrent
                     var prevDelta = delta.TransposeAndMultiply(_memoryUpdater.Layer.Weight);
                     var memoryUpdate = _memory.TransposeThisAndMultiply(delta);
                     var inputUpdate = _input.TransposeThisAndMultiply(delta);
+                    
                     //_input.Dispose();
                     _memory.Dispose();
                     _output.Dispose();

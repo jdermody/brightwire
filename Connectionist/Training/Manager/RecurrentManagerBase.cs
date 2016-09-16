@@ -9,13 +9,18 @@ using System.Threading.Tasks;
 
 namespace BrightWire.Connectionist.Training.Manager
 {
-    internal class RecurrentManagerBase
+    internal abstract class RecurrentManagerBase
     {
         protected readonly ISequentialTrainingDataProvider _testData;
+        readonly int? _autoAdjustOnNoChangeCount;
+        int _noChange = 0;
 
-        internal RecurrentManagerBase(ISequentialTrainingDataProvider testData)
+        public abstract void ApplyBestParams();
+
+        internal RecurrentManagerBase(ISequentialTrainingDataProvider testData, int? autoAdjustOnNoChangeCount)
         {
             _testData = testData;
+            _autoAdjustOnNoChangeCount = autoAdjustOnNoChangeCount;
         }
 
         protected double _GetScore(ISequentialTrainingDataProvider data, INeuralNetworkRecurrentBatchTrainer network, float[] memory, IRecurrentTrainingContext context)
@@ -43,6 +48,18 @@ namespace BrightWire.Connectionist.Training.Manager
                 flag = true;
             }
             context.WriteScore(score, errorMetric.DisplayAsPercentage, flag);
+
+            if (flag)
+                _noChange = 0;
+            else
+                ++_noChange;
+
+            if (_autoAdjustOnNoChangeCount.HasValue && _noChange >= _autoAdjustOnNoChangeCount.Value) {
+                context.ReduceTrainingRate();
+                Console.WriteLine("Reducing training rate to " + context.TrainingRate);
+                ApplyBestParams();
+                _noChange = 0;
+            }
             return flag;
         }
 

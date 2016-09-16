@@ -18,8 +18,8 @@ namespace BrightWire.Connectionist.Training.Manager
         RecurrentNetwork _bestOutput;
         float[] _memory;
 
-        public RecurrentManager(INeuralNetworkRecurrentBatchTrainer trainer, string dataFile, ISequentialTrainingDataProvider testData, int memorySize)
-            : base(testData)
+        public RecurrentManager(INeuralNetworkRecurrentBatchTrainer trainer, string dataFile, ISequentialTrainingDataProvider testData, int memorySize, int? autoAdjustOnNoChangeCount = 5)
+            : base(testData, autoAdjustOnNoChangeCount)
         {
             _trainer = trainer;
             _dataFile = dataFile;
@@ -63,6 +63,11 @@ namespace BrightWire.Connectionist.Training.Manager
             recurrentContext.TrainingContext.RecurrentEpochComplete -= OnEpochComplete;
 
             // ensure best values are current
+            ApplyBestParams();
+        }
+
+        public override void ApplyBestParams()
+        {
             if (_bestOutput != null) {
                 _trainer.NetworkInfo = _bestOutput;
                 _memory = _bestOutput.Memory.Data;

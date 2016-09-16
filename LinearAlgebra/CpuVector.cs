@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using BrightWire.Models;
 using BrightWire.Helper;
+using System.Threading.Tasks;
 
 namespace BrightWire.LinearAlgebra
 {
@@ -299,6 +300,31 @@ namespace BrightWire.LinearAlgebra
             if(sum != 0)
                 return new CpuVector(softmax.Divide(sum));
             return new CpuVector(softmax);
+        }
+
+        Func<IVector, float> _GetDistanceFunc(DistanceMetric distance)
+        {
+            switch(distance) {
+                case DistanceMetric.Cosine:
+                    return CosineDistance;
+                case DistanceMetric.Euclidean:
+                    return EuclideanDistance;
+                case DistanceMetric.Manhattan:
+                    return ManhattanDistance;
+                case DistanceMetric.MeanSquared:
+                    return MeanSquaredDistance;
+                case DistanceMetric.SquaredEuclidean:
+                    return SquaredEuclidean;
+            }
+            throw new NotImplementedException();
+        }
+
+        public IVector FindDistances(IVector[] data, DistanceMetric distance)
+        {
+            var distanceFunc = _GetDistanceFunc(distance);
+            var ret = new float[data.Length];
+            Parallel.ForEach(data, (vec, ps, ind) => ret[ind] = distanceFunc(vec));
+            return new CpuVector(DenseVector.Create(data.Length, i => ret[i]));
         }
     }
 }

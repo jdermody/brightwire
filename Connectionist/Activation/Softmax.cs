@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BrightWire.Net4.Connectionist.Activation
+namespace BrightWire.Connectionist.Activation
 {
     public class Softmax : IActivationFunction
     {

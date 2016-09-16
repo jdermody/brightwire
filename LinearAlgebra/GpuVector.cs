@@ -376,5 +376,30 @@ namespace BrightWire.LinearAlgebra
                 _cuda.Blas.Scale(1f / softmaxSum, softmax, 1);
             return new GpuVector(_cuda, _size, softmax);
         }
+
+        Func<IVector, float> _GetDistanceFunc(DistanceMetric distance)
+        {
+            switch (distance) {
+                //case DistanceMetric.Cosine:
+                //    return CosineDistance;
+                case DistanceMetric.Euclidean:
+                    return EuclideanDistance;
+                case DistanceMetric.Manhattan:
+                    return ManhattanDistance;
+                //case DistanceMetric.MeanSquared:
+                //    return MeanSquaredDistance;
+                //case DistanceMetric.SquaredEuclidean:
+                //    return SquaredEuclidean;
+            }
+            throw new NotImplementedException();
+        }
+
+        public IVector FindDistances(IVector[] data, DistanceMetric distance)
+        {
+            var distanceFunc = _GetDistanceFunc(distance);
+            var ret = new float[data.Length];
+            Parallel.ForEach(data, (vec, ps, ind) => ret[ind] = distanceFunc(vec));
+            return new GpuVector(_cuda, data.Length, i => ret[i]);
+        }
     }
 }

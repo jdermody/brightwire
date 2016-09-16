@@ -254,30 +254,33 @@ namespace BrightWire.Connectionist
         public IFeedForwardTrainingManager CreateFeedForwardManager(
             INeuralNetworkTrainer trainer,
             string dataFile,
-            ITrainingDataProvider testData
+            ITrainingDataProvider testData,
+            int? autoAdjustOnNoChangeCount = null
         )
         {
-            return new FeedForwardManager(trainer, dataFile, testData);
+            return new FeedForwardManager(trainer, dataFile, testData, autoAdjustOnNoChangeCount);
         }
 
         public IRecurrentTrainingManager CreateRecurrentManager(
             INeuralNetworkRecurrentBatchTrainer trainer,
             string dataFile,
             ISequentialTrainingDataProvider testData,
-            int memorySize
+            int memorySize,
+            int? autoAdjustOnNoChangeCount = null
         )
         {
-            return new RecurrentManager(trainer, dataFile, testData, memorySize);
+            return new RecurrentManager(trainer, dataFile, testData, memorySize, autoAdjustOnNoChangeCount);
         }
 
         public IBidirectionalRecurrentTrainingManager CreateBidirectionalManager(
             INeuralNetworkBidirectionalBatchTrainer trainer,
             string dataFile,
             ISequentialTrainingDataProvider testData,
-            int memorySize
+            int memorySize,
+            int? autoAdjustOnNoChangeCount = null
         )
         {
-            return new BidirectionalManager(_lap, trainer, dataFile, testData, memorySize);
+            return new BidirectionalManager(_lap, trainer, dataFile, testData, memorySize, autoAdjustOnNoChangeCount);
         }
     }
 }

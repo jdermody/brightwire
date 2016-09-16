@@ -1,11 +1,11 @@
-﻿using BrightWire.Net4.Helper;
+﻿using BrightWire.Helper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BrightWire.Helper
+namespace BrightWire.Helper.TrainingData
 {
     public class DenseTrainingDataProvider : ITrainingDataProvider
     {

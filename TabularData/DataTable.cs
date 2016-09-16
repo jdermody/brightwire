@@ -1,205 +1,80 @@
-﻿using System;
+﻿using BrightWire.TabularData.Helper;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BrightWire.Net4.TabularData
+namespace BrightWire.TabularData
 {
-    public class DataTable
+    public class DataTable : IDataTable
     {
-        public class Column
+        class Column : IColumn
         {
-            public ColumnType Type { get; private set; }
+            readonly ColumnType _type;
+            readonly string _name;
+            int _numDistinct;
+            bool? _isContinuous;
 
-            public Column(ColumnType type)
+            public Column(string name, ColumnType type, int numDistinct, bool? isContinuous)
             {
-                Type = type;
+                _name = name;
+                _type = type;
+                _numDistinct = numDistinct;
+                _isContinuous = isContinuous;
             }
-
-            public string TypeName
+            public ColumnType Type { get { return _type; } }
+            public string Name { get { return _name; } }
+            public int NumDistinct
             {
-                get
-                {
-                    switch (Type) {
-                        case ColumnType.Boolean:
-                            return "boolean";
-                        case ColumnType.String:
-                            return "string";
-                        case ColumnType.Double:
-                            return "double";
-                        case ColumnType.Float:
-                            return "float";
-                        case ColumnType.Int:
-                            return "int";
-                        case ColumnType.Date:
-                        case ColumnType.Long:
-                            return "long";
-                        case ColumnType.CategoryList:
-                            return "category-list";
-                        case ColumnType.WeightedCategoryList:
-                            return "weighted-category-list";
-                        default:
-                            return "null";
-                    }
-                }
+                get { return _numDistinct; }
+                set { _numDistinct = value; }
+            }
+            public bool IsContinuous
+            {
+                get { return _isContinuous.HasValue ? _isContinuous.Value : ColumnTypeClassifier.IsContinuous(this); }
+                set { _isContinuous = value; }
             }
         }
-        class Row : IRow
-        {
-            readonly DataTable _table;
-            readonly List<object> _data;
 
-            public Row(DataTable table, IEnumerable<object> data)
-            {
-                _table = table;
-                _data = new List<object>(data);
-            }
-
-            public IReadOnlyList<object> Data { get { return _data; } }
-            public T GetField<T>(int index)
-            {
-                var ret = _data[index];
-                var targetType = typeof(T);
-                if (ret.GetType() == targetType)
-                    return (T)ret;
-                return (T)Convert.ChangeType(ret, targetType);
-            }
-            public IEnumerable<float> GetNumericFields(IEnumerable<int> fields)
-            {
-                return fields.Select(i => Convert.ToSingle(_data[i]));
-            }
-            public ColumnType GetType(int index)
-            {
-                if (index >= 0 && index < _table.ColumnTypes.Count)
-                    return _table.ColumnTypes[index].Type;
-                return ColumnType.Null;
-            }
-        }
         readonly List<Column> _column = new List<Column>();
-        readonly List<Row> _data = new List<Row>();
-        readonly IReadOnlyList<long> _index = new List<long>();
-        readonly string _name;
+        readonly long _dataOffset;
+        readonly protected Stream _stream;
 
-        public const int BLOCK_SIZE = 1024;
-
-        public DataTable(string name)
+        public DataTable(Stream stream)
         {
-            _name = name;
-        }
-
-        public string Name { get { return _name; } }
-        public IReadOnlyList<Column> ColumnTypes { get { return _column; } }
-        public IEnumerable<IRow> Rows { get { return _data; } }
-        public IEnumerable<object> GetColumn(int index)
-        {
-            foreach (var row in _data)
-                yield return row.Data[index];
-        }
-
-        public void Add(Column column)
-        {
-            _column.Add(column);
-        }
-
-        public void AddRow(IEnumerable<object> data)
-        {
-            _data.Add(new Row(this, data));
-        }
-
-        public int Count { get { return _data.Count; } }
-
-        public void WriteTo(Stream stream)
-        {
-            // write the meta data
-            var writer = new BinaryWriter(stream, Encoding.UTF8, true);
-            writer.Write(_column.Count);
-            foreach (var column in _column)
-                writer.Write((byte)column.Type);
-
-            WriteDataTo(stream);
-        }
-
-        public static void WriteDataTo(BinaryWriter writer, ColumnType type, object val)
-        {
-            if (type == ColumnType.Date)
-                writer.Write(((DateTime)val).Ticks);
-            else if (type == ColumnType.Boolean)
-                writer.Write((bool)val);
-            else if (type == ColumnType.Double)
-                writer.Write((double)val);
-            else if (type == ColumnType.Float)
-                writer.Write((float)val);
-            else if (type == ColumnType.Int)
-                writer.Write((int)val);
-            else if (type == ColumnType.Long)
-                writer.Write((long)val);
-            else if (type == ColumnType.String)
-                writer.Write((string)val);
-            else if (type == ColumnType.CategoryList) {
-                var data = (int[])val;
-                writer.Write(data.Length);
-                foreach (var item in data) {
-                    writer.Write(item);
-                }
-            }
-            else if (type == ColumnType.WeightedCategoryList) {
-                var data = (Tuple<int, double>[])val;
-                writer.Write(data.Length);
-                foreach (var item in data) {
-                    writer.Write(item.Item1);
-                    writer.Write(item.Item2);
-                }
-            }
-        }
-
-        public int WriteDataTo(Stream stream)
-        {
-            int ret = 0;
-            var writer = new BinaryWriter(stream, Encoding.UTF8, true);
-            foreach (var row in _data) {
-                var index = 0;
-                var rowData = row.Data;
-                foreach (var column in _column) {
-                    var val = rowData[index++];
-                    WriteDataTo(writer, column.Type, val);
-                }
-                ++ret;
-            }
-            return ret;
-        }
-
-        public DataTable(Stream stream, IReadOnlyList<long> dataIndex, int maxRowCount)
-        {
-            // read the metadata
             var reader = new BinaryReader(stream, Encoding.UTF8, true);
             var columnCount = reader.ReadInt32();
             for (var i = 0; i < columnCount; i++) {
+                var name = reader.ReadString();
                 var type = (ColumnType)reader.ReadByte();
-                Add(new Column(type));
+                var numDistinct = reader.ReadInt32();
+                var continuousSpecified = reader.ReadBoolean();
+                bool? isContinuous = null;
+                if (continuousSpecified)
+                    isContinuous = reader.ReadBoolean();
+                _column.Add(new Column(name, type, numDistinct, isContinuous));
             }
 
-            _index = dataIndex;
-
-            // read the data
-            int index = 0;
-            while (stream.Position < stream.Length && index < maxRowCount) {
-                AddRow(_ReadRow(reader));
-                ++index;
-            }
+            _stream = stream;
+            _dataOffset = stream.Position;
         }
 
-        public IEnumerable<IRow> EnumerateRows(Stream stream)
+        public IReadOnlyList<IColumn> Columns { get { return _column; } }
+
+        public virtual int RowCount
         {
-            var reader = new BinaryReader(stream, Encoding.UTF8, true);
-            while (stream.Position < stream.Length) {
-                yield return new Row(this, _ReadRow(reader));
+            get
+            {
+                return -1;
             }
         }
+        public int ColumnCount { get { return _column.Count; } }
 
-        object _ReadColumn(ColumnType type, BinaryReader reader)
+        object _ReadColumn(Column column, BinaryReader reader)
         {
+            var type = column.Type;
             switch (type) {
                 case ColumnType.String:
                     return reader.ReadString();
@@ -215,51 +90,42 @@ namespace BrightWire.Net4.TabularData
                     return new DateTime(reader.ReadInt64());
                 case ColumnType.Long:
                     return reader.ReadInt64();
-                case ColumnType.CategoryList:
-                    return Enumerable.Range(0, reader.ReadInt32()).Select(i => reader.ReadInt32()).ToArray();
-                case ColumnType.WeightedCategoryList:
-                    return Enumerable.Range(0, reader.ReadInt32()).Select(i => Tuple.Create(reader.ReadInt32(), reader.ReadDouble())).ToArray();
+                case ColumnType.Byte:
+                    return reader.ReadByte();
+                //case ColumnType.CategoryList:
+                //    return Enumerable.Range(0, reader.ReadInt32()).Select(i => reader.ReadInt32()).ToArray();
+                //case ColumnType.WeightedCategoryList:
+                //    return Enumerable.Range(0, reader.ReadInt32()).Select(i => Tuple.Create(reader.ReadInt32(), reader.ReadDouble())).ToArray();
                 default:
                     return null;
             }
         }
 
-        object[] _ReadRow(BinaryReader reader)
+        protected object[] _ReadRow(BinaryReader reader)
         {
             var row = new object[_column.Count];
             for (var j = 0; j < _column.Count; j++)
-                row[j] = _ReadColumn(_column[j].Type, reader);
+                row[j] = _ReadColumn(_column[j], reader);
             return row;
         }
 
-        void _SkipRow(BinaryReader reader)
+        protected void _SkipRow(BinaryReader reader)
         {
             for (var j = 0; j < _column.Count; j++)
-                _ReadColumn(_column[j].Type, reader);
+                _ReadColumn(_column[j], reader);
         }
 
-        public void LoadData(Stream stream, int offset, int count, int fileSize)
+        public void Process(IRowProcessor rowProcessor)
         {
-            var reader = new BinaryReader(stream, Encoding.UTF8, true);
-            stream.Seek(_index[offset / BLOCK_SIZE], SeekOrigin.Begin);
-
-            // seek to offset
-            for (var i = 0; i < offset % BLOCK_SIZE; i++)
-                _SkipRow(reader);
-
-            // read the data
-            for (var i = 0; i < count && stream.Position < fileSize && stream.Position < stream.Length; i++)
-                AddRow(_ReadRow(reader));
-        }
-
-        public void Clear()
-        {
-            _data.Clear();
-        }
-
-        public NumericTable GetNumericColumns(params int[] columns)
-        {
-            return new NumericTable(Rows.Select(r => r.GetNumericFields(columns).ToArray()).ToList());
+            lock (_stream) {
+                _stream.Seek(_dataOffset, SeekOrigin.Begin);
+                var reader = new BinaryReader(_stream, Encoding.UTF8, true);
+                while (_stream.Position < _stream.Length) {
+                    var row = new DataTableRow(this, _ReadRow(reader));
+                    if (!rowProcessor.Process(row))
+                        break;
+                }
+            }
         }
     }
 }
