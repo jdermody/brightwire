@@ -1,6 +1,7 @@
 ﻿using BrightWire.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -30,9 +31,9 @@ namespace BrightWire.TreeBased
                         findChild = (val < p.Split.Value) ? "-" : "+";
                     }else
                         findChild = row.GetField<string>(p.ColumnIndex);
-                    if(findChild != null) {
+                    if (findChild != null) {
                         var child = p.Children.FirstOrDefault(c => c.MatchLabel == findChild);
-                        if(child != null) {
+                        if (child != null) {
                             p = child;
                             continue;
                         }

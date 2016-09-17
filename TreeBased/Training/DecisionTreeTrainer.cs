@@ -242,7 +242,7 @@ namespace BrightWire.TreeBased.Training
                 var scoreTable = new Dictionary<Tuple<Attribute, List<Node>>, double>();
                 foreach (var item in attributes) {
                     var newChildren = item.Partition(node.Data).Select(d => new Node(tableInfo, d.Value, d.Key)).ToList();
-                    scoreTable.Add(Tuple.Create(item, newChildren), nodeEntropy - newChildren.Sum(c => c.Data.Count / nodeTotal * c.Entropy));
+                    scoreTable.Add(Tuple.Create(item, newChildren), _GetInformationGain(nodeEntropy, nodeTotal, newChildren));
                 }
                 var bestSplit = scoreTable.OrderByDescending(kv => kv.Value).Select(kv => kv.Key).First();
                 foreach (var child in node.SetAttribute(bestSplit.Item1, bestSplit.Item2))
@@ -253,6 +253,15 @@ namespace BrightWire.TreeBased.Training
                 ClassColumnIndex = tableInfo.ClassColumnIndex,
                 Root = root.AsDecisionTreeNode()
             };
+        }
+
+        static double _GetInformationGain(double setEntity, double setCount, IReadOnlyList<Node> splits)
+        {
+            double total = setEntity;
+            foreach(var item in splits) {
+                total -= item.Data.Count / setCount * item.Entropy;
+            }
+            return total;
         }
     }
 }
