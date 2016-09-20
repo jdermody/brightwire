@@ -160,6 +160,14 @@ namespace BrightWire.TabularData
             }
         }
 
+        public IIndexableDataTable Index(Stream output = null)
+        {
+            var destination = output ?? new MemoryStream();
+            var writer = new DataTableWriter(Columns);
+            Process(writer);
+            return writer.GetIndexedTable(destination);
+        }
+
         public void Clear()
         {
             _data.Clear();

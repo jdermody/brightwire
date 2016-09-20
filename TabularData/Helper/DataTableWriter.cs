@@ -45,6 +45,7 @@ namespace BrightWire.TabularData.Helper
         public void AddRow(IEnumerable<object> row)
         {
             _dataTable.AddRow(row);
+            ++_rowCount;
         }
 
         public void WriteTo(Stream stream)
@@ -55,7 +56,7 @@ namespace BrightWire.TabularData.Helper
             }
             if (_dataTable.RowCount > 0) {
                 _index.Add(stream.Position);
-                _rowCount += _dataTable.WriteData(stream);
+                _dataTable.WriteData(stream);
                 _dataTable.Clear();
             }
         }

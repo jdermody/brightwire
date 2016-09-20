@@ -1,6 +1,7 @@
 ﻿using BrightWire.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -648,13 +649,14 @@ namespace BrightWire
         int ColumnCount { get; }
         IReadOnlyList<IColumn> Columns { get; }
         void Process(IRowProcessor rowProcessor);
+        IIndexableDataTable Index(Stream output = null);
     }
 
     public interface IIndexableDataTable : IDataTable
     {
         IReadOnlyList<IRow> GetSlice(int offset, int count);
         IReadOnlyList<IRow> GetRows(IEnumerable<int> rowIndex);
-        Tuple<IDataTable, IDataTable> Split(double trainPercentage = 0.8, bool shuffle = true);
+        Tuple<IDataTable, IDataTable> Split(int? randomSeed = null, double trainPercentage = 0.8, bool shuffle = true);
     }
 
     public interface IRowProcessor
@@ -666,6 +668,7 @@ namespace BrightWire
     {
         int ColumnIndex { get; }
         IEnumerable<object> DistinctValues { get; }
+        int? NumDistinct { get; }
     }
 
     public interface IStringColumnInfo : IColumnInfo
@@ -684,7 +687,8 @@ namespace BrightWire
         double? StdDev { get; }
         double? Median { get; }
         double? Mode { get; }
-        int? NumDistinct { get; }
+        double L1Norm { get; }
+        double L2Norm { get; }
     }
 
     public interface IFrequencyColumnInfo : IColumnInfo

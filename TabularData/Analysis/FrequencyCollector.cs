@@ -25,6 +25,8 @@ namespace BrightWire.TabularData.Analysis
             }
         }
 
+        public int? NumDistinct { get { return _valueCount.Count; } }
+
         public IEnumerable<object> DistinctValues
         {
             get

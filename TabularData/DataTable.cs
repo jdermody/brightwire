@@ -117,15 +117,34 @@ namespace BrightWire.TabularData
 
         public void Process(IRowProcessor rowProcessor)
         {
+            _Iterate(row => rowProcessor.Process(row));
+        }
+
+        void _Iterate(Func<DataTableRow, bool> callback)
+        {
             lock (_stream) {
                 _stream.Seek(_dataOffset, SeekOrigin.Begin);
                 var reader = new BinaryReader(_stream, Encoding.UTF8, true);
                 while (_stream.Position < _stream.Length) {
                     var row = new DataTableRow(this, _ReadRow(reader));
-                    if (!rowProcessor.Process(row))
+                    if (!callback(row))
                         break;
                 }
             }
+        }
+
+        public IIndexableDataTable Index(Stream output = null)
+        {
+            var destination = output ?? new MemoryStream();
+            var writer = new DataTableWriter(Columns);
+            int index = 0;
+            _Iterate(row => {
+                writer.AddRow(row.Data);
+                if ((++index % 1024) == 0)
+                    writer.WriteTo(destination);
+                return true;
+            });
+            return writer.GetIndexedTable(destination);
         }
     }
 }

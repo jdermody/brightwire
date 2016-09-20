@@ -72,20 +72,25 @@ namespace BrightWire.TabularData
                     for (int i = block.Key * BLOCK_SIZE, len = i + BLOCK_SIZE; i < len && _stream.Position < _stream.Length; i++) {
                         if (match.Contains(i))
                             ret.Add(new DataTableRow(this, _ReadRow(reader)));
+                        else
+                            _SkipRow(reader);
                     }
                 }
             }
             return ret;
         }
 
-        public Tuple<IDataTable, IDataTable> Split(double trainPercentage = 0.8, bool shuffle = true)
+        public Tuple<IDataTable, IDataTable> Split(int? randomSeed = null, double trainPercentage = 0.8, bool shuffle = true)
         {
-            var shuffled = Enumerable.Range(0, RowCount).Shuffle().ToList();
+            var input = Enumerable.Range(0, RowCount);
+            if (shuffle)
+                input = input.Shuffle(randomSeed);
+            var final = input.ToList();
             int trainingCount = Convert.ToInt32(RowCount * trainPercentage);
 
             return Tuple.Create<IDataTable, IDataTable>(
-                new MemoryBasedDataTable(Columns, GetRows(shuffled.Take(trainingCount))), 
-                new MemoryBasedDataTable(Columns, GetRows(shuffled.Skip(trainingCount)))
+                new MemoryBasedDataTable(Columns, GetRows(final.Take(trainingCount))), 
+                new MemoryBasedDataTable(Columns, GetRows(final.Skip(trainingCount)))
             );
         }
     }

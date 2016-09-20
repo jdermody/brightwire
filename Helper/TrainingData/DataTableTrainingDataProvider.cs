@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BrightWire.TabularData.Analysis;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,15 +10,37 @@ namespace BrightWire.Helper.TrainingData
     public class DataTableTrainingDataProvider : ITrainingDataProvider
     {
         readonly IIndexableDataTable _table;
-        readonly int _inputSize, _outputSize;
+        readonly int _inputSize, _outputSize, _classColumnIndex;
         readonly ILinearAlgebraProvider _lap;
+        readonly Dictionary<int, Dictionary<string, int>> _columnMap = new Dictionary<int, Dictionary<string, int>>();
+        readonly Dictionary<int, Dictionary<int, string>> _reverseColumnMap = new Dictionary<int, Dictionary<int, string>>();
 
-        public DataTableTrainingDataProvider(ILinearAlgebraProvider lap, IIndexableDataTable table)
+        public DataTableTrainingDataProvider(ILinearAlgebraProvider lap, IIndexableDataTable table, int classColumnIndex)
         {
             _lap = lap;
             _table = table;
-            _inputSize = table.ColumnCount - 1;
-            _outputSize = _GetClassificationSize(table.Columns.Last());
+            _classColumnIndex = classColumnIndex;
+            var analysis = new DataTableAnalysis(table);
+            table.Process(analysis);
+
+            foreach (var columnInfo in analysis.ColumnInfo) {
+                var column = table.Columns[columnInfo.ColumnIndex];
+                int size = 0;
+                if (column.IsContinuous || !columnInfo.NumDistinct.HasValue)
+                    size = 1;
+                else {
+                    size = columnInfo.NumDistinct.Value;
+                    var categoryIndex = columnInfo.DistinctValues.Select(s => s.ToString()).OrderBy(s => s).Select((s, i) => Tuple.Create(s, i)).ToList();
+                    var columnMap = categoryIndex.ToDictionary(d => d.Item1, d => d.Item2);
+                    var reverseColumnMap = categoryIndex.ToDictionary(d => d.Item2, d => d.Item1);
+                    _columnMap.Add(columnInfo.ColumnIndex, columnMap);
+                    _reverseColumnMap.Add(columnInfo.ColumnIndex, reverseColumnMap);
+                }
+                if (columnInfo.ColumnIndex == _classColumnIndex)
+                    _outputSize = size;
+                else
+                    _inputSize += size;
+            }
         }
 
         public int Count
@@ -44,28 +67,37 @@ namespace BrightWire.Helper.TrainingData
             }
         }
 
-        float _Get(IReadOnlyList<IRow> batchRow, int x, int y)
+        Tuple<float[], float[]> _Convert(IRow row)
         {
-            var row = batchRow[x];
-            return row.GetField<float>(y);
-        }
+            var input = new float[_inputSize];
+            var output = new float[_outputSize];
+            var index = 0;
 
-        int _GetClassificationSize(IColumn column)
-        {
-            return column.NumDistinct;
-        }
+            for (int i = 0, len = _table.ColumnCount; i < len; i++) {
+                var column = _table.Columns[i];
+                var isClassColumn = (i == _classColumnIndex);
+                float[] ptr = isClassColumn ? output : input;
 
-        float _GetClassification(IReadOnlyList<IRow> batchRow, int x, int y)
-        {
-            // TODO: compute per row and cache
-            return 0f;
+                if (column.IsContinuous)
+                    ptr[index++] = row.GetField<float>(i);
+                else {
+                    var str = row.GetField<string>(i);
+                    var offset = _columnMap[i][str];
+                    if (!isClassColumn) {
+                        offset += index;
+                        index += column.NumDistinct;
+                    }
+                    ptr[offset] = 1f;
+                }
+            }
+            return Tuple.Create(input, output);
         }
 
         public IMiniBatch GetTrainingData(IReadOnlyList<int> rows)
         {
-            var batchRow = _table.GetRows(rows);
-            var input = _lap.Create(rows.Count, _inputSize, (x, y) => _Get(batchRow, rows[x], y));
-            var output = _lap.Create(rows.Count, _outputSize, (x, y) => _GetClassification(batchRow, rows[x], y));
+            var batchRow = _table.GetRows(rows).Select(r => _Convert(r)).ToList();
+            var input = _lap.Create(batchRow.Count, _inputSize, (x, y) => batchRow[x].Item1[y]);
+            var output = _lap.Create(batchRow.Count, _outputSize, (x, y) => batchRow[x].Item2[y]);
             return new MiniBatch(input, output);
         }
     }

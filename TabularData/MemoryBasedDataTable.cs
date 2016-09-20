@@ -1,5 +1,7 @@
-﻿using System;
+﻿using BrightWire.TabularData.Helper;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -47,6 +49,14 @@ namespace BrightWire.TabularData
                 if (!rowProcessor.Process(item))
                     break;
             }
+        }
+
+        public IIndexableDataTable Index(Stream output = null)
+        {
+            var destination = output ?? new MemoryStream();
+            var writer = new DataTableWriter(Columns);
+            Process(writer);
+            return writer.GetIndexedTable(destination);
         }
     }
 }

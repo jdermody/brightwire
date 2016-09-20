@@ -11,7 +11,7 @@ namespace BrightWire.TabularData.Analysis
         readonly int _index, _maxDistinct;
         readonly Dictionary<double, ulong> _distinct = new Dictionary<double, ulong>();
 
-        double _mean = 0, _m2 = 0, _min = double.MaxValue, _max = double.MinValue, _mode = 0;
+        double _mean = 0, _m2 = 0, _min = double.MaxValue, _max = double.MinValue, _mode = 0, _l1 = 0, _l2 = 0;
         ulong _total = 0, _highestCount = 0;
 
         public NumberCollector(int index, int maxDistinct = 131072 * 4)
@@ -49,9 +49,16 @@ namespace BrightWire.TabularData.Analysis
                     _mode = val;
                 }
             }
+
+            // calculate norms
+            _l1 += Math.Abs(val);
+            _l2 += val * val;
+
             return true;
         }
 
+        public double L1Norm { get { return _l1; } }
+        public double L2Norm { get { return Math.Sqrt(_l2); } }
         public int ColumnIndex { get { return _index; } }
         public double Min { get { return _min; } }
         public double Max { get { return _max; } }
