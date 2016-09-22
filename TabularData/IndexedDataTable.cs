@@ -22,7 +22,7 @@ namespace BrightWire.TabularData
             _rowCount = rowCount;
         }
 
-        public IReadOnlyList<long> Index { get { return _index; } }
+        //public IReadOnlyList<long> Index { get { return _index; } }
 
         public override int RowCount
         {

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace BrightWire.Models
 {
     [ProtoContract]
-    public class MultinomialNaiveBayes
+    public class IndexedNaiveBayes
     {
         [ProtoContract]
         public class StringIndexProbability
@@ -18,6 +18,9 @@ namespace BrightWire.Models
 
             [ProtoMember(2)]
             public double ConditionalProbability { get; set; }
+
+            [ProtoMember(3)]
+            public double InverseProbability { get; set; }
         }
 
         [ProtoContract]
@@ -32,11 +35,17 @@ namespace BrightWire.Models
             [ProtoMember(3)]
             public double MissingProbability { get; set; }
 
-            [ProtoMember(3)]
+            [ProtoMember(4)]
             public StringIndexProbability[] Index { get; set; }
+
+            [ProtoMember(5)]
+            public double InverseMissingProbability { get; set; }
         }
 
         [ProtoMember(1)]
         public Class[] ClassData { get; set; }
+
+        [ProtoMember(2)]
+        public uint[] Vocabulary { get; set; }
     }
 }

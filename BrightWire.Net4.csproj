@@ -85,10 +85,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Bayesian\BernoulliNaiveBayesClassifier.cs" />
     <Compile Include="Bayesian\HiddenMarkovModel2.cs" />
     <Compile Include="Bayesian\HiddenMarkovModel3.cs" />
     <Compile Include="Bayesian\MultinomialNaiveBayesClassifier.cs" />
     <Compile Include="Bayesian\NaiveBayesClassifier.cs" />
+    <Compile Include="Bayesian\Training\BernoulliNaiveBayesTrainer.cs" />
     <Compile Include="Bayesian\Training\MultinomialNaiveBayesTrainer.cs" />
     <Compile Include="Bayesian\Training\NaiveBayesTrainer.cs" />
     <Compile Include="Connectionist\Activation\LeakyRELU.cs" />
@@ -159,12 +161,11 @@
     <Compile Include="Models\FeedForwardNetwork.cs" />
     <Compile Include="Models\FloatArray.cs" />
     <Compile Include="Models\HMM.cs" />
-    <Compile Include="Models\MultinomialNaiveBayes.cs" />
+    <Compile Include="Models\IndexedNaiveBayes.cs" />
     <Compile Include="Models\NaiveBayes.cs" />
     <Compile Include="Models\NetworkLayer.cs" />
     <Compile Include="Models\RecurrentLayer.cs" />
     <Compile Include="Models\RecurrentNetwork.cs" />
-    <Compile Include="Models\StringTable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TabularData\Analysis\DataTableAnalysis.cs" />
     <Compile Include="TabularData\Analysis\FrequencyAnalysis.cs" />

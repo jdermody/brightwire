@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace BrightWire.Bayesian.Training
 {
-    // http://nlp.stanford.edu/IR-book/html/htmledition/naive-bayes-text-classification-1.html
-    public class MultinomialNaiveBayesTrainer
+    // http://nlp.stanford.edu/IR-book/html/htmledition/the-bernoulli-model-1.html
+    public class BernoulliNaiveBayesTrainer
     {
         readonly HashSet<uint> _vocabulary = new HashSet<uint>();
         readonly Dictionary<string, List<IReadOnlyList<uint>>> _documentClass = new Dictionary<string, List<IReadOnlyList<uint>>>();
@@ -29,26 +29,39 @@ namespace BrightWire.Bayesian.Training
             double numDocs = _documentClass.Sum(d => d.Value.Count);
             double numWords = _vocabulary.Count;
 
+            HashSet<int> temp;
             var ret = new List<IndexedNaiveBayes.Class>();
-            foreach(var item in _documentClass) {
+            foreach (var item in _documentClass) {
+                var docTerm = new Dictionary<uint, HashSet<int>>();
+                for(int i = 0; i < item.Value.Count; i++) {
+                    foreach(var word in item.Value[i]) {
+                        if (!docTerm.TryGetValue(word, out temp))
+                            docTerm.Add(word, temp = new HashSet<int>());
+                        temp.Add(i);
+                    }
+                }
+                double denominator = item.Value.Count + 2;
                 var indexData = new List<IndexedNaiveBayes.StringIndexProbability>();
-                var allClassToken = item.Value.SelectMany(d => d).ToList();
-                double denominator = allClassToken.Count + numWords;
-                foreach (var word in allClassToken.GroupBy(d => d).Select(d => Tuple.Create(d.Key, d.Count()))) {
+                foreach (var word in docTerm) {
+                    var probability = (word.Value.Count + 1) / denominator;
                     indexData.Add(new IndexedNaiveBayes.StringIndexProbability {
-                        StringIndex = word.Item1,
-                        ConditionalProbability = Math.Log((word.Item2 + 1) / denominator)
+                        StringIndex = word.Key,
+                        ConditionalProbability = Math.Log(probability),
+                        InverseProbability = Math.Log(1.0 - probability)
                     });
                 }
+                var missingProbability = 1.0 / denominator;
                 ret.Add(new IndexedNaiveBayes.Class {
                     Label = item.Key,
                     Prior = Math.Log(item.Value.Count / numDocs),
                     Index = indexData.ToArray(),
-                    MissingProbability = Math.Log(1.0 / denominator)
+                    MissingProbability = Math.Log(missingProbability),
+                    InverseMissingProbability = Math.Log(1.0 - missingProbability)
                 });
             }
             return new IndexedNaiveBayes {
-                ClassData = ret.ToArray()
+                ClassData = ret.ToArray(),
+                Vocabulary = _vocabulary.OrderBy(d => d).ToArray()
             };
         }
     }
