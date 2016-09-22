@@ -650,6 +650,7 @@ namespace BrightWire
         IReadOnlyList<IColumn> Columns { get; }
         void Process(IRowProcessor rowProcessor);
         IIndexableDataTable Index(Stream output = null);
+        IDataTableAnalysis Analysis { get; }
     }
 
     public interface IIndexableDataTable : IDataTable
@@ -693,5 +694,10 @@ namespace BrightWire
     public interface IFrequencyColumnInfo : IColumnInfo
     {
         IEnumerable<KeyValuePair<string, ulong>> Frequency { get; }
+    }
+
+    public interface IDataTableAnalysis
+    {
+        IEnumerable<IColumnInfo> ColumnInfo { get; }
     }
 }

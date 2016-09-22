@@ -67,6 +67,14 @@ namespace BrightWire.TabularData
         public int RowCount { get { return _data.Count; } }
         public int ColumnCount { get { return _column.Count; } }
 
+        public IDataTableAnalysis Analysis
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
         public Column Add(ColumnType column, string name = "")
         {
             var ret = new Column(column, name);

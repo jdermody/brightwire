@@ -1,4 +1,5 @@
-﻿using BrightWire.TabularData.Helper;
+﻿using BrightWire.TabularData.Analysis;
+using BrightWire.TabularData.Helper;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -41,6 +42,7 @@ namespace BrightWire.TabularData
         readonly List<Column> _column = new List<Column>();
         readonly long _dataOffset;
         readonly protected Stream _stream;
+        IDataTableAnalysis _analysis = null;
 
         public DataTable(Stream stream)
         {
@@ -135,12 +137,40 @@ namespace BrightWire.TabularData
 
         public IIndexableDataTable Index(Stream output = null)
         {
-            var writer = new DataTableWriter(Columns, output ?? new MemoryStream());
+            var writer = new DataTableWriter(Columns, output);
             _Iterate(row => {
                 writer.AddRow(row.Data);
                 return true;
             });
             return writer.GetIndexedTable();
+        }
+
+        public IDataTableAnalysis Analysis
+        {
+            get
+            {
+                if(_analysis == null) {
+                    var analysis = new DataTableAnalysis(this);
+                    Process(analysis);
+                    _analysis = analysis;
+                }
+                return _analysis;
+            }
+        }
+
+        public IReadOnlyList<IVector> GetNumericColumns(ILinearAlgebraProvider lap, IEnumerable<int> columns = null)
+        {
+            var columnTable = (columns ?? Enumerable.Range(0, ColumnCount)).ToDictionary(i => i, i => new float[RowCount]);
+
+            int index = 0;
+            _Iterate(row => {
+                foreach(var item in columnTable)
+                    item.Value[index] = row.GetField<float>(item.Key);
+                ++index;
+                return true;
+            });
+
+            return columnTable.OrderBy(kv => kv.Key).Select(kv => lap.Create(kv.Value)).ToList();
         }
     }
 }

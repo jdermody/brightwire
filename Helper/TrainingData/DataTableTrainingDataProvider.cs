@@ -20,8 +20,7 @@ namespace BrightWire.Helper.TrainingData
             _lap = lap;
             _table = table;
             _classColumnIndex = classColumnIndex;
-            var analysis = new DataTableAnalysis(table);
-            table.Process(analysis);
+            var analysis = table.Analysis;
 
             foreach (var columnInfo in analysis.ColumnInfo) {
                 var column = table.Columns[columnInfo.ColumnIndex];

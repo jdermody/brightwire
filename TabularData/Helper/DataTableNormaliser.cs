@@ -19,8 +19,7 @@ namespace BrightWire.TabularData.Helper
         public DataTableNormaliser(DataTable dataTable, NormalisationType type, Stream output = null)
         {
             _table = dataTable;
-            var analysis = new DataTableAnalysis(dataTable);
-            dataTable.Process(analysis);
+            var analysis = dataTable.Analysis;
             _columnCount = dataTable.ColumnCount;
             _writer = new DataTableWriter(dataTable.Columns, output);
             _normalisation = type;
