@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -49,10 +50,10 @@ namespace BrightWire.TabularData.Helper
             return _destination.Process(new ProjectedRow(newRow));
         }
 
-        public static IIndexableDataTable Project(IDataTable table, IEnumerable<int> columns)
+        public static IIndexableDataTable Project(IDataTable table, IEnumerable<int> columns, Stream output = null)
         {
             var validColumn = new HashSet<int>(columns);
-            var writer = new DataTableWriter(table.Columns.Select((c, i) => Tuple.Create(c, i)).Where(c => validColumn.Contains(c.Item2)).Select(c => c.Item1));
+            var writer = new DataTableWriter(table.Columns.Select((c, i) => Tuple.Create(c, i)).Where(c => validColumn.Contains(c.Item2)).Select(c => c.Item1), output);
             var projector = new DataTableProjector(writer, columns);
             table.Process(projector);
             return writer.GetIndexedTable();

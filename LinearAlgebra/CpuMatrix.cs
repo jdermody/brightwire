@@ -93,13 +93,15 @@ namespace BrightWire.LinearAlgebra
 
         public IMatrix Multiply(IMatrix matrix)
         {
-            return new CpuMatrix(_matrix.Multiply((Matrix<float>)matrix.WrappedObject));
+            var other = (CpuMatrix)matrix;
+            return new CpuMatrix(_matrix.Multiply(other._matrix));
         }
 
         public IMatrix PointwiseMultiply(IMatrix matrix)
         {
+            var other = (CpuMatrix)matrix;
             Debug.Assert(RowCount == matrix.RowCount && ColumnCount == matrix.ColumnCount);
-            return new CpuMatrix(_matrix.PointwiseMultiply((Matrix<float>)matrix.WrappedObject));
+            return new CpuMatrix(_matrix.PointwiseMultiply(other._matrix));
         }
 
         public IVector RowSums(float coefficient = 1f)
@@ -120,22 +122,26 @@ namespace BrightWire.LinearAlgebra
 
         public IMatrix Add(IMatrix matrix)
         {
-            return new CpuMatrix(_matrix.Add((Matrix<float>)matrix.WrappedObject));
+            var other = (CpuMatrix)matrix;
+            return new CpuMatrix(_matrix.Add(other._matrix));
         }
 
         public IMatrix Subtract(IMatrix matrix)
         {
-            return new CpuMatrix(_matrix.Subtract((Matrix<float>)matrix.WrappedObject));
+            var other = (CpuMatrix)matrix;
+            return new CpuMatrix(_matrix.Subtract(other._matrix));
         }
 
         public IMatrix TransposeAndMultiply(IMatrix matrix)
         {
-            return new CpuMatrix(_matrix.TransposeAndMultiply((Matrix<float>)matrix.WrappedObject));
+            var other = (CpuMatrix)matrix;
+            return new CpuMatrix(_matrix.TransposeAndMultiply(other._matrix));
         }
 
         public IMatrix TransposeThisAndMultiply(IMatrix matrix)
         {
-            return new CpuMatrix(_matrix.TransposeThisAndMultiply((Matrix<float>)matrix.WrappedObject));
+            var other = (CpuMatrix)matrix;
+            return new CpuMatrix(_matrix.TransposeThisAndMultiply(other._matrix));
         }
 
         public IMatrix Transpose()
@@ -156,14 +162,14 @@ namespace BrightWire.LinearAlgebra
         public void AddInPlace(IMatrix matrix, float coefficient1 = 1.0f, float coefficient2 = 1.0f)
         {
             Debug.Assert(RowCount == matrix.RowCount && ColumnCount == matrix.ColumnCount);
-            var other = (Matrix<float>)matrix.WrappedObject;
+            var other = (CpuMatrix)matrix;
             _matrix.MapIndexedInplace((i, j, v) => (v * coefficient1) + (other[i, j] * coefficient2));
         }
 
         public void SubtractInPlace(IMatrix matrix, float coefficient1 = 1.0f, float coefficient2 = 1.0f)
         {
             Debug.Assert(RowCount == matrix.RowCount && ColumnCount == matrix.ColumnCount);
-            var other = (Matrix<float>)matrix.WrappedObject;
+            var other = (CpuMatrix)matrix;
             _matrix.MapIndexedInplace((i, j, v) => (v * coefficient1) - (other[i, j] * coefficient2));
         }
 
@@ -260,13 +266,13 @@ namespace BrightWire.LinearAlgebra
 
         public void AddToEachRow(IVector vector)
         {
-            var other = (Vector<float>)vector.WrappedObject;
+            var other = (CpuVector)vector;
             _matrix.MapIndexedInplace((j, k, v) => v + other[k]);
         }
 
         public void AddToEachColumn(IVector vector)
         {
-            var other = (Vector<float>)vector.WrappedObject;
+            var other = (CpuVector)vector;
             _matrix.MapIndexedInplace((j, k, v) => v + other[j]);
         }
 
@@ -417,7 +423,8 @@ namespace BrightWire.LinearAlgebra
 
         public IMatrix PointwiseDivide(IMatrix matrix)
         {
-            return new CpuMatrix(_matrix.PointwiseDivide((Matrix<float>)matrix.WrappedObject));
+            var other = (CpuMatrix)matrix;
+            return new CpuMatrix(_matrix.PointwiseDivide(other._matrix));
         }
 
         public void L1Regularisation(float coefficient)

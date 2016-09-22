@@ -12,15 +12,16 @@ namespace BrightWire.Bayesian
         class Classification
         {
             readonly IndexedNaiveBayes.Class _class;
-            readonly uint[] _vocabulary;
-            readonly HashSet<uint> _wordSet = new HashSet<uint>();
+            readonly List<uint> _excluded;
 
             public Classification(uint[] vocabulary, IndexedNaiveBayes.Class cls)
             {
-                _vocabulary = vocabulary;
                 _class = cls;
+
+                var included = new HashSet<uint>();
                 foreach (var item in cls.Index)
-                    _wordSet.Add(item.StringIndex);
+                    included.Add(item.StringIndex);
+                _excluded = vocabulary.Where(w => !included.Contains(w)).ToList();
             }
             public string Label { get { return _class.Label; } }
             public double GetScore(HashSet<uint> documentSet)
@@ -34,24 +35,14 @@ namespace BrightWire.Bayesian
                         ret += item.InverseProbability;
                 }
 
-                foreach (var word in _vocabulary.Where(w => !_wordSet.Contains(w))) {
+                int missingCount = 0, inverseMissingCount = 0;
+                foreach(var word in _excluded) {
                     if (documentSet.Contains(word))
-                        ret += _class.MissingProbability;
+                        ++missingCount;
                     else
-                        ret += _class.InverseMissingProbability;
-                    //if (documentSet.Contains(word)) {
-                    //    if (_index.TryGetValue(word, out temp))
-                    //        ret += temp.Item1;
-                    //    else
-                    //        ret += _missing;
-                    //}
-                    //else {
-                    //    if (_index.TryGetValue(word, out temp))
-                    //        ret += temp.Item2;
-                    //    else
-                    //        ret += _missingInverse;
-                    //}
+                        ++inverseMissingCount;
                 }
+                ret += (missingCount * _class.MissingProbability) + (inverseMissingCount * _class.InverseMissingProbability);
                 return ret;
             }
         }

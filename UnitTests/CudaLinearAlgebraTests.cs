@@ -1437,5 +1437,91 @@ namespace UnitTests
         {
             _TestNormalise(NormalisationType.Euclidean);
         }
+
+        [TestMethod]
+        public void MultiEuclideanDistance()
+        {
+            var np = new NumericsProvider();
+            var distribution = new Normal(0, 5);
+
+            var a = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var b = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var c = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var distance = a.FindDistances(new[] { b, c }, DistanceMetric.Euclidean).AsIndexable();
+
+            IIndexableVector distance2;
+            using (var gpuA = _cuda.Create(a))
+            using (var gpuB = _cuda.Create(b))
+            using (var gpuC = _cuda.Create(c))
+            using(var temp = gpuA.FindDistances(new[] { gpuB, gpuC }, DistanceMetric.Euclidean))
+                distance2 = temp.AsIndexable();
+
+            FloatingPointHelper.AssertEqual(distance, distance2, 10);
+        }
+
+        [TestMethod]
+        public void MultiManhattanDistance()
+        {
+            var np = new NumericsProvider();
+            var distribution = new Normal(0, 5);
+
+            var a = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var b = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var c = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var distance = a.FindDistances(new[] { b, c }, DistanceMetric.Manhattan).AsIndexable();
+
+            IIndexableVector distance2;
+            using (var gpuA = _cuda.Create(a))
+            using (var gpuB = _cuda.Create(b))
+            using (var gpuC = _cuda.Create(c))
+            using (var temp = gpuA.FindDistances(new[] { gpuB, gpuC }, DistanceMetric.Manhattan))
+                distance2 = temp.AsIndexable();
+
+            FloatingPointHelper.AssertEqual(distance, distance2, 10);
+        }
+
+        [TestMethod]
+        public void MultiCosineDistance()
+        {
+            var np = new NumericsProvider();
+            var distribution = new Normal(0, 5);
+
+            var a = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var b = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var c = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var distance = a.FindDistances(new[] { b, c }, DistanceMetric.Cosine).AsIndexable();
+
+            IIndexableVector distance2;
+            using (var gpuA = _cuda.Create(a))
+            using (var gpuB = _cuda.Create(b))
+            using (var gpuC = _cuda.Create(c))
+            using (var temp = gpuA.FindDistances(new[] { gpuB, gpuC }, DistanceMetric.Cosine))
+                distance2 = temp.AsIndexable();
+
+            FloatingPointHelper.AssertEqual(distance, distance2, 10);
+        }
+
+        [TestMethod]
+        public void MultiCosineDistance2()
+        {
+            var np = new NumericsProvider();
+            var distribution = new Normal(0, 5);
+            float[] dataNorm1 = null;
+            float[] dataNorm2 = null;
+
+            var a = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var b = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var c = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var distance = a.CosineDistance(new[] { b, c }, ref dataNorm1).AsIndexable();
+
+            IIndexableVector distance2;
+            using (var gpuA = _cuda.Create(a))
+            using (var gpuB = _cuda.Create(b))
+            using (var gpuC = _cuda.Create(c))
+            using (var temp = gpuA.CosineDistance(new[] { gpuB, gpuC }, ref dataNorm2))
+                distance2 = temp.AsIndexable();
+
+            FloatingPointHelper.AssertEqual(distance, distance2, 10);
+        }
     }
 }

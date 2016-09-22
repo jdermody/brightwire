@@ -58,7 +58,6 @@ namespace BrightWire
         float L2Norm();
         int MaximumIndex();
         int MinimumIndex();
-        object WrappedObject { get; }
         void Multiply(float scalar);
         void AddInPlace(IVector vector, float coefficient1 = 1.0f, float coefficient2 = 1.0f);
         void SubtractInPlace(IVector vector, float coefficient1 = 1.0f, float coefficient2 = 1.0f);
@@ -81,6 +80,7 @@ namespace BrightWire
         void Normalise(NormalisationType type);
         IVector Softmax();
         IVector FindDistances(IVector[] data, DistanceMetric distance);
+        IVector CosineDistance(IVector[] data, ref float[] dataNorm);
     }
 
     public interface IIndexableVector : IVector
@@ -113,7 +113,7 @@ namespace BrightWire
         IMatrix TransposeThisAndMultiply(IMatrix matrix);
         IVector RowSums(float coefficient = 1f);
         IVector ColumnSums(float coefficient = 1f);
-        object WrappedObject { get; }
+        //object WrappedObject { get; }
         IMatrix Transpose();
         void Multiply(float scalar);
         void AddInPlace(IMatrix matrix, float coefficient1 = 1.0f, float coefficient2 = 1.0f);
@@ -656,7 +656,7 @@ namespace BrightWire
     {
         IReadOnlyList<IRow> GetSlice(int offset, int count);
         IReadOnlyList<IRow> GetRows(IEnumerable<int> rowIndex);
-        Tuple<IDataTable, IDataTable> Split(int? randomSeed = null, double trainPercentage = 0.8, bool shuffle = true);
+        Tuple<IIndexableDataTable, IIndexableDataTable> Split(int? randomSeed = null, double trainPercentage = 0.8, bool shuffle = true, Stream output1 = null, Stream output2 = null);
     }
 
     public interface IRowProcessor
@@ -676,7 +676,6 @@ namespace BrightWire
         int MinLength { get; }
         int MaxLength { get; }
         string MostCommonString { get; }
-        int? NumDistinct { get; }
     }
 
     public interface INumericColumnInfo : IColumnInfo

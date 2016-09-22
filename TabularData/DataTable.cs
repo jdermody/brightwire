@@ -135,16 +135,12 @@ namespace BrightWire.TabularData
 
         public IIndexableDataTable Index(Stream output = null)
         {
-            var destination = output ?? new MemoryStream();
-            var writer = new DataTableWriter(Columns);
-            int index = 0;
+            var writer = new DataTableWriter(Columns, output ?? new MemoryStream());
             _Iterate(row => {
                 writer.AddRow(row.Data);
-                if ((++index % 1024) == 0)
-                    writer.WriteTo(destination);
                 return true;
             });
-            return writer.GetIndexedTable(destination);
+            return writer.GetIndexedTable();
         }
     }
 }

@@ -145,7 +145,9 @@ namespace BrightWire.LinearAlgebra
             _manhattanDistance,
             _abs,
             _normalise,
-            _softmaxVector
+            _softmaxVector,
+            _multiEuclidean,
+            _multiManhattan
         ;
         bool _disposed = false;
 
@@ -194,6 +196,8 @@ namespace BrightWire.LinearAlgebra
             _abs = _kernel.LoadFunction("Abs");
             _normalise = _kernel.LoadFunction("Normalise");
             _softmaxVector = _kernel.LoadFunction("SoftmaxVector");
+            _multiEuclidean = _kernel.LoadFunction("MultiEuclideanDistance");
+            _multiManhattan = _kernel.LoadFunction("MultiManhattanDistance");
         }
 
         protected virtual void Dispose(bool disposing)
@@ -533,6 +537,36 @@ namespace BrightWire.LinearAlgebra
         internal void ConcatColumns(CudaDeviceVariable<float> a, CudaDeviceVariable<float> b, CudaDeviceVariable<float> c, int rows, int columns, int topRowCount, int bottomRowCount)
         {
             _Use(_concatColumns, rows, columns, k => k.Run(0, a.DevicePointer, b.DevicePointer, c.DevicePointer, rows, columns, topRowCount, bottomRowCount));
+        }
+
+        internal CudaDeviceVariable<float> MultiEuclideanDistance(CudaDeviceVariable<float> vector, CUdeviceptr[] compareTo, int size)
+        {
+            CudaDeviceVariable<float> ret = null;
+            var buffer = _cuda.AllocateMemory(8 * compareTo.Length);
+            try {
+                _cuda.CopyToDevice(buffer, compareTo);
+                ret = new CudaDeviceVariable<float>(size * compareTo.Length);
+                _Use(_multiEuclidean, size, compareTo.Length, k => k.Run(0, vector.DevicePointer, buffer, ret.DevicePointer, size, compareTo.Length));
+            }
+            finally {
+                _cuda.FreeMemory(buffer);
+            }
+            return ret;
+        }
+
+        internal CudaDeviceVariable<float> MultiManhattanDistance(CudaDeviceVariable<float> vector, CUdeviceptr[] compareTo, int size)
+        {
+            CudaDeviceVariable<float> ret = null;
+            var buffer = _cuda.AllocateMemory(8 * compareTo.Length);
+            try {
+                _cuda.CopyToDevice(buffer, compareTo);
+                ret = new CudaDeviceVariable<float>(size * compareTo.Length);
+                _Use(_multiManhattan, size, compareTo.Length, k => k.Run(0, vector.DevicePointer, buffer, ret.DevicePointer, size, compareTo.Length));
+            }
+            finally {
+                _cuda.FreeMemory(buffer);
+            }
+            return ret;
         }
 
         internal void SparseLoad(CudaDeviceVariable<float> data, int rows, int columns, IReadOnlyList<Tuple<int, float>[]> columnData)

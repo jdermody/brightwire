@@ -13,7 +13,6 @@ namespace BrightWire.TabularData.Helper
         readonly Dictionary<int, INumericColumnInfo> _columnInfo = new Dictionary<int, INumericColumnInfo>();
         readonly DataTableWriter _writer;
         readonly int _columnCount;
-        readonly Stream _output;
         readonly NormalisationType _normalisation;
         readonly DataTable _table;
 
@@ -23,8 +22,7 @@ namespace BrightWire.TabularData.Helper
             var analysis = new DataTableAnalysis(dataTable);
             dataTable.Process(analysis);
             _columnCount = dataTable.ColumnCount;
-            _writer = new DataTableWriter(dataTable.Columns);
-            _output = output ?? new MemoryStream();
+            _writer = new DataTableWriter(dataTable.Columns, output);
             _normalisation = type;
 
             foreach (var columnInfo in analysis.ColumnInfo) {
@@ -72,14 +70,12 @@ namespace BrightWire.TabularData.Helper
                 data[i] = obj ?? row.Data[i];
             }
             _writer.AddRow(data);
-            if (_writer.RowCount % 1024 == 0)
-                _writer.WriteTo(_output);
             return true;
         }
 
         public IIndexableDataTable GetIndexedTable()
         {
-            return _writer.GetIndexedTable(_output);
+            return _writer.GetIndexedTable();
         }
     }
 }

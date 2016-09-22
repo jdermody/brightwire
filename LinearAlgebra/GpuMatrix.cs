@@ -124,6 +124,8 @@ namespace BrightWire.LinearAlgebra
             }
         }
 
+        internal CudaDeviceVariable<float> CudaDeviceVariable { get { return _data; } }
+
         public IMatrix Add(IMatrix matrix)
         {
             Debug.Assert(IsValid && matrix.IsValid);
@@ -148,13 +150,15 @@ namespace BrightWire.LinearAlgebra
         public void AddToEachColumn(IVector vector)
         {
             Debug.Assert(IsValid && vector.IsValid);
-            _cuda.AddToEachColumn(_data, (CudaDeviceVariable<float>)vector.WrappedObject, _rows, _columns);
+            var other = (GpuVector)vector;
+            _cuda.AddToEachColumn(_data, other.CudaDeviceVariable, _rows, _columns);
         }
 
         public void AddToEachRow(IVector vector)
         {
             Debug.Assert(IsValid && vector.IsValid);
-            _cuda.AddToEachRow(_data, (CudaDeviceVariable<float>)vector.WrappedObject, _rows, _columns);
+            var other = (GpuVector)vector;
+            _cuda.AddToEachRow(_data, other.CudaDeviceVariable, _rows, _columns);
         }
 
         public IIndexableMatrix AsIndexable()
@@ -369,13 +373,15 @@ namespace BrightWire.LinearAlgebra
         public void PointwiseDivideColumns(IVector vector)
         {
             Debug.Assert(IsValid && vector.IsValid);
-            _cuda.PointwiseDivideColumns(_data, (CudaDeviceVariable<float>)vector.WrappedObject, _rows, _columns);
+            var other = (GpuVector)vector;
+            _cuda.PointwiseDivideColumns(_data, other.CudaDeviceVariable, _rows, _columns);
         }
 
         public void PointwiseDivideRows(IVector vector)
         {
             Debug.Assert(IsValid && vector.IsValid);
-            _cuda.PointwiseDivideRows(_data, (CudaDeviceVariable<float>)vector.WrappedObject, _rows, _columns);
+            var other = (GpuVector)vector;
+            _cuda.PointwiseDivideRows(_data, other.CudaDeviceVariable, _rows, _columns);
         }
 
         public IMatrix PointwiseMultiply(IMatrix matrix)

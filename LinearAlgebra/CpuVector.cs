@@ -73,12 +73,13 @@ namespace BrightWire.LinearAlgebra
 
         public IVector Add(IVector vector)
         {
-            return new CpuVector(_vector.Add((Vector<float>)vector.WrappedObject));
+            var other = (CpuVector)vector;
+            return new CpuVector(_vector.Add(other._vector));
         }
 
         public void AddInPlace(IVector vector, float coefficient1 = 1.0f, float coefficient2 = 1.0f)
         {
-            var other = (Vector<float>)vector.WrappedObject;
+            var other = (CpuVector)vector;
             _vector.MapIndexedInplace((i, v) => (v * coefficient1) + (other[i] * coefficient2));
         }
 
@@ -109,12 +110,13 @@ namespace BrightWire.LinearAlgebra
 
         public IVector Subtract(IVector vector)
         {
-            return new CpuVector(_vector.Subtract((Vector<float>)vector.WrappedObject));
+            var other = (CpuVector)vector;
+            return new CpuVector(_vector.Subtract(other._vector));
         }
 
         public void SubtractInPlace(IVector vector, float coefficient1 = 1.0f, float coefficient2 = 1.0f)
         {
-            var other = (Vector<float>)vector.WrappedObject;
+            var other = (CpuVector)vector;
             _vector.MapIndexedInplace((i, v) => (v * coefficient1) - (other[i] * coefficient2));
         }
 
@@ -159,14 +161,14 @@ namespace BrightWire.LinearAlgebra
 
         public IVector PointwiseMultiply(IVector vector)
         {
-            var other = (Vector<float>)vector.WrappedObject;
-            return new CpuVector(_vector.PointwiseMultiply(other));
+            var other = (CpuVector)vector;
+            return new CpuVector(_vector.PointwiseMultiply(other._vector));
         }
 
         public float DotProduct(IVector vector)
         {
-            var other = (Vector<float>)vector.WrappedObject;
-            return _vector.DotProduct(other);
+            var other = (CpuVector)vector;
+            return _vector.DotProduct(other._vector);
         }
 
         public IEnumerable<float> Values
@@ -324,6 +326,18 @@ namespace BrightWire.LinearAlgebra
             var distanceFunc = _GetDistanceFunc(distance);
             var ret = new float[data.Length];
             Parallel.ForEach(data, (vec, ps, ind) => ret[ind] = distanceFunc(vec));
+            return new CpuVector(DenseVector.Create(data.Length, i => ret[i]));
+        }
+
+        public IVector CosineDistance(IVector[] data, ref float[] dataNorm)
+        {
+            var norm = DotProduct(this);
+            if (dataNorm == null)
+                dataNorm = data.Select(d => d.DotProduct(d)).ToArray();
+
+            var ret = new float[data.Length];
+            for (var i = 0; i < data.Length; i++)
+                ret[i] = Convert.ToSingle(1d - DotProduct(data[i]) / Math.Sqrt(norm * dataNorm[i]));
             return new CpuVector(DenseVector.Create(data.Length, i => ret[i]));
         }
     }

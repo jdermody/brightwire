@@ -181,7 +181,6 @@
     <Compile Include="TabularData\Helper\DataTableRow.cs" />
     <Compile Include="TabularData\Helper\DataTableWriter.cs" />
     <Compile Include="TabularData\IndexedDataTable.cs" />
-    <Compile Include="TabularData\MemoryBasedDataTable.cs" />
     <Compile Include="TabularData\MutableDataTable.cs" />
     <Compile Include="TrainingData\Artificial\BinaryIntegers.cs" />
     <Compile Include="TrainingData\Artificial\ReberGrammar.cs" />

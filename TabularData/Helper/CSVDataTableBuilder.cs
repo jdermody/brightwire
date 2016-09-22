@@ -50,7 +50,7 @@ namespace BrightWire.TabularData.Helper
             if (lines.Any()) {
                 // use the preview to determine the data type
                 bool hasHeaderRow = hasHeader.HasValue ? hasHeader.Value : false;
-                var writer = _DetermineHeaders(lines, !hasHeader.HasValue, ref hasHeaderRow);
+                var writer = _DetermineHeaders(output, lines, !hasHeader.HasValue, ref hasHeaderRow);
 
                 // add the preview lines
                 foreach (var line in lines.Skip(hasHeaderRow ? 1 : 0))
@@ -59,21 +59,18 @@ namespace BrightWire.TabularData.Helper
                 // parse the remaining data
                 int pos = 0;
                 while (!reader.EndOfStream) {
-                    if (pos % IndexedDataTable.BLOCK_SIZE == 0)
-                        writer.WriteTo(output);
                     var line = reader.ReadLine();
                     if (String.IsNullOrEmpty(line))
                         continue;
                     _Add(line, writer);
                     ++pos;
                 }
-                writer.WriteTo(output);
-                return writer.GetIndexedTable(output);
+                return writer.GetIndexedTable();
             }
             return null;
         }
 
-        private DataTableWriter _DetermineHeaders(List<string> lines, bool checkForHeader, ref bool hasHeader)
+        private DataTableWriter _DetermineHeaders(Stream stream, List<string> lines, bool checkForHeader, ref bool hasHeader)
         {
             // see if there is a header (all strings)
             var firstLineTypes = _Parse(lines.First());
@@ -98,7 +95,7 @@ namespace BrightWire.TabularData.Helper
             ;
 
             // add the columns
-            var ret = new DataTableWriter();
+            var ret = new DataTableWriter(stream);
             foreach (var column in headerNames.Zip(data, (name, type) => Tuple.Create(name, type)))
                 ret.AddColumn(column.Item1, column.Item2);
 

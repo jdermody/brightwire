@@ -510,12 +510,36 @@ extern "C"
 		}
 	}
 
+	__global__ void MultiEuclideanDistance(float* a, float** b, float* c, int size, int columns)
+	{
+		int i = blockDim.x * blockIdx.x + threadIdx.x;
+		int j = blockDim.y * blockIdx.y + threadIdx.y;
+
+		if (i < size && j < columns) {
+			float val1 = a[i];
+			float val2 = b[j][i];
+			c[j * size + i] = pow(val1 - val2, 2);
+		}
+	}
+
 	__global__ void ManhattanDistance(float* a, float* b, float* c, int count)
 	{
 		int i = blockDim.x * blockIdx.x + threadIdx.x;
 
 		if (i < count) {
 			c[i] = abs(a[i] - b[i]);
+		}
+	}
+
+	__global__ void MultiManhattanDistance(float* a, float** b, float* c, int size, int columns)
+	{
+		int i = blockDim.x * blockIdx.x + threadIdx.x;
+		int j = blockDim.y * blockIdx.y + threadIdx.y;
+
+		if (i < size && j < columns) {
+			float val1 = a[i];
+			float val2 = b[j][i];
+			c[j * size + i] = abs(val1 - val2);
 		}
 	}
 

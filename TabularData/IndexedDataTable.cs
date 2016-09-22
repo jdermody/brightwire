@@ -1,6 +1,7 @@
 ﻿using BrightWire.TabularData.Helper;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -21,8 +22,6 @@ namespace BrightWire.TabularData
             _index = dataIndex;
             _rowCount = rowCount;
         }
-
-        //public IReadOnlyList<long> Index { get { return _index; } }
 
         public override int RowCount
         {
@@ -80,7 +79,7 @@ namespace BrightWire.TabularData
             return ret;
         }
 
-        public Tuple<IDataTable, IDataTable> Split(int? randomSeed = null, double trainPercentage = 0.8, bool shuffle = true)
+        public Tuple<IIndexableDataTable, IIndexableDataTable> Split(int? randomSeed = null, double trainPercentage = 0.8, bool shuffle = true, Stream output1 = null, Stream output2 = null)
         {
             var input = Enumerable.Range(0, RowCount);
             if (shuffle)
@@ -88,10 +87,45 @@ namespace BrightWire.TabularData
             var final = input.ToList();
             int trainingCount = Convert.ToInt32(RowCount * trainPercentage);
 
-            return Tuple.Create<IDataTable, IDataTable>(
-                new MemoryBasedDataTable(Columns, GetRows(final.Take(trainingCount))), 
-                new MemoryBasedDataTable(Columns, GetRows(final.Skip(trainingCount)))
+            var writer1 = new DataTableWriter(Columns, output1);
+            foreach (var row in GetRows(final.Take(trainingCount)))
+                writer1.Process(row);
+
+            var writer2 = new DataTableWriter(Columns, output2);
+            foreach (var row in GetRows(final.Skip(trainingCount)))
+                writer2.Process(row);
+
+            return Tuple.Create<IIndexableDataTable, IIndexableDataTable>(
+                writer1.GetIndexedTable(),
+                writer2.GetIndexedTable()
             );
+        }
+
+        public IEnumerable<Tuple<IIndexableDataTable, IIndexableDataTable>> Fold(int k, int? randomSeed = null, bool shuffle = true)
+        {
+            var input = Enumerable.Range(0, RowCount);
+            if (shuffle)
+                input = input.Shuffle(randomSeed);
+            var final = input.ToList();
+            var foldSize = final.Count / k;
+
+            for(var i = 0; i < k; i++) {
+                var trainingRows = final.Take(i * foldSize).Concat(final.Skip((i + 1) * foldSize));
+                var validationRows = final.Skip(i * foldSize).Take(foldSize);
+
+                var writer1 = new DataTableWriter(Columns, null);
+                foreach (var row in GetRows(trainingRows))
+                    writer1.Process(row);
+
+                var writer2 = new DataTableWriter(Columns, null);
+                foreach (var row in GetRows(validationRows))
+                    writer2.Process(row);
+
+                yield return Tuple.Create<IIndexableDataTable, IIndexableDataTable>(
+                    writer1.GetIndexedTable(),
+                    writer2.GetIndexedTable()
+                );
+            }
         }
     }
 }
