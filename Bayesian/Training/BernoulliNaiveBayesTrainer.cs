@@ -24,13 +24,13 @@ namespace BrightWire.Bayesian.Training
             temp.Add(stringIndexList);
         }
 
-        public IndexedNaiveBayes Train()
+        public BernoulliNaiveBayes Train()
         {
             double numDocs = _documentClass.Sum(d => d.Value.Count);
             double numWords = _vocabulary.Count;
 
             HashSet<int> temp;
-            var ret = new List<IndexedNaiveBayes.Class>();
+            var ret = new List<BernoulliNaiveBayes.Class>();
             foreach (var item in _documentClass) {
                 var docTerm = new Dictionary<uint, HashSet<int>>();
                 for(int i = 0; i < item.Value.Count; i++) {
@@ -41,17 +41,17 @@ namespace BrightWire.Bayesian.Training
                     }
                 }
                 double denominator = item.Value.Count + 2;
-                var indexData = new List<IndexedNaiveBayes.StringIndexProbability>();
+                var indexData = new List<BernoulliNaiveBayes.StringIndexProbability>();
                 foreach (var word in docTerm) {
                     var probability = (word.Value.Count + 1) / denominator;
-                    indexData.Add(new IndexedNaiveBayes.StringIndexProbability {
+                    indexData.Add(new BernoulliNaiveBayes.StringIndexProbability {
                         StringIndex = word.Key,
                         ConditionalProbability = Math.Log(probability),
                         InverseProbability = Math.Log(1.0 - probability)
                     });
                 }
                 var missingProbability = 1.0 / denominator;
-                ret.Add(new IndexedNaiveBayes.Class {
+                ret.Add(new BernoulliNaiveBayes.Class {
                     Label = item.Key,
                     Prior = Math.Log(item.Value.Count / numDocs),
                     Index = indexData.ToArray(),
@@ -59,7 +59,7 @@ namespace BrightWire.Bayesian.Training
                     InverseMissingProbability = Math.Log(1.0 - missingProbability)
                 });
             }
-            return new IndexedNaiveBayes {
+            return new BernoulliNaiveBayes {
                 ClassData = ret.ToArray(),
                 Vocabulary = _vocabulary.OrderBy(d => d).ToArray()
             };

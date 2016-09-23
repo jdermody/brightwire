@@ -11,10 +11,10 @@ namespace BrightWire.Bayesian
     {
         class Classification
         {
-            readonly IndexedNaiveBayes.Class _class;
+            readonly BernoulliNaiveBayes.Class _class;
             readonly List<uint> _excluded;
 
-            public Classification(uint[] vocabulary, IndexedNaiveBayes.Class cls)
+            public Classification(uint[] vocabulary, BernoulliNaiveBayes.Class cls)
             {
                 _class = cls;
 
@@ -48,10 +48,8 @@ namespace BrightWire.Bayesian
         }
         readonly List<Classification> _classification = new List<Classification>();
 
-        public BernoulliNaiveBayesClassifier(IndexedNaiveBayes model)
+        public BernoulliNaiveBayesClassifier(BernoulliNaiveBayes model)
         {
-            if (model.Vocabulary == null)
-                throw new ArgumentException();
             _classification = model.ClassData.Select(c => new Classification(model.Vocabulary, c)).ToList();
         }
 

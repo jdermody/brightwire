@@ -24,30 +24,30 @@ namespace BrightWire.Bayesian.Training
             temp.Add(stringIndexList);
         }
 
-        public IndexedNaiveBayes Train()
+        public MultinomialNaiveBayes Train()
         {
             double numDocs = _documentClass.Sum(d => d.Value.Count);
             double numWords = _vocabulary.Count;
 
-            var ret = new List<IndexedNaiveBayes.Class>();
+            var ret = new List<MultinomialNaiveBayes.Class>();
             foreach(var item in _documentClass) {
-                var indexData = new List<IndexedNaiveBayes.StringIndexProbability>();
+                var indexData = new List<MultinomialNaiveBayes.StringIndexProbability>();
                 var allClassToken = item.Value.SelectMany(d => d).ToList();
                 double denominator = allClassToken.Count + numWords;
                 foreach (var word in allClassToken.GroupBy(d => d).Select(d => Tuple.Create(d.Key, d.Count()))) {
-                    indexData.Add(new IndexedNaiveBayes.StringIndexProbability {
+                    indexData.Add(new MultinomialNaiveBayes.StringIndexProbability {
                         StringIndex = word.Item1,
                         ConditionalProbability = Math.Log((word.Item2 + 1) / denominator)
                     });
                 }
-                ret.Add(new IndexedNaiveBayes.Class {
+                ret.Add(new MultinomialNaiveBayes.Class {
                     Label = item.Key,
                     Prior = Math.Log(item.Value.Count / numDocs),
                     Index = indexData.ToArray(),
                     MissingProbability = Math.Log(1.0 / denominator)
                 });
             }
-            return new IndexedNaiveBayes {
+            return new MultinomialNaiveBayes {
                 ClassData = ret.ToArray()
             };
         }

@@ -15,7 +15,7 @@ namespace BrightWire.Bayesian
             readonly double _prior, _missing;
             readonly Dictionary<uint, double> _index;
 
-            public Classification(IndexedNaiveBayes.Class cls)
+            public Classification(MultinomialNaiveBayes.Class cls)
             {
                 _label = cls.Label;
                 _prior = cls.Prior;
@@ -37,10 +37,8 @@ namespace BrightWire.Bayesian
         }
         readonly List<Classification> _classification = new List<Classification>();
 
-        public MultinomialNaiveBayesClassifier(IndexedNaiveBayes model)
+        public MultinomialNaiveBayesClassifier(MultinomialNaiveBayes model)
         {
-            if (model.Vocabulary != null)
-                throw new ArgumentException();
             _classification = model.ClassData.Select(c => new Classification(c)).ToList();
         }
 
