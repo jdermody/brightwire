@@ -138,7 +138,7 @@ namespace BrightWire.TreeBased.Training
                 return ret;
             }
 
-            public IReadOnlyCollection<Attribute> Attributes
+            public IReadOnlyList<Attribute> Attributes
             {
                 get
                 {
@@ -175,7 +175,7 @@ namespace BrightWire.TreeBased.Training
                             }
                         }
                     }
-                    return ret;
+                    return ret.ToList();
                 }
             }
 
@@ -215,38 +215,86 @@ namespace BrightWire.TreeBased.Training
                     return ret;
                 }
             }
+
+            public int Leaves
+            {
+                get
+                {
+                    if (_children == null)
+                        return 1;
+                    else {
+                        var ret = 0;
+                        foreach (var child in _children)
+                            ret += child.Leaves;
+                        return ret;
+                    }
+                }
+            }
             public bool IsLeaf { get { return _classCount.Value.Count <= 1; } }
             public string PredictedClass { get { return _classCount.Value.OrderByDescending(kv => kv.Value).Select(kv => kv.Key).FirstOrDefault(); } }
             public IReadOnlyList<IRow> Data { get { return _data; } }
             public string MatchLabel { get { return _matchLabel; } }
         }
 
-        public static DecisionTree Train(IDataTable table, int classColumnIndex)
+        public class Config
+        {
+            public int? FeatureBagCount { get; set; } = null;
+            public int? MinDataPerNode { get; set; } = null;
+            public int? MaxDepth { get; set; } = null;
+            public double? MinInformationGain { get; set; } = null;
+        }
+
+        public static DecisionTree Train(IDataTable table, int classColumnIndex, Config config = null)
         {
             var tableInfo = new TableInfo(table, classColumnIndex);
             var root = new Node(tableInfo, tableInfo.Data, null);
             var stack = new Stack<Node>();
             stack.Push(root);
 
-            while(stack.Any()) {
+            int? maxDepth = config?.MaxDepth;
+            int? minDataPerNode = config?.MinDataPerNode;
+            int? featureBagCount = config?.FeatureBagCount;
+            double? minInformationGain = config?.MinInformationGain;
+
+            while (stack.Any()) {
                 var node = stack.Pop();
+
+                // stop at leaf nodes
                 if (node.IsLeaf)
                     continue;
 
+                // stop when there are no more features left to split
                 var attributes = node.Attributes;
                 if (!attributes.Any())
                     continue;
+
+                // check if max depth exceeded
+                if (maxDepth.HasValue && node.Depth >= maxDepth.Value)
+                    continue;
+
+                // check if data has too little data to worry about splitting further
+                if (minDataPerNode.HasValue && node.Data.Count < minDataPerNode.Value)
+                    continue;
+
+                // bag the features if configured
+                if (featureBagCount.HasValue)
+                    attributes = attributes.Bag(featureBagCount.Value);
 
                 var nodeEntropy = node.Entropy;
                 double nodeTotal = node.Data.Count;
                 var scoreTable = new Dictionary<Tuple<Attribute, List<Node>>, double>();
                 foreach (var item in attributes) {
                     var newChildren = item.Partition(node.Data).Select(d => new Node(tableInfo, d.Value, d.Key)).ToList();
-                    scoreTable.Add(Tuple.Create(item, newChildren), _GetInformationGain(nodeEntropy, nodeTotal, newChildren));
+                    var informationGain = _GetInformationGain(nodeEntropy, nodeTotal, newChildren);
+                    if (minInformationGain.HasValue && informationGain < minInformationGain.Value)
+                        continue;
+                    scoreTable.Add(Tuple.Create(item, newChildren), informationGain);
                 }
-                var bestSplit = scoreTable.OrderByDescending(kv => kv.Value).Select(kv => kv.Key).First();
-                foreach (var child in node.SetAttribute(bestSplit.Item1, bestSplit.Item2))
-                    stack.Push(child);
+                var bestSplit = scoreTable.OrderByDescending(kv => kv.Value).Select(kv => kv.Key).FirstOrDefault();
+                if (bestSplit != null) {
+                    foreach (var child in node.SetAttribute(bestSplit.Item1, bestSplit.Item2))
+                        stack.Push(child);
+                }
             }
 
             return new DecisionTree {

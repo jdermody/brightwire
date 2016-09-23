@@ -17,6 +17,15 @@ namespace BrightWire
             return seq.OrderBy(e => rnd.Next()).ToList();
         }
 
+        public static IReadOnlyList<T> Bag<T>(this IReadOnlyList<T> list, int count, int? randomSeed = null)
+        {
+            var rnd = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
+            return Enumerable.Range(0, count)
+                .Select(i => list[rnd.Next(0, list.Count)])
+                .ToList()
+            ;
+        }
+
         public static IErrorMetric Create(this ErrorMetricType type)
         {
             switch(type) {

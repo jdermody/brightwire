@@ -40,9 +40,9 @@ namespace BrightWire.TabularData
         }
 
         readonly List<Column> _column = new List<Column>();
+        IDataTableAnalysis _analysis = null;
         readonly long _dataOffset;
         readonly protected Stream _stream;
-        IDataTableAnalysis _analysis = null;
 
         public DataTable(Stream stream)
         {
@@ -122,7 +122,7 @@ namespace BrightWire.TabularData
             _Iterate(row => rowProcessor.Process(row));
         }
 
-        void _Iterate(Func<DataTableRow, bool> callback)
+        protected void _Iterate(Func<DataTableRow, bool> callback)
         {
             lock (_stream) {
                 _stream.Seek(_dataOffset, SeekOrigin.Begin);
@@ -149,28 +149,13 @@ namespace BrightWire.TabularData
         {
             get
             {
-                if(_analysis == null) {
+                if (_analysis == null) {
                     var analysis = new DataTableAnalysis(this);
                     Process(analysis);
                     _analysis = analysis;
                 }
                 return _analysis;
             }
-        }
-
-        public IReadOnlyList<IVector> GetNumericColumns(ILinearAlgebraProvider lap, IEnumerable<int> columns = null)
-        {
-            var columnTable = (columns ?? Enumerable.Range(0, ColumnCount)).ToDictionary(i => i, i => new float[RowCount]);
-
-            int index = 0;
-            _Iterate(row => {
-                foreach(var item in columnTable)
-                    item.Value[index] = row.GetField<float>(item.Key);
-                ++index;
-                return true;
-            });
-
-            return columnTable.OrderBy(kv => kv.Key).Select(kv => lap.Create(kv.Value)).ToList();
         }
     }
 }

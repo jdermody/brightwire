@@ -79,8 +79,8 @@ namespace BrightWire
         float StdDev(float? mean);
         void Normalise(NormalisationType type);
         IVector Softmax();
-        IVector FindDistances(IVector[] data, DistanceMetric distance);
-        IVector CosineDistance(IVector[] data, ref float[] dataNorm);
+        IVector FindDistances(IReadOnlyList<IVector> data, DistanceMetric distance);
+        IVector CosineDistance(IReadOnlyList<IVector> data, ref float[] dataNorm);
     }
 
     public interface IIndexableVector : IVector
@@ -658,6 +658,11 @@ namespace BrightWire
         IReadOnlyList<IRow> GetSlice(int offset, int count);
         IReadOnlyList<IRow> GetRows(IEnumerable<int> rowIndex);
         Tuple<IIndexableDataTable, IIndexableDataTable> Split(int? randomSeed = null, double trainPercentage = 0.8, bool shuffle = true, Stream output1 = null, Stream output2 = null);
+        IIndexableDataTable Normalise(NormalisationType normalisationType, Stream output = null);
+        IReadOnlyList<IVector> GetNumericRows(ILinearAlgebraProvider lap, IEnumerable<int> columns = null);
+        IReadOnlyList<IVector> GetNumericColumns(ILinearAlgebraProvider lap, IEnumerable<int> columns = null);
+        IReadOnlyList<string> GetDiscreteColumn(int columnIndex);
+        IIndexableDataTable Bag(int? count = null, Stream output = null, int? randomSeed = null);
     }
 
     public interface IRowProcessor

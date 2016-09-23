@@ -110,6 +110,7 @@
     <Compile Include="Helper\MiniBatch.cs" />
     <Compile Include="Helper\TrainingData\DataTableTrainingDataProvider.cs" />
     <Compile Include="Helper\TrainingData\SequenceToSequenceTrainingDataProvider.cs" />
+    <Compile Include="Models\MultinomialNaiveBayes.cs" />
     <Compile Include="Models\DecisionTree.cs" />
     <Compile Include="Models\ExecutionResults\FeedForwardOutput.cs" />
     <Compile Include="Models\ExecutionResults\RecurrentOutput.cs" />
@@ -161,9 +162,10 @@
     <Compile Include="Models\FeedForwardNetwork.cs" />
     <Compile Include="Models\FloatArray.cs" />
     <Compile Include="Models\HMM.cs" />
-    <Compile Include="Models\IndexedNaiveBayes.cs" />
+    <Compile Include="Models\BernoulliNaiveBayes.cs" />
     <Compile Include="Models\NaiveBayes.cs" />
     <Compile Include="Models\NetworkLayer.cs" />
+    <Compile Include="Models\RandomForest.cs" />
     <Compile Include="Models\RecurrentLayer.cs" />
     <Compile Include="Models\RecurrentNetwork.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -187,7 +189,10 @@
     <Compile Include="TrainingData\Artificial\Xor.cs" />
     <Compile Include="TrainingData\MNIST.cs" />
     <Compile Include="TreeBased\DecisionTreeClassifier.cs" />
+    <Compile Include="TreeBased\RandomForestClassifier.cs" />
     <Compile Include="TreeBased\Training\DecisionTreeTrainer.cs" />
+    <Compile Include="TreeBased\Training\RandomForestTrainer.cs" />
+    <Compile Include="Unsupervised\Clustering\Helper\ClusterData.cs" />
     <Compile Include="Unsupervised\Clustering\KMeans.cs" />
   </ItemGroup>
   <ItemGroup>
