@@ -321,24 +321,24 @@ namespace BrightWire.LinearAlgebra
             throw new NotImplementedException();
         }
 
-        public IVector FindDistances(IVector[] data, DistanceMetric distance)
+        public IVector FindDistances(IReadOnlyList<IVector> data, DistanceMetric distance)
         {
             var distanceFunc = _GetDistanceFunc(distance);
-            var ret = new float[data.Length];
+            var ret = new float[data.Count];
             Parallel.ForEach(data, (vec, ps, ind) => ret[ind] = distanceFunc(vec));
-            return new CpuVector(DenseVector.Create(data.Length, i => ret[i]));
+            return new CpuVector(DenseVector.Create(data.Count, i => ret[i]));
         }
 
-        public IVector CosineDistance(IVector[] data, ref float[] dataNorm)
+        public IVector CosineDistance(IReadOnlyList<IVector> data, ref float[] dataNorm)
         {
             var norm = DotProduct(this);
             if (dataNorm == null)
                 dataNorm = data.Select(d => d.DotProduct(d)).ToArray();
 
-            var ret = new float[data.Length];
-            for (var i = 0; i < data.Length; i++)
+            var ret = new float[data.Count];
+            for (var i = 0; i < data.Count; i++)
                 ret[i] = Convert.ToSingle(1d - DotProduct(data[i]) / Math.Sqrt(norm * dataNorm[i]));
-            return new CpuVector(DenseVector.Create(data.Length, i => ret[i]));
+            return new CpuVector(DenseVector.Create(data.Count, i => ret[i]));
         }
     }
 }

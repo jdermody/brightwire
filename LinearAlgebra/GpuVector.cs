@@ -388,49 +388,49 @@ namespace BrightWire.LinearAlgebra
             throw new NotImplementedException();
         }
 
-        public IVector FindDistances(IVector[] data, DistanceMetric distance)
+        public IVector FindDistances(IReadOnlyList<IVector> data, DistanceMetric distance)
         {
             if(distance == DistanceMetric.Cosine) {
                 var norm = DotProduct(this);
                 var dataNorm = data.Select(d => d.DotProduct(d)).ToList();
-                var ret = new float[data.Length];
-                for (var i = 0; i < data.Length; i++)
+                var ret = new float[data.Count];
+                for (var i = 0; i < data.Count; i++)
                     ret[i] = Convert.ToSingle(1d - DotProduct(data[i]) / Math.Sqrt(norm * dataNorm[i]));
-                return new GpuVector(_cuda, data.Length, i => ret[i]);
+                return new GpuVector(_cuda, data.Count, i => ret[i]);
             }
             else if (distance == DistanceMetric.Euclidean) {
                 var ptrArray = data.Cast<GpuVector>().Select(d => d._data.DevicePointer).ToArray();
                 var ret = _cuda.MultiEuclideanDistance(_data, ptrArray, _size);
-                using (var matrix = new GpuMatrix(_cuda, _size, data.Length, ret)) {
+                using (var matrix = new GpuMatrix(_cuda, _size, data.Count, ret)) {
                     using(var temp = matrix.ColumnSums())
                         return temp.Sqrt();
                 }
             }else if(distance == DistanceMetric.Manhattan) {
                 var ptrArray = data.Cast<GpuVector>().Select(d => d._data.DevicePointer).ToArray();
                 var ret = _cuda.MultiManhattanDistance(_data, ptrArray, _size);
-                using (var matrix = new GpuMatrix(_cuda, _size, data.Length, ret)) {
+                using (var matrix = new GpuMatrix(_cuda, _size, data.Count, ret)) {
                     return matrix.ColumnSums();
                 }
             }
             else {
                 var distanceFunc = _GetDistanceFunc(distance);
-                var ret = new float[data.Length];
-                for(var i = 0; i < data.Length; i++)
+                var ret = new float[data.Count];
+                for(var i = 0; i < data.Count; i++)
                     ret[i] = distanceFunc(data[i]);
-                return new GpuVector(_cuda, data.Length, i => ret[i]);
+                return new GpuVector(_cuda, data.Count, i => ret[i]);
             }
         }
 
-        public IVector CosineDistance(IVector[] data, ref float[] dataNorm)
+        public IVector CosineDistance(IReadOnlyList<IVector> data, ref float[] dataNorm)
         {
             var norm = DotProduct(this);
             if (dataNorm == null)
                 dataNorm = data.Select(d => d.DotProduct(d)).ToArray();
 
-            var ret = new float[data.Length];
-            for (var i = 0; i < data.Length; i++)
+            var ret = new float[data.Count];
+            for (var i = 0; i < data.Count; i++)
                 ret[i] = Convert.ToSingle(1d - DotProduct(data[i]) / Math.Sqrt(norm * dataNorm[i]));
-            return new GpuVector(_cuda, data.Length, i => ret[i]);
+            return new GpuVector(_cuda, data.Count, i => ret[i]);
         }
     }
 }
