@@ -106,10 +106,15 @@
     <Compile Include="Connectionist\Execution\Layer\SimpleRecurrent.cs" />
     <Compile Include="Connectionist\Execution\Layer\StandardFeedForward.cs" />
     <Compile Include="Connectionist\Execution\RecurrentExecution.cs" />
+    <Compile Include="DimensionalityReduction\SparseRandomProjection.cs" />
     <Compile Include="ErrorMetrics\Quadratic.cs" />
     <Compile Include="Helper\MiniBatch.cs" />
     <Compile Include="Helper\TrainingData\DataTableTrainingDataProvider.cs" />
     <Compile Include="Helper\TrainingData\SequenceToSequenceTrainingDataProvider.cs" />
+    <Compile Include="Linear\LogisticRegression.cs" />
+    <Compile Include="Linear\Regression.cs" />
+    <Compile Include="Linear\RegressionPredictor.cs" />
+    <Compile Include="Linear\Training\RegressionTrainer.cs" />
     <Compile Include="Models\MultinomialNaiveBayes.cs" />
     <Compile Include="Models\DecisionTree.cs" />
     <Compile Include="Models\ExecutionResults\FeedForwardOutput.cs" />
@@ -194,6 +199,7 @@
     <Compile Include="TreeBased\Training\RandomForestTrainer.cs" />
     <Compile Include="Unsupervised\Clustering\Helper\ClusterData.cs" />
     <Compile Include="Unsupervised\Clustering\KMeans.cs" />
+    <Compile Include="Unsupervised\Clustering\NonNegativeMatrixFactorisation.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="LICENSE" />

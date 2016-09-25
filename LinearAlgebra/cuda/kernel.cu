@@ -182,6 +182,14 @@ extern "C"
 		}
 	}
 
+	__global__ void SigmoidVector(float* a, float* b, int size)
+	{
+		int i = blockDim.x * blockIdx.x + threadIdx.x;
+		if (i < size) {
+            b[i] = 1.0f / (1.0f + exp(-1.0f * a[i]));
+		}
+	}
+
 	__global__ void SigmoidDerivative(float* a, float* b, int rows, int columns)
 	{
 		int i = blockDim.x * blockIdx.x + threadIdx.x;
@@ -552,6 +560,15 @@ extern "C"
 		}
 	}
 
+	__global__ void Log(float* a, float* b, int count)
+	{
+		int i = blockDim.x * blockIdx.x + threadIdx.x;
+
+		if (i < count) {
+			b[i] = log(a[i]);
+		}
+	}
+
 	__global__ void Normalise(float* a, int count, float min, float range)
 	{
 		int i = blockDim.x * blockIdx.x + threadIdx.x;
@@ -567,6 +584,15 @@ extern "C"
 
 		if (i < count) {
 			b[i] = exp(a[i] - max);
+		}
+	}
+
+	__global__ void VectorAdd(float* a, int size, float scalar)
+	{
+		int i = blockDim.x * blockIdx.x + threadIdx.x;
+
+		if (i < size) {
+			a[i] += scalar;
 		}
 	}
 }

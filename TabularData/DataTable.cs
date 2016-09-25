@@ -122,6 +122,12 @@ namespace BrightWire.TabularData
             _Iterate(row => rowProcessor.Process(row));
         }
 
+        public void Process(Func<IRow, int, bool> processor)
+        {
+            int index = 0;
+            _Iterate(row => processor(row, index++));
+        }
+
         protected void _Iterate(Func<DataTableRow, bool> callback)
         {
             lock (_stream) {

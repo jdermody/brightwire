@@ -193,6 +193,16 @@ namespace BrightWire.LinearAlgebra
             return new GpuVector(_cuda, _size, _cuda.Abs(_data, _size));
         }
 
+        public IVector Log()
+        {
+            return new GpuVector(_cuda, _size, _cuda.Log(_data, _size));
+        }
+
+        public IVector Sigmoid()
+        {
+            return new GpuVector(_cuda, _size, _cuda.Sigmoid(_data, _size));
+        }
+
         public float L1Norm()
         {
             Debug.Assert(IsValid);
@@ -431,6 +441,12 @@ namespace BrightWire.LinearAlgebra
             for (var i = 0; i < data.Count; i++)
                 ret[i] = Convert.ToSingle(1d - DotProduct(data[i]) / Math.Sqrt(norm * dataNorm[i]));
             return new GpuVector(_cuda, data.Count, i => ret[i]);
+        }
+
+        public void Add(float scalar)
+        {
+            Debug.Assert(IsValid);
+            _cuda.VectorAdd(_data, _size, scalar);
         }
     }
 }

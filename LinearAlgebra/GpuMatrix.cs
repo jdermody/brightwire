@@ -660,5 +660,17 @@ namespace BrightWire.LinearAlgebra
                 _data.CopyToDevice(buffer);
             }
         }
+
+        public IMatrix Inverse()
+        {
+            // TODO: use cublas or cusolver to find matrix inverse
+            throw new NotImplementedException();
+        }
+
+        public IMatrix Multiply(IVector vector)
+        {
+            using (var column = vector.ToColumnMatrix())
+                return Multiply(column);
+        }
     }
 }

@@ -340,5 +340,20 @@ namespace BrightWire.LinearAlgebra
                 ret[i] = Convert.ToSingle(1d - DotProduct(data[i]) / Math.Sqrt(norm * dataNorm[i]));
             return new CpuVector(DenseVector.Create(data.Count, i => ret[i]));
         }
+
+        public IVector Log()
+        {
+            return new CpuVector(_vector.PointwiseLog());
+        }
+
+        public IVector Sigmoid()
+        {
+            return new CpuVector(_vector.Map(CpuMatrix._Sigmoid));
+        }
+
+        public void Add(float scalar)
+        {
+            _vector.MapInplace(v => v + scalar);
+        }
     }
 }

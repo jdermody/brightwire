@@ -147,7 +147,10 @@ namespace BrightWire.LinearAlgebra
             _normalise,
             _softmaxVector,
             _multiEuclidean,
-            _multiManhattan
+            _multiManhattan,
+            _log,
+            _sigmoidVector,
+            _vectorAdd
         ;
         bool _disposed = false;
 
@@ -198,6 +201,9 @@ namespace BrightWire.LinearAlgebra
             _softmaxVector = _kernel.LoadFunction("SoftmaxVector");
             _multiEuclidean = _kernel.LoadFunction("MultiEuclideanDistance");
             _multiManhattan = _kernel.LoadFunction("MultiManhattanDistance");
+            _log = _kernel.LoadFunction("Log");
+            _sigmoidVector = _kernel.LoadFunction("SigmoidVector");
+            _vectorAdd = _kernel.LoadFunction("VectorAdd");
         }
 
         protected virtual void Dispose(bool disposing)
@@ -293,6 +299,13 @@ namespace BrightWire.LinearAlgebra
             return ret;
         }
 
+        internal CudaDeviceVariable<float> Sigmoid(CudaDeviceVariable<float> a, int size)
+        {
+            var ret = new CudaDeviceVariable<float>(size);
+            _Use(_sigmoidVector, size, k => k.Run(0, a.DevicePointer, ret.DevicePointer, size));
+            return ret;
+        }
+
         internal CudaDeviceVariable<float> SigmoidDerivative(CudaDeviceVariable<float> a, int rows, int columns)
         {
             var ret = new CudaDeviceVariable<float>(rows * columns);
@@ -366,6 +379,18 @@ namespace BrightWire.LinearAlgebra
             var ret = new CudaDeviceVariable<float>(size);
             _Use(_abs, size, k => k.Run(0, a.DevicePointer, ret.DevicePointer, size));
             return ret;
+        }
+
+        internal CudaDeviceVariable<float> Log(CudaDeviceVariable<float> a, int size)
+        {
+            var ret = new CudaDeviceVariable<float>(size);
+            _Use(_log, size, k => k.Run(0, a.DevicePointer, ret.DevicePointer, size));
+            return ret;
+        }
+
+        internal void VectorAdd(CudaDeviceVariable<float> a, int size, float scalar)
+        {
+            _Use(_vectorAdd, size, k => k.Run(0, a.DevicePointer, size, scalar));
         }
 
         internal Tuple<float, float> FindMinAndMax(CudaDeviceVariable<float> a, int size)
@@ -668,6 +693,11 @@ namespace BrightWire.LinearAlgebra
         public IMatrix Create(int rows, int columns, Func<int, int, float> init)
         {
             return new GpuMatrix(this, rows, columns, init);
+        }
+
+        public IMatrix CreateIdentity(int size)
+        {
+            return Create(size, size, (x, y) => x == y ? 1f : 0f);
         }
 
         public IIndexableVector CreateIndexable(int length)

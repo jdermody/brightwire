@@ -538,5 +538,16 @@ namespace BrightWire.LinearAlgebra
                 buffer[i] = _matrix[rowIndex + i, index];
             return new CpuVector(DenseVector.OfArray(buffer));
         }
+
+        public IMatrix Inverse()
+        {
+            return new CpuMatrix(_matrix.Inverse());
+        }
+
+        public IMatrix Multiply(IVector vector)
+        {
+            using (var column = vector.ToColumnMatrix())
+                return Multiply(column);
+        }
     }
 }

@@ -168,6 +168,15 @@ namespace BrightWire.TabularData
             }
         }
 
+        public void Process(Func<IRow, int, bool> processor)
+        {
+            int index = 0;
+            foreach (var item in _data) {
+                if (!processor(item, index++))
+                    break;
+            }
+        }
+
         public IIndexableDataTable Index(Stream output = null)
         {
             var writer = new DataTableWriter(Columns, output);

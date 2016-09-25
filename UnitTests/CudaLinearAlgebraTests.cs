@@ -1377,9 +1377,27 @@ namespace UnitTests
 
             IIndexableVector v2;
             using (var gpuA = _cuda.Create(a))
-                v2 = gpuA.Abs().AsIndexable();
+            using (var gpuB = gpuA.Abs())
+                v2 = gpuB.AsIndexable();
 
             FloatingPointHelper.AssertEqual(v1, v2);
+        }
+
+        [TestMethod]
+        public void VectorLog()
+        {
+            var np = new NumericsProvider();
+            var distribution = new Normal(0, 5);
+
+            var a = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var v1 = a.Log().AsIndexable();
+
+            IIndexableVector v2;
+            using (var gpuA = _cuda.Create(a))
+            using (var gpuB = gpuA.Log())
+                v2 = gpuA.Log().AsIndexable();
+
+            FloatingPointHelper.AssertEqual(v1, v2, 10);
         }
 
         [TestMethod]
@@ -1522,6 +1540,67 @@ namespace UnitTests
                 distance2 = temp.AsIndexable();
 
             FloatingPointHelper.AssertEqual(distance, distance2, 10);
+        }
+
+        [TestMethod]
+        public void TestIdentity()
+        {
+            var np = new NumericsProvider();
+            var a = np.CreateIdentity(1000).AsIndexable();
+
+            IIndexableMatrix a2;
+            using (var gpuA = _cuda.CreateIdentity(1000))
+                a2 = gpuA.AsIndexable();
+            FloatingPointHelper.AssertEqual(a, a2);
+        }
+
+        [TestMethod]
+        public void VectorAddScalar()
+        {
+            var np = new NumericsProvider();
+            var a = np.Create(1000, i => i).AsIndexable();
+
+            IIndexableVector gpuResults;
+            using (var gpuA = _cuda.Create(a)) {
+                gpuA.Add(0.5f);
+                gpuResults = gpuA.AsIndexable();
+            }
+
+            a.Add(0.5f);
+            FloatingPointHelper.AssertEqual(a, gpuResults);
+        }
+
+        [TestMethod]
+        public void VectorSigmoid()
+        {
+            var np = new NumericsProvider();
+            var a = np.Create(1000, i => i).AsIndexable();
+            var results = a.Sigmoid().AsIndexable();
+
+            IIndexableVector gpuResults;
+            using (var gpuA = _cuda.Create(a))
+            using (var gpuB = gpuA.Sigmoid()) {
+                gpuResults = gpuB.AsIndexable();
+            }
+
+            FloatingPointHelper.AssertEqual(results, gpuResults);
+        }
+
+        [TestMethod]
+        public void MatrixVectorMultiply()
+        {
+            var np = new NumericsProvider();
+            var a = np.Create(256, 256, (x, y) => x*y).AsIndexable();
+            var b = np.Create(256, i => i * 0.5f).AsIndexable();
+            var c = a.Multiply(b).AsIndexable();
+
+            IIndexableMatrix gpuResults;
+            using (var gpuA = _cuda.Create(a))
+            using (var gpuB = _cuda.Create(b))
+            using (var gpuC = gpuA.Multiply(gpuB)) {
+                gpuResults = gpuC.AsIndexable();
+            }
+            FloatingPointHelper.AssertEqual(c, gpuResults);
         }
     }
 }

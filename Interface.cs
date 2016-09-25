@@ -31,6 +31,8 @@ namespace BrightWire
         IIndexableMatrix CreateIndexable(int rows, int columns, Func<int, int, float> init);
         IIndexableMatrix CreateIndexable(int rows, int columns, float value);
 
+        IMatrix CreateIdentity(int size);
+
         INeuralNetworkFactory NN { get; }
 
         void PushLayer();
@@ -59,6 +61,7 @@ namespace BrightWire
         int MaximumIndex();
         int MinimumIndex();
         void Multiply(float scalar);
+        void Add(float scalar);
         void AddInPlace(IVector vector, float coefficient1 = 1.0f, float coefficient2 = 1.0f);
         void SubtractInPlace(IVector vector, float coefficient1 = 1.0f, float coefficient2 = 1.0f);
         IIndexableVector AsIndexable();
@@ -81,6 +84,8 @@ namespace BrightWire
         IVector Softmax();
         IVector FindDistances(IReadOnlyList<IVector> data, DistanceMetric distance);
         IVector CosineDistance(IReadOnlyList<IVector> data, ref float[] dataNorm);
+        IVector Log();
+        IVector Sigmoid();
     }
 
     public interface IIndexableVector : IVector
@@ -116,6 +121,7 @@ namespace BrightWire
         //object WrappedObject { get; }
         IMatrix Transpose();
         void Multiply(float scalar);
+        IMatrix Multiply(IVector vector);
         void AddInPlace(IMatrix matrix, float coefficient1 = 1.0f, float coefficient2 = 1.0f);
         void SubtractInPlace(IMatrix matrix, float coefficient1 = 1.0f, float coefficient2 = 1.0f);
         IMatrix SigmoidActivation();
@@ -155,6 +161,7 @@ namespace BrightWire
         IMatrix ConcatRows(IMatrix right);
         Tuple<IMatrix, IMatrix> SplitRows(int position);
         Tuple<IMatrix, IMatrix> SplitColumns(int position);
+        IMatrix Inverse();
     }
 
     public interface IIndexableMatrix : IMatrix
@@ -651,6 +658,7 @@ namespace BrightWire
         void Process(IRowProcessor rowProcessor);
         IIndexableDataTable Index(Stream output = null);
         IDataTableAnalysis Analysis { get; }
+        void Process(Func<IRow, int, bool> processor);
     }
 
     public interface IIndexableDataTable : IDataTable
@@ -661,8 +669,10 @@ namespace BrightWire
         IIndexableDataTable Normalise(NormalisationType normalisationType, Stream output = null);
         IReadOnlyList<IVector> GetNumericRows(ILinearAlgebraProvider lap, IEnumerable<int> columns = null);
         IReadOnlyList<IVector> GetNumericColumns(ILinearAlgebraProvider lap, IEnumerable<int> columns = null);
-        IReadOnlyList<string> GetDiscreteColumn(int columnIndex);
+        string[] GetDiscreteColumn(int columnIndex);
+        float[] GetNumericColumn(int columnIndex);
         IIndexableDataTable Bag(int? count = null, Stream output = null, int? randomSeed = null);
+        IReadOnlyList<float[]> GetNumericRows(IEnumerable<int> columns = null);
     }
 
     public interface IRowProcessor

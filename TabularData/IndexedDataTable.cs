@@ -145,13 +145,26 @@ namespace BrightWire.TabularData
             }
         }
 
-        public IReadOnlyList<string> GetDiscreteColumn(int columnIndex)
+        public string[] GetDiscreteColumn(int columnIndex)
         {
             var ret = new string[RowCount];
 
             int index = 0;
             _Iterate(row => {
                 ret[index++] = row.GetField<string>(columnIndex);
+                return true;
+            });
+
+            return ret;
+        }
+
+        public float[] GetNumericColumn(int columnIndex)
+        {
+            var ret = new float[RowCount];
+
+            int index = 0;
+            _Iterate(row => {
+                ret[index++] = row.GetField<float>(columnIndex);
                 return true;
             });
 
@@ -171,6 +184,21 @@ namespace BrightWire.TabularData
             });
 
             return columnTable.OrderBy(kv => kv.Key).Select(kv => lap.Create(kv.Value)).ToList();
+        }
+
+        public IReadOnlyList<float[]> GetNumericRows(IEnumerable<int> columns = null)
+        {
+            var columnTable = (columns ?? Enumerable.Range(0, ColumnCount)).ToDictionary(i => i, i => new float[RowCount]);
+
+            int index = 0;
+            _Iterate(row => {
+                foreach (var item in columnTable)
+                    item.Value[index] = row.GetField<float>(item.Key);
+                ++index;
+                return true;
+            });
+
+            return columnTable.OrderBy(kv => kv.Key).Select(kv => kv.Value).ToList();
         }
 
         public IReadOnlyList<IVector> GetNumericRows(ILinearAlgebraProvider lap, IEnumerable<int> columns = null)
