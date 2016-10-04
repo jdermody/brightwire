@@ -21,9 +21,9 @@ namespace BrightWire.Connectionist.Activation
             return data.LeakyReluActivation();
         }
 
-        public IMatrix Derivative(IMatrix data)
+        public IMatrix Derivative(IMatrix layerOutput, IMatrix errorSignal)
         {
-            return data.LeakyReluDerivative();
+            return layerOutput.LeakyReluDerivative();
         }
     }
 }

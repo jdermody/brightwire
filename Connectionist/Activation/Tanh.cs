@@ -21,9 +21,9 @@ namespace BrightWire.Connectionist.Activation
             return data.TanhActivation();
         }
 
-        public IMatrix Derivative(IMatrix data)
+        public IMatrix Derivative(IMatrix layerOutput, IMatrix errorSignal)
         {
-            return data.TanhDerivative();
+            return layerOutput.TanhDerivative();
         }
     }
 }

@@ -256,12 +256,8 @@ namespace BrightWire.LinearAlgebra
 
         public IMatrix SoftmaxActivation()
         {
-            throw new NotImplementedException();
-        }
-
-        public IMatrix SoftmaxDerivative()
-        {
-            throw new NotImplementedException();
+            var activation = Rows.Select(r => r.Softmax().AsIndexable()).ToList();
+            return new CpuMatrix(DenseMatrix.Create(RowCount, ColumnCount, (x, y) => activation[x][y]));
         }
 
         public void AddToEachRow(IVector vector)
@@ -344,24 +340,24 @@ namespace BrightWire.LinearAlgebra
             }
         }
 
-        public IMatrix GetNewMatrixFromRows(int[] rowIndexes)
+        public IMatrix GetNewMatrixFromRows(IReadOnlyList<int> rowIndexes)
         {
-            return new CpuMatrix(DenseMatrix.Create(rowIndexes.Length, ColumnCount, (x, y) => _matrix[rowIndexes[x], y]));
+            return new CpuMatrix(DenseMatrix.Create(rowIndexes.Count, ColumnCount, (x, y) => _matrix[rowIndexes[x], y]));
         }
 
-        public IMatrix GetNewMatrixFromColumns(int[] columnIndexes)
+        public IMatrix GetNewMatrixFromColumns(IReadOnlyList<int> columnIndexes)
         {
-            return new CpuMatrix(DenseMatrix.Create(RowCount, columnIndexes.Length, (x, y) => _matrix[x, columnIndexes[y]]));
+            return new CpuMatrix(DenseMatrix.Create(RowCount, columnIndexes.Count, (x, y) => _matrix[x, columnIndexes[y]]));
         }
 
-        public void ClearRows(int[] indexes)
+        public void ClearRows(IReadOnlyList<int> indexes)
         {
-            _matrix.ClearRows(indexes);
+            _matrix.ClearRows(indexes.ToArray());
         }
 
-        public void ClearColumns(int[] indexes)
+        public void ClearColumns(IReadOnlyList<int> indexes)
         {
-            _matrix.ClearColumns(indexes);
+            _matrix.ClearColumns(indexes.ToArray());
         }
 
         public IMatrix Clone()

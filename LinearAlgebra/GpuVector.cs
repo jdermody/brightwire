@@ -182,7 +182,7 @@ namespace BrightWire.LinearAlgebra
             return _cuda.Blas.Dot(_data, 1, other._data, 1);
         }
 
-        public IVector GetNewVectorFromIndexes(int[] indices)
+        public IVector GetNewVectorFromIndexes(IReadOnlyList<int> indices)
         {
             // defer to CPU version
             return AsIndexable().GetNewVectorFromIndexes(indices);

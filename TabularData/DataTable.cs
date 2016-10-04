@@ -43,6 +43,7 @@ namespace BrightWire.TabularData
         IDataTableAnalysis _analysis = null;
         readonly long _dataOffset;
         readonly protected Stream _stream;
+        private readonly object _mutex = new object();
 
         public DataTable(Stream stream)
         {
@@ -130,7 +131,7 @@ namespace BrightWire.TabularData
 
         protected void _Iterate(Func<DataTableRow, bool> callback)
         {
-            lock (_stream) {
+            lock (_mutex) {
                 _stream.Seek(_dataOffset, SeekOrigin.Begin);
                 var reader = new BinaryReader(_stream, Encoding.UTF8, true);
                 while (_stream.Position < _stream.Length) {

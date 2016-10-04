@@ -28,5 +28,10 @@ namespace BrightWire.ErrorMetrics
         {
             return output.MaximumIndex() == expectedOutput.MaximumIndex() ? 1f : 0f;
         }
+
+        public IMatrix CalculateDelta(IMatrix input, IMatrix expectedOutput)
+        {
+            return expectedOutput.Subtract(input);
+        }
     }
 }

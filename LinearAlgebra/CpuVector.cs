@@ -179,9 +179,9 @@ namespace BrightWire.LinearAlgebra
             }
         }
 
-        public IVector GetNewVectorFromIndexes(int[] indexes)
+        public IVector GetNewVectorFromIndexes(IReadOnlyList<int> indexes)
         {
-            return new CpuVector(DenseVector.Create(indexes.Length, i => this[indexes[i]]));
+            return new CpuVector(DenseVector.Create(indexes.Count, i => this[indexes[i]]));
         }
 
         public IVector Abs()

@@ -25,12 +25,12 @@ namespace BrightWire.Connectionist.Training.Manager
 
         protected double _GetScore(ISequentialTrainingDataProvider data, INeuralNetworkRecurrentBatchTrainer network, float[] memory, IRecurrentTrainingContext context)
         {
-            return network.Execute(data, memory, context).SelectMany(d => d).Select(d => context.TrainingContext.ErrorMetric.Compute(d.Output, d.Target)).Average();
+            return network.Execute(data, memory, context).SelectMany(d => d).Select(d => context.TrainingContext.ErrorMetric.Compute(d.Output, d.ExpectedOutput)).Average();
         }
 
         protected double _GetScore(ISequentialTrainingDataProvider data, INeuralNetworkBidirectionalBatchTrainer network, float[] forwardMemory, float[] backwardMemory, IRecurrentTrainingContext context)
         {
-            return network.Execute(data, forwardMemory, backwardMemory, context).SelectMany(d => d).Select(d => context.TrainingContext.ErrorMetric.Compute(d.Output, d.Target)).Average();
+            return network.Execute(data, forwardMemory, backwardMemory, context).SelectMany(d => d).Select(d => context.TrainingContext.ErrorMetric.Compute(d.Output, d.ExpectedOutput)).Average();
         }
 
         protected bool _CalculateTestScore(ITrainingContext context, float[] memory, ISequentialTrainingDataProvider data, INeuralNetworkRecurrentBatchTrainer network, IRecurrentTrainingContext recurrentContext, ref double bestScore, ref RecurrentNetwork output)

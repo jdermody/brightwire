@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 
 namespace BrightWire.DimensionalityReduction
 {
-    public class SparseRandomProjection : IDisposable
+    public class RandomProjection : IDisposable
     {
         readonly IMatrix _matrix;
         readonly ILinearAlgebraProvider _lap;
         readonly int _fixedSize, _reducedSize;
 
-        public SparseRandomProjection(ILinearAlgebraProvider lap, int fixedSize, int reducedSize, int s = 3)
+        public RandomProjection(ILinearAlgebraProvider lap, int fixedSize, int reducedSize, int s = 3)
         {
             _lap = lap;
             _fixedSize = fixedSize;

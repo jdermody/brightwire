@@ -21,9 +21,9 @@ namespace BrightWire.Connectionist.Activation
             return data.ReluActivation();
         }
 
-        public IMatrix Derivative(IMatrix data)
+        public IMatrix Derivative(IMatrix layerOutput, IMatrix errorSignal)
         {
-            return data.ReluDerivative();
+            return layerOutput.ReluDerivative();
         }
     }
 }

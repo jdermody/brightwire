@@ -53,8 +53,10 @@ namespace BrightWire.LinearAlgebra
             return new CpuMatrix(DenseMatrix.Create(rows, columns, value));
         }
 
-        public IMatrix Create(int rows, int columns, IList<IIndexableVector> vectorData)
+        public IMatrix Create(IList<IIndexableVector> vectorData)
         {
+            int columns = vectorData.Count;
+            int rows = vectorData[0].Count;
             return Create(rows, columns, (x, y) => vectorData[y][x]);
         }
 

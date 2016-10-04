@@ -92,7 +92,7 @@ namespace BrightWire.Connectionist.Training.Batch
 
                     // calculate the error against the training examples
                     using (var expectedOutput = miniBatch.ExpectedOutput) {
-                        garbage.Add(curr = expectedOutput.Subtract(curr));
+                        garbage.Add(curr = context.ErrorMetric.CalculateDelta(curr, expectedOutput));
 
                         // calculate the training error for this mini batch
                         if(_calculateTrainingError)

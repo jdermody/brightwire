@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BrightWire.Models;
 using System.Xml;
+using BrightWire.Models.ExecutionResults;
 
 namespace BrightWire.Connectionist.Training.Batch
 {
@@ -60,25 +61,25 @@ namespace BrightWire.Connectionist.Training.Batch
         {
             return Execute(data, forwardMemory, backwardMemory, context)
                 .SelectMany(r => r)
-                .Select(r => context.TrainingContext.ErrorMetric.Compute(r.Output, r.Target))
+                .Select(r => context.TrainingContext.ErrorMetric.Compute(r.Output, r.ExpectedOutput))
                 .Average()
             ;
         }
 
-        public IReadOnlyList<RecurrentExecutionResults[]> Execute(ISequentialTrainingDataProvider trainingData, float[] forwardMemory, float[] backwardMemory, IRecurrentTrainingContext context)
+        public IReadOnlyList<IRecurrentExecutionResults[]> Execute(ISequentialTrainingDataProvider trainingData, float[] forwardMemory, float[] backwardMemory, IRecurrentTrainingContext context)
         {
-            List<RecurrentExecutionResults> temp;
-            var sequenceOutput = new Dictionary<int, List<RecurrentExecutionResults>>();
+            List<IRecurrentExecutionResults> temp;
+            var sequenceOutput = new Dictionary<int, List<IRecurrentExecutionResults>>();
             var batchSize = context.TrainingContext.MiniBatchSize;
 
             foreach (var miniBatch in _GetMiniBatches(trainingData, false, batchSize)) {
                 _lap.PushLayer();
                 var sequenceLength = miniBatch.SequenceLength;
-                context.ExecuteBidirectional(context.TrainingContext, miniBatch, _layer, forwardMemory, backwardMemory, _padding, null, (memoryOutput, output) => {
+                context.ExecuteBidirectional(miniBatch, _layer, forwardMemory, backwardMemory, _padding, null, (memoryOutput, output) => {
                     // store the output
                     for (var k = 0; k < sequenceLength; k++) {
                         if (!sequenceOutput.TryGetValue(k, out temp))
-                            sequenceOutput.Add(k, temp = new List<RecurrentExecutionResults>());
+                            sequenceOutput.Add(k, temp = new List<IRecurrentExecutionResults>());
                         var ret = output[k].AsIndexable().Rows.Zip(miniBatch.GetExpectedOutput(output, k).AsIndexable().Rows, (a, e) => Tuple.Create(a, e));
                         temp.AddRange(ret.Zip(memoryOutput[k], (t, d) => new RecurrentExecutionResults(t.Item1, t.Item2, d)));
                     }
@@ -104,7 +105,7 @@ namespace BrightWire.Connectionist.Training.Batch
                     _lap.PushLayer();
                     var sequenceLength = miniBatch.SequenceLength;
                     var updateStack = new Stack<Tuple<Stack<Tuple<INeuralNetworkRecurrentBackpropagation, INeuralNetworkRecurrentBackpropagation>>, IMatrix, IMatrix, ISequentialMiniBatch, int>>();
-                    context.ExecuteBidirectional(context.TrainingContext, miniBatch, _layer, forwardMemory, backwardMemory, _padding, updateStack, null);
+                    context.ExecuteBidirectional(miniBatch, _layer, forwardMemory, backwardMemory, _padding, updateStack, null);
 
                     // backpropagate, accumulating errors across the sequence
                     using (var updateAccumulator = new UpdateAccumulator(trainingContext)) {
@@ -116,7 +117,7 @@ namespace BrightWire.Connectionist.Training.Batch
                             // calculate error
                             var expectedOutput = update.Item2;
                             var curr = new List<IMatrix>();
-                            curr.Add(expectedOutput.Subtract(update.Item3));
+                            curr.Add(trainingContext.ErrorMetric.CalculateDelta(update.Item3, expectedOutput));
 
                             // get a measure of the training error
                             if (_collectTrainingError) {

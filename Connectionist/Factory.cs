@@ -36,6 +36,7 @@ namespace BrightWire.Connectionist
             _activation.Add(ActivationType.LeakyRelu, new LeakyRelu());
             _activation.Add(ActivationType.Sigmoid, new Sigmoid());
             _activation.Add(ActivationType.Tanh, new Tanh());
+            //_activation.Add(ActivationType.Softmax, new Softmax());
             _activation.Add(ActivationType.None, null);
 
             _weightInitialisation.Add(WeightInitialisationType.Gaussian, new Gaussian(stochastic));

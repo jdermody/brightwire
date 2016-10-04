@@ -27,11 +27,6 @@ namespace BrightWire.Connectionist.Training
             _layer.Update(biasDelta, weightDelta, weightCoefficient, context.TrainingRate / context.MiniBatchSize);
         }
 
-        public void Reset()
-        {
-            // nop 
-        }
-
         protected virtual void Dispose(bool disposing)
         {
             if (disposing)
@@ -142,10 +137,6 @@ namespace BrightWire.Connectionist.Training
         }
 
         public abstract void Update(IMatrix biasDelta, IMatrix weightDelta, ITrainingContext context);
-
-        public virtual void Reset()
-        {
-        }
     }
 
     internal class MomentumUpdater : PerWeightUpdateBase
@@ -240,11 +231,6 @@ namespace BrightWire.Connectionist.Training
                 _cache2.Dispose();
             }
             base.Dispose(disposing);
-        }
-
-        public override void Reset()
-        {
-            base.Reset();
         }
 
         public override void Update(IMatrix biasDelta, IMatrix weightDelta, ITrainingContext context)

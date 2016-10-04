@@ -30,5 +30,10 @@ namespace BrightWire.ErrorMetrics
             using (var diff = output.Subtract(expectedOutput))
                 return 0.5f * BoundMath.Pow(diff.L2Norm(), 2);
         }
+
+        public IMatrix CalculateDelta(IMatrix input, IMatrix expectedOutput)
+        {
+            return expectedOutput.Subtract(input);
+        }
     }
 }

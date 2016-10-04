@@ -61,8 +61,8 @@ namespace BrightWire.Connectionist.Training.Layer.Recurrent
             {
                 const float NEG_MAX = -1f, POS_MAX = 1f;
 
-                using (var cd = _activation.Derivative(_c))
-                using (var ad = _activation.Derivative(_a)) {
+                using (var cd = _activation.Derivative(_c, null))
+                using (var ad = _activation.Derivative(_a, null)) {
 
                     using (var i2 = _ones.Subtract(_i))
                     using (var f2 = _ones.Subtract(_f))

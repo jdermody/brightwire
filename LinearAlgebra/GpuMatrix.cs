@@ -174,7 +174,7 @@ namespace BrightWire.LinearAlgebra
             _data.Memset(0);
         }
 
-        public void ClearColumns(int[] indices)
+        public void ClearColumns(IReadOnlyList<int> indices)
         {
             Debug.Assert(IsValid);
             int offset = 0;
@@ -184,7 +184,7 @@ namespace BrightWire.LinearAlgebra
             }
         }
 
-        public void ClearRows(int[] indices)
+        public void ClearRows(IReadOnlyList<int> indices)
         {
             Debug.Assert(IsValid);
             int offset = 0;
@@ -270,23 +270,23 @@ namespace BrightWire.LinearAlgebra
             return AsIndexable().GetColumnSegment(index, rowIndex, length);
         }
 
-        public IMatrix GetNewMatrixFromColumns(int[] columnIndices)
+        public IMatrix GetNewMatrixFromColumns(IReadOnlyList<int> columnIndices)
         {
             Debug.Assert(IsValid);
             int offset = 0;
-            var ret = new CudaDeviceVariable<float>(_rows * columnIndices.Length);
+            var ret = new CudaDeviceVariable<float>(_rows * columnIndices.Count);
             foreach (var item in columnIndices) {
                 ret.CopyToDevice(_data, item * _rows * sizeof(float), offset * sizeof(float), _rows * sizeof(float));
                 offset += _rows;
             }
-            return new GpuMatrix(_cuda, _rows, columnIndices.Length, ret);
+            return new GpuMatrix(_cuda, _rows, columnIndices.Count, ret);
         }
 
-        public IMatrix GetNewMatrixFromRows(int[] rowIndices)
+        public IMatrix GetNewMatrixFromRows(IReadOnlyList<int> rowIndices)
         {
             Debug.Assert(IsValid);
             int offset = 0;
-            var ret = new CudaDeviceVariable<float>(rowIndices.Length * _columns);
+            var ret = new CudaDeviceVariable<float>(rowIndices.Count * _columns);
             foreach (var item in rowIndices) {
                 CudaBlasNativeMethods.cublasScopy_v2(_cuda.Blas.CublasHandle,
                     n: _columns,
@@ -297,7 +297,7 @@ namespace BrightWire.LinearAlgebra
                 );
                 offset += 1;
             }
-            return new GpuMatrix(_cuda, rowIndices.Length, _columns, ret);
+            return new GpuMatrix(_cuda, rowIndices.Count, _columns, ret);
         }
 
         public IVector GetRowSegment(int index, int columnIndex, int length)
@@ -453,11 +453,6 @@ namespace BrightWire.LinearAlgebra
         }
 
         public IMatrix SoftmaxActivation()
-        {
-            throw new NotImplementedException();
-        }
-
-        public IMatrix SoftmaxDerivative()
         {
             throw new NotImplementedException();
         }

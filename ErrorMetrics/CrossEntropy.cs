@@ -36,5 +36,10 @@ namespace BrightWire.ErrorMetrics
             }
             return ret / len;
         }
+
+        public IMatrix CalculateDelta(IMatrix input, IMatrix expectedOutput)
+        {
+            return expectedOutput.Subtract(input);
+        }
     }
 }

@@ -37,14 +37,18 @@ namespace BrightWire.Linear.Training
                 return ret.Column(0);
         }
 
-        public IVector GradientDescent(int iterations, float learningRate, float lambda = 0.1f)
+        public IVector GradientDescent(int iterations, float learningRate, float lambda = 0.1f, Func<float, bool> costCallback = null)
         {
             var regularisation = 1f - (learningRate * lambda) / _feature.RowCount;
             var theta = _lap.Create(_feature.ColumnCount, 0f);
 
             using (var regularisationVector = _lap.Create(theta.Count, i => i == 0 ? 1f : regularisation)) {
                 for (var i = 0; i < iterations; i++) {
-                    var cost = _ComputeCost(theta, lambda);
+                    if (costCallback != null) {
+                        var cost = ComputeCost(theta, lambda);
+                        if (!costCallback(cost))
+                            break;
+                    }
 
                     using (var p = _feature.Multiply(theta))
                     using (var pc = p.Column(0))
@@ -65,7 +69,7 @@ namespace BrightWire.Linear.Training
             return theta;
         }
 
-        float _ComputeCost(IVector theta, float lambda)
+        public float ComputeCost(IVector theta, float lambda)
         {
             var regularisationCost = theta.AsIndexable().Values.Skip(1).Sum(v => v * v * lambda);
 

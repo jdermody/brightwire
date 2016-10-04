@@ -58,8 +58,8 @@
       <HintPath>..\packages\ManagedCuda-75-x64.7.5.7\lib\net45\x64\ManagedCuda.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="MathNet.Numerics, Version=3.12.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MathNet.Numerics.3.12.0\lib\net40\MathNet.Numerics.dll</HintPath>
+    <Reference Include="MathNet.Numerics, Version=3.13.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\MathNet.Numerics.3.13.1\lib\net40\MathNet.Numerics.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="NPP, Version=7.5.7.0, Culture=neutral, processorArchitecture=AMD64">
@@ -86,8 +86,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Bayesian\BernoulliNaiveBayesClassifier.cs" />
-    <Compile Include="Bayesian\HiddenMarkovModel2.cs" />
-    <Compile Include="Bayesian\HiddenMarkovModel3.cs" />
+    <Compile Include="Bayesian\Training\HiddenMarkovModelTrainer2.cs" />
+    <Compile Include="Bayesian\Training\HiddenMarkovModelTrainer3.cs" />
     <Compile Include="Bayesian\MultinomialNaiveBayesClassifier.cs" />
     <Compile Include="Bayesian\NaiveBayesClassifier.cs" />
     <Compile Include="Bayesian\Training\BernoulliNaiveBayesTrainer.cs" />
@@ -106,15 +106,16 @@
     <Compile Include="Connectionist\Execution\Layer\SimpleRecurrent.cs" />
     <Compile Include="Connectionist\Execution\Layer\StandardFeedForward.cs" />
     <Compile Include="Connectionist\Execution\RecurrentExecution.cs" />
-    <Compile Include="DimensionalityReduction\SparseRandomProjection.cs" />
+    <Compile Include="DimensionalityReduction\RandomProjection.cs" />
     <Compile Include="ErrorMetrics\Quadratic.cs" />
     <Compile Include="Helper\MiniBatch.cs" />
     <Compile Include="Helper\TrainingData\DataTableTrainingDataProvider.cs" />
     <Compile Include="Helper\TrainingData\SequenceToSequenceTrainingDataProvider.cs" />
-    <Compile Include="Linear\LogisticRegression.cs" />
-    <Compile Include="Linear\Regression.cs" />
+    <Compile Include="Linear\LogisticRegressionPredictor.cs" />
     <Compile Include="Linear\RegressionPredictor.cs" />
+    <Compile Include="Linear\Training\LogisticRegressionTrainer.cs" />
     <Compile Include="Linear\Training\RegressionTrainer.cs" />
+    <Compile Include="Models\ExecutionResults\RecurrentExecutionResults.cs" />
     <Compile Include="Models\MultinomialNaiveBayes.cs" />
     <Compile Include="Models\DecisionTree.cs" />
     <Compile Include="Models\ExecutionResults\FeedForwardOutput.cs" />

@@ -81,7 +81,6 @@ namespace BrightWire.Connectionist.Training.Helper
         }
 
         public void ExecuteBidirectional(
-            ITrainingContext context,
             ISequentialMiniBatch miniBatch, 
             IReadOnlyList<INeuralNetworkBidirectionalLayer> layers, 
             float[] memoryForward,

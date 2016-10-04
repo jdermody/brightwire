@@ -21,9 +21,9 @@ namespace BrightWire.Connectionist.Activation
             return data.SigmoidActivation();
         }
 
-        public IMatrix Derivative(IMatrix data)
+        public IMatrix Derivative(IMatrix layerOutput, IMatrix errorSignal)
         {
-            return data.SigmoidDerivative();
+            return layerOutput.SigmoidDerivative();
         }
     }
 }

@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 
 namespace BrightWire.Bayesian
 {
-    public class HiddenMarkovModel3<T>
+    public class HiddenMarkovModelTrainer3<T>
     {
         readonly Dictionary<Tuple<T, T, T>, List<T>> _data = new Dictionary<Tuple<T, T, T>, List<T>>();
         readonly int _minObservations;
 
-        public HiddenMarkovModel3(int minObservations = 1)
+        public HiddenMarkovModelTrainer3(int minObservations = 1)
         {
             _minObservations = minObservations;
         }

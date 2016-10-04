@@ -63,7 +63,6 @@ namespace BrightWire.Connectionist.Training
         public IMatrix FeedForward(IMatrix input, bool storeForBackpropagation)
         {
             Debug.Assert(_layerInput == null && _layerOutput == null);
-            _layerUpdater.Reset();
 
             // store the input
             _layerInput = input;
@@ -92,7 +91,7 @@ namespace BrightWire.Connectionist.Training
             IMatrix ret = null;
 
             // calculate the derivative to determine the gradients
-            using (var od = _layerUpdater.Layer.Activation?.Derivative(output) ?? output) {
+            using (var od = _layerUpdater.Layer.Activation?.Derivative(output, errorSignal) ?? output) {
                 if (_verifyDerivatives) {
                     var dError = _VerifyDerivatives(od);
                     Debug.Assert(dError < 0.001f);

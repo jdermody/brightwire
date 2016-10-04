@@ -35,7 +35,7 @@ namespace BrightWire.Connectionist.Training.Layer.Recurrent
 
             public IMatrix Execute(IMatrix curr, ITrainingContext context, bool calculateOutput, INeuralNetworkUpdateAccumulator updateAccumulator)
             {
-                using (var ad = _activation.Derivative(_output)) {
+                using (var ad = _activation.Derivative(_output, curr)) {
                     // clip the gradient
                     ad.Constrain(-1f, 1f);
 

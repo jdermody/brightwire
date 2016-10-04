@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BrightWire.Models;
+using BrightWire.Models.ExecutionResults;
 
 namespace BrightWire.Connectionist.Training.Batch
 {
@@ -53,13 +54,13 @@ namespace BrightWire.Connectionist.Training.Batch
 
         public float CalculateCost(ISequentialTrainingDataProvider data, float[] memory, IRecurrentTrainingContext context)
         {
-            return Execute(data, memory, context).SelectMany(r => r).Select(r => context.TrainingContext.ErrorMetric.Compute(r.Output, r.Target)).Average();
+            return Execute(data, memory, context).SelectMany(r => r).Select(r => context.TrainingContext.ErrorMetric.Compute(r.Output, r.ExpectedOutput)).Average();
         }
 
-        public IReadOnlyList<RecurrentExecutionResults[]> Execute(ISequentialTrainingDataProvider trainingData, float[] memory, IRecurrentTrainingContext context)
+        public IReadOnlyList<IRecurrentExecutionResults[]> Execute(ISequentialTrainingDataProvider trainingData, float[] memory, IRecurrentTrainingContext context)
         {
-            List<RecurrentExecutionResults> temp;
-            var sequenceOutput = new Dictionary<int, List<RecurrentExecutionResults>>();
+            List<IRecurrentExecutionResults> temp;
+            var sequenceOutput = new Dictionary<int, List<IRecurrentExecutionResults>>();
             var batchSize = context.TrainingContext.MiniBatchSize;
 
             foreach (var miniBatch in _GetMiniBatches(trainingData, false, batchSize)) {
@@ -72,7 +73,7 @@ namespace BrightWire.Connectionist.Training.Batch
 
                     // store the output
                     if (!sequenceOutput.TryGetValue(k, out temp))
-                        sequenceOutput.Add(k, temp = new List<RecurrentExecutionResults>());
+                        sequenceOutput.Add(k, temp = new List<IRecurrentExecutionResults>());
                     var ret = fc[0].AsIndexable().Rows.Zip(miniBatch.GetExpectedOutput(fc, k).AsIndexable().Rows, (a, e) => Tuple.Create(a, e));
                     temp.AddRange(ret.Zip(memoryOutput, (t, d) => new RecurrentExecutionResults(t.Item1, t.Item2, d)));
                 });
@@ -99,7 +100,7 @@ namespace BrightWire.Connectionist.Training.Batch
         //    return ret.ToArray();
         //}
 
-        public RecurrentExecutionResults ExecuteSingleStep(float[] input, float[] memory)
+        public IRecurrentExecutionResults ExecuteSingleStep(float[] input, float[] memory)
         {
             var context = new List<IMatrix>();
             context.Add(null);
@@ -139,7 +140,7 @@ namespace BrightWire.Connectionist.Training.Batch
                     // calculate error
                     var expectedOutput = update.Item2;
                     if (expectedOutput != null)
-                        curr = expectedOutput.Subtract(update.Item3);
+                        curr = trainingContext.ErrorMetric.CalculateDelta(update.Item3, expectedOutput);
 
                     // backpropagate
                     beforeBackProp?.Invoke(curr);
