@@ -10,11 +10,47 @@ namespace BrightWire.TabularData.Helper
 {
     public class DataTableNormaliser : IRowProcessor
     {
-        readonly Dictionary<int, INumericColumnInfo> _columnInfo = new Dictionary<int, INumericColumnInfo>();
+        readonly Dictionary<int, ColumnNormalisation> _columnInfo = new Dictionary<int, ColumnNormalisation>();
         readonly DataTableWriter _writer;
         readonly int _columnCount;
         readonly NormalisationType _normalisation;
         readonly DataTable _table;
+
+        class ColumnNormalisation
+        {
+            readonly ColumnType _type;
+            readonly double _subtract, _divide;
+
+            public ColumnNormalisation(ColumnType type, double divide, double subtract = 0.0)
+            {
+                _type = type;
+                _subtract = subtract;
+                _divide = divide;
+            }
+
+            public ColumnType ColumnType { get { return _type; } }
+
+            public double Normalise(double val)
+            {
+                var ret = (val - _subtract) / _divide;
+
+                switch(_type) {
+                    case ColumnType.Float:
+                        return Convert.ToSingle(ret);
+                    case ColumnType.Long:
+                        return Convert.ToInt64(ret);
+                    case ColumnType.Int:
+                        return Convert.ToInt32(ret);
+                    case ColumnType.Byte:
+                        return Convert.ToByte(ret);
+                    default:
+                        return ret;
+                }
+            }
+
+            public double Subtract { get { return _subtract; } }
+            public double Divide { get { return _divide; } }
+        }
 
         public DataTableNormaliser(DataTable dataTable, NormalisationType type, Stream output = null)
         {
@@ -31,42 +67,71 @@ namespace BrightWire.TabularData.Helper
                     if (numericInfo != null) {
                         if (_normalisation == NormalisationType.Standard && !numericInfo.StdDev.HasValue)
                             continue;
-                        _columnInfo.Add(columnInfo.ColumnIndex, numericInfo);
+
+                        ColumnNormalisation columnNorm;
+                        if (_normalisation == NormalisationType.Standard)
+                            columnNorm = new ColumnNormalisation(column.Type, numericInfo.StdDev.Value, numericInfo.Mean);
+                        else if (_normalisation == NormalisationType.Euclidean)
+                            columnNorm = new ColumnNormalisation(column.Type, numericInfo.L2Norm);
+                        else if (_normalisation == NormalisationType.Manhattan)
+                            columnNorm = new ColumnNormalisation(column.Type, numericInfo.L1Norm);
+                        else if (_normalisation == NormalisationType.FeatureScale)
+                            columnNorm = new ColumnNormalisation(column.Type, numericInfo.Max - numericInfo.Mean, numericInfo.Min);
+                        else
+                            throw new NotImplementedException();
+                        _columnInfo.Add(columnInfo.ColumnIndex, columnNorm);
                     }
                 }
             }
         }
 
+        public IReadOnlyList<object> Normalise(IReadOnlyList<object> row)
+        {
+            ColumnNormalisation norm;
+            var ret = new object[_columnCount];
+            for (var i = 0; i < _columnCount; i++) {
+                object obj = null;
+                if (_columnInfo.TryGetValue(i, out norm)) {
+                    double val;
+                    switch(norm.ColumnType) {
+                        case ColumnType.Byte:
+                            val = (byte)row[i];
+                            break;
+                        case ColumnType.Double:
+                            val = (double)row[i];
+                            break;
+                        case ColumnType.Float:
+                            val = (float)row[i];
+                            break;
+                        case ColumnType.Int:
+                            val = (int)row[i];
+                            break;
+                        case ColumnType.Long:
+                            val = (long)row[i];
+                            break;
+                        default:
+                            throw new NotImplementedException();
+                    }
+                    obj = norm.Normalise(val);
+                }
+                else
+                    obj = row[i];
+                ret[i] = obj;
+            }
+            return ret;
+        }
+
         public bool Process(IRow row)
         {
-            INumericColumnInfo info;
+            ColumnNormalisation norm;
             var data = new object[_columnCount];
             for (var i = 0; i < _columnCount; i++) {
                 object obj = null;
-                if (_columnInfo.TryGetValue(i, out info)) {
-                    var val = row.GetField<double>(i);
-                    if (_normalisation == NormalisationType.Standard)
-                        val = (val - info.Mean) / info.StdDev.Value;
-                    else if (_normalisation == NormalisationType.Euclidean)
-                        val = val / info.L2Norm;
-                    else if (_normalisation == NormalisationType.Manhattan)
-                        val = val / info.L1Norm;
-                    else if (_normalisation == NormalisationType.FeatureScale)
-                        val = (val - info.Min) / (info.Max - info.Mean);
-
-                    var type = _table.Columns[i].Type;
-                    if (type == ColumnType.Double)
-                        obj = val;
-                    else if (type == ColumnType.Float)
-                        obj = Convert.ToSingle(val);
-                    else if (type == ColumnType.Long)
-                        obj = Convert.ToInt64(val);
-                    else if (type == ColumnType.Int)
-                        obj = Convert.ToInt32(val);
-                    else if (type == ColumnType.Byte)
-                        obj = Convert.ToByte(val);
-                }
-                data[i] = obj ?? row.Data[i];
+                if (_columnInfo.TryGetValue(i, out norm))
+                    obj = norm.Normalise(row.GetField<double>(i));
+                else
+                    obj = row.Data[i];
+                data[i] = obj;
             }
             _writer.AddRow(data);
             return true;

@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BrightWire.Helper.TrainingData
+namespace BrightWire.Connectionist.Helper
 {
-    public class DenseTrainingDataProvider : ITrainingDataProvider
+    internal class DenseTrainingDataProvider : ITrainingDataProvider
     {
         readonly IReadOnlyList<Tuple<float[], float[]>> _data;
         readonly ILinearAlgebraProvider _lap;

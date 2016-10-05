@@ -8,8 +8,14 @@ using System.Threading.Tasks;
 
 namespace BrightWire.TrainingData
 {
+    /// <summary>
+    /// Helper class for MNIST data: http://yann.lecun.com/exdb/mnist/
+    /// </summary>
     public static class Mnist
     {
+        /// <summary>
+        /// Image data
+        /// </summary>
         public class Image
         {
             readonly byte[] _data;

@@ -8,31 +8,10 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>BrightWire</RootNamespace>
-    <AssemblyName>BrightWire.Net4.x64</AssemblyName>
+    <AssemblyName>BrightWire.Net4</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x64\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <OutputPath>bin\x64\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
-    <DocumentationFile>bin\x64\Release\BrightWire.Net4.x64.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
@@ -55,60 +34,28 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x86\Debug\</OutputPath>
+    <OutputPath>bin\x64\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
-    <OutputPath>bin\x86\Release\</OutputPath>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <DocumentationFile>bin\x64\Release\BrightWire.Net4.XML</DocumentationFile>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CudaBlas, Version=7.5.7.0, Culture=neutral, PublicKeyToken=539d54d12e99fedb, processorArchitecture=AMD64">
-      <HintPath>packages\ManagedCuda-75-x64.7.5.7\lib\net45\x64\CudaBlas.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="CudaFFT, Version=7.5.7.0, Culture=neutral, PublicKeyToken=f066edfa1acb2f23, processorArchitecture=AMD64">
-      <HintPath>packages\ManagedCuda-75-x64.7.5.7\lib\net45\x64\CudaFFT.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="CudaRand, Version=7.5.7.0, Culture=neutral, PublicKeyToken=fe981579f4e9a066, processorArchitecture=AMD64">
-      <HintPath>packages\ManagedCuda-75-x64.7.5.7\lib\net45\x64\CudaRand.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="CudaSolve, Version=7.5.7.0, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>packages\ManagedCuda-75-x64.7.5.7\lib\net45\x64\CudaSolve.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="CudaSparse, Version=7.5.7.0, Culture=neutral, PublicKeyToken=f65ee2ae6b331585, processorArchitecture=AMD64">
-      <HintPath>packages\ManagedCuda-75-x64.7.5.7\lib\net45\x64\CudaSparse.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="ManagedCuda, Version=7.5.7.0, Culture=neutral, PublicKeyToken=242d898828717aa0, processorArchitecture=MSIL">
-      <HintPath>packages\ManagedCuda-75-x64.7.5.7\lib\net45\x64\ManagedCuda.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="MathNet.Numerics, Version=3.13.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\MathNet.Numerics.3.13.1\lib\net40\MathNet.Numerics.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="NPP, Version=7.5.7.0, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>packages\ManagedCuda-75-x64.7.5.7\lib\net45\x64\NPP.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="NVRTC, Version=7.5.7.0, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>packages\ManagedCuda-75-x64.7.5.7\lib\net45\x64\NVRTC.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="protobuf-net, Version=2.1.0.0, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
@@ -184,18 +131,15 @@
     <Compile Include="Helper\DisposableMatrixExecutionLine.cs" />
     <Compile Include="Helper\MiniBatch.cs" />
     <Compile Include="Helper\SequenceWindowBuilder.cs" />
-    <Compile Include="Helper\TrainingData\DataTableTrainingDataProvider.cs" />
-    <Compile Include="Helper\TrainingData\DenseSequentialTrainingDataProvider.cs" />
-    <Compile Include="Helper\TrainingData\DenseTrainingDataProvider.cs" />
-    <Compile Include="Helper\TrainingData\SequenceToSequenceTrainingDataProvider.cs" />
-    <Compile Include="Helper\TrainingData\SparseTrainingDataProvider.cs" />
+    <Compile Include="Connectionist\Helper\DataTableTrainingDataProvider.cs" />
+    <Compile Include="Connectionist\Helper\DenseSequentialTrainingDataProvider.cs" />
+    <Compile Include="Connectionist\Helper\DenseTrainingDataProvider.cs" />
+    <Compile Include="Connectionist\Helper\SequenceToSequenceTrainingDataProvider.cs" />
+    <Compile Include="Connectionist\Helper\SparseTrainingDataProvider.cs" />
     <Compile Include="Interface.cs" />
-    <Compile Include="LinearAlgebraProvider.cs" />
+    <Compile Include="LinearAlgebraProvider.CPU.cs" />
     <Compile Include="LinearAlgebra\CpuMatrix.cs" />
     <Compile Include="LinearAlgebra\CpuVector.cs" />
-    <Compile Include="LinearAlgebra\CudaProvider.cs" />
-    <Compile Include="LinearAlgebra\GpuMatrix.cs" />
-    <Compile Include="LinearAlgebra\GpuVector.cs" />
     <Compile Include="LinearAlgebra\NumericsProvider.cs" />
     <Compile Include="Linear\LogisticRegressionPredictor.cs" />
     <Compile Include="Linear\RegressionPredictor.cs" />
@@ -245,13 +189,7 @@
     <Compile Include="Unsupervised\Clustering\NonNegativeMatrixFactorisation.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="LinearAlgebra\cuda\kernel.cu" />
-    <None Include="LinearAlgebra\cuda\kernel.cubin" />
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="LinearAlgebra\cuda\kernel.c" />
-    <Content Include="LinearAlgebra\cuda\kernel.stub.c" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

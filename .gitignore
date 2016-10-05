@@ -5,13 +5,9 @@
 *.suo
 *.user
 
-/bin/Debug
-/obj/Debug
+/bin
+/obj
 /.vs/BrightWire/v14
-/bin/Release
-/obj/Release
-/bin/x64
-/obj/x64
 /packages
 /UnitTests/bin/x64/Debug
 /UnitTests/obj
@@ -21,4 +17,7 @@
 /.vs/*
 /UnitTests/bin
 /UnitTests/LinearAlgebra
-/obj/x86/Debug
+/BrightWire.CUDA.Net4.x64/bin
+/BrightWire.CUDA.Net4.x64/obj
+/BrightWire.CUDA.Net4.x86/bin
+/BrightWire.CUDA.Net4.x86/obj

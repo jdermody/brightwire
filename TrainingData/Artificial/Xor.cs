@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace BrightWire.TrainingData.Artificial
 {
+    /// <summary>
+    /// Simple XOR training data
+    /// </summary>
     public static class XorData
     {
         public static IReadOnlyList<Tuple<float[], float[]>> Get()

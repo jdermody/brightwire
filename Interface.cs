@@ -1319,6 +1319,10 @@ namespace BrightWire
         /// </summary>
         ILinearAlgebraProvider LinearAlgebraProvider { get; }
 
+        ITrainingDataProvider CreateTrainingDataProvider(IIndexableDataTable table, int classColumnIndex);
+        ITrainingDataProvider CreateTrainingDataProvider(IReadOnlyList<Tuple<float[], float[]>> data);
+        ISequentialTrainingDataProvider CreateSequentialTrainingDataProvider(IReadOnlyList<Tuple<float[], float[]>[]> data);
+
         /// <summary>
         /// Creates a feed forward network from a saved model
         /// </summary>

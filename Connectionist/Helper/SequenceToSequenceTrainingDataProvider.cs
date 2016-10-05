@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BrightWire.Helper.TrainingData
+namespace BrightWire.Connectionist.Helper
 {
-    public class SequenceToSequenceTrainingDataProvider : ISequentialTrainingDataProvider
+    internal class SequenceToSequenceTrainingDataProvider : ISequentialTrainingDataProvider
     {
         readonly ILinearAlgebraProvider _lap;
         readonly Tuple<int, int>[] _sequenceLength;

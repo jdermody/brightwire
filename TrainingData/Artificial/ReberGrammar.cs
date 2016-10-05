@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace BrightWire.TrainingData.Artificial
 {
+    /// <summary>
+    /// Generates Reber grammar sequences: https://www.willamette.edu/~gorr/classes/cs449/reber.html
+    /// </summary>
     public class ReberGrammar
     {
         static char[] CHARS = "BTSXPVE".ToCharArray();

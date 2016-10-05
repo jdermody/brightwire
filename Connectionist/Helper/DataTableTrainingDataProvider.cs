@@ -1,13 +1,14 @@
-﻿using BrightWire.TabularData.Analysis;
+﻿using BrightWire.Helper;
+using BrightWire.TabularData.Analysis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BrightWire.Helper.TrainingData
+namespace BrightWire.Connectionist.Helper
 {
-    public class DataTableTrainingDataProvider : ITrainingDataProvider
+    internal class DataTableTrainingDataProvider : ITrainingDataProvider
     {
         readonly IIndexableDataTable _table;
         readonly int _inputSize, _outputSize, _classColumnIndex;

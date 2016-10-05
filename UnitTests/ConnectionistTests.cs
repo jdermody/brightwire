@@ -3,7 +3,6 @@ using BrightWire.Connectionist;
 using BrightWire.Connectionist.Training.Helper;
 using BrightWire.Connectionist.Training.Layer.Recurrent;
 using BrightWire.Helper;
-using BrightWire.Helper.TrainingData;
 using BrightWire.LinearAlgebra;
 using BrightWire.Models;
 using BrightWire.TrainingData.Artificial;
@@ -49,7 +48,7 @@ namespace UnitTests
             // 1 0 => 1
             // 0 1 => 1
             // 1 1 => 0
-            var testDataProvider = new DenseTrainingDataProvider(_lap, XorData.Get());
+            var testDataProvider = _lap.NN.CreateTrainingDataProvider(XorData.Get());
 
             // create a batch trainer (hidden layer of size 4).
             using (var trainer = _lap.NN.CreateBatchTrainer(layerTemplate, testDataProvider.InputSize, 4, testDataProvider.OutputSize)) {
@@ -100,7 +99,7 @@ namespace UnitTests
             var recurrentTemplate = layerTemplate.Clone();
             recurrentTemplate.WeightInitialisation = WeightInitialisationType.Gaussian;
 
-            var trainingDataProvider = new DenseSequentialTrainingDataProvider(_lap, trainingSet);
+            var trainingDataProvider = _lap.NN.CreateSequentialTrainingDataProvider(trainingSet);
             var layers = new INeuralNetworkRecurrentLayer[] {
                     _lap.NN.CreateSimpleRecurrentLayer(trainingDataProvider.InputSize, HIDDEN_SIZE, recurrentTemplate),
                     _lap.NN.CreateFeedForwardRecurrentLayer(HIDDEN_SIZE, trainingDataProvider.OutputSize, layerTemplate)
@@ -142,7 +141,7 @@ namespace UnitTests
             var recurrentTemplate = layerTemplate.Clone();
             recurrentTemplate.WeightInitialisation = WeightInitialisationType.Gaussian;
 
-            var trainingDataProvider = new DenseSequentialTrainingDataProvider(_lap, trainingSet);
+            var trainingDataProvider = _lap.NN.CreateSequentialTrainingDataProvider(trainingSet);
             var layers = new INeuralNetworkRecurrentLayer[] {
                     _lap.NN.CreateLstmRecurrentLayer(trainingDataProvider.InputSize, HIDDEN_SIZE, recurrentTemplate),
                     _lap.NN.CreateFeedForwardRecurrentLayer(HIDDEN_SIZE, trainingDataProvider.OutputSize, layerTemplate)
@@ -184,7 +183,7 @@ namespace UnitTests
             var recurrentTemplate = layerTemplate.Clone();
             recurrentTemplate.WeightInitialisation = WeightInitialisationType.Gaussian;
 
-            var trainingDataProvider = new DenseSequentialTrainingDataProvider(_lap, trainingSet);
+            var trainingDataProvider = _lap.NN.CreateSequentialTrainingDataProvider(trainingSet);
             var layers = new INeuralNetworkBidirectionalLayer[] {
                     _lap.NN.CreateBidirectionalLayer(
                         _lap.NN.CreateSimpleRecurrentLayer(trainingDataProvider.InputSize, HIDDEN_SIZE, recurrentTemplate),

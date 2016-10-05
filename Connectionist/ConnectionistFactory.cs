@@ -1,6 +1,7 @@
 ﻿using BrightWire.Connectionist.Activation;
 using BrightWire.Connectionist.Execution;
 using BrightWire.Connectionist.Execution.Layer;
+using BrightWire.Connectionist.Helper;
 using BrightWire.Connectionist.Training;
 using BrightWire.Connectionist.Training.Batch;
 using BrightWire.Connectionist.Training.Helper;
@@ -48,6 +49,21 @@ namespace BrightWire.Connectionist
         }
 
         public ILinearAlgebraProvider LinearAlgebraProvider { get { return _lap; } }
+
+        public ITrainingDataProvider CreateTrainingDataProvider(IIndexableDataTable table, int classColumnIndex)
+        {
+            return new DataTableTrainingDataProvider(_lap, table, classColumnIndex);
+        }
+
+        public ITrainingDataProvider CreateTrainingDataProvider(IReadOnlyList<Tuple<float[], float[]>> data)
+        {
+            return new DenseTrainingDataProvider(_lap, data);
+        }
+
+        public ISequentialTrainingDataProvider CreateSequentialTrainingDataProvider(IReadOnlyList<Tuple<float[], float[]>[]> data)
+        {
+            return new DenseSequentialTrainingDataProvider(_lap, data);
+        }
 
         public IActivationFunction GetActivation(ActivationType activation)
         {
