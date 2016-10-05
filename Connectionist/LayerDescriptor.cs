@@ -8,19 +8,64 @@ using BrightWire.Models;
 
 namespace BrightWire.Connectionist
 {
-    public class LayerDescriptor : INeuralNetworkLayerDescriptor
+    /// <summary>
+    /// Neural network layer descriptor
+    /// </summary>
+    public class LayerDescriptor
     {
+        /// <summary>
+        /// The activation type
+        /// </summary>
         public ActivationType Activation { get; set; }
+
+        /// <summary>
+        /// The weight initialisation strategy
+        /// </summary>
         public WeightInitialisationType WeightInitialisation { get; set; }
+
+        /// <summary>
+        /// The regularisation type
+        /// </summary>
         public RegularisationType Regularisation { get; set; }
+
+        /// <summary>
+        /// The gradient descent optimisation technique
+        /// </summary>
         public WeightUpdateType WeightUpdate { get; set; }
+
+        /// <summary>
+        /// The layer trainer
+        /// </summary>
         public LayerTrainerType LayerTrainer { get; set; }
+
+        /// <summary>
+        /// Regularisation parameter
+        /// </summary>
         public float Lambda { get; set; } = 0f;
+
+        /// <summary>
+        /// Momentum parameter
+        /// </summary>
         public float Momentum { get; set; } = 0.9f;
+
+        /// <summary>
+        /// Adam and RMSprop parameter
+        /// </summary>
         public float DecayRate { get; set; } = 0.9f;
+
+        /// <summary>
+        /// Adam parameter 2
+        /// </summary>
         public float DecayRate2 { get; set; } = 0.99f;
+
+        /// <summary>
+        /// Dropout and drop connect percentage
+        /// </summary>
         public float Dropout { get; set; } = 0.5f;
 
+        /// <summary>
+        /// Converts the descriptor to a protobuf network layer
+        /// </summary>
         public NetworkLayer AsLayer
         {
             get
@@ -52,7 +97,7 @@ namespace BrightWire.Connectionist
 
         private LayerDescriptor() { }
 
-        public INeuralNetworkLayerDescriptor Clone()
+        public LayerDescriptor Clone()
         {
             return new LayerDescriptor() {
                 Activation = this.Activation,

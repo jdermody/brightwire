@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace BrightWire.Connectionist.Training.Layer.Recurrent
 {
-    public class RecurrentLayerBase
+    internal class RecurrentLayerBase
     {
-        protected internal INeuralNetworkLayerUpdater CreateLayer(int inputSize, int outputSize, INeuralNetworkFactory factory, INeuralNetworkLayerDescriptor template)
+        protected internal INeuralNetworkLayerUpdater CreateLayer(int inputSize, int outputSize, INeuralNetworkFactory factory, LayerDescriptor template)
         {
             var descriptor = template.Clone();
             descriptor.Activation = ActivationType.None;

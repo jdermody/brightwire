@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.Connectionist.Execution.Layer
 {
-    public class StandardFeedForward : IDisposable
+    internal class StandardFeedForward : IDisposable
     {
         readonly IMatrix _weight;
         readonly IVector _bias;

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.Connectionist.Training.WeightInitialisation
 {
-    public class Gaussian : IWeightInitialisation
+    internal class Gaussian : IWeightInitialisation
     {
         readonly IContinuousDistribution _distribution;
 

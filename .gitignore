@@ -19,3 +19,6 @@
 /BrightWire.Net4/bin
 /BrightWire.Net4/obj
 /.vs/*
+/UnitTests/bin
+/UnitTests/LinearAlgebra
+/obj/x86/Debug

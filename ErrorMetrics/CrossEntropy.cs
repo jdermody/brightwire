@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.ErrorMetrics
 {
-    public class CrossEntropy : IErrorMetric
+    internal class CrossEntropy : IErrorMetric
     {
         public bool DisplayAsPercentage
         {

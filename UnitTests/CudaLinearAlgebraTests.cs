@@ -13,25 +13,27 @@ namespace UnitTests
     public class CudaLinearAlgebraTests
     {
         static ILinearAlgebraProvider _cuda;
+        static ILinearAlgebraProvider _cpu;
 
         [ClassInitialize]
         public static void Load(TestContext context)
         {
-            _cuda = new CudaProvider();
+            _cuda = LinearAlgebraProvider.CreateGPU(false);
+            _cpu = LinearAlgebraProvider.CreateCPU(false);
         }
 
         [ClassCleanup]
         public static void Cleanup()
         {
             _cuda.Dispose();
+            _cpu.Dispose();
         }
 
         void _MatrixMultiplication(int rowsA, int columnsArowsB, int columnsB)
         {
-            var lap = new NumericsProvider();
             var rand = new Random(1);
-            var a = lap.Create(rowsA, columnsArowsB, (j, k) => Convert.ToSingle(rand.NextDouble())).AsIndexable();
-            var b = lap.Create(columnsArowsB, columnsB, (j, k) => Convert.ToSingle(rand.NextDouble())).AsIndexable();
+            var a = _cpu.Create(rowsA, columnsArowsB, (j, k) => Convert.ToSingle(rand.NextDouble())).AsIndexable();
+            var b = _cpu.Create(columnsArowsB, columnsB, (j, k) => Convert.ToSingle(rand.NextDouble())).AsIndexable();
             var cpuResults = a.Multiply(b);
             IIndexableMatrix gpuResults;
 
@@ -93,8 +95,7 @@ namespace UnitTests
 
         void _Transpose(int rows, int columns)
         {
-            var lap = new NumericsProvider();
-            var a = lap.Create(rows, columns, (j, k) => k).AsIndexable();
+            var a = _cpu.Create(rows, columns, (j, k) => k).AsIndexable();
             var aT = a.Transpose();
             IIndexableMatrix gpuResults;
 
@@ -144,9 +145,8 @@ namespace UnitTests
         [TestMethod]
         public void MatrixTransposeAndMultiplication()
         {
-            var lap = new NumericsProvider();
-            var a = lap.Create(2, 5, (j, k) => k).AsIndexable();
-            var b = lap.Create(3, 5, (j, k) => j).AsIndexable();
+            var a = _cpu.Create(2, 5, (j, k) => k).AsIndexable();
+            var b = _cpu.Create(3, 5, (j, k) => j).AsIndexable();
             var cpuResults = a.TransposeAndMultiply(b);
             IIndexableMatrix gpuResults;
 
@@ -161,9 +161,8 @@ namespace UnitTests
         [TestMethod]
         public void MatrixTransposeAndMultiplication2()
         {
-            var lap = new NumericsProvider();
-            var a = lap.Create(2, 6, (j, k) => k).AsIndexable();
-            var b = lap.Create(2, 5, (j, k) => j).AsIndexable();
+            var a = _cpu.Create(2, 6, (j, k) => k).AsIndexable();
+            var b = _cpu.Create(2, 5, (j, k) => j).AsIndexable();
             var cpuResults = a.TransposeThisAndMultiply(b);
             IIndexableMatrix gpuResults;
 
@@ -178,9 +177,8 @@ namespace UnitTests
         [TestMethod]
         public void MatrixAdd()
         {
-            var lap = new NumericsProvider();
-            var a = lap.Create(2, 5, (j, k) => k).AsIndexable();
-            var b = lap.Create(2, 5, (j, k) => j).AsIndexable();
+            var a = _cpu.Create(2, 5, (j, k) => k).AsIndexable();
+            var b = _cpu.Create(2, 5, (j, k) => j).AsIndexable();
             var cpuResults = a.Add(b);
 
             IIndexableMatrix gpuResults;
@@ -195,9 +193,8 @@ namespace UnitTests
         [TestMethod]
         public void MatrixSubtract()
         {
-            var lap = new NumericsProvider();
-            var a = lap.Create(2, 5, (j, k) => k).AsIndexable();
-            var b = lap.Create(2, 5, (j, k) => j).AsIndexable();
+            var a = _cpu.Create(2, 5, (j, k) => k).AsIndexable();
+            var b = _cpu.Create(2, 5, (j, k) => j).AsIndexable();
 
             IIndexableMatrix gpuResults, gpuResults2;
             using (var gpuA = _cuda.Create(a))
@@ -222,9 +219,8 @@ namespace UnitTests
         [TestMethod]
         public void MatrixPointwiseMultiply()
         {
-            var lap = new NumericsProvider();
-            var a = lap.Create(2, 5, (j, k) => k).AsIndexable();
-            var b = lap.Create(2, 5, (j, k) => j).AsIndexable();
+            var a = _cpu.Create(2, 5, (j, k) => k).AsIndexable();
+            var b = _cpu.Create(2, 5, (j, k) => j).AsIndexable();
             var cpuResults = a.PointwiseMultiply(b);
 
             IIndexableMatrix gpuResults;
@@ -239,9 +235,8 @@ namespace UnitTests
         [TestMethod]
         public void MatrixPointwiseDivide()
         {
-            var lap = new NumericsProvider();
-            var a = lap.Create(2, 5, (j, k) => k + 1).AsIndexable();
-            var b = lap.Create(2, 5, (j, k) => j + 1).AsIndexable();
+            var a = _cpu.Create(2, 5, (j, k) => k + 1).AsIndexable();
+            var b = _cpu.Create(2, 5, (j, k) => j + 1).AsIndexable();
             var cpuResults = a.PointwiseDivide(b);
 
             IIndexableMatrix gpuResults;
@@ -256,8 +251,7 @@ namespace UnitTests
         [TestMethod]
         public void MatrixSqrt()
         {
-            var lap = new NumericsProvider();
-            var a = lap.Create(2, 5, (j, k) => k + 1).AsIndexable();
+            var a = _cpu.Create(2, 5, (j, k) => k + 1).AsIndexable();
             const float adjustment = 1e-8f;
             a[0, 0] = -adjustment;
             var cpuResults = a.Sqrt(adjustment);
@@ -273,8 +267,7 @@ namespace UnitTests
         [TestMethod]
         public void MatrixMultiplyScalar()
         {
-            var lap = new NumericsProvider();
-            var a = lap.Create(2, 5, (j, k) => k).AsIndexable();
+            var a = _cpu.Create(2, 5, (j, k) => k).AsIndexable();
             const float scalar = 2.5f;
 
             IIndexableMatrix gpuResults;
@@ -290,8 +283,7 @@ namespace UnitTests
         [TestMethod]
         public void VectorColumnMatrix()
         {
-            var np = new NumericsProvider();
-            var a = np.Create(5, i => i).AsIndexable();
+            var a = _cpu.Create(5, i => i).AsIndexable();
             var matrix = a.ToColumnMatrix().AsIndexable();
 
             IIndexableMatrix gpuResults;
@@ -305,8 +297,7 @@ namespace UnitTests
         [TestMethod]
         public void VectorRowMatrix()
         {
-            var np = new NumericsProvider();
-            var a = np.Create(5, i => i).AsIndexable();
+            var a = _cpu.Create(5, i => i).AsIndexable();
             var matrix = a.ToRowMatrix().AsIndexable();
 
             IIndexableMatrix gpuResults;
@@ -321,9 +312,8 @@ namespace UnitTests
         [TestMethod]
         public void VectorAdd()
         {
-            var np = new NumericsProvider();
-            var a = np.Create(5, i => i).AsIndexable();
-            var b = np.Create(5, i => i * 2).AsIndexable();
+            var a = _cpu.Create(5, i => i).AsIndexable();
+            var b = _cpu.Create(5, i => i * 2).AsIndexable();
             var c = a.Add(b).AsIndexable();
 
             IIndexableVector gpuResults;
@@ -338,9 +328,8 @@ namespace UnitTests
         [TestMethod]
         public void VectorSubtract()
         {
-            var np = new NumericsProvider();
-            var a = np.Create(5, i => i).AsIndexable();
-            var b = np.Create(5, i => i * 2).AsIndexable();
+            var a = _cpu.Create(5, i => i).AsIndexable();
+            var b = _cpu.Create(5, i => i * 2).AsIndexable();
             var c = a.Subtract(b).AsIndexable();
 
             IIndexableVector gpuResults;
@@ -355,9 +344,8 @@ namespace UnitTests
         [TestMethod]
         public void VectorPointwiseMultiply()
         {
-            var np = new NumericsProvider();
-            var a = np.Create(5, i => i).AsIndexable();
-            var b = np.Create(5, i => i * 2).AsIndexable();
+            var a = _cpu.Create(5, i => i).AsIndexable();
+            var b = _cpu.Create(5, i => i * 2).AsIndexable();
             var c = a.PointwiseMultiply(b).AsIndexable();
 
             IIndexableVector gpuResults;
@@ -372,9 +360,8 @@ namespace UnitTests
         [TestMethod]
         public void VectorDotProduct()
         {
-            var np = new NumericsProvider();
-            var a = np.Create(5, i => i).AsIndexable();
-            var b = np.Create(5, i => i * 2).AsIndexable();
+            var a = _cpu.Create(5, i => i).AsIndexable();
+            var b = _cpu.Create(5, i => i * 2).AsIndexable();
             var dot1 = a.DotProduct(b);
 
             float dot2;
@@ -388,8 +375,7 @@ namespace UnitTests
         [TestMethod]
         public void VectorL2Norm()
         {
-            var np = new NumericsProvider();
-            var a = np.Create(5, i => i).AsIndexable();
+            var a = _cpu.Create(5, i => i).AsIndexable();
             var res1 = a.L2Norm();
 
             float res2;
@@ -401,8 +387,7 @@ namespace UnitTests
         [TestMethod]
         public void VectorMaximumIndex()
         {
-            var np = new NumericsProvider();
-            var a = np.Create(new[] { 1.0f, 2.0f, 1.0f, 1.0f }).AsIndexable();
+            var a = _cpu.Create(new[] { 1.0f, 2.0f, 1.0f, 1.0f }).AsIndexable();
             var res1 = a.MaximumIndex();
 
             int res2;
@@ -414,8 +399,7 @@ namespace UnitTests
         [TestMethod]
         public void VectorMinimumIndex()
         {
-            var np = new NumericsProvider();
-            var a = np.Create(new[] { 3.0f, -2.0f, 1.0f, 2.0f }).AsIndexable();
+            var a = _cpu.Create(new[] { 3.0f, -2.0f, 1.0f, 2.0f }).AsIndexable();
             var res1 = a.MinimumIndex();
 
             int res2;
@@ -427,9 +411,8 @@ namespace UnitTests
         [TestMethod]
         public void VectorAddInPlace()
         {
-            var np = new NumericsProvider();
-            var a = np.Create(5, i => i * 2).AsIndexable();
-            var b = np.Create(5, i => i).AsIndexable();
+            var a = _cpu.Create(5, i => i * 2).AsIndexable();
+            var b = _cpu.Create(5, i => i).AsIndexable();
 
             IIndexableVector gpuResults;
             using (var gpuA = _cuda.Create(a))
@@ -445,9 +428,8 @@ namespace UnitTests
         [TestMethod]
         public void VectorSubtractInPlace()
         {
-            var np = new NumericsProvider();
-            var a = np.Create(5, i => i * 2).AsIndexable();
-            var b = np.Create(5, i => i).AsIndexable();
+            var a = _cpu.Create(5, i => i * 2).AsIndexable();
+            var b = _cpu.Create(5, i => i).AsIndexable();
 
             IIndexableVector gpuResults;
             using (var gpuA = _cuda.Create(a))
@@ -463,8 +445,7 @@ namespace UnitTests
         [TestMethod]
         public void VectorSqrt()
         {
-            var np = new NumericsProvider();
-            var a = np.Create(10, i => i * 2).AsIndexable();
+            var a = _cpu.Create(10, i => i * 2).AsIndexable();
             var b = a.Sqrt().AsIndexable();
 
             IIndexableVector gpuResults;
@@ -478,8 +459,7 @@ namespace UnitTests
         [TestMethod]
         public void VectorGetNewVectorFromIndices()
         {
-            var np = new NumericsProvider();
-            var a = np.Create(10, i => i * 2).AsIndexable();
+            var a = _cpu.Create(10, i => i * 2).AsIndexable();
             int[] array = new[] { 2, 3, 5 };
             var b = a.GetNewVectorFromIndexes(array).AsIndexable();
 
@@ -494,9 +474,8 @@ namespace UnitTests
         [TestMethod]
         public void VectorCopyFrom()
         {
-            var np = new NumericsProvider();
-            var a = np.Create(10, i => i * 2).AsIndexable();
-            var b = np.Create(10, 0).AsIndexable();
+            var a = _cpu.Create(10, i => i * 2).AsIndexable();
+            var b = _cpu.Create(10, 0).AsIndexable();
             b.CopyFrom(a);
             FloatingPointHelper.AssertEqual(a, b);
 
@@ -513,8 +492,7 @@ namespace UnitTests
         public void MatrixColumn()
         {
             const int INDEX = 1;
-            var lap = new NumericsProvider();
-            var a = lap.Create(2, 5, (j, k) => j * k).AsIndexable();
+            var a = _cpu.Create(2, 5, (j, k) => j * k).AsIndexable();
             var row = a.Column(INDEX).AsIndexable();
 
             IIndexableVector gpuResults;
@@ -529,8 +507,7 @@ namespace UnitTests
         public void MatrixRow()
         {
             const int INDEX = 1;
-            var lap = new NumericsProvider();
-            var a = lap.Create(2, 5, (j, k) => k * j).AsIndexable();
+            var a = _cpu.Create(2, 5, (j, k) => k * j).AsIndexable();
             var row = a.Row(INDEX).AsIndexable();
 
             IIndexableVector gpuResults;
@@ -544,8 +521,7 @@ namespace UnitTests
         [TestMethod]
         public void MatrixRowSums()
         {
-            var lap = new NumericsProvider();
-            var a = lap.Create(2, 5, (j, k) => k).AsIndexable();
+            var a = _cpu.Create(2, 5, (j, k) => k).AsIndexable();
             var rowSums = a.RowSums().AsIndexable();
 
             IIndexableVector gpuResults;
@@ -559,8 +535,7 @@ namespace UnitTests
         [TestMethod]
         public void MatrixColumnSums()
         {
-            var lap = new NumericsProvider();
-            var a = lap.Create(2, 5, (j, k) => k).AsIndexable();
+            var a = _cpu.Create(2, 5, (j, k) => k).AsIndexable();
             var colSums = a.ColumnSums().AsIndexable();
 
             IIndexableVector gpuResults;
@@ -574,9 +549,8 @@ namespace UnitTests
         [TestMethod]
         public void MatrixAddInPlace()
         {
-            var lap = new NumericsProvider();
-            var a = lap.Create(2, 5, (j, k) => k).AsIndexable();
-            var b = lap.Create(2, 5, (j, k) => j).AsIndexable();
+            var a = _cpu.Create(2, 5, (j, k) => k).AsIndexable();
+            var b = _cpu.Create(2, 5, (j, k) => j).AsIndexable();
 
             IIndexableMatrix gpuResults;
             using (var gpuA = _cuda.Create(a))
@@ -592,9 +566,8 @@ namespace UnitTests
         [TestMethod]
         public void MatrixSubtractInPlace()
         {
-            var lap = new NumericsProvider();
-            var a = lap.Create(2, 5, (j, k) => k).AsIndexable();
-            var b = lap.Create(2, 5, (j, k) => j).AsIndexable();
+            var a = _cpu.Create(2, 5, (j, k) => k).AsIndexable();
+            var b = _cpu.Create(2, 5, (j, k) => j).AsIndexable();
 
             IIndexableMatrix gpuResults;
             using (var gpuA = _cuda.Create(a))
@@ -610,9 +583,8 @@ namespace UnitTests
         [TestMethod]
         public void MatrixAddToEachRow()
         {
-            var lap = new NumericsProvider();
-            var a = lap.Create(2, 5, (j, k) => k * j).AsIndexable();
-            var b = lap.Create(5, (i) => i).AsIndexable();
+            var a = _cpu.Create(2, 5, (j, k) => k * j).AsIndexable();
+            var b = _cpu.Create(5, (i) => i).AsIndexable();
 
             IIndexableMatrix gpuResults;
             using (var gpuA = _cuda.Create(a))
@@ -628,9 +600,8 @@ namespace UnitTests
         [TestMethod]
         public void MatrixAddToEachColumn()
         {
-            var lap = new NumericsProvider();
-            var a = lap.Create(2, 5, (j, k) => k * j).AsIndexable();
-            var b = lap.Create(2, (i) => i + 5).AsIndexable();
+            var a = _cpu.Create(2, 5, (j, k) => k * j).AsIndexable();
+            var b = _cpu.Create(2, (i) => i + 5).AsIndexable();
 
             IIndexableMatrix gpuResults;
             using (var gpuA = _cuda.Create(a))
@@ -646,9 +617,8 @@ namespace UnitTests
         [TestMethod]
         public void MatrixSigmoidActivation()
         {
-            var lap = new NumericsProvider();
-            var normalDistribution = new MathNet.Numerics.Distributions.Normal(0, 1);
-            var a = lap.Create(10, 10, (j, k) => Convert.ToSingle(normalDistribution.Sample())).AsIndexable();
+            var normalDistribution = new Normal(0, 1);
+            var a = _cpu.Create(10, 10, (j, k) => Convert.ToSingle(normalDistribution.Sample())).AsIndexable();
             var b = a.SigmoidActivation().AsIndexable();
 
             IIndexableMatrix gpuResults;
@@ -662,9 +632,8 @@ namespace UnitTests
         [TestMethod]
         public void MatrixSigmoidDerivative()
         {
-            var lap = new NumericsProvider();
-            var normalDistribution = new MathNet.Numerics.Distributions.Normal(0, 1);
-            var a = lap.Create(10, 10, (j, k) => Convert.ToSingle(normalDistribution.Sample())).AsIndexable();
+            var normalDistribution = new Normal(0, 1);
+            var a = _cpu.Create(10, 10, (j, k) => Convert.ToSingle(normalDistribution.Sample())).AsIndexable();
             var b = a.SigmoidDerivative().AsIndexable();
 
             IIndexableMatrix gpuResults;
@@ -678,9 +647,8 @@ namespace UnitTests
         [TestMethod]
         public void MatrixTanhActivation()
         {
-            var lap = new NumericsProvider();
-            var normalDistribution = new MathNet.Numerics.Distributions.Normal(0, 1);
-            var a = lap.Create(10, 10, (j, k) => Convert.ToSingle(normalDistribution.Sample())).AsIndexable();
+            var normalDistribution = new Normal(0, 1);
+            var a = _cpu.Create(10, 10, (j, k) => Convert.ToSingle(normalDistribution.Sample())).AsIndexable();
             var b = a.TanhActivation().AsIndexable();
 
             IIndexableMatrix gpuResults;
@@ -694,9 +662,8 @@ namespace UnitTests
         [TestMethod]
         public void MatrixTanhDerivative()
         {
-            var lap = new NumericsProvider();
-            var normalDistribution = new MathNet.Numerics.Distributions.Normal(0, 1);
-            var a = lap.Create(10, 10, (j, k) => Convert.ToSingle(normalDistribution.Sample())).AsIndexable();
+            var normalDistribution = new Normal(0, 1);
+            var a = _cpu.Create(10, 10, (j, k) => Convert.ToSingle(normalDistribution.Sample())).AsIndexable();
             var b = a.TanhDerivative().AsIndexable();
 
             IIndexableMatrix gpuResults;
@@ -710,9 +677,8 @@ namespace UnitTests
         [TestMethod]
         public void MatrixRELUActivation()
         {
-            var lap = new NumericsProvider();
-            var normalDistribution = new MathNet.Numerics.Distributions.Normal(0, 1);
-            var a = lap.Create(10, 10, (j, k) => Convert.ToSingle(normalDistribution.Sample())).AsIndexable();
+            var normalDistribution = new Normal(0, 1);
+            var a = _cpu.Create(10, 10, (j, k) => Convert.ToSingle(normalDistribution.Sample())).AsIndexable();
             var b = a.ReluActivation().AsIndexable();
 
             IIndexableMatrix gpuResults;
@@ -726,9 +692,8 @@ namespace UnitTests
         [TestMethod]
         public void MatrixRELUDerivative()
         {
-            var lap = new NumericsProvider();
-            var normalDistribution = new MathNet.Numerics.Distributions.Normal(0, 1);
-            var a = lap.Create(10, 10, (j, k) => Convert.ToSingle(normalDistribution.Sample())).AsIndexable();
+            var normalDistribution = new Normal(0, 1);
+            var a = _cpu.Create(10, 10, (j, k) => Convert.ToSingle(normalDistribution.Sample())).AsIndexable();
             var b = a.ReluDerivative().AsIndexable();
 
             IIndexableMatrix gpuResults;
@@ -742,9 +707,8 @@ namespace UnitTests
         [TestMethod]
         public void MatrixLeakyRELUActivation()
         {
-            var lap = new NumericsProvider();
             var normalDistribution = new Normal(0, 1);
-            var a = lap.Create(10, 10, (j, k) => Convert.ToSingle(normalDistribution.Sample())).AsIndexable();
+            var a = _cpu.Create(10, 10, (j, k) => Convert.ToSingle(normalDistribution.Sample())).AsIndexable();
             var b = a.LeakyReluActivation().AsIndexable();
 
             IIndexableMatrix gpuResults;
@@ -758,9 +722,8 @@ namespace UnitTests
         [TestMethod]
         public void MatrixLeakyRELUDerivative()
         {
-            var lap = new NumericsProvider();
             var normalDistribution = new Normal(0, 1);
-            var a = lap.Create(10, 10, (j, k) => Convert.ToSingle(normalDistribution.Sample())).AsIndexable();
+            var a = _cpu.Create(10, 10, (j, k) => Convert.ToSingle(normalDistribution.Sample())).AsIndexable();
             var b = a.LeakyReluDerivative().AsIndexable();
 
             IIndexableMatrix gpuResults;
@@ -774,9 +737,8 @@ namespace UnitTests
         [TestMethod]
         public void MatrixNewMatrixFromRows()
         {
-            var lap = new NumericsProvider();
             var rows = new[] { 1, 2 };
-            var a = lap.Create(3, 2, (j, k) => k + 1).AsIndexable();
+            var a = _cpu.Create(3, 2, (j, k) => k + 1).AsIndexable();
             var results = a.GetNewMatrixFromRows(rows).AsIndexable();
 
             IIndexableMatrix gpuResults;
@@ -790,9 +752,8 @@ namespace UnitTests
         [TestMethod]
         public void MatrixNewMatrixFromColumns()
         {
-            var lap = new NumericsProvider();
             var cols = new[] { 1, 2 };
-            var a = lap.Create(5, 5, (j, k) => k + 1).AsIndexable();
+            var a = _cpu.Create(5, 5, (j, k) => k + 1).AsIndexable();
             var results = a.GetNewMatrixFromColumns(cols).AsIndexable();
 
             IIndexableMatrix gpuResults;
@@ -806,9 +767,8 @@ namespace UnitTests
         [TestMethod]
         public void MatrixClearRows()
         {
-            var lap = new NumericsProvider();
             var rows = new[] { 1, 2 };
-            var a = lap.Create(3, 2, (j, k) => k + 1).AsIndexable();
+            var a = _cpu.Create(3, 2, (j, k) => k + 1).AsIndexable();
             a.ClearRows(rows);
 
             IIndexableMatrix gpuResults;
@@ -823,9 +783,8 @@ namespace UnitTests
         [TestMethod]
         public void MatrixClearColumns()
         {
-            var lap = new NumericsProvider();
             var cols = new[] { 1, 2 };
-            var a = lap.Create(5, 5, (j, k) => k + 1).AsIndexable();
+            var a = _cpu.Create(5, 5, (j, k) => k + 1).AsIndexable();
             a.ClearColumns(cols);
 
             IIndexableMatrix gpuResults;
@@ -840,9 +799,8 @@ namespace UnitTests
         [TestMethod]
         public void MatrixClear()
         {
-            var lap = new NumericsProvider();
             var cols = new[] { 1, 2 };
-            var a = lap.Create(5, 5, (j, k) => k + 1).AsIndexable();
+            var a = _cpu.Create(5, 5, (j, k) => k + 1).AsIndexable();
 
             IIndexableMatrix gpuResults;
             using (var gpuA = _cuda.Create(a)) {
@@ -857,8 +815,7 @@ namespace UnitTests
         [TestMethod]
         public void MatrixClone()
         {
-            var lap = new NumericsProvider();
-            var a = lap.Create(5, 5, (j, k) => k + 1).AsIndexable();
+            var a = _cpu.Create(5, 5, (j, k) => k + 1).AsIndexable();
             var b = a.Clone().AsIndexable();
             FloatingPointHelper.AssertEqual(a, b);
 
@@ -873,8 +830,7 @@ namespace UnitTests
         [TestMethod]
         public void VectorClone()
         {
-            var lap = new NumericsProvider();
-            var a = lap.Create(5, i => i).AsIndexable();
+            var a = _cpu.Create(5, i => i).AsIndexable();
             var b = a.Clone().AsIndexable();
             FloatingPointHelper.AssertEqual(a, b);
 
@@ -889,8 +845,7 @@ namespace UnitTests
         [TestMethod]
         public void VectorMultiply()
         {
-            var lap = new NumericsProvider();
-            var a = lap.Create(5, i => i).AsIndexable();
+            var a = _cpu.Create(5, i => i).AsIndexable();
             const float OPERAND = 2f;
 
             IIndexableVector gpuResults;
@@ -906,12 +861,11 @@ namespace UnitTests
         [TestMethod]
         public void VectorReadWrite()
         {
-            var lap = new NumericsProvider();
-            var a = lap.Create(5, i => i).AsIndexable();
+            var a = _cpu.Create(5, i => i).AsIndexable();
 
             // test Numerics -> Numerics serialisation
             var serialised = a.Data;
-            var b = lap.CreateVector(serialised);
+            var b = _cpu.CreateVector(serialised);
             FloatingPointHelper.AssertEqual(a.AsIndexable(), b.AsIndexable());
 
             // test Numerics -> Cuda serialisation
@@ -924,7 +878,7 @@ namespace UnitTests
                     FloatingPointHelper.AssertEqual(a.AsIndexable(), d.AsIndexable());
 
                 // test Cuda -> Numerics serialisation
-                var e = lap.CreateVector(c.Data);
+                var e = _cpu.CreateVector(c.Data);
                 FloatingPointHelper.AssertEqual(a.AsIndexable(), e.AsIndexable());
             }
         }
@@ -932,12 +886,11 @@ namespace UnitTests
         [TestMethod]
         public void MatrixReadWrite()
         {
-            var lap = new NumericsProvider();
-            var a = lap.Create(7, 20, (x, y) => x * 10 + y).AsIndexable();
+            var a = _cpu.Create(7, 20, (x, y) => x * 10 + y).AsIndexable();
 
             // test Numerics -> Numerics serialisation
             var serialised = a.Data;
-            var b = lap.CreateMatrix(serialised);
+            var b = _cpu.CreateMatrix(serialised);
             FloatingPointHelper.AssertEqual(a.AsIndexable(), b.AsIndexable());
 
             // test Numerics -> Cuda serialisation
@@ -950,7 +903,7 @@ namespace UnitTests
                     FloatingPointHelper.AssertEqual(a.AsIndexable(), d.AsIndexable());
 
                 // test Cuda -> Numerics serialisation
-                var e = lap.CreateMatrix(c.Data);
+                var e = _cpu.CreateMatrix(c.Data);
                 FloatingPointHelper.AssertEqual(a.AsIndexable(), e.AsIndexable());
             }
         }
@@ -958,10 +911,9 @@ namespace UnitTests
         [TestMethod]
         public void MatrixConcatColumns()
         {
-            var lap = new NumericsProvider();
             var rand = new Random();
-            var a = lap.CreateIndexable(4000, 300, (x, y) => Convert.ToSingle(rand.NextDouble()));
-            var b = lap.CreateIndexable(200, 300, (x, y) => Convert.ToSingle(rand.NextDouble()));
+            var a = _cpu.CreateIndexable(4000, 300, (x, y) => Convert.ToSingle(rand.NextDouble()));
+            var b = _cpu.CreateIndexable(200, 300, (x, y) => Convert.ToSingle(rand.NextDouble()));
             var c = a.ConcatColumns(b).AsIndexable();
 
             IIndexableMatrix gpuResults;
@@ -976,10 +928,9 @@ namespace UnitTests
         [TestMethod]
         public void MatrixConcatRows()
         {
-            var lap = new NumericsProvider();
             var rand = new Random();
-            var a = lap.CreateIndexable(300, 4000, (x, y) => Convert.ToSingle(rand.NextDouble()));
-            var b = lap.CreateIndexable(300, 200, (x, y) => Convert.ToSingle(rand.NextDouble()));
+            var a = _cpu.CreateIndexable(300, 4000, (x, y) => Convert.ToSingle(rand.NextDouble()));
+            var b = _cpu.CreateIndexable(300, 200, (x, y) => Convert.ToSingle(rand.NextDouble()));
             var c = a.ConcatRows(b).AsIndexable();
 
             IIndexableMatrix gpuResults;
@@ -995,9 +946,8 @@ namespace UnitTests
         public void MatrixSplitColumns()
         {
             const int POSITION = 2000;
-            var lap = new NumericsProvider();
             var rand = new Random();
-            var a = lap.CreateIndexable(6000, 3000, (x, y) => Convert.ToSingle(rand.NextDouble()));
+            var a = _cpu.CreateIndexable(6000, 3000, (x, y) => Convert.ToSingle(rand.NextDouble()));
             var r = a.SplitColumns(POSITION);
 
             IIndexableMatrix gpuResults1, gpuResults2;
@@ -1017,9 +967,8 @@ namespace UnitTests
         public void MatrixSplitRows()
         {
             const int POSITION = 2000;
-            var lap = new NumericsProvider();
             var rand = new Random();
-            var a = lap.CreateIndexable(6000, 3000, (x, y) => Convert.ToSingle(rand.NextDouble()));
+            var a = _cpu.CreateIndexable(6000, 3000, (x, y) => Convert.ToSingle(rand.NextDouble()));
             var r = a.SplitRows(POSITION);
 
             IIndexableMatrix gpuResults1, gpuResults2;
@@ -1038,8 +987,7 @@ namespace UnitTests
         [TestMethod]
         public void MatrixL1Regularisation()
         {
-            var lap = new NumericsProvider();
-            var a = lap.CreateIndexable(6, 3, (x, y) => x * 2 + y);
+            var a = _cpu.CreateIndexable(6, 3, (x, y) => x * 2 + y);
             const float OPERAND = 2f;
 
             IIndexableMatrix gpuResults;
@@ -1054,8 +1002,7 @@ namespace UnitTests
         [TestMethod]
         public void MatrixColumnL2Norm()
         {
-            var lap = new NumericsProvider();
-            var a = lap.CreateIndexable(6, 3, (x, y) => x * 2 + y);
+            var a = _cpu.CreateIndexable(6, 3, (x, y) => x * 2 + y);
             var r = a.ColumnL2Norm().AsIndexable();
 
             IIndexableVector gpuResults;
@@ -1069,8 +1016,7 @@ namespace UnitTests
         [TestMethod]
         public void MatrixRowL2Norm()
         {
-            var lap = new NumericsProvider();
-            var a = lap.CreateIndexable(6, 3, (x, y) => x * 2 + y);
+            var a = _cpu.CreateIndexable(6, 3, (x, y) => x * 2 + y);
             var r = a.RowL2Norm().AsIndexable();
 
             IIndexableVector gpuResults;
@@ -1084,9 +1030,8 @@ namespace UnitTests
         [TestMethod]
         public void MatrixPointwiseDivideRows()
         {
-            var lap = new NumericsProvider();
-            var a = lap.CreateIndexable(6, 3, (x, y) => x * 2 + y);
-            var b = lap.CreateIndexable(6, i => i);
+            var a = _cpu.CreateIndexable(6, 3, (x, y) => x * 2 + y);
+            var b = _cpu.CreateIndexable(6, i => i);
 
             IIndexableMatrix gpuResults;
             using (var gpuA = _cuda.Create(a))
@@ -1102,9 +1047,8 @@ namespace UnitTests
         [TestMethod]
         public void MatrixPointwiseDivideColumns()
         {
-            var lap = new NumericsProvider();
-            var a = lap.CreateIndexable(6, 3, (x, y) => x * 2 + y);
-            var b = lap.CreateIndexable(3, i => i);
+            var a = _cpu.CreateIndexable(6, 3, (x, y) => x * 2 + y);
+            var b = _cpu.CreateIndexable(3, i => i);
 
             IIndexableMatrix gpuResults;
             using (var gpuA = _cuda.Create(a))
@@ -1120,8 +1064,7 @@ namespace UnitTests
         [TestMethod]
         public void MatrixDiagonal()
         {
-            var lap = new NumericsProvider();
-            var a = lap.CreateIndexable(6, 6, (x, y) => x * 2 + y);
+            var a = _cpu.CreateIndexable(6, 6, (x, y) => x * 2 + y);
             var d = a.Diagonal().AsIndexable();
 
             IIndexableVector gpuResults;
@@ -1135,8 +1078,7 @@ namespace UnitTests
         [TestMethod]
         public void MatrixPow()
         {
-            var lap = new NumericsProvider();
-            var a = lap.CreateIndexable(6, 3, (x, y) => x * 2 + y);
+            var a = _cpu.CreateIndexable(6, 3, (x, y) => x * 2 + y);
             const float OPERAND = 2.5f;
             var r = a.Pow(OPERAND).AsIndexable();
 
@@ -1151,9 +1093,8 @@ namespace UnitTests
         [TestMethod]
         public void MatrixUpdateRow()
         {
-            var lap = new NumericsProvider();
-            var a = lap.CreateIndexable(10, 10, (x, y) => x * 2 + y);
-            var r = lap.CreateIndexable(2, x => -1f);
+            var a = _cpu.CreateIndexable(10, 10, (x, y) => x * 2 + y);
+            var r = _cpu.CreateIndexable(2, x => -1f);
 
             IIndexableMatrix gpuResults;
             using (var gpuA = _cuda.Create(a)) {
@@ -1168,9 +1109,8 @@ namespace UnitTests
         [TestMethod]
         public void MatrixUpdateColumn()
         {
-            var lap = new NumericsProvider();
-            var a = lap.CreateIndexable(10, 10, (x, y) => x * 2 + y);
-            var r = lap.CreateIndexable(2, x => -1f);
+            var a = _cpu.CreateIndexable(10, 10, (x, y) => x * 2 + y);
+            var r = _cpu.CreateIndexable(2, x => -1f);
 
             IIndexableMatrix gpuResults;
             using (var gpuA = _cuda.Create(a)) {
@@ -1185,8 +1125,7 @@ namespace UnitTests
         [TestMethod]
         public void MatrixGetRowSegment()
         {
-            var lap = new NumericsProvider();
-            var a = lap.CreateIndexable(10, 10, (x, y) => x * 2 + y);
+            var a = _cpu.CreateIndexable(10, 10, (x, y) => x * 2 + y);
             var r = a.GetRowSegment(1, 2, 5).AsIndexable();
 
             IIndexableVector gpuResults;
@@ -1199,8 +1138,7 @@ namespace UnitTests
         [TestMethod]
         public void MatrixGetColumnSegment()
         {
-            var lap = new NumericsProvider();
-            var a = lap.CreateIndexable(10, 10, (x, y) => x * 2 + y);
+            var a = _cpu.CreateIndexable(10, 10, (x, y) => x * 2 + y);
             var r = a.GetColumnSegment(1, 2, 5).AsIndexable();
 
             IIndexableVector gpuResults;
@@ -1213,9 +1151,8 @@ namespace UnitTests
         [TestMethod]
         public void MatrixConstrain()
         {
-            var lap = new NumericsProvider();
             var distribution = new Normal(0, 5);
-            var a = lap.CreateIndexable(100, 100, (x, y) => Convert.ToSingle(distribution.Sample()));
+            var a = _cpu.CreateIndexable(100, 100, (x, y) => Convert.ToSingle(distribution.Sample()));
 
             IIndexableMatrix gpuResults;
             using (var gpuA = _cuda.Create(a)) {
@@ -1230,11 +1167,10 @@ namespace UnitTests
         [TestMethod]
         public void VectorEuclideanDistance()
         {
-            var np = new NumericsProvider();
             var distribution = new Normal(0, 5);
 
-            var a = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
-            var b = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var a = _cpu.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var b = _cpu.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
             var distance = a.EuclideanDistance(b);
 
             float distance2;
@@ -1248,11 +1184,10 @@ namespace UnitTests
         [TestMethod]
         public void VectorCosineDistance()
         {
-            var np = new NumericsProvider();
             var rand = new Random(0);
 
-            var a = np.Create(5000, i => Convert.ToSingle(rand.NextDouble())).AsIndexable();
-            var b = np.Create(5000, i => Convert.ToSingle(rand.NextDouble())).AsIndexable();
+            var a = _cpu.Create(5000, i => Convert.ToSingle(rand.NextDouble())).AsIndexable();
+            var b = _cpu.Create(5000, i => Convert.ToSingle(rand.NextDouble())).AsIndexable();
             var distance = a.CosineDistance(b);
 
             float distance2;
@@ -1266,11 +1201,10 @@ namespace UnitTests
         [TestMethod]
         public void VectorManhattanDistance()
         {
-            var np = new NumericsProvider();
             var distribution = new Normal(0, 5);
 
-            var a = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
-            var b = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var a = _cpu.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var b = _cpu.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
             var distance = a.ManhattanDistance(b);
 
             float distance2;
@@ -1284,11 +1218,10 @@ namespace UnitTests
         [TestMethod]
         public void VectorMeanSquaredDistance()
         {
-            var np = new NumericsProvider();
             var distribution = new Normal(0, 5);
 
-            var a = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
-            var b = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var a = _cpu.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var b = _cpu.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
             var distance = a.MeanSquaredDistance(b);
 
             float distance2;
@@ -1302,11 +1235,10 @@ namespace UnitTests
         [TestMethod]
         public void VectorSquaredEuclideanDistance()
         {
-            var np = new NumericsProvider();
             var distribution = new Normal(0, 5);
 
-            var a = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
-            var b = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var a = _cpu.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var b = _cpu.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
             var distance = a.SquaredEuclidean(b);
 
             float distance2;
@@ -1320,10 +1252,9 @@ namespace UnitTests
         [TestMethod]
         public void VectorMinMax()
         {
-            var np = new NumericsProvider();
             var distribution = new Normal(0, 5);
 
-            var a = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var a = _cpu.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
             var minMax = a.GetMinMax();
 
             Tuple<float, float> minMax2;
@@ -1337,10 +1268,9 @@ namespace UnitTests
         [TestMethod]
         public void VectorAverage()
         {
-            var np = new NumericsProvider();
             var distribution = new Normal(0, 5);
 
-            var a = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var a = _cpu.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
             var average = a.Average();
 
             float average2;
@@ -1353,10 +1283,9 @@ namespace UnitTests
         [TestMethod]
         public void VectorL1Norm()
         {
-            var np = new NumericsProvider();
             var distribution = new Normal(0, 5);
 
-            var a = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var a = _cpu.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
             var v1 = a.L1Norm();
 
             float v2;
@@ -1369,10 +1298,9 @@ namespace UnitTests
         [TestMethod]
         public void VectorAbs()
         {
-            var np = new NumericsProvider();
             var distribution = new Normal(0, 5);
 
-            var a = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var a = _cpu.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
             var v1 = a.Abs().AsIndexable();
 
             IIndexableVector v2;
@@ -1386,10 +1314,9 @@ namespace UnitTests
         [TestMethod]
         public void VectorLog()
         {
-            var np = new NumericsProvider();
             var distribution = new Normal(0, 5);
 
-            var a = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var a = _cpu.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
             var v1 = a.Log().AsIndexable();
 
             IIndexableVector v2;
@@ -1403,10 +1330,9 @@ namespace UnitTests
         [TestMethod]
         public void VectorStdDev()
         {
-            var np = new NumericsProvider();
             var distribution = new Normal(0, 5);
 
-            var a = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var a = _cpu.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
             var stdDev = a.StdDev(null);
 
             float stdDev2;
@@ -1418,11 +1344,10 @@ namespace UnitTests
 
         void _TestNormalise(NormalisationType type)
         {
-            var np = new NumericsProvider();
             var distribution = new Normal(0, 5);
 
             IIndexableVector v2;
-            var a = np.Create(5000, i => Convert.ToSingle(distribution.Sample()));
+            var a = _cpu.Create(5000, i => Convert.ToSingle(distribution.Sample()));
             using (var gpuA = _cuda.Create(a.AsIndexable())) {
                 gpuA.Normalise(type);
                 v2 = gpuA.AsIndexable();
@@ -1459,12 +1384,11 @@ namespace UnitTests
         [TestMethod]
         public void MultiEuclideanDistance()
         {
-            var np = new NumericsProvider();
             var distribution = new Normal(0, 5);
 
-            var a = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
-            var b = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
-            var c = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var a = _cpu.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var b = _cpu.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var c = _cpu.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
             var distance = a.FindDistances(new[] { b, c }, DistanceMetric.Euclidean).AsIndexable();
 
             IIndexableVector distance2;
@@ -1480,12 +1404,11 @@ namespace UnitTests
         [TestMethod]
         public void MultiManhattanDistance()
         {
-            var np = new NumericsProvider();
             var distribution = new Normal(0, 5);
 
-            var a = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
-            var b = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
-            var c = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var a = _cpu.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var b = _cpu.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var c = _cpu.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
             var distance = a.FindDistances(new[] { b, c }, DistanceMetric.Manhattan).AsIndexable();
 
             IIndexableVector distance2;
@@ -1501,12 +1424,11 @@ namespace UnitTests
         [TestMethod]
         public void MultiCosineDistance()
         {
-            var np = new NumericsProvider();
             var distribution = new Normal(0, 5);
 
-            var a = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
-            var b = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
-            var c = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var a = _cpu.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var b = _cpu.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var c = _cpu.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
             var distance = a.FindDistances(new[] { b, c }, DistanceMetric.Cosine).AsIndexable();
 
             IIndexableVector distance2;
@@ -1522,14 +1444,13 @@ namespace UnitTests
         [TestMethod]
         public void MultiCosineDistance2()
         {
-            var np = new NumericsProvider();
             var distribution = new Normal(0, 5);
             float[] dataNorm1 = null;
             float[] dataNorm2 = null;
 
-            var a = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
-            var b = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
-            var c = np.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var a = _cpu.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var b = _cpu.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var c = _cpu.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
             var distance = a.CosineDistance(new[] { b, c }, ref dataNorm1).AsIndexable();
 
             IIndexableVector distance2;
@@ -1545,8 +1466,7 @@ namespace UnitTests
         [TestMethod]
         public void TestIdentity()
         {
-            var np = new NumericsProvider();
-            var a = np.CreateIdentity(1000).AsIndexable();
+            var a = _cpu.CreateIdentity(1000).AsIndexable();
 
             IIndexableMatrix a2;
             using (var gpuA = _cuda.CreateIdentity(1000))
@@ -1557,8 +1477,7 @@ namespace UnitTests
         [TestMethod]
         public void VectorAddScalar()
         {
-            var np = new NumericsProvider();
-            var a = np.Create(1000, i => i).AsIndexable();
+            var a = _cpu.Create(1000, i => i).AsIndexable();
 
             IIndexableVector gpuResults;
             using (var gpuA = _cuda.Create(a)) {
@@ -1573,8 +1492,7 @@ namespace UnitTests
         [TestMethod]
         public void VectorSigmoid()
         {
-            var np = new NumericsProvider();
-            var a = np.Create(1000, i => i).AsIndexable();
+            var a = _cpu.Create(1000, i => i).AsIndexable();
             var results = a.Sigmoid().AsIndexable();
 
             IIndexableVector gpuResults;
@@ -1589,9 +1507,8 @@ namespace UnitTests
         [TestMethod]
         public void MatrixVectorMultiply()
         {
-            var np = new NumericsProvider();
-            var a = np.Create(256, 256, (x, y) => x*y).AsIndexable();
-            var b = np.Create(256, i => i * 0.5f).AsIndexable();
+            var a = _cpu.Create(256, 256, (x, y) => x*y).AsIndexable();
+            var b = _cpu.Create(256, i => i * 0.5f).AsIndexable();
             var c = a.Multiply(b).AsIndexable();
 
             IIndexableMatrix gpuResults;

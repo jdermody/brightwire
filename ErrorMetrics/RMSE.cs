@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.ErrorMetrics
 {
-    public class RMSE : IErrorMetric
+    internal class RMSE : IErrorMetric
     {
         public bool DisplayAsPercentage
         {

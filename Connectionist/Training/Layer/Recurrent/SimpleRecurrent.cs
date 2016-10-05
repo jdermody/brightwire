@@ -12,7 +12,7 @@ namespace BrightWire.Connectionist.Training.Layer.Recurrent
     /// <summary>
     /// Simple recurrent layers can be used for elman style recurrent networks
     /// </summary>
-    public class SimpleRecurrent : RecurrentLayerBase, INeuralNetworkRecurrentLayer
+    internal class SimpleRecurrent : RecurrentLayerBase, INeuralNetworkRecurrentLayer
     {
         readonly IActivationFunction _activation;
         readonly INeuralNetworkLayerUpdater _input, _memory;
@@ -55,7 +55,7 @@ namespace BrightWire.Connectionist.Training.Layer.Recurrent
             }
         }
 
-        public SimpleRecurrent(int inputSize, int hiddenSize, INeuralNetworkFactory factory, INeuralNetworkLayerDescriptor template)
+        public SimpleRecurrent(int inputSize, int hiddenSize, INeuralNetworkFactory factory, LayerDescriptor template)
         {
             _activation = factory.GetActivation(template.Activation);
             _input = CreateLayer(inputSize, hiddenSize, factory, template);

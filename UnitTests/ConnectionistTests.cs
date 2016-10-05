@@ -26,7 +26,7 @@ namespace UnitTests
         [ClassInitialize]
         public static void Load(TestContext context)
         {
-            _lap = new NumericsProvider();
+            _lap = LinearAlgebraProvider.CreateCPU(false);
         }
 
         [ClassCleanup]
@@ -100,31 +100,28 @@ namespace UnitTests
             var recurrentTemplate = layerTemplate.Clone();
             recurrentTemplate.WeightInitialisation = WeightInitialisationType.Gaussian;
 
-            using (var lap = new NumericsProvider()) {
-                var trainingDataProvider = new DenseSequentialTrainingDataProvider(lap, trainingSet);
-                var factory = new Factory(lap, false);
-                var layers = new INeuralNetworkRecurrentLayer[] {
-                    lap.NN.CreateSimpleRecurrentLayer(trainingDataProvider.InputSize, HIDDEN_SIZE, recurrentTemplate),
-                    lap.NN.CreateFeedForwardRecurrentLayer(HIDDEN_SIZE, trainingDataProvider.OutputSize, layerTemplate)
+            var trainingDataProvider = new DenseSequentialTrainingDataProvider(_lap, trainingSet);
+            var layers = new INeuralNetworkRecurrentLayer[] {
+                    _lap.NN.CreateSimpleRecurrentLayer(trainingDataProvider.InputSize, HIDDEN_SIZE, recurrentTemplate),
+                    _lap.NN.CreateFeedForwardRecurrentLayer(HIDDEN_SIZE, trainingDataProvider.OutputSize, layerTemplate)
                 };
-                RecurrentNetwork networkData = null;
-                using (var trainer = factory.CreateRecurrentBatchTrainer(layers)) {
-                    var memory = Enumerable.Range(0, HIDDEN_SIZE).Select(i => 0f).ToArray();
-                    var trainingContext = factory.CreateTrainingContext(0.1f, BATCH_SIZE, errorMetric);
-                    trainingContext.RecurrentEpochComplete += (tc, rtc) => {
-                        Debug.WriteLine(tc.LastTrainingError);
-                    };
-                    trainer.Train(trainingDataProvider, memory, NUM_EPOCHS, new RecurrentContext(lap, trainingContext));
-                    networkData = trainer.NetworkInfo;
-                    networkData.Memory = new FloatArray {
-                        Data = memory
-                    };
-                }
+            RecurrentNetwork networkData = null;
+            using (var trainer = _lap.NN.CreateRecurrentBatchTrainer(layers)) {
+                var memory = Enumerable.Range(0, HIDDEN_SIZE).Select(i => 0f).ToArray();
+                var trainingContext = _lap.NN.CreateTrainingContext(0.1f, BATCH_SIZE, errorMetric);
+                trainingContext.RecurrentEpochComplete += (tc, rtc) => {
+                    Debug.WriteLine(tc.LastTrainingError);
+                };
+                trainer.Train(trainingDataProvider, memory, NUM_EPOCHS, new RecurrentContext(_lap, trainingContext));
+                networkData = trainer.NetworkInfo;
+                networkData.Memory = new FloatArray {
+                    Data = memory
+                };
+            }
 
-                var network = factory.CreateRecurrent(networkData);
-                foreach (var sequence in trainingSet) {
-                    var result = network.Execute(sequence.Select(d => d.Item1).ToList());
-                }
+            var network = _lap.NN.CreateRecurrent(networkData);
+            foreach (var sequence in trainingSet) {
+                var result = network.Execute(sequence.Select(d => d.Item1).ToList());
             }
         }
 
@@ -145,31 +142,28 @@ namespace UnitTests
             var recurrentTemplate = layerTemplate.Clone();
             recurrentTemplate.WeightInitialisation = WeightInitialisationType.Gaussian;
 
-            using (var lap = new NumericsProvider()) {
-                var trainingDataProvider = new DenseSequentialTrainingDataProvider(lap, trainingSet);
-                var factory = new Factory(lap, false);
-                var layers = new INeuralNetworkRecurrentLayer[] {
-                    lap.NN.CreateLstmRecurrentLayer(trainingDataProvider.InputSize, HIDDEN_SIZE, recurrentTemplate),
-                    lap.NN.CreateFeedForwardRecurrentLayer(HIDDEN_SIZE, trainingDataProvider.OutputSize, layerTemplate)
+            var trainingDataProvider = new DenseSequentialTrainingDataProvider(_lap, trainingSet);
+            var layers = new INeuralNetworkRecurrentLayer[] {
+                    _lap.NN.CreateLstmRecurrentLayer(trainingDataProvider.InputSize, HIDDEN_SIZE, recurrentTemplate),
+                    _lap.NN.CreateFeedForwardRecurrentLayer(HIDDEN_SIZE, trainingDataProvider.OutputSize, layerTemplate)
                 };
-                RecurrentNetwork networkData = null;
-                using (var trainer = factory.CreateRecurrentBatchTrainer(layers)) {
-                    var memory = Enumerable.Range(0, HIDDEN_SIZE).Select(i => 0f).ToArray();
-                    var trainingContext = factory.CreateTrainingContext(0.1f, BATCH_SIZE, errorMetric);
-                    trainingContext.RecurrentEpochComplete += (tc, rtc) => {
-                        Debug.WriteLine(tc.LastTrainingError);
-                    };
-                    trainer.Train(trainingDataProvider, memory, NUM_EPOCHS, new RecurrentContext(lap, trainingContext));
-                    networkData = trainer.NetworkInfo;
-                    networkData.Memory = new FloatArray {
-                        Data = memory
-                    };
-                }
+            RecurrentNetwork networkData = null;
+            using (var trainer = _lap.NN.CreateRecurrentBatchTrainer(layers)) {
+                var memory = Enumerable.Range(0, HIDDEN_SIZE).Select(i => 0f).ToArray();
+                var trainingContext = _lap.NN.CreateTrainingContext(0.1f, BATCH_SIZE, errorMetric);
+                trainingContext.RecurrentEpochComplete += (tc, rtc) => {
+                    Debug.WriteLine(tc.LastTrainingError);
+                };
+                trainer.Train(trainingDataProvider, memory, NUM_EPOCHS, new RecurrentContext(_lap, trainingContext));
+                networkData = trainer.NetworkInfo;
+                networkData.Memory = new FloatArray {
+                    Data = memory
+                };
+            }
 
-                var network = factory.CreateRecurrent(networkData);
-                foreach (var sequence in trainingSet) {
-                    var result = network.Execute(sequence.Select(d => d.Item1).ToList());
-                }
+            var network = _lap.NN.CreateRecurrent(networkData);
+            foreach (var sequence in trainingSet) {
+                var result = network.Execute(sequence.Select(d => d.Item1).ToList());
             }
         }
 
@@ -190,38 +184,35 @@ namespace UnitTests
             var recurrentTemplate = layerTemplate.Clone();
             recurrentTemplate.WeightInitialisation = WeightInitialisationType.Gaussian;
 
-            using (var lap = new NumericsProvider()) {
-                var trainingDataProvider = new DenseSequentialTrainingDataProvider(lap, trainingSet);
-                var factory = new Factory(lap, false);
-                var layers = new INeuralNetworkBidirectionalLayer[] {
-                    new Bidirectional(
-                        factory.CreateSimpleRecurrentLayer(trainingDataProvider.InputSize, HIDDEN_SIZE, recurrentTemplate),
-                        factory.CreateSimpleRecurrentLayer(trainingDataProvider.InputSize, HIDDEN_SIZE, recurrentTemplate)
+            var trainingDataProvider = new DenseSequentialTrainingDataProvider(_lap, trainingSet);
+            var layers = new INeuralNetworkBidirectionalLayer[] {
+                    _lap.NN.CreateBidirectionalLayer(
+                        _lap.NN.CreateSimpleRecurrentLayer(trainingDataProvider.InputSize, HIDDEN_SIZE, recurrentTemplate),
+                        _lap.NN.CreateSimpleRecurrentLayer(trainingDataProvider.InputSize, HIDDEN_SIZE, recurrentTemplate)
                     ),
-                    new Bidirectional(factory.CreateFeedForwardRecurrentLayer(HIDDEN_SIZE*2, trainingDataProvider.OutputSize, layerTemplate))
+                    _lap.NN.CreateBidirectionalLayer(_lap.NN.CreateFeedForwardRecurrentLayer(HIDDEN_SIZE*2, trainingDataProvider.OutputSize, layerTemplate))
                 };
-                BidirectionalNetwork networkData = null;
-                using (var trainer = factory.CreateBidirectionalBatchTrainer(layers)) {
-                    var forwardMemory = Enumerable.Range(0, HIDDEN_SIZE).Select(i => 0f).ToArray();
-                    var backwardMemory = Enumerable.Range(0, HIDDEN_SIZE).Select(i => 0f).ToArray();
-                    var trainingContext = factory.CreateTrainingContext(0.1f, BATCH_SIZE, errorMetric);
-                    trainingContext.RecurrentEpochComplete += (tc, rtc) => {
-                        Debug.WriteLine(tc.LastTrainingError);
-                    };
-                    trainer.Train(trainingDataProvider, forwardMemory, backwardMemory, NUM_EPOCHS, new RecurrentContext(lap, trainingContext));
-                    networkData = trainer.NetworkInfo;
-                    networkData.ForwardMemory = new FloatArray {
-                        Data = forwardMemory
-                    };
-                    networkData.BackwardMemory = new FloatArray {
-                        Data = backwardMemory
-                    };
-                }
+            BidirectionalNetwork networkData = null;
+            using (var trainer = _lap.NN.CreateBidirectionalBatchTrainer(layers)) {
+                var forwardMemory = Enumerable.Range(0, HIDDEN_SIZE).Select(i => 0f).ToArray();
+                var backwardMemory = Enumerable.Range(0, HIDDEN_SIZE).Select(i => 0f).ToArray();
+                var trainingContext = _lap.NN.CreateTrainingContext(0.1f, BATCH_SIZE, errorMetric);
+                trainingContext.RecurrentEpochComplete += (tc, rtc) => {
+                    Debug.WriteLine(tc.LastTrainingError);
+                };
+                trainer.Train(trainingDataProvider, forwardMemory, backwardMemory, NUM_EPOCHS, new RecurrentContext(_lap, trainingContext));
+                networkData = trainer.NetworkInfo;
+                networkData.ForwardMemory = new FloatArray {
+                    Data = forwardMemory
+                };
+                networkData.BackwardMemory = new FloatArray {
+                    Data = backwardMemory
+                };
+            }
 
-                var network = factory.CreateBidirectional(networkData);
-                foreach (var sequence in trainingSet) {
-                    var result = network.Execute(sequence.Select(d => d.Item1).ToList());
-                }
+            var network = _lap.NN.CreateBidirectional(networkData);
+            foreach (var sequence in trainingSet) {
+                var result = network.Execute(sequence.Select(d => d.Item1).ToList());
             }
         }
     }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.Connectionist.Training.Helper
 {
-    public class UpdateAccumulator : INeuralNetworkUpdateAccumulator
+    internal class UpdateAccumulator : INeuralNetworkUpdateAccumulator
     {
         readonly ITrainingContext _context;
         readonly List<Tuple<INeuralNetworkLayerUpdater, IMatrix, IMatrix>> _update = new List<Tuple<INeuralNetworkLayerUpdater, IMatrix, IMatrix>>();

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.Connectionist.Activation
 {
-    public class Tanh : IActivationFunction
+    internal class Tanh : IActivationFunction
     {
         public ActivationType Type { get { return ActivationType.Tanh; } }
 

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.Connectionist.Activation
 {
-    //public class Softmax : IActivationFunction
+    //internal class Softmax : IActivationFunction
     //{
     //    public ActivationType Type
     //    {

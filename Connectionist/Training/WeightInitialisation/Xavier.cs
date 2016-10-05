@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.Connectionist.Training.WeightInitialisation
 {
-    public class Xavier : IWeightInitialisation
+    internal class Xavier : IWeightInitialisation
     {
         readonly Dictionary<Tuple<int, int>, IContinuousDistribution> _distributionTable = new Dictionary<Tuple<int, int>, IContinuousDistribution>();
         readonly Random _random;

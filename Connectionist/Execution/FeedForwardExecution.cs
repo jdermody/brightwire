@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.Connectionist.Execution
 {
-    public class FeedForwardExecution : IStandardExecution
+    internal class FeedForwardExecution : IStandardExecution
     {
         readonly ILinearAlgebraProvider _lap;
         readonly IReadOnlyList<StandardFeedForward> _layer;

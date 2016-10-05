@@ -8,7 +8,7 @@ using BrightWire.Helper;
 
 namespace BrightWire.Connectionist.Execution.Layer
 {
-    public class RecurrentFeedForward : IRecurrentLayerExecution
+    internal class RecurrentFeedForward : IRecurrentLayerExecution
     {
         readonly StandardFeedForward _layer;
 

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.ErrorMetrics
 {
-    public class OneHot : IErrorMetric
+    internal class OneHot : IErrorMetric
     {
         public bool DisplayAsPercentage
         {

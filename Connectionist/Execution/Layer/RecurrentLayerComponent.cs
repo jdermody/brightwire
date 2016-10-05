@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.Connectionist.Execution.Layer
 {
-    public class RecurrentLayerComponent : IDisposable
+    internal class RecurrentLayerComponent : IDisposable
     {
         readonly List<StandardFeedForward> _part = new List<StandardFeedForward>();
         readonly IActivationFunction _activation;

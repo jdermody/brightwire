@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.Connectionist.Training.WeightInitialisation
 {
-    public class Identity : IWeightInitialisation
+    internal class Identity : IWeightInitialisation
     {
         readonly float _scale;
 

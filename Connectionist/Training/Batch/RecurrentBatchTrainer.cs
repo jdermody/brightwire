@@ -9,7 +9,7 @@ using BrightWire.Models.ExecutionResults;
 
 namespace BrightWire.Connectionist.Training.Batch
 {
-    class RecurrentBatchTrainer : RecurrentBatchTrainerBase, INeuralNetworkRecurrentBatchTrainer
+    internal class RecurrentBatchTrainer : RecurrentBatchTrainerBase, INeuralNetworkRecurrentBatchTrainer
     {
         readonly IReadOnlyList<INeuralNetworkRecurrentLayer> _layer;
         readonly bool _collectTrainingError;

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.ErrorMetrics
 {
-    public class Quadratic : IErrorMetric
+    internal class Quadratic : IErrorMetric
     {
         public bool DisplayAsPercentage
         {

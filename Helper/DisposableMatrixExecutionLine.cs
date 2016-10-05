@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.Helper
 {
-    public class DisposableMatrixExecutionLine : IDisposableMatrixExecutionLine
+    internal class DisposableMatrixExecutionLine : IDisposableMatrixExecutionLine
     {
         readonly List<IMatrix> _garbage = new List<IMatrix>();
         IMatrix _curr;

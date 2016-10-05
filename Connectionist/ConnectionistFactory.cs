@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.Connectionist
 {
-    public class Factory : INeuralNetworkFactory
+    internal class ConnectionistFactory : INeuralNetworkFactory
     {
         readonly bool _stochastic;
         readonly ILinearAlgebraProvider _lap;
@@ -25,7 +25,7 @@ namespace BrightWire.Connectionist
         readonly Dictionary<ActivationType, IActivationFunction> _activation = new Dictionary<ActivationType, IActivationFunction>();
         readonly Dictionary<WeightInitialisationType, IWeightInitialisation> _weightInitialisation = new Dictionary<WeightInitialisationType, IWeightInitialisation>();
 
-        public Factory(ILinearAlgebraProvider lap, bool stochastic = true)
+        public ConnectionistFactory(ILinearAlgebraProvider lap, bool stochastic = true)
         {
             _lap = lap;
             _stochastic = stochastic;
@@ -59,19 +59,19 @@ namespace BrightWire.Connectionist
             return _weightInitialisation[type];
         }
 
-        public INeuralNetworkLayerTrainer CreateTrainer(int inputSize, int outputSize, INeuralNetworkLayerDescriptor descriptor)
+        public INeuralNetworkLayerTrainer CreateTrainer(int inputSize, int outputSize, LayerDescriptor descriptor)
         {
             var layerUpdater = CreateUpdater(inputSize, outputSize, descriptor);
             return _CreateLayerUpdater(layerUpdater, descriptor);
         }
 
-        public INeuralNetworkLayerUpdater CreateUpdater(int inputSize, int outputSize, INeuralNetworkLayerDescriptor descriptor)
+        public INeuralNetworkLayerUpdater CreateUpdater(int inputSize, int outputSize, LayerDescriptor descriptor)
         {
             var layer = CreateLayer(inputSize, outputSize, descriptor);
             return CreateUpdater(layer, descriptor);
         }
 
-        public INeuralNetworkLayer CreateLayer(int inputSize, int outputSize, INeuralNetworkLayerDescriptor descriptor)
+        public INeuralNetworkLayer CreateLayer(int inputSize, int outputSize, LayerDescriptor descriptor)
         {
             return new Standard(_lap, inputSize, outputSize, descriptor, _activation[descriptor.Activation], _weightInitialisation[descriptor.WeightInitialisation]);
         }
@@ -81,7 +81,7 @@ namespace BrightWire.Connectionist
             return new BatchTrainer(layer, _stochastic, calculateTrainingError);
         }
 
-        public INeuralNetworkTrainer CreateBatchTrainer(INeuralNetworkLayerDescriptor descriptor, params int[] layerSizes)
+        public INeuralNetworkTrainer CreateBatchTrainer(LayerDescriptor descriptor, params int[] layerSizes)
         {
             return CreateBatchTrainer(
                 Enumerable.Range(0, layerSizes.Length - 1)
@@ -90,17 +90,22 @@ namespace BrightWire.Connectionist
             );
         }
 
-        public INeuralNetworkRecurrentLayer CreateSimpleRecurrentLayer(int inputSize, int outputSize, INeuralNetworkLayerDescriptor descriptor)
+        public INeuralNetworkBidirectionalLayer CreateBidirectionalLayer(INeuralNetworkRecurrentLayer forward, INeuralNetworkRecurrentLayer backward = null)
+        {
+            return new Training.Layer.Recurrent.Bidirectional(forward, backward);
+        }
+
+        public INeuralNetworkRecurrentLayer CreateSimpleRecurrentLayer(int inputSize, int outputSize, LayerDescriptor descriptor)
         {
             return new Training.Layer.Recurrent.SimpleRecurrent(inputSize, outputSize, this, descriptor);
         }
 
-        public INeuralNetworkRecurrentLayer CreateLstmRecurrentLayer(int inputSize, int outputSize, INeuralNetworkLayerDescriptor descriptor)
+        public INeuralNetworkRecurrentLayer CreateLstmRecurrentLayer(int inputSize, int outputSize, LayerDescriptor descriptor)
         {
             return new Training.Layer.Recurrent.Lstm(inputSize, outputSize, this, descriptor);
         }
 
-        public INeuralNetworkRecurrentLayer CreateFeedForwardRecurrentLayer(int inputSize, int outputSize, INeuralNetworkLayerDescriptor descriptor)
+        public INeuralNetworkRecurrentLayer CreateFeedForwardRecurrentLayer(int inputSize, int outputSize, LayerDescriptor descriptor)
         {
             return new Training.Layer.Recurrent.FeedForward(CreateTrainer(inputSize, outputSize, descriptor));
         }
@@ -124,15 +129,15 @@ namespace BrightWire.Connectionist
                 case RegularisationType.L2:
                     return _weightUpdater.L2(layer, lambda);
 
-                case RegularisationType.MaxNorm:
-                    return _weightUpdater.MaxNorm(layer, lambda);
+                //case RegularisationType.MaxNorm:
+                //    return _weightUpdater.MaxNorm(layer, lambda);
 
                 default:
                     return _weightUpdater.Simple(layer);
             }
         }
 
-        public INeuralNetworkLayerUpdater CreateUpdater(INeuralNetworkLayer layer, INeuralNetworkLayerDescriptor descriptor)
+        public INeuralNetworkLayerUpdater CreateUpdater(INeuralNetworkLayer layer, LayerDescriptor descriptor)
         {
             var primary = _CreatePrimaryUpdater(layer, descriptor.Regularisation, descriptor.Lambda);
 
@@ -157,7 +162,7 @@ namespace BrightWire.Connectionist
             }
         }
 
-        INeuralNetworkLayerTrainer _CreateLayerUpdater(INeuralNetworkLayerUpdater layerUpdater, INeuralNetworkLayerDescriptor init)
+        INeuralNetworkLayerTrainer _CreateLayerUpdater(INeuralNetworkLayerUpdater layerUpdater, LayerDescriptor init)
         {
             switch (init.LayerTrainer) {
                 case LayerTrainerType.DropConnect:

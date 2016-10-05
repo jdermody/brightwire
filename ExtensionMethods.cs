@@ -9,14 +9,31 @@ using System.Xml;
 
 namespace BrightWire
 {
+    /// <summary>
+    /// Static extension methods
+    /// </summary>
     public static class ExtensionMethods
     {
+        /// <summary>
+        /// Shuffles the enumerable
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="seq">The sequence to shuffle</param>
+        /// <param name="randomSeed">The random seed or null initialise randomlu</param>
         public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> seq, int? randomSeed = null)
         {
             var rnd = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
             return seq.OrderBy(e => rnd.Next()).ToList();
         }
 
+        /// <summary>
+        /// Bags (select with replacement) the input sequence
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list">The input sequence</param>
+        /// <param name="count">The size of the output sequence</param>
+        /// <param name="randomSeed">The random seed or null initialise randomlu</param>
+        /// <returns></returns>
         public static IReadOnlyList<T> Bag<T>(this IReadOnlyList<T> list, int count, int? randomSeed = null)
         {
             var rnd = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
@@ -26,6 +43,11 @@ namespace BrightWire
             ;
         }
 
+        /// <summary>
+        /// Creates an error metric provider from an error metric descriptor
+        /// </summary>
+        /// <param name="type">The type of error metric</param>
+        /// <returns></returns>
         public static IErrorMetric Create(this ErrorMetricType type)
         {
             switch(type) {
@@ -39,10 +61,18 @@ namespace BrightWire
                     return new CrossEntropy();
                 case ErrorMetricType.Quadratic:
                     return new Quadratic();
+                case ErrorMetricType.None:
+                    return null;
             }
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Calculates the distance between two vectors
+        /// </summary>
+        /// <param name="distance"></param>
+        /// <param name="vector1"></param>
+        /// <param name="vector2"></param>
         public static float Calculate(this DistanceMetric distance, IVector vector1, IVector vector2)
         {
             switch (distance) {
@@ -59,6 +89,13 @@ namespace BrightWire
             }
         }
 
+        /// <summary>
+        /// Calculates the distance between two matrices
+        /// </summary>
+        /// <param name="distance"></param>
+        /// <param name="matrix1"></param>
+        /// <param name="matrix2"></param>
+        /// <returns></returns>
         public static IVector Calculate(this DistanceMetric distance, IMatrix matrix1, IMatrix matrix2)
         {
             switch (distance) {
@@ -81,6 +118,12 @@ namespace BrightWire
             }
         }
 
+        /// <summary>
+        /// Writes a matrix to an XmlWriter
+        /// </summary>
+        /// <param name="matrix">The matrix to write</param>
+        /// <param name="writer"></param>
+        /// <param name="name">The name to give the matrix</param>
         public static void WriteTo(this IMatrix matrix, XmlWriter writer, string name = null)
         {
             writer.WriteStartElement(name ?? "matrix");

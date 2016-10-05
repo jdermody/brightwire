@@ -10,7 +10,7 @@ using BrightWire.Models.ExecutionResults;
 
 namespace BrightWire.Connectionist.Training.Batch
 {
-    class BidirectionalBatchTrainer : RecurrentBatchTrainerBase, INeuralNetworkBidirectionalBatchTrainer
+    internal class BidirectionalBatchTrainer : RecurrentBatchTrainerBase, INeuralNetworkBidirectionalBatchTrainer
     {
         readonly int _padding;
         readonly bool _collectTrainingError;

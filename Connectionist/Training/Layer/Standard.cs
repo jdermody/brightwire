@@ -13,9 +13,9 @@ namespace BrightWire.Connectionist.Training.Layer
         protected readonly IVector _bias;
         protected readonly IMatrix _weight;
         protected readonly IActivationFunction _activation;
-        protected readonly INeuralNetworkLayerDescriptor _descriptor;
+        protected readonly LayerDescriptor _descriptor;
 
-        public Standard(ILinearAlgebraProvider lap, int inputSize, int outputSize, INeuralNetworkLayerDescriptor init, IActivationFunction activation, IWeightInitialisation weightInit)
+        public Standard(ILinearAlgebraProvider lap, int inputSize, int outputSize, LayerDescriptor init, IActivationFunction activation, IWeightInitialisation weightInit)
         {
             _descriptor = init;
             _activation = activation;
@@ -44,7 +44,7 @@ namespace BrightWire.Connectionist.Training.Layer
         public IVector Bias { get { return _bias; } }
         public IMatrix Weight { get { return _weight; } }
         public IActivationFunction Activation { get { return _activation; } }
-        public INeuralNetworkLayerDescriptor Descriptor { get { return _descriptor; } }
+        public LayerDescriptor Descriptor { get { return _descriptor; } }
 
         public NetworkLayer LayerInfo
         {

@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.LinearAlgebra
 {
-    public class CudaProvider : ILinearAlgebraProvider
+    internal class CudaProvider : ILinearAlgebraProvider
     {
         const int BLOCK_DIM = 32;
         const int BLOCK_DIM2 = BLOCK_DIM * BLOCK_DIM;
@@ -102,6 +102,7 @@ namespace BrightWire.LinearAlgebra
             }
         }
 
+        readonly bool _stochastic;
         readonly CudaContext _cuda;
         readonly CudaBlas _blas;
         readonly KernelModule _kernel;
@@ -154,8 +155,9 @@ namespace BrightWire.LinearAlgebra
         ;
         bool _disposed = false;
 
-        public CudaProvider()
+        public CudaProvider(bool stochastic = true)
         {
+            _stochastic = stochastic;
             _cuda = new CudaContext();
             var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\LinearAlgebra\cuda\kernel.cubin";
             _kernel = new KernelModule(_cuda, path);
@@ -641,12 +643,12 @@ namespace BrightWire.LinearAlgebra
         internal CudaContext Context { get { return _cuda; } }
         internal CudaBlas Blas { get { return _blas; } }
 
-        Factory _factory = null;
+        ConnectionistFactory _factory = null;
         public INeuralNetworkFactory NN
         {
             get
             {
-                return _factory ?? (_factory = new Factory(this));
+                return _factory ?? (_factory = new ConnectionistFactory(this, _stochastic));
             }
         }
 

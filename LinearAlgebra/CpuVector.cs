@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.LinearAlgebra
 {
-    public class CpuVector : IIndexableVector
+    internal class CpuVector : IIndexableVector
     {
         readonly Vector<float> _vector;
 

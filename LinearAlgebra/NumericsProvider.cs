@@ -10,8 +10,16 @@ using System.Threading.Tasks;
 
 namespace BrightWire.LinearAlgebra
 {
-    public class NumericsProvider : ILinearAlgebraProvider
+    internal class NumericsProvider : ILinearAlgebraProvider
     {
+        readonly bool _stochastic;
+        ConnectionistFactory _factory = null;
+
+        public NumericsProvider(bool stochastic = true)
+        {
+            _stochastic = stochastic;
+        }
+
         protected virtual void Dispose(bool disposing)
         {
             // nop
@@ -101,12 +109,11 @@ namespace BrightWire.LinearAlgebra
             return ret;
         }
 
-        Factory _factory = null;
         public INeuralNetworkFactory NN
         {
             get
             {
-                return _factory ?? (_factory = new Factory(this));
+                return _factory ?? (_factory = new ConnectionistFactory(this, _stochastic));
             }
         }
 

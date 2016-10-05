@@ -8,8 +8,8 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>BrightWire</RootNamespace>
-    <AssemblyName>BrightWire.Net4</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <AssemblyName>BrightWire.Net4.x64</AssemblyName>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -32,30 +32,71 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
+    <DocumentationFile>bin\x64\Release\BrightWire.Net4.x64.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <DocumentationFile>bin\x64\Release\BrightWire.Net4.XML</DocumentationFile>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <DocumentationFile>bin\x64\Release\BrightWire.Net4.XML</DocumentationFile>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="CudaBlas, Version=7.5.7.0, Culture=neutral, PublicKeyToken=539d54d12e99fedb, processorArchitecture=AMD64">
-      <HintPath>..\packages\ManagedCuda-75-x64.7.5.7\lib\net45\x64\CudaBlas.dll</HintPath>
+      <HintPath>packages\ManagedCuda-75-x64.7.5.7\lib\net45\x64\CudaBlas.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="CudaFFT, Version=7.5.7.0, Culture=neutral, PublicKeyToken=f066edfa1acb2f23, processorArchitecture=AMD64">
-      <HintPath>..\packages\ManagedCuda-75-x64.7.5.7\lib\net45\x64\CudaFFT.dll</HintPath>
+      <HintPath>packages\ManagedCuda-75-x64.7.5.7\lib\net45\x64\CudaFFT.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="CudaRand, Version=7.5.7.0, Culture=neutral, PublicKeyToken=fe981579f4e9a066, processorArchitecture=AMD64">
-      <HintPath>..\packages\ManagedCuda-75-x64.7.5.7\lib\net45\x64\CudaRand.dll</HintPath>
+      <HintPath>packages\ManagedCuda-75-x64.7.5.7\lib\net45\x64\CudaRand.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="CudaSolve, Version=7.5.7.0, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\ManagedCuda-75-x64.7.5.7\lib\net45\x64\CudaSolve.dll</HintPath>
+      <HintPath>packages\ManagedCuda-75-x64.7.5.7\lib\net45\x64\CudaSolve.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="CudaSparse, Version=7.5.7.0, Culture=neutral, PublicKeyToken=f65ee2ae6b331585, processorArchitecture=AMD64">
-      <HintPath>..\packages\ManagedCuda-75-x64.7.5.7\lib\net45\x64\CudaSparse.dll</HintPath>
+      <HintPath>packages\ManagedCuda-75-x64.7.5.7\lib\net45\x64\CudaSparse.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="ManagedCuda, Version=7.5.7.0, Culture=neutral, PublicKeyToken=242d898828717aa0, processorArchitecture=MSIL">
-      <HintPath>..\packages\ManagedCuda-75-x64.7.5.7\lib\net45\x64\ManagedCuda.dll</HintPath>
+      <HintPath>packages\ManagedCuda-75-x64.7.5.7\lib\net45\x64\ManagedCuda.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="MathNet.Numerics, Version=3.13.1.0, Culture=neutral, processorArchitecture=MSIL">
@@ -63,15 +104,15 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="NPP, Version=7.5.7.0, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\ManagedCuda-75-x64.7.5.7\lib\net45\x64\NPP.dll</HintPath>
+      <HintPath>packages\ManagedCuda-75-x64.7.5.7\lib\net45\x64\NPP.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="NVRTC, Version=7.5.7.0, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\ManagedCuda-75-x64.7.5.7\lib\net45\x64\NVRTC.dll</HintPath>
+      <HintPath>packages\ManagedCuda-75-x64.7.5.7\lib\net45\x64\NVRTC.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="protobuf-net, Version=2.1.0.0, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
-      <HintPath>..\packages\protobuf-net.2.1.0\lib\net451\protobuf-net.dll</HintPath>
+      <HintPath>packages\protobuf-net.2.1.0\lib\net451\protobuf-net.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -85,12 +126,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Bayesian\BayesianFactory.cs" />
     <Compile Include="Bayesian\BernoulliNaiveBayesClassifier.cs" />
-    <Compile Include="Bayesian\Training\HiddenMarkovModelTrainer2.cs" />
-    <Compile Include="Bayesian\Training\HiddenMarkovModelTrainer3.cs" />
     <Compile Include="Bayesian\MultinomialNaiveBayesClassifier.cs" />
     <Compile Include="Bayesian\NaiveBayesClassifier.cs" />
     <Compile Include="Bayesian\Training\BernoulliNaiveBayesTrainer.cs" />
+    <Compile Include="Bayesian\Training\HiddenMarkovModelTrainer2.cs" />
+    <Compile Include="Bayesian\Training\HiddenMarkovModelTrainer3.cs" />
     <Compile Include="Bayesian\Training\MultinomialNaiveBayesTrainer.cs" />
     <Compile Include="Bayesian\Training\NaiveBayesTrainer.cs" />
     <Compile Include="Connectionist\Activation\LeakyRELU.cs" />
@@ -98,6 +140,7 @@
     <Compile Include="Connectionist\Activation\Sigmoid.cs" />
     <Compile Include="Connectionist\Activation\Softmax.cs" />
     <Compile Include="Connectionist\Activation\Tanh.cs" />
+    <Compile Include="Connectionist\ConnectionistFactory.cs" />
     <Compile Include="Connectionist\Execution\BidirectionalExecution.cs" />
     <Compile Include="Connectionist\Execution\FeedForwardExecution.cs" />
     <Compile Include="Connectionist\Execution\Layer\LSTM.cs" />
@@ -106,21 +149,6 @@
     <Compile Include="Connectionist\Execution\Layer\SimpleRecurrent.cs" />
     <Compile Include="Connectionist\Execution\Layer\StandardFeedForward.cs" />
     <Compile Include="Connectionist\Execution\RecurrentExecution.cs" />
-    <Compile Include="DimensionalityReduction\RandomProjection.cs" />
-    <Compile Include="ErrorMetrics\Quadratic.cs" />
-    <Compile Include="Helper\MiniBatch.cs" />
-    <Compile Include="Helper\TrainingData\DataTableTrainingDataProvider.cs" />
-    <Compile Include="Helper\TrainingData\SequenceToSequenceTrainingDataProvider.cs" />
-    <Compile Include="Linear\LogisticRegressionPredictor.cs" />
-    <Compile Include="Linear\RegressionPredictor.cs" />
-    <Compile Include="Linear\Training\LogisticRegressionTrainer.cs" />
-    <Compile Include="Linear\Training\RegressionTrainer.cs" />
-    <Compile Include="Models\ExecutionResults\RecurrentExecutionResults.cs" />
-    <Compile Include="Models\MultinomialNaiveBayes.cs" />
-    <Compile Include="Models\DecisionTree.cs" />
-    <Compile Include="Models\ExecutionResults\FeedForwardOutput.cs" />
-    <Compile Include="Models\ExecutionResults\RecurrentOutput.cs" />
-    <Compile Include="Connectionist\Factory.cs" />
     <Compile Include="Connectionist\LayerDescriptor.cs" />
     <Compile Include="Connectionist\Training\Batch\BatchTrainer.cs" />
     <Compile Include="Connectionist\Training\Batch\BidirectionalBatchTrainer.cs" />
@@ -144,31 +172,46 @@
     <Compile Include="Connectionist\Training\WeightInitialisation\Gaussian.cs" />
     <Compile Include="Connectionist\Training\WeightInitialisation\Identity.cs" />
     <Compile Include="Connectionist\Training\WeightInitialisation\Xavier.cs" />
+    <Compile Include="DimensionalityReduction\RandomProjection.cs" />
     <Compile Include="ErrorMetrics\BinaryClassification.cs" />
     <Compile Include="ErrorMetrics\CrossEntropy.cs" />
     <Compile Include="ErrorMetrics\OneHot.cs" />
+    <Compile Include="ErrorMetrics\Quadratic.cs" />
     <Compile Include="ErrorMetrics\RMSE.cs" />
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="Helper\BigEndianBinaryReader.cs" />
     <Compile Include="Helper\BoundMath.cs" />
+    <Compile Include="Helper\DisposableMatrixExecutionLine.cs" />
+    <Compile Include="Helper\MiniBatch.cs" />
+    <Compile Include="Helper\SequenceWindowBuilder.cs" />
+    <Compile Include="Helper\TrainingData\DataTableTrainingDataProvider.cs" />
     <Compile Include="Helper\TrainingData\DenseSequentialTrainingDataProvider.cs" />
     <Compile Include="Helper\TrainingData\DenseTrainingDataProvider.cs" />
-    <Compile Include="Helper\DisposableMatrixExecutionLine.cs" />
-    <Compile Include="Helper\SequenceWindowBuilder.cs" />
+    <Compile Include="Helper\TrainingData\SequenceToSequenceTrainingDataProvider.cs" />
     <Compile Include="Helper\TrainingData\SparseTrainingDataProvider.cs" />
     <Compile Include="Interface.cs" />
+    <Compile Include="LinearAlgebraProvider.cs" />
     <Compile Include="LinearAlgebra\CpuMatrix.cs" />
     <Compile Include="LinearAlgebra\CpuVector.cs" />
     <Compile Include="LinearAlgebra\CudaProvider.cs" />
     <Compile Include="LinearAlgebra\GpuMatrix.cs" />
     <Compile Include="LinearAlgebra\GpuVector.cs" />
     <Compile Include="LinearAlgebra\NumericsProvider.cs" />
+    <Compile Include="Linear\LogisticRegressionPredictor.cs" />
+    <Compile Include="Linear\RegressionPredictor.cs" />
+    <Compile Include="Linear\Training\LogisticRegressionTrainer.cs" />
+    <Compile Include="Linear\Training\RegressionTrainer.cs" />
+    <Compile Include="Models\BernoulliNaiveBayes.cs" />
     <Compile Include="Models\BidirectionalLayer.cs" />
     <Compile Include="Models\BidirectionalNetwork.cs" />
+    <Compile Include="Models\DecisionTree.cs" />
+    <Compile Include="Models\ExecutionResults\FeedForwardOutput.cs" />
+    <Compile Include="Models\ExecutionResults\RecurrentExecutionResults.cs" />
+    <Compile Include="Models\ExecutionResults\RecurrentOutput.cs" />
     <Compile Include="Models\FeedForwardNetwork.cs" />
     <Compile Include="Models\FloatArray.cs" />
     <Compile Include="Models\HMM.cs" />
-    <Compile Include="Models\BernoulliNaiveBayes.cs" />
+    <Compile Include="Models\MultinomialNaiveBayes.cs" />
     <Compile Include="Models\NaiveBayes.cs" />
     <Compile Include="Models\NetworkLayer.cs" />
     <Compile Include="Models\RandomForest.cs" />
@@ -198,26 +241,18 @@
     <Compile Include="TreeBased\RandomForestClassifier.cs" />
     <Compile Include="TreeBased\Training\DecisionTreeTrainer.cs" />
     <Compile Include="TreeBased\Training\RandomForestTrainer.cs" />
-    <Compile Include="Unsupervised\Clustering\Helper\ClusterData.cs" />
     <Compile Include="Unsupervised\Clustering\KMeans.cs" />
     <Compile Include="Unsupervised\Clustering\NonNegativeMatrixFactorisation.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="LICENSE" />
     <None Include="LinearAlgebra\cuda\kernel.cu" />
-    <None Include="LinearAlgebra\cuda\kernel.cubin">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="packages.config">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="README.md" />
+    <None Include="LinearAlgebra\cuda\kernel.cubin" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="LinearAlgebra\cuda\kernel.c" />
     <Content Include="LinearAlgebra\cuda\kernel.stub.c" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

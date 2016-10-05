@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.Connectionist.Activation
 {
-    public class Sigmoid : IActivationFunction
+    internal class Sigmoid : IActivationFunction
     {
         public ActivationType Type { get { return ActivationType.Sigmoid; } }
 

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.Connectionist.Training.Manager
 {
-    public class FeedForwardManager : IFeedForwardTrainingManager
+    internal class FeedForwardManager : IFeedForwardTrainingManager
     {
         readonly INeuralNetworkTrainer _trainer;
         readonly ITrainingDataProvider _testData;

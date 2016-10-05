@@ -8,7 +8,7 @@ using BrightWire.Models;
 
 namespace BrightWire.Connectionist.Training.Layer.Recurrent
 {
-    public class FeedForward : INeuralNetworkRecurrentLayer
+    internal class FeedForward : INeuralNetworkRecurrentLayer
     {
         readonly INeuralNetworkLayerTrainer _trainer;
 

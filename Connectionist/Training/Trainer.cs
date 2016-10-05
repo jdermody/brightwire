@@ -254,7 +254,7 @@ namespace BrightWire.Connectionist.Training
         }
     }
 
-    public class TrainerFactory
+    internal class TrainerFactory
     {
         readonly ILinearAlgebraProvider _lap;
 

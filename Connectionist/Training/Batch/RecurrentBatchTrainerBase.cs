@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.Connectionist.Training.Batch
 {
-    class RecurrentBatchTrainerBase
+    internal class RecurrentBatchTrainerBase
     {
         readonly protected bool _stochastic;
         readonly protected ILinearAlgebraProvider _lap;

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.Connectionist.Execution.Layer
 {
-    public class Lstm : IRecurrentLayerExecution
+    internal class Lstm : IRecurrentLayerExecution
     {
         readonly RecurrentLayerComponent _c, _i, _f, _o;
         readonly IActivationFunction _activation;

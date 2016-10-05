@@ -10,7 +10,7 @@ using BrightWire.Models.ExecutionResults;
 
 namespace BrightWire.Connectionist.Training.Batch
 {
-    public class BatchTrainer : INeuralNetworkTrainer
+    internal class BatchTrainer : INeuralNetworkTrainer
     {
         readonly bool _stochastic, _calculateTrainingError;
         readonly IReadOnlyList<INeuralNetworkLayerTrainer> _layer;

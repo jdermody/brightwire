@@ -7,7 +7,10 @@ using System.Threading.Tasks;
 
 namespace BrightWire.Helper
 {
-    class BigEndianBinaryReader : BinaryReader
+    /// <summary>
+    /// Binary reader for big endian streams
+    /// </summary>
+    public class BigEndianBinaryReader : BinaryReader
     {
         byte[] a16;
         byte[] a32;

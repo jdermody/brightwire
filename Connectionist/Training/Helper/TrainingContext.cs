@@ -8,7 +8,7 @@ using System.Xml;
 
 namespace BrightWire.Connectionist.Training.Helper
 {
-    public class TrainingContext : ITrainingContext
+    internal class TrainingContext : ITrainingContext
     {
         int _currentEpoch = 0, _noImprovementCount = 0;
         readonly Stack<double> _trainingErrorDelta = new Stack<double>();

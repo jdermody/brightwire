@@ -12,7 +12,7 @@ using BrightWire.Models;
 
 namespace BrightWire.LinearAlgebra
 {
-    public class CpuMatrix : IIndexableMatrix
+    internal class CpuMatrix : IIndexableMatrix
     {
         readonly Matrix<float> _matrix;
 

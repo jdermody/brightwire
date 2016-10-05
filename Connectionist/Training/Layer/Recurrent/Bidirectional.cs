@@ -7,7 +7,7 @@ using BrightWire.Models;
 
 namespace BrightWire.Connectionist.Training.Layer.Recurrent
 {
-    public class Bidirectional : INeuralNetworkBidirectionalLayer
+    internal class Bidirectional : INeuralNetworkBidirectionalLayer
     {
         readonly INeuralNetworkRecurrentLayer _forward, _backward;
 

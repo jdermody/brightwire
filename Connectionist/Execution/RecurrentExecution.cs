@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.Connectionist.Execution
 {
-    public class RecurrentExecution : IRecurrentExecution
+    internal class RecurrentExecution : IRecurrentExecution
     {
         readonly ILinearAlgebraProvider _lap;
         readonly IReadOnlyList<IRecurrentLayerExecution> _layer;

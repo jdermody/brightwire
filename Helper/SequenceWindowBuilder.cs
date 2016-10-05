@@ -15,6 +15,11 @@ namespace BrightWire.Helper
         int _outputSize = 0;
         const int DATA_SIZE = 158;
 
+        /// <summary>
+        /// Creates a new sequence window builder
+        /// </summary>
+        /// <param name="before">The number of previous items to include before each item</param>
+        /// <param name="after">The number of following items to include after each item</param>
         public SequenceWindowBuilder(int before, int after)
         {
             _before = before;
@@ -95,6 +100,9 @@ namespace BrightWire.Helper
             return ret;
         }
 
+        /// <summary>
+        /// The size of the generated training data
+        /// </summary>
         public int OutputSize { get { return _outputSize; } }
     }
 }

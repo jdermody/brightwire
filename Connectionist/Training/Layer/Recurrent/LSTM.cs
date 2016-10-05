@@ -9,7 +9,7 @@ using BrightWire.Models;
 namespace BrightWire.Connectionist.Training.Layer.Recurrent
 {
     // http://arunmallya.github.io/writeups/nn/lstm/index.html
-    public class Lstm : RecurrentLayerBase, INeuralNetworkRecurrentLayer
+    internal class Lstm : RecurrentLayerBase, INeuralNetworkRecurrentLayer
     {
         readonly ILinearAlgebraProvider _lap;
         readonly IActivationFunction _activation;
@@ -119,7 +119,7 @@ namespace BrightWire.Connectionist.Training.Layer.Recurrent
             }
         }
 
-        public Lstm(int inputSize, int hiddenSize, INeuralNetworkFactory factory, INeuralNetworkLayerDescriptor template)
+        public Lstm(int inputSize, int hiddenSize, INeuralNetworkFactory factory, LayerDescriptor template)
         {
             _lap = factory.LinearAlgebraProvider;
             _activation = factory.GetActivation(template.Activation);

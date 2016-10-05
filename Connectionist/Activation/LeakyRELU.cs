@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.Connectionist.Activation
 {
-    public class LeakyRelu : IActivationFunction
+    internal class LeakyRelu : IActivationFunction
     {
         public ActivationType Type { get { return ActivationType.LeakyRelu; } }
 

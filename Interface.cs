@@ -1,4 +1,5 @@
-﻿using BrightWire.Models;
+﻿using BrightWire.Connectionist;
+using BrightWire.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -314,7 +315,7 @@ namespace BrightWire
         /// <summary>
         /// Calculates the cosine distance between the current and the target vector
         /// </summary>
-        /// <param name="vector"The target vector></param>
+        /// <param name="vector">The target vector></param>
         float CosineDistance(IVector vector);
 
         /// <summary>
@@ -797,11 +798,36 @@ namespace BrightWire
         IIndexableMatrix MapIndexed(Func<int, int, float, float> mutator);
     }
 
+    /// <summary>
+    /// Activation function
+    /// </summary>
     public interface IActivationFunction
     {
+        /// <summary>
+        /// Returns the activation function applied to the input matrix
+        /// </summary>
+        /// <param name="data">The input matrix</param>
+        /// <returns></returns>
         IMatrix Calculate(IMatrix data);
+
+        /// <summary>
+        /// Returns the derivative of the activation function
+        /// </summary>
+        /// <param name="layerOutput">The layer output (not activation)</param>
+        /// <param name="errorSignal">The error from previous layer</param>
+        /// <returns></returns>
         IMatrix Derivative(IMatrix layerOutput, IMatrix errorSignal);
+
+        /// <summary>
+        /// Apply the activation function to a single input
+        /// </summary>
+        /// <param name="val"></param>
+        /// <returns></returns>
         float Calculate(float val);
+
+        /// <summary>
+        /// The activation function type
+        /// </summary>
         ActivationType Type { get; }
     }
 
@@ -823,7 +849,7 @@ namespace BrightWire
         /// <summary>
         /// A descriptor of the current layer
         /// </summary>
-        INeuralNetworkLayerDescriptor Descriptor { get; }
+        LayerDescriptor Descriptor { get; }
 
         /// <summary>
         /// The layer bias
@@ -912,8 +938,19 @@ namespace BrightWire
         RecurrentLayer LayerInfo { get; set; }
     }
 
+    /// <summary>
+    /// Stored recurrent backpropagation data
+    /// </summary>
     public interface INeuralNetworkRecurrentBackpropagation
     {
+        /// <summary>
+        /// Apply the backpropagation
+        /// </summary>
+        /// <param name="errorSignal">Error signal from previous layer</param>
+        /// <param name="context">Training context</param>
+        /// <param name="calculateOutput">True to calculate error signal</param>
+        /// <param name="updateAccumulator">Destination for the network updates</param>
+        /// <returns>Error signal (if calculateOutput is true)</returns>
         IMatrix Execute(IMatrix errorSignal, ITrainingContext context, bool calculateOutput, INeuralNetworkUpdateAccumulator updateAccumulator);
     }
 
@@ -1210,10 +1247,20 @@ namespace BrightWire
     /// </summary>
     public enum RegularisationType
     {
+        /// <summary>
+        /// No regularisation
+        /// </summary>
         None,
+
+        /// <summary>
+        /// L2 regularisation
+        /// </summary>
         L2,
-        L1,
-        MaxNorm
+
+        /// <summary>
+        /// L1 regularisation
+        /// </summary>
+        L1
     }
 
     /// <summary>
@@ -1221,11 +1268,34 @@ namespace BrightWire
     /// </summary>
     public enum WeightUpdateType
     {
+        /// <summary>
+        /// No optimisation
+        /// </summary>
         Simple,
+
+        /// <summary>
+        /// Momentum
+        /// </summary>
         Momentum,
+
+        /// <summary>
+        /// Nesterov Momentum
+        /// </summary>
         NesterovMomentum,
+
+        /// <summary>
+        /// Adagrad
+        /// </summary>
         Adagrad,
+
+        /// <summary>
+        /// RMSprop
+        /// </summary>
         RMSprop,
+
+        /// <summary>
+        /// Adam
+        /// </summary>
         Adam
     }
 
@@ -1237,25 +1307,6 @@ namespace BrightWire
         Standard,
         Dropout,
         DropConnect
-    }
-
-    /// <summary>
-    /// Neural network layer parameters
-    /// </summary>
-    public interface INeuralNetworkLayerDescriptor
-    {
-        ActivationType Activation { get; set; }
-        WeightInitialisationType WeightInitialisation { get; set; }
-        RegularisationType Regularisation { get; set; }
-        WeightUpdateType WeightUpdate { get; set; }
-        LayerTrainerType LayerTrainer { get; set; }
-        float Lambda { get; set; }
-        float Momentum { get; set; }
-        float DecayRate { get; set; }
-        float DecayRate2 { get; set; }
-        float Dropout { get; set; }
-        INeuralNetworkLayerDescriptor Clone();
-        NetworkLayer AsLayer { get; }
     }
 
     /// <summary>
@@ -1323,8 +1374,8 @@ namespace BrightWire
         /// <param name="descriptor">Layer parameters</param>
         INeuralNetworkLayer CreateLayer(
             int inputSize, 
-            int outputSize, 
-            INeuralNetworkLayerDescriptor descriptor
+            int outputSize,
+            LayerDescriptor descriptor
         );
 
         /// <summary>
@@ -1336,7 +1387,7 @@ namespace BrightWire
         INeuralNetworkRecurrentLayer CreateSimpleRecurrentLayer(
             int inputSize,
             int outputSize,
-            INeuralNetworkLayerDescriptor descriptor
+            LayerDescriptor descriptor
         );
 
         /// <summary>
@@ -1347,8 +1398,8 @@ namespace BrightWire
         /// <param name="descriptor">Layer parameters</param>
         INeuralNetworkRecurrentLayer CreateFeedForwardRecurrentLayer(
             int inputSize, 
-            int outputSize, 
-            INeuralNetworkLayerDescriptor descriptor
+            int outputSize,
+            LayerDescriptor descriptor
         );
 
         /// <summary>
@@ -1359,8 +1410,19 @@ namespace BrightWire
         /// <param name="descriptor">Layer parameters</param>
         INeuralNetworkRecurrentLayer CreateLstmRecurrentLayer(
             int inputSize, 
-            int outputSize, 
-            INeuralNetworkLayerDescriptor descriptor
+            int outputSize,
+            LayerDescriptor descriptor
+        );
+
+        /// <summary>
+        /// Create a bidirectional recurrent layer
+        /// </summary>
+        /// <param name="forward">The forward layer</param>
+        /// <param name="backward">The backward layer</param>
+        /// <returns></returns>
+        INeuralNetworkBidirectionalLayer CreateBidirectionalLayer(
+            INeuralNetworkRecurrentLayer forward,
+            INeuralNetworkRecurrentLayer backward = null
         );
 
         /// <summary>
@@ -1380,7 +1442,7 @@ namespace BrightWire
         /// <param name="layerSizes">Layer inputs and outputs - passing 1, 2, 3 creates two layers {1, 2} and {2, 3}</param>
         /// <returns></returns>
         INeuralNetworkTrainer CreateBatchTrainer(
-            INeuralNetworkLayerDescriptor descriptor, 
+            LayerDescriptor descriptor, 
             params int[] layerSizes
         );
 
@@ -1417,8 +1479,8 @@ namespace BrightWire
         /// <returns></returns>
         INeuralNetworkLayerUpdater CreateUpdater(
             int inputSize, 
-            int outputSize, 
-            INeuralNetworkLayerDescriptor descriptor
+            int outputSize,
+            LayerDescriptor descriptor
         );
 
         /// <summary>
@@ -1428,8 +1490,8 @@ namespace BrightWire
         /// <param name="descriptor">The layer parameters</param>
         /// <returns></returns>
         INeuralNetworkLayerUpdater CreateUpdater(
-            INeuralNetworkLayer layer, 
-            INeuralNetworkLayerDescriptor descriptor
+            INeuralNetworkLayer layer,
+            LayerDescriptor descriptor
         );
 
         /// <summary>
@@ -1441,8 +1503,8 @@ namespace BrightWire
         /// <returns></returns>
         INeuralNetworkLayerTrainer CreateTrainer(
             int inputSize, 
-            int outputSize, 
-            INeuralNetworkLayerDescriptor descriptor
+            int outputSize,
+            LayerDescriptor descriptor
         );
 
         /// <summary>
@@ -1890,6 +1952,7 @@ namespace BrightWire
 
     public enum ErrorMetricType
     {
+        None,
         OneHot,
         RMSE,
         BinaryClassification,
