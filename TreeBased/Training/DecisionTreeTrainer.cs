@@ -272,7 +272,7 @@ namespace BrightWire.TreeBased.Training
                 if (maxDepth.HasValue && node.Depth >= maxDepth.Value)
                     continue;
 
-                // check if data has too little data to worry about splitting further
+                // check if the node has too little data to worry about splitting further
                 if (minDataPerNode.HasValue && node.Data.Count < minDataPerNode.Value)
                     continue;
 

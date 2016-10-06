@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.Linear
 {
-    public class LogisticRegressionPredictor
+    internal class LogisticRegressionPredictor : ILogisticRegressionPredictor
     {
         readonly IVector _theta;
         readonly ILinearAlgebraProvider _lap;
@@ -17,15 +17,29 @@ namespace BrightWire.Linear
             _theta = theta;
         }
 
-        public float[] Predict(IVector theta, IReadOnlyList<float[]> input)
+        public void Dispose()
         {
-            using (var feature = _lap.Create(input.Count, input[0].Length + 1, (i, j) => j == 0 ? 1 : input[i][j - 1])) {
-                using (var h0 = feature.Multiply(theta))
-                using (var h1 = h0.Column(0))
-                using (var h = h1.Sigmoid())
-                using(var h2 = h.AsIndexable()) {
-                    return h2.ToArray();
-                }
+            _theta.Dispose();
+        }
+
+        public float Predict(params float[] vals)
+        {
+            return Predict(new[] { vals })[0];
+        }
+
+        public float Predict(IReadOnlyList<float> vals)
+        {
+            return Predict(new[] { vals })[0];
+        }
+
+        public float[] Predict(IReadOnlyList<IReadOnlyList<float>> input)
+        {
+            using (var feature = _lap.Create(input.Count, input[0].Count + 1, (i, j) => j == 0 ? 1 : input[i][j - 1]))
+            using (var h0 = feature.Multiply(_theta))
+            using (var h1 = h0.Column(0))
+            using (var h = h1.Sigmoid())
+            using(var h2 = h.AsIndexable()) {
+                return h2.ToArray();
             }
         }
     }

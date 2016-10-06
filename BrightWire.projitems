@@ -9,7 +9,6 @@
     <Import_RootNamespace>BrightWire</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)Bayesian\BayesianFactory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Bayesian\BernoulliNaiveBayesClassifier.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Bayesian\MultinomialNaiveBayesClassifier.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Bayesian\NaiveBayesClassifier.cs" />
@@ -95,6 +94,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\FeedForwardNetwork.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\FloatArray.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\HMM.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\LinearRegressionModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\LogisticRegressionModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\MultinomialNaiveBayes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\NaiveBayes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\NetworkLayer.cs" />

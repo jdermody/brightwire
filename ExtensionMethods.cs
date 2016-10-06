@@ -1,5 +1,9 @@
-﻿using BrightWire.ErrorMetrics;
+﻿using BrightWire.Bayesian.Training;
+using BrightWire.ErrorMetrics;
 using BrightWire.Helper;
+using BrightWire.Linear;
+using BrightWire.Linear.Training;
+using BrightWire.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -130,6 +134,21 @@ namespace BrightWire
             foreach (var item in matrix.Data)
                 item.WriteTo("row", writer);
             writer.WriteEndElement();
+        }
+
+        public static ILinearRegressionTrainer CreateLinearRegressionTrainer(this IIndexableDataTable table, ILinearAlgebraProvider lap, int classColumnIndex)
+        {
+            return new RegressionTrainer(lap, table, classColumnIndex);
+        }
+
+        public static ILogisticRegressionTrainer CreateLogisticRegressionTrainer(this IIndexableDataTable table, ILinearAlgebraProvider lap, int classColumnIndex)
+        {
+            return new LogisticRegressionTrainer(lap, table, classColumnIndex);
+        }
+
+        public static NaiveBayes TrainNaiveBayes(this IDataTable table, int classColumnIndex)
+        {
+            return NaiveBayesTrainer.Train(table, classColumnIndex);
         }
     }
 }

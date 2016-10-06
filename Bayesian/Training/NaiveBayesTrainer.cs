@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.Bayesian.Training
 {
-    public static class NaiveBayesTrainer
+    internal static class NaiveBayesTrainer
     {
         public static NaiveBayes Train(IDataTable table, int classColumnIndex)
         {

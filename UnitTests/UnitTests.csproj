@@ -61,6 +61,7 @@
     <Compile Include="ConnectionistTests.cs" />
     <Compile Include="CudaLinearAlgebraTests.cs" />
     <Compile Include="Helper\FloatingPointHelper.cs" />
+    <Compile Include="LinearTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

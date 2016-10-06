@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.Linear
 {
-    public class RegressionPredictor
+    internal class RegressionPredictor : ILinearRegressionPredictor
     {
         readonly IVector _theta;
         readonly ILinearAlgebraProvider _lap;
@@ -17,16 +17,30 @@ namespace BrightWire.Linear
             _theta = theta;
         }
 
-        public float Predict(IVector theta, params float[] vals)
+        public void Dispose()
         {
-            var v = _lap.Create(vals.Length + 1, i => i == 0 ? 1 : vals[i - 1]);
-            return v.DotProduct(theta);
+            _theta.Dispose();
         }
 
-        public float Predict(IVector theta, IReadOnlyList<float> vals)
+        public float Predict(params float[] vals)
+        {
+            var v = _lap.Create(vals.Length + 1, i => i == 0 ? 1 : vals[i - 1]);
+            return v.DotProduct(_theta);
+        }
+
+        public float Predict(IReadOnlyList<float> vals)
         {
             var v = _lap.Create(vals.Count + 1, i => i == 0 ? 1f : vals[i - 1]);
-            return v.DotProduct(theta);
+            return v.DotProduct(_theta);
+        }
+
+        public float[] Predict(IReadOnlyList<IReadOnlyList<float>> input)
+        {
+            using (var v = _lap.Create(input.Count, input[0].Count + 1, (i, j) => j == 0 ? 1 : input[i][j - 1]))
+            using (var r = v.Multiply(_theta))
+            using(var r2 = r.Row(0)) {
+                return r.AsIndexable().Values.ToArray();
+            }
         }
     }
 }

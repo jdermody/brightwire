@@ -73,7 +73,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Bayesian\BayesianFactory.cs" />
     <Compile Include="Bayesian\BernoulliNaiveBayesClassifier.cs" />
     <Compile Include="Bayesian\MultinomialNaiveBayesClassifier.cs" />
     <Compile Include="Bayesian\NaiveBayesClassifier.cs" />
@@ -155,6 +154,8 @@
     <Compile Include="Models\FeedForwardNetwork.cs" />
     <Compile Include="Models\FloatArray.cs" />
     <Compile Include="Models\HMM.cs" />
+    <Compile Include="Models\LinearRegressionModel.cs" />
+    <Compile Include="Models\LogisticRegressionModel.cs" />
     <Compile Include="Models\MultinomialNaiveBayes.cs" />
     <Compile Include="Models\NaiveBayes.cs" />
     <Compile Include="Models\NetworkLayer.cs" />

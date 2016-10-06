@@ -2064,4 +2064,31 @@ namespace BrightWire
     {
         IEnumerable<IColumnInfo> ColumnInfo { get; }
     }
+
+    public interface ILinearRegressionTrainer
+    {
+        LinearRegressionModel Solve();
+        LinearRegressionModel GradientDescent(int iterations, float learningRate, float lambda = 0.1f, Func<float, bool> costCallback = null);
+        float ComputeCost(IVector theta, float lambda);
+    }
+
+    public interface ILinearRegressionPredictor : IDisposable
+    {
+        float Predict(params float[] vals);
+        float Predict(IReadOnlyList<float> vals);
+        float[] Predict(IReadOnlyList<IReadOnlyList<float>> input);
+    }
+
+    public interface ILogisticRegressionTrainer
+    {
+        LogisticRegressionModel GradientDescent(int iterations, float learningRate, float lambda = 0.1f, Func<float, bool> costCallback = null);
+        float ComputeCost(IVector theta, float lambda);
+    }
+
+    public interface ILogisticRegressionPredictor : IDisposable
+    {
+        float Predict(params float[] vals);
+        float Predict(IReadOnlyList<float> vals);
+        float[] Predict(IReadOnlyList<IReadOnlyList<float>> input);
+    }
 }

@@ -70,5 +70,7 @@ namespace BrightWire.Models
 
         [ProtoMember(1)]
         public List<ClassSummary> Class { get; set; }
+
+
     }
 }
