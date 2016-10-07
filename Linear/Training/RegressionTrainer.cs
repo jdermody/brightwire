@@ -13,7 +13,7 @@ namespace BrightWire.Linear.Training
         readonly IMatrix _feature;
         readonly IVector _target;
 
-        public RegressionTrainer(ILinearAlgebraProvider lap, IIndexableDataTable table, int classColumnIndex)
+        public RegressionTrainer(ILinearAlgebraProvider lap, IDataTable table, int classColumnIndex)
         {
             _lap = lap;
             var numRows = table.RowCount;

@@ -10,13 +10,13 @@ namespace BrightWire.Connectionist.Helper
 {
     internal class DataTableTrainingDataProvider : ITrainingDataProvider
     {
-        readonly IIndexableDataTable _table;
+        readonly IDataTable _table;
         readonly int _inputSize, _outputSize, _classColumnIndex;
         readonly ILinearAlgebraProvider _lap;
         readonly Dictionary<int, Dictionary<string, int>> _columnMap = new Dictionary<int, Dictionary<string, int>>();
         readonly Dictionary<int, Dictionary<int, string>> _reverseColumnMap = new Dictionary<int, Dictionary<int, string>>();
 
-        public DataTableTrainingDataProvider(ILinearAlgebraProvider lap, IIndexableDataTable table, int classColumnIndex)
+        public DataTableTrainingDataProvider(ILinearAlgebraProvider lap, IDataTable table, int classColumnIndex)
         {
             _lap = lap;
             _table = table;

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.TabularData
 {
-    public class MutableDataTable : IDataTable
+    public class MutableDataTable : IHaveColumns
     {
         const int MAX_UNIQUE = 131072 * 4;
 
@@ -177,11 +177,11 @@ namespace BrightWire.TabularData
             }
         }
 
-        public IIndexableDataTable Index(Stream output = null)
+        public IDataTable Index(Stream output = null)
         {
             var writer = new DataTableWriter(Columns, output);
             Process(writer);
-            return writer.GetIndexedTable();
+            return writer.GetDataTable();
         }
 
         public void Clear()

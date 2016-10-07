@@ -9,7 +9,7 @@ namespace BrightWire.TreeBased.Training
 {
     public static class RandomForestTrainer
     {
-        public static RandomForest Train(IIndexableDataTable table, int classColumnIndex, int b = 100, DecisionTreeTrainer.Config config = null)
+        public static RandomForest Train(IDataTable table, int classColumnIndex, int b = 100, DecisionTreeTrainer.Config config = null)
         {
             config = config ?? new DecisionTreeTrainer.Config();
 

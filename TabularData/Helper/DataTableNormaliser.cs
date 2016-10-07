@@ -137,9 +137,9 @@ namespace BrightWire.TabularData.Helper
             return true;
         }
 
-        public IIndexableDataTable GetIndexedTable()
+        public IDataTable GetDataTable()
         {
-            return _writer.GetIndexedTable();
+            return _writer.GetDataTable();
         }
     }
 }

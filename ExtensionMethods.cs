@@ -136,12 +136,12 @@ namespace BrightWire
             writer.WriteEndElement();
         }
 
-        public static ILinearRegressionTrainer CreateLinearRegressionTrainer(this IIndexableDataTable table, ILinearAlgebraProvider lap, int classColumnIndex)
+        public static ILinearRegressionTrainer CreateLinearRegressionTrainer(this IDataTable table, ILinearAlgebraProvider lap, int classColumnIndex)
         {
             return new RegressionTrainer(lap, table, classColumnIndex);
         }
 
-        public static ILogisticRegressionTrainer CreateLogisticRegressionTrainer(this IIndexableDataTable table, ILinearAlgebraProvider lap, int classColumnIndex)
+        public static ILogisticRegressionTrainer CreateLogisticRegressionTrainer(this IDataTable table, ILinearAlgebraProvider lap, int classColumnIndex)
         {
             return new LogisticRegressionTrainer(lap, table, classColumnIndex);
         }

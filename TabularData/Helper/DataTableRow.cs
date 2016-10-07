@@ -8,10 +8,10 @@ namespace BrightWire.TabularData.Helper
 {
     public class DataTableRow : IRow
     {
-        readonly IDataTable _table;
+        readonly IHaveColumns _table;
         readonly List<object> _data;
 
-        public DataTableRow(IDataTable table, IEnumerable<object> data)
+        public DataTableRow(IHaveColumns table, IEnumerable<object> data)
         {
             _table = table;
             _data = new List<object>(data);

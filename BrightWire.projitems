@@ -115,7 +115,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)TabularData\Helper\DataTableProjector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TabularData\Helper\DataTableRow.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TabularData\Helper\DataTableWriter.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)TabularData\IndexedDataTable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TabularData\MutableDataTable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TrainingData\Artificial\BinaryIntegers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TrainingData\Artificial\ReberGrammar.cs" />

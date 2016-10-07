@@ -1319,7 +1319,7 @@ namespace BrightWire
         /// </summary>
         ILinearAlgebraProvider LinearAlgebraProvider { get; }
 
-        ITrainingDataProvider CreateTrainingDataProvider(IIndexableDataTable table, int classColumnIndex);
+        ITrainingDataProvider CreateTrainingDataProvider(IDataTable table, int classColumnIndex);
         ITrainingDataProvider CreateTrainingDataProvider(IReadOnlyList<Tuple<float[], float[]>> data);
         ISequentialTrainingDataProvider CreateSequentialTrainingDataProvider(IReadOnlyList<Tuple<float[], float[]>[]> data);
 
@@ -1999,28 +1999,31 @@ namespace BrightWire
         bool IsContinuous { get; set; }
     }
 
-    public interface IDataTable
+    public interface IHaveColumns
     {
-        int RowCount { get; }
-        int ColumnCount { get; }
         IReadOnlyList<IColumn> Columns { get; }
-        void Process(IRowProcessor rowProcessor);
-        IIndexableDataTable Index(Stream output = null);
-        IDataTableAnalysis Analysis { get; }
-        void Process(Func<IRow, int, bool> processor);
+        int ColumnCount { get; }
     }
 
-    public interface IIndexableDataTable : IDataTable
+    public interface IDataTable : IHaveColumns
     {
+        int RowCount { get; }
+        
+        void Process(IRowProcessor rowProcessor);
+        //IDataTable Index(Stream output = null);
+
+
+        IDataTableAnalysis Analysis { get; }
+        void Process(Func<IRow, int, bool> processor);
         IReadOnlyList<IRow> GetSlice(int offset, int count);
         IReadOnlyList<IRow> GetRows(IEnumerable<int> rowIndex);
-        Tuple<IIndexableDataTable, IIndexableDataTable> Split(int? randomSeed = null, double trainPercentage = 0.8, bool shuffle = true, Stream output1 = null, Stream output2 = null);
-        IIndexableDataTable Normalise(NormalisationType normalisationType, Stream output = null);
+        Tuple<IDataTable, IDataTable> Split(int? randomSeed = null, double trainPercentage = 0.8, bool shuffle = true, Stream output1 = null, Stream output2 = null);
+        IDataTable Normalise(NormalisationType normalisationType, Stream output = null);
         IReadOnlyList<IVector> GetNumericRows(ILinearAlgebraProvider lap, IEnumerable<int> columns = null);
         IReadOnlyList<IVector> GetNumericColumns(ILinearAlgebraProvider lap, IEnumerable<int> columns = null);
         string[] GetDiscreteColumn(int columnIndex);
         float[] GetNumericColumn(int columnIndex);
-        IIndexableDataTable Bag(int? count = null, Stream output = null, int? randomSeed = null);
+        IDataTable Bag(int? count = null, Stream output = null, int? randomSeed = null);
         IReadOnlyList<float[]> GetNumericRows(IEnumerable<int> columns = null);
     }
 

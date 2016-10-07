@@ -33,14 +33,14 @@ namespace BrightWire.TabularData.Helper
             _delimiter = delimiter;
         }
 
-        public IndexedDataTable Parse(StreamReader reader, Stream output = null, bool? hasHeader = null)
+        public DataTable Parse(StreamReader reader, Stream output = null, bool? hasHeader = null)
         {
             if (output == null)
                 output = new MemoryStream();
 
             //preview the file
             var lines = new List<string>();
-            while (!reader.EndOfStream && lines.Count < IndexedDataTable.BLOCK_SIZE) {
+            while (!reader.EndOfStream && lines.Count < DataTable.BLOCK_SIZE) {
                 var line = reader.ReadLine();
                 if (String.IsNullOrEmpty(line))
                     continue;
@@ -65,7 +65,7 @@ namespace BrightWire.TabularData.Helper
                     _Add(line, writer);
                     ++pos;
                 }
-                return writer.GetIndexedTable();
+                return writer.GetDataTable();
             }
             return null;
         }

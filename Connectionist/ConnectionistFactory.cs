@@ -50,7 +50,7 @@ namespace BrightWire.Connectionist
 
         public ILinearAlgebraProvider LinearAlgebraProvider { get { return _lap; } }
 
-        public ITrainingDataProvider CreateTrainingDataProvider(IIndexableDataTable table, int classColumnIndex)
+        public ITrainingDataProvider CreateTrainingDataProvider(IDataTable table, int classColumnIndex)
         {
             return new DataTableTrainingDataProvider(_lap, table, classColumnIndex);
         }
