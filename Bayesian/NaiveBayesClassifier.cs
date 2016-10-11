@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.Bayesian
 {
-    public class NaiveBayesClassifier : IRowProcessor
+    internal class NaiveBayesClassifier : IRowClassifier
     {
         interface IProbabilityProvider
         {
@@ -52,7 +52,6 @@ namespace BrightWire.Bayesian
             }
         }
         readonly List<Tuple<string, List<IProbabilityProvider>>> _classProbability = new List<Tuple<string, List<IProbabilityProvider>>>();
-        readonly List<Tuple<IRow, string>> _resultList = new List<Tuple<IRow, string>>();
 
         public NaiveBayesClassifier(NaiveBayes model)
         {
@@ -68,7 +67,7 @@ namespace BrightWire.Bayesian
             }
         }
 
-        public IEnumerable<KeyValuePair<string, double>> Classify(IRow row)
+        public IEnumerable<string> Classify(IRow row)
         {
             var ret = new Dictionary<string, double>();
             foreach(var cls in _classProbability) {
@@ -77,21 +76,7 @@ namespace BrightWire.Bayesian
                     score += item.GetProbability(row);
                 ret.Add(cls.Item1, score);
             }
-            return ret.OrderByDescending(kv => kv.Value);
+            return ret.OrderByDescending(kv => kv.Value).Select(kv => kv.Key);
         }
-
-        public bool Process(IRow row)
-        {
-            var classification = Classify(row).First().Key;
-            _resultList.Add(Tuple.Create(row, classification));
-            return true;
-        }
-
-        public void Clear()
-        {
-            _resultList.Clear();
-        }
-
-        public IReadOnlyList<Tuple<IRow, string>> Results { get { return _resultList; } }
     }
 }

@@ -1,4 +1,5 @@
-﻿using ProtoBuf;
+﻿using BrightWire.Bayesian;
+using ProtoBuf;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -71,6 +72,9 @@ namespace BrightWire.Models
         [ProtoMember(1)]
         public List<ClassSummary> Class { get; set; }
 
-
+        public IRowClassifier CreateClassifier()
+        {
+            return new NaiveBayesClassifier(this);
+        }
     }
 }

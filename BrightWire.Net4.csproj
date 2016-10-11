@@ -77,8 +77,8 @@
     <Compile Include="Bayesian\MultinomialNaiveBayesClassifier.cs" />
     <Compile Include="Bayesian\NaiveBayesClassifier.cs" />
     <Compile Include="Bayesian\Training\BernoulliNaiveBayesTrainer.cs" />
-    <Compile Include="Bayesian\Training\HiddenMarkovModelTrainer2.cs" />
-    <Compile Include="Bayesian\Training\HiddenMarkovModelTrainer3.cs" />
+    <Compile Include="Bayesian\Training\MarkovModelTrainer2.cs" />
+    <Compile Include="Bayesian\Training\MarkovModelTrainer3.cs" />
     <Compile Include="Bayesian\Training\MultinomialNaiveBayesTrainer.cs" />
     <Compile Include="Bayesian\Training\NaiveBayesTrainer.cs" />
     <Compile Include="Connectionist\Activation\LeakyRELU.cs" />
@@ -147,13 +147,14 @@
     <Compile Include="Models\BernoulliNaiveBayes.cs" />
     <Compile Include="Models\BidirectionalLayer.cs" />
     <Compile Include="Models\BidirectionalNetwork.cs" />
+    <Compile Include="Models\ClassificationSet.cs" />
     <Compile Include="Models\DecisionTree.cs" />
     <Compile Include="Models\ExecutionResults\FeedForwardOutput.cs" />
     <Compile Include="Models\ExecutionResults\RecurrentExecutionResults.cs" />
     <Compile Include="Models\ExecutionResults\RecurrentOutput.cs" />
     <Compile Include="Models\FeedForwardNetwork.cs" />
     <Compile Include="Models\FloatArray.cs" />
-    <Compile Include="Models\HMM.cs" />
+    <Compile Include="Models\MarkovModel.cs" />
     <Compile Include="Models\LinearRegressionModel.cs" />
     <Compile Include="Models\LogisticRegressionModel.cs" />
     <Compile Include="Models\MultinomialNaiveBayes.cs" />

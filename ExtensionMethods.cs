@@ -1,4 +1,6 @@
-﻿using BrightWire.Bayesian.Training;
+﻿using BrightWire.Bayesian;
+using BrightWire.Bayesian.Training;
+using BrightWire.DimensionalityReduction;
 using BrightWire.ErrorMetrics;
 using BrightWire.Helper;
 using BrightWire.Linear;
@@ -149,6 +151,43 @@ namespace BrightWire
         public static NaiveBayes TrainNaiveBayes(this IDataTable table, int classColumnIndex)
         {
             return NaiveBayesTrainer.Train(table, classColumnIndex);
+        }
+
+        public static IRandomProjection CreateRandomProjection(this ILinearAlgebraProvider lap, int fixedSize, int reducedSize, int s = 3)
+        {
+            return new RandomProjection(lap, fixedSize, reducedSize, s);
+        }
+
+        public static IEnumerable<MarkovModelObservation2<T>> TrainMarkovModel2<T>(this IEnumerable<IEnumerable<T>> data)
+        {
+            var trainer = new MarkovModelTrainer2<T>();
+            foreach (var sequence in data)
+                trainer.Add(sequence);
+            return trainer.All;
+        }
+
+        public static IEnumerable<MarkovModelObservation3<T>> TrainMarkovModel3<T>(this IEnumerable<IEnumerable<T>> data)
+        {
+            var trainer = new MarkovModelTrainer3<T>();
+            foreach (var sequence in data)
+                trainer.Add(sequence);
+            return trainer.All;
+        }
+
+        public static BernoulliNaiveBayes TrainBernoulliNaiveBayes(this ClassificationSet data)
+        {
+            var trainer = new BernoulliNaiveBayesTrainer();
+            foreach(var classification in data.Classifications)
+                trainer.AddClassification(classification.Name, classification.Data);
+            return trainer.Train();
+        }
+
+        public static MultinomialNaiveBayes TrainMultinomicalNaiveBayes(this ClassificationSet data)
+        {
+            var trainer = new MultinomialNaiveBayesTrainer();
+            foreach (var classification in data.Classifications)
+                trainer.AddClassification(classification.Name, classification.Data);
+            return trainer.Train();
         }
     }
 }

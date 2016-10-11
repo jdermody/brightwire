@@ -1,4 +1,5 @@
-﻿using ProtoBuf;
+﻿using BrightWire.Bayesian;
+using ProtoBuf;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,5 +48,10 @@ namespace BrightWire.Models
 
         [ProtoMember(2)]
         public uint[] Vocabulary { get; set; }
+
+        public IIndexBasedClassifier CreateClassifier()
+        {
+            return new BernoulliNaiveBayesClassifier(this);
+        }
     }
 }

@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 
 namespace BrightWire.Bayesian
 {
-    public class HiddenMarkovModelTrainer3<T>
+    internal class MarkovModelTrainer3<T>
     {
         readonly Dictionary<Tuple<T, T, T>, List<T>> _data = new Dictionary<Tuple<T, T, T>, List<T>>();
         readonly int _minObservations;
 
-        public HiddenMarkovModelTrainer3(int minObservations = 1)
+        public MarkovModelTrainer3(int minObservations = 1)
         {
             _minObservations = minObservations;
         }
@@ -40,7 +40,7 @@ namespace BrightWire.Bayesian
             tempList.Add(default(T));
         }
 
-        public IEnumerable<HMMObservation3<T>> All
+        public IEnumerable<MarkovModelObservation3<T>> All
         {
             get
             {
@@ -53,7 +53,7 @@ namespace BrightWire.Bayesian
                     ;
                     var total = (float)transitions.Sum(t => t.Item2);
                     if (total > 0) {
-                        yield return new HMMObservation3<T>(item.Key.Item1, item.Key.Item2, item.Key.Item3, transitions.Select(t => new HMMStateTransition<T> {
+                        yield return new MarkovModelObservation3<T>(item.Key.Item1, item.Key.Item2, item.Key.Item3, transitions.Select(t => new MarkovModelStateTransition<T> {
                             NextState = t.Item1,
                             Probability = t.Item2 / total
                         }).ToList());

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace BrightWire.Models
 {
     [ProtoContract]
-    public class HMMStateTransition<T>
+    public class MarkovModelStateTransition<T>
     {
         [ProtoMember(1)]
         public T NextState { get; set; }
@@ -18,7 +18,7 @@ namespace BrightWire.Models
     }
 
     [ProtoContract]
-    public class HMMObservation2<T>
+    public class MarkovModelObservation2<T>
     {
         [ProtoMember(1)]
         public T Item1 { get; set; }
@@ -27,10 +27,10 @@ namespace BrightWire.Models
         public T Item2 { get; set; }
 
         [ProtoMember(3)]
-        public List<HMMStateTransition<T>> Transition { get; set; }
+        public List<MarkovModelStateTransition<T>> Transition { get; set; }
 
-        public HMMObservation2() { }
-        public HMMObservation2(T item1, T item2, List<HMMStateTransition<T>> transition)
+        public MarkovModelObservation2() { }
+        public MarkovModelObservation2(T item1, T item2, List<MarkovModelStateTransition<T>> transition)
         {
             Item1 = item1;
             Item2 = item2;
@@ -39,7 +39,7 @@ namespace BrightWire.Models
     }
 
     [ProtoContract]
-    public class HMMObservation3<T>
+    public class MarkovModelObservation3<T>
     {
         [ProtoMember(1)]
         public T Item1 { get; set; }
@@ -51,10 +51,10 @@ namespace BrightWire.Models
         public T Item3 { get; set; }
 
         [ProtoMember(4)]
-        public List<HMMStateTransition<T>> Transition { get; set; }
+        public List<MarkovModelStateTransition<T>> Transition { get; set; }
 
-        public HMMObservation3() { }
-        public HMMObservation3(T item1, T item2, T item3, List<HMMStateTransition<T>> transition)
+        public MarkovModelObservation3() { }
+        public MarkovModelObservation3(T item1, T item2, T item3, List<MarkovModelStateTransition<T>> transition)
         {
             Item1 = item1;
             Item2 = item2;
@@ -70,7 +70,7 @@ namespace BrightWire.Models
             return (comparer ?? EqualityComparer<T>.Default).Equals(x, y);
         }
 
-        public static IReadOnlyList<HMMStateTransition<T>> Find<T>(this IReadOnlyList<HMMObservation3<T>> data, T item1, T item2, T item3, IEqualityComparer<T> comparer = null)
+        public static IReadOnlyList<MarkovModelStateTransition<T>> Find<T>(this IReadOnlyList<MarkovModelObservation3<T>> data, T item1, T item2, T item3, IEqualityComparer<T> comparer = null)
         {
             return data
                 .Where(d => _Compare(d.Item1, item1, comparer) && _Compare(d.Item2, item2, comparer) && _Compare(d.Item3, item3, comparer))
@@ -78,7 +78,7 @@ namespace BrightWire.Models
             ;
         }
 
-        public static IReadOnlyList<HMMStateTransition<T>> Find<T>(this IReadOnlyList<HMMObservation2<T>> data, T item1, T item2, IEqualityComparer<T> comparer = null)
+        public static IReadOnlyList<MarkovModelStateTransition<T>> Find<T>(this IReadOnlyList<MarkovModelObservation2<T>> data, T item1, T item2, IEqualityComparer<T> comparer = null)
         {
             return data
                 .Where(d => _Compare(d.Item1, item1, comparer) && _Compare(d.Item2, item2, comparer))

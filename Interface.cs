@@ -1377,7 +1377,7 @@ namespace BrightWire
         /// <param name="outputSize">The output size</param>
         /// <param name="descriptor">Layer parameters</param>
         INeuralNetworkLayer CreateLayer(
-            int inputSize, 
+            int inputSize,
             int outputSize,
             LayerDescriptor descriptor
         );
@@ -1401,7 +1401,7 @@ namespace BrightWire
         /// <param name="outputSize">The output size</param>
         /// <param name="descriptor">Layer parameters</param>
         INeuralNetworkRecurrentLayer CreateFeedForwardRecurrentLayer(
-            int inputSize, 
+            int inputSize,
             int outputSize,
             LayerDescriptor descriptor
         );
@@ -1413,7 +1413,7 @@ namespace BrightWire
         /// <param name="outputSize">The output size</param>
         /// <param name="descriptor">Layer parameters</param>
         INeuralNetworkRecurrentLayer CreateLstmRecurrentLayer(
-            int inputSize, 
+            int inputSize,
             int outputSize,
             LayerDescriptor descriptor
         );
@@ -1435,7 +1435,7 @@ namespace BrightWire
         /// <param name="layer">The list of layers</param>
         /// <param name="calculateTrainingError">True if the training error should be calculated</param>
         INeuralNetworkTrainer CreateBatchTrainer(
-            IReadOnlyList<INeuralNetworkLayerTrainer> layer, 
+            IReadOnlyList<INeuralNetworkLayerTrainer> layer,
             bool calculateTrainingError = true
         );
 
@@ -1446,7 +1446,7 @@ namespace BrightWire
         /// <param name="layerSizes">Layer inputs and outputs - passing 1, 2, 3 creates two layers {1, 2} and {2, 3}</param>
         /// <returns></returns>
         INeuralNetworkTrainer CreateBatchTrainer(
-            LayerDescriptor descriptor, 
+            LayerDescriptor descriptor,
             params int[] layerSizes
         );
 
@@ -1457,7 +1457,7 @@ namespace BrightWire
         /// <param name="calculateTrainingError">True if the training error should be calculated</param>
         /// <returns></returns>
         INeuralNetworkRecurrentBatchTrainer CreateRecurrentBatchTrainer(
-            IReadOnlyList<INeuralNetworkRecurrentLayer> layer, 
+            IReadOnlyList<INeuralNetworkRecurrentLayer> layer,
             bool calculateTrainingError = true
         );
 
@@ -1469,8 +1469,8 @@ namespace BrightWire
         /// <param name="padding"></param>
         /// <returns></returns>
         INeuralNetworkBidirectionalBatchTrainer CreateBidirectionalBatchTrainer(
-            IReadOnlyList<INeuralNetworkBidirectionalLayer> layer, 
-            bool calculateTrainingError = true, 
+            IReadOnlyList<INeuralNetworkBidirectionalLayer> layer,
+            bool calculateTrainingError = true,
             int padding = 0
         );
 
@@ -1482,7 +1482,7 @@ namespace BrightWire
         /// <param name="descriptor">Layer parameters</param>
         /// <returns></returns>
         INeuralNetworkLayerUpdater CreateUpdater(
-            int inputSize, 
+            int inputSize,
             int outputSize,
             LayerDescriptor descriptor
         );
@@ -1506,7 +1506,7 @@ namespace BrightWire
         /// <param name="descriptor">The layer parameters</param>
         /// <returns></returns>
         INeuralNetworkLayerTrainer CreateTrainer(
-            int inputSize, 
+            int inputSize,
             int outputSize,
             LayerDescriptor descriptor
         );
@@ -1536,7 +1536,7 @@ namespace BrightWire
         /// <param name="autoAdjustOnNoChangeCount">Pass a value to reduce the training rate after specified count of no improvement epochs</param>
         /// <returns></returns>
         IRecurrentTrainingManager CreateRecurrentManager(
-            INeuralNetworkRecurrentBatchTrainer trainer, 
+            INeuralNetworkRecurrentBatchTrainer trainer,
             string dataFile,
             ISequentialTrainingDataProvider testData,
             int memorySize,
@@ -1553,7 +1553,7 @@ namespace BrightWire
         /// <param name="autoAdjustOnNoChangeCount">Pass a value to reduce the training rate after specified count of no improvement epochs</param>
         /// <returns></returns>
         IBidirectionalRecurrentTrainingManager CreateBidirectionalManager(
-            INeuralNetworkBidirectionalBatchTrainer trainer, 
+            INeuralNetworkBidirectionalBatchTrainer trainer,
             string dataFile,
             ISequentialTrainingDataProvider testData,
             int memorySize,
@@ -1686,7 +1686,7 @@ namespace BrightWire
         /// <param name="beforeBackProp">Callback before backpropagation</param>
         /// <param name="afterBackProp">Callback after backpropagation</param>
         void TrainOnMiniBatch(ISequentialMiniBatch miniBatch, float[] memory, IRecurrentTrainingContext context, Action<IMatrix> beforeBackProp, Action<IMatrix> afterBackProp);
-        
+
         /// <summary>
         /// Execute the network
         /// </summary>
@@ -2008,7 +2008,7 @@ namespace BrightWire
     public interface IDataTable : IHaveColumns
     {
         int RowCount { get; }
-        
+
         void Process(IRowProcessor rowProcessor);
         //IDataTable Index(Stream output = null);
 
@@ -2093,5 +2093,24 @@ namespace BrightWire
         float Predict(params float[] vals);
         float Predict(IReadOnlyList<float> vals);
         float[] Predict(IReadOnlyList<IReadOnlyList<float>> input);
+    }
+
+    public interface IRandomProjection : IDisposable
+    {
+        ILinearAlgebraProvider LinearAlgebraProvider { get; }
+        int Size { get; }
+        IMatrix Matrix { get; }
+        IVector Compute(IVector vector);
+        IMatrix Compute(IMatrix matrix);
+    }
+
+    public interface IIndexBasedClassifier
+    {
+        IEnumerable<string> Classify(IReadOnlyList<uint> stringIndexList);
+    }
+
+    public interface IRowClassifier
+    {
+        IEnumerable<string> Classify(IRow row);
     }
 }

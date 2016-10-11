@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.Bayesian
 {
-    public class BernoulliNaiveBayesClassifier
+    internal class BernoulliNaiveBayesClassifier : IIndexBasedClassifier
     {
         class Classification
         {
