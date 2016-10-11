@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.DimensionalityReduction
 {
-    public class RandomProjection : IDisposable
+    internal class RandomProjection : IRandomProjection
     {
         readonly IMatrix _matrix;
         readonly ILinearAlgebraProvider _lap;
