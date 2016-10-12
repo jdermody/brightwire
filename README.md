@@ -10,6 +10,18 @@ Bright Wire runs "out of the box" for CPU based computation.  For GPU based lear
 To enable faster CPU based computation, Bright Wire supports the Intel Math Kernel Library (MKL) 
 via the [Numerics.Net Wrapper](http://numerics.mathdotnet.com/MKL.html).
 
+To install the standard version (no CUDA support, any CPU) use:
+
+```
+Install-Package BrightWire.Net4
+```
+
+To install the CUDA version (x64 only) use:
+
+```
+Install-Package BrightWire.CUDA.Net4.x64
+```
+
 ## Features
 
 ### Connectionist aka "Deep Learning"
