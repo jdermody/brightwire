@@ -7,19 +7,16 @@ using System.Threading.Tasks;
 
 namespace BrightWire.TreeBased
 {
-    public class RandomForestClassifier : IRowProcessor
+    internal class RandomForestClassifier : IRowClassifier
     {
         readonly List<DecisionTreeClassifier> _forest;
-        readonly List<Tuple<string, string>> _resultList = new List<Tuple<string, string>>();
-        readonly int? _classColumnIndex;
 
-        public RandomForestClassifier(RandomForest forest, int? classColumnIndex)
+        public RandomForestClassifier(RandomForest forest)
         {
-            _forest = forest.Forest.Select(m => new DecisionTreeClassifier(m, classColumnIndex)).ToList();
-            _classColumnIndex = classColumnIndex;
+            _forest = forest.Forest.Select(m => new DecisionTreeClassifier(m)).ToList();
         }
 
-        public string Classify(IRow row)
+        public IEnumerable<string> Classify(IRow row)
         {
             return _forest
                 .Select(t => t.Classify(row))
@@ -30,21 +27,5 @@ namespace BrightWire.TreeBased
                 .First()
             ;
         }
-
-        public bool Process(IRow row)
-        {
-            string expectedValue = null;
-            if (_classColumnIndex.HasValue)
-                expectedValue = row.GetField<string>(_classColumnIndex.Value);
-            _resultList.Add(Tuple.Create(Classify(row), expectedValue));
-            return true;
-        }
-
-        public void Clear()
-        {
-            _resultList.Clear();
-        }
-
-        public IReadOnlyList<Tuple<string, string>> Results { get { return _resultList; } }
     }
 }

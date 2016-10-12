@@ -16,11 +16,11 @@ namespace BrightWire.Connectionist.Helper
         readonly Dictionary<int, Dictionary<string, int>> _columnMap = new Dictionary<int, Dictionary<string, int>>();
         readonly Dictionary<int, Dictionary<int, string>> _reverseColumnMap = new Dictionary<int, Dictionary<int, string>>();
 
-        public DataTableTrainingDataProvider(ILinearAlgebraProvider lap, IDataTable table, int classColumnIndex)
+        public DataTableTrainingDataProvider(ILinearAlgebraProvider lap, IDataTable table)
         {
             _lap = lap;
             _table = table;
-            _classColumnIndex = classColumnIndex;
+            _classColumnIndex = _table.TargetColumnIndex;
             var analysis = table.Analysis;
 
             foreach (var columnInfo in analysis.ColumnInfo) {

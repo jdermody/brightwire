@@ -1,4 +1,5 @@
-﻿using ProtoBuf;
+﻿using BrightWire.TreeBased;
+using ProtoBuf;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,5 +13,10 @@ namespace BrightWire.Models
     {
         [ProtoMember(1)]
         public DecisionTree[] Forest { get; set; }
+
+        public IRowClassifier CreateClassifier()
+        {
+            return new RandomForestClassifier(this);
+        }
     }
 }

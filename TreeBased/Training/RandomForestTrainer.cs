@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace BrightWire.TreeBased.Training
 {
-    public static class RandomForestTrainer
+    internal static class RandomForestTrainer
     {
-        public static RandomForest Train(IDataTable table, int classColumnIndex, int b = 100, DecisionTreeTrainer.Config config = null)
+        public static RandomForest Train(IDataTable table, int b = 100, DecisionTreeTrainer.Config config = null)
         {
             config = config ?? new DecisionTreeTrainer.Config();
 
@@ -21,7 +21,7 @@ namespace BrightWire.TreeBased.Training
             var ret = new List<DecisionTree>();
             for(var i = 0; i < b; i++) {
                 var baggedTree = table.Bag();
-                ret.Add(DecisionTreeTrainer.Train(baggedTree, classColumnIndex, config));
+                ret.Add(DecisionTreeTrainer.Train(baggedTree, config));
             }
             return new RandomForest {
                 Forest = ret.ToArray()

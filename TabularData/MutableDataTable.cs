@@ -18,11 +18,15 @@ namespace BrightWire.TabularData
             public ColumnType _type;
             readonly HashSet<string> _uniqueValues = new HashSet<string>();
             readonly string _name;
+            readonly bool _isTarget;
 
-            public Column(ColumnType type, string name)
+            public Column(ColumnType type, string name, bool isTarget)
             {
                 _type = type;
                 _name = name;
+                _isTarget = isTarget;
+                if (type == ColumnType.Double || type == ColumnType.Float)
+                    _isContinuous = true;
             }
 
             public int NumDistinct
@@ -35,12 +39,15 @@ namespace BrightWire.TabularData
 
             public void Add(object value)
             {
-                if (_uniqueValues.Count < MAX_UNIQUE)
-                    _uniqueValues.Add(value.ToString());
+                if (value != null) {
+                    if (_uniqueValues.Count < MAX_UNIQUE)
+                        _uniqueValues.Add(value.ToString());
+                }
             }
 
             public ColumnType Type { get { return _type; } }
             public string Name { get { return _name; } }
+            public bool IsTarget { get { return _isTarget; } }
 
             public bool IsContinuous
             {
@@ -57,7 +64,7 @@ namespace BrightWire.TabularData
         public MutableDataTable(IEnumerable<IColumn> columns)
         {
             foreach (var column in columns) {
-                var col = Add(column.Type, column.Name);
+                var col = AddColumn(column.Type, column.Name, column.IsTarget);
                 col.IsContinuous = column.IsContinuous;
             }
         }
@@ -75,9 +82,9 @@ namespace BrightWire.TabularData
             }
         }
 
-        public Column Add(ColumnType column, string name = "")
+        public Column AddColumn(ColumnType column, string name = "", bool isTarget = false)
         {
-            var ret = new Column(column, name);
+            var ret = new Column(column, name, isTarget);
             _column.Add(ret);
             return ret;
         }
@@ -93,6 +100,11 @@ namespace BrightWire.TabularData
             return row;
         }
 
+        public IRow Add(params object[] data)
+        {
+            return AddRow(data);
+        }
+
         public void WriteMetadata(Stream stream)
         {
             var writer = new BinaryWriter(stream, Encoding.UTF8, true);
@@ -100,6 +112,7 @@ namespace BrightWire.TabularData
             foreach (var column in _column) {
                 writer.Write(column.Name);
                 writer.Write((byte)column.Type);
+                writer.Write(column.IsTarget);
                 writer.Write(column.NumDistinct);
                 writer.Write(column._isContinuous.HasValue);
                 if (column._isContinuous.HasValue)

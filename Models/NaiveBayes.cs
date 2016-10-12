@@ -66,6 +66,9 @@ namespace BrightWire.Models
             public string Label { get; set; }
 
             [ProtoMember(2)]
+            public double Prior { get; set; }
+
+            [ProtoMember(3)]
             public List<IColumn> ColumnSummary { get; set; }
         }
 

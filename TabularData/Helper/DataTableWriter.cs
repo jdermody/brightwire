@@ -37,12 +37,12 @@ namespace BrightWire.TabularData.Helper
             return new DataTable(_stream, _index, _rowCount);
         }
 
-        public void AddColumn(string name, ColumnType type)
+        public void AddColumn(string name, ColumnType type, bool isTarget = false)
         {
             if (_hasWrittenHeader)
                 throw new Exception();
 
-            _dataTable.Add(type, name);
+            _dataTable.AddColumn(type, name, isTarget);
         }
 
         public void AddRow(IEnumerable<object> row)

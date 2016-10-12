@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.Unsupervised.Clustering
 {
-    public class KMeans : IDisposable
+    internal class KMeans : IDisposable
     {
         class ClusterData : IDisposable
         {

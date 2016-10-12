@@ -6,6 +6,8 @@ using BrightWire.Helper;
 using BrightWire.Linear;
 using BrightWire.Linear.Training;
 using BrightWire.Models;
+using BrightWire.TreeBased.Training;
+using BrightWire.Unsupervised.Clustering;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -138,19 +140,19 @@ namespace BrightWire
             writer.WriteEndElement();
         }
 
-        public static ILinearRegressionTrainer CreateLinearRegressionTrainer(this IDataTable table, ILinearAlgebraProvider lap, int classColumnIndex)
+        public static ILinearRegressionTrainer CreateLinearRegressionTrainer(this IDataTable table, ILinearAlgebraProvider lap)
         {
-            return new RegressionTrainer(lap, table, classColumnIndex);
+            return new RegressionTrainer(lap, table);
         }
 
-        public static ILogisticRegressionTrainer CreateLogisticRegressionTrainer(this IDataTable table, ILinearAlgebraProvider lap, int classColumnIndex)
+        public static ILogisticRegressionTrainer CreateLogisticRegressionTrainer(this IDataTable table, ILinearAlgebraProvider lap)
         {
-            return new LogisticRegressionTrainer(lap, table, classColumnIndex);
+            return new LogisticRegressionTrainer(lap, table);
         }
 
-        public static NaiveBayes TrainNaiveBayes(this IDataTable table, int classColumnIndex)
+        public static NaiveBayes TrainNaiveBayes(this IDataTable table)
         {
-            return NaiveBayesTrainer.Train(table, classColumnIndex);
+            return NaiveBayesTrainer.Train(table);
         }
 
         public static IRandomProjection CreateRandomProjection(this ILinearAlgebraProvider lap, int fixedSize, int reducedSize, int s = 3)
@@ -188,6 +190,35 @@ namespace BrightWire
             foreach (var classification in data.Classifications)
                 trainer.AddClassification(classification.Name, classification.Data);
             return trainer.Train();
+        }
+
+        public static DecisionTree TrainDecisionTree(this IDataTable data, int? minDataPerNode = null, int? maxDepth = null, double? minInformationGain = null)
+        {
+            var config = new DecisionTreeTrainer.Config {
+                MinDataPerNode = minDataPerNode,
+                MaxDepth = maxDepth,
+                MinInformationGain = minInformationGain
+            };
+            return DecisionTreeTrainer.Train(data, config);
+        }
+
+        public static RandomForest TrainRandomForest(this IDataTable data, int b = 100)
+        {
+            return RandomForestTrainer.Train(data, b);
+        }
+
+        public static IReadOnlyList<IReadOnlyList<IVector>> KMeans(this IReadOnlyList<IVector> data, int k, int maxIterations = 1000)
+        {
+            using(var clusterer = new KMeans(k, data, DistanceMetric.Euclidean)) {
+                clusterer.ClusterUntilConverged(maxIterations);
+                return clusterer.Clusters;
+            }
+        }
+
+        public static IReadOnlyList<IReadOnlyList<IVector>> NNMF(this IReadOnlyList<IVector> data, ILinearAlgebraProvider lap, int k, int maxIterations = 1000)
+        {
+            var clusterer = new NonNegativeMatrixFactorisation(lap, k);
+            return clusterer.Cluster(data, maxIterations);
         }
     }
 }

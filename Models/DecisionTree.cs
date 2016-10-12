@@ -1,4 +1,5 @@
-﻿using ProtoBuf;
+﻿using BrightWire.TreeBased;
+using ProtoBuf;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -67,6 +68,11 @@ namespace BrightWire.Models
                     Root.WriteTo(new XmlTextWriter(new StringWriter(sb)));
                 return sb.ToString();
             }
+        }
+
+        public IRowClassifier CreateClassifier()
+        {
+            return new DecisionTreeClassifier(this);
         }
     }
 }

@@ -13,11 +13,12 @@ namespace BrightWire.Linear.Training
         readonly IMatrix _feature;
         readonly IVector _target;
 
-        public RegressionTrainer(ILinearAlgebraProvider lap, IDataTable table, int classColumnIndex)
+        public RegressionTrainer(ILinearAlgebraProvider lap, IDataTable table)
         {
             _lap = lap;
             var numRows = table.RowCount;
             var numCols = table.ColumnCount;
+            int classColumnIndex = table.TargetColumnIndex;
 
             var data = table.GetNumericRows(Enumerable.Range(0, numCols).Where(c => c != classColumnIndex));
             _feature = lap.Create(numRows, numCols, (i, j) => j == 0 ? 1 : data[j - 1][i]);

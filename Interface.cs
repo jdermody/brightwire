@@ -1319,7 +1319,7 @@ namespace BrightWire
         /// </summary>
         ILinearAlgebraProvider LinearAlgebraProvider { get; }
 
-        ITrainingDataProvider CreateTrainingDataProvider(IDataTable table, int classColumnIndex);
+        ITrainingDataProvider CreateTrainingDataProvider(IDataTable table);
         ITrainingDataProvider CreateTrainingDataProvider(IReadOnlyList<Tuple<float[], float[]>> data);
         ISequentialTrainingDataProvider CreateSequentialTrainingDataProvider(IReadOnlyList<Tuple<float[], float[]>[]> data);
 
@@ -1997,6 +1997,7 @@ namespace BrightWire
         ColumnType Type { get; }
         int NumDistinct { get; }
         bool IsContinuous { get; set; }
+        bool IsTarget { get; }
     }
 
     public interface IHaveColumns
@@ -2008,6 +2009,7 @@ namespace BrightWire
     public interface IDataTable : IHaveColumns
     {
         int RowCount { get; }
+        int TargetColumnIndex { get; }
 
         void Process(IRowProcessor rowProcessor);
         //IDataTable Index(Stream output = null);

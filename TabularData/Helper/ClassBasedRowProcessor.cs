@@ -10,6 +10,8 @@ namespace BrightWire.TabularData.Helper
     {
         readonly int _classColumnIndex;
         readonly Dictionary<string, List<IRowProcessor>> _columnProcessor = new Dictionary<string, List<IRowProcessor>>();
+        readonly Dictionary<string, uint> _classCount = new Dictionary<string, uint>();
+        uint _total = 0;
 
         public ClassBasedRowProcessor(IEnumerable<Tuple<string, IRowProcessor>> classBasedProcessors, int classColumnIndex)
         {
@@ -25,17 +27,32 @@ namespace BrightWire.TabularData.Helper
 
         public bool Process(IRow row)
         {
+            uint temp2;
+            List<IRowProcessor> temp;
             var classValue = row.GetField<string>(_classColumnIndex);
+
             if (classValue != null) {
-                List<IRowProcessor> temp;
                 if(_columnProcessor.TryGetValue(classValue, out temp)) {
                     foreach(var item in temp)
                         item.Process(row);
+                    if (_classCount.TryGetValue(classValue, out temp2))
+                        _classCount[classValue] = temp2 + 1;
+                    else
+                        _classCount[classValue] = 1;
                 }
+                ++_total;
             }
             return true;
         }
 
         public IEnumerable<Tuple<string, IRowProcessor>> All { get { return _columnProcessor.SelectMany(d => d.Value.Select(d2 => Tuple.Create(d.Key, d2))); } }
+
+        public double GetProbability(string className)
+        {
+            uint temp;
+            if (_classCount.TryGetValue(className, out temp))
+                return temp / (double)_total;
+            return 0;
+        }
     }
 }

@@ -15,18 +15,21 @@ namespace BrightWire.TabularData
         {
             readonly ColumnType _type;
             readonly string _name;
+            readonly bool _isTarget;
             int _numDistinct;
             bool? _isContinuous;
 
-            public Column(string name, ColumnType type, int numDistinct, bool? isContinuous)
+            public Column(string name, ColumnType type, int numDistinct, bool? isContinuous, bool isTarget)
             {
                 _name = name;
                 _type = type;
                 _numDistinct = numDistinct;
                 _isContinuous = isContinuous;
+                _isTarget = isTarget;
             }
             public ColumnType Type { get { return _type; } }
             public string Name { get { return _name; } }
+            public bool IsTarget { get { return _isTarget; } }
             public int NumDistinct
             {
                 get { return _numDistinct; }
@@ -59,12 +62,13 @@ namespace BrightWire.TabularData
             for (var i = 0; i < columnCount; i++) {
                 var name = reader.ReadString();
                 var type = (ColumnType)reader.ReadByte();
+                var isTarget = reader.ReadBoolean();
                 var numDistinct = reader.ReadInt32();
                 var continuousSpecified = reader.ReadBoolean();
                 bool? isContinuous = null;
                 if (continuousSpecified)
                     isContinuous = reader.ReadBoolean();
-                _column.Add(new Column(name, type, numDistinct, isContinuous));
+                _column.Add(new Column(name, type, numDistinct, isContinuous, isTarget));
             }
 
             _stream = stream;
@@ -370,6 +374,19 @@ namespace BrightWire.TabularData
             get
             {
                 return GetRows(new[] { index }).FirstOrDefault();
+            }
+        }
+
+        public int TargetColumnIndex
+        {
+            get
+            {
+                for (int i = 0, len = _column.Count; i < len; i++) {
+                    if (_column[i].IsTarget)
+                        return i;
+                }
+                // default to the last column
+                return _column.Count-1;
             }
         }
     }

@@ -7,34 +7,30 @@ using System.Threading.Tasks;
 
 namespace BrightWire.Unsupervised.Clustering
 {
-    public class NonNegativeMatrixFactorisation
+    internal class NonNegativeMatrixFactorisation
     {
-        readonly int _numClusters, _numIterations;
+        readonly int _numClusters;
         readonly ILinearAlgebraProvider _lap;
         readonly IErrorMetric _costFunction;
 
-        public NonNegativeMatrixFactorisation(ILinearAlgebraProvider lap, int numClusters, int numIterations, IErrorMetric costFunction = null)
+        public NonNegativeMatrixFactorisation(ILinearAlgebraProvider lap, int numClusters, IErrorMetric costFunction = null)
         {
             _lap = lap;
             _numClusters = numClusters;
-            _numIterations = numIterations;
             _costFunction = costFunction ?? new RMSE();
         }
 
-        public IReadOnlyList<IIndexableVector[]> Cluster(IReadOnlyList<IIndexableVector> data)
+        public IReadOnlyList<IReadOnlyList<IVector>> Cluster(IReadOnlyList<IVector> data, int numIterations, float errorThreshold = 0.001f)
         {
             if (data.Count == 0)
-                return new List<IIndexableVector[]>();
-
-            var data2 = new List<IIndexableVector>();
-            foreach (var item in data) {
-                var item2 = item.Clone().AsIndexable();
-                item2.Normalise(NormalisationType.FeatureScale);
-                data2.Add(item2);
-            }
+                return new List<IVector[]>();
 
             // create the main matrix
+            var data2 = new List<IIndexableVector>();
+            foreach (var item in data)
+                data2.Add(item.AsIndexable());
             var v = _lap.Create(data.Count, data.First().Count, (x, y) => data2[x][y]);
+            data2.ForEach(d => d.Dispose());
 
             // create the weights and features
             var rand = new Random();
@@ -43,10 +39,10 @@ namespace BrightWire.Unsupervised.Clustering
 
             // iterate
             float lastCost = 0;
-            for (int i = 0; i < _numIterations; i++) {
+            for (int i = 0; i < numIterations; i++) {
                 var wh = weights.Multiply(features);
                 var cost = _DifferenceCost(v, wh);
-                if (cost <= 0.001f)
+                if (cost <= errorThreshold)
                     break;
                 lastCost = cost;
 

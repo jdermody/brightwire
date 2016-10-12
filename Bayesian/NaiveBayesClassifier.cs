@@ -47,11 +47,11 @@ namespace BrightWire.Bayesian
             public double GetProbability(IRow row)
             {
                 double x = row.GetField<double>(_column.ColumnIndex);
-                var exponent = Math.Exp(-1 * Math.Pow(x - _column.Mean, 2) / (2 * Math.Pow(_column.Variance, 2)));
+                var exponent = Math.Exp(-1 * Math.Pow(x - _column.Mean, 2) / (2 * _column.Variance));
                 return Math.Log(1.0 / Math.Sqrt(2 * Math.PI * _column.Variance) * exponent);
             }
         }
-        readonly List<Tuple<string, List<IProbabilityProvider>>> _classProbability = new List<Tuple<string, List<IProbabilityProvider>>>();
+        readonly List<Tuple<string, double, List<IProbabilityProvider>>> _classProbability = new List<Tuple<string, double, List<IProbabilityProvider>>>();
 
         public NaiveBayesClassifier(NaiveBayes model)
         {
@@ -63,7 +63,7 @@ namespace BrightWire.Bayesian
                     else if (col.Type == NaiveBayes.ColumnType.ContinuousGaussian)
                         list.Add(new ContinuousColumn(col as NaiveBayes.ContinuousGaussianColumn));
                 }
-                _classProbability.Add(Tuple.Create(cls.Label, list));
+                _classProbability.Add(Tuple.Create(cls.Label, cls.Prior, list));
             }
         }
 
@@ -71,8 +71,8 @@ namespace BrightWire.Bayesian
         {
             var ret = new Dictionary<string, double>();
             foreach(var cls in _classProbability) {
-                double score = 0;
-                foreach (var item in cls.Item2)
+                double score = cls.Item2;
+                foreach (var item in cls.Item3)
                     score += item.GetProbability(row);
                 ret.Add(cls.Item1, score);
             }

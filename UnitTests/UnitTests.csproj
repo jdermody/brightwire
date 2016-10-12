@@ -62,7 +62,10 @@
     <Compile Include="CudaLinearAlgebraTests.cs" />
     <Compile Include="Helper\FloatingPointHelper.cs" />
     <Compile Include="LinearTests.cs" />
+    <Compile Include="NaiveBayesTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TreeBasedTests.cs" />
+    <Compile Include="UnsupervisedTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BrightWire.CUDA.Net4.x64\BrightWire.CUDA.Net4.x64.csproj">

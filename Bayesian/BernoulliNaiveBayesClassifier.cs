@@ -28,7 +28,7 @@ namespace BrightWire.Bayesian
             {
                 double ret = _class.Prior;
 
-                foreach(var item in _class.Index) {
+                foreach (var item in _class.Index) {
                     if (documentSet.Contains(item.StringIndex))
                         ret += item.ConditionalProbability;
                     else
@@ -36,7 +36,7 @@ namespace BrightWire.Bayesian
                 }
 
                 int missingCount = 0, inverseMissingCount = 0;
-                foreach(var word in _excluded) {
+                foreach (var word in _excluded) {
                     if (documentSet.Contains(word))
                         ++missingCount;
                     else

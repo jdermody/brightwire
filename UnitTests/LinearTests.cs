@@ -32,8 +32,8 @@ namespace UnitTests
         public void TestRegression()
         {
             var dataTable = new MutableDataTable();
-            dataTable.Add(ColumnType.Float, "value");
-            dataTable.Add(ColumnType.Float, "result");
+            dataTable.AddColumn(ColumnType.Float, "value");
+            dataTable.AddColumn(ColumnType.Float, "result", true);
 
             // simple linear relationship: result is twice value
             dataTable.AddRow(new object[] { 1f, 2f });
@@ -42,7 +42,7 @@ namespace UnitTests
             dataTable.AddRow(new object[] { 8f, 16f });
             var index = dataTable.Index();
 
-            var classifier = index.CreateLinearRegressionTrainer(_lap, 1);
+            var classifier = index.CreateLinearRegressionTrainer(_lap);
             var theta = classifier.Solve();
             var predictor = theta.CreatePredictor(_lap);
 
@@ -65,8 +65,8 @@ namespace UnitTests
         public void TestLogisticRegression()
         {
             var dataTable = new MutableDataTable();
-            dataTable.Add(ColumnType.Float, "hours");
-            dataTable.Add(ColumnType.Boolean, "pass");
+            dataTable.AddColumn(ColumnType.Float, "hours");
+            dataTable.AddColumn(ColumnType.Boolean, "pass", true);
 
             // sample data from: https://en.wikipedia.org/wiki/Logistic_regression
             dataTable.AddRow(new object[] { 0.5f, false });
@@ -91,7 +91,7 @@ namespace UnitTests
             dataTable.AddRow(new object[] { 5.5f, true });
             var index = dataTable.Index();
 
-            var trainer = index.CreateLogisticRegressionTrainer(_lap, 1);
+            var trainer = index.CreateLogisticRegressionTrainer(_lap);
             var theta = trainer.GradientDescent(1000, 0.1f);
             var predictor = theta.CreatePredictor(_lap);
             var probability1 = predictor.Predict(2f);

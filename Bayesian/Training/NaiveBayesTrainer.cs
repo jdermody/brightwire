@@ -13,9 +13,10 @@ namespace BrightWire.Bayesian.Training
 {
     internal static class NaiveBayesTrainer
     {
-        public static NaiveBayes Train(IDataTable table, int classColumnIndex)
+        public static NaiveBayes Train(IDataTable table)
         {
             // analyse the table to get the set of class values
+            var classColumnIndex = table.TargetColumnIndex;
             var analysis = new DataTableAnalysis(table, classColumnIndex);
             table.Process(analysis);
 
@@ -66,7 +67,8 @@ namespace BrightWire.Bayesian.Training
                 }
                 classList.Add(new NaiveBayes.ClassSummary {
                     Label = classLabel,
-                    ColumnSummary = columnList
+                    ColumnSummary = columnList,
+                    Prior = Math.Log(frequencyAnalysis.GetProbability(classLabel))
                 });
             }
 

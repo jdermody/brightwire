@@ -50,9 +50,9 @@ namespace BrightWire.Connectionist
 
         public ILinearAlgebraProvider LinearAlgebraProvider { get { return _lap; } }
 
-        public ITrainingDataProvider CreateTrainingDataProvider(IDataTable table, int classColumnIndex)
+        public ITrainingDataProvider CreateTrainingDataProvider(IDataTable table)
         {
-            return new DataTableTrainingDataProvider(_lap, table, classColumnIndex);
+            return new DataTableTrainingDataProvider(_lap, table);
         }
 
         public ITrainingDataProvider CreateTrainingDataProvider(IReadOnlyList<Tuple<float[], float[]>> data)

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.TreeBased.Training
 {
-    public static class DecisionTreeTrainer
+    internal static class DecisionTreeTrainer
     {
         class Attribute
         {
@@ -83,9 +83,9 @@ namespace BrightWire.TreeBased.Training
             readonly List<IRow> _data = new List<IRow>();
             readonly int _classColumnIndex;
 
-            public TableInfo(IDataTable table, int classColumnIndex)
+            public TableInfo(IDataTable table)
             {
-                _classColumnIndex = classColumnIndex;
+                _classColumnIndex = table.TargetColumnIndex;
                 for (int i = 0, len = table.ColumnCount; i < len; i++) {
                     if (i != _classColumnIndex) {
                         var column = table.Columns[i];
@@ -244,9 +244,9 @@ namespace BrightWire.TreeBased.Training
             public double? MinInformationGain { get; set; } = null;
         }
 
-        public static DecisionTree Train(IDataTable table, int classColumnIndex, Config config = null)
+        public static DecisionTree Train(IDataTable table, Config config = null)
         {
-            var tableInfo = new TableInfo(table, classColumnIndex);
+            var tableInfo = new TableInfo(table);
             var root = new Node(tableInfo, tableInfo.Data, null);
             var stack = new Stack<Node>();
             stack.Push(root);
