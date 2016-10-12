@@ -1189,7 +1189,27 @@ namespace BrightWire
         /// <param name="storeForBackpropagation">True to store backpropagation data</param>
         /// <returns>The network output</returns>
         IMatrix FeedForward(IMatrix input, bool storeForBackpropagation);
+
+        /// <summary>
+        /// Backpropagate
+        /// </summary>
+        /// <param name="errorSignal"></param>
+        /// <param name="context"></param>
+        /// <param name="calculateOutput"></param>
+        /// <param name="updates"></param>
+        /// <returns></returns>
         IMatrix Backpropagate(IMatrix errorSignal, ITrainingContext context, bool calculateOutput, INeuralNetworkUpdateAccumulator updates = null);
+
+        /// <summary>
+        /// Backpropagate
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="output"></param>
+        /// <param name="errorSignal"></param>
+        /// <param name="context"></param>
+        /// <param name="calculateOutput"></param>
+        /// <param name="updates"></param>
+        /// <returns></returns>
         IMatrix Backpropagate(IMatrix input, IMatrix output, IMatrix errorSignal, ITrainingContext context, bool calculateOutput, INeuralNetworkUpdateAccumulator updates = null);
     }
 
@@ -1198,10 +1218,29 @@ namespace BrightWire
     /// </summary>
     public enum ActivationType
     {
+        /// <summary>
+        /// No activation function
+        /// </summary>
         None = 0,
+
+        /// <summary>
+        /// RELU activation: f(x) = max(0, x)
+        /// </summary>
         Relu,
+
+        /// <summary>
+        /// Leaky RELU activation: f(x) = (x > 0) ? x : 0.01x
+        /// </summary>
         LeakyRelu,
+
+        /// <summary>
+        /// Sigmoid activation function
+        /// </summary>
         Sigmoid,
+
+        /// <summary>
+        /// TANH activation function
+        /// </summary>
         Tanh,
         //Softmax
     }
@@ -1304,8 +1343,19 @@ namespace BrightWire
     /// </summary>
     public enum LayerTrainerType
     {
+        /// <summary>
+        /// Standard layer trainer
+        /// </summary>
         Standard,
+
+        /// <summary>
+        /// Dropout based layer trainer
+        /// </summary>
         Dropout,
+
+        /// <summary>
+        /// Drop Connection layer trainer
+        /// </summary>
         DropConnect
     }
 
@@ -1319,8 +1369,22 @@ namespace BrightWire
         /// </summary>
         ILinearAlgebraProvider LinearAlgebraProvider { get; }
 
+        /// <summary>
+        /// Creates a training data provider from a data table
+        /// </summary>
+        /// <param name="table">The training data</param>
         ITrainingDataProvider CreateTrainingDataProvider(IDataTable table);
+
+        /// <summary>
+        /// Creates a training data provider from a list of tuples { input, output }
+        /// </summary>
+        /// <param name="data">The training data</param>
         ITrainingDataProvider CreateTrainingDataProvider(IReadOnlyList<Tuple<float[], float[]>> data);
+
+        /// <summary>
+        /// Creates a sequential training data provider
+        /// </summary>
+        /// <param name="data">A list of tuple sequences of {input, output }</param>
         ISequentialTrainingDataProvider CreateSequentialTrainingDataProvider(IReadOnlyList<Tuple<float[], float[]>[]> data);
 
         /// <summary>
@@ -1639,7 +1703,20 @@ namespace BrightWire
     /// </summary>
     public interface INeuralNetworkRecurrentTrainerFilter
     {
+        /// <summary>
+        /// Called before the network feeds forward
+        /// </summary>
+        /// <param name="miniBatch"></param>
+        /// <param name="sequenceIndex"></param>
+        /// <param name="context"></param>
         void BeforeFeedForward(ISequentialMiniBatch miniBatch, int sequenceIndex, List<IMatrix> context);
+
+        /// <summary>
+        /// Called after the network completes backpropagation
+        /// </summary>
+        /// <param name="miniBatch"></param>
+        /// <param name="sequenceIndex"></param>
+        /// <param name="errorSignal"></param>
         void AfterBackPropagation(ISequentialMiniBatch miniBatch, int sequenceIndex, IMatrix errorSignal);
     }
 
@@ -1758,19 +1835,45 @@ namespace BrightWire
     /// </summary>
     public enum DistanceMetric
     {
+        /// <summary>
+        /// Euclidean Distance
+        /// </summary>
         Euclidean,
+
+        /// <summary>
+        /// Cosine Distance Metric
+        /// </summary>
         Cosine,
+
+        /// <summary>
+        /// Manhattan Distance
+        /// </summary>
         Manhattan,
+
+        /// <summary>
+        /// Means Square Error
+        /// </summary>
         MeanSquared,
+
+        /// <summary>
+        /// Square Euclidean
+        /// </summary>
         SquaredEuclidean
     }
 
     /// <summary>
-    /// Mini batch
+    /// Mini batch of training samples
     /// </summary>
     public interface IMiniBatch : IDisposable
     {
+        /// <summary>
+        /// A matrix with rows for each sample within the batch
+        /// </summary>
         IMatrix Input { get; }
+
+        /// <summary>
+        /// A matrix with rows for each expected output (associated with each input row)
+        /// </summary>
         IMatrix ExpectedOutput { get; }
     }
 
@@ -1872,7 +1975,20 @@ namespace BrightWire
     /// </summary>
     public interface IWeightInitialisation
     {
+        /// <summary>
+        /// Gets an initial value for a weight matrix
+        /// </summary>
+        /// <param name="inputSize">The number of input neurons</param>
+        /// <param name="outputSize">The number of output nuerons</param>
+        /// <param name="i">The ith index in the matrix</param>
+        /// <param name="j">The jth index in the matrix</param>
+        /// <returns></returns>
         float GetWeight(int inputSize, int outputSize, int i, int j);
+
+        /// <summary>
+        /// Gets an initial value for a bias vector
+        /// </summary>
+        /// <returns></returns>
         float GetBias();
     }
 
@@ -1881,9 +1997,33 @@ namespace BrightWire
     /// </summary>
     public interface IStandardExecution : IDisposable
     {
+        /// <summary>
+        /// Executes the network
+        /// </summary>
+        /// <param name="inputData"></param>
+        /// <returns></returns>
         IVector Execute(float[] inputData);
+
+        /// <summary>
+        /// Executes the network
+        /// </summary>
+        /// <param name="inputData"></param>
+        /// <returns></returns>
         IVector Execute(IVector inputData);
+
+        /// <summary>
+        /// Executes the network
+        /// </summary>
+        /// <param name="inputData"></param>
+        /// <returns></returns>
         IMatrix Execute(IMatrix inputData);
+
+        /// <summary>
+        /// Executes the network to a specified layer
+        /// </summary>
+        /// <param name="inputData"></param>
+        /// <param name="depth">The layer depth at which to stop execution</param>
+        /// <returns></returns>
         IVector Execute(IVector inputData, int depth);
     }
 
@@ -1892,7 +2032,14 @@ namespace BrightWire
     /// </summary>
     public interface IRecurrentOutput
     {
+        /// <summary>
+        /// The network output
+        /// </summary>
         IIndexableVector Output { get; }
+
+        /// <summary>
+        /// The output memory
+        /// </summary>
         IIndexableVector Memory { get; }
     }
 
@@ -1901,7 +2048,18 @@ namespace BrightWire
     /// </summary>
     public interface IBidirectionalRecurrentExecution : IDisposable
     {
+        /// <summary>
+        /// Executes the network
+        /// </summary>
+        /// <param name="inputData"></param>
+        /// <returns></returns>
         IReadOnlyList<IRecurrentOutput> Execute(IReadOnlyList<float[]> inputData);
+
+        /// <summary>
+        /// Executes the network
+        /// </summary>
+        /// <param name="inputData"></param>
+        /// <returns></returns>
         IReadOnlyList<IRecurrentOutput> Execute(IReadOnlyList<IVector> inputData);
     }
 
@@ -1910,11 +2068,21 @@ namespace BrightWire
     /// </summary>
     public interface IRecurrentExecution : IBidirectionalRecurrentExecution
     {
+        /// <summary>
+        /// Executes a single item in a sequence
+        /// </summary>
+        /// <param name="data">The input data</param>
+        /// <param name="memory">The input memory</param>
+        /// <returns></returns>
         IRecurrentOutput ExecuteSingle(float[] data, float[] memory);
+
+        /// <summary>
+        /// Gets the initial network memory
+        /// </summary>
         float[] InitialMemory { get; }
     }
 
-    public interface IDisposableMatrixExecutionLine : IDisposable
+    internal interface IDisposableMatrixExecutionLine : IDisposable
     {
         IMatrix Current { get; }
         void Assign(IMatrix matrix);
@@ -1922,197 +2090,658 @@ namespace BrightWire
         IMatrix Pop();
     }
 
-    public interface IRecurrentLayerExecution : IDisposable
+    internal interface IRecurrentLayerExecution : IDisposable
     {
         void Activate(List<IDisposableMatrixExecutionLine> curr);
     }
 
+    /// <summary>
+    /// Recurrent layer type
+    /// </summary>
     public enum RecurrentLayerType
     {
+        /// <summary>
+        /// A feed forward layer within the recurrent network
+        /// </summary>
         FeedForward,
+
+        /// <summary>
+        /// A Elman style recurrent network layer
+        /// </summary>
         SimpleRecurrent,
+
+        /// <summary>
+        /// An LSTM recurrent network layer
+        /// </summary>
         Lstm
     }
 
+    /// <summary>
+    /// Trains a feed forward network
+    /// </summary>
     public interface IFeedForwardTrainingManager : IDisposable
     {
+        /// <summary>
+        /// The network
+        /// </summary>
         INeuralNetworkTrainer Trainer { get; }
+
+        /// <summary>
+        /// Trains the network
+        /// </summary>
+        /// <param name="trainingData">Training data</param>
+        /// <param name="numEpochs">Number of epochs to train for</param>
+        /// <param name="context">The training context</param>
         void Train(ITrainingDataProvider trainingData, int numEpochs, ITrainingContext context);
     }
 
+    /// <summary>
+    /// Trains a recurrent network
+    /// </summary>
     public interface IRecurrentTrainingManager : IDisposable
     {
+        /// <summary>
+        /// The network
+        /// </summary>
         INeuralNetworkRecurrentBatchTrainer Trainer { get; }
+
+        /// <summary>
+        /// Trains the network
+        /// </summary>
+        /// <param name="trainingData">The training data</param>
+        /// <param name="numEpochs">Number of epochs to train for</param>
+        /// <param name="context">The training context</param>
+        /// <param name="recurrentContext">The recurrent training context</param>
         void Train(ISequentialTrainingDataProvider trainingData, int numEpochs, ITrainingContext context, IRecurrentTrainingContext recurrentContext = null);
+
+        /// <summary>
+        /// The current memory
+        /// </summary>
         float[] Memory { get; }
     }
 
+    /// <summary>
+    /// Trains a bidirectional network
+    /// </summary>
     public interface IBidirectionalRecurrentTrainingManager : IDisposable
     {
-        ILinearAlgebraProvider LinearAlgebraProvider { get; }
+        /// <summary>
+        /// The network to train
+        /// </summary>
+        INeuralNetworkBidirectionalBatchTrainer Trainer { get; }
+
+        /// <summary>
+        /// Trains the network
+        /// </summary>
+        /// <param name="trainingData">The training data</param>
+        /// <param name="numEpochs">Number of epochs to train for</param>
+        /// <param name="context">The training context</param>
+        /// <param name="recurrentContext">The recurrent training context</param>
         void Train(ISequentialTrainingDataProvider trainingData, int numEpochs, ITrainingContext context, IRecurrentTrainingContext recurrentContext = null);
+
+        /// <summary>
+        /// The current memory { forward, backward }
+        /// </summary>
         Tuple<float[], float[]> Memory { get; }
     }
 
+    /// <summary>
+    /// Error metric or cost function
+    /// </summary>
     public enum ErrorMetricType
     {
+        /// <summary>
+        /// No cost function
+        /// </summary>
         None,
+
+        /// <summary>
+        /// Compares the indexes of the maximum values
+        /// </summary>
         OneHot,
+
+        /// <summary>
+        /// Root Mean Squared Error
+        /// </summary>
         RMSE,
+
+        /// <summary>
+        /// Rounds values to 1 or 0
+        /// </summary>
         BinaryClassification,
+
+        /// <summary>
+        /// Cross entropy
+        /// </summary>
         CrossEntropy,
+
+        /// <summary>
+        /// Quadratic
+        /// </summary>
         Quadratic
     }
 
+    /// <summary>
+    /// Error metric or cost function
+    /// </summary>
     public interface IErrorMetric
     {
+        /// <summary>
+        /// Computes a score from two vectors
+        /// </summary>
+        /// <param name="output">The actual output</param>
+        /// <param name="expectedOutput">The expected output</param>
+        /// <returns></returns>
         float Compute(IIndexableVector output, IIndexableVector expectedOutput);
+
+        /// <summary>
+        /// True if a higher score is better than a low score
+        /// </summary>
         bool HigherIsBetter { get; }
+
+        /// <summary>
+        /// True if the score is a percentage
+        /// </summary>
         bool DisplayAsPercentage { get; }
+
+        /// <summary>
+        /// Calculates the difference between outputs and expected outputs
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="expectedOutput"></param>
+        /// <returns></returns>
         IMatrix CalculateDelta(IMatrix input, IMatrix expectedOutput);
     }
 
+    /// <summary>
+    /// Data table column type
+    /// </summary>
     public enum ColumnType
     {
+        /// <summary>
+        /// Nothing
+        /// </summary>
         Null = 0,
+
+        /// <summary>
+        /// String values
+        /// </summary>
         String = 1,
+
+        /// <summary>
+        /// Double values
+        /// </summary>
         Double,
+
+        /// <summary>
+        /// Float values
+        /// </summary>
         Float,
+
+        /// <summary>
+        /// Long values
+        /// </summary>
         Long,
+
+        /// <summary>
+        /// Byte values
+        /// </summary>
         Byte,
+        
+        /// <summary>
+        /// Integer values
+        /// </summary>
         Int,
+
+        /// <summary>
+        /// Date values
+        /// </summary>
         Date,
+
+        /// <summary>
+        /// Boolean values
+        /// </summary>
         Boolean
     }
 
+    /// <summary>
+    /// A data table row
+    /// </summary>
     public interface IRow
     {
+        /// <summary>
+        /// The data within the row
+        /// </summary>
         IReadOnlyList<object> Data { get; }
+
+        /// <summary>
+        /// Gets the value of the specified column (converted to T)
+        /// </summary>
+        /// <typeparam name="T">The type of data to return (will be converted if neccessary)</typeparam>
+        /// <param name="index">The column index to query</param>
         T GetField<T>(int index);
     }
 
+    /// <summary>
+    /// A column within a data table
+    /// </summary>
     public interface IColumn
     {
+        /// <summary>
+        /// The name of the column
+        /// </summary>
         string Name { get; }
+
+        /// <summary>
+        /// The data type
+        /// </summary>
         ColumnType Type { get; }
+
+        /// <summary>
+        /// The number of distinct values
+        /// </summary>
         int NumDistinct { get; }
+
+        /// <summary>
+        /// True if the value is continuous (not categorical)
+        /// </summary>
         bool IsContinuous { get; set; }
+
+        /// <summary>
+        /// True if the column is a classification target (or label)
+        /// </summary>
         bool IsTarget { get; }
     }
 
+    /// <summary>
+    /// Column provider
+    /// </summary>
     public interface IHaveColumns
     {
+        /// <summary>
+        /// The list of columns
+        /// </summary>
         IReadOnlyList<IColumn> Columns { get; }
+
+        /// <summary>
+        /// The number of columns
+        /// </summary>
         int ColumnCount { get; }
     }
 
+    /// <summary>
+    /// Tabular data table
+    /// </summary>
     public interface IDataTable : IHaveColumns
     {
+        /// <summary>
+        /// The number of rows
+        /// </summary>
         int RowCount { get; }
+
+        /// <summary>
+        /// The column of the classification target (defaults to the last column if none set)
+        /// </summary>
         int TargetColumnIndex { get; }
 
+        /// <summary>
+        /// Applies each row of the table to the specified processor
+        /// </summary>
+        /// <param name="rowProcessor">Will be called with each row</param>
         void Process(IRowProcessor rowProcessor);
-        //IDataTable Index(Stream output = null);
 
-
+        /// <summary>
+        /// Data table statistics
+        /// </summary>
         IDataTableAnalysis Analysis { get; }
-        void Process(Func<IRow, int, bool> processor);
+        //void Process(Func<IRow, int, bool> processor);
+
+        /// <summary>
+        /// Gets a list of rows
+        /// </summary>
+        /// <param name="offset">The first row index</param>
+        /// <param name="count">The number of rows to query</param>
         IReadOnlyList<IRow> GetSlice(int offset, int count);
+
+        /// <summary>
+        /// Gets a list of rows
+        /// </summary>
+        /// <param name="rowIndex">A sequence of row indices</param>
         IReadOnlyList<IRow> GetRows(IEnumerable<int> rowIndex);
-        Tuple<IDataTable, IDataTable> Split(int? randomSeed = null, double trainPercentage = 0.8, bool shuffle = true, Stream output1 = null, Stream output2 = null);
+
+        /// <summary>
+        /// Splits the table into two random tables
+        /// </summary>
+        /// <param name="randomSeed">Optional random seed</param>
+        /// <param name="firstSize">The size of the first table (expressed as a value between 0 and 1)</param>
+        /// <param name="shuffle">True to shuffle the table before splitting</param>
+        /// <param name="output1">Optional stream to write the first output table to</param>
+        /// <param name="output2">Optional stream to write the second output table to</param>
+        /// <returns>A tuple of {first table, second table}</returns>
+        Tuple<IDataTable, IDataTable> Split(int? randomSeed = null, double firstSize = 0.8, bool shuffle = true, Stream output1 = null, Stream output2 = null);
+
+        /// <summary>
+        /// Creates a normalised version of the current table
+        /// </summary>
+        /// <param name="normalisationType">The type of normalisation to apply</param>
+        /// <param name="output">Optional stream to write the normalised table to</param>
         IDataTable Normalise(NormalisationType normalisationType, Stream output = null);
-        IReadOnlyList<IVector> GetNumericRows(ILinearAlgebraProvider lap, IEnumerable<int> columns = null);
+
+        /// <summary>
+        /// Converts the rows to vectors
+        /// </summary>
+        /// <param name="lap">Linear algebra provider</param>
+        /// <param name="rows">Optional list of rows to extract (or null for all rows)</param>
+        IReadOnlyList<IVector> GetNumericRows(ILinearAlgebraProvider lap, IEnumerable<int> rows = null);
+
+        /// <summary>
+        /// Converts the columns to vectors
+        /// </summary>
+        /// <param name="lap">Linear algebra provider</param>
+        /// <param name="columns">Optional list of columns to extract (or null for all columns)</param>
         IReadOnlyList<IVector> GetNumericColumns(ILinearAlgebraProvider lap, IEnumerable<int> columns = null);
+
+        /// <summary>
+        /// Converts a single column to a list of categories
+        /// </summary>
+        /// <param name="columnIndex">The column to extract</param>
         string[] GetDiscreteColumn(int columnIndex);
+
+        /// <summary>
+        /// Converts a single column to a list of floats
+        /// </summary>
+        /// <param name="columnIndex">The column to extract</param>
         float[] GetNumericColumn(int columnIndex);
+
+        /// <summary>
+        /// Creates a new data table with bagged rows from the current table
+        /// </summary>
+        /// <param name="count">The count of rows to bag</param>
+        /// <param name="output">Optional stream to write the new table to</param>
+        /// <param name="randomSeed">Optional random seed</param>
+        /// <returns></returns>
         IDataTable Bag(int? count = null, Stream output = null, int? randomSeed = null);
+
+        /// <summary>
+        /// Converts columns to lists of floats
+        /// </summary>
+        /// <param name="columns">Optional list of columns to convert (or null for all columns)</param>
+        /// <returns></returns>
         IReadOnlyList<float[]> GetNumericRows(IEnumerable<int> columns = null);
     }
 
+    /// <summary>
+    /// Row processor
+    /// </summary>
     public interface IRowProcessor
     {
+        /// <summary>
+        /// Will be called for each row
+        /// </summary>
+        /// <param name="row">The current row</param>
+        /// <returns>False to stop</returns>
         bool Process(IRow row);
     }
 
+    /// <summary>
+    /// Column statistics within a data table
+    /// </summary>
     public interface IColumnInfo
     {
+        /// <summary>
+        /// The index of the column in the data table
+        /// </summary>
         int ColumnIndex { get; }
+
+        /// <summary>
+        /// The distinct values within the column
+        /// </summary>
         IEnumerable<object> DistinctValues { get; }
+
+        /// <summary>
+        /// The number of distinct values (or null if there are too many)
+        /// </summary>
         int? NumDistinct { get; }
     }
 
+    /// <summary>
+    /// Column statistics for a string based column
+    /// </summary>
     public interface IStringColumnInfo : IColumnInfo
     {
+        /// <summary>
+        /// The minimum string length
+        /// </summary>
         int MinLength { get; }
+
+        /// <summary>
+        /// The maximum string length
+        /// </summary>
         int MaxLength { get; }
+
+        /// <summary>
+        /// The most common string
+        /// </summary>
         string MostCommonString { get; }
     }
 
+    /// <summary>
+    /// Column statistics for a numeric column
+    /// </summary>
     public interface INumericColumnInfo : IColumnInfo
     {
+        /// <summary>
+        /// The minimum value
+        /// </summary>
         double Min { get; }
+
+        /// <summary>
+        /// The maximum value
+        /// </summary>
         double Max { get; }
+
+        /// <summary>
+        /// The mean (or average)
+        /// </summary>
         double Mean { get; }
+
+        /// <summary>
+        /// The standard deviation
+        /// </summary>
         double? StdDev { get; }
+
+        /// <summary>
+        /// The median value
+        /// </summary>
         double? Median { get; }
+
+        /// <summary>
+        /// The mode
+        /// </summary>
         double? Mode { get; }
+
+        /// <summary>
+        /// The L1 Norm
+        /// </summary>
         double L1Norm { get; }
+
+        /// <summary>
+        /// The L2 Norm
+        /// </summary>
         double L2Norm { get; }
     }
 
-    public interface IFrequencyColumnInfo : IColumnInfo
+    internal interface IFrequencyColumnInfo : IColumnInfo
     {
         IEnumerable<KeyValuePair<string, ulong>> Frequency { get; }
     }
 
+    /// <summary>
+    /// Data table statistics
+    /// </summary>
     public interface IDataTableAnalysis
     {
+        /// <summary>
+        /// List of column statistics
+        /// </summary>
         IEnumerable<IColumnInfo> ColumnInfo { get; }
     }
 
+    /// <summary>
+    /// Trainer for linear regression models
+    /// </summary>
     public interface ILinearRegressionTrainer
     {
+        /// <summary>
+        /// Attempt to solve the model using matrix inversion (only applicable for small sets of training data)
+        /// </summary>
+        /// <returns></returns>
         LinearRegressionModel Solve();
+
+        /// <summary>
+        /// Solves the model using gradient descent
+        /// </summary>
+        /// <param name="iterations">Number of training epochs</param>
+        /// <param name="learningRate">The training rate</param>
+        /// <param name="lambda">Regularisation lambda</param>
+        /// <param name="costCallback">Callback with current cost - False to stop training</param>
+        /// <returns>A trained model</returns>
         LinearRegressionModel GradientDescent(int iterations, float learningRate, float lambda = 0.1f, Func<float, bool> costCallback = null);
+
+        /// <summary>
+        /// Computes the cost of the specified parameters
+        /// </summary>
+        /// <param name="theta">The model parameters</param>
+        /// <param name="lambda">Regularisation lambda</param>
         float ComputeCost(IVector theta, float lambda);
     }
 
+    /// <summary>
+    /// Linear regression predictor
+    /// </summary>
     public interface ILinearRegressionPredictor : IDisposable
     {
+        /// <summary>
+        /// Predicts a value from input data
+        /// </summary>
+        /// <param name="vals">The input data</param>
         float Predict(params float[] vals);
+
+        /// <summary>
+        /// Predicts a value from input data
+        /// </summary>
+        /// <param name="vals">The input data</param>
         float Predict(IReadOnlyList<float> vals);
+
+        /// <summary>
+        /// Bulk value prediction
+        /// </summary>
+        /// <param name="input">List of data to predict</param>
+        /// <returns>List of predictions</returns>
         float[] Predict(IReadOnlyList<IReadOnlyList<float>> input);
     }
 
+    /// <summary>
+    /// A logistic regression trainer
+    /// </summary>
     public interface ILogisticRegressionTrainer
     {
+        /// <summary>
+        /// Trains a model using gradient descent
+        /// </summary>
+        /// <param name="iterations">Number of training epochs</param>
+        /// <param name="learningRate">The training rate</param>
+        /// <param name="lambda">Regularisation lambda</param>
+        /// <param name="costCallback">Callback with current cost - False to stop training</param>
+        /// <returns></returns>
         LogisticRegressionModel GradientDescent(int iterations, float learningRate, float lambda = 0.1f, Func<float, bool> costCallback = null);
+
+        /// <summary>
+        /// Computes the cost of the specified parameters
+        /// </summary>
+        /// <param name="theta">The model parameters</param>
+        /// <param name="lambda">Regularisation lambda</param>
+        /// <returns></returns>
         float ComputeCost(IVector theta, float lambda);
     }
 
-    public interface ILogisticRegressionPredictor : IDisposable
+    /// <summary>
+    /// Logistic regression classifier
+    /// </summary>
+    public interface ILogisticRegressionClassifier : IDisposable
     {
+        /// <summary>
+        /// Outputs a value from 0 to 1
+        /// </summary>
+        /// <param name="vals">Input data</param>
         float Predict(params float[] vals);
+
+        /// <summary>
+        /// Outputs a value from 0 to 1
+        /// </summary>
+        /// <param name="vals">Input data</param>
         float Predict(IReadOnlyList<float> vals);
+
+        /// <summary>
+        /// Outputs a list of values from 0 to 1 for each input data
+        /// </summary>
+        /// <param name="input">Input data</param>
         float[] Predict(IReadOnlyList<IReadOnlyList<float>> input);
     }
 
+    /// <summary>
+    /// Random projection
+    /// </summary>
     public interface IRandomProjection : IDisposable
     {
-        ILinearAlgebraProvider LinearAlgebraProvider { get; }
+        /// <summary>
+        /// The size to reduce to
+        /// </summary>
         int Size { get; }
+
+        /// <summary>
+        /// The transformation matrix
+        /// </summary>
         IMatrix Matrix { get; }
+
+        /// <summary>
+        /// Reduces a vector
+        /// </summary>
+        /// <param name="vector"></param>
+        /// <returns></returns>
         IVector Compute(IVector vector);
+
+        /// <summary>
+        /// Reduces a matrix
+        /// </summary>
+        /// <param name="matrix"></param>
+        /// <returns></returns>
         IMatrix Compute(IMatrix matrix);
     }
 
+    /// <summary>
+    /// A classifer that uses a bagged list of features
+    /// </summary>
     public interface IIndexBasedClassifier
     {
-        IEnumerable<string> Classify(IReadOnlyList<uint> stringIndexList);
+        /// <summary>
+        /// Classifies the input data
+        /// </summary>
+        /// <param name="featureIndexList">Input data</param>
+        /// <returns>A ranked list of classifications</returns>
+        IEnumerable<string> Classify(IReadOnlyList<uint> featureIndexList);
     }
 
+    /// <summary>
+    /// A classifier that uses a data table row
+    /// </summary>
     public interface IRowClassifier
     {
+        /// <summary>
+        /// Classifies the row
+        /// </summary>
+        /// <param name="row">The row to classify</param>
+        /// <returns>A ranked list of classifications</returns>
         IEnumerable<string> Classify(IRow row);
     }
 }

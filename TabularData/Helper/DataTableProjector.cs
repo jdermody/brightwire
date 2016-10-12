@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.TabularData.Helper
 {
-    public class DataTableProjector : IRowProcessor
+    internal class DataTableProjector : IRowProcessor
     {
         readonly IRowProcessor _destination;
         readonly IReadOnlyList<int> _validColumn;

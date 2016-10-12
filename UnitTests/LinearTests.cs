@@ -31,7 +31,7 @@ namespace UnitTests
         [TestMethod]
         public void TestRegression()
         {
-            var dataTable = new MutableDataTable();
+            var dataTable = new DataTableBuilder();
             dataTable.AddColumn(ColumnType.Float, "value");
             dataTable.AddColumn(ColumnType.Float, "result", true);
 
@@ -40,7 +40,7 @@ namespace UnitTests
             dataTable.AddRow(new object[] { 2f, 4f });
             dataTable.AddRow(new object[] { 4f, 8f });
             dataTable.AddRow(new object[] { 8f, 16f });
-            var index = dataTable.Index();
+            var index = dataTable.Build();
 
             var classifier = index.CreateLinearRegressionTrainer(_lap);
             var theta = classifier.Solve();
@@ -64,7 +64,7 @@ namespace UnitTests
         [TestMethod]
         public void TestLogisticRegression()
         {
-            var dataTable = new MutableDataTable();
+            var dataTable = new DataTableBuilder();
             dataTable.AddColumn(ColumnType.Float, "hours");
             dataTable.AddColumn(ColumnType.Boolean, "pass", true);
 
@@ -89,7 +89,7 @@ namespace UnitTests
             dataTable.AddRow(new object[] { 4.75f, true });
             dataTable.AddRow(new object[] { 5f, true });
             dataTable.AddRow(new object[] { 5.5f, true });
-            var index = dataTable.Index();
+            var index = dataTable.Build();
 
             var trainer = index.CreateLogisticRegressionTrainer(_lap);
             var theta = trainer.GradientDescent(1000, 0.1f);

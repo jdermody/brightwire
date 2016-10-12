@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.TabularData.Analysis
 {
-    public class FrequencyAnalysis : IRowProcessor
+    internal class FrequencyAnalysis : IRowProcessor
     {
         readonly List<IRowProcessor> _column = new List<IRowProcessor>();
 

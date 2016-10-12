@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.TabularData.Helper
 {
-    public class CSVDataTableBuilder
+    internal class CSVDataTableBuilder
     {
         static HashSet<string> _booleanTrueFields = new HashSet<string>();
         static HashSet<string> _booleanFalseFields = new HashSet<string>();
@@ -33,7 +33,7 @@ namespace BrightWire.TabularData.Helper
             _delimiter = delimiter;
         }
 
-        public DataTable Parse(StreamReader reader, Stream output = null, bool? hasHeader = null)
+        public IDataTable Parse(StreamReader reader, Stream output = null, bool? hasHeader = null)
         {
             if (output == null)
                 output = new MemoryStream();

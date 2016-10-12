@@ -31,7 +31,7 @@ namespace UnitTests
         [TestMethod]
         public void TestNaiveBayes()
         {
-            var dataTable = new MutableDataTable();
+            var dataTable = new DataTableBuilder();
             dataTable.AddColumn(ColumnType.Float, "height");
             dataTable.AddColumn(ColumnType.Int, "weight").IsContinuous = true;
             dataTable.AddColumn(ColumnType.Int, "foot-size").IsContinuous = true;
@@ -46,9 +46,9 @@ namespace UnitTests
             dataTable.Add(5.5f, 150, 8, "female");
             dataTable.Add(5.42f, 130, 7, "female");
             dataTable.Add(5.75f, 150, 9, "female");
-            var index = dataTable.Index();
+            var index = dataTable.Build();
 
-            var testData = new MutableDataTable(dataTable.Columns);
+            var testData = new DataTableBuilder(dataTable.Columns);
             var row = testData.Add(6f, 130, 8, "?");
 
             var model = index.TrainNaiveBayes();
@@ -57,16 +57,16 @@ namespace UnitTests
             Assert.IsTrue(classification.First() == "female");
         }
 
-        public static ClassificationSet GetSimpleChineseSet(StringTableBuilder stringTableBuilder)
+        public static ClassificationBag GetSimpleChineseSet(StringTableBuilder stringTableBuilder)
         {
             // sample data from: http://nlp.stanford.edu/IR-book/html/htmledition/naive-bayes-text-classification-1.html
-            return new ClassificationSet {
+            return new ClassificationBag {
                 Classifications = new[] {
                     Tuple.Create(new[] { "Chinese", "Beijing", "Chinese" }, true),
                     Tuple.Create(new[] { "Chinese", "Chinese", "Shanghai" }, true),
                     Tuple.Create(new[] { "Chinese", "Macao" }, true),
                     Tuple.Create(new[] { "Tokyo", "Japan", "Chinese" }, false),
-                }.Select(d => new ClassificationSet.Classification {
+                }.Select(d => new ClassificationBag.Classification {
                     Name = d.Item2 ? "china" : "japan",
                     Data = d.Item1.Select(s => stringTableBuilder.GetIndex(s)).ToArray()
                 }).ToArray()

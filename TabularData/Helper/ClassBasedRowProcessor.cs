@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.TabularData.Helper
 {
-    public class ClassBasedRowProcessor : IRowProcessor
+    internal class ClassBasedRowProcessor : IRowProcessor
     {
         readonly int _classColumnIndex;
         readonly Dictionary<string, List<IRowProcessor>> _columnProcessor = new Dictionary<string, List<IRowProcessor>>();

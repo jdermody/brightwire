@@ -21,15 +21,27 @@ namespace BrightWire.TrainingData
             readonly byte[] _data;
             readonly int _label;
 
-            public Image(byte[] data, int label)
+            internal Image(byte[] data, int label)
             {
                 _data = data;
                 _label = label;
             }
 
+            /// <summary>
+            /// The image data
+            /// </summary>
             public byte[] Data { get { return _data; } }
+
+            /// <summary>
+            /// The image number (0-9)
+            /// </summary>
             public int Label { get { return _label; } }
 
+            /// <summary>
+            /// Convert the image to one hot encoded vectors
+            /// </summary>
+            /// <param name="provider">Linear algebra provider</param>
+            /// <returns>Tuple of { image, image (indexable), label }</returns>
             public Tuple<IVector, IIndexableVector, IIndexableVector> AsSample(ILinearAlgebraProvider provider)
             {
                 var data = provider.Create(_data.Select(b => Convert.ToSingle((int)b) / 255));
@@ -38,6 +50,9 @@ namespace BrightWire.TrainingData
                 return Tuple.Create(data, data.AsIndexable(), label);
             }
 
+            /// <summary>
+            /// Converts the image to one hot encoded float arrays
+            /// </summary>
             public Tuple<float[], float[]> Sample
             {
                 get
@@ -50,6 +65,11 @@ namespace BrightWire.TrainingData
             }
         }
 
+        /// <summary>
+        /// Loads a set of images from the MNIST data files
+        /// </summary>
+        /// <param name="labelPath">Path to the label data file</param>
+        /// <param name="imagePath">Path to the image data file</param>
         public static IEnumerable<Image> Load(string labelPath, string imagePath)
         {
             var labels = new List<byte>();

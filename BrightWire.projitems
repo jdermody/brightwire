@@ -88,7 +88,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\BernoulliNaiveBayes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\BidirectionalLayer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\BidirectionalNetwork.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Models\ClassificationSet.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\ClassificationBag.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\DecisionTree.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\ExecutionResults\FeedForwardOutput.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\ExecutionResults\RecurrentExecutionResults.cs" />
@@ -118,7 +118,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)TabularData\Helper\DataTableProjector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TabularData\Helper\DataTableRow.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TabularData\Helper\DataTableWriter.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)TabularData\MutableDataTable.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TabularData\DataTableBuilder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TrainingData\Artificial\BinaryIntegers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TrainingData\Artificial\ReberGrammar.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TrainingData\Artificial\Xor.cs" />

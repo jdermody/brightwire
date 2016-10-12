@@ -49,7 +49,7 @@ namespace BrightWire.Connectionist.Training.Manager
             GC.SuppressFinalize(this);
         }
 
-        public ILinearAlgebraProvider LinearAlgebraProvider { get { return _lap; } }
+        public INeuralNetworkBidirectionalBatchTrainer Trainer { get { return _trainer; } }
 
         public Tuple<float[], float[]> Memory
         {

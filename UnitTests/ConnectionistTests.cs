@@ -37,49 +37,49 @@ namespace UnitTests
         [TestMethod]
         public void XOR()
         {
-            // create a template that describes each layer of the network
-            // in this case no regularisation, and using a sigmoid activation function 
-            var layerTemplate = new LayerDescriptor(0f) {
-                Activation = ActivationType.Sigmoid
-            };
+// create a template that describes each layer of the network
+// in this case no regularisation, and using a sigmoid activation function 
+var layerTemplate = new LayerDescriptor(0f) {
+    Activation = ActivationType.Sigmoid
+};
 
-            // Create some training data that the network will learn.  The XOR pattern looks like:
-            // 0 0 => 0
-            // 1 0 => 1
-            // 0 1 => 1
-            // 1 1 => 0
-            var testDataProvider = _lap.NN.CreateTrainingDataProvider(XorData.Get());
+// Create some training data that the network will learn.  The XOR pattern looks like:
+// 0 0 => 0
+// 1 0 => 1
+// 0 1 => 1
+// 1 1 => 0
+var testDataProvider = _lap.NN.CreateTrainingDataProvider(XorData.Get());
 
-            // create a batch trainer (hidden layer of size 4).
-            using (var trainer = _lap.NN.CreateBatchTrainer(layerTemplate, testDataProvider.InputSize, 4, testDataProvider.OutputSize)) {
-                // create a training context that will hold the training rate and batch size
-                var trainingContext = _lap.NN.CreateTrainingContext(0.03f, 2, ErrorMetricType.OneHot);
+// create a batch trainer (hidden layer of size 4).
+using (var trainer = _lap.NN.CreateBatchTrainer(layerTemplate, testDataProvider.InputSize, 4, testDataProvider.OutputSize)) {
+    // create a training context that will hold the training rate and batch size
+    var trainingContext = _lap.NN.CreateTrainingContext(0.03f, 2, ErrorMetricType.OneHot);
 
-                // train the network!
-                trainer.Train(testDataProvider, 1000, trainingContext);
+    // train the network!
+    trainer.Train(testDataProvider, 1000, trainingContext);
 
-                // execute the network to get the predictions
-                var trainingResults = trainer.Execute(testDataProvider);
-                for (var i = 0; i < trainingResults.Count; i++) {
-                    var result = trainingResults[i];
-                    var predictedResult = Convert.ToSingle(Math.Round(result.Output[0]));
-                    var expectedResult = result.ExpectedOutput[0];
-                    FloatingPointHelper.AssertEqual(predictedResult, expectedResult);
-                }
+    // execute the network to get the predictions
+    var trainingResults = trainer.Execute(testDataProvider);
+    for (var i = 0; i < trainingResults.Count; i++) {
+        var result = trainingResults[i];
+        var predictedResult = Convert.ToSingle(Math.Round(result.Output[0]));
+        var expectedResult = result.ExpectedOutput[0];
+        FloatingPointHelper.AssertEqual(predictedResult, expectedResult);
+    }
 
-                // serialise the network parameters and data
-                var networkData = trainer.NetworkInfo;
+    // serialise the network parameters and data
+    var networkData = trainer.NetworkInfo;
 
-                // create a new network to execute the learned network
-                var network = _lap.NN.CreateFeedForward(networkData);
-                var results = XorData.Get().Select(d => Tuple.Create(network.Execute(d.Item1), d.Item2)).ToList();
-                for (var i = 0; i < results.Count; i++) {
-                    var result = results[i].Item1.AsIndexable();
-                    var predictedResult = Convert.ToSingle(Math.Round(result[0]));
-                    var expectedResult = results[i].Item2[0];
-                    FloatingPointHelper.AssertEqual(predictedResult, expectedResult);
-                }
-            }
+    // create a new network to execute the learned network
+    var network = _lap.NN.CreateFeedForward(networkData);
+    var results = XorData.Get().Select(d => Tuple.Create(network.Execute(d.Item1), d.Item2)).ToList();
+    for (var i = 0; i < results.Count; i++) {
+        var result = results[i].Item1.AsIndexable();
+        var predictedResult = Convert.ToSingle(Math.Round(result[0]));
+        var expectedResult = results[i].Item2[0];
+        FloatingPointHelper.AssertEqual(predictedResult, expectedResult);
+    }
+}
         }
 
         [TestMethod]

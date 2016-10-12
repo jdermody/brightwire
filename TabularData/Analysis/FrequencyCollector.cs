@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.TabularData.Analysis
 {
-    class FrequencyCollector : IRowProcessor, IFrequencyColumnInfo
+    internal class FrequencyCollector : IRowProcessor, IFrequencyColumnInfo
     {
         readonly int _index;
         readonly Dictionary<string, ulong> _valueCount = new Dictionary<string, ulong>();

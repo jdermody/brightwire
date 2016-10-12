@@ -6,10 +6,12 @@ using BrightWire.Helper;
 using BrightWire.Linear;
 using BrightWire.Linear.Training;
 using BrightWire.Models;
+using BrightWire.TabularData.Helper;
 using BrightWire.TreeBased.Training;
 using BrightWire.Unsupervised.Clustering;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -140,26 +142,56 @@ namespace BrightWire
             writer.WriteEndElement();
         }
 
+        /// <summary>
+        /// Linear regression fits a line to a set of data that allows you predict future values
+        /// </summary>
+        /// <param name="table">The training data table</param>
+        /// <param name="lap">Linear algebra provider</param>
+        /// <returns>A trainer that can be used to build a linear regression model</returns>
         public static ILinearRegressionTrainer CreateLinearRegressionTrainer(this IDataTable table, ILinearAlgebraProvider lap)
         {
             return new RegressionTrainer(lap, table);
         }
 
+        /// <summary>
+        /// Logistic regression learns a sigmoid function over a set of data that learns to classify future values into positive or negative samples
+        /// </summary>
+        /// <param name="table">The training data provider</param>
+        /// <param name="lap">Linear algebra provider</param>
+        /// <returns>A trainer that can be used to build a logistic regression model</returns>
         public static ILogisticRegressionTrainer CreateLogisticRegressionTrainer(this IDataTable table, ILinearAlgebraProvider lap)
         {
             return new LogisticRegressionTrainer(lap, table);
         }
 
+        /// <summary>
+        /// Naive bayes is a classifier that assumes conditional independence between all features
+        /// </summary>
+        /// <param name="table">The training data provider</param>
+        /// <returns>A naive bayes model</returns>
         public static NaiveBayes TrainNaiveBayes(this IDataTable table)
         {
             return NaiveBayesTrainer.Train(table);
         }
 
+        /// <summary>
+        /// Random projections allow you to reduce the dimensions of a matrix while still preserving significant information
+        /// </summary>
+        /// <param name="lap">Linear algebra provider</param>
+        /// <param name="fixedSize">The size to reduce from</param>
+        /// <param name="reducedSize">The size to reduce to</param>
+        /// <param name="s"></param>
         public static IRandomProjection CreateRandomProjection(this ILinearAlgebraProvider lap, int fixedSize, int reducedSize, int s = 3)
         {
             return new RandomProjection(lap, fixedSize, reducedSize, s);
         }
 
+        /// <summary>
+        /// Markov models summarise sequential data (over a window of size 2)
+        /// </summary>
+        /// <typeparam name="T">The data type within the model</typeparam>
+        /// <param name="data">An enumerable of sequences of type T</param>
+        /// <returns>A sequence of markov model observations</returns>
         public static IEnumerable<MarkovModelObservation2<T>> TrainMarkovModel2<T>(this IEnumerable<IEnumerable<T>> data)
         {
             var trainer = new MarkovModelTrainer2<T>();
@@ -168,6 +200,12 @@ namespace BrightWire
             return trainer.All;
         }
 
+        /// <summary>
+        /// Markov models summarise sequential data (over a window of size 3)
+        /// </summary>
+        /// <typeparam name="T">The data type within the model</typeparam>
+        /// <param name="data">An enumerable of sequences of type T</param>
+        /// <returns>A sequence of markov model observations</returns>
         public static IEnumerable<MarkovModelObservation3<T>> TrainMarkovModel3<T>(this IEnumerable<IEnumerable<T>> data)
         {
             var trainer = new MarkovModelTrainer3<T>();
@@ -176,7 +214,12 @@ namespace BrightWire
             return trainer.All;
         }
 
-        public static BernoulliNaiveBayes TrainBernoulliNaiveBayes(this ClassificationSet data)
+        /// <summary>
+        /// Bernoulli naive bayes treats each feature as either 1 or 0 - all feature counts are discarded. Useful for short documents.
+        /// </summary>
+        /// <param name="data">The training data</param>
+        /// <returns>A model that can be used for classification</returns>
+        public static BernoulliNaiveBayes TrainBernoulliNaiveBayes(this ClassificationBag data)
         {
             var trainer = new BernoulliNaiveBayesTrainer();
             foreach(var classification in data.Classifications)
@@ -184,7 +227,12 @@ namespace BrightWire
             return trainer.Train();
         }
 
-        public static MultinomialNaiveBayes TrainMultinomicalNaiveBayes(this ClassificationSet data)
+        /// <summary>
+        /// Multinomial naive bayes preserves the count of each feature within the model. Useful for long documents.
+        /// </summary>
+        /// <param name="data">The training data</param>
+        /// <returns>A model that can be used for classification</returns>
+        public static MultinomialNaiveBayes TrainMultinomicalNaiveBayes(this ClassificationBag data)
         {
             var trainer = new MultinomialNaiveBayesTrainer();
             foreach (var classification in data.Classifications)
@@ -192,6 +240,14 @@ namespace BrightWire
             return trainer.Train();
         }
 
+        /// <summary>
+        /// Decision trees build a logical tree to classify data. Various measures can be specified to prevent overfitting.
+        /// </summary>
+        /// <param name="data">The training data</param>
+        /// <param name="minDataPerNode">Minimum number of data points per node to continue splitting</param>
+        /// <param name="maxDepth">The maximum depth of each leaf</param>
+        /// <param name="minInformationGain">The minimum information gain to continue splitting</param>
+        /// <returns>A model that can be used for classification</returns>
         public static DecisionTree TrainDecisionTree(this IDataTable data, int? minDataPerNode = null, int? maxDepth = null, double? minInformationGain = null)
         {
             var config = new DecisionTreeTrainer.Config {
@@ -202,11 +258,24 @@ namespace BrightWire
             return DecisionTreeTrainer.Train(data, config);
         }
 
+        /// <summary>
+        /// Random forests are built on a bagged collection of features to try to capture the most salient points of the training data without overfitting
+        /// </summary>
+        /// <param name="data">The training data</param>
+        /// <param name="b">The number of trees in the forest</param>
+        /// <returns>A model that can be used for classification</returns>
         public static RandomForest TrainRandomForest(this IDataTable data, int b = 100)
         {
             return RandomForestTrainer.Train(data, b);
         }
 
+        /// <summary>
+        /// K Means uses coordinate descent and the euclidean distance between randomly selected centroids to cluster the data
+        /// </summary>
+        /// <param name="data">The list of vectors to cluster</param>
+        /// <param name="k">The number of clusters to find</param>
+        /// <param name="maxIterations">The maximum number of iterations</param>
+        /// <returns>A list of k clusters</returns>
         public static IReadOnlyList<IReadOnlyList<IVector>> KMeans(this IReadOnlyList<IVector> data, int k, int maxIterations = 1000)
         {
             using(var clusterer = new KMeans(k, data, DistanceMetric.Euclidean)) {
@@ -215,10 +284,31 @@ namespace BrightWire
             }
         }
 
+        /// <summary>
+        /// Non negative matrix factorisation - clustering based on the factorisation of non-negative matrices. Only applicable for training data that is non-negative.
+        /// </summary>
+        /// <param name="data">The training data</param>
+        /// <param name="lap">Linear alegbra provider</param>
+        /// <param name="k">The number of clusters</param>
+        /// <param name="maxIterations">The maximum number of iterations</param>
+        /// <returns>A list of k clusters</returns>
         public static IReadOnlyList<IReadOnlyList<IVector>> NNMF(this IReadOnlyList<IVector> data, ILinearAlgebraProvider lap, int k, int maxIterations = 1000)
         {
             var clusterer = new NonNegativeMatrixFactorisation(lap, k);
             return clusterer.Cluster(data, maxIterations);
+        }
+
+        /// <summary>
+        /// Parses a CSV file into a data table
+        /// </summary>
+        /// <param name="streamReader">The stream of CSV data</param>
+        /// <param name="delimeter">The CSV delimeter</param>
+        /// <param name="hasHeader">True if there is a header</param>
+        /// <param name="output">A stream to write the data table to (for file based processing) - null for in memory processing</param>
+        public static IDataTable ParseCSV(this StreamReader streamReader, char delimeter = ',', bool? hasHeader = null, Stream output = null)
+        {
+            var builder = new CSVDataTableBuilder(delimeter);
+            return builder.Parse(streamReader, output, hasHeader);
         }
     }
 }

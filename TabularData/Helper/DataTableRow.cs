@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.TabularData.Helper
 {
-    public class DataTableRow : IRow
+    internal class DataTableRow : IRow
     {
         readonly IHaveColumns _table;
         readonly List<object> _data;

@@ -7,26 +7,26 @@ using System.Threading.Tasks;
 
 namespace BrightWire.TabularData.Helper
 {
-    public class DataTableWriter : IRowProcessor
+    internal class DataTableWriter : IRowProcessor
     {
         readonly List<long> _index = new List<long>();
-        readonly MutableDataTable _dataTable;
+        readonly DataTableBuilder _dataTable;
         readonly Stream _stream;
         int _rowCount = 0;
         bool _hasWrittenHeader = false;
 
         public DataTableWriter(Stream stream)
         {
-            _dataTable = new MutableDataTable();
+            _dataTable = new DataTableBuilder();
             _stream = stream ?? new MemoryStream();
         }
         public DataTableWriter(IEnumerable<IColumn> columns, Stream stream)
         {
-            _dataTable = new MutableDataTable(columns);
+            _dataTable = new DataTableBuilder(columns);
             _stream = stream ?? new MemoryStream();
         }
 
-        public IReadOnlyList<MutableDataTable.Column> Columns { get { return _dataTable.Columns2; } }
+        public IReadOnlyList<DataTableBuilder.Column> Columns { get { return _dataTable.Columns2; } }
         public IReadOnlyList<long> Index { get { return _index; } }
         public int RowCount { get { return _rowCount; } }
 

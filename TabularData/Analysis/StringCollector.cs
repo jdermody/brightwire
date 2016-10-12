@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.TabularData.Analysis
 {
-    class StringCollector : IRowProcessor, IStringColumnInfo
+    internal class StringCollector : IRowProcessor, IStringColumnInfo
     {
         readonly int _index, _maxDistinct;
         readonly Dictionary<string, ulong> _distinct = new Dictionary<string, ulong>();

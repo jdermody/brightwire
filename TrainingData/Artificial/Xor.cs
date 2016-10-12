@@ -11,6 +11,10 @@ namespace BrightWire.TrainingData.Artificial
     /// </summary>
     public static class XorData
     {
+        /// <summary>
+        /// Gets the XOR training set as one hot encoded float arrays
+        /// </summary>
+        /// <returns></returns>
         public static IReadOnlyList<Tuple<float[], float[]>> Get()
         {
             return new[] {

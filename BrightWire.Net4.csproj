@@ -22,6 +22,7 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
+    <DocumentationFile>bin\Debug\BrightWire.Net4.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
     <OutputPath>bin\Release\</OutputPath>
@@ -148,7 +149,7 @@
     <Compile Include="Models\BernoulliNaiveBayes.cs" />
     <Compile Include="Models\BidirectionalLayer.cs" />
     <Compile Include="Models\BidirectionalNetwork.cs" />
-    <Compile Include="Models\ClassificationSet.cs" />
+    <Compile Include="Models\ClassificationBag.cs" />
     <Compile Include="Models\DecisionTree.cs" />
     <Compile Include="Models\ExecutionResults\FeedForwardOutput.cs" />
     <Compile Include="Models\ExecutionResults\RecurrentExecutionResults.cs" />
@@ -172,6 +173,7 @@
     <Compile Include="TabularData\Analysis\NumericCollector.cs" />
     <Compile Include="TabularData\Analysis\StringCollector.cs" />
     <Compile Include="TabularData\DataTable.cs" />
+    <Compile Include="TabularData\DataTableBuilder.cs" />
     <Compile Include="TabularData\Helper\ClassBasedRowProcessor.cs" />
     <Compile Include="TabularData\Helper\ColumnTypeClassifier.cs" />
     <Compile Include="TabularData\Helper\CSVDataTableBuilder.cs" />
@@ -179,7 +181,6 @@
     <Compile Include="TabularData\Helper\DataTableProjector.cs" />
     <Compile Include="TabularData\Helper\DataTableRow.cs" />
     <Compile Include="TabularData\Helper\DataTableWriter.cs" />
-    <Compile Include="TabularData\MutableDataTable.cs" />
     <Compile Include="TrainingData\Artificial\BinaryIntegers.cs" />
     <Compile Include="TrainingData\Artificial\ReberGrammar.cs" />
     <Compile Include="TrainingData\Artificial\Xor.cs" />

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.TabularData
 {
-    public class DataTable : IDataTable
+    internal class DataTable : IDataTable
     {
         class Column : IColumn
         {
@@ -134,11 +134,11 @@ namespace BrightWire.TabularData
             _Iterate(row => rowProcessor.Process(row));
         }
 
-        public void Process(Func<IRow, int, bool> processor)
-        {
-            int index = 0;
-            _Iterate(row => processor(row, index++));
-        }
+        //public void Process(Func<IRow, int, bool> processor)
+        //{
+        //    int index = 0;
+        //    _Iterate(row => processor(row, index++));
+        //}
 
         protected void _Iterate(Func<DataTableRow, bool> callback)
         {
@@ -152,16 +152,6 @@ namespace BrightWire.TabularData
                 }
             }
         }
-
-        //public IDataTable Index(Stream output = null)
-        //{
-        //    var writer = new DataTableWriter(Columns, output);
-        //    _Iterate(row => {
-        //        writer.AddRow(row.Data);
-        //        return true;
-        //    });
-        //    return writer.GetDataTable();
-        //}
 
         public IDataTableAnalysis Analysis
         {
@@ -255,7 +245,7 @@ namespace BrightWire.TabularData
 
         public IDataTable Bag(int? count = null, Stream output = null, int? randomSeed = null)
         {
-            var input = Enumerable.Range(0, RowCount).ToList().Bag(RowCount, randomSeed);
+            var input = Enumerable.Range(0, RowCount).ToList().Bag(count ?? RowCount, randomSeed);
             var writer = new DataTableWriter(Columns, output);
             foreach (var row in GetRows(input))
                 writer.Process(row);

@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace BrightWire.Models
 {
     [ProtoContract]
-    public class ClassificationSet
+    public class ClassificationBag
     {
         [ProtoContract]
         public class Classification
@@ -54,7 +54,7 @@ namespace BrightWire.Models
         public IDataTable Encode(Stream stream = null)
         {
             var max = Classifications.SelectMany(d => d.Data).Max();
-            var dataTable = new MutableDataTable();
+            var dataTable = new DataTableBuilder();
             for(var i = 0; i < max; i++)
                 dataTable.AddColumn(ColumnType.Int, "term " + i.ToString()).IsContinuous = true;
             dataTable.AddColumn(ColumnType.String, "classification", true);
@@ -69,7 +69,7 @@ namespace BrightWire.Models
                 dataTable.AddRow(data);
             }
 
-            return dataTable.Index(stream);
+            return dataTable.Build(stream);
         }
     }
 }

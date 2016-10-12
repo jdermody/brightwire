@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.Linear
 {
-    internal class LogisticRegressionPredictor : ILogisticRegressionPredictor
+    internal class LogisticRegressionPredictor : ILogisticRegressionClassifier
     {
         readonly IVector _theta;
         readonly ILinearAlgebraProvider _lap;

@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 
 namespace BrightWire.TabularData.Helper
 {
-    public class DataTableNormaliser : IRowProcessor
+    internal class DataTableNormaliser : IRowProcessor
     {
         readonly Dictionary<int, ColumnNormalisation> _columnInfo = new Dictionary<int, ColumnNormalisation>();
         readonly DataTableWriter _writer;
         readonly int _columnCount;
         readonly NormalisationType _normalisation;
-        readonly DataTable _table;
+        readonly IDataTable _table;
 
         class ColumnNormalisation
         {
@@ -52,7 +52,7 @@ namespace BrightWire.TabularData.Helper
             public double Divide { get { return _divide; } }
         }
 
-        public DataTableNormaliser(DataTable dataTable, NormalisationType type, Stream output = null)
+        public DataTableNormaliser(IDataTable dataTable, NormalisationType type, Stream output = null)
         {
             _table = dataTable;
             var analysis = dataTable.Analysis;

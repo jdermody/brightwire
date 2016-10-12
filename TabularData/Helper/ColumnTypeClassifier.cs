@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.TabularData.Helper
 {
-    public static class ColumnTypeClassifier
+    internal static class ColumnTypeClassifier
     {
         const int MAX_CATEGORICAL_VALUES = 256;
 

@@ -8,11 +8,14 @@ using System.Threading.Tasks;
 
 namespace BrightWire.TabularData
 {
-    public class MutableDataTable : IHaveColumns
+    /// <summary>
+    /// Builds data tables
+    /// </summary>
+    public class DataTableBuilder : IHaveColumns
     {
         const int MAX_UNIQUE = 131072 * 4;
 
-        public class Column : IColumn
+        internal class Column : IColumn
         {
             public bool? _isContinuous;
             public ColumnType _type;
@@ -58,10 +61,18 @@ namespace BrightWire.TabularData
         readonly List<Column> _column = new List<Column>();
         readonly List<DataTableRow> _data = new List<DataTableRow>();
 
-        public MutableDataTable()
+        /// <summary>
+        /// Default constructor
+        /// </summary>
+        public DataTableBuilder()
         {
         }
-        public MutableDataTable(IEnumerable<IColumn> columns)
+
+        /// <summary>
+        /// Creates a data table builder with the initial list of columns
+        /// </summary>
+        /// <param name="columns">The initial columns</param>
+        public DataTableBuilder(IEnumerable<IColumn> columns)
         {
             foreach (var column in columns) {
                 var col = AddColumn(column.Type, column.Name, column.IsTarget);
@@ -69,26 +80,39 @@ namespace BrightWire.TabularData
             }
         }
 
+        /// <summary>
+        /// The current list of columns
+        /// </summary>
         public IReadOnlyList<IColumn> Columns { get { return _column; } }
-        public IReadOnlyList<Column> Columns2 { get { return _column; } }
+        internal IReadOnlyList<Column> Columns2 { get { return _column; } }
+        
+        /// <summary>
+        /// The number of rows
+        /// </summary>
         public int RowCount { get { return _data.Count; } }
+
+        /// <summary>
+        /// The number of columns
+        /// </summary>
         public int ColumnCount { get { return _column.Count; } }
 
-        public IDataTableAnalysis Analysis
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public Column AddColumn(ColumnType column, string name = "", bool isTarget = false)
+        /// <summary>
+        /// Adds a new column
+        /// </summary>
+        /// <param name="column">The column type</param>
+        /// <param name="name">The column name</param>
+        /// <param name="isTarget">True if the column is a classification target</param>
+        public IColumn AddColumn(ColumnType column, string name = "", bool isTarget = false)
         {
             var ret = new Column(column, name, isTarget);
             _column.Add(ret);
             return ret;
         }
 
+        /// <summary>
+        /// Adds a new row
+        /// </summary>
+        /// <param name="data">The data in the row</param>
         public IRow AddRow(IEnumerable<object> data)
         {
             var row = new DataTableRow(this, data);
@@ -100,12 +124,16 @@ namespace BrightWire.TabularData
             return row;
         }
 
+        /// <summary>
+        /// Adds a new row
+        /// </summary>
+        /// <param name="data">The data in the new row</param>
         public IRow Add(params object[] data)
         {
             return AddRow(data);
         }
 
-        public void WriteMetadata(Stream stream)
+        internal void WriteMetadata(Stream stream)
         {
             var writer = new BinaryWriter(stream, Encoding.UTF8, true);
             writer.Write(_column.Count);
@@ -157,7 +185,7 @@ namespace BrightWire.TabularData
             //}
         }
 
-        public int WriteData(Stream stream)
+        internal int WriteData(Stream stream)
         {
             int ret = 0;
             var writer = new BinaryWriter(stream, Encoding.UTF8, true);
@@ -173,7 +201,7 @@ namespace BrightWire.TabularData
             return ret;
         }
 
-        public void Process(IRowProcessor rowProcessor)
+        internal void Process(IRowProcessor rowProcessor)
         {
             foreach (var item in _data) {
                 if (!rowProcessor.Process(item))
@@ -181,22 +209,29 @@ namespace BrightWire.TabularData
             }
         }
 
-        public void Process(Func<IRow, int, bool> processor)
-        {
-            int index = 0;
-            foreach (var item in _data) {
-                if (!processor(item, index++))
-                    break;
-            }
-        }
+        //public void Process(Func<IRow, int, bool> processor)
+        //{
+        //    int index = 0;
+        //    foreach (var item in _data) {
+        //        if (!processor(item, index++))
+        //            break;
+        //    }
+        //}
 
-        public IDataTable Index(Stream output = null)
+        /// <summary>
+        /// Creates a data table
+        /// </summary>
+        /// <param name="output">Optional stream to write the data table to</param>
+        public IDataTable Build(Stream output = null)
         {
             var writer = new DataTableWriter(Columns, output);
             Process(writer);
             return writer.GetDataTable();
         }
 
+        /// <summary>
+        /// Clears the current list of rows
+        /// </summary>
         public void Clear()
         {
             _data.Clear();

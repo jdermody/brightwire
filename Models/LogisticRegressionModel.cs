@@ -12,7 +12,7 @@ namespace BrightWire.Models
         [ProtoMember(1)]
         public FloatArray Theta { get; set; }
 
-        public ILogisticRegressionPredictor CreatePredictor(ILinearAlgebraProvider lap)
+        public ILogisticRegressionClassifier CreatePredictor(ILinearAlgebraProvider lap)
         {
             return new LogisticRegressionPredictor(lap, lap.Create(Theta.Data));
         }
