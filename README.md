@@ -45,7 +45,6 @@ The CUDA version is a superset of the standard version.
 ### Unsupervised
 * K Means
 * Non Negative Matrix Factorisation
-* Random Projection
 
 ### Linear
 * Regression
