@@ -75,7 +75,7 @@ var layerTemplate = new LayerDescriptor(0f) {
 // 1 0 => 1
 // 0 1 => 1
 // 1 1 => 0
-using(var lap = LinearAlgebraProvider.CreateCPU()) {
+using(var lap = Provider.CreateCPULinearAlgebra()) {
 	var testDataProvider = lap.NN.CreateTrainingDataProvider(XorData.Get());
 
 	// create a batch trainer (hidden layer of size 4).
