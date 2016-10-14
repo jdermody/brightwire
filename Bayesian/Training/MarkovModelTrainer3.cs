@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.Bayesian
 {
-    internal class MarkovModelTrainer3<T>
+    internal class MarkovModelTrainer3<T> : IMarkovModelTrainer3<T>
     {
         readonly Dictionary<Tuple<T, T, T>, List<T>> _data = new Dictionary<Tuple<T, T, T>, List<T>>();
         readonly int _minObservations;

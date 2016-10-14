@@ -144,7 +144,7 @@ namespace BrightWire.Connectionist.Training
             : base(layerUpdater)
         {
             _lap = lap;
-            _invertedMultiplier = 1 - ratio;
+            _invertedMultiplier = 1;// - ratio;
             _probabilityDistribution = new Bernoulli(_invertedMultiplier);
         }
 
@@ -245,9 +245,6 @@ namespace BrightWire.Connectionist.Training
                 using (var weightUpdate = input.TransposeThisAndMultiply(delta))
                 using (var filteredWeightUpdate = weightUpdate.PointwiseMultiply(_filter))
                     _layerUpdater.Update(null, filteredWeightUpdate, context);
-
-                // TODO: implement INeuralNetworkUpdateAccumulator
-                delta.Dispose();
             }
             else
                 base._UpdateLayer(input, delta, context, updates);

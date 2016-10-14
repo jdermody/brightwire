@@ -15,7 +15,7 @@ namespace BrightWire.TabularData
         {
             readonly ColumnType _type;
             readonly string _name;
-            readonly bool _isTarget;
+            bool _isTarget;
             int _numDistinct;
             bool? _isContinuous;
 
@@ -29,7 +29,10 @@ namespace BrightWire.TabularData
             }
             public ColumnType Type { get { return _type; } }
             public string Name { get { return _name; } }
-            public bool IsTarget { get { return _isTarget; } }
+            public bool IsTarget {
+                get { return _isTarget; }
+                set { _isTarget = value; }
+            }
             public int NumDistinct
             {
                 get { return _numDistinct; }
@@ -378,6 +381,26 @@ namespace BrightWire.TabularData
                 // default to the last column
                 return _column.Count-1;
             }
+            set
+            {
+                for (int i = 0, len = _column.Count; i < len; i++)
+                    _column[i].IsTarget = (i == value);
+            }
+        }
+
+        public IReadOnlyList<Tuple<IRow, string>> Classify(IRowClassifier classifier)
+        {
+            var ret = new List<Tuple<IRow, string>>();
+            _Iterate(row => {
+                ret.Add(Tuple.Create<IRow, string>(row, classifier.Classify(row).First()));
+                return true;
+            });
+            return ret;
+        }
+
+        public IDataTable SelectColumns(IEnumerable<int> columns, Stream output = null)
+        {
+            return DataTableProjector.Project(this, columns, output);
         }
     }
 }

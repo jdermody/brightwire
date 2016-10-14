@@ -18,8 +18,8 @@ namespace UnitTests
         [ClassInitialize]
         public static void Load(TestContext context)
         {
-            _cuda = LinearAlgebraProvider.CreateGPU(false);
-            _cpu = LinearAlgebraProvider.CreateCPU(false);
+            _cuda = Provider.CreateGPULinearAlgebra(false);
+            _cpu = Provider.CreateCPULinearAlgebra(false);
         }
 
         [ClassCleanup]

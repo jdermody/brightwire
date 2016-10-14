@@ -73,8 +73,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Helper\SequenceWindowBuilder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helper\StringTableBuilder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interface.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)LinearAlgebraProvider.GPU.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)LinearAlgebraProvider.CPU.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Provider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Provider.GPU.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinearAlgebra\CpuMatrix.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinearAlgebra\CpuVector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinearAlgebra\CudaProvider.cs" />

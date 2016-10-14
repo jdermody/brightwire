@@ -30,7 +30,7 @@ namespace BrightWire.TabularData.Helper
 
             public ColumnType ColumnType { get { return _type; } }
 
-            public double Normalise(double val)
+            public object Normalise(double val)
             {
                 var ret = (val - _subtract) / _divide;
 
@@ -126,12 +126,10 @@ namespace BrightWire.TabularData.Helper
             ColumnNormalisation norm;
             var data = new object[_columnCount];
             for (var i = 0; i < _columnCount; i++) {
-                object obj = null;
                 if (_columnInfo.TryGetValue(i, out norm))
-                    obj = norm.Normalise(row.GetField<double>(i));
+                    data[i] = norm.Normalise(row.GetField<double>(i));
                 else
-                    obj = row.Data[i];
-                data[i] = obj;
+                    data[i] = row.Data[i];
             }
             _writer.AddRow(data);
             return true;

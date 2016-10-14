@@ -2382,7 +2382,7 @@ namespace BrightWire
         /// <summary>
         /// The column of the classification target (defaults to the last column if none set)
         /// </summary>
-        int TargetColumnIndex { get; }
+        int TargetColumnIndex { get; set; }
 
         /// <summary>
         /// Applies each row of the table to the specified processor
@@ -2468,6 +2468,15 @@ namespace BrightWire
         /// <param name="columns">Optional list of columns to convert (or null for all columns)</param>
         /// <returns></returns>
         IReadOnlyList<float[]> GetNumericRows(IEnumerable<int> columns = null);
+
+        /// <summary>
+        /// Classifies each row
+        /// </summary>
+        /// <param name="classifier">The classifier to use</param>
+        /// <returns>A list of tuples of { row, classification } - one for each row</returns>
+        IReadOnlyList<Tuple<IRow, string>> Classify(IRowClassifier classifier);
+
+        IDataTable SelectColumns(IEnumerable<int> columns, Stream output = null);
     }
 
     /// <summary>
@@ -2743,5 +2752,20 @@ namespace BrightWire
         /// <param name="row">The row to classify</param>
         /// <returns>A ranked list of classifications</returns>
         IEnumerable<string> Classify(IRow row);
+    }
+
+    public interface IMarkovModelTrainer<T>
+    {
+        void Add(IEnumerable<T> items);
+    }
+
+    public interface IMarkovModelTrainer2<T> : IMarkovModelTrainer<T>
+    {
+        IEnumerable<MarkovModelObservation2<T>> All { get; }
+    }
+
+    public interface IMarkovModelTrainer3<T> : IMarkovModelTrainer<T>
+    {
+        IEnumerable<MarkovModelObservation3<T>> All { get; }
     }
 }

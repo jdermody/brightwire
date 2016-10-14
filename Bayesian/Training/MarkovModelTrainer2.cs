@@ -1,4 +1,5 @@
-﻿using BrightWire.Models;
+﻿using BrightWire;
+using BrightWire.Models;
 using ProtoBuf;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.Bayesian
 {
-    internal class MarkovModelTrainer2<T>
+    internal class MarkovModelTrainer2<T> : IMarkovModelTrainer2<T>
     {
         readonly Dictionary<Tuple<T, T>, List<T>> _data = new Dictionary<Tuple<T, T>, List<T>>();
         readonly int _minObservations;
