@@ -1,4 +1,4 @@
-# Bright Wire
+<img src="http://www.jackdermody.net/Content/image/bright-wire.png" alt="Bright Wire" height="144" />
 
 Bright Wire is a machine learning library for .NET with GPU support (via CUDA).
 
@@ -9,6 +9,10 @@ Bright Wire runs "out of the box" for CPU based computation on .Net 4.6 and abov
 
 To enable higher performance CPU based computation, Bright Wire also supports the Intel Math Kernel Library (MKL) 
 via the [Numerics.Net Wrapper](http://numerics.mathdotnet.com/MKL.html).
+
+## Geting Started Tutorials
+
+* [Classification](http://www.jackdermody.net/brightwire/article/Introduction_to_Bright_Wire)
 
 ## Nuget Installation
 
