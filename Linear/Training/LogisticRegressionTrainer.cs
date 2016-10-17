@@ -20,9 +20,9 @@ namespace BrightWire.Linear.Training
             var numCols = table.ColumnCount;
             var classColumnIndex = table.TargetColumnIndex;
 
-            var data = table.GetNumericRows(Enumerable.Range(0, numCols).Where(c => c != classColumnIndex));
+            var data = table.GetNumericColumns(Enumerable.Range(0, numCols).Where(c => c != classColumnIndex));
             _feature = lap.Create(numRows, numCols, (i, j) => j == 0 ? 1 : data[j - 1][i]);
-            _target = lap.Create(table.GetNumericColumn(classColumnIndex));
+            _target = lap.Create(table.GetColumn<float>(classColumnIndex));
         }
 
         public LogisticRegressionModel GradientDescent(int iterations, float learningRate, float lambda = 0.1f, Func<float, bool> costCallback = null)

@@ -545,5 +545,11 @@ namespace BrightWire.LinearAlgebra
             using (var column = vector.ToColumnMatrix())
                 return Multiply(column);
         }
+
+        public Tuple<IMatrix, IVector, IMatrix> Svd()
+        {
+            var svd = _matrix.Svd(true);
+            return Tuple.Create<IMatrix, IVector, IMatrix>(new CpuMatrix(svd.U), new CpuVector(svd.S), new CpuMatrix(svd.VT));
+        }
     }
 }

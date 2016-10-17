@@ -78,6 +78,34 @@ namespace BrightWire.TabularData
             _dataOffset = stream.Position;
         }
 
+        public static DataTable Create(Stream dataStream, Stream indexStream)
+        {
+            var reader = new BinaryReader(indexStream);
+            var rowCount = reader.ReadInt32();
+            var numIndex = reader.ReadInt32();
+            var index = new long[numIndex];
+            for (var i = 0; i < numIndex; i++)
+                index[i] = reader.ReadInt64();
+            return new DataTable(dataStream, index, rowCount);
+        }
+
+        public static DataTable Create(Stream dataStream)
+        {
+            var temp = new DataTable(dataStream, new long[0], 0);
+            var index = new List<long>();
+            var rowCount = 0;
+
+            index.Add(dataStream.Position);
+            var reader = new BinaryReader(dataStream);
+            while(dataStream.Position < dataStream.Length) {
+                temp._SkipRow(reader);
+                if ((++rowCount % BLOCK_SIZE) == 0)
+                    index.Add(dataStream.Position);
+            }
+            dataStream.Seek(0, SeekOrigin.Begin);
+            return new DataTable(dataStream, index, rowCount);
+        }
+
         public IReadOnlyList<IColumn> Columns { get { return _column; } }
 
         public int RowCount
@@ -88,6 +116,16 @@ namespace BrightWire.TabularData
             }
         }
         public int ColumnCount { get { return _column.Count; } }
+
+        public void WriteIndexTo(Stream stream)
+        {
+            using(var writer = new BinaryWriter(stream, Encoding.UTF8, true)) {
+                writer.Write(_rowCount);
+                writer.Write(_index.Count);
+                foreach (var item in _index)
+                    writer.Write(item);
+            }
+        }
 
         object _ReadColumn(Column column, BinaryReader reader)
         {
@@ -156,6 +194,17 @@ namespace BrightWire.TabularData
             }
         }
 
+        protected void _IterateRaw(Action<object[]> callback)
+        {
+            lock (_mutex) {
+                _stream.Seek(_dataOffset, SeekOrigin.Begin);
+                var reader = new BinaryReader(_stream, Encoding.UTF8, true);
+                while (_stream.Position < _stream.Length) {
+                    callback(_ReadRow(reader));
+                }
+            }
+        }
+
         public IDataTableAnalysis Analysis
         {
             get
@@ -172,7 +221,7 @@ namespace BrightWire.TabularData
         public IReadOnlyList<IRow> GetSlice(int offset, int count)
         {
             var ret = new List<IRow>();
-            lock (_index) {
+            lock (_mutex) {
                 var reader = new BinaryReader(_stream, Encoding.UTF8, true);
                 _stream.Seek(_index[offset / BLOCK_SIZE], SeekOrigin.Begin);
 
@@ -185,6 +234,20 @@ namespace BrightWire.TabularData
                     ret.Add(new DataTableRow(this, _ReadRow(reader)));
             }
             return ret;
+        }
+
+        public IRow GetRow(int rowIndex)
+        {
+            var block = rowIndex / BLOCK_SIZE;
+            var offset = rowIndex % BLOCK_SIZE;
+
+            lock (_mutex) {
+                var reader = new BinaryReader(_stream, Encoding.UTF8, true);
+                _stream.Seek(_index[block], SeekOrigin.Begin);
+                for (var i = 0; i < offset; i++)
+                    _SkipRow(reader);
+                return new DataTableRow(this, _ReadRow(reader));
+            }
         }
 
         public IReadOnlyList<IRow> GetRows(IEnumerable<int> rowIndex)
@@ -204,7 +267,7 @@ namespace BrightWire.TabularData
             }
 
             var ret = new List<IRow>();
-            lock (_index) {
+            lock (_mutex) {
                 var reader = new BinaryReader(_stream, Encoding.UTF8, true);
                 foreach (var block in blockMatch.OrderBy(b => b.Key)) {
                     _stream.Seek(_index[block.Key], SeekOrigin.Begin);
@@ -282,30 +345,58 @@ namespace BrightWire.TabularData
             }
         }
 
-        public string[] GetDiscreteColumn(int columnIndex)
+        public IReadOnlyList<T> GetColumn<T>(int columnIndex)
         {
-            var ret = new string[RowCount];
-
+            var ret = new T[RowCount];
             int index = 0;
+
             _Iterate(row => {
-                ret[index++] = row.GetField<string>(columnIndex);
+                ret[index++] = row.GetField<T>(columnIndex);
                 return true;
             });
 
             return ret;
         }
 
-        public float[] GetNumericColumn(int columnIndex)
+        //public string[] GetDiscreteColumn(int columnIndex)
+        //{
+        //    var ret = new string[RowCount];
+
+        //    int index = 0;
+        //    _Iterate(row => {
+        //        ret[index++] = row.GetField<string>(columnIndex);
+        //        return true;
+        //    });
+
+        //    return ret;
+        //}
+
+        //public float[] GetNumericColumn(int columnIndex)
+        //{
+        //    var ret = new float[RowCount];
+
+        //    int index = 0;
+        //    _Iterate(row => {
+        //        ret[index++] = row.GetField<float>(columnIndex);
+        //        return true;
+        //    });
+
+        //    return ret;
+        //}
+
+        public IReadOnlyList<float[]> GetNumericColumns(IEnumerable<int> columns = null)
         {
-            var ret = new float[RowCount];
+            var columnTable = (columns ?? Enumerable.Range(0, ColumnCount)).ToDictionary(i => i, i => new float[RowCount]);
 
             int index = 0;
             _Iterate(row => {
-                ret[index++] = row.GetField<float>(columnIndex);
+                foreach (var item in columnTable)
+                    item.Value[index] = row.GetField<float>(item.Key);
+                ++index;
                 return true;
             });
 
-            return ret;
+            return columnTable.OrderBy(kv => kv.Key).Select(kv => kv.Value).ToList();
         }
 
         public IReadOnlyList<IVector> GetNumericColumns(ILinearAlgebraProvider lap, IEnumerable<int> columns = null)
@@ -325,17 +416,19 @@ namespace BrightWire.TabularData
 
         public IReadOnlyList<float[]> GetNumericRows(IEnumerable<int> columns = null)
         {
-            var columnTable = (columns ?? Enumerable.Range(0, ColumnCount)).ToDictionary(i => i, i => new float[RowCount]);
+            var columnList = new List<int>(columns ?? Enumerable.Range(0, ColumnCount));
 
-            int index = 0;
+            var ret = new List<float[]>();
             _Iterate(row => {
-                foreach (var item in columnTable)
-                    item.Value[index] = row.GetField<float>(item.Key);
-                ++index;
+                int index = 0;
+                var buffer = new float[columnList.Count];
+                foreach (var item in columnList)
+                    buffer[index++] = row.GetField<float>(item);
+                ret.Add(buffer);
                 return true;
             });
 
-            return columnTable.OrderBy(kv => kv.Key).Select(kv => kv.Value).ToList();
+            return ret;
         }
 
         public IReadOnlyList<IVector> GetNumericRows(ILinearAlgebraProvider lap, IEnumerable<int> columns = null)
@@ -357,7 +450,7 @@ namespace BrightWire.TabularData
 
         public IDataTable Normalise(NormalisationType normalisationType, Stream output = null)
         {
-            var normaliser = new DataTableNormaliser(this, NormalisationType.FeatureScale, output);
+            var normaliser = new DataTableNormaliser(this, normalisationType, output);
             Process(normaliser);
             return normaliser.GetDataTable();
         }
@@ -401,6 +494,52 @@ namespace BrightWire.TabularData
         public IDataTable SelectColumns(IEnumerable<int> columns, Stream output = null)
         {
             return DataTableProjector.Project(this, columns, output);
+        }
+
+        public IDataTable Project(Func<IReadOnlyList<object>, IReadOnlyList<object>> mutator, Stream output = null)
+        {
+            var isFirst = true;
+            DataTableWriter writer = new DataTableWriter(output);
+            _IterateRaw(row => {
+                var row2 = mutator(row);
+                if (row2 != null) {
+                    if (isFirst) {
+                        int index = 0;
+                        foreach(var item in row2) {
+                            var column = Columns[index];
+                            if (item == null)
+                                writer.AddColumn(column.Name, ColumnType.Null, column.IsTarget);
+                            else {
+                                var type = item.GetType();
+                                ColumnType columnType;
+                                if (type == typeof(string))
+                                    columnType = ColumnType.String;
+                                else if (type == typeof(double))
+                                    columnType = ColumnType.Double;
+                                else if (type == typeof(float))
+                                    columnType = ColumnType.Float;
+                                else if (type == typeof(long))
+                                    columnType = ColumnType.Long;
+                                else if (type == typeof(int))
+                                    columnType = ColumnType.Int;
+                                else if (type == typeof(byte))
+                                    columnType = ColumnType.Byte;
+                                else if (type == typeof(DateTime))
+                                    columnType = ColumnType.Date;
+                                else if (type == typeof(bool))
+                                    columnType = ColumnType.Boolean;
+                                else
+                                    throw new FormatException();
+                                writer.AddColumn(column.Name, columnType, column.IsTarget);
+                            }
+                            ++index;
+                        }
+                        isFirst = false;
+                    }
+                    writer.AddRow(row2);
+                }
+            });
+            return writer.GetDataTable();
         }
     }
 }

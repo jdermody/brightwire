@@ -1,7 +1,9 @@
 ﻿using BrightWire.Bayesian;
 using BrightWire.LinearAlgebra;
+using BrightWire.TabularData;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -40,6 +42,19 @@ namespace BrightWire
         public static IMarkovModelTrainer3<T> CreateMarkovTrainer3<T>(int minObservations = 1)
         {
             return new MarkovModelTrainer3<T>(minObservations);
+        }
+
+        /// <summary>
+        /// Creates a data table from a stream
+        /// </summary>
+        /// <param name="dataStream">The stream that the data table was written to</param>
+        /// <param name="indexStream">The stream that the index was written to (optional)</param>
+        public static IDataTable CreateDataTable(Stream dataStream, Stream indexStream = null)
+        {
+            if (indexStream == null)
+                return DataTable.Create(dataStream);
+            else
+                return DataTable.Create(dataStream, indexStream);
         }
     }
 }

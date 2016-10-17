@@ -31,6 +31,7 @@ namespace BrightWire.TrainingData.Artificial
         /// The output feature contains a single feature: 1 or 0 if that bit is set in the result
         /// </summary>
         /// <param name="sampleCount">How many samples to generate</param>
+        /// <param name="stochastic">True to generate random integers</param>
         /// <returns>A list of sequences</returns>
         public static IReadOnlyList<IReadOnlyList<Tuple<float[], float[]>>> Addition(int sampleCount, bool stochastic)
         {

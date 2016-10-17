@@ -71,6 +71,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Helper\DisposableMatrixExecutionLine.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helper\MiniBatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helper\SequenceWindowBuilder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helper\SimpleTokeniser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helper\StringTableBuilder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interface.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Provider.cs" />

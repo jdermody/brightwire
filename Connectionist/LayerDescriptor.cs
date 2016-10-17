@@ -34,7 +34,7 @@ namespace BrightWire.Connectionist
         public WeightUpdateType WeightUpdate { get; set; }
 
         /// <summary>
-        /// The layer trainer
+        /// The layer trainer type
         /// </summary>
         public LayerTrainerType LayerTrainer { get; set; }
 
@@ -85,6 +85,13 @@ namespace BrightWire.Connectionist
             }
         }
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="lambda">Regularisation parameter</param>
+        /// <param name="activation">The activation type</param>
+        /// <param name="update">The gradient descent optimisation technique</param>
+        /// <param name="trainer">The layer trainer type</param>
         public LayerDescriptor(float lambda, ActivationType activation = ActivationType.LeakyRelu, WeightUpdateType update = WeightUpdateType.Adam, LayerTrainerType trainer = LayerTrainerType.Standard)
         {
             Activation = activation;
@@ -97,6 +104,9 @@ namespace BrightWire.Connectionist
 
         private LayerDescriptor() { }
 
+        /// <summary>
+        /// Clones the current descriptor
+        /// </summary>
         public LayerDescriptor Clone()
         {
             return new LayerDescriptor() {
@@ -113,6 +123,10 @@ namespace BrightWire.Connectionist
             };
         }
 
+        /// <summary>
+        /// Creates a descriptor from a network layer
+        /// </summary>
+        /// <param name="layer">The network layer to use as a source</param>
         public static LayerDescriptor CreateFrom(NetworkLayer layer)
         {
             return new LayerDescriptor {

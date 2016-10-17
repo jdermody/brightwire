@@ -165,6 +165,21 @@ namespace BrightWire
         }
 
         /// <summary>
+        /// Trains a logistic regression model on a data table
+        /// </summary>
+        /// <param name="table">The training data</param>
+        /// <param name="lap">Linear algebra provider</param>
+        /// <param name="iterations">Number of iterations to train for</param>
+        /// <param name="learningRate">The learning rate</param>
+        /// <param name="lambda">Regularisation lambda</param>
+        /// <returns>The trained model</returns>
+        public static LogisticRegressionModel TrainLogisticRegression(this IDataTable table, ILinearAlgebraProvider lap, int iterations, float learningRate, float lambda = 0.1f)
+        {
+            var trainer = table.CreateLogisticRegressionTrainer(lap);
+            return trainer.GradientDescent(iterations, learningRate, lambda);
+        }
+
+        /// <summary>
         /// Naive bayes is a classifier that assumes conditional independence between all features
         /// </summary>
         /// <param name="table">The training data provider</param>
@@ -178,12 +193,24 @@ namespace BrightWire
         /// Random projections allow you to reduce the dimensions of a matrix while still preserving significant information
         /// </summary>
         /// <param name="lap">Linear algebra provider</param>
-        /// <param name="fixedSize">The size to reduce from</param>
-        /// <param name="reducedSize">The size to reduce to</param>
+        /// <param name="fixedSize">The vector size to reduce from</param>
+        /// <param name="reducedSize">The vector size to reduce to</param>
         /// <param name="s"></param>
         public static IRandomProjection CreateRandomProjection(this ILinearAlgebraProvider lap, int fixedSize, int reducedSize, int s = 3)
         {
             return new RandomProjection(lap, fixedSize, reducedSize, s);
+        }
+
+        /// <summary>
+        /// Random projections allow you to reduce the dimensions of a matrix while still preserving significant information
+        /// </summary>
+        /// <param name="lap">Linear algebra provider</param>
+        /// <param name="inputSize">The vector size to reduce from</param>
+        /// <returns></returns>
+        public static IRandomProjection CreateRandomProjection(this ILinearAlgebraProvider lap, int inputSize)
+        {
+            var reducedSize = RandomProjection.MinDim(inputSize);
+            return CreateRandomProjection(lap, inputSize, reducedSize);
         }
 
         /// <summary>

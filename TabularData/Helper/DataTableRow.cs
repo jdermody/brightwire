@@ -21,10 +21,24 @@ namespace BrightWire.TabularData.Helper
 
         public static T GetField<T>(IReadOnlyList<object> data, int index)
         {
+            if (index < 0 || index > data.Count)
+                throw new IndexOutOfRangeException();
+
             var ret = data[index];
+            if (ret == null)
+                return default(T);
+
             var targetType = typeof(T);
-            if (ret.GetType() == targetType)
+            var retType = ret.GetType();
+
+            if (retType == targetType)
                 return (T)ret;
+            else if (retType == typeof(DateTime)) {
+                if (targetType == typeof(string))
+                    ret = ((DateTime)ret).ToString();
+                else
+                    ret = ((DateTime)ret).Ticks;
+            }
             return (T)Convert.ChangeType(ret, targetType);
         }
 

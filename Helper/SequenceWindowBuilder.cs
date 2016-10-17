@@ -26,6 +26,11 @@ namespace BrightWire.Helper
             _after = after;
         }
 
+        /// <summary>
+        /// Augments the sequence with contextual data around point in the sequence
+        /// </summary>
+        /// <param name="data">The list of sequences of training data to analyse</param>
+        /// <returns>A new list of sequences, augmented with contextual information</returns>
         public IReadOnlyList<Tuple<float[], float[]>[]> Get(IReadOnlyList<Tuple<float[], float[]>[]> data)
         {
             int offset;
@@ -66,6 +71,11 @@ namespace BrightWire.Helper
             return ret.ToList();
         }
 
+        /// <summary>
+        /// Augments a single sequence
+        /// </summary>
+        /// <param name="data">The sequence to analyse</param>
+        /// <returns>A new sequence, augmented with contextual information</returns>
         public IReadOnlyList<float[]> Get(IReadOnlyList<float[]> data)
         {
             var ret = new List<float[]>();

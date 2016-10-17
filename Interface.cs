@@ -130,6 +130,12 @@ namespace BrightWire
         IMatrix CreateIdentity(int size);
 
         /// <summary>
+        /// Creates a diagonal matrix
+        /// </summary>
+        /// <param name="values">The diagonal values</param>
+        IMatrix CreateDiagonal(float[] values);
+
+        /// <summary>
         /// Neural network factory
         /// </summary>
         INeuralNetworkFactory NN { get; }
@@ -754,6 +760,12 @@ namespace BrightWire
         /// Returns the inverse of the current matrix
         /// </summary>
         IMatrix Inverse();
+
+        /// <summary>
+        /// Singular value decomposition
+        /// </summary>
+        /// <returns>Tuple of { U, S, VT }</returns>
+        Tuple<IMatrix, IVector, IMatrix> Svd();
     }
 
     /// <summary>
@@ -1433,6 +1445,12 @@ namespace BrightWire
         /// <param name="batchSize">The mini batch size</param>
         /// <param name="errorMetric">The cost function</param>
         ITrainingContext CreateTrainingContext(float learningRate, int batchSize, ErrorMetricType errorMetric);
+
+        /// <summary>
+        /// Creates a recurrent training context
+        /// </summary>
+        /// <param name="trainingContext">The training context</param>
+        IRecurrentTrainingContext CreateRecurrentTrainingContext(ITrainingContext trainingContext);
 
         /// <summary>
         /// Creates a neural network layer
@@ -2410,6 +2428,12 @@ namespace BrightWire
         IReadOnlyList<IRow> GetRows(IEnumerable<int> rowIndex);
 
         /// <summary>
+        /// Returns the row at the specified index
+        /// </summary>
+        /// <param name="rowIndex">The row index to retrieve</param>
+        IRow GetRow(int rowIndex);
+
+        /// <summary>
         /// Splits the table into two random tables
         /// </summary>
         /// <param name="randomSeed">Optional random seed</param>
@@ -2431,8 +2455,8 @@ namespace BrightWire
         /// Converts the rows to vectors
         /// </summary>
         /// <param name="lap">Linear algebra provider</param>
-        /// <param name="rows">Optional list of rows to extract (or null for all rows)</param>
-        IReadOnlyList<IVector> GetNumericRows(ILinearAlgebraProvider lap, IEnumerable<int> rows = null);
+        /// <param name="columns">Optional list of columns to extract (or null for all rows)</param>
+        IReadOnlyList<IVector> GetNumericRows(ILinearAlgebraProvider lap, IEnumerable<int> columns = null);
 
         /// <summary>
         /// Converts the columns to vectors
@@ -2442,16 +2466,11 @@ namespace BrightWire
         IReadOnlyList<IVector> GetNumericColumns(ILinearAlgebraProvider lap, IEnumerable<int> columns = null);
 
         /// <summary>
-        /// Converts a single column to a list of categories
+        /// Gets a column from the table
         /// </summary>
-        /// <param name="columnIndex">The column to extract</param>
-        string[] GetDiscreteColumn(int columnIndex);
-
-        /// <summary>
-        /// Converts a single column to a list of floats
-        /// </summary>
-        /// <param name="columnIndex">The column to extract</param>
-        float[] GetNumericColumn(int columnIndex);
+        /// <typeparam name="T">The type to convert the data to</typeparam>
+        /// <param name="columnIndex">The column to retrieve</param>
+        IReadOnlyList<T> GetColumn<T>(int columnIndex);
 
         /// <summary>
         /// Creates a new data table with bagged rows from the current table
@@ -2463,11 +2482,17 @@ namespace BrightWire
         IDataTable Bag(int? count = null, Stream output = null, int? randomSeed = null);
 
         /// <summary>
-        /// Converts columns to lists of floats
+        /// Converts rows to lists of floats
         /// </summary>
         /// <param name="columns">Optional list of columns to convert (or null for all columns)</param>
         /// <returns></returns>
         IReadOnlyList<float[]> GetNumericRows(IEnumerable<int> columns = null);
+
+        /// <summary>
+        /// Gets each specified column (or all columns) as an array of floats
+        /// </summary>
+        /// <param name="columns">The columns to return (or null for all)</param>
+        IReadOnlyList<float[]> GetNumericColumns(IEnumerable<int> columns = null);
 
         /// <summary>
         /// Classifies each row
@@ -2476,7 +2501,35 @@ namespace BrightWire
         /// <returns>A list of tuples of { row, classification } - one for each row</returns>
         IReadOnlyList<Tuple<IRow, string>> Classify(IRowClassifier classifier);
 
+        /// <summary>
+        /// Creates a new data table with the specified columns
+        /// </summary>
+        /// <param name="columns">The columns to include in the new table</param>
+        /// <param name="output">Optional stream to write the new table to</param>
         IDataTable SelectColumns(IEnumerable<int> columns, Stream output = null);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mutator"></param>
+        /// <param name="output"></param>
+        /// <returns></returns>
+        IDataTable Project(Func<IReadOnlyList<object>, IReadOnlyList<object>> mutator, Stream output = null);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="k"></param>
+        /// <param name="randomSeed"></param>
+        /// <param name="shuffle"></param>
+        /// <returns></returns>
+        IEnumerable<Tuple<IDataTable, IDataTable>> Fold(int k, int? randomSeed = null, bool shuffle = true);
+
+        /// <summary>
+        /// Writes the index data to the specified stream
+        /// </summary>
+        /// <param name="stream">The stream to hold the index data</param>
+        void WriteIndexTo(Stream stream);
     }
 
     /// <summary>
@@ -2594,6 +2647,12 @@ namespace BrightWire
         /// List of column statistics
         /// </summary>
         IEnumerable<IColumnInfo> ColumnInfo { get; }
+
+        /// <summary>
+        /// Gets the statistics for a particular column
+        /// </summary>
+        /// <param name="columnIndex">The column index to query</param>
+        IColumnInfo this[int columnIndex] { get; }
     }
 
     /// <summary>
@@ -2754,18 +2813,40 @@ namespace BrightWire
         IEnumerable<string> Classify(IRow row);
     }
 
+    /// <summary>
+    /// Markov model trainer
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public interface IMarkovModelTrainer<T>
     {
+        /// <summary>
+        /// Adds a sequence of items to the trainer
+        /// </summary>
+        /// <param name="items"></param>
         void Add(IEnumerable<T> items);
     }
 
+    /// <summary>
+    /// Markov model trainer (window size 2)
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public interface IMarkovModelTrainer2<T> : IMarkovModelTrainer<T>
     {
+        /// <summary>
+        /// Gets all current observations
+        /// </summary>
         IEnumerable<MarkovModelObservation2<T>> All { get; }
     }
 
+    /// <summary>
+    /// Markov model trainer (window size 3)
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public interface IMarkovModelTrainer3<T> : IMarkovModelTrainer<T>
     {
+        /// <summary>
+        /// Gets all current observations
+        /// </summary>
         IEnumerable<MarkovModelObservation3<T>> All { get; }
     }
 }

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace BrightWire.Bayesian.Training
 {
     // http://nlp.stanford.edu/IR-book/html/htmledition/the-bernoulli-model-1.html
-    public class BernoulliNaiveBayesTrainer
+    internal class BernoulliNaiveBayesTrainer
     {
         readonly HashSet<uint> _vocabulary = new HashSet<uint>();
         readonly Dictionary<string, List<IReadOnlyList<uint>>> _documentClass = new Dictionary<string, List<IReadOnlyList<uint>>>();

@@ -49,7 +49,7 @@ namespace BrightWire.TabularData.Helper
         {
             _dataTable.AddRow(row);
             ++_rowCount;
-            if ((_rowCount % 1024) == 0)
+            if ((_rowCount % DataTable.BLOCK_SIZE) == 0)
                 _Write();
         }
 

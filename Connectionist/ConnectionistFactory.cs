@@ -225,6 +225,11 @@ namespace BrightWire.Connectionist
             return new TrainingContext(learningRate, batchSize, errorMetric.Create());
         }
 
+        public IRecurrentTrainingContext CreateRecurrentTrainingContext(ITrainingContext trainingContext)
+        {
+            return new RecurrentContext(_lap, trainingContext);
+        }
+
         RecurrentLayerComponent _ReadComponent(RecurrentLayer network, ActivationType activation)
         {
             var c1 = _ReadFeedForward(network.Layer[0]);

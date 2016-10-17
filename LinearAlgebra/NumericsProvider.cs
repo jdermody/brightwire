@@ -83,6 +83,11 @@ namespace BrightWire.LinearAlgebra
             return Create(size, size, (x, y) => x == y ? 1f : 0f);
         }
 
+        public IMatrix CreateDiagonal(float[] values)
+        {
+            return Create(values.Length, values.Length, (x, y) => x == y ? values[x] : 0f);
+        }
+
         public IIndexableVector CreateIndexable(int length) { return Create(length, 0f).AsIndexable(); }
         public IIndexableVector CreateIndexable(int length, Func<int, float> init) { return Create(length, init).AsIndexable(); }
         public IIndexableMatrix CreateIndexable(int rows, int columns) { return Create(rows, columns, 0f).AsIndexable(); }

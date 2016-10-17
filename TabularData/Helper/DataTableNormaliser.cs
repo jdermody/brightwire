@@ -76,7 +76,7 @@ namespace BrightWire.TabularData.Helper
                         else if (_normalisation == NormalisationType.Manhattan)
                             columnNorm = new ColumnNormalisation(column.Type, numericInfo.L1Norm);
                         else if (_normalisation == NormalisationType.FeatureScale)
-                            columnNorm = new ColumnNormalisation(column.Type, numericInfo.Max - numericInfo.Mean, numericInfo.Min);
+                            columnNorm = new ColumnNormalisation(column.Type, numericInfo.Max - numericInfo.Min, numericInfo.Min);
                         else
                             throw new NotImplementedException();
                         _columnInfo.Add(columnInfo.ColumnIndex, columnNorm);

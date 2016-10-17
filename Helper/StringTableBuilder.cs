@@ -6,10 +6,17 @@ using BrightWire.Models;
 
 namespace BrightWire.Helper
 {
+    /// <summary>
+    /// Assigns string indices to strings
+    /// </summary>
     public class StringTableBuilder
     {
         readonly Dictionary<string, uint> _stringTable = new Dictionary<string, uint>();
 
+        /// <summary>
+        /// Gets a string index for a string
+        /// </summary>
+        /// <param name="str">The string to look up</param>
         public uint GetIndex(string str)
         {
             uint ret;
@@ -18,6 +25,9 @@ namespace BrightWire.Helper
             return ret;
         }
 
+        /// <summary>
+        /// Serialises the string table
+        /// </summary>
         public StringTable StringTable
         {
             get

@@ -40,5 +40,17 @@ namespace BrightWire.TabularData.Analysis
         }
 
         public IEnumerable<IColumnInfo> ColumnInfo { get { return _column.Cast<IColumnInfo>(); } }
+
+        public IColumnInfo this[int columnIndex]
+        {
+            get
+            {
+                return _column
+                    .Cast<IColumnInfo>()
+                    .Where(c => c.ColumnIndex == columnIndex)
+                    .FirstOrDefault()
+                ;
+            }
+        }
     }
 }

@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BrightWire.Models;
+using ManagedCuda.BasicTypes;
 
 namespace BrightWire.LinearAlgebra
 {
@@ -656,16 +657,41 @@ namespace BrightWire.LinearAlgebra
             }
         }
 
-        public IMatrix Inverse()
-        {
-            // TODO: use cublas or cusolver to find matrix inverse
-            throw new NotImplementedException();
-        }
-
         public IMatrix Multiply(IVector vector)
         {
             using (var column = vector.ToColumnMatrix())
                 return Multiply(column);
+        }
+
+        public IMatrix Inverse()
+        {
+            Debug.Assert(IsValid && RowCount == ColumnCount);
+            //var output2 = new CudaDeviceVariable<float>(RowCount * ColumnCount);
+
+            //using (var inputBuffer = new CudaDeviceVariable<CUdeviceptr>(1))
+            //using (var output = new CudaDeviceVariable<float>(RowCount * ColumnCount))
+            //using (var p = new CudaDeviceVariable<int>(RowCount))
+            //using (var info = new CudaDeviceVariable<int>(1))
+            //using (var outputBuffer = new CudaDeviceVariable<CUdeviceptr>(1))
+            //using (var outputBuffer2 = new CudaDeviceVariable<CUdeviceptr>(1)) {
+            //    _cuda.Context.CopyToDevice(inputBuffer.DevicePointer, new[] { _data.DevicePointer });
+            //    _cuda.Context.CopyToDevice(outputBuffer.DevicePointer, new[] { output.DevicePointer });
+            //    _cuda.Context.CopyToDevice(outputBuffer2.DevicePointer, new[] { output2.DevicePointer });
+
+            //    _cuda.Blas.GetrfBatchedS(RowCount, inputBuffer.DevicePointer, RowCount, p, info, 1);
+            //    _cuda.Blas.GetriBatchedS(RowCount, inputBuffer, RowCount, p, outputBuffer2, RowCount, info, 1);
+            //    var ret = new GpuMatrix(_cuda, RowCount, ColumnCount, output2);
+            //    return ret;
+            //}
+            throw new NotImplementedException();
+        }
+
+        public Tuple<IMatrix, IVector, IMatrix> Svd()
+        {
+            Debug.Assert(IsValid);
+            // TODO: use gesvd to calculate the SVD
+            // http://docs.nvidia.com/cuda/cusolver/#cuds-lt-t-gt-gesvd
+            throw new NotImplementedException();
         }
     }
 }

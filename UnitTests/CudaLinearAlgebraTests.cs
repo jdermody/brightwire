@@ -1324,7 +1324,7 @@ namespace UnitTests
             using (var gpuB = gpuA.Log())
                 v2 = gpuA.Log().AsIndexable();
 
-            FloatingPointHelper.AssertEqual(v1, v2, 10);
+            FloatingPointHelper.AssertEqual(v1, v2, 12);
         }
 
         [TestMethod]
@@ -1519,5 +1519,25 @@ namespace UnitTests
             }
             FloatingPointHelper.AssertEqual(c, gpuResults);
         }
+
+        //[TestMethod]
+        //public void MatrixInverse()
+        //{
+        //    var a = _cpu.Create(2, 2, 0f).AsIndexable();
+        //    a[0, 0] = 4;
+        //    a[0, 1] = 7;
+        //    a[1, 0] = 2;
+        //    a[1, 1] = 6;
+
+        //    var inverse = a.Inverse().AsIndexable();
+
+        //    IIndexableMatrix gpuResults;
+        //    using (var gpuA = _cuda.Create(a))
+        //    using (var gpuInverse = gpuA.Inverse()) {
+        //        gpuResults = gpuInverse.AsIndexable();
+        //    }
+
+        //    FloatingPointHelper.AssertEqual(inverse, gpuResults);
+        //}
     }
 }

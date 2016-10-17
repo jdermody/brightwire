@@ -8,7 +8,7 @@ using System.Xml;
 
 namespace BrightWire.Connectionist.Training.Helper
 {
-    public class RecurrentContext : IRecurrentTrainingContext
+    internal class RecurrentContext : IRecurrentTrainingContext
     {
         readonly ILinearAlgebraProvider _lap;
         readonly ITrainingContext _trainingContext;
