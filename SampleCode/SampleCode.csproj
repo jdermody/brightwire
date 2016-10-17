@@ -52,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IrisClassification.cs" />
+    <Compile Include="MarkovChains.cs" />
     <Compile Include="MultinomialLogisticRegression.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

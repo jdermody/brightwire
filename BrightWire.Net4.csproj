@@ -117,6 +117,7 @@
     <Compile Include="Connectionist\Helper\DenseTrainingDataProvider.cs" />
     <Compile Include="Connectionist\Helper\SequenceToSequenceTrainingDataProvider.cs" />
     <Compile Include="Connectionist\Helper\SparseTrainingDataProvider.cs" />
+    <Compile Include="Helper\SimpleTokeniser.cs" />
     <Compile Include="Helper\StringTableBuilder.cs" />
     <Compile Include="Interface.cs" />
     <Compile Include="LinearAlgebra\CpuMatrix.cs" />

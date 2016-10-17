@@ -12,6 +12,7 @@ namespace BrightWire.SampleCode
         {
             IrisClassification();
             MultinomialLogisticRegression();
+            MarkovChains();
         }
     }
 }

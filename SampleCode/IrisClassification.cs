@@ -80,6 +80,7 @@ namespace BrightWire.SampleCode
                     };
                     trainer.Train(trainingData, NUM_EPOCHS, trainingContext);
                 }
+                Console.WriteLine();
 
                 // let's unload some deep learning on these flowers...
                 Console.WriteLine("Training a 4x8x16x32x16x8x3 neural network...");
@@ -93,6 +94,7 @@ namespace BrightWire.SampleCode
                     };
                     deepTrainer.Train(trainingData, NUM_EPOCHS, trainingContext);
                 }
+                Console.WriteLine();
             }
         }
     }
