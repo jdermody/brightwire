@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrightWire.Net4", "BrightWi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrightWire.CUDA.Net4.x86", "BrightWire.CUDA.Net4.x86\BrightWire.CUDA.Net4.x86.csproj", "{E64C53D5-DF34-4D34-8710-6E8036ED5808}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleCode", "SampleCode\SampleCode.csproj", "{533CA9B4-36CA-44D0-8875-FA6F4E63B98A}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		BrightWire.projitems*{50bcb2ab-e8ca-4974-b136-49a98d5e34cb}*SharedItemsImports = 4
@@ -68,6 +70,18 @@ Global
 		{E64C53D5-DF34-4D34-8710-6E8036ED5808}.Release|x64.ActiveCfg = Release|x86
 		{E64C53D5-DF34-4D34-8710-6E8036ED5808}.Release|x86.ActiveCfg = Release|x86
 		{E64C53D5-DF34-4D34-8710-6E8036ED5808}.Release|x86.Build.0 = Release|x86
+		{533CA9B4-36CA-44D0-8875-FA6F4E63B98A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{533CA9B4-36CA-44D0-8875-FA6F4E63B98A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{533CA9B4-36CA-44D0-8875-FA6F4E63B98A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{533CA9B4-36CA-44D0-8875-FA6F4E63B98A}.Debug|x64.Build.0 = Debug|Any CPU
+		{533CA9B4-36CA-44D0-8875-FA6F4E63B98A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{533CA9B4-36CA-44D0-8875-FA6F4E63B98A}.Debug|x86.Build.0 = Debug|Any CPU
+		{533CA9B4-36CA-44D0-8875-FA6F4E63B98A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{533CA9B4-36CA-44D0-8875-FA6F4E63B98A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{533CA9B4-36CA-44D0-8875-FA6F4E63B98A}.Release|x64.ActiveCfg = Release|Any CPU
+		{533CA9B4-36CA-44D0-8875-FA6F4E63B98A}.Release|x64.Build.0 = Release|Any CPU
+		{533CA9B4-36CA-44D0-8875-FA6F4E63B98A}.Release|x86.ActiveCfg = Release|Any CPU
+		{533CA9B4-36CA-44D0-8875-FA6F4E63B98A}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
