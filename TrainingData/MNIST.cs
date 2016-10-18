@@ -1,4 +1,5 @@
 ﻿using BrightWire.Helper;
+using BrightWire.Models.Simple;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -37,30 +38,30 @@ namespace BrightWire.TrainingData
             /// </summary>
             public int Label { get { return _label; } }
 
-            /// <summary>
-            /// Convert the image to one hot encoded vectors
-            /// </summary>
-            /// <param name="provider">Linear algebra provider</param>
-            /// <returns>Tuple of { image, image (indexable), label }</returns>
-            public Tuple<IVector, IIndexableVector, IIndexableVector> AsSample(ILinearAlgebraProvider provider)
-            {
-                var data = provider.Create(_data.Select(b => Convert.ToSingle((int)b) / 255));
-                var label = provider.Create(10, 0.0f).AsIndexable();
-                label[_label] = 1;
-                return Tuple.Create(data, data.AsIndexable(), label);
-            }
+            ///// <summary>
+            ///// Convert the image to one hot encoded vectors
+            ///// </summary>
+            ///// <param name="provider">Linear algebra provider</param>
+            ///// <returns>Tuple of { image, image (indexable), label }</returns>
+            //public Tuple<IVector, IIndexableVector, IIndexableVector> AsSample(ILinearAlgebraProvider provider)
+            //{
+            //    var data = provider.Create(_data.Select(b => Convert.ToSingle((int)b) / 255));
+            //    var label = provider.Create(10, 0.0f).AsIndexable();
+            //    label[_label] = 1;
+            //    return Tuple.Create(data, data.AsIndexable(), label);
+            //}
 
             /// <summary>
             /// Converts the image to one hot encoded float arrays
             /// </summary>
-            public Tuple<float[], float[]> Sample
+            public TrainingExample Sample
             {
                 get
                 {
                     var data = _data.Select(b => Convert.ToSingle((int)b) / 255).ToArray();
                     var label = new float[10];
                     label[_label] = 1;
-                    return Tuple.Create(data, label);
+                    return new TrainingExample(data, label);
                 }
             }
         }

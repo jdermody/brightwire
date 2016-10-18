@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.Connectionist.Helper
 {
-    internal class DataTableTrainingDataProvider : ITrainingDataProvider
+    internal class DataTableTrainingDataProvider : ITrainingDataProvider, IDataTableTrainingDataProvider
     {
         readonly IDataTable _table;
         readonly int _inputSize, _outputSize, _classColumnIndex;
@@ -99,6 +99,17 @@ namespace BrightWire.Connectionist.Helper
             var input = _lap.Create(batchRow.Count, _inputSize, (x, y) => batchRow[x].Item1[y]);
             var output = _lap.Create(batchRow.Count, _outputSize, (x, y) => batchRow[x].Item2[y]);
             return new MiniBatch(input, output);
+        }
+
+        public string GetOutputLabel(int columnIndex, int vectorIndex)
+        {
+            Dictionary<int, string> map;
+            if(_reverseColumnMap.TryGetValue(columnIndex, out map)) {
+                string ret;
+                if (map.TryGetValue(vectorIndex, out ret))
+                    return ret;
+            }
+            return null;
         }
     }
 }

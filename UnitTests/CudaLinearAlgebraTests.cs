@@ -6,6 +6,7 @@ using MathNet.Numerics.Distributions;
 using System.IO;
 using System.Text;
 using UnitTests.Helper;
+using BrightWire.Models.Simple;
 
 namespace UnitTests
 {
@@ -953,14 +954,14 @@ namespace UnitTests
             IIndexableMatrix gpuResults1, gpuResults2;
             using (var gpuA = _cuda.Create(a)) {
                 var r2 = gpuA.SplitColumns(POSITION);
-                using (var m1 = r2.Item1)
-                using (var m2 = r2.Item2) {
+                using (var m1 = r2.Top)
+                using (var m2 = r2.Bottom) {
                     gpuResults1 = m1.AsIndexable();
                     gpuResults2 = m2.AsIndexable();
                 }
             }
-            FloatingPointHelper.AssertEqual(gpuResults1, r.Item1.AsIndexable());
-            FloatingPointHelper.AssertEqual(gpuResults2, r.Item2.AsIndexable());
+            FloatingPointHelper.AssertEqual(gpuResults1, r.Top.AsIndexable());
+            FloatingPointHelper.AssertEqual(gpuResults2, r.Bottom.AsIndexable());
         }
 
         [TestMethod]
@@ -974,14 +975,14 @@ namespace UnitTests
             IIndexableMatrix gpuResults1, gpuResults2;
             using (var gpuA = _cuda.Create(a)) {
                 var r2 = gpuA.SplitRows(POSITION);
-                using (var m1 = r2.Item1)
-                using (var m2 = r2.Item2) {
+                using (var m1 = r2.Left)
+                using (var m2 = r2.Right) {
                     gpuResults1 = m1.AsIndexable();
                     gpuResults2 = m2.AsIndexable();
                 }
             }
-            FloatingPointHelper.AssertEqual(gpuResults1, r.Item1.AsIndexable());
-            FloatingPointHelper.AssertEqual(gpuResults2, r.Item2.AsIndexable());
+            FloatingPointHelper.AssertEqual(gpuResults1, r.Left.AsIndexable());
+            FloatingPointHelper.AssertEqual(gpuResults2, r.Right.AsIndexable());
         }
 
         [TestMethod]
@@ -1257,12 +1258,12 @@ namespace UnitTests
             var a = _cpu.Create(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
             var minMax = a.GetMinMax();
 
-            Tuple<float, float> minMax2;
+            MinMax minMax2;
             using (var gpuA = _cuda.Create(a))
                 minMax2 = gpuA.GetMinMax();
 
-            FloatingPointHelper.AssertEqual(minMax.Item1, minMax2.Item1);
-            FloatingPointHelper.AssertEqual(minMax.Item2, minMax2.Item2);
+            FloatingPointHelper.AssertEqual(minMax.Min, minMax2.Min);
+            FloatingPointHelper.AssertEqual(minMax.Max, minMax2.Max);
         }
 
         [TestMethod]

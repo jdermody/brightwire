@@ -1,20 +1,19 @@
-﻿using BrightWire.Models.Simple;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Linq;
+using BrightWire.Models.Simple;
 
 namespace BrightWire.Connectionist.Helper
 {
-    internal class DenseSequentialTrainingDataProvider : ISequentialTrainingDataProvider
+    internal class SparseSequentialTrainingDataProvider : ISequentialTrainingDataProvider
     {
         readonly ILinearAlgebraProvider _lap;
         readonly SequenceInfo[] _sequenceLength;
-        readonly Dictionary<int, List<Tuple<TrainingExample[], int>>> _inputData;
+        readonly Dictionary<int, List<Tuple<Tuple<Dictionary<uint, float>, Dictionary<uint, float>>[], int>>> _inputData;
         readonly int _inputSize, _outputSize, _totalCount;
 
-        public DenseSequentialTrainingDataProvider(ILinearAlgebraProvider lap, IReadOnlyList<TrainingExample[]> data)
+        public SparseSequentialTrainingDataProvider(ILinearAlgebraProvider lap, IReadOnlyList<Tuple<Dictionary<uint, float>, Dictionary<uint, float>>[]> data)
         {
             _lap = lap;
             _totalCount = data.Count;
@@ -30,8 +29,8 @@ namespace BrightWire.Connectionist.Helper
 
             // find the dimensions of the input and output
             var firstItem = _inputData.First().Value.First().Item1.First();
-            _inputSize = firstItem.Input.Length;
-            _outputSize = firstItem.Output.Length;
+            _inputSize = firstItem.Item1.Count;
+            _outputSize = firstItem.Item2.Count;
         }
 
         public int Count { get { return _totalCount; } }
@@ -52,11 +51,21 @@ namespace BrightWire.Connectionist.Helper
             var input = new IMatrix[sequenceLength];
             var output = new IMatrix[sequenceLength];
             var dataGroup = _inputData[sequenceLength];
+            var selectedRow = rows.Select(r => dataGroup[r]).ToList();
+
             for (var k = 0; k < sequenceLength; k++) {
-                input[k] = _lap.Create(rows.Count, _inputSize, (x, y) => dataGroup[rows[x]].Item1[k].Input[y]);
-                output[k] = _lap.Create(rows.Count, _outputSize, (x, y) => dataGroup[rows[x]].Item1[k].Output[y]);
+                input[k] = _lap.Create(rows.Count, _inputSize, (x, y) => _GetValue(y, dataGroup[rows[x]].Item1[k].Item1));
+                output[k] = _lap.Create(rows.Count, _outputSize, (x, y) => _GetValue(y, dataGroup[rows[x]].Item1[k].Item2));
             }
             return new SequentialMiniBatch(input, output, rows.Select(r => dataGroup[r].Item2).ToArray());
+        }
+
+        float _GetValue(int index, Dictionary<uint, float> table)
+        {
+            float ret;
+            if (table.TryGetValue((uint)index, out ret))
+                return ret;
+            return 0f;
         }
     }
 }

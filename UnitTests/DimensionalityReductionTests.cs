@@ -42,9 +42,9 @@ namespace UnitTests
             var svd = a.Svd();
             var reducedSize = Enumerable.Range(0, 32).ToList();
 
-            var u = svd.Item1.GetNewMatrixFromRows(reducedSize);
-            var s = _lap.CreateDiagonal(svd.Item2.AsIndexable().Values.Take(reducedSize.Count).ToArray());
-            var vt = svd.Item3.GetNewMatrixFromColumns(reducedSize);
+            var u = svd.U.GetNewMatrixFromRows(reducedSize);
+            var s = _lap.CreateDiagonal(svd.S.AsIndexable().Values.Take(reducedSize.Count).ToArray());
+            var vt = svd.VT.GetNewMatrixFromColumns(reducedSize);
             var us = u.TransposeThisAndMultiply(s);
             var usvt = us.TransposeAndMultiply(vt);
         }

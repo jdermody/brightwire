@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BrightWire.Models;
+using BrightWire.Models.Simple;
 
 namespace BrightWire.LinearAlgebra
 {
@@ -396,18 +397,18 @@ namespace BrightWire.LinearAlgebra
             return new CpuMatrix(ret);
         }
 
-        public Tuple<IMatrix, IMatrix> SplitRows(int position)
+        public RowSplit SplitRows(int position)
         {
             var ret1 = DenseMatrix.Create(RowCount, position, (x, y) => this[x, y]);
             var ret2 = DenseMatrix.Create(RowCount, ColumnCount - position, (x, y) => this[x, position + y]);
-            return Tuple.Create<IMatrix, IMatrix>(new CpuMatrix(ret1), new CpuMatrix(ret2));
+            return new RowSplit(new CpuMatrix(ret1), new CpuMatrix(ret2));
         }
 
-        public Tuple<IMatrix, IMatrix> SplitColumns(int position)
+        public ColumnSplit SplitColumns(int position)
         {
             var ret1 = DenseMatrix.Create(position, ColumnCount, (x, y) => this[x, y]);
             var ret2 = DenseMatrix.Create(RowCount - position, ColumnCount, (x, y) => this[position + x, y]);
-            return Tuple.Create<IMatrix, IMatrix>(new CpuMatrix(ret1), new CpuMatrix(ret2));
+            return new ColumnSplit(new CpuMatrix(ret1), new CpuMatrix(ret2));
         }
 
         public IMatrix Sqrt(float valueAdjustment = 0)
@@ -546,10 +547,10 @@ namespace BrightWire.LinearAlgebra
                 return Multiply(column);
         }
 
-        public Tuple<IMatrix, IVector, IMatrix> Svd()
+        public SingularValueDecomposition Svd()
         {
             var svd = _matrix.Svd(true);
-            return Tuple.Create<IMatrix, IVector, IMatrix>(new CpuMatrix(svd.U), new CpuVector(svd.S), new CpuMatrix(svd.VT));
+            return new SingularValueDecomposition(new CpuMatrix(svd.U), new CpuVector(svd.S), new CpuMatrix(svd.VT));
         }
     }
 }

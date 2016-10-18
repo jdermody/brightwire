@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BrightWire.Models.Simple;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,10 +34,10 @@ namespace BrightWire.TrainingData.Artificial
         /// <param name="sampleCount">How many samples to generate</param>
         /// <param name="stochastic">True to generate random integers</param>
         /// <returns>A list of sequences</returns>
-        public static IReadOnlyList<IReadOnlyList<Tuple<float[], float[]>>> Addition(int sampleCount, bool stochastic)
+        public static IReadOnlyList<IReadOnlyList<TrainingExample>> Addition(int sampleCount, bool stochastic)
         {
             Random rand = stochastic ? new Random() : new Random(0);
-            var ret = new List<IReadOnlyList<Tuple<float[], float[]>>>();
+            var ret = new List<IReadOnlyList<TrainingExample>>();
 
             for (var i = 0; i < sampleCount; i++) {
                 // generate some random numbers
@@ -47,11 +48,11 @@ namespace BrightWire.TrainingData.Artificial
                 var b2 = _GetBitArray(b);
                 var r2 = _GetBitArray(Convert.ToByte(a + b));
 
-                var sequence = new List<Tuple<float[], float[]>>();
+                var sequence = new List<TrainingExample>();
                 for (int j = 0; j < 8; j++) {
                     var input = new[] { a2[j], b2[j] };
                     var output = new[] { r2[j] };
-                    sequence.Add(Tuple.Create(input, output));
+                    sequence.Add(new TrainingExample(input, output));
                 }
 
                 ret.Add(sequence);

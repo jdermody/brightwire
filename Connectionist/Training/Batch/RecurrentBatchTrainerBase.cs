@@ -35,11 +35,11 @@ namespace BrightWire.Connectionist.Training.Batch
         {
             var sequences = shuffle ? data.Length.Shuffle() : data.Length;
             foreach (var item in sequences) {
-                var range = Enumerable.Range(0, item.Item2);
+                var range = Enumerable.Range(0, item.SampleCount);
                 var items = shuffle ? range.Shuffle().ToList() : range.ToList();
                 for (var i = 0; i < items.Count; i += batchSize) {
                     var batch = items.Skip(i).Take(batchSize).ToList();
-                    yield return data.GetTrainingData(item.Item1, batch);
+                    yield return data.GetTrainingData(item.SequenceLength, batch);
                 }
             }
         }

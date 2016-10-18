@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BrightWire.Models.Simple;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,7 +10,7 @@ namespace BrightWire.Connectionist.Helper
     internal class SequenceToSequenceTrainingDataProvider : ISequentialTrainingDataProvider
     {
         readonly ILinearAlgebraProvider _lap;
-        readonly Tuple<int, int>[] _sequenceLength;
+        readonly SequenceInfo[] _sequenceLength;
         readonly Dictionary<int, List<Tuple<Tuple<float[], float[]>[], int>>> _inputData;
         readonly int _inputSize, _outputSize, _totalCount;
         readonly Func<IReadOnlyList<IMatrix>, IMatrix, IMatrix> _errorSignal;
@@ -62,7 +63,7 @@ namespace BrightWire.Connectionist.Helper
                 .OrderBy(g => g.Key)
                 .ToDictionary(g => g.Key, g => g.ToList())
             ;
-            _sequenceLength = _inputData.Select(s => Tuple.Create(s.Key, s.Value.Count)).ToArray();
+            _sequenceLength = _inputData.Select(s => new SequenceInfo(s.Key, s.Value.Count)).ToArray();
 
             // find the dimensions of the input and output
             var firstItem = _inputData.First().Value.First().Item1.First();
@@ -75,7 +76,7 @@ namespace BrightWire.Connectionist.Helper
         public int InputSize { get { return _inputSize; } }
         public int OutputSize { get { return _outputSize; } }
 
-        public Tuple<int, int>[] Length
+        public SequenceInfo[] Length
         {
             get
             {

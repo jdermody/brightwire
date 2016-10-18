@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using BrightWire.Models;
 using System.Xml;
 using BrightWire.Models.ExecutionResults;
+using BrightWire.Models.Simple;
 
 namespace BrightWire.Connectionist.Training.Batch
 {
@@ -93,7 +94,7 @@ namespace BrightWire.Connectionist.Training.Batch
             return sequenceOutput.OrderBy(kv => kv.Key).Select(kv => kv.Value.ToArray()).ToList();
         }
 
-        public Tuple<float[], float[]> Train(ISequentialTrainingDataProvider trainingData, float[] forwardMemory, float[] backwardMemory, int numEpochs, IRecurrentTrainingContext context)
+        public BidirectionalMemory Train(ISequentialTrainingDataProvider trainingData, float[] forwardMemory, float[] backwardMemory, int numEpochs, IRecurrentTrainingContext context)
         {
             var trainingContext = context.TrainingContext;
             var logger = trainingContext.Logger;
@@ -140,8 +141,8 @@ namespace BrightWire.Connectionist.Training.Batch
                                 if(backpropagationAction.Item1 != null && backpropagationAction.Item2 != null && curr.Count == 1) {
                                     using (var m = curr[0]) {
                                         var split = m.SplitRows(forwardMemory.Length);
-                                        curr[0] = split.Item1;
-                                        curr.Add(split.Item2);
+                                        curr[0] = split.Left;
+                                        curr.Add(split.Right);
                                     }
                                     #region logging
                                     if (logger != null) {
@@ -199,7 +200,7 @@ namespace BrightWire.Connectionist.Training.Batch
                 }
                 trainingContext.EndRecurrentEpoch(_collectTrainingError ? batchErrorList.Average() : 0, context);
             }
-            return Tuple.Create(forwardMemory, backwardMemory);
+            return new BidirectionalMemory(forwardMemory, backwardMemory);
         }
     }
 }

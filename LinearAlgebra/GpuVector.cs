@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BrightWire.Models;
+using BrightWire.Models.Simple;
 
 namespace BrightWire.LinearAlgebra
 {
@@ -329,7 +330,7 @@ namespace BrightWire.LinearAlgebra
             return norm * norm;
         }
 
-        public Tuple<float, float> GetMinMax()
+        public MinMax GetMinMax()
         {
             return _cuda.FindMinAndMax(_data, _size);
         }
@@ -348,9 +349,9 @@ namespace BrightWire.LinearAlgebra
         {
             if (type == NormalisationType.FeatureScale) {
                 var minMax = GetMinMax();
-                float range = minMax.Item2 - minMax.Item1;
+                float range = minMax.Max - minMax.Min;
                 if (range > 0)
-                    _cuda.Normalise(_data, _size, minMax.Item1, range);
+                    _cuda.Normalise(_data, _size, minMax.Min, range);
             }
             else if (type == NormalisationType.Standard) {
                 var mean = Average();
@@ -374,7 +375,7 @@ namespace BrightWire.LinearAlgebra
         {
             var minMax = GetMinMax();
 
-            var softmax = _cuda.SoftmaxVector(_data, _size, minMax.Item2);
+            var softmax = _cuda.SoftmaxVector(_data, _size, minMax.Max);
             var softmaxSum = _cuda.SumValues(softmax, _size);
             if(softmaxSum != 0)
                 _cuda.Blas.Scale(1f / softmaxSum, softmax, 1);

@@ -11,16 +11,18 @@ namespace BrightWire.SampleCode
 {
     partial class Program
     {
-        public static void IrisClassification()
+        public static IDataTable IrisClassification(IDataTable dataTable = null)
         {
-            // download the iris data set
-            byte[] data;
-            using (var client = new WebClient()) {
-                data = client.DownloadData("https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data");
-            }
+            if (dataTable == null) {
+                // download the iris data set
+                byte[] data;
+                using (var client = new WebClient()) {
+                    data = client.DownloadData("https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data");
+                }
 
-            // parse the iris CSV into a data table
-            var dataTable = new StreamReader(new MemoryStream(data)).ParseCSV(',');
+                // parse the iris CSV into a data table
+                dataTable = new StreamReader(new MemoryStream(data)).ParseCSV(',');
+            }
 
             // the last column is the classification target ("Iris-setosa", "Iris-versicolor", or "Iris-virginica")
             var targetColumnIndex = dataTable.TargetColumnIndex = dataTable.ColumnCount - 1;
@@ -29,31 +31,31 @@ namespace BrightWire.SampleCode
             var split = dataTable.Split(0);
 
             // train and evaluate a naive bayes classifier
-            var naiveBayes = split.Item1.TrainNaiveBayes();
-            Console.WriteLine("Naive bayes accuracy: {0:P}", split.Item2
+            var naiveBayes = split.Training.TrainNaiveBayes();
+            Console.WriteLine("Naive bayes accuracy: {0:P}", split.Test
                 .Classify(naiveBayes.CreateClassifier())
-                .Average(d => d.Item1.GetField<string>(targetColumnIndex) == d.Item2 ? 1.0 : 0.0)
+                .Average(d => d.Row.GetField<string>(targetColumnIndex) == d.Classification ? 1.0 : 0.0)
             );
 
             // train and evaluate a decision tree classifier
-            var decisionTree = split.Item1.TrainDecisionTree();
-            Console.WriteLine("Decision tree accuracy: {0:P}", split.Item2
+            var decisionTree = split.Training.TrainDecisionTree();
+            Console.WriteLine("Decision tree accuracy: {0:P}", split.Test
                 .Classify(decisionTree.CreateClassifier())
-                .Average(d => d.Item1.GetField<string>(targetColumnIndex) == d.Item2 ? 1.0 : 0.0)
+                .Average(d => d.Row.GetField<string>(targetColumnIndex) == d.Classification ? 1.0 : 0.0)
             );
 
             // train and evaluate a random forest classifier
             var randomForest = dataTable.TrainRandomForest(500);
-            Console.WriteLine("Random forest accuracy: {0:P}", split.Item2
+            Console.WriteLine("Random forest accuracy: {0:P}", split.Test
                 .Classify(randomForest.CreateClassifier())
-                .Average(d => d.Item1.GetField<string>(targetColumnIndex) == d.Item2 ? 1.0 : 0.0)
+                .Average(d => d.Row.GetField<string>(targetColumnIndex) == d.Classification ? 1.0 : 0.0)
             );
 
             // fire up some linear algebra on the CPU
             using (var lap = Provider.CreateCPULinearAlgebra(false)) {
                 // convert the data tables into linear algebra friendly training data providers
-                var trainingData = lap.NN.CreateTrainingDataProvider(split.Item1);
-                var testData = lap.NN.CreateTrainingDataProvider(split.Item2);
+                var trainingData = lap.NN.CreateTrainingDataProvider(split.Training);
+                var testData = lap.NN.CreateTrainingDataProvider(split.Test);
 
                 // create a feed forward network with 8 hidden neurons
                 const int BATCH_SIZE = 8, NUM_EPOCHS = 300;
@@ -96,6 +98,7 @@ namespace BrightWire.SampleCode
                 }
                 Console.WriteLine();
             }
+            return dataTable;
         }
     }
 }

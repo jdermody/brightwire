@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BrightWire.Models.Simple;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -38,7 +39,7 @@ namespace BrightWire.TrainingData.Artificial
         /// </summary>
         /// <param name="strList">A list of REBER sequences</param>
         /// <returns>A sequence of tuples of { input, output }</returns>
-        public static IEnumerable<Tuple<float[], float[]>[]> GetOneHot(IEnumerable<string> strList)
+        public static IEnumerable<TrainingExample[]> GetOneHot(IEnumerable<string> strList)
         {
             // build the following item table
             HashSet<int> temp;
@@ -58,9 +59,9 @@ namespace BrightWire.TrainingData.Artificial
                 }
             }
 
-            var ret = new List<Tuple<float[], float[]>[]>();
+            var ret = new List<TrainingExample[]>();
             foreach (var str in strList) {
-                var sequence = new Tuple<float[], float[]>[str.Length];
+                var sequence = new TrainingExample[str.Length];
                 var sb = new StringBuilder();
                 for (var i = 0; i < str.Length; i++) {
                     var ch = str[i];
@@ -72,7 +73,7 @@ namespace BrightWire.TrainingData.Artificial
                         foreach (var item in following[sb.ToString()])
                             output[item] = 1f;
                     }
-                    sequence[i] = Tuple.Create(input, output);
+                    sequence[i] = new TrainingExample(input, output);
                 }
                 ret.Add(sequence);
             }

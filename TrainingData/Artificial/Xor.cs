@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BrightWire.Models.Simple;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,13 +16,13 @@ namespace BrightWire.TrainingData.Artificial
         /// Gets the XOR training set as one hot encoded float arrays
         /// </summary>
         /// <returns></returns>
-        public static IReadOnlyList<Tuple<float[], float[]>> Get()
+        public static IReadOnlyList<TrainingExample> Get()
         {
             return new[] {
-                Tuple.Create(new [] { 0.0f, 0.0f }, new [] { 0.0f }),
-                Tuple.Create(new [] { 1.0f, 0.0f }, new [] { 1.0f }),
-                Tuple.Create(new [] { 0.0f, 1.0f }, new [] { 1.0f }),
-                Tuple.Create(new [] { 1.0f, 1.0f }, new [] { 0.0f })
+                new TrainingExample(new [] { 0.0f, 0.0f }, new [] { 0.0f }),
+                new TrainingExample(new [] { 1.0f, 0.0f }, new [] { 1.0f }),
+                new TrainingExample(new [] { 0.0f, 1.0f }, new [] { 1.0f }),
+                new TrainingExample(new [] { 1.0f, 1.0f }, new [] { 0.0f })
             };
         }
     }

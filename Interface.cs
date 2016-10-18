@@ -1,5 +1,6 @@
 ﻿using BrightWire.Connectionist;
 using BrightWire.Models;
+using BrightWire.Models.Simple;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -345,8 +346,7 @@ namespace BrightWire
         /// <summary>
         /// Finds the minimum and maximum values in the current vector
         /// </summary>
-        /// <returns>A tuple of {min, max}</returns>
-        Tuple<float, float> GetMinMax();
+        MinMax GetMinMax();
 
         /// <summary>
         /// Calculates the average value from the elements of the current vector
@@ -746,15 +746,13 @@ namespace BrightWire
         /// Splits the rows of the current matrix into two matrices
         /// </summary>
         /// <param name="position">The column index at which to split</param>
-        /// <returns>A tuple of {left, right}</returns>
-        Tuple<IMatrix, IMatrix> SplitRows(int position);
+        RowSplit SplitRows(int position);
 
         /// <summary>
         /// Splits the columns of the current matrix into two matrices
         /// </summary>
         /// <param name="position">The row index at which to split</param>
-        /// <returns>A tuple of {top, bottom}</returns>
-        Tuple<IMatrix, IMatrix> SplitColumns(int position);
+        ColumnSplit SplitColumns(int position);
 
         /// <summary>
         /// Returns the inverse of the current matrix
@@ -764,8 +762,7 @@ namespace BrightWire
         /// <summary>
         /// Singular value decomposition
         /// </summary>
-        /// <returns>Tuple of { U, S, VT }</returns>
-        Tuple<IMatrix, IVector, IMatrix> Svd();
+        SingularValueDecomposition Svd();
     }
 
     /// <summary>
@@ -1388,16 +1385,22 @@ namespace BrightWire
         ITrainingDataProvider CreateTrainingDataProvider(IDataTable table);
 
         /// <summary>
-        /// Creates a training data provider from a list of tuples { input, output }
+        /// Creates a training data provider from a list of training examples
         /// </summary>
         /// <param name="data">The training data</param>
-        ITrainingDataProvider CreateTrainingDataProvider(IReadOnlyList<Tuple<float[], float[]>> data);
+        ITrainingDataProvider CreateTrainingDataProvider(IReadOnlyList<TrainingExample> data);
 
         /// <summary>
         /// Creates a sequential training data provider
         /// </summary>
-        /// <param name="data">A list of tuple sequences of {input, output }</param>
-        ISequentialTrainingDataProvider CreateSequentialTrainingDataProvider(IReadOnlyList<Tuple<float[], float[]>[]> data);
+        /// <param name="data">A list of sequences of training examples</param>
+        ISequentialTrainingDataProvider CreateSequentialTrainingDataProvider(IReadOnlyList<TrainingExample[]> data);
+
+        /// <summary>
+        /// Creates a sparse sequential training data provider
+        /// </summary>
+        /// <param name="data">A list of tuple sequences of {input, output}</param>
+        //ISequentialTrainingDataProvider CreateSequentialTrainingDataProvider(IReadOnlyList<Tuple<Dictionary<uint, float>, Dictionary<uint, float>>[]> data);
 
         /// <summary>
         /// Creates a feed forward network from a saved model
@@ -1839,8 +1842,8 @@ namespace BrightWire
         /// <param name="backwardMemory"></param>
         /// <param name="numEpochs"></param>
         /// <param name="context"></param>
-        /// <returns></returns>
-        Tuple<float[], float[]> Train(ISequentialTrainingDataProvider trainingData, float[] forwardMemory, float[] backwardMemory, int numEpochs, IRecurrentTrainingContext context);
+        /// <returns>The trained input memory</returns>
+        BidirectionalMemory Train(ISequentialTrainingDataProvider trainingData, float[] forwardMemory, float[] backwardMemory, int numEpochs, IRecurrentTrainingContext context);
 
         /// <summary>
         /// Read and write the network as a protobuf model
@@ -1923,6 +1926,19 @@ namespace BrightWire
     }
 
     /// <summary>
+    /// Maps one hot encoded vectors back to classification labels
+    /// </summary>
+    public interface IDataTableTrainingDataProvider
+    {
+        /// <summary>
+        /// Returns the classification label
+        /// </summary>
+        /// <param name="columnIndex">The data table column index</param>
+        /// <param name="vectorIndex">The one hot vector index</param>
+        string GetOutputLabel(int columnIndex, int vectorIndex);
+    }
+
+    /// <summary>
     /// A sequence of mini batches
     /// </summary>
     public interface ISequentialMiniBatch : IDisposable
@@ -1968,9 +1984,9 @@ namespace BrightWire
         ISequentialMiniBatch GetTrainingData(int sequenceLength, IReadOnlyList<int> rows);
 
         /// <summary>
-        /// An array of sequence size tuples where each tuple is { sequence-length, count of samples }
+        /// An array of sequence information (length of sequence and count of samples of that size)
         /// </summary>
-        Tuple<int, int>[] Length { get; }
+        SequenceInfo[] Length { get; }
 
         /// <summary>
         /// Total number of training samples
@@ -2200,7 +2216,7 @@ namespace BrightWire
         /// <summary>
         /// The current memory { forward, backward }
         /// </summary>
-        Tuple<float[], float[]> Memory { get; }
+        BidirectionalMemory Memory { get; }
     }
 
     /// <summary>
@@ -2441,8 +2457,7 @@ namespace BrightWire
         /// <param name="shuffle">True to shuffle the table before splitting</param>
         /// <param name="output1">Optional stream to write the first output table to</param>
         /// <param name="output2">Optional stream to write the second output table to</param>
-        /// <returns>A tuple of {first table, second table}</returns>
-        Tuple<IDataTable, IDataTable> Split(int? randomSeed = null, double firstSize = 0.8, bool shuffle = true, Stream output1 = null, Stream output2 = null);
+        TableSplit Split(int? randomSeed = null, double firstSize = 0.8, bool shuffle = true, Stream output1 = null, Stream output2 = null);
 
         /// <summary>
         /// Creates a normalised version of the current table
@@ -2498,8 +2513,7 @@ namespace BrightWire
         /// Classifies each row
         /// </summary>
         /// <param name="classifier">The classifier to use</param>
-        /// <returns>A list of tuples of { row, classification } - one for each row</returns>
-        IReadOnlyList<Tuple<IRow, string>> Classify(IRowClassifier classifier);
+        IReadOnlyList<RowClassification> Classify(IRowClassifier classifier);
 
         /// <summary>
         /// Creates a new data table with the specified columns
@@ -2523,7 +2537,7 @@ namespace BrightWire
         /// <param name="randomSeed"></param>
         /// <param name="shuffle"></param>
         /// <returns></returns>
-        IEnumerable<Tuple<IDataTable, IDataTable>> Fold(int k, int? randomSeed = null, bool shuffle = true);
+        IEnumerable<TableFold> Fold(int k, int? randomSeed = null, bool shuffle = true);
 
         /// <summary>
         /// Writes the index data to the specified stream

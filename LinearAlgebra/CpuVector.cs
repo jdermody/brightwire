@@ -8,6 +8,7 @@ using System.Linq;
 using BrightWire.Models;
 using BrightWire.Helper;
 using System.Threading.Tasks;
+using BrightWire.Models.Simple;
 
 namespace BrightWire.LinearAlgebra
 {
@@ -243,7 +244,7 @@ namespace BrightWire.LinearAlgebra
             other._vector.CopyTo(_vector);
         }
 
-        public Tuple<float, float> GetMinMax()
+        public MinMax GetMinMax()
         {
             float min = 0f, max = 0f;
             foreach (var val in _vector.Enumerate(Zeros.AllowSkip)) {
@@ -252,7 +253,7 @@ namespace BrightWire.LinearAlgebra
                 if (val < min)
                     min = val;
             }
-            return Tuple.Create(min, max);
+            return new MinMax(min, max);
         }
 
         public float Average()
@@ -270,9 +271,9 @@ namespace BrightWire.LinearAlgebra
         {
             if (type == NormalisationType.FeatureScale) {
                 var minMax = GetMinMax();
-                float range = minMax.Item2 - minMax.Item1;
+                float range = minMax.Max - minMax.Min;
                 if (range > 0)
-                    _vector.MapInplace(v => (v - minMax.Item1) / range);
+                    _vector.MapInplace(v => (v - minMax.Min) / range);
             }
             else if(type == NormalisationType.Standard) {
                 var mean = Average();
@@ -295,7 +296,7 @@ namespace BrightWire.LinearAlgebra
         public IVector Softmax()
         {
             var minMax = GetMinMax();
-            var max = minMax.Item2;
+            var max = minMax.Max;
 
             var softmax = _vector.Map(v => BoundMath.Exp(v - max));
             var sum = softmax.Sum();

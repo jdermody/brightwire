@@ -1,5 +1,6 @@
 ﻿using BrightWire.Connectionist;
 using BrightWire.Models;
+using BrightWire.Models.Simple;
 using ManagedCuda;
 using ManagedCuda.BasicTypes;
 using ManagedCuda.CudaBlas;
@@ -395,7 +396,7 @@ namespace BrightWire.LinearAlgebra
             _Use(_vectorAdd, size, k => k.Run(0, a.DevicePointer, size, scalar));
         }
 
-        internal Tuple<float, float> FindMinAndMax(CudaDeviceVariable<float> a, int size)
+        internal MinMax FindMinAndMax(CudaDeviceVariable<float> a, int size)
         {
             if (size > 0) {
                 var ptr = a;
@@ -430,9 +431,9 @@ namespace BrightWire.LinearAlgebra
                     if (val < min)
                         min = val;
                 }
-                return Tuple.Create(min, max);
+                return new MinMax(min, max);
             }
-            return Tuple.Create(0f, 0f);
+            return MinMax.Empty;
         }
 
         internal float FindMean(CudaDeviceVariable<float> a, int size)

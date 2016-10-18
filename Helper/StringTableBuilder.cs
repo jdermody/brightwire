@@ -37,5 +37,10 @@ namespace BrightWire.Helper
                 };
             }
         }
+
+        /// <summary>
+        /// Returns the size of the string table
+        /// </summary>
+        public uint Size { get { return (uint)_stringTable.Count; } }
     }
 }

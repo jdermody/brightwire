@@ -1,4 +1,5 @@
 ﻿using BrightWire.Helper;
+using BrightWire.Models.Simple;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,18 +10,18 @@ namespace BrightWire.Connectionist.Helper
 {
     internal class DenseTrainingDataProvider : ITrainingDataProvider
     {
-        readonly IReadOnlyList<Tuple<float[], float[]>> _data;
+        readonly IReadOnlyList<TrainingExample> _data;
         readonly ILinearAlgebraProvider _lap;
         readonly int _inputSize, _outputSize;
 
-        public DenseTrainingDataProvider(ILinearAlgebraProvider lap, IReadOnlyList<Tuple<float[], float[]>> data)
+        public DenseTrainingDataProvider(ILinearAlgebraProvider lap, IReadOnlyList<TrainingExample> data)
         {
             _lap = lap;
             _data = data;
 
             var first = data.First();
-            _inputSize = first.Item1.Length;
-            _outputSize = first.Item2.Length;
+            _inputSize = first.Input.Length;
+            _outputSize = first.Output.Length;
         }
 
         public int InputSize { get { return _inputSize; } }
@@ -28,12 +29,12 @@ namespace BrightWire.Connectionist.Helper
 
         public float Get(int row, int column)
         {
-            return _data[row].Item1[column];
+            return _data[row].Input[column];
         }
 
         public float GetPrediction(int row, int column)
         {
-            return _data[row].Item2[column];
+            return _data[row].Output[column];
         }
 
         public IMiniBatch GetTrainingData(IReadOnlyList<int> rows)

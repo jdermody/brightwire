@@ -1,5 +1,6 @@
 ﻿using BrightWire.Connectionist.Training.Helper;
 using BrightWire.Models;
+using BrightWire.Models.Simple;
 using ProtoBuf;
 using System;
 using System.Collections.Generic;
@@ -51,11 +52,11 @@ namespace BrightWire.Connectionist.Training.Manager
 
         public INeuralNetworkBidirectionalBatchTrainer Trainer { get { return _trainer; } }
 
-        public Tuple<float[], float[]> Memory
+        public BidirectionalMemory Memory
         {
             get
             {
-                return Tuple.Create(_forwardMemory, _backwardMemory);
+                return new BidirectionalMemory(_forwardMemory, _backwardMemory);
             }
         }
 

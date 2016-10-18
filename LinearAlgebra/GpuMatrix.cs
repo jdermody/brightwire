@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BrightWire.Models;
 using ManagedCuda.BasicTypes;
+using BrightWire.Models.Simple;
 
 namespace BrightWire.LinearAlgebra
 {
@@ -458,24 +459,24 @@ namespace BrightWire.LinearAlgebra
             throw new NotImplementedException();
         }
 
-        public Tuple<IMatrix, IMatrix> SplitColumns(int position)
+        public ColumnSplit SplitColumns(int position)
         {
             Debug.Assert(IsValid);
             int size = _rows - position;
             var ret1 = new CudaDeviceVariable<float>(position * _columns);
             var ret2 = new CudaDeviceVariable<float>(size * _columns);
             _cuda.SplitColumns(_data, ret1, ret2, _rows, _columns, position);
-            return Tuple.Create<IMatrix, IMatrix>(new GpuMatrix(_cuda, position, _columns, ret1), new GpuMatrix(_cuda, size, _columns, ret2));
+            return new ColumnSplit(new GpuMatrix(_cuda, position, _columns, ret1), new GpuMatrix(_cuda, size, _columns, ret2));
         }
 
-        public Tuple<IMatrix, IMatrix> SplitRows(int position)
+        public RowSplit SplitRows(int position)
         {
             Debug.Assert(IsValid);
             int size = _columns - position;
             var ret1 = new CudaDeviceVariable<float>(_rows * position);
             var ret2 = new CudaDeviceVariable<float>(_rows * size);
             _cuda.SplitRows(_data, ret1, ret2, _rows, _columns, position);
-            return Tuple.Create<IMatrix, IMatrix>(new GpuMatrix(_cuda, _rows, position, ret1), new GpuMatrix(_cuda, _rows, size, ret2));
+            return new RowSplit(new GpuMatrix(_cuda, _rows, position, ret1), new GpuMatrix(_cuda, _rows, size, ret2));
         }
 
         public IMatrix Sqrt(float valueAdjustment = 0)
@@ -686,7 +687,7 @@ namespace BrightWire.LinearAlgebra
             throw new NotImplementedException();
         }
 
-        public Tuple<IMatrix, IVector, IMatrix> Svd()
+        public SingularValueDecomposition Svd()
         {
             Debug.Assert(IsValid);
             // TODO: use gesvd to calculate the SVD

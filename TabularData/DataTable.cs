@@ -1,4 +1,5 @@
-﻿using BrightWire.TabularData.Analysis;
+﻿using BrightWire.Models.Simple;
+using BrightWire.TabularData.Analysis;
 using BrightWire.TabularData.Helper;
 using System;
 using System.Collections.Generic;
@@ -287,7 +288,7 @@ namespace BrightWire.TabularData
             return ret;
         }
 
-        public Tuple<IDataTable, IDataTable> Split(int? randomSeed = null, double trainPercentage = 0.8, bool shuffle = true, Stream output1 = null, Stream output2 = null)
+        public TableSplit Split(int? randomSeed = null, double trainPercentage = 0.8, bool shuffle = true, Stream output1 = null, Stream output2 = null)
         {
             var input = Enumerable.Range(0, RowCount);
             if (shuffle)
@@ -303,10 +304,7 @@ namespace BrightWire.TabularData
             foreach (var row in GetRows(final.Skip(trainingCount)))
                 writer2.Process(row);
 
-            return Tuple.Create<IDataTable, IDataTable>(
-                writer1.GetDataTable(),
-                writer2.GetDataTable()
-            );
+            return new TableSplit(writer1.GetDataTable(), writer2.GetDataTable());
         }
 
         public IDataTable Bag(int? count = null, Stream output = null, int? randomSeed = null)
@@ -318,7 +316,7 @@ namespace BrightWire.TabularData
             return writer.GetDataTable();
         }
 
-        public IEnumerable<Tuple<IDataTable, IDataTable>> Fold(int k, int? randomSeed = null, bool shuffle = true)
+        public IEnumerable<TableFold> Fold(int k, int? randomSeed = null, bool shuffle = true)
         {
             var input = Enumerable.Range(0, RowCount);
             if (shuffle)
@@ -338,10 +336,7 @@ namespace BrightWire.TabularData
                 foreach (var row in GetRows(validationRows))
                     writer2.Process(row);
 
-                yield return Tuple.Create<IDataTable, IDataTable>(
-                    writer1.GetDataTable(),
-                    writer2.GetDataTable()
-                );
+                yield return new TableFold(writer1.GetDataTable(), writer2.GetDataTable());
             }
         }
 
@@ -481,11 +476,11 @@ namespace BrightWire.TabularData
             }
         }
 
-        public IReadOnlyList<Tuple<IRow, string>> Classify(IRowClassifier classifier)
+        public IReadOnlyList<RowClassification> Classify(IRowClassifier classifier)
         {
-            var ret = new List<Tuple<IRow, string>>();
+            var ret = new List<RowClassification>();
             _Iterate(row => {
-                ret.Add(Tuple.Create<IRow, string>(row, classifier.Classify(row).First()));
+                ret.Add(new RowClassification(row, classifier.Classify(row).First()));
                 return true;
             });
             return ret;

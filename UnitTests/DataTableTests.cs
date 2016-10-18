@@ -13,6 +13,20 @@ namespace UnitTests
     [TestClass]
     public class DataTableTests
     {
+        static ILinearAlgebraProvider _lap;
+
+        [ClassInitialize]
+        public static void Load(TestContext context)
+        {
+            _lap = Provider.CreateCPULinearAlgebra(false);
+        }
+
+        [ClassCleanup]
+        public static void Cleanup()
+        {
+            _lap.Dispose();
+        }
+
         [TestMethod]
         public void TestColumnTypes()
         {
@@ -169,8 +183,8 @@ namespace UnitTests
         {
             var table = _GetSimpleTable();
             var split = table.Split(null, 0.75);
-            Assert.AreEqual(split.Item1.RowCount, 7500);
-            Assert.AreEqual(split.Item2.RowCount, 2500);
+            Assert.AreEqual(split.Training.RowCount, 7500);
+            Assert.AreEqual(split.Test.RowCount, 2500);
         }
 
         [TestMethod]
@@ -241,6 +255,142 @@ namespace UnitTests
 
                 Assert.AreEqual(val, expected);
             });
+        }
+
+        [TestMethod]
+        public void TestTargetColumnIndex()
+        {
+            var builder = new DataTableBuilder();
+            builder.AddColumn(ColumnType.String, "a");
+            builder.AddColumn(ColumnType.String, "b", true);
+            builder.AddColumn(ColumnType.String, "c");
+            builder.Add("a", "b", "c");
+            var table = builder.Build();
+
+            Assert.AreEqual(table.TargetColumnIndex, 1);
+            Assert.AreEqual(table.RowCount, 1);
+            Assert.AreEqual(table.ColumnCount, 3);
+        }
+
+        [TestMethod]
+        public void GetNumericRows()
+        {
+            var builder = new DataTableBuilder();
+            builder.AddColumn(ColumnType.Float, "val1");
+            builder.AddColumn(ColumnType.Double, "val2");
+            builder.AddColumn(ColumnType.String, "cls", true);
+
+            builder.Add(0.5f, 1.1, "a");
+            builder.Add(0.2f, 1.5, "b");
+            builder.Add(0.7f, 0.5, "c");
+            builder.Add(0.2f, 0.6, "d");
+
+            var table = builder.Build();
+            var rows = table.GetNumericRows(_lap, new[] { 1 }).Select(r => r.AsIndexable()).ToList();
+            Assert.AreEqual(rows[0][0], 1.1f);
+            Assert.AreEqual(rows[1][0], 1.5f);
+        }
+
+        [TestMethod]
+        public void GetNumericRows2()
+        {
+            var builder = new DataTableBuilder();
+            builder.AddColumn(ColumnType.Float, "val1");
+            builder.AddColumn(ColumnType.Double, "val2");
+            builder.AddColumn(ColumnType.String, "cls", true);
+
+            builder.Add(0.5f, 1.1, "a");
+            builder.Add(0.2f, 1.5, "b");
+            builder.Add(0.7f, 0.5, "c");
+            builder.Add(0.2f, 0.6, "d");
+
+            var table = builder.Build();
+            var rows = table.GetNumericRows(new[] { 1 });
+            Assert.AreEqual(rows[0][0], 1.1f);
+            Assert.AreEqual(rows[1][0], 1.5f);
+        }
+
+        [TestMethod]
+        public void GetNumericColumns()
+        {
+            var builder = new DataTableBuilder();
+            builder.AddColumn(ColumnType.Float, "val1");
+            builder.AddColumn(ColumnType.Double, "val2");
+            builder.AddColumn(ColumnType.String, "cls", true);
+
+            builder.Add(0.5f, 1.1, "a");
+            builder.Add(0.2f, 1.5, "b");
+            builder.Add(0.7f, 0.5, "c");
+            builder.Add(0.2f, 0.6, "d");
+
+            var table = builder.Build();
+            var column = table.GetNumericColumns(_lap, new[] { 1 }).First().AsIndexable();
+            Assert.AreEqual(column[0], 1.1f);
+            Assert.AreEqual(column[1], 1.5f);
+        }
+
+        [TestMethod]
+        public void GetNumericColumns2()
+        {
+            var builder = new DataTableBuilder();
+            builder.AddColumn(ColumnType.Float, "val1");
+            builder.AddColumn(ColumnType.Double, "val2");
+            builder.AddColumn(ColumnType.String, "cls", true);
+
+            builder.Add(0.5f, 1.1, "a");
+            builder.Add(0.2f, 1.5, "b");
+            builder.Add(0.7f, 0.5, "c");
+            builder.Add(0.2f, 0.6, "d");
+
+            var table = builder.Build();
+            var column = table.GetNumericColumns(new[] { 1 }).First();
+            Assert.AreEqual(column[0], 1.1f);
+            Assert.AreEqual(column[1], 1.5f);
+        }
+
+        [TestMethod]
+        public void SelectColumns()
+        {
+            var builder = new DataTableBuilder();
+            builder.AddColumn(ColumnType.Float, "val1");
+            builder.AddColumn(ColumnType.Double, "val2");
+            builder.AddColumn(ColumnType.String, "cls", true);
+            builder.AddColumn(ColumnType.String, "cls2");
+
+            builder.Add(0.5f, 1.1, "a", "a2");
+            builder.Add(0.2f, 1.5, "b", "b2");
+            builder.Add(0.7f, 0.5, "c", "c2");
+            builder.Add(0.2f, 0.6, "d", "d2");
+
+            var table = builder.Build();
+            var table2 = table.SelectColumns(new[] { 1, 2, 3 });
+
+            Assert.AreEqual(table2.TargetColumnIndex, 1);
+            Assert.AreEqual(table2.RowCount, 4);
+            Assert.AreEqual(table2.ColumnCount, 3);
+
+            var column = table2.GetNumericColumns(_lap, new[] { 0 }).First().AsIndexable();
+            Assert.AreEqual(column[0], 1.1f);
+            Assert.AreEqual(column[1], 1.5f);
+        }
+
+        [TestMethod]
+        public void Fold()
+        {
+            var builder = new DataTableBuilder();
+            builder.AddColumn(ColumnType.Float, "val1");
+            builder.AddColumn(ColumnType.Double, "val2");
+            builder.AddColumn(ColumnType.String, "cls", true);
+
+            builder.Add(0.5f, 1.1, "a");
+            builder.Add(0.2f, 1.5, "b");
+            builder.Add(0.7f, 0.5, "c");
+            builder.Add(0.2f, 0.6, "d");
+
+            var table = builder.Build();
+            var folds = table.Fold(4, 0, false).ToList();
+            Assert.AreEqual(folds.Count, 4);
+            Assert.IsTrue(folds.All(r => r.Training.RowCount == 3 && r.Validation.RowCount == 1));
         }
     }
 }

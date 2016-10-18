@@ -9,6 +9,7 @@ using BrightWire.Connectionist.Training.Layer;
 using BrightWire.Connectionist.Training.Manager;
 using BrightWire.Connectionist.Training.WeightInitialisation;
 using BrightWire.Models;
+using BrightWire.Models.Simple;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -55,15 +56,25 @@ namespace BrightWire.Connectionist
             return new DataTableTrainingDataProvider(_lap, table);
         }
 
-        public ITrainingDataProvider CreateTrainingDataProvider(IReadOnlyList<Tuple<float[], float[]>> data)
+        public ITrainingDataProvider CreateTrainingDataProvider(IReadOnlyList<TrainingExample> data)
         {
             return new DenseTrainingDataProvider(_lap, data);
         }
 
-        public ISequentialTrainingDataProvider CreateSequentialTrainingDataProvider(IReadOnlyList<Tuple<float[], float[]>[]> data)
+        //public ITrainingDataProvider CreateTrainingDataProvider(IReadOnlyList<Tuple<Dictionary<uint, float>, Dictionary<uint, float>>> data)
+        //{
+        //    return new SparseTrainingDataProvider(_lap, data);
+        //}
+
+        public ISequentialTrainingDataProvider CreateSequentialTrainingDataProvider(IReadOnlyList<TrainingExample[]> data)
         {
             return new DenseSequentialTrainingDataProvider(_lap, data);
         }
+
+        //public ISequentialTrainingDataProvider CreateSequentialTrainingDataProvider(IReadOnlyList<Tuple<Dictionary<uint, float>, Dictionary<uint, float>>[]> data)
+        //{
+        //    return new SparseSequentialTrainingDataProvider(_lap, data);
+        //}
 
         public IActivationFunction GetActivation(ActivationType activation)
         {

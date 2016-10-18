@@ -72,7 +72,7 @@ namespace UnitTests
 
                 // create a new network to execute the learned network
                 var network = _lap.NN.CreateFeedForward(networkData);
-                var results = XorData.Get().Select(d => Tuple.Create(network.Execute(d.Item1), d.Item2)).ToList();
+                var results = XorData.Get().Select(d => Tuple.Create(network.Execute(d.Input), d.Output)).ToList();
                 for (var i = 0; i < results.Count; i++) {
                     var result = results[i].Item1.AsIndexable();
                     var predictedResult = Convert.ToSingle(Math.Round(result[0]));
@@ -101,9 +101,9 @@ namespace UnitTests
 
             var trainingDataProvider = _lap.NN.CreateSequentialTrainingDataProvider(trainingSet);
             var layers = new INeuralNetworkRecurrentLayer[] {
-                    _lap.NN.CreateSimpleRecurrentLayer(trainingDataProvider.InputSize, HIDDEN_SIZE, recurrentTemplate),
-                    _lap.NN.CreateFeedForwardRecurrentLayer(HIDDEN_SIZE, trainingDataProvider.OutputSize, layerTemplate)
-                };
+                _lap.NN.CreateSimpleRecurrentLayer(trainingDataProvider.InputSize, HIDDEN_SIZE, recurrentTemplate),
+                _lap.NN.CreateFeedForwardRecurrentLayer(HIDDEN_SIZE, trainingDataProvider.OutputSize, layerTemplate)
+            };
             RecurrentNetwork networkData = null;
             using (var trainer = _lap.NN.CreateRecurrentBatchTrainer(layers)) {
                 var memory = Enumerable.Range(0, HIDDEN_SIZE).Select(i => 0f).ToArray();
@@ -120,7 +120,7 @@ namespace UnitTests
 
             var network = _lap.NN.CreateRecurrent(networkData);
             foreach (var sequence in trainingSet) {
-                var result = network.Execute(sequence.Select(d => d.Item1).ToList());
+                var result = network.Execute(sequence.Select(d => d.Input).ToList());
             }
         }
 
@@ -162,7 +162,7 @@ namespace UnitTests
 
             var network = _lap.NN.CreateRecurrent(networkData);
             foreach (var sequence in trainingSet) {
-                var result = network.Execute(sequence.Select(d => d.Item1).ToList());
+                var result = network.Execute(sequence.Select(d => d.Input).ToList());
             }
         }
 
@@ -211,7 +211,7 @@ namespace UnitTests
 
             var network = _lap.NN.CreateBidirectional(networkData);
             foreach (var sequence in trainingSet) {
-                var result = network.Execute(sequence.Select(d => d.Item1).ToList());
+                var result = network.Execute(sequence.Select(d => d.Input).ToList());
             }
         }
     }
