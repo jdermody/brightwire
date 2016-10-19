@@ -36,7 +36,7 @@ namespace BrightWire.SampleCode
             var trainingData = dataTable.Analysis[targetColumnIndex].DistinctValues
                 .Cast<string>()
                 .Select(cls => Tuple.Create(cls, split.Training.Project(r => {
-                    var row = r.GetFields<object>(featureColumns).ToList();
+                    var row = r.Data.Take(4).ToList();
                     row.Add(r.GetField<string>(targetColumnIndex) == cls);
                     return row;
                 })))
