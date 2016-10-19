@@ -26,6 +26,9 @@ namespace BrightWire.SampleCode
             // the last column is the classification target ("Iris-setosa", "Iris-versicolor", or "Iris-virginica")
             var targetColumnIndex = dataTable.TargetColumnIndex = dataTable.ColumnCount - 1;
 
+            // the first four columns are the feature columns
+            var featureColumns = Enumerable.Range(0, 4).ToList();
+
             // split the data table into training and test tables
             var split = dataTable.Split(0);
 
@@ -33,8 +36,8 @@ namespace BrightWire.SampleCode
             var trainingData = dataTable.Analysis[targetColumnIndex].DistinctValues
                 .Cast<string>()
                 .Select(cls => Tuple.Create(cls, split.Training.Project(r => {
-                    var row = r.Take(4).ToList();
-                    row.Add((string)r[targetColumnIndex] == cls);
+                    var row = r.GetFields<object>(featureColumns).ToList();
+                    row.Add(r.GetField<string>(targetColumnIndex) == cls);
                     return row;
                 })))
                 .ToList()
@@ -46,7 +49,7 @@ namespace BrightWire.SampleCode
                 ).ToList();
 
                 // evaluate each classifier on each row of the test data and pick the highest scoring classification
-                var testData = split.Test.GetNumericRows(Enumerable.Range(0, 4));
+                var testData = split.Test.GetNumericRows(featureColumns);
                 var testLabels = split.Test.GetColumn<string>(targetColumnIndex);
                 var predictions = testData.Select(row => classifiers
                     .Select(m => Tuple.Create(m.Item1, m.Item2.Predict(row)))

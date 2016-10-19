@@ -10,13 +10,13 @@ namespace BrightWire.SampleCode
     {
         static void Main(string[] args)
         {
-            //IDataTable dataTable = null;
-            //dataTable = IrisClassification(dataTable);
-            //dataTable = MultinomialLogisticRegression(dataTable);
-            //dataTable = KNearestNeighbours(dataTable);
+            IDataTable dataTable = null;
+            dataTable = IrisClassification(dataTable);
+            dataTable = MultinomialLogisticRegression(dataTable);
+            dataTable = KNearestNeighbours(dataTable);
 
             //MarkovChains();
-            MNIST(@"D:\data\mnist\", @"D:\data\mnist\model.dat");
+            //MNIST(@"D:\data\mnist\", @"D:\data\mnist\model.dat");
         }
     }
 }

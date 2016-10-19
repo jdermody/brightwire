@@ -24,7 +24,6 @@ namespace BrightWire.SampleCode
             var layerTemplate = new LayerDescriptor(0f);
             layerTemplate.WeightUpdate = WeightUpdateType.RMSprop;
             layerTemplate.Activation = ActivationType.LeakyRelu;
-            //layerTemplate.LayerTrainer = LayerTrainerType.Dropout;
 
             Console.Write("Loading training data...");
             var trainingData = Mnist.Load(dataFilesPath + "train-labels.idx1-ubyte", dataFilesPath + "train-images.idx3-ubyte");

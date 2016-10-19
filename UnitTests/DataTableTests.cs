@@ -163,7 +163,7 @@ namespace UnitTests
         IDataTable _GetSimpleTable2()
         {
             var table = _GetSimpleTable();
-            var table2 = table.Project(r => new object[] { Convert.ToDouble(r[0]) });
+            var table2 = table.Project(r => new object[] { r.GetField<double>(0) });
             Assert.AreEqual(table2.Columns[0].Type, ColumnType.Double);
             return table2;
         }
@@ -391,6 +391,26 @@ namespace UnitTests
             var folds = table.Fold(4, 0, false).ToList();
             Assert.AreEqual(folds.Count, 4);
             Assert.IsTrue(folds.All(r => r.Training.RowCount == 3 && r.Validation.RowCount == 1));
+        }
+
+        [TestMethod]
+        public void TableFilter()
+        {
+            var builder = new DataTableBuilder();
+            builder.AddColumn(ColumnType.Float, "val1");
+            builder.AddColumn(ColumnType.Double, "val2");
+            builder.AddColumn(ColumnType.String, "cls", true);
+
+            builder.Add(0.5f, 1.1, "a");
+            builder.Add(0.2f, 1.5, "b");
+            builder.Add(0.7f, 0.5, "c");
+            builder.Add(0.2f, 0.6, "d");
+
+            var table = builder.Build();
+            var projectedTable = table.Project(r => r.GetField<string>(2) == "b" ? null : r.Data);
+
+            Assert.AreEqual(projectedTable.ColumnCount, table.ColumnCount);
+            Assert.AreEqual(projectedTable.RowCount, 3);
         }
     }
 }

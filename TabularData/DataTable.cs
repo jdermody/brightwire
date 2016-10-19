@@ -195,17 +195,6 @@ namespace BrightWire.TabularData
             }
         }
 
-        protected void _IterateRaw(Action<object[]> callback)
-        {
-            lock (_mutex) {
-                _stream.Seek(_dataOffset, SeekOrigin.Begin);
-                var reader = new BinaryReader(_stream, Encoding.UTF8, true);
-                while (_stream.Position < _stream.Length) {
-                    callback(_ReadRow(reader));
-                }
-            }
-        }
-
         public IDataTableAnalysis Analysis
         {
             get
@@ -491,11 +480,11 @@ namespace BrightWire.TabularData
             return DataTableProjector.Project(this, columns, output);
         }
 
-        public IDataTable Project(Func<IReadOnlyList<object>, IReadOnlyList<object>> mutator, Stream output = null)
+        public IDataTable Project(Func<IRow, IReadOnlyList<object>> mutator, Stream output = null)
         {
             var isFirst = true;
             DataTableWriter writer = new DataTableWriter(output);
-            _IterateRaw(row => {
+            _Iterate(row => {
                 var row2 = mutator(row);
                 if (row2 != null) {
                     if (isFirst) {
@@ -533,6 +522,7 @@ namespace BrightWire.TabularData
                     }
                     writer.AddRow(row2);
                 }
+                return true;
             });
             return writer.GetDataTable();
         }

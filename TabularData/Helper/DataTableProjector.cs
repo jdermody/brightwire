@@ -33,6 +33,14 @@ namespace BrightWire.TabularData.Helper
             {
                 return DataTableRow.GetField<T>(_data, index);
             }
+
+            public IReadOnlyList<T> GetFields<T>(IReadOnlyList<int> indices)
+            {
+                var ret = new T[indices.Count];
+                for (int i = 0, len = indices.Count; i < len; i++)
+                    ret[i] = DataTableRow.GetField<T>(_data, i);
+                return ret;
+            }
         }
 
         public DataTableProjector(IRowProcessor destination, IEnumerable<int> columns)

@@ -115,7 +115,7 @@ namespace BrightWire.TabularData
         /// <param name="data">The data in the row</param>
         public IRow AddRow(IEnumerable<object> data)
         {
-            var row = new DataTableRow(this, data);
+            var row = new DataTableRow(this, data.ToArray());
             _data.Add(row);
 
             var data2 = row.Data;

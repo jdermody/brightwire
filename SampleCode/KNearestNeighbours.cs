@@ -27,7 +27,9 @@ namespace BrightWire.SampleCode
 
             // the last column is the classification target ("Iris-setosa", "Iris-versicolor", or "Iris-virginica")
             var targetColumnIndex = dataTable.TargetColumnIndex = dataTable.ColumnCount - 1;
-            var featureColumns = Enumerable.Range(0, targetColumnIndex - 1).ToList();
+
+            // the first four columns are the feature columns
+            var featureColumns = Enumerable.Range(0, 4).ToList();
 
             // split the data table into training and test tables
             var split = dataTable.Split(0);
@@ -54,7 +56,7 @@ namespace BrightWire.SampleCode
                 }
 
                 // compare the predictions to the actual test labels
-                var testDataLabels = split.Training.GetColumn<string>(targetColumnIndex);
+                var testDataLabels = split.Test.GetColumn<string>(targetColumnIndex);
                 var score = predictions.Zip(testDataLabels, (p, a) => p == a ? 1 : 0).Average();
                 Console.WriteLine("KNN classification accuracy: {0:P}", score);
             }

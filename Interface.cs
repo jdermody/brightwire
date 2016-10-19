@@ -2354,6 +2354,13 @@ namespace BrightWire
         /// <typeparam name="T">The type of data to return (will be converted if neccessary)</typeparam>
         /// <param name="index">The column index to query</param>
         T GetField<T>(int index);
+
+        /// <summary>
+        /// Gets the specified strongly typed values
+        /// </summary>
+        /// <typeparam name="T">The type of data to return (will be converted if neccessary)</typeparam>
+        /// <param name="indices">The column indices to return</param>
+        IReadOnlyList<T> GetFields<T>(IReadOnlyList<int> indices);
     }
 
     /// <summary>
@@ -2528,7 +2535,7 @@ namespace BrightWire
         /// <param name="mutator"></param>
         /// <param name="output"></param>
         /// <returns></returns>
-        IDataTable Project(Func<IReadOnlyList<object>, IReadOnlyList<object>> mutator, Stream output = null);
+        IDataTable Project(Func<IRow, IReadOnlyList<object>> mutator, Stream output = null);
 
         /// <summary>
         /// 
