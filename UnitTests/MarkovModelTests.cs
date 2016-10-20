@@ -41,16 +41,16 @@ namespace UnitTests
         {
             var trainer = Provider.CreateMarkovTrainer2<string>();
             _Train(trainer);
-            var model = trainer.All.ToDictionary(d => Tuple.Create(d.Item1, d.Item2), d => d.Transition);
+            var model = trainer.Build().AsDictionary;
 
             // generate some text
             var rand = new Random();
             string prev = default(string), curr = default(string);
             var output = new List<string>();
             for(var i = 0; i < 1024; i++) {
-                var possibleStates = model[Tuple.Create(prev, curr)];
-                var distribution = new Categorical(possibleStates.Select(d => Convert.ToDouble(d.Probability)).ToArray());
-                var next = possibleStates[distribution.Sample()].NextState;
+                var transitions = model.GetTransitions(prev, curr);
+                var distribution = new Categorical(transitions.Select(d => Convert.ToDouble(d.Probability)).ToArray());
+                var next = transitions[distribution.Sample()].NextState;
                 output.Add(next);
                 if (SimpleTokeniser.IsEndOfSentence(next))
                     break;
@@ -65,16 +65,16 @@ namespace UnitTests
         {
             var trainer = Provider.CreateMarkovTrainer3<string>();
             _Train(trainer);
-            var model = trainer.All.ToDictionary(d => Tuple.Create(d.Item1, d.Item2, d.Item3), d => d.Transition);
+            var model = trainer.Build().AsDictionary;
 
             // generate some text
             var rand = new Random();
             string prevPrev = default(string), prev = default(string), curr = default(string);
             var output = new List<string>();
             for (var i = 0; i < 1024; i++) {
-                var possibleStates = model[Tuple.Create(prevPrev, prev, curr)];
-                var distribution = new Categorical(possibleStates.Select(d => Convert.ToDouble(d.Probability)).ToArray());
-                var next = possibleStates[distribution.Sample()].NextState;
+                var transitions = model.GetTransitions(prevPrev, prev, curr);
+                var distribution = new Categorical(transitions.Select(d => Convert.ToDouble(d.Probability)).ToArray());
+                var next = transitions[distribution.Sample()].NextState;
                 output.Add(next);
                 if (SimpleTokeniser.IsEndOfSentence(next))
                     break;

@@ -1,4 +1,5 @@
-﻿using BrightWire.TabularData.Analysis;
+﻿using BrightWire.Models;
+using BrightWire.TabularData.Analysis;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,134 +11,64 @@ namespace BrightWire.TabularData.Helper
 {
     internal class DataTableNormaliser : IRowProcessor
     {
-        readonly Dictionary<int, ColumnNormalisation> _columnInfo = new Dictionary<int, ColumnNormalisation>();
         readonly DataTableWriter _writer;
-        readonly int _columnCount;
-        readonly NormalisationType _normalisation;
+        readonly Normalisation _normalisationModel;
         readonly IDataTable _table;
 
-        class ColumnNormalisation
-        {
-            readonly ColumnType _type;
-            readonly double _subtract, _divide;
-
-            public ColumnNormalisation(ColumnType type, double divide, double subtract = 0.0)
-            {
-                _type = type;
-                _subtract = subtract;
-                _divide = divide;
-            }
-
-            public ColumnType ColumnType { get { return _type; } }
-
-            public object Normalise(double val)
-            {
-                var ret = (val - _subtract) / _divide;
-
-                switch(_type) {
-                    case ColumnType.Float:
-                        return Convert.ToSingle(ret);
-                    case ColumnType.Long:
-                        return Convert.ToInt64(ret);
-                    case ColumnType.Int:
-                        return Convert.ToInt32(ret);
-                    case ColumnType.Byte:
-                        return Convert.ToByte(ret);
-                    default:
-                        return ret;
-                }
-            }
-
-            public double Subtract { get { return _subtract; } }
-            public double Divide { get { return _divide; } }
-        }
-
-        public DataTableNormaliser(IDataTable dataTable, NormalisationType type, Stream output = null)
+        public DataTableNormaliser(IDataTable dataTable, NormalisationType type, Stream output = null, Normalisation model = null)
         {
             _table = dataTable;
-            var analysis = dataTable.Analysis;
-            _columnCount = dataTable.ColumnCount;
             _writer = new DataTableWriter(dataTable.Columns, output);
-            _normalisation = type;
 
-            foreach (var columnInfo in analysis.ColumnInfo) {
-                var column = dataTable.Columns[columnInfo.ColumnIndex];
-                if(column.IsContinuous) {
-                    var numericInfo = columnInfo as INumericColumnInfo;
-                    if (numericInfo != null) {
-                        if (_normalisation == NormalisationType.Standard && !numericInfo.StdDev.HasValue)
-                            continue;
+            if (model != null)
+                _normalisationModel = model;
+            else {
+                var analysis = dataTable.Analysis;
+                var columnNormList = new List<Normalisation.Column>();
+                foreach (var columnInfo in analysis.ColumnInfo) {
+                    var column = dataTable.Columns[columnInfo.ColumnIndex];
+                    if (column.IsContinuous) {
+                        var numericInfo = columnInfo as INumericColumnInfo;
+                        if (numericInfo != null) {
+                            if (type == NormalisationType.Standard && !numericInfo.StdDev.HasValue)
+                                continue;
 
-                        ColumnNormalisation columnNorm;
-                        if (_normalisation == NormalisationType.Standard)
-                            columnNorm = new ColumnNormalisation(column.Type, numericInfo.StdDev.Value, numericInfo.Mean);
-                        else if (_normalisation == NormalisationType.Euclidean)
-                            columnNorm = new ColumnNormalisation(column.Type, numericInfo.L2Norm);
-                        else if (_normalisation == NormalisationType.Manhattan)
-                            columnNorm = new ColumnNormalisation(column.Type, numericInfo.L1Norm);
-                        else if (_normalisation == NormalisationType.FeatureScale)
-                            columnNorm = new ColumnNormalisation(column.Type, numericInfo.Max - numericInfo.Min, numericInfo.Min);
-                        else
-                            throw new NotImplementedException();
-                        _columnInfo.Add(columnInfo.ColumnIndex, columnNorm);
+                            Normalisation.Column columnNorm;
+                            if (type == NormalisationType.Standard)
+                                columnNorm = new Normalisation.Column(columnInfo.ColumnIndex, column.Type, numericInfo.StdDev.Value, numericInfo.Mean);
+                            else if (type == NormalisationType.Euclidean)
+                                columnNorm = new Normalisation.Column(columnInfo.ColumnIndex, column.Type, numericInfo.L2Norm);
+                            else if (type == NormalisationType.Manhattan)
+                                columnNorm = new Normalisation.Column(columnInfo.ColumnIndex, column.Type, numericInfo.L1Norm);
+                            else if (type == NormalisationType.FeatureScale)
+                                columnNorm = new Normalisation.Column(columnInfo.ColumnIndex, column.Type, numericInfo.Max - numericInfo.Min, numericInfo.Min);
+                            else
+                                throw new NotImplementedException();
+                            columnNormList.Add(columnNorm);
+                        }
                     }
                 }
+                _normalisationModel = new Normalisation {
+                    Type = type,
+                    ColumnNormalisation = columnNormList.ToArray()
+                };
             }
-        }
-
-        public IReadOnlyList<object> Normalise(IReadOnlyList<object> row)
-        {
-            ColumnNormalisation norm;
-            var ret = new object[_columnCount];
-            for (var i = 0; i < _columnCount; i++) {
-                object obj = null;
-                if (_columnInfo.TryGetValue(i, out norm)) {
-                    double val;
-                    switch(norm.ColumnType) {
-                        case ColumnType.Byte:
-                            val = (byte)row[i];
-                            break;
-                        case ColumnType.Double:
-                            val = (double)row[i];
-                            break;
-                        case ColumnType.Float:
-                            val = (float)row[i];
-                            break;
-                        case ColumnType.Int:
-                            val = (int)row[i];
-                            break;
-                        case ColumnType.Long:
-                            val = (long)row[i];
-                            break;
-                        default:
-                            throw new NotImplementedException();
-                    }
-                    obj = norm.Normalise(val);
-                }
-                else
-                    obj = row[i];
-                ret[i] = obj;
-            }
-            return ret;
         }
 
         public bool Process(IRow row)
         {
-            ColumnNormalisation norm;
-            var data = new object[_columnCount];
-            for (var i = 0; i < _columnCount; i++) {
-                if (_columnInfo.TryGetValue(i, out norm))
-                    data[i] = norm.Normalise(row.GetField<double>(i));
-                else
-                    data[i] = row.Data[i];
-            }
-            _writer.AddRow(data);
+            _writer.AddRow(_normalisationModel.Normalise(row.Data));
             return true;
         }
 
         public IDataTable GetDataTable()
         {
             return _writer.GetDataTable();
+        }
+
+        public Normalisation GetNormalisationModel()
+        {
+            return _normalisationModel;
         }
     }
 }

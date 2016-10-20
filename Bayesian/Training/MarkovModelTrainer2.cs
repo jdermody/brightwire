@@ -40,26 +40,27 @@ namespace BrightWire.Bayesian
             tempList.Add(default(T));
         }
 
-        public IEnumerable<MarkovModelObservation2<T>> All
+        public MarkovModel2<T> Build()
         {
-            get
-            {
-                foreach(var item in _data) {
-                    var transitions = item.Value
-                        .GroupBy(v => v)
-                        .Select(g => Tuple.Create(g.Key, g.Count()))
-                        .Where(d => d.Item2 >= _minObservations)
-                        .ToList()
-                    ;
-                    var total = (float)transitions.Sum(t => t.Item2);
-                    if (total > 0) {
-                        yield return new MarkovModelObservation2<T>(item.Key.Item1, item.Key.Item2, transitions.Select(t => new MarkovModelStateTransition<T> {
-                            NextState = t.Item1,
-                            Probability = t.Item2 / total
-                        }).ToList());
-                    }
+            var ret = new List<MarkovModelObservation2<T>>();
+            foreach (var item in _data) {
+                var transitions = item.Value
+                    .GroupBy(v => v)
+                    .Select(g => Tuple.Create(g.Key, g.Count()))
+                    .Where(d => d.Item2 >= _minObservations)
+                    .ToList()
+                ;
+                var total = (float)transitions.Sum(t => t.Item2);
+                if (total > 0) {
+                    ret.Add(new MarkovModelObservation2<T>(item.Key.Item1, item.Key.Item2, transitions.Select(t => new MarkovModelStateTransition<T> {
+                        NextState = t.Item1,
+                        Probability = t.Item2 / total
+                    }).ToList()));
                 }
             }
+            return new MarkovModel2<T> {
+                Observation = ret.ToArray()
+            };
         }
     }
 }

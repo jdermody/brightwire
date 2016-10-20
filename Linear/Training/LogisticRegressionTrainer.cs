@@ -17,15 +17,17 @@ namespace BrightWire.Linear.Training
         {
             _lap = lap;
             var numRows = table.RowCount;
-            var numCols = table.ColumnCount;
             var classColumnIndex = table.TargetColumnIndex;
 
-            var data = table.GetNumericColumns(Enumerable.Range(0, numCols).Where(c => c != classColumnIndex));
+            int numCols = table.ColumnCount;
+            var featureColumns = Enumerable.Range(0, numCols).Where(c => c != classColumnIndex).ToList();
+
+            var data = table.GetNumericColumns(featureColumns);
             _feature = lap.Create(numRows, numCols, (i, j) => j == 0 ? 1 : data[j - 1][i]);
             _target = lap.Create(table.GetColumn<float>(classColumnIndex));
         }
 
-        public LogisticRegressionModel GradientDescent(int iterations, float learningRate, float lambda = 0.1f, Func<float, bool> costCallback = null)
+        public LogisticRegression GradientDescent(int iterations, float learningRate, float lambda = 0.1f, Func<float, bool> costCallback = null)
         {
             var theta = _lap.Create(_feature.ColumnCount, 0f);
 
@@ -42,7 +44,7 @@ namespace BrightWire.Linear.Training
                     theta = theta2;
                 }
             }
-            var ret = new LogisticRegressionModel {
+            var ret = new LogisticRegression {
                 Theta = theta.Data
             };
             theta.Dispose();

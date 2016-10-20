@@ -31,7 +31,7 @@ namespace BrightWire.SampleCode
             Console.WriteLine("done");
 
             Console.WriteLine("Starting training...");
-            using (var lap = Provider.CreateGPULinearAlgebra()) {
+            using (var lap = Provider.CreateCPULinearAlgebra()) {
                 var trainingSet = lap.NN.CreateTrainingDataProvider(trainingData.Select(d => d.Sample).ToList());
                 var testSet = lap.NN.CreateTrainingDataProvider(testData.Select(d => d.Sample).ToList());
 

@@ -2474,6 +2474,19 @@ namespace BrightWire
         IDataTable Normalise(NormalisationType normalisationType, Stream output = null);
 
         /// <summary>
+        /// Creates a normalised version of the current table
+        /// </summary>
+        /// <param name="normalisationModel">The normalisation model to apply</param>
+        /// <param name="output">Optional stream to write the normalised table to</param>
+        IDataTable Normalise(Normalisation normalisationModel, Stream output = null);
+
+        /// <summary>
+        /// Builds a normalisation model from the table that can be used to normalise data to the same scale
+        /// </summary>
+        /// <param name="normalisationType">The type of normalisation</param>
+        Normalisation GetNormalisationModel(NormalisationType normalisationType);
+
+        /// <summary>
         /// Converts the rows to vectors
         /// </summary>
         /// <param name="lap">Linear algebra provider</param>
@@ -2551,6 +2564,12 @@ namespace BrightWire
         /// </summary>
         /// <param name="stream">The stream to hold the index data</param>
         void WriteIndexTo(Stream stream);
+
+        /// <summary>
+        /// For each classification label - duplicate each data table except for the classification column which is converted to a boolean (true for each matching example)
+        /// </summary>
+        /// <returns></returns>
+        IReadOnlyList<BinaryClassification> ConvertToBinaryClassification();
     }
 
     /// <summary>
@@ -2685,7 +2704,7 @@ namespace BrightWire
         /// Attempt to solve the model using matrix inversion (only applicable for small sets of training data)
         /// </summary>
         /// <returns></returns>
-        LinearRegressionModel Solve();
+        LinearRegression Solve();
 
         /// <summary>
         /// Solves the model using gradient descent
@@ -2695,7 +2714,7 @@ namespace BrightWire
         /// <param name="lambda">Regularisation lambda</param>
         /// <param name="costCallback">Callback with current cost - False to stop training</param>
         /// <returns>A trained model</returns>
-        LinearRegressionModel GradientDescent(int iterations, float learningRate, float lambda = 0.1f, Func<float, bool> costCallback = null);
+        LinearRegression GradientDescent(int iterations, float learningRate, float lambda = 0.1f, Func<float, bool> costCallback = null);
 
         /// <summary>
         /// Computes the cost of the specified parameters
@@ -2743,7 +2762,7 @@ namespace BrightWire
         /// <param name="lambda">Regularisation lambda</param>
         /// <param name="costCallback">Callback with current cost - False to stop training</param>
         /// <returns></returns>
-        LogisticRegressionModel GradientDescent(int iterations, float learningRate, float lambda = 0.1f, Func<float, bool> costCallback = null);
+        LogisticRegression GradientDescent(int iterations, float learningRate, float lambda = 0.1f, Func<float, bool> costCallback = null);
 
         /// <summary>
         /// Computes the cost of the specified parameters
@@ -2856,7 +2875,7 @@ namespace BrightWire
         /// <summary>
         /// Gets all current observations
         /// </summary>
-        IEnumerable<MarkovModelObservation2<T>> All { get; }
+        MarkovModel2<T> Build();
     }
 
     /// <summary>
@@ -2868,6 +2887,6 @@ namespace BrightWire
         /// <summary>
         /// Gets all current observations
         /// </summary>
-        IEnumerable<MarkovModelObservation3<T>> All { get; }
+        MarkovModel3<T> Build();
     }
 }

@@ -46,16 +46,6 @@ namespace BrightWire.TabularData.Helper
         {
             return GetField<T>(_data, index);
         }
-        //public IEnumerable<float> GetNumericFields(IEnumerable<int> fields)
-        //{
-        //    return fields.Select(i => Convert.ToSingle(_data[i]));
-        //}
-        //public IColumn GetColumn(int index)
-        //{
-        //    if (index >= 0 && index < _table.Columns.Count)
-        //        return _table.Columns[index];
-        //    return null;
-        //}
 
         public IReadOnlyList<T> GetFields<T>(IReadOnlyList<int> indices)
         {

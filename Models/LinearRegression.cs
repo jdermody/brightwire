@@ -7,14 +7,14 @@ using System.Text;
 namespace BrightWire.Models
 {
     [ProtoContract]
-    public class LogisticRegressionModel
+    public class LinearRegression
     {
         [ProtoMember(1)]
         public FloatArray Theta { get; set; }
 
-        public ILogisticRegressionClassifier CreatePredictor(ILinearAlgebraProvider lap)
+        public ILinearRegressionPredictor CreatePredictor(ILinearAlgebraProvider lap)
         {
-            return new LogisticRegressionPredictor(lap, lap.Create(Theta.Data));
+            return new RegressionPredictor(lap, lap.Create(Theta.Data));
         }
     }
 }

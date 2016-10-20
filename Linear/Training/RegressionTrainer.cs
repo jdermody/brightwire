@@ -25,7 +25,7 @@ namespace BrightWire.Linear.Training
             _target = lap.Create(table.GetColumn<float>(classColumnIndex));
         }
 
-        public LinearRegressionModel Solve()
+        public LinearRegression Solve()
         {
             // solve using normal method
             using (var lambdaMatrix = _lap.CreateIdentity(_feature.ColumnCount))
@@ -40,14 +40,14 @@ namespace BrightWire.Linear.Training
                 using (var a2 = featureTranspose.Multiply(tc))
                 using (var ret = pinv3.Multiply(a2))
                 using (var theta = ret.Column(0)) {
-                    return new LinearRegressionModel {
+                    return new LinearRegression {
                         Theta = theta.Data
                     };
                 }
             }
         }
 
-        public LinearRegressionModel GradientDescent(int iterations, float learningRate, float lambda = 0.1f, Func<float, bool> costCallback = null)
+        public LinearRegression GradientDescent(int iterations, float learningRate, float lambda = 0.1f, Func<float, bool> costCallback = null)
         {
             var regularisation = 1f - (learningRate * lambda) / _feature.RowCount;
             var theta = _lap.Create(_feature.ColumnCount, 0f);
@@ -76,7 +76,7 @@ namespace BrightWire.Linear.Training
                 }
             }
 
-            var ret = new LinearRegressionModel {
+            var ret = new LinearRegression {
                 Theta = theta.Data
             };
             theta.Dispose();

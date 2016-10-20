@@ -11,18 +11,16 @@ namespace BrightWire.SampleCode
 {
     partial class Program
     {
-        public static IDataTable IrisClassification(IDataTable dataTable = null)
+        public static void IrisClassification()
         {
-            if (dataTable == null) {
-                // download the iris data set
-                byte[] data;
-                using (var client = new WebClient()) {
-                    data = client.DownloadData("https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data");
-                }
-
-                // parse the iris CSV into a data table
-                dataTable = new StreamReader(new MemoryStream(data)).ParseCSV(',');
+            // download the iris data set
+            byte[] data;
+            using (var client = new WebClient()) {
+                data = client.DownloadData("https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data");
             }
+
+            // parse the iris CSV into a data table
+            var dataTable = new StreamReader(new MemoryStream(data)).ParseCSV(',');
 
             // the last column is the classification target ("Iris-setosa", "Iris-versicolor", or "Iris-virginica")
             var targetColumnIndex = dataTable.TargetColumnIndex = dataTable.ColumnCount - 1;
@@ -53,6 +51,20 @@ namespace BrightWire.SampleCode
 
             // fire up some linear algebra on the CPU
             using (var lap = Provider.CreateCPULinearAlgebra(false)) {
+                // train and evaluate a naive bayes classifier
+                var knn = split.Training.TrainKNearestNeighbours();
+                Console.WriteLine("K nearest neighbours accuracy: {0:P}", split.Test
+                    .Classify(knn.CreateClassifier(lap, 10))
+                    .Average(d => d.Row.GetField<string>(targetColumnIndex) == d.Classification ? 1.0 : 0.0)
+                );
+
+                // train and evaluate a mulitinomial logistic regression classifier
+                var logisticRegression = dataTable.TrainMultinomialLogisticRegression(lap, 500, 0.1f);
+                Console.WriteLine("Multinomial logistic regression accuracy: {0:P}", split.Test
+                    .Classify(logisticRegression.CreateClassifier(lap))
+                    .Average(d => d.Row.GetField<string>(targetColumnIndex) == d.Classification ? 1.0 : 0.0)
+                );
+
                 // convert the data tables into linear algebra friendly training data providers
                 var trainingData = lap.NN.CreateTrainingDataProvider(split.Training);
                 var testData = lap.NN.CreateTrainingDataProvider(split.Test);
@@ -98,7 +110,6 @@ namespace BrightWire.SampleCode
                 }
                 Console.WriteLine();
             }
-            return dataTable;
         }
     }
 }

@@ -54,14 +54,16 @@ The CUDA version is a superset of the standard version.
 ### Linear
 * Regression
 * Logistic Regression
+* Multinomial Logistic Regression
 
 ### Tree Based
 * Decision Trees
 * Random Forest
 
-### Other Features
-* In Memory and File Based Data Processing
+### Other
 * Random Projections
+* K Nearest Neighbour Classification
+* In-memory and file based data processing
 
 ## Sample Code
 ```

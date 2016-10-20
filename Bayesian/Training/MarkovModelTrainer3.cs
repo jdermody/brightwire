@@ -40,26 +40,27 @@ namespace BrightWire.Bayesian
             tempList.Add(default(T));
         }
 
-        public IEnumerable<MarkovModelObservation3<T>> All
+        public MarkovModel3<T> Build()
         {
-            get
-            {
-                foreach (var item in _data) {
-                    var transitions = item.Value
-                        .GroupBy(v => v)
-                        .Select(g => Tuple.Create(g.Key, g.Count()))
-                        .Where(d => d.Item2 >= _minObservations)
-                        .ToList()
-                    ;
-                    var total = (float)transitions.Sum(t => t.Item2);
-                    if (total > 0) {
-                        yield return new MarkovModelObservation3<T>(item.Key.Item1, item.Key.Item2, item.Key.Item3, transitions.Select(t => new MarkovModelStateTransition<T> {
-                            NextState = t.Item1,
-                            Probability = t.Item2 / total
-                        }).ToList());
-                    }
+            var ret = new List<MarkovModelObservation3<T>>();
+            foreach (var item in _data) {
+                var transitions = item.Value
+                    .GroupBy(v => v)
+                    .Select(g => Tuple.Create(g.Key, g.Count()))
+                    .Where(d => d.Item2 >= _minObservations)
+                    .ToList()
+                ;
+                var total = (float)transitions.Sum(t => t.Item2);
+                if (total > 0) {
+                    ret.Add(new MarkovModelObservation3<T>(item.Key.Item1, item.Key.Item2, item.Key.Item3, transitions.Select(t => new MarkovModelStateTransition<T> {
+                        NextState = t.Item1,
+                        Probability = t.Item2 / total
+                    }).ToList()));
                 }
             }
+            return new MarkovModel3<T> {
+                Observation = ret.ToArray()
+            };
         }
     }
 }

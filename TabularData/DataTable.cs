@@ -1,4 +1,5 @@
-﻿using BrightWire.Models.Simple;
+﻿using BrightWire.Models;
+using BrightWire.Models.Simple;
 using BrightWire.TabularData.Analysis;
 using BrightWire.TabularData.Helper;
 using System;
@@ -342,32 +343,6 @@ namespace BrightWire.TabularData
             return ret;
         }
 
-        //public string[] GetDiscreteColumn(int columnIndex)
-        //{
-        //    var ret = new string[RowCount];
-
-        //    int index = 0;
-        //    _Iterate(row => {
-        //        ret[index++] = row.GetField<string>(columnIndex);
-        //        return true;
-        //    });
-
-        //    return ret;
-        //}
-
-        //public float[] GetNumericColumn(int columnIndex)
-        //{
-        //    var ret = new float[RowCount];
-
-        //    int index = 0;
-        //    _Iterate(row => {
-        //        ret[index++] = row.GetField<float>(columnIndex);
-        //        return true;
-        //    });
-
-        //    return ret;
-        //}
-
         public IReadOnlyList<float[]> GetNumericColumns(IEnumerable<int> columns = null)
         {
             var columnTable = (columns ?? Enumerable.Range(0, ColumnCount)).ToDictionary(i => i, i => new float[RowCount]);
@@ -437,6 +412,19 @@ namespace BrightWire.TabularData
             var normaliser = new DataTableNormaliser(this, normalisationType, output);
             Process(normaliser);
             return normaliser.GetDataTable();
+        }
+
+        public IDataTable Normalise(Normalisation normalisationModel, Stream output = null)
+        {
+            var normaliser = new DataTableNormaliser(this, normalisationModel.Type, output, normalisationModel);
+            Process(normaliser);
+            return normaliser.GetDataTable();
+        }
+
+        public Normalisation GetNormalisationModel(NormalisationType normalisationType)
+        {
+            var normaliser = new DataTableNormaliser(this, normalisationType);
+            return normaliser.GetNormalisationModel();
         }
 
         public IRow this[int index]
@@ -525,6 +513,24 @@ namespace BrightWire.TabularData
                 return true;
             });
             return writer.GetDataTable();
+        }
+
+        public IReadOnlyList<BinaryClassification> ConvertToBinaryClassification()
+        {
+            return Analysis[TargetColumnIndex].DistinctValues
+                .Cast<string>()
+                .Select(cls => new BinaryClassification(cls, Project(r => {
+                    var row = new object[ColumnCount];
+                    for (var i = 0; i < ColumnCount; i++) {
+                        if (i == TargetColumnIndex)
+                            row[i] = r.GetField<string>(i) == cls;
+                        else
+                            row[i] = r.Data[i];
+                    }
+                    return row;
+                })))
+                .ToList()
+            ;
         }
     }
 }

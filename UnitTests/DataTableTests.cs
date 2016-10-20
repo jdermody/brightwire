@@ -204,11 +204,45 @@ namespace UnitTests
         }
 
         [TestMethod]
+        public void TestStandardNormalisation2()
+        {
+            var table = _GetSimpleTable2();
+            var analysis = table.Analysis[0] as INumericColumnInfo;
+            var model = table.GetNormalisationModel(NormalisationType.Standard);
+            var normalised = table.Normalise(model);
+
+            _RandomSample(normalised, (index, row) => {
+                var val = row.GetField<double>(0);
+                var prevVal = table.GetRow(index).GetField<double>(0);
+                var expected = (prevVal - analysis.Mean) / analysis.StdDev.Value;
+
+                Assert.AreEqual(val, expected);
+            });
+        }
+
+        [TestMethod]
         public void TestFeatureScaleNormalisation()
         {
             var table = _GetSimpleTable2();
             var analysis = table.Analysis[0] as INumericColumnInfo;
             var normalised = table.Normalise(NormalisationType.FeatureScale);
+
+            _RandomSample(normalised, (index, row) => {
+                var val = row.GetField<double>(0);
+                var prevVal = table.GetRow(index).GetField<double>(0);
+                var expected = (prevVal - analysis.Min) / (analysis.Max - analysis.Min);
+
+                Assert.AreEqual(val, expected);
+            });
+        }
+
+        [TestMethod]
+        public void TestFeatureScaleNormalisation2()
+        {
+            var table = _GetSimpleTable2();
+            var analysis = table.Analysis[0] as INumericColumnInfo;
+            var model = table.GetNormalisationModel(NormalisationType.FeatureScale);
+            var normalised = table.Normalise(model);
 
             _RandomSample(normalised, (index, row) => {
                 var val = row.GetField<double>(0);
@@ -239,11 +273,51 @@ namespace UnitTests
         }
 
         [TestMethod]
+        public void TestL2Normalisation2()
+        {
+            var table = _GetSimpleTable2();
+            var analysis = table.Analysis[0] as INumericColumnInfo;
+            var model = table.GetNormalisationModel(NormalisationType.Euclidean);
+            var normalised = table.Normalise(model);
+
+            var l2Norm = Math.Sqrt(table.GetColumn<double>(0).Select(d => Math.Pow(d, 2)).Sum());
+            Assert.AreEqual(analysis.L2Norm, l2Norm);
+
+            _RandomSample(normalised, (index, row) => {
+                var val = row.GetField<double>(0);
+                var prevVal = table.GetRow(index).GetField<double>(0);
+                var expected = prevVal / analysis.L2Norm;
+
+                Assert.AreEqual(val, expected);
+            });
+        }
+
+        [TestMethod]
         public void TestL1Normalisation()
         {
             var table = _GetSimpleTable2();
             var analysis = table.Analysis[0] as INumericColumnInfo;
             var normalised = table.Normalise(NormalisationType.Manhattan);
+
+            var l1Norm = table.GetColumn<double>(0).Select(d => Math.Abs(d)).Sum();
+            Assert.AreEqual(analysis.L1Norm, l1Norm);
+
+            _RandomSample(normalised, (index, row) => {
+                var val = row.GetField<double>(0);
+                var prevVal = table.GetRow(index).GetField<double>(0);
+                var expected = prevVal / analysis.L1Norm;
+
+                Assert.AreEqual(val, expected);
+            });
+        }
+
+        [TestMethod]
+        public void TestL1Normalisation2()
+        {
+            var table = _GetSimpleTable2();
+            var analysis = table.Analysis[0] as INumericColumnInfo;
+            var model = table.GetNormalisationModel(NormalisationType.Manhattan);
+            var normalised = table.Normalise(model);
 
             var l1Norm = table.GetColumn<double>(0).Select(d => Math.Abs(d)).Sum();
             Assert.AreEqual(analysis.L1Norm, l1Norm);

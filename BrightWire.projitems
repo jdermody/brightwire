@@ -75,8 +75,16 @@
     <Compile Include="$(MSBuildThisFileDirectory)Helper\SequenceWindowBuilder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helper\SimpleTokeniser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helper\StringTableBuilder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)InstanceBased\KNNClassifier.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)InstanceBased\Trainer\KNNClassificationTrainer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interface.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Linear\MultinomialLogisticRegressionClassifier.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Linear\Training\MultinomialLogisticRegressionTrainer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\KNearestNeighbours.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\MultinomialLogisticRegression.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Normalisation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Simple\BidirectionalMemory.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Simple\BinaryClassification.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Simple\ColumnSplit.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Simple\MinMax.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Simple\RowClassification.cs" />
@@ -108,8 +116,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\ExecutionResults\RecurrentOutput.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\FeedForwardNetwork.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\FloatArray.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Models\LinearRegressionModel.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Models\LogisticRegressionModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\LinearRegression.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\LogisticRegression.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\MarkovModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\MultinomialNaiveBayes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\NaiveBayes.cs" />

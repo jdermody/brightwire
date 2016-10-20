@@ -10,12 +10,8 @@ namespace BrightWire.SampleCode
     {
         static void Main(string[] args)
         {
-            IDataTable dataTable = null;
-            dataTable = IrisClassification(dataTable);
-            dataTable = MultinomialLogisticRegression(dataTable);
-            dataTable = KNearestNeighbours(dataTable);
-
-            //MarkovChains();
+            //IrisClassification();
+            MarkovChains();
             //MNIST(@"D:\data\mnist\", @"D:\data\mnist\model.dat");
         }
     }

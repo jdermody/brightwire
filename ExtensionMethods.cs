@@ -3,12 +3,14 @@ using BrightWire.Bayesian.Training;
 using BrightWire.DimensionalityReduction;
 using BrightWire.ErrorMetrics;
 using BrightWire.Helper;
+using BrightWire.InstanceBased.Trainer;
 using BrightWire.Linear;
 using BrightWire.Linear.Training;
 using BrightWire.Models;
 using BrightWire.TabularData.Helper;
 using BrightWire.TreeBased.Training;
 using BrightWire.Unsupervised.Clustering;
+using MathNet.Numerics.Distributions;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -173,7 +175,7 @@ namespace BrightWire
         /// <param name="learningRate">The learning rate</param>
         /// <param name="lambda">Regularisation lambda</param>
         /// <returns>The trained model</returns>
-        public static LogisticRegressionModel TrainLogisticRegression(this IDataTable table, ILinearAlgebraProvider lap, int iterations, float learningRate, float lambda = 0.1f)
+        public static LogisticRegression TrainLogisticRegression(this IDataTable table, ILinearAlgebraProvider lap, int iterations, float learningRate, float lambda = 0.1f)
         {
             var trainer = table.CreateLogisticRegressionTrainer(lap);
             return trainer.GradientDescent(iterations, learningRate, lambda);
@@ -183,6 +185,7 @@ namespace BrightWire
         /// Naive bayes is a classifier that assumes conditional independence between all features
         /// </summary>
         /// <param name="table">The training data provider</param>
+        /// <param name="featureColumns"></param>
         /// <returns>A naive bayes model</returns>
         public static NaiveBayes TrainNaiveBayes(this IDataTable table)
         {
@@ -219,12 +222,12 @@ namespace BrightWire
         /// <typeparam name="T">The data type within the model</typeparam>
         /// <param name="data">An enumerable of sequences of type T</param>
         /// <returns>A sequence of markov model observations</returns>
-        public static IEnumerable<MarkovModelObservation2<T>> TrainMarkovModel2<T>(this IEnumerable<IEnumerable<T>> data)
+        public static MarkovModel2<T> TrainMarkovModel2<T>(this IEnumerable<IEnumerable<T>> data)
         {
             var trainer = new MarkovModelTrainer2<T>();
             foreach (var sequence in data)
                 trainer.Add(sequence);
-            return trainer.All;
+            return trainer.Build();
         }
 
         /// <summary>
@@ -233,12 +236,12 @@ namespace BrightWire
         /// <typeparam name="T">The data type within the model</typeparam>
         /// <param name="data">An enumerable of sequences of type T</param>
         /// <returns>A sequence of markov model observations</returns>
-        public static IEnumerable<MarkovModelObservation3<T>> TrainMarkovModel3<T>(this IEnumerable<IEnumerable<T>> data)
+        public static MarkovModel3<T> TrainMarkovModel3<T>(this IEnumerable<IEnumerable<T>> data)
         {
             var trainer = new MarkovModelTrainer3<T>();
             foreach (var sequence in data)
                 trainer.Add(sequence);
-            return trainer.All;
+            return trainer.Build();
         }
 
         /// <summary>
@@ -297,6 +300,26 @@ namespace BrightWire
         }
 
         /// <summary>
+        /// Multinomial Logistic Regression generalises Logistic Regression to multi-class classification
+        /// </summary>
+        /// <param name="data">The training data</param>
+        /// <param name="lap">Linear algebra provider</param>
+        /// <param name="trainingIterations">Number of training iterations</param>
+        /// <param name="trainingRate">Training rate</param>
+        /// <param name="lambda">L2 regularisation</param>
+        /// <param name="featureColumns">Optional list of feature column indices - defaults to all columns</param>
+        /// <returns></returns>
+        public static MultinomialLogisticRegression TrainMultinomialLogisticRegression(this IDataTable data, ILinearAlgebraProvider lap, int trainingIterations, float trainingRate, float lambda = 0.1f)
+        {
+            return MultinomialLogisticRegressionTrainner.Train(data, lap, trainingIterations, trainingRate, lambda);
+        }
+
+        public static KNearestNeighbours TrainKNearestNeighbours(this IDataTable data)
+        {
+            return KNNClassificationTrainer.Train(data);
+        }
+
+        /// <summary>
         /// K Means uses coordinate descent and the euclidean distance between randomly selected centroids to cluster the data
         /// </summary>
         /// <param name="data">The list of vectors to cluster</param>
@@ -336,6 +359,31 @@ namespace BrightWire
         {
             var builder = new CSVDataTableBuilder(delimeter);
             return builder.Parse(streamReader, output, hasHeader);
+        }
+
+        public static List<MarkovModelStateTransition<T>> GetTransitions<T>(this Dictionary<MarkovModelObservation2<T>, List<MarkovModelStateTransition<T>>> model, T item1, T item2)
+        {
+            var observation = new MarkovModelObservation2<T> {
+                Item1 = item1,
+                Item2 = item2
+            };
+            List<MarkovModelStateTransition<T>> ret;
+            if (model.TryGetValue(observation, out ret))
+                return ret;
+            return null;
+        }
+
+        public static List<MarkovModelStateTransition<T>> GetTransitions<T>(this Dictionary<MarkovModelObservation3<T>, List<MarkovModelStateTransition<T>>> model, T item1, T item2, T item3)
+        {
+            var observation = new MarkovModelObservation3<T> {
+                Item1 = item1,
+                Item2 = item2,
+                Item3 = item3
+            };
+            List<MarkovModelStateTransition<T>> ret;
+            if (model.TryGetValue(observation, out ret))
+                return ret;
+            return null;
         }
     }
 }

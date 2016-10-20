@@ -29,12 +29,40 @@ namespace BrightWire.Models
         [ProtoMember(3)]
         public List<MarkovModelStateTransition<T>> Transition { get; set; }
 
-        public MarkovModelObservation2() { }
-        public MarkovModelObservation2(T item1, T item2, List<MarkovModelStateTransition<T>> transition)
+        internal MarkovModelObservation2() { }
+        internal MarkovModelObservation2(T item1, T item2, List<MarkovModelStateTransition<T>> transition)
         {
             Item1 = item1;
             Item2 = item2;
             Transition = transition;
+        }
+
+        public override bool Equals(object obj)
+        {
+            var other = obj as MarkovModelObservation2<T>;
+            if (other != null)
+                return Object.Equals(other.Item1, Item1) && Object.Equals(other.Item2, Item2);
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return (Item1?.GetHashCode() ?? 0) ^ (Item2?.GetHashCode() ?? 0);
+        }
+    }
+
+    [ProtoContract]
+    public class MarkovModel2<T>
+    {
+        [ProtoMember(1)]
+        public MarkovModelObservation2<T>[] Observation { get; set; }
+
+        public Dictionary<MarkovModelObservation2<T>, List<MarkovModelStateTransition<T>>> AsDictionary
+        {
+            get
+            {
+                return Observation.ToDictionary(o => o, o => o.Transition);
+            }
         }
     }
 
@@ -53,37 +81,41 @@ namespace BrightWire.Models
         [ProtoMember(4)]
         public List<MarkovModelStateTransition<T>> Transition { get; set; }
 
-        public MarkovModelObservation3() { }
-        public MarkovModelObservation3(T item1, T item2, T item3, List<MarkovModelStateTransition<T>> transition)
+        internal MarkovModelObservation3() { }
+        internal MarkovModelObservation3(T item1, T item2, T item3, List<MarkovModelStateTransition<T>> transition)
         {
             Item1 = item1;
             Item2 = item2;
             Item3 = item3;
             Transition = transition;
         }
+
+        public override bool Equals(object obj)
+        {
+            var other = obj as MarkovModelObservation3<T>;
+            if (other != null)
+                return Object.Equals(other.Item1, Item1) && Object.Equals(other.Item2, Item2) && Object.Equals(other.Item3, Item3);
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return (Item1?.GetHashCode() ?? 0) ^ (Item2?.GetHashCode() ?? 0) ^ (Item3?.GetHashCode() ?? 0);
+        }
     }
 
-    public static class HMMHelper
+    [ProtoContract]
+    public class MarkovModel3<T>
     {
-        static bool _Compare<T>(T x, T y, IEqualityComparer<T> comparer)
-        {
-            return (comparer ?? EqualityComparer<T>.Default).Equals(x, y);
-        }
+        [ProtoMember(1)]
+        public MarkovModelObservation3<T>[] Observation { get; set; }
 
-        public static IReadOnlyList<MarkovModelStateTransition<T>> Find<T>(this IReadOnlyList<MarkovModelObservation3<T>> data, T item1, T item2, T item3, IEqualityComparer<T> comparer = null)
+        public Dictionary<MarkovModelObservation3<T>, List<MarkovModelStateTransition<T>>> AsDictionary
         {
-            return data
-                .Where(d => _Compare(d.Item1, item1, comparer) && _Compare(d.Item2, item2, comparer) && _Compare(d.Item3, item3, comparer))
-                .FirstOrDefault()?.Transition
-            ;
-        }
-
-        public static IReadOnlyList<MarkovModelStateTransition<T>> Find<T>(this IReadOnlyList<MarkovModelObservation2<T>> data, T item1, T item2, IEqualityComparer<T> comparer = null)
-        {
-            return data
-                .Where(d => _Compare(d.Item1, item1, comparer) && _Compare(d.Item2, item2, comparer))
-                .FirstOrDefault()?.Transition
-            ;
+            get
+            {
+                return Observation.ToDictionary(o => o, o => o.Transition);
+            }
         }
     }
 }
