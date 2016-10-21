@@ -167,6 +167,7 @@
     <Compile Include="Models\Simple\TableSplit.cs" />
     <Compile Include="Models\Simple\TrainingExample.cs" />
     <Compile Include="Models\StringTable.cs" />
+    <Compile Include="Models\WeightedClassificationSet.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Provider.cs" />
     <Compile Include="TabularData\Analysis\DataTableAnalysis.cs" />

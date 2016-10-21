@@ -71,5 +71,28 @@ namespace BrightWire.Models
 
             return dataTable.Build(stream);
         }
+
+        /// <summary>
+        /// Converts the bag to a classification set by grouping on each classification and then again on each index
+        /// </summary>
+        /// <returns></returns>
+        public WeightedClassificationSet ConvertToSet()
+        {
+            return new WeightedClassificationSet {
+                Classifications = Classifications
+                .GroupBy(c => c.Name)
+                    .Select(g => new WeightedClassificationSet.Classification {
+                        Name = g.Key,
+                        Data = g.SelectMany(d => d.Data)
+                            .GroupBy(d => d)
+                            .Select(g2 => new WeightedClassificationSet.WeightedIndex {
+                                Index = g2.Key,
+                                Weight = g2.Count()
+                            })
+                            .ToArray()
+                    })
+                    .ToArray()
+            };
+        }
     }
 }

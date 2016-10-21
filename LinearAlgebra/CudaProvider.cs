@@ -4,6 +4,7 @@ using BrightWire.Models.Simple;
 using ManagedCuda;
 using ManagedCuda.BasicTypes;
 using ManagedCuda.CudaBlas;
+using ManagedCuda.CudaSolve;
 using ManagedCuda.VectorTypes;
 using System;
 using System.Collections.Generic;
@@ -106,6 +107,7 @@ namespace BrightWire.LinearAlgebra
         readonly bool _stochastic;
         readonly CudaContext _cuda;
         readonly CudaBlas _blas;
+        readonly Lazy<CudaSolveDense> _solver = new Lazy<CudaSolveDense>();
         readonly KernelModule _kernel;
         readonly NumericsProvider _numerics = new NumericsProvider();
         readonly Stack<AllocationLayer> _allocationLayer = new Stack<AllocationLayer>();
@@ -214,6 +216,8 @@ namespace BrightWire.LinearAlgebra
             if (disposing && !_disposed) {
                 _blas.Dispose();
                 _cuda.Dispose();
+                if(_solver.IsValueCreated)
+                    _solver.Value.Dispose();
                 _numerics.Dispose();
                 _disposed = true;
             }
@@ -225,6 +229,14 @@ namespace BrightWire.LinearAlgebra
             GC.SuppressFinalize(this);
         }
 
+        public CudaSolveDense Solver
+        {
+            get
+            {
+                return _solver.Value;
+            }
+        }
+        
         public long TotalMemory
         {
             get { return _cuda.GetTotalDeviceMemorySize(); }

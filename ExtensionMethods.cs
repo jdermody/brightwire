@@ -185,7 +185,6 @@ namespace BrightWire
         /// Naive bayes is a classifier that assumes conditional independence between all features
         /// </summary>
         /// <param name="table">The training data provider</param>
-        /// <param name="featureColumns"></param>
         /// <returns>A naive bayes model</returns>
         public static NaiveBayes TrainNaiveBayes(this IDataTable table)
         {
@@ -204,45 +203,45 @@ namespace BrightWire
             return new RandomProjection(lap, fixedSize, reducedSize, s);
         }
 
-        /// <summary>
-        /// Random projections allow you to reduce the dimensions of a matrix while still preserving significant information
-        /// </summary>
-        /// <param name="lap">Linear algebra provider</param>
-        /// <param name="inputSize">The vector size to reduce from</param>
-        /// <returns></returns>
-        public static IRandomProjection CreateRandomProjection(this ILinearAlgebraProvider lap, int inputSize)
-        {
-            var reducedSize = RandomProjection.MinDim(inputSize);
-            return CreateRandomProjection(lap, inputSize, reducedSize);
-        }
+        ///// <summary>
+        ///// Random projections allow you to reduce the dimensions of a matrix while still preserving significant information
+        ///// </summary>
+        ///// <param name="lap">Linear algebra provider</param>
+        ///// <param name="inputSize">The vector size to reduce from</param>
+        ///// <returns></returns>
+        //public static IRandomProjection CreateRandomProjection(this ILinearAlgebraProvider lap, int inputSize)
+        //{
+        //    var reducedSize = RandomProjection.MinDim(inputSize);
+        //    return CreateRandomProjection(lap, inputSize, reducedSize);
+        //}
 
-        /// <summary>
-        /// Markov models summarise sequential data (over a window of size 2)
-        /// </summary>
-        /// <typeparam name="T">The data type within the model</typeparam>
-        /// <param name="data">An enumerable of sequences of type T</param>
-        /// <returns>A sequence of markov model observations</returns>
-        public static MarkovModel2<T> TrainMarkovModel2<T>(this IEnumerable<IEnumerable<T>> data)
-        {
-            var trainer = new MarkovModelTrainer2<T>();
-            foreach (var sequence in data)
-                trainer.Add(sequence);
-            return trainer.Build();
-        }
+        ///// <summary>
+        ///// Markov models summarise sequential data (over a window of size 2)
+        ///// </summary>
+        ///// <typeparam name="T">The data type within the model</typeparam>
+        ///// <param name="data">An enumerable of sequences of type T</param>
+        ///// <returns>A sequence of markov model observations</returns>
+        //public static MarkovModel2<T> TrainMarkovModel2<T>(this IEnumerable<IEnumerable<T>> data)
+        //{
+        //    var trainer = new MarkovModelTrainer2<T>();
+        //    foreach (var sequence in data)
+        //        trainer.Add(sequence);
+        //    return trainer.Build();
+        //}
 
-        /// <summary>
-        /// Markov models summarise sequential data (over a window of size 3)
-        /// </summary>
-        /// <typeparam name="T">The data type within the model</typeparam>
-        /// <param name="data">An enumerable of sequences of type T</param>
-        /// <returns>A sequence of markov model observations</returns>
-        public static MarkovModel3<T> TrainMarkovModel3<T>(this IEnumerable<IEnumerable<T>> data)
-        {
-            var trainer = new MarkovModelTrainer3<T>();
-            foreach (var sequence in data)
-                trainer.Add(sequence);
-            return trainer.Build();
-        }
+        ///// <summary>
+        ///// Markov models summarise sequential data (over a window of size 3)
+        ///// </summary>
+        ///// <typeparam name="T">The data type within the model</typeparam>
+        ///// <param name="data">An enumerable of sequences of type T</param>
+        ///// <returns>A sequence of markov model observations</returns>
+        //public static MarkovModel3<T> TrainMarkovModel3<T>(this IEnumerable<IEnumerable<T>> data)
+        //{
+        //    var trainer = new MarkovModelTrainer3<T>();
+        //    foreach (var sequence in data)
+        //        trainer.Add(sequence);
+        //    return trainer.Build();
+        //}
 
         /// <summary>
         /// Bernoulli naive bayes treats each feature as either 1 or 0 - all feature counts are discarded. Useful for short documents.
@@ -307,13 +306,16 @@ namespace BrightWire
         /// <param name="trainingIterations">Number of training iterations</param>
         /// <param name="trainingRate">Training rate</param>
         /// <param name="lambda">L2 regularisation</param>
-        /// <param name="featureColumns">Optional list of feature column indices - defaults to all columns</param>
         /// <returns></returns>
         public static MultinomialLogisticRegression TrainMultinomialLogisticRegression(this IDataTable data, ILinearAlgebraProvider lap, int trainingIterations, float trainingRate, float lambda = 0.1f)
         {
             return MultinomialLogisticRegressionTrainner.Train(data, lap, trainingIterations, trainingRate, lambda);
         }
 
+        /// <summary>
+        /// K Nearest Neighbours is an instance based classification method that uses examples from training data to predict classifications
+        /// </summary>
+        /// <param name="data">The training data</param>
         public static KNearestNeighbours TrainKNearestNeighbours(this IDataTable data)
         {
             return KNNClassificationTrainer.Train(data);
@@ -361,6 +363,14 @@ namespace BrightWire
             return builder.Parse(streamReader, output, hasHeader);
         }
 
+        /// <summary>
+        /// Find the next set of state transitions from a pair of observations
+        /// </summary>
+        /// <typeparam name="T">The type of the model</typeparam>
+        /// <param name="model">A markov model saved to a dictionary</param>
+        /// <param name="item1">The first observation</param>
+        /// <param name="item2">The second observation</param>
+        /// <returns>The list of state transitions or null if nothing was found</returns>
         public static List<MarkovModelStateTransition<T>> GetTransitions<T>(this Dictionary<MarkovModelObservation2<T>, List<MarkovModelStateTransition<T>>> model, T item1, T item2)
         {
             var observation = new MarkovModelObservation2<T> {
@@ -373,6 +383,15 @@ namespace BrightWire
             return null;
         }
 
+        /// <summary>
+        /// Find the next set of state transitions from a tuple of observations
+        /// </summary>
+        /// <typeparam name="T">The type of the model</typeparam>
+        /// <param name="model">A markov model saved to a dictionary</param>
+        /// <param name="item1">The first observation</param>
+        /// <param name="item2">The second observation</param>
+        /// <param name="item3">The third observation</param>
+        /// <returns>The list of state transitions or null if nothing was found</returns>
         public static List<MarkovModelStateTransition<T>> GetTransitions<T>(this Dictionary<MarkovModelObservation3<T>, List<MarkovModelStateTransition<T>>> model, T item1, T item2, T item3)
         {
             var observation = new MarkovModelObservation3<T> {

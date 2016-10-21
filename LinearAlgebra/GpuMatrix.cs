@@ -667,32 +667,43 @@ namespace BrightWire.LinearAlgebra
         public IMatrix Inverse()
         {
             Debug.Assert(IsValid && RowCount == ColumnCount);
-            //var output2 = new CudaDeviceVariable<float>(RowCount * ColumnCount);
-
-            //using (var inputBuffer = new CudaDeviceVariable<CUdeviceptr>(1))
-            //using (var output = new CudaDeviceVariable<float>(RowCount * ColumnCount))
-            //using (var p = new CudaDeviceVariable<int>(RowCount))
-            //using (var info = new CudaDeviceVariable<int>(1))
-            //using (var outputBuffer = new CudaDeviceVariable<CUdeviceptr>(1))
-            //using (var outputBuffer2 = new CudaDeviceVariable<CUdeviceptr>(1)) {
-            //    _cuda.Context.CopyToDevice(inputBuffer.DevicePointer, new[] { _data.DevicePointer });
-            //    _cuda.Context.CopyToDevice(outputBuffer.DevicePointer, new[] { output.DevicePointer });
-            //    _cuda.Context.CopyToDevice(outputBuffer2.DevicePointer, new[] { output2.DevicePointer });
-
-            //    _cuda.Blas.GetrfBatchedS(RowCount, inputBuffer.DevicePointer, RowCount, p, info, 1);
-            //    _cuda.Blas.GetriBatchedS(RowCount, inputBuffer, RowCount, p, outputBuffer2, RowCount, info, 1);
-            //    var ret = new GpuMatrix(_cuda, RowCount, ColumnCount, output2);
-            //    return ret;
-            //}
             throw new NotImplementedException();
         }
 
         public SingularValueDecomposition Svd()
         {
             Debug.Assert(IsValid);
-            // TODO: use gesvd to calculate the SVD
-            // http://docs.nvidia.com/cuda/cusolver/#cuds-lt-t-gt-gesvd
-            throw new NotImplementedException();
+            var solver = _cuda.Solver;
+
+            // find the size of the required buffer
+            var bufferSize = solver.GesvdBufferSizeFloat(_rows, _columns);
+            var mn = Math.Min(_rows, _columns);
+
+            // allocate output buffers
+            var s = new CudaDeviceVariable<float>(mn);
+            var u = new CudaDeviceVariable<float>(_rows * _rows);
+            var vt = new CudaDeviceVariable<float>(_columns * _columns);
+
+            // call cusolver to find the SVD
+            try {
+                using (var buffer = new CudaDeviceVariable<float>(bufferSize))
+                using (var devInfo = new CudaDeviceVariable<int>(1))
+                using (var rwork = new CudaDeviceVariable<float>(mn))
+                using (var a = new CudaDeviceVariable<float>(_rows * _columns)) {
+                    a.CopyToDevice(_data);
+                    solver.Gesvd('A', 'A', _rows, _columns, a, _rows, s, u, _rows, vt, _columns, buffer, bufferSize, rwork, devInfo);
+                    return new SingularValueDecomposition(
+                        new GpuMatrix(_cuda, _rows, _rows, u),
+                        new GpuVector(_cuda, mn, s),
+                        new GpuMatrix(_cuda, _columns, _columns, vt)
+                    );
+                }
+            }catch {
+                s.Dispose();
+                u.Dispose();
+                vt.Dispose();
+                throw;
+            }
         }
     }
 }

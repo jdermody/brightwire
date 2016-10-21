@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BrightWire.Models.Simple;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -31,15 +32,15 @@ namespace BrightWire.Helper
         /// </summary>
         /// <param name="data">The list of sequences of training data to analyse</param>
         /// <returns>A new list of sequences, augmented with contextual information</returns>
-        public IReadOnlyList<Tuple<float[], float[]>[]> Get(IReadOnlyList<Tuple<float[], float[]>[]> data)
+        public IReadOnlyList<TrainingExample[]> Get(IReadOnlyList<TrainingExample[]> data)
         {
             int offset;
-            var ret = new List<Tuple<float[], float[]>[]>();
+            var ret = new List<TrainingExample[]>();
             for (var z = 0; z < data.Count; z++) {
                 var curr = data[z];
-                var currList = new List<Tuple<float[], float[]>>();
+                var currList = new List<TrainingExample>();
                 for (var i = 0; i < curr.Length; i++) {
-                    var item = curr[i].Item1;
+                    var item = curr[i].Input;
                     var size = item.Length;
                     var windowSize = size;
 
@@ -47,7 +48,7 @@ namespace BrightWire.Helper
                     if (_before > 0) {
                         offset = (_before - 1) * size;
                         for (var j = 1; j <= _before && i - j >= 0; j++) {
-                            item = curr[i - j].Item1;
+                            item = curr[i - j].Input;
                             for (var k = 0; k < windowSize; k++)
                                 context[offset + k] = item[k];
                             offset -= windowSize;
@@ -59,12 +60,12 @@ namespace BrightWire.Helper
 
                     offset = windowSize * _before + size;
                     for (var j = 1; j <= _after && i + j < curr.Length; j++) {
-                        item = curr[i + j].Item1;
+                        item = curr[i + j].Input;
                         for (var k = 0; k < windowSize; k++)
                             context[offset + k] = item[k];
                         offset += windowSize;
                     }
-                    currList.Add(Tuple.Create(context, curr[i].Item2));
+                    currList.Add(new TrainingExample(context, curr[i].Output));
                 }
                 ret.Add(currList.ToArray());
             }

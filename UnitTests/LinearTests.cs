@@ -113,5 +113,34 @@ namespace UnitTests
             Assert.IsTrue(probability3[3] >= 0.5f);
             Assert.IsTrue(probability3[4] >= 0.5f);
         }
+
+        [TestMethod]
+        public void TestMultinomialLogisticRegression()
+        {
+            var dataTable = new DataTableBuilder();
+            dataTable.AddColumn(ColumnType.Float, "height");
+            dataTable.AddColumn(ColumnType.Int, "weight").IsContinuous = true;
+            dataTable.AddColumn(ColumnType.Int, "foot-size").IsContinuous = true;
+            dataTable.AddColumn(ColumnType.String, "gender", true);
+
+            // sample data from: https://en.wikipedia.org/wiki/Naive_Bayes_classifier
+            dataTable.Add(6f, 180, 12, "male");
+            dataTable.Add(5.92f, 190, 11, "male");
+            dataTable.Add(5.58f, 170, 12, "male");
+            dataTable.Add(5.92f, 165, 10, "male");
+            dataTable.Add(5f, 100, 6, "female");
+            dataTable.Add(5.5f, 150, 8, "female");
+            dataTable.Add(5.42f, 130, 7, "female");
+            dataTable.Add(5.75f, 150, 9, "female");
+            var index = dataTable.Build();
+
+            var testData = new DataTableBuilder(dataTable.Columns);
+            var row = testData.Add(6f, 130, 8, "?");
+
+            var model = index.TrainMultinomialLogisticRegression(_lap, 100, 0.1f);
+            var classifier = model.CreateClassifier(_lap);
+            var classification = classifier.Classify(row);
+            Assert.IsTrue(classification.First() == "female");
+        }
     }
 }

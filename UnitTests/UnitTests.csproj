@@ -58,12 +58,14 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="ClassificationSetTests.cs" />
     <Compile Include="ConnectionistTests.cs" />
     <Compile Include="CudaLinearAlgebraTests.cs" />
     <Compile Include="DataTableTests.cs" />
     <Compile Include="DimensionalityReductionTests.cs" />
     <Compile Include="DataProviderTests.cs" />
     <Compile Include="Helper\FloatingPointHelper.cs" />
+    <Compile Include="InstanceBasedTests.cs" />
     <Compile Include="LinearTests.cs" />
     <Compile Include="MarkovModelTests.cs" />
     <Compile Include="NaiveBayesTests.cs" />

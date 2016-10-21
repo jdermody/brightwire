@@ -114,9 +114,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BrightWire.Net4.csproj">
-      <Project>{fd8aaef6-2edb-446c-bb19-5ebee5cde982}</Project>
-      <Name>BrightWire.Net4</Name>
+    <ProjectReference Include="..\BrightWire.CUDA.Net4.x64\BrightWire.CUDA.Net4.x64.csproj">
+      <Project>{50bcb2ab-e8ca-4974-b136-49a98d5e34cb}</Project>
+      <Name>BrightWire.CUDA.Net4.x64</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

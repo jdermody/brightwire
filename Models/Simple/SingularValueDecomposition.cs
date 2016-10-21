@@ -4,7 +4,7 @@ using System.Text;
 
 namespace BrightWire.Models.Simple
 {
-    public class SingularValueDecomposition
+    public class SingularValueDecomposition : IDisposable
     {
         public IMatrix U { get; private set; }
         public IVector S { get; private set; }
@@ -15,6 +15,13 @@ namespace BrightWire.Models.Simple
             U = u;
             S = s;
             VT = vt;
+        }
+
+        public void Dispose()
+        {
+            U.Dispose();
+            S.Dispose();
+            VT.Dispose();
         }
     }
 }

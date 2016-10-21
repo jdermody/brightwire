@@ -7,6 +7,7 @@ using System.IO;
 using System.Text;
 using UnitTests.Helper;
 using BrightWire.Models.Simple;
+using System.Linq;
 
 namespace UnitTests
 {
@@ -44,6 +45,22 @@ namespace UnitTests
                 gpuResults = gpuC.AsIndexable();
 
             FloatingPointHelper.AssertEqual(gpuResults, cpuResults.AsIndexable());
+        }
+
+        [TestMethod]
+        public void TestVectorCreation()
+        {
+            var values = Enumerable.Range(0, 10).Select(v => (float)v).ToList();
+
+            var a = _cpu.Create(values).AsIndexable();
+            Assert.AreEqual(a[4], 4f);
+            Assert.AreEqual(a[0], 0f);
+            Assert.AreEqual(a[9], 9f);
+
+            IIndexableVector gpuResults;
+            using (var gpuA = _cuda.Create(values))
+                gpuResults = gpuA.AsIndexable();
+            FloatingPointHelper.AssertEqual(gpuResults, a);
         }
 
         [TestMethod]
@@ -1521,24 +1538,36 @@ namespace UnitTests
             FloatingPointHelper.AssertEqual(c, gpuResults);
         }
 
-        //[TestMethod]
-        //public void MatrixInverse()
-        //{
-        //    var a = _cpu.Create(2, 2, 0f).AsIndexable();
-        //    a[0, 0] = 4;
-        //    a[0, 1] = 7;
-        //    a[1, 0] = 2;
-        //    a[1, 1] = 6;
+        [TestMethod]
+        public void MatrixSvd()
+        {
+            var a = _cpu.Create(2, 2, 0f).AsIndexable();
+            a[0, 0] = 4;
+            a[0, 1] = 7;
+            a[1, 0] = 2;
+            a[1, 1] = 6;
 
-        //    var inverse = a.Inverse().AsIndexable();
+            IIndexableMatrix cpuU, cpuVT;
+            IIndexableVector cpuS;
+            using (var svd = a.Svd()) {
+                cpuU = svd.U.AsIndexable();
+                cpuVT = svd.VT.AsIndexable();
+                cpuS = svd.S.AsIndexable();
+            }
 
-        //    IIndexableMatrix gpuResults;
-        //    using (var gpuA = _cuda.Create(a))
-        //    using (var gpuInverse = gpuA.Inverse()) {
-        //        gpuResults = gpuInverse.AsIndexable();
-        //    }
+            IIndexableMatrix gpuU, gpuVT;
+            IIndexableVector gpuS;
+            using (var gpuA = _cuda.Create(a)) {
+                using (var gpuSvd = gpuA.Svd()) {
+                    gpuU = gpuSvd.U.AsIndexable();
+                    gpuVT = gpuSvd.VT.AsIndexable();
+                    gpuS = gpuSvd.S.AsIndexable();
+                }
+            }
 
-        //    FloatingPointHelper.AssertEqual(inverse, gpuResults);
-        //}
+            FloatingPointHelper.AssertEqual(cpuU, gpuU);
+            FloatingPointHelper.AssertEqual(cpuVT, gpuVT);
+            FloatingPointHelper.AssertEqual(cpuS, gpuS);
+        }
     }
 }
