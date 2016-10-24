@@ -114,6 +114,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\BrightWire.CUDA.Net4.x64\BrightWire.CUDA.Net4.x64.csproj">
       <Project>{50bcb2ab-e8ca-4974-b136-49a98d5e34cb}</Project>
       <Name>BrightWire.CUDA.Net4.x64</Name>

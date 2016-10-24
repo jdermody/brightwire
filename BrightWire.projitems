@@ -154,12 +154,16 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)LICENSE" />
-    <None Include="$(MSBuildThisFileDirectory)LinearAlgebra\cuda\kernel.c" />
     <None Include="$(MSBuildThisFileDirectory)LinearAlgebra\cuda\kernel.cu" />
     <None Include="$(MSBuildThisFileDirectory)LinearAlgebra\cuda\kernel.cubin">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="$(MSBuildThisFileDirectory)LinearAlgebra\cuda\kernel.stub.c" />
+    <None Include="$(MSBuildThisFileDirectory)LinearAlgebra\cuda\kernel.ptx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="$(MSBuildThisFileDirectory)README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="$(MSBuildThisFileDirectory)LinearAlgebra\cuda\readme.txt" />
   </ItemGroup>
 </Project>

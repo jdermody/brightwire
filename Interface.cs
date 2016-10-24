@@ -1112,7 +1112,7 @@ namespace BrightWire
         int MiniBatchSize { get; }
 
         /// <summary>
-        /// If training should continue
+        /// Called after each epoch to check if training should continue
         /// </summary>
         bool ShouldContinue { get; }
 
@@ -1187,7 +1187,7 @@ namespace BrightWire
     public interface INeuralNetworkLayerTrainer : IDisposable
     {
         /// <summary>
-        /// The layer updated
+        /// The layer updater
         /// </summary>
         INeuralNetworkLayerUpdater LayerUpdater { get; }
 
@@ -1319,7 +1319,7 @@ namespace BrightWire
         /// <summary>
         /// No optimisation
         /// </summary>
-        Simple,
+        None,
 
         /// <summary>
         /// Momentum

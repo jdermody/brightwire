@@ -11,6 +11,9 @@ namespace BrightWire.SampleCode
 {
     partial class Program
     {
+        /// <summary>
+        /// Trains various classifiers on the Iris data set
+        /// </summary>
         public static void IrisClassification()
         {
             // download the iris data set
@@ -59,13 +62,13 @@ namespace BrightWire.SampleCode
                 );
 
                 // train and evaluate a mulitinomial logistic regression classifier
-                var logisticRegression = dataTable.TrainMultinomialLogisticRegression(lap, 500, 0.1f);
+                var logisticRegression = split.Training.TrainMultinomialLogisticRegression(lap, 500, 0.1f);
                 Console.WriteLine("Multinomial logistic regression accuracy: {0:P}", split.Test
                     .Classify(logisticRegression.CreateClassifier(lap))
                     .Average(d => d.Row.GetField<string>(targetColumnIndex) == d.Classification ? 1.0 : 0.0)
                 );
 
-                // convert the data tables into linear algebra friendly training data providers
+                // convert the data tables into vector based training data providers
                 var trainingData = lap.NN.CreateTrainingDataProvider(split.Training);
                 var testData = lap.NN.CreateTrainingDataProvider(split.Test);
 

@@ -10,9 +10,9 @@ namespace BrightWire.SampleCode
     {
         static void Main(string[] args)
         {
-            IrisClassification();
+            //IrisClassification();
             //MarkovChains();
-            //MNIST(@"D:\data\mnist\", @"D:\data\mnist\model.dat");
+            MNIST(@"D:\data\mnist\", @"D:\data\mnist\model.dat");
         }
     }
 }

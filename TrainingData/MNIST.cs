@@ -15,6 +15,16 @@ namespace BrightWire.TrainingData
     public static class Mnist
     {
         /// <summary>
+        /// Input layer size
+        /// </summary>
+        public const int INPUT_SIZE = 784;
+
+        /// <summary>
+        /// Output layer size
+        /// </summary>
+        public const int OUTPUT_SIZE = 10;
+
+        /// <summary>
         /// Image data
         /// </summary>
         public class Image
@@ -38,19 +48,6 @@ namespace BrightWire.TrainingData
             /// </summary>
             public int Label { get { return _label; } }
 
-            ///// <summary>
-            ///// Convert the image to one hot encoded vectors
-            ///// </summary>
-            ///// <param name="provider">Linear algebra provider</param>
-            ///// <returns>Tuple of { image, image (indexable), label }</returns>
-            //public Tuple<IVector, IIndexableVector, IIndexableVector> AsSample(ILinearAlgebraProvider provider)
-            //{
-            //    var data = provider.Create(_data.Select(b => Convert.ToSingle((int)b) / 255));
-            //    var label = provider.Create(10, 0.0f).AsIndexable();
-            //    label[_label] = 1;
-            //    return Tuple.Create(data, data.AsIndexable(), label);
-            //}
-
             /// <summary>
             /// Converts the image to one hot encoded float arrays
             /// </summary>
@@ -58,7 +55,7 @@ namespace BrightWire.TrainingData
             {
                 get
                 {
-                    var data = _data.Select(b => Convert.ToSingle((int)b) / 255).ToArray();
+                    var data = _data.Select(b => Convert.ToSingle((int)b) / 255f).ToArray();
                     var label = new float[10];
                     label[_label] = 1;
                     return new TrainingExample(data, label);

@@ -19,11 +19,14 @@ namespace BrightWire.SampleCode
         /// <param name="dataFilesPath">The path to a directory with the four extracted data files</param>
         public static void MNIST(string dataFilesPath, string outputModelPath)
         {
-            const int INPUT_SIZE = 784, HIDDEN_SIZE = 1024, OUTPUT_SIZE = 10, BATCH_SIZE = 128, NUM_EPOCHS = 40;
+            const int HIDDEN_SIZE = 1024, BATCH_SIZE = 128, NUM_EPOCHS = 40;
+            const float TRAINING_RATE = 0.03f;
+
             var errorMetric = ErrorMetricType.OneHot.Create();
-            var layerTemplate = new LayerDescriptor(0f);
-            layerTemplate.WeightUpdate = WeightUpdateType.RMSprop;
-            layerTemplate.Activation = ActivationType.LeakyRelu;
+            var layerTemplate = new LayerDescriptor(0f) {
+                WeightUpdate = WeightUpdateType.RMSprop,
+                Activation = ActivationType.LeakyRelu
+            };
 
             Console.Write("Loading training data...");
             var trainingData = Mnist.Load(dataFilesPath + "train-labels.idx1-ubyte", dataFilesPath + "train-images.idx3-ubyte");
@@ -31,13 +34,13 @@ namespace BrightWire.SampleCode
             Console.WriteLine("done");
 
             Console.WriteLine("Starting training...");
-            using (var lap = Provider.CreateCPULinearAlgebra()) {
+            using (var lap = Provider.CreateGPULinearAlgebra()) {
                 var trainingSet = lap.NN.CreateTrainingDataProvider(trainingData.Select(d => d.Sample).ToList());
                 var testSet = lap.NN.CreateTrainingDataProvider(testData.Select(d => d.Sample).ToList());
 
-                using (var trainer = lap.NN.CreateBatchTrainer(layerTemplate, INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE)) {
+                using (var trainer = lap.NN.CreateBatchTrainer(layerTemplate, Mnist.INPUT_SIZE, HIDDEN_SIZE, Mnist.OUTPUT_SIZE)) {
                     var trainingManager = lap.NN.CreateFeedForwardManager(trainer, outputModelPath, testSet);
-                    var trainingContext = lap.NN.CreateTrainingContext(0.03f, BATCH_SIZE, errorMetric);
+                    var trainingContext = lap.NN.CreateTrainingContext(TRAINING_RATE, BATCH_SIZE, errorMetric);
                     trainingManager.Train(trainingSet, NUM_EPOCHS, trainingContext);
                 }
             }

@@ -158,12 +158,11 @@ namespace BrightWire.LinearAlgebra
         ;
         bool _disposed = false;
 
-        public CudaProvider(bool stochastic = true)
+        public CudaProvider(string cudaKernelPath, bool stochastic = true)
         {
             _stochastic = stochastic;
             _cuda = new CudaContext();
-            var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\LinearAlgebra\cuda\kernel.cubin";
-            _kernel = new KernelModule(_cuda, path);
+            _kernel = new KernelModule(_cuda, cudaKernelPath);
             _blas = new CudaBlas(AtomicsMode.Allowed);
 
             _pointwiseMultiply = _kernel.LoadFunction("PointwiseMultiply");

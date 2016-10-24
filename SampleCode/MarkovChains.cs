@@ -12,6 +12,9 @@ namespace BrightWire.SampleCode
 {
     public partial class Program
     {
+        /// <summary>
+        /// Builds a n-gram based language model and generates new text from the model
+        /// </summary>
         public static void MarkovChains()
         {
             // tokenise the novel "The Beautiful and the Damned" by F. Scott Fitzgerald
