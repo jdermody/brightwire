@@ -29,7 +29,9 @@ To install the CUDA version (x64 only) use:
 ```
 Install-Package BrightWire.CUDA.Net4.x64
 ```
-The CUDA version is a superset of the standard version.
+The CUDA version is a superset of the standard version. 
+
+Note: When using the CUDA version, make sure that the /LinearAlgebra/cuda/kernel.cubin file's is copied to the output directory (Properties/Copy To Output Directory).
 
 ## Features
 
