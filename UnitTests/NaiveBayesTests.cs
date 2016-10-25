@@ -83,7 +83,7 @@ namespace UnitTests
         {
             var stringTableBuilder = new StringTableBuilder();
             var data = GetSimpleChineseSet(stringTableBuilder);
-            var model = data.TrainMultinomicalNaiveBayes();
+            var model = data.TrainMultinomialNaiveBayes();
             var classifier = model.CreateClassifier();
             var classification = classifier.Classify(GetTestRow(stringTableBuilder));
             Assert.IsTrue(classification.First() == "china");

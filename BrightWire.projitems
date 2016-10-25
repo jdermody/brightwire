@@ -38,6 +38,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Helper\SequentialMiniBatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Helper\SparseSequentialTrainingDataProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Helper\SparseTrainingDataProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Helper\WeightedClassificationSetTrainingDataProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\LayerDescriptor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Training\Batch\BatchTrainer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Training\Batch\BidirectionalBatchTrainer.cs" />
@@ -85,7 +86,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\Normalisation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Simple\BidirectionalMemory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Simple\BinaryClassification.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Simple\ClassificationResult.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Simple\ColumnSplit.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Simple\SequenceSplit.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Simple\MinMax.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Simple\RowClassification.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Simple\RowSplit.cs" />
@@ -94,6 +97,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\Simple\TableFold.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Simple\TableSplit.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Simple\TrainingExample.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Simple\VectorClassification.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\WeightedClassificationSet.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Provider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Provider.GPU.cs" />

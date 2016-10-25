@@ -21,7 +21,7 @@ namespace BrightWire.Connectionist.Helper
             _lap = lap;
             _table = table;
             _classColumnIndex = _table.TargetColumnIndex;
-            var analysis = table.Analysis;
+            var analysis = table.GetAnalysis();
 
             foreach (var columnInfo in analysis.ColumnInfo) {
                 var column = table.Columns[columnInfo.ColumnIndex];

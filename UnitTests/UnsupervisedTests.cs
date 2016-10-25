@@ -30,7 +30,7 @@ namespace UnitTests
         public void TestKMeans()
         {
             var stringTableBuilder = new StringTableBuilder();
-            var data = NaiveBayesTests.GetSimpleChineseSet(stringTableBuilder).Encode(_lap, true).ToDictionary(d => d.Item1, d => d.Item2);
+            var data = NaiveBayesTests.GetSimpleChineseSet(stringTableBuilder).ConvertToSet(false).Encode(true).ToDictionary(d => _lap.Create(d.Data), d => d.Classification);
             var clusters = data.Select(d => d.Key).ToList().KMeans(2);
             var clusterLabels = clusters.Select(d => d.Select(d2 => data[d2]).ToArray()).ToList();
         }
@@ -39,7 +39,7 @@ namespace UnitTests
         public void TestNNMF()
         {
             var stringTableBuilder = new StringTableBuilder();
-            var data = NaiveBayesTests.GetSimpleChineseSet(stringTableBuilder).Encode(_lap, true).ToDictionary(d => d.Item1, d => d.Item2);
+            var data = NaiveBayesTests.GetSimpleChineseSet(stringTableBuilder).ConvertToSet(false).Encode(true).ToDictionary(d => _lap.Create(d.Data), d => d.Classification);
             var clusters = data.Select(d => d.Key).ToList().NNMF(_lap, 2);
             var clusterLabels = clusters.Select(d => d.Select(d2 => data[d2]).ToArray()).ToList();
         }

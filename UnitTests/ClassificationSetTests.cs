@@ -29,7 +29,7 @@ namespace UnitTests
             };
             Assert.AreEqual(bag.Classifications.Length, 4);
             Assert.AreEqual(bag.Classifications[0].Data.Length, 3);
-            var set = bag.ConvertToSet();
+            var set = bag.ConvertToSet(true);
             Assert.AreEqual(set.Classifications.Length, 2);
             Assert.AreEqual(set.Classifications[0].Data.Length, 4);
 

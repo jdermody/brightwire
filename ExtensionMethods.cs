@@ -7,6 +7,7 @@ using BrightWire.InstanceBased.Trainer;
 using BrightWire.Linear;
 using BrightWire.Linear.Training;
 using BrightWire.Models;
+using BrightWire.Models.Simple;
 using BrightWire.TabularData.Helper;
 using BrightWire.TreeBased.Training;
 using BrightWire.Unsupervised.Clustering;
@@ -36,6 +37,22 @@ namespace BrightWire
         {
             var rnd = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
             return seq.OrderBy(e => rnd.Next()).ToList();
+        }
+
+        /// <summary>
+        /// Splits a sequence into training and test splits
+        /// </summary>
+        /// <typeparam name="T">The type of the sequence</typeparam>
+        /// <param name="seq">The sequence to split</param>
+        /// <param name="trainPercentage">The percentage of the sequence to add to the training set</param>
+        public static SequenceSplit<T> Split<T>(this IReadOnlyList<T> seq, double trainPercentage = 0.8)
+        {
+            var input = Enumerable.Range(0, seq.Count).ToList();
+            int trainingCount = Convert.ToInt32(seq.Count * trainPercentage);
+            return new SequenceSplit<T> {
+                Training = input.Take(trainingCount).Select(i => seq[i]).ToArray(),
+                Test = input.Skip(trainingCount).Select(i => seq[i]).ToArray()
+            };
         }
 
         /// <summary>
@@ -261,7 +278,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="data">The training data</param>
         /// <returns>A model that can be used for classification</returns>
-        public static MultinomialNaiveBayes TrainMultinomicalNaiveBayes(this ClassificationBag data)
+        public static MultinomialNaiveBayes TrainMultinomialNaiveBayes(this ClassificationBag data)
         {
             var trainer = new MultinomialNaiveBayesTrainer();
             foreach (var classification in data.Classifications)

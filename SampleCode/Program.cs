@@ -12,7 +12,8 @@ namespace BrightWire.SampleCode
         {
             //IrisClassification();
             //MarkovChains();
-            MNIST(@"D:\data\mnist\", @"D:\data\mnist\model.dat");
+            //MNIST(@"D:\data\mnist\", @"D:\data\mnist\model.dat");
+            SentimentClassification(@"D:\data\sentiment labelled sentences\");
         }
     }
 }

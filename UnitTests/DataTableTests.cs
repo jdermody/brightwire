@@ -131,7 +131,7 @@ namespace UnitTests
             for (var i = 1; i <= 10; i++)
                 builder.Add(i % 2 == 0, (byte)i, DateTime.Now, (double)i, (float)i, i, (long)i, null, i.ToString());
             var table = builder.Build();
-            var analysis = table.Analysis;
+            var analysis = table.GetAnalysis();
 
             var boolAnalysis = analysis[0] as INumericColumnInfo;
             Assert.IsTrue(boolAnalysis.NumDistinct == 2);
@@ -191,7 +191,7 @@ namespace UnitTests
         public void TestStandardNormalisation()
         {
             var table = _GetSimpleTable2();
-            var analysis = table.Analysis[0] as INumericColumnInfo;
+            var analysis = table.GetAnalysis()[0] as INumericColumnInfo;
             var normalised = table.Normalise(NormalisationType.Standard);
 
             _RandomSample(normalised, (index, row) => {
@@ -207,7 +207,7 @@ namespace UnitTests
         public void TestStandardNormalisation2()
         {
             var table = _GetSimpleTable2();
-            var analysis = table.Analysis[0] as INumericColumnInfo;
+            var analysis = table.GetAnalysis()[0] as INumericColumnInfo;
             var model = table.GetNormalisationModel(NormalisationType.Standard);
             var normalised = table.Normalise(model);
 
@@ -224,7 +224,7 @@ namespace UnitTests
         public void TestFeatureScaleNormalisation()
         {
             var table = _GetSimpleTable2();
-            var analysis = table.Analysis[0] as INumericColumnInfo;
+            var analysis = table.GetAnalysis()[0] as INumericColumnInfo;
             var normalised = table.Normalise(NormalisationType.FeatureScale);
 
             _RandomSample(normalised, (index, row) => {
@@ -240,7 +240,7 @@ namespace UnitTests
         public void TestFeatureScaleNormalisation2()
         {
             var table = _GetSimpleTable2();
-            var analysis = table.Analysis[0] as INumericColumnInfo;
+            var analysis = table.GetAnalysis()[0] as INumericColumnInfo;
             var model = table.GetNormalisationModel(NormalisationType.FeatureScale);
             var normalised = table.Normalise(model);
 
@@ -257,7 +257,7 @@ namespace UnitTests
         public void TestL2Normalisation()
         {
             var table = _GetSimpleTable2();
-            var analysis = table.Analysis[0] as INumericColumnInfo;
+            var analysis = table.GetAnalysis()[0] as INumericColumnInfo;
             var normalised = table.Normalise(NormalisationType.Euclidean);
 
             var l2Norm = Math.Sqrt(table.GetColumn<double>(0).Select(d => Math.Pow(d, 2)).Sum());
@@ -276,7 +276,7 @@ namespace UnitTests
         public void TestL2Normalisation2()
         {
             var table = _GetSimpleTable2();
-            var analysis = table.Analysis[0] as INumericColumnInfo;
+            var analysis = table.GetAnalysis()[0] as INumericColumnInfo;
             var model = table.GetNormalisationModel(NormalisationType.Euclidean);
             var normalised = table.Normalise(model);
 
@@ -296,7 +296,7 @@ namespace UnitTests
         public void TestL1Normalisation()
         {
             var table = _GetSimpleTable2();
-            var analysis = table.Analysis[0] as INumericColumnInfo;
+            var analysis = table.GetAnalysis()[0] as INumericColumnInfo;
             var normalised = table.Normalise(NormalisationType.Manhattan);
 
             var l1Norm = table.GetColumn<double>(0).Select(d => Math.Abs(d)).Sum();
@@ -315,7 +315,7 @@ namespace UnitTests
         public void TestL1Normalisation2()
         {
             var table = _GetSimpleTable2();
-            var analysis = table.Analysis[0] as INumericColumnInfo;
+            var analysis = table.GetAnalysis()[0] as INumericColumnInfo;
             var model = table.GetNormalisationModel(NormalisationType.Manhattan);
             var normalised = table.Normalise(model);
 

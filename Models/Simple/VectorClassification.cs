@@ -4,15 +4,15 @@ using System.Text;
 
 namespace BrightWire.Models.Simple
 {
-    public class BinaryTableClassification
+    public class VectorClassification
     {
+        public float[] Data { get; private set; }
         public string Classification { get; private set; }
-        public IDataTable Table { get; private set; }
 
-        public BinaryTableClassification(string classification, IDataTable dataTable)
+        public VectorClassification(float[] data, string classification)
         {
+            Data = data;
             Classification = classification;
-            Table = dataTable;
         }
     }
 }

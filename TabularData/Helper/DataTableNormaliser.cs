@@ -23,7 +23,7 @@ namespace BrightWire.TabularData.Helper
             if (model != null)
                 _normalisationModel = model;
             else {
-                var analysis = dataTable.Analysis;
+                var analysis = dataTable.GetAnalysis();
                 var columnNormList = new List<Normalisation.Column>();
                 foreach (var columnInfo in analysis.ColumnInfo) {
                     var column = dataTable.Columns[columnInfo.ColumnIndex];

@@ -2434,7 +2434,7 @@ namespace BrightWire
         /// <summary>
         /// Data table statistics
         /// </summary>
-        IDataTableAnalysis Analysis { get; }
+        IDataTableAnalysis GetAnalysis();
         //void Process(Func<IRow, int, bool> processor);
 
         /// <summary>
@@ -2569,7 +2569,7 @@ namespace BrightWire
         /// For each classification label - duplicate each data table except for the classification column which is converted to a boolean (true for each matching example)
         /// </summary>
         /// <returns></returns>
-        IReadOnlyList<BinaryClassification> ConvertToBinaryClassification();
+        IReadOnlyList<BinaryTableClassification> ConvertToBinaryClassification();
     }
 
     /// <summary>

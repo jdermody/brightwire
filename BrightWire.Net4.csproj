@@ -79,6 +79,7 @@
     <Compile Include="Connectionist\Execution\RecurrentExecution.cs" />
     <Compile Include="Connectionist\Helper\SequentialMiniBatch.cs" />
     <Compile Include="Connectionist\Helper\SparseSequentialTrainingDataProvider.cs" />
+    <Compile Include="Connectionist\Helper\WeightedClassificationSetTrainingDataProvider.cs" />
     <Compile Include="Connectionist\LayerDescriptor.cs" />
     <Compile Include="Connectionist\Training\Batch\BatchTrainer.cs" />
     <Compile Include="Connectionist\Training\Batch\BidirectionalBatchTrainer.cs" />
@@ -157,15 +158,18 @@
     <Compile Include="Models\RecurrentNetwork.cs" />
     <Compile Include="Models\Simple\BidirectionalMemory.cs" />
     <Compile Include="Models\Simple\BinaryClassification.cs" />
+    <Compile Include="Models\Simple\ClassificationResult.cs" />
     <Compile Include="Models\Simple\ColumnSplit.cs" />
     <Compile Include="Models\Simple\MinMax.cs" />
     <Compile Include="Models\Simple\RowClassification.cs" />
     <Compile Include="Models\Simple\RowSplit.cs" />
     <Compile Include="Models\Simple\SequenceInfo.cs" />
+    <Compile Include="Models\Simple\SequenceSplit.cs" />
     <Compile Include="Models\Simple\SingularValueDecomposition.cs" />
     <Compile Include="Models\Simple\TableFold.cs" />
     <Compile Include="Models\Simple\TableSplit.cs" />
     <Compile Include="Models\Simple\TrainingExample.cs" />
+    <Compile Include="Models\Simple\VectorClassification.cs" />
     <Compile Include="Models\StringTable.cs" />
     <Compile Include="Models\WeightedClassificationSet.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

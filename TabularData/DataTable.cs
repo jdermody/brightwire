@@ -196,17 +196,14 @@ namespace BrightWire.TabularData
             }
         }
 
-        public IDataTableAnalysis Analysis
+        public IDataTableAnalysis GetAnalysis()
         {
-            get
-            {
-                if (_analysis == null) {
-                    var analysis = new DataTableAnalysis(this);
-                    Process(analysis);
-                    _analysis = analysis;
-                }
-                return _analysis;
+            if (_analysis == null) {
+                var analysis = new DataTableAnalysis(this);
+                Process(analysis);
+                _analysis = analysis;
             }
+            return _analysis;
         }
 
         public IReadOnlyList<IRow> GetSlice(int offset, int count)
@@ -515,11 +512,11 @@ namespace BrightWire.TabularData
             return writer.GetDataTable();
         }
 
-        public IReadOnlyList<BinaryClassification> ConvertToBinaryClassification()
+        public IReadOnlyList<BinaryTableClassification> ConvertToBinaryClassification()
         {
-            return Analysis[TargetColumnIndex].DistinctValues
+            return GetAnalysis()[TargetColumnIndex].DistinctValues
                 .Cast<string>()
-                .Select(cls => new BinaryClassification(cls, Project(r => {
+                .Select(cls => new BinaryTableClassification(cls, Project(r => {
                     var row = new object[ColumnCount];
                     for (var i = 0; i < ColumnCount; i++) {
                         if (i == TargetColumnIndex)

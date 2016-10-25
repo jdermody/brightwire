@@ -58,6 +58,28 @@ namespace BrightWire.Helper
         }
 
         /// <summary>
+        /// Simple token modification following "not".
+        /// Double not or punctuation stops the not mode
+        /// </summary>
+        /// <param name="tokenList">The list of tokens</param>
+        /// <returns>A sequence of modified tokens</returns>
+        public static IEnumerable<string> JoinNegations(IEnumerable<string> tokenList)
+        {
+            var inNot = false;
+
+            foreach(var item in tokenList) {
+                var isNot = item == "not";
+                if(!isNot)
+                    yield return inNot ? "not_" + item : item;
+
+                if (isNot)
+                    inNot = !inNot;
+                else if (!Char.IsLetterOrDigit(item[0]))
+                    inNot = false;
+            }
+        }
+
+        /// <summary>
         /// Finds sentences from a list of strings
         /// </summary>
         /// <param name="stringList">The list of strings</param>
