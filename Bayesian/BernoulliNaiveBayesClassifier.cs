@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BrightWire.Models.Simple;
 
 namespace BrightWire.Bayesian
 {
@@ -53,13 +54,35 @@ namespace BrightWire.Bayesian
             _classification = model.ClassData.Select(c => new Classification(model.Vocabulary, c)).ToList();
         }
 
-        public IEnumerable<string> Classify(IReadOnlyList<uint> stringIndexList)
+        List<Tuple<string, double>> _Classify(IReadOnlyList<uint> featureIndexList)
         {
-            var documentSet = new HashSet<uint>(stringIndexList);
+            var documentSet = new HashSet<uint>(featureIndexList);
             var ret = new List<Tuple<string, double>>();
             foreach (var cls in _classification)
                 ret.Add(Tuple.Create(cls.Label, cls.GetScore(documentSet)));
-            return ret.OrderByDescending(kv => kv.Item2).Select(kv => kv.Item1);
+            return ret;
+        }
+
+        public IEnumerable<string> Classify(IReadOnlyList<uint> featureIndexList)
+        {
+            return _Classify(featureIndexList)
+                .OrderByDescending(kv => kv.Item2)
+                .Select(kv => kv.Item1)
+            ;
+        }
+
+        /// <summary>
+        ///  Naive bayes values should only be used for ranking against each other
+        /// </summary>
+        /// <param name="featureIndexList"></param>
+        /// <returns></returns>
+        public IReadOnlyList<WeightedClassification> GetWeightedClassifications(IReadOnlyList<uint> featureIndexList)
+        {
+            return _Classify(featureIndexList)
+                .OrderByDescending(kv => kv.Item2)
+                .Select((d, i) => new WeightedClassification(d.Item1, i == 0 ? 1f : 0f))
+                .ToList()
+            ;
         }
     }
 }

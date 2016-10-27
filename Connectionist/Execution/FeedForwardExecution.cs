@@ -1,5 +1,6 @@
 ﻿using BrightWire.Connectionist.Execution.Layer;
 using BrightWire.Helper;
+using BrightWire.Models.Simple;
 using MathNet.Numerics.LinearAlgebra.Single;
 using System;
 using System.Collections.Generic;

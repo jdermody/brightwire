@@ -1,4 +1,5 @@
 ﻿using BrightWire.Models;
+using BrightWire.Models.Simple;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -67,16 +68,38 @@ namespace BrightWire.Bayesian
             }
         }
 
-        public IEnumerable<string> Classify(IRow row)
+        Dictionary<string, double> _Classify(IRow row)
         {
             var ret = new Dictionary<string, double>();
-            foreach(var cls in _classProbability) {
+            foreach (var cls in _classProbability) {
                 double score = cls.Item2;
                 foreach (var item in cls.Item3)
                     score += item.GetProbability(row);
                 ret.Add(cls.Item1, score);
             }
-            return ret.OrderByDescending(kv => kv.Value).Select(kv => kv.Key);
+            return ret;
+        }
+
+        public IEnumerable<string> Classify(IRow row)
+        {
+            return _Classify(row)
+                .OrderByDescending(kv => kv.Value)
+                .Select(kv => kv.Key)
+            ;
+        }
+
+        /// <summary>
+        /// Naive bayes values should only be used for ranking against each other
+        /// </summary>
+        /// <param name="row"></param>
+        /// <returns></returns>
+        public IReadOnlyList<WeightedClassification> GetWeightedClassifications(IRow row)
+        {
+            return _Classify(row)
+                .OrderByDescending(kv => kv.Value)
+                .Select((kv, i) => new WeightedClassification(kv.Key, i == 0 ? 1f : 0))
+                .ToList()
+            ;
         }
     }
 }

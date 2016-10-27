@@ -46,7 +46,7 @@ namespace BrightWire.SampleCode
             );
 
             // train and evaluate a random forest classifier
-            var randomForest = dataTable.TrainRandomForest(500);
+            var randomForest = split.Training.TrainRandomForest(500);
             Console.WriteLine("Random forest accuracy: {0:P}", split.Test
                 .Classify(randomForest.CreateClassifier())
                 .Average(d => d.Row.GetField<string>(targetColumnIndex) == d.Classification ? 1.0 : 0.0)

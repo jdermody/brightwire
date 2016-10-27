@@ -41,6 +41,7 @@ namespace BrightWire.SampleCode
                 using (var trainer = lap.NN.CreateBatchTrainer(layerTemplate, Mnist.INPUT_SIZE, HIDDEN_SIZE, Mnist.OUTPUT_SIZE)) {
                     var trainingManager = lap.NN.CreateFeedForwardManager(trainer, outputModelPath, testSet);
                     var trainingContext = lap.NN.CreateTrainingContext(TRAINING_RATE, BATCH_SIZE, errorMetric);
+                    trainingContext.ScheduleTrainingRateChange(20, TRAINING_RATE / 3);
                     trainingManager.Train(trainingSet, NUM_EPOCHS, trainingContext);
                 }
             }

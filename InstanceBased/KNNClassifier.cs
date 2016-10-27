@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using BrightWire.Models.Simple;
 
 namespace BrightWire.InstanceBased
 {
@@ -28,7 +29,7 @@ namespace BrightWire.InstanceBased
                 _instance.Add(lap.Create(model.Instance[i].Data));
         }
 
-        public IEnumerable<string> Classify(IRow row)
+        IEnumerable<Tuple<string, float>> _Classify(IRow row)
         {
             // encode the features into a vector
             var featureCount = _model.FeatureColumn.Length;
@@ -37,7 +38,7 @@ namespace BrightWire.InstanceBased
                 features[i] = row.GetField<float>(_model.FeatureColumn[i]);
 
             // find the k closest neighbours and score the results based on proximity to rank the classifications
-            using(var vector = _lap.Create(features)) {
+            using (var vector = _lap.Create(features)) {
                 var distances = vector.FindDistances(_instance, _distanceMetric).AsIndexable();
                 return distances.Values
                     .Zip(_model.Classification, (s, l) => Tuple.Create(l, s))
@@ -45,10 +46,24 @@ namespace BrightWire.InstanceBased
                     .Take(_k)
                     .GroupBy(d => d.Item1)
                     .Select(g => Tuple.Create(g.Key, g.Sum(d => 1f / d.Item2)))
-                    .OrderByDescending(d => d.Item2)
-                    .Select(d => d.Item1)
                 ;
             }
+        }
+
+        public IEnumerable<string> Classify(IRow row)
+        {
+            return _Classify(row)
+                .OrderByDescending(d => d.Item2)
+                .Select(d => d.Item1)
+            ;
+        }
+
+        public IReadOnlyList<WeightedClassification> GetWeightedClassifications(IRow row)
+        {
+            return _Classify(row)
+                .Select(d => new WeightedClassification(d.Item1, d.Item2))
+                .ToList()
+            ;
         }
     }
 }

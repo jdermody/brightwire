@@ -37,6 +37,11 @@ namespace BrightWire.Models
         [ProtoMember(1)]
         public Classification[] Classifications { get; set; }
 
+        public ClassificationSetSplit Split(double trainPercentage = 0.8)
+        {
+            return new ClassificationSetSplit(Classifications.Split(trainPercentage));
+        }
+
         public uint GetMaximumIndex()
         {
             return Classifications.Select(d => d.Data.Max(d2 => d2.Index)).Max();

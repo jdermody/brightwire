@@ -159,6 +159,7 @@
     <Compile Include="Models\Simple\BidirectionalMemory.cs" />
     <Compile Include="Models\Simple\BinaryClassification.cs" />
     <Compile Include="Models\Simple\ClassificationResult.cs" />
+    <Compile Include="Models\Simple\ClassificationSetSplit.cs" />
     <Compile Include="Models\Simple\ColumnSplit.cs" />
     <Compile Include="Models\Simple\MinMax.cs" />
     <Compile Include="Models\Simple\RowClassification.cs" />
@@ -170,6 +171,7 @@
     <Compile Include="Models\Simple\TableSplit.cs" />
     <Compile Include="Models\Simple\TrainingExample.cs" />
     <Compile Include="Models\Simple\VectorClassification.cs" />
+    <Compile Include="Models\Simple\WeightedClassification.cs" />
     <Compile Include="Models\StringTable.cs" />
     <Compile Include="Models\WeightedClassificationSet.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

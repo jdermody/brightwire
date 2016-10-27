@@ -14,13 +14,18 @@ namespace BrightWire.Helper
         readonly Dictionary<string, uint> _stringTable = new Dictionary<string, uint>();
         readonly List<string> _stringList = new List<string>();
 
+        /// <summary>
+        /// Returns true if the string has already been added
+        /// </summary>
+        /// <param name="str">The string to check</param>
+        /// <param name="ret">The string index</param>
         public bool TryGetIndex(string str, out uint ret)
         {
             return _stringTable.TryGetValue(str, out ret);
         }
 
         /// <summary>
-        /// Gets a string index for a string
+        /// Gets a string index for a string (creates a new index if not found)
         /// </summary>
         /// <param name="str">The string to look up</param>
         public uint GetIndex(string str)

@@ -20,7 +20,7 @@ namespace BrightWire
         {
             var path = cudaKernelPath ?? GetCudaKernelPath(true);
             if (!File.Exists(path))
-                throw new FileNotFoundException("Could not find cuda kernel at: " + path);
+                throw new FileNotFoundException($"Could not find cuda kernel at: {path}.");
             return new CudaProvider(cudaKernelPath ?? GetCudaKernelPath(true), stochastic);
         }
 

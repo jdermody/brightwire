@@ -2838,6 +2838,12 @@ namespace BrightWire
         /// <param name="featureIndexList">Input data</param>
         /// <returns>A ranked list of classifications</returns>
         IEnumerable<string> Classify(IReadOnlyList<uint> featureIndexList);
+
+        /// <summary>
+        /// Classifies the input data and returns the classifications with their weights
+        /// </summary>
+        /// <param name="featureIndexList">Input data</param>
+        IReadOnlyList<WeightedClassification> GetWeightedClassifications(IReadOnlyList<uint> featureIndexList);
     }
 
     /// <summary>
@@ -2851,6 +2857,12 @@ namespace BrightWire
         /// <param name="row">The row to classify</param>
         /// <returns>A ranked list of classifications</returns>
         IEnumerable<string> Classify(IRow row);
+
+        /// <summary>
+        /// Classifies the input data and returns the classifications with their weights
+        /// </summary>
+        /// <param name="row">The row to classify</param>
+        IReadOnlyList<WeightedClassification> GetWeightedClassifications(IRow row);
     }
 
     /// <summary>

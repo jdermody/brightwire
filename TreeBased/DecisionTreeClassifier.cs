@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BrightWire.Models.Simple;
 
 namespace BrightWire.TreeBased
 {
@@ -40,6 +41,11 @@ namespace BrightWire.TreeBased
                 yield return p.Classification;
                 break;
             }
+        }
+
+        public IReadOnlyList<WeightedClassification> GetWeightedClassifications(IRow row)
+        {
+            throw new NotImplementedException();
         }
     }
 }

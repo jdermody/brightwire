@@ -87,6 +87,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\Simple\BidirectionalMemory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Simple\BinaryClassification.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Simple\ClassificationResult.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Simple\ClassificationSetSplit.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Simple\ColumnSplit.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Simple\SequenceSplit.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Simple\MinMax.cs" />
@@ -98,6 +99,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\Simple\TableSplit.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Simple\TrainingExample.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Simple\VectorClassification.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Simple\WeightedClassification.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\WeightedClassificationSet.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Provider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Provider.GPU.cs" />

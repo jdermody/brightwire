@@ -1,6 +1,8 @@
 ﻿using BrightWire.Connectionist;
 using BrightWire.Helper;
 using BrightWire.Models;
+using BrightWire.Models.Simple;
+using ProtoBuf;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -25,6 +27,40 @@ namespace BrightWire.SampleCode
         static string[] _Tokenise(string str)
         {
             return SimpleTokeniser.JoinNegations(SimpleTokeniser.Tokenise(str).Select(s => s.ToLower())).ToArray();
+        }
+
+        static FeedForwardNetwork _TrainNeuralNetwork(ILinearAlgebraProvider lap, ITrainingDataProvider trainingData, ITrainingDataProvider testData)
+        {
+            const int HIDDEN_SIZE = 512, BATCH_SIZE = 128, NUM_EPOCHS = 10;
+            const float TRAINING_RATE = 0.1f;
+
+            var errorMetric = ErrorMetricType.OneHot.Create();
+            var layerTemplate = new LayerDescriptor(0.1f) {
+                WeightUpdate = WeightUpdateType.Adam,
+                Activation = ActivationType.Relu,
+                WeightInitialisation = WeightInitialisationType.Xavier,
+                LayerTrainer = LayerTrainerType.Dropout
+            };
+
+            Console.WriteLine($"Training a {trainingData.InputSize}x{HIDDEN_SIZE}x{trainingData.OutputSize} neural network...");
+            FeedForwardNetwork bestModel = null;
+            using (var trainer = lap.NN.CreateBatchTrainer(layerTemplate, trainingData.InputSize, HIDDEN_SIZE, trainingData.OutputSize)) {
+                var trainingContext = lap.NN.CreateTrainingContext(TRAINING_RATE, BATCH_SIZE, errorMetric);
+                float bestScore = 0;
+                trainingContext.EpochComplete += c => {
+                    var testError = trainer.Execute(testData).Select(d => errorMetric.Compute(d.Output, d.ExpectedOutput)).Average();
+                    var flag = false;
+                    if (testError > bestScore) {
+                        bestScore = testError;
+                        bestModel = trainer.NetworkInfo;
+                        flag = true;
+                    }
+                    trainingContext.WriteScore(testError, errorMetric.DisplayAsPercentage, flag);
+                };
+                trainer.Train(trainingData, NUM_EPOCHS, trainingContext);
+                Console.WriteLine("Final test score: {0:P}", bestScore);
+            }
+            return bestModel;
         }
 
         /// <summary>
@@ -70,85 +106,51 @@ namespace BrightWire.SampleCode
             );
 
             // convert the bags to sets
-            var sentimentData2 = _BuildClassificationBag(sentimentData, stringTable).ConvertToSet(false);
-            var split2 = sentimentData2.Classifications.Split();
-            var trainingClassificationSet = new WeightedClassificationSet {
-                Classifications = split2.Training.ToArray()
-            };
-            var testClassificationSet = new WeightedClassificationSet {
-                Classifications = split2.Test.ToArray()
-            };
+            var sentimentDataBag = _BuildClassificationBag(sentimentData, stringTable);
+            var sentimentDataSet = sentimentDataBag.ConvertToSet(false);
+            var sentimentDataSetSplit = sentimentDataSet.Split();
 
             using (var lap = Provider.CreateGPULinearAlgebra(false)) {
-                var maxIndex = sentimentData2.GetMaximumIndex();
-                var classification = sentimentData2.GetClassifications().ToDictionary(d => (int)d.Value, d => d.Key);
+                var maxIndex = sentimentDataSet.GetMaximumIndex();
+                var classificationTable = sentimentDataSet.GetClassifications().ToDictionary(d => (int)d.Value, d => d.Key);
 
-                var trainingData = trainingClassificationSet.CreateTrainingDataProvider(lap, maxIndex);
-                var testData = testClassificationSet.CreateTrainingDataProvider(lap, maxIndex);
+                var trainingData = sentimentDataSetSplit.Training.CreateTrainingDataProvider(lap, maxIndex);
+                var testData = sentimentDataSetSplit.Test.CreateTrainingDataProvider(lap, maxIndex);
 
-                const int HIDDEN_SIZE = 512, BATCH_SIZE = 128, NUM_EPOCHS = 10;
-                const float TRAINING_RATE = 0.1f;
+                // create the three classifiers
+                var bernoulliClassifier = bernoulli.CreateClassifier();
+                var multinomialClassifier = multinomial.CreateClassifier();
+                var neuralClassifier = lap.NN.CreateFeedForward(_TrainNeuralNetwork(lap, trainingData, testData));
 
-                var errorMetric = ErrorMetricType.OneHot.Create();
-                var layerTemplate = new LayerDescriptor(0.1f) {
-                    WeightUpdate = WeightUpdateType.Adam,
-                    Activation = ActivationType.Relu,
-                    WeightInitialisation = WeightInitialisationType.Xavier,
-                    LayerTrainer = LayerTrainerType.Dropout
-                };
+                uint stringIndex;
+                Console.WriteLine("Enter some text to test the classifiers...");
+                while (true) {
+                    Console.Write(">");
+                    var line = Console.ReadLine();
+                    if (String.IsNullOrWhiteSpace(line))
+                        break;
 
-                Console.WriteLine($"Training a {trainingData.InputSize}x{HIDDEN_SIZE}x{trainingData.OutputSize} neural network...");
-                FeedForwardNetwork bestModel = null;
-                using (var trainer = lap.NN.CreateBatchTrainer(layerTemplate, trainingData.InputSize, HIDDEN_SIZE, trainingData.OutputSize)) {
-                    var trainingContext = lap.NN.CreateTrainingContext(TRAINING_RATE, BATCH_SIZE, errorMetric);
-                    float bestScore = 0;
-                    trainingContext.EpochComplete += c => {
-                        var testError = trainer.Execute(testData).Select(d => errorMetric.Compute(d.Output, d.ExpectedOutput)).Average();
-                        var flag = false;
-                        if (testError > bestScore) {
-                            bestScore = testError;
-                            bestModel = trainer.NetworkInfo;
-                            flag = true;
-                        }
-                        trainingContext.WriteScore(testError, errorMetric.DisplayAsPercentage, flag);
-                    };
-                    trainer.Train(trainingData, NUM_EPOCHS, trainingContext);
-                    Console.WriteLine("Final test score: {0:P}", bestScore);
-
-                    uint stringIndex;
-                    Console.WriteLine("Enter some text to test the classifiers yourself...");
-                    var bernoulliClassifier = bernoulli.CreateClassifier();
-                    var multinomialClassifier = multinomial.CreateClassifier();
-                    var neuralClassifier = lap.NN.CreateFeedForward(bestModel);
-
-                    while (true) {
-                        Console.Write(">");
-                        var line = Console.ReadLine();
-                        if (String.IsNullOrWhiteSpace(line))
-                            break;
-
-                        var tokens = _Tokenise(line);
-                        var indexList = new List<uint>();
-                        foreach(var token in tokens) {
-                            if (stringTable.TryGetIndex(token, out stringIndex))
-                                indexList.Add(stringIndex);
-                        }
-                        if (indexList.Any()) {
-                            var queryTokens = indexList.GroupBy(d => d).Select(g => Tuple.Create(g.Key, (float)g.Count())).ToList();
-                            var vector = new float[maxIndex];
-                            foreach (var token in queryTokens)
-                                vector[token.Item1] = token.Item2;
-
-                            Console.WriteLine("Bernoulli classification: " + bernoulliClassifier.Classify(indexList).First());
-                            Console.WriteLine("Multinomial classification: " + multinomialClassifier.Classify(indexList).First());
-                            Console.WriteLine("Neural network classification: " + classification[neuralClassifier.Execute(vector).MaximumIndex()]);
-                        }
-                        else
-                            Console.WriteLine("Sorry, none of those words have been seen before.");
+                    var tokens = _Tokenise(line);
+                    var indexList = new List<uint>();
+                    foreach(var token in tokens) {
+                        if (stringTable.TryGetIndex(token, out stringIndex))
+                            indexList.Add(stringIndex);
                     }
+                    if (indexList.Any()) {
+                        var queryTokens = indexList.GroupBy(d => d).Select(g => Tuple.Create(g.Key, (float)g.Count())).ToList();
+                        var vector = new float[maxIndex];
+                        foreach (var token in queryTokens)
+                            vector[token.Item1] = token.Item2;
+
+                        Console.WriteLine("Bernoulli classification: " + bernoulliClassifier.Classify(indexList).First());
+                        Console.WriteLine("Multinomial classification: " + multinomialClassifier.Classify(indexList).First());
+                        Console.WriteLine("Neural network classification: " + classificationTable[neuralClassifier.Execute(vector).MaximumIndex()]);
+                    }
+                    else
+                        Console.WriteLine("Sorry, none of those words have been seen before.");
                 }
-                Console.WriteLine();
             }
+            Console.WriteLine();
         }
     }
 }
