@@ -15,6 +15,7 @@ via the [Numerics.Net Wrapper](http://numerics.mathdotnet.com/MKL.html).
 
 * [Classification](http://www.jackdermody.net/brightwire/article/Introduction_to_Bright_Wire)
 * [Multinomial Logistic Regression](http://jackdermody.net/brightwire/article/Multi_Class_Logistic_Regression)
+* [Recognising Handwritten Digits (MNIST)](http://jackdermody.net/brightwire/article/Recognising_Handwritten_Digits_(MNIST))
 
 ## Nuget Installation
 
