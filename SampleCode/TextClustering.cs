@@ -117,7 +117,7 @@ namespace BrightWire.SampleCode
                 _WriteClusters(outputPath + "kmeans.txt", vectorList.KMeans(allGroups.Count), lookupTable);
 
                 Console.WriteLine("NNMF clustering...");
-                _WriteClusters(outputPath + "nnmf.txt", vectorList.NNMF(lap, allGroups.Count, 200), lookupTable);
+                _WriteClusters(outputPath + "nnmf.txt", vectorList.NNMF(lap, allGroups.Count, 100), lookupTable);
 
                 var matrix = lap.CreateMatrix(vectorList.Select(v => v.Data).ToList());
                 vectorList.ForEach(v => v.Dispose());
