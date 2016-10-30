@@ -25,27 +25,27 @@ namespace BrightWire.Linear.Training
             _target = lap.Create(table.GetColumn<float>(classColumnIndex));
         }
 
-        public LinearRegression Solve()
-        {
-            // solve using normal method
-            using (var lambdaMatrix = _lap.CreateIdentity(_feature.ColumnCount))
-            using (var zero = _lap.Create(1, 0f)) {
-                lambdaMatrix.UpdateColumn(0, zero.AsIndexable(), 0);
+        //public LinearRegression Solve()
+        //{
+        //    // solve using normal method
+        //    using (var lambdaMatrix = _lap.CreateIdentity(_feature.ColumnCount))
+        //    using (var zero = _lap.Create(1, 0f)) {
+        //        lambdaMatrix.UpdateColumn(0, zero.AsIndexable(), 0);
 
-                using (var featureTranspose = _feature.Transpose())
-                using (var pinv = featureTranspose.Multiply(_feature))
-                using (var pinv2 = pinv.Add(lambdaMatrix))
-                using (var pinv3 = pinv2.Inverse())
-                using (var tc = _target.ToColumnMatrix())
-                using (var a2 = featureTranspose.Multiply(tc))
-                using (var ret = pinv3.Multiply(a2))
-                using (var theta = ret.Column(0)) {
-                    return new LinearRegression {
-                        Theta = theta.Data
-                    };
-                }
-            }
-        }
+        //        using (var featureTranspose = _feature.Transpose())
+        //        using (var pinv = featureTranspose.Multiply(_feature))
+        //        using (var pinv2 = pinv.Add(lambdaMatrix))
+        //        using (var pinv3 = pinv2.Inverse())
+        //        using (var tc = _target.ToColumnMatrix())
+        //        using (var a2 = featureTranspose.Multiply(tc))
+        //        using (var ret = pinv3.Multiply(a2))
+        //        using (var theta = ret.Column(0)) {
+        //            return new LinearRegression {
+        //                Theta = theta.Data
+        //            };
+        //        }
+        //    }
+        //}
 
         public LinearRegression GradientDescent(int iterations, float learningRate, float lambda = 0.1f, Func<float, bool> costCallback = null)
         {
