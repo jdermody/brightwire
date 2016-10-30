@@ -33,6 +33,24 @@ namespace BrightWire.TabularData.Helper
             _delimiter = delimiter;
         }
 
+        string _ReadLine(StreamReader reader)
+        {
+            var ret = new StringBuilder();
+            var inQuote = false;
+
+            while(!reader.EndOfStream) {
+                var ch = (char)reader.Read();
+                if (ch == '"')
+                    inQuote = !inQuote;
+                else if (ch == '\n' && !inQuote)
+                    return ret.ToString();
+                else if (ch == '\r')
+                    continue;
+                ret.Append(ch);
+            }
+            return ret.ToString();
+        }
+
         public IDataTable Parse(StreamReader reader, Stream output = null, bool? hasHeader = null)
         {
             if (output == null)
@@ -41,7 +59,7 @@ namespace BrightWire.TabularData.Helper
             //preview the file
             var lines = new List<string>();
             while (!reader.EndOfStream && lines.Count < DataTable.BLOCK_SIZE) {
-                var line = reader.ReadLine();
+                var line = _ReadLine(reader);
                 if (String.IsNullOrEmpty(line))
                     continue;
                 lines.Add(line);
@@ -59,7 +77,7 @@ namespace BrightWire.TabularData.Helper
                 // parse the remaining data
                 int pos = 0;
                 while (!reader.EndOfStream) {
-                    var line = reader.ReadLine();
+                    var line = _ReadLine(reader);
                     if (String.IsNullOrEmpty(line))
                         continue;
                     _Add(line, writer);
