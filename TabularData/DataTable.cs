@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 
 namespace BrightWire.TabularData
 {
@@ -52,6 +53,7 @@ namespace BrightWire.TabularData
         readonly protected Stream _stream;
         readonly object _mutex = new object();
         readonly IReadOnlyList<long> _index = new List<long>();
+        readonly RowConverter _rowConverter = new RowConverter();
         readonly int _rowCount;
 
         IDataTableAnalysis _analysis = null;
@@ -189,7 +191,7 @@ namespace BrightWire.TabularData
                 _stream.Seek(_dataOffset, SeekOrigin.Begin);
                 var reader = new BinaryReader(_stream, Encoding.UTF8, true);
                 while (_stream.Position < _stream.Length) {
-                    var row = new DataTableRow(this, _ReadRow(reader));
+                    var row = new DataTableRow(this, _ReadRow(reader), _rowConverter);
                     if (!callback(row))
                         break;
                 }
@@ -219,7 +221,7 @@ namespace BrightWire.TabularData
 
                 // read the data
                 for (var i = 0; i < count && _stream.Position < _stream.Length; i++)
-                    ret.Add(new DataTableRow(this, _ReadRow(reader)));
+                    ret.Add(new DataTableRow(this, _ReadRow(reader), _rowConverter));
             }
             return ret;
         }
@@ -234,7 +236,7 @@ namespace BrightWire.TabularData
                 _stream.Seek(_index[block], SeekOrigin.Begin);
                 for (var i = 0; i < offset; i++)
                     _SkipRow(reader);
-                return new DataTableRow(this, _ReadRow(reader));
+                return new DataTableRow(this, _ReadRow(reader), _rowConverter);
             }
         }
 
@@ -263,7 +265,7 @@ namespace BrightWire.TabularData
 
                     for (int i = block.Key * BLOCK_SIZE, len = i + BLOCK_SIZE; i < len && _stream.Position < _stream.Length; i++) {
                         if (match.TryGetValue(i, out temp)) {
-                            var row = new DataTableRow(this, _ReadRow(reader));
+                            var row = new DataTableRow(this, _ReadRow(reader), _rowConverter);
                             for (var j = 0; j < temp; j++)
                                 ret.Add(row);
                         }
@@ -528,6 +530,53 @@ namespace BrightWire.TabularData
                 })))
                 .ToList()
             ;
+        }
+
+        public void ForEach(Action<IRow> callback)
+        {
+            _Iterate(row => { callback(row); return true; });
+        }
+
+        public void ForEach(Func<IRow, bool> callback)
+        {
+            _Iterate(row => callback(row));
+        }
+
+        public string XmlPreview
+        {
+            get
+            {
+                var rows = GetRows(Enumerable.Range(0, Math.Min(10, RowCount)));
+                var ret = new StringBuilder();
+                using (var writer = new XmlTextWriter(new StringWriter(ret))) {
+                    writer.WriteStartElement("table");
+                    writer.WriteAttributeString("row-count", RowCount.ToString());
+                    foreach(var column in Columns) {
+                        writer.WriteStartElement("column");
+                        writer.WriteAttributeString("type", column.Type.ToString());
+                        writer.WriteAttributeString("name", column.Name);
+                        writer.WriteAttributeString("num-distinct", column.NumDistinct.ToString());
+                        writer.WriteAttributeString("is-continuous", column.IsContinuous ? "y" : "n");
+                        if (column.IsTarget)
+                            writer.WriteAttributeString("classification-target", "y");
+                        writer.WriteEndElement();
+                    }
+                    foreach(var row in rows) {
+                        writer.WriteStartElement("row");
+                        foreach(var val in row.Data) {
+                            writer.WriteStartElement("item");
+                            if (val == null)
+                                writer.WriteString("(null)");
+                            else
+                                writer.WriteString(val.ToString());
+                            writer.WriteEndElement();
+                        }
+                        writer.WriteEndElement();
+                    }
+                    writer.WriteEndElement();
+                }
+                return ret.ToString();
+            }
         }
     }
 }

@@ -60,6 +60,7 @@ namespace BrightWire.TabularData
         }
         readonly List<Column> _column = new List<Column>();
         readonly List<DataTableRow> _data = new List<DataTableRow>();
+        readonly RowConverter _rowConverter = new RowConverter();
 
         /// <summary>
         /// Default constructor
@@ -115,7 +116,7 @@ namespace BrightWire.TabularData
         /// <param name="data">The data in the row</param>
         public IRow AddRow(IEnumerable<object> data)
         {
-            var row = new DataTableRow(this, data.ToArray());
+            var row = new DataTableRow(this, data.ToArray(), _rowConverter);
             _data.Add(row);
 
             var data2 = row.Data;
