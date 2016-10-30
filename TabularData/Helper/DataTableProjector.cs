@@ -11,14 +11,17 @@ namespace BrightWire.TabularData.Helper
     {
         readonly IRowProcessor _destination;
         readonly IReadOnlyList<int> _validColumn;
+        readonly RowConverter _rowConverter = new RowConverter();
 
         class ProjectedRow : IRow
         {
             readonly IReadOnlyList<object> _data;
+            readonly RowConverter _rowConverter;
 
-            public ProjectedRow(IReadOnlyList<object> data)
+            public ProjectedRow(IReadOnlyList<object> data, RowConverter rowConverter)
             {
                 _data = data;
+                _rowConverter = rowConverter;
             }
 
             public IReadOnlyList<object> Data
@@ -31,14 +34,14 @@ namespace BrightWire.TabularData.Helper
 
             public T GetField<T>(int index)
             {
-                return DataTableRow.GetField<T>(_data, index);
+                return _rowConverter.GetField<T>(_data, index);
             }
 
             public IReadOnlyList<T> GetFields<T>(IReadOnlyList<int> indices)
             {
                 var ret = new T[indices.Count];
                 for (int i = 0, len = indices.Count; i < len; i++)
-                    ret[i] = DataTableRow.GetField<T>(_data, i);
+                    ret[i] = _rowConverter.GetField<T>(_data, i);
                 return ret;
             }
         }
@@ -55,7 +58,7 @@ namespace BrightWire.TabularData.Helper
             var newRow = new List<object>();
             foreach(var item in _validColumn)
                 newRow.Add(data[item]);
-            return _destination.Process(new ProjectedRow(newRow));
+            return _destination.Process(new ProjectedRow(newRow, _rowConverter));
         }
 
         public static IDataTable Project(IDataTable table, IEnumerable<int> columns, Stream output = null)
