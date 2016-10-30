@@ -432,6 +432,12 @@ namespace BrightWire.LinearAlgebra
             }
         }
 
+        public float FindDistance(IVector other, DistanceMetric distance)
+        {
+            using (var ret = FindDistances(new[] { other }, distance))
+                return ret.Data.Data[0];
+        }
+
         public IVector CosineDistance(IReadOnlyList<IVector> data, ref float[] dataNorm)
         {
             var norm = DotProduct(this);

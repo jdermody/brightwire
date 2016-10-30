@@ -56,8 +56,8 @@ namespace BrightWire.Models
         {
             uint temp;
             var ret = new Dictionary<string, uint>();
-            foreach(var item in Classifications) {
-                if(!ret.TryGetValue(item.Name, out temp))
+            foreach (var item in Classifications) {
+                if (!ret.TryGetValue(item.Name, out temp))
                     ret.Add(item.Name, temp = (uint)ret.Count);
             }
             return ret;

@@ -215,8 +215,8 @@ namespace BrightWire.LinearAlgebra
             if (disposing && !_disposed) {
                 _blas.Dispose();
                 _cuda.Dispose();
-                if(_solver.IsValueCreated)
-                    _solver.Value.Dispose();
+                //if(_solver.IsValueCreated)
+                //    _solver.Value.Dispose();
                 _numerics.Dispose();
                 _disposed = true;
             }
@@ -696,9 +696,9 @@ namespace BrightWire.LinearAlgebra
 
         public IMatrix Create(IList<IIndexableVector> vectorData)
         {
-            int columns = vectorData.Count;
-            int rows = vectorData[0].Count;
-            return Create(rows, columns, (x, y) => vectorData[y][x]);
+            int rows = vectorData.Count;
+            int columns = vectorData[0].Count;
+            return Create(rows, columns, (x, y) => vectorData[x][y]);
         }
 
         public IMatrix Create(int rows, int columns, float value)
@@ -716,9 +716,9 @@ namespace BrightWire.LinearAlgebra
             return Create(size, size, (x, y) => x == y ? 1f : 0f);
         }
 
-        public IMatrix CreateDiagonal(float[] values)
+        public IMatrix CreateDiagonal(IReadOnlyList<float> values)
         {
-            return Create(values.Length, values.Length, (x, y) => x == y ? values[x] : 0f);
+            return Create(values.Count, values.Count, (x, y) => x == y ? values[x] : 0f);
         }
 
         public IIndexableVector CreateIndexable(int length)

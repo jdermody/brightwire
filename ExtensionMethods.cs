@@ -354,6 +354,19 @@ namespace BrightWire
         }
 
         /// <summary>
+        /// Hierachical clustering successively finds the closest distance between pairs of centroids until k is reached
+        /// </summary>
+        /// <param name="data">The list of vectors to cluster</param>
+        /// <returns>A list of k clusters</returns>
+        public static IReadOnlyList<IReadOnlyList<IVector>> HierachicalCluster(this IReadOnlyList<IVector> data, int k)
+        {
+            using (var clusterer = new Hierachical(k, data, DistanceMetric.Euclidean)) {
+                clusterer.Cluster();
+                return clusterer.Clusters;
+            }
+        }
+
+        /// <summary>
         /// Non negative matrix factorisation - clustering based on the factorisation of non-negative matrices. Only applicable for training data that is non-negative.
         /// </summary>
         /// <param name="data">The training data</param>

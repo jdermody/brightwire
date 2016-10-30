@@ -330,6 +330,11 @@ namespace BrightWire.LinearAlgebra
             return new CpuVector(DenseVector.Create(data.Count, i => ret[i]));
         }
 
+        public float FindDistance(IVector other, DistanceMetric distance)
+        {
+            return _GetDistanceFunc(distance)(other);
+        }
+
         public IVector CosineDistance(IReadOnlyList<IVector> data, ref float[] dataNorm)
         {
             var norm = DotProduct(this);

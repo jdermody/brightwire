@@ -67,7 +67,7 @@ namespace BrightWire
         /// <summary>
         /// Creates a matrix from a list of vectors
         /// </summary>
-        /// <param name="vectorData">The list of columns in the matrix</param>
+        /// <param name="vectorData">The list of rows in the new matrix</param>
         IMatrix Create(IList<IIndexableVector> vectorData);
 
         /// <summary>
@@ -134,7 +134,7 @@ namespace BrightWire
         /// Creates a diagonal matrix
         /// </summary>
         /// <param name="values">The diagonal values</param>
-        IMatrix CreateDiagonal(float[] values);
+        IMatrix CreateDiagonal(IReadOnlyList<float> values);
 
         /// <summary>
         /// Neural network factory
@@ -378,6 +378,13 @@ namespace BrightWire
         /// <param name="distance">The distance metric</param>
         /// <returns>A vector in which each element n is the distance between the current and the nth target vector</returns>
         IVector FindDistances(IReadOnlyList<IVector> data, DistanceMetric distance);
+
+        /// <summary>
+        /// Returns the distance between the current and the target vector
+        /// </summary>
+        /// <param name="other">The target vector</param>
+        /// <param name="distance">The distance metric</param>
+        float FindDistance(IVector other, DistanceMetric distance);
 
         /// <summary>
         /// Returns a vector of the cosine distance between the current and target vectors
@@ -717,18 +724,18 @@ namespace BrightWire
         /// <summary>
         /// Returns a segment from a row of the current matrix
         /// </summary>
-        /// <param name="index">The row index</param>
+        /// <param name="rowIndex">The row index</param>
         /// <param name="columnIndex">The start index to return</param>
         /// <param name="length">The number of elements to return</param>
-        IVector GetRowSegment(int index, int columnIndex, int length);
+        IVector GetRowSegment(int rowIndex, int columnIndex, int length);
 
         /// <summary>
         /// Returns a segment from a column of the current matrix
         /// </summary>
-        /// <param name="index">The column index</param>
+        /// <param name="columnIndex">The column index</param>
         /// <param name="rowIndex">The start index to return</param>
         /// <param name="length">The number of elements to return</param>
-        IVector GetColumnSegment(int index, int rowIndex, int length);
+        IVector GetColumnSegment(int columnIndex, int rowIndex, int length);
 
         /// <summary>
         /// Returns a new matrix with the columns of the target matrix appended to each column of the current matrix
@@ -753,11 +760,6 @@ namespace BrightWire
         /// </summary>
         /// <param name="position">The row index at which to split</param>
         ColumnSplit SplitColumns(int position);
-
-        /// <summary>
-        /// Returns the inverse of the current matrix
-        /// </summary>
-        IMatrix Inverse();
 
         /// <summary>
         /// Singular value decomposition
@@ -2435,7 +2437,18 @@ namespace BrightWire
         /// Data table statistics
         /// </summary>
         IDataTableAnalysis GetAnalysis();
-        //void Process(Func<IRow, int, bool> processor);
+
+        /// <summary>
+        /// Invokes the callback on each row in the table
+        /// </summary>
+        /// <param name="callback">Callback that is invoked for each row</param>
+        void ForEach(Action<IRow> callback);
+
+        /// <summary>
+        /// Invokes the callback on each row in the table
+        /// </summary>
+        /// <param name="callback">Callback that is invoked for each row and returns true to continue processing</param>
+        void ForEach(Func<IRow, bool> callback);
 
         /// <summary>
         /// Gets a list of rows
@@ -2704,7 +2717,7 @@ namespace BrightWire
         /// Attempt to solve the model using matrix inversion (only applicable for small sets of training data)
         /// </summary>
         /// <returns></returns>
-        LinearRegression Solve();
+        //LinearRegression Solve();
 
         /// <summary>
         /// Solves the model using gradient descent

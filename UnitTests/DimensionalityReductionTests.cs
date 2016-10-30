@@ -38,7 +38,7 @@ namespace UnitTests
         [TestMethod]
         public void TestSVD()
         {
-            var a = _lap.Create(256, 256, (x, y) => x * y).AsIndexable();
+            var a = _lap.Create(256, 128, (x, y) => x * y).AsIndexable();
             var svd = a.Svd();
             var reducedSize = Enumerable.Range(0, 32).ToList();
 
@@ -47,6 +47,8 @@ namespace UnitTests
             var vt = svd.VT.GetNewMatrixFromColumns(reducedSize);
             var us = u.TransposeThisAndMultiply(s);
             var usvt = us.TransposeAndMultiply(vt);
+            Assert.AreEqual(a.RowCount, usvt.RowCount);
+            Assert.AreEqual(a.ColumnCount, usvt.ColumnCount);
         }
     }
 }

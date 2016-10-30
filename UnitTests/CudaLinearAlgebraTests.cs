@@ -509,8 +509,8 @@ namespace UnitTests
         [TestMethod]
         public void MatrixColumn()
         {
-            const int INDEX = 1;
-            var a = _cpu.Create(2, 5, (j, k) => j * k).AsIndexable();
+            const int INDEX = 7;
+            var a = _cpu.Create(13, 17, (j, k) => j * k).AsIndexable();
             var row = a.Column(INDEX).AsIndexable();
 
             IIndexableVector gpuResults;
@@ -524,8 +524,8 @@ namespace UnitTests
         [TestMethod]
         public void MatrixRow()
         {
-            const int INDEX = 1;
-            var a = _cpu.Create(2, 5, (j, k) => k * j).AsIndexable();
+            const int INDEX = 11;
+            var a = _cpu.Create(20, 50, (j, k) => k * j).AsIndexable();
             var row = a.Row(INDEX).AsIndexable();
 
             IIndexableVector gpuResults;
@@ -636,7 +636,7 @@ namespace UnitTests
         public void MatrixSigmoidActivation()
         {
             var normalDistribution = new Normal(0, 1);
-            var a = _cpu.Create(10, 10, (j, k) => Convert.ToSingle(normalDistribution.Sample())).AsIndexable();
+            var a = _cpu.Create(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample())).AsIndexable();
             var b = a.SigmoidActivation().AsIndexable();
 
             IIndexableMatrix gpuResults;
@@ -651,7 +651,7 @@ namespace UnitTests
         public void MatrixSigmoidDerivative()
         {
             var normalDistribution = new Normal(0, 1);
-            var a = _cpu.Create(10, 10, (j, k) => Convert.ToSingle(normalDistribution.Sample())).AsIndexable();
+            var a = _cpu.Create(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample())).AsIndexable();
             var b = a.SigmoidDerivative().AsIndexable();
 
             IIndexableMatrix gpuResults;
@@ -666,7 +666,7 @@ namespace UnitTests
         public void MatrixTanhActivation()
         {
             var normalDistribution = new Normal(0, 1);
-            var a = _cpu.Create(10, 10, (j, k) => Convert.ToSingle(normalDistribution.Sample())).AsIndexable();
+            var a = _cpu.Create(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample())).AsIndexable();
             var b = a.TanhActivation().AsIndexable();
 
             IIndexableMatrix gpuResults;
@@ -681,7 +681,7 @@ namespace UnitTests
         public void MatrixTanhDerivative()
         {
             var normalDistribution = new Normal(0, 1);
-            var a = _cpu.Create(10, 10, (j, k) => Convert.ToSingle(normalDistribution.Sample())).AsIndexable();
+            var a = _cpu.Create(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample())).AsIndexable();
             var b = a.TanhDerivative().AsIndexable();
 
             IIndexableMatrix gpuResults;
@@ -696,7 +696,7 @@ namespace UnitTests
         public void MatrixRELUActivation()
         {
             var normalDistribution = new Normal(0, 1);
-            var a = _cpu.Create(10, 10, (j, k) => Convert.ToSingle(normalDistribution.Sample())).AsIndexable();
+            var a = _cpu.Create(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample())).AsIndexable();
             var b = a.ReluActivation().AsIndexable();
 
             IIndexableMatrix gpuResults;
@@ -711,7 +711,7 @@ namespace UnitTests
         public void MatrixRELUDerivative()
         {
             var normalDistribution = new Normal(0, 1);
-            var a = _cpu.Create(10, 10, (j, k) => Convert.ToSingle(normalDistribution.Sample())).AsIndexable();
+            var a = _cpu.Create(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample())).AsIndexable();
             var b = a.ReluDerivative().AsIndexable();
 
             IIndexableMatrix gpuResults;
@@ -726,7 +726,7 @@ namespace UnitTests
         public void MatrixLeakyRELUActivation()
         {
             var normalDistribution = new Normal(0, 1);
-            var a = _cpu.Create(10, 10, (j, k) => Convert.ToSingle(normalDistribution.Sample())).AsIndexable();
+            var a = _cpu.Create(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample())).AsIndexable();
             var b = a.LeakyReluActivation().AsIndexable();
 
             IIndexableMatrix gpuResults;
@@ -741,7 +741,7 @@ namespace UnitTests
         public void MatrixLeakyRELUDerivative()
         {
             var normalDistribution = new Normal(0, 1);
-            var a = _cpu.Create(10, 10, (j, k) => Convert.ToSingle(normalDistribution.Sample())).AsIndexable();
+            var a = _cpu.Create(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample())).AsIndexable();
             var b = a.LeakyReluDerivative().AsIndexable();
 
             IIndexableMatrix gpuResults;
@@ -755,8 +755,8 @@ namespace UnitTests
         [TestMethod]
         public void MatrixNewMatrixFromRows()
         {
-            var rows = new[] { 1, 2 };
-            var a = _cpu.Create(3, 2, (j, k) => k + 1).AsIndexable();
+            var rows = new[] { 7, 8, 9 };
+            var a = _cpu.Create(13, 17, (j, k) => (k + 1) * (j + 1)).AsIndexable();
             var results = a.GetNewMatrixFromRows(rows).AsIndexable();
 
             IIndexableMatrix gpuResults;
@@ -770,8 +770,8 @@ namespace UnitTests
         [TestMethod]
         public void MatrixNewMatrixFromColumns()
         {
-            var cols = new[] { 1, 2 };
-            var a = _cpu.Create(5, 5, (j, k) => k + 1).AsIndexable();
+            var cols = new[] { 1, 2, 9 };
+            var a = _cpu.Create(12, 13, (j, k) => (k+1) * (j+1)).AsIndexable();
             var results = a.GetNewMatrixFromColumns(cols).AsIndexable();
 
             IIndexableMatrix gpuResults;
@@ -785,8 +785,8 @@ namespace UnitTests
         [TestMethod]
         public void MatrixClearRows()
         {
-            var rows = new[] { 1, 2 };
-            var a = _cpu.Create(3, 2, (j, k) => k + 1).AsIndexable();
+            var rows = new[] { 1, 2, 9 };
+            var a = _cpu.Create(13, 12, (j, k) => k + 1).AsIndexable();
             a.ClearRows(rows);
 
             IIndexableMatrix gpuResults;
@@ -801,8 +801,8 @@ namespace UnitTests
         [TestMethod]
         public void MatrixClearColumns()
         {
-            var cols = new[] { 1, 2 };
-            var a = _cpu.Create(5, 5, (j, k) => k + 1).AsIndexable();
+            var cols = new[] { 1, 2, 7 };
+            var a = _cpu.Create(18, 13, (j, k) => k + 1).AsIndexable();
             a.ClearColumns(cols);
 
             IIndexableMatrix gpuResults;
@@ -817,8 +817,7 @@ namespace UnitTests
         [TestMethod]
         public void MatrixClear()
         {
-            var cols = new[] { 1, 2 };
-            var a = _cpu.Create(5, 5, (j, k) => k + 1).AsIndexable();
+            var a = _cpu.Create(15, 23, (j, k) => k + 1).AsIndexable();
 
             IIndexableMatrix gpuResults;
             using (var gpuA = _cuda.Create(a)) {
@@ -833,7 +832,7 @@ namespace UnitTests
         [TestMethod]
         public void MatrixClone()
         {
-            var a = _cpu.Create(5, 5, (j, k) => k + 1).AsIndexable();
+            var a = _cpu.Create(12, 7, (j, k) => k + 1).AsIndexable();
             var b = a.Clone().AsIndexable();
             FloatingPointHelper.AssertEqual(a, b);
 
@@ -1111,7 +1110,7 @@ namespace UnitTests
         [TestMethod]
         public void MatrixUpdateRow()
         {
-            var a = _cpu.CreateIndexable(10, 10, (x, y) => x * 2 + y);
+            var a = _cpu.CreateIndexable(3, 7, (x, y) => x * 2 + y);
             var r = _cpu.CreateIndexable(2, x => -1f);
 
             IIndexableMatrix gpuResults;
@@ -1127,7 +1126,7 @@ namespace UnitTests
         [TestMethod]
         public void MatrixUpdateColumn()
         {
-            var a = _cpu.CreateIndexable(10, 10, (x, y) => x * 2 + y);
+            var a = _cpu.CreateIndexable(13, 17, (x, y) => x * 2 + y);
             var r = _cpu.CreateIndexable(2, x => -1f);
 
             IIndexableMatrix gpuResults;
@@ -1143,7 +1142,7 @@ namespace UnitTests
         [TestMethod]
         public void MatrixGetRowSegment()
         {
-            var a = _cpu.CreateIndexable(10, 10, (x, y) => x * 2 + y);
+            var a = _cpu.CreateIndexable(12, 18, (x, y) => x * 2 + y);
             var r = a.GetRowSegment(1, 2, 5).AsIndexable();
 
             IIndexableVector gpuResults;
@@ -1156,7 +1155,7 @@ namespace UnitTests
         [TestMethod]
         public void MatrixGetColumnSegment()
         {
-            var a = _cpu.CreateIndexable(10, 10, (x, y) => x * 2 + y);
+            var a = _cpu.CreateIndexable(9, 8, (x, y) => (x+1) * (y+1));
             var r = a.GetColumnSegment(1, 2, 5).AsIndexable();
 
             IIndexableVector gpuResults;
@@ -1342,7 +1341,7 @@ namespace UnitTests
             using (var gpuB = gpuA.Log())
                 v2 = gpuA.Log().AsIndexable();
 
-            FloatingPointHelper.AssertEqual(v1, v2, 12);
+            FloatingPointHelper.AssertEqual(v1, v2, 14);
         }
 
         [TestMethod]

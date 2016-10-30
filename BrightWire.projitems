@@ -147,6 +147,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)TabularData\Helper\DataTableRow.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TabularData\Helper\DataTableWriter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TabularData\DataTableBuilder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TabularData\Helper\RowConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TrainingData\Artificial\BinaryIntegers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TrainingData\Artificial\ReberGrammar.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TrainingData\Artificial\Xor.cs" />
@@ -155,6 +156,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)TreeBased\RandomForestClassifier.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TreeBased\Training\DecisionTreeTrainer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TreeBased\Training\RandomForestTrainer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Unsupervised\Clustering\Hierachical.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Unsupervised\Clustering\KMeans.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Unsupervised\Clustering\NonNegativeMatrixFactorisation.cs" />
   </ItemGroup>
@@ -162,7 +164,7 @@
     <None Include="$(MSBuildThisFileDirectory)LICENSE" />
     <None Include="$(MSBuildThisFileDirectory)LinearAlgebra\cuda\kernel.cu" />
     <None Include="$(MSBuildThisFileDirectory)LinearAlgebra\cuda\kernel.cubin">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Include="$(MSBuildThisFileDirectory)LinearAlgebra\cuda\kernel.ptx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

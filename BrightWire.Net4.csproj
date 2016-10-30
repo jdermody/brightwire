@@ -190,6 +190,7 @@
     <Compile Include="TabularData\Helper\DataTableProjector.cs" />
     <Compile Include="TabularData\Helper\DataTableRow.cs" />
     <Compile Include="TabularData\Helper\DataTableWriter.cs" />
+    <Compile Include="TabularData\Helper\RowConverter.cs" />
     <Compile Include="TrainingData\Artificial\BinaryIntegers.cs" />
     <Compile Include="TrainingData\Artificial\ReberGrammar.cs" />
     <Compile Include="TrainingData\Artificial\Xor.cs" />
@@ -198,6 +199,7 @@
     <Compile Include="TreeBased\RandomForestClassifier.cs" />
     <Compile Include="TreeBased\Training\DecisionTreeTrainer.cs" />
     <Compile Include="TreeBased\Training\RandomForestTrainer.cs" />
+    <Compile Include="Unsupervised\Clustering\Hierachical.cs" />
     <Compile Include="Unsupervised\Clustering\KMeans.cs" />
     <Compile Include="Unsupervised\Clustering\NonNegativeMatrixFactorisation.cs" />
   </ItemGroup>

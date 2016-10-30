@@ -43,18 +43,18 @@ namespace UnitTests
             var index = dataTable.Build();
 
             var classifier = index.CreateLinearRegressionTrainer(_lap);
-            var theta = classifier.Solve();
-            var predictor = theta.CreatePredictor(_lap);
+            //var theta = classifier.Solve();
+            //var predictor = theta.CreatePredictor(_lap);
 
+            //var prediction = predictor.Predict(3f);
+            //Assert.IsTrue(Math.Round(prediction) == 6f);
+
+            var theta = classifier.GradientDescent(20, 0.01f);
+            var predictor = theta.CreatePredictor(_lap);
             var prediction = predictor.Predict(3f);
             Assert.IsTrue(Math.Round(prediction) == 6f);
 
-            var theta2 = classifier.GradientDescent(20, 0.01f);
-            var predictor2 = theta2.CreatePredictor(_lap);
-            var prediction2 = predictor2.Predict(3f);
-            Assert.IsTrue(Math.Round(prediction2) == 6f);
-
-            var prediction3 = predictor2.Predict(new[] {
+            var prediction3 = predictor.Predict(new[] {
                 new float[] { 10f },
                 new float[] { 3f }
             });

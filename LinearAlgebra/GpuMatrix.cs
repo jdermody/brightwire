@@ -266,10 +266,14 @@ namespace BrightWire.LinearAlgebra
             return new GpuVector(_cuda, Math.Min(_rows, _columns), ret);
         }
 
-        public IVector GetColumnSegment(int index, int rowIndex, int length)
+        public IVector GetColumnSegment(int columnIndex, int rowIndex, int length)
         {
             Debug.Assert(IsValid);
-            return AsIndexable().GetColumnSegment(index, rowIndex, length);
+
+            var ret = new CudaDeviceVariable<float>(length);
+            ret.CopyToDevice(_data, ((columnIndex * _rows) + rowIndex) * sizeof(float), 0, length * sizeof(float));
+
+            return new GpuVector(_cuda, length, ret);
         }
 
         public IMatrix GetNewMatrixFromColumns(IReadOnlyList<int> columnIndices)
@@ -288,24 +292,28 @@ namespace BrightWire.LinearAlgebra
         {
             Debug.Assert(IsValid);
             int offset = 0;
-            var ret = new CudaDeviceVariable<float>(rowIndices.Count * _columns);
+            var ret = new CudaDeviceVariable<float>(_columns * rowIndices.Count);
             foreach (var item in rowIndices) {
                 CudaBlasNativeMethods.cublasScopy_v2(_cuda.Blas.CublasHandle,
                     n: _columns,
-                    x: _data.DevicePointer + item * sizeof(float),
+                    x: _data.DevicePointer + (item * sizeof(float)),
                     incx: _rows,
-                    y: ret.DevicePointer + offset * sizeof(float),
-                    incy: _columns
+                    y: ret.DevicePointer + (offset * sizeof(float)),
+                    incy: rowIndices.Count
                 );
                 offset += 1;
             }
             return new GpuMatrix(_cuda, rowIndices.Count, _columns, ret);
         }
 
-        public IVector GetRowSegment(int index, int columnIndex, int length)
+        public IVector GetRowSegment(int rowIndex, int columnIndex, int length)
         {
             Debug.Assert(IsValid);
-            return AsIndexable().GetRowSegment(index, columnIndex, length);
+            int offset = (rowIndex + (columnIndex * _rows)) * sizeof(float);
+            var ret = new CudaDeviceVariable<float>(length);
+            CudaBlasNativeMethods.cublasScopy_v2(_cuda.Blas.CublasHandle, length, _data.DevicePointer + offset, _rows, ret.DevicePointer, 1);
+            return new GpuVector(_cuda, length, ret);
+            //return AsIndexable().GetRowSegment(index, columnIndex, length);
         }
 
         public void L1Regularisation(float coefficient)
@@ -421,7 +429,7 @@ namespace BrightWire.LinearAlgebra
             Debug.Assert(IsValid);
             var ret = new CudaDeviceVariable<float>(_columns);
             int offset = index * sizeof(float);
-            CudaBlasNativeMethods.cublasScopy_v2(_cuda.Blas.CublasHandle, _columns * sizeof(float), _data.DevicePointer + offset, _rows, ret.DevicePointer, 1);
+            CudaBlasNativeMethods.cublasScopy_v2(_cuda.Blas.CublasHandle, _columns, _data.DevicePointer + offset, _rows, ret.DevicePointer, 1);
             return new GpuVector(_cuda, _columns, ret);
         }
 
@@ -620,20 +628,6 @@ namespace BrightWire.LinearAlgebra
             get
             {
                 return AsIndexable().Data;
-                //var ret = new FloatArray[_rows];
-                //var data = new float[_rows * _columns];
-                //_data.CopyToHost(data);
-
-                //for (var i = 0; i < _rows; i++) {
-                //    var row = new float[_columns];
-                //    for (var j = 0; j < _columns; j++) {
-                //        row[j] = data[j * _rows + i];
-                //    }
-                //    ret[i] = new FloatArray {
-                //        Data = row
-                //    };
-                //}
-                //return ret;
             }
 
             set
@@ -662,12 +656,6 @@ namespace BrightWire.LinearAlgebra
         {
             using (var column = vector.ToColumnMatrix())
                 return Multiply(column);
-        }
-
-        public IMatrix Inverse()
-        {
-            Debug.Assert(IsValid && RowCount == ColumnCount);
-            throw new NotImplementedException();
         }
 
         public SingularValueDecomposition Svd()
