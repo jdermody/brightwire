@@ -54,6 +54,7 @@ Note: When using the CUDA version, make sure that the /LinearAlgebra/cuda/kernel
 
 ### Unsupervised
 * K Means
+* Hierachical Clustering
 * Non Negative Matrix Factorisation
 
 ### Linear
