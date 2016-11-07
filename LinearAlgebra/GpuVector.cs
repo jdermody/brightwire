@@ -154,7 +154,7 @@ namespace BrightWire.LinearAlgebra
         {
             var data = new float[_size];
             _data.CopyToHost(data);
-            return new CpuVector(DenseVector.Create(_size, (i) => data[i]));
+            return _cuda.NumericsProvider.Create(_size, i => data[i]).AsIndexable();
         }
 
         public IVector Clone()

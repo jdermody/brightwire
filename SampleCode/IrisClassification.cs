@@ -53,7 +53,7 @@ namespace BrightWire.SampleCode
             );
 
             // fire up some linear algebra on the CPU
-            using (var lap = Provider.CreateCPULinearAlgebra(false)) {
+            using (var lap = Provider.CreateLinearAlgebra(false)) {
                 // train and evaluate k nearest neighbours
                 var knn = split.Training.TrainKNearestNeighbours();
                 Console.WriteLine("K nearest neighbours accuracy: {0:P}", split.Test

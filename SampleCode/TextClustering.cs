@@ -13,14 +13,14 @@ namespace BrightWire.SampleCode
 {
     partial class Program
     {
-        class AAAIDocument
-        {
-            public string Title { get; set; }
-            public string[] Keyword { get; set; }
-            public string[] Topic { get; set; }
-            public string Abstract { get; set; }
-            public string[] Token { get; set; }
-            public string[] Group { get; set; }
+class AAAIDocument
+{
+    public string Title { get; set; }
+    public string[] Keyword { get; set; }
+    public string[] Topic { get; set; }
+    public string Abstract { get; set; }
+    public string[] Token { get; set; }
+    public string[] Group { get; set; }
 
             public WeightedClassificationSet.Classification AsClassification(StringTableBuilder stringTable)
             {
@@ -37,12 +37,6 @@ namespace BrightWire.SampleCode
                         Weight = 2f
                     });
                 }
-                //foreach (var item in Token) {
-                //    weightedIndex.Add(new WeightedClassificationSet.WeightedIndex {
-                //        Index = stringTable.GetIndex(item),
-                //        Weight = 1f
-                //    });
-                //}
                 return new WeightedClassificationSet.Classification {
                     Name = Title,
                     Data = weightedIndex
@@ -100,16 +94,14 @@ namespace BrightWire.SampleCode
             }));
             var docTable = docList.ToDictionary(d => d.Title, d => d);
             var allGroups = new HashSet<string>(docList.SelectMany(d => d.Group));
-            var allTopics = new HashSet<string>(docList.SelectMany(d => d.Topic));
 
             var stringTable = new StringTableBuilder();
             var classificationSet = new WeightedClassificationSet {
                 Classifications = docList.Select(d => d.AsClassification(stringTable)).ToArray()
             };
-            var tfidf = classificationSet;
-            var encodings = tfidf.Encode(true);
+            var encodings = classificationSet.Encode(true);
 
-            using (var lap = Provider.CreateGPULinearAlgebra()) {
+            using (var lap = Provider.CreateLinearAlgebra()) {
                 var lookupTable = encodings.Select(d => Tuple.Create(d, lap.Create(d.Data))).ToDictionary(d => d.Item2, d => docTable[d.Item1.Classification]);
                 var vectorList = lookupTable.Select(d => d.Key).ToList();
 
@@ -119,10 +111,11 @@ namespace BrightWire.SampleCode
                 Console.WriteLine("NNMF clustering...");
                 _WriteClusters(outputPath + "nnmf.txt", vectorList.NNMF(lap, allGroups.Count, 100), lookupTable);
 
+                // create a term/document matrix with terms as columns and documents as rows
                 var matrix = lap.CreateMatrix(vectorList.Select(v => v.Data).ToList());
                 vectorList.ForEach(v => v.Dispose());
 
-                //Console.WriteLine("Creating random projection...");
+                Console.WriteLine("Creating random projection...");
                 using (var randomProjection = lap.CreateRandomProjection((int)classificationSet.GetMaximumIndex() + 1, 512)) {
                     using (var projectedMatrix = randomProjection.Compute(matrix)) {
                         var vectorList2 = Enumerable.Range(0, projectedMatrix.RowCount).Select(i => projectedMatrix.Row(i)).ToList();
@@ -134,7 +127,6 @@ namespace BrightWire.SampleCode
                     }
                 }
 
-                // create a term/document matrix with terms as columns and documents as rows
                 Console.WriteLine("Building latent term/document space...");
                 const int K = 256;
                 var kIndices = Enumerable.Range(0, K).ToList();

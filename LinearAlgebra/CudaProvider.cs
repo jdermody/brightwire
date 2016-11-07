@@ -109,7 +109,7 @@ namespace BrightWire.LinearAlgebra
         readonly CudaBlas _blas;
         readonly Lazy<CudaSolveDense> _solver = new Lazy<CudaSolveDense>();
         readonly KernelModule _kernel;
-        readonly NumericsProvider _numerics = new NumericsProvider();
+        readonly ILinearAlgebraProvider _numerics = Provider.CreateLinearAlgebra();
         readonly Stack<AllocationLayer> _allocationLayer = new Stack<AllocationLayer>();
         readonly CUfunction
             _pointwiseMultiply,
@@ -227,6 +227,8 @@ namespace BrightWire.LinearAlgebra
             Dispose(true);
             GC.SuppressFinalize(this);
         }
+
+        public ILinearAlgebraProvider NumericsProvider { get { return _numerics; } }
 
         public CudaSolveDense Solver
         {
@@ -655,12 +657,12 @@ namespace BrightWire.LinearAlgebra
         internal CudaContext Context { get { return _cuda; } }
         internal CudaBlas Blas { get { return _blas; } }
 
-        ConnectionistFactory _factory = null;
+        INeuralNetworkFactory _factory = null;
         public INeuralNetworkFactory NN
         {
             get
             {
-                return _factory ?? (_factory = new ConnectionistFactory(this, _stochastic));
+                return _factory ?? (_factory = Provider.CreateNeuralNetworkFactory(this, _stochastic));
             }
         }
 

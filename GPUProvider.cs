@@ -9,30 +9,32 @@ using System.Threading.Tasks;
 
 namespace BrightWire
 {
-    public static partial class Provider
+    /// <summary>
+    /// Provides a GPU based linear algebra provider
+    /// </summary>
+    public static class GPUProvider
     {
         /// <summary>
         /// Creates a linear alebra provider that runs on the GPU
         /// </summary>
         /// <param name="stochastic">False to disable random number generation</param>
         /// <param name="cudaKernelPath">Path to .cubin or .ptx kernel file (defaults to .ptx file for forward compatability)</param>
-        public static ILinearAlgebraProvider CreateGPULinearAlgebra(bool stochastic = true, string cudaKernelPath = null)
+        public static ILinearAlgebraProvider CreateLinearAlgebra(bool stochastic = true, string cudaKernelPath = null)
         {
-            var path = cudaKernelPath ?? GetCudaKernelPath(true);
+            var path = cudaKernelPath ?? GetKernelPath();
             if (!File.Exists(path))
                 throw new FileNotFoundException($"Could not find cuda kernel at: {path}.");
-            return new CudaProvider(cudaKernelPath ?? GetCudaKernelPath(true), stochastic);
+            return new CudaProvider(path, stochastic);
         }
 
         /// <summary>
-        /// 
+        /// Returns the default cuda kernel path
         /// </summary>
-        /// <param name="usePtx"></param>
         /// <returns></returns>
-        public static string GetCudaKernelPath(bool usePtx)
+        public static string GetKernelPath()
         {
             var assemblyLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            return assemblyLocation + @"\LinearAlgebra\cuda\kernel." + (usePtx ? "ptx" : "cubin");
+            return assemblyLocation + @"\LinearAlgebra\cuda\kernel.ptx";
         }
     }
 }

@@ -1,4 +1,4 @@
-<img src="http://www.jackdermody.net/Content/image/bright-wire.png" alt="Bright Wire" height="144" />
+<img src="http://www.jackdermody.net/Content/image/bright-wire.png" alt="Bright Wire" style="max-height:144" />
 
 Bright Wire is a machine learning library for .NET with GPU support (via CUDA).
 
@@ -26,12 +26,11 @@ To install the standard version (no CUDA support, any CPU) use:
 Install-Package BrightWire.Net4
 ```
 
-To install the CUDA version (x64 only) use:
+To add CUDA support (x64 only) use:
 
 ```
 Install-Package BrightWire.CUDA.Net4.x64
 ```
-The CUDA version is a superset of the standard version. 
 
 Note: When using the CUDA version, make sure that the /LinearAlgebra/cuda/kernel.ptx file's is copied to the output directory (Properties/Copy To Output Directory).
 

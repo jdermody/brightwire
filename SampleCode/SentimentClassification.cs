@@ -110,7 +110,7 @@ namespace BrightWire.SampleCode
             var sentimentDataSet = sentimentDataBag.ConvertToSet(false);
             var sentimentDataSetSplit = sentimentDataSet.Split();
 
-            using (var lap = Provider.CreateGPULinearAlgebra(false)) {
+            using (var lap = GPUProvider.CreateLinearAlgebra(false)) {
                 var maxIndex = sentimentDataSet.GetMaximumIndex();
                 var classificationTable = sentimentDataSet.GetClassifications().ToDictionary(d => (int)d.Value, d => d.Key);
 

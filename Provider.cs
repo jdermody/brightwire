@@ -1,4 +1,5 @@
 ﻿using BrightWire.Bayesian;
+using BrightWire.Connectionist;
 using BrightWire.LinearAlgebra;
 using BrightWire.TabularData;
 using System;
@@ -18,8 +19,8 @@ namespace BrightWire
         /// <summary>
         /// Creates a linear algebra provider that runs on the CPU
         /// </summary>
-        /// <param name="stochastic">False to disable random number generation</param>
-        public static ILinearAlgebraProvider CreateCPULinearAlgebra(bool stochastic = true)
+        /// <param name="stochastic">False to use the same random number generation each time</param>
+        public static ILinearAlgebraProvider CreateLinearAlgebra(bool stochastic = true)
         {
             return new NumericsProvider(stochastic);
         }
@@ -55,6 +56,17 @@ namespace BrightWire
                 return DataTable.Create(dataStream);
             else
                 return DataTable.Create(dataStream, indexStream);
+        }
+
+        /// <summary>
+        /// Creates a neural network factory
+        /// </summary>
+        /// <param name="lap">Linear alegebra provider</param>
+        /// <param name="stochastic">False to use the same random number generation each time</param>
+        /// <returns></returns>
+        public static INeuralNetworkFactory CreateNeuralNetworkFactory(ILinearAlgebraProvider lap, bool stochastic)
+        {
+            return new ConnectionistFactory(lap, stochastic);
         }
     }
 }

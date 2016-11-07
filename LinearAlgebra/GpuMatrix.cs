@@ -167,7 +167,7 @@ namespace BrightWire.LinearAlgebra
         {
             var data = new float[_rows * _columns];
             _data.CopyToHost(data);
-            return new CpuMatrix(DenseMatrix.Create(_rows, _columns, (j, k) => data[k * _rows + j]));
+            return _cuda.NumericsProvider.Create(_rows, _columns, (j, k) => data[k * _rows + j]).AsIndexable();
         }
 
         public void Clear()

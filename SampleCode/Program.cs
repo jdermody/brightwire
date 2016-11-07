@@ -16,7 +16,7 @@ namespace BrightWire.SampleCode
             //MarkovChains();
             //MNIST(@"D:\data\mnist\", @"D:\data\mnist\model_new.dat");
             //SentimentClassification(@"D:\data\sentiment labelled sentences\");
-            TextClustering(@"D:\data\[UCI] AAAI-14 Accepted Papers - Papers.csv", @"d:\temp\");
+            //TextClustering(@"D:\data\[UCI] AAAI-14 Accepted Papers - Papers.csv", @"d:\temp\");
         }
     }
 }

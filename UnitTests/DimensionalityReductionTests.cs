@@ -16,7 +16,7 @@ namespace UnitTests
         [ClassInitialize]
         public static void Load(TestContext context)
         {
-            _lap = Provider.CreateCPULinearAlgebra();
+            _lap = Provider.CreateLinearAlgebra();
         }
 
         [ClassCleanup]
