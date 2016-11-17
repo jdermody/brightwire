@@ -32,7 +32,7 @@ To add CUDA support (x64 only) use:
 Install-Package BrightWire.CUDA.Net4.x64
 ```
 
-Note: When using the CUDA version, make sure that the /LinearAlgebra/cuda/kernel.ptx file's is copied to the output directory (Properties/Copy To Output Directory).
+Note: When using the CUDA version, make sure that the /LinearAlgebra/cuda/kernel.ptx file is copied to the output directory (Properties/Copy To Output Directory).
 
 ## Features
 
