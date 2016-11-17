@@ -107,7 +107,7 @@ namespace BrightWire.TabularData.Helper
                 .SelectMany(line => _Parse(line).Select((str, pos) => Tuple.Create(str, pos)))
                 .GroupBy(l => l.Item2, l => _DetermineType(l.Item1))
                 .OrderBy(g => g.Key)
-                .Select(g => g.Min(v => (int)v))
+                .Select(g => g.Max(v => (int)v))
                 .Cast<ColumnType>()
                 .ToList()
             ;
