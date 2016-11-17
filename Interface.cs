@@ -2583,6 +2583,13 @@ namespace BrightWire
         /// </summary>
         /// <returns></returns>
         IReadOnlyList<BinaryTableClassification> ConvertToBinaryClassification();
+
+        /// <summary>
+        /// Mutates each row of the table
+        /// </summary>
+        /// <typeparam name="T">The type returned by the mutator</typeparam>
+        /// <param name="mutator">The function called for each row in the table</param>
+        IReadOnlyList<T> Map<T>(Func<IRow, T> mutator);
     }
 
     /// <summary>
