@@ -179,12 +179,6 @@ namespace BrightWire.TabularData
             _Iterate(row => rowProcessor.Process(row));
         }
 
-        //public void Process(Func<IRow, int, bool> processor)
-        //{
-        //    int index = 0;
-        //    _Iterate(row => processor(row, index++));
-        //}
-
         protected void _Iterate(Func<DataTableRow, bool> callback)
         {
             lock (_mutex) {
@@ -540,6 +534,16 @@ namespace BrightWire.TabularData
         public void ForEach(Func<IRow, bool> callback)
         {
             _Iterate(row => callback(row));
+        }
+
+        public IReadOnlyList<T> Map<T>(Func<IRow, T> mutator)
+        {
+            var ret = new List<T>();
+            _Iterate(row => {
+                ret.Add(mutator(row));
+                return true;
+            });
+            return ret;
         }
 
         public string XmlPreview
