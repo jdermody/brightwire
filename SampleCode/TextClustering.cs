@@ -13,14 +13,32 @@ namespace BrightWire.SampleCode
 {
     partial class Program
     {
-class AAAIDocument
-{
-    public string Title { get; set; }
-    public string[] Keyword { get; set; }
-    public string[] Topic { get; set; }
-    public string Abstract { get; set; }
-    public string[] Token { get; set; }
-    public string[] Group { get; set; }
+        class AAAIDocument
+        {
+            /// <summary>
+            /// Free text description of the document
+            /// </summary>
+            public string Title { get; set; }
+
+            /// <summary>
+            /// Free text; author-generated keywords
+            /// </summary>
+            public string[] Keyword { get; set; }
+
+            /// <summary>
+            /// Free text; author-selected, low-level keywords
+            /// </summary>
+            public string[] Topic { get; set; }
+
+            /// <summary>
+            /// Free text; paper abstracts
+            /// </summary>
+            public string Abstract { get; set; }
+
+            /// <summary>
+            /// Categorical; author-selected, high-level keyword(s)
+            /// </summary>
+            public string[] Group { get; set; }
 
             public WeightedClassificationSet.Classification AsClassification(StringTableBuilder stringTable)
             {
@@ -28,13 +46,13 @@ class AAAIDocument
                 foreach (var item in Keyword) {
                     weightedIndex.Add(new WeightedClassificationSet.WeightedIndex {
                         Index = stringTable.GetIndex(item),
-                        Weight = 3f
+                        Weight = 1f
                     });
                 }
                 foreach (var item in Topic) {
                     weightedIndex.Add(new WeightedClassificationSet.WeightedIndex {
                         Index = stringTable.GetIndex(item),
-                        Weight = 2f
+                        Weight = 1f
                     });
                 }
                 return new WeightedClassificationSet.Classification {
@@ -76,7 +94,7 @@ class AAAIDocument
         public static void TextClustering(string dataFilePath, string outputPath)
         {
             IDataTable dataTable;
-            using(var reader = new StreamReader(dataFilePath)) {
+            using (var reader = new StreamReader(dataFilePath)) {
                 dataTable = reader.ParseCSV();
             }
 
@@ -89,8 +107,7 @@ class AAAIDocument
                 Keyword = row.GetField<string>(3).Split(KEYWORD_SPLIT, StringSplitOptions.RemoveEmptyEntries).Select(str => str.ToLower()).ToArray(),
                 Topic = row.GetField<string>(4).Split(TOPIC_SPLIT, StringSplitOptions.RemoveEmptyEntries),
                 Group = row.GetField<string>(2).Split(TOPIC_SPLIT, StringSplitOptions.RemoveEmptyEntries),
-                Title = row.GetField<string>(0),
-                Token = SimpleTokeniser.Tokenise(row.GetField<string>(0)).Concat(SimpleTokeniser.Tokenise(row.GetField<string>(5))).Select(t => t.ToLower()).ToArray()
+                Title = row.GetField<string>(0)
             }));
             var docTable = docList.ToDictionary(d => d.Title, d => d);
             var allGroups = new HashSet<string>(docList.SelectMany(d => d.Group));
