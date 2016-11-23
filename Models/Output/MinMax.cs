@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BrightWire.Models.Simple
+namespace BrightWire.Models.Output
 {
     public class MinMax
     {

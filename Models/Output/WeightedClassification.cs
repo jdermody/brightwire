@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace BrightWire.Models.Simple
+namespace BrightWire.Models.Output
 {
     public class WeightedClassification
     {
         public string Classification { get; private set; }
         public float Weight { get; private set; }
 
-        public WeightedClassification(string classification, float weight)
+        internal WeightedClassification(string classification, float weight)
         {
             Classification = classification;
             Weight = weight;

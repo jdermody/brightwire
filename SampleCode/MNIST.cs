@@ -19,9 +19,9 @@ namespace BrightWire.SampleCode
         /// <param name="dataFilesPath">The path to a directory with the four extracted data files</param>
         public static void MNIST(string dataFilesPath, string outputModelPath)
         {
+            // neural network hyper parameters
             const int HIDDEN_SIZE = 1024, BATCH_SIZE = 128, NUM_EPOCHS = 40;
             const float TRAINING_RATE = 0.03f;
-
             var errorMetric = ErrorMetricType.OneHot.Create();
             var layerTemplate = new LayerDescriptor(0f) {
                 WeightUpdate = WeightUpdateType.RMSprop,
@@ -40,7 +40,7 @@ namespace BrightWire.SampleCode
 
                 using (var trainer = lap.NN.CreateBatchTrainer(layerTemplate, Mnist.INPUT_SIZE, HIDDEN_SIZE, Mnist.OUTPUT_SIZE)) {
                     var trainingManager = lap.NN.CreateFeedForwardManager(trainer, outputModelPath, testSet);
-                    var trainingContext = lap.NN.CreateTrainingContext(TRAINING_RATE, BATCH_SIZE, errorMetric);
+                    var trainingContext = lap.NN.CreateTrainingContext(errorMetric, TRAINING_RATE, BATCH_SIZE);
                     trainingContext.ScheduleTrainingRateChange(NUM_EPOCHS/2, TRAINING_RATE / 3);
                     trainingManager.Train(trainingSet, NUM_EPOCHS, trainingContext);
                 }

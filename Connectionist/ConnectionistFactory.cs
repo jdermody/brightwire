@@ -9,7 +9,8 @@ using BrightWire.Connectionist.Training.Layer;
 using BrightWire.Connectionist.Training.Manager;
 using BrightWire.Connectionist.Training.WeightInitialisation;
 using BrightWire.Models;
-using BrightWire.Models.Simple;
+using BrightWire.Models.Input;
+using BrightWire.Models.Output;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -51,9 +52,9 @@ namespace BrightWire.Connectionist
 
         public ILinearAlgebraProvider LinearAlgebraProvider { get { return _lap; } }
 
-        public ITrainingDataProvider CreateTrainingDataProvider(IDataTable table)
+        public ITrainingDataProvider CreateTrainingDataProvider(IDataTable table, IDataTableVectoriser vectoriser = null)
         {
-            return new DataTableTrainingDataProvider(_lap, table);
+            return new DataTableTrainingDataProvider(_lap, table, vectoriser ?? table.GetVectoriser(true));
         }
 
         public ITrainingDataProvider CreateTrainingDataProvider(IReadOnlyList<TrainingExample> data)
@@ -226,12 +227,12 @@ namespace BrightWire.Connectionist
             return new StandardFeedForward(weight, bias, _activation[descriptor.Activation]);
         }
 
-        public ITrainingContext CreateTrainingContext(float learningRate, int batchSize, IErrorMetric errorMetric)
+        public ITrainingContext CreateTrainingContext(IErrorMetric errorMetric, float learningRate, int batchSize)
         {
             return new TrainingContext(learningRate, batchSize, errorMetric);
         }
 
-        public ITrainingContext CreateTrainingContext(float learningRate, int batchSize, ErrorMetricType errorMetric)
+        public ITrainingContext CreateTrainingContext(ErrorMetricType errorMetric, float learningRate, int batchSize)
         {
             return new TrainingContext(learningRate, batchSize, errorMetric.Create());
         }

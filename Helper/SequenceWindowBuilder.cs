@@ -1,4 +1,4 @@
-﻿using BrightWire.Models.Simple;
+﻿using BrightWire.Models.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;

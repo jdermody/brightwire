@@ -76,6 +76,7 @@ namespace BrightWire.Connectionist.Training.Batch
             IMatrix curr = null;
             for (int i = 0; i < numEpochs && context.ShouldContinue; i++) {
                 context.StartEpoch(trainingData.Count);
+                trainingData.StartEpoch();
                 var batchErrorList = new List<double>();
 
                 // iterate over each mini batch

@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace BrightWire.Models.Simple
+namespace BrightWire.Models.Output
 {
     public class SequenceInfo
     {
         public int SequenceLength { get; private set; }
         public int SampleCount { get; private set; }
 
-        public SequenceInfo(int sequenceLength, int sampleCount)
+        internal SequenceInfo(int sequenceLength, int sampleCount)
         {
             SequenceLength = sequenceLength;
             SampleCount = sampleCount;

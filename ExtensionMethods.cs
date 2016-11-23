@@ -1,5 +1,6 @@
 ﻿using BrightWire.Bayesian;
 using BrightWire.Bayesian.Training;
+using BrightWire.Connectionist;
 using BrightWire.DimensionalityReduction;
 using BrightWire.ErrorMetrics;
 using BrightWire.Helper;
@@ -7,7 +8,8 @@ using BrightWire.InstanceBased.Trainer;
 using BrightWire.Linear;
 using BrightWire.Linear.Training;
 using BrightWire.Models;
-using BrightWire.Models.Simple;
+using BrightWire.Models.Input;
+using BrightWire.Models.Output;
 using BrightWire.TabularData.Helper;
 using BrightWire.TreeBased.Training;
 using BrightWire.Unsupervised.Clustering;
@@ -49,10 +51,10 @@ namespace BrightWire
         {
             var input = Enumerable.Range(0, seq.Count).ToList();
             int trainingCount = Convert.ToInt32(seq.Count * trainPercentage);
-            return new SequenceSplit<T> {
-                Training = input.Take(trainingCount).Select(i => seq[i]).ToArray(),
-                Test = input.Skip(trainingCount).Select(i => seq[i]).ToArray()
-            };
+            return new SequenceSplit<T>(
+                input.Take(trainingCount).Select(i => seq[i]).ToArray(),
+                input.Skip(trainingCount).Select(i => seq[i]).ToArray()
+            );
         }
 
         /// <summary>
@@ -268,7 +270,7 @@ namespace BrightWire
         public static BernoulliNaiveBayes TrainBernoulliNaiveBayes(this ClassificationBag data)
         {
             var trainer = new BernoulliNaiveBayesTrainer();
-            foreach(var classification in data.Classifications)
+            foreach(var classification in data.Classification)
                 trainer.AddClassification(classification.Name, classification.Data);
             return trainer.Train();
         }
@@ -281,7 +283,7 @@ namespace BrightWire
         public static MultinomialNaiveBayes TrainMultinomialNaiveBayes(this ClassificationBag data)
         {
             var trainer = new MultinomialNaiveBayesTrainer();
-            foreach (var classification in data.Classifications)
+            foreach (var classification in data.Classification)
                 trainer.AddClassification(classification.Name, classification.Data);
             return trainer.Train();
         }
@@ -339,6 +341,45 @@ namespace BrightWire
         }
 
         /// <summary>
+        /// Convenience function to train a vanilla feed forward neural network
+        /// </summary>
+        /// <param name="trainingContext">The training context to use</param>
+        /// <param name="lap">Linear algebra provider</param>
+        /// <param name="trainingData">Training data provider</param>
+        /// <param name="testData">Test data provider</param>
+        /// <param name="layerDescriptor">The layer descriptor</param>
+        /// <param name="hiddenLayerSize">The size of the single hidden layer</param>
+        /// <param name="numEpochs">Number of epochs to train for</param>
+        /// <returns>A trained feed forward model</returns>
+        public static FeedForwardNetwork TrainNeuralNetwork(
+            this ITrainingContext trainingContext,
+            ILinearAlgebraProvider lap,
+            ITrainingDataProvider trainingData,
+            ITrainingDataProvider testData,
+            LayerDescriptor layerDescriptor, 
+            int hiddenLayerSize, 
+            int numEpochs
+        ) {
+            Console.WriteLine($"Training a {trainingData.InputSize}x{hiddenLayerSize}x{trainingData.OutputSize} neural network...");
+            FeedForwardNetwork bestModel = null;
+            using (var trainer = lap.NN.CreateBatchTrainer(layerDescriptor, trainingData.InputSize, hiddenLayerSize, trainingData.OutputSize)) {
+                float bestScore = 0;
+                trainingContext.EpochComplete += c => {
+                    var testError = trainer.Execute(testData).Select(d => trainingContext.ErrorMetric.Compute(d.Output, d.ExpectedOutput)).Average();
+                    var flag = false;
+                    if (testError > bestScore) {
+                        bestScore = testError;
+                        bestModel = trainer.NetworkInfo;
+                        flag = true;
+                    }
+                    trainingContext.WriteScore(testError, trainingContext.ErrorMetric.DisplayAsPercentage, flag);
+                };
+                trainer.Train(trainingData, numEpochs, trainingContext);
+            }
+            return bestModel;
+        }
+
+        /// <summary>
         /// K Means uses coordinate descent and the euclidean distance between randomly selected centroids to cluster the data
         /// </summary>
         /// <param name="data">The list of vectors to cluster</param>
@@ -357,6 +398,7 @@ namespace BrightWire
         /// Hierachical clustering successively finds the closest distance between pairs of centroids until k is reached
         /// </summary>
         /// <param name="data">The list of vectors to cluster</param>
+        /// <param name="k">The number of clusters to find</param>
         /// <returns>A list of k clusters</returns>
         public static IReadOnlyList<IReadOnlyList<IVector>> HierachicalCluster(this IReadOnlyList<IVector> data, int k)
         {

@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace BrightWire.Models.Simple
+namespace BrightWire.Models.Output
 {
     public class ClassificationResult
     {
         public string Actual { get; private set; }
         public string Expected { get; private set; }
 
-        public ClassificationResult(string actual, string expected)
+        internal ClassificationResult(string actual, string expected)
         {
             Actual = actual;
             Expected = expected;

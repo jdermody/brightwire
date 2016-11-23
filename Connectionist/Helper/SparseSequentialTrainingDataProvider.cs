@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
-using BrightWire.Models.Simple;
+using BrightWire.Models.Output;
 
 namespace BrightWire.Connectionist.Helper
 {

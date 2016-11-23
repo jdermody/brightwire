@@ -1,5 +1,5 @@
 ﻿using BrightWire.Models;
-using BrightWire.Models.Simple;
+using BrightWire.Models.Output;
 using BrightWire.TabularData.Analysis;
 using BrightWire.TabularData.Helper;
 using System;
@@ -407,14 +407,14 @@ namespace BrightWire.TabularData
             return normaliser.GetDataTable();
         }
 
-        public IDataTable Normalise(Normalisation normalisationModel, Stream output = null)
+        public IDataTable Normalise(DataTableNormalisation normalisationModel, Stream output = null)
         {
             var normaliser = new DataTableNormaliser(this, normalisationModel.Type, output, normalisationModel);
             Process(normaliser);
             return normaliser.GetDataTable();
         }
 
-        public Normalisation GetNormalisationModel(NormalisationType normalisationType)
+        public DataTableNormalisation GetNormalisationModel(NormalisationType normalisationType)
         {
             var normaliser = new DataTableNormaliser(this, normalisationType);
             return normaliser.GetNormalisationModel();
@@ -546,11 +546,24 @@ namespace BrightWire.TabularData
             return ret;
         }
 
+        public IDataTableVectoriser GetVectoriser(bool useTargetColumnIndex)
+        {
+            return new DataTableVectoriser(this, useTargetColumnIndex);
+        }
+
+        public IDataTable CopyWithRows(IEnumerable<int> rowIndex, Stream output = null)
+        {
+            var writer = new DataTableWriter(_column, output);
+            foreach (var row in GetRows(rowIndex))
+                writer.AddRow(row.Data);
+            return writer.GetDataTable();
+        }
+
         public string XmlPreview
         {
             get
             {
-                var rows = GetRows(Enumerable.Range(0, Math.Min(10, RowCount)));
+                var rows = GetRows(Enumerable.Range(0, Math.Min(20, RowCount)));
                 var ret = new StringBuilder();
                 using (var writer = new XmlTextWriter(new StringWriter(ret))) {
                     writer.WriteStartElement("table");

@@ -1,6 +1,6 @@
 ﻿using BrightWire.Connectionist.Execution.Layer;
 using BrightWire.Helper;
-using BrightWire.Models.Simple;
+using BrightWire.Models.Output;
 using MathNet.Numerics.LinearAlgebra.Single;
 using System;
 using System.Collections.Generic;
@@ -78,6 +78,14 @@ namespace BrightWire.Connectionist.Execution
                 _Execute(m);
                 return m.Pop();
             }
+        }
+
+        public IReadOnlyList<WeightedClassification> GetWeightedClassifications(float[] data, Dictionary<int, string> classificationTable)
+        {
+            return Execute(data).Data.Data
+                .Select((v, i) => new WeightedClassification(classificationTable[i], v))
+                .ToList()
+            ;
         }
     }
 }

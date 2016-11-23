@@ -51,11 +51,5 @@ namespace BrightWire.DimensionalityReduction
         {
             return matrix.Multiply(_matrix);
         }
-
-        public static int MinDim(int count, double eps = 0.1)
-        {
-            var denominator = (Math.Pow(eps, 2) / 2.0) - (Math.Pow(eps, 3) / 3.0);
-            return Convert.ToInt32(Math.Round((4.0 * Math.Log(count) / denominator)));
-        }
     }
 }

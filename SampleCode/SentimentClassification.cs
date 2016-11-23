@@ -1,7 +1,8 @@
 ﻿using BrightWire.Connectionist;
+using BrightWire.Ensemble;
 using BrightWire.Helper;
 using BrightWire.Models;
-using BrightWire.Models.Simple;
+using BrightWire.Models.Input;
 using ProtoBuf;
 using System;
 using System.Collections.Generic;
@@ -17,7 +18,7 @@ namespace BrightWire.SampleCode
         static ClassificationBag _BuildClassificationBag(IReadOnlyList<Tuple<string[], string>> data, StringTableBuilder stringTable)
         {
             return new ClassificationBag {
-                Classifications = data.Select(d => new ClassificationBag.Classification {
+                Classification = data.Select(d => new IndexedClassification {
                     Name = d.Item2,
                     Data = d.Item1.Select(str => stringTable.GetIndex(str)).ToArray()
                 }).ToArray()
@@ -27,40 +28,6 @@ namespace BrightWire.SampleCode
         static string[] _Tokenise(string str)
         {
             return SimpleTokeniser.JoinNegations(SimpleTokeniser.Tokenise(str).Select(s => s.ToLower())).ToArray();
-        }
-
-        static FeedForwardNetwork _TrainNeuralNetwork(ILinearAlgebraProvider lap, ITrainingDataProvider trainingData, ITrainingDataProvider testData)
-        {
-            const int HIDDEN_SIZE = 512, BATCH_SIZE = 128, NUM_EPOCHS = 10;
-            const float TRAINING_RATE = 0.1f;
-
-            var errorMetric = ErrorMetricType.OneHot.Create();
-            var layerTemplate = new LayerDescriptor(0.1f) {
-                WeightUpdate = WeightUpdateType.Adam,
-                Activation = ActivationType.Relu,
-                WeightInitialisation = WeightInitialisationType.Xavier,
-                LayerTrainer = LayerTrainerType.Dropout
-            };
-
-            Console.WriteLine($"Training a {trainingData.InputSize}x{HIDDEN_SIZE}x{trainingData.OutputSize} neural network...");
-            FeedForwardNetwork bestModel = null;
-            using (var trainer = lap.NN.CreateBatchTrainer(layerTemplate, trainingData.InputSize, HIDDEN_SIZE, trainingData.OutputSize)) {
-                var trainingContext = lap.NN.CreateTrainingContext(TRAINING_RATE, BATCH_SIZE, errorMetric);
-                float bestScore = 0;
-                trainingContext.EpochComplete += c => {
-                    var testError = trainer.Execute(testData).Select(d => errorMetric.Compute(d.Output, d.ExpectedOutput)).Average();
-                    var flag = false;
-                    if (testError > bestScore) {
-                        bestScore = testError;
-                        bestModel = trainer.NetworkInfo;
-                        flag = true;
-                    }
-                    trainingContext.WriteScore(testError, errorMetric.DisplayAsPercentage, flag);
-                };
-                trainer.Train(trainingData, NUM_EPOCHS, trainingContext);
-                Console.WriteLine("Final test score: {0:P}", bestScore);
-            }
-            return bestModel;
         }
 
         /// <summary>
@@ -105,22 +72,57 @@ namespace BrightWire.SampleCode
                 .Average(r => r.Score)
             );
 
-            // convert the bags to sets
+            // convert the bags to sparse vectors
             var sentimentDataBag = _BuildClassificationBag(sentimentData, stringTable);
-            var sentimentDataSet = sentimentDataBag.ConvertToSet(false);
-            var sentimentDataSetSplit = sentimentDataSet.Split();
+            var sentimentDataSet = sentimentDataBag.ConvertToSparseVectors(false);
+            var sentimentDataTableSplit = sentimentDataSet.Split();
 
             using (var lap = GPUProvider.CreateLinearAlgebra(false)) {
-                var maxIndex = sentimentDataSet.GetMaximumIndex();
+                var maxIndex = sentimentDataSet.GetMaximumIndex() + 1;
+                var trainingData = sentimentDataTableSplit.Training.CreateTrainingDataProvider(lap, maxIndex);
+                var testData = sentimentDataTableSplit.Test.CreateTrainingDataProvider(lap, maxIndex);
                 var classificationTable = sentimentDataSet.GetClassifications().ToDictionary(d => (int)d.Value, d => d.Key);
-
-                var trainingData = sentimentDataSetSplit.Training.CreateTrainingDataProvider(lap, maxIndex);
-                var testData = sentimentDataSetSplit.Test.CreateTrainingDataProvider(lap, maxIndex);
 
                 // create the three classifiers
                 var bernoulliClassifier = bernoulli.CreateClassifier();
                 var multinomialClassifier = multinomial.CreateClassifier();
-                var neuralClassifier = lap.NN.CreateFeedForward(_TrainNeuralNetwork(lap, trainingData, testData));
+                var neuralClassifier = lap.NN.CreateFeedForward(lap.NN.CreateTrainingContext(ErrorMetricType.OneHot, learningRate: 0.1f, batchSize: 128)
+                    .TrainNeuralNetwork(lap, trainingData, testData, new LayerDescriptor(0.1f) {
+                        WeightUpdate = WeightUpdateType.Adam,
+                        Activation = ActivationType.Relu,
+                        WeightInitialisation = WeightInitialisationType.Xavier,
+                        LayerTrainer = LayerTrainerType.Dropout
+                    }, hiddenLayerSize:512, numEpochs:10)
+                );
+
+                // create the stacked training set
+                Console.WriteLine("Creating model stack data set...");
+                var modelStacker = new ModelStacker();
+                foreach (var item in sentimentDataSet.Classification) {
+                    var indexList = item.GetIndexList();
+                    modelStacker.Add(new[] {
+                        bernoulliClassifier.GetWeightedClassifications(indexList),
+                        multinomialClassifier.GetWeightedClassifications(indexList),
+                        neuralClassifier.GetWeightedClassifications(item.Vectorise(maxIndex), classificationTable)
+                    }, item.Name);
+                }
+
+                // convert the stacked data to a data table and split it into training and test sets
+                var sentimentDataTable = modelStacker.GetTable();
+                var dataTableVectoriser = sentimentDataTable.GetVectoriser(true);
+                var split = sentimentDataTable.Split();
+                var trainingStack = lap.NN.CreateTrainingDataProvider(split.Training, dataTableVectoriser);
+                var testStack = lap.NN.CreateTrainingDataProvider(split.Test, dataTableVectoriser);
+                var targetColumnIndex = sentimentDataTable.TargetColumnIndex;
+
+                // train a neural network on the test data
+                var trainingContext = lap.NN.CreateTrainingContext(ErrorMetricType.OneHot, learningRate: 0.3f, batchSize: 8);
+                trainingContext.ScheduleTrainingRateChange(10, 0.1f);
+                var stackNN = lap.NN.CreateFeedForward(trainingContext.TrainNeuralNetwork(lap, trainingStack, testStack, new LayerDescriptor(0.1f) {
+                    WeightUpdate = WeightUpdateType.RMSprop,
+                    Activation = ActivationType.LeakyRelu,
+                    WeightInitialisation = WeightInitialisationType.Xavier
+                }, hiddenLayerSize:32, numEpochs:20));
 
                 uint stringIndex;
                 Console.WriteLine("Enter some text to test the classifiers...");
@@ -145,9 +147,17 @@ namespace BrightWire.SampleCode
                         Console.WriteLine("Bernoulli classification: " + bernoulliClassifier.Classify(indexList).First());
                         Console.WriteLine("Multinomial classification: " + multinomialClassifier.Classify(indexList).First());
                         Console.WriteLine("Neural network classification: " + classificationTable[neuralClassifier.Execute(vector).MaximumIndex()]);
+
+                        var stackInput = modelStacker.Vectorise(new[] {
+                            bernoulliClassifier.GetWeightedClassifications(indexList),
+                            multinomialClassifier.GetWeightedClassifications(indexList),
+                            neuralClassifier.GetWeightedClassifications(vector, classificationTable)
+                        });
+                        Console.WriteLine("Stack classification: " + dataTableVectoriser.GetOutputLabel(targetColumnIndex, stackNN.Execute(stackInput).MaximumIndex()));
                     }
                     else
                         Console.WriteLine("Sorry, none of those words have been seen before.");
+                    Console.WriteLine();
                 }
             }
             Console.WriteLine();

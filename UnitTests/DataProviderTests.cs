@@ -32,15 +32,17 @@ namespace UnitTests
             var builder = new DataTableBuilder();
             builder.AddColumn(ColumnType.Float, "val1");
             builder.AddColumn(ColumnType.Double, "val2");
+            builder.AddColumn(ColumnType.String, "val3");
             builder.AddColumn(ColumnType.String, "cls", true);
 
-            builder.Add(0.5f, 1.1, "a");
-            builder.Add(0.2f, 1.5, "b");
-            builder.Add(0.7f, 0.5, "c");
-            builder.Add(0.2f, 0.6, "d");
+            builder.Add(0.5f, 1.1, "d", "a");
+            builder.Add(0.2f, 1.5, "c", "b");
+            builder.Add(0.7f, 0.5, "b", "c");
+            builder.Add(0.2f, 0.6, "a", "d");
 
             var table = builder.Build();
-            var dataProvider = _lap.NN.CreateTrainingDataProvider(table);
+            var vectoriser = table.GetVectoriser(true);
+            var dataProvider = _lap.NN.CreateTrainingDataProvider(table, vectoriser);
             var miniBatch = dataProvider.GetTrainingData(new[] { 1 });
             var input = miniBatch.Input.Row(0).AsIndexable();
             var expectedOutput = miniBatch.ExpectedOutput.Row(0).AsIndexable();
@@ -49,8 +51,7 @@ namespace UnitTests
             Assert.AreEqual(input[1], 1.5f);
             Assert.AreEqual(expectedOutput.Count, 4);
 
-            var dataTableTrainingDataProvider = dataProvider as IDataTableTrainingDataProvider;
-            Assert.AreEqual(dataTableTrainingDataProvider.GetOutputLabel(2, expectedOutput.MaximumIndex()), "b");
+            Assert.AreEqual(vectoriser.GetOutputLabel(2, expectedOutput.MaximumIndex()), "b");
         }
     }
 }

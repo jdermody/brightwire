@@ -1,4 +1,5 @@
-﻿using BrightWire.Helper;
+﻿using BrightWire.TabularData.Helper;
+using BrightWire.Helper;
 using BrightWire.TabularData.Analysis;
 using System;
 using System.Collections.Generic;
@@ -8,39 +9,20 @@ using System.Threading.Tasks;
 
 namespace BrightWire.Connectionist.Helper
 {
-    internal class DataTableTrainingDataProvider : ITrainingDataProvider, IDataTableTrainingDataProvider
+    internal class DataTableTrainingDataProvider : ITrainingDataProvider
     {
-        readonly IDataTable _table;
-        readonly int _inputSize, _outputSize, _classColumnIndex;
+        readonly IDataTableVectoriser _vectoriser;
         readonly ILinearAlgebraProvider _lap;
-        readonly Dictionary<int, Dictionary<string, int>> _columnMap = new Dictionary<int, Dictionary<string, int>>();
-        readonly Dictionary<int, Dictionary<int, string>> _reverseColumnMap = new Dictionary<int, Dictionary<int, string>>();
+        readonly IDataTable _table;
+        readonly int _inputSize, _outputSize;
 
-        public DataTableTrainingDataProvider(ILinearAlgebraProvider lap, IDataTable table)
+        public DataTableTrainingDataProvider(ILinearAlgebraProvider lap, IDataTable table, IDataTableVectoriser vectoriser)
         {
             _lap = lap;
             _table = table;
-            _classColumnIndex = _table.TargetColumnIndex;
-            var analysis = table.GetAnalysis();
-
-            foreach (var columnInfo in analysis.ColumnInfo) {
-                var column = table.Columns[columnInfo.ColumnIndex];
-                int size = 0;
-                if (column.IsContinuous || !columnInfo.NumDistinct.HasValue)
-                    size = 1;
-                else {
-                    size = columnInfo.NumDistinct.Value;
-                    var categoryIndex = columnInfo.DistinctValues.Select(s => s.ToString()).OrderBy(s => s).Select((s, i) => Tuple.Create(s, i)).ToList();
-                    var columnMap = categoryIndex.ToDictionary(d => d.Item1, d => d.Item2);
-                    var reverseColumnMap = categoryIndex.ToDictionary(d => d.Item2, d => d.Item1);
-                    _columnMap.Add(columnInfo.ColumnIndex, columnMap);
-                    _reverseColumnMap.Add(columnInfo.ColumnIndex, reverseColumnMap);
-                }
-                if (columnInfo.ColumnIndex == _classColumnIndex)
-                    _outputSize = size;
-                else
-                    _inputSize += size;
-            }
+            _vectoriser = vectoriser;
+            _inputSize = _vectoriser.InputSize;
+            _outputSize = _vectoriser.OutputSize;
         }
 
         public int Count
@@ -69,28 +51,7 @@ namespace BrightWire.Connectionist.Helper
 
         Tuple<float[], float[]> _Convert(IRow row)
         {
-            var input = new float[_inputSize];
-            var output = new float[_outputSize];
-            var index = 0;
-
-            for (int i = 0, len = _table.ColumnCount; i < len; i++) {
-                var column = _table.Columns[i];
-                var isClassColumn = (i == _classColumnIndex);
-                float[] ptr = isClassColumn ? output : input;
-
-                if (column.IsContinuous)
-                    ptr[index++] = row.GetField<float>(i);
-                else {
-                    var str = row.GetField<string>(i);
-                    var offset = _columnMap[i][str];
-                    if (!isClassColumn) {
-                        offset += index;
-                        index += column.NumDistinct;
-                    }
-                    ptr[offset] = 1f;
-                }
-            }
-            return Tuple.Create(input, output);
+            return Tuple.Create(_vectoriser.GetInput(row), _vectoriser.GetOutput(row));
         }
 
         public IMiniBatch GetTrainingData(IReadOnlyList<int> rows)
@@ -103,13 +64,12 @@ namespace BrightWire.Connectionist.Helper
 
         public string GetOutputLabel(int columnIndex, int vectorIndex)
         {
-            Dictionary<int, string> map;
-            if(_reverseColumnMap.TryGetValue(columnIndex, out map)) {
-                string ret;
-                if (map.TryGetValue(vectorIndex, out ret))
-                    return ret;
-            }
-            return null;
+            return _vectoriser.GetOutputLabel(columnIndex, vectorIndex);
+        }
+
+        public void StartEpoch()
+        {
+            // nop
         }
     }
 }

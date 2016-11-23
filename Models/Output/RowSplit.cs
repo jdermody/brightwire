@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace BrightWire.Models.Simple
+namespace BrightWire.Models.Output
 {
     public class RowSplit
     {

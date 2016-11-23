@@ -6,7 +6,7 @@
     <SharedGUID>d9c4930f-12af-4a75-9077-bd66e1b812d6</SharedGUID>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
-    <Import_RootNamespace>BrightWire.CPU</Import_RootNamespace>
+    <Import_RootNamespace>BrightWire</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Bayesian\BernoulliNaiveBayesClassifier.cs" />
@@ -31,6 +31,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Execution\Layer\SimpleRecurrent.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Execution\Layer\StandardFeedForward.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Execution\RecurrentExecution.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Helper\BaggingTrainingDataProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Helper\DataTableTrainingDataProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Helper\DenseSequentialTrainingDataProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Helper\DenseTrainingDataProvider.cs" />
@@ -63,6 +64,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Training\WeightInitialisation\Identity.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Training\WeightInitialisation\Xavier.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DimensionalityReduction\RandomProjection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Ensemble\AdaBoost.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Ensemble\ModelStacker.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ErrorMetrics\BinaryClassification.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ErrorMetrics\CrossEntropy.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ErrorMetrics\OneHot.cs" />
@@ -91,13 +94,19 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\BernoulliNaiveBayes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\BidirectionalLayer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\BidirectionalNetwork.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Models\ClassificationBag.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\DataTableNormalisation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\DecisionTree.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\ExecutionResults\FeedForwardOutput.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\ExecutionResults\RecurrentExecutionResults.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\ExecutionResults\RecurrentOutput.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\FeedForwardNetwork.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\FloatArray.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Input\ClassificationBag.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Input\IndexedClassification.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Input\SparseVector.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Input\SparseVectorClassification.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Input\SparseVectorClassificationSet.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Input\TrainingExample.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\KNearestNeighbours.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\LinearRegression.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\LogisticRegression.cs" />
@@ -106,28 +115,25 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\MultinomialNaiveBayes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\NaiveBayes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\NetworkLayer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Models\Normalisation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\RandomForest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\RecurrentLayer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\RecurrentNetwork.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Models\Simple\BidirectionalMemory.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Models\Simple\BinaryClassification.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Models\Simple\ClassificationResult.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Models\Simple\ClassificationSetSplit.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Models\Simple\ColumnSplit.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Models\Simple\MinMax.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Models\Simple\RowClassification.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Models\Simple\RowSplit.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Models\Simple\SequenceInfo.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Models\Simple\SequenceSplit.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Models\Simple\SingularValueDecomposition.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Models\Simple\TableFold.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Models\Simple\TableSplit.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Models\Simple\TrainingExample.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Models\Simple\VectorClassification.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Models\Simple\WeightedClassification.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Output\BidirectionalMemory.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Output\BinaryClassification.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Output\ClassificationResult.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Output\SparseVectorClassificationSetSplit.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Output\ColumnSplit.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Output\MinMax.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Output\RowClassification.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Output\RowSplit.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Output\SequenceInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Output\SequenceSplit.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Output\SingularValueDecomposition.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Output\TableFold.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Output\TableSplit.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Output\VectorClassification.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Output\WeightedClassification.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\StringTable.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Models\WeightedClassificationSet.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Provider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TabularData\Analysis\DataTableAnalysis.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TabularData\Analysis\FrequencyAnalysis.cs" />
@@ -142,6 +148,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)TabularData\Helper\DataTableNormaliser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TabularData\Helper\DataTableProjector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TabularData\Helper\DataTableRow.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TabularData\Helper\DataTableVectoriser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TabularData\Helper\DataTableWriter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TabularData\Helper\RowConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TrainingData\Artificial\BinaryIntegers.cs" />

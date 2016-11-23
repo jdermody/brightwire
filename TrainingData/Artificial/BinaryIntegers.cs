@@ -1,4 +1,4 @@
-﻿using BrightWire.Models.Simple;
+﻿using BrightWire.Models.Input;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -14,14 +14,14 @@ namespace BrightWire.TrainingData.Artificial
     public static class BinaryIntegers
     {
         /// <summary>
-        /// Converts a byte value to an array of floats, with 1 or 0 for each bit position
+        /// Converts a value to an array of floats, with 1 or 0 for each bit position
         /// </summary>
         /// <param name="val">The number to convert</param>
-        static float[] _GetBitArray(byte val)
+        static float[] _GetBitArray(int val)
         {
-            var data = new BitArray(new byte[] { val });
-            var ret = new float[8];
-            for (var i = 0; i < 8; i++)
+            var data = new BitArray(new int[] { val });
+            var ret = new float[32];
+            for (var i = 0; i < 32; i++)
                 ret[i] = data.Get(i) ? 1f : 0f;
             return ret;
         }
@@ -40,16 +40,16 @@ namespace BrightWire.TrainingData.Artificial
             var ret = new List<IReadOnlyList<TrainingExample>>();
 
             for (var i = 0; i < sampleCount; i++) {
-                // generate some random numbers
-                var a = Convert.ToByte(rand.Next(128));
-                var b = Convert.ToByte(rand.Next(128));
+                // generate some random numbers (sized to prevent overflow)
+                var a = rand.Next(int.MaxValue / 2);
+                var b = rand.Next(int.MaxValue / 2);
                 
                 var a2 = _GetBitArray(a);
                 var b2 = _GetBitArray(b);
-                var r2 = _GetBitArray(Convert.ToByte(a + b));
+                var r2 = _GetBitArray(a + b);
 
                 var sequence = new List<TrainingExample>();
-                for (int j = 0; j < 8; j++) {
+                for (int j = 0; j < r2.Length; j++) {
                     var input = new[] { a2[j], b2[j] };
                     var output = new[] { r2[j] };
                     sequence.Add(new TrainingExample(input, output));

@@ -1,6 +1,6 @@
 ﻿using BrightWire.Connectionist.Training.Helper;
 using BrightWire.Models;
-using BrightWire.Models.Simple;
+using BrightWire.Models.Output;
 using ProtoBuf;
 using System;
 using System.Collections.Generic;

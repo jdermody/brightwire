@@ -1,5 +1,5 @@
 ﻿using BrightWire.Helper;
-using BrightWire.Models.Simple;
+using BrightWire.Models.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,5 +45,10 @@ namespace BrightWire.Connectionist.Helper
         }
 
         public int Count { get { return _data.Count; } }
+
+        public void StartEpoch()
+        {
+            // nop
+        }
     }
 }

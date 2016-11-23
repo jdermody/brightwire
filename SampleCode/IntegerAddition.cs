@@ -21,38 +21,43 @@ namespace BrightWire.SampleCode
 
         public static void IntegerAddition()
         {
+            // generate 1000 random integer additions
             var dataSet = BinaryIntegers.Addition(1000, false)
                 .Select(l => l.ToArray())
                 .ToList()
             ;
+
+            // split the numbers into training and test sets
             int split = Convert.ToInt32(dataSet.Count * 0.8);
             var trainingData = dataSet.Take(split).ToList();
             var testData = dataSet.Skip(split).ToList();
 
+            // neural network hyper parameters
             const int HIDDEN_SIZE = 32, NUM_EPOCHS = 20, BATCH_SIZE = 32;
             const float TRAINING_RATE = 0.01f;
             var errorMetric = ErrorMetricType.BinaryClassification.Create();
-
             var layerTemplate = new LayerDescriptor(0.3f) {
                 Activation = ActivationType.Relu,
                 WeightInitialisation = WeightInitialisationType.Xavier,
                 WeightUpdate = WeightUpdateType.RMSprop
             };
-
             var recurrentTemplate = layerTemplate.Clone();
             recurrentTemplate.WeightInitialisation = WeightInitialisationType.Gaussian;
 
             using (var lap = Provider.CreateLinearAlgebra()) {
+                // create training data providers
                 var trainingDataProvider = lap.NN.CreateSequentialTrainingDataProvider(trainingData);
                 var testDataProvider = lap.NN.CreateSequentialTrainingDataProvider(testData);
                 var layers = new INeuralNetworkRecurrentLayer[] {
                     lap.NN.CreateSimpleRecurrentLayer(trainingDataProvider.InputSize, HIDDEN_SIZE, recurrentTemplate),
                     lap.NN.CreateFeedForwardRecurrentLayer(HIDDEN_SIZE, trainingDataProvider.OutputSize, layerTemplate)
                 };
+
+                // train the network
                 RecurrentNetwork networkData = null;
                 using (var trainer = lap.NN.CreateRecurrentBatchTrainer(layers)) {
                     var memory = Enumerable.Range(0, HIDDEN_SIZE).Select(i => 0f).ToArray();
-                    var trainingContext = lap.NN.CreateTrainingContext(TRAINING_RATE, BATCH_SIZE, errorMetric);
+                    var trainingContext = lap.NN.CreateTrainingContext(errorMetric, TRAINING_RATE, BATCH_SIZE);
                     trainingContext.RecurrentEpochComplete += (tc, rtc) => {
                         var testError = trainer.Execute(testDataProvider, memory, rtc).SelectMany(s => s.Select(d => errorMetric.Compute(d.Output, d.ExpectedOutput))).Average();
                         Console.WriteLine($"Epoch {tc.CurrentEpoch} - score: {testError:P}");
@@ -64,6 +69,7 @@ namespace BrightWire.SampleCode
                     };
                 }
 
+                // evaluate the network on some freshly generated data
                 var network = lap.NN.CreateRecurrent(networkData);
                 foreach (var sequence in BinaryIntegers.Addition(8, true)) {
                     var result = network.Execute(sequence.Select(d => d.Input).ToList());

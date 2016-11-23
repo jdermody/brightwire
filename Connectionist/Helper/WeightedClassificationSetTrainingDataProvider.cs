@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using BrightWire.Helper;
+using BrightWire.Models.Input;
 
 namespace BrightWire.Connectionist.Helper
 {
@@ -14,12 +15,12 @@ namespace BrightWire.Connectionist.Helper
         readonly Dictionary<uint, string> _classification;
         readonly int _inputSize, _outputSize;
 
-        public WeightedClassificationSetDataProvider(ILinearAlgebraProvider lap, WeightedClassificationSet data, uint maxIndex)
+        public WeightedClassificationSetDataProvider(ILinearAlgebraProvider lap, SparseVectorClassificationSet data, uint maxIndex)
         {
             _lap = lap;
             var classifications = data.GetClassifications();
             _classification = classifications.ToDictionary(d => d.Value, d => d.Key);
-            _data = data.Classifications.Select(c => Tuple.Create(c.Data.ToDictionary(d => (int)d.Index, d => d.Weight), classifications[c.Name])).ToList();
+            _data = data.Classification.Select(c => Tuple.Create(c.Data.ToDictionary(d => (int)d.Index, d => d.Weight), classifications[c.Name])).ToList();
             _inputSize = (int)maxIndex;
             _outputSize = classifications.Count;
         }
@@ -27,6 +28,11 @@ namespace BrightWire.Connectionist.Helper
         public int Count { get { return _data.Count; } }
         public int InputSize { get { return _inputSize; } }
         public int OutputSize { get { return _outputSize; } }
+
+        public void StartEpoch()
+        {
+            // nop
+        }
 
         public float Get(int row, int column)
         {

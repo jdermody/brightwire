@@ -8,7 +8,7 @@ using System.Linq;
 using BrightWire.Models;
 using BrightWire.Helper;
 using System.Threading.Tasks;
-using BrightWire.Models.Simple;
+using BrightWire.Models.Output;
 
 namespace BrightWire.LinearAlgebra
 {

@@ -1,5 +1,5 @@
 ﻿using BrightWire.Connectionist.Helper;
-using BrightWire.Models.Simple;
+using BrightWire.Models.Output;
 using BrightWire.TabularData;
 using ProtoBuf;
 using System;
@@ -9,54 +9,47 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BrightWire.Models
+namespace BrightWire.Models.Input
 {
     [ProtoContract]
-    public class WeightedClassificationSet
+    public class SparseVectorClassificationSet
     {
-        [ProtoContract]
-        public class WeightedIndex
-        {
-            [ProtoMember(1)]
-            public uint Index { get; set; }
-
-            [ProtoMember(2)]
-            public float Weight { get; set; }
-        }
-
-        [ProtoContract]
-        public class Classification
-        {
-            [ProtoMember(1)]
-            public string Name { get; set; }
-
-            [ProtoMember(2)]
-            public WeightedIndex[] Data { get; set; }
-        }
-
         [ProtoMember(1)]
-        public Classification[] Classifications { get; set; }
+        public SparseVectorClassification[] Classification { get; set; }
 
-        public ClassificationSetSplit Split(double trainPercentage = 0.8)
+        /// <summary>
+        /// Evaluates the classifier against each labelled classification
+        /// </summary>
+        /// <param name="classifier">The classifier to evaluate</param>
+        /// <returns></returns>
+        public IReadOnlyList<ClassificationResult> Classify(IIndexBasedClassifier classifier)
         {
-            return new ClassificationSetSplit(Classifications.Split(trainPercentage));
+            return Classification
+                .Select(d => new ClassificationResult(classifier.Classify(d.GetIndexList()).First(), d.Name))
+                .ToList()
+            ;
+        }
+
+        public SparseVectorClassificationSetSplit Split(double trainPercentage = 0.8)
+        {
+            return new SparseVectorClassificationSetSplit(Classification.Split(trainPercentage));
         }
 
         public uint GetMaximumIndex()
         {
-            return Classifications.Select(d => d.Data.Max(d2 => d2.Index)).Max();
+            return Classification.Select(d => d.Data.Max(d2 => d2.Index)).Max();
         }
 
         public float GetMaximumWeight()
         {
-            return Classifications.Select(d => d.Data.Max(d2 => d2.Weight)).Max();
+            return Classification.Select(d => d.Data.Max(d2 => d2.Weight)).Max();
         }
 
         public Dictionary<string, uint> GetClassifications()
         {
             uint temp;
             var ret = new Dictionary<string, uint>();
-            foreach (var item in Classifications) {
+            foreach (var item in Classification) {
                 if (!ret.TryGetValue(item.Name, out temp))
                     ret.Add(item.Name, temp = (uint)ret.Count);
             }
@@ -68,13 +61,13 @@ namespace BrightWire.Models
             return new WeightedClassificationSetDataProvider(lap, this, maxIndex);
         }
 
-        public IReadOnlyList<VectorClassification> Encode(bool normalise = true)
+        public IReadOnlyList<VectorClassification> Vectorise(bool normalise = true)
         {
             float maxWeight = 0;
             var max = GetMaximumIndex();
             var data = new List<Tuple<float[], string>>();
 
-            foreach (var item in Classifications) {
+            foreach (var item in Classification) {
                 var vector = new float[max + 1];
                 foreach (var index in item.Data) {
                     var weight = index.Weight;
@@ -101,10 +94,10 @@ namespace BrightWire.Models
                 dataTable.AddColumn(ColumnType.Float, "term " + i.ToString());
             dataTable.AddColumn(ColumnType.String, "classification", true);
 
-            foreach (var item in Classifications) {
+            foreach (var item in Classification) {
                 var data = new object[max + 1];
                 for (var i = 0; i < max; i++)
-                    data[i] = (float)0;
+                    data[i] = 0f;
                 foreach (var index in item.Data)
                     data[index.Index] = index.Weight;
                 data[max] = item.Name;
@@ -114,16 +107,16 @@ namespace BrightWire.Models
             return dataTable.Build(stream);
         }
 
-        public WeightedClassificationSet Normalise()
+        public SparseVectorClassificationSet Normalise()
         {
             var maxWeight = GetMaximumWeight();
             if (maxWeight == 0)
                 throw new DivideByZeroException();
 
-            return new WeightedClassificationSet {
-                Classifications = Classifications.Select(c => new Classification {
+            return new SparseVectorClassificationSet {
+                Classification = Classification.Select(c => new SparseVectorClassification {
                     Name = c.Name,
-                    Data = c.Data.Select(d => new WeightedIndex {
+                    Data = c.Data.Select(d => new SparseVector {
                         Index = d.Index,
                         Weight = d.Weight / maxWeight
                     }).ToArray()
@@ -136,14 +129,14 @@ namespace BrightWire.Models
         /// https://en.wikipedia.org/wiki/Tf%E2%80%93idf
         /// </summary>
         /// <returns>A new weighted classification set</returns>
-        public WeightedClassificationSet TFIDF()
+        public SparseVectorClassificationSet TFIDF()
         {
             uint temp;
             var indexOccurence = new Dictionary<uint, uint>();
             var classificationSum = new Dictionary<string, double>();
 
             // find the overall count of each index
-            foreach (var classification in Classifications.GroupBy(c => c.Name)) {
+            foreach (var classification in Classification.GroupBy(c => c.Name)) {
                 double sum = 0;
                 foreach (var item in classification) {
                     foreach (var index in item.Data) {
@@ -159,29 +152,29 @@ namespace BrightWire.Models
             }
 
             // calculate tf-idf for each document
-            var numDocs = (double)Classifications.Length;
-            var ret = new List<Classification>();
-            foreach (var classification in Classifications) {
+            var numDocs = (double)Classification.Length;
+            var ret = new List<SparseVectorClassification>();
+            foreach (var classification in Classification) {
                 var totalWords = classificationSum[classification.Name];
-                var classificationIndex = new List<WeightedIndex>();
+                var classificationIndex = new List<SparseVector>();
                 foreach (var item in classification.Data) {
                     var index = item.Index;
                     var tf = item.Weight / totalWords;
                     var docsWithTerm = (double)indexOccurence[index];
                     var idf = Math.Log(numDocs / (1.0 + docsWithTerm));
                     var score = tf * idf;
-                    classificationIndex.Add(new WeightedIndex {
+                    classificationIndex.Add(new SparseVector {
                         Index = index,
                         Weight = Convert.ToSingle(score)
                     });
                 }
-                ret.Add(new Classification {
+                ret.Add(new SparseVectorClassification {
                     Name = classification.Name,
                     Data = classificationIndex.ToArray()
                 });
             }
-            return new WeightedClassificationSet {
-                Classifications = ret.ToArray()
+            return new SparseVectorClassificationSet {
+                Classification = ret.ToArray()
             };
         }
     }

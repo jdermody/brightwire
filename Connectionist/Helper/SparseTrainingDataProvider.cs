@@ -12,7 +12,6 @@ namespace BrightWire.Connectionist.Helper
         readonly ILinearAlgebraProvider _lap;
         readonly IReadOnlyList<Tuple<Dictionary<uint, float>, Dictionary<uint, float>>> _data;
         readonly int _inputSize, _outputSize;
-        IIndexableMatrix _inputCache = null, _outputCache = null;
         int _lastBatchSize = 0;
 
         public SparseTrainingDataProvider(ILinearAlgebraProvider lap, IReadOnlyList<Tuple<Dictionary<uint, float>, Dictionary<uint, float>>> data, int inputSize, int outputSize)
@@ -45,29 +44,14 @@ namespace BrightWire.Connectionist.Helper
 
         public IMiniBatch GetTrainingData(IReadOnlyList<int> rows)
         {
-            if (_inputCache == null || _lastBatchSize != rows.Count) {
-                _inputCache?.Dispose();
-                _inputCache = _lap.CreateIndexable(rows.Count, _inputSize);
-            }
-            else
-                _inputCache.Clear();
-            if (_outputCache == null || _lastBatchSize != rows.Count) {
-                _outputCache?.Dispose();
-                _outputCache = _lap.CreateIndexable(rows.Count, _outputSize);
-            }
-            else
-                _outputCache.Clear();
-            _lastBatchSize = rows.Count;
+            var input = _lap.Create(rows.Count, _inputSize, (x, y) => Get(rows[x], (uint)y));
+            var output = _lap.Create(rows.Count, _outputSize, (x, y) => GetPrediction(rows[x], (uint)y));
+            return new MiniBatch(input, output);
+        }
 
-            int index = 0;
-            foreach (var row in rows) {
-                foreach (var item in _data[row].Item1)
-                    _inputCache[index, (int)item.Key] = item.Value;
-                foreach (var item in _data[row].Item2)
-                    _outputCache[index, (int)item.Key] = item.Value;
-                ++index;
-            }
-            return new MiniBatch(_inputCache, _outputCache);
+        public void StartEpoch()
+        {
+            // nop
         }
     }
 }

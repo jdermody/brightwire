@@ -12,10 +12,10 @@ namespace BrightWire.TabularData.Helper
     internal class DataTableNormaliser : IRowProcessor
     {
         readonly DataTableWriter _writer;
-        readonly Normalisation _normalisationModel;
+        readonly DataTableNormalisation _normalisationModel;
         readonly IDataTable _table;
 
-        public DataTableNormaliser(IDataTable dataTable, NormalisationType type, Stream output = null, Normalisation model = null)
+        public DataTableNormaliser(IDataTable dataTable, NormalisationType type, Stream output = null, DataTableNormalisation model = null)
         {
             _table = dataTable;
             _writer = new DataTableWriter(dataTable.Columns, output);
@@ -24,7 +24,7 @@ namespace BrightWire.TabularData.Helper
                 _normalisationModel = model;
             else {
                 var analysis = dataTable.GetAnalysis();
-                var columnNormList = new List<Normalisation.Column>();
+                var columnNormList = new List<DataTableNormalisation.Column>();
                 foreach (var columnInfo in analysis.ColumnInfo) {
                     var column = dataTable.Columns[columnInfo.ColumnIndex];
                     if (column.IsContinuous) {
@@ -33,22 +33,22 @@ namespace BrightWire.TabularData.Helper
                             if (type == NormalisationType.Standard && !numericInfo.StdDev.HasValue)
                                 continue;
 
-                            Normalisation.Column columnNorm;
+                            DataTableNormalisation.Column columnNorm;
                             if (type == NormalisationType.Standard)
-                                columnNorm = new Normalisation.Column(columnInfo.ColumnIndex, column.Type, numericInfo.StdDev.Value, numericInfo.Mean);
+                                columnNorm = new DataTableNormalisation.Column(columnInfo.ColumnIndex, column.Type, numericInfo.StdDev.Value, numericInfo.Mean);
                             else if (type == NormalisationType.Euclidean)
-                                columnNorm = new Normalisation.Column(columnInfo.ColumnIndex, column.Type, numericInfo.L2Norm);
+                                columnNorm = new DataTableNormalisation.Column(columnInfo.ColumnIndex, column.Type, numericInfo.L2Norm);
                             else if (type == NormalisationType.Manhattan)
-                                columnNorm = new Normalisation.Column(columnInfo.ColumnIndex, column.Type, numericInfo.L1Norm);
+                                columnNorm = new DataTableNormalisation.Column(columnInfo.ColumnIndex, column.Type, numericInfo.L1Norm);
                             else if (type == NormalisationType.FeatureScale)
-                                columnNorm = new Normalisation.Column(columnInfo.ColumnIndex, column.Type, numericInfo.Max - numericInfo.Min, numericInfo.Min);
+                                columnNorm = new DataTableNormalisation.Column(columnInfo.ColumnIndex, column.Type, numericInfo.Max - numericInfo.Min, numericInfo.Min);
                             else
                                 throw new NotImplementedException();
                             columnNormList.Add(columnNorm);
                         }
                     }
                 }
-                _normalisationModel = new Normalisation {
+                _normalisationModel = new DataTableNormalisation {
                     Type = type,
                     ColumnNormalisation = columnNormList.ToArray()
                 };
@@ -66,7 +66,7 @@ namespace BrightWire.TabularData.Helper
             return _writer.GetDataTable();
         }
 
-        public Normalisation GetNormalisationModel()
+        public DataTableNormalisation GetNormalisationModel()
         {
             return _normalisationModel;
         }

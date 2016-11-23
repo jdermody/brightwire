@@ -6,7 +6,7 @@ using MathNet.Numerics.Distributions;
 using System.IO;
 using System.Text;
 using UnitTests.Helper;
-using BrightWire.Models.Simple;
+using BrightWire.Models.Output;
 using System.Linq;
 
 namespace UnitTests

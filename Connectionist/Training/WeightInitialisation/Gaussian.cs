@@ -14,7 +14,6 @@ namespace BrightWire.Connectionist.Training.WeightInitialisation
         public Gaussian(bool stochastic, double stdDev = 0.1)
         {
             _distribution = stochastic ? new Normal(0, stdDev) : new Normal(0, stdDev, new Random(0));
-            var test = _distribution.Sample();
         }
 
         public float GetBias()

@@ -34,6 +34,7 @@ namespace BrightWire.SampleCode
             var targetColumnIndex = dataTable.TargetColumnIndex = dataTable.ColumnCount - 1;
             var featureColumns = Enumerable.Range(0, 4).ToList();
 
+            // convert the data table to vectors
             using (var lap = Provider.CreateLinearAlgebra()) {
                 var rows = dataTable.GetNumericRows(lap, featureColumns);
                 var labels = rows.Zip(dataTable.GetColumn<string>(targetColumnIndex), (r, l) => Tuple.Create(r, l)).ToDictionary(d => d.Item1, d => d.Item2);

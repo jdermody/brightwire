@@ -53,7 +53,7 @@ namespace UnitTests
             // create a batch trainer (hidden layer of size 4).
             using (var trainer = _lap.NN.CreateBatchTrainer(layerTemplate, testDataProvider.InputSize, 4, testDataProvider.OutputSize)) {
                 // create a training context that will hold the training rate and batch size
-                var trainingContext = _lap.NN.CreateTrainingContext(0.03f, 2, ErrorMetricType.OneHot);
+                var trainingContext = _lap.NN.CreateTrainingContext(ErrorMetricType.OneHot, 0.03f, 2);
 
                 // train the network!
                 trainer.Train(testDataProvider, 1000, trainingContext);
@@ -107,7 +107,7 @@ namespace UnitTests
             RecurrentNetwork networkData = null;
             using (var trainer = _lap.NN.CreateRecurrentBatchTrainer(layers)) {
                 var memory = Enumerable.Range(0, HIDDEN_SIZE).Select(i => 0f).ToArray();
-                var trainingContext = _lap.NN.CreateTrainingContext(0.1f, BATCH_SIZE, errorMetric);
+                var trainingContext = _lap.NN.CreateTrainingContext(errorMetric, 0.1f, BATCH_SIZE);
                 trainingContext.RecurrentEpochComplete += (tc, rtc) => {
                     Debug.WriteLine(tc.LastTrainingError);
                 };
@@ -149,7 +149,7 @@ namespace UnitTests
             RecurrentNetwork networkData = null;
             using (var trainer = _lap.NN.CreateRecurrentBatchTrainer(layers)) {
                 var memory = Enumerable.Range(0, HIDDEN_SIZE).Select(i => 0f).ToArray();
-                var trainingContext = _lap.NN.CreateTrainingContext(0.1f, BATCH_SIZE, errorMetric);
+                var trainingContext = _lap.NN.CreateTrainingContext(errorMetric, 0.1f, BATCH_SIZE);
                 trainingContext.RecurrentEpochComplete += (tc, rtc) => {
                     Debug.WriteLine(tc.LastTrainingError);
                 };
@@ -195,7 +195,7 @@ namespace UnitTests
             using (var trainer = _lap.NN.CreateBidirectionalBatchTrainer(layers)) {
                 var forwardMemory = Enumerable.Range(0, HIDDEN_SIZE).Select(i => 0f).ToArray();
                 var backwardMemory = Enumerable.Range(0, HIDDEN_SIZE).Select(i => 0f).ToArray();
-                var trainingContext = _lap.NN.CreateTrainingContext(0.1f, BATCH_SIZE, errorMetric);
+                var trainingContext = _lap.NN.CreateTrainingContext(errorMetric, 0.1f, BATCH_SIZE);
                 trainingContext.RecurrentEpochComplete += (tc, rtc) => {
                     Debug.WriteLine(tc.LastTrainingError);
                 };

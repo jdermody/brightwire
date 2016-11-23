@@ -7,7 +7,7 @@ using System.Linq;
 namespace BrightWire.Models
 {
     [ProtoContract]
-    public class Normalisation
+    public class DataTableNormalisation
     {
         [ProtoContract]
         public class Column

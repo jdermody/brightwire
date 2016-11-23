@@ -1,6 +1,7 @@
 ﻿using BrightWire.Connectionist;
 using BrightWire.Models;
-using BrightWire.Models.Simple;
+using BrightWire.Models.Input;
+using BrightWire.Models.Output;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -1384,7 +1385,8 @@ namespace BrightWire
         /// Creates a training data provider from a data table
         /// </summary>
         /// <param name="table">The training data</param>
-        ITrainingDataProvider CreateTrainingDataProvider(IDataTable table);
+        /// <param name="vectoriser">Optional vectoriser for the data table</param>
+        ITrainingDataProvider CreateTrainingDataProvider(IDataTable table, IDataTableVectoriser vectoriser = null);
 
         /// <summary>
         /// Creates a training data provider from a list of training examples
@@ -1438,18 +1440,18 @@ namespace BrightWire
         /// <summary>
         /// Creates a training context
         /// </summary>
+        /// <param name="errorMetric">The cost function</param>
         /// <param name="learningRate">The initial training rate</param>
         /// <param name="batchSize">The mini batch size</param>
-        /// <param name="errorMetric">The cost function</param>
-        ITrainingContext CreateTrainingContext(float learningRate, int batchSize, IErrorMetric errorMetric);
+        ITrainingContext CreateTrainingContext(IErrorMetric errorMetric, float learningRate, int batchSize);
 
         /// <summary>
         /// Creates a training context
         /// </summary>
+        /// <param name="errorMetric">The cost function</param>
         /// <param name="learningRate">The initial training rate</param>
         /// <param name="batchSize">The mini batch size</param>
-        /// <param name="errorMetric">The cost function</param>
-        ITrainingContext CreateTrainingContext(float learningRate, int batchSize, ErrorMetricType errorMetric);
+        ITrainingContext CreateTrainingContext(ErrorMetricType errorMetric, float learningRate, int batchSize);
 
         /// <summary>
         /// Creates a recurrent training context
@@ -1912,6 +1914,11 @@ namespace BrightWire
         IMiniBatch GetTrainingData(IReadOnlyList<int> rows);
 
         /// <summary>
+        /// Called at the start of each epoch
+        /// </summary>
+        void StartEpoch();
+
+        /// <summary>
         /// The number of training samples
         /// </summary>
         int Count { get; }
@@ -1928,10 +1935,15 @@ namespace BrightWire
     }
 
     /// <summary>
-    /// Maps one hot encoded vectors back to classification labels
+    /// Converts data table rows to vectors
     /// </summary>
-    public interface IDataTableTrainingDataProvider
+    public interface IDataTableVectoriser
     {
+        float[] GetInput(IRow row);
+        float[] GetOutput(IRow row);
+        int InputSize { get; }
+        int OutputSize { get; }
+
         /// <summary>
         /// Returns the classification label
         /// </summary>
@@ -2061,6 +2073,14 @@ namespace BrightWire
         /// <param name="depth">The layer depth at which to stop execution</param>
         /// <returns></returns>
         IVector Execute(IVector inputData, int depth);
+
+        /// <summary>
+        /// Classifies the input data and returns the classifications with their weights
+        /// </summary>
+        /// <param name="inputData"></param>
+        /// <param name="classificationTable">Maps vector index to classification labels</param>
+        /// <returns></returns>
+        IReadOnlyList<WeightedClassification> GetWeightedClassifications(float[] inputData, Dictionary<int, string> classificationTable);
     }
 
     /// <summary>
@@ -2491,13 +2511,13 @@ namespace BrightWire
         /// </summary>
         /// <param name="normalisationModel">The normalisation model to apply</param>
         /// <param name="output">Optional stream to write the normalised table to</param>
-        IDataTable Normalise(Normalisation normalisationModel, Stream output = null);
+        IDataTable Normalise(DataTableNormalisation normalisationModel, Stream output = null);
 
         /// <summary>
         /// Builds a normalisation model from the table that can be used to normalise data to the same scale
         /// </summary>
         /// <param name="normalisationType">The type of normalisation</param>
-        Normalisation GetNormalisationModel(NormalisationType normalisationType);
+        DataTableNormalisation GetNormalisationModel(NormalisationType normalisationType);
 
         /// <summary>
         /// Converts the rows to vectors
@@ -2590,6 +2610,20 @@ namespace BrightWire
         /// <typeparam name="T">The type returned by the mutator</typeparam>
         /// <param name="mutator">The function called for each row in the table</param>
         IReadOnlyList<T> Map<T>(Func<IRow, T> mutator);
+
+        /// <summary>
+        /// Returns an interface that can convert rows in the current table to vectors
+        /// </summary>
+        /// <param name="useTargetColumnIndex">True to separate the target column index into a separate output vector</param>
+        IDataTableVectoriser GetVectoriser(bool useTargetColumnIndex);
+
+        /// <summary>
+        /// Returns a copy of the current table
+        /// </summary>
+        /// <param name="rowIndex">The list of rows to copy</param>
+        /// <param name="output">Optional stream to write the new table to</param>
+        /// <returns></returns>
+        IDataTable CopyWithRows(IEnumerable<int> rowIndex, Stream output = null);
     }
 
     /// <summary>

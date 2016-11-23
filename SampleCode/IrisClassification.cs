@@ -88,7 +88,7 @@ namespace BrightWire.SampleCode
                 // create a network trainer and evaluate against the test set after every 50 epochs
                 Console.WriteLine("Training a 4x8x3 neural network...");
                 using (var trainer = lap.NN.CreateBatchTrainer(layerTemplate, trainingData.InputSize, 8, trainingData.OutputSize)) {
-                    var trainingContext = lap.NN.CreateTrainingContext(LEARNING_RATE, BATCH_SIZE, errorMetric);
+                    var trainingContext = lap.NN.CreateTrainingContext(errorMetric, LEARNING_RATE, BATCH_SIZE);
                     trainingContext.EpochComplete += c => {
                         if (c.CurrentEpoch % 50 == 0) {
                             var testError = trainer.Execute(testData).Select(d => errorMetric.Compute(d.Output, d.ExpectedOutput)).Average();
@@ -102,7 +102,7 @@ namespace BrightWire.SampleCode
                 // let's unload some deep learning on these flowers...
                 Console.WriteLine("Training a 4x8x16x32x16x8x3 neural network...");
                 using (var deepTrainer = lap.NN.CreateBatchTrainer(layerTemplate, trainingData.InputSize, 8, 16, 32, 16, 8, trainingData.OutputSize)) {
-                    var trainingContext = lap.NN.CreateTrainingContext(LEARNING_RATE, BATCH_SIZE, errorMetric);
+                    var trainingContext = lap.NN.CreateTrainingContext(errorMetric, LEARNING_RATE, BATCH_SIZE);
                     trainingContext.EpochComplete += c => {
                         if (c.CurrentEpoch % 50 == 0) {
                             var testError = deepTrainer.Execute(testData).Select(d => errorMetric.Compute(d.Output, d.ExpectedOutput)).Average();

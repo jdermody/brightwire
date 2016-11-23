@@ -8,6 +8,7 @@ using BrightWire;
 using BrightWire.Helper;
 using BrightWire.Models;
 using System.Xml;
+using BrightWire.Models.Input;
 
 namespace BrightWire.SampleCode
 {
@@ -40,26 +41,26 @@ namespace BrightWire.SampleCode
             /// </summary>
             public string[] Group { get; set; }
 
-            public WeightedClassificationSet.Classification AsClassification(StringTableBuilder stringTable)
+            public SparseVectorClassification AsClassification(StringTableBuilder stringTable)
             {
-                var weightedIndex = new List<WeightedClassificationSet.WeightedIndex>();
+                var weightedIndex = new List<SparseVector>();
                 foreach (var item in Keyword) {
-                    weightedIndex.Add(new WeightedClassificationSet.WeightedIndex {
+                    weightedIndex.Add(new SparseVector {
                         Index = stringTable.GetIndex(item),
                         Weight = 1f
                     });
                 }
                 foreach (var item in Topic) {
-                    weightedIndex.Add(new WeightedClassificationSet.WeightedIndex {
+                    weightedIndex.Add(new SparseVector {
                         Index = stringTable.GetIndex(item),
                         Weight = 1f
                     });
                 }
-                return new WeightedClassificationSet.Classification {
+                return new SparseVectorClassification {
                     Name = Title,
                     Data = weightedIndex
                         .GroupBy(d => d.Index)
-                        .Select(g => new WeightedClassificationSet.WeightedIndex {
+                        .Select(g => new SparseVector {
                             Index = g.Key,
                             Weight = g.Sum(d => d.Weight)
                         })
@@ -113,10 +114,10 @@ namespace BrightWire.SampleCode
             var allGroups = new HashSet<string>(docList.SelectMany(d => d.Group));
 
             var stringTable = new StringTableBuilder();
-            var classificationSet = new WeightedClassificationSet {
-                Classifications = docList.Select(d => d.AsClassification(stringTable)).ToArray()
+            var classificationSet = new SparseVectorClassificationSet {
+                Classification = docList.Select(d => d.AsClassification(stringTable)).ToArray()
             };
-            var encodings = classificationSet.Encode(true);
+            var encodings = classificationSet.Vectorise(true);
 
             using (var lap = Provider.CreateLinearAlgebra()) {
                 var lookupTable = encodings.Select(d => Tuple.Create(d, lap.Create(d.Data))).ToDictionary(d => d.Item2, d => docTable[d.Item1.Classification]);

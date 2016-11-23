@@ -1,4 +1,4 @@
-﻿using BrightWire.Models.Simple;
+﻿using BrightWire.Models.Output;
 using BrightWire.TabularData;
 using ProtoBuf;
 using System;
@@ -8,23 +8,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BrightWire.Models
+namespace BrightWire.Models.Input
 {
     [ProtoContract]
     public class ClassificationBag
     {
-        [ProtoContract]
-        public class Classification
-        {
-            [ProtoMember(1)]
-            public string Name { get; set; }
-
-            [ProtoMember(2)]
-            public uint[] Data { get; set; }
-        }
-
         [ProtoMember(1)]
-        public Classification[] Classifications { get; set; }
+        public IndexedClassification[] Classification { get; set; }
 
         /// <summary>
         /// Evaluates the classifier against each labelled classification
@@ -33,23 +23,23 @@ namespace BrightWire.Models
         /// <returns></returns>
         public IReadOnlyList<ClassificationResult> Classify(IIndexBasedClassifier classifier)
         {
-            return Classifications
+            return Classification
                 .Select(d => new ClassificationResult(classifier.Classify(d.Data).First(), d.Name))
                 .ToList()
             ;
         }
 
-        public WeightedClassificationSet ConvertToSet(bool groupByClassification)
+        public SparseVectorClassificationSet ConvertToSparseVectors(bool groupByClassification)
         {
             if (groupByClassification) {
-                return new WeightedClassificationSet {
-                    Classifications = Classifications
+                return new SparseVectorClassificationSet {
+                    Classification = Classification
                     .GroupBy(c => c.Name)
-                        .Select(g => new WeightedClassificationSet.Classification {
+                        .Select(g => new SparseVectorClassification {
                             Name = g.Key,
                             Data = g.SelectMany(d => d.Data)
                                 .GroupBy(d => d)
-                                .Select(g2 => new WeightedClassificationSet.WeightedIndex {
+                                .Select(g2 => new SparseVector {
                                     Index = g2.Key,
                                     Weight = g2.Count()
                                 })
@@ -58,13 +48,13 @@ namespace BrightWire.Models
                         .ToArray()
                 };
             }else {
-                return new WeightedClassificationSet {
-                    Classifications = Classifications
-                        .Select(c => new WeightedClassificationSet.Classification {
+                return new SparseVectorClassificationSet {
+                    Classification = Classification
+                        .Select(c => new SparseVectorClassification {
                             Name = c.Name,
                             Data = c.Data
                                 .GroupBy(d => d)
-                                .Select(g2 => new WeightedClassificationSet.WeightedIndex {
+                                .Select(g2 => new SparseVector {
                                     Index = g2.Key,
                                     Weight = g2.Count()
                                 })

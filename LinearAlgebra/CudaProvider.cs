@@ -1,6 +1,6 @@
 ﻿using BrightWire.Connectionist;
 using BrightWire.Models;
-using BrightWire.Models.Simple;
+using BrightWire.Models.Output;
 using ManagedCuda;
 using ManagedCuda.BasicTypes;
 using ManagedCuda.CudaBlas;

@@ -1,6 +1,7 @@
 ﻿using BrightWire;
 using BrightWire.Helper;
 using BrightWire.Models;
+using BrightWire.Models.Input;
 using BrightWire.TabularData;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
@@ -61,12 +62,12 @@ namespace UnitTests
         {
             // sample data from: http://nlp.stanford.edu/IR-book/html/htmledition/naive-bayes-text-classification-1.html
             return new ClassificationBag {
-                Classifications = new[] {
+                Classification = new[] {
                     Tuple.Create(new[] { "Chinese", "Beijing", "Chinese" }, true),
                     Tuple.Create(new[] { "Chinese", "Chinese", "Shanghai" }, true),
                     Tuple.Create(new[] { "Chinese", "Macao" }, true),
                     Tuple.Create(new[] { "Tokyo", "Japan", "Chinese" }, false),
-                }.Select(d => new ClassificationBag.Classification {
+                }.Select(d => new IndexedClassification {
                     Name = d.Item2 ? "china" : "japan",
                     Data = d.Item1.Select(s => stringTableBuilder.GetIndex(s)).ToArray()
                 }).ToArray()
