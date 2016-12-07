@@ -25,6 +25,8 @@ namespace BrightWire.Linear.Training
             _target = lap.Create(table.GetColumn<float>(classColumnIndex));
         }
 
+        // normal method removed until GPU provider can properly calculate matrix inverses!
+
         //public LinearRegression Solve()
         //{
         //    // solve using normal method

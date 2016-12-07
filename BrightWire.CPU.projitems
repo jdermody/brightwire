@@ -65,7 +65,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Training\WeightInitialisation\Identity.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Training\WeightInitialisation\Xavier.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DimensionalityReduction\RandomProjection.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Ensemble\Helper\AdaBoostBuilder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Ensemble\ModelStacker.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Ensemble\Training\AdaBoostTrainer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ErrorMetrics\BinaryClassification.cs" />

@@ -18,9 +18,19 @@ namespace BrightWire.SampleCode
             }
         }
 
+        /// <summary>
+        /// Trains ada boost on the "adult" dataset
+        /// Can be downloaded from https://archive.ics.uci.edu/ml/machine-learning-databases/adult/
+        /// </summary>
+        /// <param name="trainingDataPath">Path to adult.data file</param>
+        /// <param name="testDataPath">Path to adult.test file</param>
         public static void IncomePrediction(string trainingDataPath, string testDataPath)
         {
             var trainingTable = _LoadAdult(trainingDataPath, false);
+            var vectoriser = trainingTable.GetVectoriser();
+            var trainingTable2 = trainingTable;
+            var lap = Provider.CreateLinearAlgebra();
+
             var testTable = _LoadAdult(testDataPath, true);
             var targetColumnIndex = testTable.TargetColumnIndex;
             var testTable2 = testTable.Project(row => {
@@ -28,17 +38,22 @@ namespace BrightWire.SampleCode
                 var ret = row.Data.Take(targetColumnIndex).Concat(new[] { label.Substring(0, label.Length - 1) }).ToList();
                 return ret;
             });
+            targetColumnIndex = testTable2.TargetColumnIndex;
 
-            var naiveBayes = trainingTable.TrainNaiveBayes();
+            var naiveBayes = trainingTable2.TrainNaiveBayes();
             Console.WriteLine("Naive bayes accuracy: {0:P}", testTable2
                 .Classify(naiveBayes.CreateClassifier())
                 .Average(d => d.Row.GetField<string>(targetColumnIndex) == d.Classification ? 1.0 : 0.0)
             );
 
-            var adaBoost = trainingTable.CreateBoostedTrainer();
-            adaBoost.AddClassifiers(3, dt => {
+            var adaBoost = trainingTable2.CreateBoostedTrainer();
+            adaBoost.AddClassifiers(5, dt => {
                 var decisionTree = dt.TrainDecisionTree(null, 1, null, 1024);
                 return decisionTree.CreateClassifier();
+                //var knn = dt.TrainMultinomialLogisticRegression(lap, 100, 0.1f);
+                //return knn.CreateClassifier(lap);
+                //var nb = dt.TrainNaiveBayes();
+                //return nb.CreateClassifier();
             });
 
             var results = adaBoost.Classify(testTable2);

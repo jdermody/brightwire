@@ -121,6 +121,14 @@ namespace BrightWire.TabularData
         }
         public int ColumnCount { get { return _column.Count; } }
 
+        public bool HasCategoricalData
+        {
+            get
+            {
+                return _column.Any(c => !c.IsContinuous && !c.IsTarget);
+            }
+        }
+
         public void WriteIndexTo(Stream stream)
         {
             using(var writer = new BinaryWriter(stream, Encoding.UTF8, true)) {
@@ -546,7 +554,7 @@ namespace BrightWire.TabularData
             return ret;
         }
 
-        public IDataTableVectoriser GetVectoriser(bool useTargetColumnIndex)
+        public IDataTableVectoriser GetVectoriser(bool useTargetColumnIndex = true)
         {
             return new DataTableVectoriser(this, useTargetColumnIndex);
         }
@@ -556,6 +564,24 @@ namespace BrightWire.TabularData
             var writer = new DataTableWriter(_column, output);
             foreach (var row in GetRows(rowIndex))
                 writer.AddRow(row.Data);
+            return writer.GetDataTable();
+        }
+
+        public IDataTable ConvertToNumeric(IDataTableVectoriser vectoriser = null, Stream output = null)
+        {
+            var writer = new DataTableWriter(output);
+            vectoriser = vectoriser ?? GetVectoriser();
+            foreach (var name in vectoriser.ColumnNames)
+                writer.AddColumn(name, ColumnType.Float);
+            var classColumnIndex = TargetColumnIndex;
+            var classColumn = _column[classColumnIndex];
+            writer.AddColumn(classColumn.Name, ColumnType.String, true);
+
+            _Iterate(row => {
+                var data = vectoriser.GetInput(row).AsEnumerable().Cast<object>().Concat(new object[] { row.GetField<string>(classColumnIndex) });
+                writer.AddRow(data);
+                return true;
+            });
             return writer.GetDataTable();
         }
 

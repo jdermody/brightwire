@@ -1957,6 +1957,7 @@ namespace BrightWire
         float[] GetOutput(IRow row);
         int InputSize { get; }
         int OutputSize { get; }
+        IReadOnlyList<string> ColumnNames { get; }
 
         /// <summary>
         /// Returns the classification label
@@ -2629,7 +2630,7 @@ namespace BrightWire
         /// Returns an interface that can convert rows in the current table to vectors
         /// </summary>
         /// <param name="useTargetColumnIndex">True to separate the target column index into a separate output vector</param>
-        IDataTableVectoriser GetVectoriser(bool useTargetColumnIndex);
+        IDataTableVectoriser GetVectoriser(bool useTargetColumnIndex = true);
 
         /// <summary>
         /// Returns a copy of the current table
@@ -2640,9 +2641,22 @@ namespace BrightWire
         IDataTable CopyWithRows(IEnumerable<int> rowIndex, Stream output = null);
 
         /// <summary>
+        /// Converts the current data table to a numeric data table (the classification column is a string)
+        /// </summary>
+        /// <param name="vectoriser">Optional vectoriser</param>
+        /// <param name="output">Optional stream to write the new table to</param>
+        /// <returns></returns>
+        IDataTable ConvertToNumeric(IDataTableVectoriser vectoriser = null, Stream output = null);
+
+        /// <summary>
         /// Returns table meta-data and the top 20 rows of the table as XML
         /// </summary>
         string XmlPreview { get; }
+
+        /// <summary>
+        /// Returns true if the data table contains any non-numeric columns
+        /// </summary>
+        bool HasCategoricalData { get; }
     }
 
     /// <summary>
@@ -2768,9 +2782,8 @@ namespace BrightWire
         IColumnInfo this[int columnIndex] { get; }
 
         /// <summary>
-        /// G
+        /// Returns a summary of the table analysis
         /// </summary>
-        /// <returns></returns>
         string AsXml { get; }
     }
 

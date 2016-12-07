@@ -11,6 +11,7 @@ namespace BrightWire.TabularData.Helper
         readonly int _inputSize, _outputSize, _classColumnIndex;
         readonly Dictionary<int, Dictionary<string, int>> _columnMap = new Dictionary<int, Dictionary<string, int>>();
         readonly Dictionary<int, Dictionary<int, string>> _reverseColumnMap = new Dictionary<int, Dictionary<int, string>>();
+        readonly List<string> _columnName = new List<string>();
 
         public DataTableVectoriser(IDataTable table, bool useTargetColumnIndex)
         {
@@ -20,9 +21,13 @@ namespace BrightWire.TabularData.Helper
 
             foreach (var columnInfo in analysis.ColumnInfo) {
                 var column = table.Columns[columnInfo.ColumnIndex];
+                var isTarget = columnInfo.ColumnIndex == _classColumnIndex;
                 int size = 0;
-                if (column.IsContinuous || !columnInfo.NumDistinct.HasValue)
+                if (column.IsContinuous || !columnInfo.NumDistinct.HasValue) {
                     size = 1;
+                    if (!isTarget)
+                        _columnName.Add(column.Name);
+                }
                 else {
                     size = columnInfo.NumDistinct.Value;
                     var categoryIndex = columnInfo.DistinctValues.Select(s => s.ToString()).OrderBy(s => s).Select((s, i) => Tuple.Create(s, i)).ToList();
@@ -30,13 +35,19 @@ namespace BrightWire.TabularData.Helper
                     var reverseColumnMap = categoryIndex.ToDictionary(d => d.Item2, d => d.Item1);
                     _columnMap.Add(columnInfo.ColumnIndex, columnMap);
                     _reverseColumnMap.Add(columnInfo.ColumnIndex, reverseColumnMap);
+                    if (!isTarget) {
+                        for (var i = 0; i < size; i++)
+                            _columnName.Add(column.Name + ":" + reverseColumnMap[i]);
+                    }
                 }
-                if (columnInfo.ColumnIndex == _classColumnIndex)
+                if (isTarget)
                     _outputSize = size;
                 else
                     _inputSize += size;
             }
         }
+
+        public IReadOnlyList<string> ColumnNames { get { return _columnName; } }
 
         public int InputSize
         {

@@ -54,7 +54,7 @@ namespace BrightWire.Connectionist
 
         public ITrainingDataProvider CreateTrainingDataProvider(IDataTable table, IDataTableVectoriser vectoriser = null)
         {
-            return new DataTableTrainingDataProvider(_lap, table, vectoriser ?? table.GetVectoriser(true));
+            return new DataTableTrainingDataProvider(_lap, table, vectoriser ?? table.GetVectoriser());
         }
 
         public ITrainingDataProvider CreateTrainingDataProvider(IReadOnlyList<TrainingExample> data)

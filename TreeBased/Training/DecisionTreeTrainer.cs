@@ -130,7 +130,7 @@ namespace BrightWire.TreeBased.Training
         {
             readonly TableInfo _tableInfo;
             readonly IReadOnlyList<InMemoryRow> _data;
-            readonly Lazy<Dictionary<string, int>> _classCount;
+            readonly Dictionary<string, int> _classCount;
             Node _parent = null;
             Attribute _attribute = null;
             IReadOnlyList<Node> _children = null;
@@ -141,7 +141,7 @@ namespace BrightWire.TreeBased.Training
                 _data = data;
                 _tableInfo = tableInfo;
                 _matchLabel = matchLabel;
-                _classCount = new Lazy<Dictionary<string, int>>(() => data.GroupBy(d => d.ClassificationLabel).ToDictionary(g => g.Key, g => g.Count()));
+                _classCount = data.GroupBy(d => d.ClassificationLabel).ToDictionary(g => g.Key, g => g.Count());
             }
 
             public DecisionTree.Node AsDecisionTreeNode()
@@ -201,9 +201,9 @@ namespace BrightWire.TreeBased.Training
             {
                 get
                 {
-                    double total = _classCount.Value.Sum(d => d.Value);
+                    double total = _classCount.Sum(d => d.Value);
                     double ret = 0;
-                    foreach(var item in _classCount.Value) {
+                    foreach(var item in _classCount) {
                         var probability = item.Value / total;
                         ret -= probability * Math.Log(probability, 2);
                     }
@@ -248,8 +248,8 @@ namespace BrightWire.TreeBased.Training
                     }
                 }
             }
-            public bool IsLeaf { get { return _classCount.Value.Count <= 1; } }
-            public string PredictedClass { get { return _classCount.Value.OrderByDescending(kv => kv.Value).Select(kv => kv.Key).FirstOrDefault(); } }
+            public bool IsLeaf { get { return _classCount.Count <= 1; } }
+            public string PredictedClass { get { return _classCount.OrderByDescending(kv => kv.Value).Select(kv => kv.Key).FirstOrDefault(); } }
             public IReadOnlyList<InMemoryRow> Data { get { return _data; } }
             public string MatchLabel { get { return _matchLabel; } }
         }

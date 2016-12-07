@@ -8,6 +8,9 @@ using System.IO;
 
 namespace BrightWire.Ensemble
 {
+    /// <summary>
+    /// Helps to create a new data table that holds the output from previous classifiers
+    /// </summary>
     public class ModelStacker
     {
         readonly List<Tuple<float[], string>> _trainingData = new List<Tuple<float[], string>>();

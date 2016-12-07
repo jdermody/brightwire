@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using BrightWire.Models.Output;
+using BrightWire.Helper;
 
 namespace BrightWire.Linear
 {
@@ -38,8 +39,25 @@ namespace BrightWire.Linear
 
         public IReadOnlyList<WeightedClassification> GetWeightedClassifications(IRow row)
         {
-            return _Classify(row)
-                .Select(r => new WeightedClassification(_model.Classification[r.Item1], r.Item2))
+            // calculate softmax over output value
+            float max = float.MinValue, total = 0;
+            var raw = new List<Tuple<string, float>>();
+            foreach(var item in _Classify(row)) {
+                var classification = _model.Classification[item.Item1];
+                var score = item.Item2;
+                if (score > max)
+                    max = score;
+                raw.Add(Tuple.Create(classification, score));
+            }
+            var softmax = new List<Tuple<string, float>>();
+            foreach (var item in raw) {
+                var exp = BoundMath.Exp(item.Item2);
+                total += exp;
+                softmax.Add(Tuple.Create(item.Item1, exp));
+            }
+
+            return softmax
+                .Select(r => new WeightedClassification(r.Item1, r.Item2 / total))
                 .ToList()
             ;
         }

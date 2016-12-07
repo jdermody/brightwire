@@ -41,7 +41,7 @@ namespace UnitTests
             builder.Add(0.2f, 0.6, "a", "d");
 
             var table = builder.Build();
-            var vectoriser = table.GetVectoriser(true);
+            var vectoriser = table.GetVectoriser();
             var dataProvider = _lap.NN.CreateTrainingDataProvider(table, vectoriser);
             var miniBatch = dataProvider.GetTrainingData(new[] { 1 });
             var input = miniBatch.Input.Row(0).AsIndexable();

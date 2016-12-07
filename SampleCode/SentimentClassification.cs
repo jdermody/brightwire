@@ -109,7 +109,7 @@ namespace BrightWire.SampleCode
 
                 // convert the stacked data to a data table and split it into training and test sets
                 var sentimentDataTable = modelStacker.GetTable();
-                var dataTableVectoriser = sentimentDataTable.GetVectoriser(true);
+                var dataTableVectoriser = sentimentDataTable.GetVectoriser();
                 var split = sentimentDataTable.Split();
                 var trainingStack = lap.NN.CreateTrainingDataProvider(split.Training, dataTableVectoriser);
                 var testStack = lap.NN.CreateTrainingDataProvider(split.Test, dataTableVectoriser);

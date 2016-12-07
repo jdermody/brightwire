@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using BrightWire.Models.Output;
+using MathNet.Numerics.Distributions;
+using BrightWire.Helper;
 
 namespace BrightWire.Ensemble.Training
 {
@@ -10,7 +12,8 @@ namespace BrightWire.Ensemble.Training
     {
         readonly IDataTable _table;
         readonly int _classColumnIndex;
-        readonly AdaBoostBuilder _modelBuilder;
+        readonly float[] _rowWeight;
+        readonly List<float> _classifierWeight = new List<float>();
         readonly List<IRowClassifier> _classifier = new List<IRowClassifier>();
         readonly List<string> _classificationList = new List<string>();
 
@@ -18,12 +21,18 @@ namespace BrightWire.Ensemble.Training
         {
             _table = table;
             _classColumnIndex = table.TargetColumnIndex;
-            _modelBuilder = new AdaBoostBuilder(table.RowCount);
+            _classificationList = table.GetAnalysis()[_classColumnIndex].DistinctValues.Select(v => v.ToString()).ToList();
+
+            var rowCount = table.RowCount;
+            var weight = 1f / rowCount;
+            _rowWeight = new float[rowCount];
+            for (var i = 0; i < rowCount; i++)
+                _rowWeight[i] = weight;
         }
 
         public void AddClassifier(Func<IDataTable, IRowClassifier> classifierProvider)
         {
-            var samples = _modelBuilder.GetNextSamples();
+            var samples = _GetNextSamples();
             var iterationTable = _table.CopyWithRows(samples);
             var classifier = classifierProvider(iterationTable);
             _classifier.Add(classifier);
@@ -32,7 +41,7 @@ namespace BrightWire.Ensemble.Training
                 .Select(r => r.Classification == r.Row.GetField<string>(_classColumnIndex))
                 .ToList()
             ;
-            _modelBuilder.AddClassifierResults(correct);
+            _AddClassifierResults(correct);
         }
 
         public void AddClassifiers(int count, Func<IDataTable, IRowClassifier> classifierProvider)
@@ -41,27 +50,86 @@ namespace BrightWire.Ensemble.Training
                 AddClassifier(classifierProvider);
         }
 
+        string _Classify(IRow row)
+        {
+            float temp;
+            var scoreTable = new Dictionary<string, float>();
+            for(int i = 0, len = _classifier.Count; i < len; i++) {
+                var classifier = _classifier[i];
+                var classification = classifier.Classify(row).First();
+                var weight = _classifierWeight[i];
+                if (scoreTable.TryGetValue(classification, out temp))
+                    scoreTable[classification] = temp + weight;
+                else
+                    scoreTable.Add(classification, weight);
+            }
+            return scoreTable.OrderByDescending(kv => kv.Value).Select(kv => kv.Key).First();
+        }
+
         public IReadOnlyList<RowClassification> Classify(IDataTable testData)
         {
-            var classifierWeight = _modelBuilder.ClassifierWeight;
             var trainingRows = testData.GetRows(Enumerable.Range(0, testData.RowCount));
             var ret = new List<RowClassification>();
 
             for (var i = 0; i < trainingRows.Count; i++) {
                 var row = trainingRows[i];
-                var results = _classifier
-                    .SelectMany((c, j) => c.GetWeightedClassifications(row)
-                        .Select(wc => WeightedClassification.Create(wc.Classification, wc.Weight * classifierWeight[j]))
-                    )
-                    .GroupBy(wc => wc.Classification)
-                    .Select(g => Tuple.Create(g.Key, g.Sum(wc => wc.Weight)))
-                    .OrderByDescending(d => d.Item2)
-                    .ToList()
-                ;
-                var bestClassification = results.First();
-                ret.Add(new RowClassification(row, bestClassification.Item1));
+                var classification = _Classify(row);
+                ret.Add(new RowClassification(row, classification));
+                //var results = _classifier
+                //    .SelectMany((c, j) => c.Classify(row)
+                //        .Select(wc => WeightedClassification.Create(wc, _classifierWeight[j]))
+                //    )
+                //    .GroupBy(wc => wc.Classification)
+                //    .Select(g => Tuple.Create(g.Key, g.Sum(wc => wc.Weight)))
+                //    .OrderByDescending(d => d.Item2)
+                //    .ToList()
+                //;
+                //var bestClassification = results.First();
+                //ret.Add(new RowClassification(row, bestClassification.Item1));
             }
             return ret;
+        }
+
+        float _AddClassifierResults(IReadOnlyList<bool> rowClassificationWasCorrect)
+        {
+            int mistakes = 0, total = 0;
+            foreach (var wasCorrect in rowClassificationWasCorrect) {
+                if (!wasCorrect)
+                    ++mistakes;
+                ++total;
+            }
+            if (total != _rowWeight.Length)
+                throw new ArgumentException();
+
+            var weightedError = (float)mistakes / total;
+            Console.WriteLine("Classifier error: " + weightedError);
+            var classifierWeight = BoundMath.Log((1 - weightedError) / weightedError) * 0.5f;
+
+            float weightTotal = 0;
+            for (var i = 0; i < _rowWeight.Length; i++) {
+                var wasCorrect = rowClassificationWasCorrect[i];
+                float delta;
+                if (wasCorrect)
+                    delta = BoundMath.Exp(-classifierWeight);
+                else
+                    delta = BoundMath.Exp(classifierWeight);
+
+                weightTotal += (_rowWeight[i] = _rowWeight[i] * delta);
+            }
+            for (var i = 0; i < _rowWeight.Length; i++)
+                _rowWeight[i] /= weightTotal;
+
+            _classifierWeight.Add(classifierWeight);
+            return classifierWeight;
+        }
+
+        IReadOnlyList<int> _GetNextSamples()
+        {
+            var distribution = new Categorical(_rowWeight.Select(d => Convert.ToDouble(d)).ToArray());
+            var ret = new List<int>();
+            for (int i = 0, len = _rowWeight.Length; i < len; i++)
+                ret.Add(distribution.Sample());
+            return ret.OrderBy(v => v).ToList();
         }
     }
 }
