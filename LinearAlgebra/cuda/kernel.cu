@@ -595,4 +595,14 @@ extern "C"
 			a[i] += scalar;
 		}
 	}
+
+	__global__ void VectorCopyRandom(float* a, float* b, int* c, int size)
+	{
+		int i = blockDim.x * blockIdx.x + threadIdx.x;
+
+		if (i < size) {
+			int index = c[i];
+			b[i] += a[index];
+		}
+	}
 }

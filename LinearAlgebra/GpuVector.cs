@@ -185,8 +185,8 @@ namespace BrightWire.LinearAlgebra
 
         public IVector GetNewVectorFromIndexes(IReadOnlyList<int> indices)
         {
-            // defer to CPU version
-            return AsIndexable().GetNewVectorFromIndexes(indices);
+            var data = _cuda.VectorCopy(_data, _size, indices.ToArray());
+            return new GpuVector(_cuda, indices.Count, data);
         }
 
         public IVector Abs()

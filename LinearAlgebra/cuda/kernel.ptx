@@ -2554,4 +2554,47 @@ BB51_2:
 	ret;
 }
 
+	// .globl	VectorCopyRandom
+.visible .entry VectorCopyRandom(
+	.param .u64 VectorCopyRandom_param_0,
+	.param .u64 VectorCopyRandom_param_1,
+	.param .u64 VectorCopyRandom_param_2,
+	.param .u32 VectorCopyRandom_param_3
+)
+{
+	.reg .pred 	%p<2>;
+	.reg .f32 	%f<4>;
+	.reg .b32 	%r<7>;
+	.reg .b64 	%rd<12>;
+
+
+	ld.param.u64 	%rd1, [VectorCopyRandom_param_0];
+	ld.param.u64 	%rd2, [VectorCopyRandom_param_1];
+	ld.param.u64 	%rd3, [VectorCopyRandom_param_2];
+	ld.param.u32 	%r2, [VectorCopyRandom_param_3];
+	mov.u32 	%r3, %ntid.x;
+	mov.u32 	%r4, %ctaid.x;
+	mov.u32 	%r5, %tid.x;
+	mad.lo.s32 	%r1, %r4, %r3, %r5;
+	setp.ge.s32	%p1, %r1, %r2;
+	@%p1 bra 	BB52_2;
+
+	cvta.to.global.u64 	%rd4, %rd3;
+	mul.wide.s32 	%rd5, %r1, 4;
+	add.s64 	%rd6, %rd4, %rd5;
+	ld.global.u32 	%r6, [%rd6];
+	cvta.to.global.u64 	%rd7, %rd1;
+	mul.wide.s32 	%rd8, %r6, 4;
+	add.s64 	%rd9, %rd7, %rd8;
+	cvta.to.global.u64 	%rd10, %rd2;
+	add.s64 	%rd11, %rd10, %rd5;
+	ld.global.f32 	%f1, [%rd11];
+	ld.global.f32 	%f2, [%rd9];
+	add.ftz.f32 	%f3, %f2, %f1;
+	st.global.f32 	[%rd11], %f3;
+
+BB52_2:
+	ret;
+}
+
 

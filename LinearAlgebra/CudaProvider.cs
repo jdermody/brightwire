@@ -154,7 +154,8 @@ namespace BrightWire.LinearAlgebra
             _multiManhattan,
             _log,
             _sigmoidVector,
-            _vectorAdd
+            _vectorAdd,
+            _vectorCopyRandom
         ;
         bool _disposed = false;
 
@@ -208,6 +209,7 @@ namespace BrightWire.LinearAlgebra
             _log = _kernel.LoadFunction("Log");
             _sigmoidVector = _kernel.LoadFunction("SigmoidVector");
             _vectorAdd = _kernel.LoadFunction("VectorAdd");
+            _vectorCopyRandom = _kernel.LoadFunction("VectorCopyRandom");
         }
 
         protected virtual void Dispose(bool disposing)
@@ -407,6 +409,17 @@ namespace BrightWire.LinearAlgebra
         internal void VectorAdd(CudaDeviceVariable<float> a, int size, float scalar)
         {
             _Use(_vectorAdd, size, k => k.Run(0, a.DevicePointer, size, scalar));
+        }
+
+        internal CudaDeviceVariable<float> VectorCopy(CudaDeviceVariable<float> a, int size, int[] indexList)
+        {
+            var retSize = indexList.Length;
+            var ret = new CudaDeviceVariable<float>(retSize);
+            using (var indexGpu = new CudaDeviceVariable<int>(retSize)) {
+                indexGpu.CopyToDevice(indexList);
+                _Use(_vectorCopyRandom, retSize, k => k.Run(0, a.DevicePointer, ret.DevicePointer, indexGpu.DevicePointer, retSize));
+                return ret;
+            }
         }
 
         internal MinMax FindMinAndMax(CudaDeviceVariable<float> a, int size)

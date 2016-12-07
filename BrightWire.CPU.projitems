@@ -164,4 +164,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Unsupervised\Clustering\KMeans.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Unsupervised\Clustering\NonNegativeMatrixFactorisation.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)Connectionist\Training\Layer\Convolutional\" />
+  </ItemGroup>
 </Project>
