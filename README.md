@@ -14,9 +14,11 @@ via the [Numerics.Net Wrapper](http://numerics.mathdotnet.com/MKL.html).
 ## Geting Started Tutorials
 
 * [Iris Classification](http://www.jackdermody.net/brightwire/article/Introduction_to_Bright_Wire)
-* [Building a Language Model](http://jackdermody.net/brightwire/article/Generating_Text_with_Markov_Chains)
-* [Recognising Handwritten Digits (MNIST)](http://jackdermody.net/brightwire/article/Recognising_Handwritten_Digits_(MNIST))
-* [Sentiment Analysis](http://jackdermody.net/brightwire/article/Sentiment_Analysis)
+* [Building a Language Model](http://www.jackdermody.net/brightwire/article/Generating_Text_with_Markov_Chains)
+* [Recognising Handwritten Digits (MNIST)](http://www.jackdermody.net/brightwire/article/Recognising_Handwritten_Digits_(MNIST))
+* [Sentiment Analysis](http://www.jackdermody.net/brightwire/article/Sentiment_Analysis)
+* [Text Clustering](http://www.jackdermody.net/brightwire/article/Text_Clustering_Four_Ways)
+* [Recurrent Neural Networks](http://www.jackdermody.net/brightwire/article/Teaching_a_Recurrent_Neural_Net_Binary_Addition)
 
 ## Nuget Installation
 
@@ -64,6 +66,9 @@ Note: When using the CUDA version, make sure that the /LinearAlgebra/cuda/kernel
 ### Tree Based
 * Decision Trees
 * Random Forest
+
+### Ensemble Methods
+* Stacking
 
 ### Other
 * Random Projections
