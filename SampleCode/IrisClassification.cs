@@ -13,6 +13,8 @@ namespace BrightWire.SampleCode
     {
         /// <summary>
         /// Trains various classifiers on the Iris data set
+        /// 
+        /// Tutorial available at http://www.jackdermody.net/brightwire/article/Introduction_to_Bright_Wire
         /// </summary>
         public static void IrisClassification()
         {

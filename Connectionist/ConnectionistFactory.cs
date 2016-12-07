@@ -93,6 +93,12 @@ namespace BrightWire.Connectionist
             return _CreateLayerUpdater(layerUpdater, descriptor);
         }
 
+        public INeuralNetworkLayerTrainer CreateTrainer(INeuralNetworkLayer layer, LayerDescriptor descriptor)
+        {
+            var layerUpdater = CreateUpdater(layer, descriptor);
+            return _CreateLayerUpdater(layerUpdater, descriptor);
+        }
+
         public INeuralNetworkLayerUpdater CreateUpdater(int inputSize, int outputSize, LayerDescriptor descriptor)
         {
             var layer = CreateLayer(inputSize, outputSize, descriptor);
@@ -102,6 +108,11 @@ namespace BrightWire.Connectionist
         public INeuralNetworkLayer CreateLayer(int inputSize, int outputSize, LayerDescriptor descriptor)
         {
             return new Standard(_lap, inputSize, outputSize, descriptor, _activation[descriptor.Activation], _weightInitialisation[descriptor.WeightInitialisation]);
+        }
+
+        public INeuralNetworkLayer CreateTiedLayer(INeuralNetworkLayer layer, LayerDescriptor descriptor)
+        {
+            return new TiedLayer(_lap, layer, _weightInitialisation[descriptor.WeightInitialisation]);
         }
 
         public INeuralNetworkTrainer CreateBatchTrainer(IReadOnlyList<INeuralNetworkLayerTrainer> layer, bool calculateTrainingError = true)

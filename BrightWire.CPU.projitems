@@ -54,6 +54,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Training\Layer\Recurrent\RecurrentLayerBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Training\Layer\Recurrent\SimpleRecurrent.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Training\Layer\Standard.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Training\Layer\TiedLayer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Training\Manager\BidirectionalManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Training\Manager\FeedForwardManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Training\Manager\RecurrentManager.cs" />
@@ -64,8 +65,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Training\WeightInitialisation\Identity.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Training\WeightInitialisation\Xavier.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DimensionalityReduction\RandomProjection.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Ensemble\AdaBoost.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Ensemble\Helper\AdaBoostBuilder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Ensemble\ModelStacker.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Ensemble\Training\AdaBoostTrainer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ErrorMetrics\BinaryClassification.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ErrorMetrics\CrossEntropy.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ErrorMetrics\OneHot.cs" />

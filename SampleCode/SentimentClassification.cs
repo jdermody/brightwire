@@ -92,7 +92,7 @@ namespace BrightWire.SampleCode
                         Activation = ActivationType.Relu,
                         WeightInitialisation = WeightInitialisationType.Xavier,
                         LayerTrainer = LayerTrainerType.Dropout
-                    }, hiddenLayerSize:512, numEpochs:10)
+                    }, hiddenLayerSize: 512, numEpochs: 10)
                 );
 
                 // create the stacked training set
@@ -115,14 +115,14 @@ namespace BrightWire.SampleCode
                 var testStack = lap.NN.CreateTrainingDataProvider(split.Test, dataTableVectoriser);
                 var targetColumnIndex = sentimentDataTable.TargetColumnIndex;
 
-                // train a neural network on the test data
+                // train a neural network on the stacked data
                 var trainingContext = lap.NN.CreateTrainingContext(ErrorMetricType.OneHot, learningRate: 0.3f, batchSize: 8);
                 trainingContext.ScheduleTrainingRateChange(10, 0.1f);
                 var stackNN = lap.NN.CreateFeedForward(trainingContext.TrainNeuralNetwork(lap, trainingStack, testStack, new LayerDescriptor(0.1f) {
                     WeightUpdate = WeightUpdateType.RMSprop,
                     Activation = ActivationType.LeakyRelu,
                     WeightInitialisation = WeightInitialisationType.Xavier
-                }, hiddenLayerSize:32, numEpochs:20));
+                }, hiddenLayerSize: 32, numEpochs: 20));
 
                 uint stringIndex;
                 Console.WriteLine("Enter some text to test the classifiers...");
@@ -134,7 +134,7 @@ namespace BrightWire.SampleCode
 
                     var tokens = _Tokenise(line);
                     var indexList = new List<uint>();
-                    foreach(var token in tokens) {
+                    foreach (var token in tokens) {
                         if (stringTable.TryGetIndex(token, out stringIndex))
                             indexList.Add(stringIndex);
                     }

@@ -14,5 +14,13 @@ namespace BrightWire.Models.Output
             Classification = classification;
             Weight = weight;
         }
+
+        /// <summary>
+        /// Creates a new weighted classification
+        /// </summary>
+        public static WeightedClassification Create(string classification, float weight)
+        {
+            return new WeightedClassification(classification, weight);
+        }
     }
 }

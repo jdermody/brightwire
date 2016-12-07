@@ -132,6 +132,7 @@ namespace UnitTests
                 builder.Add(i % 2 == 0, (byte)i, DateTime.Now, (double)i, (float)i, i, (long)i, null, i.ToString());
             var table = builder.Build();
             var analysis = table.GetAnalysis();
+            var xml = analysis.AsXml;
 
             var boolAnalysis = analysis[0] as INumericColumnInfo;
             Assert.IsTrue(boolAnalysis.NumDistinct == 2);

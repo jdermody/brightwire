@@ -5,6 +5,7 @@ using BrightWire.Connectionist.Training.Layer.Recurrent;
 using BrightWire.Helper;
 using BrightWire.LinearAlgebra;
 using BrightWire.Models;
+using BrightWire.Models.Input;
 using BrightWire.TrainingData.Artificial;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
@@ -212,6 +213,43 @@ namespace UnitTests
             var network = _lap.NN.CreateBidirectional(networkData);
             foreach (var sequence in trainingSet) {
                 var result = network.Execute(sequence.Select(d => d.Input).ToList());
+            }
+        }
+
+        [TestMethod]
+        public void TiedAutoEncoder()
+        {
+            const int DATA_SIZE = 1000, REDUCED_SIZE = 200;
+
+            // create some random data
+            var rand = new Random();
+            var trainingData = _lap.NN.CreateTrainingDataProvider(Enumerable.Range(0, 100)
+                .Select(i => _lap.Create(DATA_SIZE, v => Convert.ToSingle(rand.NextDouble())))
+                .Select(v => new TrainingExample(v.Data.Data, v.Data.Data))
+                .ToList()
+            );
+
+            var layerTemplate = new LayerDescriptor(0f) {
+                Activation = ActivationType.Relu,
+                WeightUpdate = WeightUpdateType.RMSprop
+            };
+
+            var firstLayer = _lap.NN.CreateLayer(DATA_SIZE, REDUCED_SIZE, layerTemplate);
+            var secondLayer = _lap.NN.CreateTiedLayer(firstLayer, layerTemplate);
+            var layers = new[] {
+                _lap.NN.CreateTrainer(firstLayer, layerTemplate),
+                _lap.NN.CreateTrainer(secondLayer, layerTemplate)
+            };
+            var errorMetric = ErrorMetricType.RMSE.Create();
+
+            using (var trainer = _lap.NN.CreateBatchTrainer(layers)) {
+                var trainingContext = _lap.NN.CreateTrainingContext(errorMetric, 0.03f, 32);
+
+                //trainingContext.EpochComplete += tc => {
+                //    var score = trainer.Execute(trainingData).Select(v => errorMetric.Compute(v.Output, v.ExpectedOutput)).Average();
+                //    trainingContext.WriteScore(score, false);
+                //};
+                trainer.Train(trainingData, 2, trainingContext);
             }
         }
     }

@@ -2,6 +2,7 @@
 using BrightWire.Bayesian.Training;
 using BrightWire.Connectionist;
 using BrightWire.DimensionalityReduction;
+using BrightWire.Ensemble.Training;
 using BrightWire.ErrorMetrics;
 using BrightWire.Helper;
 using BrightWire.InstanceBased.Trainer;
@@ -296,12 +297,13 @@ namespace BrightWire
         /// <param name="maxDepth">The maximum depth of each leaf</param>
         /// <param name="minInformationGain">The minimum information gain to continue splitting</param>
         /// <returns>A model that can be used for classification</returns>
-        public static DecisionTree TrainDecisionTree(this IDataTable data, int? minDataPerNode = null, int? maxDepth = null, double? minInformationGain = null)
+        public static DecisionTree TrainDecisionTree(this IDataTable data, int? minDataPerNode = null, int? maxDepth = null, double? minInformationGain = null, int? maxAttributes = null)
         {
             var config = new DecisionTreeTrainer.Config {
                 MinDataPerNode = minDataPerNode,
                 MaxDepth = maxDepth,
-                MinInformationGain = minInformationGain
+                MinInformationGain = minInformationGain,
+                MaxAttributes = maxAttributes
             };
             return DecisionTreeTrainer.Train(data, config);
         }
@@ -338,6 +340,15 @@ namespace BrightWire
         public static KNearestNeighbours TrainKNearestNeighbours(this IDataTable data)
         {
             return KNNClassificationTrainer.Train(data);
+        }
+
+        /// <summary>
+        /// Creates a boosted classifier trainer
+        /// </summary>
+        /// <param name="table">The training data</param>
+        public static IBoostedTrainer CreateBoostedTrainer(this IDataTable table)
+        {
+            return new AdaBoostTrainer(table);
         }
 
         /// <summary>

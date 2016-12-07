@@ -45,7 +45,10 @@ namespace BrightWire.TreeBased
 
         public IReadOnlyList<WeightedClassification> GetWeightedClassifications(IRow row)
         {
-            throw new NotImplementedException();
+            var classification = Classify(row).First();
+            return new[] {
+                new WeightedClassification(classification, 1f)
+            };
         }
     }
 }

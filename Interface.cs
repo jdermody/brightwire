@@ -1472,6 +1472,13 @@ namespace BrightWire
         );
 
         /// <summary>
+        /// Creates a layer whose weights are tied with the specicied layer
+        /// </summary>
+        /// <param name="layer">The source layer</param>
+        /// <param name="descriptor">Layer parameters</param>
+        INeuralNetworkLayer CreateTiedLayer(INeuralNetworkLayer layer, LayerDescriptor descriptor);
+
+        /// <summary>
         /// Creates a recurrent neural network layer
         /// </summary>
         /// <param name="inputSize">The input size</param>
@@ -1599,6 +1606,13 @@ namespace BrightWire
             int outputSize,
             LayerDescriptor descriptor
         );
+
+        /// <summary>
+        /// Creates a neural network layer trainer
+        /// </summary>
+        /// <param name="layer">The layer to train</param>
+        /// <param name="descriptor">The layer parameters</param>
+        INeuralNetworkLayerTrainer CreateTrainer(INeuralNetworkLayer layer, LayerDescriptor descriptor);
 
         /// <summary>
         /// Creates a feed forward training manager
@@ -2624,6 +2638,11 @@ namespace BrightWire
         /// <param name="output">Optional stream to write the new table to</param>
         /// <returns></returns>
         IDataTable CopyWithRows(IEnumerable<int> rowIndex, Stream output = null);
+
+        /// <summary>
+        /// Returns table meta-data and the top 20 rows of the table as XML
+        /// </summary>
+        string XmlPreview { get; }
     }
 
     /// <summary>
@@ -2747,6 +2766,12 @@ namespace BrightWire
         /// </summary>
         /// <param name="columnIndex">The column index to query</param>
         IColumnInfo this[int columnIndex] { get; }
+
+        /// <summary>
+        /// G
+        /// </summary>
+        /// <returns></returns>
+        string AsXml { get; }
     }
 
     /// <summary>
@@ -2954,5 +2979,12 @@ namespace BrightWire
         /// Gets all current observations
         /// </summary>
         MarkovModel3<T> Build();
+    }
+
+    public interface IBoostedTrainer
+    {
+        void AddClassifier(Func<IDataTable, IRowClassifier> classifierProvider);
+        void AddClassifiers(int count, Func<IDataTable, IRowClassifier> classifierProvider);
+        IReadOnlyList<RowClassification> Classify(IDataTable testData);
     }
 }

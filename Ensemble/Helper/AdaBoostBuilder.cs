@@ -7,12 +7,12 @@ using MathNet.Numerics.Distributions;
 
 namespace BrightWire.Ensemble
 {
-    internal class AdaBoost
+    internal class AdaBoostBuilder
     {
         readonly float[] _rowWeight;
         readonly List<float> _classifierWeight = new List<float>();
 
-        public AdaBoost(int rowCount)
+        public AdaBoostBuilder(int rowCount)
         {
             var weight = 1f / rowCount;
             _rowWeight = new float[rowCount];
