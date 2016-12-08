@@ -17,10 +17,6 @@ namespace BrightWire.SampleCode
     {
         static void Main(string[] args)
         {
-            //TestWord2Vec();
-            //TestGlove();
-            //TestCSV();
-
             //IrisClassification();
             //IrisClustering();
             //MarkovChains();
