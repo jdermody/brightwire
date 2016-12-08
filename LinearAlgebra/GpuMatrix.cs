@@ -465,14 +465,17 @@ namespace BrightWire.LinearAlgebra
         {
             var rowOutput = new List<GpuVector>();
             for (var i = 0; i < _rows; i++) {
-                using (var row = GetRowSegment(i, 0, _columns))
+                using (var row = Row(i))
                     rowOutput.Add(row.Softmax() as GpuVector);
             }
             var ret = new CudaDeviceVariable<float>(_rows * _columns);
             for (var i = 0; i < _rows; i++) {
-                using (var row = rowOutput[i])
+                using (var row = rowOutput[i]) {
                     ret.CopyToDevice(row.CudaDeviceVariable, 0, _columns * i * sizeof(float), _columns * sizeof(float));
+                    //CudaBlasNativeMethods.cublasScopy_v2(_cuda.Blas.CublasHandle, _columns * sizeof(float), row.CudaDeviceVariable.DevicePointer, sizeof(float), ret.DevicePointer, _rows * sizeof(float));
+                }
             }
+            //return new GpuMatrix(_cuda, _rows, _columns, ret);
             using(var temp = new GpuMatrix(_cuda, _columns, _rows, ret))
                 return temp.Transpose();
         }

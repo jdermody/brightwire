@@ -103,6 +103,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\FeedForwardNetwork.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\FloatArray.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Input\ClassificationBag.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Input\ConvolutionalData.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Input\IndexedClassification.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Input\SparseVector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Input\SparseVectorClassification.cs" />
@@ -163,8 +164,5 @@
     <Compile Include="$(MSBuildThisFileDirectory)Unsupervised\Clustering\Hierachical.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Unsupervised\Clustering\KMeans.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Unsupervised\Clustering\NonNegativeMatrixFactorisation.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="$(MSBuildThisFileDirectory)Connectionist\Training\Layer\Convolutional\" />
   </ItemGroup>
 </Project>
