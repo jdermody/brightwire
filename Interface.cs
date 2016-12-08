@@ -573,7 +573,7 @@ namespace BrightWire
         IMatrix TanhDerivative();
 
         /// <summary>
-        /// Not currently implemented
+        /// Returns a new matrix with the softmax function applied to each row of the matrix
         /// </summary>
         IMatrix SoftmaxActivation();
 

@@ -313,7 +313,6 @@ namespace BrightWire.LinearAlgebra
             var ret = new CudaDeviceVariable<float>(length);
             CudaBlasNativeMethods.cublasScopy_v2(_cuda.Blas.CublasHandle, length, _data.DevicePointer + offset, _rows, ret.DevicePointer, 1);
             return new GpuVector(_cuda, length, ret);
-            //return AsIndexable().GetRowSegment(index, columnIndex, length);
         }
 
         public void L1Regularisation(float coefficient)
@@ -464,7 +463,18 @@ namespace BrightWire.LinearAlgebra
 
         public IMatrix SoftmaxActivation()
         {
-            throw new NotImplementedException();
+            var rowOutput = new List<GpuVector>();
+            for (var i = 0; i < _rows; i++) {
+                using (var row = GetRowSegment(i, 0, _columns))
+                    rowOutput.Add(row.Softmax() as GpuVector);
+            }
+            var ret = new CudaDeviceVariable<float>(_rows * _columns);
+            for (var i = 0; i < _rows; i++) {
+                using (var row = rowOutput[i])
+                    ret.CopyToDevice(row.CudaDeviceVariable, 0, _columns * i * sizeof(float), _columns * sizeof(float));
+            }
+            using(var temp = new GpuMatrix(_cuda, _columns, _rows, ret))
+                return temp.Transpose();
         }
 
         public ColumnSplit SplitColumns(int position)

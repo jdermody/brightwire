@@ -753,6 +753,21 @@ namespace UnitTests
         }
 
         [TestMethod]
+        public void MatrixSoftmaxActivation()
+        {
+            var normalDistribution = new Normal(0, 1);
+            var a = _cpu.Create(3, 7, (j, k) => Convert.ToSingle(normalDistribution.Sample())).AsIndexable();
+            var b = a.SoftmaxActivation().AsIndexable();
+
+            IIndexableMatrix gpuResults;
+            using (var gpuA = _cuda.Create(a))
+            using (var softmax = gpuA.SoftmaxActivation())
+                gpuResults = softmax.AsIndexable();
+
+            FloatingPointHelper.AssertEqual(gpuResults, b);
+        }
+
+        [TestMethod]
         public void MatrixNewMatrixFromRows()
         {
             var rows = new[] { 7, 8, 9 };

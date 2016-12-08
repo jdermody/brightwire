@@ -127,7 +127,7 @@ namespace BrightWire.LinearAlgebra
             }
         }
 
-        public CudaDeviceVariable<float> CudaDeviceVariable { get { return _data; } }
+        internal CudaDeviceVariable<float> CudaDeviceVariable { get { return _data; } }
 
         public IVector Add(IVector vector)
         {
