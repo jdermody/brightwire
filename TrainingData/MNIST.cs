@@ -1,4 +1,5 @@
 ﻿using BrightWire.Helper;
+using BrightWire.Models.Convolutional;
 using BrightWire.Models.Input;
 using System;
 using System.Collections.Generic;
@@ -61,6 +62,26 @@ namespace BrightWire.TrainingData
                     return new TrainingExample(data, label);
                 }
             }
+
+            public ConvolutionalData Convolutional
+            {
+                get
+                {
+                    var label = new float[10];
+                    label[_label] = 1;
+                    var data = _data.Select(b => Convert.ToSingle((int)b) / 255f).ToArray();
+                    return new ConvolutionalData {
+                        ExpectedOutput = label,
+                        Layers = new[] {
+                            new ConvolutionalData.Layer {
+                                Data = data,
+                                Width = 28,
+                                Height = 28
+                            }
+                        }
+                    };
+                }
+            }
         }
 
         /// <summary>
@@ -68,7 +89,7 @@ namespace BrightWire.TrainingData
         /// </summary>
         /// <param name="labelPath">Path to the label data file</param>
         /// <param name="imagePath">Path to the image data file</param>
-        public static IEnumerable<Image> Load(string labelPath, string imagePath)
+        public static IReadOnlyList<Image> Load(string labelPath, string imagePath)
         {
             var labels = new List<byte>();
             using(var file = new FileStream(labelPath, FileMode.Open, FileAccess.Read))

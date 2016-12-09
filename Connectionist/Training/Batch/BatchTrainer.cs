@@ -74,6 +74,8 @@ namespace BrightWire.Connectionist.Training.Batch
         public void Train(ITrainingDataProvider trainingData, int numEpochs, ITrainingContext context)
         {
             IMatrix curr = null;
+            var additionalBackpropagation = trainingData as ICanBackpropagate;
+
             for (int i = 0; i < numEpochs && context.ShouldContinue; i++) {
                 context.StartEpoch(trainingData.Count);
                 trainingData.StartEpoch();
@@ -84,8 +86,12 @@ namespace BrightWire.Connectionist.Training.Batch
                     var garbage = new List<IMatrix>();
                     garbage.Add(curr = miniBatch.Input);
 
+                    // set up the layer stack
+                    var layerStack = new Stack<ICanBackpropagate>();
+                    if (additionalBackpropagation != null)
+                        layerStack.Push(additionalBackpropagation);
+
                     // feed forward
-                    var layerStack = new Stack<INeuralNetworkLayerTrainer>();
                     foreach (var layer in _layer) {
                         garbage.Add(curr = layer.FeedForward(curr, true));
                         layerStack.Push(layer);

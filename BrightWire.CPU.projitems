@@ -32,6 +32,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Execution\Layer\StandardFeedForward.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Execution\RecurrentExecution.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Helper\BaggingTrainingDataProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Helper\ConvolutionalTrainingDataProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Helper\DataTableTrainingDataProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Helper\DenseSequentialTrainingDataProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Helper\DenseTrainingDataProvider.cs" />
@@ -48,6 +49,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Training\Helper\RecurrentContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Training\Helper\TrainingContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Training\Helper\UpdateAccumulator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Training\Layer\Convolutional\ConvolutionalLayer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Training\Layer\Convolutional\MaxPoolingLayer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Training\Layer\Recurrent\Bidirectional.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Training\Layer\Recurrent\FeedForward.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Training\Layer\Recurrent\LSTM.cs" />
@@ -95,6 +98,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\BernoulliNaiveBayes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\BidirectionalLayer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\BidirectionalNetwork.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Convolutional\ConvolutionalData.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Convolutional\ConvolutionDescriptor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\DataTableNormalisation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\DecisionTree.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\ExecutionResults\FeedForwardOutput.cs" />
@@ -103,7 +108,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\FeedForwardNetwork.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\FloatArray.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Input\ClassificationBag.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Models\Input\ConvolutionalData.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Input\IndexedClassification.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Input\SparseVector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Input\SparseVectorClassification.cs" />

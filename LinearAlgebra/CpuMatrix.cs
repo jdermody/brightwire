@@ -547,5 +547,20 @@ namespace BrightWire.LinearAlgebra
             var svd = _matrix.Svd(true);
             return new SingularValueDecomposition(new CpuMatrix(svd.U), new CpuVector(svd.S), new CpuMatrix(svd.VT));
         }
+
+        //public IIndexableVector ConvertToRowWiseVector()
+        //{
+        //    return new CpuVector(DenseVector.Build.DenseOfArray(_matrix.ToRowWiseArray()));
+        //}
+
+        //public IIndexableVector ConvertToColumnWiseVector()
+        //{
+        //    return new CpuVector(DenseVector.Build.DenseOfArray(_matrix.ToColumnWiseArray()));
+        //}
+
+        public IIndexableVector ConvertInPlaceToVector()
+        {
+            return new CpuVector(_matrix.ToColumnWiseArray());
+        }
     }
 }

@@ -432,6 +432,12 @@ namespace BrightWire
         /// </summary>
         /// <param name="data">The values to append</param>
         IIndexableVector Append(IReadOnlyList<float> data);
+
+        IIndexableMatrix ConvertInPlaceToMatrix(int rows, int columns);
+
+        IIndexableVector Rotate180(int blockSize);
+
+        IReadOnlyList<IIndexableVector> Split(int blockSize);
     }
 
     /// <summary>
@@ -808,6 +814,10 @@ namespace BrightWire
         /// <param name="mutator">The function to apply to each element (rowIndex: int, columnIndex: int, value: float) => float</param>
         /// <returns></returns>
         IIndexableMatrix MapIndexed(Func<int, int, float, float> mutator);
+
+        //IIndexableVector ConvertToRowWiseVector();
+
+        IIndexableVector ConvertInPlaceToVector();
     }
 
     /// <summary>
@@ -1184,10 +1194,23 @@ namespace BrightWire
         event Action<ITrainingContext, IRecurrentTrainingContext> RecurrentEpochComplete;
     }
 
+    public interface ICanBackpropagate
+    {
+        /// <summary>
+        /// Backpropagate
+        /// </summary>
+        /// <param name="errorSignal"></param>
+        /// <param name="context"></param>
+        /// <param name="calculateOutput"></param>
+        /// <param name="updates"></param>
+        /// <returns></returns>
+        IMatrix Backpropagate(IMatrix errorSignal, ITrainingContext context, bool calculateOutput, INeuralNetworkUpdateAccumulator updates = null);
+    }
+
     /// <summary>
     /// Neural network layer trainer
     /// </summary>
-    public interface INeuralNetworkLayerTrainer : IDisposable
+    public interface INeuralNetworkLayerTrainer : ICanBackpropagate, IDisposable
     {
         /// <summary>
         /// The layer updater
@@ -1201,16 +1224,6 @@ namespace BrightWire
         /// <param name="storeForBackpropagation">True to store backpropagation data</param>
         /// <returns>The network output</returns>
         IMatrix FeedForward(IMatrix input, bool storeForBackpropagation);
-
-        /// <summary>
-        /// Backpropagate
-        /// </summary>
-        /// <param name="errorSignal"></param>
-        /// <param name="context"></param>
-        /// <param name="calculateOutput"></param>
-        /// <param name="updates"></param>
-        /// <returns></returns>
-        IMatrix Backpropagate(IMatrix errorSignal, ITrainingContext context, bool calculateOutput, INeuralNetworkUpdateAccumulator updates = null);
 
         /// <summary>
         /// Backpropagate
@@ -2999,5 +3012,17 @@ namespace BrightWire
         void AddClassifier(Func<IDataTable, IRowClassifier> classifierProvider);
         void AddClassifiers(int count, Func<IDataTable, IRowClassifier> classifierProvider);
         IReadOnlyList<RowClassification> Classify(IDataTable testData);
+    }
+
+    public interface IConvolutionalLayer : IDisposable
+    {
+        IMatrix Execute(IMatrix matrix, Stack<IConvolutionalLayerBackpropagation> backpropagation);
+    }
+
+    public interface IConvolutionalLayerBackpropagation
+    {
+        IMatrix Execute(IMatrix error, ITrainingContext context, bool calculateOutput, INeuralNetworkUpdateAccumulator updateAccumulator);
+        int RowCount { get; }
+        int ColumnCount { get; }
     }
 }
