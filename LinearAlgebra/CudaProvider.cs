@@ -155,7 +155,8 @@ namespace BrightWire.LinearAlgebra
             _log,
             _sigmoidVector,
             _vectorAdd,
-            _vectorCopyRandom
+            _vectorCopyRandom,
+            _copyToMatrix
         ;
         bool _disposed = false;
 
@@ -210,6 +211,7 @@ namespace BrightWire.LinearAlgebra
             _sigmoidVector = _kernel.LoadFunction("SigmoidVector");
             _vectorAdd = _kernel.LoadFunction("VectorAdd");
             _vectorCopyRandom = _kernel.LoadFunction("VectorCopyRandom");
+            _copyToMatrix = _kernel.LoadFunction("CopyToMatrix");
         }
 
         protected virtual void Dispose(bool disposing)
@@ -709,7 +711,25 @@ namespace BrightWire.LinearAlgebra
             return new GpuVector(this, length, i => value);
         }
 
-        public IMatrix Create(IList<IIndexableVector> vectorData)
+        public IMatrix Create(IReadOnlyList<IVector> vectorData)
+        {
+            int rows = vectorData.Count;
+            int columns = vectorData[0].Count;
+            var ptrList = vectorData.Cast<GpuVector>().Select(d => d.CudaDeviceVariable.DevicePointer).ToArray();
+
+            var ret = new CudaDeviceVariable<float>(rows * columns);
+            var buffer = _cuda.AllocateMemory(8 * rows);
+            try {
+                _cuda.CopyToDevice(buffer, ptrList);
+                _Use(_copyToMatrix, rows, columns, k => k.Run(0, ret.DevicePointer, buffer, rows, columns));
+            }
+            finally {
+                _cuda.FreeMemory(buffer);
+            }
+            return new GpuMatrix(this, rows, columns, ret);
+        }
+
+        public IMatrix Create(IReadOnlyList<IIndexableVector> vectorData)
         {
             int rows = vectorData.Count;
             int columns = vectorData[0].Count;

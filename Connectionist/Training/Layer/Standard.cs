@@ -45,6 +45,10 @@ namespace BrightWire.Connectionist.Training.Layer
         public IMatrix Weight { get { return _weight; } }
         public IActivationFunction Activation { get { return _activation; } }
         public LayerDescriptor Descriptor { get { return _descriptor; } }
+        public IMatrix CalculateErrorSignal(IMatrix delta)
+        {
+            return delta.TransposeAndMultiply(_weight);
+        }
 
         public NetworkLayer LayerInfo
         {

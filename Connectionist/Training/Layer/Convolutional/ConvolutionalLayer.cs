@@ -47,7 +47,7 @@ namespace BrightWire.Connectionist.Training.Layer.Convolutional
                 var weightInit = lap.NN.GetWeightInitialisation(descriptor.WeightInitialisation);
                 _bias = lap.Create(outputSize, x => weightInit.GetBias());
                 _weight = lap.Create(inputSize, outputSize, (x, y) => weightInit.GetWeight(inputSize, outputSize, x, y));
-                //_weight = lap.Create(inputSize, outputSize, (x, y) => y);
+                //_weight = lap.Create(inputSize, outputSize, (x, y) => x);
             }
 
             public IActivationFunction Activation
@@ -146,18 +146,24 @@ namespace BrightWire.Connectionist.Training.Layer.Convolutional
                     using (var columnSums = biasDelta.ColumnSums())
                         _bias.AddInPlace(columnSums, 1f / columnSums.Count, learningRate);
                 }
-                var weightDelta2 = weightDelta.AsIndexable()
-                    .ConvertInPlaceToVector()
-                    .Rotate180(_descriptor.FilterDepth)
-                    .ConvertInPlaceToMatrix(weightDelta.RowCount, weightDelta.ColumnCount)
-                ;
-                _weight.AddInPlace(weightDelta2, weightCoefficient, learningRate);
+                //using (var weightDelta2 = weightDelta.RotateColumns180(_descriptor.FieldSize))
+                    _weight.AddInPlace(weightDelta, weightCoefficient, learningRate);
+            }
+
+            public IMatrix CalculateErrorSignal(IMatrix delta)
+            {
+                using(var rotatedFilter = _weight.RotateColumns180(_descriptor.FieldSize))
+                    return delta.TransposeAndMultiply(rotatedFilter);
+                //return delta.TransposeAndMultiply(_weight);
             }
         }
 
         readonly INeuralNetworkLayerTrainer _trainer;
+        readonly ConvolutionDescriptor _descriptor;
 
-        public ConvolutionalLayer(INeuralNetworkFactory factory, int inputSize, ConvolutionDescriptor descriptor) {
+        public ConvolutionalLayer(INeuralNetworkFactory factory, ConvolutionDescriptor descriptor, int inputSize)
+        {
+            _descriptor = descriptor;
             var activation = factory.GetActivation(descriptor.Activation);
             var layer = new Layer(factory.LinearAlgebraProvider, inputSize, descriptor.FilterDepth, activation, descriptor);
             _trainer = factory.CreateTrainer(layer, descriptor);
@@ -173,6 +179,14 @@ namespace BrightWire.Connectionist.Training.Layer.Convolutional
                 var ret = layer?.Activation.Calculate(output) ?? output;
                 backpropagation.Push(new Backpropagation(_trainer, matrix, output));
                 return ret;
+            }
+        }
+
+        public int OutputSize
+        {
+            get
+            {
+                return _descriptor.LocationCount * _descriptor.LocationCount * _descriptor.FilterDepth;
             }
         }
 

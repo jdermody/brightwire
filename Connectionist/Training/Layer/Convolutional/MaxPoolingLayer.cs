@@ -1,6 +1,8 @@
-﻿using System;
+﻿using BrightWire.Models.Convolutional;
+using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 namespace BrightWire.Connectionist.Training.Layer.Convolutional
 {
@@ -30,11 +32,21 @@ namespace BrightWire.Connectionist.Training.Layer.Convolutional
             }
         }
         readonly int _filterSize, _stride;
+        readonly ConvolutionDescriptor _descriptor;
 
-        public MaxPoolingLayer(int filterSize, int stride)
+        public int OutputSize
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public MaxPoolingLayer(ConvolutionDescriptor descriptor, int filterSize, int stride)
         {
             _filterSize = filterSize;
             _stride = stride;
+            _descriptor = descriptor;
         }
 
         public void Dispose()
@@ -44,13 +56,38 @@ namespace BrightWire.Connectionist.Training.Layer.Convolutional
 
         public IMatrix Execute(IMatrix matrix, Stack<IConvolutionalLayerBackpropagation> backpropagation)
         {
-            var matrix2 = matrix.AsIndexable();
-            int xOffset = 0, yOffset = 0, width = matrix.RowCount, height = matrix.ColumnCount;
+            //var matrix2 = matrix.AsIndexable();
+            //var parts = matrix2.ConvertInPlaceToVector().Split(_descriptor.FilterDepth);
+            //var matrixParts = parts.Select(d => d.ConvertInPlaceToMatrix(_descriptor.FieldSize, _descriptor.FieldSize)).ToList();
 
-            //matrix2.ConvertInPlaceToVector()
+            //var ret = new List<float>();
+            //var retPos = new List<Tuple<int, int>>();
+            //foreach (var item in matrixParts) {
+            //    int xOffset = 0, yOffset = 0, width = matrix.RowCount, height = matrix.ColumnCount;
+            //    while (yOffset <= height - _filterSize) {
+            //        float max = float.MinValue;
+            //        Tuple<int, int> bestPos = null;
+            //        for (var j = 0; j < _filterSize; j++) {
+            //            for (var i = 0; i < _filterSize; i++) {
+            //                var value = item[i, j];
+            //                if(value > max) {
+            //                    max = value;
+            //                    bestPos = Tuple.Create(i, j);
+            //                }
+            //            }
+            //        }
+            //        ret.Add(max);
+            //        retPos.Add(bestPos);
 
-            //for(var i = 0)
-            return null;
+            //        // move the window
+            //        xOffset += _stride;
+            //        if (xOffset > width - _filterSize) {
+            //            xOffset = 0;
+            //            yOffset += _stride;
+            //        }
+            //    }
+            //}
+            return matrix;
         }
     }
 }

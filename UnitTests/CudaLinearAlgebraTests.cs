@@ -1583,5 +1583,15 @@ namespace UnitTests
             FloatingPointHelper.AssertEqual(cpuVT, gpuVT);
             FloatingPointHelper.AssertEqual(cpuS, gpuS);
         }
+
+        [TestMethod]
+        public void MatrixRotateColumns180()
+        {
+            var a = _cpu.Create(4, 3, (i, j) => i);
+            var test = a.Column(0);
+
+            var b = a.RotateColumns180(2);
+            var test2 = b.Column(0);
+        }
     }
 }

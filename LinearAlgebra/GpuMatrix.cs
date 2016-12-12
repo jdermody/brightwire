@@ -19,7 +19,7 @@ namespace BrightWire.LinearAlgebra
         readonly CudaProvider _cuda;
         readonly CudaDeviceVariable<float> _data;
         readonly int _rows, _columns;
-        bool _disposed = false;
+        bool _disposed = false, _shouldDispose = true;
 #if DEBUG
         static int _gid = 0;
         int _id = _gid++;
@@ -58,13 +58,15 @@ namespace BrightWire.LinearAlgebra
         {
         }
 
-        internal GpuMatrix(CudaProvider cuda, int rows, int columns, CudaDeviceVariable<float> gpuData)
+        internal GpuMatrix(CudaProvider cuda, int rows, int columns, CudaDeviceVariable<float> gpuData, bool shouldDispose = true)
         {
             _cuda = cuda;
             _rows = rows;
             _columns = columns;
             _data = gpuData;
-            cuda.Register(this);
+            _shouldDispose = shouldDispose;
+            if(_shouldDispose)
+                cuda.Register(this);
 #if DEBUG
             if (_id == _badAlloc)
                 Debugger.Break();
@@ -74,7 +76,7 @@ namespace BrightWire.LinearAlgebra
 #if DEBUG
         ~GpuMatrix()
         {
-            if(!_disposed)
+            if(_shouldDispose && !_disposed)
                 Debug.WriteLine("\tMatrix {0} was not disposed !!", _id);
         }
 #endif
@@ -85,7 +87,7 @@ namespace BrightWire.LinearAlgebra
             if (_id == _badDispose)
                 Debugger.Break();
 #endif
-            if (disposing && !_disposed) {
+            if (_shouldDispose && disposing && !_disposed) {
                 _data.Dispose();
                 _disposed = true;
             }
@@ -705,6 +707,16 @@ namespace BrightWire.LinearAlgebra
                 vt.Dispose();
                 throw;
             }
+        }
+
+        public IMatrix RotateColumns180(int subMatrixWidth)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IVector ConvertInPlaceToVector()
+        {
+            return new GpuVector(_cuda, _rows * _columns, _data, false);
         }
     }
 }

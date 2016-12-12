@@ -63,17 +63,17 @@ namespace BrightWire.TrainingData
                 }
             }
 
-            public ConvolutionalData Convolutional
+            public Volume Convolutional
             {
                 get
                 {
                     var label = new float[10];
                     label[_label] = 1;
                     var data = _data.Select(b => Convert.ToSingle((int)b) / 255f).ToArray();
-                    return new ConvolutionalData {
+                    return new Volume {
                         ExpectedOutput = label,
                         Layers = new[] {
-                            new ConvolutionalData.Layer {
+                            new Volume.Layer {
                                 Data = data,
                                 Width = 28,
                                 Height = 28

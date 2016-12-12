@@ -362,31 +362,33 @@ namespace BrightWire.LinearAlgebra
             _vector.MapInplace(v => v + scalar);
         }
 
-        public IIndexableMatrix ConvertInPlaceToMatrix(int rows, int columns)
+        public IMatrix ConvertInPlaceToMatrix(int rows, int columns)
         {
             return new CpuMatrix(DenseMatrix.Build.Dense(rows, columns, _vector.ToArray()));
         }
 
-        public IIndexableVector Rotate180(int blockSize)
-        {
-            var len = _vector.Count;
-            var blockCount = len / blockSize;
-            var ret = _vector.MapIndexed((i, v) => {
-                var blockIndex = i / blockSize;
-                var blockOffset = i % blockSize;
-                //var offset = (blockCount - blockIndex - 1) * blockSize;
-                var offset = blockIndex * blockSize;
-                return _vector[offset + (blockSize - blockOffset - 1)];
-                //return _vector[len - i - 1];
-            });
-            return new CpuVector(ret);
-        }
+        //public IIndexableVector Rotate180(int blockSize)
+        //{
+        //    var len = _vector.Count;
+        //    var blockCount = len / blockSize;
+        //    var ret = _vector.MapIndexed((i, v) => {
+        //        var blockIndex = i / blockSize;
+        //        var blockOffset = i % blockSize;
+        //        //var offset = (blockCount - blockIndex - 1) * blockSize;
+        //        var offset = blockIndex * blockSize;
+        //        return _vector[offset + (blockSize - blockOffset - 1)];
+        //        //return _vector[len - i - 1];
+        //    });
+        //    return new CpuVector(ret);
+        //}
 
-        public IReadOnlyList<IIndexableVector> Split(int blockSize)
+        public IReadOnlyList<IIndexableVector> Split(int blockCount)
         {
             int index = 0;
             float[] curr = null;
             var ret = new List<IIndexableVector>();
+            var blockSize = Count / blockCount;
+
             for(int i = 0, len = Count; i < len; i++) {
                 if (i % blockSize == 0) {
                     if (curr != null)

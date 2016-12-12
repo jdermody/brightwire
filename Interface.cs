@@ -69,7 +69,13 @@ namespace BrightWire
         /// Creates a matrix from a list of vectors
         /// </summary>
         /// <param name="vectorData">The list of rows in the new matrix</param>
-        IMatrix Create(IList<IIndexableVector> vectorData);
+        IMatrix Create(IReadOnlyList<IVector> vectorData);
+
+        /// <summary>
+        /// Creates a matrix from a list of vectors
+        /// </summary>
+        /// <param name="vectorData">The list of rows in the new matrix</param>
+        IMatrix Create(IReadOnlyList<IIndexableVector> vectorData);
 
         /// <summary>
         /// Creates a matrix
@@ -404,6 +410,8 @@ namespace BrightWire
         /// Returns the sigmoid function (without in place modification) applied to the current vector
         /// </summary>
         IVector Sigmoid();
+
+        IMatrix ConvertInPlaceToMatrix(int rows, int columns);
     }
 
     /// <summary>
@@ -432,12 +440,6 @@ namespace BrightWire
         /// </summary>
         /// <param name="data">The values to append</param>
         IIndexableVector Append(IReadOnlyList<float> data);
-
-        IIndexableMatrix ConvertInPlaceToMatrix(int rows, int columns);
-
-        IIndexableVector Rotate180(int blockSize);
-
-        IReadOnlyList<IIndexableVector> Split(int blockSize);
     }
 
     /// <summary>
@@ -772,6 +774,10 @@ namespace BrightWire
         /// Singular value decomposition
         /// </summary>
         SingularValueDecomposition Svd();
+
+        IMatrix RotateColumns180(int subMatrixWidth);
+
+        IVector ConvertInPlaceToVector();
     }
 
     /// <summary>
@@ -814,10 +820,31 @@ namespace BrightWire
         /// <param name="mutator">The function to apply to each element (rowIndex: int, columnIndex: int, value: float) => float</param>
         /// <returns></returns>
         IIndexableMatrix MapIndexed(Func<int, int, float, float> mutator);
+    }
 
-        //IIndexableVector ConvertToRowWiseVector();
+    public interface I3DTensor
+    {
+        int RowCount { get; }
+        int ColumnCount { get; }
+        int Depth { get; }
+        IMatrix GetDepthSlice(int depth);
+        IIndexable3DTensor AsIndexable();
+        I3DTensor AddPadding(int padding);
+        IMatrix Im2Col(int width, int height, int stride);
+    }
 
-        IIndexableVector ConvertInPlaceToVector();
+    public interface IIndexable3DTensor : I3DTensor
+    {
+        float this[int row, int column, int depth] { get; set; }
+    }
+
+    public interface I4DTensor
+    {
+        int RowCount { get; }
+        int ColumnCount { get; }
+        int Depth { get; }
+        int Count { get; }
+        I3DTensor Get(int index);
     }
 
     /// <summary>
@@ -913,6 +940,8 @@ namespace BrightWire
         /// Reads and writes the layer into protobuf format
         /// </summary>
         NetworkLayer LayerInfo { get; set; }
+
+        IMatrix CalculateErrorSignal(IMatrix delta);
     }
 
     /// <summary>
@@ -3017,6 +3046,7 @@ namespace BrightWire
     public interface IConvolutionalLayer : IDisposable
     {
         IMatrix Execute(IMatrix matrix, Stack<IConvolutionalLayerBackpropagation> backpropagation);
+        int OutputSize { get; }
     }
 
     public interface IConvolutionalLayerBackpropagation

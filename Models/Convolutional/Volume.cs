@@ -8,7 +8,7 @@ using System.Diagnostics;
 namespace BrightWire.Models.Convolutional
 {
     [ProtoContract]
-    public class ConvolutionalData
+    public class Volume
     {
         [ProtoContract]
         public class Layer
@@ -84,9 +84,9 @@ namespace BrightWire.Models.Convolutional
         [ProtoMember(2)]
         public float[] ExpectedOutput { get; set; }
 
-        public ConvolutionalData AddPadding(int padding)
+        public Volume AddPadding(int padding)
         {
-            return new ConvolutionalData {
+            return new Volume {
                 Layers = Layers.Select(layer => {
                     var width = layer.Width + (padding * 2);
                     var height = layer.Height + (padding * 2);
@@ -99,9 +99,9 @@ namespace BrightWire.Models.Convolutional
             };
         }
 
-        public ConvolutionalData RemovePadding(int padding)
+        public Volume RemovePadding(int padding)
         {
-            var ret = new ConvolutionalData {
+            var ret = new Volume {
                 Layers = Layers.Select(l => new Layer(l.Data, l.Width - padding*2, l.Height - padding * 2, padding)).ToArray()
             };
             return ret;
@@ -135,13 +135,7 @@ namespace BrightWire.Models.Convolutional
                 }
             }
             var firstOutput = data.First();
-            return lap.Create(firstOutput.Count, data.Count, (i, j) => data[j][i]);
-        }
-
-        public ConvolutionalData() { }
-        public ConvolutionalData(float[] data, ConvolutionDescriptor descriptor)
-        {
-            
+            return lap.Create(data.Count, firstOutput.Count, (i, j) => data[i][j]);
         }
     }
 }

@@ -558,7 +558,25 @@ namespace BrightWire.LinearAlgebra
         //    return new CpuVector(DenseVector.Build.DenseOfArray(_matrix.ToColumnWiseArray()));
         //}
 
-        public IIndexableVector ConvertInPlaceToVector()
+        public IMatrix RotateColumns180(int subMatrixWidth)
+        {
+            var rowCount = RowCount;
+            var columnCount = ColumnCount;
+            var subMatrixHeight = rowCount / subMatrixWidth;
+
+            var ret = DenseMatrix.Create(rowCount, columnCount, (i, j) => {
+                var x = i / subMatrixWidth;
+                var y = i % subMatrixWidth;
+                var flipX = subMatrixWidth - x - 1;
+                var flipY = subMatrixHeight - y - 1;
+                var index = flipY * subMatrixWidth + flipX;
+
+                return _matrix[index, j];
+            });
+            return new CpuMatrix(ret);
+        }
+
+        public IVector ConvertInPlaceToVector()
         {
             return new CpuVector(_matrix.ToColumnWiseArray());
         }

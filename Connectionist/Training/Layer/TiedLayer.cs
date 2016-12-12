@@ -133,5 +133,10 @@ namespace BrightWire.Connectionist.Training.Layer
             _weightTranspose.Dispose();
             _weightTranspose = _weight.Transpose();
         }
+
+        public IMatrix CalculateErrorSignal(IMatrix delta)
+        {
+            return delta.TransposeAndMultiply(_weight);
+        }
     }
 }

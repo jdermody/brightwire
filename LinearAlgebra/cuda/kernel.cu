@@ -605,4 +605,15 @@ extern "C"
 			b[i] += a[index];
 		}
 	}
+
+	__global__ void CopyToMatrix(float** a, float* b, int rows, int columns)
+	{
+		int i = blockDim.x * blockIdx.x + threadIdx.x;
+		int j = blockDim.y * blockIdx.y + threadIdx.y;
+
+		if (i < rows && j < columns) {
+			float val = a[i][j];
+			b[j * rows + i] = val;
+		}
+	}
 }

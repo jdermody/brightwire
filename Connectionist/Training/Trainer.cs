@@ -101,7 +101,7 @@ namespace BrightWire.Connectionist.Training
                 // use the gradients to determine the direction of each change
                 var delta = errorSignal.PointwiseMultiply(od);
                 if (calculateOutput)
-                    ret = delta.TransposeAndMultiply(_layerUpdater.Layer.Weight);
+                    ret = _layerUpdater.Layer.CalculateErrorSignal(delta);
 
                 // update the layer
                 _UpdateLayer(input, delta, context, updates);
