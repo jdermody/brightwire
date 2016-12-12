@@ -76,6 +76,11 @@ namespace BrightWire.Models.Convolutional
                     Data[y * Width + x] = value;
                 }
             }
+
+            public IMatrix AsMatrix(ILinearAlgebraProvider lap)
+            {
+                return lap.Create(Width, Height, (i, j) => Data[j * Width + i]);
+            }
         }
 
         [ProtoMember(1)]
@@ -113,14 +118,14 @@ namespace BrightWire.Models.Convolutional
             var firstLayer = Layers.First();
             int width = firstLayer.Width, height = firstLayer.Height;
             Debug.Assert(Layers.All(l => l.Height == height && l.Width == width));
-            int fieldSize = descriptor.FieldSize, stride = descriptor.Stride;
+            int filterWidth = descriptor.FilterWidth, filterHeight = descriptor.FilterHeight, stride = descriptor.Stride;
 
             var data = new List<List<float>>();
-            while (yOffset <= height - fieldSize) {
+            while (yOffset <= height - filterHeight) {
                 var column = new List<float>();
                 foreach (var layer in Layers) {
-                    for (var j = 0; j < fieldSize; j++) {
-                        for (var i = 0; i < fieldSize; i++) {
+                    for (var j = 0; j < filterHeight; j++) {
+                        for (var i = 0; i < filterWidth; i++) {
                             column.Add(layer[xOffset + i, yOffset + j]);
                         }
                     }
@@ -129,13 +134,18 @@ namespace BrightWire.Models.Convolutional
 
                 // move the window
                 xOffset += stride;
-                if(xOffset > width - fieldSize) {
+                if(xOffset > width - filterWidth) {
                     xOffset = 0;
                     yOffset += stride;
                 }
             }
             var firstOutput = data.First();
             return lap.Create(data.Count, firstOutput.Count, (i, j) => data[i][j]);
+        }
+
+        public I3DTensor AsTensor(ILinearAlgebraProvider lap)
+        {
+            return lap.CreateTensor(Layers.Select(l => l.AsMatrix(lap)).ToList());
         }
     }
 }

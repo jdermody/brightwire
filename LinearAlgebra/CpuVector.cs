@@ -382,11 +382,11 @@ namespace BrightWire.LinearAlgebra
         //    return new CpuVector(ret);
         //}
 
-        public IReadOnlyList<IIndexableVector> Split(int blockCount)
+        public IReadOnlyList<IVector> Split(int blockCount)
         {
             int index = 0;
             float[] curr = null;
-            var ret = new List<IIndexableVector>();
+            var ret = new List<IVector>();
             var blockSize = Count / blockCount;
 
             for(int i = 0, len = Count; i < len; i++) {

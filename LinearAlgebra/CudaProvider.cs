@@ -819,5 +819,15 @@ namespace BrightWire.LinearAlgebra
                     layer.Add(matrix);
             }
         }
+
+        public I3DTensor CreateTensor(IReadOnlyList<IMatrix> data)
+        {
+            throw new NotImplementedException();
+        }
+
+        public I4DTensor CreateTensor(IReadOnlyList<I3DTensor> data)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

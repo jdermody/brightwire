@@ -105,27 +105,23 @@ namespace BrightWire.LinearAlgebra
             for (var k = 0; k < _depth; k++) {
                 for (var j = 0; j < newRows; j++) {
                     for (var i = 0; i < newColumns; i++) {
-                        if (i < padding || j < padding)
-                            continue;
-                        else if (i >= newRows - padding || j >= newColumns - padding)
-                            continue;
-                        ret[i - padding, j - padding, k] = this[i, j, k];
+                        ret[i, j, k] = this[i + padding, j + padding, k];
                     }
                 }
             }
             return ret;
         }
 
-        public IMatrix Im2Col(int width, int height, int stride)
+        public IMatrix Im2Col(int filterWidth, int filterHeight, int stride)
         {
             int xOffset = 0, yOffset = 0;
             var data = new List<List<float>>();
 
-            while (yOffset <= _rows - height) {
+            while (yOffset <= _rows - filterHeight) {
                 var column = new List<float>();
                 for (var k = 0; k < _depth; k++) {
-                    for (var j = 0; j < height; j++) {
-                        for (var i = 0; i < width; i++) {
+                    for (var j = 0; j < filterHeight; j++) {
+                        for (var i = 0; i < filterWidth; i++) {
                             column.Add(this[xOffset + i, yOffset + j, k]);
                         }
                     }
@@ -134,7 +130,7 @@ namespace BrightWire.LinearAlgebra
 
                 // move the window
                 xOffset += stride;
-                if (xOffset > _columns - width) {
+                if (xOffset > _columns - filterWidth) {
                     xOffset = 0;
                     yOffset += stride;
                 }

@@ -1,5 +1,6 @@
 ﻿using BrightWire.Connectionist;
 using BrightWire.Models;
+using BrightWire.Models.Convolutional;
 using BrightWire.Models.Input;
 using BrightWire.Models.Output;
 using System;
@@ -142,6 +143,10 @@ namespace BrightWire
         /// </summary>
         /// <param name="values">The diagonal values</param>
         IMatrix CreateDiagonal(IReadOnlyList<float> values);
+
+        I3DTensor CreateTensor(IReadOnlyList<IMatrix> data);
+
+        I4DTensor CreateTensor(IReadOnlyList<I3DTensor> data);
 
         /// <summary>
         /// Neural network factory
@@ -412,6 +417,8 @@ namespace BrightWire
         IVector Sigmoid();
 
         IMatrix ConvertInPlaceToMatrix(int rows, int columns);
+
+        IReadOnlyList<IVector> Split(int blockCount);
     }
 
     /// <summary>
@@ -830,7 +837,8 @@ namespace BrightWire
         IMatrix GetDepthSlice(int depth);
         IIndexable3DTensor AsIndexable();
         I3DTensor AddPadding(int padding);
-        IMatrix Im2Col(int width, int height, int stride);
+        I3DTensor RemovePadding(int padding);
+        IMatrix Im2Col(int filterWidth, int filterHeight, int stride);
     }
 
     public interface IIndexable3DTensor : I3DTensor
@@ -3045,13 +3053,15 @@ namespace BrightWire
 
     public interface IConvolutionalLayer : IDisposable
     {
-        IMatrix Execute(IMatrix matrix, Stack<IConvolutionalLayerBackpropagation> backpropagation);
-        int OutputSize { get; }
+        I3DTensor ExecuteToTensor(I3DTensor tensor, Stack<IConvolutionalLayerBackpropagation> backpropagation);
+        IVector ExecuteToVector(I3DTensor tensor, Stack<IConvolutionalLayerBackpropagation> backpropagation);
     }
 
     public interface IConvolutionalLayerBackpropagation
     {
+        ConvolutionDescriptor Descriptor { get; }
         IMatrix Execute(IMatrix error, ITrainingContext context, bool calculateOutput, INeuralNetworkUpdateAccumulator updateAccumulator);
+        IMatrix Convert(IMatrix matrix);
         int RowCount { get; }
         int ColumnCount { get; }
     }

@@ -12,32 +12,25 @@ namespace BrightWire.Models.Convolutional
 
         }
 
-        public int InputSize { get; set; }
-
-        public int InputDepth { get; set; }
-
-        public int FieldSize { get; set; }
-
-        public int Stride { get; set; }
-
-        public int FilterDepth { get; set; }
 
         public int Padding { get; set; }
+        public int Stride { get; set; }
+        public int FilterWidth { get; set; }
+        public int FilterHeight { get; set; }
+        public int FilterDepth { get; set; }
 
-        public int LocationCount
+        public int FilterSize
         {
             get
             {
-                return (InputSize - FieldSize + Padding*2) / Stride + 1;
+                return FilterWidth * FilterHeight;
             }
         }
 
-        public int Extent
+        public Tuple<int, int> CalculateExtent(int inputWidth, int inputHeight)
         {
-            get
-            {
-                return FieldSize * FieldSize * InputDepth;
-            }
+            var padding = 2 * Padding;
+            return Tuple.Create((inputWidth - FilterWidth + padding) / Stride + 1, (inputHeight - FilterHeight + padding) / Stride + 1);
         }
     }
 }

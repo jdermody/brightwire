@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using BrightWire.Models;
+using System.Linq;
 
 namespace BrightWire.Connectionist.Training.Layer.Convolutional
 {
@@ -10,20 +11,43 @@ namespace BrightWire.Connectionist.Training.Layer.Convolutional
     {
         public class Backpropagation : IConvolutionalLayerBackpropagation
         {
+            readonly ConvolutionalLayer _layer;
             readonly INeuralNetworkLayerTrainer _trainer;
             readonly IMatrix _input, _output;
 
-            public Backpropagation(INeuralNetworkLayerTrainer trainer, IMatrix input, IMatrix output)
+            public Backpropagation(ConvolutionalLayer layer, INeuralNetworkLayerTrainer trainer, IMatrix input, IMatrix output)
             {
+                _layer = layer;
                 _trainer = trainer;
                 _input = input;
                 _output = output;
             }
 
+            public ConvolutionDescriptor Descriptor { get { return _layer._descriptor; } }
+
             public IMatrix Execute(IMatrix error, ITrainingContext context, bool calculateOutput, INeuralNetworkUpdateAccumulator updateAccumulator)
             {
-                using (var output = _output)
+                using (var output = _output) {
                     return _trainer.Backpropagate(_input, output, error, context, calculateOutput, updateAccumulator);
+                }
+            }
+
+            public IMatrix Convert(IMatrix matrix)
+            {
+                var ret = new List<IVector>();
+                IVector curr = null;
+                var size = _layer._descriptor.FilterSize;
+
+                for (int i = 0, len = matrix.ColumnCount; i < len; i++) {
+                    var column = matrix.Column(i);
+                    if (i % size == 0) {
+                        curr = column;
+                        ret.Add(curr);
+                    }
+                    else
+                        curr.AddInPlace(column);
+                }
+                return _layer._lap.Create(ret).Transpose();
             }
 
             public int RowCount { get { return _output.RowCount; } }
@@ -146,48 +170,71 @@ namespace BrightWire.Connectionist.Training.Layer.Convolutional
                     using (var columnSums = biasDelta.ColumnSums())
                         _bias.AddInPlace(columnSums, 1f / columnSums.Count, learningRate);
                 }
-                //using (var weightDelta2 = weightDelta.RotateColumns180(_descriptor.FieldSize))
-                    _weight.AddInPlace(weightDelta, weightCoefficient, learningRate);
+                _weight.AddInPlace(weightDelta, weightCoefficient, learningRate);
             }
 
             public IMatrix CalculateErrorSignal(IMatrix delta)
             {
-                using(var rotatedFilter = _weight.RotateColumns180(_descriptor.FieldSize))
-                    return delta.TransposeAndMultiply(rotatedFilter);
-                //return delta.TransposeAndMultiply(_weight);
+                //using (var rotatedFilter = _weight.RotateColumns180(_descriptor.FilterWidth)) {
+                //    var ret = delta.TransposeAndMultiply(rotatedFilter);
+                //    return ret;
+                //}
+                return delta.TransposeAndMultiply(_weight);
             }
         }
 
         readonly INeuralNetworkLayerTrainer _trainer;
         readonly ConvolutionDescriptor _descriptor;
+        readonly ILinearAlgebraProvider _lap;
+        readonly int _inputWidth;
 
-        public ConvolutionalLayer(INeuralNetworkFactory factory, ConvolutionDescriptor descriptor, int inputSize)
+        public ConvolutionalLayer(INeuralNetworkFactory factory, ConvolutionDescriptor descriptor, int inputSize, int inputWidth)
         {
+            _inputWidth = inputWidth;
+            _lap = factory.LinearAlgebraProvider;
             _descriptor = descriptor;
             var activation = factory.GetActivation(descriptor.Activation);
             var layer = new Layer(factory.LinearAlgebraProvider, inputSize, descriptor.FilterDepth, activation, descriptor);
             _trainer = factory.CreateTrainer(layer, descriptor);
         }
 
-        public IMatrix Execute(IMatrix matrix, Stack<IConvolutionalLayerBackpropagation> backpropagation)
+        IMatrix _Execute(I3DTensor tensor, Stack<IConvolutionalLayerBackpropagation> backpropagation)
         {
-            if (backpropagation == null)
-                return _trainer.FeedForward(matrix, false);
-            else {
-                var layer = _trainer.LayerUpdater.Layer;
-                var output = layer.Execute(matrix);
-                var ret = layer?.Activation.Calculate(output) ?? output;
-                backpropagation.Push(new Backpropagation(_trainer, matrix, output));
-                return ret;
-            }
+            var layer = _trainer.LayerUpdater.Layer;
+            IMatrix input;
+            if(_descriptor.Padding > 0) {
+                var padded = tensor.AddPadding(_descriptor.Padding);
+                input = padded.Im2Col(_descriptor.FilterWidth, _descriptor.FilterHeight, _descriptor.Stride);
+            }else
+                input = tensor.Im2Col(_descriptor.FilterWidth, _descriptor.FilterHeight, _descriptor.Stride);
+
+            var output = layer.Execute(input);
+            backpropagation?.Push(new Backpropagation(this, _trainer, input, output));
+            return layer.Activation?.Calculate(output) ?? output;
         }
 
-        public int OutputSize
+        public I3DTensor ConvertToTensor(IMatrix matrix)
         {
-            get
-            {
-                return _descriptor.LocationCount * _descriptor.LocationCount * _descriptor.FilterDepth;
+            var sliceList = new List<IMatrix>();
+            for (int i = 0, len = matrix.ColumnCount; i < len; i++) {
+                var vector = matrix.Column(i);
+                var parts = vector.Split(_inputWidth);
+                var sliceMatrix = _lap.Create(parts);
+                sliceList.Add(sliceMatrix);
             }
+            return _lap.CreateTensor(sliceList);
+        }
+
+        public I3DTensor ExecuteToTensor(I3DTensor tensor, Stack<IConvolutionalLayerBackpropagation> backpropagation)
+        {
+            var outputMatrix = _Execute(tensor, backpropagation);
+            return ConvertToTensor(outputMatrix);
+        }
+
+        public IVector ExecuteToVector(I3DTensor tensor, Stack<IConvolutionalLayerBackpropagation> backpropagation)
+        {
+            var outputMatrix = _Execute(tensor, backpropagation);
+            return outputMatrix.ConvertInPlaceToVector();
         }
 
         public void Dispose()

@@ -48,8 +48,6 @@ namespace BrightWire.Connectionist.Training
         protected virtual void _ExecuteLayer(IMatrix input, bool backpropagation)
         {
             var layer = _layerUpdater.Layer;
-            //_layerOutput = input.Multiply(layer.Weight);
-            //_layerOutput.AddToEachRow(layer.Bias);
             _layerOutput = layer.Execute(input);
         }
 

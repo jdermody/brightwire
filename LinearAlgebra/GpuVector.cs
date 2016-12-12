@@ -464,5 +464,10 @@ namespace BrightWire.LinearAlgebra
         {
             return new GpuMatrix(_cuda, rows, columns, _data, false);
         }
+
+        public IReadOnlyList<IVector> Split(int blockCount)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

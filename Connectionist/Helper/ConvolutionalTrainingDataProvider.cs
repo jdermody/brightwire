@@ -11,29 +11,26 @@ namespace BrightWire.Connectionist.Helper
     public class ConvolutionalTrainingDataProvider : ITrainingDataProvider, ICanBackpropagate
     {
         readonly ILinearAlgebraProvider _lap;
-        readonly IReadOnlyList<Volume> _data;
-        readonly List<IMatrix> _matrixList;
+        readonly IReadOnlyList<Tuple<I3DTensor, float[]>> _data;
         readonly int _inputSize, _outputSize;
         readonly IReadOnlyList<IConvolutionalLayer> _layer;
         readonly List<Stack<IConvolutionalLayerBackpropagation>> _backpropagation = new List<Stack<IConvolutionalLayerBackpropagation>>();
         readonly ConvolutionDescriptor _descriptor;
         readonly bool _isTraining;
 
-        public ConvolutionalTrainingDataProvider(ILinearAlgebraProvider lap, ConvolutionDescriptor descriptor, IReadOnlyList<Volume> data, IReadOnlyList<IConvolutionalLayer> layer, bool isTraining)
+        public ConvolutionalTrainingDataProvider(ILinearAlgebraProvider lap, ConvolutionDescriptor descriptor, IReadOnlyList<Tuple<I3DTensor, float[]>> data, IReadOnlyList<IConvolutionalLayer> layer, bool isTraining)
         {
             _lap = lap;
             _data = data;
             _descriptor = descriptor;
-            _matrixList = data
-                .Select(d => descriptor.Padding > 0 ? d.AddPadding(descriptor.Padding) : d)
-                .Select(d => d.Im2Col(lap, descriptor))
-                .ToList()
-            ;
             _layer = layer;
             _isTraining = isTraining;
-            var first = _matrixList.First();
-            _inputSize = first.RowCount * descriptor.FilterDepth;
-            _outputSize = _data.First().ExpectedOutput.Length;
+            var first = data.First();
+            var firstTensor = first.Item1;
+            var extent = descriptor.CalculateExtent(firstTensor.ColumnCount, firstTensor.RowCount);
+
+            _inputSize = extent.Item1 * extent.Item2 * firstTensor.Depth * descriptor.FilterDepth;
+            _outputSize = first.Item2.Length;
         }
 
         public int Count
@@ -60,43 +57,25 @@ namespace BrightWire.Connectionist.Helper
             }
         }
 
-        IIndexableVector _ExecuteLayer(IMatrix input, int layerIndex, Stack<IConvolutionalLayerBackpropagation> backpropagation)
-        {
-            var layer = _layer[layerIndex];
-            var output = layer.Execute(input, backpropagation);
-
-            if(layerIndex < _layer.Count - 1) {
-                var convolutionData = new Volume {
-                    Layers = new Volume.Layer[output.ColumnCount]
-                };
-                for (int i = 0, len = output.ColumnCount; i < len; i++) {
-                    var column = output.Column(i);
-                    convolutionData.Layers[i] = new Volume.Layer {
-                        Data = column.AsIndexable().ToArray(),
-                        Height = (int)Math.Sqrt(column.Count),
-                        Width = (int)Math.Sqrt(column.Count)
-                    };
-                }
-                var output2 = convolutionData.Im2Col(_lap, _descriptor);
-                return _ExecuteLayer(output2, layerIndex + 1, backpropagation);
-            }
-            else
-                return output.ConvertInPlaceToVector().AsIndexable();
-        }
 
         public IMiniBatch GetTrainingData(IReadOnlyList<int> rows)
         {
-            var rowList = new List<IIndexableVector>();
+            var rowList = new List<IVector>();
+            var outputList = new List<float[]>();
             foreach (var item in rows) {
-                var matrix = _matrixList[item];
+                var data = _data[item];
+                var tensor = data.Item1;
                 var backpropagation = _isTraining ? new Stack<IConvolutionalLayerBackpropagation>() : null;
-                rowList.Add(_ExecuteLayer(matrix, 0, backpropagation));
+                for(int i = 0, len = _layer.Count; i < len-1; i++)
+                    tensor = _layer[i].ExecuteToTensor(tensor, backpropagation);
+                rowList.Add(_layer.Last().ExecuteToVector(tensor, backpropagation));
                 if(backpropagation != null)
                     _backpropagation.Add(backpropagation);
+                outputList.Add(data.Item2);
             }
 
             var input = _lap.Create(rowList);
-            var output = _lap.Create(rows.Count, _outputSize, (x, y) => _data[rows[x]].ExpectedOutput[y]);
+            var output = _lap.Create(rows.Count, _outputSize, (x, y) => outputList[x][y]);
             return new MiniBatch(input, output);
         }
 
@@ -110,16 +89,26 @@ namespace BrightWire.Connectionist.Helper
             if (_isTraining) {
                 for (var i = 0; i < errorSignal.RowCount; i++) {
                     var row = errorSignal.Row(i).AsIndexable();
-                    //row = row.Rotate180(row.Count / _descriptor.FilterDepth);
                     var backpropagationStack = _backpropagation[i];
+                    var isFirst = true;
+                    IMatrix lastError = null;
                     while (backpropagationStack.Any()) {
                         var backpropagation = backpropagationStack.Pop();
-                        var rowSignal = row.ConvertInPlaceToMatrix(backpropagation.RowCount, backpropagation.ColumnCount);
-                        rowSignal = backpropagation.Execute(rowSignal, context, backpropagationStack.Any(), updates)?.AsIndexable();
+                        IMatrix rowSignal;
+                        if (isFirst) {
+                            using (var rowError = row.ConvertInPlaceToMatrix(backpropagation.RowCount, backpropagation.ColumnCount))
+                                rowSignal = backpropagation.Execute(rowError, context, backpropagationStack.Any(), updates)?.AsIndexable();
+                            isFirst = false;
+                        }
+                        else
+                            rowSignal = backpropagation.Execute(lastError, context, backpropagationStack.Any(), updates)?.AsIndexable();
+
+                        if (rowSignal != null)
+                            lastError = backpropagation.Convert(rowSignal);
                     }
                 }
             }
-            return errorSignal;
+            return null;
         }
     }
 }
