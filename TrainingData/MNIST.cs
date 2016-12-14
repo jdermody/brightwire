@@ -63,7 +63,7 @@ namespace BrightWire.TrainingData
                 }
             }
 
-            public Volume Convolutional
+            public Volume AsVolume
             {
                 get
                 {

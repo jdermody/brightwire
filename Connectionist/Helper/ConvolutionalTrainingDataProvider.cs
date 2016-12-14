@@ -94,17 +94,13 @@ namespace BrightWire.Connectionist.Helper
                     IMatrix lastError = null;
                     while (backpropagationStack.Any()) {
                         var backpropagation = backpropagationStack.Pop();
-                        IMatrix rowSignal;
                         if (isFirst) {
                             using (var rowError = row.ConvertInPlaceToMatrix(backpropagation.RowCount, backpropagation.ColumnCount))
-                                rowSignal = backpropagation.Execute(rowError, context, backpropagationStack.Any(), updates)?.AsIndexable();
+                                lastError = backpropagation.Execute(rowError, context, backpropagationStack.Any(), updates)?.AsIndexable();
                             isFirst = false;
                         }
                         else
-                            rowSignal = backpropagation.Execute(lastError, context, backpropagationStack.Any(), updates)?.AsIndexable();
-
-                        if (rowSignal != null)
-                            lastError = backpropagation.Convert(rowSignal);
+                            lastError = backpropagation.Execute(lastError, context, backpropagationStack.Any(), updates)?.AsIndexable();
                     }
                 }
             }

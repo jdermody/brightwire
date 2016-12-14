@@ -709,10 +709,10 @@ namespace BrightWire.LinearAlgebra
             }
         }
 
-        public IMatrix RotateColumns180(int subMatrixWidth)
-        {
-            throw new NotImplementedException();
-        }
+        //public IMatrix RotateColumns180(int subMatrixWidth)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         public IVector ConvertInPlaceToVector()
         {

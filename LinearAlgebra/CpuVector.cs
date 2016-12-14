@@ -367,21 +367,6 @@ namespace BrightWire.LinearAlgebra
             return new CpuMatrix(DenseMatrix.Build.Dense(rows, columns, _vector.ToArray()));
         }
 
-        //public IIndexableVector Rotate180(int blockSize)
-        //{
-        //    var len = _vector.Count;
-        //    var blockCount = len / blockSize;
-        //    var ret = _vector.MapIndexed((i, v) => {
-        //        var blockIndex = i / blockSize;
-        //        var blockOffset = i % blockSize;
-        //        //var offset = (blockCount - blockIndex - 1) * blockSize;
-        //        var offset = blockIndex * blockSize;
-        //        return _vector[offset + (blockSize - blockOffset - 1)];
-        //        //return _vector[len - i - 1];
-        //    });
-        //    return new CpuVector(ret);
-        //}
-
         public IReadOnlyList<IVector> Split(int blockCount)
         {
             int index = 0;

@@ -36,7 +36,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Helper\DataTableTrainingDataProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Helper\DenseSequentialTrainingDataProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Helper\DenseTrainingDataProvider.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Helper\SequenceToSequenceTrainingDataProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Helper\SequentialMiniBatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Helper\SparseSequentialTrainingDataProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Helper\SparseTrainingDataProvider.cs" />

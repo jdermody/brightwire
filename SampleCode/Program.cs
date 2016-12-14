@@ -20,16 +20,11 @@ namespace BrightWire.SampleCode
 {
     partial class Program
     {
-        static void MNIST(string dataFilesPath)
-        {
-            
-        }
-
         static void Main(string[] args)
         {
             Control.UseNativeMKL();
-            //SimpleTest();
-            MNISTConvolutional(@"D:\data\mnist\");
+            ReducedMNIST(@"D:\data\mnist\");
+            //MNISTConvolutional(@"D:\data\mnist\");
 
             //IrisClassification();
             //IrisClustering();

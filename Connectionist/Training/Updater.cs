@@ -73,35 +73,6 @@ namespace BrightWire.Connectionist.Training
         }
     }
 
-    //internal class MaxNormRegularisationUpdater : UpdaterBase
-    //{
-    //    readonly float _lambda;
-    //    readonly ILinearAlgebraProvider _lap;
-
-    //    public MaxNormRegularisationUpdater(ILinearAlgebraProvider lap, INeuralNetworkLayer layer, float lambda) : base(layer)
-    //    {
-    //        _lambda = lambda;
-    //        _lap = lap;
-    //    }
-
-    //    public override void Update(IMatrix biasDelta, IMatrix weightDelta, ITrainingContext context)
-    //    {
-    //        base.Update(biasDelta, weightDelta, context);
-    //        var norms = _layer.Weight.RowL2Norm().AsIndexable();
-    //        var updates = new Dictionary<int, float>();
-    //        var threshold = _lambda * norms.Count;
-    //        for (var i = 0; i < norms.Count; i++) {
-    //            if (norms[i] > threshold)
-    //                updates.Add(i, norms[i] / _lambda);
-    //        }
-    //        if (updates.Any()) {
-    //            float temp;
-    //            using (var update = _lap.Create(norms.Count, i => updates.TryGetValue(i, out temp) ? temp : 1f))
-    //                _layer.Weight.PointwiseDivideRows(update);
-    //        }
-    //    }
-    //}
-
     internal abstract class PerWeightUpdateBase : INeuralNetworkLayerUpdater
     {
         protected readonly IMatrix _cache;

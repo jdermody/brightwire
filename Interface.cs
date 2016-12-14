@@ -782,7 +782,7 @@ namespace BrightWire
         /// </summary>
         SingularValueDecomposition Svd();
 
-        IMatrix RotateColumns180(int subMatrixWidth);
+        //IMatrix RotateColumns180(int subMatrixWidth);
 
         IVector ConvertInPlaceToVector();
     }
@@ -839,6 +839,7 @@ namespace BrightWire
         I3DTensor AddPadding(int padding);
         I3DTensor RemovePadding(int padding);
         IMatrix Im2Col(int filterWidth, int filterHeight, int stride);
+        IVector ConvertInPlaceToVector();
     }
 
     public interface IIndexable3DTensor : I3DTensor
@@ -3061,7 +3062,6 @@ namespace BrightWire
     {
         ConvolutionDescriptor Descriptor { get; }
         IMatrix Execute(IMatrix error, ITrainingContext context, bool calculateOutput, INeuralNetworkUpdateAccumulator updateAccumulator);
-        IMatrix Convert(IMatrix matrix);
         int RowCount { get; }
         int ColumnCount { get; }
     }

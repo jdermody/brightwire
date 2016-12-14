@@ -28,12 +28,15 @@ namespace BrightWire.Connectionist.Training.Layer.Convolutional
             public IMatrix Execute(IMatrix error, ITrainingContext context, bool calculateOutput, INeuralNetworkUpdateAccumulator updateAccumulator)
             {
                 using (var output = _output) {
-                    return _trainer.Backpropagate(_input, output, error, context, calculateOutput, updateAccumulator);
+                    return Convert(_trainer.Backpropagate(_input, output, error, context, calculateOutput, updateAccumulator));
                 }
             }
 
             public IMatrix Convert(IMatrix matrix)
             {
+                if (matrix == null)
+                    return null;
+
                 var ret = new List<IVector>();
                 IVector curr = null;
                 var size = _layer._descriptor.FilterSize;
@@ -60,13 +63,15 @@ namespace BrightWire.Connectionist.Training.Layer.Convolutional
             readonly int _inputSize, _outputSize;
             readonly IActivationFunction _activation;
             readonly ConvolutionDescriptor _descriptor;
+            readonly bool _disableUpdate;
 
-            public Layer(ILinearAlgebraProvider lap, int inputSize, int outputSize, IActivationFunction activation, ConvolutionDescriptor descriptor)
+            public Layer(ILinearAlgebraProvider lap, int inputSize, int outputSize, IActivationFunction activation, ConvolutionDescriptor descriptor, bool disableUpdate)
             {
                 _inputSize = inputSize;
                 _outputSize = outputSize;
                 _activation = activation;
                 _descriptor = descriptor;
+                _disableUpdate = disableUpdate;
 
                 var weightInit = lap.NN.GetWeightInitialisation(descriptor.WeightInitialisation);
                 _bias = lap.Create(outputSize, x => weightInit.GetBias());
@@ -166,11 +171,13 @@ namespace BrightWire.Connectionist.Training.Layer.Convolutional
 
             public void Update(IMatrix biasDelta, IMatrix weightDelta, float weightCoefficient, float learningRate)
             {
-                if (biasDelta != null) {
-                    using (var columnSums = biasDelta.ColumnSums())
-                        _bias.AddInPlace(columnSums, 1f / columnSums.Count, learningRate);
+                if (!_disableUpdate) {
+                    if (biasDelta != null) {
+                        using (var columnSums = biasDelta.ColumnSums())
+                            _bias.AddInPlace(columnSums, 1f / columnSums.Count, learningRate);
+                    }
+                    _weight.AddInPlace(weightDelta, weightCoefficient, learningRate);
                 }
-                _weight.AddInPlace(weightDelta, weightCoefficient, learningRate);
             }
 
             public IMatrix CalculateErrorSignal(IMatrix delta)
@@ -188,13 +195,13 @@ namespace BrightWire.Connectionist.Training.Layer.Convolutional
         readonly ILinearAlgebraProvider _lap;
         readonly int _inputWidth;
 
-        public ConvolutionalLayer(INeuralNetworkFactory factory, ConvolutionDescriptor descriptor, int inputSize, int inputWidth)
+        public ConvolutionalLayer(INeuralNetworkFactory factory, ConvolutionDescriptor descriptor, int inputSize, int inputWidth, bool disableUpdate = false)
         {
             _inputWidth = inputWidth;
             _lap = factory.LinearAlgebraProvider;
             _descriptor = descriptor;
             var activation = factory.GetActivation(descriptor.Activation);
-            var layer = new Layer(factory.LinearAlgebraProvider, inputSize, descriptor.FilterDepth, activation, descriptor);
+            var layer = new Layer(factory.LinearAlgebraProvider, inputSize, descriptor.FilterDepth, activation, descriptor, disableUpdate);
             _trainer = factory.CreateTrainer(layer, descriptor);
         }
 

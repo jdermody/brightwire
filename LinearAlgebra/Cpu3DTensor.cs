@@ -138,5 +138,17 @@ namespace BrightWire.LinearAlgebra
             var firstOutput = data.First();
             return new CpuMatrix(DenseMatrix.Create(data.Count, firstOutput.Count, (i, j) => data[i][j]));
         }
+
+        public IVector ConvertInPlaceToVector()
+        {
+            var vectorList = _data.Select(m => m.ConvertInPlaceToVector().AsIndexable()).ToArray();
+            var size = _rows * _columns;
+            var ret = DenseVector.Create(_depth * size, i => {
+                var offset = i / size;
+                var index = i % size;
+                return vectorList[offset][index];
+            });
+            return new CpuVector(ret);
+        }
     }
 }

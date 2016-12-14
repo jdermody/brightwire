@@ -565,8 +565,8 @@ namespace BrightWire.LinearAlgebra
             var subMatrixHeight = rowCount / subMatrixWidth;
 
             var ret = DenseMatrix.Create(rowCount, columnCount, (i, j) => {
-                var x = i / subMatrixWidth;
-                var y = i % subMatrixWidth;
+                var y = i / subMatrixWidth;
+                var x = i % subMatrixWidth;
                 var flipX = subMatrixWidth - x - 1;
                 var flipY = subMatrixHeight - y - 1;
                 var index = flipY * subMatrixWidth + flipX;
