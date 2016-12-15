@@ -467,7 +467,22 @@ namespace BrightWire.LinearAlgebra
 
         public IReadOnlyList<IVector> Split(int blockCount)
         {
-            throw new NotImplementedException();
+            // TODO: kernel based implementation?
+
+            int index = 0;
+            float[] curr = null;
+            var ret = new List<float[]>();
+            var blockSize = Count / blockCount;
+            var data = AsIndexable();
+
+            for (int i = 0, len = Count; i < len; i++) {
+                if (i % blockSize == 0) {
+                    ret.Add(curr = new float[blockSize]);
+                    index = 0;
+                }
+                curr[index++] = data[i];
+            }
+            return ret.Select(d => new GpuVector(_cuda, d.Length, i => d[i])).ToList();
         }
     }
 }

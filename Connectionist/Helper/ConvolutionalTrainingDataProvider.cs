@@ -60,6 +60,8 @@ namespace BrightWire.Connectionist.Helper
 
         public IMiniBatch GetTrainingData(IReadOnlyList<int> rows)
         {
+            _backpropagation.Clear();
+
             var rowList = new List<IVector>();
             var outputList = new List<float[]>();
             foreach (var item in rows) {

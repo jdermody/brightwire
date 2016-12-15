@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using System.Diagnostics;
 
 namespace BrightWire.LinearAlgebra
 {
@@ -25,6 +26,7 @@ namespace BrightWire.LinearAlgebra
         public Cpu3DTensor(IReadOnlyList<IMatrix> matrixList)
         {
             var first = matrixList.First();
+            Debug.Assert(matrixList.All(m => m.RowCount == first.RowCount && m.ColumnCount == first.ColumnCount));
             _rows = first.RowCount;
             _columns = first.ColumnCount;
             _depth = matrixList.Count;

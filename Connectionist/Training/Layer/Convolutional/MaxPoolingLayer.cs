@@ -125,6 +125,7 @@ namespace BrightWire.Connectionist.Training.Layer.Convolutional
                 var rowList = new List<float[]>();
                 for(var i = 0; i < size; i++)
                     rowList.Add(slice.Skip(i * size).Take(size).ToArray());
+                //matrixList.Add(_lap.Create(rowList.Count, size, (i, j) => rowList[j][i]));
                 matrixList.Add(_lap.Create(rowList.Count, size, (i, j) => rowList[i][j]));
             }
             if (backpropagation != null)

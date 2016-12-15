@@ -548,16 +548,6 @@ namespace BrightWire.LinearAlgebra
             return new SingularValueDecomposition(new CpuMatrix(svd.U), new CpuVector(svd.S), new CpuMatrix(svd.VT));
         }
 
-        //public IIndexableVector ConvertToRowWiseVector()
-        //{
-        //    return new CpuVector(DenseVector.Build.DenseOfArray(_matrix.ToRowWiseArray()));
-        //}
-
-        //public IIndexableVector ConvertToColumnWiseVector()
-        //{
-        //    return new CpuVector(DenseVector.Build.DenseOfArray(_matrix.ToColumnWiseArray()));
-        //}
-
         public IMatrix RotateColumns180(int subMatrixWidth)
         {
             var rowCount = RowCount;

@@ -11,6 +11,8 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)GPUProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinearAlgebra\CudaProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LinearAlgebra\Gpu3DTensor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LinearAlgebra\Gpu4DTensor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinearAlgebra\GpuMatrix.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinearAlgebra\GpuVector.cs" />
   </ItemGroup>

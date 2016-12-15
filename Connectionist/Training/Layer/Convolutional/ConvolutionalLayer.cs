@@ -56,7 +56,7 @@ namespace BrightWire.Connectionist.Training.Layer.Convolutional
             public int RowCount { get { return _output.RowCount; } }
             public int ColumnCount { get { return _output.ColumnCount; } }
         }
-        class Layer : INeuralNetworkLayer
+        class InternalLayer : INeuralNetworkLayer
         {
             readonly IMatrix _weight;
             readonly IVector _bias;
@@ -65,7 +65,7 @@ namespace BrightWire.Connectionist.Training.Layer.Convolutional
             readonly ConvolutionDescriptor _descriptor;
             readonly bool _disableUpdate;
 
-            public Layer(ILinearAlgebraProvider lap, int inputSize, int outputSize, IActivationFunction activation, ConvolutionDescriptor descriptor, bool disableUpdate)
+            public InternalLayer(ILinearAlgebraProvider lap, int inputSize, int outputSize, IActivationFunction activation, ConvolutionDescriptor descriptor, bool disableUpdate)
             {
                 _inputSize = inputSize;
                 _outputSize = outputSize;
@@ -201,7 +201,7 @@ namespace BrightWire.Connectionist.Training.Layer.Convolutional
             _lap = factory.LinearAlgebraProvider;
             _descriptor = descriptor;
             var activation = factory.GetActivation(descriptor.Activation);
-            var layer = new Layer(factory.LinearAlgebraProvider, inputSize, descriptor.FilterDepth, activation, descriptor, disableUpdate);
+            var layer = new InternalLayer(factory.LinearAlgebraProvider, inputSize, descriptor.FilterDepth, activation, descriptor, disableUpdate);
             _trainer = factory.CreateTrainer(layer, descriptor);
         }
 
@@ -226,6 +226,7 @@ namespace BrightWire.Connectionist.Training.Layer.Convolutional
             for (int i = 0, len = matrix.ColumnCount; i < len; i++) {
                 var vector = matrix.Column(i);
                 var parts = vector.Split(_inputWidth);
+                //var sliceMatrix = _lap.Create(parts).Transpose();
                 var sliceMatrix = _lap.Create(parts);
                 sliceList.Add(sliceMatrix);
             }
@@ -248,5 +249,7 @@ namespace BrightWire.Connectionist.Training.Layer.Convolutional
         {
             _trainer.Dispose();
         }
+
+        public INeuralNetworkLayer Layer { get { return _trainer.LayerUpdater.Layer; } }
     }
 }

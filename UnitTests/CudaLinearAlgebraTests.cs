@@ -8,6 +8,7 @@ using System.Text;
 using UnitTests.Helper;
 using BrightWire.Models.Output;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace UnitTests
 {
@@ -1585,13 +1586,22 @@ namespace UnitTests
         }
 
         [TestMethod]
-        public void MatrixRotateColumns180()
+        public void VectorSplit()
         {
-            var a = _cpu.Create(4, 3, (i, j) => i);
-            var test = a.Column(0);
+            const int BLOCK_COUNT = 3;
+            var a = _cpu.Create(12, i => i).AsIndexable();
+            var cpuResult = a.Split(BLOCK_COUNT).Select(v => v.AsIndexable()).ToList();
+            var gpuResult = new List<IIndexableVector>();
 
-            var b = a.RotateColumns180(2);
-            var test2 = b.Column(0);
+            using(var gpuA = _cuda.Create(a)) {
+                var split = gpuA.Split(BLOCK_COUNT);
+                foreach(var item in split) {
+                    gpuResult.Add(item.AsIndexable());
+                    item.Dispose();
+                }
+            }
+            for(var i = 0; i < cpuResult.Count; i++)
+                FloatingPointHelper.AssertEqual(cpuResult[i], gpuResult[i]);
         }
     }
 }

@@ -44,8 +44,8 @@ namespace BrightWire.SampleCode
                     Activation = ActivationType.Relu
                 };
 
-                var trainingSamples = onesAndZeroesTraining.Select(d => d.Convolutional).Select(d => Tuple.Create(d.AsTensor(lap), d.ExpectedOutput)).ToList();
-                var testSamples = onesAndZeroesTest.Select(d => d.Convolutional).Select(d => Tuple.Create(d.AsTensor(lap), d.ExpectedOutput)).ToList();
+                var trainingSamples = onesAndZeroesTraining.Select(d => d.AsVolume).Select(d => Tuple.Create(d.AsTensor(lap), d.ExpectedOutput)).ToList();
+                var testSamples = onesAndZeroesTest.Select(d => d.AsVolume).Select(d => Tuple.Create(d.AsTensor(lap), d.ExpectedOutput)).ToList();
                 var convolutionalLayer = new IConvolutionalLayer [] {
                     new ConvolutionalLayer(lap.NN, convolutionDescriptor, convolutionDescriptor.FilterSize, IMAGE_WIDTH),
                     new MaxPoolingLayer(lap, convolutionDescriptor, 2, 2, IMAGE_WIDTH)

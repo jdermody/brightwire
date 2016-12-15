@@ -8,6 +8,7 @@ using ManagedCuda.CudaSolve;
 using ManagedCuda.VectorTypes;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -822,12 +823,14 @@ namespace BrightWire.LinearAlgebra
 
         public I3DTensor CreateTensor(IReadOnlyList<IMatrix> data)
         {
-            throw new NotImplementedException();
+            var first = data.First();
+            Debug.Assert(data.All(m => m.RowCount == first.RowCount && m.ColumnCount == first.ColumnCount));
+            return new Gpu3DTensor(this, first.RowCount, first.ColumnCount, data.Count, data.Cast<GpuMatrix>().ToList());
         }
 
         public I4DTensor CreateTensor(IReadOnlyList<I3DTensor> data)
         {
-            throw new NotImplementedException();
+            return new Gpu4DTensor(data);
         }
     }
 }
