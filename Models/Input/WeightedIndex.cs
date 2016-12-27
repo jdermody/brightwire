@@ -6,7 +6,7 @@ using System.Text;
 namespace BrightWire.Models.Input
 {
     [ProtoContract]
-    public class SparseVector
+    public class WeightedIndex
     {
         [ProtoMember(1)]
         public uint Index { get; set; }

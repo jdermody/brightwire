@@ -39,7 +39,7 @@ namespace BrightWire.Models.Input
                             Name = g.Key,
                             Data = g.SelectMany(d => d.Data)
                                 .GroupBy(d => d)
-                                .Select(g2 => new SparseVector {
+                                .Select(g2 => new WeightedIndex {
                                     Index = g2.Key,
                                     Weight = g2.Count()
                                 })
@@ -54,7 +54,7 @@ namespace BrightWire.Models.Input
                             Name = c.Name,
                             Data = c.Data
                                 .GroupBy(d => d)
-                                .Select(g2 => new SparseVector {
+                                .Select(g2 => new WeightedIndex {
                                     Index = g2.Key,
                                     Weight = g2.Count()
                                 })

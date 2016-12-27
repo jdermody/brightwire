@@ -110,7 +110,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\FloatArray.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Input\ClassificationBag.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Input\IndexedClassification.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Models\Input\SparseVector.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Input\WeightedIndex.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Input\SparseVectorClassification.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Input\SparseVectorClassificationSet.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Input\TrainingExample.cs" />

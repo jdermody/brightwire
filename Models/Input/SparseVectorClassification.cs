@@ -13,7 +13,7 @@ namespace BrightWire.Models.Input
         public string Name { get; set; }
 
         [ProtoMember(2)]
-        public SparseVector[] Data { get; set; }
+        public WeightedIndex[] Data { get; set; }
 
         public float[] Vectorise(uint maxIndex)
         {

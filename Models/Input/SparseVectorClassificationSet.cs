@@ -116,7 +116,7 @@ namespace BrightWire.Models.Input
             return new SparseVectorClassificationSet {
                 Classification = Classification.Select(c => new SparseVectorClassification {
                     Name = c.Name,
-                    Data = c.Data.Select(d => new SparseVector {
+                    Data = c.Data.Select(d => new WeightedIndex {
                         Index = d.Index,
                         Weight = d.Weight / maxWeight
                     }).ToArray()
@@ -156,14 +156,14 @@ namespace BrightWire.Models.Input
             var ret = new List<SparseVectorClassification>();
             foreach (var classification in Classification) {
                 var totalWords = classificationSum[classification.Name];
-                var classificationIndex = new List<SparseVector>();
+                var classificationIndex = new List<WeightedIndex>();
                 foreach (var item in classification.Data) {
                     var index = item.Index;
                     var tf = item.Weight / totalWords;
                     var docsWithTerm = (double)indexOccurence[index];
                     var idf = Math.Log(numDocs / (1.0 + docsWithTerm));
                     var score = tf * idf;
-                    classificationIndex.Add(new SparseVector {
+                    classificationIndex.Add(new WeightedIndex {
                         Index = index,
                         Weight = Convert.ToSingle(score)
                     });

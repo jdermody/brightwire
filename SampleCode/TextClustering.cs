@@ -43,15 +43,15 @@ namespace BrightWire.SampleCode
 
             public SparseVectorClassification AsClassification(StringTableBuilder stringTable)
             {
-                var weightedIndex = new List<SparseVector>();
+                var weightedIndex = new List<WeightedIndex>();
                 foreach (var item in Keyword) {
-                    weightedIndex.Add(new SparseVector {
+                    weightedIndex.Add(new WeightedIndex {
                         Index = stringTable.GetIndex(item),
                         Weight = 1f
                     });
                 }
                 foreach (var item in Topic) {
-                    weightedIndex.Add(new SparseVector {
+                    weightedIndex.Add(new WeightedIndex {
                         Index = stringTable.GetIndex(item),
                         Weight = 1f
                     });
@@ -60,7 +60,7 @@ namespace BrightWire.SampleCode
                     Name = Title,
                     Data = weightedIndex
                         .GroupBy(d => d.Index)
-                        .Select(g => new SparseVector {
+                        .Select(g => new WeightedIndex {
                             Index = g.Key,
                             Weight = g.Sum(d => d.Weight)
                         })
