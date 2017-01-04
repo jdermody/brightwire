@@ -5,10 +5,10 @@ using System.Linq;
 
 namespace BrightWire.LinearAlgebra
 {
-    public class Cpu4DTensor : I4DTensor
+    internal class Cpu4DTensor : I4DTensor
     {
         readonly Cpu3DTensor[] _data;
-        readonly int _rows, _columns, _depth, _count;
+        readonly int _rows, _columns, _depth;
 
         public Cpu4DTensor(IReadOnlyList<I3DTensor> data)
         {
@@ -18,6 +18,11 @@ namespace BrightWire.LinearAlgebra
             _depth = first.Depth;
             _columns = data.Count;
             _data = data.Cast<Cpu3DTensor>().ToArray();
+        }
+
+        void IDisposable.Dispose()
+        {
+            // nop
         }
 
         public int ColumnCount
@@ -32,7 +37,7 @@ namespace BrightWire.LinearAlgebra
         {
             get
             {
-                return _count;
+                return _data.Length;
             }
         }
 

@@ -1603,5 +1603,43 @@ namespace UnitTests
             for(var i = 0; i < cpuResult.Count; i++)
                 FloatingPointHelper.AssertEqual(cpuResult[i], gpuResult[i]);
         }
+
+        [TestMethod]
+        public void TensorConvertInPlaceToVector()
+        {
+            using (var cpuTensor = _cpu.CreateTensor(Enumerable.Range(0, 3).Select(i => _cpu.Create(4, 4, (j, k) => (i + 1) * (j + 1) * (k + 1))).ToList()))
+            using (var gpuTensor = _cuda.CreateTensor(cpuTensor.AsIndexable()))
+            using (var cpuVector = cpuTensor.ConvertInPlaceToVector())
+            using (var gpuVector = gpuTensor.ConvertInPlaceToVector())
+                FloatingPointHelper.AssertEqual(cpuVector.AsIndexable(), gpuVector.AsIndexable());
+        }
+
+        [TestMethod]
+        public void TensorAddPadding()
+        {
+            using (var cpuTensor = _cpu.CreateTensor(Enumerable.Range(0, 3).Select(i => _cpu.Create(4, 4, (j, k) => (i + 1) * (j + 1) * (k + 1))).ToList()))
+            using (var gpuTensor = _cuda.CreateTensor(cpuTensor.AsIndexable()))
+            using (var cpuPadding = cpuTensor.AddPadding(1))
+            using (var gpuPadding = gpuTensor.AddPadding(1)) {
+                FloatingPointHelper.AssertEqual(cpuPadding.AsIndexable(), gpuPadding.AsIndexable());
+            }
+        }
+
+        [TestMethod]
+        public void TensorIm2Col()
+        {
+            using (var cpuTensor = _cpu.CreateTensor(Enumerable.Range(0, 3).Select(i => _cpu.Create(4, 4, (j, k) => (i + 1) * (j + 1) * (k + 1))).ToList()))
+            using (var gpuTensor = _cuda.CreateTensor(cpuTensor.AsIndexable()))
+            using (var cpuMatrix = cpuTensor.Im2Col(2, 2, 1))
+            using (var gpuMatrix = gpuTensor.Im2Col(2, 2, 1)) {
+                FloatingPointHelper.AssertEqual(cpuMatrix.AsIndexable(), gpuMatrix.AsIndexable());
+            }
+        }
+
+        [TestMethod]
+        public void TensorRemovePadding()
+        {
+            // TODO...
+        }
     }
 }

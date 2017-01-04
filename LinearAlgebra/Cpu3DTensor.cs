@@ -7,7 +7,7 @@ using System.Diagnostics;
 
 namespace BrightWire.LinearAlgebra
 {
-    public class Cpu3DTensor : IIndexable3DTensor
+    internal class Cpu3DTensor : IIndexable3DTensor
     {
         readonly CpuMatrix[] _data;
         readonly int _rows, _columns, _depth;
@@ -33,6 +33,11 @@ namespace BrightWire.LinearAlgebra
             _data = matrixList.Cast<CpuMatrix>().ToArray();
         }
 
+        void IDisposable.Dispose()
+        {
+            // nop
+        }
+
         public float this[int row, int column, int depth]
         {
             get
@@ -43,6 +48,14 @@ namespace BrightWire.LinearAlgebra
             set
             {
                 _data[depth][row, column] = value;
+            }
+        }
+
+        public IReadOnlyList<IIndexableMatrix> Data
+        {
+            get
+            {
+                return _data;
             }
         }
 
@@ -117,18 +130,18 @@ namespace BrightWire.LinearAlgebra
         public IMatrix Im2Col(int filterWidth, int filterHeight, int stride)
         {
             int xOffset = 0, yOffset = 0;
-            var data = new List<List<float>>();
+            var rowList = new List<List<float>>();
 
             while (yOffset <= _rows - filterHeight) {
-                var column = new List<float>();
+                var row = new List<float>();
                 for (var k = 0; k < _depth; k++) {
                     for (var j = 0; j < filterHeight; j++) {
                         for (var i = 0; i < filterWidth; i++) {
-                            column.Add(this[xOffset + i, yOffset + j, k]);
+                            row.Add(this[xOffset + i, yOffset + j, k]);
                         }
                     }
                 }
-                data.Add(column);
+                rowList.Add(row);
 
                 // move the window
                 xOffset += stride;
@@ -137,8 +150,8 @@ namespace BrightWire.LinearAlgebra
                     yOffset += stride;
                 }
             }
-            var firstOutput = data.First();
-            return new CpuMatrix(DenseMatrix.Create(data.Count, firstOutput.Count, (i, j) => data[i][j]));
+            var firstRow = rowList.First();
+            return new CpuMatrix(DenseMatrix.Create(rowList.Count, firstRow.Count, (i, j) => rowList[i][j]));
         }
 
         public IVector ConvertInPlaceToVector()

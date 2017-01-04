@@ -616,4 +616,64 @@ extern "C"
 			b[j * rows + i] = val;
 		}
 	}
+
+	__global__ void VectorSplit(float* a, float** b, int inputSize, int blockSize)
+	{
+		int i = blockDim.x * blockIdx.x + threadIdx.x;
+
+		if (i < inputSize) {
+			int offset = i / blockSize;
+			int index = i % blockSize;
+			float val = a[i];
+			b[offset][index] = val;
+		}
+	}
+
+	__global__ void TensorConvertToVector(float** a, float* b, int matrixSize, int size)
+	{
+		int i = blockDim.x * blockIdx.x + threadIdx.x;
+
+		if (i < size) {
+			int offset = i / matrixSize;
+            int index = i % matrixSize;
+			b[i] = a[offset][index];
+		}
+	}
+
+	__global__ void TensorAddPadding(float** a, float** b, int aRows, int aColumns, int bRows, int bColumns, int depth, int padding)
+	{
+		int i = blockDim.x * blockIdx.x + threadIdx.x;
+		int j = blockDim.y * blockIdx.y + threadIdx.y;
+
+		if (i >= padding && j >= padding && i < bRows-padding && j < bColumns-padding) {
+			int aIndex = (j-padding) * aRows + (i-padding);
+			int bIndex = j * bRows + i;
+			for(int k = 0; k < depth; k++)
+				b[k][bIndex] = a[k][aIndex];
+		}
+	}
+
+	__global__ void TensorIm2Col(float** a, float* b, int aRows, int aColumns, int bRows, int bColumns, int depth, int filterWidth, int filterHeight, int stride)
+	{
+		int i = blockDim.x * blockIdx.x + threadIdx.x;
+		int j = blockDim.y * blockIdx.y + threadIdx.y;
+
+		if (i < bRows && j < bColumns) {
+			int blockSize = filterWidth * filterHeight;
+			int depthIndex = j / blockSize;
+			int localIndex = j % blockSize;
+			float* channel = a[depthIndex];
+
+			int xExtent = aColumns - filterWidth + 1;
+			int yExtent = aRows - filterHeight + 1;
+			int xOffset = i % xExtent * stride;
+			int yOffset = i / yExtent * stride;
+			
+			int ax = xOffset + (localIndex % filterWidth);
+			int ay = yOffset + (localIndex / filterHeight);
+
+			float val = channel[ax * aRows + ay];
+			b[j * bRows + i] = val;
+		}
+	}
 }

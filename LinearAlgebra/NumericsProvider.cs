@@ -124,6 +124,11 @@ namespace BrightWire.LinearAlgebra
             return new Cpu3DTensor(data);
         }
 
+        public I3DTensor CreateTensor(IIndexable3DTensor tensor)
+        {
+            return new Cpu3DTensor(tensor.Data.Select(m => CreateMatrix(m.Data)).ToList());
+        }
+
         public I4DTensor CreateTensor(IReadOnlyList<I3DTensor> data)
         {
             return new Cpu4DTensor(data);

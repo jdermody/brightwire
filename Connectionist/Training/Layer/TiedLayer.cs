@@ -136,7 +136,7 @@ namespace BrightWire.Connectionist.Training.Layer
 
         public IMatrix CalculateErrorSignal(IMatrix delta)
         {
-            return delta.TransposeAndMultiply(_weight);
+            return delta.Multiply(_weight);
         }
     }
 }

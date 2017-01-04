@@ -8,7 +8,7 @@ namespace BrightWire.LinearAlgebra
     internal class Gpu4DTensor : I4DTensor
     {
         readonly Gpu3DTensor[] _data;
-        readonly int _rows, _columns, _depth, _count;
+        readonly int _rows, _columns, _depth;
 
         public Gpu4DTensor(IReadOnlyList<I3DTensor> data)
         {
@@ -18,6 +18,23 @@ namespace BrightWire.LinearAlgebra
             _depth = first.Depth;
             _columns = data.Count;
             _data = data.Cast<Gpu3DTensor>().ToArray();
+        }
+
+        ~Gpu4DTensor()
+        {
+            Dispose(false);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            foreach (var item in _data)
+                item.Dispose();
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         public int ColumnCount
@@ -32,7 +49,7 @@ namespace BrightWire.LinearAlgebra
         {
             get
             {
-                return _count;
+                return _data.Length;
             }
         }
 

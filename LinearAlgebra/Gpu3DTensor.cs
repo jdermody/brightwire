@@ -20,6 +20,23 @@ namespace BrightWire.LinearAlgebra
             _data = data;
         }
 
+        ~Gpu3DTensor()
+        {
+            Dispose(false);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            foreach (var item in _data)
+                item.Dispose();
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
         public int ColumnCount
         {
             get
@@ -59,17 +76,22 @@ namespace BrightWire.LinearAlgebra
 
         public IVector ConvertInPlaceToVector()
         {
-            throw new NotImplementedException();
+            var ret = _cuda.TensorConvertToVector(_data.Select(d => d.CudaDeviceVariable).ToList(), ColumnCount * RowCount);
+            return new GpuVector(_cuda, ret.Size, ret);
         }
 
         public I3DTensor AddPadding(int padding)
         {
-            throw new NotImplementedException();
+            var ret = _cuda.TensorAddPadding(_data.Select(d => d.CudaDeviceVariable).ToList(), RowCount, ColumnCount, padding);
+            var newRows = RowCount + padding * 2;
+            var newColumns = ColumnCount + padding * 2;
+            return new Gpu3DTensor(_cuda, newRows, newColumns, Depth, ret.Select(d => new GpuMatrix(_cuda, newRows, newColumns, d)).ToList());
         }
 
         public IMatrix Im2Col(int filterWidth, int filterHeight, int stride)
         {
-            throw new NotImplementedException();
+            var ret = _cuda.TensorIm2Col(_data.Select(d => d.CudaDeviceVariable).ToList(), RowCount, ColumnCount, filterWidth, filterHeight, stride);
+            return new GpuMatrix(_cuda, ret.Item2, ret.Item3, ret.Item1);
         }
 
         public I3DTensor RemovePadding(int padding)

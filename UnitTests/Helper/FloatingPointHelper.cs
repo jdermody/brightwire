@@ -36,6 +36,13 @@ namespace UnitTests.Helper
             Assert.IsTrue(AlmostEqual2sComplement(v1, v2, maxDifference));
         }
 
+        public static void AssertEqual(IIndexable3DTensor t1, IIndexable3DTensor t2, int maxDifference = 6)
+        {
+            Assert.AreEqual(t1.Depth, t2.Depth);
+            for (var i = 0; i < t1.Depth; i++)
+                AssertEqual(t1.Data[i], t2.Data[i]);
+        }
+
         public static void AssertEqual(IIndexableMatrix m1, IIndexableMatrix m2, int maxDifference = 6)
         {
             Assert.AreEqual(m1.RowCount, m2.RowCount);

@@ -2648,4 +2648,246 @@ BB53_2:
 	ret;
 }
 
+	// .globl	VectorSplit
+.visible .entry VectorSplit(
+	.param .u64 VectorSplit_param_0,
+	.param .u64 VectorSplit_param_1,
+	.param .u32 VectorSplit_param_2,
+	.param .u32 VectorSplit_param_3
+)
+{
+	.reg .pred 	%p<2>;
+	.reg .f32 	%f<2>;
+	.reg .b32 	%r<9>;
+	.reg .b64 	%rd<13>;
+
+
+	ld.param.u64 	%rd1, [VectorSplit_param_0];
+	ld.param.u64 	%rd2, [VectorSplit_param_1];
+	ld.param.u32 	%r3, [VectorSplit_param_2];
+	ld.param.u32 	%r2, [VectorSplit_param_3];
+	mov.u32 	%r4, %ntid.x;
+	mov.u32 	%r5, %ctaid.x;
+	mov.u32 	%r6, %tid.x;
+	mad.lo.s32 	%r1, %r5, %r4, %r6;
+	setp.ge.s32	%p1, %r1, %r3;
+	@%p1 bra 	BB54_2;
+
+	cvta.to.global.u64 	%rd3, %rd1;
+	mul.wide.s32 	%rd4, %r1, 4;
+	add.s64 	%rd5, %rd3, %rd4;
+	ld.global.f32 	%f1, [%rd5];
+	div.s32 	%r7, %r1, %r2;
+	cvta.to.global.u64 	%rd6, %rd2;
+	mul.wide.s32 	%rd7, %r7, 8;
+	add.s64 	%rd8, %rd6, %rd7;
+	ld.global.u64 	%rd9, [%rd8];
+	cvta.to.global.u64 	%rd10, %rd9;
+	rem.s32 	%r8, %r1, %r2;
+	mul.wide.s32 	%rd11, %r8, 4;
+	add.s64 	%rd12, %rd10, %rd11;
+	st.global.f32 	[%rd12], %f1;
+
+BB54_2:
+	ret;
+}
+
+	// .globl	TensorConvertToVector
+.visible .entry TensorConvertToVector(
+	.param .u64 TensorConvertToVector_param_0,
+	.param .u64 TensorConvertToVector_param_1,
+	.param .u32 TensorConvertToVector_param_2,
+	.param .u32 TensorConvertToVector_param_3
+)
+{
+	.reg .pred 	%p<2>;
+	.reg .f32 	%f<2>;
+	.reg .b32 	%r<9>;
+	.reg .b64 	%rd<13>;
+
+
+	ld.param.u64 	%rd1, [TensorConvertToVector_param_0];
+	ld.param.u64 	%rd2, [TensorConvertToVector_param_1];
+	ld.param.u32 	%r2, [TensorConvertToVector_param_2];
+	ld.param.u32 	%r3, [TensorConvertToVector_param_3];
+	mov.u32 	%r4, %ntid.x;
+	mov.u32 	%r5, %ctaid.x;
+	mov.u32 	%r6, %tid.x;
+	mad.lo.s32 	%r1, %r5, %r4, %r6;
+	setp.ge.s32	%p1, %r1, %r3;
+	@%p1 bra 	BB55_2;
+
+	cvta.to.global.u64 	%rd3, %rd1;
+	div.s32 	%r7, %r1, %r2;
+	mul.wide.s32 	%rd4, %r7, 8;
+	add.s64 	%rd5, %rd3, %rd4;
+	ld.global.u64 	%rd6, [%rd5];
+	cvta.to.global.u64 	%rd7, %rd6;
+	rem.s32 	%r8, %r1, %r2;
+	mul.wide.s32 	%rd8, %r8, 4;
+	add.s64 	%rd9, %rd7, %rd8;
+	ld.global.f32 	%f1, [%rd9];
+	cvta.to.global.u64 	%rd10, %rd2;
+	mul.wide.s32 	%rd11, %r1, 4;
+	add.s64 	%rd12, %rd10, %rd11;
+	st.global.f32 	[%rd12], %f1;
+
+BB55_2:
+	ret;
+}
+
+	// .globl	TensorAddPadding
+.visible .entry TensorAddPadding(
+	.param .u64 TensorAddPadding_param_0,
+	.param .u64 TensorAddPadding_param_1,
+	.param .u32 TensorAddPadding_param_2,
+	.param .u32 TensorAddPadding_param_3,
+	.param .u32 TensorAddPadding_param_4,
+	.param .u32 TensorAddPadding_param_5,
+	.param .u32 TensorAddPadding_param_6,
+	.param .u32 TensorAddPadding_param_7
+)
+{
+	.reg .pred 	%p<10>;
+	.reg .f32 	%f<2>;
+	.reg .b32 	%r<24>;
+	.reg .b64 	%rd<19>;
+
+
+	ld.param.u64 	%rd7, [TensorAddPadding_param_0];
+	ld.param.u64 	%rd8, [TensorAddPadding_param_1];
+	ld.param.u32 	%r7, [TensorAddPadding_param_2];
+	ld.param.u32 	%r8, [TensorAddPadding_param_4];
+	ld.param.u32 	%r11, [TensorAddPadding_param_5];
+	ld.param.u32 	%r9, [TensorAddPadding_param_6];
+	ld.param.u32 	%r10, [TensorAddPadding_param_7];
+	mov.u32 	%r12, %ctaid.x;
+	mov.u32 	%r13, %ntid.x;
+	mov.u32 	%r14, %tid.x;
+	mad.lo.s32 	%r1, %r12, %r13, %r14;
+	mov.u32 	%r15, %ctaid.y;
+	mov.u32 	%r16, %ntid.y;
+	mov.u32 	%r17, %tid.y;
+	mad.lo.s32 	%r2, %r15, %r16, %r17;
+	setp.ge.s32	%p1, %r2, %r10;
+	setp.ge.s32	%p2, %r1, %r10;
+	and.pred  	%p3, %p1, %p2;
+	sub.s32 	%r18, %r8, %r10;
+	setp.lt.s32	%p4, %r1, %r18;
+	and.pred  	%p5, %p3, %p4;
+	sub.s32 	%r19, %r11, %r10;
+	setp.lt.s32	%p6, %r2, %r19;
+	and.pred  	%p7, %p5, %p6;
+	@!%p7 bra 	BB56_4;
+	bra.uni 	BB56_1;
+
+BB56_1:
+	sub.s32 	%r20, %r2, %r10;
+	sub.s32 	%r21, %r1, %r10;
+	mad.lo.s32 	%r3, %r20, %r7, %r21;
+	mad.lo.s32 	%r4, %r2, %r8, %r1;
+	setp.lt.s32	%p8, %r9, 1;
+	@%p8 bra 	BB56_4;
+
+	cvta.to.global.u64 	%rd18, %rd8;
+	cvta.to.global.u64 	%rd17, %rd7;
+	mov.u32 	%r23, 0;
+
+BB56_3:
+	ld.global.u64 	%rd9, [%rd17];
+	cvta.to.global.u64 	%rd10, %rd9;
+	mul.wide.s32 	%rd11, %r3, 4;
+	add.s64 	%rd12, %rd10, %rd11;
+	ld.global.f32 	%f1, [%rd12];
+	ld.global.u64 	%rd13, [%rd18];
+	cvta.to.global.u64 	%rd14, %rd13;
+	mul.wide.s32 	%rd15, %r4, 4;
+	add.s64 	%rd16, %rd14, %rd15;
+	st.global.f32 	[%rd16], %f1;
+	add.s64 	%rd18, %rd18, 8;
+	add.s64 	%rd17, %rd17, 8;
+	add.s32 	%r23, %r23, 1;
+	setp.lt.s32	%p9, %r23, %r9;
+	@%p9 bra 	BB56_3;
+
+BB56_4:
+	ret;
+}
+
+	// .globl	TensorIm2Col
+.visible .entry TensorIm2Col(
+	.param .u64 TensorIm2Col_param_0,
+	.param .u64 TensorIm2Col_param_1,
+	.param .u32 TensorIm2Col_param_2,
+	.param .u32 TensorIm2Col_param_3,
+	.param .u32 TensorIm2Col_param_4,
+	.param .u32 TensorIm2Col_param_5,
+	.param .u32 TensorIm2Col_param_6,
+	.param .u32 TensorIm2Col_param_7,
+	.param .u32 TensorIm2Col_param_8,
+	.param .u32 TensorIm2Col_param_9
+)
+{
+	.reg .pred 	%p<4>;
+	.reg .f32 	%f<2>;
+	.reg .b32 	%r<31>;
+	.reg .b64 	%rd<13>;
+
+
+	ld.param.u64 	%rd1, [TensorIm2Col_param_0];
+	ld.param.u64 	%rd2, [TensorIm2Col_param_1];
+	ld.param.u32 	%r3, [TensorIm2Col_param_2];
+	ld.param.u32 	%r4, [TensorIm2Col_param_3];
+	ld.param.u32 	%r5, [TensorIm2Col_param_4];
+	ld.param.u32 	%r9, [TensorIm2Col_param_5];
+	ld.param.u32 	%r6, [TensorIm2Col_param_7];
+	ld.param.u32 	%r7, [TensorIm2Col_param_8];
+	ld.param.u32 	%r8, [TensorIm2Col_param_9];
+	mov.u32 	%r10, %ntid.x;
+	mov.u32 	%r11, %ctaid.x;
+	mov.u32 	%r12, %tid.x;
+	mad.lo.s32 	%r1, %r11, %r10, %r12;
+	mov.u32 	%r13, %ctaid.y;
+	mov.u32 	%r14, %ntid.y;
+	mov.u32 	%r15, %tid.y;
+	mad.lo.s32 	%r2, %r13, %r14, %r15;
+	setp.lt.s32	%p1, %r1, %r5;
+	setp.lt.s32	%p2, %r2, %r9;
+	and.pred  	%p3, %p1, %p2;
+	@!%p3 bra 	BB57_2;
+	bra.uni 	BB57_1;
+
+BB57_1:
+	cvta.to.global.u64 	%rd3, %rd1;
+	mul.lo.s32 	%r16, %r7, %r6;
+	div.s32 	%r17, %r2, %r16;
+	rem.s32 	%r18, %r2, %r16;
+	mul.wide.s32 	%rd4, %r17, 8;
+	add.s64 	%rd5, %rd3, %rd4;
+	ld.global.u64 	%rd6, [%rd5];
+	cvta.to.global.u64 	%rd7, %rd6;
+	add.s32 	%r19, %r4, 1;
+	sub.s32 	%r20, %r19, %r6;
+	add.s32 	%r21, %r3, 1;
+	sub.s32 	%r22, %r21, %r7;
+	rem.s32 	%r23, %r1, %r20;
+	div.s32 	%r24, %r1, %r22;
+	rem.s32 	%r25, %r18, %r6;
+	mad.lo.s32 	%r26, %r23, %r8, %r25;
+	div.s32 	%r27, %r18, %r7;
+	mad.lo.s32 	%r28, %r24, %r8, %r27;
+	mad.lo.s32 	%r29, %r26, %r3, %r28;
+	mul.wide.s32 	%rd8, %r29, 4;
+	add.s64 	%rd9, %rd7, %rd8;
+	ld.global.f32 	%f1, [%rd9];
+	mad.lo.s32 	%r30, %r2, %r5, %r1;
+	cvta.to.global.u64 	%rd10, %rd2;
+	mul.wide.s32 	%rd11, %r30, 4;
+	add.s64 	%rd12, %rd10, %rd11;
+	st.global.f32 	[%rd12], %f1;
+
+BB57_2:
+	ret;
+}
+
 

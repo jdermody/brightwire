@@ -709,11 +709,6 @@ namespace BrightWire.LinearAlgebra
             }
         }
 
-        //public IMatrix RotateColumns180(int subMatrixWidth)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
         public IVector ConvertInPlaceToVector()
         {
             return new GpuVector(_cuda, _rows * _columns, _data, false);

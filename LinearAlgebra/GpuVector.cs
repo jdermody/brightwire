@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BrightWire.Models;
 using BrightWire.Models.Output;
+using ManagedCuda.BasicTypes;
 
 namespace BrightWire.LinearAlgebra
 {
@@ -467,22 +468,16 @@ namespace BrightWire.LinearAlgebra
 
         public IReadOnlyList<IVector> Split(int blockCount)
         {
-            // TODO: kernel based implementation?
-
-            int index = 0;
-            float[] curr = null;
-            var ret = new List<float[]>();
             var blockSize = Count / blockCount;
-            var data = AsIndexable();
-
-            for (int i = 0, len = Count; i < len; i++) {
-                if (i % blockSize == 0) {
-                    ret.Add(curr = new float[blockSize]);
-                    index = 0;
-                }
-                curr[index++] = data[i];
+            var ret = Enumerable.Range(0, blockCount)
+                .Select(i => new CudaDeviceVariable<float>(blockSize))
+                .ToList()
+            ;
+            using (var devicePtr = new CudaDeviceVariable<CUdeviceptr>(blockCount)) {
+                devicePtr.CopyToDevice(ret.Select(p => p.DevicePointer).ToArray());
+                _cuda.VectorSplit(_data, _size, blockSize, devicePtr.DevicePointer);
             }
-            return ret.Select(d => new GpuVector(_cuda, d.Length, i => d[i])).ToList();
+            return ret.Select(d => new GpuVector(_cuda, blockSize, d)).ToList();
         }
     }
 }

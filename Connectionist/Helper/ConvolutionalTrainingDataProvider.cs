@@ -90,7 +90,7 @@ namespace BrightWire.Connectionist.Helper
         {
             if (_isTraining) {
                 for (var i = 0; i < errorSignal.RowCount; i++) {
-                    var row = errorSignal.Row(i).AsIndexable();
+                    var row = errorSignal.Row(i);
                     var backpropagationStack = _backpropagation[i];
                     var isFirst = true;
                     IMatrix lastError = null;
@@ -98,11 +98,11 @@ namespace BrightWire.Connectionist.Helper
                         var backpropagation = backpropagationStack.Pop();
                         if (isFirst) {
                             using (var rowError = row.ConvertInPlaceToMatrix(backpropagation.RowCount, backpropagation.ColumnCount))
-                                lastError = backpropagation.Execute(rowError, context, backpropagationStack.Any(), updates)?.AsIndexable();
+                                lastError = backpropagation.Execute(rowError, context, backpropagationStack.Any(), updates);
                             isFirst = false;
                         }
                         else
-                            lastError = backpropagation.Execute(lastError, context, backpropagationStack.Any(), updates)?.AsIndexable();
+                            lastError = backpropagation.Execute(lastError, context, backpropagationStack.Any(), updates);
                     }
                 }
             }

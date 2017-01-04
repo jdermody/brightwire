@@ -157,7 +157,11 @@ namespace BrightWire.LinearAlgebra
             _sigmoidVector,
             _vectorAdd,
             _vectorCopyRandom,
-            _copyToMatrix
+            _copyToMatrix,
+            _vectorSplit,
+            _tensorConvertToVector,
+            _tensorAddPadding,
+            _tensorIm2Col
         ;
         bool _disposed = false;
 
@@ -213,6 +217,10 @@ namespace BrightWire.LinearAlgebra
             _vectorAdd = _kernel.LoadFunction("VectorAdd");
             _vectorCopyRandom = _kernel.LoadFunction("VectorCopyRandom");
             _copyToMatrix = _kernel.LoadFunction("CopyToMatrix");
+            _vectorSplit = _kernel.LoadFunction("VectorSplit");
+            _tensorConvertToVector = _kernel.LoadFunction("TensorConvertToVector");
+            _tensorAddPadding = _kernel.LoadFunction("TensorAddPadding");
+            _tensorIm2Col = _kernel.LoadFunction("TensorIm2Col");
         }
 
         protected virtual void Dispose(bool disposing)
@@ -566,6 +574,11 @@ namespace BrightWire.LinearAlgebra
             return ret;
         }
 
+        internal void VectorSplit(CudaDeviceVariable<float> a, int size, int blockSize, CUdeviceptr output)
+        {
+            _Use(_vectorSplit, size, k => k.Run(0, a.DevicePointer, output, size, blockSize));
+        }
+
         internal void PointwiseDivideRows(CudaDeviceVariable<float> a, CudaDeviceVariable<float> b, int rows, int columns)
         {
             _Use(_pointwiseDivideRows, rows, columns, k => k.Run(0, a.DevicePointer, b.DevicePointer, rows, columns));
@@ -624,6 +637,52 @@ namespace BrightWire.LinearAlgebra
                 _cuda.FreeMemory(buffer);
             }
             return ret;
+        }
+
+        internal CudaDeviceVariable<float> TensorConvertToVector(IReadOnlyList<CudaDeviceVariable<float>> matrixList, int matrixSize)
+        {
+            var outputSize = matrixList.Count * matrixSize;
+            var ret = new CudaDeviceVariable<float>(outputSize);
+            using (var devicePtr = new CudaDeviceVariable<CUdeviceptr>(matrixList.Count)) {
+                devicePtr.CopyToDevice(matrixList.Select(m => m.DevicePointer).ToArray());
+                _Use(_tensorConvertToVector, outputSize, k => k.Run(0, devicePtr.DevicePointer, ret.DevicePointer, matrixSize, outputSize));
+            }
+            return ret;
+        }
+
+        internal IReadOnlyList<CudaDeviceVariable<float>> TensorAddPadding(IReadOnlyList<CudaDeviceVariable<float>> matrixList, int rows, int columns, int padding)
+        {
+            int depth = matrixList.Count;
+            var newRows = rows + padding * 2;
+            var newColumns = columns + padding * 2;
+            var ret = new List<CudaDeviceVariable<float>>();
+            for(var i = 0; i < depth; i++)
+                ret.Add(new CudaDeviceVariable<float>(newRows * newColumns));
+
+            using (var outputDevicePtr = new CudaDeviceVariable<CUdeviceptr>(depth))
+            using (var inputDevicePtr = new CudaDeviceVariable<CUdeviceptr>(depth)) {
+                inputDevicePtr.CopyToDevice(matrixList.Select(m => m.DevicePointer).ToArray());
+                outputDevicePtr.CopyToDevice(ret.Select(m => m.DevicePointer).ToArray());
+                _Use(_tensorAddPadding, newRows, newColumns, k => k.Run(0, inputDevicePtr.DevicePointer, outputDevicePtr.DevicePointer, rows, columns, newRows, newColumns, depth, padding));
+            }
+            return ret;
+        }
+
+        internal Tuple<CudaDeviceVariable<float>, int, int> TensorIm2Col(IReadOnlyList<CudaDeviceVariable<float>> matrixList, int rows, int columns, int filterWidth, int filterHeight, int stride)
+        {
+            var depth = matrixList.Count;
+            var xExtent = (columns - filterWidth) / stride + 1;
+            var yExtent = (rows - filterHeight) / stride + 1;
+            var filterSize = filterHeight * filterWidth;
+            var newColumns = filterSize * depth;
+            var newRows = xExtent * yExtent;
+
+            var ret = new CudaDeviceVariable<float>(newColumns * newRows);
+            using (var devicePtr = new CudaDeviceVariable<CUdeviceptr>(depth)) {
+                devicePtr.CopyToDevice(matrixList.Select(m => m.DevicePointer).ToArray());
+                _Use(_tensorIm2Col, newRows, newColumns, k => k.Run(0, devicePtr.DevicePointer, ret.DevicePointer, rows, columns, newRows, newColumns, depth, filterWidth, filterHeight, stride));
+            }
+            return Tuple.Create(ret, newRows, newColumns);
         }
 
         internal void SparseLoad(CudaDeviceVariable<float> data, int rows, int columns, IReadOnlyList<Tuple<int, float>[]> columnData)
@@ -716,16 +775,11 @@ namespace BrightWire.LinearAlgebra
         {
             int rows = vectorData.Count;
             int columns = vectorData[0].Count;
-            var ptrList = vectorData.Cast<GpuVector>().Select(d => d.CudaDeviceVariable.DevicePointer).ToArray();
 
             var ret = new CudaDeviceVariable<float>(rows * columns);
-            var buffer = _cuda.AllocateMemory(8 * rows);
-            try {
-                _cuda.CopyToDevice(buffer, ptrList);
-                _Use(_copyToMatrix, rows, columns, k => k.Run(0, ret.DevicePointer, buffer, rows, columns));
-            }
-            finally {
-                _cuda.FreeMemory(buffer);
+            using(var devicePtr = new CudaDeviceVariable<CUdeviceptr>(rows)) {
+                devicePtr.CopyToDevice(vectorData.Cast<GpuVector>().Select(d => d.CudaDeviceVariable.DevicePointer).ToArray());
+                _Use(_copyToMatrix, rows, columns, k => k.Run(0, devicePtr.DevicePointer, ret.DevicePointer, rows, columns));
             }
             return new GpuMatrix(this, rows, columns, ret);
         }
@@ -826,6 +880,12 @@ namespace BrightWire.LinearAlgebra
             var first = data.First();
             Debug.Assert(data.All(m => m.RowCount == first.RowCount && m.ColumnCount == first.ColumnCount));
             return new Gpu3DTensor(this, first.RowCount, first.ColumnCount, data.Count, data.Cast<GpuMatrix>().ToList());
+        }
+
+        public I3DTensor CreateTensor(IIndexable3DTensor tensor)
+        {
+            var matrixList = tensor.Data.Select(d => (GpuMatrix)Create(d)).ToList();
+            return new Gpu3DTensor(this, tensor.RowCount, tensor.ColumnCount, tensor.Depth, matrixList);
         }
 
         public I4DTensor CreateTensor(IReadOnlyList<I3DTensor> data)

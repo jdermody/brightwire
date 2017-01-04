@@ -244,11 +244,6 @@ namespace UnitTests
 
             using (var trainer = _lap.NN.CreateBatchTrainer(layers)) {
                 var trainingContext = _lap.NN.CreateTrainingContext(errorMetric, 0.03f, 32);
-
-                //trainingContext.EpochComplete += tc => {
-                //    var score = trainer.Execute(trainingData).Select(v => errorMetric.Compute(v.Output, v.ExpectedOutput)).Average();
-                //    trainingContext.WriteScore(score, false);
-                //};
                 trainer.Train(trainingData, 2, trainingContext);
             }
         }

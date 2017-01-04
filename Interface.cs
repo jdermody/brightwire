@@ -146,6 +146,8 @@ namespace BrightWire
 
         I3DTensor CreateTensor(IReadOnlyList<IMatrix> data);
 
+        I3DTensor CreateTensor(IIndexable3DTensor tensor);
+
         I4DTensor CreateTensor(IReadOnlyList<I3DTensor> data);
 
         /// <summary>
@@ -829,7 +831,7 @@ namespace BrightWire
         IIndexableMatrix MapIndexed(Func<int, int, float, float> mutator);
     }
 
-    public interface I3DTensor
+    public interface I3DTensor : IDisposable
     {
         int RowCount { get; }
         int ColumnCount { get; }
@@ -845,9 +847,10 @@ namespace BrightWire
     public interface IIndexable3DTensor : I3DTensor
     {
         float this[int row, int column, int depth] { get; set; }
+        IReadOnlyList<IIndexableMatrix> Data { get; }
     }
 
-    public interface I4DTensor
+    public interface I4DTensor : IDisposable
     {
         int RowCount { get; }
         int ColumnCount { get; }
