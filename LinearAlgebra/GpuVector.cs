@@ -51,13 +51,12 @@ namespace BrightWire.LinearAlgebra
         {
         }
 
-        internal GpuVector(CudaProvider cuda, int size, CudaDeviceVariable<float> data, bool shouldDispose = true)
+        internal GpuVector(CudaProvider cuda, int size, CudaDeviceVariable<float> data, bool shouldRegister = true)
         {
             _cuda = cuda;
             _data = data;
             _size = size;
-            _shouldDispose = shouldDispose;
-            if (shouldDispose)
+            if (shouldRegister)
                 cuda.Register(this);
 
 #if DEBUG
@@ -109,6 +108,7 @@ namespace BrightWire.LinearAlgebra
         {
             get
             {
+                Debug.Assert(IsValid);
                 var data = new float[_size];
                 _data.CopyToHost(data);
 
@@ -119,6 +119,7 @@ namespace BrightWire.LinearAlgebra
 
             set
             {
+                Debug.Assert(IsValid);
                 var data = new float[_size];
                 _data.CopyToHost(data);
 
@@ -157,6 +158,7 @@ namespace BrightWire.LinearAlgebra
 
         public IIndexableVector AsIndexable()
         {
+            Debug.Assert(IsValid);
             var data = new float[_size];
             _data.CopyToHost(data);
             return _cuda.NumericsProvider.Create(_size, i => data[i]).AsIndexable();
@@ -190,22 +192,26 @@ namespace BrightWire.LinearAlgebra
 
         public IVector GetNewVectorFromIndexes(IReadOnlyList<int> indices)
         {
+            Debug.Assert(IsValid);
             var data = _cuda.VectorCopy(_data, _size, indices.ToArray());
             return new GpuVector(_cuda, indices.Count, data);
         }
 
         public IVector Abs()
         {
+            Debug.Assert(IsValid);
             return new GpuVector(_cuda, _size, _cuda.Abs(_data, _size));
         }
 
         public IVector Log()
         {
+            Debug.Assert(IsValid);
             return new GpuVector(_cuda, _size, _cuda.Log(_data, _size));
         }
 
         public IVector Sigmoid()
         {
+            Debug.Assert(IsValid);
             return new GpuVector(_cuda, _size, _cuda.Sigmoid(_data, _size));
         }
 
@@ -325,33 +331,39 @@ namespace BrightWire.LinearAlgebra
 
         public float MeanSquaredDistance(IVector vector)
         {
+            Debug.Assert(IsValid && vector.IsValid);
             var norm = Subtract(vector).L2Norm();
             return norm * norm / _size;
         }
 
         public float SquaredEuclidean(IVector vector)
         {
+            Debug.Assert(IsValid && vector.IsValid);
             var norm = Subtract(vector).L2Norm();
             return norm * norm;
         }
 
         public MinMax GetMinMax()
         {
+            Debug.Assert(IsValid);
             return _cuda.FindMinAndMax(_data, _size);
         }
 
         public float Average()
         {
+            Debug.Assert(IsValid);
             return _cuda.SumValues(_data, _size) / _size;
         }
 
         public float StdDev(float? mean)
         {
+            Debug.Assert(IsValid);
             return _cuda.FindStdDev(_data, _size, mean ?? Average());
         }
 
         public void Normalise(NormalisationType type)
         {
+            Debug.Assert(IsValid);
             if (type == NormalisationType.FeatureScale) {
                 var minMax = GetMinMax();
                 float range = minMax.Max - minMax.Min;
@@ -378,6 +390,7 @@ namespace BrightWire.LinearAlgebra
 
         public IVector Softmax()
         {
+            Debug.Assert(IsValid);
             var minMax = GetMinMax();
 
             var softmax = _cuda.SoftmaxVector(_data, _size, minMax.Max);
@@ -406,7 +419,8 @@ namespace BrightWire.LinearAlgebra
 
         public IVector FindDistances(IReadOnlyList<IVector> data, DistanceMetric distance)
         {
-            if(distance == DistanceMetric.Cosine) {
+            Debug.Assert(IsValid && data.All(v => v.IsValid));
+            if (distance == DistanceMetric.Cosine) {
                 var norm = DotProduct(this);
                 var dataNorm = data.Select(d => d.DotProduct(d)).ToList();
                 var ret = new float[data.Count];
@@ -439,12 +453,14 @@ namespace BrightWire.LinearAlgebra
 
         public float FindDistance(IVector other, DistanceMetric distance)
         {
+            Debug.Assert(IsValid && other.IsValid);
             using (var ret = FindDistances(new[] { other }, distance))
                 return ret.Data.Data[0];
         }
 
         public IVector CosineDistance(IReadOnlyList<IVector> data, ref float[] dataNorm)
         {
+            Debug.Assert(IsValid && data.All(v => v.IsValid));
             var norm = DotProduct(this);
             if (dataNorm == null)
                 dataNorm = data.Select(d => d.DotProduct(d)).ToArray();
@@ -463,11 +479,14 @@ namespace BrightWire.LinearAlgebra
 
         public IMatrix ConvertInPlaceToMatrix(int rows, int columns)
         {
+            Debug.Assert(IsValid);
+            _shouldDispose = false;
             return new GpuMatrix(_cuda, rows, columns, _data, false);
         }
 
         public IReadOnlyList<IVector> Split(int blockCount)
         {
+            Debug.Assert(IsValid);
             var blockSize = Count / blockCount;
             var ret = Enumerable.Range(0, blockCount)
                 .Select(i => new CudaDeviceVariable<float>(blockSize))

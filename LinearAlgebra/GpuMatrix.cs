@@ -58,14 +58,13 @@ namespace BrightWire.LinearAlgebra
         {
         }
 
-        internal GpuMatrix(CudaProvider cuda, int rows, int columns, CudaDeviceVariable<float> gpuData, bool shouldDispose = true)
+        internal GpuMatrix(CudaProvider cuda, int rows, int columns, CudaDeviceVariable<float> gpuData, bool shouldRegister = true)
         {
             _cuda = cuda;
             _rows = rows;
             _columns = columns;
             _data = gpuData;
-            _shouldDispose = shouldDispose;
-            if(_shouldDispose)
+            if(shouldRegister)
                 cuda.Register(this);
 #if DEBUG
             if (_id == _badAlloc)
@@ -167,6 +166,7 @@ namespace BrightWire.LinearAlgebra
 
         public IIndexableMatrix AsIndexable()
         {
+            Debug.Assert(IsValid);
             var data = new float[_rows * _columns];
             _data.CopyToHost(data);
             return _cuda.NumericsProvider.Create(_rows, _columns, (j, k) => data[k * _rows + j]).AsIndexable();
@@ -465,6 +465,7 @@ namespace BrightWire.LinearAlgebra
 
         public IMatrix SoftmaxActivation()
         {
+            Debug.Assert(IsValid);
             var rowOutput = new List<GpuVector>();
             for (var i = 0; i < _rows; i++) {
                 using (var row = Row(i))
@@ -669,6 +670,7 @@ namespace BrightWire.LinearAlgebra
 
         public IMatrix Multiply(IVector vector)
         {
+            Debug.Assert(IsValid && vector.IsValid);
             using (var column = vector.ToColumnMatrix())
                 return Multiply(column);
         }
@@ -711,6 +713,8 @@ namespace BrightWire.LinearAlgebra
 
         public IVector ConvertInPlaceToVector()
         {
+            Debug.Assert(IsValid);
+            _shouldDispose = false;
             return new GpuVector(_cuda, _rows * _columns, _data, false);
         }
     }

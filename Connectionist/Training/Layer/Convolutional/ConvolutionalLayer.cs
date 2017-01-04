@@ -27,8 +27,9 @@ namespace BrightWire.Connectionist.Training.Layer.Convolutional
 
             public IMatrix Execute(IMatrix error, ITrainingContext context, bool calculateOutput, INeuralNetworkUpdateAccumulator updateAccumulator)
             {
-                using (var output = _output) {
-                    return Convert(_trainer.Backpropagate(_input, output, error, context, calculateOutput, updateAccumulator));
+                using (var output = _output)
+                using (var input = _input) {
+                    return Convert(_trainer.Backpropagate(input, output, error, context, calculateOutput, updateAccumulator));
                 }
             }
 
@@ -216,7 +217,18 @@ namespace BrightWire.Connectionist.Training.Layer.Convolutional
                 input = tensor.Im2Col(_descriptor.FilterWidth, _descriptor.FilterHeight, _descriptor.Stride);
 
             var output = layer.Execute(input);
-            backpropagation?.Push(new Backpropagation(this, _trainer, input, output));
+            if (backpropagation != null)
+                backpropagation?.Push(new Backpropagation(this, _trainer, input, output));
+            else {
+                input.Dispose();
+                if (layer.Activation == null)
+                    return output;
+                else {
+                    var ret = layer.Activation.Calculate(output);
+                    output.Dispose();
+                    return ret;
+                }
+            }
             return layer.Activation?.Calculate(output) ?? output;
         }
 
@@ -224,13 +236,19 @@ namespace BrightWire.Connectionist.Training.Layer.Convolutional
         {
             var sliceList = new List<IMatrix>();
             for (int i = 0, len = matrix.ColumnCount; i < len; i++) {
-                var vector = matrix.Column(i);
-                var parts = vector.Split(_inputWidth);
-                //var sliceMatrix = _lap.Create(parts).Transpose();
-                var sliceMatrix = _lap.Create(parts);
-                sliceList.Add(sliceMatrix);
+                using (var vector = matrix.Column(i)) {
+                    var parts = vector.Split(_inputWidth);
+                    //var sliceMatrix = _lap.Create(parts).Transpose();
+                    var sliceMatrix = _lap.Create(parts);
+                    sliceList.Add(sliceMatrix);
+                    foreach (var part in parts)
+                        part.Dispose();
+                }
             }
-            return _lap.CreateTensor(sliceList);
+            var ret = _lap.CreateTensor(sliceList);
+            foreach (var slice in sliceList)
+                slice.Dispose();
+            return ret;
         }
 
         public I3DTensor ExecuteToTensor(I3DTensor tensor, Stack<IConvolutionalLayerBackpropagation> backpropagation)

@@ -21,10 +21,10 @@ namespace BrightWire.SampleCode
             var testData = Mnist.Load(dataFilesPath + "t10k-labels.idx1-ubyte", dataFilesPath + "t10k-images.idx3-ubyte");
             Console.WriteLine("done");
 
-            var onesAndZeroesTraining = trainingData.Where(s => s.Label == 0 || s.Label == 1).ToList();
-            var onesAndZeroesTest = testData.Where(s => s.Label == 0 || s.Label == 1).ToList();
+            var onesAndZeroesTraining = trainingData.Where(s => s.Label == 0 || s.Label == 1).Take(1000).ToList();
+            var onesAndZeroesTest = testData.Where(s => s.Label == 0 || s.Label == 1).Take(100).ToList();
 
-            using (var lap = GPUProvider.CreateLinearAlgebra()) {
+            using (var lap = GPUProvider.CreateLinearAlgebra(false)) {
                 var convolutionDescriptor = new ConvolutionDescriptor(0.1f) {
                     Stride = 1,
                     Padding = 1,
@@ -36,7 +36,7 @@ namespace BrightWire.SampleCode
                     Activation = ActivationType.Relu
                 };
 
-                const int BATCH_SIZE = 32, NUM_EPOCHS = 200, IMAGE_WIDTH = 28;
+                const int BATCH_SIZE = 32, NUM_EPOCHS = 5, IMAGE_WIDTH = 28;
                 const float TRAINING_RATE = 0.1f;
                 var errorMetric = ErrorMetricType.OneHot.Create();
                 var layerTemplate = new LayerDescriptor(0.1f) {
@@ -48,12 +48,12 @@ namespace BrightWire.SampleCode
                 var testSamples = onesAndZeroesTest.Select(d => d.AsVolume).Select(d => Tuple.Create(d.AsTensor(lap), d.ExpectedOutput)).ToList();
                 var convolutionalLayer = new IConvolutionalLayer [] {
                     new ConvolutionalLayer(lap.NN, convolutionDescriptor, convolutionDescriptor.FilterSize, IMAGE_WIDTH),
-                    new MaxPoolingLayer(lap, convolutionDescriptor, 2, 2, IMAGE_WIDTH)
+                    //new MaxPoolingLayer(lap, convolutionDescriptor, 2, 2, IMAGE_WIDTH)
                 };
                 var trainingDataProvider = new ConvolutionalTrainingDataProvider(lap, convolutionDescriptor, trainingSamples, convolutionalLayer, true);
                 var testDataProvider = new ConvolutionalTrainingDataProvider(lap, convolutionDescriptor, testSamples, convolutionalLayer, false);
 
-                using (var trainer = lap.NN.CreateBatchTrainer(layerTemplate, 784, trainingDataProvider.OutputSize)) {
+                using (var trainer = lap.NN.CreateBatchTrainer(layerTemplate, 784 * 4, trainingDataProvider.OutputSize)) {
                     var trainingContext = lap.NN.CreateTrainingContext(errorMetric, TRAINING_RATE, BATCH_SIZE);
                     trainingContext.EpochComplete += c => {
                         var output = trainer.Execute(testDataProvider);
@@ -65,6 +65,8 @@ namespace BrightWire.SampleCode
                     trainingContext.ScheduleTrainingRateChange(150, TRAINING_RATE / 27f);
                     trainer.Train(trainingDataProvider, NUM_EPOCHS, trainingContext);
                 }
+                foreach (var layer in convolutionalLayer)
+                    layer.Dispose();
             }
         }
 
@@ -115,6 +117,8 @@ namespace BrightWire.SampleCode
                     trainingContext.ScheduleTrainingRateChange(150, TRAINING_RATE / 27f);
                     trainer.Train(trainingDataProvider, NUM_EPOCHS, trainingContext);
                 }
+                foreach (var item in layer)
+                    item.Dispose();
             }
         }
     }

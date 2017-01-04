@@ -77,6 +77,9 @@ namespace BrightWire.Connectionist.Helper
             }
 
             var input = _lap.Create(rowList);
+            foreach (var item in rowList)
+                item.Dispose();
+
             var output = _lap.Create(rows.Count, _outputSize, (x, y) => outputList[x][y]);
             return new MiniBatch(input, output);
         }
@@ -90,19 +93,23 @@ namespace BrightWire.Connectionist.Helper
         {
             if (_isTraining) {
                 for (var i = 0; i < errorSignal.RowCount; i++) {
-                    var row = errorSignal.Row(i);
-                    var backpropagationStack = _backpropagation[i];
-                    var isFirst = true;
-                    IMatrix lastError = null;
-                    while (backpropagationStack.Any()) {
-                        var backpropagation = backpropagationStack.Pop();
-                        if (isFirst) {
-                            using (var rowError = row.ConvertInPlaceToMatrix(backpropagation.RowCount, backpropagation.ColumnCount))
-                                lastError = backpropagation.Execute(rowError, context, backpropagationStack.Any(), updates);
-                            isFirst = false;
+                    using (var row = errorSignal.Row(i)) {
+                        var backpropagationStack = _backpropagation[i];
+                        var isFirst = true;
+                        IMatrix lastError = null;
+                        while (backpropagationStack.Any()) {
+                            var backpropagation = backpropagationStack.Pop();
+                            if (isFirst) {
+                                using (var rowError = row.ConvertInPlaceToMatrix(backpropagation.RowCount, backpropagation.ColumnCount))
+                                    lastError = backpropagation.Execute(rowError, context, backpropagationStack.Any(), updates);
+                                isFirst = false;
+                            }
+                            else {
+                                var nextError = backpropagation.Execute(lastError, context, backpropagationStack.Any(), updates);
+                                lastError.Dispose();
+                                lastError = nextError;
+                            }
                         }
-                        else
-                            lastError = backpropagation.Execute(lastError, context, backpropagationStack.Any(), updates);
                     }
                 }
             }
