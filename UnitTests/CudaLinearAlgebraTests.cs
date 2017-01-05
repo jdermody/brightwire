@@ -65,6 +65,24 @@ namespace UnitTests
         }
 
         [TestMethod]
+        public void TestMatrixCreation()
+        {
+            var values = new[] {
+                Enumerable.Range(0, 10).Select(v => (float)v).ToArray(),
+                Enumerable.Range(0, 10).Select(v => (float)v * 2).ToArray(),
+                Enumerable.Range(0, 10).Select(v => (float)v * 3).ToArray(),
+            };
+            var cpuRowList = values.Select(v => _cpu.Create(v)).ToList();
+            var cpuMatrix = _cpu.Create(cpuRowList);
+
+            var gpuRowList = values.Select(v => _cuda.Create(v)).ToList();
+            using (var gpuMatrix = _cuda.Create(gpuRowList)) {
+                FloatingPointHelper.AssertEqual(cpuMatrix.AsIndexable(), gpuMatrix.AsIndexable());
+            }
+            gpuRowList.ForEach(v => v.Dispose());
+        }
+
+        [TestMethod]
         public void MatrixMultiplication()
         {
             _MatrixMultiplication(5, 2, 5);

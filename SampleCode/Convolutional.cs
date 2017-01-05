@@ -36,7 +36,7 @@ namespace BrightWire.SampleCode
                     Activation = ActivationType.Relu
                 };
 
-                const int BATCH_SIZE = 32, NUM_EPOCHS = 5, IMAGE_WIDTH = 28;
+                const int BATCH_SIZE = 32, NUM_EPOCHS = 2, IMAGE_WIDTH = 28;
                 const float TRAINING_RATE = 0.1f;
                 var errorMetric = ErrorMetricType.OneHot.Create();
                 var layerTemplate = new LayerDescriptor(0.1f) {
@@ -67,6 +67,10 @@ namespace BrightWire.SampleCode
                 }
                 foreach (var layer in convolutionalLayer)
                     layer.Dispose();
+                foreach (var item in trainingSamples)
+                    item.Item1.Dispose();
+                foreach (var item in testSamples)
+                    item.Item1.Dispose();
             }
         }
 

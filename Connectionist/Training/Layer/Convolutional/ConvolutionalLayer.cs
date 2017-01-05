@@ -211,8 +211,8 @@ namespace BrightWire.Connectionist.Training.Layer.Convolutional
             var layer = _trainer.LayerUpdater.Layer;
             IMatrix input;
             if(_descriptor.Padding > 0) {
-                var padded = tensor.AddPadding(_descriptor.Padding);
-                input = padded.Im2Col(_descriptor.FilterWidth, _descriptor.FilterHeight, _descriptor.Stride);
+                using (var padded = tensor.AddPadding(_descriptor.Padding))
+                    input = padded.Im2Col(_descriptor.FilterWidth, _descriptor.FilterHeight, _descriptor.Stride);
             }else
                 input = tensor.Im2Col(_descriptor.FilterWidth, _descriptor.FilterHeight, _descriptor.Stride);
 

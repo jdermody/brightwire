@@ -44,7 +44,11 @@ namespace BrightWire.Models.Convolutional
 
         public I3DTensor AsTensor(ILinearAlgebraProvider lap)
         {
-            return lap.CreateTensor(Layers.Select(l => l.AsMatrix(lap)).ToList());
+            var matrixList = Layers.Select(l => l.AsMatrix(lap)).ToList();
+            var ret = lap.CreateTensor(matrixList);
+            foreach (var item in matrixList)
+                item.Dispose();
+            return ret;
         }
     }
 }

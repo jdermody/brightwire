@@ -656,8 +656,11 @@ namespace BrightWire.LinearAlgebra
             var newRows = rows + padding * 2;
             var newColumns = columns + padding * 2;
             var ret = new List<CudaDeviceVariable<float>>();
-            for(var i = 0; i < depth; i++)
-                ret.Add(new CudaDeviceVariable<float>(newRows * newColumns));
+            for (var i = 0; i < depth; i++) {
+                var buffer = new CudaDeviceVariable<float>(newRows * newColumns);
+                buffer.Memset(0);
+                ret.Add(buffer);
+            }
 
             using (var outputDevicePtr = new CudaDeviceVariable<CUdeviceptr>(depth))
             using (var inputDevicePtr = new CudaDeviceVariable<CUdeviceptr>(depth)) {
@@ -879,7 +882,7 @@ namespace BrightWire.LinearAlgebra
         {
             var first = data.First();
             Debug.Assert(data.All(m => m.RowCount == first.RowCount && m.ColumnCount == first.ColumnCount));
-            return new Gpu3DTensor(this, first.RowCount, first.ColumnCount, data.Count, data.Cast<GpuMatrix>().ToList());
+            return new Gpu3DTensor(this, first.RowCount, first.ColumnCount, data.Count, data.Select(m => m.Clone()).Cast<GpuMatrix>().ToList());
         }
 
         public I3DTensor CreateTensor(IIndexable3DTensor tensor)
