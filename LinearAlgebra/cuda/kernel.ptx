@@ -2830,7 +2830,7 @@ BB56_4:
 {
 	.reg .pred 	%p<4>;
 	.reg .f32 	%f<2>;
-	.reg .b32 	%r<31>;
+	.reg .b32 	%r<33>;
 	.reg .b64 	%rd<13>;
 
 
@@ -2866,23 +2866,25 @@ BB57_1:
 	add.s64 	%rd5, %rd3, %rd4;
 	ld.global.u64 	%rd6, [%rd5];
 	cvta.to.global.u64 	%rd7, %rd6;
-	add.s32 	%r19, %r4, 1;
-	sub.s32 	%r20, %r19, %r6;
-	add.s32 	%r21, %r3, 1;
-	sub.s32 	%r22, %r21, %r7;
-	rem.s32 	%r23, %r1, %r20;
-	div.s32 	%r24, %r1, %r22;
-	rem.s32 	%r25, %r18, %r6;
-	mad.lo.s32 	%r26, %r23, %r8, %r25;
-	div.s32 	%r27, %r18, %r7;
-	mad.lo.s32 	%r28, %r24, %r8, %r27;
-	mad.lo.s32 	%r29, %r26, %r3, %r28;
-	mul.wide.s32 	%rd8, %r29, 4;
+	sub.s32 	%r19, %r4, %r6;
+	div.s32 	%r20, %r19, %r8;
+	add.s32 	%r21, %r20, 1;
+	sub.s32 	%r22, %r3, %r7;
+	div.s32 	%r23, %r22, %r8;
+	add.s32 	%r24, %r23, 1;
+	rem.s32 	%r25, %r1, %r21;
+	div.s32 	%r26, %r1, %r24;
+	rem.s32 	%r27, %r18, %r6;
+	mad.lo.s32 	%r28, %r25, %r8, %r27;
+	div.s32 	%r29, %r18, %r7;
+	mad.lo.s32 	%r30, %r26, %r8, %r29;
+	mad.lo.s32 	%r31, %r28, %r3, %r30;
+	mul.wide.s32 	%rd8, %r31, 4;
 	add.s64 	%rd9, %rd7, %rd8;
 	ld.global.f32 	%f1, [%rd9];
-	mad.lo.s32 	%r30, %r2, %r5, %r1;
+	mad.lo.s32 	%r32, %r2, %r5, %r1;
 	cvta.to.global.u64 	%rd10, %rd2;
-	mul.wide.s32 	%rd11, %r30, 4;
+	mul.wide.s32 	%rd11, %r32, 4;
 	add.s64 	%rd12, %rd10, %rd11;
 	st.global.f32 	[%rd12], %f1;
 

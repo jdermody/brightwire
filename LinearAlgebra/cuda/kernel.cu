@@ -664,8 +664,8 @@ extern "C"
 			int localIndex = j % blockSize;
 			float* channel = a[depthIndex];
 
-			int xExtent = aColumns - filterWidth + 1;
-			int yExtent = aRows - filterHeight + 1;
+			int xExtent = (aColumns - filterWidth) / stride + 1;
+			int yExtent = (aRows - filterHeight) / stride + 1;
 			int xOffset = i % xExtent * stride;
 			int yOffset = i / yExtent * stride;
 			

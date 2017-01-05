@@ -829,6 +829,11 @@ namespace BrightWire
         /// <param name="mutator">The function to apply to each element (rowIndex: int, columnIndex: int, value: float) => float</param>
         /// <returns></returns>
         IIndexableMatrix MapIndexed(Func<int, int, float, float> mutator);
+
+        /// <summary>
+        /// Returns the matrix as xml
+        /// </summary>
+        string AsXml { get; }
     }
 
     public interface I3DTensor : IDisposable

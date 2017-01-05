@@ -117,7 +117,7 @@ namespace BrightWire.Connectionist
 
         public INeuralNetworkTrainer CreateBatchTrainer(IReadOnlyList<INeuralNetworkLayerTrainer> layer, bool calculateTrainingError = true)
         {
-            return new BatchTrainer(layer, _stochastic, calculateTrainingError);
+            return new BatchTrainer(_lap, layer, _stochastic, calculateTrainingError);
         }
 
         public INeuralNetworkTrainer CreateBatchTrainer(LayerDescriptor descriptor, params int[] layerSizes)

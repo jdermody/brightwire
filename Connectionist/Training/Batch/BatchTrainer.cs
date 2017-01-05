@@ -14,11 +14,13 @@ namespace BrightWire.Connectionist.Training.Batch
     {
         readonly bool _stochastic, _calculateTrainingError;
         readonly IReadOnlyList<INeuralNetworkLayerTrainer> _layer;
+        readonly ILinearAlgebraProvider _lap;
 
         const int DEFAULT_BATCH_SIZE = 128;
 
-        public BatchTrainer(IReadOnlyList<INeuralNetworkLayerTrainer> layer, bool stochastic, bool calculateTrainingError)
+        public BatchTrainer(ILinearAlgebraProvider lap, IReadOnlyList<INeuralNetworkLayerTrainer> layer, bool stochastic, bool calculateTrainingError)
         {
+            _lap = lap;
             _layer = layer;
             _stochastic = stochastic;
             _calculateTrainingError = calculateTrainingError;
@@ -85,6 +87,7 @@ namespace BrightWire.Connectionist.Training.Batch
                 foreach (var miniBatch in _GetMiniBatches(trainingData, _stochastic, context.MiniBatchSize)) {
                     var garbage = new List<IMatrix>();
                     garbage.Add(curr = miniBatch.Input);
+                    _lap.PushLayer();
 
                     // set up the layer stack
                     var layerStack = new Stack<ICanBackpropagate>();
@@ -115,6 +118,7 @@ namespace BrightWire.Connectionist.Training.Batch
                     // clear memory
                     context.EndBatch();
                     garbage.ForEach(m => m?.Dispose());
+                    _lap.PopLayer();
                 }
                 context.EndEpoch(_calculateTrainingError ? batchErrorList.Average() : 0f);
             }

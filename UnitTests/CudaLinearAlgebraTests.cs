@@ -1644,13 +1644,41 @@ namespace UnitTests
         }
 
         [TestMethod]
+        public void TensorAddPadding2()
+        {
+            using (var cpuTensor = _cpu.CreateTensor(Enumerable.Range(0, 3).Select(i => _cpu.Create(4, 4, (j, k) => (i + 1) * (j + 1) * (k + 1))).ToList()))
+            using (var gpuTensor = _cuda.CreateTensor(cpuTensor.AsIndexable()))
+            using (var cpuPadding = cpuTensor.AddPadding(2))
+            using (var gpuPadding = gpuTensor.AddPadding(2)) {
+                FloatingPointHelper.AssertEqual(cpuPadding.AsIndexable(), gpuPadding.AsIndexable());
+            }
+        }
+
+        [TestMethod]
         public void TensorIm2Col()
         {
             using (var cpuTensor = _cpu.CreateTensor(Enumerable.Range(0, 3).Select(i => _cpu.Create(4, 4, (j, k) => (i + 1) * (j + 1) * (k + 1))).ToList()))
             using (var gpuTensor = _cuda.CreateTensor(cpuTensor.AsIndexable()))
-            using (var cpuMatrix = cpuTensor.Im2Col(2, 2, 1))
-            using (var gpuMatrix = gpuTensor.Im2Col(2, 2, 1)) {
-                FloatingPointHelper.AssertEqual(cpuMatrix.AsIndexable(), gpuMatrix.AsIndexable());
+            using (var cpuMatrix = cpuTensor.Im2Col(2, 2, 2))
+            using (var gpuMatrix = gpuTensor.Im2Col(2, 2, 2)) {
+                var cpu = cpuMatrix.AsIndexable();
+                var gpu = gpuMatrix.AsIndexable();
+                FloatingPointHelper.AssertEqual(cpu, gpu);
+            }
+        }
+
+        [TestMethod]
+        public void TensorIm2Col2()
+        {
+            var normalDistribution = new Normal(0, 1);
+            using (var cpuTensor = _cpu.CreateTensor(Enumerable.Range(0, 1).Select(i => _cpu.Create(8, 8, (j, k) => Convert.ToSingle(normalDistribution.Sample()))).ToList()))
+            //using (var cpuTensor = _cpu.CreateTensor(Enumerable.Range(0, 3).Select(i => _cpu.Create(8, 8, (j, k) => (i + 1) * (j + 1) * (k + 1))).ToList()))
+            using (var gpuTensor = _cuda.CreateTensor(cpuTensor.AsIndexable()))
+            using (var cpuMatrix = cpuTensor.Im2Col(2, 2, 2))
+            using (var gpuMatrix = gpuTensor.Im2Col(2, 2, 2)) {
+                var cpu = cpuMatrix.AsIndexable();
+                var gpu = gpuMatrix.AsIndexable();
+                FloatingPointHelper.AssertEqual(cpu, gpu);
             }
         }
 

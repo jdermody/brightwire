@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BrightWire.Models;
 using BrightWire.Models.Output;
+using System.Xml;
 
 namespace BrightWire.LinearAlgebra
 {
@@ -569,6 +570,25 @@ namespace BrightWire.LinearAlgebra
         public IVector ConvertInPlaceToVector()
         {
             return new CpuVector(_matrix.ToColumnWiseArray());
+        }
+
+        public string AsXml
+        {
+            get
+            {
+                var ret = new StringBuilder();
+                using(var writer = new XmlTextWriter(new StringWriter(ret))) {
+                    writer.WriteStartElement("matrix");
+                    for(var i = 0; i < RowCount; i++) {
+                        writer.WriteStartElement("row");
+                        for(var j = 0; j < ColumnCount; j++)
+                            writer.WriteElementString("val", _matrix[i, j].ToString());
+                        writer.WriteEndElement();
+                    }
+                    writer.WriteEndElement();
+                }
+                return ret.ToString();
+            }
         }
     }
 }

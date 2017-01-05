@@ -137,7 +137,7 @@ namespace BrightWire.LinearAlgebra
                 for (var k = 0; k < _depth; k++) {
                     for (var j = 0; j < filterHeight; j++) {
                         for (var i = 0; i < filterWidth; i++) {
-                            row.Add(this[xOffset + i, yOffset + j, k]);
+                            row.Add(this[yOffset + j, xOffset + i, k]);
                         }
                     }
                 }
