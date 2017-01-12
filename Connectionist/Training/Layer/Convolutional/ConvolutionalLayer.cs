@@ -206,24 +206,26 @@ namespace BrightWire.Connectionist.Training.Layer.Convolutional
         {
             var layer = _trainer.LayerUpdater.Layer;
             IMatrix input;
-            if(_descriptor.Padding > 0) {
+            if (_descriptor.Padding > 0) {
                 using (var padded = tensor.AddPadding(_descriptor.Padding))
                     input = padded.Im2Col(_descriptor.FilterWidth, _descriptor.FilterHeight, _descriptor.Stride);
-            }else
+            } else
                 input = tensor.Im2Col(_descriptor.FilterWidth, _descriptor.FilterHeight, _descriptor.Stride);
 
             var output = layer.Execute(input);
-            if (backpropagation != null)
+            if (backpropagation != null) {
                 backpropagation?.Push(new Backpropagation(this, _trainer, input, output));
-            else
-                input.Dispose();
-
-            if (layer.Activation == null)
-                return output;
+                return layer.Activation?.Calculate(output) ?? output;
+            }
             else {
-                var ret = layer.Activation.Calculate(output);
-                output.Dispose();
-                return ret;
+                input.Dispose();
+                if (layer.Activation == null)
+                    return output;
+                else {
+                    var ret = layer.Activation.Calculate(output);
+                    output.Dispose();
+                    return ret;
+                }
             }
         }
 

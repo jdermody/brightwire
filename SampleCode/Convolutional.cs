@@ -21,8 +21,8 @@ namespace BrightWire.SampleCode
             var testData = Mnist.Load(dataFilesPath + "t10k-labels.idx1-ubyte", dataFilesPath + "t10k-images.idx3-ubyte");
             Console.WriteLine("done");
 
-            var onesAndZeroesTraining = trainingData.Where(s => s.Label == 0 || s.Label == 1).Take(1000).ToList();
-            var onesAndZeroesTest = testData.Where(s => s.Label == 0 || s.Label == 1).Take(100).ToList();
+            var onesAndZeroesTraining = trainingData.Where(s => s.Label == 0 || s.Label == 1).Take(5000).ToList();
+            var onesAndZeroesTest = testData.Where(s => s.Label == 0 || s.Label == 1).Take(500).ToList();
 
             using (var lap = Provider.CreateLinearAlgebra(false)) {
                 var convolutionDescriptor = new ConvolutionDescriptor(0.1f) {
@@ -71,16 +71,15 @@ namespace BrightWire.SampleCode
                 foreach (var item in testSamples)
                     item.Item1.Dispose();
 
-                var execution = lap.NN.CreateConvolutional(network);
-                
-                foreach(var item in onesAndZeroesTest) {
-                    using (var tensor = item.AsVolume.AsTensor(lap)) {
-                        using (var output = execution.Execute(tensor)) {
-                            var maxIndex = output.MaximumIndex();
+                using (var execution = lap.NN.CreateConvolutional(network)) {
+                    foreach (var item in onesAndZeroesTest) {
+                        using (var tensor = item.AsVolume.AsTensor(lap)) {
+                            using (var output = execution.Execute(tensor)) {
+                                var maxIndex = output.MaximumIndex();
+                            }
                         }
                     }
                 }
-                
             }
         }
 

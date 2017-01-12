@@ -23,7 +23,7 @@ namespace BrightWire.Connectionist.Execution.Layer
             _layer = new StandardFeedForward(lap.CreateMatrix(layer.Data.Weight), lap.CreateVector(layer.Data.Bias), activation);
         }
 
-        public I3DTensor Execute(I3DTensor tensor)
+        public IMatrix ExecuteToMatrix(I3DTensor tensor)
         {
             IMatrix input;
             if (_padding > 0) {
@@ -34,7 +34,14 @@ namespace BrightWire.Connectionist.Execution.Layer
                 input = tensor.Im2Col(_filterWidth, _filterHeight, _stride);
 
             // execute the layer
-            var output = _layer.Activate(input);
+            var ret = _layer.Activate(input);
+            input.Dispose();
+            return ret;
+        }
+
+        public I3DTensor ExecuteToTensor(I3DTensor tensor)
+        {
+            var output = ExecuteToMatrix(tensor);
 
             // convert the matrix to a tensor
             var sliceList = new List<IMatrix>();

@@ -23,7 +23,7 @@ namespace BrightWire.LinearAlgebra
 #if DEBUG
         static int _gid = 0;
         int _id = _gid++;
-        public static int _badAlloc = 28280;
+        public static int _badAlloc = -1;
         public static int _badDispose = -1;
 
         public bool IsValid { get { return !_disposed; } }

@@ -2241,7 +2241,8 @@ namespace BrightWire
 
     public interface IConvolutionalLayerExecution : IDisposable
     {
-        I3DTensor Execute(I3DTensor tensor);
+        IMatrix ExecuteToMatrix(I3DTensor tensor);
+        I3DTensor ExecuteToTensor(I3DTensor tensor);
     }
 
     public interface IConvolutionalExecution : IDisposable

@@ -21,7 +21,7 @@ namespace BrightWire.SampleCode
     {
         static void Main(string[] args)
         {
-            Control.UseNativeMKL();
+            //Control.UseNativeMKL();
             ReducedMNIST(@"D:\data\mnist\");
             //MNISTConvolutional(@"D:\data\mnist\");
 
