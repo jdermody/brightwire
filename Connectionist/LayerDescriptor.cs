@@ -109,18 +109,27 @@ namespace BrightWire.Connectionist
         /// </summary>
         public LayerDescriptor Clone()
         {
-            return new LayerDescriptor() {
-                Activation = this.Activation,
-                WeightInitialisation = this.WeightInitialisation,
-                DecayRate = this.DecayRate,
-                LayerTrainer = this.LayerTrainer,
-                Dropout = this.Dropout,
-                Momentum = this.Momentum,
-                Regularisation = this.Regularisation,
-                WeightUpdate = this.WeightUpdate,
-                Lambda = this.Lambda,
-                DecayRate2 = this.DecayRate2
-            };
+            var ret = new LayerDescriptor();
+            CopyTo(ret);
+            return ret;
+        }
+
+        /// <summary>
+        /// Copies attributes from this layer to the target layer
+        /// </summary>
+        /// <param name="layer">The target layer</param>
+        public void CopyTo(LayerDescriptor layer)
+        {
+            layer.Activation = this.Activation;
+            layer.WeightInitialisation = this.WeightInitialisation;
+            layer.DecayRate = this.DecayRate;
+            layer.LayerTrainer = this.LayerTrainer;
+            layer.Dropout = this.Dropout;
+            layer.Momentum = this.Momentum;
+            layer.Regularisation = this.Regularisation;
+            layer.WeightUpdate = this.WeightUpdate;
+            layer.Lambda = this.Lambda;
+            layer.DecayRate2 = this.DecayRate2;
         }
 
         /// <summary>

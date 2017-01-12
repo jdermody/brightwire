@@ -1,43 +1,34 @@
-﻿using BrightWire.Models.Convolutional;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using BrightWire.Models;
 
 namespace BrightWire.Connectionist.Training.Layer.Convolutional
 {
-    public class MaxPoolingLayer : IConvolutionalLayer
+    internal class MaxPoolingLayer : IConvolutionalLayer
     {
         class Backpropagation : IConvolutionalLayerBackpropagation
         {
-            readonly ConvolutionDescriptor _descriptor;
-            readonly IReadOnlyList<int[]> _indexList;
-            readonly int _size, _filterSize, _stride;
             readonly ILinearAlgebraProvider _lap;
+            readonly List<Dictionary<Tuple<int, int>, Tuple<int, int>>> _indexPosList;
+            readonly int _columns, _rows, _newColumns, _newRows;
 
-            public Backpropagation(ILinearAlgebraProvider lap, ConvolutionDescriptor descriptor, IReadOnlyList<int[]> indexList, int size, int filterSize, int stride)
+            public Backpropagation(ILinearAlgebraProvider lap, List<Dictionary<Tuple<int, int>, Tuple<int, int>>> indexPosList, int columns, int rows, int newColumns, int newRows)
             {
                 _lap = lap;
-                _descriptor = descriptor;
-                _indexList = indexList;
-                _size = size;
-                _filterSize = filterSize;
-                _stride = stride;
+                _indexPosList = indexPosList;
+                _columns = columns;
+                _rows = rows;
+                _newColumns = newColumns;
+                _newRows = newRows;
             }
 
             public int ColumnCount
             {
                 get
                 {
-                    return _size;
-                }
-            }
-
-            public ConvolutionDescriptor Descriptor
-            {
-                get
-                {
-                    return _descriptor;
+                    return _indexPosList.Count;
                 }
             }
 
@@ -45,56 +36,50 @@ namespace BrightWire.Connectionist.Training.Layer.Convolutional
             {
                 get
                 {
-                    return _size;
+                    return _newRows * _newColumns;
                 }
             }
 
             public IMatrix Execute(IMatrix error, ITrainingContext context, bool calculateOutput, INeuralNetworkUpdateAccumulator updateAccumulator)
             {
-                var filterIndex = 0;
-                var filters = error.ConvertInPlaceToVector().Split(_descriptor.FilterDepth);
-                var sparseDictionary = Enumerable.Range(0, _descriptor.FilterDepth).Select(i => new Dictionary<Tuple<int, int>, float>()).ToList();
+                var matrix = error.ConvertInPlaceToVector().Split(_indexPosList.Count).Select(v => v.AsIndexable().ToArray()).ToList();
 
-                foreach (var item in filters) {
-                    var itemIndex = 0;
-                    int xOffset = 0, yOffset = 0;
-                    foreach(var value in item.AsIndexable().Values) {
-                        var maxIndex = _indexList[itemIndex][filterIndex];
-                        var yIndex = maxIndex / _filterSize;
-                        var xIndex = maxIndex % _filterSize;
-                        sparseDictionary[filterIndex].Add(Tuple.Create(xOffset + xIndex, yOffset + yIndex), value);
-                        xOffset += _filterSize;
-                        if(xOffset >= _size) {
-                            yOffset += _filterSize;
-                            xOffset = 0;
-                        }
-                        ++itemIndex;
+                Tuple<int, int> newIndex;
+                var ret = _lap.Create(_rows * _columns, _indexPosList.Count, (i, j) => {
+                    var table = _indexPosList[j];
+                    var x = i / _rows;
+                    var y = i % _rows;
+                    if (table.TryGetValue(Tuple.Create(x, y), out newIndex)) {
+                        var newIndex2 = newIndex.Item1 * _newRows + newIndex.Item2;
+                        return matrix[j][newIndex2];
                     }
-                    ++filterIndex;
-                }
-
-                // 4 columns, 784 rows
-                return _lap.Create(_size * _size, _descriptor.FilterDepth, (i, j) => {
-                    var y = i / _size;
-                    var x = i % _size;
-                    float val;
-                    if (sparseDictionary[j].TryGetValue(Tuple.Create(x, y), out val))
-                        return val;
                     return 0f;
                 });
+                return ret;
             }
         }
-        readonly int _filterSize, _stride, _inputWidth;
-        readonly ConvolutionDescriptor _descriptor;
         readonly ILinearAlgebraProvider _lap;
+        readonly int _filterWidth, _filterHeight, _stride;
 
-        public MaxPoolingLayer(ILinearAlgebraProvider lap, ConvolutionDescriptor descriptor, int filterSize, int stride, int inputWidth)
+        public ConvolutionalNetwork.Layer Layer
+        {
+            get
+            {
+                return new ConvolutionalNetwork.Layer {
+                    Type = ConvolutionalNetwork.ConvolutionalLayerType.MaxPooling,
+                    FilterHeight = _filterHeight,
+                    FilterWidth = _filterWidth,
+                    Stride = _stride
+                };
+            }
+        }
+
+        public MaxPoolingLayer(ILinearAlgebraProvider lap, int filterWidth, int filterHeight, int stride)
         {
             _lap = lap;
-            _filterSize = filterSize;
+            _filterWidth = filterWidth;
+            _filterHeight = filterHeight;
             _stride = stride;
-            _descriptor = descriptor;
-            _inputWidth = inputWidth;
         }
 
         public void Dispose()
@@ -104,33 +89,11 @@ namespace BrightWire.Connectionist.Training.Layer.Convolutional
 
         public I3DTensor ExecuteToTensor(I3DTensor tensor, Stack<IConvolutionalLayerBackpropagation> backpropagation)
         {
-            var matrix = tensor.Im2Col(_filterSize, _filterSize, _stride);
-            var size = (int)Math.Sqrt(matrix.RowCount);
-            var output = Enumerable.Range(0, tensor.Depth).Select(i => new List<float>()).ToArray();
-            var indexList = new List<int[]>();
-
-            for(int i = 0, len = matrix.RowCount; i < len; i++) {
-                var row = matrix.Row(i);
-                var parts = row.Split(_descriptor.FilterDepth);
-                var maxIndex = parts.Select(v => v.MaximumIndex()).ToArray();
-                for(var j = 0; j < tensor.Depth; j++) {
-                    var index = maxIndex[j];
-                    var slice = parts[j].AsIndexable();
-                    output[j].Add(slice[index]);
-                }
-                indexList.Add(maxIndex);
-            }
-            var matrixList = new List<IMatrix>();
-            foreach(var slice in output) {
-                var rowList = new List<float[]>();
-                for(var i = 0; i < size; i++)
-                    rowList.Add(slice.Skip(i * size).Take(size).ToArray());
-                //matrixList.Add(_lap.Create(rowList.Count, size, (i, j) => rowList[j][i]));
-                matrixList.Add(_lap.Create(rowList.Count, size, (i, j) => rowList[i][j]));
-            }
+            var indexPosList = new List<Dictionary<Tuple<int, int>, Tuple<int, int>>>();
+            var ret = tensor.MaxPool(_filterWidth, _filterHeight, _stride, indexPosList);
             if (backpropagation != null)
-                backpropagation.Push(new Backpropagation(_lap, _descriptor, indexList, _inputWidth, _filterSize, _stride));
-            return _lap.CreateTensor(matrixList);
+                backpropagation.Push(new Backpropagation(_lap, indexPosList, tensor.ColumnCount, tensor.RowCount, ret.ColumnCount, ret.RowCount));
+            return ret;
         }
 
         public IVector ExecuteToVector(I3DTensor tensor, Stack<IConvolutionalLayerBackpropagation> backpropagation)

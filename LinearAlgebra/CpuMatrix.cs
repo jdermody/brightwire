@@ -572,6 +572,68 @@ namespace BrightWire.LinearAlgebra
             return new CpuVector(_matrix.ToColumnWiseArray());
         }
 
+        public I3DTensor MaxPool(int filterDepth, List<int[]> indexList)
+        {
+            var size = (int)Math.Sqrt(RowCount);
+            var output = Enumerable.Range(0, filterDepth).Select(i => new List<float>()).ToArray();
+
+            for (int i = 0, len = RowCount; i < len; i++) {
+                var row = Row(i);
+                var parts = row.Split(filterDepth);
+                var maxIndex = parts.Select(v => v.MaximumIndex()).ToArray();
+                for (var j = 0; j < filterDepth; j++) {
+                    var index = maxIndex[j];
+                    var slice = parts[j].AsIndexable();
+                    output[j].Add(slice[index]);
+                }
+                indexList.Add(maxIndex);
+            }
+            var matrixList = new List<IMatrix>();
+            foreach (var slice in output) {
+                var rowList = new List<float[]>();
+                for (var i = 0; i < size; i++)
+                    rowList.Add(slice.Skip(i * size).Take(size).ToArray());
+                var matrix = DenseMatrix.Create(rowList.Count, size, (i, j) => rowList[i][j]);
+                matrixList.Add(new CpuMatrix(matrix));
+            }
+            return new Cpu3DTensor(matrixList);
+        }
+
+        public IMatrix ReverseMaxPool(IMatrix error, int size, int filterSize, int filterDepth, IReadOnlyList<int[]> indexList)
+        {
+            var filterIndex = 0;
+            var filters = error.ConvertInPlaceToVector().Split(filterDepth);
+            var sparseDictionary = Enumerable.Range(0, filterDepth).Select(i => new Dictionary<Tuple<int, int>, float>()).ToList();
+
+            foreach (var item in filters) {
+                var itemIndex = 0;
+                int xOffset = 0, yOffset = 0;
+                foreach (var value in item.AsIndexable().Values) {
+                    var maxIndex = indexList[itemIndex][filterIndex];
+                    var yIndex = maxIndex / filterSize;
+                    var xIndex = maxIndex % filterSize;
+                    sparseDictionary[filterIndex].Add(Tuple.Create(xOffset + xIndex, yOffset + yIndex), value);
+                    xOffset += filterSize;
+                    if (xOffset >= size) {
+                        yOffset += filterSize;
+                        xOffset = 0;
+                    }
+                    ++itemIndex;
+                }
+                ++filterIndex;
+            }
+
+            var ret = DenseMatrix.Create(size * size, filterDepth, (i, j) => {
+                var y = i / size;
+                var x = i % size;
+                float val;
+                if (sparseDictionary[j].TryGetValue(Tuple.Create(x, y), out val))
+                    return val;
+                return 0f;
+            });
+            return new CpuMatrix(ret);
+        }
+
         public string AsXml
         {
             get

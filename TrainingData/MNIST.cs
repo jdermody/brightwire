@@ -1,5 +1,4 @@
 ﻿using BrightWire.Helper;
-using BrightWire.Models.Convolutional;
 using BrightWire.Models.Input;
 using System;
 using System.Collections.Generic;

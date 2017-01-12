@@ -6,6 +6,7 @@ using BrightWire.Connectionist.Training;
 using BrightWire.Connectionist.Training.Batch;
 using BrightWire.Connectionist.Training.Helper;
 using BrightWire.Connectionist.Training.Layer;
+using BrightWire.Connectionist.Training.Layer.Convolutional;
 using BrightWire.Connectionist.Training.Manager;
 using BrightWire.Connectionist.Training.WeightInitialisation;
 using BrightWire.Models;
@@ -62,10 +63,10 @@ namespace BrightWire.Connectionist
             return new DenseTrainingDataProvider(_lap, data);
         }
 
-        //public ITrainingDataProvider CreateTrainingDataProvider(IReadOnlyList<Tuple<Dictionary<uint, float>, Dictionary<uint, float>>> data)
-        //{
-        //    return new SparseTrainingDataProvider(_lap, data);
-        //}
+        public ITrainingDataProvider CreateTrainingDataProvider(IReadOnlyList<Tuple<Dictionary<uint, float>, Dictionary<uint, float>>> data, int inputSize, int outputSize)
+        {
+            return new SparseTrainingDataProvider(_lap, data, inputSize, outputSize);
+        }
 
         public ISequentialTrainingDataProvider CreateSequentialTrainingDataProvider(IReadOnlyList<TrainingExample[]> data)
         {
@@ -301,6 +302,11 @@ namespace BrightWire.Connectionist
             return new BidirectionalExecution(_lap, layer, _lap.Create(network.ForwardMemory.Data), _lap.Create(network.BackwardMemory.Data), network.Padding);
         }
 
+        public IConvolutionalExecution CreateConvolutional(ConvolutionalNetwork network)
+        {
+            return new ConvolutionalExecution(_lap, network);
+        }
+
         public IFeedForwardTrainingManager CreateFeedForwardManager(
             INeuralNetworkTrainer trainer,
             string dataFile,
@@ -331,6 +337,11 @@ namespace BrightWire.Connectionist
         )
         {
             return new BidirectionalManager(_lap, trainer, dataFile, testData, memorySize, autoAdjustOnNoChangeCount);
+        }
+
+        public IConvolutionalLayer CreateConvolutionalLayer(ConvolutionDescriptor descriptor, int imageWidth, bool disableUpdates = false)
+        {
+            return new ConvolutionalLayer(this, descriptor, imageWidth, disableUpdates);
         }
     }
 }

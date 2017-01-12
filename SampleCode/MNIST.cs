@@ -2,7 +2,6 @@
 using BrightWire.Connectionist.Helper;
 using BrightWire.Connectionist.Training.Layer.Convolutional;
 using BrightWire.Helper;
-using BrightWire.Models.Convolutional;
 using BrightWire.TrainingData;
 using System;
 using System.Collections.Generic;

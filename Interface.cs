@@ -1,6 +1,5 @@
 ﻿using BrightWire.Connectionist;
 using BrightWire.Models;
-using BrightWire.Models.Convolutional;
 using BrightWire.Models.Input;
 using BrightWire.Models.Output;
 using System;
@@ -787,6 +786,10 @@ namespace BrightWire
         //IMatrix RotateColumns180(int subMatrixWidth);
 
         IVector ConvertInPlaceToVector();
+
+        I3DTensor MaxPool(int filterDepth, List<int[]> indexList);
+
+        IMatrix ReverseMaxPool(IMatrix error, int size, int filterSize, int filterDepth, IReadOnlyList<int[]> indexList);
     }
 
     /// <summary>
@@ -847,6 +850,7 @@ namespace BrightWire
         I3DTensor RemovePadding(int padding);
         IMatrix Im2Col(int filterWidth, int filterHeight, int stride);
         IVector ConvertInPlaceToVector();
+        I3DTensor MaxPool(int filterWidth, int filterHeight, int stridee, List<Dictionary<Tuple<int, int>, Tuple<int, int>>> indexPosList);
     }
 
     public interface IIndexable3DTensor : I3DTensor
@@ -1454,6 +1458,15 @@ namespace BrightWire
         ITrainingDataProvider CreateTrainingDataProvider(IReadOnlyList<TrainingExample> data);
 
         /// <summary>
+        /// Creates a training data provider from a list of sparse training examples
+        /// </summary>
+        /// <param name="data">The list of sparse training examples</param>
+        /// <param name="inputSize">The input vector size</param>
+        /// <param name="outputSize">The output vector size</param>
+        /// <returns></returns>
+        ITrainingDataProvider CreateTrainingDataProvider(IReadOnlyList<Tuple<Dictionary<uint, float>, Dictionary<uint, float>>> data, int inputSize, int outputSize);
+
+        /// <summary>
         /// Creates a sequential training data provider
         /// </summary>
         /// <param name="data">A list of sequences of training examples</param>
@@ -1481,8 +1494,13 @@ namespace BrightWire
         /// Creates a bidirectional network from a saved model
         /// </summary>
         /// <param name="network">The saved model</param>
-        /// <returns></returns>
         IBidirectionalRecurrentExecution CreateBidirectional(BidirectionalNetwork network);
+
+        /// <summary>
+        /// Creates a convolutional network from a saved model
+        /// </summary>
+        /// <param name="network">The saved model</param>
+        IConvolutionalExecution CreateConvolutional(ConvolutionalNetwork network);
 
         /// <summary>
         /// Gets an implementation of an activation function
@@ -1529,6 +1547,15 @@ namespace BrightWire
             int outputSize,
             LayerDescriptor descriptor
         );
+
+        /// <summary>
+        /// Creates a convolutional Layer
+        /// </summary>
+        /// <param name="descriptor">Layer parameters</param>
+        /// <param name="imageWidth">The width of the input image</param>
+        /// <param name="disableUpdates">True to stop this layer from updating its weights and biases</param>
+        /// <returns></returns>
+        IConvolutionalLayer CreateConvolutionalLayer(ConvolutionDescriptor descriptor, int imageWidth, bool disableUpdates = false);
 
         /// <summary>
         /// Creates a layer whose weights are tied with the specicied layer
@@ -2210,6 +2237,16 @@ namespace BrightWire
         /// Gets the initial network memory
         /// </summary>
         float[] InitialMemory { get; }
+    }
+
+    public interface IConvolutionalLayerExecution : IDisposable
+    {
+        I3DTensor Execute(I3DTensor tensor);
+    }
+
+    public interface IConvolutionalExecution : IDisposable
+    {
+        IVector Execute(I3DTensor tensor);
     }
 
     internal interface IDisposableMatrixExecutionLine : IDisposable
@@ -3064,11 +3101,11 @@ namespace BrightWire
     {
         I3DTensor ExecuteToTensor(I3DTensor tensor, Stack<IConvolutionalLayerBackpropagation> backpropagation);
         IVector ExecuteToVector(I3DTensor tensor, Stack<IConvolutionalLayerBackpropagation> backpropagation);
+        ConvolutionalNetwork.Layer Layer { get; }
     }
 
     public interface IConvolutionalLayerBackpropagation
     {
-        ConvolutionDescriptor Descriptor { get; }
         IMatrix Execute(IMatrix error, ITrainingContext context, bool calculateOutput, INeuralNetworkUpdateAccumulator updateAccumulator);
         int RowCount { get; }
         int ColumnCount { get; }

@@ -165,5 +165,44 @@ namespace BrightWire.LinearAlgebra
             });
             return new CpuVector(ret);
         }
+
+        public I3DTensor MaxPool(int filterWidth, int filterHeight, int stride, List<Dictionary<Tuple<int, int>, Tuple<int, int>>> indexPosList)
+        {
+            var newColumns = (ColumnCount - filterWidth) / stride + 1;
+            var newRows = (RowCount - filterHeight) / stride + 1;
+            var ret = new List<CpuMatrix>();
+
+            for(var k = 0; k < Depth; k++) {
+                var matrix = _data[k];
+                var indexPos = new Dictionary<Tuple<int, int>, Tuple<int, int>>();
+                var layer = new CpuMatrix(DenseMatrix.Create(newRows, newColumns, 0f));
+                for(var x = 0; x < newColumns; x++) {
+                    for(var y = 0; y < newRows; y++) {
+                        var xOffset = x * stride;
+                        var yOffset = y * stride;
+                        var maxVal = float.MinValue;
+                        var bestX = xOffset;
+                        var bestY = yOffset;
+                        for(var i = 0; i < filterWidth; i++) {
+                            for (var j = 0; j < filterHeight; j++) {
+                                var xPos = xOffset + i;
+                                var yPos = yOffset + j;
+                                var val = matrix[yPos, xPos];
+                                if(val > maxVal) {
+                                    bestX = xPos;
+                                    bestY = yPos;
+                                    maxVal = val;
+                                }
+                            }
+                        }
+                        indexPos[Tuple.Create(bestX, bestY)] = Tuple.Create(x, y);
+                        layer[y, x] = maxVal;
+                    }
+                }
+                indexPosList.Add(indexPos);
+                ret.Add(layer);
+            }
+            return new Cpu3DTensor(ret);
+        }
     }
 }

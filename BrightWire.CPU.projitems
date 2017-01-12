@@ -23,8 +23,11 @@
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Activation\Softmax.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Activation\Tanh.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\ConnectionistFactory.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\ConvolutionDescriptor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Execution\BidirectionalExecution.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Execution\ConvolutionalExecution.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Execution\FeedForwardExecution.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Execution\Layer\Convolutional.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Execution\Layer\LSTM.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Execution\Layer\RecurrentFeedForward.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Execution\Layer\RecurrentLayerComponent.cs" />
@@ -99,8 +102,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\BernoulliNaiveBayes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\BidirectionalLayer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\BidirectionalNetwork.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Models\Convolutional\Volume.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Models\Convolutional\ConvolutionDescriptor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\ConvolutionalNetwork.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\DataTableNormalisation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\DecisionTree.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\ExecutionResults\FeedForwardOutput.cs" />
@@ -110,6 +112,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\FloatArray.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Input\ClassificationBag.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Input\IndexedClassification.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Input\Volume.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Input\WeightedIndex.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Input\SparseVectorClassification.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Input\SparseVectorClassificationSet.cs" />

@@ -98,5 +98,10 @@ namespace BrightWire.LinearAlgebra
         {
             throw new NotImplementedException();
         }
+
+        public I3DTensor MaxPool(int filterWidth, int filterHeight, int stridee, List<Dictionary<Tuple<int, int>, Tuple<int, int>>> indexPosList)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

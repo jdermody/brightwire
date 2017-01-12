@@ -1687,5 +1687,20 @@ namespace UnitTests
         {
             // TODO...
         }
+
+        [TestMethod]
+        public void MatrixMaxPool()
+        {
+            var rand = new Random();
+            var a = _cpu.CreateIndexable(36, 36, (x, y) => Convert.ToSingle(rand.NextDouble()));
+
+            var cpuIndexList = new List<int[]>();
+        }
+
+        [TestMethod]
+        public void MatrixReverseMaxPool()
+        {
+            // TODO...
+        }
     }
 }

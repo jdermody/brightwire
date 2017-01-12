@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.Helper
 {
-    internal class MiniBatch : IMiniBatch
+    public class MiniBatch : IMiniBatch
     {
         public IMatrix Input { get; private set; }
         public IMatrix ExpectedOutput { get; private set; }

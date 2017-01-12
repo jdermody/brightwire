@@ -5,7 +5,7 @@ using System.Text;
 using System.Linq;
 using System.Diagnostics;
 
-namespace BrightWire.Models.Convolutional
+namespace BrightWire.Models.Input
 {
     [ProtoContract]
     public class Volume

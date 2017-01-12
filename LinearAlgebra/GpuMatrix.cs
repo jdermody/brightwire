@@ -23,7 +23,7 @@ namespace BrightWire.LinearAlgebra
 #if DEBUG
         static int _gid = 0;
         int _id = _gid++;
-        public static int _badAlloc = -1;
+        public static int _badAlloc = 28280;
         public static int _badDispose = -1;
 
         public bool IsValid { get { return !_disposed; } }
@@ -716,6 +716,16 @@ namespace BrightWire.LinearAlgebra
             Debug.Assert(IsValid);
             _shouldDispose = false;
             return new GpuVector(_cuda, _rows * _columns, _data, false);
+        }
+
+        public I3DTensor MaxPool(int filterDepth, List<int[]> indexList)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IMatrix ReverseMaxPool(IMatrix error, int size, int filterSize, int filterDepth, IReadOnlyList<int[]> indexList)
+        {
+            throw new NotImplementedException();
         }
     }
 }

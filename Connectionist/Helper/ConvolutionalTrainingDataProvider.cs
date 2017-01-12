@@ -1,10 +1,10 @@
-﻿using BrightWire.Models.Convolutional;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using BrightWire.Connectionist.Training.Layer.Convolutional;
 using BrightWire.Helper;
+using BrightWire.Models;
 
 namespace BrightWire.Connectionist.Helper
 {
@@ -114,6 +114,16 @@ namespace BrightWire.Connectionist.Helper
                 }
             }
             return null;
+        }
+
+        public ConvolutionalNetwork GetCurrentNetwork(INeuralNetworkTrainer trainer)
+        {
+            return new ConvolutionalNetwork {
+                ConvolutionalLayer = _layer.Select(l => l.Layer).ToArray(),
+                FeedForward = new FeedForwardNetwork {
+                    Layer = trainer.Layer.Select(l => l.LayerUpdater.Layer.LayerInfo).ToArray()
+                }
+            };
         }
     }
 }

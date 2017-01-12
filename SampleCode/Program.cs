@@ -4,7 +4,6 @@ using BrightWire.Connectionist.Training.Layer.Convolutional;
 using BrightWire.DimensionalityReduction;
 using BrightWire.Ensemble;
 using BrightWire.Helper;
-using BrightWire.Models.Convolutional;
 using BrightWire.Models.Input;
 using BrightWire.Models.Output;
 using BrightWire.TrainingData;
@@ -22,8 +21,8 @@ namespace BrightWire.SampleCode
     {
         static void Main(string[] args)
         {
-            //Control.UseNativeMKL();
-            //ReducedMNIST(@"D:\data\mnist\");
+            Control.UseNativeMKL();
+            ReducedMNIST(@"D:\data\mnist\");
             //MNISTConvolutional(@"D:\data\mnist\");
 
             //IrisClassification();

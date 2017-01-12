@@ -1,5 +1,4 @@
-﻿using BrightWire.Models.Convolutional;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using BrightWire.Models;
@@ -7,7 +6,7 @@ using System.Linq;
 
 namespace BrightWire.Connectionist.Training.Layer.Convolutional
 {
-    public class ConvolutionalLayer : IConvolutionalLayer
+    internal class ConvolutionalLayer : IConvolutionalLayer
     {
         public class Backpropagation : IConvolutionalLayerBackpropagation
         {
@@ -22,8 +21,6 @@ namespace BrightWire.Connectionist.Training.Layer.Convolutional
                 _input = input;
                 _output = output;
             }
-
-            public ConvolutionDescriptor Descriptor { get { return _layer._descriptor; } }
 
             public IMatrix Execute(IMatrix error, ITrainingContext context, bool calculateOutput, INeuralNetworkUpdateAccumulator updateAccumulator)
             {
@@ -77,7 +74,6 @@ namespace BrightWire.Connectionist.Training.Layer.Convolutional
                 var weightInit = lap.NN.GetWeightInitialisation(descriptor.WeightInitialisation);
                 _bias = lap.Create(outputSize, x => weightInit.GetBias());
                 _weight = lap.Create(inputSize, outputSize, (x, y) => weightInit.GetWeight(inputSize, outputSize, x, y));
-                //_weight = lap.Create(inputSize, outputSize, (x, y) => x);
             }
 
             public IActivationFunction Activation
@@ -196,13 +192,13 @@ namespace BrightWire.Connectionist.Training.Layer.Convolutional
         readonly ILinearAlgebraProvider _lap;
         readonly int _inputWidth;
 
-        public ConvolutionalLayer(INeuralNetworkFactory factory, ConvolutionDescriptor descriptor, int inputSize, int inputWidth, bool disableUpdate = false)
+        public ConvolutionalLayer(INeuralNetworkFactory factory, ConvolutionDescriptor descriptor, int inputWidth, bool disableUpdate = false)
         {
             _inputWidth = inputWidth;
             _lap = factory.LinearAlgebraProvider;
             _descriptor = descriptor;
             var activation = factory.GetActivation(descriptor.Activation);
-            var layer = new InternalLayer(factory.LinearAlgebraProvider, inputSize, descriptor.FilterDepth, activation, descriptor, disableUpdate);
+            var layer = new InternalLayer(factory.LinearAlgebraProvider, descriptor.FilterSize, descriptor.FilterDepth, activation, descriptor, disableUpdate);
             _trainer = factory.CreateTrainer(layer, descriptor);
         }
 
@@ -219,17 +215,16 @@ namespace BrightWire.Connectionist.Training.Layer.Convolutional
             var output = layer.Execute(input);
             if (backpropagation != null)
                 backpropagation?.Push(new Backpropagation(this, _trainer, input, output));
-            else {
+            else
                 input.Dispose();
-                if (layer.Activation == null)
-                    return output;
-                else {
-                    var ret = layer.Activation.Calculate(output);
-                    output.Dispose();
-                    return ret;
-                }
+
+            if (layer.Activation == null)
+                return output;
+            else {
+                var ret = layer.Activation.Calculate(output);
+                output.Dispose();
+                return ret;
             }
-            return layer.Activation?.Calculate(output) ?? output;
         }
 
         public I3DTensor ConvertToTensor(IMatrix matrix)
@@ -268,6 +263,19 @@ namespace BrightWire.Connectionist.Training.Layer.Convolutional
             _trainer.Dispose();
         }
 
-        public INeuralNetworkLayer Layer { get { return _trainer.LayerUpdater.Layer; } }
+        public ConvolutionalNetwork.Layer Layer
+        {
+            get
+            {
+                return new ConvolutionalNetwork.Layer {
+                    Type = ConvolutionalNetwork.ConvolutionalLayerType.Convolutional,
+                    Data = _trainer.LayerUpdater.Layer.LayerInfo,
+                    FilterHeight = _descriptor.FilterHeight,
+                    FilterWidth = _descriptor.FilterWidth,
+                    Padding = _descriptor.Padding,
+                    Stride = _descriptor.Stride
+                };
+            }
+        }
     }
 }
