@@ -640,6 +640,18 @@ extern "C"
 		}
 	}
 
+	__global__ void TensorConvertToMatrix(float** a, float* b, int aRows, int aColumns, int bRows, int bColumns)
+	{
+		int i = blockDim.x * blockIdx.x + threadIdx.x;
+		int j = blockDim.y * blockIdx.y + threadIdx.y;
+
+		if (i < bRows && j < bColumns) {
+			int x = i / aColumns;
+            int y = i % aColumns;
+			b[j * bRows + i] = a[j][y * aRows + x];
+		}
+	}
+
 	__global__ void TensorAddPadding(float** a, float** b, int aRows, int aColumns, int bRows, int bColumns, int depth, int padding)
 	{
 		int i = blockDim.x * blockIdx.x + threadIdx.x;

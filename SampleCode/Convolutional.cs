@@ -21,10 +21,10 @@ namespace BrightWire.SampleCode
             var testData = Mnist.Load(dataFilesPath + "t10k-labels.idx1-ubyte", dataFilesPath + "t10k-images.idx3-ubyte");
             Console.WriteLine("done");
 
-            var onesAndZeroesTraining = trainingData.Where(s => s.Label == 0 || s.Label == 1).Take(5000).ToList();
-            var onesAndZeroesTest = testData.Where(s => s.Label == 0 || s.Label == 1).Take(500).ToList();
+            var onesAndZeroesTraining = trainingData.Where(s => s.Label == 0 || s.Label == 1).Shuffle(0).Take(1000).ToList();
+            var onesAndZeroesTest = testData.Where(s => s.Label == 0 || s.Label == 1).Shuffle(0).Take(100).ToList();
 
-            using (var lap = Provider.CreateLinearAlgebra(false)) {
+            using (var lap = GPUProvider.CreateLinearAlgebra(false)) {
                 var convolutionDescriptor = new ConvolutionDescriptor(0.1f) {
                     Stride = 1,
                     Padding = 1,
@@ -33,27 +33,30 @@ namespace BrightWire.SampleCode
                     FilterWidth = 3,
                     WeightInitialisation = WeightInitialisationType.Xavier,
                     WeightUpdate = WeightUpdateType.RMSprop,
-                    Activation = ActivationType.Relu
+                    Activation = ActivationType.LeakyRelu
                 };
 
-                const int BATCH_SIZE = 32, NUM_EPOCHS = 2, IMAGE_WIDTH = 28;
+                const int BATCH_SIZE = 128, NUM_EPOCHS = 10, IMAGE_WIDTH = 28;
                 const float TRAINING_RATE = 0.03f;
                 var errorMetric = ErrorMetricType.OneHot.Create();
                 var layerTemplate = new LayerDescriptor(0.1f) {
                     WeightUpdate = WeightUpdateType.RMSprop,
-                    Activation = ActivationType.Relu
+                    Activation = ActivationType.LeakyRelu
                 };
 
                 var trainingSamples = onesAndZeroesTraining.Select(d => d.AsVolume).Select(d => Tuple.Create(d.AsTensor(lap), d.ExpectedOutput)).ToList();
                 var testSamples = onesAndZeroesTest.Select(d => d.AsVolume).Select(d => Tuple.Create(d.AsTensor(lap), d.ExpectedOutput)).ToList();
+
+                // create a network with a single convolutional layer followed by a max pooling layer
                 var convolutionalLayer = new IConvolutionalLayer [] {
-                    lap.NN.CreateConvolutionalLayer(convolutionDescriptor, IMAGE_WIDTH)
+                    lap.NN.CreateConvolutionalLayer(convolutionDescriptor, 1, IMAGE_WIDTH, false),
+                    lap.NN.CreateMaxPoolingLayer(2, 2, 2)
                 };
                 var trainingDataProvider = new ConvolutionalTrainingDataProvider(lap, convolutionDescriptor, trainingSamples, convolutionalLayer, true);
                 var testDataProvider = new ConvolutionalTrainingDataProvider(lap, convolutionDescriptor, testSamples, convolutionalLayer, false);
 
                 ConvolutionalNetwork network;
-                using (var trainer = lap.NN.CreateBatchTrainer(layerTemplate, 784 * 4, trainingDataProvider.OutputSize)) {
+                using (var trainer = lap.NN.CreateBatchTrainer(layerTemplate, 784, trainingDataProvider.OutputSize)) {
                     var trainingContext = lap.NN.CreateTrainingContext(errorMetric, TRAINING_RATE, BATCH_SIZE);
                     trainingContext.EpochComplete += c => {
                         var output = trainer.Execute(testDataProvider);
@@ -71,15 +74,15 @@ namespace BrightWire.SampleCode
                 foreach (var item in testSamples)
                     item.Item1.Dispose();
 
-                using (var execution = lap.NN.CreateConvolutional(network)) {
-                    foreach (var item in onesAndZeroesTest) {
-                        using (var tensor = item.AsVolume.AsTensor(lap)) {
-                            using (var output = execution.Execute(tensor)) {
-                                var maxIndex = output.MaximumIndex();
-                            }
-                        }
-                    }
-                }
+                //using (var execution = lap.NN.CreateConvolutional(network)) {
+                //    foreach (var item in onesAndZeroesTest) {
+                //        using (var tensor = item.AsVolume.AsTensor(lap)) {
+                //            using (var output = execution.Execute(tensor)) {
+                //                var maxIndex = output.MaximumIndex();
+                //            }
+                //        }
+                //    }
+                //}
             }
         }
 
@@ -107,12 +110,16 @@ namespace BrightWire.SampleCode
                 WeightUpdate = WeightUpdateType.RMSprop,
                 Activation = ActivationType.LeakyRelu
             };
-            using (var lap = GPUProvider.CreateLinearAlgebra(false)) {
-                var trainingSamples = trainingData.Shuffle(0).Select(d => d.AsVolume).Select(d => Tuple.Create(d.AsTensor(lap), d.ExpectedOutput)).ToList();
-                var testSamples = testData.Shuffle(0).Select(d => d.AsVolume).Select(d => Tuple.Create(d.AsTensor(lap), d.ExpectedOutput)).ToList();
+            using (var lap = Provider.CreateLinearAlgebra(false)) {
+                var trainingSamples = trainingData.Shuffle(0).Take(5000).Select(d => d.AsVolume).Select(d => Tuple.Create(d.AsTensor(lap), d.ExpectedOutput)).ToList();
+                var testSamples = testData.Shuffle(0).Take(500).Select(d => d.AsVolume).Select(d => Tuple.Create(d.AsTensor(lap), d.ExpectedOutput)).ToList();
+
+                // create a network with two convolutional layers
+                // the first takes the input image of depth 1
+                // and the second expects of tensor with depth equal to the output of the first layer
                 var layer = new IConvolutionalLayer[] {
-                    lap.NN.CreateConvolutionalLayer(convolutionDescriptor, 28),
-                    //new ConvolutionalLayer(lap.NN, convolutionDescriptor, convolutionDescriptor.FilterSize * convolutionDescriptor.FilterDepth, 28)
+                    lap.NN.CreateConvolutionalLayer(convolutionDescriptor, 1, 28),
+                    lap.NN.CreateConvolutionalLayer(convolutionDescriptor, convolutionDescriptor.FilterDepth, 28)
                 };
                 var trainingDataProvider = new ConvolutionalTrainingDataProvider(lap, convolutionDescriptor, trainingSamples, layer, true);
                 var testDataProvider = new ConvolutionalTrainingDataProvider(lap, convolutionDescriptor, testSamples, layer, false);

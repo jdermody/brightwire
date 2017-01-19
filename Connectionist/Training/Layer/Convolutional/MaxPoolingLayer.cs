@@ -42,20 +42,41 @@ namespace BrightWire.Connectionist.Training.Layer.Convolutional
 
             public IMatrix Execute(IMatrix error, ITrainingContext context, bool calculateOutput, INeuralNetworkUpdateAccumulator updateAccumulator)
             {
-                var matrix = error.ConvertInPlaceToVector().Split(_indexPosList.Count).Select(v => v.AsIndexable().ToArray()).ToList();
+                var matrixList = error.AsIndexable().Columns.Select(v => v.ToArray()).ToList();
 
+                var newMatrixList = new List<IMatrix>();
                 Tuple<int, int> newIndex;
-                var ret = _lap.Create(_rows * _columns, _indexPosList.Count, (i, j) => {
-                    var table = _indexPosList[j];
-                    var x = i / _rows;
-                    var y = i % _rows;
-                    if (table.TryGetValue(Tuple.Create(x, y), out newIndex)) {
-                        var newIndex2 = newIndex.Item1 * _newRows + newIndex.Item2;
-                        return matrix[j][newIndex2];
-                    }
-                    return 0f;
-                });
-                return ret;
+                for (var i = 0; i < matrixList.Count; i++) {
+                    var matrix = matrixList[i];
+                    var table = _indexPosList[i];
+
+                    newMatrixList.Add(_lap.Create(_rows, _columns, (x, y) => {
+                        if (table.TryGetValue(Tuple.Create(x, y), out newIndex)) {
+                            var newIndex2 = newIndex.Item1 * _newRows + newIndex.Item2;
+                            return matrix[newIndex2];
+                        }
+                        return 0f;
+                    }));
+                }
+                using (var tensor = _lap.CreateTensor(newMatrixList)) {
+                    var ret = tensor.ConvertToMatrix();
+                    foreach (var item in newMatrixList)
+                        item.Dispose();
+                    return ret;
+                }
+
+                //Tuple<int, int> newIndex;
+                //var ret = _lap.Create(_rows * _columns, _indexPosList.Count, (i, j) => {
+                //    var table = _indexPosList[j];
+                //    var x = i / _rows;
+                //    var y = i % _rows;
+                //    if (table.TryGetValue(Tuple.Create(x, y), out newIndex)) {
+                //        var newIndex2 = newIndex.Item1 * _newRows + newIndex.Item2;
+                //        return matrixList[j][newIndex2];
+                //    }
+                //    return 0f;
+                //});
+                //return ret;
             }
         }
         readonly ILinearAlgebraProvider _lap;
@@ -99,7 +120,7 @@ namespace BrightWire.Connectionist.Training.Layer.Convolutional
         public IVector ExecuteToVector(I3DTensor tensor, Stack<IConvolutionalLayerBackpropagation> backpropagation)
         {
             var ret = ExecuteToTensor(tensor, backpropagation);
-            return ret.ConvertInPlaceToVector();
+            return ret.ConvertToVector();
         }
     }
 }

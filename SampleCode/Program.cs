@@ -21,8 +21,8 @@ namespace BrightWire.SampleCode
     {
         static void Main(string[] args)
         {
-            //Control.UseNativeMKL();
-            ReducedMNIST(@"D:\data\mnist\");
+            Control.UseNativeMKL();
+            //ReducedMNIST(@"D:\data\mnist\");
             //MNISTConvolutional(@"D:\data\mnist\");
 
             //IrisClassification();

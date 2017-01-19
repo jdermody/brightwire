@@ -29,6 +29,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Execution\FeedForwardExecution.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Execution\Layer\Convolutional.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Execution\Layer\LSTM.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Execution\Layer\MaxPooling.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Execution\Layer\RecurrentFeedForward.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Execution\Layer\RecurrentLayerComponent.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Execution\Layer\SimpleRecurrent.cs" />

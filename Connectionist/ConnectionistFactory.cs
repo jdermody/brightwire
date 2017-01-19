@@ -339,9 +339,14 @@ namespace BrightWire.Connectionist
             return new BidirectionalManager(_lap, trainer, dataFile, testData, memorySize, autoAdjustOnNoChangeCount);
         }
 
-        public IConvolutionalLayer CreateConvolutionalLayer(ConvolutionDescriptor descriptor, int imageWidth, bool disableUpdates = false)
+        public IConvolutionalLayer CreateConvolutionalLayer(ConvolutionDescriptor descriptor, int inputDepth, int imageWidth, bool disableUpdates = false)
         {
-            return new ConvolutionalLayer(this, descriptor, imageWidth, disableUpdates);
+            return new ConvolutionalLayer(this, descriptor, inputDepth, imageWidth, disableUpdates);
+        }
+
+        public IConvolutionalLayer CreateMaxPoolingLayer(int filterWidth, int filterHeight, int stride)
+        {
+            return new MaxPoolingLayer(_lap, filterWidth, filterHeight, stride);
         }
     }
 }

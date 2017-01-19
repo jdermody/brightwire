@@ -48,7 +48,8 @@ namespace BrightWire.Connectionist.Training.Layer.Convolutional
                     else
                         curr.AddInPlace(column);
                 }
-                return _layer._lap.Create(ret).Transpose();
+                using(var ret2 = _layer._lap.Create(ret))
+                    return ret2.Transpose();
             }
 
             public int RowCount { get { return _output.RowCount; } }
@@ -192,13 +193,13 @@ namespace BrightWire.Connectionist.Training.Layer.Convolutional
         readonly ILinearAlgebraProvider _lap;
         readonly int _inputWidth;
 
-        public ConvolutionalLayer(INeuralNetworkFactory factory, ConvolutionDescriptor descriptor, int inputWidth, bool disableUpdate = false)
+        public ConvolutionalLayer(INeuralNetworkFactory factory, ConvolutionDescriptor descriptor, int inputDepth, int inputWidth, bool disableUpdate = false)
         {
             _inputWidth = inputWidth;
             _lap = factory.LinearAlgebraProvider;
             _descriptor = descriptor;
             var activation = factory.GetActivation(descriptor.Activation);
-            var layer = new InternalLayer(factory.LinearAlgebraProvider, descriptor.FilterSize, descriptor.FilterDepth, activation, descriptor, disableUpdate);
+            var layer = new InternalLayer(factory.LinearAlgebraProvider, descriptor.FilterSize * inputDepth, descriptor.FilterDepth, activation, descriptor, disableUpdate);
             _trainer = factory.CreateTrainer(layer, descriptor);
         }
 
@@ -250,8 +251,8 @@ namespace BrightWire.Connectionist.Training.Layer.Convolutional
 
         public I3DTensor ExecuteToTensor(I3DTensor tensor, Stack<IConvolutionalLayerBackpropagation> backpropagation)
         {
-            var outputMatrix = _Execute(tensor, backpropagation);
-            return ConvertToTensor(outputMatrix);
+            using (var outputMatrix = _Execute(tensor, backpropagation))
+                return ConvertToTensor(outputMatrix);
         }
 
         public IVector ExecuteToVector(I3DTensor tensor, Stack<IConvolutionalLayerBackpropagation> backpropagation)

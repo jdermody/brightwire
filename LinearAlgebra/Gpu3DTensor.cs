@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using ManagedCuda;
 
 namespace BrightWire.LinearAlgebra
 {
@@ -74,10 +75,19 @@ namespace BrightWire.LinearAlgebra
             ;
         }
 
-        public IVector ConvertInPlaceToVector()
+        public IVector ConvertToVector()
         {
             var ret = _cuda.TensorConvertToVector(_data.Select(d => d.CudaDeviceVariable).ToList(), ColumnCount * RowCount);
             return new GpuVector(_cuda, ret.Size, ret);
+        }
+
+        public IMatrix ConvertToMatrix()
+        {
+            var rows = ColumnCount * RowCount;
+            var columns = Depth;
+            var ret = new CudaDeviceVariable<float>(rows * columns);
+            _cuda.TensorConvertToMatrix(_data.Select(d => d.CudaDeviceVariable).ToList(), ColumnCount, RowCount, rows, columns, ret);
+            return new GpuMatrix(_cuda, rows, columns, ret);
         }
 
         public I3DTensor AddPadding(int padding)
@@ -96,12 +106,14 @@ namespace BrightWire.LinearAlgebra
 
         public I3DTensor RemovePadding(int padding)
         {
-            throw new NotImplementedException();
+            // TODO: native CUDA implementation
+            return _cuda.CreateTensor(AsIndexable().RemovePadding(padding).AsIndexable());
         }
 
-        public I3DTensor MaxPool(int filterWidth, int filterHeight, int stridee, List<Dictionary<Tuple<int, int>, Tuple<int, int>>> indexPosList)
+        public I3DTensor MaxPool(int filterWidth, int filterHeight, int stride, List<Dictionary<Tuple<int, int>, Tuple<int, int>>> indexPosList)
         {
-            throw new NotImplementedException();
+            // TODO: native CUDA implementation
+            return _cuda.CreateTensor(AsIndexable().MaxPool(filterWidth, filterHeight, stride, indexPosList).AsIndexable());
         }
     }
 }

@@ -68,10 +68,17 @@ namespace BrightWire.Connectionist.Helper
                 var data = _data[item];
                 var tensor = data.Item1;
                 var backpropagation = _isTraining ? new Stack<IConvolutionalLayerBackpropagation>() : null;
-                for(int i = 0, len = _layer.Count; i < len-1; i++)
-                    tensor = _layer[i].ExecuteToTensor(tensor, backpropagation);
+                for (int i = 0, len = _layer.Count; i < len - 1; i++) {
+                    var next = _layer[i].ExecuteToTensor(tensor, backpropagation);
+                    if(tensor != data.Item1)
+                        tensor.Dispose();
+                    tensor = next;
+                }
                 rowList.Add(_layer.Last().ExecuteToVector(tensor, backpropagation));
-                if(backpropagation != null)
+                if (tensor != data.Item1)
+                    tensor.Dispose();
+
+                if (backpropagation != null)
                     _backpropagation.Add(backpropagation);
                 outputList.Add(data.Item2);
             }

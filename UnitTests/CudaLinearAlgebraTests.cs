@@ -1623,13 +1623,23 @@ namespace UnitTests
         }
 
         [TestMethod]
-        public void TensorConvertInPlaceToVector()
+        public void TensorConvertToVector()
         {
             using (var cpuTensor = _cpu.CreateTensor(Enumerable.Range(0, 3).Select(i => _cpu.Create(4, 4, (j, k) => (i + 1) * (j + 1) * (k + 1))).ToList()))
             using (var gpuTensor = _cuda.CreateTensor(cpuTensor.AsIndexable()))
-            using (var cpuVector = cpuTensor.ConvertInPlaceToVector())
-            using (var gpuVector = gpuTensor.ConvertInPlaceToVector())
+            using (var cpuVector = cpuTensor.ConvertToVector())
+            using (var gpuVector = gpuTensor.ConvertToVector())
                 FloatingPointHelper.AssertEqual(cpuVector.AsIndexable(), gpuVector.AsIndexable());
+        }
+
+        [TestMethod]
+        public void TensorConvertToMatrix()
+        {
+            using (var cpuTensor = _cpu.CreateTensor(Enumerable.Range(0, 3).Select(i => _cpu.Create(4, 4, (j, k) => (i + 1) * (j + 1) * (k + 1))).ToList()))
+            using (var gpuTensor = _cuda.CreateTensor(cpuTensor.AsIndexable()))
+            using (var cpuMatrix = cpuTensor.ConvertToMatrix())
+            using (var gpuMatrix = gpuTensor.ConvertToMatrix())
+                FloatingPointHelper.AssertEqual(cpuMatrix.AsIndexable(), gpuMatrix.AsIndexable());
         }
 
         [TestMethod]

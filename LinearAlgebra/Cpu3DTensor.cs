@@ -154,7 +154,7 @@ namespace BrightWire.LinearAlgebra
             return new CpuMatrix(DenseMatrix.Create(rowList.Count, firstRow.Count, (i, j) => rowList[i][j]));
         }
 
-        public IVector ConvertInPlaceToVector()
+        public IVector ConvertToVector()
         {
             var vectorList = _data.Select(m => m.ConvertInPlaceToVector().AsIndexable()).ToArray();
             var size = _rows * _columns;
@@ -164,6 +164,17 @@ namespace BrightWire.LinearAlgebra
                 return vectorList[offset][index];
             });
             return new CpuVector(ret);
+        }
+
+        public IMatrix ConvertToMatrix()
+        {
+            var ret = DenseMatrix.Create(_rows * _columns, _depth, (i, j) => {
+                var matrix = _data[j];
+                var x = i / _columns;
+                var y = i % _columns;
+                return matrix[x, y];
+            });
+            return new CpuMatrix(ret);
         }
 
         public I3DTensor MaxPool(int filterWidth, int filterHeight, int stride, List<Dictionary<Tuple<int, int>, Tuple<int, int>>> indexPosList)
@@ -199,7 +210,8 @@ namespace BrightWire.LinearAlgebra
                         layer[y, x] = maxVal;
                     }
                 }
-                indexPosList.Add(indexPos);
+                if(indexPosList != null)
+                    indexPosList.Add(indexPos);
                 ret.Add(layer);
             }
             return new Cpu3DTensor(ret);

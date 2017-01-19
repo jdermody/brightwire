@@ -160,6 +160,7 @@ namespace BrightWire.LinearAlgebra
             _copyToMatrix,
             _vectorSplit,
             _tensorConvertToVector,
+            _tensorConvertToMatrix,
             _tensorAddPadding,
             _tensorIm2Col
         ;
@@ -219,6 +220,7 @@ namespace BrightWire.LinearAlgebra
             _copyToMatrix = _kernel.LoadFunction("CopyToMatrix");
             _vectorSplit = _kernel.LoadFunction("VectorSplit");
             _tensorConvertToVector = _kernel.LoadFunction("TensorConvertToVector");
+            _tensorConvertToMatrix = _kernel.LoadFunction("TensorConvertToMatrix");
             _tensorAddPadding = _kernel.LoadFunction("TensorAddPadding");
             _tensorIm2Col = _kernel.LoadFunction("TensorIm2Col");
         }
@@ -650,6 +652,14 @@ namespace BrightWire.LinearAlgebra
             return ret;
         }
 
+        internal void TensorConvertToMatrix(IReadOnlyList<CudaDeviceVariable<float>> matrixList, int tensorRows, int tensorColumns, int matrixRows, int matrixColumns, CudaDeviceVariable<float> ret)
+        {
+            using (var devicePtr = new CudaDeviceVariable<CUdeviceptr>(matrixList.Count)) {
+                devicePtr.CopyToDevice(matrixList.Select(m => m.DevicePointer).ToArray());
+                _Use(_tensorConvertToMatrix, matrixRows, matrixColumns, k => k.Run(0, devicePtr.DevicePointer, ret.DevicePointer, tensorRows, tensorColumns, matrixRows, matrixColumns));
+            }
+        }
+
         internal IReadOnlyList<CudaDeviceVariable<float>> TensorAddPadding(IReadOnlyList<CudaDeviceVariable<float>> matrixList, int rows, int columns, int padding)
         {
             int depth = matrixList.Count;
@@ -888,7 +898,10 @@ namespace BrightWire.LinearAlgebra
         public I3DTensor CreateTensor(IIndexable3DTensor tensor)
         {
             var matrixList = tensor.Data.Select(d => (GpuMatrix)Create(d)).ToList();
-            return new Gpu3DTensor(this, tensor.RowCount, tensor.ColumnCount, tensor.Depth, matrixList);
+            var ret = new Gpu3DTensor(this, tensor.RowCount, tensor.ColumnCount, tensor.Depth, matrixList);
+            foreach (var matrix in matrixList)
+                matrix.Dispose();
+            return ret;
         }
 
         public I4DTensor CreateTensor(IReadOnlyList<I3DTensor> data)

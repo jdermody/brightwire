@@ -849,8 +849,9 @@ namespace BrightWire
         I3DTensor AddPadding(int padding);
         I3DTensor RemovePadding(int padding);
         IMatrix Im2Col(int filterWidth, int filterHeight, int stride);
-        IVector ConvertInPlaceToVector();
-        I3DTensor MaxPool(int filterWidth, int filterHeight, int stridee, List<Dictionary<Tuple<int, int>, Tuple<int, int>>> indexPosList);
+        IVector ConvertToVector();
+        IMatrix ConvertToMatrix();
+        I3DTensor MaxPool(int filterWidth, int filterHeight, int stride, List<Dictionary<Tuple<int, int>, Tuple<int, int>>> indexPosList);
     }
 
     public interface IIndexable3DTensor : I3DTensor
@@ -1555,7 +1556,9 @@ namespace BrightWire
         /// <param name="imageWidth">The width of the input image</param>
         /// <param name="disableUpdates">True to stop this layer from updating its weights and biases</param>
         /// <returns></returns>
-        IConvolutionalLayer CreateConvolutionalLayer(ConvolutionDescriptor descriptor, int imageWidth, bool disableUpdates = false);
+        IConvolutionalLayer CreateConvolutionalLayer(ConvolutionDescriptor descriptor, int inputDepth, int imageWidth, bool disableUpdates = false);
+
+        IConvolutionalLayer CreateMaxPoolingLayer(int filterWidth, int filterHeight, int stride);
 
         /// <summary>
         /// Creates a layer whose weights are tied with the specicied layer
