@@ -74,15 +74,20 @@ namespace BrightWire.SampleCode
                 foreach (var item in testSamples)
                     item.Item1.Dispose();
 
-                //using (var execution = lap.NN.CreateConvolutional(network)) {
-                //    foreach (var item in onesAndZeroesTest) {
-                //        using (var tensor = item.AsVolume.AsTensor(lap)) {
-                //            using (var output = execution.Execute(tensor)) {
-                //                var maxIndex = output.MaximumIndex();
-                //            }
-                //        }
-                //    }
-                //}
+                int correct = 0, total = 0;
+                using (var execution = lap.NN.CreateConvolutional(network)) {
+                    foreach (var item in onesAndZeroesTest) {
+                        using (var tensor = item.AsVolume.AsTensor(lap)) {
+                            using (var output = execution.Execute(tensor)) {
+                                var maxIndex = output.MaximumIndex();
+                                if (maxIndex == item.Label)
+                                    ++correct;
+                                ++total;
+                            }
+                        }
+                    }
+                }
+                Console.WriteLine($"Execution results: {(double)correct / total:P0} correct");
             }
         }
 

@@ -14,8 +14,12 @@ namespace BrightWire.Connectionist.Execution
 
         public ConvolutionalExecution(ILinearAlgebraProvider lap, ConvolutionalNetwork network)
         {
-            foreach (var layer in network.ConvolutionalLayer)
-                _convolutional.Add(new Convolutional(lap, layer));
+            foreach (var layer in network.ConvolutionalLayer) {
+                if (layer.Type == ConvolutionalNetwork.ConvolutionalLayerType.Convolutional)
+                    _convolutional.Add(new Convolutional(lap, layer));
+                else if (layer.Type == ConvolutionalNetwork.ConvolutionalLayerType.MaxPooling)
+                    _convolutional.Add(new MaxPooling(layer.FilterWidth, layer.FilterHeight, layer.Stride));
+            }
             _feedForward = lap.NN.CreateFeedForward(network.FeedForward);
         }
 
@@ -33,8 +37,7 @@ namespace BrightWire.Connectionist.Execution
                 tensor.Dispose();
                 tensor = next;
             }
-            using (var matrix = _convolutional.Last().ExecuteToMatrix(tensor))
-            using (var vector = matrix.ConvertInPlaceToVector()) {
+            using (var vector = _convolutional.Last().ExecuteToVector(tensor)) {
                 tensor.Dispose();
                 return _feedForward.Execute(vector);
             }

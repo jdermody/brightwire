@@ -64,19 +64,6 @@ namespace BrightWire.Connectionist.Training.Layer.Convolutional
                         item.Dispose();
                     return ret;
                 }
-
-                //Tuple<int, int> newIndex;
-                //var ret = _lap.Create(_rows * _columns, _indexPosList.Count, (i, j) => {
-                //    var table = _indexPosList[j];
-                //    var x = i / _rows;
-                //    var y = i % _rows;
-                //    if (table.TryGetValue(Tuple.Create(x, y), out newIndex)) {
-                //        var newIndex2 = newIndex.Item1 * _newRows + newIndex.Item2;
-                //        return matrixList[j][newIndex2];
-                //    }
-                //    return 0f;
-                //});
-                //return ret;
             }
         }
         readonly ILinearAlgebraProvider _lap;

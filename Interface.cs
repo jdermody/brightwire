@@ -2427,7 +2427,7 @@ namespace BrightWire
         /// Executes the operation and returns a matrix
         /// </summary>
         /// <param name="tensor">The input tensor</param>
-        IMatrix ExecuteToMatrix(I3DTensor tensor);
+        IVector ExecuteToVector(I3DTensor tensor);
 
         /// <summary>
         /// Executes the operation and returns a tensor

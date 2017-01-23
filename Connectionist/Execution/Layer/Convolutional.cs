@@ -39,25 +39,31 @@ namespace BrightWire.Connectionist.Execution.Layer
             return ret;
         }
 
+        public IVector ExecuteToVector(I3DTensor tensor)
+        {
+            var ret = ExecuteToMatrix(tensor);
+            return ret.ConvertInPlaceToVector();
+        }
+
         public I3DTensor ExecuteToTensor(I3DTensor tensor)
         {
-            var output = ExecuteToMatrix(tensor);
-
-            // convert the matrix to a tensor
-            var sliceList = new List<IMatrix>();
-            for (int i = 0, len = output.ColumnCount; i < len; i++) {
-                using (var vector = output.Column(i)) {
-                    var parts = vector.Split(tensor.ColumnCount);
-                    var sliceMatrix = _lap.Create(parts);
-                    sliceList.Add(sliceMatrix);
-                    foreach (var part in parts)
-                        part.Dispose();
+            using (var output = ExecuteToMatrix(tensor)) {
+                // convert the matrix to a tensor
+                var sliceList = new List<IMatrix>();
+                for (int i = 0, len = output.ColumnCount; i < len; i++) {
+                    using (var vector = output.Column(i)) {
+                        var parts = vector.Split(tensor.ColumnCount);
+                        var sliceMatrix = _lap.Create(parts);
+                        sliceList.Add(sliceMatrix);
+                        foreach (var part in parts)
+                            part.Dispose();
+                    }
                 }
+                var ret = _lap.CreateTensor(sliceList);
+                foreach (var slice in sliceList)
+                    slice.Dispose();
+                return ret;
             }
-            var ret = _lap.CreateTensor(sliceList);
-            foreach (var slice in sliceList)
-                slice.Dispose();
-            return ret;
         }
 
         public void Dispose()

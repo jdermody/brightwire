@@ -6,19 +6,29 @@ namespace BrightWire.Connectionist.Execution.Layer
 {
     internal class MaxPooling : IConvolutionalLayerExecution
     {
-        public void Dispose()
+        readonly int _filterWidth, _filterHeight, _stride;
+
+        public MaxPooling(int filterWidth, int filterHeight, int stride)
         {
-            throw new NotImplementedException();
+            _filterWidth = filterWidth;
+            _filterHeight = filterHeight;
+            _stride = stride;
         }
 
-        public IMatrix ExecuteToMatrix(I3DTensor tensor)
+        public void Dispose()
         {
-            throw new NotImplementedException();
+            // nop
+        }
+
+        public IVector ExecuteToVector(I3DTensor tensor)
+        {
+            using (var ret = tensor.MaxPool(_filterWidth, _filterHeight, _stride, null))
+                return ret.ConvertToVector();
         }
 
         public I3DTensor ExecuteToTensor(I3DTensor tensor)
         {
-            throw new NotImplementedException();
+            return tensor.MaxPool(_filterWidth, _filterHeight, _stride, null);
         }
     }
 }
