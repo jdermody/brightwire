@@ -51,7 +51,7 @@ namespace BrightWire.Connectionist.Training.Manager
 
         double _GetScore(ITrainingContext context)
         {
-            return _trainer.Execute(_testData).Average(d => context.ErrorMetric.Compute(d.Output, d.ExpectedOutput));
+            return Math.Abs(_trainer.Execute(_testData).Average(d => context.ErrorMetric.Compute(d.Output, d.ExpectedOutput)));
         }
 
         public void Train(ITrainingDataProvider trainingData, int numEpochs, ITrainingContext context)
