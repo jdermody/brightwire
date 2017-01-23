@@ -143,10 +143,24 @@ namespace BrightWire
         /// <param name="values">The diagonal values</param>
         IMatrix CreateDiagonal(IReadOnlyList<float> values);
 
+        /// <summary>
+        /// Creates a 3D tensor
+        /// </summary>
+        /// <param name="data">The list of matrices that form the tensor</param>
+        /// <returns></returns>
         I3DTensor CreateTensor(IReadOnlyList<IMatrix> data);
 
+        /// <summary>
+        /// Creates a 3D tensor
+        /// </summary>
+        /// <param name="tensor">An indexable 3D tensor to use as a source</param>
         I3DTensor CreateTensor(IIndexable3DTensor tensor);
 
+        /// <summary>
+        /// Creates a 4D tensor
+        /// </summary>
+        /// <param name="data">The list of 3D tensors that form the 4D tensor</param>
+        /// <returns></returns>
         I4DTensor CreateTensor(IReadOnlyList<I3DTensor> data);
 
         /// <summary>
@@ -417,8 +431,17 @@ namespace BrightWire
         /// </summary>
         IVector Sigmoid();
 
+        /// <summary>
+        /// Fast conversion to matrix (internal buffer is used directly)
+        /// </summary>
+        /// <param name="rows">The number of rows in the matrix</param>
+        /// <param name="columns">The number of columns in the matrix</param>
         IMatrix ConvertInPlaceToMatrix(int rows, int columns);
 
+        /// <summary>
+        /// Splits the vector into a list of vectors
+        /// </summary>
+        /// <param name="blockCount">The size of each sub vector</param>
         IReadOnlyList<IVector> Split(int blockCount);
     }
 
@@ -783,13 +806,14 @@ namespace BrightWire
         /// </summary>
         SingularValueDecomposition Svd();
 
-        //IMatrix RotateColumns180(int subMatrixWidth);
-
+        /// <summary>
+        /// Fast conversion to vector (the internal buffer is not modified)
+        /// </summary>
         IVector ConvertInPlaceToVector();
 
-        I3DTensor MaxPool(int filterDepth, List<int[]> indexList);
+        //I3DTensor MaxPool(int filterDepth, List<int[]> indexList);
 
-        IMatrix ReverseMaxPool(IMatrix error, int size, int filterSize, int filterDepth, IReadOnlyList<int[]> indexList);
+        //IMatrix ReverseMaxPool(IMatrix error, int size, int filterSize, int filterDepth, IReadOnlyList<int[]> indexList);
     }
 
     /// <summary>
@@ -839,33 +863,134 @@ namespace BrightWire
         string AsXml { get; }
     }
 
+    /// <summary>
+    /// A 3D tensor is a list of matrices
+    /// </summary>
     public interface I3DTensor : IDisposable
     {
+        /// <summary>
+        /// The number of rows in each matrix
+        /// </summary>
         int RowCount { get; }
+
+        /// <summary>
+        /// The number of columns in each matrix
+        /// </summary>
         int ColumnCount { get; }
+
+        /// <summary>
+        /// The number of matrices
+        /// </summary>
         int Depth { get; }
+
+        /// <summary>
+        /// Returns a matrix at the specified depth
+        /// </summary>
+        /// <param name="depth">The depth to query</param>
+        /// <returns></returns>
         IMatrix GetDepthSlice(int depth);
+
+        /// <summary>
+        /// Returns an indexable 3D tensor
+        /// </summary>
+        /// <returns></returns>
         IIndexable3DTensor AsIndexable();
+
+        /// <summary>
+        /// Adds padding to each matrix
+        /// </summary>
+        /// <param name="padding">The padding (both vertical and horizontal)</param>
+        /// <returns>A new tensor</returns>
         I3DTensor AddPadding(int padding);
+
+        /// <summary>
+        /// Removes padding from each matrix
+        /// </summary>
+        /// <param name="padding">The padding to remove</param>
+        /// <returns>A new tensor</returns>
         I3DTensor RemovePadding(int padding);
+
+        /// <summary>
+        /// Performs a convolution on each source matrix
+        /// </summary>
+        /// <param name="filterWidth">The filter width</param>
+        /// <param name="filterHeight">The filter height</param>
+        /// <param name="stride">The convolution stride</param>
+        /// <returns></returns>
         IMatrix Im2Col(int filterWidth, int filterHeight, int stride);
+
+        /// <summary>
+        /// Converts the tensor to a vector (each matrix is concatenated into a single vector)
+        /// </summary>
+        /// <returns></returns>
         IVector ConvertToVector();
+
+        /// <summary>
+        /// Converts the tensor to a matrix (each matrix becomes a column in the new matrix)
+        /// </summary>
+        /// <returns></returns>
         IMatrix ConvertToMatrix();
+
+        /// <summary>
+        /// Performs a max pooling operation on the tensor
+        /// </summary>
+        /// <param name="filterWidth">The pooling filter width</param>
+        /// <param name="filterHeight">The pooling filter height</param>
+        /// <param name="stride">The pooling stride</param>
+        /// <param name="indexPosList">A map of the indexes that were pooled (mapping from output to input positions)</param>
+        /// <returns>A max pooled tensor</returns>
         I3DTensor MaxPool(int filterWidth, int filterHeight, int stride, List<Dictionary<Tuple<int, int>, Tuple<int, int>>> indexPosList);
     }
 
+    /// <summary>
+    /// A 3D tensor that can be directly indexed
+    /// </summary>
     public interface IIndexable3DTensor : I3DTensor
     {
+        /// <summary>
+        /// Returns a value from the tensor
+        /// </summary>
+        /// <param name="row">The row to query</param>
+        /// <param name="column">The column to query</param>
+        /// <param name="depth">The depth to query</param>
         float this[int row, int column, int depth] { get; set; }
+
+        /// <summary>
+        /// Gets a list of the indexable matrices
+        /// </summary>
         IReadOnlyList<IIndexableMatrix> Data { get; }
     }
 
+    /// <summary>
+    /// A 4D Tensor is a list of 3D tensors
+    /// </summary>
     public interface I4DTensor : IDisposable
     {
+        /// <summary>
+        /// The number of rows in each matrix
+        /// </summary>
         int RowCount { get; }
+
+        /// <summary>
+        /// The number of columns in each matrix
+        /// </summary>
         int ColumnCount { get; }
+
+        /// <summary>
+        /// The depth of each 3D tensor
+        /// </summary>
         int Depth { get; }
+
+        /// <summary>
+        /// The count of 3D tensors
+        /// </summary>
         int Count { get; }
+
+        /// <summary>
+        /// Returns a 3D tensor at the specified index
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         I3DTensor Get(int index);
     }
 
@@ -963,6 +1088,10 @@ namespace BrightWire
         /// </summary>
         NetworkLayer LayerInfo { get; set; }
 
+        /// <summary>
+        /// Calculates the error signal from a delta matrix
+        /// </summary>
+        /// <param name="delta">The delta matrix</param>
         IMatrix CalculateErrorSignal(IMatrix delta);
     }
 
@@ -1245,6 +1374,9 @@ namespace BrightWire
         event Action<ITrainingContext, IRecurrentTrainingContext> RecurrentEpochComplete;
     }
 
+    /// <summary>
+    /// Marks an additional backpropagation step
+    /// </summary>
     public interface ICanBackpropagate
     {
         /// <summary>
@@ -1473,10 +1605,10 @@ namespace BrightWire
         /// <param name="data">A list of sequences of training examples</param>
         ISequentialTrainingDataProvider CreateSequentialTrainingDataProvider(IReadOnlyList<TrainingExample[]> data);
 
-        /// <summary>
-        /// Creates a sparse sequential training data provider
-        /// </summary>
-        /// <param name="data">A list of tuple sequences of {input, output}</param>
+        // <summary>
+        // Creates a sparse sequential training data provider
+        // </summary>
+        // <param name="data">A list of tuple sequences of {input, output}</param>
         //ISequentialTrainingDataProvider CreateSequentialTrainingDataProvider(IReadOnlyList<Tuple<Dictionary<uint, float>, Dictionary<uint, float>>[]> data);
 
         /// <summary>
@@ -1553,11 +1685,19 @@ namespace BrightWire
         /// Creates a convolutional Layer
         /// </summary>
         /// <param name="descriptor">Layer parameters</param>
+        /// <param name="inputDepth">The input depth</param>
         /// <param name="imageWidth">The width of the input image</param>
         /// <param name="disableUpdates">True to stop this layer from updating its weights and biases</param>
         /// <returns></returns>
         IConvolutionalLayer CreateConvolutionalLayer(ConvolutionDescriptor descriptor, int inputDepth, int imageWidth, bool disableUpdates = false);
 
+        /// <summary>
+        /// Creates a convolutional layer that performs max pooling
+        /// </summary>
+        /// <param name="filterWidth">The max pooling filter width</param>
+        /// <param name="filterHeight">The max pooling filter height</param>
+        /// <param name="stride">The max pooling stride</param>
+        /// <returns></returns>
         IConvolutionalLayer CreateMaxPoolingLayer(int filterWidth, int filterHeight, int stride);
 
         /// <summary>
@@ -1750,6 +1890,21 @@ namespace BrightWire
             ISequentialTrainingDataProvider testData,
             int memorySize,
             int? autoAdjustOnNoChangeCount = null
+        );
+
+        /// <summary>
+        /// Creates a convolutional training data provider
+        /// </summary>
+        /// <param name="descriptor">The convolution descriptor</param>
+        /// <param name="data">The training data</param>
+        /// <param name="layer">The layers of the convolution</param>
+        /// <param name="isTraining">True if this is a training data provider (false for a test data provider)</param>
+        /// <returns></returns>
+        IConvolutionalNetworkTrainer CreateConvolutionalTrainingProvider(
+            ConvolutionDescriptor descriptor, 
+            IReadOnlyList<Tuple<I3DTensor, float[]>> data, 
+            IReadOnlyList<IConvolutionalLayer> layer, 
+            bool isTraining = true
         );
     }
 
@@ -2042,10 +2197,31 @@ namespace BrightWire
     /// </summary>
     public interface IDataTableVectoriser
     {
+        /// <summary>
+        /// Vectorises the input columns of the specified row
+        /// </summary>
+        /// <param name="row">The row to vectorise</param>
         float[] GetInput(IRow row);
+
+        /// <summary>
+        /// Vectorises the output column of the specified row
+        /// </summary>
+        /// <param name="row">The row to vectorise</param>
         float[] GetOutput(IRow row);
+
+        /// <summary>
+        /// The size of the input vector
+        /// </summary>
         int InputSize { get; }
+
+        /// <summary>
+        /// The size of the output vector
+        /// </summary>
         int OutputSize { get; }
+
+        /// <summary>
+        /// The list of column names
+        /// </summary>
         IReadOnlyList<string> ColumnNames { get; }
 
         /// <summary>
@@ -2242,14 +2418,34 @@ namespace BrightWire
         float[] InitialMemory { get; }
     }
 
+    /// <summary>
+    /// Executes a single convolution operation on a tensor
+    /// </summary>
     public interface IConvolutionalLayerExecution : IDisposable
     {
+        /// <summary>
+        /// Executes the operation and returns a matrix
+        /// </summary>
+        /// <param name="tensor">The input tensor</param>
         IMatrix ExecuteToMatrix(I3DTensor tensor);
+
+        /// <summary>
+        /// Executes the operation and returns a tensor
+        /// </summary>
+        /// <param name="tensor">The input tensor</param>
         I3DTensor ExecuteToTensor(I3DTensor tensor);
     }
 
+    /// <summary>
+    /// Executes a series of convolutional operations
+    /// </summary>
     public interface IConvolutionalExecution : IDisposable
     {
+        /// <summary>
+        /// Executes the operations on the input tensor
+        /// </summary>
+        /// <param name="tensor">The input tensor</param>
+        /// <returns>A vector with each layer concatenated</returns>
         IVector Execute(I3DTensor tensor);
     }
 
@@ -2892,10 +3088,10 @@ namespace BrightWire
     /// </summary>
     public interface ILinearRegressionTrainer
     {
-        /// <summary>
-        /// Attempt to solve the model using matrix inversion (only applicable for small sets of training data)
-        /// </summary>
-        /// <returns></returns>
+        // <summary>
+        // Attempt to solve the model using matrix inversion (only applicable for small sets of training data)
+        // </summary>
+        // <returns></returns>
         //LinearRegression Solve();
 
         /// <summary>
@@ -3094,24 +3290,106 @@ namespace BrightWire
         MarkovModel3<T> Build();
     }
 
+    /// <summary>
+    /// Boosted trainer
+    /// </summary>
     public interface IBoostedTrainer
     {
+        /// <summary>
+        /// Adds a single classifier that will classify a sample of rows from the data table
+        /// </summary>
+        /// <param name="classifierProvider"></param>
         void AddClassifier(Func<IDataTable, IRowClassifier> classifierProvider);
+
+        /// <summary>
+        /// Adds a list of classifiers that will each classify a sample of rows from the table
+        /// </summary>
+        /// <param name="count"></param>
+        /// <param name="classifierProvider"></param>
         void AddClassifiers(int count, Func<IDataTable, IRowClassifier> classifierProvider);
-        IReadOnlyList<RowClassification> Classify(IDataTable testData);
+
+        /// <summary>
+        /// Classifies each row of the table with the current set of classifiers
+        /// </summary>
+        /// <param name="dataTable">The data table to classify</param>
+        IReadOnlyList<RowClassification> Classify(IDataTable dataTable);
     }
 
+    /// <summary>
+    /// A convolutional training layer
+    /// </summary>
     public interface IConvolutionalLayer : IDisposable
     {
+        /// <summary>
+        /// Executes the layer and stores the backpropagation result
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <param name="backpropagation"></param>
         I3DTensor ExecuteToTensor(I3DTensor tensor, Stack<IConvolutionalLayerBackpropagation> backpropagation);
+
+        /// <summary>
+        /// Executes the layer and stores the backpropagation result
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <param name="backpropagation"></param>
         IVector ExecuteToVector(I3DTensor tensor, Stack<IConvolutionalLayerBackpropagation> backpropagation);
+
+        /// <summary>
+        /// The current layer state
+        /// </summary>
         ConvolutionalNetwork.Layer Layer { get; }
     }
 
+    /// <summary>
+    /// The convolutional layer's backpropagation
+    /// </summary>
     public interface IConvolutionalLayerBackpropagation
     {
+        /// <summary>
+        /// Executes the backpropagation
+        /// </summary>
+        /// <param name="error">The input error signal</param>
+        /// <param name="context">The training context</param>
+        /// <param name="calculateOutput">True to calculate the output error signal</param>
+        /// <param name="updateAccumulator">Where to store the layer updates</param>
+        /// <returns></returns>
         IMatrix Execute(IMatrix error, ITrainingContext context, bool calculateOutput, INeuralNetworkUpdateAccumulator updateAccumulator);
+
+        /// <summary>
+        /// The row count
+        /// </summary>
         int RowCount { get; }
+
+        /// <summary>
+        /// The column count
+        /// </summary>
         int ColumnCount { get; }
+    }
+
+    /// <summary>
+    /// A convolutional network trainer
+    /// </summary>
+    public interface IConvolutionalNetworkTrainer
+    {
+        /// <summary>
+        /// Gets the current network
+        /// </summary>
+        /// <param name="trainer">The feed forward trainer</param>
+        ConvolutionalNetwork GetCurrentNetwork(INeuralNetworkTrainer trainer);
+
+        /// <summary>
+        /// The training data provider
+        /// </summary>
+        ITrainingDataProvider TrainingDataProvider { get; }
+
+        /// <summary>
+        /// The size of the training data input
+        /// </summary>
+        int InputSize { get; }
+
+        /// <summary>
+        /// The size of the training data output
+        /// </summary>
+        int OutputSize { get; }
     }
 }

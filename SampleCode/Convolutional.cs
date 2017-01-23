@@ -36,7 +36,7 @@ namespace BrightWire.SampleCode
                     Activation = ActivationType.LeakyRelu
                 };
 
-                const int BATCH_SIZE = 128, NUM_EPOCHS = 10, IMAGE_WIDTH = 28;
+                const int BATCH_SIZE = 128, NUM_EPOCHS = 2, IMAGE_WIDTH = 28;
                 const float TRAINING_RATE = 0.03f;
                 var errorMetric = ErrorMetricType.OneHot.Create();
                 var layerTemplate = new LayerDescriptor(0.1f) {
@@ -52,18 +52,18 @@ namespace BrightWire.SampleCode
                     lap.NN.CreateConvolutionalLayer(convolutionDescriptor, 1, IMAGE_WIDTH, false),
                     lap.NN.CreateMaxPoolingLayer(2, 2, 2)
                 };
-                var trainingDataProvider = new ConvolutionalTrainingDataProvider(lap, convolutionDescriptor, trainingSamples, convolutionalLayer, true);
-                var testDataProvider = new ConvolutionalTrainingDataProvider(lap, convolutionDescriptor, testSamples, convolutionalLayer, false);
+                var trainingDataProvider = lap.NN.CreateConvolutionalTrainingProvider(convolutionDescriptor, trainingSamples, convolutionalLayer, true);
+                var testDataProvider = lap.NN.CreateConvolutionalTrainingProvider(convolutionDescriptor, testSamples, convolutionalLayer, false);
 
                 ConvolutionalNetwork network;
                 using (var trainer = lap.NN.CreateBatchTrainer(layerTemplate, 784, trainingDataProvider.OutputSize)) {
                     var trainingContext = lap.NN.CreateTrainingContext(errorMetric, TRAINING_RATE, BATCH_SIZE);
                     trainingContext.EpochComplete += c => {
-                        var output = trainer.Execute(testDataProvider);
+                        var output = trainer.Execute(testDataProvider.TrainingDataProvider);
                         var testError = output.Select(d => errorMetric.Compute(d.Output, d.ExpectedOutput)).Average();
                         trainingContext.WriteScore(testError, errorMetric.DisplayAsPercentage);
                     };
-                    trainer.Train(trainingDataProvider, NUM_EPOCHS, trainingContext);
+                    trainer.Train(trainingDataProvider.TrainingDataProvider, NUM_EPOCHS, trainingContext);
 
                     network = trainingDataProvider.GetCurrentNetwork(trainer);
                 }
@@ -103,7 +103,7 @@ namespace BrightWire.SampleCode
                 WeightUpdate = WeightUpdateType.RMSprop,
                 Activation = ActivationType.LeakyRelu
             };
-            const int BATCH_SIZE = 128, NUM_EPOCHS = 200;
+            const int BATCH_SIZE = 128, NUM_EPOCHS = 2;
             const float TRAINING_RATE = 0.03f;
             var errorMetric = ErrorMetricType.OneHot.Create();
             var layerTemplate = new LayerDescriptor(0.1f) {
@@ -111,8 +111,8 @@ namespace BrightWire.SampleCode
                 Activation = ActivationType.LeakyRelu
             };
             using (var lap = Provider.CreateLinearAlgebra(false)) {
-                var trainingSamples = trainingData.Shuffle(0).Take(5000).Select(d => d.AsVolume).Select(d => Tuple.Create(d.AsTensor(lap), d.ExpectedOutput)).ToList();
-                var testSamples = testData.Shuffle(0).Take(500).Select(d => d.AsVolume).Select(d => Tuple.Create(d.AsTensor(lap), d.ExpectedOutput)).ToList();
+                var trainingSamples = trainingData.Shuffle(0).Take(1000).Select(d => d.AsVolume).Select(d => Tuple.Create(d.AsTensor(lap), d.ExpectedOutput)).ToList();
+                var testSamples = testData.Shuffle(0).Take(100).Select(d => d.AsVolume).Select(d => Tuple.Create(d.AsTensor(lap), d.ExpectedOutput)).ToList();
 
                 // create a network with two convolutional layers
                 // the first takes the input image of depth 1
@@ -121,20 +121,20 @@ namespace BrightWire.SampleCode
                     lap.NN.CreateConvolutionalLayer(convolutionDescriptor, 1, 28),
                     lap.NN.CreateConvolutionalLayer(convolutionDescriptor, convolutionDescriptor.FilterDepth, 28)
                 };
-                var trainingDataProvider = new ConvolutionalTrainingDataProvider(lap, convolutionDescriptor, trainingSamples, layer, true);
-                var testDataProvider = new ConvolutionalTrainingDataProvider(lap, convolutionDescriptor, testSamples, layer, false);
+                var trainingDataProvider = lap.NN.CreateConvolutionalTrainingProvider(convolutionDescriptor, trainingSamples, layer, true);
+                var testDataProvider = lap.NN.CreateConvolutionalTrainingProvider(convolutionDescriptor, testSamples, layer, false);
 
                 using (var trainer = lap.NN.CreateBatchTrainer(layerTemplate, trainingDataProvider.InputSize, 128, trainingDataProvider.OutputSize)) {
                     var trainingContext = lap.NN.CreateTrainingContext(errorMetric, TRAINING_RATE, BATCH_SIZE);
                     trainingContext.EpochComplete += c => {
-                        var output = trainer.Execute(testDataProvider);
+                        var output = trainer.Execute(testDataProvider.TrainingDataProvider);
                         var testError = output.Select(d => errorMetric.Compute(d.Output, d.ExpectedOutput)).Average();
                         trainingContext.WriteScore(testError, errorMetric.DisplayAsPercentage);
                     };
                     trainingContext.ScheduleTrainingRateChange(50, TRAINING_RATE / 3f);
                     trainingContext.ScheduleTrainingRateChange(100, TRAINING_RATE / 9f);
                     trainingContext.ScheduleTrainingRateChange(150, TRAINING_RATE / 27f);
-                    trainer.Train(trainingDataProvider, NUM_EPOCHS, trainingContext);
+                    trainer.Train(trainingDataProvider.TrainingDataProvider, NUM_EPOCHS, trainingContext);
                 }
                 foreach (var item in layer)
                     item.Dispose();

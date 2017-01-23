@@ -296,6 +296,7 @@ namespace BrightWire
         /// <param name="minDataPerNode">Minimum number of data points per node to continue splitting</param>
         /// <param name="maxDepth">The maximum depth of each leaf</param>
         /// <param name="minInformationGain">The minimum information gain to continue splitting</param>
+        /// <param name="maxAttributes">The maximum number of attributes to consider at each split</param>
         /// <returns>A model that can be used for classification</returns>
         public static DecisionTree TrainDecisionTree(this IDataTable data, int? minDataPerNode = null, int? maxDepth = null, double? minInformationGain = null, int? maxAttributes = null)
         {

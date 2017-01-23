@@ -15,6 +15,10 @@ namespace BrightWire.Ensemble
     {
         readonly List<Tuple<float[], string>> _trainingData = new List<Tuple<float[], string>>();
 
+        /// <summary>
+        /// Converts the list of weighted classification outputs to a single vector
+        /// </summary>
+        /// <param name="row">The list of weighted classification outputs</param>
         public float[] Vectorise(IReadOnlyList<IReadOnlyList<WeightedClassification>> row)
         {
             List<float> temp;
@@ -33,11 +37,20 @@ namespace BrightWire.Ensemble
             ;
         }
 
+        /// <summary>
+        /// Adds a list of weighted classification outputs
+        /// </summary>
+        /// <param name="row">The list of weighted classification outputs</param>
+        /// <param name="classification">The expected classification</param>
         public void Add(IReadOnlyList<IReadOnlyList<WeightedClassification>> row, string classification)
         {
             _trainingData.Add(Tuple.Create(Vectorise(row), classification));
         }
 
+        /// <summary>
+        /// Creates a new data table with the vectorised weighted classification outputs linked with each row's classification
+        /// </summary>
+        /// <param name="output">The output stream to write the table to (optional)</param>
         public IDataTable GetTable(Stream output = null)
         {
             if(_trainingData.Any()) {

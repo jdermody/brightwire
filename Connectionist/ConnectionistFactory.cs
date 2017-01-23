@@ -348,5 +348,10 @@ namespace BrightWire.Connectionist
         {
             return new MaxPoolingLayer(_lap, filterWidth, filterHeight, stride);
         }
+
+        public IConvolutionalNetworkTrainer CreateConvolutionalTrainingProvider(ConvolutionDescriptor descriptor, IReadOnlyList<Tuple<I3DTensor, float[]>> data, IReadOnlyList<IConvolutionalLayer> layer, bool isTraining = true)
+        {
+            return new ConvolutionalTrainingDataProvider(_lap, descriptor, data, layer, isTraining);
+        }
     }
 }

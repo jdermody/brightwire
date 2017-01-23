@@ -569,7 +569,7 @@ namespace BrightWire.LinearAlgebra
 
         public IVector ConvertInPlaceToVector()
         {
-            return new CpuVector(_matrix.ToColumnWiseArray());
+            return new CpuVector(_matrix.ToColumnMajorArray());
         }
 
         public I3DTensor MaxPool(int filterDepth, List<int[]> indexList)

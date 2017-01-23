@@ -12,7 +12,6 @@ namespace BrightWire.Connectionist.Helper
         readonly ILinearAlgebraProvider _lap;
         readonly IReadOnlyList<Tuple<Dictionary<uint, float>, Dictionary<uint, float>>> _data;
         readonly int _inputSize, _outputSize;
-        int _lastBatchSize = 0;
 
         public SparseTrainingDataProvider(ILinearAlgebraProvider lap, IReadOnlyList<Tuple<Dictionary<uint, float>, Dictionary<uint, float>>> data, int inputSize, int outputSize)
         {

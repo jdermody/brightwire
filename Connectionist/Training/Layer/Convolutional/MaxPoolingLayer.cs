@@ -119,8 +119,8 @@ namespace BrightWire.Connectionist.Training.Layer.Convolutional
 
         public IVector ExecuteToVector(I3DTensor tensor, Stack<IConvolutionalLayerBackpropagation> backpropagation)
         {
-            var ret = ExecuteToTensor(tensor, backpropagation);
-            return ret.ConvertToVector();
+            using (var ret = ExecuteToTensor(tensor, backpropagation))
+                return ret.ConvertToVector();
         }
     }
 }

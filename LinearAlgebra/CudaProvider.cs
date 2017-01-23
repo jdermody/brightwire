@@ -899,8 +899,6 @@ namespace BrightWire.LinearAlgebra
         {
             var matrixList = tensor.Data.Select(d => (GpuMatrix)Create(d)).ToList();
             var ret = new Gpu3DTensor(this, tensor.RowCount, tensor.ColumnCount, tensor.Depth, matrixList);
-            foreach (var matrix in matrixList)
-                matrix.Dispose();
             return ret;
         }
 

@@ -8,7 +8,7 @@ using BrightWire.Models;
 
 namespace BrightWire.Connectionist.Helper
 {
-    public class ConvolutionalTrainingDataProvider : ITrainingDataProvider, ICanBackpropagate
+    internal class ConvolutionalTrainingDataProvider : ITrainingDataProvider, ICanBackpropagate, IConvolutionalNetworkTrainer
     {
         readonly ILinearAlgebraProvider _lap;
         readonly IReadOnlyList<Tuple<I3DTensor, float[]>> _data;
@@ -56,7 +56,6 @@ namespace BrightWire.Connectionist.Helper
                 return _outputSize;
             }
         }
-
 
         public IMiniBatch GetTrainingData(IReadOnlyList<int> rows)
         {
@@ -132,5 +131,7 @@ namespace BrightWire.Connectionist.Helper
                 }
             };
         }
+
+        public ITrainingDataProvider TrainingDataProvider { get { return this; } }
     }
 }

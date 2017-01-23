@@ -62,6 +62,9 @@ namespace BrightWire.TrainingData
                 }
             }
 
+            /// <summary>
+            /// Converts the image to a volume
+            /// </summary>
             public Volume AsVolume
             {
                 get

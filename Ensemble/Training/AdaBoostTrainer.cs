@@ -75,17 +75,6 @@ namespace BrightWire.Ensemble.Training
                 var row = trainingRows[i];
                 var classification = _Classify(row);
                 ret.Add(new RowClassification(row, classification));
-                //var results = _classifier
-                //    .SelectMany((c, j) => c.Classify(row)
-                //        .Select(wc => WeightedClassification.Create(wc, _classifierWeight[j]))
-                //    )
-                //    .GroupBy(wc => wc.Classification)
-                //    .Select(g => Tuple.Create(g.Key, g.Sum(wc => wc.Weight)))
-                //    .OrderByDescending(d => d.Item2)
-                //    .ToList()
-                //;
-                //var bestClassification = results.First();
-                //ret.Add(new RowClassification(row, bestClassification.Item1));
             }
             return ret;
         }
