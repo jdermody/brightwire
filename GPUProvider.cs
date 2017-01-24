@@ -23,7 +23,7 @@ namespace BrightWire
         {
             var path = cudaKernelPath ?? GetKernelPath();
             if (!File.Exists(path))
-                throw new FileNotFoundException($"Could not find cuda kernel at: {path}.");
+                throw new FileNotFoundException($"Could not find cuda kernel at: {path}. Is the \\LinearAlgebra\\cuda\\kernel.ptx file set to 'Copy to Output Directory'?");
             return new CudaProvider(path, stochastic);
         }
 
