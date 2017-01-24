@@ -39,7 +39,7 @@ Note: When using the CUDA version, make sure that the /LinearAlgebra/cuda/kernel
 ## Features
 
 ### Connectionist aka "Deep Learning"
-* Feed Forward, Recurrent and Bidirectional Neural Networks
+* Feed Forward, Convolutional, Recurrent and Bidirectional Neural Networks
 * Minibatch Training
 * L2, Dropout and DropConnect Regularisation
 * RELU, LeakyRelu, Sigmoid and Tanh Activation Functions
