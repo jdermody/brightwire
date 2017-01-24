@@ -11,9 +11,15 @@ using System.Threading.Tasks;
 
 namespace BrightWire.Models.Input
 {
+    /// <summary>
+    /// An array of sparse vector classifications
+    /// </summary>
     [ProtoContract]
     public class SparseVectorClassificationSet
     {
+        /// <summary>
+        /// The array of sparse vector classifications
+        /// </summary>
         [ProtoMember(1)]
         public SparseVectorClassification[] Classification { get; set; }
 
@@ -30,21 +36,37 @@ namespace BrightWire.Models.Input
             ;
         }
 
+        /// <summary>
+        /// Splits the sparse vectors into training and test sets
+        /// </summary>
+        /// <param name="trainPercentage">The percentage to include as training data</param>
+        /// <returns></returns>
         public SparseVectorClassificationSetSplit Split(double trainPercentage = 0.8)
         {
             return new SparseVectorClassificationSetSplit(Classification.Split(trainPercentage));
         }
 
+        /// <summary>
+        /// Finds the maximum index
+        /// </summary>
+        /// <returns></returns>
         public uint GetMaximumIndex()
         {
             return Classification.Select(d => d.Data.Max(d2 => d2.Index)).Max();
         }
 
+        /// <summary>
+        /// Find the minimum index
+        /// </summary>
+        /// <returns></returns>
         public float GetMaximumWeight()
         {
             return Classification.Select(d => d.Data.Max(d2 => d2.Weight)).Max();
         }
 
+        /// <summary>
+        /// Returns a count of each classification
+        /// </summary>
         public Dictionary<string, uint> GetClassifications()
         {
             uint temp;
@@ -56,11 +78,21 @@ namespace BrightWire.Models.Input
             return ret;
         }
 
+        /// <summary>
+        /// Returns a training data provider that uses the current data
+        /// </summary>
+        /// <param name="lap">The linear algebra provider</param>
+        /// <param name="maxIndex">The size of the dense vectors (i.e. the greatest possible index within the sparse vectors)</param>
+        /// <returns></returns>
         public ITrainingDataProvider CreateTrainingDataProvider(ILinearAlgebraProvider lap, uint maxIndex)
         {
             return new WeightedClassificationSetDataProvider(lap, this, maxIndex);
         }
 
+        /// <summary>
+        /// Converts the sparse vectors to dense vector classifications
+        /// </summary>
+        /// <param name="normalise">True to normalise the dense vectors by the maximum weight across the data</param>
         public IReadOnlyList<VectorClassification> Vectorise(bool normalise = true)
         {
             float maxWeight = 0;
@@ -86,6 +118,10 @@ namespace BrightWire.Models.Input
             return data.Select(d => new VectorClassification(d.Item1, d.Item2)).ToList();
         }
 
+        /// <summary>
+        /// Converts the sparse vectors to a data table
+        /// </summary>
+        /// <param name="stream">Optional stream to write the data table to</param>
         public IDataTable ConvertToTable(Stream stream = null)
         {
             var max = GetMaximumIndex();
@@ -107,6 +143,9 @@ namespace BrightWire.Models.Input
             return dataTable.Build(stream);
         }
 
+        /// <summary>
+        /// Returns a new sparse vector classification set normalised by the maximum weight across the data
+        /// </summary>
         public SparseVectorClassificationSet Normalise()
         {
             var maxWeight = GetMaximumWeight();

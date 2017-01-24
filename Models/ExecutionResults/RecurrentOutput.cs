@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.Models.ExecutionResults
 {
-    public class RecurrentOutput : IRecurrentOutput
+    internal class RecurrentOutput : IRecurrentOutput
     {
         public IIndexableVector Output { get; private set; }
         public IIndexableVector Memory { get; private set; }

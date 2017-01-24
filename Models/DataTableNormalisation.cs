@@ -6,25 +6,54 @@ using System.Linq;
 
 namespace BrightWire.Models
 {
+    /// <summary>
+    /// A data table normalisation model
+    /// </summary>
     [ProtoContract]
     public class DataTableNormalisation
     {
+        /// <summary>
+        /// A column model
+        /// </summary>
         [ProtoContract]
         public class Column
         {
+            /// <summary>
+            /// The column index
+            /// </summary>
             [ProtoMember(1)]
             public int ColumnIndex { get; set; }
 
+            /// <summary>
+            /// The type of data in the column
+            /// </summary>
             [ProtoMember(2)]
             public ColumnType DataType { get; set; }
 
+            /// <summary>
+            /// The value to subtract from the column
+            /// </summary>
             [ProtoMember(3)]
             public double Subtract { get; set; }
 
+            /// <summary>
+            /// The value to divide the column with (after subtraction)
+            /// </summary>
             [ProtoMember(4)]
             public double Divide { get; set; }
 
+            /// <summary>
+            /// Default constructor
+            /// </summary>
             public Column() { }
+
+            /// <summary>
+            /// Constructor
+            /// </summary>
+            /// <param name="columnIndex"></param>
+            /// <param name="dataType"></param>
+            /// <param name="divide"></param>
+            /// <param name="subtract"></param>
             public Column(int columnIndex, ColumnType dataType, double divide, double subtract = 0.0)
             {
                 ColumnIndex = columnIndex;
@@ -33,6 +62,11 @@ namespace BrightWire.Models
                 Subtract = subtract;
             }
 
+            /// <summary>
+            /// Perform the normalisation step
+            /// </summary>
+            /// <param name="val">The input value</param>
+            /// <returns>The normalused input value</returns>
             public object Normalise(double val)
             {
                 var ret = (val - Subtract) / Divide;
@@ -52,9 +86,15 @@ namespace BrightWire.Models
             }
         }
 
+        /// <summary>
+        /// The type of normalisation
+        /// </summary>
         [ProtoMember(1)]
         public NormalisationType Type { get; set; }
 
+        /// <summary>
+        /// The column normalisation data
+        /// </summary>
         [ProtoMember(2)]
         public Column[] ColumnNormalisation { get; set; }
 
@@ -67,6 +107,10 @@ namespace BrightWire.Models
             }
         }
 
+        /// <summary>
+        /// Normalises a row in the data table
+        /// </summary>
+        /// <param name="row">The row to normalise</param>
         public IReadOnlyList<object> Normalise(IReadOnlyList<object> row)
         {
             Column norm;

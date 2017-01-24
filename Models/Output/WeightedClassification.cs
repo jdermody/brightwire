@@ -4,9 +4,19 @@ using System.Text;
 
 namespace BrightWire.Models.Output
 {
+    /// <summary>
+    /// A classification and its associated weight
+    /// </summary>
     public class WeightedClassification
     {
+        /// <summary>
+        /// The classification
+        /// </summary>
         public string Classification { get; private set; }
+
+        /// <summary>
+        /// The associated weight
+        /// </summary>
         public float Weight { get; private set; }
 
         internal WeightedClassification(string classification, float weight)

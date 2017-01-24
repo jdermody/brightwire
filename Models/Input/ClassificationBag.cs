@@ -10,9 +10,15 @@ using System.Threading.Tasks;
 
 namespace BrightWire.Models.Input
 {
+    /// <summary>
+    /// A classification bag is a sparse data structure that contains multiple indexed classifications
+    /// </summary>
     [ProtoContract]
     public class ClassificationBag
     {
+        /// <summary>
+        /// The array of classifications
+        /// </summary>
         [ProtoMember(1)]
         public IndexedClassification[] Classification { get; set; }
 
@@ -29,6 +35,10 @@ namespace BrightWire.Models.Input
             ;
         }
 
+        /// <summary>
+        /// Converts the indexed classifications to sparse vectors
+        /// </summary>
+        /// <param name="groupByClassification">True to group by classification (i.e convert the bag to a set)</param>
         public SparseVectorClassificationSet ConvertToSparseVectors(bool groupByClassification)
         {
             if (groupByClassification) {
