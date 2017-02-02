@@ -79,7 +79,7 @@ namespace BrightWire.Connectionist.Training.Manager
             var score = _GetScore(context);
             var flag = false;
             var errorMetric = context.ErrorMetric;
-            if ((errorMetric.HigherIsBetter && score > _bestScore) || (!errorMetric.HigherIsBetter && score < _bestScore)) {
+            if (score != 0 && (errorMetric.HigherIsBetter && score > _bestScore) || (!errorMetric.HigherIsBetter && score < _bestScore)) {
                 _bestScore = score;
                 _bestOutput = _trainer.NetworkInfo;
                 flag = true;

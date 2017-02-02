@@ -39,7 +39,7 @@ namespace BrightWire.Connectionist.Training.Manager
             var score = _GetScore(data, network, memory, recurrentContext);
             var errorMetric = recurrentContext.TrainingContext.ErrorMetric;
 
-            if ((errorMetric.HigherIsBetter && score > bestScore) || (!errorMetric.HigherIsBetter && score < bestScore)) {
+            if (score != 0 && (errorMetric.HigherIsBetter && score > bestScore) || (!errorMetric.HigherIsBetter && score < bestScore)) {
                 bestScore = score;
                 output = network.NetworkInfo;
                 output.Memory = new FloatArray {
