@@ -34,7 +34,11 @@ namespace BrightWire
         public static string GetKernelPath()
         {
             var assemblyLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            return assemblyLocation + @"\LinearAlgebra\cuda\kernel.ptx";
+            
+            // This is the universal separator, returns '/' on Linux, '\' on Windows, although Windows doesn't really care
+            var s = Path.DirectorySeparatorChar;
+
+            return assemblyLocation + $"{s}LinearAlgebra{s}cuda{s}kernel.ptx";        
         }
     }
 }
