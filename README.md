@@ -36,10 +36,35 @@ Install-Package BrightWire.CUDA.Net4.x64
 
 Note: When using the CUDA version, make sure that the /LinearAlgebra/cuda/kernel.ptx file is copied to the output directory (Properties/Copy To Output Directory).
 
+### Recompiling the kernel.ptx
+
+It's highly likely that your GPU supports different CUDA capabilities than the precompiled `kernel.ptx` in this repository. You can find what is your capability level [here](https://developer.nvidia.com/cuda-gpus). It's a number, ex. 3.0, 3.5, that you use for specifying `compute_XX` and `sm_XX` parameters.
+
+If you get an `ErrorNoBinaryForGPU` exception, that means you have to recompile. The instructions are [here](https://github.com/jdermody/brightwire/blob/master/LinearAlgebra/cuda/readme.txt).
+
+Example command for NVIDIA GeForce GTX770M (CUDA 3.0)
+
+```
+nvcc kernel.cu -use_fast_math -ptx -m 64 -arch compute_30 -code sm_30 -o kernel.ptx
+```
+
+## Linux Support
+
+### Without CUDA
+
+You can use Bright Wire on Mono (tested with 4.6.2/Fedora 25) out of the box, no additional setting up is needed.
+
+### With CUDA
+
+Bright Wire can also work with CUDA on Mono. When you build your solution, you will need to extract `ConfigForLinux.zip` archive from [here](https://github.com/kunzmi/managedCuda/releases) to your output path.
+That way, CUDA won't look for `nvcuda` on Linux, but for libcuda shared object. You can even run on your Optimus enabled laptop (tested with GTX770M with Bumblebee) with `optirun mono [binary_name]`.
+
+Another issue you may have is that `protobuf` library complains that it is already referencing `NETStandard` library. NuGet version is a bit older on Mono, so please try with the latest NuGet binary from their website. That way, all the libraries get pulled correctly.
+
 ## Features
 
 ### Connectionist aka "Deep Learning"
-* Feed Forward, Recurrent and Bidirectional Neural Networks
+* Feed Forward, Convolutional, Recurrent and Bidirectional Neural Networks
 * Minibatch Training
 * L2, Dropout and DropConnect Regularisation
 * RELU, LeakyRelu, Sigmoid and Tanh Activation Functions
