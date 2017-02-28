@@ -717,15 +717,5 @@ namespace BrightWire.LinearAlgebra
             _shouldDispose = false;
             return new GpuVector(_cuda, _rows * _columns, _data, false);
         }
-
-        public I3DTensor MaxPool(int filterDepth, List<int[]> indexList)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IMatrix ReverseMaxPool(IMatrix error, int size, int filterSize, int filterDepth, IReadOnlyList<int[]> indexList)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
