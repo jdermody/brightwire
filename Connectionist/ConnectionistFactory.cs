@@ -68,7 +68,7 @@ namespace BrightWire.Connectionist
             return new SparseTrainingDataProvider(_lap, data, inputSize, outputSize);
         }
 
-        public ISequentialTrainingDataProvider CreateSequentialTrainingDataProvider(IReadOnlyList<TrainingExample[]> data)
+        public ISequentialTrainingDataProvider CreateSequentialTrainingDataProvider(IReadOnlyList<TrainingSequence> data)
         {
             return new DenseSequentialTrainingDataProvider(_lap, data);
         }

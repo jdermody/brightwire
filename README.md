@@ -13,7 +13,8 @@ via the [Numerics.Net Wrapper](http://numerics.mathdotnet.com/MKL.html).
 
 ## Geting Started Tutorials
 
-* [Iris Classification](http://www.jackdermody.net/brightwire/article/Introduction_to_Bright_Wire)
+* [Getting Started](http://www.jackdermody.net/brightwire/article/Introduction_to_Bright_Wire)
+* [Classification Overview](http://www.jackdermody.net/brightwire/article/Classification_Overview_with_Bright_Wire)
 * [Building a Language Model](http://www.jackdermody.net/brightwire/article/Generating_Text_with_Markov_Chains)
 * [Recognising Handwritten Digits (MNIST)](http://www.jackdermody.net/brightwire/article/Recognising_Handwritten_Digits_(MNIST))
 * [Sentiment Analysis](http://www.jackdermody.net/brightwire/article/Sentiment_Analysis)
@@ -64,24 +65,25 @@ Another issue you may have is that `protobuf` library complains that it is alrea
 ## Features
 
 ### Connectionist aka "Deep Learning"
-* Feed Forward, Convolutional, Recurrent and Bidirectional Neural Networks
-* Minibatch Training
-* L2, Dropout and DropConnect Regularisation
-* RELU, LeakyRelu, Sigmoid and Tanh Activation Functions
-* Gaussian, Xavier and Identity Weight Initialisation
-* Cross Entropy, Quadratic and RMSE Cost Functions
-* Momentum, NesterovMomentum, Adagrad, RMSprop and Adam Gradient Descent Optimisations
+* Feed Forward, Convolutional, Recurrent and Bidirectional network architectures
+* Minibatch training
+* L2, Dropout and DropConnect regularisation
+* RELU, LeakyRelu, Sigmoid and Tanh activation functions
+* Gaussian, Xavier and Identity weight initialisation
+* Cross Entropy, Quadratic and RMSE cost functions
+* Momentum, NesterovMomentum, Adagrad, RMSprop and Adam gradient descent optimisations
 
 ### Bayesian
-* Markov Models
 * Naive Bayes
 * Multinomial Bayes
 * Multivariate Bernoulli
+* Markov Models
 
 ### Unsupervised
-* K Means
-* Hierachical Clustering
+* K Means clustering
+* Hierachical clustering
 * Non Negative Matrix Factorisation
+* Random Projection
 
 ### Linear
 * Regression
@@ -96,8 +98,7 @@ Another issue you may have is that `protobuf` library complains that it is alrea
 * Stacking
 
 ### Other
-* Random Projections
-* K Nearest Neighbour Classification
+* K Nearest Neighbour classification
 * In-memory and file based data processing
 
 ## Dependencies

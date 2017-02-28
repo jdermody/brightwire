@@ -40,6 +40,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Helper\DataTableTrainingDataProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Helper\DenseSequentialTrainingDataProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Helper\DenseTrainingDataProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Helper\SequenceClassificationTrainingDataProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Helper\SequenceToSequenceTrainer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Helper\SequentialMiniBatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Helper\SparseSequentialTrainingDataProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Connectionist\Helper\SparseTrainingDataProvider.cs" />
@@ -113,6 +115,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\FloatArray.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Input\ClassificationBag.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Input\IndexedClassification.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Input\SeqeuenceToSequenceTrainingExample.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Input\SequenceClassificationTrainingExample.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Input\TrainingSequence.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Input\VectorSequence.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Input\Volume.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Input\WeightedIndex.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Input\SparseVectorClassification.cs" />
@@ -126,6 +132,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\MultinomialNaiveBayes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\NaiveBayes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\NetworkLayer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Output\SequenceBackpropagationData.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\RandomForest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\RecurrentLayer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\RecurrentNetwork.cs" />

@@ -24,6 +24,8 @@ namespace BrightWire.Connectionist.Training.Layer.Recurrent
                 _output = output;
             }
 
+            public IMatrix Weight { get { return _trainer.LayerUpdater.Layer.Weight; } }
+
             public IMatrix Execute(IMatrix error, ITrainingContext context, bool calculateOutput, INeuralNetworkUpdateAccumulator updateAccumulator)
             {
                 //using (var input = _input)
@@ -66,6 +68,16 @@ namespace BrightWire.Connectionist.Training.Layer.Recurrent
             set
             {
                 _trainer.LayerUpdater.Layer.LayerInfo = value.Layer[0];
+            }
+        }
+
+        public IReadOnlyList<INeuralNetworkLayerUpdater> SubLayer
+        {
+            get
+            {
+                return new[] {
+                    _trainer.LayerUpdater
+                };
             }
         }
 

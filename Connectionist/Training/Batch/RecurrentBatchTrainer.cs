@@ -6,23 +6,26 @@ using System.Text;
 using System.Threading.Tasks;
 using BrightWire.Models;
 using BrightWire.Models.ExecutionResults;
+using BrightWire.Models.Output;
 
 namespace BrightWire.Connectionist.Training.Batch
 {
     internal class RecurrentBatchTrainer : RecurrentBatchTrainerBase, INeuralNetworkRecurrentBatchTrainer
     {
+        readonly ILinearAlgebraProvider _lap;
         readonly IReadOnlyList<INeuralNetworkRecurrentLayer> _layer;
         readonly bool _collectTrainingError;
 
         public RecurrentBatchTrainer(ILinearAlgebraProvider lap, IReadOnlyList<INeuralNetworkRecurrentLayer> layer, bool stochastic, bool collectTrainingError) : base(lap, stochastic)
         {
+            _lap = lap;
             _layer = layer;
             _collectTrainingError = collectTrainingError;
         }
 
         protected virtual void Dispose(bool disposing)
         {
-            if(disposing) {
+            if (disposing) {
                 foreach (var item in _layer)
                     item.Dispose();
             }
@@ -74,8 +77,12 @@ namespace BrightWire.Connectionist.Training.Batch
                     // store the output
                     if (!sequenceOutput.TryGetValue(k, out temp))
                         sequenceOutput.Add(k, temp = new List<IRecurrentExecutionResults>());
-                    var ret = fc[0].AsIndexable().Rows.Zip(miniBatch.GetExpectedOutput(fc, k).AsIndexable().Rows, (a, e) => Tuple.Create(a, e));
-                    temp.AddRange(ret.Zip(memoryOutput, (t, d) => new RecurrentExecutionResults(t.Item1, t.Item2, d)));
+                    var expectedOutput = miniBatch.GetExpectedOutput(fc, k);
+                    if (expectedOutput != null) {
+                        var ret = fc[0].AsIndexable().Rows.Zip(expectedOutput.AsIndexable().Rows, (a, e) => Tuple.Create(a, e));
+                        temp.AddRange(ret.Zip(memoryOutput, (t, d) => new RecurrentExecutionResults(t.Item1, t.Item2, d)));
+                    }else
+                        temp.AddRange(fc[0].AsIndexable().Rows.Zip(memoryOutput, (t, d) => new RecurrentExecutionResults(t, null, d)));
                 });
 
                 // cleanup
@@ -115,19 +122,32 @@ namespace BrightWire.Connectionist.Training.Batch
             return new RecurrentExecutionResults(output, null, memoryOutput);
         }
 
-        public void TrainOnMiniBatch(ISequentialMiniBatch miniBatch, float[] memory, IRecurrentTrainingContext context, Action<IMatrix> beforeBackProp, Action<IMatrix> afterBackProp)
+        public Stack<SequenceBackpropagationData> FeedForward(
+            ISequentialMiniBatch miniBatch,
+            float[] memory,
+            IRecurrentTrainingContext context
+        )
         {
-            var trainingContext = context.TrainingContext;
-
-            _lap.PushLayer();
-            var sequenceLength = miniBatch.SequenceLength;
-            var updateStack = new Stack<Tuple<Stack<INeuralNetworkRecurrentBackpropagation>, IMatrix, IMatrix, ISequentialMiniBatch, int>>();
+            var updateStack = new Stack<SequenceBackpropagationData>();
             context.ExecuteForward(miniBatch, memory, (k, fc) => {
-                var layerStack = new Stack<INeuralNetworkRecurrentBackpropagation>();
+                var backProp = new SequenceBackpropagationData(miniBatch, k);
                 foreach (var action in _layer)
-                    layerStack.Push(action.Execute(fc, true));
-                updateStack.Push(Tuple.Create(layerStack, miniBatch.GetExpectedOutput(fc, k), fc[0], miniBatch, k));
+                    backProp.Add(action.Execute(fc, true));
+                backProp.Output = fc[0];
+                backProp.ExpectedOutput = miniBatch.GetExpectedOutput(fc, k);
+                updateStack.Push(backProp);
             });
+            return updateStack;
+        }
+
+        public void Backpropagate(
+            IRecurrentTrainingContext context,
+            float[] memory,
+            Stack<SequenceBackpropagationData> updateStack,
+            Action<IMatrix> beforeBackProp, 
+            Action<IMatrix> afterBackProp
+        ){
+            var trainingContext = context.TrainingContext;
 
             // backpropagate, accumulating errors across the sequence
             using (var updateAccumulator = new UpdateAccumulator(trainingContext)) {
@@ -135,36 +155,50 @@ namespace BrightWire.Connectionist.Training.Batch
                 while (updateStack.Any()) {
                     var update = updateStack.Pop();
                     var isT0 = !updateStack.Any();
-                    var actionStack = update.Item1;
+                    var prevHasNoSignal = !isT0 && updateStack.Peek().ExpectedOutput == null;
+                    var actionStack = update.LayerBackProp;
 
                     // calculate error
-                    var expectedOutput = update.Item2;
-                    if (expectedOutput != null)
-                        curr = trainingContext.ErrorMetric.CalculateDelta(update.Item3, expectedOutput);
+                    var expectedOutput = update.ExpectedOutput;
+                    if (expectedOutput != null) {
+                        curr?.Dispose();
+                        curr = trainingContext.ErrorMetric.CalculateDelta(update.Output, expectedOutput);
+                    }
+                    //else if(curr != null)
+                    //    curr = curr.Multiply(actionStack.Peek().Weight);
 
                     // backpropagate
                     beforeBackProp?.Invoke(curr);
                     while (actionStack.Any()) {
                         var backpropagationAction = actionStack.Pop();
-                        var shouldCalculateOutput = actionStack.Any() || isT0;
-                        curr = backpropagationAction.Execute(curr, trainingContext, true, updateAccumulator);
+                        var shouldCalculateOutput = actionStack.Any() || isT0 || prevHasNoSignal;
+                        curr = backpropagationAction.Execute(curr, trainingContext, shouldCalculateOutput, updateAccumulator);
                     }
                     afterBackProp?.Invoke(curr);
 
                     // apply any filters
                     foreach (var filter in _filter)
-                        filter.AfterBackPropagation(update.Item4, update.Item5, curr);
-                }
+                        filter.AfterBackPropagation(update.MiniBatch, update.SequenceIndex, curr);
 
-                // adjust the initial memory against the error signal
-                if (curr != null) {
-                    using (var columnSums = curr.ColumnSums()) {
-                        var initialDelta = columnSums.AsIndexable();
-                        for (var j = 0; j < memory.Length; j++)
-                            memory[j] += initialDelta[j] * trainingContext.TrainingRate;
+                    // adjust the initial memory against the error signal
+                    if (isT0 && curr != null) {
+                        using (var columnSums = curr.ColumnSums()) {
+                            var initialDelta = columnSums.AsIndexable();
+                            for (var j = 0; j < memory.Length; j++)
+                                memory[j] += initialDelta[j] * trainingContext.TrainingRate;
+                        }
                     }
                 }
             }
+        }
+
+        public void TrainOnMiniBatch(ISequentialMiniBatch miniBatch, float[] memory, IRecurrentTrainingContext context, Action<IMatrix> beforeBackProp, Action<IMatrix> afterBackProp)
+        {
+            var trainingContext = context.TrainingContext;
+
+            _lap.PushLayer();
+            var updateStack = FeedForward(miniBatch, memory, context);
+            Backpropagate(context, memory, updateStack, beforeBackProp, afterBackProp);
 
             // cleanup
             trainingContext.EndBatch();

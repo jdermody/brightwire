@@ -66,5 +66,7 @@ namespace BrightWire.Connectionist.Training.Helper
             Dispose(true);
             GC.SuppressFinalize(this);
         }
+
+        public IReadOnlyList<Tuple<INeuralNetworkLayerUpdater, IMatrix, IMatrix>> Updates { get { return _update; } }
     }
 }

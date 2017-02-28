@@ -1138,6 +1138,11 @@ namespace BrightWire
         /// Reads and writes the layer into protobuf format
         /// </summary>
         RecurrentLayer LayerInfo { get; set; }
+
+        /// <summary>
+        /// Gets the sub layers of this layer
+        /// </summary>
+        IReadOnlyList<INeuralNetworkLayerUpdater> SubLayer { get; }
     }
 
     /// <summary>
@@ -1154,6 +1159,11 @@ namespace BrightWire
         /// <param name="updateAccumulator">Destination for the network updates</param>
         /// <returns>Error signal (if calculateOutput is true)</returns>
         IMatrix Execute(IMatrix errorSignal, ITrainingContext context, bool calculateOutput, INeuralNetworkUpdateAccumulator updateAccumulator);
+
+        /// <summary>
+        /// Returns the layer weights
+        /// </summary>
+        IMatrix Weight { get; }
     }
 
     /// <summary>
@@ -1193,6 +1203,11 @@ namespace BrightWire
         /// Clears stored data
         /// </summary>
         void Clear();
+
+        /// <summary>
+        /// Returns the list of current updates
+        /// </summary>
+        IReadOnlyList<Tuple<INeuralNetworkLayerUpdater, IMatrix, IMatrix>> Updates { get; }
     }
 
     /// <summary>
@@ -1212,6 +1227,11 @@ namespace BrightWire
         /// <param name="weightDelta">The connections delta</param>
         /// <param name="context">The training context</param>
         void Update(IMatrix biasDelta, IMatrix weightDelta, ITrainingContext context);
+
+        /// <summary>
+        /// True if updates are ignored
+        /// </summary>
+        bool IgnoreUpdates { get; set; }
     }
 
     /// <summary>
@@ -1257,6 +1277,13 @@ namespace BrightWire
             Stack<Tuple<Stack<Tuple<INeuralNetworkRecurrentBackpropagation, INeuralNetworkRecurrentBackpropagation>>, IMatrix, IMatrix, ISequentialMiniBatch, int>> updateStack,
             Action<List<IIndexableVector[]>, List<IMatrix>> onFinished
         );
+
+        /// <summary>
+        /// Creates a matrix in which the input is repeated across columns
+        /// </summary>
+        /// <param name="data">The data</param>
+        /// <param name="columns">The number of columns to repeat</param>
+        IMatrix CreateMemory(float[] data, int columns);
     }
 
     /// <summary>
@@ -1603,7 +1630,7 @@ namespace BrightWire
         /// Creates a sequential training data provider
         /// </summary>
         /// <param name="data">A list of sequences of training examples</param>
-        ISequentialTrainingDataProvider CreateSequentialTrainingDataProvider(IReadOnlyList<TrainingExample[]> data);
+        ISequentialTrainingDataProvider CreateSequentialTrainingDataProvider(IReadOnlyList<TrainingSequence> data);
 
         // <summary>
         // Creates a sparse sequential training data provider
@@ -2066,6 +2093,20 @@ namespace BrightWire
         /// Read and write the network as a protobuf model
         /// </summary>
         RecurrentNetwork NetworkInfo { get; set; }
+
+        Stack<SequenceBackpropagationData> FeedForward(
+            ISequentialMiniBatch miniBatch,
+            float[] memory,
+            IRecurrentTrainingContext context
+        );
+
+        void Backpropagate(
+            IRecurrentTrainingContext context,
+            float[] memory,
+            Stack<SequenceBackpropagationData> updateStack,
+            Action<IMatrix> beforeBackProp,
+            Action<IMatrix> afterBackProp
+        );
     }
 
     /// <summary>

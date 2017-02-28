@@ -22,10 +22,7 @@ namespace BrightWire.SampleCode
         public static void IntegerAddition()
         {
             // generate 1000 random integer additions
-            var dataSet = BinaryIntegers.Addition(1000, false)
-                .Select(l => l.ToArray())
-                .ToList()
-            ;
+            var dataSet = BinaryIntegers.Addition(1000, false);
 
             // split the numbers into training and test sets
             int split = Convert.ToInt32(dataSet.Count * 0.8);
@@ -33,7 +30,7 @@ namespace BrightWire.SampleCode
             var testData = dataSet.Skip(split).ToList();
 
             // neural network hyper parameters
-            const int HIDDEN_SIZE = 32, NUM_EPOCHS = 25, BATCH_SIZE = 16;
+            const int HIDDEN_SIZE = 32, NUM_EPOCHS = 100, BATCH_SIZE = 8;
             const float TRAINING_RATE = 0.001f;
             var errorMetric = ErrorMetricType.BinaryClassification.Create();
             var layerTemplate = new LayerDescriptor(0.3f) {
@@ -42,7 +39,7 @@ namespace BrightWire.SampleCode
                 WeightUpdate = WeightUpdateType.RMSprop
             };
             var recurrentTemplate = layerTemplate.Clone();
-            recurrentTemplate.WeightInitialisation = WeightInitialisationType.Gaussian;
+            recurrentTemplate.WeightInitialisation = WeightInitialisationType.Xavier;
 
             using (var lap = Provider.CreateLinearAlgebra()) {
                 // create training data providers
@@ -71,27 +68,27 @@ namespace BrightWire.SampleCode
 
                 // evaluate the network on some freshly generated data
                 var network = lap.NN.CreateRecurrent(networkData);
-                foreach (var sequence in BinaryIntegers.Addition(8, true)) {
-                    var result = network.Execute(sequence.Select(d => d.Input).ToList());
+                foreach (var item in BinaryIntegers.Addition(8, true)) {
+                    var result = network.Execute(item.Sequence.Select(d => d.Input).ToList());
                     Console.Write("First:     ");
-                    foreach (var item in sequence)
-                        _WriteBinary(item.Input[0]);
+                    foreach (var item2 in item.Sequence)
+                        _WriteBinary(item2.Input[0]);
                     Console.WriteLine();
 
                     Console.Write("Second:    ");
-                    foreach (var item in sequence)
-                        _WriteBinary(item.Input[1]);
+                    foreach (var item2 in item.Sequence)
+                        _WriteBinary(item2.Input[1]);
                     Console.WriteLine();
                     Console.WriteLine("           --------------------------------");
 
                     Console.Write("Expected:  ");
-                    foreach (var item in sequence)
-                        _WriteBinary(item.Output[0]);
+                    foreach (var item2 in item.Sequence)
+                        _WriteBinary(item2.Output[0]);
                     Console.WriteLine();
 
                     Console.Write("Predicted: ");
-                    foreach (var item in result)
-                        _WriteBinary(item.Output[0]);
+                    foreach (var item2 in result)
+                        _WriteBinary(item2.Output[0]);
                     Console.WriteLine();
                     Console.WriteLine();
                 }

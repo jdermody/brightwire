@@ -24,15 +24,17 @@ namespace BrightWire.Connectionist.Helper
 
         public void Dispose()
         {
-            foreach (var item in _expectedOutput)
-                item.Dispose();
+            if (_expectedOutput != null) {
+                foreach (var item in _expectedOutput)
+                    item?.Dispose();
+            }
             foreach (var item in Input)
                 item.Dispose();
         }
 
         public IMatrix GetExpectedOutput(IReadOnlyList<IMatrix> output, int k)
         {
-            return _expectedOutput[k];
+            return _expectedOutput != null ? _expectedOutput[k] : null;
         }
     }
 }

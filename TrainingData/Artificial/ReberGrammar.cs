@@ -35,6 +35,23 @@ namespace BrightWire.TrainingData.Artificial
         }
 
         /// <summary>
+        /// Encodes a reber sequence as a sequence of one hot encoded vectors
+        /// </summary>
+        /// <param name="sequence">The reber sequence to encode</param>
+        public static VectorSequence Encode(string sequence)
+        {
+            return new VectorSequence {
+                Sequence = sequence.Select(ch => {
+                    var ret = new float[_ch.Count];
+                    ret[_ch[ch]] = 1f;
+                    return new VectorSequence.Vector {
+                        Data = ret
+                    };
+                }).ToArray()
+            };
+        }
+
+        /// <summary>
         /// One hot encodes the REBER strings
         /// </summary>
         /// <param name="strList">A list of REBER sequences</param>

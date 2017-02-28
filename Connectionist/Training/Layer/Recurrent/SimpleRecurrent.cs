@@ -53,6 +53,8 @@ namespace BrightWire.Connectionist.Training.Layer.Recurrent
                     return prevDelta;
                 }
             }
+
+            public IMatrix Weight { get { return _inputUpdater.Layer.Weight; } }
         }
 
         public SimpleRecurrent(int inputSize, int hiddenSize, INeuralNetworkFactory factory, LayerDescriptor template)
@@ -96,6 +98,17 @@ namespace BrightWire.Connectionist.Training.Layer.Recurrent
             {
                 _input.Layer.LayerInfo = value.Layer[0];
                 _memory.Layer.LayerInfo = value.Layer[1];
+            }
+        }
+
+        public IReadOnlyList<INeuralNetworkLayerUpdater> SubLayer
+        {
+            get
+            {
+                return new[] {
+                    _input,
+                    _memory
+                };
             }
         }
 

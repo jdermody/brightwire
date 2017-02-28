@@ -34,10 +34,10 @@ namespace BrightWire.TrainingData.Artificial
         /// <param name="sampleCount">How many samples to generate</param>
         /// <param name="stochastic">True to generate random integers</param>
         /// <returns>A list of sequences</returns>
-        public static IReadOnlyList<IReadOnlyList<TrainingExample>> Addition(int sampleCount, bool stochastic)
+        public static IReadOnlyList<TrainingSequence> Addition(int sampleCount, bool stochastic)
         {
             Random rand = stochastic ? new Random() : new Random(0);
-            var ret = new List<IReadOnlyList<TrainingExample>>();
+            var ret = new List<TrainingSequence>();
 
             for (var i = 0; i < sampleCount; i++) {
                 // generate some random numbers (sized to prevent overflow)
@@ -55,7 +55,9 @@ namespace BrightWire.TrainingData.Artificial
                     sequence.Add(new TrainingExample(input, output));
                 }
 
-                ret.Add(sequence);
+                ret.Add(new TrainingSequence {
+                    Sequence = sequence.ToArray()
+                });
             }
             return ret;
         }

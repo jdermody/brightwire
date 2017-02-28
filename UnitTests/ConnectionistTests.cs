@@ -86,7 +86,7 @@ namespace UnitTests
         [TestMethod]
         public void RecurrentAddition()
         {
-            var trainingSet = BinaryIntegers.Addition(10, false).Select(l => l.ToArray()).ToList();
+            var trainingSet = BinaryIntegers.Addition(10, false);
 
             const int HIDDEN_SIZE = 16, NUM_EPOCHS = 100, BATCH_SIZE = 32;
             var errorMetric = ErrorMetricType.BinaryClassification.Create();
@@ -120,15 +120,15 @@ namespace UnitTests
             }
 
             var network = _lap.NN.CreateRecurrent(networkData);
-            foreach (var sequence in trainingSet) {
-                var result = network.Execute(sequence.Select(d => d.Input).ToList());
+            foreach (var item in trainingSet) {
+                var result = network.Execute(item.Sequence.Select(d => d.Input).ToList());
             }
         }
 
         [TestMethod]
         public void LSTMAddition()
         {
-            var trainingSet = BinaryIntegers.Addition(10, false).Select(l => l.ToArray()).ToList();
+            var trainingSet = BinaryIntegers.Addition(10, false);
 
             const int HIDDEN_SIZE = 16, NUM_EPOCHS = 100, BATCH_SIZE = 32;
             var errorMetric = ErrorMetricType.BinaryClassification.Create();
@@ -162,15 +162,15 @@ namespace UnitTests
             }
 
             var network = _lap.NN.CreateRecurrent(networkData);
-            foreach (var sequence in trainingSet) {
-                var result = network.Execute(sequence.Select(d => d.Input).ToList());
+            foreach (var item in trainingSet) {
+                var result = network.Execute(item.Sequence.Select(d => d.Input).ToList());
             }
         }
 
         [TestMethod]
         public void BidirectionalAddition()
         {
-            var trainingSet = BinaryIntegers.Addition(10, false).Select(l => l.ToArray()).ToList();
+            var trainingSet = BinaryIntegers.Addition(10, false);
 
             const int HIDDEN_SIZE = 16, NUM_EPOCHS = 100, BATCH_SIZE = 32;
             var errorMetric = ErrorMetricType.BinaryClassification.Create();
@@ -211,8 +211,8 @@ namespace UnitTests
             }
 
             var network = _lap.NN.CreateBidirectional(networkData);
-            foreach (var sequence in trainingSet) {
-                var result = network.Execute(sequence.Select(d => d.Input).ToList());
+            foreach (var item in trainingSet) {
+                var result = network.Execute(item.Sequence.Select(d => d.Input).ToList());
             }
         }
 

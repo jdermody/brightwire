@@ -21,7 +21,7 @@ namespace BrightWire.SampleCode
     {
         static void Main(string[] args)
         {
-            //Control.UseNativeMKL();
+            Control.UseNativeMKL();
             //ReducedMNIST(@"D:\data\mnist\");
             //MNISTConvolutional(@"D:\data\mnist\");
 
@@ -33,6 +33,12 @@ namespace BrightWire.SampleCode
             //TextClustering(@"D:\data\[UCI] AAAI-14 Accepted Papers - Papers.csv", @"d:\temp\");
             //IntegerAddition();
             //IncomePrediction(@"d:\data\adult.data", @"d:\data\adult.test");
+            //SequenceClassification();
+            //SequenceClassification3();
+            //SequenceClassification3();
+            //SequenceToClassification(@"D:\data\sentiment labelled sentences\", @"d:\temp\sentiment.dat");
+            //TestSequenceClassification(@"d:\temp\sentiment.dat");
+            //SequenceToSequence();
         }
     }
 }

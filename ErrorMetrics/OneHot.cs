@@ -26,7 +26,7 @@ namespace BrightWire.ErrorMetrics
 
         public float Compute(IIndexableVector output, IIndexableVector expectedOutput)
         {
-            return output.MaximumIndex() == expectedOutput.MaximumIndex() ? 1f : 0f;
+            return output.MaximumIndex() == expectedOutput?.MaximumIndex() ? 1f : 0f;
         }
 
         public IMatrix CalculateDelta(IMatrix input, IMatrix expectedOutput)

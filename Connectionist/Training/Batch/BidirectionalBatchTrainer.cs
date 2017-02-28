@@ -110,20 +110,24 @@ namespace BrightWire.Connectionist.Training.Batch
 
                     // backpropagate, accumulating errors across the sequence
                     using (var updateAccumulator = new UpdateAccumulator(trainingContext)) {
+                        var curr = new List<IMatrix>();
                         while (updateStack.Any()) {
                             var update = updateStack.Pop();
                             var isT0 = !updateStack.Any();
+                            var prevHasNoSignal = !isT0 && updateStack.Peek().Item2 == null;
                             var actionStack = update.Item1;
 
                             // calculate error
                             var expectedOutput = update.Item2;
-                            var curr = new List<IMatrix>();
-                            curr.Add(trainingContext.ErrorMetric.CalculateDelta(update.Item3, expectedOutput));
+                            if (expectedOutput != null) {
+                                curr.Clear();
+                                curr.Add(trainingContext.ErrorMetric.CalculateDelta(update.Item3, expectedOutput));
 
-                            // get a measure of the training error
-                            if (_collectTrainingError) {
-                                foreach (var item in curr)
-                                    batchErrorList.Add(item.AsIndexable().Values.Select(v => Math.Pow(v, 2)).Average() / 2);
+                                // get a measure of the training error
+                                if (_collectTrainingError) {
+                                    foreach (var item in curr)
+                                        batchErrorList.Add(item.AsIndexable().Values.Select(v => Math.Pow(v, 2)).Average() / 2);
+                                }
                             }
 
                             #region logging
@@ -138,7 +142,8 @@ namespace BrightWire.Connectionist.Training.Batch
                             // backpropagate
                             while (actionStack.Any()) {
                                 var backpropagationAction = actionStack.Pop();
-                                if(backpropagationAction.Item1 != null && backpropagationAction.Item2 != null && curr.Count == 1) {
+                                var shouldCalculateOutput = actionStack.Any() || isT0 || prevHasNoSignal;
+                                if (backpropagationAction.Item1 != null && backpropagationAction.Item2 != null && curr.Count == 1) {
                                     using (var m = curr[0]) {
                                         var split = m.SplitRows(forwardMemory.Length);
                                         curr[0] = split.Left;
@@ -155,11 +160,11 @@ namespace BrightWire.Connectionist.Training.Batch
                                 }
                                 if (backpropagationAction.Item1 != null) {
                                     using(var m = curr[0])
-                                        curr[0] = backpropagationAction.Item1.Execute(m, trainingContext, actionStack.Any() || isT0, updateAccumulator);
+                                        curr[0] = backpropagationAction.Item1.Execute(m, trainingContext, shouldCalculateOutput, updateAccumulator);
                                 }
                                 if (backpropagationAction.Item2 != null) {
                                     using(var m = curr[1])
-                                        curr[1] = backpropagationAction.Item2.Execute(m, trainingContext, actionStack.Any() || isT0, updateAccumulator);
+                                        curr[1] = backpropagationAction.Item2.Execute(m, trainingContext, shouldCalculateOutput, updateAccumulator);
                                 }
                                 #region logging
                                 if (logger != null) {
@@ -178,7 +183,7 @@ namespace BrightWire.Connectionist.Training.Batch
                             }
 
                             // adjust the initial memory against the error signal
-                            if (isT0) {
+                            if (isT0 && curr[0] != null && curr[1] != null) {
                                 using (var columnSums0 = curr[0].ColumnSums())
                                 using (var columnSums1 = curr[1].ColumnSums()) {
                                     var initialDelta = columnSums0.AsIndexable();

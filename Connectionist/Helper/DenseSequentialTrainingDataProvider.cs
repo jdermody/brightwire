@@ -12,10 +12,10 @@ namespace BrightWire.Connectionist.Helper
     {
         readonly ILinearAlgebraProvider _lap;
         readonly SequenceInfo[] _sequenceLength;
-        readonly Dictionary<int, List<Tuple<TrainingExample[], int>>> _inputData;
+        readonly Dictionary<int, List<Tuple<TrainingSequence, int>>> _inputData;
         readonly int _inputSize, _outputSize, _totalCount;
 
-        public DenseSequentialTrainingDataProvider(ILinearAlgebraProvider lap, IReadOnlyList<TrainingExample[]> data)
+        public DenseSequentialTrainingDataProvider(ILinearAlgebraProvider lap, IReadOnlyList<TrainingSequence> data)
         {
             _lap = lap;
             _totalCount = data.Count;
@@ -23,14 +23,14 @@ namespace BrightWire.Connectionist.Helper
             // group the data by sequence size
             _inputData = data
                 .Select((a, ind) => Tuple.Create(a, ind))
-                .GroupBy(s => s.Item1.Length)
+                .GroupBy(s => s.Item1.Sequence.Length)
                 .OrderBy(g => g.Key)
                 .ToDictionary(g => g.Key, g => g.ToList())
             ;
             _sequenceLength = _inputData.Select(s => new SequenceInfo(s.Key, s.Value.Count)).ToArray();
 
             // find the dimensions of the input and output
-            var firstItem = _inputData.First().Value.First().Item1.First();
+            var firstItem = _inputData.First().Value.First().Item1.Sequence.Last();
             _inputSize = firstItem.Input.Length;
             _outputSize = firstItem.Output.Length;
         }
@@ -54,8 +54,12 @@ namespace BrightWire.Connectionist.Helper
             var output = new IMatrix[sequenceLength];
             var dataGroup = _inputData[sequenceLength];
             for (var k = 0; k < sequenceLength; k++) {
-                input[k] = _lap.Create(rows.Count, _inputSize, (x, y) => dataGroup[rows[x]].Item1[k].Input[y]);
-                output[k] = _lap.Create(rows.Count, _outputSize, (x, y) => dataGroup[rows[x]].Item1[k].Output[y]);
+                input[k] = _lap.Create(rows.Count, _inputSize, (x, y) => dataGroup[rows[x]].Item1.Sequence[k].Input[y]);
+                try {
+                    output[k] = _lap.Create(rows.Count, _outputSize, (x, y) => dataGroup[rows[x]].Item1.Sequence[k].Output[y]);
+                }catch {
+                    output[k] = null;
+                }
             }
             return new SequentialMiniBatch(input, output, rows.Select(r => dataGroup[r].Item2).ToArray());
         }
