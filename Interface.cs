@@ -1212,6 +1212,11 @@ namespace BrightWire
         /// <param name="weightDelta">The connections delta</param>
         /// <param name="context">The training context</param>
         void Update(IMatrix biasDelta, IMatrix weightDelta, ITrainingContext context);
+
+        /// <summary>
+        /// True to stop making updates to the layer
+        /// </summary>
+        bool IgnoreUpdates { get; set; }
     }
 
     /// <summary>
