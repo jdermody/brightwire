@@ -9,6 +9,7 @@ namespace BrightWire.Connectionist.Training
     internal class UpdaterBase : INeuralNetworkLayerUpdater
     {
         protected readonly INeuralNetworkLayer _layer;
+        bool _ignoreUpdates = false;
 
         public UpdaterBase(INeuralNetworkLayer layer)
         {
@@ -24,7 +25,8 @@ namespace BrightWire.Connectionist.Training
 
         protected void Update(IMatrix biasDelta, IMatrix weightDelta, float weightCoefficient, ITrainingContext context)
         {
-            _layer.Update(biasDelta, weightDelta, weightCoefficient, context.TrainingRate / context.MiniBatchSize);
+            if(!_ignoreUpdates)
+                _layer.Update(biasDelta, weightDelta, weightCoefficient, context.TrainingRate / context.MiniBatchSize);
         }
 
         protected virtual void Dispose(bool disposing)
@@ -37,6 +39,12 @@ namespace BrightWire.Connectionist.Training
         {
             Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        public bool IgnoreUpdates
+        {
+            get { return _ignoreUpdates; }
+            set { _ignoreUpdates = value; }
         }
     }
 
@@ -108,6 +116,12 @@ namespace BrightWire.Connectionist.Training
         }
 
         public abstract void Update(IMatrix biasDelta, IMatrix weightDelta, ITrainingContext context);
+
+        public bool IgnoreUpdates
+        {
+            get { return _layerUpdater.IgnoreUpdates; }
+            set { _layerUpdater.IgnoreUpdates = value; }
+        }
     }
 
     internal class MomentumUpdater : PerWeightUpdateBase
@@ -136,7 +150,7 @@ namespace BrightWire.Connectionist.Training
         {
             using (var previousVelocity = _cache.Clone()) {
                 _cache.AddInPlace(weightDelta, _momentum);
-                previousVelocity.AddInPlace(_cache, -_momentum, 1 + _momentum); // TODO: verify polarity
+                previousVelocity.AddInPlace(_cache, -_momentum, 1 + _momentum);
                 _layerUpdater.Update(biasDelta, previousVelocity, context);
             }
         }
