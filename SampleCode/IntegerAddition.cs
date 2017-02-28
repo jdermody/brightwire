@@ -34,9 +34,9 @@ namespace BrightWire.SampleCode
 
             // neural network hyper parameters
             const int HIDDEN_SIZE = 32, NUM_EPOCHS = 25, BATCH_SIZE = 16;
-            const float TRAINING_RATE = 0.001f;
+            const float TRAINING_RATE = 0.003f;
             var errorMetric = ErrorMetricType.BinaryClassification.Create();
-            var layerTemplate = new LayerDescriptor(0.3f) {
+            var layerTemplate = new LayerDescriptor(0f) {
                 Activation = ActivationType.Relu,
                 WeightInitialisation = WeightInitialisationType.Xavier,
                 WeightUpdate = WeightUpdateType.RMSprop
