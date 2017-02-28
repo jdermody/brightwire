@@ -27,7 +27,7 @@ namespace BrightWire.Connectionist.Training.Helper
             _filter.Add(filter);
         }
 
-        IMatrix _CreateMemory(float[] data, int columns)
+        public IMatrix CreateMemory(float[] data, int columns)
         {
             return _lap.Create(columns, data.Length, (x, y) => data[y]);
         }
@@ -39,7 +39,7 @@ namespace BrightWire.Connectionist.Training.Helper
 
             // initialise context with initial memory and space for the input at position 0
             context.Add(null);
-            context.Add(_CreateMemory(memory, miniBatch.BatchSize));
+            context.Add(CreateMemory(memory, miniBatch.BatchSize));
 
             for (var k = 0; k < sequenceLength; k++) {
                 // push the sequence into context
@@ -103,12 +103,12 @@ namespace BrightWire.Connectionist.Training.Helper
             // create the forward context
             var forwardContext = new List<IMatrix>();
             forwardContext.Add(null);
-            forwardContext.Add(_CreateMemory(memoryForward, batchSize));
+            forwardContext.Add(CreateMemory(memoryForward, batchSize));
 
             // create the backward context
             var backwardContext = new List<IMatrix>();
             backwardContext.Add(null);
-            backwardContext.Add(_CreateMemory(memoryBackward, batchSize));
+            backwardContext.Add(CreateMemory(memoryBackward, batchSize));
 
             // load the first inputs
             var input = new Dictionary<Tuple<int, bool>, IMatrix>();
