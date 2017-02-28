@@ -421,7 +421,7 @@ namespace BrightWire
         }
 
         /// <summary>
-        /// Non negative matrix factorisation - clustering based on the factorisation of non-negative matrices. Only applicable for training data that is non-negative.
+        /// Non negative matrix factorisation - clustering based on matrix factorisation. Only applicable for training data that is non-negative.
         /// </summary>
         /// <param name="data">The training data</param>
         /// <param name="lap">Linear alegbra provider</param>
