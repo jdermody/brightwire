@@ -194,8 +194,24 @@ namespace BrightWire.TabularData
                 var index = 0;
                 var rowData = row.Data;
                 foreach (var column in _column) {
-                    var val = rowData[index++];
-                    _WriteValueTo(writer, column, val);
+                    if(index < rowData.Count) {
+                        var val = rowData[index++];
+                        _WriteValueTo(writer, column, val);
+                    }else {
+                        // if the value is missing then write the column's default value instead
+                        object val = null;
+                        var ct = column.Type;
+                        if (ct == ColumnType.String)
+                            val = "";
+                        else if (ct == ColumnType.Date)
+                            val = DateTime.MinValue;
+                        else if(ct != ColumnType.Null) {
+                            var columnType = ct.GetColumnType();
+                            if (columnType.IsValueType)
+                                val = Activator.CreateInstance(columnType);
+                        }
+                        _WriteValueTo(writer, column, val);
+                    }
                 }
                 ++ret;
             }
