@@ -1229,7 +1229,7 @@ namespace BrightWire
         void Update(IMatrix biasDelta, IMatrix weightDelta, ITrainingContext context);
 
         /// <summary>
-        /// True if updates are ignored
+        /// True to stop making updates to the layer
         /// </summary>
         bool IgnoreUpdates { get; set; }
     }

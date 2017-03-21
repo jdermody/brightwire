@@ -101,14 +101,14 @@ namespace BrightWire.SampleCode
             var convolutionDescriptor = new ConvolutionDescriptor(0.1f) {
                 Stride = 1,
                 Padding = 1,
-                FilterDepth = 4,
+                FilterDepth = 12,
                 FilterHeight = 3,
                 FilterWidth = 3,
                 WeightInitialisation = WeightInitialisationType.Xavier,
                 WeightUpdate = WeightUpdateType.RMSprop,
                 Activation = ActivationType.LeakyRelu
             };
-            const int BATCH_SIZE = 128, NUM_EPOCHS = 2;
+            const int BATCH_SIZE = 128, NUM_EPOCHS = 20;
             const float TRAINING_RATE = 0.03f;
             var errorMetric = ErrorMetricType.OneHot.Create();
             var layerTemplate = new LayerDescriptor(0.1f) {
@@ -124,7 +124,8 @@ namespace BrightWire.SampleCode
                 // and the second expects of tensor with depth equal to the output of the first layer
                 var layer = new IConvolutionalLayer[] {
                     lap.NN.CreateConvolutionalLayer(convolutionDescriptor, 1, 28),
-                    lap.NN.CreateConvolutionalLayer(convolutionDescriptor, convolutionDescriptor.FilterDepth, 28)
+                    lap.NN.CreateConvolutionalLayer(convolutionDescriptor, convolutionDescriptor.FilterDepth, 28),
+                    //lap.NN.CreateConvolutionalLayer(convolutionDescriptor, convolutionDescriptor.FilterDepth, 28),
                 };
                 var trainingDataProvider = lap.NN.CreateConvolutionalTrainingProvider(convolutionDescriptor, trainingSamples, layer, true);
                 var testDataProvider = lap.NN.CreateConvolutionalTrainingProvider(convolutionDescriptor, testSamples, layer, false);

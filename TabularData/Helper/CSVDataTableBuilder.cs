@@ -107,8 +107,7 @@ namespace BrightWire.TabularData.Helper
                 .SelectMany(line => _Parse(line).Select((str, pos) => Tuple.Create(str, pos)))
                 .GroupBy(l => l.Item2, l => _DetermineType(l.Item1))
                 .OrderBy(g => g.Key)
-                .Select(g => g.Max(v => (int)v))
-                .Cast<ColumnType>()
+                .Select(g => _GetColumnType(g))
                 .ToList()
             ;
 
@@ -117,6 +116,17 @@ namespace BrightWire.TabularData.Helper
             foreach (var column in headerNames.Zip(data, (name, type) => Tuple.Create(name, type)))
                 ret.AddColumn(column.Item1, column.Item2);
 
+            return ret;
+        }
+
+        ColumnType _GetColumnType(IGrouping<int, ColumnType> group)
+        {
+            var ret = (ColumnType)group.Max(v => (int)v);
+            if (ret == ColumnType.Date) {
+                if (group.All(d => d == ColumnType.Date))
+                    return ret;
+                return ColumnType.String;
+            }
             return ret;
         }
 
@@ -199,6 +209,7 @@ namespace BrightWire.TabularData.Helper
             int i;
             byte b;
             long l;
+            DateTime dt;
 
             switch (type) {
                 case ColumnType.Boolean:
