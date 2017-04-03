@@ -177,29 +177,40 @@ namespace BrightWire.TabularData
 
         protected IRow _ReadDataTableRow(BinaryReader reader)
         {
+            object[] Read()
+            {
+                var row = new object[_column.Count];
+                for (var j = 0; j < _column.Count; j++)
+                    row[j] = _ReadColumn(_column[j], reader);
+                return row;
+            }
+
             var isDeep = reader.ReadBoolean();
             if(isDeep) {
                 var depth = reader.ReadUInt32();
                 var rowData = new ShallowDataTableRow[depth];
                 for(var i = 0; i < depth; i++)
-                    rowData[i] = new ShallowDataTableRow(this, _ReadRow(reader), _rowConverter, true);
+                    rowData[i] = new ShallowDataTableRow(this, Read(), _rowConverter, true);
                 return new DeepDataTableRow(rowData);
             }else
-                return new ShallowDataTableRow(this, _ReadRow(reader), _rowConverter, false);
-        }
-
-        protected object[] _ReadRow(BinaryReader reader)
-        {
-            var row = new object[_column.Count];
-            for (var j = 0; j < _column.Count; j++)
-                row[j] = _ReadColumn(_column[j], reader);
-            return row;
+                return new ShallowDataTableRow(this, Read(), _rowConverter, false);
         }
 
         protected void _SkipRow(BinaryReader reader)
         {
-            for (var j = 0; j < _column.Count; j++)
-                _ReadColumn(_column[j], reader);
+            void Skip()
+            {
+                for (var j = 0; j < _column.Count; j++)
+                    _ReadColumn(_column[j], reader);
+            }
+
+            var isDeep = reader.ReadBoolean();
+            if (isDeep) {
+                var depth = reader.ReadUInt32();
+                for (var i = 0; i < depth; i++)
+                    Skip();
+            } else
+                Skip();
         }
 
         public void Process(IRowProcessor rowProcessor)
