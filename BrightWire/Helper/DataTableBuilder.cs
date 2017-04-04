@@ -85,14 +85,16 @@ namespace BrightWire.Helper
         readonly List<Column> _column = new List<Column>();
         readonly List<IRow> _data = new List<IRow>();
         readonly RowConverter _rowConverter = new RowConverter();
-        readonly Dictionary<int, int> _deepRowDepth = new Dictionary<int, int>();
+        readonly DataTableTemplate _template;
 
         public DataTableBuilder()
         {
+            _template = DataTableTemplate.Standard;
         }
 
-        public DataTableBuilder(IEnumerable<IColumn> columns)
+        public DataTableBuilder(DataTableTemplate template, IEnumerable <IColumn> columns)
         {
+            _template = template;
             foreach (var column in columns) {
                 var col = AddColumn(column.Type, column.Name, column.IsTarget);
                 col.IsContinuous = column.IsContinuous;
@@ -135,6 +137,7 @@ namespace BrightWire.Helper
         internal void WriteMetadata(Stream stream)
         {
             var writer = new BinaryWriter(stream, Encoding.UTF8, true);
+            writer.Write((byte)_template);
             writer.Write(_column.Count);
             foreach (var column in _column) {
                 writer.Write(column.Name);
@@ -237,7 +240,7 @@ namespace BrightWire.Helper
 
         public IDataTable Build(Stream output = null)
         {
-            var writer = new DataTableWriter(Columns, output);
+            var writer = new DataTableWriter(_template, Columns, output);
             Process(writer);
             return writer.GetDataTable();
         }

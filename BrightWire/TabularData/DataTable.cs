@@ -55,6 +55,7 @@ namespace BrightWire.TabularData
         readonly object _mutex = new object();
         readonly IReadOnlyList<long> _index = new List<long>();
         readonly RowConverter _rowConverter = new RowConverter();
+        readonly DataTableTemplate _template;
         readonly int _rowCount;
 
         IDataTableAnalysis _analysis = null;
@@ -66,6 +67,7 @@ namespace BrightWire.TabularData
             _index = dataIndex;
             _rowCount = rowCount;
             var reader = new BinaryReader(stream, Encoding.UTF8, true);
+            _template = (DataTableTemplate)reader.ReadByte();
             var columnCount = reader.ReadInt32();
             for (var i = 0; i < columnCount; i++) {
                 var name = reader.ReadString();
@@ -112,6 +114,7 @@ namespace BrightWire.TabularData
         }
 
         public IReadOnlyList<IColumn> Columns { get { return _column; } }
+        public DataTableTemplate Template { get { return _template; } }
 
         public int RowCount
         {
@@ -196,7 +199,7 @@ namespace BrightWire.TabularData
                 return new ShallowDataTableRow(this, Read(), _rowConverter, false);
         }
 
-        protected void _SkipRow(BinaryReader reader)
+        protected uint _SkipRow(BinaryReader reader)
         {
             void Skip()
             {
@@ -204,13 +207,15 @@ namespace BrightWire.TabularData
                     _ReadColumn(_column[j], reader);
             }
 
+            uint ret = 1;
             var isDeep = reader.ReadBoolean();
             if (isDeep) {
-                var depth = reader.ReadUInt32();
-                for (var i = 0; i < depth; i++)
+                ret = reader.ReadUInt32();
+                for (var i = 0; i < ret; i++)
                     Skip();
             } else
                 Skip();
+            return ret;
         }
 
         public void Process(IRowProcessor rowProcessor)
@@ -317,11 +322,11 @@ namespace BrightWire.TabularData
             var final = input.ToList();
             int trainingCount = Convert.ToInt32(RowCount * trainPercentage);
 
-            var writer1 = new DataTableWriter(Columns, output1);
+            var writer1 = new DataTableWriter(_template, Columns, output1);
             foreach (var row in GetRows(final.Take(trainingCount)))
                 writer1.Process(row);
 
-            var writer2 = new DataTableWriter(Columns, output2);
+            var writer2 = new DataTableWriter(_template, Columns, output2);
             foreach (var row in GetRows(final.Skip(trainingCount)))
                 writer2.Process(row);
 
@@ -331,7 +336,7 @@ namespace BrightWire.TabularData
         public IDataTable Bag(int? count = null, Stream output = null, int? randomSeed = null)
         {
             var input = Enumerable.Range(0, RowCount).ToList().Bag(count ?? RowCount, randomSeed);
-            var writer = new DataTableWriter(Columns, output);
+            var writer = new DataTableWriter(_template, Columns, output);
             foreach (var row in GetRows(input))
                 writer.Process(row);
             return writer.GetDataTable();
@@ -349,11 +354,11 @@ namespace BrightWire.TabularData
                 var trainingRows = final.Take(i * foldSize).Concat(final.Skip((i + 1) * foldSize));
                 var validationRows = final.Skip(i * foldSize).Take(foldSize);
 
-                var writer1 = new DataTableWriter(Columns, null);
+                var writer1 = new DataTableWriter(_template, Columns, null);
                 foreach (var row in GetRows(trainingRows))
                     writer1.Process(row);
 
-                var writer2 = new DataTableWriter(Columns, null);
+                var writer2 = new DataTableWriter(_template, Columns, null);
                 foreach (var row in GetRows(validationRows))
                     writer2.Process(row);
 
@@ -591,7 +596,7 @@ namespace BrightWire.TabularData
 
         public IDataTable CopyWithRows(IEnumerable<int> rowIndex, Stream output = null)
         {
-            var writer = new DataTableWriter(_column, output);
+            var writer = new DataTableWriter(_template, _column, output);
             foreach (var row in GetRows(rowIndex))
                 writer.AddRow(row);
             return writer.GetDataTable();
@@ -617,6 +622,20 @@ namespace BrightWire.TabularData
                 return true;
             });
             return writer.GetDataTable();
+        }
+
+        public uint[] GetRowDepths()
+        {
+            int index = 0;
+            var ret = new uint[RowCount];
+
+            lock (_mutex) {
+                _stream.Seek(_dataOffset, SeekOrigin.Begin);
+                var reader = new BinaryReader(_stream, Encoding.UTF8, true);
+                while (_stream.Position < _stream.Length)
+                    ret[index++] = _SkipRow(reader);
+            }
+            return ret;
         }
 
         public string XmlPreview

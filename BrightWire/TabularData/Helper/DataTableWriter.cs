@@ -10,23 +10,23 @@ namespace BrightWire.TabularData.Helper
     internal class DataTableWriter : IRowProcessor
     {
         readonly List<long> _index = new List<long>();
-        readonly DataTableBuilder _dataTable;
+        readonly DataTableBuilder _dataTableBuilder;
         readonly Stream _stream;
         int _rowCount = 0;
         bool _hasWrittenHeader = false;
 
         public DataTableWriter(Stream stream)
         {
-            _dataTable = new DataTableBuilder();
+            _dataTableBuilder = new DataTableBuilder();
             _stream = stream ?? new MemoryStream();
         }
-        public DataTableWriter(IEnumerable<IColumn> columns, Stream stream)
+        public DataTableWriter(DataTableTemplate template, IEnumerable<IColumn> columns, Stream stream)
         {
-            _dataTable = new DataTableBuilder(columns);
+            _dataTableBuilder = new DataTableBuilder(template, columns);
             _stream = stream ?? new MemoryStream();
         }
 
-        public IReadOnlyList<DataTableBuilder.Column> Columns { get { return _dataTable.Columns2; } }
+        public IReadOnlyList<DataTableBuilder.Column> Columns { get { return _dataTableBuilder.Columns2; } }
         public IReadOnlyList<long> Index { get { return _index; } }
         public int RowCount { get { return _rowCount; } }
 
@@ -42,12 +42,12 @@ namespace BrightWire.TabularData.Helper
             if (_hasWrittenHeader)
                 throw new Exception();
 
-            _dataTable.AddColumn(type, name, isTarget);
+            _dataTableBuilder.AddColumn(type, name, isTarget);
         }
 
         public void AddRow(IRow row)
         {
-            _dataTable.AddRow(row);
+            _dataTableBuilder.AddRow(row);
             ++_rowCount;
             if ((_rowCount % DataTable.BLOCK_SIZE) == 0)
                 _Write();
@@ -55,19 +55,19 @@ namespace BrightWire.TabularData.Helper
 
         public void AddRow(IReadOnlyList<object> data)
         {
-            AddRow(_dataTable.CreateShallow(data, false));
+            AddRow(_dataTableBuilder.CreateShallow(data, false));
         }
 
         void _Write()
         {
             if (!_hasWrittenHeader) {
-                _dataTable.WriteMetadata(_stream);
+                _dataTableBuilder.WriteMetadata(_stream);
                 _hasWrittenHeader = true;
             }
-            if (_dataTable.RowCount > 0) {
+            if (_dataTableBuilder.RowCount > 0) {
                 _index.Add(_stream.Position);
-                _dataTable.WriteData(_stream);
-                _dataTable.ClearRows();
+                _dataTableBuilder.WriteData(_stream);
+                _dataTableBuilder.ClearRows();
             }
         }
 

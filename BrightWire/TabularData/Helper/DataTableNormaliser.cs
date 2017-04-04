@@ -15,7 +15,7 @@ namespace BrightWire.TabularData.Helper
         public DataTableNormaliser(IDataTable dataTable, NormalisationType type, Stream output = null, DataTableNormalisation model = null)
         {
             _table = dataTable;
-            _writer = new DataTableWriter(dataTable.Columns, output);
+            _writer = new DataTableWriter(dataTable.Template, dataTable.Columns, output);
 
             if (model != null)
                 _normalisationModel = model;

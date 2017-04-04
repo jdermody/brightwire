@@ -28,5 +28,7 @@ namespace BrightWire.TabularData
         {
             return _data[depth].GetFields<T>(indices);
         }
+
+        public IReadOnlyList<IRow> SubItem { get { return _data; } }
     }
 }

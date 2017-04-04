@@ -70,14 +70,9 @@ namespace BrightWire
         /// <summary>
         /// Creates a data table builder to programatically create data tables
         /// </summary>
-        /// <param name="initialColumns"></param>
-        /// <returns></returns>
-        public static IDataTableBuilder CreateDataTableBuilder(IEnumerable<IColumn> initialColumns = null)
+        public static IDataTableBuilder CreateDataTableBuilder()
         {
-            if (initialColumns != null)
-                return new DataTableBuilder(initialColumns);
-            else
-                return new DataTableBuilder();
+            return new DataTableBuilder();
         }
     }
 }

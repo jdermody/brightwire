@@ -44,6 +44,8 @@ namespace BrightWire.TabularData.Helper
                     ret[i] = _rowConverter.GetField<T>(_data, i);
                 return ret;
             }
+
+            public IReadOnlyList<IRow> SubItem { get { return null; } }
         }
 
         public DataTableProjector(IRowProcessor destination, IEnumerable<int> columns)
@@ -64,7 +66,7 @@ namespace BrightWire.TabularData.Helper
         public static IDataTable Project(IDataTable table, IEnumerable<int> columns, Stream output = null)
         {
             var validColumn = new HashSet<int>(columns);
-            var writer = new DataTableWriter(table.Columns.Select((c, i) => Tuple.Create(c, i)).Where(c => validColumn.Contains(c.Item2)).Select(c => c.Item1), output);
+            var writer = new DataTableWriter(table.Template, table.Columns.Select((c, i) => Tuple.Create(c, i)).Where(c => validColumn.Contains(c.Item2)).Select(c => c.Item1), output);
             var projector = new DataTableProjector(writer, columns);
             table.Process(projector);
             return writer.GetDataTable();

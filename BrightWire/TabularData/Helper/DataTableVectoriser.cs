@@ -9,6 +9,7 @@ namespace BrightWire.TabularData.Helper
     {
         readonly IReadOnlyList<IColumn> _column;
         readonly int _inputSize, _outputSize, _classColumnIndex;
+        readonly bool _isTargetContinuous;
         readonly Dictionary<int, Dictionary<string, int>> _columnMap = new Dictionary<int, Dictionary<string, int>>();
         readonly Dictionary<int, Dictionary<int, string>> _reverseColumnMap = new Dictionary<int, Dictionary<int, string>>();
         readonly List<string> _columnName = new List<string>();
@@ -22,8 +23,10 @@ namespace BrightWire.TabularData.Helper
             foreach (var columnInfo in analysis.ColumnInfo) {
                 var column = table.Columns[columnInfo.ColumnIndex];
                 var isTarget = columnInfo.ColumnIndex == _classColumnIndex;
+                var isContinuous = column.IsContinuous || !columnInfo.NumDistinct.HasValue;
+
                 int size = 0;
-                if (column.IsContinuous || !columnInfo.NumDistinct.HasValue) {
+                if (isContinuous) {
                     size = 1;
                     if (!isTarget)
                         _columnName.Add(column.Name);
@@ -39,9 +42,10 @@ namespace BrightWire.TabularData.Helper
                             _columnName.Add(column.Name + ":" + reverseColumnMap[i]);
                     }
                 }
-                if (isTarget)
+                if (isTarget) {
                     _outputSize = size;
-                else
+                    _isTargetContinuous = isContinuous;
+                } else
                     _inputSize += size;
             }
         }
@@ -100,10 +104,13 @@ namespace BrightWire.TabularData.Helper
         public float[] GetOutput(IRow row)
         {
             var ret = new float[_outputSize];
-            var column = _column[_classColumnIndex];
-            var str = row.GetField<string>(_classColumnIndex);
-            var offset = _columnMap[_classColumnIndex][str];
-            ret[offset] = 1f;
+            if (_isTargetContinuous)
+                ret[0] = row.GetField<float>(_classColumnIndex);
+            else {
+                var str = row.GetField<string>(_classColumnIndex);
+                var offset = _columnMap[_classColumnIndex][str];
+                ret[offset] = 1f;
+            }
             return ret;
         }
     }

@@ -38,5 +38,7 @@ namespace BrightWire.TabularData
                 ret[i] = _converter.GetField<T>(_data, i);
             return ret;
         }
+
+        public IReadOnlyList<IRow> SubItem { get { return null; } }
     }
 }

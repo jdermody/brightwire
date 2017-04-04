@@ -145,6 +145,11 @@ namespace BrightWire
         /// <param name="indices">The column indices to return</param>
         /// /// <param name="depth">The depth of the data to query (optional)</param>
         IReadOnlyList<T> GetFields<T>(IReadOnlyList<int> indices, int depth = 0);
+
+        /// <summary>
+        /// Return the list of sub rows
+        /// </summary>
+        IReadOnlyList<IRow> SubItem { get; }
     }
 
     /// <summary>
@@ -254,6 +259,42 @@ namespace BrightWire
     }
 
     /// <summary>
+    /// Preconfigured data table structurs
+    /// </summary>
+    public enum DataTableTemplate
+    {
+        /// <summary>
+        /// No default structure
+        /// </summary>
+        Standard = 0,
+
+        /// <summary>
+        /// Two column table: category list in first column, classification target in second
+        /// </summary>
+        CategoryList,
+
+        /// <summary>
+        /// Two column table: weighted category list in first column, classification target in second
+        /// </summary>
+        WeightedCategoryList,
+
+        /// <summary>
+        /// Two column table: vector in first column, classification target in second
+        /// </summary>
+        Vector,
+
+        /// <summary>
+        /// Two column table: matrix in first column, classification target in second
+        /// </summary>
+        Matrix,
+
+        /// <summary>
+        /// Two column table: tensor in first column, classification target in second
+        /// </summary>
+        Tensor,
+    }
+
+    /// <summary>
     /// Tabular data table
     /// </summary>
     public interface IDataTable : IHaveColumns
@@ -267,6 +308,11 @@ namespace BrightWire
         /// The column of the classification target (defaults to the last column if none set)
         /// </summary>
         int TargetColumnIndex { get; set; }
+
+        /// <summary>
+        /// Data table template
+        /// </summary>
+        DataTableTemplate Template { get; }
 
         /// <summary>
         /// Applies each row of the table to the specified processor
@@ -463,6 +509,12 @@ namespace BrightWire
         /// Returns true if the data table contains any non-numeric columns
         /// </summary>
         bool HasCategoricalData { get; }
+
+        /// <summary>
+        /// Returns the depth of each row
+        /// </summary>
+        /// <returns>An array of depths, each corresponding to the depth at that row</returns>
+        uint[] GetRowDepths();
     }
 
     /// <summary>
@@ -1620,5 +1672,109 @@ namespace BrightWire
         /// <param name="data">The data in the new row</param>
         /// <returns>The sub row item</returns>
         IRow AddSubItem(params object[] data);
+    }
+
+    public interface IDataSource
+    {
+        int InputSize { get; }
+        int OutputSize { get; }
+        int RowCount { get; }
+        bool IsSequential { get; }
+        uint[] RowDepth { get; }
+        IReadOnlyList<(float[], float[])> Get(IReadOnlyList<int> rows);
+        IReadOnlyList<IReadOnlyList<(float[], float[])>> GetSequential(IReadOnlyList<int> rows);
+        string GetOutputLabel(int columnIndex, int vectorIndex);
+    }
+
+    public interface IMiniBatchProvider
+    {
+        IDataSource DataSource { get; }
+        IEnumerable<(IMatrix, IMatrix)> GetMiniBatches(int batchSize);
+    }
+
+    public interface ILearningContext
+    {
+        int CurrentEpoch { get; }
+        float LearningRate { get; }
+        int BatchSize { get; }
+        void Store(IMatrix error, Action<IMatrix> updater);
+        bool CalculateTrainingError { get; }
+        void ApplyUpdates();
+        void StartEpoch();
+        void EndEpoch();
+    }
+
+    public interface ILayer : IDisposable
+    {
+        (IMatrix Output, IBackpropagation BackProp) Forward(IMatrix input);
+    }
+
+    public interface IGradientDescentOptimisation : IDisposable
+    {
+        void Update(IMatrix source, IMatrix delta, ILearningContext context);
+    }
+
+    public interface IBackpropagation
+    {
+        IMatrix Backward(IMatrix errorSignal, ILearningContext context, bool calculateOutput);
+    }
+
+    public interface IComponent
+    {
+        IMatrix Execute(IMatrix input, IWireContext context);
+    }
+
+    public interface IWireContext
+    {
+        ILearningContext Context { get; }
+        IMatrix Target { get; }
+        void AddOutput(IMatrix output);
+        void AddBackpropagation(IBackpropagation backProp);
+        double TrainingError { get; }
+
+        void Backpropagate(IMatrix delta);
+    }
+
+    public interface IWire
+    {
+        IMatrix Send(IMatrix signal, IWireContext context);
+    }
+
+    public interface IErrorMetric
+    {
+        float Compute(IIndexableVector output, IIndexableVector expectedOutput);
+        IMatrix CalculateDelta(IMatrix output, IMatrix targetOutput);
+    }
+
+    public interface IGraphInput
+    {
+        int InputSize { get; }
+        int OutputSize { get; }
+        void AddTarget(IWire target);
+        double? Execute(ILearningContext context);
+    }
+
+    public interface IWeightInitialisation
+    {
+        IVector CreateBias(int size);
+        IMatrix CreateWeight(int rows, int columns);
+    }
+
+    public interface IPropertySet
+    {
+        ILinearAlgebraProvider LinearAlgebraProvider { get; }
+        T Get<T>(string name);
+        void Set<T>(string name, T obj);
+        void Clear(string name);
+    }
+
+    public interface ICreateGradientDescent
+    {
+        IGradientDescentOptimisation Create(IPropertySet propertySet);
+    }
+
+    public interface ITemplateBasedCreateGradientDescent
+    {
+        IGradientDescentOptimisation Create(IGradientDescentOptimisation prev, IMatrix template, IPropertySet propertySet);
     }
 }

@@ -14,4 +14,8 @@
     <PackageReference Include="System.ValueTuple" Version="4.3.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="ExecutionGraph\Output\" />
+  </ItemGroup>
+
 </Project>
