@@ -7,7 +7,7 @@ namespace BrightWire.ExecutionGraph.Descriptor
 {
     public class MomentumDescriptor : ITemplateBasedCreateGradientDescent
     {
-        readonly float _momentum;
+        protected readonly float _momentum;
 
         public MomentumDescriptor(float momentum = 0.9f)
         {

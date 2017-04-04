@@ -12,7 +12,7 @@ namespace BrightWire.ExecutionGraph
         readonly bool _calculateTrainingError, _deferUpdates;
         readonly Stopwatch _timer = new Stopwatch();
         float _learningRate;
-        int _batchSize, _currentEpoch = 0;
+        int _batchSize, _rowCount = 0, _currentEpoch = 0;
 
         public Context(float learningRate, int batchSize, bool calculateTrainingError, bool deferUpdates)
         {
@@ -22,6 +22,7 @@ namespace BrightWire.ExecutionGraph
             _deferUpdates = deferUpdates;
         }
 
+        public int RowCount { get { return _rowCount; } }
         public int CurrentEpoch { get { return _currentEpoch; } }
         public float LearningRate { get { return _learningRate; } }
         public int BatchSize { get { return _batchSize; } }
@@ -35,9 +36,10 @@ namespace BrightWire.ExecutionGraph
                 updater(error);
         }
 
-        public void StartEpoch()
+        public void StartEpoch(int rowCount)
         {
             ++_currentEpoch;
+            _rowCount = rowCount;
             _timer.Restart();
         }
 

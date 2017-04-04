@@ -1697,10 +1697,11 @@ namespace BrightWire
         int CurrentEpoch { get; }
         float LearningRate { get; }
         int BatchSize { get; }
+        int RowCount { get; }
         void Store(IMatrix error, Action<IMatrix> updater);
         bool CalculateTrainingError { get; }
         void ApplyUpdates();
-        void StartEpoch();
+        void StartEpoch(int rowCount);
         void EndEpoch();
     }
 
@@ -1751,7 +1752,7 @@ namespace BrightWire
         int InputSize { get; }
         int OutputSize { get; }
         void AddTarget(IWire target);
-        double? Execute(ILearningContext context);
+        double? Execute(ILearningContext context, bool shouldBackpropagate);
     }
 
     public interface IWeightInitialisation

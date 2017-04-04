@@ -11,9 +11,14 @@ namespace BrightWire.ExecutionGraph.GradientDescent
             // nop
         }
 
-        public void Update(IMatrix source, IMatrix delta, ILearningContext context)
+        public virtual void Update(IMatrix source, IMatrix delta, ILearningContext context)
         {
-            source.AddInPlace(delta, 1f, context.LearningRate);
+            _Update(source, delta, context, 1f);
+        }
+
+        protected void _Update(IMatrix source, IMatrix delta, ILearningContext context, float coefficient)
+        {
+            source.AddInPlace(delta, coefficient, context.LearningRate);
         }
     }
 }

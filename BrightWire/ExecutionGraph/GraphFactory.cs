@@ -70,11 +70,11 @@ namespace BrightWire.ExecutionGraph
             return new FeedForward(bias, weight, optimisation);
         }
 
-        public IGraphInput CreateTrainingInput(IDataTable dataTable)
+        public IGraphInput CreateInput(IDataTable dataTable)
         {
             var dataSource = new DataTableAdaptor(dataTable);
             var miniBatchProvider = new MiniBatchProvider(dataSource, _lap, _isStochastic);
-            return new MiniBatchFeeder(miniBatchProvider, true);
+            return new MiniBatchFeeder(miniBatchProvider);
         }
 
         public IPropertySet GetPropertySet(params object[] input)
@@ -95,6 +95,11 @@ namespace BrightWire.ExecutionGraph
             }
 
             return ret;
+        }
+
+        public WireBuilder GetConnector(int inputSize, IPropertySet propertySet)
+        {
+            return new WireBuilder(this, inputSize, propertySet);
         }
     }
 }

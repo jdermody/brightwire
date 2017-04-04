@@ -5,12 +5,12 @@ using System.Text;
 
 namespace BrightWire.ExecutionGraph.Descriptor
 {
-    class NesterovMomentumDescriptor : MomentumDescriptor
+    class AdaGradDescriptor : ITemplateBasedCreateGradientDescent
     {
-        public override IGradientDescentOptimisation Create(IGradientDescentOptimisation prev, IMatrix template, IPropertySet propertySet)
+        public IGradientDescentOptimisation Create(IGradientDescentOptimisation prev, IMatrix template, IPropertySet propertySet)
         {
             var cache = propertySet.LinearAlgebraProvider.Create(template.RowCount, template.ColumnCount, 0f);
-            return new NesterovMomentum(_momentum, cache, prev);
+            return new AdaGrad(cache, prev);
         }
     }
 }
