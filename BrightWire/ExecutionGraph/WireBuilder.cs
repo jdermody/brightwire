@@ -25,7 +25,7 @@ namespace BrightWire.ExecutionGraph
             _lastInputSize = input.InputSize;
         }
 
-        public WireBuilder AddFeedForward(int? layerSize)
+        public WireBuilder AddFeedForward(int? layerSize = null)
         {
             var layer = _factory.CreateFeedForward(_lastInputSize, layerSize ?? _input.OutputSize, _propertySet);
             _stack.Push((layer, null));
@@ -33,9 +33,9 @@ namespace BrightWire.ExecutionGraph
             return this;
         }
 
-        public WireBuilder AddBackpropagation()
+        public WireBuilder AddBackpropagation(IErrorMetric errorMetric)
         {
-            Add(new Backpropagate());
+            Add(new Backpropagate(errorMetric));
             return this;
         }
 

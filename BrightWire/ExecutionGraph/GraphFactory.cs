@@ -114,10 +114,10 @@ namespace BrightWire.ExecutionGraph
             return new WireBuilder(this, input, propertySet);
         }
 
-        public ITrainingEngine CreateTrainingEngine(float learningRate, int batchSize, params IGraphInput[] input)
+        public ITrainingEngine CreateTrainingEngine(float learningRate, int batchSize, IGraphInput trainingInput, IGraphInput testInput)
         {
             var context = new Context(_lap, learningRate, batchSize, true, false);
-            return new TrainingEngine(context, input);
+            return new TrainingEngine(context, new[] { trainingInput }, new[] { testInput });
         }
 
         public IExecutionEngine CreateEngine(params IGraphInput[] input)

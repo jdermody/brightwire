@@ -1819,7 +1819,7 @@ namespace BrightWire
     public interface ITrainingEngine
     {
         double? Train();
-        void Test(IErrorMetric errorMetric, int batchSize = 128);
-        IReadOnlyList<(IIndexableVector Output, IIndexableVector TargetOutput)> Execute(int batchSize = 128);
+        void WriteTestResults(IErrorMetric errorMetric, int batchSize = 128);
+        IReadOnlyList<(IIndexableVector Output, IIndexableVector TargetOutput)> Test(int batchSize = 128);
     }
 }

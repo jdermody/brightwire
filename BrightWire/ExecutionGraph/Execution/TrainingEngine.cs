@@ -8,15 +8,16 @@ namespace BrightWire.ExecutionGraph.Execution
     class TrainingEngine : ITrainingEngine
     {
         readonly Context _context;
-        protected readonly IReadOnlyList<IGraphInput> _input;
+        readonly IReadOnlyList<IGraphInput> _trainingInput, _testInput;
         double? _lastTrainingError = null, _lastTestError = null;
         double _trainingErrorDelta = 0;
         int _noImprovementCount = 0;
 
-        public TrainingEngine(Context context, IReadOnlyList<IGraphInput> input)
+        public TrainingEngine(Context context, IReadOnlyList<IGraphInput> trainingInput, IReadOnlyList<IGraphInput> testInput)
         {
             _context = context;
-            _input = input;
+            _trainingInput = trainingInput;
+            _testInput = testInput;
         }
 
         public double? Train()
@@ -24,7 +25,7 @@ namespace BrightWire.ExecutionGraph.Execution
             var trainingErrorList = new List<double>();
 
             _context.StartEpoch();
-            foreach(var input in _input) {
+            foreach(var input in _trainingInput) {
                 _context.SetRowCount(input.RowCount);
                 var trainingError = input.Train(_context);
                 if (trainingError.HasValue)
@@ -44,17 +45,17 @@ namespace BrightWire.ExecutionGraph.Execution
             return ret;
         }
 
-        public IReadOnlyList<(IIndexableVector Output, IIndexableVector TargetOutput)> Execute(int batchSize = 128)
+        public IReadOnlyList<(IIndexableVector Output, IIndexableVector TargetOutput)> Test(int batchSize = 128)
         {
             var ret = new List<(IIndexableVector, IIndexableVector)>();
-            foreach (var input in _input)
+            foreach (var input in _testInput)
                 ret.AddRange(input.Test(batchSize));
             return ret;
         }
 
-        public void Test(IErrorMetric errorMetric, int batchSize = 128)
+        public void WriteTestResults(IErrorMetric errorMetric, int batchSize = 128)
         {
-            var testError = errorMetric.Compute(Execute(batchSize)).Average();
+            var testError = errorMetric.Compute(Test(batchSize)).Average();
             bool flag = true, isPercentage = errorMetric.DisplayAsPercentage;
             if(_lastTestError.HasValue) {
                 if (isPercentage && _lastTestError.Value > testError)
