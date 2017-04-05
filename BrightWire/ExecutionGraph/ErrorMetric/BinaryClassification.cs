@@ -6,7 +6,7 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
 {
     class BinaryClassification : IErrorMetric
     {
-        public IMatrix CalculateDelta(IMatrix output, IMatrix targetOutput)
+        public IMatrix CalculateGradient(IMatrix output, IMatrix targetOutput)
         {
             return targetOutput.Subtract(output);
         }

@@ -1,5 +1,6 @@
 ﻿using BrightWire.ExecutionGraph;
 using BrightWire.ExecutionGraph.Activation;
+using BrightWire.ExecutionGraph.Component;
 using BrightWire.ExecutionGraph.Wire;
 using System;
 using System.Collections.Generic;
@@ -29,6 +30,12 @@ namespace BrightWire.ExecutionGraph
             var layer = _factory.CreateFeedForward(_lastInputSize, layerSize ?? _input.OutputSize, _propertySet);
             _stack.Push((layer, null));
             _lastInputSize = layerSize ?? _input.OutputSize;
+            return this;
+        }
+
+        public WireBuilder AddBackpropagation()
+        {
+            Add(new Backpropagate());
             return this;
         }
 

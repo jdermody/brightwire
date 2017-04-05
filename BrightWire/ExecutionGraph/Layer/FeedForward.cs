@@ -21,6 +21,11 @@ namespace BrightWire.ExecutionGraph.Layer
                 _input = input;
             }
 
+            public void Dispose()
+            {
+                _input.Dispose();
+            }
+
             public IMatrix Backward(IMatrix errorSignal, ILearningContext context, bool calculateOutput)
             {
                 // work out the next error signal

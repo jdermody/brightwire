@@ -15,6 +15,11 @@ namespace BrightWire.ExecutionGraph.Activation
                 _input = matrix;
             }
 
+            public void Dispose()
+            {
+                _input.Dispose();
+            }
+
             public IMatrix Backward(IMatrix errorSignal, ILearningContext context, bool calculateOutput)
             {
                 using (var od = _input.ReluDerivative())

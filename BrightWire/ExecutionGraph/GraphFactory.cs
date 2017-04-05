@@ -141,6 +141,7 @@ namespace BrightWire.ExecutionGraph
             public ILayer Relu { get; } = new Relu();
             public ILayer Sigmoid { get; } = new Sigmoid();
             public ILayer Tanh { get; } = new Tanh();
+            public ILayer SoftMax { get; } = new SoftMax(Provider.CreateLinearAlgebra());
         }
         public ActivationFunctionProvider Activation { get; } = new ActivationFunctionProvider();
     }

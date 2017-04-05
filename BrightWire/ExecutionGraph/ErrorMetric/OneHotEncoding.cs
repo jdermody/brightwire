@@ -6,14 +6,14 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
 {
     class OneHotEncoding : IErrorMetric
     {
+        public IMatrix CalculateGradient(IMatrix output, IMatrix targetOutput)
+        {
+            return targetOutput.Subtract(output);
+        }
+
         public float Compute(IIndexableVector output, IIndexableVector expectedOutput)
         {
             return output.MaximumIndex() == expectedOutput?.MaximumIndex() ? 1f : 0f;
-        }
-
-        public IMatrix CalculateDelta(IMatrix output, IMatrix targetOutput)
-        {
-            return targetOutput.Subtract(output);
         }
 
         public bool DisplayAsPercentage { get { return true; } }

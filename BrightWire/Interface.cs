@@ -1034,6 +1034,12 @@ namespace BrightWire
         IVector Softmax();
 
         /// <summary>
+        /// Returns the jacobian matrix of the softmax derivative
+        /// </summary>
+        /// <returns></returns>
+        IMatrix SoftmaxDerivative();
+
+        /// <summary>
         /// Returns a vector of distances between the current and target vectors
         /// </summary>
         /// <param name="data">The list of target vectors</param>
@@ -1720,7 +1726,7 @@ namespace BrightWire
         void Update(IMatrix source, IMatrix delta, ILearningContext context);
     }
 
-    public interface IBackpropagation
+    public interface IBackpropagation : IDisposable
     {
         IMatrix Backward(IMatrix errorSignal, ILearningContext context, bool calculateOutput);
     }
@@ -1750,7 +1756,7 @@ namespace BrightWire
     {
         bool DisplayAsPercentage { get; }
         float Compute(IIndexableVector output, IIndexableVector targetOutput);
-        IMatrix CalculateDelta(IMatrix output, IMatrix targetOutput);
+        IMatrix CalculateGradient(IMatrix output, IMatrix targetOutput);
     }
 
     public interface IGraphInput

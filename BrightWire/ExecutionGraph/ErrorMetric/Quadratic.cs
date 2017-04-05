@@ -7,7 +7,7 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
 {
     class Quadratic : IErrorMetric
     {
-        public IMatrix CalculateDelta(IMatrix output, IMatrix targetOutput)
+        public IMatrix CalculateGradient(IMatrix output, IMatrix targetOutput)
         {
             return targetOutput.Subtract(output);
         }

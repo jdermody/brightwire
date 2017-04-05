@@ -61,7 +61,10 @@ namespace BrightWire.ExecutionGraph.Execution
                     flag = false;
                 else if (!isPercentage && _lastTestError.Value < testError)
                     flag = false;
-            }
+                else
+                    _lastTestError = testError;
+            } else
+                _lastTestError = testError;
 
             var format = isPercentage
                 ? "Epoch: {0}; t-error: {1:N4} [{2:N4}]; time: {3:N2}s; score: {4:P}"

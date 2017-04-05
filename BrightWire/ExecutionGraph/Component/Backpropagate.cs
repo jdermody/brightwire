@@ -5,7 +5,7 @@ using System.Text;
 
 namespace BrightWire.ExecutionGraph.Component
 {
-    public class Backpropagate : IComponent
+    class Backpropagate : IComponent
     {
         readonly IErrorMetric _errorMetric;
 
@@ -17,8 +17,8 @@ namespace BrightWire.ExecutionGraph.Component
         public IMatrix Execute(IMatrix input, IWireContext context)
         {
             if (context != null) {
-                var delta = _errorMetric.CalculateDelta(input, context.Target);
-                context.Backpropagate(delta);
+                var gradient = _errorMetric.CalculateGradient(input, context.Target);
+                context.Backpropagate(gradient);
             }
             return input;
         }

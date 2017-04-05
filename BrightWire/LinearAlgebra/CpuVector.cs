@@ -301,6 +301,14 @@ namespace BrightWire.LinearAlgebra
             return new CpuVector(softmax.ToSingle());
         }
 
+        public IMatrix SoftmaxDerivative()
+        {
+            return new CpuMatrix(DenseMatrix.Build.Dense(Count, Count, (x, y) => x == y 
+                ? this[x] * (1 - this[x]) 
+                : -this[x] * this[y])
+            );
+        }
+
         Func<IVector, float> _GetDistanceFunc(DistanceMetric distance)
         {
             switch (distance) {
