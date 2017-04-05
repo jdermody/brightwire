@@ -3,9 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace BrightWire.ExecutionGraph.Descriptor
+namespace BrightWire.Descriptor.GradientDescent
 {
-    public class MomentumDescriptor : ITemplateBasedCreateGradientDescent
+    public class MomentumDescriptor : ICreateTemplateBasedGradientDescent
     {
         protected readonly float _momentum;
 

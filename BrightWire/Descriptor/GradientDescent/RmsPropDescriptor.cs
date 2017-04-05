@@ -3,13 +3,13 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace BrightWire.ExecutionGraph.Descriptor
+namespace BrightWire.Descriptor.GradientDescent
 {
-    class RmsPropDescriptor : ITemplateBasedCreateGradientDescent
+    public class RmsPropDescriptor : ICreateTemplateBasedGradientDescent
     {
         readonly float _decay;
 
-        public RmsPropDescriptor(float decay)
+        public RmsPropDescriptor(float decay = 0.9f)
         {
             _decay = decay;
         }

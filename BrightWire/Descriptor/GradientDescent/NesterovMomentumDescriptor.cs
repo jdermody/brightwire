@@ -3,9 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace BrightWire.ExecutionGraph.Descriptor
+namespace BrightWire.Descriptor.GradientDescent
 {
-    class NesterovMomentumDescriptor : MomentumDescriptor
+    public class NesterovMomentumDescriptor : MomentumDescriptor
     {
         public override IGradientDescentOptimisation Create(IGradientDescentOptimisation prev, IMatrix template, IPropertySet propertySet)
         {

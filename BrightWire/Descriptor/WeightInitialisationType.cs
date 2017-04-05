@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace BrightWire.ExecutionGraph.Descriptor
+namespace BrightWire.Descriptor
 {
     /// <summary>
     /// Layer weight initialisation
@@ -15,12 +15,12 @@ namespace BrightWire.ExecutionGraph.Descriptor
         Gaussian,
 
         /// <summary>
-        /// Xavier initialisation: http://andyljones.tumblr.com/post/110998971763/an-explanation-of-xavier-initialization
+        /// Xavier initialisation: 
         /// </summary>
         Xavier,
 
         /// <summary>
-        /// Identity matrix: https://arxiv.org/abs/1504.00941
+        /// 
         /// </summary>
         Identity,
 

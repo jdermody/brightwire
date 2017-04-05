@@ -1,4 +1,5 @@
 ﻿using BrightWire.ExecutionGraph;
+using BrightWire.ExecutionGraph.Activation;
 using BrightWire.ExecutionGraph.Wire;
 using System;
 using System.Collections.Generic;
@@ -11,22 +12,23 @@ namespace BrightWire.ExecutionGraph
     {
         readonly IPropertySet _propertySet;
         readonly GraphFactory _factory;
-        readonly int _inputSize;
+        readonly IGraphInput _input;
         readonly Stack<(ILayer Layer, IComponent Component)> _stack = new Stack<(ILayer, IComponent)>();
         int _lastInputSize;
 
-        public WireBuilder(GraphFactory factory, int inputSize, IPropertySet propertySet)
+        public WireBuilder(GraphFactory factory, IGraphInput input, IPropertySet propertySet)
         {
             _factory = factory;
             _propertySet = propertySet;
-            _lastInputSize = inputSize;
+            _input = input;
+            _lastInputSize = input.InputSize;
         }
 
-        public WireBuilder AddFeedForward(int layerSize)
+        public WireBuilder AddFeedForward(int? layerSize)
         {
-            var layer = _factory.CreateFeedForward(_lastInputSize, layerSize, _propertySet);
+            var layer = _factory.CreateFeedForward(_lastInputSize, layerSize ?? _input.OutputSize, _propertySet);
             _stack.Push((layer, null));
-            _lastInputSize = layerSize;
+            _lastInputSize = layerSize ?? _input.OutputSize;
             return this;
         }
 
@@ -48,10 +50,12 @@ namespace BrightWire.ExecutionGraph
             while(_stack.Any()) {
                 var next = _stack.Pop();
                 if (next.Layer != null)
-                    last = new LayerToWire(next.Layer, last);
+                    last = new WireToLayer(next.Layer, last);
                 else
-                    last = new ToComponent(next.Component);
+                    last = new WireToComponent(next.Component, last);
             }
+            if (last != null)
+                _input.AddTarget(last);
             return last;
         }
     }

@@ -3,9 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace BrightWire.ExecutionGraph.Descriptor
+namespace BrightWire.Descriptor.GradientDescent
 {
-    class AdaGradDescriptor : ITemplateBasedCreateGradientDescent
+    public class AdaGradDescriptor : ICreateTemplateBasedGradientDescent
     {
         public IGradientDescentOptimisation Create(IGradientDescentOptimisation prev, IMatrix template, IPropertySet propertySet)
         {

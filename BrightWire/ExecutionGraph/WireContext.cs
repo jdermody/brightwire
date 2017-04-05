@@ -43,7 +43,7 @@ namespace BrightWire.ExecutionGraph
                 }
             }
         }
-        public double TrainingError { get { return _miniBatchError.Any() ? _miniBatchError.Average() : double.MaxValue; } }
+        public double? TrainingError { get { return _miniBatchError.Any() ? (double?)_miniBatchError.Average() : null; } }
         public IReadOnlyList<IMatrix> Output { get { return _output; } }
     }
 }

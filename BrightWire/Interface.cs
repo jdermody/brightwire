@@ -805,6 +805,8 @@ namespace BrightWire
         /// Releases all allocated memory since the last save point
         /// </summary>
         void PopLayer();
+
+        bool IsStochastic { get; }
     }
 
     /// <summary>
@@ -1689,11 +1691,12 @@ namespace BrightWire
     public interface IMiniBatchProvider
     {
         IDataSource DataSource { get; }
-        IEnumerable<(IMatrix, IMatrix)> GetMiniBatches(int batchSize);
+        IEnumerable<(IMatrix, IMatrix)> GetMiniBatches(int batchSize, bool isStochastic);
     }
 
     public interface ILearningContext
     {
+        ILinearAlgebraProvider LinearAlgebraProvider { get; }
         int CurrentEpoch { get; }
         float LearningRate { get; }
         int BatchSize { get; }
@@ -1701,13 +1704,15 @@ namespace BrightWire
         void Store(IMatrix error, Action<IMatrix> updater);
         bool CalculateTrainingError { get; }
         void ApplyUpdates();
-        void StartEpoch(int rowCount);
+        void StartEpoch();
         void EndEpoch();
+        void SetRowCount(int rowCount);
     }
 
     public interface ILayer : IDisposable
     {
         (IMatrix Output, IBackpropagation BackProp) Forward(IMatrix input);
+        IMatrix Execute(IMatrix input);
     }
 
     public interface IGradientDescentOptimisation : IDisposable
@@ -1731,7 +1736,7 @@ namespace BrightWire
         IMatrix Target { get; }
         void AddOutput(IMatrix output);
         void AddBackpropagation(IBackpropagation backProp);
-        double TrainingError { get; }
+        double? TrainingError { get; }
 
         void Backpropagate(IMatrix delta);
     }
@@ -1743,7 +1748,8 @@ namespace BrightWire
 
     public interface IErrorMetric
     {
-        float Compute(IIndexableVector output, IIndexableVector expectedOutput);
+        bool DisplayAsPercentage { get; }
+        float Compute(IIndexableVector output, IIndexableVector targetOutput);
         IMatrix CalculateDelta(IMatrix output, IMatrix targetOutput);
     }
 
@@ -1751,8 +1757,11 @@ namespace BrightWire
     {
         int InputSize { get; }
         int OutputSize { get; }
+        int RowCount { get; }
         void AddTarget(IWire target);
-        double? Execute(ILearningContext context, bool shouldBackpropagate);
+        double? Train(ILearningContext context);
+        IReadOnlyList<(IIndexableVector Output, IIndexableVector TargetOutput)> Test(int batchSize = 128);
+        IReadOnlyList<IIndexableVector> Execute(int batchSize = 128);
     }
 
     public interface IWeightInitialisation
@@ -1764,7 +1773,19 @@ namespace BrightWire
     public interface IPropertySet
     {
         ILinearAlgebraProvider LinearAlgebraProvider { get; }
-        T Get<T>(string name);
+        IWeightInitialisation WeightInitialisation { get; set; }
+        ICreateWeightInitialisation WeightInitialisationDescriptor { get; set; }
+        IGradientDescentOptimisation GradientDescent { get; set; }
+        ICreateTemplateBasedGradientDescent TemplateGradientDescentDescriptor { get; set; }
+        ICreateGradientDescent GradientDescentDescriptor { get; set; }
+
+        void Use(ICreateTemplateBasedGradientDescent descriptor);
+        void Use(ICreateGradientDescent descriptor);
+        void Use(ICreateWeightInitialisation descriptor);
+        void Use(IGradientDescentOptimisation optimisation);
+        void Use(IWeightInitialisation weightInit);
+
+        T Get<T>(string name, T defaultValue = default(T));
         void Set<T>(string name, T obj);
         void Clear(string name);
     }
@@ -1774,8 +1795,25 @@ namespace BrightWire
         IGradientDescentOptimisation Create(IPropertySet propertySet);
     }
 
-    public interface ITemplateBasedCreateGradientDescent
+    public interface ICreateTemplateBasedGradientDescent
     {
         IGradientDescentOptimisation Create(IGradientDescentOptimisation prev, IMatrix template, IPropertySet propertySet);
+    }
+
+    public interface ICreateWeightInitialisation
+    {
+        IWeightInitialisation Create(IPropertySet propertySet);
+    }
+
+    public interface IExecutionEngine
+    {
+        IReadOnlyList<IIndexableVector> Execute(int batchSize = 128);
+    }
+
+    public interface ITrainingEngine
+    {
+        double? Train();
+        void Test(IErrorMetric errorMetric, int batchSize = 128);
+        IReadOnlyList<(IIndexableVector Output, IIndexableVector TargetOutput)> Execute(int batchSize = 128);
     }
 }

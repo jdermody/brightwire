@@ -10,10 +10,10 @@ namespace BrightWire.ExecutionGraph.WeightInitialisation
         readonly IContinuousDistribution _distribution;
         readonly ILinearAlgebraProvider _lap;
 
-        public Gaussian(ILinearAlgebraProvider lap, bool stochastic, double stdDev = 0.1)
+        public Gaussian(ILinearAlgebraProvider lap, double stdDev = 0.1)
         {
             _lap = lap;
-            _distribution = stochastic ? new Normal(0, stdDev) : new Normal(0, stdDev, new Random(0));
+            _distribution = lap.IsStochastic ? new Normal(0, stdDev) : new Normal(0, stdDev, new Random(0));
         }
 
         float _GetBias()

@@ -9,11 +9,11 @@ namespace BrightWire.LinearAlgebra
 {
     internal class CpuProvider : ILinearAlgebraProvider
     {
-        readonly bool _stochastic;
+        readonly bool _isStochastic;
 
         public CpuProvider(bool stochastic = true)
         {
-            _stochastic = stochastic;
+            _isStochastic = stochastic;
         }
 
         protected virtual void Dispose(bool disposing)
@@ -139,5 +139,7 @@ namespace BrightWire.LinearAlgebra
         {
             // nop
         }
+
+        public bool IsStochastic { get { return _isStochastic; } }
     }
 }

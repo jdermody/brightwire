@@ -9,21 +9,19 @@ namespace BrightWire.ExecutionGraph.Input
     {
         readonly IDataSource _dataSource;
         readonly ILinearAlgebraProvider _lap;
-        readonly bool _isStochastic;
 
-        public MiniBatchProvider(IDataSource dataSource, ILinearAlgebraProvider lap, bool isStochastic)
+        public MiniBatchProvider(IDataSource dataSource, ILinearAlgebraProvider lap)
         {
-            _isStochastic = isStochastic;
             _dataSource = dataSource;
             _lap = lap;
         }
 
         public IDataSource DataSource { get { return _dataSource; } }
 
-        public IEnumerable<(IMatrix, IMatrix)> GetMiniBatches(int batchSize)
+        public IEnumerable<(IMatrix, IMatrix)> GetMiniBatches(int batchSize, bool isStochastic)
         {
             var range = Enumerable.Range(0, _dataSource.RowCount);
-            var iterationOrder = (_isStochastic ? range.Shuffle() : range).ToList();
+            var iterationOrder = (isStochastic ? range.Shuffle() : range).ToList();
 
             for (var j = 0; j < _dataSource.RowCount; j += batchSize) {
                 var maxRows = Math.Min(iterationOrder.Count, batchSize + j) - j;
@@ -31,7 +29,7 @@ namespace BrightWire.ExecutionGraph.Input
                 var miniBatch = _dataSource.Get(rows);
                 yield return (
                     _lap.Create(miniBatch.Count, _dataSource.InputSize, (x, y) => miniBatch[x].Item1[y]),
-                    _lap.Create(miniBatch.Count, _dataSource.OutputSize, (x, y) => miniBatch[x].Item2[y])
+                    _dataSource.OutputSize > 0 ? _lap.Create(miniBatch.Count, _dataSource.OutputSize, (x, y) => miniBatch[x].Item2[y]) : null
                 );
             }
         }

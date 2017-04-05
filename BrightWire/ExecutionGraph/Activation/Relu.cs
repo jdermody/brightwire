@@ -4,7 +4,7 @@ using System.Text;
 
 namespace BrightWire.ExecutionGraph.Activation
 {
-    class Sigmoid : ILayer
+    class Relu : ILayer
     {
         class Backpropagation : IBackpropagation
         {
@@ -17,7 +17,7 @@ namespace BrightWire.ExecutionGraph.Activation
 
             public IMatrix Backward(IMatrix errorSignal, ILearningContext context, bool calculateOutput)
             {
-                using (var od = _input.SigmoidDerivative())
+                using (var od = _input.ReluDerivative())
                     return errorSignal.PointwiseMultiply(od);
             }
         }
@@ -37,7 +37,7 @@ namespace BrightWire.ExecutionGraph.Activation
 
         public IMatrix Execute(IMatrix input)
         {
-            return input.SigmoidActivation();
+            return input.ReluActivation();
         }
     }
 }

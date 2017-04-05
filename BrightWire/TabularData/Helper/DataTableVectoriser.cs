@@ -9,7 +9,7 @@ namespace BrightWire.TabularData.Helper
     {
         readonly IReadOnlyList<IColumn> _column;
         readonly int _inputSize, _outputSize, _classColumnIndex;
-        readonly bool _isTargetContinuous;
+        readonly bool _isTargetContinuous, _hasTarget = false;
         readonly Dictionary<int, Dictionary<string, int>> _columnMap = new Dictionary<int, Dictionary<string, int>>();
         readonly Dictionary<int, Dictionary<int, string>> _reverseColumnMap = new Dictionary<int, Dictionary<int, string>>();
         readonly List<string> _columnName = new List<string>();
@@ -45,6 +45,7 @@ namespace BrightWire.TabularData.Helper
                 if (isTarget) {
                     _outputSize = size;
                     _isTargetContinuous = isContinuous;
+                    _hasTarget = true;
                 } else
                     _inputSize += size;
             }
@@ -70,11 +71,13 @@ namespace BrightWire.TabularData.Helper
 
         public string GetOutputLabel(int columnIndex, int vectorIndex)
         {
-            Dictionary<int, string> map;
-            if (_reverseColumnMap.TryGetValue(columnIndex, out map)) {
-                string ret;
-                if (map.TryGetValue(vectorIndex, out ret))
-                    return ret;
+            if (_hasTarget) {
+                Dictionary<int, string> map;
+                if (_reverseColumnMap.TryGetValue(columnIndex, out map)) {
+                    string ret;
+                    if (map.TryGetValue(vectorIndex, out ret))
+                        return ret;
+                }
             }
             return null;
         }
@@ -103,15 +106,18 @@ namespace BrightWire.TabularData.Helper
 
         public float[] GetOutput(IRow row)
         {
-            var ret = new float[_outputSize];
-            if (_isTargetContinuous)
-                ret[0] = row.GetField<float>(_classColumnIndex);
-            else {
-                var str = row.GetField<string>(_classColumnIndex);
-                var offset = _columnMap[_classColumnIndex][str];
-                ret[offset] = 1f;
+            if (_hasTarget) {
+                var ret = new float[_outputSize];
+                if (_isTargetContinuous)
+                    ret[0] = row.GetField<float>(_classColumnIndex);
+                else {
+                    var str = row.GetField<string>(_classColumnIndex);
+                    var offset = _columnMap[_classColumnIndex][str];
+                    ret[offset] = 1f;
+                }
+                return ret;
             }
-            return ret;
+            return null;
         }
     }
 }

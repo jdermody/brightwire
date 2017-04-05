@@ -109,5 +109,10 @@ namespace BrightWire
                     throw new NotImplementedException();
             }
         }
+
+        public static IEnumerable<float> Compute(this IErrorMetric errorMetric, IReadOnlyList<(IIndexableVector, IIndexableVector)> output)
+        {
+            return output.Select(r => errorMetric.Compute(r.Item1, r.Item2));
+        }
     }
 }

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace BrightWire.ExecutionGraph.Layer
 {
-    public class FeedForward : ILayer
+    class FeedForward : ILayer
     {
         protected readonly IVector _bias;
         protected readonly IMatrix _weight;
@@ -65,12 +65,17 @@ namespace BrightWire.ExecutionGraph.Layer
 
         public (IMatrix Output, IBackpropagation BackProp) Forward(IMatrix input)
         {
-            var output = input.Multiply(_weight);
-            output.AddToEachRow(_bias);
             return (
-                output,
+                Execute(input),
                 new Backpropagation(this, input)
             );
+        }
+
+        public IMatrix Execute(IMatrix input)
+        {
+            var ret = input.Multiply(_weight);
+            ret.AddToEachRow(_bias);
+            return ret;
         }
     }
 }

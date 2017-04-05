@@ -16,8 +16,10 @@ namespace BrightWire.ExecutionGraph.Component
 
         public IMatrix Execute(IMatrix input, IWireContext context)
         {
-            var delta = _errorMetric.CalculateDelta(input, context.Target);
-            context.Backpropagate(delta);
+            if (context != null) {
+                var delta = _errorMetric.CalculateDelta(input, context.Target);
+                context.Backpropagate(delta);
+            }
             return input;
         }
     }

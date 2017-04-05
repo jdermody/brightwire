@@ -3,13 +3,13 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace BrightWire.ExecutionGraph.Descriptor
+namespace BrightWire.Descriptor.GradientDescent
 {
-    public class AdamDescriptor : ITemplateBasedCreateGradientDescent
+    public class AdamDescriptor : ICreateTemplateBasedGradientDescent
     {
         readonly float _decay, _decay2;
 
-        public AdamDescriptor(float decay, float decay2)
+        public AdamDescriptor(float decay = 0.9f, float decay2 = 0.99f)
         {
             _decay = decay;
             _decay2 = decay2;

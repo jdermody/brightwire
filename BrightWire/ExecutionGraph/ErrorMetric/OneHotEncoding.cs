@@ -4,7 +4,7 @@ using System.Text;
 
 namespace BrightWire.ExecutionGraph.ErrorMetric
 {
-    public class OneHotEncoding : IErrorMetric
+    class OneHotEncoding : IErrorMetric
     {
         public float Compute(IIndexableVector output, IIndexableVector expectedOutput)
         {
@@ -15,5 +15,7 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
         {
             return targetOutput.Subtract(output);
         }
+
+        public bool DisplayAsPercentage { get { return true; } }
     }
 }
