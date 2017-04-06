@@ -163,10 +163,10 @@ namespace BrightWire.TabularData
                     return reader.ReadInt64();
                 case ColumnType.Byte:
                     return reader.ReadByte();
-                case ColumnType.CategoryList:
-                    return CategoryList.ReadFrom(reader);
-                case ColumnType.WeightedCategoryList:
-                    return WeightedCategoryList.ReadFrom(reader);
+                case ColumnType.IndexList:
+                    return IndexList.ReadFrom(reader);
+                case ColumnType.WeightedIndexList:
+                    return WeightedIndexList.ReadFrom(reader);
                 case ColumnType.Vector:
                     return FloatArray.ReadFrom(reader);
                 case ColumnType.Matrix:
@@ -188,49 +188,29 @@ namespace BrightWire.TabularData
                 return row;
             }
 
-            var isDeep = reader.ReadBoolean();
-            if(isDeep) {
-                var depth = reader.ReadUInt32();
-                var rowData = new ShallowDataTableRow[depth];
-                for(var i = 0; i < depth; i++)
-                    rowData[i] = new ShallowDataTableRow(this, Read(), _rowConverter, true);
-                return new DeepDataTableRow(rowData);
-            }else
-                return new ShallowDataTableRow(this, Read(), _rowConverter, false);
+            return new DataTableRow(this, Read(), _rowConverter);
         }
 
-        protected uint _SkipRow(BinaryReader reader)
+        protected void _SkipRow(BinaryReader reader)
         {
-            void Skip()
-            {
-                for (var j = 0; j < _column.Count; j++)
-                    _ReadColumn(_column[j], reader);
-            }
-
-            uint ret = 1;
-            var isDeep = reader.ReadBoolean();
-            if (isDeep) {
-                ret = reader.ReadUInt32();
-                for (var i = 0; i < ret; i++)
-                    Skip();
-            } else
-                Skip();
-            return ret;
+            for (var j = 0; j < _column.Count; j++)
+                _ReadColumn(_column[j], reader);
         }
 
         public void Process(IRowProcessor rowProcessor)
         {
-            _Iterate(row => rowProcessor.Process(row));
+            _Iterate((row, i) => rowProcessor.Process(row));
         }
 
-        protected void _Iterate(Func<IRow, bool> callback)
+        protected void _Iterate(Func<IRow, int, bool> callback)
         {
             lock (_mutex) {
                 _stream.Seek(_dataOffset, SeekOrigin.Begin);
                 var reader = new BinaryReader(_stream, Encoding.UTF8, true);
+                int index = 0;
                 while (_stream.Position < _stream.Length) {
                     var row = _ReadDataTableRow(reader);
-                    if (!callback(row))
+                    if (!callback(row, index++))
                         break;
                 }
             }
@@ -369,10 +349,9 @@ namespace BrightWire.TabularData
         public IReadOnlyList<T> GetColumn<T>(int columnIndex)
         {
             var ret = new T[RowCount];
-            int index = 0;
 
-            _Iterate(row => {
-                ret[index++] = row.GetField<T>(columnIndex);
+            _Iterate((row, i) => {
+                ret[i] = row.GetField<T>(columnIndex);
                 return true;
             });
 
@@ -383,11 +362,9 @@ namespace BrightWire.TabularData
         {
             var columnTable = (columns ?? Enumerable.Range(0, ColumnCount)).ToDictionary(i => i, i => new float[RowCount]);
 
-            int index = 0;
-            _Iterate(row => {
+            _Iterate((row, i) => {
                 foreach (var item in columnTable)
-                    item.Value[index] = row.GetField<float>(item.Key);
-                ++index;
+                    item.Value[i] = row.GetField<float>(item.Key);
                 return true;
             });
 
@@ -398,11 +375,9 @@ namespace BrightWire.TabularData
         {
             var columnTable = (columns ?? Enumerable.Range(0, ColumnCount)).ToDictionary(i => i, i => new float[RowCount]);
 
-            int index = 0;
-            _Iterate(row => {
+            _Iterate((row, i) => {
                 foreach (var item in columnTable)
-                    item.Value[index] = row.GetField<float>(item.Key);
-                ++index;
+                    item.Value[i] = row.GetField<float>(item.Key);
                 return true;
             });
 
@@ -414,7 +389,7 @@ namespace BrightWire.TabularData
             var columnList = new List<int>(columns ?? Enumerable.Range(0, ColumnCount));
 
             var ret = new List<float[]>();
-            _Iterate(row => {
+            _Iterate((row, i) => {
                 int index = 0;
                 var buffer = new float[columnList.Count];
                 foreach (var item in columnList)
@@ -431,7 +406,7 @@ namespace BrightWire.TabularData
             var columnList = new List<int>(columns ?? Enumerable.Range(0, ColumnCount));
 
             var ret = new List<IVector>();
-            _Iterate(row => {
+            _Iterate((row, i) => {
                 int index = 0;
                 var buffer = new float[columnList.Count];
                 foreach (var item in columnList)
@@ -492,7 +467,7 @@ namespace BrightWire.TabularData
         public IReadOnlyList<(IRow Row, string Classification)> Classify(IRowClassifier classifier)
         {
             var ret = new List<(IRow, string)>();
-            _Iterate(row => {
+            _Iterate((row, i) => {
                 ret.Add((row, classifier.Classify(row).First()));
                 return true;
             });
@@ -508,7 +483,7 @@ namespace BrightWire.TabularData
         {
             var isFirst = true;
             DataTableWriter writer = new DataTableWriter(output);
-            _Iterate(row => {
+            _Iterate((row, i) => {
                 var row2 = mutator(row);
                 if (row2 != null) {
                     if (isFirst) {
@@ -544,7 +519,7 @@ namespace BrightWire.TabularData
                         }
                         isFirst = false;
                     }
-                    writer.AddRow(new ShallowDataTableRow(this, row2, _rowConverter, false));
+                    writer.AddRow(new DataTableRow(this, row2, _rowConverter));
                 }
                 return true;
             });
@@ -561,7 +536,7 @@ namespace BrightWire.TabularData
                         if (i == TargetColumnIndex)
                             row[i] = r.GetField<string>(i) == cls;
                         else
-                            row[i] = r.GetData()[i];
+                            row[i] = r.Data[i];
                     }
                     return row;
                 }), cls))
@@ -571,18 +546,23 @@ namespace BrightWire.TabularData
 
         public void ForEach(Action<IRow> callback)
         {
-            _Iterate(row => { callback(row); return true; });
+            _Iterate((row, i) => { callback(row); return true; });
+        }
+
+        public void ForEach(Action<IRow, int> callback)
+        {
+            _Iterate((row, i) => { callback(row, i); return true; });
         }
 
         public void ForEach(Func<IRow, bool> callback)
         {
-            _Iterate(row => callback(row));
+            _Iterate((row, i) => callback(row));
         }
 
         public IReadOnlyList<T> Map<T>(Func<IRow, T> mutator)
         {
             var ret = new List<T>();
-            _Iterate(row => {
+            _Iterate((row, i) => {
                 ret.Add(mutator(row));
                 return true;
             });
@@ -612,30 +592,16 @@ namespace BrightWire.TabularData
             var classColumn = _column[classColumnIndex];
             writer.AddColumn(classColumn.Name, ColumnType.String, true);
 
-            _Iterate(row => {
+            _Iterate((row, i) => {
                 var data = vectoriser.GetInput(row).AsEnumerable()
                     .Cast<object>()
                     .Concat(new object[] { row.GetField<string>(classColumnIndex) })
                     .ToArray()
                 ;
-                writer.AddRow(new ShallowDataTableRow(this, data, _rowConverter, false));
+                writer.AddRow(new DataTableRow(this, data, _rowConverter));
                 return true;
             });
             return writer.GetDataTable();
-        }
-
-        public uint[] GetRowDepths()
-        {
-            int index = 0;
-            var ret = new uint[RowCount];
-
-            lock (_mutex) {
-                _stream.Seek(_dataOffset, SeekOrigin.Begin);
-                var reader = new BinaryReader(_stream, Encoding.UTF8, true);
-                while (_stream.Position < _stream.Length)
-                    ret[index++] = _SkipRow(reader);
-            }
-            return ret;
         }
 
         public string XmlPreview
@@ -659,10 +625,7 @@ namespace BrightWire.TabularData
                     }
                     foreach (var row in rows) {
                         writer.WriteStartElement("row");
-                        if (row.Depth > 0)
-                            writer.WriteAttributeString("depth", row.Depth.ToString());
-
-                        foreach (var val in row.GetData()) {
+                        foreach (var val in row.Data) {
                             writer.WriteStartElement("item");
                             if (val == null)
                                 writer.WriteString("(null)");

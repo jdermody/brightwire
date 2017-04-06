@@ -1,27 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 
 namespace BrightWire.ExecutionGraph.Wire
 {
-    public class WireToComponent : IWire
+    class WireToComponent : WireBase
     {
         readonly IComponent _component;
-        readonly IWire _destination;
 
-        public WireToComponent(IComponent component, IWire destination)
+        public WireToComponent(int inputSize, int outputSize, int inputChannel, IComponent component, IWire destination) 
+            : base(inputSize, outputSize, inputChannel, destination)
         {
             _component = component;
-            _destination = destination;
         }
 
-        public IMatrix Send(IMatrix signal, IWireContext context)
+        public override void Send(IMatrix signal, int channel, IBatchContext context)
         {
-            var output = _component.Execute(signal, context);
-            if (_destination != null)
-                return _destination.Send(output, context);
+            Debug.Assert(channel == _inputChannel);
+            Debug.Assert(signal.ColumnCount == _inputSize);
+
+            IMatrix output = null;
+            if (context.IsTraining)
+                output = _component.Train(signal, channel, context);
             else
-                return output;
+                output = _component.Execute(signal, context);
+
+            if (_destination != null)
+                _destination.Send(output, channel, context);
         }
     }
 }

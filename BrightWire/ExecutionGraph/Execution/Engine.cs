@@ -6,19 +6,20 @@ namespace BrightWire.ExecutionGraph.Execution
 {
     class Engine : IExecutionEngine
     {
-        protected readonly IReadOnlyList<IGraphInput> _input;
+        readonly IGraphInput _input;
+        readonly IMiniBatchProvider _provider;
 
-        public Engine(IReadOnlyList<IGraphInput> input)
+        public Engine(IMiniBatchProvider provider, IGraphInput input)
         {
             _input = input;
+            _provider = provider;
         }
+
+        public IGraphInput Input => _input;
 
         public IReadOnlyList<IIndexableVector> Execute(int batchSize = 128)
         {
-            var ret = new List<IIndexableVector>();
-            foreach (var input in _input)
-                ret.AddRange(input.Execute(batchSize));
-            return ret;
+            return _input.Execute(_provider, batchSize);
         }
     }
 }

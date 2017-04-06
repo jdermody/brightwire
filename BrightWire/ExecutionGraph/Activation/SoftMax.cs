@@ -4,15 +4,8 @@ using System.Text;
 
 namespace BrightWire.ExecutionGraph.Activation
 {
-    class SoftMax : ILayer
+    class SoftMax : IComponent
     {
-        readonly ILinearAlgebraProvider _lap;
-
-        public SoftMax(ILinearAlgebraProvider lap)
-        {
-            _lap = lap;
-        }
-
         class Backpropagation : IBackpropagation
         {
             IReadOnlyList<IVector> _rows;
@@ -22,20 +15,26 @@ namespace BrightWire.ExecutionGraph.Activation
                 _rows = rows;
             }
 
-            public IMatrix Backward(IMatrix errorSignal, ILearningContext context, bool calculateOutput)
+            public void Backward(IMatrix errorSignal, int channel, IBatchContext context, bool calculateOutput)
             {
                 var lap = context.LinearAlgebraProvider;
                 var rowList = new List<IVector>();
                 for (var i = 0; i < errorSignal.RowCount; i++) {
-                    var sm = _rows[i].SoftmaxDerivative().Multiply(errorSignal.Row(i));
-                    rowList.Add(sm.ConvertInPlaceToVector());
+                    using (var derivative = _rows[i].SoftmaxDerivative()) {
+                        var sm = derivative.Multiply(errorSignal.Row(i));
+                        rowList.Add(sm.ConvertInPlaceToVector());
+                    }
                 }
-                return lap.Create(rowList);
+                var ret = lap.Create(rowList);
+                foreach (var item in rowList)
+                    item.Dispose();
+                context.Backpropagate(ret, channel);
             }
 
             public void Dispose()
             {
-                // nop
+                foreach (var item in _rows)
+                    item.Dispose();
             }
         }
 
@@ -44,13 +43,16 @@ namespace BrightWire.ExecutionGraph.Activation
             // nop
         }
 
-        public IMatrix Execute(IMatrix input)
+        public IMatrix Execute(IMatrix input, IBatchContext context)
         {
-            var ret = _Execute(input);
+            var ret = _Execute(input, context);
+            foreach (var item in ret.Item1)
+                item.Dispose();
+
             return ret.Item2;
         }
 
-        (IReadOnlyList<IVector>, IMatrix) _Execute(IMatrix input)
+        (IReadOnlyList<IVector>, IMatrix) _Execute(IMatrix input, IBatchContext context)
         {
             var rowList = new List<IVector>();
             for (var i = 0; i < input.RowCount; i++) {
@@ -58,17 +60,15 @@ namespace BrightWire.ExecutionGraph.Activation
                     rowList.Add(row.Softmax());
             }
 
-            var ret = _lap.Create(rowList);
+            var ret = context.LinearAlgebraProvider.Create(rowList);
             return (rowList, ret);
         }
 
-        public (IMatrix Output, IBackpropagation BackProp) Forward(IMatrix input)
+        public IMatrix Train(IMatrix input, int channel, IBatchContext context)
         {
-            var ret = _Execute(input);
-            return (
-                ret.Item2,
-                new Backpropagation(ret.Item1)
-            );
+            var ret = _Execute(input, context);
+            context.AddBackpropagation(new Backpropagation(ret.Item1), channel);
+            return ret.Item2;
         }
     }
 }

@@ -85,12 +85,12 @@ namespace BrightWire
         /// <summary>
         /// List of indices
         /// </summary>
-        CategoryList,
+        IndexList,
 
         /// <summary>
         /// Weighted list of indices
         /// </summary>
-        WeightedCategoryList,
+        WeightedIndexList,
 
         /// <summary>
         /// Vector of floats
@@ -114,42 +114,24 @@ namespace BrightWire
     public interface IRow
     {
         /// <summary>
-        /// True if the current row is a sub item of a deep data table row
-        /// </summary>
-        bool IsSubItem { get; }
-
-        /// <summary>
-        /// The number of sub-items in the current row
-        /// </summary>
-        int Depth { get; }
-
-        /// <summary>
         /// Gets the raw data from the row
         /// </summary>
-        /// <param name="depth">The depth of the data to query (optional)</param>
         /// <returns></returns>
-        IReadOnlyList<object> GetData(int depth = 0);
+        IReadOnlyList<object> Data { get; }
 
         /// <summary>
         /// Gets the value of the specified column (converted to T)
         /// </summary>
         /// <typeparam name="T">The type of data to return (will be converted if neccessary)</typeparam>
         /// <param name="index">The column index to query</param>
-        /// <param name="depth">The depth of the data to query (optional)</param>
-        T GetField<T>(int index, int depth = 0);
+        T GetField<T>(int index);
 
         /// <summary>
         /// Gets the specified strongly typed values
         /// </summary>
         /// <typeparam name="T">The type of data to return (will be converted if neccessary)</typeparam>
         /// <param name="indices">The column indices to return</param>
-        /// /// <param name="depth">The depth of the data to query (optional)</param>
-        IReadOnlyList<T> GetFields<T>(IReadOnlyList<int> indices, int depth = 0);
-
-        /// <summary>
-        /// Return the list of sub rows
-        /// </summary>
-        IReadOnlyList<IRow> SubItem { get; }
+        IReadOnlyList<T> GetFields<T>(IReadOnlyList<int> indices);
     }
 
     /// <summary>
@@ -269,14 +251,14 @@ namespace BrightWire
         Standard = 0,
 
         /// <summary>
-        /// Two column table: category list in first column, classification target in second
+        /// Two column table: index list in first column, classification target in second
         /// </summary>
-        CategoryList,
+        IndexList,
 
         /// <summary>
-        /// Two column table: weighted category list in first column, classification target in second
+        /// Two column table: weighted index list in first column, classification target in second
         /// </summary>
-        WeightedCategoryList,
+        WeightedIndexList,
 
         /// <summary>
         /// Two column table: vector in first column, classification target in second
@@ -330,6 +312,12 @@ namespace BrightWire
         /// </summary>
         /// <param name="callback">Callback that is invoked for each row</param>
         void ForEach(Action<IRow> callback);
+
+        /// <summary>
+        /// Invokes the callback on each row in the table
+        /// </summary>
+        /// <param name="callback">Callback that is invoked for each row</param>
+        void ForEach(Action<IRow, int> callback);
 
         /// <summary>
         /// Invokes the callback on each row in the table
@@ -509,12 +497,6 @@ namespace BrightWire
         /// Returns true if the data table contains any non-numeric columns
         /// </summary>
         bool HasCategoricalData { get; }
-
-        /// <summary>
-        /// Returns the depth of each row
-        /// </summary>
-        /// <returns>An array of depths, each corresponding to the depth at that row</returns>
-        uint[] GetRowDepths();
     }
 
     /// <summary>
@@ -701,8 +683,15 @@ namespace BrightWire
         /// <summary>
         /// Creates a matrix from a list of vectors
         /// </summary>
-        /// <param name="vectorData">The list of rows in the new matrix</param>
-        IMatrix Create(IReadOnlyList<IVector> vectorData);
+        /// <param name="rows">The list of rows in the new matrix</param>
+        IMatrix Create(IReadOnlyList<IVector> rows);
+
+        /// <summary>
+        /// Creates a matrix from a list of vectors
+        /// </summary>
+        /// <param name="rows">The list of rows in the new matrix</param>
+        /// <returns></returns>
+        IMatrix Create(IReadOnlyList<FloatArray> rows);
 
         /// <summary>
         /// Creates a matrix from a list of vectors
@@ -1609,13 +1598,6 @@ namespace BrightWire
         IReadOnlyList<IIndexableMatrix> Matrices { get; }
     }
 
-    public interface IGraphData
-    {
-        IVector AsVector();
-        IMatrix AsMatrix();
-        I3DTensor AsTensor();
-    }
-
     /// <summary>
     /// Used to programatically construct data tables
     /// </summary>
@@ -1652,11 +1634,6 @@ namespace BrightWire
         IRow Add(params object[] data);
 
         /// <summary>
-        /// Adds a row with depth
-        /// </summary>
-        IDeepDataTableRowBuilder AddDeepRow();
-
-        /// <summary>
         /// Creates a new data table
         /// </summary>
         /// <param name="output">Optional stream to write the data table to</param>
@@ -1669,35 +1646,29 @@ namespace BrightWire
         void ClearRows();
     }
 
-    /// <summary>
-    /// A builder to create a deep data table row
-    /// </summary>
-    public interface IDeepDataTableRowBuilder
-    {
-        /// <summary>
-        /// Adds a sub item to the deep data table row
-        /// </summary>
-        /// <param name="data">The data in the new row</param>
-        /// <returns>The sub row item</returns>
-        IRow AddSubItem(params object[] data);
-    }
-
     public interface IDataSource
     {
+        bool IsSequential { get; }
         int InputSize { get; }
         int OutputSize { get; }
         int RowCount { get; }
-        bool IsSequential { get; }
-        uint[] RowDepth { get; }
         IReadOnlyList<(float[], float[])> Get(IReadOnlyList<int> rows);
-        IReadOnlyList<IReadOnlyList<(float[], float[])>> GetSequential(IReadOnlyList<int> rows);
-        string GetOutputLabel(int columnIndex, int vectorIndex);
+        IReadOnlyList<(FloatMatrix Input, FloatMatrix Output)> GetSequential(IReadOnlyList<int> rows);
+        IReadOnlyList<IReadOnlyList<int>> GetBuckets();
+        //string GetOutputLabel(int columnIndex, int vectorIndex);
+    }
+
+    public enum MiniBatchType
+    {
+        Standard,
+        SequenceStart,
+        SequenceEnd
     }
 
     public interface IMiniBatchProvider
     {
         IDataSource DataSource { get; }
-        IEnumerable<(IMatrix, IMatrix)> GetMiniBatches(int batchSize, bool isStochastic);
+        IReadOnlyList<IGraphOperation> GetMiniBatches(int batchSize, bool isStochastic, Action<(MiniBatchType Type, IMatrix Input, IMatrix Output)> handler);
     }
 
     public interface ILearningContext
@@ -1715,10 +1686,10 @@ namespace BrightWire
         void SetRowCount(int rowCount);
     }
 
-    public interface ILayer : IDisposable
+    public interface IComponent : IDisposable
     {
-        (IMatrix Output, IBackpropagation BackProp) Forward(IMatrix input);
-        IMatrix Execute(IMatrix input);
+        IMatrix Train(IMatrix input, int channel, IBatchContext context);
+        IMatrix Execute(IMatrix input, IBatchContext context);
     }
 
     public interface IGradientDescentOptimisation : IDisposable
@@ -1728,28 +1699,41 @@ namespace BrightWire
 
     public interface IBackpropagation : IDisposable
     {
-        IMatrix Backward(IMatrix errorSignal, ILearningContext context, bool calculateOutput);
+        void Backward(IMatrix errorSignal, int channel, IBatchContext context, bool calculateOutput);
     }
 
-    public interface IComponent
+    public interface IExecutionContext
     {
-        IMatrix Execute(IMatrix input, IWireContext context);
+        void SetMemory(int index, IMatrix memory);
+        IMatrix GetMemory(int index);
+        void Add(IGraphOperation operation);
+        ILinearAlgebraProvider LinearAlgebraProvider { get; }
     }
 
-    public interface IWireContext
+    public interface IBatchContext
     {
-        ILearningContext Context { get; }
+        int BatchSize { get; }
+        bool IsTraining { get; }
+        ILearningContext LearningContext { get; }
+        IExecutionContext ExecutionContext { get; }
+        ILinearAlgebraProvider LinearAlgebraProvider { get; }
         IMatrix Target { get; }
-        void AddOutput(IMatrix output);
-        void AddBackpropagation(IBackpropagation backProp);
         double? TrainingError { get; }
-
-        void Backpropagate(IMatrix delta);
+        void SetOutput(IMatrix output);
+        void CalculateTrainingError(IMatrix delta);
+        void AddBackpropagation(IBackpropagation backProp, int channel);
+        void Backpropagate(IMatrix delta, int channela);
     }
 
     public interface IWire
     {
-        IMatrix Send(IMatrix signal, IWireContext context);
+        int InputSize { get; }
+        int OutputSize { get; }
+        int? InputChannel { get; }
+        IWire Destination { get; }
+        IWire LastWire { get; }
+        void SetDestination(IWire wire);
+        void Send(IMatrix signal, int channel, IBatchContext context);
     }
 
     public interface IErrorMetric
@@ -1761,13 +1745,18 @@ namespace BrightWire
 
     public interface IGraphInput
     {
+        bool IsSequential { get; }
         int InputSize { get; }
         int OutputSize { get; }
         int RowCount { get; }
         void AddTarget(IWire target);
-        double? Train(ILearningContext context);
-        IReadOnlyList<(IIndexableVector Output, IIndexableVector TargetOutput)> Test(int batchSize = 128);
-        IReadOnlyList<IIndexableVector> Execute(int batchSize = 128);
+        double? Train(IMiniBatchProvider provider, ILearningContext context);
+        IReadOnlyList<(IIndexableVector Output, IIndexableVector TargetOutput)> Test(IMiniBatchProvider provider, int batchSize = 128);
+        IReadOnlyList<IIndexableVector> Execute(IMiniBatchProvider provider, int batchSize = 128);
+
+        event Action<IBatchContext> OnSequenceStart;
+        event Action<IBatchContext> OnSequenceContinue;
+        event Action<IBatchContext> OnSequenceEnd;
     }
 
     public interface IWeightInitialisation
@@ -1818,8 +1807,15 @@ namespace BrightWire
 
     public interface ITrainingEngine
     {
-        double? Train();
-        void WriteTestResults(IErrorMetric errorMetric, int batchSize = 128);
-        IReadOnlyList<(IIndexableVector Output, IIndexableVector TargetOutput)> Test(int batchSize = 128);
+        IGraphInput Input { get; }
+        double? Train(IMiniBatchProvider provider);
+        void WriteTestResults(IMiniBatchProvider provider, IErrorMetric errorMetric, int batchSize = 128);
+        IReadOnlyList<(IIndexableVector Output, IIndexableVector TargetOutput)> Test(IMiniBatchProvider provider, int batchSize = 128);
+    }
+
+    public interface IGraphOperation
+    {
+        bool CanContinue { get; }
+        void Execute();
     }
 }

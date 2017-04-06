@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace UnitTests2
 {
     [TestClass]
-    public class ShallowDataTableTests
+    public class DataTableTests
     {
         static ILinearAlgebraProvider _lap;
 
@@ -28,8 +28,8 @@ namespace UnitTests2
 
         void _CompareRows(IRow row1, IRow row2, Random rand)
         {
-            var row1Data = row1.GetData();
-            var row2Data = row2.GetData();
+            var row1Data = row1.Data;
+            var row2Data = row2.Data;
 
             Assert.AreEqual(row1Data.Count, row2Data.Count);
             for (var i = 0; i < row1Data.Count; i++)
@@ -484,7 +484,7 @@ namespace UnitTests2
             builder.Add(0.2f, 0.6, "d");
 
             var table = builder.Build();
-            var projectedTable = table.Project(r => r.GetField<string>(2) == "b" ? null : r.GetData());
+            var projectedTable = table.Project(r => r.GetField<string>(2) == "b" ? null : r.Data);
 
             Assert.AreEqual(projectedTable.ColumnCount, table.ColumnCount);
             Assert.AreEqual(projectedTable.RowCount, 3);

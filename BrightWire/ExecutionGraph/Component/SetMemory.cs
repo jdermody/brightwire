@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace BrightWire.ExecutionGraph.Component
 {
-    class Backpropagate : IComponent
+    class SetMemory : IComponent
     {
-        readonly IErrorMetric _errorMetric;
+        readonly int _channel;
 
-        public Backpropagate(IErrorMetric errorMetric)
+        public SetMemory(int channel)
         {
-            _errorMetric = errorMetric;
+            _channel = channel;
         }
 
         public void Dispose()
@@ -21,16 +20,12 @@ namespace BrightWire.ExecutionGraph.Component
 
         public IMatrix Execute(IMatrix input, IBatchContext context)
         {
-            context.SetOutput(input);
+            context.ExecutionContext.SetMemory(_channel, input);
             return input;
         }
 
         public IMatrix Train(IMatrix input, int channel, IBatchContext context)
         {
-            context.SetOutput(input);
-            var gradient = _errorMetric.CalculateGradient(input, context.Target);
-            context.CalculateTrainingError(gradient);
-            context.Backpropagate(gradient, channel);
             return Execute(input, context);
         }
     }

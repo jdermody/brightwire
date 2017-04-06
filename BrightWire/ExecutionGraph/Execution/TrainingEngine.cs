@@ -7,30 +7,29 @@ namespace BrightWire.ExecutionGraph.Execution
 {
     class TrainingEngine : ITrainingEngine
     {
-        readonly Context _context;
-        readonly IReadOnlyList<IGraphInput> _trainingInput, _testInput;
+        readonly LearningContext _context;
+        readonly IGraphInput _input;
         double? _lastTrainingError = null, _lastTestError = null;
         double _trainingErrorDelta = 0;
         int _noImprovementCount = 0;
 
-        public TrainingEngine(Context context, IReadOnlyList<IGraphInput> trainingInput, IReadOnlyList<IGraphInput> testInput)
+        public TrainingEngine(LearningContext context, IGraphInput input)
         {
             _context = context;
-            _trainingInput = trainingInput;
-            _testInput = testInput;
+            _input = input;
         }
 
-        public double? Train()
+        public IGraphInput Input => _input;
+
+        public double? Train(IMiniBatchProvider provider)
         {
             var trainingErrorList = new List<double>();
 
             _context.StartEpoch();
-            foreach(var input in _trainingInput) {
-                _context.SetRowCount(input.RowCount);
-                var trainingError = input.Train(_context);
-                if (trainingError.HasValue)
-                    trainingErrorList.Add(trainingError.Value);
-            }
+            _context.SetRowCount(_input.RowCount);
+            var trainingError = _input.Train(provider, _context);
+            if (trainingError.HasValue)
+                trainingErrorList.Add(trainingError.Value);
             _context.EndEpoch();
 
             double? ret = null;
@@ -45,17 +44,14 @@ namespace BrightWire.ExecutionGraph.Execution
             return ret;
         }
 
-        public IReadOnlyList<(IIndexableVector Output, IIndexableVector TargetOutput)> Test(int batchSize = 128)
+        public IReadOnlyList<(IIndexableVector Output, IIndexableVector TargetOutput)> Test(IMiniBatchProvider provider, int batchSize = 128)
         {
-            var ret = new List<(IIndexableVector, IIndexableVector)>();
-            foreach (var input in _testInput)
-                ret.AddRange(input.Test(batchSize));
-            return ret;
+            return _input.Test(provider, batchSize);
         }
 
-        public void WriteTestResults(IErrorMetric errorMetric, int batchSize = 128)
+        public void WriteTestResults(IMiniBatchProvider provider, IErrorMetric errorMetric, int batchSize = 128)
         {
-            var testError = errorMetric.Compute(Test(batchSize)).Average();
+            var testError = errorMetric.Compute(Test(provider, batchSize)).Average();
             bool flag = true, isPercentage = errorMetric.DisplayAsPercentage;
             if(_lastTestError.HasValue) {
                 if (isPercentage && _lastTestError.Value > testError)

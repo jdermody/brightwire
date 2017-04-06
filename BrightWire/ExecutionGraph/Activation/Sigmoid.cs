@@ -4,7 +4,7 @@ using System.Text;
 
 namespace BrightWire.ExecutionGraph.Activation
 {
-    class Sigmoid : ILayer
+    class Sigmoid : IComponent
     {
         class Backpropagation : IBackpropagation
         {
@@ -20,10 +20,10 @@ namespace BrightWire.ExecutionGraph.Activation
                 _input.Dispose();
             }
 
-            public IMatrix Backward(IMatrix errorSignal, ILearningContext context, bool calculateOutput)
+            public void Backward(IMatrix errorSignal, int channel, IBatchContext context, bool calculateOutput)
             {
                 using (var od = _input.SigmoidDerivative())
-                    return errorSignal.PointwiseMultiply(od);
+                    context.Backpropagate(errorSignal.PointwiseMultiply(od), channel);
             }
         }
 
@@ -32,15 +32,13 @@ namespace BrightWire.ExecutionGraph.Activation
             // nop
         }
 
-        public (IMatrix Output, IBackpropagation BackProp) Forward(IMatrix input)
+        public IMatrix Train(IMatrix input, int channel, IBatchContext context)
         {
-            return (
-                Execute(input),
-                new Backpropagation(input)
-            );
+            context.AddBackpropagation(new Backpropagation(input), channel);
+            return Execute(input, context);
         }
 
-        public IMatrix Execute(IMatrix input)
+        public IMatrix Execute(IMatrix input, IBatchContext context)
         {
             return input.SigmoidActivation();
         }

@@ -90,11 +90,11 @@ namespace BrightWire
                 case ColumnType.String:
                     return typeof(string);
 
-                case ColumnType.CategoryList:
-                    return typeof(CategoryList);
+                case ColumnType.IndexList:
+                    return typeof(IndexList);
 
-                case ColumnType.WeightedCategoryList:
-                    return typeof(WeightedCategoryList);
+                case ColumnType.WeightedIndexList:
+                    return typeof(WeightedIndexList);
 
                 case ColumnType.Vector:
                     return typeof(FloatArray);

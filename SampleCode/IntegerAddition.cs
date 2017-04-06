@@ -41,7 +41,7 @@ namespace BrightWire.SampleCode
             var recurrentTemplate = layerTemplate.Clone();
             recurrentTemplate.WeightInitialisation = WeightInitialisationType.Xavier;
 
-            using (var lap = Provider.CreateLinearAlgebra()) {
+            using (var lap = Provider.CreateLinearAlgebra(false)) {
                 // create training data providers
                 var trainingDataProvider = lap.NN.CreateSequentialTrainingDataProvider(trainingData);
                 var testDataProvider = lap.NN.CreateSequentialTrainingDataProvider(testData);

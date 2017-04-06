@@ -6,9 +6,11 @@ using BrightWire.ExecutionGraph.GradientDescent;
 using BrightWire.ExecutionGraph.Input;
 using BrightWire.ExecutionGraph.Layer;
 using BrightWire.ExecutionGraph.WeightInitialisation;
+using BrightWire.ExecutionGraph.Wire;
 using BrightWire.Helper;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 
@@ -80,7 +82,7 @@ namespace BrightWire.ExecutionGraph
             return ret;
         }
 
-        public ILayer CreateFeedForward(int inputSize, int outputSize, IPropertySet propertySet)
+        public IComponent CreateFeedForward(int inputSize, int outputSize, IPropertySet propertySet)
         {
             // create weights and bias
             var weightInit = _GetWeightInitialisation(propertySet);
@@ -94,11 +96,21 @@ namespace BrightWire.ExecutionGraph
             return new FeedForward(bias, weight, optimisation);
         }
 
-        public IGraphInput CreateInput(IDataTable dataTable, IDataTableVectoriser vectoriser = null)
+        public IMiniBatchProvider CreateMiniBatchProvider(IDataTable dataTable, IDataTableVectoriser vectoriser = null)
         {
-            var dataSource = new DataTableAdaptor(dataTable, vectoriser);
-            var miniBatchProvider = new MiniBatchProvider(dataSource, _lap);
-            return new MiniBatchGraphInput(miniBatchProvider);
+            IDataSource dataSource;
+            if (dataTable.Template == DataTableTemplate.Matrix)
+                dataSource = new SequentialDataTableAdaptor(dataTable);
+            else
+                dataSource = new DataTableAdaptor(dataTable, vectoriser);
+
+            return new MiniBatchProvider(dataSource, _lap);
+        }
+
+        public IGraphInput CreateGraphInput(IMiniBatchProvider provider)
+        {
+            var dataSource = provider.DataSource;
+            return new MiniBatchGraphInput(dataSource, _lap);
         }
 
         public IPropertySet CreatePropertySet()
@@ -114,15 +126,33 @@ namespace BrightWire.ExecutionGraph
             return new WireBuilder(this, input, propertySet);
         }
 
-        public ITrainingEngine CreateTrainingEngine(float learningRate, int batchSize, IGraphInput trainingInput, IGraphInput testInput)
+        public WireBuilder Connect(IWire wire, IPropertySet propertySet)
         {
-            var context = new Context(_lap, learningRate, batchSize, true, false);
-            return new TrainingEngine(context, new[] { trainingInput }, new[] { testInput });
+            return new WireBuilder(this, wire, propertySet);
         }
 
-        public IExecutionEngine CreateEngine(params IGraphInput[] input)
+        public WireBuilder Build(int inputSize, IPropertySet propertySet)
         {
-            return new Engine(input);
+            return new WireBuilder(this, inputSize, propertySet);
+        }
+
+        public WireBuilder Add(int channel, IPropertySet propertySet, params IWire[] wires)
+        {
+            var addWire = new AddWires(wires.First().LastWire.OutputSize, channel, wires);
+            foreach (var wire in wires)
+                wire.LastWire.SetDestination(addWire);
+            return Connect(addWire, propertySet);
+        }
+
+        public ITrainingEngine CreateTrainingEngine(float learningRate, int batchSize, IGraphInput input)
+        {
+            var context = new LearningContext(_lap, learningRate, batchSize, true, input.IsSequential);
+            return new TrainingEngine(context, input);
+        }
+
+        public IExecutionEngine CreateEngine(IMiniBatchProvider provider, IGraphInput input)
+        {
+            return new Engine(provider, input);
         }
 
         public class ErrorMetricProvider
@@ -137,11 +167,11 @@ namespace BrightWire.ExecutionGraph
 
         public class ActivationFunctionProvider
         {
-            public ILayer LeakyRelu { get; } = new LeakyRelu();
-            public ILayer Relu { get; } = new Relu();
-            public ILayer Sigmoid { get; } = new Sigmoid();
-            public ILayer Tanh { get; } = new Tanh();
-            public ILayer SoftMax { get; } = new SoftMax(Provider.CreateLinearAlgebra());
+            public IComponent LeakyRelu { get; } = new LeakyRelu();
+            public IComponent Relu { get; } = new Relu();
+            public IComponent Sigmoid { get; } = new Sigmoid();
+            public IComponent Tanh { get; } = new Tanh();
+            public IComponent SoftMax { get; } = new SoftMax();
         }
         public ActivationFunctionProvider Activation { get; } = new ActivationFunctionProvider();
     }

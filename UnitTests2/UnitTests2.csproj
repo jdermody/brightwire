@@ -64,7 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CSVParserTests.cs" />
-    <Compile Include="ShallowDataTableTests.cs" />
+    <Compile Include="DataTableTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

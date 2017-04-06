@@ -4,7 +4,7 @@ using System.Text;
 
 namespace BrightWire.ExecutionGraph.Layer
 {
-    class FeedForward : ILayer
+    class FeedForward : IComponent
     {
         protected readonly IVector _bias;
         protected readonly IMatrix _weight;
@@ -26,7 +26,7 @@ namespace BrightWire.ExecutionGraph.Layer
                 _input.Dispose();
             }
 
-            public IMatrix Backward(IMatrix errorSignal, ILearningContext context, bool calculateOutput)
+            public void Backward(IMatrix errorSignal, int channel, IBatchContext context, bool calculateOutput)
             {
                 // work out the next error signal
                 IMatrix ret = null;
@@ -37,10 +37,11 @@ namespace BrightWire.ExecutionGraph.Layer
                 var weightUpdate = _input.TransposeThisAndMultiply(errorSignal);
 
                 // store the updates
-                context.Store(errorSignal, err => _UpdateBias(err, context));
-                context.Store(weightUpdate, err => _layer.Update(err, context));
+                var learningContext = context.LearningContext;
+                learningContext.Store(errorSignal, err => _UpdateBias(err, learningContext));
+                learningContext.Store(weightUpdate, err => _layer.Update(err, learningContext));
 
-                return ret;
+                context.Backpropagate(ret, channel);
             }
 
             void _UpdateBias(IMatrix delta, ILearningContext context)
@@ -68,15 +69,13 @@ namespace BrightWire.ExecutionGraph.Layer
             _updater.Update(_weight, delta, context);
         }
 
-        public (IMatrix Output, IBackpropagation BackProp) Forward(IMatrix input)
+        public IMatrix Train(IMatrix input, int channel, IBatchContext context)
         {
-            return (
-                Execute(input),
-                new Backpropagation(this, input)
-            );
+            context.AddBackpropagation(new Backpropagation(this, input), channel);
+            return Execute(input, context);
         }
 
-        public IMatrix Execute(IMatrix input)
+        public IMatrix Execute(IMatrix input, IBatchContext context)
         {
             var ret = input.Multiply(_weight);
             ret.AddToEachRow(_bias);

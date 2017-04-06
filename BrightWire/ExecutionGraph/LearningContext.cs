@@ -5,7 +5,7 @@ using System.Text;
 
 namespace BrightWire.ExecutionGraph
 {
-    class Context : ILearningContext
+    class LearningContext : ILearningContext
     {
         readonly ILinearAlgebraProvider _lap;
         readonly List<(IMatrix Error, Action<IMatrix> Updater)> _layerUpdate = new List<(IMatrix, Action<IMatrix>)>();
@@ -14,7 +14,7 @@ namespace BrightWire.ExecutionGraph
         float _learningRate;
         int _batchSize, _rowCount = 0, _currentEpoch = 0;
 
-        public Context(ILinearAlgebraProvider lap, float learningRate, int batchSize, bool calculateTrainingError, bool deferUpdates)
+        public LearningContext(ILinearAlgebraProvider lap, float learningRate, int batchSize, bool calculateTrainingError, bool deferUpdates)
         {
             _lap = lap;
             _calculateTrainingError = calculateTrainingError;

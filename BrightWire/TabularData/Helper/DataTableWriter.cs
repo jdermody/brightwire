@@ -55,7 +55,7 @@ namespace BrightWire.TabularData.Helper
 
         public void AddRow(IReadOnlyList<object> data)
         {
-            AddRow(_dataTableBuilder.CreateShallow(data, false));
+            AddRow(_dataTableBuilder.CreateRow(data));
         }
 
         void _Write()

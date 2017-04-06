@@ -61,27 +61,6 @@ namespace BrightWire.Helper
                 set { _isContinuous = value; }
             }
         }
-        class DeepDataTableBuilder : IDeepDataTableRowBuilder
-        {
-            readonly DataTableBuilder _builder;
-            readonly List<ShallowDataTableRow> _subItem = new List<ShallowDataTableRow>();
-            readonly DeepDataTableRow _row;
-
-            public DeepDataTableBuilder(DataTableBuilder builder)
-            {
-                _builder = builder;
-                _row = new DeepDataTableRow(_subItem);
-            }
-
-            public IRow AddSubItem(params object[] data)
-            {
-                var ret = _builder.CreateShallow(data, true);
-                _subItem.Add(ret);
-                return ret;
-            }
-
-            public IRow Row { get { return _row; } }
-        }
         readonly List<Column> _column = new List<Column>();
         readonly List<IRow> _data = new List<IRow>();
         readonly RowConverter _rowConverter = new RowConverter();
@@ -100,6 +79,16 @@ namespace BrightWire.Helper
                 col.IsContinuous = column.IsContinuous;
             }
         }
+
+        public DataTableBuilder(DataTableTemplate template)
+        {
+            _template = template;
+            if(template == DataTableTemplate.Matrix) {
+                AddColumn(ColumnType.Matrix, "Input");
+                AddColumn(ColumnType.Matrix, "Output", true);
+            }
+        }
+
         public IReadOnlyList<IColumn> Columns { get { return _column; } }
         internal IReadOnlyList<Column> Columns2 { get { return _column; } }
         public int RowCount { get { return _data.Count; } }
@@ -116,22 +105,20 @@ namespace BrightWire.Helper
         {
             _data.Add(row);
 
-            for (var i = 0; i < row.Depth; i++) {
-                var data2 = row.GetData(i);
-                for (int j = 0, len = data2.Count; j < len && j < _column.Count; j++)
-                    _column[j].Add(data2[j]);
-            }
+            var data = row.Data;
+            for (int j = 0, len = data.Count; j < len && j < _column.Count; j++)
+                _column[j].Add(data[j]);
             return row;
         }
 
         public IRow Add(params object[] data)
         {
-            return AddRow(CreateShallow(data, false));
+            return AddRow(CreateRow(data));
         }
 
-        public ShallowDataTableRow CreateShallow(IReadOnlyList<object> data, bool isSubItem)
+        public DataTableRow CreateRow(IReadOnlyList<object> data)
         {
-            return new ShallowDataTableRow(this, data, _rowConverter, isSubItem);
+            return new DataTableRow(this, data, _rowConverter);
         }
 
         internal void WriteMetadata(Stream stream)
@@ -170,11 +157,11 @@ namespace BrightWire.Helper
                 writer.Write((string)val);
             else if (type == ColumnType.Byte)
                 writer.Write((byte)val);
-            else if (type == ColumnType.CategoryList) {
-                var data = (CategoryList)val;
+            else if (type == ColumnType.IndexList) {
+                var data = (IndexList)val;
                 data.WriteTo(writer);
-            } else if (type == ColumnType.WeightedCategoryList) {
-                var data = (WeightedCategoryList)val;
+            } else if (type == ColumnType.WeightedIndexList) {
+                var data = (WeightedIndexList)val;
                 data.WriteTo(writer);
             } else if (type == ColumnType.Vector) {
                 var data = (FloatArray)val;
@@ -193,36 +180,26 @@ namespace BrightWire.Helper
             int ret = 0;
             var writer = new BinaryWriter(stream, Encoding.UTF8, true);
             foreach (var row in _data) {
-                int index = 0, depth = row.Depth;
-
-                // write the depth indicator
-                if (depth > 1) {
-                    writer.Write(true);
-                    writer.Write((uint)row.Depth);
-                } else
-                    writer.Write(false);
-
-                for (var i = 0; i < depth; i++) {
-                    var rowData = row.GetData(i);
-                    foreach (var column in _column) {
-                        if (index < rowData.Count) {
-                            var val = rowData[index++];
-                            _WriteValueTo(writer, column, val);
-                        } else {
-                            // if the value is missing then write the column's default value instead
-                            object val = null;
-                            var ct = column.Type;
-                            if (ct == ColumnType.String)
-                                val = "";
-                            else if (ct == ColumnType.Date)
-                                val = DateTime.MinValue;
-                            else if (ct != ColumnType.Null) {
-                                var columnType = ct.GetColumnType();
-                                if (columnType.GetTypeInfo().IsValueType)
-                                    val = Activator.CreateInstance(columnType);
-                            }
-                            _WriteValueTo(writer, column, val);
+                int index = 0;
+                var rowData = row.Data;
+                foreach (var column in _column) {
+                    if (index < rowData.Count) {
+                        var val = rowData[index++];
+                        _WriteValueTo(writer, column, val);
+                    } else {
+                        // if the value is missing then write the column's default value instead
+                        object val = null;
+                        var ct = column.Type;
+                        if (ct == ColumnType.String)
+                            val = "";
+                        else if (ct == ColumnType.Date)
+                            val = DateTime.MinValue;
+                        else if (ct != ColumnType.Null) {
+                            var columnType = ct.GetColumnType();
+                            if (columnType.GetTypeInfo().IsValueType)
+                                val = Activator.CreateInstance(columnType);
                         }
+                        _WriteValueTo(writer, column, val);
                     }
                 }
                 ++ret;
@@ -248,13 +225,6 @@ namespace BrightWire.Helper
         public void ClearRows()
         {
             _data.Clear();
-        }
-
-        public IDeepDataTableRowBuilder AddDeepRow()
-        {
-            var ret = new DeepDataTableBuilder(this);
-            AddRow(ret.Row);
-            return ret;
         }
     }
 }

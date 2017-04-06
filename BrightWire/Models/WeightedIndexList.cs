@@ -12,44 +12,44 @@ namespace BrightWire.Models
     /// A sparse array of weighted indices
     /// </summary>
     [ProtoContract]
-    public class WeightedCategoryList
+    public class WeightedIndexList
     {
         /// <summary>
-        /// A weighted category
+        /// A weighted index
         /// </summary>
         [ProtoContract]
-        public class Category
+        public class WeightedIndex
         {
             /// <summary>
-            /// Category index
+            /// Index
             /// </summary>
             [ProtoMember(1)]
-            public uint CategoryIndex { get; set; }
+            public uint Index { get; set; }
 
             /// <summary>
-            /// Category weight
+            /// Index weight
             /// </summary>
             [ProtoMember(2)]
             public float Weight { get; set; }
         }
 
         /// <summary>
-        /// The list of categories
+        /// The list of indices
         /// </summary>
         [ProtoMember(1)]
-        public Category[] CategoryList { get; set; }
+        public WeightedIndex[] IndexList { get; set; }
 
         /// <summary>
         /// The number of items in the list
         /// </summary>
-        public int CategoryCount { get { return CategoryList?.Length ?? 0; } }
+        public int Count { get { return IndexList?.Length ?? 0; } }
 
         /// <summary>
         /// ToString override
         /// </summary>
         public override string ToString()
         {
-            return $"{CategoryCount} categories";
+            return $"{Count} indices";
         }
 
         /// <summary>
@@ -59,12 +59,12 @@ namespace BrightWire.Models
         /// <param name="writer">The writer to write to</param>
         public void WriteTo(string name, XmlWriter writer)
         {
-            writer.WriteStartElement(name ?? "category-list");
+            writer.WriteStartElement(name ?? "weighted-index-list");
 
-            if (CategoryList != null) {
-                writer.WriteValue(String.Join("|", CategoryList
-                    .OrderBy(d => d.CategoryIndex)
-                    .Select(c => $"{c.CategoryIndex}:{c.Weight}")
+            if (IndexList != null) {
+                writer.WriteValue(String.Join("|", IndexList
+                    .OrderBy(d => d.Index)
+                    .Select(c => $"{c.Index}:{c.Weight}")
                 ));
             }
             writer.WriteEndElement();
@@ -76,33 +76,33 @@ namespace BrightWire.Models
         /// <param name="writer"></param>
         public void WriteTo(BinaryWriter writer)
         {
-            writer.Write(CategoryCount);
-            if (CategoryList != null) {
-                foreach (var item in CategoryList) {
-                    writer.Write(item.CategoryIndex);
+            writer.Write(Count);
+            if (IndexList != null) {
+                foreach (var item in IndexList) {
+                    writer.Write(item.Index);
                     writer.Write(item.Weight);
                 }
             }
         }
 
         /// <summary>
-        /// Creates a weighted category list from a binary reader
+        /// Creates a weighted index list from a binary reader
         /// </summary>
         /// <param name="reader">The binary reader</param>
-        public static WeightedCategoryList ReadFrom(BinaryReader reader)
+        public static WeightedIndexList ReadFrom(BinaryReader reader)
         {
             var len = reader.ReadInt32();
-            var ret = new Category[len];
+            var ret = new WeightedIndex[len];
 
             for (var i = 0; i < len; i++) {
-                var category = new Category();
-                category.CategoryIndex = reader.ReadUInt32();
+                var category = new WeightedIndex();
+                category.Index = reader.ReadUInt32();
                 category.Weight = reader.ReadSingle();
                 ret[i] = category;
             }
 
-            return new WeightedCategoryList {
-                CategoryList = ret
+            return new WeightedIndexList {
+                IndexList = ret
             };
         }
     }

@@ -54,7 +54,7 @@ namespace BrightWire.TabularData.Helper
 
         public bool Process(IRow row)
         {
-            _writer.AddRow(_normalisationModel.Normalise(row.GetData()));
+            _writer.AddRow(_normalisationModel.Normalise(row.Data));
             return true;
         }
 

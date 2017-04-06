@@ -76,7 +76,7 @@ namespace BrightWire.SampleCode
         static void Main(string[] args)
         {
             Control.UseNativeMKL();
-            XOR();
+            //XOR();
             //ReducedMNIST(@"D:\data\mnist\");
             //MNISTConvolutional(@"D:\data\mnist\");
 
@@ -86,7 +86,7 @@ namespace BrightWire.SampleCode
             //MNIST(@"D:\data\mnist\", @"D:\data\mnist\model_test.dat");
             //SentimentClassification(@"D:\data\sentiment labelled sentences\");
             //TextClustering(@"D:\data\[UCI] AAAI-14 Accepted Papers - Papers.csv", @"d:\temp\");
-            //IntegerAddition();
+            IntegerAddition();
             //IncomePrediction(@"d:\data\adult.data", @"d:\data\adult.test");
             //SequenceClassification();
             //SequenceClassification3();

@@ -12,25 +12,25 @@ namespace BrightWire.Models
     /// A sparse array of indices
     /// </summary>
     [ProtoContract]
-    public class CategoryList
+    public class IndexList
     {
         /// <summary>
         /// The list of indices
         /// </summary>
         [ProtoMember(1)]
-        public uint[] CategoryIndex { get; set; }
+        public uint[] Index { get; set; }
 
         /// <summary>
         /// The number of items in the list
         /// </summary>
-        public int CategoryCount { get { return CategoryIndex?.Length ?? 0; } }
+        public int Count { get { return Index?.Length ?? 0; } }
 
         /// <summary>
         /// ToString override
         /// </summary>
         public override string ToString()
         {
-            return $"{CategoryCount} categories";
+            return $"{Count} indices";
         }
 
         /// <summary>
@@ -40,10 +40,10 @@ namespace BrightWire.Models
         /// <param name="writer">The writer to write to</param>
         public void WriteTo(string name, XmlWriter writer)
         {
-            writer.WriteStartElement(name ?? "category-list");
+            writer.WriteStartElement(name ?? "index-list");
 
-            if (CategoryIndex != null)
-                writer.WriteValue(String.Join("|", CategoryIndex.OrderBy(d => d).Select(c => c.ToString())));
+            if (Index != null)
+                writer.WriteValue(String.Join("|", Index.OrderBy(d => d).Select(c => c.ToString())));
             writer.WriteEndElement();
         }
 
@@ -53,18 +53,18 @@ namespace BrightWire.Models
         /// <param name="writer"></param>
         public void WriteTo(BinaryWriter writer)
         {
-            writer.Write(CategoryCount);
-            if (CategoryIndex != null) {
-                foreach (var item in CategoryIndex)
+            writer.Write(Count);
+            if (Index != null) {
+                foreach (var item in Index)
                     writer.Write(item);
             }
         }
 
         /// <summary>
-        /// Creates a category list from a binary reader
+        /// Creates an index list from a binary reader
         /// </summary>
         /// <param name="reader">The binary reader</param>
-        public static CategoryList ReadFrom(BinaryReader reader)
+        public static IndexList ReadFrom(BinaryReader reader)
         {
             var len = reader.ReadInt32();
             var ret = new uint[len];
@@ -72,8 +72,8 @@ namespace BrightWire.Models
             for (var i = 0; i < len; i++)
                 ret[i] = reader.ReadUInt32();
 
-            return new CategoryList {
-                CategoryIndex = ret
+            return new IndexList {
+                Index = ret
             };
         }
     }

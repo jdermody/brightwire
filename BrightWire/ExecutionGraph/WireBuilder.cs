@@ -14,7 +14,8 @@ namespace BrightWire.ExecutionGraph
         readonly IPropertySet _propertySet;
         readonly GraphFactory _factory;
         readonly IGraphInput _input;
-        readonly Stack<(ILayer Layer, IComponent Component)> _stack = new Stack<(ILayer, IComponent)>();
+        readonly IWire _wire;
+        readonly Stack<(IComponent Component, int InputSize, int OutputSize)> _stack = new Stack<(IComponent Component, int InputSize, int OutputSize)>();
         int _lastInputSize;
 
         public WireBuilder(GraphFactory factory, IGraphInput input, IPropertySet propertySet)
@@ -25,11 +26,27 @@ namespace BrightWire.ExecutionGraph
             _lastInputSize = input.InputSize;
         }
 
+        public WireBuilder(GraphFactory factory, int inputSize, IPropertySet propertySet)
+        {
+            _factory = factory;
+            _propertySet = propertySet;
+            _lastInputSize = inputSize;
+        }
+
+        public WireBuilder(GraphFactory factory, IWire wire, IPropertySet propertySet)
+        {
+            _factory = factory;
+            _propertySet = propertySet;
+            _lastInputSize = wire.InputSize;
+            _wire = wire;
+        }
+
         public WireBuilder AddFeedForward(int? layerSize = null)
         {
-            var layer = _factory.CreateFeedForward(_lastInputSize, layerSize ?? _input.OutputSize, _propertySet);
-            _stack.Push((layer, null));
-            _lastInputSize = layerSize ?? _input.OutputSize;
+            var outputSize = layerSize ?? _input?.OutputSize ?? _lastInputSize;
+            var layer = _factory.CreateFeedForward(_lastInputSize, outputSize, _propertySet);
+            _stack.Push((layer, _lastInputSize, outputSize));
+            _lastInputSize = outputSize;
             return this;
         }
 
@@ -39,30 +56,29 @@ namespace BrightWire.ExecutionGraph
             return this;
         }
 
-        public WireBuilder Add(ILayer layer)
+        public WireBuilder AddSetMemory(int channel)
         {
-            _stack.Push((layer, null));
+            Add(new SetMemory(channel));
             return this;
         }
 
         public WireBuilder Add(IComponent component)
         {
-            _stack.Push((null, component));
+            _stack.Push((component, _lastInputSize, _lastInputSize));
             return this;
         }
 
-        public IWire Build()
+        public IWire Build(int channel = 0)
         {
             IWire last = null;
             while(_stack.Any()) {
                 var next = _stack.Pop();
-                if (next.Layer != null)
-                    last = new WireToLayer(next.Layer, last);
-                else
-                    last = new WireToComponent(next.Component, last);
+                last = new WireToComponent(next.InputSize, next.OutputSize, channel, next.Component, last);
             }
-            if (last != null)
-                _input.AddTarget(last);
+            if (last != null) {
+                _input?.AddTarget(last);
+                _wire?.SetDestination(last);
+            }
             return last;
         }
     }
