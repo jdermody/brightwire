@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using System.Linq;
+using System.Xml;
 
 namespace BrightWire.Models
 {
@@ -42,7 +43,7 @@ namespace BrightWire.Models
         /// </summary>
         /// <param name="name">The name to give the data</param>
         /// <param name="writer">The writer to write to</param>
-        public void WriteTo(string name, System.Xml.XmlWriter writer)
+        public void WriteTo(string name, XmlWriter writer)
         {
             writer.WriteStartElement(name ?? "matrix");
             if (Row != null) {
@@ -79,6 +80,20 @@ namespace BrightWire.Models
             return new FloatMatrix {
                 Row = ret
             };
+        }
+
+        /// <summary>
+        /// Converts the matrix to XML
+        /// </summary>
+        public string Xml
+        {
+            get
+            {
+                var sb = new StringBuilder();
+                using (var writer = XmlWriter.Create(sb))
+                    WriteTo(null, writer);
+                return sb.ToString();
+            }
         }
     }
 }

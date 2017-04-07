@@ -4,31 +4,12 @@ using System.Text;
 
 namespace BrightWire.ExecutionGraph.Input
 {
-    public class MemoryProvider : IBackpropagation
+    public class MemoryProvider : ISecondaryInput, IBackpropagation
     {
         readonly float[] _data;
         readonly ILinearAlgebraProvider _lap;
         readonly IWire _sendTo;
         readonly int _channel;
-
-        //class LoadMemory : IGraphOperation
-        //{
-        //    readonly MemoryProvider _memoryProvider;
-        //    readonly IBatchContext _context;
-
-        //    public LoadMemory(MemoryProvider memoryProvider, IBatchContext context)
-        //    {
-        //        _context = context;
-        //        _memoryProvider = memoryProvider;
-        //    }
-
-        //    public bool CanContinue => true;
-
-        //    public void Execute()
-        //    {
-        //        _memoryProvider._sendTo.Send(_memoryProvider.GetMemory(_context.BatchSize), _memoryProvider._channel, _context);
-        //    }
-        //}
 
         public MemoryProvider(IGraphInput graphInput, IWire sendTo, ILinearAlgebraProvider lap, int channel)
         {
@@ -37,16 +18,23 @@ namespace BrightWire.ExecutionGraph.Input
             _channel = channel;
             _sendTo = sendTo;
 
-            graphInput.OnSequenceStart += bc => {
-                if(bc.IsTraining)
-                    bc.AddBackpropagation(this, channel);
-                //bc.ExecutionContext.Add(new LoadMemory(this, bc));
-                _sendTo.Send(GetMemory(bc.BatchSize), _channel, bc);
-            };
-            graphInput.OnSequenceContinue += bc => {
-                var memory = bc.ExecutionContext.GetMemory(_channel);
-                _sendTo.Send(memory, _channel, bc);
-            };
+            graphInput.AddSecondary(this);
+        }
+
+        public void OnStart(IBatchContext context)
+        {
+            if(context.Batch.IsSequential) {
+                if (context.IsTraining)
+                    context.RegisterBackpropagation(this, _channel);
+                var memory = GetMemory(context.Batch.BatchSize);
+                _sendTo.Send(memory, _channel, context);
+            }
+        }
+
+        public void OnNext(IBatchContext context)
+        {
+            var memory = context.ExecutionContext.GetMemory(_channel);
+            _sendTo.Send(memory, _channel, context);
         }
 
         public IMatrix GetMemory(int batchSize) => _lap.Create(batchSize, _data.Length, (x, y) => _data[y]);

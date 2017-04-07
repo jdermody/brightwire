@@ -19,19 +19,18 @@ namespace BrightWire.ExecutionGraph.Component
             // nop
         }
 
-        public IMatrix Execute(IMatrix input, IBatchContext context)
+        public IMatrix Execute(IMatrix input, int channel, IBatchContext context)
         {
-            context.SetOutput(input);
+            context.SetOutput(input, context.Batch.CurrentSequence.Target, null, channel);
             return input;
         }
 
         public IMatrix Train(IMatrix input, int channel, IBatchContext context)
         {
-            context.SetOutput(input);
-            var gradient = _errorMetric.CalculateGradient(input, context.Target);
-            context.CalculateTrainingError(gradient);
-            context.Backpropagate(gradient, channel);
-            return Execute(input, context);
+            var target = context.Batch.CurrentSequence.Target;
+            var gradient = _errorMetric.CalculateGradient(input, target);
+            context.SetOutput(input, target, gradient, channel);
+            return input;
         }
     }
 }

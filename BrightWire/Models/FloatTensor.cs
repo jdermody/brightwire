@@ -87,5 +87,19 @@ namespace BrightWire.Models
                 Matrix = ret
             };
         }
+
+        /// <summary>
+        /// Converts the tensor to XML
+        /// </summary>
+        public string Xml
+        {
+            get
+            {
+                var sb = new StringBuilder();
+                using (var writer = XmlWriter.Create(sb))
+                    WriteTo(null, writer);
+                return sb.ToString();
+            }
+        }
     }
 }

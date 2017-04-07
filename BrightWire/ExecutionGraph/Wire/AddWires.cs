@@ -57,7 +57,7 @@ namespace BrightWire.ExecutionGraph.Wire
                     _input[item] = null;
 
                 if(context.IsTraining)
-                    context.AddBackpropagation(new Backpropagation(channelList), _destinationChannel);
+                    context.RegisterBackpropagation(new Backpropagation(channelList), _destinationChannel);
                 _destination.Send(output, _destinationChannel, context);
             }
         }

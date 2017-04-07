@@ -71,11 +71,11 @@ namespace BrightWire.ExecutionGraph.Layer
 
         public IMatrix Train(IMatrix input, int channel, IBatchContext context)
         {
-            context.AddBackpropagation(new Backpropagation(this, input), channel);
-            return Execute(input, context);
+            context.RegisterBackpropagation(new Backpropagation(this, input), channel);
+            return Execute(input, channel, context);
         }
 
-        public IMatrix Execute(IMatrix input, IBatchContext context)
+        public IMatrix Execute(IMatrix input, int channel, IBatchContext context)
         {
             var ret = input.Multiply(_weight);
             ret.AddToEachRow(_bias);

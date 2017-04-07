@@ -43,7 +43,7 @@ namespace BrightWire.ExecutionGraph.Activation
             // nop
         }
 
-        public IMatrix Execute(IMatrix input, IBatchContext context)
+        public IMatrix Execute(IMatrix input, int channel, IBatchContext context)
         {
             var ret = _Execute(input, context);
             foreach (var item in ret.Item1)
@@ -67,7 +67,7 @@ namespace BrightWire.ExecutionGraph.Activation
         public IMatrix Train(IMatrix input, int channel, IBatchContext context)
         {
             var ret = _Execute(input, context);
-            context.AddBackpropagation(new Backpropagation(ret.Item1), channel);
+            context.RegisterBackpropagation(new Backpropagation(ret.Item1), channel);
             return ret.Item2;
         }
     }

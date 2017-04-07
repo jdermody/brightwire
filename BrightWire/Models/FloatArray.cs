@@ -74,5 +74,19 @@ namespace BrightWire.Models
                 Data = ret
             };
         }
+
+        /// <summary>
+        /// Converts the vector to XML
+        /// </summary>
+        public string Xml
+        {
+            get
+            {
+                var sb = new StringBuilder();
+                using (var writer = XmlWriter.Create(sb))
+                    WriteTo(null, writer);
+                return sb.ToString();
+            }
+        }
     }
 }

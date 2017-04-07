@@ -11,13 +11,13 @@ namespace BrightWire.ExecutionGraph.Input
         readonly IDataSource _dataSource;
         readonly ILinearAlgebraProvider _lap;
 
-        class MiniBatch : IGraphOperation
+        class MiniBatchOperation : IGraphOperation
         {
             readonly IReadOnlyList<int> _rows;
             readonly MiniBatchProvider _provider;
-            readonly Action<(MiniBatchType Type, IMatrix Input, IMatrix Output)> _handler;
+            readonly Action<IMiniBatch> _handler;
 
-            public MiniBatch(IReadOnlyList<int> rows, MiniBatchProvider provider, Action<(MiniBatchType Type, IMatrix Input, IMatrix Output)> handler)
+            public MiniBatchOperation(IReadOnlyList<int> rows, MiniBatchProvider provider, Action<IMiniBatch> handler)
             {
                 _rows = rows;
                 _handler = handler;
@@ -31,11 +31,11 @@ namespace BrightWire.ExecutionGraph.Input
                 var lap = _provider._lap;
                 var dataSource = _provider._dataSource;
                 if (dataSource.IsSequential) {
-                    var miniBatch = dataSource.GetSequential(_rows);
+                    var miniBatchData = dataSource.GetSequential(_rows);
                     List<FloatArray> temp;
                     var inputData = new Dictionary<int, List<FloatArray>>();
                     var outputData = new Dictionary<int, List<FloatArray>>();
-                    foreach (var item in miniBatch) {
+                    foreach (var item in miniBatchData) {
                         var input = item.Input;
                         var output = item.Output;
                         for(int i = 0, len = input.RowCount; i < len; i++) {
@@ -51,7 +51,8 @@ namespace BrightWire.ExecutionGraph.Input
                         }
                     }
 
-                    foreach(var item in inputData.OrderBy(kv => kv.Key)) {
+                    var miniBatch = new MiniBatch(_rows, dataSource);
+                    foreach (var item in inputData.OrderBy(kv => kv.Key)) {
                         var input = lap.Create(item.Value);
                         IMatrix output = null;
                         if(outputData.TryGetValue(item.Key, out temp))
@@ -62,15 +63,14 @@ namespace BrightWire.ExecutionGraph.Input
                                 ? MiniBatchType.SequenceEnd 
                                 : MiniBatchType.Standard
                         ;
-                        _handler((type, input, output));
+                        miniBatch.Add(type, input, output);
                     }
+                    _handler(miniBatch);
                 } else {
                     var miniBatch = dataSource.Get(_rows);
-                    _handler((
-                        MiniBatchType.Standard,
-                        lap.Create(miniBatch.Count, dataSource.InputSize, (x, y) => miniBatch[x].Item1[y]),
-                        dataSource.OutputSize > 0 ? lap.Create(miniBatch.Count, dataSource.OutputSize, (x, y) => miniBatch[x].Item2[y]) : null
-                    ));
+                    var input = lap.Create(miniBatch.Count, dataSource.InputSize, (x, y) => miniBatch[x].Item1[y]);
+                    var output = dataSource.OutputSize > 0 ? lap.Create(miniBatch.Count, dataSource.OutputSize, (x, y) => miniBatch[x].Item2[y]) : null;
+                    _handler(new MiniBatch(_rows, dataSource, input, output));
                 }
             }
         }
@@ -83,7 +83,7 @@ namespace BrightWire.ExecutionGraph.Input
 
         public IDataSource DataSource { get { return _dataSource; } }
 
-        public IReadOnlyList<IGraphOperation> GetMiniBatches(int batchSize, bool isStochastic, Action<(MiniBatchType Type, IMatrix Input, IMatrix Output)> handler)
+        public IReadOnlyList<IGraphOperation> GetMiniBatches(int batchSize, bool isStochastic, Action<IMiniBatch> handler)
         {
             var ret = new List<IGraphOperation>();
             var buckets = _dataSource.GetBuckets();
@@ -97,7 +97,7 @@ namespace BrightWire.ExecutionGraph.Input
                 for (var j = 0; j < bucket.Count; j += batchSize) {
                     var maxRows = Math.Min(iterationOrder.Count, batchSize + j) - j;
                     var rows = iterationOrder.Skip(j).Take(maxRows).Select(i => bucket[i]).ToList();
-                    ret.Add(new MiniBatch(rows, this, handler));
+                    ret.Add(new MiniBatchOperation(rows, this, handler));
                 }
             }
             return ret;

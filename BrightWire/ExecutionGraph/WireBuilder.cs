@@ -1,6 +1,7 @@
 ﻿using BrightWire.ExecutionGraph;
 using BrightWire.ExecutionGraph.Activation;
 using BrightWire.ExecutionGraph.Component;
+using BrightWire.ExecutionGraph.Output;
 using BrightWire.ExecutionGraph.Wire;
 using System;
 using System.Collections.Generic;
@@ -50,21 +51,26 @@ namespace BrightWire.ExecutionGraph
             return this;
         }
 
-        public WireBuilder AddBackpropagation(IErrorMetric errorMetric)
+        public WireBuilder AddAction(IAction action)
         {
-            Add(new Backpropagate(errorMetric));
-            return this;
+            return AddActions(action);
         }
 
-        public WireBuilder AddSetMemory(int channel)
+        public WireBuilder AddActions(params IAction[] actionList)
         {
-            Add(new SetMemory(channel));
+            Add(new GraphAction(actionList));
             return this;
         }
 
         public WireBuilder Add(IComponent component)
         {
             _stack.Push((component, _lastInputSize, _lastInputSize));
+            return this;
+        }
+
+        public WireBuilder AddLogger(Action<IMatrix> capture)
+        {
+            Add(new Logger(capture));
             return this;
         }
 

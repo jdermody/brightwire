@@ -2,6 +2,7 @@
 using BrightWire.Descriptor.GradientDescent;
 using BrightWire.Descriptor.WeightInitialisation;
 using BrightWire.ExecutionGraph;
+using BrightWire.ExecutionGraph.Action;
 using BrightWire.ExecutionGraph.Activation;
 using BrightWire.ExecutionGraph.Component;
 using BrightWire.ExecutionGraph.ErrorMetric;
@@ -10,6 +11,7 @@ using BrightWire.ExecutionGraph.Layer;
 using BrightWire.ExecutionGraph.Wire;
 using BrightWire.TrainingData.Artificial;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -38,7 +40,7 @@ namespace ExampleCode
                     .Add(graph.Activation.Sigmoid)
                     .AddFeedForward(null)
                     .Add(graph.Activation.Sigmoid)
-                    .AddBackpropagation(errorMetric)
+                    .AddAction(new Backpropagate(errorMetric))
                     .Build()
                 ;
 
@@ -85,7 +87,7 @@ namespace ExampleCode
                     .Add(graph.Activation.Sigmoid)
                     .AddFeedForward()
                     .Add(graph.Activation.SoftMax)
-                    .AddBackpropagation(errorMetric)
+                    .AddAction(new Backpropagate(errorMetric))
                     .Build()
                 ;
 
@@ -120,17 +122,19 @@ namespace ExampleCode
                     .AddFeedForward(HIDDEN_LAYER_SIZE)
                     .Build(0)
                 ;
+                var memoryList = new List<string>();
                 var memoryNetwork = graph.Build(HIDDEN_LAYER_SIZE, propertySet)
-                    .AddFeedForward(HIDDEN_LAYER_SIZE)
-                    .AddSetMemory(1)
+                    //.AddFeedForward(HIDDEN_LAYER_SIZE)
+                    .AddLogger(mem => memoryList.Add(mem.Data.Xml))
                     .Build(1)
                 ;
                 var memory = new MemoryProvider(engine.Input, memoryNetwork, lap, 1);
                 var merged = graph.Add(0, propertySet, inputNetwork, memoryNetwork)
                     .Add(graph.Activation.Relu)
+                    .AddAction(new SetMemory(1))
                     .AddFeedForward(engine.Input.OutputSize)
                     .Add(graph.Activation.Relu)
-                    .AddBackpropagation(errorMetric)
+                    .AddAction(new Backpropagate(errorMetric))
                     .Build()
                 ;
 

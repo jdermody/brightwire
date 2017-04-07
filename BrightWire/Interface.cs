@@ -1668,7 +1668,7 @@ namespace BrightWire
     public interface IMiniBatchProvider
     {
         IDataSource DataSource { get; }
-        IReadOnlyList<IGraphOperation> GetMiniBatches(int batchSize, bool isStochastic, Action<(MiniBatchType Type, IMatrix Input, IMatrix Output)> handler);
+        IReadOnlyList<IGraphOperation> GetMiniBatches(int batchSize, bool isStochastic, Action<IMiniBatch> handler);
     }
 
     public interface ILearningContext
@@ -1689,7 +1689,7 @@ namespace BrightWire
     public interface IComponent : IDisposable
     {
         IMatrix Train(IMatrix input, int channel, IBatchContext context);
-        IMatrix Execute(IMatrix input, IBatchContext context);
+        IMatrix Execute(IMatrix input, int channel, IBatchContext context);
     }
 
     public interface IGradientDescentOptimisation : IDisposable
@@ -1710,19 +1710,25 @@ namespace BrightWire
         ILinearAlgebraProvider LinearAlgebraProvider { get; }
     }
 
+    public interface ISequenceResult
+    {
+        IMatrix Output { get; }
+        IMatrix Target { get; }
+        IMatrix Delta { get; }
+    }
+
     public interface IBatchContext
     {
-        int BatchSize { get; }
+        double TrainingError { get; }
+        IMiniBatch Batch { get; }
         bool IsTraining { get; }
         ILearningContext LearningContext { get; }
         IExecutionContext ExecutionContext { get; }
         ILinearAlgebraProvider LinearAlgebraProvider { get; }
-        IMatrix Target { get; }
-        double? TrainingError { get; }
-        void SetOutput(IMatrix output);
-        void CalculateTrainingError(IMatrix delta);
-        void AddBackpropagation(IBackpropagation backProp, int channel);
-        void Backpropagate(IMatrix delta, int channela);
+        void SetOutput(IMatrix output, IMatrix target, IMatrix delta, int channel);
+        void RegisterBackpropagation(IBackpropagation backProp, int channel);
+        void Backpropagate(IMatrix delta, int channel);
+        IEnumerable<ISequenceResult> Results { get; }
     }
 
     public interface IWire
@@ -1743,6 +1749,12 @@ namespace BrightWire
         IMatrix CalculateGradient(IMatrix output, IMatrix targetOutput);
     }
 
+    public interface ISecondaryInput
+    {
+        void OnStart(IBatchContext context);
+        void OnNext(IBatchContext context);
+    }
+
     public interface IGraphInput
     {
         bool IsSequential { get; }
@@ -1750,13 +1762,10 @@ namespace BrightWire
         int OutputSize { get; }
         int RowCount { get; }
         void AddTarget(IWire target);
+        void AddSecondary(ISecondaryInput input);
         double? Train(IMiniBatchProvider provider, ILearningContext context);
         IReadOnlyList<(IIndexableVector Output, IIndexableVector TargetOutput)> Test(IMiniBatchProvider provider, int batchSize = 128);
         IReadOnlyList<IIndexableVector> Execute(IMiniBatchProvider provider, int batchSize = 128);
-
-        event Action<IBatchContext> OnSequenceStart;
-        event Action<IBatchContext> OnSequenceContinue;
-        event Action<IBatchContext> OnSequenceEnd;
     }
 
     public interface IWeightInitialisation
@@ -1817,5 +1826,30 @@ namespace BrightWire
     {
         bool CanContinue { get; }
         void Execute();
+    }
+
+    public interface IMiniBatchSequence
+    {
+        IMiniBatch MiniBatch { get; }
+        int SequenceIndex { get; }
+        MiniBatchType Type { get; }
+        IMatrix Input { get; }
+        IMatrix Target { get; }
+    }
+
+    public interface IMiniBatch
+    {
+        IReadOnlyList<int> Rows { get; }
+        IDataSource DataSource { get; }
+        bool IsSequential { get; }
+        int BatchSize { get; }
+        IMiniBatchSequence CurrentSequence { get; }
+        bool HasNextSequence { get; }
+        IMiniBatchSequence GetNextSequence();
+    }
+
+    public interface IAction
+    {
+        void Execute(IMatrix input, int channel, IBatchContext context);
     }
 }

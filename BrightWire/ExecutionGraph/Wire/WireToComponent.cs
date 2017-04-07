@@ -24,7 +24,7 @@ namespace BrightWire.ExecutionGraph.Wire
             if (context.IsTraining)
                 output = _component.Train(signal, channel, context);
             else
-                output = _component.Execute(signal, context);
+                output = _component.Execute(signal, channel, context);
 
             if (_destination != null)
                 _destination.Send(output, channel, context);

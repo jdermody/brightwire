@@ -34,11 +34,11 @@ namespace BrightWire.ExecutionGraph.Activation
 
         public IMatrix Train(IMatrix input, int channel, IBatchContext context)
         {
-            context.AddBackpropagation(new Backpropagation(input), channel);
-            return Execute(input, context);
+            context.RegisterBackpropagation(new Backpropagation(input), channel);
+            return Execute(input, channel, context);
         }
 
-        public IMatrix Execute(IMatrix input, IBatchContext context)
+        public IMatrix Execute(IMatrix input, int channel, IBatchContext context)
         {
             return input.LeakyReluActivation();
         }

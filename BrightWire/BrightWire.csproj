@@ -9,13 +9,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MathNet.Numerics.Core" Version="3.17.0" />
-    <PackageReference Include="protobuf-net" Version="2.1.0" />
-    <PackageReference Include="System.ValueTuple" Version="4.3.0" />
+    <Compile Remove="ExecutionGraph\Component\Backpropagate.cs" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="ExecutionGraph\Output\" />
+    <PackageReference Include="MathNet.Numerics.Core" Version="3.17.0" />
+    <PackageReference Include="protobuf-net" Version="2.1.0" />
+    <PackageReference Include="System.ValueTuple" Version="4.3.0" />
   </ItemGroup>
 
 </Project>
