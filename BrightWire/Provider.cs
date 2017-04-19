@@ -1,4 +1,5 @@
-﻿using BrightWire.Helper;
+﻿using BrightWire.Bayesian.Training;
+using BrightWire.Helper;
 using BrightWire.LinearAlgebra;
 using BrightWire.TabularData;
 using System;
@@ -73,6 +74,26 @@ namespace BrightWire
         public static IDataTableBuilder CreateDataTableBuilder()
         {
             return new DataTableBuilder();
+        }
+
+        /// <summary>
+        /// Create a markov model trainer of window size 2
+        /// </summary>
+        /// <typeparam name="T">The markov chain data type</typeparam>
+        /// <param name="minObservations">Minimum number of data points to record an observation</param>
+        public static IMarkovModelTrainer2<T> CreateMarkovTrainer2<T>(int minObservations = 1)
+        {
+            return new MarkovModelTrainer2<T>(minObservations);
+        }
+
+        /// <summary>
+        /// Create a markov model trainer of window size 3
+        /// </summary>
+        /// <typeparam name="T">The markov chain data type</typeparam>
+        /// <param name="minObservations">Minimum number of data points to record an observation</param>
+        public static IMarkovModelTrainer3<T> CreateMarkovTrainer3<T>(int minObservations = 1)
+        {
+            return new MarkovModelTrainer3<T>(minObservations);
         }
     }
 }

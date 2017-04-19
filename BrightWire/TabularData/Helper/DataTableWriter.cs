@@ -20,9 +20,9 @@ namespace BrightWire.TabularData.Helper
             _dataTableBuilder = new DataTableBuilder();
             _stream = stream ?? new MemoryStream();
         }
-        public DataTableWriter(DataTableTemplate template, IEnumerable<IColumn> columns, Stream stream)
+        public DataTableWriter(IEnumerable<IColumn> columns, Stream stream)
         {
-            _dataTableBuilder = new DataTableBuilder(template, columns);
+            _dataTableBuilder = new DataTableBuilder(columns);
             _stream = stream ?? new MemoryStream();
         }
 

@@ -64,29 +64,25 @@ namespace BrightWire.Helper
         readonly List<Column> _column = new List<Column>();
         readonly List<IRow> _data = new List<IRow>();
         readonly RowConverter _rowConverter = new RowConverter();
-        readonly DataTableTemplate _template;
 
         public DataTableBuilder()
         {
-            _template = DataTableTemplate.Standard;
         }
 
-        public DataTableBuilder(DataTableTemplate template, IEnumerable <IColumn> columns)
+        public DataTableBuilder(IEnumerable<IColumn> columns)
         {
-            _template = template;
             foreach (var column in columns) {
                 var col = AddColumn(column.Type, column.Name, column.IsTarget);
                 col.IsContinuous = column.IsContinuous;
             }
         }
 
-        public DataTableBuilder(DataTableTemplate template)
+        public static DataTableBuilder CreateTwoColumnMatrix()
         {
-            _template = template;
-            if(template == DataTableTemplate.Matrix) {
-                AddColumn(ColumnType.Matrix, "Input");
-                AddColumn(ColumnType.Matrix, "Output", true);
-            }
+            var ret = new DataTableBuilder();
+            ret.AddColumn(ColumnType.Matrix, "Input");
+            ret.AddColumn(ColumnType.Matrix, "Output", true);
+            return ret;
         }
 
         public IReadOnlyList<IColumn> Columns { get { return _column; } }
@@ -124,7 +120,6 @@ namespace BrightWire.Helper
         internal void WriteMetadata(Stream stream)
         {
             var writer = new BinaryWriter(stream, Encoding.UTF8, true);
-            writer.Write((byte)_template);
             writer.Write(_column.Count);
             foreach (var column in _column) {
                 writer.Write(column.Name);
@@ -217,7 +212,7 @@ namespace BrightWire.Helper
 
         public IDataTable Build(Stream output = null)
         {
-            var writer = new DataTableWriter(_template, Columns, output);
+            var writer = new DataTableWriter(Columns, output);
             Process(writer);
             return writer.GetDataTable();
         }

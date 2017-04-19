@@ -55,7 +55,6 @@ namespace BrightWire.TabularData
         readonly object _mutex = new object();
         readonly IReadOnlyList<long> _index = new List<long>();
         readonly RowConverter _rowConverter = new RowConverter();
-        readonly DataTableTemplate _template;
         readonly int _rowCount;
 
         IDataTableAnalysis _analysis = null;
@@ -67,7 +66,6 @@ namespace BrightWire.TabularData
             _index = dataIndex;
             _rowCount = rowCount;
             var reader = new BinaryReader(stream, Encoding.UTF8, true);
-            _template = (DataTableTemplate)reader.ReadByte();
             var columnCount = reader.ReadInt32();
             for (var i = 0; i < columnCount; i++) {
                 var name = reader.ReadString();
@@ -114,7 +112,6 @@ namespace BrightWire.TabularData
         }
 
         public IReadOnlyList<IColumn> Columns { get { return _column; } }
-        public DataTableTemplate Template { get { return _template; } }
 
         public int RowCount
         {
@@ -302,11 +299,11 @@ namespace BrightWire.TabularData
             var final = input.ToList();
             int trainingCount = Convert.ToInt32(RowCount * trainPercentage);
 
-            var writer1 = new DataTableWriter(_template, Columns, output1);
+            var writer1 = new DataTableWriter(Columns, output1);
             foreach (var row in GetRows(final.Take(trainingCount)))
                 writer1.Process(row);
 
-            var writer2 = new DataTableWriter(_template, Columns, output2);
+            var writer2 = new DataTableWriter(Columns, output2);
             foreach (var row in GetRows(final.Skip(trainingCount)))
                 writer2.Process(row);
 
@@ -316,7 +313,7 @@ namespace BrightWire.TabularData
         public IDataTable Bag(int? count = null, Stream output = null, int? randomSeed = null)
         {
             var input = Enumerable.Range(0, RowCount).ToList().Bag(count ?? RowCount, randomSeed);
-            var writer = new DataTableWriter(_template, Columns, output);
+            var writer = new DataTableWriter(Columns, output);
             foreach (var row in GetRows(input))
                 writer.Process(row);
             return writer.GetDataTable();
@@ -334,11 +331,11 @@ namespace BrightWire.TabularData
                 var trainingRows = final.Take(i * foldSize).Concat(final.Skip((i + 1) * foldSize));
                 var validationRows = final.Skip(i * foldSize).Take(foldSize);
 
-                var writer1 = new DataTableWriter(_template, Columns, null);
+                var writer1 = new DataTableWriter(Columns, null);
                 foreach (var row in GetRows(trainingRows))
                     writer1.Process(row);
 
-                var writer2 = new DataTableWriter(_template, Columns, null);
+                var writer2 = new DataTableWriter(Columns, null);
                 foreach (var row in GetRows(validationRows))
                     writer2.Process(row);
 
@@ -468,7 +465,8 @@ namespace BrightWire.TabularData
         {
             var ret = new List<(IRow, string)>();
             _Iterate((row, i) => {
-                ret.Add((row, classifier.Classify(row).First()));
+                var bestClassification = classifier.Classify(row).OrderByDescending(d => d.Weight).First();
+                ret.Add((row, bestClassification.Classification));
                 return true;
             });
             return ret;
@@ -484,11 +482,11 @@ namespace BrightWire.TabularData
             var isFirst = true;
             DataTableWriter writer = new DataTableWriter(output);
             _Iterate((row, i) => {
-                var row2 = mutator(row);
-                if (row2 != null) {
+                var mutatedRow = mutator(row);
+                if (mutatedRow != null) {
                     if (isFirst) {
                         int index = 0;
-                        foreach (var item in row2) {
+                        foreach (var item in mutatedRow) {
                             var column = Columns[index];
                             if (item == null)
                                 writer.AddColumn(column.Name, ColumnType.Null, column.IsTarget);
@@ -511,15 +509,26 @@ namespace BrightWire.TabularData
                                     columnType = ColumnType.Date;
                                 else if (type == typeof(bool))
                                     columnType = ColumnType.Boolean;
+                                else if (type == typeof(FloatArray))
+                                    columnType = ColumnType.Vector;
+                                else if (type == typeof(FloatMatrix))
+                                    columnType = ColumnType.Matrix;
+                                else if (type == typeof(FloatTensor))
+                                    columnType = ColumnType.Tensor;
+                                else if (type == typeof(WeightedIndexList))
+                                    columnType = ColumnType.WeightedIndexList;
+                                else if (type == typeof(IndexList))
+                                    columnType = ColumnType.IndexList;
                                 else
                                     throw new FormatException();
+
                                 writer.AddColumn(column.Name, columnType, column.IsTarget);
                             }
                             ++index;
                         }
                         isFirst = false;
                     }
-                    writer.AddRow(new DataTableRow(this, row2, _rowConverter));
+                    writer.AddRow(new DataTableRow(this, mutatedRow, _rowConverter));
                 }
                 return true;
             });
@@ -576,29 +585,35 @@ namespace BrightWire.TabularData
 
         public IDataTable CopyWithRows(IEnumerable<int> rowIndex, Stream output = null)
         {
-            var writer = new DataTableWriter(_template, _column, output);
+            var writer = new DataTableWriter(_column, output);
             foreach (var row in GetRows(rowIndex))
                 writer.AddRow(row);
             return writer.GetDataTable();
         }
 
-        public IDataTable ConvertToNumeric(IDataTableVectoriser vectoriser = null, Stream output = null)
+        public IDataTable ConvertToNumeric(IDataTableVectoriser vectoriser = null, bool useTargetColumnIndex = true, Stream output = null)
         {
             var writer = new DataTableWriter(output);
-            vectoriser = vectoriser ?? GetVectoriser();
+            vectoriser = vectoriser ?? GetVectoriser(useTargetColumnIndex);
+
+            // add the numeric columns
             foreach (var name in vectoriser.ColumnNames)
                 writer.AddColumn(name, ColumnType.Float);
-            var classColumnIndex = TargetColumnIndex;
-            var classColumn = _column[classColumnIndex];
-            writer.AddColumn(classColumn.Name, ColumnType.String, true);
 
+            // add the classification label column
+            var classColumnIndex = TargetColumnIndex;
+            if (useTargetColumnIndex) {
+                var classColumn = _column[classColumnIndex];
+                writer.AddColumn(classColumn.Name, ColumnType.String, true);
+            }
+
+            // vectorise each row
             _Iterate((row, i) => {
-                var data = vectoriser.GetInput(row).AsEnumerable()
-                    .Cast<object>()
-                    .Concat(new object[] { row.GetField<string>(classColumnIndex) })
-                    .ToArray()
-                ;
-                writer.AddRow(new DataTableRow(this, data, _rowConverter));
+                var rowData = vectoriser.GetInput(row).AsEnumerable().Cast<object>();
+                if (useTargetColumnIndex)
+                    rowData = rowData.Concat(new object[] { row.GetField<string>(classColumnIndex) });
+
+                writer.AddRow(new DataTableRow(this, rowData.ToArray(), _rowConverter));
                 return true;
             });
             return writer.GetDataTable();

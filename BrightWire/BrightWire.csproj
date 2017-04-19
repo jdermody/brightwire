@@ -22,4 +22,11 @@
     <PackageReference Include="System.ValueTuple" Version="4.3.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="InstanceBased\Training\" />
+    <Folder Include="Linear\Training\" />
+    <Folder Include="TreeBased\Training\" />
+    <Folder Include="Unsupervised\" />
+  </ItemGroup>
+
 </Project>

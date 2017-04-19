@@ -20,6 +20,8 @@ namespace BrightWire.TabularData
 
         public IReadOnlyList<object> Data { get { return _data; } }
 
+        public IHaveColumns Table => _table;
+
         public T GetField<T>(int index)
         {
             return _converter.GetField<T>(_data, index);

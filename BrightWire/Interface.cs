@@ -1,4 +1,5 @@
 ﻿using BrightWire.Models;
+using BrightWire.Models.Bayesian;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -133,6 +134,11 @@ namespace BrightWire
         /// <typeparam name="T">The type of data to return (will be converted if neccessary)</typeparam>
         /// <param name="indices">The column indices to return</param>
         IReadOnlyList<T> GetFields<T>(IReadOnlyList<int> indices);
+
+        /// <summary>
+        /// Returns the column information
+        /// </summary>
+        IHaveColumns Table { get; }
     }
 
     /// <summary>
@@ -141,17 +147,10 @@ namespace BrightWire
     public interface IRowClassifier
     {
         /// <summary>
-        /// Classifies the row
-        /// </summary>
-        /// <param name="row">The row to classify</param>
-        /// <returns>A ranked list of classifications</returns>
-        IEnumerable<string> Classify(IRow row);
-
-        /// <summary>
         /// Classifies the input data and returns the classifications with their weights
         /// </summary>
         /// <param name="row">The row to classify</param>
-        IReadOnlyList<(string Classification, float Weight)> GetWeightedClassifications(IRow row);
+        IReadOnlyList<(string Classification, float Weight)> Classify(IRow row);
     }
 
     /// <summary>
@@ -242,42 +241,6 @@ namespace BrightWire
     }
 
     /// <summary>
-    /// Preconfigured data table structurs
-    /// </summary>
-    public enum DataTableTemplate
-    {
-        /// <summary>
-        /// No default structure
-        /// </summary>
-        Standard = 0,
-
-        /// <summary>
-        /// Two column table: index list in first column, classification target in second
-        /// </summary>
-        IndexList,
-
-        /// <summary>
-        /// Two column table: weighted index list in first column, classification target in second
-        /// </summary>
-        WeightedIndexList,
-
-        /// <summary>
-        /// Two column table: vector in first column, classification target in second
-        /// </summary>
-        Vector,
-
-        /// <summary>
-        /// Two column table: matrix in first column, classification target in second
-        /// </summary>
-        Matrix,
-
-        /// <summary>
-        /// Two column table: tensor in first column, classification target in second
-        /// </summary>
-        Tensor,
-    }
-
-    /// <summary>
     /// Tabular data table
     /// </summary>
     public interface IDataTable : IHaveColumns
@@ -291,11 +254,6 @@ namespace BrightWire
         /// The column of the classification target (defaults to the last column if none set)
         /// </summary>
         int TargetColumnIndex { get; set; }
-
-        /// <summary>
-        /// Data table template
-        /// </summary>
-        DataTableTemplate Template { get; }
 
         /// <summary>
         /// Applies each row of the table to the specified processor
@@ -485,9 +443,10 @@ namespace BrightWire
         /// Converts the current data table to a numeric data table (the classification column is a string)
         /// </summary>
         /// <param name="vectoriser">Optional vectoriser</param>
+        /// <param name="useTargetColumnIndex">True to separate the target column index into a separate output vector</param>
         /// <param name="output">Optional stream to write the new table to</param>
         /// <returns></returns>
-        IDataTable ConvertToNumeric(IDataTableVectoriser vectoriser = null, Stream output = null);
+        IDataTable ConvertToNumeric(IDataTableVectoriser vectoriser = null, bool useTargetColumnIndex = true, Stream output = null);
 
         /// <summary>
         /// Returns table meta-data and the top 20 rows of the table as XML
@@ -1860,5 +1819,72 @@ namespace BrightWire
     public interface IAction
     {
         void Execute(IMatrix input, int channel, IBatchContext context);
+    }
+
+    /// <summary>
+    /// Random projection
+    /// </summary>
+    public interface IRandomProjection : IDisposable
+    {
+        /// <summary>
+        /// The size to reduce to
+        /// </summary>
+        int Size { get; }
+
+        /// <summary>
+        /// The transformation matrix
+        /// </summary>
+        IMatrix Matrix { get; }
+
+        /// <summary>
+        /// Reduces a vector
+        /// </summary>
+        /// <param name="vector"></param>
+        /// <returns></returns>
+        IVector Compute(IVector vector);
+
+        /// <summary>
+        /// Reduces a matrix
+        /// </summary>
+        /// <param name="matrix"></param>
+        /// <returns></returns>
+        IMatrix Compute(IMatrix matrix);
+    }
+
+    /// <summary>
+    /// Markov model trainer
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public interface IMarkovModelTrainer<T>
+    {
+        /// <summary>
+        /// Adds a sequence of items to the trainer
+        /// </summary>
+        /// <param name="items"></param>
+        void Add(IEnumerable<T> items);
+    }
+
+    /// <summary>
+    /// Markov model trainer (window size 2)
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public interface IMarkovModelTrainer2<T> : IMarkovModelTrainer<T>
+    {
+        /// <summary>
+        /// Gets all current observations
+        /// </summary>
+        MarkovModel2<T> Build();
+    }
+
+    /// <summary>
+    /// Markov model trainer (window size 3)
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public interface IMarkovModelTrainer3<T> : IMarkovModelTrainer<T>
+    {
+        /// <summary>
+        /// Gets all current observations
+        /// </summary>
+        MarkovModel3<T> Build();
     }
 }

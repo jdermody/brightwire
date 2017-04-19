@@ -10,6 +10,8 @@ using BrightWire.ExecutionGraph.Input;
 using BrightWire.ExecutionGraph.Layer;
 using BrightWire.ExecutionGraph.Wire;
 using BrightWire.TrainingData.Artificial;
+using MathNet.Numerics;
+using MathNet.Numerics.Providers.Common.Mkl;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -102,7 +104,7 @@ namespace ExampleCode
 
         static void IntegerAddition()
         {
-            var data = BinaryIntegers.Addition(100, false).Split(0);
+            var data = BinaryIntegers.Addition(1000, false).Split(0);
             using (var lap = Provider.CreateLinearAlgebra(false)) {
                 var graph = new GraphFactory(lap);
                 var errorMetric = graph.ErrorMetric.BinaryClassification;
@@ -115,39 +117,44 @@ namespace ExampleCode
                 // create the engine
                 var trainingData = graph.CreateMiniBatchProvider(data.Training);
                 var testData = graph.CreateMiniBatchProvider(data.Test);
-                var engine = graph.CreateTrainingEngine(0.003f, 16, graph.CreateGraphInput(trainingData));
+                var engine = graph.CreateTrainingEngine(0.003f, 8, graph.CreateGraphInput(trainingData));
+                engine.Context.EnableLogging = false;
 
-                const int HIDDEN_LAYER_SIZE = 32;
+                // create the network
+                const int HIDDEN_LAYER_SIZE = 12;
                 var inputNetwork = graph.Connect(engine.Input, propertySet)
                     .AddFeedForward(HIDDEN_LAYER_SIZE)
                     .Build(0)
                 ;
                 var memoryList = new List<string>();
                 var memoryNetwork = graph.Build(HIDDEN_LAYER_SIZE, propertySet)
-                    //.AddFeedForward(HIDDEN_LAYER_SIZE)
-                    .AddLogger(mem => memoryList.Add(mem.Data.Xml))
+                    .AddFeedForward(HIDDEN_LAYER_SIZE)
                     .Build(1)
                 ;
                 var memory = new MemoryProvider(engine.Input, memoryNetwork, lap, 1);
                 var merged = graph.Add(0, propertySet, inputNetwork, memoryNetwork)
-                    .Add(graph.Activation.Relu)
+                    .Add(graph.Activation.Tanh)
                     .AddAction(new SetMemory(1))
                     .AddFeedForward(engine.Input.OutputSize)
-                    .Add(graph.Activation.Relu)
+                    .Add(graph.Activation.Tanh)
                     .AddAction(new Backpropagate(errorMetric))
                     .Build()
                 ;
 
-                for (var i = 0; i < 100; i++) {
+                for (var i = 0; i < 25; i++) {
                     var trainingError = engine.Train(trainingData);
                     engine.WriteTestResults(testData, errorMetric);
                 }
-                engine.WriteTestResults(testData, errorMetric);
+
+                //var verificationData = graph.CreateMiniBatchProvider(BinaryIntegers.Addition(8, true));
+                //var engine2 = graph.CreateEngine(verificationData, graph.CreateGraphInput(verificationData));
+                //var output = engine2.Execute();
             }
         }
 
         static void Main(string[] args)
         {
+            Control.UseNativeMKL(MklConsistency.Auto, MklPrecision.Single, MklAccuracy.Low);
             //var matrix = lap.Create(3, 3, (i, j) => (i+1) * (j+1));
             //var rot180 = matrix.Rotate180();
 

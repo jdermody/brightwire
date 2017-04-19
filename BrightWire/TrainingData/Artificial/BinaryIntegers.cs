@@ -36,7 +36,7 @@ namespace BrightWire.TrainingData.Artificial
         public static IDataTable Addition(int sampleCount, bool stochastic)
         {
             Random rand = stochastic ? new Random() : new Random(0);
-            var builder = new DataTableBuilder(DataTableTemplate.Matrix);
+            var builder = DataTableBuilder.CreateTwoColumnMatrix();
 
             for (var i = 0; i < sampleCount; i++) {
                 // generate some random numbers (sized to prevent overflow)

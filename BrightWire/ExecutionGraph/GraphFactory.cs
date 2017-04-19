@@ -99,7 +99,7 @@ namespace BrightWire.ExecutionGraph
         public IMiniBatchProvider CreateMiniBatchProvider(IDataTable dataTable, IDataTableVectoriser vectoriser = null)
         {
             IDataSource dataSource;
-            if (dataTable.Template == DataTableTemplate.Matrix)
+            if (dataTable.Columns.Count == 2 && dataTable.Columns.All(c => c.Type == ColumnType.Matrix))
                 dataSource = new SequentialDataTableAdaptor(dataTable);
             else
                 dataSource = new DataTableAdaptor(dataTable, vectoriser);

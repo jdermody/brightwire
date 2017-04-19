@@ -25,6 +25,8 @@ namespace BrightWire.TabularData.Helper
 
             public IReadOnlyList<object> Data { get { return _data; } }
 
+            public IHaveColumns Table => throw new NotImplementedException();
+
             public T GetField<T>(int index)
             {
                 return _rowConverter.GetField<T>(_data, index);
@@ -63,7 +65,7 @@ namespace BrightWire.TabularData.Helper
         public static IDataTable Project(IDataTable table, IEnumerable<int> columns, Stream output = null)
         {
             var validColumn = new HashSet<int>(columns);
-            var writer = new DataTableWriter(table.Template, table.Columns.Select((c, i) => Tuple.Create(c, i)).Where(c => validColumn.Contains(c.Item2)).Select(c => c.Item1), output);
+            var writer = new DataTableWriter(table.Columns.Select((c, i) => Tuple.Create(c, i)).Where(c => validColumn.Contains(c.Item2)).Select(c => c.Item1), output);
             var projector = new DataTableProjector(writer, columns);
             table.Process(projector);
             return writer.GetDataTable();

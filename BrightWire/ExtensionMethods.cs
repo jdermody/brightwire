@@ -1,4 +1,5 @@
-﻿using BrightWire.Models;
+﻿using BrightWire.Helper;
+using BrightWire.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -113,6 +114,18 @@ namespace BrightWire
         public static IEnumerable<float> Compute(this IErrorMetric errorMetric, IReadOnlyList<(IIndexableVector, IIndexableVector)> output)
         {
             return output.Select(r => errorMetric.Compute(r.Item1, r.Item2));
+        }
+
+        /// <summary>
+        /// Random projections allow you to reduce the dimensions of a matrix while still preserving significant information
+        /// </summary>
+        /// <param name="lap">Linear algebra provider</param>
+        /// <param name="fixedSize">The vector size to reduce from</param>
+        /// <param name="reducedSize">The vector size to reduce to</param>
+        /// <param name="s"></param>
+        public static IRandomProjection CreateRandomProjection(this ILinearAlgebraProvider lap, int fixedSize, int reducedSize, int s = 3)
+        {
+            return new RandomProjection(lap, fixedSize, reducedSize, s);
         }
     }
 }
