@@ -8,10 +8,12 @@ namespace BrightWire.ExecutionGraph.Activation
     {
         class Backpropagation : IBackpropagation
         {
-            IReadOnlyList<IVector> _rows;
+            readonly IReadOnlyList<IVector> _rows;
+            readonly SoftMax _source;
 
-            public Backpropagation(IReadOnlyList<IVector> rows)
+            public Backpropagation(SoftMax source, IReadOnlyList<IVector> rows)
             {
+                _source = source;
                 _rows = rows;
             }
 
@@ -28,6 +30,7 @@ namespace BrightWire.ExecutionGraph.Activation
                 var ret = lap.Create(rowList);
                 foreach (var item in rowList)
                     item.Dispose();
+                context.LearningContext.Log("softmax-backpropagation", channel, _source.GetHashCode(), errorSignal, ret);
                 context.Backpropagate(ret, channel);
             }
 
@@ -67,7 +70,8 @@ namespace BrightWire.ExecutionGraph.Activation
         public IMatrix Train(IMatrix input, int channel, IBatchContext context)
         {
             var ret = _Execute(input, context);
-            context.RegisterBackpropagation(new Backpropagation(ret.Item1), channel);
+            context.RegisterBackpropagation(new Backpropagation(this, ret.Item1), channel);
+            context.LearningContext.Log("softmax", channel, GetHashCode(), input, ret.Item2);
             return ret.Item2;
         }
     }

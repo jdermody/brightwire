@@ -30,11 +30,11 @@ namespace BrightWire.SampleCode
             var testData = dataSet.Skip(split).ToList();
 
             // neural network hyper parameters
-            const int HIDDEN_SIZE = 32, NUM_EPOCHS = 25, BATCH_SIZE = 16;
+            const int HIDDEN_SIZE = 12, NUM_EPOCHS = 25, BATCH_SIZE = 8;
             const float TRAINING_RATE = 0.003f;
             var errorMetric = ErrorMetricType.BinaryClassification.Create();
             var layerTemplate = new LayerDescriptor(0f) {
-                Activation = ActivationType.Relu,
+                Activation = ActivationType.Tanh,
                 WeightInitialisation = WeightInitialisationType.Xavier,
                 WeightUpdate = WeightUpdateType.RMSprop
             };

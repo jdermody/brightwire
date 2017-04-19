@@ -16,8 +16,11 @@ namespace BrightWire.ExecutionGraph.Action
         public void Execute(IMatrix input, int channel, IBatchContext context)
         {
             IMatrix target = context.Batch.CurrentSequence.Target, gradient = null;
-            if (context.IsTraining)
+            if (context.IsTraining) {
                 gradient = _errorMetric.CalculateGradient(input, target);
+                context.LearningContext?.Log("backprogation-error", gradient);
+            }
+
             context.SetOutput(input, target, gradient, channel);
         }
     }

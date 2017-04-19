@@ -9,9 +9,11 @@ namespace BrightWire.ExecutionGraph.Activation
         class Backpropagation : IBackpropagation
         {
             readonly IMatrix _input;
+            readonly Tanh _source;
 
-            public Backpropagation(IMatrix matrix)
+            public Backpropagation(Tanh source, IMatrix matrix)
             {
+                _source = source;
                 _input = matrix;
             }
 
@@ -22,8 +24,11 @@ namespace BrightWire.ExecutionGraph.Activation
 
             public void Backward(IMatrix errorSignal, int channel, IBatchContext context, bool calculateOutput)
             {
-                using (var od = _input.TanhDerivative())
-                    context.Backpropagate(errorSignal.PointwiseMultiply(od), channel);
+                using (var od = _input.TanhDerivative()) {
+                    var delta = errorSignal.PointwiseMultiply(od);
+                    context.LearningContext.Log("tanh-backpropagation", channel, _source.GetHashCode(), errorSignal, delta);
+                    context.Backpropagate(delta, channel);
+                }
             }
         }
 
@@ -34,8 +39,10 @@ namespace BrightWire.ExecutionGraph.Activation
 
         public IMatrix Train(IMatrix input, int channel, IBatchContext context)
         {
-            context.RegisterBackpropagation(new Backpropagation(input), channel);
-            return Execute(input, channel, context);
+            context.RegisterBackpropagation(new Backpropagation(this, input), channel);
+            var output = Execute(input, channel, context);
+            context.LearningContext.Log("tanh", channel, GetHashCode(), input, output);
+            return output;
         }
 
         public IMatrix Execute(IMatrix input, int channel, IBatchContext context)

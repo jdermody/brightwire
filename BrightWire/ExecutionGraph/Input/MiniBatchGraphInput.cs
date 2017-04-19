@@ -39,12 +39,13 @@ namespace BrightWire.ExecutionGraph.Input
         {
             var batchList = new List<BatchContext>();
             var executionContext = new ExecutionContext(_lap);
-
-            executionContext.Add(provider.GetMiniBatches(context.BatchSize, context.LinearAlgebraProvider.IsStochastic, miniBatch => {
+            var miniBatches = provider.GetMiniBatches(context.BatchSize, context.LinearAlgebraProvider.IsStochastic, miniBatch => {
                 var batchContext = new BatchContext(executionContext, context, miniBatch);
                 _Execute(miniBatch, batchContext);
                 batchList.Add(batchContext);
-            }));
+            });
+
+            executionContext.Add(miniBatches);
             _ExecuteAll(executionContext);
 
             return batchList.Select(b => b.TrainingError).Average();
@@ -88,19 +89,72 @@ namespace BrightWire.ExecutionGraph.Input
             ;
         }
 
+        class ApplyUpdates : IBackpropagation
+        {
+            public void Backward(IMatrix errorSignal, int channel, IBatchContext context, bool calculateOutput)
+            {
+                context.LearningContext.ApplyUpdates();
+            }
+
+            public void Dispose()
+            {
+                // nop
+            }
+        }
+
+        class EndOfSequenceBackpropagation : IBackpropagation
+        {
+            public void Backward(IMatrix errorSignal, int channel, IBatchContext context, bool calculateOutput)
+            {
+                // nop
+            }
+
+            public void Dispose()
+            {
+                // nop
+            }
+        }
+
         void _Execute(IMiniBatch miniBatch, BatchContext context)
         {
             // notify any secondary inputs that we are starting
             foreach (var item in _secondary)
                 item.OnStart(context);
 
-            while(true) {
+            // process this batch
+            if (context.IsTraining) {
+                context.LearningContext.Log(writer => {
+                    writer.WriteStartElement("mini-batch");
+                    writer.WriteAttributeString("size", miniBatch.BatchSize.ToString());
+                    writer.WriteRaw(miniBatch.CurrentSequence.Input.AsIndexable().AsXml);
+                });
+                context.RegisterBackpropagation(new ApplyUpdates(), 0);
+            }
+            while (true) {
                 // send to all targets
+                context.LearningContext?.Log(writer => writer.WriteStartElement("execution"));
+
                 foreach (var target in _target)
                     target.Send(miniBatch.CurrentSequence.Input, _channel, context);
 
+                context.LearningContext?.Log(writer => {
+                    writer.WriteEndElement();
+                    writer.WriteEndElement();
+                });
+
+                // process the next item in the sequence (if any)
                 if (miniBatch.HasNextSequence) {
                     miniBatch.GetNextSequence();
+
+                    if (context.IsTraining) {
+                        context.LearningContext.Log(writer => {
+                            writer.WriteStartElement("next-item-in-sequence");
+                            writer.WriteAttributeString("index", miniBatch.CurrentSequence.SequenceIndex.ToString());
+                            writer.WriteRaw(miniBatch.CurrentSequence.Input.AsIndexable().AsXml);
+                        });
+                        foreach(var channel in context.ActiveChannels)
+                            context.RegisterBackpropagation(new EndOfSequenceBackpropagation(), channel);
+                    }
 
                     // notify secondary inputs
                     foreach (var item in _secondary)
@@ -111,7 +165,7 @@ namespace BrightWire.ExecutionGraph.Input
 
             // apply updates
             if (context.IsTraining)
-                context.LearningContext.ApplyUpdates();
+                context.Backward();
         }
 
         void _ExecuteAll(ExecutionContext context)

@@ -41,6 +41,19 @@ namespace BrightWire.ExecutionGraph.Layer
                 learningContext.Store(errorSignal, err => _UpdateBias(err, learningContext));
                 learningContext.Store(weightUpdate, err => _layer.Update(err, learningContext));
 
+                // log the backpropagation
+                learningContext.Log("feed-forward-backpropagation", channel, _layer.GetHashCode(), errorSignal, ret, writer => {
+                    if (learningContext.LogMatrixValues) {
+                        writer.WriteStartElement("bias-update");
+                        writer.WriteRaw(errorSignal.AsIndexable().AsXml);
+                        writer.WriteEndElement();
+
+                        writer.WriteStartElement("weight-update");
+                        writer.WriteRaw(weightUpdate.AsIndexable().AsXml);
+                        writer.WriteEndElement();
+                    }
+                });
+
                 context.Backpropagate(ret, channel);
             }
 
@@ -72,7 +85,10 @@ namespace BrightWire.ExecutionGraph.Layer
         public IMatrix Train(IMatrix input, int channel, IBatchContext context)
         {
             context.RegisterBackpropagation(new Backpropagation(this, input), channel);
-            return Execute(input, channel, context);
+
+            var output = Execute(input, channel, context);
+            context.LearningContext.Log("feed-forward", channel, GetHashCode(), input, output);
+            return output;
         }
 
         public IMatrix Execute(IMatrix input, int channel, IBatchContext context)

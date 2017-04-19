@@ -15,6 +15,13 @@ namespace BrightWire.ExecutionGraph.Action
 
         public void Execute(IMatrix input, int channel, IBatchContext context)
         {
+            context.LearningContext?.Log(writer => {
+                writer.WriteStartElement("write-memory");
+                writer.WriteAttributeString("channel", _channel.ToString());
+                context.LearningContext.Log(null, input);
+                writer.WriteEndElement();
+            });
+
             context.ExecutionContext.SetMemory(_channel, input);
         }
     }

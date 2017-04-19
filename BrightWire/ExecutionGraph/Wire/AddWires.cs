@@ -18,8 +18,10 @@ namespace BrightWire.ExecutionGraph.Wire
 
             public void Backward(IMatrix errorSignal, int channel, IBatchContext context, bool calculateOutput)
             {
-                foreach(var item in _channelList)
+                context.LearningContext.Log(writer => writer.WriteStartElement("add-wires-backpropagation"));
+                foreach (var item in _channelList)
                     context.Backpropagate(errorSignal, item);
+                context.LearningContext.Log(writer => writer.WriteEndElement());
             }
 
             public void Dispose()
@@ -41,12 +43,14 @@ namespace BrightWire.ExecutionGraph.Wire
         {
             _input[channel] = signal;
             if(_input.All(kv => kv.Value != null)) {
-                var output = _input.First().Value;
+                IMatrix output = null;
                 var channelList = new List<int>();
                 foreach(var kv in _input) {
                     var next = kv.Value;
                     channelList.Add(kv.Key);
-                    if (next != output) {
+                    if (output == null)
+                        output = next;
+                    else {
                         output.AddInPlace(next);
                         next.Dispose();
                     }
@@ -56,9 +60,18 @@ namespace BrightWire.ExecutionGraph.Wire
                 foreach(var item in channelList)
                     _input[item] = null;
 
-                if(context.IsTraining)
+                if (context.IsTraining) {
+                    context.LearningContext.Log(writer => {
+                        writer.WriteStartElement("add-wires");
+                        writer.WriteAttributeString("channels", String.Join(", ", channelList));
+                        if(context.LearningContext.LogMatrixValues)
+                            writer.WriteRaw(output.AsIndexable().AsXml);
+                    });
                     context.RegisterBackpropagation(new Backpropagation(channelList), _destinationChannel);
+                }
                 _destination.Send(output, _destinationChannel, context);
+                if (context.IsTraining)
+                    context.LearningContext.Log(writer => writer.WriteEndElement());
             }
         }
     }

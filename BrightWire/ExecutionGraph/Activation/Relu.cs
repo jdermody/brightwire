@@ -9,10 +9,12 @@ namespace BrightWire.ExecutionGraph.Activation
         class Backpropagation : IBackpropagation
         {
             readonly IMatrix _input;
+            readonly Relu _source;
 
-            public Backpropagation(IMatrix matrix)
+            public Backpropagation(Relu source, IMatrix matrix)
             {
                 _input = matrix;
+                _source = source;
             }
 
             public void Dispose()
@@ -24,6 +26,7 @@ namespace BrightWire.ExecutionGraph.Activation
             {
                 using (var od = _input.ReluDerivative()) {
                     var delta = errorSignal.PointwiseMultiply(od);
+                    context.LearningContext.Log("relu-backpropagation", channel, _source.GetHashCode(), errorSignal, delta);
                     context.Backpropagate(delta, channel);
                 }
             }
@@ -36,8 +39,10 @@ namespace BrightWire.ExecutionGraph.Activation
 
         public IMatrix Train(IMatrix input, int channel, IBatchContext context)
         {
-            context.RegisterBackpropagation(new Backpropagation(input), channel);
-            return Execute(input, channel, context);
+            context.RegisterBackpropagation(new Backpropagation(this, input), channel);
+            var output = Execute(input, channel, context);
+            context.LearningContext.Log("relu", channel, GetHashCode(), input, output);
+            return output;
         }
 
         public IMatrix Execute(IMatrix input, int channel, IBatchContext context)

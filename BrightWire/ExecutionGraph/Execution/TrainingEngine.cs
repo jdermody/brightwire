@@ -19,6 +19,7 @@ namespace BrightWire.ExecutionGraph.Execution
             _input = input;
         }
 
+        public ILearningContext Context => _context;
         public IGraphInput Input => _input;
 
         public double? Train(IMiniBatchProvider provider)
@@ -27,12 +28,21 @@ namespace BrightWire.ExecutionGraph.Execution
 
             _context.StartEpoch();
             _context.SetRowCount(_input.RowCount);
+            _context.ClearLog();
+            _context.Log(writer => {
+                writer.WriteStartElement("epoch");
+                writer.WriteAttributeString("index", _context.CurrentEpoch.ToString());
+                writer.WriteAttributeString("row-count", _input.RowCount.ToString());
+            });
+
             var trainingError = _input.Train(provider, _context);
             if (trainingError.HasValue)
                 trainingErrorList.Add(trainingError.Value);
-            _context.EndEpoch();
 
-            double? ret = null;
+            _context.EndEpoch();
+            _context.Log(writer => writer.WriteEndElement());
+
+            double ? ret = null;
             if (trainingErrorList.Any()) {
                 ret = trainingErrorList.Average();
                 if(_lastTrainingError.HasValue) {

@@ -630,12 +630,23 @@ namespace BrightWire.LinearAlgebra
             get
             {
                 var ret = new StringBuilder();
-                using (var writer = XmlWriter.Create(new StringWriter(ret))) {
+                var settings = new XmlWriterSettings {
+                    OmitXmlDeclaration = true
+                };
+                using (var writer = XmlWriter.Create(new StringWriter(ret), settings)) {
                     writer.WriteStartElement("matrix");
                     for (var i = 0; i < RowCount; i++) {
                         writer.WriteStartElement("row");
-                        for (var j = 0; j < ColumnCount; j++)
-                            writer.WriteElementString("val", _matrix[i, j].ToString());
+
+                        var row = new StringBuilder();
+                        for (var j = 0; j < ColumnCount; j++) {
+                            if (j > 0)
+                                row.Append("|");
+                            row.Append(_matrix[i, j]);
+                        }
+                        writer.WriteValue(row.ToString());
+                        //for (var j = 0; j < ColumnCount; j++)
+                        //    writer.WriteElementString("val", _matrix[i, j].ToString());
                         writer.WriteEndElement();
                     }
                     writer.WriteEndElement();

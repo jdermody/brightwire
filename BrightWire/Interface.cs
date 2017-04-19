@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Xml;
 
 namespace BrightWire
 {
@@ -1684,6 +1685,13 @@ namespace BrightWire
         void StartEpoch();
         void EndEpoch();
         void SetRowCount(int rowCount);
+        bool EnableLogging { get; set; }
+        bool LogMatrixValues { get; set; }
+        string CurrentLogXml { get; }
+        void ClearLog();
+        void Log(Action<XmlWriter> callback);
+        void Log(string name, int channel, int id, IMatrix input, IMatrix output, Action<XmlWriter> callback = null);
+        void Log(string name, IMatrix matrix);
     }
 
     public interface IComponent : IDisposable
@@ -1817,6 +1825,7 @@ namespace BrightWire
     public interface ITrainingEngine
     {
         IGraphInput Input { get; }
+        ILearningContext Context { get; }
         double? Train(IMiniBatchProvider provider);
         void WriteTestResults(IMiniBatchProvider provider, IErrorMetric errorMetric, int batchSize = 128);
         IReadOnlyList<(IIndexableVector Output, IIndexableVector TargetOutput)> Test(IMiniBatchProvider provider, int batchSize = 128);

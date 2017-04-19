@@ -21,6 +21,7 @@ namespace BrightWire.ExecutionGraph
         readonly IMiniBatch _batch;
         readonly Dictionary<int, Stack<IBackpropagation>> _backProp;
         readonly Dictionary<IMiniBatchSequence, SequenceData> _output = new Dictionary<IMiniBatchSequence, SequenceData>();
+        readonly Stack<(IMatrix, IMiniBatchSequence, int)> _backpropagationStack = new Stack<(IMatrix, IMiniBatchSequence, int)>();
 
         public BatchContext(IExecutionContext executionContext, IMiniBatch batch)
         {
@@ -53,10 +54,38 @@ namespace BrightWire.ExecutionGraph
                 Output = output,
                 Target = target
             };
-            Backpropagate(delta, channel);
+            LearningContext?.Log(writer => {
+                writer.WriteStartElement("output");
+                writer.WriteRaw(output.AsIndexable().AsXml);
+
+                writer.WriteStartElement("target");
+                writer.WriteRaw(target.AsIndexable().AsXml);
+                writer.WriteEndElement();
+
+                writer.WriteStartElement("delta");
+                writer.WriteRaw(delta.AsIndexable().AsXml);
+                writer.WriteEndElement();
+
+                writer.WriteEndElement();
+            });
+            _backpropagationStack.Push((delta, _batch.CurrentSequence, channel));
         }
 
-        public void Backpropagate(IMatrix delta, int channel)
+        public void Backward()
+        {
+            var that = (IBatchContext)this;
+            while(_backpropagationStack.Any()) {
+                var next = _backpropagationStack.Pop();
+                LearningContext.Log(writer => {
+                    writer.WriteStartElement("backpropagation");
+                    writer.WriteAttributeString("sequence-index", next.Item2.SequenceIndex.ToString());
+                });
+                that.Backpropagate(next.Item1, next.Item3);
+                LearningContext.Log(writer => writer.WriteEndElement());
+            }
+        }
+
+        void IBatchContext.Backpropagate(IMatrix delta, int channel)
         {
             if (delta != null) {
                 Stack<IBackpropagation> stack;
@@ -74,5 +103,7 @@ namespace BrightWire.ExecutionGraph
                 _backProp.Add(channel, stack = new Stack<IBackpropagation>());
             stack.Push(backProp);
         }
+
+        public IEnumerable<int> ActiveChannels { get { return _backProp.Select(kv => kv.Key); } }
     }
 }

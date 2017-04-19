@@ -8,6 +8,10 @@
     <DocumentationFile>bin\Debug\netstandard1.4\BrightWire.xml</DocumentationFile>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <DocumentationFile>bin\Debug\netstandard1.4\BrightWire.xml</DocumentationFile>
+  </PropertyGroup>
+
   <ItemGroup>
     <Compile Remove="ExecutionGraph\Component\Backpropagate.cs" />
   </ItemGroup>
