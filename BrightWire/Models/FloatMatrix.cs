@@ -90,7 +90,10 @@ namespace BrightWire.Models
             get
             {
                 var sb = new StringBuilder();
-                using (var writer = XmlWriter.Create(sb))
+                var settings = new XmlWriterSettings {
+                    OmitXmlDeclaration = true
+                };
+                using (var writer = XmlWriter.Create(sb, settings))
                     WriteTo(null, writer);
                 return sb.ToString();
             }

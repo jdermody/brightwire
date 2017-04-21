@@ -17,7 +17,10 @@ namespace BrightWire.ExecutionGraph.Wire
 
         public override void Send(IMatrix signal, int channel, IBatchContext context)
         {
-            Debug.Assert(channel == _inputChannel);
+            // notify about the input
+            (signal, channel) = _OnInput(signal, channel, context);
+
+            Debug.Assert(channel == _channel);
             Debug.Assert(signal.ColumnCount == _inputSize);
 
             IMatrix output = null;
@@ -25,6 +28,9 @@ namespace BrightWire.ExecutionGraph.Wire
                 output = _component.Train(signal, channel, context);
             else
                 output = _component.Execute(signal, channel, context);
+
+            // notify about the output
+            (output, channel) = _OnOutput(output, channel, context);
 
             if (_destination != null)
                 _destination.Send(output, channel, context);

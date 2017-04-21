@@ -56,12 +56,18 @@ namespace BrightWire.ExecutionGraph.Input
         public int BatchSize => _rows.Count;
         public IMiniBatchSequence CurrentSequence => _sequence[_index];
         public bool HasNextSequence => _index < (_sequence.Count - 1);
+        public int SequenceLength => _sequence.Count;
 
         public IMiniBatchSequence GetNextSequence()
         {
             if(HasNextSequence)
                 return _sequence[++_index];
             return null;
+        }
+
+        public IMiniBatchSequence GetSequenceAtIndex(int index)
+        {
+            return _sequence[index];
         }
     }
 }

@@ -23,6 +23,7 @@ namespace BrightWire.ExecutionGraph
         readonly IWeightInitialisation _gaussianWeightInitialisation;
         readonly ICreateTemplateBasedGradientDescent _rmsProp = new RmsPropDescriptor(0.9f);
         readonly List<(TypeInfo, Type, string)> _queryTypes = new List<(TypeInfo, Type, string)>();
+        int _nextAvailableChannel = 0;
 
         public GraphFactory(ILinearAlgebraProvider lap)
         {
@@ -45,6 +46,14 @@ namespace BrightWire.ExecutionGraph
             _Add(typeof(GaussianDescriptor), PropertySet.WEIGHT_INITIALISATION_DESCRIPTOR);
             _Add(typeof(IdentityDescriptor), PropertySet.WEIGHT_INITIALISATION_DESCRIPTOR);
             _Add(typeof(XavierDescriptor), PropertySet.WEIGHT_INITIALISATION_DESCRIPTOR);
+        }
+
+        public int NextAvailableChannel
+        {
+            get
+            {
+                return _nextAvailableChannel++;
+            }
         }
 
         void _Add(Type type, string name)
@@ -131,9 +140,9 @@ namespace BrightWire.ExecutionGraph
             return new WireBuilder(this, wire, propertySet);
         }
 
-        public WireBuilder Build(int inputSize, IPropertySet propertySet)
+        public WireBuilder Build(int channel, int inputSize, IPropertySet propertySet)
         {
-            return new WireBuilder(this, inputSize, propertySet);
+            return new WireBuilder(this, channel, inputSize, propertySet);
         }
 
         public WireBuilder Add(int channel, IPropertySet propertySet, params IWire[] wires)
@@ -143,6 +152,11 @@ namespace BrightWire.ExecutionGraph
                 wire.LastWire.SetDestination(addWire);
             return Connect(addWire, propertySet);
         }
+
+        //public void AddMemoryFeeder(float[] data, IWire input, IWire sendTo, int channel)
+        //{
+        //    new MemoryFeeder(input, sendTo, _lap, channel, data);
+        //}
 
         public ITrainingEngine CreateTrainingEngine(float learningRate, int batchSize, IGraphInput input)
         {

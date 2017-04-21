@@ -10,7 +10,6 @@ namespace BrightWire.ExecutionGraph.Input
         readonly int _inputSize, _outputSize, _rowCount;
         readonly ILinearAlgebraProvider _lap;
         readonly List<IWire> _target = new List<IWire>();
-        readonly List<ISecondaryInput> _secondary = new List<ISecondaryInput>();
         readonly int _channel;
         readonly bool _isSequential;
 
@@ -28,7 +27,6 @@ namespace BrightWire.ExecutionGraph.Input
         public int InputSize => _inputSize;
         public int OutputSize => _outputSize;
         public int RowCount => _rowCount;
-        public void AddSecondary(ISecondaryInput input) => _secondary.Add(input);
 
         public void AddTarget(IWire target)
         {
@@ -117,10 +115,6 @@ namespace BrightWire.ExecutionGraph.Input
 
         void _Execute(IMiniBatch miniBatch, BatchContext context)
         {
-            // notify any secondary inputs that we are starting
-            foreach (var item in _secondary)
-                item.OnStart(context);
-
             // process this batch
             if (context.IsTraining) {
                 context.LearningContext.Log(writer => {
@@ -132,13 +126,13 @@ namespace BrightWire.ExecutionGraph.Input
             }
             while (true) {
                 // send to all targets
-                context.LearningContext?.Log(writer => writer.WriteStartElement("execution"));
-
-                foreach (var target in _target)
+                foreach (var target in _target) {
+                    context.LearningContext?.Log(writer => writer.WriteStartElement("execution"));
                     target.Send(miniBatch.CurrentSequence.Input, _channel, context);
+                    context.LearningContext?.Log(writer => writer.WriteEndElement());
+                }
 
                 context.LearningContext?.Log(writer => {
-                    writer.WriteEndElement();
                     writer.WriteEndElement();
                 });
 
@@ -155,10 +149,6 @@ namespace BrightWire.ExecutionGraph.Input
                         foreach(var channel in context.ActiveChannels)
                             context.RegisterBackpropagation(new EndOfSequenceBackpropagation(), channel);
                     }
-
-                    // notify secondary inputs
-                    foreach (var item in _secondary)
-                        item.OnNext(context);
                 } else
                     break;
             }

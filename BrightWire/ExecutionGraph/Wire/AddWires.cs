@@ -32,17 +32,20 @@ namespace BrightWire.ExecutionGraph.Wire
         readonly Dictionary<int, IMatrix> _input = new Dictionary<int, IMatrix>();
         int _destinationChannel;
 
-        public AddWires(int inputSize, int destinationChannel, params IWire[] wires) : base(inputSize, inputSize, null, null)
+        public AddWires(int inputSize, int destinationChannel, params IWire[] wires) : base(inputSize, inputSize, destinationChannel, null)
         {
             foreach (var wire in wires)
-                _input.Add(wire.InputChannel.Value, null);
+                _input.Add(wire.Channel, null);
             _destinationChannel = destinationChannel;
         }
 
         public override void Send(IMatrix signal, int channel, IBatchContext context)
         {
+            (signal, channel) = _OnInput(signal, channel, context);
             _input[channel] = signal;
+
             if(_input.All(kv => kv.Value != null)) {
+                // add the input matrices together
                 IMatrix output = null;
                 var channelList = new List<int>();
                 foreach(var kv in _input) {
@@ -56,20 +59,26 @@ namespace BrightWire.ExecutionGraph.Wire
                     }
                 }
 
+                // notify about the output
+                (IMatrix finalOutput, int destinationChannel) = _OnOutput(output, _destinationChannel, context);
+
                 // reset the list
-                foreach(var item in channelList)
+                foreach (var item in channelList)
                     _input[item] = null;
 
+                // add the backpropagation step
                 if (context.IsTraining) {
                     context.LearningContext.Log(writer => {
                         writer.WriteStartElement("add-wires");
                         writer.WriteAttributeString("channels", String.Join(", ", channelList));
                         if(context.LearningContext.LogMatrixValues)
-                            writer.WriteRaw(output.AsIndexable().AsXml);
+                            writer.WriteRaw(finalOutput.AsIndexable().AsXml);
                     });
-                    context.RegisterBackpropagation(new Backpropagation(channelList), _destinationChannel);
+                    context.RegisterBackpropagation(new Backpropagation(channelList), destinationChannel);
                 }
-                _destination.Send(output, _destinationChannel, context);
+
+                // send the output
+                _destination.Send(finalOutput, destinationChannel, context);
                 if (context.IsTraining)
                     context.LearningContext.Log(writer => writer.WriteEndElement());
             }

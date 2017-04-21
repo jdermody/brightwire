@@ -1,6 +1,7 @@
 ﻿using BrightWire.ExecutionGraph;
 using BrightWire.ExecutionGraph.Activation;
 using BrightWire.ExecutionGraph.Component;
+using BrightWire.ExecutionGraph.Layer;
 using BrightWire.ExecutionGraph.Output;
 using BrightWire.ExecutionGraph.Wire;
 using System;
@@ -16,6 +17,7 @@ namespace BrightWire.ExecutionGraph
         readonly GraphFactory _factory;
         readonly IGraphInput _input;
         readonly IWire _wire;
+        readonly int _channel;
         readonly Stack<(IComponent Component, int InputSize, int OutputSize)> _stack = new Stack<(IComponent Component, int InputSize, int OutputSize)>();
         int _lastInputSize;
 
@@ -25,10 +27,12 @@ namespace BrightWire.ExecutionGraph
             _propertySet = propertySet;
             _input = input;
             _lastInputSize = input.InputSize;
+            _channel = factory.NextAvailableChannel;
         }
 
-        public WireBuilder(GraphFactory factory, int inputSize, IPropertySet propertySet)
+        public WireBuilder(GraphFactory factory, int channel, int inputSize, IPropertySet propertySet)
         {
+            _channel = channel;
             _factory = factory;
             _propertySet = propertySet;
             _lastInputSize = inputSize;
@@ -39,6 +43,7 @@ namespace BrightWire.ExecutionGraph
             _factory = factory;
             _propertySet = propertySet;
             _lastInputSize = wire.InputSize;
+            _channel = wire.Channel;
             _wire = wire;
         }
 
@@ -48,6 +53,15 @@ namespace BrightWire.ExecutionGraph
             var layer = _factory.CreateFeedForward(_lastInputSize, outputSize, _propertySet);
             _stack.Push((layer, _lastInputSize, outputSize));
             _lastInputSize = outputSize;
+            return this;
+        }
+
+        public WireBuilder AddSimpleRecurrent(float[] memory)
+        {
+            var memorySize = memory.Length;
+            var layer = new SimpleRecurrent(_factory, _propertySet, _channel, _lastInputSize, memorySize, memory);
+            _stack.Push((layer, _lastInputSize, memorySize));
+            _lastInputSize = memorySize;
             return this;
         }
 
@@ -74,12 +88,12 @@ namespace BrightWire.ExecutionGraph
             return this;
         }
 
-        public IWire Build(int channel = 0)
+        public IWire Build()
         {
             IWire last = null;
             while(_stack.Any()) {
                 var next = _stack.Pop();
-                last = new WireToComponent(next.InputSize, next.OutputSize, channel, next.Component, last);
+                last = new WireToComponent(next.InputSize, next.OutputSize, _channel, next.Component, last);
             }
             if (last != null) {
                 _input?.AddTarget(last);

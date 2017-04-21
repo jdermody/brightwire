@@ -1698,15 +1698,37 @@ namespace BrightWire
         IEnumerable<ISequenceResult> Results { get; }
     }
 
+    public class WireSignalEventArgs : EventArgs
+    {
+        public IMatrix Signal { get; set; }
+        public int Channel { get; set; }
+        public IBatchContext Context { get; private set; }
+
+        public WireSignalEventArgs(IMatrix signal, int channel, IBatchContext context)
+        {
+            Signal = signal;
+            Channel = channel;
+            Context = context;
+        }
+    }
+
     public interface IWire
     {
         int InputSize { get; }
         int OutputSize { get; }
-        int? InputChannel { get; }
+        int Channel { get; }
         IWire Destination { get; }
         IWire LastWire { get; }
         void SetDestination(IWire wire);
         void Send(IMatrix signal, int channel, IBatchContext context);
+
+        event Action<WireSignalEventArgs> OnInput;
+        event Action<WireSignalEventArgs> OnOutput;
+    }
+
+    public interface IWireSplitter
+    {
+        void AddTarget(IWire target, int channel = 0);
     }
 
     public interface IErrorMetric
@@ -1716,12 +1738,6 @@ namespace BrightWire
         IMatrix CalculateGradient(IMatrix output, IMatrix targetOutput);
     }
 
-    public interface ISecondaryInput
-    {
-        void OnStart(IBatchContext context);
-        void OnNext(IBatchContext context);
-    }
-
     public interface IGraphInput
     {
         bool IsSequential { get; }
@@ -1729,7 +1745,6 @@ namespace BrightWire
         int OutputSize { get; }
         int RowCount { get; }
         void AddTarget(IWire target);
-        void AddSecondary(ISecondaryInput input);
         double? Train(IMiniBatchProvider provider, ILearningContext context);
         IReadOnlyList<(IIndexableVector Output, IIndexableVector TargetOutput)> Test(IMiniBatchProvider provider, int batchSize = 128);
         IReadOnlyList<IIndexableVector> Execute(IMiniBatchProvider provider, int batchSize = 128);
@@ -1814,6 +1829,8 @@ namespace BrightWire
         IMiniBatchSequence CurrentSequence { get; }
         bool HasNextSequence { get; }
         IMiniBatchSequence GetNextSequence();
+        int SequenceLength { get; }
+        IMiniBatchSequence GetSequenceAtIndex(int index);
     }
 
     public interface IAction

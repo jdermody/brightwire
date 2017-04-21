@@ -2,51 +2,68 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace BrightWire.ExecutionGraph.Input
+namespace BrightWire.ExecutionGraph.Helper
 {
-    public class MemoryProvider : ISecondaryInput, IBackpropagation
+    internal class MemoryFeeder : IBackpropagation
     {
         readonly float[] _data;
         readonly ILinearAlgebraProvider _lap;
-        readonly IWire _sendTo;
         readonly int _channel;
 
-        public MemoryProvider(IGraphInput graphInput, IWire sendTo, ILinearAlgebraProvider lap, int channel)
+        public MemoryFeeder(ILinearAlgebraProvider lap, int channel, float[] data)
         {
             _lap = lap;
-            _data = new float[sendTo.InputSize];
+            _data = data;
             _channel = channel;
-            _sendTo = sendTo;
-
-            graphInput.AddSecondary(this);
         }
 
-        public void OnStart(IBatchContext context)
+        public int Channel => _channel;
+
+        public void Dispose()
         {
-            if(context.Batch.IsSequential) {
-                if (context.IsTraining)
-                    context.RegisterBackpropagation(this, _channel);
-                var memory = GetMemory(context.Batch.BatchSize);
-
-                context.LearningContext?.Log(writer => {
-                    writer.WriteStartElement("init-memory");
-                    writer.WriteRaw(memory.AsIndexable().AsXml);
-                });
-                _sendTo.Send(memory, _channel, context);
-                context.LearningContext?.Log(writer => writer.WriteEndElement());
-            }
+            // nop
         }
 
-        public void OnNext(IBatchContext context)
+        //private void OnSignal(WireSignalEventArgs args)
+        //{
+        //    var context = args.Context;
+        //    var batch = context.Batch;
+        //    var sequence = batch.CurrentSequence;
+
+        //    if (batch.IsSequential) {
+        //        if (sequence.SequenceIndex == 0)
+        //            _OnStart(context);
+        //        else
+        //            _OnNext(context);
+        //    }
+        //}
+
+        public IMatrix OnStart(IBatchContext context)
+        {
+            if (context.IsTraining)
+                context.RegisterBackpropagation(this, _channel);
+            var memory = GetMemory(context.Batch.BatchSize);
+
+            context.LearningContext?.Log(writer => {
+                writer.WriteStartElement("init-memory");
+                writer.WriteRaw(memory.AsIndexable().AsXml);
+                writer.WriteEndElement();
+            });
+
+            return memory;
+        }
+
+        public IMatrix OnNext(IBatchContext context)
         {
             var memory = context.ExecutionContext.GetMemory(_channel);
 
             context.LearningContext?.Log(writer => {
                 writer.WriteStartElement("read-memory");
                 writer.WriteRaw(memory.AsIndexable().AsXml);
+                writer.WriteEndElement();
             });
-            _sendTo.Send(memory, _channel, context);
-            context.LearningContext?.Log(writer => writer.WriteEndElement());
+
+            return memory;
         }
 
         public IMatrix GetMemory(int batchSize) => _lap.Create(batchSize, _data.Length, (x, y) => _data[y]);
@@ -65,11 +82,6 @@ namespace BrightWire.ExecutionGraph.Input
                 for (var j = 0; j < _data.Length; j++)
                     _data[j] += initialDelta[j] * context.LearningContext.LearningRate;
             }
-        }
-
-        public void Dispose()
-        {
-            // nop
         }
     }
 }
