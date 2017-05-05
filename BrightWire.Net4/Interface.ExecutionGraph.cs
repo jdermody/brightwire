@@ -1,0 +1,153 @@
+﻿using BrightWire.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace BrightWire
+{
+    public enum GraphDataType
+    {
+        Vector,
+        Matrix,
+        Tensor
+    }
+
+    public interface IGraphData
+    {
+        GraphDataType CurrentType { get; }
+        IMatrix GetAsMatrix();
+    }
+
+    public interface IAction
+    {
+        void Execute(IMatrix input, IContext context);
+    }
+
+    public interface INode : IDisposable
+    {
+        string Id { get; }
+        string Name { get; }
+        IReadOnlyList<IWire> Output { get; }
+        void SetPrimaryInput(IContext context);
+        void SetSecondaryInput(IContext context);
+        void AddOutput(IWire wire);
+    }
+
+    public interface IWire
+    {
+        INode SendTo { get; }
+        bool IsPrimary { get; }
+    }
+
+    public interface IExecutionHistory
+    {
+        INode Source { get; }
+        IGraphData Data { get; }
+        IBackpropagation Backpropagation { get; set; }
+    }
+
+    public interface IContext
+    {
+        bool IsTraining { get; }
+        IGraphData Data { get; }
+        IExecutionContext ExecutionContext { get; }
+        ILearningContext LearningContext { get; }
+        ILinearAlgebraProvider LinearAlgebraProvider { get; }
+        IMiniBatchSequence BatchSequence { get; }
+        void Add(IExecutionHistory action, Func<IBackpropagation> callback);
+        void Backpropagate(IMatrix output, IMatrix target, IMatrix delta);
+    }
+
+    public interface IExecutionContext
+    {
+        void SetMemory(int index, IMatrix memory);
+        IMatrix GetMemory(int index);
+        ILinearAlgebraProvider LinearAlgebraProvider { get; }
+    }
+
+    public interface IBackpropagation : IDisposable
+    {
+        IMatrix Backward(IMatrix errorSignal, IContext context, bool calculateOutput);
+    }
+
+    public interface IDataSource
+    {
+        bool IsSequential { get; }
+        int InputSize { get; }
+        int OutputSize { get; }
+        int RowCount { get; }
+        IReadOnlyList<(float[], float[])> Get(IReadOnlyList<int> rows);
+        IReadOnlyList<(FloatMatrix Input, FloatMatrix Output)> GetSequential(IReadOnlyList<int> rows);
+        IReadOnlyList<IReadOnlyList<int>> GetBuckets();
+        //string GetOutputLabel(int columnIndex, int vectorIndex);
+    }
+
+    public enum MiniBatchType
+    {
+        Standard,
+        SequenceStart,
+        SequenceEnd
+    }
+
+    public interface IMiniBatchSequence
+    {
+        IMiniBatch MiniBatch { get; }
+        int SequenceIndex { get; }
+        MiniBatchType Type { get; }
+        IMatrix Input { get; }
+        IMatrix Target { get; }
+    }
+
+    public interface IMiniBatch
+    {
+        IReadOnlyList<int> Rows { get; }
+        IDataSource DataSource { get; }
+        bool IsSequential { get; }
+        int BatchSize { get; }
+        IMiniBatchSequence CurrentSequence { get; }
+        bool HasNextSequence { get; }
+        IMiniBatchSequence GetNextSequence();
+        int SequenceLength { get; }
+        IMiniBatchSequence GetSequenceAtIndex(int index);
+    }
+
+    public interface ISequenceResult
+    {
+        IMatrix Output { get; }
+        IMatrix Target { get; }
+        IMatrix Delta { get; }
+    }
+
+    //public interface IBatchContext
+    //{
+    //    double TrainingError { get; }
+    //    IMiniBatch Batch { get; }
+    //    bool IsTraining { get; }
+    //    ILearningContext LearningContext { get; }
+    //    IExecutionContext ExecutionContext { get; }
+    //    ILinearAlgebraProvider LinearAlgebraProvider { get; }
+    //    void SetOutput(IMatrix output, IMatrix target, IMatrix delta, int channel);
+    //    void RegisterBackpropagation(IBackpropagation backProp, int channel);
+    //    void Backpropagate(IMatrix delta, int channel);
+    //    IEnumerable<ISequenceResult> Results { get; }
+    //}
+
+    public interface IGraphOperation
+    {
+        void Execute();
+    }
+
+    public interface IGraphEngine
+    {
+        void Add(INode target);
+        IDataSource DataSource { get; }
+    }
+
+    public interface IGraphTrainingEngine : IGraphEngine
+    {
+        double Train(ILearningContext learningContext);
+        void WriteTestResults(ILearningContext learningContext, IDataSource testDataSource, IErrorMetric errorMetric, int batchSize = 128);
+    }
+}

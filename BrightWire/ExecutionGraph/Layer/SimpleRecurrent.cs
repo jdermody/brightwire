@@ -8,34 +8,20 @@ namespace BrightWire.ExecutionGraph.Layer
 {
     internal class SimpleRecurrent : IComponent
     {
-        readonly IWire _output, _input, _memory;
+        readonly IWire _input, _memory;
         readonly MemoryFeeder _memoryFeeder;
 
-        public SimpleRecurrent(GraphFactory graph, IPropertySet propertySet, int inputChannel, int inputSize, int outputSize, float[] memory)
+        public SimpleRecurrent(GraphFactory graph, int inputChannel, int inputSize, int outputSize, float[] memory, IComponent activation)
         {
-            // create the network
             int hiddenLayerSize = memory.Length;
-            int memoryChannel = graph.NextAvailableChannel;
-            _memoryFeeder = new MemoryFeeder(propertySet.LinearAlgebraProvider, memoryChannel, memory);
+            _memoryFeeder = new MemoryFeeder(graph.LinearAlgebraProvider, graph.NextAvailableChannel, memory);
 
-            // create the input channel
-            _input = graph.Build(inputChannel, inputSize, propertySet)
-                .AddFeedForward(hiddenLayerSize)
-                .Build()
-            ;
-
-            // create the memory channel
-            _memory = graph.Build(memoryChannel, hiddenLayerSize, propertySet)
-                .AddFeedForward(hiddenLayerSize)
-                .Build()
-            ;
-
-            // extend the input channel with the merged results
-            _output = graph.Add(inputChannel, propertySet, _input, _memory)
-                .Add(graph.Activation.Relu)
-                .AddAction(new SetMemory(memoryChannel))
-                .Build()
-            ;
+            // create the network
+            (_input, _memory) = graph.Add(inputChannel, inputSize, _memoryFeeder.Channel, hiddenLayerSize, 
+                b => b.AddFeedForward(hiddenLayerSize),
+                b => b.AddFeedForward(hiddenLayerSize),
+                b => b.Add(graph.Activation.Relu).AddAction(new SetMemory(_memoryFeeder.Channel))
+            );
         }
 
         public void Dispose()

@@ -23,11 +23,17 @@ namespace BrightWire.ExecutionGraph
         readonly IWeightInitialisation _gaussianWeightInitialisation;
         readonly ICreateTemplateBasedGradientDescent _rmsProp = new RmsPropDescriptor(0.9f);
         readonly List<(TypeInfo, Type, string)> _queryTypes = new List<(TypeInfo, Type, string)>();
+        readonly Stack<IPropertySet> _propertySetStack = new Stack<IPropertySet>();
         int _nextAvailableChannel = 0;
+        IPropertySet _defaultPropertySet;
 
-        public GraphFactory(ILinearAlgebraProvider lap)
+        public GraphFactory(ILinearAlgebraProvider lap, IPropertySet propertySet = null)
         {
             _lap = lap;
+            _defaultPropertySet = propertySet ?? new PropertySet(_lap) {
+                WeightInitialisation = _gaussianWeightInitialisation,
+                TemplateGradientDescentDescriptor = _rmsProp
+            };
             _gaussianWeightInitialisation = new Gaussian(_lap);
 
             // add the gradient descent descriptors
@@ -48,12 +54,25 @@ namespace BrightWire.ExecutionGraph
             _Add(typeof(XavierDescriptor), PropertySet.WEIGHT_INITIALISATION_DESCRIPTOR);
         }
 
-        public int NextAvailableChannel
+        public int NextAvailableChannel => _nextAvailableChannel++;
+        public ILinearAlgebraProvider LinearAlgebraProvider => _lap;
+
+        public IPropertySet CurrentPropertySet
         {
-            get
-            {
-                return _nextAvailableChannel++;
-            }
+            get { return _propertySetStack.Any() ? _propertySetStack.Peek() : _defaultPropertySet; }
+        }
+
+        public void PushPropertySet(Action<IPropertySet> callback)
+        {
+            var newPropertySet = CurrentPropertySet.Clone();
+            callback?.Invoke(newPropertySet);
+            _propertySetStack.Push(newPropertySet);
+        }
+
+        public void PopPropertyStack()
+        {
+            if (_propertySetStack.Any())
+                _propertySetStack.Pop();
         }
 
         void _Add(Type type, string name)
@@ -61,8 +80,10 @@ namespace BrightWire.ExecutionGraph
             _queryTypes.Add((type.GetTypeInfo(), type, name));
         }
 
-        IGradientDescentOptimisation _GetGradientDescent(IPropertySet propertySet, IMatrix weight)
+        IGradientDescentOptimisation _GetGradientDescent(IMatrix weight)
         {
+            var propertySet = CurrentPropertySet;
+
             // look for the interface directly
             var ret = propertySet.GradientDescent;
 
@@ -79,8 +100,9 @@ namespace BrightWire.ExecutionGraph
             return ret ?? _simpleGradientDescent;
         }
 
-        IWeightInitialisation _GetWeightInitialisation(IPropertySet propertySet)
+        IWeightInitialisation _GetWeightInitialisation()
         {
+            var propertySet = CurrentPropertySet;
             var ret = propertySet.WeightInitialisation;
 
             // look for a descriptor
@@ -91,15 +113,15 @@ namespace BrightWire.ExecutionGraph
             return ret;
         }
 
-        public IComponent CreateFeedForward(int inputSize, int outputSize, IPropertySet propertySet)
+        public IComponent CreateFeedForward(int inputSize, int outputSize)
         {
             // create weights and bias
-            var weightInit = _GetWeightInitialisation(propertySet);
+            var weightInit = _GetWeightInitialisation();
             var bias = weightInit.CreateBias(outputSize);
             var weight = weightInit.CreateWeight(inputSize, outputSize);
 
             // get the gradient descent optimisations
-            var optimisation = _GetGradientDescent(propertySet, weight);
+            var optimisation = _GetGradientDescent( weight);
 
             // create the layer
             return new FeedForward(bias, weight, optimisation);
@@ -122,41 +144,72 @@ namespace BrightWire.ExecutionGraph
             return new MiniBatchGraphInput(dataSource, _lap);
         }
 
-        public IPropertySet CreatePropertySet()
+        public WireBuilder Connect(IGraphInput input)
         {
-            return new PropertySet(_lap) {
-                WeightInitialisation = _gaussianWeightInitialisation,
-                TemplateGradientDescentDescriptor = _rmsProp
-            };
+            return new WireBuilder(this, input);
         }
 
-        public WireBuilder Connect(IGraphInput input, IPropertySet propertySet)
+        public WireBuilder Connect(IWire wire)
         {
-            return new WireBuilder(this, input, propertySet);
+            return new WireBuilder(this, wire);
         }
 
-        public WireBuilder Connect(IWire wire, IPropertySet propertySet)
+        public WireBuilder Build(int channel, int inputSize)
         {
-            return new WireBuilder(this, wire, propertySet);
+            return new WireBuilder(this, channel, inputSize);
         }
 
-        public WireBuilder Build(int channel, int inputSize, IPropertySet propertySet)
+        public WireBuilder Add(int channel, IWire wire1, IWire wire2)
         {
-            return new WireBuilder(this, channel, inputSize, propertySet);
+            var addWire = new AddWires(wire1.LastWire.OutputSize, channel, wire1, wire2);
+            wire1.LastWire.SetDestination(addWire);
+            wire2.LastWire.SetDestination(addWire);
+            return Connect(addWire);
         }
 
-        public WireBuilder Add(int channel, IPropertySet propertySet, params IWire[] wires)
+        public WireBuilder Multiply(int channel, IWire wire1, IWire wire2)
         {
-            var addWire = new AddWires(wires.First().LastWire.OutputSize, channel, wires);
-            foreach (var wire in wires)
-                wire.LastWire.SetDestination(addWire);
-            return Connect(addWire, propertySet);
+            var multiply = new MultiplyWires(wire1.LastWire.OutputSize, channel, wire1, wire2);
+            wire1.LastWire.SetDestination(multiply);
+            wire2.LastWire.SetDestination(multiply);
+            return Connect(multiply);
         }
 
-        //public void AddMemoryFeeder(float[] data, IWire input, IWire sendTo, int channel)
-        //{
-        //    new MemoryFeeder(input, sendTo, _lap, channel, data);
-        //}
+        IWire _BuildWire(int channel, int inputSize, Action<WireBuilder> callback)
+        {
+            var builder = Build(channel, inputSize);
+            callback?.Invoke(builder);
+            return builder.Build();
+        }
+
+        public (IWire Primary, IWire Secondary) Add(int primaryChannel, int primarySize, int secondaryChannel, int secondarySize, Action<WireBuilder> input1, Action<WireBuilder> input2, Action<WireBuilder> merged)
+        {
+            var wire1 = _BuildWire(primaryChannel, primarySize, input1);
+            var wire2 = _BuildWire(secondaryChannel, secondarySize, input2);
+            var wireBuilder = Add(wire1.Channel, wire1, wire2);
+
+            merged?.Invoke(wireBuilder);
+            var outputWire = wireBuilder.Build();
+
+            return (wire1, wire2);
+        }
+
+        public (IWire Primary, IWire Secondary) Multiply(int primaryChannel, int primarySize, int secondaryChannel, int secondarySize, Action<WireBuilder> input1, Action<WireBuilder> input2, Action<WireBuilder> merged)
+        {
+            var wire1 = _BuildWire(primaryChannel, primarySize, input1);
+            var wire2 = _BuildWire(secondaryChannel, secondarySize, input2);
+            var wireBuilder = Multiply(wire1.Channel, wire1, wire2);
+
+            merged?.Invoke(wireBuilder);
+            var outputWire = wireBuilder.Build();
+
+            return (wire1, wire2);
+        }
+
+        public IWire CreateWire(int channel, int inputSize, IWire destination = null)
+        {
+            return new WireToWire(inputSize, inputSize, channel, destination);
+        }
 
         public ITrainingEngine CreateTrainingEngine(float learningRate, int batchSize, IGraphInput input)
         {

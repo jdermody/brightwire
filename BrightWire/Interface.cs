@@ -1765,11 +1765,13 @@ namespace BrightWire
         ICreateTemplateBasedGradientDescent TemplateGradientDescentDescriptor { get; set; }
         ICreateGradientDescent GradientDescentDescriptor { get; set; }
 
-        void Use(ICreateTemplateBasedGradientDescent descriptor);
-        void Use(ICreateGradientDescent descriptor);
-        void Use(ICreateWeightInitialisation descriptor);
-        void Use(IGradientDescentOptimisation optimisation);
-        void Use(IWeightInitialisation weightInit);
+        IPropertySet Use(ICreateTemplateBasedGradientDescent descriptor);
+        IPropertySet Use(ICreateGradientDescent descriptor);
+        IPropertySet Use(ICreateWeightInitialisation descriptor);
+        IPropertySet Use(IGradientDescentOptimisation optimisation);
+        IPropertySet Use(IWeightInitialisation weightInit);
+
+        IPropertySet Clone();
 
         T Get<T>(string name, T defaultValue = default(T));
         void Set<T>(string name, T obj);

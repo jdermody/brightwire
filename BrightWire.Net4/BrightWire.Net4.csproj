@@ -56,8 +56,8 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MathNet.Numerics, Version=3.17.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MathNet.Numerics.3.17.0\lib\net40\MathNet.Numerics.dll</HintPath>
+    <Reference Include="MathNet.Numerics, Version=3.19.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\BrightWire2\packages\MathNet.Numerics.3.19.0\lib\net40\MathNet.Numerics.dll</HintPath>
     </Reference>
     <Reference Include="protobuf-net, Version=2.1.0.0, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
       <HintPath>..\packages\protobuf-net.2.1.0\lib\net451\protobuf-net.dll</HintPath>
@@ -65,6 +65,9 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
+    <Reference Include="System.ValueTuple, Version=4.0.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\BrightWire2\packages\System.ValueTuple.4.3.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -73,12 +76,125 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Bayesian\BernoulliNaiveBayesClassifier.cs" />
+    <Compile Include="Bayesian\MultinomialNaiveBayesClassifier.cs" />
+    <Compile Include="Bayesian\NaiveBayesClassifier.cs" />
+    <Compile Include="Bayesian\Training\BernoulliNaiveBayesTrainer.cs" />
+    <Compile Include="Bayesian\Training\MarkovModelTrainer.cs" />
+    <Compile Include="Bayesian\Training\MultinomialNaiveBayesTrainer.cs" />
+    <Compile Include="Bayesian\Training\NaiveBayesTrainer.cs" />
+    <Compile Include="Descriptor\GradientDescent\AdaGradDescriptor.cs" />
+    <Compile Include="Descriptor\GradientDescent\AdamDescriptor.cs" />
+    <Compile Include="Descriptor\GradientDescent\L1RegularisationDescriptor.cs" />
+    <Compile Include="Descriptor\GradientDescent\L2RegularisationDescriptor.cs" />
+    <Compile Include="Descriptor\GradientDescent\MomentumDescriptor.cs" />
+    <Compile Include="Descriptor\GradientDescent\NesterovMomentumDescriptor.cs" />
+    <Compile Include="Descriptor\GradientDescent\RmsPropDescriptor.cs" />
+    <Compile Include="Descriptor\WeightInitialisationType.cs" />
+    <Compile Include="Descriptor\WeightInitialisation\ConstantDescriptor.cs" />
+    <Compile Include="Descriptor\WeightInitialisation\GaussianDescriptor.cs" />
+    <Compile Include="Descriptor\WeightInitialisation\IdentityDescriptor.cs" />
+    <Compile Include="Descriptor\WeightInitialisation\XavierDescriptor.cs" />
+    <Compile Include="ExecutionGraph\Action\Backpropagate.cs" />
+    <Compile Include="ExecutionGraph\Activation\LeakyRelu.cs" />
+    <Compile Include="ExecutionGraph\Activation\Relu.cs" />
+    <Compile Include="ExecutionGraph\Activation\Sigmoid.cs" />
+    <Compile Include="ExecutionGraph\Activation\SoftMax.cs" />
+    <Compile Include="ExecutionGraph\Activation\Tanh.cs" />
+    <Compile Include="ExecutionGraph\Engine\TrainingEngine.cs" />
+    <Compile Include="ExecutionGraph\ErrorMetric\BinaryClassification.cs" />
+    <Compile Include="ExecutionGraph\ErrorMetric\CrossEntropy.cs" />
+    <Compile Include="ExecutionGraph\ErrorMetric\OneHotEncoding.cs" />
+    <Compile Include="ExecutionGraph\ErrorMetric\Quadratic.cs" />
+    <Compile Include="ExecutionGraph\ErrorMetric\Rmse.cs" />
+    <Compile Include="ExecutionGraph\Engine\ExecutionContext.cs" />
+    <Compile Include="ExecutionGraph\GradientDescent\AdaGrad.cs" />
+    <Compile Include="ExecutionGraph\GradientDescent\Adam.cs" />
+    <Compile Include="ExecutionGraph\GradientDescent\L1Regularisation.cs" />
+    <Compile Include="ExecutionGraph\GradientDescent\L2Regularisation.cs" />
+    <Compile Include="ExecutionGraph\GradientDescent\Momentum.cs" />
+    <Compile Include="ExecutionGraph\GradientDescent\NesterovMomentum.cs" />
+    <Compile Include="ExecutionGraph\GradientDescent\RmsProp.cs" />
+    <Compile Include="ExecutionGraph\GradientDescent\Simple.cs" />
+    <Compile Include="ExecutionGraph\GraphFactory.cs" />
+    <Compile Include="ExecutionGraph\Helper\GraphAction.cs" />
+    <Compile Include="ExecutionGraph\Helper\MatrixGraphData.cs" />
+    <Compile Include="ExecutionGraph\Helper\MiniBatch.cs" />
+    <Compile Include="ExecutionGraph\Helper\WireToNode.cs" />
+    <Compile Include="ExecutionGraph\Input\DataTableAdaptor.cs" />
+    <Compile Include="ExecutionGraph\Input\SequentialDataTableAdaptor.cs" />
+    <Compile Include="ExecutionGraph\Input\MiniBatchProvider.cs" />
+    <Compile Include="ExecutionGraph\Engine\LearningContext.cs" />
+    <Compile Include="ExecutionGraph\Node\Helper\GraphExecuteAction.cs" />
+    <Compile Include="ExecutionGraph\Node\Input\FlowThrough.cs" />
+    <Compile Include="ExecutionGraph\Node\Layer\FeedForward.cs" />
+    <Compile Include="ExecutionGraph\Node\Gate\GateBase.cs" />
+    <Compile Include="ExecutionGraph\Node\NodeBase.cs" />
+    <Compile Include="ExecutionGraph\WeightInitialisation\Constant.cs" />
+    <Compile Include="ExecutionGraph\WeightInitialisation\Gaussian.cs" />
+    <Compile Include="ExecutionGraph\WeightInitialisation\Identity.cs" />
+    <Compile Include="ExecutionGraph\WeightInitialisation\Xavier.cs" />
+    <Compile Include="ExecutionGraph\WireBuilder.cs" />
+    <Compile Include="ExtensionMethods.cs" />
+    <Compile Include="Helper\CSVParser.cs" />
+    <Compile Include="Helper\DataTableBuilder.cs" />
+    <Compile Include="Helper\PropertySet.cs" />
+    <Compile Include="Helper\RandomProjection.cs" />
+    <Compile Include="Interface.DataTable.cs" />
+    <Compile Include="Interface.ExecutionGraph.cs" />
+    <Compile Include="Interface.LinearAlgegbra.cs" />
+    <Compile Include="Interface.MachineLearning.cs" />
+    <Compile Include="LinearAlgebra\Cpu3DTensor.cs" />
+    <Compile Include="LinearAlgebra\CpuMatrix.cs" />
+    <Compile Include="LinearAlgebra\CPUProvider.cs" />
+    <Compile Include="LinearAlgebra\CpuVector.cs" />
+    <Compile Include="LinearAlgebra\Helper\BoundMath.cs" />
+    <Compile Include="Models\Bayesian\BernoulliNaiveBayes.cs" />
+    <Compile Include="Models\Bayesian\MarkovModel.cs" />
+    <Compile Include="Models\Bayesian\MultinomialNaiveBayes.cs" />
+    <Compile Include="Models\Bayesian\NaiveBayes.cs" />
+    <Compile Include="Models\DataTableNormalisation.cs" />
+    <Compile Include="Models\FloatArray.cs" />
+    <Compile Include="Models\FloatMatrix.cs" />
+    <Compile Include="Models\FloatTensor.cs" />
+    <Compile Include="Models\IndexList.cs" />
+    <Compile Include="Models\StringTable.cs" />
+    <Compile Include="Models\WeightedIndexList.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Provider.cs" />
+    <Compile Include="TabularData\Analysis\DataTableAnalysis.cs" />
+    <Compile Include="TabularData\Analysis\FrequencyAnalysis.cs" />
+    <Compile Include="TabularData\Analysis\FrequencyCollector.cs" />
+    <Compile Include="TabularData\Analysis\NumericCollector.cs" />
+    <Compile Include="TabularData\Analysis\StringCollector.cs" />
+    <Compile Include="TabularData\DataTable.cs" />
+    <Compile Include="TabularData\DataTableRow.cs" />
+    <Compile Include="TabularData\Helper\ClassBasedRowProcessor.cs" />
+    <Compile Include="TabularData\Helper\ColumnTypeClassifier.cs" />
+    <Compile Include="TabularData\Helper\DataTableNormaliser.cs" />
+    <Compile Include="TabularData\Helper\DataTableProjector.cs" />
+    <Compile Include="TabularData\Helper\DataTableVectoriser.cs" />
+    <Compile Include="TabularData\Helper\DataTableWriter.cs" />
+    <Compile Include="TabularData\Helper\RowConverter.cs" />
+    <Compile Include="TrainingData\Artificial\And.cs" />
+    <Compile Include="TrainingData\Artificial\BinaryIntegers.cs" />
+    <Compile Include="TrainingData\Artificial\Or.cs" />
+    <Compile Include="TrainingData\Artificial\ReberGrammar.cs" />
+    <Compile Include="TrainingData\Artificial\Xor.cs" />
+    <Compile Include="TrainingData\Helper\BigEndianBinaryReader.cs" />
+    <Compile Include="TrainingData\SimpleTokeniser.cs" />
+    <Compile Include="TrainingData\StringTableBuilder.cs" />
+    <Compile Include="TrainingData\WellKnown\MNIST.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <Import Project="..\BrightWire.CPU.projitems" Label="Shared" />
+  <ItemGroup>
+    <Folder Include="InstanceBased\Training\" />
+    <Folder Include="Linear\Training\" />
+    <Folder Include="TreeBased\Training\" />
+    <Folder Include="Unsupervised\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

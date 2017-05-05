@@ -24,20 +24,21 @@ namespace ExampleCode
         static void XorTest()
         {
             using (var lap = Provider.CreateLinearAlgebra()) {
-                var graph = new GraphFactory(lap);
-                var errorMetric = graph.ErrorMetric.Rmse;
                 var data = Xor.Get();
 
-                // create the property set
-                var propertySet = graph.CreatePropertySet();
-                propertySet.Use(new RmsPropDescriptor(0.9f));
-                propertySet.Use(new XavierDescriptor());
+                // 
+                var graph = new GraphFactory(lap);
+                var errorMetric = graph.ErrorMetric.Rmse;
+                graph.CurrentPropertySet
+                    .Use(new RmsPropDescriptor(0.9f))
+                    .Use(new XavierDescriptor())
+                ;
 
                 var trainingProvider = graph.CreateMiniBatchProvider(data);
                 var engine = graph.CreateTrainingEngine(0.03f, 2, graph.CreateGraphInput(trainingProvider));
 
                 const int HIDDEN_LAYER_SIZE = 4;
-                var network = graph.Connect(engine.Input, propertySet)
+                var network = graph.Connect(engine.Input)
                     .AddFeedForward(HIDDEN_LAYER_SIZE)
                     .Add(graph.Activation.Sigmoid)
                     .AddFeedForward(null)
@@ -75,8 +76,9 @@ namespace ExampleCode
                 var errorMetric = graph.ErrorMetric.OneHotEncoding;
 
                 // create the property set
-                var propertySet = graph.CreatePropertySet();
-                propertySet.Use(new AdamDescriptor());
+                graph.CurrentPropertySet
+                    .Use(new AdamDescriptor())
+                ;
 
                 // create the traiing data
                 var trainingData = graph.CreateMiniBatchProvider(data.Training);
@@ -84,7 +86,7 @@ namespace ExampleCode
                 var engine = graph.CreateTrainingEngine(0.01f, 32, graph.CreateGraphInput(trainingData));
 
                 const int HIDDEN_LAYER_SIZE = 4;
-                var network = graph.Connect(engine.Input, propertySet)
+                var network = graph.Connect(engine.Input)
                     .AddFeedForward(HIDDEN_LAYER_SIZE)
                     .Add(graph.Activation.Sigmoid)
                     .AddFeedForward()
@@ -110,9 +112,10 @@ namespace ExampleCode
                 var errorMetric = graph.ErrorMetric.BinaryClassification;
 
                 // create the property set
-                var propertySet = graph.CreatePropertySet();
-                propertySet.Use(new RmsPropDescriptor());
-                propertySet.Use(new XavierDescriptor());
+                graph.CurrentPropertySet
+                    .Use(new RmsPropDescriptor())
+                    .Use(new XavierDescriptor())
+                ;
 
                 // create the engine
                 var trainingData = graph.CreateMiniBatchProvider(data.Training);
@@ -120,21 +123,12 @@ namespace ExampleCode
                 var engine = graph.CreateTrainingEngine(0.003f, 8, graph.CreateGraphInput(trainingData));
                 engine.Context.EnableLogging = false;
 
-                // create the network
-                const int HIDDEN_LAYER_SIZE = 12;
-                var inputNetwork = graph.Connect(engine.Input, propertySet)
-                    .AddFeedForward(HIDDEN_LAYER_SIZE)
-                    .Build(0)
-                ;
-                var memoryList = new List<string>();
-                var memoryNetwork = graph.Build(HIDDEN_LAYER_SIZE, propertySet)
-                    .AddFeedForward(HIDDEN_LAYER_SIZE)
-                    .Build(1)
-                ;
-                var memory = new MemoryProvider(engine.Input, memoryNetwork, lap, 1);
-                var merged = graph.Add(0, propertySet, inputNetwork, memoryNetwork)
-                    .Add(graph.Activation.Tanh)
-                    .AddAction(new SetMemory(1))
+                // build the network
+                const int HIDDEN_LAYER_SIZE = 32;
+                var memory = new float[HIDDEN_LAYER_SIZE];
+                var network = graph.Connect(engine.Input)
+                    //.AddSimpleRecurrent(graph.Activation.Relu, memory)
+                    .AddGru(memory)
                     .AddFeedForward(engine.Input.OutputSize)
                     .Add(graph.Activation.Tanh)
                     .AddAction(new Backpropagate(errorMetric))

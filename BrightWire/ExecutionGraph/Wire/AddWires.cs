@@ -30,12 +30,13 @@ namespace BrightWire.ExecutionGraph.Wire
             }
         }
         readonly Dictionary<int, IMatrix> _input = new Dictionary<int, IMatrix>();
-        int _destinationChannel;
+        readonly int _destinationChannel;
 
-        public AddWires(int inputSize, int destinationChannel, params IWire[] wires) : base(inputSize, inputSize, destinationChannel, null)
+        public AddWires(int inputSize, int destinationChannel, IWire wire1, IWire wire2) : base(inputSize, inputSize, destinationChannel, null)
         {
-            foreach (var wire in wires)
-                _input.Add(wire.Channel, null);
+            _input.Add(wire1.Channel, null);
+            _input.Add(wire2.Channel, null);
+
             _destinationChannel = destinationChannel;
         }
 

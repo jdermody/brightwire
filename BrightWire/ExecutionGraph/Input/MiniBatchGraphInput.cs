@@ -104,7 +104,8 @@ namespace BrightWire.ExecutionGraph.Input
         {
             public void Backward(IMatrix errorSignal, int channel, IBatchContext context, bool calculateOutput)
             {
-                // nop
+                // since this is the end of the sequence, we don't want to propagate the error any further
+                // so do nothing here...
             }
 
             public void Dispose()
