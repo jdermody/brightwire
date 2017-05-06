@@ -29,10 +29,9 @@ namespace BrightWire
     {
         string Id { get; }
         string Name { get; }
-        IReadOnlyList<IWire> Output { get; }
+        List<IWire> Output { get; }
         void SetPrimaryInput(IContext context);
         void SetSecondaryInput(IContext context);
-        void AddOutput(IWire wire);
     }
 
     public interface IWire
@@ -62,8 +61,8 @@ namespace BrightWire
 
     public interface IExecutionContext
     {
-        void SetMemory(int index, IMatrix memory);
-        IMatrix GetMemory(int index);
+        void SetMemory(string index, IMatrix memory);
+        IMatrix GetMemory(string index);
         ILinearAlgebraProvider LinearAlgebraProvider { get; }
     }
 
@@ -141,13 +140,14 @@ namespace BrightWire
 
     public interface IGraphEngine
     {
-        void Add(INode target);
         IDataSource DataSource { get; }
+        INode Input { get; }
     }
 
     public interface IGraphTrainingEngine : IGraphEngine
     {
-        double Train(ILearningContext learningContext);
-        void WriteTestResults(ILearningContext learningContext, IDataSource testDataSource, IErrorMetric errorMetric, int batchSize = 128);
+        double Train();
+        void WriteTestResults(IDataSource testDataSource, IErrorMetric errorMetric, int batchSize = 128);
+        ILearningContext LearningContext { get; }
     }
 }

@@ -3,7 +3,9 @@ using BrightWire.Descriptor.WeightInitialisation;
 using BrightWire.ExecutionGraph.Activation;
 using BrightWire.ExecutionGraph.Engine;
 using BrightWire.ExecutionGraph.GradientDescent;
+using BrightWire.ExecutionGraph.Helper;
 using BrightWire.ExecutionGraph.Input;
+using BrightWire.ExecutionGraph.Node.Gate;
 using BrightWire.ExecutionGraph.Node.Layer;
 using BrightWire.ExecutionGraph.WeightInitialisation;
 using BrightWire.Helper;
@@ -23,7 +25,6 @@ namespace BrightWire.ExecutionGraph
         readonly ICreateTemplateBasedGradientDescent _rmsProp = new RmsPropDescriptor(0.9f);
         readonly List<(TypeInfo, Type, string)> _queryTypes = new List<(TypeInfo, Type, string)>();
         readonly Stack<IPropertySet> _propertySetStack = new Stack<IPropertySet>();
-        int _nextAvailableChannel = 0;
         IPropertySet _defaultPropertySet;
 
         public GraphFactory(ILinearAlgebraProvider lap, IPropertySet propertySet = null)
@@ -53,7 +54,6 @@ namespace BrightWire.ExecutionGraph
             _Add(typeof(XavierDescriptor), PropertySet.WEIGHT_INITIALISATION_DESCRIPTOR);
         }
 
-        public int NextAvailableChannel => _nextAvailableChannel++;
         public ILinearAlgebraProvider LinearAlgebraProvider => _lap;
 
         public IPropertySet CurrentPropertySet
@@ -109,7 +109,7 @@ namespace BrightWire.ExecutionGraph
             if (descriptor != null)
                 ret = descriptor.Create(propertySet);
 
-            return ret;
+            return ret ?? _gaussianWeightInitialisation;
         }
 
         public ILearningContext CreateLearningContext(float learningRate, int batchSize, bool calculateTrainingError = true, bool deferUpdates = false)
@@ -117,12 +117,12 @@ namespace BrightWire.ExecutionGraph
             return new LearningContext(_lap, learningRate, batchSize, calculateTrainingError, deferUpdates);
         }
 
-        public IGraphTrainingEngine CreateTrainingEngine(IDataSource dataSource, bool isStochastic)
+        public IGraphTrainingEngine CreateTrainingEngine(IDataSource dataSource, bool isStochastic, Func<ILearningContext> callback)
         {
-            return new TrainingEngine(_lap, dataSource, isStochastic);
+            return new TrainingEngine(_lap, dataSource, isStochastic, callback);
         }
 
-        public IDataSource GetData(IDataTable dataTable, IDataTableVectoriser vectoriser = null)
+        public IDataSource GetDataSource(IDataTable dataTable, IDataTableVectoriser vectoriser = null)
         {
             return new DataTableAdaptor(dataTable, vectoriser);
         }
@@ -146,9 +146,21 @@ namespace BrightWire.ExecutionGraph
             return new WireBuilder(this, engine);
         }
 
-        public WireBuilder Build(int inputSize, INode node = null)
+        public WireBuilder Build(int inputSize, INode node)
         {
             return new WireBuilder(this, inputSize, node);
+        }
+
+        public WireBuilder Add(WireBuilder input1, WireBuilder input2)
+        {
+            var add = new AddGate();
+            var wireToPrimary = new WireToNode(add);
+            var wireToSecondary = new WireToNode(add, false);
+
+            input1.Build().Output.Add(wireToPrimary);
+            input2.Build().Output.Add(wireToSecondary);
+
+            return new WireBuilder(this, input1.CurrentSize, add);
         }
 
         public INode LeakyReluActivation() => new LeakyRelu();

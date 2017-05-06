@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BrightWire.ExecutionGraph.Helper;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +9,7 @@ namespace BrightWire.ExecutionGraph.Node
 {
     public abstract class NodeBase : INode
     {
-        readonly string _id, _name;
+        protected readonly string _id, _name;
         readonly List<IWire> _output = new List<IWire>();
 
         public NodeBase(string name)
@@ -32,13 +33,18 @@ namespace BrightWire.ExecutionGraph.Node
 
         public string Id => _id;
         public string Name => _name;
-        public IReadOnlyList<IWire> Output => _output;
+        public virtual List<IWire> Output => _output;
 
-        public void AddOutput(IWire wire) => _output.Add(wire);
         public abstract void SetPrimaryInput(IContext context);
         public virtual void SetSecondaryInput(IContext context)
         {
             SetPrimaryInput(context);
+        }
+
+        protected void _AddNextGraphAction(IContext context, IGraphData data, Func<IBackpropagation> backProp)
+        {
+            if(_output.Any())
+                context.Add(new GraphAction(this, data), backProp);
         }
     }
 }

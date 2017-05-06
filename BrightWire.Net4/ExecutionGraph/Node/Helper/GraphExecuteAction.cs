@@ -17,7 +17,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
         {
             var input = context.Data.GetAsMatrix();
             _action.Execute(input, context);
-            context.Add(new GraphAction(this, context.Data), null);
+            _AddNextGraphAction(context, context.Data, null);
         }
     }
 }

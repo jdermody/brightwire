@@ -125,10 +125,14 @@
     <Compile Include="ExecutionGraph\Input\SequentialDataTableAdaptor.cs" />
     <Compile Include="ExecutionGraph\Input\MiniBatchProvider.cs" />
     <Compile Include="ExecutionGraph\Engine\LearningContext.cs" />
+    <Compile Include="ExecutionGraph\Node\BackpropagationBase.cs" />
+    <Compile Include="ExecutionGraph\Node\Gate\AddGate.cs" />
     <Compile Include="ExecutionGraph\Node\Helper\GraphExecuteAction.cs" />
     <Compile Include="ExecutionGraph\Node\Input\FlowThrough.cs" />
+    <Compile Include="ExecutionGraph\Node\Input\MemoryFeeder.cs" />
     <Compile Include="ExecutionGraph\Node\Layer\FeedForward.cs" />
     <Compile Include="ExecutionGraph\Node\Gate\GateBase.cs" />
+    <Compile Include="ExecutionGraph\Node\Layer\SimpleRecurrent.cs" />
     <Compile Include="ExecutionGraph\Node\NodeBase.cs" />
     <Compile Include="ExecutionGraph\WeightInitialisation\Constant.cs" />
     <Compile Include="ExecutionGraph\WeightInitialisation\Gaussian.cs" />

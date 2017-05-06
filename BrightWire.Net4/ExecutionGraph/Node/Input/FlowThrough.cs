@@ -13,7 +13,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
 
         public override void SetPrimaryInput(IContext context)
         {
-            context.Add(new GraphAction(this, context.Data), null);
+            _AddNextGraphAction(context, context.Data, null);
         }
     }
 }

@@ -40,7 +40,7 @@ namespace BrightWire.ExecutionGraph.Activation
         {
             var input = context.Data.GetAsMatrix();
             var output = input.TanhActivation();
-            context.Add(new GraphAction(this, new MatrixGraphData(output)), () => new Backpropagation(this, input));
+            _AddNextGraphAction(context, new MatrixGraphData(output), () => new Backpropagation(this, input));
         }
 
         //public IMatrix Train(IMatrix input, int channel, IBatchContext context)

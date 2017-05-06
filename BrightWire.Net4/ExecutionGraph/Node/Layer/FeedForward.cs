@@ -94,7 +94,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             output.AddToEachRow(_bias);
 
             // set output
-            context.Add(new GraphAction(this, new MatrixGraphData(output)), () => new Backpropagation(this, input));
+            _AddNextGraphAction(context, new MatrixGraphData(output), () => new Backpropagation(this, input));
         }
     }
 }

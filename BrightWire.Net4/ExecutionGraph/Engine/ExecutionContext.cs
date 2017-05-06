@@ -7,7 +7,7 @@ namespace BrightWire.ExecutionGraph.Engine
     class ExecutionContext : IExecutionContext
     {
         readonly List<IGraphOperation> _operationList = new List<IGraphOperation>();
-        readonly Dictionary<int, IMatrix> _memory = new Dictionary<int, IMatrix>();
+        readonly Dictionary<string, IMatrix> _memory = new Dictionary<string, IMatrix>();
         readonly ILinearAlgebraProvider _lap;
 
         public ExecutionContext(ILinearAlgebraProvider lap)
@@ -19,7 +19,7 @@ namespace BrightWire.ExecutionGraph.Engine
         public void Add(IReadOnlyList<IGraphOperation> operations) => _operationList.AddRange(operations);
         public void Add(IGraphOperation operation) => _operationList.Add(operation);
 
-        public IMatrix GetMemory(int index)
+        public IMatrix GetMemory(string index)
         {
             return _memory[index];
         }
@@ -34,7 +34,7 @@ namespace BrightWire.ExecutionGraph.Engine
             return null;
         }
 
-        public void SetMemory(int index, IMatrix memory)
+        public void SetMemory(string index, IMatrix memory)
         {
             _memory[index] = memory;
         }

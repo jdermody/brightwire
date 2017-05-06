@@ -15,13 +15,6 @@ namespace BrightWire.ExecutionGraph
         INode _node;
         int _size;
 
-        public WireBuilder(GraphFactory factory, IGraphEngine engine)
-            : this(factory, engine.DataSource.InputSize, null)
-        {
-            _node = new FlowThrough();
-            engine.Add(_node);
-        }
-
         public WireBuilder(GraphFactory factory, int size, INode node)
         {
             _factory = factory;
@@ -29,10 +22,15 @@ namespace BrightWire.ExecutionGraph
             _size = size;
         }
 
+        public WireBuilder(GraphFactory factory, IGraphEngine engine) 
+            : this(factory, engine.DataSource.InputSize, engine.Input)
+        {
+        }
+
         void _SetNode(INode node)
         {
             if (_node != null)
-                _node.AddOutput(new WireToNode(node));
+                _node.Output.Add(new WireToNode(node));
             _node = node;
         }
 
@@ -55,5 +53,15 @@ namespace BrightWire.ExecutionGraph
             _SetNode(new GraphExecuteAction(action));
             return this;
         }
+
+        public WireBuilder AddSimpleRecurrent(INode activation, float[] initialMemory)
+        {
+            return this;
+        }
+
+        public INode Build() => _node;
+
+        public INode LastNode => _node;
+        public int CurrentSize => _size;
     }
 }

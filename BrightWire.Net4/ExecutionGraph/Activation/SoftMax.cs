@@ -56,7 +56,7 @@ namespace BrightWire.ExecutionGraph.Activation
             }
 
             var output = context.LinearAlgebraProvider.Create(rowList);
-            context.Add(new GraphAction(this, new MatrixGraphData(output)), () => new Backpropagation(this, rowList));
+            _AddNextGraphAction(context, new MatrixGraphData(output), () => new Backpropagation(this, rowList));
         }
 
         //public IMatrix Execute(IMatrix input, int channel, IBatchContext context)
