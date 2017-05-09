@@ -117,17 +117,23 @@ namespace BrightWire.ExecutionGraph
             return new LearningContext(_lap, learningRate, batchSize, calculateTrainingError, deferUpdates);
         }
 
-        public IGraphTrainingEngine CreateTrainingEngine(IDataSource dataSource, bool isStochastic, Func<ILearningContext> callback)
+        public IGraphTrainingEngine CreateTrainingEngine(IDataSource dataSource, float trainingRate = 0.1f, int batchSize = 128, bool isStochastic = true)
         {
-            return new TrainingEngine(_lap, dataSource, isStochastic, callback);
+            var learningContext = new LearningContext(_lap, trainingRate, batchSize, true, dataSource.IsSequential);
+            return new TrainingEngine(_lap, dataSource, isStochastic, learningContext);
         }
 
         public IDataSource GetDataSource(IDataTable dataTable, IDataTableVectoriser vectoriser = null)
         {
+            var columns = dataTable.Columns;
+            if (columns.Count == 2 && columns[0].Type == ColumnType.Matrix && columns[1].Type == ColumnType.Matrix)
+                return new SequentialDataTableAdaptor(dataTable);
+            
+            // default adapator
             return new DataTableAdaptor(dataTable, vectoriser);
         }
 
-        public INode CreateFeedForward(int inputSize, int outputSize)
+        public INode CreateFeedForward(int inputSize, int outputSize, string name = null)
         {
             // create weights and bias
             var weightInit = _GetWeightInitialisation();
@@ -138,7 +144,12 @@ namespace BrightWire.ExecutionGraph
             var optimisation = _GetGradientDescent( weight);
 
             // create the layer
-            return new FeedForward(bias, weight, optimisation);
+            return new FeedForward(bias, weight, optimisation, name);
+        }
+
+        public INode CreateSimpleRecurrent(int inputSize, float[] memory, INode activation, string name = null)
+        {
+            return new SimpleRecurrent(this, inputSize, memory, activation, name);
         }
 
         public WireBuilder Connect(IGraphEngine engine)

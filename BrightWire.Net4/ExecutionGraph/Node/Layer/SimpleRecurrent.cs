@@ -10,7 +10,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
     internal class SimpleRecurrent : NodeBase
     {
         readonly MemoryFeeder _memoryFeeder;
-        readonly INode _output;
+        readonly INode _output, _input;
 
         public SimpleRecurrent(GraphFactory graph, int inputSize, float[] memory, INode activation, string name = null)
             : base(name)
@@ -21,6 +21,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             var inputChannel = graph.Build(inputSize, this).AddFeedForward(hiddenLayerSize);
             var memoryChannel = graph.Build(hiddenLayerSize, _memoryFeeder.MemoryInput).AddFeedForward(hiddenLayerSize);
 
+            _input = inputChannel.Build();
             _output = graph.Add(inputChannel, memoryChannel)
                 .Add(activation)
                 .Add(_memoryFeeder.SetMemoryAction)
@@ -28,38 +29,18 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             ;
         }
 
-        public override List<IWire> Output => _output.Output;
+        public override List<IWire> Output => _output?.Output ?? base.Output;
 
         public override void SetPrimaryInput(IContext context)
         {
             // fire the memory channel
-            if (context.BatchSequence.SequenceIndex == 0)
+            if (context.BatchSequence.SequenceIndex == 1)
                 _memoryFeeder.OnStart(context);
             else
                 _memoryFeeder.OnNext(context);
 
-
+            // fire the input channel
+            _input.SetPrimaryInput(context);
         }
-
-        //public IMatrix Execute(IMatrix input, int channel, IContext context)
-        //{
-        //    // send the hidden state into the memory channel
-        //    if (context.Batch.CurrentSequence.SequenceIndex == 0)
-        //        _memory.Send(_memoryFeeder.OnStart(context), _memoryFeeder.Channel, context);
-        //    else
-        //        _memory.Send(_memoryFeeder.OnNext(context), _memoryFeeder.Channel, context);
-
-        //    // activate the input channel
-        //    _input.Send(input, channel, context);
-
-        //    // retrieve the output
-        //    var ret = context.ExecutionContext.GetMemory(_memoryFeeder.Channel);
-        //    return ret;
-        //}
-
-        //public IMatrix Train(IMatrix input, int channel, IBatchContext context)
-        //{
-        //    return Execute(input, channel, context);
-        //}
     }
 }

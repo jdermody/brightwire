@@ -127,8 +127,8 @@ namespace ExampleCode
                 const int HIDDEN_LAYER_SIZE = 32;
                 var memory = new float[HIDDEN_LAYER_SIZE];
                 var network = graph.Connect(engine.Input)
-                    //.AddSimpleRecurrent(graph.Activation.Relu, memory)
-                    .AddGru(memory)
+                    .AddSimpleRecurrent(graph.Activation.Relu, memory)
+                    //.AddGru(memory)
                     .AddFeedForward(engine.Input.OutputSize)
                     .Add(graph.Activation.Tanh)
                     .AddAction(new Backpropagate(errorMetric))

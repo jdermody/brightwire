@@ -43,6 +43,7 @@ namespace BrightWire
     public interface IExecutionHistory
     {
         INode Source { get; }
+        IReadOnlyList<INode> Parents { get; }
         IGraphData Data { get; }
         IBackpropagation Backpropagation { get; set; }
     }
@@ -51,6 +52,7 @@ namespace BrightWire
     {
         bool IsTraining { get; }
         IGraphData Data { get; }
+        INode Source { get; }
         IExecutionContext ExecutionContext { get; }
         ILearningContext LearningContext { get; }
         ILinearAlgebraProvider LinearAlgebraProvider { get; }

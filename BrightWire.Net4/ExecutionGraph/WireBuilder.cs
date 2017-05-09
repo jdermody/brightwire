@@ -56,6 +56,8 @@ namespace BrightWire.ExecutionGraph
 
         public WireBuilder AddSimpleRecurrent(INode activation, float[] initialMemory)
         {
+            _SetNode(_factory.CreateSimpleRecurrent(_size, initialMemory, activation));
+            _size = initialMemory.Length;
             return this;
         }
 

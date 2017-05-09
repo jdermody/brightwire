@@ -9,25 +9,23 @@ namespace BrightWire.ExecutionGraph.Node.Gate
 {
     class AddGate : GateBase
     {
-        //class Backpropagation : BackpropagationBase
-        //{
-        //    public override IMatrix Backward(IMatrix errorSignal, IContext context, bool calculateOutput)
-        //    {
-        //        return errorSignal;
-        //    }
-        //}
+        class Backpropagation : BackpropagationBase
+        {
+            public override IMatrix Backward(IMatrix errorSignal, IContext context, bool calculateOutput)
+            {
+                return errorSignal;
+            }
+        }
 
         public AddGate(string name = null) : base(name) { }
 
-        protected override void _Activate(IContext primary, IContext secondary)
+        protected override void _Activate(IContext context, IMatrix primary, IMatrix secondary)
         {
-            var input1 = primary.Data.GetAsMatrix();
-            var input2 = secondary.Data.GetAsMatrix();
+            var output = primary.Add(secondary);
 
-            var output = input1.Add(input2);
-
-            // default is to send the error signal
-            primary.Add(new GraphAction(this, new MatrixGraphData(output)), null);// () => new Backpropagation());
+            //_AddHistory(context, output, () => new Backpropagation());
+            // default is to pass the error signal through, which is correct for adds
+            _AddHistory(context, output, null);
         }
     }
 }
