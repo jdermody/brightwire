@@ -13,7 +13,18 @@ namespace BrightWire.ExecutionGraph.Helper
         readonly IGraphData _data;
         IBackpropagation _backpropagation;
 
-        public GraphAction(INode source, IGraphData data, params INode[] parents)
+        public GraphAction(INode source, IGraphData data, INode parent = null)
+        {
+            if (parent != null)
+                _parents = new[] { parent };
+            else
+                _parents = new List<INode>();
+
+            _source = source;
+            _data = data;
+        }
+
+        public GraphAction(INode source, IGraphData data, IReadOnlyList<INode> parents)
         {
             _parents = parents;
             _source = source;

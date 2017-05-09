@@ -70,12 +70,8 @@ namespace BrightWire.ExecutionGraph.Engine
                     _data = next.Data;
                     _sourceNode = next.Source;
                     if (next.Source.Output != null) {
-                        foreach (var output in next.Source.Output) {
-                            if (output.IsPrimary)
-                                output.SendTo?.SetPrimaryInput(this);
-                            else
-                                output.SendTo?.SetSecondaryInput(this);
-                        }
+                        foreach (var output in next.Source.Output)
+                            output.SendTo?.ExecuteForward(this, output.Channel);
                     }
 
                     return true;
@@ -199,14 +195,14 @@ namespace BrightWire.ExecutionGraph.Engine
                 IMiniBatchSequence curr = null;
                 while ((curr = batch.GetNextSequence()) != null) {
                     var context = new Context(this, curr, learningContext);
-                    _input.SetPrimaryInput(context);
+                    _input.ExecuteForward(context, 0);
                     while (context.HasNext)
                         context.ExecuteNext();
                     _executionResults.Add(context);
                 }
             } else {
                 var context = new Context(this, batch.CurrentSequence, learningContext);
-                _input.SetPrimaryInput(context);
+                _input.ExecuteForward(context, 0);
 
                 while (context.HasNext)
                     context.ExecuteNext();

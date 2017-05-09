@@ -30,14 +30,13 @@ namespace BrightWire
         string Id { get; }
         string Name { get; }
         List<IWire> Output { get; }
-        void SetPrimaryInput(IContext context);
-        void SetSecondaryInput(IContext context);
+        void ExecuteForward(IContext context, int channel);
     }
 
     public interface IWire
     {
         INode SendTo { get; }
-        bool IsPrimary { get; }
+        int Channel { get; }
     }
 
     public interface IExecutionHistory

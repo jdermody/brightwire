@@ -128,13 +128,16 @@
     <Compile Include="ExecutionGraph\Engine\LearningContext.cs" />
     <Compile Include="ExecutionGraph\Node\BackpropagationBase.cs" />
     <Compile Include="ExecutionGraph\Node\Gate\AddGate.cs" />
+    <Compile Include="ExecutionGraph\Node\Gate\JoinGate.cs" />
+    <Compile Include="ExecutionGraph\Node\Gate\MultiGateBase.cs" />
     <Compile Include="ExecutionGraph\Node\Gate\MultiplyGate.cs" />
     <Compile Include="ExecutionGraph\Node\Helper\GraphExecuteAction.cs" />
     <Compile Include="ExecutionGraph\Node\Helper\OneMinusInput.cs" />
     <Compile Include="ExecutionGraph\Node\Input\FlowThrough.cs" />
     <Compile Include="ExecutionGraph\Node\Input\MemoryFeeder.cs" />
+    <Compile Include="ExecutionGraph\Node\Input\ReverseSequence.cs" />
     <Compile Include="ExecutionGraph\Node\Layer\FeedForward.cs" />
-    <Compile Include="ExecutionGraph\Node\Gate\GateBase.cs" />
+    <Compile Include="ExecutionGraph\Node\Gate\BinaryGateBase.cs" />
     <Compile Include="ExecutionGraph\Node\Layer\GatedRecurrentUnit.cs" />
     <Compile Include="ExecutionGraph\Node\Layer\LongShortTermMemory.cs" />
     <Compile Include="ExecutionGraph\Node\Layer\SimpleRecurrent.cs" />

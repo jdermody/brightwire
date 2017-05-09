@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.Node.Gate
 {
-    class AddGate : GateBase
+    class AddGate : BinaryGateBase
     {
         //class Backpropagation : BackpropagationBase
         //{

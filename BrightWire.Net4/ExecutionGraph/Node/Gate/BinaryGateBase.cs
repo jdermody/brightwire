@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.Node.Gate
 {
-    public abstract class GateBase : NodeBase
+    public abstract class BinaryGateBase : NodeBase
     {
         IMatrix _primary = null, _secondary = null;
         INode _primarySource, _secondarySource = null;
 
-        public GateBase(string name) : base(name) { }
+        public BinaryGateBase(string name) : base(name) { }
 
         public override void SetPrimaryInput(IContext context)
         {
@@ -21,11 +21,13 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             _TryComplete(context);
         }
 
-        public override void SetSecondaryInput(IContext context)
+        public override void SetInput(IContext context, int channel)
         {
-            _secondarySource = context.Source;
-            _secondary = context.Data.GetAsMatrix();
-            _TryComplete(context);
+            if (channel == 1) {
+                _secondarySource = context.Source;
+                _secondary = context.Data.GetAsMatrix();
+                _TryComplete(context);
+            }
         }
 
         void _TryComplete(IContext context)
@@ -41,7 +43,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
 
         protected void _AddHistory(IContext context, IMatrix output, Func<IBackpropagation> backpropagation)
         {
-            context.Forward(new GraphAction(this, new MatrixGraphData(output), _primarySource, _secondarySource), backpropagation);
+            context.Forward(new GraphAction(this, new MatrixGraphData(output), new[] { _primarySource, _secondarySource }), backpropagation);
         }
     }
 }

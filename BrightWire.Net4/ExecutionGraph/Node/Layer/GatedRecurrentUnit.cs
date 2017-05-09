@@ -54,7 +54,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 _memoryFeeder.OnNext(context);
 
             // fire the input channel
-            _input.SetPrimaryInput(context);
+            _input.ExecuteForward(context, 0);
         }
     }
 }

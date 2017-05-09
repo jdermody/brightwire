@@ -36,9 +36,16 @@ namespace BrightWire.ExecutionGraph.Node
         public virtual List<IWire> Output => _output;
 
         public abstract void SetPrimaryInput(IContext context);
-        public virtual void SetSecondaryInput(IContext context)
+        public virtual void SetInput(IContext context, int channel)
         {
             SetPrimaryInput(context);
+        }
+        public void ExecuteForward(IContext context, int channel)
+        {
+            if (channel == 0)
+                SetPrimaryInput(context);
+            else
+                SetInput(context, channel);
         }
 
         protected void _AddNextGraphAction(IContext context, IGraphData data, Func<IBackpropagation> backProp)

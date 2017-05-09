@@ -57,7 +57,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             }
 
             // fire the input channel
-            _input.SetPrimaryInput(context);
+            _input.ExecuteForward(context, 0);
         }
     }
 }

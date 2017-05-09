@@ -9,11 +9,11 @@ namespace BrightWire.ExecutionGraph.Helper
     class WireToNode : IWire
     {
         readonly INode _node;
-        readonly bool _isPrimary;
+        readonly int _channel;
 
-        public WireToNode(INode node, bool isPrimary = true) { _node = node; _isPrimary = isPrimary; }
+        public WireToNode(INode node, int channel = 0) { _node = node; _channel = channel; }
 
         public INode SendTo => _node;
-        public bool IsPrimary => _isPrimary;
+        public int Channel => _channel;
     }
 }

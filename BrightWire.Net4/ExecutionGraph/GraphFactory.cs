@@ -197,7 +197,7 @@ namespace BrightWire.ExecutionGraph
         {
             var add = new AddGate();
             var wireToPrimary = new WireToNode(add);
-            var wireToSecondary = new WireToNode(add, false);
+            var wireToSecondary = new WireToNode(add, 1);
 
             input1.Output.Add(wireToPrimary);
             input2.Output.Add(wireToSecondary);
@@ -223,7 +223,7 @@ namespace BrightWire.ExecutionGraph
         {
             var multiply = new MultiplyGate();
             var wireToPrimary = new WireToNode(multiply);
-            var wireToSecondary = new WireToNode(multiply, false);
+            var wireToSecondary = new WireToNode(multiply, 1);
 
             input1.Output.Add(wireToPrimary);
             input2.Output.Add(wireToSecondary);
