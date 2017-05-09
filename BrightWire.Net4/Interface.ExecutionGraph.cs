@@ -1,6 +1,7 @@
 ﻿using BrightWire.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,12 +26,23 @@ namespace BrightWire
         void Execute(IMatrix input, IContext context);
     }
 
-    public interface INode : IDisposable
+    public interface ICanInitialiseNode
+    {
+        void Initialise(string id, string name, byte[] data);
+    }
+
+    public interface INode : ICanInitialiseNode, IDisposable
     {
         string Id { get; }
         string Name { get; }
         List<IWire> Output { get; }
         void ExecuteForward(IContext context, int channel);
+        INode SearchFor(string name);
+        IEnumerable<INode> SubNodes { get; }
+
+        void SerialiseTo(List<Models.ExecutionGraph.Node> nodeList, List<Models.ExecutionGraph.Wire> wireList);
+        void WriteTo(BinaryWriter writer);
+        void ReadFrom(BinaryReader reader);
     }
 
     public interface IWire

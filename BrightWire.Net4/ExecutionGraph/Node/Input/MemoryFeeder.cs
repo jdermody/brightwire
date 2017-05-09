@@ -1,13 +1,15 @@
 ﻿using BrightWire.ExecutionGraph.Helper;
+using BrightWire.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace BrightWire.ExecutionGraph.Node.Input
 {
-    internal class MemoryFeeder
+    internal class MemoryFeeder : NodeBase
     {
         class Backpropagation : BackpropagationBase
         {
@@ -45,31 +47,40 @@ namespace BrightWire.ExecutionGraph.Node.Input
 
             public void Execute(IMatrix input, IContext context)
             {
-                context.ExecutionContext.SetMemory(_feeder._id, input);
+                context.ExecutionContext.SetMemory(_feeder.Id, input);
             }
         }
 
         readonly float[] _data;
-        readonly ILinearAlgebraProvider _lap;
-        readonly string _id;
         readonly SetMemory _setMemory;
         readonly FlowThrough _memoryInput;
 
-        public MemoryFeeder(string id, ILinearAlgebraProvider lap, float[] data)
+        public MemoryFeeder(float[] data, string name = null) : base(name)
         {
-            _lap = lap;
             _data = data;
-            _id = id;
             _setMemory = new SetMemory(this);
             _memoryInput = new FlowThrough();
         }
 
         public INode MemoryInput => _memoryInput;
         public IAction SetMemoryAction => _setMemory;
-
-        public void OnStart(IContext context)
+        public FloatArray Data
         {
-            var memory = GetMemory(context.BatchSequence.MiniBatch.BatchSize);
+            get { return new FloatArray { Data = _data }; }
+            set { value.Data.CopyTo(_data, 0); }
+        }
+
+        public override void ExecuteForward(IContext context)
+        {
+            if (context.BatchSequence.SequenceIndex == 1)
+                _OnStart(context);
+            else
+                _OnNext(context);
+        }
+
+        void _OnStart(IContext context)
+        {
+            var memory = GetMemory(context.LinearAlgebraProvider, context.BatchSequence.MiniBatch.BatchSize);
 
             context.LearningContext?.Log(writer => {
                 writer.WriteStartElement("init-memory");
@@ -80,9 +91,9 @@ namespace BrightWire.ExecutionGraph.Node.Input
             context.Forward(new GraphAction(_memoryInput, new MatrixGraphData(memory)), () => new Backpropagation(this));
         }
 
-        public void OnNext(IContext context)
+        void _OnNext(IContext context)
         {
-            var memory = context.ExecutionContext.GetMemory(_id);
+            var memory = context.ExecutionContext.GetMemory(Id);
 
             context.LearningContext?.Log(writer => {
                 writer.WriteStartElement("read-memory");
@@ -93,6 +104,26 @@ namespace BrightWire.ExecutionGraph.Node.Input
             context.Forward(new GraphAction(_memoryInput, new MatrixGraphData(memory)), null);
         }
 
-        public IMatrix GetMemory(int batchSize) => _lap.Create(batchSize, _data.Length, (x, y) => _data[y]);
+        public IMatrix GetMemory(ILinearAlgebraProvider lap, int batchSize) => lap.Create(batchSize, _data.Length, (x, y) => _data[y]);
+
+        protected override (string Description, byte[] Data) _GetInfo()
+        {
+            return ("MF", _WriteData(WriteTo));
+        }
+
+        protected override void _Initalise(byte[] data)
+        {
+            _ReadFrom(data, ReadFrom);
+        }
+
+        public override void WriteTo(BinaryWriter writer)
+        {
+            Data.WriteTo(writer);
+        }
+
+        public override void ReadFrom(BinaryReader reader)
+        {
+            Data = FloatArray.ReadFrom(reader);
+        }
     }
 }

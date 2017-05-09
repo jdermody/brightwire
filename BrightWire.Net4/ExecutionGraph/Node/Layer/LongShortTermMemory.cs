@@ -1,4 +1,5 @@
-﻿using BrightWire.ExecutionGraph.Node.Input;
+﻿using BrightWire.ExecutionGraph.Helper;
+using BrightWire.ExecutionGraph.Node.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,13 +11,13 @@ namespace BrightWire.ExecutionGraph.Node.Layer
     class LongShortTermMemory : NodeBase
     {
         readonly MemoryFeeder _memoryFeeder, _memoryFeeder2;
-        readonly INode _output = null, _input;
+        readonly INode _input, _output = null;
 
         public LongShortTermMemory(GraphFactory graph, int inputSize, float[] memory, string name = null) : base(name)
         {
             int hiddenLayerSize = memory.Length;
-            _memoryFeeder = new MemoryFeeder(_id, graph.LinearAlgebraProvider, memory);
-            _memoryFeeder2 = new MemoryFeeder(_id + ":output", graph.LinearAlgebraProvider, new float[memory.Length]);
+            _memoryFeeder = new MemoryFeeder(memory);
+            _memoryFeeder2 = new MemoryFeeder(new float[memory.Length]);
             _input = new FlowThrough();
 
             var Wf = graph.Build(inputSize, _input).AddFeedForward(hiddenLayerSize, "Wf");
@@ -43,21 +44,22 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             ;
         }
 
-        public override List<IWire> Output => _output?.Output ?? base.Output;
+        public override List<IWire> Output => _output.Output;
 
-        public override void SetPrimaryInput(IContext context)
+        public override void ExecuteForward(IContext context)
         {
-            // fire the memory channel
-            if (context.BatchSequence.SequenceIndex == 1) {
-                _memoryFeeder.OnStart(context);
-                _memoryFeeder2.OnStart(context);
-            } else {
-                _memoryFeeder.OnNext(context);
-                _memoryFeeder2.OnNext(context);
-            }
+            foreach (var node in SubNodes)
+                node.ExecuteForward(context, 0);
+        }
 
-            // fire the input channel
-            _input.ExecuteForward(context, 0);
+        public override IEnumerable<INode> SubNodes
+        {
+            get
+            {
+                yield return _input;
+                yield return _memoryFeeder;
+                yield return _memoryFeeder2;
+            }
         }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using BrightWire.ExecutionGraph.Helper;
+using BrightWire.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -85,7 +87,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             _updater.Update(_weight, delta, context);
         }
 
-        public override void SetPrimaryInput(IContext context)
+        public override void ExecuteForward(IContext context)
         {
             var input = context.Data.GetAsMatrix();
 
@@ -95,6 +97,28 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
             // set output
             _AddNextGraphAction(context, new MatrixGraphData(output), () => new Backpropagation(this, input));
+        }
+
+        protected override (string Description, byte[] Data) _GetInfo()
+        {
+            return ("FF", _WriteData(WriteTo));
+        }
+
+        protected override void _Initalise(byte[] data)
+        {
+            _ReadFrom(data, ReadFrom);
+        }
+
+        public override void ReadFrom(BinaryReader reader)
+        {
+            _bias.Data = FloatArray.ReadFrom(reader);
+            _weight.Data = FloatMatrix.ReadFrom(reader);
+        }
+
+        public override void WriteTo(BinaryWriter writer)
+        {
+            _bias.Data.WriteTo(writer);
+            _weight.Data.WriteTo(writer);
         }
     }
 }

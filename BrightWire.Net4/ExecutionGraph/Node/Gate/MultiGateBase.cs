@@ -42,12 +42,12 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 _data[i] = new IncomingChannel(incoming[i].CurrentSize, i);
         }
 
-        public override void SetPrimaryInput(IContext context)
+        public override void ExecuteForward(IContext context)
         {
-            SetInput(context, 0);
+            _ExecuteForward(context, 0);
         }
 
-        public override void SetInput(IContext context, int channel)
+        public override void _ExecuteForward(IContext context, int channel)
         {
             IncomingChannel data;
             if (_data.TryGetValue(channel, out data)) {

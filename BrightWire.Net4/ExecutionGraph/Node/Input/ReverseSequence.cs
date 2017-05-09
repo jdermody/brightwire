@@ -14,7 +14,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
 
         }
 
-        public override void SetPrimaryInput(IContext context)
+        public override void ExecuteForward(IContext context)
         {
             var curr = context.BatchSequence;
             var batch = curr.MiniBatch;

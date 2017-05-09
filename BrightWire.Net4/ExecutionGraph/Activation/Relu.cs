@@ -36,7 +36,7 @@ namespace BrightWire.ExecutionGraph.Activation
 
         public Relu(string name = null) : base(name) { }
 
-        public override void SetPrimaryInput(IContext context)
+        public override void ExecuteForward(IContext context)
         {
             var input = context.Data.GetAsMatrix();
             var output = input.ReluActivation();

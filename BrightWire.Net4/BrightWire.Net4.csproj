@@ -166,6 +166,7 @@
     <Compile Include="Models\Bayesian\MultinomialNaiveBayes.cs" />
     <Compile Include="Models\Bayesian\NaiveBayes.cs" />
     <Compile Include="Models\DataTableNormalisation.cs" />
+    <Compile Include="Models\ExecutionGraph.cs" />
     <Compile Include="Models\FloatArray.cs" />
     <Compile Include="Models\FloatMatrix.cs" />
     <Compile Include="Models\FloatTensor.cs" />

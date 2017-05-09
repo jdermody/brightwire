@@ -13,7 +13,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
 
         public GraphExecuteAction(IAction action) : base(null) { _action = action; }
 
-        public override void SetPrimaryInput(IContext context)
+        public override void ExecuteForward(IContext context)
         {
             var input = context.Data.GetAsMatrix();
             _action.Execute(input, context);

@@ -28,7 +28,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             _lap = lap;
         }
 
-        public override void SetPrimaryInput(IContext context)
+        public override void ExecuteForward(IContext context)
         {
             var input = context.Data.GetAsMatrix();
             using (var ones = _lap.Create(input.RowCount, input.ColumnCount, 1f)) {

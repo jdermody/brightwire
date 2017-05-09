@@ -11,7 +11,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
     {
         public FlowThrough() : base(null) { }
 
-        public override void SetPrimaryInput(IContext context)
+        public override void ExecuteForward(IContext context)
         {
             _AddNextGraphAction(context, context.Data, null);
         }

@@ -14,14 +14,14 @@ namespace BrightWire.ExecutionGraph.Node.Gate
 
         public BinaryGateBase(string name) : base(name) { }
 
-        public override void SetPrimaryInput(IContext context)
+        public override void ExecuteForward(IContext context)
         {
             _primarySource = context.Source;
             _primary = context.Data.GetAsMatrix();
             _TryComplete(context);
         }
 
-        public override void SetInput(IContext context, int channel)
+        public override void _ExecuteForward(IContext context, int channel)
         {
             if (channel == 1) {
                 _secondarySource = context.Source;
