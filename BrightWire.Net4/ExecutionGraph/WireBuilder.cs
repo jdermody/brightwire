@@ -34,9 +34,9 @@ namespace BrightWire.ExecutionGraph
             _node = node;
         }
 
-        public WireBuilder AddFeedForward(int outputSize)
+        public WireBuilder AddFeedForward(int outputSize, string name = null)
         {
-            INode node = _factory.CreateFeedForward(_size, outputSize);
+            INode node = _factory.CreateFeedForward(_size, outputSize, name);
             _SetNode(node);
             _size = outputSize;
             return this;
@@ -54,9 +54,23 @@ namespace BrightWire.ExecutionGraph
             return this;
         }
 
-        public WireBuilder AddSimpleRecurrent(INode activation, float[] initialMemory)
+        public WireBuilder AddSimpleRecurrent(INode activation, float[] initialMemory, string name = null)
         {
-            _SetNode(_factory.CreateSimpleRecurrent(_size, initialMemory, activation));
+            _SetNode(_factory.CreateSimpleRecurrent(_size, initialMemory, activation, name));
+            _size = initialMemory.Length;
+            return this;
+        }
+
+        public WireBuilder AddGru(float[] initialMemory, string name = null)
+        {
+            _SetNode(_factory.CreateGru(_size, initialMemory, name));
+            _size = initialMemory.Length;
+            return this;
+        }
+
+        public WireBuilder AddLstm(float[] initialMemory, string name = null)
+        {
+            _SetNode(_factory.CreateLstm(_size, initialMemory, name));
             _size = initialMemory.Length;
             return this;
         }

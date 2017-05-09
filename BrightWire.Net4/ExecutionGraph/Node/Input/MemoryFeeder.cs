@@ -18,7 +18,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
                 _feeder = feeder;
             }
 
-            public override IMatrix Backward(IMatrix errorSignal, IContext context, bool calculateOutput)
+            public override void Backward(IMatrix errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
                 context.LearningContext.Log(writer => {
                     writer.WriteStartElement("memory-backpropagation");
@@ -32,7 +32,6 @@ namespace BrightWire.ExecutionGraph.Node.Input
                     for (var j = 0; j < _feeder._data.Length; j++)
                         _feeder._data[j] += initialDelta[j] * context.LearningContext.LearningRate;
                 }
-                return errorSignal;
             }
         }
         class SetMemory : IAction
@@ -78,7 +77,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
                 writer.WriteEndElement();
             });
 
-            context.Add(new GraphAction(_memoryInput, new MatrixGraphData(memory)), () => new Backpropagation(this));
+            context.Forward(new GraphAction(_memoryInput, new MatrixGraphData(memory)), () => new Backpropagation(this));
         }
 
         public void OnNext(IContext context)
@@ -91,7 +90,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
                 writer.WriteEndElement();
             });
 
-            context.Add(new GraphAction(_memoryInput, new MatrixGraphData(memory)), null);
+            context.Forward(new GraphAction(_memoryInput, new MatrixGraphData(memory)), null);
         }
 
         public IMatrix GetMemory(int batchSize) => _lap.Create(batchSize, _data.Length, (x, y) => _data[y]);

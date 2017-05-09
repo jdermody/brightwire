@@ -6,11 +6,13 @@ using BrightWire.ExecutionGraph.GradientDescent;
 using BrightWire.ExecutionGraph.Helper;
 using BrightWire.ExecutionGraph.Input;
 using BrightWire.ExecutionGraph.Node.Gate;
+using BrightWire.ExecutionGraph.Node.Helper;
 using BrightWire.ExecutionGraph.Node.Layer;
 using BrightWire.ExecutionGraph.WeightInitialisation;
 using BrightWire.Helper;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -152,6 +154,21 @@ namespace BrightWire.ExecutionGraph
             return new SimpleRecurrent(this, inputSize, memory, activation, name);
         }
 
+        public INode CreateOneMinusInput()
+        {
+            return new OneMinusInput(_lap);
+        }
+
+        public INode CreateGru(int inputSize, float[] memory, string name = null)
+        {
+            return new GatedRecurrentUnit(this, inputSize, memory, name);
+        }
+
+        public INode CreateLstm(int inputSize, float[] memory, string name = null)
+        {
+            return new LongShortTermMemory(this, inputSize, memory, name);
+        }
+
         public WireBuilder Connect(IGraphEngine engine)
         {
             return new WireBuilder(this, engine);
@@ -164,21 +181,61 @@ namespace BrightWire.ExecutionGraph
 
         public WireBuilder Add(WireBuilder input1, WireBuilder input2)
         {
+            Debug.Assert(input1.CurrentSize == input2.CurrentSize);
+            return Add(input1.CurrentSize, input1.Build(), input2.Build());
+            //var add = new AddGate();
+            //var wireToPrimary = new WireToNode(add);
+            //var wireToSecondary = new WireToNode(add, false);
+
+            //input1.Build().Output.Add(wireToPrimary);
+            //input2.Build().Output.Add(wireToSecondary);
+
+            //return new WireBuilder(this, input1.CurrentSize, add);
+        }
+
+        public WireBuilder Add(int inputSize, INode input1, INode input2)
+        {
             var add = new AddGate();
             var wireToPrimary = new WireToNode(add);
             var wireToSecondary = new WireToNode(add, false);
 
-            input1.Build().Output.Add(wireToPrimary);
-            input2.Build().Output.Add(wireToSecondary);
+            input1.Output.Add(wireToPrimary);
+            input2.Output.Add(wireToSecondary);
 
-            return new WireBuilder(this, input1.CurrentSize, add);
+            return new WireBuilder(this, inputSize, add);
         }
 
-        public INode LeakyReluActivation() => new LeakyRelu();
-        public INode ReluActivation() => new Relu();
-        public INode SigmoidActivation() => new Sigmoid();
-        public INode TanhActivation() => new Tanh();
-        public INode SoftMaxActivation() => new SoftMax();
+        public WireBuilder Multiply(WireBuilder input1, WireBuilder input2)
+        {
+            Debug.Assert(input1.CurrentSize == input2.CurrentSize);
+            return Multiply(input1.CurrentSize, input1.Build(), input2.Build());
+            //var multiply = new MultiplyGate();
+            //var wireToPrimary = new WireToNode(multiply);
+            //var wireToSecondary = new WireToNode(multiply, false);
+
+            //input1.Build().Output.Add(wireToPrimary);
+            //input2.Build().Output.Add(wireToSecondary);
+
+            //return new WireBuilder(this, input1.CurrentSize, multiply);
+        }
+
+        public WireBuilder Multiply(int inputSize, INode input1, INode input2)
+        {
+            var multiply = new MultiplyGate();
+            var wireToPrimary = new WireToNode(multiply);
+            var wireToSecondary = new WireToNode(multiply, false);
+
+            input1.Output.Add(wireToPrimary);
+            input2.Output.Add(wireToSecondary);
+
+            return new WireBuilder(this, inputSize, multiply);
+        }
+
+        public INode LeakyReluActivation(string name = null) => new LeakyRelu(name);
+        public INode ReluActivation(string name = null) => new Relu(name);
+        public INode SigmoidActivation(string name = null) => new Sigmoid(name);
+        public INode TanhActivation(string name = null) => new Tanh(name);
+        public INode SoftMaxActivation(string name = null) => new SoftMax(name);
 
         //public IMiniBatchProvider CreateMiniBatchProvider(IDataTable dataTable, IDataTableVectoriser vectoriser = null)
         //{

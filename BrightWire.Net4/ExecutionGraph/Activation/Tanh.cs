@@ -8,7 +8,7 @@ namespace BrightWire.ExecutionGraph.Activation
 {
     class Tanh : NodeBase
     {
-        class Backpropagation : IBackpropagation
+        class Backpropagation : SingleBackpropagationBase
         {
             readonly IMatrix _input;
             readonly Tanh _source;
@@ -19,12 +19,12 @@ namespace BrightWire.ExecutionGraph.Activation
                 _input = matrix;
             }
 
-            public void Dispose()
+            protected override void _Dispose(bool isDisposing)
             {
                 _input.Dispose();
             }
 
-            public IMatrix Backward(IMatrix errorSignal, IContext context, bool calculateOutput)
+            protected override IMatrix _Backward(IMatrix errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
                 using (var od = _input.TanhDerivative()) {
                     var delta = errorSignal.PointwiseMultiply(od);
@@ -42,18 +42,5 @@ namespace BrightWire.ExecutionGraph.Activation
             var output = input.TanhActivation();
             _AddNextGraphAction(context, new MatrixGraphData(output), () => new Backpropagation(this, input));
         }
-
-        //public IMatrix Train(IMatrix input, int channel, IBatchContext context)
-        //{
-        //    context.RegisterBackpropagation(new Backpropagation(this, input), channel);
-        //    var output = Execute(input, channel, context);
-        //    context.LearningContext.Log("tanh", channel, GetHashCode(), input, output);
-        //    return output;
-        //}
-
-        //public IMatrix Execute(IMatrix input, int channel, IBatchContext context)
-        //{
-        //    return input.TanhActivation();
-        //}
     }
 }

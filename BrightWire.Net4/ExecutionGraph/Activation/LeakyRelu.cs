@@ -8,7 +8,7 @@ namespace BrightWire.ExecutionGraph.Activation
 {
     class LeakyRelu : NodeBase
     {
-        class Backpropagation : IBackpropagation
+        class Backpropagation : SingleBackpropagationBase
         {
             readonly IMatrix _input;
             readonly LeakyRelu _source;
@@ -19,12 +19,12 @@ namespace BrightWire.ExecutionGraph.Activation
                 _source = source;
             }
 
-            public void Dispose()
+            protected override void _Dispose(bool isDisposing)
             {
                 _input.Dispose();
             }
 
-            public IMatrix Backward(IMatrix errorSignal, IContext context, bool calculateOutput)
+            protected override IMatrix _Backward(IMatrix errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
                 using (var od = _input.LeakyReluDerivative()) {
                     var delta = errorSignal.PointwiseMultiply(od);

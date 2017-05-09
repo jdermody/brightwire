@@ -9,7 +9,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 {
     public class FeedForward : NodeBase
     {
-        class Backpropagation : IBackpropagation
+        class Backpropagation : SingleBackpropagationBase
         {
             readonly FeedForward _layer;
             readonly IMatrix _input = null;
@@ -20,16 +20,16 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 _input = input;
             }
 
-            public void Dispose()
+            protected override void _Dispose(bool isDisposing)
             {
                 _input.Dispose();
             }
 
-            public IMatrix Backward(IMatrix errorSignal, IContext context, bool calculateOutput)
+            protected override IMatrix _Backward(IMatrix errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
                 // work out the next error signal
                 IMatrix ret = null;
-                if (calculateOutput)
+                if (parents?.Any() == true)
                     ret = errorSignal.TransposeAndMultiply(_layer._weight);
 
                 // calculate the update to the weights

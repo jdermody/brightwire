@@ -57,8 +57,9 @@ namespace BrightWire
         ILearningContext LearningContext { get; }
         ILinearAlgebraProvider LinearAlgebraProvider { get; }
         IMiniBatchSequence BatchSequence { get; }
-        void Add(IExecutionHistory action, Func<IBackpropagation> callback);
-        void Backpropagate(IMatrix output, IMatrix target, IMatrix delta);
+        void Forward(IExecutionHistory action, Func<IBackpropagation> callback);
+        void Backward(IMatrix errorSignal, INode target);
+        void StartBackpropagation(IMatrix output, IMatrix target, IMatrix delta);
     }
 
     public interface IExecutionContext
@@ -70,7 +71,7 @@ namespace BrightWire
 
     public interface IBackpropagation : IDisposable
     {
-        IMatrix Backward(IMatrix errorSignal, IContext context, bool calculateOutput);
+        void Backward(IMatrix errorSignal, IContext context, IReadOnlyList<INode> parents);
     }
 
     public interface IDataSource

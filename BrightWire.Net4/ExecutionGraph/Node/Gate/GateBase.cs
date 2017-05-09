@@ -41,7 +41,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
 
         protected void _AddHistory(IContext context, IMatrix output, Func<IBackpropagation> backpropagation)
         {
-            context.Add(new GraphAction(this, new MatrixGraphData(output), _primarySource, _secondarySource), backpropagation);
+            context.Forward(new GraphAction(this, new MatrixGraphData(output), _primarySource, _secondarySource), backpropagation);
         }
     }
 }

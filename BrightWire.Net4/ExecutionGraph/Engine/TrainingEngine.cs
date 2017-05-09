@@ -16,7 +16,8 @@ namespace BrightWire.ExecutionGraph.Engine
             readonly TrainingEngine _engine;
             readonly IMiniBatchSequence _miniBatch;
             readonly LearningContext _learningContext;
-            readonly List<IExecutionHistory> _pending = new List<IExecutionHistory>();
+            readonly List<IExecutionHistory> _forward = new List<IExecutionHistory>();
+            readonly Stack<(IMatrix, INode)> _backward = new Stack<(IMatrix, INode)>();
             readonly Dictionary<INode, List<IExecutionHistory>> _history = new Dictionary<INode, List<IExecutionHistory>>();
             IGraphData _data;
             INode _sourceNode;
@@ -37,29 +38,34 @@ namespace BrightWire.ExecutionGraph.Engine
             public IExecutionContext ExecutionContext => _engine._executionContext;
             public ILearningContext LearningContext => _learningContext;
             public IMiniBatchSequence BatchSequence => _miniBatch;
-            public bool HasNext => _pending.Any();
+            public bool HasNext => _forward.Any();
             public IMatrix Output => _output;
             public IMatrix Target => _target;
             public double TrainingError => _trainingError;
             public INode Source => _sourceNode;
 
-            public void Add(IExecutionHistory action, Func<IBackpropagation> callback)
+            public void Forward(IExecutionHistory action, Func<IBackpropagation> callback)
             {
                 if(callback != null && IsTraining)
                     action.Backpropagation = callback();
-                _pending.Add(action);
+                _forward.Add(action);
 
                 List<IExecutionHistory> temp;
                 if (!_history.TryGetValue(action.Source, out temp))
                     _history.Add(action.Source, temp = new List<IExecutionHistory>());
                 temp.Add(action);
             }
+
+            public void Backward(IMatrix error, INode source)
+            {
+                _backward.Push((error, source));
+            }
             
             public bool ExecuteNext()
             {
                 if(HasNext) {
-                    var next = _pending.ElementAt(0);
-                    _pending.RemoveAt(0);
+                    var next = _forward.ElementAt(0);
+                    _forward.RemoveAt(0);
 
                     _data = next.Data;
                     _sourceNode = next.Source;
@@ -77,7 +83,7 @@ namespace BrightWire.ExecutionGraph.Engine
                 return false;
             }
 
-            public void Backpropagate(IMatrix output, IMatrix target, IMatrix delta)
+            public void StartBackpropagation(IMatrix output, IMatrix target, IMatrix delta)
             {
                 // store the output and the target
                 _output = output;
@@ -87,20 +93,23 @@ namespace BrightWire.ExecutionGraph.Engine
                 if(_learningContext?.CalculateTrainingError == true)
                     _trainingError = Math.Sqrt(delta.AsIndexable().Values.Select(v => Math.Pow(v, 2)).Average());
 
+                // initialise backpropagation stack
+                _backward.Clear();
+                _backward.Push((delta, _sourceNode));
+
                 // backpropagate the error through the graph
                 List<IExecutionHistory> history;
-                var stack = new Stack<(INode Parent, IMatrix Delta)>();
-                stack.Push((_sourceNode, delta));
-                while(stack.Any()) {
-                    var next = stack.Pop();
-                    if (next.Parent != null && _history.TryGetValue(next.Parent, out history)) {
+                while (_backward.Any()) {
+                    var next = _backward.Pop();
+                    var errorSignal = next.Item1;
+                    if (next.Item2 != null && _history.TryGetValue(next.Item2, out history)) {
                         foreach (var item in history) {
-                            var errorSignal = next.Delta;
                             if (item.Backpropagation != null)
-                                errorSignal = item.Backpropagation.Backward(errorSignal, this, item.Parents?.Any() == true);
-
-                            foreach (var parent in item.Parents)
-                                stack.Push((parent, errorSignal));
+                                item.Backpropagation.Backward(errorSignal, this, item.Parents);
+                            else {
+                                foreach (var parent in item.Parents)
+                                    _backward.Push((errorSignal, parent));
+                            }
                         }
                     }
                 }

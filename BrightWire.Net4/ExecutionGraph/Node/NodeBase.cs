@@ -44,7 +44,7 @@ namespace BrightWire.ExecutionGraph.Node
         protected void _AddNextGraphAction(IContext context, IGraphData data, Func<IBackpropagation> backProp)
         {
             if(_output.Any())
-                context.Add(new GraphAction(this, data, context.Source), backProp);
+                context.Forward(new GraphAction(this, data, context.Source), backProp);
         }
     }
 }

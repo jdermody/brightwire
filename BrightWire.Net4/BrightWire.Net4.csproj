@@ -120,6 +120,7 @@
     <Compile Include="ExecutionGraph\Helper\GraphAction.cs" />
     <Compile Include="ExecutionGraph\Helper\MatrixGraphData.cs" />
     <Compile Include="ExecutionGraph\Helper\MiniBatch.cs" />
+    <Compile Include="ExecutionGraph\Helper\SingleBackpropagationBase.cs" />
     <Compile Include="ExecutionGraph\Helper\WireToNode.cs" />
     <Compile Include="ExecutionGraph\Input\DataTableAdaptor.cs" />
     <Compile Include="ExecutionGraph\Input\SequentialDataTableAdaptor.cs" />
@@ -127,11 +128,15 @@
     <Compile Include="ExecutionGraph\Engine\LearningContext.cs" />
     <Compile Include="ExecutionGraph\Node\BackpropagationBase.cs" />
     <Compile Include="ExecutionGraph\Node\Gate\AddGate.cs" />
+    <Compile Include="ExecutionGraph\Node\Gate\MultiplyGate.cs" />
     <Compile Include="ExecutionGraph\Node\Helper\GraphExecuteAction.cs" />
+    <Compile Include="ExecutionGraph\Node\Helper\OneMinusInput.cs" />
     <Compile Include="ExecutionGraph\Node\Input\FlowThrough.cs" />
     <Compile Include="ExecutionGraph\Node\Input\MemoryFeeder.cs" />
     <Compile Include="ExecutionGraph\Node\Layer\FeedForward.cs" />
     <Compile Include="ExecutionGraph\Node\Gate\GateBase.cs" />
+    <Compile Include="ExecutionGraph\Node\Layer\GatedRecurrentUnit.cs" />
+    <Compile Include="ExecutionGraph\Node\Layer\LongShortTermMemory.cs" />
     <Compile Include="ExecutionGraph\Node\Layer\SimpleRecurrent.cs" />
     <Compile Include="ExecutionGraph\Node\NodeBase.cs" />
     <Compile Include="ExecutionGraph\WeightInitialisation\Constant.cs" />

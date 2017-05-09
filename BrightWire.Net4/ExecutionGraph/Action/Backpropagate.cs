@@ -23,7 +23,7 @@ namespace BrightWire.ExecutionGraph.Action
                 context.LearningContext?.Log("backprogation-error", gradient);
             }
 
-            context.Backpropagate(input, target, gradient);
+            context.StartBackpropagation(input, target, gradient);
         }
     }
 }

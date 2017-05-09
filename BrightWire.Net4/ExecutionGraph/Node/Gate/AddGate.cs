@@ -9,13 +9,13 @@ namespace BrightWire.ExecutionGraph.Node.Gate
 {
     class AddGate : GateBase
     {
-        class Backpropagation : BackpropagationBase
-        {
-            public override IMatrix Backward(IMatrix errorSignal, IContext context, bool calculateOutput)
-            {
-                return errorSignal;
-            }
-        }
+        //class Backpropagation : BackpropagationBase
+        //{
+        //    public override IMatrix Backward(IMatrix errorSignal, IContext context, bool calculateOutput)
+        //    {
+        //        return errorSignal;
+        //    }
+        //}
 
         public AddGate(string name = null) : base(name) { }
 
