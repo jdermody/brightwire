@@ -89,6 +89,12 @@ namespace BrightWire.ExecutionGraph
             return this;
         }
 
+        public WireBuilder ReverseSequence(string name = null)
+        {
+            _SetNode(_factory.CreateSequenceReverser(name));
+            return this;
+        }
+
         public INode Build() => _node;
 
         public INode LastNode => _node;

@@ -21,10 +21,12 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             public override void Backward(IMatrix errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
                 IMatrix split, residual = errorSignal;
+                int index = 0;
                 foreach(var item in _channels) {
                     (split, residual) = residual.SplitAtColumn(item.Size);
-                    context.AddBackward(split, item.Source);
+                    context.AddBackward(split, parents[index++]);
                 }
+                context.AddBackward(residual, parents[index]);
             }
         }
 

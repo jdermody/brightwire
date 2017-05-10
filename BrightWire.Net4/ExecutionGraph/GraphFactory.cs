@@ -6,6 +6,7 @@ using BrightWire.ExecutionGraph.Helper;
 using BrightWire.ExecutionGraph.Input;
 using BrightWire.ExecutionGraph.Node.Gate;
 using BrightWire.ExecutionGraph.Node.Helper;
+using BrightWire.ExecutionGraph.Node.Input;
 using BrightWire.ExecutionGraph.Node.Layer;
 using BrightWire.ExecutionGraph.WeightInitialisation;
 using BrightWire.Helper;
@@ -164,9 +165,14 @@ namespace BrightWire.ExecutionGraph
             return new ElmanJordan(this, false, inputSize, memory, activation, activation2, name);
         }
 
-        public INode CreateOneMinusInput()
+        public INode CreateOneMinusInput(string name = null)
         {
-            return new OneMinusInput();
+            return new OneMinusInput(name);
+        }
+
+        public INode CreateSequenceReverser(string name = null)
+        {
+            return new ReverseSequence(name);
         }
 
         public INode CreateGru(int inputSize, float[] memory, string name = null)
@@ -193,14 +199,6 @@ namespace BrightWire.ExecutionGraph
         {
             Debug.Assert(input1.CurrentSize == input2.CurrentSize);
             return Add(input1.CurrentSize, input1.Build(), input2.Build());
-            //var add = new AddGate();
-            //var wireToPrimary = new WireToNode(add);
-            //var wireToSecondary = new WireToNode(add, false);
-
-            //input1.Build().Output.Add(wireToPrimary);
-            //input2.Build().Output.Add(wireToSecondary);
-
-            //return new WireBuilder(this, input1.CurrentSize, add);
         }
 
         public WireBuilder Add(int inputSize, INode input1, INode input2)
@@ -219,14 +217,6 @@ namespace BrightWire.ExecutionGraph
         {
             Debug.Assert(input1.CurrentSize == input2.CurrentSize);
             return Multiply(input1.CurrentSize, input1.Build(), input2.Build());
-            //var multiply = new MultiplyGate();
-            //var wireToPrimary = new WireToNode(multiply);
-            //var wireToSecondary = new WireToNode(multiply, false);
-
-            //input1.Build().Output.Add(wireToPrimary);
-            //input2.Build().Output.Add(wireToSecondary);
-
-            //return new WireBuilder(this, input1.CurrentSize, multiply);
         }
 
         public WireBuilder Multiply(int inputSize, INode input1, INode input2)
@@ -239,6 +229,18 @@ namespace BrightWire.ExecutionGraph
             input2.Output.Add(wireToSecondary);
 
             return new WireBuilder(this, inputSize, multiply);
+        }
+
+        public WireBuilder Join(WireBuilder input1, WireBuilder input2, string name = null)
+        {
+            var ret = new JoinGate(name, input1, input2);
+            var wireToPrimary = new WireToNode(ret);
+            var wireToSecondary = new WireToNode(ret, 1);
+
+            input1.LastNode.Output.Add(wireToPrimary);
+            input2.LastNode.Output.Add(wireToSecondary);
+
+            return new WireBuilder(this, input1.CurrentSize + input2.CurrentSize, ret);
         }
 
         public INode Create(Models.ExecutionGraph.Node node)

@@ -87,7 +87,8 @@ namespace BrightWire.ExecutionGraph.Engine
             // create the other nodes
             foreach (var node in graph.OtherNodes) {
                 var n = _factory.Create(node);
-                nodeTable.Add(n.Id, n);
+                if(!nodeTable.ContainsKey(n.Id))
+                    nodeTable.Add(n.Id, n);
             }
 
             // create the wires between nodes
