@@ -98,7 +98,7 @@ namespace BrightWire
                     return typeof(WeightedIndexList);
 
                 case ColumnType.Vector:
-                    return typeof(FloatArray);
+                    return typeof(FloatVector);
 
                 case ColumnType.Matrix:
                     return typeof(FloatMatrix);

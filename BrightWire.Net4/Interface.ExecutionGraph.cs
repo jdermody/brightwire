@@ -1,4 +1,6 @@
-﻿using BrightWire.Models;
+﻿using BrightWire.ExecutionGraph;
+using BrightWire.Helper;
+using BrightWire.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -24,11 +26,13 @@ namespace BrightWire
     public interface IAction
     {
         void Execute(IMatrix input, IContext context);
+        string Serialise();
+        void Initialise(string data);
     }
 
     public interface ICanInitialiseNode
     {
-        void Initialise(string id, string name, byte[] data);
+        void Initialise(GraphFactory factory, string id, string name, string description, byte[] data);
     }
 
     public interface INode : ICanInitialiseNode, IDisposable
@@ -39,10 +43,9 @@ namespace BrightWire
         void ExecuteForward(IContext context, int channel);
         INode SearchFor(string name);
         IEnumerable<INode> SubNodes { get; }
-
-        void SerialiseTo(List<Models.ExecutionGraph.Node> nodeList, List<Models.ExecutionGraph.Wire> wireList);
+        Models.ExecutionGraph.Node SerialiseTo(List<Models.ExecutionGraph.Node> connectedTo, List<Models.ExecutionGraph.Wire> wireList);
         void WriteTo(BinaryWriter writer);
-        void ReadFrom(BinaryReader reader);
+        void ReadFrom(GraphFactory factory, BinaryReader reader);
     }
 
     public interface IWire
@@ -68,9 +71,10 @@ namespace BrightWire
         ILearningContext LearningContext { get; }
         ILinearAlgebraProvider LinearAlgebraProvider { get; }
         IMiniBatchSequence BatchSequence { get; }
-        void Forward(IExecutionHistory action, Func<IBackpropagation> callback);
-        void Backward(IMatrix errorSignal, INode target);
-        void StartBackpropagation(IMatrix output, IMatrix target, IMatrix delta);
+        void AddForward(IExecutionHistory action, Func<IBackpropagation> callback);
+        void AddBackward(IMatrix errorSignal, INode target);
+        void SetOutput(IMatrix output);
+        void Backpropagate(IMatrix delta);
     }
 
     public interface IExecutionContext
@@ -152,10 +156,17 @@ namespace BrightWire
         void Execute();
     }
 
+    public interface IExecutionResult
+    {
+
+    }
+
     public interface IGraphEngine
     {
+        Models.ExecutionGraph Graph { get; }
         IDataSource DataSource { get; }
         INode Input { get; }
+        IReadOnlyList<ExecutionResult> Execute(IDataSource dataSource, int batchSize = 128);
     }
 
     public interface IGraphTrainingEngine : IGraphEngine

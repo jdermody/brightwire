@@ -50,7 +50,7 @@ namespace BrightWire.TrainingData.WellKnown
             /// <summary>
             /// Converts the image to one hot encoded float arrays
             /// </summary>
-            public (FloatArray Data, FloatArray Label) AsFloatArray
+            public (FloatVector Data, FloatVector Label) AsFloatArray
             {
                 get
                 {
@@ -58,8 +58,8 @@ namespace BrightWire.TrainingData.WellKnown
                     label[_label] = 1;
 
                     return (
-                        new FloatArray { Data = _data.Select(b => Convert.ToSingle((int)b) / 255f).ToArray() },
-                        new FloatArray { Data = label }
+                        new FloatVector { Data = _data.Select(b => Convert.ToSingle((int)b) / 255f).ToArray() },
+                        new FloatVector { Data = label }
                     );
                 }
             }

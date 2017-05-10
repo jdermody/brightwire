@@ -69,7 +69,7 @@ namespace BrightWire.LinearAlgebra
             return Create(rows, columns, (x, y) => vectorData[x][y]);
         }
 
-        public IMatrix Create(IReadOnlyList<FloatArray> rowList)
+        public IMatrix Create(IReadOnlyList<FloatVector> rowList)
         {
             int rows = rowList.Count;
             int columns = rowList[0].Size;
@@ -102,7 +102,7 @@ namespace BrightWire.LinearAlgebra
         public IIndexableMatrix CreateIndexable(int rows, int columns, Func<int, int, float> init) { return Create(rows, columns, init).AsIndexable(); }
         public IIndexableMatrix CreateIndexable(int rows, int columns, float value) { return Create(rows, columns, value).AsIndexable(); }
 
-        public IVector CreateVector(FloatArray data)
+        public IVector CreateVector(FloatVector data)
         {
             var size = data.Data.Length;
             return new CpuVector(DenseVector.Create(size, i => data.Data[i]));

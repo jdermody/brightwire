@@ -165,7 +165,7 @@ namespace BrightWire.TabularData
                 case ColumnType.WeightedIndexList:
                     return WeightedIndexList.ReadFrom(reader);
                 case ColumnType.Vector:
-                    return FloatArray.ReadFrom(reader);
+                    return FloatVector.ReadFrom(reader);
                 case ColumnType.Matrix:
                     return FloatMatrix.ReadFrom(reader);
                 case ColumnType.Tensor:
@@ -509,7 +509,7 @@ namespace BrightWire.TabularData
                                     columnType = ColumnType.Date;
                                 else if (type == typeof(bool))
                                     columnType = ColumnType.Boolean;
-                                else if (type == typeof(FloatArray))
+                                else if (type == typeof(FloatVector))
                                     columnType = ColumnType.Vector;
                                 else if (type == typeof(FloatMatrix))
                                     columnType = ColumnType.Matrix;

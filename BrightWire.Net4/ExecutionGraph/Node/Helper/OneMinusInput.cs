@@ -21,17 +21,14 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             }
         }
 
-        readonly ILinearAlgebraProvider _lap;
-
-        public OneMinusInput(ILinearAlgebraProvider lap, string name = null) : base(name)
+        public OneMinusInput(string name = null) : base(name)
         {
-            _lap = lap;
         }
 
         public override void ExecuteForward(IContext context)
         {
             var input = context.Data.GetAsMatrix();
-            using (var ones = _lap.Create(input.RowCount, input.ColumnCount, 1f)) {
+            using (var ones = context.LinearAlgebraProvider.Create(input.RowCount, input.ColumnCount, 1f)) {
                 var output = ones.Subtract(input);
                 _AddNextGraphAction(context, new MatrixGraphData(output), () => new Backpropagation());
             }

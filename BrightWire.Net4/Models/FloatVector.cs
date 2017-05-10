@@ -12,7 +12,7 @@ namespace BrightWire.Models
     /// An protobuf serialised vector
     /// </summary>
     [ProtoContract]
-    public class FloatArray
+    public class FloatVector
     {
         /// <summary>
         /// The data
@@ -64,13 +64,13 @@ namespace BrightWire.Models
         /// Creates a float array from a binary reader
         /// </summary>
         /// <param name="reader">The binary reader</param>
-        public static FloatArray ReadFrom(BinaryReader reader)
+        public static FloatVector ReadFrom(BinaryReader reader)
         {
             var len = reader.ReadInt32();
             var ret = new float[len];
             for (var i = 0; i < len; i++)
                 ret[i] = reader.ReadSingle();
-            return new FloatArray {
+            return new FloatVector {
                 Data = ret
             };
         }

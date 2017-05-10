@@ -90,11 +90,7 @@
     <Compile Include="Descriptor\GradientDescent\MomentumDescriptor.cs" />
     <Compile Include="Descriptor\GradientDescent\NesterovMomentumDescriptor.cs" />
     <Compile Include="Descriptor\GradientDescent\RmsPropDescriptor.cs" />
-    <Compile Include="Descriptor\WeightInitialisationType.cs" />
-    <Compile Include="Descriptor\WeightInitialisation\ConstantDescriptor.cs" />
-    <Compile Include="Descriptor\WeightInitialisation\GaussianDescriptor.cs" />
-    <Compile Include="Descriptor\WeightInitialisation\IdentityDescriptor.cs" />
-    <Compile Include="Descriptor\WeightInitialisation\XavierDescriptor.cs" />
+    <Compile Include="ExecutionGraph\Engine\ExecutionEngine.cs" />
     <Compile Include="ExecutionGraph\Action\Backpropagate.cs" />
     <Compile Include="ExecutionGraph\Activation\LeakyRelu.cs" />
     <Compile Include="ExecutionGraph\Activation\Relu.cs" />
@@ -117,7 +113,7 @@
     <Compile Include="ExecutionGraph\GradientDescent\RmsProp.cs" />
     <Compile Include="ExecutionGraph\GradientDescent\Simple.cs" />
     <Compile Include="ExecutionGraph\GraphFactory.cs" />
-    <Compile Include="ExecutionGraph\Helper\GraphAction.cs" />
+    <Compile Include="ExecutionGraph\Helper\TrainingAction.cs" />
     <Compile Include="ExecutionGraph\Helper\MatrixGraphData.cs" />
     <Compile Include="ExecutionGraph\Helper\MiniBatch.cs" />
     <Compile Include="ExecutionGraph\Helper\SingleBackpropagationBase.cs" />
@@ -131,7 +127,7 @@
     <Compile Include="ExecutionGraph\Node\Gate\JoinGate.cs" />
     <Compile Include="ExecutionGraph\Node\Gate\MultiGateBase.cs" />
     <Compile Include="ExecutionGraph\Node\Gate\MultiplyGate.cs" />
-    <Compile Include="ExecutionGraph\Node\Helper\GraphExecuteAction.cs" />
+    <Compile Include="ExecutionGraph\Node\Helper\ExecuteAction.cs" />
     <Compile Include="ExecutionGraph\Node\Helper\OneMinusInput.cs" />
     <Compile Include="ExecutionGraph\Node\Input\FlowThrough.cs" />
     <Compile Include="ExecutionGraph\Node\Input\MemoryFeeder.cs" />
@@ -167,7 +163,8 @@
     <Compile Include="Models\Bayesian\NaiveBayes.cs" />
     <Compile Include="Models\DataTableNormalisation.cs" />
     <Compile Include="Models\ExecutionGraph.cs" />
-    <Compile Include="Models\FloatArray.cs" />
+    <Compile Include="Helper\ExecutionResult.cs" />
+    <Compile Include="Models\FloatVector.cs" />
     <Compile Include="Models\FloatMatrix.cs" />
     <Compile Include="Models\FloatTensor.cs" />
     <Compile Include="Models\IndexList.cs" />

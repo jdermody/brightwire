@@ -44,7 +44,7 @@ namespace BrightWire.TrainingData.Artificial
                 Row = sequence.Select(ch => {
                     var ret = new float[_ch.Count];
                     ret[_ch[ch]] = 1f;
-                    return new FloatArray {
+                    return new FloatVector {
                         Data = ret
                     };
                 }).ToArray()
@@ -78,8 +78,8 @@ namespace BrightWire.TrainingData.Artificial
 
             var builder = DataTableBuilder.CreateTwoColumnMatrix();
             foreach (var str in strList) {
-                var inputList = new FloatArray[str.Length];
-                var outputList = new FloatArray[str.Length];
+                var inputList = new FloatVector[str.Length];
+                var outputList = new FloatVector[str.Length];
 
                 var sb = new StringBuilder();
                 for (var i = 0; i < str.Length; i++) {
@@ -92,10 +92,10 @@ namespace BrightWire.TrainingData.Artificial
                         foreach (var item in following[sb.ToString()])
                             output[item] = 1f;
                     }
-                    inputList[i] = new FloatArray {
+                    inputList[i] = new FloatVector {
                         Data = input
                     };
-                    outputList[i] = new FloatArray {
+                    outputList[i] = new FloatVector {
                         Data = output
                     };
                 }

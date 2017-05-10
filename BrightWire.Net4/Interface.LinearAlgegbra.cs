@@ -71,7 +71,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="rows">The list of rows in the new matrix</param>
         /// <returns></returns>
-        IMatrix Create(IReadOnlyList<FloatArray> rows);
+        IMatrix Create(IReadOnlyList<FloatVector> rows);
 
         /// <summary>
         /// Creates a matrix from a list of vectors
@@ -95,7 +95,7 @@ namespace BrightWire
         /// Creates a vector
         /// </summary>
         /// <param name="data">The serialised representation of the vector</param>
-        IVector CreateVector(FloatArray data);
+        IVector CreateVector(FloatVector data);
 
         /// <summary>
         /// Creates an indexable vector
@@ -239,7 +239,7 @@ namespace BrightWire
         /// <summary>
         /// Converts the vector into protobuf format
         /// </summary>
-        FloatArray Data { get; set; }
+        FloatVector Data { get; set; }
 
         /// <summary>
         /// Adds a vector (without in place modification)

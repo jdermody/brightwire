@@ -134,11 +134,11 @@ namespace BrightWire.LinearAlgebra
             return _vector.ToVectorString();
         }
 
-        public FloatArray Data
+        public FloatVector Data
         {
             get
             {
-                return new FloatArray {
+                return new FloatVector {
                     Data = _vector.ToArray()
                 };
             }

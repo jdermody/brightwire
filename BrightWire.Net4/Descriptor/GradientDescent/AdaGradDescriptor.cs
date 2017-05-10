@@ -5,7 +5,7 @@ using System.Text;
 
 namespace BrightWire.Descriptor.GradientDescent
 {
-    public class AdaGradDescriptor : ICreateTemplateBasedGradientDescent
+    class AdaGradDescriptor : ICreateTemplateBasedGradientDescent
     {
         public IGradientDescentOptimisation Create(IGradientDescentOptimisation prev, IMatrix template, IPropertySet propertySet)
         {

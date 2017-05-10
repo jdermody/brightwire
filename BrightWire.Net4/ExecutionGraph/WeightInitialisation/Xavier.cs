@@ -5,6 +5,9 @@ using System.Text;
 
 namespace BrightWire.ExecutionGraph.WeightInitialisation
 {
+    /// <summary>
+    /// http://andyljones.tumblr.com/post/110998971763/an-explanation-of-xavier-initialization
+    /// </summary>
     class Xavier : IWeightInitialisation
     {
         readonly double _parameter;

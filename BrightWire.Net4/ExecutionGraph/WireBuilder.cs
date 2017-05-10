@@ -50,7 +50,7 @@ namespace BrightWire.ExecutionGraph
 
         public WireBuilder Add(IAction action)
         {
-            _SetNode(new GraphExecuteAction(action));
+            _SetNode(new ExecuteAction(action));
             return this;
         }
 

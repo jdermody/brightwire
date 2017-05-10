@@ -5,7 +5,7 @@ using System.Text;
 
 namespace BrightWire.Descriptor.GradientDescent
 {
-    public class RmsPropDescriptor : ICreateTemplateBasedGradientDescent
+    class RmsPropDescriptor : ICreateTemplateBasedGradientDescent
     {
         readonly float _decay;
 

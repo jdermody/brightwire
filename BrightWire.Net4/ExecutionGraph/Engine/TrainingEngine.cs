@@ -1,6 +1,7 @@
 ﻿using BrightWire.ExecutionGraph.Helper;
 using BrightWire.ExecutionGraph.Input;
 using BrightWire.ExecutionGraph.Node.Input;
+using BrightWire.Helper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,7 +22,7 @@ namespace BrightWire.ExecutionGraph.Engine
             readonly Dictionary<INode, List<IExecutionHistory>> _history = new Dictionary<INode, List<IExecutionHistory>>();
             IGraphData _data;
             INode _sourceNode;
-            IMatrix _output, _target;
+            IMatrix _output;
             double _trainingError = 0;
 
             public Context(TrainingEngine engine, IMiniBatchSequence miniBatch, LearningContext learningContext)
@@ -40,11 +41,10 @@ namespace BrightWire.ExecutionGraph.Engine
             public IMiniBatchSequence BatchSequence => _miniBatch;
             public bool HasNext => _forward.Any();
             public IMatrix Output => _output;
-            public IMatrix Target => _target;
             public double TrainingError => _trainingError;
             public INode Source => _sourceNode;
 
-            public void Forward(IExecutionHistory action, Func<IBackpropagation> callback)
+            public void AddForward(IExecutionHistory action, Func<IBackpropagation> callback)
             {
                 if(callback != null && IsTraining)
                     action.Backpropagation = callback();
@@ -56,7 +56,7 @@ namespace BrightWire.ExecutionGraph.Engine
                 temp.Add(action);
             }
 
-            public void Backward(IMatrix error, INode source)
+            public void AddBackward(IMatrix error, INode source)
             {
                 _backward.Push((error, source));
             }
@@ -79,12 +79,14 @@ namespace BrightWire.ExecutionGraph.Engine
                 return false;
             }
 
-            public void StartBackpropagation(IMatrix output, IMatrix target, IMatrix delta)
+            public void SetOutput(IMatrix output)
             {
                 // store the output and the target
                 _output = output;
-                _target = target;
+            }
 
+            public void Backpropagate(IMatrix delta)
+            {
                 // calculate training error
                 if(_learningContext?.CalculateTrainingError == true)
                     _trainingError = Math.Sqrt(delta.AsIndexable().Values.Select(v => Math.Pow(v, 2)).Average());
@@ -133,7 +135,7 @@ namespace BrightWire.ExecutionGraph.Engine
             _input = new FlowThrough();
         }
 
-        public IReadOnlyList<(IIndexableVector Output, IIndexableVector TargetOutput)> Execute(IDataSource dataSource, int batchSize)
+        public IReadOnlyList<ExecutionResult> Execute(IDataSource dataSource, int batchSize = 128)
         {
             var provider = new MiniBatchProvider(dataSource, _lap, _isStochastic);
             _executionContext.Add(provider.GetMiniBatches(batchSize, _Execute));
@@ -143,9 +145,10 @@ namespace BrightWire.ExecutionGraph.Engine
                 operation.Execute();
             }
 
-            var ret = new List<(IIndexableVector Output, IIndexableVector TargetOutput)>();
-            foreach (var item in _executionResults)
-                ret.AddRange(item.Output.AsIndexable().Rows.Zip(item.Target.AsIndexable().Rows, (o, t) => (o, t)));
+            var ret = new List<ExecutionResult>();
+            foreach (var item in _executionResults) {
+                ret.Add(new ExecutionResult(item.BatchSequence, item.Output.AsIndexable().Rows.ToList()));
+            }
 
             _executionResults.Clear();
             return ret;
@@ -213,7 +216,10 @@ namespace BrightWire.ExecutionGraph.Engine
 
         public void WriteTestResults(IDataSource testDataSource, IErrorMetric errorMetric, int batchSize = 128)
         {
-            var testError = errorMetric.Compute(Execute(testDataSource, batchSize)).Average();
+            var testError = Execute(testDataSource, batchSize)
+                .Average(o => o.CalculateError(errorMetric))
+            ;
+            
             bool flag = true, isPercentage = errorMetric.DisplayAsPercentage;
             if (_lastTestError.HasValue) {
                 if (isPercentage && _lastTestError.Value > testError)
@@ -241,6 +247,22 @@ namespace BrightWire.ExecutionGraph.Engine
             else
                 ++_noImprovementCount;
             Console.WriteLine(msg);
+        }
+
+        public Models.ExecutionGraph Graph
+        {
+            get
+            {
+                var connectedTo = new List<Models.ExecutionGraph.Node>();
+                var wireList = new List<Models.ExecutionGraph.Wire>();
+                var data = _input.SerialiseTo(connectedTo, wireList);
+
+                return new Models.ExecutionGraph {
+                    InputNode = data,
+                    OtherNodes = connectedTo.ToArray(),
+                    Wires = wireList.ToArray()
+                };
+            }
         }
     }
 }

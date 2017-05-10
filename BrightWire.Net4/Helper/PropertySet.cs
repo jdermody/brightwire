@@ -35,11 +35,6 @@ namespace BrightWire.Helper
             get { return Get<IWeightInitialisation>(WEIGHT_INITIALISATION); }
             set { Set<IWeightInitialisation>(WEIGHT_INITIALISATION, value); }
         }
-        public ICreateWeightInitialisation WeightInitialisationDescriptor
-        {
-            get { return Get<ICreateWeightInitialisation>(WEIGHT_INITIALISATION_DESCRIPTOR); }
-            set { Set<ICreateWeightInitialisation>(WEIGHT_INITIALISATION_DESCRIPTOR, value); }
-        }
         public IGradientDescentOptimisation GradientDescent
         {
             get { return Get<IGradientDescentOptimisation>(GRADIENT_DESCENT); }
@@ -58,7 +53,6 @@ namespace BrightWire.Helper
 
         public IPropertySet Use(ICreateTemplateBasedGradientDescent descriptor) { TemplateGradientDescentDescriptor = descriptor; return this; }
         public IPropertySet Use(ICreateGradientDescent descriptor) { GradientDescentDescriptor = descriptor; return this; }
-        public IPropertySet Use(ICreateWeightInitialisation descriptor) { WeightInitialisationDescriptor = descriptor; return this; }
         public IPropertySet Use(IGradientDescentOptimisation optimisation) { GradientDescent = optimisation; return this; }
         public IPropertySet Use(IWeightInitialisation weightInit) { WeightInitialisation = weightInit; return this; }
 

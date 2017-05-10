@@ -14,7 +14,7 @@ namespace BrightWire.ExecutionGraph.Helper
             var ret = _Backward(errorSignal, context, parents);
             if (ret != null && parents?.Any() == true) {
                 foreach (var parent in parents)
-                    context.Backward(ret, parent);
+                    context.AddBackward(ret, parent);
             }
         }
 

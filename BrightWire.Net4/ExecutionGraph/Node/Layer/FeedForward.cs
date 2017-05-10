@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.Node.Layer
 {
-    public class FeedForward : NodeBase
+    class FeedForward : NodeBase
     {
         class Backpropagation : SingleBackpropagationBase
         {
@@ -65,15 +65,20 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             }
         }
 
-        protected readonly IVector _bias;
-        protected readonly IMatrix _weight;
-        protected readonly IGradientDescentOptimisation _updater;
+        IVector _bias;
+        IMatrix _weight;
+        readonly IGradientDescentOptimisation _updater;
 
         public FeedForward(IVector bias, IMatrix weight, IGradientDescentOptimisation updater, string name = null) : base(name)
         {
             _bias = bias;
             _weight = weight;
             _updater = updater;
+        }
+
+        protected override void _Initalise(GraphFactory factory, string description, byte[] data)
+        {
+            _ReadFrom(data, reader => ReadFrom(factory, reader));
         }
 
         protected override void _Dispose(bool isDisposing)
@@ -104,15 +109,23 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             return ("FF", _WriteData(WriteTo));
         }
 
-        protected override void _Initalise(byte[] data)
+        public override void ReadFrom(GraphFactory factory, BinaryReader reader)
         {
-            _ReadFrom(data, ReadFrom);
-        }
+            var lap = factory.LinearAlgebraProvider;
 
-        public override void ReadFrom(BinaryReader reader)
-        {
-            _bias.Data = FloatArray.ReadFrom(reader);
-            _weight.Data = FloatMatrix.ReadFrom(reader);
+            // read the bias parameters
+            var bias = FloatVector.ReadFrom(reader);
+            if (_bias == null)
+                _bias = lap.CreateVector(bias);
+            else
+                _bias.Data = bias;
+
+            // read the weight parameters
+            var weight = FloatMatrix.ReadFrom(reader);
+            if (_weight == null)
+                _weight = lap.CreateMatrix(weight);
+            else
+                _weight.Data = weight;
         }
 
         public override void WriteTo(BinaryWriter writer)

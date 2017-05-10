@@ -29,20 +29,20 @@ namespace BrightWire.ExecutionGraph.Input
                 var dataSource = _provider._dataSource;
                 if (dataSource.IsSequential) {
                     var miniBatchData = dataSource.GetSequential(_rows);
-                    List<FloatArray> temp;
-                    var inputData = new Dictionary<int, List<FloatArray>>();
-                    var outputData = new Dictionary<int, List<FloatArray>>();
+                    List<FloatVector> temp;
+                    var inputData = new Dictionary<int, List<FloatVector>>();
+                    var outputData = new Dictionary<int, List<FloatVector>>();
                     foreach (var item in miniBatchData) {
                         var input = item.Input;
                         var output = item.Output;
                         for (int i = 0, len = input.RowCount; i < len; i++) {
                             if (!inputData.TryGetValue(i, out temp))
-                                inputData.Add(i, temp = new List<FloatArray>());
+                                inputData.Add(i, temp = new List<FloatVector>());
                             temp.Add(input.Row[i]);
 
                             if (output != null) {
                                 if (!outputData.TryGetValue(i, out temp))
-                                    outputData.Add(i, temp = new List<FloatArray>());
+                                    outputData.Add(i, temp = new List<FloatVector>());
                                 temp.Add(output.Row[i]);
                             }
                         }

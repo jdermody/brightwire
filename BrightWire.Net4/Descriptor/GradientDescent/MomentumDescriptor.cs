@@ -5,7 +5,7 @@ using System.Text;
 
 namespace BrightWire.Descriptor.GradientDescent
 {
-    public class MomentumDescriptor : ICreateTemplateBasedGradientDescent
+    class MomentumDescriptor : ICreateTemplateBasedGradientDescent
     {
         protected readonly float _momentum;
 

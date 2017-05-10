@@ -121,23 +121,16 @@ namespace BrightWire
         IGradientDescentOptimisation Create(IGradientDescentOptimisation prev, IMatrix template, IPropertySet propertySet);
     }
 
-    public interface ICreateWeightInitialisation
-    {
-        IWeightInitialisation Create(IPropertySet propertySet);
-    }
-
     public interface IPropertySet
     {
         ILinearAlgebraProvider LinearAlgebraProvider { get; }
         IWeightInitialisation WeightInitialisation { get; set; }
-        ICreateWeightInitialisation WeightInitialisationDescriptor { get; set; }
         IGradientDescentOptimisation GradientDescent { get; set; }
         ICreateTemplateBasedGradientDescent TemplateGradientDescentDescriptor { get; set; }
         ICreateGradientDescent GradientDescentDescriptor { get; set; }
 
         IPropertySet Use(ICreateTemplateBasedGradientDescent descriptor);
         IPropertySet Use(ICreateGradientDescent descriptor);
-        IPropertySet Use(ICreateWeightInitialisation descriptor);
         IPropertySet Use(IGradientDescentOptimisation optimisation);
         IPropertySet Use(IWeightInitialisation weightInit);
 

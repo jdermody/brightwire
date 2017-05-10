@@ -25,7 +25,7 @@ namespace BrightWire.Models
             [ProtoMember(4)]
             public string Description { get; set; }
 
-            [ProtoMember(2)]
+            [ProtoMember(5)]
             public byte[] Data { get; set; }
         }
 
@@ -41,5 +41,14 @@ namespace BrightWire.Models
             [ProtoMember(3)]
             public int InputChannel { get; set; }
         }
+
+        [ProtoMember(1)]
+        public Node InputNode { get; set; }
+
+        [ProtoMember(2)]
+        public Node[] OtherNodes { get; set; }
+
+        [ProtoMember(3)]
+        public Wire[] Wires { get; set; }
     }
 }

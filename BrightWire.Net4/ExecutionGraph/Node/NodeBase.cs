@@ -13,12 +13,17 @@ namespace BrightWire.ExecutionGraph.Node
     public abstract class NodeBase : INode
     {
         string _id, _name;
-        readonly List<IWire> _output = new List<IWire>();
+        List<IWire> _output = new List<IWire>();
 
         public NodeBase(string name, string id = null)
         {
             _id = id ?? Guid.NewGuid().ToString("n");
             _name = name;
+        }
+
+        protected virtual void _Initalise(GraphFactory graph, string description, byte[] data)
+        {
+            Debug.Assert(data == null);
         }
 
         #region Disposal
@@ -54,26 +59,33 @@ namespace BrightWire.ExecutionGraph.Node
         protected void _AddNextGraphAction(IContext context, IGraphData data, Func<IBackpropagation> backProp)
         {
             if(_output.Any())
-                context.Forward(new GraphAction(this, data, context.Source), backProp);
+                context.AddForward(new TrainingAction(this, data, context.Source), backProp);
         }
 
-        public virtual void SerialiseTo(List<Models.ExecutionGraph.Node> nodeList, List<Models.ExecutionGraph.Wire> wireList)
+        public virtual Models.ExecutionGraph.Node SerialiseTo(List<Models.ExecutionGraph.Node> connectedTo, List<Models.ExecutionGraph.Wire> wireList)
         {
             var info = _GetInfo();
-            nodeList.Add(new Models.ExecutionGraph.Node {
+            var ret = new Models.ExecutionGraph.Node {
                 Id = _id,
                 Name = _name,
                 Data = info.Data,
                 Description = info.Description,
                 TypeName = GetType().FullName
-            });
-            foreach(var wire in Output) {
-                wireList.Add(new Models.ExecutionGraph.Wire {
-                    FromId = _id,
-                    InputChannel = wire.Channel,
-                    ToId = wire.SendTo.Id
-                });
+            };
+
+            // get the connected nodes
+            if (connectedTo != null && wireList != null) {
+                foreach (var wire in Output) {
+                    var sendTo = wire.SendTo;
+                    wireList.Add(new Models.ExecutionGraph.Wire {
+                        FromId = _id,
+                        InputChannel = wire.Channel,
+                        ToId = sendTo.Id
+                    });
+                    connectedTo.Add(sendTo.SerialiseTo(connectedTo, wireList));
+                }
             }
+            return ret;
         }
 
         protected virtual (string Description, byte[] Data) _GetInfo()
@@ -102,20 +114,18 @@ namespace BrightWire.ExecutionGraph.Node
             // nop
         }
 
-        public virtual void ReadFrom(BinaryReader reader)
+        public virtual void ReadFrom(GraphFactory factory, BinaryReader reader)
         {
             // nop
         }
 
-        void ICanInitialiseNode.Initialise(string id, string name, byte[] data)
+        void ICanInitialiseNode.Initialise(GraphFactory factory, string id, string name, string description, byte[] data)
         {
             _id = id;
             _name = name;
-            _Initalise(data);
-        }
-        protected virtual void _Initalise(byte[] data)
-        {
-            Debug.Assert(data == null);
+            if (_output == null)
+                _output = new List<IWire>();
+            _Initalise(factory, description, data);
         }
 
         public INode SearchFor(string name)

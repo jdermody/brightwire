@@ -18,7 +18,7 @@ namespace BrightWire.Models
         /// The rows of the matrix
         /// </summary>
         [ProtoMember(1)]
-        public FloatArray[] Row { get; set; }
+        public FloatVector[] Row { get; set; }
 
         /// <summary>
         /// The number of rows
@@ -73,9 +73,9 @@ namespace BrightWire.Models
         public static FloatMatrix ReadFrom(BinaryReader reader)
         {
             var len = reader.ReadInt32();
-            var ret = new FloatArray[len];
+            var ret = new FloatVector[len];
             for (var i = 0; i < len; i++)
-                ret[i] = FloatArray.ReadFrom(reader);
+                ret[i] = FloatVector.ReadFrom(reader);
 
             return new FloatMatrix {
                 Row = ret

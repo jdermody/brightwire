@@ -28,8 +28,8 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             {
                 using (var delta1 = errorSignal.PointwiseMultiply(_input2))
                 using (var delta2 = errorSignal.PointwiseMultiply(_input1)) {
-                    context.Backward(delta1, parents.First());
-                    context.Backward(delta2, parents.Last());
+                    context.AddBackward(delta1, parents.First());
+                    context.AddBackward(delta2, parents.Last());
                 }
             }
         }

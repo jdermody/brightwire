@@ -23,7 +23,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 IMatrix split, residual = errorSignal;
                 foreach(var item in _channels) {
                     (split, residual) = residual.SplitAtColumn(item.Size);
-                    context.Backward(split, item.Source);
+                    context.AddBackward(split, item.Source);
                 }
             }
         }

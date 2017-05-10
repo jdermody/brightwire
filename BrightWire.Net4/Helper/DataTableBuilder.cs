@@ -159,7 +159,7 @@ namespace BrightWire.Helper
                 var data = (WeightedIndexList)val;
                 data.WriteTo(writer);
             } else if (type == ColumnType.Vector) {
-                var data = (FloatArray)val;
+                var data = (FloatVector)val;
                 data.WriteTo(writer);
             } else if (type == ColumnType.Matrix) {
                 var data = (FloatMatrix)val;

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace BrightWire.Descriptor.GradientDescent
 {
-    public class L1RegularisationDescriptor : ICreateGradientDescent
+    class L1RegularisationDescriptor : ICreateGradientDescent
     {
         readonly float _lambda;
 

@@ -7,27 +7,36 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using BrightWire.Models;
+using ProtoBuf;
 
 namespace BrightWire.ExecutionGraph.Node.Layer
 {
     internal class SimpleRecurrent : NodeBase
     {
-        readonly MemoryFeeder _memoryFeeder;
-        readonly INode _input, _output = null;
+        MemoryFeeder _memory;
+        INode _input, _output = null, _activation;
+        int _inputSize;
 
         public SimpleRecurrent(GraphFactory graph, int inputSize, float[] memory, INode activation, string name = null)
             : base(name)
         {
+            _Create(graph, inputSize, memory, activation);
+        }
+
+        void _Create(GraphFactory graph, int inputSize, float[] memory, INode activation)
+        {
+            _inputSize = inputSize;
+            _activation = activation;
             int hiddenLayerSize = memory.Length;
-            _memoryFeeder = new MemoryFeeder(memory);
+            _memory = new MemoryFeeder(memory);
             _input = new FlowThrough();
 
             var inputChannel = graph.Build(inputSize, _input).AddFeedForward(hiddenLayerSize, "Wh");
-            var memoryChannel = graph.Build(hiddenLayerSize, _memoryFeeder.MemoryInput).AddFeedForward(hiddenLayerSize, "Uh");
+            var memoryChannel = graph.Build(hiddenLayerSize, _memory).AddFeedForward(hiddenLayerSize, "Uh");
 
             _output = graph.Add(inputChannel, memoryChannel)
                 .Add(activation)
-                .Add(_memoryFeeder.SetMemoryAction)
+                .Add(_memory.SetMemoryAction)
                 .Build()
             ;
         }
@@ -45,29 +54,46 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             return ("RN", _WriteData(WriteTo));
         }
 
-        protected override void _Initalise(byte[] data)
+        protected override void _Initalise(GraphFactory factory, string description, byte[] data)
         {
-            _ReadFrom(data, ReadFrom);
+            _ReadFrom(data, reader => ReadFrom(factory, reader));
         }
 
         public override void WriteTo(BinaryWriter writer)
         {
-            var Wh = SearchFor("Wh") as FeedForward;
-            var Uh = SearchFor("Uh") as FeedForward;
+            var Wh = _input.SearchFor("Wh") as FeedForward;
+            var Uh = _memory.SearchFor("Uh") as FeedForward;
 
-            _memoryFeeder.Data.WriteTo(writer);
+            writer.Write(_inputSize);
+            _memory.Data.WriteTo(writer);
+            using(var buffer = new MemoryStream()) {
+                Serializer.Serialize(buffer, _activation.SerialiseTo(null, null));
+                var activationData = buffer.ToArray();
+                writer.Write(activationData.Length);
+                writer.Write(activationData);
+            }
             Wh.WriteTo(writer);
             Uh.WriteTo(writer);
         }
 
-        public override void ReadFrom(BinaryReader reader)
+        public override void ReadFrom(GraphFactory factory, BinaryReader reader)
         {
-            var Wh = SearchFor("Wh") as FeedForward;
-            var Uh = SearchFor("Uh") as FeedForward;
+            var inputSize = reader.ReadInt32();
+            var memory = FloatVector.ReadFrom(reader);
+            var bufferSize = reader.ReadInt32();
+            Models.ExecutionGraph.Node activation;
+            using (var buffer = new MemoryStream(reader.ReadBytes(bufferSize)))
+                activation = Serializer.Deserialize<Models.ExecutionGraph.Node>(buffer);
+            if (_memory == null)
+                _Create(factory, inputSize, memory.Data, factory.Create(activation));
+            else
+                _memory.Data = memory;
 
-            _memoryFeeder.Data = FloatArray.ReadFrom(reader);
-            Wh.ReadFrom(reader);
-            Uh.ReadFrom(reader);
+            var Wh = _input.SearchFor("Wh") as INode;
+            var Uh = _memory.SearchFor("Uh") as INode;
+
+            Wh.ReadFrom(factory, reader);
+            Uh.ReadFrom(factory, reader);
         }
 
         public override IEnumerable<INode> SubNodes
@@ -75,7 +101,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             get
             {
                 yield return _input;
-                yield return _memoryFeeder;
+                yield return _memory;
             }
         }
     }

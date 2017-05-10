@@ -38,35 +38,42 @@ namespace BrightWire.ExecutionGraph.Node.Input
         }
         class SetMemory : IAction
         {
-            readonly MemoryFeeder _feeder;
+            string _id;
 
-            public SetMemory(MemoryFeeder feeder)
+            public SetMemory(string id)
             {
-                _feeder = feeder;
+                _id = id;
+            }
+
+            public void Initialise(string data)
+            {
+                _id = data;
+            }
+
+            public string Serialise()
+            {
+                return _id;
             }
 
             public void Execute(IMatrix input, IContext context)
             {
-                context.ExecutionContext.SetMemory(_feeder.Id, input);
+                context.ExecutionContext.SetMemory(_id, input);
             }
         }
 
         readonly float[] _data;
-        readonly SetMemory _setMemory;
-        readonly FlowThrough _memoryInput;
+        SetMemory _setMemory;
 
         public MemoryFeeder(float[] data, string name = null) : base(name)
         {
             _data = data;
-            _setMemory = new SetMemory(this);
-            _memoryInput = new FlowThrough();
+            _setMemory = new SetMemory(Id);
         }
 
-        public INode MemoryInput => _memoryInput;
         public IAction SetMemoryAction => _setMemory;
-        public FloatArray Data
+        public FloatVector Data
         {
-            get { return new FloatArray { Data = _data }; }
+            get { return new FloatVector { Data = _data }; }
             set { value.Data.CopyTo(_data, 0); }
         }
 
@@ -88,7 +95,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
                 writer.WriteEndElement();
             });
 
-            context.Forward(new GraphAction(_memoryInput, new MatrixGraphData(memory)), () => new Backpropagation(this));
+            _AddNextGraphAction(context, new MatrixGraphData(memory), () => new Backpropagation(this));
         }
 
         void _OnNext(IContext context)
@@ -101,7 +108,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
                 writer.WriteEndElement();
             });
 
-            context.Forward(new GraphAction(_memoryInput, new MatrixGraphData(memory)), null);
+            _AddNextGraphAction(context, new MatrixGraphData(memory), null);
         }
 
         public IMatrix GetMemory(ILinearAlgebraProvider lap, int batchSize) => lap.Create(batchSize, _data.Length, (x, y) => _data[y]);
@@ -111,9 +118,9 @@ namespace BrightWire.ExecutionGraph.Node.Input
             return ("MF", _WriteData(WriteTo));
         }
 
-        protected override void _Initalise(byte[] data)
+        protected override void _Initalise(GraphFactory factory, string description, byte[] data)
         {
-            _ReadFrom(data, ReadFrom);
+            _ReadFrom(data, reader => ReadFrom(factory, reader));
         }
 
         public override void WriteTo(BinaryWriter writer)
@@ -121,9 +128,9 @@ namespace BrightWire.ExecutionGraph.Node.Input
             Data.WriteTo(writer);
         }
 
-        public override void ReadFrom(BinaryReader reader)
+        public override void ReadFrom(GraphFactory factory, BinaryReader reader)
         {
-            Data = FloatArray.ReadFrom(reader);
+            Data = FloatVector.ReadFrom(reader);
         }
     }
 }

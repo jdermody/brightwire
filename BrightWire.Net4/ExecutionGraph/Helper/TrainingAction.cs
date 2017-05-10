@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.Helper
 {
-    class GraphAction : IExecutionHistory
+    class TrainingAction : IExecutionHistory
     {
         readonly INode _source;
         readonly IReadOnlyList<INode> _parents;
         readonly IGraphData _data;
         IBackpropagation _backpropagation;
 
-        public GraphAction(INode source, IGraphData data, INode parent = null)
+        public TrainingAction(INode source, IGraphData data, INode parent = null)
         {
             if (parent != null)
                 _parents = new[] { parent };
@@ -24,7 +24,7 @@ namespace BrightWire.ExecutionGraph.Helper
             _data = data;
         }
 
-        public GraphAction(INode source, IGraphData data, IReadOnlyList<INode> parents)
+        public TrainingAction(INode source, IGraphData data, IReadOnlyList<INode> parents)
         {
             _parents = parents;
             _source = source;

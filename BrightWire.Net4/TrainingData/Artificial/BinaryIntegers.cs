@@ -47,13 +47,13 @@ namespace BrightWire.TrainingData.Artificial
                 var b2 = _GetBitArray(b);
                 var r2 = _GetBitArray(a + b);
 
-                var inputList = new FloatArray[r2.Length];
-                var outputList = new FloatArray[r2.Length];
+                var inputList = new FloatVector[r2.Length];
+                var outputList = new FloatVector[r2.Length];
                 for (int j = 0; j < r2.Length; j++) {
-                    inputList[j] = new FloatArray {
+                    inputList[j] = new FloatVector {
                         Data = new[] { a2[j], b2[j] }
                     };
-                    outputList[j] = new FloatArray {
+                    outputList[j] = new FloatVector {
                         Data = new[] { r2[j] }
                     };
                 }

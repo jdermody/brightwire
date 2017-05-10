@@ -5,8 +5,12 @@ using System.Text;
 
 namespace BrightWire.Descriptor.GradientDescent
 {
-    public class NesterovMomentumDescriptor : MomentumDescriptor
+    class NesterovMomentumDescriptor : MomentumDescriptor
     {
+        public NesterovMomentumDescriptor(float momentum = 0.9f) : base(momentum)
+        {
+        }
+
         public override IGradientDescentOptimisation Create(IGradientDescentOptimisation prev, IMatrix template, IPropertySet propertySet)
         {
             var cache = propertySet.LinearAlgebraProvider.Create(template.RowCount, template.ColumnCount, 0f);
