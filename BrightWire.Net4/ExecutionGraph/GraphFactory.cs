@@ -154,6 +154,16 @@ namespace BrightWire.ExecutionGraph
             return new SimpleRecurrent(this, inputSize, memory, activation, name);
         }
 
+        public INode CreateElman(int inputSize, float[] memory, INode activation, INode activation2, string name = null)
+        {
+            return new ElmanJordan(this, true, inputSize, memory, activation, activation2, name);
+        }
+
+        public INode CreateJordan(int inputSize, float[] memory, INode activation, INode activation2, string name = null)
+        {
+            return new ElmanJordan(this, false, inputSize, memory, activation, activation2, name);
+        }
+
         public INode CreateOneMinusInput()
         {
             return new OneMinusInput();

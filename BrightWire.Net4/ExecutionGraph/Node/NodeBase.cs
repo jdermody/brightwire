@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using BrightWire.Models;
 using System.IO;
 using System.Diagnostics;
+using ProtoBuf;
 
 namespace BrightWire.ExecutionGraph.Node
 {
@@ -145,5 +146,24 @@ namespace BrightWire.ExecutionGraph.Node
         }
 
         public virtual IEnumerable<INode> SubNodes => Enumerable.Empty<INode>();
+
+        protected void _Serialise(INode node, BinaryWriter writer)
+        {
+            using (var buffer = new MemoryStream()) {
+                Serializer.Serialize(buffer, node.SerialiseTo(null, null));
+                var activationData = buffer.ToArray();
+                writer.Write(activationData.Length);
+                writer.Write(activationData);
+            }
+        }
+
+        protected INode _Hydrate(GraphFactory factory, BinaryReader reader)
+        {
+            var bufferSize = reader.ReadInt32();
+            Models.ExecutionGraph.Node model;
+            using (var buffer = new MemoryStream(reader.ReadBytes(bufferSize)))
+                model = Serializer.Deserialize<Models.ExecutionGraph.Node>(buffer);
+            return factory.Create(model);
+        }
     }
 }

@@ -136,6 +136,7 @@
     <Compile Include="ExecutionGraph\Node\Gate\BinaryGateBase.cs" />
     <Compile Include="ExecutionGraph\Node\Layer\GatedRecurrentUnit.cs" />
     <Compile Include="ExecutionGraph\Node\Layer\LongShortTermMemory.cs" />
+    <Compile Include="ExecutionGraph\Node\Layer\ElmanJordan.cs" />
     <Compile Include="ExecutionGraph\Node\Layer\SimpleRecurrent.cs" />
     <Compile Include="ExecutionGraph\Node\NodeBase.cs" />
     <Compile Include="ExecutionGraph\WeightInitialisation\Constant.cs" />

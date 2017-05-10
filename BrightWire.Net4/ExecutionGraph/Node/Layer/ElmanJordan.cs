@@ -11,22 +11,25 @@ using ProtoBuf;
 
 namespace BrightWire.ExecutionGraph.Node.Layer
 {
-    internal class SimpleRecurrent : NodeBase
+    internal class ElmanJordan : NodeBase
     {
         MemoryFeeder _memory;
-        INode _input, _output = null, _activation;
+        INode _input, _output = null, _activation, _activation2;
         int _inputSize;
+        bool _isElman;
 
-        public SimpleRecurrent(GraphFactory graph, int inputSize, float[] memory, INode activation, string name = null)
+        public ElmanJordan(GraphFactory graph, bool isElman, int inputSize, float[] memory, INode activation, INode activation2, string name = null)
             : base(name)
         {
-            _Create(graph, inputSize, memory, activation);
+            _Create(graph, isElman, inputSize, memory, activation, activation2);
         }
 
-        void _Create(GraphFactory graph, int inputSize, float[] memory, INode activation)
+        void _Create(GraphFactory graph, bool isElman, int inputSize, float[] memory, INode activation, INode activation2)
         {
+            _isElman = isElman;
             _inputSize = inputSize;
             _activation = activation;
+            _activation2 = activation2;
             int hiddenLayerSize = memory.Length;
             _memory = new MemoryFeeder(memory);
             _input = new FlowThrough();
@@ -34,11 +37,15 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             var inputChannel = graph.Build(inputSize, _input).AddFeedForward(hiddenLayerSize, "Wh");
             var memoryChannel = graph.Build(hiddenLayerSize, _memory).AddFeedForward(hiddenLayerSize, "Uh");
 
-            _output = graph.Add(inputChannel, memoryChannel)
-                .Add(activation)
-                .Add(_memory.SetMemoryAction)
-                .Build()
-            ;
+            var h = graph.Add(inputChannel, memoryChannel).Add(activation);
+            if (isElman)
+                h = h.Add(_memory.SetMemoryAction);
+
+            h = h.AddFeedForward(hiddenLayerSize, "Wy").Add(activation2);
+            if (!isElman)
+                _output = h.Add(_memory.SetMemoryAction).Build();
+            else
+                _output = h.Build();
         }
 
         public override List<IWire> Output => _output.Output;
@@ -51,7 +58,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
         protected override (string Description, byte[] Data) _GetInfo()
         {
-            return ("SRN", _WriteData(WriteTo));
+            return (_isElman ? "ERN" : "JRN", _WriteData(WriteTo));
         }
 
         protected override void _Initalise(GraphFactory factory, string description, byte[] data)
@@ -62,31 +69,39 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         public override void WriteTo(BinaryWriter writer)
         {
             var Wh = _input.SearchFor("Wh") as FeedForward;
+            var Wy = _input.SearchFor("Wy") as FeedForward;
             var Uh = _memory.SearchFor("Uh") as FeedForward;
 
+            writer.Write(_isElman);
             writer.Write(_inputSize);
             _memory.Data.WriteTo(writer);
             _Serialise(_activation, writer);
+            _Serialise(_activation2, writer);
 
             Wh.WriteTo(writer);
+            Wy.WriteTo(writer);
             Uh.WriteTo(writer);
         }
 
         public override void ReadFrom(GraphFactory factory, BinaryReader reader)
         {
+            var isElman = reader.ReadBoolean();
             var inputSize = reader.ReadInt32();
             var memory = FloatVector.ReadFrom(reader);
             var activation = _Hydrate(factory, reader);
+            var activation2 = _Hydrate(factory, reader);
 
             if (_memory == null)
-                _Create(factory, inputSize, memory.Data, activation);
+                _Create(factory, isElman, inputSize, memory.Data, activation, activation2);
             else
                 _memory.Data = memory;
 
             var Wh = _input.SearchFor("Wh") as INode;
+            var Wy = _input.SearchFor("Wy") as INode;
             var Uh = _memory.SearchFor("Uh") as INode;
 
             Wh.ReadFrom(factory, reader);
+            Wy.ReadFrom(factory, reader);
             Uh.ReadFrom(factory, reader);
         }
 

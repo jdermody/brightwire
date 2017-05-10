@@ -61,6 +61,20 @@ namespace BrightWire.ExecutionGraph
             return this;
         }
 
+        public WireBuilder AddElman(INode activation, INode activation2, float[] initialMemory, string name = null)
+        {
+            _SetNode(_factory.CreateElman(_size, initialMemory, activation, activation2, name));
+            _size = initialMemory.Length;
+            return this;
+        }
+
+        public WireBuilder AddJordan(INode activation, INode activation2, float[] initialMemory, string name = null)
+        {
+            _SetNode(_factory.CreateJordan(_size, initialMemory, activation, activation2, name));
+            _size = initialMemory.Length;
+            return this;
+        }
+
         public WireBuilder AddGru(float[] initialMemory, string name = null)
         {
             _SetNode(_factory.CreateGru(_size, initialMemory, name));
