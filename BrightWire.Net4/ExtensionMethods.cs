@@ -111,11 +111,6 @@ namespace BrightWire
             }
         }
 
-        public static IEnumerable<float> Compute(this IErrorMetric errorMetric, IReadOnlyList<(IIndexableVector, IIndexableVector)> output)
-        {
-            return output.Select(r => errorMetric.Compute(r.Item1, r.Item2));
-        }
-
         /// <summary>
         /// Random projections allow you to reduce the dimensions of a matrix while still preserving significant information
         /// </summary>
