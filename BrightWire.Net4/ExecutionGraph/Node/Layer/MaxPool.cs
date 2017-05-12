@@ -25,30 +25,27 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
             protected override IGraphData _Backward(IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
-                return errorSignal;
-                //var matrixList = errorSignal.AsIndexable().Columns.Select(v => v.ToArray()).ToList();
-                //var lap = context.LinearAlgebraProvider;
+                var tensor = errorSignal.GetTensor().AsIndexable();
+                var lap = context.LinearAlgebraProvider;
 
-                //var newMatrixList = new List<IMatrix>();
-                //Tuple<int, int> newIndex;
-                //for (var i = 0; i < matrixList.Count; i++) {
-                //    var matrix = matrixList[i];
-                //    var table = _indexPosList[i];
+                var newMatrixList = new List<IMatrix>();
+                Tuple<int, int> newIndex;
+                for (var i = 0; i < tensor.Depth; i++) {
+                    var matrix = tensor.GetDepthSlice(i).AsIndexable();
+                    var table = _indexPosList[i];
 
-                //    newMatrixList.Add(lap.Create(_rows, _columns, (x, y) => {
-                //        if (table.TryGetValue(Tuple.Create(x, y), out newIndex)) {
-                //            var newIndex2 = newIndex.Item1 * _newRows + newIndex.Item2;
-                //            return matrix[newIndex2];
-                //        }
-                //        return 0f;
-                //    }));
-                //}
-                //using (var tensor = lap.CreateTensor(newMatrixList)) {
-                //    var ret = tensor.ConvertToMatrix();
-                //    foreach (var item in newMatrixList)
-                //        item.Dispose();
-                //    return ret;
-                //}
+                    newMatrixList.Add(lap.Create(_rows, _columns, (x, y) => {
+                        if (table.TryGetValue(Tuple.Create(x, y), out newIndex))
+                            return matrix[newIndex.Item2, newIndex.Item1];
+                        return 0f;
+                    }));
+                }
+                using (var output = lap.CreateTensor(newMatrixList)) {
+                    var ret = tensor.ConvertToMatrix();
+                    foreach (var item in newMatrixList)
+                        item.Dispose();
+                    return output.ToGraphData();
+                }
             }
         }
         readonly int _width, _height, _stride;

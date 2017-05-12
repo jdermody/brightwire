@@ -106,5 +106,17 @@ namespace BrightWire.Models
         }
 
         public int Size => Depth * RowCount * ColumnCount;
+
+        public bool IsEqualTo(FloatTensor tensor, IEqualityComparer<float> comparer = null)
+        {
+            if (tensor == null || RowCount != tensor.RowCount || ColumnCount != tensor.ColumnCount || Depth != tensor.Depth)
+                return false;
+
+            for (int i = 0, len = Depth; i < len; i++) {
+                if (!Matrix[i].IsEqualTo(tensor.Matrix[i], comparer))
+                    return false;
+            }
+            return true;
+        }
     }
 }

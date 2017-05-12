@@ -98,5 +98,17 @@ namespace BrightWire.Models
                 return sb.ToString();
             }
         }
+
+        public bool IsEqualTo(FloatMatrix matrix, IEqualityComparer<float> comparer = null)
+        {
+            if (matrix == null || RowCount != matrix.RowCount || ColumnCount != matrix.ColumnCount)
+                return false;
+
+            for(int i = 0, len = RowCount; i < len; i++) {
+                if (!Row[i].IsEqualTo(matrix.Row[i], comparer))
+                    return false;
+            }
+            return true;
+        }
     }
 }

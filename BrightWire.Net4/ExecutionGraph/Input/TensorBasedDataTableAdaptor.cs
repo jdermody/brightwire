@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using BrightWire.Models;
 using BrightWire.ExecutionGraph.Node.Input;
 using BrightWire.ExecutionGraph.Helper;
+using System.Diagnostics;
 
 namespace BrightWire.ExecutionGraph.Input
 {
@@ -28,7 +29,7 @@ namespace BrightWire.ExecutionGraph.Input
             // execute the graph to find the input size (which is the size of the adaptive graph's output)
             var firstTensor = new TensorGraphData(_lap.CreateTensor(input));
             var firstContext = _Process(firstTensor);
-            var outputVector = firstContext.Data.GetMatrix().ConvertInPlaceToVector();
+            var outputVector = firstContext.Data.GetTensor().ConvertToVector();
             _inputSize = outputVector.Count;
         }
 
@@ -47,8 +48,12 @@ namespace BrightWire.ExecutionGraph.Input
                 var tensor = _lap.CreateTensor(row.Data[0] as FloatTensor);
                 var context = _Process(new TensorGraphData(tensor));
                 var outputTensor = context.Data.GetTensor();
+                var outputVector = outputTensor.ConvertToVector();
 
-                inputList.Add(outputTensor.ConvertToVector());
+                //var test = outputVector.ConvertToTensor(context.LinearAlgebraProvider, outputTensor.RowCount, outputTensor.ColumnCount, outputTensor.Depth);
+                //Debug.Assert(test.Data.IsEqualTo(outputTensor.Data));
+
+                inputList.Add(outputVector);
                 _processedContext.Add((context, outputTensor.RowCount, outputTensor.ColumnCount, outputTensor.Depth));
                 outputList.Add(row.Data[1] as FloatVector);
             }
@@ -59,11 +64,12 @@ namespace BrightWire.ExecutionGraph.Input
 
         public override void OnBatchProcessed(IContext context)
         {
-            var errorSignal = context.ErrorSignal.GetMatrix();
+            var errorSignal = context.ErrorSignal;
             var lap = context.LinearAlgebraProvider;
             if (errorSignal != null) {
-                for (var i = 0; i < errorSignal.RowCount; i++) {
-                    var row = errorSignal.Row(i);
+                var errorMatrix = errorSignal.GetMatrix();
+                for (var i = 0; i < errorMatrix.RowCount; i++) {
+                    var row = errorMatrix.Row(i);
                     var processedContext = _processedContext[i];
                     var rowErrorTensor = row.ConvertToTensor(lap, processedContext.Rows, processedContext.Columns, processedContext.Depth);
                     processedContext.Item1.Backpropagate(new TensorGraphData(rowErrorTensor));

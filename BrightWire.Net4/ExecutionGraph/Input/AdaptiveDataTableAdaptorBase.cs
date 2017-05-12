@@ -19,7 +19,8 @@ namespace BrightWire.ExecutionGraph.Input
         public AdaptiveDataTableAdaptorBase(ILearningContext learningContext, GraphFactory factory, IDataTable dataTable)
             : base(factory.LinearAlgebraProvider, dataTable)
         {
-            //Debug.Assert(learningContext.DeferUpdates);
+            Debug.Assert(learningContext.DeferUpdates);
+
             _learningContext = learningContext;
             _executionContext = new ExecutionContext(_lap);
             _input = new FlowThrough();

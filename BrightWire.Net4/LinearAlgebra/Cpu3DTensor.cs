@@ -72,47 +72,13 @@ namespace BrightWire.LinearAlgebra
             }
         }
 
-        public IReadOnlyList<IIndexableMatrix> Matrices
-        {
-            get
-            {
-                return _data;
-            }
-        }
-
-        public int Depth
-        {
-            get
-            {
-                return _depth;
-            }
-        }
-
-        public int RowCount
-        {
-            get
-            {
-                return _rows;
-            }
-        }
-
-        public int ColumnCount
-        {
-            get
-            {
-                return _columns;
-            }
-        }
-
-        public IMatrix GetDepthSlice(int depth)
-        {
-            return _data[depth];
-        }
-
-        public IIndexable3DTensor AsIndexable()
-        {
-            return this;
-        }
+        public IReadOnlyList<IIndexableMatrix> Matrices => _data;
+        public int Depth => _depth;
+        public int RowCount => _rows;
+        public int ColumnCount => _columns;
+        public IMatrix GetDepthSlice(int depth) => _data[depth];
+        public IIndexable3DTensor AsIndexable() => this;
+        public IReadOnlyList<IMatrix> DepthSlices => _data;
 
         public I3DTensor AddPadding(int padding)
         {
@@ -149,32 +115,60 @@ namespace BrightWire.LinearAlgebra
             return ret;
         }
 
+        // down first
         public IMatrix Im2Col(int filterWidth, int filterHeight, int stride)
         {
-            int xOffset = 0, yOffset = 0;
+            int y = 0, x = 0;
             var rowList = new List<List<float>>();
 
-            while (yOffset <= _rows - filterHeight) {
+            while (x <= _columns - filterWidth) {
                 var row = new List<float>();
                 for (var k = 0; k < _depth; k++) {
-                    for (var j = 0; j < filterHeight; j++) {
-                        for (var i = 0; i < filterWidth; i++) {
-                            row.Add(this[yOffset + j, xOffset + i, k]);
+                    for (var j = 0; j < filterWidth; j++) {
+                        for (var i = 0; i < filterHeight; i++) {
+                            row.Add(this[y + i, x + j, k]);
                         }
                     }
                 }
                 rowList.Add(row);
 
                 // move the window
-                xOffset += stride;
-                if (xOffset > _columns - filterWidth) {
-                    xOffset = 0;
-                    yOffset += stride;
+                y += stride;
+                if (y > _rows - filterHeight) {
+                    y = 0;
+                    x += stride;
                 }
             }
             var firstRow = rowList.First();
             return new CpuMatrix(DenseMatrix.Create(rowList.Count, firstRow.Count, (i, j) => rowList[i][j]));
         }
+
+        //public IMatrix Im2Col(int filterWidth, int filterHeight, int stride)
+        //{
+        //    int xOffset = 0, yOffset = 0;
+        //    var rowList = new List<List<float>>();
+
+        //    while (yOffset <= _rows - filterHeight) {
+        //        var row = new List<float>();
+        //        for (var k = 0; k < _depth; k++) {
+        //            for (var j = 0; j < filterHeight; j++) {
+        //                for (var i = 0; i < filterWidth; i++) {
+        //                    row.Add(this[yOffset + j, xOffset + i, k]);
+        //                }
+        //            }
+        //        }
+        //        rowList.Add(row);
+
+        //        // move the window
+        //        xOffset += stride;
+        //        if (xOffset > _columns - filterWidth) {
+        //            xOffset = 0;
+        //            yOffset += stride;
+        //        }
+        //    }
+        //    var firstRow = rowList.First();
+        //    return new CpuMatrix(DenseMatrix.Create(rowList.Count, firstRow.Count, (i, j) => rowList[i][j]));
+        //}
 
         public IVector ConvertToVector()
         {

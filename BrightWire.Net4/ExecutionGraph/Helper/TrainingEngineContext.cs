@@ -86,7 +86,7 @@ namespace BrightWire.ExecutionGraph.Helper
         {
             // calculate training error
             if (_learningContext?.CalculateTrainingError == true)
-                _trainingError = Math.Sqrt(delta.GetMatrix().AsIndexable().Values.Select(v => Math.Pow(v, 2)).Average());
+                _trainingError = Math.Sqrt(delta.Decompose().Average(m => m.AsIndexable().Values.Select(v => Math.Pow(v, 2)).Average()));
 
             // initialise backpropagation stack
             _backward.Clear();

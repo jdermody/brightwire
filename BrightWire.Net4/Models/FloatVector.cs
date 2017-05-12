@@ -91,5 +91,18 @@ namespace BrightWire.Models
                 return sb.ToString();
             }
         }
+
+        public bool IsEqualTo(FloatVector vector, IEqualityComparer<float> comparer = null)
+        {
+            if (vector == null || Size != vector.Size)
+                return false;
+
+            var comparer2 = comparer ?? EqualityComparer<float>.Default;
+            for (int i = 0, len = Size; i < len; i++) {
+                if (!comparer2.Equals(Data[i], vector.Data[i]))
+                    return false;
+            }
+            return true;
+        }
     }
 }

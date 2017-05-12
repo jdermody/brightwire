@@ -99,14 +99,6 @@ namespace BrightWire.ExecutionGraph
         {
             var propertySet = CurrentPropertySet;
             var ret = propertySet.WeightInitialisation;
-
-            //if (ret == null) {
-                // look for a descriptor
-                //var descriptor = propertySet.WeightInitialisationDescriptor;
-                //if (descriptor != null)
-                //    ret = descriptor.Create(propertySet);
-            //}
-
             return ret ?? WeightInitialisation.Gaussian;
         }
 
@@ -212,6 +204,11 @@ namespace BrightWire.ExecutionGraph
         public INode CreateLstm(int inputSize, float[] memory, string name = null)
         {
             return new LongShortTermMemory(this, inputSize, memory, name);
+        }
+
+        public INode CreateMaxPool(int width, int height, int stride, string name = null)
+        {
+            return new MaxPool(width, height, stride, name);
         }
 
         public WireBuilder Connect(IGraphEngine engine)

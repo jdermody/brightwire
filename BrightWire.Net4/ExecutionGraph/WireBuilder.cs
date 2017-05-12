@@ -89,6 +89,12 @@ namespace BrightWire.ExecutionGraph
             return this;
         }
 
+        public WireBuilder AddMaxPooling(int width, int height, int stride, string name = null)
+        {
+            _SetNode(_factory.CreateMaxPool(width, height, stride, name));
+            return this;
+        }
+
         public WireBuilder ReverseSequence(string name = null)
         {
             _SetNode(_factory.CreateSequenceReverser(name));

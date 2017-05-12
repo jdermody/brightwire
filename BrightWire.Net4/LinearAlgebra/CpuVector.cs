@@ -390,5 +390,20 @@ namespace BrightWire.LinearAlgebra
             ret.Add(new CpuVector(curr));
             return ret;
         }
+
+        public IVector Rotate(int blockSize)
+        {
+            var vectorList = new List<IIndexableVector>();
+            foreach(var item in Split(blockSize).Reverse())
+                vectorList.Add(item.Reverse().AsIndexable());
+
+            return new CpuVector(DenseVector.Create(Count, i => vectorList[i / vectorList.Count][i % blockSize]));
+        }
+
+        public IVector Reverse()
+        {
+            var len = Count - 1;
+            return new CpuVector(DenseVector.Create(Count, i => this[len - i]));
+        }
     }
 }
