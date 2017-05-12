@@ -25,14 +25,14 @@ namespace BrightWire.ExecutionGraph.Action
             return _errorMetric.GetType().FullName;
         }
 
-        public void Execute(IMatrix input, IContext context)
+        public void Execute(IGraphData input, IContext context)
         {
-            context.SetOutput(input);
-
+            var output = input.GetMatrix();
+            context.Output = output;
             if (context.IsTraining) {
-                var gradient = _errorMetric.CalculateGradient(input, context.BatchSequence.Target);
+                var gradient = _errorMetric.CalculateGradient(output, context.BatchSequence.Target);
                 context.LearningContext?.Log("backprogation-error", gradient);
-                context.Backpropagate(gradient);
+                context.Backpropagate(gradient.ToGraphData());
             }
         }
     }

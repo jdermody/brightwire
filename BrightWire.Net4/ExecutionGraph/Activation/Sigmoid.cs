@@ -2,6 +2,7 @@
 using BrightWire.ExecutionGraph.Node;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace BrightWire.ExecutionGraph.Activation
@@ -10,10 +11,10 @@ namespace BrightWire.ExecutionGraph.Activation
     {
         class Backpropagation : SingleBackpropagationBase
         {
-            readonly IMatrix _input;
+            readonly IReadOnlyList<IMatrix> _input;
             readonly Sigmoid _source;
 
-            public Backpropagation(Sigmoid source, IMatrix matrix)
+            public Backpropagation(Sigmoid source, IReadOnlyList<IMatrix> matrix)
             {
                 _source = source;
                 _input = matrix;
@@ -21,16 +22,19 @@ namespace BrightWire.ExecutionGraph.Activation
 
             protected override void _Dispose(bool isDisposing)
             {
-                _input.Dispose();
+                foreach(var item in _input)
+                    item.Dispose();
             }
 
-            protected override IMatrix _Backward(IMatrix errorSignal, IContext context, IReadOnlyList<INode> parents)
+            protected override IGraphData _Backward(IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
-                using (var od = _input.SigmoidDerivative()) {
-                    var delta = errorSignal.PointwiseMultiply(od);
-                    //context.LearningContext.Log("sigmoid-backpropagation", channel, _source.GetHashCode(), errorSignal, delta);
-                    return delta;
-                }
+                return _input.Zip(errorSignal.Decompose(), (i, e) => {
+                    using (var od = i.SigmoidDerivative()) {
+                        var delta = e.PointwiseMultiply(od);
+                        //context.LearningContext.Log("sigmoid-backpropagation", channel, _source.GetHashCode(), errorSignal, delta);
+                        return delta;
+                    }
+                }).ToList().ToGraphData(context.LinearAlgebraProvider);
             }
         }
 
@@ -38,9 +42,9 @@ namespace BrightWire.ExecutionGraph.Activation
 
         public override void ExecuteForward(IContext context)
         {
-            var input = context.Data.GetAsMatrix();
-            var output = input.SigmoidActivation();
-            _AddNextGraphAction(context, new MatrixGraphData(output), () => new Backpropagation(this, input));
+            var input = context.Data.Decompose();
+            var output = context.ToGraphData(input.Select(m => m.SigmoidActivation()));
+            _AddNextGraphAction(context, output, () => new Backpropagation(this, input));
         }
     }
 }

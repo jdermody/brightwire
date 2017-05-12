@@ -2,6 +2,7 @@
 using BrightWire.ExecutionGraph.Node;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace BrightWire.ExecutionGraph.Activation
@@ -10,10 +11,10 @@ namespace BrightWire.ExecutionGraph.Activation
     {
         class Backpropagation : SingleBackpropagationBase
         {
-            readonly IMatrix _input;
+            readonly IReadOnlyList<IMatrix> _input;
             readonly LeakyRelu _source;
 
-            public Backpropagation(LeakyRelu source, IMatrix matrix)
+            public Backpropagation(LeakyRelu source, IReadOnlyList<IMatrix> matrix)
             {
                 _input = matrix;
                 _source = source;
@@ -21,16 +22,19 @@ namespace BrightWire.ExecutionGraph.Activation
 
             protected override void _Dispose(bool isDisposing)
             {
-                _input.Dispose();
+                foreach(var item in _input)
+                    item.Dispose();
             }
 
-            protected override IMatrix _Backward(IMatrix errorSignal, IContext context, IReadOnlyList<INode> parents)
+            protected override IGraphData _Backward(IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
-                using (var od = _input.LeakyReluDerivative()) {
-                    var delta = errorSignal.PointwiseMultiply(od);
-                    //context.LearningContext.Log("leaky-relu-backpropagation", channel, _source.GetHashCode(), errorSignal, delta);
-                    return delta;
-                }
+                return context.ToGraphData(_input.Zip(errorSignal.Decompose(), (input, es) => {
+                    using (var od = input.LeakyReluDerivative()) {
+                        var delta = es.PointwiseMultiply(od);
+                        //context.LearningContext.Log("leaky-relu-backpropagation", channel, _source.GetHashCode(), errorSignal, delta);
+                        return delta;
+                    }
+                }));
             }
         }
 
@@ -38,9 +42,9 @@ namespace BrightWire.ExecutionGraph.Activation
 
         public override void ExecuteForward(IContext context)
         {
-            var input = context.Data.GetAsMatrix();
-            var output = input.LeakyReluActivation();
-            _AddNextGraphAction(context, new MatrixGraphData(output), () => new Backpropagation(this, input));
+            var input = context.Data.Decompose();
+            var output = context.ToGraphData(input.Select(m => m.LeakyReluActivation()));
+            _AddNextGraphAction(context, output, () => new Backpropagation(this, input));
         }
 
         //public IMatrix Train(IMatrix input, int channel, IBatchContext context)

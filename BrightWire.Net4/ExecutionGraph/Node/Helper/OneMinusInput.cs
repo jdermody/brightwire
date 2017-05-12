@@ -11,13 +11,11 @@ namespace BrightWire.ExecutionGraph.Node.Helper
     {
         class Backpropagation : SingleBackpropagationBase
         {
-            protected override IMatrix _Backward(IMatrix errorSignal, IContext context, IReadOnlyList<INode> parents)
+            protected override IGraphData _Backward(IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
-                if (parents?.Any() == true) {
-                    using (var minusOne = context.LinearAlgebraProvider.Create(errorSignal.RowCount, errorSignal.ColumnCount, -1f))
-                        return errorSignal.PointwiseMultiply(errorSignal);
-                }
-                return null;
+                var es = errorSignal.GetMatrix();
+                using (var minusOne = context.LinearAlgebraProvider.Create(es.RowCount, es.ColumnCount, -1f))
+                    return minusOne.PointwiseMultiply(es).ToGraphData();
             }
         }
 
@@ -27,23 +25,11 @@ namespace BrightWire.ExecutionGraph.Node.Helper
 
         public override void ExecuteForward(IContext context)
         {
-            var input = context.Data.GetAsMatrix();
+            var input = context.Data.GetMatrix();
             using (var ones = context.LinearAlgebraProvider.Create(input.RowCount, input.ColumnCount, 1f)) {
                 var output = ones.Subtract(input);
                 _AddNextGraphAction(context, new MatrixGraphData(output), () => new Backpropagation());
             }
         }
-
-        //public IMatrix Execute(IMatrix input, int channel, IContext context)
-        //{
-        //    using (var ones = _lap.Create(input.RowCount, input.ColumnCount, 1f))
-        //        return ones.Subtract(input);
-        //}
-
-        //public IMatrix Train(IMatrix input, int channel, IContext context)
-        //{
-        //    context.RegisterBackpropagation(new Backpropagation(_lap), channel);
-        //    return Execute(input, channel, context);
-        //}
     }
 }

@@ -826,6 +826,10 @@ namespace BrightWire
         /// </summary>
         /// <returns></returns>
         IMatrix Rotate180();
+
+        //IMatrix AddPadding(int padding);
+
+        //IMatrix Im2Col(int filterWidth, int filterHeight, int stride);
     }
 
     /// <summary>

@@ -25,60 +25,17 @@ namespace BrightWire.ExecutionGraph.Input
 
             public void Execute()
             {
-                var lap = _provider._lap;
                 var dataSource = _provider._dataSource;
-                if (dataSource.IsSequential) {
-                    var miniBatchData = dataSource.GetSequential(_rows);
-                    List<FloatVector> temp;
-                    var inputData = new Dictionary<int, List<FloatVector>>();
-                    var outputData = new Dictionary<int, List<FloatVector>>();
-                    foreach (var item in miniBatchData) {
-                        var input = item.Input;
-                        var output = item.Output;
-                        for (int i = 0, len = input.RowCount; i < len; i++) {
-                            if (!inputData.TryGetValue(i, out temp))
-                                inputData.Add(i, temp = new List<FloatVector>());
-                            temp.Add(input.Row[i]);
-
-                            if (output != null) {
-                                if (!outputData.TryGetValue(i, out temp))
-                                    outputData.Add(i, temp = new List<FloatVector>());
-                                temp.Add(output.Row[i]);
-                            }
-                        }
-                    }
-
-                    var miniBatch = new MiniBatch(_rows, dataSource);
-                    foreach (var item in inputData.OrderBy(kv => kv.Key)) {
-                        var input = lap.Create(item.Value);
-                        IMatrix output = null;
-                        if (outputData.TryGetValue(item.Key, out temp))
-                            output = lap.Create(temp);
-                        var type = (item.Key == 0)
-                            ? MiniBatchType.SequenceStart
-                            : item.Key == (inputData.Count - 1)
-                                ? MiniBatchType.SequenceEnd
-                                : MiniBatchType.Standard
-                        ;
-                        miniBatch.Add(type, input, output);
-                    }
-                    _handler(miniBatch);
-                } else {
-                    var miniBatch = dataSource.Get(_rows);
-                    var input = lap.Create(miniBatch.Count, dataSource.InputSize, (x, y) => miniBatch[x].Item1[y]);
-                    var output = dataSource.OutputSize > 0 ? lap.Create(miniBatch.Count, dataSource.OutputSize, (x, y) => miniBatch[x].Item2[y]) : null;
-                    _handler(new MiniBatch(_rows, dataSource, input, output));
-                }
+                var miniBatch = dataSource.Get(_rows);
+                _handler(miniBatch);
             }
         }
         readonly IDataSource _dataSource;
-        readonly ILinearAlgebraProvider _lap;
         readonly bool _isStochastic;
 
-        public MiniBatchProvider(IDataSource dataSource, ILinearAlgebraProvider lap, bool isStochastic)
+        public MiniBatchProvider(IDataSource dataSource, bool isStochastic)
         {
             _dataSource = dataSource;
-            _lap = lap;
             _isStochastic = isStochastic;
         }
 

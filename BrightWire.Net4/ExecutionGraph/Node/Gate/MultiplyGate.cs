@@ -24,12 +24,13 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 _input2.Dispose();
             }
 
-            public override void Backward(IMatrix errorSignal, IContext context, IReadOnlyList<INode> parents)
+            public override void Backward(IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
-                using (var delta1 = errorSignal.PointwiseMultiply(_input2))
-                using (var delta2 = errorSignal.PointwiseMultiply(_input1)) {
-                    context.AddBackward(delta1, parents.First());
-                    context.AddBackward(delta2, parents.Last());
+                var es = errorSignal.GetMatrix();
+                using (var delta1 = es.PointwiseMultiply(_input2))
+                using (var delta2 = es.PointwiseMultiply(_input1)) {
+                    context.AddBackward(delta1.ToGraphData(), parents.First());
+                    context.AddBackward(delta2.ToGraphData(), parents.Last());
                 }
             }
         }

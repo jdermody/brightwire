@@ -63,6 +63,32 @@ namespace BrightWire.TrainingData.WellKnown
                     );
                 }
             }
+
+            public (FloatTensor Tensor, FloatVector Label) AsFloatTensor
+            {
+                get
+                {
+                    const int SIZE = 28;
+                    var data = AsFloatArray;
+                    var rows = new List<FloatVector>();
+                    var vector = data.Data.Data;
+
+                    for (var y = 0; y < SIZE; y++) {
+                        var row = new float[SIZE];
+                        for(var x = 0; x < SIZE; x++)
+                            row[x] = vector[(y * SIZE) + x];
+                        rows.Add(new FloatVector { Data = row });
+                    }
+                    var tensor = new FloatTensor {
+                        Matrix = new FloatMatrix[] {
+                            new FloatMatrix {
+                                Row = rows.ToArray()
+                            }
+                        }
+                    };
+                    return (tensor, data.Label);
+                }
+            }
         }
 
         /// <summary>
@@ -70,14 +96,15 @@ namespace BrightWire.TrainingData.WellKnown
         /// </summary>
         /// <param name="labelPath">Path to the label data file</param>
         /// <param name="imagePath">Path to the image data file</param>
-        public static IReadOnlyList<Image> Load(string labelPath, string imagePath)
+        /// <param name="total">Maximum number of images to load</param>
+        public static IReadOnlyList<Image> Load(string labelPath, string imagePath, int total = int.MaxValue)
         {
             var labels = new List<byte>();
             using (var file = new FileStream(labelPath, FileMode.Open, FileAccess.Read))
             using (var reader = new BigEndianBinaryReader(file)) {
                 reader.ReadInt32();
                 var count = reader.ReadUInt32();
-                for (var i = 0; i < count; i++) {
+                for (var i = 0; i < count && i < total; i++) {
                     labels.Add(reader.ReadByte());
                 }
             }
@@ -90,7 +117,7 @@ namespace BrightWire.TrainingData.WellKnown
                 var numRows = reader.ReadUInt32();
                 var numCols = reader.ReadUInt32();
                 var imageSize = numRows * numCols;
-                for (var i = 0; i < count; i++) {
+                for (var i = 0; i < count && i < total; i++) {
                     var imageData = new byte[imageSize];
                     for (var j = 0; j < imageSize; j++) {
                         imageData[j] = reader.ReadByte();

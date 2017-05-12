@@ -104,5 +104,7 @@ namespace BrightWire.Models
                 return sb.ToString();
             }
         }
+
+        public int Size => Depth * RowCount * ColumnCount;
     }
 }

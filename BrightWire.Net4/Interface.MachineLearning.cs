@@ -86,13 +86,14 @@ namespace BrightWire
     {
         double EpochSeconds { get; }
         long EpochMilliseconds { get; }
-
+        ILinearAlgebraProvider LinearAlgebraProvider { get; }
         int CurrentEpoch { get; }
         float LearningRate { get; }
         int BatchSize { get; }
         int RowCount { get; }
         void Store(IMatrix error, Action<IMatrix> updater);
         bool CalculateTrainingError { get; }
+        bool DeferUpdates { get; }
         void ApplyUpdates();
         void StartEpoch();
         void EndEpoch();

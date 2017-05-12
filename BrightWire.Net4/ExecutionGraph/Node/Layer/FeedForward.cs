@@ -27,19 +27,19 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 _input.Dispose();
             }
 
-            protected override IMatrix _Backward(IMatrix errorSignal, IContext context, IReadOnlyList<INode> parents)
+            protected override IGraphData _Backward(IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
+                var es = errorSignal.GetMatrix();
+
                 // work out the next error signal
-                IMatrix ret = null;
-                if (parents?.Any() == true)
-                    ret = errorSignal.TransposeAndMultiply(_layer._weight);
+                IMatrix ret = es.TransposeAndMultiply(_layer._weight);
 
                 // calculate the update to the weights
-                var weightUpdate = _input.TransposeThisAndMultiply(errorSignal);
+                var weightUpdate = _input.TransposeThisAndMultiply(es);
 
                 // store the updates
                 var learningContext = context.LearningContext;
-                learningContext.Store(errorSignal, err => _UpdateBias(err, learningContext));
+                learningContext.Store(es, err => _UpdateBias(err, learningContext));
                 learningContext.Store(weightUpdate, err => _layer.Update(err, learningContext));
 
                 // log the backpropagation
@@ -55,7 +55,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 //    }
                 //});
 
-                return ret;
+                return ret.ToGraphData();
             }
 
             void _UpdateBias(IMatrix delta, ILearningContext context)
@@ -94,7 +94,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
         public override void ExecuteForward(IContext context)
         {
-            var input = context.Data.GetAsMatrix();
+            var input = context.Data.GetMatrix();
 
             // feed forward
             var output = input.Multiply(_weight);

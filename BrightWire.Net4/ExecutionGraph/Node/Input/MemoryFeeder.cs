@@ -20,16 +20,18 @@ namespace BrightWire.ExecutionGraph.Node.Input
                 _feeder = feeder;
             }
 
-            public override void Backward(IMatrix errorSignal, IContext context, IReadOnlyList<INode> parents)
+            public override void Backward(IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
+                var es = errorSignal.GetMatrix();
+
                 context.LearningContext.Log(writer => {
                     writer.WriteStartElement("memory-backpropagation");
                     if (context.LearningContext.LogMatrixValues)
-                        writer.WriteRaw(errorSignal.AsIndexable().AsXml);
+                        writer.WriteRaw(es.AsIndexable().AsXml);
                     writer.WriteEndElement();
                 });
 
-                using (var columnSums = errorSignal.ColumnSums()) {
+                using (var columnSums = es.ColumnSums()) {
                     var initialDelta = columnSums.AsIndexable();
                     for (var j = 0; j < _feeder._data.Length; j++)
                         _feeder._data[j] += initialDelta[j] * context.LearningContext.LearningRate;
@@ -55,9 +57,9 @@ namespace BrightWire.ExecutionGraph.Node.Input
                 return _id;
             }
 
-            public void Execute(IMatrix input, IContext context)
+            public void Execute(IGraphData input, IContext context)
             {
-                context.ExecutionContext.SetMemory(_id, input);
+                context.ExecutionContext.SetMemory(_id, input.GetMatrix());
             }
         }
 

@@ -95,6 +95,13 @@ namespace BrightWire.ExecutionGraph
             return this;
         }
 
+        public WireBuilder AddConvolutional(int inputDepth, int filterCount, int padding, int filterWidth, int filterHeight, int stride, string name = null)
+        {
+            _SetNode(_factory.CreateConvolutional(inputDepth, filterCount, padding, filterWidth, filterHeight, stride, name));
+            // work out the new size here
+            return this;
+        }
+
         public INode Build() => _node;
 
         public INode LastNode => _node;

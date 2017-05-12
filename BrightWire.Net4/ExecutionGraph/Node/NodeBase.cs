@@ -59,8 +59,7 @@ namespace BrightWire.ExecutionGraph.Node
 
         protected void _AddNextGraphAction(IContext context, IGraphData data, Func<IBackpropagation> backProp)
         {
-            if(_output.Any())
-                context.AddForward(new TrainingAction(this, data, context.Source), backProp);
+            context.AddForward(new TrainingAction(this, data, context.Source), backProp);
         }
 
         public virtual Models.ExecutionGraph.Node SerialiseTo(List<Models.ExecutionGraph.Node> connectedTo, List<Models.ExecutionGraph.Wire> wireList)

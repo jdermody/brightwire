@@ -8,7 +8,7 @@ namespace BrightWire.ExecutionGraph.Node
 {
     abstract class BackpropagationBase : IBackpropagation
     {
-        public abstract void Backward(IMatrix errorSignal, IContext context, IReadOnlyList<INode> parents);
+        public abstract void Backward(IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents);
 
         #region Disposal
         ~BackpropagationBase()

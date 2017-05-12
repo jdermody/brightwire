@@ -18,33 +18,29 @@ namespace BrightWire.ExecutionGraph.Engine
             readonly ExecutionEngine _engine;
             readonly IMiniBatchSequence _miniBatch;
             readonly List<IExecutionHistory> _forward = new List<IExecutionHistory>();
-            IGraphData _data;
             INode _sourceNode = null;
-            IMatrix _output = null, _input = null;
+            IMatrix _output = null;
 
             public Context(ExecutionEngine engine, IMiniBatchSequence miniBatch)
             {
                 _engine = engine;
                 _miniBatch = miniBatch;
-                _data = new MatrixGraphData(miniBatch.Input);
+                _engine._executionContext.Data = new MatrixGraphData(miniBatch.Input);
             }
 
             public bool IsTraining => false;
-            public IGraphData Data => _data;
             public INode Source => _sourceNode;
             public IExecutionContext ExecutionContext => _engine._executionContext;
             public ILearningContext LearningContext => null;
             public ILinearAlgebraProvider LinearAlgebraProvider => _engine._lap;
             public IMiniBatchSequence BatchSequence => _miniBatch;
-            public void AddBackward(IMatrix errorSignal, INode target) => throw new NotImplementedException();
-            public void Backpropagate(IMatrix delta) => throw new NotImplementedException();
+            public void AddBackward(IGraphData errorSignal, INode target) => throw new NotImplementedException();
+            public void Backpropagate(IGraphData delta) => throw new NotImplementedException();
             public void AddForward(IExecutionHistory action, Func<IBackpropagation> callback) => _forward.Add(action);
-            public IMatrix Output => _output;
-            public void SetOutput(IMatrix output)
-            {
-                _output = output;
-            }
+            public IGraphData ErrorSignal => throw new NotImplementedException();
             public bool HasNext => _forward.Any();
+            public IGraphData Data => _engine._executionContext.Data;
+            public IMatrix Output { get => _output; set => _output = value; }
 
             public bool ExecuteNext()
             {
@@ -52,7 +48,7 @@ namespace BrightWire.ExecutionGraph.Engine
                     var next = _forward.ElementAt(0);
                     _forward.RemoveAt(0);
 
-                    _data = next.Data;
+                    _engine._executionContext.Data = next.Data;
                     _sourceNode = next.Source;
                     if (next.Source.Output != null) {
                         foreach (var output in next.Source.Output)
@@ -106,7 +102,7 @@ namespace BrightWire.ExecutionGraph.Engine
         public IReadOnlyList<ExecutionResult> Execute(IDataSource dataSource, int batchSize = 128)
         {
             _dataSource = dataSource;
-            var provider = new MiniBatchProvider(dataSource, _lap, false);
+            var provider = new MiniBatchProvider(dataSource, false);
             _executionContext.Add(provider.GetMiniBatches(batchSize, _Execute));
 
             IGraphOperation operation;

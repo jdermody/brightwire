@@ -36,6 +36,7 @@ namespace BrightWire.ExecutionGraph.Engine
         public double EpochSeconds { get { return EpochMilliseconds / 1000.0; } }
         public void ClearLog() => _log?.Clear();
         public bool LogMatrixValues { get; set; }
+        public bool DeferUpdates => _deferUpdates;
 
         public void Store(IMatrix error, Action<IMatrix> updater)
         {

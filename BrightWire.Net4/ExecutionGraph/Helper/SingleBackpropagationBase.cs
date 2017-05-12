@@ -9,7 +9,7 @@ namespace BrightWire.ExecutionGraph.Helper
 {
     abstract class SingleBackpropagationBase : BackpropagationBase
     {
-        public override void Backward(IMatrix errorSignal, IContext context, IReadOnlyList<INode> parents)
+        public override void Backward(IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
         {
             var ret = _Backward(errorSignal, context, parents);
             if (ret != null && parents?.Any() == true) {
@@ -18,6 +18,6 @@ namespace BrightWire.ExecutionGraph.Helper
             }
         }
 
-        protected abstract IMatrix _Backward(IMatrix errorSignal, IContext context, IReadOnlyList<INode> parents);
+        protected abstract IGraphData _Backward(IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents);
     }
 }

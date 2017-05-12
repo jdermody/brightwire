@@ -6,15 +6,13 @@ using System.Linq;
 
 namespace BrightWire.ExecutionGraph.Input
 {
-    class SequentialDataTableAdaptor : IDataSource
+    class SequentialDataTableAdaptor : DataTableAdaptorBase
     {
-        readonly IDataTable _dataTable;
         readonly int[] _rowDepth;
         readonly int _inputSize, _outputSize;
 
-        public SequentialDataTableAdaptor(IDataTable dataTable)
+        public SequentialDataTableAdaptor(ILinearAlgebraProvider lap, IDataTable dataTable) : base(lap, dataTable)
         {
-            _dataTable = dataTable;
             _rowDepth = new int[dataTable.RowCount];
             FloatMatrix inputMatrix = null, outputMatrix = null;
             dataTable.ForEach((row, i) => {
@@ -28,26 +26,22 @@ namespace BrightWire.ExecutionGraph.Input
             _outputSize = outputMatrix.ColumnCount;
         }
 
-        public bool IsSequential => true;
-        public int InputSize => _inputSize;
-        public int OutputSize => _outputSize;
-        public int RowCount => _rowDepth.Length;
+        public override bool IsSequential => true;
+        public override int InputSize => _inputSize;
+        public override int OutputSize => _outputSize;
+        public override int RowCount => _rowDepth.Length;
 
-        public IReadOnlyList<(float[], float[])> Get(IReadOnlyList<int> rows)
+        public override IMiniBatch Get(IReadOnlyList<int> rows)
         {
-            throw new NotImplementedException();
-        }
-
-        public IReadOnlyList<(FloatMatrix Input, FloatMatrix Output)> GetSequential(IReadOnlyList<int> rows)
-        {
-            return _dataTable
+            var data = _dataTable
                 .GetRows(rows)
                 .Select(r => (r.GetField<FloatMatrix>(0), r.GetField<FloatMatrix>(1)))
                 .ToList()
             ;
+            return _GetSequentialMiniBatch(rows, data);
         }
 
-        public IReadOnlyList<IReadOnlyList<int>> GetBuckets()
+        public override IReadOnlyList<IReadOnlyList<int>> GetBuckets()
         {
             return _rowDepth
                 .Select((r, i) => (r, i))

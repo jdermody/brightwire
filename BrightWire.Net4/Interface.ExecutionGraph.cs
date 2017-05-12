@@ -12,20 +12,20 @@ namespace BrightWire
 {
     public enum GraphDataType
     {
-        Vector,
         Matrix,
         Tensor
     }
 
     public interface IGraphData
     {
-        GraphDataType CurrentType { get; }
-        IMatrix GetAsMatrix();
+        GraphDataType DataType { get; }
+        IMatrix GetMatrix();
+        I3DTensor GetTensor();
     }
 
     public interface IAction
     {
-        void Execute(IMatrix input, IContext context);
+        void Execute(IGraphData input, IContext context);
         string Serialise();
         void Initialise(string data);
     }
@@ -65,20 +65,22 @@ namespace BrightWire
     public interface IContext
     {
         bool IsTraining { get; }
-        IGraphData Data { get; }
         INode Source { get; }
         IExecutionContext ExecutionContext { get; }
         ILearningContext LearningContext { get; }
         ILinearAlgebraProvider LinearAlgebraProvider { get; }
         IMiniBatchSequence BatchSequence { get; }
         void AddForward(IExecutionHistory action, Func<IBackpropagation> callback);
-        void AddBackward(IMatrix errorSignal, INode target);
-        void SetOutput(IMatrix output);
-        void Backpropagate(IMatrix delta);
+        void AddBackward(IGraphData errorSignal, INode target);
+        void Backpropagate(IGraphData delta);
+        IGraphData ErrorSignal { get; }
+        IGraphData Data { get; }
+        IMatrix Output { get; set; }
     }
 
     public interface IExecutionContext
     {
+        IGraphData Data { get; set; }
         void SetMemory(string index, IMatrix memory);
         IMatrix GetMemory(string index);
         ILinearAlgebraProvider LinearAlgebraProvider { get; }
@@ -86,7 +88,7 @@ namespace BrightWire
 
     public interface IBackpropagation : IDisposable
     {
-        void Backward(IMatrix errorSignal, IContext context, IReadOnlyList<INode> parents);
+        void Backward(IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents);
     }
 
     public interface IDataSource
@@ -95,10 +97,9 @@ namespace BrightWire
         int InputSize { get; }
         int OutputSize { get; }
         int RowCount { get; }
-        IReadOnlyList<(float[], float[])> Get(IReadOnlyList<int> rows);
-        IReadOnlyList<(FloatMatrix Input, FloatMatrix Output)> GetSequential(IReadOnlyList<int> rows);
+        IMiniBatch Get(IReadOnlyList<int> rows);
         IReadOnlyList<IReadOnlyList<int>> GetBuckets();
-        //string GetOutputLabel(int columnIndex, int vectorIndex);
+        void OnBatchProcessed(IContext context);
     }
 
     public enum MiniBatchType
@@ -130,13 +131,6 @@ namespace BrightWire
         IMiniBatchSequence GetSequenceAtIndex(int index);
     }
 
-    public interface ISequenceResult
-    {
-        IMatrix Output { get; }
-        IMatrix Target { get; }
-        IMatrix Delta { get; }
-    }
-
     //public interface IBatchContext
     //{
     //    double TrainingError { get; }
@@ -154,11 +148,6 @@ namespace BrightWire
     public interface IGraphOperation
     {
         void Execute();
-    }
-
-    public interface IExecutionResult
-    {
-
     }
 
     public interface IGraphEngine

@@ -18,15 +18,15 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 _channels = channels;
             }
 
-            public override void Backward(IMatrix errorSignal, IContext context, IReadOnlyList<INode> parents)
+            public override void Backward(IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
-                IMatrix split, residual = errorSignal;
+                IMatrix split, residual = errorSignal.GetMatrix();
                 int index = 0;
                 foreach(var item in _channels) {
                     (split, residual) = residual.SplitAtColumn(item.Size);
-                    context.AddBackward(split, parents[index++]);
+                    context.AddBackward(split.ToGraphData(), parents[index++]);
                 }
-                context.AddBackward(residual, parents[index]);
+                context.AddBackward(residual.ToGraphData(), parents[index]);
             }
         }
 

@@ -2,6 +2,7 @@
 using BrightWire.ExecutionGraph.Node;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace BrightWire.ExecutionGraph.Activation
@@ -10,35 +11,40 @@ namespace BrightWire.ExecutionGraph.Activation
     {
         class Backpropagation : SingleBackpropagationBase
         {
-            readonly IReadOnlyList<IVector> _rows;
+            readonly IReadOnlyList<IReadOnlyList<IVector>> _rows;
             readonly SoftMax _source;
 
-            public Backpropagation(SoftMax source, IReadOnlyList<IVector> rows)
+            public Backpropagation(SoftMax source, IReadOnlyList<IReadOnlyList<IVector>> rows)
             {
                 _source = source;
                 _rows = rows;
             }
 
-            protected override IMatrix _Backward(IMatrix errorSignal, IContext context, IReadOnlyList<INode> parents)
+            protected override IGraphData _Backward(IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
-                var rowList = new List<IVector>();
-                for (var i = 0; i < errorSignal.RowCount; i++) {
-                    using (var derivative = _rows[i].SoftmaxDerivative()) {
-                        var sm = derivative.Multiply(errorSignal.Row(i));
-                        rowList.Add(sm.ConvertInPlaceToVector());
+                return context.ToGraphData(errorSignal.Decompose().Select((e, ind) => {
+                    var row = _rows[ind];
+                    var rowList = new List<IVector>();
+                    for (var i = 0; i < e.RowCount; i++) {
+                        using (var derivative = row[i].SoftmaxDerivative()) {
+                            var sm = derivative.Multiply(e.Row(i));
+                            rowList.Add(sm.ConvertInPlaceToVector());
+                        }
                     }
-                }
-                var ret = context.LinearAlgebraProvider.Create(rowList);
-                foreach (var item in rowList)
-                    item.Dispose();
-                //context.LearningContext.Log("softmax-backpropagation", channel, _source.GetHashCode(), errorSignal, ret);
-                return ret;
+                    var ret = context.LinearAlgebraProvider.Create(rowList);
+                    foreach (var item in rowList)
+                        item.Dispose();
+                    //context.LearningContext.Log("softmax-backpropagation", channel, _source.GetHashCode(), errorSignal, ret);
+                    return ret;
+                }));
             }
 
             protected override void _Dispose(bool isDisposing)
             {
-                foreach (var item in _rows)
-                    item.Dispose();
+                foreach (var row in _rows) {
+                    foreach (var item in row)
+                        item.Dispose();
+                }
             }
         }
 
@@ -46,16 +52,21 @@ namespace BrightWire.ExecutionGraph.Activation
 
         public override void ExecuteForward(IContext context)
         {
-            var input = context.Data.GetAsMatrix();
-            var rowList = new List<IVector>();
+            var input = context.Data.Decompose();
+            var output = new List<List<IVector>>();
+            var matrixList = new List<IMatrix>();
 
-            for (var i = 0; i < input.RowCount; i++) {
-                using (var row = input.Row(i))
-                    rowList.Add(row.Softmax());
+            foreach(var item in input) {
+                var rowList = new List<IVector>();
+                for (var i = 0; i < item.RowCount; i++) {
+                    using (var row = item.Row(i))
+                        rowList.Add(row.Softmax());
+                }
+                output.Add(rowList);
+                matrixList.Add(context.LinearAlgebraProvider.Create(rowList));
             }
-
-            var output = context.LinearAlgebraProvider.Create(rowList);
-            _AddNextGraphAction(context, new MatrixGraphData(output), () => new Backpropagation(this, rowList));
+            
+            _AddNextGraphAction(context, context.ToGraphData(matrixList), () => new Backpropagation(this, output));
         }
     }
 }

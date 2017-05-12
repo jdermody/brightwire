@@ -115,10 +115,15 @@ namespace BrightWire.ExecutionGraph
             return new LearningContext(_lap, learningRate, batchSize, calculateTrainingError, deferUpdates);
         }
 
-        public IGraphTrainingEngine CreateTrainingEngine(IDataSource dataSource, float trainingRate = 0.1f, int batchSize = 128, bool isStochastic = true)
+        public IGraphTrainingEngine CreateTrainingEngine(IDataSource dataSource, float trainingRate = 0.1f, int batchSize = 128)
         {
             var learningContext = new LearningContext(_lap, trainingRate, batchSize, true, dataSource.IsSequential);
-            return new TrainingEngine(_lap, dataSource, isStochastic, learningContext);
+            return new TrainingEngine(_lap, dataSource, learningContext);
+        }
+
+        public IGraphTrainingEngine CreateTrainingEngine(IDataSource dataSource, ILearningContext learningContext)
+        {
+            return new TrainingEngine(_lap, dataSource, learningContext);
         }
 
         public IGraphEngine CreateEngine(Models.ExecutionGraph graph)
@@ -129,11 +134,29 @@ namespace BrightWire.ExecutionGraph
         public IDataSource GetDataSource(IDataTable dataTable, IDataTableVectoriser vectoriser = null)
         {
             var columns = dataTable.Columns;
-            if (columns.Count == 2 && columns[0].Type == ColumnType.Matrix && columns[1].Type == ColumnType.Matrix)
-                return new SequentialDataTableAdaptor(dataTable);
+            if (columns.Count == 2) {
+                var column1 = columns[0].Type;
+                var column2 = columns[1].Type;
+                if (column1 == ColumnType.Matrix && column2 == ColumnType.Matrix)
+                    return new SequentialDataTableAdaptor(_lap, dataTable);
+                else if (column1 == ColumnType.Vector && column1 == ColumnType.Vector)
+                    return new VectorBasedDataTableAdaptor(_lap, dataTable);
+            }
             
             // default adapator
-            return new DataTableAdaptor(dataTable, vectoriser);
+            return new DataTableAdaptor(_lap, dataTable, vectoriser);
+        }
+
+        public IDataSource GetDataSource(IDataTable dataTable, ILearningContext learningContext, Action<WireBuilder> dataConversionBuilder)
+        {
+            var columns = dataTable.Columns;
+            if (columns.Count == 2) {
+                var column1 = columns[0].Type;
+                var column2 = columns[1].Type;
+                if (column1 == ColumnType.Tensor && column2 == ColumnType.Vector)
+                    return new TensorBasedDataTableAdaptor(learningContext, this, dataTable, dataConversionBuilder);
+            }
+            throw new ArgumentException($"{nameof(dataTable)} does not contain a recognised data format");
         }
 
         public INode CreateFeedForward(int inputSize, int outputSize, string name = null)
@@ -148,6 +171,12 @@ namespace BrightWire.ExecutionGraph
 
             // create the layer
             return new FeedForward(bias, weight, optimisation, name);
+        }
+
+        public INode CreateConvolutional(int inputDepth, int filterCount, int padding, int filterWidth, int filterHeight, int stride, string name = null)
+        {
+            var weightInit = _GetWeightInitialisation();
+            return new Convolutional(weightInit, weight => _GetGradientDescent(weight), inputDepth, filterCount, padding, filterWidth, filterHeight, stride, name);
         }
 
         public INode CreateSimpleRecurrent(int inputSize, float[] memory, INode activation, string name = null)
@@ -258,7 +287,7 @@ namespace BrightWire.ExecutionGraph
         public INode SoftMaxActivation(string name = null) => new SoftMax(name);
 
         public IWeightInitialisation ConstantWeightInitialisation(float biasValue = 0f, float weightValue = 1f) => new Constant(_lap, biasValue, weightValue);
-        public IWeightInitialisation GaussiantWeightInitialisation(float stdDev = 0.1f) => new Gaussian(_lap, stdDev);
+        public IWeightInitialisation GaussiantWeightInitialisation(bool zeroBias = true, float stdDev = 0.1f) => new Gaussian(_lap, zeroBias, stdDev);
         public IWeightInitialisation IdentityWeightInitialisation(float identityValue = 1f) => new Identity(_lap, identityValue);
         public IWeightInitialisation XavierWeightInitialisation(float parameter = 6) => new Xavier(_lap, parameter);
 

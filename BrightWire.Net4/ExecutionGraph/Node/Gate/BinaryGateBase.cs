@@ -17,7 +17,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         public override void ExecuteForward(IContext context)
         {
             _primarySource = context.Source;
-            _primary = context.Data.GetAsMatrix();
+            _primary = context.Data.GetMatrix();
             _TryComplete(context);
         }
 
@@ -25,7 +25,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         {
             if (channel == 1) {
                 _secondarySource = context.Source;
-                _secondary = context.Data.GetAsMatrix();
+                _secondary = context.Data.GetMatrix();
                 _TryComplete(context);
             }
         }

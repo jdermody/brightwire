@@ -51,7 +51,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         {
             IncomingChannel data;
             if (_data.TryGetValue(channel, out data)) {
-                data.SetData(context.Data.GetAsMatrix(), context.Source);
+                data.SetData(context.Data.GetMatrix(), context.Source);
                 if(_data.All(kv => kv.Value.IsValid)) {
                     _Activate(context, _data.Select(kv => kv.Value));
 

@@ -654,5 +654,51 @@ namespace BrightWire.LinearAlgebra
                 return ret.ToString();
             }
         }
+
+        //public IMatrix Im2Col(int filterWidth, int filterHeight, int stride)
+        //{
+        //    int xOffset = 0, yOffset = 0;
+        //    var rowList = new List<List<float>>();
+
+        //    while (yOffset <= RowCount - filterHeight) {
+        //        var row = new List<float>();
+        //        for (var j = 0; j < filterHeight; j++) {
+        //            for (var i = 0; i < filterWidth; i++) {
+        //                row.Add(this[yOffset + j, xOffset + i]);
+        //            }
+        //        }
+        //        rowList.Add(row);
+
+        //        // move the window
+        //        xOffset += stride;
+        //        if (xOffset > ColumnCount - filterWidth) {
+        //            xOffset = 0;
+        //            yOffset += stride;
+        //        }
+        //    }
+        //    var firstRow = rowList.First();
+        //    return new CpuMatrix(DenseMatrix.Create(rowList.Count, firstRow.Count, (i, j) => rowList[i][j]));
+        //}
+
+        //public IMatrix AddPadding(int padding)
+        //{
+        //    if (padding > 0) {
+        //        var newRows = RowCount + padding * 2;
+        //        var newColumns = ColumnCount + padding * 2;
+        //        var ret = new CpuMatrix(DenseMatrix.Create(newRows, newColumns, 0f));
+
+        //        for (var j = 0; j < newRows; j++) {
+        //            for (var i = 0; i < newColumns; i++) {
+        //                if (i < padding || j < padding)
+        //                    continue;
+        //                else if (i >= newRows - padding || j >= newColumns - padding)
+        //                    continue;
+        //                ret[i, j] = this[i - padding, j - padding];
+        //            }
+        //        }
+        //        return ret;
+        //    }
+        //    return this;
+        //}
     }
 }

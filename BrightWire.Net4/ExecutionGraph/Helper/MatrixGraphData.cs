@@ -12,10 +12,16 @@ namespace BrightWire.ExecutionGraph.Helper
 
         public MatrixGraphData(IMatrix matrix) { _matrix = matrix; }
 
-        public GraphDataType CurrentType => GraphDataType.Matrix;
-        public IMatrix GetAsMatrix()
+        public GraphDataType DataType => GraphDataType.Matrix;
+
+        public IMatrix GetMatrix()
         {
             return _matrix;
+        }
+
+        public I3DTensor GetTensor()
+        {
+            throw new NotImplementedException();
         }
     }
 }
