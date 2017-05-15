@@ -8,13 +8,16 @@ using System.Threading.Tasks;
 using System.IO;
 using BrightWire.Models;
 using ProtoBuf;
+using BrightWire.ExecutionGraph.Node.Helper;
 
 namespace BrightWire.ExecutionGraph.Node.Layer
 {
     internal class SimpleRecurrent : NodeBase
     {
+        IReadOnlyDictionary<INode, IGraphData> _lastBackpropagation = null;
         MemoryFeeder _memory;
         INode _input, _output = null, _activation;
+        OneToMany _start;
         int _inputSize;
 
         public SimpleRecurrent(GraphFactory graph, int inputSize, float[] memory, INode activation, string name = null)
@@ -37,16 +40,24 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             _output = graph.Add(inputChannel, memoryChannel)
                 .Add(activation)
                 .Add(_memory.SetMemoryAction)
+                .Add(new RestoreErrorSignal(context => {
+                    if(_lastBackpropagation != null) {
+                        foreach(var item in _lastBackpropagation)
+                            context.AppendErrorSignal(item.Value, item.Key);
+                    }
+                    _lastBackpropagation = null;
+                }))
                 .Build()
             ;
+
+            _start = new OneToMany(SubNodes, bp => _lastBackpropagation = bp);
         }
 
         public override List<IWire> Output => _output.Output;
 
         public override void ExecuteForward(IContext context)
         {
-            foreach (var node in SubNodes)
-                node.ExecuteForward(context, 0);
+            _start.ExecuteForward(context);
         }
 
         protected override (string Description, byte[] Data) _GetInfo()

@@ -9,12 +9,13 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 {
     class MaxPool : NodeBase
     {
-        class Backpropagation : SingleBackpropagationBase
+        class Backpropagation : SingleBackpropagationBase<MaxPool>
         {
             readonly List<Dictionary<Tuple<int, int>, Tuple<int, int>>> _indexPosList;
             readonly int _columns, _rows, _newColumns, _newRows;
 
-            public Backpropagation(List<Dictionary<Tuple<int, int>, Tuple<int, int>>> indexPosList, int columns, int rows, int newColumns, int newRows)
+            public Backpropagation(MaxPool source, List<Dictionary<Tuple<int, int>, Tuple<int, int>>> indexPosList, int columns, int rows, int newColumns, int newRows)
+                : base(source)
             {
                 _indexPosList = indexPosList;
                 _columns = columns;
@@ -23,7 +24,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 _newRows = newRows;
             }
 
-            protected override IGraphData _Backward(IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
+            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
                 var tensor = errorSignal.GetTensor().AsIndexable();
                 var lap = context.LinearAlgebraProvider;
@@ -64,7 +65,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             var output = tensor.MaxPool(_width, _height, _stride, indexPosList);
 
             var graphData = new TensorGraphData(output);
-            _AddNextGraphAction(context, graphData, () => new Backpropagation(indexPosList, tensor.ColumnCount, tensor.RowCount, output.ColumnCount, output.RowCount));
+            _AddNextGraphAction(context, graphData, () => new Backpropagation(this, indexPosList, tensor.ColumnCount, tensor.RowCount, output.ColumnCount, output.RowCount));
         }
     }
 }

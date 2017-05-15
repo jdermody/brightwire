@@ -30,7 +30,7 @@ namespace BrightWire.ExecutionGraph.Engine
             _isStochastic = lap.IsStochastic;
             _executionContext = new ExecutionContext(lap);
             _learningContext = learningContext;
-            _input = new FlowThrough(true);
+            _input = new FlowThrough();
         }
 
         public IReadOnlyList<ExecutionResult> Execute(IDataSource dataSource, int batchSize = 128)

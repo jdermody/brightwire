@@ -11,14 +11,12 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 {
     class FeedForward : NodeBase
     {
-        class Backpropagation : SingleBackpropagationBase
+        class Backpropagation : SingleBackpropagationBase<FeedForward>
         {
-            readonly FeedForward _layer;
             readonly IMatrix _input = null;
 
-            public Backpropagation(FeedForward layer, IMatrix input)
+            public Backpropagation(FeedForward source, IMatrix input) : base(source)
             {
-                _layer = layer;
                 _input = input;
             }
 
@@ -27,12 +25,12 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 _input.Dispose();
             }
 
-            protected override IGraphData _Backward(IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
+            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
                 var es = errorSignal.GetMatrix();
 
                 // work out the next error signal
-                IMatrix ret = es.TransposeAndMultiply(_layer._weight);
+                IMatrix ret = es.TransposeAndMultiply(_source._weight);
 
                 // calculate the update to the weights
                 var weightUpdate = _input.TransposeThisAndMultiply(es);
@@ -40,7 +38,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 // store the updates
                 var learningContext = context.LearningContext;
                 learningContext.Store(es, err => _UpdateBias(err, learningContext));
-                learningContext.Store(weightUpdate, err => _layer.Update(err, learningContext));
+                learningContext.Store(weightUpdate, err => _source.Update(err, learningContext));
 
                 // log the backpropagation
                 //learningContext.Log("feed-forward-backpropagation", channel, _layer.GetHashCode(), errorSignal, ret, writer => {
@@ -61,7 +59,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             void _UpdateBias(IMatrix delta, ILearningContext context)
             {
                 using (var columnSums = delta.ColumnSums())
-                    _layer._bias.AddInPlace(columnSums, 1f / columnSums.Count, context.LearningRate);
+                    _source._bias.AddInPlace(columnSums, 1f / columnSums.Count, context.LearningRate);
             }
         }
 

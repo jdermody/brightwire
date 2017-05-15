@@ -34,19 +34,12 @@ namespace BrightWire.ExecutionGraph.Action
             if (context.IsTraining) {
                 var target = context.BatchSequence.Target;
                 if (target == null)
-                    context.LearningContext.DeferBackpropagation(signal => _BPTT(output, signal.GetMatrix(), context));
+                    context.LearningContext.DeferBackpropagation(signal => context.Backpropagate(signal));
                 else {
-                    var signal = _BPTT(output, target, context);
-                    context.LearningContext.BackpropagateThroughTime(signal, _maxDepth);
+                    var gradient = _errorMetric.CalculateGradient(output, target);
+                    context.LearningContext.BackpropagateThroughTime(gradient.ToGraphData(), _maxDepth);
                 }
             }
-        }
-
-        IGraphData _BPTT(IMatrix output, IMatrix target, IContext context)
-        {
-            var gradient = _errorMetric.CalculateGradient(output, target);
-            context.LearningContext?.Log("backprogation-error", gradient);
-            return context.Backpropagate(gradient.ToGraphData());
         }
     }
 }

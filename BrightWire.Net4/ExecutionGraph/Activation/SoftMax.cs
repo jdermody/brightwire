@@ -9,18 +9,16 @@ namespace BrightWire.ExecutionGraph.Activation
 {
     class SoftMax : NodeBase
     {
-        class Backpropagation : SingleBackpropagationBase
+        class Backpropagation : SingleBackpropagationBase<SoftMax>
         {
             readonly IReadOnlyList<IReadOnlyList<IVector>> _rows;
-            readonly SoftMax _source;
 
-            public Backpropagation(SoftMax source, IReadOnlyList<IReadOnlyList<IVector>> rows)
+            public Backpropagation(SoftMax source, IReadOnlyList<IReadOnlyList<IVector>> rows) : base(source)
             {
-                _source = source;
                 _rows = rows;
             }
 
-            protected override IGraphData _Backward(IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
+            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
                 return context.ToGraphData(errorSignal.Decompose().Select((e, ind) => {
                     var row = _rows[ind];

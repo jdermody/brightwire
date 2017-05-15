@@ -9,14 +9,12 @@ namespace BrightWire.ExecutionGraph.Activation
 {
     class Tanh : NodeBase
     {
-        class Backpropagation : SingleBackpropagationBase
+        class Backpropagation : SingleBackpropagationBase<Tanh>
         {
             readonly IReadOnlyList<IMatrix> _input;
-            readonly Tanh _source;
 
-            public Backpropagation(Tanh source, IReadOnlyList<IMatrix> matrix)
+            public Backpropagation(Tanh source, IReadOnlyList<IMatrix> matrix) : base(source)
             {
-                _source = source;
                 _input = matrix;
             }
 
@@ -26,7 +24,7 @@ namespace BrightWire.ExecutionGraph.Activation
                     item.Dispose();
             }
 
-            protected override IGraphData _Backward(IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
+            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
                 return context.ToGraphData(_input.Zip(errorSignal.Decompose(), (input, es) => {
                     using (var od = input.TanhDerivative()) {

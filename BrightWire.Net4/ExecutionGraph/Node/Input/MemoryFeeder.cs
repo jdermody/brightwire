@@ -11,16 +11,13 @@ namespace BrightWire.ExecutionGraph.Node.Input
 {
     internal class MemoryFeeder : NodeBase
     {
-        class Backpropagation : BackpropagationBase
+        class Backpropagation : BackpropagationBase<MemoryFeeder>
         {
-            readonly MemoryFeeder _feeder;
-
-            public Backpropagation(MemoryFeeder feeder)
+            public Backpropagation(MemoryFeeder source) : base(source)
             {
-                _feeder = feeder;
             }
 
-            public override void Backward(IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
+            public override void _Backward(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
                 var es = errorSignal.GetMatrix();
 
@@ -33,8 +30,8 @@ namespace BrightWire.ExecutionGraph.Node.Input
 
                 using (var columnSums = es.ColumnSums()) {
                     var initialDelta = columnSums.AsIndexable();
-                    for (var j = 0; j < _feeder._data.Length; j++)
-                        _feeder._data[j] += initialDelta[j] * context.LearningContext.LearningRate;
+                    for (var j = 0; j < _source._data.Length; j++)
+                        _source._data[j] += initialDelta[j] * context.LearningContext.LearningRate;
                 }
             }
         }

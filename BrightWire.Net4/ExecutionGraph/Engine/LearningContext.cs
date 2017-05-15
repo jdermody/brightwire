@@ -10,7 +10,7 @@ namespace BrightWire.ExecutionGraph.Engine
     {
         readonly ILinearAlgebraProvider _lap;
         readonly List<(object Error, Action<object> Updater)> _layerUpdate = new List<(object, Action<object>)>();
-        readonly Stack<Func<IGraphData, IGraphData>> _deferredBackpropagation = new Stack<Func<IGraphData, IGraphData>>();
+        readonly Stack<Action<IGraphData>> _deferredBackpropagation = new Stack<Action<IGraphData>>();
         readonly bool _calculateTrainingError, _deferUpdates;
         readonly Stopwatch _timer = new Stopwatch();
         float _learningRate;
@@ -25,6 +25,14 @@ namespace BrightWire.ExecutionGraph.Engine
             _learningRate = learningRate;
             _batchSize = batchSize;
             _deferUpdates = deferUpdates;
+        }
+
+        public void Clear()
+        {
+            _layerUpdate.Clear();
+            _deferredBackpropagation.Clear();
+            _currentEpoch = 0;
+            _rowCount = 0;
         }
 
         public ILinearAlgebraProvider LinearAlgebraProvider { get { return _lap; } }
@@ -136,7 +144,7 @@ namespace BrightWire.ExecutionGraph.Engine
             _deferredBackpropagation.Clear();
         }
 
-        public void DeferBackpropagation(Func<IGraphData, IGraphData> update)
+        public void DeferBackpropagation(Action<IGraphData> update)
         {
             _deferredBackpropagation.Push(update);
         }
@@ -147,7 +155,8 @@ namespace BrightWire.ExecutionGraph.Engine
                 int depth = 0;
                 while (_deferredBackpropagation.Count > 0 && depth < maxDepth) {
                     var next = _deferredBackpropagation.Pop();
-                    signal = next(signal);
+                    next(signal);
+                    signal = null;
                     ++depth;
                 }
             }

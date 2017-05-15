@@ -9,15 +9,13 @@ namespace BrightWire.ExecutionGraph.Activation
 {
     class Relu : NodeBase
     {
-        class Backpropagation : SingleBackpropagationBase
+        class Backpropagation : SingleBackpropagationBase<Relu>
         {
             readonly IReadOnlyList<IMatrix> _input;
-            readonly Relu _source;
 
-            public Backpropagation(Relu source, IReadOnlyList<IMatrix> matrix)
+            public Backpropagation(Relu source, IReadOnlyList<IMatrix> matrix) : base(source)
             {
                 _input = matrix;
-                _source = source;
             }
 
             protected override void _Dispose(bool isDisposing)
@@ -26,7 +24,7 @@ namespace BrightWire.ExecutionGraph.Activation
                     item.Dispose();
             }
 
-            protected override IGraphData _Backward(IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
+            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
                 return context.ToGraphData(_input.Zip(errorSignal.Decompose(), (input, es) => {
                     using (var od = input.ReluDerivative()) {

@@ -7,17 +7,20 @@ using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.Helper
 {
-    abstract class SingleBackpropagationBase : BackpropagationBase
+    abstract class SingleBackpropagationBase<T> : BackpropagationBase<T>
+        where T : INode
     {
-        public override void Backward(IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
+        protected SingleBackpropagationBase(T source) : base(source) { }
+
+        public override void _Backward(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
         {
-            var ret = _Backward(errorSignal, context, parents);
-            if (ret != null && parents?.Any() == true) {
-                foreach (var parent in parents)
-                    context.AddBackward(ret, parent);
-            }
+            IGraphData nextError = null;
+            if(errorSignal != null)
+                nextError = _Backpropagate(fromNode, errorSignal, context, parents);
+
+            _SendErrorTo(nextError, context, parents);
         }
 
-        protected abstract IGraphData _Backward(IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents);
+        protected abstract IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents);
     }
 }

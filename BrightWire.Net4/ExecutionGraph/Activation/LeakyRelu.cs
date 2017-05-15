@@ -9,15 +9,13 @@ namespace BrightWire.ExecutionGraph.Activation
 {
     class LeakyRelu : NodeBase
     {
-        class Backpropagation : SingleBackpropagationBase
+        class Backpropagation : SingleBackpropagationBase<LeakyRelu>
         {
             readonly IReadOnlyList<IMatrix> _input;
-            readonly LeakyRelu _source;
 
-            public Backpropagation(LeakyRelu source, IReadOnlyList<IMatrix> matrix)
+            public Backpropagation(LeakyRelu source, IReadOnlyList<IMatrix> matrix) : base(source)
             {
                 _input = matrix;
-                _source = source;
             }
 
             protected override void _Dispose(bool isDisposing)
@@ -26,7 +24,7 @@ namespace BrightWire.ExecutionGraph.Activation
                     item.Dispose();
             }
 
-            protected override IGraphData _Backward(IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
+            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
                 return context.ToGraphData(_input.Zip(errorSignal.Decompose(), (input, es) => {
                     using (var od = input.LeakyReluDerivative()) {
@@ -46,18 +44,5 @@ namespace BrightWire.ExecutionGraph.Activation
             var output = context.ToGraphData(input.Select(m => m.LeakyReluActivation()));
             _AddNextGraphAction(context, output, () => new Backpropagation(this, input));
         }
-
-        //public IMatrix Train(IMatrix input, int channel, IBatchContext context)
-        //{
-        //    context.RegisterBackpropagation(new Backpropagation(this, input), channel);
-        //    var output = Execute(input, channel, context);
-        //    context.LearningContext.Log("leaky-relu", channel, GetHashCode(), input, output);
-        //    return output;
-        //}
-
-        //public IMatrix Execute(IMatrix input, int channel, IBatchContext context)
-        //{
-        //    return input.LeakyReluActivation();
-        //}
     }
 }

@@ -15,8 +15,9 @@ namespace BrightWire.ExecutionGraph.Helper
         readonly IMiniBatchSequence _miniBatch;
         readonly ILearningContext _learningContext;
         readonly List<IExecutionHistory> _forward = new List<IExecutionHistory>();
-        readonly Stack<(IGraphData, INode)> _backward = new Stack<(IGraphData, INode)>();
+        readonly Stack<(IGraphData ErrorSignal, INode Target, INode Source)> _backward = new Stack<(IGraphData, INode, INode)>();
         readonly Dictionary<INode, List<IExecutionHistory>> _history = new Dictionary<INode, List<IExecutionHistory>>();
+        readonly Dictionary<INode, List<IGraphData>> _nodeErrorSignal = new Dictionary<INode, List<IGraphData>>();
         INode _sourceNode;
         IGraphData _errorSignal = null;
         double _trainingError = 0;
@@ -51,6 +52,8 @@ namespace BrightWire.ExecutionGraph.Helper
         public IGraphData Data => _executionContext.Data;
         public IMatrix Output { get => _output; set => _output = value; }
 
+        public Stack<(IGraphData ErrorSignal, INode Target, INode Source)> Backward => _backward;
+
         public void AddForward(IExecutionHistory action, Func<IBackpropagation> callback)
         {
             if (callback != null && IsTraining)
@@ -63,9 +66,9 @@ namespace BrightWire.ExecutionGraph.Helper
             temp.Add(action);
         }
 
-        public void AddBackward(IGraphData error, INode source)
+        public void AddBackward(IGraphData error, INode target, INode source)
         {
-            _backward.Push((error, source));
+            Backward.Push((error, target, source));
         }
 
         public bool ExecuteNext()
@@ -86,34 +89,71 @@ namespace BrightWire.ExecutionGraph.Helper
             return false;
         }
 
-        public IGraphData Backpropagate(IGraphData delta)
+        public void Backpropagate(IGraphData delta)
         {
             // calculate training error
-            if (_learningContext?.CalculateTrainingError == true)
+            if (delta != null && _learningContext?.CalculateTrainingError == true)
                 _trainingError = Math.Sqrt(delta.Decompose().Average(m => m.AsIndexable().Values.Select(v => Math.Pow(v, 2)).Average()));
 
             // initialise backpropagation stack
-            _backward.Clear();
-            _backward.Push((delta, _sourceNode));
+            Backward.Clear();
+            AddBackward(delta, _sourceNode, null);
 
             // backpropagate the error through the graph
             List<IExecutionHistory> history;
             _errorSignal = null;
-            while (_backward.Any()) {
-                var next = _backward.Pop();
-                _errorSignal = next.Item1;
-                if (next.Item2 != null && _history.TryGetValue(next.Item2, out history)) {
+            while (Backward.Any()) {
+                var next = Backward.Pop();
+                _errorSignal = _GetErrorSignal(next.ErrorSignal, next.Target);
+
+                if (next.Target != null && _history.TryGetValue(next.Target, out history)) {
                     foreach (var item in history) {
                         if (item.Backpropagation != null)
-                            item.Backpropagation.Backward(_errorSignal, this, item.Parents);
+                            item.Backpropagation.Backward(next.Source, _errorSignal, this, item.Parents);
                         else {
                             foreach (var parent in item.Parents)
-                                _backward.Push((_errorSignal, parent));
+                                AddBackward(_errorSignal, parent, next.Target);
                         }
                     }
                 }
             }
-            return _input.ErrorSignal.ToGraphData();
+        }
+
+        IGraphData _GetErrorSignal(IGraphData errorSignal, INode node)
+        {
+            List<IGraphData> temp;
+            var list = new List<IGraphData>();
+
+            if (errorSignal != null)
+                list.Add(errorSignal);
+            if (_nodeErrorSignal.TryGetValue(node, out temp)) {
+                foreach (var item in temp) {
+                    if (item != null)
+                        list.Add(item);
+                }
+                _nodeErrorSignal.Remove(node);
+            }
+
+            if (list.Count == 1)
+                return list.First();
+            else if(list.Count > 1) {
+                var first = list.First().GetMatrix();
+                foreach (var item in list.Skip(1)) {
+                    var next = item.GetMatrix();
+                    if(next.RowCount == first.RowCount && next.ColumnCount == first.ColumnCount)
+                        first = first.PointwiseMultiply(next);
+                }
+                return first.ToGraphData();
+            }
+            return null;
+        }
+
+        public void AppendErrorSignal(IGraphData errorSignal, INode forNode)
+        {
+            List<IGraphData> temp;
+            if (!_nodeErrorSignal.TryGetValue(forNode, out temp))
+                _nodeErrorSignal.Add(forNode, temp = new List<IGraphData>());
+            temp.Add(errorSignal);
         }
     }
 }

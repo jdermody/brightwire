@@ -18,10 +18,21 @@ namespace BrightWire
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="seq">The sequence to shuffle</param>
-        /// <param name="randomSeed">The random seed or null initialise randomlu</param>
+        /// <param name="randomSeed">The random seed to use or null for a random shuffle</param>
         public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> seq, int? randomSeed = null)
         {
             var rnd = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
+            return Shuffle(seq, rnd);
+        }
+
+        /// <summary>
+        /// Shuffles the enumerable
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="seq">The sequence to shuffle</param>
+        /// <param name="rnd">The random number generator to use</param>
+        public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> seq, Random rnd)
+        {
             return seq.OrderBy(e => rnd.Next()).ToList();
         }
 

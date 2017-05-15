@@ -9,24 +9,24 @@ namespace BrightWire.ExecutionGraph.Node.Gate
 {
     class JoinGate : MultiGateBase
     {
-        class Backpropagation : BackpropagationBase
+        class Backpropagation : BackpropagationBase<JoinGate>
         {
             readonly IReadOnlyList<IncomingChannel> _channels;
 
-            public Backpropagation(IReadOnlyList<IncomingChannel> channels)
+            public Backpropagation(JoinGate source, IReadOnlyList<IncomingChannel> channels) : base(source)
             {
                 _channels = channels;
             }
 
-            public override void Backward(IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
+            public override void _Backward(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
                 IMatrix split, residual = errorSignal.GetMatrix();
                 int index = 0;
                 foreach(var item in _channels) {
                     (split, residual) = residual.SplitAtColumn(item.Size);
-                    context.AddBackward(split.ToGraphData(), parents[index++]);
+                    context.AddBackward(split.ToGraphData(), parents[index++], _source);
                 }
-                context.AddBackward(residual.ToGraphData(), parents[index]);
+                context.AddBackward(residual.ToGraphData(), parents[index], _source);
             }
         }
 
@@ -46,7 +46,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 curr = next;
                 list.Add(item);
             }
-            _AddHistory(context, curr, () => new Backpropagation(list));
+            _AddHistory(context, curr, () => new Backpropagation(this, list));
         }
     }
 }

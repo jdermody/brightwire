@@ -23,7 +23,7 @@ namespace BrightWire.ExecutionGraph.Input
 
             _learningContext = learningContext;
             _executionContext = new ExecutionContext(_lap);
-            _input = new FlowThrough(true);
+            _input = new FlowThrough();
         }
 
         protected IContext _Process(IGraphData data)
@@ -34,6 +34,7 @@ namespace BrightWire.ExecutionGraph.Input
             while (context.HasNext)
                 context.ExecuteNext();
 
+            _learningContext.Clear();
             return context;
         }
 
@@ -45,6 +46,7 @@ namespace BrightWire.ExecutionGraph.Input
             while (context.HasNext)
                 context.ExecuteNext();
 
+            _learningContext.Clear();
             return context;
         }
     }

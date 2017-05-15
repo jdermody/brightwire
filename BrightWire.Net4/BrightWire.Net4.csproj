@@ -140,8 +140,10 @@
     <Compile Include="ExecutionGraph\Node\Gate\MultiplyGate.cs" />
     <Compile Include="ExecutionGraph\Node\Helper\ExecuteAction.cs" />
     <Compile Include="ExecutionGraph\Node\Helper\OneMinusInput.cs" />
+    <Compile Include="ExecutionGraph\Node\Helper\RestoreErrorSignal.cs" />
     <Compile Include="ExecutionGraph\Node\Input\FlowThrough.cs" />
     <Compile Include="ExecutionGraph\Node\Input\MemoryFeeder.cs" />
+    <Compile Include="ExecutionGraph\Node\Input\OneToMany.cs" />
     <Compile Include="ExecutionGraph\Node\Input\ReverseSequence.cs" />
     <Compile Include="ExecutionGraph\Node\Layer\Convolutional.cs" />
     <Compile Include="ExecutionGraph\Node\Layer\FeedForward.cs" />

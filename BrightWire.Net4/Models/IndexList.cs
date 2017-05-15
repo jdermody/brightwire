@@ -76,5 +76,22 @@ namespace BrightWire.Models
                 Index = ret
             };
         }
+
+        /// <summary>
+        /// Converts the index list to XML
+        /// </summary>
+        public string Xml
+        {
+            get
+            {
+                var sb = new StringBuilder();
+                var settings = new XmlWriterSettings {
+                    OmitXmlDeclaration = true
+                };
+                using (var writer = XmlWriter.Create(sb, settings))
+                    WriteTo(null, writer);
+                return sb.ToString();
+            }
+        }
     }
 }

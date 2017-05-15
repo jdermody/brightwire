@@ -21,7 +21,11 @@ namespace BrightWire.ExecutionGraph.Input
             _Initialise(dataTable);
 
             var wireBuilder = factory.Build(_inputSize, _input);
-            dataConversionBuilder(wireBuilder);            
+            dataConversionBuilder(wireBuilder);
+
+            // execute the graph to find the input size (which is the size of the adaptive graph's output)
+            var output = _Encode(new[] { 0 });
+            _inputSize = output.Item1.ColumnCount;
         }
 
         void _Initialise(IDataTable dataTable)
@@ -38,15 +42,16 @@ namespace BrightWire.ExecutionGraph.Input
             _outputSize = outputMatrix.ColumnCount;
         }
 
-        private SequenceToSequenceDataTableAdaptor(ILearningContext learningContext, IDataTable dataTable, FlowThrough input) : base(learningContext, dataTable)
+        private SequenceToSequenceDataTableAdaptor(ILearningContext learningContext, IDataTable dataTable, FlowThrough input, int inputSize) : base(learningContext, dataTable)
         {
             _Initialise(dataTable);
             _input = input;
+            _inputSize = inputSize;
         }
 
         public override IDataSource GetFor(IDataTable dataTable)
         {
-            return new SequenceToSequenceDataTableAdaptor(_learningContext, dataTable, _input);
+            return new SequenceToSequenceDataTableAdaptor(_learningContext, dataTable, _input, _inputSize);
         }
 
         public override bool IsSequential => true;
@@ -63,14 +68,14 @@ namespace BrightWire.ExecutionGraph.Input
             ;
         }
 
-        public override IMiniBatch Get(IReadOnlyList<int> rows)
+        (IMatrix, IReadOnlyList<IRow>) _Encode(IReadOnlyList<int> rows)
         {
             var data = _dataTable.GetRows(rows);
             //_batchEncoder.Clear();
 
             // create the input batch
             var inputData = new List<(FloatMatrix Input, FloatMatrix Output)>();
-            foreach(var row in data)
+            foreach (var row in data)
                 inputData.Add((row.GetField<FloatMatrix>(0), null));
             var encoderInput = _GetSequentialMiniBatch(rows, inputData);
 
@@ -79,10 +84,16 @@ namespace BrightWire.ExecutionGraph.Input
             IMatrix encoderOutput = null;
             while ((sequence = encoderInput.GetNextSequence()) != null) {
                 var context = _Process(sequence);
-                if(sequence.Type == MiniBatchType.SequenceEnd)
+                if (sequence.Type == MiniBatchType.SequenceEnd)
                     encoderOutput = context.Data.GetMatrix();
                 //_batchEncoder.Add(context);
             }
+            return (encoderOutput, data);
+        }
+
+        public override IMiniBatch Get(IReadOnlyList<int> rows)
+        {
+            (var encoderOutput, var data) = _Encode(rows);
 
             // create the decoder input
             List<FloatVector> temp;

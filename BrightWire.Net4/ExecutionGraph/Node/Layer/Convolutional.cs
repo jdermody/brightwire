@@ -10,16 +10,15 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 {
     class Convolutional : NodeBase
     {
-        class Backpropagation : SingleBackpropagationBase
+        class Backpropagation : SingleBackpropagationBase<Convolutional>
         {
-            readonly Convolutional _layer;
             readonly IMatrix _im2Col;
             readonly IIndexable3DTensor _input;
             readonly int _inputWidth, _inputHeight, _newWidth, _newHeight;
 
-            public Backpropagation(Convolutional layer, IMatrix im2Col, IIndexable3DTensor input, int inputWidth, int inputHeight, int newWidth, int newHeight)
+            public Backpropagation(Convolutional source, IMatrix im2Col, IIndexable3DTensor input, int inputWidth, int inputHeight, int newWidth, int newHeight)
+                : base(source)
             {
-                _layer = layer;
                 _input = input;
                 _im2Col = im2Col;
                 _newWidth = newWidth;
@@ -35,50 +34,50 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
             void _UpdateBias(IVector delta, ILearningContext context)
             {
-                _layer._bias.AddInPlace(delta, 1f, context.LearningRate);
+                _source._bias.AddInPlace(delta, 1f, context.LearningRate);
             }
 
             IGraphData _CalculatePreviousError(IIndexable3DTensor errorSignal, IContext context)
             {
-                var filters = _layer._filter.AsIndexable().Columns.ToList();
+                var filters = _source._filter.AsIndexable().Columns.ToList();
                 var lap = context.LinearAlgebraProvider;
-                var columns = _inputHeight + _layer._padding * 2;
-                var rows = _inputWidth + _layer._padding * 2;
-                var matrixList = Enumerable.Range(0, _layer._inputDepth)
+                var columns = _inputHeight + _source._padding * 2;
+                var rows = _inputWidth + _source._padding * 2;
+                var matrixList = Enumerable.Range(0, _source._inputDepth)
                     .Select(i => lap.Create(rows, columns, 0f).AsIndexable())
                     .ToList()
                 ;
                 
                 for (var k = 0; k < errorSignal.Depth; k++) {
                     var slice = errorSignal.GetDepthSlice(k).AsIndexable();
-                    var filterList = filters[k].Split(_layer._inputDepth).Select(f => f.Rotate(_layer._filterWidth).AsIndexable()).ToList();
+                    var filterList = filters[k].Split(_source._inputDepth).Select(f => f.Rotate(_source._filterWidth).AsIndexable()).ToList();
 
                     int y = 0, x = 0, sliceX = 0, sliceY = 0;
-                    while (x <= columns - _layer._filterWidth) {
+                    while (x <= columns - _source._filterWidth) {
                         var error = slice[sliceX, sliceY];
-                        for (var i = 0; i < _layer._filterWidth; i++) {
-                            for (var j = 0; j < _layer._filterHeight; j++) {
+                        for (var i = 0; i < _source._filterWidth; i++) {
+                            for (var j = 0; j < _source._filterHeight; j++) {
                                 for (var z = 0; z < filterList.Count; z++) {
                                     var filter = filterList[z];
                                     var output = matrixList[z];
-                                    output[x + i, y + j] += filter[i * _layer._filterHeight + j] * error;
+                                    output[x + i, y + j] += filter[i * _source._filterHeight + j] * error;
                                 }
                             }
                         }
 
                         // move the window
-                        y += _layer._stride;
+                        y += _source._stride;
                         sliceY++;
-                        if (y > rows - _layer._filterHeight) {
+                        if (y > rows - _source._filterHeight) {
                             y = 0;
                             sliceY = 0;
-                            x += _layer._stride;
+                            x += _source._stride;
                             sliceX++;
                         }
                     }
                 }
-                if(_layer._padding > 0)
-                    return lap.CreateTensor(matrixList.Select(m => m.RemovePadding(_layer._padding)).ToList()).ToGraphData();
+                if(_source._padding > 0)
+                    return lap.CreateTensor(matrixList.Select(m => m.RemovePadding(_source._padding)).ToList()).ToGraphData();
                 else
                     return lap.CreateTensor(matrixList).ToGraphData();
             }
@@ -210,11 +209,11 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 var delta = _im2Col.TransposeThisAndMultiply(multiplyWith);
                 var biasUpdateVector = lap.Create(biasUpdate);
 
-                context.LearningContext.Store(delta, err => _layer.Update(err, context.LearningContext));
+                context.LearningContext.Store(delta, err => _source.Update(err, context.LearningContext));
                 context.LearningContext.Store(biasUpdateVector, bu => _UpdateBias(bu, context.LearningContext));
             }
 
-            protected override IGraphData _Backward(IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
+            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
                 var tensor = errorSignal.GetTensor().AsIndexable();
 

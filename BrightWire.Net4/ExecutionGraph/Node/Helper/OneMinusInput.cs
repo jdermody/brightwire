@@ -9,9 +9,11 @@ namespace BrightWire.ExecutionGraph.Node.Helper
 {
     class OneMinusInput : NodeBase
     {
-        class Backpropagation : SingleBackpropagationBase
+        class Backpropagation : SingleBackpropagationBase<OneMinusInput>
         {
-            protected override IGraphData _Backward(IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
+            public Backpropagation(OneMinusInput source) : base(source) { }
+
+            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
                 var es = errorSignal.GetMatrix();
                 using (var minusOne = context.LinearAlgebraProvider.Create(es.RowCount, es.ColumnCount, -1f))
@@ -28,7 +30,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             var input = context.Data.GetMatrix();
             using (var ones = context.LinearAlgebraProvider.Create(input.RowCount, input.ColumnCount, 1f)) {
                 var output = ones.Subtract(input);
-                _AddNextGraphAction(context, new MatrixGraphData(output), () => new Backpropagation());
+                _AddNextGraphAction(context, new MatrixGraphData(output), () => new Backpropagation(this));
             }
         }
     }

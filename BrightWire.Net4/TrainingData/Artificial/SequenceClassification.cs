@@ -11,6 +11,7 @@ namespace BrightWire.TrainingData.Artificial
     {
         readonly int _dictionarySize;
         readonly int _minSize, _maxSize;
+        readonly bool _noRepeat;
         readonly Random _rnd;
 
         static char[] _dictionary;
@@ -18,8 +19,8 @@ namespace BrightWire.TrainingData.Artificial
 
         static SequenceClassification()
         {
-            _dictionary = Enumerable.Range(0, 26)
-                .Select(i => (char)('A' + i))
+            _dictionary = Enumerable.Range(0, 26 * 2)
+                .Select(i => (i < 26) ? (char)('A' + i) : (char)('a' + i - 26))
                 .ToArray()
             ;
             _charTable = _dictionary
@@ -28,13 +29,21 @@ namespace BrightWire.TrainingData.Artificial
             ;
         }
 
-        public SequenceClassification(int dictionarySize, int minSize, int maxSize, bool isStochastic = true)
+        public SequenceClassification(int dictionarySize, int minSize, int maxSize, bool noRepeat = true, bool isStochastic = true)
         {
             _rnd = isStochastic ? new Random() : new Random(0);
+            _noRepeat = noRepeat;
             _dictionarySize = Math.Min(_dictionary.Length, dictionarySize);
-            _minSize = minSize;
-            _maxSize = maxSize;
+            if (noRepeat) {
+                _minSize = Math.Min(_dictionarySize, _minSize);
+                _maxSize = Math.Min(_dictionarySize, _maxSize);
+            } else {
+                _minSize = minSize;
+                _maxSize = maxSize;
+            }
         }
+
+        public int DictionarySize => _dictionarySize;
 
         int _NextSequenceLength
         {
@@ -49,8 +58,14 @@ namespace BrightWire.TrainingData.Artificial
         public string NextSequence()
         {
             var sb = new StringBuilder();
-            for(int i = 0, len = _NextSequenceLength; i < len; i++)
-                sb.Append(_dictionary[_rnd.Next(0, _dictionarySize)]);
+            if (_noRepeat) {
+                var indices = Enumerable.Range(0, _dictionarySize).Shuffle(_rnd).Take(_NextSequenceLength);
+                foreach(var index in indices)
+                    sb.Append(_dictionary[index]);
+            } else {
+                for (int i = 0, len = _NextSequenceLength; i < len; i++)
+                    sb.Append(_dictionary[_rnd.Next(0, _dictionarySize)]);
+            }
             return sb.ToString();
         }
 

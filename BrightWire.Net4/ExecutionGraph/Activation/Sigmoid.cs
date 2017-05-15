@@ -9,14 +9,12 @@ namespace BrightWire.ExecutionGraph.Activation
 {
     class Sigmoid : NodeBase
     {
-        class Backpropagation : SingleBackpropagationBase
+        class Backpropagation : SingleBackpropagationBase<Sigmoid>
         {
             readonly IReadOnlyList<IMatrix> _input;
-            readonly Sigmoid _source;
 
-            public Backpropagation(Sigmoid source, IReadOnlyList<IMatrix> matrix)
+            public Backpropagation(Sigmoid source, IReadOnlyList<IMatrix> matrix) : base(source)
             {
-                _source = source;
                 _input = matrix;
             }
 
@@ -26,7 +24,7 @@ namespace BrightWire.ExecutionGraph.Activation
                     item.Dispose();
             }
 
-            protected override IGraphData _Backward(IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
+            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
                 return _input.Zip(errorSignal.Decompose(), (i, e) => {
                     using (var od = i.SigmoidDerivative()) {

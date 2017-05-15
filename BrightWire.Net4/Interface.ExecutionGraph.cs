@@ -71,8 +71,9 @@ namespace BrightWire
         ILinearAlgebraProvider LinearAlgebraProvider { get; }
         IMiniBatchSequence BatchSequence { get; }
         void AddForward(IExecutionHistory action, Func<IBackpropagation> callback);
-        void AddBackward(IGraphData errorSignal, INode target);
-        IGraphData Backpropagate(IGraphData delta);
+        void AddBackward(IGraphData errorSignal, INode target, INode source);
+        void AppendErrorSignal(IGraphData errorSignal, INode forNode);
+        void Backpropagate(IGraphData delta);
         IGraphData ErrorSignal { get; }
         IGraphData Data { get; }
         IMatrix Output { get; set; }
@@ -88,7 +89,7 @@ namespace BrightWire
 
     public interface IBackpropagation : IDisposable
     {
-        void Backward(IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents);
+        void Backward(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents);
     }
 
     public interface IDataSource

@@ -640,13 +640,28 @@ namespace BrightWire.TabularData
                     }
                     foreach (var row in rows) {
                         writer.WriteStartElement("row");
+                        var index = 0;
                         foreach (var val in row.Data) {
                             writer.WriteStartElement("item");
                             if (val == null)
                                 writer.WriteString("(null)");
-                            else
-                                writer.WriteString(val.ToString());
+                            else {
+                                var type = Columns[index].Type;
+                                if (type == ColumnType.Vector)
+                                    writer.WriteRaw(((FloatVector)val).Xml);
+                                else if(type == ColumnType.Matrix)
+                                    writer.WriteRaw(((FloatMatrix)val).Xml);
+                                else if (type == ColumnType.Tensor)
+                                    writer.WriteRaw(((FloatTensor)val).Xml);
+                                else if (type == ColumnType.IndexList)
+                                    writer.WriteRaw(((IndexList)val).Xml);
+                                else if (type == ColumnType.WeightedIndexList)
+                                    writer.WriteRaw(((WeightedIndexList)val).Xml);
+                                else
+                                    writer.WriteString(val.ToString());
+                            }
                             writer.WriteEndElement();
+                            ++index;
                         }
                         writer.WriteEndElement();
                     }

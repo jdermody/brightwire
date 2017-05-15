@@ -8,13 +8,16 @@ using System.Threading.Tasks;
 using System.IO;
 using BrightWire.Models;
 using ProtoBuf;
+using BrightWire.ExecutionGraph.Node.Helper;
 
 namespace BrightWire.ExecutionGraph.Node.Layer
 {
     internal class ElmanJordan : NodeBase
     {
+        IReadOnlyDictionary<INode, IGraphData> _lastBackpropagation = null;
         MemoryFeeder _memory;
         INode _input, _output = null, _activation, _activation2;
+        OneToMany _start;
         int _inputSize;
         bool _isElman;
 
@@ -43,17 +46,26 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
             h = h.AddFeedForward(hiddenLayerSize, "Wy").Add(activation2);
             if (!isElman)
-                _output = h.Add(_memory.SetMemoryAction).Build();
-            else
-                _output = h.Build();
+                h.Add(_memory.SetMemoryAction);
+
+            _output = h
+                .Add(new RestoreErrorSignal(context => {
+                    if (_lastBackpropagation != null) {
+                        foreach (var item in _lastBackpropagation)
+                            context.AppendErrorSignal(item.Value, item.Key);
+                    }
+                    _lastBackpropagation = null;
+                }))
+                .Build();
+
+            _start = new OneToMany(SubNodes, bp => _lastBackpropagation = bp);
         }
 
         public override List<IWire> Output => _output.Output;
 
         public override void ExecuteForward(IContext context)
         {
-            foreach (var node in SubNodes)
-                node.ExecuteForward(context, 0);
+            _start.ExecuteForward(context);
         }
 
         protected override (string Description, byte[] Data) _GetInfo()
