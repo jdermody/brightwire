@@ -47,7 +47,7 @@ extern "C"
 		__syncthreads();
 
 		if (index < size)
-            b[index] *= blockA[tidX];
+			b[index] *= blockA[tidX];
 	}
 
 	__global__ void PointwiseDivide(float* a, float* b, int size)
@@ -62,7 +62,7 @@ extern "C"
 		__syncthreads();
 
 		if (index < size)
-            b[index] = blockA[tidX] / b[index];
+			b[index] = blockA[tidX] / b[index];
 	}
 
 	__global__ void Sqrt(float* a, float* b, int size, float valueAdjustment)
@@ -77,7 +77,7 @@ extern "C"
 		__syncthreads();
 
 		if (index < size) {
-            b[index] = sqrt(blockA[tidX] + valueAdjustment);
+			b[index] = sqrt(blockA[tidX] + valueAdjustment);
 		}
 	}
 
@@ -93,7 +93,7 @@ extern "C"
 		__syncthreads();
 
 		if (index < size)
-            a[index] = (a[index] * coefficient1) + (blockB[tidX] * coefficient2);
+			a[index] = (a[index] * coefficient1) + (blockB[tidX] * coefficient2);
 	}
 
 	__global__ void SubtractInPlace(float* a, float* b, int size, float coefficient1, float coefficient2)
@@ -108,7 +108,7 @@ extern "C"
 		__syncthreads();
 
 		if (index < size)
-            a[index] = (a[index] * coefficient1) - (blockB[tidX] * coefficient2);
+			a[index] = (a[index] * coefficient1) - (blockB[tidX] * coefficient2);
 	}
 
 	__global__ void Transpose(float* a, float* b, int rows, int columns)
@@ -119,12 +119,12 @@ extern "C"
 		// read the data into shared memory
 		__shared__ float block[BLOCKSIZE][BLOCKSIZE+1];
 		if (i < rows && j < columns)
-            block[threadIdx.y][threadIdx.x] = a[j * rows + i];
+			block[threadIdx.y][threadIdx.x] = a[j * rows + i];
 		__syncthreads();
 
 		// write output
 		i = blockIdx.y * BLOCKSIZE + threadIdx.x;
-        j = blockIdx.x * BLOCKSIZE + threadIdx.y;
+		j = blockIdx.x * BLOCKSIZE + threadIdx.y;
 		if (i < columns && j < rows)
 			b[j * columns + i] = block[threadIdx.x][threadIdx.y];
 	}
@@ -133,7 +133,7 @@ extern "C"
 	{
 		int index = blockDim.x * blockIdx.x + threadIdx.x;
 		if (index < size)
-            a[index] = value;
+			a[index] = value;
 	}
 
 	__global__ void AddToEachRow(float* a, float* b, int rows, int columns)
@@ -141,7 +141,7 @@ extern "C"
 		int i = blockDim.x * blockIdx.x + threadIdx.x;
 		int j = blockDim.y * blockIdx.y + threadIdx.y;
 		if (i < rows && j < columns)
-            a[j * rows + i] += b[j];
+			a[j * rows + i] += b[j];
 	}
 
 	__global__ void AddToEachColumn(float* a, float* b, int rows, int columns)
@@ -178,7 +178,7 @@ extern "C"
 		int j = blockDim.y * blockIdx.y + threadIdx.y;
 		if (i < rows && j < columns) {
 			int index = j * rows + i;
-            b[index] = 1.0f / (1.0f + exp(-1.0f * a[index]));
+			b[index] = 1.0f / (1.0f + exp(-1.0f * a[index]));
 		}
 	}
 
@@ -186,7 +186,7 @@ extern "C"
 	{
 		int i = blockDim.x * blockIdx.x + threadIdx.x;
 		if (i < size) {
-            b[i] = 1.0f / (1.0f + exp(-1.0f * a[i]));
+			b[i] = 1.0f / (1.0f + exp(-1.0f * a[i]));
 		}
 	}
 
@@ -196,9 +196,9 @@ extern "C"
 		int j = blockDim.y * blockIdx.y + threadIdx.y;
 		if (i < rows && j < columns) {
 			int index = j * rows + i;
-            float sigmoid = 1.0f / (1.0f + exp(-1.0f * a[index]));
-            b[index] = sigmoid * (1.0f - sigmoid);
-        }
+			float sigmoid = 1.0f / (1.0f + exp(-1.0f * a[index]));
+			b[index] = sigmoid * (1.0f - sigmoid);
+		}
 	}
 
 	__global__ void RELU(float* a, float* b, int rows, int columns)
@@ -240,9 +240,9 @@ extern "C"
 		int j = blockDim.y * blockIdx.y + threadIdx.y;
 		if (i < rows && j < columns) {
 			int index = j * rows + i;
-            float val = a[index];
-            b[index] = (val <= 0) ? 0.01f : 1;
-        }
+			float val = a[index];
+			b[index] = (val <= 0) ? 0.01f : 1;
+		}
 	}
 
 	__global__ void SumRows(float* a, float* b, int rows, int columns)
@@ -251,11 +251,11 @@ extern "C"
 
 		int row = blockIdx.x * blockDim.x + threadIdx.x;
 		if (row < rows) {
-            float temp = 0;
-            for (int i = 0; i < columns; i++)
-                temp += a[i * rows + row];
-            b[row] = temp;
-        }
+			float temp = 0;
+			for (int i = 0; i < columns; i++)
+				temp += a[i * rows + row];
+			b[row] = temp;
+		}
 	}
 
 	__global__ void SumColumns(float* a, float* b, int rows, int columns)
@@ -264,29 +264,29 @@ extern "C"
 
 		int column = blockIdx.x * blockDim.x + threadIdx.x;
 		if (column < columns) {
-            float temp = 0;
-            for (int i = 0; i < rows; i++)
-                temp += a[column * rows + i];
-            b[column] = temp;
-        }
+			float temp = 0;
+			for (int i = 0; i < rows; i++)
+				temp += a[column * rows + i];
+			b[column] = temp;
+		}
 	}
 
 	__global__ void MemClear(float* data, int count, int srcOffset, int srcIncrement)
 	{
 		int index = blockIdx.x * blockDim.x + threadIdx.x;
-        if (index < count) {
-            int arrayIndex = srcOffset + (index * srcIncrement);
-            data[arrayIndex] = 0.0f;
-        }
+		if (index < count) {
+			int arrayIndex = srcOffset + (index * srcIncrement);
+			data[arrayIndex] = 0.0f;
+		}
 	}
 
 	__global__ void MemCopy(float* a, float* b, int count, int srcOffset, int srcIncrement)
 	{
 		int index = blockIdx.x * blockDim.x + threadIdx.x;
-        if (index < count) {
-            int arrayIndex = srcOffset + (index * srcIncrement);
-            b[index] = a[arrayIndex];
-        }
+		if (index < count) {
+			int arrayIndex = srcOffset + (index * srcIncrement);
+			b[index] = a[arrayIndex];
+		}
 	}
 
 	__global__ void SparseLoad(float* data, int* offset, int* length, int* destinationIndex, float* src, int rows, int columns)
@@ -635,7 +635,7 @@ extern "C"
 
 		if (i < size) {
 			int offset = i / matrixSize;
-            int index = i % matrixSize;
+			int index = i % matrixSize;
 			b[i] = a[offset][index];
 		}
 	}
@@ -647,7 +647,7 @@ extern "C"
 
 		if (i < bRows && j < bColumns) {
 			int x = i / aColumns;
-            int y = i % aColumns;
+			int y = i % aColumns;
 			b[j * bRows + i] = a[j][y * aRows + x];
 		}
 	}

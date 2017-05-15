@@ -16,6 +16,11 @@ namespace BrightWire.ExecutionGraph.Input
             _vectoriser = vectoriser ?? dataTable.GetVectoriser(true);
         }
 
+        public override IDataSource GetFor(IDataTable dataTable)
+        {
+            return new DataTableAdaptor(_lap, dataTable, _vectoriser);
+        }
+
         public override int InputSize => _vectoriser.InputSize;
         public override int OutputSize => _vectoriser.OutputSize;
         public override bool IsSequential => false;

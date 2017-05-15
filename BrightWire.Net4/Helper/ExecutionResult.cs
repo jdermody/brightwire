@@ -21,6 +21,7 @@ namespace BrightWire.Helper
         public IReadOnlyList<IIndexableVector> Output => _output;
         public IReadOnlyList<IIndexableVector> Target => _miniBatch.Target?.AsIndexable().Rows.ToList();
         public IReadOnlyList<IIndexableVector> Input => _miniBatch.Input.AsIndexable().Rows.ToList();
+        public IMiniBatchSequence MiniBatchSequence => _miniBatch;
 
         public float CalculateError(IErrorMetric errorMetric) => Output.Zip(Target, (o, t) => errorMetric.Compute(o, t)).Average();
     }

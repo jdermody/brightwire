@@ -607,6 +607,12 @@ namespace BrightWire
         void AddInPlace(IMatrix matrix, float coefficient1 = 1.0f, float coefficient2 = 1.0f);
 
         /// <summary>
+        /// Adds a scalar to each item in the matrix
+        /// </summary>
+        /// <param name="scalar">The value to add</param>
+        void AddInPlace(float scalar);
+
+        /// <summary>
         /// Subtracts the target matrix from the current matrix (in place)
         /// </summary>
         /// <param name="matrix">The target matrix</param>

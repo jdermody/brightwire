@@ -1,4 +1,5 @@
 ﻿using BrightWire.ExecutionGraph.Engine;
+using BrightWire.ExecutionGraph.Node.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,7 @@ namespace BrightWire.ExecutionGraph.Helper
 {
     class TrainingEngineContext : IContext
     {
+        readonly FlowThrough _input;
         readonly IExecutionContext _executionContext;
         readonly IMiniBatchSequence _miniBatch;
         readonly ILearningContext _learningContext;
@@ -20,15 +22,17 @@ namespace BrightWire.ExecutionGraph.Helper
         double _trainingError = 0;
         IMatrix _output = null;
 
-        public TrainingEngineContext(IExecutionContext executionContext, IMiniBatchSequence miniBatch, ILearningContext learningContext)
+        public TrainingEngineContext(IExecutionContext executionContext, IMiniBatchSequence miniBatch, ILearningContext learningContext, FlowThrough input)
         {
+            _input = input;
             _miniBatch = miniBatch;
             _executionContext = executionContext;
             _learningContext = learningContext;
             _executionContext.Data = miniBatch.Input.ToGraphData();
         }
-        public TrainingEngineContext(IExecutionContext executionContext, IGraphData data, ILearningContext learningContext)
+        public TrainingEngineContext(IExecutionContext executionContext, IGraphData data, ILearningContext learningContext, FlowThrough input)
         {
+            _input = input;
             _miniBatch = null;
             _executionContext = executionContext;
             _learningContext = learningContext;
@@ -82,7 +86,7 @@ namespace BrightWire.ExecutionGraph.Helper
             return false;
         }
 
-        public void Backpropagate(IGraphData delta)
+        public IGraphData Backpropagate(IGraphData delta)
         {
             // calculate training error
             if (_learningContext?.CalculateTrainingError == true)
@@ -109,7 +113,7 @@ namespace BrightWire.ExecutionGraph.Helper
                     }
                 }
             }
-
+            return _input.ErrorSignal.ToGraphData();
         }
     }
 }

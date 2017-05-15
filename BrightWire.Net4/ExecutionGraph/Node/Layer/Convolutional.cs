@@ -33,6 +33,11 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 _input.Dispose();
             }
 
+            void _UpdateBias(IVector delta, ILearningContext context)
+            {
+                _layer._bias.AddInPlace(delta, 1f, context.LearningRate);
+            }
+
             IGraphData _CalculatePreviousError(IIndexable3DTensor errorSignal, IContext context)
             {
                 var filters = _layer._filter.AsIndexable().Columns.ToList();
@@ -187,17 +192,26 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 //var matrix = lap.Create(vectorList);
 
                 var multiplyWith = lap.Create(errorSignal.RowCount * errorSignal.ColumnCount, errorSignal.Depth, 0f).AsIndexable();
+                var biasUpdate = new float[errorSignal.Depth];
                 for(var k = 0; k < errorSignal.Depth; k++) {
+                    var total = 0f;
+                    int count = 0;
                     var slice = errorSignal.GetDepthSlice(k).AsIndexable();
                     for (var x = 0; x < slice.ColumnCount; x++) {
                         for (var y = 0; y < slice.RowCount; y++) {
-                            multiplyWith[x * slice.RowCount + y, k] = slice[x, y];
+                            var value = slice[x, y];
+                            multiplyWith[x * slice.RowCount + y, k] = value;
+                            total += value;
+                            ++count;
                         }
                     }
+                    biasUpdate[k] = total / count;
                 }
                 var delta = _im2Col.TransposeThisAndMultiply(multiplyWith);
+                var biasUpdateVector = lap.Create(biasUpdate);
 
                 context.LearningContext.Store(delta, err => _layer.Update(err, context.LearningContext));
+                context.LearningContext.Store(biasUpdateVector, bu => _UpdateBias(bu, context.LearningContext));
             }
 
             protected override IGraphData _Backward(IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
@@ -227,7 +241,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         readonly IGradientDescentOptimisation _updater;
         readonly int _padding, _filterWidth, _filterHeight, _stride, _inputDepth;
         readonly IMatrix _filter;
-        readonly float _bias;
+        readonly IVector _bias;
 
         public Convolutional(
             IWeightInitialisation weightInitialisation,
@@ -246,7 +260,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             _stride = stride;
             _inputDepth = inputDepth;
 
-            _bias = 0f;
+            _bias = weightInitialisation.CreateBias(filterCount);
             _filter = weightInitialisation.CreateWeight(_filterWidth * _filterHeight * _inputDepth, filterCount);
             _updater = updater(_filter);
         }
@@ -312,6 +326,8 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
             var matrix = tensor2.Im2Col(_filterWidth, _filterHeight, _stride);
             var outputSignal = matrix.Multiply(_filter);
+            outputSignal.AddToEachRow(_bias);
+
             var matrixList2 = new List<IMatrix>();
             for (var i = 0; i < outputSignal.ColumnCount; i++)
                 matrixList2.Add(outputSignal.Column(i).ConvertInPlaceToMatrix(newWidth, newHeight));

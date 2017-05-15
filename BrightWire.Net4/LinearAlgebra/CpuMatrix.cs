@@ -1,4 +1,5 @@
-﻿using BrightWire.LinearAlgebra.Helper;
+﻿using BrightWire.Helper;
+using BrightWire.LinearAlgebra.Helper;
 using BrightWire.Models;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Single;
@@ -164,6 +165,11 @@ namespace BrightWire.LinearAlgebra
             Debug.Assert(RowCount == matrix.RowCount && ColumnCount == matrix.ColumnCount);
             var other = (CpuMatrix)matrix;
             _matrix.MapIndexedInplace((i, j, v) => (v * coefficient1) + (other[i, j] * coefficient2));
+        }
+
+        public void AddInPlace(float delta)
+        {
+            _matrix.MapInplace(v => v + delta);
         }
 
         public void SubtractInPlace(IMatrix matrix, float coefficient1 = 1.0f, float coefficient2 = 1.0f)
@@ -658,53 +664,15 @@ namespace BrightWire.LinearAlgebra
         // down first
         public IMatrix Im2Col(int filterWidth, int filterHeight, int stride)
         {
-            int y = 0, x = 0;
             var rowList = new List<List<float>>();
-
-            while (x <= ColumnCount - filterWidth) {
+            foreach(var filter in ConvolutionHelper.Default(ColumnCount, RowCount, filterWidth, filterHeight, stride)) {
                 var row = new List<float>();
-                for (var j = 0; j < filterWidth; j++) {
-                    for (var i = 0; i < filterHeight; i++) {
-                        row.Add(this[y + i, x + j]);
-                    }
-                }
-                rowList.Add(row);
-
-                // move the window
-                y += stride;
-                if (y > RowCount - filterHeight) {
-                    y = 0;
-                    x += stride;
-                }
+                foreach (var item in filter)
+                    row.Add(this[item.Y, item.X]);
             }
             var firstRow = rowList.First();
             return new CpuMatrix(DenseMatrix.Create(rowList.Count, firstRow.Count, (i, j) => rowList[i][j]));
         }
-
-        //public IMatrix Im2Col(int filterWidth, int filterHeight, int stride)
-        //{
-        //    int xOffset = 0, yOffset = 0;
-        //    var rowList = new List<List<float>>();
-
-        //    while (yOffset <= RowCount - filterHeight) {
-        //        var row = new List<float>();
-        //        for (var j = 0; j < filterHeight; j++) {
-        //            for (var i = 0; i < filterWidth; i++) {
-        //                row.Add(this[yOffset + j, xOffset + i]);
-        //            }
-        //        }
-        //        rowList.Add(row);
-
-        //        // move the window
-        //        xOffset += stride;
-        //        if (xOffset > ColumnCount - filterWidth) {
-        //            xOffset = 0;
-        //            yOffset += stride;
-        //        }
-        //    }
-        //    var firstRow = rowList.First();
-        //    return new CpuMatrix(DenseMatrix.Create(rowList.Count, firstRow.Count, (i, j) => rowList[i][j]));
-        //}
 
         public IMatrix AddPadding(int padding)
         {

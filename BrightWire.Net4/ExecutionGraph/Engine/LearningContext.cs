@@ -9,7 +9,8 @@ namespace BrightWire.ExecutionGraph.Engine
     class LearningContext : ILearningContext
     {
         readonly ILinearAlgebraProvider _lap;
-        readonly List<(IMatrix Error, Action<IMatrix> Updater)> _layerUpdate = new List<(IMatrix, Action<IMatrix>)>();
+        readonly List<(object Error, Action<object> Updater)> _layerUpdate = new List<(object, Action<object>)>();
+        readonly Stack<Func<IGraphData, IGraphData>> _deferredBackpropagation = new Stack<Func<IGraphData, IGraphData>>();
         readonly bool _calculateTrainingError, _deferUpdates;
         readonly Stopwatch _timer = new Stopwatch();
         float _learningRate;
@@ -38,10 +39,10 @@ namespace BrightWire.ExecutionGraph.Engine
         public bool LogMatrixValues { get; set; }
         public bool DeferUpdates => _deferUpdates;
 
-        public void Store(IMatrix error, Action<IMatrix> updater)
+        public void Store<T>(T error, Action<T> updater)
         {
             if (_deferUpdates)
-                _layerUpdate.Add((error, updater));
+                _layerUpdate.Add((error, new Action<object>(o => updater((T)o))));
             else
                 updater(error);
         }
@@ -111,6 +112,8 @@ namespace BrightWire.ExecutionGraph.Engine
             ++_currentEpoch;
             _rowCount = 0;
             _timer.Restart();
+            _layerUpdate.Clear();
+            _deferredBackpropagation.Clear();
         }
 
         public void SetRowCount(int rowCount)
@@ -130,6 +133,25 @@ namespace BrightWire.ExecutionGraph.Engine
             foreach(var item in _layerUpdate)
                 item.Updater(item.Error);
             _layerUpdate.Clear();
+            _deferredBackpropagation.Clear();
+        }
+
+        public void DeferBackpropagation(Func<IGraphData, IGraphData> update)
+        {
+            _deferredBackpropagation.Push(update);
+        }
+
+        public void BackpropagateThroughTime(IGraphData signal, int maxDepth = int.MaxValue)
+        {
+            if (signal != null) {
+                int depth = 0;
+                while (_deferredBackpropagation.Count > 0 && depth < maxDepth) {
+                    var next = _deferredBackpropagation.Pop();
+                    signal = next(signal);
+                    ++depth;
+                }
+            }
+            _deferredBackpropagation.Clear();
         }
     }
 }

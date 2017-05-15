@@ -124,11 +124,11 @@ namespace BrightWire
             return new RandomProjection(lap, fixedSize, reducedSize, s);
         }
 
-        public static IMatrix CreateMatrix(this ILinearAlgebraProvider lap, IReadOnlyList<float> vector, int width)
-        {
-            var height = vector.Count / width;
-            return lap.Create(width, height, (i, j) => vector[(i * width) + j]);
-        }
+        //public static IMatrix CreateMatrix(this ILinearAlgebraProvider lap, IReadOnlyList<float> vector, int width)
+        //{
+        //    var height = vector.Count / width;
+        //    return lap.Create(width, height, (i, j) => vector[(i * width) + j]);
+        //}
 
         public static I3DTensor ConvertToTensor(this IVector vector, ILinearAlgebraProvider lap, int rows, int columns, int depth)
         {

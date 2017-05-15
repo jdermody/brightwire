@@ -91,7 +91,7 @@ namespace BrightWire
         float LearningRate { get; }
         int BatchSize { get; }
         int RowCount { get; }
-        void Store(IMatrix error, Action<IMatrix> updater);
+        void Store<T>(T error, Action<T> updater);
         bool CalculateTrainingError { get; }
         bool DeferUpdates { get; }
         void ApplyUpdates();
@@ -105,6 +105,8 @@ namespace BrightWire
         void Log(Action<XmlWriter> callback);
         void Log(string name, int channel, int id, IMatrix input, IMatrix output, Action<XmlWriter> callback = null);
         void Log(string name, IMatrix matrix);
+        void DeferBackpropagation(Func<IGraphData, IGraphData> update);
+        void BackpropagateThroughTime(IGraphData signal, int maxDepth = int.MaxValue);
     }
 
     public interface IGradientDescentOptimisation : IDisposable

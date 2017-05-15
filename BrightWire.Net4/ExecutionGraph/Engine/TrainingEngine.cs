@@ -17,7 +17,7 @@ namespace BrightWire.ExecutionGraph.Engine
         readonly IDataSource _dataSource;
         readonly List<TrainingEngineContext> _executionResults = new List<TrainingEngineContext>();
         readonly ILearningContext _learningContext;
-        readonly INode _input;
+        readonly FlowThrough _input;
         readonly bool _isStochastic;
         float? _lastTestError = null;
         double? _lastTrainingError = null, _trainingErrorDelta = null;
@@ -30,7 +30,7 @@ namespace BrightWire.ExecutionGraph.Engine
             _isStochastic = lap.IsStochastic;
             _executionContext = new ExecutionContext(lap);
             _learningContext = learningContext;
-            _input = new FlowThrough();
+            _input = new FlowThrough(true);
         }
 
         public IReadOnlyList<ExecutionResult> Execute(IDataSource dataSource, int batchSize = 128)
@@ -102,7 +102,7 @@ namespace BrightWire.ExecutionGraph.Engine
 
         void _Train(ILearningContext learningContext, IMiniBatchSequence sequence)
         {
-            var context = new TrainingEngineContext(_executionContext, sequence, learningContext);
+            var context = new TrainingEngineContext(_executionContext, sequence, learningContext, _input);
             _input.ExecuteForward(context, 0);
 
             while (context.HasNext)
@@ -115,6 +115,7 @@ namespace BrightWire.ExecutionGraph.Engine
         public void WriteTestResults(IDataSource testDataSource, IErrorMetric errorMetric, int batchSize = 128)
         {
             var testError = Execute(testDataSource, batchSize)
+                .Where(b => b.Target != null)
                 .Average(o => o.CalculateError(errorMetric))
             ;
             

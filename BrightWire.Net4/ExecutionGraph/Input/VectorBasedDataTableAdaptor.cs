@@ -22,6 +22,11 @@ namespace BrightWire.ExecutionGraph.Input
             _outputSize = output.Size;
         }
 
+        public override IDataSource GetFor(IDataTable dataTable)
+        {
+            return new VectorBasedDataTableAdaptor(_lap, dataTable);
+        }
+
         public override int InputSize => _inputSize;
         public override int OutputSize => _outputSize;
         public override bool IsSequential => false;

@@ -129,10 +129,22 @@ namespace BrightWire.ExecutionGraph
             if (columns.Count == 2) {
                 var column1 = columns[0].Type;
                 var column2 = columns[1].Type;
+
+                // many to many
                 if (column1 == ColumnType.Matrix && column2 == ColumnType.Matrix)
                     return new SequentialDataTableAdaptor(_lap, dataTable);
-                else if (column1 == ColumnType.Vector && column1 == ColumnType.Vector)
+
+                // one to one
+                else if (column1 == ColumnType.Vector && column2 == ColumnType.Vector)
                     return new VectorBasedDataTableAdaptor(_lap, dataTable);
+
+                // one to many
+                else if (column1 == ColumnType.Vector && column2 == ColumnType.Matrix)
+                    return new OneToManyDataTableAdaptor(_lap, dataTable);
+
+                // many to one
+                else if (column1 == ColumnType.Matrix && column2 == ColumnType.Vector)
+                    return new ManyToOneDataTableAdaptor(_lap, dataTable);
             }
             
             // default adapator
@@ -145,8 +157,14 @@ namespace BrightWire.ExecutionGraph
             if (columns.Count == 2) {
                 var column1 = columns[0].Type;
                 var column2 = columns[1].Type;
+
+                // volume classification
                 if (column1 == ColumnType.Tensor && column2 == ColumnType.Vector)
                     return new TensorBasedDataTableAdaptor(learningContext, this, dataTable, dataConversionBuilder);
+
+                // sequence to sequence
+                else if (column1 == ColumnType.Matrix && column2 == ColumnType.Matrix)
+                    return new SequenceToSequenceDataTableAdaptor(learningContext, this, dataTable, dataConversionBuilder);
             }
             throw new ArgumentException($"{nameof(dataTable)} does not contain a recognised data format");
         }

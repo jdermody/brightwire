@@ -90,6 +90,7 @@
     <Compile Include="Descriptor\GradientDescent\MomentumDescriptor.cs" />
     <Compile Include="Descriptor\GradientDescent\NesterovMomentumDescriptor.cs" />
     <Compile Include="Descriptor\GradientDescent\RmsPropDescriptor.cs" />
+    <Compile Include="ExecutionGraph\Action\BackpropagateThroughTime.cs" />
     <Compile Include="ExecutionGraph\Engine\ExecutionEngine.cs" />
     <Compile Include="ExecutionGraph\Action\Backpropagate.cs" />
     <Compile Include="ExecutionGraph\Activation\LeakyRelu.cs" />
@@ -124,6 +125,9 @@
     <Compile Include="ExecutionGraph\Input\AdaptiveDataTableAdaptorBase.cs" />
     <Compile Include="ExecutionGraph\Input\DataTableAdaptor.cs" />
     <Compile Include="ExecutionGraph\Input\DataTableAdaptorBase.cs" />
+    <Compile Include="ExecutionGraph\Input\ManyToOneDataTableAdaptor.cs" />
+    <Compile Include="ExecutionGraph\Input\OneToManyDataTableAdaptor.cs" />
+    <Compile Include="ExecutionGraph\Input\SequenceToSequenceDataTableAdaptor.cs" />
     <Compile Include="ExecutionGraph\Input\SequentialDataTableAdaptor.cs" />
     <Compile Include="ExecutionGraph\Input\MiniBatchProvider.cs" />
     <Compile Include="ExecutionGraph\Engine\LearningContext.cs" />
@@ -154,6 +158,7 @@
     <Compile Include="ExecutionGraph\WeightInitialisation\Xavier.cs" />
     <Compile Include="ExecutionGraph\WireBuilder.cs" />
     <Compile Include="ExtensionMethods.cs" />
+    <Compile Include="Helper\ConvolutionHelper.cs" />
     <Compile Include="Helper\CSVParser.cs" />
     <Compile Include="Helper\DataTableBuilder.cs" />
     <Compile Include="Helper\PropertySet.cs" />
@@ -200,6 +205,7 @@
     <Compile Include="TrainingData\Artificial\BinaryIntegers.cs" />
     <Compile Include="TrainingData\Artificial\Or.cs" />
     <Compile Include="TrainingData\Artificial\ReberGrammar.cs" />
+    <Compile Include="TrainingData\Artificial\SequenceClassification.cs" />
     <Compile Include="TrainingData\Artificial\Xor.cs" />
     <Compile Include="TrainingData\Helper\BigEndianBinaryReader.cs" />
     <Compile Include="TrainingData\SimpleTokeniser.cs" />

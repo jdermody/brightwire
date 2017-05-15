@@ -81,7 +81,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
 
         public override void ExecuteForward(IContext context)
         {
-            if (context.BatchSequence.SequenceIndex == 1)
+            if (context.BatchSequence.SequenceIndex == 0)
                 _OnStart(context);
             else
                 _OnNext(context);

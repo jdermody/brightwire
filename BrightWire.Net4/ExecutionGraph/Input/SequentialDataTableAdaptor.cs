@@ -26,6 +26,11 @@ namespace BrightWire.ExecutionGraph.Input
             _outputSize = outputMatrix.ColumnCount;
         }
 
+        public override IDataSource GetFor(IDataTable dataTable)
+        {
+            return new SequentialDataTableAdaptor(_lap, dataTable);
+        }
+
         public override bool IsSequential => true;
         public override int InputSize => _inputSize;
         public override int OutputSize => _outputSize;

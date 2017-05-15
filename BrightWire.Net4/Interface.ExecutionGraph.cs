@@ -72,7 +72,7 @@ namespace BrightWire
         IMiniBatchSequence BatchSequence { get; }
         void AddForward(IExecutionHistory action, Func<IBackpropagation> callback);
         void AddBackward(IGraphData errorSignal, INode target);
-        void Backpropagate(IGraphData delta);
+        IGraphData Backpropagate(IGraphData delta);
         IGraphData ErrorSignal { get; }
         IGraphData Data { get; }
         IMatrix Output { get; set; }
@@ -100,6 +100,7 @@ namespace BrightWire
         IMiniBatch Get(IReadOnlyList<int> rows);
         IReadOnlyList<IReadOnlyList<int>> GetBuckets();
         void OnBatchProcessed(IContext context);
+        IDataSource GetFor(IDataTable dataTable);
     }
 
     public enum MiniBatchType

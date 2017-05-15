@@ -25,6 +25,7 @@ namespace BrightWire.ExecutionGraph.Input
         public virtual int RowCount => _dataTable.RowCount;
 
         public abstract IMiniBatch Get(IReadOnlyList<int> rows);
+        public abstract IDataSource GetFor(IDataTable dataTable);
 
         public virtual IReadOnlyList<IReadOnlyList<int>> GetBuckets()
         {
