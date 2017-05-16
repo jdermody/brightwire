@@ -31,6 +31,7 @@ namespace BrightWire.ExecutionGraph.Input
             var firstContext = _Process(firstTensor);
             var outputVector = firstContext.Data.GetTensor().ConvertToVector();
             _inputSize = outputVector.Count;
+            _learningContext.Clear();
         }
 
         private TensorBasedDataTableAdaptor(ILearningContext learningContext, IDataTable dataTable, FlowThrough input, int inputSize, int outputSize) 

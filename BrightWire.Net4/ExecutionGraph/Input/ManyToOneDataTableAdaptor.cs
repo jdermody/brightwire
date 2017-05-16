@@ -71,7 +71,7 @@ namespace BrightWire.ExecutionGraph.Input
             var miniBatch = new MiniBatch(rows, this);
             var outputVector = _lap.Create(data.Count, OutputSize, (x, y) => data[x].Item2.Data[y]);
             foreach (var item in inputData.OrderBy(kv => kv.Key)) {
-                var input = _lap.Create(item.Value, null);
+                var input = _lap.Create(item.Value);
                 var type = (item.Key == 0)
                     ? MiniBatchType.SequenceStart
                     : item.Key == (inputData.Count - 1)

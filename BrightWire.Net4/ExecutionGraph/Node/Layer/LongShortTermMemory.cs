@@ -50,18 +50,18 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             var Ct = graph.Add(ftCt1, graph.Multiply(It, graph.Add(Wc, Uc).Add(graph.TanhActivation())))
                 .Add(_state.SetMemoryAction)
             ;
+
             _output = graph.Multiply(Ot, Ct.Add(graph.TanhActivation()))
                 .Add(_memory.SetMemoryAction)
                 .Add(new RestoreErrorSignal(context => {
                     if (_lastBackpropagation != null) {
                         foreach (var item in _lastBackpropagation)
                             context.AppendErrorSignal(item.Value, item.Key);
+                        _lastBackpropagation = null;
                     }
-                    _lastBackpropagation = null;
                 }))
                 .Build()
             ;
-
             _start = new OneToMany(SubNodes, bp => _lastBackpropagation = bp);
         }
 

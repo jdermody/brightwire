@@ -43,7 +43,7 @@ namespace BrightWire.ExecutionGraph.Input
                 .Select(r => (r.GetField<FloatMatrix>(0), r.GetField<FloatMatrix>(1)))
                 .ToList()
             ;
-            return _GetSequentialMiniBatch(rows, data, null);
+            return _GetSequentialMiniBatch(rows, data);
         }
 
         public override IReadOnlyList<IReadOnlyList<int>> GetBuckets()

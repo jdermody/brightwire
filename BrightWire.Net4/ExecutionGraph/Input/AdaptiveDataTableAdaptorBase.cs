@@ -34,7 +34,6 @@ namespace BrightWire.ExecutionGraph.Input
             while (context.HasNext)
                 context.ExecuteNext();
 
-            _learningContext.Clear();
             return context;
         }
 
@@ -46,7 +45,6 @@ namespace BrightWire.ExecutionGraph.Input
             while (context.HasNext)
                 context.ExecuteNext();
 
-            _learningContext.Clear();
             return context;
         }
     }

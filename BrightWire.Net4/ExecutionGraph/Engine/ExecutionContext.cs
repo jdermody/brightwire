@@ -47,7 +47,12 @@ namespace BrightWire.ExecutionGraph.Engine
 
         public void SetMemory(string index, IMatrix memory)
         {
-            _memory[index] = memory;
+            if (memory == null) {
+                if(_memory.ContainsKey(index))
+                    _memory.Remove(index);
+            }
+            else
+                _memory[index] = memory;
         }
     }
 }

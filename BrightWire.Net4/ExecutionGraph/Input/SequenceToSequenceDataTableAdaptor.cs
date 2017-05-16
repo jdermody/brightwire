@@ -26,6 +26,7 @@ namespace BrightWire.ExecutionGraph.Input
             // execute the graph to find the input size (which is the size of the adaptive graph's output)
             var output = _Encode(new[] { 0 });
             _inputSize = output.Item1.ColumnCount;
+            _learningContext.Clear();
         }
 
         void _Initialise(GraphFactory factory, IDataTable dataTable)
@@ -82,7 +83,7 @@ namespace BrightWire.ExecutionGraph.Input
             var inputData = new List<(FloatMatrix Input, FloatMatrix Output)>();
             foreach (var row in data)
                 inputData.Add((row.GetField<FloatMatrix>(0), null));
-            var encoderInput = _GetSequentialMiniBatch(rows, inputData, _inputSize);
+            var encoderInput = _GetSequentialMiniBatch(rows, inputData);
 
             // execute the encoder
             IMiniBatchSequence sequence;
@@ -114,7 +115,7 @@ namespace BrightWire.ExecutionGraph.Input
             var miniBatch = new MiniBatch(rows, this);
             var curr = encoderOutput;
             foreach (var item in outputData.OrderBy(kv => kv.Key)) {
-                var output = _lap.Create(item.Value, _outputSize);
+                var output = _lap.Create(item.Value);
                 var type = (item.Key == 0)
                     ? MiniBatchType.SequenceStart
                     : item.Key == (outputData.Count - 1)
@@ -129,8 +130,11 @@ namespace BrightWire.ExecutionGraph.Input
         public override void OnBatchProcessed(IContext context)
         {
             var batch = context.BatchSequence;
-            if(batch.Type == MiniBatchType.SequenceStart) {
-                _learningContext.BackpropagateThroughTime(context.ErrorSignal);
+            if(context.IsTraining && batch.Type == MiniBatchType.SequenceStart) {
+                //_learningContext.BackpropagateThroughTime(context.ErrorSignal);
+                context.LearningContext.DeferBackpropagation(null, signal => {
+                    _learningContext.BackpropagateThroughTime(signal);
+                });
             }
         }
     }

@@ -72,10 +72,9 @@ namespace BrightWire.ExecutionGraph.Engine
             if (count > 0)
                 ret /= count;
             _executionResults.Clear();
-            _lastTrainingError = ret;
-            if (_lastTrainingError.HasValue) {
+            if (_lastTrainingError.HasValue)
                 _trainingErrorDelta = ret - _lastTrainingError.Value;
-            }
+            _lastTrainingError = ret;
             _learningContext.EndEpoch();
             return ret;
         }

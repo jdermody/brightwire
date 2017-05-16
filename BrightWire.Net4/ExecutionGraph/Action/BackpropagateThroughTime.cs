@@ -9,12 +9,10 @@ namespace BrightWire.ExecutionGraph.Action
     public class BackpropagateThroughTime : IAction
     {
         IErrorMetric _errorMetric;
-        readonly int _maxDepth;
 
-        public BackpropagateThroughTime(IErrorMetric errorMetric, int maxDepth = int.MaxValue)
+        public BackpropagateThroughTime(IErrorMetric errorMetric)
         {
             _errorMetric = errorMetric;
-            _maxDepth = maxDepth;
         }
 
         public void Initialise(string data)
@@ -34,10 +32,10 @@ namespace BrightWire.ExecutionGraph.Action
             if (context.IsTraining) {
                 var target = context.BatchSequence.Target;
                 if (target == null)
-                    context.LearningContext.DeferBackpropagation(signal => context.Backpropagate(signal));
+                    context.LearningContext.DeferBackpropagation(null, signal => context.Backpropagate(signal));
                 else {
                     var gradient = _errorMetric.CalculateGradient(output, target);
-                    context.LearningContext.BackpropagateThroughTime(gradient.ToGraphData(), _maxDepth);
+                    context.LearningContext.DeferBackpropagation(gradient.ToGraphData(), signal => context.Backpropagate(signal));
                 }
             }
             return input;

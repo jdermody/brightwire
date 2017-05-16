@@ -1,4 +1,5 @@
 ﻿using BrightWire.ExecutionGraph.Helper;
+using BrightWire.Helper;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -43,155 +44,48 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 var lap = context.LinearAlgebraProvider;
                 var columns = _inputHeight + _source._padding * 2;
                 var rows = _inputWidth + _source._padding * 2;
+                var stride = _source._stride;
                 var matrixList = Enumerable.Range(0, _source._inputDepth)
                     .Select(i => lap.Create(rows, columns, 0f).AsIndexable())
                     .ToList()
                 ;
+                var convolutions = ConvolutionHelper.Default(columns, rows, _source._filterHeight, _source._filterHeight, stride);
                 
                 for (var k = 0; k < errorSignal.Depth; k++) {
                     var slice = errorSignal.GetDepthSlice(k).AsIndexable();
-                    var filterList = filters[k].Split(_source._inputDepth).Select(f => f.Rotate(_source._filterWidth).AsIndexable()).ToList();
+                    var filterList = filters[k]
+                        .Split(_source._inputDepth)
+                        .Select(f => f.Rotate(_source._filterWidth).AsIndexable())
+                        .ToList()
+                    ;
 
-                    int y = 0, x = 0, sliceX = 0, sliceY = 0;
-                    while (x <= columns - _source._filterWidth) {
-                        var error = slice[sliceX, sliceY];
-                        for (var i = 0; i < _source._filterWidth; i++) {
-                            for (var j = 0; j < _source._filterHeight; j++) {
-                                for (var z = 0; z < filterList.Count; z++) {
-                                    var filter = filterList[z];
-                                    var output = matrixList[z];
-                                    output[x + i, y + j] += filter[i * _source._filterHeight + j] * error;
-                                }
+                    foreach (var convolution in convolutions) {
+                        var first = convolution.First();
+                        var error = slice[first.X / stride, first.Y / stride];
+                        foreach (var item in convolution) {
+                            var i = item.X - first.X;
+                            var j = item.Y - first.Y;
+                            for (var z = 0; z < filterList.Count; z++) {
+                                var filter = filterList[z];
+                                var output = matrixList[z];
+                                output[item.Y, item.X] += filter[i * _source._filterHeight + j] * error;
                             }
-                        }
-
-                        // move the window
-                        y += _source._stride;
-                        sliceY++;
-                        if (y > rows - _source._filterHeight) {
-                            y = 0;
-                            sliceY = 0;
-                            x += _source._stride;
-                            sliceX++;
                         }
                     }
                 }
+
                 if(_source._padding > 0)
                     return lap.CreateTensor(matrixList.Select(m => m.RemovePadding(_source._padding)).ToList()).ToGraphData();
                 else
                     return lap.CreateTensor(matrixList).ToGraphData();
             }
 
-                //IGraphData _CalculatePreviousError(IIndexable3DTensor errorSignal, IContext context)
-                //{
-                //    if (_layer._padding > 0)
-                //        errorSignal = errorSignal.AddPadding(_layer._padding).AsIndexable();
-
-                //    var rows = errorSignal.RowCount;
-                //    var columns = errorSignal.ColumnCount;
-                //    var lap = context.LinearAlgebraProvider;
-
-                //    var outputList = new List<List<float>>();
-                //    var filters = _layer._filter.AsIndexable().Columns.ToList();
-
-                //    IVector temp;
-                //    var output = new Dictionary<int, IVector>();
-                //    for (var k = 0; k < errorSignal.Depth; k++) {
-                //        var matrix = errorSignal.GetDepthSlice(k).AsIndexable();
-                //        var filter = filters[k];
-                //        var parts = filter.Split(_layer._inputDepth);
-
-                //        int index = 0;
-                //        var im2Col = matrix.Im2Col(_layer._filterWidth, _layer._filterHeight, _layer._stride);
-                //        foreach(var part in parts) {
-                //            var result = im2Col.Multiply(part.Rotate(_layer._filterWidth));
-                //            var vector = result.ConvertInPlaceToVector();
-                //            if (!output.TryGetValue(index, out temp))
-                //                output.Add(index, vector);
-                //            else
-                //                temp.AddInPlace(vector);
-                //            ++index;
-                //        }
-
-                //        //int xOffset = 0, yOffset = 0;
-                //        //var rowList = new List<List<float>>();
-
-                //        //while (yOffset <= rows - _layer._filterHeight) {
-                //        //    var row = new List<float>();
-                //        //    for (var j = 0; j < _layer._filterHeight; j++) {
-                //        //        for (var i = 0; i < _layer._filterWidth; i++) {
-                //        //            row.Add(matrix[yOffset + j, xOffset + i]);
-                //        //        }
-                //        //    }
-                //        //    rowList.Add(row);
-
-                //        //    // move the window
-                //        //    xOffset += _layer._stride;
-                //        //    if (xOffset > columns - _layer._filterWidth) {
-                //        //        xOffset = 0;
-                //        //        yOffset += _layer._stride;
-                //        //    }
-                //        //}
-                //        //var vectorList = rowList.Select(r => lap.Create(r));
-
-                //        //var flippedFilter = lap.Create(filter.Values.Reverse());
-                //        //var output = new List<float>();
-                //        //foreach (var vector in vectorList) {
-                //        //    output.Add(flippedFilter.DotProduct(vector));
-                //        //}
-                //        //outputList.Add(output);
-                //    }
-                //    var matrixList = new List<IMatrix>();
-                //    foreach(var item in output) {
-                //        item.Value.Multiply(1f / errorSignal.Depth);
-                //        var matrix = item.Value.ConvertInPlaceToMatrix(_inputWidth, _inputHeight);
-                //        matrixList.Add(matrix);
-                //    }
-                //    return lap.CreateTensor(matrixList).ToGraphData();
-                //    //var ret = lap.CreateMatrix(Enumerable.Range(0, outputList.First().Count).Select(i => outputList.Average(o => o[i])).ToList(), _inputWidth);
-                //    //return ret;
-                //}
-
             void _CalculateWeightUpdate(IIndexable3DTensor errorSignal, IContext context)
             {
                 var lap = context.LinearAlgebraProvider;
-
-                //if (_layer._padding > 0)
-                //    tensor2 = _input.AddPadding(_layer._padding).AsIndexable();
-                //else
-                //    tensor2 = _input.AsIndexable();
-
-                //var matrix = tensor2.Im2Col(_layer._filterWidth, _layer._filterHeight, _layer._stride);
-
-                //int xOffset = 0, yOffset = 0;
-                //var rowList = new List<List<float>>();
-                //var rows = tensor2.RowCount;
-                //var columns = tensor2.ColumnCount;
-                //var depth = tensor2.Depth;
-
-                //while (yOffset <= rows - _layer._filterHeight) {
-                //    var row = new List<float>();
-                //    for (var k = 0; k < depth; k++) {
-                //        for (var j = 0; j < _layer._filterHeight; j++) {
-                //            for (var i = 0; i < _layer._filterWidth; i++) {
-                //                row.Add(tensor2[yOffset + j, xOffset + i, k]);
-                //            }
-                //        }
-                //    }
-                //    rowList.Add(row);
-
-                //    // move the window
-                //    xOffset += _layer._stride;
-                //    if (xOffset > columns - _layer._filterWidth) {
-                //        xOffset = 0;
-                //        yOffset += _layer._stride;
-                //    }
-                //}
-                //var vectorList = rowList.Select(r => lap.Create(r).AsIndexable()).ToList();
-                //var matrix = lap.Create(vectorList);
-
                 var multiplyWith = lap.Create(errorSignal.RowCount * errorSignal.ColumnCount, errorSignal.Depth, 0f).AsIndexable();
                 var biasUpdate = new float[errorSignal.Depth];
+
                 for(var k = 0; k < errorSignal.Depth; k++) {
                     var total = 0f;
                     int count = 0;
@@ -216,25 +110,8 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
                 var tensor = errorSignal.GetTensor().AsIndexable();
-
-                //var previousError = _CalculatePreviousError(tensor, context);
                 _CalculateWeightUpdate(tensor, context);
-                return null;
-
-                //// work out the next error signal
-                //IMatrix ret = errorSignal.TransposeAndMultiply(_layer._filter);
-
-                //// calculate the update to the weights
-                //var weightUpdate = _input.TransposeThisAndMultiply(errorSignal);
-
-                //// store the updates
-                //var learningContext = context.LearningContext;
-                ////learningContext.Store(errorSignal, err => _UpdateBias(err, learningContext));
-                //learningContext.Store(weightUpdate, err => _layer.Update(err, learningContext));
-
-                //return ret;
-
-                //return previousError;
+                return _CalculatePreviousError(tensor, context);
             }
         }
         readonly IGradientDescentOptimisation _updater;
@@ -284,44 +161,6 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 tensor2 = tensor.AddPadding(_padding).AsIndexable();
             else
                 tensor2 = tensor.AsIndexable();
-
-            //int xOffset = 0, yOffset = 0;
-            //var rowList = new List<List<float>>();
-            //var rows = tensor2.RowCount;
-            //var columns = tensor2.ColumnCount;
-            //var depth = tensor2.Depth;
-
-            //while (yOffset <= rows - _filterHeight) {
-            //    var row = new List<float>();
-            //    for (var k = 0; k < depth; k++) {
-            //        for (var j = 0; j < _filterHeight; j++) {
-            //            for (var i = 0; i < _filterWidth; i++) {
-            //                row.Add(tensor2[yOffset + j, xOffset + i, k]);
-            //            }
-            //        }
-            //    }
-            //    rowList.Add(row);
-
-            //    // move the window
-            //    xOffset += _stride;
-            //    if (xOffset > columns - _filterWidth) {
-            //        xOffset = 0;
-            //        yOffset += _stride;
-            //    }
-            //}
-            //var vectorList = rowList.Select(r => lap.Create(r));
-
-            //var filters = _filter.AsIndexable().Columns.ToList();
-            //var matrixList = new List<IMatrix>();
-            //foreach (var filter in filters) {
-            //    var output = new List<float>();
-            //    foreach (var vector in vectorList) {
-            //        output.Add(filter.DotProduct(vector) + _bias);
-            //    }
-            //    var outputMatrix = lap.CreateMatrix(output, newWidth);
-            //    matrixList.Add(outputMatrix);
-            //}
-            //var outputTensor = lap.CreateTensor(matrixList);
 
             var matrix = tensor2.Im2Col(_filterWidth, _filterHeight, _stride);
             var outputSignal = matrix.Multiply(_filter);

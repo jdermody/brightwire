@@ -105,7 +105,7 @@ namespace BrightWire
         void Log(Action<XmlWriter> callback);
         void Log(string name, int channel, int id, IMatrix input, IMatrix output, Action<XmlWriter> callback = null);
         void Log(string name, IMatrix matrix);
-        void DeferBackpropagation(Action<IGraphData> update);
+        void DeferBackpropagation(IGraphData errorSignal, Action<IGraphData> update);
         void BackpropagateThroughTime(IGraphData signal, int maxDepth = int.MaxValue);
         void Clear();
     }

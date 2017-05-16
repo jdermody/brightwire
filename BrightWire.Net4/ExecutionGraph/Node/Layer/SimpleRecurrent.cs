@@ -44,12 +44,11 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                     if(_lastBackpropagation != null) {
                         foreach(var item in _lastBackpropagation)
                             context.AppendErrorSignal(item.Value, item.Key);
+                        _lastBackpropagation = null;
                     }
-                    _lastBackpropagation = null;
                 }))
                 .Build()
             ;
-
             _start = new OneToMany(SubNodes, bp => _lastBackpropagation = bp);
         }
 

@@ -143,7 +143,7 @@ namespace BrightWire.ExecutionGraph.Helper
                     if (next.RowCount == first.RowCount && next.ColumnCount == first.ColumnCount)
                         first.AddInPlace(next);
                 }
-                first.Multiply(1f / list.Count());
+                //first.Multiply(1f / list.Count());
                 return first.ToGraphData();
             }
             return null;
