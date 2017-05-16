@@ -61,7 +61,6 @@ namespace BrightWire.ExecutionGraph.Input
             var inputData = new Dictionary<int, List<FloatVector>>();
             foreach (var item in data) {
                 var input = item.Item1;
-                var output = item.Item2;
                 for (int i = 0, len = input.RowCount; i < len; i++) {
                     if (!inputData.TryGetValue(i, out temp))
                         inputData.Add(i, temp = new List<FloatVector>());
@@ -72,7 +71,7 @@ namespace BrightWire.ExecutionGraph.Input
             var miniBatch = new MiniBatch(rows, this);
             var outputVector = _lap.Create(data.Count, OutputSize, (x, y) => data[x].Item2.Data[y]);
             foreach (var item in inputData.OrderBy(kv => kv.Key)) {
-                var input = _lap.Create(item.Value);
+                var input = _lap.Create(item.Value, null);
                 var type = (item.Key == 0)
                     ? MiniBatchType.SequenceStart
                     : item.Key == (inputData.Count - 1)

@@ -140,9 +140,10 @@ namespace BrightWire.ExecutionGraph.Helper
                 var first = list.First().GetMatrix();
                 foreach (var item in list.Skip(1)) {
                     var next = item.GetMatrix();
-                    if(next.RowCount == first.RowCount && next.ColumnCount == first.ColumnCount)
-                        first = first.PointwiseMultiply(next);
+                    if (next.RowCount == first.RowCount && next.ColumnCount == first.ColumnCount)
+                        first.AddInPlace(next);
                 }
+                first.Multiply(1f / list.Count());
                 return first.ToGraphData();
             }
             return null;

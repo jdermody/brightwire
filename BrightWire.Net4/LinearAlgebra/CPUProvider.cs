@@ -69,11 +69,12 @@ namespace BrightWire.LinearAlgebra
             return Create(rows, columns, (x, y) => vectorData[x][y]);
         }
 
-        public IMatrix Create(IReadOnlyList<FloatVector> rowList)
+        public IMatrix Create(IReadOnlyList<FloatVector> rowList, int? numColumns)
         {
             int rows = rowList.Count;
-            int columns = rowList[0].Size;
-            return Create(rows, columns, (x, y) => rowList[x].Data[y]);
+            var size = rowList[0].Size;
+            int columns = numColumns ?? size;
+            return Create(rows, columns, (x, y) => y < size ? rowList[x].Data[y] : 0f);
         }
 
         public IMatrix Create(IIndexableMatrix matrix)

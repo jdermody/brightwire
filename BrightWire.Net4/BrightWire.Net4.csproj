@@ -91,6 +91,8 @@
     <Compile Include="Descriptor\GradientDescent\NesterovMomentumDescriptor.cs" />
     <Compile Include="Descriptor\GradientDescent\RmsPropDescriptor.cs" />
     <Compile Include="ExecutionGraph\Action\BackpropagateThroughTime.cs" />
+    <Compile Include="ExecutionGraph\Action\ReplaceInputWith.cs" />
+    <Compile Include="ExecutionGraph\Action\SetMemory.cs" />
     <Compile Include="ExecutionGraph\Engine\ExecutionEngine.cs" />
     <Compile Include="ExecutionGraph\Action\Backpropagate.cs" />
     <Compile Include="ExecutionGraph\Activation\LeakyRelu.cs" />

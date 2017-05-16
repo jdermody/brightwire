@@ -141,7 +141,7 @@ namespace BrightWire
         IPropertySet Clone();
 
         T Get<T>(string name, T defaultValue = default(T));
-        void Set<T>(string name, T obj);
+        IPropertySet Set<T>(string name, T obj);
         void Clear(string name);
     }
 

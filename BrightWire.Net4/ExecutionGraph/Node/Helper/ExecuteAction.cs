@@ -17,8 +17,8 @@ namespace BrightWire.ExecutionGraph.Node.Helper
         public override void ExecuteForward(IContext context)
         {
             var input = context.Data;
-            _action.Execute(input, context);
-            _AddNextGraphAction(context, input, null);
+            var output = _action.Execute(input, context);
+            _AddNextGraphAction(context, output ?? input, null);
         }
 
         protected override (string Description, byte[] Data) _GetInfo()

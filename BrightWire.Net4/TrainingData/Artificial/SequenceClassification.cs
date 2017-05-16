@@ -35,8 +35,8 @@ namespace BrightWire.TrainingData.Artificial
             _noRepeat = noRepeat;
             _dictionarySize = Math.Min(_dictionary.Length, dictionarySize);
             if (noRepeat) {
-                _minSize = Math.Min(_dictionarySize, _minSize);
-                _maxSize = Math.Min(_dictionarySize, _maxSize);
+                _minSize = Math.Min(_dictionarySize, minSize);
+                _maxSize = Math.Min(_dictionarySize, maxSize);
             } else {
                 _minSize = minSize;
                 _maxSize = maxSize;

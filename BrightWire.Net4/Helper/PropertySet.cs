@@ -64,15 +64,17 @@ namespace BrightWire.Helper
             return defaultValue;
         }
 
-        public void Set<T>(string name, T obj)
+        public IPropertySet Set<T>(string name, T obj)
         {
             _data[name] = obj;
+            return this;
         }
 
-        public void Set(string name, object obj)
-        {
-            _data[name] = obj;
-        }
+        //public IPropertySet Set(string name, object obj)
+        //{
+        //    _data[name] = obj;
+        //    return this;
+        //}
 
         public void Clear(string name)
         {

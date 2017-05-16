@@ -27,7 +27,7 @@ namespace BrightWire.ExecutionGraph.Action
             return _errorMetric.GetType().FullName;
         }
 
-        public void Execute(IGraphData input, IContext context)
+        public IGraphData Execute(IGraphData input, IContext context)
         {
             var output = input.GetMatrix();
             context.Output = output;
@@ -40,6 +40,7 @@ namespace BrightWire.ExecutionGraph.Action
                     context.LearningContext.BackpropagateThroughTime(gradient.ToGraphData(), _maxDepth);
                 }
             }
+            return input;
         }
     }
 }

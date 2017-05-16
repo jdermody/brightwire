@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using BrightWire.ExecutionGraph.Action;
 
 namespace BrightWire.ExecutionGraph.Node.Input
 {
@@ -33,30 +34,6 @@ namespace BrightWire.ExecutionGraph.Node.Input
                     for (var j = 0; j < _source._data.Length; j++)
                         _source._data[j] += initialDelta[j] * context.LearningContext.LearningRate;
                 }
-            }
-        }
-        class SetMemory : IAction
-        {
-            string _id;
-
-            public SetMemory(string id)
-            {
-                _id = id;
-            }
-
-            public void Initialise(string data)
-            {
-                _id = data;
-            }
-
-            public string Serialise()
-            {
-                return _id;
-            }
-
-            public void Execute(IGraphData input, IContext context)
-            {
-                context.ExecutionContext.SetMemory(_id, input.GetMatrix());
             }
         }
 

@@ -18,7 +18,7 @@ namespace BrightWire.ExecutionGraph.Input
         public SequenceToSequenceDataTableAdaptor(ILearningContext learningContext, GraphFactory factory, IDataTable dataTable, Action<WireBuilder> dataConversionBuilder)
             : base(learningContext, dataTable)
         {
-            _Initialise(dataTable);
+            _Initialise(factory, dataTable);
 
             var wireBuilder = factory.Build(_inputSize, _input);
             dataConversionBuilder(wireBuilder);
@@ -28,7 +28,7 @@ namespace BrightWire.ExecutionGraph.Input
             _inputSize = output.Item1.ColumnCount;
         }
 
-        void _Initialise(IDataTable dataTable)
+        void _Initialise(GraphFactory factory, IDataTable dataTable)
         {
             _rowDepth = new int[dataTable.RowCount];
             FloatMatrix inputMatrix = null, outputMatrix = null;
@@ -40,18 +40,23 @@ namespace BrightWire.ExecutionGraph.Input
 
             _inputSize = inputMatrix.ColumnCount;
             _outputSize = outputMatrix.ColumnCount;
+
+            // look for an output size
+            if (factory != null)
+                _outputSize = factory.CurrentPropertySet.Get("Sequence-Length", _outputSize);
         }
 
-        private SequenceToSequenceDataTableAdaptor(ILearningContext learningContext, IDataTable dataTable, FlowThrough input, int inputSize) : base(learningContext, dataTable)
+        private SequenceToSequenceDataTableAdaptor(ILearningContext learningContext, IDataTable dataTable, FlowThrough input, int inputSize, int outputSize) : base(learningContext, dataTable)
         {
-            _Initialise(dataTable);
+            _Initialise(null, dataTable);
             _input = input;
             _inputSize = inputSize;
+            _outputSize = outputSize;
         }
 
         public override IDataSource GetFor(IDataTable dataTable)
         {
-            return new SequenceToSequenceDataTableAdaptor(_learningContext, dataTable, _input, _inputSize);
+            return new SequenceToSequenceDataTableAdaptor(_learningContext, dataTable, _input, _inputSize, _outputSize);
         }
 
         public override bool IsSequential => true;
@@ -77,7 +82,7 @@ namespace BrightWire.ExecutionGraph.Input
             var inputData = new List<(FloatMatrix Input, FloatMatrix Output)>();
             foreach (var row in data)
                 inputData.Add((row.GetField<FloatMatrix>(0), null));
-            var encoderInput = _GetSequentialMiniBatch(rows, inputData);
+            var encoderInput = _GetSequentialMiniBatch(rows, inputData, _inputSize);
 
             // execute the encoder
             IMiniBatchSequence sequence;
@@ -109,7 +114,7 @@ namespace BrightWire.ExecutionGraph.Input
             var miniBatch = new MiniBatch(rows, this);
             var curr = encoderOutput;
             foreach (var item in outputData.OrderBy(kv => kv.Key)) {
-                var output = _lap.Create(item.Value);
+                var output = _lap.Create(item.Value, _outputSize);
                 var type = (item.Key == 0)
                     ? MiniBatchType.SequenceStart
                     : item.Key == (outputData.Count - 1)

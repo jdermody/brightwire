@@ -25,7 +25,7 @@ namespace BrightWire
 
     public interface IAction
     {
-        void Execute(IGraphData input, IContext context);
+        IGraphData Execute(IGraphData input, IContext context);
         string Serialise();
         void Initialise(string data);
     }

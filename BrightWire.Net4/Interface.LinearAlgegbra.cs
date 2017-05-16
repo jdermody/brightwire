@@ -71,7 +71,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="rows">The list of rows in the new matrix</param>
         /// <returns></returns>
-        IMatrix Create(IReadOnlyList<FloatVector> rows);
+        IMatrix Create(IReadOnlyList<FloatVector> rows, int? numColumns);
 
         /// <summary>
         /// Creates a matrix from a list of vectors

@@ -29,7 +29,10 @@ namespace BrightWire.ExecutionGraph.Engine
 
         public IMatrix GetMemory(string index)
         {
-            return _memory[index];
+            IMatrix output;
+            if (_memory.TryGetValue(index, out output))
+                return output;
+            return null;
         }
 
         public IGraphOperation GetNextOperation()
