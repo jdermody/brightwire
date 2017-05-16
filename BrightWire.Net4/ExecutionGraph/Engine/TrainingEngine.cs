@@ -12,7 +12,7 @@ namespace BrightWire.ExecutionGraph.Engine
 {
     class TrainingEngine : IGraphTrainingEngine
     {
-        readonly ExecutionContext _executionContext;
+        readonly IExecutionContext _executionContext;
         readonly ILinearAlgebraProvider _lap;
         readonly IDataSource _dataSource;
         readonly List<TrainingEngineContext> _executionResults = new List<TrainingEngineContext>();
@@ -23,12 +23,12 @@ namespace BrightWire.ExecutionGraph.Engine
         double? _lastTrainingError = null, _trainingErrorDelta = null;
         int _noImprovementCount = 0;
 
-        public TrainingEngine(ILinearAlgebraProvider lap, IDataSource dataSource, ILearningContext learningContext)
+        public TrainingEngine(ILinearAlgebraProvider lap, IDataSource dataSource, ILearningContext learningContext, IExecutionContext executionContext)
         {
             _lap = lap;
             _dataSource = dataSource;
             _isStochastic = lap.IsStochastic;
-            _executionContext = new ExecutionContext(lap);
+            _executionContext = executionContext;
             _learningContext = learningContext;
             _input = new FlowThrough();
         }

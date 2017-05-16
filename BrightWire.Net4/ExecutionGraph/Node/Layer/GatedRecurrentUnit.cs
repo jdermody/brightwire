@@ -1,4 +1,5 @@
-﻿using BrightWire.ExecutionGraph.Helper;
+﻿using BrightWire.ExecutionGraph.Action;
+using BrightWire.ExecutionGraph.Helper;
 using BrightWire.ExecutionGraph.Node.Gate;
 using BrightWire.ExecutionGraph.Node.Helper;
 using BrightWire.ExecutionGraph.Node.Input;
@@ -44,13 +45,13 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             //graph.PopPropertyStack();
 
             // add sigmoids to the gates
-            var Rt = graph.Add(Wr, Ur).Add(graph.SigmoidActivation("Rt")).Build();
-            var Zt = graph.Add(Wz, Uz).Add(graph.SigmoidActivation("Zt")).Build();
+            var Rt = graph.Add(Wr, Ur).AddBackwardAction(new ConstrainErrorSignal()).Add(graph.SigmoidActivation("Rt")).Build();
+            var Zt = graph.Add(Wz, Uz).AddBackwardAction(new ConstrainErrorSignal()).Add(graph.SigmoidActivation("Zt")).Build();
 
             // h1 = tanh(Wh(x) + Uh(Ht1xRt))
             var Wh = graph.Build(inputSize, _input).AddFeedForward(hiddenLayerSize, "Wh");
             var Uh = graph.Multiply(hiddenLayerSize, Rt, _memory).AddFeedForward(hiddenLayerSize, "Uh");
-            var h1 = graph.Add(Wh, Uh).Add(graph.TanhActivation());
+            var h1 = graph.Add(Wh, Uh).AddBackwardAction(new ConstrainErrorSignal()).Add(graph.TanhActivation());
 
             // h2 = h1x(1-Zt)
             var h2 = graph.Multiply(h1, graph.Build(hiddenLayerSize, Zt).Add(graph.CreateOneMinusInput()));
@@ -59,7 +60,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             var previous = graph.Multiply(hiddenLayerSize, Zt, _memory);
             _output = graph
                 .Add(h2, previous)
-                .Add(_memory.SetMemoryAction)
+                .AddForwardAction(_memory.SetMemoryAction)
                 .Add(new RestoreErrorSignal(context => {
                     if (_lastBackpropagation != null) {
                         foreach (var item in _lastBackpropagation)

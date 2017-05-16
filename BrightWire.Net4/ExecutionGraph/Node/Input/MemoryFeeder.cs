@@ -20,19 +20,21 @@ namespace BrightWire.ExecutionGraph.Node.Input
 
             public override void _Backward(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
-                var es = errorSignal.GetMatrix();
+                if (context.BatchSequence.Type == MiniBatchType.SequenceStart) {
+                    var es = errorSignal.GetMatrix();
 
-                context.LearningContext.Log(writer => {
-                    writer.WriteStartElement("memory-backpropagation");
-                    if (context.LearningContext.LogMatrixValues)
-                        writer.WriteRaw(es.AsIndexable().AsXml);
-                    writer.WriteEndElement();
-                });
+                    context.LearningContext.Log(writer => {
+                        writer.WriteStartElement("memory-backpropagation");
+                        if (context.LearningContext.LogMatrixValues)
+                            writer.WriteRaw(es.AsIndexable().AsXml);
+                        writer.WriteEndElement();
+                    });
 
-                using (var columnSums = es.ColumnSums()) {
-                    var initialDelta = columnSums.AsIndexable();
-                    for (var j = 0; j < _source._data.Length; j++)
-                        _source._data[j] += initialDelta[j] * context.LearningContext.LearningRate;
+                    using (var columnSums = es.ColumnSums()) {
+                        var initialDelta = columnSums.AsIndexable();
+                        for (var j = 0; j < _source._data.Length; j++)
+                            _source._data[j] += initialDelta[j] * context.LearningContext.LearningRate;
+                    }
                 }
             }
         }

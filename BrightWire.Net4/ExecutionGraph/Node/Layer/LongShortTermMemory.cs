@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.Node.Layer
 {
-    class LongShortTermMemory : NodeBase
+    class LongShortTermMemory : NodeBase, IHaveMemoryNode
     {
         int _inputSize;
         MemoryFeeder _memory, _state;
@@ -48,11 +48,11 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
             var ftCt1 = graph.Multiply(hiddenLayerSize, Ft.Build(), _state);
             var Ct = graph.Add(ftCt1, graph.Multiply(It, graph.Add(Wc, Uc).Add(graph.TanhActivation())))
-                .Add(_state.SetMemoryAction)
+                .AddForwardAction(_state.SetMemoryAction)
             ;
 
             _output = graph.Multiply(Ot, Ct.Add(graph.TanhActivation()))
-                .Add(_memory.SetMemoryAction)
+                .AddForwardAction(_memory.SetMemoryAction)
                 .Add(new RestoreErrorSignal(context => {
                     if (_lastBackpropagation != null) {
                         foreach (var item in _lastBackpropagation)
@@ -66,6 +66,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         }
 
         public override List<IWire> Output => _output.Output;
+        public INode Memory => _memory;
 
         public override void ExecuteForward(IContext context)
         {

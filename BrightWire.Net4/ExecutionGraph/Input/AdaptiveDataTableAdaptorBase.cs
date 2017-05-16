@@ -13,18 +13,20 @@ namespace BrightWire.ExecutionGraph.Input
     abstract class AdaptiveDataTableAdaptorBase : DataTableAdaptorBase
     {
         protected FlowThrough _input;
-        readonly ExecutionContext _executionContext;
+        protected readonly IExecutionContext _executionContext;
         protected readonly ILearningContext _learningContext;
 
-        public AdaptiveDataTableAdaptorBase(ILearningContext learningContext, IDataTable dataTable)
+        public AdaptiveDataTableAdaptorBase(ILearningContext learningContext, IDataTable dataTable, IExecutionContext executionContext)
             : base(learningContext.LinearAlgebraProvider, dataTable)
         {
             Debug.Assert(learningContext.DeferUpdates);
 
             _learningContext = learningContext;
-            _executionContext = new ExecutionContext(_lap);
+            _executionContext = executionContext;
             _input = new FlowThrough();
         }
+
+        override public INode AdaptiveInput => _input;
 
         protected IContext _Process(IGraphData data)
         {

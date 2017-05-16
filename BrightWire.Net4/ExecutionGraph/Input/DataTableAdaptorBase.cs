@@ -23,6 +23,7 @@ namespace BrightWire.ExecutionGraph.Input
         public abstract int InputSize { get; }
         public abstract int OutputSize { get; }
         public virtual int RowCount => _dataTable.RowCount;
+        public virtual INode AdaptiveInput => null;
 
         public abstract IMiniBatch Get(IReadOnlyList<int> rows);
         public abstract IDataSource GetFor(IDataTable dataTable);

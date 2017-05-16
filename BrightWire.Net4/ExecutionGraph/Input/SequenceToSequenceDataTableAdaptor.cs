@@ -15,8 +15,8 @@ namespace BrightWire.ExecutionGraph.Input
         int _inputSize, _outputSize;
         //readonly List<IContext> _batchEncoder = new List<IContext>();
 
-        public SequenceToSequenceDataTableAdaptor(ILearningContext learningContext, GraphFactory factory, IDataTable dataTable, Action<WireBuilder> dataConversionBuilder)
-            : base(learningContext, dataTable)
+        public SequenceToSequenceDataTableAdaptor(ILearningContext learningContext, IExecutionContext executionContext, GraphFactory factory, IDataTable dataTable, Action<WireBuilder> dataConversionBuilder)
+            : base(learningContext, dataTable, executionContext)
         {
             _Initialise(factory, dataTable);
 
@@ -47,7 +47,8 @@ namespace BrightWire.ExecutionGraph.Input
                 _outputSize = factory.CurrentPropertySet.Get("Sequence-Length", _outputSize);
         }
 
-        private SequenceToSequenceDataTableAdaptor(ILearningContext learningContext, IDataTable dataTable, FlowThrough input, int inputSize, int outputSize) : base(learningContext, dataTable)
+        private SequenceToSequenceDataTableAdaptor(ILearningContext learningContext, IExecutionContext executionContext, IDataTable dataTable, FlowThrough input, int inputSize, int outputSize)
+            : base(learningContext, dataTable, executionContext)
         {
             _Initialise(null, dataTable);
             _input = input;
@@ -57,7 +58,7 @@ namespace BrightWire.ExecutionGraph.Input
 
         public override IDataSource GetFor(IDataTable dataTable)
         {
-            return new SequenceToSequenceDataTableAdaptor(_learningContext, dataTable, _input, _inputSize, _outputSize);
+            return new SequenceToSequenceDataTableAdaptor(_learningContext, _executionContext, dataTable, _input, _inputSize, _outputSize);
         }
 
         public override bool IsSequential => true;

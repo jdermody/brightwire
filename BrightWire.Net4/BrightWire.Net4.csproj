@@ -91,8 +91,11 @@
     <Compile Include="Descriptor\GradientDescent\NesterovMomentumDescriptor.cs" />
     <Compile Include="Descriptor\GradientDescent\RmsPropDescriptor.cs" />
     <Compile Include="ExecutionGraph\Action\BackpropagateThroughTime.cs" />
+    <Compile Include="ExecutionGraph\Action\ConstrainErrorSignal.cs" />
+    <Compile Include="ExecutionGraph\Action\JoinInputWithMemory.cs" />
     <Compile Include="ExecutionGraph\Action\ReplaceInputWith.cs" />
     <Compile Include="ExecutionGraph\Action\SetMemory.cs" />
+    <Compile Include="ExecutionGraph\Action\WriteNodeMemoryToSlot.cs" />
     <Compile Include="ExecutionGraph\Engine\ExecutionEngine.cs" />
     <Compile Include="ExecutionGraph\Action\Backpropagate.cs" />
     <Compile Include="ExecutionGraph\Activation\LeakyRelu.cs" />
@@ -140,7 +143,8 @@
     <Compile Include="ExecutionGraph\Node\Gate\JoinGate.cs" />
     <Compile Include="ExecutionGraph\Node\Gate\MultiGateBase.cs" />
     <Compile Include="ExecutionGraph\Node\Gate\MultiplyGate.cs" />
-    <Compile Include="ExecutionGraph\Node\Helper\ExecuteAction.cs" />
+    <Compile Include="ExecutionGraph\Node\Helper\ExecuteBackwardAction.cs" />
+    <Compile Include="ExecutionGraph\Node\Helper\ExecuteForwardAction.cs" />
     <Compile Include="ExecutionGraph\Node\Helper\OneMinusInput.cs" />
     <Compile Include="ExecutionGraph\Node\Helper\RestoreErrorSignal.cs" />
     <Compile Include="ExecutionGraph\Node\Input\FlowThrough.cs" />

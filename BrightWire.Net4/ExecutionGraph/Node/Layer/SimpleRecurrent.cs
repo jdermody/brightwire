@@ -9,6 +9,7 @@ using System.IO;
 using BrightWire.Models;
 using ProtoBuf;
 using BrightWire.ExecutionGraph.Node.Helper;
+using BrightWire.ExecutionGraph.Action;
 
 namespace BrightWire.ExecutionGraph.Node.Layer
 {
@@ -38,8 +39,9 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             var memoryChannel = graph.Build(hiddenLayerSize, _memory).AddFeedForward(hiddenLayerSize, "Uh");
 
             _output = graph.Add(inputChannel, memoryChannel)
+                .AddBackwardAction(new ConstrainErrorSignal())
                 .Add(activation)
-                .Add(_memory.SetMemoryAction)
+                .AddForwardAction(_memory.SetMemoryAction)
                 .Add(new RestoreErrorSignal(context => {
                     if(_lastBackpropagation != null) {
                         foreach(var item in _lastBackpropagation)

@@ -8,17 +8,24 @@ using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.Node.Helper
 {
-    class ExecuteAction : NodeBase
+    class ExecuteBackwardAction : NodeBase
     {
+        class Backpropagation : SingleBackpropagationBase<ExecuteBackwardAction>
+        {
+            public Backpropagation(ExecuteBackwardAction source) : base(source) { }
+
+            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
+            {
+                return _source._action.Execute(errorSignal, context);
+            }
+        }
         IAction _action;
 
-        public ExecuteAction(IAction action) : base(null) { _action = action; }
+        public ExecuteBackwardAction(IAction action) : base(null) { _action = action; }
 
         public override void ExecuteForward(IContext context)
         {
-            var input = context.Data;
-            var output = _action.Execute(input, context);
-            _AddNextGraphAction(context, output ?? input, null);
+            _AddNextGraphAction(context, context.Data, () => new Backpropagation(this));
         }
 
         protected override (string Description, byte[] Data) _GetInfo()

@@ -84,6 +84,8 @@ namespace BrightWire
         IGraphData Data { get; set; }
         void SetMemory(string index, IMatrix memory);
         IMatrix GetMemory(string index);
+        IGraphOperation GetNextOperation();
+        void Add(IReadOnlyList<IGraphOperation> operationList);
         ILinearAlgebraProvider LinearAlgebraProvider { get; }
     }
 
@@ -102,6 +104,7 @@ namespace BrightWire
         IReadOnlyList<IReadOnlyList<int>> GetBuckets();
         void OnBatchProcessed(IContext context);
         IDataSource GetFor(IDataTable dataTable);
+        INode AdaptiveInput { get; }
     }
 
     public enum MiniBatchType
@@ -165,5 +168,10 @@ namespace BrightWire
         double Train();
         void WriteTestResults(IDataSource testDataSource, IErrorMetric errorMetric, int batchSize = 128);
         ILearningContext LearningContext { get; }
+    }
+
+    public interface IHaveMemoryNode
+    {
+        INode Memory { get; }
     }
 }

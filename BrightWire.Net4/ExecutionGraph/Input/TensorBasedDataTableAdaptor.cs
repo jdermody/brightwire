@@ -15,8 +15,8 @@ namespace BrightWire.ExecutionGraph.Input
         readonly int _inputSize, _outputSize;
         readonly List<(IContext Context, int Rows, int Columns, int Depth)> _processedContext = new List<(IContext, int, int, int)>();
 
-        public TensorBasedDataTableAdaptor(ILearningContext learningContext, GraphFactory factory, IDataTable dataTable, Action<WireBuilder> dataConversionBuilder) 
-            : base(learningContext, dataTable)
+        public TensorBasedDataTableAdaptor(ILearningContext learningContext, IExecutionContext executionContext, GraphFactory factory, IDataTable dataTable, Action<WireBuilder> dataConversionBuilder) 
+            : base(learningContext, dataTable, executionContext)
         {
             var firstRow = dataTable.GetRow(0);
             var input = (FloatTensor)firstRow.Data[0];
@@ -34,8 +34,8 @@ namespace BrightWire.ExecutionGraph.Input
             _learningContext.Clear();
         }
 
-        private TensorBasedDataTableAdaptor(ILearningContext learningContext, IDataTable dataTable, FlowThrough input, int inputSize, int outputSize) 
-            :base(learningContext, dataTable)
+        private TensorBasedDataTableAdaptor(ILearningContext learningContext, IExecutionContext executionContext, IDataTable dataTable, FlowThrough input, int inputSize, int outputSize) 
+            :base(learningContext, dataTable, executionContext)
         {
             _inputSize = inputSize;
             _outputSize = outputSize;
@@ -44,7 +44,7 @@ namespace BrightWire.ExecutionGraph.Input
 
         public override IDataSource GetFor(IDataTable dataTable)
         {
-            return new TensorBasedDataTableAdaptor(_learningContext, _dataTable, _input, _inputSize, _outputSize);
+            return new TensorBasedDataTableAdaptor(_learningContext, _executionContext, _dataTable, _input, _inputSize, _outputSize);
         }
 
         public override bool IsSequential => false;

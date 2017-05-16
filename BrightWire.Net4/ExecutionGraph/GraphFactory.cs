@@ -52,6 +52,11 @@ namespace BrightWire.ExecutionGraph
 
         public ILinearAlgebraProvider LinearAlgebraProvider => _lap;
 
+        public IExecutionContext CreateExecutionContext()
+        {
+            return new ExecutionContext(_lap);
+        }
+
         public IPropertySet CurrentPropertySet
         {
             get { return _propertySetStack.Any() ? _propertySetStack.Peek() : _defaultPropertySet; }
@@ -107,15 +112,15 @@ namespace BrightWire.ExecutionGraph
             return new LearningContext(_lap, learningRate, batchSize, calculateTrainingError, deferUpdates);
         }
 
-        public IGraphTrainingEngine CreateTrainingEngine(IDataSource dataSource, float trainingRate = 0.1f, int batchSize = 128)
+        public IGraphTrainingEngine CreateTrainingEngine(IDataSource dataSource, float trainingRate = 0.1f, int batchSize = 128, IExecutionContext executionContext = null)
         {
             var learningContext = new LearningContext(_lap, trainingRate, batchSize, true, dataSource.IsSequential);
-            return new TrainingEngine(_lap, dataSource, learningContext);
+            return new TrainingEngine(_lap, dataSource, learningContext, executionContext ?? CreateExecutionContext());
         }
 
-        public IGraphTrainingEngine CreateTrainingEngine(IDataSource dataSource, ILearningContext learningContext)
+        public IGraphTrainingEngine CreateTrainingEngine(IDataSource dataSource, ILearningContext learningContext, IExecutionContext executionContext = null)
         {
-            return new TrainingEngine(_lap, dataSource, learningContext);
+            return new TrainingEngine(_lap, dataSource, learningContext, executionContext ?? CreateExecutionContext());
         }
 
         public IGraphEngine CreateEngine(Models.ExecutionGraph graph)
@@ -151,7 +156,7 @@ namespace BrightWire.ExecutionGraph
             return new DataTableAdaptor(_lap, dataTable, vectoriser);
         }
 
-        public IDataSource GetDataSource(IDataTable dataTable, ILearningContext learningContext, Action<WireBuilder> dataConversionBuilder)
+        public IDataSource GetDataSource(IDataTable dataTable, ILearningContext learningContext, IExecutionContext executionContext, Action<WireBuilder> dataConversionBuilder)
         {
             var columns = dataTable.Columns;
             if (columns.Count == 2) {
@@ -160,11 +165,11 @@ namespace BrightWire.ExecutionGraph
 
                 // volume classification
                 if (column1 == ColumnType.Tensor && column2 == ColumnType.Vector)
-                    return new TensorBasedDataTableAdaptor(learningContext, this, dataTable, dataConversionBuilder);
+                    return new TensorBasedDataTableAdaptor(learningContext, executionContext, this, dataTable, dataConversionBuilder);
 
                 // sequence to sequence
                 else if (column1 == ColumnType.Matrix && column2 == ColumnType.Matrix)
-                    return new SequenceToSequenceDataTableAdaptor(learningContext, this, dataTable, dataConversionBuilder);
+                    return new SequenceToSequenceDataTableAdaptor(learningContext, executionContext, this, dataTable, dataConversionBuilder);
             }
             throw new ArgumentException($"{nameof(dataTable)} does not contain a recognised data format");
         }

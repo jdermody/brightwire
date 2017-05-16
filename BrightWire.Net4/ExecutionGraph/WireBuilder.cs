@@ -12,19 +12,26 @@ namespace BrightWire.ExecutionGraph
     public class WireBuilder
     {
         readonly GraphFactory _factory;
+        readonly INode _first;
         INode _node;
         int _size;
 
         public WireBuilder(GraphFactory factory, int size, INode node)
         {
             _factory = factory;
-            _node = node;
+            _first = _node = node;
             _size = size;
         }
 
         public WireBuilder(GraphFactory factory, IGraphEngine engine) 
             : this(factory, engine.DataSource.InputSize, engine.Input)
         {
+        }
+
+        public WireBuilder IncrementSizeBy(int delta)
+        {
+            _size += delta;
+            return this;
         }
 
         void _SetNode(INode node)
@@ -48,9 +55,15 @@ namespace BrightWire.ExecutionGraph
             return this;
         }
 
-        public WireBuilder Add(IAction action)
+        public WireBuilder AddForwardAction(IAction action)
         {
-            _SetNode(new ExecuteAction(action));
+            _SetNode(new ExecuteForwardAction(action));
+            return this;
+        }
+
+        public WireBuilder AddBackwardAction(IAction action)
+        {
+            _SetNode(new ExecuteBackwardAction(action));
             return this;
         }
 
@@ -106,6 +119,11 @@ namespace BrightWire.ExecutionGraph
             _SetNode(_factory.CreateConvolutional(inputDepth, filterCount, padding, filterWidth, filterHeight, stride, name));
             // work out the new size here
             return this;
+        }
+
+        public INode Find(string name)
+        {
+            return _first.SearchFor(name);
         }
 
         public INode Build() => _node;
