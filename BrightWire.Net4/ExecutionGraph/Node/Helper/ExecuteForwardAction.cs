@@ -12,7 +12,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
     {
         IAction _action;
 
-        public ExecuteForwardAction(IAction action) : base(null) { _action = action; }
+        public ExecuteForwardAction(IAction action, string name = null) : base(name) { _action = action; }
 
         public override void ExecuteForward(IContext context)
         {

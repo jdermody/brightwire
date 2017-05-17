@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BrightWire.Models
+namespace BrightWire.Models.DataTable
 {
     /// <summary>
     /// A data table normalisation model

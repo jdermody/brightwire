@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace BrightWire.ExecutionGraph.GradientDescent
 {
     class RmsProp : AdaGrad
     {
-        protected readonly float _decayRate;
+        protected float _decayRate;
 
         public RmsProp(float decayRate, IMatrix cache, IGradientDescentOptimisation updater) : base(cache, updater)
         {
@@ -23,6 +24,18 @@ namespace BrightWire.ExecutionGraph.GradientDescent
                     _updater.Update(source, delta2, context);
                 }
             }
+        }
+
+        public override void ReadFrom(GraphFactory factory, BinaryReader reader)
+        {
+            base.ReadFrom(factory, reader);
+            _decayRate = reader.ReadSingle();
+        }
+
+        public override void WriteTo(BinaryWriter writer)
+        {
+            base.WriteTo(writer);
+            writer.Write(_decayRate);
         }
     }
 }

@@ -128,7 +128,7 @@ namespace BrightWire.ExecutionGraph.Node
             _Initalise(factory, description, data);
         }
 
-        public INode SearchFor(string name)
+        public INode Find(string name)
         {
             var context = new Stack<INode>();
             context.Push(this);

@@ -29,11 +29,13 @@ namespace BrightWire.ExecutionGraph.Input
             _learningContext.Clear();
         }
 
-        public SequenceToSequenceDataTableAdaptor(IExecutionContext executionContext, IDataTable dataTable, INode input)
-            : base(null, dataTable, executionContext)
+        public SequenceToSequenceDataTableAdaptor(ILearningContext learningContext, IExecutionContext executionContext, IDataTable dataTable, INode input, DataSourceModel dataSource)
+            : base(learningContext, dataTable, executionContext)
         {
             _Initialise(dataTable);
             _input = input;
+            _inputSize = dataSource.InputSize;
+            _outputSize = dataSource.OutputSize;
         }
 
         void _Initialise(IDataTable dataTable)
@@ -81,7 +83,6 @@ namespace BrightWire.ExecutionGraph.Input
         (IMatrix, IReadOnlyList<IRow>) _Encode(IReadOnlyList<int> rows)
         {
             var data = _dataTable.GetRows(rows);
-            //_batchEncoder.Clear();
 
             // create the input batch
             var inputData = new List<(FloatMatrix Input, FloatMatrix Output)>();
@@ -96,7 +97,6 @@ namespace BrightWire.ExecutionGraph.Input
                 var context = _Process(sequence);
                 if (sequence.Type == MiniBatchType.SequenceEnd)
                     encoderOutput = context.Data.GetMatrix();
-                //_batchEncoder.Add(context);
             }
             return (encoderOutput, data);
         }

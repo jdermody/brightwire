@@ -43,15 +43,18 @@ namespace BrightWire.Models
         }
 
         [ProtoMember(1)]
-        public string Version { get; set; }
+        public string Version { get; set; } = "2.0";
 
         [ProtoMember(2)]
-        public Node InputNode { get; set; }
+        public string Name { get; set; }
 
         [ProtoMember(3)]
-        public Node[] OtherNodes { get; set; }
+        public Node InputNode { get; set; }
 
         [ProtoMember(4)]
+        public Node[] OtherNodes { get; set; }
+
+        [ProtoMember(5)]
         public Wire[] Wires { get; set; }
     }
 }

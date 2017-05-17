@@ -1,5 +1,6 @@
 ﻿using BrightWire.Descriptor.GradientDescent;
 using BrightWire.ExecutionGraph.Activation;
+using BrightWire.ExecutionGraph.DataSource;
 using BrightWire.ExecutionGraph.Engine;
 using BrightWire.ExecutionGraph.GradientDescent;
 using BrightWire.ExecutionGraph.Helper;
@@ -10,6 +11,7 @@ using BrightWire.ExecutionGraph.Node.Input;
 using BrightWire.ExecutionGraph.Node.Layer;
 using BrightWire.ExecutionGraph.WeightInitialisation;
 using BrightWire.Helper;
+using BrightWire.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -80,7 +82,7 @@ namespace BrightWire.ExecutionGraph
             _queryTypes.Add((type.GetTypeInfo(), type, name));
         }
 
-        IGradientDescentOptimisation _GetGradientDescent(IMatrix weight)
+        public IGradientDescentOptimisation GetWeightUpdater(IMatrix weight)
         {
             var propertySet = CurrentPropertySet;
 
@@ -115,17 +117,41 @@ namespace BrightWire.ExecutionGraph
         public IGraphTrainingEngine CreateTrainingEngine(IDataSource dataSource, IExecutionContext executionContext, float trainingRate = 0.1f, int batchSize = 128)
         {
             var learningContext = new LearningContext(_lap, trainingRate, batchSize, true, dataSource.IsSequential);
-            return new TrainingEngine(_lap, dataSource, learningContext, executionContext ?? CreateExecutionContext());
+            return new TrainingEngine(_lap, dataSource, learningContext, executionContext, null);
+        }
+
+        public IGraphTrainingEngine CreateTrainingEngine(IDataSource dataSource, IExecutionContext executionContext, Models.ExecutionGraph graph, float trainingRate = 0.1f, int batchSize = 128)
+        {
+            var learningContext = new LearningContext(_lap, trainingRate, batchSize, true, dataSource.IsSequential);
+            var input = this.CreateFrom(graph);
+            return new TrainingEngine(_lap, dataSource, learningContext, executionContext, input);
         }
 
         public IGraphTrainingEngine CreateTrainingEngine(IDataSource dataSource, IExecutionContext executionContext, ILearningContext learningContext)
         {
-            return new TrainingEngine(_lap, dataSource, learningContext, executionContext ?? CreateExecutionContext());
+            return new TrainingEngine(_lap, dataSource, learningContext, executionContext, null);
+        }
+
+        public IGraphTrainingEngine CreateTrainingEngine(IDataSource dataSource, IExecutionContext executionContext, ILearningContext learningContext, Models.ExecutionGraph graph)
+        {
+            var input = this.CreateFrom(graph);
+            return new TrainingEngine(_lap, dataSource, learningContext, executionContext, input);
         }
 
         public IGraphEngine CreateEngine(Models.ExecutionGraph graph, IExecutionContext executionContext)
         {
-            return new ExecutionEngine(_lap, graph, executionContext);
+            var input = this.CreateFrom(graph);
+            return new ExecutionEngine(_lap, executionContext, graph, input);
+        }
+
+        public IDataSource GetDataSource(IReadOnlyList<FloatVector> vectorList)
+        {
+            return new VectorDataSource(_lap, vectorList);
+        }
+
+        public IDataSource GetDataSource(IReadOnlyList<FloatMatrix> sequenceList)
+        {
+            return new SequentialDataSource(_lap, sequenceList);
         }
 
         public IDataSource GetDataSource(IDataTable dataTable, IDataTableVectoriser vectoriser = null)
@@ -174,9 +200,9 @@ namespace BrightWire.ExecutionGraph
             throw new ArgumentException($"{nameof(dataTable)} does not contain a recognised data format");
         }
 
-        public IDataSource GetDataSource(IDataTable dataTable, IExecutionContext executionContext, Models.ExecutionGraph graph)
+        public IDataSource GetDataSource(IDataTable dataTable, IExecutionContext executionContext, Models.DataSourceModel dataSource, ILearningContext learningContext = null)
         {
-            var input = this.CreateFrom(graph);
+            var input = this.CreateFrom(dataSource.Graph);
 
             var columns = dataTable.Columns;
             if (columns.Count == 2) {
@@ -190,7 +216,7 @@ namespace BrightWire.ExecutionGraph
                 //// sequence to sequence
                 //else
                 if (column1 == ColumnType.Matrix && column2 == ColumnType.Matrix)
-                    return new SequenceToSequenceDataTableAdaptor(executionContext, dataTable, input);
+                    return new SequenceToSequenceDataTableAdaptor(learningContext, executionContext, dataTable, input, dataSource);
             }
             throw new ArgumentException($"{nameof(dataTable)} does not contain a recognised data format");
         }
@@ -203,7 +229,7 @@ namespace BrightWire.ExecutionGraph
             var weight = weightInit.CreateWeight(inputSize, outputSize);
 
             // get the gradient descent optimisations
-            var optimisation = _GetGradientDescent( weight);
+            var optimisation = GetWeightUpdater( weight);
 
             // create the layer
             return new FeedForward(bias, weight, optimisation, name);
@@ -212,7 +238,7 @@ namespace BrightWire.ExecutionGraph
         public INode CreateConvolutional(int inputDepth, int filterCount, int padding, int filterWidth, int filterHeight, int stride, string name = null)
         {
             var weightInit = _GetWeightInitialisation();
-            return new Convolutional(weightInit, weight => _GetGradientDescent(weight), inputDepth, filterCount, padding, filterWidth, filterHeight, stride, name);
+            return new Convolutional(weightInit, weight => GetWeightUpdater(weight), inputDepth, filterCount, padding, filterWidth, filterHeight, stride, name);
         }
 
         public INode CreateSimpleRecurrent(int inputSize, float[] memory, INode activation, string name = null)

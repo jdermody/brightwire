@@ -55,15 +55,15 @@ namespace BrightWire.ExecutionGraph
             return this;
         }
 
-        public WireBuilder AddForwardAction(IAction action)
+        public WireBuilder AddForwardAction(IAction action, string name = null)
         {
-            _SetNode(new ExecuteForwardAction(action));
+            _SetNode(new ExecuteForwardAction(action, name));
             return this;
         }
 
-        public WireBuilder AddBackwardAction(IAction action)
+        public WireBuilder AddBackwardAction(IAction action, string name = null)
         {
-            _SetNode(new ExecuteBackwardAction(action));
+            _SetNode(new ExecuteBackwardAction(action, name));
             return this;
         }
 
@@ -123,7 +123,7 @@ namespace BrightWire.ExecutionGraph
 
         public INode Find(string name)
         {
-            return _first.SearchFor(name);
+            return _first.Find(name);
         }
 
         public INode Build() => _node;

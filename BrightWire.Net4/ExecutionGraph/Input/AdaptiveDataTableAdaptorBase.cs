@@ -28,6 +28,16 @@ namespace BrightWire.ExecutionGraph.Input
 
         public INode AdaptiveInput => _input;
 
+        public Models.DataSourceModel GetModel(string name = null)
+        {
+            return new Models.DataSourceModel {
+                Name = name,
+                InputSize = InputSize,
+                OutputSize = OutputSize,
+                Graph = _input.GetGraph()
+            };
+        }
+
         protected IContext _Process(IGraphData data)
         {
             var context = new TrainingEngineContext(_executionContext, data, _learningContext);

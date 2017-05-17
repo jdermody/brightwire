@@ -64,18 +64,16 @@ namespace BrightWire.ExecutionGraph.Engine
         readonly Models.ExecutionGraph _graph;
         readonly IExecutionContext _executionContext;
         readonly List<Context> _executionResults = new List<Context>();
-        readonly GraphFactory _factory;
         readonly ILinearAlgebraProvider _lap;
         IDataSource _dataSource = null;
         readonly INode _input;
 
-        public ExecutionEngine(ILinearAlgebraProvider lap, Models.ExecutionGraph graph, IExecutionContext executionContext)
+        public ExecutionEngine(ILinearAlgebraProvider lap, IExecutionContext executionContext, Models.ExecutionGraph graph, INode input)
         {
             _lap = lap;
-            _factory = new GraphFactory(lap);
             _graph = graph;
             _executionContext = executionContext;
-            _input = _factory.CreateFrom(graph);
+            _input = input;
         }
 
         public Models.ExecutionGraph Graph => _graph;

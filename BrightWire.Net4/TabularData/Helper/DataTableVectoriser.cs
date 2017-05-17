@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BrightWire.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -82,7 +83,7 @@ namespace BrightWire.TabularData.Helper
             return null;
         }
 
-        public float[] GetInput(IRow row)
+        public FloatVector GetInput(IRow row)
         {
             var ret = new float[_inputSize];
             var index = 0;
@@ -101,10 +102,12 @@ namespace BrightWire.TabularData.Helper
                     ret[offset] = 1f;
                 }
             }
-            return ret;
+            return new FloatVector {
+                Data = ret
+            };
         }
 
-        public float[] GetOutput(IRow row)
+        public FloatVector GetOutput(IRow row)
         {
             if (_hasTarget) {
                 var ret = new float[_outputSize];
@@ -115,7 +118,9 @@ namespace BrightWire.TabularData.Helper
                     var offset = _columnMap[_classColumnIndex][str];
                     ret[offset] = 1f;
                 }
-                return ret;
+                return new FloatVector {
+                    Data = ret
+                };
             }
             return null;
         }

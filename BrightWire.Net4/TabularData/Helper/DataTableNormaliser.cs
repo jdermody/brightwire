@@ -1,4 +1,5 @@
 ﻿using BrightWire.Models;
+using BrightWire.Models.DataTable;
 using System;
 using System.Collections.Generic;
 using System.IO;

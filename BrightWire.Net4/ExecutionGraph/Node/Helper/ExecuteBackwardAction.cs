@@ -21,7 +21,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
         }
         IAction _action;
 
-        public ExecuteBackwardAction(IAction action) : base(null) { _action = action; }
+        public ExecuteBackwardAction(IAction action, string name = null) : base(name) { _action = action; }
 
         public override void ExecuteForward(IContext context)
         {

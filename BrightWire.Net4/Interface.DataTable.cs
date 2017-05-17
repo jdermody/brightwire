@@ -1,4 +1,5 @@
 ﻿using BrightWire.Models;
+using BrightWire.Models.DataTable;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -209,13 +210,13 @@ namespace BrightWire
         /// Vectorises the input columns of the specified row
         /// </summary>
         /// <param name="row">The row to vectorise</param>
-        float[] GetInput(IRow row);
+        FloatVector GetInput(IRow row);
 
         /// <summary>
         /// Vectorises the output column of the specified row
         /// </summary>
         /// <param name="row">The row to vectorise</param>
-        float[] GetOutput(IRow row);
+        FloatVector GetOutput(IRow row);
 
         /// <summary>
         /// The size of the input vector

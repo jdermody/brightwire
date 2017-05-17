@@ -1,5 +1,6 @@
 ﻿using BrightWire.Helper;
 using BrightWire.Models;
+using BrightWire.Models.DataTable;
 using BrightWire.TabularData.Analysis;
 using BrightWire.TabularData.Helper;
 using ProtoBuf;
@@ -616,7 +617,7 @@ namespace BrightWire.TabularData
 
             // vectorise each row
             _Iterate((row, i) => {
-                var rowData = vectoriser.GetInput(row).AsEnumerable().Cast<object>();
+                var rowData = vectoriser.GetInput(row).Data.AsEnumerable().Cast<object>();
                 if (useTargetColumnIndex)
                     rowData = rowData.Concat(new object[] { row.GetField<string>(classColumnIndex) });
 

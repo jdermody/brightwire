@@ -29,7 +29,7 @@ namespace BrightWire.ExecutionGraph.Input
         {
             var data = _dataTable
                 .GetRows(rows)
-                .Select(r => (_vectoriser.GetInput(r), _vectoriser.GetOutput(r)))
+                .Select(r => (_vectoriser.GetInput(r).Data, _vectoriser.GetOutput(r).Data))
                 .ToList()
             ;
             return _GetMiniBatch(rows, data);

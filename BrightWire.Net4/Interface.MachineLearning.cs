@@ -110,7 +110,7 @@ namespace BrightWire
         void Clear();
     }
 
-    public interface IGradientDescentOptimisation : IDisposable
+    public interface IGradientDescentOptimisation : IDisposable, ICanSerialise
     {
         void Update(IMatrix source, IMatrix delta, ILearningContext context);
     }

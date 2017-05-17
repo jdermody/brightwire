@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -65,7 +66,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
         IVector _bias;
         IMatrix _weight;
-        readonly IGradientDescentOptimisation _updater;
+        IGradientDescentOptimisation _updater;
 
         public FeedForward(IVector bias, IMatrix weight, IGradientDescentOptimisation updater, string name = null) : base(name)
         {
@@ -124,12 +125,19 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 _weight = lap.CreateMatrix(weight);
             else
                 _weight.Data = weight;
+
+            // read the updater
+            if (_updater == null) {
+                //var savedUpdater = factory.CreateGradientDescentOptimisation(reader);
+                _updater = factory.GetWeightUpdater(_weight);
+            }
         }
 
         public override void WriteTo(BinaryWriter writer)
         {
             _bias.Data.WriteTo(writer);
             _weight.Data.WriteTo(writer);
+            //writer.Write(_updater);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace BrightWire.ExecutionGraph.GradientDescent
@@ -19,6 +20,16 @@ namespace BrightWire.ExecutionGraph.GradientDescent
         protected void _Update(IMatrix source, IMatrix delta, ILearningContext context, float coefficient)
         {
             source.AddInPlace(delta, coefficient, context.LearningRate);
+        }
+
+        public void ReadFrom(GraphFactory factory, BinaryReader reader)
+        {
+            // nop
+        }
+
+        public void WriteTo(BinaryWriter writer)
+        {
+            // nop
         }
     }
 }

@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace BrightWire.ExecutionGraph.GradientDescent
 {
     class AdaGrad : IGradientDescentOptimisation
     {
-        protected readonly IMatrix _cache;
-        protected readonly IGradientDescentOptimisation _updater;
+        protected IMatrix _cache;
+        protected IGradientDescentOptimisation _updater;
 
         public AdaGrad(IMatrix cache, IGradientDescentOptimisation updater)
         {
@@ -30,6 +31,21 @@ namespace BrightWire.ExecutionGraph.GradientDescent
                     _updater.Update(source, delta2, context);
                 }
             }
+        }
+
+        public virtual void ReadFrom(GraphFactory factory, BinaryReader reader)
+        {
+            var rows = reader.ReadInt32();
+            var columns = reader.ReadInt32();
+            _cache = factory.LinearAlgebraProvider.Create(rows, columns, 0f);
+            _updater = factory.CreateGradientDescentOptimisation(reader);
+        }
+
+        public virtual void WriteTo(BinaryWriter writer)
+        {
+            writer.Write(_cache.RowCount);
+            writer.Write(_cache.ColumnCount);
+            writer.Write(_updater);
         }
     }
 }

@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace BrightWire.ExecutionGraph.GradientDescent
 {
     class Adam : RmsProp
     {
-        readonly float _decayRate2;
-        readonly IMatrix _cache2;
+        float _decayRate2;
+        IMatrix _cache2;
 
         public Adam(float decay, float decay2, IMatrix cache, IMatrix cache2, IGradientDescentOptimisation updater) : base(decay, cache, updater)
         {
@@ -38,6 +39,24 @@ namespace BrightWire.ExecutionGraph.GradientDescent
                     }
                 }
             }
+        }
+
+        public override void ReadFrom(GraphFactory factory, BinaryReader reader)
+        {
+            base.ReadFrom(factory, reader);
+
+            _decayRate2 = reader.ReadSingle();
+            var rows = reader.ReadInt32();
+            var columns = reader.ReadInt32();
+            _cache2 = factory.LinearAlgebraProvider.Create(rows, columns, 0f);
+        }
+
+        public override void WriteTo(BinaryWriter writer)
+        {
+            base.WriteTo(writer);
+            writer.Write(_decayRate2);
+            writer.Write(_cache2.RowCount);
+            writer.Write(_cache2.ColumnCount);
         }
     }
 }

@@ -35,17 +35,21 @@ namespace BrightWire
         void Initialise(GraphFactory factory, string id, string name, string description, byte[] data);
     }
 
-    public interface INode : ICanInitialiseNode, IDisposable
+    public interface ICanSerialise
+    {
+        void WriteTo(BinaryWriter writer);
+        void ReadFrom(GraphFactory factory, BinaryReader reader);
+    }
+
+    public interface INode : ICanInitialiseNode, IDisposable, ICanSerialise
     {
         string Id { get; }
         string Name { get; }
         List<IWire> Output { get; }
         void ExecuteForward(IContext context, int channel);
-        INode SearchFor(string name);
+        INode Find(string name);
         IEnumerable<INode> SubNodes { get; }
         Models.ExecutionGraph.Node SerialiseTo(List<Models.ExecutionGraph.Node> connectedTo, List<Models.ExecutionGraph.Wire> wireList);
-        void WriteTo(BinaryWriter writer);
-        void ReadFrom(GraphFactory factory, BinaryReader reader);
     }
 
     public interface IWire
@@ -109,6 +113,7 @@ namespace BrightWire
     public interface IAdaptiveDataSource
     {
         INode AdaptiveInput { get; }
+        DataSourceModel GetModel(string name = null);
     }
 
     public enum MiniBatchType

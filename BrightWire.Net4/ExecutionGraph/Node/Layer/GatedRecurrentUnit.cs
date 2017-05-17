@@ -102,12 +102,12 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
         public override void WriteTo(BinaryWriter writer)
         {
-            var Wh = _input.SearchFor("Wh") as INode;
-            var Wr = _input.SearchFor("Wr") as INode;
-            var Wz = _input.SearchFor("Wz") as INode;
-            var Uh = _memory.SearchFor("Uh") as INode;
-            var Ur = _memory.SearchFor("Ur") as INode;
-            var Uz = _memory.SearchFor("Uz") as INode;
+            var Wh = _input.Find("Wh") as INode;
+            var Wr = _input.Find("Wr") as INode;
+            var Wz = _input.Find("Wz") as INode;
+            var Uh = _memory.Find("Uh") as INode;
+            var Ur = _memory.Find("Ur") as INode;
+            var Uz = _memory.Find("Uz") as INode;
 
             writer.Write(_inputSize);
             writer.Write(_memory.Id);
@@ -132,12 +132,12 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             else
                 _memory.Data = memory;
 
-            var Wh = _input.SearchFor("Wh") as INode;
-            var Wr = _input.SearchFor("Wr") as INode;
-            var Wz = _input.SearchFor("Wz") as INode;
-            var Uh = _memory.SearchFor("Uh") as INode;
-            var Ur = _memory.SearchFor("Ur") as INode;
-            var Uz = _memory.SearchFor("Uz") as INode;
+            var Wh = _input.Find("Wh") as INode;
+            var Wr = _input.Find("Wr") as INode;
+            var Wz = _input.Find("Wz") as INode;
+            var Uh = _memory.Find("Uh") as INode;
+            var Ur = _memory.Find("Ur") as INode;
+            var Uz = _memory.Find("Uz") as INode;
 
             Wh.ReadFrom(factory, reader);
             Wr.ReadFrom(factory, reader);

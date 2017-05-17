@@ -17,20 +17,20 @@ namespace BrightWire.ExecutionGraph.Engine
         readonly IDataSource _dataSource;
         readonly List<TrainingEngineContext> _executionResults = new List<TrainingEngineContext>();
         readonly ILearningContext _learningContext;
-        readonly FlowThrough _input;
+        readonly INode _input;
         readonly bool _isStochastic;
         float? _lastTestError = null;
         double? _lastTrainingError = null, _trainingErrorDelta = null;
         int _noImprovementCount = 0;
 
-        public TrainingEngine(ILinearAlgebraProvider lap, IDataSource dataSource, ILearningContext learningContext, IExecutionContext executionContext)
+        public TrainingEngine(ILinearAlgebraProvider lap, IDataSource dataSource, ILearningContext learningContext, IExecutionContext executionContext, INode input)
         {
             _lap = lap;
             _dataSource = dataSource;
             _isStochastic = lap.IsStochastic;
             _executionContext = executionContext;
             _learningContext = learningContext;
-            _input = new FlowThrough();
+            _input = input ?? new FlowThrough();
         }
 
         public IReadOnlyList<ExecutionResult> Execute(IDataSource dataSource, int batchSize = 128)

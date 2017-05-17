@@ -4,7 +4,9 @@ using BrightWire.Helper;
 using BrightWire.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 
 namespace BrightWire
@@ -196,14 +198,14 @@ namespace BrightWire
             return matrixList.ToList().ToGraphData(context.LinearAlgebraProvider);
         }
 
-        public static Models.ExecutionGraph GetGraph(this INode input)
+        public static Models.ExecutionGraph GetGraph(this INode input, string name = null)
         {
             var connectedTo = new List<Models.ExecutionGraph.Node>();
             var wireList = new List<Models.ExecutionGraph.Wire>();
             var data = input.SerialiseTo(connectedTo, wireList);
 
             return new Models.ExecutionGraph {
-                Version = "2.0",
+                Name = name,
                 InputNode = data,
                 OtherNodes = connectedTo.ToArray(),
                 Wires = wireList.ToArray()
@@ -230,6 +232,20 @@ namespace BrightWire
                 var to = nodeTable[wire.ToId];
                 from.Output.Add(new WireToNode(to, wire.InputChannel));
             }
+            return ret;
+        }
+
+        internal static void Write(this BinaryWriter writer, IGradientDescentOptimisation optimisation)
+        {
+            writer.Write(optimisation.GetType().FullName);
+            optimisation.WriteTo(writer);
+        }
+
+        internal static IGradientDescentOptimisation CreateGradientDescentOptimisation(this GraphFactory factory, BinaryReader reader)
+        {
+            var updaterType = Type.GetType(reader.ReadString());
+            var ret = (IGradientDescentOptimisation)FormatterServices.GetUninitializedObject(updaterType);
+            ret.ReadFrom(factory, reader);
             return ret;
         }
     }
