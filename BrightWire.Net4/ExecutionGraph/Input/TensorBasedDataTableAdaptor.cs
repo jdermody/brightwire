@@ -34,7 +34,7 @@ namespace BrightWire.ExecutionGraph.Input
             _learningContext.Clear();
         }
 
-        private TensorBasedDataTableAdaptor(ILearningContext learningContext, IExecutionContext executionContext, IDataTable dataTable, FlowThrough input, int inputSize, int outputSize) 
+        private TensorBasedDataTableAdaptor(ILearningContext learningContext, IExecutionContext executionContext, IDataTable dataTable, INode input, int inputSize, int outputSize) 
             :base(learningContext, dataTable, executionContext)
         {
             _inputSize = inputSize;

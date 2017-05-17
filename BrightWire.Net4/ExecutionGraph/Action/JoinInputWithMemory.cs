@@ -8,7 +8,7 @@ namespace BrightWire.ExecutionGraph.Action
 {
     public class JoinInputWithMemory : IAction
     {
-        readonly string _slotName;
+        string _slotName;
 
         public JoinInputWithMemory(string slotName)
         {
@@ -23,12 +23,12 @@ namespace BrightWire.ExecutionGraph.Action
 
         public void Initialise(string data)
         {
-            throw new NotImplementedException();
+            _slotName = data;
         }
 
         public string Serialise()
         {
-            throw new NotImplementedException();
+            return _slotName;
         }
     }
 }

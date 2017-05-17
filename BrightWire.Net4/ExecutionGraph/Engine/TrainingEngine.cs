@@ -60,8 +60,10 @@ namespace BrightWire.ExecutionGraph.Engine
 
             IGraphOperation operation;
             while ((operation = _executionContext.GetNextOperation()) != null) {
+                _lap.PushLayer();
                 operation.Execute();
                 _learningContext.ApplyUpdates();
+                _lap.PopLayer();
             }
 
             double ret = 0, count = 0;
@@ -83,6 +85,7 @@ namespace BrightWire.ExecutionGraph.Engine
         public IDataSource DataSource => _dataSource;
         public ILearningContext LearningContext => _learningContext;
         public INode Input => _input;
+        public Models.ExecutionGraph Graph => _input.GetGraph();
 
         void _Execute(IMiniBatch batch)
         {
@@ -101,7 +104,7 @@ namespace BrightWire.ExecutionGraph.Engine
 
         void _Train(ILearningContext learningContext, IMiniBatchSequence sequence)
         {
-            var context = new TrainingEngineContext(_executionContext, sequence, learningContext, _input);
+            var context = new TrainingEngineContext(_executionContext, sequence, learningContext);
             _input.ExecuteForward(context, 0);
 
             while (context.HasNext)
@@ -111,12 +114,14 @@ namespace BrightWire.ExecutionGraph.Engine
             _executionResults.Add(context);
         }
 
-        public void WriteTestResults(IDataSource testDataSource, IErrorMetric errorMetric, int batchSize = 128)
+        public bool Test(IDataSource testDataSource, IErrorMetric errorMetric, int batchSize = 128)
         {
+            _lap.PushLayer();
             var testError = Execute(testDataSource, batchSize)
                 .Where(b => b.Target != null)
                 .Average(o => o.CalculateError(errorMetric))
             ;
+            _lap.PopLayer();
             
             bool flag = true, isPercentage = errorMetric.DisplayAsPercentage;
             if (_lastTestError.HasValue) {
@@ -145,22 +150,7 @@ namespace BrightWire.ExecutionGraph.Engine
             else
                 ++_noImprovementCount;
             Console.WriteLine(msg);
-        }
-
-        public Models.ExecutionGraph Graph
-        {
-            get
-            {
-                var connectedTo = new List<Models.ExecutionGraph.Node>();
-                var wireList = new List<Models.ExecutionGraph.Wire>();
-                var data = _input.SerialiseTo(connectedTo, wireList);
-
-                return new Models.ExecutionGraph {
-                    InputNode = data,
-                    OtherNodes = connectedTo.ToArray(),
-                    Wires = wireList.ToArray()
-                };
-            }
+            return flag;
         }
     }
 }

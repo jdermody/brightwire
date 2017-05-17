@@ -62,38 +62,20 @@ namespace BrightWire.ExecutionGraph.Engine
             }
         }
         readonly Models.ExecutionGraph _graph;
-        readonly ExecutionContext _executionContext;
+        readonly IExecutionContext _executionContext;
         readonly List<Context> _executionResults = new List<Context>();
         readonly GraphFactory _factory;
         readonly ILinearAlgebraProvider _lap;
         IDataSource _dataSource = null;
         readonly INode _input;
 
-        public ExecutionEngine(ILinearAlgebraProvider lap, Models.ExecutionGraph graph)
+        public ExecutionEngine(ILinearAlgebraProvider lap, Models.ExecutionGraph graph, IExecutionContext executionContext)
         {
             _lap = lap;
             _factory = new GraphFactory(lap);
             _graph = graph;
-            _executionContext = new ExecutionContext(lap);
-
-            // create the input node
-            var nodeTable = new Dictionary<string, INode>();
-            _input = _factory.Create(graph.InputNode);
-            nodeTable.Add(_input.Id, _input);
-
-            // create the other nodes
-            foreach (var node in graph.OtherNodes) {
-                var n = _factory.Create(node);
-                if(!nodeTable.ContainsKey(n.Id))
-                    nodeTable.Add(n.Id, n);
-            }
-
-            // create the wires between nodes
-            foreach(var wire in graph.Wires) {
-                var from = nodeTable[wire.FromId];
-                var to = nodeTable[wire.ToId];
-                from.Output.Add(new WireToNode(to, wire.InputChannel));
-            }
+            _executionContext = executionContext;
+            _input = _factory.CreateFrom(graph);
         }
 
         public Models.ExecutionGraph Graph => _graph;

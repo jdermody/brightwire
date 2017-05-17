@@ -8,7 +8,7 @@ namespace BrightWire.ExecutionGraph.Action
 {
     public class ConstrainErrorSignal : IAction
     {
-        readonly float _min, _max;
+        float _min, _max;
 
         public ConstrainErrorSignal(float min = -1f, float max = 1f)
         {
@@ -25,12 +25,14 @@ namespace BrightWire.ExecutionGraph.Action
 
         public void Initialise(string data)
         {
-            throw new NotImplementedException();
+            var pos = data.IndexOf(':');
+            _min = float.Parse(data.Substring(0, pos));
+            _max = float.Parse(data.Substring(pos + 1));
         }
 
         public string Serialise()
         {
-            throw new NotImplementedException();
+            return $"{_min}:{_max}";
         }
     }
 }

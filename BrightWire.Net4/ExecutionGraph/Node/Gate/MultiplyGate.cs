@@ -27,11 +27,10 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             public override void _Backward(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
                 var es = errorSignal.GetMatrix();
-                using (var delta1 = es.PointwiseMultiply(_input2))
-                using (var delta2 = es.PointwiseMultiply(_input1)) {
-                    context.AddBackward(delta1.ToGraphData(), parents.First(), _source);
-                    context.AddBackward(delta2.ToGraphData(), parents.Last(), _source);
-                }
+                var delta1 = es.PointwiseMultiply(_input2);
+                var delta2 = es.PointwiseMultiply(_input1);
+                context.AddBackward(delta1.ToGraphData(), parents.First(), _source);
+                context.AddBackward(delta2.ToGraphData(), parents.Last(), _source);
             }
         }
         public MultiplyGate(string name = null) : base(name) { }

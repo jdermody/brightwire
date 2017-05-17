@@ -42,7 +42,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
         readonly float[] _data;
         SetMemory _setMemory;
 
-        public MemoryFeeder(float[] data, string name = null) : base(name)
+        public MemoryFeeder(float[] data, string name = null, string id = null) : base(name, id)
         {
             _data = data;
             _setMemory = new SetMemory(Id);

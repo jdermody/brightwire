@@ -1,4 +1,5 @@
-﻿using BrightWire.ExecutionGraph.Helper;
+﻿using BrightWire.ExecutionGraph;
+using BrightWire.ExecutionGraph.Helper;
 using BrightWire.Helper;
 using BrightWire.Models;
 using System;
@@ -193,6 +194,43 @@ namespace BrightWire
         public static IGraphData ToGraphData(this IContext context, IEnumerable<IMatrix> matrixList)
         {
             return matrixList.ToList().ToGraphData(context.LinearAlgebraProvider);
+        }
+
+        public static Models.ExecutionGraph GetGraph(this INode input)
+        {
+            var connectedTo = new List<Models.ExecutionGraph.Node>();
+            var wireList = new List<Models.ExecutionGraph.Wire>();
+            var data = input.SerialiseTo(connectedTo, wireList);
+
+            return new Models.ExecutionGraph {
+                Version = "2.0",
+                InputNode = data,
+                OtherNodes = connectedTo.ToArray(),
+                Wires = wireList.ToArray()
+            };
+        }
+
+        public static INode CreateFrom(this GraphFactory factory, Models.ExecutionGraph graph)
+        {
+            // create the input node
+            var nodeTable = new Dictionary<string, INode>();
+            var ret = factory.Create(graph.InputNode);
+            nodeTable.Add(ret.Id, ret);
+
+            // create the other nodes
+            foreach (var node in graph.OtherNodes) {
+                var n = factory.Create(node);
+                if (!nodeTable.ContainsKey(n.Id))
+                    nodeTable.Add(n.Id, n);
+            }
+
+            // create the wires between nodes
+            foreach (var wire in graph.Wires) {
+                var from = nodeTable[wire.FromId];
+                var to = nodeTable[wire.ToId];
+                from.Output.Add(new WireToNode(to, wire.InputChannel));
+            }
+            return ret;
         }
     }
 }

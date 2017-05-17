@@ -10,27 +10,27 @@ using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.Input
 {
-    abstract class AdaptiveDataTableAdaptorBase : DataTableAdaptorBase
+    abstract class AdaptiveDataTableAdaptorBase : DataTableAdaptorBase, IAdaptiveDataSource
     {
-        protected FlowThrough _input;
+        protected INode _input;
         protected readonly IExecutionContext _executionContext;
         protected readonly ILearningContext _learningContext;
 
         public AdaptiveDataTableAdaptorBase(ILearningContext learningContext, IDataTable dataTable, IExecutionContext executionContext)
-            : base(learningContext.LinearAlgebraProvider, dataTable)
+            : base(executionContext.LinearAlgebraProvider, dataTable)
         {
-            Debug.Assert(learningContext.DeferUpdates);
+            Debug.Assert(learningContext == null || learningContext.DeferUpdates);
 
             _learningContext = learningContext;
             _executionContext = executionContext;
             _input = new FlowThrough();
         }
 
-        override public INode AdaptiveInput => _input;
+        public INode AdaptiveInput => _input;
 
         protected IContext _Process(IGraphData data)
         {
-            var context = new TrainingEngineContext(_executionContext, data, _learningContext, _input);
+            var context = new TrainingEngineContext(_executionContext, data, _learningContext);
             _input.ExecuteForward(context, 0);
 
             while (context.HasNext)
@@ -41,7 +41,7 @@ namespace BrightWire.ExecutionGraph.Input
 
         protected IContext _Process(IMiniBatchSequence sequence)
         {
-            var context = new TrainingEngineContext(_executionContext, sequence, _learningContext, _input);
+            var context = new TrainingEngineContext(_executionContext, sequence, _learningContext);
             _input.ExecuteForward(context, 0);
 
             while (context.HasNext)

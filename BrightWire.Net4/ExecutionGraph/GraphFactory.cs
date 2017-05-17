@@ -112,20 +112,20 @@ namespace BrightWire.ExecutionGraph
             return new LearningContext(_lap, learningRate, batchSize, calculateTrainingError, deferUpdates);
         }
 
-        public IGraphTrainingEngine CreateTrainingEngine(IDataSource dataSource, float trainingRate = 0.1f, int batchSize = 128, IExecutionContext executionContext = null)
+        public IGraphTrainingEngine CreateTrainingEngine(IDataSource dataSource, IExecutionContext executionContext, float trainingRate = 0.1f, int batchSize = 128)
         {
             var learningContext = new LearningContext(_lap, trainingRate, batchSize, true, dataSource.IsSequential);
             return new TrainingEngine(_lap, dataSource, learningContext, executionContext ?? CreateExecutionContext());
         }
 
-        public IGraphTrainingEngine CreateTrainingEngine(IDataSource dataSource, ILearningContext learningContext, IExecutionContext executionContext = null)
+        public IGraphTrainingEngine CreateTrainingEngine(IDataSource dataSource, IExecutionContext executionContext, ILearningContext learningContext)
         {
             return new TrainingEngine(_lap, dataSource, learningContext, executionContext ?? CreateExecutionContext());
         }
 
-        public IGraphEngine CreateEngine(Models.ExecutionGraph graph)
+        public IGraphEngine CreateEngine(Models.ExecutionGraph graph, IExecutionContext executionContext)
         {
-            return new ExecutionEngine(_lap, graph);
+            return new ExecutionEngine(_lap, graph, executionContext);
         }
 
         public IDataSource GetDataSource(IDataTable dataTable, IDataTableVectoriser vectoriser = null)
@@ -170,6 +170,27 @@ namespace BrightWire.ExecutionGraph
                 // sequence to sequence
                 else if (column1 == ColumnType.Matrix && column2 == ColumnType.Matrix)
                     return new SequenceToSequenceDataTableAdaptor(learningContext, executionContext, this, dataTable, dataConversionBuilder);
+            }
+            throw new ArgumentException($"{nameof(dataTable)} does not contain a recognised data format");
+        }
+
+        public IDataSource GetDataSource(IDataTable dataTable, IExecutionContext executionContext, Models.ExecutionGraph graph)
+        {
+            var input = this.CreateFrom(graph);
+
+            var columns = dataTable.Columns;
+            if (columns.Count == 2) {
+                var column1 = columns[0].Type;
+                var column2 = columns[1].Type;
+
+                //// volume classification
+                //if (column1 == ColumnType.Tensor && column2 == ColumnType.Vector)
+                //    return new TensorBasedDataTableAdaptor(learningContext, executionContext, this, dataTable, dataConversionBuilder);
+
+                //// sequence to sequence
+                //else
+                if (column1 == ColumnType.Matrix && column2 == ColumnType.Matrix)
+                    return new SequenceToSequenceDataTableAdaptor(executionContext, dataTable, input);
             }
             throw new ArgumentException($"{nameof(dataTable)} does not contain a recognised data format");
         }

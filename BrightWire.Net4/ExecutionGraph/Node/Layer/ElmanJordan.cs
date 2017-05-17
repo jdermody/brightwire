@@ -25,17 +25,17 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         public ElmanJordan(GraphFactory graph, bool isElman, int inputSize, float[] memory, INode activation, INode activation2, string name = null)
             : base(name)
         {
-            _Create(graph, isElman, inputSize, memory, activation, activation2);
+            _Create(graph, isElman, inputSize, memory, activation, activation2, null);
         }
 
-        void _Create(GraphFactory graph, bool isElman, int inputSize, float[] memory, INode activation, INode activation2)
+        void _Create(GraphFactory graph, bool isElman, int inputSize, float[] memory, INode activation, INode activation2, string memoryName)
         {
             _isElman = isElman;
             _inputSize = inputSize;
             _activation = activation;
             _activation2 = activation2;
             int hiddenLayerSize = memory.Length;
-            _memory = new MemoryFeeder(memory);
+            _memory = new MemoryFeeder(memory, null, memoryName);
             _input = new FlowThrough();
 
             var inputChannel = graph.Build(inputSize, _input).AddFeedForward(hiddenLayerSize, "Wh");
@@ -94,6 +94,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
             writer.Write(_isElman);
             writer.Write(_inputSize);
+            writer.Write(_memory.Id);
             _memory.Data.WriteTo(writer);
             _Serialise(_activation, writer);
             _Serialise(_activation2, writer);
@@ -107,12 +108,13 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         {
             var isElman = reader.ReadBoolean();
             var inputSize = reader.ReadInt32();
+            var memoryId = reader.ReadString();
             var memory = FloatVector.ReadFrom(reader);
             var activation = _Hydrate(factory, reader);
             var activation2 = _Hydrate(factory, reader);
 
             if (_memory == null)
-                _Create(factory, isElman, inputSize, memory.Data, activation, activation2);
+                _Create(factory, isElman, inputSize, memory.Data, activation, activation2, memoryId);
             else
                 _memory.Data = memory;
 

@@ -12,7 +12,7 @@ namespace BrightWire
     /// <summary>
     /// Main entry point
     /// </summary>
-    public static class Provider
+    public static class BrightWireProvider
     {
         /// <summary>
         /// Parses a CSV file into a data table

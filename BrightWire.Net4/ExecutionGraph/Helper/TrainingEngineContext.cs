@@ -10,7 +10,6 @@ namespace BrightWire.ExecutionGraph.Helper
 {
     class TrainingEngineContext : IContext
     {
-        readonly FlowThrough _input;
         readonly IExecutionContext _executionContext;
         readonly IMiniBatchSequence _miniBatch;
         readonly ILearningContext _learningContext;
@@ -23,17 +22,15 @@ namespace BrightWire.ExecutionGraph.Helper
         double _trainingError = 0;
         IMatrix _output = null;
 
-        public TrainingEngineContext(IExecutionContext executionContext, IMiniBatchSequence miniBatch, ILearningContext learningContext, FlowThrough input)
+        public TrainingEngineContext(IExecutionContext executionContext, IMiniBatchSequence miniBatch, ILearningContext learningContext)
         {
-            _input = input;
             _miniBatch = miniBatch;
             _executionContext = executionContext;
             _learningContext = learningContext;
             _executionContext.Data = miniBatch.Input.ToGraphData();
         }
-        public TrainingEngineContext(IExecutionContext executionContext, IGraphData data, ILearningContext learningContext, FlowThrough input)
+        public TrainingEngineContext(IExecutionContext executionContext, IGraphData data, ILearningContext learningContext)
         {
-            _input = input;
             _miniBatch = null;
             _executionContext = executionContext;
             _learningContext = learningContext;

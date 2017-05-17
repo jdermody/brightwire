@@ -104,6 +104,10 @@ namespace BrightWire
         IReadOnlyList<IReadOnlyList<int>> GetBuckets();
         void OnBatchProcessed(IContext context);
         IDataSource GetFor(IDataTable dataTable);
+    }
+
+    public interface IAdaptiveDataSource
+    {
         INode AdaptiveInput { get; }
     }
 
@@ -136,20 +140,6 @@ namespace BrightWire
         IMiniBatchSequence GetSequenceAtIndex(int index);
     }
 
-    //public interface IBatchContext
-    //{
-    //    double TrainingError { get; }
-    //    IMiniBatch Batch { get; }
-    //    bool IsTraining { get; }
-    //    ILearningContext LearningContext { get; }
-    //    IExecutionContext ExecutionContext { get; }
-    //    ILinearAlgebraProvider LinearAlgebraProvider { get; }
-    //    void SetOutput(IMatrix output, IMatrix target, IMatrix delta, int channel);
-    //    void RegisterBackpropagation(IBackpropagation backProp, int channel);
-    //    void Backpropagate(IMatrix delta, int channel);
-    //    IEnumerable<ISequenceResult> Results { get; }
-    //}
-
     public interface IGraphOperation
     {
         void Execute();
@@ -166,7 +156,7 @@ namespace BrightWire
     public interface IGraphTrainingEngine : IGraphEngine
     {
         double Train();
-        void WriteTestResults(IDataSource testDataSource, IErrorMetric errorMetric, int batchSize = 128);
+        bool Test(IDataSource testDataSource, IErrorMetric errorMetric, int batchSize = 128);
         ILearningContext LearningContext { get; }
     }
 

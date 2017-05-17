@@ -18,7 +18,7 @@ namespace BrightWire.ExecutionGraph.Input
         public SequenceToSequenceDataTableAdaptor(ILearningContext learningContext, IExecutionContext executionContext, GraphFactory factory, IDataTable dataTable, Action<WireBuilder> dataConversionBuilder)
             : base(learningContext, dataTable, executionContext)
         {
-            _Initialise(factory, dataTable);
+            _Initialise(dataTable);
 
             var wireBuilder = factory.Build(_inputSize, _input);
             dataConversionBuilder(wireBuilder);
@@ -29,7 +29,14 @@ namespace BrightWire.ExecutionGraph.Input
             _learningContext.Clear();
         }
 
-        void _Initialise(GraphFactory factory, IDataTable dataTable)
+        public SequenceToSequenceDataTableAdaptor(IExecutionContext executionContext, IDataTable dataTable, INode input)
+            : base(null, dataTable, executionContext)
+        {
+            _Initialise(dataTable);
+            _input = input;
+        }
+
+        void _Initialise(IDataTable dataTable)
         {
             _rowDepth = new int[dataTable.RowCount];
             FloatMatrix inputMatrix = null, outputMatrix = null;
@@ -41,16 +48,12 @@ namespace BrightWire.ExecutionGraph.Input
 
             _inputSize = inputMatrix.ColumnCount;
             _outputSize = outputMatrix.ColumnCount;
-
-            // look for an output size
-            if (factory != null)
-                _outputSize = factory.CurrentPropertySet.Get("Sequence-Length", _outputSize);
         }
 
-        private SequenceToSequenceDataTableAdaptor(ILearningContext learningContext, IExecutionContext executionContext, IDataTable dataTable, FlowThrough input, int inputSize, int outputSize)
+        private SequenceToSequenceDataTableAdaptor(ILearningContext learningContext, IExecutionContext executionContext, IDataTable dataTable, INode input, int inputSize, int outputSize)
             : base(learningContext, dataTable, executionContext)
         {
-            _Initialise(null, dataTable);
+            _Initialise(dataTable);
             _input = input;
             _inputSize = inputSize;
             _outputSize = outputSize;

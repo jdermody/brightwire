@@ -8,8 +8,8 @@ namespace BrightWire.ExecutionGraph.Action
 {
     public class WriteNodeMemoryToSlot : IAction
     {
-        readonly string _writeTo;
-        readonly string _readFrom;
+        string _writeTo;
+        string _readFrom;
 
         public WriteNodeMemoryToSlot(string slotName, IHaveMemoryNode node)
         {
@@ -27,12 +27,16 @@ namespace BrightWire.ExecutionGraph.Action
 
         public void Initialise(string data)
         {
-            throw new NotImplementedException();
+            var str = Encoding.UTF8.GetString(Convert.FromBase64String(data));
+            var pos = str.IndexOf(':');
+            _readFrom = str.Substring(0, pos);
+            _writeTo = str.Substring(pos + 1);
         }
 
         public string Serialise()
         {
-            throw new NotImplementedException();
+            var concat = _readFrom + ":" + _writeTo;
+            return Convert.ToBase64String(Encoding.UTF8.GetBytes(concat));
         }
     }
 }

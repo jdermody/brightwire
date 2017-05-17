@@ -24,14 +24,14 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         public GatedRecurrentUnit(GraphFactory graph, int inputSize, float[] memory, string name = null)
             : base(name)
         {
-            _Create(graph, inputSize, memory);
+            _Create(graph, inputSize, memory, null);
         }
 
-        void _Create(GraphFactory graph, int inputSize, float[] memory)
+        void _Create(GraphFactory graph, int inputSize, float[] memory, string memoryId)
         {
             _inputSize = inputSize;
             int hiddenLayerSize = memory.Length;
-            _memory = new MemoryFeeder(memory);
+            _memory = new MemoryFeeder(memory, null, memoryId);
             _input = new FlowThrough();
 
             //graph.PushPropertySet(ps => ps.Use(graph.WeightInitialisation.Zeroes));
@@ -110,6 +110,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             var Uz = _memory.SearchFor("Uz") as INode;
 
             writer.Write(_inputSize);
+            writer.Write(_memory.Id);
             _memory.Data.WriteTo(writer);
 
             Wh.WriteTo(writer);
@@ -123,10 +124,11 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         public override void ReadFrom(GraphFactory factory, BinaryReader reader)
         {
             var inputSize = reader.ReadInt32();
+            var memoryId = reader.ReadString();
             var memory = FloatVector.ReadFrom(reader);
 
             if (_memory == null)
-                _Create(factory, inputSize, memory.Data);
+                _Create(factory, inputSize, memory.Data, memoryId);
             else
                 _memory.Data = memory;
 
