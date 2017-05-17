@@ -13,7 +13,7 @@ using BrightWire.ExecutionGraph.Action;
 
 namespace BrightWire.ExecutionGraph.Node.Layer
 {
-    internal class ElmanJordan : NodeBase
+    internal class ElmanJordan : NodeBase, IHaveMemoryNode
     {
         IReadOnlyDictionary<INode, IGraphData> _lastBackpropagation = null;
         MemoryFeeder _memory;
@@ -69,6 +69,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         }
 
         public override List<IWire> Output => _output.Output;
+        public INode Memory => _memory;
 
         public override void ExecuteForward(IContext context)
         {

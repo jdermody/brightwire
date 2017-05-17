@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.Node.Layer
 {
-    class GatedRecurrentUnit : NodeBase
+    class GatedRecurrentUnit : NodeBase, IHaveMemoryNode
     {
         IReadOnlyDictionary<INode, IGraphData> _lastBackpropagation = null;
         int _inputSize;
@@ -74,6 +74,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         }
 
         public override List<IWire> Output => _output.Output;
+        public INode Memory => _memory;
 
         public override void ExecuteForward(IContext context)
         {
