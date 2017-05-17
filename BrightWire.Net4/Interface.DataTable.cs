@@ -413,6 +413,12 @@ namespace BrightWire
         void WriteIndexTo(Stream stream);
 
         /// <summary>
+        /// Writes the data table to the stream
+        /// </summary>
+        /// <param name="stream">The stream to write to</param>
+        void WriteTo(Stream stream);
+
+        /// <summary>
         /// For each classification label - duplicate each data table except for the classification column which is converted to a boolean (true for each matching example)
         /// </summary>
         /// <returns></returns>

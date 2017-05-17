@@ -46,6 +46,23 @@ namespace BrightWire
             return null;
         }
 
+        public static IDataTable ParseCSVToText(this StreamReader streamReader, char delimeter = ',', bool? hasHeader = null, Stream output = null)
+        {
+            var builder = new CSVParser(delimeter, true);
+            return builder.Parse(streamReader, output, hasHeader);
+        }
+
+        public static IDataTable ParseCSVToText(this string csv, char delimeter = ',', bool? hasHeader = null, Stream output = null)
+        {
+            if (!String.IsNullOrWhiteSpace(csv)) {
+                using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(csv)))
+                using (var reader = new StreamReader(stream)) {
+                    return ParseCSVToText(reader, delimeter, hasHeader, output);
+                }
+            }
+            return null;
+        }
+
         /// <summary>
         /// Creates a data table from a stream
         /// </summary>

@@ -29,10 +29,12 @@ namespace BrightWire.Helper
         }
 
         readonly char _delimiter;
+        readonly bool _parseAsText;
 
-        public CSVParser(char delimiter = ',')
+        public CSVParser(char delimiter = ',', bool parseAsText = false)
         {
             _delimiter = delimiter;
+            _parseAsText = parseAsText;
         }
 
         string _ReadLine(StreamReader reader)
@@ -103,19 +105,24 @@ namespace BrightWire.Helper
             foreach (var item in firstLineTypes)
                 headerNames.Add(hasHeader ? item : "_col" + index++);
 
-            // get the list of header types
-            var data = lines
-                .Skip(hasHeader ? 1 : 0)
-                .SelectMany(line => _Parse(line).Select((str, pos) => Tuple.Create(str, pos)))
-                .GroupBy(l => l.Item2, l => _DetermineType(l.Item1))
-                .OrderBy(g => g.Key)
-                .Select(g => _GetColumnType(g))
-                .ToList()
-            ;
+            // get the list of column types
+            IReadOnlyList<ColumnType> columnTypes;
+            if (_parseAsText)
+                columnTypes = firstLineTypes.Select(c => ColumnType.String).ToList();
+            else {
+                columnTypes = lines
+                    .Skip(hasHeader ? 1 : 0)
+                    .SelectMany(line => _Parse(line).Select((str, pos) => Tuple.Create(str, pos)))
+                    .GroupBy(l => l.Item2, l => _DetermineType(l.Item1))
+                    .OrderBy(g => g.Key)
+                    .Select(g => _GetColumnType(g))
+                    .ToList()
+                ;
+            }
 
             // add the columns
             var ret = new DataTableWriter(stream);
-            foreach (var column in headerNames.Zip(data, (name, type) => Tuple.Create(name, type)))
+            foreach (var column in headerNames.Zip(columnTypes, (name, type) => Tuple.Create(name, type)))
                 ret.AddColumn(column.Item1, column.Item2);
 
             return ret;
@@ -202,6 +209,9 @@ namespace BrightWire.Helper
 
         private object _Convert(ref ColumnType type, string str)
         {
+            if (_parseAsText)
+                return str;
+
             double dbl;
             float flt;
             int i;

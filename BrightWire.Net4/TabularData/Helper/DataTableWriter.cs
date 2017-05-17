@@ -30,9 +30,14 @@ namespace BrightWire.TabularData.Helper
         public IReadOnlyList<long> Index { get { return _index; } }
         public int RowCount { get { return _rowCount; } }
 
-        public DataTable GetDataTable()
+        public void Flush()
         {
             _Write();
+        }
+
+        public DataTable GetDataTable()
+        {
+            Flush();
             _stream.Seek(0, SeekOrigin.Begin);
             return new DataTable(_stream, _index, _rowCount);
         }

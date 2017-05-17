@@ -130,6 +130,13 @@ namespace BrightWire.TabularData
             }
         }
 
+        public void WriteTo(Stream stream)
+        {
+            var writer = new DataTableWriter(Columns, stream);
+            Process(writer);
+            writer.Flush();
+        }
+
         public void WriteIndexTo(Stream stream)
         {
             using (var writer = new BinaryWriter(stream, Encoding.UTF8, true)) {
