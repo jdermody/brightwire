@@ -37,7 +37,7 @@ namespace BrightWire.Linear
         //    ;
         //}
 
-        public IReadOnlyList<(string Classification, float Weight)> Classify(IRow row)
+        public IReadOnlyList<(string Label, float Weight)> Classify(IRow row)
         {
             // calculate softmax over output value
             float max = float.MinValue, total = 0;

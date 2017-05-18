@@ -16,7 +16,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             _vectoriser = vectoriser ?? dataTable.GetVectoriser(true);
         }
 
-        public override IDataSource GetFor(IDataTable dataTable)
+        public override IDataSource CloneWith(IDataTable dataTable)
         {
             return new DefaultDataTableAdaptor(_lap, dataTable, _vectoriser);
         }
@@ -27,8 +27,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 
         public override IMiniBatch Get(IReadOnlyList<int> rows)
         {
-            var data = _dataTable
-                .GetRows(rows)
+            var data = _GetRows(rows)
                 .Select(r => (_vectoriser.GetInput(r).Data, _vectoriser.GetOutput(r).Data))
                 .ToList()
             ;

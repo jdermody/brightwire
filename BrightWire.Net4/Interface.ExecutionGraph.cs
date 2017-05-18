@@ -108,7 +108,7 @@ namespace BrightWire
         IMiniBatch Get(IReadOnlyList<int> rows);
         IReadOnlyList<IReadOnlyList<int>> GetBuckets();
         void OnBatchProcessed(IContext context);
-        IDataSource GetFor(IDataTable dataTable);
+        IDataSource CloneWith(IDataTable dataTable);
     }
 
     public interface IAdaptiveDataSource

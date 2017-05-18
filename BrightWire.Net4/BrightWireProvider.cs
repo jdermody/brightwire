@@ -95,6 +95,14 @@ namespace BrightWire
         }
 
         /// <summary>
+        /// Creates a data table builder to programatically create data tables
+        /// </summary>
+        public static IDataTableBuilder CreateDataTableBuilder(IEnumerable<IColumn> columns, Stream stream = null)
+        {
+            return new DataTableWriter(columns, stream);
+        }
+
+        /// <summary>
         /// Create a markov model trainer of window size 2
         /// </summary>
         /// <typeparam name="T">The markov chain data type</typeparam>

@@ -366,6 +366,18 @@ namespace BrightWire.ExecutionGraph
         public ICreateTemplateBasedGradientDescent NesterovMomentum(float momentum = 0.9f) => new NesterovMomentumDescriptor(momentum);
         public ICreateTemplateBasedGradientDescent RmsProp(float decay = 0.9f) => new RmsPropDescriptor(decay);
 
+        public class GradientDescentProvider
+        {
+            public ICreateTemplateBasedGradientDescent AdaGrad { get; } = new AdaGradDescriptor();
+            public ICreateTemplateBasedGradientDescent Adam { get; } = new AdamDescriptor(0.9f, 0.99f);
+            public ICreateGradientDescent L1 { get; } = new L1RegularisationDescriptor(0.1f);
+            public ICreateGradientDescent L2 { get; } = new L1RegularisationDescriptor(0.1f);
+            public ICreateTemplateBasedGradientDescent Momentum { get; } = new MomentumDescriptor(0.9f);
+            public ICreateTemplateBasedGradientDescent NesterovMomentum { get; } = new NesterovMomentumDescriptor(0.9f);
+            public ICreateTemplateBasedGradientDescent RmsProp { get; } = new RmsPropDescriptor(0.9f);
+        }
+        public GradientDescentProvider GradientDescent { get; } = new GradientDescentProvider();
+
         public class ErrorMetricProvider
         {
             public IErrorMetric BinaryClassification { get; } = new ErrorMetric.BinaryClassification();

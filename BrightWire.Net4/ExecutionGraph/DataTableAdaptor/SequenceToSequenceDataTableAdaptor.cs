@@ -61,7 +61,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             _outputSize = outputSize;
         }
 
-        public override IDataSource GetFor(IDataTable dataTable)
+        public override IDataSource CloneWith(IDataTable dataTable)
         {
             return new SequenceToSequenceDataTableAdaptor(_learningContext, _executionContext, dataTable, _input, _inputSize, _outputSize);
         }
@@ -82,12 +82,12 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 
         (IMatrix, IReadOnlyList<IRow>) _Encode(IReadOnlyList<int> rows)
         {
-            var data = _dataTable.GetRows(rows);
+            var data = _GetRows(rows);
 
             // create the input batch
             var inputData = new List<(FloatMatrix Input, FloatMatrix Output)>();
             foreach (var row in data)
-                inputData.Add((row.GetField<FloatMatrix>(0), null));
+                inputData.Add(((FloatMatrix)row.Data[0], null));
             var encoderInput = _GetSequentialMiniBatch(rows, inputData);
 
             // execute the encoder

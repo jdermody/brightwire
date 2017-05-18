@@ -43,7 +43,7 @@ namespace BrightWire.ExecutionGraph.DataSource
             };
         }
 
-        public IDataSource GetFor(IDataTable dataTable)
+        public IDataSource CloneWith(IDataTable dataTable)
         {
             throw new NotImplementedException();
         }

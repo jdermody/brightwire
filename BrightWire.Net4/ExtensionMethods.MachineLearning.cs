@@ -246,5 +246,21 @@ namespace BrightWire
         {
             return NaiveBayesTrainer.Train(table);
         }
+
+        /// <summary>
+        /// Linear regression fits a line to a set of data that allows you predict future values
+        /// </summary>
+        /// <param name="table">The training data table</param>
+        /// <param name="lap">Linear algebra provider</param>
+        /// <returns>A trainer that can be used to build a linear regression model</returns>
+        public static ILinearRegressionTrainer CreateLinearRegressionTrainer(this IDataTable table, ILinearAlgebraProvider lap)
+        {
+            return new RegressionTrainer(lap, table);
+        }
+
+        public static string GetBestClassification(this IReadOnlyList<(string Label, float Weight)> classifications)
+        {
+            return classifications.OrderByDescending(c => c.Weight).First().Label;
+        }
     }
 }

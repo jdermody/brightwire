@@ -78,7 +78,7 @@ namespace BrightWire.Bayesian
             ;
         }
 
-        public IReadOnlyList<(string Classification, float Weight)> Classify(IRow row)
+        public IReadOnlyList<(string Label, float Weight)> Classify(IRow row)
         {
             Debug.Assert(row.Table.Columns.FirstOrDefault()?.Type == ColumnType.IndexList);
             var indexList = row.GetField<IndexList>(0);

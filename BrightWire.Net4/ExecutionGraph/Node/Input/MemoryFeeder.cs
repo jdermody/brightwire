@@ -23,12 +23,12 @@ namespace BrightWire.ExecutionGraph.Node.Input
                 if (context.BatchSequence.Type == MiniBatchType.SequenceStart) {
                     var es = errorSignal.GetMatrix();
 
-                    context.LearningContext.Log(writer => {
-                        writer.WriteStartElement("memory-backpropagation");
-                        if (context.LearningContext.LogMatrixValues)
-                            writer.WriteRaw(es.AsIndexable().AsXml);
-                        writer.WriteEndElement();
-                    });
+                    //context.LearningContext.Log(writer => {
+                    //    writer.WriteStartElement("memory-backpropagation");
+                    //    if (context.LearningContext.LogMatrixValues)
+                    //        writer.WriteRaw(es.AsIndexable().AsXml);
+                    //    writer.WriteEndElement();
+                    //});
 
                     using (var columnSums = es.ColumnSums()) {
                         var initialDelta = columnSums.AsIndexable();
@@ -67,11 +67,11 @@ namespace BrightWire.ExecutionGraph.Node.Input
         {
             var memory = GetMemory(context.LinearAlgebraProvider, context.BatchSequence.MiniBatch.BatchSize);
 
-            context.LearningContext?.Log(writer => {
-                writer.WriteStartElement("init-memory");
-                writer.WriteRaw(memory.AsIndexable().AsXml);
-                writer.WriteEndElement();
-            });
+            //context.LearningContext?.Log(writer => {
+            //    writer.WriteStartElement("init-memory");
+            //    writer.WriteRaw(memory.AsIndexable().AsXml);
+            //    writer.WriteEndElement();
+            //});
 
             _AddNextGraphAction(context, new MatrixGraphData(memory), () => new Backpropagation(this));
         }
@@ -80,11 +80,11 @@ namespace BrightWire.ExecutionGraph.Node.Input
         {
             var memory = context.ExecutionContext.GetMemory(Id);
 
-            context.LearningContext?.Log(writer => {
-                writer.WriteStartElement("read-memory");
-                writer.WriteRaw(memory.AsIndexable().AsXml);
-                writer.WriteEndElement();
-            });
+            //context.LearningContext?.Log(writer => {
+            //    writer.WriteStartElement("read-memory");
+            //    writer.WriteRaw(memory.AsIndexable().AsXml);
+            //    writer.WriteEndElement();
+            //});
 
             _AddNextGraphAction(context, new MatrixGraphData(memory), null);
         }

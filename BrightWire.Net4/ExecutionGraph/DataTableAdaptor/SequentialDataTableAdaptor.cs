@@ -26,7 +26,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             _outputSize = outputMatrix.ColumnCount;
         }
 
-        public override IDataSource GetFor(IDataTable dataTable)
+        public override IDataSource CloneWith(IDataTable dataTable)
         {
             return new SequentialDataTableAdaptor(_lap, dataTable);
         }
@@ -38,9 +38,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 
         public override IMiniBatch Get(IReadOnlyList<int> rows)
         {
-            var data = _dataTable
-                .GetRows(rows)
-                .Select(r => (r.GetField<FloatMatrix>(0), r.GetField<FloatMatrix>(1)))
+            var data = _GetRows(rows)
+                .Select(r => ((FloatMatrix)r.Data[0], (FloatMatrix)r.Data[1]))
                 .ToList()
             ;
             return _GetSequentialMiniBatch(rows, data);

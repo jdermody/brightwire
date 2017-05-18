@@ -1,5 +1,6 @@
 ﻿using BrightWire;
 using BrightWire.Helper;
+using BrightWire.TrainingData;
 using MathNet.Numerics.Distributions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
@@ -39,7 +40,7 @@ namespace UnitTests
         [TestMethod]
         public void TrainModel2()
         {
-            var trainer = Provider.CreateMarkovTrainer2<string>();
+            var trainer = BrightWireProvider.CreateMarkovTrainer2<string>();
             _Train(trainer);
             var model = trainer.Build().AsDictionary;
 
@@ -63,7 +64,7 @@ namespace UnitTests
         [TestMethod]
         public void TrainModel3()
         {
-            var trainer = Provider.CreateMarkovTrainer3<string>();
+            var trainer = BrightWireProvider.CreateMarkovTrainer3<string>();
             _Train(trainer);
             var model = trainer.Build().AsDictionary;
 

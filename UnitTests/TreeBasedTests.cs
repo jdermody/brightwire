@@ -1,5 +1,6 @@
 ﻿using BrightWire;
 using BrightWire.Helper;
+using BrightWire.TrainingData;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -20,8 +21,8 @@ namespace UnitTests
             var model = data.TrainDecisionTree();
             var classifier = model.CreateClassifier();
             var testRows = data.GetRows(new[] { 0, data.RowCount - 1 });
-            Assert.IsTrue(classifier.Classify(testRows[0]).First() == "china");
-            Assert.IsTrue(classifier.Classify(testRows[1]).First() == "japan");
+            Assert.IsTrue(classifier.Classify(testRows[0]).GetBestClassification() == "china");
+            Assert.IsTrue(classifier.Classify(testRows[1]).GetBestClassification() == "japan");
         }
 
         [TestMethod]
@@ -32,7 +33,7 @@ namespace UnitTests
             var model = data.TrainRandomForest();
             var classifier = model.CreateClassifier();
             var testRows = data.GetRows(new[] { 0, data.RowCount - 1 });
-            Assert.IsTrue(classifier.Classify(testRows[0]).First() == "china");
+            Assert.IsTrue(classifier.Classify(testRows[0]).GetBestClassification() == "china");
             //Assert.IsTrue(classifier.Classify(testRows[1]).First() == "japan");
         }
     }

@@ -17,7 +17,7 @@ namespace UnitTests
         [ClassInitialize]
         public static void Load(TestContext context)
         {
-            _lap = Provider.CreateLinearAlgebra(false);
+            _lap = BrightWireProvider.CreateLinearAlgebra(false);
         }
 
         [ClassCleanup]
@@ -29,7 +29,7 @@ namespace UnitTests
         [TestMethod]
         public void KNN()
         {
-            var dataTable = new DataTableBuilder();
+            var dataTable = BrightWireProvider.CreateDataTableBuilder();
             dataTable.AddColumn(ColumnType.Float, "height");
             dataTable.AddColumn(ColumnType.Int, "weight").IsContinuous = true;
             dataTable.AddColumn(ColumnType.Int, "foot-size").IsContinuous = true;
@@ -46,13 +46,13 @@ namespace UnitTests
             dataTable.Add(5.75f, 150, 9, "female");
             var index = dataTable.Build();
 
-            var testData = new DataTableBuilder(dataTable.Columns);
+            var testData = BrightWireProvider.CreateDataTableBuilder(dataTable.Columns);
             var row = testData.Add(6f, 130, 8, "?");
 
             var model = index.TrainKNearestNeighbours();
             var classifier = model.CreateClassifier(_lap, 2);
             var classification = classifier.Classify(row);
-            Assert.IsTrue(classification.First() == "female");
+            Assert.IsTrue(classification.OrderByDescending(c => c.Weight).First().Label == "female");
         }
     }
 }

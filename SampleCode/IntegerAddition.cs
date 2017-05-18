@@ -1,4 +1,5 @@
-﻿using BrightWire.Connectionist;
+﻿using BrightWire.ExecutionGraph;
+using BrightWire.ExecutionGraph.Action;
 using BrightWire.Models;
 using BrightWire.TrainingData.Artificial;
 using System;
@@ -21,77 +22,42 @@ namespace BrightWire.SampleCode
 
         public static void IntegerAddition()
         {
-            // generate 1000 random integer additions
-            var dataSet = BinaryIntegers.Addition(1000, false);
+            // generate 1000 random integer additions (split into training and test sets)
+            var data = BinaryIntegers.Addition(1000, false).Split(0);
+            using (var lap = BrightWireProvider.CreateLinearAlgebra(false)) {
+                var graph = new GraphFactory(lap);
+                var errorMetric = graph.ErrorMetric.BinaryClassification;
 
-            // split the numbers into training and test sets
-            int split = Convert.ToInt32(dataSet.Count * 0.8);
-            var trainingData = dataSet.Take(split).ToList();
-            var testData = dataSet.Skip(split).ToList();
+                // modify the property set
+                var propertySet = graph.CurrentPropertySet
+                    .Use(graph.GradientDescent.Adam)
+                    .Use(graph.WeightInitialisation.Xavier)
+                ;
 
-            // neural network hyper parameters
-            const int HIDDEN_SIZE = 12, NUM_EPOCHS = 25, BATCH_SIZE = 8;
-            const float TRAINING_RATE = 0.003f;
-            var errorMetric = ErrorMetricType.BinaryClassification.Create();
-            var layerTemplate = new LayerDescriptor(0f) {
-                Activation = ActivationType.Tanh,
-                WeightInitialisation = WeightInitialisationType.Xavier,
-                WeightUpdate = WeightUpdateType.RMSprop
-            };
-            var recurrentTemplate = layerTemplate.Clone();
-            recurrentTemplate.WeightInitialisation = WeightInitialisationType.Xavier;
+                // create the engine
+                var trainingData = graph.GetDataSource(data.Training);
+                var testData = trainingData.CloneWith(data.Test);
+                var executionContext = graph.CreateExecutionContext();
+                var engine = graph.CreateTrainingEngine(trainingData, executionContext, 0.0002f, 16);
 
-            using (var lap = Provider.CreateLinearAlgebra(false)) {
-                // create training data providers
-                var trainingDataProvider = lap.NN.CreateSequentialTrainingDataProvider(trainingData);
-                var testDataProvider = lap.NN.CreateSequentialTrainingDataProvider(testData);
-                var layers = new INeuralNetworkRecurrentLayer[] {
-                    lap.NN.CreateSimpleRecurrentLayer(trainingDataProvider.InputSize, HIDDEN_SIZE, recurrentTemplate),
-                    lap.NN.CreateFeedForwardRecurrentLayer(HIDDEN_SIZE, trainingDataProvider.OutputSize, layerTemplate)
-                };
+                // build the network
+                const int HIDDEN_LAYER_SIZE = 32;
+                var memory = new float[HIDDEN_LAYER_SIZE];
+                var network = graph.Connect(engine)
+                    .AddSimpleRecurrent(graph.ReluActivation(), memory)
+                    .AddFeedForward(engine.DataSource.OutputSize)
+                    .Add(graph.ReluActivation())
+                    .AddForwardAction(new BackpropagateThroughTime(errorMetric))
+                ;
 
                 // train the network
-                RecurrentNetwork networkData = null;
-                using (var trainer = lap.NN.CreateRecurrentBatchTrainer(layers)) {
-                    var memory = Enumerable.Range(0, HIDDEN_SIZE).Select(i => 0f).ToArray();
-                    var trainingContext = lap.NN.CreateTrainingContext(errorMetric, TRAINING_RATE, BATCH_SIZE);
-                    trainingContext.RecurrentEpochComplete += (tc, rtc) => {
-                        var testError = trainer.Execute(testDataProvider, memory, rtc).SelectMany(s => s.Select(d => errorMetric.Compute(d.Output, d.ExpectedOutput))).Average();
-                        Console.WriteLine($"Epoch {tc.CurrentEpoch} - score: {testError:P}");
-                    };
-                    trainer.Train(trainingDataProvider, memory, NUM_EPOCHS, lap.NN.CreateRecurrentTrainingContext(trainingContext));
-                    networkData = trainer.NetworkInfo;
-                    networkData.Memory = new FloatArray {
-                        Data = memory
-                    };
-                }
+                engine.Train(30, testData, errorMetric);
 
-                // evaluate the network on some freshly generated data
-                var network = lap.NN.CreateRecurrent(networkData);
-                foreach (var item in BinaryIntegers.Addition(8, true)) {
-                    var result = network.Execute(item.Sequence.Select(d => d.Input).ToList());
-                    Console.Write("First:     ");
-                    foreach (var item2 in item.Sequence)
-                        _WriteBinary(item2.Input[0]);
-                    Console.WriteLine();
-
-                    Console.Write("Second:    ");
-                    foreach (var item2 in item.Sequence)
-                        _WriteBinary(item2.Input[1]);
-                    Console.WriteLine();
-                    Console.WriteLine("           --------------------------------");
-
-                    Console.Write("Expected:  ");
-                    foreach (var item2 in item.Sequence)
-                        _WriteBinary(item2.Output[0]);
-                    Console.WriteLine();
-
-                    Console.Write("Predicted: ");
-                    foreach (var item2 in result)
-                        _WriteBinary(item2.Output[0]);
-                    Console.WriteLine();
-                    Console.WriteLine();
-                }
+                // export the graph and verify that the error is the same
+                var networkGraph = engine.Graph;
+                var executionEngine = graph.CreateEngine(networkGraph, executionContext);
+                var output = executionEngine.Execute(testData);
+                Console.WriteLine(output.Average(o => o.CalculateError(errorMetric)));
             }
         }
     }

@@ -42,7 +42,7 @@ namespace BrightWire.TreeBased
             }
         }
 
-        public IReadOnlyList<(string Classification, float Weight)> Classify(IRow row)
+        public IReadOnlyList<(string Label, float Weight)> Classify(IRow row)
         {
             var classification = _Classify(row).First();
             return new[] {

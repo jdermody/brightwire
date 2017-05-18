@@ -1,4 +1,5 @@
-﻿using BrightWire.Connectionist;
+﻿using BrightWire.ExecutionGraph;
+using BrightWire.ExecutionGraph.Action;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -55,7 +56,7 @@ namespace BrightWire.SampleCode
             );
 
             // fire up some linear algebra on the CPU
-            using (var lap = Provider.CreateLinearAlgebra(false)) {
+            using (var lap = BrightWireProvider.CreateLinearAlgebra(false)) {
                 // train and evaluate k nearest neighbours
                 var knn = split.Training.TrainKNearestNeighbours();
                 Console.WriteLine("K nearest neighbours accuracy: {0:P}", split.Test
@@ -70,50 +71,36 @@ namespace BrightWire.SampleCode
                     .Average(d => d.Row.GetField<string>(targetColumnIndex) == d.Classification ? 1.0 : 0.0)
                 );
 
-                // convert the data tables into vector based training data providers
-                var trainingData = lap.NN.CreateTrainingDataProvider(split.Training);
-                var testData = lap.NN.CreateTrainingDataProvider(split.Test);
-
-                // create a feed forward network with 8 hidden neurons
-                const int BATCH_SIZE = 8, NUM_EPOCHS = 300;
-                const float LEARNING_RATE = 0.03f;
-                var layerTemplate = new LayerDescriptor(0.1f) { // add some L2 regularisation
-                    Activation = ActivationType.Sigmoid, // sigmoid activation function
-                    WeightUpdate = WeightUpdateType.RMSprop, // use rmsprop gradient descent optimisation
-                    WeightInitialisation = WeightInitialisationType.Xavier, // xavier weight initialisation
-                    LayerTrainer = LayerTrainerType.DropConnect // throw in some drop connect regularisation for fun
-                };
+                // create a neural network graph factory
+                var graph = new GraphFactory(lap);
 
                 // the default data table -> vector conversion uses one hot encoding of the classification labels, so create a corresponding cost function
-                var errorMetric = ErrorMetricType.OneHot.Create();
+                var errorMetric = graph.ErrorMetric.OneHotEncoding;
 
-                // create a network trainer and evaluate against the test set after every 50 epochs
+                // create the property set (use adam gradient descent optimisation)
+                graph.CurrentPropertySet
+                    .Use(graph.RmsProp())
+                ;
+
+                // create the training and test data sources
+                var trainingData = graph.GetDataSource(split.Training);
+                var testData = trainingData.CloneWith(split.Test);
+                var executionContext = graph.CreateExecutionContext();
+
+                // create a 4x3x3 neural network with sigmoid activations after each neural network
+                const int HIDDEN_LAYER_SIZE = 8;
+                var engine = graph.CreateTrainingEngine(trainingData, executionContext, 0.1f, 8);
+                graph.Connect(engine)
+                    .AddFeedForward(HIDDEN_LAYER_SIZE)
+                    .Add(graph.TanhActivation())
+                    .AddFeedForward(engine.DataSource.OutputSize)
+                    .Add(graph.SigmoidActivation())
+                    .AddForwardAction(new Backpropagate(errorMetric))
+                ;
+
+                // train the network
                 Console.WriteLine("Training a 4x8x3 neural network...");
-                using (var trainer = lap.NN.CreateBatchTrainer(layerTemplate, trainingData.InputSize, 8, trainingData.OutputSize)) {
-                    var trainingContext = lap.NN.CreateTrainingContext(errorMetric, LEARNING_RATE, BATCH_SIZE);
-                    trainingContext.EpochComplete += c => {
-                        if (c.CurrentEpoch % 50 == 0) {
-                            var testError = trainer.Execute(testData).Select(d => errorMetric.Compute(d.Output, d.ExpectedOutput)).Average();
-                            trainingContext.WriteScore(testError, errorMetric.DisplayAsPercentage);
-                        }
-                    };
-                    trainer.Train(trainingData, NUM_EPOCHS, trainingContext);
-                }
-                Console.WriteLine();
-
-                // let's unload some deep learning on these flowers...
-                Console.WriteLine("Training a 4x8x16x32x16x8x3 neural network...");
-                using (var deepTrainer = lap.NN.CreateBatchTrainer(layerTemplate, trainingData.InputSize, 8, 16, 32, 16, 8, trainingData.OutputSize)) {
-                    var trainingContext = lap.NN.CreateTrainingContext(errorMetric, LEARNING_RATE, BATCH_SIZE);
-                    trainingContext.EpochComplete += c => {
-                        if (c.CurrentEpoch % 50 == 0) {
-                            var testError = deepTrainer.Execute(testData).Select(d => errorMetric.Compute(d.Output, d.ExpectedOutput)).Average();
-                            trainingContext.WriteScore(testError, errorMetric.DisplayAsPercentage);
-                        }
-                    };
-                    deepTrainer.Train(trainingData, NUM_EPOCHS, trainingContext);
-                }
-                Console.WriteLine();
+                engine.Train(70, testData, errorMetric);
             }
         }
     }

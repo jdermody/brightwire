@@ -29,6 +29,7 @@ namespace BrightWire.ExecutionGraph.Engine
             _isStochastic = lap.IsStochastic;
             _executionContext = executionContext;
             _learningContext = learningContext;
+            learningContext.SetRowCount(dataSource.RowCount);
             _input = input ?? new FlowThrough();
         }
 
@@ -146,8 +147,8 @@ namespace BrightWire.ExecutionGraph.Engine
                 return false;
             } else {
                 var format = isPercentage
-                    ? "\rEpoch: {0} - training-error: {1:N4} [{2:N4}]; time: {3:N2}s; test-score: {4:P}"
-                    : "\rEpoch: {0} - training-error: {1:N4} [{2:N4}]; time: {3:N2}s; test-score: {4:N4}"
+                    ? "\rEpoch {0} - training-error: {1:N4} [{2:N4}]; time: {3:N2}s; test-score: {4:P}"
+                    : "\rEpoch {0} - training-error: {1:N4} [{2:N4}]; time: {3:N2}s; test-score: {4:N4}"
                 ;
                 var msg = String.Format(format,
                     _learningContext.CurrentEpoch,

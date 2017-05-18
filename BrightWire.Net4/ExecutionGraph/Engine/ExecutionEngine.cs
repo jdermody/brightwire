@@ -40,7 +40,6 @@ namespace BrightWire.ExecutionGraph.Engine
             public IGraphData ErrorSignal => throw new NotImplementedException();
             public bool HasNext => _forward.Any();
             public IGraphData Data => _engine._executionContext.Data;
-            //public IMatrix Output { get => _output; set => _output = value; }
 
             public bool ExecuteNext()
             {

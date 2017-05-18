@@ -42,7 +42,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             _input = input;
         }
 
-        public override IDataSource GetFor(IDataTable dataTable)
+        public override IDataSource CloneWith(IDataTable dataTable)
         {
             return new TensorBasedDataTableAdaptor(_learningContext, _executionContext, dataTable, _input, _inputSize, _outputSize);
         }
@@ -53,7 +53,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 
         public override IMiniBatch Get(IReadOnlyList<int> rows)
         {
-            var data = _dataTable.GetRows(rows);
+            var data = _GetRows(rows);
             var inputList = new List<IVector>();
             var outputList = new List<FloatVector>();
             _processedContext.Clear();

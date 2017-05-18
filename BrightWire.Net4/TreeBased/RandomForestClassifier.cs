@@ -27,12 +27,12 @@ namespace BrightWire.TreeBased
         //    ;
         //}
 
-        public IReadOnlyList<(string Classification, float Weight)> Classify(IRow row)
+        public IReadOnlyList<(string Label, float Weight)> Classify(IRow row)
         {
             var size = (float)_forest.Count;
             return _forest
                 .Select(t => t.Classify(row).Single())
-                .GroupBy(d => d.Classification)
+                .GroupBy(d => d.Label)
                 .Select(g => (g.Key, g.Average(d => d.Weight)))
                 .ToList()
             ;

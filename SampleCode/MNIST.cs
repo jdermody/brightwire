@@ -1,8 +1,8 @@
-﻿using BrightWire.Connectionist;
-using BrightWire.Connectionist.Helper;
-using BrightWire.Connectionist.Training.Layer.Convolutional;
+﻿using BrightWire.ExecutionGraph;
+using BrightWire.ExecutionGraph.Action;
 using BrightWire.Helper;
 using BrightWire.TrainingData;
+using BrightWire.TrainingData.WellKnown;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,34 +19,57 @@ namespace BrightWire.SampleCode
         /// The data files can be downloaded from http://yann.lecun.com/exdb/mnist/
         /// </summary>
         /// <param name="dataFilesPath">The path to a directory with the four extracted data files</param>
-        public static void MNIST(string dataFilesPath, string outputModelPath)
+        public static void MNIST(string dataFilesPath)
         {
-            // neural network hyper parameters
-            const int HIDDEN_SIZE = 1024, BATCH_SIZE = 128, NUM_EPOCHS = 40;
-            const float TRAINING_RATE = 0.03f;
-            var errorMetric = ErrorMetricType.OneHot.Create();
-            var layerTemplate = new LayerDescriptor(0f) {
-                WeightUpdate = WeightUpdateType.RMSprop,
-                Activation = ActivationType.LeakyRelu
-            };
+            using (var lap = BrightWireGpuProvider.CreateLinearAlgebra(false)) {
+                var graph = new GraphFactory(lap);
 
-            Console.Write("Loading training data...");
-            var trainingData = Mnist.Load(dataFilesPath + "train-labels.idx1-ubyte", dataFilesPath + "train-images.idx3-ubyte");
-            var testData = Mnist.Load(dataFilesPath + "t10k-labels.idx1-ubyte", dataFilesPath + "t10k-images.idx3-ubyte");
-            Console.WriteLine("done");
+                // use a one hot encoding error metric, rmsprop gradient descent and xavier weight initialisation
+                var errorMetric = graph.ErrorMetric.OneHotEncoding;
+                var propertySet = graph.CurrentPropertySet
+                    .Use(graph.GradientDescent.RmsProp)
+                    .Use(graph.WeightInitialisation.Xavier)
+                ;
 
-            Console.WriteLine("Starting training...");
-            using (var lap = GPUProvider.CreateLinearAlgebra()) {
-                var trainingSet = lap.NN.CreateTrainingDataProvider(trainingData.Select(d => d.Sample).ToList());
-                var testSet = lap.NN.CreateTrainingDataProvider(testData.Select(d => d.Sample).ToList());
+                Console.Write("Loading training data...");
+                var trainingData = _BuildVectors(null, graph, Mnist.Load(dataFilesPath + "train-labels.idx1-ubyte", dataFilesPath + "train-images.idx3-ubyte"));
+                var testData = _BuildVectors(trainingData, graph, Mnist.Load(dataFilesPath + "t10k-labels.idx1-ubyte", dataFilesPath + "t10k-images.idx3-ubyte"));
+                Console.WriteLine($"done - {trainingData.RowCount} training images and {testData.RowCount} test images loaded");
 
-                using (var trainer = lap.NN.CreateBatchTrainer(layerTemplate, Mnist.INPUT_SIZE, HIDDEN_SIZE, Mnist.OUTPUT_SIZE)) {
-                    var trainingManager = lap.NN.CreateFeedForwardManager(trainer, outputModelPath, testSet);
-                    var trainingContext = lap.NN.CreateTrainingContext(errorMetric, TRAINING_RATE, BATCH_SIZE);
-                    trainingContext.ScheduleTrainingRateChange(NUM_EPOCHS / 2, TRAINING_RATE / 3);
-                    trainingManager.Train(trainingSet, NUM_EPOCHS, trainingContext);
-                }
+                // create the training engine and schedule two learning rate changes
+                var executionContext = graph.CreateExecutionContext();
+                var engine = graph.CreateTrainingEngine(trainingData, executionContext, 0.001f, 128);
+                engine.LearningContext.ScheduleLearningRate(10, 0.0003f);
+                engine.LearningContext.ScheduleLearningRate(20, 0.0001f);
+
+                // create the network
+                graph.Connect(engine)
+                    .AddFeedForward(1024)
+                    .Add(graph.LeakyReluActivation())
+                    .AddFeedForward(trainingData.OutputSize)
+                    .Add(graph.SigmoidActivation())
+                    .AddForwardAction(new Backpropagate(errorMetric))
+                ;
+
+                // train the network for 30 epochs
+                engine.Train(30, testData, errorMetric);
             }
+        }
+
+        static IDataSource _BuildVectors(IDataSource existing, GraphFactory graph, IReadOnlyList<Mnist.Image> images)
+        {
+            var dataTable = BrightWireProvider.CreateDataTableBuilder();
+            dataTable.AddColumn(ColumnType.Vector, "Image");
+            dataTable.AddColumn(ColumnType.Vector, "Target", true);
+
+            foreach (var image in images) {
+                var data = image.AsFloatArray;
+                dataTable.Add(data.Data, data.Label);
+            }
+            if (existing != null)
+                return existing.CloneWith(dataTable.Build());
+            else
+                return graph.GetDataSource(dataTable.Build());
         }
     }
 }

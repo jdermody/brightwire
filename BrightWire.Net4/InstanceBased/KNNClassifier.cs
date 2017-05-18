@@ -58,7 +58,7 @@ namespace BrightWire.InstanceBased
         //    ;
         //}
 
-        public IReadOnlyList<(string Classification, float Weight)> Classify(IRow row)
+        public IReadOnlyList<(string Label, float Weight)> Classify(IRow row)
         {
             return _Classify(row)
                 .Select(d => (d.Item1, d.Item2))

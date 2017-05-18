@@ -99,15 +99,16 @@ namespace BrightWire
         void StartEpoch();
         void EndEpoch();
         void SetRowCount(int rowCount);
-        bool EnableLogging { get; set; }
-        bool LogMatrixValues { get; set; }
-        string CurrentLogXml { get; }
-        void ClearLog();
-        void Log(Action<XmlWriter> callback);
-        void Log(string name, int channel, int id, IMatrix input, IMatrix output, Action<XmlWriter> callback = null);
-        void Log(string name, IMatrix matrix);
+        //bool EnableLogging { get; set; }
+        //bool LogMatrixValues { get; set; }
+        //string CurrentLogXml { get; }
+        //void ClearLog();
+        //void Log(Action<XmlWriter> callback);
+        //void Log(string name, int channel, int id, IMatrix input, IMatrix output, Action<XmlWriter> callback = null);
+        //void Log(string name, IMatrix matrix);
         void DeferBackpropagation(IGraphData errorSignal, Action<IGraphData> update);
         void BackpropagateThroughTime(IGraphData signal, int maxDepth = int.MaxValue);
+        void ScheduleLearningRate(int atEpoch, float newTrainingRate);
         void Clear();
     }
 

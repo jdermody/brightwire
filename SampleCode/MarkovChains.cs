@@ -1,5 +1,6 @@
 ﻿using BrightWire.Helper;
 using BrightWire.Models;
+using BrightWire.TrainingData;
 using MathNet.Numerics.Distributions;
 using System;
 using System.Collections.Generic;
@@ -26,7 +27,7 @@ namespace BrightWire.SampleCode
             }
 
             // create a markov trainer that uses a window of size 3
-            var trainer = Provider.CreateMarkovTrainer3<string>();
+            var trainer = BrightWireProvider.CreateMarkovTrainer3<string>();
             foreach (var sentence in sentences)
                 trainer.Add(sentence);
             var model = trainer.Build().AsDictionary;

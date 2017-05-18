@@ -482,24 +482,24 @@ namespace BrightWire.LinearAlgebra
                 return temp.Transpose();
         }
 
-        public (IMatrix Left, IMatrix Right) SplitAtColumn(int columnIndex)
-        {
-            Debug.Assert(IsValid);
-            int size = _rows - columnIndex;
-            var ret1 = new CudaDeviceVariable<float>(columnIndex * _columns);
-            var ret2 = new CudaDeviceVariable<float>(size * _columns);
-            _cuda.SplitColumns(_data, ret1, ret2, _rows, _columns, columnIndex);
-            return (new GpuMatrix(_cuda, columnIndex, _columns, ret1), new GpuMatrix(_cuda, size, _columns, ret2));
-        }
-
         public (IMatrix Top, IMatrix Bottom) SplitAtRow(int rowIndex)
         {
             Debug.Assert(IsValid);
-            int size = _columns - rowIndex;
-            var ret1 = new CudaDeviceVariable<float>(_rows * rowIndex);
+            int size = _rows - rowIndex;
+            var ret1 = new CudaDeviceVariable<float>(rowIndex * _columns);
+            var ret2 = new CudaDeviceVariable<float>(size * _columns);
+            _cuda.SplitColumns(_data, ret1, ret2, _rows, _columns, rowIndex);
+            return (new GpuMatrix(_cuda, rowIndex, _columns, ret1), new GpuMatrix(_cuda, size, _columns, ret2));
+        }
+
+        public (IMatrix Left, IMatrix Right)  SplitAtColumn(int columnIndex)
+        {
+            Debug.Assert(IsValid);
+            int size = _columns - columnIndex;
+            var ret1 = new CudaDeviceVariable<float>(_rows * columnIndex);
             var ret2 = new CudaDeviceVariable<float>(_rows * size);
-            _cuda.SplitRows(_data, ret1, ret2, _rows, _columns, rowIndex);
-            return (new GpuMatrix(_cuda, _rows, rowIndex, ret1), new GpuMatrix(_cuda, _rows, size, ret2));
+            _cuda.SplitRows(_data, ret1, ret2, _rows, _columns, columnIndex);
+            return (new GpuMatrix(_cuda, _rows, columnIndex, ret1), new GpuMatrix(_cuda, _rows, size, ret2));
         }
 
         public IMatrix Sqrt(float valueAdjustment = 0)

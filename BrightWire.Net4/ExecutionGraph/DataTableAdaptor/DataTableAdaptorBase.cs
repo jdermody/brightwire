@@ -11,32 +11,39 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
     abstract class DataTableAdaptorBase : IDataSource
     {
         protected readonly ILinearAlgebraProvider _lap;
-        protected readonly IDataTable _dataTable;
+        protected readonly List<IRow> _data = new List<IRow>();
 
         public DataTableAdaptorBase(ILinearAlgebraProvider lap, IDataTable dataTable)
         {
             _lap = lap;
-            _dataTable = dataTable;
+
+            // read the entire data table into memory
+            dataTable.ForEach(row => _data.Add(row));
         }
 
         public abstract bool IsSequential { get; }
         public abstract int InputSize { get; }
         public abstract int OutputSize { get; }
-        public virtual int RowCount => _dataTable.RowCount;
+        public virtual int RowCount => _data.Count;
 
         public abstract IMiniBatch Get(IReadOnlyList<int> rows);
-        public abstract IDataSource GetFor(IDataTable dataTable);
+        public abstract IDataSource CloneWith(IDataTable dataTable);
 
         public virtual IReadOnlyList<IReadOnlyList<int>> GetBuckets()
         {
             return new[] {
-                Enumerable.Range(0, _dataTable.RowCount).ToList()
+                Enumerable.Range(0, _data.Count).ToList()
             };
         }
 
         public virtual void OnBatchProcessed(IContext context)
         {
             // nop
+        }
+
+        protected IReadOnlyList<IRow> _GetRows(IReadOnlyList<int> rows)
+        {
+            return rows.Select(i => _data[i]).ToList();
         }
 
         protected IMiniBatch _GetMiniBatch(IReadOnlyList<int> rows, IReadOnlyList<(float[], float[])> data)

@@ -156,7 +156,7 @@ namespace BrightWire
         /// Classifies the input data and returns the classifications with their weights
         /// </summary>
         /// <param name="row">The row to classify</param>
-        IReadOnlyList<(string Classification, float Weight)> Classify(IRow row);
+        IReadOnlyList<(string Label, float Weight)> Classify(IRow row);
     }
 
     /// <summary>

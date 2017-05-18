@@ -481,7 +481,7 @@ namespace BrightWire.TabularData
             var ret = new List<(IRow, string)>();
             _Iterate((row, i) => {
                 var bestClassification = classifier.Classify(row).OrderByDescending(d => d.Weight).First();
-                ret.Add((row, bestClassification.Classification));
+                ret.Add((row, bestClassification.Label));
                 return true;
             });
             return ret;

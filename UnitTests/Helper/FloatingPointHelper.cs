@@ -40,7 +40,7 @@ namespace UnitTests.Helper
         {
             Assert.AreEqual(t1.Depth, t2.Depth);
             for (var i = 0; i < t1.Depth; i++)
-                AssertEqual(t1.Data[i], t2.Data[i]);
+                AssertEqual(t1.Matrix[i], t2.Matrix[i]);
         }
 
         public static void AssertEqual(IIndexableMatrix m1, IIndexableMatrix m2, int maxDifference = 6)

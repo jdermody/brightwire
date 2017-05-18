@@ -83,7 +83,7 @@ namespace BrightWire.Bayesian
         /// </summary>
         /// <param name="row"></param>
         /// <returns></returns>
-        public IReadOnlyList<(string Classification, float Weight)> Classify(IRow row)
+        public IReadOnlyList<(string Label, float Weight)> Classify(IRow row)
         {
             return _Classify(row)
                 .OrderByDescending(kv => kv.Value)

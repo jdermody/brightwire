@@ -30,7 +30,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             var resultList = new List<Dictionary<int, float>>();
             foreach (var row in rowList) {
                 var value = _classifier.Classify(row)
-                    .Select(c => (_targetLabel[c.Classification], c.Weight))
+                    .Select(c => (_targetLabel[c.Label], c.Weight))
                     .ToDictionary(d => d.Item1, d => d.Item2)
                 ;
                 resultList.Add(value);
