@@ -167,20 +167,49 @@
     <Compile Include="ExecutionGraph\WeightInitialisation\Xavier.cs" />
     <Compile Include="ExecutionGraph\WireBuilder.cs" />
     <Compile Include="ExtensionMethods.cs" />
+    <Compile Include="ExtensionMethods.DataTable.cs">
+      <DependentUpon>ExtensionMethods.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ExtensionMethods.ExecutionGraph.cs">
+      <DependentUpon>ExtensionMethods.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ExtensionMethods.LinearAlgebra.cs">
+      <DependentUpon>ExtensionMethods.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ExtensionMethods.MachineLearning.cs">
+      <DependentUpon>ExtensionMethods.cs</DependentUpon>
+    </Compile>
     <Compile Include="Helper\ConvolutionHelper.cs" />
     <Compile Include="Helper\CSVParser.cs" />
     <Compile Include="Helper\DataTableBuilder.cs" />
     <Compile Include="Helper\PropertySet.cs" />
     <Compile Include="Helper\RandomProjection.cs" />
-    <Compile Include="Interface.DataTable.cs" />
-    <Compile Include="Interface.ExecutionGraph.cs" />
-    <Compile Include="Interface.LinearAlgegbra.cs" />
-    <Compile Include="Interface.MachineLearning.cs" />
+    <Compile Include="InstanceBased\KNNClassifier.cs" />
+    <Compile Include="InstanceBased\Training\KNNClassificationTrainer.cs" />
+    <Compile Include="Interface.DataTable.cs">
+      <DependentUpon>Interface.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Interface.ExecutionGraph.cs">
+      <DependentUpon>Interface.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Interface.LinearAlgegbra.cs">
+      <DependentUpon>Interface.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Interface.cs" />
+    <Compile Include="Interface.MachineLearning.cs">
+      <DependentUpon>Interface.cs</DependentUpon>
+    </Compile>
     <Compile Include="LinearAlgebra\Cpu3DTensor.cs" />
     <Compile Include="LinearAlgebra\CpuMatrix.cs" />
     <Compile Include="LinearAlgebra\CPUProvider.cs" />
     <Compile Include="LinearAlgebra\CpuVector.cs" />
     <Compile Include="LinearAlgebra\Helper\BoundMath.cs" />
+    <Compile Include="Linear\LogisticRegressionPredictor.cs" />
+    <Compile Include="Linear\MultinomialLogisticRegressionClassifier.cs" />
+    <Compile Include="Linear\RegressionPredictor.cs" />
+    <Compile Include="Linear\Training\LogisticRegressionTrainer.cs" />
+    <Compile Include="Linear\Training\MultinomialLogisticRegressionTrainer.cs" />
+    <Compile Include="Linear\Training\RegressionTrainer.cs" />
     <Compile Include="Models\Bayesian\BernoulliNaiveBayes.cs" />
     <Compile Include="Models\Bayesian\MarkovModel.cs" />
     <Compile Include="Models\Bayesian\MultinomialNaiveBayes.cs" />
@@ -194,7 +223,13 @@
     <Compile Include="Models\FloatTensor.cs" />
     <Compile Include="Models\GraphModel.cs" />
     <Compile Include="Models\IndexList.cs" />
+    <Compile Include="Models\InstanceBased\KNearestNeighbours.cs" />
+    <Compile Include="Models\Linear\LinearRegression.cs" />
+    <Compile Include="Models\Linear\LogisticRegression.cs" />
+    <Compile Include="Models\Linear\MultinomialLogisticRegression.cs" />
     <Compile Include="Models\StringTable.cs" />
+    <Compile Include="Models\TreeBased\DecisionTree.cs" />
+    <Compile Include="Models\TreeBased\RandomForest.cs" />
     <Compile Include="Models\WeightedIndexList.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="BrightWireProvider.cs" />
@@ -219,18 +254,25 @@
     <Compile Include="TrainingData\Artificial\SequenceClassification.cs" />
     <Compile Include="TrainingData\Artificial\Xor.cs" />
     <Compile Include="TrainingData\Helper\BigEndianBinaryReader.cs" />
+    <Compile Include="TrainingData\Helper\SequenceWindowBuilder.cs" />
+    <Compile Include="TrainingData\Helper\SimpleTokeniser.cs" />
+    <Compile Include="TrainingData\Helper\StringTableBuilder.cs" />
     <Compile Include="TrainingData\SimpleTokeniser.cs" />
     <Compile Include="TrainingData\StringTableBuilder.cs" />
     <Compile Include="TrainingData\WellKnown\MNIST.cs" />
+    <Compile Include="TreeBased\DecisionTreeClassifier.cs" />
+    <Compile Include="TreeBased\RandomForestClassifier.cs" />
+    <Compile Include="TreeBased\Training\DecisionTreeTrainer.cs" />
+    <Compile Include="TreeBased\Training\RandomForestTrainer.cs" />
+    <Compile Include="Unsupervised\Hierachical.cs" />
+    <Compile Include="Unsupervised\KMeans.cs" />
+    <Compile Include="Unsupervised\NonNegativeMatrixFactorisation.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="InstanceBased\Training\" />
-    <Folder Include="Linear\Training\" />
-    <Folder Include="TreeBased\Training\" />
-    <Folder Include="Unsupervised\" />
+    <Folder Include="Models\Unsupervised\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

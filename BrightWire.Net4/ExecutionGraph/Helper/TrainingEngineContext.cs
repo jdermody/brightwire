@@ -47,7 +47,7 @@ namespace BrightWire.ExecutionGraph.Helper
         public INode Source => _sourceNode;
         public IGraphData ErrorSignal => _errorSignal;
         public IGraphData Data => _executionContext.Data;
-        public IMatrix Output { get => _output; set => _output = value; }
+        //public IMatrix Output { get => _output; set => _output = value; }
 
         public Stack<(IGraphData ErrorSignal, INode Target, INode Source)> Backward => _backward;
 

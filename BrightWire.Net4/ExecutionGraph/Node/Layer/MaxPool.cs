@@ -35,7 +35,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                     var matrix = tensor.GetDepthSlice(i).AsIndexable();
                     var table = _indexPosList[i];
 
-                    newMatrixList.Add(lap.Create(_rows, _columns, (x, y) => {
+                    newMatrixList.Add(lap.CreateMatrix(_rows, _columns, (x, y) => {
                         if (table.TryGetValue(Tuple.Create(x, y), out newIndex))
                             return matrix[newIndex.Item2, newIndex.Item1];
                         return 0f;

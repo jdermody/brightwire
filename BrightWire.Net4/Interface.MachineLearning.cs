@@ -1,4 +1,5 @@
-﻿using BrightWire.Models.Bayesian;
+﻿using BrightWire.Models;
+using BrightWire.Models.Bayesian;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -149,5 +150,107 @@ namespace BrightWire
     {
         IVector CreateBias(int size);
         IMatrix CreateWeight(int rows, int columns);
+    }
+
+    /// <summary>
+    /// Logistic regression classifier
+    /// </summary>
+    public interface ILogisticRegressionClassifier : IDisposable
+    {
+        /// <summary>
+        /// Outputs a value from 0 to 1
+        /// </summary>
+        /// <param name="vals">Input data</param>
+        float Predict(params float[] vals);
+
+        /// <summary>
+        /// Outputs a value from 0 to 1
+        /// </summary>
+        /// <param name="vals">Input data</param>
+        float Predict(IReadOnlyList<float> vals);
+
+        /// <summary>
+        /// Outputs a list of values from 0 to 1 for each input data
+        /// </summary>
+        /// <param name="input">Input data</param>
+        float[] Predict(IReadOnlyList<IReadOnlyList<float>> input);
+    }
+
+    /// <summary>
+    /// Linear regression predictor
+    /// </summary>
+    public interface ILinearRegressionPredictor : IDisposable
+    {
+        /// <summary>
+        /// Predicts a value from input data
+        /// </summary>
+        /// <param name="vals">The input data</param>
+        float Predict(params float[] vals);
+
+        /// <summary>
+        /// Predicts a value from input data
+        /// </summary>
+        /// <param name="vals">The input data</param>
+        float Predict(IReadOnlyList<float> vals);
+
+        /// <summary>
+        /// Bulk value prediction
+        /// </summary>
+        /// <param name="input">List of data to predict</param>
+        /// <returns>List of predictions</returns>
+        float[] Predict(IReadOnlyList<IReadOnlyList<float>> input);
+    }
+
+    /// <summary>
+    /// A logistic regression trainer
+    /// </summary>
+    public interface ILogisticRegressionTrainer
+    {
+        /// <summary>
+        /// Trains a model using gradient descent
+        /// </summary>
+        /// <param name="iterations">Number of training epochs</param>
+        /// <param name="learningRate">The training rate</param>
+        /// <param name="lambda">Regularisation lambda</param>
+        /// <param name="costCallback">Callback with current cost - False to stop training</param>
+        /// <returns></returns>
+        LogisticRegression GradientDescent(int iterations, float learningRate, float lambda = 0.1f, Func<float, bool> costCallback = null);
+
+        /// <summary>
+        /// Computes the cost of the specified parameters
+        /// </summary>
+        /// <param name="theta">The model parameters</param>
+        /// <param name="lambda">Regularisation lambda</param>
+        /// <returns></returns>
+        float ComputeCost(IVector theta, float lambda);
+    }
+
+    /// <summary>
+    /// Trainer for linear regression models
+    /// </summary>
+    public interface ILinearRegressionTrainer
+    {
+        // <summary>
+        // Attempt to solve the model using matrix inversion (only applicable for small sets of training data)
+        // </summary>
+        // <returns></returns>
+        //LinearRegression Solve();
+
+        /// <summary>
+        /// Solves the model using gradient descent
+        /// </summary>
+        /// <param name="iterations">Number of training epochs</param>
+        /// <param name="learningRate">The training rate</param>
+        /// <param name="lambda">Regularisation lambda</param>
+        /// <param name="costCallback">Callback with current cost - False to stop training</param>
+        /// <returns>A trained model</returns>
+        LinearRegression GradientDescent(int iterations, float learningRate, float lambda = 0.1f, Func<float, bool> costCallback = null);
+
+        /// <summary>
+        /// Computes the cost of the specified parameters
+        /// </summary>
+        /// <param name="theta">The model parameters</param>
+        /// <param name="lambda">Regularisation lambda</param>
+        float ComputeCost(IVector theta, float lambda);
     }
 }

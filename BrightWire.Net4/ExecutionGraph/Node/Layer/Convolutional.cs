@@ -46,7 +46,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 var rows = _inputWidth + _source._padding * 2;
                 var stride = _source._stride;
                 var matrixList = Enumerable.Range(0, _source._inputDepth)
-                    .Select(i => lap.Create(rows, columns, 0f).AsIndexable())
+                    .Select(i => lap.CreateMatrix(rows, columns, 0f).AsIndexable())
                     .ToList()
                 ;
                 var convolutions = ConvolutionHelper.Default(columns, rows, _source._filterHeight, _source._filterHeight, stride);
@@ -83,7 +83,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             void _CalculateWeightUpdate(IIndexable3DTensor errorSignal, IContext context)
             {
                 var lap = context.LinearAlgebraProvider;
-                var multiplyWith = lap.Create(errorSignal.RowCount * errorSignal.ColumnCount, errorSignal.Depth, 0f).AsIndexable();
+                var multiplyWith = lap.CreateMatrix(errorSignal.RowCount * errorSignal.ColumnCount, errorSignal.Depth, 0f).AsIndexable();
                 var biasUpdate = new float[errorSignal.Depth];
 
                 for(var k = 0; k < errorSignal.Depth; k++) {
@@ -101,7 +101,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                     biasUpdate[k] = total / count;
                 }
                 var delta = _im2Col.TransposeThisAndMultiply(multiplyWith);
-                var biasUpdateVector = lap.Create(biasUpdate);
+                var biasUpdateVector = lap.CreateVector(biasUpdate);
 
                 context.LearningContext.Store(delta, err => _source.Update(err, context.LearningContext));
                 context.LearningContext.Store(biasUpdateVector, bu => _UpdateBias(bu, context.LearningContext));

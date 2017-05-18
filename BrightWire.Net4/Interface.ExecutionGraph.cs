@@ -80,7 +80,7 @@ namespace BrightWire
         void Backpropagate(IGraphData delta);
         IGraphData ErrorSignal { get; }
         IGraphData Data { get; }
-        IMatrix Output { get; set; }
+        //IMatrix Output { get; set; }
     }
 
     public interface IExecutionContext
@@ -91,6 +91,7 @@ namespace BrightWire
         IGraphOperation GetNextOperation();
         void Add(IReadOnlyList<IGraphOperation> operationList);
         ILinearAlgebraProvider LinearAlgebraProvider { get; }
+        int RemainingOperationCount { get; }
     }
 
     public interface IBackpropagation : IDisposable
@@ -141,7 +142,7 @@ namespace BrightWire
         IMiniBatchSequence CurrentSequence { get; }
         bool HasNextSequence { get; }
         IMiniBatchSequence GetNextSequence();
-        int SequenceLength { get; }
+        int SequenceCount { get; }
         IMiniBatchSequence GetSequenceAtIndex(int index);
     }
 
@@ -160,7 +161,7 @@ namespace BrightWire
 
     public interface IGraphTrainingEngine : IGraphEngine
     {
-        double Train();
+        double Train(Action<float> batchCompleteCallback = null);
         bool Test(IDataSource testDataSource, IErrorMetric errorMetric, int batchSize = 128);
         ILearningContext LearningContext { get; }
     }

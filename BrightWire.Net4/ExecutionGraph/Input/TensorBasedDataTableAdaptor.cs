@@ -71,8 +71,8 @@ namespace BrightWire.ExecutionGraph.Input
                 _processedContext.Add((context, outputTensor.RowCount, outputTensor.ColumnCount, outputTensor.Depth));
                 outputList.Add(row.Data[1] as FloatVector);
             }
-            var input = _lap.Create(inputList);
-            var output = _lap.Create(data.Count, OutputSize, (x, y) => outputList[x].Data[y]);
+            var input = _lap.CreateMatrix(inputList);
+            var output = _lap.CreateMatrix(data.Count, OutputSize, (x, y) => outputList[x].Data[y]);
             return new MiniBatch(rows, this, input, output);
         }
 

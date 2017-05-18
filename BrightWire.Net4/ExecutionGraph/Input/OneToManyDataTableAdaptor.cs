@@ -70,9 +70,9 @@ namespace BrightWire.ExecutionGraph.Input
             }
 
             var miniBatch = new MiniBatch(rows, this);
-            var curr = _lap.Create(data.Count, InputSize, (x, y) => data[x].Item1.Data[y]);
+            var curr = _lap.CreateMatrix(data.Count, InputSize, (x, y) => data[x].Item1.Data[y]);
             foreach (var item in outputData.OrderBy(kv => kv.Key)) {
-                var output = _lap.Create(item.Value);
+                var output = _lap.CreateMatrix(item.Value);
                 var type = (item.Key == 0)
                     ? MiniBatchType.SequenceStart
                     : item.Key == (outputData.Count - 1)

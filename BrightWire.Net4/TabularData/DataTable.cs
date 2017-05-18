@@ -376,18 +376,18 @@ namespace BrightWire.TabularData
             return columnTable.OrderBy(kv => kv.Key).Select(kv => kv.Value).ToList();
         }
 
-        public IReadOnlyList<IVector> GetNumericColumns(ILinearAlgebraProvider lap, IEnumerable<int> columns = null)
-        {
-            var columnTable = (columns ?? Enumerable.Range(0, ColumnCount)).ToDictionary(i => i, i => new float[RowCount]);
+        //public IReadOnlyList<IVector> GetNumericColumns(ILinearAlgebraProvider lap, IEnumerable<int> columns = null)
+        //{
+        //    var columnTable = (columns ?? Enumerable.Range(0, ColumnCount)).ToDictionary(i => i, i => new float[RowCount]);
 
-            _Iterate((row, i) => {
-                foreach (var item in columnTable)
-                    item.Value[i] = row.GetField<float>(item.Key);
-                return true;
-            });
+        //    _Iterate((row, i) => {
+        //        foreach (var item in columnTable)
+        //            item.Value[i] = row.GetField<float>(item.Key);
+        //        return true;
+        //    });
 
-            return columnTable.OrderBy(kv => kv.Key).Select(kv => lap.Create(kv.Value)).ToList();
-        }
+        //    return columnTable.OrderBy(kv => kv.Key).Select(kv => lap.CreateVector(kv.Value)).ToList();
+        //}
 
         public IReadOnlyList<float[]> GetNumericRows(IEnumerable<int> columns = null)
         {
@@ -406,22 +406,22 @@ namespace BrightWire.TabularData
             return ret;
         }
 
-        public IReadOnlyList<IVector> GetNumericRows(ILinearAlgebraProvider lap, IEnumerable<int> columns = null)
-        {
-            var columnList = new List<int>(columns ?? Enumerable.Range(0, ColumnCount));
+        //public IReadOnlyList<IVector> GetNumericRows(ILinearAlgebraProvider lap, IEnumerable<int> columns = null)
+        //{
+        //    var columnList = new List<int>(columns ?? Enumerable.Range(0, ColumnCount));
 
-            var ret = new List<IVector>();
-            _Iterate((row, i) => {
-                int index = 0;
-                var buffer = new float[columnList.Count];
-                foreach (var item in columnList)
-                    buffer[index++] = row.GetField<float>(item);
-                ret.Add(lap.Create(buffer));
-                return true;
-            });
+        //    var ret = new List<IVector>();
+        //    _Iterate((row, i) => {
+        //        int index = 0;
+        //        var buffer = new float[columnList.Count];
+        //        foreach (var item in columnList)
+        //            buffer[index++] = row.GetField<float>(item);
+        //        ret.Add(lap.CreateVector(buffer));
+        //        return true;
+        //    });
 
-            return ret;
-        }
+        //    return ret;
+        //}
 
         public IDataTable Normalise(NormalisationType normalisationType, Stream output = null)
         {

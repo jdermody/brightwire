@@ -14,7 +14,7 @@ namespace BrightWire.Helper
     /// <summary>
     /// Builds data tables
     /// </summary>
-    internal class DataTableBuilder : IHaveColumns, IDataTableBuilder
+    internal class DataTableBuilder : IHaveColumns
     {
         const int MAX_UNIQUE = 131072 * 4;
 

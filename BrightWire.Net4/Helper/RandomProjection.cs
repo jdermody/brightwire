@@ -19,7 +19,7 @@ namespace BrightWire.Helper
 
             var c1 = Math.Sqrt(3);
             var distribution = new Categorical(new[] { 1.0 / (2 * s), 1 - (1.0 / s), 1.0 / (2 * s) });
-            _matrix = _lap.Create(fixedSize, reducedSize, (i, j) => Convert.ToSingle((distribution.Sample() - 1) * c1));
+            _matrix = _lap.CreateMatrix(fixedSize, reducedSize, (i, j) => Convert.ToSingle((distribution.Sample() - 1) * c1));
         }
 
         protected virtual void Dispose(bool disposing)

@@ -73,7 +73,7 @@ namespace BrightWire.LinearAlgebra
             }
         }
 
-        public IReadOnlyList<IIndexableMatrix> Matrices => _data;
+        public IReadOnlyList<IIndexableMatrix> Matrix => _data;
         public int Depth => _depth;
         public int RowCount => _rows;
         public int ColumnCount => _columns;

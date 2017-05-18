@@ -89,7 +89,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
             _AddNextGraphAction(context, new MatrixGraphData(memory), null);
         }
 
-        public IMatrix GetMemory(ILinearAlgebraProvider lap, int batchSize) => lap.Create(batchSize, _data.Length, (x, y) => _data[y]);
+        public IMatrix GetMemory(ILinearAlgebraProvider lap, int batchSize) => lap.CreateMatrix(batchSize, _data.Length, (x, y) => _data[y]);
 
         protected override (string Description, byte[] Data) _GetInfo()
         {

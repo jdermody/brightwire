@@ -41,7 +41,7 @@ namespace BrightWire.ExecutionGraph.Engine
             public IGraphData ErrorSignal => throw new NotImplementedException();
             public bool HasNext => _forward.Any();
             public IGraphData Data => _engine._executionContext.Data;
-            public IMatrix Output { get => _output; set => _output = value; }
+            //public IMatrix Output { get => _output; set => _output = value; }
 
             public bool ExecuteNext()
             {
@@ -63,7 +63,7 @@ namespace BrightWire.ExecutionGraph.Engine
         }
         readonly Models.ExecutionGraph _graph;
         readonly IExecutionContext _executionContext;
-        readonly List<Context> _executionResults = new List<Context>();
+        readonly List<(Context Context, IMatrix Data)> _executionResults = new List<(Context, IMatrix)>();
         readonly ILinearAlgebraProvider _lap;
         IDataSource _dataSource = null;
         readonly INode _input;
@@ -93,7 +93,7 @@ namespace BrightWire.ExecutionGraph.Engine
 
             var ret = new List<ExecutionResult>();
             foreach (var item in _executionResults)
-                ret.Add(new ExecutionResult(item.BatchSequence, item.Output.AsIndexable().Rows.ToList()));
+                ret.Add(new ExecutionResult(item.Context.BatchSequence, item.Data.AsIndexable().Rows.ToList()));
 
             _executionResults.Clear();
             _dataSource = null;
@@ -109,7 +109,7 @@ namespace BrightWire.ExecutionGraph.Engine
                     _input.ExecuteForward(context, 0);
                     while (context.HasNext)
                         context.ExecuteNext();
-                    _executionResults.Add(context);
+                    _executionResults.Add((context, context.Data.GetMatrix()));
                 }
             } else {
                 var context = new Context(this, batch.CurrentSequence);
@@ -118,7 +118,7 @@ namespace BrightWire.ExecutionGraph.Engine
                 while (context.HasNext)
                     context.ExecuteNext();
 
-                _executionResults.Add(context);
+                _executionResults.Add((context, context.Data.GetMatrix()));
             }
         }
     }

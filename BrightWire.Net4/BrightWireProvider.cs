@@ -2,6 +2,7 @@
 using BrightWire.Helper;
 using BrightWire.LinearAlgebra;
 using BrightWire.TabularData;
+using BrightWire.TabularData.Helper;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -88,9 +89,9 @@ namespace BrightWire
         /// <summary>
         /// Creates a data table builder to programatically create data tables
         /// </summary>
-        public static IDataTableBuilder CreateDataTableBuilder()
+        public static IDataTableBuilder CreateDataTableBuilder(Stream stream = null)
         {
-            return new DataTableBuilder();
+            return new DataTableWriter(stream);
         }
 
         /// <summary>

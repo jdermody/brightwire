@@ -354,7 +354,7 @@ namespace BrightWire.ExecutionGraph
         public INode SoftMaxActivation(string name = null) => new SoftMax(name);
 
         public IWeightInitialisation ConstantWeightInitialisation(float biasValue = 0f, float weightValue = 1f) => new Constant(_lap, biasValue, weightValue);
-        public IWeightInitialisation GaussiantWeightInitialisation(bool zeroBias = true, float stdDev = 0.1f) => new Gaussian(_lap, zeroBias, stdDev);
+        public IWeightInitialisation GaussianWeightInitialisation(bool zeroBias = true, float stdDev = 0.1f) => new Gaussian(_lap, zeroBias, stdDev);
         public IWeightInitialisation IdentityWeightInitialisation(float identityValue = 1f) => new Identity(_lap, identityValue);
         public IWeightInitialisation XavierWeightInitialisation(float parameter = 6) => new Xavier(_lap, parameter);
 

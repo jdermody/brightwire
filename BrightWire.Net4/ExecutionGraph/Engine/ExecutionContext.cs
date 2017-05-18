@@ -26,6 +26,7 @@ namespace BrightWire.ExecutionGraph.Engine
 
         public void Add(IReadOnlyList<IGraphOperation> operations) => _operationList.AddRange(operations);
         public void Add(IGraphOperation operation) => _operationList.Add(operation);
+        public int RemainingOperationCount => _operationList.Count;
 
         public IMatrix GetMemory(string index)
         {

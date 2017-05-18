@@ -41,8 +41,8 @@ namespace BrightWire.ExecutionGraph.Input
 
         protected IMiniBatch _GetMiniBatch(IReadOnlyList<int> rows, IReadOnlyList<(float[], float[])> data)
         {
-            var input = _lap.Create(data.Count, InputSize, (x, y) => data[x].Item1[y]);
-            var output = OutputSize > 0 ? _lap.Create(data.Count, OutputSize, (x, y) => data[x].Item2[y]) : null;
+            var input = _lap.CreateMatrix(data.Count, InputSize, (x, y) => data[x].Item1[y]);
+            var output = OutputSize > 0 ? _lap.CreateMatrix(data.Count, OutputSize, (x, y) => data[x].Item2[y]) : null;
             return new MiniBatch(rows, this, input, output);
         }
 
@@ -69,10 +69,10 @@ namespace BrightWire.ExecutionGraph.Input
 
             var miniBatch = new MiniBatch(rows, this);
             foreach (var item in inputData.OrderBy(kv => kv.Key)) {
-                var input = _lap.Create(item.Value);
+                var input = _lap.CreateMatrix(item.Value);
                 IMatrix output = null;
                 if (outputData.TryGetValue(item.Key, out temp))
-                    output = _lap.Create(temp);
+                    output = _lap.CreateMatrix(temp);
                 var type = (item.Key == 0)
                     ? MiniBatchType.SequenceStart
                     : item.Key == (inputData.Count - 1)

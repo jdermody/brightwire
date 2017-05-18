@@ -308,11 +308,11 @@ namespace BrightWire
         /// Splits the table into two random tables
         /// </summary>
         /// <param name="randomSeed">Optional random seed</param>
-        /// <param name="firstSize">The size of the first table (expressed as a value between 0 and 1)</param>
+        /// <param name="trainingPercentage">The size of the training table (expressed as a value between 0 and 1)</param>
         /// <param name="shuffle">True to shuffle the table before splitting</param>
         /// <param name="output1">Optional stream to write the first output table to</param>
         /// <param name="output2">Optional stream to write the second output table to</param>
-        (IDataTable Training, IDataTable Test) Split(int? randomSeed = null, double firstSize = 0.8, bool shuffle = true, Stream output1 = null, Stream output2 = null);
+        (IDataTable Training, IDataTable Test) Split(int? randomSeed = null, double trainingPercentage = 0.8, bool shuffle = true, Stream output1 = null, Stream output2 = null);
 
         /// <summary>
         /// Creates a normalised version of the current table
@@ -334,19 +334,19 @@ namespace BrightWire
         /// <param name="normalisationType">The type of normalisation</param>
         DataTableNormalisation GetNormalisationModel(NormalisationType normalisationType);
 
-        /// <summary>
-        /// Converts the rows to vectors
-        /// </summary>
-        /// <param name="lap">Linear algebra provider</param>
-        /// <param name="columns">Optional list of columns to extract (or null for all rows)</param>
-        IReadOnlyList<IVector> GetNumericRows(ILinearAlgebraProvider lap, IEnumerable<int> columns = null);
+        ///// <summary>
+        ///// Converts the rows to vectors
+        ///// </summary>
+        ///// <param name="lap">Linear algebra provider</param>
+        ///// <param name="columns">Optional list of columns to extract (or null for all rows)</param>
+        //IReadOnlyList<IVector> GetNumericRows(ILinearAlgebraProvider lap, IEnumerable<int> columns = null);
 
-        /// <summary>
-        /// Converts the columns to vectors
-        /// </summary>
-        /// <param name="lap">Linear algebra provider</param>
-        /// <param name="columns">Optional list of columns to extract (or null for all columns)</param>
-        IReadOnlyList<IVector> GetNumericColumns(ILinearAlgebraProvider lap, IEnumerable<int> columns = null);
+        ///// <summary>
+        ///// Converts the columns to vectors
+        ///// </summary>
+        ///// <param name="lap">Linear algebra provider</param>
+        ///// <param name="columns">Optional list of columns to extract (or null for all columns)</param>
+        //IReadOnlyList<IVector> GetNumericColumns(ILinearAlgebraProvider lap, IEnumerable<int> columns = null);
 
         /// <summary>
         /// Gets a column from the table
@@ -630,15 +630,14 @@ namespace BrightWire
         IRow Add(params object[] data);
 
         /// <summary>
-        /// Creates a new data table
+        /// Creates the new data table
         /// </summary>
-        /// <param name="output">Optional stream to write the data table to</param>
         /// <returns></returns>
-        IDataTable Build(Stream output = null);
+        IDataTable Build();
 
         /// <summary>
-        /// Clears the current list of rows
+        /// Ensures all data has been written
         /// </summary>
-        void ClearRows();
+        void Flush();
     }
 }

@@ -16,7 +16,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
                 var es = errorSignal.GetMatrix();
-                using (var minusOne = context.LinearAlgebraProvider.Create(es.RowCount, es.ColumnCount, -1f))
+                using (var minusOne = context.LinearAlgebraProvider.CreateMatrix(es.RowCount, es.ColumnCount, -1f))
                     return minusOne.PointwiseMultiply(es).ToGraphData();
             }
         }
@@ -28,7 +28,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
         public override void ExecuteForward(IContext context)
         {
             var input = context.Data.GetMatrix();
-            using (var ones = context.LinearAlgebraProvider.Create(input.RowCount, input.ColumnCount, 1f)) {
+            using (var ones = context.LinearAlgebraProvider.CreateMatrix(input.RowCount, input.ColumnCount, 1f)) {
                 var output = ones.Subtract(input);
                 _AddNextGraphAction(context, new MatrixGraphData(output), () => new Backpropagation(this));
             }

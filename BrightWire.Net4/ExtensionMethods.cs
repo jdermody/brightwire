@@ -1,7 +1,14 @@
-﻿using BrightWire.ExecutionGraph;
+﻿using BrightWire.Bayesian.Training;
+using BrightWire.ExecutionGraph;
 using BrightWire.ExecutionGraph.Helper;
 using BrightWire.Helper;
+using BrightWire.InstanceBased.Trainer;
+using BrightWire.Linear.Training;
 using BrightWire.Models;
+using BrightWire.Models.Bayesian;
+using BrightWire.Models.InstanceBased;
+using BrightWire.TreeBased.Training;
+using BrightWire.Unsupervised;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,7 +21,7 @@ namespace BrightWire
     /// <summary>
     /// Static extension methods
     /// </summary>
-    public static class ExtensionMethods
+    public static partial class ExtensionMethods
     {
         /// <summary>
         /// Shuffles the enumerable
@@ -70,183 +77,6 @@ namespace BrightWire
                 .Select(i => list[rnd.Next(0, list.Count)])
                 .ToList()
             ;
-        }
-
-        /// <summary>
-        /// Returns the underlying .net type associated with the column type
-        /// </summary>
-        /// <param name="type">The column type</param>
-        public static Type GetColumnType(this ColumnType type)
-        {
-            switch (type) {
-                case ColumnType.Boolean:
-                    return typeof(bool);
-
-                case ColumnType.Byte:
-                    return typeof(byte);
-
-                case ColumnType.Date:
-                    return typeof(DateTime);
-
-                case ColumnType.Double:
-                    return typeof(double);
-
-                case ColumnType.Float:
-                    return typeof(float);
-
-                case ColumnType.Int:
-                    return typeof(int);
-
-                case ColumnType.Long:
-                    return typeof(long);
-
-                case ColumnType.Null:
-                    return null;
-
-                case ColumnType.String:
-                    return typeof(string);
-
-                case ColumnType.IndexList:
-                    return typeof(IndexList);
-
-                case ColumnType.WeightedIndexList:
-                    return typeof(WeightedIndexList);
-
-                case ColumnType.Vector:
-                    return typeof(FloatVector);
-
-                case ColumnType.Matrix:
-                    return typeof(FloatMatrix);
-
-                case ColumnType.Tensor:
-                    return typeof(FloatTensor);
-
-                default:
-                    throw new NotImplementedException();
-            }
-        }
-
-        /// <summary>
-        /// Random projections allow you to reduce the dimensions of a matrix while still preserving significant information
-        /// </summary>
-        /// <param name="lap">Linear algebra provider</param>
-        /// <param name="fixedSize">The vector size to reduce from</param>
-        /// <param name="reducedSize">The vector size to reduce to</param>
-        /// <param name="s"></param>
-        public static IRandomProjection CreateRandomProjection(this ILinearAlgebraProvider lap, int fixedSize, int reducedSize, int s = 3)
-        {
-            return new RandomProjection(lap, fixedSize, reducedSize, s);
-        }
-
-        //public static IMatrix CreateMatrix(this ILinearAlgebraProvider lap, IReadOnlyList<float> vector, int width)
-        //{
-        //    var height = vector.Count / width;
-        //    return lap.Create(width, height, (i, j) => vector[(i * width) + j]);
-        //}
-
-        public static I3DTensor ConvertToTensor(this IVector vector, ILinearAlgebraProvider lap, int rows, int columns, int depth)
-        {
-            if (depth > 1) {
-                var matrixList = new List<IMatrix>();
-                var slice = vector.Split(depth);
-                foreach (var part in slice)
-                    matrixList.Add(part.ConvertInPlaceToMatrix(rows, columns));
-                var ret = lap.CreateTensor(matrixList);
-                foreach (var item in matrixList)
-                    item.Dispose();
-                return ret;
-            } else {
-                var matrix = vector.ConvertInPlaceToMatrix(rows, columns);
-                return lap.CreateTensor(new[] { matrix });
-            }
-        }
-
-        public static IGraphData ToGraphData(this IMatrix matrix)
-        {
-            return new MatrixGraphData(matrix);
-        }
-
-        public static IGraphData ToGraphData(this I3DTensor tensor)
-        {
-            return new TensorGraphData(tensor);
-        }
-
-        public static IGraphData ToGraphData(this IReadOnlyList<IMatrix> matrixList, ILinearAlgebraProvider lap)
-        {
-            if (matrixList.Count == 1)
-                return matrixList[0].ToGraphData();
-            else if (matrixList.Count > 1)
-                return lap.CreateTensor(matrixList).ToGraphData();
-            return null;
-        }
-
-        public static IReadOnlyList<IMatrix> Decompose(this IGraphData data)
-        {
-            var ret = new List<IMatrix>();
-            if (data.DataType == GraphDataType.Matrix)
-                ret.Add(data.GetMatrix());
-            else {
-                var tensor = data.GetTensor();
-                for (var i = 0; i < tensor.Depth; i++)
-                    ret.Add(tensor.GetDepthSlice(i));
-            }
-            return ret;
-        }
-
-        public static IGraphData ToGraphData(this IContext context, IEnumerable<IMatrix> matrixList)
-        {
-            return matrixList.ToList().ToGraphData(context.LinearAlgebraProvider);
-        }
-
-        public static Models.ExecutionGraph GetGraph(this INode input, string name = null)
-        {
-            var connectedTo = new List<Models.ExecutionGraph.Node>();
-            var wireList = new List<Models.ExecutionGraph.Wire>();
-            var data = input.SerialiseTo(connectedTo, wireList);
-
-            return new Models.ExecutionGraph {
-                Name = name,
-                InputNode = data,
-                OtherNodes = connectedTo.ToArray(),
-                Wires = wireList.ToArray()
-            };
-        }
-
-        public static INode CreateFrom(this GraphFactory factory, Models.ExecutionGraph graph)
-        {
-            // create the input node
-            var nodeTable = new Dictionary<string, INode>();
-            var ret = factory.Create(graph.InputNode);
-            nodeTable.Add(ret.Id, ret);
-
-            // create the other nodes
-            foreach (var node in graph.OtherNodes) {
-                var n = factory.Create(node);
-                if (!nodeTable.ContainsKey(n.Id))
-                    nodeTable.Add(n.Id, n);
-            }
-
-            // create the wires between nodes
-            foreach (var wire in graph.Wires) {
-                var from = nodeTable[wire.FromId];
-                var to = nodeTable[wire.ToId];
-                from.Output.Add(new WireToNode(to, wire.InputChannel));
-            }
-            return ret;
-        }
-
-        internal static void Write(this BinaryWriter writer, IGradientDescentOptimisation optimisation)
-        {
-            writer.Write(optimisation.GetType().FullName);
-            optimisation.WriteTo(writer);
-        }
-
-        internal static IGradientDescentOptimisation CreateGradientDescentOptimisation(this GraphFactory factory, BinaryReader reader)
-        {
-            var updaterType = Type.GetType(reader.ReadString());
-            var ret = (IGradientDescentOptimisation)FormatterServices.GetUninitializedObject(updaterType);
-            ret.ReadFrom(factory, reader);
-            return ret;
         }
     }
 }

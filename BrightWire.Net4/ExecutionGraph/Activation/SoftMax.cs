@@ -29,7 +29,7 @@ namespace BrightWire.ExecutionGraph.Activation
                             rowList.Add(sm.ConvertInPlaceToVector());
                         }
                     }
-                    var ret = context.LinearAlgebraProvider.Create(rowList);
+                    var ret = context.LinearAlgebraProvider.CreateMatrix(rowList);
                     foreach (var item in rowList)
                         item.Dispose();
                     //context.LearningContext.Log("softmax-backpropagation", channel, _source.GetHashCode(), errorSignal, ret);
@@ -61,7 +61,7 @@ namespace BrightWire.ExecutionGraph.Activation
                         rowList.Add(row.Softmax());
                 }
                 output.Add(rowList);
-                matrixList.Add(context.LinearAlgebraProvider.Create(rowList));
+                matrixList.Add(context.LinearAlgebraProvider.CreateMatrix(rowList));
             }
             
             _AddNextGraphAction(context, context.ToGraphData(matrixList), () => new Backpropagation(this, output));

@@ -7,7 +7,7 @@ using System.Text;
 
 namespace BrightWire.TabularData.Helper
 {
-    internal class DataTableWriter : IRowProcessor
+    internal class DataTableWriter : IRowProcessor, IDataTableBuilder
     {
         readonly List<long> _index = new List<long>();
         readonly DataTableBuilder _dataTableBuilder;
@@ -29,6 +29,8 @@ namespace BrightWire.TabularData.Helper
         public IReadOnlyList<DataTableBuilder.Column> Columns { get { return _dataTableBuilder.Columns2; } }
         public IReadOnlyList<long> Index { get { return _index; } }
         public int RowCount { get { return _rowCount; } }
+        IReadOnlyList<IColumn> IDataTableBuilder.Columns => _dataTableBuilder.Columns;
+        int IDataTableBuilder.ColumnCount => _dataTableBuilder.ColumnCount;
 
         public void Flush()
         {
@@ -50,17 +52,18 @@ namespace BrightWire.TabularData.Helper
             _dataTableBuilder.AddColumn(type, name, isTarget);
         }
 
-        public void AddRow(IRow row)
+        public IRow AddRow(IRow row)
         {
-            _dataTableBuilder.AddRow(row);
+            var ret = _dataTableBuilder.AddRow(row);
             ++_rowCount;
             if ((_rowCount % DataTable.BLOCK_SIZE) == 0)
                 _Write();
+            return ret;
         }
 
-        public void AddRow(IReadOnlyList<object> data)
+        public IRow AddRow(IReadOnlyList<object> data)
         {
-            AddRow(_dataTableBuilder.CreateRow(data));
+            return AddRow(_dataTableBuilder.CreateRow(data));
         }
 
         void _Write()
@@ -80,6 +83,21 @@ namespace BrightWire.TabularData.Helper
         {
             AddRow(row);
             return true;
+        }
+
+        IColumn IDataTableBuilder.AddColumn(ColumnType column, string name, bool isTarget)
+        {
+            return _dataTableBuilder.AddColumn(column, name, isTarget);
+        }
+
+        IRow IDataTableBuilder.Add(params object[] data)
+        {
+            return AddRow(data);
+        }
+
+        IDataTable IDataTableBuilder.Build()
+        {
+            return GetDataTable();
         }
     }
 }

@@ -28,7 +28,6 @@ namespace BrightWire.ExecutionGraph.Action
         public IGraphData Execute(IGraphData input, IContext context)
         {
             var output = input.GetMatrix();
-            context.Output = output;
             if (context.IsTraining) {
                 var gradient = _errorMetric.CalculateGradient(output, context.BatchSequence.Target);
                 context.LearningContext?.Log("backprogation-error", gradient);

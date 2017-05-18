@@ -15,7 +15,7 @@ namespace BrightWire.ExecutionGraph.Engine
         readonly IExecutionContext _executionContext;
         readonly ILinearAlgebraProvider _lap;
         readonly IDataSource _dataSource;
-        readonly List<TrainingEngineContext> _executionResults = new List<TrainingEngineContext>();
+        readonly List<(TrainingEngineContext Context, IMatrix Output)> _executionResults = new List<(TrainingEngineContext, IMatrix)>();
         readonly ILearningContext _learningContext;
         readonly INode _input;
         readonly bool _isStochastic;
@@ -45,30 +45,37 @@ namespace BrightWire.ExecutionGraph.Engine
 
             var ret = new List<ExecutionResult>();
             foreach (var item in _executionResults) {
-                ret.Add(new ExecutionResult(item.BatchSequence, item.Output.AsIndexable().Rows.ToList()));
+                ret.Add(new ExecutionResult(item.Context.BatchSequence, item.Output.AsIndexable().Rows.ToList()));
             }
 
             _executionResults.Clear();
             return ret;
         }
 
-        public double Train()
+        public double Train(Action<float> batchCompleteCallback = null)
         {
             _learningContext.StartEpoch();
             var provider = new MiniBatchProvider(_dataSource, _isStochastic);
             _executionContext.Add(provider.GetMiniBatches(_learningContext.BatchSize, batch => _Train(_learningContext, batch)));
 
             IGraphOperation operation;
+            float operationCount = _executionContext.RemainingOperationCount;
+            float index = 0f;
             while ((operation = _executionContext.GetNextOperation()) != null) {
                 _lap.PushLayer();
                 operation.Execute();
                 _learningContext.ApplyUpdates();
                 _lap.PopLayer();
+
+                if(batchCompleteCallback != null) {
+                    var percentage = (++index) / operationCount;
+                    batchCompleteCallback(percentage);
+                }
             }
 
             double ret = 0, count = 0;
             foreach (var item in _executionResults) {
-                ret += item.TrainingError;
+                ret += item.Context.TrainingError;
                 ++count;
             }
             if (count > 0)
@@ -111,7 +118,7 @@ namespace BrightWire.ExecutionGraph.Engine
                 context.ExecuteNext();
 
             _dataSource.OnBatchProcessed(context);
-            _executionResults.Add(context);
+            _executionResults.Add((context, context.Data.GetMatrix()));
         }
 
         public bool Test(IDataSource testDataSource, IErrorMetric errorMetric, int batchSize = 128)
@@ -134,23 +141,29 @@ namespace BrightWire.ExecutionGraph.Engine
             } else
                 _lastTestError = testError;
 
-            var format = isPercentage
-                ? "Epoch: {0}; t-error: {1:N4} [{2:N4}]; time: {3:N2}s; score: {4:P}"
-                : "Epoch: {0}; t-error: {1:N4} [{2:N4}]; time: {3:N2}s; score: {4:N4}"
-            ;
-            var msg = String.Format(format,
-                _learningContext.CurrentEpoch,
-                _lastTrainingError ?? 0,
-                _trainingErrorDelta,
-                _learningContext.EpochSeconds,
-                testError
-            );
-            if (flag)
-                msg += "!!";
-            else
-                ++_noImprovementCount;
-            Console.WriteLine(msg);
-            return flag;
+            if (_learningContext.CurrentEpoch == 0) {
+                var score = String.Format(isPercentage ? "{0:P}" : "{0:N4}", testError);
+                Console.WriteLine($"Initial test score: {score}");
+                return false;
+            } else {
+                var format = isPercentage
+                    ? "\rEpoch: {0} - training-error: {1:N4} [{2:N4}]; time: {3:N2}s; test-score: {4:P}"
+                    : "\rEpoch: {0} - training-error: {1:N4} [{2:N4}]; time: {3:N2}s; test-score: {4:N4}"
+                ;
+                var msg = String.Format(format,
+                    _learningContext.CurrentEpoch,
+                    _lastTrainingError ?? 0,
+                    _trainingErrorDelta,
+                    _learningContext.EpochSeconds,
+                    testError
+                );
+                if (flag)
+                    msg += "!!";
+                else
+                    ++_noImprovementCount;
+                Console.WriteLine(msg);
+                return flag;
+            }
         }
     }
 }

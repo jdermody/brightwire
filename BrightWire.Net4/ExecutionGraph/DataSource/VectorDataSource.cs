@@ -32,7 +32,7 @@ namespace BrightWire.ExecutionGraph.DataSource
         public IMiniBatch Get(IReadOnlyList<int> rows)
         {
             var data = rows.Select(i => _data[i]).ToList();
-            var input = _lap.Create(data.Count, InputSize, (x, y) => data[x].Data[y]);
+            var input = _lap.CreateMatrix(data.Count, InputSize, (x, y) => data[x].Data[y]);
             return new MiniBatch(rows, this, input, null);
         }
 

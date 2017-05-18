@@ -13,36 +13,17 @@ namespace BrightWire
     public interface ILinearAlgebraProvider : IDisposable
     {
         /// <summary>
-        /// Creates a vector based on an array
-        /// </summary>
-        /// <param name="data">The initial values in the vector</param>
-        IVector Create(float[] data);
-
-        /// <summary>
         /// Creates a vector based on an enumerable of floats
         /// </summary>
         /// <param name="data">The initial values in the vector</param>
-        IVector Create(IEnumerable<float> data);
-
-        /// <summary>
-        /// Creates a vector
-        /// </summary>
-        /// <param name="length">Size of the vector</param>
-        /// <param name="value">Value to initialise each element</param>
-        IVector Create(int length, float value);
+        IVector CreateVector(IEnumerable<float> data);
 
         /// <summary>
         /// Creates a vector
         /// </summary>
         /// <param name="length">Size of the vector</param>
         /// <param name="init">Callback to initialise each element of the vector</param>
-        IVector Create(int length, Func<int, float> init);
-
-        /// <summary>
-        /// Creates a vector
-        /// </summary>
-        /// <param name="vector">The vector to use as the initial values</param>
-        IVector Create(IIndexableVector vector);
+        IVector CreateVector(int length, Func<int, float> init);
 
         /// <summary>
         /// Creates a matrix
@@ -50,100 +31,13 @@ namespace BrightWire
         /// <param name="rows">The number of rows</param>
         /// <param name="columns">The number of columns</param>
         /// <param name="init">Callback to initialise each element of the matrix</param>
-        IMatrix Create(int rows, int columns, Func<int, int, float> init);
-
-        /// <summary>
-        /// Creates a matrix
-        /// </summary>
-        /// <param name="rows">The number of rows</param>
-        /// <param name="columns">The number of columns</param>
-        /// <param name="value">Value to initialise element</param>
-        IMatrix Create(int rows, int columns, float value);
+        IMatrix CreateMatrix(int rows, int columns, Func<int, int, float> init);
 
         /// <summary>
         /// Creates a matrix from a list of vectors
         /// </summary>
         /// <param name="rows">The list of rows in the new matrix</param>
-        IMatrix Create(IReadOnlyList<IVector> rows);
-
-        /// <summary>
-        /// Creates a matrix from a list of vectors
-        /// </summary>
-        /// <param name="rows">The list of rows in the new matrix</param>
-        /// <returns></returns>
-        IMatrix Create(IReadOnlyList<FloatVector> rows);
-
-        /// <summary>
-        /// Creates a matrix from a list of vectors
-        /// </summary>
-        /// <param name="vectorData">The list of rows in the new matrix</param>
-        IMatrix Create(IReadOnlyList<IIndexableVector> vectorData);
-
-        /// <summary>
-        /// Creates a matrix
-        /// </summary>
-        /// <param name="matrix">The matrix to use as the initial values</param>
-        IMatrix Create(IIndexableMatrix matrix);
-
-        /// <summary>
-        /// Creates a matrix
-        /// </summary>
-        /// <param name="data">The serialised representation of the matrix</param>
-        IMatrix CreateMatrix(FloatMatrix data);
-
-        /// <summary>
-        /// Creates a vector
-        /// </summary>
-        /// <param name="data">The serialised representation of the vector</param>
-        IVector CreateVector(FloatVector data);
-
-        /// <summary>
-        /// Creates an indexable vector
-        /// </summary>
-        /// <param name="length">Size of the vector</param>
-        IIndexableVector CreateIndexable(int length);
-
-        /// <summary>
-        /// Creates an indexable vector
-        /// </summary>
-        /// <param name="length">Size of the vector</param>
-        /// <param name="init">Callback to initialise each element of the vector</param>
-        IIndexableVector CreateIndexable(int length, Func<int, float> init);
-
-        /// <summary>
-        /// Creates an indexable matrix (initialised to zero)
-        /// </summary>
-        /// <param name="rows">The number of rows</param>
-        /// <param name="columns">The number of columns</param>
-        IIndexableMatrix CreateIndexable(int rows, int columns);
-
-        /// <summary>
-        /// Creates an indexable matrix
-        /// </summary>
-        /// <param name="rows">The number of rows</param>
-        /// <param name="columns">The number of columns</param>
-        /// <param name="init">Callback to initialise each element of the matrix</param>
-        IIndexableMatrix CreateIndexable(int rows, int columns, Func<int, int, float> init);
-
-        /// <summary>
-        /// Creates an indexable matrix
-        /// </summary>
-        /// <param name="rows">The number of rows</param>
-        /// <param name="columns">The number of columns</param>
-        /// <param name="value">Value to initialise each element</param>
-        IIndexableMatrix CreateIndexable(int rows, int columns, float value);
-
-        /// <summary>
-        /// Creates an identity matrix
-        /// </summary>
-        /// <param name="size">The size of the identity matrix</param>
-        IMatrix CreateIdentity(int size);
-
-        /// <summary>
-        /// Creates a diagonal matrix
-        /// </summary>
-        /// <param name="values">The diagonal values</param>
-        IMatrix CreateDiagonal(IReadOnlyList<float> values);
+        IMatrix CreateMatrix(IReadOnlyList<IVector> rows);
 
         /// <summary>
         /// Creates a 3D tensor
@@ -151,19 +45,6 @@ namespace BrightWire
         /// <param name="data">The list of matrices that form the tensor</param>
         /// <returns></returns>
         I3DTensor CreateTensor(IReadOnlyList<IMatrix> data);
-
-        /// <summary>
-        /// Creates a 3D tensor
-        /// </summary>
-        /// <param name="tensor">An indexable 3D tensor to use as a source</param>
-        I3DTensor CreateTensor(IIndexable3DTensor tensor);
-
-        /// <summary>
-        /// Creates a 3D tensor
-        /// </summary>
-        /// <param name="tensor">The serialised representation of the 3D tensor</param>
-        /// <returns></returns>
-        I3DTensor CreateTensor(FloatTensor tensor);
 
         /// <summary>
         /// Creates a save point in the allocation history
@@ -175,7 +56,15 @@ namespace BrightWire
         /// </summary>
         void PopLayer();
 
+        /// <summary>
+        /// Underlying setting for stochastic vs deterministic behaviour across BrightWire
+        /// </summary>
         bool IsStochastic { get; }
+
+        /// <summary>
+        /// True if the provider uses the GPU
+        /// </summary>
+        bool IsGpu { get; }
     }
 
     /// <summary>
@@ -1005,6 +894,6 @@ namespace BrightWire
         /// <summary>
         /// Gets a list of the indexable matrices
         /// </summary>
-        IReadOnlyList<IIndexableMatrix> Matrices { get; }
+        IReadOnlyList<IIndexableMatrix> Matrix { get; }
     }
 }
