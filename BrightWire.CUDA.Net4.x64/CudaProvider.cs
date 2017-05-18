@@ -747,7 +747,8 @@ namespace BrightWire.LinearAlgebra
 
         public IVector CreateVector(IEnumerable<float> data)
         {
-            return CreateVector(data.ToArray());
+            var list = data.ToList();
+            return CreateVector(list.Count, i => list[i]);
         }
 
         public IVector CreateVector(int length, Func<int, float> init)

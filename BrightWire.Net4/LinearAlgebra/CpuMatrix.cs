@@ -167,10 +167,10 @@ namespace BrightWire.LinearAlgebra
             _matrix.MapIndexedInplace((i, j, v) => (v * coefficient1) + (other[i, j] * coefficient2));
         }
 
-        public void AddInPlace(float delta)
-        {
-            _matrix.MapInplace(v => v + delta);
-        }
+        //public void AddInPlace(float delta)
+        //{
+        //    _matrix.MapInplace(v => v + delta);
+        //}
 
         public void SubtractInPlace(IMatrix matrix, float coefficient1 = 1.0f, float coefficient2 = 1.0f)
         {

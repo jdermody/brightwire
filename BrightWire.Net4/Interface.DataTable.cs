@@ -117,6 +117,11 @@ namespace BrightWire
     public interface IRow
     {
         /// <summary>
+        /// The index of this row within the data table
+        /// </summary>
+        int Index { get; }
+
+        /// <summary>
         /// Gets the raw data from the row
         /// </summary>
         /// <returns></returns>

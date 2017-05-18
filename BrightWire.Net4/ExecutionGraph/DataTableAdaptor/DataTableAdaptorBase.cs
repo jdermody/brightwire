@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using BrightWire.Models;
 using BrightWire.ExecutionGraph.Helper;
 
-namespace BrightWire.ExecutionGraph.Input
+namespace BrightWire.ExecutionGraph.DataTableAdaptor
 {
     abstract class DataTableAdaptorBase : IDataSource
     {

@@ -24,6 +24,7 @@ namespace BrightWire
         public static void Train(this IGraphTrainingEngine engine, int numIterations, IDataSource testData, IErrorMetric errorMetric, Action<GraphModel> onImprovement = null)
         {
             engine.Test(testData, errorMetric);
+            Console.Write("\r({0:P}) ", 0f);
             for (var i = 0; i < numIterations; i++) {
                 engine.Train(percentage => Console.Write("\r({0:P}) ", percentage));
                 if (engine.Test(testData, errorMetric) && onImprovement != null) {

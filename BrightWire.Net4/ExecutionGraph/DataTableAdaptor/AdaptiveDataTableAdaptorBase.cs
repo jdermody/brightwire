@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BrightWire.ExecutionGraph.Input
+namespace BrightWire.ExecutionGraph.DataTableAdaptor
 {
     abstract class AdaptiveDataTableAdaptorBase : DataTableAdaptorBase, IAdaptiveDataSource
     {

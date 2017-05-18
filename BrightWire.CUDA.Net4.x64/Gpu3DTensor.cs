@@ -137,5 +137,26 @@ namespace BrightWire.LinearAlgebra
             // TODO: native CUDA implementation
             return _cuda.CreateTensor(AsIndexable().MaxPool(filterWidth, filterHeight, stride, indexPosList).AsIndexable());
         }
+
+        public (IMatrix WeightUpdate, IVector BiasUpdate) CalculateWeightUpdate(IMatrix im2Col)
+        {
+            // TODO: native CUDA implementation
+            var ret = AsIndexable().CalculateWeightUpdate(im2Col.AsIndexable());
+            return (_cuda.CreateMatrix(ret.WeightUpdate.AsIndexable()), _cuda.CreateVector(ret.BiasUpdate.AsIndexable()));
+        }
+
+        public I3DTensor CalculatePreviousError(IMatrix filterMatrix, int inputHeight, int inputWidth, int inputDepth, int padding, int filterHeight, int filterWidth, int stride)
+        {
+            return _cuda.CreateTensor(AsIndexable().CalculatePreviousError(
+                filterMatrix,
+                inputHeight,
+                inputWidth,
+                inputDepth,
+                padding,
+                filterHeight,
+                filterWidth,
+                stride
+            ).AsIndexable());
+        }
     }
 }

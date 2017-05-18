@@ -14,17 +14,18 @@ namespace BrightWire.TabularData.Helper
 
         class ProjectedRow : IRow
         {
+            readonly int _index;
             readonly IReadOnlyList<object> _data;
             readonly RowConverter _rowConverter;
 
-            public ProjectedRow(IReadOnlyList<object> data, RowConverter rowConverter)
+            public ProjectedRow(int index, IReadOnlyList<object> data, RowConverter rowConverter)
             {
                 _data = data;
                 _rowConverter = rowConverter;
             }
 
-            public IReadOnlyList<object> Data { get { return _data; } }
-
+            public IReadOnlyList<object> Data => _data;
+            public int Index => _index;
             public IHaveColumns Table => throw new NotImplementedException();
 
             public T GetField<T>(int index)
@@ -54,7 +55,7 @@ namespace BrightWire.TabularData.Helper
             var newRow = new List<object>();
             foreach (var item in _validColumn)
                 newRow.Add(data[item]);
-            return new ProjectedRow(newRow, _rowConverter);
+            return new ProjectedRow(row.Index, newRow, _rowConverter);
         }
 
         public bool Process(IRow row)

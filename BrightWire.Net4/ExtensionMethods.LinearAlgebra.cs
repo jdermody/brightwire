@@ -97,8 +97,6 @@ namespace BrightWire
                 foreach (var part in slice)
                     matrixList.Add(part.ConvertInPlaceToMatrix(rows, columns));
                 var ret = lap.CreateTensor(matrixList);
-                foreach (var item in matrixList)
-                    item.Dispose();
                 return ret;
             } else {
                 var matrix = vector.ConvertInPlaceToMatrix(rows, columns);

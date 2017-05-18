@@ -183,7 +183,7 @@ namespace BrightWire.TabularData
             }
         }
 
-        protected IRow _ReadDataTableRow(BinaryReader reader)
+        protected DataTableRow _ReadDataTableRow(BinaryReader reader)
         {
             object[] Read()
             {
@@ -215,6 +215,7 @@ namespace BrightWire.TabularData
                 int index = 0;
                 while (_stream.Position < _stream.Length) {
                     var row = _ReadDataTableRow(reader);
+                    row.Index = index;
                     if (!callback(row, index++))
                         break;
                 }
@@ -243,8 +244,11 @@ namespace BrightWire.TabularData
                     _SkipRow(reader);
 
                 // read the data
-                for (var i = 0; i < count && _stream.Position < _stream.Length; i++)
-                    ret.Add(_ReadDataTableRow(reader));
+                for (var i = 0; i < count && _stream.Position < _stream.Length; i++) {
+                    var row = _ReadDataTableRow(reader);
+                    row.Index = offset + i;
+                    ret.Add(row);
+                }
             }
             return ret;
         }
@@ -259,7 +263,9 @@ namespace BrightWire.TabularData
                 _stream.Seek(_index[block], SeekOrigin.Begin);
                 for (var i = 0; i < offset; i++)
                     _SkipRow(reader);
-                return _ReadDataTableRow(reader);
+                var ret = _ReadDataTableRow(reader);
+                ret.Index = rowIndex;
+                return ret;
             }
         }
 
@@ -289,6 +295,7 @@ namespace BrightWire.TabularData
                     for (int i = block.Key * BLOCK_SIZE, len = i + BLOCK_SIZE; i < len && _stream.Position < _stream.Length; i++) {
                         if (match.TryGetValue(i, out temp)) {
                             var row = _ReadDataTableRow(reader);
+                            row.Index = i;
                             for (var j = 0; j < temp; j++)
                                 ret.Add(row);
                         } else
@@ -447,7 +454,7 @@ namespace BrightWire.TabularData
         {
             get
             {
-                return GetRows(new[] { index }).FirstOrDefault();
+                return GetRow(index);
             }
         }
 

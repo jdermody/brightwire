@@ -8,7 +8,7 @@ using BrightWire.ExecutionGraph.Node.Input;
 using BrightWire.ExecutionGraph.Helper;
 using System.Diagnostics;
 
-namespace BrightWire.ExecutionGraph.Input
+namespace BrightWire.ExecutionGraph.DataTableAdaptor
 {
     class TensorBasedDataTableAdaptor : AdaptiveDataTableAdaptorBase
     {
@@ -44,7 +44,7 @@ namespace BrightWire.ExecutionGraph.Input
 
         public override IDataSource GetFor(IDataTable dataTable)
         {
-            return new TensorBasedDataTableAdaptor(_learningContext, _executionContext, _dataTable, _input, _inputSize, _outputSize);
+            return new TensorBasedDataTableAdaptor(_learningContext, _executionContext, dataTable, _input, _inputSize, _outputSize);
         }
 
         public override bool IsSequential => false;

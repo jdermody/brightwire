@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using BrightWire.Models;
 using System.Runtime.Serialization;
 using BrightWire.ExecutionGraph.Helper;
-using BrightWire.ExecutionGraph.Input;
 using BrightWire.Helper;
 
 namespace BrightWire.ExecutionGraph.Engine

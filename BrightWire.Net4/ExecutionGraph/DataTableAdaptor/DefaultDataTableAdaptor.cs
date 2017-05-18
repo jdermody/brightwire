@@ -4,13 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace BrightWire.ExecutionGraph.Input
+namespace BrightWire.ExecutionGraph.DataTableAdaptor
 {
-    class DataTableAdaptor : DataTableAdaptorBase
+    class DefaultDataTableAdaptor : DataTableAdaptorBase
     {
         readonly IDataTableVectoriser _vectoriser;
 
-        public DataTableAdaptor(ILinearAlgebraProvider lap, IDataTable dataTable, IDataTableVectoriser vectoriser = null)
+        public DefaultDataTableAdaptor(ILinearAlgebraProvider lap, IDataTable dataTable, IDataTableVectoriser vectoriser = null)
             : base(lap, dataTable)
         {
             _vectoriser = vectoriser ?? dataTable.GetVectoriser(true);
@@ -18,7 +18,7 @@ namespace BrightWire.ExecutionGraph.Input
 
         public override IDataSource GetFor(IDataTable dataTable)
         {
-            return new DataTableAdaptor(_lap, dataTable, _vectoriser);
+            return new DefaultDataTableAdaptor(_lap, dataTable, _vectoriser);
         }
 
         public override int InputSize => _vectoriser.InputSize;

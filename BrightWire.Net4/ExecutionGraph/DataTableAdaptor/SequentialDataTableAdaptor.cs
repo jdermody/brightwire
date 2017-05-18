@@ -4,7 +4,7 @@ using System.Text;
 using BrightWire.Models;
 using System.Linq;
 
-namespace BrightWire.ExecutionGraph.Input
+namespace BrightWire.ExecutionGraph.DataTableAdaptor
 {
     class SequentialDataTableAdaptor : DataTableAdaptorBase
     {

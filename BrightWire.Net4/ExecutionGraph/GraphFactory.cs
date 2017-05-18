@@ -1,10 +1,10 @@
 ﻿using BrightWire.Descriptor.GradientDescent;
 using BrightWire.ExecutionGraph.Activation;
 using BrightWire.ExecutionGraph.DataSource;
+using BrightWire.ExecutionGraph.DataTableAdaptor;
 using BrightWire.ExecutionGraph.Engine;
 using BrightWire.ExecutionGraph.GradientDescent;
 using BrightWire.ExecutionGraph.Helper;
-using BrightWire.ExecutionGraph.Input;
 using BrightWire.ExecutionGraph.Node.Gate;
 using BrightWire.ExecutionGraph.Node.Helper;
 using BrightWire.ExecutionGraph.Node.Input;
@@ -179,7 +179,7 @@ namespace BrightWire.ExecutionGraph
             }
             
             // default adapator
-            return new DataTableAdaptor(_lap, dataTable, vectoriser);
+            return new DefaultDataTableAdaptor(_lap, dataTable, vectoriser);
         }
 
         public IDataSource GetDataSource(IDataTable dataTable, ILearningContext learningContext, IExecutionContext executionContext, Action<WireBuilder> dataConversionBuilder)
