@@ -140,6 +140,8 @@
     <Compile Include="ExecutionGraph\DataTableAdaptor\TensorBasedDataTableAdaptor.cs" />
     <Compile Include="ExecutionGraph\DataTableAdaptor\VectorBasedDataTableAdaptor.cs" />
     <Compile Include="ExecutionGraph\Node\BackpropagationBase.cs" />
+    <Compile Include="ExecutionGraph\Node\Filter\DropConnect.cs" />
+    <Compile Include="ExecutionGraph\Node\Filter\DropOut.cs" />
     <Compile Include="ExecutionGraph\Node\Gate\AddGate.cs" />
     <Compile Include="ExecutionGraph\Node\Gate\JoinGate.cs" />
     <Compile Include="ExecutionGraph\Node\Gate\MultiGateBase.cs" />
@@ -161,6 +163,7 @@
     <Compile Include="ExecutionGraph\Node\Layer\ElmanJordan.cs" />
     <Compile Include="ExecutionGraph\Node\Layer\MaxPool.cs" />
     <Compile Include="ExecutionGraph\Node\Layer\SimpleRecurrent.cs" />
+    <Compile Include="ExecutionGraph\Node\Layer\TiedFeedForward.cs" />
     <Compile Include="ExecutionGraph\Node\NodeBase.cs" />
     <Compile Include="ExecutionGraph\WeightInitialisation\Constant.cs" />
     <Compile Include="ExecutionGraph\WeightInitialisation\Gaussian.cs" />

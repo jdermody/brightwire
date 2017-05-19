@@ -91,18 +91,17 @@ namespace UnitTests
         [TestMethod]
         public void TestIndexHydration()
         {
-            var builder = BrightWireProvider.CreateDataTableBuilder();
-            builder.AddColumn(ColumnType.Boolean, "target", true);
-            builder.AddColumn(ColumnType.Int, "val");
-            builder.AddColumn(ColumnType.String, "label");
-            for (var i = 0; i < 33000; i++)
-                builder.Add(i % 2 == 0, i, i.ToString());
-
             using (var dataStream = new MemoryStream())
             using (var indexStream = new MemoryStream()) {
+                var builder = BrightWireProvider.CreateDataTableBuilder(dataStream);
+                builder.AddColumn(ColumnType.Boolean, "target", true);
+                builder.AddColumn(ColumnType.Int, "val");
+                builder.AddColumn(ColumnType.String, "label");
+                for (var i = 0; i < 33000; i++)
+                    builder.Add(i % 2 == 0, i, i.ToString());
+
                 var table = builder.Build();
-                table.WriteTo(dataStream);
-                table.WriteIndexTo(indexStream);
+                builder.WriteIndexTo(indexStream);
 
                 dataStream.Seek(0, SeekOrigin.Begin);
                 indexStream.Seek(0, SeekOrigin.Begin);

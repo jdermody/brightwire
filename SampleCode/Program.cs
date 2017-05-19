@@ -81,7 +81,7 @@ namespace BrightWire.SampleCode
             //SentimentClassification(@"D:\data\sentiment labelled sentences\");
             //TextClustering(@"D:\data\[UCI] AAAI-14 Accepted Papers - Papers.csv", @"d:\temp\");
             //IntegerAddition();
-            IncomePrediction(@"d:\data\adult.data", @"d:\data\adult.test");
+            //IncomePrediction(@"d:\data\adult.data", @"d:\data\adult.test");
             //SequenceClassification();
             //SequenceClassification3();
             //SequenceClassification3();

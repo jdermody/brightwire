@@ -69,10 +69,12 @@
   <ItemGroup>
     <Compile Include="ClassificationSetTests.cs" />
     <Compile Include="ConnectionistTests.cs" />
-    <Compile Include="CudaLinearAlgebraTests.cs" />
+    <Compile Include="CudaVectorTests.cs" />
+    <Compile Include="CudaMatrixTests.cs" />
+    <Compile Include="CudaTensorTests.cs" />
     <Compile Include="DataTableTests.cs" />
     <Compile Include="DimensionalityReductionTests.cs" />
-    <Compile Include="DataProviderTests.cs" />
+    <Compile Include="DataSourceTests.cs" />
     <Compile Include="Helper\FloatingPointHelper.cs" />
     <Compile Include="InstanceBasedTests.cs" />
     <Compile Include="LinearTests.cs" />

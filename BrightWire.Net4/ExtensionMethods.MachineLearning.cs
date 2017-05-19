@@ -194,33 +194,17 @@ namespace BrightWire
             return DecisionTreeTrainer.Train(data, config);
         }
 
-        static void _IterateIndexList(IDataTable dataTable, int inputColumnIndex, Action<IndexList, string> callback)
-        {
-            var inputColumn = dataTable.Columns[inputColumnIndex];
-            var targetColumnIndex = dataTable.TargetColumnIndex;
-            var outputColumn = dataTable.Columns[targetColumnIndex];
-            if (inputColumn?.Type != ColumnType.IndexList)
-                throw new ArgumentException("Input column is not an IndexList");
-            if (outputColumn == null || outputColumn != inputColumn)
-                throw new ArgumentException("Output column is invalid");
-
-            dataTable.ForEach(row => {
-                var input = row.GetField<IndexList>(inputColumnIndex);
-                var output = row.GetField<string>(targetColumnIndex);
-                callback(input, output);
-            });
-        }
-
         /// <summary>
         /// Multinomial naive bayes preserves the count of each feature within the model. Useful for long documents.
         /// </summary>
         /// <param name="dataTable">The training data table</param>
         /// <param name="inputColumnIndex">The column index of the IndexList to classify</param>
         /// <returns>A model that can be used for classification</returns>
-        public static MultinomialNaiveBayes TrainMultinomialNaiveBayes(this IDataTable dataTable, int inputColumnIndex = 0)
+        public static MultinomialNaiveBayes TrainMultinomialNaiveBayes(this IReadOnlyList<(string Classification, IndexList Data)> data)
         {
             var trainer = new MultinomialNaiveBayesTrainer();
-            _IterateIndexList(dataTable, inputColumnIndex, (input, output) => trainer.AddClassification(output, input.Index));
+            foreach (var item in data)
+                trainer.AddClassification(item.Classification, item.Data);
             return trainer.Train();
         }
 
@@ -230,10 +214,11 @@ namespace BrightWire
         /// <param name="dataTable">The training data table</param>
         /// <param name="inputColumnIndex">The column index of the IndexList to classify</param>
         /// <returns>A model that can be used for classification</returns>
-        public static BernoulliNaiveBayes TrainBernoulliNaiveBayes(this IDataTable dataTable, int inputColumnIndex = 0)
+        public static BernoulliNaiveBayes TrainBernoulliNaiveBayes(this IReadOnlyList<(string Classification, IndexList Data)> data)
         {
             var trainer = new BernoulliNaiveBayesTrainer();
-            _IterateIndexList(dataTable, inputColumnIndex, (input, output) => trainer.AddClassification(output, input.Index));
+            foreach (var item in data)
+                trainer.AddClassification(item.Classification, item.Data);
             return trainer.Train();
         }
 

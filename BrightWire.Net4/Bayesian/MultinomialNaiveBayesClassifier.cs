@@ -8,7 +8,7 @@ using System.Text;
 
 namespace BrightWire.Bayesian
 {
-    internal class MultinomialNaiveBayesClassifier : IRowClassifier
+    internal class MultinomialNaiveBayesClassifier : IIndexListClassifier
     {
         class Classification
         {
@@ -54,11 +54,9 @@ namespace BrightWire.Bayesian
         /// <summary>
         ///  Naive bayes values should only be used for ranking against each other
         /// </summary>
-        /// <param name="featureIndexList"></param>
-        /// <returns></returns>
-        public IReadOnlyList<(string Classification, float Weight)> GetWeightedClassifications(IReadOnlyList<uint> featureIndexList)
+        public IReadOnlyList<(string Label, float Weight)> Classify(IndexList indexList)
         {
-            return _Classify(featureIndexList)
+            return _Classify(indexList.Index)
                 .OrderByDescending(kv => kv.Item2)
                 .Take(1)
                 .Select((d, i) => (d.Item1, 1f))
@@ -70,7 +68,7 @@ namespace BrightWire.Bayesian
         {
             Debug.Assert(row.Table.Columns.FirstOrDefault()?.Type == ColumnType.IndexList);
             var indexList = row.GetField<IndexList>(0);
-            return GetWeightedClassifications(indexList.Index);
+            return Classify(indexList);
         }
     }
 }

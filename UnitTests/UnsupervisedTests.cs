@@ -32,7 +32,7 @@ namespace UnitTests
         {
             var stringTableBuilder = new StringTableBuilder();
             var data = NaiveBayesTests.GetSimpleChineseSet(stringTableBuilder)
-                .ConvertToSparseVectors(false)
+                .ConvertToWeightedIndexList(false)
                 .Vectorise()
                 .ToDictionary(d => _lap.CreateVector(d.Data), d => d.Classification)
             ;
@@ -52,7 +52,7 @@ namespace UnitTests
         {
             var stringTableBuilder = new StringTableBuilder();
             var data = NaiveBayesTests.GetSimpleChineseSet(stringTableBuilder)
-                .ConvertToSparseVectors(false)
+                .ConvertToWeightedIndexList(false)
                 .Vectorise()
                 .ToDictionary(d => _lap.CreateVector(d.Data), d => d.Classification)
             ;

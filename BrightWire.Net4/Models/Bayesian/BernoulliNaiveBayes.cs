@@ -90,7 +90,7 @@ namespace BrightWire.Models.Bayesian
         /// Creates a classifier from this model
         /// </summary>
         /// <returns></returns>
-        public IRowClassifier CreateClassifier()
+        public IIndexListClassifier CreateClassifier()
         {
             return new BernoulliNaiveBayesClassifier(this);
         }

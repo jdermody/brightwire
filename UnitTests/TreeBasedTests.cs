@@ -17,7 +17,11 @@ namespace UnitTests
         public void TestDecisionTree()
         {
             var stringTableBuilder = new StringTableBuilder();
-            var data = NaiveBayesTests.GetSimpleChineseSet(stringTableBuilder).ConvertToSparseVectors(false).ConvertToTable();
+            var data = NaiveBayesTests.GetSimpleChineseSet(stringTableBuilder)
+                .ConvertToWeightedIndexList(false)
+                .Vectorise()
+                .ConvertToTable(false)
+            ;
             var model = data.TrainDecisionTree();
             var classifier = model.CreateClassifier();
             var testRows = data.GetRows(new[] { 0, data.RowCount - 1 });
@@ -29,7 +33,7 @@ namespace UnitTests
         public void TestRandomForest()
         {
             var stringTableBuilder = new StringTableBuilder();
-            var data = NaiveBayesTests.GetSimpleChineseSet(stringTableBuilder).ConvertToSparseVectors(false).ConvertToTable();
+            var data = NaiveBayesTests.GetSimpleChineseSet(stringTableBuilder).ConvertToWeightedIndexList(false).ConvertToTable();
             var model = data.TrainRandomForest();
             var classifier = model.CreateClassifier();
             var testRows = data.GetRows(new[] { 0, data.RowCount - 1 });

@@ -1,4 +1,5 @@
-﻿using BrightWire.Models.Bayesian;
+﻿using BrightWire.Models;
+using BrightWire.Models.Bayesian;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,17 +11,17 @@ namespace BrightWire.Bayesian.Training
     internal class BernoulliNaiveBayesTrainer
     {
         readonly HashSet<uint> _vocabulary = new HashSet<uint>();
-        readonly Dictionary<string, List<IReadOnlyList<uint>>> _documentClass = new Dictionary<string, List<IReadOnlyList<uint>>>();
+        readonly Dictionary<string, List<IndexList>> _documentClass = new Dictionary<string, List<IndexList>>();
 
-        public void AddClassification(string documentClass, IReadOnlyList<uint> stringIndexList)
+        public void AddClassification(string documentClass, IndexList indexList)
         {
-            List<IReadOnlyList<uint>> temp;
+            List<IndexList> temp;
             if (!_documentClass.TryGetValue(documentClass, out temp))
-                _documentClass.Add(documentClass, temp = new List<IReadOnlyList<uint>>());
+                _documentClass.Add(documentClass, temp = new List<IndexList>());
 
-            foreach (var item in stringIndexList)
+            foreach (var item in indexList.Index)
                 _vocabulary.Add(item);
-            temp.Add(stringIndexList);
+            temp.Add(indexList);
         }
 
         public BernoulliNaiveBayes Train()
@@ -33,7 +34,7 @@ namespace BrightWire.Bayesian.Training
             foreach (var item in _documentClass) {
                 var docTerm = new Dictionary<uint, HashSet<int>>();
                 for (int i = 0; i < item.Value.Count; i++) {
-                    foreach (var word in item.Value[i]) {
+                    foreach (var word in item.Value[i].Index) {
                         if (!docTerm.TryGetValue(word, out temp))
                             docTerm.Add(word, temp = new HashSet<int>());
                         temp.Add(i);

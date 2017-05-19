@@ -46,6 +46,7 @@ namespace BrightWire.Helper
             public void Add(object value)
             {
                 if (value != null) {
+                    // TODO: validate the type against ColumnType?
                     if (_uniqueValues.Count < MAX_UNIQUE)
                         _uniqueValues.Add(value.ToString());
                 }

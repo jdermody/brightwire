@@ -72,7 +72,7 @@ namespace BrightWire.Models.Bayesian
         /// Creates a classifier from the model
         /// </summary>
         /// <returns></returns>
-        public IRowClassifier CreateClassifier()
+        public IIndexListClassifier CreateClassifier()
         {
             return new MultinomialNaiveBayesClassifier(this);
         }

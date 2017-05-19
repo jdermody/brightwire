@@ -1,4 +1,5 @@
-﻿using BrightWire.Models.Bayesian;
+﻿using BrightWire.Models;
+using BrightWire.Models.Bayesian;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,17 +11,17 @@ namespace BrightWire.Bayesian.Training
     internal class MultinomialNaiveBayesTrainer
     {
         readonly HashSet<uint> _vocabulary = new HashSet<uint>();
-        readonly Dictionary<string, List<IReadOnlyList<uint>>> _documentClass = new Dictionary<string, List<IReadOnlyList<uint>>>();
+        readonly Dictionary<string, List<IndexList>> _documentClass = new Dictionary<string, List<IndexList>>();
 
-        public void AddClassification(string documentClass, IReadOnlyList<uint> stringIndexList)
+        public void AddClassification(string documentClass, IndexList indexList)
         {
-            List<IReadOnlyList<uint>> temp;
+            List<IndexList> temp;
             if (!_documentClass.TryGetValue(documentClass, out temp))
-                _documentClass.Add(documentClass, temp = new List<IReadOnlyList<uint>>());
+                _documentClass.Add(documentClass, temp = new List<IndexList>());
 
-            foreach (var item in stringIndexList)
+            foreach (var item in indexList.Index)
                 _vocabulary.Add(item);
-            temp.Add(stringIndexList);
+            temp.Add(indexList);
         }
 
         public MultinomialNaiveBayes Train()
@@ -31,7 +32,7 @@ namespace BrightWire.Bayesian.Training
             var ret = new List<MultinomialNaiveBayes.Class>();
             foreach (var item in _documentClass) {
                 var indexData = new List<MultinomialNaiveBayes.StringIndexProbability>();
-                var allClassToken = item.Value.SelectMany(d => d).ToList();
+                var allClassToken = item.Value.SelectMany(d => d.Index).ToList();
                 double denominator = allClassToken.Count + numWords;
                 foreach (var word in allClassToken.GroupBy(d => d).Select(d => Tuple.Create(d.Key, d.Count()))) {
                     indexData.Add(new MultinomialNaiveBayes.StringIndexProbability {

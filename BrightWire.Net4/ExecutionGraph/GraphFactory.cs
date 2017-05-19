@@ -5,6 +5,7 @@ using BrightWire.ExecutionGraph.DataTableAdaptor;
 using BrightWire.ExecutionGraph.Engine;
 using BrightWire.ExecutionGraph.GradientDescent;
 using BrightWire.ExecutionGraph.Helper;
+using BrightWire.ExecutionGraph.Node.Filter;
 using BrightWire.ExecutionGraph.Node.Gate;
 using BrightWire.ExecutionGraph.Node.Helper;
 using BrightWire.ExecutionGraph.Node.Input;
@@ -232,7 +233,26 @@ namespace BrightWire.ExecutionGraph
             var optimisation = GetWeightUpdater( weight);
 
             // create the layer
-            return new FeedForward(bias, weight, optimisation, name);
+            return new FeedForward(inputSize, outputSize, bias, weight, optimisation, name);
+        }
+
+        public INode CreateDropConnect(float dropoutPercentage, int inputSize, int outputSize, string name = null)
+        {
+            // create weights and bias
+            var weightInit = _GetWeightInitialisation();
+            var bias = weightInit.CreateBias(outputSize);
+            var weight = weightInit.CreateWeight(inputSize, outputSize);
+
+            // get the gradient descent optimisations
+            var optimisation = GetWeightUpdater(weight);
+
+            return new DropConnect(dropoutPercentage, inputSize, outputSize, bias, weight, optimisation, name);
+        }
+
+        public INode CreateTiedFeedForward(IFeedForward layer, string name = null)
+        {
+            var weightInit = _GetWeightInitialisation();
+            return new TiedFeedForward(layer, weightInit, name);
         }
 
         public INode CreateConvolutional(int inputDepth, int filterCount, int padding, int filterWidth, int filterHeight, int stride, string name = null)
@@ -279,6 +299,11 @@ namespace BrightWire.ExecutionGraph
         public INode CreateMaxPool(int width, int height, int stride, string name = null)
         {
             return new MaxPool(width, height, stride, name);
+        }
+
+        public INode CreateDropOut(float dropoutPercentage, string name = null)
+        {
+            return new DropOut(dropoutPercentage, name);
         }
 
         public WireBuilder Connect(IGraphEngine engine)

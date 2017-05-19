@@ -26,6 +26,11 @@ namespace BrightWire.TabularData.Helper
             _stream = stream ?? new MemoryStream();
         }
 
+        public void Dispose()
+        {
+            Flush();
+        }
+
         public IReadOnlyList<DataTableBuilder.Column> Columns { get { return _dataTableBuilder.Columns2; } }
         public IReadOnlyList<long> Index { get { return _index; } }
         public int RowCount { get { return _rowCount; } }
@@ -95,9 +100,24 @@ namespace BrightWire.TabularData.Helper
             return AddRow(data);
         }
 
+        IRow IDataTableBuilder.Add(IReadOnlyList<object> data)
+        {
+            return AddRow(data);
+        }
+
         IDataTable IDataTableBuilder.Build()
         {
             return GetDataTable();
+        }
+
+        public void WriteIndexTo(Stream stream)
+        {
+            using (var writer = new BinaryWriter(stream, Encoding.UTF8, true)) {
+                writer.Write(_rowCount);
+                writer.Write(_index.Count);
+                foreach (var item in _index)
+                    writer.Write(item);
+            }
         }
     }
 }

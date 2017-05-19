@@ -159,6 +159,15 @@ namespace BrightWire
         IReadOnlyList<(string Label, float Weight)> Classify(IRow row);
     }
 
+    public interface IIndexListClassifier : IRowClassifier
+    {
+        /// <summary>
+        /// Classifies the input data and returns the classifications with their weights
+        /// </summary>
+        /// <param name="indexList">The index list to classify</param>
+        IReadOnlyList<(string Label, float Weight)> Classify(IndexList indexList);
+    }
+
     /// <summary>
     /// A column within a data table
     /// </summary>
@@ -412,17 +421,11 @@ namespace BrightWire
         /// <returns></returns>
         IEnumerable<(IDataTable Training, IDataTable Validation)> Fold(int k, int? randomSeed = null, bool shuffle = true);
 
-        /// <summary>
-        /// Writes the index data to the specified stream
-        /// </summary>
-        /// <param name="stream">The stream to hold the index data</param>
-        void WriteIndexTo(Stream stream);
-
-        /// <summary>
-        /// Writes the data table to the stream
-        /// </summary>
-        /// <param name="stream">The stream to write to</param>
-        void WriteTo(Stream stream);
+        ///// <summary>
+        ///// Writes the data table to the stream
+        ///// </summary>
+        ///// <param name="stream">The stream to write to</param>
+        //void WriteTo(Stream stream);
 
         /// <summary>
         /// For each classification label - duplicate each data table except for the classification column which is converted to a boolean (true for each matching example)
@@ -602,7 +605,7 @@ namespace BrightWire
     /// <summary>
     /// Used to programatically construct data tables
     /// </summary>
-    public interface IDataTableBuilder
+    public interface IDataTableBuilder : IDisposable
     {
         /// <summary>
         /// The list of columns
@@ -635,6 +638,13 @@ namespace BrightWire
         IRow Add(params object[] data);
 
         /// <summary>
+        /// Adds a new row to the table
+        /// </summary>
+        /// <param name="data">The data in the new row</param>
+        /// <returns></returns>
+        IRow Add(IReadOnlyList<object> data);
+
+        /// <summary>
         /// Creates the new data table
         /// </summary>
         /// <returns></returns>
@@ -644,5 +654,11 @@ namespace BrightWire
         /// Ensures all data has been written
         /// </summary>
         void Flush();
+
+        /// <summary>
+        /// Writes the index data to the specified stream
+        /// </summary>
+        /// <param name="stream">The stream to hold the index data</param>
+        void WriteIndexTo(Stream stream);
     }
 }

@@ -49,6 +49,26 @@ namespace BrightWire.ExecutionGraph
             return this;
         }
 
+        public WireBuilder AddTiedFeedForward(IFeedForward layer, string name = null)
+        {
+            _SetNode(_factory.CreateTiedFeedForward(layer, name));
+            _size = layer.InputSize;
+            return this;
+        }
+
+        public WireBuilder AddDropOut(float dropOutPercentage, string name = null)
+        {
+            _SetNode(_factory.CreateDropOut(dropOutPercentage, name));
+            return this;
+        }
+
+        public WireBuilder AddDropConnect(float dropOutPercentage, int outputSize, string name = null)
+        {
+            _SetNode(_factory.CreateDropConnect(dropOutPercentage, _size, outputSize, name));
+            _size = outputSize;
+            return this;
+        }
+
         public WireBuilder Add(INode node)
         {
             _SetNode(node);

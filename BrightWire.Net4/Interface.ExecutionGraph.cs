@@ -50,6 +50,7 @@ namespace BrightWire
         INode Find(string name);
         IEnumerable<INode> SubNodes { get; }
         Models.ExecutionGraph.Node SerialiseTo(List<Models.ExecutionGraph.Node> connectedTo, List<Models.ExecutionGraph.Wire> wireList);
+        void OnDeserialise(IReadOnlyDictionary<string, INode> graph);
     }
 
     public interface IWire
@@ -169,5 +170,14 @@ namespace BrightWire
     public interface IHaveMemoryNode
     {
         INode Memory { get; }
+    }
+
+    public interface IFeedForward : INode
+    {
+        int InputSize { get; }
+        int OutputSize { get; }
+        IVector Bias { get; }
+        IMatrix Weight { get; }
+        void UpdateWeights(IMatrix delta, ILearningContext context);
     }
 }

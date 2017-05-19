@@ -104,6 +104,10 @@ namespace BrightWire
                     nodeTable.Add(n.Id, n);
             }
 
+            // let each node know it has been deserialised and access to the entire graph
+            foreach(var item in nodeTable)
+                item.Value.OnDeserialise(nodeTable);
+
             // create the wires between nodes
             foreach (var wire in graph.Wires) {
                 var from = nodeTable[wire.FromId];

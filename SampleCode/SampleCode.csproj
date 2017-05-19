@@ -59,7 +59,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Convolutional.cs" />
+    <Compile Include="MNISTConvolutional.cs" />
     <Compile Include="IncomePrediction.cs" />
     <Compile Include="IntegerAddition.cs" />
     <Compile Include="IrisClassification.cs" />
@@ -68,6 +68,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MNIST.cs" />
+    <Compile Include="ReberPrediction.cs" />
     <Compile Include="SentimentClassification.cs" />
     <Compile Include="SequenceToSequence.cs" />
     <Compile Include="TextClustering.cs" />

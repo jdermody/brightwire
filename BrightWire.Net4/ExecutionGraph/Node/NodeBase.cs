@@ -164,5 +164,10 @@ namespace BrightWire.ExecutionGraph.Node
                 model = Serializer.Deserialize<Models.ExecutionGraph.Node>(buffer);
             return factory.Create(model);
         }
+
+        public virtual void OnDeserialise(IReadOnlyDictionary<string, INode> graph)
+        {
+            // nop
+        }
     }
 }

@@ -58,7 +58,7 @@ namespace UnitTests
             Assert.IsTrue(classification.First().Label == "female");
         }
 
-        public static IDataTable GetSimpleChineseSet(StringTableBuilder stringTableBuilder)
+        public static IReadOnlyList<(string Label, IndexList Data)> GetSimpleChineseSet(StringTableBuilder stringTableBuilder)
         {
             // sample data from: http://nlp.stanford.edu/IR-book/html/htmledition/naive-bayes-text-classification-1.html
             var data = new[] {
@@ -68,17 +68,9 @@ namespace UnitTests
                 (new[] { "Tokyo", "Japan", "Chinese" }, false),
             };
 
-            var builder = BrightWireProvider.CreateDataTableBuilder();
-            builder.AddColumn(ColumnType.IndexList, "String Index");
-            builder.AddColumn(ColumnType.String, "Label");
-            
-            foreach(var row in data) {
-                builder.Add(new IndexList {
-                    Index = row.Item1.Select(s => stringTableBuilder.GetIndex(s)).ToArray()
-                }, row.Item2 ? "china" : "japan");
-            }
-
-            return builder.Build();
+            return data.Select(r => (r.Item2 ? "china" : "japan", new IndexList {
+                Index = r.Item1.Select(s => stringTableBuilder.GetIndex(s)).ToArray()
+            })).ToList();
         }
 
         public static IRow GetTestRow(StringTableBuilder stringTableBuilder)

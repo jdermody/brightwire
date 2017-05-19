@@ -119,8 +119,8 @@ namespace UnitTests
         {
             var dataTable = BrightWireProvider.CreateDataTableBuilder();
             dataTable.AddColumn(ColumnType.Float, "height");
-            dataTable.AddColumn(ColumnType.Int, "weight").IsContinuous = true;
-            dataTable.AddColumn(ColumnType.Int, "foot-size").IsContinuous = true;
+            dataTable.AddColumn(ColumnType.Int, "weight");
+            dataTable.AddColumn(ColumnType.Int, "foot-size");
             dataTable.AddColumn(ColumnType.String, "gender", true);
 
             // sample data from: https://en.wikipedia.org/wiki/Naive_Bayes_classifier
@@ -140,7 +140,7 @@ namespace UnitTests
             var model = index.TrainMultinomialLogisticRegression(_lap, 100, 0.1f);
             var classifier = model.CreateClassifier(_lap);
             var classification = classifier.Classify(row);
-            Assert.IsTrue(classification.First().Label == "female");
+            Assert.IsTrue(classification.GetBestClassification() == "female");
         }
     }
 }
