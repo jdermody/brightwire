@@ -74,7 +74,7 @@
     <None Include="cuda\kernel.cu" />
     <None Include="cuda\kernel.cubin" />
     <None Include="cuda\kernel.ptx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
   </ItemGroup>

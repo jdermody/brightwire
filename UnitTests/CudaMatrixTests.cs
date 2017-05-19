@@ -986,5 +986,19 @@ namespace UnitTests
         {
             // TODO...
         }
+
+        //[TestMethod]
+        //public void MatrixIm2Col()
+        //{
+        //    var normalDistribution = new Normal(0, 1);
+        //    using (var cpuMatrix = _cpu.CreateMatrix(4, 4, (j, k) => Convert.ToSingle(normalDistribution.Sample())))
+        //    using (var gpuMatrix = _cuda.CreateMatrix(cpuMatrix.AsIndexable()))
+        //    using (var cpuIm2Col = cpuMatrix.Im2Col(2, 2, 2))
+        //    using (var gpuIm2Col = gpuMatrix.Im2Col(2, 2, 2)) {
+        //        var cpu = cpuIm2Col.AsIndexable();
+        //        var gpu = gpuIm2Col.AsIndexable();
+        //        FloatingPointHelper.AssertEqual(cpu, gpu);
+        //    }
+        //}
     }
 }

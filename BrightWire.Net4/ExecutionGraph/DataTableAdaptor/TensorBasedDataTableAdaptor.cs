@@ -7,6 +7,7 @@ using BrightWire.Models;
 using BrightWire.ExecutionGraph.Node.Input;
 using BrightWire.ExecutionGraph.Helper;
 using System.Diagnostics;
+using System.Collections.Concurrent;
 
 namespace BrightWire.ExecutionGraph.DataTableAdaptor
 {
@@ -58,14 +59,20 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             var outputList = new List<FloatVector>();
             _processedContext.Clear();
 
-            foreach (var row in data) {
+            var stack = new ConcurrentStack<(IRow, IContext)>();
+            Parallel.ForEach(data, row => {
                 var tensor = _lap.CreateTensor(row.Data[0] as FloatTensor);
-                var context = _Process(new TensorGraphData(tensor));
+                var context = _ConcurentProcess(new TensorGraphData(tensor, row.Index));
+                stack.Push((row, context));
+            });
+            var contextTable = stack.ToDictionary(d => d.Item1, d => d.Item2);
+
+            foreach (var row in data) {
+                //var tensor = _lap.CreateTensor(row.Data[0] as FloatTensor);
+                //var context = _Process(new TensorGraphData(tensor));
+                var context = contextTable[row];
                 var outputTensor = context.Data.GetTensor();
                 var outputVector = outputTensor.ConvertToVector();
-
-                //var test = outputVector.ConvertToTensor(context.LinearAlgebraProvider, outputTensor.RowCount, outputTensor.ColumnCount, outputTensor.Depth);
-                //Debug.Assert(test.Data.IsEqualTo(outputTensor.Data));
 
                 inputList.Add(outputVector);
                 _processedContext.Add((context, outputTensor.RowCount, outputTensor.ColumnCount, outputTensor.Depth));
@@ -90,8 +97,9 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
                 }
             }
 
-            foreach (var item in _processedContext)
+            foreach (var item in _processedContext) {
                 item.Item1.LearningContext.ApplyUpdates();
+            }
             _processedContext.Clear();
         }
     }

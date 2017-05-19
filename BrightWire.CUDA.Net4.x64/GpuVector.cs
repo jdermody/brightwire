@@ -500,20 +500,22 @@ namespace BrightWire.LinearAlgebra
 
         public IMatrix SoftmaxDerivative()
         {
-            // TODO: native cuda implementation
-            return _cuda.CreateMatrix(AsIndexable().SoftmaxDerivative().AsIndexable());
+            var ret = _cuda.VectorSoftmaxDerivative(_data, Count);
+            return new GpuMatrix(_cuda, Count, Count, ret);
         }
 
-        public IVector Rotate(int blockSize)
+        public IVector Rotate(int blockCount)
         {
+            var ret = _cuda.Rotate(_data, Count, blockCount);
+            return new GpuVector(_cuda, Count, ret);
             // TODO: native cuda implementation
-            return _cuda.CreateVector(AsIndexable().Rotate(blockSize).AsIndexable());
+            //return _cuda.CreateVector(AsIndexable().Rotate(blockCount).AsIndexable());
         }
 
         public IVector Reverse()
         {
-            // TODO: native cuda implementation
-            return _cuda.CreateVector(AsIndexable().Reverse().AsIndexable());
+            var ret = _cuda.Reverse(_data, Count);
+            return new GpuVector(_cuda, Count, ret);
         }
     }
 }

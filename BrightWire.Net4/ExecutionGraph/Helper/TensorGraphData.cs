@@ -9,13 +9,16 @@ namespace BrightWire.ExecutionGraph.Helper
     class TensorGraphData : IGraphData
     {
         readonly I3DTensor _tensor;
+        readonly int? _rowId;
 
-        public TensorGraphData(I3DTensor tensor)
+        public TensorGraphData(I3DTensor tensor, int? rowId = null)
         {
             _tensor = tensor;
+            _rowId = rowId;
         }
 
         public GraphDataType DataType => GraphDataType.Tensor;
+        public int? RowId => _rowId;
 
         public IMatrix GetMatrix()
         {

@@ -18,7 +18,7 @@ namespace BrightWire.LinearAlgebra
 {
     internal class CudaProvider : ILinearAlgebraProvider
     {
-        const int BLOCK_DIM = 32;
+        const int BLOCK_DIM = 16;
         const int BLOCK_DIM2 = BLOCK_DIM * BLOCK_DIM;
 
         class AllocationLayer
@@ -126,11 +126,9 @@ namespace BrightWire.LinearAlgebra
             _leakyRelu,
             _leakyReluDerivative,
             _memClear,
-            _sparseLoad,
             _sumColumns,
             _pointwiseDivide,
             _sqrt,
-            _memCopy,
             _findMinAndMax,
             _findSum,
             _findStdDev,
@@ -152,7 +150,6 @@ namespace BrightWire.LinearAlgebra
             _multiEuclidean,
             _multiManhattan,
             _log,
-            _sigmoidVector,
             _vectorAdd,
             _vectorCopyRandom,
             _copyToMatrix,
@@ -160,7 +157,11 @@ namespace BrightWire.LinearAlgebra
             _tensorConvertToVector,
             _tensorConvertToMatrix,
             _tensorAddPadding,
-            _tensorIm2Col
+            _tensorRemovePadding,
+            _tensorIm2Col,
+            _softmaxDerivative,
+            _reverse,
+            _rotate
         ;
         bool _disposed = false;
 
@@ -184,11 +185,10 @@ namespace BrightWire.LinearAlgebra
             _relu = _kernel.LoadFunction("RELU");
             _reluDerivative = _kernel.LoadFunction("RELUDerivative");
             _memClear = _kernel.LoadFunction("MemClear");
-            _sparseLoad = _kernel.LoadFunction("SparseLoad");
             _sumColumns = _kernel.LoadFunction("SumColumns");
             _pointwiseDivide = _kernel.LoadFunction("PointwiseDivide");
             _sqrt = _kernel.LoadFunction("Sqrt");
-            _memCopy = _kernel.LoadFunction("MemCopy");
+            //_memCopy = _kernel.LoadFunction("MemCopy");
             _findMinAndMax = _kernel.LoadFunction("FindMinAndMax");
             _findSum = _kernel.LoadFunction("FindSum");
             _findStdDev = _kernel.LoadFunction("FindStdDev");
@@ -212,7 +212,6 @@ namespace BrightWire.LinearAlgebra
             _multiEuclidean = _kernel.LoadFunction("MultiEuclideanDistance");
             _multiManhattan = _kernel.LoadFunction("MultiManhattanDistance");
             _log = _kernel.LoadFunction("Log");
-            _sigmoidVector = _kernel.LoadFunction("SigmoidVector");
             _vectorAdd = _kernel.LoadFunction("VectorAdd");
             _vectorCopyRandom = _kernel.LoadFunction("VectorCopyRandom");
             _copyToMatrix = _kernel.LoadFunction("CopyToMatrix");
@@ -220,7 +219,11 @@ namespace BrightWire.LinearAlgebra
             _tensorConvertToVector = _kernel.LoadFunction("TensorConvertToVector");
             _tensorConvertToMatrix = _kernel.LoadFunction("TensorConvertToMatrix");
             _tensorAddPadding = _kernel.LoadFunction("TensorAddPadding");
+            _tensorRemovePadding = _kernel.LoadFunction("TensorRemovePadding");
             _tensorIm2Col = _kernel.LoadFunction("TensorIm2Col");
+            _softmaxDerivative = _kernel.LoadFunction("SoftmaxDerivative");
+            _reverse = _kernel.LoadFunction("Reverse");
+            _rotate = _kernel.LoadFunction("Rotate");
         }
 
         protected virtual void Dispose(bool disposing)
@@ -263,14 +266,23 @@ namespace BrightWire.LinearAlgebra
             get { return _cuda.GetFreeDeviceMemorySize(); }
         }
 
+        int _GetBlockCount(int size, int blockSize)
+        {
+            return ((size / blockSize) + 1);
+        }
+
         void _Use(CUfunction function, int rows, int columns, Action<KernelExecution> callback)
         {
-            callback(_kernel.CreateExecution(function, new dim3((rows / BLOCK_DIM) + 1, (columns / BLOCK_DIM) + 1), new dim3(BLOCK_DIM, BLOCK_DIM)));
+            var x = _GetBlockCount(rows, BLOCK_DIM);
+            var y = _GetBlockCount(columns, BLOCK_DIM);
+            callback(_kernel.CreateExecution(function, new dim3(x, y), new dim3(BLOCK_DIM, BLOCK_DIM)));
+            _cuda.Synchronize();
         }
 
         void _Use(CUfunction function, int size, Action<KernelExecution> callback)
         {
-            callback(_kernel.CreateExecution(function, (size / BLOCK_DIM2) + 1, BLOCK_DIM2));
+            var x = _GetBlockCount(size, BLOCK_DIM2);
+            callback(_kernel.CreateExecution(function, x, BLOCK_DIM2));
         }
 
         internal CudaDeviceVariable<float> PointwiseMultiply(CudaDeviceVariable<float> a, CudaDeviceVariable<float> b, int size)
@@ -309,73 +321,66 @@ namespace BrightWire.LinearAlgebra
             _Use(_addToEachColumn, rows, columns, k => k.Run(0, matrix.DevicePointer, vector.DevicePointer, rows, columns));
         }
 
-        internal CudaDeviceVariable<float> TanH(CudaDeviceVariable<float> a, int rows, int columns)
+        internal CudaDeviceVariable<float> TanH(CudaDeviceVariable<float> a, int size)
         {
-            var ret = new CudaDeviceVariable<float>(rows * columns);
-            _Use(_tanh, rows, columns, k => k.Run(0, a.DevicePointer, ret.DevicePointer, rows, columns));
+            var ret = new CudaDeviceVariable<float>(size);
+            _Use(_tanh, size, k => k.Run(BLOCK_DIM2 * sizeof(float), a.DevicePointer, ret.DevicePointer, size));
             return ret;
         }
 
-        internal CudaDeviceVariable<float> TanHDerivative(CudaDeviceVariable<float> a, int rows, int columns)
+        internal CudaDeviceVariable<float> TanHDerivative(CudaDeviceVariable<float> a, int size)
         {
-            var ret = new CudaDeviceVariable<float>(rows * columns);
-            _Use(_tanhDerivative, rows, columns, k => k.Run(0, a.DevicePointer, ret.DevicePointer, rows, columns));
-            return ret;
-        }
-
-        internal CudaDeviceVariable<float> Sigmoid(CudaDeviceVariable<float> a, int rows, int columns)
-        {
-            var ret = new CudaDeviceVariable<float>(rows * columns);
-            _Use(_sigmoid, rows, columns, k => k.Run(0, a.DevicePointer, ret.DevicePointer, rows, columns));
+            var ret = new CudaDeviceVariable<float>(size);
+            _Use(_tanhDerivative, size, k => k.Run(BLOCK_DIM2 * sizeof(float), a.DevicePointer, ret.DevicePointer, size));
             return ret;
         }
 
         internal CudaDeviceVariable<float> Sigmoid(CudaDeviceVariable<float> a, int size)
         {
             var ret = new CudaDeviceVariable<float>(size);
-            _Use(_sigmoidVector, size, k => k.Run(0, a.DevicePointer, ret.DevicePointer, size));
+            _Use(_sigmoid, size, k => k.Run(BLOCK_DIM2 * sizeof(float), a.DevicePointer, ret.DevicePointer, size));
             return ret;
         }
 
-        internal CudaDeviceVariable<float> SigmoidDerivative(CudaDeviceVariable<float> a, int rows, int columns)
+        internal CudaDeviceVariable<float> SigmoidDerivative(CudaDeviceVariable<float> a, int size)
         {
-            var ret = new CudaDeviceVariable<float>(rows * columns);
-            _Use(_sigmoidDerivative, rows, columns, k => k.Run(0, a.DevicePointer, ret.DevicePointer, rows, columns));
+            var ret = new CudaDeviceVariable<float>(size);
+            _Use(_sigmoidDerivative, size, k => k.Run(BLOCK_DIM2 * sizeof(float), a.DevicePointer, ret.DevicePointer, size));
             return ret;
         }
 
-        internal CudaDeviceVariable<float> RELU(CudaDeviceVariable<float> a, int rows, int columns)
+        internal CudaDeviceVariable<float> RELU(CudaDeviceVariable<float> a, int size)
         {
-            var ret = new CudaDeviceVariable<float>(rows * columns);
-            _Use(_relu, rows, columns, k => k.Run(0, a.DevicePointer, ret.DevicePointer, rows, columns));
+            var ret = new CudaDeviceVariable<float>(size);
+            _Use(_relu, size, k => k.Run(BLOCK_DIM2 * sizeof(float), a.DevicePointer, ret.DevicePointer, size));
             return ret;
         }
 
-        internal CudaDeviceVariable<float> RELUDerivative(CudaDeviceVariable<float> a, int rows, int columns)
+        internal CudaDeviceVariable<float> RELUDerivative(CudaDeviceVariable<float> a, int size)
         {
-            var ret = new CudaDeviceVariable<float>(rows * columns);
-            _Use(_reluDerivative, rows, columns, k => k.Run(0, a.DevicePointer, ret.DevicePointer, rows, columns));
+            var ret = new CudaDeviceVariable<float>(size);
+            _Use(_reluDerivative, size, k => k.Run(BLOCK_DIM2 * sizeof(float), a.DevicePointer, ret.DevicePointer, size));
             return ret;
         }
 
-        internal CudaDeviceVariable<float> LeakyRELU(CudaDeviceVariable<float> a, int rows, int columns)
+        internal CudaDeviceVariable<float> LeakyRELU(CudaDeviceVariable<float> a, int size)
         {
-            var ret = new CudaDeviceVariable<float>(rows * columns);
-            _Use(_leakyRelu, rows, columns, k => k.Run(0, a.DevicePointer, ret.DevicePointer, rows, columns));
+            var ret = new CudaDeviceVariable<float>(size);
+            _Use(_leakyRelu, size, k => k.Run(BLOCK_DIM2 * sizeof(float), a.DevicePointer, ret.DevicePointer, size));
             return ret;
         }
 
-        internal CudaDeviceVariable<float> LeakyRELUDerivative(CudaDeviceVariable<float> a, int rows, int columns)
+        internal CudaDeviceVariable<float> LeakyRELUDerivative(CudaDeviceVariable<float> a, int size)
         {
-            var ret = new CudaDeviceVariable<float>(rows * columns);
-            _Use(_leakyReluDerivative, rows, columns, k => k.Run(0, a.DevicePointer, ret.DevicePointer, rows, columns));
+            var ret = new CudaDeviceVariable<float>(size);
+            _Use(_leakyReluDerivative, size, k => k.Run(BLOCK_DIM2 * sizeof(float), a.DevicePointer, ret.DevicePointer, size));
             return ret;
         }
 
         internal CudaDeviceVariable<float> SumRows(CudaDeviceVariable<float> a, int rows, int columns)
         {
             var ret = new CudaDeviceVariable<float>(rows);
-            _Use(_sumRows, rows, k => k.Run(0, a.DevicePointer, ret.DevicePointer, rows, columns));
+            _Use(_sumRows, rows, columns, k => k.Run(0, a.DevicePointer, ret.DevicePointer, rows, columns));
             return ret;
         }
 
@@ -389,13 +394,6 @@ namespace BrightWire.LinearAlgebra
         internal void MemClear(CudaDeviceVariable<float> data, int count, int offset = 0, int increment = 1)
         {
             _Use(_memClear, count, k => k.Run(0, data.DevicePointer, count, offset, increment));
-        }
-
-        internal CudaDeviceVariable<float> MemCopy(CudaDeviceVariable<float> data, int count, int offset = 0, int increment = 1)
-        {
-            var ret = new CudaDeviceVariable<float>(count);
-            _Use(_memCopy, count, k => k.Run(0, data.DevicePointer, ret.DevicePointer, count, offset, increment));
-            return ret;
         }
 
         internal CudaDeviceVariable<float> Sqrt(CudaDeviceVariable<float> a, int size, float valueAdjustment)
@@ -473,13 +471,6 @@ namespace BrightWire.LinearAlgebra
                 return (min, max);
             }
             return (0f, 0f);
-        }
-
-        internal float FindMean(CudaDeviceVariable<float> a, int size)
-        {
-            if (size > 0)
-                return SumValues(a, size) / size;
-            return 0f;
         }
 
         internal float SumValues(CudaDeviceVariable<float> a, int size)
@@ -681,6 +672,27 @@ namespace BrightWire.LinearAlgebra
             return ret;
         }
 
+        internal IReadOnlyList<CudaDeviceVariable<float>> TensorRemovePadding(IReadOnlyList<CudaDeviceVariable<float>> matrixList, int rows, int columns, int padding)
+        {
+            int depth = matrixList.Count;
+            var newRows = rows - padding * 2;
+            var newColumns = columns - padding * 2;
+            var ret = new List<CudaDeviceVariable<float>>();
+            for (var i = 0; i < depth; i++) {
+                var buffer = new CudaDeviceVariable<float>(newRows * newColumns);
+                buffer.Memset(0);
+                ret.Add(buffer);
+            }
+
+            using (var outputDevicePtr = new CudaDeviceVariable<CUdeviceptr>(depth))
+            using (var inputDevicePtr = new CudaDeviceVariable<CUdeviceptr>(depth)) {
+                inputDevicePtr.CopyToDevice(matrixList.Select(m => m.DevicePointer).ToArray());
+                outputDevicePtr.CopyToDevice(ret.Select(m => m.DevicePointer).ToArray());
+                _Use(_tensorRemovePadding, rows, columns, k => k.Run(0, inputDevicePtr.DevicePointer, outputDevicePtr.DevicePointer, rows, columns, newRows, newColumns, depth, padding));
+            }
+            return ret;
+        }
+
         internal Tuple<CudaDeviceVariable<float>, int, int> TensorIm2Col(IReadOnlyList<CudaDeviceVariable<float>> matrixList, int rows, int columns, int filterWidth, int filterHeight, int stride)
         {
             var depth = matrixList.Count;
@@ -698,48 +710,37 @@ namespace BrightWire.LinearAlgebra
             return Tuple.Create(ret, newRows, newColumns);
         }
 
-        internal void SparseLoad(CudaDeviceVariable<float> data, int rows, int columns, IReadOnlyList<Tuple<int, float>[]> columnData)
+        internal CudaDeviceVariable<float> VectorSoftmaxDerivative(CudaDeviceVariable<float> a, int size)
         {
-            var totalDataCount = columnData.Sum(d => d.Length);
-            var offsetList = new int[columnData.Count];
-            var lengthList = new int[columnData.Count];
-            var destinationList = new int[totalDataCount];
-            var dataList = new float[totalDataCount];
-            int maxLength = int.MinValue;
-            int offset = 0;
+            var ret = new CudaDeviceVariable<float>(size * size);
+            _Use(_softmaxDerivative, size, size, k => k.Run(0, a.DevicePointer, ret.DevicePointer, size));
+            return ret;
+        }
 
-            for (var i = 0; i < columnData.Count; i++) {
-                var column = columnData[i];
-                offsetList[i] = offset;
-                lengthList[i] = column.Length;
-                foreach (var val in column) {
-                    destinationList[offset] = val.Item1;
-                    dataList[offset] = val.Item2;
-                    ++offset;
-                }
-                if (column.Length > maxLength)
-                    maxLength = column.Length;
-            }
+        internal CudaDeviceVariable<float> Reverse(CudaDeviceVariable<float> a, int size)
+        {
+            var ret = new CudaDeviceVariable<float>(size);
+            _Use(_reverse, size, k => k.Run(BLOCK_DIM2 * sizeof(float), a.DevicePointer, ret.DevicePointer, size));
+            return ret;
+        }
 
-            using (var deviceOffset = new CudaDeviceVariable<int>(offsetList.Length))
-            using (var deviceLength = new CudaDeviceVariable<int>(lengthList.Length))
-            using (var deviceDestination = new CudaDeviceVariable<int>(destinationList.Length))
-            using (var deviceData = new CudaDeviceVariable<float>(dataList.Length)) {
-                deviceOffset.CopyToDevice(offsetList);
-                deviceLength.CopyToDevice(lengthList);
-                deviceDestination.CopyToDevice(destinationList);
-                deviceData.CopyToDevice(dataList);
-                _Use(_sparseLoad, rows, columns, k => k.Run(
-                    0,
-                    data.DevicePointer,
-                    deviceOffset.DevicePointer,
-                    deviceLength.DevicePointer,
-                    deviceDestination.DevicePointer,
-                    deviceData.DevicePointer,
-                    rows,
-                    columns
-                ));
+        internal CudaDeviceVariable<float> Rotate(CudaDeviceVariable<float> a, int size, int blockCount)
+        {
+            var blockSize = size / blockCount;
+            var vectorList = Enumerable.Range(0, blockCount)
+                .Select(i => new CudaDeviceVariable<float>(blockSize))
+                .ToList()
+            ;
+            var ret = new CudaDeviceVariable<float>(size);
+            using (var devicePtr = new CudaDeviceVariable<CUdeviceptr>(blockCount)) {
+                devicePtr.CopyToDevice(vectorList.Select(p => p.DevicePointer).ToArray());
+                VectorSplit(a, size, blockSize, devicePtr.DevicePointer);
+
+                _Use(_rotate, size, k => k.Run(0, devicePtr.DevicePointer, ret.DevicePointer, size, blockCount, blockSize));
             }
+            foreach (var item in vectorList)
+                item.Dispose();
+            return ret;
         }
 
         internal CudaContext Context { get { return _cuda; } }

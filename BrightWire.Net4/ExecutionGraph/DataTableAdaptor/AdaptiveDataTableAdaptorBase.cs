@@ -49,6 +49,20 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             return context;
         }
 
+        protected IContext _ConcurentProcess(IGraphData data)
+        {
+            var lap = _executionContext.LinearAlgebraProvider;
+            var executionContext = new ExecutionContext(lap, _executionContext);
+            var learningContext = new LearningContext(lap, _learningContext.LearningRate, _learningContext.BatchSize, false, true);
+            var context = new TrainingEngineContext(executionContext, data, learningContext);
+            _input.ExecuteForward(context, 0);
+
+            while (context.HasNext)
+                context.ExecuteNext();
+
+            return context;
+        }
+
         protected IContext _Process(IMiniBatchSequence sequence)
         {
             var context = new TrainingEngineContext(_executionContext, sequence, _learningContext);

@@ -20,7 +20,6 @@ namespace BrightWire.ExecutionGraph.Helper
         INode _sourceNode;
         IGraphData _errorSignal = null;
         double _trainingError = 0;
-        IMatrix _output = null;
 
         public TrainingEngineContext(IExecutionContext executionContext, IMiniBatchSequence miniBatch, ILearningContext learningContext)
         {
@@ -49,7 +48,7 @@ namespace BrightWire.ExecutionGraph.Helper
         public IGraphData Data => _executionContext.Data;
         //public IMatrix Output { get => _output; set => _output = value; }
 
-        public Stack<(IGraphData ErrorSignal, INode Target, INode Source)> Backward => _backward;
+        //public Stack<(IGraphData ErrorSignal, INode Target, INode Source)> Backward => _backward;
 
         public void AddForward(IExecutionHistory action, Func<IBackpropagation> callback)
         {
@@ -65,7 +64,7 @@ namespace BrightWire.ExecutionGraph.Helper
 
         public void AddBackward(IGraphData error, INode target, INode source)
         {
-            Backward.Push((error, target, source));
+            _backward.Push((error, target, source));
         }
 
         public bool ExecuteNext()
@@ -93,14 +92,14 @@ namespace BrightWire.ExecutionGraph.Helper
                 _trainingError = Math.Sqrt(delta.Decompose().Average(m => m.AsIndexable().Values.Select(v => Math.Pow(v, 2)).Average()));
 
             // initialise backpropagation stack
-            Backward.Clear();
+            _backward.Clear();
             AddBackward(delta, _sourceNode, null);
 
             // backpropagate the error through the graph
             List<IExecutionHistory> history;
             _errorSignal = null;
-            while (Backward.Any()) {
-                var next = Backward.Pop();
+            while (_backward.Any()) {
+                var next = _backward.Pop();
                 _errorSignal = _GetErrorSignal(next.ErrorSignal, next.Target);
 
                 if (next.Target != null && _history.TryGetValue(next.Target, out history)) {
@@ -140,7 +139,6 @@ namespace BrightWire.ExecutionGraph.Helper
                     if (next.RowCount == first.RowCount && next.ColumnCount == first.ColumnCount)
                         first.AddInPlace(next);
                 }
-                //first.Multiply(1f / list.Count());
                 return first.ToGraphData();
             }
             return null;

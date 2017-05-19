@@ -671,8 +671,66 @@ namespace UnitTests
                     item.Dispose();
                 }
             }
-            for(var i = 0; i < cpuResult.Count; i++)
+            for (var i = 0; i < cpuResult.Count; i++) {
+                Assert.IsTrue(cpuResult[i].Count == 4);
                 FloatingPointHelper.AssertEqual(cpuResult[i], gpuResult[i]);
+            }
+        }
+
+        [TestMethod]
+        public void VectorSoftMax()
+        {
+            var distribution = new Normal(0, 5);
+            var a = _cpu.CreateVector(128, i => (float)distribution.Sample()).AsIndexable();
+            var cpuResult = a.Softmax().AsIndexable();
+            IIndexableVector result;
+            using(var gpuA = _cuda.CreateVector(a)) {
+                var gpuResult = gpuA.Softmax();
+                result = gpuResult.AsIndexable();
+            }
+            FloatingPointHelper.AssertEqual(result, cpuResult);
+        }
+
+        [TestMethod]
+        public void VectorSoftMaxDerivative()
+        {
+            var distribution = new Normal(0, 5);
+            var a = _cpu.CreateVector(128, i => (float)distribution.Sample()).AsIndexable();
+            var cpuResult = a.SoftmaxDerivative().AsIndexable();
+            IIndexableMatrix result;
+            using (var gpuA = _cuda.CreateVector(a)) {
+                var gpuResult = gpuA.SoftmaxDerivative();
+                result = gpuResult.AsIndexable();
+            }
+            FloatingPointHelper.AssertEqual(result, cpuResult);
+        }
+
+        [TestMethod]
+        public void VectorReverse()
+        {
+            var distribution = new Normal(0, 5);
+            var a = _cpu.CreateVector(128, i => (float)distribution.Sample()).AsIndexable();
+            var cpuResult = a.Reverse().AsIndexable();
+            IIndexableVector result;
+            using (var gpuA = _cuda.CreateVector(a)) {
+                var gpuResult = gpuA.Reverse();
+                result = gpuResult.AsIndexable();
+            }
+            FloatingPointHelper.AssertEqual(result, cpuResult);
+        }
+
+        [TestMethod]
+        public void VectorRotate()
+        {
+            var distribution = new Normal(0, 5);
+            var a = _cpu.CreateVector(16, i => (float)distribution.Sample()).AsIndexable();
+            var cpuResult = a.Rotate(4).AsIndexable();
+            IIndexableVector result;
+            using (var gpuA = _cuda.CreateVector(a)) {
+                var gpuResult = gpuA.Rotate(4);
+                result = gpuResult.AsIndexable();
+            }
+            FloatingPointHelper.AssertEqual(result, cpuResult);
         }
     }
 }

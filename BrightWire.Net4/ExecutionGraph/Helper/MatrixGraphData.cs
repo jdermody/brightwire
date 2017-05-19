@@ -9,10 +9,12 @@ namespace BrightWire.ExecutionGraph.Helper
     class MatrixGraphData : IGraphData
     {
         readonly IMatrix _matrix;
+        readonly int? _rowId;
 
-        public MatrixGraphData(IMatrix matrix) { _matrix = matrix; }
+        public MatrixGraphData(IMatrix matrix, int? rowId = null) { _matrix = matrix; _rowId = rowId; }
 
         public GraphDataType DataType => GraphDataType.Matrix;
+        public int? RowId => _rowId;
 
         public IMatrix GetMatrix()
         {

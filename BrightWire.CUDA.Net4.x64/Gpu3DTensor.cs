@@ -120,22 +120,30 @@ namespace BrightWire.LinearAlgebra
             return new Gpu3DTensor(_cuda, newRows, newColumns, Depth, ret.Select(d => new GpuMatrix(_cuda, newRows, newColumns, d)).ToList());
         }
 
+        public I3DTensor RemovePadding(int padding)
+        {
+            var ret = _cuda.TensorRemovePadding(_data.Select(d => d.CudaDeviceVariable).ToList(), RowCount, ColumnCount, padding);
+            var newRows = RowCount - padding * 2;
+            var newColumns = ColumnCount - padding * 2;
+            return new Gpu3DTensor(_cuda, newRows, newColumns, Depth, ret.Select(d => new GpuMatrix(_cuda, newRows, newColumns, d)).ToList());
+        }
+
         public IMatrix Im2Col(int filterWidth, int filterHeight, int stride)
         {
             var ret = _cuda.TensorIm2Col(_data.Select(d => d.CudaDeviceVariable).ToList(), RowCount, ColumnCount, filterWidth, filterHeight, stride);
             return new GpuMatrix(_cuda, ret.Item2, ret.Item3, ret.Item1);
         }
 
-        public I3DTensor RemovePadding(int padding)
-        {
-            // TODO: native CUDA implementation
-            return _cuda.CreateTensor(AsIndexable().RemovePadding(padding).AsIndexable());
-        }
-
         public I3DTensor MaxPool(int filterWidth, int filterHeight, int stride, List<Dictionary<Tuple<int, int>, Tuple<int, int>>> indexPosList)
         {
             // TODO: native CUDA implementation
             return _cuda.CreateTensor(AsIndexable().MaxPool(filterWidth, filterHeight, stride, indexPosList).AsIndexable());
+        }
+
+        public I3DTensor ReverseMaxPool(int rows, int columns, IReadOnlyList<Dictionary<Tuple<int, int>, Tuple<int, int>>> indexPosList)
+        {
+            // TODO: native CUDA implementation
+            return _cuda.CreateTensor(AsIndexable().ReverseMaxPool(rows, columns, indexPosList).AsIndexable());
         }
 
         public (IMatrix WeightUpdate, IVector BiasUpdate) CalculateWeightUpdate(IMatrix im2Col)
@@ -147,6 +155,7 @@ namespace BrightWire.LinearAlgebra
 
         public I3DTensor CalculatePreviousError(IMatrix filterMatrix, int inputHeight, int inputWidth, int inputDepth, int padding, int filterHeight, int filterWidth, int stride)
         {
+            // TODO: native CUDA implementation
             return _cuda.CreateTensor(AsIndexable().CalculatePreviousError(
                 filterMatrix,
                 inputHeight,

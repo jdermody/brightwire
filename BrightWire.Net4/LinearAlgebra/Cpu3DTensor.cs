@@ -197,6 +197,23 @@ namespace BrightWire.LinearAlgebra
             return new Cpu3DTensor(ret);
         }
 
+        public I3DTensor ReverseMaxPool(int rows, int columns, IReadOnlyList<Dictionary<Tuple<int, int>, Tuple<int, int>>> indexPosList)
+        {
+            var matrixList = new List<DenseMatrix>();
+            Tuple<int, int> newIndex;
+            for (var i = 0; i < Depth; i++) {
+                var matrix = GetDepthSlice(i).AsIndexable();
+                var table = indexPosList[i];
+
+                matrixList.Add(DenseMatrix.Create(rows, columns, (x, y) => {
+                    if (table.TryGetValue(Tuple.Create(x, y), out newIndex))
+                        return matrix[newIndex.Item2, newIndex.Item1];
+                    return 0f;
+                }));
+            }
+            return new Cpu3DTensor(matrixList.Select(m => new CpuMatrix(m)).ToList());
+        }
+
         public (IMatrix WeightUpdate, IVector BiasUpdate) CalculateWeightUpdate(IMatrix im2Col)
         {
             var multiplyWith = DenseMatrix.Create(RowCount * ColumnCount, Depth, 0f);
@@ -236,7 +253,7 @@ namespace BrightWire.LinearAlgebra
                 var slice = GetDepthSlice(k).AsIndexable();
                 var filterList = filters[k]
                     .Split(inputDepth)
-                    .Select(f => f.Rotate(filterWidth).AsIndexable())
+                    .Select(f => f.Rotate(f.Count / filterWidth).AsIndexable())
                     .ToList()
                 ;
 
@@ -256,10 +273,10 @@ namespace BrightWire.LinearAlgebra
             }
 
             var matrixList2 = matrixList.Select(m => new CpuMatrix(m));
+            var ret = new Cpu3DTensor(matrixList2.ToList());
             if (padding > 0)
-                return new Cpu3DTensor(matrixList2.Select(m => m.RemovePadding(padding)).ToList());
-            else
-                return new Cpu3DTensor(matrixList2.ToList());
+                return ret.RemovePadding(padding);
+            return ret;
         }
     }
 }

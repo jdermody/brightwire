@@ -662,53 +662,53 @@ namespace BrightWire.LinearAlgebra
         }
 
         // down first
-        public IMatrix Im2Col(int filterWidth, int filterHeight, int stride)
-        {
-            var rowList = new List<List<float>>();
-            foreach(var filter in ConvolutionHelper.Default(ColumnCount, RowCount, filterWidth, filterHeight, stride)) {
-                var row = new List<float>();
-                foreach (var item in filter)
-                    row.Add(this[item.Y, item.X]);
-            }
-            var firstRow = rowList.First();
-            return new CpuMatrix(DenseMatrix.Create(rowList.Count, firstRow.Count, (i, j) => rowList[i][j]));
-        }
+        //public IMatrix Im2Col(int filterWidth, int filterHeight, int stride)
+        //{
+        //    var rowList = new List<List<float>>();
+        //    foreach(var filter in ConvolutionHelper.Default(ColumnCount, RowCount, filterWidth, filterHeight, stride)) {
+        //        var row = new List<float>();
+        //        foreach (var item in filter)
+        //            row.Add(this[item.Y, item.X]);
+        //    }
+        //    var firstRow = rowList.First();
+        //    return new CpuMatrix(DenseMatrix.Create(rowList.Count, firstRow.Count, (i, j) => rowList[i][j]));
+        //}
 
-        public IMatrix AddPadding(int padding)
-        {
-            if (padding > 0) {
-                var newRows = RowCount + padding * 2;
-                var newColumns = ColumnCount + padding * 2;
-                var ret = new CpuMatrix(DenseMatrix.Create(newRows, newColumns, 0f));
+        //public IMatrix AddPadding(int padding)
+        //{
+        //    if (padding > 0) {
+        //        var newRows = RowCount + padding * 2;
+        //        var newColumns = ColumnCount + padding * 2;
+        //        var ret = new CpuMatrix(DenseMatrix.Create(newRows, newColumns, 0f));
 
-                for (var j = 0; j < newRows; j++) {
-                    for (var i = 0; i < newColumns; i++) {
-                        if (i < padding || j < padding)
-                            continue;
-                        else if (i >= newRows - padding || j >= newColumns - padding)
-                            continue;
-                        ret[i, j] = this[i - padding, j - padding];
-                    }
-                }
-                return ret;
-            }
-            return this;
-        }
+        //        for (var j = 0; j < newRows; j++) {
+        //            for (var i = 0; i < newColumns; i++) {
+        //                if (i < padding || j < padding)
+        //                    continue;
+        //                else if (i >= newRows - padding || j >= newColumns - padding)
+        //                    continue;
+        //                ret[i, j] = this[i - padding, j - padding];
+        //            }
+        //        }
+        //        return ret;
+        //    }
+        //    return this;
+        //}
 
-        public IMatrix RemovePadding(int padding)
-        {
-            if (padding > 0) {
-                var newRows = RowCount - padding * 2;
-                var newColumns = ColumnCount - padding * 2;
-                var ret = new CpuMatrix(new DenseMatrix(newRows, newColumns));
-                for (var j = 0; j < newRows; j++) {
-                    for (var i = 0; i < newColumns; i++) {
-                        ret[i, j] = this[i + padding, j + padding];
-                    }
-                }
-                return ret;
-            }
-            return this;
-        }
+        //public IMatrix RemovePadding(int padding)
+        //{
+        //    if (padding > 0) {
+        //        var newRows = RowCount - padding * 2;
+        //        var newColumns = ColumnCount - padding * 2;
+        //        var ret = new CpuMatrix(new DenseMatrix(newRows, newColumns));
+        //        for (var j = 0; j < newRows; j++) {
+        //            for (var i = 0; i < newColumns; i++) {
+        //                ret[i, j] = this[i + padding, j + padding];
+        //            }
+        //        }
+        //        return ret;
+        //    }
+        //    return this;
+        //}
     }
 }

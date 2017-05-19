@@ -171,14 +171,21 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             var newWidth = ((inputWidth - _filterWidth + (2 * _padding)) / _stride) + 1;
             var newHeight = ((inputHeight - _filterHeight + (2 * _padding)) / _stride) + 1;
 
-            I3DTensor tensor2;
-            if (_padding > 0)
-                tensor2 = tensor.AddPadding(_padding);
-            else
-                tensor2 = tensor;
+            IMatrix im2Col = null;
+            if (context.Data.RowId.HasValue)
+                im2Col = context.ExecutionContext.GetInputTransfomation(context.Data.RowId.Value);
+            if (im2Col == null) {
+                I3DTensor tensor2;
+                if (_padding > 0)
+                    tensor2 = tensor.AddPadding(_padding);
+                else
+                    tensor2 = tensor;
 
-            var matrix = tensor2.Im2Col(_filterWidth, _filterHeight, _stride);
-            var outputSignal = matrix.Multiply(_filter);
+                im2Col = tensor2.Im2Col(_filterWidth, _filterHeight, _stride);
+                if (context.Data.RowId.HasValue)
+                    context.ExecutionContext.SetInputTransformation(context.Data.RowId.Value, im2Col);
+            }
+            var outputSignal = im2Col.Multiply(_filter);
             outputSignal.AddToEachRow(_bias);
 
             var matrixList2 = new List<IMatrix>();
@@ -187,7 +194,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             var outputTensor = lap.CreateTensor(matrixList2);
 
             var graphData = new TensorGraphData(outputTensor);
-            _AddNextGraphAction(context, graphData, () => new Backpropagation(this, matrix, inputWidth, inputHeight, newWidth, newHeight));
+            _AddNextGraphAction(context, graphData, () => new Backpropagation(this, im2Col, inputWidth, inputHeight, newWidth, newHeight));
         }
     }
 }

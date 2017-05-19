@@ -346,9 +346,9 @@ namespace BrightWire
         /// <summary>
         /// Rotates values in the vector (both within and along blocks)
         /// </summary>
-        /// <param name="blockSize">The size of the block to use</param>
+        /// <param name="blockCount">The size of each sub vector</param>
         /// <returns></returns>
-        IVector Rotate(int blockSize);
+        IVector Rotate(int blockCount);
 
         /// <summary>
         /// In place reversal of the vector's values
@@ -727,13 +727,13 @@ namespace BrightWire
         /// Rotates the matrix 180 degrees
         /// </summary>
         /// <returns></returns>
-        IMatrix Rotate180();
+        //IMatrix Rotate180();
 
-        IMatrix AddPadding(int padding);
+        //IMatrix AddPadding(int padding);
 
-        IMatrix RemovePadding(int padding);
+        //IMatrix RemovePadding(int padding);
 
-        IMatrix Im2Col(int filterWidth, int filterHeight, int stride);
+        //IMatrix Im2Col(int filterWidth, int filterHeight, int stride);
     }
 
     /// <summary>
@@ -865,6 +865,8 @@ namespace BrightWire
         /// <param name="indexPosList">A map of the indexes that were pooled (mapping from output to input positions)</param>
         /// <returns>A max pooled tensor</returns>
         I3DTensor MaxPool(int filterWidth, int filterHeight, int stride, List<Dictionary<Tuple<int, int>, Tuple<int, int>>> indexPosList);
+
+        I3DTensor ReverseMaxPool(int rows, int columns, IReadOnlyList<Dictionary<Tuple<int, int>, Tuple<int, int>>> indexPosList);
 
         /// <summary>
         /// Returns the list of matrices

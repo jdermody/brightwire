@@ -1,5 +1,6 @@
 ﻿using BrightWire.ExecutionGraph.Helper;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
 
@@ -7,14 +8,29 @@ namespace BrightWire.ExecutionGraph.Engine
 {
     class ExecutionContext : IExecutionContext
     {
+        readonly bool _isChild = false;
         readonly List<IGraphOperation> _operationList = new List<IGraphOperation>();
         readonly Dictionary<string, IMatrix> _memory = new Dictionary<string, IMatrix>();
+        readonly ConcurrentDictionary<int, IMatrix> _inputTransformationCache;
         readonly ILinearAlgebraProvider _lap;
         IGraphData _data;
 
-        public ExecutionContext(ILinearAlgebraProvider lap)
+        public ExecutionContext(ILinearAlgebraProvider lap, IExecutionContext parent = null)
         {
             _lap = lap;
+            if(parent != null) {
+                var p = (ExecutionContext)parent;
+                _inputTransformationCache = p._inputTransformationCache;
+                _isChild = true;
+            } else
+                _inputTransformationCache = new ConcurrentDictionary<int, IMatrix>();
+        }
+
+        public void Dispose()
+        {
+            _memory.Clear();
+            if (!_isChild)
+                _inputTransformationCache.Clear();
         }
 
         public ILinearAlgebraProvider LinearAlgebraProvider => _lap;
@@ -54,6 +70,19 @@ namespace BrightWire.ExecutionGraph.Engine
             }
             else
                 _memory[index] = memory;
+        }
+
+        public void SetInputTransformation(int id, IMatrix matrix)
+        {
+            _inputTransformationCache[id] = matrix;
+        }
+
+        public IMatrix GetInputTransfomation(int id)
+        {
+            IMatrix ret;
+            if (_inputTransformationCache.TryGetValue(id, out ret))
+                return ret;
+            return null;
         }
     }
 }

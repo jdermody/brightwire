@@ -21,6 +21,7 @@ namespace BrightWire
         GraphDataType DataType { get; }
         IMatrix GetMatrix();
         I3DTensor GetTensor();
+        int? RowId { get; }
     }
 
     public interface IAction
@@ -84,7 +85,7 @@ namespace BrightWire
         //IMatrix Output { get; set; }
     }
 
-    public interface IExecutionContext
+    public interface IExecutionContext : IDisposable
     {
         IGraphData Data { get; set; }
         void SetMemory(string index, IMatrix memory);
@@ -93,6 +94,8 @@ namespace BrightWire
         void Add(IReadOnlyList<IGraphOperation> operationList);
         ILinearAlgebraProvider LinearAlgebraProvider { get; }
         int RemainingOperationCount { get; }
+        void SetInputTransformation(int id, IMatrix matrix);
+        IMatrix GetInputTransfomation(int id);
     }
 
     public interface IBackpropagation : IDisposable

@@ -325,14 +325,14 @@ namespace BrightWire.LinearAlgebra
         public IMatrix LeakyReluActivation()
         {
             Debug.Assert(IsValid);
-            var ret = _cuda.LeakyRELU(_data, _rows, _columns);
+            var ret = _cuda.LeakyRELU(_data, _rows * _columns);
             return new GpuMatrix(_cuda, _rows, _columns, ret);
         }
 
         public IMatrix LeakyReluDerivative()
         {
             Debug.Assert(IsValid);
-            var ret = _cuda.LeakyRELUDerivative(_data, _rows, _columns);
+            var ret = _cuda.LeakyRELUDerivative(_data, _rows * _columns);
             return new GpuMatrix(_cuda, _rows, _columns, ret);
         }
 
@@ -415,13 +415,13 @@ namespace BrightWire.LinearAlgebra
         public IMatrix ReluActivation()
         {
             Debug.Assert(IsValid);
-            return new GpuMatrix(_cuda, _rows, _columns, _cuda.RELU(_data, _rows, _columns));
+            return new GpuMatrix(_cuda, _rows, _columns, _cuda.RELU(_data, _rows * _columns));
         }
 
         public IMatrix ReluDerivative()
         {
             Debug.Assert(IsValid);
-            return new GpuMatrix(_cuda, _rows, _columns, _cuda.RELUDerivative(_data, _rows, _columns));
+            return new GpuMatrix(_cuda, _rows, _columns, _cuda.RELUDerivative(_data, _rows * _columns));
         }
 
         public IVector Row(int index)
@@ -453,13 +453,13 @@ namespace BrightWire.LinearAlgebra
         public IMatrix SigmoidActivation()
         {
             Debug.Assert(IsValid);
-            return new GpuMatrix(_cuda, _rows, _columns, _cuda.Sigmoid(_data, _rows, _columns));
+            return new GpuMatrix(_cuda, _rows, _columns, _cuda.Sigmoid(_data, _rows * _columns));
         }
 
         public IMatrix SigmoidDerivative()
         {
             Debug.Assert(IsValid);
-            return new GpuMatrix(_cuda, _rows, _columns, _cuda.SigmoidDerivative(_data, _rows, _columns));
+            return new GpuMatrix(_cuda, _rows, _columns, _cuda.SigmoidDerivative(_data, _rows * _columns));
         }
 
         public IMatrix SoftmaxActivation()
@@ -534,13 +534,13 @@ namespace BrightWire.LinearAlgebra
         public IMatrix TanhActivation()
         {
             Debug.Assert(IsValid);
-            return new GpuMatrix(_cuda, _rows, _columns, _cuda.TanH(_data, _rows, _columns));
+            return new GpuMatrix(_cuda, _rows, _columns, _cuda.TanH(_data, _rows * _columns));
         }
 
         public IMatrix TanhDerivative()
         {
             Debug.Assert(IsValid);
-            return new GpuMatrix(_cuda, _rows, _columns, _cuda.TanHDerivative(_data, _rows, _columns));
+            return new GpuMatrix(_cuda, _rows, _columns, _cuda.TanHDerivative(_data, _rows * _columns));
         }
 
         public IMatrix Transpose()
@@ -715,30 +715,6 @@ namespace BrightWire.LinearAlgebra
             Debug.Assert(IsValid);
             _shouldDispose = false;
             return new GpuVector(_cuda, _rows * _columns, _data, false);
-        }
-
-        public IMatrix Rotate180()
-        {
-            // TODO: native cuda implementation
-            return _cuda.CreateMatrix(AsIndexable().Rotate180().AsIndexable());
-        }
-
-        public IMatrix AddPadding(int padding)
-        {
-            // TODO: native cuda implementation
-            return _cuda.CreateMatrix(AsIndexable().AddPadding(padding).AsIndexable());
-        }
-
-        public IMatrix RemovePadding(int padding)
-        {
-            // TODO: native cuda implementation
-            return _cuda.CreateMatrix(AsIndexable().RemovePadding(padding).AsIndexable());
-        }
-
-        public IMatrix Im2Col(int filterWidth, int filterHeight, int stride)
-        {
-            // TODO: native cuda implementation
-            return _cuda.CreateMatrix(AsIndexable().Im2Col(filterWidth, filterHeight, stride).AsIndexable());
         }
     }
 }
