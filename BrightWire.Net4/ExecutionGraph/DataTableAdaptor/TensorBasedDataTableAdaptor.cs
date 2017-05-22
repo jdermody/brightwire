@@ -16,8 +16,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         readonly int _inputSize, _outputSize;
         readonly List<(IContext Context, int Rows, int Columns, int Depth)> _processedContext = new List<(IContext, int, int, int)>();
 
-        public TensorBasedDataTableAdaptor(ILearningContext learningContext, IExecutionContext executionContext, GraphFactory factory, IDataTable dataTable, Action<WireBuilder> dataConversionBuilder) 
-            : base(learningContext, dataTable, executionContext)
+        public TensorBasedDataTableAdaptor(ILinearAlgebraProvider lap, ILearningContext learningContext, GraphFactory factory, IDataTable dataTable, Action<WireBuilder> dataConversionBuilder) 
+            : base(lap, learningContext, dataTable)
         {
             var firstRow = dataTable.GetRow(0);
             var input = (FloatTensor)firstRow.Data[0];
@@ -29,14 +29,14 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 
             // execute the graph to find the input size (which is the size of the adaptive graph's output)
             var firstTensor = new TensorGraphData(_lap.CreateTensor(input));
-            var firstContext = _Process(firstTensor);
+            var firstContext = _Process(null, firstTensor);
             var outputVector = firstContext.Data.GetTensor().ConvertToVector();
             _inputSize = outputVector.Count;
             _learningContext.Clear();
         }
 
-        private TensorBasedDataTableAdaptor(ILearningContext learningContext, IExecutionContext executionContext, IDataTable dataTable, INode input, int inputSize, int outputSize) 
-            :base(learningContext, dataTable, executionContext)
+        private TensorBasedDataTableAdaptor(ILinearAlgebraProvider lap, ILearningContext learningContext, IDataTable dataTable, INode input, int inputSize, int outputSize) 
+            :base(lap, learningContext, dataTable)
         {
             _inputSize = inputSize;
             _outputSize = outputSize;
@@ -45,24 +45,30 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 
         public override IDataSource CloneWith(IDataTable dataTable)
         {
-            return new TensorBasedDataTableAdaptor(_learningContext, _executionContext, dataTable, _input, _inputSize, _outputSize);
+            return new TensorBasedDataTableAdaptor(_lap, _learningContext, dataTable, _input, _inputSize, _outputSize);
         }
 
         public override bool IsSequential => false;
         public override int InputSize => _inputSize;
         public override int OutputSize => _outputSize;
 
-        public override IMiniBatch Get(IReadOnlyList<int> rows)
+        public override IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<int> rows)
         {
             var data = _GetRows(rows);
             var inputList = new List<IVector>();
             var outputList = new List<FloatVector>();
             _processedContext.Clear();
 
+            IGpuLinearAlgebraProvider gpu = null;
+            if (_lap.IsGpu)
+                gpu = _lap as IGpuLinearAlgebraProvider;
+
             var stack = new ConcurrentStack<(IRow, IContext)>();
             Parallel.ForEach(data, row => {
+                if (gpu != null)
+                    gpu.BindThread();
                 var tensor = _lap.CreateTensor(row.Data[0] as FloatTensor);
-                var context = _ConcurentProcess(new TensorGraphData(tensor, row.Index));
+                var context = _ConcurentProcess(executionContext, new TensorGraphData(tensor, row.Index));
                 stack.Push((row, context));
             });
             var contextTable = stack.ToDictionary(d => d.Item1, d => d.Item2);

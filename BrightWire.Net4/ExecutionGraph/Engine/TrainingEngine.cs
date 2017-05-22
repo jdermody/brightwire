@@ -1,6 +1,7 @@
 ﻿using BrightWire.ExecutionGraph.Helper;
 using BrightWire.ExecutionGraph.Node.Input;
 using BrightWire.Helper;
+using BrightWire.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,10 +12,9 @@ namespace BrightWire.ExecutionGraph.Engine
 {
     class TrainingEngine : IGraphTrainingEngine
     {
-        readonly IExecutionContext _executionContext;
         readonly ILinearAlgebraProvider _lap;
         readonly IDataSource _dataSource;
-        readonly List<(TrainingEngineContext Context, IMatrix Output)> _executionResults = new List<(TrainingEngineContext, IMatrix)>();
+        readonly List<(IMiniBatchSequence Sequence, float TrainingError, FloatMatrix Output)> _executionResults = new List<(IMiniBatchSequence Sequence, float TrainingError, FloatMatrix Output)>();
         readonly ILearningContext _learningContext;
         readonly INode _input;
         readonly bool _isStochastic;
@@ -22,12 +22,11 @@ namespace BrightWire.ExecutionGraph.Engine
         double? _lastTrainingError = null, _trainingErrorDelta = null;
         int _noImprovementCount = 0;
 
-        public TrainingEngine(ILinearAlgebraProvider lap, IDataSource dataSource, ILearningContext learningContext, IExecutionContext executionContext, INode input)
+        public TrainingEngine(ILinearAlgebraProvider lap, IDataSource dataSource, ILearningContext learningContext, INode input)
         {
             _lap = lap;
             _dataSource = dataSource;
             _isStochastic = lap.IsStochastic;
-            _executionContext = executionContext;
             _learningContext = learningContext;
             learningContext.SetRowCount(dataSource.RowCount);
             _input = input ?? new FlowThrough();
@@ -35,37 +34,37 @@ namespace BrightWire.ExecutionGraph.Engine
 
         public IReadOnlyList<ExecutionResult> Execute(IDataSource dataSource, int batchSize = 128)
         {
-            var provider = new MiniBatchProvider(dataSource, _isStochastic);
-            _executionContext.Add(provider.GetMiniBatches(batchSize, _Execute));
-
-            IGraphOperation operation;
-            while ((operation = _executionContext.GetNextOperation()) != null) {
-                operation.Execute();
-            }
-
             var ret = new List<ExecutionResult>();
-            foreach (var item in _executionResults) {
-                ret.Add(new ExecutionResult(item.Context.BatchSequence, item.Output.AsIndexable().Rows.ToList()));
-            }
+            var provider = new MiniBatchProvider(dataSource, _isStochastic);
+            using (var executionContext = new ExecutionContext(_lap)) {
+                executionContext.Add(provider.GetMiniBatches(batchSize, mb => _Execute(executionContext, mb)));
 
+                IGraphOperation operation;
+                while ((operation = executionContext.GetNextOperation()) != null) {
+                    operation.Execute(executionContext);
+                }
+
+                foreach (var item in _executionResults) {
+                    ret.Add(new ExecutionResult(item.Sequence, item.Output.Row));
+                }
+
+            }
             _executionResults.Clear();
             return ret;
         }
 
-        public double Train(Action<float> batchCompleteCallback = null)
+        public double Train(IExecutionContext executionContext, Action<float> batchCompleteCallback = null)
         {
             _learningContext.StartEpoch();
             var provider = new MiniBatchProvider(_dataSource, _isStochastic);
-            _executionContext.Add(provider.GetMiniBatches(_learningContext.BatchSize, batch => _Train(_learningContext, batch)));
+            executionContext.Add(provider.GetMiniBatches(_learningContext.BatchSize, batch => _Train(executionContext, _learningContext, batch)));
 
             IGraphOperation operation;
-            float operationCount = _executionContext.RemainingOperationCount;
+            float operationCount = executionContext.RemainingOperationCount;
             float index = 0f;
-            while ((operation = _executionContext.GetNextOperation()) != null) {
-                _lap.PushLayer();
-                operation.Execute();
+            while ((operation = executionContext.GetNextOperation()) != null) {
+                operation.Execute(executionContext);
                 _learningContext.ApplyUpdates();
-                _lap.PopLayer();
 
                 if(batchCompleteCallback != null) {
                     var percentage = (++index) / operationCount;
@@ -75,7 +74,7 @@ namespace BrightWire.ExecutionGraph.Engine
 
             double ret = 0, count = 0;
             foreach (var item in _executionResults) {
-                ret += item.Context.TrainingError;
+                ret += item.TrainingError;
                 ++count;
             }
             if (count > 0)
@@ -88,37 +87,37 @@ namespace BrightWire.ExecutionGraph.Engine
             return ret;
         }
 
-        public IExecutionContext ExecutionContext => _executionContext;
         public IDataSource DataSource => _dataSource;
         public ILearningContext LearningContext => _learningContext;
         public INode Input => _input;
         public Models.ExecutionGraph Graph => _input.GetGraph();
+        public ILinearAlgebraProvider LinearAlgebraProvider => _lap;
 
-        void _Execute(IMiniBatch batch)
+        void _Execute(IExecutionContext executionContext, IMiniBatch batch)
         {
-            _Train(null, batch);
+            _Train(executionContext, null, batch);
         }
 
-        void _Train(ILearningContext learningContext, IMiniBatch batch)
+        void _Train(IExecutionContext executionContext, ILearningContext learningContext, IMiniBatch batch)
         {
             if (batch.IsSequential) {
                 IMiniBatchSequence curr = null;
                 while ((curr = batch.GetNextSequence()) != null)
-                    _Train(learningContext, curr);
+                    _Train(executionContext, learningContext, curr);
             } else
-                _Train(learningContext, batch.CurrentSequence);
+                _Train(executionContext, learningContext, batch.CurrentSequence);
         }
 
-        void _Train(ILearningContext learningContext, IMiniBatchSequence sequence)
+        void _Train(IExecutionContext executionContext, ILearningContext learningContext, IMiniBatchSequence sequence)
         {
-            var context = new TrainingEngineContext(_executionContext, sequence, learningContext);
+            var context = new TrainingEngineContext(executionContext, sequence, learningContext);
             _input.ExecuteForward(context, 0);
 
             while (context.HasNext)
                 context.ExecuteNext();
 
             _dataSource.OnBatchProcessed(context);
-            _executionResults.Add((context, context.Data.GetMatrix()));
+            _executionResults.Add((context.BatchSequence, 0f, context.Data.GetMatrix().Data));
         }
 
         public bool Test(IDataSource testDataSource, IErrorMetric errorMetric, int batchSize = 128)

@@ -1,6 +1,8 @@
 ﻿using BrightWire.LinearAlgebra.Helper;
+using BrightWire.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace BrightWire.ExecutionGraph.ErrorMetric
@@ -12,10 +14,10 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
             return targetOutput.Subtract(output);
         }
 
-        public float Compute(IIndexableVector output, IIndexableVector targetOutput)
+        public float Compute(FloatVector output, FloatVector targetOutput)
         {
-            using (var diff = output.Subtract(targetOutput))
-                return 0.5f * BoundMath.Pow(diff.L2Norm(), 2);
+            var diff = output.Data.Zip(targetOutput.Data, (x1, x2) => Math.Pow(x1 - x2, 2)).Sum();
+            return BoundMath.Constrain(Convert.ToSingle(0.5 * diff));
         }
 
         public bool DisplayAsPercentage { get { return false; } }

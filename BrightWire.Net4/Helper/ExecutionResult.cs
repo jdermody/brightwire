@@ -1,4 +1,5 @@
-﻿using ProtoBuf;
+﻿using BrightWire.Models;
+using ProtoBuf;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,17 +11,17 @@ namespace BrightWire.Helper
     public class ExecutionResult
     {
         readonly IMiniBatchSequence _miniBatch;
-        readonly IReadOnlyList<IIndexableVector> _output;
+        readonly IReadOnlyList<FloatVector> _output;
 
-        public ExecutionResult(IMiniBatchSequence miniBatch, IReadOnlyList<IIndexableVector> output)
+        public ExecutionResult(IMiniBatchSequence miniBatch, IReadOnlyList<FloatVector> output)
         {
             _miniBatch = miniBatch;
             _output = output;
         }
 
-        public IReadOnlyList<IIndexableVector> Output => _output;
-        public IReadOnlyList<IIndexableVector> Target => _miniBatch.Target?.AsIndexable().Rows.ToList();
-        public IReadOnlyList<IIndexableVector> Input => _miniBatch.Input.AsIndexable().Rows.ToList();
+        public IReadOnlyList<FloatVector> Output => _output;
+        public IReadOnlyList<FloatVector> Target => _miniBatch.Target?.Data.Row;
+        public IReadOnlyList<FloatVector> Input => _miniBatch.Input.Data.Row;
         public IMiniBatchSequence MiniBatchSequence => _miniBatch;
 
         public float CalculateError(IErrorMetric errorMetric) => Output.Zip(Target, (o, t) => errorMetric.Compute(o, t)).Average();

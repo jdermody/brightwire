@@ -157,15 +157,17 @@ namespace BrightWire.LinearAlgebra
             return new CpuMatrix(ret);
         }
 
-        public I3DTensor MaxPool(int filterWidth, int filterHeight, int stride, List<Dictionary<Tuple<int, int>, Tuple<int, int>>> indexPosList)
+        public (I3DTensor Result, IReadOnlyList<(int[] X, int[] Y)> Index) MaxPool(int filterWidth, int filterHeight, int stride)
         {
             var newColumns = (ColumnCount - filterWidth) / stride + 1;
             var newRows = (RowCount - filterHeight) / stride + 1;
-            var ret = new List<CpuMatrix>();
+            var matrixList = new List<CpuMatrix>();
+            var indexList = new List<(int[] X, int[] Y)>();
 
             for (var k = 0; k < Depth; k++) {
                 var matrix = _data[k];
-                var indexPos = new Dictionary<Tuple<int, int>, Tuple<int, int>>();
+                var xIndex = new int[newColumns * newRows];
+                var yIndex = new int[newColumns * newRows];
                 var layer = new CpuMatrix(DenseMatrix.Create(newRows, newColumns, 0f));
                 for (var x = 0; x < newColumns; x++) {
                     for (var y = 0; y < newRows; y++) {
@@ -186,27 +188,37 @@ namespace BrightWire.LinearAlgebra
                                 }
                             }
                         }
-                        indexPos[Tuple.Create(bestX, bestY)] = Tuple.Create(x, y);
+                        xIndex[x * newRows + y] = bestX;
+                        yIndex[x * newRows + y] = bestY;
                         layer[y, x] = maxVal;
                     }
                 }
-                if (indexPosList != null)
-                    indexPosList.Add(indexPos);
-                ret.Add(layer);
+                matrixList.Add(layer);
+                indexList.Add((xIndex, yIndex));
             }
-            return new Cpu3DTensor(ret);
+            return (new Cpu3DTensor(matrixList), indexList);
         }
 
-        public I3DTensor ReverseMaxPool(int rows, int columns, IReadOnlyList<Dictionary<Tuple<int, int>, Tuple<int, int>>> indexPosList)
+        public I3DTensor ReverseMaxPool(int rows, int columns, IReadOnlyList<(int[] X, int[] Y)> indexList)
         {
             var matrixList = new List<DenseMatrix>();
-            Tuple<int, int> newIndex;
-            for (var i = 0; i < Depth; i++) {
-                var matrix = GetDepthSlice(i).AsIndexable();
-                var table = indexPosList[i];
+            (int, int) newIndex;
+            for (var z = 0; z < Depth; z++) {
+                var matrix = GetDepthSlice(z).AsIndexable();
+                var newRows = matrix.RowCount;
+                var index = indexList[z];
+                var table = new Dictionary<(int, int), (int, int)>();
+                int count = 0;
+                foreach(var item in index.X.Zip(index.Y, (x, y) => (x, y))) {
+                    var sourceX = (count % newRows);
+                    var sourceY = (count / newRows);
+                    table.Add((item.Item1, item.Item2), (sourceX, sourceY));
+                    ++count;
+                }
 
                 matrixList.Add(DenseMatrix.Create(rows, columns, (x, y) => {
-                    if (table.TryGetValue(Tuple.Create(x, y), out newIndex))
+                    var index2 = x * newRows + y;
+                    if (table.TryGetValue((x, y), out newIndex))
                         return matrix[newIndex.Item2, newIndex.Item1];
                     return 0f;
                 }));
@@ -263,6 +275,7 @@ namespace BrightWire.LinearAlgebra
                     foreach (var item in convolution) {
                         var i = item.X - first.X;
                         var j = item.Y - first.Y;
+                        var index = i * filterHeight + j;
                         for (var z = 0; z < filterList.Count; z++) {
                             var filter = filterList[z];
                             var output = matrixList[z];

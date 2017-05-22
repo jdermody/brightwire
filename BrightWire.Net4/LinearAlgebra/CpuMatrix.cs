@@ -40,6 +40,18 @@ namespace BrightWire.LinearAlgebra
             GC.SuppressFinalize(this);
         }
 
+        public int AddRef()
+        {
+            // nop
+            return 1;
+        }
+
+        public int Release()
+        {
+            // nop
+            return 1;
+        }
+
         public float this[int row, int column]
         {
             get

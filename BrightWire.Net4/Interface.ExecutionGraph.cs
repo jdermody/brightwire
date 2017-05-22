@@ -87,7 +87,6 @@ namespace BrightWire
 
     public interface IExecutionContext : IDisposable
     {
-        IGraphData Data { get; set; }
         void SetMemory(string index, IMatrix memory);
         IMatrix GetMemory(string index);
         IGraphOperation GetNextOperation();
@@ -109,7 +108,7 @@ namespace BrightWire
         int InputSize { get; }
         int OutputSize { get; }
         int RowCount { get; }
-        IMiniBatch Get(IReadOnlyList<int> rows);
+        IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<int> rows);
         IReadOnlyList<IReadOnlyList<int>> GetBuckets();
         void OnBatchProcessed(IContext context);
         IDataSource CloneWith(IDataTable dataTable);
@@ -152,11 +151,12 @@ namespace BrightWire
 
     public interface IGraphOperation
     {
-        void Execute();
+        void Execute(IExecutionContext executionContext);
     }
 
     public interface IGraphEngine
     {
+        ILinearAlgebraProvider LinearAlgebraProvider { get; }
         Models.ExecutionGraph Graph { get; }
         IDataSource DataSource { get; }
         INode Input { get; }
@@ -165,7 +165,7 @@ namespace BrightWire
 
     public interface IGraphTrainingEngine : IGraphEngine
     {
-        double Train(Action<float> batchCompleteCallback = null);
+        double Train(IExecutionContext executionContext, Action<float> batchCompleteCallback = null);
         bool Test(IDataSource testDataSource, IErrorMetric errorMetric, int batchSize = 128);
         ILearningContext LearningContext { get; }
     }

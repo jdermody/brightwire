@@ -29,7 +29,7 @@ namespace BrightWire.ExecutionGraph.DataSource
         public int OutputSize => _outputSize;
         public int RowCount => _data.Count;
 
-        public IMiniBatch Get(IReadOnlyList<int> rows)
+        public IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<int> rows)
         {
             var data = rows.Select(i => _data[i]).ToList();
             var input = _lap.CreateMatrix(data.Count, InputSize, (x, y) => data[x].Data[y]);

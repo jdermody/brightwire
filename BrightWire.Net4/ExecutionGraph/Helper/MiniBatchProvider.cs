@@ -23,10 +23,10 @@ namespace BrightWire.ExecutionGraph.Helper
                 _provider = provider;
             }
 
-            public void Execute()
+            public void Execute(IExecutionContext executionContext)
             {
                 var dataSource = _provider._dataSource;
-                var miniBatch = dataSource.Get(_rows);
+                var miniBatch = dataSource.Get(executionContext, _rows);
                 _handler(miniBatch);
             }
         }

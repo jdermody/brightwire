@@ -24,16 +24,15 @@ namespace BrightWire.SampleCode
                     .Use(graph.GaussianWeightInitialisation())
                 ;
                 var learningContext = graph.CreateLearningContext(0.0003f, 1, false, true);
-                var executionContext = graph.CreateExecutionContext();
 
                 Console.Write("Loading training data...");
-                var trainingData = _BuildTensors(null, learningContext, executionContext, graph, Mnist.Load(dataFilesPath + "train-labels.idx1-ubyte", dataFilesPath + "train-images.idx3-ubyte", 800));
-                var testData = _BuildTensors(trainingData, learningContext, executionContext, graph, Mnist.Load(dataFilesPath + "t10k-labels.idx1-ubyte", dataFilesPath + "t10k-images.idx3-ubyte", 200));
+                var trainingData = _BuildTensors(null, learningContext, graph, Mnist.Load(dataFilesPath + "train-labels.idx1-ubyte", dataFilesPath + "train-images.idx3-ubyte", 800));
+                var testData = _BuildTensors(trainingData, learningContext, graph, Mnist.Load(dataFilesPath + "t10k-labels.idx1-ubyte", dataFilesPath + "t10k-images.idx3-ubyte", 200));
                 Console.WriteLine($"done - {trainingData.RowCount} training images and {testData.RowCount} test images loaded");
 
                 // create the network
                 const int HIDDEN_LAYER_SIZE = 128;
-                var engine = graph.CreateTrainingEngine(trainingData, executionContext, 0.0003f, 128);
+                var engine = graph.CreateTrainingEngine(trainingData, 0.0003f, 128);
                 graph.Connect(engine)
                     .AddFeedForward(HIDDEN_LAYER_SIZE)
                     .Add(graph.ReluActivation())
@@ -46,7 +45,7 @@ namespace BrightWire.SampleCode
             }
         }
 
-        static IDataSource _BuildTensors(IDataSource existing, ILearningContext learningContext, IExecutionContext executionContext, GraphFactory graph, IReadOnlyList<Mnist.Image> images)
+        static IDataSource _BuildTensors(IDataSource existing, ILearningContext learningContext, GraphFactory graph, IReadOnlyList<Mnist.Image> images)
         {
             var dataTable = BrightWireProvider.CreateDataTableBuilder();
             dataTable.AddColumn(ColumnType.Tensor, "Image");
@@ -59,7 +58,7 @@ namespace BrightWire.SampleCode
             if (existing != null)
                 return existing.CloneWith(dataTable.Build());
             else {
-                return graph.GetDataSource(dataTable.Build(), learningContext, executionContext, builder => builder
+                return graph.GetDataSource(dataTable.Build(), learningContext, builder => builder
                     .AddConvolutional(1, 8, 1, 3, 3, 1)
                     .AddMaxPooling(2, 2, 2)
                     //.AddConvolutional(8, 4, 0, 3, 3, 2)

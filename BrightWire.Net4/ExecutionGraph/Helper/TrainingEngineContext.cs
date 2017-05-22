@@ -18,7 +18,7 @@ namespace BrightWire.ExecutionGraph.Helper
         readonly Dictionary<INode, List<IExecutionHistory>> _history = new Dictionary<INode, List<IExecutionHistory>>();
         readonly Dictionary<INode, List<IGraphData>> _nodeErrorSignal = new Dictionary<INode, List<IGraphData>>();
         INode _sourceNode;
-        IGraphData _errorSignal = null;
+        IGraphData _errorSignal = null, _data;
         double _trainingError = 0;
 
         public TrainingEngineContext(IExecutionContext executionContext, IMiniBatchSequence miniBatch, ILearningContext learningContext)
@@ -26,14 +26,14 @@ namespace BrightWire.ExecutionGraph.Helper
             _miniBatch = miniBatch;
             _executionContext = executionContext;
             _learningContext = learningContext;
-            _executionContext.Data = miniBatch.Input.ToGraphData();
+            _data = miniBatch.Input.ToGraphData();
         }
         public TrainingEngineContext(IExecutionContext executionContext, IGraphData data, ILearningContext learningContext)
         {
             _miniBatch = null;
             _executionContext = executionContext;
             _learningContext = learningContext;
-            _executionContext.Data = data;
+            _data = data;
         }
 
         public bool IsTraining => _learningContext != null;
@@ -45,7 +45,7 @@ namespace BrightWire.ExecutionGraph.Helper
         public double TrainingError => _trainingError;
         public INode Source => _sourceNode;
         public IGraphData ErrorSignal => _errorSignal;
-        public IGraphData Data => _executionContext.Data;
+        public IGraphData Data => _data;
         //public IMatrix Output { get => _output; set => _output = value; }
 
         //public Stack<(IGraphData ErrorSignal, INode Target, INode Source)> Backward => _backward;
@@ -73,7 +73,7 @@ namespace BrightWire.ExecutionGraph.Helper
                 var next = _forward.ElementAt(0);
                 _forward.RemoveAt(0);
 
-                _executionContext.Data = next.Data;
+                _data = next.Data;
                 _sourceNode = next.Source;
                 if (next.Source.Output != null) {
                     foreach (var output in next.Source.Output)

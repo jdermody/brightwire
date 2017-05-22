@@ -37,8 +37,7 @@ namespace BrightWire.SampleCode
                 Console.WriteLine($"done - {trainingData.RowCount} training images and {testData.RowCount} test images loaded");
 
                 // create the training engine and schedule two learning rate changes
-                var executionContext = graph.CreateExecutionContext();
-                var engine = graph.CreateTrainingEngine(trainingData, executionContext, 0.001f, 128);
+                var engine = graph.CreateTrainingEngine(trainingData, 0.001f, 128);
                 engine.LearningContext.ScheduleLearningRate(10, 0.0003f);
                 engine.LearningContext.ScheduleLearningRate(20, 0.0001f);
 

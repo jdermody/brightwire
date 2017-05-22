@@ -104,5 +104,19 @@ namespace BrightWire.Models
             }
             return true;
         }
+
+        public int MaximumIndex()
+        {
+            var ret = 0;
+            var max = float.MinValue;
+            for(int i = 0, len = Size; i < len; i++) {
+                var val = Data[i];
+                if(val > max) {
+                    max = Data[i];
+                    ret = i;
+                }
+            }
+            return ret;
+        }
     }
 }

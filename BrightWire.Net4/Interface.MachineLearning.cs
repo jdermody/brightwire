@@ -12,7 +12,7 @@ namespace BrightWire
     public interface IErrorMetric
     {
         bool DisplayAsPercentage { get; }
-        float Compute(IIndexableVector output, IIndexableVector targetOutput);
+        float Compute(FloatVector output, FloatVector targetOutput);
         IMatrix CalculateGradient(IMatrix output, IMatrix targetOutput);
     }
 

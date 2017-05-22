@@ -1,4 +1,5 @@
 ﻿using BrightWire.ExecutionGraph;
+using BrightWire.ExecutionGraph.Engine;
 using BrightWire.ExecutionGraph.Helper;
 using BrightWire.Models;
 using System;
@@ -23,10 +24,11 @@ namespace BrightWire
         /// <param name="onImprovement">Optional callback for when the test data score has improved against the error metric</param>
         public static void Train(this IGraphTrainingEngine engine, int numIterations, IDataSource testData, IErrorMetric errorMetric, Action<GraphModel> onImprovement = null)
         {
+            var executionContext = new ExecutionContext(engine.LinearAlgebraProvider);
             engine.Test(testData, errorMetric);
             Console.Write("\r({0:P}) ", 0f);
             for (var i = 0; i < numIterations; i++) {
-                engine.Train(percentage => Console.Write("\r({0:P}) ", percentage));
+                engine.Train(executionContext, percentage => Console.Write("\r({0:P}) ", percentage));
                 if (engine.Test(testData, errorMetric) && onImprovement != null) {
                     var bestModel = new GraphModel {
                         Graph = engine.Graph

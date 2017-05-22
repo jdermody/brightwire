@@ -14,24 +14,24 @@ namespace BrightWire.ExecutionGraph.Engine
     {
         class Context : IContext
         {
-            readonly ExecutionEngine _engine;
+            readonly IExecutionContext _executionContext;
             readonly IMiniBatchSequence _miniBatch;
             readonly List<IExecutionHistory> _forward = new List<IExecutionHistory>();
             INode _sourceNode = null;
-            IMatrix _output = null;
+            IGraphData _data;
 
-            public Context(ExecutionEngine engine, IMiniBatchSequence miniBatch)
+            public Context(IExecutionContext executionContext, IMiniBatchSequence miniBatch)
             {
-                _engine = engine;
+                _executionContext = executionContext;
                 _miniBatch = miniBatch;
-                _engine._executionContext.Data = new MatrixGraphData(miniBatch.Input);
+                _data = new MatrixGraphData(miniBatch.Input);
             }
 
             public bool IsTraining => false;
             public INode Source => _sourceNode;
-            public IExecutionContext ExecutionContext => _engine._executionContext;
+            public IExecutionContext ExecutionContext => _executionContext;
             public ILearningContext LearningContext => null;
-            public ILinearAlgebraProvider LinearAlgebraProvider => _engine._lap;
+            public ILinearAlgebraProvider LinearAlgebraProvider => _executionContext.LinearAlgebraProvider;
             public IMiniBatchSequence BatchSequence => _miniBatch;
             public void AddBackward(IGraphData errorSignal, INode target, INode source) => throw new NotImplementedException();
             public void Backpropagate(IGraphData delta) => throw new NotImplementedException();
@@ -39,7 +39,7 @@ namespace BrightWire.ExecutionGraph.Engine
             public void AddForward(IExecutionHistory action, Func<IBackpropagation> callback) => _forward.Add(action);
             public IGraphData ErrorSignal => throw new NotImplementedException();
             public bool HasNext => _forward.Any();
-            public IGraphData Data => _engine._executionContext.Data;
+            public IGraphData Data => _data;
 
             public bool ExecuteNext()
             {
@@ -47,7 +47,7 @@ namespace BrightWire.ExecutionGraph.Engine
                     var next = _forward.ElementAt(0);
                     _forward.RemoveAt(0);
 
-                    _engine._executionContext.Data = next.Data;
+                    _data = next.Data;
                     _sourceNode = next.Source;
                     if (next.Source.Output != null) {
                         foreach (var output in next.Source.Output)
@@ -60,57 +60,57 @@ namespace BrightWire.ExecutionGraph.Engine
             }
         }
         readonly Models.ExecutionGraph _graph;
-        readonly IExecutionContext _executionContext;
         readonly List<(Context Context, IMatrix Data)> _executionResults = new List<(Context, IMatrix)>();
         readonly ILinearAlgebraProvider _lap;
         IDataSource _dataSource = null;
         readonly INode _input;
 
-        public ExecutionEngine(ILinearAlgebraProvider lap, IExecutionContext executionContext, Models.ExecutionGraph graph, INode input)
+        public ExecutionEngine(ILinearAlgebraProvider lap, Models.ExecutionGraph graph, INode input)
         {
             _lap = lap;
             _graph = graph;
-            _executionContext = executionContext;
             _input = input;
         }
 
         public Models.ExecutionGraph Graph => _graph;
         public IDataSource DataSource => _dataSource;
+        public ILinearAlgebraProvider LinearAlgebraProvider => _lap;
         public INode Input => _input;
 
         public IReadOnlyList<ExecutionResult> Execute(IDataSource dataSource, int batchSize = 128)
         {
             _dataSource = dataSource;
-            var provider = new MiniBatchProvider(dataSource, false);
-            _executionContext.Add(provider.GetMiniBatches(batchSize, _Execute));
-
-            IGraphOperation operation;
-            while ((operation = _executionContext.GetNextOperation()) != null) {
-                operation.Execute();
-            }
-
             var ret = new List<ExecutionResult>();
-            foreach (var item in _executionResults)
-                ret.Add(new ExecutionResult(item.Context.BatchSequence, item.Data.AsIndexable().Rows.ToList()));
+            var provider = new MiniBatchProvider(dataSource, false);
+            using (var executionContext = new ExecutionContext(_lap)) {
+                executionContext.Add(provider.GetMiniBatches(batchSize, mb => _Execute(executionContext, mb)));
 
+                IGraphOperation operation;
+                while ((operation = executionContext.GetNextOperation()) != null) {
+                    operation.Execute(executionContext);
+                }
+
+                foreach (var item in _executionResults)
+                    ret.Add(new ExecutionResult(item.Context.BatchSequence, item.Data.AsIndexable().Rows.Select(r => r.Data).ToList()));
+            }
             _executionResults.Clear();
             _dataSource = null;
             return ret;
         }
 
-        void _Execute(IMiniBatch batch)
+        void _Execute(IExecutionContext executionContext, IMiniBatch batch)
         {
             if (batch.IsSequential) {
                 IMiniBatchSequence curr = null;
                 while ((curr = batch.GetNextSequence()) != null) {
-                    var context = new Context(this, curr);
+                    var context = new Context(executionContext, curr);
                     _input.ExecuteForward(context, 0);
                     while (context.HasNext)
                         context.ExecuteNext();
                     _executionResults.Add((context, context.Data.GetMatrix()));
                 }
             } else {
-                var context = new Context(this, batch.CurrentSequence);
+                var context = new Context(executionContext, batch.CurrentSequence);
                 _input.ExecuteForward(context, 0);
 
                 while (context.HasNext)

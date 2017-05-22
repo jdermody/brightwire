@@ -1,4 +1,5 @@
 ﻿using BrightWire.LinearAlgebra.Helper;
+using BrightWire.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -12,13 +13,13 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
             return targetOutput.Subtract(output);
         }
 
-        public float Compute(IIndexableVector output, IIndexableVector targetOutput)
+        public float Compute(FloatVector output, FloatVector targetOutput)
         {
             float ret = 0;
-            var len = output.Count;
+            var len = output.Size;
             for (var i = 0; i < len; i++) {
-                var a = output[i];
-                var y = targetOutput[i];
+                var a = output.Data[i];
+                var y = targetOutput.Data[i];
                 ret += BoundMath.Constrain(-y * BoundMath.Log(a) - (1.0f - y) * BoundMath.Log(1.0f - a));
             }
             return ret / len;

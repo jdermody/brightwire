@@ -37,8 +37,7 @@ namespace BrightWire.SampleCode
                 // create the engine
                 var trainingData = graph.GetDataSource(data.Training);
                 var testData = trainingData.CloneWith(data.Test);
-                var executionContext = graph.CreateExecutionContext();
-                var engine = graph.CreateTrainingEngine(trainingData, executionContext, 0.0002f, 16);
+                var engine = graph.CreateTrainingEngine(trainingData, 0.0002f, 16);
 
                 // build the network
                 const int HIDDEN_LAYER_SIZE = 32;
@@ -55,7 +54,7 @@ namespace BrightWire.SampleCode
 
                 // export the graph and verify that the error is the same
                 var networkGraph = engine.Graph;
-                var executionEngine = graph.CreateEngine(networkGraph, executionContext);
+                var executionEngine = graph.CreateEngine(networkGraph);
                 var output = executionEngine.Execute(testData);
                 Console.WriteLine(output.Average(o => o.CalculateError(errorMetric)));
             }

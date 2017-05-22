@@ -85,11 +85,10 @@ namespace BrightWire.SampleCode
                 // create the training and test data sources
                 var trainingData = graph.GetDataSource(split.Training);
                 var testData = trainingData.CloneWith(split.Test);
-                var executionContext = graph.CreateExecutionContext();
 
                 // create a 4x3x3 neural network with sigmoid activations after each neural network
                 const int HIDDEN_LAYER_SIZE = 8;
-                var engine = graph.CreateTrainingEngine(trainingData, executionContext, 0.1f, 8);
+                var engine = graph.CreateTrainingEngine(trainingData, 0.1f, 8);
                 graph.Connect(engine)
                     .AddFeedForward(HIDDEN_LAYER_SIZE)
                     .Add(graph.TanhActivation())

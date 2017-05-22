@@ -8,40 +8,36 @@ namespace BrightWire.ExecutionGraph.Engine
 {
     class ExecutionContext : IExecutionContext
     {
-        readonly bool _isChild = false;
-        readonly List<IGraphOperation> _operationList = new List<IGraphOperation>();
-        readonly Dictionary<string, IMatrix> _memory = new Dictionary<string, IMatrix>();
+        readonly ConcurrentQueue<IGraphOperation> _operationList = new ConcurrentQueue<IGraphOperation>();
+        readonly ConcurrentDictionary<string, IMatrix> _memory = new ConcurrentDictionary<string, IMatrix>();
         readonly ConcurrentDictionary<int, IMatrix> _inputTransformationCache;
         readonly ILinearAlgebraProvider _lap;
-        IGraphData _data;
 
-        public ExecutionContext(ILinearAlgebraProvider lap, IExecutionContext parent = null)
+        public ExecutionContext(ILinearAlgebraProvider lap)
         {
             _lap = lap;
-            if(parent != null) {
-                var p = (ExecutionContext)parent;
-                _inputTransformationCache = p._inputTransformationCache;
-                _isChild = true;
-            } else
-                _inputTransformationCache = new ConcurrentDictionary<int, IMatrix>();
+            _inputTransformationCache = new ConcurrentDictionary<int, IMatrix>();
         }
 
         public void Dispose()
         {
+            foreach (var item in _memory)
+                item.Value.Dispose();
             _memory.Clear();
-            if (!_isChild)
-                _inputTransformationCache.Clear();
+
+            foreach (var item in _inputTransformationCache)
+                item.Value.Dispose();
+            _inputTransformationCache.Clear();
         }
 
         public ILinearAlgebraProvider LinearAlgebraProvider => _lap;
-        public IGraphData Data
-        {
-            get { return _data; }
-            set { _data = value; }
-        }
 
-        public void Add(IReadOnlyList<IGraphOperation> operations) => _operationList.AddRange(operations);
-        public void Add(IGraphOperation operation) => _operationList.Add(operation);
+        public void Add(IReadOnlyList<IGraphOperation> operations)
+        {
+            foreach (var item in operations)
+                _operationList.Enqueue(item);
+        }
+        public void Add(IGraphOperation operation) => _operationList.Enqueue(operation);
         public int RemainingOperationCount => _operationList.Count;
 
         public IMatrix GetMemory(string index)
@@ -54,27 +50,28 @@ namespace BrightWire.ExecutionGraph.Engine
 
         public IGraphOperation GetNextOperation()
         {
-            for (int i = 0, len = _operationList.Count; i < len; i++) {
-                var operation = _operationList[i];
-                _operationList.RemoveAt(i);
-                return operation;
-            }
+            IGraphOperation ret;
+            if (_operationList.TryDequeue(out ret))
+                return ret;
             return null;
         }
 
         public void SetMemory(string index, IMatrix memory)
         {
             if (memory == null) {
-                if(_memory.ContainsKey(index))
-                    _memory.Remove(index);
-            }
-            else
+                IMatrix temp;
+                if (_memory.TryRemove(index, out temp))
+                    temp.Release();
+            } else {
                 _memory[index] = memory;
+                memory.AddRef();
+            }
         }
 
         public void SetInputTransformation(int id, IMatrix matrix)
         {
             _inputTransformationCache[id] = matrix;
+            matrix.AddRef();
         }
 
         public IMatrix GetInputTransfomation(int id)

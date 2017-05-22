@@ -29,8 +29,7 @@ namespace BrightWire.SampleCode
 
                 // create the engine
                 var testData = graph.GetDataSource(data);
-                var executionContext = graph.CreateExecutionContext();
-                var engine = graph.CreateTrainingEngine(testData, executionContext, 0.03f, 2);
+                var engine = graph.CreateTrainingEngine(testData, 0.03f, 2);
 
                 // create the network
                 const int HIDDEN_LAYER_SIZE = 4;
@@ -44,7 +43,7 @@ namespace BrightWire.SampleCode
 
                 // train the network
                 for (var i = 0; i < 2000; i++) {
-                    var trainingError = engine.Train();
+                    var trainingError = engine.Train(null);
                     if (i % 100 == 0)
                         engine.Test(testData, errorMetric);
                 }
@@ -52,7 +51,7 @@ namespace BrightWire.SampleCode
 
                 // create a new network to execute the learned network
                 var networkGraph = engine.Graph;
-                var executionEngine = graph.CreateEngine(networkGraph, executionContext);
+                var executionEngine = graph.CreateEngine(networkGraph);
                 var output = executionEngine.Execute(testData);
                 Console.WriteLine(output.Average(o => o.CalculateError(errorMetric)));
 
@@ -61,7 +60,7 @@ namespace BrightWire.SampleCode
                     foreach (var index in item.MiniBatchSequence.MiniBatch.Rows) {
                         var row = data.GetRow(index);
                         var result = item.Output[index];
-                        Console.WriteLine($"{row.GetField<int>(0)} XOR {row.GetField<int>(1)} = {result[0]}");
+                        Console.WriteLine($"{row.GetField<int>(0)} XOR {row.GetField<int>(1)} = {result.Data[0]}");
                     }
                 }
             }

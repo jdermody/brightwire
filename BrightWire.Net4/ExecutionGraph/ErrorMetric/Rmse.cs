@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BrightWire.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,9 +13,9 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
             return targetOutput.Subtract(output);
         }
 
-        public float Compute(IIndexableVector output, IIndexableVector targetOutput)
+        public float Compute(FloatVector output, FloatVector targetOutput)
         {
-            return Convert.ToSingle(Math.Sqrt(output.Values.Zip(targetOutput.Values, (d1, d2) => Math.Pow(d1 - d2, 2)).Average()));
+            return Convert.ToSingle(Math.Sqrt(output.Data.Zip(targetOutput.Data, (d1, d2) => Math.Pow(d1 - d2, 2)).Average()));
         }
 
         public bool DisplayAsPercentage { get { return false; } }

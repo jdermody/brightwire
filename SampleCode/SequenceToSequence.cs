@@ -52,8 +52,7 @@ namespace BrightWire.SampleCode
                 // create the engine
                 var trainingData = graph.GetDataSource(data.Training);
                 var testData = trainingData.CloneWith(data.Test);
-                var executionContext = graph.CreateExecutionContext();
-                var engine = graph.CreateTrainingEngine(trainingData, executionContext, 0.003f, 8);
+                var engine = graph.CreateTrainingEngine(trainingData, 0.003f, 8);
 
                 // build the network
                 const int HIDDEN_LAYER_SIZE = 128;
@@ -68,7 +67,7 @@ namespace BrightWire.SampleCode
                 engine.Train(10, testData, errorMetric);
 
                 var networkGraph = engine.Graph;
-                var executionEngine = graph.CreateEngine(networkGraph, executionContext);
+                var executionEngine = graph.CreateEngine(networkGraph);
 
                 var output = executionEngine.Execute(testData);
                 Console.WriteLine(output.Average(o => o.CalculateError(errorMetric)));
@@ -108,8 +107,7 @@ namespace BrightWire.SampleCode
                 // create the engine
                 var trainingData = graph.GetDataSource(data.Training);
                 var testData = trainingData.CloneWith(data.Test);
-                var executionContext = graph.CreateExecutionContext();
-                var engine = graph.CreateTrainingEngine(trainingData, executionContext, 0.0003f, 8);
+                var engine = graph.CreateTrainingEngine(trainingData, 0.0003f, 8);
 
                 // build the network
                 const int HIDDEN_LAYER_SIZE = 128;
@@ -126,7 +124,7 @@ namespace BrightWire.SampleCode
                 engine.Train(10, testData, errorMetric);
 
                 var networkGraph = engine.Graph;
-                var executionEngine = graph.CreateEngine(networkGraph, executionContext);
+                var executionEngine = graph.CreateEngine(networkGraph);
 
                 var output = executionEngine.Execute(testData);
                 Console.WriteLine(output.Where(o => o.Target != null).Average(o => o.CalculateError(errorMetric)));
@@ -165,11 +163,10 @@ namespace BrightWire.SampleCode
                 int HIDDEN_LAYER_SIZE = 64;
                 const float TRAINING_RATE = 0.003f;
                 var encoderLearningContext = graph.CreateLearningContext(TRAINING_RATE, BATCH_SIZE, true, true);
-                var executionContext = graph.CreateExecutionContext();
                 var encoderMemory = new float[HIDDEN_LAYER_SIZE];
                 var decoderMemory = new float[HIDDEN_LAYER_SIZE];
 
-                var trainingData = graph.GetDataSource(data.Training, encoderLearningContext, executionContext, wb => wb
+                var trainingData = graph.GetDataSource(data.Training, encoderLearningContext, wb => wb
                     .AddLstm(encoderMemory, "encoder")
                     .AddForwardAction(new WriteNodeMemoryToSlot("shared-memory", wb.Find("encoder") as IHaveMemoryNode))
                     .AddFeedForward(grammar.DictionarySize)
@@ -179,7 +176,7 @@ namespace BrightWire.SampleCode
                 var testData = trainingData.CloneWith(data.Test);
 
                 // create the engine
-                var engine = graph.CreateTrainingEngine(trainingData, executionContext, TRAINING_RATE, BATCH_SIZE);
+                var engine = graph.CreateTrainingEngine(trainingData, TRAINING_RATE, BATCH_SIZE);
                 var wb2 = graph.Connect(engine);
                 wb2
                     .AddForwardAction(new JoinInputWithMemory("shared-memory"))
@@ -194,10 +191,9 @@ namespace BrightWire.SampleCode
                 engine.Train(100, testData, errorMetric);
 
                 var dataSourceModel = (trainingData as IAdaptiveDataSource).GetModel();
-                var executionContext2 = graph.CreateExecutionContext();
-                var testData2 = graph.GetDataSource(data.Test, executionContext2, dataSourceModel);
+                var testData2 = graph.GetDataSource(data.Test, dataSourceModel);
                 var networkGraph = engine.Graph;
-                var executionEngine = graph.CreateEngine(networkGraph, executionContext2);
+                var executionEngine = graph.CreateEngine(networkGraph);
 
                 var output = executionEngine.Execute(testData2);
                 Console.WriteLine(output.Average(o => o.CalculateError(errorMetric)));

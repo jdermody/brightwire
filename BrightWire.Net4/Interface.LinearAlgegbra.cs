@@ -7,6 +7,17 @@ using System.Threading.Tasks;
 
 namespace BrightWire
 {
+    public interface IGpuLinearAlgebraProvider
+    {
+        void BindThread();
+    }
+
+    public interface ICountReferences
+    {
+        int AddRef();
+        int Release();
+    }
+
     /// <summary>
     /// Provides linear algebra functionality
     /// </summary>
@@ -101,7 +112,7 @@ namespace BrightWire
     /// <summary>
     /// A vector
     /// </summary>
-    public interface IVector : IDisposable
+    public interface IVector : IDisposable, ICountReferences
     {
         /// <summary>
         /// Checks if the vector has not been disposed
@@ -388,7 +399,7 @@ namespace BrightWire
     /// <summary>
     /// A matrix
     /// </summary>
-    public interface IMatrix : IDisposable
+    public interface IMatrix : IDisposable, ICountReferences
     {
         /// <summary>
         /// Checks if the matrix has not been disposed
@@ -864,9 +875,9 @@ namespace BrightWire
         /// <param name="stride">The pooling stride</param>
         /// <param name="indexPosList">A map of the indexes that were pooled (mapping from output to input positions)</param>
         /// <returns>A max pooled tensor</returns>
-        I3DTensor MaxPool(int filterWidth, int filterHeight, int stride, List<Dictionary<Tuple<int, int>, Tuple<int, int>>> indexPosList);
+        (I3DTensor Result, IReadOnlyList<(int[] X, int[] Y)> Index) MaxPool(int filterWidth, int filterHeight, int stride);
 
-        I3DTensor ReverseMaxPool(int rows, int columns, IReadOnlyList<Dictionary<Tuple<int, int>, Tuple<int, int>>> indexPosList);
+        I3DTensor ReverseMaxPool(int rows, int columns, IReadOnlyList<(int[] X, int[] Y)> indexList);
 
         /// <summary>
         /// Returns the list of matrices

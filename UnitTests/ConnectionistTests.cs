@@ -54,8 +54,7 @@ namespace UnitTests
             // build the autoencoder with tied weights
             var graph = new GraphFactory(_lap);
             var dataSource = graph.GetDataSource(dataTable);
-            var executionContext = graph.CreateExecutionContext();
-            var engine = graph.CreateTrainingEngine(dataSource, executionContext, 0.03f, 32);
+            var engine = graph.CreateTrainingEngine(dataSource, 0.03f, 32);
             var errorMetric = graph.ErrorMetric.Rmse;
             graph.CurrentPropertySet
                 .Use(graph.RmsProp())
@@ -69,11 +68,13 @@ namespace UnitTests
                 .Add(graph.TanhActivation())
                 .AddForwardAction(new Backpropagate(errorMetric))
             ;
-            for (var i = 0; i < 2; i++) {
-                var trainingError = engine.Train();
+            using (var executionContext = graph.CreateExecutionContext()) {
+                for (var i = 0; i < 2; i++) {
+                    var trainingError = engine.Train(executionContext);
+                }
             }
             var networkGraph = engine.Graph;
-            var executionEngine = graph.CreateEngine(networkGraph, executionContext);
+            var executionEngine = graph.CreateEngine(networkGraph);
         }
     }
 }

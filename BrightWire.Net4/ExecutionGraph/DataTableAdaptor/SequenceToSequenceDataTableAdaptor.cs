@@ -1,4 +1,5 @@
-﻿using BrightWire.ExecutionGraph.Helper;
+﻿using BrightWire.ExecutionGraph.Engine;
+using BrightWire.ExecutionGraph.Helper;
 using BrightWire.ExecutionGraph.Node.Input;
 using BrightWire.Models;
 using System;
@@ -15,8 +16,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         int _inputSize, _outputSize;
         //readonly List<IContext> _batchEncoder = new List<IContext>();
 
-        public SequenceToSequenceDataTableAdaptor(ILearningContext learningContext, IExecutionContext executionContext, GraphFactory factory, IDataTable dataTable, Action<WireBuilder> dataConversionBuilder)
-            : base(learningContext, dataTable, executionContext)
+        public SequenceToSequenceDataTableAdaptor(ILinearAlgebraProvider lap, ILearningContext learningContext, GraphFactory factory, IDataTable dataTable, Action<WireBuilder> dataConversionBuilder)
+            : base(lap, learningContext, dataTable)
         {
             _Initialise(dataTable);
 
@@ -24,13 +25,15 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             dataConversionBuilder(wireBuilder);
 
             // execute the graph to find the input size (which is the size of the adaptive graph's output)
-            var output = _Encode(new[] { 0 });
-            _inputSize = output.Item1.ColumnCount;
-            _learningContext.Clear();
+            using (var executionContext = new ExecutionContext(lap)) {
+                var output = _Encode(executionContext, new[] { 0 });
+                _inputSize = output.Item1.ColumnCount;
+                _learningContext.Clear();
+            }
         }
 
-        public SequenceToSequenceDataTableAdaptor(ILearningContext learningContext, IExecutionContext executionContext, IDataTable dataTable, INode input, DataSourceModel dataSource)
-            : base(learningContext, dataTable, executionContext)
+        public SequenceToSequenceDataTableAdaptor(ILinearAlgebraProvider lap, ILearningContext learningContext, IDataTable dataTable, INode input, DataSourceModel dataSource)
+            : base(lap, learningContext, dataTable)
         {
             _Initialise(dataTable);
             _input = input;
@@ -52,8 +55,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             _outputSize = outputMatrix.ColumnCount;
         }
 
-        private SequenceToSequenceDataTableAdaptor(ILearningContext learningContext, IExecutionContext executionContext, IDataTable dataTable, INode input, int inputSize, int outputSize)
-            : base(learningContext, dataTable, executionContext)
+        private SequenceToSequenceDataTableAdaptor(ILinearAlgebraProvider lap, ILearningContext learningContext, IDataTable dataTable, INode input, int inputSize, int outputSize)
+            : base(lap, learningContext, dataTable)
         {
             _Initialise(dataTable);
             _input = input;
@@ -63,7 +66,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 
         public override IDataSource CloneWith(IDataTable dataTable)
         {
-            return new SequenceToSequenceDataTableAdaptor(_learningContext, _executionContext, dataTable, _input, _inputSize, _outputSize);
+            return new SequenceToSequenceDataTableAdaptor(_lap, _learningContext, dataTable, _input, _inputSize, _outputSize);
         }
 
         public override bool IsSequential => true;
@@ -80,7 +83,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             ;
         }
 
-        (IMatrix, IReadOnlyList<IRow>) _Encode(IReadOnlyList<int> rows)
+        (IMatrix, IReadOnlyList<IRow>) _Encode(IExecutionContext executionContext, IReadOnlyList<int> rows)
         {
             var data = _GetRows(rows);
 
@@ -94,16 +97,16 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             IMiniBatchSequence sequence;
             IMatrix encoderOutput = null;
             while ((sequence = encoderInput.GetNextSequence()) != null) {
-                var context = _Process(sequence);
+                var context = _Process(executionContext, sequence);
                 if (sequence.Type == MiniBatchType.SequenceEnd)
                     encoderOutput = context.Data.GetMatrix();
             }
             return (encoderOutput, data);
         }
 
-        public override IMiniBatch Get(IReadOnlyList<int> rows)
+        public override IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<int> rows)
         {
-            (var encoderOutput, var data) = _Encode(rows);
+            (var encoderOutput, var data) = _Encode(executionContext, rows);
 
             // create the decoder input
             List<FloatVector> temp;

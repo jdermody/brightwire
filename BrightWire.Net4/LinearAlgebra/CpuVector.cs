@@ -25,15 +25,21 @@ namespace BrightWire.LinearAlgebra
             _vector = vector;
         }
 
-        protected virtual void Dispose(bool disposing)
+        public void Dispose()
         {
             // nop
         }
 
-        public void Dispose()
+        public int AddRef()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            // nop
+            return 1;
+        }
+
+        public int Release()
+        {
+            // nop
+            return 1;
         }
 
         public float this[int index]

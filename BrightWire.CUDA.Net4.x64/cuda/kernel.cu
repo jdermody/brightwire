@@ -724,11 +724,61 @@ extern "C"
 	{
 		int index = blockDim.x * blockIdx.x + threadIdx.x;
 		
-
 		if(index < size) {
 			int blockIndex = index / blockCount;
 			int blockSubIndex = index % blockSize;
 			b[index] = a[blockCount - blockIndex - 1][blockSize - blockSubIndex - 1];
+		}
+	}
+
+	__global__ void TensorMaxPool(float** a, float** b, int** bestXIndexPtr, int** bestYIndexPtr, int aRows, int aColumns, int depth, int bRows, int bColumns, int filterWidth, int filterHeight, int stride)
+	{
+		int i = blockDim.x * blockIdx.x + threadIdx.x;
+		int j = blockDim.y * blockIdx.y + threadIdx.y;
+		if(i < bRows && j < bColumns) {
+			int index = j * bRows + i;
+			int aX = j * stride;
+			int aY = i * stride;
+
+			for(int z = 0; z < depth; z++) {
+				float* source = a[z];
+				float* target = b[z];
+				int* bestXIndex = bestXIndexPtr[z];
+				int* bestYIndex = bestYIndexPtr[z];
+	
+				float maxVal = FLT_MIN;
+				int bestX = -1;
+				int bestY = -1;
+				for (int fx = 0; fx < filterWidth; fx++) {
+					for (int fy = 0; fy < filterHeight; fy++) {
+						int xPos = aX + fx;
+						int yPos = aY + fy;
+						float val = source[xPos * aRows + yPos];
+						if (val > maxVal || bestX == -1) {
+							bestX = xPos;
+							bestY = yPos;
+							maxVal = val;
+						}
+					}
+				}
+				bestXIndex[index] = bestX;
+				bestYIndex[index] = bestY;
+				target[index] = maxVal;
+			}
+		}
+	}
+
+
+
+	__global__ void TensorCalculateWeightUpdate(float** a, float* b, int aRows, int aColumns, int depth, int bRows, int bColumns, int rowCount)
+	{
+		int i = blockDim.x * blockIdx.x + threadIdx.x;
+		int j = blockDim.y * blockIdx.y + threadIdx.y;
+
+		if(i < bRows && j < bColumns) {
+			int x = (j - i) / rowCount;
+			int y = j - (x / rowCount);
+			b[j * bRows + i] = a[j][x * aRows + y];
 		}
 	}
 }

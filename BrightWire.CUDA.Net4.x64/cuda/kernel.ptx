@@ -2844,4 +2844,222 @@ BB50_2:
 	ret;
 }
 
+	// .globl	TensorMaxPool
+.visible .entry TensorMaxPool(
+	.param .u64 TensorMaxPool_param_0,
+	.param .u64 TensorMaxPool_param_1,
+	.param .u64 TensorMaxPool_param_2,
+	.param .u64 TensorMaxPool_param_3,
+	.param .u32 TensorMaxPool_param_4,
+	.param .u32 TensorMaxPool_param_5,
+	.param .u32 TensorMaxPool_param_6,
+	.param .u32 TensorMaxPool_param_7,
+	.param .u32 TensorMaxPool_param_8,
+	.param .u32 TensorMaxPool_param_9,
+	.param .u32 TensorMaxPool_param_10,
+	.param .u32 TensorMaxPool_param_11
+)
+{
+	.reg .pred 	%p<13>;
+	.reg .f32 	%f<18>;
+	.reg .b32 	%r<73>;
+	.reg .b64 	%rd<32>;
+
+
+	ld.param.u64 	%rd13, [TensorMaxPool_param_0];
+	ld.param.u64 	%rd14, [TensorMaxPool_param_1];
+	ld.param.u64 	%rd15, [TensorMaxPool_param_2];
+	ld.param.u64 	%rd16, [TensorMaxPool_param_3];
+	ld.param.u32 	%r31, [TensorMaxPool_param_4];
+	ld.param.u32 	%r32, [TensorMaxPool_param_6];
+	ld.param.u32 	%r33, [TensorMaxPool_param_7];
+	ld.param.u32 	%r37, [TensorMaxPool_param_8];
+	ld.param.u32 	%r34, [TensorMaxPool_param_9];
+	ld.param.u32 	%r35, [TensorMaxPool_param_10];
+	ld.param.u32 	%r36, [TensorMaxPool_param_11];
+	mov.u32 	%r1, %ctaid.x;
+	mov.u32 	%r2, %ntid.x;
+	mov.u32 	%r3, %tid.x;
+	mad.lo.s32 	%r4, %r1, %r2, %r3;
+	mov.u32 	%r5, %ctaid.y;
+	mov.u32 	%r6, %ntid.y;
+	mov.u32 	%r7, %tid.y;
+	mad.lo.s32 	%r8, %r5, %r6, %r7;
+	setp.lt.s32	%p1, %r4, %r33;
+	setp.lt.s32	%p2, %r8, %r37;
+	and.pred  	%p3, %p1, %p2;
+	@!%p3 bra 	BB51_9;
+	bra.uni 	BB51_1;
+
+BB51_1:
+	setp.lt.s32	%p4, %r32, 1;
+	@%p4 bra 	BB51_9;
+
+	cvta.to.global.u64 	%rd1, %rd16;
+	cvta.to.global.u64 	%rd2, %rd15;
+	cvta.to.global.u64 	%rd3, %rd14;
+	cvta.to.global.u64 	%rd4, %rd13;
+	mad.lo.s32 	%r39, %r8, %r33, %r4;
+	mul.lo.s32 	%r9, %r8, %r36;
+	cvt.s64.s32	%rd5, %r39;
+	mad.lo.s32 	%r42, %r31, %r8, %r4;
+	mul.lo.s32 	%r10, %r36, %r42;
+	mul.lo.s32 	%r11, %r36, %r4;
+	mov.u32 	%r38, 0;
+	shl.b64 	%rd27, %rd5, 2;
+	mov.u32 	%r52, %r38;
+
+BB51_3:
+	mul.wide.s32 	%rd17, %r52, 8;
+	add.s64 	%rd18, %rd4, %rd17;
+	ld.global.u64 	%rd19, [%rd18];
+	cvta.to.global.u64 	%rd6, %rd19;
+	add.s64 	%rd20, %rd3, %rd17;
+	ld.global.u64 	%rd7, [%rd20];
+	add.s64 	%rd21, %rd2, %rd17;
+	ld.global.u64 	%rd8, [%rd21];
+	add.s64 	%rd22, %rd1, %rd17;
+	ld.global.u64 	%rd9, [%rd22];
+	mov.f32 	%f14, 0f00800000;
+	mov.u32 	%r69, -1;
+	mov.u32 	%r60, %r69;
+	mov.f32 	%f17, %f14;
+	mov.u32 	%r72, %r69;
+	mov.u32 	%r63, %r69;
+	setp.lt.s32	%p5, %r34, 1;
+	mov.u32 	%r51, %r38;
+	@%p5 bra 	BB51_8;
+
+BB51_4:
+	mov.f32 	%f10, %f17;
+	mov.f32 	%f16, %f10;
+	mov.u32 	%r65, %r72;
+	mov.u32 	%r71, %r65;
+	mov.u32 	%r56, %r63;
+	mov.u32 	%r62, %r56;
+	mov.u32 	%r13, %r51;
+	setp.lt.s32	%p6, %r35, 1;
+	@%p6 bra 	BB51_7;
+
+	mad.lo.s32 	%r49, %r31, %r13, %r10;
+	mul.wide.s32 	%rd23, %r49, 4;
+	add.s64 	%rd31, %rd6, %rd23;
+	add.s32 	%r16, %r13, %r9;
+	mov.u32 	%r54, 0;
+	mov.u32 	%r53, %r11;
+	mov.u32 	%r61, %r62;
+	mov.u32 	%r70, %r71;
+	mov.f32 	%f15, %f16;
+
+BB51_6:
+	mov.u32 	%r17, %r53;
+	ld.global.f32 	%f8, [%rd31];
+	setp.gt.ftz.f32	%p7, %f8, %f15;
+	setp.eq.s32	%p8, %r70, -1;
+	or.pred  	%p9, %p7, %p8;
+	selp.f32	%f15, %f8, %f15, %p9;
+	selp.b32	%r70, %r16, %r70, %p9;
+	selp.b32	%r61, %r17, %r61, %p9;
+	add.s64 	%rd31, %rd31, 4;
+	add.s32 	%r23, %r17, 1;
+	add.s32 	%r54, %r54, 1;
+	setp.lt.s32	%p10, %r54, %r35;
+	mov.u32 	%r53, %r23;
+	mov.u32 	%r62, %r61;
+	mov.u32 	%r71, %r70;
+	mov.f32 	%f16, %f15;
+	@%p10 bra 	BB51_6;
+
+BB51_7:
+	mov.f32 	%f17, %f16;
+	mov.u32 	%r72, %r71;
+	mov.u32 	%r63, %r62;
+	add.s32 	%r27, %r13, 1;
+	setp.lt.s32	%p11, %r27, %r34;
+	mov.u32 	%r51, %r27;
+	mov.u32 	%r60, %r63;
+	mov.u32 	%r69, %r72;
+	mov.f32 	%f14, %f17;
+	@%p11 bra 	BB51_4;
+
+BB51_8:
+	cvta.to.global.u64 	%rd24, %rd7;
+	cvta.to.global.u64 	%rd25, %rd8;
+	cvta.to.global.u64 	%rd26, %rd9;
+	add.s64 	%rd28, %rd25, %rd27;
+	st.global.u32 	[%rd28], %r69;
+	add.s64 	%rd29, %rd26, %rd27;
+	st.global.u32 	[%rd29], %r60;
+	add.s64 	%rd30, %rd24, %rd27;
+	st.global.f32 	[%rd30], %f14;
+	add.s32 	%r52, %r52, 1;
+	setp.lt.s32	%p12, %r52, %r32;
+	@%p12 bra 	BB51_3;
+
+BB51_9:
+	ret;
+}
+
+	// .globl	TensorCalculateWeightUpdate
+.visible .entry TensorCalculateWeightUpdate(
+	.param .u64 TensorCalculateWeightUpdate_param_0,
+	.param .u64 TensorCalculateWeightUpdate_param_1,
+	.param .u32 TensorCalculateWeightUpdate_param_2,
+	.param .u32 TensorCalculateWeightUpdate_param_3,
+	.param .u32 TensorCalculateWeightUpdate_param_4,
+	.param .u32 TensorCalculateWeightUpdate_param_5,
+	.param .u32 TensorCalculateWeightUpdate_param_6,
+	.param .u32 TensorCalculateWeightUpdate_param_7
+)
+{
+	.reg .pred 	%p<4>;
+	.reg .f32 	%f<2>;
+	.reg .b32 	%r<19>;
+	.reg .b64 	%rd<13>;
+
+
+	ld.param.u64 	%rd1, [TensorCalculateWeightUpdate_param_0];
+	ld.param.u64 	%rd2, [TensorCalculateWeightUpdate_param_1];
+	ld.param.u32 	%r3, [TensorCalculateWeightUpdate_param_2];
+	ld.param.u32 	%r4, [TensorCalculateWeightUpdate_param_5];
+	ld.param.u32 	%r6, [TensorCalculateWeightUpdate_param_6];
+	ld.param.u32 	%r5, [TensorCalculateWeightUpdate_param_7];
+	mov.u32 	%r7, %ntid.x;
+	mov.u32 	%r8, %ctaid.x;
+	mov.u32 	%r9, %tid.x;
+	mad.lo.s32 	%r1, %r8, %r7, %r9;
+	mov.u32 	%r10, %ctaid.y;
+	mov.u32 	%r11, %ntid.y;
+	mov.u32 	%r12, %tid.y;
+	mad.lo.s32 	%r2, %r10, %r11, %r12;
+	setp.lt.s32	%p1, %r1, %r4;
+	setp.lt.s32	%p2, %r2, %r6;
+	and.pred  	%p3, %p1, %p2;
+	@!%p3 bra 	BB52_2;
+	bra.uni 	BB52_1;
+
+BB52_1:
+	cvta.to.global.u64 	%rd3, %rd1;
+	sub.s32 	%r13, %r2, %r1;
+	div.s32 	%r14, %r13, %r5;
+	div.s32 	%r15, %r14, %r5;
+	sub.s32 	%r16, %r2, %r15;
+	mul.wide.s32 	%rd4, %r2, 8;
+	add.s64 	%rd5, %rd3, %rd4;
+	ld.global.u64 	%rd6, [%rd5];
+	cvta.to.global.u64 	%rd7, %rd6;
+	mad.lo.s32 	%r17, %r14, %r3, %r16;
+	mul.wide.s32 	%rd8, %r17, 4;
+	add.s64 	%rd9, %rd7, %rd8;
+	ld.global.f32 	%f1, [%rd9];
+	mad.lo.s32 	%r18, %r2, %r4, %r1;
+	cvta.to.global.u64 	%rd10, %rd2;
+	mul.wide.s32 	%rd11, %r18, 4;
+	add.s64 	%rd12, %rd10, %rd11;
+	st.global.f32 	[%rd12], %f1;
+
+BB52_2:
+	ret;
+}
+
 

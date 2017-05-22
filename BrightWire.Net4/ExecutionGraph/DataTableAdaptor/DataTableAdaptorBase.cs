@@ -26,7 +26,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         public abstract int OutputSize { get; }
         public virtual int RowCount => _data.Count;
 
-        public abstract IMiniBatch Get(IReadOnlyList<int> rows);
+        public abstract IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<int> rows);
         public abstract IDataSource CloneWith(IDataTable dataTable);
 
         public virtual IReadOnlyList<IReadOnlyList<int>> GetBuckets()

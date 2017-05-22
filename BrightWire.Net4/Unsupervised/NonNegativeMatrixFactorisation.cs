@@ -78,7 +78,7 @@ namespace BrightWire.Unsupervised
 
         float _DifferenceCost(IMatrix m1, IMatrix m2)
         {
-            return m1.AsIndexable().Rows.Zip(m2.AsIndexable().Rows, (r1, r2) => _costFunction.Compute(r1, r2)).Average();
+            return m1.AsIndexable().Rows.Zip(m2.AsIndexable().Rows, (r1, r2) => _costFunction.Compute(r1.Data, r2.Data)).Average();
         }
     }
 }

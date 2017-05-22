@@ -13,16 +13,14 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
     abstract class AdaptiveDataTableAdaptorBase : DataTableAdaptorBase, IAdaptiveDataSource
     {
         protected INode _input;
-        protected readonly IExecutionContext _executionContext;
         protected readonly ILearningContext _learningContext;
 
-        public AdaptiveDataTableAdaptorBase(ILearningContext learningContext, IDataTable dataTable, IExecutionContext executionContext)
-            : base(executionContext.LinearAlgebraProvider, dataTable)
+        public AdaptiveDataTableAdaptorBase(ILinearAlgebraProvider lap, ILearningContext learningContext, IDataTable dataTable)
+            : base(lap, dataTable)
         {
             Debug.Assert(learningContext == null || learningContext.DeferUpdates);
 
             _learningContext = learningContext;
-            _executionContext = executionContext;
             _input = new FlowThrough();
         }
 
@@ -38,9 +36,9 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             };
         }
 
-        protected IContext _Process(IGraphData data)
+        protected IContext _Process(IExecutionContext executionContext, IGraphData data)
         {
-            var context = new TrainingEngineContext(_executionContext, data, _learningContext);
+            var context = new TrainingEngineContext(executionContext, data, _learningContext);
             _input.ExecuteForward(context, 0);
 
             while (context.HasNext)
@@ -49,11 +47,9 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             return context;
         }
 
-        protected IContext _ConcurentProcess(IGraphData data)
+        protected IContext _ConcurentProcess(IExecutionContext executionContext, IGraphData data)
         {
-            var lap = _executionContext.LinearAlgebraProvider;
-            var executionContext = new ExecutionContext(lap, _executionContext);
-            var learningContext = new LearningContext(lap, _learningContext.LearningRate, _learningContext.BatchSize, false, true);
+            var learningContext = new LearningContext(_lap, _learningContext.LearningRate, _learningContext.BatchSize, false, true);
             var context = new TrainingEngineContext(executionContext, data, learningContext);
             _input.ExecuteForward(context, 0);
 
@@ -63,9 +59,9 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             return context;
         }
 
-        protected IContext _Process(IMiniBatchSequence sequence)
+        protected IContext _Process(IExecutionContext executionContext, IMiniBatchSequence sequence)
         {
-            var context = new TrainingEngineContext(_executionContext, sequence, _learningContext);
+            var context = new TrainingEngineContext(executionContext, sequence, _learningContext);
             _input.ExecuteForward(context, 0);
 
             while (context.HasNext)
