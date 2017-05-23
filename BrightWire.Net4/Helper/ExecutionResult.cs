@@ -12,16 +12,20 @@ namespace BrightWire.Helper
     {
         readonly IMiniBatchSequence _miniBatch;
         readonly IReadOnlyList<FloatVector> _output;
+        readonly IReadOnlyList<FloatVector> _target;
+        readonly IReadOnlyList<FloatVector> _input;
 
         public ExecutionResult(IMiniBatchSequence miniBatch, IReadOnlyList<FloatVector> output)
         {
             _miniBatch = miniBatch;
             _output = output;
+            _target = _miniBatch.Target?.Data.Row;
+            _input = _miniBatch.Input.Data.Row;
         }
 
         public IReadOnlyList<FloatVector> Output => _output;
-        public IReadOnlyList<FloatVector> Target => _miniBatch.Target?.Data.Row;
-        public IReadOnlyList<FloatVector> Input => _miniBatch.Input.Data.Row;
+        public IReadOnlyList<FloatVector> Target => _target;
+        public IReadOnlyList<FloatVector> Input => _input;
         public IMiniBatchSequence MiniBatchSequence => _miniBatch;
 
         public float CalculateError(IErrorMetric errorMetric) => Output.Zip(Target, (o, t) => errorMetric.Compute(o, t)).Average();

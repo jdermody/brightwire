@@ -15,6 +15,16 @@ namespace BrightWire.ExecutionGraph.Helper
         {
             _tensor = tensor;
             _rowId = rowId;
+            _tensor.AddRef();
+        }
+
+        public int AddRef()
+        {
+            return _tensor.AddRef();
+        }
+        public int Release()
+        {
+            return _tensor.Release();
         }
 
         public GraphDataType DataType => GraphDataType.Tensor;

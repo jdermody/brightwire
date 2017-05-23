@@ -11,21 +11,23 @@ using System.Threading.Tasks;
 
 namespace BrightWire.CUDA.Helper
 {
-    internal class MemoryCache : IDisposable
+    internal class MemoryBlock : IDisposable
     {
-        internal class Item : IDisposable
+        internal class Ptr : ICountReferences
         {
             readonly int _index;
-            readonly MemoryCache _cache;
+            readonly MemoryBlock _cache;
             CudaDeviceVariable<float> _data;
+            bool _disposed = false;
             int _refCount = 1;
 
 #if DEBUG
             public static int _badAlloc = -1;
             public static int _badDispose = -1;
+            public static int _badAddRef = -1;
 #endif
 
-            public Item(MemoryCache cache, int index, int size)
+            public Ptr(MemoryBlock cache, int index, int size)
             {
                 _cache = cache;
                 _index = index;
@@ -35,24 +37,45 @@ namespace BrightWire.CUDA.Helper
                     Debugger.Break();
 #endif
             }
+#if DEBUG
+            ~Ptr()
+            {
+                if (!_disposed)
+                    Debug.WriteLine("\tMemory Block {0} was not disposed !!", _index);
+            }
+#endif
             public CudaDeviceVariable<float> DeviceVariable => _data;
             public CUdeviceptr DevicePointer => _data.DevicePointer;
             public int Size => _data.Size;
             public int Index => _index;
-            public void Dispose()
+            public void Destroy()
             {
 #if DEBUG
                 if (_index == _badDispose)
                     Debugger.Break();
 #endif
-                _data.Dispose();
+                if (!_disposed) {
+                    _data.Dispose();
+                    _disposed = true;
+                }
+#if DEBUG
+                GC.SuppressFinalize(this);
+#endif
             }
             public int AddRef()
             {
+#if DEBUG
+                if (_index == _badAddRef)
+                    Debugger.Break();
+#endif
                 return Interlocked.Increment(ref _refCount);
             }
             public int Release()
             {
+#if DEBUG
+                if (_index == _badAddRef)
+                    Debugger.Break();
+#endif
                 if (Interlocked.Decrement(ref _refCount) == 0)
                     _cache.OnFree(this);
                 return _refCount;
@@ -61,7 +84,7 @@ namespace BrightWire.CUDA.Helper
             {
                 _data.CopyToDevice(source);
             }
-            public void CopyToDevice(Item source)
+            public void CopyToDevice(Ptr source)
             {
                 _data.CopyToDevice(source.DeviceVariable);
             }
@@ -69,7 +92,7 @@ namespace BrightWire.CUDA.Helper
             {
                 _data.CopyToHost(target);
             }
-            public Item Clone()
+            public Ptr Clone()
             {
                 var block = _cache.GetMemory(_data.Size);
                 block.DeviceVariable.CopyToDevice(_data);
@@ -81,16 +104,16 @@ namespace BrightWire.CUDA.Helper
             }
         }
         readonly int _maxSize;
-        readonly ConcurrentStack<List<Item>> _layer = new ConcurrentStack<List<Item>>();
-        ConcurrentDictionary<int, List<Item>> _cache = new ConcurrentDictionary<int, List<Item>>();
+        readonly ConcurrentStack<List<Ptr>> _layer = new ConcurrentStack<List<Ptr>>();
+        ConcurrentDictionary<int, List<Ptr>> _cache = new ConcurrentDictionary<int, List<Ptr>>();
         int _index = 0;
 
-        public MemoryCache(int maxSize = 1048576)
+        public MemoryBlock(int maxSize = 1048576)
         {
             _maxSize = maxSize;
             PushLayer();
         }
-        ~MemoryCache()
+        ~MemoryBlock()
         {
             _Dispose();
         }
@@ -101,11 +124,11 @@ namespace BrightWire.CUDA.Helper
         }
         void _Dispose()
         {
-            List<Item> layer;
+            List<Ptr> layer;
             while (_layer.TryPop(out layer)) {
                 lock (layer) {
                     foreach (var item in layer)
-                        item.Dispose();
+                        item.Destroy();
                 }
             }
             _cache.Clear();
@@ -113,12 +136,12 @@ namespace BrightWire.CUDA.Helper
 
         public void PushLayer()
         {
-            _layer.Push(new List<Item>());
+            _layer.Push(new List<Ptr>());
         }
 
         public void PopLayer()
         {
-            List<Item> layer;
+            List<Ptr> layer;
             if (_layer.TryPop(out layer)) {
                 lock (layer) {
                     foreach (var item in layer)
@@ -127,10 +150,10 @@ namespace BrightWire.CUDA.Helper
             }
         }
 
-        void OnFree(Item item)
+        void OnFree(Ptr item)
         {
             // add the new item
-            var temp = _cache.GetOrAdd(item.Size, kv => new List<Item>());
+            var temp = _cache.GetOrAdd(item.Size, kv => new List<Ptr>());
             lock (temp) {
                 temp.Add(item);
             }
@@ -142,10 +165,10 @@ namespace BrightWire.CUDA.Helper
             }
         }
 
-        void _RemoveFromCache(Item item)
+        void _RemoveFromCache(Ptr item)
         {
-            item.Dispose();
-            List<Item> temp;
+            item.Destroy();
+            List<Ptr> temp;
 
             if(_cache.TryGetValue(item.Size, out temp)) {
                 lock (temp) {
@@ -155,21 +178,22 @@ namespace BrightWire.CUDA.Helper
             }
         }
 
-        public Item GetMemory(int size)
+        public Ptr GetMemory(int size)
         {
-            Item ret;
-            List<Item> temp;
+            Ptr ret;
+            List<Ptr> temp;
             if (_cache.TryGetValue(size, out temp)) {
                 lock (temp) {
                     ret = temp.FirstOrDefault();
                     if (ret != null) {
                         temp.RemoveAt(0);
+                        ret.AddRef();
                         return ret;
                     }
                 }
             }
 
-            ret = new Item(this, _GetNextIndex(), size);
+            ret = new Ptr(this, _GetNextIndex(), size);
             if (_layer.TryPeek(out temp)) {
                 lock (temp) {
                     temp.Add(ret);

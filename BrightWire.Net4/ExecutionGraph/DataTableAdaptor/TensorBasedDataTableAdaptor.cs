@@ -16,7 +16,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         readonly int _inputSize, _outputSize;
         readonly List<(IContext Context, int Rows, int Columns, int Depth)> _processedContext = new List<(IContext, int, int, int)>();
 
-        public TensorBasedDataTableAdaptor(ILinearAlgebraProvider lap, ILearningContext learningContext, GraphFactory factory, IDataTable dataTable, Action<WireBuilder> dataConversionBuilder) 
+        public TensorBasedDataTableAdaptor(ILinearAlgebraProvider lap, ILearningContext learningContext, GraphFactory factory, IDataTable dataTable, Action<WireBuilder> dataConversionBuilder)
             : base(lap, learningContext, dataTable)
         {
             var firstRow = dataTable.GetRow(0);
@@ -29,10 +29,11 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 
             // execute the graph to find the input size (which is the size of the adaptive graph's output)
             var firstTensor = new TensorGraphData(_lap.CreateTensor(input));
-            var firstContext = _Process(null, firstTensor);
-            var outputVector = firstContext.Data.GetTensor().ConvertToVector();
-            _inputSize = outputVector.Count;
-            _learningContext.Clear();
+            using (var firstContext = _Process(null, firstTensor)) {
+                var outputVector = firstContext.Data.GetTensor().ConvertToVector();
+                _inputSize = outputVector.Count;
+                _learningContext.Clear();
+            }
         }
 
         private TensorBasedDataTableAdaptor(ILinearAlgebraProvider lap, ILearningContext learningContext, IDataTable dataTable, INode input, int inputSize, int outputSize) 
@@ -57,7 +58,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             var data = _GetRows(rows);
             var inputList = new List<IVector>();
             var outputList = new List<FloatVector>();
-            _processedContext.Clear();
+
+            Debug.Assert(!_processedContext.Any());
 
             IGpuLinearAlgebraProvider gpu = null;
             if (_lap.IsGpu)
@@ -105,6 +107,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 
             foreach (var item in _processedContext) {
                 item.Item1.LearningContext.ApplyUpdates();
+                item.Context.Dispose();
             }
             _processedContext.Clear();
         }

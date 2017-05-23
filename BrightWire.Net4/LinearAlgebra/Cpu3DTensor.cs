@@ -35,11 +35,22 @@ namespace BrightWire.LinearAlgebra
             _data = matrixList.Cast<CpuMatrix>().ToArray();
         }
 
-        void IDisposable.Dispose()
+        public void Dispose()
         {
             // nop
         }
 
+        public int AddRef()
+        {
+            // nop
+            return 1;
+        }
+
+        public int Release()
+        {
+            // nop
+            return 1;
+        }
         public float this[int row, int column, int depth]
         {
             get

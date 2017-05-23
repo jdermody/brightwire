@@ -16,6 +16,11 @@ namespace BrightWire.LinearAlgebra
         bool _disposed = false;
 
 #if DEBUG
+        static int _gid = 0;
+        int _id = _gid++;
+        public static int _badAlloc = 1;
+        public static int _badDispose = -1;
+
         public bool IsValid => !_disposed;
 #else
         public bool IsValid => true;
@@ -28,16 +33,28 @@ namespace BrightWire.LinearAlgebra
             _columns = columns;
             _depth = depth;
             _data = data;
+
+#if DEBUG
+            if (_id == _badAlloc)
+                Debugger.Break();
+#endif
         }
 
-        ~Gpu3DTensor()
-        {
-            Dispose(false);
-        }
+//#if DEBUG
+//        ~Gpu3DTensor()
+//        {
+//            if (!_disposed)
+//                Debug.WriteLine("\tTensor {0} was not disposed !!", _id);
+//        }
+//#endif
 
         protected virtual void Dispose(bool disposing)
         {
-            if(!_disposed) {
+#if DEBUG
+            if (_id == _badDispose)
+                Debugger.Break();
+#endif
+            if (!_disposed) {
                 _disposed = true;
                 foreach (var item in _data)
                     item.Memory.Release();
@@ -47,7 +64,28 @@ namespace BrightWire.LinearAlgebra
         public void Dispose()
         {
             Dispose(true);
+#if DEBUG
             GC.SuppressFinalize(this);
+#endif
+        }
+
+        public int AddRef()
+        {
+            var list = new List<int>();
+            foreach (var item in _data)
+                list.Add(item.AddRef());
+            return list.Max();
+        }
+
+        public int Release()
+        {
+            var list = new List<int>();
+            foreach (var item in _data)
+                list.Add(item.Release());
+            var ret = list.Max();
+            if (ret <= 0)
+                _disposed = true;
+            return ret;
         }
 
         public int ColumnCount

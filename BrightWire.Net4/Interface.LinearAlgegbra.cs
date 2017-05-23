@@ -112,7 +112,7 @@ namespace BrightWire
     /// <summary>
     /// A vector
     /// </summary>
-    public interface IVector : IDisposable, ICountReferences
+    public interface IVector : ICountReferences, IDisposable
     {
         /// <summary>
         /// Checks if the vector has not been disposed
@@ -399,7 +399,7 @@ namespace BrightWire
     /// <summary>
     /// A matrix
     /// </summary>
-    public interface IMatrix : IDisposable, ICountReferences
+    public interface IMatrix : ICountReferences, IDisposable
     {
         /// <summary>
         /// Checks if the matrix has not been disposed
@@ -797,7 +797,7 @@ namespace BrightWire
     /// <summary>
     /// A 3D tensor is a list of matrices
     /// </summary>
-    public interface I3DTensor : IDisposable
+    public interface I3DTensor : ICountReferences, IDisposable
     {
         /// <summary>
         /// The number of rows in each matrix

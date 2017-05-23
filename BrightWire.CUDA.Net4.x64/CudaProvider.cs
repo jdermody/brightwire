@@ -111,7 +111,7 @@ namespace BrightWire.LinearAlgebra
         readonly KernelModule _kernel;
         readonly ILinearAlgebraProvider _numerics = BrightWireProvider.CreateLinearAlgebra();
         //readonly Stack<AllocationLayer> _allocationLayer = new Stack<AllocationLayer>();
-        readonly MemoryCache _cache;
+        readonly MemoryBlock _cache;
         readonly CUfunction
             _pointwiseMultiply,
             _addInPlace,
@@ -172,7 +172,7 @@ namespace BrightWire.LinearAlgebra
         public CudaProvider(string cudaKernelPath, bool stochastic = true)
         {
             _stochastic = stochastic;
-            _cache = new MemoryCache();
+            _cache = new MemoryBlock();
             _cuda = new CudaContext();
             _kernel = new KernelModule(_cuda, cudaKernelPath);
             _blas = new CudaBlas(AtomicsMode.Allowed);
@@ -240,6 +240,7 @@ namespace BrightWire.LinearAlgebra
             if (disposing && !_disposed) {
                 _blas.Dispose();
                 _cuda.Dispose();
+                _cache.Dispose();
                 //if(_solver.IsValueCreated)
                 //    _solver.Value.Dispose();
                 _numerics.Dispose();
@@ -294,7 +295,7 @@ namespace BrightWire.LinearAlgebra
             callback(_kernel.CreateExecution(function, x, BLOCK_DIM2));
         }
 
-        internal MemoryCache.Item PointwiseMultiply(MemoryCache.Item a, MemoryCache.Item b, int size)
+        internal MemoryBlock.Ptr PointwiseMultiply(MemoryBlock.Ptr a, MemoryBlock.Ptr b, int size)
         {
             var ret = Allocate(size);
             ret.CopyToDevice(b);
@@ -302,7 +303,7 @@ namespace BrightWire.LinearAlgebra
             return ret;
         }
 
-        internal MemoryCache.Item PointwiseDivide(MemoryCache.Item a, MemoryCache.Item b, int size)
+        internal MemoryBlock.Ptr PointwiseDivide(MemoryBlock.Ptr a, MemoryBlock.Ptr b, int size)
         {
             var ret = Allocate(size);
             ret.CopyToDevice(b);
@@ -310,128 +311,128 @@ namespace BrightWire.LinearAlgebra
             return ret;
         }
 
-        internal void AddInPlace(MemoryCache.Item a, MemoryCache.Item b, int size, float coefficient1, float coefficient2)
+        internal void AddInPlace(MemoryBlock.Ptr a, MemoryBlock.Ptr b, int size, float coefficient1, float coefficient2)
         {
             _Use(_addInPlace, size, k => k.Run(BLOCK_DIM2 * sizeof(float), a.DevicePointer, b.DevicePointer, size, coefficient1, coefficient2));
         }
 
-        internal void SubtractInPlace(MemoryCache.Item a, MemoryCache.Item b, int size, float coefficient1, float coefficient2)
+        internal void SubtractInPlace(MemoryBlock.Ptr a, MemoryBlock.Ptr b, int size, float coefficient1, float coefficient2)
         {
             _Use(_subtractInPlace, size, k => k.Run(BLOCK_DIM2 * sizeof(float), a.DevicePointer, b.DevicePointer, size, coefficient1, coefficient2));
         }
 
-        internal void AddToEachRow(MemoryCache.Item matrix, MemoryCache.Item vector, int rows, int columns)
+        internal void AddToEachRow(MemoryBlock.Ptr matrix, MemoryBlock.Ptr vector, int rows, int columns)
         {
             _Use(_addToEachRow, rows, columns, k => k.Run(0, matrix.DevicePointer, vector.DevicePointer, rows, columns));
         }
 
-        internal void AddToEachColumn(MemoryCache.Item matrix, MemoryCache.Item vector, int rows, int columns)
+        internal void AddToEachColumn(MemoryBlock.Ptr matrix, MemoryBlock.Ptr vector, int rows, int columns)
         {
             _Use(_addToEachColumn, rows, columns, k => k.Run(0, matrix.DevicePointer, vector.DevicePointer, rows, columns));
         }
 
-        internal MemoryCache.Item TanH(MemoryCache.Item a, int size)
+        internal MemoryBlock.Ptr TanH(MemoryBlock.Ptr a, int size)
         {
             var ret = Allocate(size);
             _Use(_tanh, size, k => k.Run(BLOCK_DIM2 * sizeof(float), a.DevicePointer, ret.DevicePointer, size));
             return ret;
         }
 
-        internal MemoryCache.Item TanHDerivative(MemoryCache.Item a, int size)
+        internal MemoryBlock.Ptr TanHDerivative(MemoryBlock.Ptr a, int size)
         {
             var ret = Allocate(size);
             _Use(_tanhDerivative, size, k => k.Run(BLOCK_DIM2 * sizeof(float), a.DevicePointer, ret.DevicePointer, size));
             return ret;
         }
 
-        internal MemoryCache.Item Sigmoid(MemoryCache.Item a, int size)
+        internal MemoryBlock.Ptr Sigmoid(MemoryBlock.Ptr a, int size)
         {
             var ret = Allocate(size);
             _Use(_sigmoid, size, k => k.Run(BLOCK_DIM2 * sizeof(float), a.DevicePointer, ret.DevicePointer, size));
             return ret;
         }
 
-        internal MemoryCache.Item SigmoidDerivative(MemoryCache.Item a, int size)
+        internal MemoryBlock.Ptr SigmoidDerivative(MemoryBlock.Ptr a, int size)
         {
             var ret = Allocate(size);
             _Use(_sigmoidDerivative, size, k => k.Run(BLOCK_DIM2 * sizeof(float), a.DevicePointer, ret.DevicePointer, size));
             return ret;
         }
 
-        internal MemoryCache.Item RELU(MemoryCache.Item a, int size)
+        internal MemoryBlock.Ptr RELU(MemoryBlock.Ptr a, int size)
         {
             var ret = Allocate(size);
             _Use(_relu, size, k => k.Run(BLOCK_DIM2 * sizeof(float), a.DevicePointer, ret.DevicePointer, size));
             return ret;
         }
 
-        internal MemoryCache.Item RELUDerivative(MemoryCache.Item a, int size)
+        internal MemoryBlock.Ptr RELUDerivative(MemoryBlock.Ptr a, int size)
         {
             var ret = Allocate(size);
             _Use(_reluDerivative, size, k => k.Run(BLOCK_DIM2 * sizeof(float), a.DevicePointer, ret.DevicePointer, size));
             return ret;
         }
 
-        internal MemoryCache.Item LeakyRELU(MemoryCache.Item a, int size)
+        internal MemoryBlock.Ptr LeakyRELU(MemoryBlock.Ptr a, int size)
         {
             var ret = Allocate(size);
             _Use(_leakyRelu, size, k => k.Run(BLOCK_DIM2 * sizeof(float), a.DevicePointer, ret.DevicePointer, size));
             return ret;
         }
 
-        internal MemoryCache.Item LeakyRELUDerivative(MemoryCache.Item a, int size)
+        internal MemoryBlock.Ptr LeakyRELUDerivative(MemoryBlock.Ptr a, int size)
         {
             var ret = Allocate(size);
             _Use(_leakyReluDerivative, size, k => k.Run(BLOCK_DIM2 * sizeof(float), a.DevicePointer, ret.DevicePointer, size));
             return ret;
         }
 
-        internal MemoryCache.Item SumRows(MemoryCache.Item a, int rows, int columns)
+        internal MemoryBlock.Ptr SumRows(MemoryBlock.Ptr a, int rows, int columns)
         {
             var ret = Allocate(rows);
             _Use(_sumRows, rows, columns, k => k.Run(0, a.DevicePointer, ret.DevicePointer, rows, columns));
             return ret;
         }
 
-        internal MemoryCache.Item SumColumns(MemoryCache.Item a, int rows, int columns)
+        internal MemoryBlock.Ptr SumColumns(MemoryBlock.Ptr a, int rows, int columns)
         {
             var ret = Allocate(columns);
             _Use(_sumColumns, columns, k => k.Run(0, a.DevicePointer, ret.DevicePointer, rows, columns));
             return ret;
         }
 
-        internal void MemClear(MemoryCache.Item data, int count, int offset = 0, int increment = 1)
+        internal void MemClear(MemoryBlock.Ptr data, int count, int offset = 0, int increment = 1)
         {
             _Use(_memClear, count, k => k.Run(0, data.DevicePointer, count, offset, increment));
         }
 
-        internal MemoryCache.Item Sqrt(MemoryCache.Item a, int size, float valueAdjustment)
+        internal MemoryBlock.Ptr Sqrt(MemoryBlock.Ptr a, int size, float valueAdjustment)
         {
             var ret = Allocate(size);
             _Use(_sqrt, size, k => k.Run(BLOCK_DIM2 * sizeof(float), a.DevicePointer, ret.DevicePointer, size, valueAdjustment));
             return ret;
         }
 
-        internal MemoryCache.Item Abs(MemoryCache.Item a, int size)
+        internal MemoryBlock.Ptr Abs(MemoryBlock.Ptr a, int size)
         {
             var ret = Allocate(size);
             _Use(_abs, size, k => k.Run(0, a.DevicePointer, ret.DevicePointer, size));
             return ret;
         }
 
-        internal MemoryCache.Item Log(MemoryCache.Item a, int size)
+        internal MemoryBlock.Ptr Log(MemoryBlock.Ptr a, int size)
         {
             var ret = Allocate(size);
             _Use(_log, size, k => k.Run(0, a.DevicePointer, ret.DevicePointer, size));
             return ret;
         }
 
-        internal void VectorAdd(MemoryCache.Item a, int size, float scalar)
+        internal void VectorAdd(MemoryBlock.Ptr a, int size, float scalar)
         {
             _Use(_vectorAdd, size, k => k.Run(0, a.DevicePointer, size, scalar));
         }
 
-        internal MemoryCache.Item VectorCopy(MemoryCache.Item a, int size, int[] indexList)
+        internal MemoryBlock.Ptr VectorCopy(MemoryBlock.Ptr a, int size, int[] indexList)
         {
             var retSize = indexList.Length;
             var ret = Allocate(retSize);
@@ -442,14 +443,16 @@ namespace BrightWire.LinearAlgebra
             }
         }
 
-        internal (float Min, float Max) FindMinAndMax(MemoryCache.Item a, int size)
+        internal (float Min, float Max) FindMinAndMax(MemoryBlock.Ptr a, int size)
         {
             if (size > 0) {
                 var ptr = a;
                 while (size > BLOCK_DIM2) {
                     var bufferSize = (size / BLOCK_DIM2) + 1;
-                    using (var minBlock = Allocate(bufferSize, true))
-                    using (var maxBlock = Allocate(bufferSize, true)) {
+                    var minBlock = Allocate(bufferSize, true);
+                    var maxBlock = Allocate(bufferSize, true);
+
+                    try {
                         _Use(_findMinAndMax, size, k => k.Run(BLOCK_DIM2, ptr.DevicePointer, size, minBlock.DevicePointer, maxBlock.DevicePointer));
                         if (ptr != a)
                             ptr.Release();
@@ -461,6 +464,10 @@ namespace BrightWire.LinearAlgebra
                         ptr = Allocate(size);
                         ptr.DeviceVariable.CopyToDevice(minBlock.DeviceVariable, 0, 0, bufferSize * sizeof(float));
                         ptr.DeviceVariable.CopyToDevice(maxBlock.DeviceVariable, 0, bufferSize * sizeof(float), bufferSize * sizeof(float));
+                    }
+                    finally {
+                        minBlock.Release();
+                        maxBlock.Release();
                     }
                 }
                 var data = new float[size];
@@ -478,7 +485,7 @@ namespace BrightWire.LinearAlgebra
             return (0f, 0f);
         }
 
-        internal float SumValues(MemoryCache.Item a, int size)
+        internal float SumValues(MemoryBlock.Ptr a, int size)
         {
             var ptr = a;
             while (size > BLOCK_DIM2) {
@@ -497,7 +504,7 @@ namespace BrightWire.LinearAlgebra
             return total.Sum();
         }
 
-        internal float FindStdDev(MemoryCache.Item a, int size, float mean)
+        internal float FindStdDev(MemoryBlock.Ptr a, int size, float mean)
         {
             var inputSize = size;
             if (size > 0) {
@@ -521,19 +528,19 @@ namespace BrightWire.LinearAlgebra
             return 0f;
         }
 
-        internal void Constrain(MemoryCache.Item a, int size, float min, float max)
+        internal void Constrain(MemoryBlock.Ptr a, int size, float min, float max)
         {
             _Use(_constrain, size, k => k.Run(0, a.DevicePointer, size, min, max));
         }
 
-        internal MemoryCache.Item Pow(MemoryCache.Item a, int size, float power)
+        internal MemoryBlock.Ptr Pow(MemoryBlock.Ptr a, int size, float power)
         {
             var ret = Allocate(size);
             _Use(_pow, size, k => k.Run(0, a.DevicePointer, ret.DevicePointer, size, power));
             return ret;
         }
 
-        internal MemoryCache.Item Diagonal(MemoryCache.Item a, int rows, int columns)
+        internal MemoryBlock.Ptr Diagonal(MemoryBlock.Ptr a, int rows, int columns)
         {
             var len = Math.Min(rows, columns);
             var ret = Allocate(len);
@@ -541,75 +548,75 @@ namespace BrightWire.LinearAlgebra
             return ret;
         }
 
-        internal void L1Regularisation(MemoryCache.Item a, int size, float coefficient)
+        internal void L1Regularisation(MemoryBlock.Ptr a, int size, float coefficient)
         {
             _Use(_l1Regularisation, size, k => k.Run(0, a.DevicePointer, size, coefficient));
         }
 
-        internal float EuclideanDistance(MemoryCache.Item a, MemoryCache.Item b, int size)
+        internal float EuclideanDistance(MemoryBlock.Ptr a, MemoryBlock.Ptr b, int size)
         {
             var ret = Allocate(size);
             _Use(_euclideanDistance, size, k => k.Run(0, a.DevicePointer, b.DevicePointer, ret.DevicePointer, size));
             return Convert.ToSingle(Math.Sqrt(SumValues(ret, size)));
         }
 
-        internal float ManhattanDistance(MemoryCache.Item a, MemoryCache.Item b, int size)
+        internal float ManhattanDistance(MemoryBlock.Ptr a, MemoryBlock.Ptr b, int size)
         {
             var ret = Allocate(size);
             _Use(_manhattanDistance, size, k => k.Run(0, a.DevicePointer, b.DevicePointer, ret.DevicePointer, size));
             return SumValues(ret, size);
         }
 
-        internal void Normalise(MemoryCache.Item a, int size, float min, float range)
+        internal void Normalise(MemoryBlock.Ptr a, int size, float min, float range)
         {
             _Use(_normalise, size, k => k.Run(0, a.DevicePointer, size, min, range));
         }
 
-        internal MemoryCache.Item SoftmaxVector(MemoryCache.Item a, int size, float max)
+        internal MemoryBlock.Ptr SoftmaxVector(MemoryBlock.Ptr a, int size, float max)
         {
             var ret = Allocate(size);
             _Use(_softmaxVector, size, k => k.Run(0, a.DevicePointer, ret.DevicePointer, size, max));
             return ret;
         }
 
-        internal void VectorSplit(MemoryCache.Item a, int size, int blockSize, CUdeviceptr output)
+        internal void VectorSplit(MemoryBlock.Ptr a, int size, int blockSize, CUdeviceptr output)
         {
             _Use(_vectorSplit, size, k => k.Run(0, a.DevicePointer, output, size, blockSize));
         }
 
-        internal void PointwiseDivideRows(MemoryCache.Item a, MemoryCache.Item b, int rows, int columns)
+        internal void PointwiseDivideRows(MemoryBlock.Ptr a, MemoryBlock.Ptr b, int rows, int columns)
         {
             _Use(_pointwiseDivideRows, rows, columns, k => k.Run(0, a.DevicePointer, b.DevicePointer, rows, columns));
         }
 
-        internal void PointwiseDivideColumns(MemoryCache.Item a, MemoryCache.Item b, int rows, int columns)
+        internal void PointwiseDivideColumns(MemoryBlock.Ptr a, MemoryBlock.Ptr b, int rows, int columns)
         {
             _Use(_pointwiseDivideColumns, rows, columns, k => k.Run(0, a.DevicePointer, b.DevicePointer, rows, columns));
         }
 
-        internal void SplitRows(MemoryCache.Item a, MemoryCache.Item b, MemoryCache.Item c, int rows, int columns, int position)
+        internal void SplitRows(MemoryBlock.Ptr a, MemoryBlock.Ptr b, MemoryBlock.Ptr c, int rows, int columns, int position)
         {
             _Use(_splitRows, rows, columns, k => k.Run(0, a.DevicePointer, b.DevicePointer, c.DevicePointer, rows, columns, position));
         }
 
-        internal void SplitColumns(MemoryCache.Item a, MemoryCache.Item b, MemoryCache.Item c, int rows, int columns, int position)
+        internal void SplitColumns(MemoryBlock.Ptr a, MemoryBlock.Ptr b, MemoryBlock.Ptr c, int rows, int columns, int position)
         {
             _Use(_splitColumns, rows, columns, k => k.Run(0, a.DevicePointer, b.DevicePointer, c.DevicePointer, rows, columns, position));
         }
 
-        internal void ConcatRows(MemoryCache.Item a, MemoryCache.Item b, MemoryCache.Item c, int rows, int columns, int leftColumnCount)
+        internal void ConcatRows(MemoryBlock.Ptr a, MemoryBlock.Ptr b, MemoryBlock.Ptr c, int rows, int columns, int leftColumnCount)
         {
             _Use(_concatRows, rows, columns, k => k.Run(0, a.DevicePointer, b.DevicePointer, c.DevicePointer, rows, columns, leftColumnCount));
         }
 
-        internal void ConcatColumns(MemoryCache.Item a, MemoryCache.Item b, MemoryCache.Item c, int rows, int columns, int topRowCount, int bottomRowCount)
+        internal void ConcatColumns(MemoryBlock.Ptr a, MemoryBlock.Ptr b, MemoryBlock.Ptr c, int rows, int columns, int topRowCount, int bottomRowCount)
         {
             _Use(_concatColumns, rows, columns, k => k.Run(0, a.DevicePointer, b.DevicePointer, c.DevicePointer, rows, columns, topRowCount, bottomRowCount));
         }
 
-        internal MemoryCache.Item MultiEuclideanDistance(MemoryCache.Item vector, CUdeviceptr[] compareTo, int size)
+        internal MemoryBlock.Ptr MultiEuclideanDistance(MemoryBlock.Ptr vector, CUdeviceptr[] compareTo, int size)
         {
-            MemoryCache.Item ret = null;
+            MemoryBlock.Ptr ret = null;
             var buffer = _cuda.AllocateMemory(8 * compareTo.Length);
             try {
                 _cuda.CopyToDevice(buffer, compareTo);
@@ -622,9 +629,9 @@ namespace BrightWire.LinearAlgebra
             return ret;
         }
 
-        internal MemoryCache.Item MultiManhattanDistance(MemoryCache.Item vector, CUdeviceptr[] compareTo, int size)
+        internal MemoryBlock.Ptr MultiManhattanDistance(MemoryBlock.Ptr vector, CUdeviceptr[] compareTo, int size)
         {
-            MemoryCache.Item ret = null;
+            MemoryBlock.Ptr ret = null;
             var buffer = _cuda.AllocateMemory(8 * compareTo.Length);
             try {
                 _cuda.CopyToDevice(buffer, compareTo);
@@ -637,7 +644,7 @@ namespace BrightWire.LinearAlgebra
             return ret;
         }
 
-        internal MemoryCache.Item TensorConvertToVector(IReadOnlyList<MemoryCache.Item> matrixList, int matrixSize)
+        internal MemoryBlock.Ptr TensorConvertToVector(IReadOnlyList<MemoryBlock.Ptr> matrixList, int matrixSize)
         {
             var outputSize = matrixList.Count * matrixSize;
             var ret = Allocate(outputSize);
@@ -648,7 +655,7 @@ namespace BrightWire.LinearAlgebra
             return ret;
         }
 
-        internal void TensorConvertToMatrix(IReadOnlyList<MemoryCache.Item> matrixList, int tensorRows, int tensorColumns, int matrixRows, int matrixColumns, MemoryCache.Item ret)
+        internal void TensorConvertToMatrix(IReadOnlyList<MemoryBlock.Ptr> matrixList, int tensorRows, int tensorColumns, int matrixRows, int matrixColumns, MemoryBlock.Ptr ret)
         {
             using (var devicePtr = new CudaDeviceVariable<CUdeviceptr>(matrixList.Count)) {
                 devicePtr.CopyToDevice(matrixList.Select(m => m.DevicePointer).ToArray());
@@ -656,12 +663,12 @@ namespace BrightWire.LinearAlgebra
             }
         }
 
-        internal IReadOnlyList<MemoryCache.Item> TensorAddPadding(IReadOnlyList<MemoryCache.Item> matrixList, int rows, int columns, int padding)
+        internal IReadOnlyList<MemoryBlock.Ptr> TensorAddPadding(IReadOnlyList<MemoryBlock.Ptr> matrixList, int rows, int columns, int padding)
         {
             int depth = matrixList.Count;
             var newRows = rows + padding * 2;
             var newColumns = columns + padding * 2;
-            var ret = new List<MemoryCache.Item>();
+            var ret = new List<MemoryBlock.Ptr>();
             for (var i = 0; i < depth; i++) {
                 var buffer = Allocate(newRows * newColumns, true);
                 ret.Add(buffer);
@@ -676,12 +683,12 @@ namespace BrightWire.LinearAlgebra
             return ret;
         }
 
-        internal IReadOnlyList<MemoryCache.Item> TensorRemovePadding(IReadOnlyList<MemoryCache.Item> matrixList, int rows, int columns, int padding)
+        internal IReadOnlyList<MemoryBlock.Ptr> TensorRemovePadding(IReadOnlyList<MemoryBlock.Ptr> matrixList, int rows, int columns, int padding)
         {
             int depth = matrixList.Count;
             var newRows = rows - padding * 2;
             var newColumns = columns - padding * 2;
-            var ret = new List<MemoryCache.Item>();
+            var ret = new List<MemoryBlock.Ptr>();
             for (var i = 0; i < depth; i++) {
                 var buffer = Allocate(newRows * newColumns, true);
                 ret.Add(buffer);
@@ -696,7 +703,7 @@ namespace BrightWire.LinearAlgebra
             return ret;
         }
 
-        internal Tuple<MemoryCache.Item, int, int> TensorIm2Col(IReadOnlyList<MemoryCache.Item> matrixList, int rows, int columns, int filterWidth, int filterHeight, int stride)
+        internal Tuple<MemoryBlock.Ptr, int, int> TensorIm2Col(IReadOnlyList<MemoryBlock.Ptr> matrixList, int rows, int columns, int filterWidth, int filterHeight, int stride)
         {
             var depth = matrixList.Count;
             var xExtent = (columns - filterWidth) / stride + 1;
@@ -713,21 +720,21 @@ namespace BrightWire.LinearAlgebra
             return Tuple.Create(ret, newRows, newColumns);
         }
 
-        internal MemoryCache.Item VectorSoftmaxDerivative(MemoryCache.Item a, int size)
+        internal MemoryBlock.Ptr VectorSoftmaxDerivative(MemoryBlock.Ptr a, int size)
         {
             var ret = Allocate(size * size);
             _Use(_softmaxDerivative, size, size, k => k.Run(0, a.DevicePointer, ret.DevicePointer, size));
             return ret;
         }
 
-        internal MemoryCache.Item Reverse(MemoryCache.Item a, int size)
+        internal MemoryBlock.Ptr Reverse(MemoryBlock.Ptr a, int size)
         {
             var ret = Allocate(size);
             _Use(_reverse, size, k => k.Run(BLOCK_DIM2 * sizeof(float), a.DevicePointer, ret.DevicePointer, size));
             return ret;
         }
 
-        internal MemoryCache.Item Rotate(MemoryCache.Item a, int size, int blockCount)
+        internal MemoryBlock.Ptr Rotate(MemoryBlock.Ptr a, int size, int blockCount)
         {
             var blockSize = size / blockCount;
             var vectorList = Enumerable.Range(0, blockCount)
@@ -746,7 +753,7 @@ namespace BrightWire.LinearAlgebra
             return ret;
         }
 
-        internal MemoryCache.Item TensorCalculateWeightUpdate(IReadOnlyList<MemoryCache.Item> matrixList, int rows, int columns)
+        internal MemoryBlock.Ptr TensorCalculateWeightUpdate(IReadOnlyList<MemoryBlock.Ptr> matrixList, int rows, int columns)
         {
             var depth = matrixList.Count;
             var ret = Allocate(depth * rows * columns);
@@ -754,13 +761,13 @@ namespace BrightWire.LinearAlgebra
             return ret;
         }
 
-        internal IReadOnlyList<(MemoryCache.Item, int[], int[])> TensorMaxPool(IReadOnlyList<MemoryCache.Item> matrixList, int rows, int columns, int filterWidth, int filterHeight, int stride)
+        internal IReadOnlyList<(MemoryBlock.Ptr, int[], int[])> TensorMaxPool(IReadOnlyList<MemoryBlock.Ptr> matrixList, int rows, int columns, int filterWidth, int filterHeight, int stride)
         {
             var newColumns = (columns - filterWidth) / stride + 1;
             var newRows = (rows - filterHeight) / stride + 1;
             var size = newColumns * newRows;
             var depth = matrixList.Count;
-            var ret = new List<MemoryCache.Item>();
+            var ret = new List<MemoryBlock.Ptr>();
             var xIndex = new List<CudaDeviceVariable<int>>();
             var yIndex = new List<CudaDeviceVariable<int>>();
             for(var i = 0; i < depth; i++) {
@@ -834,7 +841,7 @@ namespace BrightWire.LinearAlgebra
             //layer.Release();
         }
 
-        internal MemoryCache.Item Allocate(int size, bool setToZero = false)
+        internal MemoryBlock.Ptr Allocate(int size, bool setToZero = false)
         {
             var ret = _cache.GetMemory(size);
             if (setToZero)

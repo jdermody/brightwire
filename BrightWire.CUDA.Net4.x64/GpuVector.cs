@@ -16,7 +16,7 @@ namespace BrightWire.LinearAlgebra
     internal class GpuVector : IVector
     {
         readonly CudaProvider _cuda;
-        readonly MemoryCache.Item _data;
+        readonly MemoryBlock.Ptr _data;
         bool _disposed = false;
 #if DEBUG
         static int _gid = 0;
@@ -47,7 +47,7 @@ namespace BrightWire.LinearAlgebra
         {
         }
 
-        internal GpuVector(CudaProvider cuda, MemoryCache.Item data)
+        internal GpuVector(CudaProvider cuda, MemoryBlock.Ptr data)
         {
             _cuda = cuda;
             _data = data;
@@ -58,13 +58,13 @@ namespace BrightWire.LinearAlgebra
 #endif
         }
 
-#if DEBUG
-        ~GpuVector()
-        {
-            if (!_disposed)
-                Debug.WriteLine("\tVector {0} was not disposed!!", _id);
-        }
-#endif
+//#if DEBUG
+//        ~GpuVector()
+//        {
+//            if (!_disposed)
+//                Debug.WriteLine("\tVector {0} was not disposed!!", _id);
+//        }
+//#endif
 
         protected virtual void Dispose(bool disposing)
         {
@@ -81,7 +81,9 @@ namespace BrightWire.LinearAlgebra
         public void Dispose()
         {
             Dispose(true);
+#if DEBUG
             GC.SuppressFinalize(this);
+#endif
         }
 
         public int AddRef()
@@ -91,7 +93,10 @@ namespace BrightWire.LinearAlgebra
 
         public int Release()
         {
-            return _data.Release();
+            var ret = _data.Release();
+            if (ret <= 0)
+                _disposed = true;
+            return ret;
         }
 
         public override string ToString()
@@ -137,7 +142,7 @@ namespace BrightWire.LinearAlgebra
         }
 
         internal CudaDeviceVariable<float> CudaDeviceVariable { get { return _data.DeviceVariable; } }
-        internal MemoryCache.Item Memory => _data;
+        internal MemoryBlock.Ptr Memory => _data;
 
         public IVector Add(IVector vector)
         {

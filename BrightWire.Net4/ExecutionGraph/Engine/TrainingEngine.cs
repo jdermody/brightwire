@@ -44,10 +44,8 @@ namespace BrightWire.ExecutionGraph.Engine
                     operation.Execute(executionContext);
                 }
 
-                foreach (var item in _executionResults) {
+                foreach (var item in _executionResults)
                     ret.Add(new ExecutionResult(item.Sequence, item.Output.Row));
-                }
-
             }
             _executionResults.Clear();
             return ret;
@@ -55,6 +53,7 @@ namespace BrightWire.ExecutionGraph.Engine
 
         public double Train(IExecutionContext executionContext, Action<float> batchCompleteCallback = null)
         {
+            _lap.PushLayer();
             _learningContext.StartEpoch();
             var provider = new MiniBatchProvider(_dataSource, _isStochastic);
             executionContext.Add(provider.GetMiniBatches(_learningContext.BatchSize, batch => _Train(executionContext, _learningContext, batch)));
@@ -79,6 +78,7 @@ namespace BrightWire.ExecutionGraph.Engine
             }
             if (count > 0)
                 ret /= count;
+            _lap.PopLayer();
             _executionResults.Clear();
             if (_lastTrainingError.HasValue)
                 _trainingErrorDelta = ret - _lastTrainingError.Value;
@@ -110,24 +110,25 @@ namespace BrightWire.ExecutionGraph.Engine
 
         void _Train(IExecutionContext executionContext, ILearningContext learningContext, IMiniBatchSequence sequence)
         {
-            var context = new TrainingEngineContext(executionContext, sequence, learningContext);
-            _input.ExecuteForward(context, 0);
+            _lap.PushLayer();
+            using (var context = new TrainingEngineContext(executionContext, sequence, learningContext)) {
+                _input.ExecuteForward(context, 0);
 
-            while (context.HasNext)
-                context.ExecuteNext();
+                while (context.HasNext)
+                    context.ExecuteNext();
 
-            _dataSource.OnBatchProcessed(context);
-            _executionResults.Add((context.BatchSequence, 0f, context.Data.GetMatrix().Data));
+                _dataSource.OnBatchProcessed(context);
+                _executionResults.Add((context.BatchSequence, 0f, context.Data.GetMatrix().Data));
+            }
+            _lap.PopLayer();
         }
 
         public bool Test(IDataSource testDataSource, IErrorMetric errorMetric, int batchSize = 128)
         {
-            _lap.PushLayer();
             var testError = Execute(testDataSource, batchSize)
                 .Where(b => b.Target != null)
                 .Average(o => o.CalculateError(errorMetric))
             ;
-            _lap.PopLayer();
             
             bool flag = true, isPercentage = errorMetric.DisplayAsPercentage;
             if (_lastTestError.HasValue) {

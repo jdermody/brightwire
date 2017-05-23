@@ -126,7 +126,7 @@
     <Compile Include="ExecutionGraph\Helper\MatrixGraphData.cs" />
     <Compile Include="ExecutionGraph\Helper\MiniBatch.cs" />
     <Compile Include="ExecutionGraph\Helper\SingleBackpropagationBase.cs" />
-    <Compile Include="ExecutionGraph\Helper\TrainingEngineContext.cs" />
+    <Compile Include="ExecutionGraph\Engine\TrainingEngineContext.cs" />
     <Compile Include="ExecutionGraph\Helper\WireToNode.cs" />
     <Compile Include="ExecutionGraph\DataTableAdaptor\AdaptiveDataTableAdaptorBase.cs" />
     <Compile Include="ExecutionGraph\DataTableAdaptor\DefaultDataTableAdaptor.cs" />

@@ -16,7 +16,7 @@ namespace BrightWire
         Tensor
     }
 
-    public interface IGraphData
+    public interface IGraphData : ICountReferences
     {
         GraphDataType DataType { get; }
         IMatrix GetMatrix();
@@ -68,7 +68,7 @@ namespace BrightWire
         IBackpropagation Backpropagation { get; set; }
     }
 
-    public interface IContext
+    public interface IContext : IDisposable
     {
         bool IsTraining { get; }
         INode Source { get; }

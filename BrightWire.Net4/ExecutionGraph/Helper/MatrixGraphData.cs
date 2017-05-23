@@ -11,7 +11,21 @@ namespace BrightWire.ExecutionGraph.Helper
         readonly IMatrix _matrix;
         readonly int? _rowId;
 
-        public MatrixGraphData(IMatrix matrix, int? rowId = null) { _matrix = matrix; _rowId = rowId; }
+        public MatrixGraphData(IMatrix matrix, int? rowId = null)
+        {
+            _matrix = matrix;
+            _rowId = rowId;
+            _matrix.AddRef();
+        }
+
+        public int AddRef()
+        {
+            return _matrix.AddRef();
+        }
+        public int Release()
+        {
+            return _matrix.Release();
+        }
 
         public GraphDataType DataType => GraphDataType.Matrix;
         public int? RowId => _rowId;

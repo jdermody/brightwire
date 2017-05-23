@@ -17,14 +17,14 @@ namespace BrightWire.LinearAlgebra
     internal class GpuMatrix : IMatrix
     {
         readonly CudaProvider _cuda;
-        readonly MemoryCache.Item _data;
+        readonly MemoryBlock.Ptr _data;
         readonly int _rows, _columns;
         bool _disposed = false;
 #if DEBUG
         static int _gid = 0;
         int _id = _gid++;
-        public static int _badAlloc = 1;
-        public static int _badDispose = -1;
+        public static int _badAlloc = -1;
+        public static int _badDispose = 440;
 
         public bool IsValid { get { return !_disposed; } }
 #else
@@ -57,7 +57,7 @@ namespace BrightWire.LinearAlgebra
         {
         }
 
-        internal GpuMatrix(CudaProvider cuda, int rows, int columns, MemoryCache.Item gpuData)
+        internal GpuMatrix(CudaProvider cuda, int rows, int columns, MemoryBlock.Ptr gpuData)
         {
             _cuda = cuda;
             _rows = rows;
@@ -69,13 +69,13 @@ namespace BrightWire.LinearAlgebra
 #endif
         }
 
-#if DEBUG
-        ~GpuMatrix()
-        {
-            if(!_disposed)
-                Debug.WriteLine("\tMatrix {0} was not disposed !!", _id);
-        }
-#endif
+//#if DEBUG
+//        ~GpuMatrix()
+//        {
+//            if(!_disposed)
+//                Debug.WriteLine("\tMatrix {0} was not disposed !!", _id);
+//        }
+//#endif
 
         protected virtual void Dispose(bool disposing)
         {
@@ -96,13 +96,23 @@ namespace BrightWire.LinearAlgebra
 
         public int Release()
         {
-            return _data.Release();
+            var ret = _data.Release();
+            if (ret <= 0) {
+#if DEBUG
+                if (_id == _badDispose)
+                    Debugger.Break();
+#endif
+                _disposed = true;
+            }
+            return ret;
         }
 
         public void Dispose()
         {
             Dispose(true);
+#if DEBUG
             GC.SuppressFinalize(this);
+#endif
         }
 
         public override string ToString()
@@ -135,7 +145,7 @@ namespace BrightWire.LinearAlgebra
         }
 
         internal CudaDeviceVariable<float> CudaDeviceVariable { get { return _data.DeviceVariable; } }
-        internal MemoryCache.Item Memory => _data;
+        internal MemoryBlock.Ptr Memory => _data;
 
         public IMatrix Add(IMatrix matrix)
         {
@@ -701,17 +711,23 @@ namespace BrightWire.LinearAlgebra
 
             // call cusolver to find the SVD
             try {
-                using (var buffer = _cuda.Allocate(bufferSize))
-                using (var devInfo = new CudaDeviceVariable<int>(1))
-                using (var rwork = _cuda.Allocate(mn))
-                using (var a = _cuda.Allocate(_rows * _columns)) {
-                    a.CopyToDevice(_data);
-                    solver.Gesvd('A', 'A', _rows, _columns, a.DeviceVariable, _rows, s.DeviceVariable, u.DeviceVariable, _rows, vt.DeviceVariable, _columns, buffer.DeviceVariable, bufferSize, rwork.DeviceVariable, devInfo);
-                    return (
-                        new GpuMatrix(_cuda, _rows, _rows, u),
-                        new GpuVector(_cuda, s),
-                        new GpuMatrix(_cuda, _columns, _columns, vt)
-                    );
+                var buffer = _cuda.Allocate(bufferSize);
+                var rwork = _cuda.Allocate(mn);
+                var a = _cuda.Allocate(_rows * _columns);
+                try {
+                    using (var devInfo = new CudaDeviceVariable<int>(1)) {
+                        a.CopyToDevice(_data);
+                        solver.Gesvd('A', 'A', _rows, _columns, a.DeviceVariable, _rows, s.DeviceVariable, u.DeviceVariable, _rows, vt.DeviceVariable, _columns, buffer.DeviceVariable, bufferSize, rwork.DeviceVariable, devInfo);
+                        return (
+                            new GpuMatrix(_cuda, _rows, _rows, u),
+                            new GpuVector(_cuda, s),
+                            new GpuMatrix(_cuda, _columns, _columns, vt)
+                        );
+                    }
+                }finally {
+                    buffer.Release();
+                    rwork.Release();
+                    a.Release();
                 }
             }catch {
                 s.Release();

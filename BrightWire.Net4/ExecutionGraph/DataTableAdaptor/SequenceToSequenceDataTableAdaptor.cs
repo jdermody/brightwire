@@ -97,9 +97,10 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             IMiniBatchSequence sequence;
             IMatrix encoderOutput = null;
             while ((sequence = encoderInput.GetNextSequence()) != null) {
-                var context = _Process(executionContext, sequence);
-                if (sequence.Type == MiniBatchType.SequenceEnd)
-                    encoderOutput = context.Data.GetMatrix();
+                using (var context = _Process(executionContext, sequence)) {
+                    if (sequence.Type == MiniBatchType.SequenceEnd)
+                        encoderOutput = context.Data.GetMatrix();
+                }
             }
             return (encoderOutput, data);
         }

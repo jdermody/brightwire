@@ -67,7 +67,7 @@
     <Compile Include="GpuMatrix.cs" />
     <Compile Include="BrightWireGPUProvider.cs" />
     <Compile Include="GpuVector.cs" />
-    <Compile Include="Helper\MemoryCache.cs" />
+    <Compile Include="Helper\MemoryBlock.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
