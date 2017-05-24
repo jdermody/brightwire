@@ -23,7 +23,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
             protected override void _Dispose(bool isDisposing)
             {
-                _input.Dispose();
+                //_input.Dispose();
             }
 
             protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)

@@ -117,19 +117,15 @@ namespace BrightWire.LinearAlgebra
             return new CpuMatrix(_matrix.PointwiseMultiply(other._matrix));
         }
 
-        public IVector RowSums(float coefficient = 1f)
+        public IVector RowSums()
         {
             var ret = _matrix.RowSums();
-            if (coefficient != 1f)
-                ret.MapInplace(v => v *= coefficient);
             return new CpuVector(ret);
         }
 
-        public IVector ColumnSums(float coefficient = 1)
+        public IVector ColumnSums()
         {
             var ret = _matrix.ColumnSums();
-            if (coefficient != 1f)
-                ret.MapInplace(v => v *= coefficient);
             return new CpuVector(ret);
         }
 

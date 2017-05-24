@@ -29,9 +29,7 @@ namespace BrightWire.ExecutionGraph.Engine
 
             public void Dispose()
             {
-                foreach (var item in _forward)
-                    item.Data.Release();
-                _data?.Release();
+                // nop
             }
 
             public bool IsTraining => false;
@@ -54,7 +52,6 @@ namespace BrightWire.ExecutionGraph.Engine
                     var next = _forward.ElementAt(0);
                     _forward.RemoveAt(0);
 
-                    _data?.Release();
                     _data = next.Data;
 
                     _sourceNode = next.Source;
@@ -112,8 +109,9 @@ namespace BrightWire.ExecutionGraph.Engine
             return ret;
         }
 
-        void _Execute(IExecutionContext executionContext, IMiniBatch batch)
+        IReadOnlyList<IContext> _Execute(IExecutionContext executionContext, IMiniBatch batch)
         {
+            var ret = new List<IContext>();
             if (batch.IsSequential) {
                 IMiniBatchSequence curr = null;
                 while ((curr = batch.GetNextSequence()) != null) {
@@ -122,6 +120,7 @@ namespace BrightWire.ExecutionGraph.Engine
                     while (context.HasNext)
                         context.ExecuteNext();
                     _executionResults.Add((context, context.Data.GetMatrix()));
+                    ret.Add(context);
                 }
             } else {
                 var context = new Context(executionContext, batch.CurrentSequence);
@@ -131,7 +130,9 @@ namespace BrightWire.ExecutionGraph.Engine
                     context.ExecuteNext();
 
                 _executionResults.Add((context, context.Data.GetMatrix()));
+                ret.Add(context);
             }
+            return ret;
         }
     }
 }

@@ -89,19 +89,40 @@ namespace BrightWire
             return lap.CreateTensor(tensor.Matrix.Select(m => CreateMatrix(lap, m)).ToList());
         }
 
-        public static I3DTensor ConvertToTensor(this IVector vector, ILinearAlgebraProvider lap, int rows, int columns, int depth)
+        /// <summary>
+        /// Creates a 3D tensor
+        /// </summary>
+        /// <param name="tensorAsVector">A tensor that has previously been converted to a vector</param>
+        /// <returns></returns>
+        public static I3DTensor CreateTensor(this ILinearAlgebraProvider lap, IVector tensorAsVector, int rows, int columns, int depth)
         {
             if (depth > 1) {
                 var matrixList = new List<IMatrix>();
-                var slice = vector.Split(depth);
+                var slice = tensorAsVector.Split(depth);
                 foreach (var part in slice)
                     matrixList.Add(part.ConvertInPlaceToMatrix(rows, columns));
                 var ret = lap.CreateTensor(matrixList);
                 return ret;
             } else {
-                var matrix = vector.ConvertInPlaceToMatrix(rows, columns);
+                var matrix = tensorAsVector.ConvertInPlaceToMatrix(rows, columns);
                 return lap.CreateTensor(new[] { matrix });
             }
+            //var slice = tensorAsVector.Split(depth);
+            //return lap.CreateTensor(slice.Select(v => v.ConvertInPlaceToMatrix(rows, columns)).ToList());
+        }
+
+        /// <summary>
+        /// Creates a 3D tensor
+        /// </summary>
+        /// <param name="tensorAsMatrix">A tensor that has previously been converted to a matrix</param>
+        /// <returns></returns>
+        public static I3DTensor CreateTensor(this ILinearAlgebraProvider lap, IMatrix tensorAsMatrix, int rows, int columns)
+        {
+            var matrixList = new List<IMatrix>();
+            for(int i = 0, len = tensorAsMatrix.ColumnCount; i < len; i++) {
+                matrixList.Add(tensorAsMatrix.Column(i).ConvertInPlaceToMatrix(rows, columns));
+            }
+            return lap.CreateTensor(matrixList);
         }
 
         /// <summary>

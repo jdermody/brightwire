@@ -1,4 +1,5 @@
 ﻿using BrightWire.ExecutionGraph.Helper;
+using BrightWire.Models;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -10,13 +11,13 @@ namespace BrightWire.ExecutionGraph.Engine
     {
         readonly ConcurrentQueue<IGraphOperation> _operationList = new ConcurrentQueue<IGraphOperation>();
         readonly ConcurrentDictionary<string, IMatrix> _memory = new ConcurrentDictionary<string, IMatrix>();
-        readonly ConcurrentDictionary<int, IMatrix> _inputTransformationCache;
+        readonly ConcurrentDictionary<int, FloatMatrix> _inputTransformationCache;
         readonly ILinearAlgebraProvider _lap;
 
         public ExecutionContext(ILinearAlgebraProvider lap)
         {
             _lap = lap;
-            _inputTransformationCache = new ConcurrentDictionary<int, IMatrix>();
+            _inputTransformationCache = new ConcurrentDictionary<int, FloatMatrix>();
         }
 
         public void Dispose()
@@ -25,8 +26,6 @@ namespace BrightWire.ExecutionGraph.Engine
                 item.Value.Dispose();
             _memory.Clear();
 
-            foreach (var item in _inputTransformationCache)
-                item.Value.Dispose();
             _inputTransformationCache.Clear();
         }
 
@@ -61,24 +60,22 @@ namespace BrightWire.ExecutionGraph.Engine
             if (memory == null) {
                 IMatrix temp;
                 if (_memory.TryRemove(index, out temp))
-                    temp.Release();
+                    temp.Dispose();
             } else {
                 _memory[index] = memory;
-                memory.AddRef();
             }
         }
 
         public void SetInputTransformation(int id, IMatrix matrix)
         {
-            _inputTransformationCache[id] = matrix;
-            matrix.AddRef();
+            _inputTransformationCache[id] = matrix.Data;
         }
 
         public IMatrix GetInputTransfomation(int id)
         {
-            IMatrix ret;
+            FloatMatrix ret;
             if (_inputTransformationCache.TryGetValue(id, out ret))
-                return ret;
+                return _lap.CreateMatrix(ret);
             return null;
         }
     }

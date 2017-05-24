@@ -15,6 +15,7 @@ namespace BrightWire.ExecutionGraph.Engine
         readonly ILinearAlgebraProvider _lap;
         readonly IDataSource _dataSource;
         readonly List<(IMiniBatchSequence Sequence, float TrainingError, FloatMatrix Output)> _executionResults = new List<(IMiniBatchSequence Sequence, float TrainingError, FloatMatrix Output)>();
+        readonly List<IContext> _contextList = new List<IContext>();
         readonly ILearningContext _learningContext;
         readonly INode _input;
         readonly bool _isStochastic;
@@ -34,6 +35,7 @@ namespace BrightWire.ExecutionGraph.Engine
 
         public IReadOnlyList<ExecutionResult> Execute(IDataSource dataSource, int batchSize = 128)
         {
+            _lap.PushLayer();
             var ret = new List<ExecutionResult>();
             var provider = new MiniBatchProvider(dataSource, _isStochastic);
             using (var executionContext = new ExecutionContext(_lap)) {
@@ -42,13 +44,22 @@ namespace BrightWire.ExecutionGraph.Engine
                 IGraphOperation operation;
                 while ((operation = executionContext.GetNextOperation()) != null) {
                     operation.Execute(executionContext);
+                    _ClearContextList();
                 }
 
                 foreach (var item in _executionResults)
                     ret.Add(new ExecutionResult(item.Sequence, item.Output.Row));
             }
             _executionResults.Clear();
+            _lap.PopLayer();
             return ret;
+        }
+
+        void _ClearContextList()
+        {
+            foreach (var item in _contextList)
+                item.Dispose();
+            _contextList.Clear();
         }
 
         public double Train(IExecutionContext executionContext, Action<float> batchCompleteCallback = null)
@@ -56,16 +67,19 @@ namespace BrightWire.ExecutionGraph.Engine
             _lap.PushLayer();
             _learningContext.StartEpoch();
             var provider = new MiniBatchProvider(_dataSource, _isStochastic);
-            executionContext.Add(provider.GetMiniBatches(_learningContext.BatchSize, batch => _Train(executionContext, _learningContext, batch)));
+            executionContext.Add(provider.GetMiniBatches(_learningContext.BatchSize, batch => _contextList.AddRange(_Train(executionContext, _learningContext, batch))));
 
             IGraphOperation operation;
             float operationCount = executionContext.RemainingOperationCount;
             float index = 0f;
             while ((operation = executionContext.GetNextOperation()) != null) {
+                _lap.PushLayer();
                 operation.Execute(executionContext);
                 _learningContext.ApplyUpdates();
+                _ClearContextList();
+                _lap.PopLayer();
 
-                if(batchCompleteCallback != null) {
+                if (batchCompleteCallback != null) {
                     var percentage = (++index) / operationCount;
                     batchCompleteCallback(percentage);
                 }
@@ -78,8 +92,9 @@ namespace BrightWire.ExecutionGraph.Engine
             }
             if (count > 0)
                 ret /= count;
-            _lap.PopLayer();
             _executionResults.Clear();
+            _lap.PopLayer();
+
             if (_lastTrainingError.HasValue)
                 _trainingErrorDelta = ret - _lastTrainingError.Value;
             _lastTrainingError = ret;
@@ -95,32 +110,32 @@ namespace BrightWire.ExecutionGraph.Engine
 
         void _Execute(IExecutionContext executionContext, IMiniBatch batch)
         {
-            _Train(executionContext, null, batch);
+            _contextList.AddRange(_Train(executionContext, null, batch));
         }
 
-        void _Train(IExecutionContext executionContext, ILearningContext learningContext, IMiniBatch batch)
+        IReadOnlyList<IContext> _Train(IExecutionContext executionContext, ILearningContext learningContext, IMiniBatch batch)
         {
+            var ret = new List<IContext>();
             if (batch.IsSequential) {
                 IMiniBatchSequence curr = null;
                 while ((curr = batch.GetNextSequence()) != null)
-                    _Train(executionContext, learningContext, curr);
+                    ret.Add(_Train(executionContext, learningContext, curr));
             } else
-                _Train(executionContext, learningContext, batch.CurrentSequence);
+                ret.Add(_Train(executionContext, learningContext, batch.CurrentSequence));
+            return ret;
         }
 
-        void _Train(IExecutionContext executionContext, ILearningContext learningContext, IMiniBatchSequence sequence)
+        IContext _Train(IExecutionContext executionContext, ILearningContext learningContext, IMiniBatchSequence sequence)
         {
-            _lap.PushLayer();
-            using (var context = new TrainingEngineContext(executionContext, sequence, learningContext)) {
-                _input.ExecuteForward(context, 0);
+            var context = new TrainingEngineContext(executionContext, sequence, learningContext);
+            _input.ExecuteForward(context, 0);
 
-                while (context.HasNext)
-                    context.ExecuteNext();
+            while (context.HasNext)
+                context.ExecuteNext();
 
-                _dataSource.OnBatchProcessed(context);
-                _executionResults.Add((context.BatchSequence, 0f, context.Data.GetMatrix().Data));
-            }
-            _lap.PopLayer();
+            _dataSource.OnBatchProcessed(context);
+            _executionResults.Add((context.BatchSequence, 0f, context.Data.GetMatrix().Data));
+            return context;
         }
 
         public bool Test(IDataSource testDataSource, IErrorMetric errorMetric, int batchSize = 128)

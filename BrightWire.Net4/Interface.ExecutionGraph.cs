@@ -16,7 +16,7 @@ namespace BrightWire
         Tensor
     }
 
-    public interface IGraphData : ICountReferences
+    public interface IGraphData
     {
         GraphDataType DataType { get; }
         IMatrix GetMatrix();

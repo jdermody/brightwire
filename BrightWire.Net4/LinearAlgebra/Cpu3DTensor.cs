@@ -174,35 +174,33 @@ namespace BrightWire.LinearAlgebra
             var newRows = (RowCount - filterHeight) / stride + 1;
             var matrixList = new List<CpuMatrix>();
             var indexList = new List<(int[] X, int[] Y)>();
+            var posList = ConvolutionHelper.Default(ColumnCount, RowCount, filterWidth, filterHeight, stride);
 
             for (var k = 0; k < Depth; k++) {
                 var matrix = _data[k];
                 var xIndex = new int[newColumns * newRows];
                 var yIndex = new int[newColumns * newRows];
                 var layer = new CpuMatrix(DenseMatrix.Create(newRows, newColumns, 0f));
-                for (var x = 0; x < newColumns; x++) {
-                    for (var y = 0; y < newRows; y++) {
-                        var xOffset = x * stride;
-                        var yOffset = y * stride;
-                        var maxVal = float.MinValue;
-                        var bestX = xOffset;
-                        var bestY = yOffset;
-                        for (var i = 0; i < filterWidth; i++) {
-                            for (var j = 0; j < filterHeight; j++) {
-                                var xPos = xOffset + i;
-                                var yPos = yOffset + j;
-                                var val = matrix[yPos, xPos];
-                                if (val > maxVal) {
-                                    bestX = xPos;
-                                    bestY = yPos;
-                                    maxVal = val;
-                                }
-                            }
+                
+                foreach(var item in posList) {
+                    var first = item.First();
+                    var targetX = first.X / stride;
+                    var targetY = first.Y / stride;
+                    var maxVal = float.MinValue;
+                    var bestX = -1;
+                    var bestY = -1;
+                    foreach (var pos in item) {
+                        var val = matrix[pos.Y, pos.X];
+                        if (val > maxVal || bestX == -1) {
+                            bestX = pos.X;
+                            bestY = pos.Y;
+                            maxVal = val;
                         }
-                        xIndex[x * newRows + y] = bestX;
-                        yIndex[x * newRows + y] = bestY;
-                        layer[y, x] = maxVal;
                     }
+                    var index = targetX * newRows + targetY;
+                    xIndex[index] = bestX;
+                    yIndex[index] = bestY;
+                    layer[targetY, targetX] = maxVal;
                 }
                 matrixList.Add(layer);
                 indexList.Add((xIndex, yIndex));
@@ -213,53 +211,49 @@ namespace BrightWire.LinearAlgebra
         public I3DTensor ReverseMaxPool(int rows, int columns, IReadOnlyList<(int[] X, int[] Y)> indexList)
         {
             var matrixList = new List<DenseMatrix>();
-            (int, int) newIndex;
             for (var z = 0; z < Depth; z++) {
-                var matrix = GetDepthSlice(z).AsIndexable();
-                var newRows = matrix.RowCount;
+                var source = GetDepthSlice(z).AsIndexable();
+                var newRows = source.RowCount;
                 var index = indexList[z];
-                var table = new Dictionary<(int, int), (int, int)>();
-                int count = 0;
-                foreach(var item in index.X.Zip(index.Y, (x, y) => (x, y))) {
-                    var sourceX = (count % newRows);
-                    var sourceY = (count / newRows);
-                    table.Add((item.Item1, item.Item2), (sourceX, sourceY));
-                    ++count;
+                var target = DenseMatrix.Create(rows, columns, 0f);
+                
+                for(int i = 0, len = index.X.Length; i < len; i++) {
+                    var x = index.X[i];
+                    var y = index.Y[i];
+                    var sourceX = i / newRows;
+                    var sourceY = i % newRows;
+                    target[y, x] = source[sourceY, sourceX];
                 }
 
-                matrixList.Add(DenseMatrix.Create(rows, columns, (x, y) => {
-                    var index2 = x * newRows + y;
-                    if (table.TryGetValue((x, y), out newIndex))
-                        return matrix[newIndex.Item2, newIndex.Item1];
-                    return 0f;
-                }));
+                matrixList.Add(target);
             }
             return new Cpu3DTensor(matrixList.Select(m => new CpuMatrix(m)).ToList());
         }
 
-        public (IMatrix WeightUpdate, IVector BiasUpdate) CalculateWeightUpdate(IMatrix im2Col)
-        {
-            var multiplyWith = DenseMatrix.Create(RowCount * ColumnCount, Depth, 0f);
-            var biasUpdate = new float[Depth];
+        //public (IMatrix WeightUpdate, IVector BiasUpdate) CalculateWeightUpdate(IMatrix im2Col)
+        //{
+        //    var multiplyWith = DenseMatrix.Create(RowCount * ColumnCount, Depth, 0f);
+        //    var biasUpdate = new float[Depth];
 
-            for (var k = 0; k < Depth; k++) {
-                var total = 0f;
-                int count = 0;
-                var slice = GetDepthSlice(k).AsIndexable();
-                for (var x = 0; x < slice.ColumnCount; x++) {
-                    for (var y = 0; y < slice.RowCount; y++) {
-                        var value = slice[x, y];
-                        multiplyWith[x * slice.RowCount + y, k] = value;
-                        total += value;
-                        ++count;
-                    }
-                }
-                biasUpdate[k] = total / count;
-            }
-            var delta = im2Col.TransposeThisAndMultiply(new CpuMatrix(multiplyWith));
-            var biasUpdateVector = new CpuVector(biasUpdate);
-            return (delta, biasUpdateVector);
-        }
+        //    for (var k = 0; k < Depth; k++) {
+        //        var total = 0f;
+        //        int count = 0;
+        //        var slice = GetDepthSlice(k).AsIndexable();
+        //        for (var x = 0; x < slice.ColumnCount; x++) {
+        //            for (var y = 0; y < slice.RowCount; y++) {
+        //                var value = slice[x, y];
+        //                multiplyWith[x * slice.RowCount + y, k] = value;
+        //                total += value;
+        //                ++count;
+        //            }
+        //        }
+        //        biasUpdate[k] = total / count;
+        //    }
+
+        //    var delta = im2Col.TransposeThisAndMultiply(new CpuMatrix(multiplyWith));
+        //    var biasUpdateVector = new CpuVector(biasUpdate);
+        //    return (delta, biasUpdateVector);
+        //}
 
         public I3DTensor CalculatePreviousError(IMatrix filterMatrix, int inputHeight, int inputWidth, int inputDepth, int padding, int filterHeight, int filterWidth, int stride)
         {

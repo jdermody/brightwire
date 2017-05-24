@@ -7,7 +7,7 @@
     <ProjectGuid>{50BCB2AB-E8CA-4974-B136-49A98D5E34CB}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>BrightWire.CUDA.Net4.x64</RootNamespace>
+    <RootNamespace>BrightWire.CUDA</RootNamespace>
     <AssemblyName>BrightWire.CUDA</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -68,6 +68,7 @@
     <Compile Include="BrightWireGPUProvider.cs" />
     <Compile Include="GpuVector.cs" />
     <Compile Include="Helper\MemoryBlock.cs" />
+    <Compile Include="Helper\ThreadSafeHashSet.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

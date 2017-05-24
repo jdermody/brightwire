@@ -111,8 +111,11 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 var tensor = errorSignal.GetTensor();
 
                 // calculate the weight and delta updates
-                (var delta, var biasUpdate) = tensor.CalculateWeightUpdate(_im2Col);
-                context.LearningContext.Store(delta, err => _source.Update(err, context.LearningContext));
+                var multiplyWith = tensor.ConvertToMatrix();
+                var weightUpdate = _im2Col.TransposeThisAndMultiply(multiplyWith);
+                var biasUpdate = multiplyWith.ColumnSums();
+                biasUpdate.Multiply(1f / multiplyWith.RowCount);
+                context.LearningContext.Store(weightUpdate, err => _source.Update(err, context.LearningContext));
                 context.LearningContext.Store(biasUpdate, bu => _UpdateBias(bu, context.LearningContext));
 
                 return tensor.CalculatePreviousError(
@@ -125,6 +128,8 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                     _source._filterWidth,
                     _source._stride
                 ).ToGraphData();
+                //return errorSignal;
+
                 //_CalculateWeightUpdate(tensor, context);
                 //return _CalculatePreviousError(tensor, context);
             }

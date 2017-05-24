@@ -37,18 +37,11 @@ namespace BrightWire.ExecutionGraph.Engine
 
         public void Dispose()
         {
-            foreach (var item in _forward) {
-                item.Data.Release();
+            foreach (var item in _forward)
                 item.Backpropagation?.Dispose();
-            }
             _forward.Clear();
 
             _ClearBackward();
-
-            foreach(var item in _nodeErrorSignal) {
-                foreach (var item2 in item.Value)
-                    item2.Release();
-            }
             _nodeErrorSignal.Clear();
 
             foreach (var item in _history) {
@@ -108,9 +101,6 @@ namespace BrightWire.ExecutionGraph.Engine
 
         void _ClearBackward()
         {
-            foreach (var item in _backward) {
-                item.ErrorSignal.Release();
-            }
             _backward.Clear();
         }
 
@@ -129,7 +119,6 @@ namespace BrightWire.ExecutionGraph.Engine
             _errorSignal = null;
             while (_backward.Any()) {
                 var next = _backward.Pop();
-                _errorSignal?.Release();
                 _errorSignal = _GetErrorSignal(next.ErrorSignal, next.Target);
 
                 if (next.Target != null && _history.TryGetValue(next.Target, out history)) {

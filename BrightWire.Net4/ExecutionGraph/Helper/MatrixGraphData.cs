@@ -15,16 +15,6 @@ namespace BrightWire.ExecutionGraph.Helper
         {
             _matrix = matrix;
             _rowId = rowId;
-            _matrix.AddRef();
-        }
-
-        public int AddRef()
-        {
-            return _matrix.AddRef();
-        }
-        public int Release()
-        {
-            return _matrix.Release();
         }
 
         public GraphDataType DataType => GraphDataType.Matrix;

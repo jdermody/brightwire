@@ -42,8 +42,9 @@ namespace BrightWire.SampleCode
                 ;
 
                 // train the network
+                var executionContext = graph.CreateExecutionContext();
                 for (var i = 0; i < 2000; i++) {
-                    var trainingError = engine.Train(null);
+                    var trainingError = engine.Train(executionContext);
                     if (i % 100 == 0)
                         engine.Test(testData, errorMetric);
                 }

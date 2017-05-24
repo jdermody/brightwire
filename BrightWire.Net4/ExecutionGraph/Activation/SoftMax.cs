@@ -39,10 +39,10 @@ namespace BrightWire.ExecutionGraph.Activation
 
             protected override void _Dispose(bool isDisposing)
             {
-                foreach (var row in _rows) {
-                    foreach (var item in row)
-                        item.Dispose();
-                }
+                //foreach (var row in _rows) {
+                //    foreach (var item in row)
+                //        item.Dispose();
+                //}
             }
         }
 

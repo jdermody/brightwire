@@ -164,8 +164,9 @@ namespace BrightWire.LinearAlgebra
             _softmaxDerivative,
             _reverse,
             _rotate,
-            _tensorCalculateWeightUpdate,
-            _tensorMaxPool
+            //_tensorConvertToMatrix,
+            _tensorMaxPool,
+            _tensorReverseMaxPool
         ;
         bool _disposed = false;
 
@@ -231,8 +232,9 @@ namespace BrightWire.LinearAlgebra
             _softmaxDerivative = _kernel.LoadFunction("SoftmaxDerivative");
             _reverse = _kernel.LoadFunction("Reverse");
             _rotate = _kernel.LoadFunction("Rotate");
-            _tensorCalculateWeightUpdate = _kernel.LoadFunction("TensorCalculateWeightUpdate");
-            _tensorMaxPool = _kernel.LoadFunction("TensorMaxPool"); 
+            //_tensorConvertToMatrix = _kernel.LoadFunction("TensorConvertToMatrix");
+            _tensorMaxPool = _kernel.LoadFunction("TensorMaxPool");
+            _tensorReverseMaxPool = _kernel.LoadFunction("TensorReverseMaxPool");
         }
 
         protected virtual void Dispose(bool disposing)
@@ -257,6 +259,8 @@ namespace BrightWire.LinearAlgebra
         public ILinearAlgebraProvider NumericsProvider => _numerics;
         public bool IsStochastic => _stochastic;
         public bool IsGpu => true;
+
+        public void Register(IDisposable disposable) => _cache.Add(disposable);
 
         public CudaSolveDense Solver
         {
@@ -455,7 +459,7 @@ namespace BrightWire.LinearAlgebra
                     try {
                         _Use(_findMinAndMax, size, k => k.Run(BLOCK_DIM2, ptr.DevicePointer, size, minBlock.DevicePointer, maxBlock.DevicePointer));
                         if (ptr != a)
-                            ptr.Release();
+                            ptr.Free();
                         var minTest = new float[bufferSize];
                         var maxText = new float[bufferSize];
                         minBlock.CopyToHost(minTest);
@@ -466,8 +470,8 @@ namespace BrightWire.LinearAlgebra
                         ptr.DeviceVariable.CopyToDevice(maxBlock.DeviceVariable, 0, bufferSize * sizeof(float), bufferSize * sizeof(float));
                     }
                     finally {
-                        minBlock.Release();
-                        maxBlock.Release();
+                        minBlock.Free();
+                        maxBlock.Free();
                     }
                 }
                 var data = new float[size];
@@ -493,14 +497,14 @@ namespace BrightWire.LinearAlgebra
                 var sumBlock = Allocate(bufferSize);
                 _Use(_findSum, size, k => k.Run(BLOCK_DIM2, ptr.DevicePointer, size, sumBlock.DevicePointer));
                 if (ptr != a)
-                    ptr.Release();
+                    ptr.Free();
                 size = bufferSize;
                 ptr = sumBlock;
             }
             var total = new float[size];
             ptr.CopyToHost(total);
             if (ptr != a)
-                ptr.Release();
+                ptr.Free();
             return total.Sum();
         }
 
@@ -514,14 +518,14 @@ namespace BrightWire.LinearAlgebra
                     var sumBlock = Allocate(bufferSize);
                     _Use(_findStdDev, size, k => k.Run(BLOCK_DIM2, ptr.DevicePointer, size, mean, sumBlock.DevicePointer));
                     if (ptr != a)
-                        ptr.Release();
+                        ptr.Free();
                     size = bufferSize;
                     ptr = sumBlock;
                 }
                 var total = new float[size];
                 ptr.CopyToHost(total);
                 if (ptr != a)
-                    ptr.Release();
+                    ptr.Free();
 
                 return Convert.ToSingle(Math.Sqrt(total.Sum() / inputSize));
             }
@@ -749,15 +753,7 @@ namespace BrightWire.LinearAlgebra
                 _Use(_rotate, size, k => k.Run(0, devicePtr.DevicePointer, ret.DevicePointer, size, blockCount, blockSize));
             }
             foreach (var item in vectorList)
-                item.Release();
-            return ret;
-        }
-
-        internal MemoryBlock.Ptr TensorCalculateWeightUpdate(IReadOnlyList<MemoryBlock.Ptr> matrixList, int rows, int columns)
-        {
-            var depth = matrixList.Count;
-            var ret = Allocate(depth * rows * columns);
-
+                item.Free();
             return ret;
         }
 
@@ -795,6 +791,49 @@ namespace BrightWire.LinearAlgebra
                 return (d, x, y);
             }).ToList();
         }
+
+        internal IReadOnlyList<MemoryBlock.Ptr> TensorReverseMaxPool(IReadOnlyList<MemoryBlock.Ptr> matrixList, int rows, int columns, int newRows, int newColumns, IReadOnlyList<(int[] X, int[] Y)> indexList)
+        {
+            var size = newColumns * newRows;
+            var depth = matrixList.Count;
+            var ret = new List<MemoryBlock.Ptr>();
+            var xIndex = new List<CudaDeviceVariable<int>>();
+            var yIndex = new List<CudaDeviceVariable<int>>();
+            for (var i = 0; i < depth; i++) {
+                ret.Add(Allocate(size, true));
+                var data = indexList[i];
+                var x = new CudaDeviceVariable<int>(size);
+                var y = new CudaDeviceVariable<int>(size);
+                x.CopyToDevice(data.X);
+                y.CopyToDevice(data.Y);
+                xIndex.Add(x);
+                yIndex.Add(y);
+            }
+            using (var outputDevicePtr = new CudaDeviceVariable<CUdeviceptr>(depth))
+            using (var inputDevicePtr = new CudaDeviceVariable<CUdeviceptr>(depth))
+            using (var xIndexPtr = new CudaDeviceVariable<CUdeviceptr>(depth))
+            using (var yIndexPtr = new CudaDeviceVariable<CUdeviceptr>(depth)) {
+                inputDevicePtr.CopyToDevice(matrixList.Select(m => m.DevicePointer).ToArray());
+                outputDevicePtr.CopyToDevice(ret.Select(m => m.DevicePointer).ToArray());
+                xIndexPtr.CopyToDevice(xIndex.Select(m => m.DevicePointer).ToArray());
+                yIndexPtr.CopyToDevice(yIndex.Select(m => m.DevicePointer).ToArray());
+                _Use(_tensorReverseMaxPool, rows, columns, k => k.Run(0, inputDevicePtr.DevicePointer, outputDevicePtr.DevicePointer, xIndexPtr.DevicePointer, yIndexPtr.DevicePointer, rows, columns, depth, newRows, newColumns));
+            }
+            return ret;
+        }
+
+        //internal MemoryBlock.Ptr TensorCalculateWeightUpdate(IReadOnlyList<MemoryBlock.Ptr> matrixList, int rows, int columns)
+        //{
+        //    var depth = matrixList.Count;
+        //    var newRows = rows * columns;
+        //    var newColumns = depth;
+        //    var ret = Allocate(newRows * newColumns, true);
+        //    using (var inputDevicePtr = new CudaDeviceVariable<CUdeviceptr>(depth)) {
+        //        inputDevicePtr.CopyToDevice(matrixList.Select(m => m.DevicePointer).ToArray());
+        //        _Use(_tensorCalculateWeightUpdate, rows, columns, k => k.Run(0, inputDevicePtr.DevicePointer, ret.DevicePointer, rows, columns, depth, newRows, newColumns));
+        //    }
+        //    return ret;
+        //}
 
         internal CudaContext Context { get { return _cuda; } }
         internal CudaBlas Blas { get { return _blas; } }

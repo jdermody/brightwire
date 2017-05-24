@@ -20,8 +20,8 @@ namespace BrightWire.ExecutionGraph.Activation
 
             protected override void _Dispose(bool isDisposing)
             {
-                foreach(var item in _input)
-                    item.Dispose();
+                //foreach(var item in _input)
+                //    item.Dispose();
             }
 
             protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)

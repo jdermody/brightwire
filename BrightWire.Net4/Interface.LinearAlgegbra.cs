@@ -12,12 +12,6 @@ namespace BrightWire
         void BindThread();
     }
 
-    public interface ICountReferences
-    {
-        int AddRef();
-        int Release();
-    }
-
     /// <summary>
     /// Provides linear algebra functionality
     /// </summary>
@@ -112,7 +106,7 @@ namespace BrightWire
     /// <summary>
     /// A vector
     /// </summary>
-    public interface IVector : ICountReferences, IDisposable
+    public interface IVector : IDisposable
     {
         /// <summary>
         /// Checks if the vector has not been disposed
@@ -351,7 +345,7 @@ namespace BrightWire
         /// <summary>
         /// Splits the vector into a list of vectors
         /// </summary>
-        /// <param name="blockCount">The size of each sub vector</param>
+        /// <param name="blockCount">The number of sub vectors to split into</param>
         IReadOnlyList<IVector> Split(int blockCount);
 
         /// <summary>
@@ -399,7 +393,7 @@ namespace BrightWire
     /// <summary>
     /// A matrix
     /// </summary>
-    public interface IMatrix : ICountReferences, IDisposable
+    public interface IMatrix : IDisposable
     {
         /// <summary>
         /// Checks if the matrix has not been disposed
@@ -472,14 +466,12 @@ namespace BrightWire
         /// <summary>
         /// Returns a vector that contains the sum of the elements in each row of the current matrix
         /// </summary>
-        /// <param name="coefficient">Coefficient to multiply each final summation</param>
-        IVector RowSums(float coefficient = 1f);
+        IVector RowSums();
 
         /// <summary>
         /// Returns a vector that contains the sum of the elements in each column of the current matrix
         /// </summary>
-        /// <param name="coefficient">Coefficient to multiply each final summation</param>
-        IVector ColumnSums(float coefficient = 1f);
+        IVector ColumnSums();
 
         /// <summary>
         /// Returns the transpose of the current matrix
@@ -797,7 +789,7 @@ namespace BrightWire
     /// <summary>
     /// A 3D tensor is a list of matrices
     /// </summary>
-    public interface I3DTensor : ICountReferences, IDisposable
+    public interface I3DTensor : IDisposable
     {
         /// <summary>
         /// The number of rows in each matrix
@@ -884,7 +876,7 @@ namespace BrightWire
         /// </summary>
         IReadOnlyList<IMatrix> DepthSlices { get; }
 
-        (IMatrix WeightUpdate, IVector BiasUpdate) CalculateWeightUpdate(IMatrix im2Col);
+        //(IMatrix WeightUpdate, IVector BiasUpdate) CalculateWeightUpdate(IMatrix im2Col);
 
         I3DTensor CalculatePreviousError(IMatrix filterMatrix, int inputHeight, int inputWidth, int inputDepth, int padding, int filterHeight, int filterWidth, int stride);
     }

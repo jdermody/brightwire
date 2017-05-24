@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using BrightWire.Models;
 using ManagedCuda.BasicTypes;
 using BrightWire.CUDA.Helper;
+using System.Threading;
 
 namespace BrightWire.LinearAlgebra
 {
@@ -20,7 +21,8 @@ namespace BrightWire.LinearAlgebra
         bool _disposed = false;
 #if DEBUG
         static int _gid = 0;
-        int _id = _gid++;
+        static int _GetNextIndex() => Interlocked.Increment(ref _gid);
+        int _id = _GetNextIndex();
         public static int _badAlloc = -1;
         public static int _badDispose = -1;
 
@@ -37,6 +39,7 @@ namespace BrightWire.LinearAlgebra
                 data[i] = init(i);
             _data = cuda.Allocate(size);
             _data.CopyToDevice(data);
+            cuda.Register(this);
 #if DEBUG
             if (_id == _badAlloc)
                 Debugger.Break();
@@ -51,6 +54,7 @@ namespace BrightWire.LinearAlgebra
         {
             _cuda = cuda;
             _data = data;
+            cuda.Register(this);
 
 #if DEBUG
             if (_id == _badAlloc)
@@ -58,13 +62,13 @@ namespace BrightWire.LinearAlgebra
 #endif
         }
 
-//#if DEBUG
-//        ~GpuVector()
-//        {
-//            if (!_disposed)
-//                Debug.WriteLine("\tVector {0} was not disposed!!", _id);
-//        }
-//#endif
+#if DEBUG
+        ~GpuVector()
+        {
+            if (!_disposed)
+                Debug.WriteLine("\tVector {0} was not disposed!!", _id);
+        }
+#endif
 
         protected virtual void Dispose(bool disposing)
         {
@@ -73,7 +77,7 @@ namespace BrightWire.LinearAlgebra
                 Debugger.Break();
 #endif
             if (disposing && !_disposed) {
-                _data.Release();
+                _data.Free();
                 _disposed = true;
             }
         }
@@ -84,19 +88,6 @@ namespace BrightWire.LinearAlgebra
 #if DEBUG
             GC.SuppressFinalize(this);
 #endif
-        }
-
-        public int AddRef()
-        {
-            return _data.AddRef();
-        }
-
-        public int Release()
-        {
-            var ret = _data.Release();
-            if (ret <= 0)
-                _disposed = true;
-            return ret;
         }
 
         public override string ToString()
@@ -489,7 +480,6 @@ namespace BrightWire.LinearAlgebra
         public IMatrix ConvertInPlaceToMatrix(int rows, int columns)
         {
             Debug.Assert(IsValid);
-            _data.AddRef();
             return new GpuMatrix(_cuda, rows, columns, _data);
         }
 

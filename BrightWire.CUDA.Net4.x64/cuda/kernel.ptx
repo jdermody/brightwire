@@ -3000,65 +3000,88 @@ BB51_9:
 	ret;
 }
 
-	// .globl	TensorCalculateWeightUpdate
-.visible .entry TensorCalculateWeightUpdate(
-	.param .u64 TensorCalculateWeightUpdate_param_0,
-	.param .u64 TensorCalculateWeightUpdate_param_1,
-	.param .u32 TensorCalculateWeightUpdate_param_2,
-	.param .u32 TensorCalculateWeightUpdate_param_3,
-	.param .u32 TensorCalculateWeightUpdate_param_4,
-	.param .u32 TensorCalculateWeightUpdate_param_5,
-	.param .u32 TensorCalculateWeightUpdate_param_6,
-	.param .u32 TensorCalculateWeightUpdate_param_7
+	// .globl	TensorReverseMaxPool
+.visible .entry TensorReverseMaxPool(
+	.param .u64 TensorReverseMaxPool_param_0,
+	.param .u64 TensorReverseMaxPool_param_1,
+	.param .u64 TensorReverseMaxPool_param_2,
+	.param .u64 TensorReverseMaxPool_param_3,
+	.param .u32 TensorReverseMaxPool_param_4,
+	.param .u32 TensorReverseMaxPool_param_5,
+	.param .u32 TensorReverseMaxPool_param_6,
+	.param .u32 TensorReverseMaxPool_param_7,
+	.param .u32 TensorReverseMaxPool_param_8
 )
 {
-	.reg .pred 	%p<4>;
+	.reg .pred 	%p<6>;
 	.reg .f32 	%f<2>;
-	.reg .b32 	%r<19>;
-	.reg .b64 	%rd<13>;
+	.reg .b32 	%r<21>;
+	.reg .b64 	%rd<36>;
 
 
-	ld.param.u64 	%rd1, [TensorCalculateWeightUpdate_param_0];
-	ld.param.u64 	%rd2, [TensorCalculateWeightUpdate_param_1];
-	ld.param.u32 	%r3, [TensorCalculateWeightUpdate_param_2];
-	ld.param.u32 	%r4, [TensorCalculateWeightUpdate_param_5];
-	ld.param.u32 	%r6, [TensorCalculateWeightUpdate_param_6];
-	ld.param.u32 	%r5, [TensorCalculateWeightUpdate_param_7];
-	mov.u32 	%r7, %ntid.x;
-	mov.u32 	%r8, %ctaid.x;
-	mov.u32 	%r9, %tid.x;
-	mad.lo.s32 	%r1, %r8, %r7, %r9;
-	mov.u32 	%r10, %ctaid.y;
-	mov.u32 	%r11, %ntid.y;
-	mov.u32 	%r12, %tid.y;
-	mad.lo.s32 	%r2, %r10, %r11, %r12;
-	setp.lt.s32	%p1, %r1, %r4;
-	setp.lt.s32	%p2, %r2, %r6;
+	ld.param.u64 	%rd14, [TensorReverseMaxPool_param_0];
+	ld.param.u64 	%rd15, [TensorReverseMaxPool_param_1];
+	ld.param.u64 	%rd16, [TensorReverseMaxPool_param_2];
+	ld.param.u64 	%rd17, [TensorReverseMaxPool_param_3];
+	ld.param.u32 	%r6, [TensorReverseMaxPool_param_4];
+	ld.param.u32 	%r9, [TensorReverseMaxPool_param_5];
+	ld.param.u32 	%r7, [TensorReverseMaxPool_param_6];
+	ld.param.u32 	%r8, [TensorReverseMaxPool_param_7];
+	mov.u32 	%r10, %ctaid.x;
+	mov.u32 	%r11, %ntid.x;
+	mov.u32 	%r12, %tid.x;
+	mad.lo.s32 	%r1, %r10, %r11, %r12;
+	mov.u32 	%r13, %ctaid.y;
+	mov.u32 	%r14, %ntid.y;
+	mov.u32 	%r15, %tid.y;
+	mad.lo.s32 	%r2, %r13, %r14, %r15;
+	setp.lt.s32	%p1, %r1, %r6;
+	setp.lt.s32	%p2, %r2, %r9;
 	and.pred  	%p3, %p1, %p2;
-	@!%p3 bra 	BB52_2;
+	@!%p3 bra 	BB52_4;
 	bra.uni 	BB52_1;
 
 BB52_1:
-	cvta.to.global.u64 	%rd3, %rd1;
-	sub.s32 	%r13, %r2, %r1;
-	div.s32 	%r14, %r13, %r5;
-	div.s32 	%r15, %r14, %r5;
-	sub.s32 	%r16, %r2, %r15;
-	mul.wide.s32 	%rd4, %r2, 8;
-	add.s64 	%rd5, %rd3, %rd4;
-	ld.global.u64 	%rd6, [%rd5];
-	cvta.to.global.u64 	%rd7, %rd6;
-	mad.lo.s32 	%r17, %r14, %r3, %r16;
-	mul.wide.s32 	%rd8, %r17, 4;
-	add.s64 	%rd9, %rd7, %rd8;
-	ld.global.f32 	%f1, [%rd9];
-	mad.lo.s32 	%r18, %r2, %r4, %r1;
-	cvta.to.global.u64 	%rd10, %rd2;
-	mul.wide.s32 	%rd11, %r18, 4;
-	add.s64 	%rd12, %rd10, %rd11;
-	st.global.f32 	[%rd12], %f1;
+	mad.lo.s32 	%r3, %r2, %r6, %r1;
+	setp.lt.s32	%p4, %r7, 1;
+	@%p4 bra 	BB52_4;
 
-BB52_2:
+	cvta.to.global.u64 	%rd35, %rd17;
+	cvta.to.global.u64 	%rd34, %rd16;
+	cvta.to.global.u64 	%rd33, %rd15;
+	cvta.to.global.u64 	%rd32, %rd14;
+	cvt.s64.s32	%rd5, %r3;
+	mov.u32 	%r20, 0;
+	shl.b64 	%rd26, %rd5, 2;
+
+BB52_3:
+	ld.global.u64 	%rd18, [%rd32];
+	cvta.to.global.u64 	%rd19, %rd18;
+	ld.global.u64 	%rd20, [%rd33];
+	cvta.to.global.u64 	%rd21, %rd20;
+	ld.global.u64 	%rd22, [%rd34];
+	cvta.to.global.u64 	%rd23, %rd22;
+	ld.global.u64 	%rd24, [%rd35];
+	cvta.to.global.u64 	%rd25, %rd24;
+	add.s64 	%rd27, %rd23, %rd26;
+	add.s64 	%rd28, %rd25, %rd26;
+	add.s64 	%rd29, %rd19, %rd26;
+	ld.global.f32 	%f1, [%rd29];
+	ld.global.u32 	%r17, [%rd27];
+	ld.global.u32 	%r18, [%rd28];
+	mad.lo.s32 	%r19, %r17, %r8, %r18;
+	mul.wide.s32 	%rd30, %r19, 4;
+	add.s64 	%rd31, %rd21, %rd30;
+	st.global.f32 	[%rd31], %f1;
+	add.s64 	%rd35, %rd35, 8;
+	add.s64 	%rd34, %rd34, 8;
+	add.s64 	%rd33, %rd33, 8;
+	add.s64 	%rd32, %rd32, 8;
+	add.s32 	%r20, %r20, 1;
+	setp.lt.s32	%p5, %r20, %r7;
+	@%p5 bra 	BB52_3;
+
+BB52_4:
 	ret;
 }
 

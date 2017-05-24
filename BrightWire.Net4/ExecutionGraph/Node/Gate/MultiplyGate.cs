@@ -20,8 +20,8 @@ namespace BrightWire.ExecutionGraph.Node.Gate
 
             protected override void _Dispose(bool isDisposing)
             {
-                _input1.Dispose();
-                _input2.Dispose();
+                //_input1.Dispose();
+                //_input2.Dispose();
             }
 
             public override void _Backward(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)

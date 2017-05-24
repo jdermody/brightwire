@@ -768,17 +768,21 @@ extern "C"
 		}
 	}
 
-
-
-	__global__ void TensorCalculateWeightUpdate(float** a, float* b, int aRows, int aColumns, int depth, int bRows, int bColumns, int rowCount)
+	__global__ void TensorReverseMaxPool(float** a, float** b, int** bestXIndexPtr, int** bestYIndexPtr, int aRows, int aColumns, int depth, int bRows, int bColumns)
 	{
 		int i = blockDim.x * blockIdx.x + threadIdx.x;
 		int j = blockDim.y * blockIdx.y + threadIdx.y;
-
-		if(i < bRows && j < bColumns) {
-			int x = (j - i) / rowCount;
-			int y = j - (x / rowCount);
-			b[j * bRows + i] = a[j][x * aRows + y];
+		if(i < aRows && j < aColumns) {
+			int index = j * aRows + i;
+			for(int z = 0; z < depth; z++) {
+				float* source = a[z];
+				float* target = b[z];
+				int* bestXIndex = bestXIndexPtr[z];
+				int* bestYIndex = bestYIndexPtr[z];
+				int targetX = bestXIndex[index];
+				int targetY = bestYIndex[index];
+				target[targetX * bRows + targetY] = source[index];
+			}
 		}
 	}
 }

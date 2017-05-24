@@ -41,6 +41,21 @@ namespace UnitTests
         }
 
         [TestMethod]
+        public void TensorCreateFromVector()
+        {
+            const int DEPTH = 3, ROWS = 4, COLUMNS = 4;
+            var cpuTensor = _cpu.CreateTensor(Enumerable.Range(0, DEPTH).Select(i => _cpu.CreateMatrix(ROWS, COLUMNS, (j, k) => (i + 1) * (j + 1) * (k + 1))).ToList());
+            var cpuVector = cpuTensor.ConvertToVector();
+            var cpuTensor2 = _cpu.CreateTensor(cpuVector, ROWS, COLUMNS, DEPTH);
+            FloatingPointHelper.AssertEqual(cpuTensor.AsIndexable(), cpuTensor2.AsIndexable());
+
+            using (var gpuVector = _cuda.CreateVector(cpuVector.AsIndexable()))
+            using (var gpuTensor2 = _cuda.CreateTensor(gpuVector, ROWS, COLUMNS, DEPTH)) {
+                FloatingPointHelper.AssertEqual(cpuTensor.AsIndexable(), gpuTensor2.AsIndexable());
+            }
+        }
+
+        [TestMethod]
         public void TensorConvertToMatrix()
         {
             using (var cpuTensor = _cpu.CreateTensor(Enumerable.Range(0, 3).Select(i => _cpu.CreateMatrix(4, 4, (j, k) => (i + 1) * (j + 1) * (k + 1))).ToList()))
@@ -48,6 +63,21 @@ namespace UnitTests
             using (var cpuMatrix = cpuTensor.ConvertToMatrix())
             using (var gpuMatrix = gpuTensor.ConvertToMatrix())
                 FloatingPointHelper.AssertEqual(cpuMatrix.AsIndexable(), gpuMatrix.AsIndexable());
+        }
+
+        [TestMethod]
+        public void TensorCreateFromMatrix()
+        {
+            const int DEPTH = 3, ROWS = 4, COLUMNS = 4;
+            var cpuTensor = _cpu.CreateTensor(Enumerable.Range(0, DEPTH).Select(i => _cpu.CreateMatrix(ROWS, COLUMNS, (j, k) => (i + 1) * (j + 1) * (k + 1))).ToList());
+            var cpuMatrix = cpuTensor.ConvertToMatrix();
+            var cpuTensor2 = _cpu.CreateTensor(cpuMatrix, ROWS, COLUMNS);
+            FloatingPointHelper.AssertEqual(cpuTensor.AsIndexable(), cpuTensor2.AsIndexable());
+
+            using (var gpuMatrix = _cuda.CreateMatrix(cpuMatrix.AsIndexable()))
+            using (var gpuTensor2 = _cuda.CreateTensor(gpuMatrix, ROWS, COLUMNS)) {
+                FloatingPointHelper.AssertEqual(cpuTensor.AsIndexable(), gpuTensor2.AsIndexable());
+            }
         }
 
         [TestMethod]
@@ -112,32 +142,32 @@ namespace UnitTests
             }
         }
 
-        [TestMethod]
-        public void TensorCalculateWeightUpdate()
-        {
-            const int FILTER_WIDTH = 2, FILTER_HEIGHT = 2, STRIDE = 2, DEPTH = 3, FILTER_COUNT = 4, INPUT_WIDTH = 8, INPUT_HEIGHT = 8;
-            var normalDistribution = new Normal(0, 1);
-            var cpuTensor = _cpu.CreateTensor(Enumerable.Range(0, DEPTH).Select(i => _cpu.CreateMatrix(INPUT_HEIGHT, INPUT_WIDTH, (j, k) => Convert.ToSingle(normalDistribution.Sample()))).ToList());
-            var im2Col = cpuTensor.Im2Col(FILTER_WIDTH, FILTER_HEIGHT, STRIDE);
-            var cpuFilter = _cpu.CreateMatrix(DEPTH * FILTER_WIDTH * FILTER_HEIGHT, FILTER_COUNT, (i, j) => (float)normalDistribution.Sample());
-            var output = im2Col.Multiply(cpuFilter);
+        //[TestMethod]
+        //public void TensorCalculateWeightUpdate()
+        //{
+        //    const int FILTER_WIDTH = 2, FILTER_HEIGHT = 2, STRIDE = 2, DEPTH = 3, FILTER_COUNT = 4, INPUT_WIDTH = 8, INPUT_HEIGHT = 8;
+        //    var normalDistribution = new Normal(0, 1);
+        //    var cpuTensor = _cpu.CreateTensor(Enumerable.Range(0, DEPTH).Select(i => _cpu.CreateMatrix(INPUT_HEIGHT, INPUT_WIDTH, (j, k) => Convert.ToSingle(normalDistribution.Sample()))).ToList());
+        //    var im2Col = cpuTensor.Im2Col(FILTER_WIDTH, FILTER_HEIGHT, STRIDE);
+        //    var cpuFilter = _cpu.CreateMatrix(DEPTH * FILTER_WIDTH * FILTER_HEIGHT, FILTER_COUNT, (i, j) => (float)normalDistribution.Sample());
+        //    var output = im2Col.Multiply(cpuFilter);
 
-            var matrixList = new List<IMatrix>();
-            var newWidth = ((INPUT_WIDTH - FILTER_WIDTH) / STRIDE) + 1;
-            var newHeight = ((INPUT_HEIGHT - FILTER_HEIGHT) / STRIDE) + 1;
-            for (var i = 0; i < output.ColumnCount; i++)
-                matrixList.Add(output.Column(i).ConvertInPlaceToMatrix(newWidth, newHeight));
-            var outputTensor = _cpu.CreateTensor(matrixList);
-            var cpuUpdate = outputTensor.CalculateWeightUpdate(im2Col);
+        //    var matrixList = new List<IMatrix>();
+        //    var newWidth = ((INPUT_WIDTH - FILTER_WIDTH) / STRIDE) + 1;
+        //    var newHeight = ((INPUT_HEIGHT - FILTER_HEIGHT) / STRIDE) + 1;
+        //    for (var i = 0; i < output.ColumnCount; i++)
+        //        matrixList.Add(output.Column(i).ConvertInPlaceToMatrix(newWidth, newHeight));
+        //    var outputTensor = _cpu.CreateTensor(matrixList);
+        //    var cpuUpdate = outputTensor.CalculateWeightUpdate(im2Col);
 
-            using (var gpuTensor = _cuda.CreateTensor(outputTensor.AsIndexable()))
-            using (var gpuIm2Col = _cuda.CreateMatrix(im2Col.AsIndexable())) {
-                var gpuUpdate = gpuTensor.CalculateWeightUpdate(gpuIm2Col);
+        //    using (var gpuTensor = _cuda.CreateTensor(outputTensor.AsIndexable()))
+        //    using (var gpuIm2Col = _cuda.CreateMatrix(im2Col.AsIndexable())) {
+        //        var gpuUpdate = gpuTensor.CalculateWeightUpdate(gpuIm2Col);
 
-                FloatingPointHelper.AssertEqual(cpuUpdate.BiasUpdate.AsIndexable(), gpuUpdate.BiasUpdate.AsIndexable());
-                FloatingPointHelper.AssertEqual(cpuUpdate.WeightUpdate.AsIndexable(), gpuUpdate.WeightUpdate.AsIndexable());
-            }
-        }
+        //        FloatingPointHelper.AssertEqual(cpuUpdate.BiasUpdate.AsIndexable(), gpuUpdate.BiasUpdate.AsIndexable());
+        //        FloatingPointHelper.AssertEqual(cpuUpdate.WeightUpdate.AsIndexable(), gpuUpdate.WeightUpdate.AsIndexable());
+        //    }
+        //}
 
         [TestMethod]
         public void TensorCalculatePreviousError()
@@ -180,15 +210,35 @@ namespace UnitTests
             }
         }
 
+        void _AssertValuesAreInSamePlace(IIndexable3DTensor maxPool, IIndexable3DTensor source)
+        {
+            for (var z = 0; z < maxPool.Depth; z++) {
+                var slice = maxPool.GetDepthSlice(z).AsIndexable();
+                for (var i = 0; i < slice.RowCount; i++) {
+                    for (var j = 0; j < slice.ColumnCount; j++) {
+                        var val = slice[i, j];
+                        if (val != 0f) {
+                            Assert.AreEqual(val, source[i, j, z]);
+                        }
+                    }
+                }
+            }
+        }
+
         [TestMethod]
         public void TensorMaxPool()
         {
             const int FILTER_WIDTH = 2, FILTER_HEIGHT = 2, STRIDE = 2, INPUT_WIDTH = 4, INPUT_HEIGHT = 4;
-            var cpuTensor = _cpu.CreateTensor(Enumerable.Range(0, 1).Select(i => _cpu.CreateMatrix(INPUT_HEIGHT, INPUT_WIDTH, 0f)).ToList()).AsIndexable();
+            var cpuTensor = _cpu.CreateTensor(Enumerable.Range(0, 2).Select(i => _cpu.CreateMatrix(INPUT_HEIGHT, INPUT_WIDTH, 0f)).ToList()).AsIndexable();
             cpuTensor[0, 0, 0] = 1f;
             cpuTensor[0, 3, 0] = 2f;
             cpuTensor[3, 0, 0] = 3f;
             cpuTensor[3, 3, 0] = 4f;
+
+            cpuTensor[1, 1, 1] = 1f;
+            cpuTensor[1, 2, 1] = 2f;
+            cpuTensor[2, 1, 1] = 3f;
+            cpuTensor[2, 2, 1] = 4f;
 
             (var cpuMaxPool, var cpuIndex) = cpuTensor.MaxPool(FILTER_WIDTH, FILTER_HEIGHT, STRIDE);
             var cpuReverseMaxPool = cpuMaxPool.ReverseMaxPool(INPUT_HEIGHT, INPUT_WIDTH, cpuIndex).AsIndexable();
@@ -213,6 +263,7 @@ namespace UnitTests
 
             (var cpuMaxPool, var cpuIndex) = cpuTensor.MaxPool(FILTER_WIDTH, FILTER_HEIGHT, STRIDE);
             var cpuReverseMaxPool = cpuMaxPool.ReverseMaxPool(INPUT_HEIGHT, INPUT_WIDTH, cpuIndex).AsIndexable();
+            _AssertValuesAreInSamePlace(cpuReverseMaxPool, cpuTensor);
 
             using (var gpuTensor = _cuda.CreateTensor(cpuTensor)) {
                 (var gpuMaxPool, var gpuIndex) = gpuTensor.MaxPool(FILTER_WIDTH, FILTER_HEIGHT, STRIDE);

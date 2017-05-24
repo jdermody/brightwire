@@ -5,6 +5,7 @@ using System.Linq;
 using ManagedCuda;
 using BrightWire.Models;
 using System.Diagnostics;
+using System.Threading;
 
 namespace BrightWire.LinearAlgebra
 {
@@ -17,8 +18,9 @@ namespace BrightWire.LinearAlgebra
 
 #if DEBUG
         static int _gid = 0;
-        int _id = _gid++;
-        public static int _badAlloc = 1;
+        static int _GetNextIndex() => Interlocked.Increment(ref _gid);
+        int _id = _GetNextIndex();
+        public static int _badAlloc = -1;
         public static int _badDispose = -1;
 
         public bool IsValid => !_disposed;
@@ -33,6 +35,7 @@ namespace BrightWire.LinearAlgebra
             _columns = columns;
             _depth = depth;
             _data = data;
+            provider.Register(this);
 
 #if DEBUG
             if (_id == _badAlloc)
@@ -40,13 +43,13 @@ namespace BrightWire.LinearAlgebra
 #endif
         }
 
-//#if DEBUG
-//        ~Gpu3DTensor()
-//        {
-//            if (!_disposed)
-//                Debug.WriteLine("\tTensor {0} was not disposed !!", _id);
-//        }
-//#endif
+#if DEBUG
+        ~Gpu3DTensor()
+        {
+            if (!_disposed)
+                Debug.WriteLine("\tTensor {0} was not disposed !!", _id);
+        }
+#endif
 
         protected virtual void Dispose(bool disposing)
         {
@@ -57,7 +60,7 @@ namespace BrightWire.LinearAlgebra
             if (!_disposed) {
                 _disposed = true;
                 foreach (var item in _data)
-                    item.Memory.Release();
+                    item.Dispose();
             }
         }
 
@@ -67,25 +70,6 @@ namespace BrightWire.LinearAlgebra
 #if DEBUG
             GC.SuppressFinalize(this);
 #endif
-        }
-
-        public int AddRef()
-        {
-            var list = new List<int>();
-            foreach (var item in _data)
-                list.Add(item.AddRef());
-            return list.Max();
-        }
-
-        public int Release()
-        {
-            var list = new List<int>();
-            foreach (var item in _data)
-                list.Add(item.Release());
-            var ret = list.Max();
-            if (ret <= 0)
-                _disposed = true;
-            return ret;
         }
 
         public int ColumnCount
@@ -216,18 +200,24 @@ namespace BrightWire.LinearAlgebra
         public I3DTensor ReverseMaxPool(int rows, int columns, IReadOnlyList<(int[] X, int[] Y)> indexList)
         {
             Debug.Assert(IsValid);
+            var ret = _cuda.TensorReverseMaxPool(_data.Select(d => d.Memory).ToList(), RowCount, ColumnCount, rows, columns, indexList);
+            return new Gpu3DTensor(_cuda, rows, columns, indexList.Count, ret.Select(d => new GpuMatrix(_cuda, rows, columns, d)).ToList());
             // TODO: native CUDA implementation
-            return _cuda.CreateTensor(AsIndexable().ReverseMaxPool(rows, columns, indexList).AsIndexable());
+            //return _cuda.CreateTensor(AsIndexable().ReverseMaxPool(rows, columns, indexList).AsIndexable());
         }
 
-        public (IMatrix WeightUpdate, IVector BiasUpdate) CalculateWeightUpdate(IMatrix im2Col)
-        {
-            Debug.Assert(IsValid && im2Col.IsValid);
-
-            // TODO: native CUDA implementation
-            var ret = AsIndexable().CalculateWeightUpdate(im2Col.AsIndexable());
-            return (_cuda.CreateMatrix(ret.WeightUpdate.AsIndexable()), _cuda.CreateVector(ret.BiasUpdate.AsIndexable()));
-        }
+        //public (IMatrix WeightUpdate, IVector BiasUpdate) CalculateWeightUpdate(IMatrix im2Col)
+        //{
+        //    Debug.Assert(IsValid && im2Col.IsValid);
+        //    var multiplyWith = ConvertToMatrix();
+        //    var weightUpdate = im2Col.TransposeThisAndMultiply(multiplyWith);
+        //    var biasUpdate = multiplyWith.ColumnSums();
+        //    biasUpdate.Multiply(1f / multiplyWith.RowCount);
+        //    return (weightUpdate, biasUpdate);
+        //    // TODO: native CUDA implementation
+        //    //var ret = AsIndexable().CalculateWeightUpdate(im2Col.AsIndexable());
+        //    //return (_cuda.CreateMatrix(ret.WeightUpdate.AsIndexable()), _cuda.CreateVector(ret.BiasUpdate.AsIndexable()));
+        //}
 
         public I3DTensor CalculatePreviousError(IMatrix filterMatrix, int inputHeight, int inputWidth, int inputDepth, int padding, int filterHeight, int filterWidth, int stride)
         {
