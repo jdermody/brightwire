@@ -237,5 +237,20 @@ namespace BrightWire.LinearAlgebra
                 stride
             ).AsIndexable());
         }
+
+        public IMatrix ReverseIm2Col(IReadOnlyList<IReadOnlyList<IVector>> filter, int inputHeight, int inputWidth, int inputDepth, int padding, int filterHeight, int filterWidth, int stride)
+        {
+            var columns = inputHeight + padding * 2;
+            var rows = inputWidth + padding * 2;
+            var filters = filter.Select(fl => fl.Cast<GpuVector>().Select(v => v.Memory).ToList()).ToList();
+            var matrixList = _cuda.TensorReverseIm2Col(_data.Select(d => d.Memory).ToList(), filters, RowCount, ColumnCount, inputHeight, inputWidth, inputDepth, padding, filterHeight, filterWidth, stride);
+            var matrixList2 = matrixList.Select(d => new GpuMatrix(_cuda, rows* columns, inputDepth, d)).ToList();
+            var ret = matrixList2.First();
+            foreach(var item in matrixList2.Skip(1)) {
+                ret.AddInPlace(item);
+                item.Dispose();
+            }
+            return ret;
+        }
     }
 }

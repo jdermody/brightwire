@@ -23,7 +23,7 @@ namespace BrightWire.CUDA.Helper
 
 #if DEBUG
             public static int _badAlloc = -1;
-            public static int _badDispose = 19;
+            public static int _badDispose = -1;
             public bool IsValid => !_disposed;
 #else
             public bool IsValid => true;

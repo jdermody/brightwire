@@ -264,8 +264,8 @@ namespace BrightWire.LinearAlgebra
         public I3DTensor CalculatePreviousError(IMatrix filterMatrix, int inputHeight, int inputWidth, int inputDepth, int padding, int filterHeight, int filterWidth, int stride)
         {
             var filters = filterMatrix.AsIndexable().Columns.ToList();
-            var columns = inputHeight + padding * 2;
-            var rows = inputWidth + padding * 2;
+            var columns = inputWidth + padding * 2;
+            var rows = inputHeight + padding * 2;
             var matrixList = Enumerable.Range(0, inputDepth)
                 .Select(i => DenseMatrix.Create(rows, columns, 0f))
                 .ToList()
@@ -283,14 +283,16 @@ namespace BrightWire.LinearAlgebra
                 foreach (var convolution in convolutions) {
                     var first = convolution.First();
                     var error = slice[first.X / stride, first.Y / stride];
-                    foreach (var item in convolution) {
-                        var i = item.X - first.X;
-                        var j = item.Y - first.Y;
-                        var index = i * filterHeight + j;
-                        for (var z = 0; z < filterList.Count; z++) {
-                            var filter = filterList[z];
-                            var output = matrixList[z];
-                            output[item.Y, item.X] += filter[i * filterHeight + j] * error;
+                    if (error != 0) {
+                        foreach (var item in convolution) {
+                            var i = item.X - first.X;
+                            var j = item.Y - first.Y;
+                            var filterIndex = i * filterHeight + j;
+                            for (var z = 0; z < filterList.Count; z++) {
+                                var filter = filterList[z];
+                                var output = matrixList[z];
+                                output[item.Y, item.X] += filter[filterIndex] * error;
+                            }
                         }
                     }
                 }
@@ -301,6 +303,47 @@ namespace BrightWire.LinearAlgebra
             if (padding > 0)
                 return ret.RemovePadding(padding);
             return ret;
+        }
+
+        public IMatrix ReverseIm2Col(IReadOnlyList<IReadOnlyList<IVector>> filters, int inputHeight, int inputWidth, int inputDepth, int padding, int filterHeight, int filterWidth, int stride)
+        {
+            var columns = inputHeight + padding * 2;
+            var rows = inputWidth + padding * 2;
+            int filterSize = filters.First().Count;
+            var convolutions = ConvolutionHelper.Default(columns, rows, filterHeight, filterHeight, stride);
+            var ret = Enumerable.Range(0, inputDepth)
+                .Select(i => DenseMatrix.Create(columns * rows, inputDepth, 0f))
+                .ToList()
+            ;
+            //var ret2 = DenseMatrix.Create(inputHeight * inputWidth, inputDepth, 0f);
+
+            for (var k = 0; k < Depth; k++) {
+                var slice = GetDepthSlice(k).AsIndexable();
+                var filterList = filters[k].Select(f => f.AsIndexable()).ToList();
+                var output = ret[k];
+
+                foreach (var convolution in convolutions) {
+                    var first = convolution.First();
+                    var error = slice[first.X / stride, first.Y / stride];
+                    //if (error != 0) {
+                        foreach (var item in convolution) {
+                            var i = item.X - first.X;
+                            var j = item.Y - first.Y;
+                            var filterIndex = i * filterHeight + j;
+                            var outputRow = item.X * inputHeight + item.Y;
+                            for (var z = 0; z < filterSize; z++) {
+                                var filter = filterList[z];
+                                output[outputRow, z] = filter[filterIndex] * error;
+                                //ret2[index2, z] += filter[index] * error;
+                            }
+                        }
+                    //}
+                }
+            }
+            var ret2 = DenseMatrix.Create(inputHeight * inputWidth, inputDepth, 0f);
+            foreach(var item in ret)
+                ret2 = (DenseMatrix)ret2.Add(item);
+            return new CpuMatrix(ret2);
         }
     }
 }
