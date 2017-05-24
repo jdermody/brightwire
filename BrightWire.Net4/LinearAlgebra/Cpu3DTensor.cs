@@ -168,12 +168,16 @@ namespace BrightWire.LinearAlgebra
             return new CpuMatrix(ret);
         }
 
-        public (I3DTensor Result, IReadOnlyList<(int[] X, int[] Y)> Index) MaxPool(int filterWidth, int filterHeight, int stride)
+        public (I3DTensor Result, IReadOnlyList<(object X, object Y)> Index) MaxPool(
+            int filterWidth, 
+            int filterHeight, 
+            int stride,
+            bool calculateIndex)
         {
             var newColumns = (ColumnCount - filterWidth) / stride + 1;
             var newRows = (RowCount - filterHeight) / stride + 1;
             var matrixList = new List<CpuMatrix>();
-            var indexList = new List<(int[] X, int[] Y)>();
+            var indexList = calculateIndex ? new List<(object X, object Y)>() : null;
             var posList = ConvolutionHelper.Default(ColumnCount, RowCount, filterWidth, filterHeight, stride);
 
             for (var k = 0; k < Depth; k++) {
@@ -203,23 +207,25 @@ namespace BrightWire.LinearAlgebra
                     layer[targetY, targetX] = maxVal;
                 }
                 matrixList.Add(layer);
-                indexList.Add((xIndex, yIndex));
+                indexList?.Add((xIndex, yIndex));
             }
             return (new Cpu3DTensor(matrixList), indexList);
         }
 
-        public I3DTensor ReverseMaxPool(int rows, int columns, IReadOnlyList<(int[] X, int[] Y)> indexList)
+        public I3DTensor ReverseMaxPool(int rows, int columns, IReadOnlyList<(object X, object Y)> indexList)
         {
             var matrixList = new List<DenseMatrix>();
             for (var z = 0; z < Depth; z++) {
                 var source = GetDepthSlice(z).AsIndexable();
                 var newRows = source.RowCount;
                 var index = indexList[z];
+                int[] indexX = (int[])index.X;
+                int[] indexY = (int[])index.Y;
                 var target = DenseMatrix.Create(rows, columns, 0f);
                 
-                for(int i = 0, len = index.X.Length; i < len; i++) {
-                    var x = index.X[i];
-                    var y = index.Y[i];
+                for(int i = 0, len = indexX.Length; i < len; i++) {
+                    var x = indexX[i];
+                    var y = indexY[i];
                     var sourceX = i / newRows;
                     var sourceY = i % newRows;
                     target[y, x] = source[sourceY, sourceX];

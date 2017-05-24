@@ -865,11 +865,11 @@ namespace BrightWire
         /// <param name="filterWidth">The pooling filter width</param>
         /// <param name="filterHeight">The pooling filter height</param>
         /// <param name="stride">The pooling stride</param>
-        /// <param name="indexPosList">A map of the indexes that were pooled (mapping from output to input positions)</param>
+        /// <param name="calculateIndex">True to calculate the index of each max item</param>
         /// <returns>A max pooled tensor</returns>
-        (I3DTensor Result, IReadOnlyList<(int[] X, int[] Y)> Index) MaxPool(int filterWidth, int filterHeight, int stride);
+        (I3DTensor Result, IReadOnlyList<(object X, object Y)> Index) MaxPool(int filterWidth, int filterHeight, int stride, bool calculateIndex);
 
-        I3DTensor ReverseMaxPool(int rows, int columns, IReadOnlyList<(int[] X, int[] Y)> indexList);
+        I3DTensor ReverseMaxPool(int rows, int columns, IReadOnlyList<(object X, object Y)> indexList);
 
         /// <summary>
         /// Returns the list of matrices

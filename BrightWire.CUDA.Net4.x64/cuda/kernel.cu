@@ -761,8 +761,12 @@ extern "C"
 						}
 					}
 				}
-				bestXIndex[index] = bestX;
-				bestYIndex[index] = bestY;
+				if(bestXIndex) {
+					bestXIndex[index] = bestX;
+				}
+				if(bestYIndex) {
+					bestYIndex[index] = bestY;
+				}
 				target[index] = maxVal;
 			}
 		}

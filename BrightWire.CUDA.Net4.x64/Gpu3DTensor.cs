@@ -186,18 +186,21 @@ namespace BrightWire.LinearAlgebra
             return new GpuMatrix(_cuda, ret.Item2, ret.Item3, ret.Item1);
         }
 
-        public (I3DTensor Result, IReadOnlyList<(int[] X, int[] Y)> Index) MaxPool(int filterWidth, int filterHeight, int stride)
+        public (I3DTensor Result, IReadOnlyList<(object X, object Y)> Index) MaxPool(int filterWidth, int filterHeight, int stride, bool calculateIndex)
         {
             Debug.Assert(IsValid);
             var newColumns = (ColumnCount - filterWidth) / stride + 1;
             var newRows = (RowCount - filterHeight) / stride + 1;
-            var data = _cuda.TensorMaxPool(_data.Select(d => d.Memory).ToList(), RowCount, ColumnCount, filterWidth, filterHeight, stride);
+            var data = _cuda.TensorMaxPool(_data.Select(d => d.Memory).ToList(), RowCount, ColumnCount, filterWidth, filterHeight, stride, calculateIndex);
             var ret = new Gpu3DTensor(_cuda, newRows, newColumns, Depth, data.Select(d => new GpuMatrix(_cuda, newRows, newColumns, d.Item1)).ToList());
-            var index = data.Select(d => (d.Item2, d.Item3)).ToList();
+
+            List<(object X, object Y)> index = null;
+            if(calculateIndex)
+                index = data.Select(d => (d.Item2, d.Item3)).ToList();
             return (ret, index);
         }
 
-        public I3DTensor ReverseMaxPool(int rows, int columns, IReadOnlyList<(int[] X, int[] Y)> indexList)
+        public I3DTensor ReverseMaxPool(int rows, int columns, IReadOnlyList<(object X, object Y)> indexList)
         {
             Debug.Assert(IsValid);
             var ret = _cuda.TensorReverseMaxPool(_data.Select(d => d.Memory).ToList(), RowCount, ColumnCount, rows, columns, indexList);

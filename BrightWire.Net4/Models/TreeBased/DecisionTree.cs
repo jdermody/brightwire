@@ -98,7 +98,7 @@ namespace BrightWire.Models
             {
                 var sb = new StringBuilder();
                 if (Root != null)
-                    Root.WriteTo(new XmlTextWriter(new StringWriter(sb)));
+                    Root.WriteTo(XmlWriter.Create(new StringWriter(sb)));
                 return sb.ToString();
             }
         }

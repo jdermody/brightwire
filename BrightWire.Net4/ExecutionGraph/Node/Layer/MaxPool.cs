@@ -11,10 +11,10 @@ namespace BrightWire.ExecutionGraph.Node.Layer
     {
         class Backpropagation : SingleBackpropagationBase<MaxPool>
         {
-            readonly IReadOnlyList<(int[] X, int[] Y)> _indexList;
+            readonly IReadOnlyList<(object X, object Y)> _indexList;
             readonly int _columns, _rows;
 
-            public Backpropagation(MaxPool source, IReadOnlyList<(int[] X, int[] Y)> indexList, int columns, int rows)
+            public Backpropagation(MaxPool source, IReadOnlyList<(object X, object Y)> indexList, int columns, int rows)
                 : base(source)
             {
                 _indexList = indexList;
@@ -39,7 +39,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         public override void ExecuteForward(IContext context)
         {
             var tensor = context.Data.GetTensor();
-            (var output, var index) = tensor.MaxPool(_width, _height, _stride);
+            (var output, var index) = tensor.MaxPool(_width, _height, _stride, context.IsTraining);
 
             var graphData = new TensorGraphData(output);
             _AddNextGraphAction(context, graphData, () => new Backpropagation(this, index, tensor.ColumnCount, tensor.RowCount));

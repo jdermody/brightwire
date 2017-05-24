@@ -757,19 +757,27 @@ namespace BrightWire.LinearAlgebra
             return ret;
         }
 
-        internal IReadOnlyList<(MemoryBlock.Ptr, int[], int[])> TensorMaxPool(IReadOnlyList<MemoryBlock.Ptr> matrixList, int rows, int columns, int filterWidth, int filterHeight, int stride)
+        internal IReadOnlyList<(MemoryBlock.Ptr, object, object)> TensorMaxPool(
+            IReadOnlyList<MemoryBlock.Ptr> matrixList, 
+            int rows, 
+            int columns, 
+            int filterWidth, 
+            int filterHeight, 
+            int stride,
+            bool calculateIndex)
         {
             var newColumns = (columns - filterWidth) / stride + 1;
             var newRows = (rows - filterHeight) / stride + 1;
             var size = newColumns * newRows;
             var depth = matrixList.Count;
             var ret = new List<MemoryBlock.Ptr>();
+
             var xIndex = new List<CudaDeviceVariable<int>>();
             var yIndex = new List<CudaDeviceVariable<int>>();
-            for(var i = 0; i < depth; i++) {
+            for (var i = 0; i < depth; i++) {
                 ret.Add(Allocate(size));
-                xIndex.Add(new CudaDeviceVariable<int>(size));
-                yIndex.Add(new CudaDeviceVariable<int>(size));
+                xIndex.Add(calculateIndex ? new CudaDeviceVariable<int>(size) : CudaDeviceVariable<int>.Null);
+                yIndex.Add(calculateIndex ? new CudaDeviceVariable<int>(size) : CudaDeviceVariable<int>.Null);
             }
             using (var outputDevicePtr = new CudaDeviceVariable<CUdeviceptr>(depth))
             using (var inputDevicePtr = new CudaDeviceVariable<CUdeviceptr>(depth))
@@ -781,18 +789,18 @@ namespace BrightWire.LinearAlgebra
                 yIndexPtr.CopyToDevice(yIndex.Select(m => m.DevicePointer).ToArray());
                 _Use(_tensorMaxPool, newRows, newColumns, k => k.Run(0, inputDevicePtr.DevicePointer, outputDevicePtr.DevicePointer, xIndexPtr.DevicePointer, yIndexPtr.DevicePointer, rows, columns, depth, newRows, newColumns, filterWidth, filterHeight, stride));
             }
-            return ret.Select((d, i) => {
-                var x = new int[size];
-                var y = new int[size];
-                xIndex[i].CopyToHost(x);
-                yIndex[i].CopyToHost(y);
-                xIndex[i].Dispose();
-                yIndex[i].Dispose();
-                return (d, x, y);
-            }).ToList();
+            if (calculateIndex) {
+                return ret.Select((d, i) => {
+                    return (d, (object)xIndex[i], (object)yIndex[i]);
+                }).ToList();
+            }else {
+                return ret.Select((d, i) => {
+                    return (d, (object)null, (object)null);
+                }).ToList();
+            }
         }
 
-        internal IReadOnlyList<MemoryBlock.Ptr> TensorReverseMaxPool(IReadOnlyList<MemoryBlock.Ptr> matrixList, int rows, int columns, int newRows, int newColumns, IReadOnlyList<(int[] X, int[] Y)> indexList)
+        internal IReadOnlyList<MemoryBlock.Ptr> TensorReverseMaxPool(IReadOnlyList<MemoryBlock.Ptr> matrixList, int rows, int columns, int newRows, int newColumns, IReadOnlyList<(object X, object Y)> indexList)
         {
             var size = newColumns * newRows;
             var depth = matrixList.Count;
@@ -802,12 +810,8 @@ namespace BrightWire.LinearAlgebra
             for (var i = 0; i < depth; i++) {
                 ret.Add(Allocate(size, true));
                 var data = indexList[i];
-                var x = new CudaDeviceVariable<int>(size);
-                var y = new CudaDeviceVariable<int>(size);
-                x.CopyToDevice(data.X);
-                y.CopyToDevice(data.Y);
-                xIndex.Add(x);
-                yIndex.Add(y);
+                xIndex.Add((CudaDeviceVariable<int>)data.X);
+                yIndex.Add((CudaDeviceVariable<int>)data.Y);
             }
             using (var outputDevicePtr = new CudaDeviceVariable<CUdeviceptr>(depth))
             using (var inputDevicePtr = new CudaDeviceVariable<CUdeviceptr>(depth))
@@ -818,6 +822,10 @@ namespace BrightWire.LinearAlgebra
                 xIndexPtr.CopyToDevice(xIndex.Select(m => m.DevicePointer).ToArray());
                 yIndexPtr.CopyToDevice(yIndex.Select(m => m.DevicePointer).ToArray());
                 _Use(_tensorReverseMaxPool, rows, columns, k => k.Run(0, inputDevicePtr.DevicePointer, outputDevicePtr.DevicePointer, xIndexPtr.DevicePointer, yIndexPtr.DevicePointer, rows, columns, depth, newRows, newColumns));
+            }
+            for (var i = 0; i < depth; i++) {
+                xIndex[i].Dispose();
+                yIndex[i].Dispose();
             }
             return ret;
         }
