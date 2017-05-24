@@ -118,16 +118,36 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 context.LearningContext.Store(weightUpdate, err => _source.Update(err, context.LearningContext));
                 context.LearningContext.Store(biasUpdate, bu => _UpdateBias(bu, context.LearningContext));
 
-                return tensor.CalculatePreviousError(
-                    _source._filter,
-                    _inputHeight,
-                    _inputWidth,
-                    _source._inputDepth,
-                    _source._padding,
-                    _source._filterHeight,
-                    _source._filterWidth,
-                    _source._stride
-                ).ToGraphData();
+                if (_source._shouldBackpropagate) {
+                    var filters = _source._filter;
+                    var filterList = new List<IReadOnlyList<IVector>>();
+                    for (var i = 0; i < filters.ColumnCount; i++)
+                        filterList.Add(filters.Column(i).Split(_source._inputDepth).Select(v => v.Rotate(v.Count / _source._filterWidth)).ToList());
+                    using(var reverseIm2Col = tensor.ReverseIm2Col(
+                        filterList, 
+                        _inputHeight, 
+                        _inputWidth, 
+                        _source._inputDepth, 
+                        _source._padding,
+                        _source._filterHeight,
+                        _source._filterWidth,
+                        _source._stride)) {
+                        var delta = context.LinearAlgebraProvider.CreateTensor(reverseIm2Col, _inputHeight, _inputWidth);
+                        return delta.ToGraphData();
+                    }
+                } else
+                    return errorSignal;
+
+                //return tensor.CalculatePreviousError(
+                //    _source._filter,
+                //    _inputHeight,
+                //    _inputWidth,
+                //    _source._inputDepth,
+                //    _source._padding,
+                //    _source._filterHeight,
+                //    _source._filterWidth,
+                //    _source._stride
+                //).ToGraphData();
                 //return errorSignal;
 
                 //_CalculateWeightUpdate(tensor, context);
@@ -138,8 +158,10 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         readonly int _padding, _filterWidth, _filterHeight, _stride, _inputDepth;
         readonly IMatrix _filter;
         readonly IVector _bias;
+        readonly bool _shouldBackpropagate;
 
         public Convolutional(
+            bool shouldBackpropagate,
             IWeightInitialisation weightInitialisation,
             Func<IMatrix, IGradientDescentOptimisation> updater,
             int inputDepth,
@@ -150,6 +172,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             int stride, 
             string name = null) : base(name)
         {
+            _shouldBackpropagate = shouldBackpropagate;
             _padding = padding;
             _filterWidth = filterWidth;
             _filterHeight = filterHeight;

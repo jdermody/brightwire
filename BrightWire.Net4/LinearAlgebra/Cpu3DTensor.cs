@@ -309,9 +309,8 @@ namespace BrightWire.LinearAlgebra
         {
             var columns = inputHeight + padding * 2;
             var rows = inputWidth + padding * 2;
-            int filterSize = filters.First().Count;
             var convolutions = ConvolutionHelper.Default(columns, rows, filterHeight, filterHeight, stride);
-            var ret = Enumerable.Range(0, inputDepth)
+            var ret = Enumerable.Range(0, Depth)
                 .Select(i => DenseMatrix.Create(columns * rows, inputDepth, 0f))
                 .ToList()
             ;
@@ -326,17 +325,17 @@ namespace BrightWire.LinearAlgebra
                     var first = convolution.First();
                     var error = slice[first.X / stride, first.Y / stride];
                     //if (error != 0) {
-                        foreach (var item in convolution) {
-                            var i = item.X - first.X;
-                            var j = item.Y - first.Y;
-                            var filterIndex = i * filterHeight + j;
-                            var outputRow = item.X * inputHeight + item.Y;
-                            for (var z = 0; z < filterSize; z++) {
-                                var filter = filterList[z];
-                                output[outputRow, z] = filter[filterIndex] * error;
-                                //ret2[index2, z] += filter[index] * error;
-                            }
+                    foreach (var item in convolution) {
+                        var i = item.X - first.X;
+                        var j = item.Y - first.Y;
+                        var filterIndex = i * filterHeight + j;
+                        var outputRow = item.X * inputHeight + item.Y;
+                        for (var z = 0; z < inputDepth; z++) {
+                            var filter = filterList[z];
+                            output[outputRow, z] = filter[filterIndex] * error;
+                            //ret2[index2, z] += filter[index] * error;
                         }
+                    }
                     //}
                 }
             }

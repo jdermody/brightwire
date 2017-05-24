@@ -255,10 +255,10 @@ namespace BrightWire.ExecutionGraph
             return new TiedFeedForward(layer, weightInit, name);
         }
 
-        public INode CreateConvolutional(int inputDepth, int filterCount, int padding, int filterWidth, int filterHeight, int stride, string name = null)
+        public INode CreateConvolutional(int inputDepth, int filterCount, int padding, int filterWidth, int filterHeight, int stride, bool shouldBackpropagate = true, string name = null)
         {
             var weightInit = _GetWeightInitialisation();
-            return new Convolutional(weightInit, weight => GetWeightUpdater(weight), inputDepth, filterCount, padding, filterWidth, filterHeight, stride, name);
+            return new Convolutional(shouldBackpropagate, weightInit, weight => GetWeightUpdater(weight), inputDepth, filterCount, padding, filterWidth, filterHeight, stride, name);
         }
 
         public INode CreateSimpleRecurrent(int inputSize, float[] memory, INode activation, string name = null)

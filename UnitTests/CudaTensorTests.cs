@@ -314,36 +314,58 @@ namespace UnitTests
             }
         }
 
-        [TestMethod]
-        public void TensorReverseIm2Col()
+        void _TensorReverseIm2Col(int filterWidth, int filterHeight, int stride, int depth, int filterCount, int inputWidth, int inputHeight)
         {
-            const int FILTER_WIDTH = 2, FILTER_HEIGHT = 2, STRIDE = 2, DEPTH = 1, FILTER_COUNT = 1, INPUT_WIDTH = 4, INPUT_HEIGHT = 4;
             var normalDistribution = new Normal(0, 1);
-            var cpuTensor = _cpu.CreateTensor(Enumerable.Range(0, DEPTH).Select(i => _cpu.CreateMatrix(INPUT_HEIGHT, INPUT_WIDTH, (j, k) => Convert.ToSingle(normalDistribution.Sample()))).ToList());
-            var im2Col = cpuTensor.Im2Col(FILTER_WIDTH, FILTER_HEIGHT, STRIDE);
-            var cpuFilter = _cpu.CreateMatrix(DEPTH * FILTER_WIDTH * FILTER_HEIGHT, FILTER_COUNT, (i, j) => (float)normalDistribution.Sample());
+            var cpuTensor = _cpu.CreateTensor(Enumerable.Range(0, depth).Select(i => _cpu.CreateMatrix(inputHeight, inputWidth, (j, k) => Convert.ToSingle(normalDistribution.Sample()))).ToList());
+            var im2Col = cpuTensor.Im2Col(filterWidth, filterHeight, stride);
+            var cpuFilter = _cpu.CreateMatrix(depth * filterWidth * filterHeight, filterCount, (i, j) => (float)normalDistribution.Sample());
             var output = im2Col.Multiply(cpuFilter);
 
             var matrixList = new List<IMatrix>();
-            var newWidth = ((INPUT_WIDTH - FILTER_WIDTH) / STRIDE) + 1;
-            var newHeight = ((INPUT_HEIGHT - FILTER_HEIGHT) / STRIDE) + 1;
+            var newWidth = ((inputWidth - filterWidth) / stride) + 1;
+            var newHeight = ((inputHeight - filterHeight) / stride) + 1;
             for (var i = 0; i < output.ColumnCount; i++)
                 matrixList.Add(output.Column(i).ConvertInPlaceToMatrix(newWidth, newHeight));
             var outputTensor = _cpu.CreateTensor(matrixList);
 
             var cpuFilterList = new List<IReadOnlyList<IVector>>();
             for (var i = 0; i < cpuFilter.ColumnCount; i++)
-                cpuFilterList.Add(cpuFilter.Column(i).Split(DEPTH).Select(v => v.Rotate(v.Count / FILTER_WIDTH)).ToList());
+                cpuFilterList.Add(cpuFilter.Column(i).Split(depth).Select(v => v.Rotate(v.Count / filterWidth)).ToList());
 
-            var cpuReverseIm2Col = outputTensor.ReverseIm2Col(cpuFilterList, INPUT_HEIGHT, INPUT_WIDTH, DEPTH, 0, FILTER_HEIGHT, FILTER_WIDTH, STRIDE);
-            var cpuUpdate = _cpu.CreateTensor(cpuReverseIm2Col, INPUT_HEIGHT, INPUT_WIDTH);
+            var cpuReverseIm2Col = outputTensor.ReverseIm2Col(cpuFilterList, inputHeight, inputWidth, depth, 0, filterHeight, filterWidth, stride);
+            var cpuUpdate = _cpu.CreateTensor(cpuReverseIm2Col, inputHeight, inputWidth);
 
             using (var gpuTensor = _cuda.CreateTensor(outputTensor.AsIndexable())) {
                 var gpuFilterList = cpuFilterList.Select(fl => fl.Select(f => _cuda.CreateVector(f.AsIndexable())).ToList()).ToList();
-                using (var gpuReverseIm2Col = gpuTensor.ReverseIm2Col(gpuFilterList, INPUT_HEIGHT, INPUT_WIDTH, DEPTH, 0, FILTER_HEIGHT, FILTER_WIDTH, STRIDE)) {
+                using (var gpuReverseIm2Col = gpuTensor.ReverseIm2Col(gpuFilterList, inputHeight, inputWidth, depth, 0, filterHeight, filterWidth, stride)) {
                     FloatingPointHelper.AssertEqual(gpuReverseIm2Col.AsIndexable(), cpuReverseIm2Col.AsIndexable());
                 }
             }
+        }
+
+        [TestMethod]
+        public void TensorReverseIm2Col()
+        {
+            _TensorReverseIm2Col(2, 2, 2, 1, 1, 4, 4);
+        }
+
+        [TestMethod]
+        public void TensorReverseIm2Col2()
+        {
+            _TensorReverseIm2Col(2, 2, 2, 1, 2, 4, 4);
+        }
+
+        [TestMethod]
+        public void TensorReverseIm2Col3()
+        {
+            _TensorReverseIm2Col(2, 2, 2, 2, 1, 4, 4);
+        }
+
+        [TestMethod]
+        public void TensorReverseIm2Col4()
+        {
+            _TensorReverseIm2Col(2, 2, 2, 2, 2, 4, 4);
         }
     }
 }

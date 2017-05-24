@@ -134,9 +134,9 @@ namespace BrightWire.ExecutionGraph
             return this;
         }
 
-        public WireBuilder AddConvolutional(int inputDepth, int filterCount, int padding, int filterWidth, int filterHeight, int stride, string name = null)
+        public WireBuilder AddConvolutional(int inputDepth, int filterCount, int padding, int filterWidth, int filterHeight, int stride, bool shouldBackpropagate = true, string name = null)
         {
-            _SetNode(_factory.CreateConvolutional(inputDepth, filterCount, padding, filterWidth, filterHeight, stride, name));
+            _SetNode(_factory.CreateConvolutional(inputDepth, filterCount, padding, filterWidth, filterHeight, stride, shouldBackpropagate, name));
             // work out the new size here
             return this;
         }

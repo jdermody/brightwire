@@ -30,7 +30,10 @@ namespace BrightWire.Models
         /// </summary>
         public override string ToString()
         {
-            return String.Format("Size: {0}", Data.Length);
+            var preview = String.Join("|", Data.Take(8));
+            if (Size > 8)
+                preview += "|...";
+            return String.Format($"Vector ({Data.Length}):  {preview}");
         }
 
         /// <summary>

@@ -840,11 +840,10 @@ namespace BrightWire.LinearAlgebra
 
             var ret = new List<MemoryBlock.Ptr>();
             var filterList2 = new List<CudaDeviceVariable<CUdeviceptr>>();
-            var filterSize = filterList.First().Count();
             for (var i = 0; i < depth; i++) {
                 ret.Add(Allocate(newColumns * newRows * inputDepth, true));
                 var filters = filterList[i];
-                var filterDevicePtr = new CudaDeviceVariable<CUdeviceptr>(filterSize);
+                var filterDevicePtr = new CudaDeviceVariable<CUdeviceptr>(inputDepth);
                 filterDevicePtr.CopyToDevice(filters.Select(m => m.DevicePointer).ToArray());
                 filterList2.Add(filterDevicePtr);
             }
@@ -854,20 +853,19 @@ namespace BrightWire.LinearAlgebra
                 filterDevicePtr.CopyToDevice(filterList2.Select(m => m.DevicePointer).ToArray());
                 inputDevicePtr.CopyToDevice(matrixList.Select(m => m.DevicePointer).ToArray());
                 outputDevicePtr.CopyToDevice(ret.Select(m => m.DevicePointer).ToArray());
-                _Use(_tensorReverseIm2Col, newRows, newColumns, k => k.Run(0, 
+                _Use(_tensorReverseIm2Col, rows, columns, k => k.Run(0, 
                     inputDevicePtr.DevicePointer, 
                     filterDevicePtr.DevicePointer, 
                     outputDevicePtr.DevicePointer,
                     rows,
                     columns, 
                     depth, 
-                    filterSize, 
                     newRows, 
-                    newColumns, 
+                    newColumns,
+                    inputDepth,
                     filterHeight, 
                     filterWidth, 
-                    stride, 
-                    inputHeight
+                    stride
                 ));
             }
             foreach (var item in filterList2)
