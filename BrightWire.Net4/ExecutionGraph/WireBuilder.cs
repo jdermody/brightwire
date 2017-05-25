@@ -41,6 +41,14 @@ namespace BrightWire.ExecutionGraph
             _node = node;
         }
 
+        public WireBuilder AddClassifier(IRowClassifier classifier, IDataTable dataTable, IDataTableAnalysis analysis = null, string name = null)
+        {
+            var node = _factory.CreateClassifier(classifier, dataTable, analysis, name);
+            _SetNode(node.RowClassifier);
+            _size = node.OutputSize;
+            return this;
+        }
+
         public WireBuilder AddFeedForward(int outputSize, string name = null)
         {
             INode node = _factory.CreateFeedForward(_size, outputSize, name);

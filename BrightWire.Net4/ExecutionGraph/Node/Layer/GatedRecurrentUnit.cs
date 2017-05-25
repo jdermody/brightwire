@@ -35,13 +35,13 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             _input = new FlowThrough();
 
             //graph.PushPropertySet(ps => ps.Use(graph.WeightInitialisation.Zeroes));
-            var Wz = graph.Build(inputSize, _input).AddFeedForward(hiddenLayerSize, "Wz");
-            var Uz = graph.Build(hiddenLayerSize, _memory).AddFeedForward(hiddenLayerSize, "Uz");
+            var Wz = graph.Connect(inputSize, _input).AddFeedForward(hiddenLayerSize, "Wz");
+            var Uz = graph.Connect(hiddenLayerSize, _memory).AddFeedForward(hiddenLayerSize, "Uz");
             //graph.PopPropertyStack();
 
             //graph.PushPropertySet(ps => ps.Use(graph.WeightInitialisation.Ones));
-            var Wr = graph.Build(inputSize, _input).AddFeedForward(hiddenLayerSize, "Wr");
-            var Ur = graph.Build(hiddenLayerSize, _memory).AddFeedForward(hiddenLayerSize, "Ur");
+            var Wr = graph.Connect(inputSize, _input).AddFeedForward(hiddenLayerSize, "Wr");
+            var Ur = graph.Connect(hiddenLayerSize, _memory).AddFeedForward(hiddenLayerSize, "Ur");
             //graph.PopPropertyStack();
 
             // add sigmoids to the gates
@@ -49,12 +49,12 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             var Zt = graph.Add(Wz, Uz).AddBackwardAction(new ConstrainErrorSignal()).Add(graph.SigmoidActivation("Zt")).Build();
 
             // h1 = tanh(Wh(x) + Uh(Ht1xRt))
-            var Wh = graph.Build(inputSize, _input).AddFeedForward(hiddenLayerSize, "Wh");
+            var Wh = graph.Connect(inputSize, _input).AddFeedForward(hiddenLayerSize, "Wh");
             var Uh = graph.Multiply(hiddenLayerSize, Rt, _memory).AddFeedForward(hiddenLayerSize, "Uh");
             var h1 = graph.Add(Wh, Uh).AddBackwardAction(new ConstrainErrorSignal()).Add(graph.TanhActivation());
 
             // h2 = h1x(1-Zt)
-            var h2 = graph.Multiply(h1, graph.Build(hiddenLayerSize, Zt).Add(graph.CreateOneMinusInput()));
+            var h2 = graph.Multiply(h1, graph.Connect(hiddenLayerSize, Zt).Add(graph.CreateOneMinusInput()));
 
             // h = h1xh2
             var previous = graph.Multiply(hiddenLayerSize, Zt, _memory);

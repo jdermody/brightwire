@@ -19,13 +19,8 @@ namespace BrightWire.TabularData.Analysis
             _table = table;
 
             int index = 0;
-            foreach (var item in table.Columns) {
-                if (ColumnTypeClassifier.IsNumeric(item))
-                    _column.Add(new NumberCollector(index));
-                else if (item.Type == ColumnType.String)
-                    _column.Add(new StringCollector(index));
-                ++index;
-            }
+            foreach (var item in table.Columns)
+                _Add(item, index++);
         }
 
         public DataTableAnalysis(IDataTable table, int columnIndex)
@@ -33,10 +28,18 @@ namespace BrightWire.TabularData.Analysis
             _table = table;
 
             var item = table.Columns[columnIndex];
-            if (ColumnTypeClassifier.IsNumeric(item))
-                _column.Add(new NumberCollector(columnIndex));
-            else if (item.Type == ColumnType.String)
-                _column.Add(new StringCollector(columnIndex));
+            _Add(item, columnIndex);
+        }
+
+        void _Add(IColumn column, int index)
+        {
+            var type = column.Type;
+            if (ColumnTypeClassifier.IsNumeric(column))
+                _column.Add(new NumberCollector(index));
+            else if (type == ColumnType.String)
+                _column.Add(new StringCollector(index));
+            else if (type == ColumnType.IndexList || type == ColumnType.WeightedIndexList)
+                _column.Add(new IndexCollector(index));
         }
 
         public bool Process(IRow row)
@@ -52,8 +55,7 @@ namespace BrightWire.TabularData.Analysis
         {
             get
             {
-                return _column
-                    .Cast<IColumnInfo>()
+                return ColumnInfo
                     .Where(c => c.ColumnIndex == columnIndex)
                     .FirstOrDefault()
                 ;
@@ -106,7 +108,12 @@ namespace BrightWire.TabularData.Analysis
                                     writer.WriteAttributeString("median", numericColumn.Median.Value.ToString());
                                 if (numericColumn.Mode.HasValue)
                                     writer.WriteAttributeString("mode", numericColumn.Mode.Value.ToString());
+                            }
 
+                            var indexColumn = ColumnInfo as IIndexColumnInfo;
+                            if(indexColumn != null) {
+                                writer.WriteAttributeString("min-index", indexColumn.MinIndex.ToString());
+                                writer.WriteAttributeString("max-index", indexColumn.MaxIndex.ToString());
                             }
                         }
                         writer.WriteEndElement();

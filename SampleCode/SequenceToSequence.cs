@@ -59,12 +59,12 @@ namespace BrightWire.SampleCode
                 var memory = new float[HIDDEN_LAYER_SIZE];
                 var network = graph.Connect(engine)
                     //.AddSimpleRecurrent(graph.ReluActivation(), memory)
-                    .AddLstm(memory)
+                    .AddGru(memory)
                     .AddFeedForward(engine.DataSource.OutputSize)
                     .AddForwardAction(new Backpropagate(errorMetric))
                 ;
 
-                engine.Train(10, testData, errorMetric);
+                engine.Train(30, testData, errorMetric);
 
                 var networkGraph = engine.Graph;
                 var executionEngine = graph.CreateEngine(networkGraph);
@@ -107,21 +107,21 @@ namespace BrightWire.SampleCode
                 // create the engine
                 var trainingData = graph.GetDataSource(data.Training);
                 var testData = trainingData.CloneWith(data.Test);
-                var engine = graph.CreateTrainingEngine(trainingData, 0.0003f, 8);
+                var engine = graph.CreateTrainingEngine(trainingData, 0.003f, 8);
 
                 // build the network
                 const int HIDDEN_LAYER_SIZE = 128;
                 var memory = new float[HIDDEN_LAYER_SIZE];
                 var memory2 = new float[HIDDEN_LAYER_SIZE];
                 var network = graph.Connect(engine)
-                    .AddLstm(memory)
+                    .AddGru(memory)
                     //.AddSimpleRecurrent(graph.ReluActivation(), memory)
                     .AddFeedForward(engine.DataSource.OutputSize)
                     //.Add(graph.SigmoidActivation())
                     .AddForwardAction(new BackpropagateThroughTime(errorMetric))
                 ;
 
-                engine.Train(10, testData, errorMetric);
+                engine.Train(30, testData, errorMetric);
 
                 var networkGraph = engine.Graph;
                 var executionEngine = graph.CreateEngine(networkGraph);

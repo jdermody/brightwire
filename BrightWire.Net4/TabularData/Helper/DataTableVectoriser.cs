@@ -14,33 +14,40 @@ namespace BrightWire.TabularData.Helper
         readonly Dictionary<int, Dictionary<string, int>> _columnMap = new Dictionary<int, Dictionary<string, int>>();
         readonly Dictionary<int, Dictionary<int, string>> _reverseColumnMap = new Dictionary<int, Dictionary<int, string>>();
         readonly List<string> _columnName = new List<string>();
+        readonly IDataTableAnalysis _analysis;
 
         public DataTableVectoriser(IDataTable table, bool useTargetColumnIndex)
         {
             _column = table.Columns;
             _classColumnIndex = useTargetColumnIndex ? table.TargetColumnIndex : -1;
-            var analysis = table.GetAnalysis();
+            _analysis = table.GetAnalysis();
 
-            foreach (var columnInfo in analysis.ColumnInfo) {
+            foreach (var columnInfo in _analysis.ColumnInfo) {
                 var column = table.Columns[columnInfo.ColumnIndex];
                 var isTarget = columnInfo.ColumnIndex == _classColumnIndex;
-                var isContinuous = column.IsContinuous || !columnInfo.NumDistinct.HasValue;
-
                 int size = 0;
-                if (isContinuous) {
-                    size = 1;
-                    if (!isTarget)
-                        _columnName.Add(column.Name);
-                } else {
-                    size = columnInfo.NumDistinct.Value;
-                    var categoryIndex = columnInfo.DistinctValues.Select(s => s.ToString()).OrderBy(s => s).Select((s, i) => Tuple.Create(s, i)).ToList();
-                    var columnMap = categoryIndex.ToDictionary(d => d.Item1, d => d.Item2);
-                    var reverseColumnMap = categoryIndex.ToDictionary(d => d.Item2, d => d.Item1);
-                    _columnMap.Add(columnInfo.ColumnIndex, columnMap);
-                    _reverseColumnMap.Add(columnInfo.ColumnIndex, reverseColumnMap);
-                    if (!isTarget) {
-                        for (var i = 0; i < size; i++)
-                            _columnName.Add(column.Name + ":" + reverseColumnMap[i]);
+                var isContinuous = false;
+
+                var indexColumn = columnInfo as IIndexColumnInfo;
+                if (indexColumn != null)
+                    size = Convert.ToInt32(indexColumn.MaxIndex + 1);
+                else {
+                    isContinuous = column.IsContinuous || !columnInfo.NumDistinct.HasValue;
+                    if (isContinuous) {
+                        size = 1;
+                        if (!isTarget)
+                            _columnName.Add(column.Name);
+                    } else {
+                        size = columnInfo.NumDistinct.Value;
+                        var categoryIndex = columnInfo.DistinctValues.Select(s => s.ToString()).OrderBy(s => s).Select((s, i) => Tuple.Create(s, i)).ToList();
+                        var columnMap = categoryIndex.ToDictionary(d => d.Item1, d => d.Item2);
+                        var reverseColumnMap = categoryIndex.ToDictionary(d => d.Item2, d => d.Item1);
+                        _columnMap.Add(columnInfo.ColumnIndex, columnMap);
+                        _reverseColumnMap.Add(columnInfo.ColumnIndex, reverseColumnMap);
+                        if (!isTarget) {
+                            for (var i = 0; i < size; i++)
+                                _columnName.Add(column.Name + ":" + reverseColumnMap[i]);
+                        }
                     }
                 }
                 if (isTarget) {
@@ -52,7 +59,8 @@ namespace BrightWire.TabularData.Helper
             }
         }
 
-        public IReadOnlyList<string> ColumnNames { get { return _columnName; } }
+        public IReadOnlyList<string> ColumnNames => _columnName;
+        public IDataTableAnalysis Analysis => _analysis;
 
         public int InputSize
         {

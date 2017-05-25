@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.DataTableAdaptor
 {
-    abstract class AdaptiveDataTableAdaptorBase : DataTableAdaptorBase, IAdaptiveDataSource
+    abstract class AdaptiveDataTableAdaptorBase : RowBasedDataTableAdaptorBase, IAdaptiveDataSource
     {
         protected INode _input;
         protected readonly ILearningContext _learningContext;

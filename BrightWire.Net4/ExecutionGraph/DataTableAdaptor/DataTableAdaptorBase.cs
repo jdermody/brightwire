@@ -8,17 +8,14 @@ using BrightWire.ExecutionGraph.Helper;
 
 namespace BrightWire.ExecutionGraph.DataTableAdaptor
 {
-    abstract class DataTableAdaptorBase : IDataSource
+    abstract class DataTableAdaptorBase<T> : IDataSource
     {
         protected readonly ILinearAlgebraProvider _lap;
-        protected readonly List<IRow> _data = new List<IRow>();
+        protected readonly List<T> _data = new List<T>();
 
         public DataTableAdaptorBase(ILinearAlgebraProvider lap, IDataTable dataTable)
         {
             _lap = lap;
-
-            // read the entire data table into memory
-            dataTable.ForEach(row => _data.Add(row));
         }
 
         public abstract bool IsSequential { get; }
@@ -41,7 +38,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             // nop
         }
 
-        protected IReadOnlyList<IRow> _GetRows(IReadOnlyList<int> rows)
+        protected IReadOnlyList<T> _GetRows(IReadOnlyList<int> rows)
         {
             return rows.Select(i => _data[i]).ToList();
         }

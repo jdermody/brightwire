@@ -25,7 +25,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             var output = (FloatVector)firstRow.Data[1];
             _outputSize = output.Size;
 
-            var wireBuilder = factory.Build(input.Size, _input);
+            var wireBuilder = factory.Connect(input.Size, _input);
             dataConversionBuilder(wireBuilder);
 
             // execute the graph to find the input size (which is the size of the adaptive graph's output)

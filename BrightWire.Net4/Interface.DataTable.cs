@@ -253,6 +253,8 @@ namespace BrightWire
         /// <param name="columnIndex">The data table column index</param>
         /// <param name="vectorIndex">The one hot vector index</param>
         string GetOutputLabel(int columnIndex, int vectorIndex);
+
+        IDataTableAnalysis Analysis { get; }
     }
 
     /// <summary>
@@ -527,6 +529,12 @@ namespace BrightWire
         /// The most common string
         /// </summary>
         string MostCommonString { get; }
+    }
+
+    public interface IIndexColumnInfo : IColumnInfo
+    {
+        uint MinIndex { get; }
+        uint MaxIndex { get; }
     }
 
     /// <summary>

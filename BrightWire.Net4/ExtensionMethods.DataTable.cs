@@ -178,6 +178,33 @@ namespace BrightWire
             return data.Select(r => (r.Label, _Create(r.Data))).ToList();
         }
 
+        //public static IReadOnlyList<(FloatVector Label, FloatVector Data)> Vectorise(this IReadOnlyList<(string Label, WeightedIndexList Data)> data)
+        //{
+        //    var size = data.GetMaxIndex() + 1;
+        //    FloatVector _CreateData(WeightedIndexList weightedIndexList)
+        //    {
+        //        var ret = new float[size];
+        //        foreach (var item in weightedIndexList.IndexList)
+        //            ret[item.Index] = item.Weight;
+        //        return new FloatVector {
+        //            Data = ret
+        //        };
+        //    }
+        //    var labelIndex = new HashSet<string>(data.Select(d => d.Label))
+        //        .Select((d, i) => (d, i))
+        //        .ToDictionary(d => d.Item1, d => d.Item2)
+        //    ;
+        //    FloatVector _CreateLabel(string label)
+        //    {
+        //        var ret = new float[labelIndex.Count];
+        //        ret[labelIndex[label]] = 1f;
+        //        return new FloatVector {
+        //            Data = ret
+        //        };
+        //    }
+        //    return data.Select(r => (_CreateLabel(r.Label), _CreateData(r.Data))).ToList();
+        //}
+
         public static IReadOnlyList<(string Label, string Classification, float Score)> Classify(this IReadOnlyList<(string Label, IndexList Data)> data, IIndexListClassifier classifier)
         {
             var ret = new List<(string Label, string Classification, float Score)>();

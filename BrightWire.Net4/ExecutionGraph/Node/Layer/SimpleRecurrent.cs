@@ -35,8 +35,8 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             _memory = new MemoryFeeder(memory, null, memoryId);
             _input = new FlowThrough();
 
-            var inputChannel = graph.Build(inputSize, _input).AddFeedForward(hiddenLayerSize, "Wh");
-            var memoryChannel = graph.Build(hiddenLayerSize, _memory).AddFeedForward(hiddenLayerSize, "Uh");
+            var inputChannel = graph.Connect(inputSize, _input).AddFeedForward(hiddenLayerSize, "Wh");
+            var memoryChannel = graph.Connect(hiddenLayerSize, _memory).AddFeedForward(hiddenLayerSize, "Uh");
 
             _output = graph.Add(inputChannel, memoryChannel)
                 .AddBackwardAction(new ConstrainErrorSignal())

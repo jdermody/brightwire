@@ -14,7 +14,7 @@ namespace BrightWire.ExecutionGraph.Engine
     {
         readonly ILinearAlgebraProvider _lap;
         readonly IDataSource _dataSource;
-        readonly List<(IMiniBatchSequence Sequence, float TrainingError, FloatMatrix Output)> _executionResults = new List<(IMiniBatchSequence Sequence, float TrainingError, FloatMatrix Output)>();
+        readonly List<(IMiniBatchSequence Sequence, double TrainingError, FloatMatrix Output)> _executionResults = new List<(IMiniBatchSequence Sequence, double TrainingError, FloatMatrix Output)>();
         readonly List<IContext> _contextList = new List<IContext>();
         readonly ILearningContext _learningContext;
         readonly INode _input;
@@ -92,13 +92,13 @@ namespace BrightWire.ExecutionGraph.Engine
             }
             if (count > 0)
                 ret /= count;
-            _executionResults.Clear();
-            _lap.PopLayer();
 
             if (_lastTrainingError.HasValue)
                 _trainingErrorDelta = ret - _lastTrainingError.Value;
             _lastTrainingError = ret;
             _learningContext.EndEpoch();
+            _executionResults.Clear();
+            _lap.PopLayer();
             return ret;
         }
 
@@ -134,7 +134,7 @@ namespace BrightWire.ExecutionGraph.Engine
                 context.ExecuteNext();
 
             _dataSource.OnBatchProcessed(context);
-            _executionResults.Add((context.BatchSequence, 0f, context.Data.GetMatrix().Data));
+            _executionResults.Add((context.BatchSequence, context.TrainingError, context.Data.GetMatrix().Data));
             return context;
         }
 
@@ -179,6 +179,28 @@ namespace BrightWire.ExecutionGraph.Engine
                 Console.WriteLine(msg);
                 return flag;
             }
+        }
+
+        public ExecutionResult Execute(float[] input)
+        {
+            _lap.PushLayer();
+            ExecutionResult ret = null;
+            var provider = new MiniBatchProvider(new Helper.SingleRowDataSource(input), _isStochastic);
+            using (var executionContext = new ExecutionContext(_lap)) {
+                executionContext.Add(provider.GetMiniBatches(1, mb => _Execute(executionContext, mb)));
+
+                IGraphOperation operation;
+                while ((operation = executionContext.GetNextOperation()) != null) {
+                    operation.Execute(executionContext);
+                    _ClearContextList();
+                }
+
+                foreach (var item in _executionResults)
+                    ret = new ExecutionResult(item.Sequence, item.Output.Row);
+            }
+            _executionResults.Clear();
+            _lap.PopLayer();
+            return ret;
         }
     }
 }

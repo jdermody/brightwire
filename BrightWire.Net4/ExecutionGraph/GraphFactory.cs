@@ -177,6 +177,14 @@ namespace BrightWire.ExecutionGraph
                 // many to one
                 else if (column1 == ColumnType.Matrix && column2 == ColumnType.Vector)
                     return new ManyToOneDataTableAdaptor(_lap, dataTable);
+
+                // index list
+                else if (column1 == ColumnType.IndexList)
+                    return new IndexListDataTableAdaptor(_lap, dataTable, vectoriser);
+
+                // weighted index list
+                else if (column1 == ColumnType.WeightedIndexList)
+                    return new WeightedIndexListDataTableAdaptor(_lap, dataTable, vectoriser);
             }
             
             // default adapator
@@ -220,6 +228,12 @@ namespace BrightWire.ExecutionGraph
                     return new SequenceToSequenceDataTableAdaptor(_lap, learningContext, dataTable, input, dataSource);
             }
             throw new ArgumentException($"{nameof(dataTable)} does not contain a recognised data format");
+        }
+
+        public (INode RowClassifier, int OutputSize) CreateClassifier(IRowClassifier classifier, IDataTable dataTable, IDataTableAnalysis analysis = null, string name = null)
+        {
+            var ret = new RowClassifier(_lap, classifier, dataTable, analysis ?? dataTable.GetAnalysis(), name);
+            return (ret, ret.OutputSize);
         }
 
         public INode CreateFeedForward(int inputSize, int outputSize, string name = null)
@@ -311,7 +325,7 @@ namespace BrightWire.ExecutionGraph
             return new WireBuilder(this, engine);
         }
 
-        public WireBuilder Build(int inputSize, INode node)
+        public WireBuilder Connect(int inputSize, INode node)
         {
             return new WireBuilder(this, inputSize, node);
         }

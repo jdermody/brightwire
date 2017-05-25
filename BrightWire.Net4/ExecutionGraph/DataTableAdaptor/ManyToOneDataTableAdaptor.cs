@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.DataTableAdaptor
 {
-    class ManyToOneDataTableAdaptor : DataTableAdaptorBase
+    class ManyToOneDataTableAdaptor : RowBasedDataTableAdaptorBase
     {
         readonly int[] _rowDepth;
         readonly int _inputSize, _outputSize;

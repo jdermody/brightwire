@@ -21,7 +21,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         {
             _Initialise(dataTable);
 
-            var wireBuilder = factory.Build(_inputSize, _input);
+            var wireBuilder = factory.Connect(_inputSize, _input);
             dataConversionBuilder(wireBuilder);
 
             // execute the graph to find the input size (which is the size of the adaptive graph's output)

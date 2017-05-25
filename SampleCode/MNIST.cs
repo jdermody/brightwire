@@ -36,10 +36,11 @@ namespace BrightWire.SampleCode
                 var testData = _BuildVectors(trainingData, graph, Mnist.Load(dataFilesPath + "t10k-labels.idx1-ubyte", dataFilesPath + "t10k-images.idx3-ubyte"));
                 Console.WriteLine($"done - {trainingData.RowCount} training images and {testData.RowCount} test images loaded");
 
-                // create the training engine and schedule two learning rate changes
-                var engine = graph.CreateTrainingEngine(trainingData, 0.001f, 128);
-                engine.LearningContext.ScheduleLearningRate(10, 0.0003f);
-                engine.LearningContext.ScheduleLearningRate(20, 0.0001f);
+                // create the training engine and schedule two training rate changes
+                const float TRAINING_RATE = 0.003f;
+                var engine = graph.CreateTrainingEngine(trainingData, TRAINING_RATE, 128);
+                engine.LearningContext.ScheduleLearningRate(10, TRAINING_RATE / 3);
+                engine.LearningContext.ScheduleLearningRate(20, TRAINING_RATE / 9);
 
                 // create the network
                 graph.Connect(engine)

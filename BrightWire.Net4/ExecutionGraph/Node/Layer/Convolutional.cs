@@ -120,6 +120,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
                 if (_source._shouldBackpropagate) {
                     var filters = _source._filter;
+                    var padding = _source._padding;
                     var filterList = new List<IReadOnlyList<IVector>>();
                     for (var i = 0; i < filters.ColumnCount; i++)
                         filterList.Add(filters.Column(i).Split(_source._inputDepth).Select(v => v.Rotate(v.Count / _source._filterWidth)).ToList());
@@ -127,12 +128,14 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                         filterList, 
                         _inputHeight, 
                         _inputWidth, 
-                        _source._inputDepth, 
-                        _source._padding,
+                        _source._inputDepth,
+                        padding,
                         _source._filterHeight,
                         _source._filterWidth,
                         _source._stride)) {
-                        var delta = context.LinearAlgebraProvider.CreateTensor(reverseIm2Col, _inputHeight, _inputWidth);
+                        var delta = context.LinearAlgebraProvider.CreateTensor(reverseIm2Col, _inputHeight + padding*2, _inputWidth + padding * 2);
+                        if (padding > 0)
+                            delta.RemovePadding(padding);
                         return delta.ToGraphData();
                     }
                 } else

@@ -254,4 +254,19 @@ namespace BrightWire
         /// <param name="lambda">Regularisation lambda</param>
         float ComputeCost(IVector theta, float lambda);
     }
+
+    public interface IIndexListEncoder
+    {
+        float[] Encode(IndexList indexList);
+    }
+
+    public interface IWeightedIndexListEncoder
+    {
+        float[] Encode(WeightedIndexList indexList);
+    }
+
+    public interface IRowEncoder
+    {
+        float[] Encode(IRow row);
+    }
 }

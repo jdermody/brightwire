@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.DataTableAdaptor
 {
-    class VectorBasedDataTableAdaptor : DataTableAdaptorBase
+    class VectorBasedDataTableAdaptor : RowBasedDataTableAdaptorBase
     {
         readonly int _inputSize;
         readonly int _outputSize;
@@ -22,11 +22,6 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             _outputSize = output.Size;
         }
 
-        public override IDataSource CloneWith(IDataTable dataTable)
-        {
-            return new VectorBasedDataTableAdaptor(_lap, dataTable);
-        }
-
         public override int InputSize => _inputSize;
         public override int OutputSize => _outputSize;
         public override bool IsSequential => false;
@@ -38,6 +33,11 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
                 .ToList()
             ;
             return _GetMiniBatch(rows, data);
+        }
+
+        public override IDataSource CloneWith(IDataTable dataTable)
+        {
+            return new VectorBasedDataTableAdaptor(_lap, dataTable);
         }
     }
 }

@@ -109,6 +109,31 @@ namespace BrightWire.ExecutionGraph.Engine
             return ret;
         }
 
+        public ExecutionResult Execute(float[] input)
+        {
+            _lap.PushLayer();
+            ExecutionResult ret = null;
+            var provider = new MiniBatchProvider(new Helper.SingleRowDataSource(input), false);
+            using (var executionContext = new ExecutionContext(_lap)) {
+                executionContext.Add(provider.GetMiniBatches(1, mb => _Execute(executionContext, mb)));
+
+                IGraphOperation operation;
+                while ((operation = executionContext.GetNextOperation()) != null) {
+                    operation.Execute(executionContext);
+                }
+
+                foreach (var item in _executionResults) {
+                    ret = new ExecutionResult(item.Context.BatchSequence, item.Data.AsIndexable().Rows.Select(r => r.Data).ToList());
+                    item.Context.Dispose();
+                    item.Data?.Dispose();
+                }
+            }
+            _lap.PopLayer();
+            _executionResults.Clear();
+            _dataSource = null;
+            return ret;
+        }
+
         IReadOnlyList<IContext> _Execute(IExecutionContext executionContext, IMiniBatch batch)
         {
             var ret = new List<IContext>();

@@ -161,6 +161,7 @@ namespace BrightWire
         IDataSource DataSource { get; }
         INode Input { get; }
         IReadOnlyList<ExecutionResult> Execute(IDataSource dataSource, int batchSize = 128);
+        ExecutionResult Execute(float[] input);
     }
 
     public interface IGraphTrainingEngine : IGraphEngine

@@ -32,15 +32,15 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             _state = new MemoryFeeder(new float[memory.Length]);
             _input = new FlowThrough();
 
-            var Wf = graph.Build(inputSize, _input).AddFeedForward(hiddenLayerSize, "Wf");
-            var Wi = graph.Build(inputSize, _input).AddFeedForward(hiddenLayerSize, "Wi");
-            var Wo = graph.Build(inputSize, _input).AddFeedForward(hiddenLayerSize, "Wo");
-            var Wc = graph.Build(inputSize, _input).AddFeedForward(hiddenLayerSize, "Wc");
+            var Wf = graph.Connect(inputSize, _input).AddFeedForward(hiddenLayerSize, "Wf");
+            var Wi = graph.Connect(inputSize, _input).AddFeedForward(hiddenLayerSize, "Wi");
+            var Wo = graph.Connect(inputSize, _input).AddFeedForward(hiddenLayerSize, "Wo");
+            var Wc = graph.Connect(inputSize, _input).AddFeedForward(hiddenLayerSize, "Wc");
 
-            var Uf = graph.Build(hiddenLayerSize, _memory).AddFeedForward(hiddenLayerSize, "Uf");
-            var Ui = graph.Build(hiddenLayerSize, _memory).AddFeedForward(hiddenLayerSize, "Ui");
-            var Uo = graph.Build(hiddenLayerSize, _memory).AddFeedForward(hiddenLayerSize, "Uo");
-            var Uc = graph.Build(hiddenLayerSize, _memory).AddFeedForward(hiddenLayerSize, "Uc");
+            var Uf = graph.Connect(hiddenLayerSize, _memory).AddFeedForward(hiddenLayerSize, "Uf");
+            var Ui = graph.Connect(hiddenLayerSize, _memory).AddFeedForward(hiddenLayerSize, "Ui");
+            var Uo = graph.Connect(hiddenLayerSize, _memory).AddFeedForward(hiddenLayerSize, "Uo");
+            var Uc = graph.Connect(hiddenLayerSize, _memory).AddFeedForward(hiddenLayerSize, "Uc");
 
             var Ft = graph.Add(Wf, Uf).Add(graph.SigmoidActivation("Ft"));
             var It = graph.Add(Wi, Ui).Add(graph.SigmoidActivation("It"));

@@ -313,7 +313,6 @@ namespace BrightWire.LinearAlgebra
                 .Select(i => DenseMatrix.Create(columns * rows, inputDepth, 0f))
                 .ToList()
             ;
-            //var ret2 = DenseMatrix.Create(inputHeight * inputWidth, inputDepth, 0f);
 
             for (var k = 0; k < Depth; k++) {
                 var slice = GetDepthSlice(k).AsIndexable();
@@ -328,18 +327,17 @@ namespace BrightWire.LinearAlgebra
                             var fx = item.X - first.X;
                             var fy = item.Y - first.Y;
                             var filterIndex = fx * filterHeight + fy;
-                            var outputRow = item.X * inputHeight + item.Y;
+                            var outputRow = item.X * columns + item.Y;
                             for (var z = 0; z < inputDepth; z++) {
                                 var filter = filterList[z];
                                 output[outputRow, z] = filter[filterIndex] * error;
-                                //ret2[index2, z] += filter[index] * error;
                             }
                         }
                     }
                 }
             }
             if (ret.Count > 1) {
-                var ret2 = DenseMatrix.Create(inputHeight * inputWidth, inputDepth, 0f);
+                var ret2 = DenseMatrix.Create(columns * rows, inputDepth, 0f);
                 foreach (var item in ret)
                     ret2 = (DenseMatrix)ret2.Add(item);
                 return new CpuMatrix(ret2);

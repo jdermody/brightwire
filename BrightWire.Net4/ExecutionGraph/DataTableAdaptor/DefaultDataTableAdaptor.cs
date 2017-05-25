@@ -6,7 +6,7 @@ using System.Text;
 
 namespace BrightWire.ExecutionGraph.DataTableAdaptor
 {
-    class DefaultDataTableAdaptor : DataTableAdaptorBase
+    class DefaultDataTableAdaptor : RowBasedDataTableAdaptorBase, IRowEncoder
     {
         readonly IDataTableVectoriser _vectoriser;
 
@@ -25,10 +25,15 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         public override int OutputSize => _vectoriser.OutputSize;
         public override bool IsSequential => false;
 
+        public float[] Encode(IRow row)
+        {
+            return _vectoriser.GetInput(row).Data;
+        }
+
         public override IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<int> rows)
         {
             var data = _GetRows(rows)
-                .Select(r => (_vectoriser.GetInput(r).Data, _vectoriser.GetOutput(r).Data))
+                .Select(r => (Encode(r), _vectoriser.GetOutput(r).Data))
                 .ToList()
             ;
             return _GetMiniBatch(rows, data);

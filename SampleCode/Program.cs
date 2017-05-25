@@ -29,7 +29,7 @@ namespace BrightWire.SampleCode
 
                 // create the engine
                 var testData = graph.GetDataSource(data);
-                var engine = graph.CreateTrainingEngine(testData, 0.03f, 2);
+                var engine = graph.CreateTrainingEngine(testData, 0.3f, 2);
 
                 // create the network
                 const int HIDDEN_LAYER_SIZE = 4;
@@ -43,7 +43,7 @@ namespace BrightWire.SampleCode
 
                 // train the network
                 var executionContext = graph.CreateExecutionContext();
-                for (var i = 0; i < 2000; i++) {
+                for (var i = 0; i < 1000; i++) {
                     var trainingError = engine.Train(executionContext);
                     if (i % 100 == 0)
                         engine.Test(testData, errorMetric);
@@ -71,22 +71,17 @@ namespace BrightWire.SampleCode
         {
             Control.UseNativeMKL();
             //XOR();
-            //ReducedMNIST(@"D:\data\mnist\");
             //MNISTConvolutional(@"D:\data\mnist\");
-
             //IrisClassification();
             //IrisClustering();
             //MarkovChains();
             //MNIST(@"D:\data\mnist\");
-            //SentimentClassification(@"D:\data\sentiment labelled sentences\");
+            SentimentClassification(@"D:\data\sentiment labelled sentences\");
             //TextClustering(@"D:\data\[UCI] AAAI-14 Accepted Papers - Papers.csv", @"d:\temp\");
             //IntegerAddition();
             //IncomePrediction(@"d:\data\adult.data", @"d:\data\adult.test");
-            //SequenceClassification();
-            //SequenceClassification3();
-            //SequenceClassification3();
-            //SequenceToClassification(@"D:\data\sentiment labelled sentences\", @"d:\temp\sentiment.dat");
-            //TestSequenceClassification(@"d:\temp\sentiment.dat");
+            //OneToMany();
+            //ManyToOne();
             //SequenceToSequence();
         }
     }

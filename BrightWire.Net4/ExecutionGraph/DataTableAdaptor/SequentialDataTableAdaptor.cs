@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace BrightWire.ExecutionGraph.DataTableAdaptor
 {
-    class SequentialDataTableAdaptor : DataTableAdaptorBase
+    class SequentialDataTableAdaptor : RowBasedDataTableAdaptorBase
     {
         readonly int[] _rowDepth;
         readonly int _inputSize, _outputSize;

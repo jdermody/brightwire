@@ -32,7 +32,7 @@ namespace BrightWire.SampleCode
 
                 // create the network
                 const int HIDDEN_LAYER_SIZE = 128;
-                var engine = graph.CreateTrainingEngine(trainingData, 0.0003f, 128);
+                var engine = graph.CreateTrainingEngine(trainingData, 0.001f, 128);
                 graph.Connect(engine)
                     .AddFeedForward(HIDDEN_LAYER_SIZE)
                     .Add(graph.ReluActivation())
