@@ -836,6 +836,7 @@ namespace BrightWire.LinearAlgebra
         {
             var newColumns = inputHeight + padding * 2;
             var newRows = inputWidth + padding * 2;
+            var newSize = newColumns * newRows;
             var depth = matrixList.Count;
 
             var ret = new List<MemoryBlock.Ptr>();
@@ -860,8 +861,8 @@ namespace BrightWire.LinearAlgebra
                     rows,
                     columns, 
                     depth, 
-                    newRows, 
-                    newColumns,
+                    newRows,
+                    newSize,
                     inputDepth,
                     filterHeight, 
                     filterWidth, 

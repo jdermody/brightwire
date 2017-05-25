@@ -246,15 +246,18 @@ namespace BrightWire.LinearAlgebra
             var matrixList = _cuda.TensorReverseIm2Col(_data.Select(d => d.Memory).ToList(), filters, RowCount, ColumnCount, inputHeight, inputWidth, inputDepth, padding, filterHeight, filterWidth, stride);
             var matrixList2 = matrixList.Select(d => new GpuMatrix(_cuda, rows * columns, inputDepth, d)).ToList();
 
-            var ret = _cuda.CreateMatrix(columns * rows, inputDepth);
-            foreach (var item in matrixList2)
-                ret = ret.Add(item);
+            if (matrixList2.Count > 1) {
+                var ret = _cuda.CreateMatrix(columns * rows, inputDepth);
+                foreach (var item in matrixList2)
+                    ret = ret.Add(item);
+                return ret;
+            } else
+                return matrixList2.First();
             //var ret = matrixList2.First();
             //foreach(var item in matrixList2.Skip(1)) {
             //    ret.AddInPlace(item);
             //    item.Dispose();
             //}
-            return ret;
         }
     }
 }
