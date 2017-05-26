@@ -41,7 +41,7 @@ namespace BrightWire.SampleCode
                     .AddBackpropagation(errorMetric)
                 ;
 
-                engine.Train(30, testData, errorMetric);
+                engine.Train(20, testData, errorMetric);
 
                 // export the graph and verify that the error is the same
                 var networkGraph = engine.Graph;

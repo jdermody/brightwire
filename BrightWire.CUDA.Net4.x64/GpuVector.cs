@@ -17,7 +17,7 @@ namespace BrightWire.LinearAlgebra
     internal class GpuVector : IVector
     {
         readonly CudaProvider _cuda;
-        readonly MemoryBlock.Ptr _data;
+        readonly DeviceMemory.Ptr _data;
         bool _disposed = false;
 #if DEBUG
         static int _gid = 0;
@@ -50,7 +50,7 @@ namespace BrightWire.LinearAlgebra
         {
         }
 
-        internal GpuVector(CudaProvider cuda, MemoryBlock.Ptr data)
+        internal GpuVector(CudaProvider cuda, DeviceMemory.Ptr data)
         {
             _cuda = cuda;
             _data = data;
@@ -133,7 +133,7 @@ namespace BrightWire.LinearAlgebra
         }
 
         internal CudaDeviceVariable<float> CudaDeviceVariable { get { return _data.DeviceVariable; } }
-        internal MemoryBlock.Ptr Memory => _data;
+        internal DeviceMemory.Ptr Memory => _data;
 
         public IVector Add(IVector vector)
         {

@@ -1,6 +1,10 @@
 <img src="http://www.jackdermody.net/Content/image/bright-wire.png" alt="Bright Wire" style="max-height:144" />
 
-Bright Wire is a machine learning library for .NET with GPU support (via CUDA).
+Bright Wire is an easily extended machine learning library for .NET with GPU support (via CUDA).
+
+Bright Wire uses a graph based system of nodes and "wires". You can easily create
+your own custom nodes and manipulate the graph at runtime to experiment with novel machine
+learning architectures and algorithms or use the existing suite of commonly used algorithms.
 
 ## Getting Started
 
@@ -65,10 +69,10 @@ Another issue you may have is that `protobuf` library complains that it is alrea
 ## Features
 
 ### Connectionist aka "Deep Learning"
-* Feed Forward, Convolutional, Recurrent and Bidirectional network architectures
-* Minibatch training
+* Feed Forward, Convolutional and Bidirectional network architectures
+* LSTM, GRU, Simple, Elman and Jordan recurrent neural networks
 * L2, Dropout and DropConnect regularisation
-* RELU, LeakyRelu, Sigmoid and Tanh activation functions
+* Relu, LeakyRelu, Sigmoid, Tanh and SoftMax activation functions
 * Gaussian, Xavier and Identity weight initialisation
 * Cross Entropy, Quadratic and RMSE cost functions
 * Momentum, NesterovMomentum, Adagrad, RMSprop and Adam gradient descent optimisations

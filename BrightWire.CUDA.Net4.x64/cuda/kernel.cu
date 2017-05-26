@@ -37,78 +37,42 @@ extern "C"
 
 	__global__ void PointwiseMultiply(float* a, float* b, int size)
 	{
-		int tidX = threadIdx.x;
-		int index = blockDim.x * blockIdx.x + tidX;
-
-		// read blockA into shared memory
-		__shared__ float blockA[BLOCKSIZE2];
-		if (index < size)
-			blockA[tidX] = a[index];
-		__syncthreads();
+		int index = blockDim.x * blockIdx.x + threadIdx.x;
 
 		if (index < size)
-			b[index] *= blockA[tidX];
+			b[index] *= a[index];
 	}
 
 	__global__ void PointwiseDivide(float* a, float* b, int size)
 	{
-		int tidX = threadIdx.x;
-		int index = blockDim.x * blockIdx.x + tidX;
-
-		// read blockA into shared memory
-		__shared__ float blockA[BLOCKSIZE2];
-		if (index < size)
-			blockA[tidX] = a[index];
-		__syncthreads();
+		int index = blockDim.x * blockIdx.x + threadIdx.x;
 
 		if (index < size)
-			b[index] = blockA[tidX] / b[index];
+			b[index] = a[index] / b[index];
 	}
 
 	__global__ void Sqrt(float* a, float* b, int size, float valueAdjustment)
 	{
-		int tidX = threadIdx.x;
-		int index = blockDim.x * blockIdx.x + tidX;
+		int index = blockDim.x * blockIdx.x + threadIdx.x;
 
-		// read blockA into shared memory
-		__shared__ float blockA[BLOCKSIZE2];
 		if (index < size)
-			blockA[tidX] = a[index];
-		__syncthreads();
-
-		if (index < size) {
-			b[index] = sqrt(blockA[tidX] + valueAdjustment);
-		}
+			b[index] = sqrt(a[index] + valueAdjustment);
 	}
 
 	__global__ void AddInPlace(float* a, float* b, int size, float coefficient1, float coefficient2)
 	{
-		int tidX = threadIdx.x;
-		int index = blockDim.x * blockIdx.x + tidX;
-
-		// read blockB into shared memory
-		__shared__ float blockB[BLOCKSIZE2];
-		if (index < size)
-			blockB[tidX] = b[index];
-		__syncthreads();
+		int index = blockDim.x * blockIdx.x + threadIdx.x;
 
 		if (index < size)
-			a[index] = (a[index] * coefficient1) + (blockB[tidX] * coefficient2);
+			a[index] = (a[index] * coefficient1) + (b[index] * coefficient2);
 	}
 
 	__global__ void SubtractInPlace(float* a, float* b, int size, float coefficient1, float coefficient2)
 	{
-		int tidX = threadIdx.x;
-		int index = blockDim.x * blockIdx.x + tidX;
-
-		// read blockB into shared memory
-		__shared__ float blockB[BLOCKSIZE2];
-		if (index < size)
-			blockB[tidX] = b[index];
-		__syncthreads();
+		int index = blockDim.x * blockIdx.x + threadIdx.x;
 
 		if (index < size)
-			a[index] = (a[index] * coefficient1) - (blockB[tidX] * coefficient2);
+			a[index] = (a[index] * coefficient1) - (b[index] * coefficient2);
 	}
 
 	__global__ void AddToEachRow(float* a, float* b, int rows, int columns)
@@ -129,178 +93,114 @@ extern "C"
 
 	__global__ void TanH(float* a, float* b, int size)
 	{
-		int tidX = threadIdx.x;
-		int index = blockDim.x * blockIdx.x + tidX;
-
-		// read blockA into shared memory
-		__shared__ float blockA[BLOCKSIZE2];
-		if (index < size)
-			blockA[tidX] = a[index];
-		__syncthreads();
+		int index = blockDim.x * blockIdx.x + threadIdx.x;
 
 		if (index < size)
-			b[index] = tanh(blockA[tidX]);
+			b[index] = tanh(a[index]);
 	}
 
 	__global__ void TanHDerivative(float* a, float* b, int size)
 	{
-		int tidX = threadIdx.x;
-		int index = blockDim.x * blockIdx.x + tidX;
-
-		// read blockA into shared memory
-		__shared__ float blockA[BLOCKSIZE2];
-		if (index < size)
-			blockA[tidX] = a[index];
-		__syncthreads();
+		int index = blockDim.x * blockIdx.x + threadIdx.x;
 
 		if (index < size)
-			b[index] = 1.0f - pow(tanh(blockA[tidX]), 2);
+			b[index] = 1.0f - pow(tanh(a[index]), 2);
 	}
 
 	__global__ void Sigmoid(float* a, float* b, int size)
 	{
-		int tidX = threadIdx.x;
-		int index = blockDim.x * blockIdx.x + tidX;
-
-		// read blockA into shared memory
-		__shared__ float blockA[BLOCKSIZE2];
-		if (index < size)
-			blockA[tidX] = a[index];
-		__syncthreads();
+		int index = blockDim.x * blockIdx.x + threadIdx.x;
 
 		if (index < size)
-			b[index] = 1.0f / (1.0f + exp(-1.0f * blockA[tidX]));
+			b[index] = 1.0f / (1.0f + exp(-1.0f * a[index]));
 	}
 
 	__global__ void SigmoidDerivative(float* a, float* b, int size)
 	{
-		int tidX = threadIdx.x;
-		int index = blockDim.x * blockIdx.x + tidX;
-
-		// read blockA into shared memory
-		__shared__ float blockA[BLOCKSIZE2];
-		if (index < size)
-			blockA[tidX] = a[index];
-		__syncthreads();
+		int index = blockDim.x * blockIdx.x + threadIdx.x;
 
 		if (index < size) {
-			float sigmoid = 1.0f / (1.0f + exp(-1.0f * blockA[tidX]));
+			float sigmoid = 1.0f / (1.0f + exp(-1.0f * a[index]));
 			b[index] = sigmoid * (1.0f - sigmoid);
 		}
 	}
 
 	__global__ void RELU(float* a, float* b, int size)
 	{
-		int tidX = threadIdx.x;
-		int index = blockDim.x * blockIdx.x + tidX;
-
-		// read blockA into shared memory
-		__shared__ float blockA[BLOCKSIZE2];
-		if (index < size)
-			blockA[tidX] = a[index];
-		__syncthreads();
+		int index = blockDim.x * blockIdx.x + threadIdx.x;
 
 		if (index < size) {
-			float val = blockA[tidX];
+			float val = a[index];
 			b[index] = (val <= 0) ? 0 : val;
 		}
 	}
 
 	__global__ void RELUDerivative(float* a, float* b, int size)
 	{
-		int tidX = threadIdx.x;
-		int index = blockDim.x * blockIdx.x + tidX;
-
-		// read blockA into shared memory
-		__shared__ float blockA[BLOCKSIZE2];
-		if (index < size)
-			blockA[tidX] = a[index];
-		__syncthreads();
+		int index = blockDim.x * blockIdx.x + threadIdx.x;
 
 		if (index < size) {
-			float val = blockA[tidX];
+			float val = a[index];
 			b[index] = (val <= 0) ? 0 : 1;
 		}
 	}
 
 	__global__ void LeakyRELU(float* a, float* b, int size)
 	{
-		int tidX = threadIdx.x;
-		int index = blockDim.x * blockIdx.x + tidX;
-
-		// read blockA into shared memory
-		__shared__ float blockA[BLOCKSIZE2];
-		if (index < size)
-			blockA[tidX] = a[index];
-		__syncthreads();
+		int index = blockDim.x * blockIdx.x + threadIdx.x;
 
 		if (index < size) {
-			float val = blockA[tidX];
+			float val = a[index];
 			b[index] = (val <= 0) ? 0.01f*val : val;
 		}
 	}
 
 	__global__ void LeakyRELUDerivative(float* a, float* b, int size)
 	{
-		int tidX = threadIdx.x;
-		int index = blockDim.x * blockIdx.x + tidX;
-
-		// read blockA into shared memory
-		__shared__ float blockA[BLOCKSIZE2];
-		if (index < size)
-			blockA[tidX] = a[index];
-		__syncthreads();
+		int index = blockDim.x * blockIdx.x + threadIdx.x;
 
 		if (index < size) {
-			float val = blockA[tidX];
+			float val = a[index];
 			b[index] = (val <= 0) ? 0.01f : 1;
 		}
 	}
 
 	__global__ void Reverse(float* a, float* b, int size)
 	{
-		int tidX = threadIdx.x;
-		int index = blockDim.x * blockIdx.x + tidX;
-
-		// read blockA into shared memory
-		__shared__ float blockA[BLOCKSIZE2];
-		if (index < size)
-			blockA[tidX] = a[index];
-		__syncthreads();
+		int index = blockDim.x * blockIdx.x + threadIdx.x;
 
 		if(index < size)
-			b[size - index - 1] = blockA[tidX];
+			b[size - index - 1] = a[index];
 	}
 
 	__global__ void SumRows(float* a, float* b, int rows, int columns)
 	{
-		// TODO: synchronised read?
+		int index = blockIdx.x * blockDim.x + threadIdx.x;
 
-		int row = blockIdx.x * blockDim.x + threadIdx.x;
-		if (row < rows) {
+		if (index < rows) {
 			float temp = 0;
 			for (int i = 0; i < columns; i++)
-				temp += a[i * rows + row];
-			b[row] = temp;
+				temp += a[i * rows + index];
+			b[index] = temp;
 		}
 	}
 
 	__global__ void SumColumns(float* a, float* b, int rows, int columns)
 	{
-		// TODO: synchronised read?
+		int index = blockIdx.x * blockDim.x + threadIdx.x;
 
-		int column = blockIdx.x * blockDim.x + threadIdx.x;
-		if (column < columns) {
+		if (index < columns) {
 			float temp = 0;
 			for (int i = 0; i < rows; i++)
-				temp += a[column * rows + i];
-			b[column] = temp;
+				temp += a[index * rows + i];
+			b[index] = temp;
 		}
 	}
 
 	__global__ void MemClear(float* data, int count, int srcOffset, int srcIncrement)
 	{
 		int index = blockIdx.x * blockDim.x + threadIdx.x;
+
 		if (index < count) {
 			int arrayIndex = srcOffset + (index * srcIncrement);
 			data[arrayIndex] = 0.0f;
@@ -413,9 +313,8 @@ extern "C"
 	{
 		int i = blockDim.x * blockIdx.x + threadIdx.x;
 
-		if (i < rows && i < columns) {
+		if (i < rows && i < columns)
 			b[i] = a[i * rows + i];
-		}
 	}
 
 	__global__ void L1Regularisation(float* a, int count, float coefficient)
@@ -517,9 +416,8 @@ extern "C"
 	{
 		int i = blockDim.x * blockIdx.x + threadIdx.x;
 
-		if (i < count) {
+		if (i < count)
 			c[i] = pow(a[i] - b[i], 2);
-		}
 	}
 
 	__global__ void MultiEuclideanDistance(float* a, float** b, float* c, int size, int columns)
@@ -538,9 +436,8 @@ extern "C"
 	{
 		int i = blockDim.x * blockIdx.x + threadIdx.x;
 
-		if (i < count) {
+		if (i < count)
 			c[i] = abs(a[i] - b[i]);
-		}
 	}
 
 	__global__ void MultiManhattanDistance(float* a, float** b, float* c, int size, int columns)
@@ -568,36 +465,32 @@ extern "C"
 	{
 		int i = blockDim.x * blockIdx.x + threadIdx.x;
 
-		if (i < count) {
+		if (i < count)
 			b[i] = log(a[i]);
-		}
 	}
 
 	__global__ void Normalise(float* a, int count, float min, float range)
 	{
 		int i = blockDim.x * blockIdx.x + threadIdx.x;
 
-		if (i < count) {
+		if (i < count)
 			a[i] = (a[i] - min) / range;
-		}
 	}
 
 	__global__ void SoftmaxVector(float* a, float* b, int count, float max)
 	{
 		int i = blockDim.x * blockIdx.x + threadIdx.x;
 
-		if (i < count) {
+		if (i < count)
 			b[i] = exp(a[i] - max);
-		}
 	}
 
 	__global__ void VectorAdd(float* a, int size, float scalar)
 	{
 		int i = blockDim.x * blockIdx.x + threadIdx.x;
 
-		if (i < size) {
+		if (i < size)
 			a[i] += scalar;
-		}
 	}
 
 	__global__ void VectorCopyRandom(float* a, float* b, int* c, int size)
@@ -658,27 +551,29 @@ extern "C"
 
 	__global__ void TensorAddPadding(float** a, float** b, int aRows, int aColumns, int bRows, int bColumns, int depth, int padding)
 	{
-		int i = blockDim.x * blockIdx.x + threadIdx.x;
+		int index = blockDim.x * blockIdx.x + threadIdx.x;
 		int j = blockDim.y * blockIdx.y + threadIdx.y;
+		int k = index / bRows;
+		int i = index % bRows;
 
-		if (i >= padding && j >= padding && i < bRows-padding && j < bColumns-padding) {
+		if (k < depth && i >= padding && j >= padding && i < bRows-padding && j < bColumns-padding) {
 			int aIndex = (j-padding) * aRows + (i-padding);
 			int bIndex = j * bRows + i;
-			for(int k = 0; k < depth; k++)
-				b[k][bIndex] = a[k][aIndex];
+			b[k][bIndex] = a[k][aIndex];
 		}
 	}
 
 	__global__ void TensorRemovePadding(float** a, float** b, int aRows, int aColumns, int bRows, int bColumns, int depth, int padding)
 	{
-		int i = blockDim.x * blockIdx.x + threadIdx.x;
+		int index = blockDim.x * blockIdx.x + threadIdx.x;
 		int j = blockDim.y * blockIdx.y + threadIdx.y;
+		int k = index / aRows;
+		int i = index % aRows;
 
-		if (i >= padding && j >= padding && i < aRows-padding && j < aColumns-padding) {
+		if (k < depth && i >= padding && j >= padding && i < aRows-padding && j < aColumns-padding) {
 			int aIndex = j * aRows + i;
 			int bIndex = (j-padding) * bRows + (i-padding);
-			for(int k = 0; k < depth; k++)
-				b[k][bIndex] = a[k][aIndex];
+			b[k][bIndex] = a[k][aIndex];
 		}
 	}
 
@@ -733,89 +628,92 @@ extern "C"
 
 	__global__ void TensorMaxPool(float** a, float** b, int** bestXIndexPtr, int** bestYIndexPtr, int aRows, int aColumns, int depth, int bRows, int bColumns, int filterWidth, int filterHeight, int stride)
 	{
-		int i = blockDim.x * blockIdx.x + threadIdx.x;
+		int index = blockDim.x * blockIdx.x + threadIdx.x;
 		int j = blockDim.y * blockIdx.y + threadIdx.y;
-		if(i < bRows && j < bColumns) {
+		int z = index / bRows;
+		int i = index % bRows;
+
+		if(z < depth && j < bColumns) {
 			int index = j * bRows + i;
 			int aX = j * stride;
 			int aY = i * stride;
 
-			for(int z = 0; z < depth; z++) {
-				float* source = a[z];
-				float* target = b[z];
-				int* bestXIndex = bestXIndexPtr[z];
-				int* bestYIndex = bestYIndexPtr[z];
+			float* source = a[z];
+			float* target = b[z];
+			int* bestXIndex = bestXIndexPtr[z];
+			int* bestYIndex = bestYIndexPtr[z];
 	
-				float maxVal = FLT_MIN;
-				int bestX = -1;
-				int bestY = -1;
-				for (int fx = 0; fx < filterWidth; fx++) {
-					for (int fy = 0; fy < filterHeight; fy++) {
-						int xPos = aX + fx;
-						int yPos = aY + fy;
-						float val = source[xPos * aRows + yPos];
-						if (val > maxVal || bestX == -1) {
-							bestX = xPos;
-							bestY = yPos;
-							maxVal = val;
-						}
+			float maxVal = FLT_MIN;
+			int bestX = -1;
+			int bestY = -1;
+			for (int fx = 0; fx < filterWidth; fx++) {
+				for (int fy = 0; fy < filterHeight; fy++) {
+					int xPos = aX + fx;
+					int yPos = aY + fy;
+					float val = source[xPos * aRows + yPos];
+					if (val > maxVal || bestX == -1) {
+						bestX = xPos;
+						bestY = yPos;
+						maxVal = val;
 					}
 				}
-				if(bestXIndex) {
-					bestXIndex[index] = bestX;
-				}
-				if(bestYIndex) {
-					bestYIndex[index] = bestY;
-				}
-				target[index] = maxVal;
 			}
+			if(bestXIndex) {
+				bestXIndex[index] = bestX;
+			}
+			if(bestYIndex) {
+				bestYIndex[index] = bestY;
+			}
+			target[index] = maxVal;
 		}
 	}
 
 	__global__ void TensorReverseMaxPool(float** a, float** b, int** bestXIndexPtr, int** bestYIndexPtr, int aRows, int aColumns, int depth, int bRows, int bColumns)
 	{
-		int i = blockDim.x * blockIdx.x + threadIdx.x;
+		int index = blockDim.x * blockIdx.x + threadIdx.x;
 		int j = blockDim.y * blockIdx.y + threadIdx.y;
-		if(i < aRows && j < aColumns) {
+		int z = index / aRows;
+		int i = index % aRows;
+
+		if(z < depth && j < aColumns) {
 			int index = j * aRows + i;
-			for(int z = 0; z < depth; z++) {
-				float* source = a[z];
-				float* target = b[z];
-				int* bestXIndex = bestXIndexPtr[z];
-				int* bestYIndex = bestYIndexPtr[z];
-				int targetX = bestXIndex[index];
-				int targetY = bestYIndex[index];
-				target[targetX * bRows + targetY] = source[index];
-			}
+			float* source = a[z];
+			float* target = b[z];
+			int* bestXIndex = bestXIndexPtr[z];
+			int* bestYIndex = bestYIndexPtr[z];
+			int targetX = bestXIndex[index];
+			int targetY = bestYIndex[index];
+			target[targetX * bRows + targetY] = source[index];
 		}
 	}
 
 	__global__ void TensorReverseIm2Col(float** a, float*** b, float** c, int aRows, int aColumns, int depth, int cRows, int cSize, int inputDepth, int filterHeight, int filterWidth, int stride)
 	{
-		int i = blockDim.x * blockIdx.x + threadIdx.x;
+		int index = blockDim.x * blockIdx.x + threadIdx.x;
 		int j = blockDim.y * blockIdx.y + threadIdx.y;
-		if(i < aRows && j < aColumns) {
+		int k = index / aRows;
+		int i = index % aRows;
+
+		if(k < depth && j < aColumns) {
 			int x1 = j*stride;
 			int y1 = i*stride;
-			for(int k = 0; k < depth; k++) {
-				float* slice = a[k];
-				float** filterList = b[k];
-				float* output = c[k];
+			float* slice = a[k];
+			float** filterList = b[k];
+			float* output = c[k];
 
-				float error = slice[i * aRows + j];
-				if(error != 0) {
-					for (int fx = 0; fx < filterWidth; fx++) {
-						for (int fy = 0; fy < filterHeight; fy++) {
-							int cx = fx + x1;
-							int cy = fy + y1;
-							int filterIndex = fx * filterHeight + fy;
-							int outputRow = cx * cRows + cy;
-							for(int z = 0; z < inputDepth; z++) {
-								float* filter = filterList[z];
-								output[z * cSize + outputRow] = filter[filterIndex] * error;
-							}
+			float error = slice[i * aRows + j];
+			if(error != 0) {
+				for (int fx = 0; fx < filterWidth; fx++) {
+					for (int fy = 0; fy < filterHeight; fy++) {
+						int cx = fx + x1;
+						int cy = fy + y1;
+						int filterIndex = fx * filterHeight + fy;
+						int outputRow = cx * cRows + cy;
+						for(int z = 0; z < inputDepth; z++) {
+							float* filter = filterList[z];
+							output[z * cSize + outputRow] = filter[filterIndex] * error;
 						}
-					 }
+					}
 				}
 			}
 		}

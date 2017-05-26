@@ -12,13 +12,69 @@ using System.Threading.Tasks;
 
 namespace BrightWire.CUDA.Helper
 {
-    internal class MemoryBlock : IDisposable
+    internal class DeviceMemory : IDisposable
     {
         internal class Ptr
         {
+            protected CudaDeviceVariable<float> _data;
+
+            public Ptr(CudaDeviceVariable<float> data)
+            {
+                _data = data;
+            }
+            public virtual void Free()
+            {
+                // nop
+            }
+            public CudaDeviceVariable<float> DeviceVariable
+            {
+                get
+                {
+                    return _data;
+                }
+            }
+            public CUdeviceptr DevicePointer
+            {
+                get
+                {
+                    return _data.DevicePointer;
+                }
+            }
+            public int Size
+            {
+                get
+                {
+                    return _data.Size;
+                }
+            }
+            public void CopyToDevice(float[] source)
+            {
+                _data.CopyToDevice(source);
+            }
+            public void CopyToDevice(Ptr source)
+            {
+                _data.CopyToDevice(source.DeviceVariable);
+            }
+            public void CopyToHost(float[] target)
+            {
+                _data.CopyToHost(target);
+            }
+            //public Ptr Clone()
+            //{
+            //    Debug.Assert(IsValid);
+            //    var block = _cache.GetMemory(_data.Size);
+            //    block.DeviceVariable.CopyToDevice(_data);
+            //    return block;
+            //}
+            public void Clear()
+            {
+                _data.Memset(0);
+            }
+        }
+        internal class Block : Ptr
+        {
             readonly int _index;
-            readonly MemoryBlock _cache;
-            CudaDeviceVariable<float> _data;
+            readonly DeviceMemory _cache;
             bool _disposed = false;
 
 #if DEBUG
@@ -29,11 +85,11 @@ namespace BrightWire.CUDA.Helper
             public bool IsValid => true;
 #endif
 
-            public Ptr(MemoryBlock cache, int index, int size)
+            public Block(DeviceMemory cache, int index, int size) 
+                : base(new CudaDeviceVariable<float>(size))
             {
                 _cache = cache;
                 _index = index;
-                _data = new CudaDeviceVariable<float>(size);
 
 #if DEBUG
                 if (_index == _badAlloc)
@@ -53,30 +109,6 @@ namespace BrightWire.CUDA.Helper
                 return $"{_index}, {_data.SizeInBytes} bytes {valid}";
             }
 
-            public CudaDeviceVariable<float> DeviceVariable
-            {
-                get
-                {
-                    Debug.Assert(IsValid);
-                    return _data;
-                }
-            }
-            public CUdeviceptr DevicePointer
-            {
-                get
-                {
-                    Debug.Assert(IsValid);
-                    return _data.DevicePointer;
-                }
-            }
-            public int Size
-            {
-                get
-                {
-                    //Debug.Assert(IsValid);
-                    return _data.Size;
-                }
-            }
             public int Index => _index;
             public void Destroy()
             {
@@ -92,46 +124,19 @@ namespace BrightWire.CUDA.Helper
                 GC.SuppressFinalize(this);
 #endif
             }
-            public void Free()
+            public override void Free()
             {
                 if(!_disposed)
                     _cache.OnFree(this);
-            }
-            public void CopyToDevice(float[] source)
-            {
-                Debug.Assert(IsValid);
-                _data.CopyToDevice(source);
-            }
-            public void CopyToDevice(Ptr source)
-            {
-                Debug.Assert(IsValid);
-                _data.CopyToDevice(source.DeviceVariable);
-            }
-            public void CopyToHost(float[] target)
-            {
-                Debug.Assert(IsValid);
-                _data.CopyToHost(target);
-            }
-            public Ptr Clone()
-            {
-                Debug.Assert(IsValid);
-                var block = _cache.GetMemory(_data.Size);
-                block.DeviceVariable.CopyToDevice(_data);
-                return block;
-            }
-            public void Clear()
-            {
-                Debug.Assert(IsValid);
-                _data.Memset(0);
             }
         }
         class Layer
         {
             readonly List<IDisposable> _disposable = new List<IDisposable>();
-            readonly List<Ptr> _ptr = new List<Ptr>();
+            readonly List<Block> _ptr = new List<Block>();
 
             public void Add(IDisposable disposable) => _disposable.Add(disposable);
-            public void Add(Ptr ptr) => _ptr.Add(ptr);
+            public void Add(Block ptr) => _ptr.Add(ptr);
             public void Release()
             {
                 foreach (var item in _disposable)
@@ -142,15 +147,15 @@ namespace BrightWire.CUDA.Helper
         }
         readonly int _maxSize;
         readonly ConcurrentStack<Layer> _layer = new ConcurrentStack<Layer>();
-        readonly ConcurrentDictionary<int, ThreadSafeHashSet<Ptr>> _cache = new ConcurrentDictionary<int, ThreadSafeHashSet<Ptr>>();
+        readonly ConcurrentDictionary<int, ThreadSafeHashSet<Block>> _cache = new ConcurrentDictionary<int, ThreadSafeHashSet<Block>>();
         int _index = 0;
 
-        public MemoryBlock(int maxSize = 1048576)
+        public DeviceMemory(int maxSize)
         {
             _maxSize = maxSize;
             PushLayer();
         }
-        ~MemoryBlock()
+        ~DeviceMemory()
         {
             _Dispose();
         }
@@ -189,40 +194,43 @@ namespace BrightWire.CUDA.Helper
             }
         }
 
-        void OnFree(Ptr item)
+        void OnFree(Block item)
         {
             if (_maxSize == 0)
                 item.Destroy();
             else {
                 // add the new item
-                var temp = _cache.GetOrAdd(item.Size, kv => new ThreadSafeHashSet<Ptr>());
+                var temp = _cache.GetOrAdd(item.Size, kv => new ThreadSafeHashSet<Block>());
                 temp.Add(item);
 
                 // check if we need to delete old items
                 while (_cache.Sum(kv => kv.Key * kv.Value.Count) > _maxSize) {
-                    var bestStack = _cache.OrderByDescending(kv => kv.Key).Where(kv => kv.Value.Count > 0).FirstOrDefault();
-                    Ptr oldItem = null;
-                    var popped = bestStack.Value.TryPop(out oldItem);
-                    oldItem.Destroy();
+                    Block oldestItem = null;
+                    foreach(var block in _cache) {
+                        block.Value.ForEach(b => {
+                            if (oldestItem == null || oldestItem.Index < b.Index)
+                                oldestItem = b;
+                        });
+                    }
+                    _cache[oldestItem.Size].Remove(oldestItem);
+                    oldestItem.Destroy();
                 }
             }
         }
 
         public Ptr GetMemory(int size)
         {
-            Ptr ret;
+            Block ret;
 
             if (_maxSize > 0) {
-                ThreadSafeHashSet<Ptr> temp;
+                ThreadSafeHashSet<Block> temp;
                 if (_cache.TryGetValue(size, out temp)) {
-                    if(temp.TryPop(out ret)) {
-                        Debug.Assert(ret.IsValid);
+                    if(temp.TryPop(out ret))
                         return ret;
-                    }
                 }
             }
 
-            ret = new Ptr(this, _GetNextIndex(), size);
+            ret = new Block(this, _GetNextIndex(), size);
             Layer layer;
             if (_layer.TryPeek(out layer)) {
                 lock (layer) {
