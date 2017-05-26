@@ -1,8 +1,10 @@
 ﻿using BrightWire.ExecutionGraph.Helper;
 using BrightWire.Helper;
+using BrightWire.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,11 +26,6 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 _newHeight = newHeight;
                 _inputWidth = inputWidth;
                 _inputHeight = inputHeight;
-            }
-
-            protected override void _Dispose(bool isDisposing)
-            {
-                //_im2Col.Dispose();
             }
 
             void _UpdateBias(IVector delta, ILearningContext context)
@@ -157,11 +154,11 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 //return _CalculatePreviousError(tensor, context);
             }
         }
-        readonly IGradientDescentOptimisation _updater;
-        readonly int _padding, _filterWidth, _filterHeight, _stride, _inputDepth;
-        readonly IMatrix _filter;
-        readonly IVector _bias;
-        readonly bool _shouldBackpropagate;
+        IGradientDescentOptimisation _updater;
+        int _padding, _filterWidth, _filterHeight, _stride, _inputDepth;
+        IMatrix _filter;
+        IVector _bias;
+        bool _shouldBackpropagate;
 
         public Convolutional(
             bool shouldBackpropagate,
@@ -185,6 +182,12 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             _bias = weightInitialisation.CreateBias(filterCount);
             _filter = weightInitialisation.CreateWeight(_filterWidth * _filterHeight * _inputDepth, filterCount);
             _updater = updater(_filter);
+        }
+
+        protected override void _Dispose(bool isDisposing)
+        {
+            _filter.Dispose();
+            _bias.Dispose();
         }
 
         public void Update(IMatrix delta, ILearningContext context)
@@ -226,6 +229,61 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
             var graphData = new TensorGraphData(outputTensor);
             _AddNextGraphAction(context, graphData, () => new Backpropagation(this, im2Col, inputWidth, inputHeight, newWidth, newHeight));
+        }
+
+        protected override void _Initalise(GraphFactory factory, string description, byte[] data)
+        {
+            _ReadFrom(data, reader => ReadFrom(factory, reader));
+        }
+
+        protected override (string Description, byte[] Data) _GetInfo()
+        {
+            return ("CON", _WriteData(WriteTo));
+        }
+
+        public override void ReadFrom(GraphFactory factory, BinaryReader reader)
+        {
+            var lap = factory.LinearAlgebraProvider;
+
+            _padding = reader.ReadInt32();
+            _filterWidth = reader.ReadInt32();
+            _filterHeight = reader.ReadInt32();
+            _stride = reader.ReadInt32();
+            _inputDepth = reader.ReadInt32();
+            _shouldBackpropagate = reader.ReadBoolean();
+
+            // read the bias parameters
+            var bias = FloatVector.ReadFrom(reader);
+            if (_bias == null)
+                _bias = lap.CreateVector(bias);
+            else
+                _bias.Data = bias;
+
+            // read the weight parameters
+            var weight = FloatMatrix.ReadFrom(reader);
+            if (_filter == null)
+                _filter = lap.CreateMatrix(weight);
+            else
+                _filter.Data = weight;
+
+            // read the updater
+            if (_updater == null) {
+                //var savedUpdater = factory.CreateGradientDescentOptimisation(reader);
+                _updater = factory.GetWeightUpdater(_filter);
+            }
+        }
+
+        public override void WriteTo(BinaryWriter writer)
+        {
+            writer.Write(_padding);
+            writer.Write(_filterWidth);
+            writer.Write(_filterHeight);
+            writer.Write(_stride);
+            writer.Write(_inputDepth);
+            writer.Write(_shouldBackpropagate);
+
+            _bias.Data.WriteTo(writer);
+            _filter.Data.WriteTo(writer);
         }
     }
 }

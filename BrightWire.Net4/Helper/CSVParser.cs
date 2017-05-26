@@ -50,6 +50,8 @@ namespace BrightWire.Helper
                     return ret.ToString();
                 else if (ch == '\r')
                     continue;
+                else if (inQuote && ch == _delimiter && Char.IsWhiteSpace(_delimiter))
+                    inQuote = false;
                 ret.Append(ch);
             }
             return ret.ToString();
@@ -217,7 +219,7 @@ namespace BrightWire.Helper
             int i;
             byte b;
             long l;
-            DateTime dt;
+            //DateTime dt;
 
             switch (type) {
                 case ColumnType.Boolean:

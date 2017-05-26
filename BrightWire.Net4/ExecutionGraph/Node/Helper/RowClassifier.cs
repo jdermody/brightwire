@@ -4,12 +4,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BrightWire.Models;
 
 namespace BrightWire.ExecutionGraph.Node.Helper
 {
     class RowClassifier : NodeBase
     {
-        // TODO: serialisation...
         readonly ILinearAlgebraProvider _lap;
         readonly IRowClassifier _classifier;
         readonly Dictionary<string, int> _targetLabel;
@@ -47,6 +47,11 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             float temp;
             var output = _lap.CreateMatrix(resultList.Count, _targetLabel.Count, (i, j) => resultList[i].TryGetValue(j, out temp) ? temp : 0f);
             _AddNextGraphAction(context, new MatrixGraphData(output), null);
+        }
+
+        public override Models.ExecutionGraph.Node SerialiseTo(List<Models.ExecutionGraph.Node> connectedTo, List<Models.ExecutionGraph.Wire> wireList)
+        {
+            throw new Exception("Row classifiers cannot be serialised as they contain potentially huge data tables - try creating the graph dynamically and insert the row classifier dynamically");
         }
     }
 }
