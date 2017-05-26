@@ -20,12 +20,12 @@ namespace BrightWire.ExecutionGraph.GradientDescent
             base._Update(source, delta, context, l2);
         }
 
-        public void ReadFrom(GraphFactory factory, BinaryReader reader)
+        public override void ReadFrom(GraphFactory factory, BinaryReader reader)
         {
             _lambda = reader.ReadSingle();
         }
 
-        public void WriteTo(BinaryWriter writer)
+        public override void WriteTo(BinaryWriter writer)
         {
             writer.Write(_lambda);
         }

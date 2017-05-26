@@ -64,6 +64,9 @@ namespace BrightWire.TrainingData.WellKnown
                 }
             }
 
+            /// <summary>
+            /// Converts the image to a tensor with one hot encoded label vector
+            /// </summary>
             public (FloatTensor Tensor, FloatVector Label) AsFloatTensor
             {
                 get

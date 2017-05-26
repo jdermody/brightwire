@@ -106,6 +106,10 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
                 var tensor = errorSignal.GetTensor();
+                var padding = _source._padding;
+
+                //if (padding > 0)
+                //   tensor = tensor.AddPadding(padding);
 
                 // calculate the weight and delta updates
                 var multiplyWith = tensor.ConvertToMatrix();
@@ -117,10 +121,10 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
                 if (_source._shouldBackpropagate) {
                     var filters = _source._filter;
-                    var padding = _source._padding;
                     var filterList = new List<IReadOnlyList<IVector>>();
                     for (var i = 0; i < filters.ColumnCount; i++)
                         filterList.Add(filters.Column(i).Split(_source._inputDepth).Select(v => v.Rotate(v.Count / _source._filterWidth)).ToList());
+
                     using(var reverseIm2Col = tensor.ReverseIm2Col(
                         filterList, 
                         _inputHeight, 
@@ -132,7 +136,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                         _source._stride)) {
                         var delta = context.LinearAlgebraProvider.CreateTensor(reverseIm2Col, _inputHeight + padding*2, _inputWidth + padding * 2);
                         if (padding > 0)
-                            delta.RemovePadding(padding);
+                            return delta.RemovePadding(padding).ToGraphData();
                         return delta.ToGraphData();
                     }
                 } else

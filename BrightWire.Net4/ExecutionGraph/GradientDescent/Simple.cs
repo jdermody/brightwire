@@ -22,12 +22,12 @@ namespace BrightWire.ExecutionGraph.GradientDescent
             source.AddInPlace(delta, coefficient, context.LearningRate);
         }
 
-        public void ReadFrom(GraphFactory factory, BinaryReader reader)
+        public virtual void ReadFrom(GraphFactory factory, BinaryReader reader)
         {
             // nop
         }
 
-        public void WriteTo(BinaryWriter writer)
+        public virtual void WriteTo(BinaryWriter writer)
         {
             // nop
         }

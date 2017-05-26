@@ -169,10 +169,5 @@ namespace BrightWire.ExecutionGraph.Node
         {
             // nop
         }
-
-        public void RemoveChildenFromGraph()
-        {
-            
-        }
     }
 }

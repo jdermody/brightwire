@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.Action
 {
-    public class WriteNodeMemoryToSlot : IAction
+    internal class WriteNodeMemoryToSlot : IAction
     {
         string _writeTo;
         string _readFrom;

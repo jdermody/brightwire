@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.Action
 {
-    public class JoinInputWithMemory : IAction
+    internal class JoinInputWithMemory : IAction
     {
         string _slotName;
 

@@ -12,7 +12,7 @@ namespace BrightWire.ExecutionGraph.Node.Filter
 {
     class DropConnect : FeedForward
     {
-        class Backpropagation : SingleBackpropagationBase<DropConnect>
+        new class Backpropagation : SingleBackpropagationBase<DropConnect>
         {
             readonly IMatrix _input, _filter, _filteredWeights;
 

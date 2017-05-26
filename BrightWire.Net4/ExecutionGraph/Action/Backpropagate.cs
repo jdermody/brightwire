@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.Action
 {
-    public class Backpropagate : IAction
+    internal class Backpropagate : IAction
     {
         IErrorMetric _errorMetric;
 

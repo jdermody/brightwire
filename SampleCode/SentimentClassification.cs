@@ -97,7 +97,7 @@ namespace BrightWire.SampleCode
                     .AddDropOut(0.3f)
                     .AddFeedForward(trainingData.OutputSize)
                     .Add(graph.ReluActivation("output-node"))
-                    .AddForwardAction(new Backpropagate(errorMetric))
+                    .AddBackpropagation(errorMetric)
                 ;
 
                 // pre train the network
@@ -133,7 +133,7 @@ namespace BrightWire.SampleCode
                     .AddDropOut(0.3f)
                     .AddFeedForward(trainingData.OutputSize)
                     .Add(graph.TanhActivation())
-                    .AddForwardAction(new Backpropagate(errorMetric))
+                    .AddBackpropagation(errorMetric)
                 ;
 
                 // train the network again

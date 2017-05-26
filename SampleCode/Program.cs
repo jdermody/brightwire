@@ -35,10 +35,10 @@ namespace BrightWire.SampleCode
                 const int HIDDEN_LAYER_SIZE = 4;
                 graph.Connect(engine)
                     .AddFeedForward(HIDDEN_LAYER_SIZE)
-                    .Add(graph.SigmoidActivation())
+                    .Add(graph.ReluActivation())
                     .AddFeedForward(engine.DataSource.OutputSize)
                     .Add(graph.SigmoidActivation())
-                    .AddForwardAction(new Backpropagate(errorMetric))
+                    .AddBackpropagation(errorMetric)
                 ;
 
                 // train the network
@@ -71,12 +71,12 @@ namespace BrightWire.SampleCode
         {
             Control.UseNativeMKL();
             //XOR();
-            //MNISTConvolutional(@"D:\data\mnist\");
             //IrisClassification();
             //IrisClustering();
             //MarkovChains();
             //MNIST(@"D:\data\mnist\");
-            SentimentClassification(@"D:\data\sentiment labelled sentences\");
+            MNISTConvolutional(@"D:\data\mnist\");
+            //SentimentClassification(@"D:\data\sentiment labelled sentences\");
             //TextClustering(@"D:\data\[UCI] AAAI-14 Accepted Papers - Papers.csv", @"d:\temp\");
             //IntegerAddition();
             //IncomePrediction(@"d:\data\adult.data", @"d:\data\adult.test");

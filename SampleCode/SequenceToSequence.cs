@@ -61,7 +61,7 @@ namespace BrightWire.SampleCode
                     //.AddSimpleRecurrent(graph.ReluActivation(), memory)
                     .AddGru(memory)
                     .AddFeedForward(engine.DataSource.OutputSize)
-                    .AddForwardAction(new Backpropagate(errorMetric))
+                    .AddBackpropagation(errorMetric)
                 ;
 
                 engine.Train(30, testData, errorMetric);
@@ -118,7 +118,7 @@ namespace BrightWire.SampleCode
                     //.AddSimpleRecurrent(graph.ReluActivation(), memory)
                     .AddFeedForward(engine.DataSource.OutputSize)
                     //.Add(graph.SigmoidActivation())
-                    .AddForwardAction(new BackpropagateThroughTime(errorMetric))
+                    .AddBackpropagationThroughTime(errorMetric)
                 ;
 
                 engine.Train(30, testData, errorMetric);
@@ -168,10 +168,10 @@ namespace BrightWire.SampleCode
 
                 var trainingData = graph.GetDataSource(data.Training, encoderLearningContext, wb => wb
                     .AddLstm(encoderMemory, "encoder")
-                    .AddForwardAction(new WriteNodeMemoryToSlot("shared-memory", wb.Find("encoder") as IHaveMemoryNode))
+                    .WriteNodeMemoryToSlot("shared-memory", wb.Find("encoder") as IHaveMemoryNode)
                     .AddFeedForward(grammar.DictionarySize)
                     .Add(graph.SigmoidActivation())
-                    .AddForwardAction(new BackpropagateThroughTime(errorMetric))
+                    .AddBackpropagationThroughTime(errorMetric)
                 );
                 var testData = trainingData.CloneWith(data.Test);
 
@@ -179,13 +179,13 @@ namespace BrightWire.SampleCode
                 var engine = graph.CreateTrainingEngine(trainingData, TRAINING_RATE, BATCH_SIZE);
                 var wb2 = graph.Connect(engine);
                 wb2
-                    .AddForwardAction(new JoinInputWithMemory("shared-memory"))
+                    .JoinInputWithMemory("shared-memory")
                     .IncrementSizeBy(HIDDEN_LAYER_SIZE)
                     .AddLstm(decoderMemory, "decoder")
-                    .AddForwardAction(new WriteNodeMemoryToSlot("shared-memory", wb2.Find("decoder") as IHaveMemoryNode))
+                    .WriteNodeMemoryToSlot("shared-memory", wb2.Find("decoder") as IHaveMemoryNode)
                     .AddFeedForward(trainingData.OutputSize)
                     .Add(graph.SoftMaxActivation())
-                    .AddForwardAction(new BackpropagateThroughTime(errorMetric))
+                    .AddBackpropagationThroughTime(errorMetric)
                 ;
 
                 engine.Train(100, testData, errorMetric);

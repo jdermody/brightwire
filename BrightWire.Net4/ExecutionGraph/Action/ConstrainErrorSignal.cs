@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.Action
 {
-    public class ConstrainErrorSignal : IAction
+    internal class ConstrainErrorSignal : IAction
     {
         float _min, _max;
 

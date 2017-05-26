@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.Node.Helper
 {
-    public class RestoreErrorSignal : NodeBase
+    internal class RestoreErrorSignal : NodeBase
     {
         class Backpropagation : BackpropagationBase<RestoreErrorSignal>
         {

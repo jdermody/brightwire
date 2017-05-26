@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.Action
 {
-    public class SetMemory : IAction
+    internal class SetMemory : IAction
     {
         string _id;
 

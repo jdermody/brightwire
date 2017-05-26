@@ -1,4 +1,5 @@
-﻿using BrightWire.ExecutionGraph.Helper;
+﻿using BrightWire.ExecutionGraph.Action;
+using BrightWire.ExecutionGraph.Helper;
 using BrightWire.ExecutionGraph.Node.Helper;
 using BrightWire.ExecutionGraph.Node.Input;
 using System;
@@ -146,6 +147,36 @@ namespace BrightWire.ExecutionGraph
         {
             _SetNode(_factory.CreateConvolutional(inputDepth, filterCount, padding, filterWidth, filterHeight, stride, shouldBackpropagate, name));
             // work out the new size here
+            return this;
+        }
+
+        public WireBuilder AddBackpropagation(IErrorMetric errorMetric, string name = null)
+        {
+            AddForwardAction(new Backpropagate(errorMetric), name);
+            return this;
+        }
+
+        public WireBuilder AddBackpropagationThroughTime(IErrorMetric errorMetric, string name = null)
+        {
+            AddForwardAction(new BackpropagateThroughTime(errorMetric), name);
+            return this;
+        }
+
+        public WireBuilder ConstrainErrorSignal(float min = -1f, float max = 1f, string name = null)
+        {
+            AddForwardAction(new ConstrainErrorSignal(min, max), name);
+            return this;
+        }
+
+        public WireBuilder WriteNodeMemoryToSlot(string slotName, IHaveMemoryNode node, string name = null)
+        {
+            AddForwardAction(new WriteNodeMemoryToSlot(slotName, node), name);
+            return this;
+        }
+
+        public WireBuilder JoinInputWithMemory(string slotName, string name = null)
+        {
+            AddForwardAction(new JoinInputWithMemory(slotName), name);
             return this;
         }
 

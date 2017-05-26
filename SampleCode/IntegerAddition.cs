@@ -46,7 +46,7 @@ namespace BrightWire.SampleCode
                     .AddSimpleRecurrent(graph.ReluActivation(), memory)
                     .AddFeedForward(engine.DataSource.OutputSize)
                     .Add(graph.ReluActivation())
-                    .AddForwardAction(new BackpropagateThroughTime(errorMetric))
+                    .AddBackpropagationThroughTime(errorMetric)
                 ;
 
                 // train the network

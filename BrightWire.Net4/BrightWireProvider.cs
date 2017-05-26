@@ -47,12 +47,28 @@ namespace BrightWire
             return null;
         }
 
+        /// <summary>
+        /// Parses CSV into a data table without type detection - all columns will be strings
+        /// </summary>
+        /// <param name="streamReader">The streamn reader that contains the CSV to parse</param>
+        /// <param name="delimeter">The CSV delimeter</param>
+        /// <param name="hasHeader">True if there is a header</param>
+        /// <param name="output">A stream to write the data table to (for file based processing) - null for in memory processing</param>
+        /// <returns></returns>
         public static IDataTable ParseCSVToText(this StreamReader streamReader, char delimeter = ',', bool? hasHeader = null, Stream output = null)
         {
             var builder = new CSVParser(delimeter, true);
             return builder.Parse(streamReader, output, hasHeader);
         }
 
+        /// <summary>
+        /// Parses CSV into a data table without type detection - all columns will be strings
+        /// </summary>
+        /// <param name="csv">The string to parse</param>
+        /// <param name="delimeter">>The CSV delimeter</param>
+        /// <param name="hasHeader">True if there is a header</param>
+        /// <param name="output">A stream to write the data table to (for file based processing) - null for in memory processing</param>
+        /// <returns></returns>
         public static IDataTable ParseCSVToText(this string csv, char delimeter = ',', bool? hasHeader = null, Stream output = null)
         {
             if (!String.IsNullOrWhiteSpace(csv)) {

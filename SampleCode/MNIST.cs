@@ -21,7 +21,7 @@ namespace BrightWire.SampleCode
         /// <param name="dataFilesPath">The path to a directory with the four extracted data files</param>
         public static void MNIST(string dataFilesPath)
         {
-            using (var lap = BrightWireGpuProvider.CreateLinearAlgebra(false)) {
+            using (var lap = BrightWireGpuProvider.CreateLinearAlgebra()) {
                 var graph = new GraphFactory(lap);
 
                 // use a one hot encoding error metric, rmsprop gradient descent and xavier weight initialisation
@@ -39,7 +39,7 @@ namespace BrightWire.SampleCode
                 // create the training engine and schedule two training rate changes
                 const float TRAINING_RATE = 0.003f;
                 var engine = graph.CreateTrainingEngine(trainingData, TRAINING_RATE, 128);
-                engine.LearningContext.ScheduleLearningRate(10, TRAINING_RATE / 3);
+                engine.LearningContext.ScheduleLearningRate(15, TRAINING_RATE / 3);
                 engine.LearningContext.ScheduleLearningRate(20, TRAINING_RATE / 9);
 
                 // create the network
@@ -48,11 +48,17 @@ namespace BrightWire.SampleCode
                     .Add(graph.LeakyReluActivation())
                     .AddFeedForward(trainingData.OutputSize)
                     .Add(graph.SigmoidActivation())
-                    .AddForwardAction(new Backpropagate(errorMetric))
+                    .AddBackpropagation(errorMetric)
                 ;
 
                 // train the network for 30 epochs
-                engine.Train(30, testData, errorMetric);
+                engine.Train(25, testData, errorMetric);
+
+                // export the graph and verify that the error is the same
+                var networkGraph = engine.Graph;
+                var executionEngine = graph.CreateEngine(networkGraph);
+                var output = executionEngine.Execute(testData);
+                Console.WriteLine(output.Average(o => o.CalculateError(errorMetric)));
             }
         }
 

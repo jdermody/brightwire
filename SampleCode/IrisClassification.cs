@@ -94,7 +94,7 @@ namespace BrightWire.SampleCode
                     .Add(graph.TanhActivation())
                     .AddFeedForward(engine.DataSource.OutputSize)
                     .Add(graph.SigmoidActivation())
-                    .AddForwardAction(new Backpropagate(errorMetric))
+                    .AddBackpropagation(errorMetric)
                 ;
 
                 // train the network

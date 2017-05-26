@@ -23,25 +23,31 @@ namespace BrightWire.SampleCode
                     .Use(graph.RmsProp())
                     .Use(graph.GaussianWeightInitialisation())
                 ;
-                var learningContext = graph.CreateLearningContext(0.0003f, 1, false, true);
+                var learningContext = graph.CreateLearningContext(0.001f, 128, false, true);
 
                 Console.Write("Loading training data...");
-                var trainingData = _BuildTensors(null, learningContext, graph, Mnist.Load(dataFilesPath + "train-labels.idx1-ubyte", dataFilesPath + "train-images.idx3-ubyte", 800));
-                var testData = _BuildTensors(trainingData, learningContext, graph, Mnist.Load(dataFilesPath + "t10k-labels.idx1-ubyte", dataFilesPath + "t10k-images.idx3-ubyte", 200));
+                var trainingData = _BuildTensors(null, learningContext, graph, Mnist.Load(dataFilesPath + "train-labels.idx1-ubyte", dataFilesPath + "train-images.idx3-ubyte"));
+                var testData = _BuildTensors(trainingData, learningContext, graph, Mnist.Load(dataFilesPath + "t10k-labels.idx1-ubyte", dataFilesPath + "t10k-images.idx3-ubyte"));
                 Console.WriteLine($"done - {trainingData.RowCount} training images and {testData.RowCount} test images loaded");
 
                 // create the network
-                const int HIDDEN_LAYER_SIZE = 128;
+                const int HIDDEN_LAYER_SIZE = 256;
                 var engine = graph.CreateTrainingEngine(trainingData, 0.001f, 128);
                 graph.Connect(engine)
                     .AddFeedForward(HIDDEN_LAYER_SIZE)
                     .Add(graph.ReluActivation())
                     .AddFeedForward(trainingData.OutputSize)
                     .Add(graph.SigmoidActivation())
-                    .AddForwardAction(new Backpropagate(errorMetric))
+                    .AddBackpropagation(errorMetric)
                 ;
 
-                engine.Train(25, testData, errorMetric);
+                engine.Train(30, testData, errorMetric);
+
+                // export the graph and verify that the error is the same
+                var networkGraph = engine.Graph;
+                var executionEngine = graph.CreateEngine(networkGraph);
+                var output = executionEngine.Execute(testData);
+                Console.WriteLine(output.Average(o => o.CalculateError(errorMetric)));
             }
         }
 
@@ -60,8 +66,8 @@ namespace BrightWire.SampleCode
             else {
                 return graph.GetDataSource(dataTable.Build(), learningContext, builder => builder
                     .AddConvolutional(1, 8, 1, 3, 3, 1)
-                    .AddMaxPooling(2, 2, 2)
-                    //.AddConvolutional(8, 4, 0, 3, 3, 2)
+                    //.AddMaxPooling(2, 2, 2)
+                    .AddConvolutional(8, 4, 1, 3, 3, 2)
                     .Add(graph.ReluActivation())
                 );
             }

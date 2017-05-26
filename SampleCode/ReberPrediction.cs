@@ -42,7 +42,7 @@ namespace BrightWire.SampleCode
 
                     .AddFeedForward(engine.DataSource.OutputSize)
                     .Add(graph.SigmoidActivation())
-                    .AddForwardAction(new BackpropagateThroughTime(errorMetric))
+                    .AddBackpropagationThroughTime(errorMetric)
                     .Build()
                 ;
 

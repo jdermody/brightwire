@@ -66,7 +66,7 @@ namespace UnitTests
                 .Add(graph.TanhActivation())
                 .AddTiedFeedForward(engine.Input.Find("layer") as IFeedForward)
                 .Add(graph.TanhActivation())
-                .AddForwardAction(new Backpropagate(errorMetric))
+                .AddBackpropagation(errorMetric)
             ;
             using (var executionContext = graph.CreateExecutionContext()) {
                 for (var i = 0; i < 2; i++) {

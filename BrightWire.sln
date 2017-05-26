@@ -1,42 +1,23 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26403.7
+VisualStudioVersion = 15.0.26430.6
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{FECA7495-B22E-48E3-B50F-4BA68811B7EE}"
-	ProjectSection(ProjectDependencies) = postProject
-		{50BCB2AB-E8CA-4974-B136-49A98D5E34CB} = {50BCB2AB-E8CA-4974-B136-49A98D5E34CB}
-		{FD8AAEF6-2EDB-446C-BB19-5EBEE5CDE982} = {FD8AAEF6-2EDB-446C-BB19-5EBEE5CDE982}
-	EndProjectSection
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrightWire.Net4", "BrightWire.Net4\BrightWire.Net4.csproj", "{FD8AAEF6-2EDB-446C-BB19-5EBEE5CDE982}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1A79A663-3871-41AD-BDFF-FE606804AC1C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrightWire.CUDA.Net4.x64", "BrightWire.CUDA.Net4.x64\BrightWire.CUDA.Net4.x64.csproj", "{50BCB2AB-E8CA-4974-B136-49A98D5E34CB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Project Information", "Project Information", "{4256D967-B914-4578-92E6-ABD0F0453B72}"
 	ProjectSection(SolutionItems) = preProject
 		LICENSE = LICENSE
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "BrightWire.GPU", "BrightWire.GPU.shproj", "{70963979-173E-483A-8544-FFABF6E24585}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrightWire.CUDA.Net4.x64", "BrightWire.CUDA.Net4.x64\BrightWire.CUDA.Net4.x64.csproj", "{50BCB2AB-E8CA-4974-B136-49A98D5E34CB}"
-	ProjectSection(ProjectDependencies) = postProject
-		{FD8AAEF6-2EDB-446C-BB19-5EBEE5CDE982} = {FD8AAEF6-2EDB-446C-BB19-5EBEE5CDE982}
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleCode", "SampleCode\SampleCode.csproj", "{533CA9B4-36CA-44D0-8875-FA6F4E63B98A}"
-	ProjectSection(ProjectDependencies) = postProject
-		{FD8AAEF6-2EDB-446C-BB19-5EBEE5CDE982} = {FD8AAEF6-2EDB-446C-BB19-5EBEE5CDE982}
-	EndProjectSection
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "BrightWire.CPU", "BrightWire.CPU.shproj", "{D9C4930F-12AF-4A75-9077-BD66E1B812D6}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrightWire.Net4", "BrightWire.Net4\BrightWire.Net4.csproj", "{FD8AAEF6-2EDB-446C-BB19-5EBEE5CDE982}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{FECA7495-B22E-48E3-B50F-4BA68811B7EE}"
 EndProject
 Global
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		BrightWire.projitems*{50bcb2ab-e8ca-4974-b136-49a98d5e34cb}*SharedItemsImports = 4
-		BrightWire.projitems*{70963979-173e-483a-8544-ffabf6e24585}*SharedItemsImports = 13
-		BrightWire.CPU.projitems*{d9c4930f-12af-4a75-9077-bd66e1b812d6}*SharedItemsImports = 13
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|x64 = Debug|x64
@@ -44,12 +25,14 @@ Global
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{FECA7495-B22E-48E3-B50F-4BA68811B7EE}.Debug|Any CPU.ActiveCfg = Debug|x64
-		{FECA7495-B22E-48E3-B50F-4BA68811B7EE}.Debug|x64.ActiveCfg = Debug|x64
-		{FECA7495-B22E-48E3-B50F-4BA68811B7EE}.Debug|x64.Build.0 = Debug|x64
-		{FECA7495-B22E-48E3-B50F-4BA68811B7EE}.Release|Any CPU.ActiveCfg = Release|x64
-		{FECA7495-B22E-48E3-B50F-4BA68811B7EE}.Release|x64.ActiveCfg = Release|x64
-		{FECA7495-B22E-48E3-B50F-4BA68811B7EE}.Release|x64.Build.0 = Release|x64
+		{FD8AAEF6-2EDB-446C-BB19-5EBEE5CDE982}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD8AAEF6-2EDB-446C-BB19-5EBEE5CDE982}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD8AAEF6-2EDB-446C-BB19-5EBEE5CDE982}.Debug|x64.ActiveCfg = Debug|x64
+		{FD8AAEF6-2EDB-446C-BB19-5EBEE5CDE982}.Debug|x64.Build.0 = Debug|x64
+		{FD8AAEF6-2EDB-446C-BB19-5EBEE5CDE982}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD8AAEF6-2EDB-446C-BB19-5EBEE5CDE982}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD8AAEF6-2EDB-446C-BB19-5EBEE5CDE982}.Release|x64.ActiveCfg = Release|x64
+		{FD8AAEF6-2EDB-446C-BB19-5EBEE5CDE982}.Release|x64.Build.0 = Release|x64
 		{50BCB2AB-E8CA-4974-B136-49A98D5E34CB}.Debug|Any CPU.ActiveCfg = Debug|x64
 		{50BCB2AB-E8CA-4974-B136-49A98D5E34CB}.Debug|x64.ActiveCfg = Debug|x64
 		{50BCB2AB-E8CA-4974-B136-49A98D5E34CB}.Debug|x64.Build.0 = Debug|x64
@@ -62,14 +45,12 @@ Global
 		{533CA9B4-36CA-44D0-8875-FA6F4E63B98A}.Release|Any CPU.ActiveCfg = Release|x64
 		{533CA9B4-36CA-44D0-8875-FA6F4E63B98A}.Release|x64.ActiveCfg = Release|x64
 		{533CA9B4-36CA-44D0-8875-FA6F4E63B98A}.Release|x64.Build.0 = Release|x64
-		{FD8AAEF6-2EDB-446C-BB19-5EBEE5CDE982}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FD8AAEF6-2EDB-446C-BB19-5EBEE5CDE982}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FD8AAEF6-2EDB-446C-BB19-5EBEE5CDE982}.Debug|x64.ActiveCfg = Debug|x64
-		{FD8AAEF6-2EDB-446C-BB19-5EBEE5CDE982}.Debug|x64.Build.0 = Debug|x64
-		{FD8AAEF6-2EDB-446C-BB19-5EBEE5CDE982}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FD8AAEF6-2EDB-446C-BB19-5EBEE5CDE982}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FD8AAEF6-2EDB-446C-BB19-5EBEE5CDE982}.Release|x64.ActiveCfg = Release|x64
-		{FD8AAEF6-2EDB-446C-BB19-5EBEE5CDE982}.Release|x64.Build.0 = Release|x64
+		{FECA7495-B22E-48E3-B50F-4BA68811B7EE}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{FECA7495-B22E-48E3-B50F-4BA68811B7EE}.Debug|x64.ActiveCfg = Debug|x64
+		{FECA7495-B22E-48E3-B50F-4BA68811B7EE}.Debug|x64.Build.0 = Debug|x64
+		{FECA7495-B22E-48E3-B50F-4BA68811B7EE}.Release|Any CPU.ActiveCfg = Release|x64
+		{FECA7495-B22E-48E3-B50F-4BA68811B7EE}.Release|x64.ActiveCfg = Release|x64
+		{FECA7495-B22E-48E3-B50F-4BA68811B7EE}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

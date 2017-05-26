@@ -5,14 +5,11 @@
 *.suo
 *.user
 
-/.vs/*
-
+/.vs
 /bin
 /obj
 /packages
-
-/UnitTests/bin
-/UnitTests/obj
+/TestResults
 
 /BrightWire.Net4/bin
 /BrightWire.Net4/obj
@@ -20,16 +17,5 @@
 /UnitTests/obj
 /BrightWire.CUDA.Net4.x64/bin
 /BrightWire.CUDA.Net4.x64/obj
-/BrightWire.CUDA.Net4.x86/bin
-/BrightWire.CUDA.Net4.x86/obj
 /SampleCode/bin
 /SampleCode/obj
-
-/BrightWire.VC.db
-/BrightWire/obj
-/BrightWire/bin
-/BrightWire2
-/ExampleCode/obj
-/ExampleCode/bin
-/UnitTests2/obj
-/UnitTests2/bin
