@@ -8,10 +8,10 @@ namespace BrightWire.Helper
 {
     static class ConvolutionHelper
     {
-        public static IReadOnlyList<IReadOnlyList<(int X, int Y)>> LeftToRight(int width, int height, int filterWidth, int filterHeight, int stride)
+        public static List<(int X, int Y)[]> LeftToRight(int width, int height, int filterWidth, int filterHeight, int stride)
         {
             int y = 0, x = 0;
-            var ret = new List<IReadOnlyList<(int X, int Y)>>();
+            var ret = new List<(int X, int Y)[]>();
 
             if (x <= width - filterWidth) {
                 while (y <= height - filterHeight) {
@@ -34,10 +34,10 @@ namespace BrightWire.Helper
             return ret;
         }
 
-        public static IReadOnlyList<IReadOnlyList<(int X, int Y)>> TopToBottom(int width, int height, int filterWidth, int filterHeight, int stride)
+        public static List<(int X, int Y)[]> TopToBottom(int width, int height, int filterWidth, int filterHeight, int stride)
         {
             int y = 0, x = 0;
-            var ret = new List<IReadOnlyList<(int X, int Y)>>();
+            var ret = new List<(int X, int Y)[]>();
 
             if (y <= height - filterHeight) {
                 while (x <= width - filterWidth) {
@@ -60,7 +60,7 @@ namespace BrightWire.Helper
             return ret;
         }
 
-        public delegate IReadOnlyList<IReadOnlyList<(int X, int Y)>> ConvolutionalDelegate(int width, int height, int filterWidth, int filterHeight, int stride);
+        public delegate List<(int X, int Y)[]> ConvolutionalDelegate(int width, int height, int filterWidth, int filterHeight, int stride);
         public static ConvolutionalDelegate Default = TopToBottom;
     }
 }

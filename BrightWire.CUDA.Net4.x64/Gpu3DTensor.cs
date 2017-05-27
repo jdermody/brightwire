@@ -129,7 +129,7 @@ namespace BrightWire.LinearAlgebra
             }
         }
 
-        public IMatrix GetDepthSlice(int depth)
+        public IMatrix GetMatrixAt(int depth)
         {
             Debug.Assert(IsValid);
             return _data[depth];
@@ -205,38 +205,23 @@ namespace BrightWire.LinearAlgebra
             Debug.Assert(IsValid);
             var ret = _cuda.TensorReverseMaxPool(_data.Select(d => d.Memory).ToList(), RowCount, ColumnCount, rows, columns, indexList);
             return new Gpu3DTensor(_cuda, rows, columns, indexList.Count, ret.Select(d => new GpuMatrix(_cuda, rows, columns, d)).ToList());
-            // TODO: native CUDA implementation
-            //return _cuda.CreateTensor(AsIndexable().ReverseMaxPool(rows, columns, indexList).AsIndexable());
         }
 
-        //public (IMatrix WeightUpdate, IVector BiasUpdate) CalculateWeightUpdate(IMatrix im2Col)
+        //public I3DTensor CalculatePreviousError(IMatrix filterMatrix, int inputHeight, int inputWidth, int inputDepth, int padding, int filterHeight, int filterWidth, int stride)
         //{
-        //    Debug.Assert(IsValid && im2Col.IsValid);
-        //    var multiplyWith = ConvertToMatrix();
-        //    var weightUpdate = im2Col.TransposeThisAndMultiply(multiplyWith);
-        //    var biasUpdate = multiplyWith.ColumnSums();
-        //    biasUpdate.Multiply(1f / multiplyWith.RowCount);
-        //    return (weightUpdate, biasUpdate);
+        //    Debug.Assert(IsValid && filterMatrix.IsValid);
         //    // TODO: native CUDA implementation
-        //    //var ret = AsIndexable().CalculateWeightUpdate(im2Col.AsIndexable());
-        //    //return (_cuda.CreateMatrix(ret.WeightUpdate.AsIndexable()), _cuda.CreateVector(ret.BiasUpdate.AsIndexable()));
+        //    return _cuda.CreateTensor(AsIndexable().CalculatePreviousError(
+        //        filterMatrix,
+        //        inputHeight,
+        //        inputWidth,
+        //        inputDepth,
+        //        padding,
+        //        filterHeight,
+        //        filterWidth,
+        //        stride
+        //    ).AsIndexable());
         //}
-
-        public I3DTensor CalculatePreviousError(IMatrix filterMatrix, int inputHeight, int inputWidth, int inputDepth, int padding, int filterHeight, int filterWidth, int stride)
-        {
-            Debug.Assert(IsValid && filterMatrix.IsValid);
-            // TODO: native CUDA implementation
-            return _cuda.CreateTensor(AsIndexable().CalculatePreviousError(
-                filterMatrix,
-                inputHeight,
-                inputWidth,
-                inputDepth,
-                padding,
-                filterHeight,
-                filterWidth,
-                stride
-            ).AsIndexable());
-        }
 
         public IMatrix ReverseIm2Col(IReadOnlyList<IReadOnlyList<IVector>> filter, int inputHeight, int inputWidth, int inputDepth, int padding, int filterHeight, int filterWidth, int stride)
         {

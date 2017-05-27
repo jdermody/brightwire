@@ -68,7 +68,7 @@ namespace BrightWire
             else {
                 var tensor = data.GetTensor();
                 for (var i = 0; i < tensor.Depth; i++)
-                    ret.Add(tensor.GetDepthSlice(i));
+                    ret.Add(tensor.GetMatrixAt(i));
             }
             return ret;
         }

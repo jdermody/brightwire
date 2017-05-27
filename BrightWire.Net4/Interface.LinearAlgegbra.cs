@@ -787,7 +787,7 @@ namespace BrightWire
     }
 
     /// <summary>
-    /// A 3D tensor is a list of matrices
+    /// A list of matrices
     /// </summary>
     public interface I3DTensor : IDisposable
     {
@@ -816,7 +816,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="depth">The depth to query</param>
         /// <returns></returns>
-        IMatrix GetDepthSlice(int depth);
+        IMatrix GetMatrixAt(int depth);
 
         /// <summary>
         /// Returns an indexable 3D tensor
@@ -848,13 +848,13 @@ namespace BrightWire
         IMatrix Im2Col(int filterWidth, int filterHeight, int stride);
 
         /// <summary>
-        /// Converts the tensor to a vector (each matrix is concatenated into a single vector)
+        /// Converts the tensor to a vector (each sub matrix is concatenated into a single vector)
         /// </summary>
         /// <returns></returns>
         IVector ConvertToVector();
 
         /// <summary>
-        /// Converts the tensor to a matrix (each matrix becomes a column in the new matrix)
+        /// Converts the tensor to a matrix (each sub matrix becomes a column in the new matrix)
         /// </summary>
         /// <returns></returns>
         IMatrix ConvertToMatrix();
@@ -876,10 +876,6 @@ namespace BrightWire
         /// </summary>
         IReadOnlyList<IMatrix> DepthSlices { get; }
 
-        //(IMatrix WeightUpdate, IVector BiasUpdate) CalculateWeightUpdate(IMatrix im2Col);
-
-        I3DTensor CalculatePreviousError(IMatrix filterMatrix, int inputHeight, int inputWidth, int inputDepth, int padding, int filterHeight, int filterWidth, int stride);
-
         IMatrix ReverseIm2Col(IReadOnlyList<IReadOnlyList<IVector>> filter, int inputHeight, int inputWidth, int inputDepth, int padding, int filterHeight, int filterWidth, int stride);
     }
 
@@ -900,5 +896,37 @@ namespace BrightWire
         /// Gets a list of the indexable matrices
         /// </summary>
         IReadOnlyList<IIndexableMatrix> Matrix { get; }
+    }
+
+    /// <summary>
+    /// A list of 3D tensors
+    /// </summary>
+    public interface I4DTensor : IDisposable
+    {
+        /// <summary>
+        /// The number of rows in each 3D tensor
+        /// </summary>
+        int RowCount { get; }
+
+        /// <summary>
+        /// The number of columns in each 3D tensor
+        /// </summary>
+        int ColumnCount { get; }
+
+        /// <summary>
+        /// The depth of each 3D tensor
+        /// </summary>
+        int Depth { get; }
+
+        /// <summary>
+        /// The count of 3D tensors
+        /// </summary>
+        int Count { get; }
+
+        /// <summary>
+        /// Returns the tensor at the specified index
+        /// </summary>
+        /// <param name="index">The index to query</param>
+        I3DTensor GetTensorAt(int index);
     }
 }

@@ -26,8 +26,8 @@ namespace BrightWire.SampleCode
                 var learningContext = graph.CreateLearningContext(0.001f, 128, false, true);
 
                 Console.Write("Loading training data...");
-                var trainingData = _BuildTensors(null, learningContext, graph, Mnist.Load(dataFilesPath + "train-labels.idx1-ubyte", dataFilesPath + "train-images.idx3-ubyte"));
-                var testData = _BuildTensors(trainingData, learningContext, graph, Mnist.Load(dataFilesPath + "t10k-labels.idx1-ubyte", dataFilesPath + "t10k-images.idx3-ubyte"));
+                var trainingData = _BuildTensors(null, learningContext, graph, Mnist.Load(dataFilesPath + "train-labels.idx1-ubyte", dataFilesPath + "train-images.idx3-ubyte", 800));
+                var testData = _BuildTensors(trainingData, learningContext, graph, Mnist.Load(dataFilesPath + "t10k-labels.idx1-ubyte", dataFilesPath + "t10k-images.idx3-ubyte", 200));
                 Console.WriteLine($"done - {trainingData.RowCount} training images and {testData.RowCount} test images loaded");
 
                 // create the network
@@ -41,7 +41,7 @@ namespace BrightWire.SampleCode
                     .AddBackpropagation(errorMetric)
                 ;
 
-                engine.Train(20, testData, errorMetric);
+                engine.Train(1, testData, errorMetric);
 
                 // export the graph and verify that the error is the same
                 var networkGraph = engine.Graph;

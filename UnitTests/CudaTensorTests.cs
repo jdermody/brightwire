@@ -169,58 +169,58 @@ namespace UnitTests
         //    }
         //}
 
-        [TestMethod]
-        public void TensorCalculatePreviousError()
-        {
-            const int FILTER_WIDTH = 2, FILTER_HEIGHT = 2, STRIDE = 2, DEPTH = 3, FILTER_COUNT = 4, INPUT_WIDTH = 8, INPUT_HEIGHT = 8;
-            var normalDistribution = new Normal(0, 1);
-            var cpuTensor = _cpu.CreateTensor(Enumerable.Range(0, DEPTH).Select(i => _cpu.CreateMatrix(INPUT_HEIGHT, INPUT_WIDTH, (j, k) => Convert.ToSingle(normalDistribution.Sample()))).ToList());
-            var im2Col = cpuTensor.Im2Col(FILTER_WIDTH, FILTER_HEIGHT, STRIDE);
-            var cpuFilter = _cpu.CreateMatrix(DEPTH * FILTER_WIDTH * FILTER_HEIGHT, FILTER_COUNT, (i, j) => (float)normalDistribution.Sample());
-            var output = im2Col.Multiply(cpuFilter);
+        //[TestMethod]
+        //public void TensorCalculatePreviousError()
+        //{
+        //    const int FILTER_WIDTH = 2, FILTER_HEIGHT = 2, STRIDE = 2, DEPTH = 3, FILTER_COUNT = 4, INPUT_WIDTH = 8, INPUT_HEIGHT = 8;
+        //    var normalDistribution = new Normal(0, 1);
+        //    var cpuTensor = _cpu.CreateTensor(Enumerable.Range(0, DEPTH).Select(i => _cpu.CreateMatrix(INPUT_HEIGHT, INPUT_WIDTH, (j, k) => Convert.ToSingle(normalDistribution.Sample()))).ToList());
+        //    var im2Col = cpuTensor.Im2Col(FILTER_WIDTH, FILTER_HEIGHT, STRIDE);
+        //    var cpuFilter = _cpu.CreateMatrix(DEPTH * FILTER_WIDTH * FILTER_HEIGHT, FILTER_COUNT, (i, j) => (float)normalDistribution.Sample());
+        //    var output = im2Col.Multiply(cpuFilter);
 
-            var matrixList = new List<IMatrix>();
-            var newWidth = ((INPUT_WIDTH - FILTER_WIDTH) / STRIDE) + 1;
-            var newHeight = ((INPUT_HEIGHT - FILTER_HEIGHT) / STRIDE) + 1;
-            for (var i = 0; i < output.ColumnCount; i++)
-                matrixList.Add(output.Column(i).ConvertInPlaceToMatrix(newWidth, newHeight));
-            var outputTensor = _cpu.CreateTensor(matrixList);
-            var cpuUpdate = outputTensor.CalculatePreviousError(cpuFilter, INPUT_HEIGHT, INPUT_WIDTH, DEPTH, 0, FILTER_HEIGHT, FILTER_WIDTH, STRIDE);
+        //    var matrixList = new List<IMatrix>();
+        //    var newWidth = ((INPUT_WIDTH - FILTER_WIDTH) / STRIDE) + 1;
+        //    var newHeight = ((INPUT_HEIGHT - FILTER_HEIGHT) / STRIDE) + 1;
+        //    for (var i = 0; i < output.ColumnCount; i++)
+        //        matrixList.Add(output.Column(i).ConvertInPlaceToMatrix(newWidth, newHeight));
+        //    var outputTensor = _cpu.CreateTensor(matrixList);
+        //    var cpuUpdate = outputTensor.CalculatePreviousError(cpuFilter, INPUT_HEIGHT, INPUT_WIDTH, DEPTH, 0, FILTER_HEIGHT, FILTER_WIDTH, STRIDE);
 
-            using (var gpuTensor = _cuda.CreateTensor(outputTensor.AsIndexable()))
-            using (var gpuFIlter = _cuda.CreateMatrix(cpuFilter.AsIndexable())) {
-                var gpuUpdate = gpuTensor.CalculatePreviousError(gpuFIlter, INPUT_HEIGHT, INPUT_WIDTH, DEPTH, 0, FILTER_HEIGHT, FILTER_WIDTH, STRIDE);
+        //    using (var gpuTensor = _cuda.CreateTensor(outputTensor.AsIndexable()))
+        //    using (var gpuFIlter = _cuda.CreateMatrix(cpuFilter.AsIndexable())) {
+        //        var gpuUpdate = gpuTensor.CalculatePreviousError(gpuFIlter, INPUT_HEIGHT, INPUT_WIDTH, DEPTH, 0, FILTER_HEIGHT, FILTER_WIDTH, STRIDE);
 
-                FloatingPointHelper.AssertEqual(cpuUpdate.AsIndexable(), gpuUpdate.AsIndexable());
-            }
-        }
+        //        FloatingPointHelper.AssertEqual(cpuUpdate.AsIndexable(), gpuUpdate.AsIndexable());
+        //    }
+        //}
 
-        [TestMethod]
-        public void TensorCalculatePreviousError2()
-        {
-            const int FILTER_WIDTH = 2, FILTER_HEIGHT = 2, STRIDE = 2, DEPTH = 3, FILTER_COUNT = 4, INPUT_WIDTH = 8, INPUT_HEIGHT = 8;
-            var normalDistribution = new Normal(0, 1);
-            var cpuTensor = _cpu.CreateTensor(Enumerable.Range(0, DEPTH).Select(i => _cpu.CreateMatrix(INPUT_HEIGHT, INPUT_WIDTH, (j, k) => Convert.ToSingle(normalDistribution.Sample()))).ToList());
-            var im2Col = cpuTensor.Im2Col(FILTER_WIDTH, FILTER_HEIGHT, STRIDE);
-            var cpuFilter = _cpu.CreateMatrix(DEPTH * FILTER_WIDTH * FILTER_HEIGHT, FILTER_COUNT, (i, j) => (float)normalDistribution.Sample());
-            var output = im2Col.Multiply(cpuFilter);
+        //[TestMethod]
+        //public void TensorCalculatePreviousError2()
+        //{
+        //    const int FILTER_WIDTH = 2, FILTER_HEIGHT = 2, STRIDE = 2, DEPTH = 3, FILTER_COUNT = 4, INPUT_WIDTH = 8, INPUT_HEIGHT = 8;
+        //    var normalDistribution = new Normal(0, 1);
+        //    var cpuTensor = _cpu.CreateTensor(Enumerable.Range(0, DEPTH).Select(i => _cpu.CreateMatrix(INPUT_HEIGHT, INPUT_WIDTH, (j, k) => Convert.ToSingle(normalDistribution.Sample()))).ToList());
+        //    var im2Col = cpuTensor.Im2Col(FILTER_WIDTH, FILTER_HEIGHT, STRIDE);
+        //    var cpuFilter = _cpu.CreateMatrix(DEPTH * FILTER_WIDTH * FILTER_HEIGHT, FILTER_COUNT, (i, j) => (float)normalDistribution.Sample());
+        //    var output = im2Col.Multiply(cpuFilter);
 
-            var matrixList = new List<IMatrix>();
-            var newWidth = ((INPUT_WIDTH - FILTER_WIDTH) / STRIDE) + 1;
-            var newHeight = ((INPUT_HEIGHT - FILTER_HEIGHT) / STRIDE) + 1;
-            for (var i = 0; i < output.ColumnCount; i++)
-                matrixList.Add(output.Column(i).ConvertInPlaceToMatrix(newWidth, newHeight));
-            var outputTensor = _cpu.CreateTensor(matrixList);
-            var cpuUpdate = outputTensor.CalculatePreviousError(cpuFilter, INPUT_HEIGHT, INPUT_WIDTH, DEPTH, 0, FILTER_HEIGHT, FILTER_WIDTH, STRIDE);
+        //    var matrixList = new List<IMatrix>();
+        //    var newWidth = ((INPUT_WIDTH - FILTER_WIDTH) / STRIDE) + 1;
+        //    var newHeight = ((INPUT_HEIGHT - FILTER_HEIGHT) / STRIDE) + 1;
+        //    for (var i = 0; i < output.ColumnCount; i++)
+        //        matrixList.Add(output.Column(i).ConvertInPlaceToMatrix(newWidth, newHeight));
+        //    var outputTensor = _cpu.CreateTensor(matrixList);
+        //    var cpuUpdate = outputTensor.CalculatePreviousError(cpuFilter, INPUT_HEIGHT, INPUT_WIDTH, DEPTH, 0, FILTER_HEIGHT, FILTER_WIDTH, STRIDE);
 
-            var cpuFilterList = new List<IReadOnlyList<IVector>>();
-            for (var i = 0; i < cpuFilter.ColumnCount; i++)
-                cpuFilterList.Add(cpuFilter.Column(i).Split(DEPTH).Select(v => v.Rotate(v.Count / FILTER_WIDTH)).ToList());
+        //    var cpuFilterList = new List<IReadOnlyList<IVector>>();
+        //    for (var i = 0; i < cpuFilter.ColumnCount; i++)
+        //        cpuFilterList.Add(cpuFilter.Column(i).Split(DEPTH).Select(v => v.Rotate(v.Count / FILTER_WIDTH)).ToList());
 
-            var reverseIm2Col = outputTensor.ReverseIm2Col(cpuFilterList, INPUT_HEIGHT, INPUT_WIDTH, DEPTH, 0, FILTER_HEIGHT, FILTER_WIDTH, STRIDE);
-            var cpuUpdate2 = _cpu.CreateTensor(reverseIm2Col, INPUT_HEIGHT, INPUT_WIDTH);
-            FloatingPointHelper.AssertEqual(cpuUpdate.AsIndexable(), cpuUpdate2.AsIndexable());
-        }
+        //    var reverseIm2Col = outputTensor.ReverseIm2Col(cpuFilterList, INPUT_HEIGHT, INPUT_WIDTH, DEPTH, 0, FILTER_HEIGHT, FILTER_WIDTH, STRIDE);
+        //    var cpuUpdate2 = _cpu.CreateTensor(reverseIm2Col, INPUT_HEIGHT, INPUT_WIDTH);
+        //    FloatingPointHelper.AssertEqual(cpuUpdate.AsIndexable(), cpuUpdate2.AsIndexable());
+        //}
 
         void _AssertAreSame(IReadOnlyList<(int[] X, int[] Y)> cpuIndex, IReadOnlyList<(int[] X, int[] Y)> gpuIndex)
         {
@@ -240,7 +240,7 @@ namespace UnitTests
         void _AssertValuesAreInSamePlace(IIndexable3DTensor maxPool, IIndexable3DTensor source)
         {
             for (var z = 0; z < maxPool.Depth; z++) {
-                var slice = maxPool.GetDepthSlice(z).AsIndexable();
+                var slice = maxPool.GetMatrixAt(z).AsIndexable();
                 for (var i = 0; i < slice.RowCount; i++) {
                     for (var j = 0; j < slice.ColumnCount; j++) {
                         var val = slice[i, j];

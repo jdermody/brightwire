@@ -88,7 +88,7 @@ namespace BrightWire.LinearAlgebra
         public int Depth => _depth;
         public int RowCount => _rows;
         public int ColumnCount => _columns;
-        public IMatrix GetDepthSlice(int depth) => _data[depth];
+        public IMatrix GetMatrixAt(int depth) => _data[depth];
         public IIndexable3DTensor AsIndexable() => this;
         public IReadOnlyList<IMatrix> DepthSlices => _data;
 
@@ -129,19 +129,20 @@ namespace BrightWire.LinearAlgebra
 
         public IMatrix Im2Col(int filterWidth, int filterHeight, int stride)
         {
-            var rowList = new List<List<float>>();
+            var rowList = new List<float[]>();
             var convolutions = ConvolutionHelper.Default(ColumnCount, RowCount, filterWidth, filterHeight, stride);
 
             foreach (var filter in convolutions) {
-                var row = new List<float>();
+                var row = new float[filter.Length * _depth];
+                int index = 0;
                 for (var k = 0; k < _depth; k++) {
                     foreach (var item in filter)
-                        row.Add(this[item.Y, item.X, k]);
+                        row[index++] = this[item.Y, item.X, k];
                 }
                 rowList.Add(row);
             }
             var firstRow = rowList.First();
-            return new CpuMatrix(DenseMatrix.Create(rowList.Count, firstRow.Count, (i, j) => rowList[i][j]));
+            return new CpuMatrix(DenseMatrix.Create(rowList.Count, firstRow.Length, (i, j) => rowList[i][j]));
         }
 
         public IVector ConvertToVector()
@@ -215,7 +216,7 @@ namespace BrightWire.LinearAlgebra
         {
             var matrixList = new List<DenseMatrix>();
             for (var z = 0; z < Depth; z++) {
-                var source = GetDepthSlice(z).AsIndexable();
+                var source = GetMatrixAt(z).AsIndexable();
                 var newRows = source.RowCount;
                 var index = indexList[z];
                 int[] indexX = (int[])index.X;
@@ -272,7 +273,7 @@ namespace BrightWire.LinearAlgebra
             var convolutions = ConvolutionHelper.Default(columns, rows, filterHeight, filterHeight, stride);
 
             for (var k = 0; k < Depth; k++) {
-                var slice = GetDepthSlice(k).AsIndexable();
+                var slice = GetMatrixAt(k).AsIndexable();
                 var filterList = filters[k]
                     .Split(inputDepth)
                     .Select(f => f.Rotate(f.Count / filterWidth).AsIndexable())
@@ -315,7 +316,7 @@ namespace BrightWire.LinearAlgebra
             ;
 
             for (var k = 0; k < Depth; k++) {
-                var slice = GetDepthSlice(k).AsIndexable();
+                var slice = GetMatrixAt(k).AsIndexable();
                 var filterList = filters[k].Select(f => f.AsIndexable()).ToList();
                 var output = ret[k];
 

@@ -691,15 +691,20 @@ extern "C"
 	{
 		int index = blockDim.x * blockIdx.x + threadIdx.x;
 		int j = blockDim.y * blockIdx.y + threadIdx.y;
-		int k = index / aRows;
-		int i = index % aRows;
 
-		if(k < depth && j < aColumns) {
+		int mx = aRows * depth;
+		int z = index / mx;
+		int index2 = index % mx;
+		int k = index2 / aRows;
+		int i = index2 % aRows;
+
+		if(k < depth && z < inputDepth && j < aColumns) {
 			int x1 = j*stride;
 			int y1 = i*stride;
 			float* slice = a[k];
 			float** filterList = b[k];
 			float* output = c[k];
+			float* filter = filterList[z];
 
 			float error = slice[i * aRows + j];
 			if(error != 0) {
@@ -709,10 +714,7 @@ extern "C"
 						int cy = fy + y1;
 						int filterIndex = fx * filterHeight + fy;
 						int outputRow = cx * cRows + cy;
-						for(int z = 0; z < inputDepth; z++) {
-							float* filter = filterList[z];
-							output[z * cSize + outputRow] = filter[filterIndex] * error;
-						}
+						output[z * cSize + outputRow] = filter[filterIndex] * error;
 					}
 				}
 			}
