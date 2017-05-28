@@ -853,7 +853,7 @@ namespace BrightWire.LinearAlgebra
                 filterDevicePtr.CopyToDevice(filterList2.Select(m => m.DevicePointer).ToArray());
                 inputDevicePtr.CopyToDevice(matrixList.Select(m => m.DevicePointer).ToArray());
                 outputDevicePtr.CopyToDevice(ret.Select(m => m.DevicePointer).ToArray());
-                _Use(_tensorReverseIm2Col, rows * depth * inputDepth * filterHeight * filterWidth, columns, k => k.Run(0, 
+                _Use(_tensorReverseIm2Col, rows * depth * inputDepth, columns, k => k.Run(0, 
                     inputDevicePtr.DevicePointer, 
                     filterDevicePtr.DevicePointer, 
                     outputDevicePtr.DevicePointer,

@@ -133,7 +133,7 @@ namespace BrightWire.SampleCode
 
         static void SequenceToSequence()
         {
-            const int SEQUENCE_LENGTH = 4;
+            const int SEQUENCE_LENGTH = 5;
             var grammar = new SequenceClassification(8, SEQUENCE_LENGTH, SEQUENCE_LENGTH, true, false);
             var sequences = grammar.GenerateSequences().Take(1000).ToList();
             var builder = BrightWireProvider.CreateDataTableBuilder();
@@ -159,7 +159,7 @@ namespace BrightWire.SampleCode
                     .Use(graph.WeightInitialisation.Xavier)
                 ;
 
-                const int BATCH_SIZE = 128;
+                const int BATCH_SIZE = 16;
                 int HIDDEN_LAYER_SIZE = 64;
                 const float TRAINING_RATE = 0.003f;
                 var encoderLearningContext = graph.CreateLearningContext(TRAINING_RATE, BATCH_SIZE, true, true);
@@ -167,7 +167,7 @@ namespace BrightWire.SampleCode
                 var decoderMemory = new float[HIDDEN_LAYER_SIZE];
 
                 var trainingData = graph.GetDataSource(data.Training, encoderLearningContext, wb => wb
-                    .AddLstm(encoderMemory, "encoder")
+                    .AddGru(encoderMemory, "encoder")
                     .WriteNodeMemoryToSlot("shared-memory", wb.Find("encoder") as IHaveMemoryNode)
                     .AddFeedForward(grammar.DictionarySize)
                     .Add(graph.SigmoidActivation())
@@ -181,7 +181,7 @@ namespace BrightWire.SampleCode
                 wb2
                     .JoinInputWithMemory("shared-memory")
                     .IncrementSizeBy(HIDDEN_LAYER_SIZE)
-                    .AddLstm(decoderMemory, "decoder")
+                    .AddGru(decoderMemory, "decoder")
                     .WriteNodeMemoryToSlot("shared-memory", wb2.Find("decoder") as IHaveMemoryNode)
                     .AddFeedForward(trainingData.OutputSize)
                     .Add(graph.SoftMaxActivation())
