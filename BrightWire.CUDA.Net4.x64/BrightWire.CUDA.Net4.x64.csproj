@@ -68,7 +68,9 @@
     <Compile Include="BrightWireGPUProvider.cs" />
     <Compile Include="GpuVector.cs" />
     <Compile Include="Helper\DeviceMemory.cs" />
+    <Compile Include="Helper\PtrToMemory.cs" />
     <Compile Include="Helper\ThreadSafeHashSet.cs" />
+    <Compile Include="Interface.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

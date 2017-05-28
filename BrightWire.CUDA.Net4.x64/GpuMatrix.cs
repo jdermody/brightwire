@@ -18,7 +18,7 @@ namespace BrightWire.LinearAlgebra
     internal class GpuMatrix : IMatrix
     {
         readonly CudaProvider _cuda;
-        readonly DeviceMemory.Ptr _data;
+        readonly IDeviceMemoryPtr _data;
         readonly int _rows, _columns;
         bool _disposed = false;
 #if DEBUG
@@ -60,7 +60,7 @@ namespace BrightWire.LinearAlgebra
         {
         }
 
-        internal GpuMatrix(CudaProvider cuda, int rows, int columns, DeviceMemory.Ptr gpuData)
+        internal GpuMatrix(CudaProvider cuda, int rows, int columns, IDeviceMemoryPtr gpuData)
         {
             _cuda = cuda;
             _rows = rows;
@@ -131,7 +131,7 @@ namespace BrightWire.LinearAlgebra
         }
 
         internal CudaDeviceVariable<float> CudaDeviceVariable { get { return _data.DeviceVariable; } }
-        internal DeviceMemory.Ptr Memory => _data;
+        internal IDeviceMemoryPtr Memory => _data;
 
         public IMatrix Add(IMatrix matrix)
         {

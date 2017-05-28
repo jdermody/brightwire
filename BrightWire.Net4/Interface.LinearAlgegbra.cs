@@ -871,11 +871,6 @@ namespace BrightWire
 
         I3DTensor ReverseMaxPool(int rows, int columns, IReadOnlyList<(object X, object Y)> indexList);
 
-        /// <summary>
-        /// Returns the list of matrices
-        /// </summary>
-        IReadOnlyList<IMatrix> DepthSlices { get; }
-
         IMatrix ReverseIm2Col(IReadOnlyList<IReadOnlyList<IVector>> filter, int inputHeight, int inputWidth, int inputDepth, int padding, int filterHeight, int filterWidth, int stride);
     }
 

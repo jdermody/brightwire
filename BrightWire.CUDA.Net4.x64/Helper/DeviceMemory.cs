@@ -14,7 +14,7 @@ namespace BrightWire.CUDA.Helper
 {
     internal class DeviceMemory : IDisposable
     {
-        internal class Ptr
+        private class Block : IDeviceMemoryPtr
         {
             readonly int _index;
             readonly DeviceMemory _cache;
@@ -29,7 +29,7 @@ namespace BrightWire.CUDA.Helper
             public bool IsValid => true;
 #endif
 
-            public Ptr(DeviceMemory cache, int index, int size) 
+            public Block(DeviceMemory cache, int index, int size) 
             {
                 _cache = cache;
                 _index = index;
@@ -99,7 +99,7 @@ namespace BrightWire.CUDA.Helper
             {
                 _data.CopyToDevice(source);
             }
-            public void CopyToDevice(Ptr source)
+            public void CopyToDevice(IDeviceMemoryPtr source)
             {
                 _data.CopyToDevice(source.DeviceVariable);
             }
@@ -107,13 +107,6 @@ namespace BrightWire.CUDA.Helper
             {
                 _data.CopyToHost(target);
             }
-            //public Ptr Clone()
-            //{
-            //    Debug.Assert(IsValid);
-            //    var block = _cache.GetMemory(_data.Size);
-            //    block.DeviceVariable.CopyToDevice(_data);
-            //    return block;
-            //}
             public void Clear()
             {
                 _data.Memset(0);
@@ -122,10 +115,10 @@ namespace BrightWire.CUDA.Helper
         class Layer
         {
             readonly List<IDisposable> _disposable = new List<IDisposable>();
-            readonly List<Ptr> _ptr = new List<Ptr>();
+            readonly List<Block> _ptr = new List<Block>();
 
             public void Add(IDisposable disposable) => _disposable.Add(disposable);
-            public void Add(Ptr ptr) => _ptr.Add(ptr);
+            public void Add(Block ptr) => _ptr.Add(ptr);
             public void Release()
             {
                 foreach (var item in _disposable)
@@ -136,7 +129,7 @@ namespace BrightWire.CUDA.Helper
         }
         readonly int _maxSize;
         readonly ConcurrentStack<Layer> _layer = new ConcurrentStack<Layer>();
-        readonly ConcurrentDictionary<int, ThreadSafeHashSet<Ptr>> _cache = new ConcurrentDictionary<int, ThreadSafeHashSet<Ptr>>();
+        readonly ConcurrentDictionary<int, ThreadSafeHashSet<Block>> _cache = new ConcurrentDictionary<int, ThreadSafeHashSet<Block>>();
         int _index = 0;
 
         public DeviceMemory(int maxSize)
@@ -183,18 +176,18 @@ namespace BrightWire.CUDA.Helper
             }
         }
 
-        void OnFree(Ptr item)
+        void OnFree(Block item)
         {
             if (_maxSize == 0)
                 item.Destroy();
             else {
                 // add the new item
-                var temp = _cache.GetOrAdd(item.Size, kv => new ThreadSafeHashSet<Ptr>());
+                var temp = _cache.GetOrAdd(item.Size, kv => new ThreadSafeHashSet<Block>());
                 temp.Add(item);
 
                 // check if we need to delete old items
                 while (_cache.Sum(kv => kv.Key * kv.Value.Count) > _maxSize) {
-                    Ptr oldestItem = null;
+                    Block oldestItem = null;
                     foreach(var block in _cache) {
                         block.Value.ForEach(b => {
                             if (oldestItem == null || oldestItem.Index < b.Index)
@@ -207,19 +200,19 @@ namespace BrightWire.CUDA.Helper
             }
         }
 
-        public Ptr GetMemory(int size)
+        public IDeviceMemoryPtr GetMemory(int size)
         {
-            Ptr ret;
+            Block ret;
 
             if (_maxSize > 0) {
-                ThreadSafeHashSet<Ptr> temp;
+                ThreadSafeHashSet<Block> temp;
                 if (_cache.TryGetValue(size, out temp)) {
                     if(temp.TryPop(out ret))
                         return ret;
                 }
             }
 
-            ret = new Ptr(this, _GetNextIndex(), size);
+            ret = new Block(this, _GetNextIndex(), size);
             Layer layer;
             if (_layer.TryPeek(out layer)) {
                 lock (layer) {
