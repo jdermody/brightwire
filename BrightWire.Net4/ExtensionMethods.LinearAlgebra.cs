@@ -50,8 +50,9 @@ namespace BrightWire
             return lap.CreateMatrix(rows, size, (x, y) => rowList[x][y]);
         }
 
-        public static IMatrix CreateMatrix(this ILinearAlgebraProvider lap, int rows, int columns, float value = 0f)
+        public static IMatrix CreateMatrix(this ILinearAlgebraProvider lap, int rows, int columns, float value)
         {
+            Debug.Assert(value != 0f); // use CreateZeroMatrix to initialise to zero
             return lap.CreateMatrix(rows, columns, (i, j) => value);
         }
 

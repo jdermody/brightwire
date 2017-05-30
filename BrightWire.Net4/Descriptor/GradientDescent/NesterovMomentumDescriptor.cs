@@ -13,7 +13,7 @@ namespace BrightWire.Descriptor.GradientDescent
 
         public override IGradientDescentOptimisation Create(IGradientDescentOptimisation prev, IMatrix template, IPropertySet propertySet)
         {
-            var cache = propertySet.LinearAlgebraProvider.CreateMatrix(template.RowCount, template.ColumnCount, 0f);
+            var cache = propertySet.LinearAlgebraProvider.CreateZeroMatrix(template.RowCount, template.ColumnCount);
             return new NesterovMomentum(_momentum, cache, prev);
         }
     }

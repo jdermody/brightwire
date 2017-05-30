@@ -48,7 +48,7 @@ namespace BrightWire.ExecutionGraph.GradientDescent
             _decayRate2 = reader.ReadSingle();
             var rows = reader.ReadInt32();
             var columns = reader.ReadInt32();
-            _cache2 = factory.LinearAlgebraProvider.CreateMatrix(rows, columns, 0f);
+            _cache2 = factory.LinearAlgebraProvider.CreateZeroMatrix(rows, columns);
         }
 
         public override void WriteTo(BinaryWriter writer)

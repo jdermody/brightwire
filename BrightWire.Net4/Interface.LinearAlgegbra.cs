@@ -44,12 +44,17 @@ namespace BrightWire
         /// <param name="rows">The list of rows in the new matrix</param>
         IMatrix CreateMatrix(IReadOnlyList<IVector> rows);
 
+        IMatrix CreateZeroMatrix(int rows, int columns);
+        IMatrix CreateMatrix(int rows, int columns);
+
         /// <summary>
         /// Creates a 3D tensor
         /// </summary>
         /// <param name="data">The list of matrices that form the tensor</param>
         /// <returns></returns>
         I3DTensor CreateTensor(IReadOnlyList<IMatrix> data);
+
+        I4DTensor CreateTensor(IReadOnlyList<FloatTensor> data);
 
         /// <summary>
         /// Creates a save point in the allocation history
@@ -116,14 +121,12 @@ namespace BrightWire
         /// <summary>
         /// Converts the vector to a column matrix
         /// </summary>
-        /// <param name="numCols">The number of columns in the matrix</param>
-        IMatrix ToColumnMatrix(int numCols = 1);
+        IMatrix ToColumnMatrix();
 
         /// <summary>
         /// Converts the vector to a row matrix
         /// </summary>
-        /// <param name="numRows">The number of rows in the matrix</param>
-        IMatrix ToRowMatrix(int numRows = 1);
+        IMatrix ToRowMatrix();
 
         /// <summary>
         /// The number of elements in the vector
@@ -872,6 +875,9 @@ namespace BrightWire
         I3DTensor ReverseMaxPool(int rows, int columns, IReadOnlyList<(object X, object Y)> indexList);
 
         IMatrix ReverseIm2Col(IReadOnlyList<IReadOnlyList<IVector>> filter, int inputHeight, int inputWidth, int inputDepth, int padding, int filterHeight, int filterWidth, int stride);
+        IMatrix CombineDepthSlices();
+        void AddInPlace(I3DTensor tensor);
+        I3DTensor Multiply(IMatrix matrix);
     }
 
     /// <summary>
@@ -923,5 +929,14 @@ namespace BrightWire
         /// </summary>
         /// <param name="index">The index to query</param>
         I3DTensor GetTensorAt(int index);
+
+        IReadOnlyList<IIndexable3DTensor> AsIndexable();
+
+        I4DTensor AddPadding(int padding);
+        I4DTensor RemovePadding(int padding);
+        (I4DTensor Result, IReadOnlyList<IReadOnlyList<(object X, object Y)>> Index) MaxPool(int filterWidth, int filterHeight, int stride, bool calculateIndex);
+        I4DTensor ReverseMaxPool(int rows, int columns, IReadOnlyList<IReadOnlyList<(object X, object Y)>> indexList);
+        I3DTensor Im2Col(int filterWidth, int filterHeight, int stride);
+        I3DTensor ReverseIm2Col(IReadOnlyList<IReadOnlyList<IVector>> filter, int inputHeight, int inputWidth, int inputDepth, int padding, int filterHeight, int filterWidth, int stride);
     }
 }

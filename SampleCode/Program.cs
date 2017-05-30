@@ -11,7 +11,7 @@ namespace BrightWire.SampleCode
     {
         public static void XOR()
         {
-            using (var lap = BrightWireGpuProvider.CreateLinearAlgebra()) {
+            using (var lap = BrightWireProvider.CreateLinearAlgebra()) {
                 // Create some training data that the network will learn.  The XOR pattern looks like:
                 // 0 0 => 0
                 // 1 0 => 1
@@ -35,7 +35,7 @@ namespace BrightWire.SampleCode
                 const int HIDDEN_LAYER_SIZE = 4;
                 graph.Connect(engine)
                     .AddFeedForward(HIDDEN_LAYER_SIZE)
-                    .Add(graph.ReluActivation())
+                    .Add(graph.SigmoidActivation())
                     .AddFeedForward(engine.DataSource.OutputSize)
                     .Add(graph.SigmoidActivation())
                     .AddBackpropagation(errorMetric)
@@ -43,7 +43,7 @@ namespace BrightWire.SampleCode
 
                 // train the network
                 var executionContext = graph.CreateExecutionContext();
-                for (var i = 0; i < 1000; i++) {
+                for (var i = 0; i < 2000; i++) {
                     var trainingError = engine.Train(executionContext);
                     if (i % 100 == 0)
                         engine.Test(testData, errorMetric);
@@ -78,11 +78,11 @@ namespace BrightWire.SampleCode
             //MNISTConvolutional(@"D:\data\mnist\");
             //SentimentClassification(@"D:\data\sentiment labelled sentences\");
             //TextClustering(@"D:\data\[UCI] AAAI-14 Accepted Papers - Papers.csv", @"d:\temp\");
-            //IntegerAddition();
+            IntegerAddition();
             //IncomePrediction(@"d:\data\adult.data", @"d:\data\adult.test");
             //OneToMany();
             //ManyToOne();
-            SequenceToSequence();
+            //SequenceToSequence();
         }
     }
 }

@@ -213,9 +213,13 @@ namespace BrightWire.LinearAlgebra
         public IVector Column(int index)
         {
             Debug.Assert(IsValid);
-            var ret = _cuda.Allocate(_rows);
-            ret.DeviceVariable.CopyToDevice(_data.DeviceVariable, index * _rows * sizeof(float), 0, _rows * sizeof(float));
-            return new GpuVector(_cuda, ret);
+            //var ret = _cuda.Allocate(_rows);
+            //ret.DeviceVariable.CopyToDevice(_data.DeviceVariable, index * _rows * sizeof(float), 0, _rows * sizeof(float));
+            //return new GpuVector(_cuda, ret);
+            var columnSize = _rows * sizeof(float);
+            var offset = index * columnSize;
+            var ptr = new PtrToMemory(_cuda.Context, new CUdeviceptr(_data.DeviceVariable.DevicePointer.Pointer + offset), columnSize);
+            return new GpuVector(_cuda, ptr);
         }
 
         public IVector ColumnL2Norm()
@@ -477,12 +481,9 @@ namespace BrightWire.LinearAlgebra
             }
             var ret = _cuda.Allocate(_rows * _columns);
             for (var i = 0; i < _rows; i++) {
-                using (var row = rowOutput[i]) {
+                using (var row = rowOutput[i])
                     ret.DeviceVariable.CopyToDevice(row.CudaDeviceVariable, 0, _columns * i * sizeof(float), _columns * sizeof(float));
-                    //CudaBlasNativeMethods.cublasScopy_v2(_cuda.Blas.CublasHandle, _columns * sizeof(float), row.CudaDeviceVariable.DevicePointer, sizeof(float), ret.DevicePointer, _rows * sizeof(float));
-                }
             }
-            //return new GpuMatrix(_cuda, _rows, _columns, ret);
             using(var temp = new GpuMatrix(_cuda, _columns, _rows, ret))
                 return temp.Transpose();
         }

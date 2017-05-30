@@ -44,6 +44,16 @@ namespace BrightWire.LinearAlgebra
             return CreateMatrix(rows.Count, columns, (i, j) => rows[i][j]);
         }
 
+        public IMatrix CreateZeroMatrix(int rows, int columns)
+        {
+            return new CpuMatrix(DenseMatrix.Create(rows, columns, 0f));
+        }
+
+        public IMatrix CreateMatrix(int rows, int columns)
+        {
+            return CreateZeroMatrix(rows, columns);
+        }
+
         public IMatrix CreateMatrix(int rows, int columns, Func<int, int, float> init)
         {
             return new CpuMatrix(DenseMatrix.Create(rows, columns, init));
@@ -52,6 +62,11 @@ namespace BrightWire.LinearAlgebra
         public I3DTensor CreateTensor(IReadOnlyList<IMatrix> data)
         {
             return new Cpu3DTensor(data);
+        }
+
+        public I4DTensor CreateTensor(IReadOnlyList<FloatTensor> data)
+        {
+            return new Cpu4DTensor(data.Select(t => this.CreateTensor(t)).ToList());
         }
 
         public void PushLayer()

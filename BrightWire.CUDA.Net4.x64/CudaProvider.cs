@@ -260,6 +260,8 @@ namespace BrightWire.LinearAlgebra
         public ILinearAlgebraProvider NumericsProvider => _numerics;
         public bool IsStochastic => _stochastic;
         public bool IsGpu => true;
+        internal CudaContext Context => _cuda;
+        internal CudaBlas Blas => _blas;
 
         public void Register(IDisposable disposable) => _cache.Add(disposable);
 
@@ -668,42 +670,46 @@ namespace BrightWire.LinearAlgebra
             }
         }
 
-        internal IReadOnlyList<IDeviceMemoryPtr> TensorAddPadding(IReadOnlyList<IDeviceMemoryPtr> matrixList, int rows, int columns, int padding)
+        internal TensorOutput TensorAddPadding(TensorInput tensor, int padding)
         {
-            int depth = matrixList.Count;
-            var newRows = rows + padding * 2;
-            var newColumns = columns + padding * 2;
-            var ret = new List<IDeviceMemoryPtr>();
-            for (var i = 0; i < depth; i++) {
-                var buffer = Allocate(newRows * newColumns, true);
-                ret.Add(buffer);
-            }
+            var count = tensor.Count;
+            var depth = tensor.Depth;
+            var rows = tensor.Rows;
+            var columns = tensor.Columns;
+            var newRows = tensor.Rows + padding * 2;
+            var newColumns = tensor.Columns + padding * 2;
+            var ret = new TensorOutput(this, newRows, newColumns, depth, count, true);
 
-            using (var outputDevicePtr = new CudaDeviceVariable<CUdeviceptr>(depth))
-            using (var inputDevicePtr = new CudaDeviceVariable<CUdeviceptr>(depth)) {
-                inputDevicePtr.CopyToDevice(matrixList.Select(m => m.DevicePointer).ToArray());
-                outputDevicePtr.CopyToDevice(ret.Select(m => m.DevicePointer).ToArray());
-                _Use(_tensorAddPadding, newRows * depth, newColumns, k => k.Run(0, inputDevicePtr.DevicePointer, outputDevicePtr.DevicePointer, rows, columns, newRows, newColumns, depth, padding));
+            try {
+                using (var output = ret.GetDeviceMemoryPtr())
+                using (var input = tensor.GetDeviceMemoryPtr()) {
+                    _Use(_tensorAddPadding, newRows * depth * count, newColumns, k => k.Run(0, input.DevicePointer, output.DevicePointer, count, rows, columns, newRows, newColumns, depth, padding));
+                }
+            }catch {
+                ret.Dispose();
+                throw;
             }
             return ret;
         }
 
-        internal IReadOnlyList<IDeviceMemoryPtr> TensorRemovePadding(IReadOnlyList<IDeviceMemoryPtr> matrixList, int rows, int columns, int padding)
+        internal TensorOutput TensorRemovePadding(TensorInput tensor, int padding)
         {
-            int depth = matrixList.Count;
-            var newRows = rows - padding * 2;
-            var newColumns = columns - padding * 2;
-            var ret = new List<IDeviceMemoryPtr>();
-            for (var i = 0; i < depth; i++) {
-                var buffer = Allocate(newRows * newColumns, true);
-                ret.Add(buffer);
-            }
+            var count = tensor.Count;
+            int depth = tensor.Depth;
+            var rows = tensor.Rows;
+            var columns = tensor.Columns;
+            var newRows = tensor.Rows - padding * 2;
+            var newColumns = tensor.Columns - padding * 2;
+            var ret = new TensorOutput(this, newRows, newColumns, depth, tensor.Count, false);
 
-            using (var outputDevicePtr = new CudaDeviceVariable<CUdeviceptr>(depth))
-            using (var inputDevicePtr = new CudaDeviceVariable<CUdeviceptr>(depth)) {
-                inputDevicePtr.CopyToDevice(matrixList.Select(m => m.DevicePointer).ToArray());
-                outputDevicePtr.CopyToDevice(ret.Select(m => m.DevicePointer).ToArray());
-                _Use(_tensorRemovePadding, rows * depth, columns, k => k.Run(0, inputDevicePtr.DevicePointer, outputDevicePtr.DevicePointer, rows, columns, newRows, newColumns, depth, padding));
+            try {
+                using (var output = ret.GetDeviceMemoryPtr())
+                using (var input = tensor.GetDeviceMemoryPtr()) {
+                    _Use(_tensorRemovePadding, rows * depth * count, columns, k => k.Run(0, input.DevicePointer, output.DevicePointer, count, rows, columns, newRows, newColumns, depth, padding));
+                }
+            }catch {
+                ret.Dispose();
+                throw;
             }
             return ret;
         }
@@ -814,49 +820,58 @@ namespace BrightWire.LinearAlgebra
             return ret;
         }
 
-        internal Tuple<IDeviceMemoryPtr, int, int> TensorIm2Col(IReadOnlyList<IDeviceMemoryPtr> matrixList, int rows, int columns, int filterWidth, int filterHeight, int stride)
+        internal MatrixOutput TensorIm2Col(TensorInput tensor, int filterWidth, int filterHeight, int stride)
         {
-            var depth = matrixList.Count;
+            var depth = tensor.Depth;
+            var rows = tensor.Rows;
+            var columns = tensor.Columns;
+            var count = tensor.Count;
             var xExtent = (columns - filterWidth) / stride + 1;
             var yExtent = (rows - filterHeight) / stride + 1;
             var filterSize = filterHeight * filterWidth;
             var newColumns = filterSize * depth;
             var newRows = xExtent * yExtent;
 
-            var ret = Allocate(newColumns * newRows);
-            using (var devicePtr = new CudaDeviceVariable<CUdeviceptr>(depth)) {
-                devicePtr.CopyToDevice(matrixList.Select(m => m.DevicePointer).ToArray());
-                _Use(_tensorIm2Col, newRows, newColumns, k => k.Run(0, devicePtr.DevicePointer, ret.DevicePointer, rows, columns, newRows, newColumns, depth, filterWidth, filterHeight, stride));
+            var ret = new MatrixOutput(this, newRows, newColumns, count, false);
+            try {
+                using (var input = tensor.GetDeviceMemoryPtr())
+                using (var output = ret.GetDeviceMemoryPtr()) {
+                    _Use(_tensorIm2Col, newRows * count, newColumns, k => k.Run(0, input.DevicePointer, output.DevicePointer, count, rows, columns, newRows, newColumns, depth, filterWidth, filterHeight, stride));
+                }
+            }catch {
+                ret.Dispose();
+                throw;
             }
-            return Tuple.Create(ret, newRows, newColumns);
+            return ret;
         }
 
-        internal IReadOnlyList<IDeviceMemoryPtr> TensorReverseIm2Col(IReadOnlyList<IDeviceMemoryPtr> matrixList, IReadOnlyList<IReadOnlyList<IDeviceMemoryPtr>> filterList, int rows, int columns, int inputHeight, int inputWidth, int inputDepth, int padding, int filterHeight, int filterWidth, int stride)
+        internal TensorOutput TensorReverseIm2Col(TensorInput tensor, IReadOnlyList<IReadOnlyList<IDeviceMemoryPtr>> filterList, int inputHeight, int inputWidth, int inputDepth, int padding, int filterHeight, int filterWidth, int stride)
         {
+            var rows = tensor.Rows;
+            var columns = tensor.Columns;
+            var count = tensor.Count;
             var newColumns = inputHeight + padding * 2;
             var newRows = inputWidth + padding * 2;
             var newSize = newColumns * newRows;
-            var depth = matrixList.Count;
+            var depth = tensor.Depth;
 
-            var ret = new List<IDeviceMemoryPtr>();
+            var ret = new TensorOutput(this, newRows * newColumns, inputDepth, depth, count, true);
             var filterList2 = new List<CudaDeviceVariable<CUdeviceptr>>();
             for (var i = 0; i < depth; i++) {
-                ret.Add(Allocate(newColumns * newRows * inputDepth, true));
                 var filters = filterList[i];
                 var filterDevicePtr = new CudaDeviceVariable<CUdeviceptr>(inputDepth);
                 filterDevicePtr.CopyToDevice(filters.Select(m => m.DevicePointer).ToArray());
                 filterList2.Add(filterDevicePtr);
             }
-            using (var outputDevicePtr = new CudaDeviceVariable<CUdeviceptr>(depth))
-            using (var inputDevicePtr = new CudaDeviceVariable<CUdeviceptr>(depth))
+            using (var output = ret.GetDeviceMemoryPtr())
+            using (var input = tensor.GetDeviceMemoryPtr())
             using (var filterDevicePtr = new CudaDeviceVariable<CUdeviceptr>(depth)) {
                 filterDevicePtr.CopyToDevice(filterList2.Select(m => m.DevicePointer).ToArray());
-                inputDevicePtr.CopyToDevice(matrixList.Select(m => m.DevicePointer).ToArray());
-                outputDevicePtr.CopyToDevice(ret.Select(m => m.DevicePointer).ToArray());
-                _Use(_tensorReverseIm2Col, rows * depth * inputDepth, columns, k => k.Run(0, 
-                    inputDevicePtr.DevicePointer, 
+                _Use(_tensorReverseIm2Col, rows * depth * inputDepth * count, columns, k => k.Run(0, 
+                    input.DevicePointer, 
                     filterDevicePtr.DevicePointer, 
-                    outputDevicePtr.DevicePointer,
+                    output.DevicePointer,
+                    count,
                     rows,
                     columns, 
                     depth, 
@@ -872,9 +887,6 @@ namespace BrightWire.LinearAlgebra
                 item.Dispose();
             return ret;
         }
-
-        internal CudaContext Context { get { return _cuda; } }
-        internal CudaBlas Blas { get { return _blas; } }
 
         public IVector CreateVector(IEnumerable<float> data)
         {
@@ -905,6 +917,18 @@ namespace BrightWire.LinearAlgebra
             return new GpuMatrix(this, rows, columns, init);
         }
 
+        public IMatrix CreateZeroMatrix(int rows, int columns)
+        {
+            var data = Allocate(rows * columns, true);
+            return new GpuMatrix(this, rows, columns, data);
+        }
+
+        public IMatrix CreateMatrix(int rows, int columns)
+        {
+            var data = Allocate(rows * columns);
+            return new GpuMatrix(this, rows, columns, data);
+        }
+
         public void PushLayer()
         {
             _cache.PushLayer();
@@ -927,6 +951,11 @@ namespace BrightWire.LinearAlgebra
         {
             var first = data.First();
             return new Gpu3DTensor(this, first.RowCount, first.ColumnCount, data.Count, data.Cast<GpuMatrix>().ToList());
+        }
+
+        public I4DTensor CreateTensor(IReadOnlyList<FloatTensor> data)
+        {
+            return new Gpu4DTensor(this, data);
         }
 
         public void BindThread()

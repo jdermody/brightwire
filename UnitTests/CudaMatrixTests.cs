@@ -303,7 +303,7 @@ namespace UnitTests
         public void MatrixColumn()
         {
             const int INDEX = 7;
-            var a = _cpu.CreateMatrix(13, 17, (j, k) => j * k).AsIndexable();
+            var a = _cpu.CreateMatrix(13, 17, (j, k) => (j+1) * (k+1)).AsIndexable();
             var row = a.Column(INDEX).AsIndexable();
 
             IIndexableVector gpuResults;
@@ -947,7 +947,7 @@ namespace UnitTests
         [TestMethod]
         public void MatrixSvd()
         {
-            var a = _cpu.CreateMatrix(2, 2, 0f).AsIndexable();
+            var a = _cpu.CreateZeroMatrix(2, 2).AsIndexable();
             a[0, 0] = 4;
             a[0, 1] = 7;
             a[1, 0] = 2;

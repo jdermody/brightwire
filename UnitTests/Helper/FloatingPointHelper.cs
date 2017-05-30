@@ -43,6 +43,13 @@ namespace UnitTests.Helper
                 AssertEqual(t1.Matrix[i], t2.Matrix[i]);
         }
 
+        public static void AssertEqual(IReadOnlyList<IIndexable3DTensor> t1, IReadOnlyList<IIndexable3DTensor> t2, int maxDifference = 6)
+        {
+            Assert.AreEqual(t1.Count, t2.Count);
+            for (var i = 0; i < t1.Count; i++)
+                AssertEqual(t1[i], t2[i]);
+        }
+
         public static void AssertEqual(IIndexableMatrix m1, IIndexableMatrix m2, int maxDifference = 6)
         {
             Assert.AreEqual(m1.RowCount, m2.RowCount);

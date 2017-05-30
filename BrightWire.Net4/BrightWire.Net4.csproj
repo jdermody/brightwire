@@ -208,6 +208,7 @@
       <DependentUpon>Interface.cs</DependentUpon>
     </Compile>
     <Compile Include="LinearAlgebra\Cpu3DTensor.cs" />
+    <Compile Include="LinearAlgebra\Cpu4DTensor.cs" />
     <Compile Include="LinearAlgebra\CpuMatrix.cs" />
     <Compile Include="LinearAlgebra\CPUProvider.cs" />
     <Compile Include="LinearAlgebra\CpuVector.cs" />

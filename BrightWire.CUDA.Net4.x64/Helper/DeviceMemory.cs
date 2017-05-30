@@ -41,7 +41,7 @@ namespace BrightWire.CUDA.Helper
 #endif
             }
 #if DEBUG
-            ~Ptr()
+            ~Block()
             {
                 if (!_disposed)
                     Debug.WriteLine("\tMemory Block {0} was not disposed !!", _index);

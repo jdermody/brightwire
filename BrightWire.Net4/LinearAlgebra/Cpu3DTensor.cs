@@ -12,13 +12,12 @@ namespace BrightWire.LinearAlgebra
     internal class Cpu3DTensor : IIndexable3DTensor
     {
         readonly CpuMatrix[] _data;
-        readonly int _rows, _columns, _depth;
+        readonly int _rows, _columns;
 
         public Cpu3DTensor(int rows, int columns, int depth)
         {
             _rows = rows;
             _columns = columns;
-            _depth = depth;
             _data = Enumerable.Range(0, depth)
                 .Select(i => new CpuMatrix(DenseMatrix.Create(_rows, _columns, 0f)))
                 .ToArray()
@@ -31,7 +30,6 @@ namespace BrightWire.LinearAlgebra
             Debug.Assert(matrixList.All(m => m.RowCount == first.RowCount && m.ColumnCount == first.ColumnCount));
             _rows = first.RowCount;
             _columns = first.ColumnCount;
-            _depth = matrixList.Count;
             _data = matrixList.Cast<CpuMatrix>().ToArray();
         }
 
@@ -40,17 +38,6 @@ namespace BrightWire.LinearAlgebra
             // nop
         }
 
-        public int AddRef()
-        {
-            // nop
-            return 1;
-        }
-
-        public int Release()
-        {
-            // nop
-            return 1;
-        }
         public float this[int row, int column, int depth]
         {
             get
@@ -85,7 +72,7 @@ namespace BrightWire.LinearAlgebra
         }
 
         public IReadOnlyList<IIndexableMatrix> Matrix => _data;
-        public int Depth => _depth;
+        public int Depth => _data.Length;
         public int RowCount => _rows;
         public int ColumnCount => _columns;
         public IMatrix GetMatrixAt(int depth) => _data[depth];
@@ -96,11 +83,11 @@ namespace BrightWire.LinearAlgebra
         {
             var newRows = _rows + padding * 2;
             var newColumns = _columns + padding * 2;
-            var ret = new Cpu3DTensor(newRows, newColumns, _depth);
+            var ret = new Cpu3DTensor(newRows, newColumns, Depth);
 
-            for (var k = 0; k < _depth; k++) {
-                for (var j = 0; j < newRows; j++) {
-                    for (var i = 0; i < newColumns; i++) {
+            for (var k = 0; k < Depth; k++) {
+                for (var i = 0; i < newRows; i++) {
+                    for (var j = 0; j < newColumns; j++) {
                         if (i < padding || j < padding)
                             continue;
                         else if (i >= newRows - padding || j >= newColumns - padding)
@@ -116,10 +103,10 @@ namespace BrightWire.LinearAlgebra
         {
             var newRows = _rows - padding * 2;
             var newColumns = _columns - padding * 2;
-            var ret = new Cpu3DTensor(newRows, newColumns, _depth);
-            for (var k = 0; k < _depth; k++) {
-                for (var j = 0; j < newRows; j++) {
-                    for (var i = 0; i < newColumns; i++) {
+            var ret = new Cpu3DTensor(newRows, newColumns, Depth);
+            for (var k = 0; k < Depth; k++) {
+                for (var i = 0; i < newRows; i++) {
+                    for (var j = 0; j < newColumns; j++) {
                         ret[i, j, k] = this[i + padding, j + padding, k];
                     }
                 }
@@ -133,9 +120,9 @@ namespace BrightWire.LinearAlgebra
             var convolutions = ConvolutionHelper.Default(ColumnCount, RowCount, filterWidth, filterHeight, stride);
 
             foreach (var filter in convolutions) {
-                var row = new float[filter.Length * _depth];
+                var row = new float[filter.Length * Depth];
                 int index = 0;
-                for (var k = 0; k < _depth; k++) {
+                for (var k = 0; k < Depth; k++) {
                     foreach (var item in filter)
                         row[index++] = this[item.Y, item.X, k];
                 }
@@ -149,7 +136,7 @@ namespace BrightWire.LinearAlgebra
         {
             var vectorList = _data.Select(m => m.ConvertInPlaceToVector().AsIndexable()).ToArray();
             var size = _rows * _columns;
-            var ret = DenseVector.Create(_depth * size, i => {
+            var ret = DenseVector.Create(Depth * size, i => {
                 var offset = i / size;
                 var index = i % size;
                 return vectorList[offset][index];
@@ -159,7 +146,7 @@ namespace BrightWire.LinearAlgebra
 
         public IMatrix ConvertToMatrix()
         {
-            var ret = DenseMatrix.Create(_rows * _columns, _depth, (i, j) => {
+            var ret = DenseMatrix.Create(_rows * _columns, Depth, (i, j) => {
                 var matrix = _data[j];
                 var x = i / _columns;
                 var y = i % _columns;
@@ -344,6 +331,29 @@ namespace BrightWire.LinearAlgebra
                 return new CpuMatrix(ret2);
             } else
                 return new CpuMatrix(ret.First());
+        }
+
+        public IMatrix CombineDepthSlices()
+        {
+            var ret = new CpuMatrix(DenseMatrix.Create(_rows, _columns, 0f));
+            for (var i = 0; i < Depth; i++)
+                ret.AddInPlace(GetMatrixAt(i));
+            return ret;
+        }
+
+        public void AddInPlace(I3DTensor tensor)
+        {
+            var other = (Cpu3DTensor)tensor;
+            for (var i = 0; i < Depth; i++)
+                _data[i].AddInPlace(other.GetMatrixAt(i));
+        }
+
+        public I3DTensor Multiply(IMatrix matrix)
+        {
+            var ret = new List<IMatrix>();
+            foreach (var item in _data)
+                ret.Add(item.Multiply(matrix));
+            return new Cpu3DTensor(ret);
         }
     }
 }

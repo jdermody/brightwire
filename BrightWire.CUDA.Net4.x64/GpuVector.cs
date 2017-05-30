@@ -283,20 +283,22 @@ namespace BrightWire.LinearAlgebra
             _cuda.SubtractInPlace(_data, other._data, Count, coefficient1, coefficient2);
         }
 
-        public IMatrix ToColumnMatrix(int numCols = 1)
+        public IMatrix ToColumnMatrix()
         {
             Debug.Assert(IsValid);
-            var ret = _cuda.Allocate(_data.Size);
-            ret.CopyToDevice(_data);
-            return new GpuMatrix(_cuda, Count, 1, ret);
+            //var ret = _cuda.Allocate(_data.Size);
+            //ret.CopyToDevice(_data);
+            //return new GpuMatrix(_cuda, Count, 1, ret);
+            return new GpuMatrix(_cuda, Count, 1, _data);
         }
 
-        public IMatrix ToRowMatrix(int numRows = 1)
+        public IMatrix ToRowMatrix()
         {
             Debug.Assert(IsValid);
-            var ret = _cuda.Allocate(_data.Size);
-            ret.CopyToDevice(_data);
-            return new GpuMatrix(_cuda, 1, Count, ret);
+            //var ret = _cuda.Allocate(_data.Size);
+            //ret.CopyToDevice(_data);
+            //return new GpuMatrix(_cuda, 1, Count, ret);
+            return new GpuMatrix(_cuda, 1, Count, _data);
         }
 
         public float EuclideanDistance(IVector vector)
@@ -487,33 +489,41 @@ namespace BrightWire.LinearAlgebra
         {
             Debug.Assert(IsValid);
             var blockSize = Count / blockCount;
-            var ret = Enumerable.Range(0, blockCount)
-                .Select(i => _cuda.Allocate(blockSize))
-                .ToList()
-            ;
-            using (var devicePtr = new CudaDeviceVariable<CUdeviceptr>(blockCount)) {
-                devicePtr.CopyToDevice(ret.Select(p => p.DevicePointer).ToArray());
-                _cuda.VectorSplit(_data, Count, blockSize, devicePtr.DevicePointer);
-            }
-            return ret.Select(d => new GpuVector(_cuda, d)).ToList();
+            var ptr = _data.DevicePointer.Pointer;
+            var size = blockSize * sizeof(float);
+            return Enumerable.Range(0, blockCount).Select(i => {
+                var offset = (size * i);
+                var ptr2 = new PtrToMemory(_cuda.Context, new CUdeviceptr(ptr + offset), size);
+                return new GpuVector(_cuda, ptr2);
+            }).ToList();
+            //var ret = Enumerable.Range(0, blockCount)
+            //    .Select(i => _cuda.Allocate(blockSize))
+            //    .ToList()
+            //;
+            //using (var devicePtr = new CudaDeviceVariable<CUdeviceptr>(blockCount)) {
+            //    devicePtr.CopyToDevice(ret.Select(p => p.DevicePointer).ToArray());
+            //    _cuda.VectorSplit(_data, Count, blockSize, devicePtr.DevicePointer);
+            //}
+            //return ret.Select(d => new GpuVector(_cuda, d)).ToList();
         }
 
         public IMatrix SoftmaxDerivative()
         {
+            Debug.Assert(IsValid);
             var ret = _cuda.VectorSoftmaxDerivative(_data, Count);
             return new GpuMatrix(_cuda, Count, Count, ret);
         }
 
         public IVector Rotate(int blockCount)
         {
+            Debug.Assert(IsValid);
             var ret = _cuda.Rotate(_data, Count, blockCount);
             return new GpuVector(_cuda, ret);
-            // TODO: native cuda implementation
-            //return _cuda.CreateVector(AsIndexable().Rotate(blockCount).AsIndexable());
         }
 
         public IVector Reverse()
         {
+            Debug.Assert(IsValid);
             var ret = _cuda.Reverse(_data, Count);
             return new GpuVector(_cuda, ret);
         }

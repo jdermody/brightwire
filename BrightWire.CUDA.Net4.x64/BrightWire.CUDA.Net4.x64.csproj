@@ -64,11 +64,16 @@
   <ItemGroup>
     <Compile Include="CudaProvider.cs" />
     <Compile Include="Gpu3DTensor.cs" />
+    <Compile Include="Gpu4DTensor.cs" />
     <Compile Include="GpuMatrix.cs" />
     <Compile Include="BrightWireGPUProvider.cs" />
     <Compile Include="GpuVector.cs" />
     <Compile Include="Helper\DeviceMemory.cs" />
+    <Compile Include="Helper\DeviceMemoryPtrList.cs" />
+    <Compile Include="Helper\MatrixOutput.cs" />
     <Compile Include="Helper\PtrToMemory.cs" />
+    <Compile Include="Helper\TensorInput.cs" />
+    <Compile Include="Helper\TensorOutput.cs" />
     <Compile Include="Helper\ThreadSafeHashSet.cs" />
     <Compile Include="Interface.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

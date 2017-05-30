@@ -125,14 +125,14 @@ namespace BrightWire.LinearAlgebra
             _vector.MapIndexedInplace((i, v) => (v * coefficient1) - (other[i] * coefficient2));
         }
 
-        public IMatrix ToColumnMatrix(int numCols = 1)
+        public IMatrix ToColumnMatrix()
         {
-            return new CpuMatrix(DenseMatrix.Create(_vector.Count, numCols, (x, y) => _vector[x]));
+            return new CpuMatrix(DenseMatrix.Create(_vector.Count, 1, (x, y) => _vector[x]));
         }
 
-        public IMatrix ToRowMatrix(int numRows = 1)
+        public IMatrix ToRowMatrix()
         {
-            return new CpuMatrix(DenseMatrix.Create(numRows, _vector.Count, (x, y) => _vector[y]));
+            return new CpuMatrix(DenseMatrix.Create(1, _vector.Count, (x, y) => _vector[y]));
         }
 
         public override string ToString()

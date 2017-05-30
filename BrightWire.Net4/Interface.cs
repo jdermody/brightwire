@@ -6,5 +6,5 @@ using System.Threading.Tasks;
 
 namespace BrightWire
 {
-    
+    // all declarations in nested files...
 }

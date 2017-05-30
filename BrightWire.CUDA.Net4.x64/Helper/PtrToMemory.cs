@@ -11,10 +11,12 @@ namespace BrightWire.CUDA.Helper
     class PtrToMemory : IDeviceMemoryPtr
     {
         readonly CudaDeviceVariable<float> _ptr;
+        readonly CudaContext _context;
 
-        public PtrToMemory(CUdeviceptr ptr, SizeT size)
+        public PtrToMemory(CudaContext context, CUdeviceptr ptr, SizeT size)
         {
-            _ptr = new CudaDeviceVariable<float>(ptr, false, size);
+            _context = context;
+            _ptr = new CudaDeviceVariable<float>(ptr, size);
         }
 
         public CudaDeviceVariable<float> DeviceVariable => _ptr;
@@ -23,22 +25,22 @@ namespace BrightWire.CUDA.Helper
 
         public void Clear()
         {
-            _ptr.Memset(0);
+            _context.ClearMemory(_ptr.DevicePointer, 0, _ptr.SizeInBytes);
         }
 
         public void CopyToDevice(float[] source)
         {
-            _ptr.CopyToDevice(source);
+            throw new Exception("Tried to update read only memory - try cloning the the object to create a new copy");
         }
 
         public void CopyToDevice(IDeviceMemoryPtr source)
         {
-            _ptr.CopyToDevice(source.DeviceVariable);
+            throw new Exception("Tried to update read only memory - try cloning the the object to create a new copy");
         }
 
         public void CopyToHost(float[] target)
         {
-            _ptr.CopyToDevice(target);
+            _context.CopyToHost<float>(target, _ptr.DevicePointer);
         }
 
         public void Free()
