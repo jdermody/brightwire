@@ -476,12 +476,14 @@ namespace BrightWire.TabularData
             }
         }
 
-        public IReadOnlyList<(IRow Row, string Classification)> Classify(IRowClassifier classifier)
+        public IReadOnlyList<(IRow Row, string Classification)> Classify(IRowClassifier classifier, Action<float> progress = null)
         {
             var ret = new List<(IRow, string)>();
+            float total = RowCount;
             _Iterate((row, i) => {
                 var bestClassification = classifier.Classify(row).GetBestClassification();
                 ret.Add((row, bestClassification));
+                progress?.Invoke(i / total);
                 return true;
             });
             return ret;

@@ -85,7 +85,6 @@ namespace BrightWire.SampleCode
             //TextClustering(@"D:\data\[UCI] AAAI-14 Accepted Papers - Papers.csv", @"d:\temp\");
             //IntegerAddition();
             //ReberPrediction();
-            //IncomePrediction(@"d:\data\adult.data", @"d:\data\adult.test");
             //OneToMany();
             //ManyToOne();
             //SequenceToSequence();

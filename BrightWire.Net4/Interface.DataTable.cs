@@ -397,7 +397,7 @@ namespace BrightWire
         /// Classifies each row
         /// </summary>
         /// <param name="classifier">The classifier to use</param>
-        IReadOnlyList<(IRow Row, string Classification)> Classify(IRowClassifier classifier);
+        IReadOnlyList<(IRow Row, string Classification)> Classify(IRowClassifier classifier, Action<float> progress = null);
 
         /// <summary>
         /// Creates a new data table with the specified columns

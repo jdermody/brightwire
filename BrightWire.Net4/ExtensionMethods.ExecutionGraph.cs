@@ -41,6 +41,11 @@ namespace BrightWire
             }
         }
 
+        public static IReadOnlyList<(IRow Row, string Classification)> Classifiy(this IRowClassifier classifier, IDataTable dataTable)
+        {
+            return dataTable.Classify(classifier, percentage => Console.Write("\r({0:P}) ", percentage));
+        }
+
         //public static IGraphData ToGraphData(this IMatrix matrix)
         //{
         //    return new MatrixGraphData(matrix);
