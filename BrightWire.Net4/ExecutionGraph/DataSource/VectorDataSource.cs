@@ -33,7 +33,7 @@ namespace BrightWire.ExecutionGraph.DataSource
         {
             var data = rows.Select(i => _data[i]).ToList();
             var input = _lap.CreateMatrix(data.Count, InputSize, (x, y) => data[x].Data[y]);
-            return new MiniBatch(rows, this, input, null);
+            return new MiniBatch(rows, this, new MatrixGraphData(input), null);
         }
 
         public IReadOnlyList<IReadOnlyList<int>> GetBuckets()

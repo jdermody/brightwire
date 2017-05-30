@@ -184,7 +184,7 @@ namespace BrightWire.SampleCode
                     .AddGru(decoderMemory, "decoder")
                     .WriteNodeMemoryToSlot("shared-memory", wb2.Find("decoder") as IHaveMemoryNode)
                     .AddFeedForward(trainingData.OutputSize)
-                    .Add(graph.SoftMaxActivation())
+                    //.Add(graph.SoftMaxActivation())
                     .AddBackpropagationThroughTime(errorMetric)
                 ;
 

@@ -178,6 +178,10 @@ namespace BrightWire.ExecutionGraph
                 else if (column1 == ColumnType.Matrix && column2 == ColumnType.Vector)
                     return new ManyToOneDataTableAdaptor(_lap, dataTable);
 
+                // volume classification
+                else if (column1 == ColumnType.Tensor && column2 == ColumnType.Vector)
+                    return new TensorBasedDataTableAdaptor(_lap, dataTable);
+
                 // index list
                 else if (column1 == ColumnType.IndexList)
                     return new IndexListDataTableAdaptor(_lap, dataTable, vectoriser);
@@ -198,12 +202,8 @@ namespace BrightWire.ExecutionGraph
                 var column1 = columns[0].Type;
                 var column2 = columns[1].Type;
 
-                // volume classification
-                if (column1 == ColumnType.Tensor && column2 == ColumnType.Vector)
-                    return new TensorBasedDataTableAdaptor(_lap, learningContext, this, dataTable, dataConversionBuilder);
-
                 // sequence to sequence
-                else if (column1 == ColumnType.Matrix && column2 == ColumnType.Matrix)
+                if (column1 == ColumnType.Matrix && column2 == ColumnType.Matrix)
                     return new SequenceToSequenceDataTableAdaptor(_lap, learningContext, this, dataTable, dataConversionBuilder);
             }
             throw new ArgumentException($"{nameof(dataTable)} does not contain a recognised data format");
@@ -390,7 +390,7 @@ namespace BrightWire.ExecutionGraph
         public INode ReluActivation(string name = null) => new Relu(name);
         public INode SigmoidActivation(string name = null) => new Sigmoid(name);
         public INode TanhActivation(string name = null) => new Tanh(name);
-        public INode SoftMaxActivation(string name = null) => new SoftMax(name);
+        //public INode SoftMaxActivation(string name = null) => new SoftMax(name);
 
         public IWeightInitialisation ConstantWeightInitialisation(float biasValue = 0f, float weightValue = 1f) => new Constant(_lap, biasValue, weightValue);
         public IWeightInitialisation GaussianWeightInitialisation(bool zeroBias = true, float stdDev = 0.1f) => new Gaussian(_lap, zeroBias, stdDev);

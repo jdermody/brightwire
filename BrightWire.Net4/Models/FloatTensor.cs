@@ -107,6 +107,27 @@ namespace BrightWire.Models
 
         public int Size => Depth * RowCount * ColumnCount;
 
+        public float[] GetAsRaw()
+        {
+            var data = new float[Size];
+            int blockSize = Size / Depth;
+            int k = 0;
+            foreach(var matrix in Matrix) {
+                int i = 0;
+                int rowCount = matrix.RowCount;
+                foreach(var row in matrix.Row) {
+                    int j = 0;
+                    foreach(var item in row.Data) {
+                        data[(j * rowCount + i) + (k * blockSize)] = item;
+                        ++j;
+                    }
+                    ++i;
+                }
+                ++k;
+            }
+            return data;
+        }
+
         public bool IsEqualTo(FloatTensor tensor, IEqualityComparer<float> comparer = null)
         {
             if (tensor == null || RowCount != tensor.RowCount || ColumnCount != tensor.ColumnCount || Depth != tensor.Depth)

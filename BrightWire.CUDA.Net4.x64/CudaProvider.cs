@@ -958,6 +958,16 @@ namespace BrightWire.LinearAlgebra
             return new Gpu4DTensor(this, data);
         }
 
+        public I4DTensor CreateTensor(IMatrix tensorAsMatrix, int rows, int columns, int depth)
+        {
+            return new Gpu4DTensor(this, tensorAsMatrix, rows, columns, depth);
+        }
+
+        public I4DTensor CreateTensor(IReadOnlyList<I3DTensor> tensorList)
+        {
+            return new Gpu4DTensor(this, tensorList);
+        }
+
         public void BindThread()
         {
             _cuda.SetCurrent();

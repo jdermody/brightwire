@@ -20,7 +20,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
             var batch = curr.MiniBatch;
             var reversed = batch.GetSequenceAtIndex(batch.SequenceCount - curr.SequenceIndex - 1).Input;
 
-            context.AddForward(new TrainingAction(this, new MatrixGraphData(reversed), context.Source), null);
+            context.AddForward(new TrainingAction(this, reversed, context.Source), null);
         }
     }
 }

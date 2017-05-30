@@ -13,16 +13,17 @@ namespace BrightWire.ExecutionGraph.Node.Filter
     {
         class Backpropagation : SingleBackpropagationBase<DropOut>
         {
-            readonly IReadOnlyList<IMatrix> _filter;
+            readonly IMatrix _filter;
 
-            public Backpropagation(DropOut source, IReadOnlyList<IMatrix> filter) : base(source)
+            public Backpropagation(DropOut source, IMatrix filter) : base(source)
             {
                 _filter = filter;
             }
 
             protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
-                return context.ToGraphData(errorSignal.Decompose().Zip(_filter, (e, f) => e.PointwiseMultiply(f)));
+                var output = errorSignal.GetMatrix().PointwiseMultiply(_filter);
+                return errorSignal.ReplaceWith(output);
             }
         }
         float _dropOutPercentage;
@@ -39,22 +40,16 @@ namespace BrightWire.ExecutionGraph.Node.Filter
             if (context.IsTraining) {
                 // drop out random neurons during training
                 var lap = context.LinearAlgebraProvider;
-                var filterList = new List<IMatrix>();
-                var outputList = new List<IMatrix>();
-                foreach (var matrix in context.Data.Decompose()) {
-                    var filter = lap.CreateMatrix(matrix.RowCount, matrix.ColumnCount, (i, j) => _probabilityToDrop.Sample() == 1 ? 0f : 1f);
-                    outputList.Add(matrix.PointwiseMultiply(filter));
-                    filterList.Add(filter);
-                }
-                _AddNextGraphAction(context, context.ToGraphData(outputList), () => new Backpropagation(this, filterList));
+                var matrix = context.Data.GetMatrix();
+                var filter = lap.CreateMatrix(matrix.RowCount, matrix.ColumnCount, (i, j) => _probabilityToDrop.Sample() == 1 ? 0f : 1f);
+                var output = matrix.PointwiseMultiply(filter);
+                _AddNextGraphAction(context, context.Data.ReplaceWith(output), () => new Backpropagation(this, filter));
             } else {
                 // otherwise scale by the drop out percentage
                 var scaleFactor = 1 - _dropOutPercentage;
-                var matrixList = context.Data.Decompose();
-                foreach (var matrix in matrixList)
-                    matrix.Multiply(scaleFactor);
-                var scaled = context.ToGraphData(matrixList);
-                _AddNextGraphAction(context, scaled, null);
+                var matrix = context.Data.GetMatrix();
+                matrix.Multiply(scaleFactor);
+                _AddNextGraphAction(context, context.Data, null);
             }
         }
 

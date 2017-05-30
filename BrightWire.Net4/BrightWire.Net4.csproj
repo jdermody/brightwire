@@ -125,9 +125,8 @@
     <Compile Include="ExecutionGraph\GradientDescent\Simple.cs" />
     <Compile Include="ExecutionGraph\GraphFactory.cs" />
     <Compile Include="ExecutionGraph\Helper\MatrixTensorGraphData.cs" />
-    <Compile Include="ExecutionGraph\Helper\TensorGraphData.cs" />
     <Compile Include="ExecutionGraph\Helper\TrainingAction.cs" />
-    <Compile Include="ExecutionGraph\Helper\MatrixGraphData.cs" />
+    <Compile Include="ExecutionGraph\Helper\GraphData.cs" />
     <Compile Include="ExecutionGraph\Helper\MiniBatch.cs" />
     <Compile Include="ExecutionGraph\Helper\SingleBackpropagationBase.cs" />
     <Compile Include="ExecutionGraph\Engine\TrainingEngineContext.cs" />
@@ -155,6 +154,7 @@
     <Compile Include="ExecutionGraph\Node\Helper\OneMinusInput.cs" />
     <Compile Include="ExecutionGraph\Node\Helper\RestoreErrorSignal.cs" />
     <Compile Include="ExecutionGraph\Node\Helper\RowClassifier.cs" />
+    <Compile Include="ExecutionGraph\Node\Helper\TransposeSignal.cs" />
     <Compile Include="ExecutionGraph\Node\Input\FlowThrough.cs" />
     <Compile Include="ExecutionGraph\Node\Input\MemoryFeeder.cs" />
     <Compile Include="ExecutionGraph\Node\Input\OneToMany.cs" />

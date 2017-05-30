@@ -11,20 +11,26 @@ namespace BrightWire.ExecutionGraph.Node.Layer
     {
         class Backpropagation : SingleBackpropagationBase<MaxPool>
         {
-            readonly IReadOnlyList<(object X, object Y)> _indexList;
-            readonly int _columns, _rows;
+            readonly IReadOnlyList<IReadOnlyList<(object X, object Y)>> _indexList;
+            readonly int _inputColumns, _inputRows, _outputColumns, _outputRows, _depth;
 
-            public Backpropagation(MaxPool source, IReadOnlyList<(object X, object Y)> indexList, int columns, int rows)
+            public Backpropagation(MaxPool source, IReadOnlyList<IReadOnlyList<(object X, object Y)>> indexList, int inputColumns, int inputRows, int outputColumns, int outputRows, int depth)
                 : base(source)
             {
                 _indexList = indexList;
-                _columns = columns;
-                _rows = rows;
+                _inputColumns = inputColumns;
+                _inputRows = inputRows;
+                _outputColumns = outputColumns;
+                _outputRows = outputRows;
+                _depth = depth;
             }
 
             protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
-                return errorSignal.GetTensor().ReverseMaxPool(_rows, _columns, _indexList).ToGraphData();
+                var lap = context.LinearAlgebraProvider;
+                var tensor = lap.CreateTensor(errorSignal.GetMatrix(), _outputRows, _outputColumns, _depth);
+                var output = tensor.ReverseMaxPool(_inputRows, _inputColumns, _indexList);
+                return new Tensor4DGraphData(output.ConvertToMatrix(), output.RowCount, output.ColumnCount, output.Depth);
             }
         }
         readonly int _width, _height, _stride;
@@ -38,11 +44,14 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
         public override void ExecuteForward(IContext context)
         {
-            var tensor = context.Data.GetTensor();
+            var input = context.Data;
+            var lap = context.LinearAlgebraProvider;
+            var tensor = lap.CreateTensor(input.GetMatrix(), input.Rows, input.Columns, input.Depth);
+
             (var output, var index) = tensor.MaxPool(_width, _height, _stride, context.IsTraining);
 
-            var graphData = new TensorGraphData(output);
-            _AddNextGraphAction(context, graphData, () => new Backpropagation(this, index, tensor.ColumnCount, tensor.RowCount));
+            var graphData = new Tensor4DGraphData(output);
+            _AddNextGraphAction(context, graphData, () => new Backpropagation(this, index, tensor.ColumnCount, tensor.RowCount, output.ColumnCount, output.RowCount, output.Depth));
         }
     }
 }

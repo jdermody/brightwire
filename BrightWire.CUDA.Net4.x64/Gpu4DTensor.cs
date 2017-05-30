@@ -251,5 +251,7 @@ namespace BrightWire.LinearAlgebra
                 matrixList.Add(ret.GetAt(i).CombineDepthSlices());
             return new Gpu3DTensor(_cuda, ret.Rows, ret.Columns, matrixList.Count, matrixList.Cast<GpuMatrix>().ToList());
         }
+
+        public IMatrix ConvertToMatrix() => _data;
     }
 }

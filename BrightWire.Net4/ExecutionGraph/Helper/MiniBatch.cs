@@ -11,8 +11,8 @@ namespace BrightWire.ExecutionGraph.Helper
             public IMiniBatch MiniBatch { get; set; }
             public int SequenceIndex { get; set; }
             public MiniBatchType Type { get; set; }
-            public IMatrix Input { get; set; }
-            public IMatrix Target { get; set; }
+            public IGraphData Input { get; set; }
+            public IGraphData Target { get; set; }
         }
         readonly List<MiniBatchSequence> _sequence = new List<MiniBatchSequence>();
         readonly IReadOnlyList<int> _rows;
@@ -20,7 +20,7 @@ namespace BrightWire.ExecutionGraph.Helper
         readonly bool _isSequential;
         int _index = 0;
 
-        public MiniBatch(IReadOnlyList<int> rows, IDataSource dataSource, IMatrix input, IMatrix output) : this(rows, dataSource)
+        public MiniBatch(IReadOnlyList<int> rows, IDataSource dataSource, IGraphData input, IGraphData output) : this(rows, dataSource)
         {
             _isSequential = false;
             _sequence.Add(new MiniBatchSequence {
@@ -39,7 +39,7 @@ namespace BrightWire.ExecutionGraph.Helper
             _dataSource = dataSource;
         }
 
-        public void Add(MiniBatchType type, IMatrix input, IMatrix output)
+        public void Add(MiniBatchType type, IGraphData input, IGraphData output)
         {
             _sequence.Add(new MiniBatchSequence {
                 Input = input,

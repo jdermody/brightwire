@@ -239,5 +239,11 @@ namespace BrightWire.LinearAlgebra
             var first = ret.First();
             return new Gpu3DTensor(_cuda, first.RowCount, first.ColumnCount, ret.Count, ret);
         }
+
+        public void AddToEachRow(IVector vector)
+        {
+            foreach (var item in _data)
+                item.AddToEachRow(vector);
+        }
     }
 }

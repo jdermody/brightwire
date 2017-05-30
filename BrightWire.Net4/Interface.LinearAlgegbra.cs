@@ -56,6 +56,9 @@ namespace BrightWire
 
         I4DTensor CreateTensor(IReadOnlyList<FloatTensor> data);
 
+        I4DTensor CreateTensor(IMatrix tensorAsMatrix, int rows, int columns, int depth);
+        I4DTensor CreateTensor(IReadOnlyList<I3DTensor> tensorList);
+
         /// <summary>
         /// Creates a save point in the allocation history
         /// </summary>
@@ -878,6 +881,7 @@ namespace BrightWire
         IMatrix CombineDepthSlices();
         void AddInPlace(I3DTensor tensor);
         I3DTensor Multiply(IMatrix matrix);
+        void AddToEachRow(IVector vector);
     }
 
     /// <summary>
@@ -938,5 +942,6 @@ namespace BrightWire
         I4DTensor ReverseMaxPool(int rows, int columns, IReadOnlyList<IReadOnlyList<(object X, object Y)>> indexList);
         I3DTensor Im2Col(int filterWidth, int filterHeight, int stride);
         I3DTensor ReverseIm2Col(IReadOnlyList<IReadOnlyList<IVector>> filter, int inputHeight, int inputWidth, int inputDepth, int padding, int filterHeight, int filterWidth, int stride);
+        IMatrix ConvertToMatrix();
     }
 }

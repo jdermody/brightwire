@@ -108,8 +108,6 @@ namespace BrightWire
                 var matrix = tensorAsVector.ConvertInPlaceToMatrix(rows, columns);
                 return lap.CreateTensor(new[] { matrix });
             }
-            //var slice = tensorAsVector.Split(depth);
-            //return lap.CreateTensor(slice.Select(v => v.ConvertInPlaceToMatrix(rows, columns)).ToList());
         }
 
         /// <summary>

@@ -41,7 +41,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 learningContext.Store(es, err => _source.UpdateBias(err, learningContext));
                 learningContext.Store(weightUpdate, err => _source._layer.UpdateWeights(err, learningContext));
 
-                return ret.ToGraphData();
+                return errorSignal.ReplaceWith(ret);
             }
         }
         IFeedForward _layer;
@@ -75,7 +75,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             output.AddToEachRow(_bias);
 
             // set output
-            _AddNextGraphAction(context, new MatrixGraphData(output), () => new Backpropagation(this, input));
+            _AddNextGraphAction(context, context.Data.ReplaceWith(output), () => new Backpropagation(this, input));
         }
 
         protected override (string Description, byte[] Data) _GetInfo()

@@ -11,9 +11,9 @@ namespace BrightWire.ExecutionGraph.Activation
     {
         class Backpropagation : SingleBackpropagationBase<Sigmoid>
         {
-            readonly IReadOnlyList<IMatrix> _input;
+            readonly IMatrix _input;
 
-            public Backpropagation(Sigmoid source, IReadOnlyList<IMatrix> matrix) : base(source)
+            public Backpropagation(Sigmoid source, IMatrix matrix) : base(source)
             {
                 _input = matrix;
             }
@@ -26,13 +26,17 @@ namespace BrightWire.ExecutionGraph.Activation
 
             protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
-                return _input.Zip(errorSignal.Decompose(), (i, e) => {
-                    using (var od = i.SigmoidDerivative()) {
-                        var delta = e.PointwiseMultiply(od);
-                        //context.LearningContext.Log("sigmoid-backpropagation", channel, _source.GetHashCode(), errorSignal, delta);
-                        return delta;
-                    }
-                }).ToList().ToGraphData(context.LinearAlgebraProvider);
+                using (var od = _input.SigmoidDerivative()) {
+                    var delta = errorSignal.GetMatrix().PointwiseMultiply(od);
+                    return errorSignal.ReplaceWith(delta);
+                }
+                //return _input.Zip(errorSignal.Decompose(), (i, e) => {
+                //    using (var od = i.SigmoidDerivative()) {
+                //        var delta = e.PointwiseMultiply(od);
+                //        //context.LearningContext.Log("sigmoid-backpropagation", channel, _source.GetHashCode(), errorSignal, delta);
+                //        return delta;
+                //    }
+                //}).ToList().ToGraphData(context.LinearAlgebraProvider);
             }
         }
 
@@ -40,8 +44,8 @@ namespace BrightWire.ExecutionGraph.Activation
 
         public override void ExecuteForward(IContext context)
         {
-            var input = context.Data.Decompose();
-            var output = context.ToGraphData(input.Select(m => m.SigmoidActivation()));
+            var input = context.Data.GetMatrix();
+            var output = context.Data.ReplaceWith(input.SigmoidActivation());
             _AddNextGraphAction(context, output, () => new Backpropagation(this, input));
         }
     }

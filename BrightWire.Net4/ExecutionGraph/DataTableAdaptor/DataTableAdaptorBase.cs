@@ -47,7 +47,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         {
             var input = _lap.CreateMatrix(data.Count, InputSize, (x, y) => data[x].Item1[y]);
             var output = OutputSize > 0 ? _lap.CreateMatrix(data.Count, OutputSize, (x, y) => data[x].Item2[y]) : null;
-            return new MiniBatch(rows, this, input, output);
+            return new MiniBatch(rows, this, new MatrixGraphData(input), new MatrixGraphData(output));
         }
 
         protected IMiniBatch _GetSequentialMiniBatch(IReadOnlyList<int> rows, IReadOnlyList<(FloatMatrix Input, FloatMatrix Output)> data)
@@ -83,7 +83,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
                         ? MiniBatchType.SequenceEnd
                         : MiniBatchType.Standard
                 ;
-                miniBatch.Add(type, input, output);
+                miniBatch.Add(type, new MatrixGraphData(input), new MatrixGraphData(output));
             }
             return miniBatch;
         }

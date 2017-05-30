@@ -18,7 +18,7 @@ namespace BrightWire.ExecutionGraph.Action
         public IGraphData Execute(IGraphData input, IContext context)
         {
             var memory = context.ExecutionContext.GetMemory(_slotName);
-            return input.GetMatrix().ConcatRows(memory).ToGraphData();
+            return input.ReplaceWith(input.GetMatrix().ConcatRows(memory));
         }
 
         public void Initialise(string data)

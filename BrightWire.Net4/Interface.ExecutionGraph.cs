@@ -10,18 +10,15 @@ using System.Threading.Tasks;
 
 namespace BrightWire
 {
-    public enum GraphDataType
-    {
-        Matrix,
-        Tensor
-    }
-
     public interface IGraphData
     {
-        GraphDataType DataType { get; }
+        int Rows { get; }
+        int Columns { get; }
+        int Depth { get; }
+        int Count { get; }
         IMatrix GetMatrix();
-        I3DTensor GetTensor();
         int? RowId { get; }
+        IGraphData ReplaceWith(IMatrix matrix);
     }
 
     public interface IAction
@@ -93,8 +90,8 @@ namespace BrightWire
         void Add(IReadOnlyList<IGraphOperation> operationList);
         ILinearAlgebraProvider LinearAlgebraProvider { get; }
         int RemainingOperationCount { get; }
-        void SetInputTransformation(int id, IMatrix matrix);
-        IMatrix GetInputTransfomation(int id);
+        void SetInputTransformation(int id, I3DTensor matrix);
+        I3DTensor GetInputTransfomation(int id);
     }
 
     public interface IBackpropagation : IDisposable
@@ -132,8 +129,8 @@ namespace BrightWire
         IMiniBatch MiniBatch { get; }
         int SequenceIndex { get; }
         MiniBatchType Type { get; }
-        IMatrix Input { get; }
-        IMatrix Target { get; }
+        IGraphData Input { get; }
+        IGraphData Target { get; }
     }
 
     public interface IMiniBatch

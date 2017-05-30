@@ -24,7 +24,7 @@ namespace BrightWire.ExecutionGraph.Engine
             {
                 _executionContext = executionContext;
                 _miniBatch = miniBatch;
-                _data = new MatrixGraphData(miniBatch.Input);
+                _data = miniBatch.Input;
             }
 
             public void Dispose()

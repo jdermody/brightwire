@@ -355,5 +355,11 @@ namespace BrightWire.LinearAlgebra
                 ret.Add(item.Multiply(matrix));
             return new Cpu3DTensor(ret);
         }
+
+        public void AddToEachRow(IVector vector)
+        {
+            foreach (var item in _data)
+                item.AddToEachRow(vector);
+        }
     }
 }

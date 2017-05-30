@@ -12,47 +12,37 @@ using BrightWire.ExecutionGraph.Engine;
 
 namespace BrightWire.ExecutionGraph.DataTableAdaptor
 {
-    class TensorBasedDataTableAdaptor : AdaptiveDataTableAdaptorBase
+    class TensorBasedDataTableAdaptor : RowBasedDataTableAdaptorBase
     {
-        readonly int _inputSize, _outputSize;
+        readonly int _inputSize, _outputSize, _rows, _columns, _depth;
         readonly List<(IContext Context, int Rows, int Columns, int Depth)> _processedContext = new List<(IContext, int, int, int)>();
 
-        public TensorBasedDataTableAdaptor(ILinearAlgebraProvider lap, ILearningContext learningContext, GraphFactory factory, IDataTable dataTable, Action<WireBuilder> dataConversionBuilder)
-            : base(lap, learningContext, dataTable)
+        public TensorBasedDataTableAdaptor(ILinearAlgebraProvider lap, IDataTable dataTable)
+            : base(lap, dataTable)
         {
             var firstRow = dataTable.GetRow(0);
             var input = (FloatTensor)firstRow.Data[0];
             var output = (FloatVector)firstRow.Data[1];
             _outputSize = output.Size;
-
-            var wireBuilder = factory.Connect(input.Size, _input);
-            dataConversionBuilder(wireBuilder);
-
-            // execute the graph to find the input size (which is the size of the adaptive graph's output)
-            using (var executionContext = new ExecutionContext(lap)) {
-                var firstTensor = new TensorGraphData(_lap.CreateTensor(input));
-                using (var firstContext = _Process(executionContext, firstTensor)) {
-                    var outputVector = firstContext.Data.GetTensor().ConvertToVector();
-                    _inputSize = outputVector.Count;
-                    _learningContext.Clear();
-                }
-            }
-            foreach (var item in _processedContext)
-                item.Context.Dispose();
-            _processedContext.Clear();
+            _inputSize = input.Size;
+            _rows = input.RowCount;
+            _columns = input.ColumnCount;
+            _depth = input.Depth;
         }
 
-        private TensorBasedDataTableAdaptor(ILinearAlgebraProvider lap, ILearningContext learningContext, IDataTable dataTable, INode input, int inputSize, int outputSize) 
-            :base(lap, learningContext, dataTable)
+        private TensorBasedDataTableAdaptor(ILinearAlgebraProvider lap, IDataTable dataTable, int inputSize, int outputSize, int rows, int columns, int depth) 
+            :base(lap, dataTable)
         {
             _inputSize = inputSize;
             _outputSize = outputSize;
-            _input = input;
+            _rows = rows;
+            _columns = columns;
+            _depth = depth;
         }
 
         public override IDataSource CloneWith(IDataTable dataTable)
         {
-            return new TensorBasedDataTableAdaptor(_lap, _learningContext, dataTable, _input, _inputSize, _outputSize);
+            return new TensorBasedDataTableAdaptor(_lap, dataTable, _inputSize, _outputSize, _rows, _columns, _depth);
         }
 
         public override bool IsSequential => false;
@@ -61,61 +51,14 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 
         public override IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<int> rows)
         {
-            var data = _GetRows(rows);
-            var inputList = new List<IVector>();
-            var outputList = new List<FloatVector>();
-
-            //Debug.Assert(!_processedContext.Any());
-
-            IGpuLinearAlgebraProvider gpu = null;
-            if (_lap.IsGpu)
-                gpu = _lap as IGpuLinearAlgebraProvider;
-
-            var stack = new ConcurrentStack<(IRow, IContext)>();
-            Parallel.ForEach(data, row => {
-                if (gpu != null)
-                    gpu.BindThread();
-                var tensor = _lap.CreateTensor(row.Data[0] as FloatTensor);
-                var context = _ConcurentProcess(executionContext, new TensorGraphData(tensor, row.Index));
-                stack.Push((row, context));
-            });
-            var contextTable = stack.ToDictionary(d => d.Item1, d => d.Item2);
-
-            foreach (var row in data) {
-                //var tensor = _lap.CreateTensor(row.Data[0] as FloatTensor);
-                //var context = _Process(new TensorGraphData(tensor));
-                var context = contextTable[row];
-                var outputTensor = context.Data.GetTensor();
-                var outputVector = outputTensor.ConvertToVector();
-
-                inputList.Add(outputVector);
-                _processedContext.Add((context, outputTensor.RowCount, outputTensor.ColumnCount, outputTensor.Depth));
-                outputList.Add(row.Data[1] as FloatVector);
-            }
-            var input = _lap.CreateMatrix(inputList);
-            var output = _lap.CreateMatrix(data.Count, OutputSize, (x, y) => outputList[x].Data[y]);
-            return new MiniBatch(rows, this, input, output);
-        }
-
-        public override void OnBatchProcessed(IContext context)
-        {
-            var errorSignal = context.ErrorSignal;
-            var lap = context.LinearAlgebraProvider;
-            if (errorSignal != null) {
-                var errorMatrix = errorSignal.GetMatrix();
-                for (var i = 0; i < errorMatrix.RowCount; i++) {
-                    var row = errorMatrix.Row(i);
-                    var processedContext = _processedContext[i];
-                    var rowErrorTensor = lap.CreateTensor(row, processedContext.Rows, processedContext.Columns, processedContext.Depth);
-                    processedContext.Item1.Backpropagate(new TensorGraphData(rowErrorTensor));
-                }
-            }
-
-            foreach (var item in _processedContext) {
-                item.Item1.LearningContext.ApplyUpdates();
-                item.Context.Dispose();
-            }
-            _processedContext.Clear();
+            var data = _GetRows(rows)
+                .Select(r => (((FloatTensor)r.Data[0]).GetAsRaw(), ((FloatVector)r.Data[1]).Data))
+                .ToList()
+            ;
+            var input = _lap.CreateMatrix(InputSize, data.Count, (x, y) => data[y].Item1[x]);
+            var output = OutputSize > 0 ? _lap.CreateMatrix(data.Count, OutputSize, (x, y) => data[x].Item2[y]) : null;
+            var tensor = new Tensor4DGraphData(input, _rows, _columns, _depth);
+            return new MiniBatch(rows, this, tensor, new MatrixGraphData(output));
         }
     }
 }

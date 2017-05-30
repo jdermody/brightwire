@@ -11,9 +11,9 @@ namespace BrightWire.ExecutionGraph.Activation
     {
         class Backpropagation : SingleBackpropagationBase<Tanh>
         {
-            readonly IReadOnlyList<IMatrix> _input;
+            readonly IMatrix _input;
 
-            public Backpropagation(Tanh source, IReadOnlyList<IMatrix> matrix) : base(source)
+            public Backpropagation(Tanh source, IMatrix matrix) : base(source)
             {
                 _input = matrix;
             }
@@ -26,13 +26,17 @@ namespace BrightWire.ExecutionGraph.Activation
 
             protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
-                return context.ToGraphData(_input.Zip(errorSignal.Decompose(), (input, es) => {
-                    using (var od = input.TanhDerivative()) {
-                        var delta = es.PointwiseMultiply(od);
-                        //context.LearningContext.Log("tanh-backpropagation", channel, _source.GetHashCode(), errorSignal, delta);
-                        return delta;
-                    }
-                }));
+                using (var od = _input.TanhDerivative()) {
+                    var delta = errorSignal.GetMatrix().PointwiseMultiply(od);
+                    return errorSignal.ReplaceWith(delta);
+                }
+                //return context.ToGraphData(_input.Zip(errorSignal.Decompose(), (input, es) => {
+                //    using (var od = input.TanhDerivative()) {
+                //        var delta = es.PointwiseMultiply(od);
+                //        //context.LearningContext.Log("tanh-backpropagation", channel, _source.GetHashCode(), errorSignal, delta);
+                //        return delta;
+                //    }
+                //}));
             }
         }
 
@@ -40,8 +44,8 @@ namespace BrightWire.ExecutionGraph.Activation
 
         public override void ExecuteForward(IContext context)
         {
-            var input = context.Data.Decompose();
-            var output = context.ToGraphData(input.Select(m => m.TanhActivation()));
+            var input = context.Data.GetMatrix();
+            var output = context.Data.ReplaceWith(input.TanhActivation());
             _AddNextGraphAction(context, output, () => new Backpropagation(this, input));
         }
     }

@@ -69,6 +69,19 @@ namespace BrightWire.LinearAlgebra
             return new Cpu4DTensor(data.Select(t => this.CreateTensor(t)).ToList());
         }
 
+        public I4DTensor CreateTensor(IMatrix tensorAsMatrix, int rows, int columns, int depth)
+        {
+            var list = new List<I3DTensor>();
+            for(var i = 0; i < tensorAsMatrix.ColumnCount; i++)
+                list.Add(CreateTensor(tensorAsMatrix.Column(i).Split(depth).Select(v => v.ConvertInPlaceToMatrix(rows, columns)).ToList()));
+            return new Cpu4DTensor(list);
+        }
+
+        public I4DTensor CreateTensor(IReadOnlyList<I3DTensor> tensorList)
+        {
+            return new Cpu4DTensor(tensorList);
+        }
+
         public void PushLayer()
         {
             // nop

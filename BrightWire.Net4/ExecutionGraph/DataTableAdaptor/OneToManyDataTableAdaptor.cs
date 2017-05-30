@@ -77,7 +77,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
                     : item.Key == (outputData.Count - 1)
                         ? MiniBatchType.SequenceEnd
                         : MiniBatchType.Standard;
-                miniBatch.Add(type, curr, output);
+                miniBatch.Add(type, new MatrixGraphData(curr), new MatrixGraphData(output));
                 curr = output;
             }
             return miniBatch;

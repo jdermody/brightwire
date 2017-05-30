@@ -29,8 +29,8 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 var es = errorSignal.GetMatrix();
                 var delta1 = es.PointwiseMultiply(_input2);
                 var delta2 = es.PointwiseMultiply(_input1);
-                context.AddBackward(delta1.ToGraphData(), parents.First(), _source);
-                context.AddBackward(delta2.ToGraphData(), parents.Last(), _source);
+                context.AddBackward(errorSignal.ReplaceWith(delta1), parents.First(), _source);
+                context.AddBackward(errorSignal.ReplaceWith(delta2), parents.Last(), _source);
             }
         }
         public MultiplyGate(string name = null) : base(name) { }

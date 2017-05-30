@@ -11,9 +11,9 @@ namespace BrightWire.ExecutionGraph.Activation
     {
         class Backpropagation : SingleBackpropagationBase<Relu>
         {
-            readonly IReadOnlyList<IMatrix> _input;
+            readonly IMatrix _input;
 
-            public Backpropagation(Relu source, IReadOnlyList<IMatrix> matrix) : base(source)
+            public Backpropagation(Relu source, IMatrix matrix) : base(source)
             {
                 _input = matrix;
             }
@@ -26,13 +26,18 @@ namespace BrightWire.ExecutionGraph.Activation
 
             protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
-                return context.ToGraphData(_input.Zip(errorSignal.Decompose(), (input, es) => {
-                    using (var od = input.ReluDerivative()) {
-                        var delta = es.PointwiseMultiply(od);
-                        //context.LearningContext.Log("relu-backpropagation", channel, _source.GetHashCode(), errorSignal, delta);
-                        return delta;
-                    }
-                }));
+                using (var od = _input.ReluDerivative()) {
+                    var delta = errorSignal.GetMatrix().PointwiseMultiply(od);
+                    return errorSignal.ReplaceWith(delta);
+                }
+
+                //return context.ToGraphData(_input.Zip(errorSignal.Decompose(), (input, es) => {
+                //    using (var od = input.ReluDerivative()) {
+                //        var delta = es.PointwiseMultiply(od);
+                //        //context.LearningContext.Log("relu-backpropagation", channel, _source.GetHashCode(), errorSignal, delta);
+                //        return delta;
+                //    }
+                //}));
             }
         }
 
@@ -40,8 +45,8 @@ namespace BrightWire.ExecutionGraph.Activation
 
         public override void ExecuteForward(IContext context)
         {
-            var input = context.Data.Decompose();
-            var output = context.ToGraphData(input.Select(m => m.ReluActivation()));
+            var input = context.Data.GetMatrix();
+            var output = context.Data.ReplaceWith(input.ReluActivation());
             _AddNextGraphAction(context, output, () => new Backpropagation(this, input));
         }
     }

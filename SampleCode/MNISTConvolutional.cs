@@ -16,24 +16,29 @@ namespace BrightWire.SampleCode
     {
         static void MNISTConvolutional(string dataFilesPath)
         {
-            using (var lap = BrightWireProvider.CreateLinearAlgebra(false)) {
+            using (var lap = BrightWireGpuProvider.CreateLinearAlgebra(false)) {
                 var graph = new GraphFactory(lap);
                 var errorMetric = graph.ErrorMetric.OneHotEncoding;
                 var propertySet = graph.CurrentPropertySet
                     .Use(graph.RmsProp())
-                    .Use(graph.GaussianWeightInitialisation())
+                    .Use(graph.XavierWeightInitialisation())
                 ;
-                var learningContext = graph.CreateLearningContext(0.001f, 128, false, true);
 
                 Console.Write("Loading training data...");
-                var trainingData = _BuildTensors(null, learningContext, graph, Mnist.Load(dataFilesPath + "train-labels.idx1-ubyte", dataFilesPath + "train-images.idx3-ubyte", 800));
-                var testData = _BuildTensors(trainingData, learningContext, graph, Mnist.Load(dataFilesPath + "t10k-labels.idx1-ubyte", dataFilesPath + "t10k-images.idx3-ubyte", 200));
+                var trainingData = _BuildTensors(graph, null, Mnist.Load(dataFilesPath + "train-labels.idx1-ubyte", dataFilesPath + "train-images.idx3-ubyte"));
+                var testData = _BuildTensors(graph, trainingData, Mnist.Load(dataFilesPath + "t10k-labels.idx1-ubyte", dataFilesPath + "t10k-images.idx3-ubyte"));
                 Console.WriteLine($"done - {trainingData.RowCount} training images and {testData.RowCount} test images loaded");
 
                 // create the network
-                const int HIDDEN_LAYER_SIZE = 256;
-                var engine = graph.CreateTrainingEngine(trainingData, 0.001f, 128);
+                const int HIDDEN_LAYER_SIZE = 128;
+                var engine = graph.CreateTrainingEngine(trainingData, 0.003f, 32);
                 graph.Connect(engine)
+                    .AddConvolutional(1, 8, 1, 3, 3, 1, false)
+                    .AddMaxPooling(2, 2, 2)
+                    .Add(graph.ReluActivation())
+                    //.AddConvolutional(8, 4, 1, 3, 3, 2)
+                    //.Add(graph.ReluActivation())
+                    .Transpose(784 * 2)
                     .AddFeedForward(HIDDEN_LAYER_SIZE)
                     .Add(graph.ReluActivation())
                     .AddFeedForward(trainingData.OutputSize)
@@ -41,7 +46,7 @@ namespace BrightWire.SampleCode
                     .AddBackpropagation(errorMetric)
                 ;
 
-                engine.Train(1, testData, errorMetric);
+                engine.Train(20, testData, errorMetric);
 
                 // export the graph and verify that the error is the same
                 var networkGraph = engine.Graph;
@@ -51,7 +56,7 @@ namespace BrightWire.SampleCode
             }
         }
 
-        static IDataSource _BuildTensors(IDataSource existing, ILearningContext learningContext, GraphFactory graph, IReadOnlyList<Mnist.Image> images)
+        static IDataSource _BuildTensors(GraphFactory graph, IDataSource existing, IReadOnlyList<Mnist.Image> images)
         {
             var dataTable = BrightWireProvider.CreateDataTableBuilder();
             dataTable.AddColumn(ColumnType.Tensor, "Image");
@@ -63,16 +68,8 @@ namespace BrightWire.SampleCode
             }
             if (existing != null)
                 return existing.CloneWith(dataTable.Build());
-            else {
-                return graph.GetDataSource(dataTable.Build(), learningContext, builder => builder
-                    .AddConvolutional(1, 8, 1, 3, 3, 1)
-                    //.AddMaxPooling(2, 2, 2)
-                    .AddConvolutional(8, 4, 1, 3, 3, 2)
-                    .Add(graph.ReluActivation())
-                );
-            }
+            else
+                return graph.GetDataSource(dataTable.Build());
         }
-
-        
     }
 }

@@ -19,12 +19,14 @@ namespace BrightWire.SampleCode
                 // 1 1 => 0
                 var data = Xor.Get();
 
-                // create the graph (use rmsprop gradient descent optimisation and xavier weight initialisation)
+                // create the graph
                 var graph = new GraphFactory(lap);
                 var errorMetric = graph.ErrorMetric.Rmse;
                 graph.CurrentPropertySet
+                    // use rmsprop gradient descent optimisation
                     .Use(graph.GradientDescent.RmsProp)
-                    .Use(graph.WeightInitialisation.Xavier)
+                    // and xavier weight initialisation
+                    .Use(graph.WeightInitialisation.Xavier) 
                 ;
 
                 // create the engine
@@ -34,16 +36,19 @@ namespace BrightWire.SampleCode
                 // create the network
                 const int HIDDEN_LAYER_SIZE = 4;
                 graph.Connect(engine)
+                    // create a feed forward layer with sigmoid activation
                     .AddFeedForward(HIDDEN_LAYER_SIZE)
                     .Add(graph.SigmoidActivation())
+                    // create a second feed forward layer with sigmoid activation
                     .AddFeedForward(engine.DataSource.OutputSize)
                     .Add(graph.SigmoidActivation())
+                    // backpropagate the error signal at the end of the graph
                     .AddBackpropagation(errorMetric)
                 ;
 
                 // train the network
                 var executionContext = graph.CreateExecutionContext();
-                for (var i = 0; i < 2000; i++) {
+                for (var i = 0; i < 5000; i++) {
                     var trainingError = engine.Train(executionContext);
                     if (i % 100 == 0)
                         engine.Test(testData, errorMetric);
@@ -75,10 +80,10 @@ namespace BrightWire.SampleCode
             //IrisClustering();
             //MarkovChains();
             //MNIST(@"D:\data\mnist\");
-            //MNISTConvolutional(@"D:\data\mnist\");
+            MNISTConvolutional(@"D:\data\mnist\");
             //SentimentClassification(@"D:\data\sentiment labelled sentences\");
             //TextClustering(@"D:\data\[UCI] AAAI-14 Accepted Papers - Papers.csv", @"d:\temp\");
-            IntegerAddition();
+            //IntegerAddition();
             //IncomePrediction(@"d:\data\adult.data", @"d:\data\adult.test");
             //OneToMany();
             //ManyToOne();

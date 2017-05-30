@@ -25,7 +25,7 @@ namespace BrightWire.ExecutionGraph.Engine
             _miniBatch = miniBatch;
             _executionContext = executionContext;
             _learningContext = learningContext;
-            _data = miniBatch.Input.ToGraphData();
+            _data = miniBatch.Input;
         }
         public TrainingEngineContext(IExecutionContext executionContext, IGraphData data, ILearningContext learningContext)
         {
@@ -108,7 +108,7 @@ namespace BrightWire.ExecutionGraph.Engine
         {
             // calculate training error
             if (delta != null && _learningContext?.CalculateTrainingError == true)
-                _trainingError = Math.Sqrt(delta.Decompose().Average(m => m.AsIndexable().Values.Select(v => Math.Pow(v, 2)).Average()));
+                _trainingError = Math.Sqrt(delta.GetMatrix().AsIndexable().Values.Select(v => Math.Pow(v, 2)).Average());
 
             // initialise backpropagation stack
             _ClearBackward();
@@ -159,7 +159,7 @@ namespace BrightWire.ExecutionGraph.Engine
                     if (next.RowCount == first.RowCount && next.ColumnCount == first.ColumnCount)
                         first.AddInPlace(next);
                 }
-                return first.ToGraphData();
+                return errorSignal.ReplaceWith(first);
             }
             return null;
         }

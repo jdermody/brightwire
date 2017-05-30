@@ -29,9 +29,9 @@ namespace BrightWire.ExecutionGraph.Action
         {
             var output = input.GetMatrix();
             if (context.IsTraining) {
-                var gradient = _errorMetric.CalculateGradient(output, context.BatchSequence.Target);
+                var gradient = _errorMetric.CalculateGradient(output, context.BatchSequence.Target.GetMatrix());
                 //context.LearningContext?.Log("backprogation-error", gradient);
-                context.Backpropagate(gradient.ToGraphData());
+                context.Backpropagate(input.ReplaceWith(gradient));
             }
             return input;
         }

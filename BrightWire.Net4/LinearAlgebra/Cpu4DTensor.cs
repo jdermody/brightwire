@@ -109,5 +109,12 @@ namespace BrightWire.LinearAlgebra
             }
             return new Cpu3DTensor(ret);
         }
+
+        public IMatrix ConvertToMatrix()
+        {
+            var rows = _data.Select(t => t.ConvertToVector().AsIndexable()).ToList();
+            var first = rows.First();
+            return new CpuMatrix(DenseMatrix.Create(first.Count, Count, (i, j) => rows[j][i]));
+        }
     }
 }

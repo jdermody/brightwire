@@ -41,42 +41,47 @@ namespace BrightWire
             }
         }
 
-        public static IGraphData ToGraphData(this IMatrix matrix)
-        {
-            return new MatrixGraphData(matrix);
-        }
+        //public static IGraphData ToGraphData(this IMatrix matrix)
+        //{
+        //    return new MatrixGraphData(matrix);
+        //}
 
-        public static IGraphData ToGraphData(this I3DTensor tensor)
-        {
-            return new TensorGraphData(tensor);
-        }
+        //public static IGraphData ToGraphData(this I3DTensor tensor)
+        //{
+        //    return new Tensor3DGraphData(tensor.ConvertToMatrix(), tensor.RowCount, tensor.ColumnCount);
+        //}
 
-        public static IGraphData ToGraphData(this IReadOnlyList<IMatrix> matrixList, ILinearAlgebraProvider lap)
-        {
-            if (matrixList.Count == 1)
-                return matrixList[0].ToGraphData();
-            else if (matrixList.Count > 1)
-                return lap.CreateTensor(matrixList).ToGraphData();
-            return null;
-        }
+        //public static IGraphData ToGraphData(this I4DTensor tensor)
+        //{
+        //    return new Tensor3DGraphData(tensor.ConvertToMatrix(), tensor.RowCount, tensor.ColumnCount);
+        //}
 
-        public static IReadOnlyList<IMatrix> Decompose(this IGraphData data)
-        {
-            var ret = new List<IMatrix>();
-            if (data.DataType == GraphDataType.Matrix)
-                ret.Add(data.GetMatrix());
-            else {
-                var tensor = data.GetTensor();
-                for (var i = 0; i < tensor.Depth; i++)
-                    ret.Add(tensor.GetMatrixAt(i));
-            }
-            return ret;
-        }
+        //public static IGraphData ToGraphData(this IReadOnlyList<IMatrix> matrixList, ILinearAlgebraProvider lap)
+        //{
+        //    if (matrixList.Count == 1)
+        //        return matrixList[0].ToGraphData();
+        //    else if (matrixList.Count > 1)
+        //        return lap.CreateTensor(matrixList).ToGraphData();
+        //    return null;
+        //}
 
-        public static IGraphData ToGraphData(this IContext context, IEnumerable<IMatrix> matrixList)
-        {
-            return matrixList.ToList().ToGraphData(context.LinearAlgebraProvider);
-        }
+        //public static IReadOnlyList<IMatrix> Decompose(this IGraphData data)
+        //{
+        //    var ret = new List<IMatrix>();
+        //    if (data.DataType == GraphDataType.Matrix)
+        //        ret.Add(data.GetMatrix());
+        //    else {
+        //        var tensor = data.GetTensor();
+        //        for (var i = 0; i < tensor.Depth; i++)
+        //            ret.Add(tensor.GetMatrixAt(i));
+        //    }
+        //    return ret;
+        //}
+
+        //public static IGraphData ToGraphData(this IContext context, IEnumerable<IMatrix> matrixList)
+        //{
+        //    return matrixList.ToList().ToGraphData(context.LinearAlgebraProvider);
+        //}
 
         public static Models.ExecutionGraph GetGraph(this INode input, string name = null)
         {

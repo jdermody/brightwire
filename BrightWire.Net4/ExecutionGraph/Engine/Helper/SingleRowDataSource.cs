@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BrightWire.ExecutionGraph.Helper;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,22 +12,22 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         readonly float[] _data;
         class Sequence : IMiniBatchSequence
         {
-            readonly IMatrix _data;
+            readonly IGraphData _data;
             readonly IMiniBatch _miniBatch;
 
-            public Sequence(IMatrix data, IMiniBatch miniBatch) { _data = data; _miniBatch = miniBatch; }
+            public Sequence(IGraphData data, IMiniBatch miniBatch) { _data = data; _miniBatch = miniBatch; }
             public IMiniBatch MiniBatch => _miniBatch;
             public int SequenceIndex => 0;
             public MiniBatchType Type => MiniBatchType.Standard;
-            public IMatrix Input => _data;
-            public IMatrix Target => null;
+            public IGraphData Input => _data;
+            public IGraphData Target => null;
         }
         class MiniBatch : IMiniBatch
         {
             readonly IMiniBatchSequence _sequence;
             readonly IDataSource _dataSource;
 
-            public MiniBatch(IDataSource dataSource, IMatrix data)
+            public MiniBatch(IDataSource dataSource, IGraphData data)
             {
                 _sequence = new Sequence(data, this);
                 _dataSource = dataSource;
@@ -67,7 +68,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<int> rows)
         {
             var data = executionContext.LinearAlgebraProvider.CreateVector(_data);
-            return new MiniBatch(this, data.ToRowMatrix());
+            return new MiniBatch(this, new MatrixGraphData(data.ToRowMatrix()));
         }
 
         public IReadOnlyList<IReadOnlyList<int>> GetBuckets()

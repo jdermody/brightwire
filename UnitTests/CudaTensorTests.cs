@@ -521,6 +521,17 @@ namespace UnitTests
             }
         }
 
+        [TestMethod]
+        public void TensorToVector()
+        {
+            var data = _CreateTensor(4, 3, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1));
+            var tensor = _cpu.CreateTensor(data);
+            var raw = data.GetAsRaw();
+            var vector = _cpu.CreateVector(raw);
+            var tensor2 = _cpu.CreateTensor(vector, 4, 3, 2);
+            FloatingPointHelper.AssertEqual(tensor.AsIndexable(), tensor2.AsIndexable());
+        }
+
         //void _Tensor4DReverseIm2Col(int rows, int columns, int depth, int count, int filterWidth, int filterHeight, int filterCount, int stride)
         //{
         //    var normalDistribution = new Normal(0, 1);

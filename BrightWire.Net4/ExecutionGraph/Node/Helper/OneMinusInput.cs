@@ -17,7 +17,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             {
                 var es = errorSignal.GetMatrix();
                 using (var minusOne = context.LinearAlgebraProvider.CreateMatrix(es.RowCount, es.ColumnCount, -1f))
-                    return minusOne.PointwiseMultiply(es).ToGraphData();
+                    return errorSignal.ReplaceWith(minusOne.PointwiseMultiply(es));
             }
         }
 
@@ -30,7 +30,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             var input = context.Data.GetMatrix();
             using (var ones = context.LinearAlgebraProvider.CreateMatrix(input.RowCount, input.ColumnCount, 1f)) {
                 var output = ones.Subtract(input);
-                _AddNextGraphAction(context, new MatrixGraphData(output), () => new Backpropagation(this));
+                _AddNextGraphAction(context, context.Data.ReplaceWith(output), () => new Backpropagation(this));
             }
         }
     }

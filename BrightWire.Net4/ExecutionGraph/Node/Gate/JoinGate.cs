@@ -24,9 +24,9 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 int index = parents.Count-1;
                 foreach(var item in _channels) {
                     (split, residual) = residual.SplitAtColumn(item.Size);
-                    context.AddBackward(split.ToGraphData(), parents[index--], _source);
+                    context.AddBackward(errorSignal.ReplaceWith(split), parents[index--], _source);
                 }
-                context.AddBackward(residual.ToGraphData(), parents[index], _source);
+                context.AddBackward(errorSignal.ReplaceWith(residual), parents[index], _source);
             }
         }
 

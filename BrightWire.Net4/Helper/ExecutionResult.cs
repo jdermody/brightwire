@@ -19,8 +19,8 @@ namespace BrightWire.Helper
         {
             _miniBatch = miniBatch;
             _output = output;
-            _target = _miniBatch.Target?.Data.Row;
-            _input = _miniBatch.Input.Data.Row;
+            _target = _miniBatch.Target?.GetMatrix().Data.Row;
+            _input = _miniBatch.Input.GetMatrix().Data.Row;
         }
 
         public IReadOnlyList<FloatVector> Output => _output;
