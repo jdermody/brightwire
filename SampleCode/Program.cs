@@ -80,14 +80,14 @@ namespace BrightWire.SampleCode
             //IrisClustering();
             //MarkovChains();
             //MNIST(@"D:\data\mnist\");
-            MNISTConvolutional(@"D:\data\mnist\");
+            //MNISTConvolutional(@"D:\data\mnist\");
             //SentimentClassification(@"D:\data\sentiment labelled sentences\");
             //TextClustering(@"D:\data\[UCI] AAAI-14 Accepted Papers - Papers.csv", @"d:\temp\");
             //IntegerAddition();
             //IncomePrediction(@"d:\data\adult.data", @"d:\data\adult.test");
             //OneToMany();
             //ManyToOne();
-            //SequenceToSequence();
+            SequenceToSequence();
         }
     }
 }

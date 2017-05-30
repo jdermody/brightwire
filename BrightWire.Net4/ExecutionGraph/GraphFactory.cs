@@ -390,7 +390,7 @@ namespace BrightWire.ExecutionGraph
         public INode ReluActivation(string name = null) => new Relu(name);
         public INode SigmoidActivation(string name = null) => new Sigmoid(name);
         public INode TanhActivation(string name = null) => new Tanh(name);
-        //public INode SoftMaxActivation(string name = null) => new SoftMax(name);
+        public INode SoftMaxActivation(string name = null) => new SoftMax(name);
 
         public IWeightInitialisation ConstantWeightInitialisation(float biasValue = 0f, float weightValue = 1f) => new Constant(_lap, biasValue, weightValue);
         public IWeightInitialisation GaussianWeightInitialisation(bool zeroBias = true, float stdDev = 0.1f) => new Gaussian(_lap, zeroBias, stdDev);
