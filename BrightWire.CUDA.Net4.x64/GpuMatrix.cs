@@ -729,5 +729,18 @@ namespace BrightWire.LinearAlgebra
             Debug.Assert(IsValid);
             return new GpuVector(_cuda, _data);
         }
+
+        public I3DTensor ConvertTo3DTensor(int rows, int columns)
+        {
+            var matrixList = new List<GpuMatrix>();
+            for (var i = 0; i < ColumnCount; i++)
+                matrixList.Add((GpuMatrix)Column(i).ConvertInPlaceToMatrix(rows, columns));
+            return new Gpu3DTensor(_cuda, rows, columns, matrixList.Count, matrixList);
+        }
+
+        public I4DTensor ConvertTo4DTensor(int rows, int columns, int depth)
+        {
+            return new Gpu4DTensor(_cuda, this, rows, columns, depth);
+        }
     }
 }

@@ -14,7 +14,8 @@ namespace BrightWire.LinearAlgebra
     class Gpu4DTensor : I4DTensor
     {
         readonly IMatrix _data;
-        readonly Lazy<List<GpuVector[]>> _subMatrix;
+        readonly Lazy<List<GpuVector[]>> _subVector;
+        readonly Lazy<List<GpuMatrix>> _subMatrix;
         readonly Lazy<TensorInput> _tensorInfo;
         readonly int _rows, _columns, _depth, _count;
         readonly CudaProvider _cuda;
@@ -53,7 +54,8 @@ namespace BrightWire.LinearAlgebra
             });
             provider.Register(this);
 
-            _subMatrix = new Lazy<List<GpuVector[]>>(_GetSubMatrices);
+            _subVector = new Lazy<List<GpuVector[]>>(_GetSubVectors);
+            _subMatrix = new Lazy<List<GpuMatrix>>(_GetSubMatrices);
             _tensorInfo = new Lazy<TensorInput>(_GetInput);
 
 #if DEBUG
@@ -72,7 +74,8 @@ namespace BrightWire.LinearAlgebra
             _count = data.ColumnCount;
             provider.Register(this);
 
-            _subMatrix = new Lazy<List<GpuVector[]>>(_GetSubMatrices);
+            _subVector = new Lazy<List<GpuVector[]>>(_GetSubVectors);
+            _subMatrix = new Lazy<List<GpuMatrix>>(_GetSubMatrices);
             _tensorInfo = new Lazy<TensorInput>(_GetInput);
 
 #if DEBUG
@@ -92,11 +95,12 @@ namespace BrightWire.LinearAlgebra
             provider.Register(this);
 
             _data = _cuda.CreateZeroMatrix(_rows * _columns * _depth, _count);
-            _subMatrix = new Lazy<List<GpuVector[]>>(_GetSubMatrices);
+            _subVector = new Lazy<List<GpuVector[]>>(_GetSubVectors);
+            _subMatrix = new Lazy<List<GpuMatrix>>(_GetSubMatrices);
             _tensorInfo = new Lazy<TensorInput>(_GetInput);
 
             for (var i = 0; i < _count; i++)
-                GetTensorAt(i).AddInPlace(tensorList[i]);
+                _data.Column(i).AddInPlace(tensorList[i].ConvertToVector());
 
 #if DEBUG
             if (_id == _badAlloc)
@@ -132,7 +136,7 @@ namespace BrightWire.LinearAlgebra
 #endif
         }
 
-        List<GpuVector[]> _GetSubMatrices()
+        List<GpuVector[]> _GetSubVectors()
         {
             var ret = new List<GpuVector[]>();
             for (var i = 0; i < _data.ColumnCount; i++)
@@ -140,20 +144,31 @@ namespace BrightWire.LinearAlgebra
             return ret;
         }
 
+        List<GpuMatrix> _GetSubMatrices()
+        {
+            return _subVector.Value
+                .SelectMany(v => v)
+                .Select(v => v.ConvertInPlaceToMatrix(_rows, _columns))
+                .Cast<GpuMatrix>()
+                .ToList()
+            ;
+        }
+
         TensorInput _GetInput()
         {
-            return new TensorInput(_rows, _columns, _subMatrix.Value.Select(t => t.Select(m => m.Memory).ToArray()).ToList());
+            return new TensorInput(_rows, _columns, _subVector.Value.Select(t => t.Select(m => m.Memory).ToArray()).ToList());
         }
 
         public I3DTensor GetTensorAt(int index)
         {
-            var subMatrix = _subMatrix.Value;
+            var subMatrix = _subVector.Value;
             var ret = subMatrix[index]
                 .Select(v => v.ConvertInPlaceToMatrix(_rows, _columns))
                 .Cast<GpuMatrix>()
                 .ToList()
             ;
-            return new Gpu3DTensor(_cuda, _rows, _columns, _depth, ret);
+            var tensor = new Gpu3DTensor(_cuda, _rows, _columns, _depth, ret);
+            return tensor;
         }
 
         public IReadOnlyList<IIndexable3DTensor> AsIndexable()
@@ -162,6 +177,15 @@ namespace BrightWire.LinearAlgebra
             for(var i = 0; i < _count; i++)
                 ret.Add(GetTensorAt(i).AsIndexable());
             return ret;
+        }
+
+        public IReadOnlyList<IMatrix> SubMatrices
+        {
+            get
+            {
+                Debug.Assert(IsValid);
+                return _subMatrix.Value;
+            }
         }
 
         public int ColumnCount

@@ -106,7 +106,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
                 var lap = context.LinearAlgebraProvider;
-                var tensor = lap.CreateTensor(errorSignal.GetMatrix(), _newHeight, _newWidth, _source._filter.ColumnCount);
+                var tensor = lap.Create4DTensor(errorSignal.GetMatrix(), _newHeight, _newWidth, _source._filter.ColumnCount);
                 var padding = _source._padding;
 
                 var weightUpdate = lap.CreateZeroMatrix(_source._filter.RowCount, _source._filter.ColumnCount);
@@ -139,7 +139,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                         filterList.Add(filters.Column(i).Split(inputDepth).Select(v => v.Rotate(v.Count / filterWidth)).ToList());
 
                     using(var reverseIm2Col = tensor.ReverseIm2Col(filterList, _inputHeight, _inputWidth, inputDepth, padding, filterHeight, filterWidth, stride)) {
-                        var delta = lap.CreateTensor(reverseIm2Col.ConvertToMatrix(), _inputHeight + padding * 2, _inputWidth + padding * 2, inputDepth);
+                        var delta = lap.Create4DTensor(reverseIm2Col.ConvertToMatrix(), _inputHeight + padding * 2, _inputWidth + padding * 2, inputDepth);
                         //var delta = context.LinearAlgebraProvider.CreateTensor(reverseIm2Col, _inputHeight + padding * 2, _inputWidth + padding * 2);
                         if (padding > 0)
                             delta = delta.RemovePadding(padding);
@@ -209,7 +209,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         {
             var input = context.Data;
             var lap = context.LinearAlgebraProvider;
-            var tensor = lap.CreateTensor(input.GetMatrix(), input.Rows, input.Columns, input.Depth);
+            var tensor = lap.Create4DTensor(input.GetMatrix(), input.Rows, input.Columns, input.Depth);
 
             var inputWidth = tensor.ColumnCount;
             var inputHeight = tensor.RowCount;
@@ -237,9 +237,9 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             for (var i = 0; i < outputSignal.Depth; i++) {
                 var matrixList2 = new List<IMatrix>();
                 var slice = outputSignal.GetMatrixAt(i);
-                tensorList.Add(lap.CreateTensor(slice, newHeight, newWidth));
+                tensorList.Add(slice.ConvertTo3DTensor(newHeight, newWidth));
             }
-            var outputTensor = lap.CreateTensor(tensorList);
+            var outputTensor = lap.Create4DTensor(tensorList);
 
             var graphData = new Tensor4DGraphData(outputTensor);
             _AddNextGraphAction(context, graphData, () => new Backpropagation(this, im2Col, inputWidth, inputHeight, newWidth, newHeight));

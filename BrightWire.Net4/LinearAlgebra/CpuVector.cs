@@ -377,6 +377,21 @@ namespace BrightWire.LinearAlgebra
             return new CpuMatrix(DenseMatrix.Build.Dense(rows, columns, _vector.ToArray()));
         }
 
+        public I3DTensor ConvertTo3DTensor(int rows, int columns, int depth)
+        {
+            if (depth > 1) {
+                var matrixList = new List<IMatrix>();
+                var slice = Split(depth);
+                foreach (var part in slice)
+                    matrixList.Add(part.ConvertInPlaceToMatrix(rows, columns));
+                var ret = new Cpu3DTensor(matrixList);
+                return ret;
+            } else {
+                var matrix = ConvertInPlaceToMatrix(rows, columns);
+                return new Cpu3DTensor(new[] { matrix });
+            }
+        }
+
         public IReadOnlyList<IVector> Split(int blockCount)
         {
             int index = 0;

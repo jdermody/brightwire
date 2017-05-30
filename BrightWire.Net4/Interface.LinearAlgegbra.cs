@@ -52,12 +52,11 @@ namespace BrightWire
         /// </summary>
         /// <param name="data">The list of matrices that form the tensor</param>
         /// <returns></returns>
-        I3DTensor CreateTensor(IReadOnlyList<IMatrix> data);
+        I3DTensor Create3DTensor(IReadOnlyList<IMatrix> data);
+        I4DTensor Create4DTensor(IReadOnlyList<FloatTensor> data);
 
-        I4DTensor CreateTensor(IReadOnlyList<FloatTensor> data);
-
-        I4DTensor CreateTensor(IMatrix tensorAsMatrix, int rows, int columns, int depth);
-        I4DTensor CreateTensor(IReadOnlyList<I3DTensor> tensorList);
+        I4DTensor Create4DTensor(IMatrix tensorAsMatrix, int rows, int columns, int depth);
+        I4DTensor Create4DTensor(IReadOnlyList<I3DTensor> tensorList);
 
         /// <summary>
         /// Creates a save point in the allocation history
@@ -347,6 +346,10 @@ namespace BrightWire
         /// <param name="rows">The number of rows in the matrix</param>
         /// <param name="columns">The number of columns in the matrix</param>
         IMatrix ConvertInPlaceToMatrix(int rows, int columns);
+
+        I3DTensor ConvertTo3DTensor(int rows, int columns, int depth);
+
+
 
         /// <summary>
         /// Splits the vector into a list of vectors
@@ -732,17 +735,9 @@ namespace BrightWire
         /// </summary>
         IVector ConvertInPlaceToVector();
 
-        /// <summary>
-        /// Rotates the matrix 180 degrees
-        /// </summary>
-        /// <returns></returns>
-        //IMatrix Rotate180();
+        I3DTensor ConvertTo3DTensor(int rows, int columns);
 
-        //IMatrix AddPadding(int padding);
-
-        //IMatrix RemovePadding(int padding);
-
-        //IMatrix Im2Col(int filterWidth, int filterHeight, int stride);
+        I4DTensor ConvertTo4DTensor(int rows, int columns, int depth);
     }
 
     /// <summary>
@@ -816,6 +811,8 @@ namespace BrightWire
         /// Converts the current tensor to protobuf format
         /// </summary>
         FloatTensor Data { get; set; }
+
+        IReadOnlyList<IMatrix> SubMatrices { get; }
 
         /// <summary>
         /// Returns a matrix at the specified depth
@@ -927,6 +924,8 @@ namespace BrightWire
         /// The count of 3D tensors
         /// </summary>
         int Count { get; }
+
+        IReadOnlyList<IMatrix> SubMatrices { get; }
 
         /// <summary>
         /// Returns the tensor at the specified index

@@ -77,7 +77,7 @@ namespace BrightWire.LinearAlgebra
         public int ColumnCount => _columns;
         public IMatrix GetMatrixAt(int depth) => _data[depth];
         public IIndexable3DTensor AsIndexable() => this;
-        public IReadOnlyList<IMatrix> DepthSlices => _data;
+        public IReadOnlyList<IMatrix> SubMatrices => _data;
 
         public I3DTensor AddPadding(int padding)
         {

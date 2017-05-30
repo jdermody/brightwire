@@ -12,6 +12,7 @@ namespace BrightWire.LinearAlgebra
     {
         readonly Cpu3DTensor[] _data;
         readonly int _rows, _columns, _depth;
+        readonly Lazy<List<IMatrix>> _subMatrix;
 
         public Cpu4DTensor(int rows, int columns, int depth, int count)
         {
@@ -19,6 +20,7 @@ namespace BrightWire.LinearAlgebra
             _columns = columns;
             _depth = depth;
             _data = Enumerable.Range(0, count).Select(i => new Cpu3DTensor(rows, columns, depth)).ToArray();
+            _subMatrix = new Lazy<List<IMatrix>>(() => _data.SelectMany(t => t.SubMatrices).ToList());
         }
 
         public Cpu4DTensor(IReadOnlyList<I3DTensor> tensorList)
@@ -31,13 +33,21 @@ namespace BrightWire.LinearAlgebra
             _data = tensorList.Cast<Cpu3DTensor>().ToArray();
         }
 
+        public Cpu4DTensor(IReadOnlyList<IReadOnlyList<IMatrix>> tensorList)
+        {
+            var first = tensorList.First();
+            var firstMatrix = first.First();
+            _rows = firstMatrix.RowCount;
+            _columns = firstMatrix.ColumnCount;
+            _depth = first.Count;
+            _data = tensorList.Select(d => new Cpu3DTensor(d)).ToArray();
+        }
+
         public int RowCount => _rows;
-
         public int ColumnCount => _columns;
-
         public int Depth => _depth;
-
         public int Count => _data.Length;
+        public IReadOnlyList<IMatrix> SubMatrices => _subMatrix.Value;
 
         public void Dispose()
         {

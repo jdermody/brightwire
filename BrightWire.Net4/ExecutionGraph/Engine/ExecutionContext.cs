@@ -75,7 +75,7 @@ namespace BrightWire.ExecutionGraph.Engine
         {
             FloatTensor ret;
             if (_inputTransformationCache.TryGetValue(id, out ret))
-                return _lap.CreateTensor(ret);
+                return _lap.Create3DTensor(ret);
             return null;
         }
     }

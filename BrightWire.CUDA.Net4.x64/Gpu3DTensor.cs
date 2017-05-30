@@ -75,6 +75,15 @@ namespace BrightWire.LinearAlgebra
 #endif
         }
 
+        public IReadOnlyList<IMatrix> SubMatrices
+        {
+            get
+            {
+                Debug.Assert(IsValid);
+                return _data;
+            }
+        }
+
         public int ColumnCount
         {
             get
@@ -142,7 +151,7 @@ namespace BrightWire.LinearAlgebra
         {
             Debug.Assert(IsValid);
             return _cuda.NumericsProvider
-                .CreateTensor(_data.Select(m => _cuda.NumericsProvider.CreateMatrix(m.Data)).ToList())
+                .Create3DTensor(_data.Select(m => _cuda.NumericsProvider.CreateMatrix(m.Data)).ToList())
                 .AsIndexable()
             ;
         }

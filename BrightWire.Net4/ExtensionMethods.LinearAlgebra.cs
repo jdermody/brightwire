@@ -75,9 +75,9 @@ namespace BrightWire
         /// Creates a 3D tensor
         /// </summary>
         /// <param name="tensor">An indexable 3D tensor to use as a source</param>
-        public static I3DTensor CreateTensor(this ILinearAlgebraProvider lap, IIndexable3DTensor tensor)
+        public static I3DTensor Create3DTensor(this ILinearAlgebraProvider lap, IIndexable3DTensor tensor)
         {
-            return lap.CreateTensor(tensor.Matrix.Select(m => CreateMatrix(lap, m)).ToList());
+            return lap.Create3DTensor(tensor.Matrix.Select(m => CreateMatrix(lap, m)).ToList());
         }
 
         /// <summary>
@@ -85,43 +85,9 @@ namespace BrightWire
         /// </summary>
         /// <param name="tensor">The serialised representation of the 3D tensor</param>
         /// <returns></returns>
-        public static I3DTensor CreateTensor(this ILinearAlgebraProvider lap, FloatTensor tensor)
+        public static I3DTensor Create3DTensor(this ILinearAlgebraProvider lap, FloatTensor tensor)
         {
-            return lap.CreateTensor(tensor.Matrix.Select(m => CreateMatrix(lap, m)).ToList());
-        }
-
-        /// <summary>
-        /// Creates a 3D tensor
-        /// </summary>
-        /// <param name="tensorAsVector">A tensor that has previously been converted to a vector</param>
-        /// <returns></returns>
-        public static I3DTensor CreateTensor(this ILinearAlgebraProvider lap, IVector tensorAsVector, int rows, int columns, int depth)
-        {
-            if (depth > 1) {
-                var matrixList = new List<IMatrix>();
-                var slice = tensorAsVector.Split(depth);
-                foreach (var part in slice)
-                    matrixList.Add(part.ConvertInPlaceToMatrix(rows, columns));
-                var ret = lap.CreateTensor(matrixList);
-                return ret;
-            } else {
-                var matrix = tensorAsVector.ConvertInPlaceToMatrix(rows, columns);
-                return lap.CreateTensor(new[] { matrix });
-            }
-        }
-
-        /// <summary>
-        /// Creates a 3D tensor
-        /// </summary>
-        /// <param name="tensorAsMatrix">A tensor that has previously been converted to a matrix</param>
-        /// <returns></returns>
-        public static I3DTensor CreateTensor(this ILinearAlgebraProvider lap, IMatrix tensorAsMatrix, int rows, int columns)
-        {
-            var matrixList = new List<IMatrix>();
-            for(int i = 0, len = tensorAsMatrix.ColumnCount; i < len; i++) {
-                matrixList.Add(tensorAsMatrix.Column(i).ConvertInPlaceToMatrix(rows, columns));
-            }
-            return lap.CreateTensor(matrixList);
+            return lap.Create3DTensor(tensor.Matrix.Select(m => CreateMatrix(lap, m)).ToList());
         }
 
         /// <summary>

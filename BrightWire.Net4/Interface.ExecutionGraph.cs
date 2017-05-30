@@ -19,6 +19,8 @@ namespace BrightWire
         IMatrix GetMatrix();
         int? RowId { get; }
         IGraphData ReplaceWith(IMatrix matrix);
+        IGraphData ReplaceWith(IContext context, IReadOnlyList<IMatrix> matrixList);
+        IReadOnlyList<IMatrix> AllMatrices { get; }
     }
 
     public interface IAction

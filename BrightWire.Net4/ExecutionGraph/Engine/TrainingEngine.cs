@@ -43,14 +43,15 @@ namespace BrightWire.ExecutionGraph.Engine
 
                 IGraphOperation operation;
                 while ((operation = executionContext.GetNextOperation()) != null) {
+                    _lap.PushLayer();
                     operation.Execute(executionContext);
                     _ClearContextList();
+                    foreach (var item in _executionResults)
+                        ret.Add(new ExecutionResult(item.Sequence, item.Output.Row));
+                    _executionResults.Clear();
+                    _lap.PopLayer();
                 }
-
-                foreach (var item in _executionResults)
-                    ret.Add(new ExecutionResult(item.Sequence, item.Output.Row));
             }
-            _executionResults.Clear();
             _lap.PopLayer();
             return ret;
         }

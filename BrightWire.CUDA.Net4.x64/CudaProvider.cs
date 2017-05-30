@@ -947,23 +947,23 @@ namespace BrightWire.LinearAlgebra
             return ret;
         }
 
-        public I3DTensor CreateTensor(IReadOnlyList<IMatrix> data)
+        public I3DTensor Create3DTensor(IReadOnlyList<IMatrix> data)
         {
             var first = data.First();
             return new Gpu3DTensor(this, first.RowCount, first.ColumnCount, data.Count, data.Cast<GpuMatrix>().ToList());
         }
 
-        public I4DTensor CreateTensor(IReadOnlyList<FloatTensor> data)
+        public I4DTensor Create4DTensor(IReadOnlyList<FloatTensor> data)
         {
             return new Gpu4DTensor(this, data);
         }
 
-        public I4DTensor CreateTensor(IMatrix tensorAsMatrix, int rows, int columns, int depth)
+        public I4DTensor Create4DTensor(IMatrix tensorAsMatrix, int rows, int columns, int depth)
         {
             return new Gpu4DTensor(this, tensorAsMatrix, rows, columns, depth);
         }
 
-        public I4DTensor CreateTensor(IReadOnlyList<I3DTensor> tensorList)
+        public I4DTensor Create4DTensor(IReadOnlyList<I3DTensor> tensorList)
         {
             return new Gpu4DTensor(this, tensorList);
         }

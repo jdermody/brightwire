@@ -59,25 +59,25 @@ namespace BrightWire.LinearAlgebra
             return new CpuMatrix(DenseMatrix.Create(rows, columns, init));
         }
 
-        public I3DTensor CreateTensor(IReadOnlyList<IMatrix> data)
+        public I3DTensor Create3DTensor(IReadOnlyList<IMatrix> data)
         {
             return new Cpu3DTensor(data);
         }
 
-        public I4DTensor CreateTensor(IReadOnlyList<FloatTensor> data)
+        public I4DTensor Create4DTensor(IReadOnlyList<FloatTensor> data)
         {
-            return new Cpu4DTensor(data.Select(t => this.CreateTensor(t)).ToList());
+            return new Cpu4DTensor(data.Select(t => this.Create3DTensor(t)).ToList());
         }
 
-        public I4DTensor CreateTensor(IMatrix tensorAsMatrix, int rows, int columns, int depth)
+        public I4DTensor Create4DTensor(IMatrix tensorAsMatrix, int rows, int columns, int depth)
         {
             var list = new List<I3DTensor>();
             for(var i = 0; i < tensorAsMatrix.ColumnCount; i++)
-                list.Add(CreateTensor(tensorAsMatrix.Column(i).Split(depth).Select(v => v.ConvertInPlaceToMatrix(rows, columns)).ToList()));
+                list.Add(Create3DTensor(tensorAsMatrix.Column(i).Split(depth).Select(v => v.ConvertInPlaceToMatrix(rows, columns)).ToList()));
             return new Cpu4DTensor(list);
         }
 
-        public I4DTensor CreateTensor(IReadOnlyList<I3DTensor> tensorList)
+        public I4DTensor Create4DTensor(IReadOnlyList<I3DTensor> tensorList)
         {
             return new Cpu4DTensor(tensorList);
         }
