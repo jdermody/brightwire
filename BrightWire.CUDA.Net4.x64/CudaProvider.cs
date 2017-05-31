@@ -7,38 +7,18 @@ using ManagedCuda.CudaSolve;
 using ManagedCuda.VectorTypes;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.LinearAlgebra
 {
+    /// <summary>
+    /// Manages the bright wire cuda kernels and implements the cuda linear algebra provider
+    /// </summary>
     internal class CudaProvider : ILinearAlgebraProvider, IGpuLinearAlgebraProvider
     {
         const int BLOCK_DIM = 16;
         const int BLOCK_DIM2 = BLOCK_DIM * BLOCK_DIM;
-
-        //class AllocationLayer
-        //{
-        //    readonly List<GpuMatrix> _matrix = new List<GpuMatrix>();
-        //    readonly List<GpuVector> _vector = new List<GpuVector>();
-
-        //    public void Add(GpuMatrix matrix) { _matrix.Add(matrix); }
-        //    public void Add(GpuVector vector) { _vector.Add(vector); }
-        //    public void Release()
-        //    {
-        //        foreach(var item in _matrix)
-        //            item?.Dispose();
-        //        foreach (var item in _vector)
-        //            item?.Dispose();
-        //        _matrix.Clear();
-        //        _vector.Clear();
-        //    }
-        //}
 
         class KernelExecution
         {
@@ -163,7 +143,6 @@ namespace BrightWire.LinearAlgebra
             _softmaxDerivative,
             _reverse,
             _rotate,
-            //_tensorConvertToMatrix,
             _tensorMaxPool,
             _tensorReverseMaxPool,
             _tensorReverseIm2Col
@@ -196,7 +175,6 @@ namespace BrightWire.LinearAlgebra
             _sumColumns = _kernel.LoadFunction("SumColumns");
             _pointwiseDivide = _kernel.LoadFunction("PointwiseDivide");
             _sqrt = _kernel.LoadFunction("Sqrt");
-            //_memCopy = _kernel.LoadFunction("MemCopy");
             _findMinAndMax = _kernel.LoadFunction("FindMinAndMax");
             _findSum = _kernel.LoadFunction("FindSum");
             _findStdDev = _kernel.LoadFunction("FindStdDev");
@@ -232,7 +210,6 @@ namespace BrightWire.LinearAlgebra
             _softmaxDerivative = _kernel.LoadFunction("SoftmaxDerivative");
             _reverse = _kernel.LoadFunction("Reverse");
             _rotate = _kernel.LoadFunction("Rotate");
-            //_tensorConvertToMatrix = _kernel.LoadFunction("TensorConvertToMatrix");
             _tensorMaxPool = _kernel.LoadFunction("TensorMaxPool");
             _tensorReverseMaxPool = _kernel.LoadFunction("TensorReverseMaxPool");
             _tensorReverseIm2Col = _kernel.LoadFunction("TensorReverseIm2Col"); 

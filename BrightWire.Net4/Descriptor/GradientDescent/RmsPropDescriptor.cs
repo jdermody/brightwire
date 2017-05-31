@@ -1,10 +1,10 @@
 ﻿using BrightWire.ExecutionGraph.GradientDescent;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace BrightWire.Descriptor.GradientDescent
 {
+    /// <summary>
+    /// Creates a rms prop gradient descent optimiser
+    /// </summary>
     class RmsPropDescriptor : ICreateTemplateBasedGradientDescent
     {
         readonly float _decay;

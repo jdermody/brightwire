@@ -1,9 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace BrightWire.Helper
 {
+    /// <summary>
+    /// Property set implementation
+    /// </summary>
     class PropertySet : IPropertySet
     {
         public const string WEIGHT_INITIALISATION = "bw:weight-initialisation";
@@ -69,12 +70,6 @@ namespace BrightWire.Helper
             _data[name] = obj;
             return this;
         }
-
-        //public IPropertySet Set(string name, object obj)
-        //{
-        //    _data[name] = obj;
-        //    return this;
-        //}
 
         public void Clear(string name)
         {

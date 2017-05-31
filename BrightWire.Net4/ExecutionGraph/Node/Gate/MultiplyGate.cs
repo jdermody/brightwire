@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.Node.Gate
 {
+    /// <summary>
+    /// Outputs the two input signals multiplied together
+    /// </summary>
     class MultiplyGate : BinaryGateBase
     {
         class Backpropagation : BackpropagationBase<MultiplyGate>

@@ -3,11 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.Node.Input
 {
+    /// <summary>
+    /// Waits for all children to finish backpropagating before sending the error further backward
+    /// </summary>
     class OneToMany : NodeBase
     {
         class Backpropagation : BackpropagationBase<OneToMany>
@@ -24,6 +25,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
                 Debug.Assert(_source._children.Contains(fromNode));
                 _signalTable[fromNode] = errorSignal;
                 if(_signalTable.All(s => s.Value != null) && parents?.Any() == true) {
+                    // TODO: merge signals?
                     var firstSignal = _signalTable[_source._children.First()];
                     foreach (var parent in parents)
                         context.AddBackward(firstSignal, parent, _source);

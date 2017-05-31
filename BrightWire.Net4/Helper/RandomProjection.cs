@@ -1,10 +1,11 @@
 ﻿using MathNet.Numerics.Distributions;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace BrightWire.Helper
 {
+    /// <summary>
+    /// Implements random projection
+    /// </summary>
     internal class RandomProjection : IRandomProjection
     {
         readonly IMatrix _matrix;

@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.Node.Gate
 {
@@ -34,7 +31,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         {
         }
 
-        protected override void _Activate(IContext context, IEnumerable<IncomingChannel> data)
+        protected override void _Activate(IContext context, IReadOnlyList<IncomingChannel> data)
         {
             var curr = data.First().Data;
             Debug.Assert(curr.ColumnCount == data.First().Size);
@@ -46,7 +43,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 curr = next;
                 list.Add(item);
             }
-            _AddHistory(context, curr, () => new Backpropagation(this, list));
+            _AddHistory(context, data, curr, () => new Backpropagation(this, list));
         }
     }
 }

@@ -1,16 +1,16 @@
 ﻿using BrightWire.ExecutionGraph.Helper;
-using BrightWire.Helper;
 using BrightWire.Models;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.Node.Layer
 {
+    /// <summary>
+    /// Convolutional neural network layer
+    /// https://en.wikipedia.org/wiki/Convolutional_neural_network
+    /// </summary>
     class Convolutional : NodeBase
     {
         class Backpropagation : SingleBackpropagationBase<Convolutional>
@@ -33,76 +33,6 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 _source._bias.AddInPlace(delta, 1f, context.LearningRate);
             }
 
-            //IGraphData _CalculatePreviousError(I3DTensor errorSignal, IContext context)
-            //{
-            //    var filters = _source._filter.AsIndexable().Columns.ToList();
-            //    var lap = context.LinearAlgebraProvider;
-            //    var columns = _inputHeight + _source._padding * 2;
-            //    var rows = _inputWidth + _source._padding * 2;
-            //    var stride = _source._stride;
-            //    var matrixList = Enumerable.Range(0, _source._inputDepth)
-            //        .Select(i => lap.CreateMatrix(rows, columns, 0f).AsIndexable())
-            //        .ToList()
-            //    ;
-            //    var convolutions = ConvolutionHelper.Default(columns, rows, _source._filterHeight, _source._filterHeight, stride);
-                
-            //    for (var k = 0; k < errorSignal.Depth; k++) {
-            //        var slice = errorSignal.GetDepthSlice(k).AsIndexable();
-            //        var filterList = filters[k]
-            //            .Split(_source._inputDepth)
-            //            .Select(f => f.Rotate(_source._filterWidth).AsIndexable())
-            //            .ToList()
-            //        ;
-
-            //        foreach (var convolution in convolutions) {
-            //            var first = convolution.First();
-            //            var error = slice[first.X / stride, first.Y / stride];
-            //            foreach (var item in convolution) {
-            //                var i = item.X - first.X;
-            //                var j = item.Y - first.Y;
-            //                for (var z = 0; z < filterList.Count; z++) {
-            //                    var filter = filterList[z];
-            //                    var output = matrixList[z];
-            //                    output[item.Y, item.X] += filter[i * _source._filterHeight + j] * error;
-            //                }
-            //            }
-            //        }
-            //    }
-
-            //    if(_source._padding > 0)
-            //        return lap.CreateTensor(matrixList.Select(m => m.RemovePadding(_source._padding)).ToList()).ToGraphData();
-            //    else
-            //        return lap.CreateTensor(matrixList).ToGraphData();
-            //}
-
-            //void _CalculateWeightUpdate(I3DTensor errorSignal, IContext context)
-            //{
-            //    //var lap = context.LinearAlgebraProvider;
-            //    //var multiplyWith = lap.CreateMatrix(errorSignal.RowCount * errorSignal.ColumnCount, errorSignal.Depth, 0f).AsIndexable();
-            //    //var biasUpdate = new float[errorSignal.Depth];
-
-            //    //for(var k = 0; k < errorSignal.Depth; k++) {
-            //    //    var total = 0f;
-            //    //    int count = 0;
-            //    //    var slice = errorSignal.GetDepthSlice(k).AsIndexable();
-            //    //    for (var x = 0; x < slice.ColumnCount; x++) {
-            //    //        for (var y = 0; y < slice.RowCount; y++) {
-            //    //            var value = slice[x, y];
-            //    //            multiplyWith[x * slice.RowCount + y, k] = value;
-            //    //            total += value;
-            //    //            ++count;
-            //    //        }
-            //    //    }
-            //    //    biasUpdate[k] = total / count;
-            //    //}
-            //    //var delta = _im2Col.TransposeThisAndMultiply(lap.CreateMatrix(multiplyWith));
-            //    //var biasUpdateVector = lap.CreateVector(biasUpdate);
-            //    (var delta, var biasUpdate) = errorSignal.CalculateWeightUpdate(_im2Col);
-
-            //    context.LearningContext.Store(delta, err => _source.Update(err, context.LearningContext));
-            //    context.LearningContext.Store(biasUpdate, bu => _UpdateBias(bu, context.LearningContext));
-            //}
-
             protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
                 var lap = context.LinearAlgebraProvider;
@@ -119,10 +49,6 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 }
 
                 // calculate the weight and delta updates
-                //var multiplyWith = tensor.ConvertToMatrix();
-                //var im2Col = _im2Col.ConvertToMatrix();
-
-                //var weightUpdate = im2Col.TransposeAndMultiply(multiplyWith);
                 var biasUpdate = multiplyWithAll.ColumnSums();
                 biasUpdate.Multiply(1f / multiplyWithAll.RowCount);
                 context.LearningContext.Store(weightUpdate, err => _source.Update(err, context.LearningContext));
@@ -140,28 +66,12 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
                     using(var reverseIm2Col = tensor.ReverseIm2Col(filterList, _inputHeight, _inputWidth, inputDepth, padding, filterHeight, filterWidth, stride)) {
                         var delta = lap.Create4DTensor(reverseIm2Col.ConvertToMatrix(), _inputHeight + padding * 2, _inputWidth + padding * 2, inputDepth);
-                        //var delta = context.LinearAlgebraProvider.CreateTensor(reverseIm2Col, _inputHeight + padding * 2, _inputWidth + padding * 2);
                         if (padding > 0)
                             delta = delta.RemovePadding(padding);
                         return new Tensor4DGraphData(delta.ConvertToMatrix(), _inputHeight, _inputWidth, inputDepth);
                     }
                 }
                 return errorSignal;
-
-                //return tensor.CalculatePreviousError(
-                //    _source._filter,
-                //    _inputHeight,
-                //    _inputWidth,
-                //    _source._inputDepth,
-                //    _source._padding,
-                //    _source._filterHeight,
-                //    _source._filterWidth,
-                //    _source._stride
-                //).ToGraphData();
-                //return errorSignal;
-
-                //_CalculateWeightUpdate(tensor, context);
-                //return _CalculatePreviousError(tensor, context);
             }
         }
         IGradientDescentOptimisation _updater;
@@ -282,7 +192,6 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
             // read the updater
             if (_updater == null) {
-                //var savedUpdater = factory.CreateGradientDescentOptimisation(reader);
                 _updater = factory.GetWeightUpdater(_filter);
             }
         }

@@ -175,11 +175,6 @@ namespace BrightWire.LinearAlgebra
             _matrix.MapIndexedInplace((i, j, v) => (v * coefficient1) + (other[i, j] * coefficient2));
         }
 
-        //public void AddInPlace(float delta)
-        //{
-        //    _matrix.MapInplace(v => v + delta);
-        //}
-
         public void SubtractInPlace(IMatrix matrix, float coefficient1 = 1.0f, float coefficient2 = 1.0f)
         {
             Debug.Assert(RowCount == matrix.RowCount && ColumnCount == matrix.ColumnCount);
@@ -593,68 +588,6 @@ namespace BrightWire.LinearAlgebra
             return new Cpu4DTensor(matrixList);
         }
 
-        //public I3DTensor MaxPool(int filterDepth, List<int[]> indexList)
-        //{
-        //    var size = (int)Math.Sqrt(RowCount);
-        //    var output = Enumerable.Range(0, filterDepth).Select(i => new List<float>()).ToArray();
-
-        //    for (int i = 0, len = RowCount; i < len; i++) {
-        //        var row = Row(i);
-        //        var parts = row.Split(filterDepth);
-        //        var maxIndex = parts.Select(v => v.MaximumIndex()).ToArray();
-        //        for (var j = 0; j < filterDepth; j++) {
-        //            var index = maxIndex[j];
-        //            var slice = parts[j].AsIndexable();
-        //            output[j].Add(slice[index]);
-        //        }
-        //        indexList.Add(maxIndex);
-        //    }
-        //    var matrixList = new List<IMatrix>();
-        //    foreach (var slice in output) {
-        //        var rowList = new List<float[]>();
-        //        for (var i = 0; i < size; i++)
-        //            rowList.Add(slice.Skip(i * size).Take(size).ToArray());
-        //        var matrix = DenseMatrix.Create(rowList.Count, size, (i, j) => rowList[i][j]);
-        //        matrixList.Add(new CpuMatrix(matrix));
-        //    }
-        //    return new Cpu3DTensor(matrixList);
-        //}
-
-        //public IMatrix ReverseMaxPool(IMatrix error, int size, int filterSize, int filterDepth, IReadOnlyList<int[]> indexList)
-        //{
-        //    var filterIndex = 0;
-        //    var filters = error.ConvertInPlaceToVector().Split(filterDepth);
-        //    var sparseDictionary = Enumerable.Range(0, filterDepth).Select(i => new Dictionary<Tuple<int, int>, float>()).ToList();
-
-        //    foreach (var item in filters) {
-        //        var itemIndex = 0;
-        //        int xOffset = 0, yOffset = 0;
-        //        foreach (var value in item.AsIndexable().Values) {
-        //            var maxIndex = indexList[itemIndex][filterIndex];
-        //            var yIndex = maxIndex / filterSize;
-        //            var xIndex = maxIndex % filterSize;
-        //            sparseDictionary[filterIndex].Add(Tuple.Create(xOffset + xIndex, yOffset + yIndex), value);
-        //            xOffset += filterSize;
-        //            if (xOffset >= size) {
-        //                yOffset += filterSize;
-        //                xOffset = 0;
-        //            }
-        //            ++itemIndex;
-        //        }
-        //        ++filterIndex;
-        //    }
-
-        //    var ret = DenseMatrix.Create(size * size, filterDepth, (i, j) => {
-        //        var y = i / size;
-        //        var x = i % size;
-        //        float val;
-        //        if (sparseDictionary[j].TryGetValue(Tuple.Create(x, y), out val))
-        //            return val;
-        //        return 0f;
-        //    });
-        //    return new CpuMatrix(ret);
-        //}
-
         public string AsXml
         {
             get
@@ -684,55 +617,5 @@ namespace BrightWire.LinearAlgebra
                 return ret.ToString();
             }
         }
-
-        // down first
-        //public IMatrix Im2Col(int filterWidth, int filterHeight, int stride)
-        //{
-        //    var rowList = new List<List<float>>();
-        //    foreach(var filter in ConvolutionHelper.Default(ColumnCount, RowCount, filterWidth, filterHeight, stride)) {
-        //        var row = new List<float>();
-        //        foreach (var item in filter)
-        //            row.Add(this[item.Y, item.X]);
-        //    }
-        //    var firstRow = rowList.First();
-        //    return new CpuMatrix(DenseMatrix.Create(rowList.Count, firstRow.Count, (i, j) => rowList[i][j]));
-        //}
-
-        //public IMatrix AddPadding(int padding)
-        //{
-        //    if (padding > 0) {
-        //        var newRows = RowCount + padding * 2;
-        //        var newColumns = ColumnCount + padding * 2;
-        //        var ret = new CpuMatrix(DenseMatrix.Create(newRows, newColumns, 0f));
-
-        //        for (var j = 0; j < newRows; j++) {
-        //            for (var i = 0; i < newColumns; i++) {
-        //                if (i < padding || j < padding)
-        //                    continue;
-        //                else if (i >= newRows - padding || j >= newColumns - padding)
-        //                    continue;
-        //                ret[i, j] = this[i - padding, j - padding];
-        //            }
-        //        }
-        //        return ret;
-        //    }
-        //    return this;
-        //}
-
-        //public IMatrix RemovePadding(int padding)
-        //{
-        //    if (padding > 0) {
-        //        var newRows = RowCount - padding * 2;
-        //        var newColumns = ColumnCount - padding * 2;
-        //        var ret = new CpuMatrix(new DenseMatrix(newRows, newColumns));
-        //        for (var j = 0; j < newRows; j++) {
-        //            for (var i = 0; i < newColumns; i++) {
-        //                ret[i, j] = this[i + padding, j + padding];
-        //            }
-        //        }
-        //        return ret;
-        //    }
-        //    return this;
-        //}
     }
 }

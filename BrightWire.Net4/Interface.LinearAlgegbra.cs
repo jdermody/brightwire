@@ -7,8 +7,14 @@ using System.Threading.Tasks;
 
 namespace BrightWire
 {
+    /// <summary>
+    /// Helper methods when using the GPU linear algebra provider
+    /// </summary>
     public interface IGpuLinearAlgebraProvider
     {
+        /// <summary>
+        /// Binds the current thread to the cuda context (used when using the same cuda provider from multiple threads)
+        /// </summary>
         void BindThread();
     }
 

@@ -1,12 +1,8 @@
 ﻿using ManagedCuda;
-using MathNet.Numerics.LinearAlgebra.Single;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using BrightWire.Models;
 using ManagedCuda.BasicTypes;
 using BrightWire.CUDA.Helper;
@@ -14,6 +10,9 @@ using System.Threading;
 
 namespace BrightWire.LinearAlgebra
 {
+    /// <summary>
+    /// GPU backed vector
+    /// </summary>
     internal class GpuVector : IVector
     {
         readonly CudaProvider _cuda;
@@ -496,15 +495,6 @@ namespace BrightWire.LinearAlgebra
                 var ptr2 = new PtrToMemory(_cuda.Context, new CUdeviceptr(ptr + offset), size);
                 return new GpuVector(_cuda, ptr2);
             }).ToList();
-            //var ret = Enumerable.Range(0, blockCount)
-            //    .Select(i => _cuda.Allocate(blockSize))
-            //    .ToList()
-            //;
-            //using (var devicePtr = new CudaDeviceVariable<CUdeviceptr>(blockCount)) {
-            //    devicePtr.CopyToDevice(ret.Select(p => p.DevicePointer).ToArray());
-            //    _cuda.VectorSplit(_data, Count, blockSize, devicePtr.DevicePointer);
-            //}
-            //return ret.Select(d => new GpuVector(_cuda, d)).ToList();
         }
 
         public IMatrix SoftmaxDerivative()

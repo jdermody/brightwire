@@ -13,7 +13,7 @@ namespace BrightWire
     {
         bool DisplayAsPercentage { get; }
         float Compute(FloatVector output, FloatVector targetOutput);
-        IMatrix CalculateGradient(IMatrix output, IMatrix targetOutput);
+        IMatrix CalculateGradient(IContext context, IMatrix output, IMatrix targetOutput);
     }
 
     /// <summary>

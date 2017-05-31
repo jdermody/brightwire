@@ -1,13 +1,14 @@
 ﻿using BrightWire.Models;
 using BrightWire.Models.Bayesian;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 
 namespace BrightWire.Bayesian
 {
+    /// <summary>
+    /// Multinomial naive bayes classifer
+    /// </summary>
     internal class MultinomialNaiveBayesClassifier : IIndexListClassifier
     {
         class Classification

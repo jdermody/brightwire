@@ -96,7 +96,7 @@ namespace BrightWire.SampleCode
 
             using (var lap = BrightWireProvider.CreateLinearAlgebra(false)) {
                 var graph = new GraphFactory(lap);
-                var errorMetric = graph.ErrorMetric.Rmse;
+                var errorMetric = graph.ErrorMetric.Quadratic;
 
                 // create the property set
                 var propertySet = graph.CurrentPropertySet

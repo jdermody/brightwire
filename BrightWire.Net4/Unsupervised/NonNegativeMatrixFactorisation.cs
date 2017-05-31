@@ -17,7 +17,7 @@ namespace BrightWire.Unsupervised
         {
             _lap = lap;
             _numClusters = numClusters;
-            _costFunction = costFunction ?? new Rmse();
+            _costFunction = costFunction ?? new Quadratic();
         }
 
         public IReadOnlyList<IReadOnlyList<IVector>> Cluster(IReadOnlyList<IVector> data, int numIterations, float errorThreshold = 0.001f)

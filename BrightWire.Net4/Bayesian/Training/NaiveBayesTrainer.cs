@@ -4,10 +4,12 @@ using BrightWire.TabularData.Helper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace BrightWire.Bayesian.Training
 {
+    /// <summary>
+    /// Simple naive bayes trainer
+    /// </summary>
     internal static class NaiveBayesTrainer
     {
         public static NaiveBayes Train(IDataTable table)

@@ -1,12 +1,13 @@
 ﻿using BrightWire.ExecutionGraph.Helper;
 using BrightWire.ExecutionGraph.Node;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace BrightWire.ExecutionGraph.Activation
 {
+    /// <summary>
+    /// Leaky RELU activation
+    /// https://en.wikipedia.org/wiki/Rectifier_(neural_networks)
+    /// </summary>
     class LeakyRelu : NodeBase
     {
         class Backpropagation : SingleBackpropagationBase<LeakyRelu>
@@ -18,26 +19,12 @@ namespace BrightWire.ExecutionGraph.Activation
                 _input = matrix;
             }
 
-            protected override void _Dispose(bool isDisposing)
-            {
-                //foreach(var item in _input)
-                //    item.Dispose();
-            }
-
             protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
                 using (var od = _input.LeakyReluDerivative()) {
                     var delta = errorSignal.GetMatrix().PointwiseMultiply(od);
                     return errorSignal.ReplaceWith(delta);
                 }
-
-                //return context.ToGraphData(_input.Zip(errorSignal.Decompose(), (input, es) => {
-                //    using (var od = input.LeakyReluDerivative()) {
-                //        var delta = es.PointwiseMultiply(od);
-                //        //context.LearningContext.Log("leaky-relu-backpropagation", channel, _source.GetHashCode(), errorSignal, delta);
-                //        return delta;
-                //    }
-                //}));
             }
         }
 

@@ -1,10 +1,10 @@
 ﻿using BrightWire.ExecutionGraph.GradientDescent;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace BrightWire.Descriptor.GradientDescent
 {
+    /// <summary>
+    /// Creates an adam gradient descent optimisation
+    /// </summary>
     class AdamDescriptor : ICreateTemplateBasedGradientDescent
     {
         readonly float _decay, _decay2;

@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BrightWire.ExecutionGraph.Action
+﻿namespace BrightWire.ExecutionGraph.Action
 {
+    /// <summary>
+    /// Joins the graph signal with a saved signal stored in named memory
+    /// </summary>
     internal class JoinInputWithMemory : IAction
     {
         string _slotName;

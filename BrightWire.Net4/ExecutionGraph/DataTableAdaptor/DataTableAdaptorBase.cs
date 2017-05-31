@@ -1,13 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using BrightWire.Models;
 using BrightWire.ExecutionGraph.Helper;
 
 namespace BrightWire.ExecutionGraph.DataTableAdaptor
 {
+    /// <summary>
+    /// Base class for data table based data adaptors
+    /// </summary>
+    /// <typeparam name="T">The type of the cached data</typeparam>
     abstract class DataTableAdaptorBase<T> : IDataSource
     {
         protected readonly ILinearAlgebraProvider _lap;

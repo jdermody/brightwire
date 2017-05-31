@@ -1,15 +1,14 @@
 ﻿using BrightWire.ExecutionGraph.Helper;
 using BrightWire.Models;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 using BrightWire.ExecutionGraph.Action;
 
 namespace BrightWire.ExecutionGraph.Node.Input
 {
+    /// <summary>
+    /// Feeds memory into the graph from a named memory slot
+    /// </summary>
     internal class MemoryFeeder : NodeBase
     {
         class Backpropagation : BackpropagationBase<MemoryFeeder>
@@ -22,13 +21,6 @@ namespace BrightWire.ExecutionGraph.Node.Input
             {
                 if (context.BatchSequence.Type == MiniBatchType.SequenceStart) {
                     var es = errorSignal.GetMatrix();
-
-                    //context.LearningContext.Log(writer => {
-                    //    writer.WriteStartElement("memory-backpropagation");
-                    //    if (context.LearningContext.LogMatrixValues)
-                    //        writer.WriteRaw(es.AsIndexable().AsXml);
-                    //    writer.WriteEndElement();
-                    //});
 
                     using (var columnSums = es.ColumnSums()) {
                         var initialDelta = columnSums.AsIndexable();
@@ -66,26 +58,12 @@ namespace BrightWire.ExecutionGraph.Node.Input
         void _OnStart(IContext context)
         {
             var memory = GetMemory(context.LinearAlgebraProvider, context.BatchSequence.MiniBatch.BatchSize);
-
-            //context.LearningContext?.Log(writer => {
-            //    writer.WriteStartElement("init-memory");
-            //    writer.WriteRaw(memory.AsIndexable().AsXml);
-            //    writer.WriteEndElement();
-            //});
-
             _AddNextGraphAction(context, new MatrixGraphData(memory), () => new Backpropagation(this));
         }
 
         void _OnNext(IContext context)
         {
             var memory = context.ExecutionContext.GetMemory(Id);
-
-            //context.LearningContext?.Log(writer => {
-            //    writer.WriteStartElement("read-memory");
-            //    writer.WriteRaw(memory.AsIndexable().AsXml);
-            //    writer.WriteEndElement();
-            //});
-
             _AddNextGraphAction(context, new MatrixGraphData(memory), null);
         }
 

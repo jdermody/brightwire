@@ -1,19 +1,26 @@
 ﻿using BrightWire.ExecutionGraph.Helper;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.Node.Gate
 {
+    /// <summary>
+    /// Base class for nodes that accept two input signals and output one signal
+    /// </summary>
     public abstract class BinaryGateBase : NodeBase
     {
         IMatrix _primary = null, _secondary = null;
         INode _primarySource, _secondarySource = null;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="name"></param>
         public BinaryGateBase(string name) : base(name) { }
 
+        /// <summary>
+        /// Executes on the primary channel
+        /// </summary>
+        /// <param name="context">The graph context</param>
         public override void ExecuteForward(IContext context)
         {
             _primarySource = context.Source;
@@ -21,7 +28,12 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             _TryComplete(context);
         }
 
-        public override void _ExecuteForward(IContext context, int channel)
+        /// <summary>
+        /// Executes on a secondary channel
+        /// </summary>
+        /// <param name="context">The graph context</param>
+        /// <param name="channel">The channel</param>
+        protected override void _ExecuteForward(IContext context, int channel)
         {
             if (channel == 1) {
                 _secondarySource = context.Source;
@@ -39,8 +51,20 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             }
         }
 
+        /// <summary>
+        /// When both the primary and secondary inputs have arrived
+        /// </summary>
+        /// <param name="context">Graph context</param>
+        /// <param name="primary">Primary signal</param>
+        /// <param name="secondary">Secondary signal</param>
         protected abstract void _Activate(IContext context, IMatrix primary, IMatrix secondary);
 
+        /// <summary>
+        /// Records the network activity
+        /// </summary>
+        /// <param name="context">Graph context</param>
+        /// <param name="output">The output signal</param>
+        /// <param name="backpropagation">Backpropagation creator (optional)</param>
         protected void _AddHistory(IContext context, IMatrix output, Func<IBackpropagation> backpropagation)
         {
             context.AddForward(new TrainingAction(this, new MatrixGraphData(output), new[] { _primarySource, _secondarySource }), backpropagation);

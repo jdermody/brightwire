@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using BrightWire.Models;
 
 namespace BrightWire.ExecutionGraph.DataTableAdaptor
 {
+    /// <summary>
+    /// Adapts data tables with a index list based column (corresponding to an unweighted sparse vector)
+    /// </summary>
     class IndexListDataTableAdaptor : DataTableAdaptorBase<(IndexList, FloatVector)>, IIndexListEncoder
     {
         readonly int _inputSize;

@@ -1,13 +1,11 @@
 ﻿using ManagedCuda;
 using ManagedCuda.BasicTypes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire
 {
+    /// <summary>
+    /// Wrapper for a device memory pointer
+    /// </summary>
     internal interface IDeviceMemoryPtr
     {
         void Free();

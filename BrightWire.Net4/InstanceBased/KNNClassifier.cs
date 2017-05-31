@@ -1,7 +1,5 @@
-﻿using BrightWire.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Linq;
 using BrightWire.Models.InstanceBased;
 
@@ -49,14 +47,6 @@ namespace BrightWire.InstanceBased
                 ;
             }
         }
-
-        //public IEnumerable<string> Classify(IRow row)
-        //{
-        //    return _Classify(row)
-        //        .OrderByDescending(d => d.Item2)
-        //        .Select(d => d.Item1)
-        //    ;
-        //}
 
         public IReadOnlyList<(string Label, float Weight)> Classify(IRow row)
         {

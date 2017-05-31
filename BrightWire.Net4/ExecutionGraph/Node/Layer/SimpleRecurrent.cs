@@ -1,18 +1,15 @@
-﻿using BrightWire.ExecutionGraph.Helper;
-using BrightWire.ExecutionGraph.Node.Input;
-using System;
+﻿using BrightWire.ExecutionGraph.Node.Input;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 using BrightWire.Models;
-using ProtoBuf;
 using BrightWire.ExecutionGraph.Node.Helper;
 using BrightWire.ExecutionGraph.Action;
 
 namespace BrightWire.ExecutionGraph.Node.Layer
 {
+    /// <summary>
+    /// Simple recurrent neural network
+    /// </summary>
     internal class SimpleRecurrent : NodeBase, IHaveMemoryNode
     {
         IReadOnlyDictionary<INode, IGraphData> _lastBackpropagation = null;
@@ -42,7 +39,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 .AddBackwardAction(new ConstrainErrorSignal())
                 .Add(activation)
                 .AddForwardAction(_memory.SetMemoryAction)
-                .Add(new RestoreErrorSignal(context => {
+                .Add(new HookErrorSignal(context => {
                     if(_lastBackpropagation != null) {
                         foreach(var item in _lastBackpropagation)
                             context.AppendErrorSignal(item.Value, item.Key);

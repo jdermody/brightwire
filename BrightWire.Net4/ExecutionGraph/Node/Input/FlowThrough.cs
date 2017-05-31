@@ -1,12 +1,8 @@
-﻿using BrightWire.ExecutionGraph.Helper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BrightWire.ExecutionGraph.Node.Input
+﻿namespace BrightWire.ExecutionGraph.Node.Input
 {
+    /// <summary>
+    /// Simple pass through of the input signal
+    /// </summary>
     class FlowThrough : NodeBase
     {
         public FlowThrough() : base(null)

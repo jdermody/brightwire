@@ -1,10 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.IO;
 
 namespace BrightWire.ExecutionGraph.GradientDescent
 {
+    /// <summary>
+    /// Gradient descent with momentum
+    /// https://en.wikipedia.org/wiki/Stochastic_gradient_descent#Momentum
+    /// </summary>
     class Momentum : AdaGrad
     {
         protected float _momentum;

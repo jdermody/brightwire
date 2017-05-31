@@ -1,12 +1,12 @@
 ﻿using BrightWire.ExecutionGraph.Node;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.Helper
 {
+    /// <summary>
+    /// Base class for nodes that back propagate to a single parent
+    /// </summary>
+    /// <typeparam name="T">The node type</typeparam>
     abstract class SingleBackpropagationBase<T> : BackpropagationBase<T>
         where T : INode
     {

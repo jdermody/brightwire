@@ -1,18 +1,16 @@
 ﻿using BrightWire.ExecutionGraph.Action;
-using BrightWire.ExecutionGraph.Helper;
-using BrightWire.ExecutionGraph.Node.Gate;
 using BrightWire.ExecutionGraph.Node.Helper;
 using BrightWire.ExecutionGraph.Node.Input;
 using BrightWire.Models;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.Node.Layer
 {
+    /// <summary>
+    /// GRU recurrent neural network
+    /// https://en.wikipedia.org/wiki/Gated_recurrent_unit
+    /// </summary>
     class GatedRecurrentUnit : NodeBase, IHaveMemoryNode
     {
         IReadOnlyDictionary<INode, IGraphData> _lastBackpropagation = null;
@@ -34,15 +32,11 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             _memory = new MemoryFeeder(memory, null, memoryId);
             _input = new FlowThrough();
 
-            //graph.PushPropertySet(ps => ps.Use(graph.WeightInitialisation.Zeroes));
             var Wz = graph.Connect(inputSize, _input).AddFeedForward(hiddenLayerSize, "Wz");
             var Uz = graph.Connect(hiddenLayerSize, _memory).AddFeedForward(hiddenLayerSize, "Uz");
-            //graph.PopPropertyStack();
 
-            //graph.PushPropertySet(ps => ps.Use(graph.WeightInitialisation.Ones));
             var Wr = graph.Connect(inputSize, _input).AddFeedForward(hiddenLayerSize, "Wr");
             var Ur = graph.Connect(hiddenLayerSize, _memory).AddFeedForward(hiddenLayerSize, "Ur");
-            //graph.PopPropertyStack();
 
             // add sigmoids to the gates
             var Rt = graph.Add(Wr, Ur).AddBackwardAction(new ConstrainErrorSignal()).Add(graph.SigmoidActivation("Rt")).Build();
@@ -61,7 +55,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             _output = graph
                 .Add(h2, previous)
                 .AddForwardAction(_memory.SetMemoryAction)
-                .Add(new RestoreErrorSignal(context => {
+                .Add(new HookErrorSignal(context => {
                     if (_lastBackpropagation != null) {
                         foreach (var item in _lastBackpropagation)
                             context.AppendErrorSignal(item.Value, item.Key);

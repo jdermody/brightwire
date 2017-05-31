@@ -29,14 +29,6 @@ namespace BrightWire.Linear
             return _classifier.Select((m, i) => Tuple.Create(i, m.Predict(features)));
         }
 
-        //public IEnumerable<string> Classify(IRow row)
-        //{
-        //    return _Classify(row)
-        //        .OrderByDescending(r => r.Item2)
-        //        .Select(r => _model.Classification[r.Item1])
-        //    ;
-        //}
-
         public IReadOnlyList<(string Label, float Weight)> Classify(IRow row)
         {
             // calculate softmax over output value

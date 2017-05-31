@@ -1,10 +1,10 @@
 ﻿using BrightWire.ExecutionGraph.GradientDescent;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace BrightWire.Descriptor.GradientDescent
 {
+    /// <summary>
+    /// Creates an AdaGrad gradient descent optimisation
+    /// </summary>
     class AdaGradDescriptor : ICreateTemplateBasedGradientDescent
     {
         public IGradientDescentOptimisation Create(IGradientDescentOptimisation prev, IMatrix template, IPropertySet propertySet)

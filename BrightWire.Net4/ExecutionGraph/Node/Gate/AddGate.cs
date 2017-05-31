@@ -1,12 +1,8 @@
-﻿using BrightWire.ExecutionGraph.Helper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BrightWire.ExecutionGraph.Node.Gate
+﻿namespace BrightWire.ExecutionGraph.Node.Gate
 {
+    /// <summary>
+    /// Outputs the two input signals added together
+    /// </summary>
     class AddGate : BinaryGateBase
     {
         public AddGate(string name = null) : base(name) { }

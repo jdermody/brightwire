@@ -1,10 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace BrightWire.ExecutionGraph.GradientDescent
 {
+    /// <summary>
+    /// Adam gradient descent
+    /// https://en.wikipedia.org/wiki/Stochastic_gradient_descent#Adam
+    /// </summary>
     class Adam : RmsProp
     {
         float _decayRate2;

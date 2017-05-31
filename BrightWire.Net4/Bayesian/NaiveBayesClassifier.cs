@@ -2,10 +2,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace BrightWire.Bayesian
 {
+    /// <summary>
+    /// Naive bayes classifier
+    /// </summary>
     internal class NaiveBayesClassifier : IRowClassifier
     {
         interface IProbabilityProvider
@@ -79,7 +81,7 @@ namespace BrightWire.Bayesian
         }
 
         /// <summary>
-        /// Naive bayes values should only be used for ranking against each other
+        /// Naive bayes classifications should only be used for ranking against each other and not for deriving an actual weighted probability
         /// </summary>
         /// <param name="row"></param>
         /// <returns></returns>

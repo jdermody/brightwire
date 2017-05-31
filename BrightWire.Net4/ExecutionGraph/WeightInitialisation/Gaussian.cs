@@ -1,10 +1,11 @@
 ﻿using MathNet.Numerics.Distributions;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace BrightWire.ExecutionGraph.WeightInitialisation
 {
+    /// <summary>
+    /// Initialises weights randomly based on a gaussian distribution
+    /// </summary>
     class Gaussian : IWeightInitialisation
     {
         readonly IContinuousDistribution _distribution;

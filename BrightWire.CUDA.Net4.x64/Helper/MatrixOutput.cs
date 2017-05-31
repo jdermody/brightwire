@@ -4,11 +4,12 @@ using ManagedCuda.BasicTypes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.CUDA.Helper
 {
+    /// <summary>
+    /// Helper class to represent a list of matrices that are the output of a cuda kernel
+    /// </summary>
     class MatrixOutput : IDisposable
     {
         readonly CudaProvider _cuda;

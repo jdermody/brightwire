@@ -1,13 +1,14 @@
 ﻿using BrightWire.ExecutionGraph.Helper;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.Node.Helper
 {
+    /// <summary>
+    /// Executes an action when backpropagating
+    /// </summary>
     class ExecuteBackwardAction : NodeBase
     {
         class Backpropagation : SingleBackpropagationBase<ExecuteBackwardAction>

@@ -1,15 +1,13 @@
 ﻿using BrightWire.ExecutionGraph.Engine;
-using BrightWire.ExecutionGraph.Helper;
+using BrightWire.ExecutionGraph.Engine.Helper;
 using BrightWire.ExecutionGraph.Node.Input;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.DataTableAdaptor
 {
+    /// <summary>
+    /// Base class for data table adaptors that adapt their input based on a preliminary execution graph
+    /// </summary>
     abstract class AdaptiveDataTableAdaptorBase : RowBasedDataTableAdaptorBase, IAdaptiveDataSource
     {
         protected INode _input;

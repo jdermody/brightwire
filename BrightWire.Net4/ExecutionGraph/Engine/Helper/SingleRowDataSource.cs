@@ -1,12 +1,12 @@
 ﻿using BrightWire.ExecutionGraph.Helper;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.Engine.Helper
 {
+    /// <summary>
+    /// Helper class when executing a single row instead of the normal batch mode
+    /// </summary>
     class SingleRowDataSource : IDataSource
     {
         readonly float[] _data;

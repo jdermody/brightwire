@@ -21,20 +21,20 @@ namespace BrightWire.SampleCode
 
                 // create the graph
                 var graph = new GraphFactory(lap);
-                var errorMetric = graph.ErrorMetric.Rmse;
+                var errorMetric = graph.ErrorMetric.CrossEntropy;
                 graph.CurrentPropertySet
                     // use rmsprop gradient descent optimisation
                     .Use(graph.GradientDescent.RmsProp)
                     // and xavier weight initialisation
-                    .Use(graph.WeightInitialisation.Xavier) 
+                    .Use(graph.WeightInitialisation.Gaussian) 
                 ;
 
                 // create the engine
                 var testData = graph.GetDataSource(data);
-                var engine = graph.CreateTrainingEngine(testData, 0.3f, 2);
+                var engine = graph.CreateTrainingEngine(testData, 0.1f, 4);
 
                 // create the network
-                const int HIDDEN_LAYER_SIZE = 4;
+                const int HIDDEN_LAYER_SIZE = 6;
                 graph.Connect(engine)
                     // create a feed forward layer with sigmoid activation
                     .AddFeedForward(HIDDEN_LAYER_SIZE)
@@ -48,7 +48,7 @@ namespace BrightWire.SampleCode
 
                 // train the network
                 var executionContext = graph.CreateExecutionContext();
-                for (var i = 0; i < 5000; i++) {
+                for (var i = 0; i < 1000; i++) {
                     var trainingError = engine.Train(executionContext);
                     if (i % 100 == 0)
                         engine.Test(testData, errorMetric);
@@ -80,7 +80,7 @@ namespace BrightWire.SampleCode
             //IrisClustering();
             //MarkovChains();
             //MNIST(@"D:\data\mnist\");
-            //MNISTConvolutional(@"D:\data\mnist\");
+            MNISTConvolutional(@"D:\data\mnist\");
             //SentimentClassification(@"D:\data\sentiment labelled sentences\");
             //TextClustering(@"D:\data\[UCI] AAAI-14 Accepted Papers - Papers.csv", @"d:\temp\");
             //IntegerAddition();

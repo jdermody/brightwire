@@ -1,11 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.IO;
 
 namespace BrightWire.ExecutionGraph.GradientDescent
 {
-    class Simple : IGradientDescentOptimisation
+    /// <summary>
+    /// Simple SGD
+    /// https://en.wikipedia.org/wiki/Stochastic_gradient_descent
+    /// </summary>
+    class StochasticGradientDescent : IGradientDescentOptimisation
     {
         public void Dispose()
         {

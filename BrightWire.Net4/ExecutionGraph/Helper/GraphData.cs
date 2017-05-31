@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.Helper
 {
+    /// <summary>
+    /// Graph data adaptor for matrices
+    /// </summary>
     class MatrixGraphData : IGraphData
     {
         readonly IMatrix _matrix;
@@ -40,6 +40,9 @@ namespace BrightWire.ExecutionGraph.Helper
         public IReadOnlyList<IMatrix> AllMatrices => new[] { _matrix };
     }
 
+    /// <summary>
+    /// Graph data adaptor for 3D tensors
+    /// </summary>
     class Tensor3DGraphData : IGraphData
     {
         readonly IMatrix _matrix;
@@ -80,6 +83,9 @@ namespace BrightWire.ExecutionGraph.Helper
         public IReadOnlyList<IMatrix> AllMatrices => _matrix.ConvertTo3DTensor(_rows, _columns).SubMatrices;
     }
 
+    /// <summary>
+    /// Graph data adaptor for 4D tensors
+    /// </summary>
     class Tensor4DGraphData : IGraphData
     {
         readonly IMatrix _matrix;

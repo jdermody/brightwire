@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace BrightWire.ExecutionGraph.WeightInitialisation
+﻿namespace BrightWire.ExecutionGraph.WeightInitialisation
 {
+    /// <summary>
+    /// Initalises all weights to a constant
+    /// </summary>
     class Constant : IWeightInitialisation
     {
         readonly ILinearAlgebraProvider _lap;

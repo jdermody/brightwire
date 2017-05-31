@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using ManagedCuda;
 using ManagedCuda.BasicTypes;
 
 namespace BrightWire.CUDA.Helper
 {
+    /// <summary>
+    /// A pointer to a block of device memory (the block is owned by another pointer)
+    /// </summary>
     class PtrToMemory : IDeviceMemoryPtr
     {
         readonly CudaDeviceVariable<float> _ptr;
@@ -30,12 +29,12 @@ namespace BrightWire.CUDA.Helper
 
         public void CopyToDevice(float[] source)
         {
-            throw new Exception("Tried to update read only memory - try cloning the the object to create a new copy");
+            throw new NotImplementedException();
         }
 
         public void CopyToDevice(IDeviceMemoryPtr source)
         {
-            throw new Exception("Tried to update read only memory - try cloning the the object to create a new copy");
+            throw new NotImplementedException();
         }
 
         public void CopyToHost(float[] target)

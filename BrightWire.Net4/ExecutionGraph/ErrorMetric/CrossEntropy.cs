@@ -1,16 +1,23 @@
 ﻿using BrightWire.LinearAlgebra.Helper;
 using BrightWire.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace BrightWire.ExecutionGraph.ErrorMetric
 {
+    /// <summary>
+    /// Cross entropy error
+    /// https://en.wikipedia.org/wiki/Cross_entropy#Cross-entropy_error_function_and_logistic_regression
+    /// </summary>
     class CrossEntropy : IErrorMetric
     {
-        public IMatrix CalculateGradient(IMatrix output, IMatrix targetOutput)
+        public IMatrix CalculateGradient(IContext context, IMatrix output, IMatrix targetOutput)
         {
-            return targetOutput.Subtract(output);
+            var lap = context.LinearAlgebraProvider;
+            using (var ones = lap.CreateMatrix(output.RowCount, output.ColumnCount, 1f))
+            using (var oneMinusOutput = ones.Subtract(output))
+            using (var oneMinusOutputTimesOutput = oneMinusOutput.PointwiseMultiply(output)) {
+                using (var delta = targetOutput.Subtract(output))
+                    return delta.PointwiseDivide(oneMinusOutputTimesOutput);
+            }
         }
 
         public float Compute(FloatVector output, FloatVector targetOutput)

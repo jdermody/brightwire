@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Linq;
-using ManagedCuda;
 using BrightWire.Models;
 using System.Diagnostics;
-using System.Threading;
 using BrightWire.CUDA.Helper;
+using System.Threading;
 
 namespace BrightWire.LinearAlgebra
 {
+    /// <summary>
+    /// GPU backed 3D tensor
+    /// </summary>
     internal class Gpu3DTensor : I3DTensor
     {
         readonly IReadOnlyList<GpuMatrix> _data;

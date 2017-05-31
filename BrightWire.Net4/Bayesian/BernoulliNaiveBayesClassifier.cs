@@ -1,13 +1,14 @@
 ﻿using BrightWire.Models;
 using BrightWire.Models.Bayesian;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 
 namespace BrightWire.Bayesian
 {
+    /// <summary>
+    /// Bernoulli naive bayes classifier
+    /// </summary>
     internal class BernoulliNaiveBayesClassifier : IIndexListClassifier
     {
         class Classification

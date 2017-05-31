@@ -1,12 +1,12 @@
-﻿using BrightWire.ExecutionGraph.Node.Input;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace BrightWire.ExecutionGraph.Engine
+namespace BrightWire.ExecutionGraph.Engine.Helper
 {
+    /// <summary>
+    /// Training engine context
+    /// </summary>
     class TrainingEngineContext : IContext
     {
         readonly IExecutionContext _executionContext;
@@ -70,8 +70,7 @@ namespace BrightWire.ExecutionGraph.Engine
                 action.Backpropagation = callback();
             _forward.Add(action);
 
-            List<IExecutionHistory> temp;
-            if (!_history.TryGetValue(action.Source, out temp))
+            if (!_history.TryGetValue(action.Source, out List<IExecutionHistory> temp))
                 _history.Add(action.Source, temp = new List<IExecutionHistory>());
             temp.Add(action);
         }
@@ -115,13 +114,12 @@ namespace BrightWire.ExecutionGraph.Engine
             AddBackward(delta, _sourceNode, null);
 
             // backpropagate the error through the graph
-            List<IExecutionHistory> history;
             _errorSignal = null;
             while (_backward.Any()) {
                 var next = _backward.Pop();
                 _errorSignal = _GetErrorSignal(next.ErrorSignal, next.Target);
 
-                if (next.Target != null && _history.TryGetValue(next.Target, out history)) {
+                if (next.Target != null && _history.TryGetValue(next.Target, out List<IExecutionHistory> history)) {
                     foreach (var item in history) {
                         if (item.Backpropagation != null) {
                             item.Backpropagation.Backward(next.Source, _errorSignal, this, item.Parents);
@@ -137,12 +135,11 @@ namespace BrightWire.ExecutionGraph.Engine
 
         IGraphData _GetErrorSignal(IGraphData errorSignal, INode node)
         {
-            List<IGraphData> temp;
             var list = new List<IGraphData>();
 
             if (errorSignal != null)
                 list.Add(errorSignal);
-            if (_nodeErrorSignal.TryGetValue(node, out temp)) {
+            if (_nodeErrorSignal.TryGetValue(node, out List<IGraphData> temp)) {
                 foreach (var item in temp) {
                     if (item != null)
                         list.Add(item);
@@ -166,8 +163,7 @@ namespace BrightWire.ExecutionGraph.Engine
 
         public void AppendErrorSignal(IGraphData errorSignal, INode forNode)
         {
-            List<IGraphData> temp;
-            if (!_nodeErrorSignal.TryGetValue(forNode, out temp))
+            if (!_nodeErrorSignal.TryGetValue(forNode, out List<IGraphData> temp))
                 _nodeErrorSignal.Add(forNode, temp = new List<IGraphData>());
             temp.Add(errorSignal);
         }

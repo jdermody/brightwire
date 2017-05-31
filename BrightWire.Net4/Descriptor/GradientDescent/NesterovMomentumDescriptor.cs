@@ -1,10 +1,10 @@
 ﻿using BrightWire.ExecutionGraph.GradientDescent;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace BrightWire.Descriptor.GradientDescent
 {
+    /// <summary>
+    /// Creates a nesterov momentum gradient descent optimiser
+    /// </summary>
     class NesterovMomentumDescriptor : MomentumDescriptor
     {
         public NesterovMomentumDescriptor(float momentum = 0.9f) : base(momentum)

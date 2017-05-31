@@ -1,15 +1,17 @@
-﻿using BrightWire.ExecutionGraph.Helper;
+﻿using BrightWire.ExecutionGraph.Engine.Helper;
+using BrightWire.ExecutionGraph.Helper;
 using BrightWire.ExecutionGraph.Node.Input;
 using BrightWire.Helper;
 using BrightWire.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.Engine
 {
+    /// <summary>
+    /// Trains graphs as it executes them
+    /// </summary>
     class TrainingEngine : IGraphTrainingEngine
     {
         readonly ILinearAlgebraProvider _lap;

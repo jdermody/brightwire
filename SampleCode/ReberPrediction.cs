@@ -19,7 +19,7 @@ namespace BrightWire.SampleCode
 
             using (var lap = BrightWireGpuProvider.CreateLinearAlgebra(false)) {
                 var graph = new GraphFactory(lap);
-                var errorMetric = graph.ErrorMetric.Rmse;
+                var errorMetric = graph.ErrorMetric.Quadratic;
                 var propertySet = graph.CurrentPropertySet
                     .Use(graph.RmsProp())
                     .Use(graph.XavierWeightInitialisation())

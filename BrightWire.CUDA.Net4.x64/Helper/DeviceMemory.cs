@@ -1,17 +1,17 @@
-﻿using BrightWire.LinearAlgebra;
-using ManagedCuda;
+﻿using ManagedCuda;
 using ManagedCuda.BasicTypes;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace BrightWire.CUDA.Helper
 {
+    /// <summary>
+    /// Maintains a cache of available device memory
+    /// </summary>
     internal class DeviceMemory : IDisposable
     {
         private class Block : IDeviceMemoryPtr
@@ -148,13 +148,12 @@ namespace BrightWire.CUDA.Helper
         }
         void _Dispose()
         {
-            Layer layer;
-            while (_layer.TryPop(out layer)) {
+            while (_layer.TryPop(out Layer layer)) {
                 lock (layer) {
                     layer.Release();
                 }
             }
-            foreach(var item in _cache) {
+            foreach (var item in _cache) {
                 item.Value.ForEach(d => d.Destroy());
                 item.Value.Clear();
             }
@@ -168,8 +167,7 @@ namespace BrightWire.CUDA.Helper
 
         public void PopLayer()
         {
-            Layer layer;
-            if (_layer.TryPop(out layer)) {
+            if (_layer.TryPop(out Layer layer)) {
                 lock (layer) {
                     layer.Release();
                 }
@@ -205,16 +203,14 @@ namespace BrightWire.CUDA.Helper
             Block ret;
 
             if (_maxSize > 0) {
-                ThreadSafeHashSet<Block> temp;
-                if (_cache.TryGetValue(size, out temp)) {
-                    if(temp.TryPop(out ret))
+                if (_cache.TryGetValue(size, out ThreadSafeHashSet<Block> temp)) {
+                    if (temp.TryPop(out ret))
                         return ret;
                 }
             }
 
             ret = new Block(this, _GetNextIndex(), size);
-            Layer layer;
-            if (_layer.TryPeek(out layer)) {
+            if (_layer.TryPeek(out Layer layer)) {
                 lock (layer) {
                     layer.Add(ret);
                 }
@@ -225,8 +221,7 @@ namespace BrightWire.CUDA.Helper
 
         public void Add(IDisposable disposable)
         {
-            Layer layer;
-            if (_layer.TryPeek(out layer)) {
+            if (_layer.TryPeek(out Layer layer)) {
                 lock (layer) {
                     layer.Add(disposable);
                 }

@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using BrightWire.Models;
-using BrightWire.ExecutionGraph.Node.Input;
 using BrightWire.ExecutionGraph.Helper;
-using System.Diagnostics;
-using System.Collections.Concurrent;
-using BrightWire.ExecutionGraph.Engine;
 
 namespace BrightWire.ExecutionGraph.DataTableAdaptor
 {
+    /// <summary>
+    /// Adapts data tables that classify tensors (volumes)
+    /// </summary>
     class TensorBasedDataTableAdaptor : RowBasedDataTableAdaptorBase
     {
         readonly int _inputSize, _outputSize, _rows, _columns, _depth;

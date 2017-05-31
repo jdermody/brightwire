@@ -1,11 +1,11 @@
 ﻿using MathNet.Numerics.Distributions;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace BrightWire.ExecutionGraph.WeightInitialisation
 {
     /// <summary>
+    /// Xavier weight initialisation
     /// http://andyljones.tumblr.com/post/110998971763/an-explanation-of-xavier-initialization
     /// </summary>
     class Xavier : IWeightInitialisation
@@ -35,8 +35,7 @@ namespace BrightWire.ExecutionGraph.WeightInitialisation
         public float GetWeight(int inputSize, int outputSize, int i, int j)
         {
             var key = Tuple.Create(inputSize, outputSize);
-            IContinuousDistribution distribution;
-            if (!_distributionTable.TryGetValue(key, out distribution)) {
+            if (!_distributionTable.TryGetValue(key, out IContinuousDistribution distribution)) {
                 var stdDev = _parameter / (inputSize + outputSize);
                 _distributionTable.Add(key, distribution = new Normal(0, stdDev, _random));
             }

@@ -1,10 +1,10 @@
 ﻿using BrightWire.ExecutionGraph.GradientDescent;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace BrightWire.Descriptor.GradientDescent
 {
+    /// <summary>
+    /// Creates L1 regularisation
+    /// </summary>
     class L1RegularisationDescriptor : ICreateGradientDescent
     {
         readonly float _lambda;

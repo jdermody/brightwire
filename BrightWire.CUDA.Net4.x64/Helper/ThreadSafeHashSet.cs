@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace BrightWire.CUDA.Helper
 {
+    /// <summary>
+    /// A hash set that can be accessed by more than one thread at the same time
+    /// </summary>
+    /// <typeparam name="T">The wrapped type</typeparam>
     class ThreadSafeHashSet<T> : IDisposable
     {
         private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);

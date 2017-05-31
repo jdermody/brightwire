@@ -1,12 +1,11 @@
 ﻿using BrightWire.ExecutionGraph.Helper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.Node.Input
 {
+    /// <summary>
+    /// Inputs the opposite sequential item from the input index (for bidirectional recurrent neural networks)
+    /// https://en.wikipedia.org/wiki/Bidirectional_recurrent_neural_networks
+    /// </summary>
     class ReverseSequence : NodeBase
     {
         public ReverseSequence(string name = null) : base(name)

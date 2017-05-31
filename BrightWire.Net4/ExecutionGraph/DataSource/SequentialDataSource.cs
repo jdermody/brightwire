@@ -3,11 +3,12 @@ using BrightWire.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.DataSource
 {
+    /// <summary>
+    /// Feeds sequential data to the graph
+    /// </summary>
     class SequentialDataSource : IDataSource
     {
         readonly int[] _rowDepth;
@@ -39,12 +40,11 @@ namespace BrightWire.ExecutionGraph.DataSource
         {
             var data = rows.Select(i => _data[i]).ToList();
 
-            List<FloatVector> temp;
             var inputData = new Dictionary<int, List<FloatVector>>();
             foreach (var item in data) {
                 var input = item;
                 for (int i = 0, len = input.RowCount; i < len; i++) {
-                    if (!inputData.TryGetValue(i, out temp))
+                    if (!inputData.TryGetValue(i, out List<FloatVector> temp))
                         inputData.Add(i, temp = new List<FloatVector>());
                     temp.Add(input.Row[i]);
                 }

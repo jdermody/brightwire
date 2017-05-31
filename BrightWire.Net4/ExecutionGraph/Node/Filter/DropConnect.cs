@@ -1,15 +1,15 @@
 ﻿using BrightWire.ExecutionGraph.Helper;
 using BrightWire.ExecutionGraph.Node.Layer;
 using MathNet.Numerics.Distributions;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.Node.Filter
 {
+    /// <summary>
+    /// Drop connect regularisation
+    /// http://cs.nyu.edu/~wanli/dropc/
+    /// </summary>
     class DropConnect : FeedForward
     {
         new class Backpropagation : SingleBackpropagationBase<DropConnect>
@@ -61,8 +61,13 @@ namespace BrightWire.ExecutionGraph.Node.Filter
                 var filteredWeights = Weight.PointwiseMultiply(filter);
                 var output = _FeedForward(inputMatrix, filteredWeights);
                 _AddNextGraphAction(context, input.ReplaceWith(output), () => new Backpropagation(this, inputMatrix, filter, filteredWeights));
-            } else
+            } else {
+                // otherwise scale by the drop out percentage
+                var scaleFactor = 1 - _dropOutPercentage;
+                var matrix = context.Data.GetMatrix();
+                matrix.Multiply(scaleFactor);
                 base.ExecuteForward(context);
+            }
         }
 
         protected override (string Description, byte[] Data) _GetInfo()

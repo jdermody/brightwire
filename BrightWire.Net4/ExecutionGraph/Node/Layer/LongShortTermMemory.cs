@@ -1,16 +1,15 @@
-﻿using BrightWire.ExecutionGraph.Helper;
-using BrightWire.ExecutionGraph.Node.Helper;
+﻿using BrightWire.ExecutionGraph.Node.Helper;
 using BrightWire.ExecutionGraph.Node.Input;
 using BrightWire.Models;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.Node.Layer
 {
+    /// <summary>
+    /// LSTM recurrent neural network
+    /// https://en.wikipedia.org/wiki/Long_short-term_memory
+    /// </summary>
     class LongShortTermMemory : NodeBase, IHaveMemoryNode
     {
         int _inputSize;
@@ -53,7 +52,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
             _output = graph.Multiply(Ot, Ct.Add(graph.TanhActivation()))
                 .AddForwardAction(_memory.SetMemoryAction)
-                .Add(new RestoreErrorSignal(context => {
+                .Add(new HookErrorSignal(context => {
                     if (_lastBackpropagation != null) {
                         foreach (var item in _lastBackpropagation)
                             context.AppendErrorSignal(item.Value, item.Key);

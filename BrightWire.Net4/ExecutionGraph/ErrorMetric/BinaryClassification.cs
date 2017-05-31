@@ -1,13 +1,13 @@
 ﻿using BrightWire.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace BrightWire.ExecutionGraph.ErrorMetric
 {
+    /// <summary>
+    /// Binary classification rounds outputs to 1 or 0 and compares them against the target
+    /// </summary>
     class BinaryClassification : IErrorMetric
     {
-        public IMatrix CalculateGradient(IMatrix output, IMatrix targetOutput)
+        public IMatrix CalculateGradient(IContext context, IMatrix output, IMatrix targetOutput)
         {
             return targetOutput.Subtract(output);
         }

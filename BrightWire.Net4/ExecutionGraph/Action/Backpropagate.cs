@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.Action
 {
+    /// <summary>
+    /// Backpropagates the graph against the error metric
+    /// </summary>
     internal class Backpropagate : IAction
     {
         IErrorMetric _errorMetric;
@@ -29,8 +28,7 @@ namespace BrightWire.ExecutionGraph.Action
         {
             var output = input.GetMatrix();
             if (context.IsTraining) {
-                var gradient = _errorMetric.CalculateGradient(output, context.BatchSequence.Target.GetMatrix());
-                //context.LearningContext?.Log("backprogation-error", gradient);
+                var gradient = _errorMetric.CalculateGradient(context, output, context.BatchSequence.Target.GetMatrix());
                 context.Backpropagate(input.ReplaceWith(gradient));
             }
             return input;

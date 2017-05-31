@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BrightWire.ExecutionGraph.Helper
+﻿namespace BrightWire.ExecutionGraph.Helper
 {
+    /// <summary>
+    /// A wire to a graph node
+    /// </summary>
     class WireToNode : IWire
     {
         readonly INode _node;

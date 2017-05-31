@@ -1,12 +1,12 @@
 ﻿using BrightWire.Models;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.DataTableAdaptor
 {
+    /// <summary>
+    /// Data table adaptor for tables with vector data
+    /// </summary>
     class VectorBasedDataTableAdaptor : RowBasedDataTableAdaptorBase
     {
         readonly int _inputSize;

@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace BrightWire.Helper
 {
+    /// <summary>
+    /// Helper class to calculate convolutional indices
+    /// </summary>
     static class ConvolutionHelper
     {
         public static List<(int X, int Y)[]> LeftToRight(int width, int height, int filterWidth, int filterHeight, int stride)

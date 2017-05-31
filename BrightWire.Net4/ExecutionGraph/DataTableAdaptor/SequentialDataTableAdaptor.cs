@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using BrightWire.Models;
 using System.Linq;
 
 namespace BrightWire.ExecutionGraph.DataTableAdaptor
 {
+    /// <summary>
+    /// Adapts data tables that classify each step of a sequence
+    /// </summary>
     class SequentialDataTableAdaptor : RowBasedDataTableAdaptorBase
     {
         readonly int[] _rowDepth;

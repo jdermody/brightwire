@@ -1,14 +1,14 @@
 ﻿using BrightWire.ExecutionGraph.Helper;
 using MathNet.Numerics.Distributions;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.Node.Filter
 {
+    /// <summary>
+    /// Drop out regularisation
+    /// https://en.wikipedia.org/wiki/Dropout_(neural_networks)
+    /// </summary>
     class DropOut : NodeBase
     {
         class Backpropagation : SingleBackpropagationBase<DropOut>

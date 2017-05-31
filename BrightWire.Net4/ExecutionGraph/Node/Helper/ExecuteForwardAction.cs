@@ -1,13 +1,12 @@
-﻿using BrightWire.ExecutionGraph.Helper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System;
 using System.Runtime.Serialization;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.Node.Helper
 {
+    /// <summary>
+    /// Executes an action when executing forward
+    /// </summary>
     class ExecuteForwardAction : NodeBase
     {
         IAction _action;

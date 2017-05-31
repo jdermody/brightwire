@@ -5,10 +5,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.Helper
 {
+    /// <summary>
+    /// CSV parser
+    /// </summary>
     internal class CSVParser
     {
         static HashSet<string> _booleanTrueFields = new HashSet<string>();
@@ -73,7 +75,7 @@ namespace BrightWire.Helper
 
             if (lines.Any()) {
                 // use the preview to determine the data type
-                bool hasHeaderRow = hasHeader.HasValue ? hasHeader.Value : false;
+                bool hasHeaderRow = hasHeader ?? false;
                 var writer = _DetermineHeaders(output, lines, !hasHeader.HasValue, ref hasHeaderRow);
 
                 // add the preview lines
@@ -143,24 +145,17 @@ namespace BrightWire.Helper
 
         ColumnType _DetermineType(string str)
         {
-            double dbl;
-            float flt;
-            long lng;
-            int it;
-            DateTime date;
-            byte b;
-
-            if (byte.TryParse(str, out b))
+            if (byte.TryParse(str, out byte b))
                 return ColumnType.Byte;
-            else if (int.TryParse(str, out it))
+            else if (int.TryParse(str, out int it))
                 return ColumnType.Int;
-            else if (long.TryParse(str, out lng))
+            else if (long.TryParse(str, out long lng))
                 return ColumnType.Long;
-            else if (float.TryParse(str, out flt))
+            else if (float.TryParse(str, out float flt))
                 return ColumnType.Float;
-            else if (double.TryParse(str, out dbl))
+            else if (double.TryParse(str, out double dbl))
                 return ColumnType.Double;
-            else if (DateTime.TryParse(str, out date))
+            else if (DateTime.TryParse(str, out DateTime date))
                 return ColumnType.Date;
             else {
                 var upperStr = str.ToUpperInvariant();
@@ -214,10 +209,7 @@ namespace BrightWire.Helper
             if (_parseAsText)
                 return str;
 
-            double dbl;
-            float flt;
             int i;
-            byte b;
             long l;
             //DateTime dt;
 
@@ -235,9 +227,9 @@ namespace BrightWire.Helper
                     return long.Parse(str);
 
                 case ColumnType.Float:
-                    if (float.TryParse(str, out flt))
+                    if (float.TryParse(str, out float flt))
                         return flt;
-                    if (double.TryParse(str, out dbl)) {
+                    if (double.TryParse(str, out double dbl)) {
                         type = ColumnType.Double;
                         return dbl;
                     }
@@ -253,7 +245,7 @@ namespace BrightWire.Helper
                     return default(int);
 
                 case ColumnType.Byte:
-                    if (byte.TryParse(str, out b))
+                    if (byte.TryParse(str, out byte b))
                         return b;
                     if (int.TryParse(str, out i)) {
                         type = ColumnType.Int;

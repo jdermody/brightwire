@@ -1,18 +1,16 @@
-﻿using BrightWire.ExecutionGraph.Helper;
-using BrightWire.ExecutionGraph.Node.Input;
-using System;
+﻿using BrightWire.ExecutionGraph.Node.Input;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 using BrightWire.Models;
-using ProtoBuf;
 using BrightWire.ExecutionGraph.Node.Helper;
 using BrightWire.ExecutionGraph.Action;
 
 namespace BrightWire.ExecutionGraph.Node.Layer
 {
+    /// <summary>
+    /// Elman or Joran style recurrent neural network
+    /// https://en.wikipedia.org/wiki/Recurrent_neural_network#Elman_networks_and_Jordan_networks
+    /// </summary>
     internal class ElmanJordan : NodeBase, IHaveMemoryNode
     {
         IReadOnlyDictionary<INode, IGraphData> _lastBackpropagation = null;
@@ -56,7 +54,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 h.AddForwardAction(_memory.SetMemoryAction);
 
             _output = h
-                .Add(new RestoreErrorSignal(context => {
+                .Add(new HookErrorSignal(context => {
                     if (_lastBackpropagation != null) {
                         foreach (var item in _lastBackpropagation)
                             context.AppendErrorSignal(item.Value, item.Key);

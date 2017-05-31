@@ -1,13 +1,11 @@
-﻿using ManagedCuda;
-using ManagedCuda.BasicTypes;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.CUDA.Helper
 {
+    /// <summary>
+    /// Helper class that represents a 4D tensor input to a cuda kernel
+    /// </summary>
     class TensorInput
     {
         readonly IReadOnlyList<IReadOnlyList<IDeviceMemoryPtr>> _data;

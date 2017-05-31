@@ -1,13 +1,8 @@
 ﻿using ManagedCuda;
 using ManagedCuda.CudaBlas;
-using MathNet.Numerics.LinearAlgebra.Single;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using BrightWire.Models;
 using ManagedCuda.BasicTypes;
 using BrightWire.CUDA.Helper;
@@ -15,6 +10,9 @@ using System.Threading;
 
 namespace BrightWire.LinearAlgebra
 {
+    /// <summary>
+    /// GPU backed matrix
+    /// </summary>
     internal class GpuMatrix : IMatrix
     {
         readonly CudaProvider _cuda;

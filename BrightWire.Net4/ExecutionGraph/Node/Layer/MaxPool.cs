@@ -1,12 +1,11 @@
 ﻿using BrightWire.ExecutionGraph.Helper;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.Node.Layer
 {
+    /// <summary>
+    /// Max pooling convolutional neural network
+    /// </summary>
     class MaxPool : NodeBase
     {
         class Backpropagation : SingleBackpropagationBase<MaxPool>

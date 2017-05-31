@@ -1,13 +1,12 @@
-﻿using BrightWire.ExecutionGraph.Helper;
-using BrightWire.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.Helper
 {
+    /// <summary>
+    /// Divides epochs into a list of mini batches
+    /// </summary>
     class MiniBatchProvider
     {
         class MiniBatchOperation : IGraphOperation

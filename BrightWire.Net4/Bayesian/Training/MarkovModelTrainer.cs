@@ -2,10 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace BrightWire.Bayesian.Training
 {
+    /// <summary>
+    /// Builds markov models with a window size of 2
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     internal class MarkovModelTrainer2<T> : IMarkovModelTrainer2<T>
     {
         readonly Dictionary<Tuple<T, T>, List<T>> _data = new Dictionary<Tuple<T, T>, List<T>>();

@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.IO;
 
 namespace BrightWire.ExecutionGraph.GradientDescent
 {
-    class L2Regularisation : Simple
+    /// <summary>
+    /// L2 regularisation
+    /// </summary>
+    class L2Regularisation : StochasticGradientDescent
     {
         float _lambda;
 

@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace BrightWire.ExecutionGraph.Helper
 {
+    /// <summary>
+    /// Information about the current mini batch
+    /// </summary>
     class MiniBatch : IMiniBatch
     {
-        public class MiniBatchSequence : IMiniBatchSequence
+        public class Sequence : IMiniBatchSequence
         {
             public IMiniBatch MiniBatch { get; set; }
             public int SequenceIndex { get; set; }
@@ -14,7 +15,7 @@ namespace BrightWire.ExecutionGraph.Helper
             public IGraphData Input { get; set; }
             public IGraphData Target { get; set; }
         }
-        readonly List<MiniBatchSequence> _sequence = new List<MiniBatchSequence>();
+        readonly List<Sequence> _sequence = new List<Sequence>();
         readonly IReadOnlyList<int> _rows;
         readonly IDataSource _dataSource;
         readonly bool _isSequential;
@@ -23,7 +24,7 @@ namespace BrightWire.ExecutionGraph.Helper
         public MiniBatch(IReadOnlyList<int> rows, IDataSource dataSource, IGraphData input, IGraphData output) : this(rows, dataSource)
         {
             _isSequential = false;
-            _sequence.Add(new MiniBatchSequence {
+            _sequence.Add(new Sequence {
                 Input = input,
                 Target = output,
                 SequenceIndex = 0,
@@ -41,7 +42,7 @@ namespace BrightWire.ExecutionGraph.Helper
 
         public void Add(MiniBatchType type, IGraphData input, IGraphData output)
         {
-            _sequence.Add(new MiniBatchSequence {
+            _sequence.Add(new Sequence {
                 Input = input,
                 Target = output,
                 SequenceIndex = _sequence.Count,

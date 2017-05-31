@@ -3,6 +3,7 @@ using BrightWire.ExecutionGraph.Activation;
 using BrightWire.ExecutionGraph.DataSource;
 using BrightWire.ExecutionGraph.DataTableAdaptor;
 using BrightWire.ExecutionGraph.Engine;
+using BrightWire.ExecutionGraph.Engine.Helper;
 using BrightWire.ExecutionGraph.GradientDescent;
 using BrightWire.ExecutionGraph.Helper;
 using BrightWire.ExecutionGraph.Node.Filter;
@@ -19,14 +20,13 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
-using System.Text;
 
 namespace BrightWire.ExecutionGraph
 {
     public class GraphFactory
     {
         readonly ILinearAlgebraProvider _lap;
-        readonly IGradientDescentOptimisation _simpleGradientDescent = new Simple();
+        readonly IGradientDescentOptimisation _simpleGradientDescent = new StochasticGradientDescent();
         readonly ICreateTemplateBasedGradientDescent _rmsProp = new RmsPropDescriptor(0.9f);
         readonly List<(TypeInfo, Type, string)> _queryTypes = new List<(TypeInfo, Type, string)>();
         readonly Stack<IPropertySet> _propertySetStack = new Stack<IPropertySet>();
@@ -218,12 +218,6 @@ namespace BrightWire.ExecutionGraph
                 var column1 = columns[0].Type;
                 var column2 = columns[1].Type;
 
-                //// volume classification
-                //if (column1 == ColumnType.Tensor && column2 == ColumnType.Vector)
-                //    return new TensorBasedDataTableAdaptor(learningContext, executionContext, this, dataTable, dataConversionBuilder);
-
-                //// sequence to sequence
-                //else
                 if (column1 == ColumnType.Matrix && column2 == ColumnType.Matrix)
                     return new SequenceToSequenceDataTableAdaptor(_lap, learningContext, dataTable, input, dataSource);
             }
@@ -423,7 +417,6 @@ namespace BrightWire.ExecutionGraph
             public IErrorMetric CrossEntropy { get; } = new ErrorMetric.CrossEntropy();
             public IErrorMetric OneHotEncoding { get; } = new ErrorMetric.OneHotEncoding();
             public IErrorMetric Quadratic { get; } = new ErrorMetric.Quadratic();
-            public IErrorMetric Rmse { get; } = new ErrorMetric.Rmse();
         }
         public ErrorMetricProvider ErrorMetric { get; } = new ErrorMetricProvider();
 

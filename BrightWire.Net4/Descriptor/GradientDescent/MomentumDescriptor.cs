@@ -1,10 +1,10 @@
 ﻿using BrightWire.ExecutionGraph.GradientDescent;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace BrightWire.Descriptor.GradientDescent
 {
+    /// <summary>
+    /// Creates a momentum gradient descent optimiser
+    /// </summary>
     class MomentumDescriptor : ICreateTemplateBasedGradientDescent
     {
         protected readonly float _momentum;

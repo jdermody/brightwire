@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace BrightWire.LinearAlgebra.Helper
 {
     /// <summary>
     /// Floating point helper that prevents values from getting too big or small
     /// </summary>
-    public sealed class BoundMath
+    public class BoundMath
     {
         /// <summary>
         /// Minimum value

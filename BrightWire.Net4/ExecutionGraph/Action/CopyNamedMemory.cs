@@ -1,17 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.Action
 {
-    internal class WriteNodeMemoryToSlot : IAction
+    /// <summary>
+    /// Copies named memory from one slot to another
+    /// </summary>
+    internal class CopyNamedMemory : IAction
     {
         string _writeTo;
         string _readFrom;
 
-        public WriteNodeMemoryToSlot(string slotName, IHaveMemoryNode node)
+        public CopyNamedMemory(string slotName, IHaveMemoryNode node)
         {
             _writeTo = slotName;
             _readFrom = node.Memory.Id;

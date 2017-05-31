@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using BrightWire.Models;
 
 namespace BrightWire.ExecutionGraph.DataTableAdaptor
 {
+    /// <summary>
+    /// Adapts data tables with a weighted index list based column (corresponding to a sparse vector)
+    /// </summary>
     class WeightedIndexListDataTableAdaptor : DataTableAdaptorBase<(WeightedIndexList, FloatVector)>, IWeightedIndexListEncoder
     {
         readonly int _inputSize;
@@ -49,7 +50,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 
         public override IDataSource CloneWith(IDataTable dataTable)
         {
-            return new IndexListDataTableAdaptor(_lap, dataTable, _vectoriser);
+            return new WeightedIndexListDataTableAdaptor(_lap, dataTable, _vectoriser);
         }
     }
 }

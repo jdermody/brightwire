@@ -55,7 +55,7 @@ namespace UnitTests
             var graph = new GraphFactory(_lap);
             var dataSource = graph.GetDataSource(dataTable);
             var engine = graph.CreateTrainingEngine(dataSource, 0.03f, 32);
-            var errorMetric = graph.ErrorMetric.Rmse;
+            var errorMetric = graph.ErrorMetric.Quadratic;
             graph.CurrentPropertySet
                 .Use(graph.RmsProp())
                 .Use(graph.WeightInitialisation.Xavier)

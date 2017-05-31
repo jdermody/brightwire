@@ -1,12 +1,11 @@
 ﻿using BrightWire.ExecutionGraph.Helper;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.Node.Helper
 {
+    /// <summary>
+    /// Subtracts the input from one (1-x)
+    /// </summary>
     class OneMinusInput : NodeBase
     {
         class Backpropagation : SingleBackpropagationBase<OneMinusInput>

@@ -3,11 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.CUDA.Helper
 {
+    /// <summary>
+    /// Helper class that allocates space for a 4D tensor output from a cuda kernel
+    /// </summary>
     class TensorOutput : IDisposable
     {
         readonly CudaProvider _cuda;

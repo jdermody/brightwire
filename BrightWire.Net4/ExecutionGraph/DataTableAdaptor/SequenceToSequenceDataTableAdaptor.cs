@@ -1,20 +1,20 @@
 ﻿using BrightWire.ExecutionGraph.Engine;
+using BrightWire.ExecutionGraph.Engine.Helper;
 using BrightWire.ExecutionGraph.Helper;
-using BrightWire.ExecutionGraph.Node.Input;
 using BrightWire.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.DataTableAdaptor
 {
+    /// <summary>
+    /// Executes a preliminary graph and uses its output as the input for the main graph
+    /// </summary>
     class SequenceToSequenceDataTableAdaptor : AdaptiveDataTableAdaptorBase
     {
         int[] _rowDepth;
         int _inputSize, _outputSize;
-        //readonly List<IContext> _batchEncoder = new List<IContext>();
 
         public SequenceToSequenceDataTableAdaptor(ILinearAlgebraProvider lap, ILearningContext learningContext, GraphFactory factory, IDataTable dataTable, Action<WireBuilder> dataConversionBuilder)
             : base(lap, learningContext, dataTable)
@@ -110,12 +110,11 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             (var encoderOutput, var data) = _Encode(executionContext, rows);
 
             // create the decoder input
-            List<FloatVector> temp;
             var outputData = new Dictionary<int, List<FloatVector>>();
             foreach (var item in data) {
                 var output = item.GetField<FloatMatrix>(1);
                 for (int i = 0, len = output.RowCount; i < len; i++) {
-                    if (!outputData.TryGetValue(i, out temp))
+                    if (!outputData.TryGetValue(i, out List<FloatVector> temp))
                         outputData.Add(i, temp = new List<FloatVector>());
                     temp.Add(output.Row[i]);
                 }
@@ -139,7 +138,6 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         {
             var batch = context.BatchSequence;
             if(context.IsTraining && batch.Type == MiniBatchType.SequenceStart) {
-                //_learningContext.BackpropagateThroughTime(context.ErrorSignal);
                 context.LearningContext.DeferBackpropagation(null, signal => {
                     _learningContext.BackpropagateThroughTime(signal);
                 });

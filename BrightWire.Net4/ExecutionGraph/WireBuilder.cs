@@ -1,12 +1,6 @@
 ﻿using BrightWire.ExecutionGraph.Action;
 using BrightWire.ExecutionGraph.Helper;
 using BrightWire.ExecutionGraph.Node.Helper;
-using BrightWire.ExecutionGraph.Node.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph
 {
@@ -176,7 +170,7 @@ namespace BrightWire.ExecutionGraph
 
         public WireBuilder WriteNodeMemoryToSlot(string slotName, IHaveMemoryNode node, string name = null)
         {
-            AddForwardAction(new WriteNodeMemoryToSlot(slotName, node), name);
+            AddForwardAction(new CopyNamedMemory(slotName, node), name);
             return this;
         }
 

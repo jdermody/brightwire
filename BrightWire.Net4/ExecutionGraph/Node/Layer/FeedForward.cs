@@ -1,15 +1,14 @@
 ﻿using BrightWire.ExecutionGraph.Helper;
 using BrightWire.Models;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.Node.Layer
 {
+    /// <summary>
+    /// Feed forward neural network
+    /// https://en.wikipedia.org/wiki/Feedforward_neural_network
+    /// </summary>
     class FeedForward : NodeBase, IFeedForward
     {
         protected class Backpropagation : SingleBackpropagationBase<FeedForward>
@@ -128,11 +127,8 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             else
                 _weight.Data = weight;
 
-            // read the updater
-            if (_updater == null) {
-                //var savedUpdater = factory.CreateGradientDescentOptimisation(reader);
+            if (_updater == null)
                 _updater = factory.GetWeightUpdater(_weight);
-            }
         }
 
         public override void WriteTo(BinaryWriter writer)
@@ -141,7 +137,6 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             writer.Write(_outputSize);
             _bias.Data.WriteTo(writer);
             _weight.Data.WriteTo(writer);
-            //writer.Write(_updater);
         }
     }
 }

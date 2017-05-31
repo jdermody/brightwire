@@ -1,17 +1,16 @@
-﻿using BrightWire.ExecutionGraph.Helper;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.Node.Helper
 {
-    internal class RestoreErrorSignal : NodeBase
+    /// <summary>
+    /// Provides a hook into the backpropagation signal
+    /// </summary>
+    internal class HookErrorSignal : NodeBase
     {
-        class Backpropagation : BackpropagationBase<RestoreErrorSignal>
+        class Backpropagation : BackpropagationBase<HookErrorSignal>
         {
-            public Backpropagation(RestoreErrorSignal source) : base(source)
+            public Backpropagation(HookErrorSignal source) : base(source)
             {
             }
 
@@ -24,7 +23,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
 
         readonly Action<IContext> _tryRestore;
 
-        public RestoreErrorSignal(Action<IContext> tryRestore, string name = null) : base(name)
+        public HookErrorSignal(Action<IContext> tryRestore, string name = null) : base(name)
         {
             _tryRestore = tryRestore;
         }

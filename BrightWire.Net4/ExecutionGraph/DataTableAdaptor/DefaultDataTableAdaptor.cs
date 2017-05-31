@@ -1,11 +1,11 @@
-﻿using BrightWire.Models;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace BrightWire.ExecutionGraph.DataTableAdaptor
 {
+    /// <summary>
+    /// Vectorises each row of the data table on demand
+    /// </summary>
     class DefaultDataTableAdaptor : RowBasedDataTableAdaptorBase, IRowEncoder
     {
         readonly IDataTableVectoriser _vectoriser;
@@ -38,10 +38,5 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             ;
             return _GetMiniBatch(rows, data);
         }
-
-        //public string GetOutputLabel(int columnIndex, int vectorIndex)
-        //{
-        //    return _vectoriser.GetOutputLabel(columnIndex, vectorIndex);
-        //}
     }
 }

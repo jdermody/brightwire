@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BrightWire.ExecutionGraph.Action
+﻿namespace BrightWire.ExecutionGraph.Action
 {
+    /// <summary>
+    /// Saves the current graph signal into named memory
+    /// </summary>
     internal class SetMemory : IAction
     {
         string _id;

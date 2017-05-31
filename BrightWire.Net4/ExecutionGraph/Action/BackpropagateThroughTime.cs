@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.Action
 {
+    /// <summary>
+    /// Backpropagates through time (for recurrent neural networks)
+    /// </summary>
     internal class BackpropagateThroughTime : IAction
     {
         IErrorMetric _errorMetric;
@@ -33,7 +32,7 @@ namespace BrightWire.ExecutionGraph.Action
                 if (target == null)
                     context.LearningContext.DeferBackpropagation(null, signal => context.Backpropagate(signal));
                 else {
-                    var gradient = _errorMetric.CalculateGradient(output, target);
+                    var gradient = _errorMetric.CalculateGradient(context, output, target);
                     context.LearningContext.DeferBackpropagation(input.ReplaceWith(gradient), signal => context.Backpropagate(signal));
                 }
             }

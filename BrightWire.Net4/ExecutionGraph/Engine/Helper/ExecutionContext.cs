@@ -1,12 +1,12 @@
-﻿using BrightWire.ExecutionGraph.Helper;
-using BrightWire.Models;
-using System;
+﻿using BrightWire.Models;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Text;
 
-namespace BrightWire.ExecutionGraph.Engine
+namespace BrightWire.ExecutionGraph.Engine.Helper
 {
+    /// <summary>
+    /// Graph engine execution context
+    /// </summary>
     class ExecutionContext : IExecutionContext
     {
         readonly ConcurrentQueue<IGraphOperation> _operationList = new ConcurrentQueue<IGraphOperation>();
@@ -41,16 +41,14 @@ namespace BrightWire.ExecutionGraph.Engine
 
         public IMatrix GetMemory(string index)
         {
-            IMatrix output;
-            if (_memory.TryGetValue(index, out output))
+            if (_memory.TryGetValue(index, out IMatrix output))
                 return output;
             return null;
         }
 
         public IGraphOperation GetNextOperation()
         {
-            IGraphOperation ret;
-            if (_operationList.TryDequeue(out ret))
+            if (_operationList.TryDequeue(out IGraphOperation ret))
                 return ret;
             return null;
         }
@@ -58,8 +56,7 @@ namespace BrightWire.ExecutionGraph.Engine
         public void SetMemory(string index, IMatrix memory)
         {
             if (memory == null) {
-                IMatrix temp;
-                if (_memory.TryRemove(index, out temp))
+                if (_memory.TryRemove(index, out IMatrix temp))
                     temp.Dispose();
             } else {
                 _memory[index] = memory;
@@ -73,8 +70,7 @@ namespace BrightWire.ExecutionGraph.Engine
 
         public I3DTensor GetInputTransfomation(int id)
         {
-            FloatTensor ret;
-            if (_inputTransformationCache.TryGetValue(id, out ret))
+            if (_inputTransformationCache.TryGetValue(id, out FloatTensor ret))
                 return _lap.Create3DTensor(ret);
             return null;
         }

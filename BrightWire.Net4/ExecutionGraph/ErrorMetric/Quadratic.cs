@@ -7,9 +7,13 @@ using System.Text;
 
 namespace BrightWire.ExecutionGraph.ErrorMetric
 {
+    /// <summary>
+    /// Quadratic error
+    /// https://en.wikipedia.org/wiki/Mean_squared_error#Loss_function
+    /// </summary>
     class Quadratic : IErrorMetric
     {
-        public IMatrix CalculateGradient(IMatrix output, IMatrix targetOutput)
+        public IMatrix CalculateGradient(IContext context, IMatrix output, IMatrix targetOutput)
         {
             return targetOutput.Subtract(output);
         }

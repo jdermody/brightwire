@@ -3,11 +3,12 @@ using BrightWire.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.DataTableAdaptor
 {
+    /// <summary>
+    /// Adapts data tables that classify a sequence into a single classification
+    /// </summary>
     class ManyToOneDataTableAdaptor : RowBasedDataTableAdaptorBase
     {
         readonly int[] _rowDepth;
@@ -56,12 +57,11 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
                 .Select(r => ((FloatMatrix)r.Data[0], (FloatVector)r.Data[1]))
                 .ToList()
             ;
-            List<FloatVector> temp;
             var inputData = new Dictionary<int, List<FloatVector>>();
             foreach (var item in data) {
                 var input = item.Item1;
                 for (int i = 0, len = input.RowCount; i < len; i++) {
-                    if (!inputData.TryGetValue(i, out temp))
+                    if (!inputData.TryGetValue(i, out List<FloatVector> temp))
                         inputData.Add(i, temp = new List<FloatVector>());
                     temp.Add(input.Row[i]);
                 }

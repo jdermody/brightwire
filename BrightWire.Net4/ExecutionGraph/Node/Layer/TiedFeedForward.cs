@@ -1,15 +1,14 @@
 ﻿using BrightWire.ExecutionGraph.Helper;
 using BrightWire.Models;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.Node.Layer
 {
+    /// <summary>
+    /// A feed forward layer with tied weights (from a previous feed forward layer)
+    /// </summary>
     class TiedFeedForward : NodeBase
     {
         class Backpropagation : SingleBackpropagationBase<TiedFeedForward>
@@ -19,11 +18,6 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             public Backpropagation(TiedFeedForward source, IMatrix input) : base(source)
             {
                 _input = input;
-            }
-
-            protected override void _Dispose(bool isDisposing)
-            {
-                //_input.Dispose();
             }
 
             protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
@@ -101,7 +95,6 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         {
             writer.Write(_layerId);
             _bias.Data.WriteTo(writer);
-            //writer.Write(_updater);
         }
     }
 }

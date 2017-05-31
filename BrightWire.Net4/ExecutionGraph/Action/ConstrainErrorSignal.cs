@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BrightWire.ExecutionGraph.Action
+﻿namespace BrightWire.ExecutionGraph.Action
 {
+    /// <summary>
+    /// Constrains the signal through the graph to lie between two values
+    /// </summary>
     internal class ConstrainErrorSignal : IAction
     {
         float _min, _max;

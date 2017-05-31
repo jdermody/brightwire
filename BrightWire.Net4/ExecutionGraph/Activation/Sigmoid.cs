@@ -1,12 +1,13 @@
 ﻿using BrightWire.ExecutionGraph.Helper;
 using BrightWire.ExecutionGraph.Node;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace BrightWire.ExecutionGraph.Activation
 {
+    /// <summary>
+    /// Sigmoid activation function
+    /// https://en.wikipedia.org/wiki/Sigmoid_function
+    /// </summary>
     class Sigmoid : NodeBase
     {
         class Backpropagation : SingleBackpropagationBase<Sigmoid>
@@ -18,25 +19,12 @@ namespace BrightWire.ExecutionGraph.Activation
                 _input = matrix;
             }
 
-            protected override void _Dispose(bool isDisposing)
-            {
-                //foreach(var item in _input)
-                //    item.Dispose();
-            }
-
             protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
                 using (var od = _input.SigmoidDerivative()) {
                     var delta = errorSignal.GetMatrix().PointwiseMultiply(od);
                     return errorSignal.ReplaceWith(delta);
                 }
-                //return _input.Zip(errorSignal.Decompose(), (i, e) => {
-                //    using (var od = i.SigmoidDerivative()) {
-                //        var delta = e.PointwiseMultiply(od);
-                //        //context.LearningContext.Log("sigmoid-backpropagation", channel, _source.GetHashCode(), errorSignal, delta);
-                //        return delta;
-                //    }
-                //}).ToList().ToGraphData(context.LinearAlgebraProvider);
             }
         }
 

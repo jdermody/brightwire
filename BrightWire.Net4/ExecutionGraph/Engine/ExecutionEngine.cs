@@ -1,72 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BrightWire.Models;
-using System.Runtime.Serialization;
 using BrightWire.ExecutionGraph.Helper;
 using BrightWire.Helper;
+using BrightWire.ExecutionGraph.Engine.Helper;
+using BrightWire.Models;
 
 namespace BrightWire.ExecutionGraph.Engine
 {
+    /// <summary>
+    /// Executes (without training) graphs
+    /// </summary>
     class ExecutionEngine : IGraphEngine
     {
-        class Context : IContext
-        {
-            readonly IExecutionContext _executionContext;
-            readonly IMiniBatchSequence _miniBatch;
-            readonly List<IExecutionHistory> _forward = new List<IExecutionHistory>();
-            INode _sourceNode = null;
-            IGraphData _data;
-
-            public Context(IExecutionContext executionContext, IMiniBatchSequence miniBatch)
-            {
-                _executionContext = executionContext;
-                _miniBatch = miniBatch;
-                _data = miniBatch.Input;
-            }
-
-            public void Dispose()
-            {
-                // nop
-            }
-
-            public bool IsTraining => false;
-            public INode Source => _sourceNode;
-            public IExecutionContext ExecutionContext => _executionContext;
-            public ILearningContext LearningContext => null;
-            public ILinearAlgebraProvider LinearAlgebraProvider => _executionContext.LinearAlgebraProvider;
-            public IMiniBatchSequence BatchSequence => _miniBatch;
-            public void AddBackward(IGraphData errorSignal, INode target, INode source) => throw new NotImplementedException();
-            public void Backpropagate(IGraphData delta) => throw new NotImplementedException();
-            public void AppendErrorSignal(IGraphData errorSignal, INode forNode) => throw new NotImplementedException();
-            public void AddForward(IExecutionHistory action, Func<IBackpropagation> callback) => _forward.Add(action);
-            public IGraphData ErrorSignal => throw new NotImplementedException();
-            public bool HasNext => _forward.Any();
-            public IGraphData Data => _data;
-
-            public bool ExecuteNext()
-            {
-                if (HasNext) {
-                    var next = _forward.ElementAt(0);
-                    _forward.RemoveAt(0);
-
-                    _data = next.Data;
-
-                    _sourceNode = next.Source;
-                    if (next.Source.Output != null) {
-                        foreach (var output in next.Source.Output)
-                            output.SendTo?.ExecuteForward(this, output.Channel);
-                    }
-
-                    return true;
-                }
-                return false;
-            }
-        }
         readonly Models.ExecutionGraph _graph;
-        readonly List<(Context Context, IMatrix Data)> _executionResults = new List<(Context, IMatrix)>();
+        readonly List<(ExecutionEngineContext Context, IMatrix Data)> _executionResults = new List<(ExecutionEngineContext, IMatrix)>();
         readonly ILinearAlgebraProvider _lap;
         IDataSource _dataSource = null;
         readonly INode _input;
@@ -140,7 +87,7 @@ namespace BrightWire.ExecutionGraph.Engine
             if (batch.IsSequential) {
                 IMiniBatchSequence curr = null;
                 while ((curr = batch.GetNextSequence()) != null) {
-                    var context = new Context(executionContext, curr);
+                    var context = new ExecutionEngineContext(executionContext, curr);
                     _input.ExecuteForward(context, 0);
                     while (context.HasNext)
                         context.ExecuteNext();
@@ -148,7 +95,7 @@ namespace BrightWire.ExecutionGraph.Engine
                     ret.Add(context);
                 }
             } else {
-                var context = new Context(executionContext, batch.CurrentSequence);
+                var context = new ExecutionEngineContext(executionContext, batch.CurrentSequence);
                 _input.ExecuteForward(context, 0);
 
                 while (context.HasNext)

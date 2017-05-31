@@ -1,13 +1,13 @@
 ﻿using BrightWire.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace BrightWire.ExecutionGraph.ErrorMetric
 {
+    /// <summary>
+    /// Finds the single index of the highest activation and compares it to the target index
+    /// </summary>
     class OneHotEncoding : IErrorMetric
     {
-        public IMatrix CalculateGradient(IMatrix output, IMatrix targetOutput)
+        public IMatrix CalculateGradient(IContext context, IMatrix output, IMatrix targetOutput)
         {
             return targetOutput.Subtract(output);
         }

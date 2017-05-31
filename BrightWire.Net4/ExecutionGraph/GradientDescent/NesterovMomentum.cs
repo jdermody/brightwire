@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace BrightWire.ExecutionGraph.GradientDescent
+﻿namespace BrightWire.ExecutionGraph.GradientDescent
 {
+    /// <summary>
+    /// Gradient descent with nesterov momentum
+    /// </summary>
     class NesterovMomentum : Momentum
     {
         public NesterovMomentum(float momentum, IMatrix cache, IGradientDescentOptimisation updater) : base(momentum, cache, updater)

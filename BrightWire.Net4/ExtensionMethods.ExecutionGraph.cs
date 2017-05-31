@@ -1,5 +1,6 @@
 ﻿using BrightWire.ExecutionGraph;
 using BrightWire.ExecutionGraph.Engine;
+using BrightWire.ExecutionGraph.Engine.Helper;
 using BrightWire.ExecutionGraph.Helper;
 using BrightWire.Models;
 using System;
@@ -33,8 +34,7 @@ namespace BrightWire
                     var bestModel = new GraphModel {
                         Graph = engine.Graph
                     };
-                    var adaptiveDataSource = engine.DataSource as IAdaptiveDataSource;
-                    if (adaptiveDataSource != null)
+                    if (engine.DataSource is IAdaptiveDataSource adaptiveDataSource)
                         bestModel.DataSource = adaptiveDataSource.GetModel();
                     onImprovement(bestModel);
                 }

@@ -11,6 +11,9 @@ using System.Threading.Tasks;
 
 namespace BrightWire.LinearAlgebra
 {
+    /// <summary>
+    /// GPU backed 4D tensor
+    /// </summary>
     class Gpu4DTensor : I4DTensor
     {
         readonly IMatrix _data;
