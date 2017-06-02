@@ -76,15 +76,6 @@ namespace BrightWire.LinearAlgebra
 #endif
         }
 
-        public IReadOnlyList<IMatrix> SubMatrices
-        {
-            get
-            {
-                Debug.Assert(IsValid);
-                return _data;
-            }
-        }
-
         public int ColumnCount
         {
             get

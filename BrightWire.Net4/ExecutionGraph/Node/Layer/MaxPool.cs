@@ -1,5 +1,6 @@
 ﻿using BrightWire.ExecutionGraph.Helper;
 using System.Collections.Generic;
+using System.IO;
 
 namespace BrightWire.ExecutionGraph.Node.Layer
 {
@@ -31,12 +32,12 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 return new Tensor4DGraphData(output.ConvertToMatrix(), output.RowCount, output.ColumnCount, output.Depth);
             }
         }
-        readonly int _width, _height, _stride;
+        int _filterWidth, _filterHeight, _stride;
 
-        public MaxPool(int width, int height, int stride, string name = null) : base(name)
+        public MaxPool(int filterWidth, int filterHeight, int stride, string name = null) : base(name)
         {
-            _width = width;
-            _height = height;
+            _filterWidth = filterWidth;
+            _filterHeight = filterHeight;
             _stride = stride;
         }
 
@@ -44,10 +45,34 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         {
             var input = context.Data;
             var tensor = input.GetMatrix().ConvertTo4DTensor(input.Rows, input.Columns, input.Depth);
-            (var output, var index) = tensor.MaxPool(_width, _height, _stride, context.IsTraining);
+            (var output, var index) = tensor.MaxPool(_filterWidth, _filterHeight, _stride, context.IsTraining);
 
             var graphData = new Tensor4DGraphData(output);
             _AddNextGraphAction(context, graphData, () => new Backpropagation(this, index, tensor.ColumnCount, tensor.RowCount, output.ColumnCount, output.RowCount, output.Depth));
+        }
+
+        protected override void _Initalise(GraphFactory factory, string description, byte[] data)
+        {
+            _ReadFrom(data, reader => ReadFrom(factory, reader));
+        }
+
+        protected override (string Description, byte[] Data) _GetInfo()
+        {
+            return ("MAX", _WriteData(WriteTo));
+        }
+
+        public override void ReadFrom(GraphFactory factory, BinaryReader reader)
+        {
+            _filterWidth = reader.ReadInt32();
+            _filterHeight = reader.ReadInt32();
+            _stride = reader.ReadInt32();
+        }
+
+        public override void WriteTo(BinaryWriter writer)
+        {
+            writer.Write(_filterWidth);
+            writer.Write(_filterHeight);
+            writer.Write(_stride);
         }
     }
 }

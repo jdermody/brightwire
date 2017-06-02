@@ -42,19 +42,6 @@ namespace BrightWire
         /// </summary>
         /// <param name="matrix">The tensor to use as a replacement</param>
         IGraphData ReplaceWith(IMatrix matrix);
-
-        /// <summary>
-        /// Replaces the data with the specified list of matrices (but preserves the tensor meta data)
-        /// </summary>
-        /// <param name="context">Graph context</param>
-        /// <param name="matrixList">The list of matrices to use as a replacement</param>
-        /// <returns></returns>
-        IGraphData ReplaceWith(IContext context, IReadOnlyList<IMatrix> matrixList);
-
-        /// <summary>
-        /// All the sub-matrices in the tensor
-        /// </summary>
-        IReadOnlyList<IMatrix> AllSubMatrices { get; }
     }
 
     /// <summary>
@@ -218,8 +205,6 @@ namespace BrightWire
         void Add(IReadOnlyList<IGraphOperation> operationList);
         ILinearAlgebraProvider LinearAlgebraProvider { get; }
         int RemainingOperationCount { get; }
-        void SetInputTransformation(int id, I3DTensor matrix);
-        I3DTensor GetInputTransfomation(int id);
     }
 
     public interface IBackpropagation : IDisposable
@@ -308,5 +293,12 @@ namespace BrightWire
         IVector Bias { get; }
         IMatrix Weight { get; }
         void UpdateWeights(IMatrix delta, ILearningContext context);
+    }
+
+    public interface IVolumeDataSource
+    {
+        int Width { get; }
+        int Height { get; }
+        int Depth { get; }
     }
 }

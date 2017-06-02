@@ -13,30 +13,27 @@ namespace BrightWire.ExecutionGraph.Activation
     {
         class Backpropagation : SingleBackpropagationBase<SoftMax>
         {
-            readonly IReadOnlyList<IReadOnlyList<IVector>> _rows;
+            readonly IReadOnlyList<IVector> _rows;
 
-            public Backpropagation(SoftMax source, IReadOnlyList<IReadOnlyList<IVector>> rows) : base(source)
+            public Backpropagation(SoftMax source, IReadOnlyList<IVector> rows) : base(source)
             {
                 _rows = rows;
             }
 
             protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
-                var matrixList = errorSignal.AllSubMatrices.Select((e, ind) => {
-                    var row = _rows[ind];
-                    var rowList = new List<IVector>();
-                    for (var i = 0; i < e.RowCount; i++) {
-                        using (var derivative = row[i].SoftmaxDerivative()) {
-                            var sm = derivative.Multiply(e.Row(i));
-                            rowList.Add(sm.ConvertInPlaceToVector());
-                        }
+                var matrix = errorSignal.GetMatrix();
+                var rowList = new List<IVector>();
+                for (var i = 0; i < matrix.RowCount; i++) {
+                    using (var derivative = _rows[i].SoftmaxDerivative()) {
+                        var sm = derivative.Multiply(matrix.Row(i));
+                        rowList.Add(sm.ConvertInPlaceToVector());
                     }
-                    var ret = context.LinearAlgebraProvider.CreateMatrix(rowList);
-                    foreach (var item in rowList)
-                        item.Dispose();
-                    return ret;
-                }).ToList();
-                return errorSignal.ReplaceWith(context, matrixList);
+                }
+                var ret = context.LinearAlgebraProvider.CreateMatrix(rowList);
+                foreach (var item in rowList)
+                    item.Dispose();
+                return errorSignal.ReplaceWith(ret);
             }
         }
 
@@ -44,21 +41,14 @@ namespace BrightWire.ExecutionGraph.Activation
 
         public override void ExecuteForward(IContext context)
         {
-            var input = context.Data.AllSubMatrices;
-            var output = new List<List<IVector>>();
-            var matrixList = new List<IMatrix>();
-
-            foreach (var item in input) {
-                var rowList = new List<IVector>();
-                for (var i = 0; i < item.RowCount; i++) {
-                    using (var row = item.Row(i))
-                        rowList.Add(row.Softmax());
-                }
-                output.Add(rowList);
-                matrixList.Add(context.LinearAlgebraProvider.CreateMatrix(rowList));
+            var input = context.Data.GetMatrix();
+            var rowList = new List<IVector>();
+            for (var i = 0; i < input.RowCount; i++) {
+                using (var row = input.Row(i))
+                    rowList.Add(row.Softmax());
             }
-
-            _AddNextGraphAction(context, context.Data.ReplaceWith(context, matrixList), () => new Backpropagation(this, output));
+            var output = context.LinearAlgebraProvider.CreateMatrix(rowList);
+            _AddNextGraphAction(context, context.Data.ReplaceWith(output), () => new Backpropagation(this, rowList));
         }
     }
 }

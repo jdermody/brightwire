@@ -859,11 +859,6 @@ namespace BrightWire
         FloatTensor Data { get; set; }
 
         /// <summary>
-        /// The list of sub-matrices in the tensor
-        /// </summary>
-        IReadOnlyList<IMatrix> SubMatrices { get; }
-
-        /// <summary>
         /// Returns a matrix at the specified depth
         /// </summary>
         /// <param name="depth">The depth to query</param>
@@ -1012,11 +1007,6 @@ namespace BrightWire
         /// The count of 3D tensors
         /// </summary>
         int Count { get; }
-
-        /// <summary>
-        /// List of sub-matrices from the current tensor
-        /// </summary>
-        IReadOnlyList<IMatrix> SubMatrices { get; }
 
         /// <summary>
         /// Returns the tensor at the specified index

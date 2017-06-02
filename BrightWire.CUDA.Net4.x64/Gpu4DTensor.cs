@@ -18,7 +18,6 @@ namespace BrightWire.LinearAlgebra
     {
         readonly IMatrix _data;
         readonly Lazy<List<GpuVector[]>> _subVector;
-        readonly Lazy<List<GpuMatrix>> _subMatrix;
         readonly Lazy<TensorInput> _tensorInfo;
         readonly int _rows, _columns, _depth, _count;
         readonly CudaProvider _cuda;
@@ -58,7 +57,6 @@ namespace BrightWire.LinearAlgebra
             provider.Register(this);
 
             _subVector = new Lazy<List<GpuVector[]>>(_GetSubVectors);
-            _subMatrix = new Lazy<List<GpuMatrix>>(_GetSubMatrices);
             _tensorInfo = new Lazy<TensorInput>(_GetInput);
 
 #if DEBUG
@@ -78,7 +76,6 @@ namespace BrightWire.LinearAlgebra
             provider.Register(this);
 
             _subVector = new Lazy<List<GpuVector[]>>(_GetSubVectors);
-            _subMatrix = new Lazy<List<GpuMatrix>>(_GetSubMatrices);
             _tensorInfo = new Lazy<TensorInput>(_GetInput);
 
 #if DEBUG
@@ -99,7 +96,6 @@ namespace BrightWire.LinearAlgebra
 
             _data = _cuda.CreateZeroMatrix(_rows * _columns * _depth, _count);
             _subVector = new Lazy<List<GpuVector[]>>(_GetSubVectors);
-            _subMatrix = new Lazy<List<GpuMatrix>>(_GetSubMatrices);
             _tensorInfo = new Lazy<TensorInput>(_GetInput);
 
             for (var i = 0; i < _count; i++)
@@ -147,16 +143,6 @@ namespace BrightWire.LinearAlgebra
             return ret;
         }
 
-        List<GpuMatrix> _GetSubMatrices()
-        {
-            return _subVector.Value
-                .SelectMany(v => v)
-                .Select(v => v.ConvertInPlaceToMatrix(_rows, _columns))
-                .Cast<GpuMatrix>()
-                .ToList()
-            ;
-        }
-
         TensorInput _GetInput()
         {
             return new TensorInput(_rows, _columns, _subVector.Value.Select(t => t.Select(m => m.Memory).ToArray()).ToList());
@@ -180,15 +166,6 @@ namespace BrightWire.LinearAlgebra
             for(var i = 0; i < _count; i++)
                 ret.Add(GetTensorAt(i).AsIndexable());
             return ret;
-        }
-
-        public IReadOnlyList<IMatrix> SubMatrices
-        {
-            get
-            {
-                Debug.Assert(IsValid);
-                return _subMatrix.Value;
-            }
         }
 
         public int ColumnCount

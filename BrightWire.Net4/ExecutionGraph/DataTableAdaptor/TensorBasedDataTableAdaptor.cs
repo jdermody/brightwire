@@ -8,7 +8,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
     /// <summary>
     /// Adapts data tables that classify tensors (volumes)
     /// </summary>
-    class TensorBasedDataTableAdaptor : RowBasedDataTableAdaptorBase
+    class TensorBasedDataTableAdaptor : RowBasedDataTableAdaptorBase, IVolumeDataSource
     {
         readonly int _inputSize, _outputSize, _rows, _columns, _depth;
         readonly List<(IContext Context, int Rows, int Columns, int Depth)> _processedContext = new List<(IContext, int, int, int)>();
@@ -44,6 +44,9 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         public override bool IsSequential => false;
         public override int InputSize => _inputSize;
         public override int OutputSize => _outputSize;
+        public int Width => _columns;
+        public int Height => _rows;
+        public int Depth => _depth;
 
         public override IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<int> rows)
         {

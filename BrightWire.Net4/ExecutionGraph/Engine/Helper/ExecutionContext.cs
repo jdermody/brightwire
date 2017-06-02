@@ -11,13 +11,11 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     {
         readonly ConcurrentQueue<IGraphOperation> _operationList = new ConcurrentQueue<IGraphOperation>();
         readonly ConcurrentDictionary<string, IMatrix> _memory = new ConcurrentDictionary<string, IMatrix>();
-        readonly ConcurrentDictionary<int, FloatTensor> _inputTransformationCache;
         readonly ILinearAlgebraProvider _lap;
 
         public ExecutionContext(ILinearAlgebraProvider lap)
         {
             _lap = lap;
-            _inputTransformationCache = new ConcurrentDictionary<int, FloatTensor>();
         }
 
         public void Dispose()
@@ -25,8 +23,6 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             foreach (var item in _memory)
                 item.Value.Dispose();
             _memory.Clear();
-
-            _inputTransformationCache.Clear();
         }
 
         public ILinearAlgebraProvider LinearAlgebraProvider => _lap;
@@ -61,18 +57,6 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             } else {
                 _memory[index] = memory;
             }
-        }
-
-        public void SetInputTransformation(int id, I3DTensor tensor)
-        {
-            _inputTransformationCache[id] = tensor.Data;
-        }
-
-        public I3DTensor GetInputTransfomation(int id)
-        {
-            if (_inputTransformationCache.TryGetValue(id, out FloatTensor ret))
-                return _lap.Create3DTensor(ret);
-            return null;
         }
     }
 }

@@ -33,12 +33,12 @@ namespace BrightWire.SampleCode
                 const int HIDDEN_LAYER_SIZE = 128;
                 var engine = graph.CreateTrainingEngine(trainingData, 0.003f, 32);
                 graph.Connect(engine)
-                    .AddConvolutional(1, 8, 1, 3, 3, 1, false)
-                    //.AddMaxPooling(2, 2, 2)
-                    //.Add(graph.ReluActivation())
-                    .AddConvolutional(8, 4, 1, 3, 3, 2)
+                    .AddConvolutional(8, 1, 3, 3, 1, false)
+                    .AddMaxPooling(2, 2, 2)
                     .Add(graph.ReluActivation())
-                    .Transpose(784)
+                    //.AddConvolutional(4, 1, 3, 3, 2)
+                    //.Add(graph.ReluActivation())
+                    .Transpose()
                     .AddDropConnect(0.3f, HIDDEN_LAYER_SIZE)
                     .Add(graph.ReluActivation())
                     .AddFeedForward(trainingData.OutputSize)
