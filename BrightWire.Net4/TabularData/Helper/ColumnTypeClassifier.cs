@@ -1,9 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace BrightWire.TabularData.Helper
 {
+    /// <summary>
+    /// Classifies data table column types
+    /// </summary>
     internal static class ColumnTypeClassifier
     {
         const int MAX_CATEGORICAL_VALUES = 256;

@@ -45,7 +45,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             var It = graph.Add(Wi, Ui).Add(graph.SigmoidActivation("It"));
             var Ot = graph.Add(Wo, Uo).Add(graph.SigmoidActivation("Ot"));
 
-            var ftCt1 = graph.Multiply(hiddenLayerSize, Ft.Build(), _state);
+            var ftCt1 = graph.Multiply(hiddenLayerSize, Ft.LastNode, _state);
             var Ct = graph.Add(ftCt1, graph.Multiply(It, graph.Add(Wc, Uc).Add(graph.TanhActivation())))
                 .AddForwardAction(_state.SetMemoryAction)
             ;
@@ -59,7 +59,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                         _lastBackpropagation = null;
                     }
                 }))
-                .Build()
+                .LastNode
             ;
             _start = new OneToMany(SubNodes, bp => _lastBackpropagation = bp);
         }

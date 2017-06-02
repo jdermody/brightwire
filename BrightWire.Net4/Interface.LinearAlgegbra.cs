@@ -50,18 +50,40 @@ namespace BrightWire
         /// <param name="rows">The list of rows in the new matrix</param>
         IMatrix CreateMatrix(IReadOnlyList<IVector> rows);
 
+        /// <summary>
+        /// Creates a matrix that is initialised to zero
+        /// </summary>
+        /// <param name="rows">The number of rows</param>
+        /// <param name="columns">The number of columns</param>
+        /// <returns></returns>
         IMatrix CreateZeroMatrix(int rows, int columns);
+
+        /// <summary>
+        /// Creates an unitialised matrix (the initial matrix values might be anything)
+        /// </summary>
+        /// <param name="rows">The number of rows</param>
+        /// <param name="columns">The number of columns</param>
         IMatrix CreateMatrix(int rows, int columns);
 
         /// <summary>
         /// Creates a 3D tensor
         /// </summary>
-        /// <param name="data">The list of matrices that form the tensor</param>
+        /// <param name="data">The list of matrices that form the 3D tensor</param>
         /// <returns></returns>
         I3DTensor Create3DTensor(IReadOnlyList<IMatrix> data);
+
+        /// <summary>
+        /// Creates a 4D tensor
+        /// </summary>
+        /// <param name="data">The list of 3D tensors that form the 4D tensor</param>
+        /// <returns></returns>
         I4DTensor Create4DTensor(IReadOnlyList<FloatTensor> data);
 
-        I4DTensor Create4DTensor(IMatrix tensorAsMatrix, int rows, int columns, int depth);
+        /// <summary>
+        /// Creates a 4D tensor
+        /// </summary>
+        /// <param name="tensorList">The list of 3D tensors that form the 4D tensor</param>
+        /// <returns></returns>
         I4DTensor Create4DTensor(IReadOnlyList<I3DTensor> tensorList);
 
         /// <summary>
@@ -353,9 +375,14 @@ namespace BrightWire
         /// <param name="columns">The number of columns in the matrix</param>
         IMatrix ConvertInPlaceToMatrix(int rows, int columns);
 
+        /// <summary>
+        /// Converts the vector to a tensor
+        /// </summary>
+        /// <param name="rows">Number of rows in tensor</param>
+        /// <param name="columns">Number of columns in tensor</param>
+        /// <param name="depth">Depth of the tensor</param>
+        /// <returns></returns>
         I3DTensor ConvertTo3DTensor(int rows, int columns, int depth);
-
-
 
         /// <summary>
         /// Splits the vector into a list of vectors
@@ -741,8 +768,21 @@ namespace BrightWire
         /// </summary>
         IVector ConvertInPlaceToVector();
 
+        /// <summary>
+        /// Converts the matrix to a 3D tensor
+        /// </summary>
+        /// <param name="rows">Tensor row count</param>
+        /// <param name="columns">Tensor column count</param>
+        /// <returns></returns>
         I3DTensor ConvertTo3DTensor(int rows, int columns);
 
+        /// <summary>
+        /// Converts the matrix to a 4D tensor
+        /// </summary>
+        /// <param name="rows">Tensor row count</param>
+        /// <param name="columns">Tensor column count</param>
+        /// <param name="depth">Tensor depth</param>
+        /// <returns></returns>
         I4DTensor ConvertTo4DTensor(int rows, int columns, int depth);
     }
 
@@ -818,6 +858,9 @@ namespace BrightWire
         /// </summary>
         FloatTensor Data { get; set; }
 
+        /// <summary>
+        /// The list of sub-matrices in the tensor
+        /// </summary>
         IReadOnlyList<IMatrix> SubMatrices { get; }
 
         /// <summary>
@@ -878,12 +921,51 @@ namespace BrightWire
         /// <returns>A max pooled tensor</returns>
         (I3DTensor Result, IReadOnlyList<(object X, object Y)> Index) MaxPool(int filterWidth, int filterHeight, int stride, bool calculateIndex);
 
+        /// <summary>
+        /// Reverses a max pooling operation
+        /// </summary>
+        /// <param name="rows">Input rows</param>
+        /// <param name="columns">Input columns</param>
+        /// <param name="indexList">The indices of the maximum values</param>
         I3DTensor ReverseMaxPool(int rows, int columns, IReadOnlyList<(object X, object Y)> indexList);
 
+        /// <summary>
+        /// Reverses a im2col operation
+        /// </summary>
+        /// <param name="filter">The rotated filters</param>
+        /// <param name="inputHeight">Height of the input tensor</param>
+        /// <param name="inputWidth">Width of the input tensor</param>
+        /// <param name="inputDepth">Depth of the input tensor</param>
+        /// <param name="padding">Input padding</param>
+        /// <param name="filterHeight">Height of each filter</param>
+        /// <param name="filterWidth">Width of each filter</param>
+        /// <param name="stride">Filter stride</param>
+        /// <returns></returns>
         IMatrix ReverseIm2Col(IReadOnlyList<IReadOnlyList<IVector>> filter, int inputHeight, int inputWidth, int inputDepth, int padding, int filterHeight, int filterWidth, int stride);
+
+        /// <summary>
+        /// Adds each depth slice into a single matrix
+        /// </summary>
+        /// <returns></returns>
         IMatrix CombineDepthSlices();
+
+        /// <summary>
+        /// Adds the other tensor to the current tensor
+        /// </summary>
+        /// <param name="tensor">Tensor to add</param>
         void AddInPlace(I3DTensor tensor);
+
+        /// <summary>
+        /// Multiplies the tensor with the other matrix
+        /// </summary>
+        /// <param name="matrix">Matrix to multiply with</param>
+        /// <returns></returns>
         I3DTensor Multiply(IMatrix matrix);
+
+        /// <summary>
+        /// Adds the vector to each row of the tensor
+        /// </summary>
+        /// <param name="vector">Vector to add to each row</param>
         void AddToEachRow(IVector vector);
     }
 
@@ -931,6 +1013,9 @@ namespace BrightWire
         /// </summary>
         int Count { get; }
 
+        /// <summary>
+        /// List of sub-matrices from the current tensor
+        /// </summary>
         IReadOnlyList<IMatrix> SubMatrices { get; }
 
         /// <summary>
@@ -939,14 +1024,70 @@ namespace BrightWire
         /// <param name="index">The index to query</param>
         I3DTensor GetTensorAt(int index);
 
+        /// <summary>
+        /// Returns an indexable list of 3D tensors
+        /// </summary>
+        /// <returns></returns>
         IReadOnlyList<IIndexable3DTensor> AsIndexable();
 
+        /// <summary>
+        /// Adds padding to the 4D tensor
+        /// </summary>
+        /// <param name="padding">Padding to add to the left, top, right and bottom edges of the tensor</param>
+        /// <returns>A new tensor with the padding added</returns>
         I4DTensor AddPadding(int padding);
+
+        /// <summary>
+        /// Removes padding from the 4D tensor
+        /// </summary>
+        /// <param name="padding">Padding to remove from the left, top, right and bottom edges of the tensor</param>
+        /// <returns>A new tensor with the padding removed</returns>
         I4DTensor RemovePadding(int padding);
+
+        /// <summary>
+        /// Applies a max pooling operation to the current tensor
+        /// </summary>
+        /// <param name="filterWidth">Max pool filter width</param>
+        /// <param name="filterHeight">Max pool filter height</param>
+        /// <param name="stride">Filter stride</param>
+        /// <param name="calculateIndex">True to remember the indices of each max value for later backpropagation</param>
         (I4DTensor Result, IReadOnlyList<IReadOnlyList<(object X, object Y)>> Index) MaxPool(int filterWidth, int filterHeight, int stride, bool calculateIndex);
+
+        /// <summary>
+        /// Reverses a max pool operation
+        /// </summary>
+        /// <param name="rows">Input tensor rows</param>
+        /// <param name="columns">Input tensor columns</param>
+        /// <param name="indexList">Saved list of indexes from MaxPool operation</param>
+        /// <returns></returns>
         I4DTensor ReverseMaxPool(int rows, int columns, IReadOnlyList<IReadOnlyList<(object X, object Y)>> indexList);
+
+        /// <summary>
+        /// Applies the convolutional filter to each 3D tensor, producing a 3D tensor which can be multipled by the filter matrix
+        /// </summary>
+        /// <param name="filterWidth">Filter width</param>
+        /// <param name="filterHeight">Filter height</param>
+        /// <param name="stride">Filter stride</param>
+        /// <returns></returns>
         I3DTensor Im2Col(int filterWidth, int filterHeight, int stride);
-        I3DTensor ReverseIm2Col(IReadOnlyList<IReadOnlyList<IVector>> filter, int inputHeight, int inputWidth, int inputDepth, int padding, int filterHeight, int filterWidth, int stride);
+
+        /// <summary>
+        /// Reverse a previously applied im2Col
+        /// </summary>
+        /// <param name="filter">List of filters that have been rotated 180 degrees</param>
+        /// <param name="inputHeight">Height of the input 4D tensor</param>
+        /// <param name="inputWidth">Width of the input 4D tensor</param>
+        /// <param name="inputDepth">Depth of the input 4D tensor</param>
+        /// <param name="padding">Amount of padding that was applied to the input 4D tensor before im2col</param>
+        /// <param name="filterWidth">Filter width</param>
+        /// <param name="filterHeight">Filter height</param>
+        /// <param name="stride">Filter stride</param>
+        /// <returns></returns>
+        I3DTensor ReverseIm2Col(IReadOnlyList<IReadOnlyList<IVector>> filter, int inputHeight, int inputWidth, int inputDepth, int padding, int filterWidth, int filterHeight, int stride);
+
+        /// <summary>
+        /// Converts the 4D tensor to a matrix in which each column is a 3D tensor in vector form
+        /// </summary>
         IMatrix ConvertToMatrix();
     }
 }

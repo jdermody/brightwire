@@ -1,11 +1,12 @@
 ﻿using BrightWire.Models;
-using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Linq;
 
 namespace BrightWire.Linear.Training
 {
+    /// <summary>
+    /// Logistic regression with multiple possible classifications
+    /// </summary>
     internal static class MultinomialLogisticRegressionTrainner
     {
         public static MultinomialLogisticRegression Train(IDataTable table, ILinearAlgebraProvider lap, int trainingIterations, float trainingRate, float lambda)

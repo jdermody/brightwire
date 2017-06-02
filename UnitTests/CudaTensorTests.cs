@@ -522,7 +522,7 @@ namespace UnitTests
         }
 
         [TestMethod]
-        public void TensorToVector()
+        public void Tensor3DToVector()
         {
             var data = _CreateTensor(4, 3, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1));
             var tensor = _cpu.Create3DTensor(data);
@@ -530,6 +530,64 @@ namespace UnitTests
             var vector = _cpu.CreateVector(raw);
             var tensor2 = vector.ConvertTo3DTensor(4, 3, 2);
             FloatingPointHelper.AssertEqual(tensor.AsIndexable(), tensor2.AsIndexable());
+
+            using(var gpuTensor = _cuda.Create3DTensor(tensor.AsIndexable()))
+            using (var gpuVector = _cuda.CreateVector(raw))
+            using (var gpuTensor2 = gpuVector.ConvertTo3DTensor(4, 3, 2)) {
+                FloatingPointHelper.AssertEqual(gpuTensor.AsIndexable(), gpuTensor2.AsIndexable());
+            }
+        }
+
+        [TestMethod]
+        public void Tensor3DToVector2()
+        {
+            var data = _CreateTensor(4, 3, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1));
+            var tensor = _cpu.Create3DTensor(data);
+            var vector = tensor.ConvertToVector();
+            var tensor2 = vector.ConvertTo3DTensor(4, 3, 2);
+            FloatingPointHelper.AssertEqual(tensor.AsIndexable(), tensor2.AsIndexable());
+
+            using (var gpuTensor = _cuda.Create3DTensor(tensor.AsIndexable()))
+            using (var gpuVector = gpuTensor.ConvertToVector())
+            using (var gpuTensor2 = gpuVector.ConvertTo3DTensor(4, 3, 2)) {
+                FloatingPointHelper.AssertEqual(gpuTensor.AsIndexable(), gpuTensor2.AsIndexable());
+                FloatingPointHelper.AssertEqual(vector.AsIndexable(), gpuVector.AsIndexable());
+            }
+        }
+
+        [TestMethod]
+        public void Tensor3DToMatrix()
+        {
+            var data = _CreateTensor(4, 3, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1));
+            var tensor = _cpu.Create3DTensor(data);
+            var matrix = tensor.ConvertToMatrix();
+            var tensor2 = matrix.ConvertTo3DTensor(4, 3);
+            FloatingPointHelper.AssertEqual(tensor.AsIndexable(), tensor2.AsIndexable());
+
+            using (var gpuTensor = _cuda.Create3DTensor(tensor.AsIndexable()))
+            using (var gpuMatrix = gpuTensor.ConvertToMatrix())
+            using (var gpuTensor2 = gpuMatrix.ConvertTo3DTensor(4, 3)) {
+                FloatingPointHelper.AssertEqual(gpuTensor.AsIndexable(), gpuTensor2.AsIndexable());
+                FloatingPointHelper.AssertEqual(matrix.AsIndexable(), gpuMatrix.AsIndexable());
+            }
+        }
+
+        [TestMethod]
+        public void Tensor4DToMatrix()
+        {
+            var data = Enumerable.Range(0, 5)
+                .Select(z => _CreateTensor(3, 4, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1))).ToList();
+            var cpuTensor = _cpu.Create4DTensor(data);
+            var cpuMatrix = cpuTensor.ConvertToMatrix();
+            var cpuTensor2 = cpuMatrix.ConvertTo4DTensor(3, 4, 2);
+            FloatingPointHelper.AssertEqual(cpuTensor.AsIndexable(), cpuTensor2.AsIndexable());
+
+            using (var gpuTensor = _cuda.Create4DTensor(cpuTensor.AsIndexable().Select(t => t.Data).ToList()))
+            using (var gpuMatrix = gpuTensor.ConvertToMatrix())
+            using (var gpuTensor2 = gpuMatrix.ConvertTo4DTensor(3, 4, 2)) {
+                FloatingPointHelper.AssertEqual(gpuTensor.AsIndexable(), gpuTensor2.AsIndexable());
+                FloatingPointHelper.AssertEqual(cpuMatrix.AsIndexable(), gpuMatrix.AsIndexable());
+            }
         }
 
         //void _Tensor4DReverseIm2Col(int rows, int columns, int depth, int count, int filterWidth, int filterHeight, int filterCount, int stride)

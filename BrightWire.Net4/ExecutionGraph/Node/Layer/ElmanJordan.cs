@@ -61,7 +61,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                         _lastBackpropagation = null;
                     }
                 }))
-                .Build()
+                .LastNode
             ;
             _start = new OneToMany(SubNodes, bp => _lastBackpropagation = bp);
         }

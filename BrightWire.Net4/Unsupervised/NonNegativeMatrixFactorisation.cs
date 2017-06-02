@@ -7,6 +7,10 @@ using System.Threading.Tasks;
 
 namespace BrightWire.Unsupervised
 {
+    /// <summary>
+    /// Non negative matrix factorisation based clustering
+    /// https://en.wikipedia.org/wiki/Non-negative_matrix_factorization
+    /// </summary>
     internal class NonNegativeMatrixFactorisation
     {
         readonly int _numClusters;

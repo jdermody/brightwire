@@ -1,8 +1,5 @@
 ﻿using BrightWire.InstanceBased;
 using ProtoBuf;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace BrightWire.Models.InstanceBased
 {

@@ -59,7 +59,6 @@ namespace BrightWire.TrainingData.Artificial
         public static IDataTable GetOneHot(IEnumerable<string> strList)
         {
             // build the following item table
-            HashSet<int> temp;
             var following = new Dictionary<string, HashSet<int>>();
             foreach (var str in strList) {
                 var sb = new StringBuilder();
@@ -68,7 +67,7 @@ namespace BrightWire.TrainingData.Artificial
                     sb.Append(ch);
                     var key = sb.ToString();
                     if (prev != null) {
-                        if (!following.TryGetValue(prev, out temp))
+                        if (!following.TryGetValue(prev, out HashSet<int> temp))
                             following.Add(prev, temp = new HashSet<int>());
                         temp.Add(_ch[ch]);
                     }

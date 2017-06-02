@@ -35,7 +35,7 @@ namespace BrightWire.SampleCode
                 ;
 
                 // create the engine
-                var trainingData = graph.GetDataSource(data.Training);
+                var trainingData = graph.CreateDataSource(data.Training);
                 var testData = trainingData.CloneWith(data.Test);
                 var engine = graph.CreateTrainingEngine(trainingData, 0.0002f, 16);
 

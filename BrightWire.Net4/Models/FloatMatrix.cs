@@ -99,6 +99,12 @@ namespace BrightWire.Models
             }
         }
 
+        /// <summary>
+        /// Tests if the matrices are the same
+        /// </summary>
+        /// <param name="matrix">The matrix to compare</param>
+        /// <param name="comparer">Optional IEqualityComparer to use</param>
+        /// <returns></returns>
         public bool IsEqualTo(FloatMatrix matrix, IEqualityComparer<float> comparer = null)
         {
             if (matrix == null || RowCount != matrix.RowCount || ColumnCount != matrix.ColumnCount)

@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.TabularData.Analysis
 {
+    /// <summary>
+    /// Collects standard deviation, mean, mode etc from a single numeric column in a data table
+    /// </summary>
     internal class NumberCollector : IRowProcessor, INumericColumnInfo
     {
         readonly int _index, _maxDistinct;
@@ -39,8 +40,8 @@ namespace BrightWire.TabularData.Analysis
 
             // add to distinct values
             if (_distinct.Count < _maxDistinct) {
-                ulong temp, count = 0;
-                if (_distinct.TryGetValue(val, out temp))
+                ulong count = 0;
+                if (_distinct.TryGetValue(val, out ulong temp))
                     _distinct[val] = count = temp + 1;
                 else
                     _distinct.Add(val, count = 1);

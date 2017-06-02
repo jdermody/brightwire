@@ -25,7 +25,7 @@ namespace BrightWire.Bayesian.Training
 
             // analyse the data per class
             var classBasedFrequency = classInfo.DistinctValues.Select(cv => Tuple.Create<string, IRowProcessor>(cv.ToString(), new FrequencyAnalysis(table, classColumnIndex)));
-            var frequencyAnalysis = new ClassBasedRowProcessor(classBasedFrequency, classColumnIndex);
+            var frequencyAnalysis = new ClassificationBasedRowProcessor(classBasedFrequency, classColumnIndex);
             table.Process(frequencyAnalysis);
 
             // create the per-class summaries from the frequency table
@@ -36,8 +36,7 @@ namespace BrightWire.Bayesian.Training
                 var columnList = new List<NaiveBayes.IColumn>();
                 foreach (var column in frequency.ColumnInfo) {
                     var continuous = column as NumberCollector;
-                    var categorical = column as FrequencyCollector;
-                    if (categorical != null) {
+                    if (column is FrequencyCollector categorical) {
                         var total = (double)categorical.Total;
                         if (total > 0) {
                             var list = new List<NaiveBayes.CategorialProbability>();

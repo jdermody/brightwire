@@ -44,7 +44,7 @@ namespace UnitTests
             var table = builder.Build();
             var vectoriser = table.GetVectoriser();
             var graph = new GraphFactory(_lap);
-            var dataSource = graph.GetDataSource(table, vectoriser);
+            var dataSource = graph.CreateDataSource(table, vectoriser);
             var miniBatch = dataSource.Get(null, new[] { 1 });
             var input = miniBatch.CurrentSequence.Input.GetMatrix().Row(0).AsIndexable();
             var expectedOutput = miniBatch.CurrentSequence.Target.GetMatrix().Row(0).AsIndexable();

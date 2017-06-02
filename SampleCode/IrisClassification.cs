@@ -83,7 +83,7 @@ namespace BrightWire.SampleCode
                 ;
 
                 // create the training and test data sources
-                var trainingData = graph.GetDataSource(split.Training);
+                var trainingData = graph.CreateDataSource(split.Training);
                 var testData = trainingData.CloneWith(split.Test);
 
                 // create a 4x3x3 neural network with sigmoid activations after each neural network

@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using MathNet.Numerics.LinearAlgebra.Single;
 using System.Linq;
 using BrightWire.Models;
 
 namespace BrightWire.LinearAlgebra
 {
+    /// <summary>
+    /// Creates vectors, matrices and tensors using the CPU based math.net numerics library
+    /// </summary>
     internal class CpuProvider : ILinearAlgebraProvider
     {
         readonly bool _isStochastic;
@@ -69,13 +71,13 @@ namespace BrightWire.LinearAlgebra
             return new Cpu4DTensor(data.Select(t => this.Create3DTensor(t)).ToList());
         }
 
-        public I4DTensor Create4DTensor(IMatrix tensorAsMatrix, int rows, int columns, int depth)
-        {
-            var list = new List<I3DTensor>();
-            for(var i = 0; i < tensorAsMatrix.ColumnCount; i++)
-                list.Add(Create3DTensor(tensorAsMatrix.Column(i).Split(depth).Select(v => v.ConvertInPlaceToMatrix(rows, columns)).ToList()));
-            return new Cpu4DTensor(list);
-        }
+        //public I4DTensor Create4DTensor(IMatrix tensorAsMatrix, int rows, int columns, int depth)
+        //{
+        //    var list = new List<I3DTensor>();
+        //    for(var i = 0; i < tensorAsMatrix.ColumnCount; i++)
+        //        list.Add(Create3DTensor(tensorAsMatrix.Column(i).Split(depth).Select(v => v.ConvertInPlaceToMatrix(rows, columns)).ToList()));
+        //    return new Cpu4DTensor(list);
+        //}
 
         public I4DTensor Create4DTensor(IReadOnlyList<I3DTensor> tensorList)
         {

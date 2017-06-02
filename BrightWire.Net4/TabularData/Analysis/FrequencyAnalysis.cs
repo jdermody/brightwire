@@ -1,12 +1,12 @@
 ﻿using BrightWire.TabularData.Helper;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.TabularData.Analysis
 {
+    /// <summary>
+    /// Collects frequency meta data from data tables
+    /// </summary>
     internal class FrequencyAnalysis : IRowProcessor
     {
         readonly List<IRowProcessor> _column = new List<IRowProcessor>();

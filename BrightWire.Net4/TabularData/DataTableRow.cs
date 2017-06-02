@@ -1,10 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using BrightWire.TabularData.Helper;
 
 namespace BrightWire.TabularData
 {
+    /// <summary>
+    /// A row within a data table
+    /// </summary>
     internal class DataTableRow : IRow
     {
         readonly IHaveColumns _table;

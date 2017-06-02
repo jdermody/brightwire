@@ -1,14 +1,15 @@
 ﻿using BrightWire.TabularData.Helper;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
 
 namespace BrightWire.TabularData.Analysis
 {
+    /// <summary>
+    /// Collects meta data about data tables
+    /// </summary>
     internal class DataTableAnalysis : IRowProcessor, IDataTableAnalysis
     {
         readonly IDataTable _table;
@@ -66,7 +67,6 @@ namespace BrightWire.TabularData.Analysis
         {
             get
             {
-                IColumnInfo columnInfo;
                 var ret = new StringBuilder();
                 var table = ColumnInfo.ToDictionary(c => c.ColumnIndex, c => c);
 
@@ -83,20 +83,18 @@ namespace BrightWire.TabularData.Analysis
                         if (column.IsTarget)
                             writer.WriteAttributeString("classification-target", "y");
                         
-                        if(table.TryGetValue(columnIndex++, out columnInfo)) {
+                        if(table.TryGetValue(columnIndex++, out IColumnInfo columnInfo)) {
                             writer.WriteAttributeString("column-index", columnInfo.ColumnIndex.ToString());
                             if (columnInfo.NumDistinct.HasValue)
                                 writer.WriteAttributeString("distinct-value-count", columnInfo.NumDistinct.Value.ToString());
 
-                            var stringColumn = columnInfo as IStringColumnInfo;
-                            if(stringColumn != null) {
+                            if (columnInfo is IStringColumnInfo stringColumn) {
                                 writer.WriteAttributeString("min-length", stringColumn.MinLength.ToString());
                                 writer.WriteAttributeString("max-length", stringColumn.MaxLength.ToString());
                                 writer.WriteAttributeString("most-common-string", stringColumn.MostCommonString);
                             }
 
-                            var numericColumn = columnInfo as INumericColumnInfo;
-                            if(numericColumn != null) {
+                            if (columnInfo is INumericColumnInfo numericColumn) {
                                 writer.WriteAttributeString("min", numericColumn.Min.ToString());
                                 writer.WriteAttributeString("max", numericColumn.Max.ToString());
                                 writer.WriteAttributeString("mean", numericColumn.Mean.ToString());
@@ -110,8 +108,7 @@ namespace BrightWire.TabularData.Analysis
                                     writer.WriteAttributeString("mode", numericColumn.Mode.Value.ToString());
                             }
 
-                            var indexColumn = ColumnInfo as IIndexColumnInfo;
-                            if(indexColumn != null) {
+                            if (ColumnInfo is IIndexColumnInfo indexColumn) {
                                 writer.WriteAttributeString("min-index", indexColumn.MinIndex.ToString());
                                 writer.WriteAttributeString("max-index", indexColumn.MaxIndex.ToString());
                             }

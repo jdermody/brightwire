@@ -37,8 +37,8 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
                 // store the updates
                 var learningContext = context.LearningContext;
-                learningContext.Store(es, err => _source.UpdateBias(err, learningContext));
-                learningContext.Store(weightUpdate, err => _source.UpdateWeights(err, learningContext));
+                learningContext.StoreUpdate(_source, es, err => _source.UpdateBias(err, learningContext));
+                learningContext.StoreUpdate(_source, weightUpdate, err => _source.UpdateWeights(err, learningContext));
 
                 return errorSignal.ReplaceWith(ret);
             }
@@ -128,7 +128,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 _weight.Data = weight;
 
             if (_updater == null)
-                _updater = factory.GetWeightUpdater(_weight);
+                _updater = factory.CreateWeightUpdater(_weight);
         }
 
         public override void WriteTo(BinaryWriter writer)

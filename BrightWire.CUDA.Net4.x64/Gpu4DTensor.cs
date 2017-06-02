@@ -256,7 +256,7 @@ namespace BrightWire.LinearAlgebra
         {
             var ret = new List<I3DTensor>();
             for (var i = 0; i < Count; i++) {
-                var result = GetTensorAt(i).ReverseMaxPool(rows, columns, indexList != null ? indexList[i] : null);
+                var result = GetTensorAt(i).ReverseMaxPool(rows, columns, indexList?[i]);
                 ret.Add(result);
             }
             return new Gpu4DTensor(_cuda, ret);
@@ -269,7 +269,7 @@ namespace BrightWire.LinearAlgebra
             return new Gpu3DTensor(_cuda, ret.Rows, ret.Columns, ret.Count, matrixList);
         }
 
-        public I3DTensor ReverseIm2Col(IReadOnlyList<IReadOnlyList<IVector>> filter, int inputHeight, int inputWidth, int inputDepth, int padding, int filterHeight, int filterWidth, int stride)
+        public I3DTensor ReverseIm2Col(IReadOnlyList<IReadOnlyList<IVector>> filter, int inputHeight, int inputWidth, int inputDepth, int padding, int filterWidth, int filterHeight, int stride)
         {
             var filters = filter.Select(fl => fl.Cast<GpuVector>().Select(v => v.Memory).ToList()).ToList();
             var ret = _cuda.TensorReverseIm2Col(_tensorInfo.Value, filters, inputHeight, inputWidth, inputDepth, padding, filterHeight, filterWidth, stride);

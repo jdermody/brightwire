@@ -1,6 +1,5 @@
 ﻿using ProtoBuf;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -95,9 +94,10 @@ namespace BrightWire.Models
             var ret = new WeightedIndex[len];
 
             for (var i = 0; i < len; i++) {
-                var category = new WeightedIndex();
-                category.Index = reader.ReadUInt32();
-                category.Weight = reader.ReadSingle();
+                var category = new WeightedIndex() {
+                    Index = reader.ReadUInt32(),
+                    Weight = reader.ReadSingle()
+                };
                 ret[i] = category;
             }
 

@@ -53,7 +53,7 @@ namespace UnitTests
 
             // build the autoencoder with tied weights
             var graph = new GraphFactory(_lap);
-            var dataSource = graph.GetDataSource(dataTable);
+            var dataSource = graph.CreateDataSource(dataTable);
             var engine = graph.CreateTrainingEngine(dataSource, 0.03f, 32);
             var errorMetric = graph.ErrorMetric.Quadratic;
             graph.CurrentPropertySet

@@ -105,8 +105,14 @@ namespace BrightWire.Models
             }
         }
 
+        /// <summary>
+        /// Number of items in the tensor (depth * rows * columns)
+        /// </summary>
         public int Size => Depth * RowCount * ColumnCount;
 
+        /// <summary>
+        /// Converts the data to a column major vector
+        /// </summary>
         public float[] GetAsRaw()
         {
             var data = new float[Size];
@@ -128,6 +134,12 @@ namespace BrightWire.Models
             return data;
         }
 
+        /// <summary>
+        /// Tests if the tensors are the same
+        /// </summary>
+        /// <param name="tensor">The tensor to compare</param>
+        /// <param name="comparer">Optional IEqualityComparer to use</param>
+        /// <returns></returns>
         public bool IsEqualTo(FloatTensor tensor, IEqualityComparer<float> comparer = null)
         {
             if (tensor == null || RowCount != tensor.RowCount || ColumnCount != tensor.ColumnCount || Depth != tensor.Depth)

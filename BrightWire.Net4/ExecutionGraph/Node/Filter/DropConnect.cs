@@ -35,8 +35,8 @@ namespace BrightWire.ExecutionGraph.Node.Filter
 
                 // store the updates
                 var learningContext = context.LearningContext;
-                learningContext.Store(es, err => _source.UpdateBias(err, learningContext));
-                learningContext.Store(weightUpdate, err => _source.UpdateWeights(err, learningContext));
+                learningContext.StoreUpdate(_source, es, err => _source.UpdateBias(err, learningContext));
+                learningContext.StoreUpdate(_source, weightUpdate, err => _source.UpdateWeights(err, learningContext));
 
                 return errorSignal.ReplaceWith(ret);
             }

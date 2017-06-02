@@ -75,7 +75,7 @@ namespace BrightWire.SampleCode
             if (existing != null)
                 return existing.CloneWith(dataTable.Build());
             else
-                return graph.GetDataSource(dataTable.Build());
+                return graph.CreateDataSource(dataTable.Build());
         }
     }
 }

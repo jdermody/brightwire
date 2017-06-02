@@ -95,6 +95,12 @@ namespace BrightWire.Models
             }
         }
 
+        /// <summary>
+        /// Tests if the vectors are the same
+        /// </summary>
+        /// <param name="vector">The vector to compare</param>
+        /// <param name="comparer">Optional IEqualityComparer to use</param>
+        /// <returns></returns>
         public bool IsEqualTo(FloatVector vector, IEqualityComparer<float> comparer = null)
         {
             if (vector == null || Size != vector.Size)
@@ -108,6 +114,9 @@ namespace BrightWire.Models
             return true;
         }
 
+        /// <summary>
+        /// Finds the index with the highest value
+        /// </summary>
         public int MaximumIndex()
         {
             var ret = 0;

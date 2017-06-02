@@ -2,10 +2,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace BrightWire.TabularData.Helper
 {
+    /// <summary>
+    /// Converts data tables that might contain categorical or sparse vector based data into a dense vector format
+    /// </summary>
     internal class DataTableVectoriser : IDataTableVectoriser
     {
         readonly IReadOnlyList<IColumn> _column;
@@ -28,8 +30,7 @@ namespace BrightWire.TabularData.Helper
                 int size = 0;
                 var isContinuous = false;
 
-                var indexColumn = columnInfo as IIndexColumnInfo;
-                if (indexColumn != null)
+                if (columnInfo is IIndexColumnInfo indexColumn)
                     size = Convert.ToInt32(indexColumn.MaxIndex + 1);
                 else {
                     isContinuous = column.IsContinuous || !columnInfo.NumDistinct.HasValue;
@@ -81,10 +82,8 @@ namespace BrightWire.TabularData.Helper
         public string GetOutputLabel(int columnIndex, int vectorIndex)
         {
             if (_hasTarget) {
-                Dictionary<int, string> map;
-                if (_reverseColumnMap.TryGetValue(columnIndex, out map)) {
-                    string ret;
-                    if (map.TryGetValue(vectorIndex, out ret))
+                if (_reverseColumnMap.TryGetValue(columnIndex, out Dictionary<int, string> map)) {
+                    if (map.TryGetValue(vectorIndex, out string ret))
                         return ret;
                 }
             }

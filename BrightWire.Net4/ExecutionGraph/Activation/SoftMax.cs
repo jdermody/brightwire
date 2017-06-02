@@ -22,7 +22,7 @@ namespace BrightWire.ExecutionGraph.Activation
 
             protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
-                var matrixList = errorSignal.AllMatrices.Select((e, ind) => {
+                var matrixList = errorSignal.AllSubMatrices.Select((e, ind) => {
                     var row = _rows[ind];
                     var rowList = new List<IVector>();
                     for (var i = 0; i < e.RowCount; i++) {
@@ -44,7 +44,7 @@ namespace BrightWire.ExecutionGraph.Activation
 
         public override void ExecuteForward(IContext context)
         {
-            var input = context.Data.AllMatrices;
+            var input = context.Data.AllSubMatrices;
             var output = new List<List<IVector>>();
             var matrixList = new List<IMatrix>();
 

@@ -1,12 +1,13 @@
 ﻿using BrightWire.Models;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.Linear.Training
 {
+    /// <summary>
+    /// Linear regression
+    /// https://en.wikipedia.org/wiki/Linear_regression
+    /// </summary>
     internal class RegressionTrainer : ILinearRegressionTrainer
     {
         readonly ILinearAlgebraProvider _lap;

@@ -41,53 +41,23 @@ namespace BrightWire
             }
         }
 
+        /// <summary>
+        /// Classifies each row of the data table
+        /// </summary>
+        /// <param name="classifier"></param>
+        /// <param name="dataTable"></param>
+        /// <returns>A list of rows with their corresponding classifications</returns>
         public static IReadOnlyList<(IRow Row, string Classification)> Classifiy(this IRowClassifier classifier, IDataTable dataTable)
         {
             return dataTable.Classify(classifier, percentage => Console.Write("\r({0:P}) ", percentage));
         }
 
-        //public static IGraphData ToGraphData(this IMatrix matrix)
-        //{
-        //    return new MatrixGraphData(matrix);
-        //}
-
-        //public static IGraphData ToGraphData(this I3DTensor tensor)
-        //{
-        //    return new Tensor3DGraphData(tensor.ConvertToMatrix(), tensor.RowCount, tensor.ColumnCount);
-        //}
-
-        //public static IGraphData ToGraphData(this I4DTensor tensor)
-        //{
-        //    return new Tensor3DGraphData(tensor.ConvertToMatrix(), tensor.RowCount, tensor.ColumnCount);
-        //}
-
-        //public static IGraphData ToGraphData(this IReadOnlyList<IMatrix> matrixList, ILinearAlgebraProvider lap)
-        //{
-        //    if (matrixList.Count == 1)
-        //        return matrixList[0].ToGraphData();
-        //    else if (matrixList.Count > 1)
-        //        return lap.CreateTensor(matrixList).ToGraphData();
-        //    return null;
-        //}
-
-        //public static IReadOnlyList<IMatrix> Decompose(this IGraphData data)
-        //{
-        //    var ret = new List<IMatrix>();
-        //    if (data.DataType == GraphDataType.Matrix)
-        //        ret.Add(data.GetMatrix());
-        //    else {
-        //        var tensor = data.GetTensor();
-        //        for (var i = 0; i < tensor.Depth; i++)
-        //            ret.Add(tensor.GetMatrixAt(i));
-        //    }
-        //    return ret;
-        //}
-
-        //public static IGraphData ToGraphData(this IContext context, IEnumerable<IMatrix> matrixList)
-        //{
-        //    return matrixList.ToList().ToGraphData(context.LinearAlgebraProvider);
-        //}
-
+        /// <summary>
+        /// Serialises the node and any other connected nodes to an execution graph
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="name">Name of the graph (optional)</param>
+        /// <returns></returns>
         public static Models.ExecutionGraph GetGraph(this INode input, string name = null)
         {
             var connectedTo = new List<Models.ExecutionGraph.Node>();
@@ -102,6 +72,11 @@ namespace BrightWire
             };
         }
 
+        /// <summary>
+        /// Creates a node and any other connected nodes from a serialised execution graph
+        /// </summary>
+        /// <param name="factory"></param>
+        /// <param name="graph">Serialised graph</param>
         public static INode CreateFrom(this GraphFactory factory, Models.ExecutionGraph graph)
         {
             // create the input node

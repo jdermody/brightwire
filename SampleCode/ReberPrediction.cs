@@ -27,7 +27,7 @@ namespace BrightWire.SampleCode
                 ;
 
                 // create the engine
-                var trainingData = graph.GetDataSource(data.Training);
+                var trainingData = graph.CreateDataSource(data.Training);
                 var testData = trainingData.CloneWith(data.Test);
                 var engine = graph.CreateTrainingEngine(trainingData, 0.003f, 32);
 
@@ -43,7 +43,7 @@ namespace BrightWire.SampleCode
                     .AddFeedForward(engine.DataSource.OutputSize)
                     .Add(graph.SigmoidActivation())
                     .AddBackpropagationThroughTime(errorMetric)
-                    .Build()
+                    .LastNode
                 ;
 
                 engine.Train(30, testData, errorMetric);

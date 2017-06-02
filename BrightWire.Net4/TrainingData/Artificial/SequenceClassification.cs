@@ -3,10 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.TrainingData.Artificial
 {
+    /// <summary>
+    /// Generates random alphabetical sequences
+    /// </summary>
     public class SequenceClassification
     {
         readonly int _dictionarySize;
@@ -29,6 +31,14 @@ namespace BrightWire.TrainingData.Artificial
             ;
         }
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="dictionarySize">The number of letters to use</param>
+        /// <param name="minSize">The minimum size of each sequence</param>
+        /// <param name="maxSize">The maximum size of each sequence</param>
+        /// <param name="noRepeat">True to avoid repeating any previous character within each sequence</param>
+        /// <param name="isStochastic">True to generate different sequences each time</param>
         public SequenceClassification(int dictionarySize, int minSize, int maxSize, bool noRepeat = true, bool isStochastic = true)
         {
             _rnd = isStochastic ? new Random() : new Random(0);
@@ -43,6 +53,9 @@ namespace BrightWire.TrainingData.Artificial
             }
         }
 
+        /// <summary>
+        /// The number of letters to use
+        /// </summary>
         public int DictionarySize => _dictionarySize;
 
         int _NextSequenceLength
@@ -55,6 +68,10 @@ namespace BrightWire.TrainingData.Artificial
             }
         }
 
+        /// <summary>
+        /// Generates a new sequence
+        /// </summary>
+        /// <returns></returns>
         public string NextSequence()
         {
             var sb = new StringBuilder();
@@ -69,6 +86,12 @@ namespace BrightWire.TrainingData.Artificial
             return sb.ToString();
         }
 
+        /// <summary>
+        /// Converts the character to a one hot encoded vector
+        /// </summary>
+        /// <param name="ch"></param>
+        /// <param name="val"></param>
+        /// <returns></returns>
         public FloatVector Encode(char ch, float val = 1f)
         {
             var ret = new float[_dictionarySize];
@@ -78,6 +101,11 @@ namespace BrightWire.TrainingData.Artificial
             };
         }
 
+        /// <summary>
+        /// Encodes the characters as a dense vector
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
         public FloatVector Encode(IEnumerable<(char, float)> data)
         {
             var ret = new float[_dictionarySize];
@@ -88,6 +116,11 @@ namespace BrightWire.TrainingData.Artificial
             };
         }
 
+        /// <summary>
+        /// Encodes the string as a list of dense vectors within a matrix (each character becomes a row in the matrix)
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
         public FloatMatrix Encode(string str)
         {
             var data = new FloatVector[str.Length];
@@ -99,6 +132,10 @@ namespace BrightWire.TrainingData.Artificial
             };
         }
 
+        /// <summary>
+        /// Generator function to generate new sequences
+        /// </summary>
+        /// <returns>Infinite number of sequences</returns>
         public IEnumerable<string> GenerateSequences()
         {
             while (true)

@@ -30,7 +30,7 @@ namespace BrightWire.SampleCode
                 ;
 
                 // create the engine
-                var testData = graph.GetDataSource(data);
+                var testData = graph.CreateDataSource(data);
                 var engine = graph.CreateTrainingEngine(testData, 0.1f, 4);
 
                 // create the network

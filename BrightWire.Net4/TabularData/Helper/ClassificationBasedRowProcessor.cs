@@ -5,20 +5,22 @@ using System.Text;
 
 namespace BrightWire.TabularData.Helper
 {
-    internal class ClassBasedRowProcessor : IRowProcessor
+    /// <summary>
+    /// Processes rows based on each row's classification label
+    /// </summary>
+    internal class ClassificationBasedRowProcessor : IRowProcessor
     {
-        readonly int _classColumnIndex;
+        readonly int _classificationColumnIndex;
         readonly Dictionary<string, List<IRowProcessor>> _columnProcessor = new Dictionary<string, List<IRowProcessor>>();
         readonly Dictionary<string, uint> _classCount = new Dictionary<string, uint>();
         uint _total = 0;
 
-        public ClassBasedRowProcessor(IEnumerable<Tuple<string, IRowProcessor>> classBasedProcessors, int classColumnIndex)
+        public ClassificationBasedRowProcessor(IEnumerable<Tuple<string, IRowProcessor>> classificationBasedProcessors, int classificationColumnIndex)
         {
-            _classColumnIndex = classColumnIndex;
+            _classificationColumnIndex = classificationColumnIndex;
 
-            List<IRowProcessor> temp;
-            foreach (var item in classBasedProcessors) {
-                if (!_columnProcessor.TryGetValue(item.Item1, out temp))
+            foreach (var item in classificationBasedProcessors) {
+                if (!_columnProcessor.TryGetValue(item.Item1, out List<IRowProcessor> temp))
                     _columnProcessor.Add(item.Item1, temp = new List<IRowProcessor>());
                 temp.Add(item.Item2);
             }
@@ -26,15 +28,13 @@ namespace BrightWire.TabularData.Helper
 
         public bool Process(IRow row)
         {
-            uint temp2;
-            List<IRowProcessor> temp;
-            var classValue = row.GetField<string>(_classColumnIndex);
+            var classValue = row.GetField<string>(_classificationColumnIndex);
 
             if (classValue != null) {
-                if (_columnProcessor.TryGetValue(classValue, out temp)) {
+                if (_columnProcessor.TryGetValue(classValue, out List<IRowProcessor> temp)) {
                     foreach (var item in temp)
                         item.Process(row);
-                    if (_classCount.TryGetValue(classValue, out temp2))
+                    if (_classCount.TryGetValue(classValue, out uint temp2))
                         _classCount[classValue] = temp2 + 1;
                     else
                         _classCount[classValue] = 1;
@@ -48,8 +48,7 @@ namespace BrightWire.TabularData.Helper
 
         public double GetProbability(string className)
         {
-            uint temp;
-            if (_classCount.TryGetValue(className, out temp))
+            if (_classCount.TryGetValue(className, out uint temp))
                 return temp / (double)_total;
             return 0;
         }

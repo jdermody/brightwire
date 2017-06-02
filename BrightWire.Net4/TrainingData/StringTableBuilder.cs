@@ -53,8 +53,7 @@ namespace BrightWire.TrainingData
         /// <param name="str">The string to look up</param>
         public uint GetIndex(string str)
         {
-            uint ret;
-            if (!_stringTable.TryGetValue(str, out ret)) {
+            if (!_stringTable.TryGetValue(str, out uint ret)) {
                 _stringTable.Add(str, ret = (uint)_stringTable.Count);
                 _stringList.Add(str);
             }

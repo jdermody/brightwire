@@ -46,7 +46,7 @@ namespace BrightWire.SampleCode
                     .AddBackpropagation(errorMetric)
                 ;
 
-                engine.Train(20, testData, errorMetric);
+                engine.Train(1, testData, errorMetric);
 
                 // export the graph and verify that the error is the same
                 var networkGraph = engine.Graph;
@@ -69,7 +69,7 @@ namespace BrightWire.SampleCode
             if (existing != null)
                 return existing.CloneWith(dataTable.Build());
             else
-                return graph.GetDataSource(dataTable.Build());
+                return graph.CreateDataSource(dataTable.Build());
         }
     }
 }

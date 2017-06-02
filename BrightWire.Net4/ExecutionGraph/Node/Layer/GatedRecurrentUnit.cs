@@ -39,8 +39,8 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             var Ur = graph.Connect(hiddenLayerSize, _memory).AddFeedForward(hiddenLayerSize, "Ur");
 
             // add sigmoids to the gates
-            var Rt = graph.Add(Wr, Ur).AddBackwardAction(new ConstrainErrorSignal()).Add(graph.SigmoidActivation("Rt")).Build();
-            var Zt = graph.Add(Wz, Uz).AddBackwardAction(new ConstrainErrorSignal()).Add(graph.SigmoidActivation("Zt")).Build();
+            var Rt = graph.Add(Wr, Ur).AddBackwardAction(new ConstrainErrorSignal()).Add(graph.SigmoidActivation("Rt")).LastNode;
+            var Zt = graph.Add(Wz, Uz).AddBackwardAction(new ConstrainErrorSignal()).Add(graph.SigmoidActivation("Zt")).LastNode;
 
             // h1 = tanh(Wh(x) + Uh(Ht1xRt))
             var Wh = graph.Connect(inputSize, _input).AddFeedForward(hiddenLayerSize, "Wh");
@@ -62,7 +62,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                         _lastBackpropagation = null;
                     }
                 }))
-                .Build()
+                .LastNode
             ;
             _start = new OneToMany(SubNodes, bp => _lastBackpropagation = bp);
         }

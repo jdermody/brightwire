@@ -1,5 +1,4 @@
-﻿using BrightWire.Helper;
-using BrightWire.LinearAlgebra.Helper;
+﻿using BrightWire.LinearAlgebra.Helper;
 using BrightWire.Models;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Single;
@@ -13,6 +12,9 @@ using System.Xml;
 
 namespace BrightWire.LinearAlgebra
 {
+    /// <summary>
+    /// Matrix that uses the CPU based math.net numerics library
+    /// </summary>
     internal class CpuMatrix : IIndexableMatrix
     {
         readonly Matrix<float> _matrix;
@@ -582,10 +584,14 @@ namespace BrightWire.LinearAlgebra
 
         public I4DTensor ConvertTo4DTensor(int rows, int columns, int depth)
         {
-            var matrixList = new List<IMatrix[]>();
-            for (int i = 0, len = ColumnCount; i < len; i++)
-                matrixList.Add(Column(i).Split(depth).Select(v => v.ConvertInPlaceToMatrix(rows, columns)).ToArray());
-            return new Cpu4DTensor(matrixList);
+            //var matrixList = new List<IMatrix[]>();
+            //for (int i = 0, len = ColumnCount; i < len; i++)
+            //    matrixList.Add(Column(i).Split(depth).Select(v => v.ConvertInPlaceToMatrix(rows, columns)).ToArray());
+            //return new Cpu4DTensor(matrixList);
+            var list = new List<I3DTensor>();
+            for (var i = 0; i < ColumnCount; i++)
+                list.Add(new Cpu3DTensor(Column(i).Split(depth).Select(v => v.ConvertInPlaceToMatrix(rows, columns)).ToList()));
+            return new Cpu4DTensor(list);
         }
 
         public string AsXml
@@ -608,8 +614,6 @@ namespace BrightWire.LinearAlgebra
                             row.Append(_matrix[i, j]);
                         }
                         writer.WriteValue(row.ToString());
-                        //for (var j = 0; j < ColumnCount; j++)
-                        //    writer.WriteElementString("val", _matrix[i, j].ToString());
                         writer.WriteEndElement();
                     }
                     writer.WriteEndElement();

@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.Models.DataTable
 {
@@ -114,13 +112,12 @@ namespace BrightWire.Models.DataTable
         /// <param name="row">The row to normalise</param>
         public IReadOnlyList<object> Normalise(IReadOnlyList<object> row)
         {
-            Column norm;
             var columnTable = ColumnTable;
             var ret = new object[row.Count];
 
             for (var i = 0; i < row.Count; i++) {
                 object obj = null;
-                if (columnTable.TryGetValue(i, out norm)) {
+                if (columnTable.TryGetValue(i, out Column norm)) {
                     double val;
                     switch (norm.DataType) {
                         case ColumnType.Byte:

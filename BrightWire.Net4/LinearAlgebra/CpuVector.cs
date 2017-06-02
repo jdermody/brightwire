@@ -5,11 +5,13 @@ using MathNet.Numerics.LinearAlgebra.Single;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace BrightWire.LinearAlgebra
 {
+    /// <summary>
+    /// Vector that uses the CPU based math.net numerics library
+    /// </summary>
     internal class CpuVector : IIndexableVector
     {
         readonly Vector<float> _vector;

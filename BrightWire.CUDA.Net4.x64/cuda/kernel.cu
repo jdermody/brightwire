@@ -543,8 +543,10 @@ extern "C"
 		int j = blockDim.y * blockIdx.y + threadIdx.y;
 
 		if (i < bRows && j < bColumns) {
-			int x = i / aColumns;
-			int y = i % aColumns;
+			//int x = i / aColumns;
+			//int y = i % aColumns;
+			int x = i % aRows;
+			int y = i / aRows;
 			b[j * bRows + i] = a[j][y * aRows + x];
 		}
 	}

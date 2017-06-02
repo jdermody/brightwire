@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace BrightWire.Models.Bayesian
 {
@@ -66,8 +65,7 @@ namespace BrightWire.Models.Bayesian
         /// <returns></returns>
         public override bool Equals(object obj)
         {
-            var other = obj as MarkovModelObservation2<T>;
-            if (other != null)
+            if (obj is MarkovModelObservation2<T> other)
                 return Object.Equals(other.Item1, Item1) && Object.Equals(other.Item2, Item2);
             return false;
         }
@@ -154,8 +152,7 @@ namespace BrightWire.Models.Bayesian
         /// <returns></returns>
         public override bool Equals(object obj)
         {
-            var other = obj as MarkovModelObservation3<T>;
-            if (other != null)
+            if (obj is MarkovModelObservation3<T> other)
                 return Object.Equals(other.Item1, Item1) && Object.Equals(other.Item2, Item2) && Object.Equals(other.Item3, Item3);
             return false;
         }

@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using BrightWire.Models;
 
 namespace BrightWire.TabularData.Analysis
 {
+    /// <summary>
+    /// Collects min and max values from the index or weighted index lists of a single column in a data table
+    /// </summary>
     class IndexCollector : IRowProcessor, IIndexColumnInfo
     {
         readonly int _index;
@@ -28,15 +28,14 @@ namespace BrightWire.TabularData.Analysis
         public bool Process(IRow row)
         {
             var obj = row.Data[_index];
-            var indexList = obj as IndexList;
-            if(indexList != null) {
-                foreach(var index in indexList.Index) {
+            if (obj is IndexList indexList) {
+                foreach (var index in indexList.Index) {
                     if (index > _max)
                         _max = index;
                     if (_index < _min)
                         _min = index;
                 }
-            }else {
+            } else {
                 var weightedIndexList = obj as WeightedIndexList;
                 if (weightedIndexList == null)
                     throw new Exception("Unexpected index type: " + obj?.GetType()?.ToString() ?? "(null)");

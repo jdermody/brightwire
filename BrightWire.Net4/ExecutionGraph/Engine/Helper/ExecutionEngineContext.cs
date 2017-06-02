@@ -34,7 +34,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public ILinearAlgebraProvider LinearAlgebraProvider => _executionContext.LinearAlgebraProvider;
         public IMiniBatchSequence BatchSequence => _miniBatch;
         public void AddBackward(IGraphData errorSignal, INode target, INode source) => throw new NotImplementedException();
-        public void Backpropagate(IGraphData delta) => throw new NotImplementedException();
+        public void Backpropagate(IGraphData delta, IErrorMetric errorMetric) => throw new NotImplementedException();
         public void AppendErrorSignal(IGraphData errorSignal, INode forNode) => throw new NotImplementedException();
         public void AddForward(IExecutionHistory action, Func<IBackpropagation> callback) => _forward.Add(action);
         public IGraphData ErrorSignal => throw new NotImplementedException();

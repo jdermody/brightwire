@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Linq;
 
 namespace BrightWire.Unsupervised
 {
+    /// <summary>
+    /// Hierachical clustering
+    /// https://en.wikipedia.org/wiki/Hierarchical_clustering
+    /// </summary>
     internal class Hierachical : IDisposable
     {
         class Centroid : IDisposable
@@ -134,8 +137,7 @@ namespace BrightWire.Unsupervised
 
         void _Visit(int depth, Centroid centroid, Dictionary<int, List<Centroid>> depthTable)
         {
-            List<Centroid> list;
-            if (!depthTable.TryGetValue(depth, out list))
+            if (!depthTable.TryGetValue(depth, out List<Centroid> list))
                 depthTable.Add(depth, list = new List<Centroid>());
             list.Add(centroid);
             foreach (var child in centroid.Children)
@@ -146,10 +148,6 @@ namespace BrightWire.Unsupervised
         {
             get
             {
-                //var root = _centroid.Single();
-                //var depthTable = new Dictionary<int, List<Centroid>>();
-                //_Visit(0, root, depthTable);
-
                 return _centroid.Select(c => c.Data).ToList();
             }
         }

@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.TabularData.Analysis
 {
+    /// <summary>
+    /// A collector that collects the frequency from a single column of a data table
+    /// </summary>
     internal class FrequencyCollector : IRowProcessor, IFrequencyColumnInfo
     {
         readonly int _index;
@@ -47,9 +47,8 @@ namespace BrightWire.TabularData.Analysis
 
         public bool Process(IRow row)
         {
-            ulong count;
             var val = row.GetField<string>(_index);
-            if (_valueCount.TryGetValue(val, out count))
+            if (_valueCount.TryGetValue(val, out ulong count))
                 _valueCount[val] = count + 1;
             else
                 _valueCount.Add(val, 1);

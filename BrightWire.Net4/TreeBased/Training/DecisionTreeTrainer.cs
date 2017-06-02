@@ -2,13 +2,14 @@
 using BrightWire.TabularData.Helper;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.TreeBased.Training
 {
+    /// <summary>
+    /// Decision tree classifier
+    /// https://en.wikipedia.org/wiki/Decision_tree_learning
+    /// </summary>
     internal static class DecisionTreeTrainer
     {
         class Attribute
@@ -31,8 +32,7 @@ namespace BrightWire.TreeBased.Training
             }
             public override bool Equals(object obj)
             {
-                var other = obj as Attribute;
-                if(other != null)
+                if (obj is Attribute other)
                     return other._columnIndex == _columnIndex && other._category == _category && _split == other._split;
                 return false;
             }
@@ -160,18 +160,16 @@ namespace BrightWire.TreeBased.Training
             {
                 get
                 {
-                    HashSet<double> temp;
-                    HashSet<string> temp2;
                     var continuousValues = new Dictionary<int, HashSet<double>>();
                     var categoricalValues = new Dictionary<int, HashSet<string>>();
                     foreach(var item in _data) {
                         foreach(var column in _tableInfo.CategoricalColumns) {
-                            if (!categoricalValues.TryGetValue(column, out temp2))
+                            if (!categoricalValues.TryGetValue(column, out HashSet<string> temp2))
                                 categoricalValues.Add(column, temp2 = new HashSet<string>());
                             temp2.Add(item.GetCategory(column));
                         }
                         foreach (var column in _tableInfo.ContinuousColumns) {
-                            if (!continuousValues.TryGetValue(column, out temp))
+                            if (!continuousValues.TryGetValue(column, out HashSet<double> temp))
                                 continuousValues.Add(column, temp = new HashSet<double>());
                             temp.Add(item.GetValue(column));
                         }

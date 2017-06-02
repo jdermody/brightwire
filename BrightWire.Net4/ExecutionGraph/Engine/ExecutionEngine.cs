@@ -41,17 +41,18 @@ namespace BrightWire.ExecutionGraph.Engine
 
                 IGraphOperation operation;
                 while ((operation = executionContext.GetNextOperation()) != null) {
+                    _lap.PushLayer();
                     operation.Execute(executionContext);
-                }
-
-                foreach (var item in _executionResults) {
-                    ret.Add(new ExecutionResult(item.Context.BatchSequence, item.Data.AsIndexable().Rows.Select(r => r.Data).ToList()));
-                    item.Context.Dispose();
-                    item.Data?.Dispose();
+                    foreach (var item in _executionResults) {
+                        ret.Add(new ExecutionResult(item.Context.BatchSequence, item.Data.AsIndexable().Rows.Select(r => r.Data).ToList()));
+                        item.Context.Dispose();
+                        item.Data?.Dispose();
+                    }
+                    _executionResults.Clear();
+                    _lap.PopLayer();
                 }
             }
             _lap.PopLayer();
-            _executionResults.Clear();
             _dataSource = null;
             return ret;
         }
@@ -66,17 +67,18 @@ namespace BrightWire.ExecutionGraph.Engine
 
                 IGraphOperation operation;
                 while ((operation = executionContext.GetNextOperation()) != null) {
+                    _lap.PushLayer();
                     operation.Execute(executionContext);
-                }
-
-                foreach (var item in _executionResults) {
-                    ret = new ExecutionResult(item.Context.BatchSequence, item.Data.AsIndexable().Rows.Select(r => r.Data).ToList());
-                    item.Context.Dispose();
-                    item.Data?.Dispose();
+                    foreach (var item in _executionResults) {
+                        ret = new ExecutionResult(item.Context.BatchSequence, item.Data.AsIndexable().Rows.Select(r => r.Data).ToList());
+                        item.Context.Dispose();
+                        item.Data?.Dispose();
+                    }
+                    _executionResults.Clear();
+                    _lap.PopLayer();
                 }
             }
             _lap.PopLayer();
-            _executionResults.Clear();
             _dataSource = null;
             return ret;
         }

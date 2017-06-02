@@ -1,61 +1,188 @@
 ﻿using BrightWire.ExecutionGraph;
-using BrightWire.Helper;
 using BrightWire.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire
 {
+    /// <summary>
+    /// 4D tensor that is used as a signal between nodes in the graph
+    /// </summary>
     public interface IGraphData
     {
+        /// <summary>
+        /// Row count
+        /// </summary>
         int Rows { get; }
+
+        /// <summary>
+        /// Column count
+        /// </summary>
         int Columns { get; }
+
+        /// <summary>
+        /// 3D Tensor depth
+        /// </summary>
         int Depth { get; }
+
+        /// <summary>
+        /// Count of 3D tensors
+        /// </summary>
         int Count { get; }
+
+        /// <summary>
+        /// Gets the tensor as a matrix
+        /// </summary>
+        /// <returns></returns>
         IMatrix GetMatrix();
-        int? RowId { get; }
+
+        /// <summary>
+        /// Replaces the data with the specified matrix (but preserves the tensor meta data)
+        /// </summary>
+        /// <param name="matrix">The tensor to use as a replacement</param>
         IGraphData ReplaceWith(IMatrix matrix);
+
+        /// <summary>
+        /// Replaces the data with the specified list of matrices (but preserves the tensor meta data)
+        /// </summary>
+        /// <param name="context">Graph context</param>
+        /// <param name="matrixList">The list of matrices to use as a replacement</param>
+        /// <returns></returns>
         IGraphData ReplaceWith(IContext context, IReadOnlyList<IMatrix> matrixList);
-        IReadOnlyList<IMatrix> AllMatrices { get; }
+
+        /// <summary>
+        /// All the sub-matrices in the tensor
+        /// </summary>
+        IReadOnlyList<IMatrix> AllSubMatrices { get; }
     }
 
+    /// <summary>
+    /// An action to perform when a signal reaches a node
+    /// </summary>
     public interface IAction
     {
+        /// <summary>
+        /// Executes the action
+        /// </summary>
+        /// <param name="input">Current graph signal</param>
+        /// <param name="context">Graph context</param>
+        /// <returns>Optional new graph signal to propagate</returns>
         IGraphData Execute(IGraphData input, IContext context);
+        
+        /// <summary>
+        /// Serialises the action to a string
+        /// </summary>
         string Serialise();
+
+        /// <summary>
+        /// Initialises the action
+        /// </summary>
+        /// <param name="data">Previously serialised data</param>
         void Initialise(string data);
     }
 
+    /// <summary>
+    /// Interface that allows the node to be initialised
+    /// </summary>
     public interface ICanInitialiseNode
     {
+        /// <summary>
+        /// Initialise the node
+        /// </summary>
+        /// <param name="factory">Graph factory</param>
+        /// <param name="id">Node unique id</param>
+        /// <param name="name">Friendly name</param>
+        /// <param name="description">Node description</param>
+        /// <param name="data">Serialisation data</param>
         void Initialise(GraphFactory factory, string id, string name, string description, byte[] data);
     }
 
+    /// <summary>
+    /// Serialisation interface for graph components
+    /// </summary>
     public interface ICanSerialise
     {
+        /// <summary>
+        /// Writes the node state to the binary writer
+        /// </summary>
         void WriteTo(BinaryWriter writer);
+
+        /// <summary>
+        /// Reads the node state
+        /// </summary>
+        /// <param name="factory">Graph factory</param>
+        /// <param name="reader">Binary reader that holds the node's state</param>
         void ReadFrom(GraphFactory factory, BinaryReader reader);
     }
 
+    /// <summary>
+    /// Graph node
+    /// </summary>
     public interface INode : ICanInitialiseNode, IDisposable, ICanSerialise
     {
+        /// <summary>
+        /// Unique id
+        /// </summary>
         string Id { get; }
+
+        /// <summary>
+        /// Friendly name
+        /// </summary>
         string Name { get; }
+
+        /// <summary>
+        /// List of outgoing wires
+        /// </summary>
         List<IWire> Output { get; }
+
+        /// <summary>
+        /// Executes the node forward
+        /// </summary>
+        /// <param name="context">Graph context</param>
+        /// <param name="channel">Channel the signal was received on</param>
         void ExecuteForward(IContext context, int channel);
+
+        /// <summary>
+        /// Searches for a node
+        /// </summary>
+        /// <param name="name">Friendly name of the node to find</param>
+        /// <returns></returns>
         INode Find(string name);
+
+        /// <summary>
+        /// Sub-nodes of the current node
+        /// </summary>
         IEnumerable<INode> SubNodes { get; }
+
+        /// <summary>
+        /// Serialise the node
+        /// </summary>
+        /// <param name="connectedTo">List of nodes that are connected to the current node</param>
+        /// <param name="wireList">List of wires connecting this and any other connected node together</param>
+        /// <returns>Serialisation model</returns>
         Models.ExecutionGraph.Node SerialiseTo(List<Models.ExecutionGraph.Node> connectedTo, List<Models.ExecutionGraph.Wire> wireList);
+
+        /// <summary>
+        /// Called after the graph has been completely deserialised
+        /// </summary>
+        /// <param name="graph">Dictionary of nodes with their associated unique ids</param>
         void OnDeserialise(IReadOnlyDictionary<string, INode> graph);
     }
 
+    /// <summary>
+    /// Wires connect nodes in the graph
+    /// </summary>
     public interface IWire
     {
+        /// <summary>
+        /// The node to send a signal to
+        /// </summary>
         INode SendTo { get; }
+
+        /// <summary>
+        /// The channel
+        /// </summary>
         int Channel { get; }
     }
 
@@ -78,10 +205,9 @@ namespace BrightWire
         void AddForward(IExecutionHistory action, Func<IBackpropagation> callback);
         void AddBackward(IGraphData errorSignal, INode target, INode source);
         void AppendErrorSignal(IGraphData errorSignal, INode forNode);
-        void Backpropagate(IGraphData delta);
+        void Backpropagate(IGraphData delta, IErrorMetric errorMetric);
         IGraphData ErrorSignal { get; }
         IGraphData Data { get; }
-        //IMatrix Output { get; set; }
     }
 
     public interface IExecutionContext : IDisposable

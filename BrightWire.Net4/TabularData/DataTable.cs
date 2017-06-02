@@ -1,9 +1,7 @@
-﻿using BrightWire.Helper;
-using BrightWire.Models;
+﻿using BrightWire.Models;
 using BrightWire.Models.DataTable;
 using BrightWire.TabularData.Analysis;
 using BrightWire.TabularData.Helper;
-using ProtoBuf;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,6 +11,9 @@ using System.Xml;
 
 namespace BrightWire.TabularData
 {
+    /// <summary>
+    /// Data table
+    /// </summary>
     internal class DataTable : IDataTable
     {
         class Column : IColumn
@@ -45,7 +46,7 @@ namespace BrightWire.TabularData
             }
             public bool IsContinuous
             {
-                get { return _isContinuous.HasValue ? _isContinuous.Value : ColumnTypeClassifier.IsContinuous(this); }
+                get { return _isContinuous ?? ColumnTypeClassifier.IsContinuous(this); }
                 set { _isContinuous = value; }
             }
         }
@@ -273,11 +274,10 @@ namespace BrightWire.TabularData
         {
             // split the queries into blocks
             int temp;
-            Dictionary<int, int> temp2;
             var blockMatch = new Dictionary<int, Dictionary<int, int>>();
             foreach (var row in rowIndex.OrderBy(r => r)) {
                 var block = row / BLOCK_SIZE;
-                if (!blockMatch.TryGetValue(block, out temp2))
+                if (!blockMatch.TryGetValue(block, out Dictionary<int, int> temp2))
                     blockMatch.Add(block, temp2 = new Dictionary<int, int>());
                 if (temp2.TryGetValue(row, out temp))
                     temp2[row] = temp + 1;
@@ -383,19 +383,6 @@ namespace BrightWire.TabularData
             return columnTable.OrderBy(kv => kv.Key).Select(kv => kv.Value).ToList();
         }
 
-        //public IReadOnlyList<IVector> GetNumericColumns(ILinearAlgebraProvider lap, IEnumerable<int> columns = null)
-        //{
-        //    var columnTable = (columns ?? Enumerable.Range(0, ColumnCount)).ToDictionary(i => i, i => new float[RowCount]);
-
-        //    _Iterate((row, i) => {
-        //        foreach (var item in columnTable)
-        //            item.Value[i] = row.GetField<float>(item.Key);
-        //        return true;
-        //    });
-
-        //    return columnTable.OrderBy(kv => kv.Key).Select(kv => lap.CreateVector(kv.Value)).ToList();
-        //}
-
         public IReadOnlyList<float[]> GetNumericRows(IEnumerable<int> columns = null)
         {
             var columnList = new List<int>(columns ?? Enumerable.Range(0, ColumnCount));
@@ -412,23 +399,6 @@ namespace BrightWire.TabularData
 
             return ret;
         }
-
-        //public IReadOnlyList<IVector> GetNumericRows(ILinearAlgebraProvider lap, IEnumerable<int> columns = null)
-        //{
-        //    var columnList = new List<int>(columns ?? Enumerable.Range(0, ColumnCount));
-
-        //    var ret = new List<IVector>();
-        //    _Iterate((row, i) => {
-        //        int index = 0;
-        //        var buffer = new float[columnList.Count];
-        //        foreach (var item in columnList)
-        //            buffer[index++] = row.GetField<float>(item);
-        //        ret.Add(lap.CreateVector(buffer));
-        //        return true;
-        //    });
-
-        //    return ret;
-        //}
 
         public IDataTable Normalise(NormalisationType normalisationType, Stream output = null)
         {

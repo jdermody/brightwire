@@ -1,12 +1,13 @@
 ﻿using BrightWire.Models;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.Linear.Training
 {
+    /// <summary>
+    /// Logistic regression
+    /// https://en.wikipedia.org/wiki/Logistic_regression
+    /// </summary>
     internal class LogisticRegressionTrainer : ILogisticRegressionTrainer
     {
         readonly ILinearAlgebraProvider _lap;

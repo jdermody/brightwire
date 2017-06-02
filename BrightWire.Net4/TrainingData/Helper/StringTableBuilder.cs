@@ -1,9 +1,5 @@
 ﻿using BrightWire.Models;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.TrainingData.Helper
 {
@@ -55,8 +51,7 @@ namespace BrightWire.TrainingData.Helper
         /// <param name="str">The string to look up</param>
         public uint GetIndex(string str)
         {
-            uint ret;
-            if (!_stringTable.TryGetValue(str, out ret)) {
+            if (!_stringTable.TryGetValue(str, out uint ret)) {
                 _stringTable.Add(str, ret = (uint)_stringTable.Count);
                 _stringList.Add(str);
             }

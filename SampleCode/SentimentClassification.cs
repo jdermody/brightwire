@@ -77,8 +77,8 @@ namespace BrightWire.SampleCode
 
             using (var lap = BrightWireProvider.CreateLinearAlgebra(false)) {
                 var graph = new GraphFactory(lap);
-                var trainingData = graph.GetDataSource(sentimentDataSet.Training, vectoriser);
-                var testData = graph.GetDataSource(sentimentDataSet.Test, vectoriser);
+                var trainingData = graph.CreateDataSource(sentimentDataSet.Training, vectoriser);
+                var testData = graph.CreateDataSource(sentimentDataSet.Test, vectoriser);
                 var indexListEncoder = trainingData as IIndexListEncoder;
 
                 // use a one hot encoding error metric, rmsprop gradient descent and xavier weight initialisation

@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
 
 namespace BrightWire.TabularData.Helper
 {
+    /// <summary>
+    /// Internal helper class used to improve the performance of data table type conversion
+    /// </summary>
     internal class RowConverter
     {
         enum TypeConversion
@@ -28,9 +30,8 @@ namespace BrightWire.TabularData.Helper
                 return default(T);
 
             var targetType = typeof(T);
-            TypeConversion typeConversion;
             var key = Tuple.Create(index, targetType);
-            if (!_typeConversionTable.TryGetValue(key, out typeConversion)) {
+            if (!_typeConversionTable.TryGetValue(key, out TypeConversion typeConversion)) {
                 var retType = ret.GetType();
                 if (retType == targetType || targetType.GetTypeInfo().IsAssignableFrom(retType.GetTypeInfo()))
                     typeConversion = TypeConversion.Cast;

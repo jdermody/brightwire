@@ -2229,26 +2229,24 @@ BB44_2:
 {
 	.reg .pred 	%p<4>;
 	.reg .f32 	%f<2>;
-	.reg .b32 	%r<17>;
+	.reg .b32 	%r<12>;
 	.reg .b64 	%rd<13>;
 
 
 	ld.param.u64 	%rd1, [TensorConvertToMatrix_param_0];
 	ld.param.u64 	%rd2, [TensorConvertToMatrix_param_1];
-	ld.param.u32 	%r3, [TensorConvertToMatrix_param_2];
-	ld.param.u32 	%r4, [TensorConvertToMatrix_param_3];
-	ld.param.u32 	%r5, [TensorConvertToMatrix_param_4];
-	ld.param.u32 	%r6, [TensorConvertToMatrix_param_5];
-	mov.u32 	%r7, %ntid.x;
-	mov.u32 	%r8, %ctaid.x;
-	mov.u32 	%r9, %tid.x;
-	mad.lo.s32 	%r1, %r8, %r7, %r9;
-	mov.u32 	%r10, %ctaid.y;
-	mov.u32 	%r11, %ntid.y;
-	mov.u32 	%r12, %tid.y;
-	mad.lo.s32 	%r2, %r10, %r11, %r12;
-	setp.lt.s32	%p1, %r1, %r5;
-	setp.lt.s32	%p2, %r2, %r6;
+	ld.param.u32 	%r3, [TensorConvertToMatrix_param_4];
+	ld.param.u32 	%r4, [TensorConvertToMatrix_param_5];
+	mov.u32 	%r5, %ntid.x;
+	mov.u32 	%r6, %ctaid.x;
+	mov.u32 	%r7, %tid.x;
+	mad.lo.s32 	%r1, %r6, %r5, %r7;
+	mov.u32 	%r8, %ctaid.y;
+	mov.u32 	%r9, %ntid.y;
+	mov.u32 	%r10, %tid.y;
+	mad.lo.s32 	%r2, %r8, %r9, %r10;
+	setp.lt.s32	%p1, %r1, %r3;
+	setp.lt.s32	%p2, %r2, %r4;
 	and.pred  	%p3, %p1, %p2;
 	@!%p3 bra 	BB45_2;
 	bra.uni 	BB45_1;
@@ -2259,15 +2257,12 @@ BB45_1:
 	add.s64 	%rd5, %rd3, %rd4;
 	ld.global.u64 	%rd6, [%rd5];
 	cvta.to.global.u64 	%rd7, %rd6;
-	rem.s32 	%r13, %r1, %r4;
-	div.s32 	%r14, %r1, %r4;
-	mad.lo.s32 	%r15, %r13, %r3, %r14;
-	mul.wide.s32 	%rd8, %r15, 4;
+	mul.wide.s32 	%rd8, %r1, 4;
 	add.s64 	%rd9, %rd7, %rd8;
 	ld.global.f32 	%f1, [%rd9];
-	mad.lo.s32 	%r16, %r2, %r5, %r1;
+	mad.lo.s32 	%r11, %r2, %r3, %r1;
 	cvta.to.global.u64 	%rd10, %rd2;
-	mul.wide.s32 	%rd11, %r16, 4;
+	mul.wide.s32 	%rd11, %r11, 4;
 	add.s64 	%rd12, %rd10, %rd11;
 	st.global.f32 	[%rd12], %f1;
 

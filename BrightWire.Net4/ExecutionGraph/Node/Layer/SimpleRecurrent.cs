@@ -40,13 +40,13 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 .Add(activation)
                 .AddForwardAction(_memory.SetMemoryAction)
                 .Add(new HookErrorSignal(context => {
-                    if(_lastBackpropagation != null) {
-                        foreach(var item in _lastBackpropagation)
+                    if (_lastBackpropagation != null) {
+                        foreach (var item in _lastBackpropagation)
                             context.AppendErrorSignal(item.Value, item.Key);
                         _lastBackpropagation = null;
                     }
                 }))
-                .Build()
+                .LastNode;
             ;
             _start = new OneToMany(SubNodes, bp => _lastBackpropagation = bp);
         }

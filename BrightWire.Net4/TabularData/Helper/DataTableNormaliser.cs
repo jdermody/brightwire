@@ -1,12 +1,13 @@
-﻿using BrightWire.Models;
-using BrightWire.Models.DataTable;
+﻿using BrightWire.Models.DataTable;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace BrightWire.TabularData.Helper
 {
+    /// <summary>
+    /// Builds a normalisation model that can be used to normalise a data table
+    /// </summary>
     internal class DataTableNormaliser : IRowProcessor
     {
         readonly DataTableWriter _writer;
@@ -26,8 +27,7 @@ namespace BrightWire.TabularData.Helper
                 foreach (var columnInfo in analysis.ColumnInfo) {
                     var column = dataTable.Columns[columnInfo.ColumnIndex];
                     if (column.IsContinuous) {
-                        var numericInfo = columnInfo as INumericColumnInfo;
-                        if (numericInfo != null) {
+                        if (columnInfo is INumericColumnInfo numericInfo) {
                             if (type == NormalisationType.Standard && !numericInfo.StdDev.HasValue)
                                 continue;
 

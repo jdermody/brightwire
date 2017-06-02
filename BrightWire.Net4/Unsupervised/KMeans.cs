@@ -2,11 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.Unsupervised
 {
+    /// <summary>
+    /// K Means clustering
+    /// https://en.wikipedia.org/wiki/K-means_clustering
+    /// </summary>
     internal class KMeans : IDisposable
     {
         class ClusterData : IDisposable

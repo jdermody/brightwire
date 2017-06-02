@@ -67,6 +67,7 @@ namespace BrightWire
         /// <summary>
         /// Converts the indexed classifications to weighted indexed classifications
         /// </summary>
+        /// <param name="data"></param>
         /// <param name="groupByClassification">True to group by classification (i.e convert the bag to a set)</param>
         public static IReadOnlyList<(string Label, WeightedIndexList Data)> ConvertToWeightedIndexList(
             this IReadOnlyList<(string Label, IndexList Data)> data, 
@@ -101,6 +102,10 @@ namespace BrightWire
             }
         }
 
+        /// <summary>
+        /// Converts indexed classifications to a data table
+        /// </summary>
+        /// <param name="data"></param>
         public static IDataTable ConvertToTable(this IReadOnlyList<(string Label, IndexList Data)> data)
         {
             var builder = BrightWireProvider.CreateDataTableBuilder();
@@ -113,6 +118,10 @@ namespace BrightWire
             return builder.Build();
         }
 
+        /// <summary>
+        /// Converts weighted index classifications to a data table
+        /// </summary>
+        /// <param name="data"></param>
         public static IDataTable ConvertToTable(this IReadOnlyList<(string Label, WeightedIndexList Data)> data)
         {
             var builder = BrightWireProvider.CreateDataTableBuilder();
@@ -125,6 +134,12 @@ namespace BrightWire
             return builder.Build();
         }
 
+        /// <summary>
+        /// Converts the vector classifications into a data table
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="preserveVectors">True to create a data table with a vector column type, false to to convert to columns of floats</param>
+        /// <returns></returns>
         public static IDataTable ConvertToTable(this IReadOnlyList<(string Label, FloatVector Data)> data, bool preserveVectors)
         {
             var builder = BrightWireProvider.CreateDataTableBuilder();
@@ -153,16 +168,37 @@ namespace BrightWire
             return builder.Build();
         }
 
+        /// <summary>
+        /// Finds the greatest weight within the weighted index classification list
+        /// </summary>
+        /// <param name="data"></param>
         public static float GetMaxWeight(this IReadOnlyList<(string Label, WeightedIndexList Data)> data)
         {
             return data.SelectMany(r => r.Data.IndexList).Max(wi => wi.Weight);
         }
 
+        /// <summary>
+        /// Find the greatest index within the weighted index classification list
+        /// </summary>
+        /// <param name="data"></param>
         public static uint GetMaxIndex(this IReadOnlyList<(string Label, WeightedIndexList Data)> data)
         {
             return data.SelectMany(r => r.Data.IndexList).Max(wi => wi.Index);
         }
 
+        /// <summary>
+        /// Find the greatest index within the index classification list
+        /// </summary>
+        /// <param name="data"></param>
+        public static uint GetMaxIndex(this IReadOnlyList<(string Label, IndexList Data)> data)
+        {
+            return data.SelectMany(r => r.Data.Index).Max();
+        }
+
+        /// <summary>
+        /// Converts the weighted index classification list to a list of dense vectors
+        /// </summary>
+        /// <param name="data"></param>
         public static IReadOnlyList<(string Classification, FloatVector Data)> Vectorise(this IReadOnlyList<(string Label, WeightedIndexList Data)> data)
         {
             var size = data.GetMaxIndex() + 1;
@@ -178,33 +214,12 @@ namespace BrightWire
             return data.Select(r => (r.Label, _Create(r.Data))).ToList();
         }
 
-        //public static IReadOnlyList<(FloatVector Label, FloatVector Data)> Vectorise(this IReadOnlyList<(string Label, WeightedIndexList Data)> data)
-        //{
-        //    var size = data.GetMaxIndex() + 1;
-        //    FloatVector _CreateData(WeightedIndexList weightedIndexList)
-        //    {
-        //        var ret = new float[size];
-        //        foreach (var item in weightedIndexList.IndexList)
-        //            ret[item.Index] = item.Weight;
-        //        return new FloatVector {
-        //            Data = ret
-        //        };
-        //    }
-        //    var labelIndex = new HashSet<string>(data.Select(d => d.Label))
-        //        .Select((d, i) => (d, i))
-        //        .ToDictionary(d => d.Item1, d => d.Item2)
-        //    ;
-        //    FloatVector _CreateLabel(string label)
-        //    {
-        //        var ret = new float[labelIndex.Count];
-        //        ret[labelIndex[label]] = 1f;
-        //        return new FloatVector {
-        //            Data = ret
-        //        };
-        //    }
-        //    return data.Select(r => (_CreateLabel(r.Label), _CreateData(r.Data))).ToList();
-        //}
-
+        /// <summary>
+        /// Classifies each row of the index classification list
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="classifier">The classifier to classify each item in the list</param>
+        /// <returns></returns>
         public static IReadOnlyList<(string Label, string Classification, float Score)> Classify(this IReadOnlyList<(string Label, IndexList Data)> data, IIndexListClassifier classifier)
         {
             var ret = new List<(string Label, string Classification, float Score)>();
@@ -215,6 +230,11 @@ namespace BrightWire
             return ret;
         }
 
+        /// <summary>
+        /// Normalises the weighted index classification list to fit between 0 and 1
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
         public static IReadOnlyList<(string Label, WeightedIndexList Data)> Normalise(this IReadOnlyList<(string Label, WeightedIndexList Data)> data)
         {
             var maxWeight = data.GetMaxWeight();

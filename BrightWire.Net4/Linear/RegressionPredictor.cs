@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.Linear
 {
+    /// <summary>
+    /// Makes predictions from a previously trained model
+    /// </summary>
     internal class RegressionPredictor : ILinearRegressionPredictor
     {
         readonly IVector _theta;

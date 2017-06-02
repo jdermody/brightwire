@@ -1,13 +1,14 @@
 ﻿using BrightWire.Models;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Linq;
-using BrightWire.Helper;
 using BrightWire.LinearAlgebra.Helper;
 
 namespace BrightWire.Linear
 {
+    /// <summary>
+    /// Makes predictions from a previously trained model
+    /// </summary>
     internal class MultinomialLogisticRegressionClassifier : IRowClassifier
     {
         readonly MultinomialLogisticRegression _model;

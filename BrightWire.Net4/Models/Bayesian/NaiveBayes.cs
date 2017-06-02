@@ -1,8 +1,6 @@
 ﻿using BrightWire.Bayesian;
 using ProtoBuf;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace BrightWire.Models.Bayesian
 {

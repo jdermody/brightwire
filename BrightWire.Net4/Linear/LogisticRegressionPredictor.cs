@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace BrightWire.Linear
 {
+    /// <summary>
+    /// Makes predictions from a previously trained model
+    /// </summary>
     internal class LogisticRegressionPredictor : ILogisticRegressionClassifier
     {
         readonly IVector _theta;

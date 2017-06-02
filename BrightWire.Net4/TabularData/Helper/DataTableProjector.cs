@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace BrightWire.TabularData.Helper
 {
+    /// <summary>
+    /// Projects a subset of data table rows into a new data table
+    /// </summary>
     internal class DataTableProjector : IRowProcessor
     {
         readonly IRowProcessor _destination;

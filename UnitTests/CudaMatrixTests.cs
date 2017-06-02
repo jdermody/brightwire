@@ -973,32 +973,19 @@ namespace UnitTests
         }
 
         [TestMethod]
-        public void MatrixMaxPool()
+        public void MatrixToVector()
         {
-            var rand = new Random();
-            var a = _cpu.CreateMatrix(36, 36, (x, y) => Convert.ToSingle(rand.NextDouble()));
+            var matrix = _cpu.CreateMatrix(3, 4, (x, y) => (x + 1) * (y + 1)).AsIndexable();
+            var vector = matrix.ConvertInPlaceToVector();
+            var matrix2 = vector.ConvertInPlaceToMatrix(3, 4);
+            FloatingPointHelper.AssertEqual(matrix.AsIndexable(), matrix2.AsIndexable());
 
-            var cpuIndexList = new List<int[]>();
+            using (var gpuMatrix = _cuda.CreateMatrix(matrix.AsIndexable()))
+            using (var gpuVector = gpuMatrix.ConvertInPlaceToVector())
+            using (var gpuMatrix2 = gpuVector.ConvertInPlaceToMatrix(3, 4)) {
+                FloatingPointHelper.AssertEqual(gpuMatrix.AsIndexable(), gpuMatrix2.AsIndexable());
+            }
         }
 
-        [TestMethod]
-        public void MatrixReverseMaxPool()
-        {
-            // TODO...
-        }
-
-        //[TestMethod]
-        //public void MatrixIm2Col()
-        //{
-        //    var normalDistribution = new Normal(0, 1);
-        //    using (var cpuMatrix = _cpu.CreateMatrix(4, 4, (j, k) => Convert.ToSingle(normalDistribution.Sample())))
-        //    using (var gpuMatrix = _cuda.CreateMatrix(cpuMatrix.AsIndexable()))
-        //    using (var cpuIm2Col = cpuMatrix.Im2Col(2, 2, 2))
-        //    using (var gpuIm2Col = gpuMatrix.Im2Col(2, 2, 2)) {
-        //        var cpu = cpuIm2Col.AsIndexable();
-        //        var gpu = gpuIm2Col.AsIndexable();
-        //        FloatingPointHelper.AssertEqual(cpu, gpu);
-        //    }
-        //}
     }
 }

@@ -1,14 +1,15 @@
 ﻿using BrightWire.Helper;
 using BrightWire.Models;
 using MathNet.Numerics.LinearAlgebra.Single;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 
 namespace BrightWire.LinearAlgebra
 {
+    /// <summary>
+    /// 3D Tensor that uses the CPU based math.net numerics library
+    /// </summary>
     internal class Cpu3DTensor : IIndexable3DTensor
     {
         readonly CpuMatrix[] _data;
@@ -148,8 +149,10 @@ namespace BrightWire.LinearAlgebra
         {
             var ret = DenseMatrix.Create(_rows * _columns, Depth, (i, j) => {
                 var matrix = _data[j];
-                var x = i / _columns;
-                var y = i % _columns;
+                //var x = i / _columns;
+                //var y = i % _columns;
+                var x = i % _rows;
+                var y = i / _rows;
                 return matrix[x, y];
             });
             return new CpuMatrix(ret);

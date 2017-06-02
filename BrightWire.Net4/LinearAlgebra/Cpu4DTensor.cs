@@ -3,11 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.LinearAlgebra
 {
+    /// <summary>
+    /// 4D Tensor that uses the CPU based math.net numerics library
+    /// </summary>
     internal class Cpu4DTensor : I4DTensor
     {
         readonly Cpu3DTensor[] _data;
@@ -94,7 +95,7 @@ namespace BrightWire.LinearAlgebra
         {
             var ret = new List<I3DTensor>();
             for (var i = 0; i < Count; i++) {
-                var result = GetTensorAt(i).ReverseMaxPool(rows, columns, indexList != null ? indexList[i] : null);
+                var result = GetTensorAt(i).ReverseMaxPool(rows, columns, indexList?[i]);
                 ret.Add(result);
             }
             return new Cpu4DTensor(ret);
@@ -110,7 +111,7 @@ namespace BrightWire.LinearAlgebra
             return new Cpu3DTensor(ret);
         }
 
-        public I3DTensor ReverseIm2Col(IReadOnlyList<IReadOnlyList<IVector>> filter, int inputHeight, int inputWidth, int inputDepth, int padding, int filterHeight, int filterWidth, int stride)
+        public I3DTensor ReverseIm2Col(IReadOnlyList<IReadOnlyList<IVector>> filter, int inputHeight, int inputWidth, int inputDepth, int padding, int filterWidth, int filterHeight, int stride)
         {
             var ret = new List<IMatrix>();
             for (var i = 0; i < Count; i++) {

@@ -30,10 +30,10 @@ namespace BrightWire.ExecutionGraph.Action
             if (context.IsTraining) {
                 var target = context.BatchSequence.Target?.GetMatrix();
                 if (target == null)
-                    context.LearningContext.DeferBackpropagation(null, signal => context.Backpropagate(signal));
+                    context.LearningContext.DeferBackpropagation(null, signal => context.Backpropagate(signal, _errorMetric));
                 else {
                     var gradient = _errorMetric.CalculateGradient(context, output, target);
-                    context.LearningContext.DeferBackpropagation(input.ReplaceWith(gradient), signal => context.Backpropagate(signal));
+                    context.LearningContext.DeferBackpropagation(input.ReplaceWith(gradient), signal => context.Backpropagate(signal, _errorMetric));
                 }
             }
             return input;

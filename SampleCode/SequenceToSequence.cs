@@ -50,7 +50,7 @@ namespace BrightWire.SampleCode
                 ;
 
                 // create the engine
-                var trainingData = graph.GetDataSource(data.Training);
+                var trainingData = graph.CreateDataSource(data.Training);
                 var testData = trainingData.CloneWith(data.Test);
                 var engine = graph.CreateTrainingEngine(trainingData, 0.003f, 8);
 
@@ -105,7 +105,7 @@ namespace BrightWire.SampleCode
                 ;
 
                 // create the engine
-                var trainingData = graph.GetDataSource(data.Training);
+                var trainingData = graph.CreateDataSource(data.Training);
                 var testData = trainingData.CloneWith(data.Test);
                 var engine = graph.CreateTrainingEngine(trainingData, 0.003f, 8);
 
@@ -162,11 +162,11 @@ namespace BrightWire.SampleCode
                 const int BATCH_SIZE = 16;
                 int HIDDEN_LAYER_SIZE = 64;
                 const float TRAINING_RATE = 0.003f;
-                var encoderLearningContext = graph.CreateLearningContext(TRAINING_RATE, BATCH_SIZE, true, true);
+                var encoderLearningContext = graph.CreateLearningContext(TRAINING_RATE, BATCH_SIZE, TrainingErrorCalculation.Fast, true);
                 var encoderMemory = new float[HIDDEN_LAYER_SIZE];
                 var decoderMemory = new float[HIDDEN_LAYER_SIZE];
 
-                var trainingData = graph.GetDataSource(data.Training, encoderLearningContext, wb => wb
+                var trainingData = graph.CreateDataSource(data.Training, encoderLearningContext, wb => wb
                     .AddGru(encoderMemory, "encoder")
                     .WriteNodeMemoryToSlot("shared-memory", wb.Find("encoder") as IHaveMemoryNode)
                     .AddFeedForward(grammar.DictionarySize)
@@ -191,7 +191,7 @@ namespace BrightWire.SampleCode
                 engine.Train(100, testData, errorMetric);
 
                 var dataSourceModel = (trainingData as IAdaptiveDataSource).GetModel();
-                var testData2 = graph.GetDataSource(data.Test, dataSourceModel);
+                var testData2 = graph.CreateDataSource(data.Test, dataSourceModel);
                 var networkGraph = engine.Graph;
                 var executionEngine = graph.CreateEngine(networkGraph);
 

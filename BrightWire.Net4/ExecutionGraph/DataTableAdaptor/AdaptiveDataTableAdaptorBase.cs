@@ -47,7 +47,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 
         protected IContext _ConcurentProcess(IExecutionContext executionContext, IGraphData data)
         {
-            var learningContext = new LearningContext(_lap, _learningContext.LearningRate, _learningContext.BatchSize, false, true);
+            var learningContext = new LearningContext(_lap, _learningContext.LearningRate, _learningContext.BatchSize, TrainingErrorCalculation.None, true);
             var context = new TrainingEngineContext(executionContext, data, learningContext);
             _input.ExecuteForward(context, 0);
 
