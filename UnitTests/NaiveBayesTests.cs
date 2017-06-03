@@ -1,8 +1,8 @@
 ﻿using BrightWire;
 using BrightWire.Helper;
 using BrightWire.Models;
-using BrightWire.Models.Input;
 using BrightWire.TabularData;
+using BrightWire.TrainingData;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -20,7 +20,7 @@ namespace UnitTests
         [ClassInitialize]
         public static void Load(TestContext context)
         {
-            _lap = Provider.CreateLinearAlgebra(false);
+            _lap = BrightWireProvider.CreateLinearAlgebra(false);
         }
 
         [ClassCleanup]
@@ -32,7 +32,7 @@ namespace UnitTests
         [TestMethod]
         public void TestNaiveBayes()
         {
-            var dataTable = new DataTableBuilder();
+            var dataTable = BrightWireProvider.CreateDataTableBuilder();
             dataTable.AddColumn(ColumnType.Float, "height");
             dataTable.AddColumn(ColumnType.Int, "weight").IsContinuous = true;
             dataTable.AddColumn(ColumnType.Int, "foot-size").IsContinuous = true;
@@ -49,34 +49,37 @@ namespace UnitTests
             dataTable.Add(5.75f, 150, 9, "female");
             var index = dataTable.Build();
 
-            var testData = new DataTableBuilder(dataTable.Columns);
+            var testData = BrightWireProvider.CreateDataTableBuilder(dataTable.Columns);
             var row = testData.Add(6f, 130, 8, "?");
 
             var model = index.TrainNaiveBayes();
             var classifier = model.CreateClassifier();
             var classification = classifier.Classify(row);
-            Assert.IsTrue(classification.First() == "female");
+            Assert.IsTrue(classification.First().Label == "female");
         }
 
-        public static ClassificationBag GetSimpleChineseSet(StringTableBuilder stringTableBuilder)
+        public static IReadOnlyList<(string Label, IndexList Data)> GetSimpleChineseSet(StringTableBuilder stringTableBuilder)
         {
             // sample data from: http://nlp.stanford.edu/IR-book/html/htmledition/naive-bayes-text-classification-1.html
-            return new ClassificationBag {
-                Classification = new[] {
-                    Tuple.Create(new[] { "Chinese", "Beijing", "Chinese" }, true),
-                    Tuple.Create(new[] { "Chinese", "Chinese", "Shanghai" }, true),
-                    Tuple.Create(new[] { "Chinese", "Macao" }, true),
-                    Tuple.Create(new[] { "Tokyo", "Japan", "Chinese" }, false),
-                }.Select(d => new IndexedClassification {
-                    Name = d.Item2 ? "china" : "japan",
-                    Data = d.Item1.Select(s => stringTableBuilder.GetIndex(s)).ToArray()
-                }).ToArray()
+            var data = new[] {
+                (new[] { "Chinese", "Beijing", "Chinese" }, true),
+                (new[] { "Chinese", "Chinese", "Shanghai" }, true),
+                (new[] { "Chinese", "Macao" }, true),
+                (new[] { "Tokyo", "Japan", "Chinese" }, false),
             };
+
+            return data.Select(r => (r.Item2 ? "china" : "japan", new IndexList {
+                Index = r.Item1.Select(s => stringTableBuilder.GetIndex(s)).ToArray()
+            })).ToList();
         }
 
-        public static IReadOnlyList<uint> GetTestRow(StringTableBuilder stringTableBuilder)
+        public static IRow GetTestRow(StringTableBuilder stringTableBuilder)
         {
-            return new[] { "Chinese", "Chinese", "Chinese", "Tokyo", "Japan" }.Select(s => stringTableBuilder.GetIndex(s)).ToArray();
+            var builder = BrightWireProvider.CreateDataTableBuilder();
+            builder.AddColumn(ColumnType.IndexList, "String Index");
+            return builder.Add(new IndexList {
+                Index = new[] { "Chinese", "Chinese", "Chinese", "Tokyo", "Japan" }.Select(s => stringTableBuilder.GetIndex(s)).ToArray()
+            });
         }
 
         [TestMethod]
@@ -87,7 +90,7 @@ namespace UnitTests
             var model = data.TrainMultinomialNaiveBayes();
             var classifier = model.CreateClassifier();
             var classification = classifier.Classify(GetTestRow(stringTableBuilder));
-            Assert.IsTrue(classification.First() == "china");
+            Assert.IsTrue(classification.OrderByDescending(c => c.Weight).First().Label == "china");
         }
 
         [TestMethod]
@@ -98,7 +101,7 @@ namespace UnitTests
             var model = data.TrainBernoulliNaiveBayes();
             var classifier = model.CreateClassifier();
             var classification = classifier.Classify(GetTestRow(stringTableBuilder));
-            Assert.IsTrue(classification.First() == "japan");
+            Assert.IsTrue(classification.OrderByDescending(c => c.Weight).First().Label == "japan");
         }
     }
 }

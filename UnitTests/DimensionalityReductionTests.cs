@@ -16,7 +16,7 @@ namespace UnitTests
         [ClassInitialize]
         public static void Load(TestContext context)
         {
-            _lap = Provider.CreateLinearAlgebra();
+            _lap = BrightWireProvider.CreateLinearAlgebra();
         }
 
         [ClassCleanup]
@@ -28,7 +28,7 @@ namespace UnitTests
         [TestMethod]
         public void TestRandomProjection()
         {
-            var a = _lap.Create(256, 256, (x, y) => x * y).AsIndexable();
+            var a = _lap.CreateMatrix(256, 256, (x, y) => x * y).AsIndexable();
             var projector = _lap.CreateRandomProjection(256, 32);
             var projections = projector.Compute(a);
             Assert.IsTrue(projections.ColumnCount == 32);
@@ -38,12 +38,12 @@ namespace UnitTests
         [TestMethod]
         public void TestSVD()
         {
-            var a = _lap.Create(256, 128, (x, y) => x * y).AsIndexable();
+            var a = _lap.CreateMatrix(256, 128, (x, y) => x * y).AsIndexable();
             var svd = a.Svd();
             var reducedSize = Enumerable.Range(0, 32).ToList();
 
             var u = svd.U.GetNewMatrixFromRows(reducedSize);
-            var s = _lap.CreateDiagonal(svd.S.AsIndexable().Values.Take(reducedSize.Count).ToArray());
+            var s = _lap.CreateDiagonalMatrix(svd.S.AsIndexable().Values.Take(reducedSize.Count).ToArray());
             var vt = svd.VT.GetNewMatrixFromColumns(reducedSize);
             var us = u.TransposeThisAndMultiply(s);
             var usvt = us.TransposeAndMultiply(vt);

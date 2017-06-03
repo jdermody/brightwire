@@ -19,7 +19,7 @@ namespace UnitTests
         [ClassInitialize]
         public static void Load(TestContext context)
         {
-            _lap = Provider.CreateLinearAlgebra(false);
+            _lap = BrightWireProvider.CreateLinearAlgebra(false);
         }
 
         [ClassCleanup]
@@ -31,15 +31,15 @@ namespace UnitTests
         [TestMethod]
         public void TestRegression()
         {
-            var dataTable = new DataTableBuilder();
+            var dataTable = BrightWireProvider.CreateDataTableBuilder();
             dataTable.AddColumn(ColumnType.Float, "value");
             dataTable.AddColumn(ColumnType.Float, "result", true);
 
             // simple linear relationship: result is twice value
-            dataTable.AddRow(new object[] { 1f, 2f });
-            dataTable.AddRow(new object[] { 2f, 4f });
-            dataTable.AddRow(new object[] { 4f, 8f });
-            dataTable.AddRow(new object[] { 8f, 16f });
+            dataTable.Add(1f, 2f);
+            dataTable.Add(2f, 4f);
+            dataTable.Add(4f, 8f);
+            dataTable.Add(8f, 16f);
             var index = dataTable.Build();
 
             var classifier = index.CreateLinearRegressionTrainer(_lap);
@@ -64,31 +64,31 @@ namespace UnitTests
         [TestMethod]
         public void TestLogisticRegression()
         {
-            var dataTable = new DataTableBuilder();
+            var dataTable = BrightWireProvider.CreateDataTableBuilder();
             dataTable.AddColumn(ColumnType.Float, "hours");
             dataTable.AddColumn(ColumnType.Boolean, "pass", true);
 
             // sample data from: https://en.wikipedia.org/wiki/Logistic_regression
-            dataTable.AddRow(new object[] { 0.5f, false });
-            dataTable.AddRow(new object[] { 0.75f, false });
-            dataTable.AddRow(new object[] { 1f, false });
-            dataTable.AddRow(new object[] { 1.25f, false });
-            dataTable.AddRow(new object[] { 1.5f, false });
-            dataTable.AddRow(new object[] { 1.75f, false });
-            dataTable.AddRow(new object[] { 1.75f, true });
-            dataTable.AddRow(new object[] { 2f, false });
-            dataTable.AddRow(new object[] { 2.25f, true });
-            dataTable.AddRow(new object[] { 2.5f, false });
-            dataTable.AddRow(new object[] { 2.75f, true });
-            dataTable.AddRow(new object[] { 3f, false });
-            dataTable.AddRow(new object[] { 3.25f, true });
-            dataTable.AddRow(new object[] { 3.5f, false });
-            dataTable.AddRow(new object[] { 4f, true });
-            dataTable.AddRow(new object[] { 4.25f, true });
-            dataTable.AddRow(new object[] { 4.5f, true });
-            dataTable.AddRow(new object[] { 4.75f, true });
-            dataTable.AddRow(new object[] { 5f, true });
-            dataTable.AddRow(new object[] { 5.5f, true });
+            dataTable.Add(0.5f, false);
+            dataTable.Add(0.75f, false);
+            dataTable.Add(1f, false);
+            dataTable.Add(1.25f, false);
+            dataTable.Add(1.5f, false);
+            dataTable.Add(1.75f, false);
+            dataTable.Add(1.75f, true);
+            dataTable.Add(2f, false);
+            dataTable.Add(2.25f, true);
+            dataTable.Add(2.5f, false);
+            dataTable.Add(2.75f, true);
+            dataTable.Add(3f, false);
+            dataTable.Add(3.25f, true);
+            dataTable.Add(3.5f, false);
+            dataTable.Add(4f, true);
+            dataTable.Add(4.25f, true);
+            dataTable.Add(4.5f, true);
+            dataTable.Add(4.75f, true);
+            dataTable.Add(5f, true);
+            dataTable.Add(5.5f, true);
             var index = dataTable.Build();
 
             var trainer = index.CreateLogisticRegressionTrainer(_lap);
@@ -117,10 +117,10 @@ namespace UnitTests
         [TestMethod]
         public void TestMultinomialLogisticRegression()
         {
-            var dataTable = new DataTableBuilder();
+            var dataTable = BrightWireProvider.CreateDataTableBuilder();
             dataTable.AddColumn(ColumnType.Float, "height");
-            dataTable.AddColumn(ColumnType.Int, "weight").IsContinuous = true;
-            dataTable.AddColumn(ColumnType.Int, "foot-size").IsContinuous = true;
+            dataTable.AddColumn(ColumnType.Int, "weight");
+            dataTable.AddColumn(ColumnType.Int, "foot-size");
             dataTable.AddColumn(ColumnType.String, "gender", true);
 
             // sample data from: https://en.wikipedia.org/wiki/Naive_Bayes_classifier
@@ -134,13 +134,13 @@ namespace UnitTests
             dataTable.Add(5.75f, 150, 9, "female");
             var index = dataTable.Build();
 
-            var testData = new DataTableBuilder(dataTable.Columns);
+            var testData = BrightWireProvider.CreateDataTableBuilder(dataTable.Columns);
             var row = testData.Add(6f, 130, 8, "?");
 
             var model = index.TrainMultinomialLogisticRegression(_lap, 100, 0.1f);
             var classifier = model.CreateClassifier(_lap);
             var classification = classifier.Classify(row);
-            Assert.IsTrue(classification.First() == "female");
+            Assert.IsTrue(classification.GetBestClassification() == "female");
         }
     }
 }

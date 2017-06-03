@@ -5,23 +5,17 @@
 *.suo
 *.user
 
+/.vs
 /bin
 /obj
-/.vs/BrightWire/v14
 /packages
-/UnitTests/bin/x64/Debug
-/UnitTests/obj
-/UnitTests/bin/x64/Release
+/TestResults
+
 /BrightWire.Net4/bin
 /BrightWire.Net4/obj
-/.vs/*
 /UnitTests/bin
-/UnitTests/LinearAlgebra
+/UnitTests/obj
 /BrightWire.CUDA.Net4.x64/bin
 /BrightWire.CUDA.Net4.x64/obj
-/BrightWire.CUDA.Net4.x86/bin
-/BrightWire.CUDA.Net4.x86/obj
 /SampleCode/bin
 /SampleCode/obj
-/BrightWire.VC.db
-/DimensionalityReduction/GloveEmbedding.cs

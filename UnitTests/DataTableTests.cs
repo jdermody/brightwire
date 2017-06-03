@@ -18,7 +18,7 @@ namespace UnitTests
         [ClassInitialize]
         public static void Load(TestContext context)
         {
-            _lap = Provider.CreateLinearAlgebra(false);
+            _lap = BrightWireProvider.CreateLinearAlgebra(false);
         }
 
         [ClassCleanup]
@@ -30,7 +30,7 @@ namespace UnitTests
         [TestMethod]
         public void TestColumnTypes()
         {
-            var builder = new DataTableBuilder();
+            var builder = BrightWireProvider.CreateDataTableBuilder();
             builder.AddColumn(ColumnType.Boolean, "boolean");
             builder.AddColumn(ColumnType.Byte, "byte");
             builder.AddColumn(ColumnType.Date, "date");
@@ -91,25 +91,25 @@ namespace UnitTests
         [TestMethod]
         public void TestIndexHydration()
         {
-            var builder = new DataTableBuilder();
-            builder.AddColumn(ColumnType.Boolean, "target", true);
-            builder.AddColumn(ColumnType.Int, "val");
-            builder.AddColumn(ColumnType.String, "label");
-            for (var i = 0; i < 33000; i++)
-                builder.Add(i % 2 == 0, i, i.ToString());
-
             using (var dataStream = new MemoryStream())
             using (var indexStream = new MemoryStream()) {
-                var table = builder.Build(dataStream);
-                table.WriteIndexTo(indexStream);
+                var builder = BrightWireProvider.CreateDataTableBuilder(dataStream);
+                builder.AddColumn(ColumnType.Boolean, "target", true);
+                builder.AddColumn(ColumnType.Int, "val");
+                builder.AddColumn(ColumnType.String, "label");
+                for (var i = 0; i < 33000; i++)
+                    builder.Add(i % 2 == 0, i, i.ToString());
+
+                var table = builder.Build();
+                builder.WriteIndexTo(indexStream);
 
                 dataStream.Seek(0, SeekOrigin.Begin);
                 indexStream.Seek(0, SeekOrigin.Begin);
-                var newTable = Provider.CreateDataTable(dataStream, indexStream);
+                var newTable = BrightWireProvider.CreateDataTable(dataStream, indexStream);
                 _CompareTables(table, newTable);
 
                 dataStream.Seek(0, SeekOrigin.Begin);
-                var newTable2 = Provider.CreateDataTable(dataStream, null);
+                var newTable2 = BrightWireProvider.CreateDataTable(dataStream, null);
                 _CompareTables(table, newTable2);
             }
         }
@@ -117,7 +117,7 @@ namespace UnitTests
         [TestMethod]
         public void TestDataTableAnalysis()
         {
-            var builder = new DataTableBuilder();
+            var builder = BrightWireProvider.CreateDataTableBuilder();
             builder.AddColumn(ColumnType.Boolean, "boolean");
             builder.AddColumn(ColumnType.Byte, "byte");
             builder.AddColumn(ColumnType.Date, "date");
@@ -153,7 +153,7 @@ namespace UnitTests
 
         IDataTable _GetSimpleTable()
         {
-            var builder = new DataTableBuilder();
+            var builder = BrightWireProvider.CreateDataTableBuilder();
             builder.AddColumn(ColumnType.Int, "val");
 
             for (var i = 0; i < 10000; i++)
@@ -335,7 +335,7 @@ namespace UnitTests
         [TestMethod]
         public void TestTargetColumnIndex()
         {
-            var builder = new DataTableBuilder();
+            var builder = BrightWireProvider.CreateDataTableBuilder();
             builder.AddColumn(ColumnType.String, "a");
             builder.AddColumn(ColumnType.String, "b", true);
             builder.AddColumn(ColumnType.String, "c");
@@ -350,7 +350,7 @@ namespace UnitTests
         [TestMethod]
         public void GetNumericRows()
         {
-            var builder = new DataTableBuilder();
+            var builder = BrightWireProvider.CreateDataTableBuilder();
             builder.AddColumn(ColumnType.Float, "val1");
             builder.AddColumn(ColumnType.Double, "val2");
             builder.AddColumn(ColumnType.String, "cls", true);
@@ -361,7 +361,7 @@ namespace UnitTests
             builder.Add(0.2f, 0.6, "d");
 
             var table = builder.Build();
-            var rows = table.GetNumericRows(_lap, new[] { 1 }).Select(r => r.AsIndexable()).ToList();
+            var rows = table.GetNumericRows(new[] { 1 }).Select(r => _lap.CreateVector(r)).Select(r => r.AsIndexable()).ToList();
             Assert.AreEqual(rows[0][0], 1.1f);
             Assert.AreEqual(rows[1][0], 1.5f);
         }
@@ -369,7 +369,7 @@ namespace UnitTests
         [TestMethod]
         public void GetNumericRows2()
         {
-            var builder = new DataTableBuilder();
+            var builder = BrightWireProvider.CreateDataTableBuilder();
             builder.AddColumn(ColumnType.Float, "val1");
             builder.AddColumn(ColumnType.Double, "val2");
             builder.AddColumn(ColumnType.String, "cls", true);
@@ -388,7 +388,7 @@ namespace UnitTests
         [TestMethod]
         public void GetNumericColumns()
         {
-            var builder = new DataTableBuilder();
+            var builder = BrightWireProvider.CreateDataTableBuilder();
             builder.AddColumn(ColumnType.Float, "val1");
             builder.AddColumn(ColumnType.Double, "val2");
             builder.AddColumn(ColumnType.String, "cls", true);
@@ -399,7 +399,7 @@ namespace UnitTests
             builder.Add(0.2f, 0.6, "d");
 
             var table = builder.Build();
-            var column = table.GetNumericColumns(_lap, new[] { 1 }).First().AsIndexable();
+            var column = table.GetNumericColumns(new[] { 1 }).Select(r => _lap.CreateVector(r)).First().AsIndexable();
             Assert.AreEqual(column[0], 1.1f);
             Assert.AreEqual(column[1], 1.5f);
         }
@@ -407,7 +407,7 @@ namespace UnitTests
         [TestMethod]
         public void GetNumericColumns2()
         {
-            var builder = new DataTableBuilder();
+            var builder = BrightWireProvider.CreateDataTableBuilder();
             builder.AddColumn(ColumnType.Float, "val1");
             builder.AddColumn(ColumnType.Double, "val2");
             builder.AddColumn(ColumnType.String, "cls", true);
@@ -426,7 +426,7 @@ namespace UnitTests
         [TestMethod]
         public void SelectColumns()
         {
-            var builder = new DataTableBuilder();
+            var builder = BrightWireProvider.CreateDataTableBuilder();
             builder.AddColumn(ColumnType.Float, "val1");
             builder.AddColumn(ColumnType.Double, "val2");
             builder.AddColumn(ColumnType.String, "cls", true);
@@ -444,7 +444,7 @@ namespace UnitTests
             Assert.AreEqual(table2.RowCount, 4);
             Assert.AreEqual(table2.ColumnCount, 3);
 
-            var column = table2.GetNumericColumns(_lap, new[] { 0 }).First().AsIndexable();
+            var column = table2.GetNumericColumns(new[] { 0 }).Select(r => _lap.CreateVector(r)).First().AsIndexable();
             Assert.AreEqual(column[0], 1.1f);
             Assert.AreEqual(column[1], 1.5f);
         }
@@ -452,7 +452,7 @@ namespace UnitTests
         [TestMethod]
         public void Fold()
         {
-            var builder = new DataTableBuilder();
+            var builder = BrightWireProvider.CreateDataTableBuilder();
             builder.AddColumn(ColumnType.Float, "val1");
             builder.AddColumn(ColumnType.Double, "val2");
             builder.AddColumn(ColumnType.String, "cls", true);
@@ -471,7 +471,7 @@ namespace UnitTests
         [TestMethod]
         public void TableFilter()
         {
-            var builder = new DataTableBuilder();
+            var builder = BrightWireProvider.CreateDataTableBuilder();
             builder.AddColumn(ColumnType.Float, "val1");
             builder.AddColumn(ColumnType.Double, "val2");
             builder.AddColumn(ColumnType.String, "cls", true);

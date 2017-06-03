@@ -7,10 +7,11 @@
     <ProjectGuid>{50BCB2AB-E8CA-4974-B136-49A98D5E34CB}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>BrightWire.CUDA.Net4.x64</RootNamespace>
-    <AssemblyName>BrightWire.CUDA.Net4.x64</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <RootNamespace>BrightWire.Cuda</RootNamespace>
+    <AssemblyName>BrightWire.Cuda</AssemblyName>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -20,7 +21,7 @@
     <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <DocumentationFile>bin\x64\Debug\BrightWire.CUDA.Net4.x64.XML</DocumentationFile>
+    <DocumentationFile>bin\x64\Debug\BrightWire.Cuda.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>bin\x64\Release\</OutputPath>
@@ -30,31 +31,29 @@
     <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <DocumentationFile>bin\x64\Release\BrightWire.CUDA.Net4.x64.XML</DocumentationFile>
+    <DocumentationFile>bin\x64\Release\BrightWire.Cuda.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CudaBlas, Version=8.0.13.0, Culture=neutral, PublicKeyToken=539d54d12e99fedb, processorArchitecture=AMD64">
-      <HintPath>..\packages\ManagedCuda-CUBLAS.8.0.13\lib\net46\CudaBlas.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="CudaBlas, Version=8.0.22.0, Culture=neutral, PublicKeyToken=539d54d12e99fedb, processorArchitecture=AMD64">
+      <HintPath>..\packages\ManagedCuda-CUBLAS.8.0.22\lib\net46\CudaBlas.dll</HintPath>
     </Reference>
-    <Reference Include="CudaSolve, Version=8.0.13.0, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\ManagedCuda-CUSOLVE.8.0.13\lib\net46\CudaSolve.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="CudaSolve, Version=8.0.22.0, Culture=neutral, processorArchitecture=AMD64">
+      <HintPath>..\packages\ManagedCuda-CUSOLVE.8.0.22\lib\net46\CudaSolve.dll</HintPath>
     </Reference>
-    <Reference Include="ManagedCuda, Version=8.0.13.0, Culture=neutral, PublicKeyToken=242d898828717aa0, processorArchitecture=MSIL">
-      <HintPath>..\packages\ManagedCuda-80.8.0.13\lib\net46\ManagedCuda.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="ManagedCuda, Version=8.0.22.0, Culture=neutral, PublicKeyToken=242d898828717aa0, processorArchitecture=MSIL">
+      <HintPath>..\packages\ManagedCuda-80.8.0.22\lib\net46\ManagedCuda.dll</HintPath>
     </Reference>
-    <Reference Include="MathNet.Numerics, Version=3.17.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MathNet.Numerics.3.17.0\lib\net40\MathNet.Numerics.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="MathNet.Numerics, Version=3.19.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\BrightWire2\packages\MathNet.Numerics.3.19.0\lib\net40\MathNet.Numerics.dll</HintPath>
     </Reference>
-    <Reference Include="protobuf-net, Version=2.1.0.0, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
-      <HintPath>..\packages\protobuf-net.2.1.0\lib\net451\protobuf-net.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="protobuf-net, Version=2.2.1.0, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
+      <HintPath>..\packages\protobuf-net.2.2.1\lib\net40\protobuf-net.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.ValueTuple, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\BrightWire2\packages\System.ValueTuple.4.3.1\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -63,13 +62,35 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CudaProvider.cs" />
+    <Compile Include="Gpu3DTensor.cs" />
+    <Compile Include="Gpu4DTensor.cs" />
+    <Compile Include="GpuMatrix.cs" />
+    <Compile Include="BrightWireGPUProvider.cs" />
+    <Compile Include="GpuVector.cs" />
+    <Compile Include="Helper\DeviceMemory.cs" />
+    <Compile Include="Helper\DeviceMemoryPtrList.cs" />
+    <Compile Include="Helper\MatrixOutput.cs" />
+    <Compile Include="Helper\PtrToMemory.cs" />
+    <Compile Include="Helper\TensorInput.cs" />
+    <Compile Include="Helper\TensorOutput.cs" />
+    <Compile Include="Helper\ThreadSafeHashSet.cs" />
+    <Compile Include="Interface.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="cuda\kernel.cu" />
+    <None Include="cuda\kernel.cubin" />
+    <None Include="cuda\kernel.ptx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="cuda\readme.txt" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BrightWire.Net4\BrightWire.Net4.csproj">
@@ -77,7 +98,6 @@
       <Name>BrightWire.Net4</Name>
     </ProjectReference>
   </ItemGroup>
-  <Import Project="..\BrightWire.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

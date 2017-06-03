@@ -38,20 +38,20 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ManagedCuda, Version=8.0.13.0, Culture=neutral, PublicKeyToken=242d898828717aa0, processorArchitecture=MSIL">
-      <HintPath>..\packages\ManagedCuda-80.8.0.13\lib\net46\ManagedCuda.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="ManagedCuda, Version=8.0.22.0, Culture=neutral, PublicKeyToken=242d898828717aa0, processorArchitecture=MSIL">
+      <HintPath>..\packages\ManagedCuda-80.8.0.22\lib\net46\ManagedCuda.dll</HintPath>
     </Reference>
-    <Reference Include="MathNet.Numerics, Version=3.17.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MathNet.Numerics.3.17.0\lib\net40\MathNet.Numerics.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="MathNet.Numerics, Version=3.19.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\BrightWire2\packages\MathNet.Numerics.3.19.0\lib\net40\MathNet.Numerics.dll</HintPath>
     </Reference>
-    <Reference Include="protobuf-net, Version=2.1.0.0, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
-      <HintPath>..\packages\protobuf-net.2.1.0\lib\net451\protobuf-net.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="protobuf-net, Version=2.2.1.0, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
+      <HintPath>..\packages\protobuf-net.2.2.1\lib\net40\protobuf-net.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Numerics" />
+    <Reference Include="System.ValueTuple, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\BrightWire2\packages\System.ValueTuple.4.3.1\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml" />
   </ItemGroup>
   <Choose>
@@ -69,10 +69,12 @@
   <ItemGroup>
     <Compile Include="ClassificationSetTests.cs" />
     <Compile Include="ConnectionistTests.cs" />
-    <Compile Include="CudaLinearAlgebraTests.cs" />
+    <Compile Include="CudaVectorTests.cs" />
+    <Compile Include="CudaMatrixTests.cs" />
+    <Compile Include="CudaTensorTests.cs" />
     <Compile Include="DataTableTests.cs" />
     <Compile Include="DimensionalityReductionTests.cs" />
-    <Compile Include="DataProviderTests.cs" />
+    <Compile Include="DataSourceTests.cs" />
     <Compile Include="Helper\FloatingPointHelper.cs" />
     <Compile Include="InstanceBasedTests.cs" />
     <Compile Include="LinearTests.cs" />
@@ -83,19 +85,18 @@
     <Compile Include="UnsupervisedTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BrightWire.CUDA.Net4.x64\BrightWire.CUDA.Net4.x64.csproj">
+    <None Include="app.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BrightWire.CUDA.Net4.x64\BrightWire.Cuda.Net4.x64.csproj">
       <Project>{50bcb2ab-e8ca-4974-b136-49a98d5e34cb}</Project>
-      <Name>BrightWire.CUDA.Net4.x64</Name>
+      <Name>BrightWire.Cuda.Net4.x64</Name>
     </ProjectReference>
     <ProjectReference Include="..\BrightWire.Net4\BrightWire.Net4.csproj">
       <Project>{fd8aaef6-2edb-446c-bb19-5ebee5cde982}</Project>
       <Name>BrightWire.Net4</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config">
-      <SubType>Designer</SubType>
-    </None>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

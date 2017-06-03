@@ -1,5 +1,6 @@
 ﻿using BrightWire;
 using BrightWire.Helper;
+using BrightWire.TrainingData;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -17,7 +18,7 @@ namespace UnitTests
         [ClassInitialize]
         public static void Load(TestContext context)
         {
-            _lap = Provider.CreateLinearAlgebra(false);
+            _lap = BrightWireProvider.CreateLinearAlgebra(false);
         }
 
         [ClassCleanup]
@@ -30,17 +31,36 @@ namespace UnitTests
         public void TestKMeans()
         {
             var stringTableBuilder = new StringTableBuilder();
-            var data = NaiveBayesTests.GetSimpleChineseSet(stringTableBuilder).ConvertToSparseVectors(false).Vectorise(true).ToDictionary(d => _lap.Create(d.Data), d => d.Classification);
-            var clusters = data.Select(d => d.Key).ToList().KMeans(2);
-            var clusterLabels = clusters.Select(d => d.Select(d2 => data[d2]).ToArray()).ToList();
+            var data = NaiveBayesTests.GetSimpleChineseSet(stringTableBuilder)
+                .ConvertToWeightedIndexList(false)
+                .Vectorise()
+                .ToDictionary(d => _lap.CreateVector(d.Data), d => d.Classification)
+            ;
+            var clusters = data
+                .Select(d => d.Key)
+                .ToList()
+                .KMeans(2)
+            ;
+            var clusterLabels = clusters
+                .Select(d => d.Select(d2 => data[d2]).ToArray())
+                .ToList()
+            ;
         }
 
         [TestMethod]
         public void TestNNMF()
         {
             var stringTableBuilder = new StringTableBuilder();
-            var data = NaiveBayesTests.GetSimpleChineseSet(stringTableBuilder).ConvertToSparseVectors(false).Vectorise(true).ToDictionary(d => _lap.Create(d.Data), d => d.Classification);
-            var clusters = data.Select(d => d.Key).ToList().NNMF(_lap, 2);
+            var data = NaiveBayesTests.GetSimpleChineseSet(stringTableBuilder)
+                .ConvertToWeightedIndexList(false)
+                .Vectorise()
+                .ToDictionary(d => _lap.CreateVector(d.Data), d => d.Classification)
+            ;
+            var clusters = data
+                .Select(d => d.Key)
+                .ToList()
+                .NNMF(_lap, 2)
+            ;
             var clusterLabels = clusters.Select(d => d.Select(d2 => data[d2]).ToArray()).ToList();
         }
     }

@@ -8,7 +8,7 @@ using BrightWire;
 using BrightWire.Helper;
 using BrightWire.Models;
 using System.Xml;
-using BrightWire.Models.Input;
+using BrightWire.TrainingData;
 
 namespace BrightWire.SampleCode
 {
@@ -41,31 +41,30 @@ namespace BrightWire.SampleCode
             /// </summary>
             public string[] Group { get; set; }
 
-            public SparseVectorClassification AsClassification(StringTableBuilder stringTable)
+            public (string Classification, WeightedIndexList Data) AsClassification(StringTableBuilder stringTable)
             {
-                var weightedIndex = new List<WeightedIndex>();
+                var weightedIndex = new List<WeightedIndexList.WeightedIndex>();
                 foreach (var item in Keyword) {
-                    weightedIndex.Add(new WeightedIndex {
+                    weightedIndex.Add(new WeightedIndexList.WeightedIndex {
                         Index = stringTable.GetIndex(item),
                         Weight = 1f
                     });
                 }
                 foreach (var item in Topic) {
-                    weightedIndex.Add(new WeightedIndex {
+                    weightedIndex.Add(new WeightedIndexList.WeightedIndex {
                         Index = stringTable.GetIndex(item),
                         Weight = 1f
                     });
                 }
-                return new SparseVectorClassification {
-                    Name = Title,
-                    Data = weightedIndex
+                return (Title, new WeightedIndexList {
+                    IndexList = weightedIndex
                         .GroupBy(d => d.Index)
-                        .Select(g => new WeightedIndex {
+                        .Select(g => new WeightedIndexList.WeightedIndex {
                             Index = g.Key,
                             Weight = g.Sum(d => d.Weight)
                         })
                         .ToArray()
-                };
+                });
             }
         }
 
@@ -114,13 +113,11 @@ namespace BrightWire.SampleCode
             var allGroups = new HashSet<string>(docList.SelectMany(d => d.Group));
 
             var stringTable = new StringTableBuilder();
-            var classificationSet = new SparseVectorClassificationSet {
-                Classification = docList.Select(d => d.AsClassification(stringTable)).ToArray()
-            };
-            var encodings = classificationSet.Vectorise(true);
+            var classificationSet = docList.Select(d => d.AsClassification(stringTable)).ToArray();
+            var encodings = classificationSet.Vectorise();
 
-            using (var lap = Provider.CreateLinearAlgebra()) {
-                var lookupTable = encodings.Select(d => Tuple.Create(d, lap.Create(d.Data))).ToDictionary(d => d.Item2, d => docTable[d.Item1.Classification]);
+            using (var lap = BrightWireProvider.CreateLinearAlgebra()) {
+                var lookupTable = encodings.Select(d => Tuple.Create(d, lap.CreateVector(d.Data))).ToDictionary(d => d.Item2, d => docTable[d.Item1.Classification]);
                 var vectorList = lookupTable.Select(d => d.Key).ToList();
 
                 Console.WriteLine("Kmeans clustering...");
@@ -134,7 +131,7 @@ namespace BrightWire.SampleCode
                 vectorList.ForEach(v => v.Dispose());
 
                 Console.WriteLine("Creating random projection...");
-                using (var randomProjection = lap.CreateRandomProjection((int)classificationSet.GetMaximumIndex() + 1, 512)) {
+                using (var randomProjection = lap.CreateRandomProjection((int)classificationSet.GetMaxIndex() + 1, 512)) {
                     using (var projectedMatrix = randomProjection.Compute(matrix)) {
                         var vectorList2 = Enumerable.Range(0, projectedMatrix.RowCount).Select(i => projectedMatrix.Row(i)).ToList();
                         var lookupTable2 = vectorList2.Select((v, i) => Tuple.Create(v, vectorList[i])).ToDictionary(d => (IVector)d.Item1, d => lookupTable[d.Item2]);
@@ -153,9 +150,8 @@ namespace BrightWire.SampleCode
                 var svd = matrixT.Svd();
                 matrixT.Dispose();
 
-                var s = lap.CreateDiagonal(svd.S.AsIndexable().Values.Take(K).ToList());
+                var s = lap.CreateDiagonalMatrix(svd.S.AsIndexable().Values.Take(K).ToList());
                 var v2 = svd.VT.GetNewMatrixFromRows(kIndices);
-                svd.Dispose();
                 using (var sv2 = s.Multiply(v2)) {
                     v2.Dispose();
                     s.Dispose();
