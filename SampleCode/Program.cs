@@ -74,20 +74,20 @@ namespace BrightWire.SampleCode
 
         static void Main(string[] args)
         {
-            Control.UseNativeMKL();
+            //Control.UseNativeMKL();
             //XOR();
             //IrisClassification();
             //IrisClustering();
             //MarkovChains();
             //MNIST(@"D:\data\mnist\");
-            MNISTConvolutional(@"D:\data\mnist\");
+            //MNISTConvolutional(@"D:\data\mnist\");
             //SentimentClassification(@"D:\data\sentiment labelled sentences\");
             //TextClustering(@"D:\data\[UCI] AAAI-14 Accepted Papers - Papers.csv", @"d:\temp\");
             //IntegerAddition();
             //ReberPrediction();
             //OneToMany();
             //ManyToOne();
-            //SequenceToSequence();
+            SequenceToSequence();
         }
     }
 }

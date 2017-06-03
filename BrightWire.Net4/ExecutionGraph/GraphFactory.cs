@@ -330,10 +330,10 @@ namespace BrightWire.ExecutionGraph
         }
 
         /// <summary>
-        /// 
+        /// Creates a feed forward layer
         /// </summary>
-        /// <param name="inputSize"></param>
-        /// <param name="outputSize"></param>
+        /// <param name="inputSize">Number of incoming connections</param>
+        /// <param name="outputSize">Number of outgoing connections</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
         public INode CreateFeedForward(int inputSize, int outputSize, string name = null)
@@ -351,11 +351,11 @@ namespace BrightWire.ExecutionGraph
         }
 
         /// <summary>
-        /// 
+        /// Creates a new drop connect layer (a feed forward layer with drop out applied to the weights)
         /// </summary>
-        /// <param name="dropoutPercentage"></param>
-        /// <param name="inputSize"></param>
-        /// <param name="outputSize"></param>
+        /// <param name="dropoutPercentage">Percentage of connections to drop (0..1)</param>
+        /// <param name="inputSize">Number of incoming connections</param>
+        /// <param name="outputSize">Number of outgoing connections</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
         public INode CreateDropConnect(float dropoutPercentage, int inputSize, int outputSize, string name = null)
@@ -372,9 +372,9 @@ namespace BrightWire.ExecutionGraph
         }
 
         /// <summary>
-        /// 
+        /// Creates a layer whose weights are shared with another layer (but transposed)
         /// </summary>
-        /// <param name="layer"></param>
+        /// <param name="layer">The layer that shares weights</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
         public INode CreateTiedFeedForward(IFeedForward layer, string name = null)
@@ -384,15 +384,15 @@ namespace BrightWire.ExecutionGraph
         }
 
         /// <summary>
-        /// 
+        /// Creates a convolutional layer
         /// </summary>
-        /// <param name="inputDepth"></param>
-        /// <param name="filterCount"></param>
-        /// <param name="padding"></param>
-        /// <param name="filterWidth"></param>
-        /// <param name="filterHeight"></param>
-        /// <param name="stride"></param>
-        /// <param name="shouldBackpropagate"></param>
+        /// <param name="inputDepth">Input depth</param>
+        /// <param name="filterCount">Number of convolutional filters</param>
+        /// <param name="padding">Padding to apply before convolutions</param>
+        /// <param name="filterWidth">Width of each filter</param>
+        /// <param name="filterHeight">Height of each filter</param>
+        /// <param name="stride">Convolutional stride</param>
+        /// <param name="shouldBackpropagate">True to backpropagate an error signal</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
         public INode CreateConvolutional(int inputDepth, int filterCount, int padding, int filterWidth, int filterHeight, int stride, bool shouldBackpropagate = true, string name = null)
@@ -402,11 +402,24 @@ namespace BrightWire.ExecutionGraph
         }
 
         /// <summary>
-        /// 
+        /// Creates a max pooling convolutional layer
         /// </summary>
-        /// <param name="inputSize"></param>
-        /// <param name="memory"></param>
-        /// <param name="activation"></param>
+        /// <param name="filterWidth"></param>
+        /// <param name="filterHeight"></param>
+        /// <param name="stride"></param>
+        /// <param name="name">Optional name to give the node</param>
+        /// <returns></returns>
+        public INode CreateMaxPool(int filterWidth, int filterHeight, int stride, string name = null)
+        {
+            return new MaxPool(filterWidth, filterHeight, stride, name);
+        }
+
+        /// <summary>
+        /// Creates a simple recurrent layer
+        /// </summary>
+        /// <param name="inputSize">Number of incoming connections</param>
+        /// <param name="memory">Size of the layer memory</param>
+        /// <param name="activation">Activation layer</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
         public INode CreateSimpleRecurrent(int inputSize, float[] memory, INode activation, string name = null)
@@ -415,12 +428,12 @@ namespace BrightWire.ExecutionGraph
         }
 
         /// <summary>
-        /// 
+        /// Creates an Elman recurrent layer
         /// </summary>
-        /// <param name="inputSize"></param>
-        /// <param name="memory"></param>
-        /// <param name="activation"></param>
-        /// <param name="activation2"></param>
+        /// <param name="inputSize">Number of incoming connections</param>
+        /// <param name="memory">Size of the layer memory</param>
+        /// <param name="activation">First activation layer</param>
+        /// <param name="activation2">Second activation layer</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
         public INode CreateElman(int inputSize, float[] memory, INode activation, INode activation2, string name = null)
@@ -429,12 +442,12 @@ namespace BrightWire.ExecutionGraph
         }
 
         /// <summary>
-        /// 
+        /// Creates a Jordan recurrent layer
         /// </summary>
-        /// <param name="inputSize"></param>
-        /// <param name="memory"></param>
-        /// <param name="activation"></param>
-        /// <param name="activation2"></param>
+        /// <param name="inputSize">Number of incoming connections</param>
+        /// <param name="memory">Size of the layer memory</param>
+        /// <param name="activation">First activation layer</param>
+        /// <param name="activation2">Second activation layer</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
         public INode CreateJordan(int inputSize, float[] memory, INode activation, INode activation2, string name = null)
@@ -443,7 +456,7 @@ namespace BrightWire.ExecutionGraph
         }
 
         /// <summary>
-        /// 
+        /// Creates a node that subtracts each input from 1 (1-x)
         /// </summary>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
@@ -453,7 +466,7 @@ namespace BrightWire.ExecutionGraph
         }
 
         /// <summary>
-        /// 
+        /// Creates a node that outputs the reversed index of the current sequence (for bidirectional recurrent networks)
         /// </summary>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
@@ -463,10 +476,10 @@ namespace BrightWire.ExecutionGraph
         }
 
         /// <summary>
-        /// 
+        /// Creates a GRU recurrent layer
         /// </summary>
-        /// <param name="inputSize"></param>
-        /// <param name="memory"></param>
+        /// <param name="inputSize">Number of incoming connections</param>
+        /// <param name="memory">Size of the layer memory</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
         public INode CreateGru(int inputSize, float[] memory, string name = null)
@@ -475,10 +488,10 @@ namespace BrightWire.ExecutionGraph
         }
 
         /// <summary>
-        /// 
+        /// Creates a LSTM recurrent layer
         /// </summary>
-        /// <param name="inputSize"></param>
-        /// <param name="memory"></param>
+        /// <param name="inputSize">Number of incoming connections</param>
+        /// <param name="memory">Size of the layer memory</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
         public INode CreateLstm(int inputSize, float[] memory, string name = null)
@@ -487,22 +500,9 @@ namespace BrightWire.ExecutionGraph
         }
 
         /// <summary>
-        /// 
+        /// Creates a layer that drops random connections
         /// </summary>
-        /// <param name="width"></param>
-        /// <param name="height"></param>
-        /// <param name="stride"></param>
-        /// <param name="name">Optional name to give the node</param>
-        /// <returns></returns>
-        public INode CreateMaxPool(int width, int height, int stride, string name = null)
-        {
-            return new MaxPool(width, height, stride, name);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="dropoutPercentage"></param>
+        /// <param name="dropoutPercentage">Percentage to drop (0..1)</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
         public INode CreateDropOut(float dropoutPercentage, string name = null)
@@ -510,25 +510,64 @@ namespace BrightWire.ExecutionGraph
             return new DropOut(dropoutPercentage, name);
         }
 
+        /// <summary>
+        /// Builds a new wire from the engine's input node
+        /// </summary>
+        /// <param name="engine">Graph engine to build with</param>
+        /// <returns></returns>
         public WireBuilder Connect(IGraphEngine engine)
         {
             return new WireBuilder(this, engine);
         }
 
+        /// <summary>
+        /// Builds a new wire from the selected node
+        /// </summary>
+        /// <param name="inputSize">Number of outgoing connections</param>
+        /// <param name="node">The node to build from</param>
+        /// <returns></returns>
         public WireBuilder Connect(int inputSize, INode node)
         {
             return new WireBuilder(this, inputSize, node);
         }
 
-        public WireBuilder Add(WireBuilder input1, WireBuilder input2)
+        /// <summary>
+        /// Builds a new wire from the selected node
+        /// </summary>
+        /// <param name="width">Volume width</param>
+        /// <param name="height">Volume height</param>
+        /// <param name="depth">Volume depth</param>
+        /// <param name="node">The node to build from</param>
+        /// <returns></returns>
+        public WireBuilder Connect(int width, int height, int depth, INode node)
         {
-            Debug.Assert(input1.CurrentSize == input2.CurrentSize);
-            return Add(input1.CurrentSize, input1.LastNode, input2.LastNode);
+            return new WireBuilder(this, width, height, depth, node);
         }
 
-        public WireBuilder Add(int inputSize, INode input1, INode input2)
+        /// <summary>
+        /// Adds the output of two wires into a new wire
+        /// </summary>
+        /// <param name="input1">First wire</param>
+        /// <param name="input2">Second wire</param>
+        /// <param name="name">Optional name to give the node</param>
+        /// <returns></returns>
+        public WireBuilder Add(WireBuilder input1, WireBuilder input2, string name = null)
         {
-            var add = new AddGate();
+            Debug.Assert(input1.CurrentSize == input2.CurrentSize);
+            return Add(input1.CurrentSize, input1.LastNode, input2.LastNode, name);
+        }
+
+        /// <summary>
+        /// Adds the output of two nodes together into a new wire
+        /// </summary>
+        /// <param name="inputSize">The number of connections</param>
+        /// <param name="input1">First node</param>
+        /// <param name="input2">Second node</param>
+        /// <param name="name">Optional name to give the node</param>
+        /// <returns></returns>
+        public WireBuilder Add(int inputSize, INode input1, INode input2, string name = null)
+        {
+            var add = new AddGate(name);
             var wireToPrimary = new WireToNode(add);
             var wireToSecondary = new WireToNode(add, 1);
 
@@ -538,15 +577,30 @@ namespace BrightWire.ExecutionGraph
             return new WireBuilder(this, inputSize, add);
         }
 
-        public WireBuilder Multiply(WireBuilder input1, WireBuilder input2)
+        /// <summary>
+        /// Multiplies the output of two wires into a new wire
+        /// </summary>
+        /// <param name="input1"></param>
+        /// <param name="input2"></param>
+        /// <param name="name">Optional name to give the node</param>
+        /// <returns></returns>
+        public WireBuilder Multiply(WireBuilder input1, WireBuilder input2, string name = null)
         {
             Debug.Assert(input1.CurrentSize == input2.CurrentSize);
-            return Multiply(input1.CurrentSize, input1.LastNode, input2.LastNode);
+            return Multiply(input1.CurrentSize, input1.LastNode, input2.LastNode, name);
         }
 
-        public WireBuilder Multiply(int inputSize, INode input1, INode input2)
+        /// <summary>
+        /// Multiplies the output of two nodes together into a new wire
+        /// </summary>
+        /// <param name="inputSize">The number of connections</param>
+        /// <param name="input1">First node</param>
+        /// <param name="input2">Second node</param>
+        /// <param name="name">Optional name to give the node</param>
+        /// <returns></returns>
+        public WireBuilder Multiply(int inputSize, INode input1, INode input2, string name = null)
         {
-            var multiply = new MultiplyGate();
+            var multiply = new MultiplyGate(name);
             var wireToPrimary = new WireToNode(multiply);
             var wireToSecondary = new WireToNode(multiply, 1);
 
@@ -556,6 +610,13 @@ namespace BrightWire.ExecutionGraph
             return new WireBuilder(this, inputSize, multiply);
         }
 
+        /// <summary>
+        /// Concatenates two wires together into a new wire
+        /// </summary>
+        /// <param name="input1">First wire to join</param>
+        /// <param name="input2">Second wire to join</param>
+        /// <param name="name">Optional name to give the node</param>
+        /// <returns></returns>
         public WireBuilder Join(WireBuilder input1, WireBuilder input2, string name = null)
         {
             var ret = new JoinGate(name, input1, input2);
@@ -568,6 +629,10 @@ namespace BrightWire.ExecutionGraph
             return new WireBuilder(this, input1.CurrentSize + input2.CurrentSize, ret);
         }
 
+        /// <summary>
+        /// Creates a node from it's serialised model
+        /// </summary>
+        /// <param name="node">The node model</param>
         public INode Create(Models.ExecutionGraph.Node node)
         {
             var type = Type.GetType(node.TypeName);
@@ -576,56 +641,217 @@ namespace BrightWire.ExecutionGraph
             return ret;
         }
 
+        /// <summary>
+        /// Creates a new leaky relu activation layer
+        /// </summary>
+        /// <param name="name">Optional name to give the node</param>
         public INode LeakyReluActivation(string name = null) => new LeakyRelu(name);
+
+        /// <summary>
+        /// Creates a new relu activation layer
+        /// </summary>
+        /// <param name="name">Optional name to give the node</param>
         public INode ReluActivation(string name = null) => new Relu(name);
+
+        /// <summary>
+        /// Creates a new sigmoid activation layer
+        /// </summary>
+        /// <param name="name">Optional name to give the node</param>
         public INode SigmoidActivation(string name = null) => new Sigmoid(name);
+
+        /// <summary>
+        /// Creates a new tanh activation layer
+        /// </summary>
+        /// <param name="name">Optional name to give the node</param>
         public INode TanhActivation(string name = null) => new Tanh(name);
+
+        /// <summary>
+        /// Creates a new softmax activation layer
+        /// </summary>
+        /// <param name="name">Optional name to give the node</param>
         public INode SoftMaxActivation(string name = null) => new SoftMax(name);
 
+        /// <summary>
+        /// Creates a constant weight initialiser
+        /// </summary>
+        /// <param name="biasValue">Single bias value</param>
+        /// <param name="weightValue">Single weight value</param>
         public IWeightInitialisation ConstantWeightInitialisation(float biasValue = 0f, float weightValue = 1f) => new Constant(_lap, biasValue, weightValue);
+
+        /// <summary>
+        /// Creates a gaussian weight initialiser
+        /// </summary>
+        /// <param name="zeroBias">True to set bias values to zero, otherwise bias initialisation is treated the same as weight initialisation</param>
+        /// <param name="stdDev">Standard deviation of gaussian distribution</param>
         public IWeightInitialisation GaussianWeightInitialisation(bool zeroBias = true, float stdDev = 0.1f) => new Gaussian(_lap, zeroBias, stdDev);
+
+        /// <summary>
+        /// Creates an identity weight initialiser
+        /// </summary>
+        /// <param name="identityValue">The value to give to each diagonal value</param>
         public IWeightInitialisation IdentityWeightInitialisation(float identityValue = 1f) => new Identity(_lap, identityValue);
+
+        /// <summary>
+        /// Creates a xavier weight initialiser
+        /// </summary>
+        /// <param name="parameter">Xavier parameter</param>
         public IWeightInitialisation XavierWeightInitialisation(float parameter = 6) => new Xavier(_lap, parameter);
 
+        /// <summary>
+        /// Creates an AdaGrad gradient descent optimiser
+        /// </summary>
         public ICreateTemplateBasedGradientDescent AdaGrad() => new AdaGradDescriptor();
+
+        /// <summary>
+        /// Creates an Adam gradient descent optimiser
+        /// </summary>
+        /// <param name="decay">Decay parameter</param>
+        /// <param name="decay2">Second decay parameter</param>
         public ICreateTemplateBasedGradientDescent Adam(float decay = 0.9f, float decay2 = 0.99f) => new AdamDescriptor(decay, decay2);
+
+        /// <summary>
+        /// Creates a L1 regularisation gradient descent optimiser
+        /// </summary>
+        /// <param name="lambda">L1 parameter</param>
         public ICreateGradientDescent L1(float lambda) => new L1RegularisationDescriptor(lambda);
+
+        /// <summary>
+        /// Creates a L2 regularisation gradient descent optimiser
+        /// </summary>
+        /// <param name="lambda">L2 parameter</param>
         public ICreateGradientDescent L2(float lambda) => new L2RegularisationDescriptor(lambda);
+
+        /// <summary>
+        /// Creats a momentum gradient descent optimiser
+        /// </summary>
+        /// <param name="momentum">Momentum parameter</param>
         public ICreateTemplateBasedGradientDescent Momentum(float momentum = 0.9f) => new MomentumDescriptor(momentum);
+
+        /// <summary>
+        /// Creates a nesterov momentum gradient descent optimiser
+        /// </summary>
+        /// <param name="momentum">Nesterov momentum parameter</param>
+        /// <returns></returns>
         public ICreateTemplateBasedGradientDescent NesterovMomentum(float momentum = 0.9f) => new NesterovMomentumDescriptor(momentum);
+
+        /// <summary>
+        /// Creates a rms prop gradient descent optimiser
+        /// </summary>
+        /// <param name="decay">Rms decay</param>
+        /// <returns></returns>
         public ICreateTemplateBasedGradientDescent RmsProp(float decay = 0.9f) => new RmsPropDescriptor(decay);
 
+        /// <summary>
+        /// Prebuilt gradient descent optimisers
+        /// </summary>
         public class GradientDescentProvider
         {
+            /// <summary>
+            /// Adagrad gradient descent
+            /// </summary>
             public ICreateTemplateBasedGradientDescent AdaGrad { get; } = new AdaGradDescriptor();
+
+            /// <summary>
+            /// Adam gradient descent
+            /// </summary>
             public ICreateTemplateBasedGradientDescent Adam { get; } = new AdamDescriptor(0.9f, 0.99f);
+
+            /// <summary>
+            /// L1 regularisation
+            /// </summary>
             public ICreateGradientDescent L1 { get; } = new L1RegularisationDescriptor(0.1f);
+
+            /// <summary>
+            /// L2 regularisation
+            /// </summary>
             public ICreateGradientDescent L2 { get; } = new L1RegularisationDescriptor(0.1f);
+
+            /// <summary>
+            /// Momentum gradient descent
+            /// </summary>
             public ICreateTemplateBasedGradientDescent Momentum { get; } = new MomentumDescriptor(0.9f);
+
+            /// <summary>
+            /// Nesterov momentum gradient descent
+            /// </summary>
             public ICreateTemplateBasedGradientDescent NesterovMomentum { get; } = new NesterovMomentumDescriptor(0.9f);
+
+            /// <summary>
+            /// Rms prop gradient descent
+            /// </summary>
             public ICreateTemplateBasedGradientDescent RmsProp { get; } = new RmsPropDescriptor(0.9f);
         }
+        /// <summary>
+        /// Prebuilt gradient descent optimisers
+        /// </summary>
         public GradientDescentProvider GradientDescent { get; } = new GradientDescentProvider();
 
+        /// <summary>
+        /// Error metrics
+        /// </summary>
         public class ErrorMetricProvider
         {
+            /// <summary>
+            /// Binary classification error metric
+            /// </summary>
             public IErrorMetric BinaryClassification { get; } = new ErrorMetric.BinaryClassification();
+
+            /// <summary>
+            /// Cross entropy error metric
+            /// </summary>
             public IErrorMetric CrossEntropy { get; } = new ErrorMetric.CrossEntropy();
+
+            /// <summary>
+            /// One hot encoding error metric
+            /// </summary>
             public IErrorMetric OneHotEncoding { get; } = new ErrorMetric.OneHotEncoding();
+
+            /// <summary>
+            /// Quadratic error metric
+            /// </summary>
             public IErrorMetric Quadratic { get; } = new ErrorMetric.Quadratic();
         }
+        /// <summary>
+        /// Error metrics
+        /// </summary>
         public ErrorMetricProvider ErrorMetric { get; } = new ErrorMetricProvider();
 
+        /// <summary>
+        /// Prebuilt weight initialisers
+        /// </summary>
         public class WeightInitialisationProvider
         {
+            /// <summary>
+            /// All weights are initialised to 1
+            /// </summary>
             public IWeightInitialisation Ones { get; private set; }
+
+            /// <summary>
+            /// All weights are initialised to 0
+            /// </summary>
             public IWeightInitialisation Zeroes { get; private set; }
+
+            /// <summary>
+            /// Weights are randomly initialised using a gaussian distribution
+            /// </summary>
             public IWeightInitialisation Gaussian { get; private set; }
+
+            /// <summary>
+            /// Weights are randomly initialised using the xavier algorithm
+            /// </summary>
             public IWeightInitialisation Xavier { get; private set; }
+
+            /// <summary>
+            /// Weights are initialised to the identity matrix
+            /// </summary>
             public IWeightInitialisation Identity { get; private set; }
+
+            /// <summary>
+            /// Weights are initialised to the identity matrix / 10
+            /// </summary>
             public IWeightInitialisation Identity01 { get; private set; }
 
-            public WeightInitialisationProvider(ILinearAlgebraProvider lap)
+            internal WeightInitialisationProvider(ILinearAlgebraProvider lap)
             {
                 Ones = new Constant(lap, 0f, 1f);
                 Zeroes = new Constant(lap, 0f, 0f);
@@ -635,6 +861,9 @@ namespace BrightWire.ExecutionGraph
                 Identity01 = new Identity(lap, 0.1f);
             }
         }
+        /// <summary>
+        /// Prebuilt weight initialisers
+        /// </summary>
         public WeightInitialisationProvider WeightInitialisation { get; private set; }
     }
 }

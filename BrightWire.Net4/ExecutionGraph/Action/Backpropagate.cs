@@ -29,7 +29,7 @@ namespace BrightWire.ExecutionGraph.Action
             var output = input.GetMatrix();
             if (context.IsTraining) {
                 var gradient = _errorMetric.CalculateGradient(context, output, context.BatchSequence.Target.GetMatrix());
-                context.Backpropagate(input.ReplaceWith(gradient), _errorMetric);
+                context.Backpropagate(input.ReplaceWith(gradient));
             }
             return input;
         }

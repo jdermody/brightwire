@@ -40,14 +40,14 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             var memoryChannel = graph.Connect(hiddenLayerSize, _memory).AddFeedForward(hiddenLayerSize, "Uh");
 
             var h = graph.Add(inputChannel, memoryChannel)
-                .AddBackwardAction(new ConstrainErrorSignal())
+                .AddBackwardAction(new ConstrainSignal())
                 .Add(activation)
             ;
             if (isElman)
                 h = h.AddForwardAction(_memory.SetMemoryAction);
 
             h = h.AddFeedForward(hiddenLayerSize, "Wy")
-                .AddBackwardAction(new ConstrainErrorSignal())
+                .AddBackwardAction(new ConstrainSignal())
                 .Add(activation2)
             ;
             if (!isElman)
@@ -71,7 +71,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
         public override void ExecuteForward(IContext context)
         {
-            if (context.BatchSequence.Type == MiniBatchType.SequenceStart)
+            if (context.BatchSequence.Type == MiniBatchSequenceType.SequenceStart)
                 _lastBackpropagation = null;
 
             _start.ExecuteForward(context);

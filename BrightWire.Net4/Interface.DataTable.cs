@@ -148,7 +148,7 @@ namespace BrightWire
     }
 
     /// <summary>
-    /// A classifier that uses a data table row
+    /// A classifier that classifies a data table row
     /// </summary>
     public interface IRowClassifier
     {
@@ -159,6 +159,9 @@ namespace BrightWire
         IReadOnlyList<(string Label, float Weight)> Classify(IRow row);
     }
 
+    /// <summary>
+    /// A classifier that classifies index lists
+    /// </summary>
     public interface IIndexListClassifier : IRowClassifier
     {
         /// <summary>
@@ -254,6 +257,9 @@ namespace BrightWire
         /// <param name="vectorIndex">The one hot vector index</param>
         string GetOutputLabel(int columnIndex, int vectorIndex);
 
+        /// <summary>
+        /// Data table analysis
+        /// </summary>
         IDataTableAnalysis Analysis { get; }
     }
 
@@ -397,6 +403,7 @@ namespace BrightWire
         /// Classifies each row
         /// </summary>
         /// <param name="classifier">The classifier to use</param>
+        /// <param name="progress">Optional callback that is notified about classification progress</param>
         IReadOnlyList<(IRow Row, string Classification)> Classify(IRowClassifier classifier, Action<float> progress = null);
 
         /// <summary>
@@ -531,9 +538,19 @@ namespace BrightWire
         string MostCommonString { get; }
     }
 
+    /// <summary>
+    /// Column statistics for index based columns
+    /// </summary>
     public interface IIndexColumnInfo : IColumnInfo
     {
+        /// <summary>
+        /// Minimum index
+        /// </summary>
         uint MinIndex { get; }
+
+        /// <summary>
+        /// Maximum index
+        /// </summary>
         uint MaxIndex { get; }
     }
 

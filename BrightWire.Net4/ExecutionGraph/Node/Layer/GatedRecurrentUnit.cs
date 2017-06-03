@@ -39,13 +39,13 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             var Ur = graph.Connect(hiddenLayerSize, _memory).AddFeedForward(hiddenLayerSize, "Ur");
 
             // add sigmoids to the gates
-            var Rt = graph.Add(Wr, Ur).AddBackwardAction(new ConstrainErrorSignal()).Add(graph.SigmoidActivation("Rt")).LastNode;
-            var Zt = graph.Add(Wz, Uz).AddBackwardAction(new ConstrainErrorSignal()).Add(graph.SigmoidActivation("Zt")).LastNode;
+            var Rt = graph.Add(Wr, Ur).AddBackwardAction(new ConstrainSignal()).Add(graph.SigmoidActivation("Rt")).LastNode;
+            var Zt = graph.Add(Wz, Uz).AddBackwardAction(new ConstrainSignal()).Add(graph.SigmoidActivation("Zt")).LastNode;
 
             // h1 = tanh(Wh(x) + Uh(Ht1xRt))
             var Wh = graph.Connect(inputSize, _input).AddFeedForward(hiddenLayerSize, "Wh");
             var Uh = graph.Multiply(hiddenLayerSize, Rt, _memory).AddFeedForward(hiddenLayerSize, "Uh");
-            var h1 = graph.Add(Wh, Uh).AddBackwardAction(new ConstrainErrorSignal()).Add(graph.TanhActivation());
+            var h1 = graph.Add(Wh, Uh).AddBackwardAction(new ConstrainSignal()).Add(graph.TanhActivation());
 
             // h2 = h1x(1-Zt)
             var h2 = graph.Multiply(h1, graph.Connect(hiddenLayerSize, Zt).Add(graph.CreateOneMinusInput()));
@@ -72,7 +72,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
         public override void ExecuteForward(IContext context)
         {
-            if (context.BatchSequence.Type == MiniBatchType.SequenceStart)
+            if (context.BatchSequence.Type == MiniBatchSequenceType.SequenceStart)
                 _lastBackpropagation = null;
 
             _start.ExecuteForward(context);

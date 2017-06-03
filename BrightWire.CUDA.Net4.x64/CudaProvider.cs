@@ -1,4 +1,4 @@
-﻿using BrightWire.CUDA.Helper;
+﻿using BrightWire.Cuda.Helper;
 using BrightWire.Models;
 using ManagedCuda;
 using ManagedCuda.BasicTypes;

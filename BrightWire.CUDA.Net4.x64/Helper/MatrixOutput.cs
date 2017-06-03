@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace BrightWire.CUDA.Helper
+namespace BrightWire.Cuda.Helper
 {
     /// <summary>
     /// Helper class to represent a list of matrices that are the output of a cuda kernel

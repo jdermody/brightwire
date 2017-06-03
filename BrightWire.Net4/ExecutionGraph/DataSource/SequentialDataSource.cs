@@ -54,10 +54,10 @@ namespace BrightWire.ExecutionGraph.DataSource
             foreach (var item in inputData.OrderBy(kv => kv.Key)) {
                 var input = _lap.CreateMatrix(item.Value);
                 var type = (item.Key == 0)
-                    ? MiniBatchType.SequenceStart
+                    ? MiniBatchSequenceType.SequenceStart
                     : item.Key == (inputData.Count - 1)
-                        ? MiniBatchType.SequenceEnd
-                        : MiniBatchType.Standard
+                        ? MiniBatchSequenceType.SequenceEnd
+                        : MiniBatchSequenceType.Standard
                 ;
                 miniBatch.Add(type, new MatrixGraphData(input), null);
             }

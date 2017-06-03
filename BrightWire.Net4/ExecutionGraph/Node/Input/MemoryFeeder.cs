@@ -19,7 +19,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
 
             public override void _Backward(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
-                if (context.BatchSequence.Type == MiniBatchType.SequenceStart) {
+                if (context.BatchSequence.Type == MiniBatchSequenceType.SequenceStart) {
                     var es = errorSignal.GetMatrix();
 
                     using (var columnSums = es.ColumnSums()) {

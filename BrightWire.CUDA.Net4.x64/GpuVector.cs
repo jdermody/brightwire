@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using BrightWire.Models;
 using ManagedCuda.BasicTypes;
-using BrightWire.CUDA.Helper;
+using BrightWire.Cuda.Helper;
 using System.Threading;
 
 namespace BrightWire.LinearAlgebra

@@ -98,7 +98,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             IMatrix encoderOutput = null;
             while ((sequence = encoderInput.GetNextSequence()) != null) {
                 using (var context = _Process(executionContext, sequence)) {
-                    if (sequence.Type == MiniBatchType.SequenceEnd)
+                    if (sequence.Type == MiniBatchSequenceType.SequenceEnd)
                         encoderOutput = context.Data.GetMatrix();
                 }
             }
@@ -124,10 +124,10 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             foreach (var item in outputData.OrderBy(kv => kv.Key)) {
                 var output = _lap.CreateMatrix(item.Value);
                 var type = (item.Key == 0)
-                    ? MiniBatchType.SequenceStart
+                    ? MiniBatchSequenceType.SequenceStart
                     : item.Key == (outputData.Count - 1)
-                        ? MiniBatchType.SequenceEnd
-                        : MiniBatchType.Standard;
+                        ? MiniBatchSequenceType.SequenceEnd
+                        : MiniBatchSequenceType.Standard;
                 miniBatch.Add(type, new MatrixGraphData(curr), new MatrixGraphData(output));
                 curr = output;
             }
@@ -137,7 +137,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         public override void OnBatchProcessed(IContext context)
         {
             var batch = context.BatchSequence;
-            if(context.IsTraining && batch.Type == MiniBatchType.SequenceStart) {
+            if(context.IsTraining && batch.Type == MiniBatchSequenceType.SequenceStart) {
                 context.LearningContext.DeferBackpropagation(null, signal => {
                     _learningContext.BackpropagateThroughTime(signal);
                 });

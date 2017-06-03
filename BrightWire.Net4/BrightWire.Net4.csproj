@@ -91,7 +91,7 @@
     <Compile Include="Descriptor\GradientDescent\NesterovMomentumDescriptor.cs" />
     <Compile Include="Descriptor\GradientDescent\RmsPropDescriptor.cs" />
     <Compile Include="ExecutionGraph\Action\BackpropagateThroughTime.cs" />
-    <Compile Include="ExecutionGraph\Action\ConstrainErrorSignal.cs" />
+    <Compile Include="ExecutionGraph\Action\ConstrainSignal.cs" />
     <Compile Include="ExecutionGraph\Action\JoinInputWithMemory.cs" />
     <Compile Include="ExecutionGraph\Action\SetMemory.cs" />
     <Compile Include="ExecutionGraph\Action\CopyNamedMemory.cs" />

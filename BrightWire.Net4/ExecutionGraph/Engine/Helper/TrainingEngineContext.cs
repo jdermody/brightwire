@@ -103,13 +103,12 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             _backward.Clear();
         }
 
-        public void Backpropagate(IGraphData delta, IErrorMetric errorMetric)
+        public void Backpropagate(IGraphData delta)
         {
             // calculate training error
             if (delta != null) {
                 if (_learningContext?.TrainingErrorCalculation == TrainingErrorCalculation.Fast)
                     _trainingError = Math.Sqrt(delta.GetMatrix().AsIndexable().Values.Select(v => Math.Pow(v, 2)).Average());
-                // TODO: queue engine to calculate the traning error with the given error metric
             }
 
             // initialise backpropagation stack

@@ -3,11 +3,11 @@
     /// <summary>
     /// Constrains the signal through the graph to lie between two values
     /// </summary>
-    internal class ConstrainErrorSignal : IAction
+    internal class ConstrainSignal : IAction
     {
         float _min, _max;
 
-        public ConstrainErrorSignal(float min = -1f, float max = 1f)
+        public ConstrainSignal(float min = -1f, float max = 1f)
         {
             _min = min;
             _max = max;

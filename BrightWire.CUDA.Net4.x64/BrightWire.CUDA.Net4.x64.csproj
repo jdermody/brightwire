@@ -7,8 +7,8 @@
     <ProjectGuid>{50BCB2AB-E8CA-4974-B136-49A98D5E34CB}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>BrightWire.CUDA</RootNamespace>
-    <AssemblyName>BrightWire.CUDA</AssemblyName>
+    <RootNamespace>BrightWire.Cuda</RootNamespace>
+    <AssemblyName>BrightWire.Cuda</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -21,7 +21,7 @@
     <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <DocumentationFile>bin\x64\Debug\BrightWire.CUDA.xml</DocumentationFile>
+    <DocumentationFile>bin\x64\Debug\BrightWire.Cuda.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>bin\x64\Release\</OutputPath>
@@ -31,7 +31,7 @@
     <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <DocumentationFile>bin\x64\Release\BrightWire.CUDA.xml</DocumentationFile>
+    <DocumentationFile>bin\x64\Release\BrightWire.Cuda.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="CudaBlas, Version=8.0.22.0, Culture=neutral, PublicKeyToken=539d54d12e99fedb, processorArchitecture=AMD64">

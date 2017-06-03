@@ -79,10 +79,10 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
                 if (outputData.TryGetValue(item.Key, out temp))
                     output = _lap.CreateMatrix(temp);
                 var type = (item.Key == 0)
-                    ? MiniBatchType.SequenceStart
+                    ? MiniBatchSequenceType.SequenceStart
                     : item.Key == (inputData.Count - 1)
-                        ? MiniBatchType.SequenceEnd
-                        : MiniBatchType.Standard
+                        ? MiniBatchSequenceType.SequenceEnd
+                        : MiniBatchSequenceType.Standard
                 ;
                 miniBatch.Add(type, new MatrixGraphData(input), new MatrixGraphData(output));
             }

@@ -32,8 +32,8 @@ namespace BrightWire.SampleCode
                 ;
 
                 Console.Write("Loading training data...");
-                var trainingData = _BuildVectors(null, graph, Mnist.Load(dataFilesPath + "train-labels.idx1-ubyte", dataFilesPath + "train-images.idx3-ubyte", 800));
-                var testData = _BuildVectors(trainingData, graph, Mnist.Load(dataFilesPath + "t10k-labels.idx1-ubyte", dataFilesPath + "t10k-images.idx3-ubyte", 200));
+                var trainingData = _BuildVectors(null, graph, Mnist.Load(dataFilesPath + "train-labels.idx1-ubyte", dataFilesPath + "train-images.idx3-ubyte"));
+                var testData = _BuildVectors(trainingData, graph, Mnist.Load(dataFilesPath + "t10k-labels.idx1-ubyte", dataFilesPath + "t10k-images.idx3-ubyte"));
                 Console.WriteLine($"done - {trainingData.RowCount} training images and {testData.RowCount} test images loaded");
 
                 // create the training engine and schedule two training rate changes

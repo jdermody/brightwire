@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace BrightWire.CUDA.Helper
+namespace BrightWire.Cuda.Helper
 {
     /// <summary>
     /// Helper class that represents a 4D tensor input to a cuda kernel

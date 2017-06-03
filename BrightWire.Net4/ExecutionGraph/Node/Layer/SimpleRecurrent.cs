@@ -36,7 +36,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             var memoryChannel = graph.Connect(hiddenLayerSize, _memory).AddFeedForward(hiddenLayerSize, "Uh");
 
             _output = graph.Add(inputChannel, memoryChannel)
-                .AddBackwardAction(new ConstrainErrorSignal())
+                .AddBackwardAction(new ConstrainSignal())
                 .Add(activation)
                 .AddForwardAction(_memory.SetMemoryAction)
                 .Add(new HookErrorSignal(context => {
@@ -56,7 +56,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
         public override void ExecuteForward(IContext context)
         {
-            if (context.BatchSequence.Type == MiniBatchType.SequenceStart)
+            if (context.BatchSequence.Type == MiniBatchSequenceType.SequenceStart)
                 _lastBackpropagation = null;
 
             _start.ExecuteForward(context);

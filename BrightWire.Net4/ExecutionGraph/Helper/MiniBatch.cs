@@ -11,7 +11,7 @@ namespace BrightWire.ExecutionGraph.Helper
         {
             public IMiniBatch MiniBatch { get; set; }
             public int SequenceIndex { get; set; }
-            public MiniBatchType Type { get; set; }
+            public MiniBatchSequenceType Type { get; set; }
             public IGraphData Input { get; set; }
             public IGraphData Target { get; set; }
         }
@@ -28,7 +28,7 @@ namespace BrightWire.ExecutionGraph.Helper
                 Input = input,
                 Target = output,
                 SequenceIndex = 0,
-                Type = MiniBatchType.Standard,
+                Type = MiniBatchSequenceType.Standard,
                 MiniBatch = this
             });
         }
@@ -40,7 +40,7 @@ namespace BrightWire.ExecutionGraph.Helper
             _dataSource = dataSource;
         }
 
-        public void Add(MiniBatchType type, IGraphData input, IGraphData output)
+        public void Add(MiniBatchSequenceType type, IGraphData input, IGraphData output)
         {
             _sequence.Add(new Sequence {
                 Input = input,

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using BrightWire.Models;
 using System.Diagnostics;
-using BrightWire.CUDA.Helper;
+using BrightWire.Cuda.Helper;
 using System.Threading;
 
 namespace BrightWire.LinearAlgebra

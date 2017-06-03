@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 
-namespace BrightWire.CUDA.Helper
+namespace BrightWire.Cuda.Helper
 {
     /// <summary>
     /// A hash set that can be accessed by more than one thread at the same time

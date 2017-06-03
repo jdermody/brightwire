@@ -108,9 +108,9 @@ namespace BrightWire.ExecutionGraph
         }
 
         /// <summary>
-        /// 
+        /// Adds a feed forward layer
         /// </summary>
-        /// <param name="outputSize"></param>
+        /// <param name="outputSize">Number of outgoing connections</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
         public WireBuilder AddFeedForward(int outputSize, string name = null)
@@ -122,9 +122,9 @@ namespace BrightWire.ExecutionGraph
         }
 
         /// <summary>
-        /// 
+        /// Adds a feed forward layer whose weights are tied to a previous layer
         /// </summary>
-        /// <param name="layer"></param>
+        /// <param name="layer">The layer whose weights are tied</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
         public WireBuilder AddTiedFeedForward(IFeedForward layer, string name = null)
@@ -135,9 +135,9 @@ namespace BrightWire.ExecutionGraph
         }
 
         /// <summary>
-        /// 
+        /// Adds a drop out layer
         /// </summary>
-        /// <param name="dropOutPercentage"></param>
+        /// <param name="dropOutPercentage">Percentage of connections to drop</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
         public WireBuilder AddDropOut(float dropOutPercentage, string name = null)
@@ -149,8 +149,8 @@ namespace BrightWire.ExecutionGraph
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="dropOutPercentage"></param>
-        /// <param name="outputSize"></param>
+        /// <param name="dropOutPercentage">Percentage of connections to drop</param>
+        /// <param name="outputSize">Number of outgoing connections</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
         public WireBuilder AddDropConnect(float dropOutPercentage, int outputSize, string name = null)
@@ -160,6 +160,10 @@ namespace BrightWire.ExecutionGraph
             return this;
         }
 
+        /// <summary>
+        /// Adds a node
+        /// </summary>
+        /// <returns></returns>
         public WireBuilder Add(INode node)
         {
             _SetNode(node);
@@ -167,9 +171,9 @@ namespace BrightWire.ExecutionGraph
         }
 
         /// <summary>
-        /// 
+        /// Adds an action that will be executed in the forward pass
         /// </summary>
-        /// <param name="action"></param>
+        /// <param name="action">Action to execute</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
         public WireBuilder AddForwardAction(IAction action, string name = null)
@@ -179,9 +183,9 @@ namespace BrightWire.ExecutionGraph
         }
 
         /// <summary>
-        /// 
+        /// Adds an action that will be executed in the backward pass
         /// </summary>
-        /// <param name="action"></param>
+        /// <param name="action">Action to execute</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
         public WireBuilder AddBackwardAction(IAction action, string name = null)
@@ -191,10 +195,10 @@ namespace BrightWire.ExecutionGraph
         }
 
         /// <summary>
-        /// 
+        /// Adds a simple recurrent neural network layer
         /// </summary>
-        /// <param name="activation"></param>
-        /// <param name="initialMemory"></param>
+        /// <param name="activation">Activation layer</param>
+        /// <param name="initialMemory">Initial memory</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
         public WireBuilder AddSimpleRecurrent(INode activation, float[] initialMemory, string name = null)
@@ -205,11 +209,11 @@ namespace BrightWire.ExecutionGraph
         }
 
         /// <summary>
-        /// 
+        /// Adds an Elman recurrent neural network layer
         /// </summary>
-        /// <param name="activation"></param>
-        /// <param name="activation2"></param>
-        /// <param name="initialMemory"></param>
+        /// <param name="activation">First activation layer</param>
+        /// <param name="activation2">Second activation layer</param>
+        /// <param name="initialMemory">Initial memory</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
         public WireBuilder AddElman(INode activation, INode activation2, float[] initialMemory, string name = null)
@@ -220,11 +224,11 @@ namespace BrightWire.ExecutionGraph
         }
 
         /// <summary>
-        /// 
+        /// Adds a Jordan recurrent neural network layer
         /// </summary>
-        /// <param name="activation"></param>
-        /// <param name="activation2"></param>
-        /// <param name="initialMemory"></param>
+        /// <param name="activation">First activation layer</param>
+        /// <param name="activation2">Second activation layer</param>
+        /// <param name="initialMemory">Initial memory</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
         public WireBuilder AddJordan(INode activation, INode activation2, float[] initialMemory, string name = null)
@@ -235,9 +239,9 @@ namespace BrightWire.ExecutionGraph
         }
 
         /// <summary>
-        /// 
+        /// Adds a gated recurrent unit recurrent neural network layer
         /// </summary>
-        /// <param name="initialMemory"></param>
+        /// <param name="initialMemory">Initial memory</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
         public WireBuilder AddGru(float[] initialMemory, string name = null)
@@ -248,9 +252,9 @@ namespace BrightWire.ExecutionGraph
         }
 
         /// <summary>
-        /// 
+        /// Adds a long short term memory recurrent neural network layer
         /// </summary>
-        /// <param name="initialMemory"></param>
+        /// <param name="initialMemory">Initial memory</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
         public WireBuilder AddLstm(float[] initialMemory, string name = null)
@@ -261,7 +265,7 @@ namespace BrightWire.ExecutionGraph
         }
 
         /// <summary>
-        /// 
+        /// Adds a node that will reverse the sequence (for bidirectional recurrent neural networks)
         /// </summary>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
@@ -272,11 +276,11 @@ namespace BrightWire.ExecutionGraph
         }
 
         /// <summary>
-        /// 
+        /// Adds a max pooling convolutional layer
         /// </summary>
-        /// <param name="filterWidth"></param>
-        /// <param name="filterHeight"></param>
-        /// <param name="stride"></param>
+        /// <param name="filterWidth">Width of max pooliing filter</param>
+        /// <param name="filterHeight">Height of max pooling filter</param>
+        /// <param name="stride">Filter stride</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
         public WireBuilder AddMaxPooling(int filterWidth, int filterHeight, int stride, string name = null)
@@ -290,14 +294,14 @@ namespace BrightWire.ExecutionGraph
         }
 
         /// <summary>
-        /// 
+        /// Adds a convolutional layer
         /// </summary>
-        /// <param name="filterCount"></param>
-        /// <param name="padding"></param>
-        /// <param name="filterWidth"></param>
-        /// <param name="filterHeight"></param>
-        /// <param name="stride"></param>
-        /// <param name="shouldBackpropagate"></param>
+        /// <param name="filterCount">Number of filters in the layer</param>
+        /// <param name="padding">Padding to add before applying the convolutions</param>
+        /// <param name="filterWidth">Width of each filter</param>
+        /// <param name="filterHeight">Height of each filter</param>
+        /// <param name="stride">Filter stride</param>
+        /// <param name="shouldBackpropagate">True to calculate a backpropagation signal</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
         public WireBuilder AddConvolutional(int filterCount, int padding, int filterWidth, int filterHeight, int stride, bool shouldBackpropagate = true, string name = null)
@@ -312,7 +316,7 @@ namespace BrightWire.ExecutionGraph
         }
 
         /// <summary>
-        /// 
+        /// Transposes the graph signal to move between convolutional and non-convolutional layers
         /// </summary>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
@@ -323,9 +327,9 @@ namespace BrightWire.ExecutionGraph
         }
 
         /// <summary>
-        /// 
+        /// Adds backpropagation - when executed an error signal will be calculated and flow backwards to previous nodes
         /// </summary>
-        /// <param name="errorMetric"></param>
+        /// <param name="errorMetric">Error metric to calculate the error signal</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
         public WireBuilder AddBackpropagation(IErrorMetric errorMetric, string name = null)
@@ -335,9 +339,9 @@ namespace BrightWire.ExecutionGraph
         }
 
         /// <summary>
-        /// 
+        /// Adds backpropagation through time
         /// </summary>
-        /// <param name="errorMetric"></param>
+        /// <param name="errorMetric">Error metric to calculate the error signal</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
         public WireBuilder AddBackpropagationThroughTime(IErrorMetric errorMetric, string name = null)
@@ -347,23 +351,36 @@ namespace BrightWire.ExecutionGraph
         }
 
         /// <summary>
-        /// 
+        /// Constrains the error signal in the forward direction
         /// </summary>
-        /// <param name="min"></param>
-        /// <param name="max"></param>
+        /// <param name="min">Minimum allowed value</param>
+        /// <param name="max">Maximum allowed value</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
-        public WireBuilder ConstrainErrorSignal(float min = -1f, float max = 1f, string name = null)
+        public WireBuilder ConstrainForwardSignal(float min = -1f, float max = 1f, string name = null)
         {
-            AddForwardAction(new ConstrainErrorSignal(min, max), name);
+            AddForwardAction(new ConstrainSignal(min, max), name);
             return this;
         }
 
         /// <summary>
-        /// 
+        /// Constrains the error signal in the backward direction
         /// </summary>
-        /// <param name="slotName"></param>
-        /// <param name="node"></param>
+        /// <param name="min">Minimum allowed value</param>
+        /// <param name="max">Maximum allowed value</param>
+        /// <param name="name">Optional name to give the node</param>
+        /// <returns></returns>
+        public WireBuilder ConstrainBackwardSignal(float min = -1f, float max = 1f, string name = null)
+        {
+            AddBackwardAction(new ConstrainSignal(min, max), name);
+            return this;
+        }
+
+        /// <summary>
+        /// Writes node memory to a named memory slot
+        /// </summary>
+        /// <param name="slotName">Memory slot name</param>
+        /// <param name="node">The node to read</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
         public WireBuilder WriteNodeMemoryToSlot(string slotName, IHaveMemoryNode node, string name = null)
@@ -373,9 +390,9 @@ namespace BrightWire.ExecutionGraph
         }
 
         /// <summary>
-        /// 
+        /// Concatenates the named memory slot with the input signal
         /// </summary>
-        /// <param name="slotName"></param>
+        /// <param name="slotName">Memory slot name</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
         public WireBuilder JoinInputWithMemory(string slotName, string name = null)

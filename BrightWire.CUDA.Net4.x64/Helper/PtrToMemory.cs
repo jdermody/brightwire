@@ -2,7 +2,7 @@
 using ManagedCuda;
 using ManagedCuda.BasicTypes;
 
-namespace BrightWire.CUDA.Helper
+namespace BrightWire.Cuda.Helper
 {
     /// <summary>
     /// A pointer to a block of device memory (the block is owned by another pointer)

@@ -23,6 +23,7 @@ namespace BrightWire.TabularData.Helper
             public ProjectedRow(int index, IReadOnlyList<object> data, RowConverter rowConverter)
             {
                 _data = data;
+                _index = index;
                 _rowConverter = rowConverter;
             }
 
@@ -43,7 +44,6 @@ namespace BrightWire.TabularData.Helper
                 return ret;
             }
         }
-
 
         public DataTableProjector(IRowProcessor destination, IEnumerable<int> columns)
         {

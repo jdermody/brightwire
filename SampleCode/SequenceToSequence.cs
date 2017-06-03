@@ -133,7 +133,7 @@ namespace BrightWire.SampleCode
 
         static void SequenceToSequence()
         {
-            const int SEQUENCE_LENGTH = 5;
+            const int SEQUENCE_LENGTH = 4;
             var grammar = new SequenceClassification(8, SEQUENCE_LENGTH, SEQUENCE_LENGTH, true, false);
             var sequences = grammar.GenerateSequences().Take(1000).ToList();
             var builder = BrightWireProvider.CreateDataTableBuilder();
@@ -188,7 +188,7 @@ namespace BrightWire.SampleCode
                     .AddBackpropagationThroughTime(errorMetric)
                 ;
 
-                engine.Train(100, testData, errorMetric);
+                engine.Train(30, testData, errorMetric);
 
                 var dataSourceModel = (trainingData as IAdaptiveDataSource).GetModel();
                 var testData2 = graph.CreateDataSource(data.Test, dataSourceModel);

@@ -69,8 +69,7 @@ namespace BrightWire
                 Item1 = item1,
                 Item2 = item2
             };
-            List<MarkovModelStateTransition<T>> ret;
-            if (model.TryGetValue(observation, out ret))
+            if (model.TryGetValue(observation, out List<MarkovModelStateTransition<T>> ret))
                 return ret;
             return null;
         }
@@ -91,8 +90,7 @@ namespace BrightWire
                 Item2 = item2,
                 Item3 = item3
             };
-            List<MarkovModelStateTransition<T>> ret;
-            if (model.TryGetValue(observation, out ret))
+            if (model.TryGetValue(observation, out List<MarkovModelStateTransition<T>> ret))
                 return ret;
             return null;
         }
@@ -197,8 +195,7 @@ namespace BrightWire
         /// <summary>
         /// Multinomial naive bayes preserves the count of each feature within the model. Useful for long documents.
         /// </summary>
-        /// <param name="dataTable">The training data table</param>
-        /// <param name="inputColumnIndex">The column index of the IndexList to classify</param>
+        /// <param name="data">The training data table</param>
         /// <returns>A model that can be used for classification</returns>
         public static MultinomialNaiveBayes TrainMultinomialNaiveBayes(this IReadOnlyList<(string Classification, IndexList Data)> data)
         {
@@ -211,8 +208,7 @@ namespace BrightWire
         /// <summary>
         /// Bernoulli naive bayes treats each feature as either 1 or 0 - all feature counts are discarded. Useful for short documents.
         /// </summary>
-        /// <param name="dataTable">The training data table</param>
-        /// <param name="inputColumnIndex">The column index of the IndexList to classify</param>
+        /// <param name="data">The training data table</param>
         /// <returns>A model that can be used for classification</returns>
         public static BernoulliNaiveBayes TrainBernoulliNaiveBayes(this IReadOnlyList<(string Classification, IndexList Data)> data)
         {
@@ -243,6 +239,11 @@ namespace BrightWire
             return new RegressionTrainer(lap, table);
         }
 
+        /// <summary>
+        /// Finds the classification with the highest weight
+        /// </summary>
+        /// <param name="classifications">List of weighted classifications</param>
+        /// <returns></returns>
         public static string GetBestClassification(this IReadOnlyList<(string Label, float Weight)> classifications)
         {
             return classifications.OrderByDescending(c => c.Weight).First().Label;

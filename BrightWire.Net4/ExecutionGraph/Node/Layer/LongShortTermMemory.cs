@@ -69,7 +69,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
         public override void ExecuteForward(IContext context)
         {
-            if (context.BatchSequence.Type == MiniBatchType.SequenceStart)
+            if (context.BatchSequence.Type == MiniBatchSequenceType.SequenceStart)
                 _lastBackpropagation = null;
 
             _start.ExecuteForward(context);

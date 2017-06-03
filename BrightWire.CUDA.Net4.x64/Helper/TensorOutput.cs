@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-namespace BrightWire.CUDA.Helper
+namespace BrightWire.Cuda.Helper
 {
     /// <summary>
     /// Helper class that allocates space for a 4D tensor output from a cuda kernel

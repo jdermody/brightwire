@@ -7,7 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 
-namespace BrightWire.CUDA.Helper
+namespace BrightWire.Cuda.Helper
 {
     /// <summary>
     /// Maintains a cache of available device memory

@@ -73,10 +73,10 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             foreach (var item in outputData.OrderBy(kv => kv.Key)) {
                 var output = _lap.CreateMatrix(item.Value);
                 var type = (item.Key == 0)
-                    ? MiniBatchType.SequenceStart
+                    ? MiniBatchSequenceType.SequenceStart
                     : item.Key == (outputData.Count - 1)
-                        ? MiniBatchType.SequenceEnd
-                        : MiniBatchType.Standard;
+                        ? MiniBatchSequenceType.SequenceEnd
+                        : MiniBatchSequenceType.Standard;
                 miniBatch.Add(type, new MatrixGraphData(curr), new MatrixGraphData(output));
                 curr = output;
             }
