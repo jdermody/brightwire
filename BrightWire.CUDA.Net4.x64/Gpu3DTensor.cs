@@ -165,6 +165,16 @@ namespace BrightWire.LinearAlgebra
             return new GpuMatrix(_cuda, rows, columns, ret);
         }
 
+        public I4DTensor ConvertTo4DTensor(int rows, int columns)
+        {
+            var tensorList = new List<I3DTensor>();
+            for (var i = 0; i < Depth; i++) {
+                var slice = GetMatrixAt(i);
+                tensorList.Add(slice.ConvertTo3DTensor(rows, columns));
+            }
+            return _cuda.Create4DTensor(tensorList);
+        }
+
         public I3DTensor AddPadding(int padding)
         {
             Debug.Assert(IsValid);
@@ -245,6 +255,19 @@ namespace BrightWire.LinearAlgebra
         {
             foreach (var item in _data)
                 item.AddToEachRow(vector);
+        }
+
+        public I3DTensor TransposeThisAndMultiply(I4DTensor tensor)
+        {
+            var other = (Gpu4DTensor)tensor;
+            Debug.Assert(tensor.Count == Depth && IsValid && other.IsValid);
+            var ret = new List<IMatrix>();
+            for (var i = 0; i < tensor.Count; i++) {
+                var multiplyWith = tensor.GetTensorAt(i).ConvertToMatrix();
+                var slice = GetMatrixAt(i);
+                ret.Add(slice.TransposeThisAndMultiply(multiplyWith));
+            }
+            return _cuda.Create3DTensor(ret);
         }
     }
 }

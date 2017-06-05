@@ -15,10 +15,13 @@ namespace BrightWire.ExecutionGraph.GradientDescent
             _momentum = momentum;
         }
 
-        public override void Update(IMatrix source, IMatrix delta, ILearningContext context)
+        public override void Update(IMatrix source, IMatrix delta, ILearningContext context, bool hasAveragedBatchSize)
         {
+            //if (!hasAveragedBatchSize)
+            //    delta.Multiply(1f / context.BatchSize);
+
             _cache.AddInPlace(delta, 1f, _momentum);
-            _updater.Update(source, _cache, context);
+            _updater.Update(source, _cache, context, false);
         }
 
         public override void ReadFrom(GraphFactory factory, BinaryReader reader)

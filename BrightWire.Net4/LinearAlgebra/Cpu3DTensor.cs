@@ -157,6 +157,16 @@ namespace BrightWire.LinearAlgebra
             return new CpuMatrix(ret);
         }
 
+        public I4DTensor ConvertTo4DTensor(int rows, int columns)
+        {
+            var tensorList = new List<I3DTensor>();
+            for (var i = 0; i < Depth; i++) {
+                var slice = GetMatrixAt(i);
+                tensorList.Add(slice.ConvertTo3DTensor(rows, columns));
+            }
+            return new Cpu4DTensor(tensorList);
+        }
+
         public (I3DTensor Result, IReadOnlyList<(object X, object Y)> Index) MaxPool(
             int filterWidth, 
             int filterHeight, 
@@ -362,6 +372,18 @@ namespace BrightWire.LinearAlgebra
         {
             foreach (var item in _data)
                 item.AddToEachRow(vector);
+        }
+
+        public I3DTensor TransposeThisAndMultiply(I4DTensor tensor)
+        {
+            Debug.Assert(tensor.Count == Depth);
+            var ret = new List<IMatrix>();
+            for (var i = 0; i < tensor.Count; i++) {
+                var multiplyWith = tensor.GetTensorAt(i).ConvertToMatrix();
+                var slice = GetMatrixAt(i);
+                ret.Add(slice.TransposeThisAndMultiply(multiplyWith));
+            }
+            return new Cpu3DTensor(ret);
         }
     }
 }

@@ -203,11 +203,11 @@ namespace BrightWire.ExecutionGraph.Node
         }
 
         /// <summary>
-        /// Finds a connected node by name
+        /// Finds a connected node by friendly name
         /// </summary>
-        /// <param name="name">The name to search for</param>
+        /// <param name="name">The node's name to search for</param>
         /// <returns></returns>
-        public INode Find(string name)
+        public INode FindByName(string name)
         {
             var context = new Stack<INode>();
             context.Push(this);
@@ -218,6 +218,27 @@ namespace BrightWire.ExecutionGraph.Node
                     return curr;
 
                 foreach(var next in curr.Output)
+                    context.Push(next.SendTo);
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Finds a connected node by id
+        /// </summary>
+        /// <param name="id">Unique id to find</param>
+        /// <returns></returns>
+        public INode FindById(string id)
+        {
+            var context = new Stack<INode>();
+            context.Push(this);
+
+            while (context.Any()) {
+                var curr = context.Pop();
+                if (curr.Id == id)
+                    return curr;
+
+                foreach (var next in curr.Output)
                     context.Push(next.SendTo);
             }
             return null;
@@ -281,7 +302,17 @@ namespace BrightWire.ExecutionGraph.Node
             Models.ExecutionGraph.Node model;
             using (var buffer = new MemoryStream(reader.ReadBytes(bufferSize)))
                 model = Serializer.Deserialize<Models.ExecutionGraph.Node>(buffer);
-            return factory.Create(model);
+            return factory?.Create(model);
+        }
+
+        /// <summary>
+        /// Loads parameters into an existing node
+        /// </summary>
+        /// <param name="nodeData">Serialised node parameters</param>
+        public virtual void LoadParameters(Models.ExecutionGraph.Node nodeData)
+        {
+            if(nodeData.Data != null)
+                _ReadFrom(nodeData.Data, reader => ReadFrom(null, reader));
         }
     }
 }

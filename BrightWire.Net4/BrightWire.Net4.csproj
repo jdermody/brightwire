@@ -127,7 +127,7 @@
     <Compile Include="ExecutionGraph\Helper\TrainingAction.cs" />
     <Compile Include="ExecutionGraph\Helper\GraphData.cs" />
     <Compile Include="ExecutionGraph\Helper\MiniBatch.cs" />
-    <Compile Include="ExecutionGraph\Helper\SingleBackpropagationBase.cs" />
+    <Compile Include="ExecutionGraph\Node\SingleBackpropagationBase.cs" />
     <Compile Include="ExecutionGraph\Engine\Helper\TrainingEngineContext.cs" />
     <Compile Include="ExecutionGraph\Helper\WireToNode.cs" />
     <Compile Include="ExecutionGraph\DataTableAdaptor\AdaptiveDataTableAdaptorBase.cs" />

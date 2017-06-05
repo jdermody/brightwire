@@ -573,6 +573,19 @@ namespace UnitTests
         }
 
         [TestMethod]
+        public void Tensor3DToTensor4D()
+        {
+            var data = _CreateTensor(12, 3, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1));
+            var tensor = _cpu.Create3DTensor(data);
+            var tensor2 = tensor.ConvertTo4DTensor(3, 4);
+
+            using (var gpuTensor = _cuda.Create3DTensor(tensor.AsIndexable()))
+            using (var gpuTensor2 = gpuTensor.ConvertTo4DTensor(3, 4)) {
+                FloatingPointHelper.AssertEqual(tensor2.AsIndexable(), gpuTensor2.AsIndexable());
+            }
+        }
+
+        [TestMethod]
         public void Tensor4DToMatrix()
         {
             var data = Enumerable.Range(0, 5)

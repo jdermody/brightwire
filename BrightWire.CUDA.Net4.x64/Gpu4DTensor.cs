@@ -148,6 +148,8 @@ namespace BrightWire.LinearAlgebra
             return new TensorInput(_rows, _columns, _subVector.Value.Select(t => t.Select(m => m.Memory).ToArray()).ToList());
         }
 
+        public IMatrix ConvertToMatrix() => _data;
+
         public I3DTensor GetTensorAt(int index)
         {
             var subMatrix = _subVector.Value;
@@ -256,6 +258,18 @@ namespace BrightWire.LinearAlgebra
             return new Gpu3DTensor(_cuda, ret.Rows, ret.Columns, matrixList.Count, matrixList.Cast<GpuMatrix>().ToList());
         }
 
-        public IMatrix ConvertToMatrix() => _data;
+        public IVector ColumnSums()
+        {
+            IVector ret = null;
+            for (var i = 0; i < Count; i++) {
+                var tensorAsMatrix = GetTensorAt(i).ConvertToMatrix();
+                var columnSums = tensorAsMatrix.ColumnSums();
+                if (ret == null)
+                    ret = columnSums;
+                else
+                    ret.AddInPlace(columnSums);
+            }
+            return ret;
+        }
     }
 }

@@ -87,7 +87,7 @@ namespace BrightWire.SampleCode
             //ReberPrediction();
             //OneToMany();
             //ManyToOne();
-            SequenceToSequence();
+            //SequenceToSequence();
         }
     }
 }

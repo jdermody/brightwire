@@ -21,7 +21,7 @@ namespace BrightWire.SampleCode
         /// <param name="dataFilesPath">The path to a directory with the four extracted data files</param>
         public static void MNIST(string dataFilesPath)
         {
-            using (var lap = BrightWireProvider.CreateLinearAlgebra()) {
+            using (var lap = BrightWireGpuProvider.CreateLinearAlgebra()) {
                 var graph = new GraphFactory(lap);
 
                 // use a one hot encoding error metric, rmsprop gradient descent and xavier weight initialisation
@@ -44,7 +44,7 @@ namespace BrightWire.SampleCode
 
                 // create the network
                 graph.Connect(engine)
-                    .AddFeedForward(128)
+                    .AddFeedForward(1024)
                     .Add(graph.LeakyReluActivation())
                     .AddFeedForward(trainingData.OutputSize)
                     .Add(graph.SigmoidActivation())

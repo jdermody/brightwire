@@ -23,20 +23,25 @@ namespace BrightWire
         /// <param name="testData">The test data source to use</param>
         /// <param name="errorMetric">The error metric to evaluate the test data against</param>
         /// <param name="onImprovement">Optional callback for when the test data score has improved against the error metric</param>
-        public static void Train(this IGraphTrainingEngine engine, int numIterations, IDataSource testData, IErrorMetric errorMetric, Action<GraphModel> onImprovement = null)
+        /// <param name="testCadence">Determines how many epochs elapse before the test data is evaluated</param>
+        public static void Train(this IGraphTrainingEngine engine, int numIterations, IDataSource testData, IErrorMetric errorMetric, Action<GraphModel> onImprovement = null, int testCadence = 1)
         {
             var executionContext = new ExecutionContext(engine.LinearAlgebraProvider);
             engine.Test(testData, errorMetric);
             Console.Write("\r({0:P}) ", 0f);
+            int count = 0;
             for (var i = 0; i < numIterations; i++) {
                 engine.Train(executionContext, percentage => Console.Write("\r({0:P}) ", percentage));
-                if (engine.Test(testData, errorMetric) && onImprovement != null) {
-                    var bestModel = new GraphModel {
-                        Graph = engine.Graph
-                    };
-                    if (engine.DataSource is IAdaptiveDataSource adaptiveDataSource)
-                        bestModel.DataSource = adaptiveDataSource.GetModel();
-                    onImprovement(bestModel);
+                if (++count == testCadence) {
+                    if (engine.Test(testData, errorMetric) && onImprovement != null) {
+                        var bestModel = new GraphModel {
+                            Graph = engine.Graph
+                        };
+                        if (engine.DataSource is IAdaptiveDataSource adaptiveDataSource)
+                            bestModel.DataSource = adaptiveDataSource.GetModel();
+                        onImprovement(bestModel);
+                    }
+                    count = 0;
                 }
             }
         }

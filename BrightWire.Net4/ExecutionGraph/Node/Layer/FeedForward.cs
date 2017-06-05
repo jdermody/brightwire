@@ -63,11 +63,6 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         public int InputSize => _inputSize;
         public int OutputSize => _outputSize;
 
-        protected override void _Initalise(GraphFactory factory, string description, byte[] data)
-        {
-            _ReadFrom(data, reader => ReadFrom(factory, reader));
-        }
-
         protected override void _Dispose(bool isDisposing)
         {
             _bias.Dispose();
@@ -76,7 +71,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
         public void UpdateWeights(IMatrix delta, ILearningContext context)
         {
-            _updater.Update(_weight, delta, context);
+            _updater.Update(_weight, delta, context, false);
         }
 
         public void UpdateBias(IMatrix delta, ILearningContext context)
@@ -106,9 +101,14 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             return ("FF", _WriteData(WriteTo));
         }
 
+        protected override void _Initalise(GraphFactory factory, string description, byte[] data)
+        {
+            _ReadFrom(data, reader => ReadFrom(factory, reader));
+        }
+
         public override void ReadFrom(GraphFactory factory, BinaryReader reader)
         {
-            var lap = factory.LinearAlgebraProvider;
+            var lap = factory?.LinearAlgebraProvider;
 
             _inputSize = reader.ReadInt32();
             _outputSize = reader.ReadInt32();

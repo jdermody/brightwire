@@ -9,7 +9,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
     /// <summary>
     /// Executes an action when backpropagating
     /// </summary>
-    class ExecuteBackwardAction : NodeBase
+    class ExecuteBackwardAction : NodeBase, IHaveAction
     {
         class Backpropagation : SingleBackpropagationBase<ExecuteBackwardAction>
         {
@@ -23,6 +23,8 @@ namespace BrightWire.ExecutionGraph.Node.Helper
         IAction _action;
 
         public ExecuteBackwardAction(IAction action, string name = null) : base(name) { _action = action; }
+
+        public IAction Action => _action;
 
         public override void ExecuteForward(IContext context)
         {

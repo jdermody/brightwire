@@ -39,18 +39,9 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 var tensor = errorSignal.GetMatrix().ConvertTo4DTensor(_newHeight, _newWidth, _source._filter.ColumnCount);
                 var padding = _source._padding;
 
-                var weightUpdate = lap.CreateZeroMatrix(_source._filter.RowCount, _source._filter.ColumnCount);
-                var multiplyWithAll = lap.CreateZeroMatrix(_newWidth * _newHeight, _source._filter.ColumnCount);
-                for (var i = 0; i < tensor.Count; i++) {
-                    var multiplyWith = tensor.GetTensorAt(i).ConvertToMatrix();
-                    var im2Col = _im2Col.GetMatrixAt(i);
-                    weightUpdate.AddInPlace(im2Col.TransposeThisAndMultiply(multiplyWith));
-                    multiplyWithAll.AddInPlace(multiplyWith);
-                }
-
-                // calculate the weight and delta updates
-                var biasUpdate = multiplyWithAll.ColumnSums();
-                biasUpdate.Multiply(1f / multiplyWithAll.RowCount);
+                // calculate the weight and bias updates
+                var weightUpdate = _im2Col.TransposeThisAndMultiply(tensor).CombineDepthSlices();
+                var biasUpdate = tensor.ColumnSums();
                 context.LearningContext.StoreUpdate(_source, weightUpdate, err => _source.Update(err, context.LearningContext));
                 context.LearningContext.StoreUpdate(_source, biasUpdate, bu => _UpdateBias(bu, context.LearningContext));
 
@@ -112,7 +103,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
         public void Update(IMatrix delta, ILearningContext context)
         {
-            _updater.Update(_filter, delta, context);
+            _updater.Update(_filter, delta, context, false);
         }
 
         public override void ExecuteForward(IContext context)
@@ -126,30 +117,13 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             var newWidth = ((inputWidth - _filterWidth + (2 * _padding)) / _stride) + 1;
             var newHeight = ((inputHeight - _filterHeight + (2 * _padding)) / _stride) + 1;
 
-            I3DTensor im2Col = null;
-            //if (context.Data.RowId.HasValue)
-            //    im2Col = context.ExecutionContext.GetInputTransfomation(context.Data.RowId.Value);
-            if (im2Col == null) {
-                I4DTensor tensor2;
-                if (_padding > 0)
-                    tensor2 = tensor.AddPadding(_padding);
-                else
-                    tensor2 = tensor;
+            if (_padding > 0)
+                tensor = tensor.AddPadding(_padding);
 
-                im2Col = tensor2.Im2Col(_filterWidth, _filterHeight, _stride);
-                //if (context.Data.RowId.HasValue)
-                //    context.ExecutionContext.SetInputTransformation(context.Data.RowId.Value, im2Col);
-            }
+            var im2Col = tensor.Im2Col(_filterWidth, _filterHeight, _stride);
             var outputSignal = im2Col.Multiply(_filter);
             outputSignal.AddToEachRow(_bias);
-
-            var tensorList = new List<I3DTensor>();
-            for (var i = 0; i < outputSignal.Depth; i++) {
-                var matrixList2 = new List<IMatrix>();
-                var slice = outputSignal.GetMatrixAt(i);
-                tensorList.Add(slice.ConvertTo3DTensor(newHeight, newWidth));
-            }
-            var outputTensor = lap.Create4DTensor(tensorList);
+            var outputTensor = outputSignal.ConvertTo4DTensor(newHeight, newWidth);
 
             var graphData = new Tensor4DGraphData(outputTensor);
             _AddNextGraphAction(context, graphData, () => new Backpropagation(this, im2Col, inputWidth, inputHeight, newWidth, newHeight));
@@ -167,7 +141,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
         public override void ReadFrom(GraphFactory factory, BinaryReader reader)
         {
-            var lap = factory.LinearAlgebraProvider;
+            var lap = factory?.LinearAlgebraProvider;
 
             _padding = reader.ReadInt32();
             _filterWidth = reader.ReadInt32();

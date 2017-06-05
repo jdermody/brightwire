@@ -1,7 +1,7 @@
 ﻿using BrightWire.ExecutionGraph.Node;
 using System.Collections.Generic;
 
-namespace BrightWire.ExecutionGraph.Helper
+namespace BrightWire.ExecutionGraph
 {
     /// <summary>
     /// Base class for nodes that back propagate to a single parent
@@ -17,7 +17,7 @@ namespace BrightWire.ExecutionGraph.Helper
             IGraphData nextError = null;
             if(errorSignal != null)
                 nextError = _Backpropagate(fromNode, errorSignal, context, parents);
-
+            if(nextError != null)
             _SendErrorTo(nextError, context, parents);
         }
 

@@ -16,7 +16,7 @@ namespace BrightWire.SampleCode
     {
         static void MNISTConvolutional(string dataFilesPath)
         {
-            using (var lap = BrightWireGpuProvider.CreateLinearAlgebra(false)) {
+            using (var lap = BrightWireGpuProvider.CreateLinearAlgebra()) {
                 var graph = new GraphFactory(lap);
                 var errorMetric = graph.ErrorMetric.OneHotEncoding;
                 var propertySet = graph.CurrentPropertySet
@@ -33,14 +33,14 @@ namespace BrightWire.SampleCode
                 const int HIDDEN_LAYER_SIZE = 128;
                 var engine = graph.CreateTrainingEngine(trainingData, 0.003f, 32);
                 graph.Connect(engine)
-                    .AddConvolutional(32, 1, 3, 3, 1, false)
-                    .AddMaxPooling(2, 2, 2)
-                    .Add(graph.ReluActivation())
-                    //.AddConvolutional(8, 1, 3, 3, 2)
+                    .AddConvolutional(8, 1, 3, 3, 1, false)
+                    //.AddMaxPooling(2, 2, 2)
                     //.Add(graph.ReluActivation())
+                    .AddConvolutional(12, 1, 3, 3, 2)
+                    .Add(graph.LeakyReluActivation())
                     .Transpose()
                     .AddDropConnect(0.3f, HIDDEN_LAYER_SIZE)
-                    .Add(graph.ReluActivation())
+                    .Add(graph.LeakyReluActivation())
                     .AddFeedForward(trainingData.OutputSize)
                     .Add(graph.SigmoidActivation())
                     .AddBackpropagation(errorMetric)

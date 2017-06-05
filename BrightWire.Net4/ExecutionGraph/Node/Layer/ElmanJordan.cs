@@ -89,9 +89,9 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
         public override void WriteTo(BinaryWriter writer)
         {
-            var Wh = _input.Find("Wh") as FeedForward;
-            var Wy = _input.Find("Wy") as FeedForward;
-            var Uh = _memory.Find("Uh") as FeedForward;
+            var Wh = _input.FindByName("Wh") as FeedForward;
+            var Wy = _input.FindByName("Wy") as FeedForward;
+            var Uh = _memory.FindByName("Uh") as FeedForward;
 
             writer.Write(_isElman);
             writer.Write(_inputSize);
@@ -119,9 +119,9 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             else
                 _memory.Data = memory;
 
-            var Wh = _input.Find("Wh") as INode;
-            var Wy = _input.Find("Wy") as INode;
-            var Uh = _memory.Find("Uh") as INode;
+            var Wh = _input.FindByName("Wh") as INode;
+            var Wy = _input.FindByName("Wy") as INode;
+            var Uh = _memory.FindByName("Uh") as INode;
 
             Wh.ReadFrom(factory, reader);
             Wy.ReadFrom(factory, reader);

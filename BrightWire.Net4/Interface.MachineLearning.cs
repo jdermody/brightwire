@@ -254,7 +254,8 @@ namespace BrightWire
         /// <param name="source">The matrix to update</param>
         /// <param name="delta">The delta matrix</param>
         /// <param name="context">The graph learning context</param>
-        void Update(IMatrix source, IMatrix delta, ILearningContext context);
+        /// <param name="hasAveragedBatchSize">True if the batch size has already been applied to the delta</param>
+        void Update(IMatrix source, IMatrix delta, ILearningContext context, bool hasAveragedBatchSize);
     }
 
     /// <summary>

@@ -64,7 +64,7 @@ namespace UnitTests
             graph.Connect(engine)
                 .AddFeedForward(REDUCED_SIZE, "layer")
                 .Add(graph.TanhActivation())
-                .AddTiedFeedForward(engine.Input.Find("layer") as IFeedForward)
+                .AddTiedFeedForward(engine.Input.FindByName("layer") as IFeedForward)
                 .Add(graph.TanhActivation())
                 .AddBackpropagation(errorMetric)
             ;

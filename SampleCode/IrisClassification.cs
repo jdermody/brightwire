@@ -99,7 +99,7 @@ namespace BrightWire.SampleCode
 
                 // train the network
                 Console.WriteLine("Training a 4x8x3 neural network...");
-                engine.Train(70, testData, errorMetric);
+                engine.Train(100, testData, errorMetric, null, 10);
             }
         }
     }

@@ -124,5 +124,19 @@ namespace BrightWire.LinearAlgebra
             var first = rows.First();
             return new CpuMatrix(DenseMatrix.Create(first.Count, Count, (i, j) => rows[j][i]));
         }
+
+        public IVector ColumnSums()
+        {
+            IVector ret = null;
+            for (var i = 0; i < Count; i++) {
+                var tensorAsMatrix = GetTensorAt(i).ConvertToMatrix();
+                var columnSums = tensorAsMatrix.ColumnSums();
+                if (ret == null)
+                    ret = columnSums;
+                else
+                    ret.AddInPlace(columnSums);
+            }
+            return ret;
+        }
     }
 }

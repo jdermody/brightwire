@@ -79,7 +79,8 @@ namespace BrightWire.ExecutionGraph.Node.Filter
         {
             base.ReadFrom(factory, reader);
             _dropOutPercentage = reader.ReadSingle();
-            _probabilityToDrop = new Bernoulli(_dropOutPercentage);
+            if(_probabilityToDrop == null)
+                _probabilityToDrop = new Bernoulli(_dropOutPercentage);
         }
 
         public override void WriteTo(BinaryWriter writer)

@@ -907,6 +907,13 @@ namespace BrightWire
         IMatrix ConvertToMatrix();
 
         /// <summary>
+        /// Converts the tensor to a 4D tensor (each sub matrix becomes a 3D tensor with the specified rows and columns and depth given by the sub matrix column count)
+        /// </summary>
+        /// <param name="rows">Row count of each 3D tensor</param>
+        /// <param name="columns">Column count of each 3D tensor</param>
+        I4DTensor ConvertTo4DTensor(int rows, int columns);
+
+        /// <summary>
         /// Performs a max pooling operation on the tensor
         /// </summary>
         /// <param name="filterWidth">The pooling filter width</param>
@@ -962,6 +969,12 @@ namespace BrightWire
         /// </summary>
         /// <param name="vector">Vector to add to each row</param>
         void AddToEachRow(IVector vector);
+
+        /// <summary>
+        /// Transpose each sub matrix in the current tensor before multiplying it with each each sub tensor (converted to a matrix)
+        /// </summary>
+        /// <param name="tensor">Tensor to multiply with</param>
+        I3DTensor TransposeThisAndMultiply(I4DTensor tensor);
     }
 
     /// <summary>
@@ -1079,5 +1092,10 @@ namespace BrightWire
         /// Converts the 4D tensor to a matrix in which each column is a 3D tensor in vector form
         /// </summary>
         IMatrix ConvertToMatrix();
+
+        /// <summary>
+        /// Sums the columns of each sub-tensor's sub matrix
+        /// </summary>
+        IVector ColumnSums();
     }
 }

@@ -48,7 +48,7 @@ namespace BrightWire.SampleCode
                 .Select(l => l.Split(SEPARATOR))
                 .Select(s => Tuple.Create(_Tokenise(s[0]), s[1][0] == '1' ? "positive" : "negative"))
                 .Where(d => d.Item1.Any())
-            ).Shuffle(0)/*.Take(500)*/.ToList();
+            ).Shuffle(0).ToList();
             var splitSentimentData = sentimentData.Split();
 
             // build training and test classification bag
@@ -92,21 +92,24 @@ namespace BrightWire.SampleCode
 
                 // train a neural network classifier
                 var neuralNetworkWire = graph.Connect(engine)
-                    .AddFeedForward(512)
+                    .AddFeedForward(512, "layer1")
                     .Add(graph.ReluActivation())
-                    .AddDropOut(0.3f)
-                    .AddFeedForward(trainingData.OutputSize)
-                    .Add(graph.ReluActivation("output-node"))
-                    .AddBackpropagation(errorMetric)
+                    .AddDropOut(0.5f)
+                    .AddFeedForward(trainingData.OutputSize, "layer2")
+                    .Add(graph.ReluActivation())
+                    .AddBackpropagation(errorMetric, "first-network")
                 ;
 
-                // pre train the network
+                // train the network
                 Console.WriteLine("Training neural network classifier...");
-                engine.Train(10, testData, errorMetric);
+                GraphModel bestNetwork = null;
+                engine.Train(10, testData, errorMetric, network => bestNetwork = network);
+                if (bestNetwork != null)
+                    engine.LoadParametersFrom(bestNetwork.Graph);
 
-                // remove the backpropagation action from the graph
-                var firstNeuralNetworkOutput = neuralNetworkWire.Find("output-node");
-                //firstNeuralNetworkOutput.Output.Clear();
+                // stop the backpropagation to the first neural network
+                engine.LearningContext.EnableNodeUpdates(neuralNetworkWire.Find("layer1"), false);
+                engine.LearningContext.EnableNodeUpdates(neuralNetworkWire.Find("layer2"), false);
 
                 var firstClassifierGraph = engine.Graph;
                 var firstClassifier = graph.CreateEngine(firstClassifierGraph);
@@ -124,23 +127,26 @@ namespace BrightWire.SampleCode
                 ;
 
                 // join the bernoulli, multinomial and neural network classification outputs
-                var joined = graph.Join(multinomialWire, graph.Join(bernoulliWire, graph.Connect(trainingData.OutputSize, firstNeuralNetworkOutput)));
+                var firstNetwork = neuralNetworkWire.Find("first-network");
+                var joined = graph.Join(multinomialWire, graph.Join(bernoulliWire, graph.Connect(trainingData.OutputSize, firstNetwork)));
 
                 // train an additional classifier on the output of the previous three classifiers
                 joined
-                    .AddFeedForward(32)
+                    .AddFeedForward(8)
                     .Add(graph.ReluActivation())
-                    .AddDropOut(0.3f)
+                    .AddDropOut(0.5f)
                     .AddFeedForward(trainingData.OutputSize)
-                    .Add(graph.TanhActivation())
+                    .Add(graph.ReluActivation())
                     .AddBackpropagation(errorMetric)
                 ;
 
                 // train the network again
                 Console.WriteLine("Training stacked neural network classifier...");
-                engine.Train(10, testData, errorMetric);
+                GraphModel bestStackedNetwork = null;
+                engine.Train(10, testData, errorMetric, network => bestStackedNetwork = network);
+                if (bestStackedNetwork != null)
+                    engine.LoadParametersFrom(bestStackedNetwork.Graph);
 
-                uint stringIndex;
                 Console.WriteLine("Enter some text to test the classifiers...");
                 while (true) {
                     Console.Write(">");
@@ -151,7 +157,7 @@ namespace BrightWire.SampleCode
                     var tokens = _Tokenise(line);
                     var indexList = new List<uint>();
                     foreach (var token in tokens) {
-                        if (stringTable.TryGetIndex(token, out stringIndex))
+                        if (stringTable.TryGetIndex(token, out uint stringIndex))
                             indexList.Add(stringIndex);
                     }
                     if (indexList.Any()) {

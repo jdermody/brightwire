@@ -13,14 +13,17 @@ namespace BrightWire.ExecutionGraph.GradientDescent
             // nop
         }
 
-        public virtual void Update(IMatrix source, IMatrix delta, ILearningContext context)
+        public virtual void Update(IMatrix source, IMatrix delta, ILearningContext context, bool hasAveragedBatchSize)
         {
-            _Update(source, delta, context, 1f);
+            float coefficient = 1f;
+            //if (!hasAveragedBatchSize)
+            //    coefficient /= context.BatchSize;
+            _Update(source, delta, context, 1f, coefficient);
         }
 
-        protected void _Update(IMatrix source, IMatrix delta, ILearningContext context, float coefficient)
+        protected void _Update(IMatrix source, IMatrix delta, ILearningContext context, float coefficient1, float coefficient2)
         {
-            source.AddInPlace(delta, coefficient, context.LearningRate);
+            source.AddInPlace(delta, coefficient1, context.LearningRate * coefficient2);
         }
 
         public virtual void ReadFrom(GraphFactory factory, BinaryReader reader)

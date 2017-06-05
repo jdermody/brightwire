@@ -408,7 +408,7 @@ namespace BrightWire.ExecutionGraph
         /// <returns></returns>
         public INode Find(string name)
         {
-            return _first.Find(name);
+            return _first.FindByName(name);
         }
 
         /// <summary>

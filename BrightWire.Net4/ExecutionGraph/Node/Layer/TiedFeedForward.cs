@@ -81,8 +81,12 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         {
             _layerId = reader.ReadString();
 
-            var lap = factory.LinearAlgebraProvider;
-            _bias = lap.CreateVector(FloatVector.ReadFrom(reader));
+            var lap = factory?.LinearAlgebraProvider;
+            var bias = FloatVector.ReadFrom(reader);
+            if (_bias == null)
+                _bias = lap.CreateVector(bias);
+            else
+                _bias.Data = bias;
         }
 
         public override void OnDeserialise(IReadOnlyDictionary<string, INode> graph)

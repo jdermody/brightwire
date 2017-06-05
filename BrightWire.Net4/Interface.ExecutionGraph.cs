@@ -131,11 +131,18 @@ namespace BrightWire
         void ExecuteForward(IContext context, int channel);
 
         /// <summary>
-        /// Searches for a node
+        /// Searches for a node by friendly name
         /// </summary>
         /// <param name="name">Friendly name of the node to find</param>
         /// <returns></returns>
-        INode Find(string name);
+        INode FindByName(string name);
+
+        /// <summary>
+        /// Searches for a node by id
+        /// </summary>
+        /// <param name="id">Unique id of the node</param>
+        /// <returns></returns>
+        INode FindById(string id);
 
         /// <summary>
         /// Sub-nodes of the current node
@@ -155,6 +162,12 @@ namespace BrightWire
         /// </summary>
         /// <param name="graph">Dictionary of nodes with their associated unique ids</param>
         void OnDeserialise(IReadOnlyDictionary<string, INode> graph);
+
+        /// <summary>
+        /// Loads parameters into an existing node
+        /// </summary>
+        /// <param name="nodeData">Serialised node parameters</param>
+        void LoadParameters(Models.ExecutionGraph.Node nodeData);
     }
 
     /// <summary>
@@ -585,6 +598,12 @@ namespace BrightWire
         /// Graph learning context
         /// </summary>
         ILearningContext LearningContext { get; }
+
+        /// <summary>
+        /// Loads model parameters into the existing graph
+        /// </summary>
+        /// <param name="graph">Model to load parameters from</param>
+        void LoadParametersFrom(Models.ExecutionGraph graph);
     }
 
     /// <summary>
@@ -629,6 +648,18 @@ namespace BrightWire
         /// <param name="delta">Weight delta matrix</param>
         /// <param name="context">Graph learning context</param>
         void UpdateWeights(IMatrix delta, ILearningContext context);
+    }
+
+
+    /// <summary>
+    /// Node that exposes an action
+    /// </summary>
+    public interface IHaveAction
+    {
+        /// <summary>
+        /// The node's action
+        /// </summary>
+        IAction Action { get; }
     }
 
     /// <summary>

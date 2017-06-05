@@ -14,11 +14,11 @@ namespace BrightWire.ExecutionGraph.GradientDescent
             _lambda = lambda;
         }
 
-        override public void Update(IMatrix source, IMatrix delta, ILearningContext context)
+        override public void Update(IMatrix source, IMatrix delta, ILearningContext context, bool hasAveragedBatchSize)
         {
-            var l1 = context.LearningRate * _lambda / context.RowCount;
+            var l1 = context.LearningRate * _lambda;
             source.L1Regularisation(l1);
-            base.Update(source, delta, context);
+            base.Update(source, delta, context, false);
         }
 
         public override void ReadFrom(GraphFactory factory, BinaryReader reader)

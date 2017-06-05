@@ -205,5 +205,21 @@ namespace BrightWire.ExecutionGraph.Engine
             _lap.PopLayer();
             return ret;
         }
+
+        void _LoadParamaters(Models.ExecutionGraph.Node nodeModel)
+        {
+            var node = _input.FindById(nodeModel.Id);
+            node.LoadParameters(nodeModel);
+        }
+
+        public void LoadParametersFrom(Models.ExecutionGraph graph)
+        {
+            if (graph.InputNode != null)
+                _LoadParamaters(graph.InputNode);
+            if (graph.OtherNodes != null) {
+                foreach (var node in graph.OtherNodes)
+                    _LoadParamaters(node);
+            }
+        }
     }
 }

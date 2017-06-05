@@ -97,14 +97,14 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
         public override void WriteTo(BinaryWriter writer)
         {
-            var Wf = _input.Find("Wf") as FeedForward;
-            var Wi = _input.Find("Wi") as FeedForward;
-            var Wo = _input.Find("Wo") as FeedForward;
-            var Wc = _input.Find("Wc") as FeedForward;
-            var Uf = _memory.Find("Uf") as FeedForward;
-            var Ui = _memory.Find("Ui") as FeedForward;
-            var Uo = _memory.Find("Uo") as FeedForward;
-            var Uc = _memory.Find("Uc") as FeedForward;
+            var Wf = _input.FindByName("Wf") as FeedForward;
+            var Wi = _input.FindByName("Wi") as FeedForward;
+            var Wo = _input.FindByName("Wo") as FeedForward;
+            var Wc = _input.FindByName("Wc") as FeedForward;
+            var Uf = _memory.FindByName("Uf") as FeedForward;
+            var Ui = _memory.FindByName("Ui") as FeedForward;
+            var Uo = _memory.FindByName("Uo") as FeedForward;
+            var Uc = _memory.FindByName("Uc") as FeedForward;
 
             writer.Write(_inputSize);
             writer.Write(_memory.Id);
@@ -132,14 +132,14 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             else
                 _memory.Data = memory;
 
-            var Wf = _input.Find("Wf") as FeedForward;
-            var Wi = _input.Find("Wi") as FeedForward;
-            var Wo = _input.Find("Wo") as FeedForward;
-            var Wc = _input.Find("Wc") as FeedForward;
-            var Uf = _memory.Find("Uf") as FeedForward;
-            var Ui = _memory.Find("Ui") as FeedForward;
-            var Uo = _memory.Find("Uo") as FeedForward;
-            var Uc = _memory.Find("Uc") as FeedForward;
+            var Wf = _input.FindByName("Wf") as FeedForward;
+            var Wi = _input.FindByName("Wi") as FeedForward;
+            var Wo = _input.FindByName("Wo") as FeedForward;
+            var Wc = _input.FindByName("Wc") as FeedForward;
+            var Uf = _memory.FindByName("Uf") as FeedForward;
+            var Ui = _memory.FindByName("Ui") as FeedForward;
+            var Uo = _memory.FindByName("Uo") as FeedForward;
+            var Uc = _memory.FindByName("Uc") as FeedForward;
 
             Wf.ReadFrom(factory, reader);
             Wi.ReadFrom(factory, reader);
