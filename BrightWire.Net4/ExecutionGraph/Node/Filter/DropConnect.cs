@@ -7,7 +7,7 @@ using System.IO;
 namespace BrightWire.ExecutionGraph.Node.Filter
 {
     /// <summary>
-    /// Drop connect regularisation
+    /// Drop connect (inverted) regularisation
     /// http://cs.nyu.edu/~wanli/dropc/
     /// </summary>
     class DropConnect : FeedForward
@@ -44,11 +44,11 @@ namespace BrightWire.ExecutionGraph.Node.Filter
         float _dropOutPercentage;
         Bernoulli _probabilityToDrop;
 
-        public DropConnect(float dropOutPercentage, int inputSize, int outputSize, IVector bias, IMatrix weight, IGradientDescentOptimisation updater, string name = null) 
+        public DropConnect(float dropOutPercentage, int inputSize, int outputSize, IVector bias, IMatrix weight, bool stochastic, IGradientDescentOptimisation updater, string name = null) 
             : base(inputSize, outputSize, bias, weight, updater, name)
         {
             _dropOutPercentage = dropOutPercentage;
-            _probabilityToDrop = new Bernoulli(_dropOutPercentage);
+            _probabilityToDrop = stochastic ? new Bernoulli(_dropOutPercentage) : new Bernoulli(_dropOutPercentage, new System.Random(0));
         }
 
         public override void ExecuteForward(IContext context)
@@ -57,17 +57,12 @@ namespace BrightWire.ExecutionGraph.Node.Filter
                 var lap = context.LinearAlgebraProvider;
                 var input = context.Data;
                 var inputMatrix = input.GetMatrix();
-                var filter = lap.CreateMatrix(Weight.RowCount, Weight.ColumnCount, (i, j) => _probabilityToDrop.Sample() == 1 ? 0f : 1f);
+                var filter = lap.CreateMatrix(Weight.RowCount, Weight.ColumnCount, (i, j) => _probabilityToDrop.Sample() == 1 ? 0f : 1f / _dropOutPercentage);
                 var filteredWeights = Weight.PointwiseMultiply(filter);
                 var output = _FeedForward(inputMatrix, filteredWeights);
                 _AddNextGraphAction(context, input.ReplaceWith(output), () => new Backpropagation(this, inputMatrix, filter, filteredWeights));
-            } else {
-                // otherwise scale by the drop out percentage
-                var scaleFactor = 1 - _dropOutPercentage;
-                var matrix = context.Data.GetMatrix();
-                matrix.Multiply(scaleFactor);
+            } else
                 base.ExecuteForward(context);
-            }
         }
 
         protected override (string Description, byte[] Data) _GetInfo()

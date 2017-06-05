@@ -6,7 +6,7 @@ using System.IO;
 namespace BrightWire.ExecutionGraph.Node.Filter
 {
     /// <summary>
-    /// Drop out regularisation
+    /// Drop out (inverted) regularisation
     /// https://en.wikipedia.org/wiki/Dropout_(neural_networks)
     /// </summary>
     class DropOut : NodeBase
@@ -29,10 +29,10 @@ namespace BrightWire.ExecutionGraph.Node.Filter
         float _dropOutPercentage;
         Bernoulli _probabilityToDrop;
 
-        public DropOut(float dropOutPercentage, string name = null) : base(name)
+        public DropOut(float dropOutPercentage, bool stochastic, string name = null) : base(name)
         {
             _dropOutPercentage = dropOutPercentage;
-            _probabilityToDrop = new Bernoulli(_dropOutPercentage);
+            _probabilityToDrop = stochastic ? new Bernoulli(_dropOutPercentage) : new Bernoulli(_dropOutPercentage, new System.Random(0));
         }
 
         public override void ExecuteForward(IContext context)
@@ -41,16 +41,11 @@ namespace BrightWire.ExecutionGraph.Node.Filter
                 // drop out random neurons during training
                 var lap = context.LinearAlgebraProvider;
                 var matrix = context.Data.GetMatrix();
-                var filter = lap.CreateMatrix(matrix.RowCount, matrix.ColumnCount, (i, j) => _probabilityToDrop.Sample() == 1 ? 0f : 1f);
+                var filter = lap.CreateMatrix(matrix.RowCount, matrix.ColumnCount, (i, j) => _probabilityToDrop.Sample() == 1 ? 0f : 1f / _dropOutPercentage);
                 var output = matrix.PointwiseMultiply(filter);
                 _AddNextGraphAction(context, context.Data.ReplaceWith(output), () => new Backpropagation(this, filter));
-            } else {
-                // otherwise scale by the drop out percentage
-                var scaleFactor = 1 - _dropOutPercentage;
-                var matrix = context.Data.GetMatrix();
-                matrix.Multiply(scaleFactor);
+            } else
                 _AddNextGraphAction(context, context.Data, null);
-            }
         }
 
         protected override void _Initalise(GraphFactory factory, string description, byte[] data)

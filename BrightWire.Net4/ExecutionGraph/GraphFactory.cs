@@ -368,7 +368,7 @@ namespace BrightWire.ExecutionGraph
             // get the gradient descent optimisations
             var optimisation = CreateWeightUpdater(weight);
 
-            return new DropConnect(dropoutPercentage, inputSize, outputSize, bias, weight, optimisation, name);
+            return new DropConnect(dropoutPercentage, inputSize, outputSize, bias, weight, _lap.IsStochastic, optimisation, name);
         }
 
         /// <summary>
@@ -507,7 +507,7 @@ namespace BrightWire.ExecutionGraph
         /// <returns></returns>
         public INode CreateDropOut(float dropoutPercentage, string name = null)
         {
-            return new DropOut(dropoutPercentage, name);
+            return new DropOut(dropoutPercentage, _lap.IsStochastic, name);
         }
 
         /// <summary>
