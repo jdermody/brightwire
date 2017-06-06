@@ -15,11 +15,15 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 
         public SequentialDataTableAdaptor(ILinearAlgebraProvider lap, IDataTable dataTable) : base(lap, dataTable)
         {
+            if (_dataColumnIndex.Count() > 1)
+                throw new NotImplementedException("Sequential datasets not supported with more than one input data column");
+
             _rowDepth = new int[dataTable.RowCount];
+
             FloatMatrix inputMatrix = null, outputMatrix = null;
             dataTable.ForEach((row, i) => {
-                inputMatrix = row.GetField<FloatMatrix>(0);
-                outputMatrix = row.GetField<FloatMatrix>(1);
+                inputMatrix = row.GetField<FloatMatrix>(_dataColumnIndex[0]);
+                outputMatrix = row.GetField<FloatMatrix>(_dataTargetIndex);
                 _rowDepth[i] = inputMatrix.RowCount;
                 if (outputMatrix.RowCount != inputMatrix.RowCount)
                     throw new ArgumentException("Rows between input and output data tables do not match");

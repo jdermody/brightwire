@@ -1,4 +1,4 @@
-﻿using BrightWire.Descriptor.GradientDescent;
+﻿using BrightWire.Descriptor;
 using BrightWire.ExecutionGraph.Activation;
 using BrightWire.ExecutionGraph.DataSource;
 using BrightWire.ExecutionGraph.DataTableAdaptor;
@@ -112,9 +112,11 @@ namespace BrightWire.ExecutionGraph
             var ret = propertySet.GradientDescent;
 
             // look for a descriptor
-            var createGradientDescent = propertySet.GradientDescentDescriptor;
-            if (createGradientDescent != null)
-                ret = createGradientDescent.Create(propertySet);
+            if (ret == null) {
+                var createGradientDescent = propertySet.GradientDescentDescriptor;
+                if (createGradientDescent != null)
+                    ret = createGradientDescent.Create(propertySet);
+            }
 
             // look for a template based descriptor
             var createTemplateGradientDescent = propertySet.TemplateGradientDescentDescriptor;
@@ -235,36 +237,41 @@ namespace BrightWire.ExecutionGraph
         public IDataSource CreateDataSource(IDataTable dataTable, IDataTableVectoriser vectoriser = null)
         {
             var columns = dataTable.Columns;
-            if (columns.Count == 2) {
-                var column1 = columns[0].Type;
-                var column2 = columns[1].Type;
+            var dataColumnTypes = columns
+                .Where((c, i) => i != dataTable.TargetColumnIndex)
+                .Select(c => c.Type)
+                .ToList()
+            ;
+            var targetColumnType = columns[dataTable.TargetColumnIndex].Type;
+            var firstDataColumnType = dataColumnTypes.FirstOrDefault();
 
+            if (firstDataColumnType != ColumnType.Null && dataColumnTypes.All(ct => ct == firstDataColumnType)) {
                 // many to many
-                if (column1 == ColumnType.Matrix && column2 == ColumnType.Matrix)
+                if (firstDataColumnType == ColumnType.Matrix && targetColumnType == ColumnType.Matrix)
                     return new SequentialDataTableAdaptor(_lap, dataTable);
 
                 // one to one
-                else if (column1 == ColumnType.Vector && column2 == ColumnType.Vector)
+                else if (firstDataColumnType == ColumnType.Vector && targetColumnType == ColumnType.Vector)
                     return new VectorBasedDataTableAdaptor(_lap, dataTable);
 
                 // one to many
-                else if (column1 == ColumnType.Vector && column2 == ColumnType.Matrix)
+                else if (firstDataColumnType == ColumnType.Vector && targetColumnType == ColumnType.Matrix)
                     return new OneToManyDataTableAdaptor(_lap, dataTable);
 
                 // many to one
-                else if (column1 == ColumnType.Matrix && column2 == ColumnType.Vector)
+                else if (firstDataColumnType == ColumnType.Matrix && targetColumnType == ColumnType.Vector)
                     return new ManyToOneDataTableAdaptor(_lap, dataTable);
 
                 // volume classification
-                else if (column1 == ColumnType.Tensor && column2 == ColumnType.Vector)
+                else if (firstDataColumnType == ColumnType.Tensor && targetColumnType == ColumnType.Vector)
                     return new TensorBasedDataTableAdaptor(_lap, dataTable);
 
                 // index list
-                else if (column1 == ColumnType.IndexList)
+                else if (firstDataColumnType == ColumnType.IndexList)
                     return new IndexListDataTableAdaptor(_lap, dataTable, vectoriser);
 
                 // weighted index list
-                else if (column1 == ColumnType.WeightedIndexList)
+                else if (firstDataColumnType == ColumnType.WeightedIndexList)
                     return new WeightedIndexListDataTableAdaptor(_lap, dataTable, vectoriser);
             }
             
@@ -515,8 +522,9 @@ namespace BrightWire.ExecutionGraph
         /// Builds a new wire from the engine's input node
         /// </summary>
         /// <param name="engine">Graph engine to build with</param>
+        /// <param name="inputIndex">Input index to connect to</param>
         /// <returns></returns>
-        public WireBuilder Connect(IGraphTrainingEngine engine)
+        public WireBuilder Connect(IGraphTrainingEngine engine, int inputIndex = 0)
         {
             return new WireBuilder(this, engine);
         }
@@ -628,6 +636,17 @@ namespace BrightWire.ExecutionGraph
             input2.LastNode.Output.Add(wireToSecondary);
 
             return new WireBuilder(this, input1.CurrentSize + input2.CurrentSize, ret);
+        }
+
+        /// <summary>
+        /// Wraps an existing node, enabling that node to be used at multiple locations in the same graph
+        /// </summary>
+        /// <param name="nodeToWrap">Node to wrap</param>
+        /// <param name="name">Optional name to give the wrapping node</param>
+        /// <returns></returns>
+        public INode CreateWrapper(INode nodeToWrap, string name = null)
+        {
+            return new NodeWrapper(nodeToWrap, name);
         }
 
         /// <summary>

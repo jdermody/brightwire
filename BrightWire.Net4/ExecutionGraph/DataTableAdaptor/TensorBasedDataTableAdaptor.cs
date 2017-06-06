@@ -17,8 +17,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             : base(lap, dataTable)
         {
             var firstRow = dataTable.GetRow(0);
-            var input = (FloatTensor)firstRow.Data[0];
-            var output = (FloatVector)firstRow.Data[1];
+            var input = (FloatTensor)firstRow.Data[_dataColumnIndex[0]];
+            var output = (FloatVector)firstRow.Data[_dataTargetIndex];
             _outputSize = output.Size;
             _inputSize = input.Size;
             _rows = input.RowCount;
@@ -51,15 +51,17 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         public override IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<int> rows)
         {
             var data = _GetRows(rows)
-                .Select(r => (((FloatTensor)r.Data[0]).GetAsRaw(), ((FloatVector)r.Data[1]).Data))
+                .Select(r => (_dataColumnIndex.Select(i => ((FloatTensor)r.Data[i]).GetAsRaw()).ToList(), ((FloatVector)r.Data[_dataTargetIndex]).Data))
                 .ToList()
             ;
-            var input = _lap.CreateMatrix(InputSize, data.Count, (x, y) => data[y].Item1[x]);
+            var inputList = new List<IGraphData>();
+            for (var i = 0; i < _dataColumnIndex.Length; i++) {
+                var input = _lap.CreateMatrix(InputSize, data.Count, (x, y) => data[y].Item1[i][x]);
+                var tensor = new Tensor4DGraphData(input, _rows, _columns, _depth);
+                inputList.Add(tensor);
+            }
             var output = OutputSize > 0 ? _lap.CreateMatrix(data.Count, OutputSize, (x, y) => data[x].Item2[y]) : null;
-            var tensor = new Tensor4DGraphData(input, _rows, _columns, _depth);
-            var inputList = new List<IGraphData> {
-                tensor
-            };
+            
             return new MiniBatch(rows, this, inputList, new MatrixGraphData(output));
         }
     }

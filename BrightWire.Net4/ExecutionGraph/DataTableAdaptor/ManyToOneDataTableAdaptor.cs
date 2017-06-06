@@ -17,12 +17,15 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         public ManyToOneDataTableAdaptor(ILinearAlgebraProvider lap, IDataTable dataTable) 
             : base(lap, dataTable)
         {
+            if (_dataColumnIndex.Count() > 1)
+                throw new NotImplementedException("Sequential datasets not supported with more than one input data column");
+
             _rowDepth = new int[dataTable.RowCount];
             FloatMatrix inputMatrix = null;
             FloatVector outputVector = null;
             dataTable.ForEach((row, i) => {
-                inputMatrix = row.GetField<FloatMatrix>(0);
-                outputVector = row.GetField<FloatVector>(1);
+                inputMatrix = row.GetField<FloatMatrix>(_dataColumnIndex[0]);
+                outputVector = row.GetField<FloatVector>(_dataTargetIndex);
                 _rowDepth[i] = inputMatrix.RowCount;
                 if (inputMatrix.ColumnCount != outputVector.Size)
                     throw new ArgumentException("Rows between input and output data tables do not match");
@@ -54,7 +57,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         public override IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<int> rows)
         {
             var data = _GetRows(rows)
-                .Select(r => ((FloatMatrix)r.Data[0], (FloatVector)r.Data[1]))
+                .Select(r => ((FloatMatrix)r.Data[_dataColumnIndex[0]], (FloatVector)r.Data[_dataTargetIndex]))
                 .ToList()
             ;
             var inputData = new Dictionary<int, List<FloatVector>>();

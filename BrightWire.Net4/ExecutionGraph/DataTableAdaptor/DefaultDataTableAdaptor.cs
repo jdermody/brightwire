@@ -33,7 +33,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         public override IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<int> rows)
         {
             var data = _GetRows(rows)
-                .Select(r => (Encode(r), _vectoriser.GetOutput(r).Data))
+                .Select(r => (new[] { Encode(r) }, _vectoriser.GetOutput(r).Data))
                 .ToList()
             ;
             return _GetMiniBatch(rows, data);

@@ -2,6 +2,7 @@
 using System.Linq;
 using BrightWire.Models;
 using BrightWire.ExecutionGraph.Helper;
+using System.Diagnostics;
 
 namespace BrightWire.ExecutionGraph.DataTableAdaptor
 {
@@ -11,12 +12,16 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
     /// <typeparam name="T">The type of the cached data</typeparam>
     abstract class DataTableAdaptorBase<T> : IDataSource
     {
+        protected readonly int[] _dataColumnIndex;
+        protected readonly int _dataTargetIndex;
         protected readonly ILinearAlgebraProvider _lap;
         protected readonly List<T> _data = new List<T>();
 
         public DataTableAdaptorBase(ILinearAlgebraProvider lap, IDataTable dataTable)
         {
             _lap = lap;
+            _dataTargetIndex = dataTable.TargetColumnIndex;
+            _dataColumnIndex = Enumerable.Range(0, dataTable.ColumnCount).Where(ci => ci != _dataTargetIndex).ToArray();
         }
 
         public int InputCount => 1;
@@ -45,13 +50,13 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             return rows.Select(i => _data[i]).ToList();
         }
 
-        protected IMiniBatch _GetMiniBatch(IReadOnlyList<int> rows, IReadOnlyList<(float[], float[])> data)
+        protected IMiniBatch _GetMiniBatch(IReadOnlyList<int> rows, IReadOnlyList<(float[][], float[])> data)
         {
-            var input = _lap.CreateMatrix(data.Count, InputSize, (x, y) => data[x].Item1[y]);
+            var inputList = new List<IGraphData>();
+            for (int i = 0, len = data.First().Item1.Length; i < len; i++)
+                inputList.Add(new MatrixGraphData(_lap.CreateMatrix(data.Count, InputSize, (x, y) => data[x].Item1[i][y])));
+
             var output = OutputSize > 0 ? _lap.CreateMatrix(data.Count, OutputSize, (x, y) => data[x].Item2[y]) : null;
-            var inputList = new List<IGraphData> {
-                new MatrixGraphData(input)
-            };
             return new MiniBatch(rows, this, inputList, new MatrixGraphData(output));
         }
 
