@@ -101,11 +101,6 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             return ("FF", _WriteData(WriteTo));
         }
 
-        protected override void _Initalise(GraphFactory factory, string description, byte[] data)
-        {
-            _ReadFrom(data, reader => ReadFrom(factory, reader));
-        }
-
         public override void ReadFrom(GraphFactory factory, BinaryReader reader)
         {
             var lap = factory?.LinearAlgebraProvider;

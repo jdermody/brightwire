@@ -25,6 +25,7 @@ namespace BrightWire.ExecutionGraph.DataSource
             _outputSize = -1;
         }
 
+        public int InputCount => 1;
         public bool IsSequential => false;
         public int InputSize => _inputSize;
         public int OutputSize => _outputSize;
@@ -34,7 +35,10 @@ namespace BrightWire.ExecutionGraph.DataSource
         {
             var data = rows.Select(i => _data[i]).ToList();
             var input = _lap.CreateMatrix(data.Count, InputSize, (x, y) => data[x].Data[y]);
-            return new MiniBatch(rows, this, new MatrixGraphData(input), null);
+            var inputList = new List<IGraphData> {
+                new MatrixGraphData(input)
+            };
+            return new MiniBatch(rows, this, inputList, null);
         }
 
         public IReadOnlyList<IReadOnlyList<int>> GetBuckets()

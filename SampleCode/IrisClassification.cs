@@ -77,7 +77,7 @@ namespace BrightWire.SampleCode
                 // the default data table -> vector conversion uses one hot encoding of the classification labels, so create a corresponding cost function
                 var errorMetric = graph.ErrorMetric.OneHotEncoding;
 
-                // create the property set (use adam gradient descent optimisation)
+                // create the property set (use rmsprop gradient descent optimisation)
                 graph.CurrentPropertySet
                     .Use(graph.RmsProp())
                 ;
@@ -88,10 +88,11 @@ namespace BrightWire.SampleCode
 
                 // create a 4x3x3 neural network with sigmoid activations after each neural network
                 const int HIDDEN_LAYER_SIZE = 8;
-                var engine = graph.CreateTrainingEngine(trainingData, 0.1f, 8);
+                var engine = graph.CreateTrainingEngine(trainingData, 0.01f, 8);
                 graph.Connect(engine)
                     .AddFeedForward(HIDDEN_LAYER_SIZE)
-                    .Add(graph.TanhActivation())
+                    .Add(graph.ReluActivation())
+                    .AddDropOut(0.5f)
                     .AddFeedForward(engine.DataSource.OutputSize)
                     .Add(graph.SigmoidActivation())
                     .AddBackpropagation(errorMetric)
@@ -99,7 +100,7 @@ namespace BrightWire.SampleCode
 
                 // train the network
                 Console.WriteLine("Training a 4x8x3 neural network...");
-                engine.Train(100, testData, errorMetric, null, 10);
+                engine.Train(500, testData, errorMetric, null, 50);
             }
         }
     }

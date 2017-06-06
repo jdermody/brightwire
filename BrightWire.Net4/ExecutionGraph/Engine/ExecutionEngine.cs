@@ -17,19 +17,19 @@ namespace BrightWire.ExecutionGraph.Engine
         readonly List<(ExecutionEngineContext Context, IMatrix Data)> _executionResults = new List<(ExecutionEngineContext, IMatrix)>();
         readonly ILinearAlgebraProvider _lap;
         IDataSource _dataSource = null;
-        readonly INode _input;
+        readonly INode _start;
 
-        public ExecutionEngine(ILinearAlgebraProvider lap, Models.ExecutionGraph graph, INode input)
+        public ExecutionEngine(ILinearAlgebraProvider lap, Models.ExecutionGraph graph, INode start)
         {
             _lap = lap;
             _graph = graph;
-            _input = input;
+            _start = start;
         }
 
+        public INode Start => _start;
         public Models.ExecutionGraph Graph => _graph;
         public IDataSource DataSource => _dataSource;
         public ILinearAlgebraProvider LinearAlgebraProvider => _lap;
-        public INode Input => _input;
 
         public IReadOnlyList<ExecutionResult> Execute(IDataSource dataSource, int batchSize = 128)
         {
@@ -91,7 +91,7 @@ namespace BrightWire.ExecutionGraph.Engine
                 IMiniBatchSequence curr = null;
                 while ((curr = batch.GetNextSequence()) != null) {
                     var context = new ExecutionEngineContext(executionContext, curr);
-                    _input.ExecuteForward(context, 0);
+                    _start.ExecuteForward(context, 0);
                     while (context.HasNext)
                         context.ExecuteNext();
                     _executionResults.Add((context, context.Data.GetMatrix()));
@@ -99,7 +99,7 @@ namespace BrightWire.ExecutionGraph.Engine
                 }
             } else {
                 var context = new ExecutionEngineContext(executionContext, batch.CurrentSequence);
-                _input.ExecuteForward(context, 0);
+                _start.ExecuteForward(context, 0);
 
                 while (context.HasNext)
                     context.ExecuteNext();

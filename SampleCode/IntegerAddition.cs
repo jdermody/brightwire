@@ -24,21 +24,20 @@ namespace BrightWire.SampleCode
         {
             // generate 1000 random integer additions (split into training and test sets)
             var data = BinaryIntegers.Addition(1000, false).Split(0);
-            using (var lap = BrightWireProvider.CreateLinearAlgebra(false)) {
+            using (var lap = BrightWireProvider.CreateLinearAlgebra()) {
                 var graph = new GraphFactory(lap);
                 var errorMetric = graph.ErrorMetric.BinaryClassification;
 
                 // modify the property set
                 var propertySet = graph.CurrentPropertySet
-                    .Use(graph.L2(0.5f))
-                    .Use(graph.GradientDescent.Adam)
+                    .Use(graph.GradientDescent.RmsProp)
                     .Use(graph.WeightInitialisation.Xavier)
                 ;
 
                 // create the engine
                 var trainingData = graph.CreateDataSource(data.Training);
                 var testData = trainingData.CloneWith(data.Test);
-                var engine = graph.CreateTrainingEngine(trainingData, 0.0002f, 16);
+                var engine = graph.CreateTrainingEngine(trainingData, 0.0002f, 8);
 
                 // build the network
                 const int HIDDEN_LAYER_SIZE = 32;
@@ -66,7 +65,7 @@ namespace BrightWire.SampleCode
                     var target = new FloatVector[32];
                     var output = new FloatVector[32];
                     for(var j = 0; j < 32; j++) {
-                        input[j] = results[j].Input[i];
+                        input[j] = results[j].Input[0][i];
                         target[j] = results[j].Target[i];
                         output[j] = results[j].Output[i];
                     }

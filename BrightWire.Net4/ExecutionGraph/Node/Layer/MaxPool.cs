@@ -51,11 +51,6 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             _AddNextGraphAction(context, graphData, () => new Backpropagation(this, index, tensor.ColumnCount, tensor.RowCount, output.ColumnCount, output.RowCount, output.Depth));
         }
 
-        protected override void _Initalise(GraphFactory factory, string description, byte[] data)
-        {
-            _ReadFrom(data, reader => ReadFrom(factory, reader));
-        }
-
         protected override (string Description, byte[] Data) _GetInfo()
         {
             return ("MAX", _WriteData(WriteTo));

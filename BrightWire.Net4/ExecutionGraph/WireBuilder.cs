@@ -49,10 +49,11 @@ namespace BrightWire.ExecutionGraph
         /// <summary>
         /// Connects new nodes to the engine output node
         /// </summary>
-        /// <param name="factory"></param>
-        /// <param name="engine"></param>
-        public WireBuilder(GraphFactory factory, IGraphEngine engine) 
-            : this(factory, engine.DataSource.InputSize, engine.Input)
+        /// <param name="factory">Graph factory</param>
+        /// <param name="engine">Graph engine</param>
+        /// <param name="inputIndex">Input index to connect</param>
+        public WireBuilder(GraphFactory factory, IGraphTrainingEngine engine, int inputIndex = 0) 
+            : this(factory, engine.DataSource.InputSize, engine.GetInput(inputIndex))
         {
             if(engine.DataSource is IVolumeDataSource volumeDataSource) {
                 _width = volumeDataSource.Width;
@@ -268,10 +269,11 @@ namespace BrightWire.ExecutionGraph
         /// Adds a node that will reverse the sequence (for bidirectional recurrent neural networks)
         /// </summary>
         /// <param name="name">Optional name to give the node</param>
+        /// <param name="index">Input index to reverse</param>
         /// <returns></returns>
-        public WireBuilder ReverseSequence(string name = null)
+        public WireBuilder ReverseSequence(int index, string name = null)
         {
-            _SetNode(_factory.CreateSequenceReverser(name));
+            _SetNode(_factory.CreateSequenceReverser(index, name));
             return this;
         }
 

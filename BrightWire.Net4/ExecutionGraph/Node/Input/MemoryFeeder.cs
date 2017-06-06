@@ -74,11 +74,6 @@ namespace BrightWire.ExecutionGraph.Node.Input
             return ("MF", _WriteData(WriteTo));
         }
 
-        protected override void _Initalise(GraphFactory factory, string description, byte[] data)
-        {
-            _ReadFrom(data, reader => ReadFrom(factory, reader));
-        }
-
         public override void WriteTo(BinaryWriter writer)
         {
             Data.WriteTo(writer);

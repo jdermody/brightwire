@@ -18,13 +18,13 @@ namespace BrightWire.SampleCode
         /// </summary>
         public static void MarkovChains()
         {
-            // tokenise the novel "The Beautiful and the Damned" by F. Scott Fitzgerald
-            List<IReadOnlyList<string>> sentences;
-            using (var client = new WebClient()) {
-                var data = client.DownloadString("http://www.gutenberg.org/cache/epub/9830/pg9830.txt");
-                var pos = data.IndexOf("CHAPTER I");
-                sentences = SimpleTokeniser.FindSentences(SimpleTokeniser.Tokenise(data.Substring(pos))).ToList();
-            }
+// tokenise the novel "The Beautiful and the Damned" by F. Scott Fitzgerald
+List<IReadOnlyList<string>> sentences;
+using (var client = new WebClient()) {
+    var data = client.DownloadString("http://www.gutenberg.org/cache/epub/9830/pg9830.txt");
+    var pos = data.IndexOf("CHAPTER I");
+    sentences = SimpleTokeniser.FindSentences(SimpleTokeniser.Tokenise(data.Substring(pos))).ToList();
+}
 
             // create a markov trainer that uses a window of size 3
             var trainer = BrightWireProvider.CreateMarkovTrainer3<string>();

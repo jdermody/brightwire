@@ -36,7 +36,8 @@ namespace BrightWire.ExecutionGraph.Node
         /// <param name="data">Node serialisation data</param>
         protected virtual void _Initalise(GraphFactory graph, string description, byte[] data)
         {
-            Debug.Assert(data == null);
+            if(data != null)
+                _ReadFrom(data, reader => ReadFrom(graph, reader));
         }
 
         #region Disposal

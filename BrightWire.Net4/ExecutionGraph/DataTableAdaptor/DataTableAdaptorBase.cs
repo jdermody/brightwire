@@ -19,6 +19,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             _lap = lap;
         }
 
+        public int InputCount => 1;
         public abstract bool IsSequential { get; }
         public abstract int InputSize { get; }
         public abstract int OutputSize { get; }
@@ -48,7 +49,10 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         {
             var input = _lap.CreateMatrix(data.Count, InputSize, (x, y) => data[x].Item1[y]);
             var output = OutputSize > 0 ? _lap.CreateMatrix(data.Count, OutputSize, (x, y) => data[x].Item2[y]) : null;
-            return new MiniBatch(rows, this, new MatrixGraphData(input), new MatrixGraphData(output));
+            var inputList = new List<IGraphData> {
+                new MatrixGraphData(input)
+            };
+            return new MiniBatch(rows, this, inputList, new MatrixGraphData(output));
         }
 
         protected IMiniBatch _GetSequentialMiniBatch(IReadOnlyList<int> rows, IReadOnlyList<(FloatMatrix Input, FloatMatrix Output)> data)
@@ -84,7 +88,10 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
                         ? MiniBatchSequenceType.SequenceEnd
                         : MiniBatchSequenceType.Standard
                 ;
-                miniBatch.Add(type, new MatrixGraphData(input), new MatrixGraphData(output));
+                var inputList = new List<IGraphData> {
+                    new MatrixGraphData(input)
+                };
+                miniBatch.Add(type, inputList, new MatrixGraphData(output));
             }
             return miniBatch;
         }

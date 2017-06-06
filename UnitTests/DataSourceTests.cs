@@ -46,7 +46,7 @@ namespace UnitTests
             var graph = new GraphFactory(_lap);
             var dataSource = graph.CreateDataSource(table, vectoriser);
             var miniBatch = dataSource.Get(null, new[] { 1 });
-            var input = miniBatch.CurrentSequence.Input.GetMatrix().Row(0).AsIndexable();
+            var input = miniBatch.CurrentSequence.Input[0].GetMatrix().Row(0).AsIndexable();
             var expectedOutput = miniBatch.CurrentSequence.Target.GetMatrix().Row(0).AsIndexable();
 
             Assert.AreEqual(input[0], 0.2f);

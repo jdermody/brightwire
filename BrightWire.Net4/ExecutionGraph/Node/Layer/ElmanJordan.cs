@@ -82,11 +82,6 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             return (_isElman ? "ERN" : "JRN", _WriteData(WriteTo));
         }
 
-        protected override void _Initalise(GraphFactory factory, string description, byte[] data)
-        {
-            _ReadFrom(data, reader => ReadFrom(factory, reader));
-        }
-
         public override void WriteTo(BinaryWriter writer)
         {
             var Wh = _input.FindByName("Wh") as FeedForward;

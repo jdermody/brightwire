@@ -12,14 +12,14 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         readonly float[] _data;
         class Sequence : IMiniBatchSequence
         {
-            readonly IGraphData _data;
+            readonly IReadOnlyList<IGraphData> _data;
             readonly IMiniBatch _miniBatch;
 
-            public Sequence(IGraphData data, IMiniBatch miniBatch) { _data = data; _miniBatch = miniBatch; }
+            public Sequence(IReadOnlyList<IGraphData> data, IMiniBatch miniBatch) { _data = data; _miniBatch = miniBatch; }
             public IMiniBatch MiniBatch => _miniBatch;
             public int SequenceIndex => 0;
             public MiniBatchSequenceType Type => MiniBatchSequenceType.Standard;
-            public IGraphData Input => _data;
+            public IReadOnlyList<IGraphData> Input => _data;
             public IGraphData Target => null;
         }
         class MiniBatch : IMiniBatch
@@ -29,7 +29,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 
             public MiniBatch(IDataSource dataSource, IGraphData data)
             {
-                _sequence = new Sequence(data, this);
+                _sequence = new Sequence(new[] { data }, this);
                 _dataSource = dataSource;
             }
 
@@ -59,6 +59,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public int InputSize => _data.Length;
         public int OutputSize => throw new NotImplementedException();
         public int RowCount => 1;
+        public int InputCount => 1;
 
         public IDataSource CloneWith(IDataTable dataTable)
         {

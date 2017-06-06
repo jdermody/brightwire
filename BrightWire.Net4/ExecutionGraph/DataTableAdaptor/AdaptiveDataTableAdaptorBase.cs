@@ -19,7 +19,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             Debug.Assert(learningContext == null || learningContext.DeferUpdates);
 
             _learningContext = learningContext;
-            _input = new FlowThrough();
+            _input = new InputFeeder(0);
         }
 
         public INode AdaptiveInput => _input;

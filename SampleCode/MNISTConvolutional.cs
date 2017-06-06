@@ -20,7 +20,7 @@ namespace BrightWire.SampleCode
                 var graph = new GraphFactory(lap);
                 var errorMetric = graph.ErrorMetric.OneHotEncoding;
                 var propertySet = graph.CurrentPropertySet
-                    .Use(graph.L2(0.5f))
+                    .Use(graph.Regularisation.L2)
                     .Use(graph.RmsProp())
                     .Use(graph.XavierWeightInitialisation())
                 ;
@@ -34,13 +34,13 @@ namespace BrightWire.SampleCode
                 const int HIDDEN_LAYER_SIZE = 128;
                 var engine = graph.CreateTrainingEngine(trainingData, 0.002f, 32);
                 graph.Connect(engine)
-                    .AddConvolutional(16, 1, 3, 3, 1, false)
+                    .AddConvolutional(32, 1, 3, 3, 1, false)
                     .Add(graph.ReluActivation())
                     .AddDropOut(0.5f)
-                    //.AddMaxPooling(2, 2, 2)
-                    //.Add(graph.ReluActivation())
-                    .AddConvolutional(24, 1, 3, 3, 2)
+                    .AddMaxPooling(2, 2, 2)
                     .Add(graph.ReluActivation())
+                    //.AddConvolutional(24, 1, 3, 3, 2)
+                    //.Add(graph.ReluActivation())
                     .Transpose()
                     .AddDropConnect(0.5f, HIDDEN_LAYER_SIZE)
                     .Add(graph.ReluActivation())

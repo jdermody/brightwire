@@ -468,11 +468,12 @@ namespace BrightWire.ExecutionGraph
         /// <summary>
         /// Creates a node that outputs the reversed index of the current sequence (for bidirectional recurrent networks)
         /// </summary>
+        /// <param name="index">Input index to reverse</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
-        public INode CreateSequenceReverser(string name = null)
+        public INode CreateSequenceReverser(int index = 0, string name = null)
         {
-            return new ReverseSequence(name);
+            return new ReverseSequence(index, name);
         }
 
         /// <summary>
@@ -515,7 +516,7 @@ namespace BrightWire.ExecutionGraph
         /// </summary>
         /// <param name="engine">Graph engine to build with</param>
         /// <returns></returns>
-        public WireBuilder Connect(IGraphEngine engine)
+        public WireBuilder Connect(IGraphTrainingEngine engine)
         {
             return new WireBuilder(this, engine);
         }
@@ -742,6 +743,26 @@ namespace BrightWire.ExecutionGraph
         public ICreateTemplateBasedGradientDescent RmsProp(float decay = 0.9f) => new RmsPropDescriptor(decay);
 
         /// <summary>
+        /// Prebuilt regularisation
+        /// </summary>
+        public class RegularisationProvider
+        {
+            /// <summary>
+            /// L1 regularisation
+            /// </summary>
+            public ICreateGradientDescent L1 { get; } = new L1RegularisationDescriptor(0.1f);
+
+            /// <summary>
+            /// L2 regularisation
+            /// </summary>
+            public ICreateGradientDescent L2 { get; } = new L1RegularisationDescriptor(0.5f);
+        }
+        /// <summary>
+        /// Prebuilt regularisation
+        /// </summary>
+        public RegularisationProvider Regularisation { get; } = new RegularisationProvider();
+
+        /// <summary>
         /// Prebuilt gradient descent optimisers
         /// </summary>
         public class GradientDescentProvider
@@ -755,16 +776,6 @@ namespace BrightWire.ExecutionGraph
             /// Adam gradient descent
             /// </summary>
             public ICreateTemplateBasedGradientDescent Adam { get; } = new AdamDescriptor(0.9f, 0.99f);
-
-            /// <summary>
-            /// L1 regularisation
-            /// </summary>
-            public ICreateGradientDescent L1 { get; } = new L1RegularisationDescriptor(0.1f);
-
-            /// <summary>
-            /// L2 regularisation
-            /// </summary>
-            public ICreateGradientDescent L2 { get; } = new L1RegularisationDescriptor(0.1f);
 
             /// <summary>
             /// Momentum gradient descent

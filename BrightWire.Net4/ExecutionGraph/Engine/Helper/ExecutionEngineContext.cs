@@ -19,7 +19,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         {
             _executionContext = executionContext;
             _miniBatch = miniBatch;
-            _data = miniBatch.Input;
+            _data = null;
         }
 
         public void Dispose()

@@ -75,7 +75,7 @@ namespace BrightWire.SampleCode
             var vectoriser = sentimentDataTable.GetVectoriser();
             var sentimentDataSet = sentimentDataTable.Split(0);
 
-            using (var lap = BrightWireProvider.CreateLinearAlgebra(false)) {
+            using (var lap = BrightWireProvider.CreateLinearAlgebra()) {
                 var graph = new GraphFactory(lap);
                 var trainingData = graph.CreateDataSource(sentimentDataSet.Training, vectoriser);
                 var testData = graph.CreateDataSource(sentimentDataSet.Test, vectoriser);
@@ -88,7 +88,10 @@ namespace BrightWire.SampleCode
                     .Use(graph.WeightInitialisation.Xavier)
                 ;
 
-                var engine = graph.CreateTrainingEngine(trainingData, 0.01f, 128);
+                var engine = graph.CreateTrainingEngine(trainingData, 0.003f, 128);
+                engine.LearningContext.ScheduleLearningRate(5, 0.001f);
+                engine.LearningContext.ScheduleLearningRate(11, 0.01f);
+                engine.LearningContext.ScheduleLearningRate(15, 0.003f);
 
                 // train a neural network classifier
                 var neuralNetworkWire = graph.Connect(engine)
@@ -106,13 +109,11 @@ namespace BrightWire.SampleCode
                 engine.Train(10, testData, errorMetric, network => bestNetwork = network);
                 if (bestNetwork != null)
                     engine.LoadParametersFrom(bestNetwork.Graph);
+                var firstClassifier = graph.CreateEngine(engine.Graph);
 
                 // stop the backpropagation to the first neural network
                 engine.LearningContext.EnableNodeUpdates(neuralNetworkWire.Find("layer1"), false);
                 engine.LearningContext.EnableNodeUpdates(neuralNetworkWire.Find("layer2"), false);
-
-                var firstClassifierGraph = engine.Graph;
-                var firstClassifier = graph.CreateEngine(firstClassifierGraph);
 
                 // create the bernoulli classifier wire
                 var bernoulliClassifier = bernoulli.CreateClassifier();
@@ -132,7 +133,7 @@ namespace BrightWire.SampleCode
 
                 // train an additional classifier on the output of the previous three classifiers
                 joined
-                    .AddFeedForward(8)
+                    .AddFeedForward(32)
                     .Add(graph.ReluActivation())
                     .AddDropOut(0.5f)
                     .AddFeedForward(trainingData.OutputSize)

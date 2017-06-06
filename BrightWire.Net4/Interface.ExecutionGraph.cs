@@ -364,6 +364,11 @@ namespace BrightWire
         int OutputSize { get; }
 
         /// <summary>
+        /// The number of inputs that can feed into the graph
+        /// </summary>
+        int InputCount { get; }
+
+        /// <summary>
         /// Number of rows
         /// </summary>
         int RowCount { get; }
@@ -457,7 +462,7 @@ namespace BrightWire
         /// <summary>
         /// Input data
         /// </summary>
-        IGraphData Input { get; }
+        IReadOnlyList<IGraphData> Input { get; }
 
         /// <summary>
         /// Training target data
@@ -552,11 +557,6 @@ namespace BrightWire
         IDataSource DataSource { get; }
 
         /// <summary>
-        /// Graph input node
-        /// </summary>
-        INode Input { get; }
-
-        /// <summary>
         /// Executes a data source on the current graph
         /// </summary>
         /// <param name="dataSource">Data source to process</param>
@@ -570,6 +570,11 @@ namespace BrightWire
         /// <param name="input">Vector to execute</param>
         /// <returns></returns>
         ExecutionResult Execute(float[] input);
+
+        /// <summary>
+        /// The graph's single start node
+        /// </summary>
+        INode Start { get; }
     }
 
     /// <summary>
@@ -577,6 +582,12 @@ namespace BrightWire
     /// </summary>
     public interface IGraphTrainingEngine : IGraphEngine
     {
+        /// <summary>
+        /// Returns the specified input node
+        /// </summary>
+        /// <param name="index">Index of the input node to retrieve</param>
+        INode GetInput(int index);
+
         /// <summary>
         /// Executes a training epoch on the graph
         /// </summary>

@@ -11,7 +11,7 @@ namespace BrightWire.Models
         readonly IMiniBatchSequence _miniBatch;
         readonly IReadOnlyList<FloatVector> _output;
         readonly IReadOnlyList<FloatVector> _target;
-        readonly IReadOnlyList<FloatVector> _input;
+        readonly IReadOnlyList<IReadOnlyList<FloatVector>> _input;
 
         /// <summary>
         /// Constructor
@@ -23,7 +23,7 @@ namespace BrightWire.Models
             _miniBatch = miniBatch;
             _output = output;
             _target = _miniBatch.Target?.GetMatrix().Data.Row;
-            _input = _miniBatch.Input.GetMatrix().Data.Row;
+            _input = _miniBatch.Input.Select(input => input.GetMatrix().Data.Row).ToList();
         }
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace BrightWire.Models
         /// <summary>
         /// The list of input rows
         /// </summary>
-        public IReadOnlyList<FloatVector> Input => _input;
+        public IReadOnlyList<IReadOnlyList<FloatVector>> Input => _input;
 
         /// <summary>
         /// The mini batch

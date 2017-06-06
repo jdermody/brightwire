@@ -31,6 +31,7 @@ namespace BrightWire.ExecutionGraph.DataSource
             }
         }
 
+        public int InputCount => 1;
         public bool IsSequential => true;
         public int InputSize => _inputSize;
         public int OutputSize => _outputSize;
@@ -59,7 +60,10 @@ namespace BrightWire.ExecutionGraph.DataSource
                         ? MiniBatchSequenceType.SequenceEnd
                         : MiniBatchSequenceType.Standard
                 ;
-                miniBatch.Add(type, new MatrixGraphData(input), null);
+                var inputList = new List<IGraphData> {
+                    new MatrixGraphData(input)
+                };
+                miniBatch.Add(type, inputList, null);
             }
             return miniBatch;
         }

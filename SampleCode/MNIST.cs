@@ -24,29 +24,28 @@ namespace BrightWire.SampleCode
             using (var lap = BrightWireGpuProvider.CreateLinearAlgebra()) {
                 var graph = new GraphFactory(lap);
 
-                // use a one hot encoding error metric, rmsprop gradient descent and xavier weight initialisation
-                var errorMetric = graph.ErrorMetric.OneHotEncoding;
-                var propertySet = graph.CurrentPropertySet
-                    .Use(graph.L2(0.5f))
-                    .Use(graph.GradientDescent.RmsProp)
-                    .Use(graph.WeightInitialisation.Xavier)
-                ;
-
                 Console.Write("Loading training data...");
                 var trainingData = _BuildVectors(null, graph, Mnist.Load(dataFilesPath + "train-labels.idx1-ubyte", dataFilesPath + "train-images.idx3-ubyte"));
                 var testData = _BuildVectors(trainingData, graph, Mnist.Load(dataFilesPath + "t10k-labels.idx1-ubyte", dataFilesPath + "t10k-images.idx3-ubyte"));
                 Console.WriteLine($"done - {trainingData.RowCount} training images and {testData.RowCount} test images loaded");
 
-                // create the training engine and schedule two training rate changes
+                // use a one hot encoding error metric, rmsprop gradient descent and xavier weight initialisation
+                var errorMetric = graph.ErrorMetric.OneHotEncoding;
+                var propertySet = graph.CurrentPropertySet
+                    //.Use(graph.Regularisation.L2)
+                    .Use(graph.GradientDescent.RmsProp)
+                    .Use(graph.WeightInitialisation.Xavier)
+                ;
+
+                // create the training engine and schedule a training rate change
                 const float TRAINING_RATE = 0.003f;
                 var engine = graph.CreateTrainingEngine(trainingData, TRAINING_RATE, 128);
                 engine.LearningContext.ScheduleLearningRate(15, TRAINING_RATE / 3);
 
                 // create the network
                 graph.Connect(engine)
-                    //.AddDropConnect(0.5f, 1024)
                     .AddFeedForward(1024)
-                    .Add(graph.ReluActivation())
+                    .Add(graph.LeakyReluActivation())
                     .AddDropOut(0.5f)
                     .AddFeedForward(trainingData.OutputSize)
                     .Add(graph.SigmoidActivation())
@@ -54,7 +53,7 @@ namespace BrightWire.SampleCode
                 ;
 
                 // train the network
-                engine.Train(30, testData, errorMetric);
+                engine.Train(20, testData, errorMetric);
 
                 // export the graph and verify that the error is the same
                 var networkGraph = engine.Graph;

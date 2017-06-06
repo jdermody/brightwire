@@ -48,11 +48,6 @@ namespace BrightWire.ExecutionGraph.Node.Filter
                 _AddNextGraphAction(context, context.Data, null);
         }
 
-        protected override void _Initalise(GraphFactory factory, string description, byte[] data)
-        {
-            _ReadFrom(data, reader => ReadFrom(factory, reader));
-        }
-
         protected override (string Description, byte[] Data) _GetInfo()
         {
             return ("DO", _WriteData(WriteTo));

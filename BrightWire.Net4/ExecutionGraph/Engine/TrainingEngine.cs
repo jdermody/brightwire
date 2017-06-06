@@ -19,20 +19,29 @@ namespace BrightWire.ExecutionGraph.Engine
         readonly List<(IMiniBatchSequence Sequence, double TrainingError, FloatMatrix Output)> _executionResults = new List<(IMiniBatchSequence Sequence, double TrainingError, FloatMatrix Output)>();
         readonly List<IContext> _contextList = new List<IContext>();
         readonly ILearningContext _learningContext;
-        readonly INode _input;
+        readonly IReadOnlyList<INode> _input;
+        readonly INode _start;
         readonly bool _isStochastic;
         float? _lastTestError = null;
         double? _lastTrainingError = null, _trainingErrorDelta = null;
         int _noImprovementCount = 0;
 
-        public TrainingEngine(ILinearAlgebraProvider lap, IDataSource dataSource, ILearningContext learningContext, INode input)
+        public TrainingEngine(ILinearAlgebraProvider lap, IDataSource dataSource, ILearningContext learningContext, INode start)
         {
             _lap = lap;
             _dataSource = dataSource;
             _isStochastic = lap.IsStochastic;
             _learningContext = learningContext;
             learningContext.SetRowCount(dataSource.RowCount);
-            _input = input ?? new FlowThrough();
+
+            if(start == null) {
+                _input = Enumerable.Range(0, dataSource.InputCount).Select(i => new InputFeeder(i)).ToList();
+                _start = new FlowThrough();
+                _start.Output.AddRange(_input.Select(i => new WireToNode(i)));
+            }else {
+                _start = start;
+                _input = start.Output.Select(w => w.SendTo).ToList();
+            }
         }
 
         public IReadOnlyList<ExecutionResult> Execute(IDataSource dataSource, int batchSize = 128)
@@ -107,9 +116,10 @@ namespace BrightWire.ExecutionGraph.Engine
 
         public IDataSource DataSource => _dataSource;
         public ILearningContext LearningContext => _learningContext;
-        public INode Input => _input;
-        public Models.ExecutionGraph Graph => _input.GetGraph();
+        public INode GetInput(int index) => _input[index];
+        public Models.ExecutionGraph Graph => _start.GetGraph();
         public ILinearAlgebraProvider LinearAlgebraProvider => _lap;
+        public INode Start => _start;
 
         void _Execute(IExecutionContext executionContext, IMiniBatch batch)
         {
@@ -131,7 +141,7 @@ namespace BrightWire.ExecutionGraph.Engine
         IContext _Train(IExecutionContext executionContext, ILearningContext learningContext, IMiniBatchSequence sequence)
         {
             var context = new TrainingEngineContext(executionContext, sequence, learningContext);
-            _input.ExecuteForward(context, 0);
+            _start.ExecuteForward(context, 0);
 
             while (context.HasNext)
                 context.ExecuteNext();
@@ -208,7 +218,7 @@ namespace BrightWire.ExecutionGraph.Engine
 
         void _LoadParamaters(Models.ExecutionGraph.Node nodeModel)
         {
-            var node = _input.FindById(nodeModel.Id);
+            var node = _start.FindById(nodeModel.Id);
             node.LoadParameters(nodeModel);
         }
 

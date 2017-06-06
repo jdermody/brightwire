@@ -49,11 +49,6 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             _bias = weightInit.CreateBias(layer.InputSize);
         }
 
-        protected override void _Initalise(GraphFactory factory, string description, byte[] data)
-        {
-            _ReadFrom(data, reader => ReadFrom(factory, reader));
-        }
-
         public void UpdateBias(IMatrix delta, ILearningContext context)
         {
             using (var columnSums = delta.ColumnSums())

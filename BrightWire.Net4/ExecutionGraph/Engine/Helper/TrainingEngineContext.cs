@@ -25,7 +25,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             _miniBatch = miniBatch;
             _executionContext = executionContext;
             _learningContext = learningContext;
-            _data = miniBatch.Input;
+            _data = null;
         }
         public TrainingEngineContext(IExecutionContext executionContext, IGraphData data, ILearningContext learningContext)
         {

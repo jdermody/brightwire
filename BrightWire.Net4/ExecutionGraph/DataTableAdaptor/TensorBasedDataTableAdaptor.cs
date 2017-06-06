@@ -57,7 +57,10 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             var input = _lap.CreateMatrix(InputSize, data.Count, (x, y) => data[y].Item1[x]);
             var output = OutputSize > 0 ? _lap.CreateMatrix(data.Count, OutputSize, (x, y) => data[x].Item2[y]) : null;
             var tensor = new Tensor4DGraphData(input, _rows, _columns, _depth);
-            return new MiniBatch(rows, this, tensor, new MatrixGraphData(output));
+            var inputList = new List<IGraphData> {
+                tensor
+            };
+            return new MiniBatch(rows, this, inputList, new MatrixGraphData(output));
         }
     }
 }

@@ -253,7 +253,6 @@ namespace BrightWire
         /// <returns>A new weighted classification set</returns>
         public static IReadOnlyList<(string Label, WeightedIndexList Data)> TFIDF(this IReadOnlyList<(string Label, WeightedIndexList Data)> data)
         {
-            uint temp;
             var indexOccurence = new Dictionary<uint, uint>();
             var classificationSum = new Dictionary<string, double>();
 
@@ -263,7 +262,7 @@ namespace BrightWire
                 foreach (var item in classification) {
                     foreach (var index in item.Data.IndexList) {
                         var key = index.Index;
-                        if (indexOccurence.TryGetValue(key, out temp))
+                        if (indexOccurence.TryGetValue(key, out uint temp))
                             indexOccurence[key] = temp + 1;
                         else
                             indexOccurence.Add(key, 1);
