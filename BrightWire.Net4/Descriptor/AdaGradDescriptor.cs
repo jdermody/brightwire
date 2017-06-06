@@ -1,6 +1,6 @@
 ﻿using BrightWire.ExecutionGraph.GradientDescent;
 
-namespace BrightWire.Descriptor.GradientDescent
+namespace BrightWire.Descriptor
 {
     /// <summary>
     /// Creates an AdaGrad gradient descent optimisation

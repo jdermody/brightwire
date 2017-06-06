@@ -1,6 +1,6 @@
 ﻿using BrightWire.ExecutionGraph.GradientDescent;
 
-namespace BrightWire.Descriptor.GradientDescent
+namespace BrightWire.Descriptor
 {
     /// <summary>
     /// Creates a rms prop gradient descent optimiser

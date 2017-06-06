@@ -1,6 +1,6 @@
 ﻿using BrightWire.ExecutionGraph.GradientDescent;
 
-namespace BrightWire.Descriptor.GradientDescent
+namespace BrightWire.Descriptor
 {
     /// <summary>
     /// Creates a nesterov momentum gradient descent optimiser
