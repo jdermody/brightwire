@@ -74,7 +74,7 @@ Another issue you may have is that `protobuf` library complains that it is alrea
 * L2, Dropout and DropConnect regularisation
 * Relu, LeakyRelu, Sigmoid, Tanh and SoftMax activation functions
 * Gaussian, Xavier and Identity weight initialisation
-* Cross Entropy, Quadratic and RMSE cost functions
+* Cross Entropy, Quadratic and Binary cost functions
 * Momentum, NesterovMomentum, Adagrad, RMSprop and Adam gradient descent optimisations
 
 ### Bayesian
