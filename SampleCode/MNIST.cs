@@ -27,6 +27,7 @@ namespace BrightWire.SampleCode
                 // use a one hot encoding error metric, rmsprop gradient descent and xavier weight initialisation
                 var errorMetric = graph.ErrorMetric.OneHotEncoding;
                 var propertySet = graph.CurrentPropertySet
+                    .Use(graph.L2(0.5f))
                     .Use(graph.GradientDescent.RmsProp)
                     .Use(graph.WeightInitialisation.Xavier)
                 ;
@@ -40,19 +41,20 @@ namespace BrightWire.SampleCode
                 const float TRAINING_RATE = 0.003f;
                 var engine = graph.CreateTrainingEngine(trainingData, TRAINING_RATE, 128);
                 engine.LearningContext.ScheduleLearningRate(15, TRAINING_RATE / 3);
-                engine.LearningContext.ScheduleLearningRate(20, TRAINING_RATE / 9);
 
                 // create the network
                 graph.Connect(engine)
+                    //.AddDropConnect(0.5f, 1024)
                     .AddFeedForward(1024)
-                    .Add(graph.LeakyReluActivation())
+                    .Add(graph.ReluActivation())
+                    .AddDropOut(0.5f)
                     .AddFeedForward(trainingData.OutputSize)
                     .Add(graph.SigmoidActivation())
                     .AddBackpropagation(errorMetric)
                 ;
 
-                // train the network for 30 epochs
-                engine.Train(25, testData, errorMetric);
+                // train the network
+                engine.Train(30, testData, errorMetric);
 
                 // export the graph and verify that the error is the same
                 var networkGraph = engine.Graph;
