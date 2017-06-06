@@ -30,6 +30,7 @@ namespace BrightWire.SampleCode
 
                 // modify the property set
                 var propertySet = graph.CurrentPropertySet
+                    .Use(graph.L2(0.5f))
                     .Use(graph.GradientDescent.Adam)
                     .Use(graph.WeightInitialisation.Xavier)
                 ;
@@ -50,13 +51,52 @@ namespace BrightWire.SampleCode
                 ;
 
                 // train the network
-                engine.Train(30, testData, errorMetric);
+                GraphModel bestNetwork = null;
+                engine.Train(30, testData, errorMetric, bn => bestNetwork = bn);
 
-                // export the graph and verify that the error is the same
-                var networkGraph = engine.Graph;
-                var executionEngine = graph.CreateEngine(networkGraph);
-                var output = executionEngine.Execute(testData);
-                Console.WriteLine(output.Average(o => o.CalculateError(errorMetric)));
+                // export the graph and verify it against some unseen integers
+                var executionEngine = graph.CreateEngine(bestNetwork.Graph);
+                var testData2 = graph.CreateDataSource(BinaryIntegers.Addition(8, true));
+                var results = executionEngine.Execute(testData2);
+
+                // group the output
+                var groupedResults = new Tuple<FloatVector[], FloatVector[], FloatVector[]>[8];
+                for(var i = 0; i < 8; i++) {
+                    var input = new FloatVector[32];
+                    var target = new FloatVector[32];
+                    var output = new FloatVector[32];
+                    for(var j = 0; j < 32; j++) {
+                        input[j] = results[j].Input[i];
+                        target[j] = results[j].Target[i];
+                        output[j] = results[j].Output[i];
+                    }
+                    groupedResults[i] = Tuple.Create(input, target, output);
+                }
+
+                // write the results
+                foreach (var result in groupedResults) {
+                    Console.Write("First:     ");
+                    foreach (var item in result.Item1)
+                        _WriteBinary(item.Data[0]);
+                    Console.WriteLine();
+
+                    Console.Write("Second:    ");
+                    foreach (var item in result.Item1)
+                        _WriteBinary(item.Data[1]);
+                    Console.WriteLine();
+                    Console.WriteLine("           --------------------------------");
+
+                    Console.Write("Expected:  ");
+                    foreach (var item in result.Item2)
+                        _WriteBinary(item.Data[0]);
+                    Console.WriteLine();
+
+                    Console.Write("Predicted: ");
+                    foreach (var item in result.Item3)
+                        _WriteBinary(item.Data[0]);
+                    Console.WriteLine();
+                    Console.WriteLine();
+                }
             }
         }
     }
