@@ -19,7 +19,7 @@ namespace BrightWire
         {
             var path = cudaKernelPath ?? GetKernelPath();
             if (!File.Exists(path))
-                throw new FileNotFoundException($"Could not find cuda kernel at: {path}. Is the \\LinearAlgebra\\cuda\\kernel.ptx file set to 'Copy to Output Directory'?");
+                throw new FileNotFoundException($"Could not find cuda kernel at: {path}. Is the \\cuda\\brightwire.ptx file set to 'Copy to Output Directory'?");
             return new CudaProvider(path, stochastic, memoryCacheSize);
         }
 
@@ -34,7 +34,7 @@ namespace BrightWire
             // This is the universal separator, returns '/' on Linux, '\' on Windows, although Windows doesn't really care
             var s = Path.DirectorySeparatorChar;
 
-            return assemblyLocation + $"{s}cuda{s}kernel.ptx";        
+            return assemblyLocation + $"{s}cuda{s}brightwire.ptx";        
         }
     }
 }
