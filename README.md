@@ -1,10 +1,11 @@
 <img src="http://www.jackdermody.net/Content/image/bright-wire.png" alt="Bright Wire" style="max-height:144" />
 
-Bright Wire is an easily extended machine learning library for .NET with GPU support (via CUDA).
+Bright Wire is an extensible machine learning library for .NET with GPU support (via CUDA).
 
-Bright Wire uses a graph based system of nodes and "wires". You can easily create
+Bright Wire uses a graph based system of nodes and "wires". You can create
 your own custom nodes and manipulate the graph at runtime to experiment with novel machine
-learning architectures and algorithms or use the existing suite of commonly used algorithms.
+learning architectures and algorithms or use the existing suite of commonly used 
+machine learning algorithms and architectures.
 
 ## Getting Started
 
@@ -39,11 +40,11 @@ To add CUDA support (x64 only) use:
 Install-Package BrightWire.CUDA.Net4.x64
 ```
 
-Note: When using the CUDA version, make sure that the /LinearAlgebra/cuda/kernel.ptx file is copied to the output directory (Properties/Copy To Output Directory).
+Note: When using the CUDA version, make sure that the `/cuda/brightwire.ptx` file is copied to the output directory (Properties/Copy To Output Directory).
 
 ### Recompiling the kernel.ptx
 
-It's highly likely that your GPU supports different CUDA capabilities than the precompiled `kernel.ptx` in this repository. You can find what is your capability level [here](https://developer.nvidia.com/cuda-gpus). It's a number, ex. 3.0, 3.5, that you use for specifying `compute_XX` and `sm_XX` parameters.
+It's highly likely that your GPU supports different CUDA capabilities than the precompiled `brightwire.ptx` in this repository. You can find what is your capability level [here](https://developer.nvidia.com/cuda-gpus). It's a number, ex. 3.0, 3.5, that you use for specifying `compute_XX` and `sm_XX` parameters.
 
 If you get an `ErrorNoBinaryForGPU` exception, that means you have to recompile. The instructions are [here](https://github.com/jdermody/brightwire/blob/master/LinearAlgebra/cuda/readme.txt).
 
