@@ -42,7 +42,7 @@ Install-Package BrightWire.CUDA.Net4.x64
 
 Note: When using the CUDA version, make sure that the `/cuda/brightwire.ptx` file is copied to the output directory (Properties/Copy To Output Directory).
 
-### Recompiling the kernel.ptx
+### Recompiling the PTX
 
 It's highly likely that your GPU supports different CUDA capabilities than the precompiled `brightwire.ptx` in this repository. You can find what is your capability level [here](https://developer.nvidia.com/cuda-gpus). It's a number, ex. 3.0, 3.5, that you use for specifying `compute_XX` and `sm_XX` parameters.
 
