@@ -17,7 +17,7 @@ namespace BrightWire.SampleCode
             var sequences = grammar.GetExtended(10).Take(500).ToList();
             var data = ReberGrammar.GetOneHot(sequences).Split(0);
 
-            using (var lap = BrightWireGpuProvider.CreateLinearAlgebra(false)) {
+            using (var lap = BrightWireProvider.CreateLinearAlgebra(false)) {
                 var graph = new GraphFactory(lap);
                 var errorMetric = graph.ErrorMetric.BinaryClassification;
                 var propertySet = graph.CurrentPropertySet
