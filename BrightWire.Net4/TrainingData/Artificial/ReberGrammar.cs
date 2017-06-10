@@ -87,8 +87,8 @@ namespace BrightWire.TrainingData.Artificial
                     var input = new float[_ch.Count];
                     var output = new float[_ch.Count];
                     input[_ch[ch]] = 1f;
-                    if (following.ContainsKey(sb.ToString())) {
-                        foreach (var item in following[sb.ToString()])
+                    if (following.TryGetValue(sb.ToString(), out HashSet<int> temp)) {
+                        foreach (var item in temp)
                             output[item] = 1f;
                     }
                     inputList[i] = new FloatVector {

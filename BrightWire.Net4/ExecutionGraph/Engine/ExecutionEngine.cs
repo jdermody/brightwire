@@ -62,7 +62,7 @@ namespace BrightWire.ExecutionGraph.Engine
         {
             _lap.PushLayer();
             ExecutionResult ret = null;
-            var provider = new MiniBatchProvider(new Helper.SingleRowDataSource(input), false);
+            var provider = new MiniBatchProvider(new SingleRowDataSource(input), false);
             using (var executionContext = new ExecutionContext(_lap)) {
                 executionContext.Add(provider.GetMiniBatches(1, mb => _Execute(executionContext, mb)));
 
