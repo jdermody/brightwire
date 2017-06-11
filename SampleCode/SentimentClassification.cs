@@ -178,7 +178,7 @@ namespace BrightWire.SampleCode
                         Console.WriteLine("Neural network classification: " + classification);
 
                         var stackedResult = engine.Execute(encodedInput);
-                        var stackedClassification = vectoriser.GetOutputLabel(1, (result.Output[0].Data[0] > result.Output[0].Data[1]) ? 0 : 1);
+                        var stackedClassification = vectoriser.GetOutputLabel(1, (stackedResult.Output[0].Data[0] > stackedResult.Output[0].Data[1]) ? 0 : 1);
                         Console.WriteLine("Stack classification: " + stackedClassification);
                     } else
                         Console.WriteLine("Sorry, none of those words have been seen before.");
