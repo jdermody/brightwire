@@ -18,8 +18,8 @@ namespace BrightWire.SampleCode
     {
         static void OneToMany()
         {
-            var grammar = new SequenceClassification(10, 5, 5, true, false);
-            var sequences = grammar.GenerateSequences().Take(100).ToList();
+            var grammar = new SequenceClassification(dictionarySize: 10, minSize: 5, maxSize: 5, noRepeat: true, isStochastic: false);
+            var sequences = grammar.GenerateSequences().Take(1000).ToList();
             var builder = BrightWireProvider.CreateDataTableBuilder();
             builder.AddColumn(ColumnType.Vector, "Summary");
             builder.AddColumn(ColumnType.Matrix, "Sequence");
@@ -41,30 +41,34 @@ namespace BrightWire.SampleCode
             var data = builder.Build().Split(0);
             using (var lap = BrightWireProvider.CreateLinearAlgebra(false)) {
                 var graph = new GraphFactory(lap);
-                var errorMetric = graph.ErrorMetric.OneHotEncoding;
+                var errorMetric = graph.ErrorMetric.BinaryClassification;
 
                 // create the property set
                 var propertySet = graph.CurrentPropertySet
-                    .Use(graph.RmsProp())
+                    .Use(graph.GradientDescent.RmsProp)
                     .Use(graph.WeightInitialisation.Xavier)
                 ;
 
                 // create the engine
+                const float TRAINING_RATE = 0.01f;
                 var trainingData = graph.CreateDataSource(data.Training);
                 var testData = trainingData.CloneWith(data.Test);
-                var engine = graph.CreateTrainingEngine(trainingData, 0.003f, 8);
+                var engine = graph.CreateTrainingEngine(trainingData, TRAINING_RATE, 8);
+                engine.LearningContext.ScheduleLearningRate(30, TRAINING_RATE / 3);
 
                 // build the network
                 const int HIDDEN_LAYER_SIZE = 128;
                 var memory = new float[HIDDEN_LAYER_SIZE];
                 var network = graph.Connect(engine)
                     //.AddSimpleRecurrent(graph.ReluActivation(), memory)
-                    .AddGru(memory)
+                    //.AddGru(memory)
+                    .AddLstm(memory)
                     .AddFeedForward(engine.DataSource.OutputSize)
+                    .Add(graph.SigmoidActivation())
                     .AddBackpropagation(errorMetric)
                 ;
 
-                engine.Train(30, testData, errorMetric);
+                engine.Train(40, testData, errorMetric);
 
                 var networkGraph = engine.Graph;
                 var executionEngine = graph.CreateEngine(networkGraph);
@@ -76,8 +80,8 @@ namespace BrightWire.SampleCode
 
         static void ManyToOne()
         {
-            var grammar = new SequenceClassification(10, 5, 5, true, false);
-            var sequences = grammar.GenerateSequences().Take(100).ToList();
+            var grammar = new SequenceClassification(dictionarySize: 10, minSize: 5, maxSize: 5, noRepeat: true, isStochastic: false);
+            var sequences = grammar.GenerateSequences().Take(1000).ToList();
             var builder = BrightWireProvider.CreateDataTableBuilder();
             builder.AddColumn(ColumnType.Matrix, "Sequence");
             builder.AddColumn(ColumnType.Vector, "Summary");
@@ -96,32 +100,31 @@ namespace BrightWire.SampleCode
 
             using (var lap = BrightWireProvider.CreateLinearAlgebra(false)) {
                 var graph = new GraphFactory(lap);
-                var errorMetric = graph.ErrorMetric.Quadratic;
+                var errorMetric = graph.ErrorMetric.BinaryClassification;
 
                 // create the property set
                 var propertySet = graph.CurrentPropertySet
-                    .Use(graph.RmsProp())
+                    .Use(graph.GradientDescent.RmsProp)
                     .Use(graph.WeightInitialisation.Xavier)
                 ;
 
                 // create the engine
                 var trainingData = graph.CreateDataSource(data.Training);
                 var testData = trainingData.CloneWith(data.Test);
-                var engine = graph.CreateTrainingEngine(trainingData, 0.003f, 8);
+                var engine = graph.CreateTrainingEngine(trainingData, 0.01f, 8);
 
                 // build the network
                 const int HIDDEN_LAYER_SIZE = 128;
                 var memory = new float[HIDDEN_LAYER_SIZE];
-                var memory2 = new float[HIDDEN_LAYER_SIZE];
                 var network = graph.Connect(engine)
-                    .AddGru(memory)
+                    .AddLstm(memory)
                     //.AddSimpleRecurrent(graph.ReluActivation(), memory)
                     .AddFeedForward(engine.DataSource.OutputSize)
-                    //.Add(graph.SigmoidActivation())
+                    .Add(graph.SigmoidActivation())
                     .AddBackpropagationThroughTime(errorMetric)
                 ;
 
-                engine.Train(30, testData, errorMetric);
+                engine.Train(10, testData, errorMetric);
 
                 var networkGraph = engine.Graph;
                 var executionEngine = graph.CreateEngine(networkGraph);
@@ -133,9 +136,9 @@ namespace BrightWire.SampleCode
 
         static void SequenceToSequence()
         {
-            const int SEQUENCE_LENGTH = 4;
+            const int SEQUENCE_LENGTH = 5;
             var grammar = new SequenceClassification(8, SEQUENCE_LENGTH, SEQUENCE_LENGTH, true, false);
-            var sequences = grammar.GenerateSequences().Take(1000).ToList();
+            var sequences = grammar.GenerateSequences().Take(2000).ToList();
             var builder = BrightWireProvider.CreateDataTableBuilder();
             builder.AddColumn(ColumnType.Matrix, "Input");
             builder.AddColumn(ColumnType.Matrix, "Output");
@@ -149,25 +152,25 @@ namespace BrightWire.SampleCode
             }
             var data = builder.Build().Split(0);
 
-            using (var lap = BrightWireProvider.CreateLinearAlgebra(false)) {
+            using (var lap = BrightWireProvider.CreateLinearAlgebra()) {
                 var graph = new GraphFactory(lap);
-                var errorMetric = graph.ErrorMetric.OneHotEncoding;
+                var errorMetric = graph.ErrorMetric.BinaryClassification;
 
                 // create the property set
                 var propertySet = graph.CurrentPropertySet
-                    .Use(graph.RmsProp())
+                    .Use(graph.GradientDescent.RmsProp)
                     .Use(graph.WeightInitialisation.Xavier)
                 ;
 
                 const int BATCH_SIZE = 16;
                 int HIDDEN_LAYER_SIZE = 64;
-                const float TRAINING_RATE = 0.003f;
+                const float TRAINING_RATE = 0.01f;
+
+                // create the encoder
                 var encoderLearningContext = graph.CreateLearningContext(TRAINING_RATE, BATCH_SIZE, TrainingErrorCalculation.Fast, true);
                 var encoderMemory = new float[HIDDEN_LAYER_SIZE];
-                var decoderMemory = new float[HIDDEN_LAYER_SIZE];
-
                 var trainingData = graph.CreateDataSource(data.Training, encoderLearningContext, wb => wb
-                    .AddGru(encoderMemory, "encoder")
+                    .AddLstm(encoderMemory, "encoder")
                     .WriteNodeMemoryToSlot("shared-memory", wb.Find("encoder") as IHaveMemoryNode)
                     .AddFeedForward(grammar.DictionarySize)
                     .Add(graph.SigmoidActivation())
@@ -177,26 +180,30 @@ namespace BrightWire.SampleCode
 
                 // create the engine
                 var engine = graph.CreateTrainingEngine(trainingData, TRAINING_RATE, BATCH_SIZE);
+                engine.LearningContext.ScheduleLearningRate(30, TRAINING_RATE / 3);
+                engine.LearningContext.ScheduleLearningRate(40, TRAINING_RATE / 9);
+
+                // create the decoder
+                var decoderMemory = new float[HIDDEN_LAYER_SIZE];
                 var wb2 = graph.Connect(engine);
                 wb2
                     .JoinInputWithMemory("shared-memory")
                     .IncrementSizeBy(HIDDEN_LAYER_SIZE)
-                    .AddGru(decoderMemory, "decoder")
-                    .WriteNodeMemoryToSlot("shared-memory", wb2.Find("decoder") as IHaveMemoryNode)
+                    .AddLstm(decoderMemory, "decoder")
                     .AddFeedForward(trainingData.OutputSize)
-                    .Add(graph.SoftMaxActivation())
+                    .Add(graph.SigmoidActivation())
                     .AddBackpropagationThroughTime(errorMetric)
                 ;
 
-                engine.Train(30, testData, errorMetric);
+                engine.Train(50, testData, errorMetric);
 
-                var dataSourceModel = (trainingData as IAdaptiveDataSource).GetModel();
-                var testData2 = graph.CreateDataSource(data.Test, dataSourceModel);
-                var networkGraph = engine.Graph;
-                var executionEngine = graph.CreateEngine(networkGraph);
+                //var dataSourceModel = (trainingData as IAdaptiveDataSource).GetModel();
+                //var testData2 = graph.CreateDataSource(data.Test, dataSourceModel);
+                //var networkGraph = engine.Graph;
+                //var executionEngine = graph.CreateEngine(networkGraph);
 
-                var output = executionEngine.Execute(testData2);
-                Console.WriteLine(output.Average(o => o.CalculateError(errorMetric)));
+                //var output = executionEngine.Execute(testData2);
+                //Console.WriteLine(output.Average(o => o.CalculateError(errorMetric)));
             }
         }
     }
