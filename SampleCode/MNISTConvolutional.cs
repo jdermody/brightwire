@@ -18,38 +18,41 @@ namespace BrightWire.SampleCode
         {
             using (var lap = BrightWireGpuProvider.CreateLinearAlgebra(false)) {
                 var graph = new GraphFactory(lap);
-                var errorMetric = graph.ErrorMetric.OneHotEncoding;
-                var propertySet = graph.CurrentPropertySet
-                    .Use(graph.Regularisation.L2)
-                    .Use(graph.RmsProp())
-                    .Use(graph.XavierWeightInitialisation())
-                ;
 
                 Console.Write("Loading training data...");
                 var trainingData = _BuildTensors(graph, null, Mnist.Load(dataFilesPath + "train-labels.idx1-ubyte", dataFilesPath + "train-images.idx3-ubyte"));
                 var testData = _BuildTensors(graph, trainingData, Mnist.Load(dataFilesPath + "t10k-labels.idx1-ubyte", dataFilesPath + "t10k-images.idx3-ubyte"));
                 Console.WriteLine($"done - {trainingData.RowCount} training images and {testData.RowCount} test images loaded");
 
+                var errorMetric = graph.ErrorMetric.OneHotEncoding;
+                var propertySet = graph.CurrentPropertySet
+                    .Use(graph.GradientDescent.Adam)
+                    .Use(graph.WeightInitialisation.Xavier)
+                ;
+
                 // create the network
-                const int HIDDEN_LAYER_SIZE = 128;
-                var engine = graph.CreateTrainingEngine(trainingData, 0.002f, 32);
+                const int HIDDEN_LAYER_SIZE = 1024;
+                const float LEARNING_RATE = 0.001f;
+                var engine = graph.CreateTrainingEngine(trainingData, LEARNING_RATE, 64);
+                engine.LearningContext.ScheduleLearningRate(15, LEARNING_RATE / 3);
                 graph.Connect(engine)
-                    .AddConvolutional(32, 1, 3, 3, 1, false)
+                    .AddConvolutional(8, 2, 5, 5, 1, false)
                     .Add(graph.ReluActivation())
                     .AddDropOut(0.5f)
                     .AddMaxPooling(2, 2, 2)
+                    .AddConvolutional(16, 2, 5, 5, 1)
                     .Add(graph.ReluActivation())
-                    //.AddConvolutional(24, 1, 3, 3, 2)
-                    //.Add(graph.ReluActivation())
+                    .AddMaxPooling(2, 2, 2)
                     .Transpose()
-                    .AddDropConnect(0.5f, HIDDEN_LAYER_SIZE)
+                    .AddFeedForward(HIDDEN_LAYER_SIZE)
                     .Add(graph.ReluActivation())
+                    .AddDropOut(0.5f)
                     .AddFeedForward(trainingData.OutputSize)
-                    .Add(graph.SigmoidActivation())
+                    .Add(graph.SoftMaxActivation())
                     .AddBackpropagation(errorMetric)
                 ;
 
-                engine.Train(10, testData, errorMetric);
+                engine.Train(20, testData, errorMetric);
 
                 // export the graph and verify that the error is the same
                 var networkGraph = engine.Graph;
