@@ -31,7 +31,7 @@ namespace BrightWire.ExecutionGraph.Engine
         public IDataSource DataSource => _dataSource;
         public ILinearAlgebraProvider LinearAlgebraProvider => _lap;
 
-        public IReadOnlyList<ExecutionResult> Execute(IDataSource dataSource, int batchSize = 128)
+        public IReadOnlyList<ExecutionResult> Execute(IDataSource dataSource, int batchSize = 128, Action<float> batchCompleteCallback = null)
         {
             _lap.PushLayer();
             _dataSource = dataSource;
@@ -39,6 +39,8 @@ namespace BrightWire.ExecutionGraph.Engine
             var provider = new MiniBatchProvider(dataSource, false);
             using (var executionContext = new ExecutionContext(_lap)) {
                 executionContext.Add(provider.GetMiniBatches(batchSize, mb => _Execute(executionContext, mb)));
+                float operationCount = executionContext.RemainingOperationCount;
+                float index = 0f;
 
                 IGraphOperation operation;
                 while ((operation = executionContext.GetNextOperation()) != null) {
@@ -51,6 +53,11 @@ namespace BrightWire.ExecutionGraph.Engine
                     }
                     _executionResults.Clear();
                     _lap.PopLayer();
+
+                    if (batchCompleteCallback != null) {
+                        var percentage = (++index) / operationCount;
+                        batchCompleteCallback(percentage);
+                    }
                 }
             }
             _lap.PopLayer();

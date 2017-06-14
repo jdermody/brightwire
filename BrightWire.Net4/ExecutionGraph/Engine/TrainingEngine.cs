@@ -44,14 +44,15 @@ namespace BrightWire.ExecutionGraph.Engine
             }
         }
 
-        public IReadOnlyList<ExecutionResult> Execute(IDataSource dataSource, int batchSize = 128)
+        public IReadOnlyList<ExecutionResult> Execute(IDataSource dataSource, int batchSize = 128, Action<float> batchCompleteCallback = null)
         {
             _lap.PushLayer();
             var ret = new List<ExecutionResult>();
             var provider = new MiniBatchProvider(dataSource, _isStochastic);
             using (var executionContext = new ExecutionContext(_lap)) {
                 executionContext.Add(provider.GetMiniBatches(batchSize, mb => _Execute(executionContext, mb)));
-
+                float operationCount = executionContext.RemainingOperationCount;
+                float index = 0f;
                 IGraphOperation operation;
                 while ((operation = executionContext.GetNextOperation()) != null) {
                     _lap.PushLayer();
@@ -61,6 +62,11 @@ namespace BrightWire.ExecutionGraph.Engine
                         ret.Add(new ExecutionResult(item.Sequence, item.Output.Row));
                     _executionResults.Clear();
                     _lap.PopLayer();
+
+                    if (batchCompleteCallback != null) {
+                        var percentage = (++index) / operationCount;
+                        batchCompleteCallback(percentage);
+                    }
                 }
             }
             _lap.PopLayer();
@@ -151,9 +157,9 @@ namespace BrightWire.ExecutionGraph.Engine
             return context;
         }
 
-        public bool Test(IDataSource testDataSource, IErrorMetric errorMetric, int batchSize = 128)
+        public bool Test(IDataSource testDataSource, IErrorMetric errorMetric, int batchSize = 128, Action<float> batchCompleteCallback = null)
         {
-            var testError = Execute(testDataSource, batchSize)
+            var testError = Execute(testDataSource, batchSize, batchCompleteCallback)
                 .Where(b => b.Target != null)
                 .Average(o => o.CalculateError(errorMetric))
             ;
@@ -171,7 +177,7 @@ namespace BrightWire.ExecutionGraph.Engine
 
             if (_learningContext.CurrentEpoch == 0) {
                 var score = String.Format(isPercentage ? "{0:P}" : "{0:N4}", testError);
-                Console.WriteLine($"Initial test score: {score}");
+                Console.WriteLine($"\rInitial test score: {score}");
                 return false;
             } else {
                 var format = isPercentage
