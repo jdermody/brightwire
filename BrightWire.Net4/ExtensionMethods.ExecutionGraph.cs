@@ -27,13 +27,12 @@ namespace BrightWire
         public static void Train(this IGraphTrainingEngine engine, int numIterations, IDataSource testData, IErrorMetric errorMetric, Action<GraphModel> onImprovement = null, int testCadence = 1)
         {
             var executionContext = new ExecutionContext(engine.LinearAlgebraProvider);
-            engine.Test(testData, errorMetric);
-            Console.Write("\r({0:P}) ", 0f);
+            engine.Test(testData, errorMetric, 128, percentage => Console.Write("\rTesting... ({0:P})    ", percentage));
             int count = 0;
             for (var i = 0; i < numIterations; i++) {
-                engine.Train(executionContext, percentage => Console.Write("\r({0:P}) ", percentage));
+                engine.Train(executionContext, percentage => Console.Write("\rTraining... ({0:P})    ", percentage));
                 if (++count == testCadence) {
-                    if (engine.Test(testData, errorMetric) && onImprovement != null) {
+                    if (engine.Test(testData, errorMetric, 128, percentage => Console.Write("\rTesting... ({0:P})    ", percentage)) && onImprovement != null) {
                         var bestModel = new GraphModel {
                             Graph = engine.Graph
                         };
