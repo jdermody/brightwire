@@ -561,8 +561,9 @@ namespace BrightWire
         /// </summary>
         /// <param name="dataSource">Data source to process</param>
         /// <param name="batchSize">Initial size of each mini batch</param>
+        /// <param name="batchCompleteCallback">Optional callback to be notifiied after each mini batch has completed</param>
         /// <returns></returns>
-        IReadOnlyList<ExecutionResult> Execute(IDataSource dataSource, int batchSize = 128);
+        IReadOnlyList<ExecutionResult> Execute(IDataSource dataSource, int batchSize = 128, Action<float> batchCompleteCallback = null);
 
         /// <summary>
         /// Executes a single vector on the current graph
@@ -602,8 +603,9 @@ namespace BrightWire
         /// <param name="testDataSource">Data source with test data</param>
         /// <param name="errorMetric">Error metric to use to evaluate the test score</param>
         /// <param name="batchSize">Initial size of each mini batch</param>
+        /// <param name="batchCompleteCallback">Optional callback to be notifiied after each mini batch has completed</param>
         /// <returns>True if the model performance has improved since the last test</returns>
-        bool Test(IDataSource testDataSource, IErrorMetric errorMetric, int batchSize = 128);
+        bool Test(IDataSource testDataSource, IErrorMetric errorMetric, int batchSize = 128, Action<float> batchCompleteCallback = null);
 
         /// <summary>
         /// Graph learning context

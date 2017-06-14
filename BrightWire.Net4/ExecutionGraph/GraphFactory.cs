@@ -11,6 +11,7 @@ using BrightWire.ExecutionGraph.Node.Gate;
 using BrightWire.ExecutionGraph.Node.Helper;
 using BrightWire.ExecutionGraph.Node.Input;
 using BrightWire.ExecutionGraph.Node.Layer;
+using BrightWire.ExecutionGraph.Node.Operation;
 using BrightWire.ExecutionGraph.WeightInitialisation;
 using BrightWire.Helper;
 using BrightWire.Models;
@@ -484,6 +485,17 @@ namespace BrightWire.ExecutionGraph
         }
 
         /// <summary>
+        /// Creates a batch normalisation layer
+        /// </summary>
+        /// <param name="inputSize">Number of incoming connections</param>
+        /// <param name="name">Optional name to give the node</param>
+        /// <returns></returns>
+        public INode CreateBatchNormalisation(int inputSize, string name)
+        {
+            return new BatchNormalisation(this, inputSize, name);
+        }
+
+        /// <summary>
         /// Creates a GRU recurrent layer
         /// </summary>
         /// <param name="inputSize">Number of incoming connections</param>
@@ -493,6 +505,18 @@ namespace BrightWire.ExecutionGraph
         public INode CreateGru(int inputSize, float[] memory, string name = null)
         {
             return new GatedRecurrentUnit(this, inputSize, memory, name);
+        }
+
+        /// <summary>
+        /// Creates a Recurrent Additive Layer (recurrent)
+        /// </summary>
+        /// <param name="inputSize">Number of incoming connections</param>
+        /// <param name="memory">Size of the layer memory</param>
+        /// <param name="name">Optional name to give the node</param>
+        /// <returns></returns>
+        public INode CreateRan(int inputSize, float[] memory, string name = null)
+        {
+            return new RecurrentAdditiveLayer(this, inputSize, memory, name);
         }
 
         /// <summary>
@@ -564,6 +588,39 @@ namespace BrightWire.ExecutionGraph
         {
             Debug.Assert(input1.CurrentSize == input2.CurrentSize);
             return Add(input1.CurrentSize, input1.LastNode, input2.LastNode, name);
+        }
+
+        /// <summary>
+        /// Subtracts the second input from the first input and sends the result to a new wire
+        /// </summary>
+        /// <param name="input1">Wire to subtract from</param>
+        /// <param name="input2">Wire to subtract</param>
+        /// <param name="name">Optional name to give the node</param>
+        /// <returns></returns>
+        public WireBuilder Subtract(WireBuilder input1, WireBuilder input2, string name = null)
+        {
+            Debug.Assert(input1.CurrentSize == input2.CurrentSize);
+            return Subtract(input1.CurrentSize, input1.LastNode, input2.LastNode, name);
+        }
+
+        /// <summary>
+        /// Subtracts the second input from the first input and sends the result to a new wire
+        /// </summary>
+        /// <param name="inputSize">The number of connections</param>
+        /// <param name="input1">The node to subtract from</param>
+        /// <param name="input2">The node to subtract</param>
+        /// <param name="name">Optional name to give the node</param>
+        /// <returns></returns>
+        public WireBuilder Subtract(int inputSize, INode input1, INode input2, string name = null)
+        {
+            var subtract = new SubtractGate(name);
+            var wireToPrimary = new WireToNode(subtract);
+            var wireToSecondary = new WireToNode(subtract, 1);
+
+            input1.Output.Add(wireToPrimary);
+            input2.Output.Add(wireToSecondary);
+
+            return new WireBuilder(this, inputSize, subtract);
         }
 
         /// <summary>

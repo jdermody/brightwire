@@ -9,7 +9,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
     /// <summary>
     /// Feeds memory into the graph from a named memory slot
     /// </summary>
-    internal class MemoryFeeder : NodeBase
+    class MemoryFeeder : NodeBase
     {
         class Backpropagation : BackpropagationBase<MemoryFeeder>
         {
@@ -57,7 +57,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
 
         void _OnStart(IContext context)
         {
-            var memory = GetMemory(context.LinearAlgebraProvider, context.BatchSequence.MiniBatch.BatchSize);
+            var memory = context.LinearAlgebraProvider.CreateMatrix(context.BatchSequence.MiniBatch.BatchSize, _data.Length, (x, y) => _data[y]);
             _AddNextGraphAction(context, new MatrixGraphData(memory), () => new Backpropagation(this));
         }
 
@@ -66,8 +66,6 @@ namespace BrightWire.ExecutionGraph.Node.Input
             var memory = context.ExecutionContext.GetMemory(Id);
             _AddNextGraphAction(context, new MatrixGraphData(memory), null);
         }
-
-        public IMatrix GetMemory(ILinearAlgebraProvider lap, int batchSize) => lap.CreateMatrix(batchSize, _data.Length, (x, y) => _data[y]);
 
         protected override (string Description, byte[] Data) _GetInfo()
         {

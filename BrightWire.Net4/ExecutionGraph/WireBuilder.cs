@@ -196,6 +196,17 @@ namespace BrightWire.ExecutionGraph
         }
 
         /// <summary>
+        /// Adds a batch normalisation layer
+        /// </summary>
+        /// <param name="name">Optional name to give the node</param>
+        /// <returns></returns>
+        public WireBuilder AddBatchNormalisation(string name = null)
+        {
+            _SetNode(_factory.CreateBatchNormalisation(CurrentSize, name));
+            return this;
+        }
+
+        /// <summary>
         /// Adds a simple recurrent neural network layer
         /// </summary>
         /// <param name="activation">Activation layer</param>
@@ -245,6 +256,17 @@ namespace BrightWire.ExecutionGraph
         public WireBuilder AddGru(float[] initialMemory, string name = null)
         {
             _SetNode(_factory.CreateGru(CurrentSize, initialMemory, name));
+            return SetNewSize(initialMemory.Length);
+        }
+
+        /// <summary>
+        /// Adds a recurrent additive layer (recurrent)
+        /// </summary>
+        /// <param name="initialMemory">Initial memory</param>
+        /// <param name="name">Optional name to give the node</param>
+        public WireBuilder AddRan(float[] initialMemory, string name = null)
+        {
+            _SetNode(_factory.CreateRan(CurrentSize, initialMemory, name));
             return SetNewSize(initialMemory.Length);
         }
 

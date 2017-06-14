@@ -29,7 +29,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
                     var firstSignal = _signalTable[_source._children.First()];
                     foreach (var parent in parents)
                         context.AddBackward(firstSignal, parent, _source);
-                    _source._onBackpropagation(_signalTable);
+                    _source._onBackpropagation?.Invoke(_signalTable);
                 }
             }
         }

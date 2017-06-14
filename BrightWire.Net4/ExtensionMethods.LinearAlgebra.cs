@@ -103,7 +103,6 @@ namespace BrightWire
         /// <returns></returns>
         public static IMatrix CreateMatrix(this ILinearAlgebraProvider lap, int rows, int columns, float value)
         {
-            Debug.Assert(value != 0f); // use CreateZeroMatrix to initialise to zero
             return lap.CreateMatrix(rows, columns, (i, j) => value);
         }
 

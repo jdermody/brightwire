@@ -127,7 +127,15 @@
     <Compile Include="ExecutionGraph\Helper\TrainingAction.cs" />
     <Compile Include="ExecutionGraph\Helper\GraphData.cs" />
     <Compile Include="ExecutionGraph\Helper\MiniBatch.cs" />
+    <Compile Include="ExecutionGraph\Node\Gate\SubtractGate.cs" />
+    <Compile Include="ExecutionGraph\Node\Layer\BatchNormalisation.cs" />
+    <Compile Include="ExecutionGraph\Node\Layer\RecurrentAdditiveLayer.cs" />
+    <Compile Include="ExecutionGraph\Node\Operation\CalculateVariance.cs" />
+    <Compile Include="ExecutionGraph\Node\Operation\InputSquared.cs" />
     <Compile Include="ExecutionGraph\Node\Helper\NodeWrapper.cs" />
+    <Compile Include="ExecutionGraph\Node\Operation\MultiplyWithParameter.cs" />
+    <Compile Include="ExecutionGraph\Node\Operation\OneDividedByInput.cs" />
+    <Compile Include="ExecutionGraph\Node\Operation\SquareRootOfInput.cs" />
     <Compile Include="ExecutionGraph\Node\Input\InputFeeder.cs" />
     <Compile Include="ExecutionGraph\Node\SingleBackpropagationBase.cs" />
     <Compile Include="ExecutionGraph\Engine\Helper\TrainingEngineContext.cs" />
@@ -152,7 +160,7 @@
     <Compile Include="ExecutionGraph\Node\Gate\MultiplyGate.cs" />
     <Compile Include="ExecutionGraph\Node\Helper\ExecuteBackwardAction.cs" />
     <Compile Include="ExecutionGraph\Node\Helper\ExecuteForwardAction.cs" />
-    <Compile Include="ExecutionGraph\Node\Helper\OneMinusInput.cs" />
+    <Compile Include="ExecutionGraph\Node\Operation\OneMinusInput.cs" />
     <Compile Include="ExecutionGraph\Node\Helper\HookErrorSignal.cs" />
     <Compile Include="ExecutionGraph\Node\Helper\RowClassifier.cs" />
     <Compile Include="ExecutionGraph\Node\Helper\TransposeSignal.cs" />

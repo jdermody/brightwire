@@ -1,7 +1,7 @@
 ﻿using BrightWire.ExecutionGraph.Helper;
 using System.Collections.Generic;
 
-namespace BrightWire.ExecutionGraph.Node.Helper
+namespace BrightWire.ExecutionGraph.Node.Operation
 {
     /// <summary>
     /// Subtracts the input from one (1-x)

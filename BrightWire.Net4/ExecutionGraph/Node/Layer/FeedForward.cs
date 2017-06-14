@@ -77,7 +77,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         public void UpdateBias(IMatrix delta, ILearningContext context)
         {
             using (var columnSums = delta.ColumnSums())
-                _bias.AddInPlace(columnSums, 1f / columnSums.Count, context.LearningRate);
+                _bias.AddInPlace(columnSums, 1f / delta.RowCount, context.LearningRate);
         }
 
         protected IMatrix _FeedForward(IMatrix input, IMatrix weight)
