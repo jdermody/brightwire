@@ -16,7 +16,7 @@ Bright Wire runs "out of the box" for CPU based computation on .Net 4.6 and abov
 To enable higher performance CPU based computation, Bright Wire also supports the Intel Math Kernel Library (MKL) 
 via the [Numerics.Net Wrapper](http://numerics.mathdotnet.com/MKL.html).
 
-## Geting Started Tutorials
+## Tutorials
 
 * [Getting Started](http://www.jackdermody.net/brightwire/article/Introduction_to_Bright_Wire)
 * [Classification Overview](http://www.jackdermody.net/brightwire/article/Classification_Overview_with_Bright_Wire)
@@ -24,7 +24,10 @@ via the [Numerics.Net Wrapper](http://numerics.mathdotnet.com/MKL.html).
 * [Recognising Handwritten Digits (MNIST)](http://www.jackdermody.net/brightwire/article/Recognising_Handwritten_Digits_(MNIST))
 * [Sentiment Analysis](http://www.jackdermody.net/brightwire/article/Sentiment_Analysis)
 * [Text Clustering](http://www.jackdermody.net/brightwire/article/Text_Clustering_Four_Ways)
-* [Recurrent Neural Networks](http://www.jackdermody.net/brightwire/article/Teaching_a_Recurrent_Neural_Net_Binary_Addition)
+* [Simple Recurrent Neural Networks](http://www.jackdermody.net/brightwire/article/Teaching_a_Recurrent_Neural_Net_Binary_Addition)
+* [GRU Recurrent Neural Networks](http://www.jackdermody.net/brightwire/article/GRU_Recurrent_Neural_Networks)
+* [Sequence to Sequence Neural Networks with LSTM](http://www.jackdermody.net/brightwire/article/Sequence_to_Sequence_with_LSTM)
+* [Convolutional Neural Networks](http://www.jackdermody.net/brightwire/article/Convolutional_Neural_Networks)
 
 ## Nuget Installation
 
