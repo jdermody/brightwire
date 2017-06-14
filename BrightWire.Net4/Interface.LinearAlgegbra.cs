@@ -703,22 +703,6 @@ namespace BrightWire
         void Constrain(float min, float max);
 
         /// <summary>
-        /// Updates the values of the current matrix from the target vector
-        /// </summary>
-        /// <param name="index">The row to update</param>
-        /// <param name="vector">The target vector</param>
-        /// <param name="columnIndex">Update the column from this offset</param>
-        void UpdateRow(int index, IIndexableVector vector, int columnIndex);
-
-        /// <summary>
-        /// Updates the values of the current matrix from the target vector
-        /// </summary>
-        /// <param name="index">The column to update</param>
-        /// <param name="vector">The target vector</param>
-        /// <param name="rowIndex">Update the row from this offset</param>
-        void UpdateColumn(int index, IIndexableVector vector, int rowIndex);
-
-        /// <summary>
         /// Returns a segment from a row of the current matrix
         /// </summary>
         /// <param name="rowIndex">The row index</param>

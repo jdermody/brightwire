@@ -859,37 +859,37 @@ namespace UnitTests
             FloatingPointHelper.AssertEqual(r, gpuResults);
         }
 
-        [TestMethod]
-        public void MatrixUpdateRow()
-        {
-            var a = _cpu.CreateMatrix(3, 7, (x, y) => x * 2 + y).AsIndexable();
-            var r = _cpu.CreateVector(2, x => -1f).AsIndexable();
+        //[TestMethod]
+        //public void MatrixUpdateRow()
+        //{
+        //    var a = _cpu.CreateMatrix(3, 7, (x, y) => x * 2 + y).AsIndexable();
+        //    var r = _cpu.CreateVector(2, x => -1f).AsIndexable();
 
-            IIndexableMatrix gpuResults;
-            using (var gpuA = _cuda.CreateMatrix(a)) {
-                gpuA.UpdateRow(2, r, 3);
-                gpuResults = gpuA.AsIndexable();
-            }
+        //    IIndexableMatrix gpuResults;
+        //    using (var gpuA = _cuda.CreateMatrix(a)) {
+        //        gpuA.UpdateRow(2, r, 3);
+        //        gpuResults = gpuA.AsIndexable();
+        //    }
 
-            a.UpdateRow(2, r, 3);
-            FloatingPointHelper.AssertEqual(a, gpuResults);
-        }
+        //    a.UpdateRow(2, r, 3);
+        //    FloatingPointHelper.AssertEqual(a, gpuResults);
+        //}
 
-        [TestMethod]
-        public void MatrixUpdateColumn()
-        {
-            var a = _cpu.CreateMatrix(13, 17, (x, y) => x * 2 + y).AsIndexable();
-            var r = _cpu.CreateVector(2, x => -1f).AsIndexable();
+        //[TestMethod]
+        //public void MatrixUpdateColumn()
+        //{
+        //    var a = _cpu.CreateMatrix(13, 17, (x, y) => x * 2 + y).AsIndexable();
+        //    var r = _cpu.CreateVector(2, x => -1f).AsIndexable();
 
-            IIndexableMatrix gpuResults;
-            using (var gpuA = _cuda.CreateMatrix(a)) {
-                gpuA.UpdateColumn(2, r, 3);
-                gpuResults = gpuA.AsIndexable();
-            }
+        //    IIndexableMatrix gpuResults;
+        //    using (var gpuA = _cuda.CreateMatrix(a)) {
+        //        gpuA.UpdateColumn(2, r, 3);
+        //        gpuResults = gpuA.AsIndexable();
+        //    }
 
-            a.UpdateColumn(2, r, 3);
-            FloatingPointHelper.AssertEqual(a, gpuResults);
-        }
+        //    a.UpdateColumn(2, r, 3);
+        //    FloatingPointHelper.AssertEqual(a, gpuResults);
+        //}
 
         [TestMethod]
         public void MatrixGetRowSegment()
