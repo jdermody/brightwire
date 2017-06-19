@@ -9,13 +9,22 @@ namespace BrightWire.ExecutionGraph.WeightInitialisation
     class Gaussian : IWeightInitialisation
     {
         readonly IContinuousDistribution _distribution;
+        readonly GaussianVarianceCalibration _varianceCalibration;
+        readonly GaussianVarianceCount _varianceCount;
         readonly ILinearAlgebraProvider _lap;
         readonly bool _zeroBias;
 
-        public Gaussian(ILinearAlgebraProvider lap, bool zeroInitialBias = true, double stdDev = 0.1)
-        {
+        public Gaussian(
+            ILinearAlgebraProvider lap, 
+            bool zeroInitialBias = true, 
+            double stdDev = 0.1, 
+            GaussianVarianceCalibration varianceCalibration = GaussianVarianceCalibration.SquareRootN,
+            GaussianVarianceCount varianceCount = GaussianVarianceCount.FanIn
+        ) {
             _lap = lap;
             _zeroBias = zeroInitialBias;
+            _varianceCalibration = varianceCalibration;
+            _varianceCount = varianceCount;
             _distribution = lap.IsStochastic ? new Normal(0, stdDev) : new Normal(0, stdDev, new Random(0));
         }
 
@@ -26,8 +35,21 @@ namespace BrightWire.ExecutionGraph.WeightInitialisation
 
         float _GetWeight(int inputSize, int outputSize, int i, int j)
         {
-            var ret = Convert.ToSingle(_distribution.Sample() / Math.Sqrt(inputSize));
-            return ret;
+            var n = 0;
+            if (_varianceCount == GaussianVarianceCount.FanIn || _varianceCount == GaussianVarianceCount.FanInFanOut)
+                n += inputSize;
+            if (_varianceCount == GaussianVarianceCount.FanOut || _varianceCount == GaussianVarianceCount.FanInFanOut)
+                n += outputSize;
+
+            double sample = _distribution.Sample();
+            if(n > 0) {
+                if (_varianceCalibration == GaussianVarianceCalibration.SquareRootN)
+                    sample /= Math.Sqrt(n);
+                else if (_varianceCalibration == GaussianVarianceCalibration.SquareRoot2N)
+                    sample *= Math.Sqrt(2.0 / n);
+            }
+
+            return Convert.ToSingle(sample);
         }
 
         public IVector CreateBias(int size)
