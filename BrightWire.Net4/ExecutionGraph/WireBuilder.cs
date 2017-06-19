@@ -196,7 +196,7 @@ namespace BrightWire.ExecutionGraph
         }
 
         /// <summary>
-        /// Adds a batch normalisation layer
+        /// Adds a batch normalisation layer (currently incomplete)
         /// </summary>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>

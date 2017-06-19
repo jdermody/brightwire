@@ -485,7 +485,7 @@ namespace BrightWire.ExecutionGraph
         }
 
         /// <summary>
-        /// Creates a batch normalisation layer
+        /// Creates a batch normalisation layer (currently incomplete)
         /// </summary>
         /// <param name="inputSize">Number of incoming connections</param>
         /// <param name="name">Optional name to give the node</param>
@@ -760,7 +760,14 @@ namespace BrightWire.ExecutionGraph
         /// </summary>
         /// <param name="zeroBias">True to set bias values to zero, otherwise bias initialisation is treated the same as weight initialisation</param>
         /// <param name="stdDev">Standard deviation of gaussian distribution</param>
-        public IWeightInitialisation GaussianWeightInitialisation(bool zeroBias = true, float stdDev = 0.1f) => new Gaussian(_lap, zeroBias, stdDev);
+        /// <param name="varianceCalibration">How to calibrate the variance</param>
+        /// <param name="varianceCount">How to count connections while calibrating connections</param>
+        public IWeightInitialisation GaussianWeightInitialisation(
+            bool zeroBias = true, 
+            float stdDev = 0.1f, 
+            GaussianVarianceCalibration varianceCalibration = GaussianVarianceCalibration.SquareRootN, 
+            GaussianVarianceCount varianceCount = GaussianVarianceCount.FanIn
+        ) => new Gaussian(_lap, zeroBias, stdDev, varianceCalibration, varianceCount);
 
         /// <summary>
         /// Creates an identity weight initialiser

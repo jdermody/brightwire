@@ -204,7 +204,7 @@ namespace BrightWire.ExecutionGraph.Engine
         {
             _lap.PushLayer();
             ExecutionResult ret = null;
-            var provider = new MiniBatchProvider(new Helper.SingleRowDataSource(input), _isStochastic);
+            var provider = new MiniBatchProvider(new SingleRowDataSource(input, false, MiniBatchSequenceType.Standard, 0), _isStochastic);
             using (var executionContext = new ExecutionContext(_lap)) {
                 executionContext.Add(provider.GetMiniBatches(1, mb => _Execute(executionContext, mb)));
 
@@ -217,6 +217,26 @@ namespace BrightWire.ExecutionGraph.Engine
                 foreach (var item in _executionResults)
                     ret = new ExecutionResult(item.Sequence, item.Output.Row);
             }
+            _executionResults.Clear();
+            _lap.PopLayer();
+            return ret;
+        }
+
+        public ExecutionResult ExecuteSequential(int sequenceIndex, float[] input, IExecutionContext executionContext, MiniBatchSequenceType sequenceType)
+        {
+            _lap.PushLayer();
+            ExecutionResult ret = null;
+            var provider = new MiniBatchProvider(new SingleRowDataSource(input, true, sequenceType, sequenceIndex), _isStochastic);
+            executionContext.Add(provider.GetMiniBatches(1, mb => _Execute(executionContext, mb)));
+
+            IGraphOperation operation;
+            while ((operation = executionContext.GetNextOperation()) != null) {
+                operation.Execute(executionContext);
+                _ClearContextList();
+            }
+
+            foreach (var item in _executionResults)
+                ret = new ExecutionResult(item.Sequence, item.Output.Row);
             _executionResults.Clear();
             _lap.PopLayer();
             return ret;

@@ -375,6 +375,48 @@ namespace BrightWire
     }
 
     /// <summary>
+    /// Gaussian weight initialisation type
+    /// </summary>
+    public enum GaussianVarianceCalibration
+    {
+        /// <summary>
+        /// Variances are calibrated by dividing by the square root of the connection count
+        /// </summary>
+        SquareRootN,
+
+        /// <summary>
+        /// Variances are calibrated by multiplying by twice the square root of the connection count
+        /// </summary>
+        SquareRoot2N
+    }
+
+    /// <summary>
+    /// Gaussian variance count
+    /// </summary>
+    public enum GaussianVarianceCount
+    {
+        /// <summary>
+        /// No variance calibration is applied
+        /// </summary>
+        None,
+
+        /// <summary>
+        /// The count of incoming connections is used
+        /// </summary>
+        FanIn,
+
+        /// <summary>
+        /// The count of outgoing connections is used
+        /// </summary>
+        FanOut,
+
+        /// <summary>
+        /// The count incoming and outgoing connections is used
+        /// </summary>
+        FanInFanOut
+    }
+
+    /// <summary>
     /// Neural network weight initialiser
     /// </summary>
     public interface IWeightInitialisation

@@ -49,7 +49,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
 
         public override void ExecuteForward(IContext context)
         {
-            if (context.BatchSequence.SequenceIndex == 0)
+            if (context.BatchSequence.Type == MiniBatchSequenceType.SequenceStart)
                 _OnStart(context);
             else
                 _OnNext(context);

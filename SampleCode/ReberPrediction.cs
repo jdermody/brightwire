@@ -21,8 +21,8 @@ namespace BrightWire.SampleCode
                 var graph = new GraphFactory(lap);
                 var errorMetric = graph.ErrorMetric.BinaryClassification;
                 var propertySet = graph.CurrentPropertySet
-                    .Use(graph.RmsProp())
-                    .Use(graph.XavierWeightInitialisation())
+                    .Use(graph.GradientDescent.RmsProp)
+                    .Use(graph.WeightInitialisation.Xavier)
                 ;
 
                 // create the engine
@@ -34,9 +34,10 @@ namespace BrightWire.SampleCode
                 const int HIDDEN_LAYER_SIZE = 64;
                 var memory = new float[HIDDEN_LAYER_SIZE];
                 var network = graph.Connect(engine)
-                    //.AddSimpleRecurrent(graph.ReluActivation(), memory, "rnn")
-                    .AddGru(memory, "rnn")
-                    //.AddLstm(memory, "rnn")
+                    //.AddSimpleRecurrent(graph.ReluActivation(), memory)
+                    .AddGru(memory)
+                    //.AddRan(memory)
+                    //.AddLstm(memory)
 
                     .AddFeedForward(engine.DataSource.OutputSize)
                     .Add(graph.SigmoidActivation())
@@ -44,19 +45,40 @@ namespace BrightWire.SampleCode
                 ;
 
                 engine.Train(30, testData, errorMetric);
+
+                // generate sample sequence
                 var networkGraph = engine.Graph;
-                var executionContext = graph.CreateExecutionContext();
-                var executionEngine = graph.CreateEngine(networkGraph);
+                using (var executionContext = graph.CreateExecutionContext()) {
+                    var executionEngine = graph.CreateEngine(networkGraph);
 
-                var input = new float[ReberGrammar.Size];
-                input[ReberGrammar.GetIndex('B')] = 1f;
+                    Console.WriteLine("Generating a new reber sequence...");
+                    var input = new float[ReberGrammar.Size];
+                    input[ReberGrammar.GetIndex('B')] = 1f;
+                    Console.Write("B");
 
-                var graphMemory = executionEngine.Start.FindByName("rnn") as IHaveMemoryNode;
+                    int index = 0, eCount = 0;
+                    var result = executionEngine.ExecuteSequential(index++, input, executionContext, MiniBatchSequenceType.SequenceStart);
+                    for (var i = 0; i < 32; i++) {
+                        var nextIndex = result.Output[0].Data
+                            .Select((v, j) => (v, j))
+                            .Where(d => d.Item1 >= 0.5f)
+                            .Select(d => d.Item2)
+                            .Shuffle()
+                            .FirstOrDefault()
+                        ;
+                        if (index == 0)
+                            break;
 
-                // TODO: generate sample sequence
+                        Console.Write(ReberGrammar.GetChar(nextIndex));
+                        if (nextIndex == ReberGrammar.GetIndex('E') && ++eCount == 2)
+                            break;
 
-                //var output = executionEngine.Execute(testData);
-                //Console.WriteLine(output.Average(o => o.CalculateError(errorMetric)));
+                        input = new float[ReberGrammar.Size];
+                        input[nextIndex] = 1f;
+                        result = executionEngine.ExecuteSequential(index++, input, executionContext, MiniBatchSequenceType.Standard);
+                    }
+                    Console.WriteLine();
+                }
             }
         }
     }
