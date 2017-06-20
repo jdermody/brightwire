@@ -20,7 +20,7 @@ namespace BrightWire.ExecutionGraph.Node.Operation
                 var delta = error.ColumnSums();
                 delta.Multiply(1f / error.RowCount);
                 var delta2 = delta.Average();
-                _source._param += delta2 * context.LearningContext.LearningRate;
+                _source._param += delta2 * context.LearningContext.BatchLearningRate;
                 return errorSignal;
             }
         }

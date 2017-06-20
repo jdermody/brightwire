@@ -25,7 +25,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
                     using (var columnSums = es.ColumnSums()) {
                         var initialDelta = columnSums.AsIndexable();
                         for (var j = 0; j < _source._data.Length; j++)
-                            _source._data[j] += initialDelta[j] * context.LearningContext.LearningRate;
+                            _source._data[j] += initialDelta[j] * context.LearningContext.BatchLearningRate;
                     }
                 }
             }

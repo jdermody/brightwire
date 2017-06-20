@@ -68,6 +68,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MNIST.cs" />
     <Compile Include="ReberPrediction.cs" />
+    <Compile Include="Selu.cs" />
     <Compile Include="SentimentClassification.cs" />
     <Compile Include="SequenceToSequence.cs" />
     <Compile Include="TextClustering.cs" />

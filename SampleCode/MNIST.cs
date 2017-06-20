@@ -38,7 +38,7 @@ namespace BrightWire.SampleCode
                 ;
 
                 // create the training engine and schedule a training rate change
-                const float TRAINING_RATE = 0.003f;
+                const float TRAINING_RATE = 0.1f;
                 var engine = graph.CreateTrainingEngine(trainingData, TRAINING_RATE, 128);
                 engine.LearningContext.ScheduleLearningRate(15, TRAINING_RATE / 3);
 

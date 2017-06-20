@@ -44,6 +44,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public int RowCount { get { return _rowCount; } }
         public int CurrentEpoch { get { return _currentEpoch; } }
         public float LearningRate { get { return _learningRate; } set { _learningRate = value; } }
+        public float BatchLearningRate => LearningRate / BatchSize;
         public int BatchSize { get { return _batchSize; } set { _batchSize = value; } }
         public TrainingErrorCalculation TrainingErrorCalculation { get { return _trainingErrorCalculation; } }
         public long EpochMilliseconds { get { return _timer.ElapsedMilliseconds; } }

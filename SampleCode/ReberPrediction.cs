@@ -28,7 +28,7 @@ namespace BrightWire.SampleCode
                 // create the engine
                 var trainingData = graph.CreateDataSource(data.Training);
                 var testData = trainingData.CloneWith(data.Test);
-                var engine = graph.CreateTrainingEngine(trainingData, 0.003f, 32);
+                var engine = graph.CreateTrainingEngine(trainingData, 0.1f, 32);
 
                 // build the network
                 const int HIDDEN_LAYER_SIZE = 64;

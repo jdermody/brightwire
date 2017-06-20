@@ -15,17 +15,14 @@ namespace BrightWire.ExecutionGraph.GradientDescent
             _decayRate = decayRate;
         }
 
-        public override void Update(IMatrix source, IMatrix delta, ILearningContext context, bool hasAveragedBatchSize)
+        public override void Update(IMatrix source, IMatrix delta, ILearningContext context)
         {
-            //if(!hasAveragedBatchSize)
-            //    delta.Multiply(1f / context.BatchSize);
-
             using (var deltaSquared = delta.PointwiseMultiply(delta)) {
                 _cache.AddInPlace(deltaSquared, _decayRate, 1 - _decayRate);
 
                 using (var cachedSqrt = _cache.Sqrt(1e-8f))
                 using (var delta2 = delta.PointwiseDivide(cachedSqrt)) {
-                    _updater.Update(source, delta2, context, false);
+                    _updater.Update(source, delta2, context);
                 }
             }
         }

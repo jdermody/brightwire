@@ -71,13 +71,13 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
         public void UpdateWeights(IMatrix delta, ILearningContext context)
         {
-            _updater.Update(_weight, delta, context, false);
+            _updater.Update(_weight, delta, context);
         }
 
         public void UpdateBias(IMatrix delta, ILearningContext context)
         {
             using (var columnSums = delta.ColumnSums())
-                _bias.AddInPlace(columnSums, 1f / delta.RowCount, context.LearningRate);
+                _bias.AddInPlace(columnSums, 1f / delta.RowCount, context.BatchLearningRate);
         }
 
         protected IMatrix _FeedForward(IMatrix input, IMatrix weight)

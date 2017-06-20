@@ -150,6 +150,11 @@ namespace BrightWire
         float LearningRate { get; set; }
 
         /// <summary>
+        /// The learning rate adjusted with the current batch size
+        /// </summary>
+        float BatchLearningRate { get; }
+
+        /// <summary>
         /// The current mini batch size
         /// </summary>
         int BatchSize { get; set; }
@@ -254,8 +259,7 @@ namespace BrightWire
         /// <param name="source">The matrix to update</param>
         /// <param name="delta">The delta matrix</param>
         /// <param name="context">The graph learning context</param>
-        /// <param name="hasAveragedBatchSize">True if the batch size has already been applied to the delta</param>
-        void Update(IMatrix source, IMatrix delta, ILearningContext context, bool hasAveragedBatchSize);
+        void Update(IMatrix source, IMatrix delta, ILearningContext context);
     }
 
     /// <summary>

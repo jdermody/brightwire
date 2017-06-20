@@ -84,14 +84,14 @@ namespace BrightWire.SampleCode
                 // use a one hot encoding error metric, rmsprop gradient descent and xavier weight initialisation
                 var errorMetric = graph.ErrorMetric.OneHotEncoding;
                 var propertySet = graph.CurrentPropertySet
-                    .Use(graph.GradientDescent.Adam)
+                    .Use(graph.GradientDescent.RmsProp)
                     .Use(graph.WeightInitialisation.Xavier)
                 ;
 
-                var engine = graph.CreateTrainingEngine(trainingData, 0.003f, 128);
-                engine.LearningContext.ScheduleLearningRate(5, 0.001f);
-                engine.LearningContext.ScheduleLearningRate(11, 0.01f);
-                engine.LearningContext.ScheduleLearningRate(15, 0.003f);
+                var engine = graph.CreateTrainingEngine(trainingData, 0.3f, 128);
+                engine.LearningContext.ScheduleLearningRate(5, 0.1f);
+                engine.LearningContext.ScheduleLearningRate(11, 1f);
+                engine.LearningContext.ScheduleLearningRate(15, 0.3f);
 
                 // train a neural network classifier
                 var neuralNetworkWire = graph.Connect(engine)

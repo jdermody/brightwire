@@ -30,7 +30,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
             void _UpdateBias(IVector delta, ILearningContext context)
             {
-                _source._bias.AddInPlace(delta, 1f, context.LearningRate);
+                _source._bias.AddInPlace(delta, 1f, context.BatchLearningRate);
             }
 
             protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
@@ -103,7 +103,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
         public void Update(IMatrix delta, ILearningContext context)
         {
-            _updater.Update(_filter, delta, context, false);
+            _updater.Update(_filter, delta, context);
         }
 
         public override void ExecuteForward(IContext context)

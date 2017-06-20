@@ -24,12 +24,9 @@ namespace BrightWire.ExecutionGraph.GradientDescent
             base.Dispose();
         }
 
-        public override void Update(IMatrix source, IMatrix delta, ILearningContext context, bool hasAveragedBatchSize)
+        public override void Update(IMatrix source, IMatrix delta, ILearningContext context)
         {
             var t = context.CurrentEpoch;
-
-            //if (!hasAveragedBatchSize)
-            //    delta.Multiply(1f / context.BatchSize);
 
             using (var deltaSquared = delta.PointwiseMultiply(delta)) {
                 _cache.AddInPlace(delta, _decayRate, 1 - _decayRate);
@@ -41,7 +38,7 @@ namespace BrightWire.ExecutionGraph.GradientDescent
                     vb.Multiply(1f / (1f - Convert.ToSingle(Math.Pow(_decayRate2, t))));
                     using (var vbSqrt = vb.Sqrt(1e-8f))
                     using (var delta2 = mb.PointwiseDivide(vbSqrt)) {
-                        _updater.Update(source, delta2, context, false);
+                        _updater.Update(source, delta2, context);
                     }
                 }
             }

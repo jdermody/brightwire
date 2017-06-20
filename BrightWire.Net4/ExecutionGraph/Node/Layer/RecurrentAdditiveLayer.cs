@@ -1,4 +1,5 @@
-﻿using BrightWire.ExecutionGraph.Node.Input;
+﻿using BrightWire.ExecutionGraph.Node.Helper;
+using BrightWire.ExecutionGraph.Node.Input;
 using BrightWire.Models;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
     /// </summary>
     class RecurrentAdditiveLayer : NodeBase, IHaveMemoryNode
     {
+        IReadOnlyDictionary<INode, IGraphData> _lastBackpropagation = null;
         int _inputSize;
         MemoryFeeder _memory;
         INode _input, _output = null;
@@ -47,9 +49,16 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             _output = graph
                 .Add(graph.Multiply(hiddenLayerSize, Wx, It.LastNode), graph.Multiply(hiddenLayerSize, _memory, Ft.LastNode))
                 .AddForwardAction(_memory.SetMemoryAction)
+                //.Add(new HookErrorSignal(context => {
+                //    if (_lastBackpropagation != null) {
+                //        foreach (var item in _lastBackpropagation)
+                //            context.AppendErrorSignal(item.Value, item.Key);
+                //        _lastBackpropagation = null;
+                //    }
+                //}))
                 .LastNode
             ;
-            _start = new OneToMany(SubNodes, null);
+            _start = new OneToMany(SubNodes, bp => _lastBackpropagation = bp);
         }
 
         /// <summary>
@@ -77,6 +86,9 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         /// <param name="context"></param>
         public override void ExecuteForward(IContext context)
         {
+            if (context.BatchSequence.Type == MiniBatchSequenceType.SequenceStart)
+                _lastBackpropagation = null;
+
             _start.ExecuteForward(context);
         }
 

@@ -24,7 +24,7 @@ namespace BrightWire.SampleCode
         {
             // generate 1000 random integer additions (split into training and test sets)
             var data = BinaryIntegers.Addition(1000, false).Split(0);
-            using (var lap = BrightWireProvider.CreateLinearAlgebra()) {
+            using (var lap = BrightWireProvider.CreateLinearAlgebra(false)) {
                 var graph = new GraphFactory(lap);
                 var errorMetric = graph.ErrorMetric.BinaryClassification;
 
@@ -37,7 +37,7 @@ namespace BrightWire.SampleCode
                 // create the engine
                 var trainingData = graph.CreateDataSource(data.Training);
                 var testData = trainingData.CloneWith(data.Test);
-                var engine = graph.CreateTrainingEngine(trainingData, 0.0002f, 8);
+                var engine = graph.CreateTrainingEngine(trainingData, 0.01f, 16);
 
                 // build the network
                 const int HIDDEN_LAYER_SIZE = 32;

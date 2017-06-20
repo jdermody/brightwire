@@ -16,7 +16,7 @@ namespace BrightWire.SampleCode
     {
         static void MNISTConvolutional(string dataFilesPath)
         {
-            using (var lap = BrightWireGpuProvider.CreateLinearAlgebra(false)) {
+            using (var lap = BrightWireGpuProvider.CreateLinearAlgebra()) {
                 var graph = new GraphFactory(lap);
 
                 Console.Write("Loading training data...");
@@ -26,19 +26,19 @@ namespace BrightWire.SampleCode
 
                 var errorMetric = graph.ErrorMetric.OneHotEncoding;
                 var propertySet = graph.CurrentPropertySet
-                    .Use(graph.GradientDescent.Adam)
+                    .Use(graph.GradientDescent.RmsProp)
                     .Use(graph.WeightInitialisation.Xavier)
                 ;
 
                 // create the network
                 const int HIDDEN_LAYER_SIZE = 1024;
-                const float LEARNING_RATE = 0.001f;
-                var engine = graph.CreateTrainingEngine(trainingData, LEARNING_RATE, 64);
+                const float LEARNING_RATE = 0.05f;
+                var engine = graph.CreateTrainingEngine(trainingData, LEARNING_RATE, 32);
                 engine.LearningContext.ScheduleLearningRate(15, LEARNING_RATE / 3);
                 graph.Connect(engine)
                     .AddConvolutional(8, 2, 5, 5, 1, false)
                     .Add(graph.ReluActivation())
-                    .AddDropOut(0.5f)
+                    //.AddDropOut(0.5f)
                     .AddMaxPooling(2, 2, 2)
                     .AddConvolutional(16, 2, 5, 5, 1)
                     .Add(graph.ReluActivation())
@@ -46,7 +46,7 @@ namespace BrightWire.SampleCode
                     .Transpose()
                     .AddFeedForward(HIDDEN_LAYER_SIZE)
                     .Add(graph.ReluActivation())
-                    .AddDropOut(0.5f)
+                    //.AddDropOut(0.5f)
                     .AddFeedForward(trainingData.OutputSize)
                     .Add(graph.SoftMaxActivation())
                     .AddBackpropagation(errorMetric)

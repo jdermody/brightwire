@@ -25,6 +25,7 @@ namespace BrightWire.SampleCode
                 graph.CurrentPropertySet
                     // use rmsprop gradient descent optimisation
                     .Use(graph.GradientDescent.RmsProp)
+
                     // and xavier weight initialisation
                     .Use(graph.WeightInitialisation.Gaussian) 
                 ;
@@ -39,9 +40,11 @@ namespace BrightWire.SampleCode
                     // create a feed forward layer with sigmoid activation
                     .AddFeedForward(HIDDEN_LAYER_SIZE)
                     .Add(graph.SigmoidActivation())
+
                     // create a second feed forward layer with sigmoid activation
                     .AddFeedForward(engine.DataSource.OutputSize)
                     .Add(graph.SigmoidActivation())
+
                     // backpropagate the error signal at the end of the graph
                     .AddBackpropagation(errorMetric)
                 ;
@@ -88,6 +91,7 @@ namespace BrightWire.SampleCode
             //OneToMany();
             //ManyToOne();
             //SequenceToSequence();
+            //TrainWithSelu(@"D:\data\iris.data");
         }
     }
 }

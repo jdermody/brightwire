@@ -50,7 +50,7 @@ namespace BrightWire.SampleCode
                 ;
 
                 // create the engine
-                const float TRAINING_RATE = 0.01f;
+                const float TRAINING_RATE = 0.1f;
                 var trainingData = graph.CreateDataSource(data.Training);
                 var testData = trainingData.CloneWith(data.Test);
                 var engine = graph.CreateTrainingEngine(trainingData, TRAINING_RATE, 8);
@@ -111,7 +111,7 @@ namespace BrightWire.SampleCode
                 // create the engine
                 var trainingData = graph.CreateDataSource(data.Training);
                 var testData = trainingData.CloneWith(data.Test);
-                var engine = graph.CreateTrainingEngine(trainingData, 0.01f, 8);
+                var engine = graph.CreateTrainingEngine(trainingData, 0.03f, 8);
 
                 // build the network
                 const int HIDDEN_LAYER_SIZE = 128;
@@ -164,7 +164,7 @@ namespace BrightWire.SampleCode
 
                 const int BATCH_SIZE = 16;
                 int HIDDEN_LAYER_SIZE = 64;
-                const float TRAINING_RATE = 0.01f;
+                const float TRAINING_RATE = 0.1f;
 
                 // create the encoder
                 var encoderLearningContext = graph.CreateLearningContext(TRAINING_RATE, BATCH_SIZE, TrainingErrorCalculation.Fast, true);
