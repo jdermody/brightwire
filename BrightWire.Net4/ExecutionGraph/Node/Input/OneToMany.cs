@@ -25,8 +25,17 @@ namespace BrightWire.ExecutionGraph.Node.Input
                 Debug.Assert(_source._children.Contains(fromNode));
                 _signalTable[fromNode] = errorSignal;
                 if(_signalTable.All(s => s.Value != null) && parents?.Any() == true) {
-                    // TODO: merge signals?
                     var firstSignal = _signalTable[_source._children.First()];
+                    var otherSignals = _signalTable
+                        .Where(s => s.Value != firstSignal && s.Value.Columns == firstSignal.Columns && s.Value.Rows == firstSignal.Rows)
+                        .ToList()
+                    ;
+                    if(otherSignals.Any()) {
+                        var matrix = firstSignal.GetMatrix();
+                        foreach (var item in otherSignals)
+                            matrix.AddInPlace(item.Value.GetMatrix());
+                        firstSignal = firstSignal.ReplaceWith(matrix);
+                    }
                     foreach (var parent in parents)
                         context.AddBackward(firstSignal, parent, _source);
                     _source._onBackpropagation?.Invoke(_signalTable);
