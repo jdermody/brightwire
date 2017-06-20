@@ -103,7 +103,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 
         public void OnBatchProcessed(IContext context)
         {
-            throw new NotImplementedException();
+            // nop
         }
     }
 }

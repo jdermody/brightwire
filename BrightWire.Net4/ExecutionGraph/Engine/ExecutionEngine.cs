@@ -11,17 +11,14 @@ namespace BrightWire.ExecutionGraph.Engine
     /// <summary>
     /// Executes (without training) graphs
     /// </summary>
-    class ExecutionEngine : IGraphEngine
+    class ExecutionEngine : EngineBase, IGraphEngine
     {
         readonly Models.ExecutionGraph _graph;
         readonly List<(ExecutionEngineContext Context, IMatrix Data)> _executionResults = new List<(ExecutionEngineContext, IMatrix)>();
-        readonly ILinearAlgebraProvider _lap;
-        IDataSource _dataSource = null;
         readonly INode _start;
 
-        public ExecutionEngine(ILinearAlgebraProvider lap, Models.ExecutionGraph graph, INode start)
+        public ExecutionEngine(ILinearAlgebraProvider lap, Models.ExecutionGraph graph, INode start) : base(lap)
         {
-            _lap = lap;
             _graph = graph;
             _start = start;
         }
@@ -30,6 +27,22 @@ namespace BrightWire.ExecutionGraph.Engine
         public Models.ExecutionGraph Graph => _graph;
         public IDataSource DataSource => _dataSource;
         public ILinearAlgebraProvider LinearAlgebraProvider => _lap;
+
+        protected override void _ClearContextList()
+        {
+            // nop
+        }
+        protected override IReadOnlyList<ExecutionResult> _GetResults()
+        {
+            var ret = new List<ExecutionResult>();
+            foreach (var item in _executionResults) {
+                ret.Add(new ExecutionResult(item.Context.BatchSequence, item.Data.AsIndexable().Rows.Select(r => r.Data).ToList()));
+                item.Context.Dispose();
+                item.Data?.Dispose();
+            }
+            _executionResults.Clear();
+            return ret;
+        }
 
         public IReadOnlyList<ExecutionResult> Execute(IDataSource dataSource, int batchSize = 128, Action<float> batchCompleteCallback = null)
         {
@@ -65,57 +78,59 @@ namespace BrightWire.ExecutionGraph.Engine
             return ret;
         }
 
-        public ExecutionResult Execute(float[] input)
-        {
-            _lap.PushLayer();
-            ExecutionResult ret = null;
-            var provider = new MiniBatchProvider(new SingleRowDataSource(input, false, MiniBatchSequenceType.Standard, 0), false);
-            using (var executionContext = new ExecutionContext(_lap)) {
-                executionContext.Add(provider.GetMiniBatches(1, mb => _Execute(executionContext, mb)));
+        //public ExecutionResult Execute(float[] input)
+        //{
+        //    _lap.PushLayer();
+        //    ExecutionResult ret = null;
+        //    var provider = new MiniBatchProvider(new SingleRowDataSource(input, false, MiniBatchSequenceType.Standard, 0), false);
+        //    using (var executionContext = new ExecutionContext(_lap)) {
+        //        executionContext.Add(provider.GetMiniBatches(1, mb => _Execute(executionContext, mb)));
 
-                IGraphOperation operation;
-                while ((operation = executionContext.GetNextOperation()) != null) {
-                    _lap.PushLayer();
-                    operation.Execute(executionContext);
-                    foreach (var item in _executionResults) {
-                        ret = new ExecutionResult(item.Context.BatchSequence, item.Data.AsIndexable().Rows.Select(r => r.Data).ToList());
-                        item.Context.Dispose();
-                        item.Data?.Dispose();
-                    }
-                    _executionResults.Clear();
-                    _lap.PopLayer();
-                }
-            }
-            _lap.PopLayer();
-            _dataSource = null;
-            return ret;
-        }
+        //        IGraphOperation operation;
+        //        while ((operation = executionContext.GetNextOperation()) != null) {
+        //            _lap.PushLayer();
+        //            operation.Execute(executionContext);
+        //            foreach (var item in _executionResults) {
+        //                ret = new ExecutionResult(item.Context.BatchSequence, item.Data.AsIndexable().Rows.Select(r => r.Data).ToList());
+        //                item.Context.Dispose();
+        //                item.Data?.Dispose();
+        //            }
+        //            _executionResults.Clear();
+        //            _lap.PopLayer();
+        //        }
+        //    }
+        //    _lap.PopLayer();
+        //    _dataSource = null;
+        //    return ret;
+        //}
 
-        public ExecutionResult ExecuteSequential(int sequenceIndex, float[] input, IExecutionContext executionContext, MiniBatchSequenceType sequenceType)
-        {
-            _lap.PushLayer();
-            ExecutionResult ret = null;
-            var provider = new MiniBatchProvider(new SingleRowDataSource(input, true, sequenceType, sequenceIndex), false);
-            executionContext.Add(provider.GetMiniBatches(1, mb => _Execute(executionContext, mb)));
 
-            IGraphOperation operation;
-            while ((operation = executionContext.GetNextOperation()) != null) {
-                _lap.PushLayer();
-                operation.Execute(executionContext);
-                foreach (var item in _executionResults) {
-                    ret = new ExecutionResult(item.Context.BatchSequence, item.Data.AsIndexable().Rows.Select(r => r.Data).ToList());
-                    item.Context.Dispose();
-                    item.Data?.Dispose();
-                }
-                _executionResults.Clear();
-                _lap.PopLayer();
-            }
-            _lap.PopLayer();
-            _dataSource = null;
-            return ret;
-        }
 
-        IReadOnlyList<IContext> _Execute(IExecutionContext executionContext, IMiniBatch batch)
+        //public ExecutionResult ExecuteSequential(int sequenceIndex, float[] input, IExecutionContext executionContext, MiniBatchSequenceType sequenceType)
+        //{
+        //    _lap.PushLayer();
+        //    ExecutionResult ret = null;
+        //    var provider = new MiniBatchProvider(new SingleRowDataSource(input, true, sequenceType, sequenceIndex), false);
+        //    executionContext.Add(provider.GetMiniBatches(1, mb => _Execute(executionContext, mb)));
+
+        //    IGraphOperation operation;
+        //    while ((operation = executionContext.GetNextOperation()) != null) {
+        //        _lap.PushLayer();
+        //        operation.Execute(executionContext);
+        //        foreach (var item in _executionResults) {
+        //            ret = new ExecutionResult(item.Context.BatchSequence, item.Data.AsIndexable().Rows.Select(r => r.Data).ToList());
+        //            item.Context.Dispose();
+        //            item.Data?.Dispose();
+        //        }
+        //        _executionResults.Clear();
+        //        _lap.PopLayer();
+        //    }
+        //    _lap.PopLayer();
+        //    _dataSource = null;
+        //    return ret;
+        //}
+
+        protected override void _Execute(IExecutionContext executionContext, IMiniBatch batch)
         {
             var ret = new List<IContext>();
             if (batch.IsSequential) {
@@ -138,7 +153,8 @@ namespace BrightWire.ExecutionGraph.Engine
                 _executionResults.Add((context, context.Data.GetMatrix()));
                 ret.Add(context);
             }
-            return ret;
+            foreach (var item in ret)
+                item.Dispose();
         }
     }
 }

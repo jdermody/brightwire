@@ -12,10 +12,8 @@ namespace BrightWire.ExecutionGraph.Engine
     /// <summary>
     /// Trains graphs as it executes them
     /// </summary>
-    class TrainingEngine : IGraphTrainingEngine
+    class TrainingEngine : EngineBase, IGraphTrainingEngine
     {
-        readonly ILinearAlgebraProvider _lap;
-        readonly IDataSource _dataSource;
         readonly List<(IMiniBatchSequence Sequence, double TrainingError, FloatMatrix Output)> _executionResults = new List<(IMiniBatchSequence Sequence, double TrainingError, FloatMatrix Output)>();
         readonly List<IContext> _contextList = new List<IContext>();
         readonly ILearningContext _learningContext;
@@ -26,9 +24,8 @@ namespace BrightWire.ExecutionGraph.Engine
         double? _lastTrainingError = null, _trainingErrorDelta = null;
         int _noImprovementCount = 0;
 
-        public TrainingEngine(ILinearAlgebraProvider lap, IDataSource dataSource, ILearningContext learningContext, INode start)
+        public TrainingEngine(ILinearAlgebraProvider lap, IDataSource dataSource, ILearningContext learningContext, INode start) : base(lap)
         {
-            _lap = lap;
             _dataSource = dataSource;
             _isStochastic = lap.IsStochastic;
             _learningContext = learningContext;
@@ -73,7 +70,16 @@ namespace BrightWire.ExecutionGraph.Engine
             return ret;
         }
 
-        void _ClearContextList()
+        protected override IReadOnlyList<ExecutionResult> _GetResults()
+        {
+            var ret = new List<ExecutionResult>();
+            foreach (var item in _executionResults)
+                ret.Add(new ExecutionResult(item.Sequence, item.Output.Row));
+            _executionResults.Clear();
+            return ret;
+        }
+
+        protected override void _ClearContextList()
         {
             foreach (var item in _contextList)
                 item.Dispose();
@@ -127,7 +133,7 @@ namespace BrightWire.ExecutionGraph.Engine
         public ILinearAlgebraProvider LinearAlgebraProvider => _lap;
         public INode Start => _start;
 
-        void _Execute(IExecutionContext executionContext, IMiniBatch batch)
+        protected override void _Execute(IExecutionContext executionContext, IMiniBatch batch)
         {
             _contextList.AddRange(_Train(executionContext, null, batch));
         }
@@ -200,47 +206,7 @@ namespace BrightWire.ExecutionGraph.Engine
             }
         }
 
-        public ExecutionResult Execute(float[] input)
-        {
-            _lap.PushLayer();
-            ExecutionResult ret = null;
-            var provider = new MiniBatchProvider(new SingleRowDataSource(input, false, MiniBatchSequenceType.Standard, 0), _isStochastic);
-            using (var executionContext = new ExecutionContext(_lap)) {
-                executionContext.Add(provider.GetMiniBatches(1, mb => _Execute(executionContext, mb)));
-
-                IGraphOperation operation;
-                while ((operation = executionContext.GetNextOperation()) != null) {
-                    operation.Execute(executionContext);
-                    _ClearContextList();
-                }
-
-                foreach (var item in _executionResults)
-                    ret = new ExecutionResult(item.Sequence, item.Output.Row);
-            }
-            _executionResults.Clear();
-            _lap.PopLayer();
-            return ret;
-        }
-
-        public ExecutionResult ExecuteSequential(int sequenceIndex, float[] input, IExecutionContext executionContext, MiniBatchSequenceType sequenceType)
-        {
-            _lap.PushLayer();
-            ExecutionResult ret = null;
-            var provider = new MiniBatchProvider(new SingleRowDataSource(input, true, sequenceType, sequenceIndex), _isStochastic);
-            executionContext.Add(provider.GetMiniBatches(1, mb => _Execute(executionContext, mb)));
-
-            IGraphOperation operation;
-            while ((operation = executionContext.GetNextOperation()) != null) {
-                operation.Execute(executionContext);
-                _ClearContextList();
-            }
-
-            foreach (var item in _executionResults)
-                ret = new ExecutionResult(item.Sequence, item.Output.Row);
-            _executionResults.Clear();
-            _lap.PopLayer();
-            return ret;
-        }
+        
 
         void _LoadParamaters(Models.ExecutionGraph.Node nodeModel)
         {
