@@ -1,6 +1,7 @@
 ﻿using BrightWire.ExecutionGraph.Helper;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace BrightWire.ExecutionGraph.Node.Gate
@@ -62,7 +63,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             /// </summary>
             public void Clear()
             {
-                Data?.Dispose();
+                //Data?.Dispose();
                 Data = null;
                 Source = null;
             }
@@ -72,7 +73,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             /// </summary>
             public bool IsValid => Data != null;
         }
-        readonly Dictionary<int, IncomingChannel> _data = new Dictionary<int, IncomingChannel>();
+        Dictionary<int, IncomingChannel> _data;
 
         /// <summary>
         /// Constructor
@@ -81,7 +82,8 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// <param name="incoming">The list of incoming wires</param>
         public MultiGateBase(string name, params WireBuilder[] incoming) : base(name)
         {
-            for(int i = 0, len = incoming.Length; i < len; i++)
+            _data = new Dictionary<int, IncomingChannel>();
+            for (int i = 0, len = incoming.Length; i < len; i++)
                 _data[i] = new IncomingChannel(incoming[i].CurrentSize, i);
         }
 
@@ -131,6 +133,50 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         {
             var sources = data.Select(d => d.Source).ToList();
             context.AddForward(new TrainingAction(this, new MatrixGraphData(output), sources), backpropagation);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        protected override (string Description, byte[] Data) _GetInfo()
+        {
+            return ("MG", _WriteData(WriteTo));
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="factory"></param>
+        /// <param name="reader"></param>
+        public override void ReadFrom(GraphFactory factory, BinaryReader reader)
+        {
+            var lap = factory?.LinearAlgebraProvider;
+
+            if (_data == null)
+                _data = new Dictionary<int, IncomingChannel>();
+            else
+                _data.Clear();
+
+            var len = reader.ReadInt32();
+            for(var i = 0; i < len; i++) {
+                var size = reader.ReadInt32();
+                var channel = reader.ReadInt32();
+                _data[i] = new IncomingChannel(size, channel);
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="writer"></param>
+        public override void WriteTo(BinaryWriter writer)
+        {
+            writer.Write(_data.Count);
+            foreach (var item in _data) {
+                writer.Write(item.Value.Size);
+                writer.Write(item.Value.Channel);
+            }
         }
     }
 }
