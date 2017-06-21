@@ -39,7 +39,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             foreach(var item in data.Skip(1)) {
                 Debug.Assert(item.Data.ColumnCount == item.Size);
                 var next = curr.ConcatRows(item.Data);
-                curr.Dispose();
+                //curr.Dispose();
                 curr = next;
                 list.Add(item);
             }
