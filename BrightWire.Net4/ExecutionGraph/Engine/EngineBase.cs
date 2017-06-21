@@ -34,8 +34,8 @@ namespace BrightWire.ExecutionGraph.Engine
                     _lap.PushLayer();
                     operation.Execute(executionContext);
                     ret = _GetResults().Single();
-                    _lap.PopLayer();
                     _ClearContextList();
+                    _lap.PopLayer();
                 }
             }
             _lap.PopLayer();
@@ -79,8 +79,8 @@ namespace BrightWire.ExecutionGraph.Engine
                     _lap.PushLayer();
                     operation.Execute(executionContext);
                     ret.AddRange(_GetResults());
-                    _lap.PopLayer();
                     _ClearContextList();
+                    _lap.PopLayer();
                 }
             }
             _lap.PopLayer();
