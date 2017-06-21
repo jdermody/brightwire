@@ -11,7 +11,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
     {
         int _inputIndex;
 
-        public ReverseSequence(int inputIndex, string name = null) : base(name)
+        public ReverseSequence(int inputIndex = 0, string name = null) : base(name)
         {
             _inputIndex = inputIndex;
         }
