@@ -65,8 +65,9 @@ namespace BrightWire
         public static Models.ExecutionGraph GetGraph(this INode input, string name = null)
         {
             var connectedTo = new List<Models.ExecutionGraph.Node>();
-            var wireList = new List<Models.ExecutionGraph.Wire>();
-            var data = input.SerialiseTo(connectedTo, wireList);
+            var wireList = new HashSet<Models.ExecutionGraph.Wire>();
+            var existing = new HashSet<INode>();
+            var data = input.SerialiseTo(existing, connectedTo, wireList);
 
             return new Models.ExecutionGraph {
                 Name = name,

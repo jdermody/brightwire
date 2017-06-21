@@ -124,7 +124,7 @@ namespace BrightWire.ExecutionGraph.Node
         /// <param name="connectedTo">The list of nodes this node is connected to</param>
         /// <param name="wireList">The list of wires between all connected nodes</param>
         /// <returns></returns>
-        public virtual Models.ExecutionGraph.Node SerialiseTo(List<Models.ExecutionGraph.Node> connectedTo, List<Models.ExecutionGraph.Wire> wireList)
+        public virtual Models.ExecutionGraph.Node SerialiseTo(HashSet<INode> existing, List<Models.ExecutionGraph.Node> connectedTo, HashSet<Models.ExecutionGraph.Wire> wireList)
         {
             var info = _GetInfo();
             var ret = new Models.ExecutionGraph.Node {
@@ -144,7 +144,8 @@ namespace BrightWire.ExecutionGraph.Node
                         InputChannel = wire.Channel,
                         ToId = sendTo.Id
                     });
-                    connectedTo.Add(sendTo.SerialiseTo(connectedTo, wireList));
+                    if (existing.Add(sendTo))
+                        connectedTo.Add(sendTo.SerialiseTo(existing, connectedTo, wireList));
                 }
             }
             return ret;
@@ -258,7 +259,7 @@ namespace BrightWire.ExecutionGraph.Node
         protected static void _Serialise(INode node, BinaryWriter writer)
         {
             using (var buffer = new MemoryStream()) {
-                Serializer.Serialize(buffer, node.SerialiseTo(null, null));
+                Serializer.Serialize(buffer, node.SerialiseTo(null, null, null));
                 var activationData = buffer.ToArray();
                 writer.Write(activationData.Length);
                 writer.Write(activationData);

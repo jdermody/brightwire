@@ -155,7 +155,7 @@ namespace BrightWire
         /// <param name="connectedTo">List of nodes that are connected to the current node</param>
         /// <param name="wireList">List of wires connecting this and any other connected node together</param>
         /// <returns>Serialisation model</returns>
-        Models.ExecutionGraph.Node SerialiseTo(List<Models.ExecutionGraph.Node> connectedTo, List<Models.ExecutionGraph.Wire> wireList);
+        Models.ExecutionGraph.Node SerialiseTo(HashSet<INode> existing, List<Models.ExecutionGraph.Node> connectedTo, HashSet<Models.ExecutionGraph.Wire> wireList);
 
         /// <summary>
         /// Called after the graph has been completely deserialised
