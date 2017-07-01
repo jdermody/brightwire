@@ -40,7 +40,7 @@ namespace BrightWire.SampleCode
                     //.AddLstm(memory)
 
                     .AddFeedForward(engine.DataSource.OutputSize)
-                    .Add(graph.SigmoidActivation())
+                    .Add(graph.TanhActivation())
                     .AddBackpropagationThroughTime(errorMetric)
                 ;
 

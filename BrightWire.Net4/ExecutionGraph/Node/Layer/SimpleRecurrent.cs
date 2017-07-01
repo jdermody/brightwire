@@ -39,7 +39,6 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
             _output = graph.Add(inputChannel, memoryChannel)
                 .AddBackwardAction(new ConstrainSignal())
-                .AddForwardAction(new ConstrainSignal())
                 .Add(activation)
                 .AddForwardAction(_memory.SetMemoryAction)
                 //.Add(new HookErrorSignal(context => {

@@ -130,6 +130,7 @@
     <Compile Include="ExecutionGraph\Helper\GraphData.cs" />
     <Compile Include="ExecutionGraph\Helper\MiniBatch.cs" />
     <Compile Include="ExecutionGraph\Node\Gate\SubtractGate.cs" />
+    <Compile Include="ExecutionGraph\Node\Gate\ReverseTemporalJoin.cs" />
     <Compile Include="ExecutionGraph\Node\Layer\BatchNormalisation.cs" />
     <Compile Include="ExecutionGraph\Node\Layer\RecurrentAdditiveLayer.cs" />
     <Compile Include="ExecutionGraph\Node\Operation\CalculateVariance.cs" />

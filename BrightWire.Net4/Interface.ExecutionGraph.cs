@@ -152,8 +152,9 @@ namespace BrightWire
         /// <summary>
         /// Serialise the node
         /// </summary>
-        /// <param name="connectedTo">List of nodes that are connected to the current node</param>
-        /// <param name="wireList">List of wires connecting this and any other connected node together</param>
+        /// <param name="existing">Set of nodes that have already been serialised in the current context</param>
+        /// <param name="connectedTo">List of nodes this node is connected to</param>
+        /// <param name="wireList">List of wires between all connected nodes</param>
         /// <returns>Serialisation model</returns>
         Models.ExecutionGraph.Node SerialiseTo(HashSet<INode> existing, List<Models.ExecutionGraph.Node> connectedTo, HashSet<Models.ExecutionGraph.Wire> wireList);
 
@@ -326,6 +327,24 @@ namespace BrightWire
         /// How many operations remain queued
         /// </summary>
         int RemainingOperationCount { get; }
+
+        /// <summary>
+        /// Registers a continuation that will be executed after the current sequence has been processed in full
+        /// </summary>
+        /// <param name="sequence">Sequence index</param>
+        /// <param name="callback">Continuation</param>
+        void RegisterContinuation(IMiniBatchSequence sequence, Action<IContext> callback);
+
+        /// <summary>
+        /// True if there are registered continuations
+        /// </summary>
+        bool HasContinuations { get; }
+
+        /// <summary>
+        /// Execute any registered continuation for this context
+        /// </summary>
+        /// <param name="context">Context with an associated IMiniBatchSequence</param>
+        void Continue(IContext context);
     }
 
     /// <summary>
@@ -522,6 +541,11 @@ namespace BrightWire
         /// <param name="index">The index to retrieve</param>
         /// <returns></returns>
         IMiniBatchSequence GetSequenceAtIndex(int index);
+
+        /// <summary>
+        /// Resets the sequence iterator
+        /// </summary>
+        void Reset();
     }
 
     /// <summary>

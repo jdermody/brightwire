@@ -696,6 +696,25 @@ namespace BrightWire.ExecutionGraph
         }
 
         /// <summary>
+        /// Concatenates two wires together into a new wire, but reverses the temporal index of the second input to realign with reversed sequences
+        /// </summary>
+        /// <param name="forwardInput">Forward wire to join</param>
+        /// <param name="backwardInput">Backward wire to join</param>
+        /// <param name="name">Optional name to give the node</param>
+        /// <returns></returns>
+        public WireBuilder ReverseTemporalJoin(WireBuilder forwardInput, WireBuilder backwardInput, string name = null)
+        {
+            var ret = new ReverseTemporalJoin(name, forwardInput, backwardInput);
+            var wireToPrimary = new WireToNode(ret);
+            var wireToSecondary = new WireToNode(ret, 1);
+
+            forwardInput.LastNode.Output.Add(wireToPrimary);
+            backwardInput.LastNode.Output.Add(wireToSecondary);
+
+            return new WireBuilder(this, forwardInput.CurrentSize + backwardInput.CurrentSize, ret);
+        }
+
+        /// <summary>
         /// Wraps an existing node, enabling that node to be used at multiple locations in the same graph
         /// </summary>
         /// <param name="nodeToWrap">Node to wrap</param>

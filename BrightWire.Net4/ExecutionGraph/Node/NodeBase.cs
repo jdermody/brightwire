@@ -121,8 +121,9 @@ namespace BrightWire.ExecutionGraph.Node
         /// <summary>
         /// Serialise this node and any connected nodes
         /// </summary>
-        /// <param name="connectedTo">The list of nodes this node is connected to</param>
-        /// <param name="wireList">The list of wires between all connected nodes</param>
+        /// <param name="existing">Set of nodes that have already been serialised in the current context</param>
+        /// <param name="connectedTo">List of nodes this node is connected to</param>
+        /// <param name="wireList">List of wires between all connected nodes</param>
         /// <returns></returns>
         public virtual Models.ExecutionGraph.Node SerialiseTo(HashSet<INode> existing, List<Models.ExecutionGraph.Node> connectedTo, HashSet<Models.ExecutionGraph.Wire> wireList)
         {

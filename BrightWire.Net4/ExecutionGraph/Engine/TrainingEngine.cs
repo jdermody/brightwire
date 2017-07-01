@@ -111,8 +111,10 @@ namespace BrightWire.ExecutionGraph.Engine
 
             double ret = 0, count = 0;
             foreach (var item in _executionResults) {
-                ret += item.TrainingError;
-                ++count;
+                if (item.TrainingError > 0) {
+                    ret += item.TrainingError;
+                    ++count;
+                }
             }
             if (count > 0)
                 ret /= count;
@@ -140,17 +142,40 @@ namespace BrightWire.ExecutionGraph.Engine
 
         IReadOnlyList<IContext> _Train(IExecutionContext executionContext, ILearningContext learningContext, IMiniBatch batch)
         {
-            var ret = new List<IContext>();
+            var ret = new List<TrainingEngineContext>();
             if (batch.IsSequential) {
                 IMiniBatchSequence curr = null;
                 while ((curr = batch.GetNextSequence()) != null)
                     ret.Add(_Train(executionContext, learningContext, curr));
+
+                var didContinue = false;
+                var contextTable = new Lazy<Dictionary<IMiniBatchSequence, TrainingEngineContext>>(() => ret.ToDictionary(c => c.BatchSequence, c => c));
+                while(executionContext.HasContinuations) {
+                    batch.Reset();
+                    while ((curr = batch.GetNextSequence()) != null) {
+                        var context = contextTable.Value[curr];
+                        executionContext.Continue(context);
+                        while (context.HasNext)
+                            context.ExecuteNext();
+                    }
+                    didContinue = true;
+                }
+                if(didContinue) {
+                    foreach (var context in ret)
+                        _CompleteSequence(context);
+                }
             } else
                 ret.Add(_Train(executionContext, learningContext, batch.CurrentSequence));
             return ret;
         }
 
-        IContext _Train(IExecutionContext executionContext, ILearningContext learningContext, IMiniBatchSequence sequence)
+        void _CompleteSequence(TrainingEngineContext context)
+        {
+            _dataSource.OnBatchProcessed(context);
+            _executionResults.Add((context.BatchSequence, context.TrainingError, context.Data.GetMatrix().Data));
+        }
+
+        TrainingEngineContext _Train(IExecutionContext executionContext, ILearningContext learningContext, IMiniBatchSequence sequence)
         {
             var context = new TrainingEngineContext(executionContext, sequence, learningContext);
             _start.ExecuteForward(context, 0);
@@ -158,8 +183,8 @@ namespace BrightWire.ExecutionGraph.Engine
             while (context.HasNext)
                 context.ExecuteNext();
 
-            _dataSource.OnBatchProcessed(context);
-            _executionResults.Add((context.BatchSequence, context.TrainingError, context.Data.GetMatrix().Data));
+            if (!executionContext.HasContinuations)
+                _CompleteSequence(context);
             return context;
         }
 
@@ -205,8 +230,6 @@ namespace BrightWire.ExecutionGraph.Engine
                 return flag;
             }
         }
-
-        
 
         void _LoadParamaters(Models.ExecutionGraph.Node nodeModel)
         {

@@ -1,6 +1,7 @@
 ﻿using BrightWire.Models;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace BrightWire.ExecutionGraph.Engine.Helper
 {
@@ -11,6 +12,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     {
         readonly ConcurrentQueue<IGraphOperation> _operationList = new ConcurrentQueue<IGraphOperation>();
         readonly ConcurrentDictionary<string, IMatrix> _memory = new ConcurrentDictionary<string, IMatrix>();
+        readonly ConcurrentDictionary<IMiniBatchSequence, System.Action<IContext>> _continuationTable = new ConcurrentDictionary<IMiniBatchSequence, System.Action<IContext>>();
         readonly ILinearAlgebraProvider _lap;
 
         public ExecutionContext(ILinearAlgebraProvider lap)
@@ -33,7 +35,15 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
                 _operationList.Enqueue(item);
         }
         public void Add(IGraphOperation operation) => _operationList.Enqueue(operation);
+        public void RegisterContinuation(IMiniBatchSequence sequence, System.Action<IContext> callback) => _continuationTable[sequence] = callback;
         public int RemainingOperationCount => _operationList.Count;
+        public bool HasContinuations => _continuationTable.Any();
+
+        public void Continue(IContext context)
+        {
+            if(_continuationTable.TryRemove(context.BatchSequence, out System.Action<IContext> callback))
+                callback(context);
+        }
 
         public IMatrix GetMemory(string index)
         {

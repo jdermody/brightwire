@@ -50,6 +50,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             public IMiniBatchSequence CurrentSequence => _sequence;
             public bool HasNextSequence => false;
             public int SequenceCount => 0;
+            public void Reset() => _index = 0;
             public IMiniBatchSequence GetNextSequence()
             {
                 if(_index++ == 0)

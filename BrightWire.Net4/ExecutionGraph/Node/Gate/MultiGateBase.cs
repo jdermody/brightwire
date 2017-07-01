@@ -63,7 +63,6 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             /// </summary>
             public void Clear()
             {
-                //Data?.Dispose();
                 Data = null;
                 Source = null;
             }

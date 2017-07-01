@@ -30,7 +30,7 @@ namespace BrightWire.SampleCode
 
                 // modify the property set
                 var propertySet = graph.CurrentPropertySet
-                    .Use(graph.GradientDescent.RmsProp)
+                    .Use(graph.GradientDescent.Adam)
                     .Use(graph.WeightInitialisation.Xavier)
                 ;
 
