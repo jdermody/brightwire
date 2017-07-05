@@ -29,6 +29,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             public ILinearAlgebraProvider LinearAlgebraProvider => _context.LinearAlgebraProvider;
             public IMiniBatchSequence BatchSequence => _context.BatchSequence;
             public IGraphData ErrorSignal => _context.ErrorSignal;
+            public bool HasNext => _context.HasNext;
 
             public void AddBackward(IGraphData errorSignal, INode target, INode source)
             {
@@ -53,6 +54,11 @@ namespace BrightWire.ExecutionGraph.Node.Helper
 
             public void Dispose()
             {
+            }
+
+            public bool ExecuteNext()
+            {
+                return _context.ExecuteNext();
             }
         }
         INode _node;

@@ -148,18 +148,8 @@ namespace BrightWire.ExecutionGraph.Engine
                 while ((curr = batch.GetNextSequence()) != null)
                     ret.Add(_Train(executionContext, learningContext, curr));
 
-                var didContinue = false;
                 var contextTable = new Lazy<Dictionary<IMiniBatchSequence, TrainingEngineContext>>(() => ret.ToDictionary(c => c.BatchSequence, c => c));
-                while(executionContext.HasContinuations) {
-                    batch.Reset();
-                    while ((curr = batch.GetNextSequence()) != null) {
-                        var context = contextTable.Value[curr];
-                        executionContext.Continue(context);
-                        while (context.HasNext)
-                            context.ExecuteNext();
-                    }
-                    didContinue = true;
-                }
+                var didContinue = _Continue(batch, executionContext, sequence => contextTable.Value[sequence]);
                 if(didContinue) {
                     foreach (var context in ret)
                         _CompleteSequence(context);

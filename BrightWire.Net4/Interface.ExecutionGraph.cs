@@ -285,6 +285,17 @@ namespace BrightWire
         /// Current error signal
         /// </summary>
         IGraphData ErrorSignal { get; }
+
+        /// <summary>
+        /// Checks if there is a pending forward graph operation
+        /// </summary>
+        bool HasNext { get; }
+
+        /// <summary>
+        /// Executes the next pending forward graph operation
+        /// </summary>
+        /// <returns>True if an operation was executed</returns>
+        bool ExecuteNext();
     }
 
     /// <summary>

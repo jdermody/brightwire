@@ -132,7 +132,9 @@ namespace BrightWire.ExecutionGraph.Engine
 
         protected override void _Execute(IExecutionContext executionContext, IMiniBatch batch)
         {
-            var ret = new List<IContext>();
+            var ret = new List<ExecutionEngineContext>();
+            var table = new Dictionary<IMiniBatchSequence, IContext>();
+
             if (batch.IsSequential) {
                 IMiniBatchSequence curr = null;
                 while ((curr = batch.GetNextSequence()) != null) {
@@ -140,8 +142,8 @@ namespace BrightWire.ExecutionGraph.Engine
                     _start.ExecuteForward(context, 0);
                     while (context.HasNext)
                         context.ExecuteNext();
-                    _executionResults.Add((context, context.Data.GetMatrix()));
                     ret.Add(context);
+                    table.Add(curr, context);
                 }
             } else {
                 var context = new ExecutionEngineContext(executionContext, batch.CurrentSequence);
@@ -150,11 +152,16 @@ namespace BrightWire.ExecutionGraph.Engine
                 while (context.HasNext)
                     context.ExecuteNext();
 
-                _executionResults.Add((context, context.Data.GetMatrix()));
                 ret.Add(context);
+                table.Add(batch.CurrentSequence, context);
             }
-            foreach (var item in ret)
+
+            _Continue(batch, executionContext, sequence => table[sequence]);
+
+            foreach (var item in ret) {
+                _executionResults.Add((item, item.Data.GetMatrix()));
                 item.Dispose();
+            }
         }
     }
 }

@@ -21,28 +21,33 @@ namespace BrightWire.ExecutionGraph.Node.Gate
 
             public override void _Backward(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
-                IMatrix split, residual = errorSignal.GetMatrix();
-                (split, residual) = residual.SplitAtColumn(residual.ColumnCount - _reverseSize);
-                //context.AddBackward(errorSignal.ReplaceWith(split), parents[1], _source);
-                context.AddBackward(errorSignal.ReplaceWith(split), parents[0], _source);
+                var matrix = errorSignal.GetMatrix();
+                (IMatrix left, IMatrix right) = matrix.SplitAtColumn(matrix.ColumnCount - _reverseSize);
+                context.AddBackward(errorSignal.ReplaceWith(left), parents[0], _source);
 
                 var batch = context.BatchSequence.MiniBatch;
                 var sequenceIndex = context.BatchSequence.SequenceIndex;
                 var reversedSequenceIndex = batch.SequenceCount - sequenceIndex - 1;
-                _source._reverseBackpropagation.Add(reversedSequenceIndex, (parents[1], errorSignal.ReplaceWith(residual)));
-                if(sequenceIndex == 0) {
+                _source._reverseBackpropagation.Add(reversedSequenceIndex, (parents[1], errorSignal.ReplaceWith(right)));
+                _source._contextTable.Add(sequenceIndex, context);
+
+                if (sequenceIndex == 0) {
+                    // process in order as we are pushing onto a stack (so will be read in reverse order)
                     for(var i = 0; i < batch.SequenceCount; i++) {
                         var data = _source._reverseBackpropagation[i];
-                        context.AddBackward(data.Item2, data.Item1, _source);
+                        var reverseContext = _source._contextTable[i];
+                        reverseContext.AddBackward(data.Item2, data.Item1, _source);
                     }
                     _source._reverseBackpropagation.Clear();
+                    _source._contextTable.Clear();
                 }
             }
         }
         Dictionary<int, (IMatrix Data, int ReversedSize, INode ForwardParent)> _input = new Dictionary<int, (IMatrix Data, int ReversedSize, INode ForwardParent)>();
-        Dictionary<int, IMatrix> _reverseInput = new Dictionary<int, IMatrix>();
-        Dictionary<int, INode> _reverseParent = new Dictionary<int, INode>();
+        Dictionary<int, (IMatrix Data, INode ReverseParent)> _reverseInput = new Dictionary<int, (IMatrix Data, INode ReverseParent)>();
+
         Dictionary<int, (INode, IGraphData)> _reverseBackpropagation = new Dictionary<int, (INode, IGraphData)>();
+        Dictionary<int, IContext> _contextTable = new Dictionary<int, IContext>();
 
         public ReverseTemporalJoin(string name, WireBuilder forwardInput, WireBuilder reverseInput) 
             : base(name, new[] { forwardInput, reverseInput })
@@ -52,9 +57,10 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         public override void OnDeserialise(IReadOnlyDictionary<string, INode> graph)
         {
             _input = new Dictionary<int, (IMatrix Data, int ReversedSize, INode ForwardParent)>();
-            _reverseInput = new Dictionary<int, IMatrix>();
-            _reverseParent = new Dictionary<int, INode>();
+            _reverseInput = new Dictionary<int, (IMatrix Data, INode ReverseParent)>();
+
             _reverseBackpropagation = new Dictionary<int, (INode, IGraphData)>();
+            _contextTable = new Dictionary<int, IContext>();
         }
 
         void _Continue(IContext context)
@@ -64,18 +70,16 @@ namespace BrightWire.ExecutionGraph.Node.Gate
 
             var input = _input[sequenceIndex];
             var input2 = _reverseInput[sequenceIndex];
-            var reverseParent = _reverseParent[sequenceIndex];
             _input.Remove(sequenceIndex);
             _reverseInput.Remove(sequenceIndex);
-            _reverseParent.Remove(sequenceIndex);
 
             // concatenate the inputs
-            var next = input.Data.ConcatRows(input2);
+            var next = input.Data.ConcatRows(input2.Data);
 
             context.AddForward(new TrainingAction(
                 this, 
                 new MatrixGraphData(next), 
-                new[] { input.ForwardParent, reverseParent }), 
+                new[] { input.ForwardParent, input2.ReverseParent }), 
                 () => new Backpropagation(this, input.ReversedSize)
             );
         }
@@ -83,38 +87,15 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         protected override void _Activate(IContext context, IReadOnlyList<IncomingChannel> data)
         {
             Debug.Assert(data.Count == 2);
-            var batch = context.BatchSequence.MiniBatch;
-            var sequenceIndex = context.BatchSequence.SequenceIndex;
-            var reversedSequenceIndex = batch.SequenceCount - sequenceIndex - 1;
             var forward = data.First();
             var backward = data.Last();
+            var sequenceIndex = context.BatchSequence.SequenceIndex;
+            var reversedSequenceIndex = context.BatchSequence.MiniBatch.SequenceCount - sequenceIndex - 1;
 
             _input.Add(sequenceIndex, (forward.Data, backward.Size, forward.Source));
-            _reverseInput.Add(reversedSequenceIndex, data.Last().Data);
-            _reverseParent.Add(sequenceIndex, backward.Source);
+            _reverseInput.Add(reversedSequenceIndex, (data.Last().Data, backward.Source));
 
             context.ExecutionContext.RegisterContinuation(context.BatchSequence, _Continue);
-            //if(_input.Count == batch.SequenceCount) {
-            //    for (var i = 0; i < batch.SequenceCount; i++) {
-            //        var reversedSequenceIndex2 = batch.SequenceCount - i - 1;
-            //        var input = _input[i];
-            //        var input2 = _reverseInput[i];
-            //        var data2 = new[] {
-            //            input.Input,
-            //            input2
-            //        };
-            //        var list = new[] {
-            //            _reverseInput[reversedSequenceIndex2]
-            //        };
-
-            //        var curr = input.Input.Data;
-            //        curr = curr.ConcatRows(input2.Data);
-
-            //        _AddHistory(input.Context, data2, curr, () => new Backpropagation(this, list));
-            //    }
-            //    _input.Clear();
-            //    _reverseInput.Clear();
-            //}
         }
     }
 }

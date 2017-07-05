@@ -3,6 +3,7 @@ using BrightWire.ExecutionGraph.Helper;
 using BrightWire.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,6 +20,24 @@ namespace BrightWire.ExecutionGraph.Engine
         protected abstract void _ClearContextList();
         protected abstract void _Execute(IExecutionContext context, IMiniBatch miniBatch);
         protected abstract IReadOnlyList<ExecutionResult> _GetResults();
+
+        protected bool _Continue(IMiniBatch batch, IExecutionContext executionContext, Func<IMiniBatchSequence, IContext> lookupContext)
+        {
+            var ret = false;
+            IMiniBatchSequence curr = null;
+
+            while (executionContext.HasContinuations) {
+                batch.Reset();
+                while ((curr = batch.GetNextSequence()) != null) {
+                    var context = lookupContext(curr);
+                    executionContext.Continue(context);
+                    while (context.HasNext)
+                        context.ExecuteNext();
+                }
+                ret = true;
+            }
+            return ret;
+        }
 
         public ExecutionResult Execute(float[] input)
         {
