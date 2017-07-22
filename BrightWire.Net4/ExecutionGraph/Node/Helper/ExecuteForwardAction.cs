@@ -24,7 +24,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
 
         protected override (string Description, byte[] Data) _GetInfo()
         {
-            return (_action.GetType().FullName, Encoding.UTF8.GetBytes(_action.Serialise()));
+            return (_action.GetType().AssemblyQualifiedName, Encoding.UTF8.GetBytes(_action.Serialise()));
         }
 
         protected override void _Initalise(GraphFactory factory, string description, byte[] data)

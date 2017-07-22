@@ -21,7 +21,7 @@ namespace BrightWire.ExecutionGraph.Action
 
         public string Serialise()
         {
-            return _errorMetric.GetType().FullName;
+            return _errorMetric.GetType().AssemblyQualifiedName;
         }
 
         public IGraphData Execute(IGraphData input, IContext context)

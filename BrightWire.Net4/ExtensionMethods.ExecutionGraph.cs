@@ -111,7 +111,7 @@ namespace BrightWire
 
         internal static void Write(this BinaryWriter writer, IGradientDescentOptimisation optimisation)
         {
-            writer.Write(optimisation.GetType().FullName);
+            writer.Write(optimisation.GetType().AssemblyQualifiedName);
             optimisation.WriteTo(writer);
         }
 
