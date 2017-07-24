@@ -66,12 +66,14 @@ namespace BrightWire.Bayesian.Training
 
     internal class MarkovModelTrainer3<T> : IMarkovModelTrainer3<T>
     {
+        readonly List<MarkovModelObservation3<T>> _observations;
         readonly Dictionary<Tuple<T, T, T>, List<T>> _data = new Dictionary<Tuple<T, T, T>, List<T>>();
         readonly int _minObservations;
 
         public MarkovModelTrainer3(int minObservations = 1)
         {
             _minObservations = minObservations;
+            _observations = new List<MarkovModelObservation3<T>>();
         }
 
         public void Add(IEnumerable<T> items)
@@ -98,7 +100,6 @@ namespace BrightWire.Bayesian.Training
 
         public MarkovModel3<T> Build()
         {
-            var ret = new List<MarkovModelObservation3<T>>();
             foreach (var item in _data) {
                 var transitions = item.Value
                     .GroupBy(v => v)
@@ -108,15 +109,20 @@ namespace BrightWire.Bayesian.Training
                 ;
                 var total = (float)transitions.Sum(t => t.Item2);
                 if (total > 0) {
-                    ret.Add(new MarkovModelObservation3<T>(item.Key.Item1, item.Key.Item2, item.Key.Item3, transitions.Select(t => new MarkovModelStateTransition<T> {
+                    _observations.Add(new MarkovModelObservation3<T>(item.Key.Item1, item.Key.Item2, item.Key.Item3, transitions.Select(t => new MarkovModelStateTransition<T> {
                         NextState = t.Item1,
                         Probability = t.Item2 / total
                     }).ToList()));
                 }
             }
             return new MarkovModel3<T> {
-                Observation = ret.ToArray()
+                Observation = _observations.ToArray()
             };
+        }
+
+        public void Load(MarkovModel3<T> model)
+        {
+            _observations.AddRange(model.Observation);
         }
     }
 }

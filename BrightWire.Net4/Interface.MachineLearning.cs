@@ -98,6 +98,11 @@ namespace BrightWire
         /// Gets all current observations
         /// </summary>
         MarkovModel3<T> Build();
+
+        /// <summary>
+        /// Load saved observations
+        /// </summary>
+        void Load(MarkovModel3<T> model);
     }
 
     /// <summary>
