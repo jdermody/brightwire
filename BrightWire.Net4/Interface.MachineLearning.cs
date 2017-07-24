@@ -2,6 +2,7 @@
 using BrightWire.Models.Bayesian;
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace BrightWire
 {
@@ -98,6 +99,16 @@ namespace BrightWire
         /// Gets all current observations
         /// </summary>
         MarkovModel3<T> Build();
+
+        /// <summary>
+        /// Save all current observations
+        /// </summary>
+        void Save(Stream stream);
+
+        /// <summary>
+        /// Load saved observations
+        /// </summary>
+        void Load(Stream stream);
     }
 
     /// <summary>
