@@ -133,7 +133,7 @@ namespace BrightWire.ExecutionGraph.Node
                 Name = _name,
                 Data = info.Data,
                 Description = info.Description,
-                TypeName = GetType().FullName
+                TypeName = GetType().AssemblyQualifiedName
             };
 
             // get the connected nodes
