@@ -78,7 +78,7 @@ namespace BrightWire.SampleCode
         static void Main(string[] args)
         {
             //Control.UseNativeMKL();
-            //XOR();
+            XOR();
             //IrisClassification();
             //IrisClustering();
             //MarkovChains();
