@@ -1,7 +1,10 @@
 ﻿using BrightWire.Models.Bayesian;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design.Serialization;
 using System.Linq;
+using System.IO;
+using ProtoBuf;
 
 namespace BrightWire.Bayesian.Training
 {
@@ -117,6 +120,21 @@ namespace BrightWire.Bayesian.Training
             return new MarkovModel3<T> {
                 Observation = ret.ToArray()
             };
+        }
+
+        public void Save(Stream stream)
+        {
+            Serializer.Serialize(stream, _data);
+        }
+
+        public void Load(Stream stream)
+        {
+            var loaded = Serializer.Deserialize<Dictionary<Tuple<T, T, T>, List<T>>>(stream);
+
+            foreach (var item in loaded)
+            {
+                _data.Add(item.Key,item.Value);
+            }
         }
     }
 }
