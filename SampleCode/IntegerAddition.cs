@@ -59,7 +59,7 @@ namespace BrightWire.SampleCode
                 var results = executionEngine.Execute(testData2);
 
                 // group the output
-                var groupedResults = new Tuple<FloatVector[], FloatVector[], FloatVector[]>[8];
+                var groupedResults = new (FloatVector[] Input, FloatVector[] Target, FloatVector[] Output)[8];
                 for(var i = 0; i < 8; i++) {
                     var input = new FloatVector[32];
                     var target = new FloatVector[32];
@@ -69,29 +69,29 @@ namespace BrightWire.SampleCode
                         target[j] = results[j].Target[i];
                         output[j] = results[j].Output[i];
                     }
-                    groupedResults[i] = Tuple.Create(input, target, output);
+                    groupedResults[i] = (input, target, output);
                 }
 
                 // write the results
                 foreach (var result in groupedResults) {
                     Console.Write("First:     ");
-                    foreach (var item in result.Item1)
+                    foreach (var item in result.Input)
                         _WriteBinary(item.Data[0]);
                     Console.WriteLine();
 
                     Console.Write("Second:    ");
-                    foreach (var item in result.Item1)
+                    foreach (var item in result.Input)
                         _WriteBinary(item.Data[1]);
                     Console.WriteLine();
                     Console.WriteLine("           --------------------------------");
 
                     Console.Write("Expected:  ");
-                    foreach (var item in result.Item2)
+                    foreach (var item in result.Target)
                         _WriteBinary(item.Data[0]);
                     Console.WriteLine();
 
                     Console.Write("Predicted: ");
-                    foreach (var item in result.Item3)
+                    foreach (var item in result.Output)
                         _WriteBinary(item.Data[0]);
                     Console.WriteLine();
                     Console.WriteLine();
