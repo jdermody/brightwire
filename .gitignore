@@ -19,3 +19,11 @@
 /BrightWire.CUDA.Net4.x64/obj
 /SampleCode/bin
 /SampleCode/obj
+/BrightWire.Standard/bin
+/BrightWire.Standard/obj
+/SampleProjects/.vs
+/SampleProjects/packages
+/SampleProjects/CoreTest/bin
+/SampleProjects/CoreTest/obj
+/SampleProjects/XamarinTest/bin
+/SampleProjects/XamarinTest/obj

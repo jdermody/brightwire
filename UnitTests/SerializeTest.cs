@@ -11,11 +11,10 @@ using ProtoBuf;
 
 namespace UnitTests
 {
-
     [TestClass]
     public class SerializeTest
     {
-        public class CustomErrorMatrix : IErrorMetric
+        public class CustomErrorMetric : IErrorMetric
         {
             public IMatrix CalculateGradient(IContext context, IMatrix output, IMatrix targetOutput)
             {
@@ -48,7 +47,7 @@ namespace UnitTests
             var (graph, data) = MakeGraphAndData();
             var engine = graph.CreateTrainingEngine(data);
 
-            var errorMetric = new CustomErrorMatrix();
+            var errorMetric = new CustomErrorMetric();
             graph.Connect(engine)
                 .AddFeedForward(1)
                 .Add(graph.SigmoidActivation())
@@ -72,7 +71,7 @@ namespace UnitTests
         }
 
         [TestMethod]
-        public void CreateFromExcuationGraph()
+        public void CreateFromExecutionGraph()
         {
             var (graph, data) = MakeGraphAndData();
             var engine = graph.CreateEngine(bestNetwork.Graph);
@@ -80,7 +79,7 @@ namespace UnitTests
         }
 
         [TestMethod]
-        public void DeserlizeExcuationGraph()
+        public void DeserialiseExecutionGraph()
         {
             var (graph, data) = MakeGraphAndData();
             ExecutionGraph executionGraphReloaded = null;
@@ -95,6 +94,5 @@ namespace UnitTests
             var engine = graph.CreateEngine(executionGraphReloaded);
             AssertEngineGetsGoodResults(engine, data);
         }
-
     }
 }

@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>BrightWire</RootNamespace>
+    <Platforms>AnyCPU;x64</Platforms>
+    <Version>2.0.3</Version>
+    <Authors>Jack Dermody</Authors>
+    <Company />
+    <Product />
+    <Description>Bright Wire is an open source machine learning library. Includes deep learning (feed forward, convolutional and recurrent), naive bayes, linear regression, decision trees, logistic regression, k-means clustering and dimensionality reduction.</Description>
+    <Copyright>Copyright 2017</Copyright>
+    <PackageTags>machine learning linear algebra neural network machinelearning</PackageTags>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/jdermody/brightwire/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/jdermody/brightwire</PackageProjectUrl>
+    <PackageIconUrl>http://www.jackdermody.net/bw_favicon.png</PackageIconUrl>
+    <AssemblyVersion>2.0.0.3</AssemblyVersion>
+    <FileVersion>2.0.0.3</FileVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="readme.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MathNet.Numerics" Version="3.20.0" />
+    <PackageReference Include="protobuf-net" Version="2.3.2" />
+    <PackageReference Include="System.ValueTuple" Version="4.4.0" />
+  </ItemGroup>
+
+  <Import Project="..\BrightWire.Source\BrightWire.Source.projitems" Label="Shared" />
+
+</Project>

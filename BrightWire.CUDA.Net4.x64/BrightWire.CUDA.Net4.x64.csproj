@@ -62,11 +62,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BrightWireGPUProvider.cs" />
     <Compile Include="CudaProvider.cs" />
     <Compile Include="Gpu3DTensor.cs" />
     <Compile Include="Gpu4DTensor.cs" />
     <Compile Include="GpuMatrix.cs" />
-    <Compile Include="BrightWireGPUProvider.cs" />
     <Compile Include="GpuVector.cs" />
     <Compile Include="Helper\DeviceMemory.cs" />
     <Compile Include="Helper\DeviceMemoryPtrList.cs" />
@@ -82,20 +82,21 @@
     <None Include="app.config" />
     <None Include="cuda\brightwire.cu" />
     <None Include="cuda\brightwire.ptx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="cuda\readme.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\BrightWire.Net4\BrightWire.Net4.csproj">
       <Project>{fd8aaef6-2edb-446c-bb19-5ebee5cde982}</Project>
       <Name>BrightWire.Net4</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="cuda\readme.txt" />
+    <Content Include="readme.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

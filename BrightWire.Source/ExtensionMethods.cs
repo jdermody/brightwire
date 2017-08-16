@@ -1,20 +1,6 @@
-﻿using BrightWire.Bayesian.Training;
-using BrightWire.ExecutionGraph;
-using BrightWire.ExecutionGraph.Helper;
-using BrightWire.Helper;
-using BrightWire.InstanceBased.Trainer;
-using BrightWire.Linear.Training;
-using BrightWire.Models;
-using BrightWire.Models.Bayesian;
-using BrightWire.Models.InstanceBased;
-using BrightWire.TreeBased.Training;
-using BrightWire.Unsupervised;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
 
 namespace BrightWire
 {
