@@ -10,7 +10,7 @@ namespace CoreTest
     {
         static void Main(string[] args)
         {
-            using (var lap = BrightWireGpuProvider.CreateLinearAlgebra()) {
+            using (var lap = BrightWireProvider.CreateLinearAlgebra()) {
                 // Create some training data that the network will learn.  The XOR pattern looks like:
                 // 0 0 => 0
                 // 1 0 => 1

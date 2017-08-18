@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\BrightWire.Cuda.Standard.x64\BrightWire.Cuda.Standard.x64.csproj" />
     <ProjectReference Include="..\..\BrightWire.Standard\BrightWire.Standard.csproj" />
   </ItemGroup>
 
