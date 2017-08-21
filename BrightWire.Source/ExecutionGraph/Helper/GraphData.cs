@@ -29,6 +29,12 @@ namespace BrightWire.ExecutionGraph.Helper
         {
             return new MatrixGraphData(matrix);
         }
+        public IReadOnlyList<IMatrix> GetSubMatrices()
+        {
+            return new[] {
+                _matrix
+            };
+        }
     }
 
     /// <summary>
@@ -68,6 +74,13 @@ namespace BrightWire.ExecutionGraph.Helper
             var tensor = context.LinearAlgebraProvider.Create3DTensor(matrixList);
             return new Tensor3DGraphData(tensor);
         }
+        public IReadOnlyList<IMatrix> GetSubMatrices()
+        {
+            var ret = new IMatrix[Depth];
+            for (var i = 0; i < Depth; i++)
+                ret[i] = _matrix.Column(i).ConvertInPlaceToMatrix(Rows, Columns);
+            return ret;
+        }
     }
 
     /// <summary>
@@ -101,6 +114,18 @@ namespace BrightWire.ExecutionGraph.Helper
         public IGraphData ReplaceWith(IMatrix matrix)
         {
             return new Tensor4DGraphData(matrix, _rows, _columns, _depth);
+        }
+        public IReadOnlyList<IMatrix> GetSubMatrices()
+        {
+            var ret = new List<IMatrix>();
+            for (var j = 0; j < Count; j++) {
+                var matrix = _matrix.Column(j);
+                using (var tensor = matrix.ConvertTo3DTensor(Rows, Columns, Depth)) {
+                    for (var i = 0; i < Depth; i++)
+                        ret.Add(tensor.GetMatrixAt(i));
+                }
+            }
+            return ret;
         }
     }
 }

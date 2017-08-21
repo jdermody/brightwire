@@ -7,7 +7,7 @@ using System.IO;
 namespace BrightWire
 {
     /// <summary>
-    /// 4D tensor that is used as a signal between nodes in the graph
+    /// Wrapper around the data that is used as a signal between nodes in the graph
     /// </summary>
     public interface IGraphData
     {
@@ -22,26 +22,31 @@ namespace BrightWire
         int Columns { get; }
 
         /// <summary>
-        /// 3D Tensor depth
+        /// 3D Tensor depth (1 if the signal is a matrix)
         /// </summary>
         int Depth { get; }
 
         /// <summary>
-        /// Count of 3D tensors
+        /// Count of 3D tensors (1 of the signal is a matrix or 3D tensor)
         /// </summary>
         int Count { get; }
 
         /// <summary>
-        /// Gets the tensor as a matrix
+        /// Gets the signal as a matrix
         /// </summary>
         /// <returns></returns>
         IMatrix GetMatrix();
 
         /// <summary>
-        /// Replaces the data with the specified matrix (but preserves the tensor meta data)
+        /// Replaces the data with the specified matrix (but preserves any tensor meta data)
         /// </summary>
-        /// <param name="matrix">The tensor to use as a replacement</param>
+        /// <param name="matrix">The matrix to use as a replacement</param>
         IGraphData ReplaceWith(IMatrix matrix);
+
+        /// <summary>
+        /// Returns the list of matrices that compose the signal (single item if the signal is a matrix)
+        /// </summary>
+        IReadOnlyList<IMatrix> GetSubMatrices();
     }
 
     /// <summary>
