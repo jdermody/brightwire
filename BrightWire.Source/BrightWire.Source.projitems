@@ -36,6 +36,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\Activation\SoftMax.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\Activation\Tanh.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\DataSource\SequentialDataSource.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\DataSource\TensorDataSource.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\DataSource\VectorDataSource.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\DataTableAdaptor\AdaptiveDataTableAdaptorBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\DataTableAdaptor\DataTableAdaptorBase.cs" />

@@ -230,6 +230,16 @@ namespace BrightWire.ExecutionGraph
         }
 
         /// <summary>
+        /// Creates a data source from a list of matrices (sequential vectors)
+        /// </summary>
+        /// <param name="tensorList">The list of tensors that will be the rows in the data source</param>
+        /// <returns></returns>
+        public IDataSource CreateDataSource(IReadOnlyList<FloatTensor> tensorList)
+        {
+            return new TensorDataSource(_lap, tensorList);
+        }
+
+        /// <summary>
         /// Creates a data source from a data table
         /// </summary>
         /// <param name="dataTable">The data table to convert</param>
