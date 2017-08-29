@@ -108,9 +108,7 @@ namespace BrightWire.LinearAlgebra
             get
             {
                 Debug.Assert(IsValid);
-                return new FloatTensor {
-                    Matrix = _data.Select(m => m.Data).ToArray()
-                };
+                return FloatTensor.Create(_data.Select(m => m.Data).ToArray());
             }
             set {
                 Debug.Assert(IsValid);

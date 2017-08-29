@@ -127,9 +127,7 @@ namespace BrightWire.TrainingData.Artificial
             for(int i = 0, len = str.Length; i < len; i++)
                 data[i] = Encode(str[i]);
 
-            return new FloatMatrix {
-                Row = data
-            };
+            return FloatMatrix.Create(data);
         }
 
         /// <summary>

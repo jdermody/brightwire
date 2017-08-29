@@ -8,7 +8,7 @@ using System.Xml;
 namespace BrightWire.Models
 {
     /// <summary>
-    /// A sparse array of indices
+    /// A protobuf serialisable sparse array of indices
     /// </summary>
     [ProtoContract]
     public class IndexList
@@ -18,6 +18,12 @@ namespace BrightWire.Models
         /// </summary>
         [ProtoMember(1)]
         public uint[] Index { get; set; }
+
+        /// <summary>
+        /// Create a new index list with the specified indices
+        /// </summary>
+        /// <param name="index">Sparse list of indices</param>
+        public static IndexList Create(uint[] index) => new IndexList { Index = index };
 
         /// <summary>
         /// The number of items in the list
@@ -71,9 +77,7 @@ namespace BrightWire.Models
             for (var i = 0; i < len; i++)
                 ret[i] = reader.ReadUInt32();
 
-            return new IndexList {
-                Index = ret
-            };
+            return IndexList.Create(ret);
         }
 
         /// <summary>

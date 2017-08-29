@@ -56,9 +56,7 @@ namespace BrightWire.LinearAlgebra
         {
             get
             {
-                return new FloatTensor {
-                    Matrix = _data.Select(m => m.Data).ToArray()
-                };
+                return FloatTensor.Create(_data.Select(m => m.Data).ToArray());
             }
             set
             {

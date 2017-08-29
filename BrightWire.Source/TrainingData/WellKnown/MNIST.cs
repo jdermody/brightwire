@@ -83,9 +83,7 @@ namespace BrightWire.TrainingData.WellKnown
                     }
                     var tensor = new FloatTensor {
                         Matrix = new FloatMatrix[] {
-                            new FloatMatrix {
-                                Row = rows.ToArray()
-                            }
+                            FloatMatrix.Create(rows.ToArray())
                         }
                     };
                     return (tensor, data.Label);

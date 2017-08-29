@@ -289,7 +289,7 @@ namespace BrightWire
                         Weight = Convert.ToSingle(score)
                     });
                 }
-                ret.Add((classification.Label, new WeightedIndexList { IndexList = classificationIndex.ToArray() }));
+                ret.Add((classification.Label, WeightedIndexList.Create(classificationIndex.ToArray())));
             }
             return ret;
         }

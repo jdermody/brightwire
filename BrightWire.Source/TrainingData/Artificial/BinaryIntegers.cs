@@ -55,7 +55,7 @@ namespace BrightWire.TrainingData.Artificial
                         Data = new[] { r2[j] }
                     };
                 }
-                builder.Add(new FloatMatrix { Row = inputList }, new FloatMatrix { Row = outputList });
+                builder.Add(FloatMatrix.Create(inputList), FloatMatrix.Create(outputList));
             }
             return builder.Build();
         }

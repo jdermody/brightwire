@@ -5,6 +5,7 @@ using System.Text;
 using System.IO;
 using System.Linq;
 using System.Xml;
+using System.Diagnostics;
 
 namespace BrightWire.Models
 {
@@ -19,6 +20,37 @@ namespace BrightWire.Models
         /// </summary>
         [ProtoMember(1)]
         public FloatVector[] Row { get; set; }
+
+        /// <summary>
+        /// Create a new float matrix with the specified rows
+        /// </summary>
+        /// <param name="rows">The rows in the matrix (each vector should be the same length)</param>
+        public static FloatMatrix Create(FloatVector[] rows)
+        {
+#if DEBUG
+            if (rows != null) {
+                var firstRowSize = rows.First().Size;
+                Debug.Assert(rows.All(r => r.Size == firstRowSize));
+            }
+#endif
+            return new FloatMatrix {
+                Row = rows
+            };
+        }
+
+        /// <summary>
+        /// Create a new float matrix with the specified number of rows and columns initialised to zero
+        /// </summary>
+        /// <param name="rowCount">Number of rows</param>
+        /// <param name="columnCount">Number of columns</param>
+        public static FloatMatrix Create(int rowCount, int columnCount)
+        {
+            return new FloatMatrix {
+                Row = Enumerable.Range(0, rowCount)
+                    .Select(i => FloatVector.Create(columnCount))
+                    .ToArray()
+            };
+        }
 
         /// <summary>
         /// The number of rows
@@ -77,9 +109,7 @@ namespace BrightWire.Models
             for (var i = 0; i < len; i++)
                 ret[i] = FloatVector.ReadFrom(reader);
 
-            return new FloatMatrix {
-                Row = ret
-            };
+            return Create(ret);
         }
 
         /// <summary>

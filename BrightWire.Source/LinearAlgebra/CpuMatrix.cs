@@ -287,9 +287,7 @@ namespace BrightWire.LinearAlgebra
         {
             get
             {
-                var ret = new FloatMatrix {
-                    Row = new FloatVector[_matrix.RowCount]
-                };
+                var ret = FloatMatrix.Create(new FloatVector[_matrix.RowCount]);
                 for (var i = 0; i < _matrix.RowCount; i++) {
                     var row = new float[_matrix.ColumnCount];
                     for (var j = 0; j < _matrix.ColumnCount; j++) {

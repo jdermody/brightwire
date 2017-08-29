@@ -5,20 +5,53 @@ using System.Text;
 using System.Linq;
 using System.Xml;
 using System.IO;
+using System.Diagnostics;
 
 namespace BrightWire.Models
 {
     /// <summary>
-    /// A protobuf serialised tensor
+    /// A protobuf serialised 3D tensor
     /// </summary>
     [ProtoContract]
     public class FloatTensor
     {
         /// <summary>
-        /// The list of matrices
+        /// The list of matrices that form the tensor
         /// </summary>
         [ProtoMember(1)]
         public FloatMatrix[] Matrix { get; set; }
+
+        /// <summary>
+        /// Create a new 3D tensor
+        /// </summary>
+        /// <param name="matrices">List of matrices that form the 3D tensor (each should have the same dimensions)</param>
+        public static FloatTensor Create(FloatMatrix[] matrices)
+        {
+#if DEBUG
+            if (matrices != null) {
+                var firstMatrix = matrices.First();
+                var firstRowCount = firstMatrix.RowCount;
+                var firstColumnCount = firstMatrix.ColumnCount;
+                Debug.Assert(matrices.All(m => m.RowCount == firstRowCount && m.ColumnCount == firstColumnCount));
+            }
+#endif
+            return new FloatTensor { Matrix = matrices };
+        }
+
+        /// <summary>
+        /// Create a new 3D tensor initialised to zero
+        /// </summary>
+        /// <param name="rowCount">Row count of each matrix</param>
+        /// <param name="columnCount">Column count of each matrix</param>
+        /// <param name="depth">Depth of the 3D tensor (number of matrices)</param>
+        public static FloatTensor Create(int rowCount, int columnCount, int depth)
+        {
+            return new FloatTensor {
+                Matrix = Enumerable.Range(0, depth)
+                    .Select(i => FloatMatrix.Create(rowCount, columnCount))
+                    .ToArray()
+            };
+        }
 
         /// <summary>
         /// The number of rows
@@ -83,9 +116,7 @@ namespace BrightWire.Models
             for (var i = 0; i < len; i++)
                 ret[i] = FloatMatrix.ReadFrom(reader);
 
-            return new FloatTensor {
-                Matrix = ret
-            };
+            return Create(ret);
         }
 
         /// <summary>

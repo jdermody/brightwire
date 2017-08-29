@@ -8,7 +8,7 @@ using System.Xml;
 namespace BrightWire.Models
 {
     /// <summary>
-    /// A sparse array of weighted indices
+    /// A protobuf serialisable sparse array of weighted indices
     /// </summary>
     [ProtoContract]
     public class WeightedIndexList
@@ -37,6 +37,12 @@ namespace BrightWire.Models
         /// </summary>
         [ProtoMember(1)]
         public WeightedIndex[] IndexList { get; set; }
+
+        /// <summary>
+        /// Create a new weighted index list with the specified weighted indices
+        /// </summary>
+        /// <param name="indexList">Sparse list of weighted indices</param>
+        public static WeightedIndexList Create(WeightedIndex[] indexList) => new WeightedIndexList { IndexList = indexList };
 
         /// <summary>
         /// The number of items in the list
@@ -101,9 +107,7 @@ namespace BrightWire.Models
                 ret[i] = category;
             }
 
-            return new WeightedIndexList {
-                IndexList = ret
-            };
+            return Create(ret);
         }
 
         /// <summary>

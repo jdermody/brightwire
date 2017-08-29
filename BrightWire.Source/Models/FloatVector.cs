@@ -21,6 +21,18 @@ namespace BrightWire.Models
         public float[] Data { get; set; }
 
         /// <summary>
+        /// Create a new float vector with the specified data
+        /// </summary>
+        /// <param name="data"></param>
+        public static FloatVector Create(float[] data) => new FloatVector { Data = data };
+
+        /// <summary>
+        /// Create a new float vector with each entry set to zero
+        /// </summary>
+        /// <param name="size">Size of the vector</param>
+        public static FloatVector Create(int size) => new FloatVector { Data = new float[size] };
+
+        /// <summary>
         /// The size of the vector
         /// </summary>
         public int Size { get { return Data?.Length ?? 0; } }
