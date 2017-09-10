@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
@@ -24,6 +25,10 @@ namespace BrightWire.ExecutionGraph.Helper
         public IMatrix GetMatrix()
         {
             return _matrix;
+        }
+        public I4DTensor Get4DTensor()
+        {
+            return null;
         }
         public IGraphData ReplaceWith(IMatrix matrix)
         {
@@ -81,6 +86,10 @@ namespace BrightWire.ExecutionGraph.Helper
                 ret[i] = _matrix.Column(i).ConvertInPlaceToMatrix(Rows, Columns);
             return ret;
         }
+        public I4DTensor Get4DTensor()
+        {
+            return null;
+        }
     }
 
     /// <summary>
@@ -126,6 +135,10 @@ namespace BrightWire.ExecutionGraph.Helper
                 }
             }
             return ret;
+        }
+        public I4DTensor Get4DTensor()
+        {
+            return _matrix.ConvertTo4DTensor(Rows, Columns, Depth);
         }
     }
 }

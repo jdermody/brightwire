@@ -38,6 +38,12 @@ namespace BrightWire
         IMatrix GetMatrix();
 
         /// <summary>
+        /// Gets the signal as a 4D tensor
+        /// </summary>
+        /// <returns></returns>
+        I4DTensor Get4DTensor();
+
+        /// <summary>
         /// Replaces the data with the specified matrix (but preserves any tensor meta data)
         /// </summary>
         /// <param name="matrix">The matrix to use as a replacement</param>

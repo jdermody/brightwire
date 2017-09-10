@@ -17,21 +17,21 @@ namespace BrightWire.ExecutionGraph.Node.Operation
             protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
                 var error = errorSignal.GetMatrix();
-                var delta = error.ColumnSums();
-                delta.Multiply(1f / error.RowCount);
-                var delta2 = delta.Average();
-                _source._param += delta2 * context.LearningContext.BatchLearningRate;
+                using (var columnSums = error.ColumnSums()) {
+                    columnSums.Multiply(1f / error.RowCount);
+                    _source._param.AddInPlace(columnSums, 1f, context.LearningContext.BatchLearningRate);
+                }
                 return errorSignal;
             }
         }
-        float _param;
+        IVector _param;
 
-        public MultiplyWithParameter(float param, string name = null) : base(name)
+        public MultiplyWithParameter(IVector param, string name = null) : base(name)
         {
             _param = param;
         }
 
-        public float Parameter
+        public IVector Parameter
         {
             get => _param;
             set => _param = value;
@@ -40,8 +40,8 @@ namespace BrightWire.ExecutionGraph.Node.Operation
         public override void ExecuteForward(IContext context)
         {
             var input = context.Data.GetMatrix();
-            var output = context.LinearAlgebraProvider.CreateMatrix(input.RowCount, input.ColumnCount, _param);
-            _AddNextGraphAction(context, context.Data.ReplaceWith(output), () => new Backpropagation(this));
+            var matrix = context.LinearAlgebraProvider.CreateMatrix(Enumerable.Repeat(_param, input.RowCount).ToList());
+            _AddNextGraphAction(context, context.Data.ReplaceWith(matrix), () => new Backpropagation(this));
         }
     }
 }
