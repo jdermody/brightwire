@@ -17,8 +17,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             : base(lap, dataTable)
         {
             _vectoriser = vectoriser;
-            var columnInfo = _vectoriser.Analysis.ColumnInfo.First() as IIndexColumnInfo;
-            _inputSize = Convert.ToInt32(columnInfo.MaxIndex + 1);
+            _inputSize = vectoriser.InputSize;
             _outputSize = _vectoriser.OutputSize;
 
             // load the data
