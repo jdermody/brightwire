@@ -210,6 +210,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)Unsupervised\NonNegativeMatrixFactorisation.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="$(MSBuildThisFileDirectory)Documentation.tt" />
+    <Content Include="$(MSBuildThisFileDirectory)Documentation.xml">
+      <DependentUpon>Documentation.tt</DependentUpon>
+    </Content>
     <Content Include="$(MSBuildThisFileDirectory)readme.txt" />
   </ItemGroup>
 </Project>

@@ -1,0 +1,208 @@
+﻿<#@ template debug="false" hostspecific="true" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ assembly name="System.Web" #>
+<#@ assembly name="System.Xml.Linq" #>
+<#@ assembly name="EnvDTE" #>
+<#@ assembly name="EnvDTE80" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Web" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.Xml.Linq" #>
+<#@ import namespace="EnvDTE" #>
+<#@ import namespace="EnvDTE80" #>
+<#@ output extension=".xml" #>
+<#
+	var serviceProvider = Host as IServiceProvider;
+	var dte = serviceProvider.GetService(typeof(DTE)) as DTE;
+
+	var classList = new List<CodeClass>();
+	var enumList = new List<CodeEnum>();
+	var interfaceList = new List<CodeInterface>();
+	foreach(var project in dte.Solution.Projects.Cast<Project>()) {
+        if(project.FullName.Contains("BrightWire.")) {
+			foreach(var file in project.ProjectItems.Cast<ProjectItem>()) {
+				Collect(file, classList, enumList, interfaceList);
+            }
+        }
+    }
+#>
+<assembly>
+<# foreach(var item in enumList.OrderBy(e => e.Name)) { 
+	   int index = 0;
+#>
+<enum name="<#= Encode(item.FullName) #>">
+	<summary>
+		<#= WriteSummary(item.DocComment) #>
+	</summary>
+<# foreach(var member in item.Members.OfType<CodeVariable>()) { 
+	   if(member.InitExpression != null) {
+		   index = int.Parse(member.InitExpression.ToString());
+       }
+#>
+	<value name="<#= member.Name #>" value="<#= index #>" summary="<#= WriteSummary(member.DocComment) #>" />
+<# 
+	   ++index;
+} #>
+</enum>
+<# } #>
+
+<# foreach(var item in interfaceList.OrderBy(c => c.Name)) {
+	   string baseClass = "";
+       foreach (CodeElement elem in item.Bases)
+       {
+			var name = elem.Name;
+			if(name != "Object") {
+				baseClass += Encode(elem.FullName);
+				break;
+            }
+       }
+ #>
+<interface name="<#= Encode(item.FullName) #>" base="<#= baseClass #>">
+	<summary>
+		<#= WriteSummary(item.DocComment) #>
+	</summary>
+	<# foreach(var member in item.Members.Cast<CodeElement>()) {
+    if(member.Kind == vsCMElement.vsCMElementProperty) {
+        var property = (CodeProperty)member;
+		if(property.Access == vsCMAccess.vsCMAccessPublic) {
+#>
+	<property type="<#= Encode(GetCodeType(property.Type)) #>" name="<#= property.Name #>">
+		<summary><#= WriteSummary(property.DocComment) #></summary>
+	</property>
+<# }}else if(member.Kind == vsCMElement.vsCMElementFunction) {
+	   var method = (CodeFunction)member;
+	   var paramTable = GetParameterDocumentation(method.DocComment);
+	   if(method.Access == vsCMAccess.vsCMAccessPublic) {
+#>
+	<method type="<#= Encode(GetCodeType(method.Type)) #>" name="<#= method.Name #>">
+		<summary><#= WriteSummary(method.DocComment) #></summary>
+		<# foreach(var param in method.Parameters.Cast<CodeParameter>()) { 
+			string comment;
+			if(!paramTable.TryGetValue(param.Name, out comment))
+				comment = "";
+		#>
+		<param type="<#= Encode(GetCodeType(param.Type)) #>" name="<#= param.Name #>" summary="<#= comment #>" />
+		<# } #>
+	</method>
+<# }}} #>
+</interface>
+<#}#>
+
+<# foreach(var item in classList.OrderBy(c => c.Name)) {
+	   string baseClass = "";
+	   var isAbstract = item.IsAbstract;
+	   var isStatic = false;
+	   var codeClass2 = item as CodeClass2;
+	   if(codeClass2 != null)
+		   isStatic = codeClass2.IsShared;
+       foreach (CodeElement elem in item.Bases)
+       {
+			var name = elem.Name;
+			if(name != "Object") {
+				baseClass += Encode(elem.FullName);
+				break;
+            }
+       }
+ #>
+<class name="<#= Encode(item.FullName) #>" base="<#= baseClass #>" is-static="<#= isStatic ? "true" : "false" #>" is-abstract="<#= isAbstract ? "true" : "false" #>">
+	<summary>
+		<#= WriteSummary(item.DocComment) #>
+	</summary>
+<# foreach(var member in item.Members.Cast<CodeElement>()) {
+    if(member.Kind == vsCMElement.vsCMElementProperty) {
+        var property = (CodeProperty)member;
+		if(property.Access == vsCMAccess.vsCMAccessPublic) {
+#>
+	<property type="<#= Encode(GetCodeType(property.Type)) #>" name="<#= property.Name #>">
+		<summary><#= WriteSummary(property.DocComment) #></summary>
+	</property>
+<# }}else if(member.Kind == vsCMElement.vsCMElementFunction) {
+	   var method = (CodeFunction)member;
+	   var paramTable = GetParameterDocumentation(method.DocComment);
+	   if(method.Access == vsCMAccess.vsCMAccessPublic) {
+#>
+	<method type="<#= Encode(GetCodeType(method.Type)) #>" name="<#= method.Name #>" is-static="<#= method.IsShared ? "true" : "false" #>">
+		<summary><#= WriteSummary(method.DocComment) #></summary>
+		<# foreach(var param in method.Parameters.Cast<CodeParameter>()) { 
+			string comment;
+			if(!paramTable.TryGetValue(param.Name, out comment))
+				comment = "";
+		#>
+		<param type="<#= Encode(GetCodeType(param.Type)) #>" name="<#= param.Name #>" summary="<#= comment #>" />
+		<# } #>
+	</method>
+<# }}} #>
+</class>
+<# } #>
+</assembly>
+<#+
+public string Encode(string text) {
+	return HttpUtility.HtmlEncode(text);
+}
+
+public string GetCodeType(CodeTypeRef type)  {
+	try {
+		return type.AsFullName;
+    }catch(Exception ex) {
+		return ex.ToString();
+    }
+}
+
+public string WriteSummary(string xml)
+{
+	if(!String.IsNullOrWhiteSpace(xml)) {
+		var doc = XElement.Parse(xml);
+		if(doc != null) {
+			var summary = doc.Element("summary");
+			if(summary != null) {
+				return summary.Value.Trim();
+            }
+        }
+    }
+	return "";
+}
+
+public Dictionary<string, string> GetParameterDocumentation(string xml) {
+	var ret = new Dictionary<string, string>();
+	if(!String.IsNullOrWhiteSpace(xml)) {
+		var doc = XElement.Parse(xml);
+		if(doc != null) {
+			foreach(var param in doc.Elements("param")) {
+				ret.Add(param.Attribute("name").Value, param.Value);
+            }
+        }
+    }
+	return ret;
+}
+
+public void Collect(CodeElement item, List<CodeClass> list, List<CodeEnum> list2, List<CodeInterface> list3)
+{
+	if(item.Kind == vsCMElement.vsCMElementClass) {
+		var codeClass = (CodeClass)item;
+		if(codeClass.Access == vsCMAccess.vsCMAccessPublic)
+			list.Add(codeClass);
+    }else if(item.Kind == vsCMElement.vsCMElementEnum) {
+		var codeEnum = (CodeEnum)item;
+		if(codeEnum.Access == vsCMAccess.vsCMAccessPublic)
+			list2.Add(codeEnum);
+    }else if(item.Kind == vsCMElement.vsCMElementInterface) {
+		var codeInterface = (CodeInterface)item;
+		if(codeInterface.Access == vsCMAccess.vsCMAccessPublic)
+			list3.Add(codeInterface);
+    }
+	foreach(var child in item.Children.Cast<CodeElement>())
+		Collect(child, list, list2, list3);
+}
+
+public void Collect(ProjectItem item, List<CodeClass> list, List<CodeEnum> list2, List<CodeInterface> list3)
+{
+	if(item.FileCodeModel != null) {
+		foreach(var element in item.FileCodeModel.CodeElements.Cast<CodeElement>()) {
+			Collect(element, list, list2, list3);
+		}
+    }
+	foreach(var child in item.ProjectItems.Cast<ProjectItem>())
+		Collect(child, list, list2, list3);
+}
+#>
