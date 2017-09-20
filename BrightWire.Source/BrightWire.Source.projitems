@@ -92,6 +92,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\Node\Helper\HookErrorSignal.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\Node\Helper\NodeWrapper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\Node\Helper\RowClassifier.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\Node\Helper\TransposeAndCombineSignal.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\Node\Helper\TransposeSignal.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\Node\Input\FlowThrough.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\Node\Input\InputFeeder.cs" />
@@ -156,6 +157,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\Bayesian\NaiveBayes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\DataSourceModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\DataTable\DataTableNormalisation.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\DataTable\DataTableVectorisation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\ExecutionGraph.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\ExecutionResult.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\FloatMatrix.cs" />
