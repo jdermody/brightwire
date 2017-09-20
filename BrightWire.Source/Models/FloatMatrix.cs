@@ -28,7 +28,7 @@ namespace BrightWire.Models
         public static FloatMatrix Create(FloatVector[] rows)
         {
 #if DEBUG
-            if (rows != null) {
+            if (rows != null && rows.All(r => r != null)) {
                 var firstRowSize = rows.First().Size;
                 Debug.Assert(rows.All(r => r.Size == firstRowSize));
             }
