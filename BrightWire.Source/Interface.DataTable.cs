@@ -1,5 +1,6 @@
 ﻿using BrightWire.Models;
 using BrightWire.Models.DataTable;
+using BrightWire.Source.Models.DataTable;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -246,11 +247,6 @@ namespace BrightWire
         int OutputSize { get; }
 
         /// <summary>
-        /// The list of column names
-        /// </summary>
-        IReadOnlyList<string> ColumnNames { get; }
-
-        /// <summary>
         /// Returns the classification label
         /// </summary>
         /// <param name="columnIndex">The data table column index</param>
@@ -258,9 +254,10 @@ namespace BrightWire
         string GetOutputLabel(int columnIndex, int vectorIndex);
 
         /// <summary>
-        /// Data table analysis
+        /// Gets the serialisable model to recreate this vectorisation
         /// </summary>
-        IDataTableAnalysis Analysis { get; }
+        /// <returns></returns>
+        DataTableVectorisation GetVectorisationModel();
     }
 
     /// <summary>
@@ -456,6 +453,13 @@ namespace BrightWire
         IDataTableVectoriser GetVectoriser(bool useTargetColumnIndex = true);
 
         /// <summary>
+        /// Returns an interface that can convert rows in the current table to vectors
+        /// </summary>
+        /// <param name="model">A serialised model to recreate a previous vectorisation</param>
+        /// <returns></returns>
+        IDataTableVectoriser GetVectoriser(DataTableVectorisation model);
+
+        /// <summary>
         /// Returns a copy of the current table
         /// </summary>
         /// <param name="rowIndex">The list of rows to copy</param>
@@ -470,7 +474,7 @@ namespace BrightWire
         /// <param name="useTargetColumnIndex">True to separate the target column index into a separate output vector</param>
         /// <param name="output">Optional stream to write the new table to</param>
         /// <returns></returns>
-        IDataTable ConvertToNumeric(IDataTableVectoriser vectoriser = null, bool useTargetColumnIndex = true, Stream output = null);
+        //IDataTable ConvertToNumeric(IDataTableVectoriser vectoriser = null, bool useTargetColumnIndex = true, Stream output = null);
 
         /// <summary>
         /// Returns table meta-data and the top 20 rows of the table as XML
