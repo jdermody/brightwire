@@ -12,7 +12,7 @@ namespace BrightWire.SampleCode
 {
     public partial class Program
     {
-        static void _WriteBinary(float value)
+        static void _WriteAsBinary(float value)
         {
             if (value >= 0.5)
                 Console.Write("1");
@@ -26,21 +26,23 @@ namespace BrightWire.SampleCode
             var data = BinaryIntegers.Addition(1000, false).Split(0);
             using (var lap = BrightWireProvider.CreateLinearAlgebra(false)) {
                 var graph = new GraphFactory(lap);
+
+                // binary classification rounds each output to either 0 or 1
                 var errorMetric = graph.ErrorMetric.BinaryClassification;
 
-                // modify the property set
-                var propertySet = graph.CurrentPropertySet
+                // configure the network properties
+                graph.CurrentPropertySet
                     .Use(graph.GradientDescent.Adam)
-                    .Use(graph.WeightInitialisation.Xavier)
+                    .Use(graph.GaussianWeightInitialisation(false, 0.1f, GaussianVarianceCalibration.SquareRoot2N))
                 ;
 
                 // create the engine
                 var trainingData = graph.CreateDataSource(data.Training);
                 var testData = trainingData.CloneWith(data.Test);
-                var engine = graph.CreateTrainingEngine(trainingData, 0.01f, 16);
+                var engine = graph.CreateTrainingEngine(trainingData, learningRate: 0.01f, batchSize: 16);
 
                 // build the network
-                const int HIDDEN_LAYER_SIZE = 32;
+                const int HIDDEN_LAYER_SIZE = 32, TRAINING_ITERATIONS = 30;
                 var memory = new float[HIDDEN_LAYER_SIZE];
                 var network = graph.Connect(engine)
                     .AddSimpleRecurrent(graph.ReluActivation(), memory)
@@ -49,12 +51,12 @@ namespace BrightWire.SampleCode
                     .AddBackpropagationThroughTime(errorMetric)
                 ;
 
-                // train the network
-                GraphModel bestNetwork = null;
-                engine.Train(30, testData, errorMetric, bn => bestNetwork = bn);
+                // train the network for twenty iterations, saving the model on each improvement
+                Models.ExecutionGraph bestGraph = null;
+                engine.Train(TRAINING_ITERATIONS, testData, errorMetric, bn => bestGraph = bn.Graph);
 
-                // export the graph and verify it against some unseen integers
-                var executionEngine = graph.CreateEngine(bestNetwork.Graph);
+                // export the graph and verify it against some unseen integers on the best model
+                var executionEngine = graph.CreateEngine(bestGraph ?? engine.Graph);
                 var testData2 = graph.CreateDataSource(BinaryIntegers.Addition(8, true));
                 var results = executionEngine.Execute(testData2);
 
@@ -76,23 +78,23 @@ namespace BrightWire.SampleCode
                 foreach (var result in groupedResults) {
                     Console.Write("First:     ");
                     foreach (var item in result.Input)
-                        _WriteBinary(item.Data[0]);
+                        _WriteAsBinary(item.Data[0]);
                     Console.WriteLine();
 
                     Console.Write("Second:    ");
                     foreach (var item in result.Input)
-                        _WriteBinary(item.Data[1]);
+                        _WriteAsBinary(item.Data[1]);
                     Console.WriteLine();
                     Console.WriteLine("           --------------------------------");
 
                     Console.Write("Expected:  ");
                     foreach (var item in result.Target)
-                        _WriteBinary(item.Data[0]);
+                        _WriteAsBinary(item.Data[0]);
                     Console.WriteLine();
 
                     Console.Write("Predicted: ");
                     foreach (var item in result.Output)
-                        _WriteBinary(item.Data[0]);
+                        _WriteAsBinary(item.Data[0]);
                     Console.WriteLine();
                     Console.WriteLine();
                 }

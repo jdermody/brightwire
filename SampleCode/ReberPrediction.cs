@@ -13,14 +13,21 @@ namespace BrightWire.SampleCode
     {
         static void ReberPrediction()
         {
-            var grammar = new ReberGrammar(false);
+            // generate 500 extended reber grammar training examples
+            var grammar = new ReberGrammar(stochastic: false);
             var sequences = grammar.GetExtended(10).Take(500).ToList();
+
+            // split the data into training and test sets
             var data = ReberGrammar.GetOneHot(sequences).Split(0);
 
-            using (var lap = BrightWireProvider.CreateLinearAlgebra(false)) {
+            using (var lap = BrightWireProvider.CreateLinearAlgebra(stochastic: false)) {
                 var graph = new GraphFactory(lap);
+
+                // binary classification rounds each output to either 0 or 1
                 var errorMetric = graph.ErrorMetric.BinaryClassification;
-                var propertySet = graph.CurrentPropertySet
+
+                // configure the network properties
+                graph.CurrentPropertySet
                     .Use(graph.GradientDescent.RmsProp)
                     .Use(graph.WeightInitialisation.Xavier)
                 ;
@@ -28,25 +35,21 @@ namespace BrightWire.SampleCode
                 // create the engine
                 var trainingData = graph.CreateDataSource(data.Training);
                 var testData = trainingData.CloneWith(data.Test);
-                var engine = graph.CreateTrainingEngine(trainingData, 0.1f, 32);
+                var engine = graph.CreateTrainingEngine(trainingData, learningRate: 0.1f, batchSize: 32);
 
                 // build the network
-                const int HIDDEN_LAYER_SIZE = 64;
+                const int HIDDEN_LAYER_SIZE = 64, TRAINING_ITERATIONS = 30;
                 var memory = new float[HIDDEN_LAYER_SIZE];
                 var network = graph.Connect(engine)
-                    //.AddSimpleRecurrent(graph.ReluActivation(), memory)
                     .AddGru(memory)
-                    //.AddRan(memory)
-                    //.AddLstm(memory)
-
                     .AddFeedForward(engine.DataSource.OutputSize)
                     .Add(graph.TanhActivation())
                     .AddBackpropagationThroughTime(errorMetric)
                 ;
 
-                engine.Train(30, testData, errorMetric);
+                engine.Train(TRAINING_ITERATIONS, testData, errorMetric);
 
-                // generate sample sequence
+                // generate a sample sequence using the learnt state transitions
                 var networkGraph = engine.Graph;
                 using (var executionContext = graph.CreateExecutionContext()) {
                     var executionEngine = graph.CreateEngine(networkGraph);

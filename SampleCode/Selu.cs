@@ -14,11 +14,18 @@ namespace BrightWire.SampleCode
 {
     partial class Program
     {
+        /// <summary>
+        /// Example of custom activation function, implemented from:
+        /// https://arxiv.org/abs/1706.02515
+        /// </summary>
         class SeluActivation : NodeBase
         {
             const float ALPHA = 1.6732632423543772848170429916717f;
             const float SCALE = 1.0507009873554804934193349852946f;
 
+            /// <summary>
+            /// Backpropagation of SELU activation
+            /// </summary>
             class Backpropagation : SingleBackpropagationBase<SeluActivation>
             {
                 public Backpropagation(SeluActivation source) : base(source) { }
@@ -66,28 +73,31 @@ namespace BrightWire.SampleCode
                 var trainingData = graph.CreateDataSource(split.Training);
                 var testData = graph.CreateDataSource(split.Test);
 
-                // use a one hot encoding error metric, rmsprop gradient descent and xavier weight initialisation
+                // one hot encoding uses the index of the output vector's maximum value as the classification label
                 var errorMetric = graph.ErrorMetric.OneHotEncoding;
-                var propertySet = graph.CurrentPropertySet
+
+                // configure the network properties
+                graph.CurrentPropertySet
                     .Use(graph.GradientDescent.RmsProp)
                     .Use(graph.GaussianWeightInitialisation(true, 0.1f, GaussianVarianceCalibration.SquareRoot2N, GaussianVarianceCount.FanInFanOut))
                 ;
 
                 // create the training engine and schedule a training rate change
                 const float TRAINING_RATE = 0.01f;
-                var engine = graph.CreateTrainingEngine(trainingData, TRAINING_RATE, 128);
+                var engine = graph.CreateTrainingEngine(trainingData, TRAINING_RATE, batchSize: 128);
 
-                // create the network
+                // create the network with the custom activation function
                 graph.Connect(engine)
-                    .AddFeedForward(32)
+                    .AddFeedForward(outputSize: 32)
                     .Add(new SeluActivation())
                     .AddFeedForward(trainingData.OutputSize)
                     .Add(graph.SigmoidActivation())
                     .AddBackpropagation(errorMetric)
                 ;
 
-                // train the network
-                engine.Train(1000, testData, errorMetric, null, 50);
+                // train the network, but only run the test set every 50 iterations
+                const int TRAINING_ITERATIONS = 1000;
+                engine.Train(TRAINING_ITERATIONS, testData, errorMetric, null, testCadence: 50);
             }
         }
     }

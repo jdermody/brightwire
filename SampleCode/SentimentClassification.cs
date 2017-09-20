@@ -17,7 +17,7 @@ namespace BrightWire.SampleCode
         static IReadOnlyList<(string Classification, IndexList Data)> _BuildIndexedClassifications(IReadOnlyList<Tuple<string[], string>> data, StringTableBuilder stringTable)
         {
             return data
-                .Select(d => (d.Item2, new IndexList { Index = d.Item1.Select(str => stringTable.GetIndex(str)).ToArray() }))
+                .Select(d => (d.Item2, IndexList.Create(d.Item1.Select(str => stringTable.GetIndex(str)).ToArray())))
                 .ToList()
             ;
         }
@@ -69,13 +69,15 @@ namespace BrightWire.SampleCode
                 .Average(r => r.Score)
             );
 
-            // convert the index lists to vectors
+            // convert the index lists to vectors and normalise along the way
             var sentimentDataBag = _BuildIndexedClassifications(sentimentData, stringTable);
             var sentimentDataTable = sentimentDataBag.ConvertToTable();
-            var vectoriser = sentimentDataTable.GetVectoriser();
-            var sentimentDataSet = sentimentDataTable.Split(0);
+            var normalisedDataTable = sentimentDataTable.Normalise(NormalisationType.Standard);
+            var vectoriser = normalisedDataTable.GetVectoriser();
+            var sentimentDataSet = normalisedDataTable.Split(0);
+            var dataTableAnalysis = normalisedDataTable.GetAnalysis();
 
-            using (var lap = BrightWireProvider.CreateLinearAlgebra()) {
+            using (var lap = BrightWireGpuProvider.CreateLinearAlgebra()) {
                 var graph = new GraphFactory(lap);
                 var trainingData = graph.CreateDataSource(sentimentDataSet.Training, vectoriser);
                 var testData = graph.CreateDataSource(sentimentDataSet.Test, vectoriser);
@@ -96,6 +98,7 @@ namespace BrightWire.SampleCode
                 // train a neural network classifier
                 var neuralNetworkWire = graph.Connect(engine)
                     .AddFeedForward(512, "layer1")
+                    //.AddBatchNormalisation()
                     .Add(graph.ReluActivation())
                     .AddDropOut(0.5f)
                     .AddFeedForward(trainingData.OutputSize, "layer2")
@@ -105,8 +108,9 @@ namespace BrightWire.SampleCode
 
                 // train the network
                 Console.WriteLine("Training neural network classifier...");
+                const int TRAINING_ITERATIONS = 10;
                 GraphModel bestNetwork = null;
-                engine.Train(10, testData, errorMetric, network => bestNetwork = network);
+                engine.Train(TRAINING_ITERATIONS, testData, errorMetric, network => bestNetwork = network);
                 if (bestNetwork != null)
                     engine.LoadParametersFrom(bestNetwork.Graph);
                 var firstClassifier = graph.CreateEngine(engine.Graph);
@@ -118,13 +122,13 @@ namespace BrightWire.SampleCode
                 // create the bernoulli classifier wire
                 var bernoulliClassifier = bernoulli.CreateClassifier();
                 var bernoulliWire = graph.Connect(engine)
-                    .AddClassifier(bernoulliClassifier, sentimentDataSet.Training, vectoriser.Analysis)
+                    .AddClassifier(bernoulliClassifier, sentimentDataSet.Training, dataTableAnalysis)
                 ;
 
                 // create the multinomial classifier wire
                 var multinomialClassifier = multinomial.CreateClassifier();
                 var multinomialWire = graph.Connect(engine)
-                    .AddClassifier(multinomialClassifier, sentimentDataSet.Training, vectoriser.Analysis)
+                    .AddClassifier(multinomialClassifier, sentimentDataSet.Training, dataTableAnalysis)
                 ;
 
                 // join the bernoulli, multinomial and neural network classification outputs
@@ -133,10 +137,12 @@ namespace BrightWire.SampleCode
 
                 // train an additional classifier on the output of the previous three classifiers
                 joined
-                    .AddFeedForward(32)
+                    .AddFeedForward(outputSize: 64)
+                    //.AddBatchNormalisation()
                     .Add(graph.ReluActivation())
-                    .AddDropOut(0.5f)
+                    .AddDropOut(dropOutPercentage: 0.5f)
                     .AddFeedForward(trainingData.OutputSize)
+                    //.AddBatchNormalisation()
                     .Add(graph.ReluActivation())
                     .AddBackpropagation(errorMetric)
                 ;
@@ -166,9 +172,7 @@ namespace BrightWire.SampleCode
                         var vector = new float[trainingData.InputSize];
                         foreach (var token in queryTokens)
                             vector[token.Item1] = token.Item2;
-                        var indexList2 = new IndexList {
-                            Index = indexList.ToArray()
-                        };
+                        var indexList2 = IndexList.Create(indexList.ToArray());
                         var encodedInput = indexListEncoder.Encode(indexList2);
 
                         Console.WriteLine("Bernoulli classification: " + bernoulliClassifier.Classify(indexList2).First().Label);

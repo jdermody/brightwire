@@ -36,7 +36,7 @@ namespace BrightWire.SampleCode
                     var row = grammar.Encode(item.Key, item.Value);
                     list.Add(row);
                 }
-                builder.Add(summary, new FloatMatrix { Row = list.ToArray() });
+                builder.Add(summary, FloatMatrix.Create(list.ToArray()));
             }
             var data = builder.Build().Split(0);
             using (var lap = BrightWireProvider.CreateLinearAlgebra(false)) {
@@ -94,7 +94,7 @@ namespace BrightWire.SampleCode
                     var row = grammar.Encode(charSet.Select(ch2 => (ch2, 1f)));
                     list.Add(row);
                 }
-                builder.Add(new FloatMatrix { Row = list.ToArray() }, list.Last());
+                builder.Add(FloatMatrix.Create(list.ToArray()), list.Last());
             }
             var data = builder.Build().Split(0);
 

@@ -15,7 +15,7 @@ namespace BrightWire.SampleCode
     public partial class Program
     {
         /// <summary>
-        /// Trains a neural net on the MNIST database (digit recognition)
+        /// Trains a feed forward neural net on the MNIST database (handwritten digit recognition)
         /// The data files can be downloaded from http://yann.lecun.com/exdb/mnist/
         /// </summary>
         /// <param name="dataFilesPath">The path to a directory with the four extracted data files</param>
@@ -29,10 +29,11 @@ namespace BrightWire.SampleCode
                 var testData = _BuildVectors(trainingData, graph, Mnist.Load(dataFilesPath + "t10k-labels.idx1-ubyte", dataFilesPath + "t10k-images.idx3-ubyte"));
                 Console.WriteLine($"done - {trainingData.RowCount} training images and {testData.RowCount} test images loaded");
 
-                // use a one hot encoding error metric, rmsprop gradient descent and xavier weight initialisation
+                // one hot encoding uses the index of the output vector's maximum value as the classification label
                 var errorMetric = graph.ErrorMetric.OneHotEncoding;
-                var propertySet = graph.CurrentPropertySet
-                    //.Use(graph.Regularisation.L2)
+
+                // configure the network properties
+                graph.CurrentPropertySet
                     .Use(graph.GradientDescent.RmsProp)
                     .Use(graph.WeightInitialisation.Xavier)
                 ;
@@ -44,35 +45,38 @@ namespace BrightWire.SampleCode
 
                 // create the network
                 graph.Connect(engine)
-                    .AddFeedForward(1024)
+                    .AddFeedForward(outputSize: 1024)
                     .Add(graph.LeakyReluActivation())
-                    .AddDropOut(0.5f)
-                    .AddFeedForward(trainingData.OutputSize)
+                    .AddDropOut(dropOutPercentage: 0.5f)
+                    .AddFeedForward(outputSize: trainingData.OutputSize)
                     .Add(graph.SigmoidActivation())
                     .AddBackpropagation(errorMetric)
                 ;
 
-                // train the network
-                engine.Train(20, testData, errorMetric);
+                // train the network for twenty iterations, saving the model on each improvement
+                Models.ExecutionGraph bestGraph = null;
+                engine.Train(20, testData, errorMetric, model => bestGraph = model.Graph);
 
-                // export the graph and verify that the error is the same
-                var networkGraph = engine.Graph;
-                var executionEngine = graph.CreateEngine(networkGraph);
+                // export the final model and execute it on the training set
+                var executionEngine = graph.CreateEngine(bestGraph ?? engine.Graph);
                 var output = executionEngine.Execute(testData);
-                Console.WriteLine(output.Average(o => o.CalculateError(errorMetric)));
+                Console.WriteLine($"Final accuracy: {output.Average(o => o.CalculateError(errorMetric)):P2}");
             }
         }
 
         static IDataSource _BuildVectors(IDataSource existing, GraphFactory graph, IReadOnlyList<Mnist.Image> images)
         {
+            // feed forward neural networks expect a vector => vector mapping
             var dataTable = BrightWireProvider.CreateDataTableBuilder();
             dataTable.AddColumn(ColumnType.Vector, "Image");
-            dataTable.AddColumn(ColumnType.Vector, "Target", true);
+            dataTable.AddColumn(ColumnType.Vector, "Target", isTarget: true);
 
             foreach (var image in images) {
                 var data = image.AsFloatArray;
                 dataTable.Add(data.Data, data.Label);
             }
+
+            // reuse the network used for training when building the test data source
             if (existing != null)
                 return existing.CloneWith(dataTable.Build());
             else

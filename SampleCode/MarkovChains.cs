@@ -37,7 +37,7 @@ namespace BrightWire.SampleCode
             for (var i = 0; i < 50; i++) {
                 var sb = new StringBuilder();
                 string prevPrev = default(string), prev = default(string), curr = default(string);
-                while (true) {
+                for(var j = 0; j < 256; j++) {
                     var transitions = model.GetTransitions(prevPrev, prev, curr);
                     var distribution = new Categorical(transitions.Select(d => Convert.ToDouble(d.Probability)).ToArray());
                     var next = transitions[distribution.Sample()].NextState;

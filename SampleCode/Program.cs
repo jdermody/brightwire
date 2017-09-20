@@ -1,7 +1,5 @@
 ﻿using BrightWire.ExecutionGraph;
-using BrightWire.ExecutionGraph.Action;
 using BrightWire.TrainingData.Artificial;
-using MathNet.Numerics;
 using System;
 using System.Linq;
 
@@ -78,12 +76,12 @@ namespace BrightWire.SampleCode
         static void Main(string[] args)
         {
             //Control.UseNativeMKL();
-            XOR();
+            //XOR();
             //IrisClassification();
             //IrisClustering();
             //MarkovChains();
             //MNIST(@"D:\data\mnist\");
-            //MNISTConvolutional(@"D:\data\mnist\");
+            //MNISTConvolutional(@"D:\data\mnist\"/*, @"d:\temp\mnist.dat"*/);
             //SentimentClassification(@"D:\data\sentiment labelled sentences\");
             //TextClustering(@"D:\data\[UCI] AAAI-14 Accepted Papers - Papers.csv", @"d:\temp\");
             //IntegerAddition();
