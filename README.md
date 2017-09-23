@@ -2,11 +2,6 @@
 
 Bright Wire is an extensible machine learning library for .NET with GPU support (via CUDA).
 
-Bright Wire uses a graph based system of nodes and "wires". You can create
-your own custom nodes and manipulate the graph at runtime to experiment with novel machine
-learning architectures and algorithms or use the existing suite of commonly used 
-machine learning algorithms and architectures.
-
 ## Getting Started
 
 Bright Wire runs "out of the box" for CPU based computation on .Net 4.6 and above.  For GPU based computation, you will need to install
@@ -31,19 +26,25 @@ via the [Numerics.Net Wrapper](http://numerics.mathdotnet.com/MKL.html).
 
 ## Nuget Installation
 
-To install the standard version (no CUDA support, any CPU) use:
+To install the .net4 version (no CUDA support, any CPU) use:
 
 ```
 Install-Package BrightWire.Net4
 ```
 
-To add CUDA support (x64 only) use:
+To add CUDA support (.net4, x64 only) use:
 
 ```
 Install-Package BrightWire.CUDA.Net4.x64
 ```
 
 Note: When using the CUDA version, make sure that the `/cuda/brightwire.ptx` file is copied to the output directory (Properties/Copy To Output Directory).
+
+To install the .net standard version for use with Xamarin or UWP use:
+
+```
+Install-Package BrightWire
+```
 
 ### Recompiling the PTX
 
@@ -110,6 +111,6 @@ Another issue you may have is that `protobuf` library complains that it is alrea
 * In-memory and file based data processing
 
 ## Dependencies
-* [ManagedCuda](https://github.com/kunzmi/managedCuda) (optional)
+* [ManagedCuda](https://github.com/kunzmi/managedCuda) (only required for CUDA version of BrightWire)
 * [MathNet.Numerics](https://github.com/mathnet/mathnet-numerics)
 * [Protobuf-net](https://github.com/mgravell/protobuf-net)
