@@ -38,7 +38,7 @@ namespace BrightWire.SampleCode
                 // configure the network properties
                 graph.CurrentPropertySet
                     .Use(graph.GradientDescent.Adam)
-                    .Use(graph.GaussianWeightInitialisation(false,0.1f, GaussianVarianceCalibration.SquareRoot2N))
+                    .Use(graph.GaussianWeightInitialisation(false, 0.1f, GaussianVarianceCalibration.SquareRoot2N))
                 ;
 
                 // create the network

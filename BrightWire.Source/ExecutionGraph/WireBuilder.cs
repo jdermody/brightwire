@@ -196,15 +196,19 @@ namespace BrightWire.ExecutionGraph
         }
 
         /// <summary>
-        /// Adds a batch normalisation layer (currently incomplete)
+        /// Adds a batch normalisation layer (currently only implemented for FF layers)
         /// </summary>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
-        public WireBuilder AddBatchNormalisation(string name = null)
-        {
-            _SetNode(_factory.CreateBatchNormalisation(CurrentSize, name));
-            return this;
-        }
+        //public WireBuilder AddBatchNormalisation(string name = null)
+        //{
+        //    var size = CurrentSize;
+        //    if (_depth > 1)
+        //        size = _depth;
+
+        //    _SetNode(_factory.CreateBatchNormalisation(size, name));
+        //    return this;
+        //}
 
         /// <summary>
         /// Adds a simple recurrent neural network layer
@@ -342,6 +346,18 @@ namespace BrightWire.ExecutionGraph
         public WireBuilder Transpose(string name = null)
         {
             _SetNode(new TransposeSignal(name));
+            return this;
+        }
+
+        /// <summary>
+        /// Transposes the graph signal and merges each depth slice
+        /// </summary>
+        /// <param name="name">Optional name to give the node</param>
+        /// <returns></returns>
+        public WireBuilder TransposeAndCombine(string name = null)
+        {
+            _SetNode(new TransposeAndCombineSignal(name));
+            _depth = 1;
             return this;
         }
 

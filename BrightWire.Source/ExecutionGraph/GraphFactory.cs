@@ -495,15 +495,16 @@ namespace BrightWire.ExecutionGraph
         }
 
         /// <summary>
-        /// Creates a batch normalisation layer (currently incomplete)
+        /// Creates a batch normalisation layer (currently only implemented for FF layers)
         /// </summary>
         /// <param name="inputSize">Number of incoming connections</param>
         /// <param name="name">Optional name to give the node</param>
+        /// <param name="momentum">Online mean and variance rate of change</param>
         /// <returns></returns>
-        public INode CreateBatchNormalisation(int inputSize, string name)
-        {
-            return new BatchNormalisation(this, inputSize, name);
-        }
+        //public INode CreateBatchNormalisation(int inputSize, string name, float momentum = 0.9f)
+        //{
+        //    return new BatchNormalisation(this, inputSize, _GetWeightInitialisation(), 0.9f, name);
+        //}
 
         /// <summary>
         /// Creates a GRU recurrent layer
