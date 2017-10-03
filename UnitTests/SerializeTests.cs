@@ -8,11 +8,12 @@ using BrightWire.Models;
 using BrightWire.TrainingData.Artificial;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ProtoBuf;
+using System.Collections.Generic;
 
 namespace UnitTests
 {
     [TestClass]
-    public class SerializeTest
+    public class SerializeTests
     {
         public class CustomErrorMetric : IErrorMetric
         {
@@ -93,6 +94,39 @@ namespace UnitTests
             Assert.IsNotNull(executionGraphReloaded);
             var engine = graph.CreateEngine(executionGraphReloaded);
             AssertEngineGetsGoodResults(engine, data);
+        }
+
+        void _AssertEqual<T>(T[] array1, T[] array2)
+        {
+            Assert.AreEqual(array1.Length, array2.Length);
+            for (var i = 0; i < array1.Length; i++)
+                Assert.AreEqual(array1[i], array2[i]);
+        }
+
+        [TestMethod]
+        public void DeserialiseVectorisationModel()
+        {
+            var builder = BrightWireProvider.CreateDataTableBuilder();
+            builder.AddColumn(ColumnType.String, "label");
+            builder.AddColumn(ColumnType.String, "output", true);
+
+            builder.Add("a", "0");
+            builder.Add("b", "0");
+            builder.Add("c", "1");
+
+            var dataTable = builder.Build();
+            var vectoriser = dataTable.GetVectoriser();
+            var model = vectoriser.GetVectorisationModel();
+
+            var vectorList = new List<FloatVector>();
+            dataTable.ForEach(row => vectorList.Add(vectoriser.GetInput(row)));
+
+            var vectoriser2 = dataTable.GetVectoriser(model);
+            var vectorList2 = new List<FloatVector>();
+            dataTable.ForEach(row => vectorList2.Add(vectoriser2.GetInput(row)));
+
+            foreach(var item in vectorList.Zip(vectorList2, (v1, v2) => (v1, v2)))
+                _AssertEqual(item.Item1.Data, item.Item2.Data);
         }
     }
 }

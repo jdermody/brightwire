@@ -15,8 +15,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Project Information", "Proj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleCode", "SampleCode\SampleCode.csproj", "{533CA9B4-36CA-44D0-8875-FA6F4E63B98A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{FECA7495-B22E-48E3-B50F-4BA68811B7EE}"
-EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "BrightWire.Source", "BrightWire.Source\BrightWire.Source.shproj", "{8EE466C6-A1DA-4C24-AE39-F82559BE16E9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Documentation", "Documentation\Documentation.csproj", "{07765AC0-5060-45CC-9100-6FD1FCC96F8E}"
@@ -53,12 +51,6 @@ Global
 		{533CA9B4-36CA-44D0-8875-FA6F4E63B98A}.Release|Any CPU.ActiveCfg = Release|x64
 		{533CA9B4-36CA-44D0-8875-FA6F4E63B98A}.Release|x64.ActiveCfg = Release|x64
 		{533CA9B4-36CA-44D0-8875-FA6F4E63B98A}.Release|x64.Build.0 = Release|x64
-		{FECA7495-B22E-48E3-B50F-4BA68811B7EE}.Debug|Any CPU.ActiveCfg = Debug|x64
-		{FECA7495-B22E-48E3-B50F-4BA68811B7EE}.Debug|x64.ActiveCfg = Debug|x64
-		{FECA7495-B22E-48E3-B50F-4BA68811B7EE}.Debug|x64.Build.0 = Debug|x64
-		{FECA7495-B22E-48E3-B50F-4BA68811B7EE}.Release|Any CPU.ActiveCfg = Release|x64
-		{FECA7495-B22E-48E3-B50F-4BA68811B7EE}.Release|x64.ActiveCfg = Release|x64
-		{FECA7495-B22E-48E3-B50F-4BA68811B7EE}.Release|x64.Build.0 = Release|x64
 		{07765AC0-5060-45CC-9100-6FD1FCC96F8E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{07765AC0-5060-45CC-9100-6FD1FCC96F8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{07765AC0-5060-45CC-9100-6FD1FCC96F8E}.Debug|x64.ActiveCfg = Debug|Any CPU
