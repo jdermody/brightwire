@@ -63,7 +63,7 @@ namespace BrightWire.SampleCode
                         .AddFeedForward(HIDDEN_LAYER_SIZE)
                         .Add(graph.LeakyReluActivation())
                         .AddDropOut(dropOutPercentage: 0.5f)
-                        .AddFeedForward(HIDDEN_LAYER_SIZE)
+                        .AddFeedForward(trainingData.OutputSize)
                         .Add(graph.SoftMaxActivation())
                         .AddBackpropagation(errorMetric)
                     ;
