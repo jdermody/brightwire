@@ -196,22 +196,24 @@ namespace BrightWire.ExecutionGraph.Engine
             } else
                 _lastTestError = testError;
 
+			var outputType = isPercentage ? "score" : "error";
             if (_learningContext.CurrentEpoch == 0) {
                 var score = String.Format(isPercentage ? "{0:P}" : "{0:N4}", testError);
-                Console.WriteLine($"\rInitial test score: {score}");
+                Console.WriteLine($"\rInitial test {outputType}: {score}");
                 return false;
             } else {
                 var format = isPercentage
-                    ? "\rEpoch {0} - training-error: {1:N4} [{2:N4}]; time: {3:N2}s; test-score: {4:P}"
-                    : "\rEpoch {0} - training-error: {1:N4} [{2:N4}]; time: {3:N2}s; test-score: {4:N4}"
-                ;
+                    ? "\rEpoch {0} - training-error: {1:N4} [{2:N4}]; time: {3:N2}s; test-{5}: {4:P}"
+					: "\rEpoch {0} - training-error: {1:N4} [{2:N4}]; time: {3:N2}s; test-{5}: {4:N4}"
+				;
                 var msg = String.Format(format,
                     _learningContext.CurrentEpoch,
                     _lastTrainingError ?? 0,
                     _trainingErrorDelta,
                     _learningContext.EpochSeconds,
-                    testError
-                );
+                    testError,
+					outputType
+				);
                 if (flag)
                     msg += "!!";
                 else
