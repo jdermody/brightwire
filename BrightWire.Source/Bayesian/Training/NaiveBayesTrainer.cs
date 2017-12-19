@@ -32,7 +32,7 @@ namespace BrightWire.Bayesian.Training
             var classList = new List<NaiveBayes.ClassSummary>();
             foreach (var classSummary in frequencyAnalysis.All) {
                 var classLabel = classSummary.Item1;
-                var frequency = classSummary.Item2 as FrequencyAnalysis;
+                var frequency = (FrequencyAnalysis)classSummary.Item2;
                 var columnList = new List<NaiveBayes.IColumn>();
                 foreach (var column in frequency.ColumnInfo) {
                     var continuous = column as NumberCollector;

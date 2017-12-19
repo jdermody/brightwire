@@ -1,10 +1,7 @@
 ﻿using BrightWire.ExecutionGraph.Helper;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.Node.Gate
 {
@@ -50,7 +47,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         Dictionary<int, IContext> _contextTable = new Dictionary<int, IContext>();
 
         public ReverseTemporalJoin(string name, WireBuilder forwardInput, WireBuilder reverseInput) 
-            : base(name, new[] { forwardInput, reverseInput })
+            : base(name, forwardInput, reverseInput)
         {
         }
 

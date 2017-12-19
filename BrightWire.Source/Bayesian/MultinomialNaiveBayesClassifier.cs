@@ -13,23 +13,23 @@ namespace BrightWire.Bayesian
     {
         class Classification
         {
-            readonly string _label;
-            readonly double _prior, _missing;
+	        readonly double _prior, _missing;
             readonly Dictionary<uint, double> _index;
 
             public Classification(MultinomialNaiveBayes.Class cls)
             {
-                _label = cls.Label;
+                Label = cls.Label;
                 _prior = cls.Prior;
                 _missing = cls.MissingProbability;
                 _index = cls.Index.ToDictionary(d => d.StringIndex, d => d.ConditionalProbability);
             }
-            public string Label { get { return _label; } }
-            public double GetScore(IReadOnlyList<uint> stringIndexList)
+            public string Label { get; }
+
+	        public double GetScore(IReadOnlyList<uint> stringIndexList)
             {
-                double score = _prior, temp;
+                double score = _prior;
                 foreach (var item in stringIndexList) {
-                    if (_index.TryGetValue(item, out temp))
+                    if (_index.TryGetValue(item, out var temp))
                         score += temp;
                     else
                         score += _missing;
@@ -37,7 +37,7 @@ namespace BrightWire.Bayesian
                 return score;
             }
         }
-        readonly List<Classification> _classification = new List<Classification>();
+        readonly List<Classification> _classification;
 
         public MultinomialNaiveBayesClassifier(MultinomialNaiveBayes model)
         {

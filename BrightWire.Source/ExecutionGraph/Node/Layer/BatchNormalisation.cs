@@ -1,13 +1,8 @@
-﻿using BrightWire.ExecutionGraph.Node.Input;
-using BrightWire.ExecutionGraph.Node.Operation;
-using BrightWire.Models;
-using System;
+﻿using BrightWire.Models;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.Node.Layer
 {

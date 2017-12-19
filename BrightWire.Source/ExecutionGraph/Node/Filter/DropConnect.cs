@@ -1,5 +1,4 @@
-﻿using BrightWire.ExecutionGraph.Helper;
-using BrightWire.ExecutionGraph.Node.Layer;
+﻿using BrightWire.ExecutionGraph.Node.Layer;
 using MathNet.Numerics.Distributions;
 using System.Collections.Generic;
 using System.IO;

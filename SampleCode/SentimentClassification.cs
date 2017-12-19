@@ -1,14 +1,10 @@
 ﻿using BrightWire.ExecutionGraph;
-using BrightWire.ExecutionGraph.Action;
 using BrightWire.Models;
 using BrightWire.TrainingData;
-using ProtoBuf;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.SampleCode
 {
@@ -81,7 +77,7 @@ namespace BrightWire.SampleCode
                 var graph = new GraphFactory(lap);
                 var trainingData = graph.CreateDataSource(sentimentDataSet.Training, vectoriser);
                 var testData = graph.CreateDataSource(sentimentDataSet.Test, vectoriser);
-                var indexListEncoder = trainingData as IIndexListEncoder;
+                var indexListEncoder = (IIndexListEncoder)trainingData;
 
                 // use a one hot encoding error metric, rmsprop gradient descent and xavier weight initialisation
                 var errorMetric = graph.ErrorMetric.OneHotEncoding;

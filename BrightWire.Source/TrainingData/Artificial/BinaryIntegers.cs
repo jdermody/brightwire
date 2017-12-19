@@ -16,7 +16,7 @@ namespace BrightWire.TrainingData.Artificial
         /// <param name="val">The number to convert</param>
         static float[] _GetBitArray(int val)
         {
-            var data = new BitArray(new int[] { val });
+            var data = new BitArray(new[] { val });
             var ret = new float[32];
             for (var i = 0; i < 32; i++)
                 ret[i] = data.Get(i) ? 1f : 0f;

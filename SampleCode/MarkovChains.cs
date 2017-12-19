@@ -1,13 +1,10 @@
-﻿using BrightWire.Helper;
-using BrightWire.Models;
-using BrightWire.TrainingData;
+﻿using BrightWire.TrainingData;
 using MathNet.Numerics.Distributions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.SampleCode
 {

@@ -58,14 +58,15 @@ namespace BrightWire.TabularData.Analysis
             return true;
         }
 
-        public double L1Norm { get { return _l1; } }
-        public double L2Norm { get { return Math.Sqrt(_l2); } }
-        public int ColumnIndex { get { return _index; } }
-        public double Min { get { return _min; } }
-        public double Max { get { return _max; } }
-        public double Mean { get { return _mean; } }
-        public double? Variance { get { return _total > 1 ? (_m2 / (_total - 1)) : (double?)null; } }
-        public double? StdDev {
+        public double L1Norm => _l1;
+	    public double L2Norm => Math.Sqrt(_l2);
+	    public int ColumnIndex { get { return _index; } }
+        public double Min => _min;
+	    public double Max => _max;
+	    public double Mean => _mean;
+	    public double? Variance => _total > 1 ? (_m2 / (_total - 1)) : (double?)null;
+
+	    public double? StdDev {
             get
             {
                 var variance = Variance;

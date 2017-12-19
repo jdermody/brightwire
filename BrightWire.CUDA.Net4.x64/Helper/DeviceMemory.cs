@@ -22,8 +22,8 @@ namespace BrightWire.Cuda.Helper
             bool _disposed = false;
 
 #if DEBUG
-            public static int _badAlloc = -1;
-            public static int _badDispose = -1;
+            static int _badAlloc = -1;
+            static int _badDispose = -1;
             public bool IsValid => !_disposed;
 #else
             public bool IsValid => true;
@@ -192,8 +192,12 @@ namespace BrightWire.Cuda.Helper
                                 oldestItem = b;
                         });
                     }
-                    _cache[oldestItem.Size].Remove(oldestItem);
-                    oldestItem.Destroy();
+
+	                if (oldestItem != null)
+	                {
+		                _cache[oldestItem.Size].Remove(oldestItem);
+		                oldestItem.Destroy();
+	                }
                 }
             }
         }

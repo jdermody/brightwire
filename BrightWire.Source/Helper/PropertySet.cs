@@ -34,22 +34,22 @@ namespace BrightWire.Helper
         public IWeightInitialisation WeightInitialisation
         {
             get { return Get<IWeightInitialisation>(WEIGHT_INITIALISATION); }
-            set { Set<IWeightInitialisation>(WEIGHT_INITIALISATION, value); }
+            set { Set(WEIGHT_INITIALISATION, value); }
         }
         public IGradientDescentOptimisation GradientDescent
         {
             get { return Get<IGradientDescentOptimisation>(GRADIENT_DESCENT); }
-            set { Set<IGradientDescentOptimisation>(GRADIENT_DESCENT, value); }
+            set { Set(GRADIENT_DESCENT, value); }
         }
         public ICreateTemplateBasedGradientDescent TemplateGradientDescentDescriptor
         {
             get { return Get<ICreateTemplateBasedGradientDescent>(TEMPLATE_GRADIENT_DESCENT_DESCRIPTOR); }
-            set { Set<ICreateTemplateBasedGradientDescent>(TEMPLATE_GRADIENT_DESCENT_DESCRIPTOR, value); }
+            set { Set(TEMPLATE_GRADIENT_DESCENT_DESCRIPTOR, value); }
         }
         public ICreateGradientDescent GradientDescentDescriptor
         {
             get { return Get<ICreateGradientDescent>(GRADIENT_DESCENT_DESCRIPTOR); }
-            set { Set<ICreateGradientDescent>(GRADIENT_DESCENT_DESCRIPTOR, value); }
+            set { Set(GRADIENT_DESCENT_DESCRIPTOR, value); }
         }
 
         public IPropertySet Use(ICreateTemplateBasedGradientDescent descriptor) { TemplateGradientDescentDescriptor = descriptor; return this; }

@@ -48,7 +48,7 @@ namespace BrightWire.Bayesian
                 return ret;
             }
         }
-        readonly List<Classification> _classification = new List<Classification>();
+        readonly List<Classification> _classification;
 
         public BernoulliNaiveBayesClassifier(BernoulliNaiveBayes model)
         {

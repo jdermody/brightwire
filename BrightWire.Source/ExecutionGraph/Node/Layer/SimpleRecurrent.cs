@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using BrightWire.Models;
-using BrightWire.ExecutionGraph.Node.Helper;
 using BrightWire.ExecutionGraph.Action;
 
 namespace BrightWire.ExecutionGraph.Node.Layer
@@ -71,8 +70,8 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
         public override void WriteTo(BinaryWriter writer)
         {
-            var Wh = _input.FindByName("Wh") as FeedForward;
-            var Uh = _memory.FindByName("Uh") as FeedForward;
+            var Wh = (FeedForward)_input.FindByName("Wh");
+            var Uh = (FeedForward)_memory.FindByName("Uh");
 
             writer.Write(_inputSize);
             writer.Write(_memory.Id);
@@ -95,8 +94,8 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             else
                 _memory.Data = memory;
 
-            var Wh = _input.FindByName("Wh") as INode;
-            var Uh = _memory.FindByName("Uh") as INode;
+            var Wh = _input.FindByName("Wh");
+            var Uh = _memory.FindByName("Uh");
 
             Wh.ReadFrom(factory, reader);
             Uh.ReadFrom(factory, reader);

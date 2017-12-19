@@ -1,10 +1,6 @@
-﻿using BrightWire.ExecutionGraph;
-using BrightWire.ExecutionGraph.Helper;
-using BrightWire.ExecutionGraph.Node;
-using System;
+﻿using BrightWire.ExecutionGraph.Helper;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace BrightWire.ExecutionGraph.Node.Helper
 {

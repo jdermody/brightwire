@@ -46,7 +46,7 @@ namespace BrightWire.TabularData.Helper
                     if (columnModel.IsContinuous)
                         columnModel.Size = 1;
                     else {
-                        columnModel.Size = columnInfo.NumDistinct.Value;
+                        columnModel.Size = columnInfo.NumDistinct ?? 0;
                         columnModel.Values = columnInfo.DistinctValues
                             .Select(s => s.ToString())
                             .OrderBy(s => s)

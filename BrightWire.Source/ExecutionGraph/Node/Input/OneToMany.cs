@@ -9,7 +9,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
     /// <summary>
     /// Waits for all children to finish backpropagating before sending the error further backward
     /// </summary>
-    class OneToMany : NodeBase
+    sealed class OneToMany : NodeBase
     {
         class Backpropagation : BackpropagationBase<OneToMany>
         {

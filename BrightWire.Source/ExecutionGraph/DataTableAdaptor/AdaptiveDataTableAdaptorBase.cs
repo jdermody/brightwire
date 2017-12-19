@@ -1,5 +1,4 @@
-﻿using BrightWire.ExecutionGraph.Engine;
-using BrightWire.ExecutionGraph.Engine.Helper;
+﻿using BrightWire.ExecutionGraph.Engine.Helper;
 using BrightWire.ExecutionGraph.Node.Input;
 using System.Diagnostics;
 

@@ -158,7 +158,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
                     if (next.RowCount == first.RowCount && next.ColumnCount == first.ColumnCount)
                         first.AddInPlace(next);
                 }
-                return errorSignal.ReplaceWith(first);
+                return errorSignal?.ReplaceWith(first);
             }
             return null;
         }

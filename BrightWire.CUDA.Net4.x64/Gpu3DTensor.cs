@@ -22,7 +22,7 @@ namespace BrightWire.LinearAlgebra
 #if DEBUG
         static int _gid = 0;
         static int _GetNextIndex() => Interlocked.Increment(ref _gid);
-        int _id = _GetNextIndex();
+        readonly int _id = _GetNextIndex();
         public static int _badAlloc = -1;
         public static int _badDispose = -1;
 

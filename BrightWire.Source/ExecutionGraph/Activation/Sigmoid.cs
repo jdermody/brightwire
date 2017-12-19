@@ -1,5 +1,4 @@
-﻿using BrightWire.ExecutionGraph.Helper;
-using BrightWire.ExecutionGraph.Node;
+﻿using BrightWire.ExecutionGraph.Node;
 using System.Collections.Generic;
 
 namespace BrightWire.ExecutionGraph.Activation

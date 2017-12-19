@@ -108,7 +108,7 @@ namespace BrightWire.TabularData.Analysis
                                     writer.WriteAttributeString("mode", numericColumn.Mode.Value.ToString());
                             }
 
-                            if (ColumnInfo is IIndexColumnInfo indexColumn) {
+                            if (columnInfo is IIndexColumnInfo indexColumn) {
                                 writer.WriteAttributeString("min-index", indexColumn.MinIndex.ToString());
                                 writer.WriteAttributeString("max-index", indexColumn.MaxIndex.ToString());
                             }

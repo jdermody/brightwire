@@ -21,7 +21,7 @@ namespace BrightWire.LinearAlgebra
 #if DEBUG
         static int _gid = 0;
         static int _GetNextIndex() => Interlocked.Increment(ref _gid);
-        int _id = _GetNextIndex();
+        readonly int _id = _GetNextIndex();
         public static int _badAlloc = -1;
         public static int _badDispose = -1;
 
@@ -217,7 +217,7 @@ namespace BrightWire.LinearAlgebra
         public float L1Norm()
         {
             Debug.Assert(IsValid);
-            var abs = Abs() as GpuVector;
+            var abs = (GpuVector)Abs();
             return _cuda.SumValues(abs._data, Count);
         }
 
@@ -374,11 +374,11 @@ namespace BrightWire.LinearAlgebra
             else if (type == NormalisationType.Standard) {
                 var mean = Average();
                 var stdDev = StdDev(mean);
-                if (stdDev != 0)
+                if (stdDev != 0f)
                     _cuda.Normalise(_data, Count, mean, stdDev);
             }
             else if (type == NormalisationType.Euclidean || type == NormalisationType.Manhattan) {
-                float p = 0f;
+                float p;
                 if (type == NormalisationType.Manhattan)
                     p = L1Norm();
                 else
@@ -396,7 +396,7 @@ namespace BrightWire.LinearAlgebra
 
             var softmax = _cuda.SoftmaxVector(_data, Count, minMax.Max);
             var softmaxSum = _cuda.SumValues(softmax, Count);
-            if(softmaxSum != 0)
+            if(softmaxSum != 0f)
                 _cuda.Blas.Scale(1f / softmaxSum, softmax.DeviceVariable, 1);
             return new GpuVector(_cuda, softmax);
         }

@@ -2,7 +2,6 @@
 using System.Linq;
 using BrightWire.Models;
 using BrightWire.ExecutionGraph.Helper;
-using System.Diagnostics;
 
 namespace BrightWire.ExecutionGraph.DataTableAdaptor
 {
@@ -54,9 +53,12 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         {
             var inputList = new List<IGraphData>();
             for (int i = 0, len = data.First().Item1.Length; i < len; i++)
-                inputList.Add(new MatrixGraphData(_lap.CreateMatrix(data.Count, InputSize, (x, y) => data[x].Item1[i][y])));
+            {
+	            var i1 = i;
+	            inputList.Add(new MatrixGraphData(_lap.CreateMatrix(data.Count, InputSize, (x, y) => data[x].Item1[i1][y])));
+            }
 
-            var output = OutputSize > 0 ? _lap.CreateMatrix(data.Count, OutputSize, (x, y) => data[x].Item2[y]) : null;
+	        var output = OutputSize > 0 ? _lap.CreateMatrix(data.Count, OutputSize, (x, y) => data[x].Item2[y]) : null;
             return new MiniBatch(rows, this, inputList, new MatrixGraphData(output));
         }
 

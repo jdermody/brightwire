@@ -48,10 +48,11 @@ namespace BrightWire.TreeBased.Training
                     return $"{_category} ({_columnIndex})";
                 return $"threshold: {_split} ({_columnIndex}";
             }
-            public int ColumnIndex { get { return _columnIndex; } }
-            public string Category { get { return _category; } }
-            public double? Split { get { return _split; } }
-            public IReadOnlyDictionary<string, List<InMemoryRow>> Partition(IEnumerable<InMemoryRow> rows)
+            public int ColumnIndex => _columnIndex;
+	        public string Category => _category;
+	        public double? Split => _split;
+
+	        public IReadOnlyDictionary<string, List<InMemoryRow>> Partition(IEnumerable<InMemoryRow> rows)
             {
                 List<InMemoryRow> temp;
                 var ret = new Dictionary<string, List<InMemoryRow>>();
@@ -64,7 +65,7 @@ namespace BrightWire.TreeBased.Training
                     }
                     return ret;
                 }else {
-                    var splitVal = _split.Value;
+                    var splitVal = _split ?? 0;
                     foreach (var item in rows) {
                         var val = item.GetValue(_columnIndex);
                         var label = (val < splitVal) ? "-" : "+";
@@ -150,7 +151,7 @@ namespace BrightWire.TreeBased.Training
                     ColumnIndex = _attribute?.ColumnIndex ?? -1,
                     MatchLabel = MatchLabel,
                     Split = _attribute?.Split,
-                    Children = _children?.Select(c => c.AsDecisionTreeNode())?.ToArray(),
+                    Children = _children?.Select(c => c.AsDecisionTreeNode()).ToArray(),
                     Classification = PredictedClass
                 };
                 return ret;

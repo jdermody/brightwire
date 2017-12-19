@@ -1,16 +1,9 @@
 ﻿using BrightWire.TrainingData.Artificial;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using BrightWire.Models;
-using BrightWire.Helper;
-using System.IO;
-using ProtoBuf;
 using BrightWire.ExecutionGraph;
-using BrightWire.ExecutionGraph.Action;
 
 namespace BrightWire.SampleCode
 {

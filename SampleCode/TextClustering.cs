@@ -2,12 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BrightWire;
-using BrightWire.Helper;
 using BrightWire.Models;
-using System.Xml;
 using BrightWire.TrainingData;
 
 namespace BrightWire.SampleCode
@@ -134,7 +129,7 @@ namespace BrightWire.SampleCode
                 using (var randomProjection = lap.CreateRandomProjection((int)classificationSet.GetMaxIndex() + 1, 512)) {
                     using (var projectedMatrix = randomProjection.Compute(matrix)) {
                         var vectorList2 = Enumerable.Range(0, projectedMatrix.RowCount).Select(i => projectedMatrix.Row(i)).ToList();
-                        var lookupTable2 = vectorList2.Select((v, i) => Tuple.Create(v, vectorList[i])).ToDictionary(d => (IVector)d.Item1, d => lookupTable[d.Item2]);
+                        var lookupTable2 = vectorList2.Select((v, i) => Tuple.Create(v, vectorList[i])).ToDictionary(d => d.Item1, d => lookupTable[d.Item2]);
 
                         Console.WriteLine("Kmeans clustering of random projection...");
                         _WriteClusters(outputPath + "projected-kmeans.txt", vectorList2.KMeans(allGroups.Count), lookupTable2);

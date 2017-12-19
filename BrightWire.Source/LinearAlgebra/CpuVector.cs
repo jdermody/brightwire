@@ -283,7 +283,7 @@ namespace BrightWire.LinearAlgebra
             } else if (type == NormalisationType.Standard) {
                 var mean = Average();
                 var stdDev = StdDev(mean);
-                if (stdDev != 0)
+                if (stdDev != 0f)
                     _vector.MapInplace(v => (v - mean) / stdDev);
             } else if (type == NormalisationType.Euclidean || type == NormalisationType.Manhattan) {
                 var p = (type == NormalisationType.Manhattan) ? 1.0 : 2.0;
@@ -304,7 +304,7 @@ namespace BrightWire.LinearAlgebra
 
             var softmax = _vector.Map(v => Math.Exp(v - max));
             var sum = softmax.Sum();
-            if (sum != 0)
+            if (sum != 0f)
                 return new CpuVector(softmax.Divide(sum).ToSingle());
             return new CpuVector(softmax.ToSingle());
         }

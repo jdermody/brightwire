@@ -1,11 +1,7 @@
 ﻿using BrightWire.ExecutionGraph;
-using BrightWire.ExecutionGraph.Action;
 using BrightWire.TrainingData.Artificial;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.SampleCode
 {

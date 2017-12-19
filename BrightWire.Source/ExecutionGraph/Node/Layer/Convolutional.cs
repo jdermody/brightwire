@@ -161,7 +161,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
             // read the updater
             if (_updater == null) {
-                _updater = factory.CreateWeightUpdater(_filter);
+                _updater = factory?.CreateWeightUpdater(_filter);
             }
         }
 

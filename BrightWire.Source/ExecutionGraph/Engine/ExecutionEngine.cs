@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using BrightWire.ExecutionGraph.Helper;
-using BrightWire.Helper;
 using BrightWire.ExecutionGraph.Engine.Helper;
 using BrightWire.Models;
 using System;
@@ -38,7 +37,7 @@ namespace BrightWire.ExecutionGraph.Engine
             foreach (var item in _executionResults) {
                 ret.Add(new ExecutionResult(item.Context.BatchSequence, item.Data.AsIndexable().Rows.Select(r => r.Data).ToList()));
                 item.Context.Dispose();
-                item.Data?.Dispose();
+                item.Data.Dispose();
             }
             _executionResults.Clear();
             return ret;
@@ -62,7 +61,7 @@ namespace BrightWire.ExecutionGraph.Engine
                     foreach (var item in _executionResults) {
                         ret.Add(new ExecutionResult(item.Context.BatchSequence, item.Data.AsIndexable().Rows.Select(r => r.Data).ToList()));
                         item.Context.Dispose();
-                        item.Data?.Dispose();
+                        item.Data.Dispose();
                     }
                     _executionResults.Clear();
                     _lap.PopLayer();

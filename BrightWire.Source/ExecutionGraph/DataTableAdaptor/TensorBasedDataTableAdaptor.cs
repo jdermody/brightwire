@@ -56,7 +56,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             ;
             var inputList = new List<IGraphData>();
             for (var i = 0; i < _dataColumnIndex.Length; i++) {
-                var input = _lap.CreateMatrix(InputSize, data.Count, (x, y) => data[y].Item1[i][x]);
+	            var i1 = i;
+	            var input = _lap.CreateMatrix(InputSize, data.Count, (x, y) => data[y].Item1[i1][x]);
                 var tensor = new Tensor4DGraphData(input, _rows, _columns, _depth);
                 inputList.Add(tensor);
             }

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.Node
 {
@@ -59,7 +57,7 @@ namespace BrightWire.ExecutionGraph.Node
             if (errorSignal == null) {
                 if (parents?.Any() == true) {
                     foreach (var parent in parents)
-                        context.AddBackward(errorSignal, parent, _source);
+                        context.AddBackward(null, parent, _source);
                 }
             } else
                 _Backward(fromNode, errorSignal, context, parents);

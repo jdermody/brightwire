@@ -1,13 +1,10 @@
 ﻿using BrightWire.Cuda.Helper;
-using BrightWire.LinearAlgebra;
 using BrightWire.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace BrightWire.LinearAlgebra
 {
@@ -26,7 +23,7 @@ namespace BrightWire.LinearAlgebra
 #if DEBUG
         static int _gid = 0;
         static int _GetNextIndex() => Interlocked.Increment(ref _gid);
-        int _id = _GetNextIndex();
+        readonly int _id = _GetNextIndex();
         public static int _badAlloc = -1;
         public static int _badDispose = -1;
 

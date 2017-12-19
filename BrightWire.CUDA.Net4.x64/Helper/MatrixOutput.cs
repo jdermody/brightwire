@@ -12,14 +12,14 @@ namespace BrightWire.Cuda.Helper
     /// </summary>
     class MatrixOutput : IDisposable
     {
-        readonly CudaProvider _cuda;
+        //readonly CudaProvider _cuda;
         readonly List<IMatrix> _data = new List<IMatrix>();
         readonly int _rows, _columns;
         readonly CUdeviceptr[] _ptr;
 
         public MatrixOutput(CudaProvider cuda, int rows, int columns, int count, bool setToZero)
         {
-            _cuda = cuda;
+            //_cuda = cuda;
             _rows = rows;
             _columns = columns;
 

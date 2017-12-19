@@ -86,7 +86,7 @@ namespace BrightWire.Unsupervised
         readonly int _k;
         readonly DistanceMetric _distanceMetric;
         readonly DistanceMatrix _distanceMatrix = new DistanceMatrix();
-        readonly List<Centroid> _centroid = new List<Centroid>();
+        readonly List<Centroid> _centroid;
 
         public Hierachical(int k, IReadOnlyList<IVector> data, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
         {

@@ -67,16 +67,17 @@ namespace BrightWire.TabularData.Helper
 
         public static IDataTable Project(IDataTable table, IEnumerable<int> columns, Stream output = null)
         {
-            var validColumn = new HashSet<int>(columns);
+	        var columnList = columns.ToList();
+            var validColumn = new HashSet<int>(columnList);
             var writer = new DataTableWriter(table.Columns.Select((c, i) => Tuple.Create(c, i)).Where(c => validColumn.Contains(c.Item2)).Select(c => c.Item1), output);
-            var projector = new DataTableProjector(writer, columns);
+            var projector = new DataTableProjector(writer, columnList);
             table.Process(projector);
             return writer.GetDataTable();
         }
 
         public static IDataTable Project(IDataTable table, params int[] columns)
         {
-            return Project(table, columns);
+            return Project(table, columns, null);
         }
     }
 }

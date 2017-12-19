@@ -17,7 +17,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         public OneToManyDataTableAdaptor(ILinearAlgebraProvider lap, IDataTable dataTable) 
             : base(lap, dataTable)
         {
-            if (_dataColumnIndex.Count() > 1)
+            if (_dataColumnIndex.Length > 1)
                 throw new NotImplementedException("Sequential datasets not supported with more than one input data column");
 
             _rowDepth = new int[dataTable.RowCount];

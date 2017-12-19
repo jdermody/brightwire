@@ -1,16 +1,11 @@
 ﻿using BrightWire.ExecutionGraph;
-using BrightWire.ExecutionGraph.Action;
 using BrightWire.Models;
-using BrightWire.TrainingData;
-using BrightWire.TrainingData.Artificial;
 using BrightWire.TrainingData.WellKnown;
 using ProtoBuf;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.SampleCode
 {

@@ -1,7 +1,6 @@
 ﻿using BrightWire.ExecutionGraph.Engine.Helper;
 using BrightWire.ExecutionGraph.Helper;
 using BrightWire.ExecutionGraph.Node.Input;
-using BrightWire.Helper;
 using BrightWire.Models;
 using System;
 using System.Collections.Generic;
@@ -22,7 +21,6 @@ namespace BrightWire.ExecutionGraph.Engine
         readonly bool _isStochastic;
         float? _lastTestError = null;
         double? _lastTrainingError = null, _trainingErrorDelta = null;
-        int _noImprovementCount = 0;
 
         public TrainingEngine(ILinearAlgebraProvider lap, IDataSource dataSource, ILearningContext learningContext, INode start) : base(lap)
         {
@@ -216,8 +214,6 @@ namespace BrightWire.ExecutionGraph.Engine
 				);
                 if (flag)
                     msg += "!!";
-                else
-                    ++_noImprovementCount;
                 Console.WriteLine(msg);
                 return flag;
             }

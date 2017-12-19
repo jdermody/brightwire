@@ -56,7 +56,7 @@ namespace BrightWire.TabularData
         readonly long _dataOffset;
         readonly protected Stream _stream;
         readonly object _mutex = new object();
-        readonly IReadOnlyList<long> _index = new List<long>();
+        readonly IReadOnlyList<long> _index;
         readonly RowConverter _rowConverter = new RowConverter();
         readonly int _rowCount;
 

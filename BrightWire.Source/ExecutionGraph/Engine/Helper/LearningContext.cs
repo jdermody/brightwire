@@ -64,7 +64,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         {
             if (!_noUpdateNodeSet.Contains(fromNode)) {
                 if (_deferUpdates)
-                    _layerUpdate.Add((error, new Action<object>(o => updater((T)o))));
+                    _layerUpdate.Add((error, o => updater((T)o)));
                 else
                     updater(error);
             }

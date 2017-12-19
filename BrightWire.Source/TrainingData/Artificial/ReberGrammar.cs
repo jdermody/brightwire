@@ -58,9 +58,11 @@ namespace BrightWire.TrainingData.Artificial
         /// <returns>A data table with matrices to represent the sequences of vectors and their corresponding outputs</returns>
         public static IDataTable GetOneHot(IEnumerable<string> strList)
         {
+	        var strList2 = strList.ToList();
+
             // build the following item table
             var following = new Dictionary<string, HashSet<int>>();
-            foreach (var str in strList) {
+            foreach (var str in strList2) {
                 var sb = new StringBuilder();
                 string prev = null;
                 foreach (var ch in str) {
@@ -76,7 +78,7 @@ namespace BrightWire.TrainingData.Artificial
             }
 
             var builder = DataTableBuilder.CreateTwoColumnMatrix();
-            foreach (var str in strList) {
+            foreach (var str in strList2) {
                 var inputList = new FloatVector[str.Length];
                 var outputList = new FloatVector[str.Length];
 
@@ -127,7 +129,7 @@ namespace BrightWire.TrainingData.Artificial
         {
             while (true) {
                 var ret = Generate();
-                if (!length.HasValue || (length.HasValue && ret.Length == length.Value))
+                if (!length.HasValue || ret.Length == length.Value)
                     yield return ret;
             }
         }
@@ -140,7 +142,7 @@ namespace BrightWire.TrainingData.Artificial
         {
             while (true) {
                 var ret = GenerateExtended();
-                if (!length.HasValue || (length.HasValue && ret.Length == length.Value))
+                if (!length.HasValue || ret.Length == length.Value)
                     yield return ret;
             }
         }

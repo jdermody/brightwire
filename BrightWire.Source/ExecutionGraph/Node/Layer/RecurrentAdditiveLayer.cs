@@ -1,12 +1,7 @@
-﻿using BrightWire.ExecutionGraph.Node.Helper;
-using BrightWire.ExecutionGraph.Node.Input;
+﻿using BrightWire.ExecutionGraph.Node.Input;
 using BrightWire.Models;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.ExecutionGraph.Node.Layer
 {
@@ -99,11 +94,11 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
         public override void WriteTo(BinaryWriter writer)
         {
-            var Wx = _input.FindByName("Wx") as INode;
-            var Wi = _input.FindByName("Wi") as INode;
-            var Wf = _input.FindByName("Wf") as INode;
-            var Ui = _memory.FindByName("Ui") as INode;
-            var Uf = _memory.FindByName("Uf") as INode;
+            var Wx = _input.FindByName("Wx");
+            var Wi = _input.FindByName("Wi");
+            var Wf = _input.FindByName("Wf");
+            var Ui = _memory.FindByName("Ui");
+            var Uf = _memory.FindByName("Uf");
 
             writer.Write(_inputSize);
             writer.Write(_memory.Id);
@@ -127,11 +122,11 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             else
                 _memory.Data = memory;
 
-            var Wx = _input.FindByName("Wx") as INode;
-            var Wi = _input.FindByName("Wi") as INode;
-            var Wf = _input.FindByName("Wf") as INode;
-            var Ui = _memory.FindByName("Ui") as INode;
-            var Uf = _memory.FindByName("Uf") as INode;
+            var Wx = _input.FindByName("Wx");
+            var Wi = _input.FindByName("Wi");
+            var Wf = _input.FindByName("Wf");
+            var Ui = _memory.FindByName("Ui");
+            var Uf = _memory.FindByName("Uf");
 
             Wx.ReadFrom(factory, reader);
             Wi.ReadFrom(factory, reader);

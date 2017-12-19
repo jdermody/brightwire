@@ -1,14 +1,8 @@
 ﻿using BrightWire.ExecutionGraph;
-using BrightWire.ExecutionGraph.Action;
-using BrightWire.Helper;
-using BrightWire.TrainingData;
 using BrightWire.TrainingData.WellKnown;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BrightWire.SampleCode
 {

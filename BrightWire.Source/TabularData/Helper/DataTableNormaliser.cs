@@ -12,11 +12,11 @@ namespace BrightWire.TabularData.Helper
     {
         readonly DataTableWriter _writer;
         readonly DataTableNormalisation _normalisationModel;
-        readonly IDataTable _table;
+        //readonly IDataTable _table;
 
         public DataTableNormaliser(IDataTable dataTable, NormalisationType type, Stream output = null, DataTableNormalisation model = null)
         {
-            _table = dataTable;
+            //_table = dataTable;
             _writer = new DataTableWriter(dataTable.Columns, output);
 
             if (model != null)
@@ -33,7 +33,7 @@ namespace BrightWire.TabularData.Helper
 
                             DataTableNormalisation.Column columnNorm;
                             if (type == NormalisationType.Standard)
-                                columnNorm = new DataTableNormalisation.Column(columnInfo.ColumnIndex, column.Type, numericInfo.StdDev.Value, numericInfo.Mean);
+                                columnNorm = new DataTableNormalisation.Column(columnInfo.ColumnIndex, column.Type, numericInfo.StdDev ?? 1, numericInfo.Mean);
                             else if (type == NormalisationType.Euclidean)
                                 columnNorm = new DataTableNormalisation.Column(columnInfo.ColumnIndex, column.Type, numericInfo.L2Norm);
                             else if (type == NormalisationType.Manhattan)

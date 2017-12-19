@@ -17,7 +17,7 @@ namespace BrightWire.TrainingData.Artificial
         readonly Random _rnd;
 
         static char[] _dictionary;
-        static Dictionary<char, int> _charTable = new Dictionary<char, int>();
+        static Dictionary<char, int> _charTable;
 
         static SequenceClassification()
         {

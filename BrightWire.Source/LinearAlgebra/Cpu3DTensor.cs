@@ -280,7 +280,7 @@ namespace BrightWire.LinearAlgebra
                 foreach (var convolution in convolutions) {
                     var first = convolution.First();
                     var error = slice[first.X / stride, first.Y / stride];
-                    if (error != 0) {
+                    if (error != 0f) {
                         foreach (var item in convolution) {
                             var i = item.X - first.X;
                             var j = item.Y - first.Y;
@@ -320,7 +320,7 @@ namespace BrightWire.LinearAlgebra
                 foreach (var convolution in convolutions) {
                     var first = convolution.First();
                     var error = slice[first.X / stride, first.Y / stride];
-                    if (error != 0) {
+                    if (error != 0f) {
                         foreach (var item in convolution) {
                             var fx = item.X - first.X;
                             var fy = item.Y - first.Y;

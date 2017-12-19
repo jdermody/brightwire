@@ -61,13 +61,13 @@ namespace BrightWire.LinearAlgebra
 
         class KernelModule
         {
-            readonly CudaContext _context;
+            //readonly CudaContext _context;
             readonly CUmodule _module;
 
             public KernelModule(CudaContext context, string path)
             {
-                _context = context;
-                _module = _context.LoadModule(path);
+                //_context = context;
+                _module = context.LoadModule(path);
             }
 
             public CUfunction LoadFunction(string name)
@@ -239,28 +239,13 @@ namespace BrightWire.LinearAlgebra
         public bool IsGpu => true;
         internal CudaContext Context => _cuda;
         internal CudaBlas Blas => _blas;
+	    public CudaSolveDense Solver => _solver.Value;
+	    public long TotalMemory => _cuda.GetTotalDeviceMemorySize();
+	    public long FreeMemory => _cuda.GetFreeDeviceMemorySize();
 
-        public void Register(IDisposable disposable) => _cache.Add(disposable);
+		public void Register(IDisposable disposable) => _cache.Add(disposable);
 
-        public CudaSolveDense Solver
-        {
-            get
-            {
-                return _solver.Value;
-            }
-        }
-        
-        public long TotalMemory
-        {
-            get { return _cuda.GetTotalDeviceMemorySize(); }
-        }
-
-        public long FreeMemory
-        {
-            get { return _cuda.GetFreeDeviceMemorySize(); }
-        }
-
-        int _GetBlockCount(int size, int blockSize)
+	    int _GetBlockCount(int size, int blockSize)
         {
             return ((size / blockSize) + 1);
         }

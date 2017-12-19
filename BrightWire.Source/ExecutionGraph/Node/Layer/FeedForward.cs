@@ -1,5 +1,4 @@
-﻿using BrightWire.ExecutionGraph.Helper;
-using BrightWire.Models;
+﻿using BrightWire.Models;
 using System.Collections.Generic;
 using System.IO;
 
@@ -125,7 +124,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 _weight.Data = weight;
 
             if (_updater == null)
-                _updater = factory.CreateWeightUpdater(_weight);
+                _updater = factory?.CreateWeightUpdater(_weight);
         }
 
         public override void WriteTo(BinaryWriter writer)
