@@ -78,7 +78,7 @@ namespace BrightWire.Models.DataTable
                     case ColumnType.Int:
                         return Convert.ToInt32(ret);
                     case ColumnType.Byte:
-                        return Convert.ToByte(ret);
+                        return Convert.ToSByte(ret);
                     default:
                         return ret;
                 }
@@ -121,7 +121,7 @@ namespace BrightWire.Models.DataTable
                     double val;
                     switch (norm.DataType) {
                         case ColumnType.Byte:
-                            val = (byte)row[i];
+                            val = (sbyte)row[i];
                             break;
                         case ColumnType.Double:
                             val = (double)row[i];

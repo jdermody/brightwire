@@ -49,7 +49,7 @@ namespace BrightWire
         Boolean,
 
         /// <summary>
-        /// Byte values
+        /// Byte values (-128 to 128)
         /// </summary>
         Byte,
 
@@ -350,20 +350,6 @@ namespace BrightWire
         /// <param name="normalisationType">The type of normalisation</param>
         DataTableNormalisation GetNormalisationModel(NormalisationType normalisationType);
 
-        ///// <summary>
-        ///// Converts the rows to vectors
-        ///// </summary>
-        ///// <param name="lap">Linear algebra provider</param>
-        ///// <param name="columns">Optional list of columns to extract (or null for all rows)</param>
-        //IReadOnlyList<IVector> GetNumericRows(ILinearAlgebraProvider lap, IEnumerable<int> columns = null);
-
-        ///// <summary>
-        ///// Converts the columns to vectors
-        ///// </summary>
-        ///// <param name="lap">Linear algebra provider</param>
-        ///// <param name="columns">Optional list of columns to extract (or null for all columns)</param>
-        //IReadOnlyList<IVector> GetNumericColumns(ILinearAlgebraProvider lap, IEnumerable<int> columns = null);
-
         /// <summary>
         /// Gets a column from the table
         /// </summary>
@@ -407,28 +393,22 @@ namespace BrightWire
         /// <param name="output">Optional stream to write the new table to</param>
         IDataTable SelectColumns(IEnumerable<int> columns, Stream output = null);
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="mutator"></param>
-        /// <param name="output"></param>
-        /// <returns></returns>
-        IDataTable Project(Func<IRow, IReadOnlyList<object>> mutator, Stream output = null);
+		/// <summary>
+		/// Creates a new data table with a projection of each existing row
+		/// </summary>
+		/// <param name="mutator">Function that mutates each row into the new format</param>
+		/// <param name="output">Optional stream to write the new table to</param>
+		/// <returns></returns>
+		IDataTable Project(Func<IRow, IReadOnlyList<object>> mutator, Stream output = null);
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="k"></param>
-        /// <param name="randomSeed"></param>
-        /// <param name="shuffle"></param>
-        /// <returns></returns>
-        IEnumerable<(IDataTable Training, IDataTable Validation)> Fold(int k, int? randomSeed = null, bool shuffle = true);
-
-        ///// <summary>
-        ///// Writes the data table to the stream
-        ///// </summary>
-        ///// <param name="stream">The stream to write to</param>
-        //void WriteTo(Stream stream);
+		/// <summary>
+		/// Folds the data table into k buckets
+		/// </summary>
+		/// <param name="k">Number of buckets to create</param>
+		/// <param name="randomSeed">Optional random seed</param>
+		/// <param name="shuffle">True to shuffle the table before folding</param>
+		/// <returns></returns>
+		IEnumerable<(IDataTable Training, IDataTable Validation)> Fold(int k, int? randomSeed = null, bool shuffle = true);
 
         /// <summary>
         /// For each classification label - duplicate each data table except for the classification column which is converted to a boolean (true for each matching example)
@@ -464,14 +444,13 @@ namespace BrightWire
         /// <returns></returns>
         IDataTable CopyWithRows(IEnumerable<int> rowIndex, Stream output = null);
 
-        /// <summary>
-        /// Converts the current data table to a numeric data table (the classification column is a string)
-        /// </summary>
-        /// <param name="vectoriser">Optional vectoriser</param>
-        /// <param name="useTargetColumnIndex">True to separate the target column index into a separate output vector</param>
-        /// <param name="output">Optional stream to write the new table to</param>
-        /// <returns></returns>
-        //IDataTable ConvertToNumeric(IDataTableVectoriser vectoriser = null, bool useTargetColumnIndex = true, Stream output = null);
+		/// <summary>
+		/// Creates a new data table with each row of this data table zipped with the corresponding row of the other data table
+		/// </summary>
+		/// <param name="dataTable">The data table whose rows are zipped</param>
+		/// <param name="output">Optional stream to write the new table to</param>
+		/// <returns></returns>
+		IDataTable Zip(IDataTable dataTable, Stream output = null);
 
         /// <summary>
         /// Returns table meta-data and the top 20 rows of the table as XML

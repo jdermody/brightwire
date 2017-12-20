@@ -33,10 +33,10 @@ namespace BrightWire.TabularData.Helper
             Flush();
         }
 
-        public IReadOnlyList<DataTableBuilder.Column> Columns { get { return _dataTableBuilder.Columns2; } }
-        public IReadOnlyList<long> Index { get { return _index; } }
-        public int RowCount { get { return _rowCount; } }
-        IReadOnlyList<IColumn> IDataTableBuilder.Columns => _dataTableBuilder.Columns;
+		public IReadOnlyList<DataTableBuilder.Column> Columns => _dataTableBuilder.Columns2;
+	    public IReadOnlyList<long> Index => _index;
+	    public int RowCount => _rowCount;
+	    IReadOnlyList<IColumn> IDataTableBuilder.Columns => _dataTableBuilder.Columns;
         int IDataTableBuilder.ColumnCount => _dataTableBuilder.ColumnCount;
 
         public void Flush()

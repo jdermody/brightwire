@@ -9,7 +9,7 @@ using System.Text;
 namespace BrightWire.Helper
 {
     /// <summary>
-    /// CSV parser
+    /// Simple CSV parser that attempts to detect data column types
     /// </summary>
     internal class CSVParser
     {
@@ -64,7 +64,7 @@ namespace BrightWire.Helper
             if (output == null)
                 output = new MemoryStream();
 
-            //preview the file
+            // load the first batch of lines to work out the column types
             var lines = new List<string>();
             while (!reader.EndOfStream && lines.Count < DataTable.BLOCK_SIZE) {
                 var line = _ReadLine(reader);
@@ -80,18 +80,32 @@ namespace BrightWire.Helper
 
                 // add the preview lines
                 foreach (var line in lines.Skip(hasHeaderRow ? 1 : 0))
-                    _Add(line, writer);
+                    _Preview(line, writer);
 
                 // parse the remaining data
-                int pos = 0;
                 while (!reader.EndOfStream) {
                     var line = _ReadLine(reader);
                     if (String.IsNullOrEmpty(line))
                         continue;
-                    _Add(line, writer);
-                    ++pos;
+	                _Preview(line, writer);
                 }
-                return writer.GetDataTable();
+
+				// reset the stream
+	            reader.BaseStream.Seek(0, SeekOrigin.Begin);
+
+				// parse the entire stream with the final set of column types
+	            var hasFoundHeader = false;
+	            while (!reader.EndOfStream)
+	            {
+		            var line = _ReadLine(reader);
+		            if (String.IsNullOrEmpty(line))
+			            continue;
+		            if (hasHeaderRow && !hasFoundHeader)
+			            hasFoundHeader = true;
+					else
+						_Add(line, writer);
+	            }
+				return writer.GetDataTable();
             }
             return null;
         }
@@ -145,7 +159,7 @@ namespace BrightWire.Helper
 
         ColumnType _DetermineType(string str)
         {
-            if (byte.TryParse(str, out byte b))
+            if (sbyte.TryParse(str, out sbyte b))
                 return ColumnType.Byte;
             else if (int.TryParse(str, out int it))
                 return ColumnType.Int;
@@ -177,14 +191,10 @@ namespace BrightWire.Helper
                         if (i + 1 < len && line[i + 1] == '"') {
                             ++i;
                             curr.Append(ch);
-                        } else {
+                        } else
                             inQuote = false;
-                            continue;
-                        }
-                    } else {
+                    } else
                         inQuote = true;
-                        continue;
-                    }
                 } else if (ch == _delimiter && !inQuote) {
                     yield return curr.ToString();
                     curr.Clear();
@@ -194,6 +204,15 @@ namespace BrightWire.Helper
             if (curr.Length > 0)
                 yield return curr.ToString();
         }
+
+	    private void _Preview(string line, DataTableWriter writer)
+	    {
+		    int index = 0;
+			var fields = _Parse(line).ToList();
+		    
+		    foreach (var column in writer.Columns)
+			    _Convert(ref column._type, fields[index++]);
+	    }
 
         private void _Add(string line, DataTableWriter writer)
         {
@@ -245,7 +264,7 @@ namespace BrightWire.Helper
                     return default(int);
 
                 case ColumnType.Byte:
-                    if (byte.TryParse(str, out byte b))
+                    if (sbyte.TryParse(str, out sbyte b))
                         return b;
                     if (int.TryParse(str, out i)) {
                         type = ColumnType.Int;

@@ -18,7 +18,7 @@ namespace BrightWire
                     return typeof(bool);
 
                 case ColumnType.Byte:
-                    return typeof(byte);
+                    return typeof(sbyte);
 
                 case ColumnType.Date:
                     return typeof(DateTime);

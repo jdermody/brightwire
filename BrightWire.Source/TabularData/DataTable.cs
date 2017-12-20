@@ -169,7 +169,7 @@ namespace BrightWire.TabularData
                 case ColumnType.Long:
                     return reader.ReadInt64();
                 case ColumnType.Byte:
-                    return reader.ReadByte();
+                    return reader.ReadSByte();
                 case ColumnType.IndexList:
                     return IndexList.ReadFrom(reader);
                 case ColumnType.WeightedIndexList:
@@ -491,7 +491,7 @@ namespace BrightWire.TabularData
                                     columnType = ColumnType.Long;
                                 else if (type == typeof(int))
                                     columnType = ColumnType.Int;
-                                else if (type == typeof(byte))
+                                else if (type == typeof(sbyte))
                                     columnType = ColumnType.Byte;
                                 else if (type == typeof(DateTime))
                                     columnType = ColumnType.Date;
@@ -584,35 +584,20 @@ namespace BrightWire.TabularData
             return writer.GetDataTable();
         }
 
-        //public IDataTable ConvertToNumeric(IDataTableVectoriser vectoriser = null, bool useTargetColumnIndex = true, Stream output = null)
-        //{
-        //    var writer = new DataTableWriter(output);
-        //    vectoriser = vectoriser ?? GetVectoriser(useTargetColumnIndex);
+	    public IDataTable Zip(IDataTable dataTable, Stream output = null)
+	    {
+		    var writer = new DataTableWriter(_column.Concat(dataTable.Columns), output);
+			_Iterate((row, i) =>
+			{
+				if (i >= dataTable.RowCount)
+					return false;
+				writer.AddRow(row.Data.Concat(dataTable.GetRow(i).Data).ToList());
+				return true;
+			});
+		    return writer.GetDataTable();
+		}
 
-        //    // add the numeric columns
-        //    foreach (var name in vectoriser.ColumnNames)
-        //        writer.AddColumn(name, ColumnType.Float);
-
-        //    // add the classification label column
-        //    var classColumnIndex = TargetColumnIndex;
-        //    if (useTargetColumnIndex) {
-        //        var classColumn = _column[classColumnIndex];
-        //        writer.AddColumn(classColumn.Name, ColumnType.String, true);
-        //    }
-
-        //    // vectorise each row
-        //    _Iterate((row, i) => {
-        //        var rowData = vectoriser.GetInput(row).Data.AsEnumerable().Cast<object>();
-        //        if (useTargetColumnIndex)
-        //            rowData = rowData.Concat(new object[] { row.GetField<string>(classColumnIndex) });
-
-        //        writer.AddRow(new DataTableRow(this, rowData.ToArray(), _rowConverter));
-        //        return true;
-        //    });
-        //    return writer.GetDataTable();
-        //}
-
-        public string XmlPreview
+		public string XmlPreview
         {
             get
             {

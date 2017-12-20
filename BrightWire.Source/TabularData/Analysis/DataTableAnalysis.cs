@@ -12,6 +12,16 @@ namespace BrightWire.TabularData.Analysis
     /// </summary>
     internal class DataTableAnalysis : IRowProcessor, IDataTableAnalysis
     {
+		static HashSet<ColumnType> _invalidColumnType = new HashSet<ColumnType>
+		{
+			ColumnType.Date,
+			ColumnType.Boolean,
+			ColumnType.Matrix,
+			ColumnType.Null,
+			ColumnType.Vector,
+			ColumnType.Tensor
+		};
+
         readonly IDataTable _table;
         readonly List<IRowProcessor> _column = new List<IRowProcessor>();
 
@@ -35,12 +45,15 @@ namespace BrightWire.TabularData.Analysis
         void _Add(IColumn column, int index)
         {
             var type = column.Type;
-            if (ColumnTypeClassifier.IsNumeric(column))
-                _column.Add(new NumberCollector(index));
-            else if (type == ColumnType.String)
-                _column.Add(new StringCollector(index));
-            else if (type == ColumnType.IndexList || type == ColumnType.WeightedIndexList)
-                _column.Add(new IndexCollector(index));
+	        if (!_invalidColumnType.Contains(type))
+	        {
+		        if (ColumnTypeClassifier.IsNumeric(column))
+			        _column.Add(new NumberCollector(index));
+		        else if (type == ColumnType.String)
+			        _column.Add(new StringCollector(index));
+		        else if (type == ColumnType.IndexList || type == ColumnType.WeightedIndexList)
+			        _column.Add(new IndexCollector(index));
+	        }
         }
 
         public bool Process(IRow row)

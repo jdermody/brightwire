@@ -18,8 +18,8 @@ namespace BrightWire.Helper
 
         internal class Column : IColumn
         {
-            public bool? _isContinuous;
-            public ColumnType _type;
+	        internal bool? _isContinuous;
+            internal ColumnType _type;
             readonly HashSet<string> _uniqueValues = new HashSet<string>();
             readonly string _name;
             readonly bool _isTarget;
@@ -33,15 +33,9 @@ namespace BrightWire.Helper
                     _isContinuous = true;
             }
 
-            public int NumDistinct
-            {
-                get
-                {
-                    return _uniqueValues.Count == MAX_UNIQUE ? 0 : _uniqueValues.Count;
-                }
-            }
+            public int NumDistinct => _uniqueValues.Count == MAX_UNIQUE ? 0 : _uniqueValues.Count;
 
-            public void Add(object value)
+	        public void Add(object value)
             {
                 if (value != null) {
                     // TODO: validate the type against ColumnType?
@@ -50,14 +44,14 @@ namespace BrightWire.Helper
                 }
             }
 
-            public ColumnType Type { get { return _type; } }
-            public string Name { get { return _name; } }
-            public bool IsTarget { get { return _isTarget; } }
+            public ColumnType Type => _type;
+	        public string Name => _name;
+	        public bool IsTarget => _isTarget;
 
-            public bool IsContinuous
+	        public bool IsContinuous
             {
-                get { return _isContinuous.HasValue && _isContinuous.Value; }
-                set { _isContinuous = value; }
+                get => _isContinuous.HasValue && _isContinuous.Value;
+		        set { _isContinuous = value; }
             }
         }
         readonly List<Column> _column = new List<Column>();
@@ -84,12 +78,12 @@ namespace BrightWire.Helper
             return ret;
         }
 
-        public IReadOnlyList<IColumn> Columns { get { return _column; } }
-        internal IReadOnlyList<Column> Columns2 { get { return _column; } }
-        public int RowCount { get { return _data.Count; } }
-        public int ColumnCount { get { return _column.Count; } }
+        public IReadOnlyList<IColumn> Columns => _column;
+	    internal IReadOnlyList<Column> Columns2 => _column;
+	    public int RowCount => _data.Count;
+	    public int ColumnCount => _column.Count;
 
-        public IColumn AddColumn(ColumnType column, string name = "", bool isTarget = false)
+	    public IColumn AddColumn(ColumnType column, string name = "", bool isTarget = false)
         {
             var ret = new Column(column, name, isTarget);
             _column.Add(ret);
@@ -150,7 +144,7 @@ namespace BrightWire.Helper
             else if (type == ColumnType.String)
                 writer.Write((string)val);
             else if (type == ColumnType.Byte)
-                writer.Write((byte)val);
+                writer.Write((sbyte)val);
             else if (type == ColumnType.IndexList) {
                 var data = (IndexList)val;
                 data.WriteTo(writer);
