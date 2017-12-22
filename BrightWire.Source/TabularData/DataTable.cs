@@ -401,23 +401,23 @@ namespace BrightWire.TabularData
             return ret;
         }
 
-        public IDataTable Normalise(NormalisationType normalisationType, Stream output = null)
+        public IDataTable Normalise(NormalisationType normalisationType, Stream output = null, IEnumerable<int> columnIndices = null)
         {
-            var normaliser = new DataTableNormaliser(this, normalisationType, output);
+            var normaliser = new DataTableNormaliser(this, normalisationType, output, columnIndices);
             Process(normaliser);
             return normaliser.GetDataTable();
         }
 
         public IDataTable Normalise(DataTableNormalisation normalisationModel, Stream output = null)
         {
-            var normaliser = new DataTableNormaliser(this, normalisationModel.Type, output, normalisationModel);
+            var normaliser = new DataTableNormaliser(this, output, normalisationModel);
             Process(normaliser);
             return normaliser.GetDataTable();
         }
 
-        public DataTableNormalisation GetNormalisationModel(NormalisationType normalisationType)
+        public DataTableNormalisation GetNormalisationModel(NormalisationType normalisationType, IEnumerable<int> columnIndices = null)
         {
-            var normaliser = new DataTableNormaliser(this, normalisationType);
+            var normaliser = new DataTableNormaliser(this, normalisationType, null, columnIndices);
             return normaliser.GetNormalisationModel();
         }
 

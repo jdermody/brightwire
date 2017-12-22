@@ -330,12 +330,13 @@ namespace BrightWire
         /// <param name="output2">Optional stream to write the second output table to</param>
         (IDataTable Training, IDataTable Test) Split(int? randomSeed = null, double trainingPercentage = 0.8, bool shuffle = true, Stream output1 = null, Stream output2 = null);
 
-        /// <summary>
-        /// Creates a normalised version of the current table
-        /// </summary>
-        /// <param name="normalisationType">The type of normalisation to apply</param>
-        /// <param name="output">Optional stream to write the normalised table to</param>
-        IDataTable Normalise(NormalisationType normalisationType, Stream output = null);
+	    /// <summary>
+	    /// Creates a normalised version of the current table
+	    /// </summary>
+	    /// <param name="normalisationType">The type of normalisation to apply</param>
+	    /// <param name="output">Optional stream to write the normalised table to</param>
+	    /// <param name="columnIndices">Optional list of column indices to normalise</param>
+	    IDataTable Normalise(NormalisationType normalisationType, Stream output = null, IEnumerable<int> columnIndices = null);
 
         /// <summary>
         /// Creates a normalised version of the current table
@@ -344,11 +345,12 @@ namespace BrightWire
         /// <param name="output">Optional stream to write the normalised table to</param>
         IDataTable Normalise(DataTableNormalisation normalisationModel, Stream output = null);
 
-        /// <summary>
-        /// Builds a normalisation model from the table that can be used to normalise data to the same scale
-        /// </summary>
-        /// <param name="normalisationType">The type of normalisation</param>
-        DataTableNormalisation GetNormalisationModel(NormalisationType normalisationType);
+		/// <summary>
+		/// Builds a normalisation model from the table that can be used to normalise data to the same scale
+		/// </summary>
+		/// <param name="normalisationType">The type of normalisation</param>
+		/// <param name="columnIndices">Optional list of column indices to normalise</param>
+		DataTableNormalisation GetNormalisationModel(NormalisationType normalisationType, IEnumerable<int> columnIndices = null);
 
         /// <summary>
         /// Gets a column from the table
@@ -461,6 +463,19 @@ namespace BrightWire
         /// Returns true if the data table contains any non-numeric columns
         /// </summary>
         bool HasCategoricalData { get; }
+
+		/// <summary>
+		/// Writes the data table to a stream
+		/// </summary>
+		/// <param name="stream">The stream to write to</param>
+	    void WriteTo(Stream stream);
+
+		/// <summary>
+		/// Writes the data table's index to a stream
+		/// </summary>
+		/// <param name="stream">The stream to write to</param>
+		void WriteIndexTo(Stream stream);
+
     }
 
     /// <summary>

@@ -628,10 +628,17 @@ namespace BrightWire
         /// <returns></returns>
         ExecutionResult ExecuteSequential(int sequenceIndex, float[] input, IExecutionContext executionContext, MiniBatchSequenceType sequenceType);
 
-        /// <summary>
-        /// The graph's single start node
-        /// </summary>
-        INode Start { get; }
+	    /// <summary>
+	    /// Executes a sequence of inputs on the current graph
+	    /// </summary>
+	    /// <param name="input">List of vector inputs</param>
+	    /// <returns>List of execution results</returns>
+	    IReadOnlyList<ExecutionResult> ExecuteSequential(IReadOnlyList<float[]> input);
+
+		/// <summary>
+		/// The graph's single start node
+		/// </summary>
+		INode Start { get; }
     }
 
     /// <summary>
