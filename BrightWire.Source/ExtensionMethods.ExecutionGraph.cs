@@ -119,5 +119,28 @@ namespace BrightWire
             ret.ReadFrom(factory, reader);
             return ret;
         }
-    }
+
+		/// <summary>
+		/// Aligns the output of sequential graph execution into an ordered list of results
+		/// </summary>
+		/// <param name="results">Output from sequential graph execution</param>
+	    public static IReadOnlyList<FloatVector[]> OrderSequentialOutput(this IReadOnlyList<ExecutionResult> results)
+	    {
+		    var ret = new Dictionary<(int RowIndex, int SequenceIndex), FloatVector>();
+		    foreach (var result in results) {
+			    var sequenceIndex = result.MiniBatchSequence.SequenceIndex;
+			    var rows = result.MiniBatchSequence.MiniBatch.Rows;
+			    for (var i = 0; i < result.Output.Count; i++) {
+				    var rowIndex = rows[i];
+				    ret.Add((rowIndex, sequenceIndex), result.Output[i]);
+			    }
+		    }
+		    return ret.GroupBy(d => d.Key.RowIndex)
+				.Select(g => (g.Key, g.OrderBy(d => d.Key.SequenceIndex).Select(d => d.Value).ToArray()))
+				.OrderBy(d => d.Item1)
+				.Select(d => d.Item2)
+				.ToList()
+			;
+	    }
+	}
 }
