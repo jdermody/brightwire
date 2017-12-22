@@ -75,22 +75,24 @@ namespace BrightWire.SampleCode
 
         static void Main(string[] args)
         {
-            //Control.UseNativeMKL();
-            //XOR();
-            //IrisClassification();
-            //IrisClustering();
-            //MarkovChains();
-            //MNIST(@"D:\data\mnist\");
-            //MNISTConvolutional(@"D:\data\mnist\"/*, @"d:\temp\mnist.dat"*/);
-            //SentimentClassification(@"D:\data\sentiment labelled sentences\");
-            //TextClustering(@"D:\data\[UCI] AAAI-14 Accepted Papers - Papers.csv", @"d:\temp\");
-            //IntegerAddition();
-            //ReberPrediction();
-            //OneToMany();
-            //ManyToOne();
-            //SequenceToSequence();
-            //TrainWithSelu(@"D:\data\iris.data");
-
-        }
+			//Control.UseNativeMKL();
+			//XOR();
+			//IrisClassification();
+			//IrisClustering();
+			//MarkovChains();
+			//MNIST(@"D:\data\mnist\");
+			//MNISTConvolutional(@"D:\data\mnist\"/*, @"d:\temp\mnist.dat"*/);
+			//SentimentClassification(@"D:\data\sentiment labelled sentences\");
+			//TextClustering(@"D:\data\[UCI] AAAI-14 Accepted Papers - Papers.csv", @"d:\temp\");
+			//IntegerAddition();
+			//ReberPrediction();
+			//OneToMany();
+			//ManyToOne();
+			//SequenceToSequence();
+			//TrainWithSelu(@"D:\data\iris.data");
+			//SimpleLinearTest();
+			//PredictBicyclesWithLinearModel(@"D:\data\bikesharing\hour.csv");
+			//PredictBicyclesWithNeuralNetwork(@"D:\data\bikesharing\hour.csv");
+		}
     }
 }

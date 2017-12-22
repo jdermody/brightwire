@@ -58,6 +58,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Linear.cs" />
     <Compile Include="MNISTConvolutional.cs" />
     <Compile Include="IntegerAddition.cs" />
     <Compile Include="IrisClassification.cs" />
