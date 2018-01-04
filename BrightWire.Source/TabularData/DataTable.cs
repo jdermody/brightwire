@@ -421,15 +421,9 @@ namespace BrightWire.TabularData
             return normaliser.GetNormalisationModel();
         }
 
-        public IRow this[int index]
-        {
-            get
-            {
-                return GetRow(index);
-            }
-        }
+        public IRow this[int index] => GetRow(index);
 
-        public int TargetColumnIndex
+	    public int TargetColumnIndex
         {
             get
             {
@@ -525,8 +519,9 @@ namespace BrightWire.TabularData
 
         public IReadOnlyList<(IDataTable Table, string Classification)> ConvertToBinaryClassification()
         {
-            return GetAnalysis()[TargetColumnIndex].DistinctValues
-                .Cast<string>()
+			var analysis = GetAnalysis();
+			return analysis[TargetColumnIndex].DistinctValues
+                .Select(val => val.ToString())
                 .Select(cls => (Project(r => {
                     var row = new object[ColumnCount];
                     for (var i = 0; i < ColumnCount; i++) {
@@ -541,7 +536,7 @@ namespace BrightWire.TabularData
             ;
         }
 
-        public void ForEach(Action<IRow> callback)
+		public void ForEach(Action<IRow> callback)
         {
             _Iterate((row, i) => { callback(row); return true; });
         }
@@ -595,6 +590,22 @@ namespace BrightWire.TabularData
 				return true;
 			});
 		    return writer.GetDataTable();
+		}
+
+		public float Reduce(Func<IRow, float, float> reducer, float initialValue = 0f)
+		{
+			var value = initialValue;
+			_Iterate((row, i) => {
+				value = reducer(row, value);
+				return true;
+			});
+			return value;
+		}
+
+		public float Average(Func<IRow, float> reducer)
+		{
+			var total = Reduce((row, sum) => sum + reducer(row));
+			return total / RowCount;
 		}
 
 		public string XmlPreview
