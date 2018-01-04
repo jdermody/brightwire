@@ -93,6 +93,8 @@ namespace BrightWire.SampleCode
 			//SimpleLinearTest();
 			//PredictBicyclesWithLinearModel(@"D:\data\bikesharing\hour.csv");
 			//PredictBicyclesWithNeuralNetwork(@"D:\data\bikesharing\hour.csv");
+			//MultiLabelSingleClassifier(@"d:\data\emotions\emotions.arff");
+			//MultiLabelMultiClassifiers(@"d:\data\emotions\emotions.arff");
 		}
     }
 }

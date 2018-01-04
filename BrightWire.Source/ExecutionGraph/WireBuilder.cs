@@ -91,9 +91,8 @@ namespace BrightWire.ExecutionGraph
 
         void _SetNode(INode node)
         {
-            if (_node != null)
-                _node.Output.Add(new WireToNode(node));
-            _node = node;
+	        _node?.Output.Add(new WireToNode(node));
+	        _node = node;
         }
 
         /// <summary>
