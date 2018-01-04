@@ -476,6 +476,20 @@ namespace BrightWire
 		/// <param name="stream">The stream to write to</param>
 		void WriteIndexTo(Stream stream);
 
+		/// <summary>
+		/// Applies a function against each row in the data table to reduce the table to a single value
+		/// </summary>
+		/// <param name="reducer">The function that is applied to each row</param>
+		/// <param name="initialValue">Initial value passed to the function</param>
+		/// <returns>The accumulated value</returns>
+		float Reduce(Func<IRow, float, float> reducer, float initialValue = 0f);
+
+		/// <summary>
+		/// Finds an average value from applying the reducer to each row of the table
+		/// </summary>
+		/// <param name="reducer">Function that reduces each row to a single value</param>
+		/// <returns></returns>
+		float Average(Func<IRow, float> reducer);
     }
 
     /// <summary>

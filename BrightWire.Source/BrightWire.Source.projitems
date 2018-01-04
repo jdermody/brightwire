@@ -145,6 +145,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)LinearAlgebra\CPUProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinearAlgebra\CpuVector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LinearAlgebra\Helper\BoundMath.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Linear\LogisticRegressionClassifierAdapter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Linear\LogisticRegressionPredictor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Linear\MultinomialLogisticRegressionClassifier.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Linear\RegressionPredictor.cs" />

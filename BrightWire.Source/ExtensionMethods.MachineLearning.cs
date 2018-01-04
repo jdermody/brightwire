@@ -9,6 +9,7 @@ using BrightWire.TreeBased.Training;
 using BrightWire.Unsupervised;
 using System.Collections.Generic;
 using System.Linq;
+using BrightWire.Source.Linear;
 
 namespace BrightWire
 {
@@ -245,5 +246,20 @@ namespace BrightWire
         {
             return classifications.OrderByDescending(c => c.Weight).First().Label;
         }
+
+		/// <summary>
+		/// Converts the logistic regression classifier into a row classifier
+		/// </summary>
+		/// <param name="classifier">Logistic regression classifier to convert</param>
+		/// <param name="attributeColumns">Attribute columns in data table to use</param>
+		/// <param name="negativeLabel">Output classification for negative class label</param>
+		/// <param name="positiveLabel">Output classification for the positive class label</param>
+	    public static IRowClassifier ConvertToRowClassifier(this ILogisticRegressionClassifier classifier,
+		    IReadOnlyList<int> attributeColumns,
+		    string negativeLabel = "0",
+		    string positiveLabel = "1")
+	    {
+		    return new LogisticRegressionClassifierAdapter(classifier, attributeColumns, negativeLabel, positiveLabel);
+	    }
     }
 }
