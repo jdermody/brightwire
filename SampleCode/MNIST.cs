@@ -9,7 +9,7 @@ namespace BrightWire.SampleCode
     public partial class Program
     {
         /// <summary>
-        /// Trains a feed forward neural net on the MNIST database (handwritten digit recognition)
+        /// Trains a feed forward neural net on the MNIST data set (handwritten digit recognition)
         /// The data files can be downloaded from http://yann.lecun.com/exdb/mnist/
         /// </summary>
         /// <param name="dataFilesPath">The path to a directory with the four extracted data files</param>
