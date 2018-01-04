@@ -32,7 +32,7 @@ namespace BrightWire.TabularData
         {
             var ret = new T[indices.Count];
             for (int i = 0, len = indices.Count; i < len; i++)
-                ret[i] = _converter.GetField<T>(_data, i);
+                ret[i] = _converter.GetField<T>(_data, indices[i]);
             return ret;
         }
     }
