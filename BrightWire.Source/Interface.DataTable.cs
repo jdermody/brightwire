@@ -490,6 +490,20 @@ namespace BrightWire
 		/// <param name="reducer">Function that reduces each row to a single value</param>
 		/// <returns></returns>
 		float Average(Func<IRow, float> reducer);
+
+	    /// <summary>
+	    /// Returns a new data table with columns converted to new types
+	    /// </summary>
+	    /// <param name="columnConversion">Dictionary of columns to convert</param>
+	    /// <param name="removeInvalidRows">True to remove rows that fail conversion</param>
+	    IDataTable ChangeColumnTypes(Dictionary<int, IConvertToType> columnConversion, bool removeInvalidRows = false);
+
+	    /// <summary>
+	    /// Creates a summarised version of the data table
+	    /// </summary>
+	    /// <param name="newRowCount">Number of rows to create in the summary table</param>
+	    /// <param name="summariser">A row summariser that will summarise groups of rows</param>
+	    IDataTable Summarise(int newRowCount, ISummariseRows summariser = null);
     }
 
     /// <summary>
@@ -695,4 +709,22 @@ namespace BrightWire
         /// <param name="stream">The stream to hold the index data</param>
         void WriteIndexTo(Stream stream);
     }
+
+	/// <summary>
+	/// Interface to convert between types
+	/// </summary>
+	public interface IConvertToType
+	{
+		/// <summary>
+		/// Converts an object from one type to another
+		/// </summary>
+		/// <param name="value">The value to convert</param>
+		/// <returns>A tuple of (object</returns>
+		(object convertedValue, bool wasSuccessful) ConvertValue(object value);
+	}
+
+	public interface ISummariseRows
+	{
+		IRow Summarise(IReadOnlyList<IRow> rows);
+	}
 }

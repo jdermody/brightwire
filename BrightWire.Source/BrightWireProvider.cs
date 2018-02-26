@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using BrightWire.Source.TabularData.Manipulation;
 
 namespace BrightWire
 {
@@ -137,5 +138,15 @@ namespace BrightWire
         {
             return new MarkovModelTrainer3<T>(minObservations);
         }
+
+		/// <summary>
+		/// Returns a generic type converter that uses a default value if conversion fails
+		/// </summary>
+		/// <typeparam name="T">Type to conver to</typeparam>
+		/// <param name="defaultValue">Value to use if the conversion fails</param>
+	    public static IConvertToType CreateTypeConverter<T>(T defaultValue = default(T))
+	    {
+		    return new GenericConverter<T>(defaultValue);
+	    }
     }
 }

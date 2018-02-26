@@ -180,6 +180,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)TabularData\Analysis\IndexCollector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TabularData\Analysis\NumericCollector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TabularData\Analysis\StringCollector.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TabularData\Manipulation\AverageSummariser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TabularData\Manipulation\GenericConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TabularData\DataTable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TabularData\DataTableRow.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TabularData\Helper\ClassificationBasedRowProcessor.cs" />
