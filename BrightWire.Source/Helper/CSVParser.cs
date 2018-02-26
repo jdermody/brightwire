@@ -48,10 +48,11 @@ namespace BrightWire.Helper
 				var ch = (char)reader.Read();
 				if (ch == '"')
 					inQuote = !inQuote;
-				else if (ch == '\n' && !inQuote)
-					return ret.ToString();
-				else if (ch == '\r')
+				else if ((ch == '\r' || ch == '\n') && !inQuote) {
+					if(ret.Length > 0)
+						return ret.ToString();
 					continue;
+				}
 				else if (inQuote && ch == _delimiter && Char.IsWhiteSpace(_delimiter))
 					inQuote = false;
 				ret.Append(ch);
@@ -208,6 +209,10 @@ namespace BrightWire.Helper
 		{
 			int index = 0;
 			var fields = _Parse(line).ToList();
+
+			// append empty strings to fill any blanks
+			for (int i = fields.Count, len = writer.Columns.Count; i < len; i++)
+				fields.Add(String.Empty);
 
 			foreach (var column in writer.Columns)
 				_Convert(ref column._type, fields[index++]);
