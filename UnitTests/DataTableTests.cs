@@ -42,12 +42,12 @@ namespace UnitTests
             builder.AddColumn(ColumnType.String, "string");
 
             var now = DateTime.Now;
-            builder.Add(true, (byte)100, now, 1.0 / 3, 0.5f, int.MaxValue, long.MaxValue, null, "test");
+            builder.Add(true, (sbyte)100, now, 1.0 / 3, 0.5f, int.MaxValue, long.MaxValue, null, "test");
             var dataTable = builder.Build();
 
             var firstRow = dataTable.GetRow(0);
             Assert.AreEqual(firstRow.GetField<bool>(0), true);
-            Assert.AreEqual(firstRow.GetField<byte>(1), 100);
+            Assert.AreEqual(firstRow.GetField<sbyte>(1), 100);
             Assert.AreEqual(firstRow.GetField<DateTime>(2), now);
             Assert.AreEqual(firstRow.GetField<double>(3), 1.0 / 3);
             Assert.AreEqual(firstRow.GetField<float>(4), 0.5f);
@@ -129,7 +129,7 @@ namespace UnitTests
             builder.AddColumn(ColumnType.String, "string");
 
             for (var i = 1; i <= 10; i++)
-                builder.Add(i % 2 == 0, (byte)i, DateTime.Now, (double)i, (float)i, i, (long)i, null, i.ToString());
+                builder.Add(i % 2 == 0, (sbyte)i, DateTime.Now, (double)i, (float)i, i, (long)i, null, i.ToString());
             var table = builder.Build();
             var analysis = table.GetAnalysis();
             var xml = analysis.AsXml;

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BrightWire.Models;
 
 namespace UnitTests.Helper
 {
@@ -68,5 +69,29 @@ namespace UnitTests.Helper
                 AssertEqual(v1[i], v2[i], maxDifference);
             }
         }
+
+	    public static void AssertEqual(FloatTensor t1, FloatTensor t2, int maxDifference = 6)
+	    {
+		    Assert.AreEqual(t1.Depth, t2.Depth);
+		    for (var i = 0; i < t1.Depth; i++)
+			    AssertEqual(t1.Matrix[i], t2.Matrix[i]);
+	    }
+
+	    public static void AssertEqual(FloatMatrix m1, FloatMatrix m2, int maxDifference = 6)
+	    {
+		    Assert.AreEqual(m1.RowCount, m2.RowCount);
+		    Assert.AreEqual(m1.ColumnCount, m2.ColumnCount);
+		    for (var i = 0; i < m1.RowCount; i++) {
+			    AssertEqual(m1.Row[i], m2.Row[i], maxDifference);
+		    }
+	    }
+
+	    public static void AssertEqual(FloatVector v1, FloatVector v2, int maxDifference = 6)
+	    {
+		    Assert.AreEqual(v1.Count, v2.Count);
+		    for (var i = 0; i < v1.Count; i++) {
+			    AssertEqual(v1.Data[i], v2.Data[i], maxDifference);
+		    }
+	    }
     }
 }
