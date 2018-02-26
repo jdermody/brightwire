@@ -6,7 +6,7 @@ namespace BrightWire
     /// <summary>
     /// Wrapper for a device memory pointer
     /// </summary>
-    internal interface IDeviceMemoryPtr
+    interface IDeviceMemoryPtr
     {
         void Free();
         CudaDeviceVariable<float> DeviceVariable { get; }

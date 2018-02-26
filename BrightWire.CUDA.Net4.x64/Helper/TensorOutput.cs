@@ -9,7 +9,7 @@ namespace BrightWire.Cuda.Helper
     /// <summary>
     /// Helper class that allocates space for a 4D tensor output from a cuda kernel
     /// </summary>
-    class TensorOutput : IDisposable
+    class TensorOutput
     {
         readonly CudaProvider _cuda;
         readonly IMatrix _data;
@@ -37,7 +37,7 @@ namespace BrightWire.Cuda.Helper
             }
         }
 
-        public void Dispose()
+        public void Release()
         {
             _data.Dispose();
         }

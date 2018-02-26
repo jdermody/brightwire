@@ -33,11 +33,16 @@ namespace BrightWire.Models
         public static FloatVector Create(int size) => new FloatVector { Data = new float[size] };
 
         /// <summary>
-        /// The size of the vector
+        /// (Same as Count) - The number of elements in the vector
         /// </summary>
-        public int Size { get { return Data?.Length ?? 0; } }
+        public int Size => Data?.Length ?? 0;
+		
+		/// <summary>
+		/// (Same as Size) - The number of elements in the vector
+		/// </summary>
+	    public int Count => Size;
 
-        /// <summary>
+	    /// <summary>
         /// ToString override
         /// </summary>
         public override string ToString()

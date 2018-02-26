@@ -12,9 +12,9 @@ namespace BrightWire.Cuda.Helper
     /// <summary>
     /// Maintains a cache of available device memory
     /// </summary>
-    internal class DeviceMemory : IDisposable
+    class DeviceMemory : IDisposable
     {
-        private class Block : IDeviceMemoryPtr
+        class Block : IDeviceMemoryPtr
         {
             readonly int _index;
             readonly DeviceMemory _cache;
@@ -74,28 +74,11 @@ namespace BrightWire.Cuda.Helper
                     _cache.OnFree(this);
             }
 
-            public CudaDeviceVariable<float> DeviceVariable
-            {
-                get
-                {
-                    return _data;
-                }
-            }
-            public CUdeviceptr DevicePointer
-            {
-                get
-                {
-                    return _data.DevicePointer;
-                }
-            }
-            public int Size
-            {
-                get
-                {
-                    return _data.Size;
-                }
-            }
-            public void CopyToDevice(float[] source)
+            public CudaDeviceVariable<float> DeviceVariable => _data;
+	        public CUdeviceptr DevicePointer => _data.DevicePointer;
+	        public int Size => _data.Size;
+
+	        public void CopyToDevice(float[] source)
             {
                 _data.CopyToDevice(source);
             }

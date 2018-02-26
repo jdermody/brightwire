@@ -240,9 +240,9 @@ namespace BrightWire.LinearAlgebra
 
         public I3DTensor Im2Col(int filterWidth, int filterHeight, int stride)
         {
-            var ret = _cuda.TensorIm2Col(_tensorInfo.Value, filterWidth, filterHeight, stride);
-            var matrixList = ret.GetAsTensor().Cast<GpuMatrix>().ToList();
-            return new Gpu3DTensor(_cuda, ret.Rows, ret.Columns, ret.Count, matrixList);
+	        var ret = _cuda.TensorIm2Col(_tensorInfo.Value, filterWidth, filterHeight, stride);
+	        var matrixList = ret.GetAsTensor().Cast<GpuMatrix>().ToList();
+	        return new Gpu3DTensor(_cuda, ret.Rows, ret.Columns, ret.Count, matrixList);
         }
 
         public I3DTensor ReverseIm2Col(IReadOnlyList<IReadOnlyList<IVector>> filter, int inputHeight, int inputWidth, int inputDepth, int padding, int filterWidth, int filterHeight, int stride)

@@ -60,8 +60,8 @@ namespace BrightWire.TabularData.Analysis
 
         public double L1Norm => _l1;
 	    public double L2Norm => Math.Sqrt(_l2);
-	    public int ColumnIndex { get { return _index; } }
-        public double Min => _min;
+	    public int ColumnIndex => _index;
+	    public double Min => _min;
 	    public double Max => _max;
 	    public double Mean => _mean;
 	    public double? Variance => _total > 1 ? (_m2 / (_total - 1)) : (double?)null;
@@ -113,7 +113,7 @@ namespace BrightWire.TabularData.Analysis
                 return null;
             }
         }
-        public int? NumDistinct { get { return _distinct.Count < _maxDistinct ? _distinct.Count : (int?)null; } }
-        public IEnumerable<object> DistinctValues { get { return _distinct.Count < _maxDistinct ? _distinct.Select(kv => (object)kv.Key) : null; } }
+        public int? NumDistinct => _distinct.Count < _maxDistinct ? _distinct.Count : (int?)null;
+	    public IEnumerable<object> DistinctValues { get { return _distinct.Count < _maxDistinct ? _distinct.Select(kv => (object)kv.Key) : null; } }
     }
 }

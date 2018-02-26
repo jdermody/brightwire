@@ -10,9 +10,8 @@ namespace BrightWire.Cuda.Helper
     /// <summary>
     /// Helper class to represent a list of matrices that are the output of a cuda kernel
     /// </summary>
-    class MatrixOutput : IDisposable
+    class MatrixOutput
     {
-        //readonly CudaProvider _cuda;
         readonly List<IMatrix> _data = new List<IMatrix>();
         readonly int _rows, _columns;
         readonly CUdeviceptr[] _ptr;
@@ -32,7 +31,7 @@ namespace BrightWire.Cuda.Helper
             _ptr = _data.Cast<GpuMatrix>().Select(m => m.Memory.DevicePointer).ToArray();
         }
 
-        public void Dispose()
+        public void Release()
         {
             foreach(var item in _data)
                 item.Dispose();

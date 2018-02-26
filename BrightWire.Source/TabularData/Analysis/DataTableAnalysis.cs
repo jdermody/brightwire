@@ -15,7 +15,7 @@ namespace BrightWire.TabularData.Analysis
 		static HashSet<ColumnType> _invalidColumnType = new HashSet<ColumnType>
 		{
 			ColumnType.Date,
-			ColumnType.Boolean,
+			//ColumnType.Boolean,
 			ColumnType.Matrix,
 			ColumnType.Null,
 			ColumnType.Vector,

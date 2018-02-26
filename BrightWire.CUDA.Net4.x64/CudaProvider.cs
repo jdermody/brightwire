@@ -648,7 +648,7 @@ namespace BrightWire.LinearAlgebra
                     _Use(_tensorAddPadding, newRows * depth * count, newColumns, k => k.Run(0, input.DevicePointer, output.DevicePointer, count, rows, columns, newRows, newColumns, depth, padding));
                 }
             }catch {
-                ret.Dispose();
+                ret.Release();
                 throw;
             }
             return ret;
@@ -670,7 +670,7 @@ namespace BrightWire.LinearAlgebra
                     _Use(_tensorRemovePadding, rows * depth * count, columns, k => k.Run(0, input.DevicePointer, output.DevicePointer, count, rows, columns, newRows, newColumns, depth, padding));
                 }
             }catch {
-                ret.Dispose();
+                ret.Release();
                 throw;
             }
             return ret;
@@ -801,7 +801,7 @@ namespace BrightWire.LinearAlgebra
                     _Use(_tensorIm2Col, newRows * count, newColumns, k => k.Run(0, input.DevicePointer, output.DevicePointer, count, rows, columns, newRows, newColumns, depth, filterWidth, filterHeight, stride));
                 }
             }catch {
-                ret.Dispose();
+                ret.Release();
                 throw;
             }
             return ret;

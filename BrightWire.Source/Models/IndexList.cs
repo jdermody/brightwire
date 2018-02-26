@@ -28,9 +28,9 @@ namespace BrightWire.Models
         /// <summary>
         /// The number of items in the list
         /// </summary>
-        public int Count { get { return Index?.Length ?? 0; } }
+        public int Count => Index?.Length ?? 0;
 
-        /// <summary>
+	    /// <summary>
         /// ToString override
         /// </summary>
         public override string ToString()

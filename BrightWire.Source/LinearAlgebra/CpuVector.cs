@@ -408,6 +408,7 @@ namespace BrightWire.LinearAlgebra
                     curr = new float[blockSize];
                     index = 0;
                 }
+	            // ReSharper disable once PossibleNullReferenceException
                 curr[index++] = _vector[i];
             }
             ret.Add(new CpuVector(curr));

@@ -12,7 +12,7 @@ namespace BrightWire.TabularData.Analysis
         readonly Dictionary<string, ulong> _distinct = new Dictionary<string, ulong>();
 
         int _minLength = int.MaxValue, _maxLength = int.MinValue;
-        ulong _total = 0, _highestCount = 0;
+        ulong _highestCount = 0;
         string _mode = null;
 
         public StringCollector(int index, int maxDistinct = 131072 * 4)
@@ -29,7 +29,6 @@ namespace BrightWire.TabularData.Analysis
                 _minLength = len;
             if (len > _maxLength)
                 _maxLength = len;
-            ++_total;
 
             // add to distinct values
             if (_distinct.Count < _maxDistinct) {
@@ -46,11 +45,11 @@ namespace BrightWire.TabularData.Analysis
             return true;
         }
 
-        public int ColumnIndex { get { return _index; } }
-        public int MinLength { get { return _minLength; } }
-        public int MaxLength { get { return _maxLength; } }
-        public string MostCommonString { get { return _distinct.Count < _maxDistinct ? _mode : null; } }
-        public int? NumDistinct { get { return _distinct.Count < _maxDistinct ? _distinct.Count : (int?)null; } }
-        public IEnumerable<object> DistinctValues { get { return _distinct.Count < _maxDistinct ? _distinct.Select(kv => kv.Key) : null; } }
+        public int ColumnIndex => _index;
+	    public int MinLength => _minLength;
+	    public int MaxLength => _maxLength;
+	    public string MostCommonString => _distinct.Count < _maxDistinct ? _mode : null;
+	    public int? NumDistinct => _distinct.Count < _maxDistinct ? _distinct.Count : (int?)null;
+	    public IEnumerable<object> DistinctValues { get { return _distinct.Count < _maxDistinct ? _distinct.Select(kv => kv.Key) : null; } }
     }
 }

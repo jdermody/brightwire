@@ -84,7 +84,7 @@ namespace BrightWire.Models
             /// <returns></returns>
             public override int GetHashCode()
             {
-                return (FromId + ToId + InputChannel.ToString()).GetHashCode();
+                return (FromId + ToId + InputChannel).GetHashCode();
             }
 
             /// <summary>

@@ -11,8 +11,8 @@ namespace BrightWire.Cuda.Helper
     /// <typeparam name="T">The wrapped type</typeparam>
     class ThreadSafeHashSet<T> : IDisposable
     {
-        private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
-        private readonly HashSet<T> _hashSet = new HashSet<T>();
+        readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
+        readonly HashSet<T> _hashSet = new HashSet<T>();
 
         ~ThreadSafeHashSet()
         {
@@ -25,9 +25,9 @@ namespace BrightWire.Cuda.Helper
         }
         protected virtual void Dispose(bool disposing)
         {
-            if (disposing) {
-                if (_lock != null)
-                    _lock.Dispose();
+            if (disposing)
+            {
+	            _lock?.Dispose();
             }
         }
 

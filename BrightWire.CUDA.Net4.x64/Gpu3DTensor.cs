@@ -122,14 +122,14 @@ namespace BrightWire.LinearAlgebra
             }
         }
 
-        public IReadOnlyList<IMatrix> DepthSlices
-        {
-            get
-            {
-                Debug.Assert(IsValid);
-                return _data;
-            }
-        }
+        //public IReadOnlyList<IMatrix> DepthSlices
+        //{
+        //    get
+        //    {
+        //        Debug.Assert(IsValid);
+        //        return _data;
+        //    }
+        //}
 
         public IMatrix GetMatrixAt(int depth)
         {

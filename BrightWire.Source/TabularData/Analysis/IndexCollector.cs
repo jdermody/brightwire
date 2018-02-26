@@ -38,7 +38,7 @@ namespace BrightWire.TabularData.Analysis
             } else {
                 var weightedIndexList = obj as WeightedIndexList;
                 if (weightedIndexList == null)
-                    throw new Exception("Unexpected index type: " + obj?.GetType()?.ToString() ?? "(null)");
+                    throw new Exception("Unexpected index type: " + obj?.GetType());
             }
             return true;
         }

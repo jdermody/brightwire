@@ -32,7 +32,7 @@ namespace BrightWire.ExecutionGraph
         readonly ILinearAlgebraProvider _lap;
         readonly IGradientDescentOptimisation _simpleGradientDescent = new StochasticGradientDescent();
         readonly ICreateTemplateBasedGradientDescent _rmsProp = new RmsPropDescriptor(0.9f);
-        readonly List<(TypeInfo, Type, string)> _queryTypes = new List<(TypeInfo, Type, string)>();
+        //readonly List<(TypeInfo, Type, string)> _queryTypes = new List<(TypeInfo, Type, string)>();
         readonly Stack<IPropertySet> _propertySetStack = new Stack<IPropertySet>();
         IPropertySet _defaultPropertySet;
 
@@ -45,21 +45,22 @@ namespace BrightWire.ExecutionGraph
         {
             _lap = lap;
             WeightInitialisation = new WeightInitialisationProvider(_lap);
+	        GraphOperation = new GraphOperationProvider();
             _defaultPropertySet = propertySet ?? new PropertySet(_lap) {
                 WeightInitialisation = WeightInitialisation.Gaussian,
                 TemplateGradientDescentDescriptor = _rmsProp
             };
 
             // add the gradient descent descriptors
-            _Add(typeof(L1RegularisationDescriptor), PropertySet.GRADIENT_DESCENT_DESCRIPTOR);
-            _Add(typeof(L2RegularisationDescriptor), PropertySet.GRADIENT_DESCENT_DESCRIPTOR);
+            //_Add(typeof(L1RegularisationDescriptor), PropertySet.GRADIENT_DESCENT_DESCRIPTOR);
+            //_Add(typeof(L2RegularisationDescriptor), PropertySet.GRADIENT_DESCENT_DESCRIPTOR);
 
-            // add the template based gradient descent descriptors
-            _Add(typeof(AdaGradDescriptor), PropertySet.TEMPLATE_GRADIENT_DESCENT_DESCRIPTOR);
-            _Add(typeof(AdamDescriptor), PropertySet.TEMPLATE_GRADIENT_DESCENT_DESCRIPTOR);
-            _Add(typeof(MomentumDescriptor), PropertySet.TEMPLATE_GRADIENT_DESCENT_DESCRIPTOR);
-            _Add(typeof(NesterovMomentumDescriptor), PropertySet.TEMPLATE_GRADIENT_DESCENT_DESCRIPTOR);
-            _Add(typeof(RmsPropDescriptor), PropertySet.TEMPLATE_GRADIENT_DESCENT_DESCRIPTOR);
+            //// add the template based gradient descent descriptors
+            //_Add(typeof(AdaGradDescriptor), PropertySet.TEMPLATE_GRADIENT_DESCENT_DESCRIPTOR);
+            //_Add(typeof(AdamDescriptor), PropertySet.TEMPLATE_GRADIENT_DESCENT_DESCRIPTOR);
+            //_Add(typeof(MomentumDescriptor), PropertySet.TEMPLATE_GRADIENT_DESCENT_DESCRIPTOR);
+            //_Add(typeof(NesterovMomentumDescriptor), PropertySet.TEMPLATE_GRADIENT_DESCENT_DESCRIPTOR);
+            //_Add(typeof(RmsPropDescriptor), PropertySet.TEMPLATE_GRADIENT_DESCENT_DESCRIPTOR);
         }
 
         /// <summary>
@@ -70,12 +71,12 @@ namespace BrightWire.ExecutionGraph
         /// <summary>
         /// The current property set
         /// </summary>
-        public IPropertySet CurrentPropertySet
-        {
-            get { return _propertySetStack.Any() ? _propertySetStack.Peek() : _defaultPropertySet; }
-        }
+        public IPropertySet CurrentPropertySet => _propertySetStack.Any() 
+	        ? _propertySetStack.Peek() 
+	        : _defaultPropertySet
+	    ;
 
-        /// <summary>
+	    /// <summary>
         /// Clones the current property set with an optional mutator and then pushes it onto the stack
         /// </summary>
         /// <param name="mutator">Callback that can modify the cloned property set</param>
@@ -95,10 +96,10 @@ namespace BrightWire.ExecutionGraph
                 _propertySetStack.Pop();
         }
 
-        void _Add(Type type, string name)
-        {
-            _queryTypes.Add((type.GetTypeInfo(), type, name));
-        }
+        //void _Add(Type type, string name)
+        //{
+        //    _queryTypes.Add((type.GetTypeInfo(), type, name));
+        //}
 
         /// <summary>
         /// Creates a gradient descent optimiser for the given matrix
@@ -948,32 +949,32 @@ namespace BrightWire.ExecutionGraph
             /// <summary>
             /// All weights are initialised to 1
             /// </summary>
-            public IWeightInitialisation Ones { get; private set; }
+            public IWeightInitialisation Ones { get; }
 
             /// <summary>
             /// All weights are initialised to 0
             /// </summary>
-            public IWeightInitialisation Zeroes { get; private set; }
+            public IWeightInitialisation Zeroes { get; }
 
             /// <summary>
             /// Weights are randomly initialised using a gaussian distribution
             /// </summary>
-            public IWeightInitialisation Gaussian { get; private set; }
+            public IWeightInitialisation Gaussian { get; }
 
             /// <summary>
             /// Weights are randomly initialised using the xavier algorithm
             /// </summary>
-            public IWeightInitialisation Xavier { get; private set; }
+            public IWeightInitialisation Xavier { get; }
 
             /// <summary>
             /// Weights are initialised to the identity matrix
             /// </summary>
-            public IWeightInitialisation Identity { get; private set; }
+            public IWeightInitialisation Identity { get; }
 
             /// <summary>
             /// Weights are initialised to the identity matrix / 10
             /// </summary>
-            public IWeightInitialisation Identity01 { get; private set; }
+            public IWeightInitialisation Identity01 { get; }
 
             internal WeightInitialisationProvider(ILinearAlgebraProvider lap)
             {
@@ -988,6 +989,38 @@ namespace BrightWire.ExecutionGraph
         /// <summary>
         /// Prebuilt weight initialisers
         /// </summary>
-        public WeightInitialisationProvider WeightInitialisation { get; private set; }
+        public WeightInitialisationProvider WeightInitialisation { get; }
+		
+		/// <summary>
+		/// Provides standard graph operations
+		/// </summary>
+	    public class GraphOperationProvider
+		{
+			/// <summary>
+			/// Calculates inverse (1/x) of graph input
+			/// </summary>
+			/// <param name="name"></param>
+			/// <returns></returns>
+			public INode OneDividedBy(string name = null) => new OneDividedByInput(name);
+
+			/// <summary>
+			/// Calculates square (x^2) of graph input
+			/// </summary>
+			/// <param name="name"></param>
+			/// <returns></returns>
+			public INode InputSquared(string name = null) => new InputSquared(name);
+
+			/// <summary>
+			/// Calculates square root of graph input
+			/// </summary>
+			/// <param name="name"></param>
+			/// <returns></returns>
+			public INode SquareRootOf(string name = null) => new SquareRootOfInput(name);
+		}
+
+		/// <summary>
+		/// Standard graph operations
+		/// </summary>
+		public GraphOperationProvider GraphOperation {get;}
     }
 }

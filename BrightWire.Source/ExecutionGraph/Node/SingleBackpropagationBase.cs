@@ -29,7 +29,7 @@ namespace BrightWire.ExecutionGraph
             if(errorSignal != null)
                 nextError = _Backpropagate(fromNode, errorSignal, context, parents);
             if(nextError != null)
-            _SendErrorTo(nextError, context, parents);
+				_SendErrorTo(nextError, context, parents);
         }
 
         /// <summary>

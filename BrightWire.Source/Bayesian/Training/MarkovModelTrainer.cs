@@ -23,23 +23,25 @@ namespace BrightWire.Bayesian.Training
 
         public void Add(IEnumerable<T> items)
         {
-            List<T> tempList;
-            if (!items.Any())
-                return;
-
+			var foundInput = false;
             T prevPrev = default(T), prev = default(T);
             foreach (var item in items) {
                 var head = (prevPrev, prev);
-                if (!_data.TryGetValue(head, out tempList))
+                if (!_data.TryGetValue(head, out var tempList))
                     _data.Add(head, tempList = new List<T>());
                 tempList.Add(item);
                 prevPrev = prev;
                 prev = item;
+	            foundInput = true;
             }
-            var last = (prevPrev, prev);
-            if (!_data.TryGetValue(last, out tempList))
-                _data.Add(last, tempList = new List<T>());
-            tempList.Add(default(T));
+
+	        if (foundInput)
+	        {
+		        var last = (prevPrev, prev);
+		        if (!_data.TryGetValue(last, out var tempList))
+			        _data.Add(last, tempList = new List<T>());
+		        tempList.Add(default(T));
+	        }
         }
 
         public MarkovModel2<T> Build()
@@ -98,24 +100,26 @@ namespace BrightWire.Bayesian.Training
 
         public void Add(IEnumerable<T> items)
         {
-            List<T> tempList;
-            if (!items.Any())
-                return;
-
+            var foundInput = false;
             T prevPrevPrev = default(T), prevPrev = default(T), prev = default(T);
             foreach (var item in items) {
                 var head = (prevPrevPrev, prevPrev, prev);
-                if (!_data.TryGetValue(head, out tempList))
+                if (!_data.TryGetValue(head, out var tempList))
                     _data.Add(head, tempList = new List<T>());
                 tempList.Add(item);
                 prevPrevPrev = prevPrev;
                 prevPrev = prev;
                 prev = item;
+				foundInput = true;
             }
-            var last = (prevPrevPrev, prevPrev, prev);
-            if (!_data.TryGetValue(last, out tempList))
-                _data.Add(last, tempList = new List<T>());
-            tempList.Add(default(T));
+
+	        if (foundInput)
+	        {
+		        var last = (prevPrevPrev, prevPrev, prev);
+		        if (!_data.TryGetValue(last, out var tempList))
+			        _data.Add(last, tempList = new List<T>());
+		        tempList.Add(default(T));
+	        }
         }
 
         public MarkovModel3<T> Build()

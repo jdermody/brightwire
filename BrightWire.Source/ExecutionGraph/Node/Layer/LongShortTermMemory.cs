@@ -126,14 +126,14 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             else
                 _memory.Data = memory;
 
-            var Wf = _input.FindByName("Wf") as FeedForward;
-            var Wi = _input.FindByName("Wi") as FeedForward;
-            var Wo = _input.FindByName("Wo") as FeedForward;
-            var Wc = _input.FindByName("Wc") as FeedForward;
-            var Uf = _memory.FindByName("Uf") as FeedForward;
-            var Ui = _memory.FindByName("Ui") as FeedForward;
-            var Uo = _memory.FindByName("Uo") as FeedForward;
-            var Uc = _memory.FindByName("Uc") as FeedForward;
+            var Wf = (FeedForward)_input.FindByName("Wf");
+            var Wi = (FeedForward)_input.FindByName("Wi");
+            var Wo = (FeedForward)_input.FindByName("Wo");
+            var Wc = (FeedForward)_input.FindByName("Wc");
+            var Uf = (FeedForward)_memory.FindByName("Uf");
+            var Ui = (FeedForward)_memory.FindByName("Ui");
+            var Uo = (FeedForward)_memory.FindByName("Uo");
+            var Uc = (FeedForward)_memory.FindByName("Uc");
 
             Wf.ReadFrom(factory, reader);
             Wi.ReadFrom(factory, reader);

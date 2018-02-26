@@ -10,6 +10,7 @@
 Bright Wire - http://www.jackdermody.net/brightwire
 Copyright (c) Jack Dermody - Open Source MIT License
 
+PLEASE MAKE SURE THAT YOU CHOOSE THE X64 PLATFORM WHEN BUILDING!
 
 This assembly provides a CUDA based linear alegbra provider so that Bright Wire can run on the GPU.
 
