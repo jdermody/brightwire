@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using BrightWire.ExecutionGraph.Helper;
 
 namespace BrightWire
 {
@@ -207,5 +208,32 @@ namespace BrightWire
                     return vector1.MeanSquaredDistance(vector2);
             }
         }
+
+		/// <summary>
+		/// Converts the matrix to a generic IGraphData
+		/// </summary>
+		/// <param name="matrix">Matrix to convert</param>
+	    public static IGraphData AsGraphData(this IMatrix matrix)
+	    {
+		    return new MatrixGraphData(matrix);
+	    }
+
+		/// <summary>
+		/// Converts the 3D tensor to a generic IGraphData
+		/// </summary>
+		/// <param name="tensor">Tensor to convert</param>
+	    public static IGraphData AsGraphData(this I3DTensor tensor)
+	    {
+		    return new Tensor3DGraphData(tensor);
+	    }
+
+		/// <summary>
+		/// COnverts the 4D tensor to a generic IGraphData
+		/// </summary>
+		/// <param name="tensor">Tensor to convert</param>
+	    public static IGraphData AsGraphData(this I4DTensor tensor)
+	    {
+		    return new Tensor4DGraphData(tensor);
+	    }
     }
 }
