@@ -111,7 +111,7 @@ namespace BrightWire.LinearAlgebra
         {
             var ret = new List<IMatrix>();
             for (var i = 0; i < Count; i++) {
-                var result = GetTensorAt(i).ReverseIm2Col(filter, inputHeight, inputWidth, inputDepth,padding, filterHeight, filterWidth, stride);
+                var result = GetTensorAt(i).ReverseIm2Col(filter, inputHeight, inputWidth, inputDepth, padding, filterHeight, filterWidth, stride);
                 ret.Add(result);
             }
             return new Cpu3DTensor(ret);

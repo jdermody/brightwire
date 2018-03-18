@@ -23,8 +23,9 @@ namespace BrightWire.ExecutionGraph.Node.Operation
             {
                 var es = errorSignal.GetMatrix();
                 using (var oneHalf = context.LinearAlgebraProvider.CreateMatrix(es.RowCount, es.ColumnCount, 0.5f))
-                using (var delta = oneHalf.PointwiseDivide(_output))
-                    return errorSignal.ReplaceWith(es.PointwiseMultiply(delta));
+				using (var sqrt = es.Sqrt(1e-8f))
+                using (var delta = oneHalf.PointwiseMultiply(sqrt))
+                    return errorSignal.ReplaceWith(delta);
             }
         }
         public SquareRootOfInput(string name = null) : base(name)

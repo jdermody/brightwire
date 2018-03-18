@@ -1016,6 +1016,13 @@ namespace BrightWire.ExecutionGraph
 			/// <param name="name"></param>
 			/// <returns></returns>
 			public INode SquareRootOf(string name = null) => new SquareRootOfInput(name);
+
+			/// <summary>
+			/// Caclculates one minus graph input (1-x)
+			/// </summary>
+			/// <param name="name"></param>
+			/// <returns></returns>
+			public INode OneMinusInput(string name = null) => new OneMinusInput(name);
 		}
 
 		/// <summary>
