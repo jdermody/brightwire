@@ -635,15 +635,13 @@ extern "C"
 			float* filter = filterList[k2];
 
 			float error = slice[i * aRows + j];
-			if(error != 0) {
-				for (int fx = 0; fx < filterWidth; fx++) {
-					for (int fy = 0; fy < filterHeight; fy++) {
-						int cx = fx + x1;
-						int cy = fy + y1;
-						int filterIndex = fx * filterHeight + fy;
-						int outputRow = cx * cRows + cy;
-						output[k2 * cSize + outputRow] = filter[filterIndex] * error;
-					}
+			for (int fx = 0; fx < filterWidth; fx++) {
+				for (int fy = 0; fy < filterHeight; fy++) {
+					int cx = fx + x1;
+					int cy = fy + y1;
+					int filterIndex = fx * filterHeight + fy;
+					int outputRow = cx * cRows + cy;
+					output[k2 * cSize + outputRow] = filter[filterIndex] * error;
 				}
 			}
 		}

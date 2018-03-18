@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.3
+VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrightWire.Net4", "BrightWire.Net4\BrightWire.Net4.csproj", "{FD8AAEF6-2EDB-446C-BB19-5EBEE5CDE982}"
 EndProject
@@ -19,9 +19,13 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "BrightWire.Source", "Bright
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Documentation", "Documentation\Documentation.csproj", "{07765AC0-5060-45CC-9100-6FD1FCC96F8E}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "BrightWire.CUDA.Source", "BrightWire.CUDA.Source\BrightWire.CUDA.Source.shproj", "{ED0E6BC8-9242-4396-AD05-668F70A511A5}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		BrightWire.CUDA.Source\BrightWire.CUDA.Source.projitems*{50bcb2ab-e8ca-4974-b136-49a98d5e34cb}*SharedItemsImports = 4
 		BrightWire.Source\BrightWire.Source.projitems*{8ee466c6-a1da-4c24-ae39-f82559be16e9}*SharedItemsImports = 13
+		BrightWire.CUDA.Source\BrightWire.CUDA.Source.projitems*{ed0e6bc8-9242-4396-ad05-668f70a511a5}*SharedItemsImports = 13
 		BrightWire.Source\BrightWire.Source.projitems*{fd8aaef6-2edb-446c-bb19-5ebee5cde982}*SharedItemsImports = 4
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

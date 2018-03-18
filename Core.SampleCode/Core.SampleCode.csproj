@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\SampleCode\IntegerAddition.cs" Link="IntegerAddition.cs" />
+    <Compile Include="..\SampleCode\IrisClassification.cs" Link="IrisClassification.cs" />
+    <Compile Include="..\SampleCode\IrisClustering.cs" Link="IrisClustering.cs" />
+    <Compile Include="..\SampleCode\Linear.cs" Link="Linear.cs" />
+    <Compile Include="..\SampleCode\MarkovChains.cs" Link="MarkovChains.cs" />
+    <Compile Include="..\SampleCode\MNIST.cs" Link="MNIST.cs" />
+    <Compile Include="..\SampleCode\MNISTConvolutional.cs" Link="MNISTConvolutional.cs" />
+    <Compile Include="..\SampleCode\MultiLabel.cs" Link="MultiLabel.cs" />
+    <Compile Include="..\SampleCode\ReberPrediction.cs" Link="ReberPrediction.cs" />
+    <Compile Include="..\SampleCode\Selu.cs" Link="Selu.cs" />
+    <Compile Include="..\SampleCode\SentimentClassification.cs" Link="SentimentClassification.cs" />
+    <Compile Include="..\SampleCode\SequenceToSequence.cs" Link="SequenceToSequence.cs" />
+    <Compile Include="..\SampleCode\TextClustering.cs" Link="TextClustering.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BrightWire.CUDA.Standard\BrightWire.CUDA.Standard.csproj" />
+    <ProjectReference Include="..\BrightWire.Standard\BrightWire.Standard.csproj" />
+  </ItemGroup>
+
+</Project>

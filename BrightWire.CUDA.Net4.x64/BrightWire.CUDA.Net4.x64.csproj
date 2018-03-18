@@ -62,20 +62,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BrightWireGPUProvider.cs" />
-    <Compile Include="CudaProvider.cs" />
-    <Compile Include="Gpu3DTensor.cs" />
-    <Compile Include="Gpu4DTensor.cs" />
-    <Compile Include="GpuMatrix.cs" />
-    <Compile Include="GpuVector.cs" />
-    <Compile Include="Helper\DeviceMemory.cs" />
-    <Compile Include="Helper\DeviceMemoryPtrList.cs" />
-    <Compile Include="Helper\MatrixOutput.cs" />
-    <Compile Include="Helper\PtrToMemory.cs" />
-    <Compile Include="Helper\TensorInput.cs" />
-    <Compile Include="Helper\TensorOutput.cs" />
-    <Compile Include="Helper\ThreadSafeHashSet.cs" />
-    <Compile Include="Interface.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -98,6 +84,7 @@
     <Content Include="cuda\readme.txt" />
     <Content Include="readme.txt" />
   </ItemGroup>
+  <Import Project="..\BrightWire.CUDA.Source\BrightWire.CUDA.Source.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

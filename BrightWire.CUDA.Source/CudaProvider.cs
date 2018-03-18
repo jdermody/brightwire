@@ -816,10 +816,11 @@ namespace BrightWire.LinearAlgebra
             var newRows = inputWidth + padding * 2;
             var newSize = newColumns * newRows;
             var depth = tensor.Depth;
+	        var filterCount = filterList.Count;
 
             var ret = new TensorOutput(this, newRows * newColumns, inputDepth, depth, count, true);
             var filterList2 = new List<CudaDeviceVariable<CUdeviceptr>>();
-            for (var i = 0; i < depth; i++) {
+            for (var i = 0; i < filterCount; i++) {
                 var filters = filterList[i];
                 var filterDevicePtr = new CudaDeviceVariable<CUdeviceptr>(inputDepth);
                 filterDevicePtr.CopyToDevice(filters.Select(m => m.DevicePointer).ToArray());
@@ -827,7 +828,7 @@ namespace BrightWire.LinearAlgebra
             }
             using (var output = ret.GetDeviceMemoryPtr())
             using (var input = tensor.GetDeviceMemoryPtr())
-            using (var filterDevicePtr = new CudaDeviceVariable<CUdeviceptr>(depth)) {
+            using (var filterDevicePtr = new CudaDeviceVariable<CUdeviceptr>(filterCount)) {
                 filterDevicePtr.CopyToDevice(filterList2.Select(m => m.DevicePointer).ToArray());
                 _Use(_tensorReverseIm2Col, rows * depth * inputDepth * count, columns, k => k.Run(0, 
                     input.DevicePointer, 

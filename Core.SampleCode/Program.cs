@@ -1,11 +1,16 @@
-﻿using BrightWire.ExecutionGraph;
-using BrightWire.TrainingData.Artificial;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using BrightWire;
+using BrightWire.ExecutionGraph;
+using BrightWire.Models;
+using BrightWire.TrainingData.Artificial;
+using BrightWire.TrainingData.WellKnown;
+using MathNet.Numerics;
 
 namespace BrightWire.SampleCode
 {
-    partial class Program
+    public partial class Program
     {
         public static void XOR()
         {
@@ -75,34 +80,34 @@ namespace BrightWire.SampleCode
 
         static void Main(string[] args)
         {
-	        // base path to a directory on your computer with training files
+			// base path to a directory on your computer with training files
 	        const string DataBasePath = @"c:\data\";
 
-	        // base path to a directory on your computer to store model files
-	        const string ModelBasePath = @"c:\temp\";
+			// base path to a directory on your computer to store model files
+			const string ModelBasePath = @"c:\temp\";
 
-	        // uncomment to use the (faster) native MKL provider if available
-	        // Control.UseNativeMKL();
+			// uncomment to use the (faster) native MKL provider if available
+			// Control.UseNativeMKL();
 
-	        XOR();
-	        //IrisClassification();
-	        //IrisClustering();
-	        //MarkovChains();
-	        //MNIST(DataBasePath + @"mnist\");
-	        //MNISTConvolutional(DataBasePath + @"mnist\"/*, ModelBasePath + @"mnist.dat"*/);
-	        //SentimentClassification(DataBasePath + @"sentiment labelled sentences\");
-	        //TextClustering(DataBasePath + @"[UCI] AAAI-14 Accepted Papers - Papers.csv", ModelBasePath);
-	        //IntegerAddition();
-	        //ReberPrediction();
-	        //OneToMany();
-	        //ManyToOne();
-	        //SequenceToSequence();
-	        //TrainWithSelu(DataBasePath + @"iris.data");
-	        //SimpleLinearTest();
-	        //PredictBicyclesWithLinearModel(DataBasePath + @"bikesharing\hour.csv");
-	        //PredictBicyclesWithNeuralNetwork(DataBasePath + @"bikesharing\hour.csv");
-	        //MultiLabelSingleClassifier(DataBasePath + @"emotions\emotions.arff");
-	        //MultiLabelMultiClassifiers(DataBasePath + @"emotions\emotions.arff");
+			XOR();
+			//IrisClassification();
+			//IrisClustering();
+			//MarkovChains();
+			//MNIST(DataBasePath + @"mnist\");
+			//MNISTConvolutional(DataBasePath + @"mnist\"/*, ModelBasePath + @"mnist.dat"*/);
+			//SentimentClassification(DataBasePath + @"sentiment labelled sentences\");
+			//TextClustering(DataBasePath + @"[UCI] AAAI-14 Accepted Papers - Papers.csv", ModelBasePath);
+			//IntegerAddition();
+			//ReberPrediction();
+			//OneToMany();
+			//ManyToOne();
+			//SequenceToSequence();
+			//TrainWithSelu(DataBasePath + @"iris.data");
+			//SimpleLinearTest();
+			//PredictBicyclesWithLinearModel(DataBasePath + @"bikesharing\hour.csv");
+			//PredictBicyclesWithNeuralNetwork(DataBasePath + @"bikesharing\hour.csv");
+			//MultiLabelSingleClassifier(DataBasePath + @"emotions\emotions.arff");
+			//MultiLabelMultiClassifiers(DataBasePath + @"emotions\emotions.arff");
 		}
     }
 }
