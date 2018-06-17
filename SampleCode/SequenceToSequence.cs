@@ -11,7 +11,7 @@ namespace BrightWire.SampleCode
     {
         static void OneToMany()
         {
-            var grammar = new SequenceClassification(dictionarySize: 10, minSize: 5, maxSize: 5, noRepeat: true, isStochastic: false);
+            var grammar = new SequenceGenerator(dictionarySize: 10, minSize: 5, maxSize: 5, noRepeat: true, isStochastic: false);
             var sequences = grammar.GenerateSequences().Take(1000).ToList();
             var builder = BrightWireProvider.CreateDataTableBuilder();
             builder.AddColumn(ColumnType.Vector, "Summary");
@@ -73,7 +73,7 @@ namespace BrightWire.SampleCode
 
         static void ManyToOne()
         {
-            var grammar = new SequenceClassification(dictionarySize: 10, minSize: 5, maxSize: 5, noRepeat: true, isStochastic: false);
+            var grammar = new SequenceGenerator(dictionarySize: 16, minSize: 3, maxSize: 6, noRepeat: true, isStochastic: false);
             var sequences = grammar.GenerateSequences().Take(1000).ToList();
             var builder = BrightWireProvider.CreateDataTableBuilder();
             builder.AddColumn(ColumnType.Matrix, "Sequence");
@@ -84,10 +84,11 @@ namespace BrightWire.SampleCode
                 var charSet = new HashSet<char>();
                 foreach (var ch in sequence) {
                     charSet.Add(ch);
-                    var row = grammar.Encode(charSet.Select(ch2 => (ch2, 1f)));
-                    list.Add(row);
+                    list.Add(grammar.Encode(ch));
                 }
-                builder.Add(FloatMatrix.Create(list.ToArray()), list.Last());
+
+	            var target = grammar.Encode(charSet.Select(ch2 => (ch2, 1f)));
+                builder.Add(FloatMatrix.Create(list.ToArray()), target);
             }
             var data = builder.Build().Split(0);
 
@@ -110,14 +111,14 @@ namespace BrightWire.SampleCode
                 const int HIDDEN_LAYER_SIZE = 128;
                 var memory = new float[HIDDEN_LAYER_SIZE];
                 var network = graph.Connect(engine)
-                    .AddLstm(memory)
+                    .AddGru(memory)
                     //.AddSimpleRecurrent(graph.ReluActivation(), memory)
                     .AddFeedForward(engine.DataSource.OutputSize)
                     .Add(graph.SigmoidActivation())
                     .AddBackpropagationThroughTime(errorMetric)
                 ;
 
-                engine.Train(10, testData, errorMetric);
+                engine.Train(20, testData, errorMetric);
 
                 var networkGraph = engine.Graph;
                 var executionEngine = graph.CreateEngine(networkGraph);
@@ -130,7 +131,7 @@ namespace BrightWire.SampleCode
         static void SequenceToSequence()
         {
             const int SEQUENCE_LENGTH = 5;
-            var grammar = new SequenceClassification(8, SEQUENCE_LENGTH, SEQUENCE_LENGTH, true, false);
+            var grammar = new SequenceGenerator(8, SEQUENCE_LENGTH, SEQUENCE_LENGTH, true, false);
             var sequences = grammar.GenerateSequences().Take(2000).ToList();
             var builder = BrightWireProvider.CreateDataTableBuilder();
             builder.AddColumn(ColumnType.Matrix, "Input");
