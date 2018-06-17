@@ -9,7 +9,7 @@ namespace BrightWire.TrainingData.Artificial
     /// <summary>
     /// Generates random alphabetical sequences
     /// </summary>
-    public class SequenceClassification
+    public class SequenceGenerator
     {
         readonly int _dictionarySize;
         readonly int _minSize, _maxSize;
@@ -19,7 +19,7 @@ namespace BrightWire.TrainingData.Artificial
         static char[] _dictionary;
         static Dictionary<char, int> _charTable;
 
-        static SequenceClassification()
+        static SequenceGenerator()
         {
             _dictionary = Enumerable.Range(0, 26 * 2)
                 .Select(i => (i < 26) ? (char)('A' + i) : (char)('a' + i - 26))
@@ -39,7 +39,7 @@ namespace BrightWire.TrainingData.Artificial
         /// <param name="maxSize">The maximum size of each sequence</param>
         /// <param name="noRepeat">True to avoid repeating any previous character within each sequence</param>
         /// <param name="isStochastic">True to generate different sequences each time</param>
-        public SequenceClassification(int dictionarySize, int minSize, int maxSize, bool noRepeat = true, bool isStochastic = true)
+        public SequenceGenerator(int dictionarySize, int minSize, int maxSize, bool noRepeat = true, bool isStochastic = true)
         {
             _rnd = isStochastic ? new Random() : new Random(0);
             _noRepeat = noRepeat;

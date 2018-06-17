@@ -195,7 +195,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)TrainingData\Artificial\BinaryIntegers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TrainingData\Artificial\Or.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TrainingData\Artificial\ReberGrammar.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)TrainingData\Artificial\SequenceClassification.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TrainingData\Artificial\SequenceGenerator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TrainingData\Artificial\Xor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TrainingData\Helper\BigEndianBinaryReader.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TrainingData\Helper\SequenceWindowBuilder.cs" />
