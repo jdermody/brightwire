@@ -68,7 +68,7 @@ namespace BrightWire.Models.DataTable
             /// <returns>The normalused input value</returns>
             public object Normalise(double val)
             {
-                var ret = (val - Subtract) / Divide;
+                var ret = (Divide == 0) ? val : (val - Subtract) / Divide;
 
                 switch (DataType) {
                     case ColumnType.Float:
