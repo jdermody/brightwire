@@ -18,7 +18,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         readonly Dictionary<INode, List<IGraphData>> _nodeErrorSignal = new Dictionary<INode, List<IGraphData>>();
         INode _sourceNode;
         IGraphData _errorSignal = null, _data;
-        double _trainingError = 0;
+        double? _trainingError;
 
         public TrainingEngineContext(IExecutionContext executionContext, IMiniBatchSequence miniBatch, ILearningContext learningContext)
         {
@@ -59,7 +59,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public ILearningContext LearningContext => _learningContext;
         public IMiniBatchSequence BatchSequence => _miniBatch;
         public bool HasNext => _forward.Any();
-        public double TrainingError => _trainingError;
+        public double? TrainingError => _trainingError;
         public INode Source => _sourceNode;
         public IGraphData ErrorSignal => _errorSignal;
         public IGraphData Data => _data;

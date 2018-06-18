@@ -13,7 +13,7 @@ namespace BrightWire.ExecutionGraph.Engine
     /// </summary>
     class TrainingEngine : EngineBase, IGraphTrainingEngine
     {
-        readonly List<(IMiniBatchSequence Sequence, double TrainingError, FloatMatrix Output)> _executionResults = new List<(IMiniBatchSequence Sequence, double TrainingError, FloatMatrix Output)>();
+        readonly List<(IMiniBatchSequence Sequence, double? TrainingError, FloatMatrix Output)> _executionResults = new List<(IMiniBatchSequence Sequence, double? TrainingError, FloatMatrix Output)>();
         readonly List<IContext> _contextList = new List<IContext>();
         readonly ILearningContext _learningContext;
         readonly IReadOnlyList<INode> _input;
@@ -109,10 +109,11 @@ namespace BrightWire.ExecutionGraph.Engine
 
             double ret = 0, count = 0;
             foreach (var item in _executionResults) {
-                if (item.TrainingError > 0) {
-                    ret += item.TrainingError;
-                    ++count;
-                }
+	            if (item.TrainingError.HasValue)
+	            {
+		            ret += item.TrainingError.Value;
+		            ++count;
+	            }
             }
             if (count > 0)
                 ret /= count;
