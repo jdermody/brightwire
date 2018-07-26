@@ -19,6 +19,7 @@ namespace BrightWire.LinearAlgebra
     {
         const int BLOCK_DIM = 16;
         const int BLOCK_DIM2 = BLOCK_DIM * BLOCK_DIM;
+	    const int PTR_SIZE = 8;
 
         class KernelExecution
         {
@@ -425,10 +426,10 @@ namespace BrightWire.LinearAlgebra
                         _Use(_findMinAndMax, size, k => k.Run(BLOCK_DIM2, ptr.DevicePointer, size, minBlock.DevicePointer, maxBlock.DevicePointer));
                         if (ptr != a)
                             ptr.Free();
-                        var minTest = new float[bufferSize];
-                        var maxText = new float[bufferSize];
-                        minBlock.CopyToHost(minTest);
-                        maxBlock.CopyToHost(maxText);
+                        //var minTest = new float[bufferSize];
+                        //var maxText = new float[bufferSize];
+                        //minBlock.CopyToHost(minTest);
+                        //maxBlock.CopyToHost(maxText);
                         size = bufferSize * 2;
                         ptr = Allocate(size);
                         ptr.DeviceVariable.CopyToDevice(minBlock.DeviceVariable, 0, 0, bufferSize * sizeof(float));
@@ -586,14 +587,14 @@ namespace BrightWire.LinearAlgebra
         internal IDeviceMemoryPtr MultiEuclideanDistance(IDeviceMemoryPtr vector, CUdeviceptr[] compareTo, int size)
         {
             IDeviceMemoryPtr ret = null;
-            var buffer = _cuda.AllocateMemory(8 * compareTo.Length);
+            var buffer = Allocate(PTR_SIZE * compareTo.Length);
             try {
-                _cuda.CopyToDevice(buffer, compareTo);
+                _cuda.CopyToDevice(buffer.DevicePointer, compareTo);
                 ret = Allocate(size * compareTo.Length);
-                _Use(_multiEuclidean, size, compareTo.Length, k => k.Run(0, vector.DevicePointer, buffer, ret.DevicePointer, size, compareTo.Length));
+                _Use(_multiEuclidean, size, compareTo.Length, k => k.Run(0, vector.DevicePointer, buffer.DevicePointer, ret.DevicePointer, size, compareTo.Length));
             }
             finally {
-                _cuda.FreeMemory(buffer);
+	            buffer.Free();
             }
             return ret;
         }
@@ -601,14 +602,14 @@ namespace BrightWire.LinearAlgebra
         internal IDeviceMemoryPtr MultiManhattanDistance(IDeviceMemoryPtr vector, CUdeviceptr[] compareTo, int size)
         {
             IDeviceMemoryPtr ret = null;
-            var buffer = _cuda.AllocateMemory(8 * compareTo.Length);
+            var buffer = Allocate(PTR_SIZE * compareTo.Length);
             try {
-                _cuda.CopyToDevice(buffer, compareTo);
+                _cuda.CopyToDevice(buffer.DevicePointer, compareTo);
                 ret = Allocate(size * compareTo.Length);
-                _Use(_multiManhattan, size, compareTo.Length, k => k.Run(0, vector.DevicePointer, buffer, ret.DevicePointer, size, compareTo.Length));
+                _Use(_multiManhattan, size, compareTo.Length, k => k.Run(0, vector.DevicePointer, buffer.DevicePointer, ret.DevicePointer, size, compareTo.Length));
             }
             finally {
-                _cuda.FreeMemory(buffer);
+	            buffer.Free();
             }
             return ret;
         }
