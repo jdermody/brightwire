@@ -611,10 +611,25 @@ extern "C"
 		}
 	}
 
-	__global__ void TensorReverseIm2Col(float*** a, float*** b, float*** c, int count, int aRows, int aColumns, int depth, int cRows, int cSize, int inputDepth, int filterHeight, int filterWidth, int stride)
+	__global__ void TensorReverseIm2Col(
+        float*** a, 
+        float*** b, 
+        float*** c, 
+        int count, 
+        int aRows, 
+        int aColumns, 
+        int depth, 
+        int cRows, 
+        int cSize, 
+        int inputDepth, 
+        int filterHeight, 
+        int filterWidth, 
+        int stride
+    )
 	{
 		int index = blockDim.x * blockIdx.x + threadIdx.x;
 		int j = blockDim.y * blockIdx.y + threadIdx.y;
+        int cCols = cSize / cRows;
 
 		int mx = aRows * depth;
 		int mx2 = mx * inputDepth;
@@ -640,7 +655,7 @@ extern "C"
 					int cx = fx + x1;
 					int cy = fy + y1;
 					int filterIndex = fx * filterHeight + fy;
-					int outputRow = cx * cRows + cy;
+					int outputRow = cx * cCols + cy;
 					output[k2 * cSize + outputRow] = filter[filterIndex] * error;
 				}
 			}
