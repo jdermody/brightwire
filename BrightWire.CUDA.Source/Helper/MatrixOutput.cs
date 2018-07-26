@@ -1,7 +1,6 @@
 ﻿using BrightWire.LinearAlgebra;
 using ManagedCuda;
 using ManagedCuda.BasicTypes;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -13,14 +12,12 @@ namespace BrightWire.Cuda.Helper
     class MatrixOutput
     {
         readonly List<IMatrix> _data = new List<IMatrix>();
-        readonly int _rows, _columns;
-        readonly CUdeviceptr[] _ptr;
+	    readonly CUdeviceptr[] _ptr;
 
         public MatrixOutput(CudaProvider cuda, int rows, int columns, int count, bool setToZero)
         {
-            //_cuda = cuda;
-            _rows = rows;
-            _columns = columns;
+            Rows = rows;
+            Columns = columns;
 
             for (var i = 0; i < count; i++) {
                 _data.Add(setToZero
@@ -37,9 +34,11 @@ namespace BrightWire.Cuda.Helper
                 item.Dispose();
         }
 
-        public int Rows => _rows;
-        public int Columns => _columns;
-        public int Count => _data.Count;
+        public int Rows { get; }
+
+	    public int Columns { get; }
+
+	    public int Count => _data.Count;
 
         internal CudaDeviceVariable<CUdeviceptr> GetDeviceMemoryPtr()
         {

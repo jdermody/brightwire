@@ -9,22 +9,21 @@ namespace BrightWire.Cuda.Helper
     class TensorInput
     {
         readonly IReadOnlyList<IReadOnlyList<IDeviceMemoryPtr>> _data;
-        readonly int _depth, _rows, _columns;
 
-        public TensorInput(int rows, int columns, IReadOnlyList<IReadOnlyList<IDeviceMemoryPtr>> data)
+	    public TensorInput(int rows, int columns, IReadOnlyList<IReadOnlyList<IDeviceMemoryPtr>> data)
         {
             _data = data;
             var first = data.First();
-            _depth = first.Count;
-            _rows = rows;
-            _columns = columns;
+            Depth = first.Count;
+            Rows = rows;
+            Columns = columns;
         }
 
         public int Count => _data.Count;
-        public int Depth => _depth;
-        public int Rows => _rows;
-        public int Columns => _columns;
-        public int MatrixSize => _rows * _columns;
+        public int Depth { get; }
+	    public int Rows { get; }
+	    public int Columns { get; }
+	    public int MatrixSize => Rows * Columns;
 
         internal DeviceMemoryPtrList GetDeviceMemoryPtr() => new DeviceMemoryPtrList(_data);
         internal IReadOnlyList<IDeviceMemoryPtr> Single() => _data.Single();

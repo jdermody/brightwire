@@ -1,5 +1,4 @@
 ﻿using BrightWire.LinearAlgebra;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -13,16 +12,15 @@ namespace BrightWire.Cuda.Helper
     {
         readonly CudaProvider _cuda;
         readonly IMatrix _data;
-        readonly int _rows, _columns, _depth, _count;
-        readonly List<IDeviceMemoryPtr[]> _ptr = new List<IDeviceMemoryPtr[]>();
+	    readonly List<IDeviceMemoryPtr[]> _ptr = new List<IDeviceMemoryPtr[]>();
 
         public TensorOutput(CudaProvider cuda, int rows, int columns, int depth, int count, bool setToZero)
         {
             _cuda = cuda;
-            _rows = rows;
-            _columns = columns;
-            _depth = depth;
-            _count = count;
+            Rows = rows;
+            Columns = columns;
+            Depth = depth;
+            Count = count;
 
             // allocate space for the output
             _data = setToZero
@@ -42,31 +40,31 @@ namespace BrightWire.Cuda.Helper
             _data.Dispose();
         }
 
-        public int Rows => _rows;
-        public int Columns => _columns;
-        public int Depth => _depth;
-        public int Count => _count;
+        public int Rows { get; }
+	    public int Columns { get; }
+	    public int Depth { get; }
+	    public int Count { get; }
 
-        internal DeviceMemoryPtrList GetDeviceMemoryPtr() => new DeviceMemoryPtrList(_ptr);
+	    internal DeviceMemoryPtrList GetDeviceMemoryPtr() => new DeviceMemoryPtrList(_ptr);
 
         public I3DTensor Single()
         {
-            Debug.Assert(_count == 1);
+            Debug.Assert(Count == 1);
             return GetAt(0);
         }
         public I3DTensor GetAt(int index)
         {
             var matrixList = _data.Column(index)
-                .Split(_depth)
-                .Select(v => v.ConvertInPlaceToMatrix(_rows, _columns))
+                .Split(Depth)
+                .Select(v => v.ConvertInPlaceToMatrix(Rows, Columns))
                 .Cast<GpuMatrix>()
                 .ToList()
             ;
-            return new Gpu3DTensor(_cuda, _rows, _columns, _depth, matrixList);
+            return new Gpu3DTensor(_cuda, Rows, Columns, Depth, matrixList);
         }
         public I4DTensor GetAsTensor()
         {
-            return new Gpu4DTensor(_cuda, _data, _rows, _columns, _depth);
+            return new Gpu4DTensor(_cuda, _data, Rows, Columns, Depth);
         }
     }
 }

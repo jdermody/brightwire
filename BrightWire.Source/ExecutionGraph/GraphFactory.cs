@@ -231,7 +231,7 @@ namespace BrightWire.ExecutionGraph
         }
 
         /// <summary>
-        /// Creates a data source from a list of matrices (sequential vectors)
+        /// Creates a data source from a list of tensors
         /// </summary>
         /// <param name="tensorList">The list of tensors that will be the rows in the data source</param>
         /// <returns></returns>
