@@ -17,9 +17,9 @@ namespace BrightWire.Unsupervised
             {
                 readonly List<IVector> _data = new List<IVector>();
                 public IVector Current { get; private set; }
-                public IReadOnlyList<IVector> Data { get { return _data; } }
+                public IReadOnlyList<IVector> Data => _data;
 
-                public Centroid(IVector data)
+	            public Centroid(IVector data)
                 {
                     _data.Add(data);
                     Current = data.Clone();
@@ -135,7 +135,7 @@ namespace BrightWire.Unsupervised
                 foreach(var item in data2) {
                     using (var distance = _cluster.CalculateDistance(item, _distanceMetric)) {
                         var minIndex = distance.MinimumIndex();
-                        probabilityList.Add(distance.AsIndexable()[minIndex]);
+                        probabilityList.Add(distance.GetAt(minIndex));
                     }
                 }
                 var distribution = new Categorical(probabilityList.ToArray());
@@ -171,12 +171,6 @@ namespace BrightWire.Unsupervised
             }
         }
 
-        public IReadOnlyList<IReadOnlyList<IVector>> Clusters
-        {
-            get
-            {
-                return _cluster.GetClusters();
-            }
-        }
+        public IReadOnlyList<IReadOnlyList<IVector>> Clusters => _cluster.GetClusters();
     }
 }

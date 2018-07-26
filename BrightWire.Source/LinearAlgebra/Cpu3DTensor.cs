@@ -3,7 +3,10 @@ using BrightWire.Models;
 using MathNet.Numerics.LinearAlgebra.Single;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Text;
+using System.Xml;
 
 namespace BrightWire.LinearAlgebra
 {
@@ -71,7 +74,7 @@ namespace BrightWire.LinearAlgebra
         }
 
         public IReadOnlyList<IIndexableMatrix> Matrix => _data;
-        public int Depth => _data.Length;
+	    public int Depth => _data.Length;
         public int RowCount => _rows;
         public int ColumnCount => _columns;
         public IMatrix GetMatrixAt(int depth) => _data[depth];
@@ -310,27 +313,27 @@ namespace BrightWire.LinearAlgebra
                 .ToList()
             ;
 
-            for (var k = 0; k < Depth; k++) {
-                var slice = GetMatrixAt(k).AsIndexable();
-                var filterList = filters[k].Select(f => f.AsIndexable()).ToList();
-                var output = ret[k];
+			for (var k = 0; k < Depth; k++) {
+				var slice = GetMatrixAt(k).AsIndexable();
+				var filterList = filters[k].Select(f => f.AsIndexable()).ToList();
+				var output = ret[k];
 
-                foreach (var convolution in convolutions) {
-                    var first = convolution.First();
-                    var error = slice[first.X / stride, first.Y / stride];
-                    foreach (var item in convolution) {
-                        var fx = item.X - first.X;
-                        var fy = item.Y - first.Y;
-                        var filterIndex = fx * filterHeight + fy;
-                        var outputRow = item.X * columns + item.Y;
-                        for (var z = 0; z < inputDepth; z++) {
-                            var filter = filterList[z];
-                            output[outputRow, z] = filter[filterIndex] * error;
-                        }
-                    }
-                }
-            }
-            if (ret.Count > 1) {
+				foreach (var convolution in convolutions) {
+					var first = convolution.First();
+					var error = slice[first.X / stride, first.Y / stride];
+					foreach (var item in convolution) {
+						var fx = item.X - first.X;
+						var fy = item.Y - first.Y;
+						var filterIndex = fx * filterHeight + fy;
+						var outputRow = item.X * columns + item.Y;
+						for (var z = 0; z < inputDepth; z++) {
+							var filter = filterList[z];
+							output[outputRow, z] = filter[filterIndex] * error;
+						}
+					}
+				}
+			}
+			if (ret.Count > 1) {
                 var ret2 = DenseMatrix.Create(columns * rows, inputDepth, 0f);
                 foreach (var item in ret)
                     ret2 = (DenseMatrix)ret2.Add(item);
@@ -379,5 +382,24 @@ namespace BrightWire.LinearAlgebra
             }
             return new Cpu3DTensor(ret);
         }
+
+	    public string AsXml
+	    {
+		    get
+		    {
+			    var ret = new StringBuilder();
+			    var settings = new XmlWriterSettings {
+				    OmitXmlDeclaration = true
+			    };
+			    using (var writer = XmlWriter.Create(new StringWriter(ret), settings)) {
+				    writer.WriteStartElement("tensor");
+				    foreach(var matrix in _data) {
+					    writer.WriteRaw(matrix.AsXml);
+				    }
+				    writer.WriteEndElement();
+			    }
+			    return ret.ToString();
+		    }
+	    }
     }
 }

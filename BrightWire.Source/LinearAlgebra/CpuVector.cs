@@ -16,9 +16,9 @@ namespace BrightWire.LinearAlgebra
     {
         readonly Vector<float> _vector;
 
-        public bool IsValid { get { return true; } }
+        public bool IsValid => true;
 
-        public CpuVector(DenseVector vector)
+	    public CpuVector(DenseVector vector)
         {
             _vector = vector;
         }
@@ -431,5 +431,10 @@ namespace BrightWire.LinearAlgebra
             var len = Count - 1;
             return new CpuVector(DenseVector.Create(Count, i => this[len - i]));
         }
+
+	    public float GetAt(int index)
+	    {
+		    return _vector[index];
+	    }
     }
 }

@@ -121,16 +121,17 @@ namespace BrightWire
             }
         }
 
-        /// <summary>
-        /// K Means uses coordinate descent and the euclidean distance between randomly selected centroids to cluster the data
-        /// </summary>
-        /// <param name="data">The list of vectors to cluster</param>
-        /// <param name="k">The number of clusters to find</param>
-        /// <param name="maxIterations">The maximum number of iterations</param>
-        /// <returns>A list of k clusters</returns>
-        public static IReadOnlyList<IReadOnlyList<IVector>> KMeans(this IReadOnlyList<IVector> data, int k, int maxIterations = 1000)
+	    /// <summary>
+	    /// K Means uses coordinate descent and a distance metric between randomly selected centroids to cluster the data
+	    /// </summary>
+	    /// <param name="data">The list of vectors to cluster</param>
+	    /// <param name="k">The number of clusters to find</param>
+	    /// <param name="maxIterations">The maximum number of iterations</param>
+	    /// <param name="distanceMetric">Distance metric to use to compare centroids</param>
+	    /// <returns>A list of k clusters</returns>
+	    public static IReadOnlyList<IReadOnlyList<IVector>> KMeans(this IReadOnlyList<IVector> data, int k, int maxIterations = 1000, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
         {
-            using (var clusterer = new KMeans(k, data, DistanceMetric.Euclidean)) {
+            using (var clusterer = new KMeans(k, data, distanceMetric)) {
                 clusterer.ClusterUntilConverged(maxIterations);
                 return clusterer.Clusters;
             }

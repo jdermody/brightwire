@@ -399,6 +399,13 @@ namespace BrightWire
         /// </summary>
         /// <returns></returns>
         IVector Reverse();
+
+		/// <summary>
+		/// Returns the value at the specified index
+		/// </summary>
+		/// <param name="index">The index of the vector to return</param>
+		/// <returns></returns>
+	    float GetAt(int index);
     }
 
     /// <summary>
@@ -975,6 +982,11 @@ namespace BrightWire
         /// Gets a list of the indexable matrices
         /// </summary>
         IReadOnlyList<IIndexableMatrix> Matrix { get; }
+
+	    /// <summary>
+	    /// Returns the matrix as xml
+	    /// </summary>
+	    string AsXml { get; }
     }
 
     /// <summary>

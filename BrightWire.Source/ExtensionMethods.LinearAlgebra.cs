@@ -228,7 +228,7 @@ namespace BrightWire
 	    }
 
 		/// <summary>
-		/// COnverts the 4D tensor to a generic IGraphData
+		/// Converts the 4D tensor to a generic IGraphData
 		/// </summary>
 		/// <param name="tensor">Tensor to convert</param>
 	    public static IGraphData AsGraphData(this I4DTensor tensor)
