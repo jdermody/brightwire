@@ -9,28 +9,26 @@ namespace BrightWire.ExecutionGraph.Node.Helper
     /// </summary>
     class ExecuteForwardAction : NodeBase, IHaveAction
     {
-        IAction _action;
+	    public ExecuteForwardAction(IAction action, string name = null) : base(name) { Action = action; }
 
-        public ExecuteForwardAction(IAction action, string name = null) : base(name) { _action = action; }
+        public IAction Action { get; set; }
 
-        public IAction Action => _action;
-
-        public override void ExecuteForward(IContext context)
+	    public override void ExecuteForward(IContext context)
         {
             var input = context.Data;
-            var output = _action.Execute(input, context);
+            var output = Action.Execute(input, context);
             _AddNextGraphAction(context, output ?? input, null);
         }
 
         protected override (string Description, byte[] Data) _GetInfo()
         {
-            return (_action.GetType().AssemblyQualifiedName, Encoding.UTF8.GetBytes(_action.Serialise()));
+            return (Action.GetType().AssemblyQualifiedName, Encoding.UTF8.GetBytes(Action.Serialise()));
         }
 
         protected override void _Initalise(GraphFactory factory, string description, byte[] data)
         {
-            _action = (IAction)FormatterServices.GetUninitializedObject(Type.GetType(description));
-            _action.Initialise(Encoding.UTF8.GetString(data));
+            Action = (IAction)FormatterServices.GetUninitializedObject(Type.GetType(description));
+            Action.Initialise(Encoding.UTF8.GetString(data));
         }
     }
 }

@@ -15,7 +15,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         // backward implementation from https://github.com/kevinzakka/research-paper-notes/blob/master/batch_norm.py
         class Backpropagation : SingleBackpropagationBase<BatchNormalisation>
         {
-            IMatrix _inputMinusMean, _inverseVariance, _xHat, _gamma;
+            readonly IMatrix _inputMinusMean, _inverseVariance, _xHat, _gamma;
 
             public Backpropagation(BatchNormalisation source, IMatrix inputMinusMean, IMatrix inverseVariance, IMatrix xHat, IMatrix gamma)
                 : base(source)
@@ -91,7 +91,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
             using (var matrix = weightInit.CreateWeight(1, _inputSize)) {
                 _Create(graph,
-                    gamma: lap.CreateVector(Enumerable.Repeat(1f, _inputSize)),//matrix.Row(0),
+                    gamma: lap.CreateVector(Enumerable.Repeat(1f, _inputSize)),
                     beta: lap.CreateVector(Enumerable.Repeat(0f, _inputSize)),
                     mean: lap.CreateVector(Enumerable.Repeat(0f, _inputSize)),
                     variance: lap.CreateVector(Enumerable.Repeat(1f, _inputSize))

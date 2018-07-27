@@ -12,19 +12,17 @@ namespace BrightWire.ExecutionGraph.Engine
     /// </summary>
     class ExecutionEngine : EngineBase, IGraphEngine
     {
-        readonly Models.ExecutionGraph _graph;
-        readonly List<(ExecutionEngineContext Context, IMatrix Data)> _executionResults = new List<(ExecutionEngineContext, IMatrix)>();
-        readonly INode _start;
+	    readonly List<(ExecutionEngineContext Context, IMatrix Data)> _executionResults = new List<(ExecutionEngineContext, IMatrix)>();
 
-        public ExecutionEngine(ILinearAlgebraProvider lap, Models.ExecutionGraph graph, INode start) : base(lap)
+	    public ExecutionEngine(ILinearAlgebraProvider lap, Models.ExecutionGraph graph, INode start) : base(lap)
         {
-            _graph = graph;
-            _start = start;
+            Graph = graph;
+            Start = start;
         }
 
-        public INode Start => _start;
-        public Models.ExecutionGraph Graph => _graph;
-        public IDataSource DataSource => _dataSource;
+        public INode Start { get; }
+	    public Models.ExecutionGraph Graph { get; }
+	    public IDataSource DataSource => _dataSource;
         public ILinearAlgebraProvider LinearAlgebraProvider => _lap;
 
         protected override void _ClearContextList()
@@ -77,68 +75,16 @@ namespace BrightWire.ExecutionGraph.Engine
             return ret;
         }
 
-        //public ExecutionResult Execute(float[] input)
-        //{
-        //    _lap.PushLayer();
-        //    ExecutionResult ret = null;
-        //    var provider = new MiniBatchProvider(new SingleRowDataSource(input, false, MiniBatchSequenceType.Standard, 0), false);
-        //    using (var executionContext = new ExecutionContext(_lap)) {
-        //        executionContext.Add(provider.GetMiniBatches(1, mb => _Execute(executionContext, mb)));
-
-        //        IGraphOperation operation;
-        //        while ((operation = executionContext.GetNextOperation()) != null) {
-        //            _lap.PushLayer();
-        //            operation.Execute(executionContext);
-        //            foreach (var item in _executionResults) {
-        //                ret = new ExecutionResult(item.Context.BatchSequence, item.Data.AsIndexable().Rows.Select(r => r.Data).ToList());
-        //                item.Context.Dispose();
-        //                item.Data?.Dispose();
-        //            }
-        //            _executionResults.Clear();
-        //            _lap.PopLayer();
-        //        }
-        //    }
-        //    _lap.PopLayer();
-        //    _dataSource = null;
-        //    return ret;
-        //}
-
-
-
-        //public ExecutionResult ExecuteSequential(int sequenceIndex, float[] input, IExecutionContext executionContext, MiniBatchSequenceType sequenceType)
-        //{
-        //    _lap.PushLayer();
-        //    ExecutionResult ret = null;
-        //    var provider = new MiniBatchProvider(new SingleRowDataSource(input, true, sequenceType, sequenceIndex), false);
-        //    executionContext.Add(provider.GetMiniBatches(1, mb => _Execute(executionContext, mb)));
-
-        //    IGraphOperation operation;
-        //    while ((operation = executionContext.GetNextOperation()) != null) {
-        //        _lap.PushLayer();
-        //        operation.Execute(executionContext);
-        //        foreach (var item in _executionResults) {
-        //            ret = new ExecutionResult(item.Context.BatchSequence, item.Data.AsIndexable().Rows.Select(r => r.Data).ToList());
-        //            item.Context.Dispose();
-        //            item.Data?.Dispose();
-        //        }
-        //        _executionResults.Clear();
-        //        _lap.PopLayer();
-        //    }
-        //    _lap.PopLayer();
-        //    _dataSource = null;
-        //    return ret;
-        //}
-
         protected override void _Execute(IExecutionContext executionContext, IMiniBatch batch)
         {
             var ret = new List<ExecutionEngineContext>();
             var table = new Dictionary<IMiniBatchSequence, IContext>();
 
             if (batch.IsSequential) {
-                IMiniBatchSequence curr = null;
+                IMiniBatchSequence curr;
                 while ((curr = batch.GetNextSequence()) != null) {
                     var context = new ExecutionEngineContext(executionContext, curr);
-                    _start.ExecuteForward(context, 0);
+                    Start.ExecuteForward(context, 0);
                     while (context.HasNext)
                         context.ExecuteNext();
                     ret.Add(context);
@@ -146,7 +92,7 @@ namespace BrightWire.ExecutionGraph.Engine
                 }
             } else {
                 var context = new ExecutionEngineContext(executionContext, batch.CurrentSequence);
-                _start.ExecuteForward(context, 0);
+                Start.ExecuteForward(context, 0);
 
                 while (context.HasNext)
                     context.ExecuteNext();

@@ -7,7 +7,7 @@ namespace BrightWire.Linear.Training
     /// <summary>
     /// Logistic regression with multiple possible classifications
     /// </summary>
-    internal static class MultinomialLogisticRegressionTrainner
+    static class MultinomialLogisticRegressionTrainner
     {
         public static MultinomialLogisticRegression Train(IDataTable table, ILinearAlgebraProvider lap, int trainingIterations, float trainingRate, float lambda)
         {

@@ -257,8 +257,10 @@ namespace BrightWire.LinearAlgebra
 
         public I3DTensor TransposeThisAndMultiply(I4DTensor tensor)
         {
+#if DEBUG
             var other = (Gpu4DTensor)tensor;
             Debug.Assert(tensor.Count == Depth && IsValid && other.IsValid);
+#endif
             var ret = new List<IMatrix>();
             for (var i = 0; i < tensor.Count; i++) {
                 var multiplyWith = tensor.GetTensorAt(i).ConvertToMatrix();

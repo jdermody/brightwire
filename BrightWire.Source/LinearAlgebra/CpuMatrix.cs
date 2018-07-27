@@ -15,13 +15,13 @@ namespace BrightWire.LinearAlgebra
     /// <summary>
     /// Matrix that uses the CPU based math.net numerics library
     /// </summary>
-    internal class CpuMatrix : IIndexableMatrix
+    class CpuMatrix : IIndexableMatrix
     {
         readonly Matrix<float> _matrix;
 
-        public bool IsValid { get { return true; } }
+        public bool IsValid => true;
 
-        public CpuMatrix(DenseMatrix matrix)
+	    public CpuMatrix(DenseMatrix matrix)
         {
             _matrix = matrix;
         }
@@ -56,42 +56,16 @@ namespace BrightWire.LinearAlgebra
 
         public float this[int row, int column]
         {
-            get
-            {
-                return _matrix[row, column];
-            }
-
-            set
-            {
-                _matrix[row, column] = value;
-            }
+            get => _matrix[row, column];
+	        set => _matrix[row, column] = value;
         }
 
-        public int ColumnCount
-        {
-            get
-            {
-                return _matrix.ColumnCount;
-            }
-        }
+        public int ColumnCount => _matrix.ColumnCount;
+	    public int RowCount => _matrix.RowCount;
+	    public object WrappedObject => _matrix;
+	    public IEnumerable<float> Values => _matrix.Enumerate();
 
-        public int RowCount
-        {
-            get
-            {
-                return _matrix.RowCount;
-            }
-        }
-
-        public object WrappedObject
-        {
-            get
-            {
-                return _matrix;
-            }
-        }
-
-        public IVector Column(int index)
+	    public IVector Column(int index)
         {
             return new CpuVector(_matrix.Column(index));
         }
@@ -344,15 +318,7 @@ namespace BrightWire.LinearAlgebra
             }
         }
 
-        public IEnumerable<float> Values
-        {
-            get
-            {
-                return _matrix.Enumerate();
-            }
-        }
-
-        public IMatrix GetNewMatrixFromRows(IReadOnlyList<int> rowIndexes)
+	    public IMatrix GetNewMatrixFromRows(IReadOnlyList<int> rowIndexes)
         {
             return new CpuMatrix(DenseMatrix.Create(rowIndexes.Count, ColumnCount, (x, y) => _matrix[rowIndexes[x], y]));
         }

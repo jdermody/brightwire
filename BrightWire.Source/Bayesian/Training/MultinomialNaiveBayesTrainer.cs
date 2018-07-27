@@ -14,8 +14,7 @@ namespace BrightWire.Bayesian.Training
 
         public void AddClassification(string documentClass, IndexList indexList)
         {
-            List<IndexList> temp;
-            if (!_documentClass.TryGetValue(documentClass, out temp))
+	        if (!_documentClass.TryGetValue(documentClass, out var temp))
                 _documentClass.Add(documentClass, temp = new List<IndexList>());
 
             foreach (var item in indexList.Index)

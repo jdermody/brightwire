@@ -3,16 +3,15 @@ using ManagedCuda.BasicTypes;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 
 namespace BrightWire.Cuda.Helper
 {
-    /// <summary>
-    /// Maintains a cache of available device memory
-    /// </summary>
-    class DeviceMemory : IDisposable
+	/// <summary>
+	/// Maintains a cache of available device memory
+	/// </summary>
+	class DeviceMemory : IDisposable
     {
         class Block : IDeviceMemoryPtr
         {

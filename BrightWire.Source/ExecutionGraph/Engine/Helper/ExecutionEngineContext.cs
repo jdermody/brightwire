@@ -5,7 +5,7 @@ using System.Linq;
 namespace BrightWire.ExecutionGraph.Engine.Helper
 {
     /// <summary>
-    /// Execution engien context
+    /// Execution engine context
     /// </summary>
     class ExecutionEngineContext : IContext
     {

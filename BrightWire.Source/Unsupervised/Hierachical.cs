@@ -8,17 +8,17 @@ namespace BrightWire.Unsupervised
     /// Hierachical clustering
     /// https://en.wikipedia.org/wiki/Hierarchical_clustering
     /// </summary>
-    internal class Hierachical : IDisposable
+    class Hierachical : IDisposable
     {
         class Centroid : IDisposable
         {
             readonly List<IVector> _data = new List<IVector>();
             readonly Centroid _left = null, _right = null;
 
-            public IVector Center { get; private set; }
-            public IReadOnlyList<IVector> Data { get { return _data; } }
+            public IVector Center { get; }
+            public IReadOnlyList<IVector> Data => _data;
 
-            public Centroid(IVector data)
+	        public Centroid(IVector data)
             {
                 _data.Add(data);
                 Center = data.Clone();

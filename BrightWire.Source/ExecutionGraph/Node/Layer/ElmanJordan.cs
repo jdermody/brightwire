@@ -10,7 +10,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
     /// Elman or Joran style recurrent neural network
     /// https://en.wikipedia.org/wiki/Recurrent_neural_network#Elman_networks_and_Jordan_networks
     /// </summary>
-    internal class ElmanJordan : NodeBase, IHaveMemoryNode
+    class ElmanJordan : NodeBase, IHaveMemoryNode
     {
         IReadOnlyDictionary<INode, IGraphData> _lastBackpropagation = null;
         MemoryFeeder _memory;

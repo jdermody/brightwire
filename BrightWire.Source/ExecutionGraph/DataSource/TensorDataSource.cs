@@ -8,7 +8,7 @@ namespace BrightWire.ExecutionGraph.DataSource
 {
     class TensorDataSource : IDataSource
     {
-        readonly int _inputSize, _outputSize, _rows, _columns, _depth, _matrixSize;
+        readonly int _rows, _columns, _depth, _matrixSize;
         readonly IReadOnlyList<FloatTensor> _data;
         readonly ILinearAlgebraProvider _lap;
 
@@ -18,8 +18,8 @@ namespace BrightWire.ExecutionGraph.DataSource
             _data = data;
 
             var first = data.First();
-            _inputSize = first.Size;
-            _outputSize = -1;
+            InputSize = first.Size;
+            OutputSize = -1;
             _rows = first.RowCount;
             _columns = first.ColumnCount;
             _depth = first.Depth;
@@ -27,13 +27,9 @@ namespace BrightWire.ExecutionGraph.DataSource
         }
 
         public bool IsSequential => false;
-
-        public int InputSize => _inputSize;
-
-        public int OutputSize => _outputSize;
-
-        public int InputCount => 1;
-
+        public int InputSize { get; }
+	    public int OutputSize { get; }
+	    public int InputCount => 1;
         public int RowCount => _data.Count;
 
         public IDataSource CloneWith(IDataTable dataTable)

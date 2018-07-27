@@ -11,7 +11,7 @@ namespace BrightWire.Bayesian.Training
     /// Builds markov models with a window size of 2
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal class MarkovModelTrainer2<T> : IMarkovModelTrainer2<T>, ICanSerialiseToStream
+    internal class MarkovModelTrainer2<T> : IMarkovModelTrainer2<T>
     {
         readonly Dictionary<(T, T), List<T>> _data = new Dictionary<(T, T), List<T>>();
         readonly int _minObservations;
@@ -88,7 +88,7 @@ namespace BrightWire.Bayesian.Training
         }
     }
 
-    internal class MarkovModelTrainer3<T> : IMarkovModelTrainer3<T>, ICanSerialiseToStream
+    internal class MarkovModelTrainer3<T> : IMarkovModelTrainer3<T>
     {
         readonly Dictionary<(T, T, T), List<T>> _data = new Dictionary<(T, T, T), List<T>>();
         readonly int _minObservations;

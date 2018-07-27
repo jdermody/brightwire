@@ -6,53 +6,29 @@ namespace BrightWire.TabularData.Analysis
     /// <summary>
     /// A collector that collects the frequency from a single column of a data table
     /// </summary>
-    internal class FrequencyCollector : IRowProcessor, IFrequencyColumnInfo
+    class FrequencyCollector : IRowProcessor, IFrequencyColumnInfo
     {
-        readonly int _index;
-        readonly Dictionary<string, ulong> _valueCount = new Dictionary<string, ulong>();
-        ulong _total = 0;
+	    readonly Dictionary<string, ulong> _valueCount = new Dictionary<string, ulong>();
 
-        public FrequencyCollector(int index)
+	    public FrequencyCollector(int index)
         {
-            _index = index;
+            ColumnIndex = index;
         }
 
-        public int ColumnIndex
+        public int ColumnIndex { get; }
+	    public int? NumDistinct => _valueCount.Count;
+        public IEnumerable<object> DistinctValues => _valueCount.Select(kv => kv.Key);
+        public IEnumerable<KeyValuePair<string, ulong>> Frequency => _valueCount;
+	    public ulong Total { get; set; } = 0;
+
+	    public bool Process(IRow row)
         {
-            get
-            {
-                return _index;
-            }
-        }
-
-        public int? NumDistinct { get { return _valueCount.Count; } }
-
-        public IEnumerable<object> DistinctValues
-        {
-            get
-            {
-                return _valueCount.Select(kv => kv.Key);
-            }
-        }
-
-        public IEnumerable<KeyValuePair<string, ulong>> Frequency
-        {
-            get
-            {
-                return _valueCount;
-            }
-        }
-
-        public ulong Total { get { return _total; } }
-
-        public bool Process(IRow row)
-        {
-            var val = row.GetField<string>(_index);
+            var val = row.GetField<string>(ColumnIndex);
             if (_valueCount.TryGetValue(val, out ulong count))
                 _valueCount[val] = count + 1;
             else
                 _valueCount.Add(val, 1);
-            ++_total;
+            ++Total;
             return true;
         }
     }

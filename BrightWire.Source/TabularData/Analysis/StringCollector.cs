@@ -8,7 +8,7 @@ namespace BrightWire.TabularData.Analysis
     /// </summary>
     internal class StringCollector : IRowProcessor, IStringColumnInfo
     {
-        readonly int _index, _maxDistinct;
+        readonly int _maxDistinct;
         readonly Dictionary<string, ulong> _distinct = new Dictionary<string, ulong>();
 
         int _minLength = int.MaxValue, _maxLength = int.MinValue;
@@ -17,13 +17,13 @@ namespace BrightWire.TabularData.Analysis
 
         public StringCollector(int index, int maxDistinct = 131072 * 4)
         {
-            _index = index;
+            ColumnIndex = index;
             _maxDistinct = maxDistinct;
         }
 
         public bool Process(IRow row)
         {
-            var val = row.GetField<string>(_index);
+            var val = row.GetField<string>(ColumnIndex);
             var len = val.Length;
             if (len < _minLength)
                 _minLength = len;
@@ -33,7 +33,7 @@ namespace BrightWire.TabularData.Analysis
             // add to distinct values
             if (_distinct.Count < _maxDistinct) {
                 ulong count = 0;
-                if (_distinct.TryGetValue(val, out ulong temp))
+                if (_distinct.TryGetValue(val, out var temp))
                     _distinct[val] = count = temp + 1;
                 else
                     _distinct.Add(val, count = 1);
@@ -45,7 +45,7 @@ namespace BrightWire.TabularData.Analysis
             return true;
         }
 
-        public int ColumnIndex => _index;
+        public int ColumnIndex { get; }
 	    public int MinLength => _minLength;
 	    public int MaxLength => _maxLength;
 	    public string MostCommonString => _distinct.Count < _maxDistinct ? _mode : null;

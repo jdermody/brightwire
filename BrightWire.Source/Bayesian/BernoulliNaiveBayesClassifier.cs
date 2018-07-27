@@ -9,7 +9,7 @@ namespace BrightWire.Bayesian
     /// <summary>
     /// Bernoulli naive bayes classifier
     /// </summary>
-    internal class BernoulliNaiveBayesClassifier : IIndexListClassifier
+    class BernoulliNaiveBayesClassifier : IIndexListClassifier
     {
         class Classification
         {
@@ -25,8 +25,9 @@ namespace BrightWire.Bayesian
                     included.Add(item.StringIndex);
                 _excluded = vocabulary.Where(w => !included.Contains(w)).ToList();
             }
-            public string Label { get { return _class.Label; } }
-            public double GetScore(HashSet<uint> documentSet)
+            public string Label => _class.Label;
+
+	        public double GetScore(HashSet<uint> documentSet)
             {
                 double ret = _class.Prior;
 

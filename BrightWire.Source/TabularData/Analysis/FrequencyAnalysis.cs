@@ -7,7 +7,7 @@ namespace BrightWire.TabularData.Analysis
     /// <summary>
     /// Collects frequency meta data from data tables
     /// </summary>
-    internal class FrequencyAnalysis : IRowProcessor
+    class FrequencyAnalysis : IRowProcessor
     {
         readonly List<IRowProcessor> _column = new List<IRowProcessor>();
 
@@ -32,6 +32,6 @@ namespace BrightWire.TabularData.Analysis
             return true;
         }
 
-        public IEnumerable<IColumnInfo> ColumnInfo { get { return _column.Cast<IColumnInfo>(); } }
+        public IEnumerable<IColumnInfo> ColumnInfo => _column.Cast<IColumnInfo>();
     }
 }

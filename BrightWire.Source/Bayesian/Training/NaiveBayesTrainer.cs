@@ -51,16 +51,16 @@ namespace BrightWire.Bayesian.Training
                                 Probability = list
                             });
                         }
-                    } else if (continuous != null) {
-                        var variance = continuous.Variance;
-                        if (variance.HasValue) {
-                            var mean = continuous.Mean;
-                            columnList.Add(new NaiveBayes.ContinuousGaussianColumn {
-                                ColumnIndex = continuous.ColumnIndex,
-                                Mean = mean,
-                                Variance = variance.Value
-                            });
-                        }
+                    } else {
+	                    var variance = continuous?.Variance;
+	                    if (variance != null) {
+		                    var mean = continuous.Mean;
+		                    columnList.Add(new NaiveBayes.ContinuousGaussianColumn {
+			                    ColumnIndex = continuous.ColumnIndex,
+			                    Mean = mean,
+			                    Variance = variance.Value
+		                    });
+	                    }
                     }
                 }
                 classList.Add(new NaiveBayes.ClassSummary {

@@ -11,9 +11,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
     class SequentialDataTableAdaptor : RowBasedDataTableAdaptorBase
     {
         readonly int[] _rowDepth;
-        readonly int _inputSize, _outputSize;
 
-        public SequentialDataTableAdaptor(ILinearAlgebraProvider lap, IDataTable dataTable) : base(lap, dataTable)
+	    public SequentialDataTableAdaptor(ILinearAlgebraProvider lap, IDataTable dataTable) : base(lap, dataTable)
         {
             if (_dataColumnIndex.Length > 1)
                 throw new NotImplementedException("Sequential datasets not supported with more than one input data column");
@@ -28,8 +27,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
                 if (outputMatrix.RowCount != inputMatrix.RowCount)
                     throw new ArgumentException("Rows between input and output data tables do not match");
             });
-            _inputSize = inputMatrix.ColumnCount;
-            _outputSize = outputMatrix.ColumnCount;
+            InputSize = inputMatrix.ColumnCount;
+            OutputSize = outputMatrix.ColumnCount;
         }
 
         public override IDataSource CloneWith(IDataTable dataTable)
@@ -38,9 +37,9 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         }
 
         public override bool IsSequential => true;
-        public override int InputSize => _inputSize;
-        public override int OutputSize => _outputSize;
-        public override int RowCount => _rowDepth.Length;
+        public override int InputSize { get; }
+	    public override int OutputSize { get; }
+	    public override int RowCount => _rowDepth.Length;
 
         public override IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<int> rows)
         {

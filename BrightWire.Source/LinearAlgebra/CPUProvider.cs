@@ -9,13 +9,11 @@ namespace BrightWire.LinearAlgebra
     /// <summary>
     /// Creates vectors, matrices and tensors using the CPU based math.net numerics library
     /// </summary>
-    internal class CpuProvider : ILinearAlgebraProvider
+    class CpuProvider : ILinearAlgebraProvider
     {
-        readonly bool _isStochastic;
-
-        public CpuProvider(bool stochastic = true)
+	    public CpuProvider(bool stochastic = true)
         {
-            _isStochastic = stochastic;
+            IsStochastic = stochastic;
         }
 
         protected virtual void Dispose(bool disposing)
@@ -68,7 +66,7 @@ namespace BrightWire.LinearAlgebra
 
         public I4DTensor Create4DTensor(IReadOnlyList<FloatTensor> data)
         {
-            return new Cpu4DTensor(data.Select(t => this.Create3DTensor(t)).ToList());
+            return new Cpu4DTensor(data.Select(this.Create3DTensor).ToList());
         }
 
         //public I4DTensor Create4DTensor(IMatrix tensorAsMatrix, int rows, int columns, int depth)
@@ -93,7 +91,7 @@ namespace BrightWire.LinearAlgebra
             // nop
         }
 
-        public bool IsStochastic => _isStochastic;
-        public bool IsGpu => false;
+        public bool IsStochastic { get; }
+	    public bool IsGpu => false;
     }
 }

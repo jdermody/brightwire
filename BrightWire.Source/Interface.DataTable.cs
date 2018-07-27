@@ -723,8 +723,16 @@ namespace BrightWire
 		(object convertedValue, bool wasSuccessful) ConvertValue(object value);
 	}
 
+	/// <summary>
+	/// Summarises multiple rows into one row
+	/// </summary>
 	public interface ISummariseRows
 	{
+		/// <summary>
+		/// Summarises multiple rows into one row
+		/// </summary>
+		/// <param name="rows">List of rows</param>
+		/// <returns>A single summarised row</returns>
 		IRow Summarise(IReadOnlyList<IRow> rows);
 	}
 }

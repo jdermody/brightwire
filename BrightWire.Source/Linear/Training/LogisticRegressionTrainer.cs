@@ -1,6 +1,7 @@
 ﻿using BrightWire.Models;
 using System;
 using System.Linq;
+using BrightWire.LinearAlgebra.Helper;
 
 namespace BrightWire.Linear.Training
 {
@@ -66,7 +67,7 @@ namespace BrightWire.Linear.Training
                 h.Add(1f);
                 var b = t.DotProduct(hLog);
                 var ret = -(a + b) / _feature.RowCount;
-                if (lambda != 0f)
+                if (BoundMath.IsNotZero(lambda))
                     ret += th.AsIndexable().Values.Skip(1).Select(v => v * v).Sum() * lambda / (2 * _feature.RowCount);
                 return ret;
             }
@@ -82,7 +83,7 @@ namespace BrightWire.Linear.Training
             using (var e2 = e.Multiply(_feature)) {
                 e2.Multiply(1f / _feature.RowCount);
                 var ret = e2.Row(0);
-                if (lambda != 0f) {
+                if (BoundMath.IsNotZero(lambda)) {
                     var reg = new float[th.Count];
                     using (var thi = th.AsIndexable()) {
                         var term = lambda / _feature.RowCount;

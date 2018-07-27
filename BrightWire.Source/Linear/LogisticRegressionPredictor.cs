@@ -5,7 +5,7 @@ namespace BrightWire.Linear
     /// <summary>
     /// Makes predictions from a previously trained model
     /// </summary>
-    internal class LogisticRegressionPredictor : ILogisticRegressionClassifier
+    class LogisticRegressionPredictor : ILogisticRegressionClassifier
     {
         readonly IVector _theta;
         readonly ILinearAlgebraProvider _lap;

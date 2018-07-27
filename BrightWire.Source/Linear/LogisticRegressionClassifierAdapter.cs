@@ -4,7 +4,7 @@ using System.Text;
 
 namespace BrightWire.Source.Linear
 {
-    internal class LogisticRegressionClassifierAdapter : IRowClassifier
+    class LogisticRegressionClassifierAdapter : IRowClassifier
     {
 		readonly ILogisticRegressionClassifier _classifier;
 	    readonly IReadOnlyList<int> _attributeColumns;

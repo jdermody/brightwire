@@ -8,9 +8,8 @@ namespace BrightWire.TrainingData.Helper
     public class SequenceWindowBuilder
     {
         readonly int _before, _after;
-        int _outputSize = 0;
 
-        /// <summary>
+	    /// <summary>
         /// Creates a new sequence window builder
         /// </summary>
         /// <param name="before">The number of previous items to include before each item</param>
@@ -34,7 +33,7 @@ namespace BrightWire.TrainingData.Helper
                 int size = item.Length, offset;
                 var windowSize = size;
 
-                var context = new float[_outputSize = (_before + _after) * windowSize + size];
+                var context = new float[OutputSize = (_before + _after) * windowSize + size];
                 if (_before > 0) {
                     offset = (_before - 1) * size;
                     for (var j = 1; j <= _before && i - j >= 0; j++) {
@@ -63,6 +62,6 @@ namespace BrightWire.TrainingData.Helper
         /// <summary>
         /// The size of the generated training data
         /// </summary>
-        public int OutputSize { get { return _outputSize; } }
+        public int OutputSize { get; set; } = 0;
     }
 }

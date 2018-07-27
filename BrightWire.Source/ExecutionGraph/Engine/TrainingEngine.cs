@@ -15,10 +15,8 @@ namespace BrightWire.ExecutionGraph.Engine
     {
         readonly List<(IMiniBatchSequence Sequence, double? TrainingError, FloatMatrix Output)> _executionResults = new List<(IMiniBatchSequence Sequence, double? TrainingError, FloatMatrix Output)>();
         readonly List<IContext> _contextList = new List<IContext>();
-        readonly ILearningContext _learningContext;
-        readonly IReadOnlyList<INode> _input;
-        readonly INode _start;
-        readonly bool _isStochastic;
+	    readonly IReadOnlyList<INode> _input;
+	    readonly bool _isStochastic;
         float? _lastTestError = null;
         double? _lastTrainingError = null, _trainingErrorDelta = null;
 
@@ -26,15 +24,15 @@ namespace BrightWire.ExecutionGraph.Engine
         {
             _dataSource = dataSource;
             _isStochastic = lap.IsStochastic;
-            _learningContext = learningContext;
+            LearningContext = learningContext;
             learningContext.SetRowCount(dataSource.RowCount);
 
             if(start == null) {
                 _input = Enumerable.Range(0, dataSource.InputCount).Select(i => new InputFeeder(i)).ToList();
-                _start = new FlowThrough();
-                _start.Output.AddRange(_input.Select(i => new WireToNode(i)));
+                Start = new FlowThrough();
+                Start.Output.AddRange(_input.Select(i => new WireToNode(i)));
             }else {
-                _start = start;
+                Start = start;
                 _input = start.Output.Select(w => w.SendTo).ToList();
             }
         }
@@ -87,9 +85,9 @@ namespace BrightWire.ExecutionGraph.Engine
         public double Train(IExecutionContext executionContext, Action<float> batchCompleteCallback = null)
         {
             _lap.PushLayer();
-            _learningContext.StartEpoch();
+            LearningContext.StartEpoch();
             var provider = new MiniBatchProvider(_dataSource, _isStochastic);
-            executionContext.Add(provider.GetMiniBatches(_learningContext.BatchSize, batch => _contextList.AddRange(_Train(executionContext, _learningContext, batch))));
+            executionContext.Add(provider.GetMiniBatches(LearningContext.BatchSize, batch => _contextList.AddRange(_Train(executionContext, LearningContext, batch))));
 
             IGraphOperation operation;
             float operationCount = executionContext.RemainingOperationCount;
@@ -97,7 +95,7 @@ namespace BrightWire.ExecutionGraph.Engine
             while ((operation = executionContext.GetNextOperation()) != null) {
                 _lap.PushLayer();
                 operation.Execute(executionContext);
-                _learningContext.ApplyUpdates();
+                LearningContext.ApplyUpdates();
                 _ClearContextList();
                 _lap.PopLayer();
 
@@ -121,20 +119,20 @@ namespace BrightWire.ExecutionGraph.Engine
             if (_lastTrainingError.HasValue)
                 _trainingErrorDelta = ret - _lastTrainingError.Value;
             _lastTrainingError = ret;
-            _learningContext.EndEpoch();
+            LearningContext.EndEpoch();
             _executionResults.Clear();
             _lap.PopLayer();
             return ret;
         }
 
         public IDataSource DataSource => _dataSource;
-        public ILearningContext LearningContext => _learningContext;
-        public INode GetInput(int index) => _input[index];
-        public Models.ExecutionGraph Graph => _start.GetGraph();
+        public ILearningContext LearningContext { get; }
+	    public INode GetInput(int index) => _input[index];
+        public Models.ExecutionGraph Graph => Start.GetGraph();
         public ILinearAlgebraProvider LinearAlgebraProvider => _lap;
-        public INode Start => _start;
+        public INode Start { get; }
 
-        protected override void _Execute(IExecutionContext executionContext, IMiniBatch batch)
+	    protected override void _Execute(IExecutionContext executionContext, IMiniBatch batch)
         {
             _contextList.AddRange(_Train(executionContext, null, batch));
         }
@@ -143,7 +141,7 @@ namespace BrightWire.ExecutionGraph.Engine
         {
             var ret = new List<TrainingEngineContext>();
             if (batch.IsSequential) {
-                IMiniBatchSequence curr = null;
+                IMiniBatchSequence curr;
                 while ((curr = batch.GetNextSequence()) != null)
                     ret.Add(_Train(executionContext, learningContext, curr));
 
@@ -167,7 +165,7 @@ namespace BrightWire.ExecutionGraph.Engine
         TrainingEngineContext _Train(IExecutionContext executionContext, ILearningContext learningContext, IMiniBatchSequence sequence)
         {
             var context = new TrainingEngineContext(executionContext, sequence, learningContext);
-            _start.ExecuteForward(context, 0);
+            Start.ExecuteForward(context, 0);
 
             while (context.HasNext)
                 context.ExecuteNext();
@@ -196,7 +194,7 @@ namespace BrightWire.ExecutionGraph.Engine
                 _lastTestError = testError;
 
 			var outputType = isPercentage ? "score" : "error";
-            if (_learningContext.CurrentEpoch == 0) {
+            if (LearningContext.CurrentEpoch == 0) {
                 var score = String.Format(isPercentage ? "{0:P}" : "{0:N4}", testError);
                 Console.WriteLine($"\rInitial test {outputType}: {score}");
                 return false;
@@ -206,10 +204,10 @@ namespace BrightWire.ExecutionGraph.Engine
 					: "\rEpoch {0} - training-error: {1:N4} [{2:N4}]; time: {3:N2}s; test-{5}: {4:N4}"
 				;
                 var msg = String.Format(format,
-                    _learningContext.CurrentEpoch,
+                    LearningContext.CurrentEpoch,
                     _lastTrainingError ?? 0,
                     _trainingErrorDelta,
-                    _learningContext.EpochSeconds,
+                    LearningContext.EpochSeconds,
                     testError,
 					outputType
 				);
@@ -222,7 +220,7 @@ namespace BrightWire.ExecutionGraph.Engine
 
         void _LoadParamaters(Models.ExecutionGraph.Node nodeModel)
         {
-            var node = _start.FindById(nodeModel.Id);
+            var node = Start.FindById(nodeModel.Id);
             node.LoadParameters(nodeModel);
         }
 

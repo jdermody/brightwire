@@ -13,7 +13,7 @@ namespace BrightWire.LinearAlgebra
     /// <summary>
     /// 3D Tensor that uses the CPU based math.net numerics library
     /// </summary>
-    internal class Cpu3DTensor : IIndexable3DTensor
+    class Cpu3DTensor : IIndexable3DTensor
     {
         readonly CpuMatrix[] _data;
         readonly int _rows, _columns;
@@ -44,15 +44,8 @@ namespace BrightWire.LinearAlgebra
 
         public float this[int row, int column, int depth]
         {
-            get
-            {
-                return _data[depth][row, column];
-            }
-
-            set
-            {
-                _data[depth][row, column] = value;
-            }
+            get => _data[depth][row, column];
+	        set => _data[depth][row, column] = value;
         }
 
         public FloatTensor Data
@@ -149,8 +142,6 @@ namespace BrightWire.LinearAlgebra
         {
             var ret = DenseMatrix.Create(_rows * _columns, Depth, (i, j) => {
                 var matrix = _data[j];
-                //var x = i / _columns;
-                //var y = i % _columns;
                 var x = i % _rows;
                 var y = i / _rows;
                 return matrix[x, y];

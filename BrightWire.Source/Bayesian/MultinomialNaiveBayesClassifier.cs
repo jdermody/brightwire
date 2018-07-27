@@ -9,7 +9,7 @@ namespace BrightWire.Bayesian
     /// <summary>
     /// Multinomial naive bayes classifer
     /// </summary>
-    internal class MultinomialNaiveBayesClassifier : IIndexListClassifier
+    class MultinomialNaiveBayesClassifier : IIndexListClassifier
     {
         class Classification
         {

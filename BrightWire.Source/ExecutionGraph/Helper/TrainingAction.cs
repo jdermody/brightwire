@@ -2,37 +2,46 @@
 
 namespace BrightWire.ExecutionGraph.Helper
 {
-    /// <summary>
-    /// Records a node execution
-    /// </summary>
-    class TrainingAction : IExecutionHistory
+	/// <inheritdoc />
+	public class TrainingAction : IExecutionHistory
     {
-        readonly INode _source;
-        readonly IReadOnlyList<INode> _parents;
-        readonly IGraphData _data;
-        IBackpropagation _backpropagation;
-
-        public TrainingAction(INode source, IGraphData data, INode parent = null)
+		/// <summary>
+		/// Creates a training action history from a single optional parent
+		/// </summary>
+		/// <param name="source">The node that executed</param>
+		/// <param name="data">The output of the node</param>
+		/// <param name="parent">The single parent that contributed to the output (optional)</param>
+	    public TrainingAction(INode source, IGraphData data, INode parent = null)
         {
             if (parent != null)
-                _parents = new[] { parent };
+                Parents = new[] { parent };
             else
-                _parents = new List<INode>();
+                Parents = new List<INode>();
 
-            _source = source;
-            _data = data;
+            Source = source;
+            Data = data;
         }
 
+		/// <summary>
+		/// Creates a training action history from multiple parents
+		/// </summary>
+		/// <param name="source">The node that executed</param>
+		/// <param name="data">The output of the node</param>
+		/// <param name="parents">The parent nodes that contributed to the output</param>
         public TrainingAction(INode source, IGraphData data, IReadOnlyList<INode> parents)
         {
-            _parents = parents;
-            _source = source;
-            _data = data;
+            Parents = parents;
+            Source = source;
+            Data = data;
         }
 
-        public INode Source => _source;
-        public IGraphData Data => _data;
-        public IBackpropagation Backpropagation { get => _backpropagation; set => _backpropagation = value; }
-        public IReadOnlyList<INode> Parents => _parents;
+	    /// <inheritdoc />
+        public INode Source { get; }
+	    /// <inheritdoc />
+        public IGraphData Data { get; }
+	    /// <inheritdoc />
+        public IBackpropagation Backpropagation { get; set; }
+	    /// <inheritdoc />
+        public IReadOnlyList<INode> Parents { get; }
     }
 }

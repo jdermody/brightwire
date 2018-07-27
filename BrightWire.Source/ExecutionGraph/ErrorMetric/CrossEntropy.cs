@@ -32,6 +32,6 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
             return ret / len;
         }
 
-        public bool DisplayAsPercentage { get { return false; } }
+        public bool DisplayAsPercentage => false;
     }
 }

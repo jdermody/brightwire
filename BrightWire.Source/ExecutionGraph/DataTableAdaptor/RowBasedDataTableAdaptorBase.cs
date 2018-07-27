@@ -5,7 +5,7 @@
     /// </summary>
     abstract class RowBasedDataTableAdaptorBase : DataTableAdaptorBase<IRow>
     {
-        public RowBasedDataTableAdaptorBase(ILinearAlgebraProvider lap, IDataTable dataTable) 
+	    protected RowBasedDataTableAdaptorBase(ILinearAlgebraProvider lap, IDataTable dataTable) 
             : base(lap, dataTable)
         {
             // read the entire data table into memory

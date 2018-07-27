@@ -9,35 +9,33 @@ namespace BrightWire.TabularData.Analysis
     /// </summary>
     class IndexCollector : IRowProcessor, IIndexColumnInfo
     {
-        readonly int _index;
-        uint _min, _max;
+	    uint _min, _max;
 
         public IndexCollector(int index)
         {
-            _index = index;
+            ColumnIndex = index;
             _min = uint.MaxValue;
             _max = 0;
         }
 
+	    public int ColumnIndex { get; }
         public uint MinIndex => _min;
-        public uint MaxIndex => _max;
-        public int ColumnIndex => _index;
-        public IEnumerable<object> DistinctValues => throw new NotImplementedException();
+	    public uint MaxIndex => _max;
+	    public IEnumerable<object> DistinctValues => throw new NotImplementedException();
         public int? NumDistinct => null;
 
         public bool Process(IRow row)
         {
-            var obj = row.Data[_index];
+            var obj = row.Data[ColumnIndex];
             if (obj is IndexList indexList) {
                 foreach (var index in indexList.Index) {
                     if (index > _max)
                         _max = index;
-                    if (_index < _min)
+                    if (ColumnIndex < _min)
                         _min = index;
                 }
             } else {
-                var weightedIndexList = obj as WeightedIndexList;
-                if (weightedIndexList == null)
+	            if (!(obj is WeightedIndexList weightedIndexList))
                     throw new Exception("Unexpected index type: " + obj?.GetType());
             }
             return true;

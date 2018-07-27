@@ -9,24 +9,25 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     /// </summary>
     class LearningContext : ILearningContext
     {
-        readonly ILinearAlgebraProvider _lap;
-        readonly Dictionary<int, float> _learningRateSchedule = new Dictionary<int, float>();
+	    readonly Dictionary<int, float> _learningRateSchedule = new Dictionary<int, float>();
         readonly List<(object Error, Action<object> Updater)> _layerUpdate = new List<(object, Action<object>)>();
         readonly Stack<(IGraphData Data, Action<IGraphData> Callback)> _deferredBackpropagation = new Stack<(IGraphData, Action<IGraphData>)>();
-        readonly TrainingErrorCalculation _trainingErrorCalculation;
-        bool _deferUpdates;
-        readonly Stopwatch _timer = new Stopwatch();
+	    readonly Stopwatch _timer = new Stopwatch();
         readonly HashSet<INode> _noUpdateNodeSet = new HashSet<INode>();
-        float _learningRate;
-        int _batchSize, _rowCount = 0, _currentEpoch = 0;
+	    int _rowCount = 0, _currentEpoch = 0;
 
-        public LearningContext(ILinearAlgebraProvider lap, float learningRate, int batchSize, TrainingErrorCalculation trainingErrorCalculation, bool deferUpdates)
-        {
-            _lap = lap;
-            _trainingErrorCalculation = trainingErrorCalculation;
-            _learningRate = learningRate;
-            _batchSize = batchSize;
-            _deferUpdates = deferUpdates;
+        public LearningContext(
+	        ILinearAlgebraProvider lap, 
+	        float learningRate, 
+	        int batchSize, 
+	        TrainingErrorCalculation trainingErrorCalculation, 
+	        bool deferUpdates
+	    ) {
+            LinearAlgebraProvider = lap;
+            TrainingErrorCalculation = trainingErrorCalculation;
+            LearningRate = learningRate;
+            BatchSize = batchSize;
+            DeferUpdates = deferUpdates;
         }
 
         public event Action<ILearningContext> BeforeEpochStarts;
@@ -40,17 +41,17 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             _rowCount = 0;
         }
 
-        public ILinearAlgebraProvider LinearAlgebraProvider { get { return _lap; } }
-        public int RowCount { get { return _rowCount; } }
-        public int CurrentEpoch { get { return _currentEpoch; } }
-        public float LearningRate { get { return _learningRate; } set { _learningRate = value; } }
-        public float BatchLearningRate => LearningRate / BatchSize;
-        public int BatchSize { get { return _batchSize; } set { _batchSize = value; } }
-        public TrainingErrorCalculation TrainingErrorCalculation { get { return _trainingErrorCalculation; } }
-        public long EpochMilliseconds { get { return _timer.ElapsedMilliseconds; } }
-        public double EpochSeconds { get { return EpochMilliseconds / 1000.0; } }
-        public bool DeferUpdates => _deferUpdates;
-        public void ScheduleLearningRate(int atEpoch, float newLearningRate) => _learningRateSchedule[atEpoch] = newLearningRate;
+        public ILinearAlgebraProvider LinearAlgebraProvider { get; }
+	    public int RowCount => _rowCount;
+	    public int CurrentEpoch => _currentEpoch;
+	    public float LearningRate { get; set; }
+	    public float BatchLearningRate => LearningRate / BatchSize;
+        public int BatchSize { get; set; }
+	    public TrainingErrorCalculation TrainingErrorCalculation { get; }
+	    public long EpochMilliseconds => _timer.ElapsedMilliseconds;
+	    public double EpochSeconds => EpochMilliseconds / 1000.0;
+	    public bool DeferUpdates { get; }
+	    public void ScheduleLearningRate(int atEpoch, float newLearningRate) => _learningRateSchedule[atEpoch] = newLearningRate;
 
         public void EnableNodeUpdates(INode node, bool enableUpdates)
         {
@@ -63,7 +64,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public void StoreUpdate<T>(INode fromNode, T error, Action<T> updater)
         {
             if (!_noUpdateNodeSet.Contains(fromNode)) {
-                if (_deferUpdates)
+                if (DeferUpdates)
                     _layerUpdate.Add((error, o => updater((T)o)));
                 else
                     updater(error);
@@ -74,7 +75,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         {
             BeforeEpochStarts?.Invoke(this);
             if (_learningRateSchedule.TryGetValue(++_currentEpoch, out float newLearningRate)) {
-                _learningRate = newLearningRate;
+                LearningRate = newLearningRate;
                 Console.WriteLine($"Learning rate changed to {newLearningRate}");
             }
 

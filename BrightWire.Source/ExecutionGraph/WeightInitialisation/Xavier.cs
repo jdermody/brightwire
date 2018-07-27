@@ -24,7 +24,7 @@ namespace BrightWire.ExecutionGraph.WeightInitialisation
 
         public IVector CreateBias(int size)
         {
-            return _lap.CreateVector(size, 0f);
+            return _lap.CreateVector(size);
         }
 
         public IMatrix CreateWeight(int rows, int columns)

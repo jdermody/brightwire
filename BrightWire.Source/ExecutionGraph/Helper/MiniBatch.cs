@@ -2,28 +2,36 @@
 
 namespace BrightWire.ExecutionGraph.Helper
 {
-    /// <summary>
-    /// Information about the current mini batch
-    /// </summary>
-    class MiniBatch : IMiniBatch
+	/// <inheritdoc />
+	public class MiniBatch : IMiniBatch
     {
-        public class Sequence : IMiniBatchSequence
+	    /// <inheritdoc />
+	    public class Sequence : IMiniBatchSequence
         {
-            public IMiniBatch MiniBatch { get; set; }
+	        /// <inheritdoc />
+	        public IMiniBatch MiniBatch { get; set; }
+	        /// <inheritdoc />
             public int SequenceIndex { get; set; }
+	        /// <inheritdoc />
             public MiniBatchSequenceType Type { get; set; }
+	        /// <inheritdoc />
             public IReadOnlyList<IGraphData> Input { get; set; }
+	        /// <inheritdoc />
             public IGraphData Target { get; set; }
         }
         readonly List<Sequence> _sequence = new List<Sequence>();
-        readonly IReadOnlyList<int> _rows;
-        readonly IDataSource _dataSource;
-        readonly bool _isSequential;
-        int _index = 0;
+	    int _index = 0;
 
+		/// <summary>
+		/// Creates a non sequential mini batch
+		/// </summary>
+		/// <param name="rows">The indices of the rows in this mini batch</param>
+		/// <param name="dataSource">Associated data source</param>
+		/// <param name="input">Mini batch input data</param>
+		/// <param name="output">Expected output data (when training, otherwise null)</param>
         public MiniBatch(IReadOnlyList<int> rows, IDataSource dataSource, IReadOnlyList<IGraphData> input, IGraphData output) : this(rows, dataSource)
         {
-            _isSequential = false;
+            IsSequential = false;
             _sequence.Add(new Sequence {
                 Input = input,
                 Target = output,
@@ -33,13 +41,24 @@ namespace BrightWire.ExecutionGraph.Helper
             });
         }
 
+		/// <summary>
+		/// Creates a sequential mini batch
+		/// </summary>
+		/// <param name="rows">The indices of the rows in this mini batch</param>
+		/// <param name="dataSource">Associated data source</param>
         public MiniBatch(IReadOnlyList<int> rows, IDataSource dataSource)
         {
-            _rows = rows;
-            _isSequential = true;
-            _dataSource = dataSource;
+            Rows = rows;
+            IsSequential = true;
+            DataSource = dataSource;
         }
 
+		/// <summary>
+		/// Adds another item to the sequential mini batch
+		/// </summary>
+		/// <param name="type">Type of the sequential item</param>
+		/// <param name="input">Mini batch input data</param>
+		/// <param name="output">Expected output data (when training, otherwise null)</param>
         public void Add(MiniBatchSequenceType type, IReadOnlyList<IGraphData> input, IGraphData output)
         {
             _sequence.Add(new Sequence {
@@ -51,15 +70,24 @@ namespace BrightWire.ExecutionGraph.Helper
             });
         }
 
-        public IReadOnlyList<int> Rows => _rows;
-        public IDataSource DataSource => _dataSource;
-        public bool IsSequential => _isSequential;
-        public int BatchSize => _rows.Count;
+	    /// <inheritdoc />
+	    public IReadOnlyList<int> Rows { get; }
+	    /// <inheritdoc />
+	    public IDataSource DataSource { get; }
+	    /// <inheritdoc />
+	    public bool IsSequential { get; }
+	    /// <inheritdoc />
+	    public int BatchSize => Rows.Count;
+	    /// <inheritdoc />
         public IMiniBatchSequence CurrentSequence => _sequence[_index];
+	    /// <inheritdoc />
         public bool HasNextSequence => _index < _sequence.Count;
+	    /// <inheritdoc />
         public int SequenceCount => _sequence.Count;
+	    /// <inheritdoc />
         public void Reset() => _index = 0;
 
+	    /// <inheritdoc />
         public IMiniBatchSequence GetNextSequence()
         {
             if(HasNextSequence)
@@ -67,6 +95,7 @@ namespace BrightWire.ExecutionGraph.Helper
             return null;
         }
 
+	    /// <inheritdoc />
         public IMiniBatchSequence GetSequenceAtIndex(int index)
         {
             return _sequence[index];

@@ -62,11 +62,10 @@ namespace BrightWire.ExecutionGraph.Node.Gate
 
         void _Continue(IContext context)
         {
-            var batch = context.BatchSequence.MiniBatch;
             var sequenceIndex = context.BatchSequence.SequenceIndex;
-
             var input = _input[sequenceIndex];
             var input2 = _reverseInput[sequenceIndex];
+
             _input.Remove(sequenceIndex);
             _reverseInput.Remove(sequenceIndex);
 

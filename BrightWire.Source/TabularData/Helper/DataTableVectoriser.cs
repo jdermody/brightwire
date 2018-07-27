@@ -9,7 +9,7 @@ namespace BrightWire.TabularData.Helper
     /// <summary>
     /// Converts data tables that might contain categorical or sparse vector based data into a dense vector format
     /// </summary>
-    internal class DataTableVectoriser : IDataTableVectoriser
+    class DataTableVectoriser : IDataTableVectoriser
     {
         readonly DataTableVectorisation _vectorisationModel;
 
@@ -68,23 +68,10 @@ namespace BrightWire.TabularData.Helper
             _vectorisationModel.Columns = columnList.ToArray();
         }
 
-        public int InputSize
-        {
-            get
-            {
-                return _vectorisationModel.InputSize;
-            }
-        }
+        public int InputSize => _vectorisationModel.InputSize;
+	    public int OutputSize => _vectorisationModel.OutputSize;
 
-        public int OutputSize
-        {
-            get
-            {
-                return _vectorisationModel.OutputSize;
-            }
-        }
-
-        public string GetOutputLabel(int columnIndex, int vectorIndex)
+	    public string GetOutputLabel(int columnIndex, int vectorIndex)
         {
             return _vectorisationModel.GetOutputLabel(columnIndex, vectorIndex);
         }

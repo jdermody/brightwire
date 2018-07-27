@@ -20,18 +20,9 @@ namespace BrightWire.ExecutionGraph.Helper
         public int Depth => 1;
         public int Count => 1;
 
-        public IMatrix GetMatrix()
-        {
-            return _matrix;
-        }
-        public I4DTensor Get4DTensor()
-        {
-            return null;
-        }
-        public IGraphData ReplaceWith(IMatrix matrix)
-        {
-            return new MatrixGraphData(matrix);
-        }
+        public IMatrix GetMatrix() => _matrix;
+        public I4DTensor Get4DTensor() => null;
+        public IGraphData ReplaceWith(IMatrix matrix) => new MatrixGraphData(matrix);
         public IReadOnlyList<IMatrix> GetSubMatrices()
         {
             return new[] {
@@ -46,31 +37,24 @@ namespace BrightWire.ExecutionGraph.Helper
     class Tensor3DGraphData : IGraphData
     {
         readonly IMatrix _matrix;
-        readonly int _rows, _columns;
 
-        public Tensor3DGraphData(I3DTensor tensor):
+	    public Tensor3DGraphData(I3DTensor tensor):
             this(tensor.ConvertToMatrix(), tensor.RowCount, tensor.ColumnCount)
         {
         }
         public Tensor3DGraphData(IMatrix matrix, int rows, int columns)
         {
             _matrix = matrix;
-            _rows = rows;
-            _columns = columns;
+            Rows = rows;
+            Columns = columns;
         }
 
-        public int Rows => _rows;
-        public int Columns => _columns;
-        public int Depth => _matrix.ColumnCount;
+        public int Rows { get; }
+	    public int Columns { get; }
+	    public int Depth => _matrix.ColumnCount;
         public int Count => 1;
-        public IMatrix GetMatrix()
-        {
-            return _matrix;
-        }
-        public IGraphData ReplaceWith(IMatrix matrix)
-        {
-            return new Tensor3DGraphData(matrix, _rows, _columns);
-        }
+	    public IMatrix GetMatrix() => _matrix;
+        public IGraphData ReplaceWith(IMatrix matrix) => new Tensor3DGraphData(matrix, Rows, Columns);
         public IGraphData ReplaceWith(IContext context, IReadOnlyList<IMatrix> matrixList)
         {
             Debug.Assert(matrixList.Count == Depth);
@@ -96,32 +80,25 @@ namespace BrightWire.ExecutionGraph.Helper
     class Tensor4DGraphData : IGraphData
     {
         readonly IMatrix _matrix;
-        readonly int _rows, _columns, _depth;
 
-        public Tensor4DGraphData(I4DTensor tensor) :
+	    public Tensor4DGraphData(I4DTensor tensor) :
             this(tensor.ConvertToMatrix(), tensor.RowCount, tensor.ColumnCount, tensor.Depth)
         {
         }
         public Tensor4DGraphData(IMatrix matrix, int rows, int columns, int depth)
         {
             _matrix = matrix;
-            _rows = rows;
-            _columns = columns;
-            _depth = depth;
+            Rows = rows;
+            Columns = columns;
+            Depth = depth;
         }
 
-        public int Rows => _rows;
-        public int Columns => _columns;
-        public int Depth => _depth;
-        public int Count => _matrix.ColumnCount;
-        public IMatrix GetMatrix()
-        {
-            return _matrix;
-        }
-        public IGraphData ReplaceWith(IMatrix matrix)
-        {
-            return new Tensor4DGraphData(matrix, _rows, _columns, _depth);
-        }
+        public int Rows { get; }
+	    public int Columns { get; }
+	    public int Depth { get; }
+	    public int Count => _matrix.ColumnCount;
+        public IMatrix GetMatrix() => _matrix;
+        public IGraphData ReplaceWith(IMatrix matrix) => new Tensor4DGraphData(matrix, Rows, Columns, Depth);
         public IReadOnlyList<IMatrix> GetSubMatrices()
         {
             var ret = new List<IMatrix>();

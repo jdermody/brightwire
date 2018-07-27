@@ -8,7 +8,7 @@ namespace BrightWire.TabularData.Helper
     /// <summary>
     /// Projects a subset of data table rows into a new data table
     /// </summary>
-    internal class DataTableProjector : IRowProcessor
+    class DataTableProjector : IRowProcessor
     {
         readonly IRowProcessor _destination;
         readonly IReadOnlyList<int> _validColumn;
@@ -16,31 +16,29 @@ namespace BrightWire.TabularData.Helper
 
         class ProjectedRow : IRow
         {
-            readonly int _index;
-            readonly IReadOnlyList<object> _data;
-            readonly RowConverter _rowConverter;
+	        readonly RowConverter _rowConverter;
 
             public ProjectedRow(int index, IReadOnlyList<object> data, RowConverter rowConverter)
             {
-                _data = data;
-                _index = index;
+                Data = data;
+                Index = index;
                 _rowConverter = rowConverter;
             }
 
-            public IReadOnlyList<object> Data => _data;
-            public int Index => _index;
-            public IHaveColumns Table => throw new NotImplementedException();
+            public IReadOnlyList<object> Data { get; }
+	        public int Index { get; }
+	        public IHaveColumns Table => throw new NotImplementedException();
 
             public T GetField<T>(int index)
             {
-                return _rowConverter.GetField<T>(_data, index);
+                return _rowConverter.GetField<T>(Data, index);
             }
 
             public IReadOnlyList<T> GetFields<T>(IReadOnlyList<int> indices)
             {
                 var ret = new T[indices.Count];
                 for (int i = 0, len = indices.Count; i < len; i++)
-                    ret[i] = _rowConverter.GetField<T>(_data, i);
+                    ret[i] = _rowConverter.GetField<T>(Data, i);
                 return ret;
             }
         }

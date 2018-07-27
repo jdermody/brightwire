@@ -194,11 +194,6 @@ namespace BrightWire.ExecutionGraph
             return this;
         }
 
-        /// <summary>
-        /// Adds a batch normalisation layer (currently only implemented for FF layers)
-        /// </summary>
-        /// <param name="name">Optional name to give the node</param>
-        /// <returns></returns>
         //public WireBuilder AddBatchNormalisation(string name = null)
         //{
         //    var size = CurrentSize;

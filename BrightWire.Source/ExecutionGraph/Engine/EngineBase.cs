@@ -21,11 +21,11 @@ namespace BrightWire.ExecutionGraph.Engine
         protected bool _Continue(IMiniBatch batch, IExecutionContext executionContext, Func<IMiniBatchSequence, IContext> lookupContext)
         {
             var ret = false;
-            IMiniBatchSequence curr = null;
 
-            while (executionContext.HasContinuations) {
+	        while (executionContext.HasContinuations) {
                 batch.Reset();
-                while ((curr = batch.GetNextSequence()) != null) {
+	            IMiniBatchSequence curr = null;
+	            while ((curr = batch.GetNextSequence()) != null) {
                     var context = lookupContext(curr);
                     executionContext.Continue(context);
                     while (context.HasNext)

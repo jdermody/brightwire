@@ -12,7 +12,7 @@ namespace BrightWire.Helper
     /// <summary>
     /// Builds data tables
     /// </summary>
-    internal class DataTableBuilder : IHaveColumns
+    class DataTableBuilder : IHaveColumns
     {
         const int MAX_UNIQUE = 131072 * 4;
 
@@ -21,14 +21,12 @@ namespace BrightWire.Helper
 	        internal bool? _isContinuous;
             internal ColumnType _type;
             readonly HashSet<string> _uniqueValues = new HashSet<string>();
-            readonly string _name;
-            readonly bool _isTarget;
 
-            public Column(ColumnType type, string name, bool isTarget)
+	        public Column(ColumnType type, string name, bool isTarget)
             {
                 _type = type;
-                _name = name;
-                _isTarget = isTarget;
+                Name = name;
+                IsTarget = isTarget;
                 if (type == ColumnType.Double || type == ColumnType.Float)
                     _isContinuous = true;
             }
@@ -45,14 +43,14 @@ namespace BrightWire.Helper
             }
 
             public ColumnType Type => _type;
-	        public string Name => _name;
-	        public bool IsTarget => _isTarget;
+	        public string Name { get; }
+	        public bool IsTarget { get; }
 
 	        public bool IsContinuous
             {
                 get => _isContinuous.HasValue && _isContinuous.Value;
-		        set { _isContinuous = value; }
-            }
+		        set => _isContinuous = value;
+	        }
         }
         readonly List<Column> _column = new List<Column>();
         readonly List<IRow> _data = new List<IRow>();

@@ -8,16 +8,15 @@ namespace BrightWire.LinearAlgebra
     /// <summary>
     /// 4D Tensor that uses the CPU based math.net numerics library
     /// </summary>
-    internal class Cpu4DTensor : I4DTensor
+    class Cpu4DTensor : I4DTensor
     {
         readonly Cpu3DTensor[] _data;
-        readonly int _rows, _columns, _depth;
 
-        public Cpu4DTensor(int rows, int columns, int depth, int count)
+	    public Cpu4DTensor(int rows, int columns, int depth, int count)
         {
-            _rows = rows;
-            _columns = columns;
-            _depth = depth;
+            RowCount = rows;
+            ColumnCount = columns;
+            Depth = depth;
             _data = Enumerable.Range(0, count).Select(i => new Cpu3DTensor(rows, columns, depth)).ToArray();
         }
 
@@ -25,9 +24,9 @@ namespace BrightWire.LinearAlgebra
         {
             var first = tensorList.First();
             Debug.Assert(tensorList.All(m => m.RowCount == first.RowCount && m.ColumnCount == first.ColumnCount && m.Depth == first.Depth));
-            _rows = first.RowCount;
-            _columns = first.ColumnCount;
-            _depth = first.Depth;
+            RowCount = first.RowCount;
+            ColumnCount = first.ColumnCount;
+            Depth = first.Depth;
             _data = tensorList.Cast<Cpu3DTensor>().ToArray();
         }
 
@@ -35,16 +34,16 @@ namespace BrightWire.LinearAlgebra
         {
             var first = tensorList.First();
             var firstMatrix = first.First();
-            _rows = firstMatrix.RowCount;
-            _columns = firstMatrix.ColumnCount;
-            _depth = first.Count;
+            RowCount = firstMatrix.RowCount;
+            ColumnCount = firstMatrix.ColumnCount;
+            Depth = first.Count;
             _data = tensorList.Select(d => new Cpu3DTensor(d)).ToArray();
         }
 
-        public int RowCount => _rows;
-        public int ColumnCount => _columns;
-        public int Depth => _depth;
-        public int Count => _data.Length;
+        public int RowCount { get; }
+	    public int ColumnCount { get; }
+	    public int Depth { get; }
+	    public int Count => _data.Length;
 
         public void Dispose()
         {

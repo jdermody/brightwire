@@ -9,7 +9,7 @@ namespace BrightWire.Unsupervised
     /// Non negative matrix factorisation based clustering
     /// https://en.wikipedia.org/wiki/Non-negative_matrix_factorization
     /// </summary>
-    internal class NonNegativeMatrixFactorisation
+    class NonNegativeMatrixFactorisation
     {
         readonly int _numClusters;
         readonly ILinearAlgebraProvider _lap;

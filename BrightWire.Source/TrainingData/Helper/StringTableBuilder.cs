@@ -61,22 +61,16 @@ namespace BrightWire.TrainingData.Helper
         /// <summary>
         /// Serialises the string table
         /// </summary>
-        public StringTable StringTable
-        {
-            get
-            {
-                return new StringTable {
-                    Data = _stringList.ToArray()
-                };
-            }
-        }
+        public StringTable StringTable => new StringTable {
+	        Data = _stringList.ToArray()
+        };
 
-        /// <summary>
+	    /// <summary>
         /// Returns the size of the string table
         /// </summary>
-        public uint Size { get { return (uint)_stringTable.Count; } }
+        public uint Size => (uint)_stringTable.Count;
 
-        /// <summary>
+	    /// <summary>
         /// Returns the string at the specified index
         /// </summary>
         /// <param name="index">The string index</param>

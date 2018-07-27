@@ -39,14 +39,14 @@ namespace BrightWire.TrainingData.WellKnown
             /// <summary>
             /// The image data
             /// </summary>
-            public byte[] Data { get { return _data; } }
+            public byte[] Data => _data;
 
-            /// <summary>
+	        /// <summary>
             /// The image number (0-9)
             /// </summary>
-            public int Label { get { return _label; } }
+            public int Label => _label;
 
-            /// <summary>
+	        /// <summary>
             /// Converts the image to one hot encoded float arrays
             /// </summary>
             public (FloatVector Data, FloatVector Label) AsFloatArray

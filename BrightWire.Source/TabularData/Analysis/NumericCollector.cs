@@ -9,7 +9,7 @@ namespace BrightWire.TabularData.Analysis
     /// </summary>
     internal class NumberCollector : IRowProcessor, INumericColumnInfo
     {
-        readonly int _index, _maxDistinct;
+        readonly int _maxDistinct;
         readonly Dictionary<double, ulong> _distinct = new Dictionary<double, ulong>();
 
         double _mean = 0, _m2 = 0, _min = double.MaxValue, _max = double.MinValue, _mode = 0, _l1 = 0, _l2 = 0;
@@ -17,13 +17,13 @@ namespace BrightWire.TabularData.Analysis
 
         public NumberCollector(int index, int maxDistinct = 131072 * 4)
         {
-            _index = index;
+            ColumnIndex = index;
             _maxDistinct = maxDistinct;
         }
 
         public bool Process(IRow row)
         {
-            var val = row.GetField<double>(_index);
+            var val = row.GetField<double>(ColumnIndex);
             ++_total;
 
             // online std deviation and mean 
@@ -60,7 +60,7 @@ namespace BrightWire.TabularData.Analysis
 
         public double L1Norm => _l1;
 	    public double L2Norm => Math.Sqrt(_l2);
-	    public int ColumnIndex => _index;
+	    public int ColumnIndex { get; }
 	    public double Min => _min;
 	    public double Max => _max;
 	    public double Mean => _mean;

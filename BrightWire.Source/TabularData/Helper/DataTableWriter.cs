@@ -9,7 +9,7 @@ namespace BrightWire.TabularData.Helper
     /// <summary>
     /// Manages writing data tables to streams and building the row index within the saved stream
     /// </summary>
-    internal class DataTableWriter : IRowProcessor, IDataTableBuilder
+    class DataTableWriter : IRowProcessor, IDataTableBuilder
     {
         readonly List<long> _index = new List<long>();
         readonly DataTableBuilder _dataTableBuilder;

@@ -9,7 +9,7 @@ namespace BrightWire.TreeBased.Training
     /// Random forest classifier
     /// https://en.wikipedia.org/wiki/Random_forest
     /// </summary>
-    internal static class RandomForestTrainer
+    static class RandomForestTrainer
     {
         public static RandomForest Train(IDataTable table, int b = 100, DecisionTreeTrainer.Config config = null)
         {

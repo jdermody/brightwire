@@ -5,11 +5,9 @@ namespace BrightWire.TabularData.Helper
     /// <summary>
     /// Classifies data table column types
     /// </summary>
-    internal static class ColumnTypeClassifier
+    static class ColumnTypeClassifier
     {
-        const int MAX_CATEGORICAL_VALUES = 256;
-
-        static HashSet<ColumnType> _continuousType = new HashSet<ColumnType> {
+        static readonly HashSet<ColumnType> _continuousType = new HashSet<ColumnType> {
             ColumnType.Date,
             ColumnType.Double,
             ColumnType.Float,
@@ -17,11 +15,11 @@ namespace BrightWire.TabularData.Helper
             ColumnType.Long,
             ColumnType.Byte,
         };
-        static HashSet<ColumnType> _categoricalType = new HashSet<ColumnType> {
+        static readonly HashSet<ColumnType> _categoricalType = new HashSet<ColumnType> {
             ColumnType.Boolean,
             ColumnType.String,
         };
-        static HashSet<ColumnType> _numericType = new HashSet<ColumnType> {
+        static readonly HashSet<ColumnType> _numericType = new HashSet<ColumnType> {
             ColumnType.Boolean,
             ColumnType.Date,
             ColumnType.Double,

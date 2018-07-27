@@ -28,7 +28,7 @@ namespace BrightWire.LinearAlgebra
 
         public bool IsValid { get { return !_disposed; } }
 #else
-        public bool IsValid { get { return true; } }
+        public bool IsValid => true;
 #endif
 
         public GpuMatrix(CudaProvider cuda, int rows, int columns, Func<int, int, float> init)
@@ -104,32 +104,11 @@ namespace BrightWire.LinearAlgebra
             return AsIndexable().ToString();
         }
 
-        public int ColumnCount
-        {
-            get
-            {
-                return _columns;
-            }
-        }
-
-        public int RowCount
-        {
-            get
-            {
-                return _rows;
-            }
-        }
-
-        public object WrappedObject
-        {
-            get
-            {
-                return _data;
-            }
-        }
-
-        internal CudaDeviceVariable<float> CudaDeviceVariable { get { return _data.DeviceVariable; } }
-        internal IDeviceMemoryPtr Memory => _data;
+        public int ColumnCount => _columns;
+	    public int RowCount => _rows;
+	    public object WrappedObject => _data;
+	    internal CudaDeviceVariable<float> CudaDeviceVariable => _data.DeviceVariable;
+	    internal IDeviceMemoryPtr Memory => _data;
 
         public IMatrix Add(IMatrix matrix)
         {
@@ -183,21 +162,15 @@ namespace BrightWire.LinearAlgebra
         public void ClearColumns(IReadOnlyList<int> indices)
         {
             Debug.Assert(IsValid);
-            int offset = 0;
-            foreach (var item in indices) {
+            foreach (var item in indices)
                 _cuda.MemClear(_data, _rows, item * _rows);
-                offset += _rows;
-            }
         }
 
         public void ClearRows(IReadOnlyList<int> indices)
         {
             Debug.Assert(IsValid);
-            int offset = 0;
-            foreach (var item in indices) {
+            foreach (var item in indices)
                 _cuda.MemClear(_data, _columns, item, _rows);
-                offset += 1;
-            }
         }
 
         public IMatrix Clone()
@@ -646,12 +619,9 @@ namespace BrightWire.LinearAlgebra
 
         public FloatMatrix Data
         {
-            get
-            {
-                return AsIndexable().Data;
-            }
+            get => AsIndexable().Data;
 
-            set
+	        set
             {
                 Debug.Assert(IsValid);
                 var buffer = new float[_rows * _columns];

@@ -11,22 +11,21 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     class SequentialRowDataSource : IDataSource
     {
         readonly IReadOnlyList<float[]> _data;
-        readonly int _inputCount, _inputSize;
 
-        public SequentialRowDataSource(IReadOnlyList<float[]> data)
+	    public SequentialRowDataSource(IReadOnlyList<float[]> data)
         {
             _data = data;
-            _inputSize = data.First().Length;
-            _inputCount = data.Count;
+            InputSize = data.First().Length;
+            InputCount = data.Count;
         }
 
         public bool IsSequential => true;
-        public int InputSize => _inputSize;
-        public int OutputSize => throw new NotImplementedException();
+        public int InputSize { get; }
+	    public int OutputSize => throw new NotImplementedException();
         public int RowCount => 1;
-        public int InputCount => _inputCount;
+        public int InputCount { get; }
 
-        public IDataSource CloneWith(IDataTable dataTable)
+	    public IDataSource CloneWith(IDataTable dataTable)
         {
             throw new NotImplementedException();
         }

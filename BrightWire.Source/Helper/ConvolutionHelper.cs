@@ -5,8 +5,17 @@ namespace BrightWire.Helper
     /// <summary>
     /// Helper class to calculate convolutional indices
     /// </summary>
-    static class ConvolutionHelper
+    public static class ConvolutionHelper
     {
+		/// <summary>
+		/// Generates convolution indices from left to right
+		/// </summary>
+		/// <param name="width">Input width</param>
+		/// <param name="height">Input height</param>
+		/// <param name="filterWidth">Filter width</param>
+		/// <param name="filterHeight">Filter height</param>
+		/// <param name="stride">Offset of each position</param>
+		/// <returns>List of (x, y) indices</returns>
         public static List<(int X, int Y)[]> LeftToRight(int width, int height, int filterWidth, int filterHeight, int stride)
         {
             int y = 0, x = 0;
@@ -33,6 +42,15 @@ namespace BrightWire.Helper
             return ret;
         }
 
+	    /// <summary>
+	    /// Generates convolution indices from top to bottom
+	    /// </summary>
+	    /// <param name="width">Input width</param>
+	    /// <param name="height">Input height</param>
+	    /// <param name="filterWidth">Filter width</param>
+	    /// <param name="filterHeight">Filter height</param>
+	    /// <param name="stride">Offset of each position</param>
+	    /// <returns>List of (x, y) indices</returns>
         public static List<(int X, int Y)[]> TopToBottom(int width, int height, int filterWidth, int filterHeight, int stride)
         {
             int y = 0, x = 0;
@@ -59,7 +77,12 @@ namespace BrightWire.Helper
             return ret;
         }
 
-        public delegate List<(int X, int Y)[]> ConvolutionalDelegate(int width, int height, int filterWidth, int filterHeight, int stride);
+	    /// <inheritdoc />
+	    public delegate List<(int X, int Y)[]> ConvolutionalDelegate(int width, int height, int filterWidth, int filterHeight, int stride);
+
+		/// <summary>
+		/// Default convolutional direction
+		/// </summary>
         public static ConvolutionalDelegate Default = TopToBottom;
     }
 }

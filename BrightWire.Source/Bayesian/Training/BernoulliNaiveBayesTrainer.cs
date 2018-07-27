@@ -7,15 +7,14 @@ using System.Linq;
 namespace BrightWire.Bayesian.Training
 {
     // http://nlp.stanford.edu/IR-book/html/htmledition/the-bernoulli-model-1.html
-    internal class BernoulliNaiveBayesTrainer
+    class BernoulliNaiveBayesTrainer
     {
         readonly HashSet<uint> _vocabulary = new HashSet<uint>();
         readonly Dictionary<string, List<IndexList>> _documentClass = new Dictionary<string, List<IndexList>>();
 
         public void AddClassification(string documentClass, IndexList indexList)
         {
-            List<IndexList> temp;
-            if (!_documentClass.TryGetValue(documentClass, out temp))
+	        if (!_documentClass.TryGetValue(documentClass, out var temp))
                 _documentClass.Add(documentClass, temp = new List<IndexList>());
 
             foreach (var item in indexList.Index)
@@ -26,15 +25,13 @@ namespace BrightWire.Bayesian.Training
         public BernoulliNaiveBayes Train()
         {
             double numDocs = _documentClass.Sum(d => d.Value.Count);
-            double numWords = _vocabulary.Count;
 
-            HashSet<int> temp;
-            var ret = new List<BernoulliNaiveBayes.Class>();
+	        var ret = new List<BernoulliNaiveBayes.Class>();
             foreach (var item in _documentClass) {
                 var docTerm = new Dictionary<uint, HashSet<int>>();
                 for (int i = 0; i < item.Value.Count; i++) {
                     foreach (var word in item.Value[i].Index) {
-                        if (!docTerm.TryGetValue(word, out temp))
+                        if (!docTerm.TryGetValue(word, out var temp))
                             docTerm.Add(word, temp = new HashSet<int>());
                         temp.Add(i);
                     }

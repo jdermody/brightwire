@@ -12,7 +12,7 @@ namespace BrightWire.LinearAlgebra
     /// <summary>
     /// Vector that uses the CPU based math.net numerics library
     /// </summary>
-    internal class CpuVector : IIndexableVector
+    class CpuVector : IIndexableVector
     {
         readonly Vector<float> _vector;
 
@@ -46,15 +46,8 @@ namespace BrightWire.LinearAlgebra
 
         public float this[int index]
         {
-            get
-            {
-                return _vector[index];
-            }
-
-            set
-            {
-                _vector[index] = value;
-            }
+            get => _vector[index];
+	        set => _vector[index] = value;
         }
 
         public float[] ToArray()
@@ -62,23 +55,10 @@ namespace BrightWire.LinearAlgebra
             return _vector.ToArray();
         }
 
-        public int Count
-        {
-            get
-            {
-                return _vector.Count;
-            }
-        }
+        public int Count => _vector.Count;
+	    public object WrappedObject => _vector;
 
-        public object WrappedObject
-        {
-            get
-            {
-                return _vector;
-            }
-        }
-
-        public IVector Add(IVector vector)
+	    public IVector Add(IVector vector)
         {
             var other = (CpuVector)vector;
             return new CpuVector(_vector.Add(other._vector));
@@ -102,12 +82,12 @@ namespace BrightWire.LinearAlgebra
 
         public int MaximumIndex()
         {
-            return _vector.Map(v => Math.Abs(v)).MaximumIndex();
+            return _vector.Map(Math.Abs).MaximumIndex();
         }
 
         public int MinimumIndex()
         {
-            return _vector.Map(v => Math.Abs(v)).MinimumIndex();
+            return _vector.Map(Math.Abs).MinimumIndex();
         }
 
         public void Multiply(float scalar)

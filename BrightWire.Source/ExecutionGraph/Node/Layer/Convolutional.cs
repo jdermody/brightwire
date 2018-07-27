@@ -35,7 +35,6 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
             protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
-                var lap = context.LinearAlgebraProvider;
                 var tensor = errorSignal.GetMatrix().ConvertTo4DTensor(_newHeight, _newWidth, _source._filter.ColumnCount);
                 var padding = _source._padding;
 
@@ -109,7 +108,6 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         public override void ExecuteForward(IContext context)
         {
             var input = context.Data;
-            var lap = context.LinearAlgebraProvider;
             var tensor = input.GetMatrix().ConvertTo4DTensor(input.Rows, input.Columns, input.Depth);
 
             var inputWidth = tensor.ColumnCount;

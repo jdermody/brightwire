@@ -12,9 +12,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
     class OneToManyDataTableAdaptor : RowBasedDataTableAdaptorBase
     {
         readonly int[] _rowDepth;
-        readonly int _inputSize, _outputSize;
 
-        public OneToManyDataTableAdaptor(ILinearAlgebraProvider lap, IDataTable dataTable) 
+	    public OneToManyDataTableAdaptor(ILinearAlgebraProvider lap, IDataTable dataTable) 
             : base(lap, dataTable)
         {
             if (_dataColumnIndex.Length > 1)
@@ -31,8 +30,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
                     throw new ArgumentException("Rows between input and output data tables do not match");
             });
 
-            _inputSize = inputVector.Size;
-            _outputSize = outputMatrix.ColumnCount;
+            InputSize = inputVector.Size;
+            OutputSize = outputMatrix.ColumnCount;
         }
 
         public override IDataSource CloneWith(IDataTable dataTable)
@@ -41,10 +40,10 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         }
 
         public override bool IsSequential => true;
-        public override int InputSize => _inputSize;
-        public override int OutputSize => _outputSize;
+        public override int InputSize { get; }
+	    public override int OutputSize { get; }
 
-        public override IReadOnlyList<IReadOnlyList<int>> GetBuckets()
+	    public override IReadOnlyList<IReadOnlyList<int>> GetBuckets()
         {
             return _rowDepth
                 .Select((r, i) => (r, i))
@@ -62,10 +61,9 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             ;
             var outputData = new Dictionary<int, List<FloatVector>>();
             foreach (var item in data) {
-                var input = item.Item1;
                 var output = item.Item2;
                 for (int i = 0, len = output.RowCount; i < len; i++) {
-                    if (!outputData.TryGetValue(i, out List<FloatVector> temp))
+                    if (!outputData.TryGetValue(i, out var temp))
                         outputData.Add(i, temp = new List<FloatVector>());
                     temp.Add(output.Row[i]);
                 }

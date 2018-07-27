@@ -5,7 +5,7 @@ namespace BrightWire.ExecutionGraph.Action
     /// <summary>
     /// Backpropagates the graph against the error metric
     /// </summary>
-    internal class Backpropagate : IAction
+    class Backpropagate : IAction
     {
         IErrorMetric _errorMetric;
 

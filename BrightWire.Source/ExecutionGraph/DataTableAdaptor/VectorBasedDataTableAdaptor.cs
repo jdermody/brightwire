@@ -9,21 +9,19 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
     /// </summary>
     class VectorBasedDataTableAdaptor : RowBasedDataTableAdaptorBase
     {
-        readonly int _inputSize, _outputSize;
-
-        public VectorBasedDataTableAdaptor(ILinearAlgebraProvider lap, IDataTable dataTable) : base(lap, dataTable)
+	    public VectorBasedDataTableAdaptor(ILinearAlgebraProvider lap, IDataTable dataTable) : base(lap, dataTable)
         {
             var firstRow = dataTable.GetRow(0);
             var input = (FloatVector)firstRow.Data[_dataColumnIndex.First()];
             var output = (FloatVector)firstRow.Data[_dataTargetIndex];
 
-            _inputSize = input.Size;
-            _outputSize = output.Size;
+            InputSize = input.Size;
+            OutputSize = output.Size;
         }
 
-        public override int InputSize => _inputSize;
-        public override int OutputSize => _outputSize;
-        public override bool IsSequential => false;
+        public override int InputSize { get; }
+	    public override int OutputSize { get; }
+	    public override bool IsSequential => false;
 
         public override IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<int> rows)
         {

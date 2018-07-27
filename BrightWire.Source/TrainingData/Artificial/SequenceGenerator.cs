@@ -11,13 +11,12 @@ namespace BrightWire.TrainingData.Artificial
     /// </summary>
     public class SequenceGenerator
     {
-        readonly int _dictionarySize;
-        readonly int _minSize, _maxSize;
+	    readonly int _minSize, _maxSize;
         readonly bool _noRepeat;
         readonly Random _rnd;
 
-        static char[] _dictionary;
-        static Dictionary<char, int> _charTable;
+        static readonly char[] _dictionary;
+        static readonly Dictionary<char, int> _charTable;
 
         static SequenceGenerator()
         {
@@ -43,10 +42,10 @@ namespace BrightWire.TrainingData.Artificial
         {
             _rnd = isStochastic ? new Random() : new Random(0);
             _noRepeat = noRepeat;
-            _dictionarySize = Math.Min(_dictionary.Length, dictionarySize);
+            DictionarySize = Math.Min(_dictionary.Length, dictionarySize);
             if (noRepeat) {
-                _minSize = Math.Min(_dictionarySize, minSize);
-                _maxSize = Math.Min(_dictionarySize, maxSize);
+                _minSize = Math.Min(DictionarySize, minSize);
+                _maxSize = Math.Min(DictionarySize, maxSize);
             } else {
                 _minSize = minSize;
                 _maxSize = maxSize;
@@ -56,9 +55,9 @@ namespace BrightWire.TrainingData.Artificial
         /// <summary>
         /// The number of letters to use
         /// </summary>
-        public int DictionarySize => _dictionarySize;
+        public int DictionarySize { get; }
 
-        int _NextSequenceLength
+	    int _NextSequenceLength
         {
             get
             {
@@ -76,12 +75,12 @@ namespace BrightWire.TrainingData.Artificial
         {
             var sb = new StringBuilder();
             if (_noRepeat) {
-                var indices = Enumerable.Range(0, _dictionarySize).Shuffle(_rnd).Take(_NextSequenceLength);
+                var indices = Enumerable.Range(0, DictionarySize).Shuffle(_rnd).Take(_NextSequenceLength);
                 foreach(var index in indices)
                     sb.Append(_dictionary[index]);
             } else {
                 for (int i = 0, len = _NextSequenceLength; i < len; i++)
-                    sb.Append(_dictionary[_rnd.Next(0, _dictionarySize)]);
+                    sb.Append(_dictionary[_rnd.Next(0, DictionarySize)]);
             }
             return sb.ToString();
         }
@@ -94,7 +93,7 @@ namespace BrightWire.TrainingData.Artificial
         /// <returns></returns>
         public FloatVector Encode(char ch, float val = 1f)
         {
-            var ret = new float[_dictionarySize];
+            var ret = new float[DictionarySize];
             ret[_charTable[ch]] = val;
             return new FloatVector {
                 Data = ret
@@ -108,7 +107,7 @@ namespace BrightWire.TrainingData.Artificial
         /// <returns></returns>
         public FloatVector Encode(IEnumerable<(char, float)> data)
         {
-            var ret = new float[_dictionarySize];
+            var ret = new float[DictionarySize];
             foreach(var item in data)
                 ret[_charTable[item.Item1]] = item.Item2;
             return new FloatVector {

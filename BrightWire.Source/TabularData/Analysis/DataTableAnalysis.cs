@@ -12,7 +12,7 @@ namespace BrightWire.TabularData.Analysis
     /// </summary>
     internal class DataTableAnalysis : IRowProcessor, IDataTableAnalysis
     {
-		static HashSet<ColumnType> _invalidColumnType = new HashSet<ColumnType>
+		static readonly HashSet<ColumnType> _invalidColumnType = new HashSet<ColumnType>
 		{
 			ColumnType.Date,
 			//ColumnType.Boolean,
@@ -63,18 +63,8 @@ namespace BrightWire.TabularData.Analysis
             return true;
         }
 
-        public IEnumerable<IColumnInfo> ColumnInfo { get { return _column.Cast<IColumnInfo>(); } }
-
-        public IColumnInfo this[int columnIndex]
-        {
-            get
-            {
-                return ColumnInfo
-                    .Where(c => c.ColumnIndex == columnIndex)
-                    .FirstOrDefault()
-                ;
-            }
-        }
+        public IEnumerable<IColumnInfo> ColumnInfo => _column.Cast<IColumnInfo>();
+	    public IColumnInfo this[int columnIndex] => ColumnInfo.FirstOrDefault(c => c.ColumnIndex == columnIndex);
 
         public string AsXml
         {

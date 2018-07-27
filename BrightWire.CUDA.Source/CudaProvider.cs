@@ -85,8 +85,7 @@ namespace BrightWire.LinearAlgebra
             }
         }
 
-        readonly bool _stochastic;
-        readonly CudaContext _cuda;
+	    readonly CudaContext _cuda;
         readonly CudaBlas _blas;
         readonly Lazy<CudaSolveDense> _solver = new Lazy<CudaSolveDense>();
         readonly KernelModule _kernel;
@@ -152,7 +151,7 @@ namespace BrightWire.LinearAlgebra
 
         public CudaProvider(string cudaKernelPath, bool stochastic, int memoryCacheSize)
         {
-            _stochastic = stochastic;
+            IsStochastic = stochastic;
             _cache = new DeviceMemory(memoryCacheSize);
             _cuda = new CudaContext();
             _kernel = new KernelModule(_cuda, cudaKernelPath);
@@ -236,8 +235,9 @@ namespace BrightWire.LinearAlgebra
         }
 
         public ILinearAlgebraProvider NumericsProvider => _numerics;
-        public bool IsStochastic => _stochastic;
-        public bool IsGpu => true;
+        public bool IsStochastic { get; }
+
+	    public bool IsGpu => true;
         internal CudaContext Context => _cuda;
         internal CudaBlas Blas => _blas;
 	    public CudaSolveDense Solver => _solver.Value;

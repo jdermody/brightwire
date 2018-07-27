@@ -8,7 +8,7 @@ namespace BrightWire.Bayesian
     /// <summary>
     /// Naive bayes classifier
     /// </summary>
-    internal class NaiveBayesClassifier : IRowClassifier
+    class NaiveBayesClassifier : IRowClassifier
     {
         interface IProbabilityProvider
         {
@@ -29,9 +29,8 @@ namespace BrightWire.Bayesian
 
             public double GetProbability(IRow row)
             {
-                double ret;
-                var val = row.GetField<string>(_columnIndex);
-                if (_probability.TryGetValue(val, out ret))
+	            var val = row.GetField<string>(_columnIndex);
+                if (_probability.TryGetValue(val, out var ret))
                     return ret;
                 return _nullValue;
             }
@@ -57,7 +56,7 @@ namespace BrightWire.Bayesian
         public NaiveBayesClassifier(NaiveBayes model)
         {
             foreach (var cls in model.Class) {
-                List<IProbabilityProvider> list = new List<IProbabilityProvider>();
+                var list = new List<IProbabilityProvider>();
                 foreach (var col in cls.ColumnSummary) {
                     if (col.Type == NaiveBayes.ColumnType.Categorical)
                         list.Add(new CategoricalColumn(col as NaiveBayes.CategorialColumn));
@@ -72,7 +71,7 @@ namespace BrightWire.Bayesian
         {
             var ret = new Dictionary<string, double>();
             foreach (var cls in _classProbability) {
-                double score = cls.Item2;
+                var score = cls.Item2;
                 foreach (var item in cls.Item3)
                     score += item.GetProbability(row);
                 ret.Add(cls.Item1, score);

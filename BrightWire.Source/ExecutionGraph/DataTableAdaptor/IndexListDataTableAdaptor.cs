@@ -9,7 +9,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
     /// </summary>
     class IndexListDataTableAdaptor : DataTableAdaptorBase<(List<IndexList>, FloatVector)>, IIndexListEncoder
     {
-        readonly int _inputSize, _outputSize;
+        readonly int _inputSize;
         readonly IDataTableVectoriser _vectoriser;
 
         public IndexListDataTableAdaptor(ILinearAlgebraProvider lap, IDataTable dataTable, IDataTableVectoriser vectoriser)
@@ -17,7 +17,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         {
             _vectoriser = vectoriser;
             _inputSize = vectoriser.InputSize;
-            _outputSize = _vectoriser.OutputSize;
+            OutputSize = _vectoriser.OutputSize;
 
             // load the data
             dataTable.ForEach(row => _data.Add((_dataColumnIndex.Select(i => row.GetField<IndexList>(i)).ToList(), _vectoriser.GetOutput(row))));
@@ -25,8 +25,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 
         public override bool IsSequential => false;
         public override int InputSize => _inputSize;
-        public override int OutputSize => _outputSize;
-        public override int RowCount => _data.Count;
+        public override int OutputSize { get; }
+	    public override int RowCount => _data.Count;
 
         public float[] Encode(IndexList indexList)
         {
@@ -39,7 +39,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         public override IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<int> rows)
         {
             var data = _GetRows(rows)
-                .Select(r => (r.Item1.Select(d => Encode(d)).ToArray(), r.Item2.Data))
+                .Select(r => (r.Item1.Select(Encode).ToArray(), r.Item2.Data))
                 .ToList()
             ;
             return _GetMiniBatch(rows, data);

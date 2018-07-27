@@ -1,16 +1,17 @@
 ﻿namespace BrightWire.ExecutionGraph.Helper
 {
-    /// <summary>
-    /// A wire to a graph node
-    /// </summary>
-    class WireToNode : IWire
+	/// <inheritdoc />
+	public class WireToNode : IWire
     {
-        readonly INode _node;
-        readonly int _channel;
-
-        public WireToNode(INode node, int channel = 0) { _node = node; _channel = channel; }
-
-        public INode SendTo => _node;
-        public int Channel => _channel;
+	    /// <summary>
+		/// Constructor
+		/// </summary>
+		/// <param name="node">The destination node</param>
+		/// <param name="channel">The input channel on the node</param>
+        public WireToNode(INode node, int channel = 0) { SendTo = node; Channel = channel; }
+	    /// <inheritdoc />
+        public INode SendTo { get; }
+	    /// <inheritdoc />
+	    public int Channel { get; }
     }
 }

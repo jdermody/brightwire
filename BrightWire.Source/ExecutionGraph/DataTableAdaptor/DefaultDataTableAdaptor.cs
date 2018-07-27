@@ -13,7 +13,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         public DefaultDataTableAdaptor(ILinearAlgebraProvider lap, IDataTable dataTable, IDataTableVectoriser vectoriser = null)
             : base(lap, dataTable)
         {
-            _vectoriser = vectoriser ?? dataTable.GetVectoriser(true);
+            _vectoriser = vectoriser ?? dataTable.GetVectoriser();
         }
 
         public override IDataSource CloneWith(IDataTable dataTable)

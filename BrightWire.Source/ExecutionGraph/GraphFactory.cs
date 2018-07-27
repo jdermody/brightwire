@@ -19,7 +19,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.Serialization;
 
 namespace BrightWire.ExecutionGraph
@@ -34,7 +33,7 @@ namespace BrightWire.ExecutionGraph
         readonly ICreateTemplateBasedGradientDescent _rmsProp = new RmsPropDescriptor(0.9f);
         //readonly List<(TypeInfo, Type, string)> _queryTypes = new List<(TypeInfo, Type, string)>();
         readonly Stack<IPropertySet> _propertySetStack = new Stack<IPropertySet>();
-        IPropertySet _defaultPropertySet;
+	    readonly IPropertySet _defaultPropertySet;
 
         /// <summary>
         /// Constructor
@@ -95,11 +94,6 @@ namespace BrightWire.ExecutionGraph
             if (_propertySetStack.Any())
                 _propertySetStack.Pop();
         }
-
-        //void _Add(Type type, string name)
-        //{
-        //    _queryTypes.Add((type.GetTypeInfo(), type, name));
-        //}
 
         /// <summary>
         /// Creates a gradient descent optimiser for the given matrix
@@ -417,7 +411,7 @@ namespace BrightWire.ExecutionGraph
         public INode CreateConvolutional(int inputDepth, int filterCount, int padding, int filterWidth, int filterHeight, int stride, bool shouldBackpropagate = true, string name = null)
         {
             var weightInit = _GetWeightInitialisation();
-            return new Convolutional(shouldBackpropagate, weightInit, weight => CreateWeightUpdater(weight), inputDepth, filterCount, padding, filterWidth, filterHeight, stride, name);
+            return new Convolutional(shouldBackpropagate, weightInit, CreateWeightUpdater, inputDepth, filterCount, padding, filterWidth, filterHeight, stride, name);
         }
 
         /// <summary>
@@ -495,13 +489,6 @@ namespace BrightWire.ExecutionGraph
             return new ReverseSequence(index, name);
         }
 
-        /// <summary>
-        /// Creates a batch normalisation layer (currently only implemented for FF layers)
-        /// </summary>
-        /// <param name="inputSize">Number of incoming connections</param>
-        /// <param name="name">Optional name to give the node</param>
-        /// <param name="momentum">Online mean and variance rate of change</param>
-        /// <returns></returns>
         //public INode CreateBatchNormalisation(int inputSize, string name, float momentum = 0.9f)
         //{
         //    return new BatchNormalisation(this, inputSize, _GetWeightInitialisation(), 0.9f, name);
@@ -889,22 +876,22 @@ namespace BrightWire.ExecutionGraph
             /// <summary>
             /// Adam gradient descent
             /// </summary>
-            public ICreateTemplateBasedGradientDescent Adam { get; } = new AdamDescriptor(0.9f, 0.99f);
+            public ICreateTemplateBasedGradientDescent Adam { get; } = new AdamDescriptor();
 
             /// <summary>
             /// Momentum gradient descent
             /// </summary>
-            public ICreateTemplateBasedGradientDescent Momentum { get; } = new MomentumDescriptor(0.9f);
+            public ICreateTemplateBasedGradientDescent Momentum { get; } = new MomentumDescriptor();
 
             /// <summary>
             /// Nesterov momentum gradient descent
             /// </summary>
-            public ICreateTemplateBasedGradientDescent NesterovMomentum { get; } = new NesterovMomentumDescriptor(0.9f);
+            public ICreateTemplateBasedGradientDescent NesterovMomentum { get; } = new NesterovMomentumDescriptor();
 
             /// <summary>
             /// Rms prop gradient descent
             /// </summary>
-            public ICreateTemplateBasedGradientDescent RmsProp { get; } = new RmsPropDescriptor(0.9f);
+            public ICreateTemplateBasedGradientDescent RmsProp { get; } = new RmsPropDescriptor();
         }
         /// <summary>
         /// Prebuilt gradient descent optimisers

@@ -32,7 +32,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
         }
 
         readonly float[] _data;
-        SetMemory _setMemory;
+	    readonly SetMemory _setMemory;
 
         public MemoryFeeder(float[] data, string name = null, string id = null) : base(name, id)
         {
@@ -43,8 +43,8 @@ namespace BrightWire.ExecutionGraph.Node.Input
         public IAction SetMemoryAction => _setMemory;
         public FloatVector Data
         {
-            get { return new FloatVector { Data = _data }; }
-            set { value.Data.CopyTo(_data, 0); }
+            get => new FloatVector { Data = _data };
+	        set => value.Data.CopyTo(_data, 0);
         }
 
         public override void ExecuteForward(IContext context)

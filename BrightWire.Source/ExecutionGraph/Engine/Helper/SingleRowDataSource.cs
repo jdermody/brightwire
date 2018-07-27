@@ -11,50 +11,42 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     {
         class Sequence : IMiniBatchSequence
         {
-            readonly IReadOnlyList<IGraphData> _data;
-            readonly IMiniBatch _miniBatch;
-            readonly MiniBatchSequenceType _sequenceType;
-            readonly int _sequenceIndex;
-
-            public Sequence(IReadOnlyList<IGraphData> data, IMiniBatch miniBatch, MiniBatchSequenceType sequenceType, int sequenceIndex)
+	        public Sequence(IReadOnlyList<IGraphData> data, IMiniBatch miniBatch, MiniBatchSequenceType sequenceType, int sequenceIndex)
             {
-                _data = data;
-                _miniBatch = miniBatch;
-                _sequenceType = sequenceType;
-                _sequenceIndex = sequenceIndex;
+                Input = data;
+                MiniBatch = miniBatch;
+                Type = sequenceType;
+                SequenceIndex = sequenceIndex;
             }
-            public IMiniBatch MiniBatch => _miniBatch;
-            public int SequenceIndex => _sequenceIndex;
-            public MiniBatchSequenceType Type => _sequenceType;
-            public IReadOnlyList<IGraphData> Input => _data;
-            public IGraphData Target => null;
+            public IMiniBatch MiniBatch { get; }
+	        public int SequenceIndex { get; }
+	        public MiniBatchSequenceType Type { get; }
+	        public IReadOnlyList<IGraphData> Input { get; }
+	        public IGraphData Target => null;
         }
-        class MiniBatch : IMiniBatch
+        class SingleRowMiniBatch : IMiniBatch
         {
-            readonly IMiniBatchSequence _sequence;
-            readonly IDataSource _dataSource;
-            readonly bool _isSequential;
-            int _index = 0;
+	        int _index = 0;
 
-            public MiniBatch(IDataSource dataSource, IGraphData data, bool isSequential, MiniBatchSequenceType sequenceType, int sequenceIndex)
+            public SingleRowMiniBatch(IDataSource dataSource, IGraphData data, bool isSequential, MiniBatchSequenceType sequenceType, int sequenceIndex)
             {
-                _sequence = new Sequence(new[] { data }, this, sequenceType, sequenceIndex);
-                _dataSource = dataSource;
-                _isSequential = isSequential;
+                CurrentSequence = new Sequence(new[] { data }, this, sequenceType, sequenceIndex);
+                DataSource = dataSource;
+                IsSequential = isSequential;
             }
 
             public IReadOnlyList<int> Rows => new[] { 0 };
-            public IDataSource DataSource => _dataSource;
-            public bool IsSequential => _isSequential;
-            public int BatchSize => 1;
-            public IMiniBatchSequence CurrentSequence => _sequence;
-            public bool HasNextSequence => false;
+            public IDataSource DataSource { get; }
+	        public bool IsSequential { get; }
+	        public int BatchSize => 1;
+            public IMiniBatchSequence CurrentSequence { get; }
+	        public bool HasNextSequence => false;
             public int SequenceCount => 0;
             public void Reset() => _index = 0;
             public IMiniBatchSequence GetNextSequence()
             {
                 if(_index++ == 0)
-                    return _sequence;
+                    return CurrentSequence;
                 return null;
             }
             public IMiniBatchSequence GetSequenceAtIndex(int index)
@@ -65,19 +57,18 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 
         readonly float[] _data;
         readonly int _sequenceIndex;
-        readonly bool _isSequential;
-        readonly MiniBatchSequenceType _sequenceType;
+	    readonly MiniBatchSequenceType _sequenceType;
 
         public SingleRowDataSource(float[] data, bool isSequential, MiniBatchSequenceType sequenceType, int sequenceIndex)
         {
             _data = data;
             _sequenceIndex = sequenceIndex;
-            _isSequential = isSequential;
+            IsSequential = isSequential;
             _sequenceType = sequenceType;
         }
 
-        public bool IsSequential => _isSequential;
-        public int InputSize => _data.Length;
+        public bool IsSequential { get; }
+	    public int InputSize => _data.Length;
         public int OutputSize => throw new NotImplementedException();
         public int RowCount => 1;
         public int InputCount => 1;
@@ -90,7 +81,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<int> rows)
         {
             var data = executionContext.LinearAlgebraProvider.CreateVector(_data);
-            return new MiniBatch(this, new MatrixGraphData(data.ToRowMatrix()), _isSequential, _sequenceType, _sequenceIndex);
+            return new SingleRowMiniBatch(this, new MatrixGraphData(data.ToRowMatrix()), IsSequential, _sequenceType, _sequenceIndex);
         }
 
         public IReadOnlyList<IReadOnlyList<int>> GetBuckets()

@@ -11,8 +11,7 @@ namespace BrightWire.ExecutionGraph.DataSource
     /// </summary>
     class VectorDataSource : IDataSource
     {
-        readonly int _inputSize, _outputSize;
-        readonly IReadOnlyList<FloatVector> _data;
+	    readonly IReadOnlyList<FloatVector> _data;
         readonly ILinearAlgebraProvider _lap;
 
         public VectorDataSource(ILinearAlgebraProvider lap, IReadOnlyList<FloatVector> data)
@@ -21,15 +20,15 @@ namespace BrightWire.ExecutionGraph.DataSource
             _data = data;
 
             var first = data.First();
-            _inputSize = first.Size;
-            _outputSize = -1;
+            InputSize = first.Size;
+            OutputSize = -1;
         }
 
         public int InputCount => 1;
         public bool IsSequential => false;
-        public int InputSize => _inputSize;
-        public int OutputSize => _outputSize;
-        public int RowCount => _data.Count;
+        public int InputSize { get; }
+	    public int OutputSize { get; }
+	    public int RowCount => _data.Count;
 
         public IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<int> rows)
         {

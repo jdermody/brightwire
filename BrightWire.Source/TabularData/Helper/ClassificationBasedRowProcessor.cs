@@ -7,7 +7,7 @@ namespace BrightWire.TabularData.Helper
     /// <summary>
     /// Processes rows based on each row's classification label
     /// </summary>
-    internal class ClassificationBasedRowProcessor : IRowProcessor
+    class ClassificationBasedRowProcessor : IRowProcessor
     {
         readonly int _classificationColumnIndex;
         readonly Dictionary<string, List<IRowProcessor>> _columnProcessor = new Dictionary<string, List<IRowProcessor>>();
@@ -43,7 +43,7 @@ namespace BrightWire.TabularData.Helper
             return true;
         }
 
-        public IEnumerable<Tuple<string, IRowProcessor>> All { get { return _columnProcessor.SelectMany(d => d.Value.Select(d2 => Tuple.Create(d.Key, d2))); } }
+        public IEnumerable<Tuple<string, IRowProcessor>> All=> _columnProcessor.SelectMany(d => d.Value.Select(d2 => Tuple.Create(d.Key, d2)));
 
         public double GetProbability(string className)
         {

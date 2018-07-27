@@ -9,7 +9,7 @@ namespace BrightWire.Unsupervised
     /// K Means clustering
     /// https://en.wikipedia.org/wiki/K-means_clustering
     /// </summary>
-    internal class KMeans : IDisposable
+    class KMeans : IDisposable
     {
         class ClusterData : IDisposable
         {
@@ -104,7 +104,7 @@ namespace BrightWire.Unsupervised
             {
                 return _centroid.Select(c => c.Data).ToList();
             }
-            public IReadOnlyList<Centroid> Centroids { get { return _centroid; } }
+            public IReadOnlyList<Centroid> Centroids => _centroid;
         }
 
         readonly int _k;

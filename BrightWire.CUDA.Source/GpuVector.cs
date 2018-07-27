@@ -7,6 +7,7 @@ using System.Threading;
 using BrightWire.Models;
 using ManagedCuda.BasicTypes;
 using BrightWire.Cuda.Helper;
+using BrightWire.LinearAlgebra.Helper;
 
 namespace BrightWire.LinearAlgebra
 {
@@ -373,7 +374,7 @@ namespace BrightWire.LinearAlgebra
 			} else if (type == NormalisationType.Standard) {
 				var mean = Average();
 				var stdDev = StdDev(mean);
-				if (stdDev != 0f)
+				if (BoundMath.IsNotZero(stdDev))
 					_cuda.Normalise(_data, Count, mean, stdDev);
 			} else if (type == NormalisationType.Euclidean || type == NormalisationType.Manhattan) {
 				float p;
@@ -382,7 +383,7 @@ namespace BrightWire.LinearAlgebra
 				else
 					p = L2Norm();
 
-				if (p != 0f)
+				if (BoundMath.IsNotZero(p))
 					Multiply(1f / p);
 			}
 		}
@@ -394,7 +395,7 @@ namespace BrightWire.LinearAlgebra
 
 			var softmax = _cuda.SoftmaxVector(_data, Count, minMax.Max);
 			var softmaxSum = _cuda.SumValues(softmax, Count);
-			if (softmaxSum != 0f)
+			if (BoundMath.IsNotZero(softmaxSum))
 				_cuda.Blas.Scale(1f / softmaxSum, softmax.DeviceVariable, 1);
 			return new GpuVector(_cuda, softmax);
 		}

@@ -79,20 +79,20 @@ namespace BrightWire.TreeBased.Training
         }
         class InMemoryRow
         {
-            readonly string _classificationLabel;
-            readonly Dictionary<int, string> _category = new Dictionary<int, string>();
+	        readonly Dictionary<int, string> _category = new Dictionary<int, string>();
             readonly Dictionary<int, double> _continuous = new Dictionary<int, double>();
 
             public InMemoryRow(IRow row, HashSet<int> categorical, HashSet<int> continuous, int classColumnIndex)
             {
-                _classificationLabel = row.GetField<string>(classColumnIndex);
+                ClassificationLabel = row.GetField<string>(classColumnIndex);
                 foreach (var columnIndex in categorical)
                     _category.Add(columnIndex, row.GetField<string>(columnIndex));
                 foreach(var columnIndex in continuous)
                     _continuous.Add(columnIndex, row.GetField<double>(columnIndex));
             }
-            public string ClassificationLabel { get { return _classificationLabel; } }
-            public string GetCategory(int columnIndex)
+            public string ClassificationLabel { get; }
+
+	        public string GetCategory(int columnIndex)
             {
                 return _category[columnIndex];
             }
@@ -106,13 +106,12 @@ namespace BrightWire.TreeBased.Training
             readonly HashSet<int> _categorical = new HashSet<int>();
             readonly HashSet<int> _continuous = new HashSet<int>();
             readonly List<InMemoryRow> _data = new List<InMemoryRow>();
-            readonly int _classColumnIndex;
 
-            public TableInfo(IDataTable table)
+			public TableInfo(IDataTable table)
             {
-                _classColumnIndex = table.TargetColumnIndex;
+                ClassColumnIndex = table.TargetColumnIndex;
                 for (int i = 0, len = table.ColumnCount; i < len; i++) {
-                    if (i != _classColumnIndex) {
+                    if (i != ClassColumnIndex) {
                         var column = table.Columns[i];
                         if (column.IsContinuous)
                             _continuous.Add(i);
@@ -120,18 +119,17 @@ namespace BrightWire.TreeBased.Training
                             _categorical.Add(i);
                     }
                 }
-                table.ForEach(row => _data.Add(new InMemoryRow(row, _categorical, _continuous, _classColumnIndex)));
+                table.ForEach(row => _data.Add(new InMemoryRow(row, _categorical, _continuous, ClassColumnIndex)));
             }
-            public IEnumerable<int> CategoricalColumns { get { return _categorical; } }
-            public IEnumerable<int> ContinuousColumns { get { return _continuous; } }
-            public IReadOnlyList<InMemoryRow> Data { get { return _data; } }
-            public int ClassColumnIndex { get { return _classColumnIndex; } }
-        }
+            public IEnumerable<int> CategoricalColumns => _categorical;
+	        public IEnumerable<int> ContinuousColumns => _continuous;
+	        public IReadOnlyList<InMemoryRow> Data => _data;
+			public int ClassColumnIndex { get; }
+		}
         class Node
         {
             readonly TableInfo _tableInfo;
-            readonly IReadOnlyList<InMemoryRow> _data;
-            readonly Dictionary<string, int> _classCount;
+	        readonly Dictionary<string, int> _classCount;
             Node _parent = null;
             Attribute _attribute = null;
             IReadOnlyList<Node> _children = null;
@@ -139,7 +137,7 @@ namespace BrightWire.TreeBased.Training
 
             public Node(TableInfo tableInfo, IReadOnlyList<InMemoryRow> data, string matchLabel)
             {
-                _data = data;
+                Data = data;
                 _tableInfo = tableInfo;
                 _matchLabel = matchLabel;
                 _classCount = data.GroupBy(d => d.ClassificationLabel).ToDictionary(g => g.Key, g => g.Count());
@@ -163,7 +161,7 @@ namespace BrightWire.TreeBased.Training
                 {
                     var continuousValues = new Dictionary<int, HashSet<double>>();
                     var categoricalValues = new Dictionary<int, HashSet<string>>();
-                    foreach(var item in _data) {
+                    foreach(var item in Data) {
                         foreach(var column in _tableInfo.CategoricalColumns) {
                             if (!categoricalValues.TryGetValue(column, out HashSet<string> temp2))
                                 categoricalValues.Add(column, temp2 = new HashSet<string>());
@@ -247,10 +245,10 @@ namespace BrightWire.TreeBased.Training
                     }
                 }
             }
-            public bool IsLeaf { get { return _classCount.Count <= 1; } }
-            public string PredictedClass { get { return _classCount.OrderByDescending(kv => kv.Value).Select(kv => kv.Key).FirstOrDefault(); } }
-            public IReadOnlyList<InMemoryRow> Data { get { return _data; } }
-            public string MatchLabel { get { return _matchLabel; } }
+            public bool IsLeaf => _classCount.Count <= 1;
+	        public string PredictedClass => _classCount.OrderByDescending(kv => kv.Value).Select(kv => kv.Key).FirstOrDefault();
+            public IReadOnlyList<InMemoryRow> Data { get; }
+	        public string MatchLabel => _matchLabel;
         }
 
         public class Config
@@ -328,7 +326,7 @@ namespace BrightWire.TreeBased.Training
 
         static double _GetInformationGain(double setEntity, double setCount, IReadOnlyList<Node> splits)
         {
-            double total = setEntity;
+            var total = setEntity;
             foreach(var item in splits) {
                 total -= item.Data.Count / setCount * item.Entropy;
             }

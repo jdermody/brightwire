@@ -22,6 +22,6 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
             return BoundMath.Constrain(Convert.ToSingle(0.5 * diff));
         }
 
-        public bool DisplayAsPercentage { get { return false; } }
+        public bool DisplayAsPercentage => false;
     }
 }

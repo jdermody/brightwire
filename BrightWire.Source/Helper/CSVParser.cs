@@ -140,7 +140,7 @@ namespace BrightWire.Helper
 
 			// add the columns
 			var ret = new DataTableWriter(stream);
-			foreach (var column in headerNames.Zip(columnTypes, (name, type) => Tuple.Create(name, type)))
+			foreach (var column in headerNames.Zip(columnTypes, Tuple.Create))
 				ret.AddColumn(column.Item1, column.Item2);
 
 			return ret;
@@ -159,17 +159,17 @@ namespace BrightWire.Helper
 
 		ColumnType _DetermineType(string str)
 		{
-			if (sbyte.TryParse(str, out sbyte b))
+			if (sbyte.TryParse(str, out var _))
 				return ColumnType.Byte;
-			else if (int.TryParse(str, out int it))
+			else if (int.TryParse(str, out var _))
 				return ColumnType.Int;
-			else if (long.TryParse(str, out long lng))
+			else if (long.TryParse(str, out var _))
 				return ColumnType.Long;
-			else if (float.TryParse(str, out float flt))
+			else if (float.TryParse(str, out var _))
 				return ColumnType.Float;
-			else if (double.TryParse(str, out double dbl))
+			else if (double.TryParse(str, out var _))
 				return ColumnType.Double;
-			else if (DateTime.TryParse(str, out DateTime date))
+			else if (DateTime.TryParse(str, out var _))
 				return ColumnType.Date;
 			else {
 				var upperStr = str.ToUpperInvariant();

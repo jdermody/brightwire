@@ -12,11 +12,10 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         readonly ConcurrentQueue<IGraphOperation> _operationList = new ConcurrentQueue<IGraphOperation>();
         readonly ConcurrentDictionary<string, IMatrix> _memory = new ConcurrentDictionary<string, IMatrix>();
         readonly ConcurrentDictionary<IMiniBatchSequence, System.Action<IContext>> _continuationTable = new ConcurrentDictionary<IMiniBatchSequence, System.Action<IContext>>();
-        readonly ILinearAlgebraProvider _lap;
 
-        public ExecutionContext(ILinearAlgebraProvider lap)
+	    public ExecutionContext(ILinearAlgebraProvider lap)
         {
-            _lap = lap;
+            LinearAlgebraProvider = lap;
         }
 
         public void Dispose()
@@ -26,9 +25,9 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             _memory.Clear();
         }
 
-        public ILinearAlgebraProvider LinearAlgebraProvider => _lap;
+        public ILinearAlgebraProvider LinearAlgebraProvider { get; }
 
-        public void Add(IReadOnlyList<IGraphOperation> operations)
+	    public void Add(IReadOnlyList<IGraphOperation> operations)
         {
             foreach (var item in operations)
                 _operationList.Enqueue(item);

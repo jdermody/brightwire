@@ -14,7 +14,7 @@ namespace BrightWire.ExecutionGraph.GradientDescent
             _lambda = lambda;
         }
 
-        override public void Update(IMatrix source, IMatrix delta, ILearningContext context)
+        public override void Update(IMatrix source, IMatrix delta, ILearningContext context)
         {
             var l1 = context.BatchLearningRate * _lambda;
             source.L1Regularisation(l1);

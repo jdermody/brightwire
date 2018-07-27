@@ -512,7 +512,7 @@ namespace BrightWire
     }
 
     /// <summary>
-    /// Mini batch
+    /// Information about the current mini batch
     /// </summary>
     public interface IMiniBatch
     {

@@ -1,4 +1,6 @@
-﻿using BrightWire.Models;
+﻿using System;
+using BrightWire.LinearAlgebra.Helper;
+using BrightWire.Models;
 
 namespace BrightWire.ExecutionGraph.ErrorMetric
 {
@@ -17,11 +19,11 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
             float ret = 0;
             for (var i = 0; i < output.Size; i++) {
                 var val = (output.Data[i] >= 0.5) ? 1.0f : 0.0f;
-                ret += (val == targetOutput.Data[i]) ? 1.0f : 0.0f;
+                ret += (Math.Abs(val - targetOutput.Data[i]) < BoundMath.ZERO_LIKE) ? 1.0f : 0.0f;
             }
             return ret / output.Size;
         }
 
-        public bool DisplayAsPercentage { get { return true; } }
+        public bool DisplayAsPercentage => true;
     }
 }

@@ -9,7 +9,7 @@ namespace BrightWire.TabularData.Helper
 	/// <summary>
 	/// Builds a normalisation model that can be used to normalise a data table
 	/// </summary>
-	internal class DataTableNormaliser : IRowProcessor
+	class DataTableNormaliser : IRowProcessor
 	{
 		readonly DataTableWriter _writer;
 		readonly DataTableNormalisation _normalisationModel;

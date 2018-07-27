@@ -29,7 +29,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 var es = errorSignal.GetMatrix();
 
                 // work out the next error signal
-                IMatrix ret = es.TransposeAndMultiply(_source._weight);
+                var ret = es.TransposeAndMultiply(_source._weight);
 
                 // calculate the update to the weights
                 var weightUpdate = _input.TransposeThisAndMultiply(es);

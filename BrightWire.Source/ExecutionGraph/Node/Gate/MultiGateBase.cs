@@ -19,7 +19,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             /// <summary>
             /// The channel on which the signal was received
             /// </summary>
-            public int Channel { get; private set; }
+            public int Channel { get; }
 
             /// <summary>
             /// The signal
@@ -34,7 +34,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             /// <summary>
             /// The size of the input signal
             /// </summary>
-            public int Size { get; private set; }
+            public int Size { get; }
 
             /// <summary>
             /// Constructor
@@ -79,7 +79,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// </summary>
         /// <param name="name">The name of the node (optional)</param>
         /// <param name="incoming">The list of incoming wires</param>
-        public MultiGateBase(string name, params WireBuilder[] incoming) : base(name)
+        protected MultiGateBase(string name, params WireBuilder[] incoming) : base(name)
         {
             _data = new Dictionary<int, IncomingChannel>();
             for (int i = 0, len = incoming.Length; i < len; i++)
@@ -134,24 +134,15 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             context.AddForward(new TrainingAction(this, new MatrixGraphData(output), sources), backpropagation);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        protected override (string Description, byte[] Data) _GetInfo()
+	    /// <inheritdoc />
+	    protected override (string Description, byte[] Data) _GetInfo()
         {
             return ("MG", _WriteData(WriteTo));
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="factory"></param>
-        /// <param name="reader"></param>
+	    /// <inheritdoc />
         public override void ReadFrom(GraphFactory factory, BinaryReader reader)
         {
-            var lap = factory?.LinearAlgebraProvider;
-
             if (_data == null)
                 _data = new Dictionary<int, IncomingChannel>();
             else
@@ -165,10 +156,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="writer"></param>
+	    /// <inheritdoc />
         public override void WriteTo(BinaryWriter writer)
         {
             writer.Write(_data.Count);

@@ -17,6 +17,6 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
             return output.MaximumIndex() == expectedOutput?.MaximumIndex() ? 1f : 0f;
         }
 
-        public bool DisplayAsPercentage { get { return true; } }
+        public bool DisplayAsPercentage => true;
     }
 }

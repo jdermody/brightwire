@@ -17,6 +17,11 @@ namespace BrightWire.LinearAlgebra.Helper
         /// </summary>
         public const float TOO_BIG = 1.0E20f;
 
+		/// <summary>
+		/// Tolerance for comparison to zero
+		/// </summary>
+	    public const float ZERO_LIKE = 0.000000001f;
+
         private BoundMath() { }
 
         /// <summary>
@@ -64,5 +69,24 @@ namespace BrightWire.LinearAlgebra.Helper
         {
             return Constrain((float)Math.Pow(x, y));
         }
+
+		/// <summary>
+		/// Returns true if the value approximates zero
+		/// </summary>
+		/// <param name="value">Value to test</param>
+	    public static bool IsZero(float value)
+	    {
+		    return Math.Abs(value) < ZERO_LIKE;
+	    }
+
+		/// <summary>
+		/// Returns true if the value is greater than zero
+		/// </summary>
+		/// <param name="value">Value to test</param>
+		/// <returns></returns>
+	    public static bool IsNotZero(float value)
+	    {
+		    return !IsZero(value);
+	    }
     }
 }

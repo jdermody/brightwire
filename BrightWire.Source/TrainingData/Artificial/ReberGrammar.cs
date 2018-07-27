@@ -108,9 +108,9 @@ namespace BrightWire.TrainingData.Artificial
         /// <summary>
         /// The number of REBER characters
         /// </summary>
-        public static int Size { get { return _ch.Count; } }
+        public static int Size => _ch.Count;
 
-        readonly Random _rnd;
+	    readonly Random _rnd;
 
         /// <summary>
         /// Creates a reber grammar builder

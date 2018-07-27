@@ -16,7 +16,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         protected readonly ILinearAlgebraProvider _lap;
         protected readonly List<T> _data = new List<T>();
 
-        public DataTableAdaptorBase(ILinearAlgebraProvider lap, IDataTable dataTable)
+	    protected DataTableAdaptorBase(ILinearAlgebraProvider lap, IDataTable dataTable)
         {
             _lap = lap;
             _dataTargetIndex = dataTable.TargetColumnIndex;

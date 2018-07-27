@@ -12,9 +12,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
     class ManyToOneDataTableAdaptor : RowBasedDataTableAdaptorBase
     {
         readonly int[] _rowDepth;
-        readonly int _inputSize, _outputSize;
 
-        public ManyToOneDataTableAdaptor(ILinearAlgebraProvider lap, IDataTable dataTable) 
+	    public ManyToOneDataTableAdaptor(ILinearAlgebraProvider lap, IDataTable dataTable) 
             : base(lap, dataTable)
         {
             if (_dataColumnIndex.Length > 1)
@@ -31,8 +30,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
                     throw new ArgumentException("Rows between input and output data tables do not match");
             });
 
-            _inputSize = inputMatrix.ColumnCount;
-            _outputSize = outputVector.Size;
+            InputSize = inputMatrix.ColumnCount;
+            OutputSize = outputVector.Size;
         }
 
         public override IDataSource CloneWith(IDataTable dataTable)
@@ -41,10 +40,10 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         }
 
         public override bool IsSequential => true;
-        public override int InputSize => _inputSize;
-        public override int OutputSize => _outputSize;
+        public override int InputSize { get; }
+	    public override int OutputSize { get; }
 
-        public override IReadOnlyList<IReadOnlyList<int>> GetBuckets()
+	    public override IReadOnlyList<IReadOnlyList<int>> GetBuckets()
         {
             return _rowDepth
                 .Select((r, i) => (r, i))
