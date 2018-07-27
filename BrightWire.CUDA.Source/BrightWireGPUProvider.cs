@@ -29,7 +29,7 @@ namespace BrightWire
         /// <returns></returns>
         public static string GetKernelPath()
         {
-            var assemblyLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var assemblyLocation = Path.GetDirectoryName((Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly()).Location);
             
             // This is the universal separator, returns '/' on Linux, '\' on Windows, although Windows doesn't really care
             var s = Path.DirectorySeparatorChar;
