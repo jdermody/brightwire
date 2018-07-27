@@ -2,6 +2,26 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageId>BrightWire.CUDA</PackageId>
+    <AssemblyVersion>2.0.0.6</AssemblyVersion>
+    <Version>2.0.6</Version>
+    <Authors>Jack Dermody</Authors>
+    <Product>BrightWire</Product>
+    <Copyright>Copyright © Jack Dermody 2017</Copyright>
+    <Description>This is the .net standard 2 version of BrightWire.CUDA, which runs on .net 4.61, .net core 2, Xamarin and UWP.
+
+BrightWire.CUDA adds GPU support to Bright Wire. This lets you run Bright Wire machine learning on a Maxwell or better NVIDIA GPU.
+</Description>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/jdermody/brightwire/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/jdermody/brightwire</PackageProjectUrl>
+    <PackageIconUrl>http://www.jackdermody.net/bw_favicon.png</PackageIconUrl>
+    <PackageTags>machine learning linear algebra neural network cuda gpu machinelearning</PackageTags>
+    <AssemblyName>BrightWire.Cuda.x64</AssemblyName>
+    <RootNamespace>BrightWire.CUDA</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>bin\Release\netstandard2.0\BrightWire.Cuda.x64.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,9 +44,9 @@
 
   <ItemGroup>
     <None Include="..\BrightWire.CUDA.Net4.x64\cuda\brightwire.cu" Link="cuda\brightwire.cu" />
-    <None Include="..\BrightWire.CUDA.Net4.x64\cuda\brightwire.ptx" Link="cuda\brightwire.ptx">
+    <Content Include="..\BrightWire.CUDA.Net4.x64\cuda\brightwire.ptx" Link="cuda\brightwire.ptx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    </Content>
   </ItemGroup>
 
   <Import Project="..\BrightWire.CUDA.Source\BrightWire.CUDA.Source.projitems" Label="Shared" />
