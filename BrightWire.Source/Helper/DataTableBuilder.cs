@@ -22,10 +22,11 @@ namespace BrightWire.Helper
             internal ColumnType _type;
             readonly HashSet<string> _uniqueValues = new HashSet<string>();
 
-	        public Column(ColumnType type, string name, bool isTarget)
+	        public Column(int index, ColumnType type, string name, bool isTarget)
             {
                 _type = type;
                 Name = name;
+				Index = index;
                 IsTarget = isTarget;
                 if (type == ColumnType.Double || type == ColumnType.Float)
                     _isContinuous = true;
@@ -42,6 +43,7 @@ namespace BrightWire.Helper
                 }
             }
 
+			public int Index {get;}
             public ColumnType Type => _type;
 	        public string Name { get; }
 	        public bool IsTarget { get; }
@@ -83,7 +85,7 @@ namespace BrightWire.Helper
 
 	    public IColumn AddColumn(ColumnType column, string name = "", bool isTarget = false)
         {
-            var ret = new Column(column, name, isTarget);
+            var ret = new Column(_column.Count, column, name, isTarget);
             _column.Add(ret);
             return ret;
         }

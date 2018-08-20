@@ -174,6 +174,11 @@ namespace BrightWire
     /// </summary>
     public interface IColumn
     {
+		/// <summary>
+		/// The index of the column within the data table
+		/// </summary>
+		int Index { get; }
+
         /// <summary>
         /// The name of the column
         /// </summary>

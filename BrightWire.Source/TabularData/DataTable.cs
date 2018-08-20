@@ -22,14 +22,16 @@ namespace BrightWire.TabularData
 		{
 			bool? _isContinuous;
 
-			public Column(string name, ColumnType type, int numDistinct, bool? isContinuous, bool isTarget)
+			public Column(int index, string name, ColumnType type, int numDistinct, bool? isContinuous, bool isTarget)
 			{
+				Index = index;
 				Name = name;
 				Type = type;
 				NumDistinct = numDistinct;
 				_isContinuous = isContinuous;
 				IsTarget = isTarget;
 			}
+			public int Index { get; }
 			public ColumnType Type { get; }
 			public string Name { get; }
 			public bool IsTarget { get; set; }
@@ -69,7 +71,7 @@ namespace BrightWire.TabularData
 				bool? isContinuous = null;
 				if (continuousSpecified)
 					isContinuous = reader.ReadBoolean();
-				_column.Add(new Column(name, type, numDistinct, isContinuous, isTarget));
+				_column.Add(new Column(_column.Count, name, type, numDistinct, isContinuous, isTarget));
 			}
 
 			_stream = stream;
