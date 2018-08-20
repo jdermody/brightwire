@@ -27,49 +27,40 @@ namespace BrightWire.Models.Bayesian
         }
 
         /// <summary>
-        /// A column of the data table
-        /// </summary>
-        public interface IColumn
-        {
-            /// <summary>
-            /// The type of the column
-            /// </summary>
-            ColumnType Type { get; }
-
-            /// <summary>
-            /// The column index
-            /// </summary>
-            int ColumnIndex { get; }
-        }
-
-        /// <summary>
-        /// A continous column model
+        /// A column within the naive bayes model
         /// </summary>
         [ProtoContract]
-        public class ContinuousGaussianColumn : IColumn
+        public class Column
         {
             /// <summary>
-            /// The column index
+            /// Index within the data set
             /// </summary>
             [ProtoMember(1)]
             public int ColumnIndex { get; set; }
 
+	        /// <summary>
+	        /// Type of column (categorical or continuous)
+	        /// </summary>
+	        [ProtoMember(2)]
+	        public ColumnType Type { get; set; }
+
             /// <summary>
-            /// The variance of the column values
+            /// The variance of the column values (continuous only)
             /// </summary>
-            [ProtoMember(2)]
+            [ProtoMember(3)]
             public double Variance { get; set; }
 
             /// <summary>
-            /// The mean of the column values
+            /// The mean of the column values (continuous only)
             /// </summary>
-            [ProtoMember(3)]
+            [ProtoMember(4)]
             public double Mean { get; set; }
 
-            /// <summary>
-            /// The column type
-            /// </summary>
-            public ColumnType Type { get { return ColumnType.ContinuousGaussian; } }
+	        /// <summary>
+	        /// The list of categories within the column and their probability (categorical only)
+	        /// </summary>
+	        [ProtoMember(5)]
+	        public List<CategorialProbability> Probability { get; set; }
         }
 
         /// <summary>
@@ -85,34 +76,16 @@ namespace BrightWire.Models.Bayesian
             public string Category { get; set; }
 
             /// <summary>
-            /// The log of the category's probability
+            /// The natural log of the category's probability
             /// </summary>
             [ProtoMember(2)]
             public double LogProbability { get; set; }
-        }
 
-        /// <summary>
-        /// A categorical column model
-        /// </summary>
-        [ProtoContract]
-        public class CategorialColumn : IColumn
-        {
-            /// <summary>
-            /// The column index
-            /// </summary>
-            [ProtoMember(1)]
-            public int ColumnIndex { get; set; }
-
-            /// <summary>
-            /// The list of categories within the column and their probability
-            /// </summary>
-            [ProtoMember(2)]
-            public List<CategorialProbability> Probability { get; set; }
-
-            /// <summary>
-            /// The column type
-            /// </summary>
-            public ColumnType Type { get { return ColumnType.Categorical; } }
+	        /// <summary>
+	        /// The category's probability
+	        /// </summary>
+	        [ProtoMember(3)]
+	        public double Probability { get; set; }
         }
 
         /// <summary>
@@ -128,16 +101,22 @@ namespace BrightWire.Models.Bayesian
             public string Label { get; set; }
 
             /// <summary>
-            /// The classification prior probability
+            /// The natural log of the prior
             /// </summary>
             [ProtoMember(2)]
-            public double Prior { get; set; }
+            public double LogPrior { get; set; }
 
             /// <summary>
             /// The column data associated with this classification
             /// </summary>
             [ProtoMember(3)]
-            public List<IColumn> ColumnSummary { get; set; }
+            public List<Column> ColumnSummary { get; set; }
+
+	        /// <summary>
+	        /// The classification prior probability
+	        /// </summary>
+	        [ProtoMember(4)]
+	        public double Prior { get; set; }
         }
 
         /// <summary>

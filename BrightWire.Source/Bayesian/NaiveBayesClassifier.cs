@@ -20,7 +20,7 @@ namespace BrightWire.Bayesian
             readonly Dictionary<string, double> _probability;
             readonly double _nullValue;
 
-            public CategoricalColumn(NaiveBayes.CategorialColumn summary, double nullValue = 0)
+            public CategoricalColumn(NaiveBayes.Column summary, double nullValue = 0)
             {
                 _nullValue = nullValue;
                 _columnIndex = summary.ColumnIndex;
@@ -37,9 +37,9 @@ namespace BrightWire.Bayesian
         }
         class ContinuousColumn : IProbabilityProvider
         {
-            readonly NaiveBayes.ContinuousGaussianColumn _column;
+            readonly NaiveBayes.Column _column;
 
-            public ContinuousColumn(NaiveBayes.ContinuousGaussianColumn column)
+            public ContinuousColumn(NaiveBayes.Column column)
             {
                 _column = column;
             }
@@ -59,11 +59,11 @@ namespace BrightWire.Bayesian
                 var list = new List<IProbabilityProvider>();
                 foreach (var col in cls.ColumnSummary) {
                     if (col.Type == NaiveBayes.ColumnType.Categorical)
-                        list.Add(new CategoricalColumn(col as NaiveBayes.CategorialColumn));
+                        list.Add(new CategoricalColumn(col));
                     else if (col.Type == NaiveBayes.ColumnType.ContinuousGaussian)
-                        list.Add(new ContinuousColumn(col as NaiveBayes.ContinuousGaussianColumn));
+                        list.Add(new ContinuousColumn(col));
                 }
-                _classProbability.Add(Tuple.Create(cls.Label, cls.Prior, list));
+                _classProbability.Add(Tuple.Create(cls.Label, cls.LogPrior, list));
             }
         }
 
