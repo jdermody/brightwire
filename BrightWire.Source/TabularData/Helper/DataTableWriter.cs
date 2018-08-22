@@ -17,14 +17,14 @@ namespace BrightWire.TabularData.Helper
         int _rowCount = 0;
         bool _hasWrittenHeader = false;
 
-        public DataTableWriter(Stream stream)
+        public DataTableWriter(Stream stream, bool validate = false)
         {
-            _dataTableBuilder = new DataTableBuilder();
+            _dataTableBuilder = new DataTableBuilder(validate);
             _stream = stream ?? new MemoryStream();
         }
-        public DataTableWriter(IEnumerable<IColumn> columns, Stream stream)
+        public DataTableWriter(IEnumerable<IColumn> columns, Stream stream, bool validate = false)
         {
-            _dataTableBuilder = new DataTableBuilder(columns);
+            _dataTableBuilder = new DataTableBuilder(columns, validate);
             _stream = stream ?? new MemoryStream();
         }
 
@@ -63,7 +63,7 @@ namespace BrightWire.TabularData.Helper
         {
             var ret = _dataTableBuilder.AddRow(row);
             ++_rowCount;
-            if ((_rowCount % DataTable.BLOCK_SIZE) == 0)
+            if (_rowCount % _dataTableBuilder.BlockSize == 0)
                 _Write();
             return ret;
         }
@@ -97,7 +97,22 @@ namespace BrightWire.TabularData.Helper
             return _dataTableBuilder.AddColumn(column, name, isTarget);
         }
 
-        IRow IDataTableBuilder.Add(params object[] data)
+	    IColumn IDataTableBuilder.AddVectorColumn(int size, string name, bool isTarget)
+	    {
+		    return _dataTableBuilder.AddVectorColumn(size, name, isTarget);
+	    }
+
+	    IColumn IDataTableBuilder.AddMatrixColumn(int rows, int columns, string name, bool isTarget)
+	    {
+		    return _dataTableBuilder.AddMatrixColumn(rows, columns, name, isTarget);
+	    }
+
+	    IColumn IDataTableBuilder.AddTensorColumn(int rows, int columns, int depth, string name, bool isTarget)
+	    {
+		    return _dataTableBuilder.AddTensorColumn(rows, columns, depth, name, isTarget);
+	    }
+
+	    IRow IDataTableBuilder.Add(params object[] data)
         {
             return AddRow(data);
         }

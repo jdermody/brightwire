@@ -35,6 +35,9 @@ namespace BrightWire.TabularData
 			public ColumnType Type { get; }
 			public string Name { get; }
 			public bool IsTarget { get; set; }
+			public int? DimensionX { get; set; }
+			public int? DimensionY { get; set; }
+			public int? DimensionZ { get; set; }
 			public int NumDistinct { get; }
 
 			public bool IsContinuous
@@ -50,18 +53,18 @@ namespace BrightWire.TabularData
 		readonly object _mutex = new object();
 		readonly IReadOnlyList<long> _index;
 		readonly RowConverter _rowConverter = new RowConverter();
-		readonly int _rowCount;
+		readonly int _rowCount, _blockSize;
 
 		IDataTableAnalysis _analysis = null;
-
-		public const int BLOCK_SIZE = 1024;
 
 		public DataTable(Stream stream, IReadOnlyList<long> dataIndex, int rowCount)
 		{
 			_index = dataIndex;
 			_rowCount = rowCount;
 			var reader = new BinaryReader(stream, Encoding.UTF8, true);
-			var columnCount = reader.ReadInt32();
+			reader.ReadInt32(); // read the format version
+			_blockSize = reader.ReadInt32(); // read the block size
+			var columnCount = reader.ReadInt32(); // read the number of columns
 			for (var i = 0; i < columnCount; i++) {
 				var name = reader.ReadString();
 				var type = (ColumnType)reader.ReadByte();
@@ -71,11 +74,26 @@ namespace BrightWire.TabularData
 				bool? isContinuous = null;
 				if (continuousSpecified)
 					isContinuous = reader.ReadBoolean();
-				_column.Add(new Column(_column.Count, name, type, numDistinct, isContinuous, isTarget));
+				var column = new Column(_column.Count, name, type, numDistinct, isContinuous, isTarget);
+				if (type == ColumnType.Vector || type == ColumnType.Matrix || type == ColumnType.Tensor)
+					column.DimensionX = _ReadPositiveNullableInt(reader);
+				if (type == ColumnType.Matrix || type == ColumnType.Tensor)
+					column.DimensionY = _ReadPositiveNullableInt(reader);
+				if (type == ColumnType.Tensor)
+					column.DimensionZ = _ReadPositiveNullableInt(reader);
+				_column.Add(column);
 			}
 
 			_stream = stream;
 			_dataOffset = stream.Position;
+		}
+
+		int? _ReadPositiveNullableInt(BinaryReader reader)
+		{
+			var ret = reader.ReadInt32();
+			if (ret < 0)
+				return null;
+			return ret;
 		}
 
 		public static DataTable Create(Stream dataStream, Stream indexStream)
@@ -99,7 +117,7 @@ namespace BrightWire.TabularData
 			var reader = new BinaryReader(dataStream);
 			while (dataStream.Position < dataStream.Length) {
 				temp._SkipRow(reader);
-				if ((++rowCount % BLOCK_SIZE) == 0)
+				if (++rowCount % temp.BlockSize == 0)
 					index.Add(dataStream.Position);
 			}
 			dataStream.Seek(0, SeekOrigin.Begin);
@@ -109,6 +127,7 @@ namespace BrightWire.TabularData
 		public IReadOnlyList<IColumn> Columns => _column;
 		public int RowCount => _rowCount;
 		public int ColumnCount => _column.Count;
+		public int BlockSize => _blockSize;
 
 		public bool HasCategoricalData
 		{
@@ -185,8 +204,8 @@ namespace BrightWire.TabularData
 
 		protected void _SkipRow(BinaryReader reader)
 		{
-			for (var j = 0; j < _column.Count; j++)
-				_ReadColumn(_column[j], reader);
+			foreach (Column v in _column)
+				_ReadColumn(v, reader);
 		}
 
 		public void Process(IRowProcessor rowProcessor)
@@ -224,10 +243,10 @@ namespace BrightWire.TabularData
 			var ret = new List<IRow>();
 			lock (_mutex) {
 				var reader = new BinaryReader(_stream, Encoding.UTF8, true);
-				_stream.Seek(_index[offset / BLOCK_SIZE], SeekOrigin.Begin);
+				_stream.Seek(_index[offset / _blockSize], SeekOrigin.Begin);
 
 				// seek to offset
-				for (var i = 0; i < offset % BLOCK_SIZE; i++)
+				for (var i = 0; i < offset % _blockSize; i++)
 					_SkipRow(reader);
 
 				// read the data
@@ -242,8 +261,8 @@ namespace BrightWire.TabularData
 
 		public IRow GetRow(int rowIndex)
 		{
-			var block = rowIndex / BLOCK_SIZE;
-			var offset = rowIndex % BLOCK_SIZE;
+			var block = rowIndex / _blockSize;
+			var offset = rowIndex % _blockSize;
 
 			lock (_mutex) {
 				var reader = new BinaryReader(_stream, Encoding.UTF8, true);
@@ -262,7 +281,7 @@ namespace BrightWire.TabularData
 			int temp;
 			var blockMatch = new Dictionary<int, Dictionary<int, int>>();
 			foreach (var row in rowIndex.OrderBy(r => r)) {
-				var block = row / BLOCK_SIZE;
+				var block = row / _blockSize;
 				if (!blockMatch.TryGetValue(block, out Dictionary<int, int> temp2))
 					blockMatch.Add(block, temp2 = new Dictionary<int, int>());
 				if (temp2.TryGetValue(row, out temp))
@@ -278,7 +297,7 @@ namespace BrightWire.TabularData
 					_stream.Seek(_index[block.Key], SeekOrigin.Begin);
 					var match = block.Value;
 
-					for (int i = block.Key * BLOCK_SIZE, len = i + BLOCK_SIZE; i < len && _stream.Position < _stream.Length; i++) {
+					for (int i = block.Key * _blockSize, len = i + _blockSize; i < len && _stream.Position < _stream.Length; i++) {
 						if (match.TryGetValue(i, out temp)) {
 							var row = _ReadDataTableRow(reader);
 							row.Index = i;

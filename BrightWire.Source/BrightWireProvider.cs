@@ -106,17 +106,17 @@ namespace BrightWire
         /// <summary>
         /// Creates a data table builder to programatically create data tables
         /// </summary>
-        public static IDataTableBuilder CreateDataTableBuilder(Stream stream = null)
+        public static IDataTableBuilder CreateDataTableBuilder(Stream stream = null, bool validate = true)
         {
-            return new DataTableWriter(stream);
+            return new DataTableWriter(stream, validate);
         }
 
         /// <summary>
         /// Creates a data table builder to programatically create data tables
         /// </summary>
-        public static IDataTableBuilder CreateDataTableBuilder(IEnumerable<IColumn> columns, Stream stream = null)
+        public static IDataTableBuilder CreateDataTableBuilder(IEnumerable<IColumn> columns, Stream stream = null, bool validate = true)
         {
-            return new DataTableWriter(columns, stream);
+            return new DataTableWriter(columns, stream, validate);
         }
 
         /// <summary>

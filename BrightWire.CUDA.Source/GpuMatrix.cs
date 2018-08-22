@@ -26,7 +26,7 @@ namespace BrightWire.LinearAlgebra
         public static int _badAlloc = -1;
         public static int _badDispose = -1;
 
-        public bool IsValid { get { return !_disposed; } }
+        public bool IsValid => !_disposed;
 #else
         public bool IsValid => true;
 #endif

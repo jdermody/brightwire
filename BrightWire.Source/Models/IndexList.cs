@@ -77,7 +77,7 @@ namespace BrightWire.Models
             for (var i = 0; i < len; i++)
                 ret[i] = reader.ReadUInt32();
 
-            return IndexList.Create(ret);
+            return Create(ret);
         }
 
         /// <summary>

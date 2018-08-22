@@ -34,19 +34,67 @@ namespace BrightWire.Helper
 
             public int NumDistinct => _uniqueValues.Count == MAX_UNIQUE ? 0 : _uniqueValues.Count;
 
-	        public void Add(object value)
+	        bool _ValidateDimension(int size, int? dimension)
+	        {
+		        if (!dimension.HasValue)
+			        return true;
+		        return size == dimension.Value;
+	        }
+
+	        bool _Validate(object value)
+	        {
+		        switch (_type) {
+					case ColumnType.Boolean:
+						return value is Boolean;
+					case ColumnType.Byte:
+						return value is SByte;
+					case ColumnType.Date:
+						return value is DateTime;
+					case ColumnType.Double:
+						return value is Double;
+					case ColumnType.Float:
+						return value is float;
+					case ColumnType.IndexList:
+						return value is IndexList;
+					case ColumnType.Int:
+						return value is int;
+					case ColumnType.Long:
+						return value is long;
+					case ColumnType.Matrix:
+						return value is FloatMatrix matrix && _ValidateDimension(matrix.RowCount, DimensionY) && _ValidateDimension(matrix.ColumnCount, DimensionX);
+					case ColumnType.String:
+						return value is string;
+					case ColumnType.Tensor:
+						return value is FloatTensor tensor && _ValidateDimension(tensor.Depth, DimensionZ) && _ValidateDimension(tensor.RowCount, DimensionY) && _ValidateDimension(tensor.ColumnCount, DimensionX);
+					case ColumnType.Vector:
+						return value is FloatVector vector && _ValidateDimension(vector.Count, DimensionX);
+					case ColumnType.WeightedIndexList:
+						return value is WeightedIndexList;
+
+					case ColumnType.Null:
+					default:
+						throw new NotImplementedException();
+		        }
+	        }
+
+	        public void Add(object value, bool validate)
             {
                 if (value != null) {
-                    // TODO: validate the type against ColumnType?
+	                if (validate && !_Validate(value))
+		                throw new ArgumentException($"Invalid type for column {Index} ({_type.ToString()}): {value.ToString()}");
                     if (_uniqueValues.Count < MAX_UNIQUE)
                         _uniqueValues.Add(value.ToString());
-                }
+                }else if (validate)
+	                throw new ArgumentException("null values are not allowed");
             }
 
 			public int Index {get;}
             public ColumnType Type => _type;
 	        public string Name { get; }
 	        public bool IsTarget { get; }
+	        public int? DimensionX { get; set; }
+	        public int? DimensionY { get; set; }
+	        public int? DimensionZ { get; set; }
 
 	        public bool IsContinuous
             {
@@ -54,15 +102,21 @@ namespace BrightWire.Helper
 		        set => _isContinuous = value;
 	        }
         }
+
+	    readonly int _blockSize;
+	    readonly bool _validateOnAdd;
         readonly List<Column> _column = new List<Column>();
         readonly List<IRow> _data = new List<IRow>();
         readonly RowConverter _rowConverter = new RowConverter();
 
-        public DataTableBuilder()
+        public DataTableBuilder(bool validateOnAdd = false, int blockSize = 1024)
         {
+	        _blockSize = blockSize;
+	        _validateOnAdd = validateOnAdd;
         }
 
-        public DataTableBuilder(IEnumerable<IColumn> columns)
+        public DataTableBuilder(IEnumerable<IColumn> columns, bool validateOnAdd = true, int blockSize = 1024) 
+	        : this(validateOnAdd, blockSize)
         {
             foreach (var column in columns) {
                 var col = AddColumn(column.Type, column.Name, column.IsTarget);
@@ -70,25 +124,60 @@ namespace BrightWire.Helper
             }
         }
 
-        public static DataTableBuilder CreateTwoColumnMatrix()
-        {
-            var ret = new DataTableBuilder();
-            ret.AddColumn(ColumnType.Matrix, "Input");
-            ret.AddColumn(ColumnType.Matrix, "Output", true);
-            return ret;
-        }
+		public static DataTableBuilder CreateTwoColumnMatrix()
+		{
+			var ret = new DataTableBuilder();
+			ret.AddColumn(ColumnType.Matrix, "Input");
+			ret.AddColumn(ColumnType.Matrix, "Output", true);
+			return ret;
+		}
 
-        public IReadOnlyList<IColumn> Columns => _column;
+		public IReadOnlyList<IColumn> Columns => _column;
 	    internal IReadOnlyList<Column> Columns2 => _column;
 	    public int RowCount => _data.Count;
 	    public int ColumnCount => _column.Count;
+	    public int BlockSize => _blockSize;
 
-	    public IColumn AddColumn(ColumnType column, string name = "", bool isTarget = false)
-        {
-            var ret = new Column(_column.Count, column, name, isTarget);
-            _column.Add(ret);
-            return ret;
+	    public IColumn AddColumn(ColumnType type, string name = "", bool isTarget = false)
+	    {
+		    if (type == ColumnType.Null)
+			    throw new ArgumentException("null columns are not currently usable");
+		    //else if (type == ColumnType.Vector || type == ColumnType.Matrix || type == ColumnType.Tensor)
+			   // throw new InvalidOperationException("Please use the corresponding Add method for vectors, matrices and tensors");
+
+            return _AddColumn(type, name, isTarget);
         }
+
+	    Column _AddColumn(ColumnType type, string name = "", bool isTarget = false)
+	    {
+		    var ret = new Column(_column.Count, type, name, isTarget);
+		    _column.Add(ret);
+		    return ret;
+	    }
+
+	    public IColumn AddVectorColumn(int size, string name = "", bool isTarget = false)
+	    {
+		    var ret = _AddColumn(ColumnType.Vector, name, isTarget);
+			ret.DimensionX = size;
+		    return ret;
+	    }
+
+	    public IColumn AddMatrixColumn(int rows, int columns, string name = "", bool isTarget = false)
+	    {
+		    var ret = _AddColumn(ColumnType.Matrix, name, isTarget);
+		    ret.DimensionX = columns;
+		    ret.DimensionY = rows;
+		    return ret;
+	    }
+
+	    public IColumn AddTensorColumn(int rows, int columns, int depth, string name = "", bool isTarget = false)
+	    {
+		    var ret = _AddColumn(ColumnType.Matrix, name, isTarget);
+		    ret.DimensionX = columns;
+		    ret.DimensionY = rows;
+		    ret.DimensionZ = depth;
+		    return ret;
+	    }
 
         internal IRow AddRow(IRow row)
         {
@@ -96,7 +185,7 @@ namespace BrightWire.Helper
 
             var data = row.Data;
             for (int j = 0, len = data.Count; j < len && j < _column.Count; j++)
-                _column[j].Add(data[j]);
+                _column[j].Add(data[j], _validateOnAdd);
             return row;
         }
 
@@ -105,7 +194,7 @@ namespace BrightWire.Helper
             return AddRow(CreateRow(data));
         }
 
-        public DataTableRow CreateRow(IReadOnlyList<object> data)
+        internal DataTableRow CreateRow(IReadOnlyList<object> data)
         {
             return new DataTableRow(this, data, _rowConverter);
         }
@@ -113,15 +202,24 @@ namespace BrightWire.Helper
         internal void WriteMetadata(Stream stream)
         {
             var writer = new BinaryWriter(stream, Encoding.UTF8, true);
-            writer.Write(_column.Count);
+	        writer.Write(1); // format version
+	        writer.Write(_blockSize); // write the block size
+            writer.Write(_column.Count); // write the number of columns
             foreach (var column in _column) {
+				var type = column.Type;
                 writer.Write(column.Name);
-                writer.Write((byte)column.Type);
+                writer.Write((byte)type);
                 writer.Write(column.IsTarget);
                 writer.Write(column.NumDistinct);
                 writer.Write(column._isContinuous.HasValue);
                 if (column._isContinuous.HasValue)
                     writer.Write(column._isContinuous.Value);
+	            if (type == ColumnType.Vector || type == ColumnType.Matrix || type == ColumnType.Tensor)
+		            writer.Write(column.DimensionX ?? -1);
+				if(type == ColumnType.Matrix || type == ColumnType.Tensor)
+					writer.Write(column.DimensionY ?? -1);
+	            if(type == ColumnType.Tensor)
+		            writer.Write(column.DimensionZ ?? -1);
             }
         }
 

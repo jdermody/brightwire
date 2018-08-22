@@ -203,6 +203,10 @@ namespace BrightWire
         /// True if the column is a classification target (or label)
         /// </summary>
         bool IsTarget { get; }
+
+		int? DimensionX { get; }
+	    int? DimensionY { get; }
+	    int? DimensionZ { get; }
     }
 
     /// <summary>
@@ -630,6 +634,7 @@ namespace BrightWire
 
     internal interface IFrequencyColumnInfo : IColumnInfo
     {
+		ulong Total { get; }
         IEnumerable<KeyValuePair<string, ulong>> Frequency { get; }
     }
 
@@ -682,6 +687,10 @@ namespace BrightWire
         /// <param name="name">The name of the new column</param>
         /// <param name="isTarget">True if the column is a classification target</param>
         IColumn AddColumn(ColumnType column, string name = "", bool isTarget = false);
+
+	    IColumn AddVectorColumn(int size, string name = "", bool isTarget = false);
+	    IColumn AddMatrixColumn(int rows, int columns, string name = "", bool isTarget = false);
+	    IColumn AddTensorColumn(int rows, int columns, int depth, string name = "", bool isTarget = false);
 
         /// <summary>
         /// Adds a new row to the table

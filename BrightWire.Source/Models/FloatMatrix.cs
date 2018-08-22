@@ -55,14 +55,14 @@ namespace BrightWire.Models
         /// <summary>
         /// The number of rows
         /// </summary>
-        public int RowCount { get { return Row?.Length ?? 0; } }
+        public int RowCount => Row?.Length ?? 0;
 
-        /// <summary>
+	    /// <summary>
         /// The number of columns
         /// </summary>
-        public int ColumnCount { get { return Row?.FirstOrDefault()?.Size ?? 0; } }
+        public int ColumnCount => Row?.FirstOrDefault()?.Size ?? 0;
 
-        /// <summary>
+	    /// <summary>
         /// ToString override
         /// </summary>
         public override string ToString()

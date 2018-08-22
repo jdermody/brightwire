@@ -60,14 +60,14 @@ namespace BrightWire.Helper
 			return ret.ToString();
 		}
 
-		public IDataTable Parse(StreamReader reader, Stream output = null, bool? hasHeader = null)
+		public IDataTable Parse(StreamReader reader, Stream output = null, bool? hasHeader = null, int previewLines = 1024)
 		{
 			if (output == null)
 				output = new MemoryStream();
 
 			// load the first batch of lines to work out the column types
 			var lines = new List<string>();
-			while (!reader.EndOfStream && lines.Count < DataTable.BLOCK_SIZE) {
+			while (!reader.EndOfStream && lines.Count < previewLines) {
 				var line = _ReadLine(reader);
 				if (String.IsNullOrEmpty(line))
 					continue;
@@ -110,7 +110,7 @@ namespace BrightWire.Helper
 			return null;
 		}
 
-		private DataTableWriter _DetermineHeaders(Stream stream, List<string> lines, bool checkForHeader, ref bool hasHeader)
+		DataTableWriter _DetermineHeaders(Stream stream, List<string> lines, bool checkForHeader, ref bool hasHeader)
 		{
 			// see if there is a header (all strings)
 			var firstLineTypes = _Parse(lines.First()).ToList();
