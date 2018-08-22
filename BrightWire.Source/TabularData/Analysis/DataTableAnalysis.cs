@@ -1,5 +1,6 @@
 ﻿using BrightWire.TabularData.Helper;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -15,7 +16,6 @@ namespace BrightWire.TabularData.Analysis
 		static readonly HashSet<ColumnType> _invalidColumnType = new HashSet<ColumnType>
 		{
 			ColumnType.Date,
-			//ColumnType.Boolean,
 			ColumnType.Matrix,
 			ColumnType.Null,
 			ColumnType.Vector,
@@ -45,9 +45,10 @@ namespace BrightWire.TabularData.Analysis
         void _Add(IColumn column, int index)
         {
             var type = column.Type;
-	        if (!_invalidColumnType.Contains(type))
-	        {
-		        if (ColumnTypeClassifier.IsNumeric(column))
+	        if (!_invalidColumnType.Contains(type)) {
+		        if (column.IsTarget)
+			        _column.Add(new FrequencyCollector(index));
+		        else if (ColumnTypeClassifier.IsNumeric(column))
 			        _column.Add(new NumberCollector(index));
 		        else if (type == ColumnType.String)
 			        _column.Add(new StringCollector(index));
@@ -65,6 +66,8 @@ namespace BrightWire.TabularData.Analysis
 
         public IEnumerable<IColumnInfo> ColumnInfo => _column.Cast<IColumnInfo>();
 	    public IColumnInfo this[int columnIndex] => ColumnInfo.FirstOrDefault(c => c.ColumnIndex == columnIndex);
+
+	    string _Write(double val) => val.ToString(CultureInfo.InvariantCulture);
 
         public string AsXml
         {
@@ -86,7 +89,7 @@ namespace BrightWire.TabularData.Analysis
                         if (column.IsTarget)
                             writer.WriteAttributeString("classification-target", "y");
                         
-                        if(table.TryGetValue(columnIndex++, out IColumnInfo columnInfo)) {
+                        if(table.TryGetValue(columnIndex++, out var columnInfo)) {
                             writer.WriteAttributeString("column-index", columnInfo.ColumnIndex.ToString());
                             if (columnInfo.NumDistinct.HasValue)
                                 writer.WriteAttributeString("distinct-value-count", columnInfo.NumDistinct.Value.ToString());
@@ -98,23 +101,33 @@ namespace BrightWire.TabularData.Analysis
                             }
 
                             if (columnInfo is INumericColumnInfo numericColumn) {
-                                writer.WriteAttributeString("min", numericColumn.Min.ToString());
-                                writer.WriteAttributeString("max", numericColumn.Max.ToString());
-                                writer.WriteAttributeString("mean", numericColumn.Mean.ToString());
-                                writer.WriteAttributeString("l1", numericColumn.L1Norm.ToString());
-                                writer.WriteAttributeString("l2", numericColumn.L2Norm.ToString());
+                                writer.WriteAttributeString("min", _Write(numericColumn.Min));
+                                writer.WriteAttributeString("max", _Write(numericColumn.Max));
+                                writer.WriteAttributeString("mean", _Write(numericColumn.Mean));
+                                writer.WriteAttributeString("l1", _Write(numericColumn.L1Norm));
+                                writer.WriteAttributeString("l2", _Write(numericColumn.L2Norm));
                                 if (numericColumn.StdDev.HasValue)
-                                    writer.WriteAttributeString("std-dev", numericColumn.StdDev.Value.ToString());
+                                    writer.WriteAttributeString("std-dev", _Write(numericColumn.StdDev.Value));
                                 if (numericColumn.Median.HasValue)
-                                    writer.WriteAttributeString("median", numericColumn.Median.Value.ToString());
+                                    writer.WriteAttributeString("median", _Write(numericColumn.Median.Value));
                                 if (numericColumn.Mode.HasValue)
-                                    writer.WriteAttributeString("mode", numericColumn.Mode.Value.ToString());
+                                    writer.WriteAttributeString("mode", _Write(numericColumn.Mode.Value));
                             }
 
                             if (columnInfo is IIndexColumnInfo indexColumn) {
                                 writer.WriteAttributeString("min-index", indexColumn.MinIndex.ToString());
                                 writer.WriteAttributeString("max-index", indexColumn.MaxIndex.ToString());
                             }
+
+	                        if (columnInfo is IFrequencyColumnInfo frequencyColumn) {
+		                        double total = frequencyColumn.Total;
+		                        foreach (var item in frequencyColumn.Frequency.OrderByDescending(d => d.Value)) {
+			                        writer.WriteStartElement("target");
+			                        writer.WriteAttributeString("class", item.Key);
+			                        writer.WriteAttributeString("frequency", _Write(item.Value / total));
+			                        writer.WriteEndElement();
+		                        }
+	                        }
                         }
                         writer.WriteEndElement();
                     }
