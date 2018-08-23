@@ -321,7 +321,13 @@ namespace BrightWire
         /// Gets a list of rows
         /// </summary>
         /// <param name="rowIndex">A sequence of row indices</param>
-        IReadOnlyList<IRow> GetRows(IEnumerable<int> rowIndex);
+        IReadOnlyList<IRow> GetRows(IReadOnlyList<int> rowIndex);
+
+	    /// <summary>
+	    /// Gets a list of rows
+	    /// </summary>
+	    /// <param name="rowIndex">A sequence of row indices</param>
+	    IReadOnlyList<IRow> GetRows(IEnumerable<int> rowIndex);
 
         /// <summary>
         /// Returns the row at the specified index
@@ -409,8 +415,16 @@ namespace BrightWire
 		/// </summary>
 		/// <param name="mutator">Function that mutates each row into the new format</param>
 		/// <param name="output">Optional stream to write the new table to</param>
-		/// <returns></returns>
+		/// <returns>New table data</returns>
 		IDataTable Project(Func<IRow, IReadOnlyList<object>> mutator, Stream output = null);
+
+		/// <summary>
+		/// Creates a new data table with only those rows that match the specified filter
+		/// </summary>
+		/// <param name="filter">Function that filters each row</param>
+		/// <param name="output">Optional stream to write the new table to</param>
+		/// <returns>New table data</returns>
+	    IDataTable Filter(Func<IRow, bool> filter, Stream output = null);
 
 		/// <summary>
 		/// Folds the data table into k buckets
@@ -511,8 +525,9 @@ namespace BrightWire
 	    /// Creates a summarised version of the data table
 	    /// </summary>
 	    /// <param name="newRowCount">Number of rows to create in the summary table</param>
-	    /// <param name="summariser">A row summariser that will summarise groups of rows</param>
-	    IDataTable Summarise(int newRowCount, ISummariseRows summariser = null);
+	    /// <param name="output">Optional stream to write the new table to</param>
+	    /// <param name="summariser">A row summariser that will summarise groups of rows (optional)</param>
+	    IDataTable Summarise(int newRowCount, Stream output = null, ISummariseRows summariser = null);
     }
 
     /// <summary>
@@ -663,7 +678,7 @@ namespace BrightWire
     /// <summary>
     /// Used to programatically construct data tables
     /// </summary>
-    public interface IDataTableBuilder : IDisposable
+    public interface IDataTableBuilder : IDisposable, IRowProcessor
     {
         /// <summary>
         /// The list of columns

@@ -277,20 +277,22 @@ namespace BrightWire.TabularData
 
 		public IReadOnlyList<IRow> GetRows(IEnumerable<int> rowIndex)
 		{
+			return GetRows(rowIndex.ToList());
+		}
+
+		public IReadOnlyList<IRow> GetRows(IReadOnlyList<int> rowIndex)
+		{
 			// split the queries into blocks
-			int temp;
-			var blockMatch = new Dictionary<int, Dictionary<int, int>>();
-			foreach (var row in rowIndex.OrderBy(r => r)) {
+			var blockMatch = new Dictionary<int, HashSet<int>>();
+			var filteredRowIndex = rowIndex.Where(r => r >= 0 && r < RowCount).ToList();
+			foreach (var row in filteredRowIndex.OrderBy(r => r)) {
 				var block = row / _blockSize;
-				if (!blockMatch.TryGetValue(block, out Dictionary<int, int> temp2))
-					blockMatch.Add(block, temp2 = new Dictionary<int, int>());
-				if (temp2.TryGetValue(row, out temp))
-					temp2[row] = temp + 1;
-				else
-					temp2.Add(row, 1);
+				if (!blockMatch.TryGetValue(block, out var set))
+					blockMatch.Add(block, set = new HashSet<int>());
+				set.Add(row);
 			}
 
-			var ret = new List<IRow>();
+			var rowTable = new Dictionary<int, IRow>();
 			lock (_mutex) {
 				var reader = new BinaryReader(_stream, Encoding.UTF8, true);
 				foreach (var block in blockMatch.OrderBy(b => b.Key)) {
@@ -298,17 +300,17 @@ namespace BrightWire.TabularData
 					var match = block.Value;
 
 					for (int i = block.Key * _blockSize, len = i + _blockSize; i < len && _stream.Position < _stream.Length; i++) {
-						if (match.TryGetValue(i, out temp)) {
+						if (match.Contains(i)) {
 							var row = _ReadDataTableRow(reader);
 							row.Index = i;
-							for (var j = 0; j < temp; j++)
-								ret.Add(row);
+							rowTable.Add(i, row);
 						} else
 							_SkipRow(reader);
 					}
 				}
 			}
-			return ret;
+
+			return filteredRowIndex.Select(ind => rowTable[ind]).ToList();
 		}
 
 		public (IDataTable Training, IDataTable Test) Split(int? randomSeed = null, double trainPercentage = 0.8, bool shuffle = true, Stream output1 = null, Stream output2 = null)
@@ -471,7 +473,7 @@ namespace BrightWire.TabularData
 				var mutatedRow = mutator(row);
 				if (mutatedRow != null) {
 					if (isFirst) {
-						int index = 0;
+						var index = 0;
 						foreach (var item in mutatedRow) {
 							var column = Columns[index];
 							if (item == null)
@@ -516,6 +518,17 @@ namespace BrightWire.TabularData
 					}
 					writer.AddRow(new DataTableRow(this, mutatedRow, _rowConverter));
 				}
+				return true;
+			});
+			return writer.GetDataTable();
+		}
+
+		public IDataTable Filter(Func<IRow, bool> filter, Stream output = null)
+		{
+			var writer = new DataTableWriter(Columns, output);
+			_Iterate((row, i) => {
+				if (filter(row))
+					writer.AddRow(row);
 				return true;
 			});
 			return writer.GetDataTable();
@@ -575,11 +588,13 @@ namespace BrightWire.TabularData
 			return new DataTableVectoriser(model);
 		}
 
-		public IDataTable CopyWithRows(IEnumerable<int> rowIndex, Stream output = null)
+		public IDataTable CopyWithRows(IEnumerable<int> rowIndices, Stream output = null)
 		{
 			var writer = new DataTableWriter(_column, output);
-			foreach (var row in GetRows(rowIndex))
+			foreach (var rowIndex in rowIndices) {
+				var row = GetRow(rowIndex);
 				writer.AddRow(row);
+			}
 			return writer.GetDataTable();
 		}
 
@@ -636,7 +651,7 @@ namespace BrightWire.TabularData
 			});
 		}
 
-		public IDataTable Summarise(int newRowCount, ISummariseRows summariser = null)
+		public IDataTable Summarise(int newRowCount, Stream output = null, ISummariseRows summariser = null)
 		{
 			if (summariser == null)
 				summariser = new AverageSummariser(this, _rowConverter);
@@ -659,7 +674,7 @@ namespace BrightWire.TabularData
 
 				// otherwise write nothing
 				return null;
-			});
+			}, output);
 		}
 
 		public string XmlPreview
