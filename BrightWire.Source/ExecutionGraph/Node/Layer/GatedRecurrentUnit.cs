@@ -47,7 +47,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             var h1 = graph.Add(Wh, Uh).AddBackwardAction(new ConstrainSignal()).Add(graph.TanhActivation());
 
             // h2 = h1x(1-Zt)
-            var h2 = graph.Multiply(h1, graph.Connect(hiddenLayerSize, Zt).Add(graph.CreateOneMinusInput()));
+            var h2 = graph.Multiply(h1, graph.Connect(hiddenLayerSize, Zt).Add(graph.GraphOperation.OneMinusInput()));
 
             // h = h1xh2
             var previous = graph.Multiply(hiddenLayerSize, Zt, _memory);

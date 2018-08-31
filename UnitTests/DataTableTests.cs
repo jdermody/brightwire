@@ -38,23 +38,21 @@ namespace UnitTests
             builder.AddColumn(ColumnType.Float, "float");
             builder.AddColumn(ColumnType.Int, "int");
             builder.AddColumn(ColumnType.Long, "long");
-            builder.AddColumn(ColumnType.Null, "null");
             builder.AddColumn(ColumnType.String, "string");
 
             var now = DateTime.Now;
-            builder.Add(true, (sbyte)100, now, 1.0 / 3, 0.5f, int.MaxValue, long.MaxValue, null, "test");
+            builder.Add(true, (sbyte)100, now, 1.0 / 3, 0.5f, int.MaxValue, long.MaxValue, "test");
             var dataTable = builder.Build();
 
             var firstRow = dataTable.GetRow(0);
             Assert.AreEqual(firstRow.GetField<bool>(0), true);
-            Assert.AreEqual(firstRow.GetField<sbyte>(1), 100);
+            Assert.AreEqual(firstRow.GetField<byte>(1), 100);
             Assert.AreEqual(firstRow.GetField<DateTime>(2), now);
             Assert.AreEqual(firstRow.GetField<double>(3), 1.0 / 3);
             Assert.AreEqual(firstRow.GetField<float>(4), 0.5f);
             Assert.AreEqual(firstRow.GetField<int>(5), int.MaxValue);
             Assert.AreEqual(firstRow.GetField<long>(6), long.MaxValue);
-            Assert.AreEqual(firstRow.GetField<object>(7), null);
-            Assert.AreEqual(firstRow.GetField<string>(8), "test");
+            Assert.AreEqual(firstRow.GetField<string>(7), "test");
         }
 
         void _CompareRows(IRow row1, IRow row2, Random rand)
@@ -125,11 +123,10 @@ namespace UnitTests
             builder.AddColumn(ColumnType.Float, "float");
             builder.AddColumn(ColumnType.Int, "int");
             builder.AddColumn(ColumnType.Long, "long");
-            builder.AddColumn(ColumnType.Null, "null");
             builder.AddColumn(ColumnType.String, "string");
 
             for (var i = 1; i <= 10; i++)
-                builder.Add(i % 2 == 0, (sbyte)i, DateTime.Now, (double)i, (float)i, i, (long)i, null, i.ToString());
+                builder.Add(i % 2 == 0, (sbyte)i, DateTime.Now, (double)i, (float)i, i, (long)i, i.ToString());
             var table = builder.Build();
             var analysis = table.GetAnalysis();
             var xml = analysis.AsXml;
@@ -146,7 +143,7 @@ namespace UnitTests
             Assert.IsTrue(numericAnalysis.All(a => a.Median.Value == 5));
             Assert.IsTrue(numericAnalysis.All(a => Math.Round(a.StdDev.Value) == 3));
 
-            var stringAnalysis = analysis[8] as IStringColumnInfo;
+            var stringAnalysis = analysis[7] as IStringColumnInfo;
             Assert.IsTrue(stringAnalysis.NumDistinct == 10);
             Assert.IsTrue(stringAnalysis.MaxLength == 2);
         }

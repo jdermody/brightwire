@@ -519,10 +519,7 @@ extern "C"
 		int i = blockDim.x * blockIdx.x + threadIdx.x;
 
 		if (i < inputSize) {
-			int offset = i / blockSize;
-			int index = i % blockSize;
-			float val = a[i];
-			b[offset][index] = val;
+			b[i / blockSize][i % blockSize] = a[i];
 		}
 	}
 
@@ -543,8 +540,6 @@ extern "C"
 		int j = blockDim.y * blockIdx.y + threadIdx.y;
 
 		if (i < bRows && j < bColumns) {
-			//int x = i / aColumns;
-			//int y = i % aColumns;
 			int x = i % aRows;
 			int y = i / aRows;
 			b[j * bRows + i] = a[j][y * aRows + x];
@@ -585,7 +580,94 @@ extern "C"
 		}
 	}
 
-	__global__ void TensorIm2Col(float*** a, float** b, int count, int aRows, int aColumns, int bRows, int bColumns, int depth, int filterWidth, int filterHeight, int stride)
+    __global__ void TensorIm2Col(int size, float** a, float* b, float* cx, float* cy, int rows, int convolutionCount, int filterSize, int depth, int filterWidth, int filterHeight)
+    {
+        int index = blockDim.x * blockIdx.x + threadIdx.x;
+        if(index < size) {
+            int x = index%filterWidth;
+            int index2 = index / filterWidth;
+
+            int y = index2%filterHeight;
+            int index3 = index2 / filterHeight;
+
+            int k = index3%depth;
+            int ci = index3 / depth;
+            
+            int offsetX = cx[ci];
+            int offsetY = cy[ci];
+
+            //printf("index:%i, ci:%i, k:%i, x:%i, y:%i, cx:%i, cy:%i\n", index, ci, k, x, y, offsetX, offsetY);
+
+            int filterOffset = k * filterSize;
+            int filterIndex = filterOffset + (x * filterHeight + y);
+            
+            b[filterIndex * convolutionCount + ci] = a[k][(offsetX + x) * rows + (offsetY + y)];
+            //printf("index: %i, ci:%i, filter-index:%i, matrix-index:%i\n", index, ci, filterIndex, filterIndex * convolutionCount + ci);
+        }
+    }
+
+    __global__ void TensorReverseIm2Col(
+        int size, 
+        float** a, 
+        float*** ppFilters, 
+        float** b, 
+        float* cx, 
+        float* cy, 
+        int rows, 
+        int columns, 
+        int convolutionCount, 
+        int depth, 
+        int filterWidth, 
+        int filterHeight, 
+        int stride, 
+        int numFilters, 
+        int outputRows,
+        int outputColumns
+    ) {
+        int index = blockDim.x * blockIdx.x + threadIdx.x;
+        if(index < size) {
+            int z = index % numFilters;
+            int index2 = index / numFilters;
+
+            int x = index2 % filterWidth;
+            int index3 = index2 / filterWidth;
+
+            int y = index3 % filterHeight;
+            int index4 = index3 / filterHeight;
+
+            int ci = index4 % convolutionCount;
+            int k = index4 / convolutionCount;
+
+            int offsetX = cx[ci];
+            int offsetY = cy[ci];
+            int bIndex = k * numFilters + z;
+
+            /*printf("index:%i, oi:%i, ci:%i(%i), k:%i(%i), x:%i(%i), y:%i(%i), z:%i(%i), cx:%i, cy:%i\n", index, bIndex,
+                ci, convolutionCount, 
+                k, depth, 
+                x, filterWidth, 
+                y, filterHeight, 
+                z, numFilters, 
+                offsetX, offsetY
+            );*/
+
+            float* slice = a[k];
+            float* filter = ppFilters[k][z];
+            float* output = b[bIndex];
+
+            int errorX = offsetX / stride;
+            int errorY = offsetY / stride;
+            float error = slice[errorX * rows + errorY];
+
+            int filterIndex = x * filterHeight + y;
+            int outputIndex = (offsetX+x) * outputRows + (offsetY+y);
+            float val = filter[filterIndex] * error;
+
+            output[outputIndex] = val;
+        }
+    }
+
+	/*__global__ void TensorIm2Col(float*** a, float** b, int count, int aRows, int aColumns, int bRows, int bColumns, int depth, int filterWidth, int filterHeight, int stride)
 	{
 		int index = blockDim.x * blockIdx.x + threadIdx.x;
 		int j = blockDim.y * blockIdx.y + threadIdx.y;
@@ -600,18 +682,23 @@ extern "C"
 
 			int xExtent = (aColumns - filterWidth) / stride + 1;
 			int yExtent = (aRows - filterHeight) / stride + 1;
+
 			int xOffset = i / xExtent * stride;
 			int yOffset = i % yExtent * stride;
+            //int xOffset = i / yExtent * stride;
+			//int yOffset = i % xExtent * stride;
 			
 			int ax = xOffset + (localIndex / filterWidth);
 			int ay = yOffset + (localIndex % filterHeight);
+            //int ax = xOffset + (localIndex / filterHeight);
+			//int ay = yOffset + (localIndex % filterWidth);
 
 			float val = channel[ax * aRows + ay];
 			b[z][j * bRows + i] = val;
 		}
-	}
+	}*/
 
-	__global__ void TensorReverseIm2Col(
+	/*__global__ void TensorReverseIm2Col(
         float*** a, 
         float*** b, 
         float*** c, 
@@ -629,7 +716,6 @@ extern "C"
 	{
 		int index = blockDim.x * blockIdx.x + threadIdx.x;
 		int j = blockDim.y * blockIdx.y + threadIdx.y;
-        int cCols = cSize / cRows;
 
 		int mx = aRows * depth;
 		int mx2 = mx * inputDepth;
@@ -655,12 +741,13 @@ extern "C"
 					int cx = fx + x1;
 					int cy = fy + y1;
 					int filterIndex = fx * filterHeight + fy;
-					int outputRow = cx * cCols + cy;
+					int outputRow = cx * cRows + cy;
 					output[k2 * cSize + outputRow] = filter[filterIndex] * error;
+                    //output[k2 * cRows + outputRow] = filterIndex + 1;
 				}
 			}
 		}
-	}
+	}*/
 
 	__global__ void SoftmaxDerivative(float* a, float* b, int size)
 	{
@@ -676,14 +763,16 @@ extern "C"
 		}
 	}
 
-	__global__ void Rotate(float** a, float* b, int size, int blockCount, int blockSize)
+	__global__ void Rotate(float* a, float* b, int size, int blockCount, int blockSize)
 	{
 		int index = blockDim.x * blockIdx.x + threadIdx.x;
 		
 		if(index < size) {
-			int blockIndex = index / blockCount;
-			int blockSubIndex = index % blockSize;
-			b[index] = a[blockCount - blockIndex - 1][blockSize - blockSubIndex - 1];
+			int blockIndex = index / blockSize;
+			int blockOffset = index % blockSize;
+            //int newBlockIndex = blockCount - blockIndex - 1;
+            //int index = blockSize - blockOffset - 1;
+			b[(blockIndex * blockSize) + blockSize-blockOffset-1] = a[index];
 		}
 	}
 

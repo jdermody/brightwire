@@ -8,13 +8,13 @@ namespace BrightWire.Cuda.Helper
     /// <summary>
     /// Helper class that allocates space for a 4D tensor output from a cuda kernel
     /// </summary>
-    class TensorOutput
+    class Tensor4DOutput
     {
         readonly CudaProvider _cuda;
         readonly IMatrix _data;
 	    readonly List<IDeviceMemoryPtr[]> _ptr = new List<IDeviceMemoryPtr[]>();
 
-        public TensorOutput(CudaProvider cuda, int rows, int columns, int depth, int count, bool setToZero)
+        public Tensor4DOutput(CudaProvider cuda, int rows, int columns, int depth, int count, bool setToZero)
         {
             _cuda = cuda;
             Rows = rows;
@@ -45,7 +45,7 @@ namespace BrightWire.Cuda.Helper
 	    public int Depth { get; }
 	    public int Count { get; }
 
-	    internal DeviceMemoryPtrList GetDeviceMemoryPtr() => new DeviceMemoryPtrList(_ptr);
+	    internal DeviceMemoryPtrToPtrList GetDeviceMemoryPtr() => new DeviceMemoryPtrToPtrList(_ptr);
 
         public I3DTensor Single()
         {

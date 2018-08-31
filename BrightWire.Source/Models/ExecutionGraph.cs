@@ -69,29 +69,19 @@ namespace BrightWire.Models
             [ProtoMember(3)]
             public int InputChannel { get; set; }
 
-            /// <summary>
-            /// 
-            /// </summary>
-            /// <returns></returns>
-            public override string ToString()
+	        /// <inheritdoc />
+	        public override string ToString()
             {
                 return $"{FromId} -> {ToId} on channel {InputChannel}";
             }
 
-            /// <summary>
-            /// 
-            /// </summary>
-            /// <returns></returns>
+	        /// <inheritdoc />
             public override int GetHashCode()
             {
                 return (FromId + ToId + InputChannel).GetHashCode();
             }
 
-            /// <summary>
-            /// 
-            /// </summary>
-            /// <param name="obj"></param>
-            /// <returns></returns>
+	        /// <inheritdoc />
             public override bool Equals(object obj)
             {
                 if (obj is Wire other)

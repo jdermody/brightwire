@@ -397,13 +397,16 @@ namespace BrightWire.LinearAlgebra
 
         public IVector Rotate(int blockCount)
         {
-            var vectorList = new List<IIndexableVector>();
             var blockSize = Count / blockCount;
+	        var ret = new float[Count];
 
-            foreach (var item in Split(blockCount).Reverse())
-                vectorList.Add(item.Reverse().AsIndexable());
+	        for (int i = 0, len = Count; i < len; i++) {
+		        int blockIndex = i / blockSize;
+		        int blockOffset = i % blockSize;
+		        ret[(blockIndex * blockSize) + blockSize-blockOffset-1] = this[i];
+	        }
 
-            return new CpuVector(DenseVector.Create(Count, i => vectorList[i / vectorList.Count][i % blockSize]));
+	        return new CpuVector(new DenseVector(ret));
         }
 
         public IVector Reverse()

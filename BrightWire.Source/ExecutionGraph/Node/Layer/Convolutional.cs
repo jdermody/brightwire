@@ -52,9 +52,9 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                     var stride = _source._stride;
                     var filterList = new List<IReadOnlyList<IVector>>();
                     for (var i = 0; i < filters.ColumnCount; i++)
-                        filterList.Add(filters.Column(i).Split(inputDepth).Select(v => v.Rotate(v.Count / filterWidth)).ToList());
+                        filterList.Add(filters.Column(i).Split(inputDepth).Select(v => v.Rotate()).ToList());
 
-                    using(var reverseIm2Col = tensor.ReverseIm2Col(filterList, _inputHeight, _inputWidth, inputDepth, padding, filterWidth, filterHeight, stride)) {
+                    using(var reverseIm2Col = tensor.ReverseIm2Col(filterList, _inputHeight, _inputWidth, padding, filterWidth, filterHeight, stride)) {
                         var delta = reverseIm2Col.ConvertTo4DTensor(_inputHeight + padding * 2, _inputWidth + padding * 2);
                         if (padding > 0)
                             delta = delta.RemovePadding(padding);

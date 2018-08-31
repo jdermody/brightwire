@@ -21,7 +21,7 @@ namespace BrightWire.ExecutionGraph.Node
         /// </summary>
         /// <param name="name">The name of the node (optional)</param>
         /// <param name="id">The node's unique id (optional)</param>
-        public NodeBase(string name, string id = null)
+        protected NodeBase(string name, string id = null)
         {
             _id = id ?? Guid.NewGuid().ToString("n");
             _name = name;

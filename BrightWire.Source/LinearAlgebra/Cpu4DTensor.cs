@@ -106,11 +106,11 @@ namespace BrightWire.LinearAlgebra
             return new Cpu3DTensor(ret);
         }
 
-        public I3DTensor ReverseIm2Col(IReadOnlyList<IReadOnlyList<IVector>> filter, int inputHeight, int inputWidth, int inputDepth, int padding, int filterWidth, int filterHeight, int stride)
+        public I3DTensor ReverseIm2Col(IReadOnlyList<IReadOnlyList<IVector>> filter, int inputHeight, int inputWidth, int padding, int filterWidth, int filterHeight, int stride)
         {
             var ret = new List<IMatrix>();
             for (var i = 0; i < Count; i++) {
-                var result = GetTensorAt(i).ReverseIm2Col(filter, inputHeight, inputWidth, inputDepth, padding, filterHeight, filterWidth, stride);
+                var result = GetTensorAt(i).ReverseIm2Col(filter, inputHeight, inputWidth, padding, filterWidth, filterHeight, stride);
                 ret.Add(result);
             }
             return new Cpu3DTensor(ret);

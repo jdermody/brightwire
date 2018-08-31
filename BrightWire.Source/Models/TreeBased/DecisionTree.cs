@@ -1,4 +1,5 @@
-﻿using BrightWire.TreeBased;
+﻿using System.Globalization;
+using BrightWire.TreeBased;
 using ProtoBuf;
 using System.IO;
 using System.Text;
@@ -59,7 +60,7 @@ namespace BrightWire.Models
                     writer.WriteAttributeString("matches", MatchLabel);
 
                 if (Split.HasValue)
-                    writer.WriteAttributeString("split", Split.Value.ToString());
+                    writer.WriteAttributeString("split", Split.Value.ToString(CultureInfo.InvariantCulture));
                 if(ColumnIndex >= 0)
                     writer.WriteAttributeString("column", ColumnIndex.ToString());
                 if (Classification != null)
@@ -93,9 +94,8 @@ namespace BrightWire.Models
             get
             {
                 var sb = new StringBuilder();
-                if (Root != null)
-                    Root.WriteTo(XmlWriter.Create(new StringWriter(sb)));
-                return sb.ToString();
+	            Root?.WriteTo(XmlWriter.Create(new StringWriter(sb)));
+	            return sb.ToString();
             }
         }
 

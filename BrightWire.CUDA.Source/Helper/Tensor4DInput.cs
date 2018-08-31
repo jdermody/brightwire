@@ -6,11 +6,11 @@ namespace BrightWire.Cuda.Helper
     /// <summary>
     /// Helper class that represents a 4D tensor input to a cuda kernel
     /// </summary>
-    class TensorInput
+    class Tensor4DInput
     {
         readonly IReadOnlyList<IReadOnlyList<IDeviceMemoryPtr>> _data;
 
-	    public TensorInput(int rows, int columns, IReadOnlyList<IReadOnlyList<IDeviceMemoryPtr>> data)
+	    public Tensor4DInput(int rows, int columns, IReadOnlyList<IReadOnlyList<IDeviceMemoryPtr>> data)
         {
             _data = data;
             var first = data.First();
@@ -25,7 +25,7 @@ namespace BrightWire.Cuda.Helper
 	    public int Columns { get; }
 	    public int MatrixSize => Rows * Columns;
 
-        internal DeviceMemoryPtrList GetDeviceMemoryPtr() => new DeviceMemoryPtrList(_data);
+        internal DeviceMemoryPtrToPtrList GetDeviceMemoryPtr() => new DeviceMemoryPtrToPtrList(_data);
         internal IReadOnlyList<IDeviceMemoryPtr> Single() => _data.Single();
     }
 }

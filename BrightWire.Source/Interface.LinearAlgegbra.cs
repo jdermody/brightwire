@@ -388,11 +388,11 @@ namespace BrightWire
         IReadOnlyList<IVector> Split(int blockCount);
 
         /// <summary>
-        /// Rotates values in the vector (both within and along blocks)
+        /// Rotates values in the vector (both horizontally and vertically within blocks)
         /// </summary>
-        /// <param name="blockCount">The size of each sub vector</param>
+        /// <param name="blockCount">The number of blocks in the vector (if any)</param>
         /// <returns></returns>
-        IVector Rotate(int blockCount);
+        IVector Rotate(int blockCount = 1);
 
         /// <summary>
         /// In place reversal of the vector's values
@@ -931,7 +931,7 @@ namespace BrightWire
         /// <param name="filterWidth">Width of each filter</param>
         /// <param name="stride">Filter stride</param>
         /// <returns></returns>
-        IMatrix ReverseIm2Col(IReadOnlyList<IReadOnlyList<IVector>> filter, int inputHeight, int inputWidth, int inputDepth, int padding, int filterHeight, int filterWidth, int stride);
+        IMatrix ReverseIm2Col(IReadOnlyList<IReadOnlyList<IVector>> filter, int inputHeight, int inputWidth, int padding, int filterWidth, int filterHeight, int stride);
 
         /// <summary>
         /// Adds each depth slice into a single matrix
@@ -1079,7 +1079,7 @@ namespace BrightWire
         /// <param name="filterHeight">Filter height</param>
         /// <param name="stride">Filter stride</param>
         /// <returns></returns>
-        I3DTensor ReverseIm2Col(IReadOnlyList<IReadOnlyList<IVector>> filter, int inputHeight, int inputWidth, int inputDepth, int padding, int filterWidth, int filterHeight, int stride);
+        I3DTensor ReverseIm2Col(IReadOnlyList<IReadOnlyList<IVector>> filter, int inputHeight, int inputWidth, int padding, int filterWidth, int filterHeight, int stride);
 
         /// <summary>
         /// Converts the 4D tensor to a matrix in which each column is a 3D tensor in vector form

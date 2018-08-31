@@ -41,8 +41,8 @@ namespace UnitTests
             // create some random data
             var rand = new Random();
             var builder = BrightWireProvider.CreateDataTableBuilder();
-            builder.AddColumn(ColumnType.Vector, "Input");
-            builder.AddColumn(ColumnType.Vector, "Output", true);
+            builder.AddVectorColumn(DATA_SIZE, "Input");
+            builder.AddVectorColumn(DATA_SIZE, "Output", true);
             for(var i = 0; i < 100; i++) {
                 var vector = new FloatVector {
                     Data = Enumerable.Range(0, DATA_SIZE).Select(j => Convert.ToSingle(rand.NextDouble())).ToArray()

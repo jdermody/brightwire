@@ -2695,11 +2695,11 @@ BB47_2:
 
 	// .globl	TensorIm2Col
 .visible .entry TensorIm2Col(
-	.param .u64 TensorIm2Col_param_0,
+	.param .u32 TensorIm2Col_param_0,
 	.param .u64 TensorIm2Col_param_1,
-	.param .u32 TensorIm2Col_param_2,
-	.param .u32 TensorIm2Col_param_3,
-	.param .u32 TensorIm2Col_param_4,
+	.param .u64 TensorIm2Col_param_2,
+	.param .u64 TensorIm2Col_param_3,
+	.param .u64 TensorIm2Col_param_4,
 	.param .u32 TensorIm2Col_param_5,
 	.param .u32 TensorIm2Col_param_6,
 	.param .u32 TensorIm2Col_param_7,
@@ -2708,75 +2708,63 @@ BB47_2:
 	.param .u32 TensorIm2Col_param_10
 )
 {
-	.reg .pred 	%p<4>;
-	.reg .f32 	%f<2>;
-	.reg .b32 	%r<36>;
+	.reg .pred 	%p<2>;
+	.reg .f32 	%f<4>;
+	.reg .b32 	%r<26>;
 	.reg .b64 	%rd<20>;
 
 
-	ld.param.u64 	%rd1, [TensorIm2Col_param_0];
-	ld.param.u64 	%rd2, [TensorIm2Col_param_1];
-	ld.param.u32 	%r10, [TensorIm2Col_param_2];
-	ld.param.u32 	%r4, [TensorIm2Col_param_3];
-	ld.param.u32 	%r5, [TensorIm2Col_param_4];
-	ld.param.u32 	%r6, [TensorIm2Col_param_5];
-	ld.param.u32 	%r11, [TensorIm2Col_param_6];
-	ld.param.u32 	%r7, [TensorIm2Col_param_8];
-	ld.param.u32 	%r8, [TensorIm2Col_param_9];
-	ld.param.u32 	%r9, [TensorIm2Col_param_10];
-	mov.u32 	%r12, %ntid.x;
-	mov.u32 	%r13, %ctaid.x;
-	mov.u32 	%r14, %tid.x;
-	mad.lo.s32 	%r1, %r13, %r12, %r14;
-	mov.u32 	%r15, %ctaid.y;
-	mov.u32 	%r16, %ntid.y;
-	mov.u32 	%r17, %tid.y;
-	mad.lo.s32 	%r2, %r15, %r16, %r17;
-	div.s32 	%r3, %r1, %r6;
-	setp.lt.s32	%p1, %r3, %r10;
-	setp.lt.s32	%p2, %r2, %r11;
-	and.pred  	%p3, %p1, %p2;
-	@!%p3 bra 	BB48_2;
-	bra.uni 	BB48_1;
+	ld.param.u32 	%r8, [TensorIm2Col_param_0];
+	ld.param.u64 	%rd1, [TensorIm2Col_param_1];
+	ld.param.u64 	%rd2, [TensorIm2Col_param_2];
+	ld.param.u64 	%rd3, [TensorIm2Col_param_3];
+	ld.param.u64 	%rd4, [TensorIm2Col_param_4];
+	ld.param.u32 	%r2, [TensorIm2Col_param_5];
+	ld.param.u32 	%r3, [TensorIm2Col_param_6];
+	ld.param.u32 	%r4, [TensorIm2Col_param_7];
+	ld.param.u32 	%r5, [TensorIm2Col_param_8];
+	ld.param.u32 	%r6, [TensorIm2Col_param_9];
+	ld.param.u32 	%r7, [TensorIm2Col_param_10];
+	mov.u32 	%r9, %ntid.x;
+	mov.u32 	%r10, %ctaid.x;
+	mov.u32 	%r11, %tid.x;
+	mad.lo.s32 	%r1, %r10, %r9, %r11;
+	setp.ge.s32	%p1, %r1, %r8;
+	@%p1 bra 	BB48_2;
 
-BB48_1:
-	rem.s32 	%r18, %r1, %r6;
-	cvta.to.global.u64 	%rd3, %rd1;
-	mul.lo.s32 	%r19, %r8, %r7;
-	div.s32 	%r20, %r2, %r19;
-	rem.s32 	%r21, %r2, %r19;
-	mul.wide.s32 	%rd4, %r3, 8;
-	add.s64 	%rd5, %rd3, %rd4;
-	ld.global.u64 	%rd6, [%rd5];
-	cvta.to.global.u64 	%rd7, %rd6;
-	mul.wide.s32 	%rd8, %r20, 8;
-	add.s64 	%rd9, %rd7, %rd8;
-	ld.global.u64 	%rd10, [%rd9];
-	cvta.to.global.u64 	%rd11, %rd10;
-	sub.s32 	%r22, %r5, %r7;
-	div.s32 	%r23, %r22, %r9;
-	add.s32 	%r24, %r23, 1;
-	sub.s32 	%r25, %r4, %r8;
-	div.s32 	%r26, %r25, %r9;
-	add.s32 	%r27, %r26, 1;
-	div.s32 	%r28, %r18, %r24;
-	rem.s32 	%r29, %r18, %r27;
-	div.s32 	%r30, %r21, %r7;
-	mad.lo.s32 	%r31, %r28, %r9, %r30;
-	rem.s32 	%r32, %r21, %r8;
-	mad.lo.s32 	%r33, %r29, %r9, %r32;
-	mad.lo.s32 	%r34, %r31, %r4, %r33;
-	mul.wide.s32 	%rd12, %r34, 4;
-	add.s64 	%rd13, %rd11, %rd12;
-	ld.global.f32 	%f1, [%rd13];
-	cvta.to.global.u64 	%rd14, %rd2;
-	add.s64 	%rd15, %rd14, %rd4;
-	ld.global.u64 	%rd16, [%rd15];
-	cvta.to.global.u64 	%rd17, %rd16;
-	mad.lo.s32 	%r35, %r2, %r6, %r18;
-	mul.wide.s32 	%rd18, %r35, 4;
+	cvta.to.global.u64 	%rd5, %rd3;
+	div.s32 	%r12, %r1, %r6;
+	rem.s32 	%r13, %r12, %r7;
+	div.s32 	%r14, %r12, %r7;
+	rem.s32 	%r15, %r14, %r5;
+	div.s32 	%r16, %r14, %r5;
+	mul.wide.s32 	%rd6, %r16, 4;
+	add.s64 	%rd7, %rd5, %rd6;
+	ld.global.f32 	%f1, [%rd7];
+	cvt.rzi.ftz.s32.f32	%r17, %f1;
+	cvta.to.global.u64 	%rd8, %rd4;
+	add.s64 	%rd9, %rd8, %rd6;
+	ld.global.f32 	%f2, [%rd9];
+	cvt.rzi.ftz.s32.f32	%r18, %f2;
+	rem.s32 	%r19, %r1, %r6;
+	mad.lo.s32 	%r20, %r19, %r7, %r13;
+	mad.lo.s32 	%r21, %r15, %r4, %r20;
+	cvta.to.global.u64 	%rd10, %rd1;
+	mul.wide.s32 	%rd11, %r15, 8;
+	add.s64 	%rd12, %rd10, %rd11;
+	ld.global.u64 	%rd13, [%rd12];
+	cvta.to.global.u64 	%rd14, %rd13;
+	add.s32 	%r22, %r17, %r19;
+	add.s32 	%r23, %r18, %r13;
+	mad.lo.s32 	%r24, %r22, %r2, %r23;
+	mul.wide.s32 	%rd15, %r24, 4;
+	add.s64 	%rd16, %rd14, %rd15;
+	ld.global.f32 	%f3, [%rd16];
+	mad.lo.s32 	%r25, %r21, %r3, %r16;
+	cvta.to.global.u64 	%rd17, %rd2;
+	mul.wide.s32 	%rd18, %r25, 4;
 	add.s64 	%rd19, %rd17, %rd18;
-	st.global.f32 	[%rd19], %f1;
+	st.global.f32 	[%rd19], %f3;
 
 BB48_2:
 	ret;
@@ -2784,190 +2772,105 @@ BB48_2:
 
 	// .globl	TensorReverseIm2Col
 .visible .entry TensorReverseIm2Col(
-	.param .u64 TensorReverseIm2Col_param_0,
+	.param .u32 TensorReverseIm2Col_param_0,
 	.param .u64 TensorReverseIm2Col_param_1,
 	.param .u64 TensorReverseIm2Col_param_2,
-	.param .u32 TensorReverseIm2Col_param_3,
-	.param .u32 TensorReverseIm2Col_param_4,
-	.param .u32 TensorReverseIm2Col_param_5,
+	.param .u64 TensorReverseIm2Col_param_3,
+	.param .u64 TensorReverseIm2Col_param_4,
+	.param .u64 TensorReverseIm2Col_param_5,
 	.param .u32 TensorReverseIm2Col_param_6,
 	.param .u32 TensorReverseIm2Col_param_7,
 	.param .u32 TensorReverseIm2Col_param_8,
 	.param .u32 TensorReverseIm2Col_param_9,
 	.param .u32 TensorReverseIm2Col_param_10,
 	.param .u32 TensorReverseIm2Col_param_11,
-	.param .u32 TensorReverseIm2Col_param_12
+	.param .u32 TensorReverseIm2Col_param_12,
+	.param .u32 TensorReverseIm2Col_param_13,
+	.param .u32 TensorReverseIm2Col_param_14,
+	.param .u32 TensorReverseIm2Col_param_15
 )
 {
-	.reg .pred 	%p<16>;
-	.reg .f32 	%f<16>;
-	.reg .b32 	%r<64>;
-	.reg .b64 	%rd<52>;
+	.reg .pred 	%p<2>;
+	.reg .f32 	%f<6>;
+	.reg .b32 	%r<31>;
+	.reg .b64 	%rd<35>;
 
 
-	ld.param.u64 	%rd9, [TensorReverseIm2Col_param_0];
-	ld.param.u64 	%rd10, [TensorReverseIm2Col_param_1];
-	ld.param.u64 	%rd11, [TensorReverseIm2Col_param_2];
-	ld.param.u32 	%r26, [TensorReverseIm2Col_param_3];
-	ld.param.u32 	%r20, [TensorReverseIm2Col_param_4];
-	ld.param.u32 	%r27, [TensorReverseIm2Col_param_5];
-	ld.param.u32 	%r28, [TensorReverseIm2Col_param_6];
-	ld.param.u32 	%r21, [TensorReverseIm2Col_param_7];
-	ld.param.u32 	%r22, [TensorReverseIm2Col_param_8];
-	ld.param.u32 	%r29, [TensorReverseIm2Col_param_9];
-	ld.param.u32 	%r23, [TensorReverseIm2Col_param_10];
-	ld.param.u32 	%r24, [TensorReverseIm2Col_param_11];
-	ld.param.u32 	%r25, [TensorReverseIm2Col_param_12];
-	mov.u32 	%r30, %ntid.x;
-	mov.u32 	%r31, %ctaid.x;
-	mov.u32 	%r32, %tid.x;
-	mad.lo.s32 	%r33, %r31, %r30, %r32;
-	mov.u32 	%r34, %ctaid.y;
-	mov.u32 	%r35, %ntid.y;
-	mov.u32 	%r36, %tid.y;
-	mad.lo.s32 	%r1, %r34, %r35, %r36;
-	mul.lo.s32 	%r37, %r28, %r20;
-	mul.lo.s32 	%r38, %r37, %r29;
-	div.s32 	%r2, %r33, %r38;
-	rem.s32 	%r39, %r33, %r38;
-	div.s32 	%r3, %r39, %r37;
-	rem.s32 	%r4, %r39, %r37;
-	div.s32 	%r5, %r4, %r20;
-	setp.lt.s32	%p1, %r2, %r26;
-	setp.lt.s32	%p2, %r5, %r28;
-	and.pred  	%p3, %p1, %p2;
-	setp.lt.s32	%p4, %r3, %r29;
-	and.pred  	%p5, %p3, %p4;
-	setp.lt.s32	%p6, %r1, %r27;
-	and.pred  	%p7, %p5, %p6;
-	@!%p7 bra 	BB49_14;
-	bra.uni 	BB49_1;
+	ld.param.u32 	%r9, [TensorReverseIm2Col_param_0];
+	ld.param.u64 	%rd1, [TensorReverseIm2Col_param_1];
+	ld.param.u64 	%rd2, [TensorReverseIm2Col_param_2];
+	ld.param.u64 	%rd3, [TensorReverseIm2Col_param_3];
+	ld.param.u64 	%rd4, [TensorReverseIm2Col_param_4];
+	ld.param.u64 	%rd5, [TensorReverseIm2Col_param_5];
+	ld.param.u32 	%r2, [TensorReverseIm2Col_param_6];
+	ld.param.u32 	%r3, [TensorReverseIm2Col_param_8];
+	ld.param.u32 	%r4, [TensorReverseIm2Col_param_10];
+	ld.param.u32 	%r5, [TensorReverseIm2Col_param_11];
+	ld.param.u32 	%r6, [TensorReverseIm2Col_param_12];
+	ld.param.u32 	%r7, [TensorReverseIm2Col_param_13];
+	ld.param.u32 	%r8, [TensorReverseIm2Col_param_14];
+	mov.u32 	%r10, %ntid.x;
+	mov.u32 	%r11, %ctaid.x;
+	mov.u32 	%r12, %tid.x;
+	mad.lo.s32 	%r1, %r11, %r10, %r12;
+	setp.ge.s32	%p1, %r1, %r9;
+	@%p1 bra 	BB49_2;
 
-BB49_1:
-	rem.s32 	%r6, %r4, %r20;
-	cvta.to.global.u64 	%rd12, %rd9;
-	mul.wide.s32 	%rd13, %r2, 8;
-	add.s64 	%rd14, %rd12, %rd13;
-	ld.global.u64 	%rd15, [%rd14];
-	cvta.to.global.u64 	%rd16, %rd15;
-	mul.wide.s32 	%rd17, %r5, 8;
-	add.s64 	%rd18, %rd16, %rd17;
-	ld.global.u64 	%rd19, [%rd18];
-	cvta.to.global.u64 	%rd20, %rd19;
-	cvta.to.global.u64 	%rd21, %rd10;
-	add.s64 	%rd22, %rd21, %rd17;
-	ld.global.u64 	%rd23, [%rd22];
-	cvta.to.global.u64 	%rd24, %rd23;
-	cvta.to.global.u64 	%rd25, %rd11;
-	add.s64 	%rd26, %rd25, %rd13;
+	cvta.to.global.u64 	%rd6, %rd4;
+	div.s32 	%r13, %r1, %r7;
+	rem.s32 	%r14, %r13, %r4;
+	div.s32 	%r15, %r13, %r4;
+	rem.s32 	%r16, %r15, %r5;
+	div.s32 	%r17, %r15, %r5;
+	rem.s32 	%r18, %r17, %r3;
+	div.s32 	%r19, %r17, %r3;
+	mul.wide.s32 	%rd7, %r18, 4;
+	add.s64 	%rd8, %rd6, %rd7;
+	ld.global.f32 	%f1, [%rd8];
+	cvt.rzi.ftz.s32.f32	%r20, %f1;
+	cvta.to.global.u64 	%rd9, %rd5;
+	add.s64 	%rd10, %rd9, %rd7;
+	ld.global.f32 	%f2, [%rd10];
+	cvt.rzi.ftz.s32.f32	%r21, %f2;
+	rem.s32 	%r22, %r1, %r7;
+	mad.lo.s32 	%r23, %r19, %r7, %r22;
+	cvta.to.global.u64 	%rd11, %rd1;
+	mul.wide.s32 	%rd12, %r19, 8;
+	add.s64 	%rd13, %rd11, %rd12;
+	ld.global.u64 	%rd14, [%rd13];
+	cvta.to.global.u64 	%rd15, %rd14;
+	cvta.to.global.u64 	%rd16, %rd2;
+	add.s64 	%rd17, %rd16, %rd12;
+	ld.global.u64 	%rd18, [%rd17];
+	cvta.to.global.u64 	%rd19, %rd18;
+	mul.wide.s32 	%rd20, %r22, 8;
+	add.s64 	%rd21, %rd19, %rd20;
+	ld.global.u64 	%rd22, [%rd21];
+	cvta.to.global.u64 	%rd23, %rd22;
+	cvta.to.global.u64 	%rd24, %rd3;
+	mul.wide.s32 	%rd25, %r23, 8;
+	add.s64 	%rd26, %rd24, %rd25;
 	ld.global.u64 	%rd27, [%rd26];
 	cvta.to.global.u64 	%rd28, %rd27;
-	add.s64 	%rd29, %rd28, %rd17;
-	ld.global.u64 	%rd30, [%rd29];
-	cvta.to.global.u64 	%rd1, %rd30;
-	mul.wide.s32 	%rd31, %r3, 8;
-	add.s64 	%rd32, %rd24, %rd31;
-	ld.global.u64 	%rd33, [%rd32];
-	cvta.to.global.u64 	%rd2, %rd33;
-	mad.lo.s32 	%r40, %r6, %r20, %r1;
-	mul.wide.s32 	%rd34, %r40, 4;
-	add.s64 	%rd35, %rd20, %rd34;
-	ld.global.f32 	%f1, [%rd35];
-	setp.lt.s32	%p8, %r24, 1;
-	@%p8 bra 	BB49_14;
+	div.s32 	%r24, %r20, %r6;
+	div.s32 	%r25, %r21, %r6;
+	mad.lo.s32 	%r26, %r24, %r2, %r25;
+	mul.wide.s32 	%rd29, %r26, 4;
+	add.s64 	%rd30, %rd15, %rd29;
+	mad.lo.s32 	%r27, %r14, %r5, %r16;
+	add.s32 	%r28, %r20, %r14;
+	add.s32 	%r29, %r21, %r16;
+	mad.lo.s32 	%r30, %r28, %r8, %r29;
+	mul.wide.s32 	%rd31, %r27, 4;
+	add.s64 	%rd32, %rd23, %rd31;
+	ld.global.f32 	%f3, [%rd32];
+	ld.global.f32 	%f4, [%rd30];
+	mul.ftz.f32 	%f5, %f4, %f3;
+	mul.wide.s32 	%rd33, %r30, 4;
+	add.s64 	%rd34, %rd28, %rd33;
+	st.global.f32 	[%rd34], %f5;
 
-	mul.lo.s32 	%r42, %r3, %r22;
-	mad.lo.s32 	%r7, %r6, %r25, %r42;
-	div.s32 	%r8, %r22, %r21;
-	mov.u32 	%r59, 0;
-
-BB49_3:
-	setp.lt.s32	%p9, %r23, 1;
-	@%p9 bra 	BB49_13;
-
-	mad.lo.s32 	%r51, %r1, %r25, %r59;
-	mul.lo.s32 	%r10, %r59, %r23;
-	mad.lo.s32 	%r11, %r51, %r8, %r7;
-	and.b32  	%r46, %r23, 3;
-	mov.u32 	%r60, 0;
-	setp.eq.s32	%p10, %r46, 0;
-	@%p10 bra 	BB49_10;
-
-	setp.eq.s32	%p11, %r46, 1;
-	@%p11 bra 	BB49_9;
-
-	setp.eq.s32	%p12, %r46, 2;
-	@%p12 bra 	BB49_8;
-
-	mul.wide.s32 	%rd36, %r10, 4;
-	add.s64 	%rd37, %rd2, %rd36;
-	ld.global.f32 	%f2, [%rd37];
-	mul.ftz.f32 	%f3, %f1, %f2;
-	mul.wide.s32 	%rd38, %r11, 4;
-	add.s64 	%rd39, %rd1, %rd38;
-	st.global.f32 	[%rd39], %f3;
-	mov.u32 	%r60, 1;
-
-BB49_8:
-	add.s32 	%r53, %r60, %r10;
-	mul.wide.s32 	%rd40, %r53, 4;
-	add.s64 	%rd41, %rd2, %rd40;
-	ld.global.f32 	%f4, [%rd41];
-	mul.ftz.f32 	%f5, %f1, %f4;
-	add.s32 	%r54, %r11, %r60;
-	mul.wide.s32 	%rd42, %r54, 4;
-	add.s64 	%rd43, %rd1, %rd42;
-	st.global.f32 	[%rd43], %f5;
-	add.s32 	%r60, %r60, 1;
-
-BB49_9:
-	add.s32 	%r55, %r60, %r10;
-	mul.wide.s32 	%rd44, %r55, 4;
-	add.s64 	%rd45, %rd2, %rd44;
-	ld.global.f32 	%f6, [%rd45];
-	mul.ftz.f32 	%f7, %f1, %f6;
-	add.s32 	%r56, %r11, %r60;
-	mul.wide.s32 	%rd46, %r56, 4;
-	add.s64 	%rd47, %rd1, %rd46;
-	st.global.f32 	[%rd47], %f7;
-	add.s32 	%r60, %r60, 1;
-
-BB49_10:
-	setp.lt.u32	%p13, %r23, 4;
-	@%p13 bra 	BB49_13;
-
-	add.s32 	%r57, %r11, %r60;
-	mul.wide.s32 	%rd48, %r57, 4;
-	add.s64 	%rd51, %rd1, %rd48;
-	mad.lo.s32 	%r58, %r23, %r59, %r60;
-	mul.wide.s32 	%rd49, %r58, 4;
-	add.s64 	%rd50, %rd2, %rd49;
-
-BB49_12:
-	ld.global.f32 	%f8, [%rd50];
-	mul.ftz.f32 	%f9, %f1, %f8;
-	st.global.f32 	[%rd51], %f9;
-	ld.global.f32 	%f10, [%rd50+4];
-	mul.ftz.f32 	%f11, %f1, %f10;
-	st.global.f32 	[%rd51+4], %f11;
-	ld.global.f32 	%f12, [%rd50+8];
-	mul.ftz.f32 	%f13, %f1, %f12;
-	st.global.f32 	[%rd51+8], %f13;
-	ld.global.f32 	%f14, [%rd50+12];
-	mul.ftz.f32 	%f15, %f1, %f14;
-	st.global.f32 	[%rd51+12], %f15;
-	add.s64 	%rd51, %rd51, 16;
-	add.s64 	%rd50, %rd50, 16;
-	add.s32 	%r60, %r60, 4;
-	setp.lt.s32	%p14, %r60, %r23;
-	@%p14 bra 	BB49_12;
-
-BB49_13:
-	add.s32 	%r59, %r59, 1;
-	setp.lt.s32	%p15, %r59, %r24;
-	@%p15 bra 	BB49_3;
-
-BB49_14:
+BB49_2:
 	ret;
 }
 
@@ -3044,40 +2947,34 @@ BB50_4:
 {
 	.reg .pred 	%p<2>;
 	.reg .f32 	%f<2>;
-	.reg .b32 	%r<14>;
-	.reg .b64 	%rd<13>;
+	.reg .b32 	%r<12>;
+	.reg .b64 	%rd<9>;
 
 
 	ld.param.u64 	%rd1, [Rotate_param_0];
 	ld.param.u64 	%rd2, [Rotate_param_1];
-	ld.param.u32 	%r4, [Rotate_param_2];
-	ld.param.u32 	%r2, [Rotate_param_3];
-	ld.param.u32 	%r3, [Rotate_param_4];
-	mov.u32 	%r5, %ntid.x;
-	mov.u32 	%r6, %ctaid.x;
-	mov.u32 	%r7, %tid.x;
-	mad.lo.s32 	%r1, %r6, %r5, %r7;
-	setp.ge.s32	%p1, %r1, %r4;
+	ld.param.u32 	%r3, [Rotate_param_2];
+	ld.param.u32 	%r2, [Rotate_param_4];
+	mov.u32 	%r4, %ntid.x;
+	mov.u32 	%r5, %ctaid.x;
+	mov.u32 	%r6, %tid.x;
+	mad.lo.s32 	%r1, %r5, %r4, %r6;
+	setp.ge.s32	%p1, %r1, %r3;
 	@%p1 bra 	BB51_2;
 
 	cvta.to.global.u64 	%rd3, %rd1;
-	add.s32 	%r8, %r2, -1;
-	div.s32 	%r9, %r1, %r2;
-	sub.s32 	%r10, %r8, %r9;
-	mul.wide.s32 	%rd4, %r10, 8;
+	mul.wide.s32 	%rd4, %r1, 4;
 	add.s64 	%rd5, %rd3, %rd4;
-	ld.global.u64 	%rd6, [%rd5];
-	cvta.to.global.u64 	%rd7, %rd6;
-	add.s32 	%r11, %r3, -1;
-	rem.s32 	%r12, %r1, %r3;
-	sub.s32 	%r13, %r11, %r12;
-	mul.wide.s32 	%rd8, %r13, 4;
-	add.s64 	%rd9, %rd7, %rd8;
-	ld.global.f32 	%f1, [%rd9];
-	cvta.to.global.u64 	%rd10, %rd2;
-	mul.wide.s32 	%rd11, %r1, 4;
-	add.s64 	%rd12, %rd10, %rd11;
-	st.global.f32 	[%rd12], %f1;
+	ld.global.f32 	%f1, [%rd5];
+	add.s32 	%r7, %r2, %r1;
+	add.s32 	%r8, %r7, -1;
+	rem.s32 	%r9, %r1, %r2;
+	sub.s32 	%r10, %r8, %r9;
+	sub.s32 	%r11, %r10, %r9;
+	cvta.to.global.u64 	%rd6, %rd2;
+	mul.wide.s32 	%rd7, %r11, 4;
+	add.s64 	%rd8, %rd6, %rd7;
+	st.global.f32 	[%rd8], %f1;
 
 BB51_2:
 	ret;

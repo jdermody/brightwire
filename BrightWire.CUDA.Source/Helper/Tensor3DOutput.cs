@@ -9,13 +9,15 @@ namespace BrightWire.Cuda.Helper
     /// <summary>
     /// Helper class to represent a list of matrices that are the output of a cuda kernel
     /// </summary>
-    class MatrixOutput
+    class Tensor3DOutput
     {
         readonly List<IMatrix> _data = new List<IMatrix>();
 	    readonly CUdeviceptr[] _ptr;
+		readonly CudaProvider _cuda;
 
-        public MatrixOutput(CudaProvider cuda, int rows, int columns, int count, bool setToZero)
+        public Tensor3DOutput(CudaProvider cuda, int rows, int columns, int count, bool setToZero)
         {
+	        _cuda = cuda;
             Rows = rows;
             Columns = columns;
 
@@ -52,9 +54,21 @@ namespace BrightWire.Cuda.Helper
             return _data.Single();
         }
 
-        public IReadOnlyList<IMatrix> GetAsTensor()
+        public I3DTensor GetAsTensor()
         {
-            return _data;
+	        return _cuda.Create3DTensor(_data);
         }
+
+	    public IMatrix GetAsMatrix()
+	    {
+		    if (_data.Count == 1)
+			    return _data[0];
+
+		    using (var tensor = GetAsTensor()) {
+			    var ret = tensor.CombineDepthSlices();
+				// TODO: divide by the number of depth slices?
+				return ret;
+		    }
+	    }
     }
 }

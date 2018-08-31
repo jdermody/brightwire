@@ -117,8 +117,7 @@ namespace UnitTests
 		[TestMethod]
 		public void TensorIm2Col()
 		{
-			var normalDistribution = new Normal(0, 1);
-			using (var cpuTensor = _cpu.Create3DTensor(Enumerable.Range(0, 3).Select(i => _cpu.CreateMatrix(4, 4, (j, k) => Convert.ToSingle(normalDistribution.Sample()))).ToList()))
+			using (var cpuTensor = _cpu.Create3DTensor(Enumerable.Range(0, 3).Select(i => _cpu.CreateMatrix(4, 4, (j, k) => Convert.ToSingle((i + 1) * (j + 1) * (k + 1)))).ToList()))
 			using (var gpuTensor = _cuda.Create3DTensor(cpuTensor.AsIndexable()))
 			using (var cpuMatrix = cpuTensor.Im2Col(2, 2, 2))
 			using (var gpuMatrix = gpuTensor.Im2Col(2, 2, 2)) {
@@ -151,6 +150,34 @@ namespace UnitTests
 			using (var gpuTensor = _cuda.Create3DTensor(cpuTensor.AsIndexable()))
 			using (var cpuMatrix = cpuTensor.Im2Col(2, 2, 1))
 			using (var gpuMatrix = gpuTensor.Im2Col(2, 2, 1)) {
+				var cpu = cpuMatrix.AsIndexable();
+				var gpu = gpuMatrix.AsIndexable();
+				FloatingPointHelper.AssertEqual(cpu, gpu);
+			}
+		}
+
+		[TestMethod]
+		public void TensorIm2Col4()
+		{
+			var normalDistribution = new Normal(0, 1);
+			using (var cpuTensor = _cpu.Create3DTensor(Enumerable.Range(0, 2).Select(i => _cpu.CreateMatrix(8, 8, (j, k) => Convert.ToSingle(normalDistribution.Sample()))).ToList()))
+			using (var gpuTensor = _cuda.Create3DTensor(cpuTensor.AsIndexable()))
+			using (var cpuMatrix = cpuTensor.Im2Col(1, 2, 1))
+			using (var gpuMatrix = gpuTensor.Im2Col(1, 2, 1)) {
+				var cpu = cpuMatrix.AsIndexable();
+				var gpu = gpuMatrix.AsIndexable();
+				FloatingPointHelper.AssertEqual(cpu, gpu);
+			}
+		}
+
+		[TestMethod]
+		public void TensorIm2Col5()
+		{
+			var normalDistribution = new Normal(0, 1);
+			using (var cpuTensor = _cpu.Create3DTensor(Enumerable.Range(0, 2).Select(i => _cpu.CreateMatrix(8, 8, (j, k) => Convert.ToSingle(normalDistribution.Sample()))).ToList()))
+			using (var gpuTensor = _cuda.Create3DTensor(cpuTensor.AsIndexable()))
+			using (var cpuMatrix = cpuTensor.Im2Col(2, 1, 1))
+			using (var gpuMatrix = gpuTensor.Im2Col(2, 1, 1)) {
 				var cpu = cpuMatrix.AsIndexable();
 				var gpu = gpuMatrix.AsIndexable();
 				FloatingPointHelper.AssertEqual(cpu, gpu);
@@ -346,14 +373,13 @@ namespace UnitTests
 
 			var cpuFilterList = new List<IReadOnlyList<IVector>>();
 			for (var i = 0; i < cpuFilter.ColumnCount; i++)
-				cpuFilterList.Add(cpuFilter.Column(i).Split(depth).Select(v => v.Rotate(v.Count / filterWidth)).ToList());
-
-			var cpuReverseIm2Col = outputTensor.ReverseIm2Col(cpuFilterList, inputHeight, inputWidth, depth, 0, filterHeight, filterWidth, stride);
-			//var cpuUpdate = cpuReverseIm2Col.ConvertTo3DTensor(inputHeight, inputWidth);
+				cpuFilterList.Add(cpuFilter.Column(i).Split(depth).Select(v => v.Rotate()).ToList());
 
 			using (var gpuTensor = _cuda.Create3DTensor(outputTensor.AsIndexable())) {
 				var gpuFilterList = cpuFilterList.Select(fl => fl.Select(f => _cuda.CreateVector(f.AsIndexable())).ToList()).ToList();
-				using (var gpuReverseIm2Col = gpuTensor.ReverseIm2Col(gpuFilterList, inputHeight, inputWidth, depth, 0, filterHeight, filterWidth, stride)) {
+
+				var cpuReverseIm2Col = outputTensor.ReverseIm2Col(cpuFilterList, inputHeight, inputWidth, 0, filterWidth, filterHeight, stride);
+				using (var gpuReverseIm2Col = gpuTensor.ReverseIm2Col(gpuFilterList, inputHeight, inputWidth, 0, filterWidth, filterHeight, stride)) {
 					FloatingPointHelper.AssertEqual(gpuReverseIm2Col.AsIndexable(), cpuReverseIm2Col.AsIndexable());
 				}
 			}
@@ -381,18 +407,6 @@ namespace UnitTests
 		public void TensorReverseIm2Col4()
 		{
 			_TensorReverseIm2Col(2, 2, 2, 2, 2, 4, 4);
-		}
-
-		[TestMethod]
-		public void TensorReverseIm2Col5()
-		{
-			_TensorReverseIm2Col(2, 2, 1, 2, 1, 4, 4);
-		}
-
-		[TestMethod]
-		public void TensorReverseIm2Col6()
-		{
-			_TensorReverseIm2Col(2, 2, 1, 2, 2, 4, 4);
 		}
 
 		FloatMatrix _CreateMatrix(int depth, int rows, int columns, Func<int, int, int, float> valueProvider)
@@ -771,8 +785,8 @@ namespace UnitTests
 				}
 				FloatingPointHelper.AssertEqual(cpuTensor.AsIndexable(), gpuTensor.AsIndexable());
 
-				var cpuReverseIm2Col = cpuTensor.ReverseIm2Col(cpuFilterList, rows, columns, depth, 0, filterHeight, filterWidth, stride);
-				using (var gpuReverseIm2Col = gpuTensor.ReverseIm2Col(gpuFilterList, rows, columns, depth, 0, filterHeight, filterWidth, stride)) {
+				var cpuReverseIm2Col = cpuTensor.ReverseIm2Col(cpuFilterList, rows, columns, 0, filterWidth, filterHeight, stride);
+				using (var gpuReverseIm2Col = gpuTensor.ReverseIm2Col(gpuFilterList, rows, columns, 0, filterWidth, filterHeight, stride)) {
 					var cpuResult = cpuReverseIm2Col.AsIndexable();
 					var gpuResult = gpuReverseIm2Col.AsIndexable();
 					var cpuXml = cpuResult.AsXml;

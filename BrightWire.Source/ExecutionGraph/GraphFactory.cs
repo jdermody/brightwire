@@ -475,7 +475,7 @@ namespace BrightWire.ExecutionGraph
         /// <returns></returns>
         public INode CreateOneMinusInput(string name = null)
         {
-            return new OneMinusInput(name);
+            return GraphOperation.OneMinusInput(name);
         }
 
         /// <summary>

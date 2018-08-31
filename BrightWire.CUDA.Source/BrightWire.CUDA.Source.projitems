@@ -15,12 +15,15 @@
     <Compile Include="$(MSBuildThisFileDirectory)Gpu4DTensor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GpuMatrix.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GpuVector.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helper\ConvolutionsData.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helper\DeviceMemory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helper\DeviceMemoryPtrList.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Helper\MatrixOutput.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helper\DeviceMemoryPtrToPtrList.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helper\Tensor3DInput.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helper\Tensor3DOutput.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helper\PtrToMemory.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Helper\TensorInput.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Helper\TensorOutput.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helper\Tensor4DInput.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helper\Tensor4DOutput.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helper\ThreadSafeHashSet.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interface.cs" />
   </ItemGroup>

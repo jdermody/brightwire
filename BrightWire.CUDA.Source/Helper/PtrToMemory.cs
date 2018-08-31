@@ -27,7 +27,7 @@ namespace BrightWire.Cuda.Helper
             _context.ClearMemory(_ptr.DevicePointer, 0, _ptr.SizeInBytes);
         }
 
-        public void CopyToDevice(float[] source)
+	    public void CopyToDevice(float[] source)
         {
             throw new NotImplementedException();
         }

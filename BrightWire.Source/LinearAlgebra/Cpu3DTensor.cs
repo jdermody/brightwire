@@ -1,4 +1,5 @@
-﻿using BrightWire.Helper;
+﻿using System;
+using BrightWire.Helper;
 using BrightWire.Models;
 using MathNet.Numerics.LinearAlgebra.Single;
 using System.Collections.Generic;
@@ -108,24 +109,6 @@ namespace BrightWire.LinearAlgebra
             return ret;
         }
 
-        public IMatrix Im2Col(int filterWidth, int filterHeight, int stride)
-        {
-            var rowList = new List<float[]>();
-            var convolutions = ConvolutionHelper.Default(ColumnCount, RowCount, filterWidth, filterHeight, stride);
-
-            foreach (var filter in convolutions) {
-                var row = new float[filter.Length * Depth];
-                int index = 0;
-                for (var k = 0; k < Depth; k++) {
-                    foreach (var item in filter)
-                        row[index++] = this[item.Y, item.X, k];
-                }
-                rowList.Add(row);
-            }
-            var firstRow = rowList.First();
-            return new CpuMatrix(DenseMatrix.Create(rowList.Count, firstRow.Length, (i, j) => rowList[i][j]));
-        }
-
         public IVector ConvertToVector()
         {
             var vectorList = _data.Select(m => m.ConvertInPlaceToVector().AsIndexable()).ToArray();
@@ -169,7 +152,7 @@ namespace BrightWire.LinearAlgebra
             var newRows = (RowCount - filterHeight) / stride + 1;
             var matrixList = new List<CpuMatrix>();
             var indexList = calculateIndex ? new List<(object X, object Y)>() : null;
-            var posList = ConvolutionHelper.Default(ColumnCount, RowCount, filterWidth, filterHeight, stride);
+            var convolutions = ConvolutionHelper.Default(ColumnCount, RowCount, filterWidth, filterHeight, stride);
 
             for (var k = 0; k < Depth; k++) {
                 var matrix = _data[k];
@@ -177,22 +160,25 @@ namespace BrightWire.LinearAlgebra
                 var yIndex = new int[newColumns * newRows];
                 var layer = new CpuMatrix(DenseMatrix.Create(newRows, newColumns, 0f));
                 
-                foreach(var item in posList) {
-                    var first = item.First();
-                    var targetX = first.X / stride;
-                    var targetY = first.Y / stride;
+                foreach(var (cx, cy) in convolutions) {
+                    var targetX = cx / stride;
+                    var targetY = cy / stride;
                     var maxVal = float.MinValue;
                     var bestX = -1;
                     var bestY = -1;
-                    foreach (var pos in item) {
-                        var val = matrix[pos.Y, pos.X];
-                        if (val > maxVal || bestX == -1) {
-                            bestX = pos.X;
-                            bestY = pos.Y;
-                            maxVal = val;
-                        }
-                    }
-                    var index = targetX * newRows + targetY;
+
+	                for (var y = 0; y < filterHeight; y++) {
+		                for (var x = 0; x < filterWidth; x++) {
+			                var val = matrix[cy + y, cx + x];
+			                if (val > maxVal || bestX == -1) {
+				                bestX = cx + x;
+				                bestY = cy + y;
+				                maxVal = val;
+			                }
+		                }
+	                }
+
+	                var index = targetX * newRows + targetY;
                     xIndex[index] = bestX;
                     yIndex[index] = bestY;
                     layer[targetY, targetX] = maxVal;
@@ -252,85 +238,97 @@ namespace BrightWire.LinearAlgebra
         //    return (delta, biasUpdateVector);
         //}
 
-        public I3DTensor CalculatePreviousError(IMatrix filterMatrix, int inputHeight, int inputWidth, int inputDepth, int padding, int filterHeight, int filterWidth, int stride)
+        //public I3DTensor CalculatePreviousError(IMatrix filterMatrix, int inputHeight, int inputWidth, int inputDepth, int padding, int filterHeight, int filterWidth, int stride)
+        //{
+        //    var filters = filterMatrix.AsIndexable().Columns.ToList();
+        //    var columns = inputWidth + padding * 2;
+        //    var rows = inputHeight + padding * 2;
+        //    var matrixList = Enumerable.Range(0, inputDepth)
+        //        .Select(i => DenseMatrix.Create(rows, columns, 0f))
+        //        .ToList()
+        //    ;
+        //    var convolutions = ConvolutionHelper.Default(columns, rows, filterHeight, filterHeight, stride);
+
+        //    for (var k = 0; k < Depth; k++) {
+        //        var slice = GetMatrixAt(k).AsIndexable();
+        //        var filterList = filters[k]
+        //            .Split(inputDepth)
+        //            .Select(f => f.Rotate(f.Count / filterWidth).AsIndexable())
+        //            .ToList()
+        //        ;
+
+        //        foreach (var convolution in convolutions) {
+        //            var first = convolution.First();
+        //            var error = slice[first.X / stride, first.Y / stride];
+	       //         foreach (var item in convolution) {
+		      //          var i = item.X - first.X;
+		      //          var j = item.Y - first.Y;
+		      //          var filterIndex = i * filterHeight + j;
+		      //          for (var z = 0; z < filterList.Count; z++) {
+			     //           var filter = filterList[z];
+			     //           var output = matrixList[z];
+			     //           output[item.Y, item.X] += filter[filterIndex] * error;
+		      //          }
+	       //         }
+        //        }
+        //    }
+
+        //    var matrixList2 = matrixList.Select(m => new CpuMatrix(m));
+        //    var ret = new Cpu3DTensor(matrixList2.ToList());
+        //    if (padding > 0)
+        //        return ret.RemovePadding(padding);
+        //    return ret;
+        //}
+
+	    public IMatrix Im2Col(int filterWidth, int filterHeight, int stride)
+	    {
+		    var convolutions = ConvolutionHelper.Default(ColumnCount, RowCount, filterWidth, filterHeight, stride);
+		    var filterSize = filterWidth * filterHeight;
+		    var ret = new CpuMatrix(DenseMatrix.Create(convolutions.Count, filterSize * Depth, 0f));
+
+		    for(var i = 0; i < convolutions.Count; i++) {
+			    var offset = convolutions[i];
+			    for (var k = 0; k < Depth; k++) {
+					var filterOffset = k * filterSize;
+				    for (var y = 0; y < filterHeight; y++) {
+					    for (var x = 0; x < filterWidth; x++) {
+							// write as column major
+							var filterIndex = filterOffset + (x * filterHeight + y);
+						    ret[i, filterIndex] = this[offset.Y + y, offset.X + x, k];
+					    }
+				    }
+			    }
+		    }
+
+		    return ret;
+	    }
+
+        public IMatrix ReverseIm2Col(IReadOnlyList<IReadOnlyList<IVector>> filters, int inputHeight, int inputWidth, int padding, int filterWidth, int filterHeight, int stride)
         {
-            var filters = filterMatrix.AsIndexable().Columns.ToList();
-            var columns = inputWidth + padding * 2;
-            var rows = inputHeight + padding * 2;
-            var matrixList = Enumerable.Range(0, inputDepth)
-                .Select(i => DenseMatrix.Create(rows, columns, 0f))
-                .ToList()
-            ;
-            var convolutions = ConvolutionHelper.Default(columns, rows, filterHeight, filterHeight, stride);
-
-            for (var k = 0; k < Depth; k++) {
-                var slice = GetMatrixAt(k).AsIndexable();
-                var filterList = filters[k]
-                    .Split(inputDepth)
-                    .Select(f => f.Rotate(f.Count / filterWidth).AsIndexable())
-                    .ToList()
-                ;
-
-                foreach (var convolution in convolutions) {
-                    var first = convolution.First();
-                    var error = slice[first.X / stride, first.Y / stride];
-	                foreach (var item in convolution) {
-		                var i = item.X - first.X;
-		                var j = item.Y - first.Y;
-		                var filterIndex = i * filterHeight + j;
-		                for (var z = 0; z < filterList.Count; z++) {
-			                var filter = filterList[z];
-			                var output = matrixList[z];
-			                output[item.Y, item.X] += filter[filterIndex] * error;
-		                }
-	                }
-                }
-            }
-
-            var matrixList2 = matrixList.Select(m => new CpuMatrix(m));
-            var ret = new Cpu3DTensor(matrixList2.ToList());
-            if (padding > 0)
-                return ret.RemovePadding(padding);
-            return ret;
-        }
-
-        public IMatrix ReverseIm2Col(IReadOnlyList<IReadOnlyList<IVector>> filters, int inputHeight, int inputWidth, int inputDepth, int padding, int filterHeight, int filterWidth, int stride)
-        {
-            var columns = inputHeight + padding * 2;
-            var rows = inputWidth + padding * 2;
-            var convolutions = ConvolutionHelper.Default(columns, rows, filterHeight, filterHeight, stride);
-            var ret = Enumerable.Range(0, Depth)
-                .Select(i => DenseMatrix.Create(columns * rows, inputDepth, 0f))
-                .ToList()
-            ;
+	        var outputRows = inputHeight + padding * 2;
+	        var outputColumns = inputWidth + padding * 2;
+            var convolutions = ConvolutionHelper.Default(outputColumns, outputRows, filterWidth, filterHeight, stride);
+	        var output = DenseMatrix.Create(outputRows, outputColumns, 0f);
+	        var numFilters = filters[0].Count;
 
 			for (var k = 0; k < Depth; k++) {
 				var slice = GetMatrixAt(k).AsIndexable();
 				var filterList = filters[k].Select(f => f.AsIndexable()).ToList();
-				var output = ret[k];
 
-				foreach (var convolution in convolutions) {
-					var first = convolution.First();
-					var error = slice[first.X / stride, first.Y / stride];
-					foreach (var item in convolution) {
-						var fx = item.X - first.X;
-						var fy = item.Y - first.Y;
-						var filterIndex = fx * filterHeight + fy;
-						var outputRow = item.X * columns + item.Y;
-						for (var z = 0; z < inputDepth; z++) {
-							var filter = filterList[z];
-							output[outputRow, z] = filter[filterIndex] * error;
+				foreach (var (cx, cy) in convolutions) {
+					var error = slice[cy / stride, cx / stride];
+					for (var y = 0; y < filterHeight; y++) {
+						for (var x = 0; x < filterWidth; x++) {
+							var filterIndex = x * filterHeight + y;
+							for (var z = 0; z < numFilters; z++) {
+								var filter = filterList[z];
+								output[cy+y, cx+x] += filter[filterIndex] * error;
+							}
 						}
 					}
 				}
 			}
-			if (ret.Count > 1) {
-                var ret2 = DenseMatrix.Create(columns * rows, inputDepth, 0f);
-                foreach (var item in ret)
-                    ret2 = (DenseMatrix)ret2.Add(item);
-                return new CpuMatrix(ret2);
-            } else
-                return new CpuMatrix(ret.First());
+			return new CpuMatrix(output);
         }
 
         public IMatrix CombineDepthSlices()
