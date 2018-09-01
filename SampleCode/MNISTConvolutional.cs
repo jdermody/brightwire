@@ -19,12 +19,12 @@ namespace BrightWire.SampleCode
         /// <param name="outputModelPath">Optional path to save the best model to</param>
         static void MNISTConvolutional(string dataFilesPath, string outputModelPath = null)
         {
-            using (var lap = BrightWireGpuProvider.CreateLinearAlgebra()) {
+            using (var lap = BrightWireGpuProvider.CreateLinearAlgebra(false)) {
                 var graph = new GraphFactory(lap);
 
                 Console.Write("Loading training data...");
-                var trainingData = _BuildTensors(graph, null, Mnist.Load(dataFilesPath + "train-labels.idx1-ubyte", dataFilesPath + "train-images.idx3-ubyte"));
-                var testData = _BuildTensors(graph, trainingData, Mnist.Load(dataFilesPath + "t10k-labels.idx1-ubyte", dataFilesPath + "t10k-images.idx3-ubyte"));
+                var trainingData = _BuildTensors(graph, null, Mnist.Load(dataFilesPath + "train-labels.idx1-ubyte", dataFilesPath + "train-images.idx3-ubyte").Where(d => d.Label == 0 || d.Label == 1).Take(1000).ToList());
+                var testData = _BuildTensors(graph, trainingData, Mnist.Load(dataFilesPath + "t10k-labels.idx1-ubyte", dataFilesPath + "t10k-images.idx3-ubyte").Where(d => d.Label == 0 || d.Label == 1).Take(200).ToList());
                 Console.WriteLine($"done - {trainingData.RowCount} training images and {testData.RowCount} test images loaded");
 
                 // one hot encoding uses the index of the output vector's maximum value as the classification label
@@ -37,7 +37,7 @@ namespace BrightWire.SampleCode
                 ;
 
                 // create the network
-                const int HIDDEN_LAYER_SIZE = 1024, BATCH_SIZE = 64, TRAINING_ITERATIONS = 20;
+                const int HIDDEN_LAYER_SIZE = 256, BATCH_SIZE = 128, TRAINING_ITERATIONS = 20;
                 const float LEARNING_RATE = 0.05f;
                 var engine = graph.CreateTrainingEngine(trainingData, LEARNING_RATE, BATCH_SIZE);
                 if (!String.IsNullOrWhiteSpace(outputModelPath) && File.Exists(outputModelPath)) {

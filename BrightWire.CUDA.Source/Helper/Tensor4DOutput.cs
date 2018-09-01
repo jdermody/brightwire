@@ -60,11 +60,7 @@ namespace BrightWire.Cuda.Helper
                 .Cast<GpuMatrix>()
                 .ToList()
             ;
-            return new Gpu3DTensor(_cuda, Rows, Columns, matrixList);
-        }
-        public I4DTensor GetAsTensor()
-        {
-            return new Gpu4DTensor(_cuda, _data, Rows, Columns, Depth);
+            return _cuda.Create3DTensor(matrixList);
         }
     }
 }

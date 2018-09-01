@@ -11,58 +11,44 @@ namespace BrightWire.Cuda.Helper
     /// </summary>
     class Tensor3DOutput
     {
-        readonly List<IMatrix> _data = new List<IMatrix>();
+	    readonly IMatrix _data;
 	    readonly CUdeviceptr[] _ptr;
-		readonly CudaProvider _cuda;
 
         public Tensor3DOutput(CudaProvider cuda, int rows, int columns, int depth, bool setToZero)
         {
-	        _cuda = cuda;
             Rows = rows;
             Columns = columns;
+	        Depth = depth;
 
-            for (var i = 0; i < depth; i++) {
-                _data.Add(setToZero
-                    ? cuda.CreateZeroMatrix(rows, columns)
-                    : cuda.CreateMatrix(rows, columns)
-                );
-            }
-            _ptr = _data.Cast<GpuMatrix>().Select(m => m.Memory.DevicePointer).ToArray();
-        }
+	        _data = setToZero
+		        ? cuda.CreateZeroMatrix(rows * columns, depth)
+		        : cuda.CreateMatrix(rows * columns, depth);
 
-        public void Release()
-        {
-            foreach(var item in _data)
-                item.Dispose();
+	        _ptr = Enumerable.Range(0, depth).Select(i => ((GpuVector) _data.Column(i)).Memory.DevicePointer).ToArray();
         }
 
         public int Rows { get; }
 
 	    public int Columns { get; }
 
-	    public int Count => _data.Count;
+	    public int Depth { get; }
 
         internal CudaDeviceVariable<CUdeviceptr> GetDeviceMemoryPtr()
         {
-            var ret = new CudaDeviceVariable<CUdeviceptr>(Count);
+            var ret = new CudaDeviceVariable<CUdeviceptr>(_ptr.Length);
             ret.CopyToDevice(_ptr);
             return ret;
         }
 
-        public IMatrix Single()
-        {
-            return _data.Single();
-        }
-
         public I3DTensor GetAsTensor()
         {
-	        return _cuda.Create3DTensor(_data);
+	        return _data.ConvertTo3DTensor(Rows, Columns);
         }
 
 	    public IMatrix GetAsMatrix()
 	    {
-		    if (_data.Count == 1)
-			    return _data[0];
+		    if (Depth == 1)
+			    return _data.ConvertInPlaceToVector().ConvertInPlaceToMatrix(Rows, Columns);
 
 		    using (var tensor = GetAsTensor()) {
 			    var ret = tensor.CombineDepthSlices();

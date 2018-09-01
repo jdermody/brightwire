@@ -29,12 +29,12 @@ namespace BrightWire.Cuda.Helper
 
 	    public void CopyToDevice(float[] source)
         {
-            throw new NotImplementedException();
+	        _ptr.CopyToDevice(source);
         }
 
         public void CopyToDevice(IDeviceMemoryPtr source)
         {
-            throw new NotImplementedException();
+	        _ptr.CopyToDevice(source.DeviceVariable);
         }
 
         public void CopyToHost(float[] target)

@@ -531,14 +531,17 @@ extern "C"
 
     __global__ void TensorIm2Col(
         int size, 
-        float** a, 
+        float* a, 
         float* b, 
         float* cx, 
         float* cy, 
-        int rows, 
+        int rows,
+        int columns,
+        int depth,
+        int count,
+        int outputRows,
+        int outputColumns,
         int convolutionCount, 
-        int filterSize, 
-        int depth, 
         int filterWidth, 
         int filterHeight
     ) {
@@ -550,12 +553,16 @@ extern "C"
             int index3 = index2 / filterHeight;
 
             int k = index3 % depth;
-            int ci = index3 / depth;
+            int index4 = index3 / depth;
+
+            int ci = index4 % convolutionCount;
+            int i = index4 / convolutionCount;
             
             int offsetX = cx[ci];
             int offsetY = cy[ci];
 
-            /*printf("index:%i, ci:%i(%i), k:%i(%i), x:%i(%i), y:%i(%i), cx:%i, cy:%i\n", index,
+            /*printf("index:%i, i:%i(%i), ci:%i(%i), k:%i(%i), x:%i(%i), y:%i(%i), cx:%i, cy:%i\n", index,
+                i, count,
                 ci, convolutionCount,
                 k, depth,
                 x, filterWidth,
@@ -563,24 +570,27 @@ extern "C"
                 offsetX, offsetY
             );*/
 
-            int filterOffset = k * filterSize;
+            int filterOffset = k * filterWidth * filterHeight;
             int filterIndex = filterOffset + (x * filterHeight + y);
-            
-            b[filterIndex * convolutionCount + ci] = a[k][(offsetX + x) * rows + (offsetY + y)];
+
+            float* outputPtr = b + (outputRows * outputColumns * depth * i);
+            float* inputPtr = a + (rows * columns * depth * i) + (rows * columns * k);
+            outputPtr[filterIndex * outputRows + ci] = inputPtr[(offsetX + x) * rows + (offsetY + y)];
         }
     }
 
     __global__ void TensorReverseIm2Col(
         int size, 
-        float** a, 
+        float* a, 
         float*** ppFilters, 
-        float** b, 
+        float* b, 
         float* cx, 
         float* cy, 
         int rows, 
         int columns, 
-        int convolutionCount, 
         int depth, 
+        int count,
+        int convolutionCount,  
         int filterWidth, 
         int filterHeight, 
         int stride, 
@@ -599,13 +609,16 @@ extern "C"
             int index4 = index3 / filterHeight;
 
             int ci = index4 % convolutionCount;
-            int k = index4 / convolutionCount;
+            int index5 = index4 / convolutionCount;
+
+            int k = index5 % depth;
+            int i = index5 / depth;
 
             int offsetX = cx[ci];
             int offsetY = cy[ci];
-            int bIndex = k * numFilters + z;
 
-            /*printf("index:%i, oi:%i ci:%i(%i), k:%i(%i), x:%i(%i), y:%i(%i), z:%i(%i), cx:%i, cy:%i\n", index, bIndex,
+            /*printf("index:%i di:%i(%i) ci:%i(%i) k:%i(%i) x:%i(%i) y:%i(%i) z:%i(%i) cx:%i cy:%i\n", index,
+                i, count,
                 ci, convolutionCount, 
                 k, depth, 
                 x, filterWidth, 
@@ -614,9 +627,12 @@ extern "C"
                 offsetX, offsetY
             );*/
 
-            float* slice = a[k];
+            float* slice = a + (i * rows * columns * depth) + (k * rows * columns);
             float* filter = ppFilters[k][z];
-            float* output = b[bIndex];
+            float* output = b + (i * outputRows * outputColumns * depth * numFilters) 
+                + (k * outputRows * outputColumns * numFilters) 
+                + (z * outputRows * outputColumns)
+            ;
 
             int errorX = offsetX / stride;
             int errorY = offsetY / stride;
@@ -716,4 +732,45 @@ extern "C"
             }
         }
 	}
+
+    __global__ void Tensor4DIm2Col(
+        int size, 
+        float** a, 
+        float* b, 
+        float* cx, 
+        float* cy, 
+        int rows, 
+        int convolutionCount, 
+        int filterSize, 
+        int depth, 
+        int filterWidth, 
+        int filterHeight
+    ) {
+        for (int index = blockDim.x * blockIdx.x + threadIdx.x; index < size; index += blockDim.x * gridDim.x) {
+            int x = index % filterWidth;
+            int index2 = index / filterWidth;
+
+            int y = index2 % filterHeight;
+            int index3 = index2 / filterHeight;
+
+            int k = index3 % depth;
+            int ci = index3 / depth;
+            
+            int offsetX = cx[ci];
+            int offsetY = cy[ci];
+
+            /*printf("index:%i, ci:%i(%i), k:%i(%i), x:%i(%i), y:%i(%i), cx:%i, cy:%i\n", index,
+                ci, convolutionCount,
+                k, depth,
+                x, filterWidth,
+                y, filterHeight,
+                offsetX, offsetY
+            );*/
+
+            int filterOffset = k * filterSize;
+            int filterIndex = filterOffset + (x * filterHeight + y);
+            
+            b[filterIndex * convolutionCount + ci] = a[k][(offsetX + x) * rows + (offsetY + y)];
+        }
+    }
 }

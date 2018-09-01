@@ -13,11 +13,9 @@ namespace BrightWire.CUDA.Source.Helper
     {
 	    readonly IDeviceMemoryPtr _x, _y;
 	    readonly int _count;
-	    readonly CudaProvider _cuda;
 
 	    public ConvolutionsData(CudaProvider cuda, List<(int X, int Y)> convolutions)
 	    {
-		    _cuda = cuda;
 		    _count = convolutions.Count;
 		    _x = cuda.Allocate(_count);
 		    _y = cuda.Allocate(_count);
