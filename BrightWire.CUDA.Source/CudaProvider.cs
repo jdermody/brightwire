@@ -665,7 +665,8 @@ namespace BrightWire.LinearAlgebra
             try {
                 using (var output = ret.GetDeviceMemoryPtr())
                 using (var input = tensor.GetDeviceMemoryPtr()) {
-	                _Invoke2(_tensorAddPadding, newRows * depth * count, newColumns, input.DevicePointer, output.DevicePointer, count, rows, columns, newRows, newColumns, depth, padding);
+	                var size = newRows * depth * count;
+	                _Invoke2(_tensorAddPadding, newRows * depth * count, newColumns, size, input.DevicePointer, output.DevicePointer, count, rows, columns, newRows, newColumns, depth, padding);
                 }
             }catch {
                 ret.Release();
@@ -687,7 +688,8 @@ namespace BrightWire.LinearAlgebra
             try {
                 using (var output = ret.GetDeviceMemoryPtr())
                 using (var input = tensor.GetDeviceMemoryPtr()) {
-	                _Invoke2(_tensorRemovePadding, rows * depth * count, columns, input.DevicePointer, output.DevicePointer, count, rows, columns, newRows, newColumns, depth, padding);
+	                var size = rows * depth * count;
+	                _Invoke2(_tensorRemovePadding, size, columns, size, input.DevicePointer, output.DevicePointer, count, rows, columns, newRows, newColumns, depth, padding);
                 }
             }catch {
                 ret.Release();
@@ -748,7 +750,8 @@ namespace BrightWire.LinearAlgebra
                 outputDevicePtr.CopyToDevice(ret.Select(m => m.DevicePointer).ToArray());
                 xIndexPtr.CopyToDevice(xIndex.Select(m => m.DevicePointer).ToArray());
                 yIndexPtr.CopyToDevice(yIndex.Select(m => m.DevicePointer).ToArray());
-	            _Invoke2(_tensorMaxPool, newRows * depth, newColumns, inputDevicePtr.DevicePointer, outputDevicePtr.DevicePointer, xIndexPtr.DevicePointer, yIndexPtr.DevicePointer, rows, columns, depth, newRows, newColumns, filterWidth, filterHeight, stride);
+	            int size2 = newRows * depth;
+	            _Invoke2(_tensorMaxPool, size2, newColumns, size2, inputDevicePtr.DevicePointer, outputDevicePtr.DevicePointer, xIndexPtr.DevicePointer, yIndexPtr.DevicePointer, rows, columns, depth, newRows, newColumns, filterWidth, filterHeight, stride);
             }
             if (calculateIndex) {
                 return ret.Select((d, i) => {
@@ -782,7 +785,8 @@ namespace BrightWire.LinearAlgebra
                 outputDevicePtr.CopyToDevice(ret.Select(m => m.DevicePointer).ToArray());
                 xIndexPtr.CopyToDevice(xIndex.Select(m => m.DevicePointer).ToArray());
                 yIndexPtr.CopyToDevice(yIndex.Select(m => m.DevicePointer).ToArray());
-	            _Invoke2(_tensorReverseMaxPool, rows * depth, columns, inputDevicePtr.DevicePointer, outputDevicePtr.DevicePointer, xIndexPtr.DevicePointer, yIndexPtr.DevicePointer, rows, columns, depth, newRows, newColumns);
+	            int size2 = rows * depth;
+	            _Invoke2(_tensorReverseMaxPool, size2, columns, size2, inputDevicePtr.DevicePointer, outputDevicePtr.DevicePointer, xIndexPtr.DevicePointer, yIndexPtr.DevicePointer, rows, columns, depth, newRows, newColumns);
             }
             for (var i = 0; i < depth; i++) {
                 xIndex[i].Dispose();
@@ -791,77 +795,67 @@ namespace BrightWire.LinearAlgebra
             return ret;
         }
 
-        internal IMatrix TensorIm2Col(Tensor3DInput tensor, int filterWidth, int filterHeight, int stride)
-        {
-			using(var tensorPtr = tensor.GetDeviceMemoryPtr())
-	        using(var convolutions = new ConvolutionsData(this, ConvolutionHelper.Default(tensor.Columns, tensor.Rows, filterWidth, filterHeight, stride))) {
-		        var filterSize = filterWidth * filterHeight;
-		        var columns = filterSize * tensor.Depth;
-		        var ret = (GpuMatrix)CreateZeroMatrix(convolutions.Count, columns);
-		        var size = convolutions.Count * columns;
-		        _Invoke(_tensorIm2Col, size, 
-			        size,
-			        tensorPtr.DevicePointer, 
-			        ret.Memory.DevicePointer, 
-			        convolutions.X.DevicePointer,
-			        convolutions.Y.DevicePointer,
-					tensor.Rows,
-					convolutions.Count,
-					filterSize,
-					tensor.Depth,
-			        filterWidth, 
-			        filterHeight
+	    internal IMatrix TensorIm2Col(Tensor3DInput tensor, int filterWidth, int filterHeight, int stride)
+	    {
+		    using(var tensorPtr = tensor.GetDeviceMemoryPtr())
+		    using(var convolutions = new ConvolutionsData(this, ConvolutionHelper.Default(tensor.Columns, tensor.Rows, filterWidth, filterHeight, stride))) {
+			    var filterSize = filterWidth * filterHeight;
+			    var columns = filterSize * tensor.Depth;
+			    var ret = (GpuMatrix)CreateZeroMatrix(convolutions.Count, columns);
+			    var size = convolutions.Count * columns;
+			    _Invoke(_tensorIm2Col, size, 
+				    size,
+				    tensorPtr.DevicePointer, 
+				    ret.Memory.DevicePointer, 
+				    convolutions.X.DevicePointer,
+				    convolutions.Y.DevicePointer,
+				    tensor.Rows,
+				    convolutions.Count,
+				    filterSize,
+				    tensor.Depth,
+				    filterWidth, 
+				    filterHeight
 			    );
-		        return ret;
-	        }
+			    return ret;
+		    }
+	    }
 
-            //var ret = new MatrixOutput(this, convolutions.Count, filterWidth * filterHeight * tensor.Depth, 1, true);
-            //try {
-            //    using (var input = tensor.GetDeviceMemoryPtr())
-            //    using (var output = ret.GetDeviceMemoryPtr()) {
-            //        _Use(_tensorIm2Col, newRows * count, newColumns, k => k.Run(0, input.DevicePointer, output.DevicePointer, count, rows, columns, newRows, newColumns, depth, filterWidth, filterHeight, stride));
-            //    }
-            //}catch {
-            //    ret.Release();
-            //    throw;
-            //}
-            //return ret;
-        }
+	    internal IMatrix TensorReverseIm2Col(Tensor3DInput tensor, IReadOnlyList<IReadOnlyList<IDeviceMemoryPtr>> filterList, int inputHeight, int inputWidth, int padding, int filterHeight, int filterWidth, int stride)
+	    {
+		    var outputRows = inputHeight + padding * 2;
+		    var outputColumns = inputWidth + padding * 2;
+		    var numFilters = filterList[0].Count;
 
-        internal IMatrix TensorReverseIm2Col(Tensor3DInput tensor, IReadOnlyList<IReadOnlyList<IDeviceMemoryPtr>> filterList, int inputHeight, int inputWidth, int padding, int filterHeight, int filterWidth, int stride)
-        {
-	        var outputRows = inputHeight + padding * 2;
-	        var outputColumns = inputWidth + padding * 2;
-	        var numFilters = filterList[0].Count;
+		    var ret = new Tensor3DOutput(this, outputRows, outputColumns, numFilters * tensor.Depth, true);
 
-	        var ret = new Tensor3DOutput(this, outputRows, outputColumns, numFilters * tensor.Depth, true);
+		    using(var ptr = ret.GetDeviceMemoryPtr())
+		    using(var tensorPtr = tensor.GetDeviceMemoryPtr())
+		    using(var filterPtr = new DeviceMemoryPtrToPtrList(filterList))
+		    using (var convolutions = new ConvolutionsData(this, ConvolutionHelper.Default(outputColumns, outputRows, filterWidth, filterHeight, stride))) {
+			    var size = tensor.Depth * convolutions.Count * filterHeight * filterWidth * numFilters;
+			    _Invoke(_tensorReverseIm2Col, size,
+				    size,
+				    tensorPtr.DevicePointer,
+				    filterPtr.DevicePointer,
+				    ptr.DevicePointer,
+				    convolutions.X.DevicePointer,
+				    convolutions.Y.DevicePointer,
+				    tensor.Rows,
+				    tensor.Columns,
+				    convolutions.Count,
+				    tensor.Depth,
+				    filterWidth,
+				    filterHeight,
+				    stride,
+				    numFilters,
+				    outputRows,
+				    outputColumns
+			    );
+		    }
 
-			using(var ptr = ret.GetDeviceMemoryPtr())
-	        using(var tensorPtr = tensor.GetDeviceMemoryPtr())
-			using(var filterPtr = new DeviceMemoryPtrToPtrList(filterList))
-	        using (var convolutions = new ConvolutionsData(this, ConvolutionHelper.Default(outputColumns, outputRows, filterWidth, filterHeight, stride))) {
-		        var size = tensor.Depth * convolutions.Count * filterHeight * filterWidth * numFilters;
-		        _Invoke(_tensorReverseIm2Col, size,
-			        size,
-			        tensorPtr.DevicePointer,
-			        filterPtr.DevicePointer,
-			        ptr.DevicePointer,
-			        convolutions.X.DevicePointer,
-			        convolutions.Y.DevicePointer,
-			        tensor.Rows,
-					tensor.Columns,
-			        convolutions.Count,
-			        tensor.Depth,
-			        filterWidth,
-			        filterHeight,
-					stride,
-			        numFilters,
-			        outputRows,
-			        outputColumns
-		        );
-	        }
+		    return ret.GetAsMatrix();
 
-	        return ret.GetAsMatrix();
+	        //return ret.GetAsMatrix();
 	        //   var rows = tensor.Rows;
          //   var columns = tensor.Columns;
          //   var count = tensor.Count;
@@ -966,7 +960,7 @@ namespace BrightWire.LinearAlgebra
         public I3DTensor Create3DTensor(IReadOnlyList<IMatrix> data)
         {
             var first = data.First();
-            return new Gpu3DTensor(this, first.RowCount, first.ColumnCount, data.Count, data.Cast<GpuMatrix>().ToList());
+            return new Gpu3DTensor(this, first.RowCount, first.ColumnCount, data.Cast<GpuMatrix>().ToList());
         }
 
         public I4DTensor Create4DTensor(IReadOnlyList<FloatTensor> data)

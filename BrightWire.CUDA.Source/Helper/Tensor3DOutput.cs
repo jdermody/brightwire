@@ -15,13 +15,13 @@ namespace BrightWire.Cuda.Helper
 	    readonly CUdeviceptr[] _ptr;
 		readonly CudaProvider _cuda;
 
-        public Tensor3DOutput(CudaProvider cuda, int rows, int columns, int count, bool setToZero)
+        public Tensor3DOutput(CudaProvider cuda, int rows, int columns, int depth, bool setToZero)
         {
 	        _cuda = cuda;
             Rows = rows;
             Columns = columns;
 
-            for (var i = 0; i < count; i++) {
+            for (var i = 0; i < depth; i++) {
                 _data.Add(setToZero
                     ? cuda.CreateZeroMatrix(rows, columns)
                     : cuda.CreateMatrix(rows, columns)

@@ -703,7 +703,7 @@ namespace BrightWire.LinearAlgebra
             var matrixList = new List<GpuMatrix>();
             for (var i = 0; i < ColumnCount; i++)
                 matrixList.Add((GpuMatrix)Column(i).ConvertInPlaceToMatrix(rows, columns));
-            return new Gpu3DTensor(_cuda, rows, columns, matrixList.Count, matrixList);
+            return new Gpu3DTensor(_cuda, rows, columns, matrixList);
         }
 
         public I4DTensor ConvertTo4DTensor(int rows, int columns, int depth)
