@@ -723,83 +723,104 @@ namespace BrightWire.LinearAlgebra
 			return ret;
 		}
 
-		internal IReadOnlyList<(IDeviceMemoryPtr, object, object)> TensorMaxPool(
-			IReadOnlyList<IDeviceMemoryPtr> matrixList,
-			int rows,
-			int columns,
+		internal (IDeviceMemoryPtr Data, IDeviceMemoryPtr Indices, int Rows, int Columns) TensorMaxPool(
+			IDeviceMemoryPtr tensor, 
+			int rows, 
+			int columns, 
+			int depth, 
+			int count,
 			int filterWidth,
 			int filterHeight,
 			int stride,
-			bool calculateIndex)
-		{
-			var newColumns = (columns - filterWidth) / stride + 1;
-			var newRows = (rows - filterHeight) / stride + 1;
-			var size = newColumns * newRows;
-			var depth = matrixList.Count;
-			var ret = new List<IDeviceMemoryPtr>();
+			bool saveIndices
+		) {
+			var outputColumns = (columns - filterWidth) / stride + 1;
+			var outputRows = (rows - filterHeight) / stride + 1;
+			var outputMatrixSize = outputColumns * outputRows;
+			var ret = Allocate(outputMatrixSize * depth * count);
+			var indices = saveIndices ? Allocate(outputMatrixSize * depth * count) : null;
 
-			var xIndex = new List<CudaDeviceVariable<int>>();
-			var yIndex = new List<CudaDeviceVariable<int>>();
-			for (var i = 0; i < depth; i++) {
-				ret.Add(Allocate(size));
-				xIndex.Add(calculateIndex ? new CudaDeviceVariable<int>(size) : CudaDeviceVariable<int>.Null);
-				yIndex.Add(calculateIndex ? new CudaDeviceVariable<int>(size) : CudaDeviceVariable<int>.Null);
-			}
-			using (var outputDevicePtr = new CudaDeviceVariable<CUdeviceptr>(depth))
-			using (var inputDevicePtr = new CudaDeviceVariable<CUdeviceptr>(depth))
-			using (var xIndexPtr = new CudaDeviceVariable<CUdeviceptr>(depth))
-			using (var yIndexPtr = new CudaDeviceVariable<CUdeviceptr>(depth)) {
-				inputDevicePtr.CopyToDevice(matrixList.Select(m => m.DevicePointer).ToArray());
-				outputDevicePtr.CopyToDevice(ret.Select(m => m.DevicePointer).ToArray());
-				xIndexPtr.CopyToDevice(xIndex.Select(m => m.DevicePointer).ToArray());
-				yIndexPtr.CopyToDevice(yIndex.Select(m => m.DevicePointer).ToArray());
-				int size2 = newRows * depth;
-				_Invoke2(_tensorMaxPool, size2, newColumns, size2, inputDevicePtr.DevicePointer, outputDevicePtr.DevicePointer, xIndexPtr.DevicePointer, yIndexPtr.DevicePointer, rows, columns, depth, newRows, newColumns, filterWidth, filterHeight, stride);
-			}
-			if (calculateIndex) {
-				return ret.Select((d, i) => {
-					return (d, (object)xIndex[i], (object)yIndex[i]);
-				}).ToList();
-			} else {
-				return ret.Select((d, i) => {
-					return (d, (object)null, (object)null);
-				}).ToList();
-			}
+			_Invoke(_tensorMaxPool, ret.Size,
+				ret.Size,
+				tensor.DevicePointer, 
+				ret.DevicePointer, 
+				indices?.DevicePointer,
+				rows, 
+				columns, 
+				depth, 
+				count,
+				outputRows, 
+				outputColumns, 
+				filterWidth, 
+				filterHeight, 
+				stride
+			);
+
+			return (ret, indices, outputRows, outputColumns);
 		}
 
-		internal IReadOnlyList<IDeviceMemoryPtr> TensorReverseMaxPool(IReadOnlyList<IDeviceMemoryPtr> matrixList, int rows, int columns, int newRows, int newColumns, IReadOnlyList<(object X, object Y)> indexList)
+		internal IDeviceMemoryPtr TensorReverseMaxPool(IDeviceMemoryPtr tensor, IDeviceMemoryPtr indices, int rows, int columns, int depth, int count, int outputRows, int outputColumns, int filterWidth, int filterHeight, int stride)
 		{
-			var size = newColumns * newRows;
-			var depth = matrixList.Count;
-			var ret = new List<IDeviceMemoryPtr>();
-			var xIndex = new List<CudaDeviceVariable<int>>();
-			var yIndex = new List<CudaDeviceVariable<int>>();
-			for (var i = 0; i < depth; i++) {
-				ret.Add(Allocate(size, true));
-				var data = indexList[i];
-				xIndex.Add((CudaDeviceVariable<int>)data.X);
-				yIndex.Add((CudaDeviceVariable<int>)data.Y);
-			}
-			using (var outputDevicePtr = new CudaDeviceVariable<CUdeviceptr>(depth))
-			using (var inputDevicePtr = new CudaDeviceVariable<CUdeviceptr>(depth))
-			using (var xIndexPtr = new CudaDeviceVariable<CUdeviceptr>(depth))
-			using (var yIndexPtr = new CudaDeviceVariable<CUdeviceptr>(depth)) {
-				inputDevicePtr.CopyToDevice(matrixList.Select(m => m.DevicePointer).ToArray());
-				outputDevicePtr.CopyToDevice(ret.Select(m => m.DevicePointer).ToArray());
-				xIndexPtr.CopyToDevice(xIndex.Select(m => m.DevicePointer).ToArray());
-				yIndexPtr.CopyToDevice(yIndex.Select(m => m.DevicePointer).ToArray());
-				int size2 = rows * depth;
-				_Invoke2(_tensorReverseMaxPool, size2, columns, size2, inputDevicePtr.DevicePointer, outputDevicePtr.DevicePointer, xIndexPtr.DevicePointer, yIndexPtr.DevicePointer, rows, columns, depth, newRows, newColumns);
-			}
-			for (var i = 0; i < depth; i++) {
-				xIndex[i].Dispose();
-				yIndex[i].Dispose();
-			}
+			var ret = Allocate(outputRows * outputColumns * depth * count);
+			var size = rows * columns * depth * count;
+
+			_Invoke(_tensorReverseMaxPool, size,
+				size,
+				tensor.DevicePointer, 
+				indices.DevicePointer,
+				ret.DevicePointer, 
+				rows, 
+				columns, 
+				depth, 
+				count,
+				outputRows, 
+				outputColumns, 
+				filterWidth, 
+				filterHeight,
+				stride
+			);
+
 			return ret;
+
+			//var size = newColumns * newRows;
+			//var depth = matrixList.Count;
+			//var ret = new List<IDeviceMemoryPtr>();
+			//var xIndex = new List<CudaDeviceVariable<int>>();
+			//var yIndex = new List<CudaDeviceVariable<int>>();
+			//for (var i = 0; i < depth; i++) {
+			//	ret.Add(Allocate(size, true));
+			//	var data = indexList[i];
+			//	xIndex.Add((CudaDeviceVariable<int>)data.X);
+			//	yIndex.Add((CudaDeviceVariable<int>)data.Y);
+			//}
+			//using (var outputDevicePtr = new CudaDeviceVariable<CUdeviceptr>(depth))
+			//using (var inputDevicePtr = new CudaDeviceVariable<CUdeviceptr>(depth))
+			//using (var xIndexPtr = new CudaDeviceVariable<CUdeviceptr>(depth))
+			//using (var yIndexPtr = new CudaDeviceVariable<CUdeviceptr>(depth)) {
+			//	inputDevicePtr.CopyToDevice(matrixList.Select(m => m.DevicePointer).ToArray());
+			//	outputDevicePtr.CopyToDevice(ret.Select(m => m.DevicePointer).ToArray());
+			//	xIndexPtr.CopyToDevice(xIndex.Select(m => m.DevicePointer).ToArray());
+			//	yIndexPtr.CopyToDevice(yIndex.Select(m => m.DevicePointer).ToArray());
+			//	int size2 = rows * depth;
+			//	_Invoke2(_tensorReverseMaxPool, size2, columns, size2, inputDevicePtr.DevicePointer, outputDevicePtr.DevicePointer, xIndexPtr.DevicePointer, yIndexPtr.DevicePointer, rows, columns, depth, newRows, newColumns);
+			//}
+			//for (var i = 0; i < depth; i++) {
+			//	xIndex[i].Dispose();
+			//	yIndex[i].Dispose();
+			//}
+			//return ret;
 		}
 
-		internal (IDeviceMemoryPtr Data, int Rows, int Columns, int Depth) TensorIm2Col(IDeviceMemoryPtr tensor, int rows, int columns, int depth, int count, int filterWidth, int filterHeight, int stride)
-		{
+		internal (IDeviceMemoryPtr Data, int Rows, int Columns, int Depth) TensorIm2Col(
+			IDeviceMemoryPtr tensor, 
+			int rows, 
+			int columns, 
+			int depth, 
+			int count, 
+			int filterWidth, 
+			int filterHeight, 
+			int stride
+		) {
 			var convolutions = ConvolutionHelper.Default(columns, rows, filterWidth, filterHeight, stride);
 			var filterSize = filterWidth * filterHeight;
 			var outputRows = convolutions.Count;

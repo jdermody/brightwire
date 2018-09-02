@@ -909,15 +909,15 @@ namespace BrightWire
         /// <param name="stride">The pooling stride</param>
         /// <param name="calculateIndex">True to calculate the index of each max item</param>
         /// <returns>A max pooled tensor</returns>
-        (I3DTensor Result, IReadOnlyList<(object X, object Y)> Index) MaxPool(int filterWidth, int filterHeight, int stride, bool calculateIndex);
+        (I3DTensor Result, I3DTensor Indices) MaxPool(int filterWidth, int filterHeight, int stride, bool saveIndices);
 
         /// <summary>
         /// Reverses a max pooling operation
         /// </summary>
-        /// <param name="rows">Input rows</param>
-        /// <param name="columns">Input columns</param>
-        /// <param name="indexList">The indices of the maximum values</param>
-        I3DTensor ReverseMaxPool(int rows, int columns, IReadOnlyList<(object X, object Y)> indexList);
+        /// <param name="outputRows">Input rows</param>
+        /// <param name="outputColumns">Input columns</param>
+        /// <param name="indices">A tensor that contains the indices of each maximum value that was found per filter</param>
+        I3DTensor ReverseMaxPool(I3DTensor indices, int outputRows, int outputColumns, int filterWidth, int filterHeight, int stride);
 
         /// <summary>
         /// Reverses a im2col operation
@@ -1046,17 +1046,16 @@ namespace BrightWire
         /// <param name="filterWidth">Max pool filter width</param>
         /// <param name="filterHeight">Max pool filter height</param>
         /// <param name="stride">Filter stride</param>
-        /// <param name="calculateIndex">True to remember the indices of each max value for later backpropagation</param>
-        (I4DTensor Result, IReadOnlyList<IReadOnlyList<(object X, object Y)>> Index) MaxPool(int filterWidth, int filterHeight, int stride, bool calculateIndex);
+        (I4DTensor Result, I4DTensor Indices) MaxPool(int filterWidth, int filterHeight, int stride, bool saveIndices);
 
         /// <summary>
         /// Reverses a max pool operation
         /// </summary>
         /// <param name="rows">Input tensor rows</param>
         /// <param name="columns">Input tensor columns</param>
-        /// <param name="indexList">Saved list of indexes from MaxPool operation</param>
+        /// <param name="indices">Tensor of indices from MaxPool operation</param>
         /// <returns></returns>
-        I4DTensor ReverseMaxPool(int rows, int columns, IReadOnlyList<IReadOnlyList<(object X, object Y)>> indexList);
+        I4DTensor ReverseMaxPool(I4DTensor indices, int outputRows, int outputColumns, int filterWidth, int filterHeight, int stride);
 
         /// <summary>
         /// Applies the convolutional filter to each 3D tensor, producing a 3D tensor which can be multipled by the filter matrix

@@ -7,6 +7,9 @@ namespace BrightWire.Helper
     /// </summary>
     public static class ConvolutionHelper
     {
+	    static readonly Dictionary<(int, int, int, int, int), List<(int X, int Y)>> _leftToRight = new Dictionary<(int, int, int, int, int), List<(int, int)>>();
+	    static readonly Dictionary<(int, int, int, int, int), List<(int X, int Y)>> _topToBottm = new Dictionary<(int, int, int, int, int), List<(int, int)>>();
+
 		/// <summary>
 		/// Generates convolution indices from left to right
 		/// </summary>
@@ -17,9 +20,13 @@ namespace BrightWire.Helper
 		/// <param name="stride">Offset of each position</param>
 		/// <returns>List of (x, y) indices</returns>
         public static List<(int X, int Y)> LeftToRight(int width, int height, int filterWidth, int filterHeight, int stride)
-        {
+		{
+			var key = (width, height, filterWidth, filterHeight, stride);
+			if (_leftToRight.TryGetValue(key, out var ret))
+				return ret;
+
             int y = 0, x = 0;
-            var ret = new List<(int X, int Y)>();
+            ret = new List<(int X, int Y)>();
 
             if (x <= width - filterWidth) {
                 while (y <= height - filterHeight) {
@@ -40,6 +47,8 @@ namespace BrightWire.Helper
                     }
                 }
             }
+
+			_leftToRight[key] = ret;
             return ret;
         }
 
@@ -54,8 +63,12 @@ namespace BrightWire.Helper
 	    /// <returns>List of (x, y) indices</returns>
         public static List<(int X, int Y)> TopToBottom(int width, int height, int filterWidth, int filterHeight, int stride)
         {
+	        var key = (width, height, filterWidth, filterHeight, stride);
+	        if (_topToBottm.TryGetValue(key, out var ret))
+		        return ret;
+
             int y = 0, x = 0;
-            var ret = new List<(int X, int Y)>();
+            ret = new List<(int X, int Y)>();
 
             if (y <= height - filterHeight) {
                 while (x <= width - filterWidth) {
@@ -76,6 +89,8 @@ namespace BrightWire.Helper
                     }
                 }
             }
+
+	        _topToBottm[key] = ret;
             return ret;
         }
 

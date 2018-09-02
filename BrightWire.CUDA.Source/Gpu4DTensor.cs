@@ -244,7 +244,7 @@ namespace BrightWire.LinearAlgebra
 	        return new Gpu4DTensor(_cuda, ret.Rows, ret.Columns, _depth, _count, ret.Data, true);
         }
 
-        public (I4DTensor Result, IReadOnlyList<IReadOnlyList<(object X, object Y)>> Index) MaxPool(int filterWidth, int filterHeight, int stride, bool calculateIndex)
+        public (I4DTensor Result, I4DTensor Indices) MaxPool(int filterWidth, int filterHeight, int stride, bool saveIndices)
         {
 	        throw new NotImplementedException();
 	        //List<IReadOnlyList<(object X, object Y)>> indexList = calculateIndex ? new List<IReadOnlyList<(object X, object Y)>>() : null;
@@ -258,7 +258,7 @@ namespace BrightWire.LinearAlgebra
 	        //return (new Gpu4DTensor(_cuda, ret), indexList);
         }
 
-        public I4DTensor ReverseMaxPool(int rows, int columns, IReadOnlyList<IReadOnlyList<(object X, object Y)>> indexList)
+        public I4DTensor ReverseMaxPool(I4DTensor indices, int outputRows, int outputColumns, int filterWidth, int filterHeight, int stride)
         {
 	        throw new NotImplementedException();
             //var ret = new List<I3DTensor>();

@@ -7,9 +7,6 @@
 #define __cplusplus
 #endif
 
-#define BLOCKSIZE 16
-#define BLOCKSIZE2 BLOCKSIZE*BLOCKSIZE
-
 #include <cuda.h>
 #include <device_launch_parameters.h>
 #include <texture_fetch_functions.h>
@@ -17,24 +14,11 @@
 #include <builtin_types.h>
 #include <vector_functions.h>
 
+#define BLOCKSIZE 16
+#define BLOCKSIZE2 BLOCKSIZE*BLOCKSIZE
+
 extern "C"
 {
-	/*const float TOO_SMALL = -1.0E20f;
-	const float TOO_BIG = 1.0E20f;
-
-	__global__ float _Constrain(float d)
-	{
-		if (isnan(d))
-			return 0;
-		else if (isinf(d))
-			return TOO_BIG;
-		else if (d < TOO_SMALL)
-			return TOO_SMALL;
-		else if (d > TOO_BIG)
-			return TOO_BIG;
-		return d;
-	}*/
-
 	__global__ void PointwiseMultiply(float* a, float* b, int size)
 	{
         for (int index = blockDim.x * blockIdx.x + threadIdx.x; index < size; index += blockDim.x * gridDim.x) {
@@ -668,109 +652,116 @@ extern "C"
         }
 	}
 
-	__global__ void TensorMaxPool(int size, float** a, float** b, int** bestXIndexPtr, int** bestYIndexPtr, int aRows, int aColumns, int depth, int bRows, int bColumns, int filterWidth, int filterHeight, int stride)
-	{
-		for (int index = blockDim.x * blockIdx.x + threadIdx.x; index < size; index += blockDim.x * gridDim.x) {
-            for (int j = blockDim.y * blockIdx.y + threadIdx.y; j < bColumns; j += blockDim.y * gridDim.y) {
-		        int z = index / bRows;
-		        int i = index % bRows;
-
-		        if(z < depth) {
-			        int index = j * bRows + i;
-			        int aX = j * stride;
-			        int aY = i * stride;
-
-			        float* source = a[z];
-			        float* target = b[z];
-			        int* bestXIndex = bestXIndexPtr[z];
-			        int* bestYIndex = bestYIndexPtr[z];
-	
-			        float maxVal = FLT_MIN;
-			        int bestX = -1;
-			        int bestY = -1;
-			        for (int fx = 0; fx < filterWidth; fx++) {
-				        for (int fy = 0; fy < filterHeight; fy++) {
-					        int xPos = aX + fx;
-					        int yPos = aY + fy;
-					        float val = source[xPos * aRows + yPos];
-					        if (val > maxVal || bestX == -1) {
-						        bestX = xPos;
-						        bestY = yPos;
-						        maxVal = val;
-					        }
-				        }
-			        }
-			        if(bestXIndex) {
-				        bestXIndex[index] = bestX;
-			        }
-			        if(bestYIndex) {
-				        bestYIndex[index] = bestY;
-			        }
-			        target[index] = maxVal;
-		        }
-            }
-        }
-	}
-
-	__global__ void TensorReverseMaxPool(int size, float** a, float** b, int** bestXIndexPtr, int** bestYIndexPtr, int aRows, int aColumns, int depth, int bRows, int bColumns)
-	{
-        for (int index = blockDim.x * blockIdx.x + threadIdx.x; index < size; index += blockDim.x * gridDim.x) {
-            for (int j = blockDim.y * blockIdx.y + threadIdx.y; j < aColumns; j += blockDim.y * gridDim.y) {
-		        int z = index / aRows;
-		        int i = index % aRows;
-
-		        if(z < depth) {
-			        int index = j * aRows + i;
-			        float* source = a[z];
-			        float* target = b[z];
-			        int* bestXIndex = bestXIndexPtr[z];
-			        int* bestYIndex = bestYIndexPtr[z];
-			        int targetX = bestXIndex[index];
-			        int targetY = bestYIndex[index];
-			        target[targetX * bRows + targetY] = source[index];
-		        }
-            }
-        }
-	}
-
-    __global__ void Tensor4DIm2Col(
+	__global__ void TensorMaxPool(
         int size, 
-        float** a, 
+        float* a, 
         float* b, 
-        float* cx, 
-        float* cy, 
+        float* indexOffset, 
         int rows, 
-        int convolutionCount, 
-        int filterSize, 
+        int columns, 
         int depth, 
+        int count, 
+        int outputRows, 
+        int outputColumns, 
         int filterWidth, 
-        int filterHeight
+        int filterHeight, 
+        int stride
     ) {
-        for (int index = blockDim.x * blockIdx.x + threadIdx.x; index < size; index += blockDim.x * gridDim.x) {
-            int x = index % filterWidth;
-            int index2 = index / filterWidth;
+		for (int index = blockDim.x * blockIdx.x + threadIdx.x; index < size; index += blockDim.x * gridDim.x) {
+            int i = index % outputRows;
+            int index2 = index / outputRows;
 
-            int y = index2 % filterHeight;
-            int index3 = index2 / filterHeight;
+            int j = index2 % outputColumns;
+            int index3 = index2 / outputColumns;
 
             int k = index3 % depth;
-            int ci = index3 / depth;
-            
-            int offsetX = cx[ci];
-            int offsetY = cy[ci];
+            int z = index3 / depth;
 
-            /*printf("index:%i, ci:%i(%i), k:%i(%i), x:%i(%i), y:%i(%i), cx:%i, cy:%i\n", index,
-                ci, convolutionCount,
-                k, depth,
-                x, filterWidth,
-                y, filterHeight,
-                offsetX, offsetY
+            int aX = j * stride;
+			int aY = i * stride;
+
+            /*printf("index:%i i:%i(%i) j:%i(%i) k:%i(%i) z:%i(%i) ax:%i ay:%i\n", index,
+                i, outputRows,
+                j, outputColumns, 
+                k, depth, 
+                z, count,
+                aX, aY
             );*/
 
-            int filterOffset = k * filterSize;
-            int filterIndex = filterOffset + (x * filterHeight + y);
-            
-            b[filterIndex * convolutionCount + ci] = a[k][(offsetX + x) * rows + (offsetY + y)];
+            int targetOffset = (z * outputRows * outputColumns * depth) + (k * outputRows * outputColumns);
+            float* source = a + (z * rows * columns * depth) + (k * rows * columns);
+            float* indices = indexOffset ? (indexOffset + targetOffset) : 0L;
+            float* target = b + targetOffset;
+
+            float maxVal = FLT_MIN;
+	        int bestOffset = -1;
+	        int offset = 0;
+	                
+	        for (int x = 0; x < filterWidth; x++) {
+		        for (int y = 0; y < filterHeight; y++) {
+			        float val = source[(aX + x) * rows + (aY + y)];
+                    //printf("\tindex:%i %f\n", index, val);
+			        if (val > maxVal) {
+				        bestOffset = offset;
+				        maxVal = val;
+			        }
+					++offset;
+		        }
+	        }
+
+            if(indices)
+                indices[j * outputRows + i] = bestOffset;
+            target[j * outputRows + i] = maxVal;
         }
-    }
+	}
+
+	__global__ void TensorReverseMaxPool(
+        int size, 
+        float* a,
+        float* indices,
+        float* b, 
+        int rows,
+        int columns,
+        int depth,
+        int count,
+        int outputRows,
+        int outputColumns,
+        int filterWidth,
+        int filterHeight,
+        int stride
+    ) {
+        for (int index = blockDim.x * blockIdx.x + threadIdx.x; index < size; index += blockDim.x * gridDim.x) {
+            int i = index % rows;
+            int index2 = index / rows;
+
+            int j = index2 % columns;
+            int index3 = index2 / columns;
+
+            int k = index3 % depth;
+            int z = index3 / depth;
+
+            int sourceOffset = (z * rows * columns * depth) + (k * rows * columns);
+            float* source = a + sourceOffset;
+            float* indexPtr = indices + sourceOffset;
+            float* target = b + (z * outputRows * outputColumns * depth) + (k * outputRows * outputColumns);
+            int sourceIndex = j * rows + i;
+            float val = source[sourceIndex];
+            int offset = indexPtr[sourceIndex];
+
+            int targetX = j * stride + (offset / filterHeight);
+            int targetY = i * stride + (offset % filterHeight);
+
+            printf("index:%i s:%i i:%i(%i) j:%i(%i) k:%i(%i) z:%i(%i) val:%f offset:%i tx:%i ty:%i\n", 
+                index, stride,
+                i, outputRows,
+                j, outputColumns, 
+                k, depth, 
+                z, count,
+                val, offset,
+                targetX, targetY
+            );
+
+            target[targetX * outputRows + targetY] = val;
+        }
+	}
 }

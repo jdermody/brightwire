@@ -73,24 +73,23 @@ namespace BrightWire.LinearAlgebra
             return new Cpu4DTensor(ret);
         }
 
-        public (I4DTensor Result, IReadOnlyList<IReadOnlyList<(object X, object Y)>> Index) MaxPool(int filterWidth, int filterHeight, int stride, bool calculateIndex)
+        public (I4DTensor Result, I4DTensor Indices) MaxPool(int filterWidth, int filterHeight, int stride, bool saveIndices)
         {
-            List<IReadOnlyList<(object X, object Y)>> indexList = calculateIndex ? new List<IReadOnlyList<(object X, object Y)>>() : null;
+            List<I3DTensor> indexList = saveIndices ? new List<I3DTensor>() : null;
             var ret = new List<I3DTensor>();
             for (var i = 0; i < Count; i++) {
-                var result = GetTensorAt(i).MaxPool(filterWidth, filterHeight, stride, calculateIndex);
-                if (calculateIndex)
-                    indexList.Add(result.Index);
+                var result = GetTensorAt(i).MaxPool(filterWidth, filterHeight, stride, saveIndices);
+                indexList?.Add(result.Indices);
                 ret.Add(result.Result);
             }
-            return (new Cpu4DTensor(ret), indexList);
+            return (new Cpu4DTensor(ret), saveIndices ? new Cpu4DTensor(indexList) : null);
         }
 
-        public I4DTensor ReverseMaxPool(int rows, int columns, IReadOnlyList<IReadOnlyList<(object X, object Y)>> indexList)
+        public I4DTensor ReverseMaxPool(I4DTensor indices, int outputRows, int outputColumns, int filterWidth, int filterHeight, int stride)
         {
             var ret = new List<I3DTensor>();
             for (var i = 0; i < Count; i++) {
-                var result = GetTensorAt(i).ReverseMaxPool(rows, columns, indexList?[i]);
+                var result = GetTensorAt(i).ReverseMaxPool(indices.GetTensorAt(i), outputRows, outputColumns, filterWidth, filterHeight, stride);
                 ret.Add(result);
             }
             return new Cpu4DTensor(ret);
