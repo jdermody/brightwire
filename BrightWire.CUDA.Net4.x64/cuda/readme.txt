@@ -8,15 +8,21 @@
 
 
 Bright Wire - http://www.jackdermody.net/brightwire
-Copyright (c) Jack Dermody - Open Source MIT License
+Copyright (c) 2016 Jack Dermody - Open Source MIT License
 
-To compile the cuda kernels you will need to the CUDA toolkit open a Visual Studio command prompt to this directory and execute the following:
+To compile the cuda kernels you will need to have installed the CUDA toolkit for a supported
+version of visual studio. https://developer.nvidia.com/cuda-toolkit
 
-nvcc brightwire.cu -use_fast_math -cubin -m 64 -arch compute_35 -code sm_35 -o brightwire.cubin
+The latest version of the cuda toolkit may not work with the latest updates to visual studio, so
+using the previous version of visual studio might be a better option.
+
+NOTE: You will need to have installed the c++ compiler as part of your Visual Studio installation.
+
+
+Open a Visual Studio command prompt to this directory and execute the following:
+
 nvcc brightwire.cu -use_fast_math -ptx -m 64 -arch compute_35 -code sm_35 -o brightwire.ptx
 
-The -arch and -code flags can be modified as appropriate, as described in:
+The -arch and -code flags can be modified as appropriate for your GPU, as described in:
 
 http://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html
-
-NOTE: You will need to have installed a supported c++ compiler as part of your Visual Studio installation.

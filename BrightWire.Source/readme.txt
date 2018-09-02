@@ -8,7 +8,7 @@
 
 
 Bright Wire - http://www.jackdermody.net/brightwire
-Copyright (c) Jack Dermody - Open Source MIT License
+Copyright (c) 2016 Jack Dermody - Open Source MIT License
 
 
 Bright Wire is an extensible machine learning library for .NET with GPU support (via CUDA).
