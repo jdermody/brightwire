@@ -139,6 +139,7 @@ namespace BrightWire.LinearAlgebra
 
 		public I4DTensor As4DTensor(int rows, int columns)
 		{
+			Debug.Assert(rows * columns == _rows);
 			var tensorList = new List<I3DTensor>();
 			for (var i = 0; i < Depth; i++) {
 				var slice = GetMatrixAt(i);
@@ -307,13 +308,11 @@ namespace BrightWire.LinearAlgebra
 		    return ret;
 	    }
 
-        public IMatrix ReverseIm2Col(IReadOnlyList<IReadOnlyList<IVector>> filters, int inputHeight, int inputWidth, int padding, int filterWidth, int filterHeight, int stride)
+        public I3DTensor ReverseIm2Col(IReadOnlyList<IReadOnlyList<IVector>> filters, int outputRows, int outputColumns, int filterWidth, int filterHeight, int stride)
         {
-	        var outputRows = inputHeight + padding * 2;
-	        var outputColumns = inputWidth + padding * 2;
             var convolutions = ConvolutionHelper.Default(outputColumns, outputRows, filterWidth, filterHeight, stride);
-	        var output = DenseMatrix.Create(outputRows, outputColumns, 0f);
 	        var numFilters = filters[0].Count;
+	        var output = Enumerable.Range(0, numFilters).Select(i => DenseMatrix.Create(outputRows, outputColumns, 0f)).ToList();
 
 			for (var k = 0; k < Depth; k++) {
 				var slice = GetMatrixAt(k).AsIndexable();
@@ -326,13 +325,13 @@ namespace BrightWire.LinearAlgebra
 							var filterIndex = x * filterHeight + y;
 							for (var z = 0; z < numFilters; z++) {
 								var filter = filterList[z];
-								output[cy+y, cx+x] += filter[filterIndex] * error;
+								output[z][cy+y, cx+x] += filter[filterIndex] * error;
 							}
 						}
 					}
 				}
 			}
-			return new CpuMatrix(output);
+			return new Cpu3DTensor(output.Select(m => new CpuMatrix(m)).ToList());
         }
 
         public IMatrix CombineDepthSlices()

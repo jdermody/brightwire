@@ -701,8 +701,8 @@ extern "C"
 
             float* slice = a + (i * rows * columns * depth) + (k * rows * columns);
             float* filter = ppFilters[k][z];
-            float* output = b + (i * outputRows * outputColumns * depth * numFilters) 
-                + (k * outputRows * outputColumns * numFilters) 
+            float* output = b + (k * outputRows * outputColumns * numFilters * count) 
+                + (i * outputRows * outputColumns * numFilters) 
                 + (z * outputRows * outputColumns)
             ;
 
@@ -781,17 +781,19 @@ extern "C"
             float* source = a + (z * rows * columns * depth) + (k * rows * columns);
             float* target = b + targetOffset;
 
-            float maxVal = FLT_MIN;
+            float maxVal = 0;
 	        int bestOffset = -1;
 	        int offset = 0;
 	                
 	        for (int x = 0; x < filterWidth; x++) {
 		        for (int y = 0; y < filterHeight; y++) {
 			        float val = source[(aX + x) * rows + (aY + y)];
-			        if (val > maxVal) {
+                    bool isGreater = (bestOffset < 0 || val > maxVal);
+			        if (isGreater) {
 				        bestOffset = offset;
 				        maxVal = val;
 			        }
+                    //printf("index:%i, x:%i, y:%i val:%f max:%f offset:%i is-greater:%i\n", index, x, y, val, maxVal, bestOffset, isGreater ? 1 : 0);
 					++offset;
 		        }
 	        }
@@ -837,6 +839,9 @@ extern "C"
             int sourceIndex = j * rows + i;
             float val = source[sourceIndex];
             int offset = indexPtr[sourceIndex];
+
+            if(offset < 0)
+                offset = 0;
 
             int targetX = j * stride + (offset / filterHeight);
             int targetY = i * stride + (offset % filterHeight);

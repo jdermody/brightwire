@@ -788,7 +788,7 @@ namespace BrightWire
         IVector AsVector();
 
 		/// <summary>
-		/// Converts the matrix to a 3D tensor, treating each column as a depth slice in the new 3D tensor
+		/// Reshapes the matrix to a 3D tensor, treating each column as a depth slice in the new 3D tensor
 		/// </summary>
 		/// <param name="rows">Row count of each sub matrix</param>
 		/// <param name="columns">Column count of each sub matrix</param>
@@ -926,10 +926,10 @@ namespace BrightWire
 	    IMatrix AsMatrix();
 
 		/// <summary>
-		/// Reshapes each depth slice as a 3D tensor with the specified rows and columns and depth given by the columns of the sub matrices
+		/// Reshapes the 3D tensor into a 4D tensor (the current depth becomes the count of 3D tensors and columns becomes the new depth)
 		/// </summary>
-		/// <param name="rows">Rows in each 3D tensor</param>
-		/// <param name="columns">Columns in each 3D tensor</param>
+		/// <param name="rows">Rows in each 4D tensor</param>
+		/// <param name="columns">Columns in each 4D tensor</param>
 	    I4DTensor As4DTensor(int rows, int columns);
 
         /// <summary>
@@ -962,7 +962,7 @@ namespace BrightWire
         /// <param name="filterWidth">Width of each filter</param>
         /// <param name="stride">Filter stride</param>
         /// <returns></returns>
-        IMatrix ReverseIm2Col(IReadOnlyList<IReadOnlyList<IVector>> filter, int inputHeight, int inputWidth, int padding, int filterWidth, int filterHeight, int stride);
+        I3DTensor ReverseIm2Col(IReadOnlyList<IReadOnlyList<IVector>> filter, int outputRows, int outputColumns, int filterWidth, int filterHeight, int stride);
 
         /// <summary>
         /// Adds each depth slice into a single matrix
@@ -1055,7 +1055,7 @@ namespace BrightWire
         /// Returns an indexable list of 3D tensors
         /// </summary>
         /// <returns></returns>
-        IReadOnlyList<IIndexable3DTensor> AsIndexable();
+        IIndexable4DTensor AsIndexable();
 
         /// <summary>
         /// Adds padding to the 4D tensor
@@ -1109,7 +1109,7 @@ namespace BrightWire
         /// <param name="filterHeight">Filter height</param>
         /// <param name="stride">Filter stride</param>
         /// <returns></returns>
-        I3DTensor ReverseIm2Col(IReadOnlyList<IReadOnlyList<IVector>> filter, int inputHeight, int inputWidth, int padding, int filterWidth, int filterHeight, int stride);
+        I4DTensor ReverseIm2Col(IReadOnlyList<IReadOnlyList<IVector>> filter, int outputRows, int outputColumns, int filterWidth, int filterHeight, int stride);
 
         /// <summary>
         /// Sums the columns of each sub-tensor's sub matrix
@@ -1151,7 +1151,7 @@ namespace BrightWire
 		/// <summary>
 		/// Gets a list of the indexable matrices
 		/// </summary>
-		IReadOnlyList<IIndexable3DTensor> Matrix { get; }
+		IReadOnlyList<IIndexable3DTensor> Tensors { get; }
 
 		/// <summary>
 		/// Returns the matrix as xml

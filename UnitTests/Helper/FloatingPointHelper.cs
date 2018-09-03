@@ -44,11 +44,11 @@ namespace UnitTests.Helper
                 AssertEqual(t1.Matrix[i], t2.Matrix[i]);
         }
 
-        public static void AssertEqual(IReadOnlyList<IIndexable3DTensor> t1, IReadOnlyList<IIndexable3DTensor> t2, int maxDifference = 6)
+        public static void AssertEqual(IIndexable4DTensor t1, IIndexable4DTensor t2, int maxDifference = 6)
         {
             Assert.AreEqual(t1.Count, t2.Count);
             for (var i = 0; i < t1.Count; i++)
-                AssertEqual(t1[i], t2[i]);
+                AssertEqual(t1.Tensors[i], t2.Tensors[i]);
         }
 
         public static void AssertEqual(IIndexableMatrix m1, IIndexableMatrix m2, int maxDifference = 6)

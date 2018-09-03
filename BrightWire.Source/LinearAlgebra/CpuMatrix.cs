@@ -540,6 +540,7 @@ namespace BrightWire.LinearAlgebra
 
 		public I3DTensor As3DTensor(int rows, int columns)
 		{
+			Debug.Assert(rows * columns == RowCount);
 			var matrixList = new List<IMatrix>();
 			for (int i = 0, len = ColumnCount; i < len; i++)
 				matrixList.Add(Column(i).AsMatrix(rows, columns));

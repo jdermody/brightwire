@@ -2,6 +2,7 @@
 using BrightWire.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
@@ -16,9 +17,9 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         class Backpropagation : SingleBackpropagationBase<Convolutional>
         {
             readonly I3DTensor _im2Col;
-            readonly int _inputWidth, _inputHeight, _newWidth, _newHeight;
+            readonly int _inputWidth, _inputHeight, _inputDepth, _inputCount, _newWidth, _newHeight;
 
-            public Backpropagation(Convolutional source, I3DTensor im2Col, int inputWidth, int inputHeight, int newWidth, int newHeight)
+            public Backpropagation(Convolutional source, I3DTensor im2Col, int inputWidth, int inputHeight, int inputDepth, int inputCount, int newWidth, int newHeight)
                 : base(source)
             {
                 _im2Col = im2Col;
@@ -26,6 +27,8 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 _newHeight = newHeight;
                 _inputWidth = inputWidth;
                 _inputHeight = inputHeight;
+	            _inputDepth = inputDepth;
+	            _inputCount = inputCount;
             }
 
             void _UpdateBias(IVector delta, ILearningContext context)
@@ -54,8 +57,10 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                     for (var i = 0; i < filters.ColumnCount; i++)
                         filterList.Add(filters.Column(i).Split(inputDepth).Select(v => v.Rotate()).ToList());
 
-                    using(var reverseIm2Col = tensor.ReverseIm2Col(filterList, _inputHeight, _inputWidth, padding, filterWidth, filterHeight, stride)) {
-                        var delta = reverseIm2Col.As4DTensor(_inputHeight + padding * 2, _inputWidth + padding * 2);
+	                var outputRows = _inputHeight + padding * 2;
+	                var outputColumns = _inputWidth + padding * 2;
+                    using(var reverseIm2Col = tensor.ReverseIm2Col(filterList, outputRows, outputColumns, filterWidth, filterHeight, stride)) {
+                        var delta = reverseIm2Col;
                         if (padding > 0)
                             delta = delta.RemovePadding(padding);
                         return new Tensor4DGraphData(delta.AsMatrix(), _inputHeight, _inputWidth, inputDepth);
@@ -94,6 +99,8 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             _updater = updater(_filter);
         }
 
+	    public int FilterCount => _filter.ColumnCount;
+
         protected override void _Dispose(bool isDisposing)
         {
             _filter.Dispose();
@@ -122,11 +129,11 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             var outputSignal = im2Col.Multiply(_filter);
             outputSignal.AddToEachRow(_bias);
             var outputTensor = outputSignal.As4DTensor(newHeight, newWidth);
+			Debug.Assert(outputTensor.Depth == FilterCount && outputTensor.Count == tensor.Count);
 
             var graphData = new Tensor4DGraphData(outputTensor);
-            _AddNextGraphAction(context, graphData, () => new Backpropagation(this, im2Col, inputWidth, inputHeight, newWidth, newHeight));
+            _AddNextGraphAction(context, graphData, () => new Backpropagation(this, im2Col, inputWidth, inputHeight, tensor.Depth, tensor.Count, newWidth, newHeight));
         }
-
 
         protected override (string Description, byte[] Data) _GetInfo()
         {

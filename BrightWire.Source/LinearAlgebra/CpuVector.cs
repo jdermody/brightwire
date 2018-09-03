@@ -4,6 +4,7 @@ using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Single;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using BrightWire.LinearAlgebra.Helper;
@@ -264,7 +265,7 @@ namespace BrightWire.LinearAlgebra
             } else if (type == NormalisationType.Standard) {
                 var mean = Average();
                 var stdDev = StdDev(mean);
-                if (stdDev != 0f)
+                if (BoundMath.IsNotZero(stdDev))
                     _vector.MapInplace(v => (v - mean) / stdDev);
             } else if (type == NormalisationType.Euclidean || type == NormalisationType.Manhattan) {
                 var p = (type == NormalisationType.Manhattan) ? 1.0 : 2.0;
@@ -357,11 +358,13 @@ namespace BrightWire.LinearAlgebra
 
         public IMatrix AsMatrix(int rows, int columns)
         {
+	        Debug.Assert(rows * columns == _vector.Count);
             return new CpuMatrix(DenseMatrix.Build.Dense(rows, columns, _vector.ToArray()));
         }
 
         public I3DTensor As3DTensor(int rows, int columns, int depth)
         {
+	        Debug.Assert(rows * columns * depth == _vector.Count);
             if (depth > 1) {
 	            var slice = Split(depth);
 	            var matrixList = slice.Select(part => part.AsMatrix(rows, columns)).ToList();
@@ -374,8 +377,9 @@ namespace BrightWire.LinearAlgebra
 
 	    public I4DTensor As4DTensor(int rows, int columns, int depth, int count)
 	    {
+		    Debug.Assert(rows * columns * depth * count == _vector.Count);
 		    if (count > 1) {
-			    var slice = Split(depth);
+			    var slice = Split(count);
 			    var tensorList = slice.Select(part => part.As3DTensor(rows, columns, depth)).ToList();
 			    return new Cpu4DTensor(tensorList);
 		    } else {

@@ -61,7 +61,9 @@ namespace BrightWire.LinearAlgebra
             return _data[index];
         }
 
-        public IReadOnlyList<IIndexable3DTensor> AsIndexable() => _data;
+	    public IReadOnlyList<IIndexable3DTensor> Tensors => _data;
+
+        public IIndexable4DTensor AsIndexable() => this;
 
         public I4DTensor AddPadding(int padding)
         {
@@ -111,14 +113,14 @@ namespace BrightWire.LinearAlgebra
             return new Cpu3DTensor(ret);
         }
 
-        public I3DTensor ReverseIm2Col(IReadOnlyList<IReadOnlyList<IVector>> filter, int inputHeight, int inputWidth, int padding, int filterWidth, int filterHeight, int stride)
+        public I4DTensor ReverseIm2Col(IReadOnlyList<IReadOnlyList<IVector>> filter, int outputRows, int outputColumns, int filterWidth, int filterHeight, int stride)
         {
-            var ret = new List<IMatrix>();
+            var ret = new List<I3DTensor>();
             for (var i = 0; i < Count; i++) {
-                var result = GetTensorAt(i).ReverseIm2Col(filter, inputHeight, inputWidth, padding, filterWidth, filterHeight, stride);
+                var result = GetTensorAt(i).ReverseIm2Col(filter, outputRows, outputColumns, filterWidth, filterHeight, stride);
                 ret.Add(result);
             }
-            return new Cpu3DTensor(ret);
+            return new Cpu4DTensor(ret);
         }
 
 		public IMatrix AsMatrix()
@@ -171,7 +173,6 @@ namespace BrightWire.LinearAlgebra
 		    set => _data[index][row, column, depth] = value;
 	    }
 
-	    public IReadOnlyList<IIndexable3DTensor> Matrix { get; set; }
 	    public string AsXml { get; set; }
     }
 }

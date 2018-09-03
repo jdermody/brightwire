@@ -886,24 +886,20 @@ namespace BrightWire.LinearAlgebra
 			}
 		}
 
-		internal (IDeviceMemoryPtr Data, int Rows, int Columns, int Depth) TensorReverseIm2Col(
+		internal (IDeviceMemoryPtr Data, int Rows, int Columns, int Depth, int Count) TensorReverseIm2Col(
 			IDeviceMemoryPtr tensor,
 			IReadOnlyList<IReadOnlyList<IDeviceMemoryPtr>> filterList,
 			int rows,
 			int columns,
 			int depth,
 			int count,
-			int inputHeight,
-			int inputWidth,
-			int padding,
+			int outputRows, 
+			int outputColumns,
 			int filterWidth,
 			int filterHeight,
 			int stride)
 		{
-			var outputRows = inputHeight + padding * 2;
-			var outputColumns = inputWidth + padding * 2;
 			var numFilters = filterList[0].Count;
-
 			var ret = Allocate(numFilters * outputRows * outputColumns * depth * count, true);
 
 			using (var filterPtr = new DeviceMemoryPtrToPtrList(filterList))
@@ -930,11 +926,12 @@ namespace BrightWire.LinearAlgebra
 				);
 			}
 
-			var matrix = new GpuMatrix(this, outputRows * outputColumns * count, numFilters * depth, ret, false);
+			// add up the per filter buffers
+			var matrix = new GpuMatrix(this, outputRows * outputColumns * numFilters * count, depth, ret, false);
 			var collapsed = matrix.RowSums();
 			ret.Free();
 
-			return (((IHaveDeviceMemory)collapsed).Memory, outputRows, outputColumns, count);
+			return (((IHaveDeviceMemory)collapsed).Memory, outputRows, outputColumns, numFilters, count);
 
 
 			//return ret.GetAsMatrix();
@@ -1133,7 +1130,7 @@ namespace BrightWire.LinearAlgebra
 		public IDeviceMemoryPtr Offset(IDeviceMemoryPtr ptr, SizeT offsetByElements, SizeT size)
 		{
 			var offsetPtr = ptr.DevicePointer.Pointer + (offsetByElements * FLOAT_SIZE);
-			return new PtrToMemory(_cuda, new CUdeviceptr(offsetPtr), size * FLOAT_SIZE);
+			return new PtrToMemory(_cuda, ptr, new CUdeviceptr(offsetPtr), size * FLOAT_SIZE);
 		}
 
 		public IDeviceMemoryPtr OffsetByBlock(IDeviceMemoryPtr ptr, SizeT offsetIndex, SizeT blockSize)
