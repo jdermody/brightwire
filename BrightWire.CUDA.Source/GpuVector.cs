@@ -280,21 +280,15 @@ namespace BrightWire.LinearAlgebra
 			_cuda.SubtractInPlace(_data, other._data, Count, coefficient1, coefficient2);
 		}
 
-		public IMatrix ToColumnMatrix()
+		public IMatrix AsColumnMatrix()
 		{
 			Debug.Assert(IsValid);
-			//var ret = _cuda.Allocate(_data.Size);
-			//ret.CopyToDevice(_data);
-			//return new GpuMatrix(_cuda, Count, 1, ret);
 			return new GpuMatrix(_cuda, Count, 1, _data, false);
 		}
 
-		public IMatrix ToRowMatrix()
+		public IMatrix AsRowMatrix()
 		{
 			Debug.Assert(IsValid);
-			//var ret = _cuda.Allocate(_data.Size);
-			//ret.CopyToDevice(_data);
-			//return new GpuMatrix(_cuda, 1, Count, ret);
 			return new GpuMatrix(_cuda, 1, Count, _data, false);
 		}
 
@@ -472,7 +466,7 @@ namespace BrightWire.LinearAlgebra
 			_cuda.VectorAdd(_data, Count, scalar);
 		}
 
-		public IMatrix ConvertInPlaceToMatrix(int rows, int columns)
+		public IMatrix AsMatrix(int rows, int columns)
 		{
 			Debug.Assert(IsValid);
 			return new GpuMatrix(_cuda, rows, columns, _data, false);
@@ -482,13 +476,10 @@ namespace BrightWire.LinearAlgebra
 		{
 			Debug.Assert(IsValid);
 			var blockSize = Count / blockCount;
-			var ptr = _data.DevicePointer.Pointer;
-			var size = blockSize * sizeof(float);
 			return Enumerable.Range(0, blockCount).Select(i => {
-				var offset = (size * i);
-				var ptr2 = _cuda.Offset(_data, size * i, size);
-				//var ptr2 = new PtrToMemory(_cuda.Context, new CUdeviceptr(ptr + offset), size);
-				return new GpuVector(_cuda, ptr2, false);
+				var ptr2 = _cuda.OffsetByBlock(_data, i, blockSize);
+				var vector = new GpuVector(_cuda, ptr2, false);
+				return vector;
 			}).ToList();
 		}
 
@@ -513,10 +504,14 @@ namespace BrightWire.LinearAlgebra
 			return new GpuVector(_cuda, ret, true);
 		}
 
-		public I3DTensor ConvertTo3DTensor(int rows, int columns, int depth)
+		public I3DTensor As3DTensor(int rows, int columns, int depth)
 		{
-			var matrixList = Split(depth).Select(v => v.ConvertInPlaceToMatrix(rows, columns)).Cast<GpuMatrix>().ToList();
-			return _cuda.Create3DTensor(matrixList);
+			return new Gpu3DTensor(_cuda, rows, columns, depth, _data, false);
+		}
+
+		public I4DTensor As4DTensor(int rows, int columns, int depth, int count)
+		{
+			return new Gpu4DTensor(_cuda, rows, columns, depth, count, _data, false);
 		}
 
 		public float GetAt(int index)

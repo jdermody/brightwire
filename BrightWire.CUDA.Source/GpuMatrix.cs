@@ -59,12 +59,13 @@ namespace BrightWire.LinearAlgebra
 //        {
 //        }
 
-        public GpuMatrix(CudaProvider cuda, int rows, int columns, IDeviceMemoryPtr gpuData, bool isOwner)
+        public GpuMatrix(CudaProvider cuda, int rows, int columns, IDeviceMemoryPtr data, bool isOwner)
         {
+	        Debug.Assert(rows * columns == data.Size);
             _cuda = cuda;
             _rows = rows;
             _columns = columns;
-            _data = gpuData;
+            _data = data;
 	        _isOwner = isOwner;
             cuda.Register(this);
 #if DEBUG
@@ -188,10 +189,7 @@ namespace BrightWire.LinearAlgebra
         public IVector Column(int index)
         {
             Debug.Assert(IsValid);
-            var columnSize = _rows * sizeof(float);
-            var offset = index * columnSize;
-	        var ptr = _cuda.Offset(_data, offset, columnSize);
-            //var ptr = new PtrToMemory(_cuda.Context, new CUdeviceptr(_data.DeviceVariable.DevicePointer.Pointer + offset), columnSize);
+	        var ptr = _cuda.OffsetByBlock(_data, index, _rows);
             return new GpuVector(_cuda, ptr, false);
         }
 
@@ -254,7 +252,7 @@ namespace BrightWire.LinearAlgebra
             Debug.Assert(IsValid);
 
             var ret = _cuda.Allocate(length);
-            ret.DeviceVariable.CopyToDevice(_data.DeviceVariable, ((columnIndex * _rows) + rowIndex) * sizeof(float), 0, length * sizeof(float));
+            ret.DeviceVariable.CopyToDevice(_data.DeviceVariable, ((columnIndex * _rows) + rowIndex) * CudaProvider.FLOAT_SIZE, 0, length * CudaProvider.FLOAT_SIZE);
 
             return new GpuVector(_cuda, ret, true);
         }
@@ -265,7 +263,7 @@ namespace BrightWire.LinearAlgebra
             int offset = 0;
             var ret = _cuda.Allocate(_rows * columnIndices.Count);
             foreach (var item in columnIndices) {
-                ret.DeviceVariable.CopyToDevice(_data.DeviceVariable, item * _rows * sizeof(float), offset * sizeof(float), _rows * sizeof(float));
+                ret.DeviceVariable.CopyToDevice(_data.DeviceVariable, item * _rows * CudaProvider.FLOAT_SIZE, offset * CudaProvider.FLOAT_SIZE, _rows * CudaProvider.FLOAT_SIZE);
                 offset += _rows;
             }
             return new GpuMatrix(_cuda, _rows, columnIndices.Count, ret, true);
@@ -279,9 +277,9 @@ namespace BrightWire.LinearAlgebra
             foreach (var item in rowIndices) {
                 CudaBlasNativeMethods.cublasScopy_v2(_cuda.Blas.CublasHandle,
                     n: _columns,
-                    x: _data.DevicePointer + (item * sizeof(float)),
+                    x: _data.DevicePointer + (item * CudaProvider.FLOAT_SIZE),
                     incx: _rows,
-                    y: ret.DevicePointer + (offset * sizeof(float)),
+                    y: ret.DevicePointer + (offset * CudaProvider.FLOAT_SIZE),
                     incy: rowIndices.Count
                 );
                 offset += 1;
@@ -292,7 +290,7 @@ namespace BrightWire.LinearAlgebra
         public IVector GetRowSegment(int rowIndex, int columnIndex, int length)
         {
             Debug.Assert(IsValid);
-            int offset = (rowIndex + (columnIndex * _rows)) * sizeof(float);
+            int offset = (rowIndex + (columnIndex * _rows)) * CudaProvider.FLOAT_SIZE;
             var ret = _cuda.Allocate(length);
             CudaBlasNativeMethods.cublasScopy_v2(_cuda.Blas.CublasHandle, length, _data.DevicePointer + offset, _rows, ret.DevicePointer, 1);
             return new GpuVector(_cuda, ret, true);
@@ -410,7 +408,7 @@ namespace BrightWire.LinearAlgebra
         {
             Debug.Assert(IsValid);
             var ret = _cuda.Allocate(_columns);
-            int offset = index * sizeof(float);
+            int offset = index * CudaProvider.FLOAT_SIZE;
             CudaBlasNativeMethods.cublasScopy_v2(_cuda.Blas.CublasHandle, _columns, _data.DevicePointer + offset, _rows, ret.DevicePointer, 1);
             return new GpuVector(_cuda, ret, true);
         }
@@ -455,7 +453,7 @@ namespace BrightWire.LinearAlgebra
             var ret = _cuda.Allocate(_rows * _columns);
             for (var i = 0; i < _rows; i++) {
                 using (var row = rowOutput[i])
-                    ret.DeviceVariable.CopyToDevice(row.CudaDeviceVariable, 0, _columns * i * sizeof(float), _columns * sizeof(float));
+                    ret.DeviceVariable.CopyToDevice(row.CudaDeviceVariable, 0, _columns * i * CudaProvider.FLOAT_SIZE, _columns * CudaProvider.FLOAT_SIZE);
             }
             using(var temp = new GpuMatrix(_cuda, _columns, _rows, ret, true))
                 return temp.Transpose();
@@ -648,7 +646,7 @@ namespace BrightWire.LinearAlgebra
         public IMatrix Multiply(IVector vector)
         {
             Debug.Assert(IsValid && vector.IsValid);
-            using (var column = vector.ToColumnMatrix())
+            using (var column = vector.AsColumnMatrix())
                 return Multiply(column);
         }
 
@@ -694,23 +692,26 @@ namespace BrightWire.LinearAlgebra
             }
         }
 
-        public IVector ConvertInPlaceToVector()
+        public IVector AsVector()
         {
             Debug.Assert(IsValid);
             return new GpuVector(_cuda, _data, false);
         }
 
-        public I3DTensor ConvertTo3DTensor(int rows, int columns)
+        public I3DTensor As3DTensor(int rows, int columns)
         {
-            var matrixList = new List<GpuMatrix>();
-            for (var i = 0; i < ColumnCount; i++)
-                matrixList.Add((GpuMatrix)Column(i).ConvertInPlaceToMatrix(rows, columns));
-            return _cuda.Create3DTensor(matrixList);
+	        Debug.Assert(rows * columns == _rows);
+	        return new Gpu3DTensor(_cuda, rows, columns, _columns, _data, false);
+	        //var matrixList = new List<GpuMatrix>();
+	        //for (var i = 0; i < ColumnCount; i++)
+	        //    matrixList.Add((GpuMatrix)Column(i).AsMatrix(rows, columns));
+	        //return _cuda.Create3DTensor(matrixList);
         }
 
-        public I4DTensor ConvertTo4DTensor(int rows, int columns, int depth)
+        public I4DTensor As4DTensor(int rows, int columns, int depth)
         {
-            return new Gpu4DTensor(_cuda, rows, columns, depth, 1, _data, false);
+	        Debug.Assert(rows * columns * depth == _rows);
+            return new Gpu4DTensor(_cuda, rows, columns, depth, _columns, _data, false);
         }
     }
 }

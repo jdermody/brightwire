@@ -515,7 +515,7 @@ namespace BrightWire.LinearAlgebra
 
         public IMatrix Multiply(IVector vector)
         {
-            using (var column = vector.ToColumnMatrix())
+            using (var column = vector.AsColumnMatrix())
                 return Multiply(column);
         }
 
@@ -533,32 +533,32 @@ namespace BrightWire.LinearAlgebra
             return new CpuMatrix(ret);
         }
 
-        public IVector ConvertInPlaceToVector()
+        public IVector AsVector()
         {
             return new CpuVector(_matrix.ToColumnMajorArray());
         }
 
-        public I3DTensor ConvertTo3DTensor(int rows, int columns)
-        {
-            var matrixList = new List<IMatrix>();
-            for (int i = 0, len = ColumnCount; i < len; i++)
-                matrixList.Add(Column(i).ConvertInPlaceToMatrix(rows, columns));
-            return new Cpu3DTensor(matrixList);
-        }
+		public I3DTensor As3DTensor(int rows, int columns)
+		{
+			var matrixList = new List<IMatrix>();
+			for (int i = 0, len = ColumnCount; i < len; i++)
+				matrixList.Add(Column(i).AsMatrix(rows, columns));
+			return new Cpu3DTensor(matrixList);
+		}
 
-        public I4DTensor ConvertTo4DTensor(int rows, int columns, int depth)
-        {
-            //var matrixList = new List<IMatrix[]>();
-            //for (int i = 0, len = ColumnCount; i < len; i++)
-            //    matrixList.Add(Column(i).Split(depth).Select(v => v.ConvertInPlaceToMatrix(rows, columns)).ToArray());
-            //return new Cpu4DTensor(matrixList);
-            var list = new List<I3DTensor>();
-            for (var i = 0; i < ColumnCount; i++)
-                list.Add(new Cpu3DTensor(Column(i).Split(depth).Select(v => v.ConvertInPlaceToMatrix(rows, columns)).ToList()));
-            return new Cpu4DTensor(list);
-        }
+		public I4DTensor As4DTensor(int rows, int columns, int depth)
+		{
+			//var matrixList = new List<IMatrix[]>();
+			//for (int i = 0, len = ColumnCount; i < len; i++)
+			//    matrixList.Add(Column(i).Split(depth).Select(v => v.ConvertInPlaceToMatrix(rows, columns)).ToArray());
+			//return new Cpu4DTensor(matrixList);
+			var list = new List<I3DTensor>();
+			for (var i = 0; i < ColumnCount; i++)
+				list.Add(new Cpu3DTensor(Column(i).Split(depth).Select(v => v.AsMatrix(rows, columns)).ToList()));
+			return new Cpu4DTensor(list);
+		}
 
-        public string AsXml
+		public string AsXml
         {
             get
             {

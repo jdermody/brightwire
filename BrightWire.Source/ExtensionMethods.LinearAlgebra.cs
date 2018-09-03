@@ -8,13 +8,25 @@ namespace BrightWire
 {
     public static partial class ExtensionMethods
     {
-        /// <summary>
-        /// Create a vector
-        /// </summary>
-        /// <param name="lap"></param>
-        /// <param name="data">Indexable vector to copy</param>
-        /// <returns></returns>
-        public static IVector CreateVector(this ILinearAlgebraProvider lap, IIndexableVector data)
+		/// <summary>
+		/// Creates a vector based on an enumerable of floats
+		/// </summary>
+		/// <param name="lap"></param>
+		/// <param name="data">The initial values in the vector</param>
+		/// <returns></returns>
+		public static IVector CreateVector(this ILinearAlgebraProvider lap, IEnumerable<float> data)
+		{
+			var list = data.ToList();
+			return lap.CreateVector(list.Count, i => list[i]);
+		}
+
+		/// <summary>
+		/// Create a vector
+		/// </summary>
+		/// <param name="lap"></param>
+		/// <param name="data">Indexable vector to copy</param>
+		/// <returns></returns>
+		public static IVector CreateVector(this ILinearAlgebraProvider lap, IIndexableVector data)
         {
             return lap.CreateVector(data.Count, i => data[i]);
         }
@@ -27,8 +39,12 @@ namespace BrightWire
         /// <returns></returns>
         public static IVector CreateVector(this ILinearAlgebraProvider lap, FloatVector data)
         {
-            var array = data.Data;
-            return lap.CreateVector(array.Length, i => array[i]);
+            //var array = data.Data;
+            //return lap.CreateVector(array.Length, i => array[i]);
+
+	        var ret = lap.CreateVector(data.Count);
+	        ret.Data = data;
+	        return ret;
         }
 
         /// <summary>
@@ -54,16 +70,27 @@ namespace BrightWire
             return lap.CreateVector(length, i => value);
         }
 
-        /// <summary>
-        /// Create a matrix
-        /// </summary>
-        /// <param name="lap"></param>
-        /// <param name="matrix">Matrix to copy</param>
-        /// <returns></returns>
-        public static IMatrix CreateMatrix(this ILinearAlgebraProvider lap, FloatMatrix matrix)
-        {
-            return lap.CreateMatrix(matrix.RowCount, matrix.ColumnCount, (i, j) => matrix.Row[i].Data[j]);
-        }
+		/// <summary>
+		/// Creates a matrix with every value initialised to zero
+		/// </summary>
+		/// <param name="lap"></param>
+		/// <param name="rows">Number of rows</param>
+		/// <param name="columns">Numer of columns</param>
+	    public static IMatrix CreateZeroMatrix(this ILinearAlgebraProvider lap, int rows, int columns) => lap.CreateMatrix(rows, columns, true);
+
+		/// <summary>
+		/// Create a matrix
+		/// </summary>
+		/// <param name="lap"></param>
+		/// <param name="matrix">Matrix to copy</param>
+		/// <returns></returns>
+		public static IMatrix CreateMatrix(this ILinearAlgebraProvider lap, FloatMatrix matrix)
+		{
+			var ret = lap.CreateMatrix(matrix.RowCount, matrix.ColumnCount, false);
+			ret.Data = matrix;
+			return ret;
+			//return lap.CreateMatrix(matrix.RowCount, matrix.ColumnCount, (i, j) => matrix.Row[i].Data[j]);
+		}
 
         /// <summary>
         /// Create a matrix
@@ -74,8 +101,8 @@ namespace BrightWire
         public static IMatrix CreateMatrix(this ILinearAlgebraProvider lap, IReadOnlyList<FloatVector> rowList)
         {
             int rows = rowList.Count;
-            var size = rowList[0].Size;
-            return lap.CreateMatrix(rows, size, (x, y) => rowList[x].Data[y]);
+            var columns = rowList[0].Size;
+            return lap.CreateMatrix(rows, columns, (x, y) => rowList[x].Data[y]);
         }
 
         /// <summary>
@@ -142,10 +169,10 @@ namespace BrightWire
         /// </summary>
         /// <param name="lap"></param>
         /// <param name="tensor">An indexable 3D tensor to use as a source</param>
-        public static I3DTensor Create3DTensor(this ILinearAlgebraProvider lap, IIndexable3DTensor tensor)
-        {
-            return lap.Create3DTensor(tensor.Matrix.Select(m => CreateMatrix(lap, m)).ToList());
-        }
+        //public static I3DTensor Create3DTensor(this ILinearAlgebraProvider lap, IIndexable3DTensor tensor)
+        //{
+        //    return lap.Create3DTensor(tensor.Matrix.Select(m => CreateMatrix(lap, m)).ToList());
+        //}
 
         /// <summary>
         /// Create a 3D tensor
@@ -155,8 +182,26 @@ namespace BrightWire
         /// <returns></returns>
         public static I3DTensor Create3DTensor(this ILinearAlgebraProvider lap, FloatTensor tensor)
         {
-            return lap.Create3DTensor(tensor.Matrix.Select(m => CreateMatrix(lap, m)).ToList());
+	        var ret = lap.Create3DTensor(tensor.RowCount, tensor.ColumnCount, tensor.Depth);
+	        ret.Data = tensor;
+	        return ret;
+	        //return lap.Create3DTensor(tensor.Matrix.Select(m => CreateMatrix(lap, m)).ToList());
         }
+
+	    /// <summary>
+	    /// Creates a 3D tensor from a list of matrices
+	    /// </summary>
+	    /// <param name="matrices">List of matrices</param>
+	    /// <returns></returns>
+	    public static I3DTensor Create3DTensor(this ILinearAlgebraProvider lap, FloatMatrix[] matrices)
+	    {
+		    var first = matrices[0];
+		    var ret = lap.Create3DTensor(first.RowCount, first.ColumnCount, matrices.Length);
+		    ret.Data = new FloatTensor {
+			    Matrix = matrices
+		    };
+		    return ret;
+	    }
 
         /// <summary>
         /// Calculates the distance between two matrices

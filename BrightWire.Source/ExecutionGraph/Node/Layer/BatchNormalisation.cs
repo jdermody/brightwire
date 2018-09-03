@@ -49,12 +49,12 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                             using (var dmu2 = temp5.PointwiseMultiply(dVar)) {
                                 dmu.AddInPlace(dmu2);
 
-                                using (var dVarMatrix = lap.CreateMatrix(Enumerable.Repeat(dVar, context.BatchSequence.MiniBatch.BatchSize).ToList()))
+                                using (var dVarMatrix = lap.CreateMatrixFromRows(Enumerable.Repeat(dVar, context.BatchSequence.MiniBatch.BatchSize).ToList()))
                                 using (var dx1 = dxHat.PointwiseMultiply(_inverseVariance))
                                 using (var dx2 = dVarMatrix.PointwiseMultiply(_inputMinusMean)) {
                                     dx2.Multiply(-2f / batchSize);
 
-                                    using (var dx3 = lap.CreateMatrix(Enumerable.Repeat(dmu, context.BatchSequence.MiniBatch.BatchSize).ToList())) {
+                                    using (var dx3 = lap.CreateMatrixFromRows(Enumerable.Repeat(dmu, context.BatchSequence.MiniBatch.BatchSize).ToList())) {
                                         dx3.Multiply(1f / batchSize);
 
                                         var dx = dx1.Add(dx2);
@@ -134,14 +134,14 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             if (tensor != null) {
                 IVector currentVariance, currentMean;
                 if (context.IsTraining) {
-                    var volumeList = input.ConvertInPlaceToVector().Split(tensor.Count);
+                    var volumeList = input.AsVector().Split(tensor.Count);
                     var rowList = volumeList.Select(m => lap.CreateVector(m.Split(tensor.Depth).Select(v => v.Average()))).ToList();
-                    var reducedInput = lap.CreateMatrix(rowList);
+                    var reducedInput = lap.CreateMatrixFromRows(rowList);
 
                     // calculate batch mean and variance
                     currentMean = reducedInput.ColumnSums();
                     currentMean.Multiply(1f / reducedInput.RowCount);
-                    using (var meanMatrix = lap.CreateMatrix(Enumerable.Repeat(currentMean, reducedInput.RowCount).ToList())) 
+                    using (var meanMatrix = lap.CreateMatrixFromRows(Enumerable.Repeat(currentMean, reducedInput.RowCount).ToList())) 
                     using (var reducedInputMinusMean = reducedInput.Subtract(meanMatrix))
                     using (var temp = reducedInputMinusMean.PointwiseMultiply(reducedInputMinusMean)) {
                         currentVariance = temp.ColumnSums();
@@ -155,12 +155,12 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 using (var tensorVariance = _FormIntoTensor(lap, currentVariance, tensor))
                 using (var tensorGamma = _FormIntoTensor(lap, _gamma, tensor))
                 using (var tensorBeta = _FormIntoTensor(lap, _beta, tensor))
-                using (var matrixMean = tensorMean.ConvertToMatrix())
-                using (var matrixVariance = tensorVariance.ConvertToMatrix())
-                using (var matrixBeta = tensorBeta.ConvertToMatrix())
+                using (var matrixMean = tensorMean.AsMatrix())
+                using (var matrixVariance = tensorVariance.AsMatrix())
+                using (var matrixBeta = tensorBeta.AsMatrix())
                 using (var temp = input.Subtract(matrixMean))
                 using (var sqrtVariance = matrixVariance.Sqrt(1e-6f)) {
-                    gamma = tensorMean.ConvertToMatrix();
+                    gamma = tensorMean.AsMatrix();
                     inputMinusMean = input.Subtract(matrixMean);
 
                     // calculate batch normalisation
@@ -188,14 +188,14 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             } else {
                 if (context.IsTraining) {
                     var learningContext = context.LearningContext;
-                    gamma = lap.CreateMatrix(Enumerable.Repeat(_gamma, batchSize).ToList());
+                    gamma = lap.CreateMatrixFromRows(Enumerable.Repeat(_gamma, batchSize).ToList());
 
                     // calculate batch mean
                     var batchMean = input.ColumnSums();
                     batchMean.Multiply(1f / batchSize);
 
                     // find input minus mean
-                    using (var meanMatrix = lap.CreateMatrix(Enumerable.Repeat(batchMean, batchSize).ToList()))
+                    using (var meanMatrix = lap.CreateMatrixFromRows(Enumerable.Repeat(batchMean, batchSize).ToList()))
                         inputMinusMean = input.Subtract(meanMatrix);
 
                     // calculate variance as (x - u)^2
@@ -223,10 +223,10 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                         batchVariance.Dispose();
                     }
                 } else {
-                    using (var varianceMatrix = lap.CreateMatrix(Enumerable.Repeat(_variance, batchSize).ToList()))
+                    using (var varianceMatrix = lap.CreateMatrixFromRows(Enumerable.Repeat(_variance, batchSize).ToList()))
                     using (var varianceMatrixSqrt = varianceMatrix.Sqrt(1e-6f))
-                    using (var meanMatrix = lap.CreateMatrix(Enumerable.Repeat(_mean, batchSize).ToList()))
-                    using (var gammaMatrix = lap.CreateMatrix(Enumerable.Repeat(_gamma, batchSize).ToList()))
+                    using (var meanMatrix = lap.CreateMatrixFromRows(Enumerable.Repeat(_mean, batchSize).ToList()))
+                    using (var gammaMatrix = lap.CreateMatrixFromRows(Enumerable.Repeat(_gamma, batchSize).ToList()))
                     using (var inputSubtractMean = input.Subtract(meanMatrix))
                     using (var temp = inputSubtractMean.PointwiseMultiply(gammaMatrix)) {
                         output = temp.PointwiseDivide(varianceMatrixSqrt);

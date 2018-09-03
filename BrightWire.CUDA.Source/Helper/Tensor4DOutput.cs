@@ -56,7 +56,7 @@ namespace BrightWire.Cuda.Helper
         {
             var matrixList = _data.Column(index)
                 .Split(Depth)
-                .Select(v => v.ConvertInPlaceToMatrix(Rows, Columns))
+                .Select(v => v.AsMatrix(Rows, Columns))
                 .Cast<GpuMatrix>()
                 .ToList()
             ;

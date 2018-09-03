@@ -25,12 +25,12 @@ namespace BrightWire.ExecutionGraph.Node.Helper
 
                 var rowList = new List<IVector>();
                 for(var i = 0; i < matrix.RowCount; i++) {
-                    var rowMatrix = matrix.Row(i).ConvertInPlaceToMatrix(_tensor.RowCount, _tensor.ColumnCount);
+                    var rowMatrix = matrix.Row(i).AsMatrix(_tensor.RowCount, _tensor.ColumnCount);
                     var matrixList = Enumerable.Repeat(rowMatrix, _tensor.Depth).ToList();
                     var tensor = lap.Create3DTensor(matrixList);
-                    rowList.Add(tensor.ConvertToVector());
+                    rowList.Add(tensor.AsVector());
                 }
-                var errorMatrix = lap.CreateMatrix(rowList);
+                var errorMatrix = lap.CreateMatrixFromRows(rowList);
 
                 return errorSignal.ReplaceWith(errorMatrix.Transpose());
             }
@@ -45,10 +45,10 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             var tensor = context.Data.Get4DTensor();
             var rowList = new List<IVector>();
             for(var i = 0; i < tensor.Count; i++) {
-                var row = tensor.GetTensorAt(i).CombineDepthSlices().ConvertInPlaceToVector();
+                var row = tensor.GetTensorAt(i).CombineDepthSlices().AsVector();
                 rowList.Add(row);
             }
-            var output = context.LinearAlgebraProvider.CreateMatrix(rowList);
+            var output = context.LinearAlgebraProvider.CreateMatrixFromRows(rowList);
 
             _AddNextGraphAction(context, new MatrixGraphData(output), () => new Backpropagation(this, tensor));
         }

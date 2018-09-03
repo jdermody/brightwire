@@ -51,11 +51,11 @@ namespace UnitTests
         public void VectorColumnMatrix()
         {
             var a = _cpu.CreateVector(5, i => i).AsIndexable();
-            var matrix = a.ToColumnMatrix().AsIndexable();
+            var matrix = a.AsColumnMatrix().AsIndexable();
 
             IIndexableMatrix gpuResults;
             using (var gpuA = _cuda.CreateVector(a))
-            using (var gpuB = gpuA.ToColumnMatrix())
+            using (var gpuB = gpuA.AsColumnMatrix())
                 gpuResults = gpuB.AsIndexable();
 
             FloatingPointHelper.AssertEqual(matrix, gpuResults);
@@ -65,11 +65,11 @@ namespace UnitTests
         public void VectorRowMatrix()
         {
             var a = _cpu.CreateVector(5, i => i).AsIndexable();
-            var matrix = a.ToRowMatrix().AsIndexable();
+            var matrix = a.AsRowMatrix().AsIndexable();
 
             IIndexableMatrix gpuResults;
             using (var gpuA = _cuda.CreateVector(a))
-            using (var m = gpuA.ToRowMatrix()) {
+            using (var m = gpuA.AsRowMatrix()) {
                 gpuResults = m.AsIndexable();
             }
 

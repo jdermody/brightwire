@@ -37,7 +37,7 @@ namespace BrightWire.ExecutionGraph.Node.Operation
         public override void ExecuteForward(IContext context)
         {
             var input = context.Data.GetMatrix();
-            var matrix = context.LinearAlgebraProvider.CreateMatrix(Enumerable.Repeat(_param, input.RowCount).ToList());
+            var matrix = context.LinearAlgebraProvider.CreateMatrixFromRows(Enumerable.Repeat(_param, input.RowCount).ToList());
             _AddNextGraphAction(context, context.Data.ReplaceWith(matrix), () => new Backpropagation(this));
         }
     }

@@ -30,9 +30,10 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
             protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
-                var tensor = errorSignal.GetMatrix().ConvertTo4DTensor(_outputRows, _outputColumns, _depth);
+	            var errorMatrix = errorSignal.GetMatrix();
+                var tensor = errorMatrix.As4DTensor(_outputRows, _outputColumns, _depth);
                 var output = tensor.ReverseMaxPool(_indices, _inputRows, _inputColumns, _filterWidth, _filterHeight, _stride);
-                return new Tensor4DGraphData(output.ConvertToMatrix(), output.RowCount, output.ColumnCount, output.Depth);
+                return new Tensor4DGraphData(output.AsMatrix(), output.RowCount, output.ColumnCount, output.Depth);
             }
         }
         int _filterWidth, _filterHeight, _stride;
@@ -47,7 +48,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         public override void ExecuteForward(IContext context)
         {
             var input = context.Data;
-            var tensor = input.GetMatrix().ConvertTo4DTensor(input.Rows, input.Columns, input.Depth);
+            var tensor = input.GetMatrix().As4DTensor(input.Rows, input.Columns, input.Depth);
             var (output, index) = tensor.MaxPool(_filterWidth, _filterHeight, _stride, true);
 
             var graphData = new Tensor4DGraphData(output);

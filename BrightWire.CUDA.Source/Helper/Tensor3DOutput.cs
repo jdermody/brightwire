@@ -42,19 +42,19 @@ namespace BrightWire.Cuda.Helper
 
         public I3DTensor GetAsTensor()
         {
-	        return _data.ConvertTo3DTensor(Rows, Columns);
+	        return _data.As3DTensor(Rows, Columns);
         }
 
-	    public IMatrix GetAsMatrix()
-	    {
-		    if (Depth == 1)
-			    return _data.ConvertInPlaceToVector().ConvertInPlaceToMatrix(Rows, Columns);
+	   // public IMatrix GetAsMatrix()
+	   // {
+		  //  if (Depth == 1)
+			 //   return _data.AsVector().AsMatrix(Rows, Columns);
 
-		    using (var tensor = GetAsTensor()) {
-			    var ret = tensor.CombineDepthSlices();
-				// TODO: divide by the number of depth slices?
-				return ret;
-		    }
-	    }
+		  //  using (var tensor = GetAsTensor()) {
+			 //   var ret = tensor.CombineDepthSlices();
+				//// TODO: divide by the number of depth slices?
+				//return ret;
+		  //  }
+	   // }
     }
 }

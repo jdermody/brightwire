@@ -20,11 +20,12 @@ namespace BrightWire
     /// </summary>
     public interface ILinearAlgebraProvider : IDisposable
     {
-        /// <summary>
-        /// Creates a vector based on an enumerable of floats
-        /// </summary>
-        /// <param name="data">The initial values in the vector</param>
-        IVector CreateVector(IEnumerable<float> data);
+		/// <summary>
+		/// Creates a new vector
+		/// </summary>
+		/// <param name="length">Length of the vector</param>
+		/// <param name="setToZero">True to initialise the data to zero (otherwise it might be anything)</param>
+	    IVector CreateVector(int length, bool setToZero = false);
 
         /// <summary>
         /// Creates a vector
@@ -33,55 +34,75 @@ namespace BrightWire
         /// <param name="init">Callback to initialise each element of the vector</param>
         IVector CreateVector(int length, Func<int, float> init);
 
-        /// <summary>
-        /// Creates a matrix
-        /// </summary>
-        /// <param name="rows">The number of rows</param>
-        /// <param name="columns">The number of columns</param>
-        /// <param name="init">Callback to initialise each element of the matrix</param>
-        IMatrix CreateMatrix(int rows, int columns, Func<int, int, float> init);
+	    /// <summary>
+	    /// Creates a matrix
+	    /// </summary>
+	    /// <param name="rows">The number of rows</param>
+	    /// <param name="columns">The number of columns</param>
+	    /// <param name="setToZero">True to initialise the data to zero (otherwise it might be anything)</param>
+	    IMatrix CreateMatrix(int rows, int columns, bool setToZero = false);
 
-        /// <summary>
-        /// Creates a matrix from a list of vectors
-        /// </summary>
-        /// <param name="rows">The list of rows in the new matrix</param>
-        IMatrix CreateMatrix(IReadOnlyList<IVector> rows);
+	    /// <summary>
+	    /// Creates a matrix
+	    /// </summary>
+	    /// <param name="rows">The number of rows</param>
+	    /// <param name="columns">The number of columns</param>
+	    /// <param name="init">Callback to initialise each element of the matrix</param>
+	    IMatrix CreateMatrix(int rows, int columns, Func<int, int, float> init);
 
-        /// <summary>
-        /// Creates a matrix that is initialised to zero
-        /// </summary>
-        /// <param name="rows">The number of rows</param>
-        /// <param name="columns">The number of columns</param>
-        /// <returns></returns>
-        IMatrix CreateZeroMatrix(int rows, int columns);
+		/// <summary>
+		/// Creates a matrix from a list of vectors. Each vector will become a row in the new matrix
+		/// </summary>
+		/// <param name="vectorRows">List of vectors for each row</param>
+		/// <returns></returns>
+	    IMatrix CreateMatrixFromRows(IReadOnlyList<IVector> vectorRows);
 
-        /// <summary>
-        /// Creates an unitialised matrix (the initial matrix values might be anything)
-        /// </summary>
-        /// <param name="rows">The number of rows</param>
-        /// <param name="columns">The number of columns</param>
-        IMatrix CreateMatrix(int rows, int columns);
+	    /// <summary>
+	    /// Creates a matrix from a list of vectors. Each vector will become a column in the new matrix
+	    /// </summary>
+	    /// <param name="vectorColumns">List of vectors for each column</param>
+	    /// <returns></returns>
+	    IMatrix CreateMatrixFromColumns(IReadOnlyList<IVector> vectorColumns);
 
-        /// <summary>
-        /// Creates a 3D tensor
-        /// </summary>
-        /// <param name="data">The list of matrices that form the 3D tensor</param>
-        /// <returns></returns>
-        I3DTensor Create3DTensor(IReadOnlyList<IMatrix> data);
+		/// <summary>
+		/// Creates a 3D tensor
+		/// </summary>
+		/// <param name="rows">Number of rows</param>
+		/// <param name="columns">Number of columns</param>
+		/// <param name="depth">Number of depth slices</param>
+		/// <param name="setToZero">True to initialise the data to zero (otherwise it might be anything)</param>
+	    I3DTensor Create3DTensor(int rows, int columns, int depth, bool setToZero = false);
 
-        /// <summary>
-        /// Creates a 4D tensor
-        /// </summary>
-        /// <param name="data">The list of 3D tensors that form the 4D tensor</param>
-        /// <returns></returns>
-        I4DTensor Create4DTensor(IReadOnlyList<FloatTensor> data);
+	    /// <summary>
+	    /// Creates a 3D tensor from a list of matrices
+	    /// </summary>
+	    /// <param name="matrices">List of matrices</param>
+	    /// <returns></returns>
+	    I3DTensor Create3DTensor(IReadOnlyList<IMatrix> matrices);
 
-        /// <summary>
-        /// Creates a 4D tensor
-        /// </summary>
-        /// <param name="tensorList">The list of 3D tensors that form the 4D tensor</param>
-        /// <returns></returns>
-        I4DTensor Create4DTensor(IReadOnlyList<I3DTensor> tensorList);
+	    /// <summary>
+	    /// Creates a 4D tensor
+	    /// </summary>
+	    /// <param name="rows">Number of rows</param>
+	    /// <param name="columns">Number of columns</param>
+	    /// <param name="depth">Number of matrices</param>
+	    /// <param name="count">Number of 3D tensors</param>
+	    /// <param name="setToZero">True to initialise the data to zero (otherwise it might be anything)</param>
+	    I4DTensor Create4DTensor(int rows, int columns, int depth, int count, bool setToZero = false);
+
+	    /// <summary>
+	    /// Creates a 4D tensor from a list of 3D tensors
+	    /// </summary>
+	    /// <param name="tensors">List of 3D tensors</param>
+	    /// <returns></returns>
+	    I4DTensor Create4DTensor(IReadOnlyList<I3DTensor> tensors);
+
+		/// <summary>
+		/// Creates a 4D tensor from a list of 3D tensors
+		/// </summary>
+		/// <param name="tensors">List of 3D tensors</param>
+		/// <returns></returns>
+	    I4DTensor Create4DTensor(IReadOnlyList<FloatTensor> tensors);
 
         /// <summary>
         /// Creates a save point in the allocation history
@@ -94,7 +115,7 @@ namespace BrightWire
         void PopLayer();
 
         /// <summary>
-        /// Underlying setting for stochastic vs deterministic behaviour across BrightWire
+        /// Underlying setting for stochastic vs deterministic behaviour for instances created from this provider
         /// </summary>
         bool IsStochastic { get; }
 
@@ -148,12 +169,12 @@ namespace BrightWire
         /// <summary>
         /// Converts the vector to a column matrix
         /// </summary>
-        IMatrix ToColumnMatrix();
+        IMatrix AsColumnMatrix();
 
         /// <summary>
         /// Converts the vector to a row matrix
         /// </summary>
-        IMatrix ToRowMatrix();
+        IMatrix AsRowMatrix();
 
         /// <summary>
         /// The number of elements in the vector
@@ -370,16 +391,26 @@ namespace BrightWire
         /// </summary>
         /// <param name="rows">The number of rows in the matrix</param>
         /// <param name="columns">The number of columns in the matrix</param>
-        IMatrix ConvertInPlaceToMatrix(int rows, int columns);
+        IMatrix AsMatrix(int rows, int columns);
 
         /// <summary>
-        /// Converts the vector to a tensor
+        /// Converts the vector to a 3D tensor
         /// </summary>
-        /// <param name="rows">Number of rows in tensor</param>
-        /// <param name="columns">Number of columns in tensor</param>
-        /// <param name="depth">Depth of the tensor</param>
+        /// <param name="rows">Number of rows in each matrix</param>
+        /// <param name="columns">Number of columns in matrix</param>
+        /// <param name="depth">Number of matrices</param>
         /// <returns></returns>
-        I3DTensor ConvertTo3DTensor(int rows, int columns, int depth);
+        I3DTensor As3DTensor(int rows, int columns, int depth);
+
+		/// <summary>
+		/// Converts the vector to a 4D tensor
+		/// </summary>
+		/// <param name="rows">Number of rows in each matrix</param>
+		/// <param name="columns">Number of columns in matrix</param>
+		/// <param name="depth">Number of matrices</param>
+		/// <param name="count">Number of 3D tensors</param>
+		/// <returns></returns>
+	    I4DTensor As4DTensor(int rows, int columns, int depth, int count);
 
         /// <summary>
         /// Splits the vector into a list of vectors
@@ -754,24 +785,24 @@ namespace BrightWire
         /// <summary>
         /// Fast conversion to vector (the internal buffer is not modified)
         /// </summary>
-        IVector ConvertInPlaceToVector();
+        IVector AsVector();
 
-        /// <summary>
-        /// Converts the matrix to a 3D tensor
-        /// </summary>
-        /// <param name="rows">Tensor row count</param>
-        /// <param name="columns">Tensor column count</param>
-        /// <returns></returns>
-        I3DTensor ConvertTo3DTensor(int rows, int columns);
+		/// <summary>
+		/// Converts the matrix to a 3D tensor, treating each column as a depth slice in the new 3D tensor
+		/// </summary>
+		/// <param name="rows">Row count of each sub matrix</param>
+		/// <param name="columns">Column count of each sub matrix</param>
+		/// <returns></returns>
+	    I3DTensor As3DTensor(int rows, int columns);
 
-        /// <summary>
-        /// Converts the matrix to a 4D tensor
-        /// </summary>
-        /// <param name="rows">Tensor row count</param>
-        /// <param name="columns">Tensor column count</param>
-        /// <param name="depth">Tensor depth</param>
-        /// <returns></returns>
-        I4DTensor ConvertTo4DTensor(int rows, int columns, int depth);
+		/// <summary>
+		/// Converts the matrix to a 4D tensor, treating each column as a 3D tensor
+		/// </summary>
+		/// <param name="rows">Row count of each sub matrix</param>
+		/// <param name="columns">Column count of each sub matrix</param>
+		/// <param name="depth">Depth of each 3D tensor</param>
+		/// <returns></returns>
+	    I4DTensor As4DTensor(int rows, int columns, int depth);
     }
 
     /// <summary>
@@ -883,23 +914,23 @@ namespace BrightWire
         IMatrix Im2Col(int filterWidth, int filterHeight, int stride);
 
         /// <summary>
-        /// Converts the tensor to a vector (each sub matrix is concatenated into a single vector)
+        /// Converts the tensor to a vector
         /// </summary>
         /// <returns></returns>
-        IVector ConvertToVector();
+        IVector AsVector();
 
-        /// <summary>
-        /// Converts the tensor to a matrix (each sub matrix becomes a column in the new matrix)
-        /// </summary>
-        /// <returns></returns>
-        IMatrix ConvertToMatrix();
+		/// <summary>
+		/// Converts the tensor to a matrix (each depth slice becomes a column in the new matrix)
+		/// </summary>
+		/// <returns></returns>
+	    IMatrix AsMatrix();
 
-        /// <summary>
-        /// Converts the tensor to a 4D tensor (each sub matrix becomes a 3D tensor with the specified rows and columns and depth given by the sub matrix column count)
-        /// </summary>
-        /// <param name="rows">Row count of each 3D tensor</param>
-        /// <param name="columns">Column count of each 3D tensor</param>
-        I4DTensor ConvertTo4DTensor(int rows, int columns);
+		/// <summary>
+		/// Reshapes each depth slice as a 3D tensor with the specified rows and columns and depth given by the columns of the sub matrices
+		/// </summary>
+		/// <param name="rows">Rows in each 3D tensor</param>
+		/// <param name="columns">Columns in each 3D tensor</param>
+	    I4DTensor As4DTensor(int rows, int columns);
 
         /// <summary>
         /// Performs a max pooling operation on the tensor
@@ -907,7 +938,7 @@ namespace BrightWire
         /// <param name="filterWidth">The pooling filter width</param>
         /// <param name="filterHeight">The pooling filter height</param>
         /// <param name="stride">The pooling stride</param>
-        /// <param name="calculateIndex">True to calculate the index of each max item</param>
+        /// <param name="saveIndices">True to save the index of each max item</param>
         /// <returns>A max pooled tensor</returns>
         (I3DTensor Result, I3DTensor Indices) MaxPool(int filterWidth, int filterHeight, int stride, bool saveIndices);
 
@@ -1081,13 +1112,50 @@ namespace BrightWire
         I3DTensor ReverseIm2Col(IReadOnlyList<IReadOnlyList<IVector>> filter, int inputHeight, int inputWidth, int padding, int filterWidth, int filterHeight, int stride);
 
         /// <summary>
-        /// Converts the 4D tensor to a matrix in which each column is a 3D tensor in vector form
-        /// </summary>
-        IMatrix ConvertToMatrix();
-
-        /// <summary>
         /// Sums the columns of each sub-tensor's sub matrix
         /// </summary>
         IVector ColumnSums();
+
+	    /// <summary>
+	    /// Converts the tensor to a vector
+	    /// </summary>
+	    /// <returns></returns>
+	    IVector AsVector();
+
+	    /// <summary>
+	    /// Converts the tensor to a matrix (each 3D tensor becomes a column in the new matrix)
+	    /// </summary>
+	    /// <returns></returns>
+	    IMatrix AsMatrix();
+
+	    /// <summary>
+	    /// Converts the current tensor to protobuf format
+	    /// </summary>
+	    IReadOnlyList<FloatTensor> Data { get; set; }
     }
+
+	/// <summary>
+	/// A 4D tensor that can be directly indexed
+	/// </summary>
+	public interface IIndexable4DTensor : I4DTensor
+	{
+		/// <summary>
+		/// Returns a value from the tensor
+		/// </summary>
+		/// <param name="row">The row to query</param>
+		/// <param name="column">The column to query</param>
+		/// <param name="depth">The depth to query</param>
+		/// <param name="index">The tensor index to query</param>
+		float this[int row, int column, int depth, int index] { get; set; }
+
+		/// <summary>
+		/// Gets a list of the indexable matrices
+		/// </summary>
+		IReadOnlyList<IIndexable3DTensor> Matrix { get; }
+
+		/// <summary>
+		/// Returns the matrix as xml
+		/// </summary>
+		string AsXml { get; }
+	}
 }

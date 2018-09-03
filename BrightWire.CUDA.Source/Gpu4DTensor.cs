@@ -34,6 +34,7 @@ namespace BrightWire.LinearAlgebra
 
 	    public Gpu4DTensor(CudaProvider provider, int rows, int columns, int depth, int count, IDeviceMemoryPtr data, bool isOwner)
 	    {
+		    Debug.Assert(rows * columns * depth * count == data.Size);
 		    _cuda = provider;
 			_rows = rows;
 		    _columns = columns;
@@ -171,17 +172,45 @@ namespace BrightWire.LinearAlgebra
 #endif
         }
 
-		public override string ToString()
-		{
-			return AsIndexable().ToString();
-		}
+	    public override string ToString()
+	    {
+		    return $"4D tensor (GPU), rows:{RowCount} columns:{ColumnCount} depth:{Depth} count:{Count}";
+	    }
 
 		public int BlockSize => _blockSize;
 	    public bool IsOwner => _isOwner;
 	    public CudaDeviceVariable<float> CudaDeviceVariable => _data.DeviceVariable;
 	    public IDeviceMemoryPtr Memory => _data;
 
-        public IMatrix ConvertToMatrix() => new GpuMatrix(_cuda, _blockSize, _count, _data, false);
+        public IMatrix AsMatrix() => new GpuMatrix(_cuda, _blockSize, _count, _data, false);
+	    public IReadOnlyList<FloatTensor> Data {
+		    get
+		    {
+			    Debug.Assert(IsValid);
+			    return Tensors.Select(m => m.Data).ToList();
+		    }
+		    set {
+			    Debug.Assert(IsValid);
+			    var count = value.Count;
+			    for (var i = 0; i < count && i < _depth; i++) {
+				    var tensor = value[i];
+				    if (tensor != null)
+					    GetTensorAt(i).Data = tensor;
+			    }
+		    }
+	    }
+	    public IVector AsVector() => new GpuVector(_cuda, _data, false);
+
+	    public IEnumerable<I3DTensor> Tensors
+	    {
+		    get 
+		    {
+			    var i = 0;
+			    while (i < Count) {
+				    yield return GetTensorAt(i++);
+			    }
+		    }
+	    }
 
         public I3DTensor GetTensorAt(int index)
         {
@@ -234,61 +263,43 @@ namespace BrightWire.LinearAlgebra
 
         public I4DTensor AddPadding(int padding)
         {
-            var ret = _cuda.TensorAddPadding(_data, padding);
+	        Debug.Assert(IsValid);
+            var ret = _cuda.TensorAddPadding(_data, _rows, _columns, _depth, _count, padding);
 	        return new Gpu4DTensor(_cuda, ret.Rows, ret.Columns, _depth, _count, ret.Data, true);
         }
 
         public I4DTensor RemovePadding(int padding)
         {
-            var ret = _cuda.TensorRemovePadding(_data, padding);
+	        Debug.Assert(IsValid);
+            var ret = _cuda.TensorRemovePadding(_data, _rows, _columns, _depth, _count, padding);
 	        return new Gpu4DTensor(_cuda, ret.Rows, ret.Columns, _depth, _count, ret.Data, true);
         }
 
         public (I4DTensor Result, I4DTensor Indices) MaxPool(int filterWidth, int filterHeight, int stride, bool saveIndices)
         {
-	        throw new NotImplementedException();
-	        //List<IReadOnlyList<(object X, object Y)>> indexList = calculateIndex ? new List<IReadOnlyList<(object X, object Y)>>() : null;
-	        //var ret = new List<I3DTensor>();
-	        //for(var i = 0; i < _count; i++) {
-	        //    var result = GetTensorAt(i).MaxPool(filterWidth, filterHeight, stride, calculateIndex);
-	        //    if (calculateIndex)
-	        //        indexList.Add(result.Index);
-	        //    ret.Add(result.Result);
-	        //}
-	        //return (new Gpu4DTensor(_cuda, ret), indexList);
+	        Debug.Assert(IsValid);
+	        var maxPool = _cuda.TensorMaxPool(_data, _rows, _columns, _depth, _count, filterWidth, filterHeight, stride, saveIndices);
+	        var ret = new Gpu4DTensor(_cuda, maxPool.Rows, maxPool.Columns, _depth, _count, maxPool.Data, true);
+	        var indices = saveIndices ? new Gpu4DTensor(_cuda, maxPool.Rows, maxPool.Columns, _depth, _count, maxPool.Indices, true) : null;
+	        return (ret, indices);
         }
 
         public I4DTensor ReverseMaxPool(I4DTensor indices, int outputRows, int outputColumns, int filterWidth, int filterHeight, int stride)
         {
-	        throw new NotImplementedException();
-            //var ret = new List<I3DTensor>();
-            //for (var i = 0; i < Count; i++) {
-            //    var result = GetTensorAt(i).ReverseMaxPool(rows, columns, indexList?[i]);
-            //    ret.Add(result);
-            //}
-            //return new Gpu4DTensor(_cuda, ret);
+	        Debug.Assert(IsValid);
+	        var indicesPtr = ((IHaveDeviceMemory) indices).Memory;
+	        var ret = _cuda.TensorReverseMaxPool(_data, indicesPtr, _rows, _columns, _depth, _count, outputRows, outputColumns, filterWidth, filterHeight, stride);
+	        return new Gpu4DTensor(_cuda, outputRows, outputColumns, _depth, _count, ret, true);
         }
 
         public I3DTensor Im2Col(int filterWidth, int filterHeight, int stride)
         {
-			//var ret = new List<IMatrix>();
-			//for (var i = 0; i < Count; i++) {
-			//	var result = GetTensorAt(i).Im2Col(filterWidth, filterHeight, stride);
-			//	ret.Add(result);
-			//}
-			//return _cuda.Create3DTensor(ret);
 			var ret = _cuda.TensorIm2Col(_data, _rows, _columns, _depth, _count, filterWidth, filterHeight, stride);
 	        return new Gpu3DTensor(_cuda, ret.Rows, ret.Columns, ret.Depth, ret.Data, true);
         }
 
         public I3DTensor ReverseIm2Col(IReadOnlyList<IReadOnlyList<IVector>> filter, int inputHeight, int inputWidth, int padding, int filterWidth, int filterHeight, int stride)
         {
-			//var ret = new List<IMatrix>();
-			//for (var i = 0; i < Count; i++) {
-			//	var result = GetTensorAt(i).ReverseIm2Col(filter, inputHeight, inputWidth, padding, filterWidth, filterHeight, stride);
-			//	ret.Add(result);
-			//}
-			//return _cuda.Create3DTensor(ret);
 			var filters = filter.Select(fl => fl.Cast<GpuVector>().Select(v => v.Memory).ToList()).ToList();
 			var ret = _cuda.TensorReverseIm2Col(_data, filters, _rows, _columns, _depth, _count, inputHeight, inputWidth, padding, filterWidth, filterHeight, stride);
 	        return new Gpu3DTensor(_cuda, ret.Rows, ret.Columns, ret.Depth, ret.Data, true);
@@ -298,7 +309,7 @@ namespace BrightWire.LinearAlgebra
         {
             IVector ret = null;
             for (var i = 0; i < Count; i++) {
-                var tensorAsMatrix = GetTensorAt(i).ConvertToMatrix();
+                var tensorAsMatrix = GetTensorAt(i).AsMatrix();
                 var columnSums = tensorAsMatrix.ColumnSums();
                 if (ret == null)
                     ret = columnSums;

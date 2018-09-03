@@ -43,7 +43,12 @@ namespace BrightWire.LinearAlgebra
             // nop
         }
 
-        public float this[int row, int column, int depth]
+		public override string ToString()
+		{
+			return $"3D tensor, rows:{_rows} columns:{_columns} depth:{_data.Length}";
+		}
+
+		public float this[int row, int column, int depth]
         {
             get => _data[depth][row, column];
 	        set => _data[depth][row, column] = value;
@@ -109,9 +114,9 @@ namespace BrightWire.LinearAlgebra
             return ret;
         }
 
-        public IVector ConvertToVector()
+        public IVector AsVector()
         {
-            var vectorList = _data.Select(m => m.ConvertInPlaceToVector().AsIndexable()).ToArray();
+            var vectorList = _data.Select(m => m.AsVector().AsIndexable()).ToArray();
             var size = _rows * _columns;
             var ret = DenseVector.Create(Depth * size, i => {
                 var offset = i / size;
@@ -121,28 +126,28 @@ namespace BrightWire.LinearAlgebra
             return new CpuVector(ret);
         }
 
-        public IMatrix ConvertToMatrix()
-        {
-            var ret = DenseMatrix.Create(_rows * _columns, Depth, (i, j) => {
-                var matrix = _data[j];
-                var x = i % _rows;
-                var y = i / _rows;
-                return matrix[x, y];
-            });
-            return new CpuMatrix(ret);
-        }
+		public IMatrix AsMatrix()
+		{
+			var ret = DenseMatrix.Create(_rows * _columns, Depth, (i, j) => {
+				var matrix = _data[j];
+				var x = i % _rows;
+				var y = i / _rows;
+				return matrix[x, y];
+			});
+			return new CpuMatrix(ret);
+		}
 
-        public I4DTensor ConvertTo4DTensor(int rows, int columns)
-        {
-            var tensorList = new List<I3DTensor>();
-            for (var i = 0; i < Depth; i++) {
-                var slice = GetMatrixAt(i);
-                tensorList.Add(slice.ConvertTo3DTensor(rows, columns));
-            }
-            return new Cpu4DTensor(tensorList);
-        }
+		public I4DTensor As4DTensor(int rows, int columns)
+		{
+			var tensorList = new List<I3DTensor>();
+			for (var i = 0; i < Depth; i++) {
+				var slice = GetMatrixAt(i);
+				tensorList.Add(slice.As3DTensor(rows, columns));
+			}
+			return new Cpu4DTensor(tensorList);
+		}
 
-        public (I3DTensor Result, I3DTensor Indices) MaxPool(
+		public (I3DTensor Result, I3DTensor Indices) MaxPool(
             int filterWidth, 
             int filterHeight, 
             int stride,
@@ -177,7 +182,6 @@ namespace BrightWire.LinearAlgebra
 		                }
 	                }
 
-	                //var index = targetX * newRows + targetY;
 					if(saveIndices)
 						indices[targetY, targetX] = bestOffset;
                     layer[targetY, targetX] = maxVal;
@@ -195,7 +199,7 @@ namespace BrightWire.LinearAlgebra
 		        var source = GetMatrixAt(z).AsIndexable();
 		        var sourceRows = source.RowCount;
 		        var sourceColumns = source.ColumnCount;
-		        var index = indexList.GetMatrixAt(0).AsIndexable();
+		        var index = indexList.GetMatrixAt(z).AsIndexable();
 		        var target = DenseMatrix.Create(outputRows, outputColumns, 0f);
 		        matrixList.Add(target);
 
@@ -365,7 +369,7 @@ namespace BrightWire.LinearAlgebra
             Debug.Assert(tensor.Count == Depth);
             var ret = new List<IMatrix>();
             for (var i = 0; i < tensor.Count; i++) {
-                var multiplyWith = tensor.GetTensorAt(i).ConvertToMatrix();
+                var multiplyWith = tensor.GetTensorAt(i).AsMatrix();
                 var slice = GetMatrixAt(i);
                 ret.Add(slice.TransposeThisAndMultiply(multiplyWith));
             }
