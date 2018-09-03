@@ -18,7 +18,6 @@ namespace BrightWire.LinearAlgebra
         readonly CudaProvider _cuda;
         readonly IDeviceMemoryPtr _data;
         readonly int _rows, _columns;
-	    readonly bool _isOwner;
         bool _disposed = false;
 #if DEBUG
         static int _gid = 0;
@@ -66,7 +65,6 @@ namespace BrightWire.LinearAlgebra
             _rows = rows;
             _columns = columns;
             _data = data;
-	        _isOwner = isOwner;
             cuda.Register(this);
 #if DEBUG
             if (_id == _badAlloc)
@@ -77,7 +75,7 @@ namespace BrightWire.LinearAlgebra
 #if DEBUG
         ~GpuMatrix()
         {
-            if (_isOwner && !_disposed)
+            if (!_disposed)
                 Debug.WriteLine("\tMatrix {0} was not disposed !!", _id);
         }
 #endif
@@ -89,8 +87,7 @@ namespace BrightWire.LinearAlgebra
                 Debugger.Break();
 #endif
             if (disposing && !_disposed) {
-				if(_isOwner)
-					_data.Free();
+				_data.Free();
                 _disposed = true;
             }
         }
@@ -109,7 +106,6 @@ namespace BrightWire.LinearAlgebra
         }
 
 	    public int BlockSize => _columns;
-	    public bool IsOwner => _isOwner;
         public int ColumnCount => _columns;
 	    public int RowCount => _rows;
 	    public CudaDeviceVariable<float> CudaDeviceVariable => _data.DeviceVariable;
@@ -698,17 +694,17 @@ namespace BrightWire.LinearAlgebra
             return new GpuVector(_cuda, _data, false);
         }
 
-        public I3DTensor As3DTensor(int rows, int columns)
-        {
-	        Debug.Assert(rows * columns == _rows);
-	        return new Gpu3DTensor(_cuda, rows, columns, _columns, _data, false);
-	        //var matrixList = new List<GpuMatrix>();
-	        //for (var i = 0; i < ColumnCount; i++)
-	        //    matrixList.Add((GpuMatrix)Column(i).AsMatrix(rows, columns));
-	        //return _cuda.Create3DTensor(matrixList);
-        }
+		public I3DTensor As3DTensor(int rows, int columns)
+		{
+			Debug.Assert(rows * columns == _rows);
+			return new Gpu3DTensor(_cuda, rows, columns, _columns, _data, false);
+			//var matrixList = new List<GpuMatrix>();
+			//for (var i = 0; i < ColumnCount; i++)
+			//    matrixList.Add((GpuMatrix)Column(i).AsMatrix(rows, columns));
+			//return _cuda.Create3DTensor(matrixList);
+		}
 
-        public I4DTensor As4DTensor(int rows, int columns, int depth)
+		public I4DTensor As4DTensor(int rows, int columns, int depth)
         {
 	        Debug.Assert(rows * columns * depth == _rows);
             return new Gpu4DTensor(_cuda, rows, columns, depth, _columns, _data, false);

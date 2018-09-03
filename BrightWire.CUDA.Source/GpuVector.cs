@@ -18,7 +18,6 @@ namespace BrightWire.LinearAlgebra
 	{
 		readonly CudaProvider _cuda;
 		readonly IDeviceMemoryPtr _data;
-		readonly bool _isOwner;
 		bool _disposed = false;
 #if DEBUG
 		static int _gid = 0;
@@ -36,10 +35,7 @@ namespace BrightWire.LinearAlgebra
 		{
 			_cuda = cuda;
 			_data = data;
-			if (isOwner) {
-				_isOwner = true;
-				cuda.Register(this);
-			}
+			cuda.Register(this);
 #if DEBUG
 			if (_id == _badAlloc)
 				Debugger.Break();
@@ -65,7 +61,7 @@ namespace BrightWire.LinearAlgebra
 #if DEBUG
 		~GpuVector()
 		{
-			if (!_disposed && _isOwner)
+			if (!_disposed)
 				Debug.WriteLine("\tVector {0} was not disposed!!", _id);
 		}
 #endif
@@ -77,8 +73,7 @@ namespace BrightWire.LinearAlgebra
 				Debugger.Break();
 #endif
 			if (disposing && !_disposed) {
-				if(_isOwner)
-					_data.Free();
+				_data.Free();
 				_disposed = true;
 			}
 		}
@@ -98,7 +93,6 @@ namespace BrightWire.LinearAlgebra
 
 		public int Count => _data.Size;
 		public int BlockSize => CudaProvider.FLOAT_SIZE;
-		public bool IsOwner => _isOwner;
 
 		public FloatVector Data
 		{

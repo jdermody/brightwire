@@ -8,6 +8,7 @@ namespace BrightWire
 	/// </summary>
 	interface IDeviceMemoryPtr
 	{
+		int AddRef();
 		void Free();
 		CudaDeviceVariable<float> DeviceVariable { get; }
 		CUdeviceptr DevicePointer { get; }
@@ -23,6 +24,5 @@ namespace BrightWire
 		int BlockSize { get; }
 		CudaDeviceVariable<float> CudaDeviceVariable { get; }
 		IDeviceMemoryPtr Memory { get; }
-		bool IsOwner { get; }
 	}
 }

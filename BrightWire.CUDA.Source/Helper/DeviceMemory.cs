@@ -20,6 +20,7 @@ namespace BrightWire.Cuda.Helper
             readonly DeviceMemory _cache;
             readonly CudaDeviceVariable<float> _data;
             bool _disposed = false;
+	        int _refCount = 1;
 
 #if DEBUG
             static int _badAlloc = -1;
@@ -68,9 +69,14 @@ namespace BrightWire.Cuda.Helper
                 GC.SuppressFinalize(this);
 #endif
             }
+
+	        public int AddRef()
+	        {
+		        return Interlocked.Increment(ref _refCount);
+	        }
             public void Free()
             {
-                if(!_disposed)
+                if(Interlocked.Decrement(ref _refCount) <= 0 && !_disposed)
                     _cache.OnFree(this);
             }
 
