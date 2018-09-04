@@ -38,7 +38,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
 			protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
 			{
-				var tensor = errorSignal.GetMatrix().As4DTensor(_newHeight, _newWidth, _source._filter.ColumnCount);
+				var tensor = errorSignal.GetMatrix().ReshapeAs4DTensor(_newHeight, _newWidth, _source._filter.ColumnCount);
 				var padding = _source._padding;
 
 				// calculate the weight and bias updates
@@ -66,9 +66,9 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 					var outputDepth = _inputDepth;
 
 					using (var filtersClone = filters.Clone()) {
-						using (var rotatedFilters = filtersClone.AsVector()) {
+						using (var rotatedFilters = filtersClone.ReshapeAsVector()) {
 							rotatedFilters.RotateInPlace(filters.ColumnCount * inputDepth);
-							using (var rotatedFiltersMatrix = rotatedFilters.AsMatrix(filters.RowCount, filters.ColumnCount)) {
+							using (var rotatedFiltersMatrix = rotatedFilters.ReshapeAsMatrix(filters.RowCount, filters.ColumnCount)) {
 								var reverseIm2Col = tensor.ReverseIm2Col(rotatedFiltersMatrix, outputRows, outputColumns, outputDepth, filterWidth, filterHeight, stride);
 								var delta = reverseIm2Col;
 								if (padding > 0) {
@@ -79,7 +79,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 //#if DEBUG
 //								Debug.Assert(delta.AsVector().IsEntirelyFinite());
 //#endif
-								return new Tensor4DGraphData(delta.AsMatrix(), _inputHeight, _inputWidth, inputDepth);
+								return new Tensor4DGraphData(delta.ReshapeAsMatrix(), _inputHeight, _inputWidth, inputDepth);
 							}
 						}
 					}
@@ -136,7 +136,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 		public override void ExecuteForward(IContext context)
 		{
 			var input = context.Data;
-			var tensor = input.GetMatrix().As4DTensor(input.Rows, input.Columns, input.Depth);
+			var tensor = input.GetMatrix().ReshapeAs4DTensor(input.Rows, input.Columns, input.Depth);
 
 			var inputWidth = tensor.ColumnCount;
 			var inputHeight = tensor.RowCount;
@@ -149,7 +149,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 			var im2Col = tensor.Im2Col(_filterWidth, _filterHeight, _stride);
 			var outputSignal = im2Col.Multiply(_filter);
 			outputSignal.AddToEachRow(_bias);
-			var outputTensor = outputSignal.As4DTensor(newHeight, newWidth);
+			var outputTensor = outputSignal.ReshapeAs4DTensor(newHeight, newWidth);
 			Debug.Assert(outputTensor.Depth == FilterCount && outputTensor.Count == tensor.Count);
 
 //#if DEBUG

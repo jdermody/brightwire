@@ -994,13 +994,13 @@ namespace UnitTests
         public void MatrixToVector()
         {
             var matrix = _cpu.CreateMatrix(3, 4, (x, y) => (x + 1) * (y + 1)).AsIndexable();
-            var vector = matrix.AsVector();
-            var matrix2 = vector.AsMatrix(3, 4);
+            var vector = matrix.ReshapeAsVector();
+            var matrix2 = vector.ReshapeAsMatrix(3, 4);
             FloatingPointHelper.AssertEqual(matrix.AsIndexable(), matrix2.AsIndexable());
 
             using (var gpuMatrix = _cuda.CreateMatrix(matrix.AsIndexable()))
-            using (var gpuVector = gpuMatrix.AsVector())
-            using (var gpuMatrix2 = gpuVector.AsMatrix(3, 4)) {
+            using (var gpuVector = gpuMatrix.ReshapeAsVector())
+            using (var gpuMatrix2 = gpuVector.ReshapeAsMatrix(3, 4)) {
                 FloatingPointHelper.AssertEqual(gpuMatrix.AsIndexable(), gpuMatrix2.AsIndexable());
             }
         }

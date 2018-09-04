@@ -255,13 +255,13 @@ namespace BrightWire.LinearAlgebra
 			_cuda.SubtractInPlace(_data, other._data, Count, coefficient1, coefficient2);
 		}
 
-		public IMatrix AsColumnMatrix()
+		public IMatrix ReshapeAsColumnMatrix()
 		{
 			Debug.Assert(IsValid);
 			return new GpuMatrix(_cuda, Count, 1, _data, false);
 		}
 
-		public IMatrix AsRowMatrix()
+		public IMatrix ReshapeAsRowMatrix()
 		{
 			Debug.Assert(IsValid);
 			return new GpuMatrix(_cuda, 1, Count, _data, false);
@@ -482,19 +482,19 @@ namespace BrightWire.LinearAlgebra
 			return _cuda.IsFinite(_data, _data.Size);
 		}
 
-		public IMatrix AsMatrix(int rows, int columns)
+		public IMatrix ReshapeAsMatrix(int rows, int columns)
 		{
 			Debug.Assert(IsValid && rows * columns == _data.Size);
 			return new GpuMatrix(_cuda, rows, columns, _data, false);
 		}
 
-		public I3DTensor As3DTensor(int rows, int columns, int depth)
+		public I3DTensor ReshapeAs3DTensor(int rows, int columns, int depth)
 		{
 			Debug.Assert(IsValid && rows * columns * depth == _data.Size);
 			return new Gpu3DTensor(_cuda, rows, columns, depth, _data, false);
 		}
 
-		public I4DTensor As4DTensor(int rows, int columns, int depth, int count)
+		public I4DTensor ReshapeAs4DTensor(int rows, int columns, int depth, int count)
 		{
 			Debug.Assert(IsValid && rows * columns * depth * count == _data.Size);
 			return new Gpu4DTensor(_cuda, rows, columns, depth, count, _data, false);

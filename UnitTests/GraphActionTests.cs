@@ -40,8 +40,8 @@ namespace UnitTests
 		[TestMethod]
 		public void TestConstrainInput()
 		{
-			var input = _cpu.CreateVector(new[] {-1.5f, -1f, -0.5f, 0, 0.5f, 1f, 1.5f}).AsMatrix(1, 7);
-			var output = _cpu.CreateVector(new[] {-1f, -1f, -0.5f, 0, 0.5f, 1f, 1f}).AsMatrix(1, 7);
+			var input = _cpu.CreateVector(new[] {-1.5f, -1f, -0.5f, 0, 0.5f, 1f, 1.5f}).ReshapeAsMatrix(1, 7);
+			var output = _cpu.CreateVector(new[] {-1f, -1f, -0.5f, 0, 0.5f, 1f, 1f}).ReshapeAsMatrix(1, 7);
 
 			_TestAction(_factory.GraphAction.Constrain(-1f, 1f), input.AsGraphData(), output.AsGraphData());
 		}

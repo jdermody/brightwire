@@ -66,7 +66,7 @@ namespace BrightWire.Linear.Training
                     using (var p = _feature.Multiply(theta))
                     using (var pc = p.Column(0))
                     using (var e = pc.Subtract(_target))
-                    using (var e2 = e.AsRowMatrix())
+                    using (var e2 = e.ReshapeAsRowMatrix())
                     using (var d = e2.Multiply(_feature))
                     using(var delta = d.Row(0)) {
                         delta.Multiply(learningRate);

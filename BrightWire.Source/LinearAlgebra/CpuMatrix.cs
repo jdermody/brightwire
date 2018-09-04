@@ -448,7 +448,7 @@ namespace BrightWire.LinearAlgebra
 
         public IMatrix Multiply(IVector vector)
         {
-            using (var column = vector.AsColumnMatrix())
+            using (var column = vector.ReshapeAsColumnMatrix())
                 return Multiply(column);
         }
 
@@ -458,25 +458,25 @@ namespace BrightWire.LinearAlgebra
             return (new CpuMatrix(svd.U), new CpuVector(svd.S), new CpuMatrix(svd.VT));
         }
 
-        public IVector AsVector()
+        public IVector ReshapeAsVector()
         {
             return new CpuVector(_matrix.ToColumnMajorArray());
         }
 
-		public I3DTensor As3DTensor(int rows, int columns)
+		public I3DTensor ReshapeAs3DTensor(int rows, int columns)
 		{
 			Debug.Assert(rows * columns == RowCount);
 			var matrixList = new List<IMatrix>();
 			for (int i = 0, len = ColumnCount; i < len; i++)
-				matrixList.Add(Column(i).AsMatrix(rows, columns));
+				matrixList.Add(Column(i).ReshapeAsMatrix(rows, columns));
 			return new Cpu3DTensor(matrixList);
 		}
 
-		public I4DTensor As4DTensor(int rows, int columns, int depth)
+		public I4DTensor ReshapeAs4DTensor(int rows, int columns, int depth)
 		{
 			var list = new List<I3DTensor>();
 			for (var i = 0; i < ColumnCount; i++)
-				list.Add(new Cpu3DTensor(Column(i).Split(depth).Select(v => v.AsMatrix(rows, columns)).ToList()));
+				list.Add(new Cpu3DTensor(Column(i).Split(depth).Select(v => v.ReshapeAsMatrix(rows, columns)).ToList()));
 			return new Cpu4DTensor(list);
 		}
 

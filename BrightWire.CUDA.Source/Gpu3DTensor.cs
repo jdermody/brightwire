@@ -155,19 +155,19 @@ namespace BrightWire.LinearAlgebra
             ;
         }
 
-        public IVector AsVector()
+        public IVector ReshapeAsVector()
         {
             Debug.Assert(IsValid);
             return new GpuVector(_cuda, _data, false);
         }
 
-        public IMatrix AsMatrix()
+        public IMatrix ReshapeAsMatrix()
         {
             Debug.Assert(IsValid);
             return new GpuMatrix(_cuda, _blockSize, _depth, _data, false);
         }
 
-		public I4DTensor As4DTensor(int rows, int columns)
+		public I4DTensor ReshapeAs4DTensor(int rows, int columns)
 		{
 			Debug.Assert(IsValid && rows * columns == _rows);
 			return new Gpu4DTensor(_cuda, rows, columns, _columns, _depth, _data, false);
@@ -255,7 +255,7 @@ namespace BrightWire.LinearAlgebra
 #endif
             var ret = new List<IMatrix>();
             for (var i = 0; i < tensor.Count; i++) {
-                var multiplyWith = tensor.GetTensorAt(i).AsMatrix();
+                var multiplyWith = tensor.GetTensorAt(i).ReshapeAsMatrix();
                 var slice = GetMatrixAt(i);
                 ret.Add(slice.TransposeThisAndMultiply(multiplyWith));
             }

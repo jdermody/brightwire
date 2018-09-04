@@ -169,12 +169,12 @@ namespace BrightWire
         /// <summary>
         /// Converts the vector to a column matrix
         /// </summary>
-        IMatrix AsColumnMatrix();
+        IMatrix ReshapeAsColumnMatrix();
 
         /// <summary>
         /// Converts the vector to a row matrix
         /// </summary>
-        IMatrix AsRowMatrix();
+        IMatrix ReshapeAsRowMatrix();
 
         /// <summary>
         /// The number of elements in the vector
@@ -391,7 +391,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="rows">The number of rows in the matrix</param>
         /// <param name="columns">The number of columns in the matrix</param>
-        IMatrix AsMatrix(int rows, int columns);
+        IMatrix ReshapeAsMatrix(int rows, int columns);
 
         /// <summary>
         /// Converts the vector to a 3D tensor
@@ -400,7 +400,7 @@ namespace BrightWire
         /// <param name="columns">Number of columns in matrix</param>
         /// <param name="depth">Number of matrices</param>
         /// <returns></returns>
-        I3DTensor As3DTensor(int rows, int columns, int depth);
+        I3DTensor ReshapeAs3DTensor(int rows, int columns, int depth);
 
 		/// <summary>
 		/// Converts the vector to a 4D tensor
@@ -410,7 +410,7 @@ namespace BrightWire
 		/// <param name="depth">Number of matrices</param>
 		/// <param name="count">Number of 3D tensors</param>
 		/// <returns></returns>
-	    I4DTensor As4DTensor(int rows, int columns, int depth, int count);
+	    I4DTensor ReshapeAs4DTensor(int rows, int columns, int depth, int count);
 
         /// <summary>
         /// Splits the vector into a list of vectors
@@ -437,6 +437,10 @@ namespace BrightWire
 		/// <returns></returns>
 	    float GetAt(int index);
 
+		/// <summary>
+		/// Checks if every value in the vector is finite (not NaN or positive/negative infinity)
+		/// </summary>
+		/// <returns></returns>
 	    bool IsEntirelyFinite();
     }
 
@@ -786,7 +790,7 @@ namespace BrightWire
         /// <summary>
         /// Fast conversion to vector (the internal buffer is not modified)
         /// </summary>
-        IVector AsVector();
+        IVector ReshapeAsVector();
 
 		/// <summary>
 		/// Reshapes the matrix to a 3D tensor, treating each column as a depth slice in the new 3D tensor
@@ -794,7 +798,7 @@ namespace BrightWire
 		/// <param name="rows">Row count of each sub matrix</param>
 		/// <param name="columns">Column count of each sub matrix</param>
 		/// <returns></returns>
-	    I3DTensor As3DTensor(int rows, int columns);
+	    I3DTensor ReshapeAs3DTensor(int rows, int columns);
 
 		/// <summary>
 		/// Converts the matrix to a 4D tensor, treating each column as a 3D tensor
@@ -803,7 +807,7 @@ namespace BrightWire
 		/// <param name="columns">Column count of each sub matrix</param>
 		/// <param name="depth">Depth of each 3D tensor</param>
 		/// <returns></returns>
-	    I4DTensor As4DTensor(int rows, int columns, int depth);
+	    I4DTensor ReshapeAs4DTensor(int rows, int columns, int depth);
     }
 
     /// <summary>
@@ -918,20 +922,20 @@ namespace BrightWire
         /// Converts the tensor to a vector
         /// </summary>
         /// <returns></returns>
-        IVector AsVector();
+        IVector ReshapeAsVector();
 
 		/// <summary>
 		/// Converts the tensor to a matrix (each depth slice becomes a column in the new matrix)
 		/// </summary>
 		/// <returns></returns>
-	    IMatrix AsMatrix();
+	    IMatrix ReshapeAsMatrix();
 
 		/// <summary>
 		/// Reshapes the 3D tensor into a 4D tensor (the current depth becomes the count of 3D tensors and columns becomes the new depth)
 		/// </summary>
 		/// <param name="rows">Rows in each 4D tensor</param>
 		/// <param name="columns">Columns in each 4D tensor</param>
-	    I4DTensor As4DTensor(int rows, int columns);
+	    I4DTensor ReshapeAs4DTensor(int rows, int columns);
 
         /// <summary>
         /// Performs a max pooling operation on the tensor
@@ -1121,13 +1125,13 @@ namespace BrightWire
 	    /// Converts the tensor to a vector
 	    /// </summary>
 	    /// <returns></returns>
-	    IVector AsVector();
+	    IVector ReshapeAsVector();
 
 	    /// <summary>
 	    /// Converts the tensor to a matrix (each 3D tensor becomes a column in the new matrix)
 	    /// </summary>
 	    /// <returns></returns>
-	    IMatrix AsMatrix();
+	    IMatrix ReshapeAsMatrix();
 
 	    /// <summary>
 	    /// Converts the current tensor to protobuf format

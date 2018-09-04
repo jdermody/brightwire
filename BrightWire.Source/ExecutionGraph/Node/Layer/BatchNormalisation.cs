@@ -134,7 +134,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             if (tensor != null) {
                 IVector currentVariance, currentMean;
                 if (context.IsTraining) {
-                    var volumeList = input.AsVector().Split(tensor.Count);
+                    var volumeList = input.ReshapeAsVector().Split(tensor.Count);
                     var rowList = volumeList.Select(m => lap.CreateVector(m.Split(tensor.Depth).Select(v => v.Average()))).ToList();
                     var reducedInput = lap.CreateMatrixFromRows(rowList);
 
@@ -155,12 +155,12 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 using (var tensorVariance = _FormIntoTensor(lap, currentVariance, tensor))
                 using (var tensorGamma = _FormIntoTensor(lap, _gamma, tensor))
                 using (var tensorBeta = _FormIntoTensor(lap, _beta, tensor))
-                using (var matrixMean = tensorMean.AsMatrix())
-                using (var matrixVariance = tensorVariance.AsMatrix())
-                using (var matrixBeta = tensorBeta.AsMatrix())
+                using (var matrixMean = tensorMean.ReshapeAsMatrix())
+                using (var matrixVariance = tensorVariance.ReshapeAsMatrix())
+                using (var matrixBeta = tensorBeta.ReshapeAsMatrix())
                 using (var temp = input.Subtract(matrixMean))
                 using (var sqrtVariance = matrixVariance.Sqrt(1e-6f)) {
-                    gamma = tensorMean.AsMatrix();
+                    gamma = tensorMean.ReshapeAsMatrix();
                     inputMinusMean = input.Subtract(matrixMean);
 
                     // calculate batch normalisation

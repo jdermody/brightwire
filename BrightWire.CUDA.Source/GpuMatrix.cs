@@ -613,7 +613,7 @@ namespace BrightWire.LinearAlgebra
         public IMatrix Multiply(IVector vector)
         {
             Debug.Assert(IsValid && vector.IsValid);
-            using (var column = vector.AsColumnMatrix())
+            using (var column = vector.ReshapeAsColumnMatrix())
                 return Multiply(column);
         }
 
@@ -659,19 +659,19 @@ namespace BrightWire.LinearAlgebra
             }
         }
 
-        public IVector AsVector()
+        public IVector ReshapeAsVector()
         {
             Debug.Assert(IsValid);
             return new GpuVector(_cuda, _data, false);
         }
 
-		public I3DTensor As3DTensor(int rows, int columns)
+		public I3DTensor ReshapeAs3DTensor(int rows, int columns)
 		{
 			Debug.Assert(IsValid && rows * columns == _rows);
 			return new Gpu3DTensor(_cuda, rows, columns, _columns, _data, false);
 		}
 
-		public I4DTensor As4DTensor(int rows, int columns, int depth)
+		public I4DTensor ReshapeAs4DTensor(int rows, int columns, int depth)
         {
 	        Debug.Assert(IsValid && rows * columns * depth == _rows);
             return new Gpu4DTensor(_cuda, rows, columns, depth, _columns, _data, false);

@@ -108,9 +108,9 @@ namespace BrightWire.LinearAlgebra
             return new Cpu4DTensor(ret);
         }
 
-		public IMatrix AsMatrix()
+		public IMatrix ReshapeAsMatrix()
 		{
-			var rows = _data.Select(t => t.AsVector().AsIndexable()).ToList();
+			var rows = _data.Select(t => t.ReshapeAsVector().AsIndexable()).ToList();
 			var first = rows.First();
 			return new CpuMatrix(DenseMatrix.Create(first.Count, Count, (i, j) => rows[j][i]));
 		}
@@ -127,9 +127,9 @@ namespace BrightWire.LinearAlgebra
 		    }
 	    }
 
-	    public IVector AsVector()
+	    public IVector ReshapeAsVector()
 	    {
-		    var vectorList = _data.Select(m => m.AsVector().AsIndexable()).ToArray();
+		    var vectorList = _data.Select(m => m.ReshapeAsVector().AsIndexable()).ToArray();
 		    var size = RowCount * ColumnCount * Depth;
 		    var ret = DenseVector.Create(Count * size, i => {
 			    var offset = i / size;
@@ -143,7 +143,7 @@ namespace BrightWire.LinearAlgebra
         {
             IVector ret = null;
             for (var i = 0; i < Count; i++) {
-                var tensorAsMatrix = GetTensorAt(i).AsMatrix();
+                var tensorAsMatrix = GetTensorAt(i).ReshapeAsMatrix();
                 var columnSums = tensorAsMatrix.ColumnSums();
                 if (ret == null)
                     ret = columnSums;

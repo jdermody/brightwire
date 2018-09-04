@@ -79,7 +79,7 @@ namespace BrightWire.Linear.Training
             using (var p1 = p0.Column(0))
             using (var p = p1.Sigmoid())
             using (var e0 = p.Subtract(_target))
-            using (var e = e0.AsRowMatrix())
+            using (var e = e0.ReshapeAsRowMatrix())
             using (var e2 = e.Multiply(_feature)) {
                 e2.Multiply(1f / _feature.RowCount);
                 var ret = e2.Row(0);

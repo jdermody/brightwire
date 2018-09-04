@@ -83,7 +83,7 @@ namespace BrightWire.LinearAlgebra
 	    }
 
 	    public IDeviceMemoryPtr Memory => _data;
-        public IMatrix AsMatrix() => new GpuMatrix(_cuda, _blockSize, _count, _data, false);
+        public IMatrix ReshapeAsMatrix() => new GpuMatrix(_cuda, _blockSize, _count, _data, false);
 	    public IReadOnlyList<FloatTensor> Data {
 		    get
 		    {
@@ -100,7 +100,7 @@ namespace BrightWire.LinearAlgebra
 			    }
 		    }
 	    }
-	    public IVector AsVector() => new GpuVector(_cuda, _data, false);
+	    public IVector ReshapeAsVector() => new GpuVector(_cuda, _data, false);
 
 	    public IEnumerable<I3DTensor> Tensors
 	    {
@@ -210,7 +210,7 @@ namespace BrightWire.LinearAlgebra
         {
             IVector ret = null;
             for (var i = 0; i < Count; i++) {
-                var tensorAsMatrix = GetTensorAt(i).AsMatrix();
+                var tensorAsMatrix = GetTensorAt(i).ReshapeAsMatrix();
                 var columnSums = tensorAsMatrix.ColumnSums();
                 if (ret == null)
                     ret = columnSums;

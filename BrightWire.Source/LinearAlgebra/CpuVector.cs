@@ -97,12 +97,12 @@ namespace BrightWire.LinearAlgebra
             _vector.MapIndexedInplace((i, v) => (v * coefficient1) - (other[i] * coefficient2));
         }
 
-        public IMatrix AsColumnMatrix()
+        public IMatrix ReshapeAsColumnMatrix()
         {
             return new CpuMatrix(DenseMatrix.Create(_vector.Count, 1, (x, y) => _vector[x]));
         }
 
-        public IMatrix AsRowMatrix()
+        public IMatrix ReshapeAsRowMatrix()
         {
             return new CpuMatrix(DenseMatrix.Create(1, _vector.Count, (x, y) => _vector[y]));
         }
@@ -338,34 +338,34 @@ namespace BrightWire.LinearAlgebra
             _vector.MapInplace(v => v + scalar);
         }
 
-        public IMatrix AsMatrix(int rows, int columns)
+        public IMatrix ReshapeAsMatrix(int rows, int columns)
         {
 	        Debug.Assert(rows * columns == _vector.Count);
             return new CpuMatrix(DenseMatrix.Build.Dense(rows, columns, _vector.ToArray()));
         }
 
-        public I3DTensor As3DTensor(int rows, int columns, int depth)
+        public I3DTensor ReshapeAs3DTensor(int rows, int columns, int depth)
         {
 	        Debug.Assert(rows * columns * depth == _vector.Count);
             if (depth > 1) {
 	            var slice = Split(depth);
-	            var matrixList = slice.Select(part => part.AsMatrix(rows, columns)).ToList();
+	            var matrixList = slice.Select(part => part.ReshapeAsMatrix(rows, columns)).ToList();
 	            return new Cpu3DTensor(matrixList);
             } else {
-                var matrix = AsMatrix(rows, columns);
+                var matrix = ReshapeAsMatrix(rows, columns);
                 return new Cpu3DTensor(new[] { matrix });
             }
         }
 
-	    public I4DTensor As4DTensor(int rows, int columns, int depth, int count)
+	    public I4DTensor ReshapeAs4DTensor(int rows, int columns, int depth, int count)
 	    {
 		    Debug.Assert(rows * columns * depth * count == _vector.Count);
 		    if (count > 1) {
 			    var slice = Split(count);
-			    var tensorList = slice.Select(part => part.As3DTensor(rows, columns, depth)).ToList();
+			    var tensorList = slice.Select(part => part.ReshapeAs3DTensor(rows, columns, depth)).ToList();
 			    return new Cpu4DTensor(tensorList);
 		    } else {
-			    var tensor = As3DTensor(rows, columns, depth);
+			    var tensor = ReshapeAs3DTensor(rows, columns, depth);
 			    return new Cpu4DTensor(new[] { tensor });
 		    }
 	    }
