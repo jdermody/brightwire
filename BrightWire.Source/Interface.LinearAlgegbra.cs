@@ -943,26 +943,28 @@ namespace BrightWire
         /// <param name="filterWidth">The pooling filter width</param>
         /// <param name="filterHeight">The pooling filter height</param>
         /// <param name="stride">The pooling stride</param>
-        /// <param name="saveIndices">True to save the index of each max item</param>
+        /// <param name="saveIndices">True to save the indices for a future reverse max pool operation</param>
         /// <returns>A max pooled tensor</returns>
         (I3DTensor Result, I3DTensor Indices) MaxPool(int filterWidth, int filterHeight, int stride, bool saveIndices);
 
-        /// <summary>
-        /// Reverses a max pooling operation
-        /// </summary>
-        /// <param name="outputRows">Input rows</param>
-        /// <param name="outputColumns">Input columns</param>
-        /// <param name="indices">A tensor that contains the indices of each maximum value that was found per filter</param>
-        I3DTensor ReverseMaxPool(I3DTensor indices, int outputRows, int outputColumns, int filterWidth, int filterHeight, int stride);
+	    /// <summary>
+	    /// Reverses a max pooling operation
+	    /// </summary>
+	    /// <param name="outputRows">Input rows</param>
+	    /// <param name="outputColumns">Input columns</param>
+	    /// <param name="indices">A tensor that contains the indices of each maximum value that was found per filter</param>
+	    /// <param name="filterWidth">Width of each filter</param>
+	    /// <param name="filterHeight">Height of each filter</param>
+	    /// <param name="stride">Filter stride</param>
+	    I3DTensor ReverseMaxPool(I3DTensor indices, int outputRows, int outputColumns, int filterWidth, int filterHeight, int stride);
 
         /// <summary>
         /// Reverses a im2col operation
         /// </summary>
         /// <param name="filter">The rotated filters</param>
-        /// <param name="inputHeight">Height of the input tensor</param>
-        /// <param name="inputWidth">Width of the input tensor</param>
-        /// <param name="inputDepth">Depth of the input tensor</param>
-        /// <param name="padding">Input padding</param>
+        /// <param name="outputRows">Rows of the input tensor</param>
+        /// <param name="outputColumns">Columns of the input tensor</param>
+        /// <param name="outputDepth">Depth of the input tensor</param>
         /// <param name="filterHeight">Height of each filter</param>
         /// <param name="filterWidth">Width of each filter</param>
         /// <param name="stride">Filter stride</param>
@@ -1076,22 +1078,26 @@ namespace BrightWire
         /// <returns>A new tensor with the padding removed</returns>
         I4DTensor RemovePadding(int padding);
 
-        /// <summary>
-        /// Applies a max pooling operation to the current tensor
-        /// </summary>
-        /// <param name="filterWidth">Max pool filter width</param>
-        /// <param name="filterHeight">Max pool filter height</param>
-        /// <param name="stride">Filter stride</param>
-        (I4DTensor Result, I4DTensor Indices) MaxPool(int filterWidth, int filterHeight, int stride, bool saveIndices);
+	    /// <summary>
+	    /// Applies a max pooling operation to the current tensor
+	    /// </summary>
+	    /// <param name="filterWidth">Max pool filter width</param>
+	    /// <param name="filterHeight">Max pool filter height</param>
+	    /// <param name="stride">Filter stride</param>
+	    /// <param name="saveIndices">True to save the indices for a future reverse pool operation</param>
+	    (I4DTensor Result, I4DTensor Indices) MaxPool(int filterWidth, int filterHeight, int stride, bool saveIndices);
 
-        /// <summary>
-        /// Reverses a max pool operation
-        /// </summary>
-        /// <param name="rows">Input tensor rows</param>
-        /// <param name="columns">Input tensor columns</param>
-        /// <param name="indices">Tensor of indices from MaxPool operation</param>
-        /// <returns></returns>
-        I4DTensor ReverseMaxPool(I4DTensor indices, int outputRows, int outputColumns, int filterWidth, int filterHeight, int stride);
+	    /// <summary>
+	    /// Reverses a max pool operation
+	    /// </summary>
+	    /// <param name="outputRows">Input tensor rows</param>
+	    /// <param name="outputColumns">Input tensor columns</param>
+	    /// <param name="indices">Tensor of indices from MaxPool operation</param>
+	    /// <param name="filterWidth"></param>
+	    /// <param name="filterHeight"></param>
+	    /// <param name="stride"></param>
+	    /// <returns></returns>
+	    I4DTensor ReverseMaxPool(I4DTensor indices, int outputRows, int outputColumns, int filterWidth, int filterHeight, int stride);
 
         /// <summary>
         /// Applies the convolutional filter to each 3D tensor, producing a 3D tensor which can be multipled by the filter matrix
@@ -1106,10 +1112,9 @@ namespace BrightWire
         /// Reverse a previously applied im2Col
         /// </summary>
         /// <param name="filter">List of filters that have been rotated 180 degrees</param>
-        /// <param name="inputHeight">Height of the input 4D tensor</param>
-        /// <param name="inputWidth">Width of the input 4D tensor</param>
-        /// <param name="inputDepth">Depth of the input 4D tensor</param>
-        /// <param name="padding">Amount of padding that was applied to the input 4D tensor before im2col</param>
+        /// <param name="outputRows">Rows of the input 4D tensor</param>
+        /// <param name="outputColumns">Columns of the input 4D tensor</param>
+        /// <param name="outputDepth">Depth of the input 4D tensor</param>
         /// <param name="filterWidth">Filter width</param>
         /// <param name="filterHeight">Filter height</param>
         /// <param name="stride">Filter stride</param>

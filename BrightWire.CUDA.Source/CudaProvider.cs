@@ -455,10 +455,6 @@ namespace BrightWire.LinearAlgebra
 						_InvokeWithSharedMemory(_findMinAndMax, size, BLOCK_DIM2, ptr.DevicePointer, size, minBlock.DevicePointer, maxBlock.DevicePointer);
 						if (ptr != a)
 							ptr.Free();
-						//var minTest = new float[bufferSize];
-						//var maxText = new float[bufferSize];
-						//minBlock.CopyToHost(minTest);
-						//maxBlock.CopyToHost(maxText);
 						size = bufferSize * 2;
 						ptr = Allocate(size);
 						ptr.DeviceVariable.CopyToDevice(minBlock.DeviceVariable, 0, 0, bufferSize * FLOAT_SIZE);
@@ -471,6 +467,8 @@ namespace BrightWire.LinearAlgebra
 				}
 				var data = new float[size];
 				ptr.CopyToHost(data);
+				if (ptr != a)
+					ptr.Free();
 				float min = float.MaxValue, max = float.MinValue;
 				for (var i = 0; i < size; i++) {
 					var val = data[i];
@@ -489,7 +487,7 @@ namespace BrightWire.LinearAlgebra
 			var ptr = a;
 			while (size > BLOCK_DIM2) {
 				var bufferSize = (size / BLOCK_DIM2) + 1;
-				var sumBlock = Allocate(bufferSize);
+				var sumBlock = Allocate(bufferSize, true);
 				_InvokeWithSharedMemory(_findSum, size, BLOCK_DIM2, ptr.DevicePointer, size, sumBlock.DevicePointer);
 				if (ptr != a)
 					ptr.Free();
@@ -510,7 +508,7 @@ namespace BrightWire.LinearAlgebra
 				var ptr = a;
 				while (size > BLOCK_DIM2) {
 					var bufferSize = (size / BLOCK_DIM2) + 1;
-					var sumBlock = Allocate(bufferSize);
+					var sumBlock = Allocate(bufferSize, true);
 					_InvokeWithSharedMemory(_findStdDev, size, BLOCK_DIM2, ptr.DevicePointer, size, mean, sumBlock.DevicePointer);
 					if (ptr != a)
 						ptr.Free();
@@ -642,7 +640,7 @@ namespace BrightWire.LinearAlgebra
 		{
 			var outputRows = rows + padding * 2;
 			var outputColumns = columns + padding * 2;
-			var ret = Allocate(outputRows * outputColumns * depth * count);
+			var ret = Allocate(outputRows * outputColumns * depth * count, true);
 
 			_Invoke(_tensorAddPadding, ret.Size,
 				ret.Size,
@@ -717,8 +715,8 @@ namespace BrightWire.LinearAlgebra
 			var outputColumns = (columns - filterWidth) / stride + 1;
 			var outputRows = (rows - filterHeight) / stride + 1;
 			var outputMatrixSize = outputColumns * outputRows;
-			var ret = Allocate(outputMatrixSize * depth * count);
-			var indices = saveIndices ? Allocate(outputMatrixSize * depth * count) : null;
+			var ret = Allocate(outputMatrixSize * depth * count, true);
+			var indices = saveIndices ? Allocate(outputMatrixSize * depth * count, true) : null;
 			var convolutions = ConvolutionHelper.Default(columns, rows, filterWidth, filterHeight, stride);
 			var size = convolutions.Count * depth * count;
 
@@ -749,7 +747,7 @@ namespace BrightWire.LinearAlgebra
 
 		internal IDeviceMemoryPtr TensorReverseMaxPool(IDeviceMemoryPtr tensor, IDeviceMemoryPtr indices, int rows, int columns, int depth, int count, int outputRows, int outputColumns, int filterWidth, int filterHeight, int stride)
 		{
-			var ret = Allocate(outputRows * outputColumns * depth * count);
+			var ret = Allocate(outputRows * outputColumns * depth * count, true);
 			var size = rows * columns * depth * count;
 
 			_Invoke(_tensorReverseMaxPool, size,

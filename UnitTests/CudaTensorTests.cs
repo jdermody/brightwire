@@ -266,6 +266,26 @@ namespace UnitTests
 			_TensorMaxPool(8, 8, 1, 1, 2, 1, true, true);
 		}
 
+		[TestMethod]
+		public void TensorMaxPoolBlankIrregular()
+		{
+			const int rows = 7, columns = 7, depth = 8, filterWidth = 2, filterHeight = 2, stride = 2;
+			var cpuTensor = _cpu.Create3DTensor(Enumerable.Range(0, depth).Select(i => _cpu.CreateMatrix(rows, columns, (j, k) => 0)).ToList()).AsIndexable();
+
+			var (cpuMaxPool, cpuIndices) = cpuTensor.MaxPool(filterWidth, filterHeight, stride, true);
+			var cpuReverseMaxPool = cpuMaxPool.ReverseMaxPool(cpuIndices, rows, columns, filterWidth, filterHeight, stride).AsIndexable();
+			_AssertValuesAreInSamePlace(cpuReverseMaxPool, cpuTensor);
+
+			using (var gpuTensor = _cuda.Create3DTensor(cpuTensor.Data)) {
+				var (gpuMaxPool, gpuIndices) = gpuTensor.MaxPool(filterWidth, filterHeight, stride, true);
+				FloatingPointHelper.AssertEqual(gpuMaxPool.AsIndexable(), cpuMaxPool.AsIndexable());
+				FloatingPointHelper.AssertEqual(gpuIndices.AsIndexable(), cpuIndices.AsIndexable());
+				using (var gpuReverseMaxPool = gpuMaxPool.ReverseMaxPool(gpuIndices, rows, columns, filterWidth, filterHeight, stride)) {
+					FloatingPointHelper.AssertEqual(gpuReverseMaxPool.AsIndexable(), cpuReverseMaxPool);
+				}
+			}
+		}
+
 		void _TensorMaxPool(int rows, int columns, int depth, int filterWidth, int filterHeight, int stride, bool randomInit, bool calculateIndices)
 		{
 			var normalDistribution = new Normal(0, 1);

@@ -158,26 +158,6 @@ namespace BrightWire.Source.Models.DataTable
         }
 
         /// <summary>
-        /// Returns the non classification label column names
-        /// </summary>
-        //public IEnumerable<string> ColumnNames
-        //{
-        //    get
-        //    {
-        //        foreach (var column in Columns) {
-        //            if(!column.IsTargetColumn) {
-        //                if (column.IsContinuous)
-        //                    yield return column.Name;
-        //                else {
-        //                    for (var i = 0; i < column.Size; i++)
-        //                        yield return column.Name + ":" + ReverseColumnMap[i];
-        //                }
-        //            }
-        //        }
-        //    }
-        //}
-
-        /// <summary>
         /// Returns the classification label for the corresponding column/vector indices
         /// </summary>
         /// <param name="columnIndex">The data table column index</param>

@@ -179,16 +179,6 @@ namespace BrightWire
         /// Create a 3D tensor
         /// </summary>
         /// <param name="lap"></param>
-        /// <param name="tensor">An indexable 3D tensor to use as a source</param>
-        //public static I3DTensor Create3DTensor(this ILinearAlgebraProvider lap, IIndexable3DTensor tensor)
-        //{
-        //    return lap.Create3DTensor(tensor.Matrix.Select(m => CreateMatrix(lap, m)).ToList());
-        //}
-
-        /// <summary>
-        /// Create a 3D tensor
-        /// </summary>
-        /// <param name="lap"></param>
         /// <param name="tensor">The serialised representation of the 3D tensor</param>
         /// <returns></returns>
         public static I3DTensor Create3DTensor(this ILinearAlgebraProvider lap, FloatTensor tensor)
@@ -202,6 +192,7 @@ namespace BrightWire
 	    /// <summary>
 	    /// Creates a 3D tensor from a list of matrices
 	    /// </summary>
+	    /// <param name="lap"></param>
 	    /// <param name="matrices">List of matrices</param>
 	    /// <returns></returns>
 	    public static I3DTensor Create3DTensor(this ILinearAlgebraProvider lap, FloatMatrix[] matrices)

@@ -35,13 +35,13 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 var tensor = errorMatrix.ReshapeAs4DTensor(_outputRows, _outputColumns, _depth);
                 var output = tensor.ReverseMaxPool(_indices, _inputRows, _inputColumns, _filterWidth, _filterHeight, _stride);
 
-	            //output.AsMatrix().Constrain(-1f, 1f);
+				//output.AsMatrix().Constrain(-1f, 1f);
 
 //#if DEBUG
-//	            Debug.Assert(output.AsVector().IsEntirelyFinite());
+//				Debug.Assert(output.ReshapeAsVector().IsEntirelyFinite());
 //#endif
 
-                return new Tensor4DGraphData(output.ReshapeAsMatrix(), output.RowCount, output.ColumnCount, output.Depth);
+				return new Tensor4DGraphData(output.ReshapeAsMatrix(), output.RowCount, output.ColumnCount, output.Depth);
             }
         }
         int _filterWidth, _filterHeight, _stride;
@@ -59,12 +59,12 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             var tensor = input.GetMatrix().ReshapeAs4DTensor(input.Rows, input.Columns, input.Depth);
             var (output, index) = tensor.MaxPool(_filterWidth, _filterHeight, _stride, true);
 
-			//#if DEBUG
-	  //      Debug.Assert(output.AsVector().IsEntirelyFinite());
-	  //      Debug.Assert(index.AsVector().IsEntirelyFinite());
-			//#endif
+//#if DEBUG
+//			Debug.Assert(output.ReshapeAsVector().IsEntirelyFinite());
+//			Debug.Assert(index.ReshapeAsVector().IsEntirelyFinite());
+//#endif
 
-            var graphData = new Tensor4DGraphData(output);
+			var graphData = new Tensor4DGraphData(output);
             _AddNextGraphAction(context, graphData, () => new Backpropagation(this, index, tensor.ColumnCount, tensor.RowCount, output.ColumnCount, output.RowCount, output.Depth, _filterWidth, _filterHeight, _stride));
         }
 

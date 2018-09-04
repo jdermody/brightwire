@@ -47,7 +47,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 					var biasUpdate = tensor.ColumnSums();
 
 //#if DEBUG
-//					Debug.Assert(weightUpdate.AsVector().IsEntirelyFinite());
+//					Debug.Assert(weightUpdate.ReshapeAsVector().IsEntirelyFinite());
 //#endif
 
 					context.LearningContext.StoreUpdate(_source, weightUpdate, err => _source.Update(err, context.LearningContext));
@@ -77,7 +77,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 									delta = delta2;
 								}
 //#if DEBUG
-//								Debug.Assert(delta.AsVector().IsEntirelyFinite());
+//								Debug.Assert(delta.ReshapeAsVector().IsEntirelyFinite());
 //#endif
 								return new Tensor4DGraphData(delta.ReshapeAsMatrix(), _inputHeight, _inputWidth, inputDepth);
 							}
@@ -153,7 +153,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 			Debug.Assert(outputTensor.Depth == FilterCount && outputTensor.Count == tensor.Count);
 
 //#if DEBUG
-//			Debug.Assert(outputTensor.AsVector().IsEntirelyFinite());
+//			Debug.Assert(outputTensor.ReshapeAsVector().IsEntirelyFinite());
 //#endif
 
 			var graphData = new Tensor4DGraphData(outputTensor);
