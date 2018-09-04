@@ -104,6 +104,7 @@
     <Compile Include="DataTableTests.cs" />
     <Compile Include="DimensionalityReductionTests.cs" />
     <Compile Include="DataSourceTests.cs" />
+    <Compile Include="GraphActionTests.cs" />
     <Compile Include="GraphOperationTests.cs" />
     <Compile Include="Helper\FloatingPointHelper.cs" />
     <Compile Include="Helper\TestingContext.cs" />
