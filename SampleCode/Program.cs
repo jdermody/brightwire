@@ -161,61 +161,6 @@ namespace BrightWire.SampleCode
 			//MultiLabelSingleClassifier(DataBasePath + @"emotions\emotions.arff");
 			//MultiLabelMultiClassifiers(DataBasePath + @"emotions\emotions.arff");
 
-			//      var lap = BrightWireProvider.CreateLinearAlgebra();           
-			//      GraphFactory graph = new GraphFactory(lap);
-			//      var context = graph.CreateExecutionContext(); 
-
-			//      //Indicamos que el algoritmo de backpropagation será el adamoptimizar
-			//      graph.CurrentPropertySet
-			//	.Use(graph.Adam());
-
-			//      //rate de entrenamiento
-			//      const float TRAINING_RATE = 0.5f;
-
-			//      //Creamos los datos (XOR clásico)
-
-			//var lista = new[] {
-			//	FloatVector.Create(new[] {0f, 0, 0, 0}),
-			//	FloatVector.Create(new[] {0f, 0, 1, 1}),
-			//	FloatVector.Create(new[] {0f, 1, 0, 1}),
-			//	FloatVector.Create(new[] {0f, 1, 1, 0}),
-			//	FloatVector.Create(new[] {1f, 0, 0, 1}),
-			//	FloatVector.Create(new[] {1f, 0, 1, 1}),
-			//	FloatVector.Create(new[] {1f, 1, 0, 1}),
-			//	FloatVector.Create(new[] {1f, 1, 1, 0}),
-			//};
-
-			//      Datos d = new Datos(lap, lista);                                                                         
-
-			//      //Cçreamos el motor de entrenamiento, donde se le indican los datos a entrenar el training rate y el tamaño del batch
-			//      BrightWire.IGraphTrainingEngine engine = graph.CreateTrainingEngine(d, TRAINING_RATE, 128);            
-			//      //esto sirve para ajustar el training rate cada cierto número de batchs, no lo uso ahora mismo.
-			//      engine.LearningContext.ScheduleLearningRate(100, TRAINING_RATE / 2);                        
-
-			//      //métrica de error o función de pérdida, cuadrática (mse supongo en el estándar de keras)
-			//      var errorMetric = graph.ErrorMetric.Quadratic; 
-
-			//      // create the network
-			//      graph.Connect(engine)
-			//          .AddFeedForward(outputSize: 4)  //tipo de capa
-			//          .Add(graph.ReluActivation()) // tipo de activación.  
-			//          .AddFeedForward(outputSize: 1)   //última capa, indicamos el tamaño de salida el del trainingdata
-			//          .Add(graph.ReluActivation())
-			//          .AddBackpropagation(errorMetric)
-			//      ;            
-
-			//      // train the network for twenty iterations, saving the model on each improvement                        
-			//      for (int i = 0; i < 1000; i++)
-			//      { 
-			//          Console.WriteLine (engine.Train(context).ToString()); //la salida de esto parece ser el error total (loss)                                            
-			//      }
-
-
-			//      var resultado = engine.Execute(new float[] { 1f, 0f, 1f });  //probamos a ejecutar a ver cómo nos ha quedado.
-			//      Console.WriteLine(resultado.Output[0].ToString());
-			//      resultado = engine.Execute(new float[] { 1f, 1f, 1f });
-			//	Console.WriteLine(resultado.Output[0].ToString());
-
 
 			//using (var lap = BrightWireProvider.CreateLinearAlgebra()) {
 			//	var rand = new Random();
@@ -311,66 +256,66 @@ namespace BrightWire.SampleCode
 			//	});
 			//}
 
-			var distribution = new Normal(0, 1);
-			int inputDepth = 3, filterWidth = 2, filterHeight = 2, filterCount = 5, inputWidth = 4, inputHeight = 4, stride = 2, count = 6;
-			var _cpu = BrightWireProvider.CreateLinearAlgebra();
-			using (var _cuda = BrightWireGpuProvider.CreateLinearAlgebra()) {
-				var cpuTensor = _cpu.Create4DTensor(Enumerable.Range(0, count).Select(z =>
-					_cpu.Create3DTensor(Enumerable.Range(0, inputDepth).Select(i =>
-						_cpu.CreateMatrix(inputWidth, inputHeight, (j, k) =>
-							//Convert.ToSingle((i + 1) * (j + 1) * (k + 1) * (z + 1)))
-							Convert.ToSingle(distribution.Sample()))
-						).ToList()
-					)
-				).ToList());
-				using (var gpuTensor = _cuda.Create4DTensor(cpuTensor.Data)) //{
-																			 //var cpuPadding = cpuTensor.AddPadding(2);
-																			 //var gpuPadding = gpuTensor.AddPadding(2);
-																			 //var padding = _WriteComparison(cpuPadding.AsIndexable(), gpuPadding.AsIndexable());
+			//var distribution = new Normal(0, 1);
+			//int inputDepth = 3, filterWidth = 2, filterHeight = 2, filterCount = 5, inputWidth = 4, inputHeight = 4, stride = 2, count = 6;
+			//var _cpu = BrightWireProvider.CreateLinearAlgebra();
+			//using (var _cuda = BrightWireGpuProvider.CreateLinearAlgebra()) {
+			//	var cpuTensor = _cpu.Create4DTensor(Enumerable.Range(0, count).Select(z =>
+			//		_cpu.Create3DTensor(Enumerable.Range(0, inputDepth).Select(i =>
+			//			_cpu.CreateMatrix(inputWidth, inputHeight, (j, k) =>
+			//				//Convert.ToSingle((i + 1) * (j + 1) * (k + 1) * (z + 1)))
+			//				Convert.ToSingle(distribution.Sample()))
+			//			).ToList()
+			//		)
+			//	).ToList());
+			//	using (var gpuTensor = _cuda.Create4DTensor(cpuTensor.Data)) //{
+			//																 //var cpuPadding = cpuTensor.AddPadding(2);
+			//																 //var gpuPadding = gpuTensor.AddPadding(2);
+			//																 //var padding = _WriteComparison(cpuPadding.AsIndexable(), gpuPadding.AsIndexable());
 
-				//var cpuPadding2 = cpuPadding.RemovePadding(2);
-				//var gpuPadding2 = gpuPadding.RemovePadding(2);
-				//var padding2 = _WriteComparison(cpuPadding2.AsIndexable(), gpuPadding2.AsIndexable());
+			//	//var cpuPadding2 = cpuPadding.RemovePadding(2);
+			//	//var gpuPadding2 = gpuPadding.RemovePadding(2);
+			//	//var padding2 = _WriteComparison(cpuPadding2.AsIndexable(), gpuPadding2.AsIndexable());
 
-				//	var cpuMaxPool = cpuTensor.MaxPool(filterWidth, filterHeight, stride, true);
-				//	var gpuMaxPool = gpuTensor.MaxPool(filterWidth, filterHeight, stride, true);
-				//	var maxPool = _WriteComparison(cpuMaxPool.Result.AsIndexable(), gpuMaxPool.Result.AsIndexable());
-				//	var indices = _WriteComparison(cpuMaxPool.Indices.AsIndexable(), gpuMaxPool.Indices.AsIndexable());
+			//	//	var cpuMaxPool = cpuTensor.MaxPool(filterWidth, filterHeight, stride, true);
+			//	//	var gpuMaxPool = gpuTensor.MaxPool(filterWidth, filterHeight, stride, true);
+			//	//	var maxPool = _WriteComparison(cpuMaxPool.Result.AsIndexable(), gpuMaxPool.Result.AsIndexable());
+			//	//	var indices = _WriteComparison(cpuMaxPool.Indices.AsIndexable(), gpuMaxPool.Indices.AsIndexable());
 
-				//	var cpuReverseMaxPool = cpuMaxPool.Result.ReverseMaxPool(cpuMaxPool.Indices, cpuTensor.RowCount, cpuTensor.ColumnCount, filterWidth, filterHeight, stride);
-				//	var gpuReverseMaxPool = gpuMaxPool.Result.ReverseMaxPool(gpuMaxPool.Indices, gpuTensor.RowCount, gpuTensor.ColumnCount, filterWidth, filterHeight, stride);
-				//	var reverseMaxPool = _WriteComparison(cpuReverseMaxPool.AsIndexable(), gpuReverseMaxPool.AsIndexable());
-				//}
-				using (var cpuInput = cpuTensor.Im2Col(filterWidth, filterHeight, stride))
-				using (var gpuInput = gpuTensor.Im2Col(filterWidth, filterHeight, stride)) {
-					var im2Col = cpuInput.AsIndexable();
-					var im2ColGpu = gpuInput.AsIndexable();
-					var matrix = _WriteComparison(im2Col, im2ColGpu);
+			//	//	var cpuReverseMaxPool = cpuMaxPool.Result.ReverseMaxPool(cpuMaxPool.Indices, cpuTensor.RowCount, cpuTensor.ColumnCount, filterWidth, filterHeight, stride);
+			//	//	var gpuReverseMaxPool = gpuMaxPool.Result.ReverseMaxPool(gpuMaxPool.Indices, gpuTensor.RowCount, gpuTensor.ColumnCount, filterWidth, filterHeight, stride);
+			//	//	var reverseMaxPool = _WriteComparison(cpuReverseMaxPool.AsIndexable(), gpuReverseMaxPool.AsIndexable());
+			//	//}
+			//	using (var cpuInput = cpuTensor.Im2Col(filterWidth, filterHeight, stride))
+			//	using (var gpuInput = gpuTensor.Im2Col(filterWidth, filterHeight, stride)) {
+			//		var im2Col = cpuInput.AsIndexable();
+			//		var im2ColGpu = gpuInput.AsIndexable();
+			//		var matrix = _WriteComparison(im2Col, im2ColGpu);
 
-					var normalDistribution = new Normal(0, 1);
-					var cpuFilter = _cpu.CreateMatrix(inputDepth * filterWidth * filterHeight, filterCount, (i, j) => (float)normalDistribution.Sample());
-					var output = im2Col.Multiply(cpuFilter);
+			//		var normalDistribution = new Normal(0, 1);
+			//		var cpuFilter = _cpu.CreateMatrix(inputDepth * filterWidth * filterHeight, filterCount, (i, j) => (float)normalDistribution.Sample());
+			//		var output = im2Col.Multiply(cpuFilter);
 
-					var newWidth = ((inputWidth - filterWidth) / stride) + 1;
-					var newHeight = ((inputHeight - filterHeight) / stride) + 1;
-					var outputTensor = output.AsVector().As4DTensor(newHeight, newWidth, filterCount, count);
+			//		var newWidth = ((inputWidth - filterWidth) / stride) + 1;
+			//		var newHeight = ((inputHeight - filterHeight) / stride) + 1;
+			//		var outputTensor = output.ReshapeAsVector().ReshapeAs4DTensor(newHeight, newWidth, filterCount, count);
 
-					//var matrixList = new List<IMatrix>();
-					//var newWidth = ((inputWidth - filterWidth) / stride) + 1;
-					//var newHeight = ((inputHeight - filterHeight) / stride) + 1;
-					//for (var i = 0; i < output.ColumnCount; i++)
-					//	matrixList.Add(output.Column(i).AsMatrix(newWidth, newHeight));
-					//var outputTensor = _cpu.Create3DTensor(matrixList);
+			//		//var matrixList = new List<IMatrix>();
+			//		//var newWidth = ((inputWidth - filterWidth) / stride) + 1;
+			//		//var newHeight = ((inputHeight - filterHeight) / stride) + 1;
+			//		//for (var i = 0; i < output.ColumnCount; i++)
+			//		//	matrixList.Add(output.Column(i).AsMatrix(newWidth, newHeight));
+			//		//var outputTensor = _cpu.Create3DTensor(matrixList);
 
-					using(var gpuFilter = _cuda.CreateMatrix(cpuFilter.Data))
-					using (var gpuOutputTensor = _cuda.Create4DTensor(outputTensor.Data)) {
-						var reverseIm2Col = outputTensor.ReverseIm2Col(cpuFilter, inputHeight, inputWidth, inputDepth, filterWidth, filterHeight, stride);
-						using (var gpuReverseIm2Col = gpuOutputTensor.ReverseIm2Col(gpuFilter, inputHeight, inputWidth, inputDepth, filterWidth, filterHeight, stride)) {
-							var comparison = _WriteComparison(reverseIm2Col.AsIndexable(), gpuReverseIm2Col.AsIndexable());
-						}
-					}
-				}
-			}
+			//		using(var gpuFilter = _cuda.CreateMatrix(cpuFilter.Data))
+			//		using (var gpuOutputTensor = _cuda.Create4DTensor(outputTensor.Data)) {
+			//			var reverseIm2Col = outputTensor.ReverseIm2Col(cpuFilter, inputHeight, inputWidth, inputDepth, filterWidth, filterHeight, stride);
+			//			using (var gpuReverseIm2Col = gpuOutputTensor.ReverseIm2Col(gpuFilter, inputHeight, inputWidth, inputDepth, filterWidth, filterHeight, stride)) {
+			//				var comparison = _WriteComparison(reverseIm2Col.AsIndexable(), gpuReverseIm2Col.AsIndexable());
+			//			}
+			//		}
+			//	}
+			//}
 			//var matrix = _TensorReverseIm2Col(2, 2, 2, 2, 1, 4, 4);
 		}
 
