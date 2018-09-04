@@ -16,14 +16,6 @@ namespace BrightWire.LinearAlgebra
     {
         readonly Cpu3DTensor[] _data;
 
-	    //public Cpu4DTensor(int rows, int columns, int depth, int count)
-     //   {
-     //       RowCount = rows;
-     //       ColumnCount = columns;
-     //       Depth = depth;
-     //       _data = Enumerable.Range(0, count).Select(i => new Cpu3DTensor(rows, columns, depth)).ToArray();
-     //   }
-
         public Cpu4DTensor(IReadOnlyList<I3DTensor> tensorList)
         {
             var first = tensorList.First();
@@ -33,16 +25,6 @@ namespace BrightWire.LinearAlgebra
             Depth = first.Depth;
             _data = tensorList.Cast<Cpu3DTensor>().ToArray();
         }
-
-        //public Cpu4DTensor(IReadOnlyList<IReadOnlyList<IMatrix>> tensorList)
-        //{
-        //    var first = tensorList.First();
-        //    var firstMatrix = first.First();
-        //    RowCount = firstMatrix.RowCount;
-        //    ColumnCount = firstMatrix.ColumnCount;
-        //    Depth = first.Count;
-        //    _data = tensorList.Select(d => new Cpu3DTensor(d)).ToArray();
-        //}
 
         public int RowCount { get; }
 	    public int ColumnCount { get; }

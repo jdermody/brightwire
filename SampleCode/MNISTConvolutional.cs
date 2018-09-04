@@ -23,8 +23,8 @@ namespace BrightWire.SampleCode
                 var graph = new GraphFactory(lap);
 
                 Console.Write("Loading training data...");
-                var trainingData = _BuildTensors(graph, null, Mnist.Load(dataFilesPath + "train-labels.idx1-ubyte", dataFilesPath + "train-images.idx3-ubyte").Where(d => d.Label == 0 || d.Label == 1).ToList());
-                var testData = _BuildTensors(graph, trainingData, Mnist.Load(dataFilesPath + "t10k-labels.idx1-ubyte", dataFilesPath + "t10k-images.idx3-ubyte").Where(d => d.Label == 0 || d.Label == 1).ToList());
+                var trainingData = _BuildTensors(graph, null, Mnist.Load(dataFilesPath + "train-labels.idx1-ubyte", dataFilesPath + "train-images.idx3-ubyte")/*.Where(d => d.Label == 0 || d.Label == 1).ToList()*/);
+                var testData = _BuildTensors(graph, trainingData, Mnist.Load(dataFilesPath + "t10k-labels.idx1-ubyte", dataFilesPath + "t10k-images.idx3-ubyte")/*.Where(d => d.Label == 0 || d.Label == 1).ToList()*/);
                 Console.WriteLine($"done - {trainingData.RowCount} training images and {testData.RowCount} test images loaded");
 
                 // one hot encoding uses the index of the output vector's maximum value as the classification label
@@ -48,19 +48,19 @@ namespace BrightWire.SampleCode
                     }
                 } else {
                     graph.Connect(engine)
-                        .AddConvolutional(filterCount: 8, padding: 2, filterWidth: 5, filterHeight: 5, stride: 1, shouldBackpropagate: false, name:"c1")
-                        .Add(graph.LeakyReluActivation())
-                        .AddMaxPooling(filterWidth: 2, filterHeight: 2, stride: 2)
-                        .AddConvolutional(filterCount: 12, padding: 2, filterWidth: 5, filterHeight: 5, stride: 1, shouldBackpropagate: true, name:"c2")
-                        .Add(graph.LeakyReluActivation())
-                        .AddMaxPooling(filterWidth: 2, filterHeight: 2, stride: 2)
-                        .Transpose()
-                        .AddFeedForward(HIDDEN_LAYER_SIZE)
-                        .Add(graph.LeakyReluActivation())
-                        .AddDropOut(dropOutPercentage: 0.5f)
-                        .AddFeedForward(trainingData.OutputSize)
-                        .Add(graph.SoftMaxActivation())
-                        .AddBackpropagation(errorMetric)
+	                    .AddConvolutional(filterCount: 16, padding: 2, filterWidth: 6, filterHeight: 6, stride: 2, shouldBackpropagate: false)
+	                    .Add(graph.LeakyReluActivation())
+	                    //.AddMaxPooling(filterWidth: 2, filterHeight: 2, stride: 2)
+	                    .AddConvolutional(filterCount: 32, padding: 2, filterWidth: 6, filterHeight: 6, stride: 2)
+	                    .Add(graph.LeakyReluActivation())
+	                    //.AddMaxPooling(filterWidth: 2, filterHeight: 2, stride: 2)
+	                    .Transpose()
+	                    .AddFeedForward(HIDDEN_LAYER_SIZE)
+	                    .Add(graph.LeakyReluActivation())
+	                    .AddDropOut(dropOutPercentage: 0.5f)
+	                    .AddFeedForward(trainingData.OutputSize)
+	                    .Add(graph.SoftMaxActivation())
+	                    .AddBackpropagation(errorMetric)
                     ;
                 }
 

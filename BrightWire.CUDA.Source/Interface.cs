@@ -21,8 +21,6 @@ namespace BrightWire
 
 	interface IHaveDeviceMemory
 	{
-		int BlockSize { get; }
-		CudaDeviceVariable<float> CudaDeviceVariable { get; }
 		IDeviceMemoryPtr Memory { get; }
 	}
 }

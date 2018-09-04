@@ -1,5 +1,6 @@
 ﻿using BrightWire.ExecutionGraph.Helper;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 
 namespace BrightWire.ExecutionGraph.Node.Layer
@@ -33,6 +34,13 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 	            var errorMatrix = errorSignal.GetMatrix();
                 var tensor = errorMatrix.As4DTensor(_outputRows, _outputColumns, _depth);
                 var output = tensor.ReverseMaxPool(_indices, _inputRows, _inputColumns, _filterWidth, _filterHeight, _stride);
+
+	            //output.AsMatrix().Constrain(-1f, 1f);
+
+//#if DEBUG
+//	            Debug.Assert(output.AsVector().IsEntirelyFinite());
+//#endif
+
                 return new Tensor4DGraphData(output.AsMatrix(), output.RowCount, output.ColumnCount, output.Depth);
             }
         }
@@ -50,6 +58,11 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             var input = context.Data;
             var tensor = input.GetMatrix().As4DTensor(input.Rows, input.Columns, input.Depth);
             var (output, index) = tensor.MaxPool(_filterWidth, _filterHeight, _stride, true);
+
+			//#if DEBUG
+	  //      Debug.Assert(output.AsVector().IsEntirelyFinite());
+	  //      Debug.Assert(index.AsVector().IsEntirelyFinite());
+			//#endif
 
             var graphData = new Tensor4DGraphData(output);
             _AddNextGraphAction(context, graphData, () => new Backpropagation(this, index, tensor.ColumnCount, tensor.RowCount, output.ColumnCount, output.RowCount, output.Depth, _filterWidth, _filterHeight, _stride));

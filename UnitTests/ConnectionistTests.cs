@@ -75,6 +75,42 @@ namespace UnitTests
             }
             var networkGraph = engine.Graph;
             var executionEngine = graph.CreateEngine(networkGraph);
+	        var results = executionEngine.Execute(dataTable.GetRow(0).GetField<FloatVector>(0).Data);
         }
+
+	    [TestMethod]
+	    public void TestRecurrent()
+	    {
+            var data = BinaryIntegers.Addition(100, false).Split(0);
+		    var graph = new GraphFactory(_lap);
+		    var errorMetric = graph.ErrorMetric.BinaryClassification;
+		    graph.CurrentPropertySet
+			    .Use(graph.GradientDescent.Adam)
+			    .Use(graph.GaussianWeightInitialisation(false, 0.1f, GaussianVarianceCalibration.SquareRoot2N));
+
+		    // create the engine
+		    var trainingData = graph.CreateDataSource(data.Training);
+		    var testData = trainingData.CloneWith(data.Test);
+		    var engine = graph.CreateTrainingEngine(trainingData, learningRate: 0.01f, batchSize: 16);
+
+		    // build the network
+		    const int HIDDEN_LAYER_SIZE = 32, TRAINING_ITERATIONS = 5;
+		    var memory = new float[HIDDEN_LAYER_SIZE];
+		    var network = graph.Connect(engine)
+			    .AddSimpleRecurrent(graph.ReluActivation(), memory)
+			    .AddFeedForward(engine.DataSource.OutputSize)
+			    .Add(graph.ReluActivation())
+			    .AddBackpropagationThroughTime(errorMetric)
+		    ;
+
+			// train the network for twenty iterations, saving the model on each improvement
+			BrightWire.Models.ExecutionGraph bestGraph = null;
+		    engine.Train(TRAINING_ITERATIONS, testData, errorMetric, bn => bestGraph = bn.Graph);
+
+		    // export the graph and verify it against some unseen integers on the best model
+		    var executionEngine = graph.CreateEngine(bestGraph ?? engine.Graph);
+		    var testData2 = graph.CreateDataSource(BinaryIntegers.Addition(8, true));
+		    var results = executionEngine.Execute(testData2);
+	    }
     }
 }

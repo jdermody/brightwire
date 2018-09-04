@@ -45,6 +45,11 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 				using (var update = _im2Col.TransposeThisAndMultiply(tensor)) {
 					var weightUpdate = update.CombineDepthSlices();
 					var biasUpdate = tensor.ColumnSums();
+
+//#if DEBUG
+//					Debug.Assert(weightUpdate.AsVector().IsEntirelyFinite());
+//#endif
+
 					context.LearningContext.StoreUpdate(_source, weightUpdate, err => _source.Update(err, context.LearningContext));
 					context.LearningContext.StoreUpdate(_source, biasUpdate, bu => _UpdateBias(bu, context.LearningContext));
 				}
@@ -71,6 +76,9 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 									delta.Dispose();
 									delta = delta2;
 								}
+//#if DEBUG
+//								Debug.Assert(delta.AsVector().IsEntirelyFinite());
+//#endif
 								return new Tensor4DGraphData(delta.AsMatrix(), _inputHeight, _inputWidth, inputDepth);
 							}
 						}
@@ -143,6 +151,10 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 			outputSignal.AddToEachRow(_bias);
 			var outputTensor = outputSignal.As4DTensor(newHeight, newWidth);
 			Debug.Assert(outputTensor.Depth == FilterCount && outputTensor.Count == tensor.Count);
+
+//#if DEBUG
+//			Debug.Assert(outputTensor.AsVector().IsEntirelyFinite());
+//#endif
 
 			var graphData = new Tensor4DGraphData(outputTensor);
 			_AddNextGraphAction(context, graphData, () => new Backpropagation(this, im2Col, inputWidth, inputHeight, tensor.Depth, tensor.Count, newWidth, newHeight));

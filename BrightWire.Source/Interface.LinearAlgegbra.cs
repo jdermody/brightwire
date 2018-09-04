@@ -436,6 +436,8 @@ namespace BrightWire
 		/// <param name="index">The index of the vector to return</param>
 		/// <returns></returns>
 	    float GetAt(int index);
+
+	    bool IsEntirelyFinite();
     }
 
     /// <summary>

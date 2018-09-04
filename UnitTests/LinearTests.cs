@@ -49,7 +49,7 @@ namespace UnitTests
             //var prediction = predictor.Predict(3f);
             //Assert.IsTrue(Math.Round(prediction) == 6f);
 
-            var theta = classifier.GradientDescent(20, 0.01f);
+            var theta = classifier.GradientDescent(20, 0.01f, 0.1f, cost => true);
             var predictor = theta.CreatePredictor(_lap);
             var prediction = predictor.Predict(3f);
             Assert.IsTrue(Math.Round(prediction) == 6f);
@@ -92,7 +92,7 @@ namespace UnitTests
             var index = dataTable.Build();
 
             var trainer = index.CreateLogisticRegressionTrainer(_lap);
-            var theta = trainer.GradientDescent(1000, 0.1f);
+            var theta = trainer.GradientDescent(1000, 0.1f, 0.1f, cost => true);
             var predictor = theta.CreatePredictor(_lap);
             var probability1 = predictor.Predict(2f);
             Assert.IsTrue(probability1 < 0.5f);

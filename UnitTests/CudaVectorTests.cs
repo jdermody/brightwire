@@ -742,5 +742,60 @@ namespace UnitTests
 			    FloatingPointHelper.AssertEqual(gpuA.AsIndexable(), a.AsIndexable());
 		    }
 	    }
+
+	    [TestMethod]
+	    public void TestFinite()
+	    {
+		    var vector = _cpu.CreateVector(new [] {0f, 1f, 2f, 3f, -1f});
+		    Assert.IsTrue(vector.IsEntirelyFinite());
+
+		    using (var gpuVector = _cuda.CreateVector(vector.AsIndexable())) {
+			    Assert.IsTrue(gpuVector.IsEntirelyFinite());
+		    }
+	    }
+
+	    [TestMethod]
+	    public void TestFinite2()
+	    {
+		    var vector = _cpu.CreateVector(new [] {0f, 1f, 2f, 3f, -1f, float.Epsilon});
+		    Assert.IsTrue(vector.IsEntirelyFinite());
+
+		    using (var gpuVector = _cuda.CreateVector(vector.AsIndexable())) {
+			    Assert.IsTrue(gpuVector.IsEntirelyFinite());
+		    }
+	    }
+
+	    [TestMethod]
+	    public void TestNotFinite()
+	    {
+		    var vector = _cpu.CreateVector(new [] {0f, 1f, 2f, 3f, float.NaN});
+		    Assert.IsFalse(vector.IsEntirelyFinite());
+
+		    using (var gpuVector = _cuda.CreateVector(vector.AsIndexable())) {
+			    Assert.IsFalse(gpuVector.IsEntirelyFinite());
+		    }
+	    }
+
+	    [TestMethod]
+	    public void TestNotFinite2()
+	    {
+		    var vector = _cpu.CreateVector(new [] {0f, 1f, 2f, 3f, float.NegativeInfinity});
+		    Assert.IsFalse(vector.IsEntirelyFinite());
+
+		    using (var gpuVector = _cuda.CreateVector(vector.AsIndexable())) {
+			    Assert.IsFalse(gpuVector.IsEntirelyFinite());
+		    }
+	    }
+
+	    [TestMethod]
+	    public void TestNotFinite3()
+	    {
+		    var vector = _cpu.CreateVector(new [] {0f, 1f, 2f, 3f, float.PositiveInfinity});
+		    Assert.IsFalse(vector.IsEntirelyFinite());
+
+		    using (var gpuVector = _cuda.CreateVector(vector.AsIndexable())) {
+			    Assert.IsFalse(gpuVector.IsEntirelyFinite());
+		    }
+	    }
     }
 }

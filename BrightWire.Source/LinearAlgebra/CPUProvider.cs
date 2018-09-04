@@ -27,11 +27,6 @@ namespace BrightWire.LinearAlgebra
             GC.SuppressFinalize(this);
         }
 
-		//public IVector CreateVector(IEnumerable<float> data)
-		//{
-		//    return new CpuVector(DenseVector.OfEnumerable(data));
-		//}
-
 		public IVector CreateVector(int length, Func<int, float> init)
 		{
 			return new CpuVector(DenseVector.Create(length, init));
@@ -85,14 +80,6 @@ namespace BrightWire.LinearAlgebra
 		{
 			return new Cpu4DTensor(data.Select(this.Create3DTensor).ToList());
 		}
-
-		//public I4DTensor Create4DTensor(IMatrix tensorAsMatrix, int rows, int columns, int depth)
-		//{
-		//    var list = new List<I3DTensor>();
-		//    for(var i = 0; i < tensorAsMatrix.ColumnCount; i++)
-		//        list.Add(Create3DTensor(tensorAsMatrix.Column(i).Split(depth).Select(v => v.ConvertInPlaceToMatrix(rows, columns)).ToList()));
-		//    return new Cpu4DTensor(list);
-		//}
 
 		public I4DTensor Create4DTensor(IReadOnlyList<I3DTensor> tensorList)
 		{

@@ -34,18 +34,6 @@ namespace BrightWire.LinearAlgebra
             // nop
         }
 
-        public int AddRef()
-        {
-            // nop
-            return 1;
-        }
-
-        public int Release()
-        {
-            // nop
-            return 1;
-        }
-
         public float this[int index]
         {
             get => _vector[index];
@@ -160,15 +148,9 @@ namespace BrightWire.LinearAlgebra
             return _vector.DotProduct(other._vector);
         }
 
-        public IEnumerable<float> Values
-        {
-            get
-            {
-                return _vector.AsEnumerable();
-            }
-        }
+        public IEnumerable<float> Values => _vector.AsEnumerable();
 
-        public IVector GetNewVectorFromIndexes(IReadOnlyList<int> indexes)
+	    public IVector GetNewVectorFromIndexes(IReadOnlyList<int> indexes)
         {
             return new CpuVector(DenseVector.Create(indexes.Count, i => this[indexes[i]]));
         }
@@ -425,25 +407,6 @@ namespace BrightWire.LinearAlgebra
 		    }
 	    }
 
-        //public void RotateInPlace(int blockCount, int subBlockCount)
-        //{
-        //    var blockSize = Count / blockCount;
-	       // var subBlockSize = blockSize / subBlockCount;
-
-	       // for (int i = 0, len = Count; i < len; i += 2) {
-		      //  int blockIndex = i / blockSize;
-		      //  int blockOffset = i % blockSize;
-		      //  int subBlockIndex = blockOffset / subBlockSize;
-		      //  int subBlockOffset = blockOffset % subBlockSize;
-
-		      //  int index1 = blockIndex * blockSize + (subBlockIndex * subBlockSize) + subBlockSize - subBlockOffset - 1;
-		      //  int index2 = blockIndex * blockSize + (subBlockIndex * subBlockSize) + subBlockOffset; 
-		      //  var temp = this[index1];
-		      //  this[index1] = this[index2];
-		      //  this[index2] = temp;
-	       // }
-        //}
-
         public IVector Reverse()
         {
             var len = Count - 1;
@@ -453,6 +416,11 @@ namespace BrightWire.LinearAlgebra
 	    public float GetAt(int index)
 	    {
 		    return _vector[index];
+	    }
+
+	    public bool IsEntirelyFinite()
+	    {
+		    return !_vector.Any(v => float.IsNaN(v) || float.IsInfinity(v));
 	    }
     }
 }

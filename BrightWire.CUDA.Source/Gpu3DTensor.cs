@@ -81,8 +81,6 @@ namespace BrightWire.LinearAlgebra
 		    return $"3D tensor (GPU), rows:{_rows} columns:{_columns} depth:{_depth}";
 	    }
 
-		public int BlockSize => _blockSize;
-
         public int ColumnCount
         {
             get
@@ -110,7 +108,6 @@ namespace BrightWire.LinearAlgebra
             }
         }
 
-	    public CudaDeviceVariable<float> CudaDeviceVariable => _data.DeviceVariable;
 	    public IDeviceMemoryPtr Memory => _data;
 
 	    public IEnumerable<IMatrix> Matrices 
@@ -172,14 +169,8 @@ namespace BrightWire.LinearAlgebra
 
 		public I4DTensor As4DTensor(int rows, int columns)
 		{
-			Debug.Assert(rows * columns == _rows);
+			Debug.Assert(IsValid && rows * columns == _rows);
 			return new Gpu4DTensor(_cuda, rows, columns, _columns, _depth, _data, false);
-			//var tensorList = new List<I3DTensor>();
-			//for (var i = 0; i < Depth; i++) {
-			//    var slice = GetMatrixAt(i);
-			//    tensorList.Add(slice.As3DTensor(rows, columns));
-			//}
-			//return _cuda.Create4DTensor(tensorList);
 		}
 
 		public I3DTensor AddPadding(int padding)
@@ -207,7 +198,6 @@ namespace BrightWire.LinearAlgebra
 	    {
 		    Debug.Assert(IsValid);
 			var filterPtr = ((IHaveDeviceMemory)filter).Memory;
-		    //var filters = filter.Select(fl => fl.Cast<IHaveDeviceMemory>().Select(v => v.Memory).ToList()).ToList();
 		    var ret = _cuda.TensorReverseIm2Col(_data, filterPtr, _rows, _columns, _depth, 1, outputRows, outputColumns, outputDepth, filterWidth, filterHeight, stride);
 		    return new Gpu3DTensor(_cuda, ret.Rows, ret.Columns, ret.Depth, ret.Data, true);
 	    }
@@ -215,7 +205,6 @@ namespace BrightWire.LinearAlgebra
         public (I3DTensor Result, I3DTensor Indices) MaxPool(int filterWidth, int filterHeight, int stride, bool saveIndices)
         {
 	        Debug.Assert(IsValid);
-	        
 	        var maxPool = _cuda.TensorMaxPool(_data, _rows, _columns, _depth, 1, filterWidth, filterHeight, stride, saveIndices);
 	        var ret = new Gpu3DTensor(_cuda, maxPool.Rows, maxPool.Columns, _depth, maxPool.Data, true);
 	        var indices = saveIndices ? new Gpu3DTensor(_cuda, maxPool.Rows, maxPool.Columns, _depth, maxPool.Indices, true) : null;
