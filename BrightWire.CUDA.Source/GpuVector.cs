@@ -42,22 +42,6 @@ namespace BrightWire.LinearAlgebra
 #endif
 		}
 
-//		public GpuVector(CudaProvider cuda, IIndexableVector vector) : this(cuda, vector.Count, i => vector[i])
-//		{
-//		}
-
-//		internal GpuVector(CudaProvider cuda, IDeviceMemoryPtr data)
-//		{
-//			_cuda = cuda;
-//			_data = data;
-//			cuda.Register(this);
-
-//#if DEBUG
-//			if (_id == _badAlloc)
-//				Debugger.Break();
-//#endif
-//		}
-
 #if DEBUG
 		~GpuVector()
 		{
@@ -92,7 +76,7 @@ namespace BrightWire.LinearAlgebra
 		}
 
 		public int Count => _data.Size;
-		public int BlockSize => CudaProvider.FLOAT_SIZE;
+		public IDeviceMemoryPtr Memory => _data;
 
 		public FloatVector Data
 		{
@@ -122,9 +106,6 @@ namespace BrightWire.LinearAlgebra
 				_data.CopyToDevice(data);
 			}
 		}
-
-		public CudaDeviceVariable<float> CudaDeviceVariable => _data.DeviceVariable;
-		public IDeviceMemoryPtr Memory => _data;
 
 		public IVector Add(IVector vector)
 		{
@@ -261,7 +242,7 @@ namespace BrightWire.LinearAlgebra
 
 			var ret = _cuda.Allocate(_data.Size);
 			ret.CopyToDevice(_data);
-			_cuda.Blas.Axpy(-1.0f, other.CudaDeviceVariable, 1, ret.DeviceVariable, 1);
+			_cuda.Blas.Axpy(-1.0f, other.Memory.DeviceVariable, 1, ret.DeviceVariable, 1);
 			return new GpuVector(_cuda, ret, true);
 		}
 
@@ -362,11 +343,10 @@ namespace BrightWire.LinearAlgebra
 				if (BoundMath.IsNotZero(stdDev))
 					_cuda.Normalise(_data, Count, mean, stdDev);
 			} else if (type == NormalisationType.Euclidean || type == NormalisationType.Manhattan) {
-				float p;
-				if (type == NormalisationType.Manhattan)
-					p = L1Norm();
-				else
-					p = L2Norm();
+				var p = type == NormalisationType.Manhattan 
+					? L1Norm() 
+					: L2Norm()
+				;
 
 				if (BoundMath.IsNotZero(p))
 					Multiply(1f / p);
@@ -460,12 +440,6 @@ namespace BrightWire.LinearAlgebra
 			_cuda.VectorAdd(_data, Count, scalar);
 		}
 
-		public IMatrix AsMatrix(int rows, int columns)
-		{
-			Debug.Assert(IsValid);
-			return new GpuMatrix(_cuda, rows, columns, _data, false);
-		}
-
 		public IReadOnlyList<IVector> Split(int blockCount)
 		{
 			Debug.Assert(IsValid);
@@ -484,11 +458,10 @@ namespace BrightWire.LinearAlgebra
 			return new GpuMatrix(_cuda, Count, Count, ret, true);
 		}
 
-		public IVector Rotate(int blockCount)
+		public void RotateInPlace(int blockCount)
 		{
 			Debug.Assert(IsValid);
-			var ret = _cuda.Rotate(_data, Count, blockCount);
-			return new GpuVector(_cuda, ret, true);
+			_cuda.RotateInPlace(_data, Count, blockCount);
 		}
 
 		public IVector Reverse()
@@ -498,20 +471,33 @@ namespace BrightWire.LinearAlgebra
 			return new GpuVector(_cuda, ret, true);
 		}
 
+		public float GetAt(int index)
+		{
+			Debug.Assert(IsValid);
+			return _data.DeviceVariable[index];
+		}
+
+		public bool IsEntirelyFinite()
+		{
+			return _cuda.IsFinite(_data, _data.Size);
+		}
+
+		public IMatrix AsMatrix(int rows, int columns)
+		{
+			Debug.Assert(IsValid && rows * columns == _data.Size);
+			return new GpuMatrix(_cuda, rows, columns, _data, false);
+		}
+
 		public I3DTensor As3DTensor(int rows, int columns, int depth)
 		{
+			Debug.Assert(IsValid && rows * columns * depth == _data.Size);
 			return new Gpu3DTensor(_cuda, rows, columns, depth, _data, false);
 		}
 
 		public I4DTensor As4DTensor(int rows, int columns, int depth, int count)
 		{
+			Debug.Assert(IsValid && rows * columns * depth * count == _data.Size);
 			return new Gpu4DTensor(_cuda, rows, columns, depth, count, _data, false);
-		}
-
-		public float GetAt(int index)
-		{
-			Debug.Assert(IsValid);
-			return _data.DeviceVariable[index];
 		}
 	}
 }

@@ -49,78 +49,6 @@ namespace BrightWire.LinearAlgebra
 #endif
 		}
 
-		//        public Gpu4DTensor(CudaProvider provider, IReadOnlyList<FloatTensor> data)
-		//        {
-		//            var firstTensor = data.First();
-		//            var firstMatrix = firstTensor.Matrix.First();
-
-		//            _cuda = provider;
-		//            _rows = firstMatrix.RowCount;
-		//            _columns = firstMatrix.ColumnCount;
-		//            _depth = firstTensor.Matrix.Length;
-		//            _count = data.Count;
-
-		//            var matrixSize = _rows * _columns;
-		//            _data = provider.CreateMatrix(matrixSize * _depth, _count, (index, k) => {
-		//                var z = index / matrixSize;
-		//                var rem = index % matrixSize;
-		//                var i = rem / _rows;
-		//                var j = rem % _rows;
-		//                return data[k].Matrix[z].Row[j].Data[i];
-		//            });
-		//            provider.Register(this);
-
-		//            _subVector = new Lazy<List<GpuVector[]>>(_GetSubVectors);
-		//            _tensorInfo = new Lazy<Tensor4DInput>(_GetInput);
-
-		//#if DEBUG
-		//            if (_id == _badAlloc)
-		//                Debugger.Break();
-		//#endif
-		//        }
-
-		//        internal Gpu4DTensor(CudaProvider provider, IMatrix data, int rows, int columns, int depth)
-		//        {
-		//            _cuda = provider;
-		//            _data = data;
-		//            _rows = rows;
-		//            _columns = columns;
-		//            _depth = depth;
-		//            _count = data.ColumnCount;
-		//            provider.Register(this);
-
-		//            _subVector = new Lazy<List<GpuVector[]>>(_GetSubVectors);
-		//            _tensorInfo = new Lazy<Tensor4DInput>(_GetInput);
-
-		//#if DEBUG
-		//            if (_id == _badAlloc)
-		//                Debugger.Break();
-		//#endif
-		//        }
-
-		//        internal Gpu4DTensor(CudaProvider provider, IReadOnlyList<I3DTensor> tensorList)
-		//        {
-		//            var first = tensorList.First();
-		//            _cuda = provider;
-		//            _rows = first.RowCount;
-		//            _columns = first.ColumnCount;
-		//            _depth = first.Depth;
-		//            _count = tensorList.Count;
-		//            provider.Register(this);
-
-		//            _data = _cuda.CreateZeroMatrix(_rows * _columns * _depth, _count);
-		//            _subVector = new Lazy<List<GpuVector[]>>(_GetSubVectors);
-		//            _tensorInfo = new Lazy<Tensor4DInput>(_GetInput);
-
-		//            for (var i = 0; i < _count; i++)
-		//                _data.Column(i).AddInPlace(tensorList[i].ConvertToVector());
-
-		//#if DEBUG
-		//            if (_id == _badAlloc)
-		//                Debugger.Break();
-		//#endif
-		//        }
-
 #if DEBUG
 		~Gpu4DTensor()
         {
@@ -154,10 +82,7 @@ namespace BrightWire.LinearAlgebra
 		    return $"4D tensor (GPU), rows:{RowCount} columns:{ColumnCount} depth:{Depth} count:{Count}";
 	    }
 
-		public int BlockSize => _blockSize;
-	    public CudaDeviceVariable<float> CudaDeviceVariable => _data.DeviceVariable;
 	    public IDeviceMemoryPtr Memory => _data;
-
         public IMatrix AsMatrix() => new GpuMatrix(_cuda, _blockSize, _count, _data, false);
 	    public IReadOnlyList<FloatTensor> Data {
 		    get
@@ -274,10 +199,10 @@ namespace BrightWire.LinearAlgebra
 	        return new Gpu3DTensor(_cuda, ret.Rows, ret.Columns, ret.Depth, ret.Data, true);
         }
 
-        public I4DTensor ReverseIm2Col(IReadOnlyList<IReadOnlyList<IVector>> filter, int outputRows, int outputColumns, int filterWidth, int filterHeight, int stride)
+        public I4DTensor ReverseIm2Col(IMatrix filter, int outputRows, int outputColumns, int outputDepth, int filterWidth, int filterHeight, int stride)
         {
-			var filters = filter.Select(fl => fl.Cast<IHaveDeviceMemory>().Select(v => v.Memory).ToList()).ToList();
-			var ret = _cuda.TensorReverseIm2Col(_data, filters, _rows, _columns, _depth, _count, outputRows, outputColumns, filterWidth, filterHeight, stride);
+	        var filterPtr = ((IHaveDeviceMemory) filter).Memory;
+			var ret = _cuda.TensorReverseIm2Col(_data, filterPtr, _rows, _columns, _depth, _count, outputRows, outputColumns, outputDepth, filterWidth, filterHeight, stride);
 			return new Gpu4DTensor(_cuda, ret.Rows, ret.Columns, ret.Depth, ret.Count, ret.Data, true);
 		}
 

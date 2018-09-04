@@ -58,6 +58,17 @@ namespace BrightWire
             return lap.CreateVector(data.Count, i => data[i]);
         }
 
+	    /// <summary>
+	    /// Create a vector
+	    /// </summary>
+	    /// <param name="lap"></param>
+	    /// <param name="data">Array of values</param>
+	    /// <returns></returns>
+	    public static IVector CreateVector(this ILinearAlgebraProvider lap, float[] data)
+	    {
+		    return lap.CreateVector(data.Length, i => data[i]);
+	    }
+
         /// <summary>
         /// Create a vector
         /// </summary>

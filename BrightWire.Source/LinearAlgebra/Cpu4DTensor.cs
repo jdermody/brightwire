@@ -1,7 +1,10 @@
 ﻿using MathNet.Numerics.LinearAlgebra.Single;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Text;
+using System.Xml;
 using BrightWire.Models;
 
 namespace BrightWire.LinearAlgebra
@@ -13,14 +16,6 @@ namespace BrightWire.LinearAlgebra
     {
         readonly Cpu3DTensor[] _data;
 
-	    //public Cpu4DTensor(int rows, int columns, int depth, int count)
-     //   {
-     //       RowCount = rows;
-     //       ColumnCount = columns;
-     //       Depth = depth;
-     //       _data = Enumerable.Range(0, count).Select(i => new Cpu3DTensor(rows, columns, depth)).ToArray();
-     //   }
-
         public Cpu4DTensor(IReadOnlyList<I3DTensor> tensorList)
         {
             var first = tensorList.First();
@@ -30,16 +25,6 @@ namespace BrightWire.LinearAlgebra
             Depth = first.Depth;
             _data = tensorList.Cast<Cpu3DTensor>().ToArray();
         }
-
-        //public Cpu4DTensor(IReadOnlyList<IReadOnlyList<IMatrix>> tensorList)
-        //{
-        //    var first = tensorList.First();
-        //    var firstMatrix = first.First();
-        //    RowCount = firstMatrix.RowCount;
-        //    ColumnCount = firstMatrix.ColumnCount;
-        //    Depth = first.Count;
-        //    _data = tensorList.Select(d => new Cpu3DTensor(d)).ToArray();
-        //}
 
         public int RowCount { get; }
 	    public int ColumnCount { get; }
@@ -113,11 +98,11 @@ namespace BrightWire.LinearAlgebra
             return new Cpu3DTensor(ret);
         }
 
-        public I4DTensor ReverseIm2Col(IReadOnlyList<IReadOnlyList<IVector>> filter, int outputRows, int outputColumns, int filterWidth, int filterHeight, int stride)
+        public I4DTensor ReverseIm2Col(IMatrix filters, int outputRows, int outputColumns, int outputDepth, int filterWidth, int filterHeight, int stride)
         {
             var ret = new List<I3DTensor>();
             for (var i = 0; i < Count; i++) {
-                var result = GetTensorAt(i).ReverseIm2Col(filter, outputRows, outputColumns, filterWidth, filterHeight, stride);
+                var result = GetTensorAt(i).ReverseIm2Col(filters, outputRows, outputColumns, outputDepth, filterWidth, filterHeight, stride);
                 ret.Add(result);
             }
             return new Cpu4DTensor(ret);
@@ -173,6 +158,23 @@ namespace BrightWire.LinearAlgebra
 		    set => _data[index][row, column, depth] = value;
 	    }
 
-	    public string AsXml { get; set; }
+	    public string AsXml
+	    {
+		    get
+		    {
+			    var ret = new StringBuilder();
+			    var settings = new XmlWriterSettings {
+				    OmitXmlDeclaration = true
+			    };
+			    using (var writer = XmlWriter.Create(new StringWriter(ret), settings)) {
+				    writer.WriteStartElement("tensor-4d");
+				    foreach(var tensor in _data) {
+					    writer.WriteRaw(tensor.AsXml);
+				    }
+				    writer.WriteEndElement();
+			    }
+			    return ret.ToString();
+		    }
+	    }
     }
 }

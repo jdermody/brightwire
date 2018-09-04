@@ -19,6 +19,13 @@
 
 extern "C"
 {
+    __global__ void IsFinite(float* a, float* b, int size)
+	{
+        for (int index = blockDim.x * blockIdx.x + threadIdx.x; index < size; index += blockDim.x * gridDim.x) {
+            b[index] = isfinite(a[index]) ? 0 : 1;
+        }
+	}
+
 	__global__ void PointwiseMultiply(float* a, float* b, int size)
 	{
         for (int index = blockDim.x * blockIdx.x + threadIdx.x; index < size; index += blockDim.x * gridDim.x) {
@@ -187,9 +194,9 @@ extern "C"
 				maxIndex = count - index;
 			for (int i = 0; i < maxIndex; i++) {
 				float val = block[i];
-				if (val > max)
+				if (i == 0 || val > max)
 					max = val;
-				if (val < min)
+				if (i == 0 || val < min)
 					min = val;
 			}
 			minBlock[blockX] = min;
@@ -459,7 +466,7 @@ extern "C"
         }
 	}
 
-	__global__ void VectorSplit(float* a, float** b, int inputSize, int blockSize)
+	/*__global__ void VectorSplit(float* a, float** b, int inputSize, int blockSize)
 	{
         for (int index = blockDim.x * blockIdx.x + threadIdx.x; index < inputSize; index += blockDim.x * gridDim.x) {
             b[index / blockSize][index % blockSize] = a[index];
@@ -484,7 +491,7 @@ extern "C"
 			    b[j * bRows + i] = a[j][y * aRows + x];
             }
         }
-	}
+	}*/
 
 	__global__ void TensorAddPadding(
         int size, 
@@ -526,21 +533,6 @@ extern "C"
             float* outputPtr = b + (outputRows * outputColumns * depth * z) + (outputRows * outputColumns * k);
             outputPtr[j * outputRows + i] = val;
         }
-        /*for (int index = blockDim.x * blockIdx.x + threadIdx.x; index < size; index += blockDim.x * gridDim.x) {
-            for (int j = blockDim.y * blockIdx.y + threadIdx.y; j >= padding && j < bColumns-padding; j += blockDim.y * gridDim.y) {
-                int size2 = bRows * depth;
-		        int z = index / size2;
-		        int index2 = index % size2;
-		        int k = index2 / bRows;
-		        int i = index2 % bRows;
-
-		        if (z < count && k < depth && i >= padding && i < bRows-padding) {
-			        int aIndex = (j-padding) * aRows + (i-padding);
-			        int bIndex = j * bRows + i;
-			        b[z][k][bIndex] = a[z][k][aIndex];
-		        }
-            }
-        }*/
 	}
 
 	__global__ void TensorRemovePadding(
@@ -584,21 +576,6 @@ extern "C"
                 );*/
             }
         }
-        /*for (int index = blockDim.x * blockIdx.x + threadIdx.x; index < size; index += blockDim.x * gridDim.x) {
-            for (int j = blockDim.y * blockIdx.y + threadIdx.y; j >= padding && j < aColumns-padding; j += blockDim.y * gridDim.y) {
-                int size2 = aRows * depth;
-		        int z = index / size2;
-		        int index2 = index % size2;
-		        int k = index2 / aRows;
-		        int i = index2 % aRows;
-
-		        if (z < count && k < depth && i >= padding && i < aRows-padding) {
-			        int aIndex = j * aRows + i;
-			        int bIndex = (j-padding) * bRows + (i-padding);
-			        b[z][k][bIndex] = a[z][k][aIndex];
-		        }
-            }
-        }*/
 	}
 
     __global__ void TensorIm2Col(
@@ -615,7 +592,8 @@ extern "C"
         int outputColumns,
         int convolutionCount, 
         int filterWidth, 
-        int filterHeight
+        int filterHeight,
+        int stride
     ) {
         for (int index = blockDim.x * blockIdx.x + threadIdx.x; index < size; index += blockDim.x * gridDim.x) {
             int x = index % filterWidth;
@@ -630,16 +608,21 @@ extern "C"
             int ci = index4 % convolutionCount;
             int i = index4 / convolutionCount;
             
+			//int extent = (rows - filterWidth) / stride + 1;
+            //int offsetY = ci / extent * stride;
+            //int offsetX = ci % extent * stride;
+
             int offsetX = cx[ci];
             int offsetY = cy[ci];
 
-            /*printf("index:%i, i:%i(%i), ci:%i(%i), k:%i(%i), x:%i(%i), y:%i(%i), cx:%i, cy:%i\n", index,
+            /*printf("index:%i, i:%i(%i), ci:%i(%i), k:%i(%i), x:%i(%i), y:%i(%i), cx:%i=%i, cy:%i=%i\n", index,
                 i, count,
                 ci, convolutionCount,
                 k, depth,
                 x, filterWidth,
                 y, filterHeight,
-                offsetX, offsetY
+                offsetX, (int)cx[ci],
+                offsetY, (int)cy[ci]
             );*/
 
             int filterOffset = k * filterWidth * filterHeight;
@@ -654,7 +637,7 @@ extern "C"
     __global__ void TensorReverseIm2Col(
         int size, 
         float* a, 
-        float*** ppFilters, 
+        float* filters, 
         float* b, 
         float* cx, 
         float* cy, 
@@ -666,13 +649,13 @@ extern "C"
         int filterWidth, 
         int filterHeight, 
         int stride, 
-        int numFilters, 
         int outputRows,
-        int outputColumns
+        int outputColumns,
+        int outputDepth
     ) {
         for (int index = blockDim.x * blockIdx.x + threadIdx.x; index < size; index += blockDim.x * gridDim.x) {
-            int z = index % numFilters;
-            int index2 = index / numFilters;
+            int z = index % outputDepth;
+            int index2 = index / outputDepth;
 
             int x = index2 % filterWidth;
             int index3 = index2 / filterWidth;
@@ -695,14 +678,14 @@ extern "C"
                 k, depth, 
                 x, filterWidth, 
                 y, filterHeight, 
-                z, numFilters, 
+                z, outputDepth, 
                 offsetX, offsetY
             );*/
 
             float* slice = a + (i * rows * columns * depth) + (k * rows * columns);
-            float* filter = ppFilters[k][z];
-            float* output = b + (k * outputRows * outputColumns * numFilters * count) 
-                + (i * outputRows * outputColumns * numFilters) 
+            float* filter = filters + (k * outputDepth * filterWidth * filterHeight) + (z * filterWidth * filterHeight);
+            float* output = b + (k * outputRows * outputColumns * outputDepth * count) 
+                + (i * outputRows * outputColumns * outputDepth) 
                 + (z * outputRows * outputColumns)
             ;
 
@@ -731,12 +714,16 @@ extern "C"
         }
 	}
 
-	__global__ void Rotate(float* a, float* b, int size, int blockCount, int blockSize)
+	__global__ void RotateInPlace(float* a, int size, int blockCount, int blockSize)
 	{
         for (int index = blockDim.x * blockIdx.x + threadIdx.x; index < size; index += blockDim.x * gridDim.x) {
             int blockIndex = index / blockSize;
 			int blockOffset = index % blockSize;
-			b[(blockIndex * blockSize) + blockSize-blockOffset-1] = a[index];
+            int index1 = blockIndex * blockSize + blockSize - blockOffset - 1;
+			int index2 = blockIndex * blockSize + blockOffset; 
+			float temp = a[index1];
+			a[index1] = a[index2];
+			a[index2] = temp;
         }
 	}
 
@@ -744,7 +731,10 @@ extern "C"
         int size, 
         float* a, 
         float* b, 
-        float* indexOffset, 
+        float* indexOffset,
+        float* cx, 
+        float* cy,
+        int convolutionCount,
         int rows, 
         int columns, 
         int depth, 
@@ -757,24 +747,22 @@ extern "C"
         int saveIndices
     ) {
 		for (int index = blockDim.x * blockIdx.x + threadIdx.x; index < size; index += blockDim.x * gridDim.x) {
-            int i = index % outputRows;
-            int index2 = index / outputRows;
+            int ci = index % convolutionCount;
+            int index2 = index / convolutionCount;
 
-            int j = index2 % outputColumns;
-            int index3 = index2 / outputColumns;
+            int k = index2 % depth;
+            int z = index2 / depth;
 
-            int k = index3 % depth;
-            int z = index3 / depth;
+            int aX = cx[ci];
+			int aY = cy[ci];
+            int bX = aX / stride;
+            int bY = aY / stride;
 
-            int aX = j * stride;
-			int aY = i * stride;
-
-            /*printf("index:%i i:%i(%i) j:%i(%i) k:%i(%i) z:%i(%i) ax:%i ay:%i\n", index,
-                i, outputRows,
-                j, outputColumns, 
+            /*printf("index:%i k:%i(%i) z:%i(%i) ax:%i ay:%i bx:%i by:%i\n", index,
                 k, depth, 
                 z, count,
-                aX, aY
+                aX, aY,
+                bX, bY
             );*/
 
             int targetOffset = (z * outputRows * outputColumns * depth) + (k * outputRows * outputColumns);
@@ -801,9 +789,9 @@ extern "C"
             //printf("\tindex:%i i:%i j:%i val:%f\n", index, i, j, maxVal);
             if(saveIndices) {
                 float* indices = indexOffset + targetOffset;
-                indices[j * outputRows + i] = bestOffset;
+                indices[bX * outputRows + bY] = bestOffset;
             }
-            target[j * outputRows + i] = maxVal;
+            target[bX * outputRows + bY] = maxVal;
         }
 	}
 

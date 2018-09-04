@@ -723,28 +723,79 @@ namespace UnitTests
         public void VectorRotate()
         {
 	        const int blockCount = 1;
-            var a = _cpu.CreateVector(4, i => i+1).AsIndexable();
-            var cpuResult = a.Rotate(blockCount).AsIndexable();
-            IIndexableVector result;
+            var a = _cpu.CreateVector(4, i => i+1).AsIndexable();            
             using (var gpuA = _cuda.CreateVector(a)) {
-                var gpuResult = gpuA.Rotate(blockCount);
-                result = gpuResult.AsIndexable();
+	            a.RotateInPlace(blockCount);
+                gpuA.RotateInPlace(blockCount);
+	            FloatingPointHelper.AssertEqual(gpuA.AsIndexable(), a.AsIndexable());
             }
-            FloatingPointHelper.AssertEqual(result, cpuResult);
         }
 
 	    [TestMethod]
 	    public void VectorRotate2()
 	    {
 		    const int blockCount = 2;
-		    var a = _cpu.CreateVector(8, i => i+1).AsIndexable();
-		    var cpuResult = a.Rotate(2).AsIndexable();
-		    IIndexableVector result;
+		    var a = _cpu.CreateVector(8, i => i+1).AsIndexable();            
 		    using (var gpuA = _cuda.CreateVector(a)) {
-			    var gpuResult = gpuA.Rotate(blockCount);
-			    result = gpuResult.AsIndexable();
+			    a.RotateInPlace(blockCount);
+			    gpuA.RotateInPlace(blockCount);
+			    FloatingPointHelper.AssertEqual(gpuA.AsIndexable(), a.AsIndexable());
 		    }
-		    FloatingPointHelper.AssertEqual(result, cpuResult);
+	    }
+
+	    [TestMethod]
+	    public void TestFinite()
+	    {
+		    var vector = _cpu.CreateVector(new [] {0f, 1f, 2f, 3f, -1f});
+		    Assert.IsTrue(vector.IsEntirelyFinite());
+
+		    using (var gpuVector = _cuda.CreateVector(vector.AsIndexable())) {
+			    Assert.IsTrue(gpuVector.IsEntirelyFinite());
+		    }
+	    }
+
+	    [TestMethod]
+	    public void TestFinite2()
+	    {
+		    var vector = _cpu.CreateVector(new [] {0f, 1f, 2f, 3f, -1f, float.Epsilon});
+		    Assert.IsTrue(vector.IsEntirelyFinite());
+
+		    using (var gpuVector = _cuda.CreateVector(vector.AsIndexable())) {
+			    Assert.IsTrue(gpuVector.IsEntirelyFinite());
+		    }
+	    }
+
+	    [TestMethod]
+	    public void TestNotFinite()
+	    {
+		    var vector = _cpu.CreateVector(new [] {0f, 1f, 2f, 3f, float.NaN});
+		    Assert.IsFalse(vector.IsEntirelyFinite());
+
+		    using (var gpuVector = _cuda.CreateVector(vector.AsIndexable())) {
+			    Assert.IsFalse(gpuVector.IsEntirelyFinite());
+		    }
+	    }
+
+	    [TestMethod]
+	    public void TestNotFinite2()
+	    {
+		    var vector = _cpu.CreateVector(new [] {0f, 1f, 2f, 3f, float.NegativeInfinity});
+		    Assert.IsFalse(vector.IsEntirelyFinite());
+
+		    using (var gpuVector = _cuda.CreateVector(vector.AsIndexable())) {
+			    Assert.IsFalse(gpuVector.IsEntirelyFinite());
+		    }
+	    }
+
+	    [TestMethod]
+	    public void TestNotFinite3()
+	    {
+		    var vector = _cpu.CreateVector(new [] {0f, 1f, 2f, 3f, float.PositiveInfinity});
+		    Assert.IsFalse(vector.IsEntirelyFinite());
+
+		    using (var gpuVector = _cuda.CreateVector(vector.AsIndexable())) {
+			    Assert.IsFalse(gpuVector.IsEntirelyFinite());
+		    }
 	    }
     }
 }

@@ -5,10 +5,12 @@ using MathNet.Numerics.Distributions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using ProtoBuf;
 
 namespace UnitTests
 {
@@ -42,14 +44,21 @@ namespace UnitTests
         {
             var trainer = BrightWireProvider.CreateMarkovTrainer2<string>();
             _Train(trainer);
-            var model = trainer.Build().AsDictionary;
+
+			// test serialisation/deserialisation
+	        using (var buffer = new MemoryStream()) {
+		        trainer.SerialiseTo(buffer);
+		        buffer.Position = 0;
+		        trainer.DeserialiseFrom(buffer, true);
+	        }
+            var dictionary = trainer.Build().AsDictionary;
 
             // generate some text
             var rand = new Random();
             string prev = default(string), curr = default(string);
             var output = new List<string>();
             for(var i = 0; i < 1024; i++) {
-                var transitions = model.GetTransitions(prev, curr);
+                var transitions = dictionary.GetTransitions(prev, curr);
                 var distribution = new Categorical(transitions.Select(d => Convert.ToDouble(d.Probability)).ToArray());
                 var next = transitions[distribution.Sample()].NextState;
                 output.Add(next);
@@ -66,14 +75,21 @@ namespace UnitTests
         {
             var trainer = BrightWireProvider.CreateMarkovTrainer3<string>();
             _Train(trainer);
-            var model = trainer.Build().AsDictionary;
+            
+	        // test serialisation/deserialisation
+	        using (var buffer = new MemoryStream()) {
+		        trainer.SerialiseTo(buffer);
+		        buffer.Position = 0;
+		        trainer.DeserialiseFrom(buffer, true);
+	        }
+	        var dictionary = trainer.Build().AsDictionary;
 
             // generate some text
             var rand = new Random();
             string prevPrev = default(string), prev = default(string), curr = default(string);
             var output = new List<string>();
             for (var i = 0; i < 1024; i++) {
-                var transitions = model.GetTransitions(prevPrev, prev, curr);
+                var transitions = dictionary.GetTransitions(prevPrev, prev, curr);
                 var distribution = new Categorical(transitions.Select(d => Convert.ToDouble(d.Probability)).ToArray());
                 var next = transitions[distribution.Sample()].NextState;
                 output.Add(next);

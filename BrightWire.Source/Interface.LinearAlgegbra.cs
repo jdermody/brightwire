@@ -418,15 +418,14 @@ namespace BrightWire
         /// <param name="blockCount">The number of sub vectors to split into</param>
         IReadOnlyList<IVector> Split(int blockCount);
 
-        /// <summary>
-        /// Rotates values in the vector (both horizontally and vertically within blocks)
-        /// </summary>
-        /// <param name="blockCount">The number of blocks in the vector (if any)</param>
-        /// <returns></returns>
-        IVector Rotate(int blockCount = 1);
+		/// <summary>
+		/// Rotates values in the vector (both horizontally and vertically within blocks)
+		/// </summary>
+		/// <param name="blockCount"></param>
+	    void RotateInPlace(int blockCount = 1);
 
         /// <summary>
-        /// In place reversal of the vector's values
+        /// Returns a reversed copy of the vector's values
         /// </summary>
         /// <returns></returns>
         IVector Reverse();
@@ -437,6 +436,8 @@ namespace BrightWire
 		/// <param name="index">The index of the vector to return</param>
 		/// <returns></returns>
 	    float GetAt(int index);
+
+	    bool IsEntirelyFinite();
     }
 
     /// <summary>
@@ -962,7 +963,7 @@ namespace BrightWire
         /// <param name="filterWidth">Width of each filter</param>
         /// <param name="stride">Filter stride</param>
         /// <returns></returns>
-        I3DTensor ReverseIm2Col(IReadOnlyList<IReadOnlyList<IVector>> filter, int outputRows, int outputColumns, int filterWidth, int filterHeight, int stride);
+        I3DTensor ReverseIm2Col(IMatrix filter, int outputRows, int outputColumns, int outputDepth, int filterWidth, int filterHeight, int stride);
 
         /// <summary>
         /// Adds each depth slice into a single matrix
@@ -1109,7 +1110,7 @@ namespace BrightWire
         /// <param name="filterHeight">Filter height</param>
         /// <param name="stride">Filter stride</param>
         /// <returns></returns>
-        I4DTensor ReverseIm2Col(IReadOnlyList<IReadOnlyList<IVector>> filter, int outputRows, int outputColumns, int filterWidth, int filterHeight, int stride);
+        I4DTensor ReverseIm2Col(IMatrix filter, int outputRows, int outputColumns, int outputDepth, int filterWidth, int filterHeight, int stride);
 
         /// <summary>
         /// Sums the columns of each sub-tensor's sub matrix
