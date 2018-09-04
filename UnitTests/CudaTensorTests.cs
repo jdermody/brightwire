@@ -384,23 +384,24 @@ namespace UnitTests
 				matrixList.Add(output.Column(i).AsMatrix(newWidth, newHeight));
 			var outputTensor = _cpu.Create3DTensor(matrixList);
 
-			var cpuFilterList = new List<IReadOnlyList<IVector>>();
-			for (var i = 0; i < cpuFilter.ColumnCount; i++)
-				cpuFilterList.Add(cpuFilter.Column(i).Split(depth).Select(v => v.Rotate()).ToList());
+			//var cpuFilterList = new List<IReadOnlyList<IVector>>();
+			//for (var i = 0; i < cpuFilter.ColumnCount; i++)
+			//	cpuFilterList.Add(cpuFilter.Column(i).Split(depth).Select(v => v.Rotate()).ToList());
 
 			using (var gpuTensor = _cuda.Create3DTensor(outputTensor.Data)) {
 				FloatingPointHelper.AssertEqual(gpuTensor.AsIndexable(), outputTensor.AsIndexable());
-				var gpuFilterList = cpuFilterList.Select(fl => fl.Select(f => _cuda.CreateVector(f.AsIndexable())).ToList()).ToList();
+				var gpuFilter = _cuda.CreateMatrix(cpuFilter.Data);
+				//var gpuFilterList = cpuFilterList.Select(fl => fl.Select(f => _cuda.CreateVector(f.AsIndexable())).ToList()).ToList();
 
-				for (var i = 0; i < cpuFilterList.Count; i++) {
-					var cpuFilters = cpuFilterList[i];
-					var gpuFilters = gpuFilterList[i];
-					for(var j = 0; j < cpuFilters.Count; j++)
-						FloatingPointHelper.AssertEqual(gpuFilters[j].AsIndexable(), cpuFilters[j].AsIndexable());
-				}
+				//for (var i = 0; i < cpuFilterList.Count; i++) {
+				//	var cpuFilters = cpuFilterList[i];
+				//	var gpuFilters = gpuFilterList[i];
+				//	for(var j = 0; j < cpuFilters.Count; j++)
+				//		FloatingPointHelper.AssertEqual(gpuFilters[j].AsIndexable(), cpuFilters[j].AsIndexable());
+				//}
 
-				var cpuReverseIm2Col = outputTensor.ReverseIm2Col(cpuFilterList, inputHeight, inputWidth, filterWidth, filterHeight, stride);
-				using (var gpuReverseIm2Col = gpuTensor.ReverseIm2Col(gpuFilterList, inputHeight, inputWidth, filterWidth, filterHeight, stride)) {
+				var cpuReverseIm2Col = outputTensor.ReverseIm2Col(cpuFilter, inputHeight, inputWidth, depth, filterWidth, filterHeight, stride);
+				using (var gpuReverseIm2Col = gpuTensor.ReverseIm2Col(gpuFilter, inputHeight, inputWidth, depth, filterWidth, filterHeight, stride)) {
 					FloatingPointHelper.AssertEqual(gpuReverseIm2Col.AsIndexable(), cpuReverseIm2Col.AsIndexable());
 				}
 			}
@@ -781,42 +782,42 @@ namespace UnitTests
 			var cpuTensor = _cpu.Create4DTensor(data);
 			var cpuFilter = _cpu.CreateMatrix(depth * filterWidth * filterHeight, filterCount, (i, j) => (float)normalDistribution.Sample());
 
-			var cpuFilterList = new List<IReadOnlyList<IVector>>();
-			for (var i = 0; i < cpuFilter.ColumnCount; i++)
-				cpuFilterList.Add(cpuFilter.Column(i).Split(depth).Select(v => v.Rotate(v.Count / filterWidth)).ToList());
+			//var cpuFilterList = new List<IReadOnlyList<IVector>>();
+			//for (var i = 0; i < cpuFilter.ColumnCount; i++)
+			//	cpuFilterList.Add(cpuFilter.Column(i).Split(depth).Select(v => v.Rotate(v.Count / filterWidth)).ToList());
 
 			using (var gpuTensor = _cuda.Create4DTensor(data))
 			using (var gpuFilter = _cuda.CreateMatrix(cpuFilter.AsIndexable())) {
-				var gpuFilterList = new List<IReadOnlyList<IVector>>();
-				for (var i = 0; i < gpuFilter.ColumnCount; i++) {
-					using (var column = gpuFilter.Column(i)) {
-						var vectors = column.Split(depth);
-						var vectorList = vectors.Select(v => v.Rotate(v.Count / filterWidth)).ToList();
-						gpuFilterList.Add(vectorList);
-						foreach (var item in vectors)
-							item.Dispose();
-					}
-				}
+				//var gpuFilterList = new List<IReadOnlyList<IVector>>();
+				//for (var i = 0; i < gpuFilter.ColumnCount; i++) {
+				//	using (var column = gpuFilter.Column(i)) {
+				//		var vectors = column.Split(depth);
+				//		var vectorList = vectors.Select(v => v.Rotate(v.Count / filterWidth)).ToList();
+				//		gpuFilterList.Add(vectorList);
+				//		foreach (var item in vectors)
+				//			item.Dispose();
+				//	}
+				//}
 
-				for (var i = 0; i < gpuFilter.ColumnCount; i++) {
-					for (var j = 0; j < cpuFilterList[i].Count; j++) {
-						FloatingPointHelper.AssertEqual(cpuFilterList[i][j].AsIndexable(), gpuFilterList[i][j].AsIndexable());
-					}
-				}
+				//for (var i = 0; i < gpuFilter.ColumnCount; i++) {
+				//	for (var j = 0; j < cpuFilterList[i].Count; j++) {
+				//		FloatingPointHelper.AssertEqual(cpuFilterList[i][j].AsIndexable(), gpuFilterList[i][j].AsIndexable());
+				//	}
+				//}
 				FloatingPointHelper.AssertEqual(cpuTensor.AsIndexable(), gpuTensor.AsIndexable());
 
-				var cpuReverseIm2Col = cpuTensor.ReverseIm2Col(cpuFilterList, rows, columns, filterWidth, filterHeight, stride);
-				using (var gpuReverseIm2Col = gpuTensor.ReverseIm2Col(gpuFilterList, rows, columns, filterWidth, filterHeight, stride)) {
+				var cpuReverseIm2Col = cpuTensor.ReverseIm2Col(cpuFilter, rows, columns, depth, filterWidth, filterHeight, stride);
+				using (var gpuReverseIm2Col = gpuTensor.ReverseIm2Col(gpuFilter, rows, columns, depth, filterWidth, filterHeight, stride)) {
 					var cpuResult = cpuReverseIm2Col.AsIndexable();
 					var gpuResult = gpuReverseIm2Col.AsIndexable();
 					var cpuXml = cpuResult.AsXml;
 					var gpuXml = gpuResult.AsXml;
 					FloatingPointHelper.AssertEqual(cpuResult, gpuResult);
 
-					foreach (var filter in gpuFilterList) {
-						foreach (var item in filter)
-							item.Dispose();
-					}
+					//foreach (var filter in gpuFilterList) {
+					//	foreach (var item in filter)
+					//		item.Dispose();
+					//}
 				}
 			}
 		}

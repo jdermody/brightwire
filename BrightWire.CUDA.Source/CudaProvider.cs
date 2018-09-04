@@ -148,7 +148,7 @@ namespace BrightWire.LinearAlgebra
 			_tensorIm2Col,
 			_softmaxDerivative,
 			_reverse,
-			_rotate,
+			_rotateInPlace,
 			_tensorMaxPool,
 			_tensorReverseMaxPool,
 			_tensorReverseIm2Col
@@ -224,7 +224,7 @@ namespace BrightWire.LinearAlgebra
 			_tensorIm2Col = _kernel.LoadFunction("TensorIm2Col");
 			_softmaxDerivative = _kernel.LoadFunction("SoftmaxDerivative");
 			_reverse = _kernel.LoadFunction("Reverse");
-			_rotate = _kernel.LoadFunction("Rotate");
+			_rotateInPlace = _kernel.LoadFunction("RotateInPlace");
 			_tensorMaxPool = _kernel.LoadFunction("TensorMaxPool");
 			_tensorReverseMaxPool = _kernel.LoadFunction("TensorReverseMaxPool");
 			_tensorReverseIm2Col = _kernel.LoadFunction("TensorReverseIm2Col");
@@ -752,12 +752,10 @@ namespace BrightWire.LinearAlgebra
 			return ret;
 		}
 
-		internal IDeviceMemoryPtr Rotate(IDeviceMemoryPtr a, int size, int blockCount)
+		internal void RotateInPlace(IDeviceMemoryPtr a, int size, int blockCount)
 		{
 			var blockSize = size / blockCount;
-			var ret = Allocate(size);
-			_Invoke(_rotate, size, a.DevicePointer, ret.DevicePointer, size, blockCount, blockSize);
-			return ret;
+			_Invoke(_rotateInPlace, size, a.DevicePointer, size, blockCount, blockSize);
 		}
 
 		internal (IDeviceMemoryPtr Data, IDeviceMemoryPtr Indices, int Rows, int Columns) TensorMaxPool(
@@ -888,27 +886,26 @@ namespace BrightWire.LinearAlgebra
 
 		internal (IDeviceMemoryPtr Data, int Rows, int Columns, int Depth, int Count) TensorReverseIm2Col(
 			IDeviceMemoryPtr tensor,
-			IReadOnlyList<IReadOnlyList<IDeviceMemoryPtr>> filterList,
+			IDeviceMemoryPtr filters,
 			int rows,
 			int columns,
 			int depth,
 			int count,
 			int outputRows, 
 			int outputColumns,
+			int outputDepth,
 			int filterWidth,
 			int filterHeight,
-			int stride)
-		{
-			var numFilters = filterList[0].Count;
-			var ret = Allocate(numFilters * outputRows * outputColumns * depth * count, true);
+			int stride
+		) {
+			var ret = Allocate(outputRows * outputColumns * outputDepth * count * depth, true);
 
-			using (var filterPtr = new DeviceMemoryPtrToPtrList(filterList))
 			using (var convolutions = new ConvolutionsData(this, ConvolutionHelper.Default(outputColumns, outputRows, filterWidth, filterHeight, stride))) {
-				var size = depth * convolutions.Count * filterHeight * filterWidth * numFilters * count;
+				var size = depth * convolutions.Count * filterHeight * filterWidth * outputDepth * count;
 				_Invoke(_tensorReverseIm2Col, size,
 					size,
 					tensor.DevicePointer,
-					filterPtr.DevicePointer,
+					filters.DevicePointer,
 					ret.DevicePointer,
 					convolutions.X.DevicePointer,
 					convolutions.Y.DevicePointer,
@@ -920,18 +917,18 @@ namespace BrightWire.LinearAlgebra
 					filterWidth,
 					filterHeight,
 					stride,
-					numFilters,
 					outputRows,
-					outputColumns
+					outputColumns,
+					outputDepth
 				);
 			}
 
 			// add up the per filter buffers
-			var matrix = new GpuMatrix(this, outputRows * outputColumns * numFilters * count, depth, ret, false);
+			var matrix = new GpuMatrix(this, outputRows * outputColumns * outputDepth * count, depth, ret, false);
 			var collapsed = matrix.RowSums();
 			ret.Free();
 
-			return (((IHaveDeviceMemory)collapsed).Memory, outputRows, outputColumns, numFilters, count);
+			return (((IHaveDeviceMemory)collapsed).Memory, outputRows, outputColumns, outputDepth, count);
 
 
 			//return ret.GetAsMatrix();

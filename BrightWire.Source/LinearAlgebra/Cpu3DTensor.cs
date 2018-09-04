@@ -297,7 +297,7 @@ namespace BrightWire.LinearAlgebra
 					var filterOffset = k * filterSize;
 				    for (var y = 0; y < filterHeight; y++) {
 					    for (var x = 0; x < filterWidth; x++) {
-							// write as column major
+							// write in column major format
 							var filterIndex = filterOffset + (x * filterHeight + y);
 						    ret[i, filterIndex] = this[offset.Y + y, offset.X + x, k];
 					    }
@@ -308,25 +308,22 @@ namespace BrightWire.LinearAlgebra
 		    return ret;
 	    }
 
-        public I3DTensor ReverseIm2Col(IReadOnlyList<IReadOnlyList<IVector>> filters, int outputRows, int outputColumns, int filterWidth, int filterHeight, int stride)
+        public I3DTensor ReverseIm2Col(IMatrix filterMatrix, int outputRows, int outputColumns, int outputDepth, int filterWidth, int filterHeight, int stride)
         {
             var convolutions = ConvolutionHelper.Default(outputColumns, outputRows, filterWidth, filterHeight, stride);
-	        var numFilters = filters[0].Count;
-	        var output = Enumerable.Range(0, numFilters).Select(i => DenseMatrix.Create(outputRows, outputColumns, 0f)).ToList();
+	        var output = Enumerable.Range(0, outputDepth).Select(i => DenseMatrix.Create(outputRows, outputColumns, 0f)).ToList();
 
 			for (var k = 0; k < Depth; k++) {
 				var slice = GetMatrixAt(k).AsIndexable();
-				var filterList = filters[k].Select(f => f.AsIndexable()).ToList();
+				var filters = filterMatrix.Column(k).Split(outputDepth).Select(v => v.AsIndexable()).ToList();
 
 				foreach (var (cx, cy) in convolutions) {
 					var error = slice[cy / stride, cx / stride];
 					for (var y = 0; y < filterHeight; y++) {
 						for (var x = 0; x < filterWidth; x++) {
 							var filterIndex = x * filterHeight + y;
-							for (var z = 0; z < numFilters; z++) {
-								var filter = filterList[z];
-								output[z][cy+y, cx+x] += filter[filterIndex] * error;
-							}
+							for (var z = 0; z < outputDepth; z++)
+								output[z][cy+y, cx+x] += filters[z][filterIndex] * error;
 						}
 					}
 				}
@@ -384,7 +381,7 @@ namespace BrightWire.LinearAlgebra
 				    OmitXmlDeclaration = true
 			    };
 			    using (var writer = XmlWriter.Create(new StringWriter(ret), settings)) {
-				    writer.WriteStartElement("tensor");
+				    writer.WriteStartElement("tensor-3d");
 				    foreach(var matrix in _data) {
 					    writer.WriteRaw(matrix.AsXml);
 				    }

@@ -484,11 +484,10 @@ namespace BrightWire.LinearAlgebra
 			return new GpuMatrix(_cuda, Count, Count, ret, true);
 		}
 
-		public IVector Rotate(int blockCount)
+		public void RotateInPlace(int blockCount)
 		{
 			Debug.Assert(IsValid);
-			var ret = _cuda.Rotate(_data, Count, blockCount);
-			return new GpuVector(_cuda, ret, true);
+			_cuda.RotateInPlace(_data, Count, blockCount);
 		}
 
 		public IVector Reverse()

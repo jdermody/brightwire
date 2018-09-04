@@ -23,8 +23,8 @@ namespace BrightWire.SampleCode
                 var graph = new GraphFactory(lap);
 
                 Console.Write("Loading training data...");
-                var trainingData = _BuildTensors(graph, null, Mnist.Load(dataFilesPath + "train-labels.idx1-ubyte", dataFilesPath + "train-images.idx3-ubyte").Where(d => d.Label == 0 || d.Label == 1).Take(1000).ToList());
-                var testData = _BuildTensors(graph, trainingData, Mnist.Load(dataFilesPath + "t10k-labels.idx1-ubyte", dataFilesPath + "t10k-images.idx3-ubyte").Where(d => d.Label == 0 || d.Label == 1).Take(200).ToList());
+                var trainingData = _BuildTensors(graph, null, Mnist.Load(dataFilesPath + "train-labels.idx1-ubyte", dataFilesPath + "train-images.idx3-ubyte").Where(d => d.Label == 0 || d.Label == 1).ToList());
+                var testData = _BuildTensors(graph, trainingData, Mnist.Load(dataFilesPath + "t10k-labels.idx1-ubyte", dataFilesPath + "t10k-images.idx3-ubyte").Where(d => d.Label == 0 || d.Label == 1).ToList());
                 Console.WriteLine($"done - {trainingData.RowCount} training images and {testData.RowCount} test images loaded");
 
                 // one hot encoding uses the index of the output vector's maximum value as the classification label
@@ -37,7 +37,7 @@ namespace BrightWire.SampleCode
                 ;
 
                 // create the network
-                const int HIDDEN_LAYER_SIZE = 256, BATCH_SIZE = 128, TRAINING_ITERATIONS = 20;
+                const int HIDDEN_LAYER_SIZE = 1024, BATCH_SIZE = 128, TRAINING_ITERATIONS = 20;
                 const float LEARNING_RATE = 0.05f;
                 var engine = graph.CreateTrainingEngine(trainingData, LEARNING_RATE, BATCH_SIZE);
                 if (!String.IsNullOrWhiteSpace(outputModelPath) && File.Exists(outputModelPath)) {
@@ -48,10 +48,10 @@ namespace BrightWire.SampleCode
                     }
                 } else {
                     graph.Connect(engine)
-                        .AddConvolutional(filterCount: 16, padding: 2, filterWidth: 5, filterHeight: 5, stride: 1, shouldBackpropagate: false)
+                        .AddConvolutional(filterCount: 8, padding: 2, filterWidth: 5, filterHeight: 5, stride: 1, shouldBackpropagate: false, name:"c1")
                         .Add(graph.LeakyReluActivation())
                         .AddMaxPooling(filterWidth: 2, filterHeight: 2, stride: 2)
-                        .AddConvolutional(filterCount: 32, padding: 2, filterWidth: 5, filterHeight: 5, stride: 1)
+                        .AddConvolutional(filterCount: 12, padding: 2, filterWidth: 5, filterHeight: 5, stride: 1, shouldBackpropagate: true, name:"c2")
                         .Add(graph.LeakyReluActivation())
                         .AddMaxPooling(filterWidth: 2, filterHeight: 2, stride: 2)
                         .Transpose()

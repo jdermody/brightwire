@@ -405,7 +405,7 @@ namespace BrightWire.ExecutionGraph
         /// <param name="filterWidth">Width of each filter</param>
         /// <param name="filterHeight">Height of each filter</param>
         /// <param name="stride">Convolutional stride</param>
-        /// <param name="shouldBackpropagate">True to backpropagate an error signal</param>
+        /// <param name="shouldBackpropagate">True to calculate the backpropagation error signal</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
         public INode CreateConvolutional(int inputDepth, int filterCount, int padding, int filterWidth, int filterHeight, int stride, bool shouldBackpropagate = true, string name = null)

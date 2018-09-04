@@ -409,19 +409,40 @@ namespace BrightWire.LinearAlgebra
             return ret;
         }
 
-        public IVector Rotate(int blockCount)
-        {
-            var blockSize = Count / blockCount;
-	        var ret = new float[Count];
+	    public void RotateInPlace(int blockCount)
+	    {
+		    var blockSize = Count / blockCount;
 
-	        for (int i = 0, len = Count; i < len; i++) {
-		        int blockIndex = i / blockSize;
-		        int blockOffset = i % blockSize;
-		        ret[(blockIndex * blockSize) + blockSize-blockOffset-1] = this[i];
-	        }
+		    for (int i = 0, len = Count; i < len; i += 2) {
+			    int blockIndex = i / blockSize;
+			    int blockOffset = i % blockSize;
 
-	        return new CpuVector(new DenseVector(ret));
-        }
+			    int index1 = blockIndex * blockSize + blockSize - blockOffset - 1;
+			    int index2 = blockIndex * blockSize + blockOffset; 
+			    var temp = this[index1];
+			    this[index1] = this[index2];
+			    this[index2] = temp;
+		    }
+	    }
+
+        //public void RotateInPlace(int blockCount, int subBlockCount)
+        //{
+        //    var blockSize = Count / blockCount;
+	       // var subBlockSize = blockSize / subBlockCount;
+
+	       // for (int i = 0, len = Count; i < len; i += 2) {
+		      //  int blockIndex = i / blockSize;
+		      //  int blockOffset = i % blockSize;
+		      //  int subBlockIndex = blockOffset / subBlockSize;
+		      //  int subBlockOffset = blockOffset % subBlockSize;
+
+		      //  int index1 = blockIndex * blockSize + (subBlockIndex * subBlockSize) + subBlockSize - subBlockOffset - 1;
+		      //  int index2 = blockIndex * blockSize + (subBlockIndex * subBlockSize) + subBlockOffset; 
+		      //  var temp = this[index1];
+		      //  this[index1] = this[index2];
+		      //  this[index2] = temp;
+	       // }
+        //}
 
         public IVector Reverse()
         {

@@ -723,28 +723,24 @@ namespace UnitTests
         public void VectorRotate()
         {
 	        const int blockCount = 1;
-            var a = _cpu.CreateVector(4, i => i+1).AsIndexable();
-            var cpuResult = a.Rotate(blockCount).AsIndexable();
-            IIndexableVector result;
+            var a = _cpu.CreateVector(4, i => i+1).AsIndexable();            
             using (var gpuA = _cuda.CreateVector(a)) {
-                var gpuResult = gpuA.Rotate(blockCount);
-                result = gpuResult.AsIndexable();
+	            a.RotateInPlace(blockCount);
+                gpuA.RotateInPlace(blockCount);
+	            FloatingPointHelper.AssertEqual(gpuA.AsIndexable(), a.AsIndexable());
             }
-            FloatingPointHelper.AssertEqual(result, cpuResult);
         }
 
 	    [TestMethod]
 	    public void VectorRotate2()
 	    {
 		    const int blockCount = 2;
-		    var a = _cpu.CreateVector(8, i => i+1).AsIndexable();
-		    var cpuResult = a.Rotate(2).AsIndexable();
-		    IIndexableVector result;
+		    var a = _cpu.CreateVector(8, i => i+1).AsIndexable();            
 		    using (var gpuA = _cuda.CreateVector(a)) {
-			    var gpuResult = gpuA.Rotate(blockCount);
-			    result = gpuResult.AsIndexable();
+			    a.RotateInPlace(blockCount);
+			    gpuA.RotateInPlace(blockCount);
+			    FloatingPointHelper.AssertEqual(gpuA.AsIndexable(), a.AsIndexable());
 		    }
-		    FloatingPointHelper.AssertEqual(result, cpuResult);
 	    }
     }
 }

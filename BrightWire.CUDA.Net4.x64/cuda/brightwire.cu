@@ -654,7 +654,7 @@ extern "C"
     __global__ void TensorReverseIm2Col(
         int size, 
         float* a, 
-        float*** ppFilters, 
+        float* filters, 
         float* b, 
         float* cx, 
         float* cy, 
@@ -666,13 +666,13 @@ extern "C"
         int filterWidth, 
         int filterHeight, 
         int stride, 
-        int numFilters, 
         int outputRows,
-        int outputColumns
+        int outputColumns,
+        int outputDepth
     ) {
         for (int index = blockDim.x * blockIdx.x + threadIdx.x; index < size; index += blockDim.x * gridDim.x) {
-            int z = index % numFilters;
-            int index2 = index / numFilters;
+            int z = index % outputDepth;
+            int index2 = index / outputDepth;
 
             int x = index2 % filterWidth;
             int index3 = index2 / filterWidth;
@@ -695,14 +695,14 @@ extern "C"
                 k, depth, 
                 x, filterWidth, 
                 y, filterHeight, 
-                z, numFilters, 
+                z, outputDepth, 
                 offsetX, offsetY
             );*/
 
             float* slice = a + (i * rows * columns * depth) + (k * rows * columns);
-            float* filter = ppFilters[k][z];
-            float* output = b + (k * outputRows * outputColumns * numFilters * count) 
-                + (i * outputRows * outputColumns * numFilters) 
+            float* filter = filters + (k * outputDepth * filterWidth * filterHeight) + (z * filterWidth * filterHeight);
+            float* output = b + (k * outputRows * outputColumns * outputDepth * count) 
+                + (i * outputRows * outputColumns * outputDepth) 
                 + (z * outputRows * outputColumns)
             ;
 
@@ -731,12 +731,16 @@ extern "C"
         }
 	}
 
-	__global__ void Rotate(float* a, float* b, int size, int blockCount, int blockSize)
+	__global__ void RotateInPlace(float* a, int size, int blockCount, int blockSize)
 	{
         for (int index = blockDim.x * blockIdx.x + threadIdx.x; index < size; index += blockDim.x * gridDim.x) {
             int blockIndex = index / blockSize;
 			int blockOffset = index % blockSize;
-			b[(blockIndex * blockSize) + blockSize-blockOffset-1] = a[index];
+            int index1 = blockIndex * blockSize + blockSize - blockOffset - 1;
+			int index2 = blockIndex * blockSize + blockOffset; 
+			float temp = a[index1];
+			a[index1] = a[index2];
+			a[index2] = temp;
         }
 	}
 
