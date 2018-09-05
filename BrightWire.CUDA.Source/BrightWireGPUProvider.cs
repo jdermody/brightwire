@@ -15,7 +15,7 @@ namespace BrightWire
         /// <param name="stochastic">False to disable random number generation</param>
         /// <param name="memoryCacheSize">The amount of device memory to use an application memory cache</param>
         /// <param name="cudaKernelPath">Path to .cubin or .ptx kernel file (defaults to .ptx file for forward compatability)</param>
-        public static ILinearAlgebraProvider CreateLinearAlgebra(bool stochastic = true, int memoryCacheSize = 256 * 1048576, string cudaKernelPath = null)
+        public static ILinearAlgebraProvider CreateLinearAlgebra(bool stochastic = true, int memoryCacheSize = 512 * 1048576, string cudaKernelPath = null)
         {
             var path = cudaKernelPath ?? GetKernelPath();
             if (!File.Exists(path))
