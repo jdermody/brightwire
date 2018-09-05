@@ -49,7 +49,7 @@ namespace BrightWire.LinearAlgebra
 					paramList[i] = handleList[i].AddrOfPinnedObject();
 				}
 
-				DriverAPINativeMethods.Launch.cuLaunchKernel(_function,
+				var result = DriverAPINativeMethods.Launch.cuLaunchKernel(_function,
 					_block.x, _block.y, _block.z,
 					_thread.x, _thread.y, _thread.z,
 					sharedMemSize,
@@ -61,6 +61,8 @@ namespace BrightWire.LinearAlgebra
 				// free the handles
 				for (int i = 0; i < param.Length; i++)
 					handleList[i].Free();
+
+				CheckForError(result);
 			}
 		}
 
@@ -95,8 +97,6 @@ namespace BrightWire.LinearAlgebra
 		readonly KernelModule _kernel;
 		readonly ILinearAlgebraProvider _numerics = BrightWireProvider.CreateLinearAlgebra();
 		readonly DeviceMemory _cache;
-		readonly int _multiProcessorCount, _maxThreadsPerBlock, _warpSize, _numRegistersPerBlock, _sharedMemoryPerBlock;
-		readonly dim3 _maxGridDim, _maxBlockDim;
 		readonly CUfunction
 			_pointwiseMultiply,
 			_addInPlace,
@@ -158,19 +158,10 @@ namespace BrightWire.LinearAlgebra
 		public CudaProvider(string cudaKernelPath, bool stochastic, int memoryCacheSize)
 		{
 			IsStochastic = stochastic;
-			_cache = new DeviceMemory(memoryCacheSize);
 			_cuda = new CudaContext();
+			_cache = new DeviceMemory(_cuda, memoryCacheSize);
 			_kernel = new KernelModule(_cuda, cudaKernelPath);
 			_blas = new CudaBlas(AtomicsMode.Allowed);
-
-			var deviceInfo = _cuda.GetDeviceInfo();
-			_multiProcessorCount = deviceInfo.MultiProcessorCount;
-			_maxThreadsPerBlock = deviceInfo.MaxThreadsPerBlock;
-			_maxGridDim = deviceInfo.MaxGridDim;
-			_maxBlockDim = deviceInfo.MaxBlockDim;
-			_warpSize = deviceInfo.WarpSize;
-			_numRegistersPerBlock = deviceInfo.RegistersPerBlock;
-			_sharedMemoryPerBlock = deviceInfo.SharedMemoryPerBlock;
 			_cuda.SetCurrent();
 
 			_pointwiseMultiply = _kernel.LoadFunction("PointwiseMultiply");
@@ -263,6 +254,20 @@ namespace BrightWire.LinearAlgebra
 		int _GetBlockCount(int size, int blockSize)
 		{
 			return ((size / blockSize) + 1);
+		}
+
+		internal static void CheckForError(CUResult result)
+		{
+			if (result != CUResult.Success) {
+				string errorName = "", errorDesc = "";
+				IntPtr errorNamePtr = IntPtr.Zero, errorDescPtr = IntPtr.Zero;
+				if (DriverAPINativeMethods.ErrorHandling.cuGetErrorName(result, ref errorNamePtr) == CUResult.Success && errorNamePtr != IntPtr.Zero)
+					errorName = Marshal.PtrToStringUni(errorNamePtr);
+				if(DriverAPINativeMethods.ErrorHandling.cuGetErrorString(result, ref errorDescPtr) == CUResult.Success && errorDescPtr != IntPtr.Zero)
+					errorDesc = Marshal.PtrToStringUni(errorDescPtr);
+					
+				throw new Exception($"{result.ToString()}: {errorName}-{errorDesc}");
+			}
 		}
 
 		void _Invoke(CUfunction function, int size, params object[] param)
@@ -833,7 +838,7 @@ namespace BrightWire.LinearAlgebra
 			int filterHeight,
 			int stride
 		) {
-			var ret = Allocate(outputRows * outputColumns * outputDepth * count * depth, true);
+			var ret = Allocate(outputRows * outputColumns * outputDepth * count, true);
 
 			using (var convolutions = new ConvolutionsData(this, ConvolutionHelper.Default(outputColumns, outputRows, filterWidth, filterHeight, stride))) {
 				var size = depth * convolutions.Count * filterHeight * filterWidth * outputDepth * count;
@@ -858,17 +863,25 @@ namespace BrightWire.LinearAlgebra
 				);
 			}
 
-			// add up the per filter buffers
-			var matrix = new GpuMatrix(this, outputRows * outputColumns * outputDepth * count, depth, ret, false);
-			var collapsed = matrix.RowSums();
-			ret.Free();
+			return (ret, outputRows, outputColumns, outputDepth, count);
 
-			return (((IHaveDeviceMemory)collapsed).Memory, outputRows, outputColumns, outputDepth, count);
+			// add up the per filter buffers
+			//var matrix = new GpuMatrix(this, outputRows * outputColumns * outputDepth * count, depth, ret, false);
+			//var collapsed = matrix.RowSums();
+			//ret.Free();
+
+			//return (((IHaveDeviceMemory)collapsed).Memory, outputRows, outputColumns, outputDepth, count);
 		}
 
-		public (IDeviceMemoryPtr Data, int Rows, int Columns) CalculateDistance(IDeviceMemoryPtr a, IDeviceMemoryPtr b, int aColumns, int rows, int bColumns, DistanceMetric distanceMetric)
-		{
-			var ret = Allocate(aColumns * bColumns * rows);
+		public (IDeviceMemoryPtr Data, int Rows, int Columns) CalculateDistance(
+			IDeviceMemoryPtr a, 
+			IDeviceMemoryPtr b, 
+			int aColumns, 
+			int rows, 
+			int bColumns, 
+			DistanceMetric distanceMetric
+		) {
+			var ret = Allocate(aColumns * bColumns);
 
 			_Invoke3(_calculateDistance, rows, aColumns, bColumns,
 				a.DevicePointer,
@@ -880,12 +893,7 @@ namespace BrightWire.LinearAlgebra
 				(int)distanceMetric
 			);
 
-			// reduce per row
-			var matrix = new GpuMatrix(this, aColumns * bColumns, rows, ret, false);
-			var collapsed = matrix.RowSums();
-			ret.Free();
-
-			return (((IHaveDeviceMemory)collapsed).Memory, bColumns, aColumns);
+			return (ret, bColumns, aColumns);
 		}
 
 		public IVector CreateVector(int length, bool setToZero = false)

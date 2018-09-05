@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using BrightWire.LinearAlgebra;
 
 namespace BrightWire.Cuda.Helper
 {
@@ -34,7 +35,12 @@ namespace BrightWire.Cuda.Helper
             {
                 _cache = cache;
                 _index = index;
-                _data = new CudaDeviceVariable<float>(size);
+
+	            var sizeInBytes = size * CudaProvider.FLOAT_SIZE;
+	            var ptr = new CUdeviceptr();
+	            var result = DriverAPINativeMethods.MemoryManagement.cuMemAlloc_v2(ref ptr, sizeInBytes);
+	            CudaProvider.CheckForError(result);
+                _data = new CudaDeviceVariable<float>(ptr, true, sizeInBytes);
 
 #if DEBUG
                 if (_index == _badAlloc)
@@ -117,12 +123,14 @@ namespace BrightWire.Cuda.Helper
             }
         }
         readonly int _maxSize;
+		readonly CudaContext _context;
         readonly ConcurrentStack<Layer> _layer = new ConcurrentStack<Layer>();
         readonly ConcurrentDictionary<int, ThreadSafeHashSet<Block>> _cache = new ConcurrentDictionary<int, ThreadSafeHashSet<Block>>();
         int _index = 0;
 
-        public DeviceMemory(int maxSize)
+        public DeviceMemory(CudaContext context, int maxSize)
         {
+	        _context = context;
             _maxSize = maxSize;
             PushLayer();
         }
