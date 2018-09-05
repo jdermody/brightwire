@@ -150,7 +150,8 @@ namespace BrightWire.LinearAlgebra
 			_tensorMaxPool,
 			_tensorReverseMaxPool,
 			_tensorReverseIm2Col,
-			_isFinite
+			_isFinite,
+			_calculateDistance
 		;
 		bool _disposed = false;
 
@@ -225,6 +226,7 @@ namespace BrightWire.LinearAlgebra
 			_tensorReverseMaxPool = _kernel.LoadFunction("TensorReverseMaxPool");
 			_tensorReverseIm2Col = _kernel.LoadFunction("TensorReverseIm2Col");
 			_isFinite = _kernel.LoadFunction("IsFinite");
+			_calculateDistance = _kernel.LoadFunction("CalculateDistances");
 		}
 
 		protected virtual void Dispose(bool disposing)
@@ -263,14 +265,6 @@ namespace BrightWire.LinearAlgebra
 			return ((size / blockSize) + 1);
 		}
 
-		void _Invoke2(CUfunction function, int rows, int columns, params object[] param)
-		{
-			var x = _GetBlockCount(rows, BLOCK_DIM);
-			var y = _GetBlockCount(columns, BLOCK_DIM);
-			var execution = _kernel.CreateExecution(function, new dim3(x, y), new dim3(BLOCK_DIM, BLOCK_DIM));
-			execution.Run(0, param);
-		}
-
 		void _Invoke(CUfunction function, int size, params object[] param)
 		{
 			var x = _GetBlockCount(size, BLOCK_DIM2);
@@ -283,6 +277,24 @@ namespace BrightWire.LinearAlgebra
 			var x = _GetBlockCount(size, BLOCK_DIM2);
 			var execution = _kernel.CreateExecution(function, x, BLOCK_DIM2);
 			execution.Run(sharedMemorySize, param);
+		}
+
+		void _Invoke2(CUfunction function, int rows, int columns, params object[] param)
+		{
+			var x = _GetBlockCount(rows, BLOCK_DIM);
+			var y = _GetBlockCount(columns, BLOCK_DIM);
+			var execution = _kernel.CreateExecution(function, new dim3(x, y), new dim3(BLOCK_DIM, BLOCK_DIM));
+			execution.Run(0, param);
+		}
+
+		void _Invoke3(CUfunction function, int rows, int columns, int depth, params object[] param)
+		{
+			const int size = BLOCK_DIM / 2;
+			var x = _GetBlockCount(rows, size);
+			var y = _GetBlockCount(columns, size);
+			var z = _GetBlockCount(depth, size);
+			var execution = _kernel.CreateExecution(function, new dim3(x, y, z), new dim3(size, size, size));
+			execution.Run(0, param);
 		}
 
 		internal bool IsFinite(IDeviceMemoryPtr a, int size)
@@ -452,7 +464,7 @@ namespace BrightWire.LinearAlgebra
 					var maxBlock = Allocate(bufferSize, true);
 
 					try {
-						_InvokeWithSharedMemory(_findMinAndMax, size, BLOCK_DIM2, ptr.DevicePointer, size, minBlock.DevicePointer, maxBlock.DevicePointer);
+						_Invoke(_findMinAndMax, size, ptr.DevicePointer, size, minBlock.DevicePointer, maxBlock.DevicePointer);
 						if (ptr != a)
 							ptr.Free();
 						size = bufferSize * 2;
@@ -488,7 +500,7 @@ namespace BrightWire.LinearAlgebra
 			while (size > BLOCK_DIM2) {
 				var bufferSize = (size / BLOCK_DIM2) + 1;
 				var sumBlock = Allocate(bufferSize, true);
-				_InvokeWithSharedMemory(_findSum, size, BLOCK_DIM2, ptr.DevicePointer, size, sumBlock.DevicePointer);
+				_Invoke(_findSum, size, ptr.DevicePointer, size, sumBlock.DevicePointer);
 				if (ptr != a)
 					ptr.Free();
 				size = bufferSize;
@@ -509,7 +521,7 @@ namespace BrightWire.LinearAlgebra
 				while (size > BLOCK_DIM2) {
 					var bufferSize = (size / BLOCK_DIM2) + 1;
 					var sumBlock = Allocate(bufferSize, true);
-					_InvokeWithSharedMemory(_findStdDev, size, BLOCK_DIM2, ptr.DevicePointer, size, mean, sumBlock.DevicePointer);
+					_Invoke(_findStdDev, size, ptr.DevicePointer, size, mean, sumBlock.DevicePointer);
 					if (ptr != a)
 						ptr.Free();
 					size = bufferSize;
@@ -854,6 +866,28 @@ namespace BrightWire.LinearAlgebra
 			return (((IHaveDeviceMemory)collapsed).Memory, outputRows, outputColumns, outputDepth, count);
 		}
 
+		public (IDeviceMemoryPtr Data, int Rows, int Columns) CalculateDistance(IDeviceMemoryPtr a, IDeviceMemoryPtr b, int aColumns, int rows, int bColumns, DistanceMetric distanceMetric)
+		{
+			var ret = Allocate(aColumns * bColumns * rows);
+
+			_Invoke3(_calculateDistance, rows, aColumns, bColumns,
+				a.DevicePointer,
+				b.DevicePointer,
+				ret.DevicePointer,
+				aColumns,
+				rows,
+				bColumns,
+				(int)distanceMetric
+			);
+
+			// reduce per row
+			var matrix = new GpuMatrix(this, aColumns * bColumns, rows, ret, false);
+			var collapsed = matrix.RowSums();
+			ret.Free();
+
+			return (((IHaveDeviceMemory)collapsed).Memory, bColumns, aColumns);
+		}
+
 		public IVector CreateVector(int length, bool setToZero = false)
 		{
 			var data = Allocate(length, setToZero);
@@ -896,7 +930,7 @@ namespace BrightWire.LinearAlgebra
 			var rows = vectorColumns[0].Count;
 
 			var ret = Allocate(rows * columns);
-			using (var devicePtr = new CudaDeviceVariable<CUdeviceptr>(rows)) {
+			using (var devicePtr = new CudaDeviceVariable<CUdeviceptr>(columns)) {
 				devicePtr.CopyToDevice(vectorColumns.Cast<IHaveDeviceMemory>().Select(d => d.Memory.DevicePointer).ToArray());
 				_Invoke2(_copyToMatrixColumns, rows, columns, devicePtr.DevicePointer, ret.DevicePointer, rows, columns);
 			}

@@ -10,6 +10,7 @@ using System.Text;
 using System.Xml;
 using BrightWire.ExecutionGraph.Helper;
 using BrightWire.Models;
+using BrightWire.Source.Helper;
 using MathNet.Numerics;
 using MathNet.Numerics.Distributions;
 
@@ -139,14 +140,14 @@ namespace BrightWire.SampleCode
 			const string ModelBasePath = @"c:\temp\";
 
 			// uncomment to use the (faster) native MKL provider if available
-			// Control.UseNativeMKL();
+			 Control.UseNativeMKL();
 
 			//XOR();
 			//IrisClassification();
 			//IrisClustering();
 			//MarkovChains();
 			//MNIST(DataBasePath + @"mnist\");
-			MNISTConvolutional(DataBasePath + @"mnist\"/*, ModelBasePath + @"mnist.dat"*/);
+			//MNISTConvolutional(DataBasePath + @"mnist\"/*, ModelBasePath + @"mnist.dat"*/);
 			//SentimentClassification(DataBasePath + @"sentiment labelled sentences\");
 			//TextClustering(DataBasePath + @"[UCI] AAAI-14 Accepted Papers - Papers.csv", ModelBasePath);
 			//IntegerAddition();
@@ -162,22 +163,38 @@ namespace BrightWire.SampleCode
 			//MultiLabelMultiClassifiers(DataBasePath + @"emotions\emotions.arff");
 
 
-			//using (var lap = BrightWireProvider.CreateLinearAlgebra()) {
-			//	var rand = new Random();
-			//	var list = new List<IVector>();
-			//	Console.Write("Loading...");
-			//	const int VECTOR_COUNT = 1024, VECTOR_SIZE = 256;
-			//	for (var i = 0; i < VECTOR_COUNT; i++) {
-			//		var vector = lap.CreateVector(VECTOR_SIZE, j => (float)rand.NextDouble());
-			//		list.Add(vector);
-			//	}
-			//	Console.WriteLine("done");
+			using (var lap = BrightWireGpuProvider.CreateLinearAlgebra()) {
+				var rand = new Random();
+				var list = new List<IVector>();
+				Console.Write("Loading...");
+				const int VECTOR_COUNT = 1024, VECTOR_SIZE = 256;
+				for (var i = 0; i < VECTOR_COUNT; i++) {
+					var vector = lap.CreateVector(VECTOR_SIZE, j => (float)rand.NextDouble());
+					list.Add(vector);
+				}
 
-			//	var stopwatch = new Stopwatch();
-			//	stopwatch.Start();
-			//	var clusters = list.KMeans(50);
-			//	Console.WriteLine(stopwatch.ElapsedMilliseconds);
-			//}
+				//var distance = new VectorDistanceHelper(lap, list);
+				//for (var i = 0; i < COMPARISON_SIZE; i++)
+				//	distance.AddForComparison(lap.CreateVector(VECTOR_SIZE, j => (float) rand.NextDouble()));
+
+				Console.WriteLine("done");
+
+				var stopwatch = new Stopwatch();
+				stopwatch.Start();
+
+				//for (var z = 0; z < 10; z++) {
+				//	var distribution = distance.GetCategoricalDistribution();
+				//	var closest = distance.GetClosest();
+				//	var clusters = closest
+				//		.Select((ci, i) => (ci, i))
+				//		.GroupBy(d => d.Item1)
+				//		.Select(c => distance.GetAverageFromData(c.Select(d => d.Item2).ToList()))
+				//		.ToList();
+				//}
+
+				var clusters = list.KMeans(lap, 50);
+				Console.WriteLine(stopwatch.ElapsedMilliseconds);
+			}
 
 			// load and normalise the data
 			//var dataSet = new StreamReader(@"C:\Users\jack\Desktop\lstm\XBTEUR.csv").ParseCSV(';', true);

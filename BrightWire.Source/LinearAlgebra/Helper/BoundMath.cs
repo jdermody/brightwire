@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace BrightWire.LinearAlgebra.Helper
 {
@@ -88,5 +89,32 @@ namespace BrightWire.LinearAlgebra.Helper
 	    {
 		    return !IsZero(value);
 	    }
+
+	    class EqualityComparer : IEqualityComparer<float>
+	    {
+		    readonly float _tolerance;
+
+		    public EqualityComparer(float tolerance)
+		    {
+			    _tolerance = tolerance;
+		    }
+
+		    public bool Equals(float x, float y)
+		    {
+			    return Math.Abs(Math.Abs(x) - Math.Abs(y)) < _tolerance;
+		    }
+
+		    public int GetHashCode(float obj)
+		    {
+			    return obj.GetHashCode();
+		    }
+	    }
+
+	    /// <summary>
+	    /// Used for comparing floating point numbers (if they are within the tolerance they are considered equal)
+	    /// </summary>
+	    /// <param name="tolerance">Tolerance to consider if two floating point numbers are the same</param>
+	    /// <returns></returns>
+	    public static IEqualityComparer<float> GetEqualityComparer(float tolerance = ZERO_LIKE) => new EqualityComparer(tolerance);
     }
 }

@@ -39,7 +39,7 @@ namespace UnitTests
             var clusters = data
                 .Select(d => d.Key)
                 .ToList()
-                .KMeans(2)
+                .KMeans(_lap, 2)
             ;
             var clusterLabels = clusters
                 .Select(d => d.Select(d2 => data[d2]).ToArray())

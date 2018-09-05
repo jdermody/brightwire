@@ -676,5 +676,15 @@ namespace BrightWire.LinearAlgebra
 	        Debug.Assert(IsValid && rows * columns * depth == _rows);
             return new Gpu4DTensor(_cuda, rows, columns, depth, _columns, _data, false);
         }
+
+	    public IMatrix CalculateDistance(IMatrix comparison, DistanceMetric distanceMetric)
+	    {
+		    Debug.Assert(IsValid && comparison.RowCount == _rows);
+		    var other = (IHaveDeviceMemory)comparison;
+		    var data = _cuda.CalculateDistance(_data, other.Memory, _columns, _rows, comparison.ColumnCount, distanceMetric);
+		    var ret = new GpuMatrix(_cuda, data.Rows, data.Columns, data.Data, true);
+
+		    return ret.Sqrt();
+	    }
     }
 }

@@ -42,7 +42,7 @@ namespace BrightWire.SampleCode
                 Console.WriteLine();
 
                 Console.WriteLine("K Means Clustering...");
-                _WriteClusters(rows.KMeans(3), labels);
+                _WriteClusters(rows.KMeans(lap, 3), labels);
                 Console.WriteLine();
             }
         }

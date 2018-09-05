@@ -847,4 +847,26 @@ extern "C"
             target[targetX * outputRows + targetY] = val;
         }
 	}
+
+    __global__ void CalculateDistances(
+        float* a,
+        float* b,
+        float* c,
+        int aColumns,
+        int rows,
+        int bColumns,
+        int distanceMetric
+    ) {
+        for (int i = blockDim.x * blockIdx.x + threadIdx.x; i < rows; i += blockDim.x * gridDim.x) {
+            for (int j = blockDim.y * blockIdx.y + threadIdx.y; j < aColumns; j += blockDim.y * gridDim.y) {
+                for (int k = blockDim.z * blockIdx.z + threadIdx.z; k < bColumns; k += blockDim.z * gridDim.z) {
+                    float aVal = a[j * rows + i];
+                    float bVal = b[k * rows + i];
+
+                    float* output = c + (i * aColumns * bColumns);
+                    output[j * bColumns + k] = pow(aVal - bVal, 2);
+                }
+            }
+        }
+	}
 }

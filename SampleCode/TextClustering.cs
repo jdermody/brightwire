@@ -116,7 +116,7 @@ namespace BrightWire.SampleCode
                 var vectorList = lookupTable.Select(d => d.Key).ToList();
 
                 Console.WriteLine("Kmeans clustering...");
-                _WriteClusters(outputPath + "kmeans.txt", vectorList.KMeans(allGroups.Count), lookupTable);
+                _WriteClusters(outputPath + "kmeans.txt", vectorList.KMeans(lap, allGroups.Count), lookupTable);
 
                 Console.WriteLine("NNMF clustering...");
                 _WriteClusters(outputPath + "nnmf.txt", vectorList.NNMF(lap, allGroups.Count, 100), lookupTable);
@@ -132,7 +132,7 @@ namespace BrightWire.SampleCode
                         var lookupTable2 = vectorList2.Select((v, i) => Tuple.Create(v, vectorList[i])).ToDictionary(d => d.Item1, d => lookupTable[d.Item2]);
 
                         Console.WriteLine("Kmeans clustering of random projection...");
-                        _WriteClusters(outputPath + "projected-kmeans.txt", vectorList2.KMeans(allGroups.Count), lookupTable2);
+                        _WriteClusters(outputPath + "projected-kmeans.txt", vectorList2.KMeans(lap, allGroups.Count), lookupTable2);
                         vectorList2.ForEach(v => v.Dispose());
                     }
                 }
@@ -155,7 +155,7 @@ namespace BrightWire.SampleCode
                     var lookupTable3 = vectorList3.Select((v, i) => Tuple.Create(v, vectorList[i])).ToDictionary(d => (IVector)d.Item1, d => lookupTable[d.Item2]);
 
                     Console.WriteLine("Kmeans clustering in latent document space...");
-                    _WriteClusters(outputPath + "latent-kmeans.txt", vectorList3.KMeans(allGroups.Count), lookupTable3);
+                    _WriteClusters(outputPath + "latent-kmeans.txt", vectorList3.KMeans(lap, allGroups.Count), lookupTable3);
                 }
             }
         }

@@ -125,13 +125,14 @@ namespace BrightWire
 	    /// K Means uses coordinate descent and a distance metric between randomly selected centroids to cluster the data
 	    /// </summary>
 	    /// <param name="data">The list of vectors to cluster</param>
+	    /// <param name="lap">Linear algebra provider</param>
 	    /// <param name="k">The number of clusters to find</param>
 	    /// <param name="maxIterations">The maximum number of iterations</param>
 	    /// <param name="distanceMetric">Distance metric to use to compare centroids</param>
 	    /// <returns>A list of k clusters</returns>
-	    public static IReadOnlyList<IReadOnlyList<IVector>> KMeans(this IReadOnlyList<IVector> data, int k, int maxIterations = 1000, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
+	    public static IReadOnlyList<IReadOnlyList<IVector>> KMeans(this IReadOnlyList<IVector> data, ILinearAlgebraProvider lap, int k, int maxIterations = 1000, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
         {
-            using (var clusterer = new KMeans(k, data, distanceMetric)) {
+            using (var clusterer = new KMeans(lap, k, data, distanceMetric)) {
                 clusterer.ClusterUntilConverged(maxIterations);
                 return clusterer.Clusters;
             }

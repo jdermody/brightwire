@@ -808,6 +808,14 @@ namespace BrightWire
 		/// <param name="depth">Depth of each 3D tensor</param>
 		/// <returns></returns>
 	    I4DTensor ReshapeAs4DTensor(int rows, int columns, int depth);
+
+		/// <summary>
+		/// Compares each column of this matrix (nxa) against the columns in the comparison matrix (nxb).
+		/// NOTE: Row counts need to match!
+		/// </summary>
+		/// <param name="comparison"></param>
+		/// <returns>Matrix of distance metric output (axb)</returns>
+		IMatrix CalculateDistance(IMatrix comparison, DistanceMetric distanceMetric);
     }
 
     /// <summary>

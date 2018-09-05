@@ -72,7 +72,7 @@
     <None Include="app.config" />
     <None Include="cuda\brightwire.cu" />
     <None Include="cuda\brightwire.ptx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="packages.config">
       <SubType>Designer</SubType>
