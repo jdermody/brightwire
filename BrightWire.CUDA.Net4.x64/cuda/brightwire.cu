@@ -684,7 +684,7 @@ extern "C"
 
             float* slice = a + (i * rows * columns * depth) + (k * rows * columns);
             float* filter = filters + (k * outputDepth * filterWidth * filterHeight) + (z * filterWidth * filterHeight);
-            float* output = b + (k * outputRows * outputColumns * outputDepth * count) 
+            float* output = b //+ (k * outputRows * outputColumns * outputDepth * count) 
                 + (i * outputRows * outputColumns * outputDepth) 
                 + (z * outputRows * outputColumns)
             ;
@@ -697,7 +697,7 @@ extern "C"
             int outputIndex = (offsetX+x) * outputRows + (offsetY+y);
             float val = filter[filterIndex] * error;
 
-            output[outputIndex] = val;
+            atomicAdd(output + outputIndex, val);
         }
     }
 
@@ -862,9 +862,13 @@ extern "C"
                 for (int k = blockDim.z * blockIdx.z + threadIdx.z; k < bColumns; k += blockDim.z * gridDim.z) {
                     float aVal = a[j * rows + i];
                     float bVal = b[k * rows + i];
+                    float output = 0;
 
-                    float* output = c + (i * aColumns * bColumns);
-                    output[j * bColumns + k] = pow(aVal - bVal, 2);
+                    if(distanceMetric == 1) { // euclidean
+                        output = pow(aVal - bVal, 2);
+                    }
+                    float* outputPtr = c + (j * bColumns + k);
+                    atomicAdd(outputPtr, output);
                 }
             }
         }
