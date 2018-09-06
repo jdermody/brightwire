@@ -7,7 +7,7 @@ using BrightWire.LinearAlgebra;
 using ManagedCuda;
 using ManagedCuda.BasicTypes;
 
-namespace BrightWire.CUDA.Source.Helper
+namespace BrightWire.Cuda.Helper
 {
     class ConvolutionsData : IDisposable
     {

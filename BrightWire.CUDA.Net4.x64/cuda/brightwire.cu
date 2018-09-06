@@ -851,25 +851,26 @@ extern "C"
 	}
 
     __global__ void CalculateDistances(
-        float* a,
+        float** a,
         float** b,
         float* c,
         int rows,
         int columns,
-        int bCount,
+        int size,
         int distanceMetric
     ) {
-        for (int i = blockDim.x * blockIdx.x + threadIdx.x; i < rows; i += blockDim.x * gridDim.x) {
+        for (int i = blockDim.x * blockIdx.x + threadIdx.x; i < size; i += blockDim.x * gridDim.x) {
             for (int j = blockDim.y * blockIdx.y + threadIdx.y; j < columns; j += blockDim.y * gridDim.y) {
-                for (int k = blockDim.z * blockIdx.z + threadIdx.z; k < bCount; k += blockDim.z * gridDim.z) {
-                    float aVal = a[j * rows + i];
+                for (int k = blockDim.z * blockIdx.z + threadIdx.z; k < rows; k += blockDim.z * gridDim.z) {
+                    float aVal = a[j][i];
                     float bVal = b[k][i];
                     float output = 0;
 
-                    if(distanceMetric == 1) { // euclidean
-                        output = pow(aVal - bVal, 2);
+                    if(distanceMetric == 0) { // euclidean
+                        float diff = aVal - bVal;
+                        output = diff * diff;
                     }
-                    float* outputPtr = c + (j * bCount + k);
+                    float* outputPtr = c + (j * rows + k);
                     atomicAdd(outputPtr, output);
                 }
             }

@@ -50,19 +50,32 @@ namespace BrightWire.Source.Helper
 			_comparison.AddRange(comparisonVectors);
 		}
 
-		(int Index, float Value) _GetMinimum(float[,] data, int columnIndex)
+		(int Index, float Value) _GetMinimum(IMatrix data, int columnIndex)
 		{
-			var len = _comparison.Count;
-			if (len == 1)
-				return (0, data[0, columnIndex]);
-
 			var bestIndex = -1;
 			var min = float.MaxValue;
-			for (int j = 0; j < len; j++) {
-				var val = data[j, columnIndex];
-				if (val < min) {
-					bestIndex = j;
-					min = val;
+			var len = _comparison.Count;
+
+			if (_lap.IsGpu) {
+				if (len == 1)
+					return (0, data.GetAt(0, columnIndex));
+
+				var column = data.Column(columnIndex);
+				var index = column.MinimumIndex();
+				return (index, column.GetAt(index));
+			}
+			else {
+				var matrix = data.AsIndexable();
+				
+				if (len == 1)
+					return (0, matrix[0, columnIndex]);
+
+				for (int j = 0; j < len; j++) {
+					var val = matrix[j, columnIndex];
+					if (val < min) {
+						bestIndex = j;
+						min = val;
+					}
 				}
 			}
 			return (bestIndex, min);
@@ -85,15 +98,6 @@ namespace BrightWire.Source.Helper
 		//		.ToList()
 		//	;
 		//}
-
-		public IDiscreteDistribution GetCategoricalDistribution()
-		{
-			var distance = _lap.CalculateDistances(_data, _comparison, _distanceMetric);
-			var probability = Enumerable.Range(0, _data.Count)
-				.Select(i => (double)_GetMinimum(distance, i).Value)
-				.ToArray();
-			return new Categorical(probability);
-		}
 
 		public IVector GetAverageFromData(IReadOnlyList<int> indices)
 		{

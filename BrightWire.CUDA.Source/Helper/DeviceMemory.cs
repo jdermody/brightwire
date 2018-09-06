@@ -51,7 +51,7 @@ namespace BrightWire.Cuda.Helper
             ~Block()
             {
                 if (!_disposed)
-                    Debug.WriteLine("\tMemory Block {0} was not disposed !!", _index);
+                    Debug.WriteLine($"\tMemory Block {_index} was not disposed - {_data.SizeInBytes} bytes leaked in the GPU !!");
             }
 #endif
             public override string ToString()

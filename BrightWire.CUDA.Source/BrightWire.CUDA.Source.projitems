@@ -17,6 +17,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)GpuVector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helper\ConvolutionsData.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helper\DeviceMemory.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helper\PtrToDeviceMemoryList.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helper\PtrToMemory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helper\ThreadSafeHashSet.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interface.cs" />
