@@ -436,7 +436,7 @@ namespace BrightWire.LinearAlgebra
             return (new GpuMatrix(_cuda, rowIndex, _columns, ret1, true), new GpuMatrix(_cuda, size, _columns, ret2, true));
         }
 
-        public (IMatrix Left, IMatrix Right)  SplitAtColumn(int columnIndex)
+        public (IMatrix Left, IMatrix Right) SplitAtColumn(int columnIndex)
         {
             Debug.Assert(IsValid);
             int size = _columns - columnIndex;
@@ -564,27 +564,7 @@ namespace BrightWire.LinearAlgebra
             return new GpuMatrix(_cuda, _columns, other.ColumnCount, ret, true);
         }
 
-        //public void UpdateColumn(int index, IIndexableVector vector, int rowIndex)
-        //{
-        //    Debug.Assert(IsValid);
-
-        //    // TODO: use faster BLAS routine
-        //    var ptr = _data.DeviceVariable;
-        //    for (var i = 0; i < vector.Count; i++)
-        //        ptr[index * _rows + rowIndex + i] = vector[i];
-        //}
-
-        //public void UpdateRow(int index, IIndexableVector vector, int columnIndex)
-        //{
-        //    Debug.Assert(IsValid);
-
-        //    // TODO: use faster BLAS routine
-        //    var ptr = _data.DeviceVariable;
-        //    for (var i = 0; i < vector.Count; i++)
-        //        ptr[(columnIndex+i) * _rows + index] = vector[i];
-        //}
-
-        public FloatMatrix Data
+		public FloatMatrix Data
         {
             get => AsIndexable().Data;
 
@@ -677,14 +657,15 @@ namespace BrightWire.LinearAlgebra
             return new Gpu4DTensor(_cuda, rows, columns, depth, _columns, _data, false);
         }
 
-	    public IMatrix CalculateDistance(IMatrix comparison, DistanceMetric distanceMetric)
+	    public IMatrix CalculateDistance(IReadOnlyList<IVector> comparison, DistanceMetric distanceMetric)
 	    {
-		    Debug.Assert(IsValid && comparison.RowCount == _rows);
-		    var other = (IHaveDeviceMemory)comparison;
-		    var data = _cuda.CalculateDistance(_data, other.Memory, _columns, _rows, comparison.ColumnCount, distanceMetric);
-		    var ret = new GpuMatrix(_cuda, data.Rows, data.Columns, data.Data, true);
+		    Debug.Assert(IsValid && comparison[0].Count == _rows);
 
-		    return ret.Sqrt();
+		    var data = _cuda.CalculateDistance(comparison, _data, _rows, _columns, distanceMetric);
+		    var ret = new GpuMatrix(_cuda, data.Rows, data.Columns, data.Data, true);
+			if(distanceMetric == DistanceMetric.Euclidean)
+				return ret.Sqrt();
+			return ret;
 	    }
     }
 }

@@ -123,6 +123,8 @@ namespace BrightWire
         /// True if the provider uses the GPU
         /// </summary>
         bool IsGpu { get; }
+
+	    float[,] CalculateDistances(IReadOnlyList<IVector> vectors, IReadOnlyList<IVector> compareTo, DistanceMetric distanceMetric);
     }
 
     /// <summary>
@@ -815,7 +817,7 @@ namespace BrightWire
 		/// </summary>
 		/// <param name="comparison"></param>
 		/// <returns>Matrix of distance metric output (axb)</returns>
-		IMatrix CalculateDistance(IMatrix comparison, DistanceMetric distanceMetric);
+		IMatrix CalculateDistance(IReadOnlyList<IVector> comparison, DistanceMetric distanceMetric);
     }
 
     /// <summary>

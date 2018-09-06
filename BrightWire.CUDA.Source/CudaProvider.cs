@@ -243,6 +243,11 @@ namespace BrightWire.LinearAlgebra
 		public bool IsStochastic { get; }
 
 		public bool IsGpu => true;
+		public float[,] CalculateDistances(IReadOnlyList<IVector> vectors, IReadOnlyList<IVector> compareTo, DistanceMetric distanceMetric)
+		{
+			throw new NotImplementedException();
+		}
+
 		internal CudaContext Context => _cuda;
 		internal CudaBlas Blas => _blas;
 		public CudaSolveDense Solver => _solver.Value;
@@ -874,26 +879,28 @@ namespace BrightWire.LinearAlgebra
 		}
 
 		public (IDeviceMemoryPtr Data, int Rows, int Columns) CalculateDistance(
+			IReadOnlyList<IVector> compareTo, 
 			IDeviceMemoryPtr a, 
-			IDeviceMemoryPtr b, 
-			int aColumns, 
 			int rows, 
-			int bColumns, 
+			int columns, 
 			DistanceMetric distanceMetric
 		) {
-			var ret = Allocate(aColumns * bColumns);
+			var ret = Allocate(columns * compareTo.Count);
 
-			_Invoke3(_calculateDistance, rows, aColumns, bColumns,
-				a.DevicePointer,
-				b.DevicePointer,
-				ret.DevicePointer,
-				aColumns,
-				rows,
-				bColumns,
-				(int)distanceMetric
-			);
+			using (var devicePtr = new CudaDeviceVariable<CUdeviceptr>(rows)) {
+				devicePtr.CopyToDevice(compareTo.Cast<IHaveDeviceMemory>().Select(d => d.Memory.DevicePointer).ToArray());
+				_Invoke3(_calculateDistance, rows, columns, compareTo.Count,
+					a.DevicePointer,
+					devicePtr.DevicePointer,
+					ret.DevicePointer,
+					rows,
+					columns,
+					compareTo.Count,
+					(int) distanceMetric
+				);
+			}
 
-			return (ret, bColumns, aColumns);
+			return (ret, compareTo.Count, columns);
 		}
 
 		public IVector CreateVector(int length, bool setToZero = false)

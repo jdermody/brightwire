@@ -147,7 +147,7 @@ namespace BrightWire.SampleCode
 			//IrisClustering();
 			//MarkovChains();
 			//MNIST(DataBasePath + @"mnist\");
-			//MNISTConvolutional(DataBasePath + @"mnist\"/*, ModelBasePath + @"mnist.dat"*/);
+			MNISTConvolutional(DataBasePath + @"mnist\", ModelBasePath + @"mnist.dat");
 			//SentimentClassification(DataBasePath + @"sentiment labelled sentences\");
 			//TextClustering(DataBasePath + @"[UCI] AAAI-14 Accepted Papers - Papers.csv", ModelBasePath);
 			//IntegerAddition();
@@ -161,40 +161,40 @@ namespace BrightWire.SampleCode
 			//PredictBicyclesWithNeuralNetwork(DataBasePath + @"bikesharing\hour.csv");
 			//MultiLabelSingleClassifier(DataBasePath + @"emotions\emotions.arff");
 			//MultiLabelMultiClassifiers(DataBasePath + @"emotions\emotions.arff");
+			//return;
 
+			//using (var lap = BrightWireProvider.CreateLinearAlgebra()) {
+			//	var rand = new Random();
+			//	var list = new List<IVector>();
+			//	Console.Write("Loading...");
+			//	const int VECTOR_COUNT = 1024, VECTOR_SIZE = 256;
+			//	for (var i = 0; i < VECTOR_COUNT; i++) {
+			//		var vector = lap.CreateVector(VECTOR_SIZE, j => (float)rand.NextDouble());
+			//		list.Add(vector);
+			//	}
 
-			using (var lap = BrightWireGpuProvider.CreateLinearAlgebra()) {
-				var rand = new Random();
-				var list = new List<IVector>();
-				Console.Write("Loading...");
-				const int VECTOR_COUNT = 1024, VECTOR_SIZE = 256;
-				for (var i = 0; i < VECTOR_COUNT; i++) {
-					var vector = lap.CreateVector(VECTOR_SIZE, j => (float)rand.NextDouble());
-					list.Add(vector);
-				}
+			//	//var distance = new VectorDistanceHelper(lap, list);
+			//	//for (var i = 0; i < COMPARISON_SIZE; i++)
+			//	//	distance.AddForComparison(lap.CreateVector(VECTOR_SIZE, j => (float) rand.NextDouble()));
 
-				//var distance = new VectorDistanceHelper(lap, list);
-				//for (var i = 0; i < COMPARISON_SIZE; i++)
-				//	distance.AddForComparison(lap.CreateVector(VECTOR_SIZE, j => (float) rand.NextDouble()));
+			//	Console.WriteLine("done");
 
-				Console.WriteLine("done");
+			//	var stopwatch = new Stopwatch();
+			//	stopwatch.Start();
 
-				var stopwatch = new Stopwatch();
-				stopwatch.Start();
+			//	//for (var z = 0; z < 10; z++) {
+			//	//	var distribution = distance.GetCategoricalDistribution();
+			//	//	var closest = distance.GetClosest();
+			//	//	var clusters = closest
+			//	//		.Select((ci, i) => (ci, i))
+			//	//		.GroupBy(d => d.Item1)
+			//	//		.Select(c => distance.GetAverageFromData(c.Select(d => d.Item2).ToList()))
+			//	//		.ToList();
+			//	//}
 
-				//for (var z = 0; z < 10; z++) {
-				//	var distribution = distance.GetCategoricalDistribution();
-				//	var closest = distance.GetClosest();
-				//	var clusters = closest
-				//		.Select((ci, i) => (ci, i))
-				//		.GroupBy(d => d.Item1)
-				//		.Select(c => distance.GetAverageFromData(c.Select(d => d.Item2).ToList()))
-				//		.ToList();
-				//}
-
-				var clusters = list.KMeans(lap, 50);
-				Console.WriteLine(stopwatch.ElapsedMilliseconds);
-			}
+			//	var clusters = list.KMeans(lap, 50);
+			//	Console.WriteLine(stopwatch.ElapsedMilliseconds);
+			//}
 
 			// load and normalise the data
 			//var dataSet = new StreamReader(@"C:\Users\jack\Desktop\lstm\XBTEUR.csv").ParseCSV(';', true);

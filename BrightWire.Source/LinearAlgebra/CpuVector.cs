@@ -3,6 +3,7 @@ using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Single;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -165,13 +166,13 @@ namespace BrightWire.LinearAlgebra
             return new CpuVector(DenseVector.Create(_vector.Count, i => Convert.ToSingle(Math.Sqrt(_vector[i]))));
         }
 
-        public void ReplaceIndexedValues(IVector vector, int[] indexes)
-        {
-            var other = (CpuVector)vector;
-            for (var i = 0; i < indexes.Length; i++) {
-                this[indexes[i]] = other[i];
-            }
-        }
+        //public void ReplaceIndexedValues(IVector vector, int[] indexes)
+        //{
+        //    var other = (CpuVector)vector;
+        //    for (var i = 0; i < indexes.Length; i++) {
+        //        this[indexes[i]] = other[i];
+        //    }
+        //}
 
         public IVector Clone()
         {
@@ -181,8 +182,21 @@ namespace BrightWire.LinearAlgebra
         public float EuclideanDistance(IVector vector)
         {
             var other = (CpuVector)vector;
-            return Convert.ToSingle(Distance.Euclidean(_vector, other._vector));
-        }
+	        Debug.Assert(other.Count == Count);
+
+	        var ret = Subtract(other).L2Norm();
+	        return ret;
+
+			//var output = new ConcurrentBag<double>();
+			//Parallel.For(0, Count, i => {
+			//	var aVal = _vector[i];
+			//	var bVal = other._vector[i];
+			//	output.Add(Math.Pow(aVal - bVal, 2));
+			//});
+			//return (float)Math.Sqrt(output.Sum());
+
+			return Convert.ToSingle(Distance.Euclidean(_vector, other._vector));
+		}
 
         public float CosineDistance(IVector vector)
         {

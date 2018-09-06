@@ -850,18 +850,18 @@ extern "C"
 
     __global__ void CalculateDistances(
         float* a,
-        float* b,
+        float** b,
         float* c,
-        int aColumns,
         int rows,
-        int bColumns,
+        int columns,
+        int bCount,
         int distanceMetric
     ) {
         for (int i = blockDim.x * blockIdx.x + threadIdx.x; i < rows; i += blockDim.x * gridDim.x) {
-            for (int j = blockDim.y * blockIdx.y + threadIdx.y; j < aColumns; j += blockDim.y * gridDim.y) {
-                for (int k = blockDim.z * blockIdx.z + threadIdx.z; k < bColumns; k += blockDim.z * gridDim.z) {
+            for (int j = blockDim.y * blockIdx.y + threadIdx.y; j < columns; j += blockDim.y * gridDim.y) {
+                for (int k = blockDim.z * blockIdx.z + threadIdx.z; k < bCount; k += blockDim.z * gridDim.z) {
                     float aVal = a[j * rows + i];
-                    float bVal = b[k * rows + i];
+                    float bVal = b[k][i];
                     float output = 0;
 
                     if(distanceMetric == 1) { // euclidean
