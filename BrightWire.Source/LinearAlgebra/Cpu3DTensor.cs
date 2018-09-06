@@ -251,12 +251,16 @@ namespace BrightWire.LinearAlgebra
 				var filters = filterMatrix.Column(k).Split(outputDepth).Select(v => v.AsIndexable()).ToList();
 
 				foreach (var (cx, cy) in convolutions) {
-					var error = slice[cy / stride, cx / stride];
-					for (var y = 0; y < filterHeight; y++) {
-						for (var x = 0; x < filterWidth; x++) {
-							var filterIndex = x * filterHeight + y;
-							for (var z = 0; z < outputDepth; z++)
-								output[z][cy+y, cx+x] += filters[z][filterIndex] * error;
+					var errorY = cy / stride;
+					var errorX = cx / stride;
+					if (errorX < slice.ColumnCount && errorY < slice.RowCount) {
+						var error = slice[errorY, errorX];
+						for (var y = 0; y < filterHeight /*&& cy + y < slice.RowCount*/; y++) {
+							for (var x = 0; x < filterWidth /*&& cx + x < slice.ColumnCount*/; x++) {
+								var filterIndex = x * filterHeight + y;
+								for (var z = 0; z < outputDepth; z++)
+									output[z][cy + y, cx + x] += filters[z][filterIndex] * error;
+							}
 						}
 					}
 				}

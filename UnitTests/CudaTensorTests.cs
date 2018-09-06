@@ -117,8 +117,8 @@ namespace UnitTests
 		void _TensorIm2Col(int rows, int columns, int depth, int filterWidth, int filterHeight, int stride, bool randomData)
 		{
 			var normalDistribution = new Normal(0, 1);
-			using (var cpuTensor = _cpu.Create3DTensor(Enumerable.Range(0, depth).Select(i => _cpu.CreateMatrix(rows, columns, (j, k) => randomData 
-				? Convert.ToSingle(normalDistribution.Sample()) 
+			using (var cpuTensor = _cpu.Create3DTensor(Enumerable.Range(0, depth).Select(i => _cpu.CreateMatrix(rows, columns, (j, k) => randomData
+				? Convert.ToSingle(normalDistribution.Sample())
 				: Convert.ToSingle((i + 1) * (j + 1) * (k + 1))
 			)).ToList()))
 			using (var gpuTensor = _cuda.Create3DTensor(cpuTensor.Data))
@@ -164,6 +164,24 @@ namespace UnitTests
 		public void TensorIm2Col6()
 		{
 			_TensorIm2Col(8, 8, 3, 2, 1, 2, true);
+		}
+
+		[TestMethod]
+		public void TensorIm2Col7()
+		{
+			_TensorIm2Col(8, 8, 3, 2, 1, 1, true);
+		}
+
+		[TestMethod]
+		public void TensorIm2Col8()
+		{
+			_TensorIm2Col(8, 8, 3, 8, 1, 1, true);
+		}
+
+		[TestMethod]
+		public void TensorIm2Col9()
+		{
+			_TensorIm2Col(12, 8, 1, 4, 1, 1, true);
 		}
 
 		void _AssertAreSame(IReadOnlyList<(int[] X, int[] Y)> cpuIndex, IReadOnlyList<(int[] X, int[] Y)> gpuIndex)
@@ -291,7 +309,7 @@ namespace UnitTests
 			var normalDistribution = new Normal(0, 1);
 			var cpuTensor = _cpu.Create3DTensor(Enumerable.Range(0, depth).Select(i => _cpu.CreateMatrix(rows, columns, (j, k) => randomInit
 				? Convert.ToSingle(normalDistribution.Sample())
-				: Convert.ToSingle((i+1) * (j+1) * (k+1))
+				: Convert.ToSingle((i + 1) * (j + 1) * (k + 1))
 			)).ToList()).AsIndexable();
 
 			var (cpuMaxPool, cpuIndices) = cpuTensor.MaxPool(filterWidth, filterHeight, stride, true);
@@ -359,11 +377,23 @@ namespace UnitTests
 		{
 			_TensorReverseIm2Col(2, 2, 2, 2, 2, 4, 4);
 		}
-
+		
 		[TestMethod]
 		public void TensorReverseIm2Col5()
 		{
 			_TensorReverseIm2Col(2, 2, 1, 2, 2, 4, 4);
+		}
+
+		[TestMethod]
+		public void TensorReverseIm2Col6()
+		{
+			_TensorReverseIm2Col(2, 1, 1, 1, 1, 4, 4);
+		}
+
+		[TestMethod]
+		public void TensorReverseIm2Col7()
+		{
+			_TensorReverseIm2Col(10, 3, 1, 1, 2, 10, 12);
 		}
 
 		FloatMatrix _CreateMatrix(int depth, int rows, int columns, Func<int, int, int, float> valueProvider)
@@ -502,7 +532,7 @@ namespace UnitTests
 		public void Tensor4DIm2Col()
 		{
 			var data = Enumerable.Range(0, 5)
-				.Select(z => _CreateTensor(4, 4, 2, (i, j, k) => (i+1) * (j+1) * (k+1) * (z+1))).ToList();
+				.Select(z => _CreateTensor(4, 4, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1) * (z + 1))).ToList();
 			var cpuTensor = _cpu.Create4DTensor(data);
 			var cpuResult = cpuTensor.Im2Col(2, 2, 1);
 

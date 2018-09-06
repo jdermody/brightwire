@@ -691,13 +691,15 @@ extern "C"
 
             int errorX = offsetX / stride;
             int errorY = offsetY / stride;
-            float error = slice[errorX * rows + errorY];
+            if(errorX < columns && errorY < rows) {
+                float error = slice[errorX * rows + errorY];
 
-            int filterIndex = x * filterHeight + y;
-            int outputIndex = (offsetX+x) * outputRows + (offsetY+y);
-            float val = filter[filterIndex] * error;
+                int filterIndex = x * filterHeight + y;
+                int outputIndex = (offsetX+x) * outputRows + (offsetY+y);
+                float val = filter[filterIndex] * error;
 
-            atomicAdd(output + outputIndex, val);
+                atomicAdd(output + outputIndex, val);
+            }
         }
     }
 
@@ -867,7 +869,7 @@ extern "C"
                     if(distanceMetric == 1) { // euclidean
                         output = pow(aVal - bVal, 2);
                     }
-                    float* outputPtr = c + (j * bColumns + k);
+                    float* outputPtr = c + (j * bCount + k);
                     atomicAdd(outputPtr, output);
                 }
             }
