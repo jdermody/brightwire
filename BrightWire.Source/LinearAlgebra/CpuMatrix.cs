@@ -482,16 +482,14 @@ namespace BrightWire.LinearAlgebra
 			return new Cpu4DTensor(list);
 		}
 
-	    public IMatrix CalculateDistance(IReadOnlyList<IVector> comparison, DistanceMetric distanceMetric)
+	    public float GetAt(int row, int column)
 	    {
-		    var columns = Enumerable.Range(0, ColumnCount).Select(Column).ToList();
-		    var result = new ConcurrentDictionary<(long, long), float>();
-		    Parallel.ForEach(columns, (column1, _, i) => { 
-			    Parallel.ForEach(comparison, (column2, __, j) => {
-				    result[(i,j)] = column1.FindDistance(column2, distanceMetric);
-			    });
-		    });
-		    return new CpuMatrix(DenseMatrix.Create(comparison.Count, ColumnCount, (i, j) => result[(j, i)]));
+		    return this[row, column];
+	    }
+
+	    public void SetAt(int row, int column, float value)
+	    {
+		    this[row, column] = value;
 	    }
 
 	    public string AsXml

@@ -124,7 +124,14 @@ namespace BrightWire
         /// </summary>
         bool IsGpu { get; }
 
-	    float[,] CalculateDistances(IReadOnlyList<IVector> vectors, IReadOnlyList<IVector> compareTo, DistanceMetric distanceMetric);
+		/// <summary>
+		/// Calculates the distance of each vector against the comparison vectors - the size of all vectors should be the same
+		/// </summary>
+		/// <param name="vectors"></param>
+		/// <param name="comparison"></param>
+		/// <param name="distanceMetric"></param>
+		/// <returns></returns>
+	    IMatrix CalculateDistances(IReadOnlyList<IVector> vectors, IReadOnlyList<IVector> comparison, DistanceMetric distanceMetric);
     }
 
     /// <summary>
@@ -438,6 +445,13 @@ namespace BrightWire
 		/// <param name="index">The index of the vector to return</param>
 		/// <returns></returns>
 	    float GetAt(int index);
+
+		/// <summary>
+		/// Updates the value at the specified index
+		/// </summary>
+		/// <param name="index"></param>
+		/// <param name="value"></param>
+	    void SetAt(int index, float value);
 
 		/// <summary>
 		/// Checks if every value in the vector is finite (not NaN or positive/negative infinity)
@@ -811,13 +825,21 @@ namespace BrightWire
 		/// <returns></returns>
 	    I4DTensor ReshapeAs4DTensor(int rows, int columns, int depth);
 
+	    /// <summary>
+	    /// Returns the value at the specified row and column index
+	    /// </summary>
+	    /// <param name="row">Row index</param>
+	    /// <param name="column">Column index</param>
+	    /// <returns></returns>
+	    float GetAt(int row, int column);
+
 		/// <summary>
-		/// Compares each column of this matrix (nxa) against the columns in the comparison matrix (nxb).
-		/// NOTE: Row counts need to match!
+		/// Updates the value at the specified row and column index
 		/// </summary>
-		/// <param name="comparison"></param>
-		/// <returns>Matrix of distance metric output (axb)</returns>
-		IMatrix CalculateDistance(IReadOnlyList<IVector> comparison, DistanceMetric distanceMetric);
+		/// <param name="row">Row index</param>
+		/// <param name="column">Column index</param>
+		/// <param name="value">Value to set</param>
+	    void SetAt(int row, int column, float value);
     }
 
     /// <summary>

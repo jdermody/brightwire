@@ -432,6 +432,11 @@ namespace BrightWire.LinearAlgebra
 		    return _vector[index];
 	    }
 
+	    public void SetAt(int index, float value)
+	    {
+		    _vector[index] = value;
+	    }
+
 	    public bool IsEntirelyFinite()
 	    {
 		    return !_vector.Any(v => float.IsNaN(v) || float.IsInfinity(v));

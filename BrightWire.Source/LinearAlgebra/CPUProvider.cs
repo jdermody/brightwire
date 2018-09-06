@@ -5,6 +5,7 @@ using MathNet.Numerics.LinearAlgebra.Single;
 using System.Linq;
 using System.Threading.Tasks;
 using BrightWire.Models;
+using MathNet.Numerics.LinearAlgebra.Storage;
 
 namespace BrightWire.LinearAlgebra
 {
@@ -100,40 +101,20 @@ namespace BrightWire.LinearAlgebra
         public bool IsStochastic { get; }
 	    public bool IsGpu => false;
 
-	    public float[,] CalculateDistances(IReadOnlyList<IVector> vectors, IReadOnlyList<IVector> compareTo, DistanceMetric distanceMetric)
+	    public IMatrix CalculateDistances(IReadOnlyList<IVector> vectors, IReadOnlyList<IVector> compareTo, DistanceMetric distanceMetric)
 	    {
-		    //var vectors2 = vectors.Select(v => v.AsIndexable()).ToList();
-			//var compareTo2 = compareTo.Select(v => v.AsIndexable()).ToList();
-		    int vectorsCount = vectors.Count, compareToCount = compareTo.Count, size = vectors[0].Count;
+		    var rows = compareTo.Count;
+		    var columns = vectors.Count;
 			Debug.Assert(vectors[0].Count == compareTo[0].Count);
-		    var ret = new float[compareToCount, vectorsCount];
-		  //  Parallel.For(0, vectorsCount * compareToCount * size, z => {
-			 //   var j = z % compareToCount;
-			 //   var z2 = z / compareToCount;
-				//var i = z2 % vectorsCount;
-				//var k = z2 / vectorsCount;
+		    var ret = new float[rows * columns];
 
-			 //   var aVal = vectors2[i][k];
-			 //   var bVal = compareTo2[j][k];
-			 //   var output = Math.Pow(aVal - bVal, 2);
-			 //   lock (ret) {
-				//    ret[i, j] += (float) output;
-			 //   }
-
-			 //   //ret[i, j] = vectors[i].FindDistance(compareTo[j], distanceMetric);
-		  //  });
-		  //  Parallel.For(0, vectorsCount * compareToCount, z => {
-			 //   var j = z % compareToCount;
-			 //   var i = z / compareToCount;
-
-			 //   ret[i, j] = (float)Math.Sqrt(ret[i, j]);
-		  //  });
 			Parallel.ForEach(vectors, (column1, _, i) => {
 				Parallel.ForEach(compareTo, (column2, __, j) => {
-					ret[j, i] = column1.FindDistance(column2, distanceMetric);
+					ret[i * rows + j] = column1.FindDistance(column2, distanceMetric);
 				});
 			});
-			return ret;
+
+		    return new CpuMatrix(DenseMatrix.Build.Dense(rows, columns, ret));
 	    }
     }
 }

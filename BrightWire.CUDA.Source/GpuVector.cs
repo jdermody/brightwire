@@ -477,6 +477,12 @@ namespace BrightWire.LinearAlgebra
 			return _data.DeviceVariable[index];
 		}
 
+		public void SetAt(int index, float value)
+		{
+			Debug.Assert(IsValid);
+			_data.DeviceVariable[index] = value;
+		}
+
 		public bool IsEntirelyFinite()
 		{
 			return _cuda.IsFinite(_data, _data.Size);

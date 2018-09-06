@@ -9,7 +9,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
-using BrightWire.CUDA.Source.Helper;
 using BrightWire.Helper;
 using BrightWire.LinearAlgebra.Helper;
 
@@ -241,13 +240,7 @@ namespace BrightWire.LinearAlgebra
 
 		public ILinearAlgebraProvider NumericsProvider => _numerics;
 		public bool IsStochastic { get; }
-
 		public bool IsGpu => true;
-		public float[,] CalculateDistances(IReadOnlyList<IVector> vectors, IReadOnlyList<IVector> compareTo, DistanceMetric distanceMetric)
-		{
-			throw new NotImplementedException();
-		}
-
 		internal CudaContext Context => _cuda;
 		internal CudaBlas Blas => _blas;
 		public CudaSolveDense Solver => _solver.Value;
@@ -878,6 +871,36 @@ namespace BrightWire.LinearAlgebra
 			//return (((IHaveDeviceMemory)collapsed).Memory, outputRows, outputColumns, outputDepth, count);
 		}
 
+		public IMatrix CalculateDistances(IReadOnlyList<IVector> vectors, IReadOnlyList<IVector> compareTo, DistanceMetric distanceMetric)
+		{
+			var rows = compareTo.Count;
+			var columns = vectors.Count;
+			var size = vectors[0].Count;
+			var ret = Allocate(rows * columns);
+
+			using (var vectorPtr = new PtrToDeviceMemoryList(vectors.Cast<IHaveDeviceMemory>().ToList()))
+			using (var compareToPtr = new PtrToDeviceMemoryList(compareTo.Cast<IHaveDeviceMemory>().ToList())) {
+				_Invoke3(_calculateDistance, size, columns, rows,
+					vectorPtr.DevicePointer,
+					compareToPtr.DevicePointer,
+					ret.DevicePointer,
+					rows,
+					columns,
+					size,
+					(int) distanceMetric
+				);
+			}
+
+			IMatrix matrix = new GpuMatrix(this, rows, columns, ret, true);
+			if (distanceMetric == DistanceMetric.Euclidean) {
+				var sqrt = matrix.Sqrt();
+				matrix.Dispose();
+				matrix = sqrt;
+			}
+
+			return matrix;
+		}
+
 		public (IDeviceMemoryPtr Data, int Rows, int Columns) CalculateDistance(
 			IReadOnlyList<IVector> compareTo, 
 			IDeviceMemoryPtr a, 
@@ -887,8 +910,7 @@ namespace BrightWire.LinearAlgebra
 		) {
 			var ret = Allocate(columns * compareTo.Count);
 
-			using (var devicePtr = new CudaDeviceVariable<CUdeviceptr>(rows)) {
-				devicePtr.CopyToDevice(compareTo.Cast<IHaveDeviceMemory>().Select(d => d.Memory.DevicePointer).ToArray());
+			using (var devicePtr = new PtrToDeviceMemoryList(compareTo.Cast<IHaveDeviceMemory>().ToList())) {
 				_Invoke3(_calculateDistance, rows, columns, compareTo.Count,
 					a.DevicePointer,
 					devicePtr.DevicePointer,
