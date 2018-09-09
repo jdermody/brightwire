@@ -11,7 +11,6 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
     class TensorBasedDataTableAdaptor : RowBasedDataTableAdaptorBase, IVolumeDataSource
     {
         readonly int _inputSize, _outputSize;
-        //readonly List<(IContext Context, int Rows, int Columns, int Depth)> _processedContext = new List<(IContext, int, int, int)>();
 
         public TensorBasedDataTableAdaptor(ILinearAlgebraProvider lap, IDataTable dataTable)
             : base(lap, dataTable)

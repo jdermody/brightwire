@@ -61,12 +61,12 @@ namespace BrightWire.LinearAlgebra
 
 	    public I3DTensor Create3DTensor(int rows, int columns, int depth, bool setToZero = false)
 	    {
-		    return new Cpu3DTensor(Enumerable.Range(0, depth).Select(i => CreateMatrix(rows, columns, setToZero)).ToList());
+		    return new Cpu3DTensor(Enumerable.Range(0, depth).Select(i => CreateMatrix(rows, columns, setToZero).AsIndexable()).ToList());
 	    }
 
 	    public I4DTensor Create4DTensor(int rows, int columns, int depth, int count, bool setToZero = false)
 	    {
-		    return new Cpu4DTensor(Enumerable.Range(0, count).Select(i => Create3DTensor(rows, columns, depth, setToZero)).ToList());
+		    return new Cpu4DTensor(Enumerable.Range(0, count).Select(i => Create3DTensor(rows, columns, depth, setToZero).AsIndexable()).ToList());
 	    }
 
 		public IMatrix CreateMatrix(int rows, int columns, Func<int, int, float> init)
@@ -76,17 +76,17 @@ namespace BrightWire.LinearAlgebra
 
 		public I3DTensor Create3DTensor(IReadOnlyList<IMatrix> data)
 		{
-			return new Cpu3DTensor(data);
+			return new Cpu3DTensor(data.Select(m => m.AsIndexable()).ToList());
 		}
 
 		public I4DTensor Create4DTensor(IReadOnlyList<FloatTensor> data)
 		{
-			return new Cpu4DTensor(data.Select(this.Create3DTensor).ToList());
+			return new Cpu4DTensor(data.Select(this.Create3DTensor).Select(t => t.AsIndexable()).ToList());
 		}
 
 		public I4DTensor Create4DTensor(IReadOnlyList<I3DTensor> tensorList)
 		{
-			return new Cpu4DTensor(tensorList);
+			return new Cpu4DTensor(tensorList.Select(m => m.AsIndexable()).ToList());
 		}
 
 		public void PushLayer()

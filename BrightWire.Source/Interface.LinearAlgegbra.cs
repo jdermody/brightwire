@@ -481,6 +481,11 @@ namespace BrightWire
         /// </summary>
         float[] ToArray();
 
+		/// <summary>
+		/// Returns the underlying array used as storage (changes to this array will affect the vector as well)
+		/// </summary>
+	    float[] GetInternalArray();
+
         /// <summary>
         /// Creates a new vector (without in place modification) in which new values are appended onto the end of the current vector
         /// </summary>
@@ -887,6 +892,11 @@ namespace BrightWire
         /// Returns the matrix as xml
         /// </summary>
         string AsXml { get; }
+
+	    /// <summary>
+	    /// Returns the underlying array used as storage (changes to this array will affect the matrix as well)
+	    /// </summary>
+	    float[] GetInternalArray();
     }
 
     /// <summary>
@@ -1057,6 +1067,11 @@ namespace BrightWire
 	    /// Returns the matrix as xml
 	    /// </summary>
 	    string AsXml { get; }
+
+	    /// <summary>
+	    /// Returns the underlying array used as storage (changes to this array will affect the tensor as well)
+	    /// </summary>
+	    float[] GetInternalArray();
     }
 
     /// <summary>
@@ -1199,5 +1214,10 @@ namespace BrightWire
 		/// Returns the matrix as xml
 		/// </summary>
 		string AsXml { get; }
+
+		/// <summary>
+		/// Returns the underlying array used as storage (changes to this array will affect the tensor as well)
+		/// </summary>
+		float[] GetInternalArray();
 	}
 }
