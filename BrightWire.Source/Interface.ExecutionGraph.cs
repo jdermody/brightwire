@@ -693,6 +693,17 @@ namespace BrightWire
         INode Memory { get; }
     }
 
+	/// <summary>
+	/// Recurrent neural networks memory node
+	/// </summary>
+	public interface IMemoryNode
+	{
+		/// <summary>
+		/// The current state of the memory node
+		/// </summary>
+		FloatVector Data { get; set; }
+	}
+
     /// <summary>
     /// Feed forward layer
     /// </summary>
