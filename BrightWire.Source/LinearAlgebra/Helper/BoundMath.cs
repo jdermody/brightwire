@@ -90,6 +90,18 @@ namespace BrightWire.LinearAlgebra.Helper
 		    return !IsZero(value);
 	    }
 
+	    /// <summary>
+	    /// Checks if the two floating point numbers are equal (with a degree of tolerance)
+	    /// </summary>
+	    /// <param name="value1">First value to compare</param>
+	    /// <param name="value2">Second value to compare</param>
+	    /// <param name="tolerance">Tolerance allowed between the numbers</param>
+	    /// <returns></returns>
+	    public static bool AreEqual(float value1, float value2, float tolerance = ZERO_LIKE)
+	    {
+		    return Math.Abs(value1 - value2) < tolerance;
+	    }
+
 	    class EqualityComparer : IEqualityComparer<float>
 	    {
 		    readonly float _tolerance;
