@@ -2,83 +2,87 @@
 using BrightWire.TrainingData.Artificial;
 using System;
 using System.Linq;
+using BrightWire.LinearAlgebra.Helper;
+using BrightWire.Models;
+using MathNet.Numerics.Distributions;
 
 namespace BrightWire.SampleCode
 {
-    public partial class Program
-    {
-        static void ReberPrediction()
-        {
-            // generate 500 extended reber grammar training examples
-            var grammar = new ReberGrammar(stochastic: false);
-            var sequences = grammar.GetExtended(10).Take(500).ToList();
+	public partial class Program
+	{
+		static void ReberPrediction()
+		{
+			// generate 500 extended reber grammar training examples
+			var grammar = new ReberGrammar();
+			var sequences = grammar.GetExtended(10, 16).Take(500).ToList();
 
-            // split the data into training and test sets
-            var data = ReberGrammar.GetOneHot(sequences).Split(0);
+			// split the data into training and test sets
+			var data = ReberGrammar.GetOneHot(sequences).Split(0);
 
-            using (var lap = BrightWireProvider.CreateLinearAlgebra(stochastic: false)) {
-                var graph = new GraphFactory(lap);
+			using (var lap = BrightWireProvider.CreateLinearAlgebra()) {
+				var graph = new GraphFactory(lap);
 
-                // binary classification rounds each output to either 0 or 1
-                var errorMetric = graph.ErrorMetric.BinaryClassification;
+				// binary classification rounds each output to either 0 or 1
+				var errorMetric = graph.ErrorMetric.BinaryClassification;
 
-                // configure the network properties
-                graph.CurrentPropertySet
-                    .Use(graph.GradientDescent.RmsProp)
-                    .Use(graph.WeightInitialisation.Xavier)
-                ;
+				// configure the network properties
+				graph.CurrentPropertySet
+					.Use(graph.GradientDescent.RmsProp)
+					.Use(graph.WeightInitialisation.Xavier)
+				;
 
-                // create the engine
-                var trainingData = graph.CreateDataSource(data.Training);
-                var testData = trainingData.CloneWith(data.Test);
-                var engine = graph.CreateTrainingEngine(trainingData, learningRate: 0.1f, batchSize: 32);
+				// create the engine
+				var trainingData = graph.CreateDataSource(data.Training);
+				var testData = trainingData.CloneWith(data.Test);
+				var engine = graph.CreateTrainingEngine(trainingData, learningRate: 0.1f, batchSize: 32);
 
-                // build the network
-                const int HIDDEN_LAYER_SIZE = 64, TRAINING_ITERATIONS = 30;
-                var memory = new float[HIDDEN_LAYER_SIZE];
-                var network = graph.Connect(engine)
-                    .AddGru(memory)
-                    .AddFeedForward(engine.DataSource.OutputSize)
-                    .Add(graph.TanhActivation())
-                    .AddBackpropagationThroughTime(errorMetric)
-                ;
+				// build the network
+				const int HIDDEN_LAYER_SIZE = 32, TRAINING_ITERATIONS = 30;
+				graph.Connect(engine)
+					.AddGru(new float[HIDDEN_LAYER_SIZE])
+					.AddFeedForward(engine.DataSource.OutputSize)
+					.Add(graph.SigmoidActivation())
+					.AddBackpropagationThroughTime(errorMetric)
+				;
 
-                engine.Train(TRAINING_ITERATIONS, testData, errorMetric);
+				engine.Train(TRAINING_ITERATIONS, testData, errorMetric);
 
-                // generate a sample sequence using the learnt state transitions
-                var networkGraph = engine.Graph;
-                using (var executionContext = graph.CreateExecutionContext()) {
-                    var executionEngine = graph.CreateEngine(networkGraph);
+				// generate a sample sequence using the learned state transitions
+				var networkGraph = engine.Graph;
 
-                    Console.WriteLine("Generating a new reber sequence...");
-                    var input = new float[ReberGrammar.Size];
-                    input[ReberGrammar.GetIndex('B')] = 1f;
-                    Console.Write("B");
+				var executionEngine = graph.CreateEngine(networkGraph);
 
-                    int index = 0, eCount = 0;
-                    var result = executionEngine.ExecuteSequential(index++, input, executionContext, MiniBatchSequenceType.SequenceStart);
-                    for (var i = 0; i < 32; i++) {
-                        var nextIndex = result.Output[0].Data
-                            .Select((v, j) => (v, j))
-                            .Where(d => d.Item1 >= 0.5f)
-                            .Select(d => d.Item2)
-                            .Shuffle()
-                            .FirstOrDefault()
-                        ;
-                        if (index == 0)
-                            break;
+				Console.WriteLine("Generating new reber sequences from the observed state probabilities...");
+				for (var z = 0; z < 3; z++) {
+					// prepare the first input
+					var input = new float[ReberGrammar.Size];
+					input[ReberGrammar.GetIndex('B')] = 1f;
+					Console.Write("B");
 
-                        Console.Write(ReberGrammar.GetChar(nextIndex));
-                        if (nextIndex == ReberGrammar.GetIndex('E') && ++eCount == 2)
-                            break;
+					int index = 0, eCount = 0;
+					using (var executionContext = graph.CreateExecutionContext()) {
+						var result = executionEngine.ExecuteSequential(index++, input, executionContext, MiniBatchSequenceType.SequenceStart);
+						for (var i = 0; i < 32; i++) {
+							var next = result.Output[0].Data
+								.Select((v, j) => ((double)v, j))
+								.Where(d => d.Item1 >= 0.1f)
+								.ToList();
 
-                        input = new float[ReberGrammar.Size];
-                        input[nextIndex] = 1f;
-                        result = executionEngine.ExecuteSequential(index++, input, executionContext, MiniBatchSequenceType.Standard);
-                    }
-                    Console.WriteLine();
-                }
-            }
-        }
-    }
+							var distribution = new Categorical(next.Select(d => d.Item1).ToArray());
+							var nextIndex = next[distribution.Sample()].Item2;
+							Console.Write(ReberGrammar.GetChar(nextIndex));
+							if (nextIndex == ReberGrammar.GetIndex('E') && ++eCount == 2)
+								break;
+
+							Array.Clear(input, 0, ReberGrammar.Size);
+							input[nextIndex] = 1f;
+							result = executionEngine.ExecuteSequential(index++, input, executionContext, MiniBatchSequenceType.Standard);
+						}
+
+						Console.WriteLine();
+					}
+				}
+			}
+		}
+	}
 }

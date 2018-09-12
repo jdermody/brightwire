@@ -124,26 +124,34 @@ namespace BrightWire.TrainingData.Artificial
         /// <summary>
         /// Generates an unlimited number of reber sequences
         /// </summary>
-        /// <param name="length">Optional required length of the sequences</param>
-        public IEnumerable<string> Get(int? length)
+        /// <param name="minlength">Minimum length of the sequences (optional)</param>
+        /// <param name="maxLength">Mimimum length of the sequences (optional)</param>
+        public IEnumerable<string> Get(int? minlength = null, int? maxLength = null)
         {
             while (true) {
                 var ret = Generate();
-                if (!length.HasValue || ret.Length == length.Value)
-                    yield return ret;
+	            if (minlength.HasValue && ret.Length < minlength.Value)
+		            continue;
+	            if (maxLength.HasValue && ret.Length > maxLength.Value)
+		            continue;
+	            yield return ret;
             }
         }
 
-        /// <summary>
-        /// Generates an unlimited number of extended reber sequences
-        /// </summary>
-        /// <param name="length">Optional required length of the sequences</param>
-        public IEnumerable<string> GetExtended(int? length)
+	    /// <summary>
+	    /// Generates an unlimited number of extended reber sequences
+	    /// </summary>
+	    /// <param name="minlength">Minimum length of the sequences (optional)</param>
+	    /// <param name="maxLength">Mimimum length of the sequences (optional)</param>
+	    public IEnumerable<string> GetExtended(int? minlength = null, int? maxLength = null)
         {
             while (true) {
                 var ret = GenerateExtended();
-                if (!length.HasValue || ret.Length == length.Value)
-                    yield return ret;
+                if (minlength.HasValue && ret.Length < minlength.Value)
+                    continue;
+	            if (maxLength.HasValue && ret.Length > maxLength.Value)
+		            continue;
+	            yield return ret;
             }
         }
 
