@@ -21,7 +21,7 @@ namespace BrightWire.LinearAlgebra
 	    public Cpu4DTensor(int rows, int columns, int depth, int count)
 	    {
 		    _rows = rows;
-		    _count = count;
+			_columns = columns;
 		    _depth = depth;
 		    _count = count;
 		    _data = new CpuMatrix(DenseMatrix.Build.Dense(_rows * _count * _depth, _count));
