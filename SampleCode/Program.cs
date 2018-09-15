@@ -21,7 +21,7 @@ namespace BrightWire.SampleCode
 		public static void XOR()
 		{
 			using (var lap = BrightWireProvider.CreateLinearAlgebra()) {
-				// Create some training data that the network will learn.  The XOR pattern looks like:
+				// Some training data that the network will learn.  The XOR pattern looks like:
 				// 0 0 => 0
 				// 1 0 => 1
 				// 0 1 => 1
@@ -35,13 +35,13 @@ namespace BrightWire.SampleCode
 					// use rmsprop gradient descent optimisation
 					.Use(graph.GradientDescent.RmsProp)
 
-					// and xavier weight initialisation
+					// and gaussian weight initialisation
 					.Use(graph.WeightInitialisation.Gaussian)
 				;
 
 				// create the engine
 				var testData = graph.CreateDataSource(data);
-				var engine = graph.CreateTrainingEngine(testData, 0.1f, 4);
+				var engine = graph.CreateTrainingEngine(testData, learningRate: 0.1f, batchSize:4);
 
 				// create the network
 				const int HIDDEN_LAYER_SIZE = 6;
@@ -54,14 +54,14 @@ namespace BrightWire.SampleCode
 					.AddFeedForward(engine.DataSource.OutputSize)
 					.Add(graph.SigmoidActivation())
 
-					// backpropagate the error signal at the end of the graph
+					// calculate the error and backpropagate the error signal
 					.AddBackpropagation(errorMetric)
 				;
 
 				// train the network
 				var executionContext = graph.CreateExecutionContext();
 				for (var i = 0; i < 1000; i++) {
-					var trainingError = engine.Train(executionContext);
+					engine.Train(executionContext);
 					if (i % 100 == 0)
 						engine.Test(testData, errorMetric);
 				}
@@ -73,7 +73,7 @@ namespace BrightWire.SampleCode
 				var output = executionEngine.Execute(testData);
 				Console.WriteLine(output.Average(o => o.CalculateError(errorMetric)));
 
-				// print the learnt values
+				// print the values that have been learned
 				foreach (var item in output) {
 					foreach (var index in item.MiniBatchSequence.MiniBatch.Rows) {
 						var row = data.GetRow(index);
@@ -81,53 +81,6 @@ namespace BrightWire.SampleCode
 						Console.WriteLine($"{row.GetField<int>(0)} XOR {row.GetField<int>(1)} = {result.Data[0]}");
 					}
 				}
-			}
-		}
-
-		public class Datos : IDataSource
-		{
-			readonly int _inputSize, _outputSize;
-			readonly IReadOnlyList<FloatVector> _data;
-			readonly ILinearAlgebraProvider _lap;
-
-			public Datos(ILinearAlgebraProvider lap, IReadOnlyList<FloatVector> data)
-			{
-				_lap = lap;
-				_data = data;
-
-				var first = data.First();
-				_inputSize = first.Size - 1;
-				_outputSize = 1;
-			}
-
-			public int InputCount => 1;
-			public bool IsSequential => false;
-			public int InputSize => _inputSize;
-			public int OutputSize => _outputSize;
-			public int RowCount => _data.Count;
-
-			public IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<int> rows)
-			{
-				var data = rows.Select(i => _data[i]).ToList();
-				var input = _lap.CreateMatrix(data.Count, InputSize, (x, y) => data[x].Data[y]);
-				var output = _lap.CreateMatrix(data.Count, OutputSize, (x, y) => data[x].Data[y + InputSize]);
-				var inputList = new List<IGraphData> { input.AsGraphData() };
-				return new MiniBatch(rows, this, inputList, output.AsGraphData());
-			}
-
-			public IReadOnlyList<IReadOnlyList<int>> GetBuckets()
-			{
-				return new[] { Enumerable.Range(0, _data.Count).ToList() };
-			}
-
-			public IDataSource CloneWith(IDataTable dataTable)
-			{
-				throw new NotImplementedException();
-			}
-
-			public void OnBatchProcessed(IContext context)
-			{
-				// nop
 			}
 		}
 
@@ -147,7 +100,7 @@ namespace BrightWire.SampleCode
 			//IrisClustering();
 			//MarkovChains();
 			//MNIST(DataBasePath + @"mnist\");
-			//MNISTConvolutional(DataBasePath + @"mnist\", ModelBasePath + @"mnist.dat");
+			MNISTConvolutional(DataBasePath + @"mnist\"/*, ModelBasePath + @"mnist.dat"*/);
 			//SentimentClassification(DataBasePath + @"sentiment labelled sentences\");
 			//TextClustering(DataBasePath + @"[UCI] AAAI-14 Accepted Papers - Papers.csv", ModelBasePath);
 			//IntegerAddition();
@@ -163,23 +116,23 @@ namespace BrightWire.SampleCode
 			//MultiLabelMultiClassifiers(DataBasePath + @"emotions\emotions.arff");
 			//return;
 
-			using (var lap = BrightWireProvider.CreateLinearAlgebra()) {
-				var rand = new Random();
-				var list = new List<IVector>();
-				Console.Write("Loading...");
-				const int VECTOR_COUNT = 1024, VECTOR_SIZE = 256;
-				for (var i = 0; i < VECTOR_COUNT; i++) {
-					var vector = lap.CreateVector(VECTOR_SIZE, j => (float)rand.NextDouble());
-					list.Add(vector);
-				}
-				Console.WriteLine("done");
+			//using (var lap = BrightWireProvider.CreateLinearAlgebra()) {
+			//	var rand = new Random();
+			//	var list = new List<IVector>();
+			//	Console.Write("Loading...");
+			//	const int VECTOR_COUNT = 1024, VECTOR_SIZE = 256;
+			//	for (var i = 0; i < VECTOR_COUNT; i++) {
+			//		var vector = lap.CreateVector(VECTOR_SIZE, j => (float)rand.NextDouble());
+			//		list.Add(vector);
+			//	}
+			//	Console.WriteLine("done");
 
-				var stopwatch = new Stopwatch();
-				stopwatch.Start();
+			//	var stopwatch = new Stopwatch();
+			//	stopwatch.Start();
 
-				var clusters = list.KMeans(lap, 50);
-				Console.WriteLine(stopwatch.ElapsedMilliseconds);
-			}
+			//	var clusters = list.KMeans(lap, 50);
+			//	Console.WriteLine(stopwatch.ElapsedMilliseconds);
+			//}
 
 			// load and normalise the data
 			//var dataSet = new StreamReader(@"C:\Users\jack\Desktop\lstm\XBTEUR.csv").ParseCSV(';', true);
