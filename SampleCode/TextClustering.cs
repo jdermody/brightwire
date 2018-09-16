@@ -122,7 +122,7 @@ namespace BrightWire.SampleCode
                 _WriteClusters(outputPath + "nnmf.txt", vectorList.NNMF(lap, allGroups.Count, 100), lookupTable);
 
                 // create a term/document matrix with terms as columns and documents as rows
-                var matrix = lap.CreateMatrix(vectorList.Select(v => v.Data).ToList());
+                var matrix = lap.CreateMatrixFromRows(vectorList.Select(v => v.Data).ToList());
                 vectorList.ForEach(v => v.Dispose());
 
                 Console.WriteLine("Creating random projection...");

@@ -121,7 +121,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             var miniBatch = new MiniBatch(rows, this);
             var curr = encoderOutput;
             foreach (var item in outputData.OrderBy(kv => kv.Key)) {
-                var output = _lap.CreateMatrix(item.Value);
+                var output = _lap.CreateMatrixFromRows(item.Value);
                 var type = (item.Key == 0)
                     ? MiniBatchSequenceType.SequenceStart
                     : item.Key == (outputData.Count - 1)

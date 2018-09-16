@@ -104,12 +104,12 @@ namespace BrightWire
 		}
 
         /// <summary>
-        /// Create a matrix
+        /// Create a matrix from a list of row vectors
         /// </summary>
         /// <param name="lap"></param>
         /// <param name="rowList">List of vectors (each vector becomes a row in the new matrix)</param>
         /// <returns></returns>
-        public static IMatrix CreateMatrix(this ILinearAlgebraProvider lap, IReadOnlyList<FloatVector> rowList)
+        public static IMatrix CreateMatrixFromRows(this ILinearAlgebraProvider lap, IReadOnlyList<FloatVector> rowList)
         {
             int rows = rowList.Count;
             var columns = rowList[0].Size;
@@ -117,17 +117,43 @@ namespace BrightWire
         }
 
         /// <summary>
-        /// Create a matrix
+        /// Create a matrix from a list of row vectors
         /// </summary>
         /// <param name="lap"></param>
         /// <param name="rowList">List of indexable vectors (each vector becomes a row in the new matrix)</param>
         /// <returns></returns>
-        public static IMatrix CreateMatrix(this ILinearAlgebraProvider lap, IReadOnlyList<IIndexableVector> rowList)
+        public static IMatrix CreateMatrixFromRows(this ILinearAlgebraProvider lap, IReadOnlyList<IIndexableVector> rowList)
         {
             int rows = rowList.Count;
-            var size = rowList[0].Count;
-            return lap.CreateMatrix(rows, size, (x, y) => rowList[x][y]);
+            var columns = rowList[0].Count;
+            return lap.CreateMatrix(rows, columns, (x, y) => rowList[x][y]);
         }
+
+	    /// <summary>
+	    /// Create a matrix from a list of column vectors
+	    /// </summary>
+	    /// <param name="lap"></param>
+	    /// <param name="columnList">List of vectors (each vector becomes a column in the new matrix)</param>
+	    /// <returns></returns>
+	    public static IMatrix CreateMatrixFromColumns(this ILinearAlgebraProvider lap, IReadOnlyList<FloatVector> columnList)
+	    {
+		    int columns = columnList.Count;
+		    var rows = columnList[0].Size;
+		    return lap.CreateMatrix(rows, columns, (x, y) => columnList[y].Data[x]);
+	    }
+
+	    /// <summary>
+	    /// Create a matrix from a list of column vectors
+	    /// </summary>
+	    /// <param name="lap"></param>
+	    /// <param name="columnList">List of indexable vectors (each vector becomes a column in the new matrix)</param>
+	    /// <returns></returns>
+	    public static IMatrix CreateMatrixFromColumns(this ILinearAlgebraProvider lap, IReadOnlyList<IIndexableVector> columnList)
+	    {
+		    int columns = columnList.Count;
+		    var rows = columnList[0].Count;
+		    return lap.CreateMatrix(rows, columns, (x, y) => columnList[y][x]);
+	    }
 
         /// <summary>
         /// Create a matrix
