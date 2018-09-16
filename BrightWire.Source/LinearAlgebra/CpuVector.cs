@@ -169,19 +169,8 @@ namespace BrightWire.LinearAlgebra
             var other = (CpuVector)vector;
 	        Debug.Assert(other.Count == Count);
 
-	        var ret = Subtract(other).L2Norm();
-	        return ret;
-
-			//var output = new ConcurrentBag<double>();
-			//Parallel.For(0, Count, i => {
-			//	var aVal = _vector[i];
-			//	var bVal = other._vector[i];
-			//	output.Add(Math.Pow(aVal - bVal, 2));
-			//});
-			//return (float)Math.Sqrt(output.Sum());
-
-			return Convert.ToSingle(Distance.Euclidean(_vector, other._vector));
-		}
+	        return Subtract(other).L2Norm();
+        }
 
         public float CosineDistance(IVector vector)
         {
@@ -239,10 +228,10 @@ namespace BrightWire.LinearAlgebra
         public void Normalise(NormalisationType type)
         {
             if (type == NormalisationType.FeatureScale) {
-                var minMax = GetMinMax();
-                var range = minMax.Max - minMax.Min;
+                var (min, max) = GetMinMax();
+                var range = max - min;
                 if (range > 0)
-                    _vector.MapInplace(v => (v - minMax.Min) / range);
+                    _vector.MapInplace(v => (v - min) / range);
             } else if (type == NormalisationType.Standard) {
                 var mean = Average();
                 var stdDev = StdDev(mean);

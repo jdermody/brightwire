@@ -149,21 +149,19 @@ extern "C"
 
 	__global__ void SumRows(float* a, float* b, int rows, int columns)
 	{
-        for (int index = blockDim.x * blockIdx.x + threadIdx.x; index < rows; index += blockDim.x * gridDim.x) {
-            float temp = 0;
-			for (int i = 0; i < columns; i++)
-				temp += a[i * rows + index];
-			b[index] = temp;
+        for (int i = blockDim.x * blockIdx.x + threadIdx.x; i < rows; i += blockDim.x * gridDim.x) {
+            for (int j = blockDim.y * blockIdx.y + threadIdx.y; j < columns; j += blockDim.y * gridDim.y) {
+                atomicAdd(b + i, a[j * rows + i]);
+            }
         }
 	}
 
 	__global__ void SumColumns(float* a, float* b, int rows, int columns)
 	{
-        for (int index = blockDim.x * blockIdx.x + threadIdx.x; index < columns; index += blockDim.x * gridDim.x) {
-            float temp = 0;
-			for (int i = 0; i < rows; i++)
-				temp += a[index * rows + i];
-			b[index] = temp;
+        for (int i = blockDim.x * blockIdx.x + threadIdx.x; i < rows; i += blockDim.x * gridDim.x) {
+            for (int j = blockDim.y * blockIdx.y + threadIdx.y; j < columns; j += blockDim.y * gridDim.y) {
+                atomicAdd(b + j, a[j * rows + i]);
+            }
         }
 	}
 
@@ -466,33 +464,6 @@ extern "C"
         }
 	}
 
-	/*__global__ void VectorSplit(float* a, float** b, int inputSize, int blockSize)
-	{
-        for (int index = blockDim.x * blockIdx.x + threadIdx.x; index < inputSize; index += blockDim.x * gridDim.x) {
-            b[index / blockSize][index % blockSize] = a[index];
-        }
-	}
-
-	__global__ void TensorConvertToVector(float** a, float* b, int matrixSize, int size)
-	{
-        for (int index = blockDim.x * blockIdx.x + threadIdx.x; index < size; index += blockDim.x * gridDim.x) {
-            int offset = index / matrixSize;
-			int index2 = index % matrixSize;
-			b[index] = a[offset][index2];
-        }
-	}
-
-	__global__ void TensorConvertToMatrix(float** a, float* b, int aRows, int aColumns, int bRows, int bColumns)
-	{
-        for (int i = blockDim.x * blockIdx.x + threadIdx.x; i < bRows; i += blockDim.x * gridDim.x) {
-            for (int j = blockDim.y * blockIdx.y + threadIdx.y; j < bColumns; j += blockDim.y * gridDim.y) {
-                int x = i % aRows;
-			    int y = i / aRows;
-			    b[j * bRows + i] = a[j][y * aRows + x];
-            }
-        }
-	}*/
-
 	__global__ void TensorAddPadding(
         int size, 
         float* a, 
@@ -607,10 +578,6 @@ extern "C"
 
             int ci = index4 % convolutionCount;
             int i = index4 / convolutionCount;
-            
-			//int extent = (rows - filterWidth) / stride + 1;
-            //int offsetY = ci / extent * stride;
-            //int offsetX = ci % extent * stride;
 
             int offsetX = cx[ci];
             int offsetY = cy[ci];
@@ -684,17 +651,14 @@ extern "C"
 
             float* slice = a + (i * rows * columns * depth) + (k * rows * columns);
             float* filter = filters + (k * outputDepth * filterWidth * filterHeight) + (z * filterWidth * filterHeight);
-            float* output = b //+ (k * outputRows * outputColumns * outputDepth * count) 
-                + (i * outputRows * outputColumns * outputDepth) 
-                + (z * outputRows * outputColumns)
-            ;
+            float* output = b + (i * outputRows * outputColumns * outputDepth) + (z * outputRows * outputColumns);
 
             int errorX = offsetX / stride;
             int errorY = offsetY / stride;
             if(errorX < columns && errorY < rows) {
                 float error = slice[errorX * rows + errorY];
 
-                int filterIndex = x * filterHeight + y;
+                int filterIndex = (filterWidth-x-1) * filterHeight + (filterHeight-y-1);
                 int outputIndex = (offsetX+x) * outputRows + (offsetY+y);
                 float val = filter[filterIndex] * error;
 
@@ -869,6 +833,8 @@ extern "C"
                     if(distanceMetric == 0) { // euclidean
                         float diff = aVal - bVal;
                         output = diff * diff;
+                    }else if(distanceMetric == 1) { // manhattan
+                        output = abs(aVal - bVal);
                     }
                     float* outputPtr = c + (j * rows + k);
                     atomicAdd(outputPtr, output);

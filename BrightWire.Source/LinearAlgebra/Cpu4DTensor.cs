@@ -89,9 +89,9 @@ namespace BrightWire.LinearAlgebra
             List<IIndexable3DTensor> indexList = saveIndices ? new List<IIndexable3DTensor>() : null;
             var ret = new List<IIndexable3DTensor>();
             for (var i = 0; i < Count; i++) {
-                var result = GetTensorAt(i).MaxPool(filterWidth, filterHeight, stride, saveIndices);
-                indexList?.Add(result.Indices.AsIndexable());
-                ret.Add(result.Result.AsIndexable());
+                var (result, indices) = GetTensorAt(i).MaxPool(filterWidth, filterHeight, stride, saveIndices);
+                indexList?.Add(indices.AsIndexable());
+                ret.Add(result.AsIndexable());
             }
             return (new Cpu4DTensor(ret), saveIndices ? new Cpu4DTensor(indexList) : null);
         }
@@ -129,9 +129,6 @@ namespace BrightWire.LinearAlgebra
 		public IMatrix ReshapeAsMatrix()
 		{
 			return _data;
-			//var rows = _data.Select(t => t.ReshapeAsVector().AsIndexable()).ToList();
-			//var first = rows.First();
-			//return new CpuMatrix(DenseMatrix.Create(first.Count, Count, (i, j) => rows[j][i]));
 		}
 
 	    public IReadOnlyList<FloatTensor> Data {
@@ -161,14 +158,6 @@ namespace BrightWire.LinearAlgebra
 	    public IVector ReshapeAsVector()
 	    {
 		    return _data.ReshapeAsVector();
-		    //var vectorList = _data.Select(m => m.ReshapeAsVector().AsIndexable()).ToArray();
-		    //var size = RowCount * ColumnCount * Depth;
-		    //var ret = DenseVector.Create(Count * size, i => {
-		    // var offset = i / size;
-		    // var index = i % size;
-		    // return vectorList[offset][index];
-		    //});
-		    //return new CpuVector(ret);
 	    }
 
         public IVector ColumnSums()

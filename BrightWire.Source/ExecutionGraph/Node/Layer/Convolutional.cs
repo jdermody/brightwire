@@ -46,10 +46,6 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 					var weightUpdate = update.CombineDepthSlices();
 					var biasUpdate = tensor.ColumnSums();
 
-//#if DEBUG
-//					Debug.Assert(weightUpdate.ReshapeAsVector().IsEntirelyFinite());
-//#endif
-
 					context.LearningContext.StoreUpdate(_source, weightUpdate, err => _source.Update(err, context.LearningContext));
 					context.LearningContext.StoreUpdate(_source, biasUpdate, bu => _UpdateBias(bu, context.LearningContext));
 				}
@@ -65,27 +61,14 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 					var outputColumns = _inputWidth + padding * 2;
 					var outputDepth = _inputDepth;
 
-					using (var filtersClone = filters.Clone()) {
-						using (var rotatedFilters = filtersClone.ReshapeAsVector()) {
-							rotatedFilters.RotateInPlace(filters.ColumnCount * inputDepth);
-							using (var rotatedFiltersMatrix = rotatedFilters.ReshapeAsMatrix(filters.RowCount, filters.ColumnCount)) {
-								var reverseIm2Col = tensor.ReverseIm2Col(rotatedFiltersMatrix, outputRows, outputColumns, outputDepth, filterWidth, filterHeight, stride);
-								var delta = reverseIm2Col;
-								if (padding > 0) {
-									var delta2 = delta.RemovePadding(padding);
-									delta.Dispose();
-									delta = delta2;
-								}
-//#if DEBUG
-//								Debug.Assert(delta.ReshapeAsVector().IsEntirelyFinite());
-//#endif
-								return new Tensor4DGraphData(delta.ReshapeAsMatrix(), _inputHeight, _inputWidth, inputDepth);
-							}
-						}
+					var reverseIm2Col = tensor.ReverseIm2Col(filters, outputRows, outputColumns, outputDepth, filterWidth, filterHeight, stride);
+					var delta = reverseIm2Col;
+					if (padding > 0) {
+						var delta2 = delta.RemovePadding(padding);
+						delta.Dispose();
+						delta = delta2;
 					}
-					//var filterList = new List<IReadOnlyList<IVector>>();
-					//for (var i = 0; i < filters.ColumnCount; i++)
-					//    filterList.Add(filters.Column(i).Split(inputDepth).Select(v => v.Rotate()).ToList());
+					return new Tensor4DGraphData(delta.ReshapeAsMatrix(), _inputHeight, _inputWidth, inputDepth);
 				}
 				return errorSignal;
 			}
@@ -151,10 +134,6 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 			outputSignal.AddToEachRow(_bias);
 			var outputTensor = outputSignal.ReshapeAs4DTensor(newHeight, newWidth);
 			Debug.Assert(outputTensor.Depth == FilterCount && outputTensor.Count == tensor.Count);
-
-//#if DEBUG
-//			Debug.Assert(outputTensor.ReshapeAsVector().IsEntirelyFinite());
-//#endif
 
 			var graphData = new Tensor4DGraphData(outputTensor);
 			_AddNextGraphAction(context, graphData, () => new Backpropagation(this, im2Col, inputWidth, inputHeight, tensor.Depth, tensor.Count, newWidth, newHeight));

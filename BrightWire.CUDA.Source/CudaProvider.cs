@@ -403,15 +403,15 @@ namespace BrightWire.LinearAlgebra
 
 		internal IDeviceMemoryPtr SumRows(IDeviceMemoryPtr a, int rows, int columns)
 		{
-			var ret = Allocate(rows);
+			var ret = Allocate(rows, true);
 			_Invoke2(_sumRows, rows, columns, a.DevicePointer, ret.DevicePointer, rows, columns);
 			return ret;
 		}
 
 		internal IDeviceMemoryPtr SumColumns(IDeviceMemoryPtr a, int rows, int columns)
 		{
-			var ret = Allocate(columns);
-			_Invoke(_sumColumns, columns, a.DevicePointer, ret.DevicePointer, rows, columns);
+			var ret = Allocate(columns, true);
+			_Invoke2(_sumColumns, rows, columns, a.DevicePointer, ret.DevicePointer, rows, columns);
 			return ret;
 		}
 
@@ -862,17 +862,14 @@ namespace BrightWire.LinearAlgebra
 			}
 
 			return (ret, outputRows, outputColumns, outputDepth, count);
-
-			// add up the per filter buffers
-			//var matrix = new GpuMatrix(this, outputRows * outputColumns * outputDepth * count, depth, ret, false);
-			//var collapsed = matrix.RowSums();
-			//ret.Free();
-
-			//return (((IHaveDeviceMemory)collapsed).Memory, outputRows, outputColumns, outputDepth, count);
 		}
 
 		public IMatrix CalculateDistances(IReadOnlyList<IVector> vectors, IReadOnlyList<IVector> compareTo, DistanceMetric distanceMetric)
 		{
+			if (!(distanceMetric == DistanceMetric.Euclidean || distanceMetric == DistanceMetric.Manhattan))
+				throw new NotImplementedException();
+
+
 			var rows = compareTo.Count;
 			var columns = vectors.Count;
 			var size = vectors[0].Count;
@@ -899,30 +896,6 @@ namespace BrightWire.LinearAlgebra
 			}
 
 			return matrix;
-		}
-
-		public (IDeviceMemoryPtr Data, int Rows, int Columns) CalculateDistance(
-			IReadOnlyList<IVector> compareTo, 
-			IDeviceMemoryPtr a, 
-			int rows, 
-			int columns, 
-			DistanceMetric distanceMetric
-		) {
-			var ret = Allocate(columns * compareTo.Count);
-
-			using (var devicePtr = new PtrToDeviceMemoryList(compareTo.Cast<IHaveDeviceMemory>().ToList())) {
-				_Invoke3(_calculateDistance, rows, columns, compareTo.Count,
-					a.DevicePointer,
-					devicePtr.DevicePointer,
-					ret.DevicePointer,
-					rows,
-					columns,
-					compareTo.Count,
-					(int) distanceMetric
-				);
-			}
-
-			return (ret, compareTo.Count, columns);
 		}
 
 		public IVector CreateVector(int length, bool setToZero = false)

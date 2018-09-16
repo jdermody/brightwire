@@ -25,10 +25,6 @@ namespace BrightWire.LinearAlgebra
             _columns = columns;
 	        _depth = depth;
 	        _data = new CpuMatrix(DenseMatrix.Build.Dense(rows * columns, depth));
-            //_data = Enumerable.Range(0, depth)
-            //    .Select(i => new CpuMatrix(DenseMatrix.Create(_rows, _columns, 0f)))
-            //    .ToArray()
-            //;
         }
 
         public Cpu3DTensor(IReadOnlyList<IIndexableMatrix> matrixList)
@@ -137,26 +133,11 @@ namespace BrightWire.LinearAlgebra
         public IVector ReshapeAsVector()
         {
 	        return new CpuVector(DenseVector.Build.Dense(_data.GetInternalArray()));
-	        //var vectorList = _data.Select(m => m.ReshapeAsVector().AsIndexable()).ToArray();
-	        //var size = _rows * _columns;
-	        //var ret = DenseVector.Create(Depth * size, i => {
-	        //    var offset = i / size;
-	        //    var index = i % size;
-	        //    return vectorList[offset][index];
-	        //});
-	        //return new CpuVector(ret);
         }
 
 		public IMatrix ReshapeAsMatrix()
 		{
 			return _data;
-			//var ret = DenseMatrix.Create(_rows * _columns, Depth, (i, j) => {
-			//	var matrix = _data[j];
-			//	var x = i % _rows;
-			//	var y = i / _rows;
-			//	return matrix[x, y];
-			//});
-			//return new CpuMatrix(ret);
 		}
 
 		public I4DTensor ReshapeAs4DTensor(int rows, int columns)
@@ -246,14 +227,14 @@ namespace BrightWire.LinearAlgebra
 		    var ret = new CpuMatrix(DenseMatrix.Create(convolutions.Count, filterSize * Depth, 0f));
 
 		    for(var i = 0; i < convolutions.Count; i++) {
-			    var offset = convolutions[i];
+			    var (offsetX, offsetY) = convolutions[i];
 			    for (var k = 0; k < Depth; k++) {
 					var filterOffset = k * filterSize;
 				    for (var y = 0; y < filterHeight; y++) {
 					    for (var x = 0; x < filterWidth; x++) {
 							// write in column major format
 							var filterIndex = filterOffset + (x * filterHeight + y);
-						    ret[i, filterIndex] = this[offset.Y + y, offset.X + x, k];
+						    ret[i, filterIndex] = this[offsetY + y, offsetX + x, k];
 					    }
 				    }
 			    }
@@ -276,9 +257,9 @@ namespace BrightWire.LinearAlgebra
 					var errorX = cx / stride;
 					if (errorX < slice.ColumnCount && errorY < slice.RowCount) {
 						var error = slice[errorY, errorX];
-						for (var y = 0; y < filterHeight /*&& cy + y < slice.RowCount*/; y++) {
-							for (var x = 0; x < filterWidth /*&& cx + x < slice.ColumnCount*/; x++) {
-								var filterIndex = x * filterHeight + y;
+						for (var y = 0; y < filterHeight; y++) {
+							for (var x = 0; x < filterWidth; x++) {
+								var filterIndex = (filterWidth-x-1)  * filterHeight + (filterHeight-y-1);
 								for (var z = 0; z < outputDepth; z++)
 									output[z][cy + y, cx + x] += filters[z][filterIndex] * error;
 							}

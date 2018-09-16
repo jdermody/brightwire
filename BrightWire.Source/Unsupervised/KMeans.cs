@@ -34,7 +34,7 @@ namespace BrightWire.Unsupervised
 				if (!clusterIndexSet.Add(index))
 					return false;
 
-				var vector = data[index];
+				var vector = data[index].Clone();
 				_distance.AddComparison(vector);
 				_clusters.Add((new[] { index }, vector));
 
@@ -66,7 +66,7 @@ namespace BrightWire.Unsupervised
 
 		void IDisposable.Dispose()
 		{
-			_distance.Dispose();
+			((IDisposable)_distance).Dispose();
 		}
 
 		public bool Cluster()
