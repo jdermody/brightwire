@@ -130,6 +130,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Helper\ConvolutionHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helper\CSVParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helper\DataTableBuilder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helper\DebugHelpers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helper\PropertySet.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helper\RandomProjection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helper\TypeLoader.cs" />

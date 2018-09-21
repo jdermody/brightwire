@@ -76,6 +76,7 @@
     <Compile Include="Selu.cs" />
     <Compile Include="SentimentClassification.cs" />
     <Compile Include="SequenceToSequence.cs" />
+    <Compile Include="StockData.cs" />
     <Compile Include="TextClustering.cs" />
   </ItemGroup>
   <ItemGroup>

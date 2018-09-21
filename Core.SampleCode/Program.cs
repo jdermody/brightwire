@@ -89,13 +89,13 @@ namespace BrightWire.SampleCode
 			// uncomment to use the (faster) native MKL provider if available
 			// Control.UseNativeMKL();
 
-			//XOR();
+			XOR();
 			//IrisClassification();
 			//IrisClustering();
 			//MarkovChains();
 			//MNIST(DataBasePath + @"mnist\");
-			//MNISTConvolutional(DataBasePath + @"mnist\"/*, ModelBasePath + @"mnist.dat"*/);
-			SentimentClassification(DataBasePath + @"sentiment labelled sentences\");
+			//MNISTConvolutional(DataBasePath + @"mnist\", ModelBasePath + @"mnist.dat");
+			//SentimentClassification(DataBasePath + @"sentiment labelled sentences\");
 			//TextClustering(DataBasePath + @"[UCI] AAAI-14 Accepted Papers - Papers.csv", ModelBasePath);
 			//IntegerAddition();
 			//ReberPrediction();
