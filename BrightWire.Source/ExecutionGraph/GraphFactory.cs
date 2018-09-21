@@ -21,6 +21,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Serialization;
 using BrightWire.ExecutionGraph.Action;
+using BrightWire.Source.Helper;
 
 namespace BrightWire.ExecutionGraph
 {
@@ -732,7 +733,7 @@ namespace BrightWire.ExecutionGraph
 		/// <param name="node">The node model</param>
 		public INode Create(Models.ExecutionGraph.Node node)
 		{
-			var type = Type.GetType(node.TypeName);
+			var type = TypeLoader.LoadType(node.TypeName);
 			var ret = (INode)FormatterServices.GetUninitializedObject(type);
 			ret.Initialise(this, node.Id, node.Name, node.Description, node.Data);
 			return ret;
