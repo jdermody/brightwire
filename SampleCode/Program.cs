@@ -100,7 +100,7 @@ namespace BrightWire.SampleCode
 			//IrisClustering();
 			//MarkovChains();
 			//MNIST(DataBasePath + @"mnist\");
-			MNISTConvolutional(DataBasePath + @"mnist\"/*, ModelBasePath + @"mnist.dat"*/);
+			//MNISTConvolutional(DataBasePath + @"mnist\"/*, ModelBasePath + @"mnist.dat"*/);
 			//SentimentClassification(DataBasePath + @"sentiment labelled sentences\");
 			//TextClustering(DataBasePath + @"[UCI] AAAI-14 Accepted Papers - Papers.csv", ModelBasePath);
 			//IntegerAddition();
@@ -120,7 +120,7 @@ namespace BrightWire.SampleCode
 			//	var rand = new Random();
 			//	var list = new List<IVector>();
 			//	Console.Write("Loading...");
-			//	const int VECTOR_COUNT = 1024, VECTOR_SIZE = 256;
+			//	const int VECTOR_COUNT = 1024, VECTOR_SIZE = 4096;
 			//	for (var i = 0; i < VECTOR_COUNT; i++) {
 			//		var vector = lap.CreateVector(VECTOR_SIZE, j => (float)rand.NextDouble());
 			//		list.Add(vector);
