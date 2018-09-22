@@ -623,7 +623,7 @@ namespace BrightWire.LinearAlgebra
 
 		internal IDeviceMemoryPtr MultiEuclideanDistance(IDeviceMemoryPtr vector, CUdeviceptr[] compareTo, int size)
 		{
-			IDeviceMemoryPtr ret = null;
+			IDeviceMemoryPtr ret;
 			var buffer = Allocate(PTR_SIZE * compareTo.Length);
 			try {
 				_cuda.CopyToDevice(buffer.DevicePointer, compareTo);
@@ -638,7 +638,7 @@ namespace BrightWire.LinearAlgebra
 
 		internal IDeviceMemoryPtr MultiManhattanDistance(IDeviceMemoryPtr vector, CUdeviceptr[] compareTo, int size)
 		{
-			IDeviceMemoryPtr ret = null;
+			IDeviceMemoryPtr ret;
 			var buffer = Allocate(PTR_SIZE * compareTo.Length);
 			try {
 				_cuda.CopyToDevice(buffer.DevicePointer, compareTo);

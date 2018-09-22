@@ -108,6 +108,7 @@ namespace BrightWire.SampleCode
 			//PredictBicyclesWithNeuralNetwork(DataBasePath + @"bikesharing\hour.csv");
 			//MultiLabelSingleClassifier(DataBasePath + @"emotions\emotions.arff");
 			//MultiLabelMultiClassifiers(DataBasePath + @"emotions\emotions.arff");
-		}
+	        //StockData(DataBasePath + @"plotly\stockdata.csv");
+        }
     }
 }

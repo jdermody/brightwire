@@ -18,12 +18,28 @@
     <Compile Include="..\SampleCode\Selu.cs" Link="Selu.cs" />
     <Compile Include="..\SampleCode\SentimentClassification.cs" Link="SentimentClassification.cs" />
     <Compile Include="..\SampleCode\SequenceToSequence.cs" Link="SequenceToSequence.cs" />
+    <Compile Include="..\SampleCode\StockData.cs" Link="StockData.cs" />
     <Compile Include="..\SampleCode\TextClustering.cs" Link="TextClustering.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\BrightWire.CUDA.Standard\BrightWire.CUDA.Standard.csproj" />
     <ProjectReference Include="..\BrightWire.Standard\BrightWire.Standard.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="CudaBlas">
+      <HintPath>..\ManagedCuda\CudaBlas.dll</HintPath>
+    </Reference>
+    <Reference Include="CudaSolve">
+      <HintPath>..\ManagedCuda\CudaSolve.dll</HintPath>
+    </Reference>
+    <Reference Include="CudaSparse">
+      <HintPath>..\ManagedCuda\CudaSparse.dll</HintPath>
+    </Reference>
+    <Reference Include="ManagedCuda">
+      <HintPath>..\ManagedCuda\ManagedCuda.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>
