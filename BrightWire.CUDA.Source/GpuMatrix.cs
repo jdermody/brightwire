@@ -604,7 +604,7 @@ namespace BrightWire.LinearAlgebra
 
             // find the size of the required buffer
             var bufferSize = solver.GesvdBufferSizeFloat(_rows, _columns);
-            var mn = Math.Min(_rows, _columns);
+            var mn = System.Math.Min(_rows, _columns);
 
             // allocate output buffers
             var s = _cuda.Allocate(mn);

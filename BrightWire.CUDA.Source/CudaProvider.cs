@@ -535,7 +535,7 @@ namespace BrightWire.LinearAlgebra
 				if (ptr != a)
 					ptr.Free();
 
-				return Convert.ToSingle(Math.Sqrt(total.Sum() / inputSize));
+				return Convert.ToSingle(System.Math.Sqrt(total.Sum() / inputSize));
 			}
 			return 0f;
 		}
@@ -554,7 +554,7 @@ namespace BrightWire.LinearAlgebra
 
 		internal IDeviceMemoryPtr Diagonal(IDeviceMemoryPtr a, int rows, int columns)
 		{
-			var len = Math.Min(rows, columns);
+			var len = System.Math.Min(rows, columns);
 			var ret = Allocate(len);
 			_Invoke(_diagonal, len, a.DevicePointer, ret.DevicePointer, rows, columns);
 			return ret;
@@ -569,7 +569,7 @@ namespace BrightWire.LinearAlgebra
 		{
 			var ret = Allocate(size);
 			_Invoke(_euclideanDistance, size, a.DevicePointer, b.DevicePointer, ret.DevicePointer, size);
-			return Convert.ToSingle(Math.Sqrt(SumValues(ret, size)));
+			return Convert.ToSingle(System.Math.Sqrt(SumValues(ret, size)));
 		}
 
 		internal float ManhattanDistance(IDeviceMemoryPtr a, IDeviceMemoryPtr b, int size)
