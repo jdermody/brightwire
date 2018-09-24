@@ -17,5 +17,4 @@ This assembly provides a CUDA based linear alegbra provider so that Bright Wire 
 
 The cuda directory contains the CUDA kernel (brightwire.ptx and corresponding brightwire.cu source file) that will be run on the GPU.
 
-DeviceMemory in /Helper maintains a cache of GPU allocated memory blocks that can have been released but not yet deallocated. New block requests can
-reuse blocks that are the same size if available.
+Source code moved to BrightWire.CUDA.Source as a shared project.

@@ -68,12 +68,10 @@ namespace BrightWire.LinearAlgebra
 
 		class KernelModule
 		{
-			//readonly CudaContext _context;
 			readonly CUmodule _module;
 
 			public KernelModule(CudaContext context, string path)
 			{
-				//_context = context;
 				_module = context.LoadModule(path);
 			}
 
@@ -303,14 +301,6 @@ namespace BrightWire.LinearAlgebra
 				DriverAPINativeMethods.Occupancy.cuOccupancyMaxPotentialBlockSize(ref minGridSize, ref blockSize, function, bs => 0, 0, 0);
 				_blockSize.TryAdd(function, data = (Convert.ToInt32(System.Math.Pow(blockSize, 1.0/2)), minGridSize));
 			}
-
-			//var gridSizeRows = _GetBlockCount(rows, BLOCK_DIM);
-			//var gridSizeCols = _GetBlockCount(columns, BLOCK_DIM);
-			//var execution = _kernel.CreateExecution(function, new dim3(gridSizeRows, gridSizeCols), new dim3(BLOCK_DIM, BLOCK_DIM));
-
-			//int blockSize = 0, minGridSize = 0;
-			//DriverAPINativeMethods.Occupancy.cuOccupancyMaxPotentialBlockSize(ref minGridSize, ref blockSize, function, bs => 0, 0, 0);
-			//blockSize = Convert.ToInt32(System.Math.Pow(blockSize, 1.0/2));
 			int gridSizeRows = (rows + data.BlockSize - 1) / data.BlockSize;
 			int gridSizeCols = (columns + data.BlockSize - 1) / data.BlockSize;
 			var execution = _kernel.CreateExecution(function, new dim3(gridSizeRows, gridSizeCols), new dim3(data.BlockSize, data.BlockSize));
@@ -329,12 +319,6 @@ namespace BrightWire.LinearAlgebra
 			int gridSizeCols = (columns + data.BlockSize - 1) / data.BlockSize;
 			int gridSizeDepth = (depth + data.BlockSize - 1) / data.BlockSize;
 			var execution = _kernel.CreateExecution(function, new dim3(gridSizeRows, gridSizeCols, gridSizeDepth), new dim3(data.BlockSize, data.BlockSize, data.BlockSize));
-
-			//const int size = 8;
-			//var rowSize = _GetBlockCount(rows, size);
-			//var columnSize = _GetBlockCount(columns, size);
-			//var depthSize = _GetBlockCount(depth, size);
-			//var execution = _kernel.CreateExecution(function, new dim3(rowSize, columnSize, depthSize), new dim3(size, size, size));
 			execution.Run(0, param);
 		}
 
@@ -689,8 +673,14 @@ namespace BrightWire.LinearAlgebra
 			return ret;
 		}
 
-		internal (IDeviceMemoryPtr Data, int Rows, int Columns) TensorAddPadding(IDeviceMemoryPtr tensor, int rows, int columns, int depth, int count, int padding)
-		{
+		internal (IDeviceMemoryPtr Data, int Rows, int Columns) TensorAddPadding(
+			IDeviceMemoryPtr tensor, 
+			int rows, 
+			int columns, 
+			int depth, 
+			int count, 
+			int padding
+		) {
 			var outputRows = rows + padding * 2;
 			var outputColumns = columns + padding * 2;
 			var ret = Allocate(outputRows * outputColumns * depth * count, true);
@@ -711,8 +701,14 @@ namespace BrightWire.LinearAlgebra
 			return (ret, outputRows, outputColumns);
 		}
 
-		internal (IDeviceMemoryPtr Data, int Rows, int Columns) TensorRemovePadding(IDeviceMemoryPtr tensor, int rows, int columns, int depth, int count, int padding)
-		{
+		internal (IDeviceMemoryPtr Data, int Rows, int Columns) TensorRemovePadding(
+			IDeviceMemoryPtr tensor, 
+			int rows, 
+			int columns, 
+			int depth, 
+			int count, 
+			int padding
+		) {
 			var outputRows = rows - padding * 2;
 			var outputColumns = columns - padding * 2;
 			var ret = Allocate(outputRows * outputColumns * depth * count);
@@ -906,7 +902,6 @@ namespace BrightWire.LinearAlgebra
 		{
 			if (!(distanceMetric == DistanceMetric.Euclidean || distanceMetric == DistanceMetric.Manhattan))
 				throw new NotImplementedException();
-
 
 			var rows = compareTo.Count;
 			var columns = vectors.Count;
