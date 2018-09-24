@@ -244,34 +244,58 @@ namespace BrightWire.LinearAlgebra
 			var ptr = _data.DevicePointer;
 			int rowsA = _rows, columnsArowsB = _columns, columnsB = matrix.ColumnCount;
 			float alpha = 1.0f, beta = 0.0f;
-			var output = Enumerable.Range(0, _depth).Select(i => new GpuMatrix(_cuda, _rows, columnsB, _cuda.Allocate(_rows * columnsB), true)).ToList();
+			var output = new Gpu3DTensor(_cuda, _rows, columnsB, _depth, _cuda.Allocate(_rows * columnsB * _depth), true);
 
-			using (var aPtrs = new PtrToDeviceMemoryList(Enumerable.Range(0, _depth).Select(i => ptr + i * _blockSize * CudaProvider.FLOAT_SIZE).ToArray()))
-			using (var bPtrs = new PtrToDeviceMemoryList(Enumerable.Range(0, _depth).Select(i => other.Memory.DevicePointer).ToArray()))
-			using (var cPtrs = new PtrToDeviceMemoryList(output.Select(m => m.Memory.DevicePointer).ToArray())) {
-				// TODO: use cublasSgemmStridedBatched?
-				var status = CudaBlasNativeMethods.cublasSgemmBatched(_cuda.Blas.CublasHandle,
-					Operation.NonTranspose,
-					Operation.NonTranspose,
-					rowsA,
-					columnsB,
-					columnsArowsB,
-					ref alpha,
-					aPtrs.DevicePointer,
-					rowsA,
-					bPtrs.DevicePointer,
-					columnsArowsB,
-					ref beta,
-					cPtrs.DevicePointer,
-					rowsA,
-					_depth
-				);
-				if (status != CublasStatus.Success)
-					throw new CudaBlasException(status);
-			}
+			var status = CudaBlasNativeMethods.cublasSgemmStridedBatched(_cuda.Blas.CublasHandle,
+				Operation.NonTranspose,
+				Operation.NonTranspose,
+				rowsA,
+				columnsB,
+				columnsArowsB,
+				ref alpha,
+				ptr,
+				rowsA,
+				_blockSize,
+				other.Memory.DevicePointer,
+				columnsArowsB,
+				0,
+				ref beta,
+				output.Memory.DevicePointer,
+				rowsA,
+				_rows * columnsB,
+				_depth
+			);
+			if (status != CublasStatus.Success)
+				throw new CudaBlasException(status);
 
-			return _cuda.Create3DTensor(output);
-			//return _cuda.Create3DTensor(Matrices.Select(item => item.Multiply(matrix)).ToList());
+			return output;
+
+			//var output = Enumerable.Range(0, _depth).Select(i => new GpuMatrix(_cuda, _rows, columnsB, _cuda.Allocate(_rows * columnsB), true)).ToList();
+
+			//using (var aPtrs = new PtrToDeviceMemoryList(Enumerable.Range(0, _depth).Select(i => ptr + i * _blockSize * CudaProvider.FLOAT_SIZE).ToArray()))
+			//using (var bPtrs = new PtrToDeviceMemoryList(Enumerable.Range(0, _depth).Select(i => other.Memory.DevicePointer).ToArray()))
+			//using (var cPtrs = new PtrToDeviceMemoryList(output.Select(m => m.Memory.DevicePointer).ToArray())) {
+			//	var status = CudaBlasNativeMethods.cublasSgemmBatched(_cuda.Blas.CublasHandle,
+			//		Operation.NonTranspose,
+			//		Operation.NonTranspose,
+			//		rowsA,
+			//		columnsB,
+			//		columnsArowsB,
+			//		ref alpha,
+			//		aPtrs.DevicePointer,
+			//		rowsA,
+			//		bPtrs.DevicePointer,
+			//		columnsArowsB,
+			//		ref beta,
+			//		cPtrs.DevicePointer,
+			//		rowsA,
+			//		_depth
+			//	);
+			//	if (status != CublasStatus.Success)
+			//		throw new CudaBlasException(status);
+			//}
+
+			//return _cuda.Create3DTensor(output);
 		}
 
 		public void AddToEachRow(IVector vector)
@@ -286,44 +310,62 @@ namespace BrightWire.LinearAlgebra
 #if DEBUG
 			Debug.Assert(tensor.Count == Depth && IsValid && other.IsValid);
 #endif
-			//var ret = new List<IMatrix>();
-			//for (var i = 0; i < tensor.Count; i++) {
-			//	var multiplyWith = tensor.GetTensorAt(i).ReshapeAsMatrix();
-			//	var slice = GetMatrixAt(i);
-			//	ret.Add(slice.TransposeThisAndMultiply(multiplyWith));
-			//}
-			//return _cuda.Create3DTensor(ret);
-
 			var ptr = _data.DevicePointer;
 			var ptr2 = other.Memory.DevicePointer;
 			int rowsA = _rows, columnsA = _columns, columnsB = other.Depth, rowsB = other.RowCount * other.ColumnCount, blockSize2 = columnsB * rowsB;
 			float alpha = 1.0f, beta = 0.0f;
-			var output = Enumerable.Range(0, _depth).Select(i => new GpuMatrix(_cuda, _columns, columnsB, _cuda.Allocate(_columns * columnsB), true)).ToList();
+			var output = new Gpu3DTensor(_cuda, _columns, columnsB, _depth, _cuda.Allocate(_columns * columnsB * _depth), true);
 
-			using (var aPtrs = new PtrToDeviceMemoryList(Enumerable.Range(0, _depth).Select(i => ptr + i * _blockSize * CudaProvider.FLOAT_SIZE).ToArray()))
-			using (var bPtrs = new PtrToDeviceMemoryList(Enumerable.Range(0, _depth).Select(i => ptr2 + i * blockSize2 * CudaProvider.FLOAT_SIZE).ToArray()))
-			using (var cPtrs = new PtrToDeviceMemoryList(output.Select(m => m.Memory.DevicePointer).ToArray())) {
-				var status = CudaBlasNativeMethods.cublasSgemmBatched(_cuda.Blas.CublasHandle,
-					Operation.Transpose,
-					Operation.NonTranspose,
-					columnsA,
-					columnsB,
-					rowsB,
-					ref alpha,
-					aPtrs.DevicePointer,
-					rowsA,
-					bPtrs.DevicePointer,
-					rowsB,
-					ref beta,
-					cPtrs.DevicePointer,
-					columnsA,
-					_depth
-				);
-				if (status != CublasStatus.Success)
-					throw new CudaBlasException(status);
-			}
+			var status = CudaBlasNativeMethods.cublasSgemmStridedBatched(_cuda.Blas.CublasHandle,
+				Operation.Transpose,
+				Operation.NonTranspose,
+				columnsA,
+				columnsB,
+				rowsB,
+				ref alpha,
+				ptr,
+				rowsA,
+				_blockSize,
+				ptr2,
+				rowsB,
+				blockSize2,
+				ref beta,
+				output.Memory.DevicePointer,
+				columnsA,
+				_columns * columnsB,
+				_depth
+			);
+			if (status != CublasStatus.Success)
+				throw new CudaBlasException(status);
 
-			return _cuda.Create3DTensor(output);
+			return output;
+
+			//var output = Enumerable.Range(0, _depth).Select(i => new GpuMatrix(_cuda, _columns, columnsB, _cuda.Allocate(_columns * columnsB), true)).ToList();
+
+			//using (var aPtrs = new PtrToDeviceMemoryList(Enumerable.Range(0, _depth).Select(i => ptr + i * _blockSize * CudaProvider.FLOAT_SIZE).ToArray()))
+			//using (var bPtrs = new PtrToDeviceMemoryList(Enumerable.Range(0, _depth).Select(i => ptr2 + i * blockSize2 * CudaProvider.FLOAT_SIZE).ToArray()))
+			//using (var cPtrs = new PtrToDeviceMemoryList(output.Select(m => m.Memory.DevicePointer).ToArray())) {
+			//	var status = CudaBlasNativeMethods.cublasSgemmBatched(_cuda.Blas.CublasHandle,
+			//		Operation.Transpose,
+			//		Operation.NonTranspose,
+			//		columnsA,
+			//		columnsB,
+			//		rowsB,
+			//		ref alpha,
+			//		aPtrs.DevicePointer,
+			//		rowsA,
+			//		bPtrs.DevicePointer,
+			//		rowsB,
+			//		ref beta,
+			//		cPtrs.DevicePointer,
+			//		columnsA,
+			//		_depth
+			//	);
+			//	if (status != CublasStatus.Success)
+			//		throw new CudaBlasException(status);
+			//}
+
+			//return _cuda.Create3DTensor(output);
 		}
 	}
 }

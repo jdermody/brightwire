@@ -82,10 +82,10 @@ namespace BrightWire.SampleCode
 			// base path to a directory on your computer to store model files
 			const string ModelBasePath = @"c:\temp\";
 
-			// uncomment to use the (faster) native MKL provider if available
-			Control.UseNativeMKL();
+			// use the (faster) native MKL provider if available
+			//Control.UseNativeMKL();
 
-			//XOR();
+			XOR();
 			//IrisClassification();
 			//IrisClustering();
 			//MarkovChains();
@@ -104,7 +104,7 @@ namespace BrightWire.SampleCode
 			//PredictBicyclesWithNeuralNetwork(DataBasePath + @"bikesharing\hour.csv");
 			//MultiLabelSingleClassifier(DataBasePath + @"emotions\emotions.arff");
 			//MultiLabelMultiClassifiers(DataBasePath + @"emotions\emotions.arff");
-			StockData(DataBasePath + @"plotly\stockdata.csv");
+			//StockData(DataBasePath + @"plotly\stockdata.csv");
 		}
 	}
 }
