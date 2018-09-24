@@ -3,11 +3,13 @@ using BrightWire.Models;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Single;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Xml;
 
 namespace BrightWire.LinearAlgebra
@@ -42,18 +44,6 @@ namespace BrightWire.LinearAlgebra
             GC.SuppressFinalize(this);
         }
 
-        public int AddRef()
-        {
-            // nop
-            return 1;
-        }
-
-        public int Release()
-        {
-            // nop
-            return 1;
-        }
-
         public float this[int row, int column]
         {
             get => _matrix[row, column];
@@ -62,8 +52,8 @@ namespace BrightWire.LinearAlgebra
 
         public int ColumnCount => _matrix.ColumnCount;
 	    public int RowCount => _matrix.RowCount;
-	    public object WrappedObject => _matrix;
 	    public IEnumerable<float> Values => _matrix.Enumerate();
+	    public float[] GetInternalArray() => _matrix.AsColumnMajorArray();
 
 	    public IVector Column(int index)
         {
@@ -390,9 +380,7 @@ namespace BrightWire.LinearAlgebra
 
         public IMatrix Sqrt(float valueAdjustment = 0)
         {
-            return new CpuMatrix((DenseMatrix)_matrix.Map(v => {
-                return Convert.ToSingle(Math.Sqrt(v + valueAdjustment));
-            }));
+            return new CpuMatrix((DenseMatrix)_matrix.Map(v => Convert.ToSingle(Math.Sqrt(v + valueAdjustment))));
         }
 
         public IMatrix PointwiseDivide(IMatrix matrix)
@@ -445,58 +433,6 @@ namespace BrightWire.LinearAlgebra
             return new CpuMatrix(_matrix.Map(v => Convert.ToSingle(Math.Pow(v, power))));
         }
 
-        //public void Normalise(MatrixGrouping group, NormalisationType type)
-        //{
-        //    if (type == NormalisationType.FeatureScale) {
-        //        IEnumerable<Vector<float>> list = (group == MatrixGrouping.ByRow) ? _matrix.EnumerateRows() : _matrix.EnumerateColumns();
-        //        var norm = list.Select(row => {
-        //            float min = 0f, max = 0f;
-        //            foreach (var val in row.Enumerate(Zeros.AllowSkip)) {
-        //                if (val > max)
-        //                    max = val;
-        //                if (val < min)
-        //                    min = val;
-        //            }
-        //            float range = max - min;
-        //            return Tuple.Create(min, range);
-        //        }).ToList();
-
-        //        if (group == MatrixGrouping.ByRow)
-        //            _matrix.MapIndexedInplace((x, y, v) => norm[x].Item2 > 0 ? (v - norm[x].Item1) / norm[x].Item2 : v);
-        //        else
-        //            _matrix.MapIndexedInplace((x, y, v) => norm[y].Item2 > 0 ? (v - norm[y].Item1) / norm[y].Item2 : v);
-        //    }
-        //    else if(type == NormalisationType.Standard) {
-        //        IEnumerable<Vector<float>> list = (group == MatrixGrouping.ByRow) ? _matrix.EnumerateRows() : _matrix.EnumerateColumns();
-        //        var norm = list.Select(row => {
-        //            var mean = row.Average();
-        //            var stdDev = Convert.ToSingle(Math.Sqrt(row.Average(c => Math.Pow(c - mean, 2))));
-        //            return Tuple.Create(mean, stdDev);
-        //        }).ToList();
-
-        //        if(group == MatrixGrouping.ByRow)
-        //            _matrix.MapIndexedInplace((x, y, v) => norm[x].Item2 != 0 ? (v - norm[x].Item1) / norm[x].Item2 : v);
-        //        else
-        //            _matrix.MapIndexedInplace((x, y, v) => norm[y].Item2 != 0 ? (v - norm[y].Item1) / norm[y].Item2 : v);
-        //    }else if(type == NormalisationType.Euclidean || type == NormalisationType.Infinity || type == NormalisationType.Manhattan) {
-        //        var p = (type == NormalisationType.Manhattan) ? 1.0 : (type == NormalisationType.Manhattan) ? 2.0 : double.PositiveInfinity;
-        //        var norm = (group == MatrixGrouping.ByColumn) ? _matrix.NormalizeColumns(p) : _matrix.NormalizeRows(p);
-        //        norm.CopyTo(_matrix);
-        //    }
-        //}
-
-        public void UpdateRow(int index, IIndexableVector vector, int columnIndex)
-        {
-            for (var i = 0; i < vector.Count; i++)
-                _matrix[index, columnIndex + i] = vector[i];
-        }
-
-        public void UpdateColumn(int index, IIndexableVector vector, int rowIndex)
-        {
-            for (var i = 0; i < vector.Count; i++)
-                _matrix[rowIndex + i, index] = vector[i];
-        }
-
         public IVector GetRowSegment(int index, int columnIndex, int length)
         {
             var buffer = new float[length];
@@ -515,7 +451,7 @@ namespace BrightWire.LinearAlgebra
 
         public IMatrix Multiply(IVector vector)
         {
-            using (var column = vector.ToColumnMatrix())
+            using (var column = vector.ReshapeAsColumnMatrix())
                 return Multiply(column);
         }
 
@@ -525,40 +461,39 @@ namespace BrightWire.LinearAlgebra
             return (new CpuMatrix(svd.U), new CpuVector(svd.S), new CpuMatrix(svd.VT));
         }
 
-        public IMatrix Rotate180()
+        public IVector ReshapeAsVector()
         {
-            var rowCount = RowCount;
-            var columnCount = ColumnCount;
-            var ret = DenseMatrix.Create(rowCount, columnCount, (i, j) => _matrix[rowCount - i - 1, columnCount - j - 1]);
-            return new CpuMatrix(ret);
+            return new CpuVector(_matrix.AsColumnMajorArray());
         }
 
-        public IVector ConvertInPlaceToVector()
-        {
-            return new CpuVector(_matrix.ToColumnMajorArray());
-        }
+		public I3DTensor ReshapeAs3DTensor(int rows, int columns)
+		{
+			Debug.Assert(rows * columns == RowCount);
+			var matrixList = new List<IIndexableMatrix>();
+			for (int i = 0, len = ColumnCount; i < len; i++)
+				matrixList.Add(Column(i).ReshapeAsMatrix(rows, columns).AsIndexable());
+			return new Cpu3DTensor(matrixList);
+		}
 
-        public I3DTensor ConvertTo3DTensor(int rows, int columns)
-        {
-            var matrixList = new List<IMatrix>();
-            for (int i = 0, len = ColumnCount; i < len; i++)
-                matrixList.Add(Column(i).ConvertInPlaceToMatrix(rows, columns));
-            return new Cpu3DTensor(matrixList);
-        }
+		public I4DTensor ReshapeAs4DTensor(int rows, int columns, int depth)
+		{
+			var list = new List<IIndexable3DTensor>();
+			for (var i = 0; i < ColumnCount; i++)
+				list.Add(new Cpu3DTensor(Column(i).Split(depth).Select(v => v.ReshapeAsMatrix(rows, columns).AsIndexable()).ToList()));
+			return new Cpu4DTensor(list);
+		}
 
-        public I4DTensor ConvertTo4DTensor(int rows, int columns, int depth)
-        {
-            //var matrixList = new List<IMatrix[]>();
-            //for (int i = 0, len = ColumnCount; i < len; i++)
-            //    matrixList.Add(Column(i).Split(depth).Select(v => v.ConvertInPlaceToMatrix(rows, columns)).ToArray());
-            //return new Cpu4DTensor(matrixList);
-            var list = new List<I3DTensor>();
-            for (var i = 0; i < ColumnCount; i++)
-                list.Add(new Cpu3DTensor(Column(i).Split(depth).Select(v => v.ConvertInPlaceToMatrix(rows, columns)).ToList()));
-            return new Cpu4DTensor(list);
-        }
+	    public float GetAt(int row, int column)
+	    {
+		    return this[row, column];
+	    }
 
-        public string AsXml
+	    public void SetAt(int row, int column, float value)
+	    {
+		    this[row, column] = value;
+	    }
+
+	    public string AsXml
         {
             get
             {

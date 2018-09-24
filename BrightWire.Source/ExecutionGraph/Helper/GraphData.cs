@@ -39,7 +39,7 @@ namespace BrightWire.ExecutionGraph.Helper
         readonly IMatrix _matrix;
 
 	    public Tensor3DGraphData(I3DTensor tensor):
-            this(tensor.ConvertToMatrix(), tensor.RowCount, tensor.ColumnCount)
+            this(tensor.ReshapeAsMatrix(), tensor.RowCount, tensor.ColumnCount)
         {
         }
         public Tensor3DGraphData(IMatrix matrix, int rows, int columns)
@@ -65,7 +65,7 @@ namespace BrightWire.ExecutionGraph.Helper
         {
             var ret = new IMatrix[Depth];
             for (var i = 0; i < Depth; i++)
-                ret[i] = _matrix.Column(i).ConvertInPlaceToMatrix(Rows, Columns);
+                ret[i] = _matrix.Column(i).ReshapeAsMatrix(Rows, Columns);
             return ret;
         }
         public I4DTensor Get4DTensor()
@@ -82,7 +82,7 @@ namespace BrightWire.ExecutionGraph.Helper
         readonly IMatrix _matrix;
 
 	    public Tensor4DGraphData(I4DTensor tensor) :
-            this(tensor.ConvertToMatrix(), tensor.RowCount, tensor.ColumnCount, tensor.Depth)
+            this(tensor.ReshapeAsMatrix(), tensor.RowCount, tensor.ColumnCount, tensor.Depth)
         {
         }
         public Tensor4DGraphData(IMatrix matrix, int rows, int columns, int depth)
@@ -104,7 +104,7 @@ namespace BrightWire.ExecutionGraph.Helper
             var ret = new List<IMatrix>();
             for (var j = 0; j < Count; j++) {
                 var matrix = _matrix.Column(j);
-                using (var tensor = matrix.ConvertTo3DTensor(Rows, Columns, Depth)) {
+                using (var tensor = matrix.ReshapeAs3DTensor(Rows, Columns, Depth)) {
                     for (var i = 0; i < Depth; i++)
                         ret.Add(tensor.GetMatrixAt(i));
                 }
@@ -113,7 +113,7 @@ namespace BrightWire.ExecutionGraph.Helper
         }
         public I4DTensor Get4DTensor()
         {
-            return _matrix.ConvertTo4DTensor(Rows, Columns, Depth);
+            return _matrix.ReshapeAs4DTensor(Rows, Columns, Depth);
         }
     }
 }

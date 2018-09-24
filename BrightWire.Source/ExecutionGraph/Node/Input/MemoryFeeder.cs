@@ -9,7 +9,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
     /// <summary>
     /// Feeds memory into the graph from a named memory slot
     /// </summary>
-    class MemoryFeeder : NodeBase
+    class MemoryFeeder : NodeBase, IMemoryNode
     {
         class Backpropagation : BackpropagationBase<MemoryFeeder>
         {

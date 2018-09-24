@@ -81,7 +81,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<int> rows)
         {
             var data = executionContext.LinearAlgebraProvider.CreateVector(_data);
-            return new SingleRowMiniBatch(this, new MatrixGraphData(data.ToRowMatrix()), IsSequential, _sequenceType, _sequenceIndex);
+            return new SingleRowMiniBatch(this, new MatrixGraphData(data.ReshapeAsRowMatrix()), IsSequential, _sequenceType, _sequenceIndex);
         }
 
         public IReadOnlyList<IReadOnlyList<int>> GetBuckets()

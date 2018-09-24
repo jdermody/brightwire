@@ -55,8 +55,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             for (int i = 0, len = data.First().Item1.Length; i < len; i++)
             {
 	            var i1 = i;
-	            inputList.Add(new MatrixGraphData(_lap.CreateMatrix(data.Count, InputSize, (x, y) => data[x].Item1[i1][y])));
-            }
+		        inputList.Add(new MatrixGraphData(_lap.CreateMatrix(data.Count, InputSize, (x, y) => data[x].Item1[i1][y])));
+	        }
 
 	        var output = OutputSize > 0 ? _lap.CreateMatrix(data.Count, OutputSize, (x, y) => data[x].Item2[y]) : null;
             return new MiniBatch(rows, this, inputList, new MatrixGraphData(output));
@@ -67,6 +67,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             List<FloatVector> temp;
             var inputData = new Dictionary<int, List<FloatVector>>();
             var outputData = new Dictionary<int, List<FloatVector>>();
+
             foreach (var item in data) {
                 var input = item.Input;
                 var output = item.Output;
@@ -85,10 +86,10 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 
             var miniBatch = new MiniBatch(rows, this);
             foreach (var item in inputData.OrderBy(kv => kv.Key)) {
-                var input = _lap.CreateMatrix(item.Value);
+                var input = _lap.CreateMatrixFromRows(item.Value);
                 IMatrix output = null;
                 if (outputData.TryGetValue(item.Key, out temp))
-                    output = _lap.CreateMatrix(temp);
+                    output = _lap.CreateMatrixFromRows(temp);
                 var type = (item.Key == 0)
                     ? MiniBatchSequenceType.SequenceStart
                     : item.Key == (inputData.Count - 1)

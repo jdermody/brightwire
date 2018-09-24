@@ -25,10 +25,10 @@ namespace BrightWire.ExecutionGraph.Activation
                 for (var i = 0; i < matrix.RowCount; i++) {
                     using (var derivative = _rows[i].SoftmaxDerivative()) {
                         var sm = derivative.Multiply(matrix.Row(i));
-                        rowList.Add(sm.ConvertInPlaceToVector());
+                        rowList.Add(sm.ReshapeAsVector());
                     }
                 }
-                var ret = context.LinearAlgebraProvider.CreateMatrix(rowList);
+                var ret = context.LinearAlgebraProvider.CreateMatrixFromRows(rowList);
                 foreach (var item in rowList)
                     item.Dispose();
                 return errorSignal.ReplaceWith(ret);
@@ -45,7 +45,7 @@ namespace BrightWire.ExecutionGraph.Activation
                 using (var row = input.Row(i))
                     rowList.Add(row.Softmax());
             }
-            var output = context.LinearAlgebraProvider.CreateMatrix(rowList);
+            var output = context.LinearAlgebraProvider.CreateMatrixFromRows(rowList);
             _AddNextGraphAction(context, context.Data.ReplaceWith(output), () => new Backpropagation(this, rowList));
         }
     }

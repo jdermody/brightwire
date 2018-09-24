@@ -47,7 +47,7 @@ namespace UnitTests
         }
 
         [TestMethod]
-        public void TestMatrixCreation()
+        public void TestMatrixCreationFromRows()
         {
             var values = new[] {
                 Enumerable.Range(0, 10).Select(v => (float)v).ToArray(),
@@ -55,14 +55,32 @@ namespace UnitTests
                 Enumerable.Range(0, 10).Select(v => (float)v * 3).ToArray(),
             };
             var cpuRowList = values.Select(v => _cpu.CreateVector(v)).ToList();
-            var cpuMatrix = _cpu.CreateMatrix(cpuRowList);
+            var cpuMatrix = _cpu.CreateMatrixFromRows(cpuRowList);
 
             var gpuRowList = values.Select(v => _cuda.CreateVector(v)).ToList();
-            using (var gpuMatrix = _cuda.CreateMatrix(gpuRowList)) {
+            using (var gpuMatrix = _cuda.CreateMatrixFromRows(gpuRowList)) {
                 FloatingPointHelper.AssertEqual(cpuMatrix.AsIndexable(), gpuMatrix.AsIndexable());
             }
             gpuRowList.ForEach(v => v.Dispose());
         }
+
+	    [TestMethod]
+	    public void TestMatrixCreationFromColumns()
+	    {
+		    var values = new[] {
+			    Enumerable.Range(0, 10).Select(v => (float)v).ToArray(),
+			    Enumerable.Range(0, 10).Select(v => (float)v * 2).ToArray(),
+			    Enumerable.Range(0, 10).Select(v => (float)v * 3).ToArray(),
+		    };
+		    var cpuRowList = values.Select(v => _cpu.CreateVector(v)).ToList();
+		    var cpuMatrix = _cpu.CreateMatrixFromColumns(cpuRowList);
+
+		    var gpuRowList = values.Select(v => _cuda.CreateVector(v)).ToList();
+		    using (var gpuMatrix = _cuda.CreateMatrixFromColumns(gpuRowList)) {
+			    FloatingPointHelper.AssertEqual(cpuMatrix.AsIndexable(), gpuMatrix.AsIndexable());
+		    }
+		    gpuRowList.ForEach(v => v.Dispose());
+	    }
 
         [TestMethod]
         public void MatrixMultiplication()
@@ -976,16 +994,15 @@ namespace UnitTests
         public void MatrixToVector()
         {
             var matrix = _cpu.CreateMatrix(3, 4, (x, y) => (x + 1) * (y + 1)).AsIndexable();
-            var vector = matrix.ConvertInPlaceToVector();
-            var matrix2 = vector.ConvertInPlaceToMatrix(3, 4);
+            var vector = matrix.ReshapeAsVector();
+            var matrix2 = vector.ReshapeAsMatrix(3, 4);
             FloatingPointHelper.AssertEqual(matrix.AsIndexable(), matrix2.AsIndexable());
 
             using (var gpuMatrix = _cuda.CreateMatrix(matrix.AsIndexable()))
-            using (var gpuVector = gpuMatrix.ConvertInPlaceToVector())
-            using (var gpuMatrix2 = gpuVector.ConvertInPlaceToMatrix(3, 4)) {
+            using (var gpuVector = gpuMatrix.ReshapeAsVector())
+            using (var gpuMatrix2 = gpuVector.ReshapeAsMatrix(3, 4)) {
                 FloatingPointHelper.AssertEqual(gpuMatrix.AsIndexable(), gpuMatrix2.AsIndexable());
             }
         }
-
     }
 }

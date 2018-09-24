@@ -3,11 +3,11 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <PackageId>BrightWire.CUDA</PackageId>
-    <AssemblyVersion>2.0.0.6</AssemblyVersion>
-    <Version>2.0.6</Version>
+    <AssemblyVersion>2.0.1.0</AssemblyVersion>
+    <Version>2.1.0</Version>
     <Authors>Jack Dermody</Authors>
     <Product>BrightWire</Product>
-    <Copyright>Copyright © Jack Dermody 2017</Copyright>
+    <Copyright>Copyright © Jack Dermody 2016-2018</Copyright>
     <Description>This is the .net standard 2 version of BrightWire.CUDA, which runs on .net 4.61, .net core 2, Xamarin and UWP.
 
 BrightWire.CUDA adds GPU support to Bright Wire. This lets you run Bright Wire machine learning on a Maxwell or better NVIDIA GPU.
@@ -18,20 +18,20 @@ BrightWire.CUDA adds GPU support to Bright Wire. This lets you run Bright Wire m
     <PackageTags>machine learning linear algebra neural network cuda gpu machinelearning</PackageTags>
     <AssemblyName>BrightWire.Cuda.x64</AssemblyName>
     <RootNamespace>BrightWire.CUDA</RootNamespace>
+    <Platforms>AnyCPU;x64</Platforms>
+    <FileVersion>2.0.1.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DocumentationFile>bin\Release\netstandard2.0\BrightWire.Cuda.x64.xml</DocumentationFile>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Content Include="..\BrightWire.CUDA.Net4.x64\cuda\readme.txt" Link="cuda\readme.txt" />
-  </ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <DocumentationFile>bin\Release\netstandard2.0\BrightWire.Cuda.x64.xml</DocumentationFile>
+  </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ManagedCuda-80" Version="8.0.22" />
-    <PackageReference Include="ManagedCuda-CUBLAS" Version="8.0.22" />
-    <PackageReference Include="ManagedCuda-CUSOLVE" Version="8.0.22" />
+    <Content Include="..\BrightWire.CUDA.Net4.x64\cuda\readme.txt" Link="cuda\readme.txt" />
   </ItemGroup>
 
   <ItemGroup>
@@ -47,6 +47,25 @@ BrightWire.CUDA adds GPU support to Bright Wire. This lets you run Bright Wire m
     <Content Include="..\BrightWire.CUDA.Net4.x64\cuda\brightwire.ptx" Link="cuda\brightwire.ptx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="CudaBlas">
+      <HintPath>..\ManagedCuda\CudaBlas.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="CudaSolve">
+      <HintPath>..\ManagedCuda\CudaSolve.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="CudaSparse">
+      <HintPath>..\ManagedCuda\CudaSparse.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="ManagedCuda">
+      <HintPath>..\ManagedCuda\ManagedCuda.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
   </ItemGroup>
 
   <Import Project="..\BrightWire.CUDA.Source\BrightWire.CUDA.Source.projitems" Label="Shared" />

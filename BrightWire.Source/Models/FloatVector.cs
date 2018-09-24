@@ -5,6 +5,7 @@ using System.IO;
 using System.Text;
 using System.Xml;
 using System.Linq;
+using BrightWire.LinearAlgebra.Helper;
 
 namespace BrightWire.Models
 {
@@ -123,9 +124,9 @@ namespace BrightWire.Models
             if (vector == null || Size != vector.Size)
                 return false;
 
-            var comparer2 = comparer ?? EqualityComparer<float>.Default;
+            comparer = comparer ?? BoundMath.GetEqualityComparer() ?? EqualityComparer<float>.Default;
             for (int i = 0, len = Size; i < len; i++) {
-                if (!comparer2.Equals(Data[i], vector.Data[i]))
+                if (!comparer.Equals(Data[i], vector.Data[i]))
                     return false;
             }
             return true;

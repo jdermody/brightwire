@@ -94,7 +94,7 @@ namespace BrightWire.SampleCode
 			//IrisClustering();
 			//MarkovChains();
 			//MNIST(DataBasePath + @"mnist\");
-			//MNISTConvolutional(DataBasePath + @"mnist\"/*, ModelBasePath + @"mnist.dat"*/);
+			//MNISTConvolutional(DataBasePath + @"mnist\", ModelBasePath + @"mnist.dat");
 			//SentimentClassification(DataBasePath + @"sentiment labelled sentences\");
 			//TextClustering(DataBasePath + @"[UCI] AAAI-14 Accepted Papers - Papers.csv", ModelBasePath);
 			//IntegerAddition();
@@ -108,6 +108,7 @@ namespace BrightWire.SampleCode
 			//PredictBicyclesWithNeuralNetwork(DataBasePath + @"bikesharing\hour.csv");
 			//MultiLabelSingleClassifier(DataBasePath + @"emotions\emotions.arff");
 			//MultiLabelMultiClassifiers(DataBasePath + @"emotions\emotions.arff");
-		}
+	        //StockData(DataBasePath + @"plotly\stockdata.csv");
+        }
     }
 }

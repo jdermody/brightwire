@@ -4,25 +4,21 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>BrightWire</RootNamespace>
     <Platforms>AnyCPU;x64</Platforms>
-    <Version>2.0.6</Version>
+    <Version>2.1.0</Version>
     <Authors>Jack Dermody</Authors>
     <Company />
     <Product>BrightWire</Product>
     <Description>This is the .net standard 2 version of BrightWire, which runs on .net 4.61, .net core 2, Xamarin and UWP.
 
 Bright Wire is an open source machine learning library. Includes deep learning (feed forward, convolutional and recurrent), naive bayes, linear regression, decision trees, logistic regression, k-means clustering and dimensionality reduction.</Description>
-    <Copyright>Copyright © Jack Dermody 2017</Copyright>
+    <Copyright>Copyright © Jack Dermody 2016-2018</Copyright>
     <PackageTags>machine learning linear algebra neural network machinelearning</PackageTags>
     <PackageLicenseUrl>https://raw.githubusercontent.com/jdermody/brightwire/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/jdermody/brightwire</PackageProjectUrl>
     <PackageIconUrl>http://www.jackdermody.net/bw_favicon.png</PackageIconUrl>
-    <AssemblyVersion>2.0.0.6</AssemblyVersion>
-    <FileVersion>2.0.0.6</FileVersion>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <FileVersion>2.0.1.6</FileVersion>
     <PackageId>BrightWire</PackageId>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <DocumentationFile>bin\x64\Release\netstandard2.0\BrightWire.Standard.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -31,7 +27,7 @@ Bright Wire is an open source machine learning library. Includes deep learning (
 
   <ItemGroup>
     <PackageReference Include="MathNet.Numerics" Version="4.5.1" />
-    <PackageReference Include="protobuf-net" Version="2.3.14" />
+    <PackageReference Include="protobuf-net" Version="2.4.0" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
   </ItemGroup>
 

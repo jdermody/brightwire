@@ -3,9 +3,12 @@ using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Single;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using BrightWire.LinearAlgebra.Helper;
 
 namespace BrightWire.LinearAlgebra
 {
@@ -32,31 +35,15 @@ namespace BrightWire.LinearAlgebra
             // nop
         }
 
-        public int AddRef()
-        {
-            // nop
-            return 1;
-        }
-
-        public int Release()
-        {
-            // nop
-            return 1;
-        }
-
         public float this[int index]
         {
             get => _vector[index];
 	        set => _vector[index] = value;
         }
 
-        public float[] ToArray()
-        {
-            return _vector.ToArray();
-        }
-
+	    public float[] ToArray() => _vector.ToArray();
+	    public float[] GetInternalArray() => _vector.AsArray();
         public int Count => _vector.Count;
-	    public object WrappedObject => _vector;
 
 	    public IVector Add(IVector vector)
         {
@@ -107,14 +94,14 @@ namespace BrightWire.LinearAlgebra
             _vector.MapIndexedInplace((i, v) => (v * coefficient1) - (other[i] * coefficient2));
         }
 
-        public IMatrix ToColumnMatrix()
+        public IMatrix ReshapeAsColumnMatrix()
         {
-            return new CpuMatrix(DenseMatrix.Create(_vector.Count, 1, (x, y) => _vector[x]));
+            return new CpuMatrix(DenseMatrix.Build.Dense(_vector.Count, 1, GetInternalArray()));
         }
 
-        public IMatrix ToRowMatrix()
+        public IMatrix ReshapeAsRowMatrix()
         {
-            return new CpuMatrix(DenseMatrix.Create(1, _vector.Count, (x, y) => _vector[y]));
+            return new CpuMatrix(DenseMatrix.Build.Dense(1, _vector.Count, GetInternalArray()));
         }
 
         public override string ToString()
@@ -124,14 +111,11 @@ namespace BrightWire.LinearAlgebra
 
         public FloatVector Data
         {
-            get
-            {
-                return new FloatVector {
-                    Data = _vector.ToArray()
-                };
-            }
+            get => new FloatVector {
+	            Data = _vector.ToArray()
+            };
 
-            set
+	        set
             {
                 if (value.Data != null) {
                     var data = value.Data;
@@ -158,15 +142,9 @@ namespace BrightWire.LinearAlgebra
             return _vector.DotProduct(other._vector);
         }
 
-        public IEnumerable<float> Values
-        {
-            get
-            {
-                return _vector.AsEnumerable();
-            }
-        }
+        public IEnumerable<float> Values => _vector.AsEnumerable();
 
-        public IVector GetNewVectorFromIndexes(IReadOnlyList<int> indexes)
+	    public IVector GetNewVectorFromIndexes(IReadOnlyList<int> indexes)
         {
             return new CpuVector(DenseVector.Create(indexes.Count, i => this[indexes[i]]));
         }
@@ -181,14 +159,6 @@ namespace BrightWire.LinearAlgebra
             return new CpuVector(DenseVector.Create(_vector.Count, i => Convert.ToSingle(Math.Sqrt(_vector[i]))));
         }
 
-        public void ReplaceIndexedValues(IVector vector, int[] indexes)
-        {
-            var other = (CpuVector)vector;
-            for (var i = 0; i < indexes.Length; i++) {
-                this[indexes[i]] = other[i];
-            }
-        }
-
         public IVector Clone()
         {
             return new CpuVector(DenseVector.OfVector(_vector));
@@ -197,13 +167,15 @@ namespace BrightWire.LinearAlgebra
         public float EuclideanDistance(IVector vector)
         {
             var other = (CpuVector)vector;
-            return Convert.ToSingle(Distance.Euclidean(_vector, other._vector));
+	        Debug.Assert(other.Count == Count);
+
+	        return Subtract(other).L2Norm();
         }
 
         public float CosineDistance(IVector vector)
         {
             var other = (CpuVector)vector;
-            return Convert.ToSingle(Distance.Cosine(_vector.ToArray(), other._vector.ToArray()));
+            return Convert.ToSingle(Distance.Cosine(GetInternalArray(), other.GetInternalArray()));
         }
 
         public float ManhattanDistance(IVector vector)
@@ -256,14 +228,14 @@ namespace BrightWire.LinearAlgebra
         public void Normalise(NormalisationType type)
         {
             if (type == NormalisationType.FeatureScale) {
-                var minMax = GetMinMax();
-                float range = minMax.Max - minMax.Min;
+                var (min, max) = GetMinMax();
+                var range = max - min;
                 if (range > 0)
-                    _vector.MapInplace(v => (v - minMax.Min) / range);
+                    _vector.MapInplace(v => (v - min) / range);
             } else if (type == NormalisationType.Standard) {
                 var mean = Average();
                 var stdDev = StdDev(mean);
-                if (stdDev != 0f)
+                if (BoundMath.IsNotZero(stdDev))
                     _vector.MapInplace(v => (v - mean) / stdDev);
             } else if (type == NormalisationType.Euclidean || type == NormalisationType.Manhattan) {
                 var p = (type == NormalisationType.Manhattan) ? 1.0 : 2.0;
@@ -284,7 +256,7 @@ namespace BrightWire.LinearAlgebra
 
             var softmax = _vector.Map(v => Math.Exp(v - max));
             var sum = softmax.Sum();
-            if (sum != 0f)
+            if (BoundMath.IsNotZero(Convert.ToSingle(sum)))
                 return new CpuVector(softmax.Divide(sum).ToSingle());
             return new CpuVector(softmax.ToSingle());
         }
@@ -354,25 +326,37 @@ namespace BrightWire.LinearAlgebra
             _vector.MapInplace(v => v + scalar);
         }
 
-        public IMatrix ConvertInPlaceToMatrix(int rows, int columns)
+        public IMatrix ReshapeAsMatrix(int rows, int columns)
         {
-            return new CpuMatrix(DenseMatrix.Build.Dense(rows, columns, _vector.ToArray()));
+	        Debug.Assert(rows * columns == _vector.Count);
+            return new CpuMatrix(DenseMatrix.Build.Dense(rows, columns, GetInternalArray()));
         }
 
-        public I3DTensor ConvertTo3DTensor(int rows, int columns, int depth)
+        public I3DTensor ReshapeAs3DTensor(int rows, int columns, int depth)
         {
+	        Debug.Assert(rows * columns * depth == _vector.Count);
             if (depth > 1) {
-                var matrixList = new List<IMatrix>();
-                var slice = Split(depth);
-                foreach (var part in slice)
-                    matrixList.Add(part.ConvertInPlaceToMatrix(rows, columns));
-                var ret = new Cpu3DTensor(matrixList);
-                return ret;
+	            var slice = Split(depth);
+	            var matrixList = slice.Select(part => part.ReshapeAsMatrix(rows, columns).AsIndexable()).ToList();
+	            return new Cpu3DTensor(matrixList);
             } else {
-                var matrix = ConvertInPlaceToMatrix(rows, columns);
+                var matrix = ReshapeAsMatrix(rows, columns).AsIndexable();
                 return new Cpu3DTensor(new[] { matrix });
             }
         }
+
+	    public I4DTensor ReshapeAs4DTensor(int rows, int columns, int depth, int count)
+	    {
+		    Debug.Assert(rows * columns * depth * count == _vector.Count);
+		    if (count > 1) {
+			    var slice = Split(count);
+			    var tensorList = slice.Select(part => part.ReshapeAs3DTensor(rows, columns, depth).AsIndexable()).ToList();
+			    return new Cpu4DTensor(tensorList);
+		    } else {
+			    var tensor = ReshapeAs3DTensor(rows, columns, depth).AsIndexable();
+			    return new Cpu4DTensor(new[] { tensor });
+		    }
+	    }
 
         public IReadOnlyList<IVector> Split(int blockCount)
         {
@@ -395,19 +379,21 @@ namespace BrightWire.LinearAlgebra
             return ret;
         }
 
-        public IVector Rotate(int blockCount)
-        {
-            var blockSize = Count / blockCount;
-	        var ret = new float[Count];
+	    public void RotateInPlace(int blockCount)
+	    {
+		    var blockSize = Count / blockCount;
 
-	        for (int i = 0, len = Count; i < len; i++) {
-		        int blockIndex = i / blockSize;
-		        int blockOffset = i % blockSize;
-		        ret[(blockIndex * blockSize) + blockSize-blockOffset-1] = this[i];
-	        }
+		    for (int i = 0, len = Count; i < len; i += 2) {
+			    int blockIndex = i / blockSize;
+			    int blockOffset = i % blockSize;
 
-	        return new CpuVector(new DenseVector(ret));
-        }
+			    int index1 = blockIndex * blockSize + blockSize - blockOffset - 1;
+			    int index2 = blockIndex * blockSize + blockOffset; 
+			    var temp = this[index1];
+			    this[index1] = this[index2];
+			    this[index2] = temp;
+		    }
+	    }
 
         public IVector Reverse()
         {
@@ -418,6 +404,16 @@ namespace BrightWire.LinearAlgebra
 	    public float GetAt(int index)
 	    {
 		    return _vector[index];
+	    }
+
+	    public void SetAt(int index, float value)
+	    {
+		    _vector[index] = value;
+	    }
+
+	    public bool IsEntirelyFinite()
+	    {
+		    return !_vector.Any(v => float.IsNaN(v) || float.IsInfinity(v));
 	    }
     }
 }

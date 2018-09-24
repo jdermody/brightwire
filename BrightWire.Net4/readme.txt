@@ -8,7 +8,7 @@
 
 
 Bright Wire - http://www.jackdermody.net/brightwire
-Copyright (c) Jack Dermody - Open Source MIT License
+Copyright (c) 2016-2018 Jack Dermody - Open Source MIT License
 
 
 Source code moved to BrightWire.Source as a shared project.

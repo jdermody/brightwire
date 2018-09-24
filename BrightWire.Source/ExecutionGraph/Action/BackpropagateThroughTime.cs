@@ -1,4 +1,5 @@
 ﻿using System;
+using BrightWire.Source.Helper;
 
 namespace BrightWire.ExecutionGraph.Action
 {
@@ -16,7 +17,7 @@ namespace BrightWire.ExecutionGraph.Action
 
         public void Initialise(string data)
         {
-            _errorMetric = (IErrorMetric)Activator.CreateInstance(Type.GetType(data));
+            _errorMetric = (IErrorMetric)Activator.CreateInstance(TypeLoader.LoadType(data));
         }
 
         public string Serialise()

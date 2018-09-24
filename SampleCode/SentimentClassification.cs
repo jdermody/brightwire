@@ -66,14 +66,14 @@ namespace BrightWire.SampleCode
             );
 
             // convert the index lists to vectors and normalise along the way
-            var sentimentDataBag = _BuildIndexedClassifications(sentimentData, stringTable);
-            var sentimentDataTable = sentimentDataBag.ConvertToTable();
-            var normalisedDataTable = sentimentDataTable.Normalise(NormalisationType.Standard);
-            var vectoriser = normalisedDataTable.GetVectoriser();
-            var sentimentDataSet = normalisedDataTable.Split(0);
-            var dataTableAnalysis = normalisedDataTable.GetAnalysis();
+            var sentimentDataTable = _BuildIndexedClassifications(sentimentData, stringTable)
+	            .ConvertToTable()
+	            .Normalise(NormalisationType.Standard);
+            var vectoriser = sentimentDataTable.GetVectoriser();
+            var sentimentDataSet = sentimentDataTable.Split(0);
+            var dataTableAnalysis = sentimentDataTable.GetAnalysis();
 
-            using (var lap = BrightWireGpuProvider.CreateLinearAlgebra()) {
+            using (var lap = BrightWireProvider.CreateLinearAlgebra()) {
                 var graph = new GraphFactory(lap);
                 var trainingData = graph.CreateDataSource(sentimentDataSet.Training, vectoriser);
                 var testData = graph.CreateDataSource(sentimentDataSet.Test, vectoriser);

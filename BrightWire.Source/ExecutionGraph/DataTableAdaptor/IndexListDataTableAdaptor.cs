@@ -20,7 +20,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             OutputSize = _vectoriser.OutputSize;
 
             // load the data
-            dataTable.ForEach(row => _data.Add((_dataColumnIndex.Select(i => row.GetField<IndexList>(i)).ToList(), _vectoriser.GetOutput(row))));
+            dataTable.ForEach(row => _data.Add((_dataColumnIndex.Select(row.GetField<IndexList>).ToList(), _vectoriser.GetOutput(row))));
         }
 
         public override bool IsSequential => false;

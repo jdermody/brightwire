@@ -41,7 +41,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
                 else if (index == _data.Count - 1)
                     type = MiniBatchSequenceType.SequenceEnd;
                 var inputList = new [] {
-                    new MatrixGraphData(executionContext.LinearAlgebraProvider.CreateVector(row).ToRowMatrix())
+                    new MatrixGraphData(executionContext.LinearAlgebraProvider.CreateVector(row).ReshapeAsRowMatrix())
                 };
                 ret.Add(type, inputList, null);
             }

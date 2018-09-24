@@ -204,8 +204,19 @@ namespace BrightWire
         /// </summary>
         bool IsTarget { get; }
 
+		/// <summary>
+		/// Optional x dimension of the column (vector size, matrix/tensor columns)
+		/// </summary>
 		int? DimensionX { get; }
+
+		/// <summary>
+		/// Optional y dimension of the column (matrix/tensor rows)
+		/// </summary>
 	    int? DimensionY { get; }
+
+		/// <summary>
+		/// Option z dimension of the column (tensor depth)
+		/// </summary>
 	    int? DimensionZ { get; }
     }
 
@@ -647,11 +658,24 @@ namespace BrightWire
         double L2Norm { get; }
     }
 
-    internal interface IFrequencyColumnInfo : IColumnInfo
+    interface IFrequencyColumnInfo : IColumnInfo
     {
 		ulong Total { get; }
         IEnumerable<KeyValuePair<string, ulong>> Frequency { get; }
     }
+
+	interface IDimensionsColumnInfo : IColumnInfo
+	{
+		int? XDimension { get; }
+		int? YDimension { get; }
+		int? ZDimension { get; }
+	}
+
+	interface IDateColumnInfo : IColumnInfo
+	{
+		DateTime? MinDate { get; }
+		DateTime? MaxDate { get; }
+	}
 
     /// <summary>
     /// Data table statistics
@@ -703,8 +727,34 @@ namespace BrightWire
         /// <param name="isTarget">True if the column is a classification target</param>
         IColumn AddColumn(ColumnType column, string name = "", bool isTarget = false);
 
+		/// <summary>
+		/// Adds a vector columns to the data table
+		/// </summary>
+		/// <param name="size">The size of each vector</param>
+		/// <param name="name">New column name</param>
+		/// <param name="isTarget">True if the column is a classification target</param>
+		/// <returns></returns>
 	    IColumn AddVectorColumn(int size, string name = "", bool isTarget = false);
+
+		/// <summary>
+		/// Adds a matrix column to the data table
+		/// </summary>
+		/// <param name="rows">Rows in each matrix</param>
+		/// <param name="columns">Columns in each matrix</param>
+		/// <param name="name">New column name</param>
+		/// <param name="isTarget">True if the column is a classification target</param>
+		/// <returns></returns>
 	    IColumn AddMatrixColumn(int rows, int columns, string name = "", bool isTarget = false);
+
+		/// <summary>
+		/// Adds a 3D tensor column to the data table
+		/// </summary>
+		/// <param name="rows">Rows in each tensor</param>
+		/// <param name="columns">Columns in each tensor</param>
+		/// <param name="depth">Depth of each tensor</param>
+		/// <param name="name">New column name</param>
+		/// <param name="isTarget">True if the column is a classification target</param>
+		/// <returns></returns>
 	    IColumn AddTensorColumn(int rows, int columns, int depth, string name = "", bool isTarget = false);
 
         /// <summary>

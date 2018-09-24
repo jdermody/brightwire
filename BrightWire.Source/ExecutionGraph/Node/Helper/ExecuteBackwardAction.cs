@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Text;
+using BrightWire.Source.Helper;
 
 namespace BrightWire.ExecutionGraph.Node.Helper
 {
@@ -36,7 +37,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
 
         protected override void _Initalise(GraphFactory factory, string description, byte[] data)
         {
-            Action = (IAction)FormatterServices.GetUninitializedObject(Type.GetType(description));
+            Action = (IAction)FormatterServices.GetUninitializedObject(TypeLoader.LoadType(description));
             Action.Initialise(Encoding.UTF8.GetString(data));
         }
     }

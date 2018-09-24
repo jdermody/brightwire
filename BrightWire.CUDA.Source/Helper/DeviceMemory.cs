@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using BrightWire.LinearAlgebra;
 
 namespace BrightWire.Cuda.Helper
 {
@@ -20,6 +21,7 @@ namespace BrightWire.Cuda.Helper
             readonly DeviceMemory _cache;
             readonly CudaDeviceVariable<float> _data;
             bool _disposed = false;
+	        int _refCount = 1;
 
 #if DEBUG
             static int _badAlloc = -1;
@@ -33,7 +35,12 @@ namespace BrightWire.Cuda.Helper
             {
                 _cache = cache;
                 _index = index;
-                _data = new CudaDeviceVariable<float>(size);
+
+	            var sizeInBytes = size * CudaProvider.FLOAT_SIZE;
+	            var ptr = new CUdeviceptr();
+	            var result = DriverAPINativeMethods.MemoryManagement.cuMemAlloc_v2(ref ptr, sizeInBytes);
+	            CudaProvider.CheckForError(result);
+                _data = new CudaDeviceVariable<float>(ptr, true, sizeInBytes);
 
 #if DEBUG
                 if (_index == _badAlloc)
@@ -44,7 +51,7 @@ namespace BrightWire.Cuda.Helper
             ~Block()
             {
                 if (!_disposed)
-                    Debug.WriteLine("\tMemory Block {0} was not disposed !!", _index);
+                    Debug.WriteLine($"\tMemory Block {_index} was not disposed - {_data.SizeInBytes} bytes leaked in the GPU !!");
             }
 #endif
             public override string ToString()
@@ -68,9 +75,14 @@ namespace BrightWire.Cuda.Helper
                 GC.SuppressFinalize(this);
 #endif
             }
+
+	        public int AddRef()
+	        {
+		        return Interlocked.Increment(ref _refCount);
+	        }
             public void Free()
             {
-                if(!_disposed)
+                if(Interlocked.Decrement(ref _refCount) <= 0 && !_disposed)
                     _cache.OnFree(this);
             }
 
@@ -105,18 +117,20 @@ namespace BrightWire.Cuda.Helper
             public void Release()
             {
                 foreach (var item in _disposable)
-                    item.Dispose();
+                    item?.Dispose();
                 foreach (var item in _ptr)
                     item.Free();
             }
         }
         readonly int _maxSize;
+		readonly CudaContext _context;
         readonly ConcurrentStack<Layer> _layer = new ConcurrentStack<Layer>();
         readonly ConcurrentDictionary<int, ThreadSafeHashSet<Block>> _cache = new ConcurrentDictionary<int, ThreadSafeHashSet<Block>>();
         int _index = 0;
 
-        public DeviceMemory(int maxSize)
+        public DeviceMemory(CudaContext context, int maxSize)
         {
+	        _context = context;
             _maxSize = maxSize;
             PushLayer();
         }

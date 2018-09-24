@@ -86,7 +86,6 @@ namespace UnitTests
 		[TestMethod]
 		public void TestSquareRootOf()
 		{
-			// TODO:
 			var forwardInput = _cpu.CreateMatrix(SIZE, SIZE, (i, j) => (i + 1) * (j + 1)).AsIndexable();
 			var expectedOutput = _cpu.CreateMatrix(SIZE, SIZE, (i, j) => (float)Math.Sqrt(forwardInput[i, j]));
 

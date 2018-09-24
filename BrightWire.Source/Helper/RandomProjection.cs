@@ -39,7 +39,7 @@ namespace BrightWire.Helper
 
 	    public IVector Compute(IVector vector)
         {
-            using (var m = vector.ToRowMatrix())
+            using (var m = vector.ReshapeAsRowMatrix())
             using (var m2 = m.Multiply(Matrix))
                 return m2.Row(0);
         }

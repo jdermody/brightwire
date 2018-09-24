@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
+using BrightWire.Source.Helper;
 
 namespace BrightWire
 {
@@ -114,7 +115,7 @@ namespace BrightWire
 
         internal static IGradientDescentOptimisation CreateGradientDescentOptimisation(this GraphFactory factory, BinaryReader reader)
         {
-            var updaterType = Type.GetType(reader.ReadString());
+            var updaterType = TypeLoader.LoadType(reader.ReadString());
             var ret = (IGradientDescentOptimisation)FormatterServices.GetUninitializedObject(updaterType);
             ret.ReadFrom(factory, reader);
             return ret;

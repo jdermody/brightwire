@@ -7,41 +7,36 @@ using BrightWire.LinearAlgebra;
 using ManagedCuda;
 using ManagedCuda.BasicTypes;
 
-namespace BrightWire.CUDA.Source.Helper
+namespace BrightWire.Cuda.Helper
 {
     class ConvolutionsData : IDisposable
     {
-	    readonly IDeviceMemoryPtr _x, _y;
-	    readonly int _count;
-	    readonly CudaProvider _cuda;
-
-	    public ConvolutionsData(CudaProvider cuda, List<(int X, int Y)> convolutions)
+		public ConvolutionsData(CudaProvider cuda, List<(int X, int Y)> convolutions)
 	    {
-		    _cuda = cuda;
-		    _count = convolutions.Count;
-		    _x = cuda.Allocate(_count);
-		    _y = cuda.Allocate(_count);
+		    Count = convolutions.Count;
+		    X = cuda.Allocate(Count);
+		    Y = cuda.Allocate(Count);
 
-		    var xData = new float[_count];
-		    var yData = new float[_count];
-		    for (var i = 0; i < _count; i++) {
+		    var xData = new float[Count];
+		    var yData = new float[Count];
+		    for (var i = 0; i < Count; i++) {
 			    var item = convolutions[i];
 			    xData[i] = item.X;
 			    yData[i] = item.Y;
 		    }
 
-		    _x.CopyToDevice(xData);
-		    _y.CopyToDevice(yData);
+		    X.CopyToDevice(xData);
+		    Y.CopyToDevice(yData);
 	    }
 
-		public IDeviceMemoryPtr X => _x;
-	    public IDeviceMemoryPtr Y => _y;
-	    public int Count => _count;
+		public IDeviceMemoryPtr X { get; }
+		public IDeviceMemoryPtr Y { get; }
+		public int Count { get; }
 
-	    public void Dispose()
+		public void Dispose()
 	    {
-		    _x.Free();
-		    _y.Free();
+		    X.Free();
+		    Y.Free();
 	    }
     }
 }

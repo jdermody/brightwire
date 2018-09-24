@@ -7,7 +7,7 @@
                |___/                                 
 
 Bright Wire - http://www.jackdermody.net/brightwire
-Copyright (c) Jack Dermody - Open Source MIT License
+Copyright (c) 2016-2018 Jack Dermody - Open Source MIT License
 
 
 Bright Wire is an open source machine learning library. Includes deep learning (feed forward, convolutional and recurrent), naive bayes, linear regression, decision trees, logistic regression, k-means clustering and dimensionality reduction.

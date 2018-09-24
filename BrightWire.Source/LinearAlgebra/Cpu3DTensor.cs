@@ -16,26 +16,34 @@ namespace BrightWire.LinearAlgebra
     /// </summary>
     class Cpu3DTensor : IIndexable3DTensor
     {
-        readonly CpuMatrix[] _data;
-        readonly int _rows, _columns;
+        readonly CpuMatrix _data;
+        readonly int _rows, _columns, _depth;
 
         public Cpu3DTensor(int rows, int columns, int depth)
         {
             _rows = rows;
             _columns = columns;
-            _data = Enumerable.Range(0, depth)
-                .Select(i => new CpuMatrix(DenseMatrix.Create(_rows, _columns, 0f)))
-                .ToArray()
-            ;
+	        _depth = depth;
+	        _data = new CpuMatrix(DenseMatrix.Build.Dense(rows * columns, depth));
         }
 
-        public Cpu3DTensor(IReadOnlyList<IMatrix> matrixList)
+        public Cpu3DTensor(IReadOnlyList<IIndexableMatrix> matrixList)
         {
             var first = matrixList.First();
             Debug.Assert(matrixList.All(m => m.RowCount == first.RowCount && m.ColumnCount == first.ColumnCount));
             _rows = first.RowCount;
             _columns = first.ColumnCount;
-            _data = matrixList.Cast<CpuMatrix>().ToArray();
+			_depth = matrixList.Count;
+
+	        var offset = 0;
+	        var rowSize = _rows * _columns;
+	        var data = new float[rowSize * _depth];
+	        foreach (var matrix in matrixList) {
+		        Array.Copy(matrix.GetInternalArray(), 0, data, offset, rowSize);
+		        offset += rowSize;
+	        }
+
+	        _data = new CpuMatrix(DenseMatrix.Build.Dense(rowSize, _depth, data));
         }
 
         public void Dispose()
@@ -43,36 +51,49 @@ namespace BrightWire.LinearAlgebra
             // nop
         }
 
-        public float this[int row, int column, int depth]
+		public override string ToString()
+		{
+			return $"3D tensor, rows:{_rows} columns:{_columns} depth:{_depth}";
+		}
+
+		public float this[int row, int column, int depth]
         {
-            get => _data[depth][row, column];
-	        set => _data[depth][row, column] = value;
+            get => _data[_RowIndex(row, column), depth];
+	        set => _data[_RowIndex(row, column), depth] = value;
         }
+
+	    int _RowIndex(int row, int column) => column * _rows + row;
 
         public FloatTensor Data
         {
             get
             {
-                return FloatTensor.Create(_data.Select(m => m.Data).ToArray());
+                return FloatTensor.Create(Matrix.Select(m => m.Data).ToArray());
             }
             set
             {
                 var matrixList = value.Matrix;
                 var matrixCount = matrixList.Length;
-                for (var i = 0; i < matrixCount && i < _data.Length; i++) {
-                    var matrix = matrixList[i];
-                    if (matrix.Row != null)
-                        _data[i].Data = matrix;
+                for (var k = 0; k < matrixCount && k < _depth; k++) {
+                    var matrix = matrixList[k];
+	                if (matrix.Row != null) {
+		                for (int i = 0, len = matrix.Row.Length; i < len; i++) {
+			                var row = matrix.Row[i];
+			                for (int j = 0, len2 = row.Count; j < len2; j++)
+				                this[i, j, k] = row.Data[j];
+		                }
+	                }
                 }
             }
         }
 
-        public IReadOnlyList<IIndexableMatrix> Matrix => _data;
-	    public int Depth => _data.Length;
+        public IReadOnlyList<IIndexableMatrix> Matrix => _data.Columns.Select(c => c.ReshapeAsMatrix(_rows, _columns).AsIndexable()).ToList();
+	    public int Depth => _depth;
         public int RowCount => _rows;
         public int ColumnCount => _columns;
-        public IMatrix GetMatrixAt(int depth) => _data[depth];
+        public IMatrix GetMatrixAt(int depth) => _data.Column(depth).ReshapeAsMatrix(_rows, _columns);
         public IIndexable3DTensor AsIndexable() => this;
+	    public float[] GetInternalArray() => _data.GetInternalArray();
 
         public I3DTensor AddPadding(int padding)
         {
@@ -109,176 +130,95 @@ namespace BrightWire.LinearAlgebra
             return ret;
         }
 
-        public IVector ConvertToVector()
+        public IVector ReshapeAsVector()
         {
-            var vectorList = _data.Select(m => m.ConvertInPlaceToVector().AsIndexable()).ToArray();
-            var size = _rows * _columns;
-            var ret = DenseVector.Create(Depth * size, i => {
-                var offset = i / size;
-                var index = i % size;
-                return vectorList[offset][index];
-            });
-            return new CpuVector(ret);
+	        return new CpuVector(DenseVector.Build.Dense(_data.GetInternalArray()));
         }
 
-        public IMatrix ConvertToMatrix()
-        {
-            var ret = DenseMatrix.Create(_rows * _columns, Depth, (i, j) => {
-                var matrix = _data[j];
-                var x = i % _rows;
-                var y = i / _rows;
-                return matrix[x, y];
-            });
-            return new CpuMatrix(ret);
-        }
+		public IMatrix ReshapeAsMatrix()
+		{
+			return _data;
+		}
 
-        public I4DTensor ConvertTo4DTensor(int rows, int columns)
-        {
-            var tensorList = new List<I3DTensor>();
-            for (var i = 0; i < Depth; i++) {
-                var slice = GetMatrixAt(i);
-                tensorList.Add(slice.ConvertTo3DTensor(rows, columns));
-            }
-            return new Cpu4DTensor(tensorList);
-        }
+		public I4DTensor ReshapeAs4DTensor(int rows, int columns)
+		{
+			Debug.Assert(rows * columns == _rows);
+			var tensorList = new List<IIndexable3DTensor>();
+			for (var i = 0; i < Depth; i++) {
+				var slice = GetMatrixAt(i);
+				tensorList.Add(slice.ReshapeAs3DTensor(rows, columns).AsIndexable());
+			}
+			return new Cpu4DTensor(tensorList);
+		}
 
-        public (I3DTensor Result, IReadOnlyList<(object X, object Y)> Index) MaxPool(
+		public (I3DTensor Result, I3DTensor Indices) MaxPool(
             int filterWidth, 
             int filterHeight, 
             int stride,
-            bool calculateIndex)
-        {
+            bool saveIndices
+		) {
             var newColumns = (ColumnCount - filterWidth) / stride + 1;
             var newRows = (RowCount - filterHeight) / stride + 1;
             var matrixList = new List<CpuMatrix>();
-            var indexList = calculateIndex ? new List<(object X, object Y)>() : null;
+            var indexList = saveIndices ? new List<CpuMatrix>() : null;
             var convolutions = ConvolutionHelper.Default(ColumnCount, RowCount, filterWidth, filterHeight, stride);
 
             for (var k = 0; k < Depth; k++) {
-                var matrix = _data[k];
-                var xIndex = new int[newColumns * newRows];
-                var yIndex = new int[newColumns * newRows];
+                var indices = saveIndices ? new CpuMatrix(DenseMatrix.Create(newRows, newColumns, 0f)) : null;
                 var layer = new CpuMatrix(DenseMatrix.Create(newRows, newColumns, 0f));
                 
                 foreach(var (cx, cy) in convolutions) {
                     var targetX = cx / stride;
                     var targetY = cy / stride;
                     var maxVal = float.MinValue;
-                    var bestX = -1;
-                    var bestY = -1;
-
-	                for (var y = 0; y < filterHeight; y++) {
-		                for (var x = 0; x < filterWidth; x++) {
-			                var val = matrix[cy + y, cx + x];
-			                if (val > maxVal || bestX == -1) {
-				                bestX = cx + x;
-				                bestY = cy + y;
+	                var bestOffset = -1;
+	                var offset = 0;
+	                
+	                for (var x = 0; x < filterWidth; x++) {
+		                for (var y = 0; y < filterHeight; y++) {
+			                var val = this[cy + y, cx + x, k];
+			                if (val > maxVal || bestOffset == -1) {
+				                bestOffset = offset;
 				                maxVal = val;
 			                }
+							++offset;
 		                }
 	                }
 
-	                var index = targetX * newRows + targetY;
-                    xIndex[index] = bestX;
-                    yIndex[index] = bestY;
+					if(saveIndices)
+						indices[targetY, targetX] = bestOffset;
                     layer[targetY, targetX] = maxVal;
                 }
                 matrixList.Add(layer);
-                indexList?.Add((xIndex, yIndex));
+	            indexList?.Add(indices);
             }
-            return (new Cpu3DTensor(matrixList), indexList);
+            return (new Cpu3DTensor(matrixList), saveIndices ? new Cpu3DTensor(indexList) : null);
         }
 
-        public I3DTensor ReverseMaxPool(int rows, int columns, IReadOnlyList<(object X, object Y)> indexList)
+        public I3DTensor ReverseMaxPool(I3DTensor indexList, int outputRows, int outputColumns, int filterWidth, int filterHeight, int stride)
         {
             var matrixList = new List<DenseMatrix>();
-            for (var z = 0; z < Depth; z++) {
-                var source = GetMatrixAt(z).AsIndexable();
-                var newRows = source.RowCount;
-                var index = indexList[z];
-                int[] indexX = (int[])index.X;
-                int[] indexY = (int[])index.Y;
-                var target = DenseMatrix.Create(rows, columns, 0f);
-                
-                for(int i = 0, len = indexX.Length; i < len; i++) {
-                    var x = indexX[i];
-                    var y = indexY[i];
-                    var sourceX = i / newRows;
-                    var sourceY = i % newRows;
-                    target[y, x] = source[sourceY, sourceX];
-                }
+	        for (var k = 0; k < Depth; k++) {
+		        var source = GetMatrixAt(k).AsIndexable();
+		        var sourceRows = source.RowCount;
+		        var sourceColumns = source.ColumnCount;
+		        var index = indexList.GetMatrixAt(k).AsIndexable();
+		        var target = DenseMatrix.Create(outputRows, outputColumns, 0f);
+		        matrixList.Add(target);
 
-                matrixList.Add(target);
-            }
-            return new Cpu3DTensor(matrixList.Select(m => new CpuMatrix(m)).ToList());
+		        for (var j = 0; j < sourceColumns; j++) {
+			        for (int i = 0; i < sourceRows; i++) {
+				        var value = source[i, j];
+				        var offset = index[i, j];
+				        var offsetRow = (int)offset % filterHeight;
+				        var offsetColumn = (int)offset / filterHeight;
+						target[i*stride + offsetRow, j*stride + offsetColumn] = value;
+			        }
+		        }
+	        }
+
+	        return new Cpu3DTensor(matrixList.Select(m => new CpuMatrix(m)).ToList());
         }
-
-        //public (IMatrix WeightUpdate, IVector BiasUpdate) CalculateWeightUpdate(IMatrix im2Col)
-        //{
-        //    var multiplyWith = DenseMatrix.Create(RowCount * ColumnCount, Depth, 0f);
-        //    var biasUpdate = new float[Depth];
-
-        //    for (var k = 0; k < Depth; k++) {
-        //        var total = 0f;
-        //        int count = 0;
-        //        var slice = GetDepthSlice(k).AsIndexable();
-        //        for (var x = 0; x < slice.ColumnCount; x++) {
-        //            for (var y = 0; y < slice.RowCount; y++) {
-        //                var value = slice[x, y];
-        //                multiplyWith[x * slice.RowCount + y, k] = value;
-        //                total += value;
-        //                ++count;
-        //            }
-        //        }
-        //        biasUpdate[k] = total / count;
-        //    }
-
-        //    var delta = im2Col.TransposeThisAndMultiply(new CpuMatrix(multiplyWith));
-        //    var biasUpdateVector = new CpuVector(biasUpdate);
-        //    return (delta, biasUpdateVector);
-        //}
-
-        //public I3DTensor CalculatePreviousError(IMatrix filterMatrix, int inputHeight, int inputWidth, int inputDepth, int padding, int filterHeight, int filterWidth, int stride)
-        //{
-        //    var filters = filterMatrix.AsIndexable().Columns.ToList();
-        //    var columns = inputWidth + padding * 2;
-        //    var rows = inputHeight + padding * 2;
-        //    var matrixList = Enumerable.Range(0, inputDepth)
-        //        .Select(i => DenseMatrix.Create(rows, columns, 0f))
-        //        .ToList()
-        //    ;
-        //    var convolutions = ConvolutionHelper.Default(columns, rows, filterHeight, filterHeight, stride);
-
-        //    for (var k = 0; k < Depth; k++) {
-        //        var slice = GetMatrixAt(k).AsIndexable();
-        //        var filterList = filters[k]
-        //            .Split(inputDepth)
-        //            .Select(f => f.Rotate(f.Count / filterWidth).AsIndexable())
-        //            .ToList()
-        //        ;
-
-        //        foreach (var convolution in convolutions) {
-        //            var first = convolution.First();
-        //            var error = slice[first.X / stride, first.Y / stride];
-	       //         foreach (var item in convolution) {
-		      //          var i = item.X - first.X;
-		      //          var j = item.Y - first.Y;
-		      //          var filterIndex = i * filterHeight + j;
-		      //          for (var z = 0; z < filterList.Count; z++) {
-			     //           var filter = filterList[z];
-			     //           var output = matrixList[z];
-			     //           output[item.Y, item.X] += filter[filterIndex] * error;
-		      //          }
-	       //         }
-        //        }
-        //    }
-
-        //    var matrixList2 = matrixList.Select(m => new CpuMatrix(m));
-        //    var ret = new Cpu3DTensor(matrixList2.ToList());
-        //    if (padding > 0)
-        //        return ret.RemovePadding(padding);
-        //    return ret;
-        //}
 
 	    public IMatrix Im2Col(int filterWidth, int filterHeight, int stride)
 	    {
@@ -287,14 +227,14 @@ namespace BrightWire.LinearAlgebra
 		    var ret = new CpuMatrix(DenseMatrix.Create(convolutions.Count, filterSize * Depth, 0f));
 
 		    for(var i = 0; i < convolutions.Count; i++) {
-			    var offset = convolutions[i];
+			    var (offsetX, offsetY) = convolutions[i];
 			    for (var k = 0; k < Depth; k++) {
 					var filterOffset = k * filterSize;
 				    for (var y = 0; y < filterHeight; y++) {
 					    for (var x = 0; x < filterWidth; x++) {
-							// write as column major
+							// write in column major format
 							var filterIndex = filterOffset + (x * filterHeight + y);
-						    ret[i, filterIndex] = this[offset.Y + y, offset.X + x, k];
+						    ret[i, filterIndex] = this[offsetY + y, offsetX + x, k];
 					    }
 				    }
 			    }
@@ -303,32 +243,31 @@ namespace BrightWire.LinearAlgebra
 		    return ret;
 	    }
 
-        public IMatrix ReverseIm2Col(IReadOnlyList<IReadOnlyList<IVector>> filters, int inputHeight, int inputWidth, int padding, int filterWidth, int filterHeight, int stride)
+        public I3DTensor ReverseIm2Col(IMatrix filterMatrix, int outputRows, int outputColumns, int outputDepth, int filterWidth, int filterHeight, int stride)
         {
-	        var outputRows = inputHeight + padding * 2;
-	        var outputColumns = inputWidth + padding * 2;
             var convolutions = ConvolutionHelper.Default(outputColumns, outputRows, filterWidth, filterHeight, stride);
-	        var output = DenseMatrix.Create(outputRows, outputColumns, 0f);
-	        var numFilters = filters[0].Count;
+	        var output = Enumerable.Range(0, outputDepth).Select(i => DenseMatrix.Create(outputRows, outputColumns, 0f)).ToList();
 
 			for (var k = 0; k < Depth; k++) {
 				var slice = GetMatrixAt(k).AsIndexable();
-				var filterList = filters[k].Select(f => f.AsIndexable()).ToList();
+				var filters = filterMatrix.Column(k).Split(outputDepth).Select(v => v.AsIndexable()).ToList();
 
 				foreach (var (cx, cy) in convolutions) {
-					var error = slice[cy / stride, cx / stride];
-					for (var y = 0; y < filterHeight; y++) {
-						for (var x = 0; x < filterWidth; x++) {
-							var filterIndex = x * filterHeight + y;
-							for (var z = 0; z < numFilters; z++) {
-								var filter = filterList[z];
-								output[cy+y, cx+x] += filter[filterIndex] * error;
+					var errorY = cy / stride;
+					var errorX = cx / stride;
+					if (errorX < slice.ColumnCount && errorY < slice.RowCount) {
+						var error = slice[errorY, errorX];
+						for (var y = 0; y < filterHeight; y++) {
+							for (var x = 0; x < filterWidth; x++) {
+								var filterIndex = (filterWidth-x-1)  * filterHeight + (filterHeight-y-1);
+								for (var z = 0; z < outputDepth; z++)
+									output[z][cy + y, cx + x] += filters[z][filterIndex] * error;
 							}
 						}
 					}
 				}
 			}
-			return new CpuMatrix(output);
+			return new Cpu3DTensor(output.Select(m => new CpuMatrix(m)).ToList());
         }
 
         public IMatrix CombineDepthSlices()
@@ -342,32 +281,36 @@ namespace BrightWire.LinearAlgebra
         public void AddInPlace(I3DTensor tensor)
         {
             var other = (Cpu3DTensor)tensor;
-            for (var i = 0; i < Depth; i++)
-                _data[i].AddInPlace(other.GetMatrixAt(i));
+	        _data.AddInPlace(other._data);
         }
 
         public I3DTensor Multiply(IMatrix matrix)
         {
-            var ret = new List<IMatrix>();
-            foreach (var item in _data)
-                ret.Add(item.Multiply(matrix));
+            var ret = new List<IIndexableMatrix>();
+            foreach (var item in Matrix)
+                ret.Add(item.Multiply(matrix).AsIndexable());
             return new Cpu3DTensor(ret);
         }
 
         public void AddToEachRow(IVector vector)
         {
-            foreach (var item in _data)
-                item.AddToEachRow(vector);
+	        var row = vector.Data.Data;
+	        for (var k = 0; k < _depth; k++) {
+		        for (var j = 0; j < _columns; j++) {
+			        for (var i = 0; i < _rows; i++)
+				        this[i, j, k] += row[j];
+		        }
+	        }
         }
 
         public I3DTensor TransposeThisAndMultiply(I4DTensor tensor)
         {
             Debug.Assert(tensor.Count == Depth);
-            var ret = new List<IMatrix>();
+            var ret = new List<IIndexableMatrix>();
             for (var i = 0; i < tensor.Count; i++) {
-                var multiplyWith = tensor.GetTensorAt(i).ConvertToMatrix();
+                var multiplyWith = tensor.GetTensorAt(i).ReshapeAsMatrix();
                 var slice = GetMatrixAt(i);
-                ret.Add(slice.TransposeThisAndMultiply(multiplyWith));
+                ret.Add(slice.TransposeThisAndMultiply(multiplyWith).AsIndexable());
             }
             return new Cpu3DTensor(ret);
         }
@@ -381,8 +324,8 @@ namespace BrightWire.LinearAlgebra
 				    OmitXmlDeclaration = true
 			    };
 			    using (var writer = XmlWriter.Create(new StringWriter(ret), settings)) {
-				    writer.WriteStartElement("tensor");
-				    foreach(var matrix in _data) {
+				    writer.WriteStartElement("tensor-3d");
+				    foreach(var matrix in Matrix) {
 					    writer.WriteRaw(matrix.AsXml);
 				    }
 				    writer.WriteEndElement();

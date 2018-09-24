@@ -90,7 +90,7 @@ namespace BrightWire.SampleCode
                 ;
 
                 // train the network, but only run the test set every 50 iterations
-                const int TRAINING_ITERATIONS = 1000;
+                const int TRAINING_ITERATIONS = 1500;
                 engine.Train(TRAINING_ITERATIONS, testData, errorMetric, null, testCadence: 50);
             }
         }

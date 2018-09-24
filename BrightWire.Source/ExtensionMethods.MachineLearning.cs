@@ -1,4 +1,5 @@
-﻿using BrightWire.Bayesian.Training;
+﻿using System;
+using BrightWire.Bayesian.Training;
 using BrightWire.Helper;
 using BrightWire.InstanceBased.Trainer;
 using BrightWire.Linear.Training;
@@ -27,19 +28,20 @@ namespace BrightWire
             return new RandomProjection(lap, fixedSize, reducedSize, s);
         }
 
-        /// <summary>
-        /// Trains a logistic regression model on a data table
-        /// </summary>
-        /// <param name="table">The training data</param>
-        /// <param name="lap">Linear algebra provider</param>
-        /// <param name="iterations">Number of iterations to train for</param>
-        /// <param name="learningRate">The learning rate</param>
-        /// <param name="lambda">Regularisation lambda</param>
-        /// <returns>The trained model</returns>
-        public static LogisticRegression TrainLogisticRegression(this IDataTable table, ILinearAlgebraProvider lap, int iterations, float learningRate, float lambda = 0.1f)
+	    /// <summary>
+	    /// Trains a logistic regression model on a data table
+	    /// </summary>
+	    /// <param name="table">The training data</param>
+	    /// <param name="lap">Linear algebra provider</param>
+	    /// <param name="iterations">Number of iterations to train for</param>
+	    /// <param name="learningRate">The learning rate</param>
+	    /// <param name="lambda">Regularisation lambda</param>
+	    /// <param name="costCallback">Optional callback that is called after each iteration with the current cost</param>
+	    /// <returns>The trained model</returns>
+	    public static LogisticRegression TrainLogisticRegression(this IDataTable table, ILinearAlgebraProvider lap, int iterations, float learningRate, float lambda = 0.1f, Func<float, bool> costCallback = null)
         {
             var trainer = table.CreateLogisticRegressionTrainer(lap);
-            return trainer.GradientDescent(iterations, learningRate, lambda);
+            return trainer.GradientDescent(iterations, learningRate, lambda, costCallback);
         }
 
         /// <summary>
@@ -125,13 +127,14 @@ namespace BrightWire
 	    /// K Means uses coordinate descent and a distance metric between randomly selected centroids to cluster the data
 	    /// </summary>
 	    /// <param name="data">The list of vectors to cluster</param>
+	    /// <param name="lap">Linear algebra provider</param>
 	    /// <param name="k">The number of clusters to find</param>
 	    /// <param name="maxIterations">The maximum number of iterations</param>
 	    /// <param name="distanceMetric">Distance metric to use to compare centroids</param>
 	    /// <returns>A list of k clusters</returns>
-	    public static IReadOnlyList<IReadOnlyList<IVector>> KMeans(this IReadOnlyList<IVector> data, int k, int maxIterations = 1000, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
+	    public static IReadOnlyList<IReadOnlyList<IVector>> KMeans(this IReadOnlyList<IVector> data, ILinearAlgebraProvider lap, int k, int maxIterations = 1000, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
         {
-            using (var clusterer = new KMeans(k, data, distanceMetric)) {
+            using (var clusterer = new KMeans(lap, k, data, distanceMetric)) {
                 clusterer.ClusterUntilConverged(maxIterations);
                 return clusterer.Clusters;
             }
@@ -146,18 +149,19 @@ namespace BrightWire
             return KNNClassificationTrainer.Train(data);
         }
 
-        /// <summary>
-        /// Multinomial Logistic Regression generalises Logistic Regression to multi-class classification
-        /// </summary>
-        /// <param name="data">The training data</param>
-        /// <param name="lap">Linear algebra provider</param>
-        /// <param name="trainingIterations">Number of training iterations</param>
-        /// <param name="trainingRate">Training rate</param>
-        /// <param name="lambda">L2 regularisation</param>
-        /// <returns></returns>
-        public static MultinomialLogisticRegression TrainMultinomialLogisticRegression(this IDataTable data, ILinearAlgebraProvider lap, int trainingIterations, float trainingRate, float lambda = 0.1f)
+	    /// <summary>
+	    /// Multinomial Logistic Regression generalises Logistic Regression to multi-class classification
+	    /// </summary>
+	    /// <param name="data">The training data</param>
+	    /// <param name="lap">Linear algebra provider</param>
+	    /// <param name="trainingIterations">Number of training iterations</param>
+	    /// <param name="trainingRate">Training rate</param>
+	    /// <param name="lambda">L2 regularisation</param>
+	    /// <param name="costCallback">Optional callback that is called after each iteration with the current cost</param>
+	    /// <returns></returns>
+	    public static MultinomialLogisticRegression TrainMultinomialLogisticRegression(this IDataTable data, ILinearAlgebraProvider lap, int trainingIterations, float trainingRate, float lambda = 0.1f, Func<float, bool> costCallback = null)
         {
-            return MultinomialLogisticRegressionTrainner.Train(data, lap, trainingIterations, trainingRate, lambda);
+            return MultinomialLogisticRegressionTrainner.Train(data, lap, trainingIterations, trainingRate, lambda, costCallback);
         }
 
         /// <summary>

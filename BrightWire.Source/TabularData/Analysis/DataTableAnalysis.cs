@@ -16,10 +16,7 @@ namespace BrightWire.TabularData.Analysis
 		static readonly HashSet<ColumnType> _invalidColumnType = new HashSet<ColumnType>
 		{
 			ColumnType.Date,
-			ColumnType.Matrix,
 			ColumnType.Null,
-			ColumnType.Vector,
-			ColumnType.Tensor
 		};
 
         readonly IDataTable _table;
@@ -54,6 +51,10 @@ namespace BrightWire.TabularData.Analysis
 			        _column.Add(new StringCollector(index));
 		        else if (type == ColumnType.IndexList || type == ColumnType.WeightedIndexList)
 			        _column.Add(new IndexCollector(index));
+				else if (type == ColumnType.Date)
+			        _column.Add(new DateCollector(index));
+				else if (type == ColumnType.Vector || type == ColumnType.Matrix || type == ColumnType.Tensor)
+			        _column.Add(new DimensionCollector(index));
 	        }
         }
 
@@ -127,6 +128,22 @@ namespace BrightWire.TabularData.Analysis
 			                        writer.WriteAttributeString("frequency", _Write(item.Value / total));
 			                        writer.WriteEndElement();
 		                        }
+	                        }
+
+	                        if (columnInfo is IDateColumnInfo dateColumn) {
+								if(dateColumn.MinDate.HasValue)
+									writer.WriteAttributeString("min-date", dateColumn.MinDate.Value.ToString("s"));
+								if(dateColumn.MaxDate.HasValue)
+									writer.WriteAttributeString("max-date", dateColumn.MaxDate.Value.ToString("s"));
+	                        }
+
+	                        if (columnInfo is IDimensionsColumnInfo tensorColumn) {
+		                        if(tensorColumn.XDimension.HasValue)
+			                        writer.WriteAttributeString("x", tensorColumn.XDimension.Value.ToString());
+		                        if(tensorColumn.YDimension.HasValue)
+			                        writer.WriteAttributeString("y", tensorColumn.YDimension.Value.ToString());
+		                        if(tensorColumn.ZDimension.HasValue)
+			                        writer.WriteAttributeString("z", tensorColumn.ZDimension.Value.ToString());
 	                        }
                         }
                         writer.WriteEndElement();

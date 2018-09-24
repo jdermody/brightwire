@@ -26,31 +26,31 @@ namespace BrightWire.Linear.Training
             _target = lap.CreateVector(table.GetColumn<float>(classColumnIndex));
         }
 
-        // normal method removed until GPU provider can properly calculate matrix inverses!
+		// normal method removed until GPU provider can properly calculate matrix inverses!
 
-        //public LinearRegression Solve()
-        //{
-        //    // solve using normal method
-        //    using (var lambdaMatrix = _lap.CreateIdentity(_feature.ColumnCount))
-        //    using (var zero = _lap.Create(1, 0f)) {
-        //        lambdaMatrix.UpdateColumn(0, zero.AsIndexable(), 0);
+		//public LinearRegression Solve()
+		//{
+		//	// solve using normal method
+		//	using (var lambdaMatrix = _lap.CreateIdentityMatrix(_feature.ColumnCount))
+		//	using (var zero = _lap.CreateVector(1, 0f)) {
+		//		lambdaMatrix.UpdateColumn(0, zero.AsIndexable(), 0);
 
-        //        using (var featureTranspose = _feature.Transpose())
-        //        using (var pinv = featureTranspose.Multiply(_feature))
-        //        using (var pinv2 = pinv.Add(lambdaMatrix))
-        //        using (var pinv3 = pinv2.Inverse())
-        //        using (var tc = _target.ToColumnMatrix())
-        //        using (var a2 = featureTranspose.Multiply(tc))
-        //        using (var ret = pinv3.Multiply(a2))
-        //        using (var theta = ret.Column(0)) {
-        //            return new LinearRegression {
-        //                Theta = theta.Data
-        //            };
-        //        }
-        //    }
-        //}
+		//		using (var featureTranspose = _feature.Transpose())
+		//		using (var pinv = featureTranspose.Multiply(_feature))
+		//		using (var pinv2 = pinv.Add(lambdaMatrix))
+		//		using (var pinv3 = pinv2.Inverse())
+		//		using (var tc = _target.ReshapeAsColumnMatrix())
+		//		using (var a2 = featureTranspose.Multiply(tc))
+		//		using (var ret = pinv3.Multiply(a2))
+		//		using (var theta = ret.Column(0)) {
+		//			return new LinearRegression {
+		//				Theta = theta.Data
+		//			};
+		//		}
+		//	}
+		//}
 
-        public LinearRegression GradientDescent(int iterations, float learningRate, float lambda = 0.1f, Func<float, bool> costCallback = null)
+		public LinearRegression GradientDescent(int iterations, float learningRate, float lambda = 0.1f, Func<float, bool> costCallback = null)
         {
             var regularisation = 1f - (learningRate * lambda) / _feature.RowCount;
             var theta = _lap.CreateVector(_feature.ColumnCount, 0f);
@@ -66,7 +66,7 @@ namespace BrightWire.Linear.Training
                     using (var p = _feature.Multiply(theta))
                     using (var pc = p.Column(0))
                     using (var e = pc.Subtract(_target))
-                    using (var e2 = e.ToRowMatrix())
+                    using (var e2 = e.ReshapeAsRowMatrix())
                     using (var d = e2.Multiply(_feature))
                     using(var delta = d.Row(0)) {
                         delta.Multiply(learningRate);
