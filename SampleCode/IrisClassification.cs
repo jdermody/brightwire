@@ -88,7 +88,7 @@ namespace BrightWire.SampleCode
                 var engine = graph.CreateTrainingEngine(trainingData, LEARNING_RATE, BATCH_SIZE);
                 graph.Connect(engine)
                     .AddFeedForward(HIDDEN_LAYER_SIZE)
-                    .Add(graph.ReluActivation())
+                    .Add(graph.SigmoidActivation())
                     .AddDropOut(dropOutPercentage: 0.5f)
                     .AddFeedForward(engine.DataSource.OutputSize)
                     .Add(graph.SigmoidActivation())
