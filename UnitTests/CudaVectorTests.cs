@@ -469,7 +469,7 @@ namespace UnitTests
             IIndexableVector v2;
             using (var gpuA = _cuda.CreateVector(a))
             using (var gpuB = gpuA.Log())
-                v2 = gpuA.Log().AsIndexable();
+                v2 = gpuB.AsIndexable();
 
             FloatingPointHelper.AssertEqual(v1, v2, 14);
         }
