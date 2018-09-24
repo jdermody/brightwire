@@ -6,7 +6,7 @@
     <SharedGUID>8ee466c6-a1da-4c24-ae39-f82559be16e9</SharedGUID>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
-    <Import_RootNamespace>BrightWire.Source</Import_RootNamespace>
+    <Import_RootNamespace>BrightWire</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Bayesian\BernoulliNaiveBayesClassifier.cs" />
@@ -178,6 +178,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\TreeBased\RandomForest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\WeightedIndexList.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TabularData\Analysis\DataTableAnalysis.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TabularData\Analysis\DateCollector.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TabularData\Analysis\DimensionCollector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TabularData\Analysis\FrequencyAnalysis.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TabularData\Analysis\FrequencyCollector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TabularData\Analysis\IndexCollector.cs" />

@@ -658,11 +658,24 @@ namespace BrightWire
         double L2Norm { get; }
     }
 
-    internal interface IFrequencyColumnInfo : IColumnInfo
+    interface IFrequencyColumnInfo : IColumnInfo
     {
 		ulong Total { get; }
         IEnumerable<KeyValuePair<string, ulong>> Frequency { get; }
     }
+
+	interface IDimensionsColumnInfo : IColumnInfo
+	{
+		int? XDimension { get; }
+		int? YDimension { get; }
+		int? ZDimension { get; }
+	}
+
+	interface IDateColumnInfo : IColumnInfo
+	{
+		DateTime? MinDate { get; }
+		DateTime? MaxDate { get; }
+	}
 
     /// <summary>
     /// Data table statistics
