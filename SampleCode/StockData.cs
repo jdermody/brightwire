@@ -33,12 +33,12 @@ namespace BrightWire.SampleCode
 				for (var j = 0; j < LAST_X_DAYS; j++)
 					inputVector.Add(FloatVector.Create(rows[i + j]));
 				var input = FloatMatrix.Create(inputVector.ToArray());
-				var target = FloatVector.Create(rows[i+1]);
+				var target = FloatVector.Create(rows[i + LAST_X_DAYS + 1]);
 				builder.Add(input, target);
 			}
 			var data = builder.Build().Split(trainingPercentage: 0.2);
 
-			using (var lap = BrightWireGpuProvider.CreateLinearAlgebra()) {
+			using (var lap = BrightWireProvider.CreateLinearAlgebra()) {
 				var graph = new GraphFactory(lap);
 				var errorMetric = graph.ErrorMetric.Quadratic;
 
