@@ -5,7 +5,7 @@
 	</summary>
 	<value name="Null" value="0" summary="Nothing" />
 	<value name="Boolean" value="1" summary="Boolean values" />
-	<value name="Byte" value="2" summary="Byte values" />
+	<value name="Byte" value="2" summary="Byte values (-128 to 128)" />
 	<value name="Int" value="3" summary="Integer values" />
 	<value name="Long" value="4" summary="Long values" />
 	<value name="Float" value="5" summary="Float values" />
@@ -113,39 +113,41 @@
 				<param type="System.Int32" name="filterHeight" summary="The filter height" />
 				<param type="System.Int32" name="stride" summary="The convolution stride" />
 			</method>
-	<method type="BrightWire.IVector" name="ConvertToVector">
-		<summary>Converts the tensor to a vector (each sub matrix is concatenated into a single vector)</summary>
+	<method type="BrightWire.IVector" name="ReshapeAsVector">
+		<summary>Converts the tensor to a vector</summary>
 			</method>
-	<method type="BrightWire.IMatrix" name="ConvertToMatrix">
-		<summary>Converts the tensor to a matrix (each sub matrix becomes a column in the new matrix)</summary>
+	<method type="BrightWire.IMatrix" name="ReshapeAsMatrix">
+		<summary>Converts the tensor to a matrix (each depth slice becomes a column in the new matrix)</summary>
 			</method>
-	<method type="BrightWire.I4DTensor" name="ConvertTo4DTensor">
-		<summary>Converts the tensor to a 4D tensor (each sub matrix becomes a 3D tensor with the specified rows and columns and depth given by the sub matrix column count)</summary>
-				<param type="System.Int32" name="rows" summary="Row count of each 3D tensor" />
-				<param type="System.Int32" name="columns" summary="Column count of each 3D tensor" />
+	<method type="BrightWire.I4DTensor" name="ReshapeAs4DTensor">
+		<summary>Reshapes the 3D tensor into a 4D tensor (the current depth becomes the count of 3D tensors and columns becomes the new depth)</summary>
+				<param type="System.Int32" name="rows" summary="Rows in each 4D tensor" />
+				<param type="System.Int32" name="columns" summary="Columns in each 4D tensor" />
 			</method>
-	<method type="(BrightWire.I3DTensor Result, System.Collections.Generic.IReadOnlyList&lt;(System.Object X, System.Object Y)&gt; Index)" name="MaxPool">
+	<method type="(BrightWire.I3DTensor Result, BrightWire.I3DTensor Indices)" name="MaxPool">
 		<summary>Performs a max pooling operation on the tensor</summary>
 				<param type="System.Int32" name="filterWidth" summary="The pooling filter width" />
 				<param type="System.Int32" name="filterHeight" summary="The pooling filter height" />
 				<param type="System.Int32" name="stride" summary="The pooling stride" />
-				<param type="System.Boolean" name="calculateIndex" summary="True to calculate the index of each max item" />
+				<param type="System.Boolean" name="saveIndices" summary="True to save the indices for a future reverse max pool operation" />
 			</method>
 	<method type="BrightWire.I3DTensor" name="ReverseMaxPool">
 		<summary>Reverses a max pooling operation</summary>
-				<param type="System.Int32" name="rows" summary="Input rows" />
-				<param type="System.Int32" name="columns" summary="Input columns" />
-				<param type="System.Collections.Generic.IReadOnlyList&lt;(System.Object X, System.Object Y)&gt;" name="indexList" summary="The indices of the maximum values" />
-			</method>
-	<method type="BrightWire.IMatrix" name="ReverseIm2Col">
-		<summary>Reverses a im2col operation</summary>
-				<param type="System.Collections.Generic.IReadOnlyList&lt;System.Collections.Generic.IReadOnlyList&lt;BrightWire.IVector&gt;&gt;" name="filter" summary="The rotated filters" />
-				<param type="System.Int32" name="inputHeight" summary="Height of the input tensor" />
-				<param type="System.Int32" name="inputWidth" summary="Width of the input tensor" />
-				<param type="System.Int32" name="inputDepth" summary="Depth of the input tensor" />
-				<param type="System.Int32" name="padding" summary="Input padding" />
-				<param type="System.Int32" name="filterHeight" summary="Height of each filter" />
+				<param type="BrightWire.I3DTensor" name="indices" summary="A tensor that contains the indices of each maximum value that was found per filter" />
+				<param type="System.Int32" name="outputRows" summary="Input rows" />
+				<param type="System.Int32" name="outputColumns" summary="Input columns" />
 				<param type="System.Int32" name="filterWidth" summary="Width of each filter" />
+				<param type="System.Int32" name="filterHeight" summary="Height of each filter" />
+				<param type="System.Int32" name="stride" summary="Filter stride" />
+			</method>
+	<method type="BrightWire.I3DTensor" name="ReverseIm2Col">
+		<summary>Reverses a im2col operation</summary>
+				<param type="BrightWire.IMatrix" name="filter" summary="The rotated filters" />
+				<param type="System.Int32" name="outputRows" summary="Rows of the input tensor" />
+				<param type="System.Int32" name="outputColumns" summary="Columns of the input tensor" />
+				<param type="System.Int32" name="outputDepth" summary="Depth of the input tensor" />
+				<param type="System.Int32" name="filterWidth" summary="Width of each filter" />
+				<param type="System.Int32" name="filterHeight" summary="Height of each filter" />
 				<param type="System.Int32" name="stride" summary="Filter stride" />
 			</method>
 	<method type="BrightWire.IMatrix" name="CombineDepthSlices">
@@ -188,7 +190,7 @@
 		<summary>Returns the tensor at the specified index</summary>
 				<param type="System.Int32" name="index" summary="The index to query" />
 			</method>
-	<method type="System.Collections.Generic.IReadOnlyList&lt;BrightWire.IIndexable3DTensor&gt;" name="AsIndexable">
+	<method type="BrightWire.IIndexable4DTensor" name="AsIndexable">
 		<summary>Returns an indexable list of 3D tensors</summary>
 			</method>
 	<method type="BrightWire.I4DTensor" name="AddPadding">
@@ -199,18 +201,21 @@
 		<summary>Removes padding from the 4D tensor</summary>
 				<param type="System.Int32" name="padding" summary="Padding to remove from the left, top, right and bottom edges of the tensor" />
 			</method>
-	<method type="(BrightWire.I4DTensor Result, System.Collections.Generic.IReadOnlyList&lt;System.Collections.Generic.IReadOnlyList&lt;(System.Object X, System.Object Y)&gt;&gt; Index)" name="MaxPool">
+	<method type="(BrightWire.I4DTensor Result, BrightWire.I4DTensor Indices)" name="MaxPool">
 		<summary>Applies a max pooling operation to the current tensor</summary>
 				<param type="System.Int32" name="filterWidth" summary="Max pool filter width" />
 				<param type="System.Int32" name="filterHeight" summary="Max pool filter height" />
 				<param type="System.Int32" name="stride" summary="Filter stride" />
-				<param type="System.Boolean" name="calculateIndex" summary="True to remember the indices of each max value for later backpropagation" />
+				<param type="System.Boolean" name="saveIndices" summary="True to save the indices for a future reverse pool operation" />
 			</method>
 	<method type="BrightWire.I4DTensor" name="ReverseMaxPool">
 		<summary>Reverses a max pool operation</summary>
-				<param type="System.Int32" name="rows" summary="Input tensor rows" />
-				<param type="System.Int32" name="columns" summary="Input tensor columns" />
-				<param type="System.Collections.Generic.IReadOnlyList&lt;System.Collections.Generic.IReadOnlyList&lt;(System.Object X, System.Object Y)&gt;&gt;" name="indexList" summary="Saved list of indexes from MaxPool operation" />
+				<param type="BrightWire.I4DTensor" name="indices" summary="Tensor of indices from MaxPool operation" />
+				<param type="System.Int32" name="outputRows" summary="Input tensor rows" />
+				<param type="System.Int32" name="outputColumns" summary="Input tensor columns" />
+				<param type="System.Int32" name="filterWidth" summary="" />
+				<param type="System.Int32" name="filterHeight" summary="" />
+				<param type="System.Int32" name="stride" summary="" />
 			</method>
 	<method type="BrightWire.I3DTensor" name="Im2Col">
 		<summary>Applies the convolutional filter to each 3D tensor, producing a 3D tensor which can be multipled by the filter matrix</summary>
@@ -218,23 +223,28 @@
 				<param type="System.Int32" name="filterHeight" summary="Filter height" />
 				<param type="System.Int32" name="stride" summary="Filter stride" />
 			</method>
-	<method type="BrightWire.I3DTensor" name="ReverseIm2Col">
+	<method type="BrightWire.I4DTensor" name="ReverseIm2Col">
 		<summary>Reverse a previously applied im2Col</summary>
-				<param type="System.Collections.Generic.IReadOnlyList&lt;System.Collections.Generic.IReadOnlyList&lt;BrightWire.IVector&gt;&gt;" name="filter" summary="List of filters that have been rotated 180 degrees" />
-				<param type="System.Int32" name="inputHeight" summary="Height of the input 4D tensor" />
-				<param type="System.Int32" name="inputWidth" summary="Width of the input 4D tensor" />
-				<param type="System.Int32" name="inputDepth" summary="Depth of the input 4D tensor" />
-				<param type="System.Int32" name="padding" summary="Amount of padding that was applied to the input 4D tensor before im2col" />
+				<param type="BrightWire.IMatrix" name="filter" summary="List of filters that have been rotated 180 degrees" />
+				<param type="System.Int32" name="outputRows" summary="Rows of the input 4D tensor" />
+				<param type="System.Int32" name="outputColumns" summary="Columns of the input 4D tensor" />
+				<param type="System.Int32" name="outputDepth" summary="Depth of the input 4D tensor" />
 				<param type="System.Int32" name="filterWidth" summary="Filter width" />
 				<param type="System.Int32" name="filterHeight" summary="Filter height" />
 				<param type="System.Int32" name="stride" summary="Filter stride" />
 			</method>
-	<method type="BrightWire.IMatrix" name="ConvertToMatrix">
-		<summary>Converts the 4D tensor to a matrix in which each column is a 3D tensor in vector form</summary>
-			</method>
 	<method type="BrightWire.IVector" name="ColumnSums">
 		<summary>Sums the columns of each sub-tensor's sub matrix</summary>
 			</method>
+	<method type="BrightWire.IVector" name="ReshapeAsVector">
+		<summary>Converts the tensor to a vector</summary>
+			</method>
+	<method type="BrightWire.IMatrix" name="ReshapeAsMatrix">
+		<summary>Converts the tensor to a matrix (each 3D tensor becomes a column in the new matrix)</summary>
+			</method>
+	<property type="System.Collections.Generic.IReadOnlyList&lt;BrightWire.Models.FloatTensor&gt;" name="Data">
+		<summary>Converts the current tensor to protobuf format</summary>
+	</property>
 </interface>
 <interface name="BrightWire.IAction" base="">
 	<summary>
@@ -322,7 +332,10 @@
 	<summary>
 		A column within a data table
 	</summary>
-		<property type="System.String" name="Name">
+		<property type="System.Int32" name="Index">
+		<summary>The index of the column within the data table</summary>
+	</property>
+	<property type="System.String" name="Name">
 		<summary>The name of the column</summary>
 	</property>
 	<property type="BrightWire.ColumnType" name="Type">
@@ -337,16 +350,14 @@
 	<property type="System.Boolean" name="IsTarget">
 		<summary>True if the column is a classification target (or label)</summary>
 	</property>
-</interface>
-<interface name="BrightWire.Models.Bayesian.NaiveBayes.IColumn" base="">
-	<summary>
-		A column of the data table
-	</summary>
-		<property type="BrightWire.Models.Bayesian.NaiveBayes.ColumnType" name="Type">
-		<summary>The type of the column</summary>
+	<property type="System.Nullable&lt;System.Int32&gt;" name="DimensionX">
+		<summary>Optional x dimension of the column (vector size, matrix/tensor columns)</summary>
 	</property>
-	<property type="System.Int32" name="ColumnIndex">
-		<summary>The column index</summary>
+	<property type="System.Nullable&lt;System.Int32&gt;" name="DimensionY">
+		<summary>Optional y dimension of the column (matrix/tensor rows)</summary>
+	</property>
+	<property type="System.Nullable&lt;System.Int32&gt;" name="DimensionZ">
+		<summary>Option z dimension of the column (tensor depth)</summary>
 	</property>
 </interface>
 <interface name="BrightWire.IColumnInfo" base="">
@@ -416,6 +427,15 @@
 	</property>
 	<method type="System.Boolean" name="ExecuteNext">
 		<summary>Executes the next pending forward graph operation</summary>
+			</method>
+</interface>
+<interface name="BrightWire.IConvertToType" base="">
+	<summary>
+		Interface to convert between types
+	</summary>
+		<method type="(System.Object convertedValue, System.Boolean wasSuccessful)" name="ConvertValue">
+		<summary>Converts an object from one type to another</summary>
+				<param type="System.Object" name="value" summary="The value to convert" />
 			</method>
 </interface>
 <interface name="BrightWire.ICreateGradientDescent" base="">
@@ -510,6 +530,10 @@
 			</method>
 	<method type="System.Collections.Generic.IReadOnlyList&lt;BrightWire.IRow&gt;" name="GetRows">
 		<summary>Gets a list of rows</summary>
+				<param type="System.Collections.Generic.IReadOnlyList&lt;System.Int32&gt;" name="rowIndex" summary="A sequence of row indices" />
+			</method>
+	<method type="System.Collections.Generic.IReadOnlyList&lt;BrightWire.IRow&gt;" name="GetRows">
+		<summary>Gets a list of rows</summary>
 				<param type="System.Collections.Generic.IEnumerable&lt;System.Int32&gt;" name="rowIndex" summary="A sequence of row indices" />
 			</method>
 	<method type="BrightWire.IRow" name="GetRow">
@@ -528,6 +552,7 @@
 		<summary>Creates a normalised version of the current table</summary>
 				<param type="BrightWire.NormalisationType" name="normalisationType" summary="The type of normalisation to apply" />
 				<param type="System.IO.Stream" name="output" summary="Optional stream to write the normalised table to" />
+				<param type="System.Collections.Generic.IEnumerable&lt;System.Int32&gt;" name="columnIndices" summary="Optional list of column indices to normalise" />
 			</method>
 	<method type="BrightWire.IDataTable" name="Normalise">
 		<summary>Creates a normalised version of the current table</summary>
@@ -537,6 +562,7 @@
 	<method type="BrightWire.Models.DataTable.DataTableNormalisation" name="GetNormalisationModel">
 		<summary>Builds a normalisation model from the table that can be used to normalise data to the same scale</summary>
 				<param type="BrightWire.NormalisationType" name="normalisationType" summary="The type of normalisation" />
+				<param type="System.Collections.Generic.IEnumerable&lt;System.Int32&gt;" name="columnIndices" summary="Optional list of column indices to normalise" />
 			</method>
 	<method type="System.Collections.Generic.IReadOnlyList&lt;T&gt;" name="GetColumn">
 		<summary>Gets a column from the table</summary>
@@ -567,15 +593,20 @@
 				<param type="System.IO.Stream" name="output" summary="Optional stream to write the new table to" />
 			</method>
 	<method type="BrightWire.IDataTable" name="Project">
-		<summary></summary>
-				<param type="System.Func&lt;BrightWire.IRow, System.Collections.Generic.IReadOnlyList&lt;System.Object&gt;&gt;" name="mutator" summary="" />
-				<param type="System.IO.Stream" name="output" summary="" />
+		<summary>Creates a new data table with a projection of each existing row</summary>
+				<param type="System.Func&lt;BrightWire.IRow, System.Collections.Generic.IReadOnlyList&lt;System.Object&gt;&gt;" name="mutator" summary="Function that mutates each row into the new format" />
+				<param type="System.IO.Stream" name="output" summary="Optional stream to write the new table to" />
+			</method>
+	<method type="BrightWire.IDataTable" name="Filter">
+		<summary>Creates a new data table with only those rows that match the specified filter</summary>
+				<param type="System.Func&lt;BrightWire.IRow, System.Boolean&gt;" name="filter" summary="Function that filters each row" />
+				<param type="System.IO.Stream" name="output" summary="Optional stream to write the new table to" />
 			</method>
 	<method type="System.Collections.Generic.IEnumerable&lt;(BrightWire.IDataTable Training, BrightWire.IDataTable Validation)&gt;" name="Fold">
-		<summary></summary>
-				<param type="System.Int32" name="k" summary="" />
-				<param type="System.Nullable&lt;System.Int32&gt;" name="randomSeed" summary="" />
-				<param type="System.Boolean" name="shuffle" summary="" />
+		<summary>Folds the data table into k buckets</summary>
+				<param type="System.Int32" name="k" summary="Number of buckets to create" />
+				<param type="System.Nullable&lt;System.Int32&gt;" name="randomSeed" summary="Optional random seed" />
+				<param type="System.Boolean" name="shuffle" summary="True to shuffle the table before folding" />
 			</method>
 	<method type="System.Collections.Generic.IReadOnlyList&lt;(BrightWire.IDataTable Table, System.String Classification)&gt;" name="ConvertToBinaryClassification">
 		<summary>For each classification label - duplicate each data table except for the classification column which is converted to a boolean (true for each matching example)</summary>
@@ -597,12 +628,45 @@
 				<param type="System.Collections.Generic.IEnumerable&lt;System.Int32&gt;" name="rowIndex" summary="The list of rows to copy" />
 				<param type="System.IO.Stream" name="output" summary="Optional stream to write the new table to" />
 			</method>
+	<method type="BrightWire.IDataTable" name="Zip">
+		<summary>Creates a new data table with each row of this data table zipped with the corresponding row of the other data table</summary>
+				<param type="BrightWire.IDataTable" name="dataTable" summary="The data table whose rows are zipped" />
+				<param type="System.IO.Stream" name="output" summary="Optional stream to write the new table to" />
+			</method>
 	<property type="System.String" name="XmlPreview">
 		<summary>Returns table meta-data and the top 20 rows of the table as XML</summary>
 	</property>
 	<property type="System.Boolean" name="HasCategoricalData">
 		<summary>Returns true if the data table contains any non-numeric columns</summary>
 	</property>
+	<method type="System.Void" name="WriteTo">
+		<summary>Writes the data table to a stream</summary>
+				<param type="System.IO.Stream" name="stream" summary="The stream to write to" />
+			</method>
+	<method type="System.Void" name="WriteIndexTo">
+		<summary>Writes the data table's index to a stream</summary>
+				<param type="System.IO.Stream" name="stream" summary="The stream to write to" />
+			</method>
+	<method type="System.Single" name="Reduce">
+		<summary>Applies a function against each row in the data table to reduce the table to a single value</summary>
+				<param type="System.Func&lt;BrightWire.IRow, System.Single, System.Single&gt;" name="reducer" summary="The function that is applied to each row" />
+				<param type="System.Single" name="initialValue" summary="Initial value passed to the function" />
+			</method>
+	<method type="System.Single" name="Average">
+		<summary>Finds an average value from applying the reducer to each row of the table</summary>
+				<param type="System.Func&lt;BrightWire.IRow, System.Single&gt;" name="reducer" summary="Function that reduces each row to a single value" />
+			</method>
+	<method type="BrightWire.IDataTable" name="ChangeColumnTypes">
+		<summary>Returns a new data table with columns converted to new types</summary>
+				<param type="System.Collections.Generic.Dictionary&lt;System.Int32, BrightWire.IConvertToType&gt;" name="columnConversion" summary="Dictionary of columns to convert" />
+				<param type="System.Boolean" name="removeInvalidRows" summary="True to remove rows that fail conversion" />
+			</method>
+	<method type="BrightWire.IDataTable" name="Summarise">
+		<summary>Creates a summarised version of the data table</summary>
+				<param type="System.Int32" name="newRowCount" summary="Number of rows to create in the summary table" />
+				<param type="System.IO.Stream" name="output" summary="Optional stream to write the new table to" />
+				<param type="BrightWire.ISummariseRows" name="summariser" summary="A row summariser that will summarise groups of rows (optional)" />
+			</method>
 </interface>
 <interface name="BrightWire.IDataTableAnalysis" base="">
 	<summary>
@@ -635,6 +699,27 @@
 		<summary>Adds a new column to the data table</summary>
 				<param type="BrightWire.ColumnType" name="column" summary="The data type of the new column" />
 				<param type="System.String" name="name" summary="The name of the new column" />
+				<param type="System.Boolean" name="isTarget" summary="True if the column is a classification target" />
+			</method>
+	<method type="BrightWire.IColumn" name="AddVectorColumn">
+		<summary>Adds a vector columns to the data table</summary>
+				<param type="System.Int32" name="size" summary="The size of each vector" />
+				<param type="System.String" name="name" summary="New column name" />
+				<param type="System.Boolean" name="isTarget" summary="True if the column is a classification target" />
+			</method>
+	<method type="BrightWire.IColumn" name="AddMatrixColumn">
+		<summary>Adds a matrix column to the data table</summary>
+				<param type="System.Int32" name="rows" summary="Rows in each matrix" />
+				<param type="System.Int32" name="columns" summary="Columns in each matrix" />
+				<param type="System.String" name="name" summary="New column name" />
+				<param type="System.Boolean" name="isTarget" summary="True if the column is a classification target" />
+			</method>
+	<method type="BrightWire.IColumn" name="AddTensorColumn">
+		<summary>Adds a 3D tensor column to the data table</summary>
+				<param type="System.Int32" name="rows" summary="Rows in each tensor" />
+				<param type="System.Int32" name="columns" summary="Columns in each tensor" />
+				<param type="System.Int32" name="depth" summary="Depth of each tensor" />
+				<param type="System.String" name="name" summary="New column name" />
 				<param type="System.Boolean" name="isTarget" summary="True if the column is a classification target" />
 			</method>
 	<method type="BrightWire.IRow" name="Add">
@@ -785,8 +870,14 @@
 		Helper methods when using the GPU linear algebra provider
 	</summary>
 		<method type="System.Void" name="BindThread">
-		<summary>Binds the current thread to the cuda context (used when using the same cuda provider from multiple threads)</summary>
+		<summary>Binds the current thread to the cuda context (when using the same cuda provider from multiple threads)</summary>
 			</method>
+	<property type="System.Int64" name="FreeMemory">
+		<summary>Amount of free memory on the device in bytes</summary>
+	</property>
+	<property type="System.Int64" name="TotalMemory">
+		<summary>Amount of total memory on the device in bytes</summary>
+	</property>
 </interface>
 <interface name="BrightWire.IGradientDescentOptimisation" base="System.IDisposable">
 	<summary>
@@ -858,6 +949,10 @@
 				<param type="System.Single[]" name="input" summary="Input vector" />
 				<param type="BrightWire.IExecutionContext" name="executionContext" summary="Graph execution context" />
 				<param type="BrightWire.MiniBatchSequenceType" name="sequenceType" summary="The sequence type (start, standard, end)" />
+			</method>
+	<method type="System.Collections.Generic.IReadOnlyList&lt;BrightWire.Models.ExecutionResult&gt;" name="ExecuteSequential">
+		<summary>Executes a sequence of inputs on the current graph</summary>
+				<param type="System.Collections.Generic.IReadOnlyList&lt;System.Single[]&gt;" name="input" summary="List of vector inputs" />
 			</method>
 	<property type="BrightWire.INode" name="Start">
 		<summary>The graph's single start node</summary>
@@ -937,6 +1032,29 @@
 	<property type="System.Collections.Generic.IReadOnlyList&lt;BrightWire.IIndexableMatrix&gt;" name="Matrix">
 		<summary>Gets a list of the indexable matrices</summary>
 	</property>
+	<property type="System.String" name="AsXml">
+		<summary>Returns the matrix as xml</summary>
+	</property>
+	<method type="System.Single[]" name="GetInternalArray">
+		<summary>Returns the underlying array used as storage (changes to this array will affect the tensor as well)</summary>
+			</method>
+</interface>
+<interface name="BrightWire.IIndexable4DTensor" base="BrightWire.I4DTensor">
+	<summary>
+		A 4D tensor that can be directly indexed
+	</summary>
+		<property type="System.Single" name="this">
+		<summary>Returns a value from the tensor</summary>
+	</property>
+	<property type="System.Collections.Generic.IReadOnlyList&lt;BrightWire.IIndexable3DTensor&gt;" name="Tensors">
+		<summary>Gets a list of the indexable matrices</summary>
+	</property>
+	<property type="System.String" name="AsXml">
+		<summary>Returns the matrix as xml</summary>
+	</property>
+	<method type="System.Single[]" name="GetInternalArray">
+		<summary>Returns the underlying array used as storage (changes to this array will affect the tensor as well)</summary>
+			</method>
 </interface>
 <interface name="BrightWire.IIndexableMatrix" base="BrightWire.IMatrix">
 	<summary>
@@ -965,6 +1083,9 @@
 	<property type="System.String" name="AsXml">
 		<summary>Returns the matrix as xml</summary>
 	</property>
+	<method type="System.Single[]" name="GetInternalArray">
+		<summary>Returns the underlying array used as storage (changes to this array will affect the matrix as well)</summary>
+			</method>
 </interface>
 <interface name="BrightWire.IIndexableVector" base="BrightWire.IVector">
 	<summary>
@@ -978,6 +1099,9 @@
 	</property>
 	<method type="System.Single[]" name="ToArray">
 		<summary>Converts the vector to an array</summary>
+			</method>
+	<method type="System.Single[]" name="GetInternalArray">
+		<summary>Returns the underlying array used as storage (changes to this array will affect the vector as well)</summary>
 			</method>
 	<method type="BrightWire.IIndexableVector" name="Append">
 		<summary>Creates a new vector (without in place modification) in which new values are appended onto the end of the current vector</summary>
@@ -1095,8 +1219,9 @@
 		Provides linear algebra functionality
 	</summary>
 		<method type="BrightWire.IVector" name="CreateVector">
-		<summary>Creates a vector based on an enumerable of floats</summary>
-				<param type="System.Collections.Generic.IEnumerable&lt;System.Single&gt;" name="data" summary="The initial values in the vector" />
+		<summary>Creates a new vector</summary>
+				<param type="System.Int32" name="length" summary="Length of the vector" />
+				<param type="System.Boolean" name="setToZero" summary="True to initialise the data to zero (otherwise it might be anything)" />
 			</method>
 	<method type="BrightWire.IVector" name="CreateVector">
 		<summary>Creates a vector</summary>
@@ -1107,33 +1232,48 @@
 		<summary>Creates a matrix</summary>
 				<param type="System.Int32" name="rows" summary="The number of rows" />
 				<param type="System.Int32" name="columns" summary="The number of columns" />
+				<param type="System.Boolean" name="setToZero" summary="True to initialise the data to zero (otherwise it might be anything)" />
+			</method>
+	<method type="BrightWire.IMatrix" name="CreateMatrix">
+		<summary>Creates a matrix</summary>
+				<param type="System.Int32" name="rows" summary="The number of rows" />
+				<param type="System.Int32" name="columns" summary="The number of columns" />
 				<param type="System.Func&lt;System.Int32, System.Int32, System.Single&gt;" name="init" summary="Callback to initialise each element of the matrix" />
 			</method>
-	<method type="BrightWire.IMatrix" name="CreateMatrix">
-		<summary>Creates a matrix from a list of vectors</summary>
-				<param type="System.Collections.Generic.IReadOnlyList&lt;BrightWire.IVector&gt;" name="rows" summary="The list of rows in the new matrix" />
+	<method type="BrightWire.IMatrix" name="CreateMatrixFromRows">
+		<summary>Creates a matrix from a list of vectors. Each vector will become a row in the new matrix</summary>
+				<param type="System.Collections.Generic.IReadOnlyList&lt;BrightWire.IVector&gt;" name="vectorRows" summary="List of vectors for each row" />
 			</method>
-	<method type="BrightWire.IMatrix" name="CreateZeroMatrix">
-		<summary>Creates a matrix that is initialised to zero</summary>
-				<param type="System.Int32" name="rows" summary="The number of rows" />
-				<param type="System.Int32" name="columns" summary="The number of columns" />
-			</method>
-	<method type="BrightWire.IMatrix" name="CreateMatrix">
-		<summary>Creates an unitialised matrix (the initial matrix values might be anything)</summary>
-				<param type="System.Int32" name="rows" summary="The number of rows" />
-				<param type="System.Int32" name="columns" summary="The number of columns" />
+	<method type="BrightWire.IMatrix" name="CreateMatrixFromColumns">
+		<summary>Creates a matrix from a list of vectors. Each vector will become a column in the new matrix</summary>
+				<param type="System.Collections.Generic.IReadOnlyList&lt;BrightWire.IVector&gt;" name="vectorColumns" summary="List of vectors for each column" />
 			</method>
 	<method type="BrightWire.I3DTensor" name="Create3DTensor">
 		<summary>Creates a 3D tensor</summary>
-				<param type="System.Collections.Generic.IReadOnlyList&lt;BrightWire.IMatrix&gt;" name="data" summary="The list of matrices that form the 3D tensor" />
+				<param type="System.Int32" name="rows" summary="Number of rows" />
+				<param type="System.Int32" name="columns" summary="Number of columns" />
+				<param type="System.Int32" name="depth" summary="Number of depth slices" />
+				<param type="System.Boolean" name="setToZero" summary="True to initialise the data to zero (otherwise it might be anything)" />
+			</method>
+	<method type="BrightWire.I3DTensor" name="Create3DTensor">
+		<summary>Creates a 3D tensor from a list of matrices</summary>
+				<param type="System.Collections.Generic.IReadOnlyList&lt;BrightWire.IMatrix&gt;" name="matrices" summary="List of matrices" />
 			</method>
 	<method type="BrightWire.I4DTensor" name="Create4DTensor">
 		<summary>Creates a 4D tensor</summary>
-				<param type="System.Collections.Generic.IReadOnlyList&lt;BrightWire.Models.FloatTensor&gt;" name="data" summary="The list of 3D tensors that form the 4D tensor" />
+				<param type="System.Int32" name="rows" summary="Number of rows" />
+				<param type="System.Int32" name="columns" summary="Number of columns" />
+				<param type="System.Int32" name="depth" summary="Number of matrices" />
+				<param type="System.Int32" name="count" summary="Number of 3D tensors" />
+				<param type="System.Boolean" name="setToZero" summary="True to initialise the data to zero (otherwise it might be anything)" />
 			</method>
 	<method type="BrightWire.I4DTensor" name="Create4DTensor">
-		<summary>Creates a 4D tensor</summary>
-				<param type="System.Collections.Generic.IReadOnlyList&lt;BrightWire.I3DTensor&gt;" name="tensorList" summary="The list of 3D tensors that form the 4D tensor" />
+		<summary>Creates a 4D tensor from a list of 3D tensors</summary>
+				<param type="System.Collections.Generic.IReadOnlyList&lt;BrightWire.I3DTensor&gt;" name="tensors" summary="List of 3D tensors" />
+			</method>
+	<method type="BrightWire.I4DTensor" name="Create4DTensor">
+		<summary>Creates a 4D tensor from a list of 3D tensors</summary>
+				<param type="System.Collections.Generic.IReadOnlyList&lt;BrightWire.Models.FloatTensor&gt;" name="tensors" summary="List of 3D tensors" />
 			</method>
 	<method type="System.Void" name="PushLayer">
 		<summary>Creates a save point in the allocation history</summary>
@@ -1142,11 +1282,17 @@
 		<summary>Releases all allocated memory since the last save point</summary>
 			</method>
 	<property type="System.Boolean" name="IsStochastic">
-		<summary>Underlying setting for stochastic vs deterministic behaviour across BrightWire</summary>
+		<summary>Underlying setting for stochastic vs deterministic behaviour for instances created from this provider</summary>
 	</property>
 	<property type="System.Boolean" name="IsGpu">
 		<summary>True if the provider uses the GPU</summary>
 	</property>
+	<method type="BrightWire.IMatrix" name="CalculateDistances">
+		<summary>Calculates the distance of each vector against the comparison vectors - the size of all vectors should be the same</summary>
+				<param type="System.Collections.Generic.IReadOnlyList&lt;BrightWire.IVector&gt;" name="vectors" summary="" />
+				<param type="System.Collections.Generic.IReadOnlyList&lt;BrightWire.IVector&gt;" name="comparison" summary="" />
+				<param type="BrightWire.DistanceMetric" name="distanceMetric" summary="" />
+			</method>
 </interface>
 <interface name="BrightWire.ILinearRegressionPredictor" base="System.IDisposable">
 	<summary>
@@ -1447,24 +1593,43 @@
 	<method type="(BrightWire.IMatrix U, BrightWire.IVector S, BrightWire.IMatrix VT)" name="Svd">
 		<summary>Singular value decomposition</summary>
 			</method>
-	<method type="BrightWire.IVector" name="ConvertInPlaceToVector">
+	<method type="BrightWire.IVector" name="ReshapeAsVector">
 		<summary>Fast conversion to vector (the internal buffer is not modified)</summary>
 			</method>
-	<method type="BrightWire.I3DTensor" name="ConvertTo3DTensor">
-		<summary>Converts the matrix to a 3D tensor</summary>
-				<param type="System.Int32" name="rows" summary="Tensor row count" />
-				<param type="System.Int32" name="columns" summary="Tensor column count" />
+	<method type="BrightWire.I3DTensor" name="ReshapeAs3DTensor">
+		<summary>Reshapes the matrix to a 3D tensor, treating each column as a depth slice in the new 3D tensor</summary>
+				<param type="System.Int32" name="rows" summary="Row count of each sub matrix" />
+				<param type="System.Int32" name="columns" summary="Column count of each sub matrix" />
 			</method>
-	<method type="BrightWire.I4DTensor" name="ConvertTo4DTensor">
-		<summary>Converts the matrix to a 4D tensor</summary>
-				<param type="System.Int32" name="rows" summary="Tensor row count" />
-				<param type="System.Int32" name="columns" summary="Tensor column count" />
-				<param type="System.Int32" name="depth" summary="Tensor depth" />
+	<method type="BrightWire.I4DTensor" name="ReshapeAs4DTensor">
+		<summary>Converts the matrix to a 4D tensor, treating each column as a 3D tensor</summary>
+				<param type="System.Int32" name="rows" summary="Row count of each sub matrix" />
+				<param type="System.Int32" name="columns" summary="Column count of each sub matrix" />
+				<param type="System.Int32" name="depth" summary="Depth of each 3D tensor" />
 			</method>
+	<method type="System.Single" name="GetAt">
+		<summary>Returns the value at the specified row and column index</summary>
+				<param type="System.Int32" name="row" summary="Row index" />
+				<param type="System.Int32" name="column" summary="Column index" />
+			</method>
+	<method type="System.Void" name="SetAt">
+		<summary>Updates the value at the specified row and column index</summary>
+				<param type="System.Int32" name="row" summary="Row index" />
+				<param type="System.Int32" name="column" summary="Column index" />
+				<param type="System.Single" name="value" summary="Value to set" />
+			</method>
+</interface>
+<interface name="BrightWire.IMemoryNode" base="">
+	<summary>
+		Recurrent neural networks memory node
+	</summary>
+		<property type="BrightWire.Models.FloatVector" name="Data">
+		<summary>The current state of the memory node</summary>
+	</property>
 </interface>
 <interface name="BrightWire.IMiniBatch" base="">
 	<summary>
-		Mini batch
+		Information about the current mini batch
 	</summary>
 		<property type="System.Collections.Generic.IReadOnlyList&lt;System.Int32&gt;" name="Rows">
 		<summary>Row indexes of the current batch</summary>
@@ -1726,6 +1891,15 @@
 		<summary>The most common string</summary>
 	</property>
 </interface>
+<interface name="BrightWire.ISummariseRows" base="">
+	<summary>
+		Summarises multiple rows into one row
+	</summary>
+		<method type="BrightWire.IRow" name="Summarise">
+		<summary>Summarises multiple rows into one row</summary>
+				<param type="System.Collections.Generic.IReadOnlyList&lt;BrightWire.IRow&gt;" name="rows" summary="List of rows" />
+			</method>
+</interface>
 <interface name="BrightWire.IVector" base="System.IDisposable">
 	<summary>
 		A vector
@@ -1733,10 +1907,10 @@
 		<property type="System.Boolean" name="IsValid">
 		<summary>Checks if the vector has not been disposed</summary>
 	</property>
-	<method type="BrightWire.IMatrix" name="ToColumnMatrix">
+	<method type="BrightWire.IMatrix" name="ReshapeAsColumnMatrix">
 		<summary>Converts the vector to a column matrix</summary>
 			</method>
-	<method type="BrightWire.IMatrix" name="ToRowMatrix">
+	<method type="BrightWire.IMatrix" name="ReshapeAsRowMatrix">
 		<summary>Converts the vector to a row matrix</summary>
 			</method>
 	<property type="System.Int32" name="Count">
@@ -1875,27 +2049,46 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 	<method type="BrightWire.IVector" name="Sigmoid">
 		<summary>Returns the sigmoid function (without in place modification) applied to the current vector</summary>
 			</method>
-	<method type="BrightWire.IMatrix" name="ConvertInPlaceToMatrix">
+	<method type="BrightWire.IMatrix" name="ReshapeAsMatrix">
 		<summary>Fast conversion to matrix (internal buffer is used directly)</summary>
 				<param type="System.Int32" name="rows" summary="The number of rows in the matrix" />
 				<param type="System.Int32" name="columns" summary="The number of columns in the matrix" />
 			</method>
-	<method type="BrightWire.I3DTensor" name="ConvertTo3DTensor">
-		<summary>Converts the vector to a tensor</summary>
-				<param type="System.Int32" name="rows" summary="Number of rows in tensor" />
-				<param type="System.Int32" name="columns" summary="Number of columns in tensor" />
-				<param type="System.Int32" name="depth" summary="Depth of the tensor" />
+	<method type="BrightWire.I3DTensor" name="ReshapeAs3DTensor">
+		<summary>Converts the vector to a 3D tensor</summary>
+				<param type="System.Int32" name="rows" summary="Number of rows in each matrix" />
+				<param type="System.Int32" name="columns" summary="Number of columns in matrix" />
+				<param type="System.Int32" name="depth" summary="Number of matrices" />
+			</method>
+	<method type="BrightWire.I4DTensor" name="ReshapeAs4DTensor">
+		<summary>Converts the vector to a 4D tensor</summary>
+				<param type="System.Int32" name="rows" summary="Number of rows in each matrix" />
+				<param type="System.Int32" name="columns" summary="Number of columns in matrix" />
+				<param type="System.Int32" name="depth" summary="Number of matrices" />
+				<param type="System.Int32" name="count" summary="Number of 3D tensors" />
 			</method>
 	<method type="System.Collections.Generic.IReadOnlyList&lt;BrightWire.IVector&gt;" name="Split">
 		<summary>Splits the vector into a list of vectors</summary>
 				<param type="System.Int32" name="blockCount" summary="The number of sub vectors to split into" />
 			</method>
-	<method type="BrightWire.IVector" name="Rotate">
-		<summary>Rotates values in the vector (both within and along blocks)</summary>
-				<param type="System.Int32" name="blockCount" summary="The size of each sub vector" />
+	<method type="System.Void" name="RotateInPlace">
+		<summary>Rotates values in the vector (both horizontally and vertically within blocks)</summary>
+				<param type="System.Int32" name="blockCount" summary="" />
 			</method>
 	<method type="BrightWire.IVector" name="Reverse">
-		<summary>In place reversal of the vector's values</summary>
+		<summary>Returns a reversed copy of the vector's values</summary>
+			</method>
+	<method type="System.Single" name="GetAt">
+		<summary>Returns the value at the specified index</summary>
+				<param type="System.Int32" name="index" summary="The index of the vector to return" />
+			</method>
+	<method type="System.Void" name="SetAt">
+		<summary>Updates the value at the specified index</summary>
+				<param type="System.Int32" name="index" summary="" />
+				<param type="System.Single" name="value" summary="" />
+			</method>
+	<method type="System.Boolean" name="IsEntirelyFinite">
+		<summary>Checks if every value in the vector is finite (not NaN or positive/negative infinity)</summary>
 			</method>
 </interface>
 <interface name="BrightWire.IVolumeDataSource" base="">
@@ -2058,6 +2251,24 @@ The output feature contains a single feature: 1 or 0 if that bit is set in the r
 				<param type="System.Single" name="x" summary="" />
 				<param type="System.Single" name="y" summary="" />
 			</method>
+	<method type="System.Boolean" name="IsZero" is-static="true">
+		<summary>Returns true if the value approximates zero</summary>
+				<param type="System.Single" name="value" summary="Value to test" />
+			</method>
+	<method type="System.Boolean" name="IsNotZero" is-static="true">
+		<summary>Returns true if the value is greater than zero</summary>
+				<param type="System.Single" name="value" summary="Value to test" />
+			</method>
+	<method type="System.Boolean" name="AreEqual" is-static="true">
+		<summary>Checks if the two floating point numbers are equal (with a degree of tolerance)</summary>
+				<param type="System.Single" name="value1" summary="First value to compare" />
+				<param type="System.Single" name="value2" summary="Second value to compare" />
+				<param type="System.Single" name="tolerance" summary="Tolerance allowed between the numbers" />
+			</method>
+	<method type="System.Collections.Generic.IEqualityComparer&lt;System.Single&gt;" name="GetEqualityComparer" is-static="true">
+		<summary>Used for comparing floating point numbers (if they are within the tolerance they are considered equal)</summary>
+				<param type="System.Single" name="tolerance" summary="Tolerance to consider if two floating point numbers are the same" />
+			</method>
 </class>
 <class name="BrightWire.BrightWireGpuProvider" base="" is-static="true" is-abstract="false">
 	<summary>
@@ -2117,11 +2328,13 @@ The output feature contains a single feature: 1 or 0 if that bit is set in the r
 	<method type="BrightWire.IDataTableBuilder" name="CreateDataTableBuilder" is-static="true">
 		<summary>Creates a data table builder to programatically create data tables</summary>
 				<param type="System.IO.Stream" name="stream" summary="" />
+				<param type="System.Boolean" name="validate" summary="" />
 			</method>
 	<method type="BrightWire.IDataTableBuilder" name="CreateDataTableBuilder" is-static="true">
 		<summary>Creates a data table builder to programatically create data tables</summary>
 				<param type="System.Collections.Generic.IEnumerable&lt;BrightWire.IColumn&gt;" name="columns" summary="" />
 				<param type="System.IO.Stream" name="stream" summary="" />
+				<param type="System.Boolean" name="validate" summary="" />
 			</method>
 	<method type="BrightWire.IMarkovModelTrainer2&lt;T&gt;" name="CreateMarkovTrainer2" is-static="true">
 		<summary>Create a markov model trainer of window size 2</summary>
@@ -2131,20 +2344,10 @@ The output feature contains a single feature: 1 or 0 if that bit is set in the r
 		<summary>Create a markov model trainer of window size 3</summary>
 				<param type="System.Int32" name="minObservations" summary="Minimum number of data points to record an observation" />
 			</method>
-</class>
-<class name="BrightWire.Models.Bayesian.NaiveBayes.CategorialColumn" base="" is-static="false" is-abstract="false">
-	<summary>
-		A categorical column model
-	</summary>
-	<property type="System.Int32" name="ColumnIndex">
-		<summary>The column index</summary>
-	</property>
-	<property type="System.Collections.Generic.List&lt;BrightWire.Models.Bayesian.NaiveBayes.CategorialProbability&gt;" name="Probability">
-		<summary>The list of categories within the column and their probability</summary>
-	</property>
-	<property type="BrightWire.Models.Bayesian.NaiveBayes.ColumnType" name="Type">
-		<summary>The column type</summary>
-	</property>
+	<method type="BrightWire.IConvertToType" name="CreateTypeConverter" is-static="true">
+		<summary>Returns a generic type converter that uses a default value if conversion fails</summary>
+				<param type="T" name="defaultValue" summary="Value to use if the conversion fails" />
+			</method>
 </class>
 <class name="BrightWire.Models.Bayesian.NaiveBayes.CategorialProbability" base="" is-static="false" is-abstract="false">
 	<summary>
@@ -2154,7 +2357,10 @@ The output feature contains a single feature: 1 or 0 if that bit is set in the r
 		<summary>The category label</summary>
 	</property>
 	<property type="System.Double" name="LogProbability">
-		<summary>The log of the category's probability</summary>
+		<summary>The natural log of the category's probability</summary>
+	</property>
+	<property type="System.Double" name="Probability">
+		<summary>The category's probability</summary>
 	</property>
 </class>
 <class name="BrightWire.Source.Models.DataTable.DataTableVectorisation.CategoricalIndex" base="" is-static="false" is-abstract="false">
@@ -2167,28 +2373,6 @@ The output feature contains a single feature: 1 or 0 if that bit is set in the r
 	<property type="System.Int32" name="Index">
 		<summary>The label's index</summary>
 	</property>
-</class>
-<class name="BrightWire.Unsupervised.KMeans.ClusterData.Centroid" base="" is-static="false" is-abstract="false">
-	<summary>
-		
-	</summary>
-	<property type="BrightWire.IVector" name="Current">
-		<summary></summary>
-	</property>
-	<property type="System.Collections.Generic.IReadOnlyList&lt;BrightWire.IVector&gt;" name="Data">
-		<summary></summary>
-	</property>
-	<method type="System.Void" name="Centroid" is-static="false">
-		<summary></summary>
-				<param type="BrightWire.IVector" name="data" summary="" />
-			</method>
-	<method type="System.Void" name="Dispose" is-static="false">
-		<summary></summary>
-			</method>
-	<method type="System.Boolean" name="Update" is-static="false">
-		<summary></summary>
-				<param type="System.Collections.Generic.IReadOnlyList&lt;BrightWire.IVector&gt;" name="data" summary="" />
-			</method>
 </class>
 <class name="BrightWire.Models.Bayesian.BernoulliNaiveBayes.Class" base="" is-static="false" is-abstract="false">
 	<summary>
@@ -2234,11 +2418,34 @@ The output feature contains a single feature: 1 or 0 if that bit is set in the r
 	<property type="System.String" name="Label">
 		<summary>The classification label</summary>
 	</property>
+	<property type="System.Double" name="LogPrior">
+		<summary>The natural log of the prior</summary>
+	</property>
+	<property type="System.Collections.Generic.List&lt;BrightWire.Models.Bayesian.NaiveBayes.Column&gt;" name="ColumnSummary">
+		<summary>The column data associated with this classification</summary>
+	</property>
 	<property type="System.Double" name="Prior">
 		<summary>The classification prior probability</summary>
 	</property>
-	<property type="System.Collections.Generic.List&lt;BrightWire.Models.Bayesian.NaiveBayes.IColumn&gt;" name="ColumnSummary">
-		<summary>The column data associated with this classification</summary>
+</class>
+<class name="BrightWire.Models.Bayesian.NaiveBayes.Column" base="" is-static="false" is-abstract="false">
+	<summary>
+		A column within the naive bayes model
+	</summary>
+	<property type="System.Int32" name="ColumnIndex">
+		<summary>Index within the data set</summary>
+	</property>
+	<property type="BrightWire.Models.Bayesian.NaiveBayes.ColumnType" name="Type">
+		<summary>Type of column (categorical or continuous)</summary>
+	</property>
+	<property type="System.Double" name="Variance">
+		<summary>The variance of the column values (continuous only)</summary>
+	</property>
+	<property type="System.Double" name="Mean">
+		<summary>The mean of the column values (continuous only)</summary>
+	</property>
+	<property type="System.Collections.Generic.List&lt;BrightWire.Models.Bayesian.NaiveBayes.CategorialProbability&gt;" name="Probability">
+		<summary>The list of categories within the column and their probability (categorical only)</summary>
 	</property>
 </class>
 <class name="BrightWire.Models.DataTable.DataTableNormalisation.Column" base="" is-static="false" is-abstract="false">
@@ -2315,22 +2522,26 @@ The output feature contains a single feature: 1 or 0 if that bit is set in the r
 		<summary></summary>
 	</property>
 </class>
-<class name="BrightWire.Models.Bayesian.NaiveBayes.ContinuousGaussianColumn" base="" is-static="false" is-abstract="false">
+<class name="BrightWire.Helper.ConvolutionHelper" base="" is-static="true" is-abstract="false">
 	<summary>
-		A continous column model
+		Helper class to calculate convolutional indices
 	</summary>
-	<property type="System.Int32" name="ColumnIndex">
-		<summary>The column index</summary>
-	</property>
-	<property type="System.Double" name="Variance">
-		<summary>The variance of the column values</summary>
-	</property>
-	<property type="System.Double" name="Mean">
-		<summary>The mean of the column values</summary>
-	</property>
-	<property type="BrightWire.Models.Bayesian.NaiveBayes.ColumnType" name="Type">
-		<summary>The column type</summary>
-	</property>
+	<method type="System.Collections.Generic.List&lt;(System.Int32 X, System.Int32 Y)&gt;" name="LeftToRight" is-static="true">
+		<summary>Generates convolution indices from left to right</summary>
+				<param type="System.Int32" name="width" summary="Input width" />
+				<param type="System.Int32" name="height" summary="Input height" />
+				<param type="System.Int32" name="filterWidth" summary="Filter width" />
+				<param type="System.Int32" name="filterHeight" summary="Filter height" />
+				<param type="System.Int32" name="stride" summary="Offset of each position" />
+			</method>
+	<method type="System.Collections.Generic.List&lt;(System.Int32 X, System.Int32 Y)&gt;" name="TopToBottom" is-static="true">
+		<summary>Generates convolution indices from top to bottom</summary>
+				<param type="System.Int32" name="width" summary="Input width" />
+				<param type="System.Int32" name="height" summary="Input height" />
+				<param type="System.Int32" name="filterWidth" summary="Filter width" />
+				<param type="System.Int32" name="filterHeight" summary="Filter height" />
+				<param type="System.Int32" name="stride" summary="Offset of each position" />
+			</method>
 </class>
 <class name="BrightWire.Models.DataSourceModel" base="" is-static="false" is-abstract="false">
 	<summary>
@@ -2407,6 +2618,26 @@ The output feature contains a single feature: 1 or 0 if that bit is set in the r
 	<method type="BrightWire.Models.FloatVector" name="GetOutput" is-static="false">
 		<summary>Vectorises the output column of the specified row</summary>
 				<param type="BrightWire.IRow" name="row" summary="The row to vectorise" />
+			</method>
+</class>
+<class name="BrightWire.Source.Helper.DebugHelpers" base="" is-static="true" is-abstract="false">
+	<summary>
+		Helper classes useful when debugging BW
+	</summary>
+	<method type="System.String" name="WriteComparison" is-static="true">
+		<summary>Zips two tensors and writes the values side by side</summary>
+				<param type="BrightWire.IIndexable3DTensor" name="t1" summary="First tensor" />
+				<param type="BrightWire.IIndexable3DTensor" name="t2" summary="Second tensor" />
+			</method>
+	<method type="System.String" name="WriteComparison" is-static="true">
+		<summary>Zips two tensors and writes the values side by side</summary>
+				<param type="BrightWire.IIndexable4DTensor" name="t1" summary="First tensor" />
+				<param type="BrightWire.IIndexable4DTensor" name="t2" summary="Second tensor" />
+			</method>
+	<method type="System.String" name="WriteComparison" is-static="true">
+		<summary>Zips two matrices and writes the values side by side</summary>
+				<param type="BrightWire.IIndexableMatrix" name="m1" summary="First matrix" />
+				<param type="BrightWire.IIndexableMatrix" name="m2" summary="Second matrix" />
 			</method>
 </class>
 <class name="BrightWire.Models.DecisionTree" base="" is-static="false" is-abstract="false">
@@ -2600,11 +2831,20 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 				<param type="BrightWire.ExecutionGraph.GraphFactory" name="factory" summary="" />
 				<param type="BrightWire.Models.ExecutionGraph" name="graph" summary="Serialised graph" />
 			</method>
+	<method type="System.Collections.Generic.IReadOnlyList&lt;BrightWire.Models.FloatVector[]&gt;" name="OrderSequentialOutput" is-static="true">
+		<summary>Aligns the output of sequential graph execution into an ordered list of results</summary>
+				<param type="System.Collections.Generic.IReadOnlyList&lt;BrightWire.Models.ExecutionResult&gt;" name="results" summary="Output from sequential graph execution" />
+			</method>
 </class>
 <class name="BrightWire.ExtensionMethods" base="" is-static="true" is-abstract="false">
 	<summary>
 		
 	</summary>
+	<method type="BrightWire.IVector" name="CreateVector" is-static="true">
+		<summary>Creates a vector based on an enumerable of floats</summary>
+				<param type="BrightWire.ILinearAlgebraProvider" name="lap" summary="" />
+				<param type="System.Collections.Generic.IEnumerable&lt;System.Single&gt;" name="data" summary="The initial values in the vector" />
+			</method>
 	<method type="BrightWire.IVector" name="CreateVector" is-static="true">
 		<summary>Create a vector</summary>
 				<param type="BrightWire.ILinearAlgebraProvider" name="lap" summary="" />
@@ -2623,23 +2863,44 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 	<method type="BrightWire.IVector" name="CreateVector" is-static="true">
 		<summary>Create a vector</summary>
 				<param type="BrightWire.ILinearAlgebraProvider" name="lap" summary="" />
+				<param type="System.Single[]" name="data" summary="Array of values" />
+			</method>
+	<method type="BrightWire.IVector" name="CreateVector" is-static="true">
+		<summary>Create a vector</summary>
+				<param type="BrightWire.ILinearAlgebraProvider" name="lap" summary="" />
 				<param type="System.Int32" name="length" summary="Vector size" />
 				<param type="System.Single" name="value" summary="Constant value" />
+			</method>
+	<method type="BrightWire.IMatrix" name="CreateZeroMatrix" is-static="true">
+		<summary>Creates a matrix with every value initialised to zero</summary>
+				<param type="BrightWire.ILinearAlgebraProvider" name="lap" summary="" />
+				<param type="System.Int32" name="rows" summary="Number of rows" />
+				<param type="System.Int32" name="columns" summary="Numer of columns" />
 			</method>
 	<method type="BrightWire.IMatrix" name="CreateMatrix" is-static="true">
 		<summary>Create a matrix</summary>
 				<param type="BrightWire.ILinearAlgebraProvider" name="lap" summary="" />
 				<param type="BrightWire.Models.FloatMatrix" name="matrix" summary="Matrix to copy" />
 			</method>
-	<method type="BrightWire.IMatrix" name="CreateMatrix" is-static="true">
-		<summary>Create a matrix</summary>
+	<method type="BrightWire.IMatrix" name="CreateMatrixFromRows" is-static="true">
+		<summary>Create a matrix from a list of row vectors</summary>
 				<param type="BrightWire.ILinearAlgebraProvider" name="lap" summary="" />
 				<param type="System.Collections.Generic.IReadOnlyList&lt;BrightWire.Models.FloatVector&gt;" name="rowList" summary="List of vectors (each vector becomes a row in the new matrix)" />
 			</method>
-	<method type="BrightWire.IMatrix" name="CreateMatrix" is-static="true">
-		<summary>Create a matrix</summary>
+	<method type="BrightWire.IMatrix" name="CreateMatrixFromRows" is-static="true">
+		<summary>Create a matrix from a list of row vectors</summary>
 				<param type="BrightWire.ILinearAlgebraProvider" name="lap" summary="" />
 				<param type="System.Collections.Generic.IReadOnlyList&lt;BrightWire.IIndexableVector&gt;" name="rowList" summary="List of indexable vectors (each vector becomes a row in the new matrix)" />
+			</method>
+	<method type="BrightWire.IMatrix" name="CreateMatrixFromColumns" is-static="true">
+		<summary>Create a matrix from a list of column vectors</summary>
+				<param type="BrightWire.ILinearAlgebraProvider" name="lap" summary="" />
+				<param type="System.Collections.Generic.IReadOnlyList&lt;BrightWire.Models.FloatVector&gt;" name="columnList" summary="List of vectors (each vector becomes a column in the new matrix)" />
+			</method>
+	<method type="BrightWire.IMatrix" name="CreateMatrixFromColumns" is-static="true">
+		<summary>Create a matrix from a list of column vectors</summary>
+				<param type="BrightWire.ILinearAlgebraProvider" name="lap" summary="" />
+				<param type="System.Collections.Generic.IReadOnlyList&lt;BrightWire.IIndexableVector&gt;" name="columnList" summary="List of indexable vectors (each vector becomes a column in the new matrix)" />
 			</method>
 	<method type="BrightWire.IMatrix" name="CreateMatrix" is-static="true">
 		<summary>Create a matrix</summary>
@@ -2666,12 +2927,12 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 	<method type="BrightWire.I3DTensor" name="Create3DTensor" is-static="true">
 		<summary>Create a 3D tensor</summary>
 				<param type="BrightWire.ILinearAlgebraProvider" name="lap" summary="" />
-				<param type="BrightWire.IIndexable3DTensor" name="tensor" summary="An indexable 3D tensor to use as a source" />
+				<param type="BrightWire.Models.FloatTensor" name="tensor" summary="The serialised representation of the 3D tensor" />
 			</method>
 	<method type="BrightWire.I3DTensor" name="Create3DTensor" is-static="true">
-		<summary>Create a 3D tensor</summary>
+		<summary>Creates a 3D tensor from a list of matrices</summary>
 				<param type="BrightWire.ILinearAlgebraProvider" name="lap" summary="" />
-				<param type="BrightWire.Models.FloatTensor" name="tensor" summary="The serialised representation of the 3D tensor" />
+				<param type="BrightWire.Models.FloatMatrix[]" name="matrices" summary="List of matrices" />
 			</method>
 	<method type="BrightWire.IVector" name="Calculate" is-static="true">
 		<summary>Calculates the distance between two matrices</summary>
@@ -2684,6 +2945,18 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 				<param type="BrightWire.DistanceMetric" name="distance" summary="" />
 				<param type="BrightWire.IVector" name="vector1" summary="" />
 				<param type="BrightWire.IVector" name="vector2" summary="" />
+			</method>
+	<method type="BrightWire.IGraphData" name="AsGraphData" is-static="true">
+		<summary>Converts the matrix to a generic IGraphData</summary>
+				<param type="BrightWire.IMatrix" name="matrix" summary="Matrix to convert" />
+			</method>
+	<method type="BrightWire.IGraphData" name="AsGraphData" is-static="true">
+		<summary>Converts the 3D tensor to a generic IGraphData</summary>
+				<param type="BrightWire.I3DTensor" name="tensor" summary="Tensor to convert" />
+			</method>
+	<method type="BrightWire.IGraphData" name="AsGraphData" is-static="true">
+		<summary>Converts the 4D tensor to a generic IGraphData</summary>
+				<param type="BrightWire.I4DTensor" name="tensor" summary="Tensor to convert" />
 			</method>
 </class>
 <class name="BrightWire.ExtensionMethods" base="" is-static="true" is-abstract="false">
@@ -2704,6 +2977,7 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 				<param type="System.Int32" name="iterations" summary="Number of iterations to train for" />
 				<param type="System.Single" name="learningRate" summary="The learning rate" />
 				<param type="System.Single" name="lambda" summary="Regularisation lambda" />
+				<param type="System.Func&lt;System.Single, System.Boolean&gt;" name="costCallback" summary="Optional callback that is called after each iteration with the current cost" />
 			</method>
 	<method type="BrightWire.ILogisticRegressionTrainer" name="CreateLogisticRegressionTrainer" is-static="true">
 		<summary>Logistic regression learns a sigmoid function over a set of data that learns to classify future values into positive or negative samples</summary>
@@ -2736,10 +3010,12 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 				<param type="System.Int32" name="k" summary="The number of clusters to find" />
 			</method>
 	<method type="System.Collections.Generic.IReadOnlyList&lt;System.Collections.Generic.IReadOnlyList&lt;BrightWire.IVector&gt;&gt;" name="KMeans" is-static="true">
-		<summary>K Means uses coordinate descent and the euclidean distance between randomly selected centroids to cluster the data</summary>
+		<summary>K Means uses coordinate descent and a distance metric between randomly selected centroids to cluster the data</summary>
 				<param type="System.Collections.Generic.IReadOnlyList&lt;BrightWire.IVector&gt;" name="data" summary="The list of vectors to cluster" />
+				<param type="BrightWire.ILinearAlgebraProvider" name="lap" summary="Linear algebra provider" />
 				<param type="System.Int32" name="k" summary="The number of clusters to find" />
 				<param type="System.Int32" name="maxIterations" summary="The maximum number of iterations" />
+				<param type="BrightWire.DistanceMetric" name="distanceMetric" summary="Distance metric to use to compare centroids" />
 			</method>
 	<method type="BrightWire.Models.InstanceBased.KNearestNeighbours" name="TrainKNearestNeighbours" is-static="true">
 		<summary>K Nearest Neighbours is an instance based classification method that uses examples from training data to predict classifications</summary>
@@ -2752,6 +3028,7 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 				<param type="System.Int32" name="trainingIterations" summary="Number of training iterations" />
 				<param type="System.Single" name="trainingRate" summary="Training rate" />
 				<param type="System.Single" name="lambda" summary="L2 regularisation" />
+				<param type="System.Func&lt;System.Single, System.Boolean&gt;" name="costCallback" summary="Optional callback that is called after each iteration with the current cost" />
 			</method>
 	<method type="BrightWire.Models.RandomForest" name="TrainRandomForest" is-static="true">
 		<summary>Random forests are built on a bagged collection of features to try to capture the most salient points of the training data without overfitting</summary>
@@ -2786,6 +3063,13 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 	<method type="System.String" name="GetBestClassification" is-static="true">
 		<summary>Finds the classification with the highest weight</summary>
 				<param type="System.Collections.Generic.IReadOnlyList&lt;(System.String Label, System.Single Weight)&gt;" name="classifications" summary="List of weighted classifications" />
+			</method>
+	<method type="BrightWire.IRowClassifier" name="ConvertToRowClassifier" is-static="true">
+		<summary>Converts the logistic regression classifier into a row classifier</summary>
+				<param type="BrightWire.ILogisticRegressionClassifier" name="classifier" summary="Logistic regression classifier to convert" />
+				<param type="System.Collections.Generic.IReadOnlyList&lt;System.Int32&gt;" name="attributeColumns" summary="Attribute columns in data table to use" />
+				<param type="System.String" name="negativeLabel" summary="Output classification for negative class label" />
+				<param type="System.String" name="positiveLabel" summary="Output classification for the positive class label" />
 			</method>
 </class>
 <class name="BrightWire.Models.FloatMatrix" base="" is-static="false" is-abstract="false">
@@ -2908,7 +3192,10 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 				<param type="System.Int32" name="size" summary="Size of the vector" />
 			</method>
 	<property type="System.Int32" name="Size">
-		<summary>The size of the vector</summary>
+		<summary>(Same as Count) - The number of elements in the vector</summary>
+	</property>
+	<property type="System.Int32" name="Count">
+		<summary>(Same as Size) - The number of elements in the vector</summary>
 	</property>
 	<method type="System.String" name="ToString" is-static="false">
 		<summary>ToString override</summary>
@@ -2957,6 +3244,16 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 	<property type="BrightWire.ICreateTemplateBasedGradientDescent" name="RmsProp">
 		<summary>Rms prop gradient descent</summary>
 	</property>
+</class>
+<class name="BrightWire.ExecutionGraph.GraphFactory.GraphActionProvider" base="" is-static="false" is-abstract="false">
+	<summary>
+		Provides standard graph actions
+	</summary>
+	<method type="BrightWire.IAction" name="Constrain" is-static="false">
+		<summary>Constrains the signal through the graph (either forward or backward)</summary>
+				<param type="System.Single" name="min" summary="Minimum allowed value" />
+				<param type="System.Single" name="max" summary="Maximum allowed value" />
+			</method>
 </class>
 <class name="BrightWire.ExecutionGraph.GraphFactory" base="" is-static="false" is-abstract="false">
 	<summary>
@@ -3028,7 +3325,7 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 				<param type="System.Collections.Generic.IReadOnlyList&lt;BrightWire.Models.FloatMatrix&gt;" name="sequenceList" summary="The list of matrices that will be the rows in the data source" />
 			</method>
 	<method type="BrightWire.IDataSource" name="CreateDataSource" is-static="false">
-		<summary>Creates a data source from a list of matrices (sequential vectors)</summary>
+		<summary>Creates a data source from a list of tensors</summary>
 				<param type="System.Collections.Generic.IReadOnlyList&lt;BrightWire.Models.FloatTensor&gt;" name="tensorList" summary="The list of tensors that will be the rows in the data source" />
 			</method>
 	<method type="BrightWire.IDataSource" name="CreateDataSource" is-static="false">
@@ -3081,7 +3378,7 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 				<param type="System.Int32" name="filterWidth" summary="Width of each filter" />
 				<param type="System.Int32" name="filterHeight" summary="Height of each filter" />
 				<param type="System.Int32" name="stride" summary="Convolutional stride" />
-				<param type="System.Boolean" name="shouldBackpropagate" summary="True to backpropagate an error signal" />
+				<param type="System.Boolean" name="shouldBackpropagate" summary="True to calculate the backpropagation error signal" />
 				<param type="System.String" name="name" summary="Optional name to give the node" />
 			</method>
 	<method type="BrightWire.INode" name="CreateMaxPool" is-static="false">
@@ -3122,12 +3419,6 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 		<summary>Creates a node that outputs the reversed index of the current sequence (for bidirectional recurrent networks)</summary>
 				<param type="System.Int32" name="index" summary="Input index to reverse" />
 				<param type="System.String" name="name" summary="Optional name to give the node" />
-			</method>
-	<method type="BrightWire.INode" name="CreateBatchNormalisation" is-static="false">
-		<summary>Creates a batch normalisation layer (currently only implemented for FF layers)</summary>
-				<param type="System.Int32" name="inputSize" summary="Number of incoming connections" />
-				<param type="System.String" name="name" summary="Optional name to give the node" />
-				<param type="System.Single" name="momentum" summary="Online mean and variance rate of change" />
 			</method>
 	<method type="BrightWire.INode" name="CreateGru" is-static="false">
 		<summary>Creates a GRU recurrent layer</summary>
@@ -3309,6 +3600,12 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 	<property type="BrightWire.ExecutionGraph.GraphFactory.WeightInitialisationProvider" name="WeightInitialisation">
 		<summary>Prebuilt weight initialisers</summary>
 	</property>
+	<property type="BrightWire.ExecutionGraph.GraphFactory.GraphOperationProvider" name="GraphOperation">
+		<summary>Standard graph operations</summary>
+	</property>
+	<property type="BrightWire.ExecutionGraph.GraphFactory.GraphActionProvider" name="GraphAction">
+		<summary>Standard graph actions</summary>
+	</property>
 </class>
 <class name="BrightWire.Models.GraphModel" base="" is-static="false" is-abstract="false">
 	<summary>
@@ -3326,6 +3623,27 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 	<property type="BrightWire.Models.DataSourceModel" name="DataSource">
 		<summary>Optional data source associated with the model</summary>
 	</property>
+</class>
+<class name="BrightWire.ExecutionGraph.GraphFactory.GraphOperationProvider" base="" is-static="false" is-abstract="false">
+	<summary>
+		Provides standard graph operations
+	</summary>
+	<method type="BrightWire.INode" name="OneDividedBy" is-static="false">
+		<summary>Calculates inverse (1/x) of graph input</summary>
+				<param type="System.String" name="name" summary="" />
+			</method>
+	<method type="BrightWire.INode" name="InputSquared" is-static="false">
+		<summary>Calculates square (x^2) of graph input</summary>
+				<param type="System.String" name="name" summary="" />
+			</method>
+	<method type="BrightWire.INode" name="SquareRootOf" is-static="false">
+		<summary>Calculates square root of graph input</summary>
+				<param type="System.String" name="name" summary="" />
+			</method>
+	<method type="BrightWire.INode" name="OneMinusInput" is-static="false">
+		<summary>Caclculates one minus graph input (1-x)</summary>
+				<param type="System.String" name="name" summary="" />
+			</method>
 </class>
 <class name="BrightWire.TrainingData.WellKnown.Mnist.Image" base="" is-static="false" is-abstract="false">
 	<summary>
@@ -3500,6 +3818,60 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 		<summary>The probability of this next state</summary>
 	</property>
 </class>
+<class name="BrightWire.ExecutionGraph.Helper.MiniBatch" base="" is-static="false" is-abstract="false">
+	<summary>
+		
+	</summary>
+	<method type="System.Void" name="MiniBatch" is-static="false">
+		<summary>Creates a non sequential mini batch</summary>
+				<param type="System.Collections.Generic.IReadOnlyList&lt;System.Int32&gt;" name="rows" summary="The indices of the rows in this mini batch" />
+				<param type="BrightWire.IDataSource" name="dataSource" summary="Associated data source" />
+				<param type="System.Collections.Generic.IReadOnlyList&lt;BrightWire.IGraphData&gt;" name="input" summary="Mini batch input data" />
+				<param type="BrightWire.IGraphData" name="output" summary="Expected output data (when training, otherwise null)" />
+			</method>
+	<method type="System.Void" name="MiniBatch" is-static="false">
+		<summary>Creates a sequential mini batch</summary>
+				<param type="System.Collections.Generic.IReadOnlyList&lt;System.Int32&gt;" name="rows" summary="The indices of the rows in this mini batch" />
+				<param type="BrightWire.IDataSource" name="dataSource" summary="Associated data source" />
+			</method>
+	<method type="System.Void" name="Add" is-static="false">
+		<summary>Adds another item to the sequential mini batch</summary>
+				<param type="BrightWire.MiniBatchSequenceType" name="type" summary="Type of the sequential item" />
+				<param type="System.Collections.Generic.IReadOnlyList&lt;BrightWire.IGraphData&gt;" name="input" summary="Mini batch input data" />
+				<param type="BrightWire.IGraphData" name="output" summary="Expected output data (when training, otherwise null)" />
+			</method>
+	<property type="System.Collections.Generic.IReadOnlyList&lt;System.Int32&gt;" name="Rows">
+		<summary></summary>
+	</property>
+	<property type="BrightWire.IDataSource" name="DataSource">
+		<summary></summary>
+	</property>
+	<property type="System.Boolean" name="IsSequential">
+		<summary></summary>
+	</property>
+	<property type="System.Int32" name="BatchSize">
+		<summary></summary>
+	</property>
+	<property type="BrightWire.IMiniBatchSequence" name="CurrentSequence">
+		<summary></summary>
+	</property>
+	<property type="System.Boolean" name="HasNextSequence">
+		<summary></summary>
+	</property>
+	<property type="System.Int32" name="SequenceCount">
+		<summary></summary>
+	</property>
+	<method type="System.Void" name="Reset" is-static="false">
+		<summary></summary>
+			</method>
+	<method type="BrightWire.IMiniBatchSequence" name="GetNextSequence" is-static="false">
+		<summary></summary>
+			</method>
+	<method type="BrightWire.IMiniBatchSequence" name="GetSequenceAtIndex" is-static="false">
+		<summary></summary>
+				<param type="System.Int32" name="index" summary="" />
+			</method>
+</class>
 <class name="BrightWire.TrainingData.WellKnown.Mnist" base="" is-static="true" is-abstract="false">
 	<summary>
 		Helper class for MNIST data: http://yann.lecun.com/exdb/mnist/
@@ -3515,11 +3887,6 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 	<summary>
 		Base class for nodes that accept input on an arbitary number of channels and output a single signal
 	</summary>
-	<method type="System.Void" name="MultiGateBase" is-static="false">
-		<summary>Constructor</summary>
-				<param type="System.String" name="name" summary="The name of the node (optional)" />
-				<param type="BrightWire.ExecutionGraph.WireBuilder[]" name="incoming" summary="The list of incoming wires" />
-			</method>
 	<method type="System.Void" name="ExecuteForward" is-static="false">
 		<summary>Executes on the primary channel</summary>
 				<param type="BrightWire.IContext" name="context" summary="The graph context" />
@@ -3622,11 +3989,6 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 	<summary>
 		Base class for graph nodes
 	</summary>
-	<method type="System.Void" name="NodeBase" is-static="false">
-		<summary>Constructor</summary>
-				<param type="System.String" name="name" summary="The name of the node (optional)" />
-				<param type="System.String" name="id" summary="The node's unique id (optional)" />
-			</method>
 	<method type="System.Void" name="Dispose" is-static="false">
 		<summary>Disposal</summary>
 			</method>
@@ -3731,11 +4093,13 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 			</method>
 	<method type="System.Collections.Generic.IEnumerable&lt;System.String&gt;" name="Get" is-static="false">
 		<summary>Generates an unlimited number of reber sequences</summary>
-				<param type="System.Nullable&lt;System.Int32&gt;" name="length" summary="Optional required length of the sequences" />
+				<param type="System.Nullable&lt;System.Int32&gt;" name="minlength" summary="Minimum length of the sequences (optional)" />
+				<param type="System.Nullable&lt;System.Int32&gt;" name="maxLength" summary="Mimimum length of the sequences (optional)" />
 			</method>
 	<method type="System.Collections.Generic.IEnumerable&lt;System.String&gt;" name="GetExtended" is-static="false">
 		<summary>Generates an unlimited number of extended reber sequences</summary>
-				<param type="System.Nullable&lt;System.Int32&gt;" name="length" summary="Optional required length of the sequences" />
+				<param type="System.Nullable&lt;System.Int32&gt;" name="minlength" summary="Minimum length of the sequences (optional)" />
+				<param type="System.Nullable&lt;System.Int32&gt;" name="maxLength" summary="Mimimum length of the sequences (optional)" />
 			</method>
 </class>
 <class name="BrightWire.ExecutionGraph.GraphFactory.RegularisationProvider" base="" is-static="false" is-abstract="false">
@@ -3769,11 +4133,11 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 		<summary></summary>
 	</property>
 </class>
-<class name="BrightWire.TrainingData.Artificial.SequenceClassification" base="" is-static="false" is-abstract="false">
+<class name="BrightWire.TrainingData.Artificial.SequenceGenerator" base="" is-static="false" is-abstract="false">
 	<summary>
 		Generates random alphabetical sequences
 	</summary>
-	<method type="System.Void" name="SequenceClassification" is-static="false">
+	<method type="System.Void" name="SequenceGenerator" is-static="false">
 		<summary>Constructor</summary>
 				<param type="System.Int32" name="dictionarySize" summary="The number of letters to use" />
 				<param type="System.Int32" name="minSize" summary="The minimum size of each sequence" />
@@ -3980,6 +4344,69 @@ Double not or punctuation stops the not mode</summary>
 				<param type="System.UInt32" name="index" summary="The string index" />
 			</method>
 </class>
+<class name="BrightWire.ExecutionGraph.Helper.TrainingAction" base="" is-static="false" is-abstract="false">
+	<summary>
+		
+	</summary>
+	<method type="System.Void" name="TrainingAction" is-static="false">
+		<summary>Creates a training action history from a single optional parent</summary>
+				<param type="BrightWire.INode" name="source" summary="The node that executed" />
+				<param type="BrightWire.IGraphData" name="data" summary="The output of the node" />
+				<param type="BrightWire.INode" name="parent" summary="The single parent that contributed to the output (optional)" />
+			</method>
+	<method type="System.Void" name="TrainingAction" is-static="false">
+		<summary>Creates a training action history from multiple parents</summary>
+				<param type="BrightWire.INode" name="source" summary="The node that executed" />
+				<param type="BrightWire.IGraphData" name="data" summary="The output of the node" />
+				<param type="System.Collections.Generic.IReadOnlyList&lt;BrightWire.INode&gt;" name="parents" summary="The parent nodes that contributed to the output" />
+			</method>
+	<property type="BrightWire.INode" name="Source">
+		<summary></summary>
+	</property>
+	<property type="BrightWire.IGraphData" name="Data">
+		<summary></summary>
+	</property>
+	<property type="BrightWire.IBackpropagation" name="Backpropagation">
+		<summary></summary>
+	</property>
+	<property type="System.Collections.Generic.IReadOnlyList&lt;BrightWire.INode&gt;" name="Parents">
+		<summary></summary>
+	</property>
+</class>
+<class name="BrightWire.Source.Helper.VectorDistanceHelper" base="" is-static="false" is-abstract="false">
+	<summary>
+		Calculates the distance between a list of vectors and a list of vectors to compare against
+	</summary>
+	<method type="System.Void" name="VectorDistanceHelper" is-static="false">
+		<summary>Constructor</summary>
+				<param type="BrightWire.ILinearAlgebraProvider" name="lap" summary="Linear algebra provider" />
+				<param type="System.Collections.Generic.IReadOnlyList&lt;BrightWire.IVector&gt;" name="data" summary="List of vectors to compare" />
+				<param type="BrightWire.DistanceMetric" name="distanceMetric" summary="Distance metric for comparison" />
+			</method>
+	<property type="System.Collections.Generic.IReadOnlyList&lt;BrightWire.IVector&gt;" name="CompareTo">
+		<summary>The list of vectors to compare against</summary>
+	</property>
+	<method type="System.Int32" name="AddComparison" is-static="false">
+		<summary>Adds a comparison vector (will be owned and disposed by the helper class)</summary>
+				<param type="BrightWire.IVector" name="comparison" summary="Vector to compare against" />
+			</method>
+	<method type="System.Void" name="UpdateComparisonVector" is-static="false">
+		<summary>Updates the comparison vector at this index (disposes the old vector)</summary>
+				<param type="System.Int32" name="index" summary="Index to update" />
+				<param type="BrightWire.IVector" name="newVector" summary="Vector to replace with" />
+			</method>
+	<method type="System.Void" name="SetComparisonVectors" is-static="false">
+		<summary>Updates the entire list of comparison vectors</summary>
+				<param type="System.Collections.Generic.IReadOnlyList&lt;BrightWire.IVector&gt;" name="comparisonVectors" summary="List of vectors to compare against" />
+			</method>
+	<method type="System.Collections.Generic.IReadOnlyList&lt;System.Int32&gt;" name="GetClosest" is-static="false">
+		<summary>Returns the index of the closest comparison vector for each vector</summary>
+			</method>
+	<method type="BrightWire.IVector" name="GetAverageFromData" is-static="false">
+		<summary>Returns a vector averaged from the data vectors</summary>
+				<param type="System.Collections.Generic.IReadOnlyList&lt;System.Int32&gt;" name="indices" summary="Indices of the data vectors to use in the averaged vector" />
+			</method>
+</class>
 <class name="BrightWire.Models.WeightedIndexList.WeightedIndex" base="" is-static="false" is-abstract="false">
 	<summary>
 		A weighted index
@@ -4149,10 +4576,6 @@ Double not or punctuation stops the not mode</summary>
 				<param type="BrightWire.IAction" name="action" summary="Action to execute" />
 				<param type="System.String" name="name" summary="Optional name to give the node" />
 			</method>
-	<method type="BrightWire.ExecutionGraph.WireBuilder" name="AddBatchNormalisation" is-static="false">
-		<summary>Adds a batch normalisation layer (currently only implemented for FF layers)</summary>
-				<param type="System.String" name="name" summary="Optional name to give the node" />
-			</method>
 	<method type="BrightWire.ExecutionGraph.WireBuilder" name="AddSimpleRecurrent" is-static="false">
 		<summary>Adds a simple recurrent neural network layer</summary>
 				<param type="BrightWire.INode" name="activation" summary="Activation layer" />
@@ -4257,6 +4680,22 @@ Double not or punctuation stops the not mode</summary>
 			</method>
 	<property type="BrightWire.INode" name="LastNode">
 		<summary>The last added node</summary>
+	</property>
+</class>
+<class name="BrightWire.ExecutionGraph.Helper.WireToNode" base="" is-static="false" is-abstract="false">
+	<summary>
+		
+	</summary>
+	<method type="System.Void" name="WireToNode" is-static="false">
+		<summary>Constructor</summary>
+				<param type="BrightWire.INode" name="node" summary="The destination node" />
+				<param type="System.Int32" name="channel" summary="The input channel on the node" />
+			</method>
+	<property type="BrightWire.INode" name="SendTo">
+		<summary></summary>
+	</property>
+	<property type="System.Int32" name="Channel">
+		<summary></summary>
 	</property>
 </class>
 <class name="BrightWire.TrainingData.Artificial.Xor" base="" is-static="true" is-abstract="false">
