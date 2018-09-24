@@ -6,6 +6,7 @@ using ManagedCuda.CudaBlas;
 using ManagedCuda.CudaSolve;
 using ManagedCuda.VectorTypes;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -152,6 +153,7 @@ namespace BrightWire.LinearAlgebra
 			_isFinite,
 			_calculateDistance
 		;
+		readonly ConcurrentDictionary<CUfunction, (int BlockSize, int MinGridSize)> _blockSize = new ConcurrentDictionary<CUfunction, (int BlockSize, int MinGridSize)>();
 		bool _disposed = false;
 
 		public CudaProvider(string cudaKernelPath, bool stochastic, int memoryCacheSize)
@@ -270,33 +272,65 @@ namespace BrightWire.LinearAlgebra
 
 		void _Invoke(CUfunction function, int size, params object[] param)
 		{
-			var x = _GetBlockCount(size, BLOCK_DIM2);
-			var execution = _kernel.CreateExecution(function, x, BLOCK_DIM2);
+			if (!_blockSize.TryGetValue(function, out var data)) {
+				int blockSize = 0, minGridSize = 0;
+				DriverAPINativeMethods.Occupancy.cuOccupancyMaxPotentialBlockSize(ref minGridSize, ref blockSize, function, bs => 0, 0, 0);
+				_blockSize.TryAdd(function, data = (blockSize, minGridSize));
+			}
+			var gridSize = System.Math.Max(data.MinGridSize, (size + data.BlockSize - 1) / data.BlockSize);
+			var execution = _kernel.CreateExecution(function, gridSize, data.BlockSize);
+
+			//var gridSize = _GetBlockCount(size, BLOCK_DIM2);
+			//var execution = _kernel.CreateExecution(function, gridSize, BLOCK_DIM2);
 			execution.Run(0, param);
 		}
 
 		void _InvokeWithSharedMemory(CUfunction function, int size, uint sharedMemorySize, params object[] param)
 		{
-			var x = _GetBlockCount(size, BLOCK_DIM2);
-			var execution = _kernel.CreateExecution(function, x, BLOCK_DIM2);
+			var gridSize = _GetBlockCount(size, BLOCK_DIM2);
+			var execution = _kernel.CreateExecution(function, gridSize, BLOCK_DIM2);
 			execution.Run(sharedMemorySize, param);
 		}
 
 		void _Invoke2(CUfunction function, int rows, int columns, params object[] param)
 		{
-			var x = _GetBlockCount(rows, BLOCK_DIM);
-			var y = _GetBlockCount(columns, BLOCK_DIM);
-			var execution = _kernel.CreateExecution(function, new dim3(x, y), new dim3(BLOCK_DIM, BLOCK_DIM));
+			if (!_blockSize.TryGetValue(function, out var data)) {
+				int blockSize = 0, minGridSize = 0;
+				DriverAPINativeMethods.Occupancy.cuOccupancyMaxPotentialBlockSize(ref minGridSize, ref blockSize, function, bs => 0, 0, 0);
+				_blockSize.TryAdd(function, data = (Convert.ToInt32(System.Math.Pow(blockSize, 1.0/2)), minGridSize));
+			}
+
+			//var gridSizeRows = _GetBlockCount(rows, BLOCK_DIM);
+			//var gridSizeCols = _GetBlockCount(columns, BLOCK_DIM);
+			//var execution = _kernel.CreateExecution(function, new dim3(gridSizeRows, gridSizeCols), new dim3(BLOCK_DIM, BLOCK_DIM));
+
+			//int blockSize = 0, minGridSize = 0;
+			//DriverAPINativeMethods.Occupancy.cuOccupancyMaxPotentialBlockSize(ref minGridSize, ref blockSize, function, bs => 0, 0, 0);
+			//blockSize = Convert.ToInt32(System.Math.Pow(blockSize, 1.0/2));
+			int gridSizeRows = System.Math.Max(data.MinGridSize, (rows + data.BlockSize - 1) / data.BlockSize);
+			int gridSizeCols = System.Math.Max(data.MinGridSize, (columns + data.BlockSize - 1) / data.BlockSize);
+			var execution = _kernel.CreateExecution(function, new dim3(gridSizeRows, gridSizeCols), new dim3(data.BlockSize, data.BlockSize));
+			
 			execution.Run(0, param);
 		}
 
 		void _Invoke3(CUfunction function, int rows, int columns, int depth, params object[] param)
 		{
-			const int size = BLOCK_DIM / 2;
-			var x = _GetBlockCount(rows, size);
-			var y = _GetBlockCount(columns, size);
-			var z = _GetBlockCount(depth, size);
-			var execution = _kernel.CreateExecution(function, new dim3(x, y, z), new dim3(size, size, size));
+			if (!_blockSize.TryGetValue(function, out var data)) {
+				int blockSize = 0, minGridSize = 0;
+				DriverAPINativeMethods.Occupancy.cuOccupancyMaxPotentialBlockSize(ref minGridSize, ref blockSize, function, bs => 0, 0, 0);
+				_blockSize.TryAdd(function, data = (Convert.ToInt32(System.Math.Pow(blockSize, 1.0/3)), minGridSize));
+			}
+			int gridSizeRows = System.Math.Max(data.MinGridSize, (rows + data.BlockSize - 1) / data.BlockSize);
+			int gridSizeCols = System.Math.Max(data.MinGridSize, (columns + data.BlockSize - 1) / data.BlockSize);
+			int gridSizeDepth = System.Math.Max(data.MinGridSize, (depth + data.BlockSize - 1) / data.BlockSize);
+			var execution = _kernel.CreateExecution(function, new dim3(gridSizeRows, gridSizeCols, gridSizeDepth), new dim3(data.BlockSize, data.BlockSize, data.BlockSize));
+
+			//const int size = 8;
+			//var rowSize = _GetBlockCount(rows, size);
+			//var columnSize = _GetBlockCount(columns, size);
+			//var depthSize = _GetBlockCount(depth, size);
+			//var execution = _kernel.CreateExecution(function, new dim3(rowSize, columnSize, depthSize), new dim3(size, size, size));
 			execution.Run(0, param);
 		}
 
