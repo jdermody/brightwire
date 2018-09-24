@@ -17,6 +17,12 @@ namespace BrightWire.Cuda.Helper
 		    _ptr.CopyToDevice(list.Select(d => d.Memory.DevicePointer).ToArray());
 	    }
 
+	    public PtrToDeviceMemoryList(CUdeviceptr[] ptrList)
+	    {
+		    _ptr = new CudaDeviceVariable<CUdeviceptr>(ptrList.Length);
+		    _ptr.CopyToDevice(ptrList);
+	    }
+
 	    public CUdeviceptr DevicePointer => _ptr.DevicePointer;
 
 	    public void Dispose()
