@@ -277,11 +277,15 @@ namespace BrightWire.LinearAlgebra
 				DriverAPINativeMethods.Occupancy.cuOccupancyMaxPotentialBlockSize(ref minGridSize, ref blockSize, function, bs => 0, 0, 0);
 				_blockSize.TryAdd(function, data = (blockSize, minGridSize));
 			}
-			var gridSize = System.Math.Max(data.MinGridSize, (size + data.BlockSize - 1) / data.BlockSize);
+			var gridSize = (size + data.BlockSize - 1) / data.BlockSize;
 			var execution = _kernel.CreateExecution(function, gridSize, data.BlockSize);
+			execution.Run(0, param);
+		}
 
-			//var gridSize = _GetBlockCount(size, BLOCK_DIM2);
-			//var execution = _kernel.CreateExecution(function, gridSize, BLOCK_DIM2);
+		void _InvokeManual(CUfunction function, int size, params object[] param)
+		{
+			var gridSize = _GetBlockCount(size, BLOCK_DIM2);
+			var execution = _kernel.CreateExecution(function, gridSize, BLOCK_DIM2);
 			execution.Run(0, param);
 		}
 
@@ -307,8 +311,8 @@ namespace BrightWire.LinearAlgebra
 			//int blockSize = 0, minGridSize = 0;
 			//DriverAPINativeMethods.Occupancy.cuOccupancyMaxPotentialBlockSize(ref minGridSize, ref blockSize, function, bs => 0, 0, 0);
 			//blockSize = Convert.ToInt32(System.Math.Pow(blockSize, 1.0/2));
-			int gridSizeRows = System.Math.Max(data.MinGridSize, (rows + data.BlockSize - 1) / data.BlockSize);
-			int gridSizeCols = System.Math.Max(data.MinGridSize, (columns + data.BlockSize - 1) / data.BlockSize);
+			int gridSizeRows = (rows + data.BlockSize - 1) / data.BlockSize;
+			int gridSizeCols = (columns + data.BlockSize - 1) / data.BlockSize;
 			var execution = _kernel.CreateExecution(function, new dim3(gridSizeRows, gridSizeCols), new dim3(data.BlockSize, data.BlockSize));
 			
 			execution.Run(0, param);
@@ -321,9 +325,9 @@ namespace BrightWire.LinearAlgebra
 				DriverAPINativeMethods.Occupancy.cuOccupancyMaxPotentialBlockSize(ref minGridSize, ref blockSize, function, bs => 0, 0, 0);
 				_blockSize.TryAdd(function, data = (Convert.ToInt32(System.Math.Pow(blockSize, 1.0/3)), minGridSize));
 			}
-			int gridSizeRows = System.Math.Max(data.MinGridSize, (rows + data.BlockSize - 1) / data.BlockSize);
-			int gridSizeCols = System.Math.Max(data.MinGridSize, (columns + data.BlockSize - 1) / data.BlockSize);
-			int gridSizeDepth = System.Math.Max(data.MinGridSize, (depth + data.BlockSize - 1) / data.BlockSize);
+			int gridSizeRows = (rows + data.BlockSize - 1) / data.BlockSize;
+			int gridSizeCols = (columns + data.BlockSize - 1) / data.BlockSize;
+			int gridSizeDepth = (depth + data.BlockSize - 1) / data.BlockSize;
 			var execution = _kernel.CreateExecution(function, new dim3(gridSizeRows, gridSizeCols, gridSizeDepth), new dim3(data.BlockSize, data.BlockSize, data.BlockSize));
 
 			//const int size = 8;
@@ -471,7 +475,7 @@ namespace BrightWire.LinearAlgebra
 		internal IDeviceMemoryPtr Log(IDeviceMemoryPtr a, int size)
 		{
 			var ret = Allocate(size);
-			_Invoke(_log, size, a.DevicePointer, ret.DevicePointer, size);
+			_InvokeManual(_log, size, a.DevicePointer, ret.DevicePointer, size);
 			return ret;
 		}
 
@@ -501,7 +505,7 @@ namespace BrightWire.LinearAlgebra
 					var maxBlock = Allocate(bufferSize, true);
 
 					try {
-						_Invoke(_findMinAndMax, size, ptr.DevicePointer, size, minBlock.DevicePointer, maxBlock.DevicePointer);
+						_InvokeManual(_findMinAndMax, size, ptr.DevicePointer, size, minBlock.DevicePointer, maxBlock.DevicePointer);
 						if (ptr != a)
 							ptr.Free();
 						size = bufferSize * 2;
@@ -537,7 +541,7 @@ namespace BrightWire.LinearAlgebra
 			while (size > BLOCK_DIM2) {
 				var bufferSize = (size / BLOCK_DIM2) + 1;
 				var sumBlock = Allocate(bufferSize, true);
-				_Invoke(_findSum, size, ptr.DevicePointer, size, sumBlock.DevicePointer);
+				_InvokeManual(_findSum, size, ptr.DevicePointer, size, sumBlock.DevicePointer);
 				if (ptr != a)
 					ptr.Free();
 				size = bufferSize;
@@ -558,7 +562,7 @@ namespace BrightWire.LinearAlgebra
 				while (size > BLOCK_DIM2) {
 					var bufferSize = (size / BLOCK_DIM2) + 1;
 					var sumBlock = Allocate(bufferSize, true);
-					_Invoke(_findStdDev, size, ptr.DevicePointer, size, mean, sumBlock.DevicePointer);
+					_InvokeManual(_findStdDev, size, ptr.DevicePointer, size, mean, sumBlock.DevicePointer);
 					if (ptr != a)
 						ptr.Free();
 					size = bufferSize;
