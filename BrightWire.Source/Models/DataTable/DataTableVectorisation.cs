@@ -3,7 +3,7 @@ using ProtoBuf;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace BrightWire.Source.Models.DataTable
+namespace BrightWire.Models.DataTable
 {
     /// <summary>
     /// A data table vectorisation model - maps rows in a data table to vectors

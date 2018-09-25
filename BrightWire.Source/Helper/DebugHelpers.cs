@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 
-namespace BrightWire.Source.Helper
+namespace BrightWire.Helper
 {
 	/// <summary>
 	/// Helper classes useful when debugging BW
