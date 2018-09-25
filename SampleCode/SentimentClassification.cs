@@ -134,11 +134,9 @@ namespace BrightWire.SampleCode
                 // train an additional classifier on the output of the previous three classifiers
                 joined
                     .AddFeedForward(outputSize: 64)
-                    //.AddBatchNormalisation()
                     .Add(graph.ReluActivation())
                     .AddDropOut(dropOutPercentage: 0.5f)
                     .AddFeedForward(trainingData.OutputSize)
-                    //.AddBatchNormalisation()
                     .Add(graph.ReluActivation())
                     .AddBackpropagation(errorMetric)
                 ;

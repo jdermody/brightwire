@@ -39,7 +39,7 @@ namespace BrightWire.SampleCode
 				// build the network
 				const int HIDDEN_LAYER_SIZE = 32, TRAINING_ITERATIONS = 30;
 				graph.Connect(engine)
-					.AddGru(new float[HIDDEN_LAYER_SIZE])
+					.AddGru(HIDDEN_LAYER_SIZE)
 					.AddFeedForward(engine.DataSource.OutputSize)
 					.Add(graph.SigmoidActivation())
 					.AddBackpropagationThroughTime(errorMetric)

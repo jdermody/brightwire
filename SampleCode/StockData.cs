@@ -55,7 +55,7 @@ namespace BrightWire.SampleCode
 				// build the network
 				const int HIDDEN_LAYER_SIZE = 256;
 				graph.Connect(engine)
-					.AddLstm(new float[HIDDEN_LAYER_SIZE])
+					.AddLstm(HIDDEN_LAYER_SIZE)
 					.AddFeedForward(engine.DataSource.OutputSize)
 					.Add(graph.TanhActivation())
 					.AddBackpropagationThroughTime(errorMetric);

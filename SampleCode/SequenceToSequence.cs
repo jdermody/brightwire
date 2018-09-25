@@ -51,11 +51,8 @@ namespace BrightWire.SampleCode
 
                 // build the network
                 const int HIDDEN_LAYER_SIZE = 128;
-                var memory = new float[HIDDEN_LAYER_SIZE];
-                var network = graph.Connect(engine)
-                    //.AddSimpleRecurrent(graph.ReluActivation(), memory)
-                    //.AddGru(memory)
-                    .AddLstm(memory)
+                graph.Connect(engine)
+                    .AddLstm(HIDDEN_LAYER_SIZE)
                     .AddFeedForward(engine.DataSource.OutputSize)
                     .Add(graph.SigmoidActivation())
                     .AddBackpropagation(errorMetric)
@@ -109,9 +106,8 @@ namespace BrightWire.SampleCode
 
                 // build the network
                 const int HIDDEN_LAYER_SIZE = 128;
-                var memory = new float[HIDDEN_LAYER_SIZE];
-                var network = graph.Connect(engine)
-                    .AddGru(memory)
+                graph.Connect(engine)
+                    .AddGru(HIDDEN_LAYER_SIZE)
                     //.AddSimpleRecurrent(graph.ReluActivation(), memory)
                     .AddFeedForward(engine.DataSource.OutputSize)
                     .Add(graph.SigmoidActivation())
@@ -162,9 +158,8 @@ namespace BrightWire.SampleCode
 
                 // create the encoder
                 var encoderLearningContext = graph.CreateLearningContext(TRAINING_RATE, BATCH_SIZE, TrainingErrorCalculation.Fast, true);
-                var encoderMemory = new float[HIDDEN_LAYER_SIZE];
                 var trainingData = graph.CreateDataSource(data.Training, encoderLearningContext, wb => wb
-                    .AddLstm(encoderMemory, "encoder")
+                    .AddLstm(HIDDEN_LAYER_SIZE, "encoder")
                     .WriteNodeMemoryToSlot("shared-memory", wb.Find("encoder") as IHaveMemoryNode)
                     .AddFeedForward(grammar.DictionarySize)
                     .Add(graph.SigmoidActivation())
@@ -178,12 +173,11 @@ namespace BrightWire.SampleCode
                 engine.LearningContext.ScheduleLearningRate(40, TRAINING_RATE / 9);
 
                 // create the decoder
-                var decoderMemory = new float[HIDDEN_LAYER_SIZE];
                 var wb2 = graph.Connect(engine);
                 wb2
                     .JoinInputWithMemory("shared-memory")
-                    .IncrementSizeBy(HIDDEN_LAYER_SIZE)
-                    .AddLstm(decoderMemory, "decoder")
+						.IncrementSizeBy(HIDDEN_LAYER_SIZE)
+                    .AddLstm(HIDDEN_LAYER_SIZE, "decoder")
                     .AddFeedForward(trainingData.OutputSize)
                     .Add(graph.SigmoidActivation())
                     .AddBackpropagationThroughTime(errorMetric)

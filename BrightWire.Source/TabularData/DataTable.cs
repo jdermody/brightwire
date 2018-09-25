@@ -1,6 +1,5 @@
 ﻿using BrightWire.Models;
 using BrightWire.Models.DataTable;
-using BrightWire.Source.Models.DataTable;
 using BrightWire.TabularData.Analysis;
 using BrightWire.TabularData.Helper;
 using System;

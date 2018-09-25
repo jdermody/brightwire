@@ -621,7 +621,7 @@
 			</method>
 	<method type="BrightWire.IDataTableVectoriser" name="GetVectoriser">
 		<summary>Returns an interface that can convert rows in the current table to vectors</summary>
-				<param type="BrightWire.Source.Models.DataTable.DataTableVectorisation" name="model" summary="A serialised model to recreate a previous vectorisation" />
+				<param type="BrightWire.Models.DataTable.DataTableVectorisation" name="model" summary="A serialised model to recreate a previous vectorisation" />
 			</method>
 	<method type="BrightWire.IDataTable" name="CopyWithRows">
 		<summary>Returns a copy of the current table</summary>
@@ -764,7 +764,7 @@
 				<param type="System.Int32" name="columnIndex" summary="The data table column index" />
 				<param type="System.Int32" name="vectorIndex" summary="The one hot vector index" />
 			</method>
-	<method type="BrightWire.Source.Models.DataTable.DataTableVectorisation" name="GetVectorisationModel">
+	<method type="BrightWire.Models.DataTable.DataTableVectorisation" name="GetVectorisationModel">
 		<summary>Gets the serialisable model to recreate this vectorisation</summary>
 			</method>
 </interface>
@@ -2363,7 +2363,7 @@ The output feature contains a single feature: 1 or 0 if that bit is set in the r
 		<summary>The category's probability</summary>
 	</property>
 </class>
-<class name="BrightWire.Source.Models.DataTable.DataTableVectorisation.CategoricalIndex" base="" is-static="false" is-abstract="false">
+<class name="BrightWire.Models.DataTable.DataTableVectorisation.CategoricalIndex" base="" is-static="false" is-abstract="false">
 	<summary>
 		A categorical column value
 	</summary>
@@ -2479,7 +2479,7 @@ The output feature contains a single feature: 1 or 0 if that bit is set in the r
 				<param type="System.Double" name="val" summary="The input value" />
 			</method>
 </class>
-<class name="BrightWire.Source.Models.DataTable.DataTableVectorisation.Column" base="" is-static="false" is-abstract="false">
+<class name="BrightWire.Models.DataTable.DataTableVectorisation.Column" base="" is-static="false" is-abstract="false">
 	<summary>
 		Column information
 	</summary>
@@ -2498,7 +2498,7 @@ The output feature contains a single feature: 1 or 0 if that bit is set in the r
 	<property type="System.Int32" name="Size">
 		<summary>The number slots this column will fill in the output vector</summary>
 	</property>
-	<property type="BrightWire.Source.Models.DataTable.DataTableVectorisation.CategoricalIndex[]" name="Values">
+	<property type="BrightWire.Models.DataTable.DataTableVectorisation.CategoricalIndex[]" name="Values">
 		<summary>An array of categorial values</summary>
 	</property>
 </class>
@@ -2578,11 +2578,11 @@ The output feature contains a single feature: 1 or 0 if that bit is set in the r
 				<param type="System.Collections.Generic.IReadOnlyList&lt;System.Object&gt;" name="row" summary="The row to normalise" />
 			</method>
 </class>
-<class name="BrightWire.Source.Models.DataTable.DataTableVectorisation" base="" is-static="false" is-abstract="false">
+<class name="BrightWire.Models.DataTable.DataTableVectorisation" base="" is-static="false" is-abstract="false">
 	<summary>
 		A data table vectorisation model - maps rows in a data table to vectors
 	</summary>
-	<property type="BrightWire.Source.Models.DataTable.DataTableVectorisation.Column[]" name="Columns">
+	<property type="BrightWire.Models.DataTable.DataTableVectorisation.Column[]" name="Columns">
 		<summary>The columns in the table</summary>
 	</property>
 	<property type="System.Int32" name="InputSize">
@@ -2620,7 +2620,7 @@ The output feature contains a single feature: 1 or 0 if that bit is set in the r
 				<param type="BrightWire.IRow" name="row" summary="The row to vectorise" />
 			</method>
 </class>
-<class name="BrightWire.Source.Helper.DebugHelpers" base="" is-static="true" is-abstract="false">
+<class name="BrightWire.Helper.DebugHelpers" base="" is-static="true" is-abstract="false">
 	<summary>
 		Helper classes useful when debugging BW
 	</summary>
@@ -4582,11 +4582,24 @@ Double not or punctuation stops the not mode</summary>
 				<param type="System.Single[]" name="initialMemory" summary="Initial memory" />
 				<param type="System.String" name="name" summary="Optional name to give the node" />
 			</method>
+	<method type="BrightWire.ExecutionGraph.WireBuilder" name="AddSimpleRecurrent" is-static="false">
+		<summary>Adds a simple recurrent neural network layer</summary>
+				<param type="BrightWire.INode" name="activation" summary="Activation layer" />
+				<param type="System.Int32" name="memorySize" summary="Size of the memory buffer" />
+				<param type="System.String" name="name" summary="Optional name to give the node" />
+			</method>
 	<method type="BrightWire.ExecutionGraph.WireBuilder" name="AddElman" is-static="false">
 		<summary>Adds an Elman recurrent neural network layer</summary>
 				<param type="BrightWire.INode" name="activation" summary="First activation layer" />
 				<param type="BrightWire.INode" name="activation2" summary="Second activation layer" />
 				<param type="System.Single[]" name="initialMemory" summary="Initial memory" />
+				<param type="System.String" name="name" summary="Optional name to give the node" />
+			</method>
+	<method type="BrightWire.ExecutionGraph.WireBuilder" name="AddElman" is-static="false">
+		<summary>Adds an Elman recurrent neural network layer</summary>
+				<param type="BrightWire.INode" name="activation" summary="First activation layer" />
+				<param type="BrightWire.INode" name="activation2" summary="Second activation layer" />
+				<param type="System.Int32" name="memorySize" summary="Size of the memory buffer" />
 				<param type="System.String" name="name" summary="Optional name to give the node" />
 			</method>
 	<method type="BrightWire.ExecutionGraph.WireBuilder" name="AddJordan" is-static="false">
@@ -4596,9 +4609,21 @@ Double not or punctuation stops the not mode</summary>
 				<param type="System.Single[]" name="initialMemory" summary="Initial memory" />
 				<param type="System.String" name="name" summary="Optional name to give the node" />
 			</method>
+	<method type="BrightWire.ExecutionGraph.WireBuilder" name="AddJordan" is-static="false">
+		<summary>Adds a Jordan recurrent neural network layer</summary>
+				<param type="BrightWire.INode" name="activation" summary="First activation layer" />
+				<param type="BrightWire.INode" name="activation2" summary="Second activation layer" />
+				<param type="System.Int32" name="memorySize" summary="Size of the memory buffer" />
+				<param type="System.String" name="name" summary="Optional name to give the node" />
+			</method>
 	<method type="BrightWire.ExecutionGraph.WireBuilder" name="AddGru" is-static="false">
 		<summary>Adds a gated recurrent unit recurrent neural network layer</summary>
 				<param type="System.Single[]" name="initialMemory" summary="Initial memory" />
+				<param type="System.String" name="name" summary="Optional name to give the node" />
+			</method>
+	<method type="BrightWire.ExecutionGraph.WireBuilder" name="AddGru" is-static="false">
+		<summary>Adds a gated recurrent unit recurrent neural network layer</summary>
+				<param type="System.Int32" name="memorySize" summary="Size of the memory buffer" />
 				<param type="System.String" name="name" summary="Optional name to give the node" />
 			</method>
 	<method type="BrightWire.ExecutionGraph.WireBuilder" name="AddRan" is-static="false">
@@ -4606,9 +4631,19 @@ Double not or punctuation stops the not mode</summary>
 				<param type="System.Single[]" name="initialMemory" summary="Initial memory" />
 				<param type="System.String" name="name" summary="Optional name to give the node" />
 			</method>
+	<method type="BrightWire.ExecutionGraph.WireBuilder" name="AddRan" is-static="false">
+		<summary>Adds a recurrent additive layer (recurrent)</summary>
+				<param type="System.Int32" name="memorySize" summary="Size of the memory buffer" />
+				<param type="System.String" name="name" summary="Optional name to give the node" />
+			</method>
 	<method type="BrightWire.ExecutionGraph.WireBuilder" name="AddLstm" is-static="false">
 		<summary>Adds a long short term memory recurrent neural network layer</summary>
 				<param type="System.Single[]" name="initialMemory" summary="Initial memory" />
+				<param type="System.String" name="name" summary="Optional name to give the node" />
+			</method>
+	<method type="BrightWire.ExecutionGraph.WireBuilder" name="AddLstm" is-static="false">
+		<summary>Adds a long short term memory recurrent neural network layer</summary>
+				<param type="System.Int32" name="memorySize" summary="Size of the memory buffer" />
 				<param type="System.String" name="name" summary="Optional name to give the node" />
 			</method>
 	<method type="BrightWire.ExecutionGraph.WireBuilder" name="ReverseSequence" is-static="false">

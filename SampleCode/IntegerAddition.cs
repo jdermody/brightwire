@@ -38,9 +38,8 @@ namespace BrightWire.SampleCode
 
                 // build the network
                 const int HIDDEN_LAYER_SIZE = 32, TRAINING_ITERATIONS = 30;
-                var memory = new float[HIDDEN_LAYER_SIZE];
-                var network = graph.Connect(engine)
-                    .AddSimpleRecurrent(graph.ReluActivation(), memory)
+                graph.Connect(engine)
+                    .AddSimpleRecurrent(graph.ReluActivation(), HIDDEN_LAYER_SIZE)
                     .AddFeedForward(engine.DataSource.OutputSize)
                     .Add(graph.ReluActivation())
                     .AddBackpropagationThroughTime(errorMetric)
