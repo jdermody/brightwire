@@ -105,24 +105,36 @@ namespace BrightWire.ExecutionGraph.Engine
                 }
             }
 
-            double ret = 0, count = 0;
-            foreach (var item in _executionResults) {
-	            if (item.TrainingError.HasValue)
-	            {
-		            ret += item.TrainingError.Value;
-		            ++count;
-	            }
-            }
-            if (count > 0)
-                ret /= count;
+	        double trainingError = 0;
+	        if (LearningContext.TrainingErrorCalculation == TrainingErrorCalculation.Fast) {
+		        var count = 0;
+		        foreach (var item in _executionResults) {
+			        if (item.TrainingError.HasValue) {
+				        trainingError += item.TrainingError.Value;
+				        ++count;
+			        }
+		        }
 
-            if (_lastTrainingError.HasValue)
-                _trainingErrorDelta = ret - _lastTrainingError.Value;
-            _lastTrainingError = ret;
-            LearningContext.EndEpoch();
-            _executionResults.Clear();
-            _lap.PopLayer();
-            return ret;
+		        if (count > 0)
+			        trainingError /= count;
+	        }
+	        LearningContext.EndEpoch();
+	        _executionResults.Clear();
+	        _lap.PopLayer();
+	        
+	        if (LearningContext.TrainingErrorCalculation == TrainingErrorCalculation.TrainingData) {
+		        if (LearningContext.ErrorMetric != null) {
+			        trainingError = Execute(_dataSource, LearningContext.BatchSize, batchCompleteCallback)
+				        .Where(b => b.Target != null)
+				        .Average(o => o.CalculateError(LearningContext.ErrorMetric))
+			        ;
+		        }
+	        }
+
+	        if (_lastTrainingError.HasValue)
+                _trainingErrorDelta = trainingError - _lastTrainingError.Value;
+            _lastTrainingError = trainingError;
+            return trainingError;
         }
 
         public IDataSource DataSource => _dataSource;
@@ -175,6 +187,13 @@ namespace BrightWire.ExecutionGraph.Engine
             return context;
         }
 
+	    static string _Write(string name, float score, bool isPercentage)
+	    {
+		    if (isPercentage)
+			    return $"{name}-score: {score:P}";
+			return $"{name}-error: {score:N4}";
+	    }
+
         public bool Test(
 	        IDataSource testDataSource, 
 	        IErrorMetric errorMetric, 
@@ -188,7 +207,9 @@ namespace BrightWire.ExecutionGraph.Engine
             ;
             
             bool flag = true, isPercentage = errorMetric.DisplayAsPercentage;
+			float? testErrorDelta = null;
             if (_lastTestError.HasValue) {
+	            testErrorDelta = testError - _lastTestError.Value;
                 if (isPercentage && _lastTestError.Value > testError)
                     flag = false;
                 else if (!isPercentage && _lastTestError.Value < testError)
@@ -199,29 +220,27 @@ namespace BrightWire.ExecutionGraph.Engine
                 _lastTestError = testError;
 
 	        values?.Invoke(testError, _lastTrainingError ?? 0, isPercentage, flag);
-			var outputType = isPercentage ? "score" : "error";
             if (LearningContext.CurrentEpoch == 0) {
-                var score = String.Format(isPercentage ? "{0:P}" : "{0:N4}", testError);
-	            LearningContext.MessageLog($"\rInitial test {outputType}: {score}");
+	            LearningContext.MessageLog(_Write("\rInitial test", testError, isPercentage));
                 return false;
-            } else {
-                var format = isPercentage
-                    ? "\rEpoch {0} - training-error: {1:N4} [{2:N4}]; time: {3:N2}s; test-{5}: {4:P}"
-					: "\rEpoch {0} - training-error: {1:N4} [{2:N4}]; time: {3:N2}s; test-{5}: {4:N4}"
-				;
-                var msg = String.Format(format,
-                    LearningContext.CurrentEpoch,
-                    _lastTrainingError ?? 0,
-                    _trainingErrorDelta,
-                    LearningContext.EpochSeconds,
-                    testError,
-					outputType
-				);
-                if (flag)
-                    msg += "!!";
-	            LearningContext.MessageLog(msg);
-                return flag;
             }
+
+            var trainingScore = "";
+            if (LearningContext.TrainingErrorCalculation != TrainingErrorCalculation.None) {
+	            trainingScore = _Write(" training", Convert.ToSingle(_lastTrainingError ?? 0), LearningContext.TrainingErrorCalculation == TrainingErrorCalculation.TrainingData && isPercentage);
+	            trainingScore += $" [{_trainingErrorDelta:N4}];";
+            }
+
+            var testScore = _Write("test", testError, isPercentage);
+	        if (testErrorDelta.HasValue)
+		        testScore += $" [{testErrorDelta.Value:N4}]";
+
+            var msg = $"\rEpoch {LearningContext.CurrentEpoch} -{trainingScore} time: {LearningContext.EpochSeconds:N2}s; {testScore}";
+            if (flag)
+                msg += "!!";
+
+            LearningContext.MessageLog(msg);
+            return flag;
         }
 
         void _LoadParamaters(Models.ExecutionGraph.Node nodeModel)

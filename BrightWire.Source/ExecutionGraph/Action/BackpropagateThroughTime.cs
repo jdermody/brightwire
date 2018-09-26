@@ -29,6 +29,9 @@ namespace BrightWire.ExecutionGraph.Action
         {
             var output = input.GetMatrix();
             if (context.IsTraining) {
+	            if(context.LearningContext.ErrorMetric == null)
+		            context.LearningContext.ErrorMetric = _errorMetric;
+
                 var target = context.BatchSequence.Target?.GetMatrix();
                 if (target == null)
                     context.LearningContext.DeferBackpropagation(null, signal => context.Backpropagate(signal));

@@ -33,7 +33,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public event Action<ILearningContext> BeforeEpochStarts;
         public event Action<ILearningContext> AfterEpochEnds;
 
-        public void Clear()
+	    public void Clear()
         {
             _layerUpdate.Clear();
             _deferredBackpropagation.Clear();
@@ -41,6 +41,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             _rowCount = 0;
         }
 
+	    public IErrorMetric ErrorMetric { get; set; }
         public ILinearAlgebraProvider LinearAlgebraProvider { get; }
 	    public int RowCount => _rowCount;
 	    public int CurrentEpoch => _currentEpoch;
