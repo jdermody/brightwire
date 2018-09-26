@@ -151,7 +151,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 
             if (list.Count == 1)
                 return list.First();
-            else if(list.Count > 1) {
+            if(list.Count > 1) {
                 var first = list.First().GetMatrix();
                 foreach (var item in list.Skip(1)) {
                     var next = item.GetMatrix();

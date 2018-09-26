@@ -52,6 +52,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 	    public double EpochSeconds => EpochMilliseconds / 1000.0;
 	    public bool DeferUpdates { get; }
 	    public void ScheduleLearningRate(int atEpoch, float newLearningRate) => _learningRateSchedule[atEpoch] = newLearningRate;
+	    public Action<string> MessageLog { get; set; } = Console.WriteLine;
 
         public void EnableNodeUpdates(INode node, bool enableUpdates)
         {
@@ -76,7 +77,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             BeforeEpochStarts?.Invoke(this);
             if (_learningRateSchedule.TryGetValue(++_currentEpoch, out float newLearningRate)) {
                 LearningRate = newLearningRate;
-                Console.WriteLine($"Learning rate changed to {newLearningRate}");
+                MessageLog($"Learning rate changed to {newLearningRate}");
             }
 
             _rowCount = 0;

@@ -40,15 +40,15 @@ namespace BrightWire.Unsupervised
                 var features = _lap.CreateMatrix(_numClusters, v.ColumnCount, (x, y) => Convert.ToSingle(rand.NextDouble()));
 
                 // iterate
-                float lastCost = 0;
+                //float lastCost = 0;
                 for (int i = 0; i < numIterations; i++) {
                     using (var wh = weights.Multiply(features)) {
                         var cost = _DifferenceCost(v, wh);
-                        if (i % (numIterations / 10) == 0)
-                            Console.WriteLine("NNMF cost: " + cost);
+                        //if (i % (numIterations / 10) == 0)
+                        //    Console.WriteLine("NNMF cost: " + cost);
                         if (cost <= errorThreshold)
                             break;
-                        lastCost = cost;
+                        //lastCost = cost;
 
                         using (var wT = weights.Transpose())
                         using (var hn = wT.Multiply(v))

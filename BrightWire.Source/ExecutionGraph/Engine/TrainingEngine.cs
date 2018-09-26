@@ -175,8 +175,13 @@ namespace BrightWire.ExecutionGraph.Engine
             return context;
         }
 
-        public bool Test(IDataSource testDataSource, IErrorMetric errorMetric, int batchSize = 128, Action<float> batchCompleteCallback = null)
-        {
+        public bool Test(
+	        IDataSource testDataSource, 
+	        IErrorMetric errorMetric, 
+	        int batchSize = 128, 
+	        Action<float> batchCompleteCallback = null,
+			Action<float, double, bool, bool> values = null
+	    ) {
             var testError = Execute(testDataSource, batchSize, batchCompleteCallback)
                 .Where(b => b.Target != null)
                 .Average(o => o.CalculateError(errorMetric))
@@ -193,10 +198,11 @@ namespace BrightWire.ExecutionGraph.Engine
             } else
                 _lastTestError = testError;
 
+	        values?.Invoke(testError, _lastTrainingError ?? 0, isPercentage, flag);
 			var outputType = isPercentage ? "score" : "error";
             if (LearningContext.CurrentEpoch == 0) {
                 var score = String.Format(isPercentage ? "{0:P}" : "{0:N4}", testError);
-                Console.WriteLine($"\rInitial test {outputType}: {score}");
+	            LearningContext.MessageLog($"\rInitial test {outputType}: {score}");
                 return false;
             } else {
                 var format = isPercentage
@@ -213,7 +219,7 @@ namespace BrightWire.ExecutionGraph.Engine
 				);
                 if (flag)
                     msg += "!!";
-                Console.WriteLine(msg);
+	            LearningContext.MessageLog(msg);
                 return flag;
             }
         }

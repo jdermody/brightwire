@@ -652,13 +652,13 @@ namespace BrightWire
         /// <param name="index">Index of the input node to retrieve</param>
         INode GetInput(int index);
 
-        /// <summary>
-        /// Executes a training epoch on the graph
-        /// </summary>
-        /// <param name="executionContext">Graph execution context</param>
-        /// <param name="batchCompleteCallback">Optional callback to be notifiied after each mini batch has completed</param>
-        /// <returns>Graph training error</returns>
-        double Train(IExecutionContext executionContext, Action<float> batchCompleteCallback = null);
+	    /// <summary>
+	    /// Executes a training epoch on the graph
+	    /// </summary>
+	    /// <param name="executionContext">Graph execution context</param>
+	    /// <param name="batchCompleteCallback">Optional callback to be notifiied after each mini batch has completed</param>
+	    /// <returns>Graph training error</returns>
+	    double Train(IExecutionContext executionContext, Action<float> batchCompleteCallback = null);
 
         /// <summary>
         /// Executes test data on the current graph
@@ -667,8 +667,15 @@ namespace BrightWire
         /// <param name="errorMetric">Error metric to use to evaluate the test score</param>
         /// <param name="batchSize">Initial size of each mini batch</param>
         /// <param name="batchCompleteCallback">Optional callback to be notifiied after each mini batch has completed</param>
+        /// <param name="values">Optional callback to get the (testError, trainingRate, isPercentage, isImprovedScore) data</param>
         /// <returns>True if the model performance has improved since the last test</returns>
-        bool Test(IDataSource testDataSource, IErrorMetric errorMetric, int batchSize = 128, Action<float> batchCompleteCallback = null);
+        bool Test(
+	        IDataSource testDataSource, 
+	        IErrorMetric errorMetric, 
+	        int batchSize = 128, 
+	        Action<float> batchCompleteCallback = null, 
+	        Action<float, double, bool, bool> values = null
+	    );
 
         /// <summary>
         /// Graph learning context
