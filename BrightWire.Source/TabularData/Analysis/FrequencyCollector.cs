@@ -20,6 +20,7 @@ namespace BrightWire.TabularData.Analysis
         public IEnumerable<object> DistinctValues => _valueCount.Select(kv => kv.Key);
         public IEnumerable<KeyValuePair<string, ulong>> Frequency => _valueCount;
 	    public ulong Total { get; set; } = 0;
+	    public ColumnInfoType Type => ColumnInfoType.Frequency;
 
 	    public bool Process(IRow row)
         {

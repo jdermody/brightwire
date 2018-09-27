@@ -555,6 +555,42 @@ namespace BrightWire
 	}
 
 	/// <summary>
+	/// The type of column information
+	/// </summary>
+	public enum ColumnInfoType
+	{
+		/// <summary>
+		/// String information (IStringColumnInfo)
+		/// </summary>
+		String,
+		
+		/// <summary>
+		/// Numeric information (INumericColumnInfo)
+		/// </summary>
+		Numeric,
+
+		/// <summary>
+		/// Date information (IDateColumnInfo)
+		/// </summary>
+		Date,
+
+		/// <summary>
+		/// Frequency information (IFrequencyColumnInfo)
+		/// </summary>
+		Frequency,
+
+		/// <summary>
+		/// Index information (IIndexColumnInfo)
+		/// </summary>
+		Index,
+
+		/// <summary>
+		/// Dimensions information (IDimensionsColumnInfo)
+		/// </summary>
+		Dimensions
+	}
+
+	/// <summary>
 	/// Column statistics within a data table
 	/// </summary>
 	public interface IColumnInfo
@@ -573,6 +609,11 @@ namespace BrightWire
 		/// The number of distinct values (or null if there are too many)
 		/// </summary>
 		int? NumDistinct { get; }
+
+		/// <summary>
+		/// The type of column information
+		/// </summary>
+		ColumnInfoType Type { get; }
 	}
 
 	/// <summary>

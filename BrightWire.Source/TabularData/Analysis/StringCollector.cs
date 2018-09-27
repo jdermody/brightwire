@@ -51,5 +51,6 @@ namespace BrightWire.TabularData.Analysis
 	    public string MostCommonString => _distinct.Count < _maxDistinct ? _mode : null;
 	    public int? NumDistinct => _distinct.Count < _maxDistinct ? _distinct.Count : (int?)null;
 	    public IEnumerable<object> DistinctValues { get { return _distinct.Count < _maxDistinct ? _distinct.Select(kv => kv.Key) : null; } }
+	    public ColumnInfoType Type => ColumnInfoType.String;
     }
 }

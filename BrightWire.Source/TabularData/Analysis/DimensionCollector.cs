@@ -23,6 +23,7 @@ namespace BrightWire.TabularData.Analysis
 		public IEnumerable<object> DistinctValues => throw new NotImplementedException();
 
 		public int? NumDistinct => null;
+		public ColumnInfoType Type => ColumnInfoType.Dimensions;
 
 		public bool Process(IRow row)
 		{

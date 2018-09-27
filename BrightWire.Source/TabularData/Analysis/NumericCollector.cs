@@ -65,6 +65,7 @@ namespace BrightWire.TabularData.Analysis
 	    public double Max => _max;
 	    public double Mean => _mean;
 	    public double? Variance => _total > 1 ? (_m2 / (_total - 1)) : (double?)null;
+	    public ColumnInfoType Type => ColumnInfoType.Numeric;
 
 	    public double? StdDev {
             get

@@ -23,6 +23,7 @@ namespace BrightWire.TabularData.Analysis
 	    public uint MaxIndex => _max;
 	    public IEnumerable<object> DistinctValues => throw new NotImplementedException();
         public int? NumDistinct => null;
+	    public ColumnInfoType Type => ColumnInfoType.Index;
 
         public bool Process(IRow row)
         {

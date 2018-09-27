@@ -22,6 +22,7 @@ namespace BrightWire.TabularData.Analysis
 		public IEnumerable<object> DistinctValues => throw new NotImplementedException();
 
 		public int? NumDistinct => _distinct.Count;
+		public ColumnInfoType Type => ColumnInfoType.Date;
 
 		public bool Process(IRow row)
 		{
