@@ -847,6 +847,11 @@ namespace BrightWire.ExecutionGraph
 		public ICreateTemplateBasedGradientDescent RmsProp(float decay = 0.9f) => new RmsPropDescriptor(decay);
 
 		/// <summary>
+		/// Uses vanilla stochastic gradient descent
+		/// </summary>
+		public IGradientDescentOptimisation SimpleGradientDescent => _simpleGradientDescent;
+
+		/// <summary>
 		/// Prebuilt regularisation
 		/// </summary>
 		public class RegularisationProvider
