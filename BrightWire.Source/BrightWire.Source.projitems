@@ -134,6 +134,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Helper\PropertySet.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helper\RandomProjection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helper\TypeLoader.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helper\VectorAsRow.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helper\VectorDistanceHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)InstanceBased\KNNClassifier.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)InstanceBased\Training\KNNClassificationTrainer.cs" />

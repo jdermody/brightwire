@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using BrightWire.LinearAlgebra.Helper;
 
 namespace BrightWire.Models.DataTable
 {
@@ -68,7 +69,7 @@ namespace BrightWire.Models.DataTable
             /// <returns>The normalused input value</returns>
             public object Normalise(double val)
             {
-                var ret = (Divide == 0) ? val : (val - Subtract) / Divide;
+                var ret = (Math.Abs(Divide) < BoundMath.ZERO_LIKE) ? val : (val - Subtract) / Divide;
 
                 switch (DataType) {
                     case ColumnType.Float:
@@ -85,6 +86,26 @@ namespace BrightWire.Models.DataTable
             }
         }
 
+		/// <summary>
+		/// A vector based column to normalise
+		/// </summary>
+	    [ProtoContract]
+	    public class VectorColumn
+	    {
+		    /// <summary>
+		    /// The column index
+		    /// </summary>
+		    [ProtoMember(1)]
+		    public int ColumnIndex { get; set; }
+
+		    /// <summary>
+		    /// The vector normalisations
+		    /// </summary>
+		    [ProtoMember(2)]
+		    public Column[] VectorColumns { get; set; }
+
+	    }
+
         /// <summary>
         /// The type of normalisation
         /// </summary>
@@ -97,14 +118,29 @@ namespace BrightWire.Models.DataTable
         [ProtoMember(2)]
         public Column[] ColumnNormalisation { get; set; }
 
+		/// <summary>
+		/// 
+		/// </summary>
+		[ProtoMember(3)]
+		public VectorColumn[] VectorColumnNormalisation { get; set; }
+
         Dictionary<int, Column> _columnTable = null;
         Dictionary<int, Column> ColumnTable
         {
             get
             {
-                return _columnTable ?? (_columnTable = ColumnNormalisation.ToDictionary(c => c.ColumnIndex, c => c));
+                return _columnTable ?? (_columnTable = ColumnNormalisation?.ToDictionary(c => c.ColumnIndex, c => c));
             }
         }
+
+	    Dictionary<int, VectorColumn> _vectorColumnTable = null;
+	    Dictionary<int, VectorColumn> VectorColumnTable
+	    {
+		    get
+		    {
+			    return _vectorColumnTable ?? (_vectorColumnTable = VectorColumnNormalisation?.ToDictionary(c => c.ColumnIndex, c => c));
+		    }
+	    }
 
         /// <summary>
         /// Normalises a row in the data table
@@ -113,6 +149,7 @@ namespace BrightWire.Models.DataTable
         public IReadOnlyList<object> Normalise(IReadOnlyList<object> row)
         {
             var columnTable = ColumnTable;
+	        var vectorColumnTable = VectorColumnTable;
             var ret = new object[row.Count];
 
             for (var i = 0; i < row.Count; i++) {
@@ -139,6 +176,12 @@ namespace BrightWire.Models.DataTable
                             throw new NotImplementedException();
                     }
                     obj = norm.Normalise(val);
+                }else if (vectorColumnTable != null && vectorColumnTable.TryGetValue(i, out var vectorNorm)) {
+	                var vector = (FloatVector)row[i];
+	                var normalised = vector.Data.Zip(vectorNorm.VectorColumns, (v, n) => (float)n.Normalise(Convert.ToDouble(v))).ToArray();
+	                obj = new FloatVector {
+		                Data = normalised
+	                };
                 } else
                     obj = row[i];
                 ret[i] = obj;

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using BrightWire.Helper;
 
 namespace BrightWire
 {
@@ -290,5 +291,14 @@ namespace BrightWire
             }
             return ret;
         }
+
+		/// <summary>
+		/// Adapts the vector as a row
+		/// </summary>
+		/// <param name="vector">Vector to treat as data table row</param>
+	    public static IRow AsRow(this FloatVector vector)
+		{
+			return new VectorAsRow(vector);
+		}
     }
 }
