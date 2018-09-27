@@ -227,11 +227,15 @@ namespace BrightWire.TabularData
 			}
 		}
 
-		public IDataTableAnalysis GetAnalysis()
+		public IDataTableAnalysis GetAnalysis(bool collectFrequency = false)
 		{
 			if (_analysis == null) {
 				var analysis = new DataTableAnalysis(this);
 				Process(analysis);
+
+				if (collectFrequency)
+					analysis.CollectFrequencies(this);
+
 				_analysis = analysis;
 			}
 			return _analysis;

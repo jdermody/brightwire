@@ -1,4 +1,5 @@
-﻿using BrightWire.TabularData.Helper;
+﻿using System;
+using BrightWire.TabularData.Helper;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -21,6 +22,7 @@ namespace BrightWire.TabularData.Analysis
 
         readonly IDataTable _table;
         readonly List<IRowProcessor> _column = new List<IRowProcessor>();
+	    readonly List<IDataTableColumnFrequency> _columnFrequency = new List<IDataTableColumnFrequency>();
 
         public DataTableAnalysis(IDataTable table)
         {
@@ -43,9 +45,7 @@ namespace BrightWire.TabularData.Analysis
         {
             var type = column.Type;
 	        if (!_invalidColumnType.Contains(type)) {
-		        if (column.IsTarget)
-			        _column.Add(new FrequencyCollector(index));
-		        else if (ColumnTypeClassifier.IsNumeric(column))
+		        if (ColumnTypeClassifier.IsNumeric(column))
 			        _column.Add(new NumberCollector(index));
 		        else if (type == ColumnType.String)
 			        _column.Add(new StringCollector(index));
@@ -55,6 +55,8 @@ namespace BrightWire.TabularData.Analysis
 			        _column.Add(new DateCollector(index));
 				else if (type == ColumnType.Vector || type == ColumnType.Matrix || type == ColumnType.Tensor)
 			        _column.Add(new DimensionCollector(index));
+				else if(ColumnTypeClassifier.IsCategorical(column))
+					_column.Add(new FrequencyCollector(index));
 	        }
         }
 
@@ -67,6 +69,44 @@ namespace BrightWire.TabularData.Analysis
 
         public IEnumerable<IColumnInfo> ColumnInfo => _column.Cast<IColumnInfo>();
 	    public IColumnInfo this[int columnIndex] => ColumnInfo.FirstOrDefault(c => c.ColumnIndex == columnIndex);
+	    public IReadOnlyList<IDataTableColumnFrequency> ColumnFrequency => _columnFrequency;
+
+	    public void CollectFrequencies(IDataTable dataTable)
+	    {
+		    var numBins = 10; // TODO: make proportional to size of data?
+		    var collectors = new List<IRowProcessor>();
+
+		    foreach (var column in ColumnInfo) {
+			    bool shouldCollect = true;
+			    IDataTableColumnFrequency columnFrequency = null;
+			    if (column is NumberCollector numeric) {
+				    if (column.NumDistinct > numBins)
+					    columnFrequency = new BinnedFrequencyCollector(column.ColumnIndex, numeric.Min, numeric.Max, numBins);
+				    else
+					    columnFrequency = new FrequencyCollector(column.ColumnIndex);
+			    }else if(column is StringCollector strings && strings.NumDistinct <= numBins) 
+					columnFrequency = new FrequencyCollector(column.ColumnIndex);
+			    else if(column is DateCollector dates && dates.NumDistinct <= numBins)
+				    columnFrequency = new FrequencyCollector(column.ColumnIndex);
+				else if (column is FrequencyCollector existing) {
+					columnFrequency = existing;
+					shouldCollect = false;
+			    }
+
+			    if (columnFrequency != null) {
+				    _columnFrequency.Add(columnFrequency);
+				    if (shouldCollect)
+					    collectors.Add((IRowProcessor)columnFrequency);
+			    }
+		    }
+
+		    if (collectors.Any()) {
+			    dataTable.ForEach(row => {
+				    foreach (var collector in collectors)
+					    collector.Process(row);
+			    });
+		    }
+	    }
 
 	    string _Write(double val) => val.ToString(CultureInfo.InvariantCulture);
 
@@ -76,6 +116,7 @@ namespace BrightWire.TabularData.Analysis
             {
                 var ret = new StringBuilder();
                 var table = ColumnInfo.ToDictionary(c => c.ColumnIndex, c => c);
+	            var frequency = _columnFrequency.ToDictionary(c => c.ColumnIndex, c => c);
 
                 using (var writer = XmlWriter.Create(new StringWriter(ret))) {
                     writer.WriteStartElement("table");
@@ -120,16 +161,6 @@ namespace BrightWire.TabularData.Analysis
                                 writer.WriteAttributeString("max-index", indexColumn.MaxIndex.ToString());
                             }
 
-	                        if (columnInfo is IFrequencyColumnInfo frequencyColumn) {
-		                        double total = frequencyColumn.Total;
-		                        foreach (var item in frequencyColumn.Frequency.OrderByDescending(d => d.Value)) {
-			                        writer.WriteStartElement("target");
-			                        writer.WriteAttributeString("class", item.Key);
-			                        writer.WriteAttributeString("frequency", _Write(item.Value / total));
-			                        writer.WriteEndElement();
-		                        }
-	                        }
-
 	                        if (columnInfo is IDateColumnInfo dateColumn) {
 								if(dateColumn.MinDate.HasValue)
 									writer.WriteAttributeString("min-date", dateColumn.MinDate.Value.ToString("s"));
@@ -144,6 +175,26 @@ namespace BrightWire.TabularData.Analysis
 			                        writer.WriteAttributeString("y", tensorColumn.YDimension.Value.ToString());
 		                        if(tensorColumn.ZDimension.HasValue)
 			                        writer.WriteAttributeString("z", tensorColumn.ZDimension.Value.ToString());
+	                        }
+
+	                        if (frequency.TryGetValue(columnInfo.ColumnIndex, out var columnFrequency)) {
+		                        double total = _table.RowCount;
+		                        if (columnFrequency.CategoricalFrequency != null) {
+			                        foreach (var item in columnFrequency.CategoricalFrequency.OrderByDescending(d => d.Count)) {
+				                        writer.WriteStartElement("frequency");
+				                        writer.WriteAttributeString("class", item.Category);
+				                        writer.WriteString(_Write(item.Count / total));
+				                        writer.WriteEndElement();
+			                        }
+		                        }else if (columnFrequency.ContinuousFrequency != null) {
+			                        foreach (var item in columnFrequency.ContinuousFrequency.OrderByDescending(d => d.Count)) {
+				                        writer.WriteStartElement("frequency-range");
+				                        writer.WriteAttributeString("start", double.IsNegativeInfinity(item.Start) ? "-∞" : _Write(item.Start));
+				                        writer.WriteAttributeString("end", double.IsPositiveInfinity(item.End) ? "∞" : _Write(item.End));
+				                        writer.WriteString(_Write(item.Count / total));
+				                        writer.WriteEndElement();
+			                        }
+		                        }
 	                        }
                         }
                         writer.WriteEndElement();

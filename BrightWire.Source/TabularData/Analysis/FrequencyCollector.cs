@@ -6,7 +6,7 @@ namespace BrightWire.TabularData.Analysis
     /// <summary>
     /// A collector that collects the frequency from a single column of a data table
     /// </summary>
-    class FrequencyCollector : IRowProcessor, IFrequencyColumnInfo
+    class FrequencyCollector : IRowProcessor, IFrequencyColumnInfo, IDataTableColumnFrequency
     {
 	    readonly Dictionary<string, ulong> _valueCount = new Dictionary<string, ulong>();
 
@@ -31,5 +31,8 @@ namespace BrightWire.TabularData.Analysis
             ++Total;
             return true;
         }
+
+	    public IReadOnlyList<(string Category, ulong Count)> CategoricalFrequency => _valueCount.Select(kv => (kv.Key, kv.Value)).ToList();
+	    public IReadOnlyList<(double Start, double End, ulong Count)> ContinuousFrequency => null;
     }
 }

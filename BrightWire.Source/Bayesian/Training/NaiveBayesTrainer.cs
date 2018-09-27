@@ -10,8 +10,36 @@ namespace BrightWire.Bayesian.Training
     /// <summary>
     /// Simple naive bayes trainer
     /// </summary>
-    internal static class NaiveBayesTrainer
+    static class NaiveBayesTrainer
     {
+	    class FrequencyAnalysis : IRowProcessor
+	    {
+		    readonly List<IRowProcessor> _column = new List<IRowProcessor>();
+
+		    public FrequencyAnalysis(IDataTable table, int ignoreColumnIndex = -1)
+		    {
+			    int index = 0;
+			    foreach (var item in table.Columns) {
+				    if (index != ignoreColumnIndex) {
+					    if (item.IsContinuous)
+						    _column.Add(new NumberCollector(index));
+					    else if (ColumnTypeClassifier.IsCategorical(item))
+						    _column.Add(new FrequencyCollector(index));
+				    }
+				    ++index;
+			    }
+		    }
+
+		    public bool Process(IRow row)
+		    {
+			    foreach (var item in _column)
+				    item.Process(row);
+			    return true;
+		    }
+
+		    public IEnumerable<IColumnInfo> ColumnInfo => _column.Cast<IColumnInfo>();
+	    }
+
         public static NaiveBayes Train(IDataTable table)
         {
             // analyse the table to get the set of class values

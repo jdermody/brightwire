@@ -177,10 +177,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\TreeBased\DecisionTree.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\TreeBased\RandomForest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\WeightedIndexList.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TabularData\Analysis\BinnedFrequencyCollector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TabularData\Analysis\DataTableAnalysis.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TabularData\Analysis\DateCollector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TabularData\Analysis\DimensionCollector.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)TabularData\Analysis\FrequencyAnalysis.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TabularData\Analysis\FrequencyCollector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TabularData\Analysis\IndexCollector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TabularData\Analysis\NumericCollector.cs" />
