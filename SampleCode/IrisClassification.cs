@@ -85,7 +85,7 @@ namespace BrightWire.SampleCode
                 // create a 4x3x3 neural network with sigmoid activations after each neural network
                 const int HIDDEN_LAYER_SIZE = 8, BATCH_SIZE = 8;
                 const float LEARNING_RATE = 0.01f;
-                var engine = graph.CreateTrainingEngine(trainingData, LEARNING_RATE, BATCH_SIZE);
+                var engine = graph.CreateTrainingEngine(trainingData, LEARNING_RATE, BATCH_SIZE, TrainingErrorCalculation.TrainingData);
                 graph.Connect(engine)
                     .AddFeedForward(HIDDEN_LAYER_SIZE)
                     .Add(graph.SigmoidActivation())
