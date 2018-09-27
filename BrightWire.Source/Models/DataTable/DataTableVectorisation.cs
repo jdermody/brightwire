@@ -1,4 +1,5 @@
-﻿using BrightWire.Models;
+﻿using System;
+using BrightWire.Models;
 using ProtoBuf;
 using System.Collections.Generic;
 using System.Linq;
@@ -65,7 +66,7 @@ namespace BrightWire.Models.DataTable
             public bool IsContinuous { get; set; }
 
             /// <summary>
-            /// The number slots this column will fill in the output vector
+            /// The number of slots this column will fill in the output vector
             /// </summary>
             [ProtoMember(5)]
             public int Size { get; set; }
@@ -188,13 +189,12 @@ namespace BrightWire.Models.DataTable
                 if (i == ClassColumnIndex)
                     continue;
 
+	            var columnIndex = column.ColumnIndex;
                 if (column.IsContinuous)
-                    ret[index++] = row.GetField<float>(i);
+                    ret[index++] = row.GetField<float>(columnIndex);
                 else {
-                    var str = row.GetField<string>(i);
-                    var offset = index + ColumnMap[i][str];
-                    index += column.Size;
-                    ret[offset] = 1f;
+	                _WriteNonContinuous(columnIndex, row, index, ret);
+	                index += column.Size;
                 }
             }
             return new FloatVector {
@@ -213,9 +213,7 @@ namespace BrightWire.Models.DataTable
                 if (IsTargetContinuous)
                     ret[0] = row.GetField<float>(ClassColumnIndex);
                 else {
-                    var str = row.GetField<string>(ClassColumnIndex);
-                    var offset = ColumnMap[ClassColumnIndex][str];
-                    ret[offset] = 1f;
+	                _WriteNonContinuous(ClassColumnIndex, row, 0, ret);
                 }
                 return new FloatVector {
                     Data = ret
@@ -223,5 +221,42 @@ namespace BrightWire.Models.DataTable
             }
             return null;
         }
+
+	    void _WriteNonContinuous(int columnIndex, IRow row, int offset, float[] buffer)
+	    {
+		    var columnType = row.Table.Columns[columnIndex].Type;
+		    if (columnType == ColumnType.IndexList) {
+			    var indexList = row.GetField<IndexList>(columnIndex);
+			    foreach (var index in indexList.Index)
+				    buffer[offset + index] = 1f;
+		    }else if (columnType == ColumnType.WeightedIndexList) {
+				var weightedIndexList = row.GetField<WeightedIndexList>(columnIndex);
+			    foreach (var index in weightedIndexList.IndexList)
+				    buffer[offset + index.Index] = index.Weight;
+		    }else if (columnType == ColumnType.Vector) {
+				var vector = row.GetField<FloatVector>(columnIndex);
+			    Array.Copy(vector.Data, 0, buffer, offset, vector.Count);
+		    }else if (columnType == ColumnType.Matrix) {
+			    var matrix = row.GetField<FloatMatrix>(columnIndex);
+			    foreach (var vector in matrix.Row) {
+				    Array.Copy(vector.Data, 0, buffer, offset, vector.Count);
+				    offset += vector.Count;
+			    }
+		    }else if (columnType == ColumnType.Tensor) {
+			    var tensor = row.GetField<FloatTensor>(columnIndex);
+			    foreach (var matrix in tensor.Matrix) {
+				    foreach (var vector in matrix.Row) {
+					    Array.Copy(vector.Data, 0, buffer, offset, vector.Count);
+					    offset += vector.Count;
+				    }
+			    }
+		    }
+		    else {
+				// one hot encode the output
+			    var str = row.GetField<string>(columnIndex);
+			    offset += ColumnMap[columnIndex][str];
+			    buffer[offset] = 1f;
+		    }
+	    }
     }
 }
