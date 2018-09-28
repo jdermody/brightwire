@@ -187,7 +187,7 @@ namespace BrightWire.TabularData.Analysis
 				                        writer.WriteEndElement();
 			                        }
 		                        }else if (columnFrequency.ContinuousFrequency != null) {
-			                        foreach (var item in columnFrequency.ContinuousFrequency.OrderByDescending(d => d.Count)) {
+			                        foreach (var item in columnFrequency.ContinuousFrequency) {
 				                        writer.WriteStartElement("frequency-range");
 				                        writer.WriteAttributeString("start", double.IsNegativeInfinity(item.Start) ? "-∞" : _Write(item.Start));
 				                        writer.WriteAttributeString("end", double.IsPositiveInfinity(item.End) ? "∞" : _Write(item.End));
