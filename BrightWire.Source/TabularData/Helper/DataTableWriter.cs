@@ -48,7 +48,7 @@ namespace BrightWire.TabularData.Helper
         {
             Flush();
             _stream.Seek(0, SeekOrigin.Begin);
-            return new DataTable(_stream, _index, _rowCount);
+            return new DataTable(_stream, _index, _rowCount, null);
         }
 
         public void AddColumn(string name, ColumnType type, bool isTarget = false)

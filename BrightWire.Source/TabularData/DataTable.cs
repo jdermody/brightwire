@@ -56,13 +56,18 @@ namespace BrightWire.TabularData
 
 		IDataTableAnalysis _analysis = null;
 
-		public DataTable(Stream stream, IReadOnlyList<long> dataIndex, int rowCount)
+		public DataTable(Stream stream, IReadOnlyList<long> dataIndex, int rowCount, int? blockSize)
 		{
 			_index = dataIndex;
 			_rowCount = rowCount;
 			var reader = new BinaryReader(stream, Encoding.UTF8, true);
-			reader.ReadInt32(); // read the format version
-			_blockSize = reader.ReadInt32(); // read the block size
+			if (blockSize.HasValue)
+				_blockSize = blockSize.Value;
+			else {
+				reader.ReadInt32(); // read the format version
+				_blockSize = reader.ReadInt32(); // read the block size
+			}
+
 			var columnCount = reader.ReadInt32(); // read the number of columns
 			for (var i = 0; i < columnCount; i++) {
 				var name = reader.ReadString();
@@ -95,7 +100,7 @@ namespace BrightWire.TabularData
 			return ret;
 		}
 
-		public static DataTable Create(Stream dataStream, Stream indexStream)
+		public static DataTable Create(Stream dataStream, Stream indexStream, int? blockSize)
 		{
 			var reader = new BinaryReader(indexStream);
 			var rowCount = reader.ReadInt32();
@@ -103,12 +108,12 @@ namespace BrightWire.TabularData
 			var index = new long[numIndex];
 			for (var i = 0; i < numIndex; i++)
 				index[i] = reader.ReadInt64();
-			return new DataTable(dataStream, index, rowCount);
+			return new DataTable(dataStream, index, rowCount, blockSize);
 		}
 
-		public static DataTable Create(Stream dataStream)
+		public static DataTable Create(Stream dataStream, int? blockSize)
 		{
-			var temp = new DataTable(dataStream, new long[0], 0);
+			var temp = new DataTable(dataStream, new long[0], 0, blockSize);
 			var index = new List<long>();
 			var rowCount = 0;
 
@@ -120,7 +125,7 @@ namespace BrightWire.TabularData
 					index.Add(dataStream.Position);
 			}
 			dataStream.Seek(0, SeekOrigin.Begin);
-			return new DataTable(dataStream, index, rowCount);
+			return new DataTable(dataStream, index, rowCount, blockSize);
 		}
 
 		public IReadOnlyList<IColumn> Columns => _column;

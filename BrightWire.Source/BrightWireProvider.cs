@@ -89,10 +89,23 @@ namespace BrightWire
         public static IDataTable CreateDataTable(Stream dataStream, Stream indexStream = null)
         {
             if (indexStream == null)
-                return DataTable.Create(dataStream);
+                return DataTable.Create(dataStream, null);
             else
-                return DataTable.Create(dataStream, indexStream);
+                return DataTable.Create(dataStream, indexStream, null);
         }
+
+	    /// <summary>
+	    /// Creates a data table from a stream (created from versions below 2.1)
+	    /// </summary>
+	    /// <param name="dataStream">The stream that the data table was written to</param>
+	    /// <param name="indexStream">The stream that the index was written to (optional)</param>
+	    public static IDataTable CreateLegacyDataTable(Stream dataStream, Stream indexStream = null)
+	    {
+		    if (indexStream == null)
+			    return DataTable.Create(dataStream, 1024);
+		    else
+			    return DataTable.Create(dataStream, indexStream, 1024);
+	    }
 
         /// <summary>
         /// Creates a linear algebra provider that runs on the CPU
