@@ -30,16 +30,9 @@ namespace BrightWire.Unsupervised
                 _data.AddRange(left._data);
                 _data.AddRange(right._data);
 
-                var isFirst = true;
-                var denominator = 1f / _data.Count;
-                foreach (var item in _data) {
-                    if (Center == null)
-                        Center = item.Clone();
-                    else {
-                        Center.AddInPlace(item, isFirst ? denominator : 1, denominator);
-                        isFirst = false;
-                    }
-                }
+				// average the two centroid vectors
+	            Center = left.Center;
+	            Center.AddInPlace(right.Center, 0.5f, 0.5f);
             }
             public void Dispose()
             {
@@ -60,11 +53,11 @@ namespace BrightWire.Unsupervised
 
         class DistanceMatrix
         {
-            readonly Dictionary<Tuple<Centroid, Centroid>, float> _distance = new Dictionary<Tuple<Centroid, Centroid>, float>();
+            readonly Dictionary<(Centroid, Centroid), float> _distance = new Dictionary<(Centroid, Centroid), float>();
 
             public bool HasDistance(Centroid item1, Centroid item2)
             {
-                return _distance.ContainsKey(Tuple.Create(item1, item2)) || _distance.ContainsKey(Tuple.Create(item2, item1));
+                return _distance.ContainsKey((item1, item2)) || _distance.ContainsKey((item2, item1));
             }
             public void Remove(Centroid centroid)
             {
@@ -75,9 +68,9 @@ namespace BrightWire.Unsupervised
             }
             public void Add(Centroid item1, Centroid item2, float distance)
             {
-                _distance.Add(Tuple.Create(item1, item2), distance);
+                _distance.Add((item1, item2), distance);
             }
-            public KeyValuePair<Tuple<Centroid, Centroid>, float> GetNextMerge()
+            public KeyValuePair<(Centroid, Centroid), float> GetNextMerge()
             {
                 return _distance.OrderBy(d => d.Value).FirstOrDefault();
             }
@@ -125,23 +118,14 @@ namespace BrightWire.Unsupervised
                 var combined = new Centroid(target, source);
 
                 // find the distances between the new centroid and the remaining centroids
-                foreach (var item2 in _centroid) {
-                    if (!_distanceMatrix.HasDistance(combined, item2)) {
-                        var distance = combined.Center.FindDistance(item2.Center, _distanceMetric);
-                        _distanceMatrix.Add(combined, item2, distance);
+                foreach (var item in _centroid) {
+                    if (!_distanceMatrix.HasDistance(combined, item)) {
+                        var distance = combined.Center.FindDistance(item.Center, _distanceMetric);
+                        _distanceMatrix.Add(combined, item, distance);
                     }
                 }
                 _centroid.Add(combined);
             }
-        }
-
-        void _Visit(int depth, Centroid centroid, Dictionary<int, List<Centroid>> depthTable)
-        {
-            if (!depthTable.TryGetValue(depth, out List<Centroid> list))
-                depthTable.Add(depth, list = new List<Centroid>());
-            list.Add(centroid);
-            foreach (var child in centroid.Children)
-                _Visit(depth + 1, child, depthTable);
         }
 
         public IReadOnlyList<IReadOnlyList<IVector>> Clusters
