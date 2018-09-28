@@ -42,6 +42,11 @@ namespace BrightWire.Source.Helper
 		public IReadOnlyList<IVector> CompareTo => _comparison;
 
 		/// <summary>
+		/// Distance metric
+		/// </summary>
+		public DistanceMetric Metric => _distanceMetric;
+
+		/// <summary>
 		/// Adds a comparison vector (will be owned and disposed by the helper class)
 		/// </summary>
 		/// <param name="comparison">Vector to compare against</param>
@@ -80,11 +85,11 @@ namespace BrightWire.Source.Helper
 		/// </summary>
 		public IReadOnlyList<int> GetClosest()
 		{
-			var distance = _lap.CalculateDistances(_data, _comparison, _distanceMetric);
-			return Enumerable.Range(0, _data.Count)
-				.Select(i => _GetMinimum(distance, i).Index)
-				.ToList()
-			;
+			using (var distance = _lap.CalculateDistances(_data, _comparison, _distanceMetric)) {
+				return Enumerable.Range(0, _data.Count)
+					.Select(i => _GetMinimum(distance, i).Index)
+					.ToList();
+			}
 		}
 
 		/// <summary>
@@ -93,10 +98,11 @@ namespace BrightWire.Source.Helper
 		/// <param name="indices">Indices of the data vectors to use in the averaged vector</param>
 		public IVector GetAverageFromData(IReadOnlyList<int> indices)
 		{
-			var data = _lap.CreateMatrixFromColumns(indices.Select(i => _data[i]).ToList());
-			var result = data.RowSums();
-			result.Multiply(1f / indices.Count);
-			return result;
+			using (var data = _lap.CreateMatrixFromColumns(indices.Select(i => _data[i]).ToList())) {
+				var result = data.RowSums();
+				result.Multiply(1f / indices.Count);
+				return result;
+			}
 		}
 
 		(int Index, float Value) _GetMinimum(IMatrix data, int columnIndex)
@@ -129,6 +135,5 @@ namespace BrightWire.Source.Helper
 			}
 			return (bestIndex, min);
 		}
-
 	}
 }
