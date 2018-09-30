@@ -22,17 +22,9 @@ Bright Wire is an open source machine learning library. Includes deep learning (
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="readme.txt" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="MathNet.Numerics" Version="4.5.1" />
     <PackageReference Include="protobuf-net" Version="2.4.0" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Update="NETStandard.Library" Version="2.0.0" />
   </ItemGroup>
 
   <Import Project="..\BrightWire.Source\BrightWire.Source.projitems" Label="Shared" />

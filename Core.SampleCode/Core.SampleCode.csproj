@@ -3,6 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.0</TargetFramework>
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
@@ -28,17 +29,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="CudaBlas">
-      <HintPath>..\ManagedCuda\CudaBlas.dll</HintPath>
-    </Reference>
-    <Reference Include="CudaSolve">
-      <HintPath>..\ManagedCuda\CudaSolve.dll</HintPath>
-    </Reference>
-    <Reference Include="CudaSparse">
-      <HintPath>..\ManagedCuda\CudaSparse.dll</HintPath>
-    </Reference>
-    <Reference Include="ManagedCuda">
-      <HintPath>..\ManagedCuda\ManagedCuda.dll</HintPath>
+    <Reference Include="ManagedCudaStandard">
+      <HintPath>..\ManagedCuda\ManagedCudaStandard.dll</HintPath>
     </Reference>
   </ItemGroup>
 

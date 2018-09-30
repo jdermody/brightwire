@@ -50,21 +50,8 @@ BrightWire.CUDA adds GPU support to Bright Wire. This lets you run Bright Wire m
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="CudaBlas">
-      <HintPath>..\ManagedCuda\CudaBlas.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
-    <Reference Include="CudaSolve">
-      <HintPath>..\ManagedCuda\CudaSolve.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
-    <Reference Include="CudaSparse">
-      <HintPath>..\ManagedCuda\CudaSparse.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
-    <Reference Include="ManagedCuda">
-      <HintPath>..\ManagedCuda\ManagedCuda.dll</HintPath>
-      <Private>true</Private>
+    <Reference Include="ManagedCudaStandard">
+      <HintPath>..\ManagedCuda\ManagedCudaStandard.dll</HintPath>
     </Reference>
   </ItemGroup>
 
