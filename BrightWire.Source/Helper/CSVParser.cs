@@ -2,6 +2,7 @@
 using BrightWire.TabularData.Helper;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -159,17 +160,17 @@ namespace BrightWire.Helper
 
 		ColumnType _DetermineType(string str)
 		{
-			if (sbyte.TryParse(str, out var _))
+			if (sbyte.TryParse(str, NumberStyles.Any, CultureInfo.InvariantCulture, out var _))
 				return ColumnType.Byte;
-			else if (int.TryParse(str, out var _))
+			else if (int.TryParse(str, NumberStyles.Any, CultureInfo.InvariantCulture, out var _))
 				return ColumnType.Int;
-			else if (long.TryParse(str, out var _))
+			else if (long.TryParse(str, NumberStyles.Any, CultureInfo.InvariantCulture, out var _))
 				return ColumnType.Long;
-			else if (float.TryParse(str, out var _))
+			else if (float.TryParse(str, NumberStyles.Any, CultureInfo.InvariantCulture, out var _))
 				return ColumnType.Float;
-			else if (double.TryParse(str, out var _))
+			else if (double.TryParse(str, NumberStyles.Any, CultureInfo.InvariantCulture, out var _))
 				return ColumnType.Double;
-			else if (DateTime.TryParse(str, out var _))
+			else if (DateTime.TryParse(str, CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces, out var _))
 				return ColumnType.Date;
 			else {
 				var upperStr = str.ToUpperInvariant();
@@ -241,15 +242,15 @@ namespace BrightWire.Helper
 					return _booleanTrueFields.Contains(str.ToUpperInvariant());
 
 				case ColumnType.Date:
-					return DateTime.Parse(str);
+					return DateTime.Parse(str, CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces);
 
 				case ColumnType.Double:
-					return double.Parse(str);
+					return double.Parse(str, NumberStyles.Any, CultureInfo.InvariantCulture);
 
 				case ColumnType.Float:
-					if (float.TryParse(str, out float flt))
+					if (float.TryParse(str, NumberStyles.Any, CultureInfo.InvariantCulture, out float flt))
 						return flt;
-					if (double.TryParse(str, out double dbl)) {
+					if (double.TryParse(str, NumberStyles.Any, CultureInfo.InvariantCulture, out double dbl)) {
 						type = ColumnType.Double;
 						return dbl;
 					}
@@ -257,12 +258,12 @@ namespace BrightWire.Helper
 					return str;
 
 				case ColumnType.Long:
-					return long.Parse(str);
+					return long.Parse(str, NumberStyles.Any, CultureInfo.InvariantCulture);
 
 				case ColumnType.Int:
-					if (int.TryParse(str, out i))
+					if (int.TryParse(str, NumberStyles.Any, CultureInfo.InvariantCulture, out i))
 						return i;
-					if (long.TryParse(str, out l)) {
+					if (long.TryParse(str, NumberStyles.Any, CultureInfo.InvariantCulture, out l)) {
 						type = ColumnType.Long;
 						return l;
 					}
@@ -270,13 +271,13 @@ namespace BrightWire.Helper
 					return str;
 
 				case ColumnType.Byte:
-					if (sbyte.TryParse(str, out sbyte b))
+					if (sbyte.TryParse(str, NumberStyles.Any, CultureInfo.InvariantCulture, out sbyte b))
 						return b;
-					if (int.TryParse(str, out i)) {
+					if (int.TryParse(str, NumberStyles.Any, CultureInfo.InvariantCulture, out i)) {
 						type = ColumnType.Int;
 						return i;
 					}
-					if (long.TryParse(str, out l)) {
+					if (long.TryParse(str, NumberStyles.Any, CultureInfo.InvariantCulture, out l)) {
 						type = ColumnType.Long;
 						return l;
 					}
