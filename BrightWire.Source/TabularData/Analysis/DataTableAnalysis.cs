@@ -128,6 +128,12 @@ namespace BrightWire.TabularData.Analysis
                         writer.WriteAttributeString("name", column.Name);
                         writer.WriteAttributeString("num-distinct", column.NumDistinct.ToString());
                         writer.WriteAttributeString("is-continuous", column.IsContinuous ? "y" : "n");
+						if(column.DimensionX.HasValue)
+							writer.WriteAttributeString("x-dimension", column.DimensionX.Value.ToString());
+	                    if(column.DimensionY.HasValue)
+		                    writer.WriteAttributeString("y-dimension", column.DimensionY.Value.ToString());
+	                    if(column.DimensionZ.HasValue)
+		                    writer.WriteAttributeString("z-dimension", column.DimensionZ.Value.ToString());
                         if (column.IsTarget)
                             writer.WriteAttributeString("classification-target", "y");
                         
@@ -146,14 +152,14 @@ namespace BrightWire.TabularData.Analysis
                                 writer.WriteAttributeString("min", _Write(numericColumn.Min));
                                 writer.WriteAttributeString("max", _Write(numericColumn.Max));
                                 writer.WriteAttributeString("mean", _Write(numericColumn.Mean));
-                                writer.WriteAttributeString("l1", _Write(numericColumn.L1Norm));
-                                writer.WriteAttributeString("l2", _Write(numericColumn.L2Norm));
                                 if (numericColumn.StdDev.HasValue)
                                     writer.WriteAttributeString("std-dev", _Write(numericColumn.StdDev.Value));
                                 if (numericColumn.Median.HasValue)
                                     writer.WriteAttributeString("median", _Write(numericColumn.Median.Value));
                                 if (numericColumn.Mode.HasValue)
                                     writer.WriteAttributeString("mode", _Write(numericColumn.Mode.Value));
+	                            writer.WriteAttributeString("l1", _Write(numericColumn.L1Norm));
+	                            writer.WriteAttributeString("l2", _Write(numericColumn.L2Norm));
                             }
 
                             if (columnInfo is IIndexColumnInfo indexColumn) {
@@ -188,6 +194,9 @@ namespace BrightWire.TabularData.Analysis
 			                        }
 		                        }else if (columnFrequency.ContinuousFrequency != null) {
 			                        foreach (var item in columnFrequency.ContinuousFrequency) {
+				                        if (item.Count == 0 && (double.IsNegativeInfinity(item.Start) || double.IsPositiveInfinity(item.End)))
+					                        continue;
+
 				                        writer.WriteStartElement("frequency-range");
 				                        writer.WriteAttributeString("start", double.IsNegativeInfinity(item.Start) ? "-∞" : _Write(item.Start));
 				                        writer.WriteAttributeString("end", double.IsPositiveInfinity(item.End) ? "∞" : _Write(item.End));
