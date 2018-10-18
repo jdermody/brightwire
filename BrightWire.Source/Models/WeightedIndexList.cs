@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using BrightWire.LinearAlgebra.Helper;
 
 namespace BrightWire.Models
 {
@@ -47,9 +48,9 @@ namespace BrightWire.Models
         /// <summary>
         /// The number of items in the list
         /// </summary>
-        public int Count { get { return IndexList?.Length ?? 0; } }
+        public int Count => IndexList?.Length ?? 0;
 
-        /// <summary>
+	    /// <summary>
         /// ToString override
         /// </summary>
         public override string ToString()
@@ -126,5 +127,13 @@ namespace BrightWire.Models
                 return sb.ToString();
             }
         }
+
+		/// <summary>
+		/// Converts the weighted index-list to an unweighted index-list (only those indices whose weight is not zero)
+		/// </summary>
+		/// <returns></returns>
+	    public IndexList AsIndexList() => new IndexList {
+		    Index = IndexList.Where(ind => BoundMath.IsNotZero(ind.Weight)).Select(ind => ind.Index).ToArray()
+	    };
     }
 }
