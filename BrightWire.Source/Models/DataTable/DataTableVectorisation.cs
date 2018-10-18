@@ -76,6 +76,12 @@ namespace BrightWire.Models.DataTable
             /// </summary>
             [ProtoMember(6)]
             public CategoricalIndex[] Values { get; set; }
+
+	        /// <summary>
+	        /// True if the column has one of two possible values
+	        /// </summary>
+	        [ProtoMember(7)]
+	        public bool IsBinary { get; set; }
         }
 
         /// <summary>
@@ -113,6 +119,12 @@ namespace BrightWire.Models.DataTable
         /// </summary>
         [ProtoMember(6)]
         public int ClassColumnIndex { get; set; }
+
+	    /// <summary>
+	    /// True if the classification target column has one of two possible values
+	    /// </summary>
+	    [ProtoMember(7)]
+	    public bool IsTargetBinary { get; set; }
 
         /// <summary>
         /// A dictionary of column to categorical value tables
@@ -190,7 +202,9 @@ namespace BrightWire.Models.DataTable
                     continue;
 
 	            var columnIndex = column.ColumnIndex;
-                if (column.IsContinuous)
+	            if (column.IsBinary)
+		            ret[index++] = row.GetField<bool>(columnIndex) ? 1f : 0f;
+                else if (column.IsContinuous)
                     ret[index++] = row.GetField<float>(columnIndex);
                 else {
 	                _WriteNonContinuous(columnIndex, row, index, ret);
@@ -210,11 +224,14 @@ namespace BrightWire.Models.DataTable
         {
             if (HasTarget) {
                 var ret = new float[OutputSize];
-                if (IsTargetContinuous)
+
+	            if (IsTargetBinary)
+		            ret[0] = row.GetField<bool>(ClassColumnIndex) ? 1f : 0f;
+	            else if (IsTargetContinuous)
                     ret[0] = row.GetField<float>(ClassColumnIndex);
-                else {
+                else
 	                _WriteNonContinuous(ClassColumnIndex, row, 0, ret);
-                }
+
                 return new FloatVector {
                     Data = ret
                 };

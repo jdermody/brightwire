@@ -39,7 +39,10 @@ namespace BrightWire.TabularData.Helper
 				};
 				columnList.Add(columnModel);
 
-				if (columnInfo is IIndexColumnInfo indexColumn) {
+				if (column.Type == ColumnType.Boolean) {
+					columnModel.Size = 1;
+					columnModel.IsBinary = true;
+				}else if (columnInfo is IIndexColumnInfo indexColumn) {
 					columnModel.Size = Convert.ToInt32(indexColumn.MaxIndex + 1);
 				} else if (columnInfo is IDimensionsColumnInfo vectorColumn) {
 					var size = vectorColumn.XDimension ?? 0;
@@ -65,6 +68,7 @@ namespace BrightWire.TabularData.Helper
 					_vectorisationModel.OutputSize = columnModel.Size;
 					_vectorisationModel.IsTargetContinuous = columnModel.IsContinuous;
 					_vectorisationModel.HasTarget = true;
+					_vectorisationModel.IsTargetBinary = columnModel.IsBinary;
 				} else
 					_vectorisationModel.InputSize += columnModel.Size;
 			}
