@@ -198,7 +198,7 @@ namespace BrightWire
         /// <summary>
         /// Multinomial naive bayes preserves the count of each feature within the model. Useful for long documents.
         /// </summary>
-        /// <param name="data">The training data table</param>
+        /// <param name="data">The training data</param>
         /// <returns>A model that can be used for classification</returns>
         public static MultinomialNaiveBayes TrainMultinomialNaiveBayes(this IReadOnlyList<(string Classification, IndexList Data)> data)
         {
@@ -208,10 +208,26 @@ namespace BrightWire
             return trainer.Train();
         }
 
+		/// <summary>
+		/// Multinomial naive bayes preserves the count of each feature within the model. Useful for long documents.
+		/// </summary>
+		/// <param name="table">The training data table that must have a index-list based column to classify against</param>
+		/// <returns></returns>
+	    public static MultinomialNaiveBayes TrainMultinomialNaiveBayes(this IDataTable table)
+		{
+			var targetColumnIndex = table.TargetColumnIndex;
+			var indexListColumn = table.Columns.FirstOrDefault(c => c.Type == ColumnType.IndexList);
+			if (indexListColumn == null || indexListColumn.Index == targetColumnIndex)
+				throw new ArgumentException("No index list column found");
+
+			var data = table.Map(row => (row.GetField<string>(targetColumnIndex), row.GetField<IndexList>(indexListColumn.Index)));
+			return data.TrainMultinomialNaiveBayes();
+		}
+
         /// <summary>
         /// Bernoulli naive bayes treats each feature as either 1 or 0 - all feature counts are discarded. Useful for short documents.
         /// </summary>
-        /// <param name="data">The training data table</param>
+        /// <param name="data">The training data</param>
         /// <returns>A model that can be used for classification</returns>
         public static BernoulliNaiveBayes TrainBernoulliNaiveBayes(this IReadOnlyList<(string Classification, IndexList Data)> data)
         {
@@ -220,6 +236,22 @@ namespace BrightWire
                 trainer.AddClassification(item.Classification, item.Data);
             return trainer.Train();
         }
+
+	    /// <summary>
+	    /// Bernoulli naive bayes treats each feature as either 1 or 0 - all feature counts are discarded. Useful for short documents.
+	    /// </summary>
+	    /// <param name="table">The training data table that must have an index-list based column</param>
+	    /// <returns>A model that can be used for classification</returns>
+	    public static BernoulliNaiveBayes TrainBernoulliNaiveBayes(this IDataTable table)
+	    {
+		    var targetColumnIndex = table.TargetColumnIndex;
+		    var indexListColumn = table.Columns.FirstOrDefault(c => c.Type == ColumnType.IndexList);
+		    if (indexListColumn == null || indexListColumn.Index == targetColumnIndex)
+			    throw new ArgumentException("No index list column found");
+
+		    var data = table.Map(row => (row.GetField<string>(targetColumnIndex), row.GetField<IndexList>(indexListColumn.Index)));
+		    return data.TrainBernoulliNaiveBayes();
+	    }
 
         /// <summary>
         /// Naive bayes is a classifier that assumes conditional independence between all features
