@@ -589,4 +589,9 @@ namespace BrightWire
 		/// <param name="row">The row to encode</param>
 		float[] Encode(IRow row);
 	}
+
+	public interface IHaveDataTableVectoriser
+	{
+		IDataTableVectoriser Vectoriser { get; }
+	}
 }

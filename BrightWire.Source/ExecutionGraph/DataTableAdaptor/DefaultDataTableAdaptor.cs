@@ -6,7 +6,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
     /// <summary>
     /// Vectorises each row of the data table on demand
     /// </summary>
-    class DefaultDataTableAdaptor : RowBasedDataTableAdaptorBase, IRowEncoder
+    class DefaultDataTableAdaptor : RowBasedDataTableAdaptorBase, IRowEncoder, IHaveDataTableVectoriser
     {
         readonly IDataTableVectoriser _vectoriser;
 
@@ -24,6 +24,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         public override int InputSize => _vectoriser.InputSize;
         public override int OutputSize => _vectoriser.OutputSize;
         public override bool IsSequential => false;
+	    public IDataTableVectoriser Vectoriser => _vectoriser;
 
         public float[] Encode(IRow row)
         {
