@@ -99,7 +99,7 @@ namespace BrightWire.Models.DataTable
 		    public int ColumnIndex { get; set; }
 
 		    /// <summary>
-		    /// The vector normalisations
+		    /// The normalisation data within the vector (each index within the vector becomes a "column")
 		    /// </summary>
 		    [ProtoMember(2)]
 		    public Column[] VectorColumns { get; set; }
@@ -119,7 +119,7 @@ namespace BrightWire.Models.DataTable
         public Column[] ColumnNormalisation { get; set; }
 
 		/// <summary>
-		/// 
+		/// Vector columns normalisation data
 		/// </summary>
 		[ProtoMember(3)]
 		public VectorColumn[] VectorColumnNormalisation { get; set; }
