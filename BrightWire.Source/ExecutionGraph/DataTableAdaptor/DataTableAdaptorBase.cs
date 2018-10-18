@@ -9,7 +9,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
     /// Base class for data table based data adaptors
     /// </summary>
     /// <typeparam name="T">The type of the cached data</typeparam>
-    abstract class DataTableAdaptorBase<T> : IDataSource
+    public abstract class DataTableAdaptorBase<T> : IDataSource
     {
         protected readonly int[] _dataColumnIndex;
         protected readonly int _dataTargetIndex;

@@ -3,7 +3,7 @@
     /// <summary>
     /// Base class for data tables that work with data table rows
     /// </summary>
-    abstract class RowBasedDataTableAdaptorBase : DataTableAdaptorBase<IRow>
+    public abstract class RowBasedDataTableAdaptorBase : DataTableAdaptorBase<IRow>
     {
 	    protected RowBasedDataTableAdaptorBase(ILinearAlgebraProvider lap, IDataTable dataTable) 
             : base(lap, dataTable)
