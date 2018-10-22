@@ -207,8 +207,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)TrainingData\Helper\SequenceWindowBuilder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TrainingData\Helper\SimpleTokeniser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TrainingData\Helper\StringTableBuilder.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)TrainingData\SimpleTokeniser.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)TrainingData\StringTableBuilder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TrainingData\WellKnown\MNIST.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TreeBased\DecisionTreeClassifier.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TreeBased\RandomForestClassifier.cs" />
