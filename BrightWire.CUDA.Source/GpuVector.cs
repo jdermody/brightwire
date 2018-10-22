@@ -28,7 +28,7 @@ namespace BrightWire.LinearAlgebra
 
 		public bool IsValid => !_disposed;
 #else
-        public bool IsValid => true;
+		public bool IsValid => true;
 #endif
 
 		public GpuVector(CudaProvider cuda, IDeviceMemoryPtr data, bool isOwner)
@@ -282,10 +282,11 @@ namespace BrightWire.LinearAlgebra
 			var other = (GpuVector)vector;
 			Debug.Assert(other.Count == Count);
 
-			var ab = DotProduct(other);
-			var a2 = DotProduct(this);
-			var b2 = other.DotProduct(other);
-			return (float)(1d - (ab / (Math.Sqrt(a2 * b2))));
+			return _cuda.CosineDistance(_data, other._data, Count);
+			//var ab = DotProduct(other);
+			//var a2 = DotProduct(this);
+			//var b2 = other.DotProduct(other);
+			//return (float)(1d - (ab / (Math.Sqrt(a2 * b2))));
 		}
 
 		public float ManhattanDistance(IVector vector)
@@ -343,8 +344,8 @@ namespace BrightWire.LinearAlgebra
 				if (BoundMath.IsNotZero(stdDev))
 					_cuda.Normalise(_data, Count, mean, stdDev);
 			} else if (type == NormalisationType.Euclidean || type == NormalisationType.Manhattan) {
-				var p = type == NormalisationType.Manhattan 
-					? L1Norm() 
+				var p = type == NormalisationType.Manhattan
+					? L1Norm()
 					: L2Norm()
 				;
 
@@ -392,19 +393,9 @@ namespace BrightWire.LinearAlgebra
 				for (var i = 0; i < data.Count; i++)
 					ret[i] = Convert.ToSingle(1d - DotProduct(data[i]) / Math.Sqrt(norm * dataNorm[i]));
 				return _cuda.CreateVector(data.Count, i => ret[i]);
-			} else if (distance == DistanceMetric.Euclidean) {
-				var ptrArray = data.Cast<GpuVector>().Select(d => d._data.DevicePointer).ToArray();
-				var ret = _cuda.MultiEuclideanDistance(_data, ptrArray, Count);
-				using (var matrix = new GpuMatrix(_cuda, Count, data.Count, ret, true)) {
-					using (var temp = matrix.ColumnSums())
-						return temp.Sqrt();
-				}
-			} else if (distance == DistanceMetric.Manhattan) {
-				var ptrArray = data.Cast<GpuVector>().Select(d => d._data.DevicePointer).ToArray();
-				var ret = _cuda.MultiManhattanDistance(_data, ptrArray, Count);
-				using (var matrix = new GpuMatrix(_cuda, Count, data.Count, ret, true)) {
-					return matrix.ColumnSums();
-				}
+			} else if (distance == DistanceMetric.Euclidean || distance == DistanceMetric.Manhattan) {
+				var ret = _cuda.CalculateDistances(new[] { this }, data, distance);
+				return ret.ReshapeAsVector();
 			} else {
 				var distanceFunc = _GetDistanceFunc(distance);
 				var ret = new float[data.Count];

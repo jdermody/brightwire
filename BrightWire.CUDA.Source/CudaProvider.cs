@@ -129,11 +129,13 @@ namespace BrightWire.LinearAlgebra
 			_concatColumns,
 			_euclideanDistance,
 			_manhattanDistance,
+			_cosineDistance,
 			_abs,
 			_normalise,
 			_softmaxVector,
-			_multiEuclidean,
-			_multiManhattan,
+			//_multiEuclidean,
+			//_multiManhattan,
+			//_multiCosine,
 			_log,
 			_vectorAdd,
 			_vectorCopyRandom,
@@ -196,11 +198,13 @@ namespace BrightWire.LinearAlgebra
 			_concatColumns = _kernel.LoadFunction("ConcatColumns");
 			_euclideanDistance = _kernel.LoadFunction("EuclideanDistance");
 			_manhattanDistance = _kernel.LoadFunction("ManhattanDistance");
+			_cosineDistance = _kernel.LoadFunction("CosineDistance");
 			_abs = _kernel.LoadFunction("Abs");
 			_normalise = _kernel.LoadFunction("Normalise");
 			_softmaxVector = _kernel.LoadFunction("SoftmaxVector");
-			_multiEuclidean = _kernel.LoadFunction("MultiEuclideanDistance");
-			_multiManhattan = _kernel.LoadFunction("MultiManhattanDistance");
+			//_multiEuclidean = _kernel.LoadFunction("MultiEuclideanDistance");
+			//_multiManhattan = _kernel.LoadFunction("MultiManhattanDistance");
+			//_multiCosine = _kernel.LoadFunction("MultiCosineDistance");
 			_log = _kernel.LoadFunction("Log");
 			_vectorAdd = _kernel.LoadFunction("VectorAdd");
 			_vectorCopyRandom = _kernel.LoadFunction("VectorCopyRandom");
@@ -325,10 +329,14 @@ namespace BrightWire.LinearAlgebra
 		internal bool IsFinite(IDeviceMemoryPtr a, int size)
 		{
 			var ret = Allocate(size);
-			_Invoke(_isFinite, size, a.DevicePointer, ret.DevicePointer, size);
-			var sum = _blas.AbsoluteSum(ret.DeviceVariable, 1);
-			ret.Free();
-			return BoundMath.IsZero(sum);
+			try {
+				_Invoke(_isFinite, size, a.DevicePointer, ret.DevicePointer, size);
+				var sum = _blas.AbsoluteSum(ret.DeviceVariable, 1);
+				return BoundMath.IsZero(sum);
+			}
+			finally {
+				ret.Free();
+			}
 		}
 
 		internal IDeviceMemoryPtr PointwiseMultiply(IDeviceMemoryPtr a, IDeviceMemoryPtr b, int size)
@@ -601,6 +609,39 @@ namespace BrightWire.LinearAlgebra
 			return SumValues(ret, size);
 		}
 
+		float _GetSingleValue(IDeviceMemoryPtr ptr)
+		{
+			var buffer = new float[1];
+			ptr.CopyToHost(buffer);
+			return buffer[0];
+		}
+
+		internal float CosineDistance(IDeviceMemoryPtr a, IDeviceMemoryPtr b, int size)
+		{
+			var aaDevice = Allocate(1);
+			var abDevice = Allocate(1);
+			var bbDevice = Allocate(1);
+			try {
+				_Invoke(_cosineDistance, size, a.DevicePointer, b.DevicePointer, aaDevice.DevicePointer, abDevice.DevicePointer, bbDevice.DevicePointer, size);
+
+				float aa = _GetSingleValue(aaDevice);
+				float ab = _GetSingleValue(abDevice);
+				float bb = _GetSingleValue(bbDevice);
+
+				if (aa.Equals(0f))
+					return bb.Equals(0f) ? 1.0f : 0.0f;
+				else if (bb.Equals(0f))
+					return 0.0f;
+				else
+					return 1f - (ab / (float)System.Math.Sqrt(aa) / (float)System.Math.Sqrt(bb));
+			}
+			finally {
+				aaDevice.Free();
+				abDevice.Free();
+				bbDevice.Free();
+			}
+		}
+
 		internal void Normalise(IDeviceMemoryPtr a, int size, float min, float range)
 		{
 			_Invoke(_normalise, size, a.DevicePointer, size, min, range);
@@ -643,35 +684,50 @@ namespace BrightWire.LinearAlgebra
 			_Invoke2(_concatColumns, rows, columns, a.DevicePointer, b.DevicePointer, c.DevicePointer, rows, columns, topRowCount, bottomRowCount);
 		}
 
-		internal IDeviceMemoryPtr MultiEuclideanDistance(IDeviceMemoryPtr vector, CUdeviceptr[] compareTo, int size)
-		{
-			IDeviceMemoryPtr ret;
-			var buffer = Allocate(PTR_SIZE * compareTo.Length);
-			try {
-				_cuda.CopyToDevice(buffer.DevicePointer, compareTo);
-				ret = Allocate(size * compareTo.Length);
-				_Invoke2(_multiEuclidean, size, compareTo.Length, vector.DevicePointer, buffer.DevicePointer, ret.DevicePointer, size, compareTo.Length);
-			}
-			finally {
-				buffer.Free();
-			}
-			return ret;
-		}
+		//internal IDeviceMemoryPtr MultiEuclideanDistance(IDeviceMemoryPtr vector, CUdeviceptr[] compareTo, int size)
+		//{
+		//	IDeviceMemoryPtr ret;
+		//	var buffer = Allocate(compareTo.Length);
+		//	try {
+		//		_cuda.CopyToDevice(buffer.DevicePointer, compareTo);
+		//		ret = Allocate(size * compareTo.Length);
+		//		_Invoke2(_multiEuclidean, size, compareTo.Length, vector.DevicePointer, buffer.DevicePointer, ret.DevicePointer, size, compareTo.Length);
+		//	}
+		//	finally {
+		//		buffer.Free();
+		//	}
+		//	return ret;
+		//}
 
-		internal IDeviceMemoryPtr MultiManhattanDistance(IDeviceMemoryPtr vector, CUdeviceptr[] compareTo, int size)
-		{
-			IDeviceMemoryPtr ret;
-			var buffer = Allocate(PTR_SIZE * compareTo.Length);
-			try {
-				_cuda.CopyToDevice(buffer.DevicePointer, compareTo);
-				ret = Allocate(size * compareTo.Length);
-				_Invoke2(_multiManhattan, size, compareTo.Length, vector.DevicePointer, buffer.DevicePointer, ret.DevicePointer, size, compareTo.Length);
-			}
-			finally {
-				buffer.Free();
-			}
-			return ret;
-		}
+		//internal IDeviceMemoryPtr MultiManhattanDistance(IDeviceMemoryPtr vector, CUdeviceptr[] compareTo, int size)
+		//{
+		//	IDeviceMemoryPtr ret;
+		//	var buffer = Allocate(compareTo.Length);
+		//	try {
+		//		_cuda.CopyToDevice(buffer.DevicePointer, compareTo);
+		//		ret = Allocate(size * compareTo.Length);
+		//		_Invoke2(_multiManhattan, size, compareTo.Length, vector.DevicePointer, buffer.DevicePointer, ret.DevicePointer, size, compareTo.Length);
+		//	}
+		//	finally {
+		//		buffer.Free();
+		//	}
+		//	return ret;
+		//}
+
+		//internal IDeviceMemoryPtr MultiCosineDistance(IDeviceMemoryPtr vector, CUdeviceptr[] compareTo, int size)
+		//{
+		//	IDeviceMemoryPtr ret;
+		//	var buffer = Allocate(compareTo.Length);
+		//	try {
+		//		_cuda.CopyToDevice(buffer.DevicePointer, compareTo);
+		//		ret = Allocate(size * compareTo.Length);
+		//		_Invoke2(_multiCosine, size, compareTo.Length, vector.DevicePointer, buffer.DevicePointer, ret.DevicePointer, size, compareTo.Length);
+		//	}
+		//	finally {
+		//		buffer.Free();
+		//	}
+		//	return ret;
+		//}
 
 		internal (IDeviceMemoryPtr Data, int Rows, int Columns) TensorAddPadding(
 			IDeviceMemoryPtr tensor, 

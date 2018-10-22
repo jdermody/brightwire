@@ -372,7 +372,7 @@ extern "C"
         }
 	}
 
-	__global__ void MultiEuclideanDistance(const float* __restrict a, const float* __restrict* b, float* __restrict c, int size, int columns)
+	/*__global__ void MultiEuclideanDistance(const float* __restrict a, const float* __restrict* b, float* __restrict c, int size, int columns)
 	{
         for (int i = blockDim.x * blockIdx.x + threadIdx.x; i < size; i += blockDim.x * gridDim.x) {
             for (int j = blockDim.y * blockIdx.y + threadIdx.y; j < columns; j += blockDim.y * gridDim.y) {
@@ -381,7 +381,7 @@ extern "C"
 			    c[j * size + i] = pow(val1 - val2, 2);
             }
         }
-	}
+	}*/
 
 	__global__ void ManhattanDistance(const float* __restrict a, const float* __restrict b, float* __restrict c, int count)
 	{
@@ -390,7 +390,7 @@ extern "C"
         }
 	}
 
-	__global__ void MultiManhattanDistance(const float* __restrict a, const float* __restrict* b, float* __restrict c, int size, int columns)
+	/*__global__ void MultiManhattanDistance(const float* __restrict a, const float* __restrict* b, float* __restrict c, int size, int columns)
 	{
         for (int i = blockDim.x * blockIdx.x + threadIdx.x; i < size; i += blockDim.x * gridDim.x) {
             for (int j = blockDim.y * blockIdx.y + threadIdx.y; j < columns; j += blockDim.y * gridDim.y) {
@@ -399,7 +399,32 @@ extern "C"
 			    c[j * size + i] = abs(val1 - val2);
             }
         }
+	}*/
+
+	__global__ void CosineDistance(const float* __restrict a, const float* __restrict b, float* __restrict aa, float* __restrict ab, float* __restrict bb, int count)
+	{
+        for (int index = blockDim.x * blockIdx.x + threadIdx.x; index < count; index += blockDim.x * gridDim.x) {
+			float left = a[index];
+			float right = b[index];
+			atomicAdd(aa, left * left);
+			atomicAdd(ab, left * right);
+			atomicAdd(bb, right * right);
+        }
 	}
+
+	/*__global__ void MultiCosineDistance(const float* __restrict a, const float* __restrict* b, float* __restrict aa, float* __restrict ab, float* __restrict bb, int size, int columns)
+	{
+        for (int i = blockDim.x * blockIdx.x + threadIdx.x; i < size; i += blockDim.x * gridDim.x) {
+            for (int j = blockDim.y * blockIdx.y + threadIdx.y; j < columns; j += blockDim.y * gridDim.y) {
+				float left = a[i];
+				float right = b[j][i];
+				int offset = j * size + i;
+				atomicAdd(aa + offset, left * left);
+				atomicAdd(ab + offset, left * right);
+				atomicAdd(bb + offset, right * right);
+            }
+        }
+	}*/
 
 	__global__ void Abs(const float* __restrict a, float* __restrict b, int count)
 	{
@@ -833,7 +858,9 @@ extern "C"
                     if(distanceMetric == 0) { // euclidean
                         float diff = aVal - bVal;
                         output = diff * diff;
-                    }else if(distanceMetric == 1) { // manhattan
+                    }else if(distanceMetric == 1) { // cosine
+                        output = aVal * bVal;
+                    }else if(distanceMetric == 2) { // manhattan
                         output = abs(aVal - bVal);
                     }
                     float* outputPtr = c + (j * rows + k);
