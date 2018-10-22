@@ -565,7 +565,7 @@ namespace UnitTests
             using (var temp = gpuA.FindDistances(new[] { gpuB, gpuC }, DistanceMetric.Manhattan))
                 distance2 = temp.AsIndexable();
 
-            FloatingPointHelper.AssertEqual(distance, distance2, 10);
+            FloatingPointHelper.AssertEqual(distance, distance2, 12);
         }
 
         [TestMethod]

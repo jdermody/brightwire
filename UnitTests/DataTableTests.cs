@@ -484,5 +484,30 @@ namespace UnitTests
             Assert.AreEqual(projectedTable.ColumnCount, table.ColumnCount);
             Assert.AreEqual(projectedTable.RowCount, 3);
         }
+
+	    [TestMethod]
+	    public void TableSummarise()
+	    {
+		    var builder = BrightWireProvider.CreateDataTableBuilder();
+		    builder.AddColumn(ColumnType.Boolean, "boolean");
+		    builder.AddColumn(ColumnType.Byte, "byte");
+		    builder.AddColumn(ColumnType.Date, "date");
+		    builder.AddColumn(ColumnType.Double, "double");
+		    builder.AddColumn(ColumnType.Float, "float");
+		    builder.AddColumn(ColumnType.Int, "int");
+		    builder.AddColumn(ColumnType.Long, "long");
+		    builder.AddColumn(ColumnType.String, "string");
+
+		    var now = DateTime.Now;
+		    builder.Add(true, (sbyte)100, now, 1.0 / 2, 0.5f, int.MaxValue, long.MaxValue, "test");
+		    builder.Add(true, (sbyte)0, now, 0.0, 0f, int.MinValue, long.MinValue, "test");
+		    var dataTable = builder.Build();
+
+		    var summarisedRow = dataTable.Summarise(1).GetRow(0);
+		    Assert.AreEqual(summarisedRow.GetField<bool>(0), true);
+		    Assert.AreEqual(summarisedRow.GetField<sbyte>(1), (sbyte)50);
+		    Assert.AreEqual(summarisedRow.GetField<double>(3), 0.25);
+		    Assert.AreEqual(summarisedRow.GetField<string>(7), "test");
+	    }
     }
 }

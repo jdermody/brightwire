@@ -10,6 +10,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using BrightWire.TrainingData.Helper;
 using ProtoBuf;
 
 namespace UnitTests

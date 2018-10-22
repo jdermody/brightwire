@@ -15,6 +15,7 @@ namespace UnitTests.Helper
 		public TestingContext(ILinearAlgebraProvider lap)
 		{
 			LinearAlgebraProvider = lap;
+			LearningContext = new MockLearningContext();
 		}
 
 		public void Dispose()

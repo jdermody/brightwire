@@ -112,6 +112,11 @@ namespace UnitTests
             Assert.IsTrue(probability3[2] >= 0.5f);
             Assert.IsTrue(probability3[3] >= 0.5f);
             Assert.IsTrue(probability3[4] >= 0.5f);
+
+	        var rowClassifier = predictor.ConvertToRowClassifier(new[] {0});
+	        var rowClassifications = rowClassifier.Classifiy(index);
+	        Assert.IsTrue(rowClassifications[0].Classification  == "0");
+	        Assert.IsTrue(rowClassifications[rowClassifications.Count-1].Classification  == "1");
         }
 
         [TestMethod]
