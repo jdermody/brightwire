@@ -2,6 +2,7 @@
 using MathNet.Numerics.Distributions;
 using System.Collections.Generic;
 using System.IO;
+using BrightWire.LinearAlgebra.Helper;
 
 namespace BrightWire.ExecutionGraph.Node.Filter
 {
@@ -56,7 +57,7 @@ namespace BrightWire.ExecutionGraph.Node.Filter
                 var lap = context.LinearAlgebraProvider;
                 var input = context.Data;
                 var inputMatrix = input.GetMatrix();
-                var filter = lap.CreateMatrix(Weight.RowCount, Weight.ColumnCount, (i, j) => _probabilityToDrop.Sample() == 1 ? 0f : 1f / _dropOutPercentage);
+                var filter = lap.CreateMatrix(Weight.RowCount, Weight.ColumnCount, (i, j) => BoundMath.IsZero(_dropOutPercentage) ? 1f : _probabilityToDrop.Sample() == 1 ? 0f : 1f / _dropOutPercentage);
                 var filteredWeights = Weight.PointwiseMultiply(filter);
                 var output = _FeedForward(inputMatrix, filteredWeights);
                 _AddNextGraphAction(context, input.ReplaceWith(output), () => new Backpropagation(this, inputMatrix, filter, filteredWeights));

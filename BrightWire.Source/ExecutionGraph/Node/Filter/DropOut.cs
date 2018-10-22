@@ -1,6 +1,7 @@
 ﻿using MathNet.Numerics.Distributions;
 using System.Collections.Generic;
 using System.IO;
+using BrightWire.LinearAlgebra.Helper;
 
 namespace BrightWire.ExecutionGraph.Node.Filter
 {
@@ -40,7 +41,7 @@ namespace BrightWire.ExecutionGraph.Node.Filter
                 // drop out random neurons during training
                 var lap = context.LinearAlgebraProvider;
                 var matrix = context.Data.GetMatrix();
-                var filter = lap.CreateMatrix(matrix.RowCount, matrix.ColumnCount, (i, j) => _probabilityToDrop.Sample() == 1 ? 0f : 1f / _dropOutPercentage);
+                var filter = lap.CreateMatrix(matrix.RowCount, matrix.ColumnCount, (i, j) => BoundMath.IsZero(_dropOutPercentage) ? 1f : _probabilityToDrop.Sample() == 1 ? 0f : 1f / _dropOutPercentage);
                 var output = matrix.PointwiseMultiply(filter);
                 _AddNextGraphAction(context, context.Data.ReplaceWith(output), () => new Backpropagation(this, filter));
             } else
