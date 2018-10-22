@@ -13,7 +13,7 @@ namespace BrightWire.Source.TabularData.Manipulation
 		    _fallback = fallback;
 	    }
 
-	    public (object convertedValue, bool wasSuccessful) ConvertValue(object value)
+	    public (object ConvertedValue, bool WasSuccessful) ConvertValue(object value)
 	    {
 		    try
 		    {

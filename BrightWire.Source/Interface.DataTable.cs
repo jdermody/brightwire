@@ -866,7 +866,7 @@ namespace BrightWire
 		/// </summary>
 		/// <param name="value">The value to convert</param>
 		/// <returns>A tuple of (object</returns>
-		(object convertedValue, bool wasSuccessful) ConvertValue(object value);
+		(object ConvertedValue, bool WasSuccessful) ConvertValue(object value);
 	}
 
 	/// <summary>
