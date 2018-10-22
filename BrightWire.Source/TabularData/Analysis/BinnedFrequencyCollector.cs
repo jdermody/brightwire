@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using BrightWire.LinearAlgebra.Helper;
 
 namespace BrightWire.TabularData.Analysis
 {
@@ -13,7 +14,7 @@ namespace BrightWire.TabularData.Analysis
 		public BinnedFrequencyCollector(int columnsIndex, double min, double max, int numBins)
 		{
 			ColumnIndex = columnsIndex;
-			_step = (max - min) / numBins;
+			_step = (max - min) / numBins + BoundMath.ZERO_LIKE;
 			_min = min;
 			_max = max;
 
@@ -31,9 +32,12 @@ namespace BrightWire.TabularData.Analysis
 				_counts[0]++;
 			else if (val > _max)
 				_counts[_counts.Length - 1]++;
+			else if(Math.Abs(val - _max) < BoundMath.ZERO_LIKE)
+				_counts[_counts.Length - 2]++;
 			else {
-				var val2 = _max - val;
-				_counts[Convert.ToInt32(val2 / _step) + 1]++;
+				var val2 = val - _min;
+				var bin = Convert.ToInt32(val2 / _step);
+				_counts[bin + 1]++;
 			}
 
 			return true;
