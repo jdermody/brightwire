@@ -24,7 +24,7 @@ namespace BrightWire.TabularData.Analysis
 
 	    public bool Process(IRow row)
         {
-            var val = row.GetField<string>(ColumnIndex)?.Trim();
+            var val = row.GetField<string>(ColumnIndex);
 	        if (val != null) {
 		        if (_valueCount.TryGetValue(val, out ulong count))
 			        _valueCount[val] = count + 1;
