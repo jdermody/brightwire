@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using BrightWire.Models;
 using BrightWire.TrainingData;
+using BrightWire.TrainingData.Helper;
 
 namespace BrightWire.SampleCode
 {
