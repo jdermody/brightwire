@@ -590,8 +590,14 @@ namespace BrightWire
 		float[] Encode(IRow row);
 	}
 
+	/// <summary>
+	/// An interface to retrieve the implicitly created vectorised for non linear algebra data tables
+	/// </summary>
 	public interface IHaveDataTableVectoriser
 	{
+		/// <summary>
+		/// The implicitly created data table vectoriser
+		/// </summary>
 		IDataTableVectoriser Vectoriser { get; }
 	}
 }

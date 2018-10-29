@@ -11,11 +11,27 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
     /// <typeparam name="T">The type of the cached data</typeparam>
     public abstract class DataTableAdaptorBase<T> : IDataSource
     {
+        /// <summary>
+        /// The data table columns with attributes
+        /// </summary>
         protected readonly int[] _dataColumnIndex;
+
+		/// <summary>
+		/// Target column index
+		/// </summary>
         protected readonly int _dataTargetIndex;
+
+		/// <summary>
+		/// Linear algebra provider
+		/// </summary>
         protected readonly ILinearAlgebraProvider _lap;
+
+		/// <summary>
+		/// The list of raw row data
+		/// </summary>
         protected readonly List<T> _data = new List<T>();
 
+	    /// <inheritdoc />
 	    protected DataTableAdaptorBase(ILinearAlgebraProvider lap, IDataTable dataTable)
         {
             _lap = lap;
@@ -23,15 +39,24 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             _dataColumnIndex = Enumerable.Range(0, dataTable.ColumnCount).Where(ci => ci != _dataTargetIndex).ToArray();
         }
 
-        public int InputCount => 1;
+	    /// <inheritdoc />
+	    public int InputCount => 1;
+	    /// <inheritdoc />
         public abstract bool IsSequential { get; }
+	    /// <inheritdoc />
         public abstract int InputSize { get; }
+	    /// <inheritdoc />
         public abstract int OutputSize { get; }
+	    /// <inheritdoc />
         public virtual int RowCount => _data.Count;
 
+	    /// <inheritdoc />
         public abstract IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<int> rows);
+
+	    /// <inheritdoc />
         public abstract IDataSource CloneWith(IDataTable dataTable);
 
+	    /// <inheritdoc />
         public virtual IReadOnlyList<IReadOnlyList<int>> GetBuckets()
         {
             return new[] {
@@ -39,16 +64,26 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             };
         }
 
+	    /// <inheritdoc />
         public virtual void OnBatchProcessed(IContext context)
         {
             // nop
         }
 
+		/// <summary>
+		/// Returns the row data
+		/// </summary>
+		/// <param name="rows">List of row indices</param>
         protected IReadOnlyList<T> _GetRows(IReadOnlyList<int> rows)
         {
             return rows.Select(i => _data[i]).ToList();
         }
 
+		/// <summary>
+		/// Creates a mini batch
+		/// </summary>
+		/// <param name="rows">Row indices</param>
+		/// <param name="data">List of input/output tuples</param>
         protected IMiniBatch _GetMiniBatch(IReadOnlyList<int> rows, IReadOnlyList<(float[][], float[])> data)
         {
             var inputList = new List<IGraphData>();
@@ -62,6 +97,11 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             return new MiniBatch(rows, this, inputList, new MatrixGraphData(output));
         }
 
+		/// <summary>
+		/// Creates a sequential mini batch
+		/// </summary>
+		/// <param name="rows">Row indices</param>
+		/// <param name="data">List of input/output matrix tuples</param>
         protected IMiniBatch _GetSequentialMiniBatch(IReadOnlyList<int> rows, IReadOnlyList<(FloatMatrix Input, FloatMatrix Output)> data)
         {
             List<FloatVector> temp;

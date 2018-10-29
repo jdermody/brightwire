@@ -5,6 +5,7 @@
     /// </summary>
     public abstract class RowBasedDataTableAdaptorBase : DataTableAdaptorBase<IRow>
     {
+	    /// <inheritdoc />
 	    protected RowBasedDataTableAdaptorBase(ILinearAlgebraProvider lap, IDataTable dataTable) 
             : base(lap, dataTable)
         {
