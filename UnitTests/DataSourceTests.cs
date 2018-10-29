@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BrightWire.Models;
 
 namespace UnitTests
 {
@@ -14,11 +15,13 @@ namespace UnitTests
     public class DataSourceTests
     {
         static ILinearAlgebraProvider _lap;
+		static GraphFactory _factory;
 
         [ClassInitialize]
         public static void Load(TestContext context)
         {
             _lap = BrightWireProvider.CreateLinearAlgebra(false);
+	        _factory = new GraphFactory(_lap);
         }
 
         [ClassCleanup]
@@ -55,5 +58,59 @@ namespace UnitTests
 
             Assert.AreEqual(vectoriser.GetOutputLabel(2, expectedOutput.MaximumIndex()), "b");
         }
+
+	    float[] GetArray(int value, int size)
+	    {
+		    var ret = new float[size];
+			for(var i = 0; i < size; i++)
+				ret[i] = value;
+			return ret;
+	    }
+
+	    [TestMethod]
+	    public void VectorDataSource()
+	    {
+		    var vectors = Enumerable.Range(0, 10).Select(i => FloatVector.Create(GetArray(i, 10))).ToList();
+			var dataSource = _factory.CreateDataSource(vectors);
+		    var miniBatch = dataSource.Get(null, new[] {0, 1, 2});
+
+		    var currentSequence = miniBatch.CurrentSequence;
+		    var batchMatrix = currentSequence.Input[0].GetMatrix();
+		    Assert.IsNull(currentSequence.Target);
+		    Assert.IsTrue(batchMatrix.RowCount == 3);
+		    Assert.IsTrue(batchMatrix.ColumnCount == 10);
+		    Assert.AreEqual(batchMatrix.Row(0).GetAt(0), 0f);
+		    Assert.AreEqual(batchMatrix.Row(1).GetAt(0), 1f);
+	    }
+
+	    [TestMethod]
+	    public void MatrixDataSource()
+	    {
+		    var matrices = Enumerable.Range(0, 10).Select(j => FloatMatrix.Create(Enumerable.Range(0, 10).Select(i => FloatVector.Create(GetArray(i, 10))).ToArray())).ToList();
+		    var dataSource = _factory.CreateDataSource(matrices);
+		    var miniBatch = dataSource.Get(null, new[] {0, 1, 2});
+
+		    var currentSequence = miniBatch.CurrentSequence;
+		    var batchMatrix = currentSequence.Input[0].GetMatrix();
+		    Assert.IsNull(currentSequence.Target);
+		    Assert.IsTrue(batchMatrix.RowCount == 3);
+		    Assert.IsTrue(batchMatrix.ColumnCount == 10);
+		    Assert.AreEqual(batchMatrix.Row(0).GetAt(0), 0f);
+	    }
+
+	    [TestMethod]
+	    public void TensorDataSource()
+	    {
+		    var tensors = Enumerable.Range(0, 10).Select(k => FloatTensor.Create(Enumerable.Range(0, 10).Select(j => FloatMatrix.Create(Enumerable.Range(0, 10).Select(i => FloatVector.Create(GetArray(i, 10))).ToArray())).ToArray())).ToList();
+		    var dataSource = _factory.CreateDataSource(tensors);
+		    var miniBatch = dataSource.Get(null, new[] {0, 1, 2});
+
+		    var currentSequence = miniBatch.CurrentSequence;
+		    var batchMatrix = currentSequence.Input[0].GetMatrix();
+		    Assert.IsNull(currentSequence.Target);
+		    Assert.IsTrue(batchMatrix.RowCount == 1000);
+		    Assert.IsTrue(batchMatrix.ColumnCount == 3);
+		    Assert.AreEqual(batchMatrix.Row(0).GetAt(0), 0f);
+	    }
     }
 }
