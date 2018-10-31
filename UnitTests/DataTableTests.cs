@@ -112,22 +112,27 @@ namespace UnitTests
             }
         }
 
+	    static IDataTable _CreateComplexTable()
+	    {
+		    var builder = BrightWireProvider.CreateDataTableBuilder();
+		    builder.AddColumn(ColumnType.Boolean, "boolean");
+		    builder.AddColumn(ColumnType.Byte, "byte");
+		    builder.AddColumn(ColumnType.Date, "date");
+		    builder.AddColumn(ColumnType.Double, "double");
+		    builder.AddColumn(ColumnType.Float, "float");
+		    builder.AddColumn(ColumnType.Int, "int");
+		    builder.AddColumn(ColumnType.Long, "long");
+		    builder.AddColumn(ColumnType.String, "string");
+
+		    for (var i = 1; i <= 10; i++)
+			    builder.Add(i % 2 == 0, (sbyte)i, DateTime.Now, (double)i, (float)i, i, (long)i, i.ToString());
+		    return builder.Build();
+	    }
+
         [TestMethod]
         public void TestDataTableAnalysis()
         {
-            var builder = BrightWireProvider.CreateDataTableBuilder();
-            builder.AddColumn(ColumnType.Boolean, "boolean");
-            builder.AddColumn(ColumnType.Byte, "byte");
-            builder.AddColumn(ColumnType.Date, "date");
-            builder.AddColumn(ColumnType.Double, "double");
-            builder.AddColumn(ColumnType.Float, "float");
-            builder.AddColumn(ColumnType.Int, "int");
-            builder.AddColumn(ColumnType.Long, "long");
-            builder.AddColumn(ColumnType.String, "string");
-
-            for (var i = 1; i <= 10; i++)
-                builder.Add(i % 2 == 0, (sbyte)i, DateTime.Now, (double)i, (float)i, i, (long)i, i.ToString());
-            var table = builder.Build();
+	        var table = _CreateComplexTable();
             var analysis = table.GetAnalysis();
             var xml = analysis.AsXml;
 
@@ -329,6 +334,20 @@ namespace UnitTests
             });
         }
 
+	    [TestMethod]
+	    public void TestReverseNormalisation()
+	    {
+		    var table = _CreateComplexTable();
+		    var columnIndex = table.TargetColumnIndex = 3;
+		    var model = table.GetNormalisationModel(NormalisationType.FeatureScale);
+		    var normalised = table.Normalise(model);
+
+		    var reverseNormalised = normalised.Project(row => new [] {model.ReverseNormaliseOutput(columnIndex, row.Data[columnIndex])});
+		    var zipped = reverseNormalised.Zip(table.SelectColumns(new[] { columnIndex}));
+
+		    zipped.ForEach(row => Assert.AreEqual(row.Data[0], row.Data[1]));
+	    }
+
         [TestMethod]
         public void TestTargetColumnIndex()
         {
@@ -508,6 +527,60 @@ namespace UnitTests
 		    Assert.AreEqual(summarisedRow.GetField<sbyte>(1), (sbyte)50);
 		    Assert.AreEqual(summarisedRow.GetField<double>(3), 0.25);
 		    Assert.AreEqual(summarisedRow.GetField<string>(7), "test");
+	    }
+
+	    [TestMethod]
+	    public void TableReverseVectorise()
+	    {
+		    var table = _CreateComplexTable();
+		    var targetColumnIndex = table.TargetColumnIndex = table.ColumnCount - 1;
+		    var targetColumnType = table.Columns[targetColumnIndex].Type;
+		    var vectoriser = table.GetVectoriser(true);
+		    var model = vectoriser.GetVectorisationModel();
+
+		    var output = table.Map(row => model.GetOutput(row));
+		    var reversedOutput = output.Select(vector => model.ReverseVectoriseOutput(vector, targetColumnType)).ToList();
+		    var tuples = table.Map(row => (row.Data[targetColumnIndex], reversedOutput[row.Index]));
+		    foreach (var tuple in tuples)
+			    Assert.AreEqual(tuple.Item1, tuple.Item2);
+	    }
+
+	    [TestMethod]
+	    public void TableConfusionMatrix()
+	    {
+		    var builder = BrightWireProvider.CreateDataTableBuilder();
+		    builder.AddColumn(ColumnType.String, "actual");
+		    builder.AddColumn(ColumnType.String, "expected");
+
+		    const int CAT_CAT = 5;
+		    const int CAT_DOG = 2;
+		    const int DOG_CAT = 3;
+		    const int DOG_DOG = 5;
+		    const int DOG_RABBIT = 2;
+		    const int RABBIT_DOG = 1;
+		    const int RABBIT_RABBIT = 11;
+
+			for(var i = 0; i < CAT_CAT; i++)
+				builder.Add("cat", "cat");
+		    for(var i = 0; i < CAT_DOG; i++)
+			    builder.Add("cat", "dog");
+		    for(var i = 0; i < DOG_CAT; i++)
+			    builder.Add("dog", "cat");
+		    for(var i = 0; i < DOG_DOG; i++)
+			    builder.Add("dog", "dog");
+		    for(var i = 0; i < DOG_RABBIT; i++)
+			    builder.Add("dog", "rabbit");
+		    for(var i = 0; i < RABBIT_DOG; i++)
+			    builder.Add("rabbit", "dog");
+		    for(var i = 0; i < RABBIT_RABBIT; i++)
+			    builder.Add("rabbit", "rabbit");
+		    var table = builder.Build();
+		    var confusionMatrix = table.CreateConfusionMatrix(1, 0);
+		    var xml = confusionMatrix.AsXml;
+
+		    Assert.AreEqual((uint)CAT_DOG, confusionMatrix.GetCount("cat", "dog"));
+		    Assert.AreEqual((uint)DOG_RABBIT, confusionMatrix.GetCount("dog", "rabbit"));
+		    Assert.AreEqual((uint)RABBIT_RABBIT, confusionMatrix.GetCount("rabbit", "rabbit"));
 	    }
     }
 }

@@ -70,20 +70,34 @@ namespace BrightWire.Models.DataTable
             public object Normalise(double val)
             {
                 var ret = (Math.Abs(Divide) < BoundMath.ZERO_LIKE) ? val : (val - Subtract) / Divide;
-
-                switch (DataType) {
-                    case ColumnType.Float:
-                        return Convert.ToSingle(ret);
-                    case ColumnType.Long:
-                        return Convert.ToInt64(ret);
-                    case ColumnType.Int:
-                        return Convert.ToInt32(ret);
-                    case ColumnType.Byte:
-                        return Convert.ToSByte(ret);
-                    default:
-                        return ret;
-                }
+	            return _Convert(ret);
             }
+
+			/// <summary>
+			/// Applies the normalisation in reverse
+			/// </summary>
+			/// <param name="val">Value to transform</param>
+	        public object ReverseNormalise(double val)
+	        {
+		        var ret = val * Divide + Subtract;
+		        return _Convert(ret);
+	        }
+
+	        object _Convert(double val)
+	        {
+		        switch (DataType) {
+			        case ColumnType.Float:
+				        return Convert.ToSingle(val);
+			        case ColumnType.Long:
+				        return Convert.ToInt64(val);
+			        case ColumnType.Int:
+				        return Convert.ToInt32(val);
+			        case ColumnType.Byte:
+				        return Convert.ToSByte(val);
+			        default:
+				        return val;
+		        }
+	        }
         }
 
 		/// <summary>
@@ -148,45 +162,61 @@ namespace BrightWire.Models.DataTable
         /// <param name="row">The row to normalise</param>
         public IReadOnlyList<object> Normalise(IReadOnlyList<object> row)
         {
-            var columnTable = ColumnTable;
-	        var vectorColumnTable = VectorColumnTable;
-            var ret = new object[row.Count];
+	        var ret = new object[row.Count];
 
-            for (var i = 0; i < row.Count; i++) {
-                object obj = null;
-                if (columnTable.TryGetValue(i, out Column norm)) {
-                    double val;
-                    switch (norm.DataType) {
-                        case ColumnType.Byte:
-                            val = (sbyte)row[i];
-                            break;
-                        case ColumnType.Double:
-                            val = (double)row[i];
-                            break;
-                        case ColumnType.Float:
-                            val = (float)row[i];
-                            break;
-                        case ColumnType.Int:
-                            val = (int)row[i];
-                            break;
-                        case ColumnType.Long:
-                            val = (long)row[i];
-                            break;
-                        default:
-                            throw new NotImplementedException();
-                    }
-                    obj = norm.Normalise(val);
-                }else if (vectorColumnTable != null && vectorColumnTable.TryGetValue(i, out var vectorNorm)) {
-	                var vector = (FloatVector)row[i];
-	                var normalised = vector.Data.Zip(vectorNorm.VectorColumns, (v, n) => (float)n.Normalise(Convert.ToDouble(v))).ToArray();
-	                obj = new FloatVector {
-		                Data = normalised
-	                };
-                } else
-                    obj = row[i];
-                ret[i] = obj;
-            }
-            return ret;
+	        for (var i = 0; i < row.Count; i++)
+		        ret[i] = _Normalise(i, row[i], true);
+
+	        return ret;
         }
+
+		/// <summary>
+		/// Applies the normalisation in reverse
+		/// </summary>
+		/// <param name="columnIndex">Column index in original table</param>
+		/// <param name="val">Value to normalise</param>
+		/// <returns>Reverse normalised value</returns>
+	    public object ReverseNormalise(int columnIndex, object val)
+	    {
+		    return _Normalise(columnIndex, val, false);
+	    } 
+
+	    object _Normalise(int columnIndex, object obj, bool normalise)
+	    {
+		    object ret = null;
+
+		    if (ColumnTable.TryGetValue(columnIndex, out var norm)) {
+			    double val;
+			    switch (norm.DataType) {
+				    case ColumnType.Byte:
+					    val = (sbyte)obj;
+					    break;
+				    case ColumnType.Double:
+					    val = (double)obj;
+					    break;
+				    case ColumnType.Float:
+					    val = (float)obj;
+					    break;
+				    case ColumnType.Int:
+					    val = (int)obj;
+					    break;
+				    case ColumnType.Long:
+					    val = (long)obj;
+					    break;
+				    default:
+					    throw new NotImplementedException();
+			    }
+			    ret = normalise ? norm.Normalise(val) : norm.ReverseNormalise(val);
+		    }else if (VectorColumnTable != null && VectorColumnTable.TryGetValue(columnIndex, out var vectorNorm)) {
+			    var vector = (FloatVector)obj;
+			    var normalised = vector.Data.Zip(vectorNorm.VectorColumns, (v, n) => (float)n.Normalise(Convert.ToDouble(v))).ToArray();
+			    ret = new FloatVector {
+				    Data = normalised
+			    };
+		    } else
+			    ret = obj;
+
+			return ret;
+	    }
     }
 }

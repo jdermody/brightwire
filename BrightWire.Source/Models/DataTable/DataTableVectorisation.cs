@@ -3,6 +3,7 @@ using BrightWire.Models;
 using ProtoBuf;
 using System.Collections.Generic;
 using System.Linq;
+using BrightWire.LinearAlgebra.Helper;
 
 namespace BrightWire.Models.DataTable
 {
@@ -238,6 +239,60 @@ namespace BrightWire.Models.DataTable
             }
             return null;
         }
+
+		/// <summary>
+		/// Converts a float output vector to its original column type
+		/// </summary>
+		/// <param name="vector">Vector to convert</param>
+		/// <param name="targetColumnType">Target column in the original data table</param>
+	    public object ReverseOutput(FloatVector vector, ColumnType targetColumnType)
+	    {
+		    if (HasTarget)
+			    return _Reverse(vector, ClassColumnIndex, targetColumnType, IsTargetBinary, IsTargetContinuous);
+			return vector;
+	    }
+
+	    object _Reverse(FloatVector vector, int columnIndex, ColumnType columnType, bool isBinary, bool isContinuous)
+	    {
+		    if (isBinary)
+			    return vector.Data[0] > 0.5f;
+
+			if (isContinuous)
+			    return vector.Data[0];
+
+		    if (columnType == ColumnType.IndexList) {
+			    return new IndexList {
+				    Index = vector.Data
+					    .Select((v, i) => (v, (uint) i))
+					    .Where(d => BoundMath.IsNotZero(d.Item1))
+					    .Select(d => d.Item2)
+					    .ToArray()
+			    };
+		    }
+
+		    if (columnType == ColumnType.WeightedIndexList) {
+			    return new WeightedIndexList {
+				    IndexList = vector.Data
+					    .Select((v, i) => (v, (uint) i))
+					    .Where(d => BoundMath.IsNotZero(d.Item1))
+					    .Select(d => new WeightedIndexList.WeightedIndex {
+							Index = d.Item2,
+							Weight = d.Item1
+					    }).ToArray()
+			    };
+		    }
+
+		    if (columnType == ColumnType.Vector)
+			    return vector;
+
+		    if (ReverseColumnMap.TryGetValue(columnIndex, out var valueMap)) {
+			    var index = vector.MaximumIndex();
+				if(valueMap.TryGetValue(index, out var str))
+					return str;
+		    }
+
+		    throw new NotImplementedException();
+	    }
 
 	    void _WriteNonContinuous(int columnIndex, IRow row, int offset, float[] buffer)
 	    {

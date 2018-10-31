@@ -1,8 +1,10 @@
 ﻿using BrightWire.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using BrightWire.Helper;
+using BrightWire.Models.DataTable;
 
 namespace BrightWire
 {
@@ -300,5 +302,71 @@ namespace BrightWire
 		{
 			return new VectorAsRow(vector);
 		}
+
+	    /// <summary>
+	    /// Applies a normalisation model in reverse
+	    /// </summary>
+	    /// <param name="model">Normalisation model</param>
+	    /// <param name="originalColumnIndex">Original column index</param>
+	    /// <param name="valueToConvert">Value to reverse</param>
+	    public static object ReverseNormaliseOutput(this DataTableNormalisation model, int originalColumnIndex, object valueToConvert)
+	    {
+		    return model.ReverseNormalise(originalColumnIndex, valueToConvert);
+	    }
+
+		/// <summary>
+		/// Applies a vectorisation model in reverse
+		/// </summary>
+		/// <param name="model">Vectorisation model</param>
+		/// <param name="vector">Vector to reverse</param>
+		/// <param name="targetColumnType">Original target column type</param>
+		/// <returns></returns>
+	    public static object ReverseVectoriseOutput(this DataTableVectorisation model, FloatVector vector, ColumnType targetColumnType)
+	    {
+		    return model.ReverseOutput(vector, targetColumnType);
+	    }
+
+	    static int _GetIndex(string classification, Dictionary<string, int> table)
+	    {
+		    if (table.TryGetValue(classification, out var index))
+			    return index;
+		    table.Add(classification, index = table.Count);
+			return index;
+	    }
+
+		/// <summary>
+		/// Creates a confusion matrix from two columns of a data table
+		/// </summary>
+		/// <param name="dataTable">Data table</param>
+		/// <param name="actualClassificationColumnIndex">The column index of the actual classifications</param>
+		/// <param name="expectedClassificationColumnIndex">The column index of the expected classifications</param>
+	    public static ConfusionMatrix CreateConfusionMatrix(this IDataTable dataTable, int actualClassificationColumnIndex, int expectedClassificationColumnIndex)
+	    {
+		    var labels = new Dictionary<string, int>();
+		    var classifications = new Dictionary<int, Dictionary<int, uint>>();
+
+		    dataTable.ForEach(r => {
+			    var actual = _GetIndex(r.GetField<string>(actualClassificationColumnIndex), labels);
+			    var expected = _GetIndex(r.GetField<string>(expectedClassificationColumnIndex), labels);
+			    if (!classifications.TryGetValue(expected, out var expectedClassification))
+				    classifications.Add(expected, expectedClassification = new Dictionary<int, uint>());
+			    if (expectedClassification.TryGetValue(actual, out var actualClassification))
+				    expectedClassification[actual] = actualClassification + 1;
+				else
+					expectedClassification.Add(actual, 1);
+			    return true;
+		    });
+
+		    return new ConfusionMatrix {
+			    ClassificationLabels = labels.OrderBy(kv => kv.Value).Select(kv => kv.Key).ToArray(),
+				Classifications = classifications.OrderBy(kv => kv.Key).Select(c => new ConfusionMatrix.ExpectedClassification {
+					ClassificationIndex = c.Key,
+					ActualClassifications = c.Value.OrderBy(kv => kv.Key).Select(c2 => new ConfusionMatrix.ActualClassification {
+						ClassificationIndex = c2.Key,
+						Count = c2.Value
+					}).ToArray()
+				}).ToArray()
+		    };
+	    }
     }
 }
