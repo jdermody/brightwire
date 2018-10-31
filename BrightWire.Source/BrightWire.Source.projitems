@@ -160,6 +160,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\Bayesian\MarkovModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Bayesian\MultinomialNaiveBayes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Bayesian\NaiveBayes.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\ConfusionMatrix.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\DataSourceModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\DataTable\DataTableNormalisation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\DataTable\DataTableVectorisation.cs" />
