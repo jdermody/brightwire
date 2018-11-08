@@ -135,7 +135,7 @@ namespace BrightWire.LinearAlgebra
 			_softmaxVector,
 			//_multiEuclidean,
 			//_multiManhattan,
-			//_multiCosine,
+			_multiCosine,
 			_log,
 			_vectorAdd,
 			_vectorCopyRandom,
@@ -204,7 +204,7 @@ namespace BrightWire.LinearAlgebra
 			_softmaxVector = _kernel.LoadFunction("SoftmaxVector");
 			//_multiEuclidean = _kernel.LoadFunction("MultiEuclideanDistance");
 			//_multiManhattan = _kernel.LoadFunction("MultiManhattanDistance");
-			//_multiCosine = _kernel.LoadFunction("MultiCosineDistance");
+			_multiCosine = _kernel.LoadFunction("MultiCosineDistance");
 			_log = _kernel.LoadFunction("Log");
 			_vectorAdd = _kernel.LoadFunction("VectorAdd");
 			_vectorCopyRandom = _kernel.LoadFunction("VectorCopyRandom");
@@ -956,16 +956,41 @@ namespace BrightWire.LinearAlgebra
 
 		public IMatrix CalculateDistances(IReadOnlyList<IVector> vectors, IReadOnlyList<IVector> compareTo, DistanceMetric distanceMetric)
 		{
-			if (!(distanceMetric == DistanceMetric.Euclidean || distanceMetric == DistanceMetric.Manhattan))
+			if (!(distanceMetric == DistanceMetric.Euclidean || distanceMetric == DistanceMetric.Manhattan || distanceMetric == DistanceMetric.Cosine))
 				throw new NotImplementedException();
 
+			var size = vectors[0].Count;
 			var rows = compareTo.Count;
 			var columns = vectors.Count;
-			var size = vectors[0].Count;
-			var ret = Allocate(rows * columns);
+			var ret = Allocate(rows * columns, true);
 
 			using (var vectorPtr = new PtrToDeviceMemoryList(vectors.Cast<IHaveDeviceMemory>().ToList()))
 			using (var compareToPtr = new PtrToDeviceMemoryList(compareTo.Cast<IHaveDeviceMemory>().ToList())) {
+				if (distanceMetric == DistanceMetric.Cosine) {
+					var aa = Allocate(rows * columns, true);
+					var bb = Allocate(rows * columns, true);
+					_Invoke3(_multiCosine, size, columns, rows,
+						vectorPtr.DevicePointer,
+						compareToPtr.DevicePointer,
+						aa.DevicePointer,
+						ret.DevicePointer,
+						bb.DevicePointer,
+						rows,
+						columns,
+						size
+					);
+					using(var ones = CreateMatrix(rows, columns, (i, j) => 1f))
+					using(var vectorMagnitude = new GpuMatrix(this, rows, columns, aa, true))
+					using(var vectorSqrt = vectorMagnitude.Sqrt())
+					using (var compareToMagnitude = new GpuMatrix(this, rows, columns, bb, true))
+					using(var compareToSqrt = compareToMagnitude.Sqrt()) {
+						using(var norms = vectorSqrt.PointwiseMultiply(compareToSqrt))
+						using(var result = new GpuMatrix(this, rows, columns, ret, true))
+						using (var distance = result.PointwiseDivide(norms))
+							return ones.Subtract(distance);
+					}
+				}
+
 				_Invoke3(_calculateDistance, size, columns, rows,
 					vectorPtr.DevicePointer,
 					compareToPtr.DevicePointer,

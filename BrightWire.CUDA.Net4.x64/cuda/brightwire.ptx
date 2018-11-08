@@ -3879,4 +3879,110 @@ BB52_16:
 	ret;
 }
 
+	// .globl	MultiCosineDistance
+.visible .entry MultiCosineDistance(
+	.param .u64 MultiCosineDistance_param_0,
+	.param .u64 MultiCosineDistance_param_1,
+	.param .u64 MultiCosineDistance_param_2,
+	.param .u64 MultiCosineDistance_param_3,
+	.param .u64 MultiCosineDistance_param_4,
+	.param .u32 MultiCosineDistance_param_5,
+	.param .u32 MultiCosineDistance_param_6,
+	.param .u32 MultiCosineDistance_param_7
+)
+{
+	.reg .pred 	%p<7>;
+	.reg .f32 	%f<9>;
+	.reg .b32 	%r<45>;
+	.reg .b64 	%rd<27>;
+
+
+	ld.param.u64 	%rd2, [MultiCosineDistance_param_0];
+	ld.param.u64 	%rd3, [MultiCosineDistance_param_1];
+	ld.param.u64 	%rd4, [MultiCosineDistance_param_2];
+	ld.param.u64 	%rd5, [MultiCosineDistance_param_3];
+	ld.param.u64 	%rd6, [MultiCosineDistance_param_4];
+	ld.param.u32 	%r14, [MultiCosineDistance_param_5];
+	ld.param.u32 	%r15, [MultiCosineDistance_param_6];
+	ld.param.u32 	%r16, [MultiCosineDistance_param_7];
+	mov.u32 	%r17, %ctaid.x;
+	mov.u32 	%r18, %ntid.x;
+	mov.u32 	%r19, %tid.x;
+	mad.lo.s32 	%r41, %r17, %r18, %r19;
+	setp.ge.s32	%p1, %r41, %r16;
+	@%p1 bra 	BB53_8;
+
+	cvta.to.global.u64 	%rd1, %rd3;
+	mov.u32 	%r20, %ctaid.z;
+	mov.u32 	%r21, %ntid.z;
+	mov.u32 	%r22, %tid.z;
+	mad.lo.s32 	%r2, %r20, %r21, %r22;
+	cvta.to.global.u64 	%rd7, %rd2;
+	cvta.to.global.u64 	%rd20, %rd4;
+	cvta.to.global.u64 	%rd23, %rd5;
+	cvta.to.global.u64 	%rd25, %rd6;
+
+BB53_2:
+	mov.u32 	%r23, %ntid.y;
+	mov.u32 	%r24, %ctaid.y;
+	mov.u32 	%r25, %tid.y;
+	mad.lo.s32 	%r42, %r24, %r23, %r25;
+	setp.ge.s32	%p2, %r42, %r15;
+	@%p2 bra 	BB53_7;
+
+BB53_3:
+	setp.ge.s32	%p3, %r2, %r14;
+	@%p3 bra 	BB53_6;
+
+	mul.wide.s32 	%rd8, %r42, 8;
+	add.s64 	%rd9, %rd7, %rd8;
+	ld.global.nc.u64 	%rd10, [%rd9];
+	cvta.to.global.u64 	%rd11, %rd10;
+	mul.wide.s32 	%rd12, %r41, 4;
+	add.s64 	%rd13, %rd11, %rd12;
+	ld.global.f32 	%f1, [%rd13];
+	mul.ftz.f32 	%f2, %f1, %f1;
+	mad.lo.s32 	%r33, %r20, %r21, %r22;
+	mad.lo.s32 	%r43, %r14, %r42, %r33;
+	mov.u32 	%r44, %r2;
+
+BB53_5:
+	mul.wide.s32 	%rd14, %r44, 8;
+	add.s64 	%rd15, %rd1, %rd14;
+	ld.global.nc.u64 	%rd16, [%rd15];
+	cvta.to.global.u64 	%rd17, %rd16;
+	add.s64 	%rd19, %rd17, %rd12;
+	ld.global.f32 	%f3, [%rd19];
+	mul.wide.s32 	%rd21, %r43, 4;
+	add.s64 	%rd22, %rd20, %rd21;
+	atom.global.add.f32 	%f4, [%rd22], %f2;
+	add.s64 	%rd24, %rd23, %rd21;
+	mul.ftz.f32 	%f5, %f1, %f3;
+	atom.global.add.f32 	%f6, [%rd24], %f5;
+	add.s64 	%rd26, %rd25, %rd21;
+	mul.ftz.f32 	%f7, %f3, %f3;
+	atom.global.add.f32 	%f8, [%rd26], %f7;
+	mov.u32 	%r35, %nctaid.z;
+	mul.lo.s32 	%r36, %r35, %r21;
+	add.s32 	%r44, %r44, %r36;
+	add.s32 	%r43, %r43, %r36;
+	setp.lt.s32	%p4, %r44, %r14;
+	@%p4 bra 	BB53_5;
+
+BB53_6:
+	mov.u32 	%r37, %nctaid.y;
+	mad.lo.s32 	%r42, %r37, %r23, %r42;
+	setp.lt.s32	%p5, %r42, %r15;
+	@%p5 bra 	BB53_3;
+
+BB53_7:
+	mov.u32 	%r39, %nctaid.x;
+	mad.lo.s32 	%r41, %r39, %r18, %r41;
+	setp.lt.s32	%p6, %r41, %r16;
+	@%p6 bra 	BB53_2;
+
+BB53_8:
+	ret;
+}
+
 

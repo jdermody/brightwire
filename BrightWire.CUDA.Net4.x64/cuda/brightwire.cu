@@ -412,20 +412,6 @@ extern "C"
         }
 	}
 
-	/*__global__ void MultiCosineDistance(const float* __restrict a, const float* __restrict* b, float* __restrict aa, float* __restrict ab, float* __restrict bb, int size, int columns)
-	{
-        for (int i = blockDim.x * blockIdx.x + threadIdx.x; i < size; i += blockDim.x * gridDim.x) {
-            for (int j = blockDim.y * blockIdx.y + threadIdx.y; j < columns; j += blockDim.y * gridDim.y) {
-				float left = a[i];
-				float right = b[j][i];
-				int offset = j * size + i;
-				atomicAdd(aa + offset, left * left);
-				atomicAdd(ab + offset, left * right);
-				atomicAdd(bb + offset, right * right);
-            }
-        }
-	}*/
-
 	__global__ void Abs(const float* __restrict a, float* __restrict b, int count)
 	{
         for (int index = blockDim.x * blockIdx.x + threadIdx.x; index < count; index += blockDim.x * gridDim.x) {
@@ -866,6 +852,30 @@ extern "C"
                     float* outputPtr = c + (j * rows + k);
                     atomicAdd(outputPtr, output);
                 }
+            }
+        }
+	}
+
+	__global__ void MultiCosineDistance(
+		const float** __restrict a, 
+		const float** __restrict b, 
+		float* __restrict aa, 
+		float* __restrict ab, 
+		float* __restrict bb, 
+		int rows,
+        int columns,
+        int size
+	) {
+        for (int i = blockDim.x * blockIdx.x + threadIdx.x; i < size; i += blockDim.x * gridDim.x) {
+            for (int j = blockDim.y * blockIdx.y + threadIdx.y; j < columns; j += blockDim.y * gridDim.y) {
+                for (int k = blockDim.z * blockIdx.z + threadIdx.z; k < rows; k += blockDim.z * gridDim.z) {
+					float aVal = a[j][i];
+					float bVal = b[k][i];
+					int offset = j * rows + k;
+					atomicAdd(aa + offset, aVal * aVal);
+					atomicAdd(ab + offset, aVal * bVal);
+					atomicAdd(bb + offset, bVal * bVal);
+				}
             }
         }
 	}
