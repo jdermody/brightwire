@@ -446,7 +446,7 @@ namespace BrightWire.LinearAlgebra
             return (new GpuMatrix(_cuda, _rows, columnIndex, ret1, true), new GpuMatrix(_cuda, _rows, size, ret2, true));
         }
 
-        public IMatrix Sqrt(float valueAdjustment = 0)
+        public IMatrix Sqrt(float valueAdjustment = 1e-8f)
         {
             Debug.Assert(IsValid);
             var size = _rows * _columns;
@@ -665,6 +665,22 @@ namespace BrightWire.LinearAlgebra
 	    public void SetAt(int row, int column, float value)
 	    {
 		    _data.DeviceVariable[column * _rows + row] = value;
+	    }
+
+	    public IReadOnlyList<IVector> ColumnVectors()
+	    {
+		    var ret = new List<IVector>();
+		    for (var i = 0; i < ColumnCount; i++)
+			    ret.Add(Column(i));
+		    return ret;
+	    }
+
+	    public IReadOnlyList<IVector> RowVectors()
+	    {
+		    var ret = new List<IVector>();
+		    for (var i = 0; i < RowCount; i++)
+			    ret.Add(Row(i));
+		    return ret;
 	    }
     }
 }

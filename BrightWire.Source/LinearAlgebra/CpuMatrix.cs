@@ -378,7 +378,7 @@ namespace BrightWire.LinearAlgebra
             return (new CpuMatrix(ret1), new CpuMatrix(ret2));
         }
 
-        public IMatrix Sqrt(float valueAdjustment = 0)
+        public IMatrix Sqrt(float valueAdjustment = 1e-8f)
         {
             return new CpuMatrix((DenseMatrix)_matrix.Map(v => Convert.ToSingle(Math.Sqrt(v + valueAdjustment))));
         }
@@ -492,6 +492,10 @@ namespace BrightWire.LinearAlgebra
 	    {
 		    this[row, column] = value;
 	    }
+
+	    public IReadOnlyList<IVector> ColumnVectors() => Columns.ToList();
+
+	    public IReadOnlyList<IVector> RowVectors() => Rows.ToList();
 
 	    public string AsXml
         {
