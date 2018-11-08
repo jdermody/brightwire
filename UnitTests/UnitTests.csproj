@@ -110,6 +110,7 @@
     <Compile Include="TreeBasedTests.cs" />
     <Compile Include="DebugTests.cs" />
     <Compile Include="UnsupervisedTests.cs" />
+    <Compile Include="VectorDistanceTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

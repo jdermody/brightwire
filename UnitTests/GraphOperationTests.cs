@@ -57,7 +57,7 @@ namespace UnitTests
 			var expectedOutput = _cpu.CreateMatrix(SIZE, SIZE, (i, j) => (float)Math.Pow(forwardInput[i, j], 2));
 
 			var backwardInput = _cpu.CreateMatrix(SIZE, SIZE, _DefaultInit).AsIndexable();
-			var expectedBpOutput = _cpu.CreateMatrix(SIZE, SIZE, (i, j) => backwardInput[i, j] * 2f);
+			var expectedBpOutput = _cpu.CreateMatrix(SIZE, SIZE, (i, j) => backwardInput[i, j] * 2f * forwardInput[i, j]);
 
 			_TestNode(_factory.GraphOperation.InputSquared(), forwardInput, expectedOutput, backwardInput, expectedBpOutput);
 		}
@@ -69,7 +69,7 @@ namespace UnitTests
 			var expectedOutput = _cpu.CreateMatrix(SIZE, SIZE, (i, j) => 1f / forwardInput[i, j]);
 
 			var backwardInput = _cpu.CreateMatrix(SIZE, SIZE, _DefaultInit).AsIndexable();
-			var expectedBpOutput = _cpu.CreateMatrix(SIZE, SIZE, (i, j) => 1f / -(float)Math.Pow(backwardInput[i, j], 2));
+			var expectedBpOutput = _cpu.CreateMatrix(SIZE, SIZE, (i, j) => -1f / (float)Math.Pow(forwardInput[i, j], 2) * backwardInput[i, j]);
 
 			_TestNode(_factory.GraphOperation.OneDividedBy(), forwardInput, expectedOutput, backwardInput, expectedBpOutput);
 		}
@@ -90,10 +90,10 @@ namespace UnitTests
 		public void TestSquareRootOf()
 		{
 			var forwardInput = _cpu.CreateMatrix(SIZE, SIZE, _DefaultInit).AsIndexable();
-			var expectedOutput = _cpu.CreateMatrix(SIZE, SIZE, (i, j) => (float)Math.Sqrt(forwardInput[i, j]));
+			var expectedOutput = _cpu.CreateMatrix(SIZE, SIZE, (i, j) => (float)Math.Sqrt(forwardInput[i, j])).AsIndexable();
 
 			var backwardInput = _cpu.CreateMatrix(SIZE, SIZE, _DefaultInit).AsIndexable();
-			var expectedBpOutput = _cpu.CreateMatrix(SIZE, SIZE, (i, j) => 0.5f * (float)Math.Sqrt(backwardInput[i,j]));
+			var expectedBpOutput = _cpu.CreateMatrix(SIZE, SIZE, (i, j) => 0.5f * expectedOutput[i,j] * backwardInput[i, j]);
 
 			_TestNode(_factory.GraphOperation.SquareRootOf(), forwardInput, expectedOutput, backwardInput, expectedBpOutput);
 		}
