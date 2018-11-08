@@ -230,7 +230,7 @@ namespace BrightWire.LinearAlgebra
 		public IVector Sqrt()
 		{
 			Debug.Assert(IsValid);
-			var ret = _cuda.Sqrt(_data, Count, 0);
+			var ret = _cuda.Sqrt(_data, Count, 1e-8f);
 			return new GpuVector(_cuda, ret, true);
 		}
 

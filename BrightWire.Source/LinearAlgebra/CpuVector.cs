@@ -156,7 +156,7 @@ namespace BrightWire.LinearAlgebra
 
         public IVector Sqrt()
         {
-            return new CpuVector(DenseVector.Create(_vector.Count, i => Convert.ToSingle(Math.Sqrt(_vector[i]))));
+            return new CpuVector(DenseVector.Create(_vector.Count, i => Convert.ToSingle(Math.Sqrt(_vector[i] + 1e-8f))));
         }
 
         public IVector Clone()
@@ -307,7 +307,7 @@ namespace BrightWire.LinearAlgebra
 
             var ret = new float[data.Count];
             for (var i = 0; i < data.Count; i++)
-                ret[i] = Convert.ToSingle(1d - DotProduct(data[i]) / Math.Sqrt(norm * dataNorm[i]));
+                ret[i] = Convert.ToSingle(1d - DotProduct(data[i]) / (Math.Sqrt(norm) * Math.Sqrt(dataNorm[i])));
             return new CpuVector(DenseVector.Create(data.Count, i => ret[i]));
         }
 
