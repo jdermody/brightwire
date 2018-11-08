@@ -23,6 +23,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
                     var es = errorSignal.GetMatrix();
 
                     using (var columnSums = es.ColumnSums()) {
+	                    columnSums.Multiply(1f / es.RowCount);
                         var initialDelta = columnSums.AsIndexable();
                         for (var j = 0; j < _source._data.Length; j++)
                             _source._data[j] += initialDelta[j] * context.LearningContext.BatchLearningRate;

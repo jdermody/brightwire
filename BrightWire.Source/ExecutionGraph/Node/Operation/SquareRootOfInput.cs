@@ -12,20 +12,19 @@ namespace BrightWire.ExecutionGraph.Node.Operation
         /// </summary>
         class Backpropagation : SingleBackpropagationBase<SquareRootOfInput>
         {
-            readonly IMatrix _output;
+            readonly IMatrix _sqrtOutput;
 
             public Backpropagation(SquareRootOfInput source, IMatrix output) : base(source)
             {
-                _output = output;
+	            _sqrtOutput = output;
             }
 
             protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
                 var es = errorSignal.GetMatrix();
                 using (var oneHalf = context.LinearAlgebraProvider.CreateMatrix(es.RowCount, es.ColumnCount, 0.5f))
-				using (var sqrt = es.Sqrt(1e-8f))
-                using (var delta = oneHalf.PointwiseMultiply(sqrt))
-                    return errorSignal.ReplaceWith(delta);
+                using (var delta = oneHalf.PointwiseMultiply(_sqrtOutput))
+                    return errorSignal.ReplaceWith(delta.PointwiseMultiply(es));
             }
         }
         public SquareRootOfInput(string name = null) : base(name)

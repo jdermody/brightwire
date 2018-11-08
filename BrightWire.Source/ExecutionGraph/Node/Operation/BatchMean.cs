@@ -3,15 +3,15 @@
 namespace BrightWire.ExecutionGraph.Node.Operation
 {
     /// <summary>
-    /// Calculates the variance 
+    /// Calculates the mean across the batch 
     /// </summary>
-    class CalculateVariance : NodeBase
+    class BatchMean : NodeBase
     {
-        class Backpropagation : SingleBackpropagationBase<CalculateVariance>
+        class Backpropagation : SingleBackpropagationBase<BatchMean>
         {
             readonly int _rowCount;
 
-            public Backpropagation(CalculateVariance source, int rowCount) : base(source)
+            public Backpropagation(BatchMean source, int rowCount) : base(source)
             {
                 _rowCount = rowCount;
             }
@@ -23,7 +23,8 @@ namespace BrightWire.ExecutionGraph.Node.Operation
                     return errorSignal.ReplaceWith(ones.PointwiseMultiply(es));
             }
         }
-        public CalculateVariance(string name = null) : base(name)
+
+        public BatchMean(string name = null) : base(name)
         {
         }
 

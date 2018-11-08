@@ -492,10 +492,11 @@ namespace BrightWire.ExecutionGraph
 			return new ReverseSequence(index, name);
 		}
 
-		//public INode CreateBatchNormalisation(int inputSize, string name, float momentum = 0.9f)
-		//{
-		//    return new BatchNormalisation(this, inputSize, _GetWeightInitialisation(), 0.9f, name);
-		//}
+		public INode CreateBatchNormalisation(int inputSize, string name)
+		{
+			//return new BatchNormalisation(this, inputSize, _GetWeightInitialisation(), 0.9f, name);
+			return new BatchNorm(this, inputSize, name);
+		}
 
 		/// <summary>
 		/// Creates a GRU recurrent layer

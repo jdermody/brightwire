@@ -21,9 +21,9 @@ namespace BrightWire.ExecutionGraph.Node.Operation
             {
                 var es = errorSignal.GetMatrix();
                 using (var minusOne = context.LinearAlgebraProvider.CreateMatrix(es.RowCount, es.ColumnCount, -1f))
-                using (var inputSquared = es.PointwiseMultiply(es))
+                using (var inputSquared = _input.PointwiseMultiply(_input))
                 using (var delta = minusOne.PointwiseDivide(inputSquared)) {
-                    return errorSignal.ReplaceWith(delta);
+                    return errorSignal.ReplaceWith(delta.PointwiseMultiply(es));
                 }
             }
         }

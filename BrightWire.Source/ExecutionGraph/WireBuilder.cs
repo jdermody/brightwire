@@ -194,24 +194,28 @@ namespace BrightWire.ExecutionGraph
             return this;
         }
 
-        //public WireBuilder AddBatchNormalisation(string name = null)
-        //{
-        //    var size = CurrentSize;
-        //    if (_depth > 1)
-        //        size = _depth;
+		/// <summary>
+		/// Adds a batch normalisation layer
+		/// </summary>
+		/// <param name="name">Optional name to give the node</param>
+		public WireBuilder AddBatchNormalisation(string name = null)
+		{
+			var size = CurrentSize;
+			if (_depth > 1)
+				size = _depth;
 
-        //    _SetNode(_factory.CreateBatchNormalisation(size, name));
-        //    return this;
-        //}
+			_SetNode(_factory.CreateBatchNormalisation(size, name));
+			return this;
+		}
 
-        /// <summary>
-        /// Adds a simple recurrent neural network layer
-        /// </summary>
-        /// <param name="activation">Activation layer</param>
-        /// <param name="initialMemory">Initial memory</param>
-        /// <param name="name">Optional name to give the node</param>
-        /// <returns></returns>
-        public WireBuilder AddSimpleRecurrent(INode activation, float[] initialMemory, string name = null)
+		/// <summary>
+		/// Adds a simple recurrent neural network layer
+		/// </summary>
+		/// <param name="activation">Activation layer</param>
+		/// <param name="initialMemory">Initial memory</param>
+		/// <param name="name">Optional name to give the node</param>
+		/// <returns></returns>
+		public WireBuilder AddSimpleRecurrent(INode activation, float[] initialMemory, string name = null)
         {
             _SetNode(_factory.CreateSimpleRecurrent(CurrentSize, initialMemory, activation, name));
             return SetNewSize(initialMemory.Length);

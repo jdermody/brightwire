@@ -29,6 +29,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\Action\ConstrainSignal.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\Action\CopyNamedMemory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\Action\JoinInputWithMemory.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\Action\ReadMemory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\Action\SetMemory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\Activation\LeakyRelu.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\Activation\Relu.cs" />
@@ -90,6 +91,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\Node\Helper\ExecuteBackwardAction.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\Node\Helper\ExecuteForwardAction.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\Node\Helper\HookErrorSignal.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\Node\Helper\InspectSignals.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\Node\Helper\NodeWrapper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\Node\Helper\RowClassifier.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\Node\Helper\TransposeAndCombineSignal.cs" />
@@ -99,7 +101,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\Node\Input\MemoryFeeder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\Node\Input\OneToMany.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\Node\Input\ReverseSequence.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\Node\Layer\BatchNormalisation.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\Node\Input\VectorInput.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\Node\Layer\BatchNorm.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\Node\Layer\Convolutional.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\Node\Layer\ElmanJordan.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\Node\Layer\FeedForward.cs" />
@@ -110,9 +113,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\Node\Layer\SimpleRecurrent.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\Node\Layer\TiedFeedForward.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\Node\NodeBase.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\Node\Operation\CalculateVariance.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\Node\Operation\BatchMean.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\Node\Operation\InputSquared.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\Node\Operation\MultiplyWithParameter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\Node\Operation\OneDividedByInput.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\Node\Operation\OneMinusInput.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\Node\Operation\SquareRootOfInput.cs" />
@@ -135,6 +137,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Helper\RandomProjection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helper\TypeLoader.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helper\VectorAsRow.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helper\VectorBasedStatistics.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helper\VectorDistanceHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)InstanceBased\KNNClassifier.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)InstanceBased\Training\KNNClassificationTrainer.cs" />
