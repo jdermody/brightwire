@@ -37,7 +37,7 @@ namespace BrightWire.SampleCode
                 var engine = graph.CreateTrainingEngine(trainingData, learningRate: 0.01f, batchSize: 16);
 
                 // build the network
-                const int HIDDEN_LAYER_SIZE = 32, TRAINING_ITERATIONS = 30;
+                const int HIDDEN_LAYER_SIZE = 32, TRAINING_ITERATIONS = 50;
                 graph.Connect(engine)
                     .AddSimpleRecurrent(graph.ReluActivation(), HIDDEN_LAYER_SIZE)
                     .AddFeedForward(engine.DataSource.OutputSize)
