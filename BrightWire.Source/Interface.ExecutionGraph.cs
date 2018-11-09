@@ -307,6 +307,24 @@ namespace BrightWire
         /// </summary>
         /// <returns>True if an operation was executed</returns>
         bool ExecuteNext();
+
+		/// <summary>
+		/// Saves the data as an output of the graph
+		/// </summary>
+		/// <param name="data">Data to save</param>
+		/// <param name="channel">Channel to save against (optional)</param>
+	    void SetOutput(IGraphData data, int channel = 0);
+
+		/// <summary>
+		/// Returns a saved output
+		/// </summary>
+		/// <param name="channel">Output channel (optional)</param>
+	    IGraphData GetOutput(int channel = 0);
+
+		/// <summary>
+		/// Returns all stored output
+		/// </summary>
+		IReadOnlyList<IGraphData> Output { get; }
     }
 
     /// <summary>

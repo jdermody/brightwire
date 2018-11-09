@@ -1,4 +1,5 @@
-﻿using BrightWire.ExecutionGraph.Action;
+﻿using System;
+using BrightWire.ExecutionGraph.Action;
 using BrightWire.ExecutionGraph.Helper;
 using BrightWire.ExecutionGraph.Node.Helper;
 
@@ -148,17 +149,27 @@ namespace BrightWire.ExecutionGraph
         }
 
         /// <summary>
-        /// 
+        /// Adds a drop connect layer
         /// </summary>
         /// <param name="dropOutPercentage">Percentage of connections to drop</param>
         /// <param name="outputSize">Number of outgoing connections</param>
         /// <param name="name">Optional name to give the node</param>
-        /// <returns></returns>
         public WireBuilder AddDropConnect(float dropOutPercentage, int outputSize, string name = null)
         {
             _SetNode(_factory.CreateDropConnect(dropOutPercentage, CurrentSize, outputSize, name));
             return SetNewSize(outputSize);
         }
+
+		/// <summary>
+		/// Creates a node that writes the current forward signal as an output of the graph
+		/// </summary>
+		/// <param name="channel">Output channel</param>
+		/// <param name="name">Optional name to give the node</param>
+	    public WireBuilder AddOutput(int channel = 0, string name = null)
+	    {
+		    _SetNode(_factory.CreateOutputNode(channel, name));
+		    return this;
+	    }
 
         /// <summary>
         /// Adds a node
@@ -202,7 +213,8 @@ namespace BrightWire.ExecutionGraph
 		{
 			var size = CurrentSize;
 			if (_depth > 1)
-				size = _depth;
+				throw new NotImplementedException("Currently only implemented for non convolutional networks");
+				//size = _depth;
 
 			_SetNode(_factory.CreateBatchNormalisation(size, name));
 			return this;

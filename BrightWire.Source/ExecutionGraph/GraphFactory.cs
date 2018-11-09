@@ -21,6 +21,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Serialization;
 using BrightWire.ExecutionGraph.Action;
+using BrightWire.ExecutionGraph.Node.Output;
 using BrightWire.Source.Helper;
 
 namespace BrightWire.ExecutionGraph
@@ -494,7 +495,6 @@ namespace BrightWire.ExecutionGraph
 
 		public INode CreateBatchNormalisation(int inputSize, string name)
 		{
-			//return new BatchNormalisation(this, inputSize, _GetWeightInitialisation(), 0.9f, name);
 			return new BatchNorm(this, inputSize, name);
 		}
 
@@ -543,6 +543,16 @@ namespace BrightWire.ExecutionGraph
 		public INode CreateDropOut(float dropoutPercentage, string name = null)
 		{
 			return new DropOut(dropoutPercentage, _lap.IsStochastic, name);
+		}
+
+		/// <summary>
+		/// Creates a node that writes the current forward signal as an output of the graph
+		/// </summary>
+		/// <param name="channel">Output channel</param>
+		/// <param name="name">Optional name to give the node</param>
+		public INode CreateOutputNode(int channel = 0, string name = null)
+		{
+			return new StoreOutput(channel);
 		}
 
 		/// <summary>

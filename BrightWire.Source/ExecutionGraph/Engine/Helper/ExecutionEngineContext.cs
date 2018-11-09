@@ -12,6 +12,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         readonly IExecutionContext _executionContext;
         readonly IMiniBatchSequence _miniBatch;
         readonly List<IExecutionHistory> _forward = new List<IExecutionHistory>();
+	    readonly Dictionary<int, IGraphData> _output = new Dictionary<int, IGraphData>();
         INode _sourceNode = null;
         IGraphData _data;
 
@@ -59,5 +60,19 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             }
             return false;
         }
+
+	    public void SetOutput(IGraphData data, int channel = 0)
+	    {
+		    _output[channel] = data;
+	    }
+
+	    public IGraphData GetOutput(int channel = 0)
+	    {
+		    if (_output.TryGetValue(channel, out var ret))
+			    return ret;
+		    return null;
+	    }
+
+	    public IReadOnlyList<IGraphData> Output => _output.OrderBy(kv => kv.Key).Select(kv => kv.Value).ToList();
     }
 }

@@ -118,6 +118,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\Node\Operation\OneDividedByInput.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\Node\Operation\OneMinusInput.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\Node\Operation\SquareRootOfInput.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\Node\Output\StoreOutput.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\Node\SingleBackpropagationBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\WeightInitialisation\Constant.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExecutionGraph\WeightInitialisation\Gaussian.cs" />

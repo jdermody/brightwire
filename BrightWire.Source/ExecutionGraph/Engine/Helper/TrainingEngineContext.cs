@@ -16,6 +16,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         readonly Stack<(IGraphData ErrorSignal, INode Target, INode Source)> _backward = new Stack<(IGraphData, INode, INode)>();
         readonly Dictionary<INode, List<IExecutionHistory>> _history = new Dictionary<INode, List<IExecutionHistory>>();
         readonly Dictionary<INode, List<IGraphData>> _nodeErrorSignal = new Dictionary<INode, List<IGraphData>>();
+	    readonly Dictionary<int, IGraphData> _output = new Dictionary<int, IGraphData>();
         INode _sourceNode;
         IGraphData _errorSignal = null, _data;
         double? _trainingError;
@@ -98,7 +99,21 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             return false;
         }
 
-        void _ClearBackward()
+	    public void SetOutput(IGraphData data, int channel = 0)
+	    {
+		    _output[channel] = data;
+	    }
+
+	    public IGraphData GetOutput(int channel = 0)
+	    {
+		    if (_output.TryGetValue(channel, out var ret))
+			    return ret;
+		    return null;
+	    }
+
+	    public IReadOnlyList<IGraphData> Output => _output.OrderBy(kv => kv.Key).Select(kv => kv.Value).ToList();
+
+	    void _ClearBackward()
         {
             _backward.Clear();
         }

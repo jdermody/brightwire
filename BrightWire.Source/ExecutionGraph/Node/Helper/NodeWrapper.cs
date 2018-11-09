@@ -57,6 +57,18 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             {
                 return _context.ExecuteNext();
             }
+
+	        public void SetOutput(IGraphData data, int channel = 0)
+	        {
+		        _context.SetOutput(data, channel);
+	        }
+
+	        public IGraphData GetOutput(int channel = 0)
+	        {
+		        return _context.GetOutput(channel);
+	        }
+
+	        public IReadOnlyList<IGraphData> Output => _context.Output;
         }
         INode _node;
         string _nodeId;
