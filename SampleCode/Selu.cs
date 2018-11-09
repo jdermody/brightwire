@@ -78,20 +78,21 @@ namespace BrightWire.SampleCode
 
                 // create the training engine and schedule a training rate change
                 const float TRAINING_RATE = 0.01f;
-                var engine = graph.CreateTrainingEngine(trainingData, TRAINING_RATE, batchSize: 128);
+                var engine = graph.CreateTrainingEngine(trainingData, TRAINING_RATE, batchSize: 32);
 
                 // create the network with the custom activation function
                 graph.Connect(engine)
-                    .AddFeedForward(outputSize: 32)
+                    .AddFeedForward(outputSize: 16)
+	                .AddBatchNormalisation()
                     .Add(new SeluActivation())
                     .AddFeedForward(trainingData.OutputSize)
-                    .Add(graph.SigmoidActivation())
+                    .Add(graph.SoftMaxActivation())
                     .AddBackpropagation(errorMetric)
                 ;
 
                 // train the network, but only run the test set every 50 iterations
                 const int TRAINING_ITERATIONS = 1500;
-                engine.Train(TRAINING_ITERATIONS, testData, errorMetric, null, testCadence: 50);
+                engine.Train(TRAINING_ITERATIONS, testData, errorMetric, null);
             }
         }
     }

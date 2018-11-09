@@ -122,10 +122,10 @@ namespace BrightWire.SampleCode
 				var trainingData = graph.CreateDataSource(split.Training);
 				var testData = trainingData.CloneWith(split.Test);
 				graph.CurrentPropertySet
-					.Use(graph.Adam())
+					.Use(graph.RmsProp())
 				;
 
-				var engine = graph.CreateTrainingEngine(trainingData, 1.3f, 128);
+				var engine = graph.CreateTrainingEngine(trainingData, 0.1f, 32);
 				graph.Connect(engine)
 					.AddFeedForward(16)
 					.Add(graph.SigmoidActivation())

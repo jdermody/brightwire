@@ -28,8 +28,8 @@ namespace BrightWire.SampleCode
 
                 // configure the network properties
                 graph.CurrentPropertySet
-                    .Use(graph.GradientDescent.RmsProp)
-                    .Use(graph.WeightInitialisation.Xavier)
+                    .Use(graph.GradientDescent.Adam)
+	                .Use(graph.GaussianWeightInitialisation(false, 0.1f, GaussianVarianceCalibration.SquareRoot2N))
                 ;
 
                 // create the training engine and schedule a training rate change
@@ -43,7 +43,7 @@ namespace BrightWire.SampleCode
                     .Add(graph.LeakyReluActivation())
                     .AddDropOut(dropOutPercentage: 0.5f)
                     .AddFeedForward(outputSize: trainingData.OutputSize)
-                    .Add(graph.SigmoidActivation())
+                    .Add(graph.SoftMaxActivation())
                     .AddBackpropagation(errorMetric)
                 ;
 
