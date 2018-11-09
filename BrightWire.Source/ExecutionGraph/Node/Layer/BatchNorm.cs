@@ -1,6 +1,7 @@
 ﻿using BrightWire.ExecutionGraph.Node.Input;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using BrightWire.ExecutionGraph.Node.Operation;
 using BrightWire.Helper;
 using BrightWire.Models;
@@ -14,9 +15,11 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 	class BatchNorm : NodeBase
 	{
 		int _inputSize;
-		INode _input, _gamma, _beta, _output = null;
+		INode _input, _output;
+		VectorInput _gamma, _beta;
 		VectorBasedStatistics _statistics;
 		OneToMany _start;
+		IMatrix _gammaCached, _betaCached, _meanCached, _stdDevCached;
 
 		public BatchNorm(GraphFactory graph, int inputSize, string name = null) : base(name)
 		{
@@ -84,7 +87,46 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 				}
 			}
 
-			_start.ExecuteForward(context);
+			if (context.IsTraining) {
+				_start.ExecuteForward(context);
+
+				// invalidate the cache
+				if (_gammaCached != null) {
+					_gammaCached.Dispose();
+					_gammaCached = null;
+					_betaCached?.Dispose();
+					_betaCached = null;
+					_meanCached?.Dispose();
+					_meanCached = null;
+					_stdDevCached?.Dispose();
+					_stdDevCached = null;
+				}
+			}
+			else if(_statistics != null) {
+				var input = context.Data.GetMatrix();
+				if (_gammaCached?.IsValid != true)
+					_gammaCached = context.LinearAlgebraProvider.CreateMatrix(input.RowCount, input.ColumnCount, (x, y) => _gamma.Data[y]);
+				if(_betaCached?.IsValid != true)
+					_betaCached = context.LinearAlgebraProvider.CreateMatrix(input.RowCount, input.ColumnCount, (x, y) => _beta.Data[y]);
+				if (_meanCached?.IsValid != true) {
+					var mean = _statistics.Mean;
+					_meanCached = context.LinearAlgebraProvider.CreateMatrixFromRows(Enumerable.Repeat(mean, input.RowCount).ToList());
+				}
+				if (_stdDevCached?.IsValid != true) {
+					using (var variance = _statistics.GetSampleVariance())
+					using (var stdDev = variance.Sqrt()) {
+						_stdDevCached = context.LinearAlgebraProvider.CreateMatrixFromRows(Enumerable.Repeat(stdDev, input.RowCount).ToList());
+					}
+				}
+				
+				input.SubtractInPlace(_meanCached);
+				using (var xHat = input.PointwiseDivide(_stdDevCached)) {
+					using (var ret = xHat.PointwiseMultiply(_gammaCached)) {
+						ret.AddInPlace(_betaCached);
+						_AddNextGraphAction(context, context.Data.ReplaceWith(ret), null);
+					}
+				}
+			}
 		}
 
 		protected override (string Description, byte[] Data) _GetInfo()

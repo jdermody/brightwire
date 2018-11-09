@@ -40,6 +40,8 @@ namespace BrightWire.ExecutionGraph.Node.Input
 			_data = data;
 		}
 
+		public float[] Data => _data;
+
 		public override void ExecuteForward(IContext context)
 		{
 			var data = context.LinearAlgebraProvider.CreateMatrix(context.BatchSequence.MiniBatch.BatchSize, _data.Length, (x, y) => _data[y]);
