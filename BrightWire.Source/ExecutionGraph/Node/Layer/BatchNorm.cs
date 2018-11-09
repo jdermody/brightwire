@@ -1,4 +1,5 @@
-﻿using BrightWire.ExecutionGraph.Node.Input;
+﻿using System;
+using BrightWire.ExecutionGraph.Node.Input;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -78,10 +79,40 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
 		public override void ExecuteForward(IContext context)
 		{
+			var data = context.Data;
+			IMatrix input;
+			IReadOnlyList<IVector> samples;
+			var lap = context.LinearAlgebraProvider;
+			var shouldDispose = false;
+
+			if (data.Depth > 1) {
+				// reshape the tensor by depth slice
+				var tensor4D = data.Get4DTensor();
+				var slots = new List<IVector>[data.Depth];
+				for (var i = 0; i < data.Depth; i++)
+					slots[i] = new List<IVector>();
+
+				foreach (var tensor in tensor4D.ReshapeAsMatrix().ColumnVectors()) {
+					var depthSlices = tensor.ReshapeAsColumnMatrix().ReshapeAsVector().Split(data.Depth);
+					for (var i = 0; i < data.Depth; i++)
+						slots[i].Add(depthSlices[i]);
+				}
+
+				// TODO: create row vectors from slots and matrix from rows
+
+				//input = lap.CreateMatrixFromRows(list);
+				//samples = list;
+				shouldDispose = true;
+				throw new NotImplementedException();
+			}
+			else {
+				input = context.Data.GetMatrix();
+				samples = input.RowVectors();
+			}
+
 			// collect statistics
 			if (context.IsTraining && _statistics != null) {
-				var input = context.Data.GetMatrix();
-				foreach (var vector in input.RowVectors()) {
+				foreach (var vector in samples) {
 					_statistics.Update(vector);
 					vector.Dispose();
 				}
@@ -103,16 +134,15 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 				}
 			}
 			else if(_statistics != null) {
-				var input = context.Data.GetMatrix();
-				if (_gammaCached?.IsValid != true)
+				if (_gammaCached?.IsValid != true || _gammaCached?.RowCount != input.RowCount || _gammaCached?.ColumnCount != input.ColumnCount)
 					_gammaCached = context.LinearAlgebraProvider.CreateMatrix(input.RowCount, input.ColumnCount, (x, y) => _gamma.Data[y]);
-				if(_betaCached?.IsValid != true)
+				if(_betaCached?.IsValid != true || _betaCached?.RowCount != input.RowCount || _betaCached?.ColumnCount != input.ColumnCount)
 					_betaCached = context.LinearAlgebraProvider.CreateMatrix(input.RowCount, input.ColumnCount, (x, y) => _beta.Data[y]);
-				if (_meanCached?.IsValid != true) {
+				if (_meanCached?.IsValid != true || _meanCached?.RowCount != input.RowCount || _meanCached?.ColumnCount != input.ColumnCount) {
 					var mean = _statistics.Mean;
 					_meanCached = context.LinearAlgebraProvider.CreateMatrixFromRows(Enumerable.Repeat(mean, input.RowCount).ToList());
 				}
-				if (_stdDevCached?.IsValid != true) {
+				if (_stdDevCached?.IsValid != true || _stdDevCached?.RowCount != input.RowCount || _stdDevCached?.ColumnCount != input.ColumnCount) {
 					using (var variance = _statistics.GetSampleVariance())
 					using (var stdDev = variance.Sqrt()) {
 						_stdDevCached = context.LinearAlgebraProvider.CreateMatrixFromRows(Enumerable.Repeat(stdDev, input.RowCount).ToList());
@@ -127,6 +157,11 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 					}
 				}
 			}
+
+			if (shouldDispose)
+				input.Dispose();
+			foreach (var item in samples)
+				item.Dispose();
 		}
 
 		protected override (string Description, byte[] Data) _GetInfo()
@@ -136,12 +171,9 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
 		public override void WriteTo(BinaryWriter writer)
 		{
-			var gamma = (VectorInput)_input.FindByName("gamma");
-			var beta = (VectorInput)_input.FindByName("beta");
-
 			writer.Write(_inputSize);
-			gamma.WriteTo(writer);
-			beta.WriteTo(writer);
+			_gamma.WriteTo(writer);
+			_beta.WriteTo(writer);
 
 			writer.Write(_statistics.Count);
 			_statistics.Mean.Data.WriteTo(writer);
