@@ -1,4 +1,5 @@
-﻿using BrightWire.ExecutionGraph;
+﻿using System;
+using BrightWire.ExecutionGraph;
 using BrightWire.ExecutionGraph.Node;
 using BrightWire.LinearAlgebra.Helper;
 using System.Collections.Generic;
@@ -31,8 +32,7 @@ namespace BrightWire.SampleCode
                         var x = matrix[i, j];
                         if(x >= 0)
                             return SCALE;
-                        else
-                            return SCALE * ALPHA * BoundMath.Exp(x);
+                        return SCALE * ALPHA * BoundMath.Exp(x);
                     });
                     return errorSignal.ReplaceWith(delta);
                 }
@@ -47,8 +47,7 @@ namespace BrightWire.SampleCode
                     var x = matrix[i, j];
                     if (x >= 0)
                         return SCALE * x;
-                    else
-                        return SCALE * (ALPHA * BoundMath.Exp(x) - ALPHA);
+                    return SCALE * (ALPHA * BoundMath.Exp(x) - ALPHA);
                 });
                 _AddNextGraphAction(context, context.Data.ReplaceWith(output), () => new Backpropagation(this));
             }
@@ -56,7 +55,7 @@ namespace BrightWire.SampleCode
 
         public static void TrainWithSelu(string dataFilesPath)
         {
-            using (var lap = BrightWireGpuProvider.CreateLinearAlgebra()) {
+            using (var lap = BrightWireProvider.CreateLinearAlgebra()) {
                 var graph = new GraphFactory(lap);
 
                 // parse the iris CSV into a data table and normalise
@@ -77,22 +76,41 @@ namespace BrightWire.SampleCode
                 ;
 
                 // create the training engine and schedule a training rate change
-                const float TRAINING_RATE = 0.01f;
+                const float TRAINING_RATE = 0.1f;
                 var engine = graph.CreateTrainingEngine(trainingData, TRAINING_RATE, batchSize: 32);
 
-                // create the network with the custom activation function
-                graph.Connect(engine)
-                    .AddFeedForward(outputSize: 16)
-	                .AddBatchNormalisation()
-                    .Add(new SeluActivation())
-                    .AddFeedForward(trainingData.OutputSize)
-                    .Add(graph.SoftMaxActivation())
-                    .AddBackpropagation(errorMetric)
-                ;
+	            const int LAYER_SIZE = 32;
 
-                // train the network, but only run the test set every 50 iterations
-                const int TRAINING_ITERATIONS = 1500;
-                engine.Train(TRAINING_ITERATIONS, testData, errorMetric, null);
+	            Func<INode> activation = () => new SeluActivation();
+	            //Func<INode> activation = () => graph.ReluActivation();
+
+                // create the network with the custom activation function
+				graph.Connect(engine)
+				    .AddFeedForward(LAYER_SIZE)
+				    .AddBatchNormalisation()
+				    .Add(activation())
+				    .AddFeedForward(LAYER_SIZE)
+				    .AddBatchNormalisation()
+					.Add(activation())
+				    .AddFeedForward(LAYER_SIZE)
+				    .AddBatchNormalisation()
+				    .Add(activation())
+					.AddFeedForward(LAYER_SIZE)
+					.AddBatchNormalisation()
+					.Add(activation())
+					.AddFeedForward(LAYER_SIZE)
+					.AddBatchNormalisation()
+					.Add(activation())
+					.AddFeedForward(LAYER_SIZE)
+					.AddBatchNormalisation()
+					.Add(activation())
+				    .AddFeedForward(trainingData.OutputSize)
+				    .Add(graph.SoftMaxActivation())
+				    .AddBackpropagation(errorMetric)
+				;
+
+                const int TRAINING_ITERATIONS = 200;
+                engine.Train(TRAINING_ITERATIONS, testData, errorMetric);
             }
         }
     }

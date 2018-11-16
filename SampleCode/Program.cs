@@ -1,6 +1,7 @@
 ﻿using BrightWire.ExecutionGraph;
 using BrightWire.TrainingData.Artificial;
 using System;
+using System.IO;
 using System.Linq;
 using MathNet.Numerics;
 
@@ -74,6 +75,58 @@ namespace BrightWire.SampleCode
 			}
 		}
 
+		public static void BatchNorm()
+        {
+            // download the iris data set
+	        byte[] data = File.ReadAllBytes(@"C:\data\iris.data");
+
+            // parse the iris CSV into a data table
+            var dataTable = new StreamReader(new MemoryStream(data)).ParseCSV(',')/*.Normalise(NormalisationType.Standard)*/;
+	        var analysis = dataTable.GetAnalysis();
+
+            // the last column is the classification target ("Iris-setosa", "Iris-versicolor", or "Iris-virginica")
+            var targetColumnIndex = dataTable.TargetColumnIndex = dataTable.ColumnCount - 1;
+
+            // split the data table into training and test tables
+            var split = dataTable.Split(0);
+
+            // fire up some linear algebra on the CPU
+            using (var lap = BrightWireGpuProvider.CreateLinearAlgebra(false)) {
+                var graph = new GraphFactory(lap);
+
+                // the default data table -> vector conversion uses one hot encoding of the classification labels, so create a corresponding cost function
+                var errorMetric = graph.ErrorMetric.OneHotEncoding;
+
+                // create the property set (use rmsprop gradient descent optimisation)
+                graph.CurrentPropertySet
+                    .Use(graph.RmsProp())
+                ;
+
+                // create the training and test data sources
+                var trainingData = graph.CreateDataSource(split.Training);
+                var testData = trainingData.CloneWith(split.Test);
+
+                // create a 4x3x3 neural network with sigmoid activations after each neural network
+                const int HIDDEN_LAYER_SIZE = 16, BATCH_SIZE = 120;
+                const float LEARNING_RATE = 0.1f;
+                var engine = graph.CreateTrainingEngine(trainingData, LEARNING_RATE, BATCH_SIZE, TrainingErrorCalculation.Fast);
+                graph.Connect(engine)
+	                .AddBatchNormalisation()
+                    .AddFeedForward(HIDDEN_LAYER_SIZE)
+	                .AddBatchNormalisation()
+                    .Add(graph.SigmoidActivation())
+	                //.AddDropOut(0.5f)
+                    .AddFeedForward(engine.DataSource.OutputSize)
+                    .Add(graph.SoftMaxActivation())
+                    .AddBackpropagation(errorMetric)
+                ;
+
+                // train the network
+                Console.WriteLine("Training neural network...");
+                engine.Train(5000, testData, errorMetric, null, 50);
+            }
+        }
+
 		static void Main(string[] args)
 		{
 			// base path to a directory on your computer with training files
@@ -85,7 +138,9 @@ namespace BrightWire.SampleCode
 			// use the (faster) native MKL provider if available
 			//Control.UseNativeMKL();
 
-			XOR();
+			//BatchNorm();
+
+			//XOR();
 			//IrisClassification();
 			//IrisClustering();
 			//MarkovChains();
@@ -98,7 +153,7 @@ namespace BrightWire.SampleCode
 			//OneToMany();
 			//ManyToOne();
 			//SequenceToSequence();
-			//TrainWithSelu(DataBasePath + @"iris.data");
+			TrainWithSelu(DataBasePath + @"iris.data");
 			//SimpleLinearTest();
 			//PredictBicyclesWithLinearModel(DataBasePath + @"bikesharing\hour.csv");
 			//PredictBicyclesWithNeuralNetwork(DataBasePath + @"bikesharing\hour.csv");
