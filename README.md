@@ -23,6 +23,7 @@ via the [Numerics.Net Wrapper](http://numerics.mathdotnet.com/MKL.html).
 * [GRU Recurrent Neural Networks](http://www.jackdermody.net/brightwire/article/GRU_Recurrent_Neural_Networks)
 * [Sequence to Sequence Neural Networks with LSTM](http://www.jackdermody.net/brightwire/article/Sequence_to_Sequence_with_LSTM)
 * [Convolutional Neural Networks](http://www.jackdermody.net/brightwire/article/Convolutional_Neural_Networks)
+* [Deep Feed Forward Neural Networks with Batch Normalization and SELU](http://www.jackdermody.net/brightwire/article/Extending_Bright_Wire:_Custom_Activation_Function)
 
 ## Nuget Installation
 
