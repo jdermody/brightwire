@@ -77,7 +77,7 @@ namespace BrightWire.SampleCode
 
                 // create the training engine and schedule a training rate change
                 const float TRAINING_RATE = 0.1f;
-                var engine = graph.CreateTrainingEngine(trainingData, TRAINING_RATE, batchSize: 32);
+                var engine = graph.CreateTrainingEngine(trainingData, TRAINING_RATE, batchSize: 128);
 
 	            const int LAYER_SIZE = 32;
 
@@ -109,7 +109,7 @@ namespace BrightWire.SampleCode
 				    .AddBackpropagation(errorMetric)
 				;
 
-                const int TRAINING_ITERATIONS = 200;
+                const int TRAINING_ITERATIONS = 500;
                 engine.Train(TRAINING_ITERATIONS, testData, errorMetric);
             }
         }
