@@ -23,8 +23,8 @@ namespace BrightWire.SampleCode
                 var graph = new GraphFactory(lap);
 
                 Console.Write("Loading training data...");
-                var trainingData = _BuildTensors(graph, null, Mnist.Load(dataFilesPath + "train-labels.idx1-ubyte", dataFilesPath + "train-images.idx3-ubyte").Where(d => d.Label < 2).ToList());
-                var testData = _BuildTensors(graph, trainingData, Mnist.Load(dataFilesPath + "t10k-labels.idx1-ubyte", dataFilesPath + "t10k-images.idx3-ubyte").Where(d => d.Label < 2).ToList());
+                var trainingData = _BuildTensors(graph, null, Mnist.Load(dataFilesPath + "train-labels.idx1-ubyte", dataFilesPath + "train-images.idx3-ubyte")/*.Where(d => d.Label < 2).ToList()*/);
+                var testData = _BuildTensors(graph, trainingData, Mnist.Load(dataFilesPath + "t10k-labels.idx1-ubyte", dataFilesPath + "t10k-images.idx3-ubyte")/*.Where(d => d.Label < 2).ToList()*/);
                 Console.WriteLine($"done - {trainingData.RowCount} training images and {testData.RowCount} test images loaded");
 
                 // one hot encoding uses the index of the output vector's maximum value as the classification label

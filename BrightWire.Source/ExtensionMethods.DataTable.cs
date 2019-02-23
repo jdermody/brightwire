@@ -368,5 +368,15 @@ namespace BrightWire
 				}).ToArray()
 		    };
 	    }
+
+		public static IDataTable ParseCSVThenSaveToDisk(this StreamReader reader, string dataFilePath, string indexFilePath)
+		{
+			using(var dataStream = new FileStream(dataFilePath, FileMode.Create, FileAccess.Write))
+			using (var indexStream = new FileStream(indexFilePath, FileMode.Create, FileAccess.Write)) {
+				var testData = reader.ParseCSV(',', true, dataStream);
+				testData.WriteIndexTo(indexStream);
+				return testData;
+			}
+		}
     }
 }

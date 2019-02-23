@@ -86,8 +86,6 @@ namespace BrightWire.SampleCode
 			// use the (faster) native MKL provider if available
 			//Control.UseNativeMKL();
 
-			//BatchNorm();
-
 			//XOR();
 			//IrisClassification();
 			//IrisClustering();

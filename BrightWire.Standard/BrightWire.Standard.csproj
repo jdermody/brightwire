@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>BrightWire</RootNamespace>
     <Platforms>AnyCPU;x64</Platforms>
-    <Version>2.1.0</Version>
+    <Version>2.1.1</Version>
     <Authors>Jack Dermody</Authors>
     <Company />
     <Product>BrightWire</Product>
@@ -16,13 +16,13 @@ Bright Wire is an open source machine learning library. Includes deep learning (
     <PackageLicenseUrl>https://raw.githubusercontent.com/jdermody/brightwire/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/jdermody/brightwire</PackageProjectUrl>
     <PackageIconUrl>http://www.jackdermody.net/bw_favicon.png</PackageIconUrl>
-    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <AssemblyVersion>2.0.1.1</AssemblyVersion>
     <FileVersion>2.0.1.6</FileVersion>
     <PackageId>BrightWire</PackageId>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MathNet.Numerics" Version="4.5.1" />
+    <PackageReference Include="MathNet.Numerics" Version="4.7.0" />
     <PackageReference Include="protobuf-net" Version="2.4.0" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
   </ItemGroup>
