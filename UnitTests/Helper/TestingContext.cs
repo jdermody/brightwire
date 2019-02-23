@@ -57,5 +57,17 @@ namespace UnitTests.Helper
 		{
 			throw new NotImplementedException();
 		}
+
+		public void SetOutput(IGraphData data, int channel = 0)
+		{
+			throw new NotImplementedException();
+		}
+
+		public IGraphData GetOutput(int channel = 0)
+		{
+			throw new NotImplementedException();
+		}
+
+		public IReadOnlyList<IGraphData> Output { get; set; }
 	}
 }
