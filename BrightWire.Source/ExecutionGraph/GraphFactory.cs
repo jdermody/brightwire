@@ -408,27 +408,29 @@ namespace BrightWire.ExecutionGraph
 		/// <param name="padding">Padding to apply before convolutions</param>
 		/// <param name="filterWidth">Width of each filter</param>
 		/// <param name="filterHeight">Height of each filter</param>
-		/// <param name="stride">Convolutional stride</param>
+		/// <param name="xStride">X stride</param>
+		/// <param name="yStride">Y stride</param>
 		/// <param name="shouldBackpropagate">True to calculate the backpropagation error signal</param>
 		/// <param name="name">Optional name to give the node</param>
 		/// <returns></returns>
-		public INode CreateConvolutional(int inputDepth, int filterCount, int padding, int filterWidth, int filterHeight, int stride, bool shouldBackpropagate = true, string name = null)
+		public INode CreateConvolutional(int inputDepth, int filterCount, int padding, int filterWidth, int filterHeight, int xStride, int yStride, bool shouldBackpropagate = true, string name = null)
 		{
 			var weightInit = _GetWeightInitialisation();
-			return new Convolutional(shouldBackpropagate, weightInit, CreateWeightUpdater, inputDepth, filterCount, padding, filterWidth, filterHeight, stride, name);
+			return new Convolutional(shouldBackpropagate, weightInit, CreateWeightUpdater, inputDepth, filterCount, padding, filterWidth, filterHeight, xStride, yStride, name);
 		}
 
 		/// <summary>
 		/// Creates a max pooling convolutional layer
 		/// </summary>
-		/// <param name="filterWidth"></param>
-		/// <param name="filterHeight"></param>
-		/// <param name="stride"></param>
+		/// <param name="filterWidth">Width of each filter</param>
+		/// <param name="filterHeight">Height of each filter</param>
+		/// <param name="xStride">X stride</param>
+		/// <param name="yStride">Y stride</param>
 		/// <param name="name">Optional name to give the node</param>
 		/// <returns></returns>
-		public INode CreateMaxPool(int filterWidth, int filterHeight, int stride, string name = null)
+		public INode CreateMaxPool(int filterWidth, int filterHeight, int xStride, int yStride, string name = null)
 		{
-			return new MaxPool(filterWidth, filterHeight, stride, name);
+			return new MaxPool(filterWidth, filterHeight, xStride, yStride, name);
 		}
 
 		/// <summary>

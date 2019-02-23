@@ -575,7 +575,8 @@ extern "C"
         int convolutionCount, 
         int filterWidth, 
         int filterHeight,
-        int stride
+        int xStride,
+		int yStride
     ) {
         for (int index = blockDim.x * blockIdx.x + threadIdx.x; index < size; index += blockDim.x * gridDim.x) {
             int x = index % filterWidth;
@@ -626,7 +627,8 @@ extern "C"
         int convolutionCount,  
         int filterWidth, 
         int filterHeight, 
-        int stride, 
+        int xStride,
+		int yStride,
         int outputRows,
         int outputColumns,
         int outputDepth
@@ -664,8 +666,8 @@ extern "C"
             const float* filter = filters + (k * outputDepth * filterWidth * filterHeight) + (z * filterWidth * filterHeight);
             float* output = b + (i * outputRows * outputColumns * outputDepth) + (z * outputRows * outputColumns);
 
-            int errorX = offsetX / stride;
-            int errorY = offsetY / stride;
+            int errorX = offsetX / xStride;
+            int errorY = offsetY / yStride;
             if(errorX < columns && errorY < rows) {
                 float error = slice[errorX * rows + errorY];
 
@@ -720,7 +722,8 @@ extern "C"
         int outputColumns, 
         int filterWidth, 
         int filterHeight, 
-        int stride,
+        int xStride,
+		int yStride,
         int saveIndices
     ) {
 		for (int index = blockDim.x * blockIdx.x + threadIdx.x; index < size; index += blockDim.x * gridDim.x) {
@@ -732,8 +735,8 @@ extern "C"
 
             int aX = cx[ci];
 			int aY = cy[ci];
-            int bX = aX / stride;
-            int bY = aY / stride;
+            int bX = aX / xStride;
+            int bY = aY / yStride;
 
             /*printf("index:%i k:%i(%i) z:%i(%i) ax:%i ay:%i bx:%i by:%i\n", index,
                 k, depth, 
@@ -785,7 +788,8 @@ extern "C"
         int outputColumns,
         int filterWidth,
         int filterHeight,
-        int stride
+        int xStride,
+		int yStride
     ) {
         for (int index = blockDim.x * blockIdx.x + threadIdx.x; index < size; index += blockDim.x * gridDim.x) {
             int i = index % rows;
@@ -808,11 +812,11 @@ extern "C"
             if(offset < 0)
                 offset = 0;
 
-            int targetX = j * stride + (offset / filterHeight);
-            int targetY = i * stride + (offset % filterHeight);
+            int targetX = j * xStride + (offset / filterHeight);
+            int targetY = i * yStride + (offset % filterHeight);
 
             /*printf("index:%i s:%i i:%i(%i) j:%i(%i) k:%i(%i) z:%i(%i) val:%f offset:%i tx:%i ty:%i\n", 
-                index, stride,
+                index, xStride, yStride
                 i, outputRows,
                 j, outputColumns, 
                 k, depth, 

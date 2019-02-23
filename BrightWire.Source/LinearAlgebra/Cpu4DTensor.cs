@@ -84,43 +84,43 @@ namespace BrightWire.LinearAlgebra
             return new Cpu4DTensor(ret);
         }
 
-        public (I4DTensor Result, I4DTensor Indices) MaxPool(int filterWidth, int filterHeight, int stride, bool saveIndices)
+        public (I4DTensor Result, I4DTensor Indices) MaxPool(int filterWidth, int filterHeight, int xStride, int yStride, bool saveIndices)
         {
             List<IIndexable3DTensor> indexList = saveIndices ? new List<IIndexable3DTensor>() : null;
             var ret = new List<IIndexable3DTensor>();
             for (var i = 0; i < Count; i++) {
-                var (result, indices) = GetTensorAt(i).MaxPool(filterWidth, filterHeight, stride, saveIndices);
+                var (result, indices) = GetTensorAt(i).MaxPool(filterWidth, filterHeight, xStride, yStride, saveIndices);
                 indexList?.Add(indices.AsIndexable());
                 ret.Add(result.AsIndexable());
             }
             return (new Cpu4DTensor(ret), saveIndices ? new Cpu4DTensor(indexList) : null);
         }
 
-        public I4DTensor ReverseMaxPool(I4DTensor indices, int outputRows, int outputColumns, int filterWidth, int filterHeight, int stride)
+        public I4DTensor ReverseMaxPool(I4DTensor indices, int outputRows, int outputColumns, int filterWidth, int filterHeight, int xStride, int yStride)
         {
             var ret = new List<IIndexable3DTensor>();
             for (var i = 0; i < Count; i++) {
-                var result = GetTensorAt(i).ReverseMaxPool(indices.GetTensorAt(i), outputRows, outputColumns, filterWidth, filterHeight, stride);
+                var result = GetTensorAt(i).ReverseMaxPool(indices.GetTensorAt(i), outputRows, outputColumns, filterWidth, filterHeight, xStride, yStride);
                 ret.Add(result.AsIndexable());
             }
             return new Cpu4DTensor(ret);
         }
 
-        public I3DTensor Im2Col(int filterWidth, int filterHeight, int stride)
+        public I3DTensor Im2Col(int filterWidth, int filterHeight, int xStride, int yStride)
         {
             var ret = new List<IIndexableMatrix>();
             for (var i = 0; i < Count; i++) {
-                var result = GetTensorAt(i).Im2Col(filterWidth, filterHeight, stride);
+                var result = GetTensorAt(i).Im2Col(filterWidth, filterHeight, xStride, yStride);
                 ret.Add(result.AsIndexable());
             }
             return new Cpu3DTensor(ret);
         }
 
-        public I4DTensor ReverseIm2Col(IMatrix filters, int outputRows, int outputColumns, int outputDepth, int filterWidth, int filterHeight, int stride)
+        public I4DTensor ReverseIm2Col(IMatrix filters, int outputRows, int outputColumns, int outputDepth, int filterWidth, int filterHeight, int xStride, int yStride)
         {
             var ret = new List<IIndexable3DTensor>();
             for (var i = 0; i < Count; i++) {
-                var result = GetTensorAt(i).ReverseIm2Col(filters, outputRows, outputColumns, outputDepth, filterWidth, filterHeight, stride);
+                var result = GetTensorAt(i).ReverseIm2Col(filters, outputRows, outputColumns, outputDepth, filterWidth, filterHeight, xStride, yStride);
                 ret.Add(result.AsIndexable());
             }
             return new Cpu4DTensor(ret);

@@ -814,15 +814,16 @@ namespace BrightWire.LinearAlgebra
 			int count,
 			int filterWidth,
 			int filterHeight,
-			int stride,
+			int xStride,
+			int yStride,
 			bool saveIndices
 		) {
-			var outputColumns = (columns - filterWidth) / stride + 1;
-			var outputRows = (rows - filterHeight) / stride + 1;
+			var outputColumns = (columns - filterWidth) / xStride + 1;
+			var outputRows = (rows - filterHeight) / yStride + 1;
 			var outputMatrixSize = outputColumns * outputRows;
 			var ret = Allocate(outputMatrixSize * depth * count, true);
 			var indices = saveIndices ? Allocate(outputMatrixSize * depth * count, true) : null;
-			var convolutions = ConvolutionHelper.Default(columns, rows, filterWidth, filterHeight, stride);
+			var convolutions = ConvolutionHelper.Default(columns, rows, filterWidth, filterHeight, xStride, yStride);
 			var size = convolutions.Count * depth * count;
 
 			using (var convolutionData = new ConvolutionsData(this, convolutions)) {
@@ -842,7 +843,8 @@ namespace BrightWire.LinearAlgebra
 					outputColumns,
 					filterWidth,
 					filterHeight,
-					stride,
+					xStride,
+					yStride,
 					saveIndices ? 1 : 0
 				);
 
@@ -850,7 +852,7 @@ namespace BrightWire.LinearAlgebra
 			}
 		}
 
-		internal IDeviceMemoryPtr TensorReverseMaxPool(IDeviceMemoryPtr tensor, IDeviceMemoryPtr indices, int rows, int columns, int depth, int count, int outputRows, int outputColumns, int filterWidth, int filterHeight, int stride)
+		internal IDeviceMemoryPtr TensorReverseMaxPool(IDeviceMemoryPtr tensor, IDeviceMemoryPtr indices, int rows, int columns, int depth, int count, int outputRows, int outputColumns, int filterWidth, int filterHeight, int xStride, int yStride)
 		{
 			var ret = Allocate(outputRows * outputColumns * depth * count, true);
 			var size = rows * columns * depth * count;
@@ -868,7 +870,8 @@ namespace BrightWire.LinearAlgebra
 				outputColumns, 
 				filterWidth, 
 				filterHeight,
-				stride
+				xStride,
+				yStride
 			);
 
 			return ret;
@@ -882,9 +885,10 @@ namespace BrightWire.LinearAlgebra
 			int count, 
 			int filterWidth, 
 			int filterHeight, 
-			int stride
+			int xStride, 
+			int yStride
 		) {
-			var convolutions = ConvolutionHelper.Default(columns, rows, filterWidth, filterHeight, stride);
+			var convolutions = ConvolutionHelper.Default(columns, rows, filterWidth, filterHeight, xStride, yStride);
 			var filterSize = filterWidth * filterHeight;
 			var outputRows = convolutions.Count;
 			var outputColumns = filterSize * depth;
@@ -906,7 +910,8 @@ namespace BrightWire.LinearAlgebra
 					convolutionData.Count,
 					filterWidth,
 					filterHeight,
-					stride
+					xStride,
+					yStride
 				);
 				return (ret, outputRows, outputColumns, count);
 			}
@@ -924,11 +929,12 @@ namespace BrightWire.LinearAlgebra
 			int outputDepth,
 			int filterWidth,
 			int filterHeight,
-			int stride
+			int xStride, 
+			int yStride
 		) {
 			var ret = Allocate(outputRows * outputColumns * outputDepth * count, true);
 
-			using (var convolutions = new ConvolutionsData(this, ConvolutionHelper.Default(outputColumns, outputRows, filterWidth, filterHeight, stride))) {
+			using (var convolutions = new ConvolutionsData(this, ConvolutionHelper.Default(outputColumns, outputRows, filterWidth, filterHeight, xStride, yStride))) {
 				var size = depth * convolutions.Count * filterHeight * filterWidth * outputDepth * count;
 				_Invoke(_tensorReverseIm2Col, size,
 					size,
@@ -944,7 +950,8 @@ namespace BrightWire.LinearAlgebra
 					convolutions.Count,
 					filterWidth,
 					filterHeight,
-					stride,
+					xStride,
+					yStride,
 					outputRows,
 					outputColumns,
 					outputDepth

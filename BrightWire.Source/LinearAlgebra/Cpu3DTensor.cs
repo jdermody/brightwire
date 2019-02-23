@@ -154,22 +154,23 @@ namespace BrightWire.LinearAlgebra
 		public (I3DTensor Result, I3DTensor Indices) MaxPool(
             int filterWidth, 
             int filterHeight, 
-            int stride,
+            int xStride,
+            int yStride,
             bool saveIndices
 		) {
-            var newColumns = (ColumnCount - filterWidth) / stride + 1;
-            var newRows = (RowCount - filterHeight) / stride + 1;
+            var newColumns = (ColumnCount - filterWidth) / xStride + 1;
+            var newRows = (RowCount - filterHeight) / yStride + 1;
             var matrixList = new List<CpuMatrix>();
             var indexList = saveIndices ? new List<CpuMatrix>() : null;
-            var convolutions = ConvolutionHelper.Default(ColumnCount, RowCount, filterWidth, filterHeight, stride);
+            var convolutions = ConvolutionHelper.Default(ColumnCount, RowCount, filterWidth, filterHeight, xStride, yStride);
 
             for (var k = 0; k < Depth; k++) {
                 var indices = saveIndices ? new CpuMatrix(DenseMatrix.Create(newRows, newColumns, 0f)) : null;
                 var layer = new CpuMatrix(DenseMatrix.Create(newRows, newColumns, 0f));
                 
                 foreach(var (cx, cy) in convolutions) {
-                    var targetX = cx / stride;
-                    var targetY = cy / stride;
+                    var targetX = cx / xStride;
+                    var targetY = cy / yStride;
                     var maxVal = float.MinValue;
 	                var bestOffset = -1;
 	                var offset = 0;
@@ -195,7 +196,7 @@ namespace BrightWire.LinearAlgebra
             return (new Cpu3DTensor(matrixList), saveIndices ? new Cpu3DTensor(indexList) : null);
         }
 
-        public I3DTensor ReverseMaxPool(I3DTensor indexList, int outputRows, int outputColumns, int filterWidth, int filterHeight, int stride)
+        public I3DTensor ReverseMaxPool(I3DTensor indexList, int outputRows, int outputColumns, int filterWidth, int filterHeight, int xStride, int yStride)
         {
             var matrixList = new List<DenseMatrix>();
 	        for (var k = 0; k < Depth; k++) {
@@ -212,7 +213,7 @@ namespace BrightWire.LinearAlgebra
 				        var offset = index[i, j];
 				        var offsetRow = (int)offset % filterHeight;
 				        var offsetColumn = (int)offset / filterHeight;
-						target[i*stride + offsetRow, j*stride + offsetColumn] = value;
+						target[i*yStride + offsetRow, j*xStride + offsetColumn] = value;
 			        }
 		        }
 	        }
@@ -220,9 +221,9 @@ namespace BrightWire.LinearAlgebra
 	        return new Cpu3DTensor(matrixList.Select(m => new CpuMatrix(m)).ToList());
         }
 
-	    public IMatrix Im2Col(int filterWidth, int filterHeight, int stride)
+	    public IMatrix Im2Col(int filterWidth, int filterHeight, int xStride, int yStride)
 	    {
-		    var convolutions = ConvolutionHelper.Default(ColumnCount, RowCount, filterWidth, filterHeight, stride);
+		    var convolutions = ConvolutionHelper.Default(ColumnCount, RowCount, filterWidth, filterHeight, xStride, yStride);
 		    var filterSize = filterWidth * filterHeight;
 		    var ret = new CpuMatrix(DenseMatrix.Create(convolutions.Count, filterSize * Depth, 0f));
 
@@ -243,9 +244,9 @@ namespace BrightWire.LinearAlgebra
 		    return ret;
 	    }
 
-        public I3DTensor ReverseIm2Col(IMatrix filterMatrix, int outputRows, int outputColumns, int outputDepth, int filterWidth, int filterHeight, int stride)
+        public I3DTensor ReverseIm2Col(IMatrix filterMatrix, int outputRows, int outputColumns, int outputDepth, int filterWidth, int filterHeight, int xStride, int yStride)
         {
-            var convolutions = ConvolutionHelper.Default(outputColumns, outputRows, filterWidth, filterHeight, stride);
+            var convolutions = ConvolutionHelper.Default(outputColumns, outputRows, filterWidth, filterHeight, xStride, yStride);
 	        var output = Enumerable.Range(0, outputDepth).Select(i => DenseMatrix.Create(outputRows, outputColumns, 0f)).ToList();
 
 			for (var k = 0; k < Depth; k++) {
@@ -253,8 +254,8 @@ namespace BrightWire.LinearAlgebra
 				var filters = filterMatrix.Column(k).Split(outputDepth).Select(v => v.AsIndexable()).ToList();
 
 				foreach (var (cx, cy) in convolutions) {
-					var errorY = cy / stride;
-					var errorX = cx / stride;
+					var errorY = cy / xStride;
+					var errorX = cx / yStride;
 					if (errorX < slice.ColumnCount && errorY < slice.RowCount) {
 						var error = slice[errorY, errorX];
 						for (var y = 0; y < filterHeight; y++) {

@@ -389,15 +389,16 @@ namespace BrightWire.ExecutionGraph
         /// </summary>
         /// <param name="filterWidth">Width of max pooliing filter</param>
         /// <param name="filterHeight">Height of max pooling filter</param>
-        /// <param name="stride">Filter stride</param>
+        /// <param name="xStride">X stride</param>
+        /// <param name="yStride">Y stride</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
-        public WireBuilder AddMaxPooling(int filterWidth, int filterHeight, int stride, string name = null)
+        public WireBuilder AddMaxPooling(int filterWidth, int filterHeight, int xStride, int yStride, string name = null)
         {
-            _SetNode(_factory.CreateMaxPool(filterWidth, filterHeight, stride, name));
+            _SetNode(_factory.CreateMaxPool(filterWidth, filterHeight, xStride, yStride, name));
 
-            _width = (_width - filterWidth) / stride + 1;
-            _height = (_height - filterHeight) / stride + 1;
+            _width = (_width - filterWidth) / xStride + 1;
+            _height = (_height - filterHeight) / yStride + 1;
 
             return this;
         }
@@ -409,16 +410,17 @@ namespace BrightWire.ExecutionGraph
         /// <param name="padding">Padding to add before applying the convolutions</param>
         /// <param name="filterWidth">Width of each filter</param>
         /// <param name="filterHeight">Height of each filter</param>
-        /// <param name="stride">Filter stride</param>
+        /// <param name="xStride">Filter x stride</param>
+        /// <param name="yStride">Filter y stride</param>
         /// <param name="shouldBackpropagate">True to calculate a backpropagation signal</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
-        public WireBuilder AddConvolutional(int filterCount, int padding, int filterWidth, int filterHeight, int stride, bool shouldBackpropagate = true, string name = null)
+        public WireBuilder AddConvolutional(int filterCount, int padding, int filterWidth, int filterHeight, int xStride, int yStride, bool shouldBackpropagate = true, string name = null)
         {
-            _SetNode(_factory.CreateConvolutional(_depth, filterCount, padding, filterWidth, filterHeight, stride, shouldBackpropagate, name));
+            _SetNode(_factory.CreateConvolutional(_depth, filterCount, padding, filterWidth, filterHeight, xStride, yStride, shouldBackpropagate, name));
 
-            _width = (_width + (2 * padding) - filterWidth) / stride + 1;
-            _height = (_height + (2 * padding) - filterHeight) / stride + 1;
+            _width = (_width + (2 * padding) - filterWidth) / xStride + 1;
+            _height = (_height + (2 * padding) - filterHeight) / yStride + 1;
             _depth = filterCount;
 
             return this;

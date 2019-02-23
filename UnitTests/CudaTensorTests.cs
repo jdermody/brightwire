@@ -114,7 +114,7 @@ namespace UnitTests
 			}
 		}
 
-		void _TensorIm2Col(int rows, int columns, int depth, int filterWidth, int filterHeight, int stride, bool randomData)
+		void _TensorIm2Col(int rows, int columns, int depth, int filterWidth, int filterHeight, int xStride, int yStride, bool randomData)
 		{
 			var normalDistribution = new Normal(0, 1);
 			using (var cpuTensor = _cpu.Create3DTensor(Enumerable.Range(0, depth).Select(i => _cpu.CreateMatrix(rows, columns, (j, k) => randomData
@@ -122,8 +122,8 @@ namespace UnitTests
 				: Convert.ToSingle((i + 1) * (j + 1) * (k + 1))
 			)).ToList()))
 			using (var gpuTensor = _cuda.Create3DTensor(cpuTensor.Data))
-			using (var cpuMatrix = cpuTensor.Im2Col(filterWidth, filterHeight, stride))
-			using (var gpuMatrix = gpuTensor.Im2Col(filterWidth, filterHeight, stride)) {
+			using (var cpuMatrix = cpuTensor.Im2Col(filterWidth, filterHeight, xStride, yStride))
+			using (var gpuMatrix = gpuTensor.Im2Col(filterWidth, filterHeight, xStride, yStride)) {
 				var cpu = cpuMatrix.AsIndexable();
 				var gpu = gpuMatrix.AsIndexable();
 				FloatingPointHelper.AssertEqual(cpu, gpu);
@@ -133,55 +133,55 @@ namespace UnitTests
 		[TestMethod]
 		public void TensorIm2Col()
 		{
-			_TensorIm2Col(4, 4, 3, 2, 2, 2, false);
+			_TensorIm2Col(4, 4, 3, 2, 2, 2, 2, false);
 		}
 
 		[TestMethod]
 		public void TensorIm2Col2()
 		{
-			_TensorIm2Col(8, 8, 1, 2, 2, 2, true);
+			_TensorIm2Col(8, 8, 1, 2, 2, 2, 2, true);
 		}
 
 		[TestMethod]
 		public void TensorIm2Col3()
 		{
-			_TensorIm2Col(8, 8, 2, 2, 2, 1, true);
+			_TensorIm2Col(8, 8, 2, 2, 2, 1, 1, true);
 		}
 
 		[TestMethod]
 		public void TensorIm2Col4()
 		{
-			_TensorIm2Col(8, 8, 2, 1, 2, 1, true);
+			_TensorIm2Col(8, 8, 2, 1, 2, 1, 1, true);
 		}
 
 		[TestMethod]
 		public void TensorIm2Col5()
 		{
-			_TensorIm2Col(8, 8, 2, 2, 1, 1, true);
+			_TensorIm2Col(8, 8, 2, 2, 1, 1, 1, true);
 		}
 
 		[TestMethod]
 		public void TensorIm2Col6()
 		{
-			_TensorIm2Col(8, 8, 3, 2, 1, 2, true);
+			_TensorIm2Col(8, 8, 3, 2, 1, 2, 2, true);
 		}
 
 		[TestMethod]
 		public void TensorIm2Col7()
 		{
-			_TensorIm2Col(8, 8, 3, 2, 1, 1, true);
+			_TensorIm2Col(8, 8, 3, 2, 1, 1, 1, true);
 		}
 
 		[TestMethod]
 		public void TensorIm2Col8()
 		{
-			_TensorIm2Col(8, 8, 3, 8, 1, 1, true);
+			_TensorIm2Col(8, 8, 3, 8, 1, 1, 1, true);
 		}
 
 		[TestMethod]
 		public void TensorIm2Col9()
 		{
-			_TensorIm2Col(12, 8, 1, 4, 1, 1, true);
+			_TensorIm2Col(12, 8, 1, 4, 1, 1, 1, true);
 		}
 
 		void _AssertAreSame(IReadOnlyList<(int[] X, int[] Y)> cpuIndex, IReadOnlyList<(int[] X, int[] Y)> gpuIndex)
@@ -217,7 +217,7 @@ namespace UnitTests
 		[TestMethod]
 		public void TensorMaxPool()
 		{
-			const int FILTER_WIDTH = 2, FILTER_HEIGHT = 2, STRIDE = 2, INPUT_WIDTH = 4, INPUT_HEIGHT = 4;
+			const int FILTER_WIDTH = 2, FILTER_HEIGHT = 2, XSTRIDE = 2, YSTRIDE = 2, INPUT_WIDTH = 4, INPUT_HEIGHT = 4;
 			var cpuTensor = _cpu.Create3DTensor(Enumerable.Range(0, 2).Select(i => _cpu.CreateZeroMatrix(INPUT_HEIGHT, INPUT_WIDTH)).ToList()).AsIndexable();
 			cpuTensor[0, 0, 0] = 1f;
 			cpuTensor[0, 3, 0] = 2f;
@@ -229,14 +229,14 @@ namespace UnitTests
 			cpuTensor[2, 1, 1] = 3f;
 			cpuTensor[2, 2, 1] = 4f;
 
-			var (cpuMaxPool, cpuIndex) = cpuTensor.MaxPool(FILTER_WIDTH, FILTER_HEIGHT, STRIDE, true);
-			var cpuReverseMaxPool = cpuMaxPool.ReverseMaxPool(cpuIndex, INPUT_HEIGHT, INPUT_WIDTH, FILTER_WIDTH, FILTER_HEIGHT, STRIDE).AsIndexable();
+			var (cpuMaxPool, cpuIndex) = cpuTensor.MaxPool(FILTER_WIDTH, FILTER_HEIGHT, XSTRIDE, YSTRIDE, true);
+			var cpuReverseMaxPool = cpuMaxPool.ReverseMaxPool(cpuIndex, INPUT_HEIGHT, INPUT_WIDTH, FILTER_WIDTH, FILTER_HEIGHT, XSTRIDE, YSTRIDE).AsIndexable();
 			FloatingPointHelper.AssertEqual(cpuTensor.AsIndexable(), cpuReverseMaxPool);
 
 			using (var gpuTensor = _cuda.Create3DTensor(cpuTensor.Data)) {
-				var (gpuMaxPool, gpuIndex) = gpuTensor.MaxPool(FILTER_WIDTH, FILTER_HEIGHT, STRIDE, true);
+				var (gpuMaxPool, gpuIndex) = gpuTensor.MaxPool(FILTER_WIDTH, FILTER_HEIGHT, XSTRIDE, YSTRIDE, true);
 				FloatingPointHelper.AssertEqual(gpuMaxPool.AsIndexable(), cpuMaxPool.AsIndexable());
-				using (var gpuReverseMaxPool = gpuMaxPool.ReverseMaxPool(gpuIndex, INPUT_HEIGHT, INPUT_WIDTH, FILTER_WIDTH, FILTER_HEIGHT, STRIDE)) {
+				using (var gpuReverseMaxPool = gpuMaxPool.ReverseMaxPool(gpuIndex, INPUT_HEIGHT, INPUT_WIDTH, FILTER_WIDTH, FILTER_HEIGHT, XSTRIDE, YSTRIDE)) {
 					FloatingPointHelper.AssertEqual(gpuReverseMaxPool.AsIndexable(), cpuReverseMaxPool);
 				}
 			}
@@ -245,66 +245,66 @@ namespace UnitTests
 		[TestMethod]
 		public void TensorMaxPool2()
 		{
-			_TensorMaxPool(8, 8, 3, 2, 2, 2, false, true);
+			_TensorMaxPool(8, 8, 3, 2, 2, 2, 2, false, true);
 		}
 
 		[TestMethod]
 		public void TensorMaxPool3()
 		{
-			_TensorMaxPool(8, 8, 3, 2, 2, 2, true, false);
+			_TensorMaxPool(8, 8, 3, 2, 2, 2, 2, true, false);
 		}
 
 		[TestMethod]
 		public void TensorMaxPool4()
 		{
-			_TensorMaxPool(8, 8, 3, 2, 2, 2, true, true);
+			_TensorMaxPool(8, 8, 3, 2, 2, 2, 2, true, true);
 		}
 
 		[TestMethod]
 		public void TensorMaxPool5()
 		{
-			_TensorMaxPool(8, 8, 3, 2, 1, 2, true, true);
+			_TensorMaxPool(8, 8, 3, 2, 1, 2, 2, true, true);
 		}
 
 		[TestMethod]
 		public void TensorMaxPool6()
 		{
-			_TensorMaxPool(8, 8, 3, 1, 2, 2, true, true);
+			_TensorMaxPool(8, 8, 3, 1, 2, 2, 2, true, true);
 		}
 
 		[TestMethod]
 		public void TensorMaxPool7()
 		{
-			_TensorMaxPool(8, 8, 2, 2, 1, 1, true, true);
+			_TensorMaxPool(8, 8, 2, 2, 1, 1, 1, true, true);
 		}
 
 		[TestMethod]
 		public void TensorMaxPool8()
 		{
-			_TensorMaxPool(8, 8, 1, 1, 2, 1, true, true);
+			_TensorMaxPool(8, 8, 1, 1, 2, 1, 1, true, true);
 		}
 
 		[TestMethod]
 		public void TensorMaxPoolBlankIrregular()
 		{
-			const int rows = 7, columns = 7, depth = 8, filterWidth = 2, filterHeight = 2, stride = 2;
+			const int rows = 7, columns = 7, depth = 8, filterWidth = 2, filterHeight = 2, xStride = 2, yStride = 2;
 			var cpuTensor = _cpu.Create3DTensor(Enumerable.Range(0, depth).Select(i => _cpu.CreateMatrix(rows, columns, (j, k) => 0)).ToList()).AsIndexable();
 
-			var (cpuMaxPool, cpuIndices) = cpuTensor.MaxPool(filterWidth, filterHeight, stride, true);
-			var cpuReverseMaxPool = cpuMaxPool.ReverseMaxPool(cpuIndices, rows, columns, filterWidth, filterHeight, stride).AsIndexable();
+			var (cpuMaxPool, cpuIndices) = cpuTensor.MaxPool(filterWidth, filterHeight, xStride, yStride, true);
+			var cpuReverseMaxPool = cpuMaxPool.ReverseMaxPool(cpuIndices, rows, columns, filterWidth, filterHeight, xStride, yStride).AsIndexable();
 			_AssertValuesAreInSamePlace(cpuReverseMaxPool, cpuTensor);
 
 			using (var gpuTensor = _cuda.Create3DTensor(cpuTensor.Data)) {
-				var (gpuMaxPool, gpuIndices) = gpuTensor.MaxPool(filterWidth, filterHeight, stride, true);
+				var (gpuMaxPool, gpuIndices) = gpuTensor.MaxPool(filterWidth, filterHeight, xStride, yStride, true);
 				FloatingPointHelper.AssertEqual(gpuMaxPool.AsIndexable(), cpuMaxPool.AsIndexable());
 				FloatingPointHelper.AssertEqual(gpuIndices.AsIndexable(), cpuIndices.AsIndexable());
-				using (var gpuReverseMaxPool = gpuMaxPool.ReverseMaxPool(gpuIndices, rows, columns, filterWidth, filterHeight, stride)) {
+				using (var gpuReverseMaxPool = gpuMaxPool.ReverseMaxPool(gpuIndices, rows, columns, filterWidth, filterHeight, xStride, yStride)) {
 					FloatingPointHelper.AssertEqual(gpuReverseMaxPool.AsIndexable(), cpuReverseMaxPool);
 				}
 			}
 		}
 
-		void _TensorMaxPool(int rows, int columns, int depth, int filterWidth, int filterHeight, int stride, bool randomInit, bool calculateIndices)
+		void _TensorMaxPool(int rows, int columns, int depth, int filterWidth, int filterHeight, int xStride, int yStride, bool randomInit, bool calculateIndices)
 		{
 			var normalDistribution = new Normal(0, 1);
 			var cpuTensor = _cpu.Create3DTensor(Enumerable.Range(0, depth).Select(i => _cpu.CreateMatrix(rows, columns, (j, k) => randomInit
@@ -312,33 +312,33 @@ namespace UnitTests
 				: Convert.ToSingle((i + 1) * (j + 1) * (k + 1))
 			)).ToList()).AsIndexable();
 
-			var (cpuMaxPool, cpuIndices) = cpuTensor.MaxPool(filterWidth, filterHeight, stride, true);
-			var cpuReverseMaxPool = cpuMaxPool.ReverseMaxPool(cpuIndices, rows, columns, filterWidth, filterHeight, stride).AsIndexable();
+			var (cpuMaxPool, cpuIndices) = cpuTensor.MaxPool(filterWidth, filterHeight, xStride, yStride, true);
+			var cpuReverseMaxPool = cpuMaxPool.ReverseMaxPool(cpuIndices, rows, columns, filterWidth, filterHeight, xStride, yStride).AsIndexable();
 			_AssertValuesAreInSamePlace(cpuReverseMaxPool, cpuTensor);
 
 			using (var gpuTensor = _cuda.Create3DTensor(cpuTensor.Data)) {
-				var (gpuMaxPool, gpuIndices) = gpuTensor.MaxPool(filterWidth, filterHeight, stride, calculateIndices);
+				var (gpuMaxPool, gpuIndices) = gpuTensor.MaxPool(filterWidth, filterHeight, xStride, yStride, calculateIndices);
 				FloatingPointHelper.AssertEqual(gpuMaxPool.AsIndexable(), cpuMaxPool.AsIndexable());
 				if (calculateIndices) {
 					FloatingPointHelper.AssertEqual(gpuIndices.AsIndexable(), cpuIndices.AsIndexable());
-					using (var gpuReverseMaxPool = gpuMaxPool.ReverseMaxPool(gpuIndices, rows, columns, filterWidth, filterHeight, stride)) {
+					using (var gpuReverseMaxPool = gpuMaxPool.ReverseMaxPool(gpuIndices, rows, columns, filterWidth, filterHeight, xStride, yStride)) {
 						FloatingPointHelper.AssertEqual(gpuReverseMaxPool.AsIndexable(), cpuReverseMaxPool);
 					}
 				}
 			}
 		}
 
-		void _TensorReverseIm2Col(int filterWidth, int filterHeight, int stride, int depth, int filterCount, int inputWidth, int inputHeight)
+		void _TensorReverseIm2Col(int filterWidth, int filterHeight, int xStride, int yStride, int depth, int filterCount, int inputWidth, int inputHeight)
 		{
 			var normalDistribution = new Normal(0, 1);
 			var cpuTensor = _cpu.Create3DTensor(Enumerable.Range(0, depth).Select(i => _cpu.CreateMatrix(inputHeight, inputWidth, (j, k) => Convert.ToSingle(normalDistribution.Sample()))).ToList());
-			var im2Col = cpuTensor.Im2Col(filterWidth, filterHeight, stride);
+			var im2Col = cpuTensor.Im2Col(filterWidth, filterHeight, xStride, yStride);
 			var cpuFilter = _cpu.CreateMatrix(depth * filterWidth * filterHeight, filterCount, (i, j) => (float)normalDistribution.Sample());
 			var output = im2Col.Multiply(cpuFilter);
 
 			var matrixList = new List<IMatrix>();
-			var newWidth = ((inputWidth - filterWidth) / stride) + 1;
-			var newHeight = ((inputHeight - filterHeight) / stride) + 1;
+			var newWidth = ((inputWidth - filterWidth) / xStride) + 1;
+			var newHeight = ((inputHeight - filterHeight) / yStride) + 1;
 			for (var i = 0; i < output.ColumnCount; i++)
 				matrixList.Add(output.Column(i).ReshapeAsMatrix(newWidth, newHeight));
 			var outputTensor = _cpu.Create3DTensor(matrixList);
@@ -347,8 +347,8 @@ namespace UnitTests
 				FloatingPointHelper.AssertEqual(gpuTensor.AsIndexable(), outputTensor.AsIndexable());
 				var gpuFilter = _cuda.CreateMatrix(cpuFilter.Data);
 
-				var cpuReverseIm2Col = outputTensor.ReverseIm2Col(cpuFilter, inputHeight, inputWidth, depth, filterWidth, filterHeight, stride);
-				using (var gpuReverseIm2Col = gpuTensor.ReverseIm2Col(gpuFilter, inputHeight, inputWidth, depth, filterWidth, filterHeight, stride)) {
+				var cpuReverseIm2Col = outputTensor.ReverseIm2Col(cpuFilter, inputHeight, inputWidth, depth, filterWidth, filterHeight, xStride, yStride);
+				using (var gpuReverseIm2Col = gpuTensor.ReverseIm2Col(gpuFilter, inputHeight, inputWidth, depth, filterWidth, filterHeight, xStride, yStride)) {
 					FloatingPointHelper.AssertEqual(gpuReverseIm2Col.AsIndexable(), cpuReverseIm2Col.AsIndexable());
 				}
 			}
@@ -357,43 +357,43 @@ namespace UnitTests
 		[TestMethod]
 		public void TensorReverseIm2Col()
 		{
-			_TensorReverseIm2Col(2, 2, 2, 1, 1, 4, 4);
+			_TensorReverseIm2Col(2, 2, 2, 2, 1, 1, 4, 4);
 		}
 
 		[TestMethod]
 		public void TensorReverseIm2Col2()
 		{
-			_TensorReverseIm2Col(2, 2, 2, 1, 2, 4, 4);
+			_TensorReverseIm2Col(2, 2, 2, 2, 1, 2, 4, 4);
 		}
 
 		[TestMethod]
 		public void TensorReverseIm2Col3()
 		{
-			_TensorReverseIm2Col(2, 2, 2, 2, 1, 4, 4);
+			_TensorReverseIm2Col(2, 2, 2, 2, 2, 1, 4, 4);
 		}
 
 		[TestMethod]
 		public void TensorReverseIm2Col4()
 		{
-			_TensorReverseIm2Col(2, 2, 2, 2, 2, 4, 4);
+			_TensorReverseIm2Col(2, 2, 2, 2, 2, 2, 4, 4);
 		}
 		
 		[TestMethod]
 		public void TensorReverseIm2Col5()
 		{
-			_TensorReverseIm2Col(2, 2, 1, 2, 2, 4, 4);
+			_TensorReverseIm2Col(2, 2, 1, 1, 2, 2, 4, 4);
 		}
 
 		[TestMethod]
 		public void TensorReverseIm2Col6()
 		{
-			_TensorReverseIm2Col(2, 1, 1, 1, 1, 4, 4);
+			_TensorReverseIm2Col(2, 1, 1, 1, 1, 1, 4, 4);
 		}
 
 		[TestMethod]
 		public void TensorReverseIm2Col7()
 		{
-			_TensorReverseIm2Col(10, 3, 1, 1, 2, 10, 12);
+			_TensorReverseIm2Col(10, 3, 1, 1, 1, 2, 10, 12);
 		}
 
 		FloatMatrix _CreateMatrix(int depth, int rows, int columns, Func<int, int, int, float> valueProvider)
@@ -502,10 +502,10 @@ namespace UnitTests
 				.Select(z => _CreateTensor(4, 4, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1))).ToList();
 
 			var cpuTensor = _cpu.Create4DTensor(data);
-			var cpuPooled = cpuTensor.MaxPool(2, 2, 2, false).Result;
+			var cpuPooled = cpuTensor.MaxPool(2, 2, 2, 2, false).Result;
 
 			using (var gpuTensor = _cuda.Create4DTensor(data))
-			using (var gpuPooled = gpuTensor.MaxPool(2, 2, 2, false).Result) {
+			using (var gpuPooled = gpuTensor.MaxPool(2, 2, 2, 2, false).Result) {
 				FloatingPointHelper.AssertEqual(cpuPooled.AsIndexable(), gpuPooled.AsIndexable());
 			}
 		}
@@ -517,12 +517,12 @@ namespace UnitTests
 				.Select(z => _CreateTensor(4, 4, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1))).ToList();
 
 			var cpuTensor = _cpu.Create4DTensor(data);
-			var cpuResult = cpuTensor.MaxPool(2, 2, 2, true);
-			var cpuReverseMaxPool = cpuResult.Result.ReverseMaxPool(cpuResult.Indices, 4, 4, 2, 2, 2);
+			var cpuResult = cpuTensor.MaxPool(2, 2, 2, 2, true);
+			var cpuReverseMaxPool = cpuResult.Result.ReverseMaxPool(cpuResult.Indices, 4, 4, 2, 2, 2, 2);
 
 			using (var gpuTensor = _cuda.Create4DTensor(data)) {
-				var gpuResult = gpuTensor.MaxPool(2, 2, 2, true);
-				using (var gpuReverseMaxPool = gpuResult.Result.ReverseMaxPool(gpuResult.Indices, 4, 4, 2, 2, 2)) {
+				var gpuResult = gpuTensor.MaxPool(2, 2, 2, 2, true);
+				using (var gpuReverseMaxPool = gpuResult.Result.ReverseMaxPool(gpuResult.Indices, 4, 4, 2, 2, 2, 2)) {
 					FloatingPointHelper.AssertEqual(cpuReverseMaxPool.AsIndexable(), gpuReverseMaxPool.AsIndexable());
 				}
 			}
@@ -534,10 +534,10 @@ namespace UnitTests
 			var data = Enumerable.Range(0, 5)
 				.Select(z => _CreateTensor(4, 4, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1) * (z + 1))).ToList();
 			var cpuTensor = _cpu.Create4DTensor(data);
-			var cpuResult = cpuTensor.Im2Col(2, 2, 1);
+			var cpuResult = cpuTensor.Im2Col(2, 2, 1, 1);
 
 			using (var gpuTensor = _cuda.Create4DTensor(data))
-			using (var gpuResult = gpuTensor.Im2Col(2, 2, 1)) {
+			using (var gpuResult = gpuTensor.Im2Col(2, 2, 1, 1)) {
 				FloatingPointHelper.AssertEqual(cpuResult.AsIndexable(), gpuResult.AsIndexable());
 			}
 		}
@@ -548,7 +548,7 @@ namespace UnitTests
 			var data = Enumerable.Range(0, 5)
 				.Select(z => _CreateTensor(4, 4, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1))).ToList();
 			var cpuTensor = _cpu.Create4DTensor(data);
-			var cpuIm2Col = cpuTensor.Im2Col(2, 2, 1);
+			var cpuIm2Col = cpuTensor.Im2Col(2, 2, 1, 1);
 			var cpuFilter = _cpu.CreateMatrix(2 * 2 * 2, 5, (i, j) => (i + 1) * (j + 1));
 			var cpuOutput = cpuIm2Col.Multiply(cpuFilter);
 
@@ -739,7 +739,7 @@ namespace UnitTests
 		[TestMethod]
 		public void Tensor4DReverseIm2Col()
 		{
-			const int rows = 4, columns = 4, depth = 1, count = 1, filterWidth = 2, filterHeight = 2, filterCount = 1, stride = 2;
+			const int rows = 4, columns = 4, depth = 1, count = 1, filterWidth = 2, filterHeight = 2, filterCount = 1, xStride = 2, yStride = 2;
 
 			var normalDistribution = new Normal(0, 1);
 			var data = Enumerable.Range(0, count)
@@ -751,8 +751,8 @@ namespace UnitTests
 			using (var gpuFilter = _cuda.CreateMatrix(cpuFilter.AsIndexable())) {
 				FloatingPointHelper.AssertEqual(cpuTensor.AsIndexable(), gpuTensor.AsIndexable());
 
-				var cpuReverseIm2Col = cpuTensor.ReverseIm2Col(cpuFilter, rows, columns, depth, filterWidth, filterHeight, stride);
-				using (var gpuReverseIm2Col = gpuTensor.ReverseIm2Col(gpuFilter, rows, columns, depth, filterWidth, filterHeight, stride)) {
+				var cpuReverseIm2Col = cpuTensor.ReverseIm2Col(cpuFilter, rows, columns, depth, filterWidth, filterHeight, xStride, yStride);
+				using (var gpuReverseIm2Col = gpuTensor.ReverseIm2Col(gpuFilter, rows, columns, depth, filterWidth, filterHeight, xStride, yStride)) {
 					var cpuResult = cpuReverseIm2Col.AsIndexable();
 					var gpuResult = gpuReverseIm2Col.AsIndexable();
 					var cpuXml = cpuResult.AsXml;

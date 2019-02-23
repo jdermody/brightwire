@@ -176,33 +176,33 @@ namespace BrightWire.LinearAlgebra
 	        return new Gpu4DTensor(_cuda, ret.Rows, ret.Columns, _depth, _count, ret.Data, true);
         }
 
-        public (I4DTensor Result, I4DTensor Indices) MaxPool(int filterWidth, int filterHeight, int stride, bool saveIndices)
+        public (I4DTensor Result, I4DTensor Indices) MaxPool(int filterWidth, int filterHeight, int xStride, int yStride, bool saveIndices)
         {
 	        Debug.Assert(IsValid);
-	        var maxPool = _cuda.TensorMaxPool(_data, _rows, _columns, _depth, _count, filterWidth, filterHeight, stride, saveIndices);
+	        var maxPool = _cuda.TensorMaxPool(_data, _rows, _columns, _depth, _count, filterWidth, filterHeight, xStride, yStride, saveIndices);
 	        var ret = new Gpu4DTensor(_cuda, maxPool.Rows, maxPool.Columns, _depth, _count, maxPool.Data, true);
 	        var indices = saveIndices ? new Gpu4DTensor(_cuda, maxPool.Rows, maxPool.Columns, _depth, _count, maxPool.Indices, true) : null;
 	        return (ret, indices);
         }
 
-        public I4DTensor ReverseMaxPool(I4DTensor indices, int outputRows, int outputColumns, int filterWidth, int filterHeight, int stride)
+        public I4DTensor ReverseMaxPool(I4DTensor indices, int outputRows, int outputColumns, int filterWidth, int filterHeight, int xStride, int yStride)
         {
 	        Debug.Assert(IsValid);
 	        var indicesPtr = ((IHaveDeviceMemory) indices).Memory;
-	        var ret = _cuda.TensorReverseMaxPool(_data, indicesPtr, _rows, _columns, _depth, _count, outputRows, outputColumns, filterWidth, filterHeight, stride);
+	        var ret = _cuda.TensorReverseMaxPool(_data, indicesPtr, _rows, _columns, _depth, _count, outputRows, outputColumns, filterWidth, filterHeight, xStride, yStride);
 	        return new Gpu4DTensor(_cuda, outputRows, outputColumns, _depth, _count, ret, true);
         }
 
-        public I3DTensor Im2Col(int filterWidth, int filterHeight, int stride)
+        public I3DTensor Im2Col(int filterWidth, int filterHeight, int xStride, int yStride)
         {
-			var ret = _cuda.TensorIm2Col(_data, _rows, _columns, _depth, _count, filterWidth, filterHeight, stride);
+			var ret = _cuda.TensorIm2Col(_data, _rows, _columns, _depth, _count, filterWidth, filterHeight, xStride, yStride);
 	        return new Gpu3DTensor(_cuda, ret.Rows, ret.Columns, ret.Depth, ret.Data, true);
         }
 
-        public I4DTensor ReverseIm2Col(IMatrix filter, int outputRows, int outputColumns, int outputDepth, int filterWidth, int filterHeight, int stride)
+        public I4DTensor ReverseIm2Col(IMatrix filter, int outputRows, int outputColumns, int outputDepth, int filterWidth, int filterHeight, int xStride, int yStride)
         {
 	        var filterPtr = ((IHaveDeviceMemory) filter).Memory;
-			var ret = _cuda.TensorReverseIm2Col(_data, filterPtr, _rows, _columns, _depth, _count, outputRows, outputColumns, outputDepth, filterWidth, filterHeight, stride);
+			var ret = _cuda.TensorReverseIm2Col(_data, filterPtr, _rows, _columns, _depth, _count, outputRows, outputColumns, outputDepth, filterWidth, filterHeight, xStride, yStride);
 			return new Gpu4DTensor(_cuda, ret.Rows, ret.Columns, ret.Depth, ret.Count, ret.Data, true);
 		}
 

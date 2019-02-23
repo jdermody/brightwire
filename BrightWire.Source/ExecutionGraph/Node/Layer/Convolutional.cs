@@ -55,13 +55,14 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 					var inputDepth = _source._inputDepth;
 					var filterWidth = _source._filterWidth;
 					var filterHeight = _source._filterHeight;
-					var stride = _source._stride;
+					var xStride = _source._xStride;
+					var yStride = _source._yStride;
 
 					var outputRows = _inputHeight + padding * 2;
 					var outputColumns = _inputWidth + padding * 2;
 					var outputDepth = _inputDepth;
 
-					var reverseIm2Col = tensor.ReverseIm2Col(filters, outputRows, outputColumns, outputDepth, filterWidth, filterHeight, stride);
+					var reverseIm2Col = tensor.ReverseIm2Col(filters, outputRows, outputColumns, outputDepth, filterWidth, filterHeight, xStride, yStride);
 					var delta = reverseIm2Col;
 					if (padding > 0) {
 						var delta2 = delta.RemovePadding(padding);
@@ -74,7 +75,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 			}
 		}
 		IGradientDescentOptimisation _updater;
-		int _padding, _filterWidth, _filterHeight, _stride, _inputDepth;
+		int _padding, _filterWidth, _filterHeight, _xStride, _yStride, _inputDepth;
 		IMatrix _filter;
 		IVector _bias;
 		bool _shouldBackpropagate;
@@ -88,14 +89,16 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 			int padding,
 			int filterWidth,
 			int filterHeight,
-			int stride,
+			int xStride, 
+			int yStride,
 			string name = null) : base(name)
 		{
 			_shouldBackpropagate = shouldBackpropagate;
 			_padding = padding;
 			_filterWidth = filterWidth;
 			_filterHeight = filterHeight;
-			_stride = stride;
+			_xStride = xStride;
+			_yStride = yStride;
 			_inputDepth = inputDepth;
 
 			_bias = weightInitialisation.CreateBias(filterCount);
@@ -123,13 +126,13 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
 			var inputWidth = tensor.ColumnCount;
 			var inputHeight = tensor.RowCount;
-			var newWidth = ((inputWidth - _filterWidth + (2 * _padding)) / _stride) + 1;
-			var newHeight = ((inputHeight - _filterHeight + (2 * _padding)) / _stride) + 1;
+			var newWidth = ((inputWidth - _filterWidth + (2 * _padding)) / _xStride) + 1;
+			var newHeight = ((inputHeight - _filterHeight + (2 * _padding)) / _yStride) + 1;
 
 			if (_padding > 0)
 				tensor = tensor.AddPadding(_padding);
 
-			var im2Col = tensor.Im2Col(_filterWidth, _filterHeight, _stride);
+			var im2Col = tensor.Im2Col(_filterWidth, _filterHeight, _xStride, _yStride);
 			var outputSignal = im2Col.Multiply(_filter);
 			outputSignal.AddToEachRow(_bias);
 			var outputTensor = outputSignal.ReshapeAs4DTensor(newHeight, newWidth);
@@ -151,7 +154,8 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 			_padding = reader.ReadInt32();
 			_filterWidth = reader.ReadInt32();
 			_filterHeight = reader.ReadInt32();
-			_stride = reader.ReadInt32();
+			_xStride = reader.ReadInt32();
+			_yStride = reader.ReadInt32();
 			_inputDepth = reader.ReadInt32();
 			_shouldBackpropagate = reader.ReadBoolean();
 
@@ -180,7 +184,8 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 			writer.Write(_padding);
 			writer.Write(_filterWidth);
 			writer.Write(_filterHeight);
-			writer.Write(_stride);
+			writer.Write(_xStride);
+			writer.Write(_yStride);
 			writer.Write(_inputDepth);
 			writer.Write(_shouldBackpropagate);
 
