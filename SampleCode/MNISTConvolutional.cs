@@ -23,8 +23,10 @@ namespace BrightWire.SampleCode
                 var graph = new GraphFactory(lap);
 
                 Console.Write("Loading training data...");
-                var trainingData = _BuildTensors(graph, null, Mnist.Load(dataFilesPath + "train-labels.idx1-ubyte", dataFilesPath + "train-images.idx3-ubyte")/*.Where(d => d.Label < 2).ToList()*/);
-                var testData = _BuildTensors(graph, trainingData, Mnist.Load(dataFilesPath + "t10k-labels.idx1-ubyte", dataFilesPath + "t10k-images.idx3-ubyte")/*.Where(d => d.Label < 2).ToList()*/);
+                var mnistTraining = Mnist.Load(dataFilesPath + "train-labels.idx1-ubyte", dataFilesPath + "train-images.idx3-ubyte");
+                var mnistTest = Mnist.Load(dataFilesPath + "t10k-labels.idx1-ubyte", dataFilesPath + "t10k-images.idx3-ubyte");
+                var trainingData = _BuildTensors(graph, null, mnistTraining/*.Where(d => d.Label < 2).ToList()*/);
+                var testData = _BuildTensors(graph, trainingData, mnistTest/*.Where(d => d.Label < 2).ToList()*/);
                 Console.WriteLine($"done - {trainingData.RowCount} training images and {testData.RowCount} test images loaded");
 
                 // one hot encoding uses the index of the output vector's maximum value as the classification label
@@ -48,19 +50,19 @@ namespace BrightWire.SampleCode
                     }
                 } else {
                     graph.Connect(engine)
-	                    .AddConvolutional(filterCount: 16, padding: 2, filterWidth: 5, filterHeight: 5, xStride: 1, yStride: 1, shouldBackpropagate: false)
-	                    .Add(graph.LeakyReluActivation())
-	                    .AddMaxPooling(filterWidth: 2, filterHeight: 2, xStride: 2, yStride: 2)
-	                    .AddConvolutional(filterCount: 32, padding: 2, filterWidth: 5, filterHeight: 5, xStride: 1, yStride: 1)
-	                    .Add(graph.LeakyReluActivation())
-	                    .AddMaxPooling(filterWidth: 2, filterHeight: 2, xStride: 2, yStride: 2)
-	                    .Transpose()
-	                    .AddFeedForward(HIDDEN_LAYER_SIZE)
-	                    .Add(graph.LeakyReluActivation())
-	                    .AddDropOut(dropOutPercentage: 0.5f)
-	                    .AddFeedForward(trainingData.OutputSize)
-	                    .Add(graph.SoftMaxActivation())
-	                    .AddBackpropagation(errorMetric)
+                     .AddConvolutional(filterCount: 16, padding: 2, filterWidth: 5, filterHeight: 5, xStride: 1, yStride: 1, shouldBackpropagate: false)
+                     .Add(graph.LeakyReluActivation())
+                     .AddMaxPooling(filterWidth: 2, filterHeight: 2, xStride: 2, yStride: 2)
+                     .AddConvolutional(filterCount: 32, padding: 2, filterWidth: 5, filterHeight: 5, xStride: 1, yStride: 1)
+                     .Add(graph.LeakyReluActivation())
+                     .AddMaxPooling(filterWidth: 2, filterHeight: 2, xStride: 2, yStride: 2)
+                     .Transpose()
+                     .AddFeedForward(HIDDEN_LAYER_SIZE)
+                     .Add(graph.LeakyReluActivation())
+                     .AddDropOut(dropOutPercentage: 0.5f)
+                     .AddFeedForward(trainingData.OutputSize)
+                     .Add(graph.SoftMaxActivation())
+                     .AddBackpropagation(errorMetric)
                     ;
                 }
 
@@ -82,6 +84,12 @@ namespace BrightWire.SampleCode
                 var executionEngine = graph.CreateEngine(bestGraph ?? engine.Graph);
                 var output = executionEngine.Execute(testData);
                 Console.WriteLine($"Final accuracy: {output.Average(o => o.CalculateError(errorMetric)):P2}");
+
+                // execute the model with a single image
+                var tensor = mnistTest.First().AsFloatTensor.Tensor;
+                var singleData = graph.CreateDataSource(new[] { tensor });
+                var result = executionEngine.Execute(singleData);
+                var prediction = result.Single().Output.Single().MaximumIndex();
             }
         }
 
