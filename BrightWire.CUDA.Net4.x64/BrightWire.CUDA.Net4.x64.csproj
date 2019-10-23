@@ -46,7 +46,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\ManagedCuda\CudaSparse.dll</HintPath>
     </Reference>
-    <Reference Include="ManagedCuda, Version=10.0.0.0, Culture=neutral, PublicKeyToken=242d898828717aa0, processorArchitecture=MSIL">
+    <Reference Include="ManagedCuda, Version=10.0.0.0, Culture=neutral, PublicKeyToken=242d898828717aa0, processorArchitecture=AMD64">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\ManagedCuda\ManagedCuda.dll</HintPath>
     </Reference>
