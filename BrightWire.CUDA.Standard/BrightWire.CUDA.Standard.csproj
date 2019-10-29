@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -50,7 +50,7 @@ BrightWire.CUDA adds GPU support to Bright Wire. This lets you run Bright Wire m
 
   <ItemGroup>
     <Reference Include="ManagedCudaStandard">
-      <HintPath>..\ManagedCuda\ManagedCudaStandard.dll</HintPath>
+      <HintPath>..\..\..\BrightTable\BrightTable.Cuda\ManagedCuda\ManagedCudaStandard.dll</HintPath>
     </Reference>
   </ItemGroup>
 

@@ -34,3 +34,9 @@
 /Core.SampleCode/bin
 /Core.SampleCode/obj
 /BrightWire.CUDA.Standard/Properties/PublishProfiles
+/BrightTable/bin
+/BrightTable/obj
+/BrightWire.Core/bin
+/BrightWire.Core/obj
+/SampleCode.Core/bin
+/SampleCode.Core/obj

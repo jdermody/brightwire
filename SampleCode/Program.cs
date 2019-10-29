@@ -3,6 +3,7 @@ using BrightWire.TrainingData.Artificial;
 using System;
 using System.IO;
 using System.Linq;
+using BrightWire.Models;
 using MathNet.Numerics;
 
 namespace BrightWire.SampleCode
@@ -84,14 +85,14 @@ namespace BrightWire.SampleCode
 			const string ModelBasePath = @"c:\temp\";
 
 			// use the (faster) native MKL provider if available
-			//Control.UseNativeMKL();
+			Control.UseNativeMKL();
 
 			//XOR();
 			//IrisClassification();
 			//IrisClustering();
 			//MarkovChains();
-			//MNIST(DataBasePath + @"mnist\");
-			//MNISTConvolutional(DataBasePath + @"mnist\"/*, ModelBasePath + @"mnist.dat"*/);
+			MNIST(DataBasePath + @"mnist\");
+			//MNISTConvolutional(DataBasePath + @"mnist\", ModelBasePath + @"mnist.dat");
 			//SentimentClassification(DataBasePath + @"sentiment labelled sentences\");
 			//TextClustering(DataBasePath + @"[UCI] AAAI-14 Accepted Papers - Papers.csv", ModelBasePath);
 			//IntegerAddition();
@@ -106,6 +107,13 @@ namespace BrightWire.SampleCode
 			//MultiLabelSingleClassifier(DataBasePath + @"emotions\emotions.arff");
 			//MultiLabelMultiClassifiers(DataBasePath + @"emotions\emotions.arff");
 			//StockData(DataBasePath + @"plotly\stockdata.csv");
+
+            //var builder = BrightWireProvider.CreateDataTableBuilder();
+            //builder.AddColumn(ColumnType.Matrix, "Past");
+            //builder.AddColumn(ColumnType.Matrix, "Future");
+            //builder.Add(FloatMatrix.Create(rowCount:2, columnCount:3), FloatMatrix.Create(rowCount:4, columnCount:3));
+            //builder.Add(FloatMatrix.Create(rowCount:5, columnCount:3), FloatMatrix.Create(rowCount:10, columnCount:3));
+            //var table = builder.Build();
 		}
 	}
 }

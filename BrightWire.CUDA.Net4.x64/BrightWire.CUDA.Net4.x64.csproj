@@ -93,7 +93,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="cuda\readme.txt" />
-    <Content Include="readme.txt" />
+    <None Include="readme.txt" />
   </ItemGroup>
   <Import Project="..\BrightWire.CUDA.Source\BrightWire.CUDA.Source.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
