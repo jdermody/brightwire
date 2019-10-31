@@ -21,11 +21,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Documentation", "Documentat
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "BrightWire.CUDA.Source", "BrightWire.CUDA.Source\BrightWire.CUDA.Source.shproj", "{ED0E6BC8-9242-4396-AD05-668F70A511A5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrightWire.Core", "BrightWire.Core\BrightWire.Core.csproj", "{B8B4639D-245E-4152-A794-03A4EE05BD2F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrightWire.Core", "BrightWire.Core\BrightWire.Core.csproj", "{B8B4639D-245E-4152-A794-03A4EE05BD2F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleCode.Core", "SampleCode.Core\SampleCode.Core.csproj", "{A3C1290F-B057-4F87-990E-A1B28838B7E5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleCode.Core", "SampleCode.Core\SampleCode.Core.csproj", "{A3C1290F-B057-4F87-990E-A1B28838B7E5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrightTable", "BrightTable\BrightTable.csproj", "{7ABDBDF0-D7D5-4063-A876-491F8FC9F6E5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrightTable", "BrightTable\BrightTable.csproj", "{7ABDBDF0-D7D5-4063-A876-491F8FC9F6E5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrightData", "BrightData\BrightData.csproj", "{9F981624-ABE1-4350-A1F8-DA466BC11711}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -93,6 +95,14 @@ Global
 		{7ABDBDF0-D7D5-4063-A876-491F8FC9F6E5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7ABDBDF0-D7D5-4063-A876-491F8FC9F6E5}.Release|x64.ActiveCfg = Release|Any CPU
 		{7ABDBDF0-D7D5-4063-A876-491F8FC9F6E5}.Release|x64.Build.0 = Release|Any CPU
+		{9F981624-ABE1-4350-A1F8-DA466BC11711}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F981624-ABE1-4350-A1F8-DA466BC11711}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F981624-ABE1-4350-A1F8-DA466BC11711}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{9F981624-ABE1-4350-A1F8-DA466BC11711}.Debug|x64.Build.0 = Debug|Any CPU
+		{9F981624-ABE1-4350-A1F8-DA466BC11711}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F981624-ABE1-4350-A1F8-DA466BC11711}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F981624-ABE1-4350-A1F8-DA466BC11711}.Release|x64.ActiveCfg = Release|Any CPU
+		{9F981624-ABE1-4350-A1F8-DA466BC11711}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
