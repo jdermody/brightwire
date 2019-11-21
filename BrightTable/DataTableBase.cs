@@ -10,7 +10,7 @@ namespace BrightTable
         readonly MetaData _tableMetaData = new MetaData();
         protected const uint PREVIEW_SIZE = 10;
 
-        public DataTableBase(IBrightDataContext context)
+        protected DataTableBase(IBrightDataContext context)
         {
             Context = context;
         }

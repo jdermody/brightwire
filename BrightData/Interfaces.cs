@@ -127,4 +127,15 @@ namespace BrightData
         void DivideInPlace(ITensorSegment<T> target, ITensorSegment<T> other);
         T SumIndexedProducts(uint size, Func<uint, T> p1, Func<uint, T> p2);
     }
+
+    public interface IDataAnalyser
+    {
+        void AddObject(object obj);
+        void WriteTo(IMetaData metadata);
+    }
+
+    public interface IDataAnalyser<in T> : IDataAnalyser
+    {
+        void Add(T obj);
+    }
 }

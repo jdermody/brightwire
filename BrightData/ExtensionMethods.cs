@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using BrightData.Helper;
 
@@ -120,22 +121,22 @@ namespace BrightData
 
         public static uint GetColumnCount<T>(this ITensor<T> tensor) where T : struct
         {
-            return tensor.Shape.Length > 1 ? tensor.Shape[tensor.Shape.Length - 1] : 0;
+            return tensor.Shape.Length > 1 ? tensor.Shape[^1] : 0;
         }
 
         public static uint GetRowCount<T>(this ITensor<T> tensor) where T : struct
         {
-            return tensor.Shape.Length > 1 ? tensor.Shape[tensor.Shape.Length - 2] : 0;
+            return tensor.Shape.Length > 1 ? tensor.Shape[^2] : 0;
         }
 
         public static uint GetDepth<T>(this ITensor<T> tensor) where T : struct
         {
-            return tensor.Shape.Length > 2 ? tensor.Shape[tensor.Shape.Length - 3] : 0;
+            return tensor.Shape.Length > 2 ? tensor.Shape[^3] : 0;
         }
 
         public static uint GetCount<T>(this ITensor<T> tensor) where T : struct
         {
-            return tensor.Shape.Length > 3 ? tensor.Shape[tensor.Shape.Length - 4] : 0;
+            return tensor.Shape.Length > 3 ? tensor.Shape[^4] : 0;
         }
 
         public static WeightedIndexList ToSparse(this ITensorSegment<float> segment)
@@ -145,5 +146,74 @@ namespace BrightData
                 .Where(d => FloatMath.IsNotZero(d.Weight))
             );
         }
+
+        public static bool WriteIfNotNull<T>(this IMetaData metadata, string name, T? value)
+            where T : struct, IConvertible
+        {
+            if (value.HasValue) {
+                metadata.Set(name, value.Value);
+                return true;
+            }
+            return false;
+        }
+
+        public static bool WriteIfNotNull<T>(this IMetaData metadata, string name, T value)
+            where T : class, IConvertible
+        {
+            if (value != null) {
+                metadata.Set(name, value);
+                return true;
+            }
+            return false;
+        }
+
+        public static bool HasConversionOperator(this Type from, Type to)
+        {
+            Func<Expression, UnaryExpression> bodyFunction = body => Expression.Convert(body, to);
+            var inp = Expression.Parameter(from, "inp");
+            try {
+                // If this succeeds then we can cast 'from' type to 'to' type using implicit coercion
+                Expression.Lambda(bodyFunction(inp), inp).Compile();
+                return true;
+            }
+            catch (InvalidOperationException) {
+                return false;
+            }
+        }
+
+        public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> seq, int? randomSeed = null)
+        {
+            var rnd = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
+            return Shuffle(seq, rnd);
+        }
+
+        public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> seq, Random rnd)
+        {
+            return seq.OrderBy(e => rnd.Next()).ToList();
+        }
+
+        public static (IReadOnlyList<T> Training, IReadOnlyList<T> Test) Split<T>(this IReadOnlyList<T> seq, double trainPercentage = 0.8)
+        {
+            var input = Enumerable.Range(0, seq.Count).ToList();
+            int trainingCount = Convert.ToInt32(seq.Count * trainPercentage);
+            return (
+                input.Take(trainingCount).Select(i => seq[i]).ToArray(),
+                input.Skip(trainingCount).Select(i => seq[i]).ToArray()
+            );
+        }
+
+        public static T[] Bag<T>(this IReadOnlyList<T> list, uint count, int? randomSeed = null)
+        {
+            var rnd = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
+            return Enumerable.Range(0, (int)count)
+                .Select(i => list[rnd.Next(0, list.Count)])
+                .ToArray()
+            ;
+        }
+
+        public static string Name(this IMetaData metadata) => metadata.Get<string>(Consts.Name);
+        public static uint Index(this IMetaData metadata) => metadata.Get<uint>(Consts.Index);
+        public static bool IsNumeric(this IMetaData metadata) => metadata.Get<bool>(Consts.IsNumeric);
+        public static bool IsTarget(this IMetaData metadata) => metadata.Get<bool>(Consts.IsTarget);
     }
 }

@@ -108,9 +108,9 @@ namespace BrightTable
         BinaryData
     }
 
-    
 
-    
+
+
 
     public interface ISingleTypeTableSegment : IHaveMetaData, ICanWriteToBinaryWriter, IDisposable
     {
@@ -134,25 +134,26 @@ namespace BrightTable
 
     public interface IDataTable : IHaveMetaData, IDisposable
     {
+        IBrightDataContext Context { get; }
         uint RowCount { get; }
         uint ColumnCount { get; }
         IReadOnlyList<ColumnType> ColumnTypes { get; }
         DataTableOrientation Orientation { get; }
         IReadOnlyList<IMetaData> ColumnMetaData(params uint[] columnIndices);
         void ForEachRow(Action<object[], uint> callback);
+        ISingleTypeTableSegment Column(uint columnIndex);
+        IReadOnlyList<ISingleTypeTableSegment> Columns(params uint[] columnIndices);
+        IDataTableSegment Row(uint rowIndex);
+        IReadOnlyList<IDataTableSegment> Rows(params uint[] rowIndices);
     }
 
     public interface IColumnOrientedDataTable : IDataTable, IDisposable
     {
-        ISingleTypeTableSegment Column(uint columnIndex);
-        IReadOnlyList<ISingleTypeTableSegment> Columns(params uint[] columnIndices);
         IRowOrientedDataTable AsRowOriented(string filePath = null);
     }
 
     public interface IRowOrientedDataTable : IDataTable
     {
-        IDataTableSegment Row(uint rowIndex);
-        IReadOnlyList<IDataTableSegment> Rows(params uint[] rowIndices);
         IColumnOrientedDataTable AsColumnOriented(string filePath = null);
         IReadOnlyList<IDataTableSegment> Head { get; }
         IReadOnlyList<IDataTableSegment> Tail { get; }
@@ -166,9 +167,44 @@ namespace BrightTable
         IEnumerable<string> All { get; }
     }
 
-    interface IEditableBuffer
+    public interface IEditableBuffer
     {
         void Set(uint index, object value);
         void Finalise();
+    }
+
+    public enum ColumnConversion
+    {
+        Unchanged = 0,
+        ToBoolean,
+        ToDate,
+        ToNumeric,
+        ToString,
+        ToIndexList,
+        ToWeightedIndexList,
+        ToVector
+    }
+
+    public enum NormalisationType
+    {
+        Standard,
+        Euclidean,
+        Manhattan,
+        FeatureScale
+    }
+
+    public interface IConvertColumn
+    {
+        ISingleTypeTableSegment Convert(IBrightDataContext context, ISingleTypeTableSegment segment);
+    }
+
+    public interface ITransformColumnOrientedDataTable
+    {
+        IColumnOrientedDataTable Transform(IColumnOrientedDataTable dataTable, string filePath = null);
+    }
+
+    public interface ITransformRowOrientedDataTable
+    {
+        IRowOrientedDataTable Transform(IRowOrientedDataTable dataTable, string filePath = null);
     }
 }

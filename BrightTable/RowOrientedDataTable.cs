@@ -81,6 +81,11 @@ namespace BrightTable
             }
         }
 
+        public ISingleTypeTableSegment Column(uint columnIndex)
+        {
+            return Columns(columnIndex).Single();
+        }
+
         public IReadOnlyList<ISingleTypeTableSegment> Columns(params uint[] columnIndices)
         {
             // TODO: optionally compress the columns based on unique count statistics
@@ -151,8 +156,8 @@ namespace BrightTable
             }
         }
 
-        public IReadOnlyList<IDataTableSegment> Head => this.Rows(ExtensionMethods.Range(0, Math.Min(PREVIEW_SIZE, RowCount)).ToArray());
-        public IReadOnlyList<IDataTableSegment> Tail => this.Rows(ExtensionMethods.Range(Math.Max(0, RowCount - PREVIEW_SIZE), Math.Min(PREVIEW_SIZE, RowCount)).ToArray());
+        public IReadOnlyList<IDataTableSegment> Head => Rows(ExtensionMethods.Range(0, Math.Min(PREVIEW_SIZE, RowCount)).ToArray());
+        public IReadOnlyList<IDataTableSegment> Tail => Rows(ExtensionMethods.Range(Math.Max(0, RowCount - PREVIEW_SIZE), Math.Min(PREVIEW_SIZE, RowCount)).ToArray());
 
         (ISingleTypeTableSegment Segment, IEditableBuffer Buffer) _GetColumn(ColumnType columnType, IMetaData metadata)
         {

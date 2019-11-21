@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using BrightData;
 using BrightTable.Builders;
 using BrightTable.Segments;
@@ -107,7 +106,7 @@ namespace BrightTable
             return ret;
         }
 
-        ISingleTypeTableSegment IColumnOrientedDataTable.Column(uint columnIndex)
+        ISingleTypeTableSegment IDataTable.Column(uint columnIndex)
         {
             return _GetColumn(columnIndex);
         }
@@ -118,6 +117,30 @@ namespace BrightTable
             foreach(var index in columnIndices.OrderBy(i => i).Distinct())
                 table.Add(index, _GetColumn(index));
             return columnIndices.Select(i => table[i]).ToList();
+        }
+
+        public IDataTableSegment Row(uint rowIndex)
+        {
+            Row ret = null;
+            ForEachRow((row, index) => {
+                if(rowIndex == index)
+                    ret = new Row(_columnTypes, row);
+            });
+            return ret;
+        }
+
+        public IReadOnlyList<IDataTableSegment> Rows(params uint[] rowIndices)
+        {
+            var ret = new List<IDataTableSegment>();
+            if (rowIndices.Any()) {
+                var rowSet = new HashSet<uint>(rowIndices);
+                ForEachRow((row, index) => {
+                    if(rowSet.Contains(index))
+                        ret.Add(new Row(_columnTypes, row));
+                });
+            }
+
+            return ret;
         }
 
         public void ForEachRow(Action<object[], uint> callback)

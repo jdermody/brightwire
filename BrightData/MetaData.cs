@@ -9,7 +9,7 @@ using System.Xml;
 
 namespace BrightData
 {
-    class MetaData : IMetaData, ICanWriteToBinaryWriter
+    public class MetaData : IMetaData, ICanWriteToBinaryWriter
     {
         readonly Dictionary<string, IConvertible> _values = new Dictionary<string, IConvertible>();
         readonly List<string> _orderedValues = new List<string>();

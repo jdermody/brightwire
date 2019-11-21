@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using BrightData;
+using BrightData.Analysis;
 
 namespace BrightTable
 {
@@ -185,9 +186,54 @@ namespace BrightTable
         public static IReadOnlyList<T> MapRows<T0, T>(this IDataTable dataTable, Func<T0, T> callback) => MapRows(dataTable, (rows, index) => callback((T0) rows[0]));
         public static IReadOnlyList<T> MapRows<T0, T1, T>(this IDataTable dataTable, Func<T0, T1, T> callback) => MapRows(dataTable, (rows, index) => callback((T0) rows[0], (T1) rows[1]));
 
-        //public static IReadOnlyList<IDataTableSegment> Rows(this IRowOrientedDataTable dataTable, IEnumerable<uint> rowIndices) => dataTable.Rows(rowIndices.ToArray());
-        //public static IReadOnlyList<IDataTableSegment> AllRows(this IRowOrientedDataTable dataTable) => dataTable.Rows(Range(0, dataTable.RowCount));
-        ///public static IReadOnlyList<ISingleTypeTableSegment> Columns(this IDataTable dataTable, IEnumerable<uint> columnIndices) => dataTable.Columns(columnIndices.ToArray());
-        //public static IReadOnlyList<ISingleTypeTableSegment> AllColumns(this IDataTable dataTable) => dataTable.Columns(Range(0, dataTable.ColumnCount));
+        public static IDataAnalyser GetColumnAnalyser(this ColumnType type, int distinctValueCount = 100)
+        {
+            switch (type) {
+                case ColumnType.Double:
+                    return new NumericAnalyser(distinctValueCount);
+                case ColumnType.Float:
+                    return new CastToDoubleNumericAnalysis<float>(distinctValueCount);
+                case ColumnType.Decimal:
+                    return new CastToDoubleNumericAnalysis<decimal>(distinctValueCount);
+                case ColumnType.Byte:
+                    return new CastToDoubleNumericAnalysis<sbyte>(distinctValueCount);
+                case ColumnType.Int:
+                    return new CastToDoubleNumericAnalysis<int>(distinctValueCount);
+                case ColumnType.Long:
+                    return new CastToDoubleNumericAnalysis<long>(distinctValueCount);
+                case ColumnType.Short:
+                    return new CastToDoubleNumericAnalysis<short>(distinctValueCount);
+            }	
+            if (type == ColumnType.String)
+                return new StringAnalyser(distinctValueCount);
+            if (type == ColumnType.IndexList || type == ColumnType.WeightedIndexList)
+                return new IndexAnalyser(distinctValueCount);
+            if (type == ColumnType.Date)
+                return new DateAnalyser();
+            if (type == ColumnType.Vector || type == ColumnType.Matrix || type == ColumnType.Tensor3D || type == ColumnType.Tensor4D)
+                return new DimensionAnalyser();
+            if(type == ColumnType.BinaryData)
+                return new FrequencyAnalyser<BinaryData>(distinctValueCount);
+
+            throw new NotImplementedException();
+        }
+
+        public static IMetaData Analyse(this ISingleTypeTableSegment segment, bool force = false, int distinctValueCount = 100)
+        {
+            var ret = segment.MetaData;
+            if (force || !ret.Get<bool>(Consts.HasBeenAnalysed)) {
+                var type = segment.SingleType;
+                var analyser = type.GetColumnAnalyser(distinctValueCount);
+                foreach(var item in segment.Enumerate())
+                    analyser.AddObject(item);
+                analyser.WriteTo(ret);
+                ret.Set(Consts.HasBeenAnalysed, true);
+            }
+
+            return ret;
+        }
+
+        public static IReadOnlyList<ISingleTypeTableSegment> AllColumns(this IDataTable dataTable) => dataTable.Columns(Range(0, dataTable.ColumnCount).ToArray());
+        public static IReadOnlyList<IDataTableSegment> AllRows(this IRowOrientedDataTable dataTable) => dataTable.Rows(Range(0, dataTable.RowCount).ToArray());
     }
 }
