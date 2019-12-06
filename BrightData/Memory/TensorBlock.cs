@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Buffers;
 using System.Collections.Generic;
+using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 
 namespace BrightData.Memory
 {
     class TensorBlock<T> : ITensorBlock<T>, IMemoryDeallocator
+        where T: struct
     {
         readonly IMemoryOwner<T> _data;
         int _refCount = 0;
@@ -55,6 +58,7 @@ namespace BrightData.Memory
                 span[(int) index] = value;
             }
         }
+
         public T this[long index] {
             get => _data.Memory.Span[(int)index];
             set {
@@ -63,9 +67,14 @@ namespace BrightData.Memory
             }
         }
 
-        public void CopyFrom(T[] array)
+        public void WriteTo(Stream stream)
         {
-            array.CopyTo(_data.Memory);
+            stream.Write(MemoryMarshal.Cast<T, byte>(_data.Memory.Span));
+        }
+
+        public void InitializeFrom(Stream stream)
+        {
+            stream.Read(MemoryMarshal.Cast<T, byte>(_data.Memory.Span));
         }
 
         public void Initialize(Func<uint, T> initializer)
@@ -73,6 +82,13 @@ namespace BrightData.Memory
             var span = _data.Memory.Span;
             for (uint i = 0; i < Size; i++)
                 span[(int) i] = initializer(i);
+        }
+
+        public void Initialize(T initializer)
+        {
+            var span = _data.Memory.Span;
+            for (uint i = 0; i < Size; i++)
+                span[(int) i] = initializer;
         }
 
         public void Free()

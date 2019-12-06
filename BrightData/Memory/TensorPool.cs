@@ -23,7 +23,7 @@ namespace BrightData.Memory
             _context = context;
         }
 
-        public ITensorBlock<T> Get<T>(uint size)
+        public ITensorBlock<T> Get<T>(uint size) where T: struct
         {
             var key = _GetKey<T>(size);
             _requestHistory[key] = Interlocked.Increment(ref requestIndex);
@@ -38,7 +38,7 @@ namespace BrightData.Memory
             return ret;
         }
 
-        public void Add<T>(ITensorBlock<T> block)
+        public void Add<T>(ITensorBlock<T> block) where T: struct
         {
             _cache.AddOrUpdate(
                 _GetKey<T>(block.Size),

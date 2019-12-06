@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace BrightData.Memory
 {
-    class TensorSegment<T> : ITensorSegment<T>
+    class TensorSegment<T> : ITensorSegment<T> where T: struct
     {
         readonly TensorBlock<T> _data;
         bool _wasDisposed = false;
@@ -48,7 +49,9 @@ namespace BrightData.Memory
 
         public T[] ToArray() => _data.ToArray();
         public IEnumerable<T> Values => _data.Values;
-        public void CopyFrom(T[] array) => _data.CopyFrom(array);
+        public void InitializeFrom(Stream stream) => _data.InitializeFrom(stream);
         public void Initialize(Func<uint, T> initializer) => _data.Initialize(initializer);
+        public void Initialize(T initializer) => _data.Initialize(initializer);
+        public void WriteTo(Stream stream) => _data.WriteTo(stream);
     }
 }

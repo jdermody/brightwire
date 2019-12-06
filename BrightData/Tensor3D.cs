@@ -7,6 +7,7 @@ using BrightData.Helper;
 namespace BrightData
 {
     public class Tensor3D<T> : TensorBase<T, Tensor3D<T>>
+        where T: struct
     {
         public Tensor3D(IBrightDataContext context, ITensorSegment<T> data, uint depth, uint rows, uint columns) : base(context, data, new[] {depth, rows, columns}) { }
         public Tensor3D(IBrightDataContext context, BinaryReader reader) : base(context, reader) { }

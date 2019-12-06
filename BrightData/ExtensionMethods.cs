@@ -69,7 +69,8 @@ namespace BrightData
 
             return null;
         }
-        public static Vector<T> CreateVector<T>(this IBrightDataContext context, uint size, Func<uint, T> initializer = null)
+
+        public static Vector<T> CreateVector<T>(this IBrightDataContext context, uint size, Func<uint, T> initializer = null) where T: struct
         {
             var data = context.TensorPool.Get<T>(size);
             var segment = data.GetSegment();
@@ -78,12 +79,20 @@ namespace BrightData
             return new Vector<T>(context, segment);
         }
 
-        public static Vector<T> CreateVector<T>(this IBrightDataContext context, params T[] data)
+        public static Vector<T> CreateVector<T>(this IBrightDataContext context, uint size, T initializer = default(T)) where T: struct
+        {
+            var data = context.TensorPool.Get<T>(size);
+            var segment = data.GetSegment();
+            segment.Initialize(initializer);
+            return new Vector<T>(context, segment);
+        }
+
+        public static Vector<T> CreateVector<T>(this IBrightDataContext context, params T[] data) where T: struct
         {
             return CreateVector(context, (uint)data.Length, i => data[i]);
         }
 
-        public static Matrix<T> CreateMatrix<T>(this IBrightDataContext context, uint rows, uint columns, Func<uint, uint, T> initializer = null)
+        public static Matrix<T> CreateMatrix<T>(this IBrightDataContext context, uint rows, uint columns, Func<uint, uint, T> initializer = null) where T: struct
         {
             var data = context.TensorPool.Get<T>(rows * columns);
             var segment = data.GetSegment();
@@ -92,13 +101,13 @@ namespace BrightData
             return new Matrix<T>(context, segment, rows, columns);
         }
 
-        public static Matrix<T> CreateMatrixFromRows<T>(this IBrightDataContext context, params Vector<T>[] rows)
+        public static Matrix<T> CreateMatrixFromRows<T>(this IBrightDataContext context, params Vector<T>[] rows) where T: struct
         {
             var columns = rows.First().Size;
             return CreateMatrix(context, (uint) rows.Length, columns, (j, i) => rows[j][i]);
         }
 
-        public static Matrix<T> CreateMatrixFromColumns<T>(this IBrightDataContext context, params Vector<T>[] columns)
+        public static Matrix<T> CreateMatrixFromColumns<T>(this IBrightDataContext context, params Vector<T>[] columns) where T: struct
         {
             var rows = columns.First().Size;
             return CreateMatrix(context, rows, (uint) columns.Length, (j, i) => columns[i][j]);

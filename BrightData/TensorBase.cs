@@ -9,6 +9,7 @@ namespace BrightData
 {
     public abstract class TensorBase<T, DT> : ITensor<T>, IHaveTensorSegment<T>, ICanWriteToBinaryWriter
         where DT: ITensor<T>, IHaveTensorSegment<T>
+        where T: struct
     {
         protected readonly ITensorSegment<T> _data;
         readonly Lazy<INumericComputation<T>> _computation;
@@ -40,18 +41,25 @@ namespace BrightData
         {
             var len = reader.ReadInt32();
             Shape = new uint[len];
-            for (var i = 0; i < len; i++)
-                Shape[i] = reader.ReadUInt32();
+            uint size = 0;
+            for (var i = 0; i < len; i++) {
+                var item = reader.ReadUInt32();
+                size = i == 0 ? item : size * item;
+                Shape[i] = item;
+            }
 
-            var buffer = context.DataReader.ReadArray<T>(reader);
-            var data = context.TensorPool.Get<T>((uint)buffer.Length);
-            data.CopyFrom(buffer);
-
+            var data = context.TensorPool.Get<T>(size);
+            data.InitializeFrom(reader.BaseStream);
             _data = data.GetSegment();
         }
 
         public void WriteTo(BinaryWriter writer)
         {
+            writer.Write(Shape.Length);
+            foreach (var item in Shape)
+                writer.Write(item);
+            writer.Flush();
+            _data.WriteTo(writer.BaseStream);
         }
 
         protected abstract DT Create(ITensorSegment<T> segment);
@@ -67,7 +75,7 @@ namespace BrightData
         public IBrightDataContext Context { get; }
 
         public T[] ToArray() => _data.ToArray();
-        public void CopyFrom(T[] array) => _data.CopyFrom(array);
+        public void InitializeFrom(Stream stream) => _data.InitializeFrom(stream);
 
         public DT Add(DT tensor) => Create(Computation.Add(_data, tensor.Data));
         public void AddInPlace(DT tensor) => Computation.AddInPlace(_data, tensor.Data);

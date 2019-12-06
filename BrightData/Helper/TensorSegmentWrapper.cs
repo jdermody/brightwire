@@ -1,14 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace BrightData.Helper
 {
     class TensorSegmentWrapper<T> : ITensorSegment<T>
+        where T : struct
     {
         readonly ITensorSegment<T> _segment;
-        readonly uint _offset, _stride, _length;
+        readonly uint _offset, _stride;
         bool _wasDisposed = false;
 
         public TensorSegmentWrapper(ITensorSegment<T> segment, uint offset, uint stride, uint length)
@@ -17,7 +21,7 @@ namespace BrightData.Helper
             _segment.AddRef();
             _offset = offset;
             _stride = stride;
-            _length = length;
+            Size = length;
             segment.Context.MemoryLayer.Add(this);
         }
 
@@ -29,7 +33,7 @@ namespace BrightData.Helper
             }
         }
 
-        public uint Size => _length;
+        public uint Size { get; }
         public int AddRef() => _segment.AddRef();
         public int Release() => _segment.Release();
         public long AllocationIndex => _segment.AllocationIndex;
@@ -41,14 +45,14 @@ namespace BrightData.Helper
         {
             get
             {
-                for (uint i = 0; i < _length; i++)
+                for (uint i = 0; i < Size; i++)
                     yield return this[i];
             }
         }
 
         public ITensorBlock<T> GetBlock(ITensorPool pool)
         {
-            var ret = pool.Get<T>(_length);
+            var ret = pool.Get<T>(Size);
             using(var segment = ret.GetSegment())
                 segment.Initialize(i => this[i]);
             return ret;
@@ -63,17 +67,39 @@ namespace BrightData.Helper
             set => _segment[_offset + index * _stride] = value;
         }
 
-        public void CopyFrom(T[] array)
+        public void InitializeFrom(Stream stream)
         {
             uint index = 0;
-            foreach (var item in array)
-                this[index++] = item;
+            var buffer = new byte[Size * Unsafe.SizeOf<T>()];
+            stream.Read(buffer, 0, buffer.Length);
+            var ptr = MemoryMarshal.Cast<byte, T>(buffer);
+            for (uint i = 0; i < Size; i++)
+                this[index++] = ptr[(int)i];
         }
 
         public void Initialize(Func<uint, T> initializer)
         {
-            for (uint i = 0; i < _length; i++)
+            for (uint i = 0; i < Size; i++)
                 this[i] = initializer(i);
+        }
+
+        public void Initialize(T initializer)
+        {
+            for (uint i = 0; i < Size; i++)
+                this[i] = initializer;
+        }
+
+        public unsafe void WriteTo(Stream stream)
+        {
+            var buffer = new byte[Size * Unsafe.SizeOf<T>()];
+            fixed(byte* ptr = &buffer[0]) {
+                byte* p = ptr;
+                for (uint i = 0; i < Size; i++) {
+                    Unsafe.Write(p, this[i]);
+                    p += Unsafe.SizeOf<T>();
+                }
+            }
+            stream.Write(buffer);
         }
     }
 }

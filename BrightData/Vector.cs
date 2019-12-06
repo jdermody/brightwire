@@ -7,6 +7,7 @@ using System.Text;
 namespace BrightData
 {
     public class Vector<T> : TensorBase<T, Vector<T>>
+        where T: struct
     {
         public Vector(IBrightDataContext context, ITensorSegment<T> data) : base(context, data, new[] { data.Size }) { }
         public Vector(IBrightDataContext context, BinaryReader reader) : base(context, reader) { }

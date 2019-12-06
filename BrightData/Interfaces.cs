@@ -45,6 +45,7 @@ namespace BrightData
     }
 
     public interface ITensor<T> : ITensor
+        where T : struct
     {
         ITensorSegment<T> GetData();
     }
@@ -55,11 +56,12 @@ namespace BrightData
     }
 
     public interface ITensorBlock<T> : IReferenceCountedMemory
+        where T: struct
     {
         string TensorType { get; }
         ITensorSegment<T> GetSegment();
         IBrightDataContext Context { get; }
-        void CopyFrom(T[] array);
+        void InitializeFrom(Stream stream);
     }
 
     public interface IDataReader
@@ -71,8 +73,8 @@ namespace BrightData
 
     public interface ITensorPool
     {
-        ITensorBlock<T> Get<T>(uint size);
-        void Add<T>(ITensorBlock<T> block);
+        ITensorBlock<T> Get<T>(uint size) where T: struct;
+        void Add<T>(ITensorBlock<T> block) where T: struct;
         long MaxCacheSize { get; }
         long AllocationSize { get; }
         long CacheSize { get; }
@@ -90,10 +92,11 @@ namespace BrightData
         ITensorPool TensorPool { get; }
         IDisposableLayers MemoryLayer { get; }
         IDataReader DataReader { get; }
-        INumericComputation<T> GetComputation<T>();
+        INumericComputation<T> GetComputation<T>() where T: struct;
     }
 
     public interface ITensorSegment<T> : IReferenceCountedMemory, IDisposable
+        where T : struct
     {
         IBrightDataContext Context { get; }
         ITensorBlock<T> GetBlock(ITensorPool pool);
@@ -101,21 +104,25 @@ namespace BrightData
         T this[long index] { get; set; }
         T[] ToArray();
         IEnumerable<T> Values { get; }
-        void CopyFrom(T[] array);
+        void InitializeFrom(Stream stream);
         void Initialize(Func<uint, T> initializer);
+        void Initialize(T initializer);
+        void WriteTo(Stream writerBaseStream);
     }
 
     public interface ITensorAllocator
     {
-        ITensorBlock<T> Create<T>(IBrightDataContext context, uint size);
+        ITensorBlock<T> Create<T>(IBrightDataContext context, uint size) where T: struct;
     }
 
     public interface IHaveTensorSegment<T>
+        where T: struct
     {
         ITensorSegment<T> Data { get; }
     }
 
     public interface INumericComputation<T>
+        where T: struct
     {
         ITensorSegment<T> Add(ITensorSegment<T> tensor1, ITensorSegment<T> tensor2);
         void AddInPlace(ITensorSegment<T> target, ITensorSegment<T> other);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using BrightData.Computation;
 using BrightData.Helper;
@@ -41,7 +42,7 @@ namespace BrightData
         public IDisposableLayers MemoryLayer => _memoryLayers;
         public IDataReader DataReader => _dataReader;
 
-        public INumericComputation<T> GetComputation<T>()
+        public INumericComputation<T> GetComputation<T>() where T: struct
         {
             var typeCode = Type.GetTypeCode(typeof(T));
             switch (typeCode) {

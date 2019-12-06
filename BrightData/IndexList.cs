@@ -61,12 +61,13 @@ namespace BrightData
         /// Writes the data to a binary writer
         /// </summary>
         /// <param name="writer"></param>
-        public void WriteTo(BinaryWriter writer)
+        public unsafe void WriteTo(BinaryWriter writer)
         {
             writer.Write(Count);
             if (Indices != null) {
-                foreach (var item in Indices)
-                    writer.Write(item);
+                fixed (uint* ptr = Indices) {
+                    writer.Write(new ReadOnlySpan<byte>(ptr, Indices.Length * sizeof(uint)));
+                }
             }
         }
 
@@ -80,8 +81,7 @@ namespace BrightData
             var len = reader.ReadInt32();
             var ret = new uint[len];
 
-            for (var i = 0; i < len; i++)
-                ret[i] = reader.ReadUInt32();
+            Buffer.BlockCopy(reader.ReadBytes(len * sizeof(uint)), 0, ret, 0, len * sizeof(uint));
 
             return Create(context, ret);
         }
@@ -107,6 +107,7 @@ namespace BrightData
             var set1 = new HashSet<uint>(Indices);
             var set2 = new HashSet<uint>(other.Indices);
             uint intersection = 0, union = (uint)set1.Count;
+
             foreach(var item in set2) {
                 if(set1.Contains(item))
                     intersection++;
@@ -122,6 +123,7 @@ namespace BrightData
         {
             var indices = new HashSet<uint>();
             uint max = uint.MinValue;
+
             foreach(var item in Indices) {
                 if(item > max)
                     max = item;
@@ -129,7 +131,7 @@ namespace BrightData
             }
             if(indices.Any())
                 return Context.CreateVector(max+1, i => indices.Contains(i) ? 1f : 0f);
-            return Context.CreateVector(0, i => 0f);
+            return Context.CreateVector(0, 0f);
         }
 
         // TODO: pearson similarity, overlap similarity

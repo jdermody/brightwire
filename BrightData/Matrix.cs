@@ -8,6 +8,7 @@ using BrightData.Helper;
 namespace BrightData
 {
     public class Matrix<T> : TensorBase<T, Matrix<T>>
+        where T: struct
     {
         public Matrix(IBrightDataContext context, ITensorSegment<T> data, uint rows, uint columns) : base(context, data, new[] { rows, columns }) { }
         public Matrix(IBrightDataContext context, BinaryReader reader) : base(context, reader) { }
