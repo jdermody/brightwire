@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using BrightTable.Segments;
 
@@ -9,16 +10,32 @@ namespace BrightTable.Input
     {
         class Line
         {
-            readonly List<string> _cells = new List<string>();
+            readonly List<int> _cells = new List<int>();
+            string _text;
 
-            public void Add(string cell) => _cells.Add(cell);
+            public void Add(StringBuilder sb)
+            {
+                var pos = sb.Length;
+                if (_cells[^1] != pos)
+                    _cells.Add(pos);
+            }
+            public void Complete(StringBuilder sb)
+            {
+                _text = sb.ToString();
+                sb.Clear();
+            }
             public int CellCount => _cells.Count;
 
-            public string Get(int index)
+            public ReadOnlySpan<char> Get(int index)
             {
-                if (index < _cells.Count)
-                    return _cells[index];
-                return string.Empty;
+                if (index >= _cells.Count)
+                    return string.Empty;
+
+                var from = index == 0 ? 0 : _cells[index - 1];
+                var to = _cells[index];
+
+                ReadOnlySpan<char> ptr = _text;
+                return ptr.Slice(from, to - from);
             }
         }
 
@@ -48,15 +65,15 @@ namespace BrightTable.Input
             _tempStreams.Dispose();
         }
 
-        public void Parse(FileReader reader, bool hasHeader, Action<long> progressCallback = null, int lineCount = int.MaxValue)
+        public void Parse(IStringIterator reader, bool hasHeader, Action<long> progressCallback = null, int lineCount = int.MaxValue)
         {
             var sb = new StringBuilder();
             var inQuote = false;
             Line curr = null;
             long percent = 0;
 
-            while (reader.CanRead && _lineCount < lineCount) {
-                var ch = reader.GetNext();
+            while (_lineCount < lineCount) {
+                var ch = reader.Next();
                 if (ch == '\0')
                     break;
 
@@ -64,7 +81,11 @@ namespace BrightTable.Input
                     inQuote = !inQuote;
                 else if ((ch == '\r' || ch == '\n') && !inQuote) {
                     _AddLine(ref curr, hasHeader, sb);
-                    curr = null;
+                    if (progressCallback != null) {
+                        var newPercent = reader.ProgressPercent;
+                        if (newPercent > percent)
+                            progressCallback(percent = newPercent);
+                    }
                     continue;
                 } else if (inQuote && ch == _delimiter && char.IsWhiteSpace(_delimiter))
                     inQuote = false;
@@ -73,12 +94,6 @@ namespace BrightTable.Input
                     _AddCell(ref curr, sb);
                 else
                     sb.Append(ch);
-
-                if (progressCallback != null) {
-                    var newPercent = reader.ProgressPercent;
-                    if (newPercent > percent)
-                        progressCallback(percent = newPercent);
-                }
             }
 
             _AddLine(ref curr, hasHeader, sb);
@@ -86,13 +101,9 @@ namespace BrightTable.Input
 
         void _AddCell(ref Line line, StringBuilder sb)
         {
-            var cell = sb.ToString();
-            if (cell.Length > 0) {
-                if (line == null)
-                    line = new Line();
-                line.Add(cell);
-                sb.Clear();
-            }
+            if (line == null)
+                line = new Line();
+            line.Add(sb);
         }
 
         void _AddLine(ref Line line, bool hasHeader, StringBuilder sb)
@@ -109,7 +120,7 @@ namespace BrightTable.Input
                     var column = _columns[i];
                     var text = line.Get(i);
                     if (hasHeader && column.Header == null)
-                        column.Header = text;
+                        column.Header = text.ToString();
                     else
                         column.Add(text);
                 }

@@ -144,16 +144,16 @@ namespace BrightTable
         public IColumnOrientedDataTable AsColumnOriented(string filePath = null)
         {
             var columnOffsets = new List<(long Position, long EndOfColumnOffset)>();
-            using (var builder = new ColumnOrientedTableBuilder(filePath)) {
-                builder.WriteHeader(ColumnCount, RowCount);
-                var columns = Columns(Enumerable.Range(0, _columns.Length).Select(i => (uint)i).ToArray());
-                foreach(var column in columns) {
-                    var position = builder.Write(column);
-                    columnOffsets.Add((position, builder.GetCurrentPosition()));
-                }
-                builder.WriteColumnOffsets(columnOffsets);
-                return builder.Build(Context);
+            using var builder = new ColumnOrientedTableBuilder(filePath);
+
+            builder.WriteHeader(ColumnCount, RowCount);
+            var columns = Columns(Enumerable.Range(0, _columns.Length).Select(i => (uint)i).ToArray());
+            foreach(var column in columns) {
+                var position = builder.Write(column);
+                columnOffsets.Add((position, builder.GetCurrentPosition()));
             }
+            builder.WriteColumnOffsets(columnOffsets);
+            return builder.Build(Context);
         }
 
         public IReadOnlyList<IDataTableSegment> Head => Rows(ExtensionMethods.Range(0, Math.Min(PREVIEW_SIZE, RowCount)).ToArray());

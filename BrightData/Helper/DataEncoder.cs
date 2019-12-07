@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace BrightData.Helper
@@ -95,137 +97,128 @@ namespace BrightData.Helper
 			throw new NotImplementedException();
 		}
 
+        S[] _ReadStructs<S>(uint len, BinaryReader reader)
+            where S : struct
+        {
+            var ret = new S[len];
+            var span = MemoryMarshal.Cast<S, byte>(ret);
+            reader.BaseStream.Read(span);
+            return ret;
+        }
+
         public T[] ReadArray<T>(BinaryReader reader)
 		{
 			var typeOfT = typeof(T);
 			var typeCode = Type.GetTypeCode(typeOfT);
 			var len = reader.ReadUInt32();
-			var ret = new T[len];
 
-			if (typeCode == TypeCode.String) {
-				for (uint i = 0; i < len; i++) {
-					var val = reader.ReadString();
-					ret[i] = __refvalue(__makeref(val), T);
-				}
-			}
+            if (typeCode == TypeCode.String) {
+                var ret = new string[len];
+				for (uint i = 0; i < len; i++)
+					ret[i] = reader.ReadString();
+                return __refvalue(__makeref(ret), T[]);
+            }
 
             else if (typeCode == TypeCode.Decimal) {
-				for (uint i = 0; i < len; i++) {
-					var val = reader.ReadDecimal();
-					ret[i] = __refvalue(__makeref(val), T);
-				}
-			}
+                var ret = _ReadStructs<decimal>(len, reader);
+                return __refvalue(__makeref(ret), T[]);
+            }
 
 			else if (typeCode == TypeCode.Double) {
-				for (uint i = 0; i < len; i++) {
-					var val = reader.ReadDouble();
-					ret[i] = __refvalue(__makeref(val), T);
-				}
+                var ret = _ReadStructs<double>(len, reader);
+                return __refvalue(__makeref(ret), T[]);
 			}
 
 			else if (typeCode == TypeCode.Single) {
-				for (uint i = 0; i < len; i++) {
-					var val = reader.ReadSingle();
-					ret[i] = __refvalue(__makeref(val), T);
-				}
+                var ret = _ReadStructs<float>(len, reader);
+                return __refvalue(__makeref(ret), T[]);
 			}
 
             else if (typeCode == TypeCode.Int64) {
-				for (uint i = 0; i < len; i++) {
-					var val = reader.ReadInt64();
-					ret[i] = __refvalue(__makeref(val), T);
-				}
+                var ret = _ReadStructs<long>(len, reader);
+                return __refvalue(__makeref(ret), T[]);
 			}
 
 			else if (typeCode == TypeCode.Int32) {
-				for (uint i = 0; i < len; i++) {
-					var val = reader.ReadInt32();
-					ret[i] = __refvalue(__makeref(val), T);
-				}
+                var ret = _ReadStructs<int>(len, reader);
+                return __refvalue(__makeref(ret), T[]);
 			}
 
             else if (typeCode == TypeCode.Int16) {
-                for (uint i = 0; i < len; i++) {
-                    var val = reader.ReadInt16();
-                    ret[i] = __refvalue(__makeref(val), T);
-                }
+                var ret = _ReadStructs<short>(len, reader);
+                return __refvalue(__makeref(ret), T[]);
             }
 
 			else if (typeCode == TypeCode.SByte) {
-				for (uint i = 0; i < len; i++) {
-					var val = reader.ReadSByte();
-					ret[i] = __refvalue(__makeref(val), T);
-				}
+                var ret = _ReadStructs<sbyte>(len, reader);
+                return __refvalue(__makeref(ret), T[]);
 			}
 
 			else if (typeCode == TypeCode.Boolean) {
-				for (uint i = 0; i < len; i++) {
-					var val = reader.ReadBoolean();
-					ret[i] = __refvalue(__makeref(val), T);
-				}
+                // TODO: encode as bits?
+                var ret = _ReadStructs<bool>(len, reader);
+                return __refvalue(__makeref(ret), T[]);
 			}
 
 			else if (typeCode == TypeCode.DateTime) {
-				for (uint i = 0; i < len; i++) {
-					var val = new DateTime(reader.ReadInt64());
-					ret[i] = __refvalue(__makeref(val), T);
-				}
-			}
+                var ret = new DateTime[len];
+                for (uint i = 0; i < len; i++)
+                    ret[i] = new DateTime(reader.ReadInt64());
+                return __refvalue(__makeref(ret), T[]);
+            }
 
 			else if (typeOfT == typeof(IndexList)) {
-				for (uint i = 0; i < len; i++) {
-					var val = IndexList.ReadFrom(_context, reader);
-					ret[i] = __refvalue(__makeref(val), T);
-				}
-			}
+                var ret = new IndexList[len];
+                for (uint i = 0; i < len; i++)
+                    ret[i] = IndexList.ReadFrom(_context, reader);
+                return __refvalue(__makeref(ret), T[]);
+            }
 
 			else if (typeOfT == typeof(WeightedIndexList)) {
-				for (uint i = 0; i < len; i++) {
-					var val = WeightedIndexList.ReadFrom(_context, reader);
-					ret[i] = __refvalue(__makeref(val), T);
-				}
+                var ret = new WeightedIndexList[len];
+                for (uint i = 0; i < len; i++)
+                    ret[i] = WeightedIndexList.ReadFrom(_context, reader);
+                return __refvalue(__makeref(ret), T[]);
 			} 
             
             else if (typeOfT == typeof(Vector<float>)) {
-                for (uint i = 0; i < len; i++) {
-                    var val = new Vector<float>(_context, reader);
-                    ret[i] = __refvalue(__makeref(val), T);
-                }
+                var ret = new Vector<float>[len];
+                for (uint i = 0; i < len; i++)
+                    ret[i] = new Vector<float>(_context, reader);
+                return __refvalue(__makeref(ret), T[]);
             } 
             
             else if (typeOfT == typeof(Matrix<float>)) {
-                for (uint i = 0; i < len; i++) {
-                    var val = new Matrix<float>(_context, reader);
-                    ret[i] = __refvalue(__makeref(val), T);
-                }
+                var ret = new Matrix<float>[len];
+                for (uint i = 0; i < len; i++)
+                    ret[i] = new Matrix<float>(_context, reader);
+                return __refvalue(__makeref(ret), T[]);
             } 
             
             else if (typeOfT == typeof(Tensor3D<float>)) {
-                for (uint i = 0; i < len; i++) {
-                    var val = new Tensor3D<float>(_context, reader);
-                    ret[i] = __refvalue(__makeref(val), T);
-                }
+                var ret = new Tensor3D<float>[len];
+                for (uint i = 0; i < len; i++)
+                    ret[i] = new Tensor3D<float>(_context, reader);
+                return __refvalue(__makeref(ret), T[]);
             } 
             
             else if (typeOfT == typeof(Tensor4D<float>)) {
-                for (uint i = 0; i < len; i++) {
-                    var val = new Tensor4D<float>(_context, reader);
-                    ret[i] = __refvalue(__makeref(val), T);
-                }
+                var ret = new Tensor4D<float>[len];
+                for (uint i = 0; i < len; i++)
+                    ret[i] = new Tensor4D<float>(_context, reader);
+                return __refvalue(__makeref(ret), T[]);
             } 
             
             else if (typeOfT == typeof(BinaryData)) {
-                for (uint i = 0; i < len; i++) {
-                    var val = new BinaryData(reader);
-                    ret[i] = __refvalue(__makeref(val), T);
-                }
+                var ret = new BinaryData[len];
+                for (uint i = 0; i < len; i++)
+                    ret[i] = new BinaryData(reader);
+                return __refvalue(__makeref(ret), T[]);
             }
 
 			else 
 				throw new NotImplementedException();
-
-			return ret;
-		}
+        }
 
         public static void Write<T>(BinaryWriter writer, T val)
         {
@@ -304,95 +297,115 @@ namespace BrightData.Helper
                 throw new NotImplementedException();
         }
 
-        public static void Write<T>(BinaryWriter writer, T[] values)
+        public static unsafe void Write<T>(BinaryWriter writer, T[] values)
 		{
 			var typeOfT = typeof(T);
+            var typeCode = Type.GetTypeCode(typeOfT);
 			var len = (uint)values.Length;
 			writer.Write(len);
 
-			if (typeOfT == typeof(string)) {
+			if (typeCode == TypeCode.String) {
+                var data = __refvalue(__makeref(values), string[]);
 				for (uint i = 0; i < len; i++)
-					writer.Write(__refvalue(__makeref(values[i]), string));
+					writer.Write(data[i]);
 			}
 
-            else if (typeOfT == typeof(decimal)) {
-				for (uint i = 0; i < len; i++)
-					writer.Write(__refvalue(__makeref(values[i]), decimal));
-			}
-
-			else if (typeOfT == typeof(double)) {
-				for (uint i = 0; i < len; i++)
-					writer.Write(__refvalue(__makeref(values[i]), double));
-			}
-
-			else if (typeOfT == typeof(float)) {
-				for (uint i = 0; i < len; i++)
-					writer.Write(__refvalue(__makeref(values[i]), float));
-			}
-
-            else if (typeOfT == typeof(long)) {
-				for (uint i = 0; i < len; i++)
-					writer.Write(__refvalue(__makeref(values[i]), long));
-			}
-
-			else if (typeOfT == typeof(int)) {
-				for (uint i = 0; i < len; i++)
-					writer.Write(__refvalue(__makeref(values[i]), int));
-			}
-
-            else if (typeOfT == typeof(short)) {
-                for (uint i = 0; i < len; i++)
-                    writer.Write(__refvalue(__makeref(values[i]), short));
+            else if (typeCode == TypeCode.Decimal) {
+                fixed (decimal* ptr = __refvalue(__makeref(values), decimal[])) {
+                    writer.Write(new ReadOnlySpan<byte>(ptr, (int)len * sizeof(decimal)));
+                }
             }
 
-			else if (typeOfT == typeof(sbyte)) {
-				for (uint i = 0; i < len; i++)
-					writer.Write(__refvalue(__makeref(values[i]), sbyte));
+			else if (typeCode == TypeCode.Double) {
+                fixed (double* ptr = __refvalue(__makeref(values), double[])) {
+                    writer.Write(new ReadOnlySpan<byte>(ptr, (int)len * sizeof(double)));
+                }
 			}
 
-			else if (typeOfT == typeof(bool)) {
-				for (uint i = 0; i < len; i++)
-					writer.Write(__refvalue(__makeref(values[i]), bool));
+			else if (typeCode == TypeCode.Single) {
+                fixed (float* ptr = __refvalue(__makeref(values), float[])) {
+                    writer.Write(new ReadOnlySpan<byte>(ptr, (int)len * sizeof(float)));
+                }
 			}
 
-			else if (typeOfT == typeof(DateTime)) {
-				for (uint i = 0; i < len; i++)
-					writer.Write(__refvalue(__makeref(values[i]), DateTime).Ticks);
+            else if (typeCode == TypeCode.Int64) {
+                fixed (long* ptr = __refvalue(__makeref(values), long[])) {
+                    writer.Write(new ReadOnlySpan<byte>(ptr, (int)len * sizeof(long)));
+                }
+			}
+
+			else if (typeCode == TypeCode.Int32) {
+                fixed (int* ptr = __refvalue(__makeref(values), int[])) {
+                    writer.Write(new ReadOnlySpan<byte>(ptr, (int)len * sizeof(int)));
+                }
+			}
+
+            else if (typeCode == TypeCode.Int16) {
+                fixed (short* ptr = __refvalue(__makeref(values), short[])) {
+                    writer.Write(new ReadOnlySpan<byte>(ptr, (int)len * sizeof(short)));
+                }
+            }
+
+			else if (typeCode == TypeCode.SByte) {
+                fixed (sbyte* ptr = __refvalue(__makeref(values), sbyte[])) {
+                    writer.Write(new ReadOnlySpan<byte>(ptr, (int)len * sizeof(sbyte)));
+                }
+			}
+
+			else if (typeCode == TypeCode.Boolean) {
+                // TODO: encode as bits?
+                fixed (bool* ptr = __refvalue(__makeref(values), bool[])) {
+                    writer.Write(new ReadOnlySpan<byte>(ptr, (int)len * sizeof(bool)));
+                }
+			}
+
+			else if (typeCode == TypeCode.DateTime) {
+                var ticks = __refvalue(__makeref(values), DateTime[]).Select(d => d.Ticks).ToArray();
+                fixed (long* ptr = ticks) {
+                    writer.Write(new ReadOnlySpan<byte>(ptr, (int)len * sizeof(long)));
+                }
 			}
 
 			else if (typeOfT == typeof(IndexList)) {
-				for (uint i = 0; i < len; i++)
-					__refvalue(__makeref(values[i]), IndexList).WriteTo(writer);
-			}
+                var data = __refvalue(__makeref(values), IndexList[]);
+                for (uint i = 0; i < len; i++)
+                    data[i].WriteTo(writer);
+            }
 
 			else if (typeOfT == typeof(WeightedIndexList)) {
-				for (uint i = 0; i < len; i++)
-					__refvalue(__makeref(values[i]), WeightedIndexList).WriteTo(writer);
+                var data = __refvalue(__makeref(values), WeightedIndexList[]);
+                for (uint i = 0; i < len; i++)
+                    data[i].WriteTo(writer);
 			}
 
 			else if (typeOfT == typeof(Vector<float>)) {
-				for (uint i = 0; i < len; i++)
-					__refvalue(__makeref(values[i]), Vector<float>).WriteTo(writer);
+                var data = __refvalue(__makeref(values), Vector<float>[]);
+                for (uint i = 0; i < len; i++)
+                    data[i].WriteTo(writer);
 			}
 
 			else if (typeOfT == typeof(Matrix<float>)) {
-				for (uint i = 0; i < len; i++)
-					__refvalue(__makeref(values[i]), Matrix<float>).WriteTo(writer);
+                var data = __refvalue(__makeref(values), Matrix<float>[]);
+                for (uint i = 0; i < len; i++)
+                    data[i].WriteTo(writer);
 			}
 
 			else if (typeOfT == typeof(Tensor3D<float>)) {
-				for (uint i = 0; i < len; i++)
-					__refvalue(__makeref(values[i]), Tensor3D<float>).WriteTo(writer);
+                var data = __refvalue(__makeref(values), Tensor3D<float>[]);
+                for (uint i = 0; i < len; i++)
+                    data[i].WriteTo(writer);
 			}
 
             else if (typeOfT == typeof(Tensor4D<float>)) {
+                var data = __refvalue(__makeref(values), Tensor4D<float>[]);
                 for (uint i = 0; i < len; i++)
-                    __refvalue(__makeref(values[i]), Tensor4D<float>).WriteTo(writer);
+                    data[i].WriteTo(writer);
             }
 
             else if (typeOfT == typeof(BinaryData)) {
+                var data = __refvalue(__makeref(values), BinaryData[]);
                 for (uint i = 0; i < len; i++)
-                    __refvalue(__makeref(values[i]), BinaryData).WriteTo(writer);
+                    data[i].WriteTo(writer);
             }
 
 			else 

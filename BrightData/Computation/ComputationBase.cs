@@ -118,22 +118,20 @@ namespace BrightData.Computation
 
         public T DotProduct(ITensorSegment<T> segment, ITensorSegment<T> other)
         {
-            using (var product = Multiply(segment, other))
-                return Sum(product);
+            using var product = Multiply(segment, other);
+            return Sum(product);
         }
 
         public T L1Norm(ITensorSegment<T> segment)
         {
-            using (var temp = Abs(segment)) {
-                return Sum(temp);
-            }
+            using var temp = Abs(segment);
+            return Sum(temp);
         }
 
         public T L2Norm(ITensorSegment<T> segment)
         {
-            using (var temp = Squared(segment)) {
-                return Sqrt(Sum(temp));
-            }
+            using var temp = Squared(segment);
+            return Sqrt(Sum(temp));
         }
 
         public T CosineDistance(ITensorSegment<T> tensor, ITensorSegment<T> other)

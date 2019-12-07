@@ -151,7 +151,7 @@ namespace BrightData
         public static WeightedIndexList ToSparse(this ITensorSegment<float> segment)
         {
             return WeightedIndexList.Create(segment.Context, segment.Values
-                .Select((v, i) => (Index: (uint)i, Weight: v))
+                .Select((v, i) => new WeightedIndexList.Item((uint)i, v))
                 .Where(d => FloatMath.IsNotZero(d.Weight))
             );
         }

@@ -108,9 +108,12 @@ namespace BrightTable
         BinaryData
     }
 
-
-
-
+    public interface IStringIterator
+    {
+        char Next();
+        long Position { get; }
+        long ProgressPercent { get; }
+    }
 
     public interface ISingleTypeTableSegment : IHaveMetaData, ICanWriteToBinaryWriter, IDisposable
     {

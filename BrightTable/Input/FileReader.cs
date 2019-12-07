@@ -5,7 +5,7 @@ using System.Text;
 
 namespace BrightTable.Input
 {
-    class FileReader : IDisposable
+    class FileReader : IStringIterator, IDisposable
     {
         const int BUFFER_SIZE = 4096 * 2;
 
@@ -36,7 +36,7 @@ namespace BrightTable.Input
             _atEnd = false;
         }
 
-        public char GetNext()
+        public char Next()
         {
             var delta = _size - Position;
             if (delta > 0 && !_atEnd) {

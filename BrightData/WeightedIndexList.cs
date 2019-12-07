@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Xml;
 using BrightData.Helper;
@@ -11,6 +12,23 @@ namespace BrightData
 {
     public class WeightedIndexList : IHaveIndices, ICanWriteToBinaryWriter
     {
+        public struct Item
+        {
+            public uint Index { get; }
+            public float Weight { get; }
+
+            public Item(uint index, float weight)
+            {
+                Index = index;
+                Weight = weight;
+            }
+
+            public override string ToString() => $"{Index}: {Weight}";
+            public override bool Equals(object obj) => obj is Item item && Equals(item);
+            public bool Equals(Item item) => item.Index == Index && FloatMath.Equals(item.Weight, Weight);
+            public override int GetHashCode() => Index.GetHashCode() ^ Weight.GetHashCode();
+        }
+
         public WeightedIndexList(IBrightDataContext context)
         {
             Context = context;
@@ -21,23 +39,27 @@ namespace BrightData
         /// <summary>
         /// The list of indices
         /// </summary>
-        public (uint Index, float Weight)[] Indices { get; private set; }
+        public Item[] Indices { get; private set; }
 
         /// <summary>
         /// Create a new weighted index list with the specified weighted indices
         /// </summary>
         /// <param name="context"></param>
         /// <param name="indexList">Sparse list of weighted indices</param>
-        public static WeightedIndexList Create(IBrightDataContext context, params (uint Index, float Weight)[] indexList) => new WeightedIndexList(context) { Indices = indexList };
+        public static WeightedIndexList Create(IBrightDataContext context, params Item[] indexList) => new WeightedIndexList(context) { Indices = indexList };
+        public static WeightedIndexList Create(IBrightDataContext context, params (uint Index, float Weight)[] indexList) => 
+            new WeightedIndexList(context) { 
+                Indices = indexList.Select(d => new Item(d.Index, d.Weight)).ToArray() 
+            };
 
-        public static WeightedIndexList Create(IBrightDataContext context, IEnumerable<(uint Index, float Weight)> indexList) => new WeightedIndexList(context) { Indices = indexList.ToArray() };
+        public static WeightedIndexList Create(IBrightDataContext context, IEnumerable<Item> indexList) => new WeightedIndexList(context) { Indices = indexList.ToArray() };
 
         /// <summary>
         /// The number of items in the list
         /// </summary>
         public int Count => Indices?.Length ?? 0;
 
-	    /// <summary>
+        /// <summary>
         /// ToString override
         /// </summary>
         public override string ToString()
@@ -67,13 +89,12 @@ namespace BrightData
         /// Writes the data to a binary writer
         /// </summary>
         /// <param name="writer"></param>
-        public void WriteTo(BinaryWriter writer)
+        public unsafe void WriteTo(BinaryWriter writer)
         {
             writer.Write(Count);
             if (Indices != null) {
-                foreach (var item in Indices) {
-                    writer.Write(item.Index);
-                    writer.Write(item.Weight);
+                fixed (Item* ptr = Indices) {
+                    writer.Write(new ReadOnlySpan<byte>(ptr, Indices.Length * sizeof(Item)));
                 }
             }
         }
@@ -83,16 +104,12 @@ namespace BrightData
         /// </summary>
         /// <param name="context"></param>
         /// <param name="reader">The binary reader</param>
-        public static WeightedIndexList ReadFrom(IBrightDataContext context, BinaryReader reader)
+        public static unsafe WeightedIndexList ReadFrom(IBrightDataContext context, BinaryReader reader)
         {
             var len = reader.ReadInt32();
-            var ret = new (uint Index, float Weight)[len];
-
-            for (var i = 0; i < len; i++) {
-	            var index = reader.ReadUInt32();
-	            var weight = reader.ReadSingle();
-                ret[i] = (index, weight);
-            }
+            var ret = new Item[len];
+            var span = MemoryMarshal.Cast<Item, byte>(ret);
+            reader.BaseStream.Read(span);
 
             return Create(context, ret);
         }
@@ -111,23 +128,23 @@ namespace BrightData
             return sb.ToString();
         }
 
-		/// <summary>
-		/// Converts the weighted index-list to an unweighted index-list (only those indices whose weight is not zero)
-		/// </summary>
-		/// <returns></returns>
-	    public IndexList AsIndexList() => IndexList.Create(Context,
-		    Indices.Where(ind => FloatMath.IsNotZero(ind.Weight)).Select(ind => ind.Index).ToArray()
-	    );
+        /// <summary>
+        /// Converts the weighted index-list to an unweighted index-list (only those indices whose weight is not zero)
+        /// </summary>
+        /// <returns></returns>
+        public IndexList AsIndexList() => IndexList.Create(Context,
+            Indices.Where(ind => FloatMath.IsNotZero(ind.Weight)).Select(ind => ind.Index).ToArray()
+        );
 
-		IEnumerable<uint> IHaveIndices.Indices => this.Indices.Select(ind => ind.Index);
+        IEnumerable<uint> IHaveIndices.Indices => this.Indices.Select(ind => ind.Index);
 
         public float Dot(WeightedIndexList other)
         {
             var otherTable = other.Indices.ToDictionary(d => d.Index, d => d.Weight);
             var ret = 0f;
-            foreach(var (index, weight) in Indices) {
-                if (otherTable.TryGetValue(index, out var otherWeight))
-                    ret += otherWeight * weight;
+            foreach (var item in Indices) {
+                if (otherTable.TryGetValue(item.Index, out var otherWeight))
+                    ret += otherWeight * item.Weight;
             }
             return ret;
         }
@@ -139,7 +156,7 @@ namespace BrightData
         public WeightedIndexList Normalise()
         {
             var maxWeight = GetMaxWeight();
-            return Create(Context, Indices.Select(item => (item.Index, item.Weight / maxWeight)));
+            return Create(Context, Indices.Select(item => new Item(item.Index, item.Weight / maxWeight)));
         }
 
         public float JaccardSimilarity(WeightedIndexList other)
@@ -147,19 +164,19 @@ namespace BrightData
             var set1 = Indices.GroupBy(d => d.Index).ToDictionary(g => g.Key, g => g.Sum(d => d.Weight));
             var set2 = other.Indices.GroupBy(d => d.Index).ToDictionary(g => g.Key, g => g.Sum(d => d.Weight));
             float intersection = 0f, union = 0f;
-            foreach(var item in set2) {
-                if(set1.TryGetValue(item.Key, out var weight)) {
+            foreach (var item in set2) {
+                if (set1.TryGetValue(item.Key, out var weight)) {
                     intersection += (weight + item.Value);
                     union += (weight + item.Value) / 2;
-                }else
+                } else
                     union += item.Value;
             }
-            foreach(var item in set1) {
-                if(!set2.ContainsKey(item.Key))
+            foreach (var item in set1) {
+                if (!set2.ContainsKey(item.Key))
                     union += item.Value;
             }
-            if(FloatMath.IsNotZero(union))
-                return intersection/union;
+            if (FloatMath.IsNotZero(union))
+                return intersection / union;
             return 0f;
         }
 
@@ -167,13 +184,13 @@ namespace BrightData
         {
             var indices = new Dictionary<uint, float>();
             uint max = uint.MinValue;
-            foreach(var item in Indices) {
-                if(item.Index > max)
+            foreach (var item in Indices) {
+                if (item.Index > max)
                     max = item.Index;
                 indices.Add(item.Index, item.Weight);
             }
-            if(indices.Any())
-                return Context.CreateVector(max+1, i => indices.TryGetValue(i, out var val) ? val : 0f);
+            if (indices.Any())
+                return Context.CreateVector(max + 1, i => indices.TryGetValue(i, out var val) ? val : 0f);
             return Context.CreateVector(0, i => 0f);
         }
     }

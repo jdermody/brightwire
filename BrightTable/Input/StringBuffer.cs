@@ -35,7 +35,7 @@ namespace BrightTable.Input
             _size = 0;
         }
 
-        public void Add(string str)
+        public void Add(ReadOnlySpan<char> str)
         {
             _stringOffset.Add((_size, str.Length));
             foreach (var ch in str)

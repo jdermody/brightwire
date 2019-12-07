@@ -12,7 +12,7 @@ namespace BrightTable.Transformations.Conversions
         static WeightedIndexList _Convert(object obj)
         {
             if (obj is IndexList indexList)
-                return WeightedIndexList.Create(indexList.Context, indexList.Indices.Select(ind => (ind, 1f)).ToArray());
+                return WeightedIndexList.Create(indexList.Context, indexList.Indices.Select(ind => new WeightedIndexList.Item(ind, 1f)).ToArray());
             if (obj is WeightedIndexList weightedIndexList)
                 return weightedIndexList;
             if (obj is Vector<float> vector) {

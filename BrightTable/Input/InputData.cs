@@ -19,7 +19,7 @@ namespace BrightTable.Input
         {
         }
 
-        private InputData(Stream stream, bool isOwner = false)
+        InputData(Stream stream, bool isOwner = false)
         {
             _isOwner = isOwner;
             if (stream is FileStream fileStream) {
@@ -31,7 +31,7 @@ namespace BrightTable.Input
             }
         }
 
-        private InputData(MemoryStream baseStream, ArraySegment<byte> buffer)
+        InputData(MemoryStream baseStream, ArraySegment<byte> buffer)
         {
             _isOwner = false;
             _baseStream = baseStream;

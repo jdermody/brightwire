@@ -38,22 +38,9 @@ namespace BrightTable.Segments
         public uint ColumnIndex { get; }
         public string Header { get; set; } = null;
         public bool HasUnique => !_hasExceededUniqueLimit && _unique.Any(d => d.Value > 1);
-        public (string[] StringTable, uint[] Indices) Encode()
-        {
-            if (_hasExceededUniqueLimit)
-                throw new Exception("Table has too many unique values to encode");
+        public MetaData MetaData { get; } = new MetaData();
 
-            var stringTable = new Dictionary<string, uint>();
-            var ret = new List<uint>();
-            foreach (var str in EnumerateAll()) {
-                if (!stringTable.TryGetValue(str, out var index))
-                    stringTable.Add(str, index = (uint)stringTable.Count);
-                ret.Add(index);
-            }
-            return (stringTable.OrderBy(kv => kv.Value).Select(kv => kv.Key).ToArray(), ret.ToArray());
-        }
-
-        public void Add(string str)
+        public void Add(ReadOnlySpan<char> buffer)
         {
             if (_hasReadFromStream)
                 throw new Exception("Cannot write after enumeration");
@@ -63,12 +50,16 @@ namespace BrightTable.Segments
                     _stream = _tempStreamManager.Get(ColumnIndex);
                     _writer = new BinaryWriter(_stream);
                 } else
-                    _buffer.Add(str);
+                    _buffer.Add(buffer);
             }
 
-            _writer?.Write(str);
+            string str = null;
+            if(_writer != null)
+                _writer.Write(str = buffer.ToString());
 
-            if (_unique.Count < Consts.MaxDistinct) {
+            if (!_hasExceededUniqueLimit && _unique.Count < Consts.MaxDistinct) {
+                if (str == null)
+                    str = buffer.ToString();
                 if (_unique.TryGetValue(str, out var count))
                     _unique[str] = count + 1;
                 else
@@ -96,21 +87,26 @@ namespace BrightTable.Segments
 
         public void WriteTo(BinaryWriter writer)
         {
-            var isEncoded = HasUnique;
-
             // write the column data
-            if(isEncoded) {
-                var data = Encode();
+            if(HasUnique) {
+                var stringTable = new Dictionary<string, uint>();
+                var indices = new List<uint>();
+                foreach (var str in EnumerateAll()) {
+                    if (!stringTable.TryGetValue(str, out var index))
+                        stringTable.Add(str, index = (uint)stringTable.Count);
+                    indices.Add(index);
+                }
 
                 // write the strings
-                writer.Write(data.StringTable.Length);
-                foreach(var item in data.StringTable)
+                writer.Write(stringTable.Count);
+                foreach(var item in stringTable.OrderBy(kv => kv.Value).Select(kv => kv.Key))
                     writer.Write(item);
 
                 // write the column string indices
-                foreach(var item in data.Indices)
+                foreach(var item in indices)
                     writer.Write(item);
             }else {
+                // write all strings
                 foreach(var str in EnumerateAll())
                     writer.Write(str);
             }

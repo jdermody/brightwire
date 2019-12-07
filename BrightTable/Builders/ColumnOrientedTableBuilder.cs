@@ -33,7 +33,7 @@ namespace BrightTable.Builders
 
             var columnOffsets = new List<(long Position, long EndOfColumnOffset)>();
             foreach (var column in columns) {
-                var metadata = new MetaData();
+                var metadata = column.MetaData;
                 metadata.Set(Consts.Index, column.ColumnIndex);
                 metadata.Set(Consts.HasUnique, column.HasUnique);
                 metadata.Set(Consts.Type, ColumnType.String.ToString());

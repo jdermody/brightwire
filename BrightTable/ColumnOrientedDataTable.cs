@@ -161,15 +161,14 @@ namespace BrightTable
 
         public IRowOrientedDataTable AsRowOriented(string filePath = null)
         {
-            using (var builder = new RowOrientedTableBuilder(RowCount, filePath)) {
-                foreach (var column in _columns)
-                    builder.AddColumn(column.ColumnType, column.MetaData);
+            using var builder = new RowOrientedTableBuilder(RowCount, filePath);
+            foreach (var column in _columns)
+                builder.AddColumn(column.ColumnType, column.MetaData);
 
-                // ReSharper disable once AccessToDisposedClosure
-                ForEachRow((row, index) => builder.AddRow(row));
+            // ReSharper disable once AccessToDisposedClosure
+            ForEachRow((row, index) => builder.AddRow(row));
 
-                return builder.Build(Context);
-            }
+            return builder.Build(Context);
         }
 
         ISingleTypeTableSegment _GetColumn(uint index)
