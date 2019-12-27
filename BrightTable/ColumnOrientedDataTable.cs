@@ -50,7 +50,7 @@ namespace BrightTable
 
             public override string ToString()
             {
-                return $"{MetaData}, Encoded: {IsEncoded}";
+                return $"Encoded: {IsEncoded}, {MetaData}";
             }
         }
 

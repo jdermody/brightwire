@@ -128,7 +128,6 @@ namespace BrightTable
 
         public void ForEachRow(Action<object[], uint> callback)
         {
-            var data = new object[ColumnCount];
             lock (_data) {
                 _data.MoveTo(_rowOffset[0]);
                 var row = new object[_columns.Length];
