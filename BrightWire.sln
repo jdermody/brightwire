@@ -31,6 +31,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrightData", "BrightData\Br
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrightWire", "BrightWire\BrightWire.csproj", "{3705136B-F4AF-4C27-AC1D-382B4BB36821}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleTest", "ConsoleTest\ConsoleTest.csproj", "{F5CA55EE-C3E1-4BDF-81DD-5B40B2362EFC}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		BrightWire.CUDA.Source\BrightWire.CUDA.Source.projitems*{50bcb2ab-e8ca-4974-b136-49a98d5e34cb}*SharedItemsImports = 4
@@ -113,6 +115,14 @@ Global
 		{3705136B-F4AF-4C27-AC1D-382B4BB36821}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3705136B-F4AF-4C27-AC1D-382B4BB36821}.Release|x64.ActiveCfg = Release|Any CPU
 		{3705136B-F4AF-4C27-AC1D-382B4BB36821}.Release|x64.Build.0 = Release|Any CPU
+		{F5CA55EE-C3E1-4BDF-81DD-5B40B2362EFC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F5CA55EE-C3E1-4BDF-81DD-5B40B2362EFC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F5CA55EE-C3E1-4BDF-81DD-5B40B2362EFC}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F5CA55EE-C3E1-4BDF-81DD-5B40B2362EFC}.Debug|x64.Build.0 = Debug|Any CPU
+		{F5CA55EE-C3E1-4BDF-81DD-5B40B2362EFC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F5CA55EE-C3E1-4BDF-81DD-5B40B2362EFC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F5CA55EE-C3E1-4BDF-81DD-5B40B2362EFC}.Release|x64.ActiveCfg = Release|Any CPU
+		{F5CA55EE-C3E1-4BDF-81DD-5B40B2362EFC}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -30,7 +30,6 @@ namespace BrightTable.Segments
 
         public void WriteTo(BinaryWriter writer)
         {
-            //writer.Write(Size);
             foreach(var item in EnumerateTyped())
                 DataEncoder.Write(writer, item);
         }
@@ -43,10 +42,12 @@ namespace BrightTable.Segments
 
         public IEnumerable<T> EnumerateTyped()
         {
-            _buffer.Reset();
-            var reader = _buffer.Reader;
-            for(uint i = 0; i < Size; i++)
-                yield return _context.DataReader.Read<T>(reader);
+            lock (_buffer) {
+                _buffer.Reset();
+                var reader = _buffer.Reader;
+                for (uint i = 0; i < Size; i++)
+                    yield return _context.DataReader.Read<T>(reader);
+            }
         }
 
         public IEnumerable<object> Enumerate()

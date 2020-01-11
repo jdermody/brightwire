@@ -36,11 +36,12 @@ namespace BrightTable.Segments
         {
             DataEncoder.Write(writer, _data);
 
-            //writer.Write(Size);
-            _buffer.Reset();
-            var reader = _buffer.Reader;
-            for(uint i = 0; i < Size; i++) {
-                writer.Write(reader.ReadUInt32());
+            lock (_buffer) {
+                _buffer.Reset();
+                var reader = _buffer.Reader;
+                for (uint i = 0; i < Size; i++) {
+                    writer.Write(reader.ReadUInt32());
+                }
             }
         }
 
@@ -52,11 +53,13 @@ namespace BrightTable.Segments
 
         public IEnumerable<T> EnumerateTyped()
         {
-            _buffer.Reset();
-            var reader = _buffer.Reader;
-            for(uint i = 0; i < Size; i++) {
-                var index = reader.ReadUInt32();
-                yield return _data[index];
+            lock (_buffer) {
+                _buffer.Reset();
+                var reader = _buffer.Reader;
+                for (uint i = 0; i < Size; i++) {
+                    var index = reader.ReadUInt32();
+                    yield return _data[index];
+                }
             }
         }
 
