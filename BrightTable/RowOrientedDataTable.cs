@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -16,6 +17,7 @@ namespace BrightTable
         readonly ColumnType[] _columnTypes;
         readonly uint[] _rowOffset;
         readonly InputData _data;
+        readonly Func<BinaryReader, object>[] _columnReaders;
 
         public RowOrientedDataTable(IBrightDataContext context, InputData data, bool readHeader) : base(context)
         {
@@ -44,6 +46,8 @@ namespace BrightTable
 
             RowCount = (uint)_rowOffset.Length;
             ColumnCount = (uint)_columns.Length;
+
+            _columnReaders = _columnTypes.Select(ct => _GetReader(ct)).ToArray();
         }
 
         public void Dispose()
@@ -68,14 +72,13 @@ namespace BrightTable
 
         public void ForEachRow(IEnumerable<uint> rowIndices, Action<object[]> callback)
         {
+            var row = new object[_columns.Length];
             lock (_data) {
+                var reader = _data.Reader;
                 foreach (var index in rowIndices) {
                     _data.MoveTo(_rowOffset[index]);
-                    var row = new object[_columns.Length];
-                    var ind = 0;
-                    foreach (var columnType in _columnTypes)
-                        row[ind++] = _Read(columnType, _data.Reader);
-
+                    for (int i = 0, len = _columnReaders.Length; i < len; i++)
+                        row[i] = _columnReaders[i](reader);
                     callback(row);
                 }
             }
@@ -115,27 +118,26 @@ namespace BrightTable
 
         public IRowOrientedDataTable AsRowOriented(string filePath = null)
         {
-            using (var builder = new RowOrientedTableBuilder(RowCount, filePath)) {
-                foreach (var column in _columns)
-                    builder.AddColumn(column.ColumnType, column.MetaData);
+            using var builder = new RowOrientedTableBuilder(RowCount, filePath);
 
-                // ReSharper disable once AccessToDisposedClosure
-                ForEachRow((row, index) => builder.AddRow(row));
+            foreach (var column in _columns)
+                builder.AddColumn(column.ColumnType, column.MetaData);
 
-                return builder.Build(Context);
-            }
+            // ReSharper disable once AccessToDisposedClosure
+            ForEachRow((row, index) => builder.AddRow(row));
+
+            return builder.Build(Context);
         }
 
         public void ForEachRow(Action<object[], uint> callback)
         {
-            var data = new object[ColumnCount];
+            var row = new object[ColumnCount];
             lock (_data) {
                 _data.MoveTo(_rowOffset[0]);
-                var row = new object[_columns.Length];
-                for(uint i = 0; i < RowCount; i++) {
-                    var ind = 0;
-                    foreach (var columnType in _columnTypes)
-                        row[ind++] = _Read(columnType, _data.Reader);
+                var reader = _data.Reader;
+                for (uint i = 0; i < RowCount; i++) {
+                    for (int j = 0, len = _columnReaders.Length; j < len; j++)
+                        row[j] = _columnReaders[j](reader);
                     callback(row, i);
                 }
             }
@@ -166,43 +168,61 @@ namespace BrightTable
             return ((ISingleTypeTableSegment) ret, (IEditableBuffer) ret);
         }
 
-        object _Read(ColumnType type, BinaryReader reader)
+        private object _ReadString(BinaryReader reader) => reader.ReadString();
+        private object _ReadDouble(BinaryReader reader) => reader.ReadDouble();
+        private object _ReadDecimal(BinaryReader reader) => reader.ReadDecimal();
+        private object _ReadInt32(BinaryReader reader) => reader.ReadInt32();
+        private object _ReadInt16(BinaryReader reader) => reader.ReadInt16();
+        private object _ReadSingle(BinaryReader reader) => reader.ReadSingle();
+        private object _ReadBoolean(BinaryReader reader) => reader.ReadBoolean();
+        private object _ReadDate(BinaryReader reader) => new DateTime(reader.ReadInt64());
+        private object _ReadInt64(BinaryReader reader) => reader.ReadInt64();
+        private object _ReadByte(BinaryReader reader) => reader.ReadSByte();
+        private object _ReadIndexList(BinaryReader reader) => IndexList.ReadFrom(Context, reader);
+        private object _ReadWeightedIndexList(BinaryReader reader) => WeightedIndexList.ReadFrom(Context, reader);
+        private object _ReadVector(BinaryReader reader) => new Vector<float>(Context, reader);
+        private object _ReadMatrix(BinaryReader reader) => new Matrix<float>(Context, reader);
+        private object _ReadTensor3D(BinaryReader reader) => new Tensor3D<float>(Context, reader);
+        private object _ReadTensor4D(BinaryReader reader) => new Tensor4D<float>(Context, reader);
+        private object _ReadBinaryData(BinaryReader reader) => new BinaryData(reader);
+
+        Func<BinaryReader, object> _GetReader(ColumnType type)
 		{
 			switch (type) {
 				case ColumnType.String:
-					return reader.ReadString();
+					return _ReadString;
 				case ColumnType.Double:
-					return reader.ReadDouble();
+					return _ReadDouble;
 				case ColumnType.Decimal:
-					return reader.ReadDecimal();
+					return _ReadDecimal;
 				case ColumnType.Int:
-					return reader.ReadInt32();
+					return _ReadInt32;
 				case ColumnType.Short:
-					return reader.ReadInt16();
+					return _ReadInt16;
 				case ColumnType.Float:
-					return reader.ReadSingle();
+					return _ReadSingle;
 				case ColumnType.Boolean:
-					return reader.ReadBoolean();
+					return _ReadBoolean;
 				case ColumnType.Date:
-					return new DateTime(reader.ReadInt64());
-				case ColumnType.Long:
-					return reader.ReadInt64();
+                    return _ReadDate;
+                case ColumnType.Long:
+					return _ReadInt64;
 				case ColumnType.Byte:
-					return reader.ReadSByte();
+					return _ReadByte;
 				case ColumnType.IndexList:
-					return IndexList.ReadFrom(Context, reader);
-				case ColumnType.WeightedIndexList:
-					return WeightedIndexList.ReadFrom(Context, reader);
+                    return _ReadIndexList;
+                case ColumnType.WeightedIndexList:
+					return _ReadWeightedIndexList;
 				case ColumnType.Vector:
-					return new Vector<float>(Context, reader);
-				case ColumnType.Matrix:
-					return new Matrix<float>(Context, reader);
+                    return _ReadVector;
+                case ColumnType.Matrix:
+					return _ReadMatrix;
 				case ColumnType.Tensor3D:
-					return new Tensor3D<float>(Context, reader);
+                    return _ReadTensor3D;
 				case ColumnType.Tensor4D:
-					return new Tensor4D<float>(Context, reader);
+					return _ReadTensor4D;
                 case ColumnType.BinaryData:
-                    return new BinaryData(reader);
+                    return _ReadBinaryData;
 				default:
 					return null;
 			}

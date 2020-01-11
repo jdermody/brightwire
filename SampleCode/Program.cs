@@ -91,7 +91,7 @@ namespace BrightWire.SampleCode
 			//IrisClassification();
 			//IrisClustering();
 			//MarkovChains();
-			MNIST(DataBasePath + @"mnist\");
+			//MNIST(DataBasePath + @"mnist\");
 			//MNISTConvolutional(DataBasePath + @"mnist\", ModelBasePath + @"mnist.dat");
 			//SentimentClassification(DataBasePath + @"sentiment labelled sentences\");
 			//TextClustering(DataBasePath + @"[UCI] AAAI-14 Accepted Papers - Papers.csv", ModelBasePath);
@@ -104,7 +104,7 @@ namespace BrightWire.SampleCode
 			//SimpleLinearTest();
 			//PredictBicyclesWithLinearModel(DataBasePath + @"bikesharing\hour.csv");
 			//PredictBicyclesWithNeuralNetwork(DataBasePath + @"bikesharing\hour.csv");
-			//MultiLabelSingleClassifier(DataBasePath + @"emotions\emotions.arff");
+			MultiLabelSingleClassifier(DataBasePath + @"emotions\emotions.arff");
 			//MultiLabelMultiClassifiers(DataBasePath + @"emotions\emotions.arff");
 			//StockData(DataBasePath + @"plotly\stockdata.csv");
 

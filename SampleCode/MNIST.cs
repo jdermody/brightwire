@@ -66,15 +66,14 @@ namespace BrightWire.SampleCode
             dataTable.AddColumn(ColumnType.Vector, "Target", isTarget: true);
 
             foreach (var image in images) {
-                var data = image.AsFloatArray;
-                dataTable.Add(data.Data, data.Label);
+                var (data, label) = image.AsFloatArray;
+                dataTable.Add(data, label);
             }
 
             // reuse the network used for training when building the test data source
             if (existing != null)
                 return existing.CloneWith(dataTable.Build());
-            else
-                return graph.CreateDataSource(dataTable.Build());
+            return graph.CreateDataSource(dataTable.Build());
         }
     }
 }
