@@ -81,8 +81,30 @@ namespace BrightWire.SampleCode
 				;
 
 				// train the network
-				engine.Train(TRAINING_ITERATIONS, testData, errorMetric, null, 50);
-			}
+                Models.ExecutionGraph bestGraph = null;
+				engine.Train(TRAINING_ITERATIONS, testData, errorMetric, model => bestGraph = model.Graph, 50);
+
+                // export the final model and execute it on the training set
+                var executionEngine = graph.CreateEngine(bestGraph ?? engine.Graph);
+                var output = executionEngine.Execute(testData);
+
+				// output the results
+                var rowIndex = 0;
+                foreach (var item in output) {
+                    var sb = new StringBuilder();
+                    foreach (var classification in item.Output.Zip(item.Target, (o, t) => (Output: o, Target: t))) {
+                        var columnIndex = 0;
+                        sb.AppendLine($"{rowIndex++}) ");
+						foreach (var column in classification.Output.Data.Zip(classification.Target.Data,
+                            (o, t) => (Output: o, Target: t))) {
+                            var prediction = column.Output >= 0.5f ? "true" : "false";
+                            var actual = column.Target >= 0.5f ? "true" : "false";
+                            sb.AppendLine($"\t{columnIndex++}) predicted {prediction} (expected {actual})");
+                        }
+                    }
+					Console.WriteLine(sb.ToString());
+                }
+            }
 		}
 
 		/// <summary>
