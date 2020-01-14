@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Numerics;
-using System.Text;
 
 namespace BrightData
 {
@@ -26,7 +23,6 @@ namespace BrightData
         {
             Shape = shape;
             _data = data;
-            //_data.AddRef();
         }
 
         public void Dispose()
@@ -73,6 +69,8 @@ namespace BrightData
             return _data;
         }
         public IBrightDataContext Context { get; }
+        public uint Size => this.GetSize();
+        public uint Rank => this.GetRank();
 
         public T[] ToArray() => _data.ToArray();
         public void InitializeFrom(Stream stream) => _data.InitializeFrom(stream);

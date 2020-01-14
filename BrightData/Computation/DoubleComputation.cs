@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using BrightData.Helper;
@@ -28,7 +26,7 @@ namespace BrightData.Computation
                     initialValue = ret;
                     computedValue = aggregator(initialValue, v);
                 }
-                while (Math.Abs(initialValue - Interlocked.CompareExchange(ref ret, computedValue, initialValue)) > FloatMath.ALMOST_ZERO);
+                while (Math.Abs(initialValue - Interlocked.CompareExchange(ref ret, computedValue, initialValue)) > FloatMath.AlmostZero);
             });
             return ret;
         }

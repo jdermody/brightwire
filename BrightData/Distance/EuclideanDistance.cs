@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using BrightData.Helper;
+﻿using BrightData.Helper;
 
 namespace BrightData.Distance
 {

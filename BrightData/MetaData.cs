@@ -132,7 +132,7 @@ namespace BrightData
             }
         }
 
-        string _Write(IConvertible value)
+        static string _Write(IConvertible value)
         {
             var typeCode = value.GetTypeCode();
             if (typeCode == TypeCode.Double)

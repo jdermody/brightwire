@@ -68,7 +68,6 @@ namespace BrightData
     {
         T Read<T>(BinaryReader reader);
         T[] ReadArray<T>(BinaryReader reader);
-        //uint Read(BinaryReader reader);
     }
 
     public interface ITensorPool

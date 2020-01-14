@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -53,9 +51,6 @@ namespace BrightData
             return false;
         }
 
-        public override int GetHashCode()
-        {
-            return ToString().GetHashCode();
-        }
+        public override int GetHashCode() => ToString().GetHashCode();
     }
 }

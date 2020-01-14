@@ -3,7 +3,6 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
 
 namespace BrightData.Memory
@@ -41,6 +40,7 @@ namespace BrightData.Memory
         public IBrightDataContext Context { get; }
 
         public T[] ToArray() => _data.Memory.Span.Slice(0, (int)Size).ToArray();
+        public Span<T> Data => _data.Memory.Span;
         public IEnumerable<T> Values
         {
             get {

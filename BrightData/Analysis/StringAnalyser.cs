@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace BrightData.Analysis
+﻿namespace BrightData.Analysis
 {
     public class StringAnalyser : FrequencyAnalyser<string>
     {

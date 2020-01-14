@@ -70,7 +70,7 @@ namespace BrightTable.Transformations
                 var typeofT = typeof(T);
                 foreach (var item in segment.EnumerateTyped()) {
                     var val = Convert.ToDouble(item);
-                    var normalised = (Math.Abs(divide) < FloatMath.ALMOST_ZERO) ? val : (val - subtract) / divide;
+                    var normalised = (Math.Abs(divide) < FloatMath.AlmostZero) ? val : (val - subtract) / divide;
                     var converted = (T)Convert.ChangeType(normalised, typeofT);
                     list.Add(converted);
                 }

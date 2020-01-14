@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Xml;
@@ -104,7 +103,7 @@ namespace BrightData
         /// </summary>
         /// <param name="context"></param>
         /// <param name="reader">The binary reader</param>
-        public static unsafe WeightedIndexList ReadFrom(IBrightDataContext context, BinaryReader reader)
+        public static WeightedIndexList ReadFrom(IBrightDataContext context, BinaryReader reader)
         {
             var len = reader.ReadInt32();
             var ret = new Item[len];

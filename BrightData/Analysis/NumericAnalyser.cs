@@ -28,8 +28,8 @@ namespace BrightData.Analysis
 			// online std deviation and mean 
 			// https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Online_algorithm
 			var delta = val - _mean;
-			_mean = _mean + (delta / _total);
-			_m2 = _m2 + delta * (val - _mean);
+			_mean += (delta / _total);
+			_m2 += delta * (val - _mean);
 
 			// find the min and the max
 			if (val < _min)
@@ -39,9 +39,8 @@ namespace BrightData.Analysis
 
 			// add to distinct values
 			if (_distinct.Count < Consts.MaxDistinct) {
-				ulong count = 0;
-				if (_distinct.TryGetValue(val, out ulong temp))
-					_distinct[val] = count = temp + 1;
+                if (_distinct.TryGetValue(val, out var count))
+					_distinct[val] = count + 1;
 				else
 					_distinct.Add(val, count = 1);
 
@@ -92,7 +91,7 @@ namespace BrightData.Analysis
                             ret = item.Key;
                             if (_total % 2 == 0)
 	                            break;
-                            middle = middle + 1;
+                            middle++;
                             goto top;
                         }
                         count += item.Value;

@@ -2,7 +2,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 
 namespace BrightData.Memory
@@ -14,7 +13,7 @@ namespace BrightData.Memory
         readonly ConcurrentDictionary<string, ConcurrentBag<IReferenceCountedMemory>> _cache = new ConcurrentDictionary<string, ConcurrentBag<IReferenceCountedMemory>>();
         readonly HashSet<IReferenceCountedMemory> _allocated = new HashSet<IReferenceCountedMemory>();
         readonly ConcurrentDictionary<string, long> _requestHistory = new ConcurrentDictionary<string, long>();
-        long requestIndex = 0;
+        long _requestIndex = 0;
 
         public TensorPool(IBrightDataContext context, ITensorAllocator allocator, long maxCacheSize)
         {
@@ -26,7 +25,7 @@ namespace BrightData.Memory
         public ITensorBlock<T> Get<T>(uint size) where T: struct
         {
             var key = _GetKey<T>(size);
-            _requestHistory[key] = Interlocked.Increment(ref requestIndex);
+            _requestHistory[key] = Interlocked.Increment(ref _requestIndex);
 
             if (_cache.TryGetValue(key, out var bag) && bag.TryTake(out var ptr))
                 return (ITensorBlock<T>)ptr;

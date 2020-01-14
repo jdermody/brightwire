@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using BrightData.Helper;
+﻿using System.IO;
+using BrightData.Memory;
 
 namespace BrightData
 {

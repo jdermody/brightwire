@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using BrightData.Helper;
+﻿using System.IO;
+using BrightData.Memory;
 
 namespace BrightData
 {
@@ -16,7 +13,7 @@ namespace BrightData
         public uint RowCount => Shape[1];
         public uint ColumnCount => Shape[2];
         public uint MatrixSize => RowCount * ColumnCount;
-        public uint Size => Depth * MatrixSize;
+        public new uint Size => Depth * MatrixSize;
 
         public Matrix<T> Matrix(uint index)
         {

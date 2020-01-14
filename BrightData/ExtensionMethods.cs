@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using System.Text;
 using BrightData.Helper;
 
@@ -70,6 +71,9 @@ namespace BrightData
             return null;
         }
 
+        public static IndexList CreateIndexList(this IBrightDataContext context, params uint[] indices) => IndexList.Create(context, indices);
+        public static WeightedIndexList CreateWeightedIndexList(this IBrightDataContext context, params (uint Index, float Weight)[] indexList) => WeightedIndexList.Create(context, indexList);
+
         public static Vector<T> CreateVector<T>(this IBrightDataContext context, uint size, Func<uint, T> initializer = null) where T: struct
         {
             var data = context.TensorPool.Get<T>(size);
@@ -113,10 +117,19 @@ namespace BrightData
             return CreateMatrix(context, rows, (uint) columns.Length, (j, i) => columns[i][j]);
         }
 
-        //public static ITensor<T> CreateTensor3D<T>(this IBrightDataContext context, uint depth, uint rows, uint columns)
-        //{
-        //    return context.CreateTensor<T>(depth, rows, columns);
-        //}
+        public static Tensor3D<T> CreateTensor3D<T>(this IBrightDataContext context, uint depth, uint rows, uint columns) where T : struct
+        {
+            var data = context.TensorPool.Get<T>(depth * rows * columns);
+            var segment = data.GetSegment();
+            return new Tensor3D<T>(context, segment, depth, rows, columns);
+        }
+
+        public static Tensor4D<T> CreateTensor4D<T>(this IBrightDataContext context, uint count, uint depth, uint rows, uint columns) where T : struct
+        {
+            var data = context.TensorPool.Get<T>(count * depth * rows * columns);
+            var segment = data.GetSegment();
+            return new Tensor4D<T>(context, segment, count, depth, rows, columns);
+        }
 
         public static uint GetSize(this ITensor tensor)
         {
@@ -224,5 +237,20 @@ namespace BrightData
         public static uint Index(this IMetaData metadata) => metadata.Get<uint>(Consts.Index);
         public static bool IsNumeric(this IMetaData metadata) => metadata.Get<bool>(Consts.IsNumeric);
         public static bool IsTarget(this IMetaData metadata) => metadata.Get<bool>(Consts.IsTarget);
+
+        public static float CosineDistance(this Vector<float> vector, Vector<float> other)
+        {
+            return BrightData.Distance.CosineDistance.Calculate(vector.ToArray(), other.ToArray());
+        }
+
+        public static float EuclideanDistance(this Vector<float> vector, Vector<float> other)
+        {
+            return BrightData.Distance.EuclideanDistance.Calculate(vector.ToArray(), other.ToArray());
+        }
+
+        public static float ManhattanDistance(this Vector<float> vector, Vector<float> other)
+        {
+            return BrightData.Distance.ManhattanDistance.Calculate(vector.ToArray(), other.ToArray());
+        }
     }
 }

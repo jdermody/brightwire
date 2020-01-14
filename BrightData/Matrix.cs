@@ -4,6 +4,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using BrightData.Helper;
+using BrightData.Memory;
 
 namespace BrightData
 {
@@ -15,7 +16,7 @@ namespace BrightData
 
         public uint RowCount => Shape[0];
         public uint ColumnCount => Shape[1];
-        public uint Size => RowCount * ColumnCount;
+        public new uint Size => RowCount * ColumnCount;
 
         public ITensorSegment<T> Row(uint index) => new TensorSegmentWrapper<T>(_data, index * ColumnCount, 1, ColumnCount);
         public ITensorSegment<T> Column(uint index) => new TensorSegmentWrapper<T>(_data, index, ColumnCount, RowCount);

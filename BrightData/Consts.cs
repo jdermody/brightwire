@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace BrightData
+﻿namespace BrightData
 {
     public class Consts
     {
@@ -42,6 +38,6 @@ namespace BrightData
         public const string FrequencyPrefix = "Frequency:";
         public const string FrequencyRangePrefix = "FrequencyRange:";
 
-        public static readonly string[] StandardMetaData = new[] { Index, Name, Type, IsNumeric, IsTarget };
+        public static readonly string[] StandardMetaData = { Index, Name, Type, IsNumeric, IsTarget };
     }
 }

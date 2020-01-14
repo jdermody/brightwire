@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace BrightData
 {
@@ -12,7 +10,7 @@ namespace BrightData
         public Vector(IBrightDataContext context, ITensorSegment<T> data) : base(context, data, new[] { data.Size }) { }
         public Vector(IBrightDataContext context, BinaryReader reader) : base(context, reader) { }
 
-        public uint Size => Shape[0];
+        public new uint Size => Shape[0];
 
         protected override Vector<T> Create(ITensorSegment<T> segment) => new Vector<T>(Context, segment);
 

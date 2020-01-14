@@ -4,9 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Text;
 
-namespace BrightData.Helper
+namespace BrightData.Memory
 {
     class TensorSegmentWrapper<T> : ITensorSegment<T>
         where T : struct
@@ -93,7 +92,7 @@ namespace BrightData.Helper
         {
             var buffer = new byte[Size * Unsafe.SizeOf<T>()];
             fixed(byte* ptr = &buffer[0]) {
-                byte* p = ptr;
+                var p = ptr;
                 for (uint i = 0; i < Size; i++) {
                     Unsafe.Write(p, this[i]);
                     p += Unsafe.SizeOf<T>();

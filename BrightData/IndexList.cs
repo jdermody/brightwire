@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Xml;
@@ -82,8 +81,7 @@ namespace BrightData
         {
             var len = reader.ReadInt32();
             var ret = new uint[len];
-            var span = MemoryMarshal.Cast<uint, byte>(ret);
-            reader.BaseStream.Read(span);
+            reader.BaseStream.Read(MemoryMarshal.Cast<uint, byte>(ret));
 
             return Create(context, ret);
         }
