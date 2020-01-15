@@ -11,6 +11,7 @@ namespace BrightData
 {
     public class WeightedIndexList : IHaveIndices, ICanWriteToBinaryWriter
     {
+        [StructLayout(LayoutKind.Sequential, Pack=0)]
         public struct Item
         {
             public uint Index { get; }

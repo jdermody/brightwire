@@ -11,6 +11,12 @@ namespace BrightTable
 {
     class ColumnOrientedDataTable : DataTableBase, IColumnOrientedDataTable
     {
+        internal enum ColumnFamily
+        {
+            Normal,
+            Encoded,
+            Struct
+        }
         class Column
         {
             readonly MetaData _metadata;

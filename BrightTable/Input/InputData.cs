@@ -5,13 +5,13 @@ using System.Text;
 
 namespace BrightTable.Input
 {
-    class InputData : IDisposable
+    public class InputData : IDisposable
     {
         readonly MemoryStream _memoryStream, _baseStream;
         readonly FileStream _fileStream;
         readonly bool _isOwner;
  
-        internal InputData(MemoryStream memoryStream) : this(memoryStream, true)
+        public InputData(MemoryStream memoryStream) : this(memoryStream, true)
         {
         }
 
