@@ -5,7 +5,7 @@ using System.Text;
 
 namespace BrightTable.Input
 {
-    class InputBufferReader : IDisposable
+    public class InputBufferReader : IDisposable
     {
         readonly InputData _data;
         long _startOffset;
