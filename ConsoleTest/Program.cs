@@ -14,20 +14,23 @@ namespace ConsoleTest
     {
         static void Main(string[] args)
         {
-            using var stream = new MemoryStream();
-            var metaData = new MetaData();
-            using (var writer = new BinaryWriter(stream, Encoding.UTF8, true)) {
-                StructColumn<float>.WriteHeader(ColumnType.Float, 32768, metaData, writer);
-                StructColumn<float>.WriteData(Enumerable.Repeat(1f, 32768).ToArray(), writer);
-            }
-            stream.Seek(0, SeekOrigin.Begin);
-            using var inputData = new InputData(stream);
-            var inputReader = new InputBufferReader(inputData, 0, (uint)stream.Length);
-            var column = new StructColumn<float>(inputReader);
+            using var context = new BrightDataContext();
+            using var table = context.ParseCsvFile(@"C:\data\iris.data", true);
 
-            float total = 0f;
-            foreach(var item in column.EnumerateTyped())
-                total += item;
+            //using var stream = new MemoryStream();
+            //var metaData = new MetaData();
+            //using (var writer = new BinaryWriter(stream, Encoding.UTF8, true)) {
+            //    StructColumn<float>.WriteHeader(ColumnType.Float, 32768, metaData, writer);
+            //    StructColumn<float>.WriteData(Enumerable.Repeat(1f, 32768).ToArray(), writer);
+            //}
+            //stream.Seek(0, SeekOrigin.Begin);
+            //using var inputData = new InputData(stream);
+            //var inputReader = new InputBufferReader(inputData, 0, (uint)stream.Length);
+            //var column = new StructColumn<float>(inputReader);
+
+            //float total = 0f;
+            //foreach(var item in column.EnumerateTyped())
+            //    total += item;
 
             //using var context = new BrightDataContext();
             //using var stream = new MemoryStream();

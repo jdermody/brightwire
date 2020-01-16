@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using BrightData;
 using BrightData.Analysis;
+using BrightTable.Builders;
+using BrightTable.Input;
 
 namespace BrightTable
 {
@@ -235,5 +237,26 @@ namespace BrightTable
 
         public static IReadOnlyList<ISingleTypeTableSegment> AllColumns(this IDataTable dataTable) => dataTable.Columns(Range(0, dataTable.ColumnCount).ToArray());
         public static IReadOnlyList<IDataTableSegment> AllRows(this IRowOrientedDataTable dataTable) => dataTable.Rows(Range(0, dataTable.RowCount).ToArray());
+
+        public static IColumnOrientedDataTable ParseCsvText(this IBrightDataContext context, string csv, bool hasHeader, char delimiter = ',', string filePath = null, string tempPath = null)
+        {
+            var reader = new SimpleStringReader(csv);
+            return _ParseCsv(context, reader, hasHeader, delimiter, filePath, tempPath);
+        }
+
+        public static IColumnOrientedDataTable ParseCsvFile(this IBrightDataContext context, string csvFilePath, bool hasHeader, char delimiter = ',', string filePath = null, string tempPath = null)
+        {
+            using var reader = new FileReader(csvFilePath);
+            return _ParseCsv(context, reader, hasHeader, delimiter, filePath, tempPath);
+        }
+
+        static IColumnOrientedDataTable _ParseCsv(IBrightDataContext context, IStringIterator reader, bool hasHeader, char delimiter = ',', string filePath = null, string tempPath = null)
+        {
+            using var parser = new CsvParser(delimiter, 32768 * 32, tempPath);
+            parser.Parse(reader, hasHeader);
+            var builder = new ColumnOrientedTableBuilder(filePath);
+            builder.Write(parser.LineCount, parser.Columns);
+            return builder.Build(context);
+        }
     }
 }
