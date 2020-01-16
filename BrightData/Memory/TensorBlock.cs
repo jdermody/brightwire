@@ -7,6 +7,10 @@ using System.Threading;
 
 namespace BrightData.Memory
 {
+    /// <summary>
+    /// Block of contiguous tensor memory
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     class TensorBlock<T> : ITensorBlock<T>, IMemoryDeallocator
         where T: struct
     {

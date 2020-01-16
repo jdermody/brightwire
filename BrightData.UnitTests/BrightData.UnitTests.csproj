@@ -23,6 +23,10 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>DataEncoderTests.cs</LastGenOutput>
     </None>
+    <None Update="TensorOperationTests.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>TensorOperationTests.cs</LastGenOutput>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
@@ -34,6 +38,11 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>DataEncoderTests.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TensorOperationTests.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>TensorOperationTests.tt</DependentUpon>
     </Compile>
   </ItemGroup>
 

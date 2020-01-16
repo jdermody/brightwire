@@ -6,6 +6,9 @@ using System.Threading;
 
 namespace BrightData.Memory
 {
+    /// <summary>
+    /// Tensor memory pool
+    /// </summary>
     class TensorPool : ITensorPool, IDisposable
     {
         readonly ITensorAllocator _allocator;

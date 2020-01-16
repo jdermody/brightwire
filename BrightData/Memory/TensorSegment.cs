@@ -4,6 +4,10 @@ using System.IO;
 
 namespace BrightData.Memory
 {
+    /// <summary>
+    /// "Pointer" to a tensor block that manages reference counting
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     class TensorSegment<T> : ITensorSegment<T> where T: struct
     {
         readonly TensorBlock<T> _data;
@@ -19,8 +23,12 @@ namespace BrightData.Memory
         public void Dispose()
         {
             if (!_wasDisposed) {
-                _wasDisposed = true;
-                _data.Release();
+                lock (this) {
+                    if (!_wasDisposed) {
+                        _wasDisposed = true;
+                        _data.Release();
+                    }
+                }
             }
         }
 

@@ -28,8 +28,12 @@ namespace BrightData
         public void Dispose()
         {
             if (!_wasDisposed) {
-                _wasDisposed = true;
-                _data.Release();
+                lock (this) {
+                    if (_wasDisposed) {
+                        _wasDisposed = true;
+                        _data.Release();
+                    }
+                }
             }
         }
 

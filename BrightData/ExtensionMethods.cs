@@ -252,5 +252,23 @@ namespace BrightData
         {
             return BrightData.Distance.ManhattanDistance.Calculate(vector.ToArray(), other.ToArray());
         }
+
+        public static Vector<float> Mutate(this Vector<float> vector, Func<float, float> mutator)
+        {
+            var context = vector.Context;
+            var data = context.TensorPool.Get<float>(vector.Size);
+            var segment = data.GetSegment();
+            segment.Initialize(i => mutator(vector[i]));
+            return new Vector<float>(context, segment);
+        }
+
+        public static Vector<float> MutateWith(this Vector<float> vector, Vector<float> other, Func<float, float, float> mutator)
+        {
+            var context = vector.Context;
+            var data = context.TensorPool.Get<float>(vector.Size);
+            var segment = data.GetSegment();
+            segment.Initialize(i => mutator(vector[i], other[i]));
+            return new Vector<float>(context, segment);
+        }
     }
 }

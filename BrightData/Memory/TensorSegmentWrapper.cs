@@ -7,6 +7,10 @@ using System.Runtime.InteropServices;
 
 namespace BrightData.Memory
 {
+    /// <summary>
+    /// Tensor segment that uses offsets and strides to represent a tensor block
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     class TensorSegmentWrapper<T> : ITensorSegment<T>
         where T : struct
     {
@@ -27,8 +31,12 @@ namespace BrightData.Memory
         public void Dispose()
         {
             if (!_wasDisposed) {
-                _wasDisposed = true;
-                _segment.Release();
+                lock (this) {
+                    if (!_wasDisposed) {
+                        _wasDisposed = true;
+                        _segment.Release();
+                    }
+                }
             }
         }
 

@@ -5,6 +5,9 @@ using System.Runtime.InteropServices;
 
 namespace BrightData.Helper
 {
+    /// <summary>
+    /// Encodes types from/to bytes
+    /// </summary>
     public class DataEncoder : IDataReader
     {
         readonly IBrightDataContext _context;
@@ -95,11 +98,11 @@ namespace BrightData.Helper
 			throw new NotImplementedException();
 		}
 
-        S[] _ReadStructs<S>(uint len, BinaryReader reader)
-            where S : struct
+        static TS[] _ReadStructs<TS>(uint len, BinaryReader reader)
+            where TS : struct
         {
-            var ret = new S[len];
-            var span = MemoryMarshal.Cast<S, byte>(ret);
+            var ret = new TS[len];
+            var span = MemoryMarshal.Cast<TS, byte>(ret);
             reader.BaseStream.Read(span);
             return ret;
         }
@@ -409,24 +412,5 @@ namespace BrightData.Helper
 			else 
 				throw new NotImplementedException();
 		}
-
-        //public static void Write(BinaryWriter writer, uint index, ColumnSize size)
-        //{
-        //    if (size == ColumnSize.Small)
-        //        writer.Write((byte)index);
-        //    else if (size == ColumnSize.Medium)
-        //        writer.Write((ushort)index);
-        //    else
-        //        writer.Write(index);
-        //}
-
-        //public uint Read(BinaryReader reader, ColumnSize size)
-        //{
-        //    if (size == ColumnSize.Small)
-        //        return reader.ReadByte();
-        //    if (size == ColumnSize.Medium)
-        //        return reader.ReadUInt16();
-        //    return reader.ReadUInt32();
-        //}
     }
 }

@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace BrightData.Helper
 {
+    /// <summary>
+    /// Constrained float math helpers - if the value is too small or too big it will be capped. Also NaN values are replaced with zero.
+    /// </summary>
     public static class FloatMath
     {
         public const float AlmostZero = 1E-08f;
@@ -27,6 +30,8 @@ namespace BrightData.Helper
                 return TooBig;
             return val;
         }
+
+        public static float Next(Random rand) => Constrain(rand.NextDouble());
 
         class EqualityComparer : IEqualityComparer<float>
         {
