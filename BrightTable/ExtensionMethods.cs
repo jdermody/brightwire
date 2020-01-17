@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using BrightData;
 using BrightData.Analysis;
 using BrightTable.Builders;
 using BrightTable.Input;
+using BrightTable.Segments;
 
 namespace BrightTable
 {
-    static class ExtensionMethods
+    public static class ExtensionMethods
     {
         public static IEnumerable<uint> Range(uint start, uint count)
         {
@@ -238,24 +240,65 @@ namespace BrightTable
         public static IReadOnlyList<ISingleTypeTableSegment> AllColumns(this IDataTable dataTable) => dataTable.Columns(Range(0, dataTable.ColumnCount).ToArray());
         public static IReadOnlyList<IDataTableSegment> AllRows(this IRowOrientedDataTable dataTable) => dataTable.Rows(Range(0, dataTable.RowCount).ToArray());
 
-        public static IColumnOrientedDataTable ParseCsvText(this IBrightDataContext context, string csv, bool hasHeader, char delimiter = ',', string filePath = null, string tempPath = null)
-        {
-            var reader = new SimpleStringReader(csv);
-            return _ParseCsv(context, reader, hasHeader, delimiter, filePath, tempPath);
-        }
+        //public static IColumnOrientedDataTable ParseCsvText(this IBrightDataContext context, string csv, bool hasHeader, char delimiter = ',', string filePath = null, string tempPath = null)
+        //{
+        //    var reader = new SimpleStringReader(csv);
+        //    return _ParseCsv(context, reader, hasHeader, delimiter, filePath, tempPath);
+        //}
 
-        public static IColumnOrientedDataTable ParseCsvFile(this IBrightDataContext context, string csvFilePath, bool hasHeader, char delimiter = ',', string filePath = null, string tempPath = null)
-        {
-            using var reader = new FileReader(csvFilePath);
-            return _ParseCsv(context, reader, hasHeader, delimiter, filePath, tempPath);
-        }
+        //public static IColumnOrientedDataTable ParseCsvFile(this IBrightDataContext context, string csvFilePath, bool hasHeader, char delimiter = ',', string filePath = null, string tempPath = null)
+        //{
+        //    using var reader = new FileReader(csvFilePath);
+        //    return _ParseCsv(context, reader, hasHeader, delimiter, filePath, tempPath);
+        //}
 
-        static IColumnOrientedDataTable _ParseCsv(IBrightDataContext context, IStringIterator reader, bool hasHeader, char delimiter = ',', string filePath = null, string tempPath = null)
-        {
-            using var parser = new CsvParser(delimiter, 32768 * 32, tempPath);
-            parser.Parse(reader, hasHeader);
-            var builder = new ColumnOrientedTableBuilder(filePath);
-            builder.Write(parser.LineCount, parser.Columns);
+        //static IColumnOrientedDataTable _ParseCsv(IBrightDataContext context, IStringIterator reader, bool hasHeader, char delimiter = ',', string filePath = null, string tempPath = null)
+        //{
+        //    using var parser = new CsvParser(delimiter, 32768 * 32, tempPath);
+        //    parser.Parse(reader, hasHeader);
+        //    var builder = new ColumnOrientedTableBuilder(filePath);
+        //    builder.Write(parser.LineCount, parser.Columns);
+        //    return builder.Build(context);
+        //}
+
+        public static IColumnOrientedDataTable ParseCsv(
+            this IBrightDataContext context, 
+            string filePath, 
+            bool hasHeader, 
+            char delimiter = ',',
+            string fileOutputPath = null,
+            string tempBasePath = null,
+            uint maxRowsInMemory = 32768*32
+        ) {
+            using var tempStreams = new TempStreamManager(tempBasePath);
+            var columns = new List<StringColumn>();
+            uint rowCount = 0;
+
+            using(var reader = new StreamReader(filePath)) {
+                var parser = new CsvParser2(reader, delimiter, hasHeader);
+
+                foreach(var row in parser.Parse()) {
+                    var cols = row.Length;
+                    
+                    for (var i = columns.Count; i < cols; i++)
+                        columns.Add(new StringColumn((uint)i, tempStreams, rowCount, maxRowsInMemory));
+
+                    for (var i = 0; i < cols; i++) {
+                        var column = columns[i];
+                        var text = row[i];
+                        if (hasHeader && column.Header == null)
+                            column.Header = text;
+                        else
+                            column.Add(text);
+                    }
+
+                    ++rowCount;
+                }
+            }
+
+            var builder = new ColumnOrientedTableBuilder(fileOutputPath);
+            builder.Write(rowCount, columns);
+            columns.ForEach(c => c.Dispose());
             return builder.Build(context);
         }
     }
