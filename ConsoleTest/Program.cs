@@ -14,8 +14,15 @@ namespace ConsoleTest
     {
         static void Main(string[] args)
         {
+            //using(var reader = new StreamReader(@"C:\data\iris.data")) {
+            //    var parser =new CsvParser2(reader, ',', true);
+            //    foreach(var line in parser.Parse()) {
+            //        Console.WriteLine(String.Join(", ", line));
+            //    }
+            //}
+
             using var context = new BrightDataContext();
-            using var table = context.ParseCsvFile(@"C:\data\iris.data", true);
+            using var table = context.ParseCsv(@"C:\data\iris.data", true);
 
             //using var stream = new MemoryStream();
             //var metaData = new MetaData();

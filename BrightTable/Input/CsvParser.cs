@@ -16,11 +16,12 @@ namespace BrightTable.Input
             public void Add(StringBuilder sb)
             {
                 var pos = sb.Length;
-                if (_cells[^1] != pos)
+                if (_cells.Count == 0 || _cells[^1] != pos)
                     _cells.Add(pos);
             }
             public void Complete(StringBuilder sb)
             {
+                Add(sb);
                 _text = sb.ToString();
                 sb.Clear();
             }
@@ -108,7 +109,7 @@ namespace BrightTable.Input
 
         void _AddLine(ref Line line, bool hasHeader, StringBuilder sb)
         {
-            _AddCell(ref line, sb);
+            line.Complete(sb);
             var count = line?.CellCount;
             if (count > 0) {
                 if (count > _columnCount)
