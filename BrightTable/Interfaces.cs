@@ -143,7 +143,7 @@ namespace BrightTable
         IReadOnlyList<ColumnType> ColumnTypes { get; }
         DataTableOrientation Orientation { get; }
         IReadOnlyList<IMetaData> ColumnMetaData(params uint[] columnIndices);
-        void ForEachRow(Action<object[], uint> callback);
+        void ForEachRow(Action<object[], uint> callback, uint maxRows = uint.MaxValue);
         IReadOnlyList<ISingleTypeTableSegment> Columns(params uint[] columnIndices);
     }
 
@@ -167,8 +167,6 @@ namespace BrightTable
     public interface IRowOrientedDataTable : IDataTable
     {
         IColumnOrientedDataTable AsColumnOriented(string filePath = null);
-        IReadOnlyList<IDataTableSegment> Head { get; }
-        IReadOnlyList<IDataTableSegment> Tail { get; }
         void ForEachRow(IEnumerable<uint> rowIndices, Action<object[]> callback);
         IRowOrientedDataTable Bag(uint sampleCount, int? randomSeed = null, string filePath = null);
         IDataTableSegment Row(uint rowIndex);
