@@ -11,7 +11,7 @@ namespace BrightTable.Transformations
         readonly IDataTable[] _tables;
         readonly uint _newRowCount = 0;
 
-        public ConcatTablesTransformation(params IDataTable[] tables)
+        public ConcatTablesTransformation(params IRowOrientedDataTable[] tables)
         {
             _tables = tables;
 
@@ -33,16 +33,17 @@ namespace BrightTable.Transformations
 
         protected override ISingleTypeTableSegment Transform(IColumnOrientedDataTable dataTable, uint index, ISingleTypeTableSegment column)
         {
-            var (segment, buffer) = _CreateColumn(dataTable.Context, column.SingleType, column.MetaData, _newRowCount);
-            uint ind = 0;
-            foreach (var table in _tables) {
-                var tableColumn = table.Columns(index).Single();
-                foreach (var item in tableColumn.Enumerate())
-                    buffer.Set(ind++, item);
-            }
+            throw new NotImplementedException();
+            //var (segment, buffer) = _CreateColumn(dataTable.Context, column.SingleType, column.MetaData, _newRowCount);
+            //uint ind = 0;
+            //foreach (var table in _tables) {
+            //    var tableColumn = table.Columns(index).Single();
+            //    foreach (var item in tableColumn.Enumerate())
+            //        buffer.Set(ind++, item);
+            //}
 
-            buffer.Finalise();
-            return segment;
+            //buffer.Finalise();
+            //return segment;
         }
 
         internal override void Transform(IRowOrientedDataTable dataTable, RowOrientedTableBuilder builder)

@@ -27,15 +27,16 @@ namespace BrightTable.Transformations
 
         internal override void Transform(IRowOrientedDataTable dataTable, RowOrientedTableBuilder builder)
         {
-            var orderedIndices = _columnIndices.OrderBy(i => i).ToList();
-            var types = dataTable.ColumnTypes;
-            foreach (var index in orderedIndices) {
-                var type = types[(int)index];
-                var metadata = dataTable.ColumnMetaData(index).Single();
-                builder.AddColumn(type, metadata);
-            }
+            throw new NotImplementedException();
+            //var orderedIndices = _columnIndices.OrderBy(i => i).ToList();
+            //var types = dataTable.ColumnTypes;
+            //foreach (var index in orderedIndices) {
+            //    var type = types[(int)index];
+            //    var metadata = dataTable.ColumnMetaData(index).Single();
+            //    builder.AddColumn(type, metadata);
+            //}
 
-            dataTable.ForEachRow((data, index) => builder.AddRow(orderedIndices.Select(i => data[i])));
+            //dataTable.ForEachRow((data, index) => builder.AddRow(orderedIndices.Select(i => data[i])));
         }
 
         internal override IReadOnlyList<(long Position, long EndOfColumnOffset)> Transform(ColumnOrientedTableBuilder builder)

@@ -21,64 +21,27 @@ namespace BrightTable
 
         public static Type GetColumnType(this ColumnType type)
         {
-            switch (type) {
-                case ColumnType.Boolean:
-                    return typeof(bool);
-
-                case ColumnType.Byte:
-                    return typeof(sbyte);
-
-                case ColumnType.Date:
-                    return typeof(DateTime);
-
-                case ColumnType.Double:
-                    return typeof(double);
-
-                case ColumnType.Decimal:
-                    return typeof(decimal);
-
-                case ColumnType.Float:
-                    return typeof(float);
-
-                case ColumnType.Short:
-                    return typeof(short);
-
-                case ColumnType.Int:
-                    return typeof(int);
-
-                case ColumnType.Long:
-                    return typeof(long);
-
-                case ColumnType.Unknown:
-                    return null;
-
-                case ColumnType.String:
-                    return typeof(string);
-
-                case ColumnType.IndexList:
-                    return typeof(IndexList);
-
-                case ColumnType.WeightedIndexList:
-                    return typeof(WeightedIndexList);
-
-                case ColumnType.Vector:
-                    return typeof(Vector<float>);
-
-                case ColumnType.Matrix:
-                    return typeof(Matrix<float>);
-
-                case ColumnType.Tensor3D:
-                    return typeof(Tensor3D<float>);
-
-                case ColumnType.Tensor4D:
-                    return typeof(Tensor4D<float>);
-
-                case ColumnType.BinaryData:
-                    return typeof(BinaryData);
-
-                default:
-                    throw new NotImplementedException();
-            }
+            return type switch {
+                ColumnType.Boolean => typeof(bool),
+                ColumnType.Byte => typeof(sbyte),
+                ColumnType.Date => typeof(DateTime),
+                ColumnType.Double => typeof(double),
+                ColumnType.Decimal => typeof(decimal),
+                ColumnType.Float => typeof(float),
+                ColumnType.Short => typeof(short),
+                ColumnType.Int => typeof(int),
+                ColumnType.Long => typeof(long),
+                ColumnType.Unknown => null,
+                ColumnType.String => typeof(string),
+                ColumnType.IndexList => typeof(IndexList),
+                ColumnType.WeightedIndexList => typeof(WeightedIndexList),
+                ColumnType.Vector => typeof(Vector<float>),
+                ColumnType.Matrix => typeof(Matrix<float>),
+                ColumnType.Tensor3D => typeof(Tensor3D<float>),
+                ColumnType.Tensor4D => typeof(Tensor4D<float>),
+                ColumnType.BinaryData => typeof(BinaryData),
+                _ => throw new NotImplementedException()
+            };
         }
 
         public static ColumnType GetColumnType(this Type type)
@@ -139,6 +102,19 @@ namespace BrightTable
 
             return ColumnType.Unknown;
         }
+
+        public static bool IsStructable(this ColumnType type) => type switch {
+            ColumnType.Boolean => true,
+            ColumnType.Byte => true,
+            ColumnType.Date => true,
+            ColumnType.Double => true,
+            ColumnType.Decimal => true,
+            ColumnType.Float => true,
+            ColumnType.Short => true,
+            ColumnType.Int => true,
+            ColumnType.Long => true,
+            _ => false
+        };
 
         public static Type DataType(this IDataTableSegment segment)
         {
@@ -267,15 +243,23 @@ namespace BrightTable
             bool hasHeader, 
             char delimiter = ',',
             string fileOutputPath = null,
+            bool writeProgress = false,
             string tempBasePath = null,
             uint maxRowsInMemory = 32768*32
         ) {
             using var tempStreams = new TempStreamManager(tempBasePath);
             var columns = new List<StringColumn>();
+            var isFirst = hasHeader;
             uint rowCount = 0;
 
             using(var reader = new StreamReader(filePath)) {
                 var parser = new CsvParser2(reader, delimiter, hasHeader);
+
+                if (writeProgress) {
+                    var progress = -1;
+                    parser.OnProgress = p => p.WriteProgress(ref progress);
+                    Console.WriteLine($"Parsing {filePath}...");
+                }
 
                 foreach(var row in parser.Parse()) {
                     var cols = row.Length;
@@ -286,20 +270,40 @@ namespace BrightTable
                     for (var i = 0; i < cols; i++) {
                         var column = columns[i];
                         var text = row[i];
-                        if (hasHeader && column.Header == null)
+                        if (isFirst)
                             column.Header = text;
                         else
                             column.Add(text);
                     }
 
-                    ++rowCount;
+                    if (isFirst)
+                        isFirst = false;
+                    else
+                        ++rowCount;
                 }
             }
 
+            if (writeProgress) {
+                Console.WriteLine();
+                Console.WriteLine($"Read {rowCount:N0} lines into {columns.Count:N0} columns");
+            }
+
             var builder = new ColumnOrientedTableBuilder(fileOutputPath);
-            builder.Write(rowCount, columns);
+            builder.Write(rowCount, columns, writeProgress);
             columns.ForEach(c => c.Dispose());
             return builder.Build(context);
+        }
+
+        public static void WriteProgress(this int newProgress, ref int oldProgress, int max = 100)
+        {
+            if (newProgress > oldProgress) {
+                var sb = new StringBuilder();
+                sb.Append('\r');
+                for (var i = 0; i < max; i++)
+                    sb.Append(i < newProgress ? '█' : '_');
+                sb.Append($" ({oldProgress = newProgress}%)");
+                Console.Write(sb.ToString());
+            }
         }
     }
 }

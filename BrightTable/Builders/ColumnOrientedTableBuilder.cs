@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using BrightData;
@@ -27,12 +28,20 @@ namespace BrightTable.Builders
                 _stream.Dispose();
         }
 
-        public void Write(uint numRows, IReadOnlyList<StringColumn> columns)
+        public void Write(uint numRows, IReadOnlyList<StringColumn> columns, bool writeProgress = false)
         {
             WriteHeader((uint)columns.Count, numRows);
 
+            var index = 0;
             var columnOffsets = new List<(long Position, long EndOfColumnOffset)>();
             foreach (var column in columns) {
+                var stopwatch = new Stopwatch();
+                stopwatch.Start();
+                if (writeProgress) {
+                    var name = column.Header != null ? $"column \"{column.Header}\"" : $"Column {index}";
+                    Console.Write($"{index}/{columns.Count}) Saving {name}...");
+                }
+
                 var metadata = column.MetaData;
                 metadata.Set(Consts.Index, column.ColumnIndex);
                 metadata.Set(Consts.HasUnique, column.HasUnique);
@@ -42,6 +51,10 @@ namespace BrightTable.Builders
 
                 var position = _Write(metadata, ColumnType.String, column, column.HasUnique);
                 columnOffsets.Add((position, GetCurrentPosition()));
+                stopwatch.Stop();
+                if(writeProgress)
+                    Console.WriteLine($"done in {stopwatch.ElapsedMilliseconds:N0}ms");
+                ++index;
             }
             WriteColumnOffsets(columnOffsets);
         }
@@ -59,9 +72,9 @@ namespace BrightTable.Builders
 
         long _Write(IMetaData metadata, ColumnType type, ICanWriteToBinaryWriter column, bool isEncoded)
         {
-            // create space to write the column size
             _writer.Flush();
             var position = _stream.Position;
+
             _writer.Write((long)0);
 
             // write the column type

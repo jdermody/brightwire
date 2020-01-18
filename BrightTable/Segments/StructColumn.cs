@@ -18,14 +18,14 @@ namespace BrightTable.Segments
         readonly T[] _data;
         readonly bool _isFullyRead;
 
-        public StructColumn(InputBufferReader buffer)
+        public StructColumn(IBrightDataContext context, InputBufferReader buffer, ColumnType type, IMetaData metadata)
         {
             var reader = buffer.Reader;
-            SingleType = (ColumnType)reader.ReadByte();
-            Size = reader.ReadUInt32();
-            MetaData = new MetaData(reader);
+            SingleType = type;
+            MetaData = metadata;
             _buffer = buffer;
 
+            Size = buffer.Length;
             if (Size < CHUNK_SIZE)
             {
                 _data = new T[Size];
@@ -46,13 +46,6 @@ namespace BrightTable.Segments
             // nop
         }
 
-        public static void WriteHeader(ColumnType type, uint size, IMetaData metaData, BinaryWriter writer)
-        {
-            writer.Write((byte)type);
-            writer.Write(size);
-            metaData.WriteTo(writer);
-        }
-
         public static void WriteData(T[] data, BinaryWriter writer)
         {
             var bytes = MemoryMarshal.Cast<T, byte>(data);
@@ -61,7 +54,6 @@ namespace BrightTable.Segments
 
         public void WriteTo(BinaryWriter writer)
         {
-            WriteHeader(SingleType, Size, MetaData, writer);
             if(_isFullyRead)
                 WriteData(_data, writer);
             else

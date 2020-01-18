@@ -11,22 +11,22 @@ namespace BrightTable.Transformations
     class OneHotEncodeCategoricalColumnsTransformation : TableTransformationBase
     {
         readonly bool _writeToMetadata;
-        readonly Dictionary<uint, Dictionary<string, int>> _categorial;
+        readonly Dictionary<uint, Dictionary<string, int>> _categorical;
 
         public OneHotEncodeCategoricalColumnsTransformation(bool writeToMetadata, params uint[] columnIndices)
         {
             _writeToMetadata = writeToMetadata;
-            _categorial = columnIndices.ToDictionary(i => i, i => new Dictionary<string, int>());
+            _categorical = columnIndices.ToDictionary(i => i, i => new Dictionary<string, int>());
         }
 
-        public IReadOnlyList<OneHotEncodings> ColumnCategories => _categorial
+        public IReadOnlyList<OneHotEncodings> ColumnCategories => _categorical
             .OrderBy(kv => kv.Key)
             .Select(kv => new OneHotEncodings(kv.Key, kv.Value.OrderBy(d => d.Value).Select(d => d.Key).ToArray()))
             .ToList();
 
         protected override ISingleTypeTableSegment Transform(IColumnOrientedDataTable dataTable, uint index, ISingleTypeTableSegment column)
         {
-            if (_categorial.TryGetValue(index, out var categoryTable)) {
+            if (_categorical.TryGetValue(index, out var categoryTable)) {
                 var metadata = new MetaData();
                 column.MetaData.CopyTo(metadata, Consts.StandardMetaData);
 
@@ -39,6 +39,14 @@ namespace BrightTable.Transformations
                     buffer.Set(ind++, categoryIndex);
                 }
 
+                if (_writeToMetadata) {
+                    foreach (var item in ColumnCategories) {
+                        uint categoryIndex = 0;
+                        foreach (var category in item.Categories)
+                            metadata.Set("category:" + categoryIndex++, category);
+                    }
+                }
+
                 buffer.Finalise();
                 return segment;
             }
@@ -47,40 +55,41 @@ namespace BrightTable.Transformations
 
         internal override void Transform(IRowOrientedDataTable dataTable, RowOrientedTableBuilder builder)
         {
-            uint ind = 0;
-            var columnMetadata = new List<IMetaData>();
-            foreach (var column in dataTable.ColumnTypes.Zip(dataTable.AllMetaData(), (ct, md) => (Type: ct, MetaData: md))) {
-                if(_categorial.ContainsKey(ind))
-                    columnMetadata.Add(builder.AddColumn(ColumnType.Int, new MetaData(column.MetaData, Consts.Name, Consts.Index, Consts.IsTarget)));
-                else
-                    columnMetadata.Add(builder.AddColumn(column.Type, column.MetaData));
-                ++ind;
-            }
+            //uint ind = 0;
+            //var columnMetadata = new List<IMetaData>();
+            //foreach (var column in dataTable.ColumnTypes.Zip(dataTable.AllMetaData(), (ct, md) => (Type: ct, MetaData: md))) {
+            //    if(_categorical.ContainsKey(ind))
+            //        columnMetadata.Add(builder.AddColumn(ColumnType.Int, new MetaData(column.MetaData, Consts.Name, Consts.Index, Consts.IsTarget)));
+            //    else
+            //        columnMetadata.Add(builder.AddColumn(column.Type, column.MetaData));
+            //    ++ind;
+            //}
 
-            dataTable.ForEachRow((row, index) => {
-                foreach (var item in _categorial) {
-                    var str = row[item.Key].ToString();
-                    if (!item.Value.TryGetValue(str, out var categoryIndex))
-                        item.Value.Add(str, categoryIndex = item.Value.Count);
-                    row[item.Key] = categoryIndex;
-                }
+            //dataTable.ForEachRow((row, index) => {
+            //    foreach (var item in _categorical) {
+            //        var str = row[item.Key].ToString();
+            //        if (!item.Value.TryGetValue(str, out var categoryIndex))
+            //            item.Value.Add(str, categoryIndex = item.Value.Count);
+            //        row[item.Key] = categoryIndex;
+            //    }
 
-                builder.AddRow(row);
-            });
+            //    builder.AddRow(row);
+            //});
 
-            if (_writeToMetadata) {
-                foreach (var item in ColumnCategories) {
-                    var metadata = columnMetadata[(int)item.ColumnIndex];
-                    uint index = 0;
-                    foreach (var category in item.Categories)
-                        metadata.Set("category" + index++, category);
-                }
-            }
+            //if (_writeToMetadata) {
+            //    foreach (var item in ColumnCategories) {
+            //        var metadata = columnMetadata[(int)item.ColumnIndex];
+            //        uint index = 0;
+            //        foreach (var category in item.Categories)
+            //            metadata.Set("category" + index++, category);
+            //    }
+            //}
+            throw new NotImplementedException();
         }
 
         internal override IReadOnlyList<(long Position, long EndOfColumnOffset)> Transform(ColumnOrientedTableBuilder builder)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
     }
 }

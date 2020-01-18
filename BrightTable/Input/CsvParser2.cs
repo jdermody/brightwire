@@ -26,11 +26,14 @@ namespace BrightTable.Input
             _buffer = new char[32768];
         }
 
+        public Action<int> OnProgress { get; set; }
+
         public IEnumerable<string[]> Parse()
         {
             while(!_stream.EndOfStream) {
                 foreach(var line in _ReadPage())
                     yield return line;
+                OnProgress?.Invoke((int) (_stream.BaseStream.Position * 100 / _stream.BaseStream.Length));
             }
             var lastLine = _GetLine();
             if(lastLine.Any(s => s.Length > 0))

@@ -5,7 +5,7 @@ using BrightTable.Builders;
 
 namespace BrightTable.Transformations
 {
-    public class RowSubsetTransformation : TableTransformationBase
+    class RowSubsetTransformation : TableTransformationBase
     {
         public readonly uint[] _rowIndices;
 

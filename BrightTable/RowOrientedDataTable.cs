@@ -8,6 +8,7 @@ using BrightData;
 using BrightTable.Builders;
 using BrightTable.Input;
 using BrightTable.Segments;
+using BrightTable.Transformations;
 
 namespace BrightTable
 {
@@ -84,15 +85,15 @@ namespace BrightTable
             }
         }
 
-        public ISingleTypeTableSegment Column(uint columnIndex)
-        {
-            return Columns(columnIndex).Single();
-        }
+        //public ISingleTypeTableSegment Column(uint columnIndex)
+        //{
+        //    return Columns(columnIndex).Single();
+        //}
 
         public IReadOnlyList<ISingleTypeTableSegment> Columns(params uint[] columnIndices)
         {
             // TODO: optionally compress the columns based on unique count statistics
-            var columns = columnIndices.Select(i => (Index: i, Column:_GetColumn(_columnTypes[i], _columns[i].MetaData))).ToList();
+            var columns = columnIndices.Select(i => (Index: i, Column: _GetColumn(_columnTypes[i], _columns[i].MetaData))).ToList();
             if (columns.Any()) {
                 // set the column metadata
                 columns.ForEach(item => {
@@ -227,5 +228,50 @@ namespace BrightTable
 					return null;
 			}
 		}
+
+        public IRowOrientedDataTable Bag(uint sampleCount, int? randomSeed = null, string filePath = null)
+        {
+            var conversion = new BagTableTransformation(sampleCount, randomSeed);
+            return conversion.Transform(this, filePath);
+        }
+
+        public IRowOrientedDataTable Concat(params IRowOrientedDataTable[] others) => Concat(null, others);
+        public IRowOrientedDataTable Concat(string filePath, params IRowOrientedDataTable[] others)
+        {
+            var t = new ConcatTablesTransformation(new [] {this}.Concat(others).ToArray());
+            return t.Transform(this, filePath);
+        }
+
+        public IRowOrientedDataTable Mutate(Func<object[], object[]> projector, string filePath = null)
+        {
+            var t = new ProjectRowsTransformation(projector);
+            return t.Transform(this, filePath);
+        }
+
+        public IRowOrientedDataTable SelectRows(params uint[] rowIndices) => SelectRows(null, rowIndices);
+        public IRowOrientedDataTable SelectRows(string filePath, params uint[] rowIndices)
+        {
+            var t = new RowSubsetTransformation(rowIndices);
+            return t.Transform(this, filePath);
+        }
+
+        public IRowOrientedDataTable Shuffle(int? randomSeed = null, string filePath = null)
+        {
+            var t = new ShuffleTableTransformation(randomSeed);
+            return t.Transform(this, filePath);
+        }
+
+        public IRowOrientedDataTable Sort(bool ascending, uint columnIndex, string filePath = null)
+        {
+            var t = new SortTableTransformation(ascending, columnIndex);
+            return t.Transform(this, filePath);
+        }
+
+        public IRowOrientedDataTable Vectorise(string columnName, params uint[] vectorColumnIndices) => Vectorise(null, columnName, vectorColumnIndices);
+        public IRowOrientedDataTable Vectorise(string filePath, string columnName, params uint[] vectorColumnIndices)
+        {
+            var t = new VectoriseTableTransformation(columnName, vectorColumnIndices);
+            return t.Transform(this, filePath);
+        }
     }
 }

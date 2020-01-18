@@ -19,8 +19,11 @@ namespace BrightData
             if (metaData != null) {
                 var md = (MetaData)metaData;
                 var keysToAdd = keys ?? md._values.Select(kv => kv.Key).ToArray();
-                foreach (var item in keysToAdd)
-                    _values.Add(item, md._values[item]);
+                foreach (var item in keysToAdd) {
+                    if(md._values.TryGetValue(item, out var val))
+                        _values.Add(item, val);
+                }
+
                 var keySet = new HashSet<string>(keysToAdd);
                 _orderedValues.AddRange(md._orderedValues.Where(v => keySet.Contains(v)));
             }

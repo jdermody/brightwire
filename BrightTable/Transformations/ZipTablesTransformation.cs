@@ -11,7 +11,7 @@ namespace BrightTable.Transformations
         readonly IDataTable[] _dataTables;
         readonly uint _newColumnCount = 0;
 
-        public ZipTablesTransformation(params IDataTable[] dataTables)
+        public ZipTablesTransformation(params IColumnOrientedDataTable[] dataTables)
         {
             _dataTables = dataTables;
 

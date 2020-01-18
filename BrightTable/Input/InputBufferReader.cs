@@ -29,6 +29,7 @@ namespace BrightTable.Input
         {
             _data.MoveTo(_startOffset);
         }
+
         public void ResetStartPosition() => _startOffset = _data.Position;
     }
 }

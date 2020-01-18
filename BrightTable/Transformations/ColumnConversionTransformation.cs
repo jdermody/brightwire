@@ -7,7 +7,7 @@ using BrightTable.Transformations.Conversions;
 
 namespace BrightTable.Transformations
 {
-    public class ColumnConversionTransformation : TableTransformationBase
+    class ColumnConversionTransformation : TableTransformationBase
 	{
         readonly IColumnOrientedDataTable _dataTable;
 		readonly Dictionary<uint, IConvertColumn> _transform = new Dictionary<uint, IConvertColumn>();

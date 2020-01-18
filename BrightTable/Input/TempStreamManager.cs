@@ -27,6 +27,7 @@ namespace BrightTable.Input
             foreach (var stream in _streamTable) {
                 stream.Value.Flush();
                 stream.Value.Dispose();
+                File.Delete(stream.Value.Name);
             }
             _streamTable.Clear();
         }

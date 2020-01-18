@@ -144,15 +144,24 @@ namespace BrightTable
         DataTableOrientation Orientation { get; }
         IReadOnlyList<IMetaData> ColumnMetaData(params uint[] columnIndices);
         void ForEachRow(Action<object[], uint> callback);
-        ISingleTypeTableSegment Column(uint columnIndex);
         IReadOnlyList<ISingleTypeTableSegment> Columns(params uint[] columnIndices);
-        IDataTableSegment Row(uint rowIndex);
-        IReadOnlyList<IDataTableSegment> Rows(params uint[] rowIndices);
     }
 
     public interface IColumnOrientedDataTable : IDataTable, IDisposable
     {
         IRowOrientedDataTable AsRowOriented(string filePath = null);
+        IColumnOrientedDataTable Convert(params ColumnConversion[] conversion);
+        IColumnOrientedDataTable Convert(string filePath, params ColumnConversion[] conversion);
+        ISingleTypeTableSegment Column(uint columnIndex);
+        IColumnOrientedDataTable SelectColumns(params uint[] columnIndices);
+        IColumnOrientedDataTable SelectColumns(string filePath, params uint[] columnIndices);
+        IColumnOrientedDataTable Normalise(NormalisationType type, string filePath = null);
+        IColumnOrientedDataTable OneHotEncode(params uint[] columnIndices);
+        IColumnOrientedDataTable OneHotEncode(bool writeToMetadata, params uint[] columnIndices);
+        IColumnOrientedDataTable OneHotEncode(string filePath, bool writeToMetadata, params uint[] columnIndices);
+        IMutateColumns CreateMutateContext();
+        IColumnOrientedDataTable Concat(params IColumnOrientedDataTable[] others);
+        IColumnOrientedDataTable Concat(string filePath, params IColumnOrientedDataTable[] others);
     }
 
     public interface IRowOrientedDataTable : IDataTable
@@ -161,6 +170,18 @@ namespace BrightTable
         IReadOnlyList<IDataTableSegment> Head { get; }
         IReadOnlyList<IDataTableSegment> Tail { get; }
         void ForEachRow(IEnumerable<uint> rowIndices, Action<object[]> callback);
+        IRowOrientedDataTable Bag(uint sampleCount, int? randomSeed = null, string filePath = null);
+        IDataTableSegment Row(uint rowIndex);
+        IReadOnlyList<IDataTableSegment> Rows(params uint[] rowIndices);
+        IRowOrientedDataTable Concat(params IRowOrientedDataTable[] others);
+        IRowOrientedDataTable Concat(string filePath, params IRowOrientedDataTable[] others);
+        IRowOrientedDataTable Mutate(Func<object[], object[]> projector, string filePath = null);
+        IRowOrientedDataTable SelectRows(params uint[] rowIndices);
+        IRowOrientedDataTable SelectRows(string filePath, params uint[] rowIndices);
+        IRowOrientedDataTable Shuffle(int? randomSeed = null, string filePath = null);
+        IRowOrientedDataTable Sort(bool ascending, uint columnIndex, string filePath = null);
+        IRowOrientedDataTable Vectorise(string columnName, params uint[] vectorColumnIndices);
+        IRowOrientedDataTable Vectorise(string filePath, string columnName, params uint[] vectorColumnIndices);
     }
 
     interface IProvideStrings
@@ -209,5 +230,11 @@ namespace BrightTable
     public interface ITransformRowOrientedDataTable
     {
         IRowOrientedDataTable Transform(IRowOrientedDataTable dataTable, string filePath = null);
+    }
+
+    public interface IMutateColumns
+    {
+        IMutateColumns Add<T>(uint index, Func<T, T> mutator);
+        IColumnOrientedDataTable Mutate(string filePath = null);
     }
 }

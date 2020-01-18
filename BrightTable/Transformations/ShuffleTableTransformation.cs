@@ -7,7 +7,7 @@ using BrightTable.Builders;
 
 namespace BrightTable.Transformations
 {
-    public class ShuffleTableTransformation : TableTransformationBase
+    class ShuffleTableTransformation : TableTransformationBase
     {
         readonly int? _randomSeed;
 

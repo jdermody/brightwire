@@ -7,7 +7,7 @@ using BrightTable.Builders;
 
 namespace BrightTable.Transformations
 {
-    public class VectoriseTableTransformation : TableTransformationBase
+    class VectoriseTableTransformation : TableTransformationBase
     {
         readonly uint[] _vectorColumnIndices;
         readonly string _columnName;

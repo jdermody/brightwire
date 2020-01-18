@@ -11,7 +11,7 @@ using BrightTable.Segments;
 
 namespace BrightTable.Transformations
 {
-    public class NormalisationTransformation : TableTransformationBase
+    class NormalisationTransformation : TableTransformationBase
     {
         readonly NormalisationType _type;
         readonly MethodInfo _normalise;

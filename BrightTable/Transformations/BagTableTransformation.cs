@@ -27,19 +27,20 @@ namespace BrightTable.Transformations
 
         protected override ISingleTypeTableSegment Transform(IColumnOrientedDataTable dataTable, uint index, ISingleTypeTableSegment column)
         {
-            var metadata = new MetaData();
-            column.MetaData.CopyTo(metadata, Consts.StandardMetaData);
-            var ret = _CreateColumn(dataTable.Context, column.SingleType, metadata, _sampleCount);
-            var rows = _rowIndices[dataTable];
+            throw new NotImplementedException();
+            //var metadata = new MetaData();
+            //column.MetaData.CopyTo(metadata, Consts.StandardMetaData);
+            //var ret = _CreateColumn(dataTable.Context, column.SingleType, metadata, _sampleCount);
+            //var rows = _rowIndices[dataTable];
 
-            var columnData = new object[column.Size];
-            _Process(ret.Segment, (i, value) => columnData[i] = value);
+            //var columnData = new object[column.Size];
+            //_Process(ret.Segment, (i, value) => columnData[i] = value);
 
-            for(uint i = 0; i < _sampleCount; i++)
-                ret.Buffer.Set(i, columnData[rows[i]]);
+            //for(uint i = 0; i < _sampleCount; i++)
+            //    ret.Buffer.Set(i, columnData[rows[i]]);
 
-            ret.Buffer.Finalise();
-            return ret.Segment;
+            //ret.Buffer.Finalise();
+            //return ret.Segment;
         }
 
         internal override void Transform(IRowOrientedDataTable dataTable, RowOrientedTableBuilder builder)
@@ -51,7 +52,7 @@ namespace BrightTable.Transformations
 
         internal override IReadOnlyList<(long Position, long EndOfColumnOffset)> Transform(ColumnOrientedTableBuilder builder)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
     }
 }

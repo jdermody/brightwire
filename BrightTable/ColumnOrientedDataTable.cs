@@ -6,6 +6,7 @@ using BrightData;
 using BrightTable.Builders;
 using BrightTable.Segments;
 using BrightTable.Input;
+using BrightTable.Transformations;
 
 namespace BrightTable
 {
@@ -44,14 +45,22 @@ namespace BrightTable
                         ColumnType, 
                         MetaData
                     );
-                }else {
-                    return (ISingleTypeTableSegment)Activator.CreateInstance(typeof(Column<>).MakeGenericType(dataType), 
-                        context, 
-                        buffer, 
-                        ColumnType, 
+                }else if(ColumnType.IsStructable()) {
+                    return (ISingleTypeTableSegment)Activator.CreateInstance(typeof(StructColumn<>).MakeGenericType(dataType),
+                        context,
+                        buffer,
+                        ColumnType,
                         MetaData
                     );
                 }
+
+                // default column type is non-struct
+                return (ISingleTypeTableSegment)Activator.CreateInstance(typeof(Column<>).MakeGenericType(dataType),
+                    context,
+                    buffer,
+                    ColumnType,
+                    MetaData
+                );
             }
 
             public override string ToString()
@@ -112,7 +121,7 @@ namespace BrightTable
             return ret;
         }
 
-        ISingleTypeTableSegment IDataTable.Column(uint columnIndex)
+        ISingleTypeTableSegment IColumnOrientedDataTable.Column(uint columnIndex)
         {
             return _GetColumn(columnIndex);
         }
@@ -125,29 +134,29 @@ namespace BrightTable
             return columnIndices.Select(i => table[i]).ToList();
         }
 
-        public IDataTableSegment Row(uint rowIndex)
-        {
-            Row ret = null;
-            ForEachRow((row, index) => {
-                if(rowIndex == index)
-                    ret = new Row(_columnTypes, row);
-            });
-            return ret;
-        }
+        //public IDataTableSegment Row(uint rowIndex)
+        //{
+        //    Row ret = null;
+        //    ForEachRow((row, index) => {
+        //        if(rowIndex == index)
+        //            ret = new Row(_columnTypes, row);
+        //    });
+        //    return ret;
+        //}
 
-        public IReadOnlyList<IDataTableSegment> Rows(params uint[] rowIndices)
-        {
-            var ret = new List<IDataTableSegment>();
-            if (rowIndices.Any()) {
-                var rowSet = new HashSet<uint>(rowIndices);
-                ForEachRow((row, index) => {
-                    if(rowSet.Contains(index))
-                        ret.Add(new Row(_columnTypes, row));
-                });
-            }
+        //public IReadOnlyList<IDataTableSegment> Rows(params uint[] rowIndices)
+        //{
+        //    var ret = new List<IDataTableSegment>();
+        //    if (rowIndices.Any()) {
+        //        var rowSet = new HashSet<uint>(rowIndices);
+        //        ForEachRow((row, index) => {
+        //            if(rowSet.Contains(index))
+        //                ret.Add(new Row(_columnTypes, row));
+        //        });
+        //    }
 
-            return ret;
-        }
+        //    return ret;
+        //}
 
         public void ForEachRow(Action<object[], uint> callback)
         {
@@ -193,6 +202,51 @@ namespace BrightTable
                 _loadedColumns.Add(index, ret = column.Load(Context, data, offset, RowCount));
                 return ret;
             }
+        }
+
+        public IColumnOrientedDataTable Convert(params ColumnConversion[] conversionParams)
+        {
+            return Convert(null, conversionParams);
+        }
+
+        public IColumnOrientedDataTable Convert(string filePath, params ColumnConversion[] conversionParams)
+        {
+            var conversion = new ColumnConversionTransformation(this, conversionParams);
+            return conversion.Transform(this, filePath);
+        }
+
+        public IColumnOrientedDataTable SelectColumns(params uint[] columnIndices)
+        {
+            return SelectColumns(null, columnIndices);
+        }
+
+        public IColumnOrientedDataTable SelectColumns(string filePath, params uint[] columnIndices)
+        {
+            var transform = new ColumnSubsetTransformation(columnIndices);
+            return transform.Transform(this, filePath);
+        }
+
+        public IColumnOrientedDataTable Normalise(NormalisationType type, string filePath = null)
+        {
+            var t = new NormalisationTransformation(type);
+            return t.Transform(this, filePath);
+        }
+
+        public IColumnOrientedDataTable OneHotEncode(params uint[] columnIndices) => OneHotEncode(true, columnIndices);
+        public IColumnOrientedDataTable OneHotEncode(bool writeToMetadata, params uint[] columnIndices) => OneHotEncode(null, writeToMetadata, columnIndices);
+        public IColumnOrientedDataTable OneHotEncode(string filePath, bool writeToMetadata, params uint[] columnIndices)
+        {
+            var t = new OneHotEncodeCategoricalColumnsTransformation(writeToMetadata, columnIndices);
+            return t.Transform(this, filePath);
+        }
+
+        public IMutateColumns CreateMutateContext() => new ProjectColumnsTransformation(this);
+
+        public IColumnOrientedDataTable Concat(params IColumnOrientedDataTable[] others) => Concat(null, others);
+        public IColumnOrientedDataTable Concat(string filePath, params IColumnOrientedDataTable[] others)
+        {
+            var t = new ZipTablesTransformation(new[] { this }.Concat(others).ToArray());
+            return t.Transform(Context, filePath);
         }
     }
 }

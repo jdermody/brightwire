@@ -8,7 +8,7 @@ using BrightTable.Segments;
 
 namespace BrightTable.Transformations
 {
-    public abstract class TableTransformationBase : ITransformColumnOrientedDataTable, ITransformRowOrientedDataTable
+    abstract class TableTransformationBase : ITransformColumnOrientedDataTable, ITransformRowOrientedDataTable
     {
         protected virtual (uint ColumnCount, uint RowCount) CalculateNewSize(IDataTable dataTable) => (dataTable.ColumnCount, dataTable.RowCount);
         protected abstract ISingleTypeTableSegment Transform(IColumnOrientedDataTable dataTable, uint index, ISingleTypeTableSegment column);
@@ -28,29 +28,27 @@ namespace BrightTable.Transformations
         {
             var (columns, rows) = CalculateNewSize(dataTable);
             var columnOffsets = new List<(long Position, long EndOfColumnOffset)>();
+            using var builder = new ColumnOrientedTableBuilder(filePath);
 
-            using (var builder = new ColumnOrientedTableBuilder(filePath)) {
-                builder.WriteHeader(columns, rows);
-                for(uint i = 0; i < dataTable.ColumnCount; i++) {
-                    var column = dataTable.Columns(i).Single();
-                    var transformed = Transform(dataTable, i, column);
-                    if (transformed != null) {
-                        var position = builder.Write(transformed);
-                        columnOffsets.Add((position, builder.GetCurrentPosition()));
-                    }
+            builder.WriteHeader(columns, rows);
+            for(uint i = 0; i < dataTable.ColumnCount; i++) {
+                var column = dataTable.Columns(i).Single();
+                var transformed = Transform(dataTable, i, column);
+                if (transformed != null) {
+                    var position = builder.Write(transformed);
+                    columnOffsets.Add((position, builder.GetCurrentPosition()));
                 }
-                builder.WriteColumnOffsets(columnOffsets);
-                return builder.Build(dataTable.Context);
             }
+            builder.WriteColumnOffsets(columnOffsets);
+            return builder.Build(dataTable.Context);
         }
 
         public IRowOrientedDataTable Transform(IRowOrientedDataTable dataTable, string filePath = null)
         {
             var (columns, rows) = CalculateNewSize(dataTable);
-            using(var builder = new RowOrientedTableBuilder(rows, filePath)) {
-                Transform(dataTable, builder);
-                return builder.Build(dataTable.Context);
-            }
+            using var builder = new RowOrientedTableBuilder(rows, filePath);
+            Transform(dataTable, builder);
+            return builder.Build(dataTable.Context);
         }
 
         protected (ISingleTypeTableSegment Segment, IEditableBuffer Buffer) _CreateColumn(IBrightDataContext context, ColumnType columnType, IMetaData metadata, uint rowCount)

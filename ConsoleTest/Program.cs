@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -14,6 +15,9 @@ namespace ConsoleTest
     {
         static void Main(string[] args)
         {
+            using var context = new BrightDataContext();
+            var table = context.ParseCsv(@"C:\data\malware\train.csv", true, ',', @"c:\temp\table.dat", true);
+
             //using(var reader = new StreamReader(@"C:\data\iris.data")) {
             //    var parser =new CsvParser2(reader, ',', true);
             //    foreach(var line in parser.Parse()) {
@@ -21,8 +25,16 @@ namespace ConsoleTest
             //    }
             //}
 
-            using var context = new BrightDataContext();
-            using var table = context.ParseCsv(@"C:\data\iris.data", true);
+            //using var context = new BrightDataContext();
+            //using var table = context.ParseCsv(@"C:\data\iris.data", false);
+            //var table2 = table.Convert(ColumnConversion.ToNumeric, ColumnConversion.ToNumeric, ColumnConversion.ToNumeric, ColumnConversion.ToNumeric);
+            //var mutatedTable = table2.CreateMutateContext()
+            //    .Add<float>(0, x => x * 2)
+            //    .Add<float>(1, x => x * 3)
+            //    .Mutate();
+
+            //var table3 = mutatedTable.AsRowOriented();
+            //var baggedTable = table3.Bag(1000);
 
             //using var stream = new MemoryStream();
             //var metaData = new MetaData();
