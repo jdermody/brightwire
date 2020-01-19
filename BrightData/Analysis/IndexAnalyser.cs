@@ -16,13 +16,15 @@ namespace BrightData.Analysis
 
         public void Add(IHaveIndices obj)
         {
-            if (obj is IndexList indexList) {
-                foreach (var index in indexList.Indices)
-                    _Add(index);
-            }else if (obj is WeightedIndexList weightedIndexList) {
-                foreach(var index in weightedIndexList.Indices)
-                    _Add(index.Index);
-            }
+            foreach(var index in obj.Indices)
+                _Add(index);
+            //if (obj is IndexList indexList) {
+            //    foreach (var index in indexList.Indices)
+            //        _Add(index);
+            //}else if (obj is WeightedIndexList weightedIndexList) {
+            //    foreach(var index in weightedIndexList.Indices)
+            //        _Add(index.Index);
+            //}
         }
 
         void _Add(uint index)
@@ -48,7 +50,8 @@ namespace BrightData.Analysis
 
         public void WriteTo(IMetaData metadata)
         {
-            if(_min != uint.MaxValue)
+            metadata.Set(Consts.HasBeenAnalysed, true);
+            if (_min != uint.MaxValue)
                 metadata.Set(Consts.MinIndex, _min);
             if(_max != uint.MinValue)
                 metadata.Set(Consts.MaxIndex, _max);

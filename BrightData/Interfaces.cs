@@ -20,6 +20,7 @@ namespace BrightData
         T Get<T>(string name, T valueIfMissing = default) where T : IConvertible;
         T Set<T>(string name, T value) where T : IConvertible;
         string AsXml { get; }
+        void CopyTo(IMetaData metadata);
         void CopyTo(IMetaData metadata, params string[] keys);
         void CopyAllExcept(IMetaData metadata, params string[] keys);
         void ReadFrom(BinaryReader reader);
@@ -134,14 +135,26 @@ namespace BrightData
         T SumIndexedProducts(uint size, Func<uint, T> p1, Func<uint, T> p2);
     }
 
-    public interface IDataAnalyser
+    public interface IWriteToMetaData
+    {
+        void WriteTo(IMetaData metadata);
+    }
+
+    public interface IDataAnalyser : IWriteToMetaData
     {
         void AddObject(object obj);
-        void WriteTo(IMetaData metadata);
     }
 
     public interface IDataAnalyser<in T> : IDataAnalyser
     {
         void Add(T obj);
+    }
+
+    public enum NormalizationType
+    {
+        Standard,
+        Euclidean,
+        Manhattan,
+        FeatureScale
     }
 }

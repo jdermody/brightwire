@@ -13,10 +13,10 @@ namespace BrightTable.Transformations
 {
     class NormalisationTransformation : TableTransformationBase
     {
-        readonly NormalisationType _type;
+        readonly NormalizationType _type;
         readonly MethodInfo _normalise;
 
-        public NormalisationTransformation(NormalisationType type)
+        public NormalisationTransformation(NormalizationType type)
         {
             _type = type;
             _normalise = GetType().GetMethods(BindingFlags.Instance | BindingFlags.NonPublic).Single(m => m.Name == "_Normalise");
@@ -51,14 +51,14 @@ namespace BrightTable.Transformations
             var metadata = segment.Analyse();
             if (metadata.Get(Consts.IsNumeric, false)) {
                 double divide, subtract = 0;
-                if (_type == NormalisationType.Euclidean)
+                if (_type == NormalizationType.Euclidean)
                     divide = Convert.ToDouble(metadata.Get(Consts.L2Norm));
-                else if (_type == NormalisationType.Manhattan)
+                else if (_type == NormalizationType.Manhattan)
                     divide = Convert.ToDouble(metadata.Get(Consts.L1Norm));
-                else if (_type == NormalisationType.Standard) {
+                else if (_type == NormalizationType.Standard) {
                     divide = Convert.ToDouble(metadata.Get(Consts.StdDev) ?? 1);
                     subtract = Convert.ToDouble(metadata.Get(Consts.Mean));
-                } else if (_type == NormalisationType.FeatureScale) {
+                } else if (_type == NormalizationType.FeatureScale) {
                     var min = Convert.ToDouble(metadata.Get(Consts.Min));
                     var max = Convert.ToDouble(metadata.Get(Consts.Max));
                     divide = max - min;

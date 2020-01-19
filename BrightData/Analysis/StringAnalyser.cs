@@ -22,6 +22,7 @@
 
         public override void WriteTo(IMetaData metadata)
         {
+            metadata.Set(Consts.HasBeenAnalysed, true);
             metadata.Set(Consts.MinLength, _minLength);
             metadata.Set(Consts.MaxLength, _maxLength);
             base.WriteTo(metadata);
