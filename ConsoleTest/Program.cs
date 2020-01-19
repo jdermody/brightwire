@@ -16,8 +16,13 @@ namespace ConsoleTest
         static void Main(string[] args)
         {
             using var context = new BrightDataContext();
-            var table = context.ParseCsv(@"C:\data\malware\train.csv", true, ',', @"c:\temp\table.dat", true);
-
+            //var table = context.ParseCsv(@"C:\data\plotly\processed_data.csv", true, ',', @"c:\temp\table.dat", true);
+            //using var table = (IColumnOrientedDataTable)context.LoadTable(@"c:\temp\table.dat");
+            //using var table2 = table.Convert(@"c:\temp\table2.dat", Enumerable.Range(0, (int)table.ColumnCount).Select(i => ColumnConversion.ToNumeric).ToArray());
+            using var table2 = context.LoadTable(@"c:\temp\table2.dat");
+            var head = table2.Head();
+            
+            //using var table2 = table.
             //using(var reader = new StreamReader(@"C:\data\iris.data")) {
             //    var parser =new CsvParser2(reader, ',', true);
             //    foreach(var line in parser.Parse()) {

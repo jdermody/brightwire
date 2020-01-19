@@ -15,13 +15,14 @@ namespace BrightTable
     {
         public static IEnumerable<uint> Range(uint start, uint count)
         {
-            for(uint i = 0; i < count; i++)
+            for (uint i = 0; i < count; i++)
                 yield return start + i;
         }
 
         public static Type GetColumnType(this ColumnType type)
         {
-            return type switch {
+            return type switch
+            {
                 ColumnType.Boolean => typeof(bool),
                 ColumnType.Byte => typeof(sbyte),
                 ColumnType.Date => typeof(DateTime),
@@ -79,31 +80,32 @@ namespace BrightTable
                     return ColumnType.String;
             }
 
-            if(type == typeof(IndexList))
+            if (type == typeof(IndexList))
                 return ColumnType.IndexList;
 
-            if(type == typeof(WeightedIndexList))
+            if (type == typeof(WeightedIndexList))
                 return ColumnType.WeightedIndexList;
 
-            if(type == typeof(Vector<float>))
+            if (type == typeof(Vector<float>))
                 return ColumnType.Vector;
 
-            if(type == typeof(Matrix<float>))
+            if (type == typeof(Matrix<float>))
                 return ColumnType.Matrix;
 
-            if(type == typeof(Tensor3D<float>))
+            if (type == typeof(Tensor3D<float>))
                 return ColumnType.Tensor3D;
 
-            if(type == typeof(Tensor4D<float>))
+            if (type == typeof(Tensor4D<float>))
                 return ColumnType.Tensor4D;
 
-            if(type == typeof(BinaryData))
+            if (type == typeof(BinaryData))
                 return ColumnType.BinaryData;
 
             return ColumnType.Unknown;
         }
 
-        public static bool IsStructable(this ColumnType type) => type switch {
+        public static bool IsStructable(this ColumnType type) => type switch
+        {
             ColumnType.Boolean => true,
             ColumnType.Byte => true,
             ColumnType.Date => true,
@@ -133,12 +135,12 @@ namespace BrightTable
 
         public static IEnumerable<uint> RowIndices(this IDataTable dataTable)
         {
-            return Enumerable.Range(0, (int) dataTable.RowCount).Select(i => (uint) i);
+            return Enumerable.Range(0, (int)dataTable.RowCount).Select(i => (uint)i);
         }
 
         public static IEnumerable<uint> ColumnIndices(this IDataTable dataTable)
         {
-            return Enumerable.Range(0, (int) dataTable.ColumnCount).Select(i => (uint) i);
+            return Enumerable.Range(0, (int)dataTable.ColumnCount).Select(i => (uint)i);
         }
 
         public static IReadOnlyList<IMetaData> AllMetaData(this IDataTable dataTable)
@@ -163,8 +165,8 @@ namespace BrightTable
             return ret.AsReadOnly();
         }
 
-        public static IReadOnlyList<T> MapRows<T0, T>(this IDataTable dataTable, Func<T0, T> callback) => MapRows(dataTable, (rows, index) => callback((T0) rows[0]));
-        public static IReadOnlyList<T> MapRows<T0, T1, T>(this IDataTable dataTable, Func<T0, T1, T> callback) => MapRows(dataTable, (rows, index) => callback((T0) rows[0], (T1) rows[1]));
+        public static IReadOnlyList<T> MapRows<T0, T>(this IDataTable dataTable, Func<T0, T> callback) => MapRows(dataTable, (rows, index) => callback((T0)rows[0]));
+        public static IReadOnlyList<T> MapRows<T0, T1, T>(this IDataTable dataTable, Func<T0, T1, T> callback) => MapRows(dataTable, (rows, index) => callback((T0)rows[0], (T1)rows[1]));
 
         public static IDataAnalyser GetColumnAnalyser(this ColumnType type, int distinctValueCount = 100)
         {
@@ -183,7 +185,7 @@ namespace BrightTable
                     return new CastToDoubleNumericAnalysis<long>(distinctValueCount);
                 case ColumnType.Short:
                     return new CastToDoubleNumericAnalysis<short>(distinctValueCount);
-            }	
+            }
             if (type == ColumnType.String)
                 return new StringAnalyser(distinctValueCount);
             if (type == ColumnType.IndexList || type == ColumnType.WeightedIndexList)
@@ -192,7 +194,7 @@ namespace BrightTable
                 return new DateAnalyser();
             if (type == ColumnType.Vector || type == ColumnType.Matrix || type == ColumnType.Tensor3D || type == ColumnType.Tensor4D)
                 return new DimensionAnalyser();
-            if(type == ColumnType.BinaryData)
+            if (type == ColumnType.BinaryData)
                 return new FrequencyAnalyser<BinaryData>(distinctValueCount);
 
             throw new NotImplementedException();
@@ -204,12 +206,23 @@ namespace BrightTable
             if (force || !ret.Get<bool>(Consts.HasBeenAnalysed)) {
                 var type = segment.SingleType;
                 var analyser = type.GetColumnAnalyser(distinctValueCount);
-                foreach(var item in segment.Enumerate())
+                foreach (var item in segment.Enumerate())
                     analyser.AddObject(item);
                 analyser.WriteTo(ret);
                 ret.Set(Consts.HasBeenAnalysed, true);
             }
 
+            return ret;
+        }
+
+        public static IMetaData[] Analyse(this IColumnOrientedDataTable table, bool force = false, int distinctValueCount = 100)
+        {
+            var count = table.ColumnCount;
+            var ret = new IMetaData[count];
+            for(uint i = 0; i < count; i++) {
+                var column = table.Column(i);
+                ret[i] = column.Analyse(force, distinctValueCount);
+            }
             return ret;
         }
 
@@ -238,21 +251,22 @@ namespace BrightTable
         //}
 
         public static IColumnOrientedDataTable ParseCsv(
-            this IBrightDataContext context, 
-            string filePath, 
-            bool hasHeader, 
+            this IBrightDataContext context,
+            string filePath,
+            bool hasHeader,
             char delimiter = ',',
             string fileOutputPath = null,
             bool writeProgress = false,
             string tempBasePath = null,
-            uint maxRowsInMemory = 32768*32
-        ) {
+            uint maxRowsInMemory = 32768 * 32
+        )
+        {
             using var tempStreams = new TempStreamManager(tempBasePath);
             var columns = new List<StringColumn>();
             var isFirst = hasHeader;
             uint rowCount = 0;
 
-            using(var reader = new StreamReader(filePath)) {
+            using (var reader = new StreamReader(filePath)) {
                 var parser = new CsvParser2(reader, delimiter, hasHeader);
 
                 if (writeProgress) {
@@ -261,9 +275,9 @@ namespace BrightTable
                     Console.WriteLine($"Parsing {filePath}...");
                 }
 
-                foreach(var row in parser.Parse()) {
+                foreach (var row in parser.Parse()) {
                     var cols = row.Length;
-                    
+
                     for (var i = columns.Count; i < cols; i++)
                         columns.Add(new StringColumn((uint)i, tempStreams, rowCount, maxRowsInMemory));
 
@@ -304,6 +318,29 @@ namespace BrightTable
                 sb.Append($" ({oldProgress = newProgress}%)");
                 Console.Write(sb.ToString());
             }
+        }
+
+        public static IReadOnlyList<object[]> Head(this IDataTable dataTable, uint size = 10)
+        {
+            var ret = new List<object[]>();
+            dataTable.ForEachRow((row, index) => ret.Add(row), size);
+            return ret;
+        }
+
+        public static IDataTable LoadTable(this IBrightDataContext context, string filePath)
+        {
+            var input = new InputData(filePath);
+            var reader = input.Reader;
+            var version = reader.ReadInt32();
+
+            if (version > Consts.DataTableVersion)
+                throw new Exception($"Data table version {version} exceeds {Consts.DataTableVersion}");
+            var orientation = (DataTableOrientation)reader.ReadByte();
+            if (orientation == DataTableOrientation.ColumnOriented)
+                return new ColumnOrientedDataTable(context, input, false);
+            else if (orientation == DataTableOrientation.RowOriented)
+                return new RowOrientedDataTable(context, input, false);
+            throw new Exception($"Found unknown data table orientation: {orientation}");
         }
     }
 }

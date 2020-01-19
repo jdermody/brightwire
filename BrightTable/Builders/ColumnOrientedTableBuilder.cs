@@ -23,9 +23,10 @@ namespace BrightTable.Builders
 
         public void Dispose()
         {
-            _writer?.Dispose();
-            if (!_hasClosedStream)
+            if (!_hasClosedStream) {
+                _writer.Dispose();
                 _stream.Dispose();
+            }
         }
 
         public void Write(uint numRows, IReadOnlyList<StringColumn> columns, bool writeProgress = false)

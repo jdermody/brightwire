@@ -130,13 +130,16 @@ namespace BrightTable
             return builder.Build(Context);
         }
 
-        public void ForEachRow(Action<object[], uint> callback)
+        public void ForEachRow(Action<object[], uint> callback, uint maxRows = uint.MaxValue)
         {
             var row = new object[ColumnCount];
+            var rowCount = Math.Min(maxRows, RowCount);
+
             lock (_data) {
                 _data.MoveTo(_rowOffset[0]);
                 var reader = _data.Reader;
-                for (uint i = 0; i < RowCount; i++) {
+
+                for (uint i = 0; i < rowCount; i++) {
                     for (int j = 0, len = _columnReaders.Length; j < len; j++)
                         row[j] = _columnReaders[j](reader);
                     callback(row, i);
@@ -158,9 +161,6 @@ namespace BrightTable
             builder.WriteColumnOffsets(columnOffsets);
             return builder.Build(Context);
         }
-
-        public IReadOnlyList<IDataTableSegment> Head => Rows(ExtensionMethods.Range(0, Math.Min(PREVIEW_SIZE, RowCount)).ToArray());
-        public IReadOnlyList<IDataTableSegment> Tail => Rows(ExtensionMethods.Range(Math.Max(0, RowCount - PREVIEW_SIZE), Math.Min(PREVIEW_SIZE, RowCount)).ToArray());
 
         (ISingleTypeTableSegment Segment, IEditableBuffer Buffer) _GetColumn(ColumnType columnType, IMetaData metadata)
         {

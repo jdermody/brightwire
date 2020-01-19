@@ -158,11 +158,13 @@ namespace BrightTable
         //    return ret;
         //}
 
-        public void ForEachRow(Action<object[], uint> callback)
+        public void ForEachRow(Action<object[], uint> callback, uint maxRows = uint.MaxValue)
         {
             var row = new object[ColumnCount];
             var columns = AllColumns().Select(c => c.Enumerate().GetEnumerator()).ToArray();
-            for(uint i = 0; i < RowCount; i++) {
+            var rowCount = Math.Min(maxRows, RowCount);
+
+            for(uint i = 0; i < rowCount; i++) {
                 for(uint j = 0; j < ColumnCount; j++) {
                     var column = columns[j];
                     column.MoveNext();
