@@ -15,7 +15,7 @@ namespace BrightData
         public uint ColumnCount => Shape[3];
         public uint MatrixSize => RowCount * ColumnCount;
         public uint TensorSize => Depth * MatrixSize;
-        public uint Size => Count * TensorSize;
+        public new uint Size => Count * TensorSize;
 
         public Tensor3D<T> Tensor(uint index)
         {

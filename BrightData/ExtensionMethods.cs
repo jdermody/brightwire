@@ -104,6 +104,7 @@ namespace BrightData
                 segment.Initialize(i => initializer(i / columns, i % columns));
             return new Matrix<T>(context, segment, rows, columns);
         }
+        public static Matrix<T> CreateMatrix<T>(this IBrightDataContext context, uint rows, uint columns, T initializer) where T: struct => CreateMatrix(context, rows, columns, (i, j) => initializer);
 
         public static Matrix<T> CreateMatrixFromRows<T>(this IBrightDataContext context, params Vector<T>[] rows) where T: struct
         {
@@ -237,6 +238,10 @@ namespace BrightData
         public static uint Index(this IMetaData metadata) => metadata.Get<uint>(Consts.Index);
         public static bool IsNumeric(this IMetaData metadata) => metadata.Get<bool>(Consts.IsNumeric);
         public static bool IsTarget(this IMetaData metadata) => metadata.Get<bool>(Consts.IsTarget);
+        public static string Name(this IHaveMetaData metadataProvider) => metadataProvider.MetaData.Get<string>(Consts.Name);
+        public static uint Index(this IHaveMetaData metadataProvider) => metadataProvider.MetaData.Get<uint>(Consts.Index);
+        public static bool IsNumeric(this IHaveMetaData metadataProvider) => metadataProvider.MetaData.Get<bool>(Consts.IsNumeric);
+        public static bool IsTarget(this IHaveMetaData metadataProvider) => metadataProvider.MetaData.Get<bool>(Consts.IsTarget);
 
         public static float CosineDistance(this Vector<float> vector, Vector<float> other)
         {

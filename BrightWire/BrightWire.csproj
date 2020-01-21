@@ -1,7 +1,12 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BrightData\BrightData.csproj" />
+    <ProjectReference Include="..\BrightTable\BrightTable.csproj" />
+  </ItemGroup>
 
 </Project>

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using BrightData;
 using BrightData.Analysis;
+using BrightData.Helper;
 using BrightTable.Builders;
 using BrightTable.Input;
 using BrightTable.Segments;
@@ -219,7 +220,7 @@ namespace BrightTable
         {
             var count = table.ColumnCount;
             var ret = new IMetaData[count];
-            for(uint i = 0; i < count; i++) {
+            for (uint i = 0; i < count; i++) {
                 var column = table.Column(i);
                 ret[i] = column.Analyse(force, distinctValueCount);
             }
@@ -341,6 +342,24 @@ namespace BrightTable
             else if (orientation == DataTableOrientation.RowOriented)
                 return new RowOrientedDataTable(context, input, false);
             throw new Exception($"Found unknown data table orientation: {orientation}");
+        }
+
+        public static uint CopySegment<T>(this IDataTableSegment<T> column, ITensorSegment<float> vector)
+            where T : struct
+        {
+            uint index = 0;
+            var converter = new ConvertToFloat<T>();
+
+            foreach (var item in column.EnumerateTyped().Take((int)vector.Size))
+                vector[index++] = converter.Convert(item);
+            return index;
+        }
+
+        public static uint CopyTo(this ISingleTypeTableSegment column, ITensorSegment<float> vector)
+        {
+            var type = column.SingleType.GetColumnType();
+            var copySegment = typeof(ExtensionMethods).GetMethod("CopySegment").MakeGenericMethod(type);
+            return (uint)copySegment.Invoke(null, new object[] { column, vector });
         }
     }
 }
