@@ -228,7 +228,7 @@ namespace BrightTable
             return transform.Transform(this, filePath);
         }
 
-        public IColumnOrientedDataTable Normalise(NormalisationType type, string filePath = null)
+        public IColumnOrientedDataTable Normalise(NormalizationType type, string filePath = null)
         {
             var t = new NormalisationTransformation(type);
             return t.Transform(this, filePath);

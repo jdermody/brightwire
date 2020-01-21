@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using System.Text;
+using BrightData.Analysis;
 using BrightData.Helper;
 
 namespace BrightData
@@ -274,6 +275,62 @@ namespace BrightData
             var segment = data.GetSegment();
             segment.Initialize(i => mutator(vector[i], other[i]));
             return new Vector<float>(context, segment);
+        }
+
+        public static IMetaData GetMetaData(this IWriteToMetaData writer)
+        {
+            var ret = new MetaData();
+            writer.WriteTo(ret);
+            return ret;
+        }
+
+        public static IMetaData Analyze<T>(this IEnumerable<T> data)
+            where T: struct
+        {
+            var analysis = new CastToDoubleNumericAnalysis<T>();
+            foreach(var item in data)
+                analysis.Add(item);
+            return analysis.GetMetaData();
+        }
+
+        public static IMetaData Analyze(this IEnumerable<DateTime> dates)
+        {
+            var analysis = new DateAnalyser();
+            foreach(var item in dates)
+                analysis.Add(item);
+            return analysis.GetMetaData();
+        }
+
+        public static IMetaData Analyze(this IEnumerable<ITensor<float>> tensors)
+        {
+            var analysis = new DimensionAnalyser();
+            foreach (var item in tensors)
+                analysis.Add(item);
+            return analysis.GetMetaData();
+        }
+
+        public static IMetaData Analyze<T>(this IEnumerable<IHaveIndices> items)
+        {
+            var analysis = new IndexAnalyser();
+            foreach (var item in items)
+                analysis.Add(item);
+            return analysis.GetMetaData();
+        }
+
+        public static IMetaData Analyze<T>(this IEnumerable<string> items)
+        {
+            var analysis = new StringAnalyser();
+            foreach (var item in items)
+                analysis.Add(item);
+            return analysis.GetMetaData();
+        }
+
+        public static IMetaData AnalyzeFrequency<T>(this IEnumerable<T> items)
+        {
+            var analysis = new FrequencyAnalyser<T>();
+            foreach (var item in items)
+                analysis.Add(item);
+            return analysis.GetMetaData();
         }
     }
 }

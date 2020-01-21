@@ -155,7 +155,7 @@ namespace BrightTable
         ISingleTypeTableSegment Column(uint columnIndex);
         IColumnOrientedDataTable SelectColumns(params uint[] columnIndices);
         IColumnOrientedDataTable SelectColumns(string filePath, params uint[] columnIndices);
-        IColumnOrientedDataTable Normalise(NormalisationType type, string filePath = null);
+        IColumnOrientedDataTable Normalise(NormalizationType type, string filePath = null);
         IColumnOrientedDataTable OneHotEncode(params uint[] columnIndices);
         IColumnOrientedDataTable OneHotEncode(bool writeToMetadata, params uint[] columnIndices);
         IColumnOrientedDataTable OneHotEncode(string filePath, bool writeToMetadata, params uint[] columnIndices);
@@ -205,14 +205,6 @@ namespace BrightTable
         ToIndexList,
         ToWeightedIndexList,
         ToVector
-    }
-
-    public enum NormalisationType
-    {
-        Standard,
-        Euclidean,
-        Manhattan,
-        FeatureScale
     }
 
     public interface IConvertColumn

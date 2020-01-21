@@ -36,15 +36,24 @@ namespace BrightData
             ReadFrom(reader);
         }
 
+        public void CopyTo(IMetaData metadata)
+        {
+            var other = (MetaData)metadata;
+            var keys = _orderedValues.AsEnumerable();
+
+            foreach (var key in keys) {
+                other._orderedValues.Add(key);
+                other._values.Add(key, _values[key]);
+            }
+        }
+
         public void CopyTo(IMetaData metadata, params string[] keysToCopy)
         {
             var other = (MetaData) metadata;
-            var keys = _orderedValues.AsEnumerable();
-            if(keysToCopy != null && keysToCopy.Any()) {
-                var keySet = new HashSet<string>(keysToCopy);
-                keys = keys.Where(k => keySet.Contains(k));
-            }
-            foreach(var key in keys) {
+            var keySet = new HashSet<string>(keysToCopy);
+            var keys = _orderedValues.AsEnumerable().Where(k => keySet.Contains(k));
+
+            foreach (var key in keys) {
                 other._orderedValues.Add(key);
                 other._values.Add(key, _values[key]);
             }
