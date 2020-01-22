@@ -21,14 +21,17 @@ namespace BrightWire.Learning
             if(!numericColumns.Any())
                 throw new ArgumentException("Table does not contain any numeric data columns");
 
+            // copy the feature vectors
             var context = dataTable.Context;
             var feature = context.CreateMatrix<float>(dataTable.RowCount, (uint)numericColumns.Count+1);
-            feature.Column(0).
             uint columnIndex = 1;
-            foreach(var column in numericColumns) {
+            foreach(var column in numericColumns)
                 column.CopyTo(feature.Column(columnIndex++));
-            }
-            //var target = context.CreateVector(table.GetColumn<float>(classColumnIndex));
+            feature.Column(0).Initialize(1f);
+
+            // copy the target vector
+            var target = context.CreateVector<float>(dataTable.ColumnCount);
+            classificationTarget.CopyTo(target.Data);
         }
     }
 }

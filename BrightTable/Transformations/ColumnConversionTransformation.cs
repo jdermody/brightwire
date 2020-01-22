@@ -31,6 +31,10 @@ namespace BrightTable.Transformations
                     Add(index, new ConvertColumnToWeightedIndexList());
                 else if (item == ColumnConversion.ToVector)
                     Add(index, new ConvertColumnToVector());
+                else if(item == ColumnConversion.ToCategoricalIndex)
+                    Add(index, new ConvertColumnToCategoricalIndex());
+                else
+                    throw new NotImplementedException();
                 ++index;
             }
         }

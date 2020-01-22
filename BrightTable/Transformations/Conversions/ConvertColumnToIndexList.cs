@@ -23,11 +23,8 @@ namespace BrightTable.Transformations.Conversions
                 return indexList;
             if (obj is WeightedIndexList weightedIndexList)
                 return weightedIndexList.AsIndexList();
-            if (obj is Vector<float> vector) {
-                using(var data = vector.GetData()) {
-                    return data.ToSparse().AsIndexList();
-                }
-            }
+            if (obj is Vector<float> vector)
+                return vector.Data.ToSparse().AsIndexList();
 
             throw new InvalidOperationException();
         }

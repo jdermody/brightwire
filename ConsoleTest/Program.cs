@@ -6,6 +6,7 @@ using System.Text;
 using BrightData;
 using BrightData.Helper;
 using BrightTable;
+using BrightWire.Learning;
 using BrightTable.Input;
 using BrightTable.Segments;
 
@@ -19,9 +20,10 @@ namespace ConsoleTest
             //var table = context.ParseCsv(@"C:\data\plotly\processed_data.csv", true, ',', @"c:\temp\table.dat", true);
             //using var table = (IColumnOrientedDataTable)context.LoadTable(@"c:\temp\table.dat");
             //using var table2 = table.Convert(@"c:\temp\table2.dat", Enumerable.Range(0, (int)table.ColumnCount).Select(i => ColumnConversion.ToNumeric).ToArray());
-            using var table2 = context.LoadTable(@"c:\temp\table2.dat");
-            var head = table2.Head();
-            
+            using var table = context.ParseCsv(@"c:\data\iris.data", true);
+            using var numericTable = table.Convert(ColumnConversion.ToNumeric, ColumnConversion.ToNumeric, ColumnConversion.ToNumeric, ColumnConversion.ToNumeric, ColumnConversion.ToCategoricalIndex);
+            numericTable.SetTargetColumn(4);
+            numericTable.TrainLogisticRegression();
             //using var table2 = table.
             //using(var reader = new StreamReader(@"C:\data\iris.data")) {
             //    var parser =new CsvParser2(reader, ',', true);

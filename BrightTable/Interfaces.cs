@@ -204,7 +204,8 @@ namespace BrightTable
         ToString,
         ToIndexList,
         ToWeightedIndexList,
-        ToVector
+        ToVector,
+        ToCategoricalIndex
     }
 
     public interface IConvertColumn

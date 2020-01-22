@@ -15,10 +15,8 @@ namespace BrightTable.Transformations.Conversions
                 return WeightedIndexList.Create(indexList.Context, indexList.Indices.Select(ind => new WeightedIndexList.Item(ind, 1f)).ToArray());
             if (obj is WeightedIndexList weightedIndexList)
                 return weightedIndexList;
-            if (obj is Vector<float> vector) {
-                using(var data = vector.GetData())
-                    return data.ToSparse();
-            }
+            if (obj is Vector<float> vector)
+                return vector.Data.ToSparse();
 
             throw new InvalidOperationException();
         }

@@ -48,7 +48,7 @@ namespace BrightData
     public interface ITensor<T> : ITensor
         where T : struct
     {
-        ITensorSegment<T> GetData();
+        ITensorSegment<T> GetDataCopy();
     }
 
     public interface IMemoryDeallocator

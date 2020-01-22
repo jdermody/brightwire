@@ -67,7 +67,7 @@ namespace BrightData
         public uint[] Shape { get; }
         protected INumericComputation<T> Computation => _computation.Value;
 
-        public ITensorSegment<T> GetData()
+        public ITensorSegment<T> GetDataCopy()
         {
             _data.AddRef();
             return _data;
@@ -88,7 +88,7 @@ namespace BrightData
         public DT PointwiseDivide(DT tensor) => Create(Computation.Divide(_data, tensor.Data));
         public void PointwiseDivideInPlace(DT tensor) => Computation.DivideInPlace(_data, tensor.Data);
 
-        ITensorSegment<T> IHaveTensorSegment<T>.Data => _data;
+        public ITensorSegment<T> Data => _data;
 
         static uint[] _ResolveShape(uint total, uint?[] shape)
         {
@@ -111,25 +111,25 @@ namespace BrightData
 
         public Vector<T> Reshape()
         {
-            return new Vector<T>(Context, GetData());
+            return new Vector<T>(Context, GetDataCopy());
         }
 
         public Matrix<T> Reshape(uint? rows, uint? columns)
         {
             var shape = _ResolveShape(_data.Size, new[] { rows, columns });
-            return new Matrix<T>(Context, GetData(), shape[0], shape[1]);
+            return new Matrix<T>(Context, GetDataCopy(), shape[0], shape[1]);
         }
 
         public Tensor3D<T> Reshape(uint? depth, uint? rows, uint? columns)
         {
             var shape = _ResolveShape(_data.Size, new[] { depth, rows, columns });
-            return new Tensor3D<T>(Context, GetData(), shape[0], shape[1], shape[2]);
+            return new Tensor3D<T>(Context, GetDataCopy(), shape[0], shape[1], shape[2]);
         }
 
         public Tensor4D<T> Reshape(uint? count, uint? depth, uint? rows, uint? columns)
         {
             var shape = _ResolveShape(_data.Size, new[] { count, depth, rows, columns });
-            return new Tensor4D<T>(Context, GetData(), shape[0], shape[1], shape[2], shape[3]);
+            return new Tensor4D<T>(Context, GetDataCopy(), shape[0], shape[1], shape[2], shape[3]);
         }
     }
 }

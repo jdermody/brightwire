@@ -361,5 +361,20 @@ namespace BrightTable
             var copySegment = typeof(ExtensionMethods).GetMethod("CopySegment").MakeGenericMethod(type);
             return (uint)copySegment.Invoke(null, new object[] { column, vector });
         }
+
+        public static void Set<T>(this ITensorSegment<T> vector, Func<uint, T> getValue)
+            where T: struct
+        {
+            for(uint i = 0, len = vector.Size; i < len; i++)
+                vector[i] = getValue(i);
+        }
+
+        public static void SetTargetColumn(this IDataTable table, uint? columnIndex)
+        {
+            var metaData = table.AllMetaData();
+            for(uint i = 0; i < table.ColumnCount; i++) {
+                metaData[(int)i].Set(Consts.IsTarget, i == columnIndex);
+            }
+        }
     }
 }

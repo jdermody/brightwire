@@ -8,6 +8,7 @@
   <ItemGroup>
     <ProjectReference Include="..\BrightData\BrightData.csproj" />
     <ProjectReference Include="..\BrightTable\BrightTable.csproj" />
+    <ProjectReference Include="..\BrightWire\BrightWire.csproj" />
   </ItemGroup>
 
 </Project>

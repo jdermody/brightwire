@@ -75,7 +75,7 @@ namespace BrightData
         public static IndexList CreateIndexList(this IBrightDataContext context, params uint[] indices) => IndexList.Create(context, indices);
         public static WeightedIndexList CreateWeightedIndexList(this IBrightDataContext context, params (uint Index, float Weight)[] indexList) => WeightedIndexList.Create(context, indexList);
 
-        public static Vector<T> CreateVector<T>(this IBrightDataContext context, uint size, Func<uint, T> initializer = null) where T: struct
+        public static Vector<T> CreateVector<T>(this IBrightDataContext context, uint size, Func<uint, T> initializer) where T: struct
         {
             var data = context.TensorPool.Get<T>(size);
             var segment = data.GetSegment();
