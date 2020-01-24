@@ -59,6 +59,7 @@ namespace BrightData.Memory
         public void InitializeFrom(Stream stream) => _data.InitializeFrom(stream);
         public void Initialize(Func<uint, T> initializer) => _data.Initialize(initializer);
         public void Initialize(T initializer) => _data.Initialize(initializer);
+        public void Initialize(T[] initialData) => initialData.CopyTo(_data.Data);
         public void WriteTo(Stream stream) => _data.WriteTo(stream);
     }
 }

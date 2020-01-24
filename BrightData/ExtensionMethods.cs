@@ -81,7 +81,7 @@ namespace BrightData
             var segment = data.GetSegment();
             if (initializer != null)
                 segment.Initialize(initializer);
-            return new Vector<T>(context, segment);
+            return new Vector<T>(segment);
         }
 
         public static Vector<T> CreateVector<T>(this IBrightDataContext context, uint size, T initializer = default(T)) where T: struct
@@ -89,12 +89,16 @@ namespace BrightData
             var data = context.TensorPool.Get<T>(size);
             var segment = data.GetSegment();
             segment.Initialize(initializer);
-            return new Vector<T>(context, segment);
+            return new Vector<T>(segment);
         }
 
-        public static Vector<T> CreateVector<T>(this IBrightDataContext context, params T[] data) where T: struct
+        public static Vector<T> CreateVector<T>(this IBrightDataContext context, params T[] initialData) where T: struct
         {
-            return CreateVector(context, (uint)data.Length, i => data[i]);
+            var data = context.TensorPool.Get<T>((uint)initialData.Length);
+            var segment = data.GetSegment();
+            if (initialData.Any())
+                segment.Initialize(initialData);
+            return new Vector<T>(segment);
         }
 
         public static Matrix<T> CreateMatrix<T>(this IBrightDataContext context, uint rows, uint columns, Func<uint, uint, T> initializer = null) where T: struct
@@ -244,19 +248,19 @@ namespace BrightData
         public static bool IsNumeric(this IHaveMetaData metadataProvider) => metadataProvider.MetaData.Get<bool>(Consts.IsNumeric);
         public static bool IsTarget(this IHaveMetaData metadataProvider) => metadataProvider.MetaData.Get<bool>(Consts.IsTarget);
 
-        public static float CosineDistance(this Vector<float> vector, Vector<float> other)
+        public static float CosineDistance(this float[] vector, float[] other)
         {
-            return BrightData.Distance.CosineDistance.Calculate(vector.ToArray(), other.ToArray());
+            return BrightData.Distance.CosineDistance.Calculate(vector, other);
         }
 
-        public static float EuclideanDistance(this Vector<float> vector, Vector<float> other)
+        public static float EuclideanDistance(this float[] vector, float[] other)
         {
-            return BrightData.Distance.EuclideanDistance.Calculate(vector.ToArray(), other.ToArray());
+            return BrightData.Distance.EuclideanDistance.Calculate(vector, other);
         }
 
-        public static float ManhattanDistance(this Vector<float> vector, Vector<float> other)
+        public static float ManhattanDistance(this float[] vector, float[] other)
         {
-            return BrightData.Distance.ManhattanDistance.Calculate(vector.ToArray(), other.ToArray());
+            return BrightData.Distance.ManhattanDistance.Calculate(vector, other);
         }
 
         public static Vector<float> Mutate(this Vector<float> vector, Func<float, float> mutator)
@@ -265,7 +269,7 @@ namespace BrightData
             var data = context.TensorPool.Get<float>(vector.Size);
             var segment = data.GetSegment();
             segment.Initialize(i => mutator(vector[i]));
-            return new Vector<float>(context, segment);
+            return new Vector<float>(segment);
         }
 
         public static Vector<float> MutateWith(this Vector<float> vector, Vector<float> other, Func<float, float, float> mutator)
@@ -274,7 +278,7 @@ namespace BrightData
             var data = context.TensorPool.Get<float>(vector.Size);
             var segment = data.GetSegment();
             segment.Initialize(i => mutator(vector[i], other[i]));
-            return new Vector<float>(context, segment);
+            return new Vector<float>(segment);
         }
 
         public static IMetaData GetMetaData(this IWriteToMetaData writer)

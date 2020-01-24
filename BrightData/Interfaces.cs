@@ -107,6 +107,7 @@ namespace BrightData
         void InitializeFrom(Stream stream);
         void Initialize(Func<uint, T> initializer);
         void Initialize(T initializer);
+        void Initialize(T[] initialData);
         void WriteTo(Stream writerBaseStream);
     }
 
@@ -126,6 +127,7 @@ namespace BrightData
     {
         ITensorSegment<T> Add(ITensorSegment<T> tensor1, ITensorSegment<T> tensor2);
         void AddInPlace(ITensorSegment<T> target, ITensorSegment<T> other);
+        void AddInPlace(ITensorSegment<T> target, T scalar);
         ITensorSegment<T> Subtract(ITensorSegment<T> tensor1, ITensorSegment<T> tensor2);
         void SubtractInPlace(ITensorSegment<T> target, ITensorSegment<T> other);
         ITensorSegment<T> Multiply(ITensorSegment<T> tensor1, ITensorSegment<T> tensor2);
@@ -133,6 +135,21 @@ namespace BrightData
         ITensorSegment<T> Divide(ITensorSegment<T> tensor1, ITensorSegment<T> tensor2);
         void DivideInPlace(ITensorSegment<T> target, ITensorSegment<T> other);
         T SumIndexedProducts(uint size, Func<uint, T> p1, Func<uint, T> p2);
+        T DotProduct(ITensorSegment<T> segment, ITensorSegment<T> other);
+        ITensorSegment<T> Sqrt(ITensorSegment<T> tensor);
+        uint? Search(ITensorSegment<T> segment, T value);
+        void ConstrainInPlace(ITensorSegment<T> segment, T? minValue, T? maxValue);
+        T Average(ITensorSegment<T> segment);
+        T L1Norm(ITensorSegment<T> segment);
+        T L2Norm(ITensorSegment<T> segment);
+        T Sum(ITensorSegment<T> segment);
+        T CosineDistance(ITensorSegment<T> tensor, ITensorSegment<T> other);
+        T EuclideanDistance(ITensorSegment<T> tensor, ITensorSegment<T> other);
+        T ManhattanDistance(ITensorSegment<T> tensor, ITensorSegment<T> other);
+        ITensorSegment<T> Abs(ITensorSegment<T> tensor);
+        ITensorSegment<T> Log(ITensorSegment<T> tensor);
+        ITensorSegment<T> Squared(ITensorSegment<T> tensor);
+        T StdDev(ITensorSegment<T> segment, T? mean);
     }
 
     public interface IWriteToMetaData
@@ -156,5 +173,37 @@ namespace BrightData
         Euclidean,
         Manhattan,
         FeatureScale
+    }
+
+    public interface IVector<T> : IDisposable where T : struct 
+    {
+        uint Size { get; }
+        IVector<T> Sigmoid();
+        IVector<T> Subtract(IVector<T> vector);
+        IMatrix<T> Reshape(uint rows, uint columns);
+        IIndexableVector<T> AsIndexable();
+        void AddInPlace(IVector<T> vector);
+        void AddInPlace(T scalar);
+        IVector<T> Log();
+        IVector<T> Clone();
+        T DotProduct(IVector<T> vector);
+        void MultiplyInPlace(T scalar);
+    }
+
+    public interface IIndexableVector<T> : IVector<T> where T : struct
+    {
+        T this[int index] { get; }
+        T this[uint index] { get; }
+        IEnumerable<T> Values { get; }
+    }
+
+    public interface IMatrix<T> : IDisposable where T : struct
+    {
+        void MultiplyInPlace(T scalar);
+        IMatrix<T> Multiply(IVector<float> vector);
+        IMatrix<T> Multiply(IMatrix<float> matrix);
+        IVector<T> Column(uint i);
+        IVector<T> Row(uint i);
+        uint RowCount { get; }
     }
 }

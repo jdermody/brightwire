@@ -96,6 +96,8 @@ namespace BrightData.Memory
                 this[i] = initializer;
         }
 
+        public void Initialize(T[] initialData) => Initialize(i => initialData[i]);
+
         public unsafe void WriteTo(Stream stream)
         {
             var buffer = new byte[Size * Unsafe.SizeOf<T>()];

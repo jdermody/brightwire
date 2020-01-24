@@ -1,18 +1,50 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
 namespace BrightData
 {
-    public class Vector<T> : TensorBase<T, Vector<T>>
+    public class Vector<T> : TensorBase<T, Vector<T>>, IIndexableVector<T>
         where T: struct
     {
-        public Vector(IBrightDataContext context, ITensorSegment<T> data) : base(context, data, new[] { data.Size }) { }
+        public Vector(ITensorSegment<T> data) : base(data.Context, data, new[] { data.Size }) { }
         public Vector(IBrightDataContext context, BinaryReader reader) : base(context, reader) { }
 
         public new uint Size => Shape[0];
+        public IVector<T> Sigmoid()
+        {
+            throw new NotImplementedException();
+        }
 
-        protected override Vector<T> Create(ITensorSegment<T> segment) => new Vector<T>(Context, segment);
+        public IVector<T> Subtract(IVector<T> vector) => base.Subtract((Vector<T>) vector);
+        public void AddInPlace(IVector<T> vector) => base.AddInPlace((Vector<T>)vector);
+
+        public IVector<T> Log()
+        {
+            throw new NotImplementedException();
+        }
+
+        public IVector<T> Clone()
+        {
+            throw new NotImplementedException();
+        }
+
+        public T DotProduct(IVector<T> vector)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void MultiplyInPlace(T scalar)
+        {
+            throw new NotImplementedException();
+        }
+
+        IMatrix<T> IVector<T>.Reshape(uint rows, uint columns) => base.Reshape(rows, columns);
+
+        public IIndexableVector<T> AsIndexable() => this;
+
+        protected override Vector<T> Create(ITensorSegment<T> segment) => new Vector<T>(segment);
 
         public T this[int index]
         {
@@ -25,6 +57,8 @@ namespace BrightData
             get => _data[index];
             set => _data[index] = value;
         }
+
+        public IEnumerable<T> Values { get; }
 
         public override string ToString()
         {

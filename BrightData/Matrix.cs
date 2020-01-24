@@ -8,17 +8,42 @@ using BrightData.Memory;
 
 namespace BrightData
 {
-    public class Matrix<T> : TensorBase<T, Matrix<T>>
+    public class Matrix<T> : TensorBase<T, Matrix<T>>, IMatrix<T>
         where T: struct
     {
         public Matrix(IBrightDataContext context, ITensorSegment<T> data, uint rows, uint columns) : base(context, data, new[] { rows, columns }) { }
         public Matrix(IBrightDataContext context, BinaryReader reader) : base(context, reader) { }
 
+        IVector<T> IMatrix<T>.Row(uint i)
+        {
+            throw new NotImplementedException();
+        }
+
         public uint RowCount => Shape[0];
         public uint ColumnCount => Shape[1];
         public new uint Size => RowCount * ColumnCount;
 
+        IVector<T> IMatrix<T>.Column(uint i)
+        {
+            throw new NotImplementedException();
+        }
+
         public ITensorSegment<T> Row(uint index) => new TensorSegmentWrapper<T>(_data, index * ColumnCount, 1, ColumnCount);
+        public void MultiplyInPlace(T scalar)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IMatrix<T> Multiply(IVector<float> vector)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IMatrix<T> Multiply(IMatrix<float> matrix)
+        {
+            throw new NotImplementedException();
+        }
+
         public ITensorSegment<T> Column(uint index) => new TensorSegmentWrapper<T>(_data, index, ColumnCount, RowCount);
 
         public T this[int y, int x]
@@ -37,12 +62,13 @@ namespace BrightData
         public T[] ToColumnMajor()
         {
             var ret = new T[Size];
-            for (uint i = 0; i < ColumnCount; i++) {
+            Parallel.For(0, ColumnCount, ind => {
+                var i = (uint) ind;
                 var column = Column(i);
                 var offset = i * RowCount;
                 for (uint j = 0; j < RowCount; j++)
                     ret[offset + j] = column[j];
-            }
+            });
             return ret;
         }
 

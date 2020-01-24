@@ -40,5 +40,16 @@ namespace BrightData.Computation
         protected override uint Exp(uint a) => (uint)Math.Exp(a);
         protected override uint OneMinusInput(uint input) => 1 - input;
         protected override uint Cast(uint a) => a;
+        protected override uint Constrain(uint val) => throw new NotSupportedException();
+        protected override uint One => 1;
+        protected override uint Zero => 0;
+        protected override uint PointZeroOne => throw new NotSupportedException();
+        protected override uint MinusOne => throw new NotSupportedException();
+        protected override uint MinValue => uint.MinValue;
+        protected override uint MaxValue => uint.MaxValue;
+        protected override bool IsZero(uint value) => value == 0;
+        protected override bool IsLessOrEqualToThanZero(uint value) => throw new NotSupportedException();
+        protected override uint Negate(uint value) => throw new NotSupportedException();
+        protected override uint Tanh(uint value) => throw new NotSupportedException();
     }
 }
