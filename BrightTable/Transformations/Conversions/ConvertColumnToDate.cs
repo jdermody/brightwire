@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using BrightData;
+using BrightTable.Buffers;
 using BrightTable.Segments;
 
 namespace BrightTable.Transformations.Conversions

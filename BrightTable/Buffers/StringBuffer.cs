@@ -2,9 +2,8 @@
 using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
-namespace BrightTable.Input
+namespace BrightTable.Buffers
 {
     class StringBuffer : IDisposable, IProvideStrings
     {

@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using BrightData;
+using BrightTable.Buffers;
 using BrightTable.Builders;
 using BrightTable.Input;
 using BrightTable.Segments;

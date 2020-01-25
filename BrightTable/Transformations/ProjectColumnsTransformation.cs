@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq.Expressions;
 using System.Text;
 using BrightData;
+using BrightTable.Buffers;
 using BrightTable.Builders;
 using BrightTable.Segments;
 

@@ -12,26 +12,26 @@ namespace BrightTable.Transformations
         readonly IColumnOrientedDataTable _dataTable;
 		readonly Dictionary<uint, IConvertColumn> _transform = new Dictionary<uint, IConvertColumn>();
 
-        public ColumnConversionTransformation(IColumnOrientedDataTable dataTable, params ColumnConversion[] conversion)
+        public ColumnConversionTransformation(IColumnOrientedDataTable dataTable, params ColumnConversionType[] conversion)
         {
             _dataTable = dataTable;
             uint index = 0;
             foreach (var item in conversion) {
-                if (item == ColumnConversion.ToBoolean)
+                if (item == ColumnConversionType.ToBoolean)
                     Add(index, new ConvertColumnToBoolean("Y", "YES", "TRUE", "T"));
-                else if (item == ColumnConversion.ToDate)
+                else if (item == ColumnConversionType.ToDate)
                     Add(index, new ConvertColumnToDate());
-                else if (item == ColumnConversion.ToNumeric)
+                else if (item == ColumnConversionType.ToNumeric)
                     Add(index, new ConvertColumnToNumeric());
-                else if (item == ColumnConversion.ToString)
+                else if (item == ColumnConversionType.ToString)
                     Add(index, new ConvertColumnToString());
-                else if (item == ColumnConversion.ToIndexList)
+                else if (item == ColumnConversionType.ToIndexList)
                     Add(index, new ConvertColumnToIndexList());
-                else if (item == ColumnConversion.ToWeightedIndexList)
+                else if (item == ColumnConversionType.ToWeightedIndexList)
                     Add(index, new ConvertColumnToWeightedIndexList());
-                else if (item == ColumnConversion.ToVector)
+                else if (item == ColumnConversionType.ToVector)
                     Add(index, new ConvertColumnToVector());
-                else if(item == ColumnConversion.ToCategoricalIndex)
+                else if(item == ColumnConversionType.ToCategoricalIndex)
                     Add(index, new ConvertColumnToCategoricalIndex());
                 else
                     throw new NotImplementedException();

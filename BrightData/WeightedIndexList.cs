@@ -9,7 +9,7 @@ using BrightData.Helper;
 
 namespace BrightData
 {
-    public class WeightedIndexList : IHaveIndices, ICanWriteToBinaryWriter
+    public class WeightedIndexList : IHaveIndices, ICanWriteToBinaryWriter, ICanInitializeFromBinaryReader
     {
         [StructLayout(LayoutKind.Sequential, Pack=0)]
         public struct Item
@@ -34,7 +34,7 @@ namespace BrightData
             Context = context;
         }
 
-        public IBrightDataContext Context { get; }
+        public IBrightDataContext Context { get; private set; }
 
         /// <summary>
         /// The list of indices
@@ -65,6 +65,15 @@ namespace BrightData
         public override string ToString()
         {
             return $"{Count} indices";
+        }
+
+        public void Initialize(IBrightDataContext context, BinaryReader reader)
+        {
+            Context = context;
+            var len = reader.ReadInt32();
+            Indices = new Item[len];
+            var span = MemoryMarshal.Cast<Item, byte>(Indices);
+            reader.BaseStream.Read(span);
         }
 
         /// <summary>

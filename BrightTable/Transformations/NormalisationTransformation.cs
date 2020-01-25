@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Text;
 using BrightData;
 using BrightData.Helper;
+using BrightTable.Buffers;
 using BrightTable.Builders;
 using BrightTable.Helper;
 using BrightTable.Segments;

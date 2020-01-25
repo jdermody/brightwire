@@ -5,7 +5,9 @@ using System.Linq;
 using System.Text;
 using BrightData;
 using BrightData.Analysis;
+using BrightData.Buffers;
 using BrightData.Helper;
+using BrightTable.Buffers;
 using BrightTable.Builders;
 using BrightTable.Input;
 using BrightTable.Segments;
@@ -375,6 +377,92 @@ namespace BrightTable
             for(uint i = 0; i < table.ColumnCount; i++) {
                 metaData[(int)i].Set(Consts.IsTarget, i == columnIndex);
             }
+        }
+
+        public static IAutoGrowBuffer GetGrowableSegment(this IColumnInfo forColumn, IBrightDataContext context, TempStreamManager tempStream, int bufferSize = 32768)
+        {
+            var type = forColumn.ColumnType;
+            var columnType = type.GetColumnType();
+
+            IAutoGrowBuffer buffer;
+            if (type.IsStructable()) {
+                buffer = (IAutoGrowBuffer)Activator.CreateInstance(typeof(HybridStructBuffer<>).MakeGenericType(type.GetColumnType()),
+                    context,
+                    forColumn.Index,
+                    tempStream,
+                    bufferSize
+                );
+            }else if (type == ColumnType.String) {
+                buffer = (IAutoGrowBuffer)Activator.CreateInstance(typeof(HybridStringBuffer),
+                    context,
+                    forColumn.Index,
+                    tempStream,
+                    bufferSize
+                );
+            }
+            else {
+                buffer = (IAutoGrowBuffer) Activator.CreateInstance(typeof(HybridObjectBuffer<>).MakeGenericType(type.GetColumnType()),
+                    context,
+                    forColumn.Index,
+                    tempStream,
+                    bufferSize
+                );
+            }
+
+            var segmentType = typeof(GrowableSegment<>).MakeGenericType(columnType);
+            var ret = Activator.CreateInstance(segmentType,
+                type,
+                new MetaData(forColumn.MetaData, Consts.StandardMetaData),
+                buffer
+            );
+            return (IAutoGrowBuffer) ret;
+        }
+
+        public static IColumnOrientedDataTable BuildColumnOrientedTable(this IReadOnlyList<IAutoGrowBuffer> buffers, IBrightDataContext context, uint rowCount, string filePath = null)
+        {
+            var columnCount = (uint)buffers.Count;
+            var columnOffsets = new List<(long Position, long EndOfColumnOffset)>();
+            using var builder = new ColumnOrientedTableBuilder(filePath);
+
+            builder.WriteHeader(columnCount, rowCount);
+            foreach(var segment in buffers.Cast<ISingleTypeTableSegment>()) {
+                var position = builder.Write(segment);
+                columnOffsets.Add((position, builder.GetCurrentPosition()));
+            }
+            builder.WriteColumnOffsets(columnOffsets);
+            return builder.Build(context);
+        }
+
+        public static IRowOrientedDataTable BuildRowOrientedTable(this IReadOnlyList<IAutoGrowBuffer> buffers, IBrightDataContext context, uint rowCount, string filePath = null)
+        {
+            using var builder = new RowOrientedTableBuilder(rowCount, filePath);
+            var readers = buffers.Cast<ISingleTypeTableSegment>()
+                .Select(b => b.Enumerate().GetEnumerator())
+                .ToList();
+            while (readers.All(r => r.MoveNext())) {
+                var row = readers.Select(r => r.Current).ToArray();
+                builder.AddRow(row);
+            }
+            return builder.Build(context);
+        }
+
+        class ColumnInfo : IColumnInfo
+        {
+            public ColumnInfo(uint index, ColumnType columnType, IMetaData metaData)
+            {
+                Index = index;
+                ColumnType = columnType;
+                MetaData = metaData;
+            }
+
+            public uint Index { get; }
+            public ColumnType ColumnType { get; }
+            public IMetaData MetaData { get; }
+        }
+
+        public static IColumnInfo ChangeColumnType(this IColumnInfo column, ColumnType newType)
+        {
+            return new ColumnInfo(column.Index, newType, new MetaData(column.MetaData, Consts.Index, Consts.Name));
         }
     }
 }

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace BrightData
 {
-    public class BinaryData : ICanWriteToBinaryWriter
+    public class BinaryData : ICanWriteToBinaryWriter, ICanInitializeFromBinaryReader
     {
         public BinaryData(byte[] data)
         {
@@ -12,6 +12,11 @@ namespace BrightData
         }
 
         public BinaryData(BinaryReader reader)
+        {
+            Initialize(null, reader);
+        }
+
+        public void Initialize(IBrightDataContext context, BinaryReader reader)
         {
             var size = reader.ReadInt32();
             Data = reader.ReadBytes(size);
@@ -23,7 +28,7 @@ namespace BrightData
             writer.Write(Data);
         }
 
-        public byte[] Data { get; }
+        public byte[] Data { get; private set; }
 
         public override string ToString()
         {

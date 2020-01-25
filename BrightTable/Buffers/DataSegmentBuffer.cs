@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using BrightData;
 using BrightData.Helper;
 
-namespace BrightTable.Segments
+namespace BrightTable.Buffers
 {
     class DataSegmentBuffer<T> : IDataTableSegment<T>, IEditableBuffer, ICanWriteToBinaryWriter
     {

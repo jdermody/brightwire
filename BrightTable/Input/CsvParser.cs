@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using BrightData.Helper;
 using BrightTable.Segments;
 
 namespace BrightTable.Input

@@ -14,6 +14,11 @@ namespace BrightData
         void WriteTo(BinaryWriter writer);
     }
 
+    public interface ICanInitializeFromBinaryReader
+    {
+        void Initialize(IBrightDataContext context, BinaryReader reader);
+    }
+
     public interface IMetaData : ICanWriteToBinaryWriter
     {
         object Get(string name);
@@ -93,6 +98,8 @@ namespace BrightData
         IDisposableLayers MemoryLayer { get; }
         IDataReader DataReader { get; }
         INumericComputation<T> GetComputation<T>() where T: struct;
+        T Get<T>(string name);
+        void Set<T>(string name, T value);
     }
 
     public interface ITensorSegment<T> : IReferenceCountedMemory, IDisposable
@@ -205,5 +212,18 @@ namespace BrightData
         IVector<T> Column(uint i);
         IVector<T> Row(uint i);
         uint RowCount { get; }
+    }
+
+    public interface IAutoGrowBuffer : ICanWriteToBinaryWriter
+    {
+        uint Size { get; }
+        void Add(object obj);
+        IEnumerable<object> Enumerate();
+    }
+
+    public interface IAutoGrowBuffer<T> : IAutoGrowBuffer
+    {
+        void Add(T obj);
+        IEnumerable<T> EnumerateTyped();
     }
 }

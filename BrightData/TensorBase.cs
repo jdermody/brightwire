@@ -4,12 +4,12 @@ using System.Linq;
 
 namespace BrightData
 {
-    public abstract class TensorBase<T, DT> : ITensor<T>, IHaveTensorSegment<T>, ICanWriteToBinaryWriter
+    public abstract class TensorBase<T, DT> : ITensor<T>, IHaveTensorSegment<T>, ICanWriteToBinaryWriter, ICanInitializeFromBinaryReader
         where DT: ITensor<T>, IHaveTensorSegment<T>
         where T: struct
     {
-        protected readonly ITensorSegment<T> _data;
-        readonly Lazy<INumericComputation<T>> _computation;
+        protected ITensorSegment<T> _data;
+        Lazy<INumericComputation<T>> _computation;
         bool _wasDisposed = false;
 
         TensorBase(IBrightDataContext context)
@@ -25,20 +25,12 @@ namespace BrightData
             _data = data;
         }
 
-        public void Dispose()
+        public void Initialize(IBrightDataContext context, BinaryReader reader)
         {
-            if (!_wasDisposed) {
-                lock (this) {
-                    if (_wasDisposed) {
-                        _wasDisposed = true;
-                        _data.Release();
-                    }
-                }
-            }
-        }
+            Context = context;
+            _computation = new Lazy<INumericComputation<T>>(() => Context.GetComputation<T>());
+            context.MemoryLayer.Add(this);
 
-        protected TensorBase(IBrightDataContext context, BinaryReader reader) : this(context)
-        {
             var len = reader.ReadInt32();
             Shape = new uint[len];
             uint size = 0;
@@ -53,6 +45,23 @@ namespace BrightData
             _data = data.GetSegment();
         }
 
+        public void Dispose()
+        {
+            if (!_wasDisposed) {
+                lock (this) {
+                    if (_wasDisposed) {
+                        _wasDisposed = true;
+                        _data.Release();
+                    }
+                }
+            }
+        }
+
+        protected TensorBase(IBrightDataContext context, BinaryReader reader)
+        {
+            Initialize(context, reader);
+        }
+
         public void WriteTo(BinaryWriter writer)
         {
             writer.Write(Shape.Length);
@@ -64,7 +73,7 @@ namespace BrightData
 
         protected abstract DT Create(ITensorSegment<T> segment);
 
-        public uint[] Shape { get; }
+        public uint[] Shape { get; private set; }
         protected INumericComputation<T> Computation => _computation.Value;
 
         public ITensorSegment<T> GetDataCopy()
@@ -72,7 +81,7 @@ namespace BrightData
             _data.AddRef();
             return _data;
         }
-        public IBrightDataContext Context { get; }
+        public IBrightDataContext Context { get; private set; }
         public uint Size => this.GetSize();
         public uint Rank => this.GetRank();
 

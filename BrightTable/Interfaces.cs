@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using BrightData;
+using BrightTable.Transformations.Conversions;
 
 namespace BrightTable
 {
@@ -150,8 +151,8 @@ namespace BrightTable
     public interface IColumnOrientedDataTable : IDataTable, IDisposable
     {
         IRowOrientedDataTable AsRowOriented(string filePath = null);
-        IColumnOrientedDataTable Convert(params ColumnConversion[] conversion);
-        IColumnOrientedDataTable Convert(string filePath, params ColumnConversion[] conversion);
+        IColumnOrientedDataTable Convert(params DataConversionParam[] conversion);
+        IColumnOrientedDataTable Convert(string filePath, params DataConversionParam[] conversion);
         ISingleTypeTableSegment Column(uint columnIndex);
         IColumnOrientedDataTable SelectColumns(params uint[] columnIndices);
         IColumnOrientedDataTable SelectColumns(string filePath, params uint[] columnIndices);
@@ -162,6 +163,7 @@ namespace BrightTable
         IMutateColumns CreateMutateContext();
         IColumnOrientedDataTable Concat(params IColumnOrientedDataTable[] others);
         IColumnOrientedDataTable Concat(string filePath, params IColumnOrientedDataTable[] others);
+        IColumnOrientedDataTable FilterRows(Predicate<object[]> predicate, string filePath = null);
     }
 
     public interface IRowOrientedDataTable : IDataTable
@@ -195,7 +197,7 @@ namespace BrightTable
         void Finalise();
     }
 
-    public enum ColumnConversion
+    public enum ColumnConversionType
     {
         Unchanged = 0,
         ToBoolean,
@@ -206,6 +208,24 @@ namespace BrightTable
         ToWeightedIndexList,
         ToVector,
         ToCategoricalIndex
+    }
+
+    public interface ICanConvert
+    {
+        Type From { get; }
+        Type To { get; }
+    }
+
+    public interface IConvert<in TF, TT> : ICanConvert
+    {
+        bool Convert(TF input, IAutoGrowBuffer<TT> buffer);
+        void Finalise(IMetaData metaData);
+    }
+
+    public interface IColumnConversion
+    {
+        uint Convert();
+        IAutoGrowBuffer Buffer { get; }
     }
 
     public interface IConvertColumn
@@ -227,5 +247,12 @@ namespace BrightTable
     {
         IMutateColumns Add<T>(uint index, Func<T, T> mutator);
         IColumnOrientedDataTable Mutate(string filePath = null);
+    }
+
+    public interface IColumnInfo
+    {
+        public uint Index { get; }
+        ColumnType ColumnType { get; }
+        IMetaData MetaData { get; }
     }
 }

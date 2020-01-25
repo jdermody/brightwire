@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using BrightData.Computation;
 using BrightData.Helper;
@@ -8,6 +10,7 @@ namespace BrightData
 {
     public class BrightDataContext : IBrightDataContext
     {
+        readonly ConcurrentDictionary<string, object> _attachedProperties = new ConcurrentDictionary<string, object>();
         readonly TensorPool _tensorPool;
         readonly DisposableLayers _memoryLayers = new DisposableLayers();
         readonly FloatComputation _floatComputation;
@@ -55,5 +58,8 @@ namespace BrightData
             }
             throw new NotImplementedException();
         }
+
+        public T Get<T>(string name) => _attachedProperties.TryGetValue(name, out var obj) ? (T) obj : default(T);
+        public void Set<T>(string name, T value) => _attachedProperties.AddOrUpdate(name, value, (n, o) => value);
     }
 }
