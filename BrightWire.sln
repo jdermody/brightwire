@@ -33,7 +33,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrightWire", "BrightWire\Br
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleTest", "ConsoleTest\ConsoleTest.csproj", "{F5CA55EE-C3E1-4BDF-81DD-5B40B2362EFC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrightData.UnitTests", "BrightData.UnitTests\BrightData.UnitTests.csproj", "{9CDDEEF5-067C-44C5-8000-272BA7D6172D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrightData.UnitTests", "BrightData.UnitTests\BrightData.UnitTests.csproj", "{9CDDEEF5-067C-44C5-8000-272BA7D6172D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrightData.Numerics", "BrightData.Numerics\BrightData.Numerics.csproj", "{A8A3A972-FAA7-4B85-993F-118736970857}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -133,6 +135,14 @@ Global
 		{9CDDEEF5-067C-44C5-8000-272BA7D6172D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9CDDEEF5-067C-44C5-8000-272BA7D6172D}.Release|x64.ActiveCfg = Release|Any CPU
 		{9CDDEEF5-067C-44C5-8000-272BA7D6172D}.Release|x64.Build.0 = Release|Any CPU
+		{A8A3A972-FAA7-4B85-993F-118736970857}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8A3A972-FAA7-4B85-993F-118736970857}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8A3A972-FAA7-4B85-993F-118736970857}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A8A3A972-FAA7-4B85-993F-118736970857}.Debug|x64.Build.0 = Debug|Any CPU
+		{A8A3A972-FAA7-4B85-993F-118736970857}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8A3A972-FAA7-4B85-993F-118736970857}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A8A3A972-FAA7-4B85-993F-118736970857}.Release|x64.ActiveCfg = Release|Any CPU
+		{A8A3A972-FAA7-4B85-993F-118736970857}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
