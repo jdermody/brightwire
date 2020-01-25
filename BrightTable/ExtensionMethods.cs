@@ -121,6 +121,18 @@ namespace BrightTable
             _ => false
         };
 
+        public static bool IsNumeric(this ColumnType type) => type switch
+        {
+            ColumnType.Byte => true,
+            ColumnType.Double => true,
+            ColumnType.Decimal => true,
+            ColumnType.Float => true,
+            ColumnType.Short => true,
+            ColumnType.Int => true,
+            ColumnType.Long => true,
+            _ => false
+        };
+
         public static Type DataType(this IDataTableSegment segment)
         {
             Type ret = null;
@@ -418,19 +430,24 @@ namespace BrightTable
             return (IAutoGrowBuffer) ret;
         }
 
-        public static IColumnOrientedDataTable BuildColumnOrientedTable(this IReadOnlyList<IAutoGrowBuffer> buffers, IBrightDataContext context, uint rowCount, string filePath = null)
+        public static IColumnOrientedDataTable BuildColumnOrientedTable(this IReadOnlyList<ISingleTypeTableSegment> segments, IBrightDataContext context, uint rowCount, string filePath = null)
         {
-            var columnCount = (uint)buffers.Count;
+            var columnCount = (uint)segments.Count;
             var columnOffsets = new List<(long Position, long EndOfColumnOffset)>();
             using var builder = new ColumnOrientedTableBuilder(filePath);
 
             builder.WriteHeader(columnCount, rowCount);
-            foreach(var segment in buffers.Cast<ISingleTypeTableSegment>()) {
+            foreach(var segment in segments) {
                 var position = builder.Write(segment);
                 columnOffsets.Add((position, builder.GetCurrentPosition()));
             }
             builder.WriteColumnOffsets(columnOffsets);
             return builder.Build(context);
+        }
+
+        public static IColumnOrientedDataTable BuildColumnOrientedTable(this IReadOnlyList<IAutoGrowBuffer> buffers, IBrightDataContext context, uint rowCount, string filePath = null)
+        {
+            return buffers.Cast<ISingleTypeTableSegment>().ToList().BuildColumnOrientedTable(context, rowCount, filePath);
         }
 
         public static IRowOrientedDataTable BuildRowOrientedTable(this IReadOnlyList<IAutoGrowBuffer> buffers, IBrightDataContext context, uint rowCount, string filePath = null)
@@ -444,20 +461,6 @@ namespace BrightTable
                 builder.AddRow(row);
             }
             return builder.Build(context);
-        }
-
-        class ColumnInfo : IColumnInfo
-        {
-            public ColumnInfo(uint index, ColumnType columnType, IMetaData metaData)
-            {
-                Index = index;
-                ColumnType = columnType;
-                MetaData = metaData;
-            }
-
-            public uint Index { get; }
-            public ColumnType ColumnType { get; }
-            public IMetaData MetaData { get; }
         }
 
         public static IColumnInfo ChangeColumnType(this IColumnInfo column, ColumnType newType)

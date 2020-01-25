@@ -89,15 +89,16 @@ namespace BrightData
         public void InitializeFrom(Stream stream) => _data.InitializeFrom(stream);
 
         public DT Add(DT tensor) => Create(Computation.Add(_data, tensor.Data));
-        public DT Log(DT tensor) => Create(Computation.Log(_data));
-        public DT Abs(DT tensor) => Create(Computation.Abs(_data));
-        public DT Sqrt(DT tensor) => Create(Computation.Sqrt(_data));
-        public DT Squared(DT tensor) => Create(Computation.Squared(_data));
+        public DT Log() => Create(Computation.Log(_data));
+        public DT Abs() => Create(Computation.Abs(_data));
+        public DT Sqrt() => Create(Computation.Sqrt(_data));
+        public DT Squared() => Create(Computation.Squared(_data));
         public void AddInPlace(DT tensor) => Computation.AddInPlace(_data, tensor.Data);
         public void AddInPlace(T scalar) => Computation.AddInPlace(_data, scalar);
         public DT Subtract(DT tensor) => Create(Computation.Subtract(_data, tensor.Data));
         public void SubtractInPlace(DT tensor) => Computation.SubtractInPlace(_data, tensor.Data);
         public DT PointwiseMultiply(DT tensor) => Create(Computation.Multiply(_data, tensor.Data));
+        public void MultiplyInPlace(T scalar) => Computation.MultiplyInPlace(_data, scalar);
         public void PointwiseMultiplyInPlace(DT tensor) => Computation.SubtractInPlace(_data, tensor.Data);
         public DT PointwiseDivide(DT tensor) => Create(Computation.Divide(_data, tensor.Data));
         public void PointwiseDivideInPlace(DT tensor) => Computation.DivideInPlace(_data, tensor.Data);
@@ -112,6 +113,8 @@ namespace BrightData
         public T CosineDistance(DT tensor) => Computation.CosineDistance(_data, tensor.Data);
         public T EuclideanDistance(DT tensor) => Computation.EuclideanDistance(_data, tensor.Data);
         public T ManhattanDistance(DT tensor) => Computation.ManhattanDistance(_data, tensor.Data);
+
+        public DT Sigmoid() => Create(Computation.Sigmoid(_data));
 
         public ITensorSegment<T> Data => _data;
 

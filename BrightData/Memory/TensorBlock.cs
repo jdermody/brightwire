@@ -81,6 +81,17 @@ namespace BrightData.Memory
             stream.Read(MemoryMarshal.Cast<T, byte>(_data.Memory.Span));
         }
 
+        public void InitializeFrom(ITensorBlock<T> tensor)
+        {
+            tensor.Data.CopyTo(Data);
+        }
+
+        public void InitializeFrom(T[] array)
+        {
+            var ptr = new Span<T>(array);
+            ptr.CopyTo(Data);
+        }
+
         public void Initialize(Func<uint, T> initializer)
         {
             var span = _data.Memory.Span;

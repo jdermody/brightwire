@@ -6,30 +6,35 @@ using BrightData;
 
 namespace BrightTable.Segments
 {
-    class ColumnInfo
+    class ColumnInfo : IColumnInfo
     {
-        readonly MetaData _metaData;
-
         public ColumnInfo(BinaryReader reader, uint index)
         {
             ColumnType = (ColumnType)reader.ReadSByte();
-            _metaData = new MetaData(reader);
+            MetaData = new MetaData(reader);
             Index = index;
+        }
+
+        public ColumnInfo(uint index, ColumnType type, IMetaData metaData)
+        {
+            Index = index;
+            ColumnType = type;
+            MetaData = metaData;
         }
 
         public uint Index { get; }
         public ColumnType ColumnType { get; }
-        public IMetaData MetaData => _metaData;
+        public IMetaData MetaData { get; }
 
         public void WriteTo(BinaryWriter writer)
         {
             writer.Write((sbyte) ColumnType);
-            _metaData.WriteTo(writer);
+            MetaData.WriteTo(writer);
         }
 
         public override string ToString()
         {
-            return $"{Index}) {ColumnType} - {_metaData}";
+            return $"{Index}) {ColumnType} - {MetaData}";
         }
     }
 }

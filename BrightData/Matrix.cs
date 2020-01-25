@@ -8,53 +8,58 @@ using BrightData.Memory;
 
 namespace BrightData
 {
-    public class Matrix<T> : TensorBase<T, Matrix<T>>, IMatrix<T>
+    public class Matrix<T> : TensorBase<T, Matrix<T>>, IIndexableMatrix<T>
         where T: struct
     {
         public Matrix(IBrightDataContext context, ITensorSegment<T> data, uint rows, uint columns) : base(context, data, new[] { rows, columns }) { }
         public Matrix(IBrightDataContext context, BinaryReader reader) : base(context, reader) { }
 
-        IVector<T> IMatrix<T>.Row(uint i)
-        {
-            throw new NotImplementedException();
-        }
+        IVector<T> IMatrix<T>.Row(uint i) => new Vector<T>(Row(i));
 
         public uint RowCount => Shape[0];
         public uint ColumnCount => Shape[1];
+        public IIndexableMatrix<T> AsIndexable() => this;
+
         public new uint Size => RowCount * ColumnCount;
 
-        IVector<T> IMatrix<T>.Column(uint i)
-        {
-            throw new NotImplementedException();
-        }
+        IVector<T> IMatrix<T>.Column(uint i) => new Vector<T>(Column(i));
 
         public ITensorSegment<T> Row(uint index) => new TensorSegmentWrapper<T>(_data, index * ColumnCount, 1, ColumnCount);
-        public void MultiplyInPlace(T scalar)
+
+        public IMatrix<T> Multiply(IVector<T> vector)
         {
-            throw new NotImplementedException();
+            return Multiply(vector.Reshape(vector.Size, 1));
         }
 
-        public IMatrix<T> Multiply(IVector<float> vector)
+        public IMatrix<T> Multiply(IMatrix<T> matrix)
         {
-            throw new NotImplementedException();
-        }
+            if (ColumnCount != matrix.RowCount)
+                throw new ArgumentException("Target rows do not align with source columns");
 
-        public IMatrix<T> Multiply(IMatrix<float> matrix)
-        {
-            throw new NotImplementedException();
+            // naive implementation
+            var im = matrix.AsIndexable();
+            var computation = Computation;
+            var resultSize = RowCount * matrix.ColumnCount;
+            var ret = new Matrix<T>(Context, Context.TensorPool.Get<T>(resultSize).GetSegment(), RowCount, matrix.ColumnCount);
+            Parallel.For(0, ret.Size, ind => {
+                var j = (uint)(ind / ColumnCount);
+                var i = (uint)(ind % ColumnCount);
+                ret[j, i] = computation.SumIndexedProducts(ColumnCount, k => this[j, k], k => im[k, i]);
+            });
+            return ret;
         }
 
         public ITensorSegment<T> Column(uint index) => new TensorSegmentWrapper<T>(_data, index, ColumnCount, RowCount);
 
-        public T this[int y, int x]
+        public T this[int rowY, int columnX]
         {
-            get => _data[y * ColumnCount + x];
-            set => _data[y * ColumnCount + x] = value;
+            get => _data[rowY * ColumnCount + columnX];
+            set => _data[rowY * ColumnCount + columnX] = value;
         }
-        public T this[uint y, uint x]
+        public T this[uint rowY, uint columnX]
         {
-            get => _data[y * ColumnCount + x];
-            set => _data[y * ColumnCount + x] = value;
+            get => _data[rowY * ColumnCount + columnX];
+            set => _data[rowY * ColumnCount + columnX] = value;
         }
 
         public override string ToString() => String.Format($"Matrix (Rows: {RowCount}, Columns: {ColumnCount})");
@@ -68,23 +73,6 @@ namespace BrightData
                 var offset = i * RowCount;
                 for (uint j = 0; j < RowCount; j++)
                     ret[offset + j] = column[j];
-            });
-            return ret;
-        }
-
-        public Matrix<T> Multiply(Matrix<T> matrix)
-        {
-            if (ColumnCount != matrix.RowCount)
-                throw new ArgumentException("Target rows do not align with source columns");
-
-            // naive implementation
-            var computation = Computation;
-            var resultSize = RowCount * matrix.ColumnCount;
-            var ret = new Matrix<T>(Context, Context.TensorPool.Get<T>(resultSize).GetSegment(), RowCount, matrix.ColumnCount);
-            Parallel.For(0, ret.Size, ind => {
-                var j = (uint)(ind / RowCount);
-                var i = (uint)(ind % RowCount);
-                ret[j, i] = computation.SumIndexedProducts(ColumnCount, k => this[j, k], k => matrix[k, i]);
             });
             return ret;
         }

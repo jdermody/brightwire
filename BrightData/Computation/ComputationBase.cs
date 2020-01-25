@@ -55,6 +55,11 @@ namespace BrightData.Computation
             MutateInPlace(target, v => Add(v, scalar));
         }
 
+        public void MultiplyInPlace(ITensorSegment<T> target, T scalar)
+        {
+            MutateInPlace(target, v => Multiply(v, scalar));
+        }
+
         public ITensorSegment<T> Subtract(ITensorSegment<T> tensor1, ITensorSegment<T> tensor2)
         {
             return Zip(tensor1, tensor2, Subtract);

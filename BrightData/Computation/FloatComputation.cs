@@ -20,6 +20,7 @@ namespace BrightData.Computation
         public ITensorSegment<float> Add(ITensorSegment<float> tensor1, ITensorSegment<float> tensor2) => Zip(tensor1, tensor2, (a, b) => a+b);
         public void AddInPlace(ITensorSegment<float> target, ITensorSegment<float> other) => Mutate(target, other, (a, b) => a + b);
         public void AddInPlace(ITensorSegment<float> target, float scalar) => MutateInPlace(target, v => v + scalar);
+        public void MultiplyInPlace(ITensorSegment<float> target, float scalar) => MutateInPlace(target, v => v * scalar);
         public ITensorSegment<float> Subtract(ITensorSegment<float> tensor1, ITensorSegment<float> tensor2) => Zip(tensor1, tensor2, (a, b) => a - b);
         public void SubtractInPlace(ITensorSegment<float> target, ITensorSegment<float> other) => Mutate(target, other, (a, b) => a - b);
         public ITensorSegment<float> Multiply(ITensorSegment<float> tensor1, ITensorSegment<float> tensor2) => Zip(tensor1, tensor2, (a, b) => a * b);
@@ -113,6 +114,11 @@ namespace BrightData.Computation
                 return s * s;
             });
             return MathF.Sqrt(Average(result));
+        }
+
+        public ITensorSegment<float> Sigmoid(ITensorSegment<float> val)
+        {
+            return Transform(val, v => FloatMath.Constrain(1.0f / (1.0f + MathF.Exp(-1.0f * v))));
         }
 
         protected ITensorSegment<float> Zip(ITensorSegment<float> segment, ITensorSegment<float> other, Func<float, float, float> func)

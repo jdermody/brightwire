@@ -220,29 +220,71 @@ namespace BrightTable
         public IColumnOrientedDataTable Convert(string filePath, params DataConversionParam[] conversionParams)
         {
             using var tempStream = new TempStreamManager();
-            var conversions = conversionParams
-                .Zip(_columns, (c, columnInfo) => {
-                    var column = _GetColumn(columnInfo.Index);
-                    var converter = c.GetConverter(columnInfo.ColumnType, column, tempStream, Context);
-                    var newColumnInfo = columnInfo.ChangeColumnType(converter.To.GetColumnType());
-                    return (
-                        Converter: converter,
-                        Buffer: newColumnInfo.GetGrowableSegment(Context, tempStream),
-                        Column: column
-                    );
-                })
-                .Select((d, i) => {
-                    var contextType = typeof(ConversionContext<,>).MakeGenericType(d.Converter.From, d.Converter.To);
-                    var param = new object[] { d.Column, d.Converter, d.Buffer };
-                    var converter = Activator.CreateInstance(contextType, param);
-                    return (IColumnConversion)converter;
-                })
-                .ToList();
+            var columnConversionTable = new Dictionary<uint, DataConversionParam>();
 
-            var rowCount = conversions.Select(c => c.Convert()).Min();
-            return conversions.Select(c => c.Buffer).ToList().BuildColumnOrientedTable(Context, rowCount, filePath);
-            //var conversion = new ColumnConversionTransformation(this, conversionParams);
-            //return conversion.Transform(this, filePath);
+            uint nextIndex = 0;
+            foreach (var item in conversionParams) {
+                if (item.Index.HasValue && item.Index.Value < ColumnCount) {
+                    columnConversionTable[item.Index.Value] = item;
+                    nextIndex = item.Index.Value + 1;
+                }
+                else if(nextIndex < ColumnCount)
+                    columnConversionTable[nextIndex++] = item;
+            }
+
+            var columnConversions = new Dictionary<uint, IColumnConversion>();
+            foreach (var columnInfo in _columns) {
+                if (columnConversionTable.TryGetValue(columnInfo.Index, out var conversion)) {
+                    var column = _GetColumn(columnInfo.Index);
+                    var converter = conversion.GetConverter(columnInfo.ColumnType, column, tempStream, Context);
+                    if (converter != null) {
+                        var newColumnInfo = columnInfo.ChangeColumnType(converter.To.GetColumnType());
+                        var buffer = newColumnInfo.GetGrowableSegment(Context, tempStream);
+                        var contextType = typeof(ConversionContext<,>).MakeGenericType(converter.From, converter.To);
+                        var param = new object[] { column, converter, buffer };
+                        var conversionContext = (IColumnConversion)Activator.CreateInstance(contextType, param);
+                        columnConversions.Add(columnInfo.Index, conversionContext);
+                    }
+                }
+            }
+
+            var convertedColumns = new List<ISingleTypeTableSegment>();
+            for (uint i = 0; i < ColumnCount; i++) {
+                var wasConverted = false;
+                var column = _GetColumn(i);
+                if (columnConversions.TryGetValue(i, out var converter)) {
+                    if (converter.Convert() == RowCount) {
+                        convertedColumns.Add((ISingleTypeTableSegment) converter.Buffer);
+                        wasConverted = true;
+                    }
+                }
+                if(!wasConverted)
+                    convertedColumns.Add(column);
+            }
+
+            return convertedColumns.BuildColumnOrientedTable(Context, RowCount, filePath);
+
+            //var conversions = conversionParams
+            //    .Zip(_columns, (c, columnInfo) => {
+            //        var column = _GetColumn(columnInfo.Index);
+            //        var converter = c.GetConverter(columnInfo.ColumnType, column, tempStream, Context);
+            //        var newColumnInfo = columnInfo.ChangeColumnType(converter.To.GetColumnType());
+            //        return (
+            //            Converter: converter,
+            //            Buffer: newColumnInfo.GetGrowableSegment(Context, tempStream),
+            //            Column: column
+            //        );
+            //    })
+            //    .Select((d, i) => {
+            //        var contextType = typeof(ConversionContext<,>).MakeGenericType(d.Converter.From, d.Converter.To);
+            //        var param = new object[] { d.Column, d.Converter, d.Buffer };
+            //        var converter = Activator.CreateInstance(contextType, param);
+            //        return (IColumnConversion)converter;
+            //    })
+            //    .ToList();
+
+            //var rowCount = conversions.Select(c => c.Convert()).Min();
+            //return conversions.Select(c => c.Buffer).ToList().BuildColumnOrientedTable(Context, rowCount, filePath);
         }
 
         public IColumnOrientedDataTable SelectColumns(params uint[] columnIndices)

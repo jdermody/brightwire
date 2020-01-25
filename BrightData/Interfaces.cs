@@ -68,6 +68,9 @@ namespace BrightData
         ITensorSegment<T> GetSegment();
         IBrightDataContext Context { get; }
         void InitializeFrom(Stream stream);
+        void InitializeFrom(ITensorBlock<T> tensor);
+        void InitializeFrom(T[] array);
+        Span<T> Data { get; }
     }
 
     public interface IDataReader
@@ -139,6 +142,7 @@ namespace BrightData
         void SubtractInPlace(ITensorSegment<T> target, ITensorSegment<T> other);
         ITensorSegment<T> Multiply(ITensorSegment<T> tensor1, ITensorSegment<T> tensor2);
         void MultiplyInPlace(ITensorSegment<T> target, ITensorSegment<T> other);
+        void MultiplyInPlace(ITensorSegment<T> target, T scalar);
         ITensorSegment<T> Divide(ITensorSegment<T> tensor1, ITensorSegment<T> tensor2);
         void DivideInPlace(ITensorSegment<T> target, ITensorSegment<T> other);
         T SumIndexedProducts(uint size, Func<uint, T> p1, Func<uint, T> p2);
@@ -157,6 +161,7 @@ namespace BrightData
         ITensorSegment<T> Log(ITensorSegment<T> tensor);
         ITensorSegment<T> Squared(ITensorSegment<T> tensor);
         T StdDev(ITensorSegment<T> segment, T? mean);
+        ITensorSegment<T> Sigmoid(ITensorSegment<T> val);
     }
 
     public interface IWriteToMetaData
@@ -207,11 +212,19 @@ namespace BrightData
     public interface IMatrix<T> : IDisposable where T : struct
     {
         void MultiplyInPlace(T scalar);
-        IMatrix<T> Multiply(IVector<float> vector);
-        IMatrix<T> Multiply(IMatrix<float> matrix);
+        IMatrix<T> Multiply(IVector<T> vector);
+        IMatrix<T> Multiply(IMatrix<T> matrix);
         IVector<T> Column(uint i);
         IVector<T> Row(uint i);
         uint RowCount { get; }
+        uint ColumnCount { get; }
+        IIndexableMatrix<T> AsIndexable();
+    }
+
+    public interface IIndexableMatrix<T> : IMatrix<T> where T : struct
+    {
+        T this[int rowY, int columnX] { get; }
+        T this[uint rowY, uint columnX] { get; }
     }
 
     public interface IAutoGrowBuffer : ICanWriteToBinaryWriter

@@ -21,11 +21,11 @@ namespace BrightData
 
         public BrightDataContext(long maxCacheSize = Consts.DefaultMemoryCacheSize)
         {
+            _tensorPool = new TensorPool(this, new SharedPoolAllocator(), maxCacheSize);
             _floatComputation = new FloatComputation(_tensorPool);
             _doubleComputation = new DoubleComputation(_tensorPool);
             _decimalComputation = new DecimalComputation(_tensorPool);
             _uintComputation = new UIntComputation(_tensorPool);
-            _tensorPool = new TensorPool(this, new SharedPoolAllocator(), maxCacheSize);
             _dataReader = new DataEncoder(this);
             _memoryLayers.Push();
         }

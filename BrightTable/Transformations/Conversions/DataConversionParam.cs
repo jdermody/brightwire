@@ -12,7 +12,7 @@ namespace BrightTable.Transformations.Conversions
 {
     public class DataConversionParam
     {
-        class Converter<TF, TT> : IConvert<TF, TT>
+        public class Converter<TF, TT> : IConvert<TF, TT>
         {
             private readonly Func<TF, TT> _converter;
 
@@ -29,7 +29,9 @@ namespace BrightTable.Transformations.Conversions
 
             public void Finalise(IMetaData metaData)
             {
-                // nop
+                var columnType = To.GetColumnType();
+                if (columnType.IsNumeric())
+                    metaData.Set(Consts.IsNumeric, true);
             }
 
             public Type From => typeof(TF);
@@ -70,20 +72,20 @@ namespace BrightTable.Transformations.Conversions
             public Type To => typeof(string);
         }
 
-        class NopConverter<T> : IConvert<T, T>
-        {
-            public bool Convert(T input, IAutoGrowBuffer<T> buffer)
-            {
-                buffer.Add(input);
-                return true;
-            }
-            public void Finalise(IMetaData metaData)
-            {
-                // nop
-            }
-            public Type From => typeof(T);
-            public Type To => typeof(T);
-        }
+        //class NopConverter<T> : IConvert<T, T>
+        //{
+        //    public bool Convert(T input, IAutoGrowBuffer<T> buffer)
+        //    {
+        //        buffer.Add(input);
+        //        return true;
+        //    }
+        //    public void Finalise(IMetaData metaData)
+        //    {
+        //        // nop
+        //    }
+        //    public Type From => typeof(T);
+        //    public Type To => typeof(T);
+        //}
 
         class NumericConverter<TF, TT> : IConvert<TF, TT>
         {
@@ -108,7 +110,7 @@ namespace BrightTable.Transformations.Conversions
 
             public void Finalise(IMetaData metaData)
             {
-                
+                metaData.Set(Consts.IsNumeric, true);
             }
         }
 
@@ -136,6 +138,7 @@ namespace BrightTable.Transformations.Conversions
             }
         }
 
+        private readonly uint? _columnIndex;
         private readonly ColumnConversionType _toType;
         private readonly ICanConvert _converter;
 
@@ -149,16 +152,20 @@ namespace BrightTable.Transformations.Conversions
         private static readonly ICanConvert IndexListToWeightedIndexList = new Converter<IndexList, WeightedIndexList>(indexList => WeightedIndexList.Create(indexList.Context, indexList.Indices.Select(ind => new WeightedIndexList.Item(ind, 1f)).ToArray()));
         private static readonly ICanConvert VectorToWeightedIndexList = new Converter<Vector<float>, WeightedIndexList>(v => v.Data.ToSparse());
 
-        public DataConversionParam(ColumnConversionType type)
+        public DataConversionParam(uint? columnIndex, ColumnConversionType type)
         {
+            _columnIndex = columnIndex;
             _toType = type;
             _converter = null;
         }
 
-        public DataConversionParam(ICanConvert converter)
+        public DataConversionParam(uint? columnIndex, ICanConvert converter)
         {
+            _columnIndex = columnIndex;
             _converter = converter;
         }
+
+        public uint? Index => _columnIndex;
 
         public ICanConvert GetConverter(ColumnType fromType, ISingleTypeTableSegment column, TempStreamManager tempStreams, IBrightDataContext context)
         {
@@ -168,28 +175,28 @@ namespace BrightTable.Transformations.Conversions
                 var ret = Activator.CreateInstance(t, new object[] { convertFromString });
                 return (ICanConvert)ret;
             }
-            ICanConvert Nop()
-            {
-                var t = typeof(NopConverter<>).MakeGenericType(fromType.GetColumnType());
-                return (ICanConvert)Activator.CreateInstance(t);
-            }
+            //ICanConvert Nop()
+            //{
+            //    var t = typeof(NopConverter<>).MakeGenericType(fromType.GetColumnType());
+            //    return (ICanConvert)Activator.CreateInstance(t);
+            //}
 
             if (_converter != null)
                 return _converter;
 
             switch (_toType) {
                 case ColumnConversionType.Unchanged:
-                    return Nop();
+                    return null;
                 case ColumnConversionType.ToBoolean when fromType == ColumnType.Boolean:
-                    return Nop();
+                    return null;
                 case ColumnConversionType.ToBoolean when fromType == ColumnType.String:
                     return StringToBool;
                 case ColumnConversionType.ToDate when fromType == ColumnType.Date:
-                    return Nop();
+                    return null;
                 case ColumnConversionType.ToDate when fromType == ColumnType.String:
                     return StringToDate;
                 case ColumnConversionType.ToString when fromType == ColumnType.String:
-                    return Nop();
+                    return null;
                 case ColumnConversionType.ToString: {
                     var t = typeof(AnyToString<>).MakeGenericType(fromType.GetColumnType());
                     return (ICanConvert)Activator.CreateInstance(t);
@@ -239,19 +246,19 @@ namespace BrightTable.Transformations.Conversions
                     return (ICanConvert)converter;
                 }
                 case ColumnConversionType.ToIndexList when fromType == ColumnType.IndexList:
-                    return Nop();
+                    return null;
                 case ColumnConversionType.ToIndexList when fromType == ColumnType.WeightedIndexList:
                     return WeightedIndexListToIndexList;
                 case ColumnConversionType.ToIndexList when fromType == ColumnType.Vector:
                     return VectorToIndexList;
                 case ColumnConversionType.ToVector when fromType == ColumnType.Vector:
-                    return Nop();
+                    return null;
                 case ColumnConversionType.ToVector when fromType == ColumnType.WeightedIndexList:
                     return WeightedIndexListToVector;
                 case ColumnConversionType.ToVector when fromType == ColumnType.IndexList:
                     return IndexListToVector;
                 case ColumnConversionType.ToWeightedIndexList when fromType == ColumnType.WeightedIndexList:
-                    return Nop();
+                    return null;
                 case ColumnConversionType.ToWeightedIndexList when fromType == ColumnType.IndexList:
                     return IndexListToWeightedIndexList;
                 case ColumnConversionType.ToWeightedIndexList when fromType == ColumnType.Vector:
@@ -289,7 +296,19 @@ namespace BrightTable.Transformations.Conversions
 
         public static implicit operator DataConversionParam(ColumnConversionType type)
         {
-            return new DataConversionParam(type);
+            return new DataConversionParam(null, type);
         }
+
+        public static implicit operator DataConversionParam((uint Index, ColumnConversionType Type) column)
+        {
+            return new DataConversionParam(column.Index, column.Type);
+        }
+
+        public static implicit operator DataConversionParam((uint Index, ICanConvert Converter) column)
+        {
+            return new DataConversionParam(column.Index, column.Converter);
+        }
+
+        public static DataConversionParam Convert<TF, TT>(uint index, Func<TF, TT> converter) => new DataConversionParam(index, new Converter<TF, TT>(converter));
     }
 }

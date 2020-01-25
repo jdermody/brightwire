@@ -12,33 +12,20 @@ namespace BrightData
         public Vector(IBrightDataContext context, BinaryReader reader) : base(context, reader) { }
 
         public new uint Size => Shape[0];
-        public IVector<T> Sigmoid()
-        {
-            throw new NotImplementedException();
-        }
+
+        IVector<T> IVector<T>.Sigmoid() => Sigmoid();
 
         public IVector<T> Subtract(IVector<T> vector) => base.Subtract((Vector<T>) vector);
         public void AddInPlace(IVector<T> vector) => base.AddInPlace((Vector<T>)vector);
 
-        public IVector<T> Log()
-        {
-            throw new NotImplementedException();
-        }
+        IVector<T> IVector<T>.Log() => Log();
 
         public IVector<T> Clone()
         {
-            throw new NotImplementedException();
+            return Context.CreateVector(Size, i => this[i]);
         }
 
-        public T DotProduct(IVector<T> vector)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void MultiplyInPlace(T scalar)
-        {
-            throw new NotImplementedException();
-        }
+        public T DotProduct(IVector<T> vector) => base.DotProduct((Vector<T>)vector);
 
         IMatrix<T> IVector<T>.Reshape(uint rows, uint columns) => base.Reshape(rows, columns);
 
@@ -58,7 +45,7 @@ namespace BrightData
             set => _data[index] = value;
         }
 
-        public IEnumerable<T> Values { get; }
+        public IEnumerable<T> Values => _data.Values;
 
         public override string ToString()
         {

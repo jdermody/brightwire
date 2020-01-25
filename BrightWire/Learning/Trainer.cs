@@ -33,12 +33,14 @@ namespace BrightWire.Learning
         }
 
         private readonly Func<ITrainer<TM, TD>, ITrainingContext, float> _iterate;
+        private readonly Func<ITrainer<TM, TD>, IReadOnlyList<(float Output, float Target)>> _evaluate;
         public TM Model { get; }
         public TD Data { get; }
 
-        public Trainer(TM model, TD data, Func<ITrainer<TM, TD>, ITrainingContext, float> iterate)
+        public Trainer(TM model, TD data, Func<ITrainer<TM, TD>, ITrainingContext, float> iterate, Func<ITrainer<TM, TD>, IReadOnlyList<(float Output, float Target)>> evaluate)
         {
             _iterate = iterate;
+            _evaluate = evaluate;
             Model = model;
             Data = data;
         }
@@ -53,5 +55,7 @@ namespace BrightWire.Learning
         {
             return new Context(this, _iterate, learningRate, lambda);
         }
+
+        public IReadOnlyList<(float Output, float Target)> Evaluate() => _evaluate(this);
     }
 }

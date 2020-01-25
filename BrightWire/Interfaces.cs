@@ -20,7 +20,8 @@ namespace BrightWire
         TM Model { get; }
         TD Data { get; }
 
-        public ITrainingContext CreateContext(float learningRate, float lambda = 0f);
+        ITrainingContext CreateContext(float learningRate, float lambda = 0f);
+        IReadOnlyList<(float Output, float Target)> Evaluate();
     }
 
     public interface ITrainingContext

@@ -67,16 +67,21 @@ namespace BrightTable.Transformations
                 } else
                     throw new NotImplementedException();
 
-                var list = new List<T>();
                 var typeofT = typeof(T);
+                var columnType = typeofT.GetColumnType();
+                var metaData = new MetaData(metadata, Consts.Name, Consts.Index);
+                var column = new ColumnInfo(index, columnType, metaData);
+                var buffer = column.GetGrowableSegment(context, null);
+                
                 foreach (var item in segment.EnumerateTyped()) {
                     var val = Convert.ToDouble(item);
                     var normalised = (Math.Abs(divide) < FloatMath.AlmostZero) ? val : (val - subtract) / divide;
                     var converted = (T)Convert.ChangeType(normalised, typeofT);
-                    list.Add(converted);
+                    buffer.Add(converted);
                 }
                 Normalisations.Add((index, divide, subtract));
-                var ret = new DataSegmentBuffer<T>(context, typeofT.GetColumnType(), (uint)list.Count, list);
+                
+                var ret = new GrowableSegment<T>(columnType, metaData, (IAutoGrowBuffer<T>)buffer);
                 ret.MetaData.Set(Consts.Name, metadata.Name());
                 ret.MetaData.Set(Consts.Index, metadata.Index());
                 return ret;
