@@ -9,7 +9,7 @@ namespace BrightWire
 {
     public static class ExtensionMethods
     {
-        public static ITrainer<LogisticRegression, LogisticRegressionTrainer.LogisticRegressionTrainingData> GetLogisticRegressionTrainer(this IDataTable table)
+        public static ITrainer<LogisticRegression, LogisticRegressionTrainer.LogisticRegressionTrainingData> GetLogisticRegressionTrainer(this BrightTable.IDataTable table)
         {
             return LogisticRegressionTrainer.GetTrainer(table);
         }

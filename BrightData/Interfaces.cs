@@ -428,4 +428,15 @@ namespace BrightData
         IComputable3DTensor Create(Tensor3D<float> tensor);
         IComputable4DTensor Create(Tensor4D<float> tensor);
     }
+
+    public interface ICanConvert
+    {
+        Type From { get; }
+        Type To { get; }
+    }
+
+    public interface ICanConvert<in TF, out TT> : ICanConvert
+    {
+        TT Convert(TF data);
+    }
 }

@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using BrightData.Analysis;
+using BrightData.Converters;
 using BrightData.Helper;
 
 namespace BrightData
@@ -386,6 +388,29 @@ namespace BrightData
         public static void Initialize<T>(this ITensor<T> tensor, Func<uint, T> initializer) where T : struct
         {
             tensor.Data.Initialize(initializer);
+        }
+
+        public static ICanConvert GetConverter<T>(this Type toType) where T : struct
+        {
+            var typeCode = Type.GetTypeCode(toType);
+            switch (typeCode) {
+                case TypeCode.Single:
+                    return new ConvertToFloat<T>();
+                case TypeCode.Double:
+                    return new ConvertToDouble<T>();
+                case TypeCode.SByte:
+                    return new ConvertToSignedByte<T>();
+                case TypeCode.Int16:
+                    return new ConvertToShort<T>();
+                case TypeCode.Int32:
+                    return new ConvertToInt<T>();
+                case TypeCode.Int64:
+                    return new ConvertToLong<T>();
+                case TypeCode.Decimal:
+                    return new ConvertToDecimal<T>();
+                default:
+                    throw new NotImplementedException();
+            }
         }
     }
 }

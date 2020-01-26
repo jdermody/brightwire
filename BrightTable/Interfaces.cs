@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using BrightData;
-using BrightTable.Transformations.Conversions;
+using BrightData.Helper;
+using BrightTable.Transformations;
 
 namespace BrightTable
 {
@@ -153,10 +154,12 @@ namespace BrightTable
         IRowOrientedDataTable AsRowOriented(string filePath = null);
         IColumnOrientedDataTable Convert(params ColumnConversion[] conversion);
         IColumnOrientedDataTable Convert(string filePath, params ColumnConversion[] conversion);
+        IColumnOrientedDataTable Normalize(NormalizationType type, string filePath = null);
+        IColumnOrientedDataTable Normalize(params ColumnNormalization[] conversion);
+        IColumnOrientedDataTable Normalize(string filePath, params ColumnNormalization[] conversion);
         ISingleTypeTableSegment Column(uint columnIndex);
         IColumnOrientedDataTable SelectColumns(params uint[] columnIndices);
         IColumnOrientedDataTable SelectColumns(string filePath, params uint[] columnIndices);
-        IColumnOrientedDataTable Normalise(NormalizationType type, string filePath = null);
         IColumnOrientedDataTable ConcatColumns(params IColumnOrientedDataTable[] others);
         IColumnOrientedDataTable ConcatColumns(string filePath, params IColumnOrientedDataTable[] others);
         IColumnOrientedDataTable FilterRows(Predicate<object[]> predicate, string filePath = null);
@@ -207,27 +210,16 @@ namespace BrightTable
         ToCategoricalIndex
     }
 
-    public interface ICanConvert
-    {
-        Type From { get; }
-        Type To { get; }
-    }
-
     public interface IConvert<in TF, TT> : ICanConvert
     {
         bool Convert(TF input, IAutoGrowBuffer<TT> buffer);
         void Finalise(IMetaData metaData);
     }
 
-    public interface IColumnConversion
+    public interface IColumnTransformation
     {
-        uint Convert();
+        uint Transform();
         IAutoGrowBuffer Buffer { get; }
-    }
-
-    public interface IConvertColumn
-    {
-        ISingleTypeTableSegment Convert(IBrightDataContext context, ISingleTypeTableSegment segment);
     }
 
     public interface ITransformColumnOrientedDataTable
@@ -240,10 +232,15 @@ namespace BrightTable
         IRowOrientedDataTable Transform(IRowOrientedDataTable dataTable, string filePath = null);
     }
 
-    public interface IColumnInfo
+    public interface IColumnInfo : IHaveMetaData
     {
         public uint Index { get; }
         ColumnType ColumnType { get; }
-        IMetaData MetaData { get; }
+    }
+
+    public interface IColumnTransformationParam
+    {
+        public uint? Index { get; }
+        public ICanConvert GetConverter(ColumnType fromType, ISingleTypeTableSegment column, TempStreamManager tempStreams, IBrightDataContext context);
     }
 }

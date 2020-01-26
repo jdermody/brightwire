@@ -82,7 +82,7 @@ namespace BrightWire.Learning
             }
         }
 
-        public static ITrainer<LogisticRegression, LogisticRegressionTrainingData> GetTrainer(IDataTable dataTable)
+        public static ITrainer<LogisticRegression, LogisticRegressionTrainingData> GetTrainer(BrightTable.IDataTable dataTable)
         {
             var columns = dataTable.AllColumns();
 

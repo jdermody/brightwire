@@ -8,9 +8,9 @@ using BrightData.Helper;
 using BrightTable.Buffers;
 using BrightTable.Input;
 
-namespace BrightTable.Transformations.Conversions
+namespace BrightTable.Transformations
 {
-    public class ColumnConversion
+    public class ColumnConversion : IColumnTransformationParam
     {
         public class Converter<TF, TT> : IConvert<TF, TT>
         {

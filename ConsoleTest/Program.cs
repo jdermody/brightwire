@@ -9,10 +9,10 @@ using BrightTable;
 using BrightWire.Learning;
 using BrightTable.Input;
 using BrightTable.Segments;
-using BrightTable.Transformations.Conversions;
 using BrightWire;
 using BrightWire.CostFunctions;
 using BrightData.Numerics;
+using BrightTable.Transformations;
 
 namespace ConsoleTest
 {
@@ -33,6 +33,9 @@ namespace ConsoleTest
                 ColumnConversionType.ToNumeric, 
                 ColumnConversionType.ToNumeric, 
                 ColumnConversionType.ToCategoricalIndex);
+            var head = numericTable.Head(60);
+            using var normalized = numericTable.Normalize(NormalizationType.FeatureScale);
+            head = normalized.Head(60);
             using var trainingTable = numericTable.Convert(ColumnConversion.Create<int, int>(4, v => v == 1 ? 1 : 0));
             trainingTable.SetTargetColumn(4);
 

@@ -4,12 +4,12 @@ using System.IO;
 using System.Linq;
 using BrightData;
 using BrightData.Helper;
+using BrightData.Transformation;
 using BrightTable.Buffers;
 using BrightTable.Builders;
 using BrightTable.Segments;
 using BrightTable.Input;
 using BrightTable.Transformations;
-using BrightTable.Transformations.Conversions;
 
 namespace BrightTable
 {
@@ -196,25 +196,24 @@ namespace BrightTable
 
         public IColumnOrientedDataTable Convert(params ColumnConversion[] conversionParams)
         {
-            return Convert(null, conversionParams);
+            return _Transform(conversionParams, null);
         }
 
-        public IColumnOrientedDataTable Convert(string filePath, params ColumnConversion[] conversionParams)
+        IColumnOrientedDataTable _Transform(IEnumerable<IColumnTransformationParam> input, string filePath)
         {
             using var tempStream = new TempStreamManager();
-            var columnConversionTable = new Dictionary<uint, ColumnConversion>();
+            var columnConversionTable = new Dictionary<uint, IColumnTransformationParam>();
 
             uint nextIndex = 0;
-            foreach (var item in conversionParams) {
+            foreach (var item in input) {
                 if (item.Index.HasValue && item.Index.Value < ColumnCount) {
                     columnConversionTable[item.Index.Value] = item;
                     nextIndex = item.Index.Value + 1;
-                }
-                else if(nextIndex < ColumnCount)
+                } else if (nextIndex < ColumnCount)
                     columnConversionTable[nextIndex++] = item;
             }
 
-            var columnConversions = new Dictionary<uint, IColumnConversion>();
+            var columnConversions = new Dictionary<uint, IColumnTransformation>();
             foreach (var columnInfo in _columns) {
                 if (columnConversionTable.TryGetValue(columnInfo.Index, out var conversion)) {
                     var column = _GetColumn(columnInfo.Index);
@@ -222,9 +221,9 @@ namespace BrightTable
                     if (converter != null) {
                         var newColumnInfo = columnInfo.ChangeColumnType(converter.To.GetColumnType());
                         var buffer = newColumnInfo.GetGrowableSegment(Context, tempStream, false);
-                        var contextType = typeof(ConversionContext<,>).MakeGenericType(converter.From, converter.To);
+                        var contextType = typeof(TransformationContext<,>).MakeGenericType(converter.From, converter.To);
                         var param = new object[] { column, converter, buffer };
-                        var conversionContext = (IColumnConversion)Activator.CreateInstance(contextType, param);
+                        var conversionContext = (IColumnTransformation)Activator.CreateInstance(contextType, param);
                         columnConversions.Add(columnInfo.Index, conversionContext);
                     }
                 }
@@ -235,16 +234,21 @@ namespace BrightTable
                 var wasConverted = false;
                 var column = _GetColumn(i);
                 if (columnConversions.TryGetValue(i, out var converter)) {
-                    if (converter.Convert() == RowCount) {
-                        convertedColumns.Add((ISingleTypeTableSegment) converter.Buffer);
+                    if (converter.Transform() == RowCount) {
+                        convertedColumns.Add((ISingleTypeTableSegment)converter.Buffer);
                         wasConverted = true;
                     }
                 }
-                if(!wasConverted)
+                if (!wasConverted)
                     convertedColumns.Add(column);
             }
 
             return convertedColumns.BuildColumnOrientedTable(Context, RowCount, filePath);
+        }
+
+        public IColumnOrientedDataTable Convert(string filePath, params ColumnConversion[] conversionParams)
+        {
+            return _Transform(conversionParams, filePath);
         }
 
         public IColumnOrientedDataTable SelectColumns(params uint[] columnIndices) => SelectColumns(null, columnIndices);
@@ -254,10 +258,20 @@ namespace BrightTable
             return columns.BuildColumnOrientedTable(Context, RowCount, filePath);
         }
 
-        public IColumnOrientedDataTable Normalise(NormalizationType type, string filePath = null)
+        public IColumnOrientedDataTable Normalize(NormalizationType type, string filePath = null)
         {
-            var t = new NormalisationTransformation(type);
-            return t.Transform(this, filePath);
+            var param = _columns.Where(c => c.ColumnType.IsFloatingPoint()).Select(c => new ColumnNormalization(c.Index, type));
+            return _Transform(param, filePath);
+        }
+
+        public IColumnOrientedDataTable Normalize(params ColumnNormalization[] param)
+        {
+            return _Transform(param, null);
+        }
+
+        public IColumnOrientedDataTable Normalize(string filePath, params ColumnNormalization[] param)
+        {
+            return _Transform(param, filePath);
         }
 
         public IColumnOrientedDataTable ConcatColumns(params IColumnOrientedDataTable[] others) => ConcatColumns(null, others);

@@ -3,22 +3,22 @@ using System.Collections.Generic;
 using System.Text;
 using BrightData;
 
-namespace BrightTable.Transformations.Conversions
+namespace BrightTable.Transformations
 {
-    class ConversionContext<TF, TT> : IColumnConversion
+    class TransformationContext<TF, TT> : IColumnTransformation
     {
         private readonly IDataTableSegment<TF> _column;
         private readonly IConvert<TF, TT> _converter;
         private readonly IAutoGrowBuffer<TT> _buffer;
 
-        public ConversionContext(IDataTableSegment<TF> column, IConvert<TF, TT> converter, IAutoGrowBuffer<TT> buffer)
+        public TransformationContext(IDataTableSegment<TF> column, IConvert<TF, TT> converter, IAutoGrowBuffer<TT> buffer)
         {
             _column = column;
             _converter = converter;
             _buffer = buffer;
         }
 
-        public uint Convert()
+        public uint Transform()
         {
             uint ret = 0;
             foreach (var item in _column.EnumerateTyped()) {

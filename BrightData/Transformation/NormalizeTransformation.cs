@@ -5,7 +5,7 @@ using BrightData.Helper;
 
 namespace BrightData.Transformation
 {
-    class NormalizeTransformation
+    public class NormalizeTransformation
     {
         private readonly bool _divideByZero;
 

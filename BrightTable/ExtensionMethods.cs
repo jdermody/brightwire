@@ -6,6 +6,7 @@ using System.Text;
 using BrightData;
 using BrightData.Analysis;
 using BrightData.Buffers;
+using BrightData.Converters;
 using BrightData.Helper;
 using BrightTable.Buffers;
 using BrightTable.Builders;
@@ -130,6 +131,14 @@ namespace BrightTable
             ColumnType.Short => true,
             ColumnType.Int => true,
             ColumnType.Long => true,
+            _ => false
+        };
+
+        public static bool IsFloatingPoint(this ColumnType type) => type switch
+        {
+            ColumnType.Double => true,
+            ColumnType.Decimal => true,
+            ColumnType.Float => true,
             _ => false
         };
 
@@ -362,7 +371,7 @@ namespace BrightTable
             throw new Exception($"Found unknown data table orientation: {orientation}");
         }
 
-        public static uint CopySegment<T>(this IDataTableSegment<T> column, ITensorSegment<float> vector)
+        public static uint CopyToFloatSegment<T>(this IDataTableSegment<T> column, ITensorSegment<float> vector)
             where T : struct
         {
             uint index = 0;
@@ -376,7 +385,7 @@ namespace BrightTable
         public static uint CopyTo(this ISingleTypeTableSegment column, ITensorSegment<float> vector)
         {
             var type = column.SingleType.GetColumnType();
-            var copySegment = typeof(ExtensionMethods).GetMethod("CopySegment").MakeGenericMethod(type);
+            var copySegment = typeof(ExtensionMethods).GetMethod("CopyToFloatSegment").MakeGenericMethod(type);
             return (uint)copySegment.Invoke(null, new object[] { column, vector });
         }
 
@@ -480,6 +489,8 @@ namespace BrightTable
 
         public static IColumnInfo ChangeColumnType(this IColumnInfo column, ColumnType newType)
         {
+            if (column.ColumnType == newType)
+                return column;
             return new ColumnInfo(column.Index, newType, new MetaData(column.MetaData, Consts.Index, Consts.Name));
         }
     }
