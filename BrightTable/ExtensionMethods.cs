@@ -277,7 +277,7 @@ namespace BrightTable
         )
         {
             using var tempStreams = new TempStreamManager(tempBasePath);
-            var columns = new List<StringColumn>();
+            var columns = new List<GrowableSegment<string>>();
             var isFirst = hasHeader;
             uint rowCount = 0;
 
@@ -293,14 +293,16 @@ namespace BrightTable
                 foreach (var row in parser.Parse()) {
                     var cols = row.Length;
 
-                    for (var i = columns.Count; i < cols; i++)
-                        columns.Add(new StringColumn((uint)i, tempStreams, rowCount, maxRowsInMemory));
+                    for (var i = columns.Count; i < cols; i++) {
+                        var buffer = new EncodingBuffer<string>(new HybridStringBuffer(context, (uint) i, tempStreams));
+                        columns.Add(new GrowableSegment<string>(ColumnType.String, new MetaData(), buffer));
+                    }
 
                     for (var i = 0; i < cols; i++) {
                         var column = columns[i];
                         var text = row[i];
                         if (isFirst)
-                            column.Header = text;
+                            column.MetaData.Set(Consts.Name, text);
                         else
                             column.Add(text);
                     }
@@ -317,10 +319,12 @@ namespace BrightTable
                 Console.WriteLine($"Read {rowCount:N0} lines into {columns.Count:N0} columns");
             }
 
-            var builder = new ColumnOrientedTableBuilder(fileOutputPath);
-            builder.Write(rowCount, columns, writeProgress);
-            columns.ForEach(c => c.Dispose());
-            return builder.Build(context);
+            return columns.BuildColumnOrientedTable(context, rowCount, fileOutputPath);
+
+            //var builder = new ColumnOrientedTableBuilder(fileOutputPath);
+            //builder.Write(rowCount, columns, writeProgress);
+            //columns.ForEach(c => c.Dispose());
+            //return builder.Build(context);
         }
 
         public static void WriteProgress(this int newProgress, ref int oldProgress, int max = 100)
@@ -391,7 +395,7 @@ namespace BrightTable
             }
         }
 
-        public static IAutoGrowBuffer GetGrowableSegment(this IColumnInfo forColumn, IBrightDataContext context, TempStreamManager tempStream, int bufferSize = 32768)
+        public static IAutoGrowBuffer GetGrowableSegment(this IColumnInfo forColumn, IBrightDataContext context, TempStreamManager tempStream, bool tryEncode, uint bufferSize = 32768)
         {
             var type = forColumn.ColumnType;
             var columnType = type.GetColumnType();
@@ -421,12 +425,18 @@ namespace BrightTable
                 );
             }
 
+            if (tryEncode) {
+                var encoderType = typeof(EncodingBuffer<>).MakeGenericType(columnType);
+                buffer = (IAutoGrowBuffer) Activator.CreateInstance(encoderType, new object[] {buffer, bufferSize});
+            }
+
             var segmentType = typeof(GrowableSegment<>).MakeGenericType(columnType);
             var ret = Activator.CreateInstance(segmentType,
                 type,
                 new MetaData(forColumn.MetaData, Consts.StandardMetaData),
                 buffer
             );
+
             return (IAutoGrowBuffer) ret;
         }
 
@@ -446,6 +456,11 @@ namespace BrightTable
         }
 
         public static IColumnOrientedDataTable BuildColumnOrientedTable(this IReadOnlyList<IAutoGrowBuffer> buffers, IBrightDataContext context, uint rowCount, string filePath = null)
+        {
+            return buffers.Cast<ISingleTypeTableSegment>().ToList().BuildColumnOrientedTable(context, rowCount, filePath);
+        }
+
+        public static IColumnOrientedDataTable BuildColumnOrientedTable<T>(this IReadOnlyList<GrowableSegment<T>> buffers, IBrightDataContext context, uint rowCount, string filePath = null)
         {
             return buffers.Cast<ISingleTypeTableSegment>().ToList().BuildColumnOrientedTable(context, rowCount, filePath);
         }

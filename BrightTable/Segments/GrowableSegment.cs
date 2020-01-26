@@ -6,7 +6,7 @@ using BrightData;
 
 namespace BrightTable.Segments
 {
-    class GrowableSegment<T> : ISingleTypeTableSegment, IAutoGrowBuffer<T>
+    public class GrowableSegment<T> : ISingleTypeTableSegment, IAutoGrowBuffer<T>
     {
         private readonly IAutoGrowBuffer<T> _buffer;
 
@@ -27,9 +27,10 @@ namespace BrightTable.Segments
         public void WriteTo(BinaryWriter writer) => _buffer.WriteTo(writer);
         public IEnumerable<object> Enumerate() => _buffer.Enumerate();
         public uint Size => _buffer.Size;
-        public bool IsEncoded => false;
+        public bool IsEncoded => (_buffer as IHaveEncodedData)?.IsEncoded == true;
         public void Add(object obj) => _buffer.Add(obj);
         public void Add(T obj) => _buffer.Add(obj);
         public IEnumerable<T> EnumerateTyped() => _buffer.EnumerateTyped();
+        public void Write(IReadOnlyCollection<T> items, BinaryWriter writer) => _buffer.Write(items, writer);
     }
 }

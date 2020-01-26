@@ -151,24 +151,21 @@ namespace BrightTable
     public interface IColumnOrientedDataTable : IDataTable, IDisposable
     {
         IRowOrientedDataTable AsRowOriented(string filePath = null);
-        IColumnOrientedDataTable Convert(params DataConversionParam[] conversion);
-        IColumnOrientedDataTable Convert(string filePath, params DataConversionParam[] conversion);
+        IColumnOrientedDataTable Convert(params ColumnConversion[] conversion);
+        IColumnOrientedDataTable Convert(string filePath, params ColumnConversion[] conversion);
         ISingleTypeTableSegment Column(uint columnIndex);
         IColumnOrientedDataTable SelectColumns(params uint[] columnIndices);
         IColumnOrientedDataTable SelectColumns(string filePath, params uint[] columnIndices);
         IColumnOrientedDataTable Normalise(NormalizationType type, string filePath = null);
-        IColumnOrientedDataTable OneHotEncode(params uint[] columnIndices);
-        IColumnOrientedDataTable OneHotEncode(bool writeToMetadata, params uint[] columnIndices);
-        IColumnOrientedDataTable OneHotEncode(string filePath, bool writeToMetadata, params uint[] columnIndices);
-        IMutateColumns CreateMutateContext();
-        IColumnOrientedDataTable Concat(params IColumnOrientedDataTable[] others);
-        IColumnOrientedDataTable Concat(string filePath, params IColumnOrientedDataTable[] others);
+        IColumnOrientedDataTable ConcatColumns(params IColumnOrientedDataTable[] others);
+        IColumnOrientedDataTable ConcatColumns(string filePath, params IColumnOrientedDataTable[] others);
         IColumnOrientedDataTable FilterRows(Predicate<object[]> predicate, string filePath = null);
     }
 
     public interface IRowOrientedDataTable : IDataTable
     {
         IColumnOrientedDataTable AsColumnOriented(string filePath = null);
+        void ForEachRow(Action<object[]> callback);
         void ForEachRow(IEnumerable<uint> rowIndices, Action<object[]> callback);
         IRowOrientedDataTable Bag(uint sampleCount, int? randomSeed = null, string filePath = null);
         IDataTableSegment Row(uint rowIndex);
@@ -241,12 +238,6 @@ namespace BrightTable
     public interface ITransformRowOrientedDataTable
     {
         IRowOrientedDataTable Transform(IRowOrientedDataTable dataTable, string filePath = null);
-    }
-
-    public interface IMutateColumns
-    {
-        IMutateColumns Add<T>(uint index, Func<T, T> mutator);
-        IColumnOrientedDataTable Mutate(string filePath = null);
     }
 
     public interface IColumnInfo

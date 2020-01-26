@@ -54,7 +54,7 @@ namespace BrightTable.Transformations
 
         protected (ISingleTypeTableSegment Segment, IEditableBuffer Buffer) _CreateColumn(IBrightDataContext context, ColumnType columnType, IMetaData metadata, uint rowCount)
         {
-            var type = typeof(DataSegmentBuffer<>).MakeGenericType(columnType.GetColumnType());
+            var type = typeof(InMemoryBuffer<>).MakeGenericType(columnType.GetColumnType());
             var ret = Activator.CreateInstance(type, context, columnType, metadata, rowCount);
             return ((ISingleTypeTableSegment) ret, (IEditableBuffer) ret);
         }

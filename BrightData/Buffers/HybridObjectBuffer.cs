@@ -10,14 +10,13 @@ namespace BrightData.Buffers
     public class HybridObjectBuffer<T> : HybridBufferBase<T>
         where T: ICanWriteToBinaryWriter, ICanInitializeFromBinaryReader
     {
-        public HybridObjectBuffer(IBrightDataContext context, uint index, TempStreamManager tempStreams, int bufferSize = 32768) 
+        public HybridObjectBuffer(IBrightDataContext context, uint index, TempStreamManager tempStreams, uint bufferSize = 32768) 
             : base(context, index, tempStreams, bufferSize)
         {
         }
 
-        protected override void _Write(ConcurrentBag<T> items, Stream stream)
+        public override void Write(IReadOnlyCollection<T> items, BinaryWriter writer)
         {
-            using var writer = new BinaryWriter(stream, Encoding.UTF8, true);
             foreach (var item in items)
                 item.WriteTo(writer);
         }

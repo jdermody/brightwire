@@ -10,7 +10,7 @@ using BrightTable.Input;
 
 namespace BrightTable.Transformations.Conversions
 {
-    public class DataConversionParam
+    public class ColumnConversion
     {
         public class Converter<TF, TT> : IConvert<TF, TT>
         {
@@ -152,14 +152,14 @@ namespace BrightTable.Transformations.Conversions
         private static readonly ICanConvert IndexListToWeightedIndexList = new Converter<IndexList, WeightedIndexList>(indexList => WeightedIndexList.Create(indexList.Context, indexList.Indices.Select(ind => new WeightedIndexList.Item(ind, 1f)).ToArray()));
         private static readonly ICanConvert VectorToWeightedIndexList = new Converter<Vector<float>, WeightedIndexList>(v => v.Data.ToSparse());
 
-        public DataConversionParam(uint? columnIndex, ColumnConversionType type)
+        public ColumnConversion(uint? columnIndex, ColumnConversionType type)
         {
             _columnIndex = columnIndex;
             _toType = type;
             _converter = null;
         }
 
-        public DataConversionParam(uint? columnIndex, ICanConvert converter)
+        public ColumnConversion(uint? columnIndex, ICanConvert converter)
         {
             _columnIndex = columnIndex;
             _converter = converter;
@@ -175,11 +175,6 @@ namespace BrightTable.Transformations.Conversions
                 var ret = Activator.CreateInstance(t, new object[] { convertFromString });
                 return (ICanConvert)ret;
             }
-            //ICanConvert Nop()
-            //{
-            //    var t = typeof(NopConverter<>).MakeGenericType(fromType.GetColumnType());
-            //    return (ICanConvert)Activator.CreateInstance(t);
-            //}
 
             if (_converter != null)
                 return _converter;
@@ -294,21 +289,21 @@ namespace BrightTable.Transformations.Conversions
             }
         }
 
-        public static implicit operator DataConversionParam(ColumnConversionType type)
+        public static implicit operator ColumnConversion(ColumnConversionType type)
         {
-            return new DataConversionParam(null, type);
+            return new ColumnConversion(null, type);
         }
 
-        public static implicit operator DataConversionParam((uint Index, ColumnConversionType Type) column)
+        public static implicit operator ColumnConversion((uint Index, ColumnConversionType Type) column)
         {
-            return new DataConversionParam(column.Index, column.Type);
+            return new ColumnConversion(column.Index, column.Type);
         }
 
-        public static implicit operator DataConversionParam((uint Index, ICanConvert Converter) column)
+        public static implicit operator ColumnConversion((uint Index, ICanConvert Converter) column)
         {
-            return new DataConversionParam(column.Index, column.Converter);
+            return new ColumnConversion(column.Index, column.Converter);
         }
 
-        public static DataConversionParam Convert<TF, TT>(uint index, Func<TF, TT> converter) => new DataConversionParam(index, new Converter<TF, TT>(converter));
+        public static ColumnConversion Create<TF, TT>(uint index, Func<TF, TT> converter) => new ColumnConversion(index, new Converter<TF, TT>(converter));
     }
 }

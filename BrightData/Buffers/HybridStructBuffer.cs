@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using BrightData;
@@ -105,17 +106,17 @@ namespace BrightTable.Buffers
         //}
         readonly int _itemSize;
 
-        public HybridStructBuffer(IBrightDataContext context, uint index, TempStreamManager tempStreams, int bufferSize = 32768)
+        public HybridStructBuffer(IBrightDataContext context, uint index, TempStreamManager tempStreams, uint bufferSize = 32768)
             : base(context, index, tempStreams, bufferSize)
         {
             _itemSize = Unsafe.SizeOf<T>();
         }
 
-        protected override void _Write(ConcurrentBag<T> items, Stream stream)
+        public override void Write(IReadOnlyCollection<T> items, BinaryWriter writer)
         {
             var all = items.ToArray();
             var ptr = MemoryMarshal.Cast<T, byte>(all);
-            stream.Write(ptr);
+            writer.BaseStream.Write(ptr);
         }
 
         protected override IEnumerable<T> _Read(Stream stream)

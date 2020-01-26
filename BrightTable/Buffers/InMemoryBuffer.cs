@@ -6,12 +6,12 @@ using BrightData.Helper;
 
 namespace BrightTable.Buffers
 {
-    class DataSegmentBuffer<T> : IDataTableSegment<T>, IEditableBuffer, ICanWriteToBinaryWriter
+    class InMemoryBuffer<T> : IDataTableSegment<T>, IEditableBuffer, ICanWriteToBinaryWriter
     {
         readonly T[] _data;
         readonly IBrightDataContext _context;
 
-        public DataSegmentBuffer(IBrightDataContext context, ColumnType type, IMetaData metaData, uint size)
+        public InMemoryBuffer(IBrightDataContext context, ColumnType type, IMetaData metaData, uint size)
         {
             _context = context;
             SingleType = type;
@@ -21,7 +21,7 @@ namespace BrightTable.Buffers
             MetaData = metaData ?? new MetaData();
         }
 
-        public DataSegmentBuffer(IBrightDataContext context, ColumnType type, uint size, IEnumerable<T> data) : this(context, type, null, size)
+        public InMemoryBuffer(IBrightDataContext context, ColumnType type, uint size, IEnumerable<T> data) : this(context, type, null, size)
         {
             uint index = 0;
             foreach (var item in data)

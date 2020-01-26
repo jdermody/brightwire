@@ -11,14 +11,14 @@ namespace BrightData.Buffers
     public abstract class HybridBufferBase<T> : IAutoGrowBuffer<T>
     {
         private readonly TempStreamManager _tempStreams;
-        private readonly int _bufferSize;
+        private readonly uint _bufferSize;
         readonly ConcurrentBag<T> _buffer = new ConcurrentBag<T>();
         private bool _hasWrittenToStream = false;
         protected readonly IBrightDataContext _context;
         private readonly uint _index;
         private uint _size;
 
-        protected HybridBufferBase(IBrightDataContext context, uint index, TempStreamManager tempStreams, int bufferSize = 32768)
+        protected HybridBufferBase(IBrightDataContext context, uint index, TempStreamManager tempStreams, uint bufferSize = 32768)
         {
             _context = context;
             _index = index;
@@ -36,10 +36,10 @@ namespace BrightData.Buffers
                 }
             }
 
-            _Write(_buffer, writer.BaseStream);
+            Write(_buffer, writer);
         }
 
-        protected abstract void _Write(ConcurrentBag<T> items, Stream stream);
+        public abstract void Write(IReadOnlyCollection<T> items, BinaryWriter writer);
         protected abstract IEnumerable<T> _Read(Stream stream);
 
         public IEnumerable<T> EnumerateTyped()
@@ -70,7 +70,8 @@ namespace BrightData.Buffers
                 var stream = _tempStreams.Get(_index);
                 lock (stream) {
                     if (_buffer.Count == _bufferSize) {
-                        _Write(_buffer, stream);
+                        using var writer = new BinaryWriter(stream, Encoding.UTF8, true);
+                        Write(_buffer, writer);
                         _size += (uint)_buffer.Count;
                         _buffer.Clear();
                     }

@@ -238,5 +238,11 @@ namespace BrightData
     {
         void Add(T obj);
         IEnumerable<T> EnumerateTyped();
+        void Write(IReadOnlyCollection<T> items, BinaryWriter writer);
+    }
+
+    public interface IHaveEncodedData
+    {
+        bool IsEncoded { get; }
     }
 }

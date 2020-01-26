@@ -71,7 +71,7 @@ namespace BrightTable.Transformations
                 var columnType = typeofT.GetColumnType();
                 var metaData = new MetaData(metadata, Consts.Name, Consts.Index);
                 var column = new ColumnInfo(index, columnType, metaData);
-                var buffer = column.GetGrowableSegment(context, null);
+                var buffer = column.GetGrowableSegment(context, null, true);
                 
                 foreach (var item in segment.EnumerateTyped()) {
                     var val = Convert.ToDouble(item);

@@ -39,8 +39,15 @@ namespace BrightTable.Segments
             lock (_buffer) {
                 _buffer.Reset();
                 var reader = _buffer.Reader;
+                var size = reader.ReadByte();
+                writer.Write(size);
                 for (uint i = 0; i < Size; i++) {
-                    writer.Write(reader.ReadUInt32());
+                    if (size == 8)
+                        writer.Write(reader.ReadByte());
+                    else if (size == 16)
+                        writer.Write(reader.ReadUInt16());
+                    else if (size == 32)
+                        writer.Write(reader.ReadUInt32());
                 }
             }
         }
@@ -56,11 +63,27 @@ namespace BrightTable.Segments
             lock (_buffer) {
                 _buffer.Reset();
                 var reader = _buffer.Reader;
-                for (uint i = 0; i < Size; i++) {
-                    var index = reader.ReadUInt32();
-                    yield return _data[index];
-                }
+                var size = reader.ReadByte();
+                for (uint i = 0; i < Size; i++)
+                    yield return _Read(size, reader);
             }
+        }
+
+        T _Read(byte size, BinaryReader reader)
+        {
+            if (size == 8) {
+                var index = reader.ReadByte();
+                return _data[index];
+            }
+            if (size == 16) {
+                var index = reader.ReadUInt16();
+                return _data[index];
+            }
+            if (size == 32) {
+                var index = reader.ReadUInt32();
+                return _data[index];
+            }
+            throw new NotImplementedException();
         }
 
         public IEnumerable<object> Enumerate()

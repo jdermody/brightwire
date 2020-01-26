@@ -29,36 +29,36 @@ namespace BrightTable.Builders
             }
         }
 
-        public void Write(uint numRows, IReadOnlyList<StringColumn> columns, bool writeProgress = false)
-        {
-            WriteHeader((uint)columns.Count, numRows);
+        //public void Write(uint numRows, IReadOnlyList<StringColumn> columns, bool writeProgress = false)
+        //{
+        //    WriteHeader((uint)columns.Count, numRows);
 
-            var index = 0;
-            var columnOffsets = new List<(long Position, long EndOfColumnOffset)>();
-            foreach (var column in columns) {
-                var stopwatch = new Stopwatch();
-                stopwatch.Start();
-                if (writeProgress) {
-                    var name = column.Header != null ? $"column \"{column.Header}\"" : $"Column {index}";
-                    Console.Write($"{index}/{columns.Count}) Saving {name}...");
-                }
+        //    var index = 0;
+        //    var columnOffsets = new List<(long Position, long EndOfColumnOffset)>();
+        //    foreach (var column in columns) {
+        //        var stopwatch = new Stopwatch();
+        //        stopwatch.Start();
+        //        if (writeProgress) {
+        //            var name = column.Header != null ? $"column \"{column.Header}\"" : $"Column {index}";
+        //            Console.Write($"{index}/{columns.Count}) Saving {name}...");
+        //        }
 
-                var metadata = column.MetaData;
-                metadata.Set(Consts.Index, column.ColumnIndex);
-                metadata.Set(Consts.HasUnique, column.HasUnique);
-                metadata.Set(Consts.Type, ColumnType.String.ToString());
-                if (column.Header != null)
-                    metadata.Set(Consts.Name, column.Header);
+        //        var metadata = column.MetaData;
+        //        metadata.Set(Consts.Index, column.ColumnIndex);
+        //        metadata.Set(Consts.HasUnique, column.HasUnique);
+        //        metadata.Set(Consts.Type, ColumnType.String.ToString());
+        //        if (column.Header != null)
+        //            metadata.Set(Consts.Name, column.Header);
 
-                var position = _Write(metadata, ColumnType.String, column, column.HasUnique);
-                columnOffsets.Add((position, GetCurrentPosition()));
-                stopwatch.Stop();
-                if(writeProgress)
-                    Console.WriteLine($"done in {stopwatch.ElapsedMilliseconds:N0}ms");
-                ++index;
-            }
-            WriteColumnOffsets(columnOffsets);
-        }
+        //        var position = _Write(metadata, ColumnType.String, column, column.HasUnique);
+        //        columnOffsets.Add((position, GetCurrentPosition()));
+        //        stopwatch.Stop();
+        //        if(writeProgress)
+        //            Console.WriteLine($"done in {stopwatch.ElapsedMilliseconds:N0}ms");
+        //        ++index;
+        //    }
+        //    WriteColumnOffsets(columnOffsets);
+        //}
 
         public void WriteColumnOffsets(IReadOnlyList<(long Position, long EndOfColumnOffset)> offsets)
         {

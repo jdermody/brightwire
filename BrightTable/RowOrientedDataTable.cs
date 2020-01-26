@@ -86,11 +86,6 @@ namespace BrightTable
             }
         }
 
-        //public ISingleTypeTableSegment Column(uint columnIndex)
-        //{
-        //    return Columns(columnIndex).Single();
-        //}
-
         public IReadOnlyList<ISingleTypeTableSegment> Columns(params uint[] columnIndices)
         {
             // TODO: optionally compress the columns based on unique count statistics
@@ -131,6 +126,9 @@ namespace BrightTable
             return builder.Build(Context);
         }
 
+        public override void ForEachRow(Action<object[]> callback) => ForEachRow((row, index) => callback(row));
+        protected override IDataTable Table => this;
+
         public void ForEachRow(Action<object[], uint> callback, uint maxRows = uint.MaxValue)
         {
             var row = new object[ColumnCount];
@@ -165,7 +163,7 @@ namespace BrightTable
 
         (ISingleTypeTableSegment Segment, IEditableBuffer Buffer) _GetColumn(ColumnType columnType, IMetaData metadata)
         {
-            var type = typeof(DataSegmentBuffer<>).MakeGenericType(columnType.GetColumnType());
+            var type = typeof(InMemoryBuffer<>).MakeGenericType(columnType.GetColumnType());
             var ret = Activator.CreateInstance(type, Context, columnType, metadata, RowCount);
             return ((ISingleTypeTableSegment) ret, (IEditableBuffer) ret);
         }
@@ -230,49 +228,92 @@ namespace BrightTable
 			}
 		}
 
+        IRowOrientedDataTable _Copy(IReadOnlyList<uint> rowIndices, string filePath)
+        {
+            using var builder = new RowOrientedTableBuilder((uint)rowIndices.Count, filePath);
+            builder.AddColumnsFrom(this);
+            // ReSharper disable once AccessToDisposedClosure
+            ForEachRow(rowIndices, row => builder.AddRow(row));
+            return builder.Build(Context);
+        }
+
         public IRowOrientedDataTable Bag(uint sampleCount, int? randomSeed = null, string filePath = null)
         {
-            var conversion = new BagTableTransformation(sampleCount, randomSeed);
-            return conversion.Transform(this, filePath);
+            var rowIndices = this.RowIndices().ToList().Bag(sampleCount, randomSeed);
+            return _Copy(rowIndices, filePath);
         }
 
         public IRowOrientedDataTable Concat(params IRowOrientedDataTable[] others) => Concat(null, others);
         public IRowOrientedDataTable Concat(string filePath, params IRowOrientedDataTable[] others)
         {
-            var t = new ConcatTablesTransformation(new [] {this}.Concat(others).ToArray());
-            return t.Transform(this, filePath);
+            var rowCount = RowCount;
+            foreach (var other in others) {
+                if(other.ColumnCount != ColumnCount)
+                    throw new ArgumentException("Columns must agree - column count was different");
+                if(_columnTypes.Zip(other.ColumnTypes, (t1, t2) => t1 == t2).Any(v => v == false))
+                    throw new ArgumentException("Columns must agree - types were different");
+
+                rowCount += other.RowCount;
+            }
+            using var builder = new RowOrientedTableBuilder(rowCount, filePath);
+            builder.AddColumnsFrom(this);
+
+            ForEachRow(builder.AddRow);
+            foreach(var other in others)
+                other.ForEachRow(builder.AddRow);
+            return builder.Build(Context);
         }
 
         public IRowOrientedDataTable Mutate(Func<object[], object[]> projector, string filePath = null)
         {
-            var t = new ProjectRowsTransformation(projector);
-            return t.Transform(this, filePath);
+            var mutatedRows = new List<object[]>();
+            var columnTypes = new Dictionary<uint, ColumnType>();
+
+            ForEachRow(row => {
+                var projected = projector(row);
+                if (projected != null) {
+                    if (projected.Length > columnTypes.Count) {
+                        for (uint i = 0, len = (uint) projected.Length; i < len; i++) {
+                            var type = projected.GetType().GetColumnType();
+                            if(columnTypes.TryGetValue(i, out var existing) && existing != type)
+                                throw new Exception($"Column {i} type changed between mutations");
+                            columnTypes.Add(i, type);
+                        }
+                    }
+                    mutatedRows.Add(projected);
+                }
+            });
+
+            using var builder = new RowOrientedTableBuilder((uint)mutatedRows.Count, filePath);
+            foreach (var column in columnTypes.OrderBy(c => c.Key))
+                builder.AddColumn(column.Value, $"Column {column.Key}");
+            foreach(var row in mutatedRows)
+                builder.AddRow(row);
+            return builder.Build(Context);
         }
 
         public IRowOrientedDataTable SelectRows(params uint[] rowIndices) => SelectRows(null, rowIndices);
         public IRowOrientedDataTable SelectRows(string filePath, params uint[] rowIndices)
         {
-            var t = new RowSubsetTransformation(rowIndices);
-            return t.Transform(this, filePath);
+            return _Copy(rowIndices, filePath);
         }
 
         public IRowOrientedDataTable Shuffle(int? randomSeed = null, string filePath = null)
         {
-            var t = new ShuffleTableTransformation(randomSeed);
-            return t.Transform(this, filePath);
+            var rowIndices = this.RowIndices().Shuffle(randomSeed).ToList();
+            return _Copy(rowIndices, filePath);
         }
 
         public IRowOrientedDataTable Sort(bool ascending, uint columnIndex, string filePath = null)
         {
-            var t = new SortTableTransformation(ascending, columnIndex);
-            return t.Transform(this, filePath);
-        }
+            var sortData = new List<(object Item, uint RowIndex)>();
+            ForEachRow((row, rowIndex) => sortData.Add((row[columnIndex], rowIndex)));
+            var sorted = ascending
+                ? sortData.OrderBy(d => d.Item)
+                : sortData.OrderByDescending(d => d.Item);
+            var rowIndices = sorted.Select(d => d.RowIndex).ToList();
 
-        public IRowOrientedDataTable Vectorise(string columnName, params uint[] vectorColumnIndices) => Vectorise(null, columnName, vectorColumnIndices);
-        public IRowOrientedDataTable Vectorise(string filePath, string columnName, params uint[] vectorColumnIndices)
-        {
-            var t = new VectoriseTableTransformation(columnName, vectorColumnIndices);
-            return t.Transform(this, filePath);
+            return _Copy(rowIndices, filePath);
         }
     }
 }

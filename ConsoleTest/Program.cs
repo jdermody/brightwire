@@ -30,8 +30,7 @@ namespace ConsoleTest
                 ColumnConversionType.ToNumeric, 
                 ColumnConversionType.ToNumeric, 
                 ColumnConversionType.ToCategoricalIndex);
-            var numericHead = numericTable.Head();
-            using var trainingTable = numericTable.Convert(DataConversionParam.Convert<int, int>(4, v => v == 1 ? 1 : 0));
+            using var trainingTable = numericTable.Convert(ColumnConversion.Create<int, int>(4, v => v == 1 ? 1 : 0));
             trainingTable.SetTargetColumn(4);
 
             // train model
