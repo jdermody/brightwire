@@ -13,63 +13,46 @@ namespace BrightData
     {
         public static Type ToType(this TypeCode code)
         {
-            switch (code) {
-                case TypeCode.Boolean:
-                    return typeof(bool);
+            return code switch
+            {
+                TypeCode.Boolean => typeof(bool),
 
-                case TypeCode.Byte:
-                    return typeof(byte);
+                TypeCode.Byte => typeof(byte),
 
-                case TypeCode.Char:
-                    return typeof(char);
+                TypeCode.Char => typeof(char),
 
-                case TypeCode.DateTime:
-                    return typeof(DateTime);
+                TypeCode.DateTime => typeof(DateTime),
 
-                case TypeCode.DBNull:
-                    return typeof(DBNull);
+                TypeCode.DBNull => typeof(DBNull),
 
-                case TypeCode.Decimal:
-                    return typeof(decimal);
+                TypeCode.Decimal => typeof(decimal),
 
-                case TypeCode.Double:
-                    return typeof(double);
+                TypeCode.Double => typeof(double),
 
-                case TypeCode.Empty:
-                    return null;
+                TypeCode.Empty => null,
 
-                case TypeCode.Int16:
-                    return typeof(short);
+                TypeCode.Int16 => typeof(short),
 
-                case TypeCode.Int32:
-                    return typeof(int);
+                TypeCode.Int32 => typeof(int),
 
-                case TypeCode.Int64:
-                    return typeof(long);
+                TypeCode.Int64 => typeof(long),
 
-                case TypeCode.Object:
-                    return typeof(object);
+                TypeCode.Object => typeof(object),
 
-                case TypeCode.SByte:
-                    return typeof(sbyte);
+                TypeCode.SByte => typeof(sbyte),
 
-                case TypeCode.Single:
-                    return typeof(Single);
+                TypeCode.Single => typeof(Single),
 
-                case TypeCode.String:
-                    return typeof(string);
+                TypeCode.String => typeof(string),
 
-                case TypeCode.UInt16:
-                    return typeof(UInt16);
+                TypeCode.UInt16 => typeof(UInt16),
 
-                case TypeCode.UInt32:
-                    return typeof(UInt32);
+                TypeCode.UInt32 => typeof(UInt32),
 
-                case TypeCode.UInt64:
-                    return typeof(UInt64);
-            }
+                TypeCode.UInt64 => typeof(UInt64),
 
-            return null;
+                _ => null,
+            };
         }
 
         public static IndexList CreateIndexList(this IBrightDataContext context, params uint[] indices) => IndexList.Create(context, indices);
@@ -117,20 +100,20 @@ namespace BrightData
             return CreateMatrix(context, (uint) rows.Length, columns, (j, i) => rows[j][i]);
         }
 
-        public static Matrix<T> CreateMatrixFromColumns<T>(this IBrightDataContext context, params Vector<T>[] columns) where T: struct
+        public static Matrix<T> CreateMatrixFromColumns<T>(this IBrightDataContext context, bool isColumnMajor, params Vector<T>[] columns) where T: struct
         {
             var rows = columns.First().Size;
             return CreateMatrix(context, rows, (uint) columns.Length, (j, i) => columns[i][j]);
         }
 
-        public static Tensor3D<T> CreateTensor3D<T>(this IBrightDataContext context, uint depth, uint rows, uint columns) where T : struct
+        public static Tensor3D<T> CreateTensor3D<T>(this IBrightDataContext context, bool isColumnMajor, uint depth, uint rows, uint columns) where T : struct
         {
             var data = context.TensorPool.Get<T>(depth * rows * columns);
             var segment = data.GetSegment();
             return new Tensor3D<T>(context, segment, depth, rows, columns);
         }
 
-        public static Tensor4D<T> CreateTensor4D<T>(this IBrightDataContext context, uint count, uint depth, uint rows, uint columns) where T : struct
+        public static Tensor4D<T> CreateTensor4D<T>(this IBrightDataContext context, bool isColumnMajor, uint count, uint depth, uint rows, uint columns) where T : struct
         {
             var data = context.TensorPool.Get<T>(count * depth * rows * columns);
             var segment = data.GetSegment();

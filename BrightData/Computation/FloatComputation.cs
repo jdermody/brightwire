@@ -23,21 +23,14 @@ namespace BrightData.Computation
         public void MultiplyInPlace(ITensorSegment<float> target, float scalar) => MutateInPlace(target, v => v * scalar);
         public ITensorSegment<float> Subtract(ITensorSegment<float> tensor1, ITensorSegment<float> tensor2) => Zip(tensor1, tensor2, (a, b) => a - b);
         public void SubtractInPlace(ITensorSegment<float> target, ITensorSegment<float> other) => Mutate(target, other, (a, b) => a - b);
-        public ITensorSegment<float> Multiply(ITensorSegment<float> tensor1, ITensorSegment<float> tensor2) => Zip(tensor1, tensor2, (a, b) => a * b);
-        public void MultiplyInPlace(ITensorSegment<float> target, ITensorSegment<float> other) => Mutate(target, other, (a, b) => a * b);
-        public ITensorSegment<float> Divide(ITensorSegment<float> tensor1, ITensorSegment<float> tensor2) => Zip(tensor1, tensor2, (a, b) => a / b);
-        public void DivideInPlace(ITensorSegment<float> target, ITensorSegment<float> other) => Mutate(target, other, (a, b) => a / b);
-
-        public float SumIndexedProducts(uint size, Func<uint, float> p1, Func<uint, float> p2)
-        {
-            var bag = new ConcurrentBag<float>();
-            Parallel.For(0, (int)size, i => bag.Add(p1((uint)i) * p2((uint)i)));
-            return bag.AsParallel().Sum();
-        }
+        public ITensorSegment<float> PointwiseMultiply(ITensorSegment<float> tensor1, ITensorSegment<float> tensor2) => Zip(tensor1, tensor2, (a, b) => a * b);
+        public void PointwiseMultiplyInPlace(ITensorSegment<float> target, ITensorSegment<float> other) => Mutate(target, other, (a, b) => a * b);
+        public ITensorSegment<float> PointwiseDivide(ITensorSegment<float> tensor1, ITensorSegment<float> tensor2) => Zip(tensor1, tensor2, (a, b) => a / b);
+        public void PointwiseDivideInPlace(ITensorSegment<float> target, ITensorSegment<float> other) => Mutate(target, other, (a, b) => a / b);
 
         public float DotProduct(ITensorSegment<float> segment, ITensorSegment<float> other)
         {
-            using var product = Multiply(segment, other);
+            using var product = PointwiseMultiply(segment, other);
             return Sum(product);
         }
 
@@ -104,6 +97,7 @@ namespace BrightData.Computation
 
         public ITensorSegment<float> Abs(ITensorSegment<float> tensor) => Transform(tensor, MathF.Abs);
         public ITensorSegment<float> Log(ITensorSegment<float> tensor) => Transform(tensor, MathF.Log);
+        public ITensorSegment<float> Exp(ITensorSegment<float> tensor) => Transform(tensor, MathF.Exp);
         public ITensorSegment<float> Squared(ITensorSegment<float> tensor) => Transform(tensor, v => v * v);
 
         public float StdDev(ITensorSegment<float> segment, float? mean)

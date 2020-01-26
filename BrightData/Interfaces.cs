@@ -139,34 +139,34 @@ namespace BrightData
     public interface INumericComputation<T>
         where T : struct
     {
+        ITensorSegment<T> Abs(ITensorSegment<T> tensor);
         ITensorSegment<T> Add(ITensorSegment<T> tensor1, ITensorSegment<T> tensor2);
         void AddInPlace(ITensorSegment<T> target, ITensorSegment<T> other);
         void AddInPlace(ITensorSegment<T> target, T scalar);
-        ITensorSegment<T> Subtract(ITensorSegment<T> tensor1, ITensorSegment<T> tensor2);
-        void SubtractInPlace(ITensorSegment<T> target, ITensorSegment<T> other);
-        ITensorSegment<T> Multiply(ITensorSegment<T> tensor1, ITensorSegment<T> tensor2);
-        void MultiplyInPlace(ITensorSegment<T> target, ITensorSegment<T> other);
-        void MultiplyInPlace(ITensorSegment<T> target, T scalar);
-        ITensorSegment<T> Divide(ITensorSegment<T> tensor1, ITensorSegment<T> tensor2);
-        void DivideInPlace(ITensorSegment<T> target, ITensorSegment<T> other);
-        T SumIndexedProducts(uint size, Func<uint, T> p1, Func<uint, T> p2);
-        T DotProduct(ITensorSegment<T> segment, ITensorSegment<T> other);
-        ITensorSegment<T> Sqrt(ITensorSegment<T> tensor);
-        uint? Search(ITensorSegment<T> segment, T value);
         void ConstrainInPlace(ITensorSegment<T> segment, T? minValue, T? maxValue);
+
         T Average(ITensorSegment<T> segment);
+        T CosineDistance(ITensorSegment<T> tensor, ITensorSegment<T> other);
+        T DotProduct(ITensorSegment<T> segment, ITensorSegment<T> other);
+        T EuclideanDistance(ITensorSegment<T> tensor, ITensorSegment<T> other);
+        ITensorSegment<T> Exp(ITensorSegment<T> tensor);
         T L1Norm(ITensorSegment<T> segment);
         T L2Norm(ITensorSegment<T> segment);
-        T Sum(ITensorSegment<T> segment);
-        T CosineDistance(ITensorSegment<T> tensor, ITensorSegment<T> other);
-        T EuclideanDistance(ITensorSegment<T> tensor, ITensorSegment<T> other);
-        T ManhattanDistance(ITensorSegment<T> tensor, ITensorSegment<T> other);
-        ITensorSegment<T> Abs(ITensorSegment<T> tensor);
         ITensorSegment<T> Log(ITensorSegment<T> tensor);
+        T ManhattanDistance(ITensorSegment<T> tensor, ITensorSegment<T> other);
+        void MultiplyInPlace(ITensorSegment<T> target, T scalar);
+        T NextRandom();
+        ITensorSegment<T> PointwiseDivide(ITensorSegment<T> tensor1, ITensorSegment<T> tensor2);
+        void PointwiseDivideInPlace(ITensorSegment<T> target, ITensorSegment<T> other);
+        ITensorSegment<T> PointwiseMultiply(ITensorSegment<T> tensor1, ITensorSegment<T> tensor2);
+        void PointwiseMultiplyInPlace(ITensorSegment<T> target, ITensorSegment<T> other);
+        uint? Search(ITensorSegment<T> segment, T value);
+        ITensorSegment<T> Sqrt(ITensorSegment<T> tensor);
         ITensorSegment<T> Squared(ITensorSegment<T> tensor);
         T StdDev(ITensorSegment<T> segment, T? mean);
-        ITensorSegment<T> Sigmoid(ITensorSegment<T> val);
-        T NextRandom();
+        ITensorSegment<T> Subtract(ITensorSegment<T> tensor1, ITensorSegment<T> tensor2);
+        void SubtractInPlace(ITensorSegment<T> target, ITensorSegment<T> other);
+        T Sum(ITensorSegment<T> tensor);
     }
 
     public interface IWriteToMetaData
@@ -341,13 +341,13 @@ namespace BrightData
         );
         IComputableMatrix Im2Col(int filterWidth, int filterHeight, int xStride, int yStride);
         IComputable3DTensor ReverseIm2Col(
-            IComputableMatrix filterMatrix, 
-            int outputRows, 
-            int outputColumns, 
-            int outputDepth, 
-            int filterWidth, 
-            int filterHeight, 
-            int xStride, 
+            IComputableMatrix filterMatrix,
+            int outputRows,
+            int outputColumns,
+            int outputDepth,
+            int filterWidth,
+            int filterHeight,
+            int xStride,
             int yStride
         );
         IComputableMatrix CombineDepthSlices();
@@ -369,30 +369,30 @@ namespace BrightData
         IComputable4DTensor AddPadding(int padding);
         IComputable4DTensor RemovePadding(int padding);
         (IComputable4DTensor Result, IComputable4DTensor Indices) MaxPool(
-            int filterWidth, 
-            int filterHeight, 
-            int xStride, 
-            int yStride, 
+            int filterWidth,
+            int filterHeight,
+            int xStride,
+            int yStride,
             bool saveIndices
         );
         IComputable4DTensor ReverseMaxPool(
-            IComputable4DTensor indices, 
-            int outputRows, 
-            int outputColumns, 
-            int filterWidth, 
-            int filterHeight, 
-            int xStride, 
+            IComputable4DTensor indices,
+            int outputRows,
+            int outputColumns,
+            int filterWidth,
+            int filterHeight,
+            int xStride,
             int yStride
         );
         IComputable3DTensor Im2Col(int filterWidth, int filterHeight, int xStride, int yStride);
         IComputable4DTensor ReverseIm2Col(
-            IComputableMatrix filters, 
-            int outputRows, 
-            int outputColumns, 
-            int outputDepth, 
-            int filterWidth, 
-            int filterHeight, 
-            int xStride, 
+            IComputableMatrix filters,
+            int outputRows,
+            int outputColumns,
+            int outputDepth,
+            int filterWidth,
+            int filterHeight,
+            int xStride,
             int yStride
         );
         IComputableMatrix ReshapeAsMatrix();

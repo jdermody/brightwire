@@ -5,8 +5,8 @@ using System.Linq;
 namespace BrightData
 {
     public abstract class TensorBase<T, DT> : ITensor<T>, ICanWriteToBinaryWriter, ICanInitializeFromBinaryReader
-        where DT: ITensor<T>
-        where T: struct
+        where DT : ITensor<T>
+        where T : struct
     {
         protected ITensorSegment<T> _data;
         Lazy<INumericComputation<T>> _computation;
@@ -97,11 +97,11 @@ namespace BrightData
         public void AddInPlace(T scalar) => Computation.AddInPlace(_data, scalar);
         public DT Subtract(DT tensor) => Create(Computation.Subtract(_data, tensor.Data));
         public void SubtractInPlace(DT tensor) => Computation.SubtractInPlace(_data, tensor.Data);
-        public DT PointwiseMultiply(DT tensor) => Create(Computation.Multiply(_data, tensor.Data));
+        public DT PointwiseMultiply(DT tensor) => Create(Computation.PointwiseMultiply(_data, tensor.Data));
         public void MultiplyInPlace(T scalar) => Computation.MultiplyInPlace(_data, scalar);
         public void PointwiseMultiplyInPlace(DT tensor) => Computation.SubtractInPlace(_data, tensor.Data);
-        public DT PointwiseDivide(DT tensor) => Create(Computation.Divide(_data, tensor.Data));
-        public void PointwiseDivideInPlace(DT tensor) => Computation.DivideInPlace(_data, tensor.Data);
+        public DT PointwiseDivide(DT tensor) => Create(Computation.PointwiseDivide(_data, tensor.Data));
+        public void PointwiseDivideInPlace(DT tensor) => Computation.PointwiseDivideInPlace(_data, tensor.Data);
         public T DotProduct(DT tensor) => Computation.DotProduct(_data, tensor.Data);
         public T Sum() => Computation.Sum(_data);
         public uint? Search(T value) => Computation.Search(_data, value);
@@ -113,8 +113,6 @@ namespace BrightData
         public T CosineDistance(DT tensor) => Computation.CosineDistance(_data, tensor.Data);
         public T EuclideanDistance(DT tensor) => Computation.EuclideanDistance(_data, tensor.Data);
         public T ManhattanDistance(DT tensor) => Computation.ManhattanDistance(_data, tensor.Data);
-
-        public DT Sigmoid() => Create(Computation.Sigmoid(_data));
 
         public ITensorSegment<T> Data => _data;
 

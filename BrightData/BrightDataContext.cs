@@ -19,7 +19,9 @@ namespace BrightData
         readonly UIntComputation _uintComputation;
         readonly DataEncoder _dataReader;
 
-        public BrightDataContext(int? randomSeed = null, long maxCacheSize = Consts.DefaultMemoryCacheSize)
+        public BrightDataContext(
+            int? randomSeed = null,
+            long maxCacheSize = Consts.DefaultMemoryCacheSize)
         {
             Random = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
             _tensorPool = new TensorPool(this, new SharedPoolAllocator(), maxCacheSize);
@@ -29,16 +31,16 @@ namespace BrightData
             _doubleComputation = new DoubleComputation(this);
             _decimalComputation = new DecimalComputation(this);
             _uintComputation = new UIntComputation(this);
-            
+
             _memoryLayers.Push();
         }
 
         public void Dispose()
         {
             _memoryLayers.Pop();
-            #if DEBUG
+#if DEBUG
             _tensorPool.LogAllocations(str => Debug.WriteLine(str));
-            #endif
+#endif
             _tensorPool.Dispose();
         }
 
@@ -48,7 +50,7 @@ namespace BrightData
         public IDataReader DataReader => _dataReader;
         public IComputableFactory ComputableFactory { get; set; }
 
-        public INumericComputation<T> GetComputation<T>() where T: struct
+        public INumericComputation<T> GetComputation<T>() where T : struct
         {
             var typeCode = Type.GetTypeCode(typeof(T));
             switch (typeCode) {
@@ -64,7 +66,7 @@ namespace BrightData
             throw new NotImplementedException();
         }
 
-        public T Get<T>(string name) => _attachedProperties.TryGetValue(name, out var obj) ? (T) obj : default(T);
+        public T Get<T>(string name) => _attachedProperties.TryGetValue(name, out var obj) ? (T)obj : default(T);
         public void Set<T>(string name, T value) => _attachedProperties.AddOrUpdate(name, value, (n, o) => value);
     }
 }

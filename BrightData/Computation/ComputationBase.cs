@@ -4,8 +4,7 @@ using BrightData.Memory;
 
 namespace BrightData.Computation
 {
-    abstract class ComputationBase<T> : INumericComputation<T>
-        where T: struct, IComparable<T>, IConvertible, IEquatable<T>
+    abstract class ComputationBase<T> : INumericComputation<T> where T : struct, IComparable<T>, IConvertible, IEquatable<T>
     {
         protected readonly IBrightDataContext _context;
 
@@ -15,8 +14,8 @@ namespace BrightData.Computation
         }
 
         public abstract T NextRandom();
-        public abstract T SumIndexedProducts(uint size, Func<uint, T> p1, Func<uint, T> p2);
         protected abstract T Aggregate(ITensorSegment<T> segment, T initial, Func<T, T, T> aggregator);
+
         protected abstract T Add(T a, T b);
         protected abstract T Subtract(T a, T b);
         protected abstract T Multiply(T a, T b);
@@ -28,16 +27,9 @@ namespace BrightData.Computation
         protected abstract T OneMinusInput(T input);
         protected abstract T Cast(uint a);
         protected abstract T Constrain(T val);
-        protected abstract T One { get; }
-        protected abstract T Zero { get; }
-        protected abstract T PointZeroOne { get; }
-        protected abstract T MinusOne { get; }
         protected abstract T MinValue { get; }
         protected abstract T MaxValue { get; }
         protected abstract bool IsZero(T value);
-        protected abstract bool IsLessOrEqualToThanZero(T value);
-        protected abstract T Negate(T value);
-        protected abstract T Tanh(T value);
 
         bool IsNotZero(T value) => !IsZero(value);
 
@@ -71,22 +63,22 @@ namespace BrightData.Computation
             Mutate(target, other, Subtract);
         }
 
-        public ITensorSegment<T> Multiply(ITensorSegment<T> tensor1, ITensorSegment<T> tensor2)
+        public ITensorSegment<T> PointwiseMultiply(ITensorSegment<T> tensor1, ITensorSegment<T> tensor2)
         {
             return Zip(tensor1, tensor2, Multiply);
         }
 
-        public void MultiplyInPlace(ITensorSegment<T> target, ITensorSegment<T> other)
+        public void PointwiseMultiplyInPlace(ITensorSegment<T> target, ITensorSegment<T> other)
         {
             Mutate(target, other, Multiply);
         }
 
-        public ITensorSegment<T> Divide(ITensorSegment<T> tensor1, ITensorSegment<T> tensor2)
+        public ITensorSegment<T> PointwiseDivide(ITensorSegment<T> tensor1, ITensorSegment<T> tensor2)
         {
             return Zip(tensor1, tensor2, Divide);
         }
 
-        public void DivideInPlace(ITensorSegment<T> target, ITensorSegment<T> other)
+        public void PointwiseDivideInPlace(ITensorSegment<T> target, ITensorSegment<T> other)
         {
             Mutate(target, other, Divide);
         }
@@ -99,6 +91,11 @@ namespace BrightData.Computation
         public ITensorSegment<T> Log(ITensorSegment<T> tensor)
         {
             return Transform(tensor, Log);
+        }
+
+        public ITensorSegment<T> Exp(ITensorSegment<T> tensor)
+        {
+            return Transform(tensor, Exp);
         }
 
         public ITensorSegment<T> Sqrt(ITensorSegment<T> tensor)
@@ -155,7 +152,7 @@ namespace BrightData.Computation
 
         public T DotProduct(ITensorSegment<T> segment, ITensorSegment<T> other)
         {
-            using var product = Multiply(segment, other);
+            using var product = PointwiseMultiply(segment, other);
             return Sum(product);
         }
 
@@ -191,57 +188,6 @@ namespace BrightData.Computation
             using var distance = Subtract(tensor, other);
             using var squared = Abs(distance);
             return Sum(squared);
-        }
-
-        public T Sigmoid(T val)
-        {
-            return Constrain(Divide(One, Add(One, Exp(Multiply(MinusOne, val)))));
-        }
-        public ITensorSegment<T> Sigmoid(ITensorSegment<T> val) => Transform(val, Sigmoid);
-
-        public T SigmoidDerivative(T val)
-        {
-            var sigmoid = Sigmoid(val);
-            return Constrain(Multiply(sigmoid, OneMinusInput(sigmoid)));
-        }
-        public ITensorSegment<T> SigmoidDerivative(ITensorSegment<T> val) => Transform(val, SigmoidDerivative);
-
-        public T TanhDerivative(T val)
-        {
-            var tanh = Tanh(val);
-            return OneMinusInput(Multiply(tanh, tanh));
-        }
-        public ITensorSegment<T> TanhDerivative(ITensorSegment<T> val) => Transform(val, TanhDerivative);
-
-        public T Relu(T val) => IsLessOrEqualToThanZero(val) ? Zero : Constrain(val);
-        public ITensorSegment<T> Relu(ITensorSegment<T> val) => Transform(val, Relu);
-
-        public T ReluDerivative(T val) => IsLessOrEqualToThanZero(val) ? Zero : One;
-        public ITensorSegment<T> ReluDerivative(ITensorSegment<T> val) => Transform(val, ReluDerivative);
-
-        public T LeakyRelu(T val) => IsLessOrEqualToThanZero(val) ? Multiply(PointZeroOne, val) : Constrain(val);
-        public ITensorSegment<T> LeakyRelu(ITensorSegment<T> val) => Transform(val, LeakyRelu);
-
-        public T LeakyReluDerivative(T val) => IsLessOrEqualToThanZero(val) ? PointZeroOne : One;
-        public ITensorSegment<T> LeakyReluDerivative(ITensorSegment<T> val) => Transform(val, LeakyReluDerivative);
-
-        public ITensorSegment<T> SoftMax(ITensorSegment<T> val)
-        {
-            var minMax = GetMinAndMaxValues(val);
-            var ret = Transform(val, v => Exp(Subtract(v, minMax.Max)));
-            var sum = Sum(ret);
-            if(!IsZero(sum))
-                MutateInPlace(ret, v => Divide(v, sum));
-            return ret;
-        }
-
-        public T SoftmaxDerivative(ITensorSegment<T> val, int x, int y)
-        {
-            var vx = val[x];
-            if (x == y)
-                return Multiply(vx, OneMinusInput(vx));
-
-            return Multiply(Negate(vx), val[y]);
         }
 
         (T Min, T Max, uint MinIndex, uint MaxIndex) GetMinAndMaxValues(ITensorSegment<T> segment)

@@ -9,15 +9,6 @@ namespace BrightData.Computation
         public UIntComputation(IBrightDataContext context) : base(context) { }
 
         public override uint NextRandom() => (uint) _context.Random.Next();
-
-        public override uint SumIndexedProducts(uint size, Func<uint, uint> p1, Func<uint, uint> p2)
-        {
-            uint sum = 0;
-            for (uint i = 0; i < size; i++)
-                sum += p1(i) * p2(i);
-            return sum;
-        }
-
         protected override uint Aggregate(ITensorSegment<uint> segment, uint initial, Func<uint, uint, uint> aggregator)
         {
             long ret = initial;
@@ -31,7 +22,6 @@ namespace BrightData.Computation
             });
             return (uint)ret;
         }
-
         protected override uint Add(uint a, uint b) => a + b;
         protected override uint Subtract(uint a, uint b) => a - b;
         protected override uint Multiply(uint a, uint b) => a * b;
@@ -43,15 +33,9 @@ namespace BrightData.Computation
         protected override uint OneMinusInput(uint input) => 1 - input;
         protected override uint Cast(uint a) => a;
         protected override uint Constrain(uint val) => throw new NotSupportedException();
-        protected override uint One => 1;
-        protected override uint Zero => 0;
-        protected override uint PointZeroOne => throw new NotSupportedException();
-        protected override uint MinusOne => throw new NotSupportedException();
+
         protected override uint MinValue => uint.MinValue;
         protected override uint MaxValue => uint.MaxValue;
         protected override bool IsZero(uint value) => value == 0;
-        protected override bool IsLessOrEqualToThanZero(uint value) => throw new NotSupportedException();
-        protected override uint Negate(uint value) => throw new NotSupportedException();
-        protected override uint Tanh(uint value) => throw new NotSupportedException();
     }
 }
