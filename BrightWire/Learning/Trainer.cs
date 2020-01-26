@@ -5,8 +5,8 @@ using System.Text;
 namespace BrightWire.Learning
 {
     public class Trainer<TM, TD> : ITrainer<TM, TD>
-        where TM: IModel
-        where TD: ITrainingData
+        where TM : IModel
+        where TD : ITrainingData
     {
         class Context : ITrainingContext
         {
@@ -34,20 +34,25 @@ namespace BrightWire.Learning
 
         private readonly Func<ITrainer<TM, TD>, ITrainingContext, float> _iterate;
         private readonly Func<ITrainer<TM, TD>, IReadOnlyList<(float Output, float Target)>> _evaluate;
-        public TM Model { get; }
+        private readonly Func<TD, TM> _getData;
+        public TM Model => _getData(Data);
         public TD Data { get; }
 
-        public Trainer(TM model, TD data, Func<ITrainer<TM, TD>, ITrainingContext, float> iterate, Func<ITrainer<TM, TD>, IReadOnlyList<(float Output, float Target)>> evaluate)
+        public Trainer(
+            TD data,
+            Func<ITrainer<TM, TD>, ITrainingContext, float> iterate,
+            Func<ITrainer<TM, TD>, IReadOnlyList<(float Output, float Target)>> evaluate,
+            Func<TD, TM> getData
+        )
         {
             _iterate = iterate;
             _evaluate = evaluate;
-            Model = model;
+            _getData = getData;
             Data = data;
         }
 
         public void Dispose()
         {
-            Model.Dispose();
             Data.Dispose();
         }
 

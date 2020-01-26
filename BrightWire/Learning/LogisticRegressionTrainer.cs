@@ -13,13 +13,15 @@ namespace BrightWire.Learning
         public class LogisticRegressionTrainingData : ITrainingData
         {
             private readonly IBrightDataContext _context;
-            public IMatrix<float> Feature { get; }
-            public IVector<float> Target { get; }
+            public IComputableMatrix Feature { get; }
+            public IComputableVector Target { get; }
+            public IComputableVector Theta { get; }
 
-            public LogisticRegressionTrainingData(IBrightDataContext context, IMatrix<float> feature, IVector<float> target)
+            public LogisticRegressionTrainingData(IBrightDataContext context, IComputableMatrix feature, IComputableVector theta, IComputableVector target)
             {
                 _context = context;
                 Feature = feature;
+                Theta = theta;
                 Target = target;
             }
 
@@ -27,9 +29,12 @@ namespace BrightWire.Learning
             {
                 Feature.Dispose();
                 Target.Dispose();
+                Theta.Dispose();
             }
 
-            public float Cost(IVector<float> theta, float lambda)
+            public LogisticRegression CreateModel() => new LogisticRegression(Theta.ToVector(_context));
+
+            public float Cost(IComputableVector theta, float lambda)
             {
                 using var h0 = Feature.Multiply(theta);
                 using var h1 = h0.Column(0);
@@ -47,17 +52,17 @@ namespace BrightWire.Learning
                 var b = t.DotProduct(hLog);
                 var ret = -(a + b) / Feature.RowCount;
                 if (FloatMath.IsNotZero(lambda))
-                    ret += theta.AsIndexable().Values.Skip(1).Select(v => v * v).Sum() * lambda / (2 * Feature.RowCount);
+                    ret += theta.GetInternalArray().Skip(1).Select(v => v * v).Sum() * lambda / (2 * Feature.RowCount);
                 return ret;
             }
 
-            public IVector<float> Derivative(IVector<float> theta, float lambda)
+            public IComputableVector Derivative(IComputableVector theta, float lambda)
             {
                 using var p0 = Feature.Multiply(theta);
                 using var p1 = p0.Column(0);
                 using var p = p1.Sigmoid();
                 using var e0 = p.Subtract(Target);
-                using var e = e0.Reshape(1, e0.Size);
+                using var e = e0.ReshapeAsRowMatrix();
                 using var e2 = e.Multiply(Feature);
 
                 e2.MultiplyInPlace(1f / Feature.RowCount);
@@ -65,13 +70,12 @@ namespace BrightWire.Learning
                 if (FloatMath.IsNotZero(lambda)) {
                     var size = theta.Size;
                     var reg = new float[size];
-                    using var thi = theta.AsIndexable();
                     var term = lambda / Feature.RowCount;
                     for (var i = 1; i < size; i++) {
-                        reg[i] = thi[i] * term;
+                        reg[i] = theta[i] * term;
                     }
 
-                    using var regVector = _context.CreateVector(reg);
+                    using var regVector = _context.CreateVector(reg).AsComputable();
                     ret.AddInPlace(regVector);
                 }
                 return ret;
@@ -97,21 +101,25 @@ namespace BrightWire.Learning
             var feature = context.CreateMatrix<float>(dataTable.RowCount, (uint)numericColumns.Count+1);
             uint columnIndex = 1;
             foreach(var column in numericColumns)
-                column.CopyTo(feature.Column(columnIndex++));
-            feature.Column(0).Initialize(1f);
+                column.CopyTo(feature.Column(columnIndex++).Data);
+            feature.Column(0).Data.Initialize(1f);
 
             // copy the target vector
             var target = context.CreateVector<float>(dataTable.RowCount);
             classificationTarget.CopyTo(target.Data);
 
-            var data = new LogisticRegressionTrainingData(context, feature, target);
-            var model = new LogisticRegression(context.CreateVector<float>(feature.ColumnCount));
-            return new Trainer<LogisticRegression, LogisticRegressionTrainingData>(model, data, _GradientDescent, _Evaluate);
+            var theta = context.CreateVector<float>(feature.ColumnCount);
+            theta.InitializeRandomly();
+
+            var data = new LogisticRegressionTrainingData(context, feature.AsComputable(), target.AsComputable(), theta.AsComputable());
+            return new Trainer<LogisticRegression, LogisticRegressionTrainingData>(data, _GradientDescent, _Evaluate, _GetModel);
         }
+
+        static LogisticRegression _GetModel(LogisticRegressionTrainingData data) => data.CreateModel();
 
         static float _GradientDescent(ITrainer<LogisticRegression, LogisticRegressionTrainingData> trainer, ITrainingContext context)
         {
-            var theta = trainer.Model.Theta;
+            var theta = trainer.Data.Theta;
             var data = trainer.Data;
             var lambda = context.Lambda;
 
@@ -128,15 +136,14 @@ namespace BrightWire.Learning
         static IReadOnlyList<(float Output, float Target)> _Evaluate(ITrainer<LogisticRegression, LogisticRegressionTrainingData> trainer)
         {
             var feature = trainer.Data.Feature;
-            var theta = trainer.Model.Theta;
-            var target = trainer.Data.Target.AsIndexable();
+            var theta = trainer.Data.Theta;
+            var target = trainer.Data.Target;
 
             using var h0 = feature.Multiply(theta);
             using var h1 = h0.Column(0);
             using var h = h1.Sigmoid();
-            using var h2 = h.AsIndexable();
 
-            return h2.Values.Zip(target.Values, (o, t) => (o, t)).ToList();
+            return h.GetInternalArray().Zip(target.GetInternalArray(), (o, t) => (o, t)).ToList();
         }
     }
 }

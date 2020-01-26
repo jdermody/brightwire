@@ -15,6 +15,17 @@ namespace BrightData
         public uint MatrixSize => RowCount * ColumnCount;
         public new uint Size => Depth * MatrixSize;
 
+        public T this[int depth, int rowY, int columnX]
+        {
+            get => _data[depth * MatrixSize + rowY * ColumnCount + columnX];
+            set => _data[depth * MatrixSize + rowY * ColumnCount + columnX] = value;
+        }
+        public T this[uint depth, uint rowY, uint columnX]
+        {
+            get => _data[depth * MatrixSize + rowY * ColumnCount + columnX];
+            set => _data[depth * MatrixSize + rowY * ColumnCount + columnX] = value;
+        }
+
         public Matrix<T> Matrix(uint index)
         {
             var segment = new TensorSegmentWrapper<T>(_data, index * MatrixSize, 1, MatrixSize);

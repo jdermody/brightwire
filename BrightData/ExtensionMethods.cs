@@ -336,5 +336,73 @@ namespace BrightData
                 analysis.Add(item);
             return analysis.GetMetaData();
         }
+
+        public static IReadOnlyList<Vector<T>> AllColumns<T>(this Matrix<T> matrix) where T: struct
+        {
+            var ret = new List<Vector<T>>();
+            for(uint i = 0; i < matrix.ColumnCount; i++)
+                ret.Add(matrix.Column(i));
+            return ret;
+        }
+
+        public static IReadOnlyList<Vector<T>> AllRows<T>(this Matrix<T> matrix) where T : struct
+        {
+            var ret = new List<Vector<T>>();
+            for (uint i = 0; i < matrix.RowCount; i++)
+                ret.Add(matrix.Column(i));
+            return ret;
+        }
+
+        public static IReadOnlyList<Matrix<T>> AllMatrices<T>(this Tensor3D<T> tensor) where T : struct
+        {
+            var ret = new List<Matrix<T>>();
+            for (uint i = 0; i < tensor.Depth; i++)
+                ret.Add(tensor.Matrix(i));
+            return ret;
+        }
+
+        public static IReadOnlyList<Tensor3D<T>> AllTensors<T>(this Tensor4D<T> tensor) where T : struct
+        {
+            var ret = new List<Tensor3D<T>>();
+            for (uint i = 0; i < tensor.Count; i++)
+                ret.Add(tensor.Tensor(i));
+            return ret;
+        }
+
+        public static IComputableVector AsComputable(this Vector<float> vector)
+        {
+            return vector.Context.ComputableFactory?.Create(vector);
+        }
+
+        public static IComputableMatrix AsComputable(this Matrix<float> matrix)
+        {
+            return matrix.Context.ComputableFactory?.Create(matrix);
+        }
+
+        public static IComputable3DTensor AsComputable(this Tensor3D<float> tensor)
+        {
+            return tensor.Context.ComputableFactory?.Create(tensor);
+        }
+
+        public static IComputable4DTensor AsComputable(this Tensor4D<float> tensor)
+        {
+            return tensor.Context.ComputableFactory?.Create(tensor);
+        }
+
+        public static void InitializeRandomly<T>(this ITensor<T> tensor) where T : struct
+        {
+            var computation = tensor.Computation;
+            tensor.Data.Initialize(i => computation.NextRandom());
+        }
+
+        public static void InitializeTo<T>(this ITensor<T> tensor, T value) where T : struct
+        {
+            tensor.Data.Initialize(value);
+        }
+
+        public static void Initialize<T>(this ITensor<T> tensor, Func<uint, T> initializer) where T : struct
+        {
+            tensor.Data.Initialize(initializer);
+        }
     }
 }

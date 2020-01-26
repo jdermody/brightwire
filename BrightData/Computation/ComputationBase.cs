@@ -7,13 +7,14 @@ namespace BrightData.Computation
     abstract class ComputationBase<T> : INumericComputation<T>
         where T: struct, IComparable<T>, IConvertible, IEquatable<T>
     {
-        readonly ITensorPool _tensorPool;
+        protected readonly IBrightDataContext _context;
 
-        protected ComputationBase(ITensorPool tensorPool)
+        protected ComputationBase(IBrightDataContext context)
         {
-            _tensorPool = tensorPool;
+            _context = context;
         }
 
+        public abstract T NextRandom();
         public abstract T SumIndexedProducts(uint size, Func<uint, T> p1, Func<uint, T> p2);
         protected abstract T Aggregate(ITensorSegment<T> segment, T initial, Func<T, T, T> aggregator);
         protected abstract T Add(T a, T b);
@@ -273,14 +274,14 @@ namespace BrightData.Computation
             if (segment.Size != other.Size)
                 throw new ArgumentException("Segments were different sizes");
 
-            var ret = (TensorBlock<T>)_tensorPool.Get<T>(segment.Size);
+            var ret = (TensorBlock<T>)_context.TensorPool.Get<T>(segment.Size);
             Parallel.ForEach(segment.Values, (v, s, i) => { ret[i] = func(v, other[i]); });
             return ret.GetSegment();
         }
 
         protected ITensorSegment<T> Transform(ITensorSegment<T> segment, Func<T, T> transfomer)
         {
-            var ret = (TensorBlock<T>)_tensorPool.Get<T>(segment.Size);
+            var ret = (TensorBlock<T>)_context.TensorPool.Get<T>(segment.Size);
             Parallel.ForEach(segment.Values, (v, s, i) => { ret[i] = transfomer(v); });
             return ret.GetSegment();
         }

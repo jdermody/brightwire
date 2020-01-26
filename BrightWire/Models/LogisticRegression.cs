@@ -7,9 +7,9 @@ namespace BrightWire.Models
 {
     public class LogisticRegression : IModel
     {
-        public IVector<float> Theta { get; }
+        public Vector<float> Theta { get; }
 
-        public LogisticRegression(IVector<float> theta)
+        public LogisticRegression(Vector<float> theta)
         {
             Theta = theta;
         }

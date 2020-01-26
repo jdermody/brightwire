@@ -5,7 +5,11 @@ namespace BrightData.Computation
 {
     class DecimalComputation : ComputationBase<decimal>
     {
-        public DecimalComputation(ITensorPool tensorPool) : base(tensorPool) { }
+        public DecimalComputation(IBrightDataContext context) : base(context)
+        {
+        }
+
+        public override decimal NextRandom() => (decimal) _context.Random.NextDouble();
 
         public override decimal SumIndexedProducts(uint size, Func<uint, decimal> p1, Func<uint, decimal> p2)
         {

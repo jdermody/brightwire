@@ -10,11 +10,11 @@ namespace BrightData.Computation
 {
     class FloatComputation : INumericComputation<float>
     {
-        private readonly ITensorPool _tensorPool;
+        private readonly IBrightDataContext _context;
 
-        public FloatComputation(ITensorPool tensorPool)
+        public FloatComputation(IBrightDataContext context)
         {
-            _tensorPool = tensorPool;
+            _context = context;
         }
 
         public ITensorSegment<float> Add(ITensorSegment<float> tensor1, ITensorSegment<float> tensor2) => Zip(tensor1, tensor2, (a, b) => a+b);
@@ -121,19 +121,21 @@ namespace BrightData.Computation
             return Transform(val, v => FloatMath.Constrain(1.0f / (1.0f + MathF.Exp(-1.0f * v))));
         }
 
+        public float NextRandom() => Convert.ToSingle(_context.Random.NextDouble());
+
         protected ITensorSegment<float> Zip(ITensorSegment<float> segment, ITensorSegment<float> other, Func<float, float, float> func)
         {
             if (segment.Size != other.Size)
                 throw new ArgumentException("Segments were different sizes");
 
-            var ret = (TensorBlock<float>)_tensorPool.Get<float>(segment.Size);
+            var ret = (TensorBlock<float>)_context.TensorPool.Get<float>(segment.Size);
             Parallel.ForEach(segment.Values, (v, s, i) => { ret[i] = func(v, other[i]); });
             return ret.GetSegment();
         }
 
         protected ITensorSegment<float> Transform(ITensorSegment<float> segment, Func<float, float> transfomer)
         {
-            var ret = (TensorBlock<float>)_tensorPool.Get<float>(segment.Size);
+            var ret = (TensorBlock<float>)_context.TensorPool.Get<float>(segment.Size);
             Parallel.ForEach(segment.Values, (v, s, i) => { ret[i] = transfomer(v); });
             return ret.GetSegment();
         }

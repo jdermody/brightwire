@@ -19,14 +19,17 @@ namespace BrightData
         readonly UIntComputation _uintComputation;
         readonly DataEncoder _dataReader;
 
-        public BrightDataContext(long maxCacheSize = Consts.DefaultMemoryCacheSize)
+        public BrightDataContext(int? randomSeed = null, long maxCacheSize = Consts.DefaultMemoryCacheSize)
         {
+            Random = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
             _tensorPool = new TensorPool(this, new SharedPoolAllocator(), maxCacheSize);
-            _floatComputation = new FloatComputation(_tensorPool);
-            _doubleComputation = new DoubleComputation(_tensorPool);
-            _decimalComputation = new DecimalComputation(_tensorPool);
-            _uintComputation = new UIntComputation(_tensorPool);
             _dataReader = new DataEncoder(this);
+
+            _floatComputation = new FloatComputation(this);
+            _doubleComputation = new DoubleComputation(this);
+            _decimalComputation = new DecimalComputation(this);
+            _uintComputation = new UIntComputation(this);
+            
             _memoryLayers.Push();
         }
 
@@ -39,9 +42,11 @@ namespace BrightData
             _tensorPool.Dispose();
         }
 
+        public Random Random { get; }
         public ITensorPool TensorPool => _tensorPool;
         public IDisposableLayers MemoryLayer => _memoryLayers;
         public IDataReader DataReader => _dataReader;
+        public IComputableFactory ComputableFactory { get; set; }
 
         public INumericComputation<T> GetComputation<T>() where T: struct
         {

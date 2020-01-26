@@ -6,7 +6,9 @@ namespace BrightData.Computation
 {
     class UIntComputation : ComputationBase<uint>
     {
-        public UIntComputation(ITensorPool tensorPool) : base(tensorPool) { }
+        public UIntComputation(IBrightDataContext context) : base(context) { }
+
+        public override uint NextRandom() => (uint) _context.Random.Next();
 
         public override uint SumIndexedProducts(uint size, Func<uint, uint> p1, Func<uint, uint> p2)
         {

@@ -17,6 +17,17 @@ namespace BrightData
         public uint TensorSize => Depth * MatrixSize;
         public new uint Size => Count * TensorSize;
 
+        public T this[int count, int depth, int rowY, int columnX]
+        {
+            get => _data[count * TensorSize + depth * MatrixSize + rowY * ColumnCount + columnX];
+            set => _data[count * TensorSize + depth * MatrixSize + rowY * ColumnCount + columnX] = value;
+        }
+        public T this[uint count, uint depth, uint rowY, uint columnX]
+        {
+            get => _data[count * TensorSize + depth * MatrixSize + rowY * ColumnCount + columnX];
+            set => _data[count * TensorSize + depth * MatrixSize + rowY * ColumnCount + columnX] = value;
+        }
+
         public Tensor3D<T> Tensor(uint index)
         {
             var segment = new TensorSegmentWrapper<T>(_data, index * TensorSize, 1, TensorSize);

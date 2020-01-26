@@ -4,8 +4,8 @@ using System.Linq;
 
 namespace BrightData
 {
-    public abstract class TensorBase<T, DT> : ITensor<T>, IHaveTensorSegment<T>, ICanWriteToBinaryWriter, ICanInitializeFromBinaryReader
-        where DT: ITensor<T>, IHaveTensorSegment<T>
+    public abstract class TensorBase<T, DT> : ITensor<T>, ICanWriteToBinaryWriter, ICanInitializeFromBinaryReader
+        where DT: ITensor<T>
         where T: struct
     {
         protected ITensorSegment<T> _data;
@@ -74,7 +74,7 @@ namespace BrightData
         protected abstract DT Create(ITensorSegment<T> segment);
 
         public uint[] Shape { get; private set; }
-        protected INumericComputation<T> Computation => _computation.Value;
+        public INumericComputation<T> Computation => _computation.Value;
 
         public ITensorSegment<T> GetDataCopy()
         {

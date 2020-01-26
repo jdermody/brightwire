@@ -8,4 +8,8 @@
     <PackageReference Include="MathNet.Numerics" Version="4.9.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\BrightData\BrightData.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -2,10 +2,11 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\BrightData.Numerics\BrightData.Numerics.csproj" />
     <ProjectReference Include="..\BrightData\BrightData.csproj" />
     <ProjectReference Include="..\BrightTable\BrightTable.csproj" />
     <ProjectReference Include="..\BrightWire\BrightWire.csproj" />

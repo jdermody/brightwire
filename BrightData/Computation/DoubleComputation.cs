@@ -7,7 +7,11 @@ namespace BrightData.Computation
 {
     class DoubleComputation : ComputationBase<double>
     {
-        public DoubleComputation(ITensorPool tensorPool) : base(tensorPool) { }
+        public DoubleComputation(IBrightDataContext context) : base(context)
+        {
+        }
+
+        public override double NextRandom() => _context.Random.NextDouble();
 
         public override double SumIndexedProducts(uint size, Func<uint, double> p1, Func<uint, double> p2)
         {
