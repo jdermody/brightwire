@@ -20,9 +20,19 @@ namespace BrightData.Numerics
             return new NumericsVector(new DenseVector(vector.ToArray()));
         }
 
+        public IComputableVector Create(int size, Func<int, float> initializer)
+        {
+            return new NumericsVector(DenseVector.Create(size, initializer));
+        }
+
         public IComputableMatrix Create(Matrix<float> matrix)
         {
             return new NumericsMatrix(DenseMatrix.Create((int)matrix.RowCount, (int)matrix.ColumnCount, (i, j) => matrix[i, j]));
+        }
+
+        public IComputableMatrix Create(int rows, int columns, Func<int, int, float> initializer)
+        {
+            return new NumericsMatrix(DenseMatrix.Create(rows, columns, initializer));
         }
 
         public IComputable3DTensor Create(Tensor3D<float> tensor)

@@ -207,8 +207,8 @@ namespace BrightData
         void MultiplyInPlace(float scalar);
         IComputableVector Subtract(IComputableVector vector);
         void SubtractInPlace(IComputableVector vector, float coefficient1 = 1.0f, float coefficient2 = 1.0f);
-        IComputableMatrix ReshapeAsColumnMatrix();
-        IComputableMatrix ReshapeAsRowMatrix();
+        IComputableMatrix ReshapeAsSingleColumnMatrix();
+        IComputableMatrix ReshapeAsSingleRowMatrix();
         Vector<float> ToVector(IBrightDataContext context);
         IComputableVector PointwiseMultiply(IComputableVector vector);
         float DotProduct(IComputableVector vector);
@@ -424,7 +424,11 @@ namespace BrightData
     public interface IComputableFactory
     {
         IComputableVector Create(Vector<float> vector);
+        IComputableVector Create(int size, Func<int, float> initializer);
+
         IComputableMatrix Create(Matrix<float> matrix);
+        IComputableMatrix Create(int rows, int columns, Func<int, int, float> initializer);
+
         IComputable3DTensor Create(Tensor3D<float> tensor);
         IComputable4DTensor Create(Tensor4D<float> tensor);
     }

@@ -34,39 +34,19 @@ namespace BrightWire.Learning
 
             public LogisticRegression CreateModel() => new LogisticRegression(Theta.ToVector(_context));
 
-            public float Cost(IComputableVector theta, float lambda)
-            {
-                using var h0 = Feature.Multiply(theta);
-                using var h1 = h0.Column(0);
-                using var h = h1.Sigmoid();
-                using var hLog = h.Log();
-                using var t = Target.Clone();
-                var a = Target.DotProduct(hLog);
-
-                t.MultiplyInPlace(-1f);
-                t.AddInPlace(1f);
-
-                h.MultiplyInPlace(-1f);
-                h.AddInPlace(1f);
-
-                var b = t.DotProduct(hLog);
-                var ret = -(a + b) / Feature.RowCount;
-                if (FloatMath.IsNotZero(lambda))
-                    ret += theta.GetInternalArray().Skip(1).Select(v => v * v).Sum() * lambda / (2 * Feature.RowCount);
-                return ret;
-            }
-
             public IComputableVector Derivative(IComputableVector theta, float lambda)
             {
                 using var p0 = Feature.Multiply(theta);
-                using var p1 = p0.Column(0);
+                using var p1 = p0.ReshapeAsVector();
                 using var p = p1.Sigmoid();
                 using var e0 = p.Subtract(Target);
-                using var e = e0.ReshapeAsRowMatrix();
+                using var e = e0.ReshapeAsSingleRowMatrix();
                 using var e2 = e.Multiply(Feature);
 
                 e2.MultiplyInPlace(1f / Feature.RowCount);
-                var ret = e2.Row(0);
+                var ret = e2.ReshapeAsVector();
+
+                // regularisation
                 if (FloatMath.IsNotZero(lambda)) {
                     var size = theta.Size;
                     var reg = new float[size];
@@ -88,19 +68,19 @@ namespace BrightWire.Learning
 
             // find the classification target
             var classificationTarget = columns.SingleOrDefault(c => c.IsTarget() && c.IsNumeric());
-            if(classificationTarget == null)
+            if (classificationTarget == null)
                 throw new ArgumentException("Table does not contain a numeric target column");
 
             // find the numeric input columns
             var numericColumns = columns.Where(c => c != classificationTarget && c.IsNumeric()).ToList();
-            if(!numericColumns.Any())
+            if (!numericColumns.Any())
                 throw new ArgumentException("Table does not contain any numeric data columns");
 
             // copy the feature vectors
             var context = dataTable.Context;
-            var feature = context.CreateMatrix<float>(dataTable.RowCount, (uint)numericColumns.Count+1);
+            var feature = context.CreateMatrix<float>(dataTable.RowCount, (uint)numericColumns.Count + 1);
             uint columnIndex = 1;
-            foreach(var column in numericColumns)
+            foreach (var column in numericColumns)
                 column.CopyTo(feature.Column(columnIndex++).Data);
             feature.Column(0).Data.Initialize(1f);
 
@@ -109,28 +89,30 @@ namespace BrightWire.Learning
             classificationTarget.CopyTo(target.Data);
 
             var theta = context.CreateVector<float>(feature.ColumnCount);
-            theta.InitializeRandomly();
+            theta.Initialize(0);
+            //theta.InitializeRandomly();
 
-            var data = new LogisticRegressionTrainingData(context, feature.AsComputable(), target.AsComputable(), theta.AsComputable());
-            return new Trainer<LogisticRegression, LogisticRegressionTrainingData>(data, _GradientDescent, _Evaluate, _GetModel);
+            var data = new LogisticRegressionTrainingData(context, feature.AsComputable(), theta.AsComputable(), target.AsComputable());
+            return new Trainer<LogisticRegression, LogisticRegressionTrainingData>(data, _Cost, _GradientDescent, _Evaluate, _GetModel);
         }
 
         static LogisticRegression _GetModel(LogisticRegressionTrainingData data) => data.CreateModel();
 
-        static float _GradientDescent(ITrainer<LogisticRegression, LogisticRegressionTrainingData> trainer, ITrainingContext context)
+        static void _GradientDescent(ITrainer<LogisticRegression, LogisticRegressionTrainingData> trainer, ITrainingContext context)
         {
-            var theta = trainer.Data.Theta;
             var data = trainer.Data;
-            var lambda = context.Lambda;
+            var theta = data.Theta;
 
-            using (var d = data.Derivative(theta, lambda)) {
-                d.MultiplyInPlace(context.LearningRate);
-                var theta2 = theta.Subtract(d);
-                theta.Dispose();
-                theta = theta2;
-            }
+            using var d = data.Derivative(theta, context.Lambda);
+            d.MultiplyInPlace(context.LearningRate);
+            theta.SubtractInPlace(d);
+        }
 
-            return data.Cost(theta, context.Lambda);
+        static float _Cost(ITrainer<LogisticRegression, LogisticRegressionTrainingData> trainer, ITrainingContext context)
+        {
+            //var data = trainer.Data;
+            //return data.Cost(data.Theta, context.Lambda);
+            return 0;
         }
 
         static IReadOnlyList<(float Output, float Target)> _Evaluate(ITrainer<LogisticRegression, LogisticRegressionTrainingData> trainer)
@@ -140,7 +122,7 @@ namespace BrightWire.Learning
             var target = trainer.Data.Target;
 
             using var h0 = feature.Multiply(theta);
-            using var h1 = h0.Column(0);
+            using var h1 = h0.ReshapeAsVector();
             using var h = h1.Sigmoid();
 
             return h.GetInternalArray().Zip(target.GetInternalArray(), (o, t) => (o, t)).ToList();

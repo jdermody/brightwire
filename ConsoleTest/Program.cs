@@ -40,18 +40,19 @@ namespace ConsoleTest
             trainingTable.SetTargetColumn(4);
 
             // train model
+            var costFunction = new BinaryClassification();
             var trainer = trainingTable.GetLogisticRegressionTrainer();
-            var trainingContext = trainer.CreateContext(0.01f, 1);
-            for (var i = 0; i < 5; i++) {
-                var cost = trainingContext.Iterate();
-                Console.WriteLine($"{i}) {cost}");
+            var trainingContext = trainer.CreateContext(0.25f, 0);
+            for (var i = 0; i < 50000; i++) {
+                trainingContext.Iterate();
+                if (i % 100 == 0) {
+                    var finalModel = trainer.Evaluate();
+                    var percentage = finalModel.Average(costFunction.Compute);
+                    Console.WriteLine($"{i}) {percentage:P}");
+                }
             }
 
-            var costFunction = new BinaryClassification();
-            var finalModel = trainer.Evaluate();
-            foreach (var item in finalModel) {
-                Console.WriteLine($"{item}: {costFunction.Compute(item)}");
-            }
+            
 
             //numericTable.SetTargetColumn(4);
             //using var trainer = numericTable.GetLogisticRegressionTrainer();

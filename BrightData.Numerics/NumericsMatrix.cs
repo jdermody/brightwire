@@ -432,7 +432,7 @@ namespace BrightData.Numerics
 
         public IComputableMatrix Multiply(IComputableVector vector)
         {
-            using var column = vector.ReshapeAsColumnMatrix();
+            using var column = vector.ReshapeAsSingleColumnMatrix();
             return Multiply(column);
         }
 

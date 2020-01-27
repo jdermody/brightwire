@@ -90,12 +90,12 @@ namespace BrightData.Numerics
             _vector.MapIndexedInplace((i, v) => (v * coefficient1) - (other[i] * coefficient2));
         }
 
-        public IComputableMatrix ReshapeAsColumnMatrix()
+        public IComputableMatrix ReshapeAsSingleColumnMatrix()
         {
             return new NumericsMatrix(DenseMatrix.Build.Dense(_vector.Count, 1, GetInternalArray()));
         }
 
-        public IComputableMatrix ReshapeAsRowMatrix()
+        public IComputableMatrix ReshapeAsSingleRowMatrix()
         {
             return new NumericsMatrix(DenseMatrix.Build.Dense(1, _vector.Count, GetInternalArray()));
         }

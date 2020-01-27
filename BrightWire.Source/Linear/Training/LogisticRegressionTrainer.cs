@@ -53,26 +53,6 @@ namespace BrightWire.Linear.Training
             return ret;
         }
 
-        public float ComputeCost(IVector th, float lambda)
-        {
-            using (var h0 = _feature.Multiply(th))
-            using (var h1 = h0.Column(0))
-            using (var h = h1.Sigmoid())
-            using (var hLog = h.Log())
-            using (var t = _target.Clone()) {
-                var a = _target.DotProduct(hLog);
-                t.Multiply(-1f);
-                t.Add(1f);
-                h.Multiply(-1f);
-                h.Add(1f);
-                var b = t.DotProduct(hLog);
-                var ret = -(a + b) / _feature.RowCount;
-                if (BoundMath.IsNotZero(lambda))
-                    ret += th.AsIndexable().Values.Skip(1).Select(v => v * v).Sum() * lambda / (2 * _feature.RowCount);
-                return ret;
-            }
-        }
-
         IVector _Derivative(IVector th, float lambda)
         {
             using (var p0 = _feature.Multiply(th))
@@ -94,6 +74,26 @@ namespace BrightWire.Linear.Training
                             ret.Add(regVector);   
                     }
                 }
+                return ret;
+            }
+        }
+
+        public float ComputeCost(IVector th, float lambda)
+        {
+            using (var h0 = _feature.Multiply(th))
+            using (var h1 = h0.Column(0))
+            using (var h = h1.Sigmoid())
+            using (var hLog = h.Log())
+            using (var t = _target.Clone()) {
+                var a = _target.DotProduct(hLog);
+                t.Multiply(-1f);
+                t.Add(1f);
+                h.Multiply(-1f);
+                h.Add(1f);
+                var b = t.DotProduct(hLog);
+                var ret = -(a + b) / _feature.RowCount;
+                if (BoundMath.IsNotZero(lambda))
+                    ret += th.AsIndexable().Values.Skip(1).Select(v => v * v).Sum() * lambda / (2 * _feature.RowCount);
                 return ret;
             }
         }

@@ -26,7 +26,8 @@ namespace BrightWire
 
     public interface ITrainingContext
     {
-        float Iterate();
+        void Iterate();
+        float CalculateError();
 
         float LearningRate { get; }
         float Lambda { get; }

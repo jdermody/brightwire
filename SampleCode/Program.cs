@@ -88,7 +88,7 @@ namespace BrightWire.SampleCode
 			Control.UseNativeMKL();
 
 			//XOR();
-			//IrisClassification();
+			IrisClassification();
 			//IrisClustering();
 			//MarkovChains();
 			//MNIST(DataBasePath + @"mnist\");

@@ -359,9 +359,19 @@ namespace BrightData
             return vector.Context.ComputableFactory?.Create(vector);
         }
 
+        public static IComputableVector CreateComputable(this IBrightDataContext context, int size, Func<int, float> initializer)
+        {
+            return context.ComputableFactory?.Create(size, initializer);
+        }
+
         public static IComputableMatrix AsComputable(this Matrix<float> matrix)
         {
             return matrix.Context.ComputableFactory?.Create(matrix);
+        }
+
+        public static IComputableMatrix CreateComputable(this IBrightDataContext context, int rows, int columns, Func<int, int, float> initializer)
+        {
+            return context.ComputableFactory?.Create(rows, columns, initializer);
         }
 
         public static IComputable3DTensor AsComputable(this Tensor3D<float> tensor)
@@ -380,7 +390,7 @@ namespace BrightData
             tensor.Data.Initialize(i => computation.NextRandom());
         }
 
-        public static void InitializeTo<T>(this ITensor<T> tensor, T value) where T : struct
+        public static void Initialize<T>(this ITensor<T> tensor, T value) where T : struct
         {
             tensor.Data.Initialize(value);
         }
