@@ -42,11 +42,11 @@
 /SampleCode.Core/obj
 /BrightData/bin
 /BrightData/obj
-/BrightWire/obj
-/BrightWire/bin
 /ConsoleTest/bin
 /ConsoleTest/obj
 /BrightData.UnitTests/bin
 /BrightData.UnitTests/obj
 /BrightData.Numerics/obj
 /BrightData.Numerics/bin
+/BrightML/bin
+/BrightML/obj
