@@ -6,12 +6,12 @@ using System.Text;
 using BrightData;
 using BrightData.Helper;
 using BrightTable;
-using BrightWire.Learning;
 using BrightTable.Input;
 using BrightTable.Segments;
 using BrightWire;
-using BrightWire.CostFunctions;
 using BrightData.Numerics;
+using BrightML;
+using BrightML.CostFunctions;
 using BrightTable.Transformations;
 
 namespace ConsoleTest
@@ -42,7 +42,7 @@ namespace ConsoleTest
             // train model
             var costFunction = new BinaryClassification();
             var trainer = trainingTable.GetLogisticRegressionTrainer();
-            var trainingContext = trainer.CreateContext(0.25f, 0);
+            var trainingContext = trainer.CreateContext(0.03f, 0);
             for (var i = 0; i < 50000; i++) {
                 trainingContext.Iterate();
                 if (i % 100 == 0) {

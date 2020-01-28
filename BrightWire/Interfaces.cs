@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace BrightWire
+namespace BrightML
 {
     public interface IModel : IDisposable
     {
@@ -32,5 +32,23 @@ namespace BrightWire
         float LearningRate { get; }
         float Lambda { get; }
         uint Iteration { get; }
+    }
+
+    public interface INode
+    {
+        /// <summary>
+        /// Unique id
+        /// </summary>
+        string Id { get; }
+
+        /// <summary>
+        /// Friendly name
+        /// </summary>
+        string Name { get; }
+
+        /// <summary>
+        /// List of outgoing wires
+        /// </summary>
+        //IReadOnlyList<Wire> Output { get; }
     }
 }

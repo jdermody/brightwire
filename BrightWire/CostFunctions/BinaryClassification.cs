@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using BrightData.Helper;
 
-namespace BrightWire.CostFunctions
+namespace BrightML.CostFunctions
 {
     public class BinaryClassification
     {

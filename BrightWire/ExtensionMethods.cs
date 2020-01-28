@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using BrightTable;
-using BrightWire.Learning;
-using BrightWire.Models;
+﻿using BrightML.Learning;
+using BrightML.Models;
 
-namespace BrightWire
+namespace BrightML
 {
     public static class ExtensionMethods
     {

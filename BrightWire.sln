@@ -29,13 +29,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrightTable", "BrightTable\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrightData", "BrightData\BrightData.csproj", "{9F981624-ABE1-4350-A1F8-DA466BC11711}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrightWire", "BrightWire\BrightWire.csproj", "{3705136B-F4AF-4C27-AC1D-382B4BB36821}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrightML", "BrightWire\BrightML.csproj", "{3705136B-F4AF-4C27-AC1D-382B4BB36821}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleTest", "ConsoleTest\ConsoleTest.csproj", "{F5CA55EE-C3E1-4BDF-81DD-5B40B2362EFC}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrightData.UnitTests", "BrightData.UnitTests\BrightData.UnitTests.csproj", "{9CDDEEF5-067C-44C5-8000-272BA7D6172D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrightData.Numerics", "BrightData.Numerics\BrightData.Numerics.csproj", "{A8A3A972-FAA7-4B85-993F-118736970857}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrightData.Numerics", "BrightData.Numerics\BrightData.Numerics.csproj", "{A8A3A972-FAA7-4B85-993F-118736970857}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution

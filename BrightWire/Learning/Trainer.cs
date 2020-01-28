@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
-namespace BrightWire.Learning
+namespace BrightML.Learning
 {
     public class Trainer<TM, TD> : ITrainer<TM, TD>
         where TM : IModel

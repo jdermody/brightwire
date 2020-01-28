@@ -228,10 +228,14 @@ namespace BrightData
         public static uint Index(this IMetaData metadata) => metadata.Get<uint>(Consts.Index);
         public static bool IsNumeric(this IMetaData metadata) => metadata.Get<bool>(Consts.IsNumeric);
         public static bool IsTarget(this IMetaData metadata) => metadata.Get<bool>(Consts.IsTarget);
-        public static string Name(this IHaveMetaData metadataProvider) => metadataProvider.MetaData.Get<string>(Consts.Name);
-        public static uint Index(this IHaveMetaData metadataProvider) => metadataProvider.MetaData.Get<uint>(Consts.Index);
-        public static bool IsNumeric(this IHaveMetaData metadataProvider) => metadataProvider.MetaData.Get<bool>(Consts.IsNumeric);
-        public static bool IsTarget(this IHaveMetaData metadataProvider) => metadataProvider.MetaData.Get<bool>(Consts.IsTarget);
+        public static bool IsFeature(this IMetaData metadata) => metadata.Get<bool>(Consts.IsFeature);
+
+        public static string Name(this IHaveMetaData metadataProvider) => metadataProvider.MetaData.Name();
+        public static uint Index(this IHaveMetaData metadataProvider) => metadataProvider.MetaData.Index();
+        public static bool IsNumeric(this IHaveMetaData metadataProvider) => metadataProvider.MetaData.IsNumeric();
+        public static bool IsTarget(this IHaveMetaData metadataProvider) => metadataProvider.MetaData.IsTarget();
+        public static bool IsFeature(this IHaveMetaData metadataProvider) => metadataProvider.MetaData.IsFeature();
+
 
         public static float CosineDistance(this float[] vector, float[] other)
         {

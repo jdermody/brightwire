@@ -1,12 +1,12 @@
-﻿using BrightData;
-using BrightTable;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BrightData;
 using BrightData.Helper;
-using BrightWire.Models;
+using BrightML.Models;
+using BrightTable;
 
-namespace BrightWire.Learning
+namespace BrightML.Learning
 {
     public static class LogisticRegressionTrainer
     {
@@ -39,24 +39,17 @@ namespace BrightWire.Learning
                 using var p0 = Feature.Multiply(theta);
                 using var p1 = p0.ReshapeAsVector();
                 using var p = p1.Sigmoid();
-                using var e0 = p.Subtract(Target);
+                using var e0 = Target.Subtract(p);
                 using var e = e0.ReshapeAsSingleRowMatrix();
                 using var e2 = e.Multiply(Feature);
 
                 e2.MultiplyInPlace(1f / Feature.RowCount);
                 var ret = e2.ReshapeAsVector();
 
-                // regularisation
                 if (FloatMath.IsNotZero(lambda)) {
-                    var size = theta.Size;
-                    var reg = new float[size];
-                    var term = lambda / Feature.RowCount;
-                    for (var i = 1; i < size; i++) {
-                        reg[i] = theta[i] * term;
-                    }
-
-                    using var regVector = _context.CreateVector(reg).AsComputable();
-                    ret.AddInPlace(regVector);
+                    using var regularisation = theta.Clone();
+                    regularisation.MultiplyInPlace(lambda / Feature.ColumnCount);
+                    ret.AddInPlace(regularisation);
                 }
                 return ret;
             }
@@ -105,7 +98,7 @@ namespace BrightWire.Learning
 
             using var d = data.Derivative(theta, context.Lambda);
             d.MultiplyInPlace(context.LearningRate);
-            theta.SubtractInPlace(d);
+            theta.AddInPlace(d);
         }
 
         static float _Cost(ITrainer<LogisticRegression, LogisticRegressionTrainingData> trainer, ITrainingContext context)

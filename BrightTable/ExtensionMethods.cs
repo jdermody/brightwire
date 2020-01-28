@@ -134,7 +134,16 @@ namespace BrightTable
             _ => false
         };
 
-        public static bool IsFloatingPoint(this ColumnType type) => type switch
+        public static bool IsInteger(this ColumnType type) => type switch
+        {
+            ColumnType.Byte => true,
+            ColumnType.Short => true,
+            ColumnType.Int => true,
+            ColumnType.Long => true,
+            _ => false
+        };
+
+        public static bool IsDecimal(this ColumnType type) => type switch
         {
             ColumnType.Double => true,
             ColumnType.Decimal => true,
@@ -401,6 +410,16 @@ namespace BrightTable
             var metaData = table.AllMetaData();
             for(uint i = 0; i < table.ColumnCount; i++) {
                 metaData[(int)i].Set(Consts.IsTarget, i == columnIndex);
+            }
+        }
+
+        public static void SetFeatureColumn(this IDataTable table, params uint[] columnIndices)
+        {
+            var metaData = table.AllMetaData();
+            var featureColumns = new HashSet<uint>(columnIndices);
+
+            for (uint i = 0; i < table.ColumnCount; i++) {
+                metaData[(int)i].Set(Consts.IsFeature, featureColumns.Contains(i));
             }
         }
 

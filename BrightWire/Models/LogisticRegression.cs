@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using BrightData;
+﻿using BrightData;
 
-namespace BrightWire.Models
+namespace BrightML.Models
 {
     public class LogisticRegression : IModel
     {
