@@ -15,6 +15,7 @@
         public const string IsFeature = "IsFeature";
 
         public const string HasUnique = "HasUnique";
+        public const string IsSequential = "IsSequential";
 
         public const string HasBeenAnalysed = "HasBeenAnalysed";
         public const string Mode = "Mode";

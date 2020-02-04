@@ -151,6 +151,22 @@ namespace BrightTable
             _ => false
         };
 
+        public static bool IsIndexed(this ColumnType type) => type switch
+        {
+            ColumnType.IndexList => true,
+            ColumnType.WeightedIndexList => true,
+            _ => false
+        };
+
+        public static bool IsTensor(this ColumnType type) => type switch
+        {
+            ColumnType.Vector => true,
+            ColumnType.Matrix => true,
+            ColumnType.Tensor3D => true,
+            ColumnType.Tensor4D => true,
+            _ => false
+        };
+
         public static Type DataType(this IDataTableSegment segment)
         {
             Type ret = null;
@@ -420,6 +436,16 @@ namespace BrightTable
 
             for (uint i = 0; i < table.ColumnCount; i++) {
                 metaData[(int)i].Set(Consts.IsFeature, featureColumns.Contains(i));
+            }
+        }
+
+        public static void SetSequentialColumn(this IDataTable table, params uint[] columnIndices)
+        {
+            var metaData = table.AllMetaData();
+            var featureColumns = new HashSet<uint>(columnIndices);
+
+            for (uint i = 0; i < table.ColumnCount; i++) {
+                metaData[(int)i].Set(Consts.IsSequential, featureColumns.Contains(i));
             }
         }
 

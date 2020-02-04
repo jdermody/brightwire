@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using BrightML.Graph;
 
 namespace BrightML
 {
@@ -49,6 +50,15 @@ namespace BrightML
         /// <summary>
         /// List of outgoing wires
         /// </summary>
-        //IReadOnlyList<Wire> Output { get; }
+        IReadOnlyList<Wire> Output { get; }
+
+        IGraphData Forward(IGraphData data, uint channel);
+
+        IGraphData Backward(IGraphData data, uint channel);
+    }
+
+    public interface IGraphData
+    {
+
     }
 }
