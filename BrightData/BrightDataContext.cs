@@ -48,7 +48,6 @@ namespace BrightData
         public ITensorPool TensorPool => _tensorPool;
         public IDisposableLayers MemoryLayer => _memoryLayers;
         public IDataReader DataReader => _dataReader;
-        public IComputableFactory ComputableFactory { get; set; }
 
         public INumericComputation<T> GetComputation<T>() where T : struct
         {

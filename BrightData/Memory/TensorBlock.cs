@@ -45,6 +45,13 @@ namespace BrightData.Memory
 
         public T[] ToArray() => _data.Memory.Span.Slice(0, (int)Size).ToArray();
         public Span<T> Data => _data.Memory.Span;
+        public ITensorBlock<T> Clone()
+        {
+            var ret = Context.TensorPool.Get<T>(Size);
+            ret.InitializeFrom(this);
+            return ret;
+        }
+
         public IEnumerable<T> Values
         {
             get {

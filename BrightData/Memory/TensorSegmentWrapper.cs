@@ -57,12 +57,12 @@ namespace BrightData.Memory
             }
         }
 
-        public ITensorBlock<T> GetBlock(ITensorPool pool)
+        public (ITensorBlock<T> Block, bool IsNewCopy) GetBlock(ITensorPool pool)
         {
             var ret = pool.Get<T>(Size);
-            using(var segment = ret.GetSegment())
-                segment.Initialize(i => this[i]);
-            return ret;
+            using var segment = ret.GetSegment();
+            segment.Initialize(i => this[i]);
+            return (ret, true);
         }
 
         public T this[uint index] {
@@ -100,12 +100,13 @@ namespace BrightData.Memory
 
         public unsafe void WriteTo(Stream stream)
         {
-            var buffer = new byte[Size * Unsafe.SizeOf<T>()];
+            var size = Unsafe.SizeOf<T>();
+            var buffer = new byte[Size * size];
             fixed(byte* ptr = &buffer[0]) {
                 var p = ptr;
                 for (uint i = 0; i < Size; i++) {
                     Unsafe.Write(p, this[i]);
-                    p += Unsafe.SizeOf<T>();
+                    p += size;
                 }
             }
             stream.Write(buffer);

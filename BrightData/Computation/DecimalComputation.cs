@@ -19,20 +19,41 @@ namespace BrightData.Computation
             }
             return ret;
         }
-        protected override decimal Add(decimal a, decimal b) => a + b;
-        protected override decimal Subtract(decimal a, decimal b) => a - b;
-        protected override decimal Multiply(decimal a, decimal b) => a * b;
-        protected override decimal Divide(decimal a, decimal b) => a / b;
-        protected override decimal Sqrt(decimal a) => (decimal)Math.Sqrt((double)a);
-        protected override decimal Abs(decimal a) => Math.Abs(a);
-        protected override decimal Log(decimal a) => (decimal)Math.Log((double)a);
-        protected override decimal Exp(decimal a) => (decimal)Math.Exp((double)a);
-        protected override decimal OneMinusInput(decimal input) => 1M - input;
-        protected override decimal Cast(uint a) => a;
-        protected override decimal Constrain(decimal val) => (decimal)FloatMath.Constrain(Convert.ToSingle(val));
+        public override decimal Add(decimal a, decimal b) => a + b;
+        public override decimal Subtract(decimal a, decimal b) => a - b;
+        public override decimal Multiply(decimal a, decimal b) => a * b;
+        public override decimal Divide(decimal a, decimal b) => a / b;
+        public override decimal Sqrt(decimal a) => (decimal)Math.Sqrt((double)a);
+        public override decimal Abs(decimal a) => Math.Abs(a);
+        public override decimal Log(decimal a) => (decimal)Math.Log((double)a);
+        public override decimal Exp(decimal a) => (decimal)Math.Exp((double)a);
+        public override decimal Pow(decimal a, int rank) => (decimal)Math.Pow((double)a, rank);
 
-        protected override decimal MinValue => decimal.MinValue;
-        protected override decimal MaxValue => decimal.MaxValue;
-        protected override bool IsZero(decimal value) => Math.Abs(value) <= (decimal)FloatMath.AlmostZero;
+        public override decimal OneMinusInput(decimal input) => 1M - input;
+        public override decimal OnePlusInput(decimal input) => 1M + input;
+        public override decimal OneDividedByInput(decimal input) => 1M / input;
+
+        public override decimal Constrain(decimal val) => (decimal)FloatMath.Constrain(Convert.ToSingle(val));
+
+        public override decimal MinValue => decimal.MinValue;
+        public override decimal MaxValue => decimal.MaxValue;
+        public override bool IsZero(decimal value) => Math.Abs(value) <= (decimal)FloatMath.AlmostZero;
+        public override bool IsEqualOrLessThanZero(decimal value) => value <= 1m;
+
+        public override bool IsNaN(decimal value) => false;
+        public override bool IsInfinity(decimal value) => false;
+
+        public override decimal Tanh(decimal value) => (decimal)Math.Tanh((double)value);
+
+        public override decimal Negate(decimal value) => value * -1m;
+
+        public override decimal Zero => 0m;
+        public override decimal One => 1m;
+        public override decimal ZeroZeroOne => 0.01m;
+
+        public override decimal Get(uint val) => Convert.ToDecimal(val);
+        public override decimal Get(float val) => Convert.ToDecimal(val);
+        public override decimal Get(double val) => Convert.ToDecimal(val);
+        public override decimal Get(decimal val) => Convert.ToDecimal(val);
     }
 }

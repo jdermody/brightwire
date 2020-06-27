@@ -92,7 +92,7 @@ namespace BrightData
             var segment = data.GetSegment();
             if (initializer != null)
                 segment.Initialize(i => initializer(i / columns, i % columns));
-            return new Matrix<T>(context, segment, rows, columns);
+            return new Matrix<T>(segment, rows, columns);
         }
         public static Matrix<T> CreateMatrix<T>(this IBrightDataContext context, uint rows, uint columns, T initializer) where T: struct => CreateMatrix(context, rows, columns, (i, j) => initializer);
 
@@ -102,24 +102,24 @@ namespace BrightData
             return CreateMatrix(context, (uint) rows.Length, columns, (j, i) => rows[j][i]);
         }
 
-        public static Matrix<T> CreateMatrixFromColumns<T>(this IBrightDataContext context, bool isColumnMajor, params Vector<T>[] columns) where T: struct
+        public static Matrix<T> CreateMatrixFromColumns<T>(this IBrightDataContext context, params Vector<T>[] columns) where T: struct
         {
             var rows = columns.First().Size;
             return CreateMatrix(context, rows, (uint) columns.Length, (j, i) => columns[i][j]);
         }
 
-        public static Tensor3D<T> CreateTensor3D<T>(this IBrightDataContext context, bool isColumnMajor, uint depth, uint rows, uint columns) where T : struct
+        public static Tensor3D<T> CreateTensor3D<T>(this IBrightDataContext context, uint depth, uint rows, uint columns) where T : struct
         {
             var data = context.TensorPool.Get<T>(depth * rows * columns);
             var segment = data.GetSegment();
-            return new Tensor3D<T>(context, segment, depth, rows, columns);
+            return new Tensor3D<T>(segment, depth, rows, columns);
         }
 
-        public static Tensor4D<T> CreateTensor4D<T>(this IBrightDataContext context, bool isColumnMajor, uint count, uint depth, uint rows, uint columns) where T : struct
+        public static Tensor4D<T> CreateTensor4D<T>(this IBrightDataContext context, uint count, uint depth, uint rows, uint columns) where T : struct
         {
             var data = context.TensorPool.Get<T>(count * depth * rows * columns);
             var segment = data.GetSegment();
-            return new Tensor4D<T>(context, segment, count, depth, rows, columns);
+            return new Tensor4D<T>(segment, count, depth, rows, columns);
         }
 
         public static uint GetSize(this ITensor tensor)
@@ -358,36 +358,6 @@ namespace BrightData
             for (uint i = 0; i < tensor.Count; i++)
                 ret.Add(tensor.Tensor(i));
             return ret;
-        }
-
-        public static IComputableVector AsComputable(this Vector<float> vector)
-        {
-            return vector.Context.ComputableFactory?.Create(vector);
-        }
-
-        public static IComputableVector CreateComputable(this IBrightDataContext context, int size, Func<int, float> initializer)
-        {
-            return context.ComputableFactory?.Create(size, initializer);
-        }
-
-        public static IComputableMatrix AsComputable(this Matrix<float> matrix)
-        {
-            return matrix.Context.ComputableFactory?.Create(matrix);
-        }
-
-        public static IComputableMatrix CreateComputable(this IBrightDataContext context, int rows, int columns, Func<int, int, float> initializer)
-        {
-            return context.ComputableFactory?.Create(rows, columns, initializer);
-        }
-
-        public static IComputable3DTensor AsComputable(this Tensor3D<float> tensor)
-        {
-            return tensor.Context.ComputableFactory?.Create(tensor);
-        }
-
-        public static IComputable4DTensor AsComputable(this Tensor4D<float> tensor)
-        {
-            return tensor.Context.ComputableFactory?.Create(tensor);
         }
 
         public static void InitializeRandomly<T>(this ITensor<T> tensor) where T : struct

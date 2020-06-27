@@ -11,7 +11,7 @@ namespace BrightData
     public class Matrix<T> : TensorBase<T, Matrix<T>>
         where T: struct
     {
-        public Matrix(IBrightDataContext context, ITensorSegment<T> data, uint rows, uint columns) : base(context, data, new[] { rows, columns }) { }
+        public Matrix(ITensorSegment<T> data, uint rows, uint columns) : base(data, new[] { rows, columns }) { }
         public Matrix(IBrightDataContext context, BinaryReader reader) : base(context, reader) { }
 
         public uint RowCount => Shape[0];
@@ -49,7 +49,7 @@ namespace BrightData
 
         public Matrix<T> Transpose()
         {
-            var ret = new Matrix<T>(Context, Context.TensorPool.Get<T>(Size).GetSegment(), ColumnCount, RowCount);
+            var ret = new Matrix<T>(Context.TensorPool.Get<T>(Size).GetSegment(), ColumnCount, RowCount);
             Parallel.For(0, ret.Size, ind => {
                 var j = (uint)(ind / ColumnCount);
                 var i = (uint)(ind % ColumnCount);
@@ -60,7 +60,7 @@ namespace BrightData
 
         protected override Matrix<T> Create(ITensorSegment<T> segment)
         {
-            return new Matrix<T>(Context, segment, RowCount, ColumnCount);
+            return new Matrix<T>(segment, RowCount, ColumnCount);
         }
     }
 }

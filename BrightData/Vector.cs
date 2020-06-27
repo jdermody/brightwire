@@ -8,7 +8,7 @@ namespace BrightData
     public class Vector<T> : TensorBase<T, Vector<T>>
         where T: struct
     {
-        public Vector(ITensorSegment<T> data) : base(data.Context, data, new[] { data.Size }) { }
+        public Vector(ITensorSegment<T> data) : base(data, new[] { data.Size }) { }
         public Vector(IBrightDataContext context, BinaryReader reader) : base(context, reader) { }
 
         public new uint Size => Shape[0];

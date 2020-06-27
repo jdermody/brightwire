@@ -22,20 +22,41 @@ namespace BrightData.Computation
             });
             return (uint)ret;
         }
-        protected override uint Add(uint a, uint b) => a + b;
-        protected override uint Subtract(uint a, uint b) => a - b;
-        protected override uint Multiply(uint a, uint b) => a * b;
-        protected override uint Divide(uint a, uint b) => a / b;
-        protected override uint Sqrt(uint a) => (uint)Math.Sqrt(a);
-        protected override uint Abs(uint a) => (uint)Math.Abs(a);
-        protected override uint Log(uint a) => (uint)Math.Log(a);
-        protected override uint Exp(uint a) => (uint)Math.Exp(a);
-        protected override uint OneMinusInput(uint input) => 1 - input;
-        protected override uint Cast(uint a) => a;
-        protected override uint Constrain(uint val) => throw new NotSupportedException();
+        public override uint Add(uint a, uint b) => a + b;
+        public override uint Subtract(uint a, uint b) => a - b;
+        public override uint Multiply(uint a, uint b) => a * b;
+        public override uint Divide(uint a, uint b) => a / b;
+        public override uint Sqrt(uint a) => (uint)Math.Sqrt(a);
+        public override uint Abs(uint a) => (uint)Math.Abs(a);
+        public override uint Log(uint a) => (uint)Math.Log(a);
+        public override uint Exp(uint a) => (uint)Math.Exp(a);
+        public override uint Pow(uint a, int rank) => (uint) Math.Pow(a, rank);
 
-        protected override uint MinValue => uint.MinValue;
-        protected override uint MaxValue => uint.MaxValue;
-        protected override bool IsZero(uint value) => value == 0;
+        public override uint OneMinusInput(uint input) => 1 - input;
+        public override uint OnePlusInput(uint input) => 1 + input;
+
+        public override uint OneDividedByInput(uint input) => throw new NotSupportedException();
+        public override uint Constrain(uint val) => throw new NotSupportedException();
+
+        public override uint MinValue => uint.MinValue;
+        public override uint MaxValue => uint.MaxValue;
+        public override bool IsZero(uint value) => value == 0;
+        public override bool IsEqualOrLessThanZero(uint value) => value == 0;
+
+        public override bool IsNaN(uint value) => false;
+        public override bool IsInfinity(uint value) => false;
+
+        public override uint Tanh(uint value) => throw new NotSupportedException();
+
+        public override uint Negate(uint value) => throw new NotSupportedException();
+
+        public override uint Zero => 0;
+        public override uint One => 1;
+        public override uint ZeroZeroOne => throw new NotSupportedException();
+
+        public override uint Get(uint val) => Convert.ToUInt32(val);
+        public override uint Get(float val) => Convert.ToUInt32(val);
+        public override uint Get(double val) => Convert.ToUInt32(val);
+        public override uint Get(decimal val) => Convert.ToUInt32(val);
     }
 }

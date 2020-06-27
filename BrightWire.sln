@@ -41,6 +41,7 @@ Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		BrightWire.CUDA.Source\BrightWire.CUDA.Source.projitems*{50bcb2ab-e8ca-4974-b136-49a98d5e34cb}*SharedItemsImports = 4
 		BrightWire.Source\BrightWire.Source.projitems*{8ee466c6-a1da-4c24-ae39-f82559be16e9}*SharedItemsImports = 13
+		BrightWire.Source\BrightWire.Source.projitems*{b8b4639d-245e-4152-a794-03a4ee05bd2f}*SharedItemsImports = 5
 		BrightWire.CUDA.Source\BrightWire.CUDA.Source.projitems*{ed0e6bc8-9242-4396-ad05-668f70a511a5}*SharedItemsImports = 13
 		BrightWire.Source\BrightWire.Source.projitems*{fd8aaef6-2edb-446c-bb19-5ebee5cde982}*SharedItemsImports = 4
 	EndGlobalSection

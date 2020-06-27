@@ -38,7 +38,7 @@ namespace BrightWire.SampleCode
 			}
 			var data = builder.Build().Split(trainingPercentage: 0.2);
 
-			using (var lap = BrightWireProvider.CreateLinearAlgebra()) {
+			using (var lap = BrightWireGpuProvider.CreateLinearAlgebra()) {
 				var graph = new GraphFactory(lap);
 				var errorMetric = graph.ErrorMetric.Quadratic;
 

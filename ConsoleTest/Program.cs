@@ -34,23 +34,24 @@ namespace ConsoleTest
                 ColumnConversionType.ToNumeric, 
                 ColumnConversionType.ToCategoricalIndex);
             var head = numericTable.Head(60);
-            using var normalized = numericTable.Normalize(NormalizationType.FeatureScale);
+            using var normalized = numericTable.Normalize(NormalizationType.Standard);
             head = normalized.Head(60);
             using var trainingTable = numericTable.Convert(ColumnConversion.Create<int, int>(4, v => v == 1 ? 1 : 0));
             trainingTable.SetTargetColumn(4);
 
             // train model
-            var costFunction = new BinaryClassification();
-            var trainer = trainingTable.GetLogisticRegressionTrainer();
-            var trainingContext = trainer.CreateContext(0.03f, 0);
-            for (var i = 0; i < 50000; i++) {
-                trainingContext.Iterate();
-                if (i % 100 == 0) {
-                    var finalModel = trainer.Evaluate();
-                    var percentage = finalModel.Average(costFunction.Compute);
-                    Console.WriteLine($"{i}) {percentage:P}");
-                }
-            }
+            //var costFunction = new BinaryClassification();
+            //var trainer = trainingTable.GetLogisticRegressionTrainer();
+            //var trainingContext = trainer.CreateContext(0.1f, 0.1f);
+            //for (var i = 0; i < 50000; i++) {
+            //    trainingContext.Iterate();
+            //    if (i % 100 == 0) {
+            //        var finalModel = trainer.Evaluate();
+            //        var error = finalModel.Average(costFunction.Compute);
+            //        Console.WriteLine(trainer.Model.Theta);
+            //        Console.WriteLine($"{i}) MSE: {error}");
+            //    }
+            //}
 
             
 

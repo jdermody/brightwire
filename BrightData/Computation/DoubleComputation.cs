@@ -25,20 +25,41 @@ namespace BrightData.Computation
             });
             return ret;
         }
-        protected override double Add(double a, double b) => a + b;
-        protected override double Subtract(double a, double b) => a - b;
-        protected override double Multiply(double a, double b) => a * b;
-        protected override double Divide(double a, double b) => a / b;
-        protected override double Sqrt(double a) => Math.Sqrt(a);
-        protected override double Abs(double a) => Math.Abs(a);
-        protected override double Log(double a) => Math.Log(a);
-        protected override double Exp(double a) => Math.Exp(a);
-        protected override double OneMinusInput(double input) => 1 - input;
-        protected override double Cast(uint a) => a;
-        protected override double Constrain(double val) => FloatMath.Constrain(Convert.ToSingle(val));
+        public override double Add(double a, double b) => a + b;
+        public override double Subtract(double a, double b) => a - b;
+        public override double Multiply(double a, double b) => a * b;
+        public override double Divide(double a, double b) => a / b;
+        public override double Sqrt(double a) => Math.Sqrt(a);
+        public override double Abs(double a) => Math.Abs(a);
+        public override double Log(double a) => Math.Log(a);
+        public override double Exp(double a) => Math.Exp(a);
+        public override double Pow(double a, int rank) => Math.Pow(a, rank);
 
-        protected override double MinValue => double.MinValue;
-        protected override double MaxValue => double.MaxValue;
-        protected override bool IsZero(double value) => Math.Abs(value) < FloatMath.AlmostZero;
+        public override double OneMinusInput(double input) => 1 - input;
+        public override double OnePlusInput(double input) => 1 + input;
+        public override double OneDividedByInput(double input) => 1 / input;
+        public override double Constrain(double val) => FloatMath.Constrain(Convert.ToSingle(val));
+
+        public override double MinValue => double.MinValue;
+        public override double MaxValue => double.MaxValue;
+        public override bool IsZero(double value) => Math.Abs(value) < FloatMath.AlmostZero;
+        public override bool IsEqualOrLessThanZero(double value) => value <= 0;
+
+        public override bool IsNaN(double value) => double.IsNaN(value);
+
+        public override bool IsInfinity(double value) => double.IsInfinity(value);
+
+        public override double Tanh(double value) => Math.Tanh(value);
+
+        public override double Negate(double value) => -value;
+
+        public override double Zero => 0;
+        public override double One => 1;
+        public override double ZeroZeroOne => 0.01;
+
+        public override double Get(uint val) => Convert.ToDouble(val);
+        public override double Get(float val) => Convert.ToDouble(val);
+        public override double Get(double val) => Convert.ToDouble(val);
+        public override double Get(decimal val) => Convert.ToDouble(val);
     }
 }

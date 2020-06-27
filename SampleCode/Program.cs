@@ -104,7 +104,7 @@ namespace BrightWire.SampleCode
 			//SimpleLinearTest();
 			//PredictBicyclesWithLinearModel(DataBasePath + @"bikesharing\hour.csv");
 			//PredictBicyclesWithNeuralNetwork(DataBasePath + @"bikesharing\hour.csv");
-			MultiLabelSingleClassifier(DataBasePath + @"emotions\emotions.arff");
+			//MultiLabelSingleClassifier(DataBasePath + @"emotions\emotions.arff");
 			//MultiLabelMultiClassifiers(DataBasePath + @"emotions\emotions.arff");
 			//StockData(DataBasePath + @"plotly\stockdata.csv");
 

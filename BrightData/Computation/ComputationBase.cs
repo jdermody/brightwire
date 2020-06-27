@@ -1,5 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
 using System.Threading.Tasks;
+using BrightData.Helper;
 using BrightData.Memory;
 
 namespace BrightData.Computation
@@ -16,22 +20,31 @@ namespace BrightData.Computation
         public abstract T NextRandom();
         protected abstract T Aggregate(ITensorSegment<T> segment, T initial, Func<T, T, T> aggregator);
 
-        protected abstract T Add(T a, T b);
-        protected abstract T Subtract(T a, T b);
-        protected abstract T Multiply(T a, T b);
-        protected abstract T Divide(T a, T b);
-        protected abstract T Sqrt(T a);
-        protected abstract T Abs(T a);
-        protected abstract T Log(T a);
-        protected abstract T Exp(T a);
-        protected abstract T OneMinusInput(T input);
-        protected abstract T Cast(uint a);
-        protected abstract T Constrain(T val);
-        protected abstract T MinValue { get; }
-        protected abstract T MaxValue { get; }
-        protected abstract bool IsZero(T value);
-
-        bool IsNotZero(T value) => !IsZero(value);
+        public abstract T Add(T a, T b);
+        public abstract T Subtract(T a, T b);
+        public abstract T Multiply(T a, T b);
+        public abstract T Divide(T a, T b);
+        public abstract T Sqrt(T a);
+        public abstract T Abs(T a);
+        public abstract T Log(T a);
+        public abstract T Exp(T a);
+        public abstract T Pow(T a, int rank);
+        public abstract T OneMinusInput(T input);
+        public abstract T OnePlusInput(T input);
+        public abstract T OneDividedByInput(T input);
+        public abstract T Constrain(T val);
+        public abstract T MinValue { get; }
+        public abstract T MaxValue { get; }
+        public abstract bool IsZero(T value);
+        public abstract bool IsEqualOrLessThanZero(T value);
+        public bool IsNotZero(T value) => !IsZero(value);
+        public abstract bool IsNaN(T value);
+        public abstract bool IsInfinity(T value);
+        public abstract T Tanh(T value);
+        public abstract T Negate(T value);
+        public abstract T Zero { get; }
+        public abstract T One { get; }
+        public abstract T ZeroZeroOne { get; }
 
         public ITensorSegment<T> Add(ITensorSegment<T> tensor1, ITensorSegment<T> tensor2)
         {
@@ -41,6 +54,11 @@ namespace BrightData.Computation
         public void AddInPlace(ITensorSegment<T> target, ITensorSegment<T> other)
         {
             Mutate(target, other, Add);
+        }
+
+        public void AddInPlace(ITensorSegment<T> target, ITensorSegment<T> other, T coefficient1, T coefficient2)
+        {
+            Mutate(target, other, (x, y) => Add(Multiply(x, coefficient1), Multiply(y, coefficient2)));
         }
 
         public void AddInPlace(ITensorSegment<T> target, T scalar)
@@ -61,6 +79,11 @@ namespace BrightData.Computation
         public void SubtractInPlace(ITensorSegment<T> target, ITensorSegment<T> other)
         {
             Mutate(target, other, Subtract);
+        }
+
+        public void SubtractInPlace(ITensorSegment<T> target, ITensorSegment<T> other, T coefficient1, T coefficient2)
+        {
+            Mutate(target, other, (x, y) => Subtract(Multiply(x, coefficient1), Multiply(y, coefficient2)));
         }
 
         public ITensorSegment<T> PointwiseMultiply(ITensorSegment<T> tensor1, ITensorSegment<T> tensor2)
@@ -113,6 +136,8 @@ namespace BrightData.Computation
             return Aggregate(tensor, default, Add);
         }
 
+        public (T Min, T Max, uint MinIndex, uint MaxIndex) GetMinAndMaxValues(ITensorSegment<T> segment) => GetMinAndMaxValues(segment, MinValue, MaxValue);
+
         public uint? Search(ITensorSegment<T> segment, T value)
         {
             uint? ret = null;
@@ -137,7 +162,7 @@ namespace BrightData.Computation
         public T Average(ITensorSegment<T> segment)
         {
             var sum = Sum(segment);
-            return Divide(sum, Cast(segment.Size));
+            return Divide(sum, Get(segment.Size));
         }
 
         public T StdDev(ITensorSegment<T> segment, T? mean)
@@ -190,12 +215,15 @@ namespace BrightData.Computation
             return Sum(squared);
         }
 
-        (T Min, T Max, uint MinIndex, uint MaxIndex) GetMinAndMaxValues(ITensorSegment<T> segment)
+        public abstract T Get(uint val);
+        public abstract T Get(float val);
+        public abstract T Get(double val);
+        public abstract T Get(decimal val);
+
+        public static (T Min, T Max, uint MinIndex, uint MaxIndex) GetMinAndMaxValues(ITensorSegment<T> segment, T min, T max)
         {
-            var min = MaxValue;
-            var max = MinValue;
-            uint minIndex = uint.MaxValue;
-            uint maxIndex = uint.MaxValue;
+            var minIndex = uint.MaxValue;
+            var maxIndex = uint.MaxValue;
             uint index = 0;
 
             foreach (var value in segment.Values) {
@@ -248,6 +276,82 @@ namespace BrightData.Computation
         protected void Analyse(ITensorSegment<T> segment, Action<T, uint> analyser)
         {
             Parallel.ForEach(segment.Values, (v, s, i) => { analyser(v, (uint)i); });
+        }
+
+        public bool IsEntirelyFinite(ITensorSegment<T> segment)
+        {
+            return !segment.Values.Any(v => IsNaN(v) || IsInfinity(v));
+        }
+
+        public ITensorSegment<T> Reverse(ITensorSegment<T> segment)
+        {
+            var len = segment.Size;
+            var ret = (TensorBlock<T>)_context.TensorPool.Get<T>(segment.Size);
+            Parallel.ForEach(segment.Values, (v, s, i) => { ret[len - i] = v; });
+            return ret.GetSegment();
+        }
+
+        ITensorSegment<T> _Create(T[] values)
+        {
+            var ret = (TensorBlock<T>)_context.TensorPool.Get<T>((uint)values.Length);
+            ret.InitializeFrom(values);
+            return ret.GetSegment();
+        }
+
+        public static IEnumerable<ITensorSegment<T>> SplitSegment(ITensorSegment<T> segment, int blockCount)
+        {
+            for (uint i = 0, size = segment.Size, blockSize = size / (uint)blockCount; i < size; i += blockSize)
+                yield return new TensorSegmentWrapper<T>(segment, i, 1, blockSize);
+        }
+
+        public List<ITensorSegment<T>> Split(ITensorSegment<T> segment, int blockCount)
+        {
+            return SplitSegment(segment, blockCount).ToList();
+        }
+
+        public T Sigmoid(T val) => Constrain(OneDividedByInput(OnePlusInput(Exp(Negate(val)))));
+        public T SigmoidDerivative(T val)
+        {
+            var score = Sigmoid(val);
+            return Constrain(Multiply(score, OneMinusInput(score)));
+        }
+        public T TanhDerivative(T val) => Constrain(OneMinusInput(Pow(Tanh(val), 2)));
+        public T Relu(T val) => IsEqualOrLessThanZero(val) ? Zero : Constrain(val);
+        public T ReluDerivative(T val) => IsEqualOrLessThanZero(val) ? Zero : One;
+        public T LeakyRelu(T val) => IsEqualOrLessThanZero(val) ? Multiply(ZeroZeroOne, val) : Constrain(val);
+        public T LeakyReluDerivative(T val) => IsEqualOrLessThanZero(val) ? ZeroZeroOne : One;
+
+        public ITensorSegment<T> Sigmoid(ITensorSegment<T> segment) => Transform(segment, Sigmoid);
+        public ITensorSegment<T> SigmoidDerivative(ITensorSegment<T> segment) => Transform(segment, SigmoidDerivative);
+        public ITensorSegment<T> Tanh(ITensorSegment<T> segment) => Transform(segment, Tanh);
+        public ITensorSegment<T> TanhDerivative(ITensorSegment<T> segment) => Transform(segment, TanhDerivative);
+        public ITensorSegment<T> Relu(ITensorSegment<T> segment) => Transform(segment, Relu);
+        public ITensorSegment<T> ReluDerivative(ITensorSegment<T> segment) => Transform(segment, ReluDerivative);
+        public ITensorSegment<T> LeakyRelu(ITensorSegment<T> segment) => Transform(segment, LeakyRelu);
+        public ITensorSegment<T> LeakyReluDerivative(ITensorSegment<T> segment) => Transform(segment, LeakyReluDerivative);
+
+        public ITensorSegment<T> Softmax(ITensorSegment<T> segment)
+        {
+            var minMax = GetMinAndMaxValues(segment);
+            var max = minMax.Max;
+
+            var softmax = Transform(segment, v => Exp(Subtract(v, max)));
+            var sum = Sum(softmax);
+            if (IsNotZero(sum)) {
+                var ret = Transform(softmax, v => Divide(v, sum));
+                softmax.Dispose();
+                return ret;
+            }
+
+            return softmax;
+        }
+
+        public Matrix<T> SoftmaxDerivative(ITensorSegment<T> segment)
+        {
+            return segment.Context.CreateMatrix(segment.Size, segment.Size, (x, y) => x == y
+                ? Multiply(segment[x], OneMinusInput(segment[x]))
+                : Multiply(Negate(segment[x]), segment[y])
+            );
         }
     }
 }

@@ -39,10 +39,10 @@ namespace BrightData.Memory
         public bool IsValid => !_wasDisposed && _data.IsValid;
         public IBrightDataContext Context => _data.Context;
 
-        public ITensorBlock<T> GetBlock(ITensorPool pool)
+        public (ITensorBlock<T> Block, bool IsNewCopy) GetBlock(ITensorPool pool)
         {
             _data.AddRef();
-            return _data;
+            return (_data, false);
         }
 
         public T this[uint index] {

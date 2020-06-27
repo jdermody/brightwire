@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,13 +20,19 @@ namespace BrightData.Computation
 
         public ITensorSegment<float> Add(ITensorSegment<float> tensor1, ITensorSegment<float> tensor2) => Zip(tensor1, tensor2, (a, b) => a+b);
         public void AddInPlace(ITensorSegment<float> target, ITensorSegment<float> other) => Mutate(target, other, (a, b) => a + b);
+        public void AddInPlace(ITensorSegment<float> target, ITensorSegment<float> other, float coefficient1, float coefficient2) => Mutate(target, other, (a,b) => a * coefficient1 + b * coefficient2);
+
         public void AddInPlace(ITensorSegment<float> target, float scalar) => MutateInPlace(target, v => v + scalar);
         public void MultiplyInPlace(ITensorSegment<float> target, float scalar) => MutateInPlace(target, v => v * scalar);
         public ITensorSegment<float> Subtract(ITensorSegment<float> tensor1, ITensorSegment<float> tensor2) => Zip(tensor1, tensor2, (a, b) => a - b);
         public void SubtractInPlace(ITensorSegment<float> target, ITensorSegment<float> other) => Mutate(target, other, (a, b) => a - b);
+        public void SubtractInPlace(ITensorSegment<float> target, ITensorSegment<float> other, float coefficient1, float coefficient2) => Mutate(target, other, (a, b) => a * coefficient1 - b * coefficient2);
+
         public ITensorSegment<float> PointwiseMultiply(ITensorSegment<float> tensor1, ITensorSegment<float> tensor2) => Zip(tensor1, tensor2, (a, b) => a * b);
+
         public void PointwiseMultiplyInPlace(ITensorSegment<float> target, ITensorSegment<float> other) => Mutate(target, other, (a, b) => a * b);
         public ITensorSegment<float> PointwiseDivide(ITensorSegment<float> tensor1, ITensorSegment<float> tensor2) => Zip(tensor1, tensor2, (a, b) => a / b);
+
         public void PointwiseDivideInPlace(ITensorSegment<float> target, ITensorSegment<float> other) => Mutate(target, other, (a, b) => a / b);
 
         public float DotProduct(ITensorSegment<float> segment, ITensorSegment<float> other)
@@ -72,6 +79,17 @@ namespace BrightData.Computation
         }
 
         public float Sum(ITensorSegment<float> segment) => segment.Values.AsParallel().Sum();
+        public (float Min, float Max, uint MinIndex, uint MaxIndex) GetMinAndMaxValues(ITensorSegment<float> segment) => ComputationBase<float>.GetMinAndMaxValues(segment, float.MinValue, float.MaxValue);
+
+        public bool IsEntirelyFinite(ITensorSegment<float> segment) => !segment.Values.Any(v => float.IsNaN(v) || float.IsInfinity(v));
+
+        public ITensorSegment<float> Reverse(ITensorSegment<float> segment)
+        {
+            var len = segment.Size - 1;
+            return TransformIndexed(segment, i => segment[len - i]);
+        }
+
+        public List<ITensorSegment<float>> Split(ITensorSegment<float> segment, int blockCount) => ComputationBase<float>.SplitSegment(segment, blockCount).ToList();
 
         public float CosineDistance(ITensorSegment<float> tensor, ITensorSegment<float> other)
         {
@@ -110,9 +128,50 @@ namespace BrightData.Computation
             return MathF.Sqrt(Average(result));
         }
 
-        public ITensorSegment<float> Sigmoid(ITensorSegment<float> val)
+        public static float Sigmoid(float val) => FloatMath.Constrain(1.0f / (1.0f + MathF.Exp(-1.0f * val)));
+        public static float SigmoidDerivative(float val)
         {
-            return Transform(val, v => FloatMath.Constrain(1.0f / (1.0f + MathF.Exp(-1.0f * v))));
+            var sigmoid = Sigmoid(val);
+            return FloatMath.Constrain(sigmoid * (1.0f - sigmoid));
+        }
+        public static float Tanh(float val) => MathF.Tanh(val);
+        public static float TanhDerivative(float val) => 1.0f - MathF.Pow(Tanh(val), 2);
+        public static float Relu(float val) => (val <= 0) ? 0 : FloatMath.Constrain(val);
+        public static float ReluDerivative(float val) => (val <= 0) ? 0f : 1;
+        public static float LeakyRelu(float val) => (val <= 0) ? 0.01f * val : FloatMath.Constrain(val);
+        public static float LeakyReluDerivative(float val) => (val <= 0) ? 0.01f : 1;
+
+        public ITensorSegment<float> Sigmoid(ITensorSegment<float> segment) => Transform(segment, Sigmoid);
+        public ITensorSegment<float> SigmoidDerivative(ITensorSegment<float> segment) => Transform(segment, SigmoidDerivative);
+        public ITensorSegment<float> Tanh(ITensorSegment<float> segment) => Transform(segment, Tanh);
+        public ITensorSegment<float> TanhDerivative(ITensorSegment<float> segment) => Transform(segment, TanhDerivative);
+        public ITensorSegment<float> Relu(ITensorSegment<float> segment) => Transform(segment, Relu);
+        public ITensorSegment<float> ReluDerivative(ITensorSegment<float> segment) => Transform(segment, ReluDerivative);
+        public ITensorSegment<float> LeakyRelu(ITensorSegment<float> segment) => Transform(segment, LeakyRelu);
+        public ITensorSegment<float> LeakyReluDerivative(ITensorSegment<float> segment) => Transform(segment, LeakyReluDerivative);
+
+        public ITensorSegment<float> Softmax(ITensorSegment<float> segment)
+        {
+            var minMax = GetMinAndMaxValues(segment);
+            var max = minMax.Max;
+
+            var softmax = Transform(segment, v => MathF.Exp(v - max));
+            var sum = Sum(softmax);
+            if (FloatMath.IsNotZero(sum)) {
+                var ret = Transform(softmax, v => v / sum);
+                softmax.Dispose();
+                return ret;
+            }
+
+            return softmax;
+        }
+
+        public Matrix<float> SoftmaxDerivative(ITensorSegment<float> segment)
+        {
+            return segment.Context.CreateMatrix(segment.Size, segment.Size, (x, y) => x == y
+                ? segment[x] * (1 - segment[x])
+                : -segment[x] * segment[y]
+            );
         }
 
         public float NextRandom() => Convert.ToSingle(_context.Random.NextDouble());
@@ -134,6 +193,13 @@ namespace BrightData.Computation
             return ret.GetSegment();
         }
 
+        protected ITensorSegment<float> TransformIndexed(ITensorSegment<float> segment, Func<uint, float> transfomer)
+        {
+            var ret = (TensorBlock<float>)_context.TensorPool.Get<float>(segment.Size);
+            Parallel.ForEach(segment.Values, (v, s, i) => { ret[i] = transfomer((uint)i); });
+            return ret.GetSegment();
+        }
+
         protected void Mutate(ITensorSegment<float> segment, ITensorSegment<float> other, Func<float, float, float> func)
         {
             if (segment.Size != other.Size)
@@ -151,5 +217,10 @@ namespace BrightData.Computation
         {
             Parallel.ForEach(segment.Values, (v, s, i) => { analyser(v, (uint)i); });
         }
+
+        public float Get(uint val) => Convert.ToSingle(val);
+        public float Get(float val) => Convert.ToSingle(val);
+        public float Get(double val) => Convert.ToSingle(val);
+        public float Get(decimal val) => Convert.ToSingle(val);
     }
 }
