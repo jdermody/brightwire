@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BrightWire.TrainingData.Helper;
+using System.IO.Compression;
 
 namespace BrightWire.SampleCode
 {
@@ -25,17 +26,44 @@ namespace BrightWire.SampleCode
         }
 
         /// <summary>
+        /// Downloads MNIST data sets if they are missing.
+        /// </summary>
+        /// <param name="destPath"></param>
+        private static void AssureSentimentData(string destPath, string[] files)
+        {
+
+            var dest = new DirectoryInfo(destPath);
+            dest.Create();
+            var compressedPath = Path.Combine(dest.Parent.FullName, dest.Name + ".zip");
+            var compressed = new FileInfo(compressedPath);
+
+            var source = $"https://archive.ics.uci.edu/ml/machine-learning-databases/00331/sentiment%20labelled%20sentences.zip";
+
+            Console.WriteLine("Downloading: {0}", source);
+            using (var client = new System.Net.WebClient())
+                client.DownloadFile(source, compressed.FullName);
+           
+            ZipFile.ExtractToDirectory(compressed.FullName, dest.Parent.FullName);
+            Console.WriteLine("Unzipped: {0} => {1}", source, destPath);
+
+        }
+
+        /// <summary>
         /// Classifies text into either positive or negative sentiment
         /// The data files can be downloaded from https://archive.ics.uci.edu/ml/datasets/Sentiment+Labelled+Sentences
         /// </summary>
         /// <param name="dataFilesPath">Path to extracted data files</param>
         public static void SentimentClassification(string dataFilesPath)
         {
+            Console.WriteLine($"\nRunning {Console.Title = nameof(SentimentClassification)}\n");
+
             var files = new[] {
                 "amazon_cells_labelled.txt",
                 "imdb_labelled.txt",
                 "yelp_labelled.txt"
             };
+            AssureSentimentData(dataFilesPath, files);
+
             var LINE_SEPARATOR = "\n".ToCharArray();
             var SEPARATOR = "\t".ToCharArray();
             var stringTable = new StringTableBuilder();
@@ -68,13 +96,14 @@ namespace BrightWire.SampleCode
 
             // convert the index lists to vectors and normalise along the way
             var sentimentDataTable = _BuildIndexedClassifications(sentimentData, stringTable)
-	            .ConvertToTable()
-	            .Normalise(NormalisationType.Standard);
+                .ConvertToTable()
+                .Normalise(NormalisationType.Standard);
             var vectoriser = sentimentDataTable.GetVectoriser();
             var sentimentDataSet = sentimentDataTable.Split(0);
             var dataTableAnalysis = sentimentDataTable.GetAnalysis();
 
-            using (var lap = BrightWireProvider.CreateLinearAlgebra()) {
+            using (var lap = BrightWireProvider.CreateLinearAlgebra())
+            {
                 var graph = new GraphFactory(lap);
                 var trainingData = graph.CreateDataSource(sentimentDataSet.Training, vectoriser);
                 var testData = graph.CreateDataSource(sentimentDataSet.Test, vectoriser);
@@ -150,7 +179,8 @@ namespace BrightWire.SampleCode
                     engine.LoadParametersFrom(bestStackedNetwork.Graph);
 
                 Console.WriteLine("Enter some text to test the classifiers...");
-                while (true) {
+                while (true)
+                {
                     Console.Write(">");
                     var line = Console.ReadLine();
                     if (String.IsNullOrWhiteSpace(line))
@@ -158,11 +188,13 @@ namespace BrightWire.SampleCode
 
                     var tokens = _Tokenise(line);
                     var indexList = new List<uint>();
-                    foreach (var token in tokens) {
+                    foreach (var token in tokens)
+                    {
                         if (stringTable.TryGetIndex(token, out uint stringIndex))
                             indexList.Add(stringIndex);
                     }
-                    if (indexList.Any()) {
+                    if (indexList.Any())
+                    {
                         var queryTokens = indexList.GroupBy(d => d).Select(g => Tuple.Create(g.Key, (float)g.Count())).ToList();
                         var vector = new float[trainingData.InputSize];
                         foreach (var token in queryTokens)
@@ -179,7 +211,8 @@ namespace BrightWire.SampleCode
                         var stackedResult = engine.Execute(encodedInput);
                         var stackedClassification = vectoriser.GetOutputLabel(1, (stackedResult.Output[0].Data[0] > stackedResult.Output[0].Data[1]) ? 0 : 1);
                         Console.WriteLine("Stack classification: " + stackedClassification);
-                    } else
+                    }
+                    else
                         Console.WriteLine("Sorry, none of those words have been seen before.");
                     Console.WriteLine();
                 }

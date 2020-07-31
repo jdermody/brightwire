@@ -11,11 +11,26 @@ namespace BrightWire.SampleCode
 {
     public partial class Program
     {
+
+        /// <summary>
+        /// Derived webclient that performs automatic decompression of content.
+        /// </summary>
+        public class WebClient : System.Net.WebClient
+        {
+            protected override WebRequest GetWebRequest(Uri address)
+            {
+                HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(address);
+                request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+                return request;
+            }
+        }
+
         /// <summary>
         /// Builds a n-gram based language model and generates new text from the model
         /// </summary>
         public static void MarkovChains()
         {
+            Console.WriteLine($"\nRunning {Console.Title = nameof(MarkovChains)}\n");
             // tokenise the novel "The Beautiful and the Damned" by F. Scott Fitzgerald
             List<IReadOnlyList<string>> sentences;
             using (var client = new WebClient()) {

@@ -12,6 +12,8 @@ namespace BrightWire.SampleCode
 	{
 		public static void SimpleLinearTest()
 		{
+			Console.WriteLine($"\nRunning {Console.Title = nameof(SimpleLinearTest)}\n");
+
 			var dataTableBuilder = BrightWireProvider.CreateDataTableBuilder();
 			dataTableBuilder.AddColumn(ColumnType.Float, "capital costs");
 			dataTableBuilder.AddColumn(ColumnType.Float, "labour costs");
@@ -79,6 +81,21 @@ namespace BrightWire.SampleCode
 		/// <param name="dataFilePath">The path to the csv file</param>
 		public static void PredictBicyclesWithLinearModel(string dataFilePath)
 		{
+			Console.WriteLine($"\nRunning {Console.Title = nameof(PredictBicyclesWithLinearModel)}\n");
+
+			if (!File.Exists(dataFilePath))
+			{
+				var destFile = new FileInfo(dataFilePath);
+				destFile.Directory.Parent.Create();
+				var url = "https://archive.ics.uci.edu/ml/machine-learning-databases/00275/Bike-Sharing-Dataset.zip";
+				Console.WriteLine($"Downloading data: {url}");
+				var compressed = new FileInfo(Path.Combine(destFile.Directory.Parent.FullName, destFile.Directory.Name + ".zip"));
+				new WebClient().DownloadFile(url, compressed.FullName);
+				System.IO.Compression.ZipFile.ExtractToDirectory(compressed.FullName, destFile.Directory.FullName);
+				Console.WriteLine($"Unzipped data: {destFile.Directory.FullName}");
+				Console.WriteLine();
+			}
+
 			var dataTable = _LoadBicyclesDataTable(dataFilePath);
 			var split = dataTable.Split(0);
 
@@ -112,6 +129,21 @@ namespace BrightWire.SampleCode
 		/// <param name="dataFilePath">The path to the csv file</param>
 		public static void PredictBicyclesWithNeuralNetwork(string dataFilePath)
 		{
+			Console.WriteLine($"\nRunning {Console.Title = nameof(PredictBicyclesWithNeuralNetwork)}\n");
+
+			if (!File.Exists(dataFilePath))
+			{
+				var destFile = new FileInfo(dataFilePath);
+				destFile.Directory.Parent.Create();
+				var url = "https://archive.ics.uci.edu/ml/machine-learning-databases/00275/Bike-Sharing-Dataset.zip";
+				Console.WriteLine($"Downloading data: {url}");
+				var compressed = new FileInfo(Path.Combine(destFile.Directory.Parent.FullName, destFile.Directory.Name + ".zip"));
+				new WebClient().DownloadFile(url, compressed.FullName);
+				System.IO.Compression.ZipFile.ExtractToDirectory(compressed.FullName, destFile.Directory.FullName);
+				Console.WriteLine($"Unzipped data: {destFile.Directory.FullName}"); 
+				Console.WriteLine();
+			}
+
 			var dataTable = _LoadBicyclesDataTable(dataFilePath);
 			var split = dataTable.Split(0);
 

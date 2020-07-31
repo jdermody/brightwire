@@ -15,6 +15,8 @@ namespace BrightWire.SampleCode
         /// <param name="dataFilesPath">The path to a directory with the four extracted data files</param>
         public static void MNIST(string dataFilesPath)
         {
+            Console.WriteLine($"\nRunning {Console.Title = nameof(MNIST)}\n");
+
             using (var lap = BrightWireProvider.CreateLinearAlgebra()) {
                 var graph = new GraphFactory(lap);
 

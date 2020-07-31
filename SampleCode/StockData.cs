@@ -18,6 +18,16 @@ namespace BrightWire.SampleCode
 		/// </summary>
 		static void StockData(string dataFilePath)
 		{
+			Console.WriteLine($"\n{Console.Title = $"Running {nameof(StockData)}"}\n");
+
+			if (!File.Exists(dataFilePath))
+            {
+				var fi = new FileInfo(dataFilePath);
+				fi.Directory.Create();
+				var url = "https://raw.githubusercontent.com/plotly/datasets/master/stockdata.csv";
+				new WebClient().DownloadFile(url, fi.FullName);
+            }
+
 			// load and normalise the data
 			var dataSet = new StreamReader(dataFilePath).ParseCSV(',', true);
 			var normalised = dataSet.Normalise(NormalisationType.FeatureScale);

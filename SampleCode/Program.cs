@@ -83,29 +83,30 @@ namespace BrightWire.SampleCode
 			// base path to a directory on your computer to store model files
 			const string ModelBasePath = @"c:\temp\";
 
-			// use the (faster) native MKL provider if available
-			//Control.UseNativeMKL();
+            // use the (faster) native MKL provider if available
+            //Control.UseNativeMKL();
 
-			//XOR();
-			//IrisClassification();
-			//IrisClustering();
-			//MarkovChains();
-			//MNIST(DataBasePath + @"mnist\");
-			//MNISTConvolutional(DataBasePath + @"mnist\"/*, ModelBasePath + @"mnist.dat"*/);
-			//SentimentClassification(DataBasePath + @"sentiment labelled sentences\");
-			//TextClustering(DataBasePath + @"[UCI] AAAI-14 Accepted Papers - Papers.csv", ModelBasePath);
-			//IntegerAddition();
-			//ReberPrediction();
-			//OneToMany();
-			//ManyToOne();
-			//SequenceToSequence();
-			//TrainWithSelu(DataBasePath + @"iris.data");
-			//SimpleLinearTest();
-			//PredictBicyclesWithLinearModel(DataBasePath + @"bikesharing\hour.csv");
-			//PredictBicyclesWithNeuralNetwork(DataBasePath + @"bikesharing\hour.csv");
-			//MultiLabelSingleClassifier(DataBasePath + @"emotions\emotions.arff");
-			//MultiLabelMultiClassifiers(DataBasePath + @"emotions\emotions.arff");
-			//StockData(DataBasePath + @"plotly\stockdata.csv");
-		}
+            XOR();
+            IrisClassification(DataBasePath + @"iris.data");
+            IrisClustering(DataBasePath + @"iris.data");
+            MarkovChains();
+            MNIST(DataBasePath + @"mnist\");
+			// CUDA required
+            // MNISTConvolutional(DataBasePath + @"mnist\"/*, ModelBasePath + @"mnist.dat"*/);
+            SentimentClassification(DataBasePath + @"sentiment labelled sentences\");
+            TextClustering(DataBasePath + @"[UCI] AAAI-14 Accepted Papers - Papers.csv", ModelBasePath);
+            IntegerAddition();
+            ReberPrediction();
+            OneToMany();
+            ManyToOne();
+            SequenceToSequence();
+            TrainWithSelu(DataBasePath + @"iris.data");
+            SimpleLinearTest();
+            PredictBicyclesWithLinearModel(DataBasePath + @"bikesharing\hour.csv");
+            PredictBicyclesWithNeuralNetwork(DataBasePath + @"bikesharing\hour.csv");
+            MultiLabelSingleClassifier(DataBasePath + @"emotions\emotions.arff");
+            MultiLabelMultiClassifiers(DataBasePath + @"emotions\emotions.arff");
+            StockData(DataBasePath + @"plotly\stockdata.csv");
+        }
 	}
 }
