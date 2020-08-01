@@ -11,6 +11,8 @@ namespace BrightWire.SampleCode
     {
         static void OneToMany()
         {
+            Console.WriteLine($"\nRunning {Console.Title = nameof(OneToMany)}\n");
+
             var grammar = new SequenceGenerator(dictionarySize: 10, minSize: 5, maxSize: 5, noRepeat: true, isStochastic: false);
             var sequences = grammar.GenerateSequences().Take(1000).ToList();
             var builder = BrightWireProvider.CreateDataTableBuilder();
@@ -70,6 +72,8 @@ namespace BrightWire.SampleCode
 
         static void ManyToOne()
         {
+            Console.WriteLine($"\nRunning {Console.Title = nameof(ManyToOne)}\n");
+
             var grammar = new SequenceGenerator(dictionarySize: 16, minSize: 3, maxSize: 6, noRepeat: true, isStochastic: false);
             var sequences = grammar.GenerateSequences().Take(1000).ToList();
             var builder = BrightWireProvider.CreateDataTableBuilder();
@@ -126,6 +130,8 @@ namespace BrightWire.SampleCode
 
         static void SequenceToSequence()
         {
+            Console.WriteLine($"\nRunning {Console.Title = nameof(SequenceToSequence)}\n");
+
             const int SEQUENCE_LENGTH = 5;
             var grammar = new SequenceGenerator(8, SEQUENCE_LENGTH, SEQUENCE_LENGTH, true, false);
             var sequences = grammar.GenerateSequences().Take(2000).ToList();

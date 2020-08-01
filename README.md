@@ -51,7 +51,7 @@ Install-Package BrightWire
 
 It's highly likely that your GPU supports different CUDA capabilities than the precompiled `brightwire.ptx` in this repository. You can find what is your capability level [here](https://developer.nvidia.com/cuda-gpus). It's a number, ex. 3.0, 3.5, that you use for specifying `compute_XX` and `sm_XX` parameters.
 
-If you get an `ErrorNoBinaryForGPU` exception, that means you have to recompile. The instructions are [here](https://github.com/jdermody/brightwire/blob/master/LinearAlgebra/cuda/readme.txt).
+If you get an `ErrorNoBinaryForGPU` exception, that means you have to recompile. The instructions are [here](https://github.com/jdermody/brightwire/blob/master/BrightWire.CUDA.Net4.x64/cuda/readme.txt).
 
 Example command for NVIDIA GeForce GTX770M (CUDA 3.0)
 

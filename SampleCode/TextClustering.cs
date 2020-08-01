@@ -66,6 +66,7 @@ namespace BrightWire.SampleCode
 
         static void _WriteClusters(string filePath, IReadOnlyList<IReadOnlyList<IVector>> clusters, Dictionary<IVector, AAAIDocument> documentTable)
         {
+            new FileInfo(filePath).Directory.Create();
             using (var writer = new StreamWriter(filePath)) {
                 foreach (var cluster in clusters) {
                     foreach (var item in cluster) {
@@ -89,7 +90,18 @@ namespace BrightWire.SampleCode
         /// <param name="outputPath">A directory to write the output files to</param>
         public static void TextClustering(string dataFilePath, string outputPath)
         {
+            Console.WriteLine($"\nRunning {Console.Title = nameof(TextClustering)}\n");
+
             IDataTable dataTable;
+            if (!File.Exists(dataFilePath))
+            {
+                var dest = new FileInfo(dataFilePath);
+                dest.Directory.Create();
+                var src = "https://archive.ics.uci.edu/ml/machine-learning-databases/00307/%5bUCI%5d%20AAAI-14%20Accepted%20Papers%20-%20Papers.csv";
+                new System.Net.WebClient()
+                    .DownloadFile(src, dest.FullName);
+
+            }
             using (var reader = new StreamReader(dataFilePath)) {
                 dataTable = reader.ParseCSV();
             }
@@ -159,6 +171,8 @@ namespace BrightWire.SampleCode
                     _WriteClusters(outputPath + "latent-kmeans.txt", vectorList3.KMeans(lap, allGroups.Count), lookupTable3);
                 }
             }
+
+            Console.WriteLine("Results saved to {0}", outputPath);
         }
     }
 }

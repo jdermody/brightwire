@@ -12,6 +12,8 @@ namespace BrightWire.SampleCode
 	{
 		static void ReberPrediction()
 		{
+			Console.WriteLine($"\nRunning {Console.Title = nameof(ReberPrediction)}\n");
+
 			// generate 500 extended reber grammar training examples
 			var grammar = new ReberGrammar();
 			var sequences = grammar.GetExtended(10, 16).Take(500).ToList();

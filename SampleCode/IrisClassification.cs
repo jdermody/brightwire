@@ -13,13 +13,18 @@ namespace BrightWire.SampleCode
         /// 
         /// Tutorial available at http://www.jackdermody.net/brightwire/article/Introduction_to_Bright_Wire
         /// </summary>
-        public static void IrisClassification()
+        public static void IrisClassification(string dataFilesPath)
         {
-            // download the iris data set
-            byte[] data;
-            using (var client = new WebClient()) {
-                data = client.DownloadData("https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data");
+            Console.WriteLine($"\nRunning {Console.Title = nameof(IrisClassification)}\n");
+            if (!File.Exists(dataFilesPath))
+            {
+                var src = "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data";
+                var fi = new FileInfo(dataFilesPath);
+                fi.Directory.Create();
+                new WebClient().DownloadFile(src, dataFilesPath);
             }
+            byte[] data = File.ReadAllBytes(dataFilesPath);
+
 
             // parse the iris CSV into a data table
             var dataTable = new StreamReader(new MemoryStream(data)).ParseCSV(',');

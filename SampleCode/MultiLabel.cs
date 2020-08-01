@@ -34,6 +34,16 @@ namespace BrightWire.SampleCode
 		/// <param name="dataFilePath"></param>
 		public static void MultiLabelSingleClassifier(string dataFilePath)
 		{
+			Console.WriteLine($"\nRunning {nameof(MultiLabelSingleClassifier)}\n");
+
+			if (!File.Exists(dataFilePath))
+            {
+				var url = "https://downloads.sourceforge.net/project/mulan/datasets/emotions.rar";
+				Console.WriteLine($"You must download data files to {dataFilePath} to run this example");
+				Console.WriteLine($" => Data files can be downloaded from {url}");
+				return;
+            }
+
 			var emotionData = _LoadEmotionData(dataFilePath);
 			var attributeColumns = Enumerable.Range(0, emotionData.ColumnCount - CLASSIFICATION_COUNT).ToList();
 			var classificationColumns = Enumerable.Range(emotionData.ColumnCount - CLASSIFICATION_COUNT, CLASSIFICATION_COUNT).ToList();
@@ -115,6 +125,16 @@ namespace BrightWire.SampleCode
 		/// <param name="dataFilePath"></param>
 		public static void MultiLabelMultiClassifiers(string dataFilePath)
 		{
+			Console.WriteLine($"\nRunning {nameof(MultiLabelSingleClassifier)}\n");
+
+			if (!File.Exists(dataFilePath))
+			{
+				var url = "https://downloads.sourceforge.net/project/mulan/datasets/emotions.rar";
+				Console.WriteLine($"You must download data files to {dataFilePath} to run this example");
+				Console.WriteLine($" => Data files can be downloaded from {url}");
+				return;
+			}
+
 			var emotionData = _LoadEmotionData(dataFilePath);
 			var attributeCount = emotionData.ColumnCount - CLASSIFICATION_COUNT;
 			var attributeColumns = Enumerable.Range(0, attributeCount).ToList();

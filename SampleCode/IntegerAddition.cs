@@ -17,6 +17,8 @@ namespace BrightWire.SampleCode
 
         public static void IntegerAddition()
         {
+            Console.WriteLine($"\nRunning {Console.Title = nameof(IntegerAddition)}\n");
+
             // generate 1000 random integer additions (split into training and test sets)
             var data = BinaryIntegers.Addition(1000, false).Split(0);
             using (var lap = BrightWireProvider.CreateLinearAlgebra(false)) {

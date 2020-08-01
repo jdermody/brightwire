@@ -17,13 +17,17 @@ namespace BrightWire.SampleCode
             }
         }
 
-        public static void IrisClustering()
+        public static void IrisClustering(string dataFilesPath)
         {
-            // download the iris data set
-            byte[] data;
-            using (var client = new WebClient()) {
-                data = client.DownloadData("https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data");
+            Console.WriteLine($"\nRunning {Console.Title = nameof(IrisClustering)}\n");
+            if (!File.Exists(dataFilesPath))
+            {
+                var src = "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data";
+                var fi = new FileInfo(dataFilesPath);
+                fi.Directory.Create();
+                new WebClient().DownloadFile(src, dataFilesPath);
             }
+            byte[] data = File.ReadAllBytes(dataFilesPath);
 
             // parse the iris CSV into a data table
             var dataTable = new StreamReader(new MemoryStream(data)).ParseCSV(',');
