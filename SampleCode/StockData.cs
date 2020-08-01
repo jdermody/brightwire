@@ -40,10 +40,11 @@ namespace BrightWire.SampleCode
 			const int LAST_X_DAYS = 14;
 			for (var i = 0; i < rows.Count - LAST_X_DAYS - 1; i++) {
 				var inputVector = new List<FloatVector>();
-				for (var j = 0; j < LAST_X_DAYS; j++)
+				for (var j = 0; j < LAST_X_DAYS; j++) {
 					inputVector.Add(FloatVector.Create(rows[i + j]));
+				}
 				var input = FloatMatrix.Create(inputVector.ToArray());
-				var target = FloatVector.Create(rows[i + LAST_X_DAYS + 1]);
+				var target = FloatVector.Create(rows[i + LAST_X_DAYS]);
 				builder.Add(input, target);
 			}
 			var data = builder.Build().Split(trainingPercentage: 0.2);
