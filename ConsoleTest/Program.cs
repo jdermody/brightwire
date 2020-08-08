@@ -10,8 +10,6 @@ using BrightTable.Input;
 using BrightTable.Segments;
 using BrightWire;
 using BrightData.Numerics;
-using BrightML;
-using BrightML.CostFunctions;
 using BrightTable.Transformations;
 
 namespace ConsoleTest

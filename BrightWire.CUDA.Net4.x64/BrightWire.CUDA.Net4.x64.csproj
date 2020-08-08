@@ -86,12 +86,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BrightWire.Net4\BrightWire.Net4.csproj">
-      <Project>{fd8aaef6-2edb-446c-bb19-5ebee5cde982}</Project>
-      <Name>BrightWire.Net4</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="cuda\readme.txt" />
     <None Include="readme.txt" />
   </ItemGroup>

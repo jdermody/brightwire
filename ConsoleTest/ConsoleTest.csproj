@@ -8,8 +8,9 @@
   <ItemGroup>
     <ProjectReference Include="..\BrightData.Numerics\BrightData.Numerics.csproj" />
     <ProjectReference Include="..\BrightData\BrightData.csproj" />
-    <ProjectReference Include="..\BrightML\BrightML.csproj" />
     <ProjectReference Include="..\BrightTable\BrightTable.csproj" />
+    <ProjectReference Include="..\BrightWire.Cuda\BrightWire.Cuda.csproj" />
+    <ProjectReference Include="..\BrightWire\BrightWire.csproj" />
   </ItemGroup>
 
 </Project>

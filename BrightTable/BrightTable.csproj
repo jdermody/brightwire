@@ -10,7 +10,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BrightData\BrightData.csproj" />
-    <ProjectReference Include="..\BrightWire.Net4\BrightWire.Net4.csproj" />
   </ItemGroup>
 
 </Project>
