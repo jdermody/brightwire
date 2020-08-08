@@ -4,8 +4,6 @@
     <TargetFramework>netcoreapp3.0</TargetFramework>
   </PropertyGroup>
 
-  <Import Project="..\BrightWire.Source\BrightWire.Source.projitems" Label="Shared" />
-
   <ItemGroup>
     <PackageReference Include="MathNet.Numerics" Version="4.9.0" />
     <PackageReference Include="protobuf-net" Version="2.4.4" />

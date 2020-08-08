@@ -47,7 +47,7 @@ namespace BrightTable.Builders
                 _stream.Dispose();
         }
 
-        public IMetaData AddColumn(ColumnType type, IMetaData metaData = null)
+        public IMetaData AddColumn(ColumnType type, IMetaData metaData)
         {
             string name = DataTableBase.DefaultColumnName(metaData?.Get<string>(Consts.Name), _columns.Count);
             var column = new Column((uint) _columns.Count, type, metaData, name);
@@ -55,10 +55,17 @@ namespace BrightTable.Builders
             return column.Metadata;
         }
 
-        public IMetaData AddColumn(ColumnType type, string name = null)
+        public IMetaData AddColumn(ColumnType type, string name)
         {
             var metadata = new MetaData();
             metadata.Set(Consts.Name, DataTableBase.DefaultColumnName(name, _columns.Count));
+            return AddColumn(type, metadata);
+        }
+
+        public IMetaData AddColumn(ColumnType type)
+        {
+            var metadata = new MetaData();
+            metadata.Set(Consts.Name, DataTableBase.DefaultColumnName(null, _columns.Count));
             return AddColumn(type, metadata);
         }
 

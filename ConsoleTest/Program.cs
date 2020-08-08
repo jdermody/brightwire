@@ -6,12 +6,9 @@ using System.Text;
 using BrightData;
 using BrightData.Helper;
 using BrightTable;
-using BrightWire.Learning;
 using BrightTable.Input;
 using BrightTable.Segments;
 using BrightTable.Transformations.Conversions;
-using BrightWire;
-using BrightWire.CostFunctions;
 using BrightData.Numerics;
 
 namespace ConsoleTest
@@ -35,20 +32,6 @@ namespace ConsoleTest
                 ColumnConversionType.ToCategoricalIndex);
             using var trainingTable = numericTable.Convert(ColumnConversion.Create<int, int>(4, v => v == 1 ? 1 : 0));
             trainingTable.SetTargetColumn(4);
-
-            // train model
-            var trainer = trainingTable.GetLogisticRegressionTrainer();
-            var trainingContext = trainer.CreateContext(0.01f, 1);
-            for (var i = 0; i < 5; i++) {
-                var cost = trainingContext.Iterate();
-                Console.WriteLine($"{i}) {cost}");
-            }
-
-            var costFunction = new BinaryClassification();
-            var finalModel = trainer.Evaluate();
-            foreach (var item in finalModel) {
-                Console.WriteLine($"{item}: {costFunction.Compute(item)}");
-            }
 
             //numericTable.SetTargetColumn(4);
             //using var trainer = numericTable.GetLogisticRegressionTrainer();

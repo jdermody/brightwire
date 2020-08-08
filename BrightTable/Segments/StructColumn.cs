@@ -23,6 +23,7 @@ namespace BrightTable.Segments
             var reader = buffer.Reader;
             SingleType = type;
             MetaData = metadata;
+            Context = context;
             _buffer = buffer;
 
             Size = buffer.Length;
@@ -80,6 +81,7 @@ namespace BrightTable.Segments
             }
         }
 
+        public IBrightDataContext Context { get; }
         public ColumnType SingleType { get; }
         public uint Size { get; }
         public bool IsEncoded => false;

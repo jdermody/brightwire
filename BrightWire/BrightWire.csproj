@@ -5,6 +5,24 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="TabularData\**" />
+    <EmbeddedResource Remove="TabularData\**" />
+    <None Remove="TabularData\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="ExtensionMethods.DataTable.cs" />
+    <Compile Remove="Helper\CSVParser.cs" />
+    <Compile Remove="Helper\DataTableBuilder.cs" />
+    <Compile Remove="Helper\VectorAsRow.cs" />
+    <Compile Remove="Interface.DataTable.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MathNet.Numerics" Version="4.11.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\BrightData\BrightData.csproj" />
     <ProjectReference Include="..\BrightTable\BrightTable.csproj" />
   </ItemGroup>

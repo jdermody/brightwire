@@ -50,3 +50,5 @@
 /BrightData.UnitTests/obj
 /BrightData.Numerics/obj
 /BrightData.Numerics/bin
+/BrightWire.Cuda/obj
+/BrightWire.Cuda/bin

@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BrightWire\BrightWire.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="ManagedCudaStandard">
+      <HintPath>..\..\..\BrightTable\BrightTable.Cuda\ManagedCuda\ManagedCudaStandard.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

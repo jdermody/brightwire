@@ -105,7 +105,8 @@ namespace BrightData
         IDataReader DataReader { get; }
         INumericComputation<T> GetComputation<T>() where T : struct;
         T Get<T>(string name);
-        void Set<T>(string name, T value);
+        T Set<T>(string name, T value);
+        T Set<T>(string name, Func<T> valueCreator);
         IComputableFactory ComputableFactory { get; set; }
     }
 

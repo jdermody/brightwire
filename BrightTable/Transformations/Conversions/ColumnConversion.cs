@@ -72,21 +72,6 @@ namespace BrightTable.Transformations.Conversions
             public Type To => typeof(string);
         }
 
-        //class NopConverter<T> : IConvert<T, T>
-        //{
-        //    public bool Convert(T input, IAutoGrowBuffer<T> buffer)
-        //    {
-        //        buffer.Add(input);
-        //        return true;
-        //    }
-        //    public void Finalise(IMetaData metaData)
-        //    {
-        //        // nop
-        //    }
-        //    public Type From => typeof(T);
-        //    public Type To => typeof(T);
-        //}
-
         class NumericConverter<TF, TT> : IConvert<TF, TT>
         {
             private readonly IEnumerator<TT> _list;
