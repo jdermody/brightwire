@@ -50,3 +50,7 @@
 /BrightData.Numerics/bin
 /BrightML/bin
 /BrightML/obj
+/BrightWire.Cuda/obj
+/BrightWire/bin
+/BrightWire/obj
+/BrightWire.Cuda/bin
