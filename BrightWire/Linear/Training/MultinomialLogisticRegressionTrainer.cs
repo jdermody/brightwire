@@ -2,6 +2,7 @@
 using BrightWire.Models;
 using System.Collections.Generic;
 using System.Linq;
+using BrightTable;
 
 namespace BrightWire.Linear.Training
 {
@@ -10,7 +11,7 @@ namespace BrightWire.Linear.Training
     /// </summary>
     static class MultinomialLogisticRegressionTrainner
     {
-        public static MultinomialLogisticRegression Train(IDataTable table, ILinearAlgebraProvider lap, int trainingIterations, float trainingRate, float lambda, Func<float, bool> costCallback = null)
+        public static MultinomialLogisticRegression Train(IRowOrientedDataTable table, ILinearAlgebraProvider lap, int trainingIterations, float trainingRate, float lambda, Func<float, bool> costCallback = null)
         {
             var trainingData = table.ConvertToBinaryClassification();
 

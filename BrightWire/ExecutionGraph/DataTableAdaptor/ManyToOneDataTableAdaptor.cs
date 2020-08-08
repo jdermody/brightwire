@@ -1,4 +1,5 @@
-﻿using BrightWire.ExecutionGraph.Helper;
+﻿using BrightTable;
+using BrightWire.ExecutionGraph.Helper;
 using BrightWire.Models;
 using System;
 using System.Collections.Generic;
@@ -13,7 +14,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
     {
         readonly int[] _rowDepth;
 
-	    public ManyToOneDataTableAdaptor(ILinearAlgebraProvider lap, IDataTable dataTable) 
+	    public ManyToOneDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable) 
             : base(lap, dataTable)
         {
             if (_dataColumnIndex.Length > 1)
@@ -22,7 +23,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             _rowDepth = new int[dataTable.RowCount];
             FloatMatrix inputMatrix = null;
             FloatVector outputVector = null;
-            dataTable.ForEach((row, i) => {
+            dataTable.ForEachRow((row, i) => {
                 inputMatrix = row.GetField<FloatMatrix>(_dataColumnIndex[0]);
                 outputVector = row.GetField<FloatVector>(_dataTargetIndex);
                 _rowDepth[i] = inputMatrix.RowCount;
@@ -34,7 +35,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             OutputSize = outputVector.Size;
         }
 
-        public override IDataSource CloneWith(IDataTable dataTable)
+        public override IDataSource CloneWith(IRowOrientedDataTable dataTable)
         {
             return new ManyToOneDataTableAdaptor(_lap, dataTable);
         }

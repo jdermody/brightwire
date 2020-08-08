@@ -1,5 +1,4 @@
-﻿using ProtoBuf;
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -10,13 +9,11 @@ namespace BrightWire.Models
     /// <summary>
     /// A protobuf serialisable sparse array of indices
     /// </summary>
-    [ProtoContract]
     public class IndexList
     {
         /// <summary>
         /// The list of indices
         /// </summary>
-        [ProtoMember(1)]
         public uint[] Index { get; set; }
 
         /// <summary>

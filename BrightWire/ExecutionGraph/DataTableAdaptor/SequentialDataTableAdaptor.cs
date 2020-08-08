@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using BrightWire.Models;
 using System.Linq;
+using BrightTable;
 
 namespace BrightWire.ExecutionGraph.DataTableAdaptor
 {
@@ -12,7 +13,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
     {
         readonly int[] _rowDepth;
 
-	    public SequentialDataTableAdaptor(ILinearAlgebraProvider lap, IDataTable dataTable) : base(lap, dataTable)
+	    public SequentialDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable) : base(lap, dataTable)
         {
             if (_dataColumnIndex.Length > 1)
                 throw new NotImplementedException("Sequential datasets not supported with more than one input data column");
@@ -20,9 +21,9 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             _rowDepth = new int[dataTable.RowCount];
 
             FloatMatrix inputMatrix = null, outputMatrix = null;
-            dataTable.ForEach((row, i) => {
-                inputMatrix = row.GetField<FloatMatrix>(_dataColumnIndex[0]);
-                outputMatrix = row.GetField<FloatMatrix>(_dataTargetIndex);
+            dataTable.ForEachRow((row, i) => {
+                inputMatrix = (FloatMatrix)row[_dataColumnIndex[0]];
+                outputMatrix = (FloatMatrix)row[_dataTargetIndex];
                 _rowDepth[i] = inputMatrix.RowCount;
                 if (outputMatrix.RowCount != inputMatrix.RowCount)
                     throw new ArgumentException("Rows between input and output data tables do not match");
@@ -31,7 +32,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             OutputSize = outputMatrix.ColumnCount;
         }
 
-        public override IDataSource CloneWith(IDataTable dataTable)
+        public override IDataSource CloneWith(IRowOrientedDataTable dataTable)
         {
             return new SequentialDataTableAdaptor(_lap, dataTable);
         }

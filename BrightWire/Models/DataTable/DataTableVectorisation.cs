@@ -1,6 +1,5 @@
 ﻿using System;
 using BrightWire.Models;
-using ProtoBuf;
 using System.Collections.Generic;
 using System.Linq;
 using BrightWire.LinearAlgebra.Helper;
@@ -10,7 +9,6 @@ namespace BrightWire.Models.DataTable
     /// <summary>
     /// A data table vectorisation model - maps rows in a data table to vectors
     /// </summary>
-    [ProtoContract]
     public class DataTableVectorisation
     {
         // lazy initialised variables
@@ -20,111 +18,93 @@ namespace BrightWire.Models.DataTable
         /// <summary>
         /// A categorical column value
         /// </summary>
-        [ProtoContract]
         public class CategoricalIndex
         {
             /// <summary>
             /// The classification label
             /// </summary>
-            [ProtoMember(1)]
             public string Category { get; set; }
 
             /// <summary>
             /// The label's index
             /// </summary>
-            [ProtoMember(2)]
             public int Index { get; set; }
         }
 
         /// <summary>
         /// Column information
         /// </summary>
-        [ProtoContract]
         public class Column
         {
             /// <summary>
             /// The column index
             /// </summary>
-            [ProtoMember(1)]
             public int ColumnIndex { get; set; }
 
             /// <summary>
             /// Column name
             /// </summary>
-            [ProtoMember(2)]
             public string Name { get; set; }
 
             /// <summary>
             /// True if the column is the classification target
             /// </summary>
-            [ProtoMember(3)]
             public bool IsTargetColumn { get; set; }
 
             /// <summary>
             /// True if the column has a continuous value
             /// </summary>
-            [ProtoMember(4)]
             public bool IsContinuous { get; set; }
 
             /// <summary>
             /// The number of slots this column will fill in the output vector
             /// </summary>
-            [ProtoMember(5)]
             public int Size { get; set; }
 
             /// <summary>
             /// An array of categorial values
             /// </summary>
-            [ProtoMember(6)]
             public CategoricalIndex[] Values { get; set; }
 
 	        /// <summary>
 	        /// True if the column has one of two possible values
 	        /// </summary>
-	        [ProtoMember(7)]
 	        public bool IsBinary { get; set; }
         }
 
         /// <summary>
         /// The columns in the table
         /// </summary>
-        [ProtoMember(1)]
         public Column[] Columns { get; set; }
 
         /// <summary>
         /// The size of each input vector that will be created
         /// </summary>
-        [ProtoMember(2)]
         public int InputSize { get; set; }
 
         /// <summary>
         /// The size of each output vector that will be created
         /// </summary>
-        [ProtoMember(3)]
         public int OutputSize { get; set; }
 
         /// <summary>
         /// True if the vectoriser has a classification target column
         /// </summary>
-        [ProtoMember(4)]
         public bool HasTarget { get; set; }
 
         /// <summary>
         /// True if the classification target column is continuous
         /// </summary>
-        [ProtoMember(5)]
         public bool IsTargetContinuous { get; set; }
 
         /// <summary>
         /// The column index of the classifiation target column
         /// </summary>
-        [ProtoMember(6)]
         public int ClassColumnIndex { get; set; }
 
 	    /// <summary>
 	    /// True if the classification target column has one of two possible values
 	    /// </summary>
-	    [ProtoMember(7)]
 	    public bool IsTargetBinary { get; set; }
 
         /// <summary>

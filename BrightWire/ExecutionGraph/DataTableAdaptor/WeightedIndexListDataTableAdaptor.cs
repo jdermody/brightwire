@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using BrightTable;
 using BrightWire.Models;
 
 namespace BrightWire.ExecutionGraph.DataTableAdaptor
@@ -12,7 +13,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         readonly int _inputSize;
         readonly IDataTableVectoriser _vectoriser;
 
-        public WeightedIndexListDataTableAdaptor(ILinearAlgebraProvider lap, IDataTable dataTable, IDataTableVectoriser vectoriser)
+        public WeightedIndexListDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, IDataTableVectoriser vectoriser)
             : base(lap, dataTable)
         {
             _vectoriser = vectoriser;
@@ -20,13 +21,13 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             OutputSize = _vectoriser.OutputSize;
 
             // load the data
-            dataTable.ForEach(row => _data.Add((_dataColumnIndex.Select(row.GetField<WeightedIndexList>).ToList(), _vectoriser.GetOutput(row))));
+            dataTable.ForEachRow(row => _data.Add((_dataColumnIndex.Select(i => (WeightedIndexList)row[i]).ToList(), _vectoriser.GetOutput(row))));
         }
 
         public override bool IsSequential => false;
         public override int InputSize => _inputSize;
         public override int OutputSize { get; }
-	    public override int RowCount => _data.Count;
+	    public override uint RowCount => (uint)_data.Count;
 
         public float[] Encode(WeightedIndexList indexList)
         {
@@ -45,7 +46,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             return _GetMiniBatch(rows, data);
         }
 
-        public override IDataSource CloneWith(IDataTable dataTable)
+        public override IDataSource CloneWith(IRowOrientedDataTable dataTable)
         {
             return new WeightedIndexListDataTableAdaptor(_lap, dataTable, _vectoriser);
         }

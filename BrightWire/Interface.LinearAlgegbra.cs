@@ -1,4 +1,5 @@
-﻿using BrightWire.Models;
+﻿using BrightData;
+using BrightWire.Models;
 using System;
 using System.Collections.Generic;
 
@@ -358,7 +359,7 @@ namespace BrightWire
 		/// Normalises (in place) the values of the current vector
 		/// </summary>
 		/// <param name="type">The type of normalisation</param>
-		void Normalise(NormalisationType type);
+		void Normalise(NormalizationType type);
 
 		/// <summary>
 		/// Returns the softmax function (without in place modification) applied to the current vector

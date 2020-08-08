@@ -1,4 +1,5 @@
-﻿using BrightWire.Models;
+﻿using BrightTable;
+using BrightWire.Models;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -16,7 +17,7 @@ namespace BrightWire.TreeBased
             _tree = tree;
         }
 
-        public IEnumerable<string> _Classify(IRow row)
+        public IEnumerable<string> _Classify(IConvertibleRow row)
         {
             var p = _tree.Root;
             while(p != null) {
@@ -41,7 +42,7 @@ namespace BrightWire.TreeBased
             }
         }
 
-        public IReadOnlyList<(string Label, float Weight)> Classify(IRow row)
+        public IReadOnlyList<(string Label, float Weight)> Classify(IConvertibleRow row)
         {
             var classification = _Classify(row).First();
             return new[] {

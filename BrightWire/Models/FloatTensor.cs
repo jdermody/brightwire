@@ -1,5 +1,4 @@
-﻿using ProtoBuf;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
@@ -12,13 +11,11 @@ namespace BrightWire.Models
     /// <summary>
     /// A protobuf serialised 3D tensor
     /// </summary>
-    [ProtoContract]
     public class FloatTensor
     {
         /// <summary>
         /// The list of matrices that form the tensor
         /// </summary>
-        [ProtoMember(1)]
         public FloatMatrix[] Matrix { get; set; }
 
         /// <summary>

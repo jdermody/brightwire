@@ -49,10 +49,10 @@ namespace BrightWire
         /// <param name="classifier"></param>
         /// <param name="dataTable"></param>
         /// <returns>A list of rows with their corresponding classifications</returns>
-        public static IReadOnlyList<(IRow Row, string Classification)> Classifiy(this IRowClassifier classifier, IDataTable dataTable)
-        {
-            return dataTable.Classify(classifier, percentage => Console.Write("\r({0:P}) ", percentage));
-        }
+        //public static IReadOnlyList<(IRow Row, string Classification)> Classifiy(this IRowClassifier classifier, IDataTable dataTable)
+        //{
+        //    return dataTable.Classify(classifier, percentage => Console.Write("\r({0:P}) ", percentage));
+        //}
 
         /// <summary>
         /// Serialises the node and any other connected nodes to an execution graph

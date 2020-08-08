@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using BrightWire.LinearAlgebra.Helper;
+using BrightData;
 
 namespace BrightWire.LinearAlgebra
 {
@@ -225,20 +226,20 @@ namespace BrightWire.LinearAlgebra
             return Convert.ToSingle(Math.Sqrt(_vector.Select(v => Math.Pow(v - mean2, 2)).Average()));
         }
 
-        public void Normalise(NormalisationType type)
+        public void Normalise(NormalizationType type)
         {
-            if (type == NormalisationType.FeatureScale) {
+            if (type == NormalizationType.FeatureScale) {
                 var (min, max) = GetMinMax();
                 var range = max - min;
                 if (range > 0)
                     _vector.MapInplace(v => (v - min) / range);
-            } else if (type == NormalisationType.Standard) {
+            } else if (type == NormalizationType.Standard) {
                 var mean = Average();
                 var stdDev = StdDev(mean);
                 if (BoundMath.IsNotZero(stdDev))
                     _vector.MapInplace(v => (v - mean) / stdDev);
-            } else if (type == NormalisationType.Euclidean || type == NormalisationType.Manhattan) {
-                var p = (type == NormalisationType.Manhattan) ? 1.0 : 2.0;
+            } else if (type == NormalizationType.Euclidean || type == NormalizationType.Manhattan) {
+                var p = (type == NormalizationType.Manhattan) ? 1.0 : 2.0;
                 var norm = _vector.Normalize(p);
                 norm.CopyTo(_vector);
             }

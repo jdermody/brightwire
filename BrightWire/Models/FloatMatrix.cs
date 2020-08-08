@@ -1,5 +1,4 @@
-﻿using ProtoBuf;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
@@ -12,13 +11,11 @@ namespace BrightWire.Models
     /// <summary>
     /// A protobuf serialised matrix
     /// </summary>
-    [ProtoContract]
     public class FloatMatrix
     {
         /// <summary>
         /// The rows of the matrix
         /// </summary>
-        [ProtoMember(1)]
         public FloatVector[] Row { get; set; }
 
         /// <summary>

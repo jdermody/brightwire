@@ -1,4 +1,5 @@
-﻿using BrightWire.ExecutionGraph.Helper;
+﻿using BrightTable;
+using BrightWire.ExecutionGraph.Helper;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -9,13 +10,12 @@ namespace BrightWire.ExecutionGraph.Node.Helper
     /// </summary>
     class RowClassifier : NodeBase
     {
-		readonly IDataTable _dataTable;
+		readonly IRowOrientedDataTable _dataTable;
         readonly ILinearAlgebraProvider _lap;
         readonly IRowClassifier _classifier;
         readonly Dictionary<string, int> _targetLabel;
-        //readonly List<IRow> _data = new List<IRow>();
 
-        public RowClassifier(ILinearAlgebraProvider lap, IRowClassifier classifier, IDataTable dataTable, IDataTableAnalysis analysis, string name = null) 
+        public RowClassifier(ILinearAlgebraProvider lap, IRowClassifier classifier, IRowOrientedDataTable dataTable, IDataTableAnalysis analysis, string name = null) 
             : base(name)
         {
             _lap = lap;

@@ -1,4 +1,5 @@
-﻿using BrightWire.ExecutionGraph.Engine.Helper;
+﻿using BrightTable;
+using BrightWire.ExecutionGraph.Engine.Helper;
 using BrightWire.ExecutionGraph.Node.Input;
 using System.Diagnostics;
 
@@ -12,7 +13,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         protected INode _input;
         protected readonly ILearningContext _learningContext;
 
-	    protected AdaptiveDataTableAdaptorBase(ILinearAlgebraProvider lap, ILearningContext learningContext, IDataTable dataTable)
+	    protected AdaptiveDataTableAdaptorBase(ILinearAlgebraProvider lap, ILearningContext learningContext, IRowOrientedDataTable dataTable)
             : base(lap, dataTable)
         {
             Debug.Assert(learningContext == null || learningContext.DeferUpdates);

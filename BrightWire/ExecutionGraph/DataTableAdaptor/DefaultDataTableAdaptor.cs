@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using BrightTable;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace BrightWire.ExecutionGraph.DataTableAdaptor
@@ -6,25 +8,22 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
     /// <summary>
     /// Vectorises each row of the data table on demand
     /// </summary>
-    class DefaultDataTableAdaptor : RowBasedDataTableAdaptorBase, IRowEncoder, IHaveDataTableVectoriser
+    class DefaultDataTableAdaptor : RowBasedDataTableAdaptorBase
     {
-        readonly IDataTableVectoriser _vectoriser;
-
-        public DefaultDataTableAdaptor(ILinearAlgebraProvider lap, IDataTable dataTable, IDataTableVectoriser vectoriser = null)
+        public DefaultDataTableAdaptor(ILinearAlgebraProvider lap, IColumnOrientedDataTable dataTable)
             : base(lap, dataTable)
         {
-            _vectoriser = vectoriser ?? dataTable.GetVectoriser();
         }
 
-        public override IDataSource CloneWith(IDataTable dataTable)
+        public override IDataSource CloneWith(IRowOrientedDataTable dataTable)
         {
-            return new DefaultDataTableAdaptor(_lap, dataTable, _vectoriser);
+            throw new NotImplementedException();
+            //return new DefaultDataTableAdaptor(_lap, dataTable, _vectoriser);
         }
 
         public override int InputSize => _vectoriser.InputSize;
         public override int OutputSize => _vectoriser.OutputSize;
         public override bool IsSequential => false;
-	    public IDataTableVectoriser Vectoriser => _vectoriser;
 
         public float[] Encode(IRow row)
         {

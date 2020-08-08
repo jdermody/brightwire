@@ -1,5 +1,6 @@
-﻿using BrightWire.Models;
-using BrightWire.TabularData.Helper;
+﻿using BrightTable;
+using BrightTable.Helper;
+using BrightWire.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -107,10 +108,10 @@ namespace BrightWire.TreeBased.Training
             readonly HashSet<int> _continuous = new HashSet<int>();
             readonly List<InMemoryRow> _data = new List<InMemoryRow>();
 
-			public TableInfo(IDataTable table)
+			public TableInfo(IRowOrientedDataTable table)
             {
-                ClassColumnIndex = table.TargetColumnIndex;
-                for (int i = 0, len = table.ColumnCount; i < len; i++) {
+                ClassColumnIndex = table.GetTargetColumn();
+                for (uint i = 0, len = table.ColumnCount; i < len; i++) {
                     if (i != ClassColumnIndex) {
                         var column = table.Columns[i];
                         if (column.IsContinuous)
@@ -124,7 +125,7 @@ namespace BrightWire.TreeBased.Training
             public IEnumerable<int> CategoricalColumns => _categorical;
 	        public IEnumerable<int> ContinuousColumns => _continuous;
 	        public IReadOnlyList<InMemoryRow> Data => _data;
-			public int ClassColumnIndex { get; }
+			public uint? ClassColumnIndex { get; }
 		}
         class Node
         {
@@ -260,7 +261,7 @@ namespace BrightWire.TreeBased.Training
             public int? MaxAttributes { get; set; } = null;
         }
 
-        public static DecisionTree Train(IDataTable table, Config config = null)
+        public static DecisionTree Train(IRowOrientedDataTable table, Config config = null)
         {
             var tableInfo = new TableInfo(table);
             var root = new Node(tableInfo, tableInfo.Data, null);

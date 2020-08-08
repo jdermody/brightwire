@@ -64,16 +64,5 @@ namespace BrightWire.Bayesian
                 .ToList()
             ;
         }
-
-        public IReadOnlyList<(string Label, float Weight)> Classify(IRow row)
-        {
-	        var indexColumn = row.Table.Columns.First(r => r.Type == ColumnType.IndexList || r.Type == ColumnType.WeightedIndexList);
-	        IndexList indexList;
-	        if (indexColumn.Type == ColumnType.IndexList)
-		        indexList = row.GetField<IndexList>(indexColumn.Index);
-	        else
-		        indexList = row.GetField<WeightedIndexList>(indexColumn.Index).AsIndexList();
-	        return Classify(indexList);
-        }
     }
 }

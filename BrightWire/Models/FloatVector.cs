@@ -1,5 +1,4 @@
-﻿using ProtoBuf;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -12,13 +11,11 @@ namespace BrightWire.Models
     /// <summary>
     /// An protobuf serialised vector
     /// </summary>
-    [ProtoContract]
     public class FloatVector
     {
         /// <summary>
         /// The data
         /// </summary>
-        [ProtoMember(1)]
         public float[] Data { get; set; }
 
         /// <summary>

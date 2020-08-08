@@ -1,6 +1,5 @@
 ﻿using System.Globalization;
 using BrightWire.TreeBased;
-using ProtoBuf;
 using System.IO;
 using System.Text;
 using System.Xml;
@@ -10,43 +9,36 @@ namespace BrightWire.Models
     /// <summary>
     /// A decision tree model
     /// </summary>
-    [ProtoContract]
     public class DecisionTree
     {
         /// <summary>
         /// A node in the decision tree
         /// </summary>
-        [ProtoContract]
         public class Node
         {
             /// <summary>
             /// The nodes children
             /// </summary>
-            [ProtoMember(1)]
             public Node[] Children { get; set; }
 
             /// <summary>
             /// The column index that is being split on
             /// </summary>
-            [ProtoMember(2)]
-            public int ColumnIndex { get; set; }
+            public uint ColumnIndex { get; set; }
 
             /// <summary>
             /// The value to match this node
             /// </summary>
-            [ProtoMember(3)]
             public string MatchLabel { get; set; }
 
             /// <summary>
             /// The value to split on
             /// </summary>
-            [ProtoMember(4)]
             public double? Split { get; set; }
 
             /// <summary>
             /// This node's classification label
             /// </summary>
-            [ProtoMember(5)]
             public string Classification { get; set; }
 
             /// <summary>
@@ -77,13 +69,11 @@ namespace BrightWire.Models
         /// <summary>
         /// The classification label column index
         /// </summary>
-        [ProtoMember(1)]
         public int ClassColumnIndex { get; set; }
 
         /// <summary>
         /// The root of the tree
         /// </summary>
-        [ProtoMember(2)]
         public Node Root { get; set; }
 
         /// <summary>

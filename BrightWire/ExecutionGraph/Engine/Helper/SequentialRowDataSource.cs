@@ -1,4 +1,5 @@
-﻿using BrightWire.ExecutionGraph.Helper;
+﻿using BrightTable;
+using BrightWire.ExecutionGraph.Helper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,16 +17,16 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         {
             _data = data;
             InputSize = data.First().Length;
-            InputCount = data.Count;
+            InputCount = (uint)data.Count;
         }
 
         public bool IsSequential => true;
         public int InputSize { get; }
 	    public int OutputSize => throw new NotImplementedException();
-        public int RowCount => 1;
-        public int InputCount { get; }
+        public uint RowCount => 1;
+        public uint InputCount { get; }
 
-	    public IDataSource CloneWith(IDataTable dataTable)
+	    public IDataSource CloneWith(IRowOrientedDataTable dataTable)
         {
             throw new NotImplementedException();
         }

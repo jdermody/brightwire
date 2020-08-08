@@ -1,18 +1,15 @@
 ﻿using BrightWire.Linear;
-using ProtoBuf;
 
 namespace BrightWire.Models
 {
     /// <summary>
     /// A linear regression model
     /// </summary>
-    [ProtoContract]
     public class LinearRegression
     {
         /// <summary>
         /// The model parameters
         /// </summary>
-        [ProtoMember(1)]
         public FloatVector Theta { get; set; }
 
         /// <summary>

@@ -132,17 +132,16 @@ namespace BrightTable
         object this[uint index] { get; }
     }
 
-    public interface IDataTableSegment<out T> : ISingleTypeTableSegment
+    public interface IDataTableSegment<out T> : ISingleTypeTableSegment, IHaveDataContext
     {
         IEnumerable<T> EnumerateTyped();
     }
 
-    public interface IDataTable : IHaveMetaData, IDisposable
+    public interface IDataTable : IHaveMetaData, IDisposable, IHaveDataContext
     {
-        IBrightDataContext Context { get; }
         uint RowCount { get; }
         uint ColumnCount { get; }
-        IReadOnlyList<ColumnType> ColumnTypes { get; }
+        ColumnType[] ColumnTypes { get; }
         DataTableOrientation Orientation { get; }
         IReadOnlyList<IMetaData> ColumnMetaData(params uint[] columnIndices);
         void ForEachRow(Action<object[], uint> callback, uint maxRows = uint.MaxValue);
@@ -242,5 +241,25 @@ namespace BrightTable
     {
         public uint? Index { get; }
         public ICanConvert GetConverter(ColumnType fromType, ISingleTypeTableSegment column, TempStreamManager tempStreams, IBrightDataContext context);
+    }
+
+    public interface IConvertibleTable
+    {
+        IConvertibleRow GetRow(uint index);
+    }
+
+    public interface IHaveDataTable
+    {
+        IDataTable DataTable { get; }
+    }
+
+    public interface IHaveDataContext
+    {
+        IBrightDataContext Context { get; }
+    }
+
+    public interface IConvertibleRow : IHaveDataTable
+    {
+        T GetField<T>(uint index);
     }
 }

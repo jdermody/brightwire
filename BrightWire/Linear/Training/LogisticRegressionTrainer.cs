@@ -2,6 +2,7 @@
 using System;
 using System.Linq;
 using BrightWire.LinearAlgebra.Helper;
+using BrightTable;
 
 namespace BrightWire.Linear.Training
 {
@@ -15,7 +16,7 @@ namespace BrightWire.Linear.Training
         readonly IMatrix _feature;
         readonly IVector _target;
 
-        public LogisticRegressionTrainer(ILinearAlgebraProvider lap, IDataTable table)
+        public LogisticRegressionTrainer(ILinearAlgebraProvider lap, IRowOrientedDataTable table)
         {
             _lap = lap;
             var numRows = table.RowCount;

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BrightTable;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -63,6 +64,11 @@ namespace BrightWire
                 .Select(i => list[rnd.Next(0, list.Count)])
                 .ToList()
             ;
+        }
+
+        public static T[] GetFields<T>(this IConvertibleRow row, params uint[] indices)
+        {
+            return indices.Select(i => row.GetField<T>(i)).ToArray();
         }
     }
 }

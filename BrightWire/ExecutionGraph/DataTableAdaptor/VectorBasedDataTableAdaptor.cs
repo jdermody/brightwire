@@ -1,4 +1,5 @@
-﻿using BrightWire.Models;
+﻿using BrightTable;
+using BrightWire.Models;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -9,7 +10,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
     /// </summary>
     class VectorBasedDataTableAdaptor : RowBasedDataTableAdaptorBase
     {
-	    public VectorBasedDataTableAdaptor(ILinearAlgebraProvider lap, IDataTable dataTable) : base(lap, dataTable)
+	    public VectorBasedDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable) : base(lap, dataTable)
         {
             var firstRow = dataTable.GetRow(0);
             var input = (FloatVector)firstRow.Data[_dataColumnIndex.First()];
@@ -32,7 +33,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             return _GetMiniBatch(rows, data);
         }
 
-        public override IDataSource CloneWith(IDataTable dataTable)
+        public override IDataSource CloneWith(IRowOrientedDataTable dataTable)
         {
             return new VectorBasedDataTableAdaptor(_lap, dataTable);
         }

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using BrightWire.LinearAlgebra.Helper;
+using BrightTable;
 
 namespace BrightWire.Linear
 {
@@ -20,7 +21,7 @@ namespace BrightWire.Linear
             _classifier = _model.Model.Select(c => c.CreatePredictor(lap)).ToList();
         }
 
-        IEnumerable<Tuple<int, float>> _Classify(IRow row)
+        IEnumerable<Tuple<int, float>> _Classify(IConvertibleRow row)
         {
             var featureCount = _model.FeatureColumn.Length;
             var features = new float[featureCount];
@@ -30,7 +31,7 @@ namespace BrightWire.Linear
             return _classifier.Select((m, i) => Tuple.Create(i, m.Predict(features)));
         }
 
-        public IReadOnlyList<(string Label, float Weight)> Classify(IRow row)
+        public IReadOnlyList<(string Label, float Weight)> Classify(IConvertibleRow row)
         {
             // calculate softmax over output value
             float max = float.MinValue, total = 0;

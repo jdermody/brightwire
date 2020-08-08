@@ -11,6 +11,7 @@ using BrightWire.Unsupervised;
 using System.Collections.Generic;
 using System.Linq;
 using BrightWire.Source.Linear;
+using BrightTable;
 
 namespace BrightWire
 {
@@ -38,7 +39,7 @@ namespace BrightWire
 	    /// <param name="lambda">Regularisation lambda</param>
 	    /// <param name="costCallback">Optional callback that is called after each iteration with the current cost</param>
 	    /// <returns>The trained model</returns>
-	    public static LogisticRegression TrainLogisticRegression(this IDataTable table, ILinearAlgebraProvider lap, int iterations, float learningRate, float lambda = 0.1f, Func<float, bool> costCallback = null)
+	    public static LogisticRegression TrainLogisticRegression(this IRowOrientedDataTable table, ILinearAlgebraProvider lap, int iterations, float learningRate, float lambda = 0.1f, Func<float, bool> costCallback = null)
         {
             var trainer = table.CreateLogisticRegressionTrainer(lap);
             return trainer.GradientDescent(iterations, learningRate, lambda, costCallback);
@@ -50,7 +51,7 @@ namespace BrightWire
         /// <param name="table">The training data provider</param>
         /// <param name="lap">Linear algebra provider</param>
         /// <returns>A trainer that can be used to build a logistic regression model</returns>
-        public static ILogisticRegressionTrainer CreateLogisticRegressionTrainer(this IDataTable table, ILinearAlgebraProvider lap)
+        public static ILogisticRegressionTrainer CreateLogisticRegressionTrainer(this IRowOrientedDataTable table, ILinearAlgebraProvider lap)
         {
             return new LogisticRegressionTrainer(lap, table);
         }
@@ -159,7 +160,7 @@ namespace BrightWire
 	    /// <param name="lambda">L2 regularisation</param>
 	    /// <param name="costCallback">Optional callback that is called after each iteration with the current cost</param>
 	    /// <returns></returns>
-	    public static MultinomialLogisticRegression TrainMultinomialLogisticRegression(this IDataTable data, ILinearAlgebraProvider lap, int trainingIterations, float trainingRate, float lambda = 0.1f, Func<float, bool> costCallback = null)
+	    public static MultinomialLogisticRegression TrainMultinomialLogisticRegression(this IRowOrientedDataTable data, ILinearAlgebraProvider lap, int trainingIterations, float trainingRate, float lambda = 0.1f, Func<float, bool> costCallback = null)
         {
             return MultinomialLogisticRegressionTrainner.Train(data, lap, trainingIterations, trainingRate, lambda, costCallback);
         }
@@ -170,7 +171,7 @@ namespace BrightWire
         /// <param name="data">The training data</param>
         /// <param name="b">The number of trees in the forest</param>
         /// <returns>A model that can be used for classification</returns>
-        public static RandomForest TrainRandomForest(this IDataTable data, int b = 100)
+        public static RandomForest TrainRandomForest(this IRowOrientedDataTable data, int b = 100)
         {
             return RandomForestTrainer.Train(data, b);
         }
@@ -184,7 +185,7 @@ namespace BrightWire
         /// <param name="minInformationGain">The minimum information gain to continue splitting</param>
         /// <param name="maxAttributes">The maximum number of attributes to consider at each split</param>
         /// <returns>A model that can be used for classification</returns>
-        public static DecisionTree TrainDecisionTree(this IDataTable data, int? minDataPerNode = null, int? maxDepth = null, double? minInformationGain = null, int? maxAttributes = null)
+        public static DecisionTree TrainDecisionTree(this IRowOrientedDataTable data, int? minDataPerNode = null, int? maxDepth = null, double? minInformationGain = null, int? maxAttributes = null)
         {
             var config = new DecisionTreeTrainer.Config {
                 MinDataPerNode = minDataPerNode,
@@ -213,7 +214,7 @@ namespace BrightWire
 		/// </summary>
 		/// <param name="table">The training data table that must have a index-list based column to classify against</param>
 		/// <returns></returns>
-	    public static MultinomialNaiveBayes TrainMultinomialNaiveBayes(this IDataTable table)
+	    public static MultinomialNaiveBayes TrainMultinomialNaiveBayes(this IRowOrientedDataTable table)
 		{
 			var targetColumnIndex = table.TargetColumnIndex;
 			var indexListColumn = table.Columns.FirstOrDefault(c => c.Type == ColumnType.IndexList);
@@ -242,7 +243,7 @@ namespace BrightWire
 	    /// </summary>
 	    /// <param name="table">The training data table that must have an index-list based column</param>
 	    /// <returns>A model that can be used for classification</returns>
-	    public static BernoulliNaiveBayes TrainBernoulliNaiveBayes(this IDataTable table)
+	    public static BernoulliNaiveBayes TrainBernoulliNaiveBayes(this IRowOrientedDataTable table)
 	    {
 		    var targetColumnIndex = table.TargetColumnIndex;
 		    var indexListColumn = table.Columns.FirstOrDefault(c => c.Type == ColumnType.IndexList);

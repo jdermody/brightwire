@@ -1,4 +1,5 @@
-﻿using BrightWire.Models;
+﻿using BrightTable;
+using BrightWire.Models;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -16,7 +17,7 @@ namespace BrightWire.TreeBased
             _forest = forest.Forest.Select(m => new DecisionTreeClassifier(m)).ToList();
         }
 
-        public IReadOnlyList<(string Label, float Weight)> Classify(IRow row)
+        public IReadOnlyList<(string Label, float Weight)> Classify(IConvertibleRow row)
         {
             return _forest
                 .Select(t => t.Classify(row).Single())

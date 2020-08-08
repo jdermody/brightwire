@@ -1,7 +1,8 @@
-﻿using ProtoBuf;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BrightData;
+using BrightTable;
 using BrightWire.LinearAlgebra.Helper;
 
 namespace BrightWire.Models.DataTable
@@ -9,37 +10,31 @@ namespace BrightWire.Models.DataTable
     /// <summary>
     /// A data table normalisation model
     /// </summary>
-    [ProtoContract]
     public class DataTableNormalisation
     {
         /// <summary>
         /// A column model
         /// </summary>
-        [ProtoContract]
         public class Column
         {
             /// <summary>
             /// The column index
             /// </summary>
-            [ProtoMember(1)]
             public int ColumnIndex { get; set; }
 
             /// <summary>
             /// The type of data in the column
             /// </summary>
-            [ProtoMember(2)]
             public ColumnType DataType { get; set; }
 
             /// <summary>
             /// The value to subtract from the column
             /// </summary>
-            [ProtoMember(3)]
             public double Subtract { get; set; }
 
             /// <summary>
             /// The value to divide the column with (after subtraction)
             /// </summary>
-            [ProtoMember(4)]
             public double Divide { get; set; }
 
             /// <summary>
@@ -103,19 +98,16 @@ namespace BrightWire.Models.DataTable
 		/// <summary>
 		/// A vector based column to normalise
 		/// </summary>
-	    [ProtoContract]
 	    public class VectorColumn
 	    {
 		    /// <summary>
 		    /// The column index
 		    /// </summary>
-		    [ProtoMember(1)]
 		    public int ColumnIndex { get; set; }
 
 		    /// <summary>
 		    /// The normalisation data within the vector (each index within the vector becomes a "column")
 		    /// </summary>
-		    [ProtoMember(2)]
 		    public Column[] VectorColumns { get; set; }
 
 	    }
@@ -123,19 +115,16 @@ namespace BrightWire.Models.DataTable
         /// <summary>
         /// The type of normalisation
         /// </summary>
-        [ProtoMember(1)]
-        public NormalisationType Type { get; set; }
+        public NormalizationType Type { get; set; }
 
         /// <summary>
         /// The column normalisation data
         /// </summary>
-        [ProtoMember(2)]
         public Column[] ColumnNormalisation { get; set; }
 
 		/// <summary>
 		/// Vector columns normalisation data
 		/// </summary>
-		[ProtoMember(3)]
 		public VectorColumn[] VectorColumnNormalisation { get; set; }
 
         Dictionary<int, Column> _columnTable = null;

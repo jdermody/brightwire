@@ -15,6 +15,7 @@ namespace BrightTable.Segments
             _buffer = buffer;
             MetaData = metaData;
             SingleType = type;
+            metaData.Set(Consts.Type, type);
         }
 
         public void Dispose()

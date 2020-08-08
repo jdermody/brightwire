@@ -2,6 +2,8 @@
 using System.Linq;
 using BrightWire.Models;
 using BrightWire.ExecutionGraph.Helper;
+using BrightTable;
+using System;
 
 namespace BrightWire.ExecutionGraph.DataTableAdaptor
 {
@@ -19,7 +21,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 		/// <summary>
 		/// Target column index
 		/// </summary>
-        protected readonly int _dataTargetIndex;
+        protected readonly uint _dataTargetIndex;
 
 		/// <summary>
 		/// Linear algebra provider
@@ -32,15 +34,15 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         protected readonly List<T> _data = new List<T>();
 
 	    /// <inheritdoc />
-	    protected DataTableAdaptorBase(ILinearAlgebraProvider lap, IDataTable dataTable)
+	    protected DataTableAdaptorBase(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable)
         {
             _lap = lap;
-            _dataTargetIndex = dataTable.TargetColumnIndex;
-            _dataColumnIndex = Enumerable.Range(0, dataTable.ColumnCount).Where(ci => ci != _dataTargetIndex).ToArray();
+            _dataTargetIndex = dataTable.GetTargetColumn() ?? throw new ArgumentException("");
+            _dataColumnIndex = Enumerable.Range(0, (int)dataTable.ColumnCount).Where(ci => ci != _dataTargetIndex).ToArray();
         }
 
 	    /// <inheritdoc />
-	    public int InputCount => 1;
+	    public uint InputCount => 1;
 	    /// <inheritdoc />
         public abstract bool IsSequential { get; }
 	    /// <inheritdoc />
@@ -48,13 +50,13 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 	    /// <inheritdoc />
         public abstract int OutputSize { get; }
 	    /// <inheritdoc />
-        public virtual int RowCount => _data.Count;
+        public virtual uint RowCount => (uint)_data.Count;
 
 	    /// <inheritdoc />
         public abstract IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<int> rows);
 
 	    /// <inheritdoc />
-        public abstract IDataSource CloneWith(IDataTable dataTable);
+        public abstract IDataSource CloneWith(IRowOrientedDataTable dataTable);
 
 	    /// <inheritdoc />
         public virtual IReadOnlyList<IReadOnlyList<int>> GetBuckets()

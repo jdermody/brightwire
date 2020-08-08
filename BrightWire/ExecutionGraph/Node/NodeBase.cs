@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
-using ProtoBuf;
 
 namespace BrightWire.ExecutionGraph.Node
 {
@@ -259,7 +258,7 @@ namespace BrightWire.ExecutionGraph.Node
         protected static void _Serialise(INode node, BinaryWriter writer)
         {
             using (var buffer = new MemoryStream()) {
-                Serializer.Serialize(buffer, node.SerialiseTo(null, null, null));
+                node.SerialiseTo(null, null, null).WriteTo(buffer);
                 var activationData = buffer.ToArray();
                 writer.Write(activationData.Length);
                 writer.Write(activationData);
@@ -303,7 +302,7 @@ namespace BrightWire.ExecutionGraph.Node
             var bufferSize = reader.ReadInt32();
             Models.ExecutionGraph.Node model;
             using (var buffer = new MemoryStream(reader.ReadBytes(bufferSize)))
-                model = Serializer.Deserialize<Models.ExecutionGraph.Node>(buffer);
+                model = new Models.ExecutionGraph.Node(buffer);
             return factory?.Create(model);
         }
 

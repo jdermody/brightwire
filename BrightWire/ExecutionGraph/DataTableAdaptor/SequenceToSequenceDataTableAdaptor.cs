@@ -1,4 +1,5 @@
-﻿using BrightWire.ExecutionGraph.Engine.Helper;
+﻿using BrightTable;
+using BrightWire.ExecutionGraph.Engine.Helper;
 using BrightWire.ExecutionGraph.Helper;
 using BrightWire.Models;
 using System;
@@ -15,7 +16,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         int[] _rowDepth;
         int _inputSize, _outputSize;
 
-        public SequenceToSequenceDataTableAdaptor(ILinearAlgebraProvider lap, ILearningContext learningContext, GraphFactory factory, IDataTable dataTable, Action<WireBuilder> dataConversionBuilder)
+        public SequenceToSequenceDataTableAdaptor(ILinearAlgebraProvider lap, ILearningContext learningContext, GraphFactory factory, IRowOrientedDataTable dataTable, Action<WireBuilder> dataConversionBuilder)
             : base(lap, learningContext, dataTable)
         {
             _Initialise(dataTable);
@@ -31,7 +32,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             }
         }
 
-        public SequenceToSequenceDataTableAdaptor(ILinearAlgebraProvider lap, ILearningContext learningContext, IDataTable dataTable, INode input, DataSourceModel dataSource)
+        public SequenceToSequenceDataTableAdaptor(ILinearAlgebraProvider lap, ILearningContext learningContext, IRowOrientedDataTable dataTable, INode input, DataSourceModel dataSource)
             : base(lap, learningContext, dataTable)
         {
             _Initialise(dataTable);
@@ -44,9 +45,9 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         {
             _rowDepth = new int[dataTable.RowCount];
             FloatMatrix inputMatrix = null, outputMatrix = null;
-            dataTable.ForEach((row, i) => {
-                inputMatrix = row.GetField<FloatMatrix>(0);
-                outputMatrix = row.GetField<FloatMatrix>(1);
+            dataTable.ForEachRow((row, i) => {
+                inputMatrix = (FloatMatrix)row[0];
+                outputMatrix = (FloatMatrix)row[1];
                 _rowDepth[i] = outputMatrix.RowCount;
             });
 
@@ -54,7 +55,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             _outputSize = outputMatrix.ColumnCount;
         }
 
-        private SequenceToSequenceDataTableAdaptor(ILinearAlgebraProvider lap, ILearningContext learningContext, IDataTable dataTable, INode input, int inputSize, int outputSize)
+        private SequenceToSequenceDataTableAdaptor(ILinearAlgebraProvider lap, ILearningContext learningContext, IRowOrientedDataTable dataTable, INode input, int inputSize, int outputSize)
             : base(lap, learningContext, dataTable)
         {
             _Initialise(dataTable);
@@ -63,7 +64,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             _outputSize = outputSize;
         }
 
-        public override IDataSource CloneWith(IDataTable dataTable)
+        public override IDataSource CloneWith(IRowOrientedDataTable dataTable)
         {
             return new SequenceToSequenceDataTableAdaptor(_lap, _learningContext, dataTable, _input, _inputSize, _outputSize);
         }
@@ -82,14 +83,14 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             ;
         }
 
-        (IMatrix, IReadOnlyList<IRow>) _Encode(IExecutionContext executionContext, IReadOnlyList<int> rows)
+        (IMatrix, IReadOnlyList<object[]>) _Encode(IExecutionContext executionContext, IReadOnlyList<int> rows)
         {
             var data = _GetRows(rows);
 
             // create the input batch
             var inputData = new List<(FloatMatrix Input, FloatMatrix Output)>();
             foreach (var row in data)
-                inputData.Add(((FloatMatrix)row.Data[0], null));
+                inputData.Add(((FloatMatrix)row[0], null));
             var encoderInput = _GetSequentialMiniBatch(rows, inputData);
 
             // execute the encoder
@@ -111,7 +112,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             // create the decoder input
             var outputData = new Dictionary<int, List<FloatVector>>();
             foreach (var item in data) {
-                var output = item.GetField<FloatMatrix>(1);
+                var output = (FloatMatrix)item[1];
                 for (int i = 0, len = output.RowCount; i < len; i++) {
                     if (!outputData.TryGetValue(i, out List<FloatVector> temp))
                         outputData.Add(i, temp = new List<FloatVector>());

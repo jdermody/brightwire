@@ -376,6 +376,23 @@ namespace BrightData
             tensor.Data.Initialize(initializer);
         }
 
+        public static ConvertToFloat<T> GetFloatConverter<T>(this IBrightDataContext context) where T: struct
+        {
+            return context.Set($"float-converter({typeof(T)})", () => new ConvertToFloat<T>());
+        }
+
+        public static ConvertToDouble<T> GetDoubleConverter<T>(this IBrightDataContext context) where T: struct
+        {
+            return context.Set($"double-converter({typeof(T)})", () => new ConvertToDouble<T>());
+        }
+
+        public static void Set<T>(this ITensorSegment<T> vector, Func<uint, T> getValue)
+            where T : struct
+        {
+            for (uint i = 0, len = vector.Size; i < len; i++)
+                vector[i] = getValue(i);
+        }
+
         public static ICanConvert GetConverter<T>(this Type toType) where T : struct
         {
             var typeCode = Type.GetTypeCode(toType);

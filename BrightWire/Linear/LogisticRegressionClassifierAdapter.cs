@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BrightTable;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -7,13 +8,13 @@ namespace BrightWire.Source.Linear
     class LogisticRegressionClassifierAdapter : IRowClassifier
     {
 		readonly ILogisticRegressionClassifier _classifier;
-	    readonly IReadOnlyList<int> _attributeColumns;
+	    readonly uint[] _attributeColumns;
 	    readonly string _positiveLabel;
 	    readonly string _negativeLabel;
 
 		public LogisticRegressionClassifierAdapter(
 		    ILogisticRegressionClassifier classifier, 
-		    IReadOnlyList<int> attributeColumns, 
+		    uint[] attributeColumns, 
 		    string negativeLabel = "0",
 			string positiveLabel = "1"
 		) {
@@ -23,7 +24,7 @@ namespace BrightWire.Source.Linear
 			_attributeColumns = attributeColumns;
 		}
 
-		public IReadOnlyList<(String Label, Single Weight)> Classify(IRow row)
+		public IReadOnlyList<(String Label, Single Weight)> Classify(IConvertibleRow row)
 		{
 			var prediction = _classifier.Predict(row.GetFields<float>(_attributeColumns));
 			return new[] {(prediction >= 0.5f ? _positiveLabel : _negativeLabel, 1f)};

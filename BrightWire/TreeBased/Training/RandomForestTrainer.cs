@@ -1,4 +1,5 @@
-﻿using BrightWire.Models;
+﻿using BrightTable;
+using BrightWire.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,13 +12,14 @@ namespace BrightWire.TreeBased.Training
     /// </summary>
     static class RandomForestTrainer
     {
-        public static RandomForest Train(IDataTable table, int b = 100, DecisionTreeTrainer.Config config = null)
+        public static RandomForest Train(IColumnOrientedDataTable table, int b = 100, DecisionTreeTrainer.Config config = null)
         {
             config = config ?? new DecisionTreeTrainer.Config();
+            var columnAnalysis = table.Analyse();
 
             // set the feature bag count as the square root of the total number of features
             if(!config.FeatureBagCount.HasValue)
-                config.FeatureBagCount = Convert.ToInt32(Math.Round(Math.Sqrt(table.Columns.Sum(c => c.IsContinuous ? 1 : c.NumDistinct))));
+                config.FeatureBagCount = Convert.ToInt32(Math.Round(Math.Sqrt(columnAnalysis.Sum(c => c.GetColumnType().IsContinuous() ? 1 : c.GetNumDistinct()))));
 
             // repeatedly train a decision tree on a bagged subset of features
             var ret = new List<DecisionTree>();

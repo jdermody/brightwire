@@ -4,40 +4,30 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
-using ProtoBuf;
 
 namespace BrightWire.Models
 {
 	/// <summary>
 	/// 
 	/// </summary>
-	[ProtoContract]
 	public class ConfusionMatrix
 	{
-		[ProtoContract]
 		public class ActualClassification
 		{
-			[ProtoMember(1)]
 			public int ClassificationIndex { get; set; }
 
-			[ProtoMember(2)]
 			public uint Count { get; set; }
 		}
 
-		[ProtoContract]
 		public class ExpectedClassification
 		{
-			[ProtoMember(1)]
 			public int ClassificationIndex { get; set; }
 
-			[ProtoMember(2)]
 			public ActualClassification[] ActualClassifications { get; set; }
 		}
 
-		[ProtoMember(1)]
 		public string[] ClassificationLabels { get; set; }
 
-		[ProtoMember(2)]
 		public ExpectedClassification[] Classifications { get; set; }
 
 		public string AsXml

@@ -16,7 +16,6 @@ namespace BrightTable
     class RowOrientedDataTable : DataTableBase, IRowOrientedDataTable
     {
         readonly ColumnInfo[] _columns;
-        readonly ColumnType[] _columnTypes;
         readonly uint[] _rowOffset;
         readonly InputData _data;
         readonly Func<BinaryReader, object>[] _columnReaders;
@@ -30,7 +29,7 @@ namespace BrightTable
                 var version = reader.ReadInt32();
                 if (version > Consts.DataTableVersion)
                     throw new Exception($"Data table version {version} exceeds {Consts.DataTableVersion}");
-                var orientation = (DataTableOrientation) reader.ReadInt32();
+                var orientation = (DataTableOrientation)reader.ReadInt32();
                 if (orientation != DataTableOrientation.RowOriented)
                     throw new Exception("Invalid orientation");
             }
@@ -39,7 +38,7 @@ namespace BrightTable
             _columns = new ColumnInfo[numColumns];
             for (uint i = 0; i < numColumns; i++)
                 _columns[i] = new ColumnInfo(reader, i);
-            _columnTypes = _columns.Select(c => c.ColumnType).ToArray();
+            ColumnTypes = _columns.Select(c => c.ColumnType).ToArray();
 
             uint rowCount = reader.ReadUInt32();
             _rowOffset = new uint[rowCount];
@@ -49,7 +48,7 @@ namespace BrightTable
             RowCount = (uint)_rowOffset.Length;
             ColumnCount = (uint)_columns.Length;
 
-            _columnReaders = _columnTypes.Select(ct => _GetReader(ct)).ToArray();
+            _columnReaders = ColumnTypes.Select(ct => _GetReader(ct)).ToArray();
         }
 
         public void Dispose()
@@ -58,13 +57,13 @@ namespace BrightTable
         }
 
         public DataTableOrientation Orientation => DataTableOrientation.RowOriented;
-        public IReadOnlyList<ColumnType> ColumnTypes => _columnTypes;
+        public ColumnType[] ColumnTypes { get; }
 
         public IReadOnlyList<IDataTableSegment> Rows(params uint[] rowIndices)
         {
             var ret = new List<IDataTableSegment>();
             if (rowIndices.Any()) {
-                ForEachRow(rowIndices, row => ret.Add(new Row(_columnTypes, row)));
+                ForEachRow(rowIndices, row => ret.Add(new Row(ColumnTypes, row)));
             }
 
             return ret;
@@ -89,7 +88,7 @@ namespace BrightTable
         public IReadOnlyList<ISingleTypeTableSegment> Columns(params uint[] columnIndices)
         {
             // TODO: optionally compress the columns based on unique count statistics
-            var columns = columnIndices.Select(i => (Index: i, Column: _GetColumn(_columnTypes[i], _columns[i].MetaData))).ToList();
+            var columns = columnIndices.Select(i => (Index: i, Column: _GetColumn(ColumnTypes[i], _columns[i].MetaData))).ToList();
             if (columns.Any()) {
                 // set the column metadata
                 columns.ForEach(item => {
@@ -153,7 +152,7 @@ namespace BrightTable
 
             builder.WriteHeader(ColumnCount, RowCount);
             var columns = Columns(Enumerable.Range(0, _columns.Length).Select(i => (uint)i).ToArray());
-            foreach(var column in columns) {
+            foreach (var column in columns) {
                 var position = builder.Write(column);
                 columnOffsets.Add((position, builder.GetCurrentPosition()));
             }
@@ -165,7 +164,7 @@ namespace BrightTable
         {
             var type = typeof(InMemoryBuffer<>).MakeGenericType(columnType.GetColumnType());
             var ret = Activator.CreateInstance(type, Context, columnType, metadata, RowCount);
-            return ((ISingleTypeTableSegment) ret, (IEditableBuffer) ret);
+            return ((ISingleTypeTableSegment)ret, (IEditableBuffer)ret);
         }
 
         private object _ReadString(BinaryReader reader) => reader.ReadString();
@@ -187,46 +186,46 @@ namespace BrightTable
         private object _ReadBinaryData(BinaryReader reader) => new BinaryData(reader);
 
         Func<BinaryReader, object> _GetReader(ColumnType type)
-		{
-			switch (type) {
-				case ColumnType.String:
-					return _ReadString;
-				case ColumnType.Double:
-					return _ReadDouble;
-				case ColumnType.Decimal:
-					return _ReadDecimal;
-				case ColumnType.Int:
-					return _ReadInt32;
-				case ColumnType.Short:
-					return _ReadInt16;
-				case ColumnType.Float:
-					return _ReadSingle;
-				case ColumnType.Boolean:
-					return _ReadBoolean;
-				case ColumnType.Date:
+        {
+            switch (type) {
+                case ColumnType.String:
+                    return _ReadString;
+                case ColumnType.Double:
+                    return _ReadDouble;
+                case ColumnType.Decimal:
+                    return _ReadDecimal;
+                case ColumnType.Int:
+                    return _ReadInt32;
+                case ColumnType.Short:
+                    return _ReadInt16;
+                case ColumnType.Float:
+                    return _ReadSingle;
+                case ColumnType.Boolean:
+                    return _ReadBoolean;
+                case ColumnType.Date:
                     return _ReadDate;
                 case ColumnType.Long:
-					return _ReadInt64;
-				case ColumnType.Byte:
-					return _ReadByte;
-				case ColumnType.IndexList:
+                    return _ReadInt64;
+                case ColumnType.Byte:
+                    return _ReadByte;
+                case ColumnType.IndexList:
                     return _ReadIndexList;
                 case ColumnType.WeightedIndexList:
-					return _ReadWeightedIndexList;
-				case ColumnType.Vector:
+                    return _ReadWeightedIndexList;
+                case ColumnType.Vector:
                     return _ReadVector;
                 case ColumnType.Matrix:
-					return _ReadMatrix;
-				case ColumnType.Tensor3D:
+                    return _ReadMatrix;
+                case ColumnType.Tensor3D:
                     return _ReadTensor3D;
-				case ColumnType.Tensor4D:
-					return _ReadTensor4D;
+                case ColumnType.Tensor4D:
+                    return _ReadTensor4D;
                 case ColumnType.BinaryData:
                     return _ReadBinaryData;
-				default:
-					return null;
-			}
-		}
+                default:
+                    return null;
+            }
+        }
 
         IRowOrientedDataTable _Copy(IReadOnlyList<uint> rowIndices, string filePath)
         {
@@ -248,9 +247,9 @@ namespace BrightTable
         {
             var rowCount = RowCount;
             foreach (var other in others) {
-                if(other.ColumnCount != ColumnCount)
+                if (other.ColumnCount != ColumnCount)
                     throw new ArgumentException("Columns must agree - column count was different");
-                if(_columnTypes.Zip(other.ColumnTypes, (t1, t2) => t1 == t2).Any(v => v == false))
+                if (ColumnTypes.Zip(other.ColumnTypes, (t1, t2) => t1 == t2).Any(v => v == false))
                     throw new ArgumentException("Columns must agree - types were different");
 
                 rowCount += other.RowCount;
@@ -259,7 +258,7 @@ namespace BrightTable
             builder.AddColumnsFrom(this);
 
             ForEachRow(builder.AddRow);
-            foreach(var other in others)
+            foreach (var other in others)
                 other.ForEachRow(builder.AddRow);
             return builder.Build(Context);
         }
@@ -273,9 +272,9 @@ namespace BrightTable
                 var projected = projector(row);
                 if (projected != null) {
                     if (projected.Length > columnTypes.Count) {
-                        for (uint i = 0, len = (uint) projected.Length; i < len; i++) {
+                        for (uint i = 0, len = (uint)projected.Length; i < len; i++) {
                             var type = projected.GetType().GetColumnType();
-                            if(columnTypes.TryGetValue(i, out var existing) && existing != type)
+                            if (columnTypes.TryGetValue(i, out var existing) && existing != type)
                                 throw new Exception($"Column {i} type changed between mutations");
                             columnTypes.Add(i, type);
                         }
@@ -287,7 +286,7 @@ namespace BrightTable
             using var builder = new RowOrientedTableBuilder((uint)mutatedRows.Count, filePath);
             foreach (var column in columnTypes.OrderBy(c => c.Key))
                 builder.AddColumn(column.Value, $"Column {column.Key}");
-            foreach(var row in mutatedRows)
+            foreach (var row in mutatedRows)
                 builder.AddRow(row);
             return builder.Build(Context);
         }

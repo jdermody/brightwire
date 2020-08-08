@@ -1,4 +1,5 @@
-﻿using BrightWire.Models;
+﻿using BrightTable;
+using BrightWire.Models;
 using BrightWire.Models.Bayesian;
 using System;
 using System.Collections.Generic;
@@ -581,23 +582,40 @@ namespace BrightWire
 	/// <summary>
 	/// Encodes data table rows to dense vectors
 	/// </summary>
-	public interface IRowEncoder
-	{
-		/// <summary>
-		/// Encodes a data table row to a dense vector
-		/// </summary>
-		/// <param name="row">The row to encode</param>
-		float[] Encode(IRow row);
-	}
+	//public interface IRowEncoder
+	//{
+	//	/// <summary>
+	//	/// Encodes a data table row to a dense vector
+	//	/// </summary>
+	//	/// <param name="row">The row to encode</param>
+	//	float[] Encode(IRow row);
+	//}
 
 	/// <summary>
 	/// An interface to retrieve the implicitly created vectorised for non linear algebra data tables
 	/// </summary>
-	public interface IHaveDataTableVectoriser
+	//public interface IHaveDataTableVectoriser
+	//{
+	//	/// <summary>
+	//	/// The implicitly created data table vectoriser
+	//	/// </summary>
+	//	IDataTableVectoriser Vectoriser { get; }
+	//}
+
+	/// <summary>
+	/// A classifier that classifies index lists
+	/// </summary>
+	public interface IIndexListClassifier
 	{
 		/// <summary>
-		/// The implicitly created data table vectoriser
+		/// Classifies the input data and returns the classifications with their weights
 		/// </summary>
-		IDataTableVectoriser Vectoriser { get; }
+		/// <param name="indexList">The index list to classify</param>
+		IReadOnlyList<(string Label, float Weight)> Classify(IndexList indexList);
+	}
+
+	public interface IRowClassifier
+	{
+		IReadOnlyList<(string Label, float Weight)> Classify(IConvertibleRow row);
 	}
 }

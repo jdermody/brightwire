@@ -23,6 +23,7 @@ using System.Runtime.Serialization;
 using BrightWire.ExecutionGraph.Action;
 using BrightWire.ExecutionGraph.Node.Output;
 using BrightWire.Source.Helper;
+using BrightTable;
 
 namespace BrightWire.ExecutionGraph
 {
@@ -244,7 +245,7 @@ namespace BrightWire.ExecutionGraph
 		/// <param name="dataTable">The data table to convert</param>
 		/// <param name="vectoriser">Optional data table vectoriser (if the data table contains categorical or index based data)</param>
 		/// <returns></returns>
-		public IDataSource CreateDataSource(IDataTable dataTable, IDataTableVectoriser vectoriser = null)
+		public IDataSource CreateDataSource(IRowOrientedDataTable dataTable, IDataTableVectoriser vectoriser = null)
 		{
 			var columns = dataTable.Columns;
 			var dataColumnTypes = columns
@@ -296,7 +297,7 @@ namespace BrightWire.ExecutionGraph
 		/// <param name="learningContext">Learning context to use while training the preliminary graph</param>
 		/// <param name="dataConversionBuilder">Callback to build the preliminary graph</param>
 		/// <returns></returns>
-		public IDataSource CreateDataSource(IDataTable dataTable, ILearningContext learningContext, Action<WireBuilder> dataConversionBuilder)
+		public IDataSource CreateDataSource(IRowOrientedDataTable dataTable, ILearningContext learningContext, Action<WireBuilder> dataConversionBuilder)
 		{
 			var columns = dataTable.Columns;
 			if (columns.Count == 2) {
@@ -317,7 +318,7 @@ namespace BrightWire.ExecutionGraph
 		/// <param name="dataSource">The serialised preliminary graph</param>
 		/// <param name="learningContext">Learning context to use while training the preliminary graph</param>
 		/// <returns></returns>
-		public IDataSource CreateDataSource(IDataTable dataTable, DataSourceModel dataSource, ILearningContext learningContext = null)
+		public IDataSource CreateDataSource(IRowOrientedDataTable dataTable, DataSourceModel dataSource, ILearningContext learningContext = null)
 		{
 			var input = this.CreateFrom(dataSource.Graph);
 

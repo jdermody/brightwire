@@ -9,11 +9,12 @@ namespace BrightTable.Buffers
     class InMemoryBuffer<T> : IDataTableSegment<T>, IEditableBuffer, ICanWriteToBinaryWriter
     {
         readonly T[] _data;
-        readonly IBrightDataContext _context;
 
         public InMemoryBuffer(IBrightDataContext context, ColumnType type, IMetaData metaData, uint size)
         {
-            _context = context;
+            // TODO: implement max size and overflow to disk?
+
+            Context = context;
             SingleType = type;
             Types = new[] { type };
             Size = size;
@@ -32,6 +33,7 @@ namespace BrightTable.Buffers
         {
             _data[index] = (T)value;
         }
+        public IBrightDataContext Context { get; }
         public IEnumerable<T> EnumerateTyped() => _data;
         public IEnumerable<object> Enumerate() => _data.Cast<object>();
         public ColumnType[] Types { get; }

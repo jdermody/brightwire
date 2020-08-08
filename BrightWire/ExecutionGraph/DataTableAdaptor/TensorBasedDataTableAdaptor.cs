@@ -2,6 +2,7 @@
 using System.Linq;
 using BrightWire.Models;
 using BrightWire.ExecutionGraph.Helper;
+using BrightTable;
 
 namespace BrightWire.ExecutionGraph.DataTableAdaptor
 {
@@ -12,7 +13,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
     {
         readonly int _inputSize, _outputSize;
 
-        public TensorBasedDataTableAdaptor(ILinearAlgebraProvider lap, IDataTable dataTable)
+        public TensorBasedDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable)
             : base(lap, dataTable)
         {
             var firstRow = dataTable.GetRow(0);
@@ -25,7 +26,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             Depth = input.Depth;
         }
 
-        TensorBasedDataTableAdaptor(ILinearAlgebraProvider lap, IDataTable dataTable, int inputSize, int outputSize, int rows, int columns, int depth) 
+        TensorBasedDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, int inputSize, int outputSize, int rows, int columns, int depth) 
             :base(lap, dataTable)
         {
             _inputSize = inputSize;
@@ -35,7 +36,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             Depth = depth;
         }
 
-        public override IDataSource CloneWith(IDataTable dataTable)
+        public override IDataSource CloneWith(IRowOrientedDataTable dataTable)
         {
             return new TensorBasedDataTableAdaptor(_lap, dataTable, _inputSize, _outputSize, Height, Width, Depth);
         }

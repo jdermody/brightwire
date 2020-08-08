@@ -79,7 +79,6 @@ namespace BrightTable
         readonly InputData _data;
         readonly long[] _columnOffset;
         readonly Column[] _columns;
-        readonly ColumnType[] _columnTypes;
         readonly Dictionary<uint, ISingleTypeTableSegment> _loadedColumns = new Dictionary<uint, ISingleTypeTableSegment>();
 
         public ColumnOrientedDataTable(IBrightDataContext context, InputData data, bool readHeader) : base(context)
@@ -99,11 +98,11 @@ namespace BrightTable
 
             _columnOffset = new long[ColumnCount];
             _columns = new Column[ColumnCount];
-            _columnTypes = new ColumnType[ColumnCount];
+            ColumnTypes = new ColumnType[ColumnCount];
             for (uint i = 0; i < ColumnCount; i++) {
                 var nextColumnPosition = reader.ReadInt64();
                 _columns[i] = new Column(i, reader);
-                _columnTypes[i] = _columns[i].ColumnType;
+                ColumnTypes[i] = _columns[i].ColumnType;
                 _columnOffset[i] = _data.Position;
                 _data.MoveTo(nextColumnPosition);
             }
@@ -117,7 +116,7 @@ namespace BrightTable
         }
 
         public DataTableOrientation Orientation => DataTableOrientation.ColumnOriented;
-        public IReadOnlyList<ColumnType> ColumnTypes => _columnTypes;
+        public ColumnType[] ColumnTypes { get; }
         public override void ForEachRow(Action<object[]> callback)
         {
             ForEachRow((row, index) => callback(row));

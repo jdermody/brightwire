@@ -1,4 +1,5 @@
-﻿using BrightWire.ExecutionGraph;
+﻿using BrightTable;
+using BrightWire.ExecutionGraph;
 using BrightWire.Models;
 using System;
 using System.Collections.Generic;
@@ -425,12 +426,12 @@ namespace BrightWire
         /// <summary>
         /// The number of inputs that can feed into the graph
         /// </summary>
-        int InputCount { get; }
+        uint InputCount { get; }
 
         /// <summary>
         /// Number of rows
         /// </summary>
-        int RowCount { get; }
+        uint RowCount { get; }
 
         /// <summary>
         /// Gets a mini batch with the specified rows
@@ -456,7 +457,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="dataTable">The new data table</param>
         /// <returns></returns>
-        IDataSource CloneWith(IDataTable dataTable);
+        IDataSource CloneWith(IRowOrientedDataTable dataTable);
     }
 
     /// <summary>

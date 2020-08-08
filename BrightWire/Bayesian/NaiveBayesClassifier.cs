@@ -1,4 +1,5 @@
-﻿using BrightWire.Models.Bayesian;
+﻿using BrightTable;
+using BrightWire.Models.Bayesian;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,11 +13,11 @@ namespace BrightWire.Bayesian
     {
         interface IProbabilityProvider
         {
-            double GetProbability(IRow row);
+            double GetProbability(IConvertibleRow row);
         }
         class CategoricalColumn : IProbabilityProvider
         {
-            readonly int _columnIndex;
+            readonly uint _columnIndex;
             readonly Dictionary<string, double> _probability;
             readonly double _nullValue;
 
@@ -27,7 +28,7 @@ namespace BrightWire.Bayesian
                 _probability = summary.Probability.ToDictionary(d => d.Category, d => d.LogProbability);
             }
 
-            public double GetProbability(IRow row)
+            public double GetProbability(IConvertibleRow row)
             {
 	            var val = row.GetField<string>(_columnIndex);
                 if (_probability.TryGetValue(val, out var ret))
@@ -44,7 +45,7 @@ namespace BrightWire.Bayesian
                 _column = column;
             }
 
-            public double GetProbability(IRow row)
+            public double GetProbability(IConvertibleRow row)
             {
                 double x = row.GetField<double>(_column.ColumnIndex);
                 var exponent = Math.Exp(-1 * Math.Pow(x - _column.Mean, 2) / (2 * _column.Variance));
@@ -67,7 +68,7 @@ namespace BrightWire.Bayesian
             }
         }
 
-        Dictionary<string, double> _Classify(IRow row)
+        Dictionary<string, double> _Classify(IConvertibleRow row)
         {
             var ret = new Dictionary<string, double>();
             foreach (var cls in _classProbability) {
@@ -84,7 +85,7 @@ namespace BrightWire.Bayesian
         /// </summary>
         /// <param name="row"></param>
         /// <returns></returns>
-        public IReadOnlyList<(string Label, float Weight)> Classify(IRow row)
+        public IReadOnlyList<(string Label, float Weight)> Classify(IConvertibleRow row)
         {
             return _Classify(row)
                 .OrderByDescending(kv => kv.Value)

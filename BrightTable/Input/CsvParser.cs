@@ -6,7 +6,7 @@ using System.Text;
 
 namespace BrightTable.Input
 {
-    public class CsvParser2
+    public class CsvParser
     {
         readonly StreamReader _stream;
         readonly char _delimiter;
@@ -17,7 +17,7 @@ namespace BrightTable.Input
         int _currIndex;
         bool _inQuote;
 
-        public CsvParser2(StreamReader stream, char delimiter, bool hasHeader, char quote = '"')
+        public CsvParser(StreamReader stream, char delimiter, bool hasHeader, char quote = '"')
         {
             _stream = stream;
             _delimiter = delimiter;

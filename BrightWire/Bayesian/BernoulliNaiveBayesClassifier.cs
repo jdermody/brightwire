@@ -1,4 +1,5 @@
-﻿using BrightWire.Models;
+﻿using BrightTable;
+using BrightWire.Models;
 using BrightWire.Models.Bayesian;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -76,17 +77,6 @@ namespace BrightWire.Bayesian
                 .Select((d, i) => (d.Item1, 1f))
                 .ToList()
             ;
-        }
-
-        public IReadOnlyList<(string Label, float Weight)> Classify(IRow row)
-        {
-	        var indexColumn = row.Table.Columns.First(r => r.Type == ColumnType.IndexList || r.Type == ColumnType.WeightedIndexList);
-	        IndexList indexList;
-	        if (indexColumn.Type == ColumnType.IndexList)
-		        indexList = row.GetField<IndexList>(indexColumn.Index);
-	        else
-		        indexList = row.GetField<WeightedIndexList>(indexColumn.Index).AsIndexList();
-            return Classify(indexList);
         }
     }
 }

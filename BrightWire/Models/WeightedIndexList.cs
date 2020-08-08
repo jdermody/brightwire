@@ -1,5 +1,4 @@
-﻿using ProtoBuf;
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -11,32 +10,27 @@ namespace BrightWire.Models
     /// <summary>
     /// A protobuf serialisable sparse array of weighted indices
     /// </summary>
-    [ProtoContract]
     public class WeightedIndexList
     {
         /// <summary>
         /// A weighted index
         /// </summary>
-        [ProtoContract]
         public class WeightedIndex
         {
             /// <summary>
             /// Index
             /// </summary>
-            [ProtoMember(1)]
             public uint Index { get; set; }
 
             /// <summary>
             /// Index weight
             /// </summary>
-            [ProtoMember(2)]
             public float Weight { get; set; }
         }
 
         /// <summary>
         /// The list of indices
         /// </summary>
-        [ProtoMember(1)]
         public WeightedIndex[] IndexList { get; set; }
 
         /// <summary>

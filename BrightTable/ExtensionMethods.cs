@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,6 +11,7 @@ using BrightData.Converters;
 using BrightData.Helper;
 using BrightTable.Buffers;
 using BrightTable.Builders;
+using BrightTable.Helper;
 using BrightTable.Input;
 using BrightTable.Segments;
 
@@ -108,31 +110,11 @@ namespace BrightTable
             return ColumnType.Unknown;
         }
 
-        public static bool IsStructable(this ColumnType type) => type switch
-        {
-            ColumnType.Boolean => true,
-            ColumnType.Byte => true,
-            ColumnType.Date => true,
-            ColumnType.Double => true,
-            ColumnType.Decimal => true,
-            ColumnType.Float => true,
-            ColumnType.Short => true,
-            ColumnType.Int => true,
-            ColumnType.Long => true,
-            _ => false
-        };
-
-        public static bool IsNumeric(this ColumnType type) => type switch
-        {
-            ColumnType.Byte => true,
-            ColumnType.Double => true,
-            ColumnType.Decimal => true,
-            ColumnType.Float => true,
-            ColumnType.Short => true,
-            ColumnType.Int => true,
-            ColumnType.Long => true,
-            _ => false
-        };
+        public static bool IsStructable(this ColumnType columnType) => ColumnTypeClassifier.IsStructable(columnType);
+        public static bool IsNumeric(this ColumnType columnType) => ColumnTypeClassifier.IsNumeric(columnType);
+        public static bool IsDecimal(this ColumnType columnType) => ColumnTypeClassifier.IsDecimal(columnType);
+        public static bool IsContinuous(this ColumnType columnType) => ColumnTypeClassifier.IsContinuous(columnType);
+        public static bool IsCategorical(this ColumnType columnType) => ColumnTypeClassifier.IsCategorical(columnType);
 
         public static bool IsInteger(this ColumnType type) => type switch
         {
@@ -278,27 +260,6 @@ namespace BrightTable
         public static IReadOnlyList<ISingleTypeTableSegment> AllColumns(this IDataTable dataTable) => dataTable.Columns(Range(0, dataTable.ColumnCount).ToArray());
         public static IReadOnlyList<IDataTableSegment> AllRows(this IRowOrientedDataTable dataTable) => dataTable.Rows(Range(0, dataTable.RowCount).ToArray());
 
-        //public static IColumnOrientedDataTable ParseCsvText(this IBrightDataContext context, string csv, bool hasHeader, char delimiter = ',', string filePath = null, string tempPath = null)
-        //{
-        //    var reader = new SimpleStringReader(csv);
-        //    return _ParseCsv(context, reader, hasHeader, delimiter, filePath, tempPath);
-        //}
-
-        //public static IColumnOrientedDataTable ParseCsvFile(this IBrightDataContext context, string csvFilePath, bool hasHeader, char delimiter = ',', string filePath = null, string tempPath = null)
-        //{
-        //    using var reader = new FileReader(csvFilePath);
-        //    return _ParseCsv(context, reader, hasHeader, delimiter, filePath, tempPath);
-        //}
-
-        //static IColumnOrientedDataTable _ParseCsv(IBrightDataContext context, IStringIterator reader, bool hasHeader, char delimiter = ',', string filePath = null, string tempPath = null)
-        //{
-        //    using var parser = new CsvParser(delimiter, 32768 * 32, tempPath);
-        //    parser.Parse(reader, hasHeader);
-        //    var builder = new ColumnOrientedTableBuilder(filePath);
-        //    builder.Write(parser.LineCount, parser.Columns);
-        //    return builder.Build(context);
-        //}
-
         public static IColumnOrientedDataTable ParseCsv(
             this IBrightDataContext context,
             string filePath,
@@ -306,8 +267,8 @@ namespace BrightTable
             char delimiter = ',',
             string fileOutputPath = null,
             bool writeProgress = false,
-            string tempBasePath = null,
-            uint maxRowsInMemory = 32768 * 32
+            string tempBasePath = null
+            //uint maxRowsInMemory = 32768 * 32
         )
         {
             using var tempStreams = new TempStreamManager(tempBasePath);
@@ -316,7 +277,7 @@ namespace BrightTable
             uint rowCount = 0;
 
             using (var reader = new StreamReader(filePath)) {
-                var parser = new CsvParser2(reader, delimiter, hasHeader);
+                var parser = new CsvParser(reader, delimiter, hasHeader);
 
                 if (writeProgress) {
                     var progress = -1;
@@ -328,7 +289,7 @@ namespace BrightTable
                     var cols = row.Length;
 
                     for (var i = columns.Count; i < cols; i++) {
-                        var buffer = new EncodingBuffer<string>(new HybridStringBuffer(context, (uint) i, tempStreams));
+                        var buffer = new EncodingBuffer<string>(new HybridStringBuffer(context, (uint)i, tempStreams));
                         columns.Add(new GrowableSegment<string>(ColumnType.String, new MetaData(), buffer));
                     }
 
@@ -354,11 +315,6 @@ namespace BrightTable
             }
 
             return columns.BuildColumnOrientedTable(context, rowCount, fileOutputPath);
-
-            //var builder = new ColumnOrientedTableBuilder(fileOutputPath);
-            //builder.Write(rowCount, columns, writeProgress);
-            //columns.ForEach(c => c.Dispose());
-            //return builder.Build(context);
         }
 
         public static void WriteProgress(this int newProgress, ref int oldProgress, int max = 100)
@@ -400,7 +356,7 @@ namespace BrightTable
             where T : struct
         {
             uint index = 0;
-            var converter = new ConvertToFloat<T>();
+            var converter = column.Context.GetFloatConverter<T>();
 
             foreach (var item in column.EnumerateTyped().Take((int)vector.Size))
                 vector[index++] = converter.Convert(item);
@@ -414,19 +370,22 @@ namespace BrightTable
             return (uint)copySegment.Invoke(null, new object[] { column, vector });
         }
 
-        public static void Set<T>(this ITensorSegment<T> vector, Func<uint, T> getValue)
-            where T: struct
-        {
-            for(uint i = 0, len = vector.Size; i < len; i++)
-                vector[i] = getValue(i);
-        }
-
         public static void SetTargetColumn(this IDataTable table, uint? columnIndex)
         {
             var metaData = table.AllMetaData();
-            for(uint i = 0; i < table.ColumnCount; i++) {
+            for (uint i = 0; i < table.ColumnCount; i++) {
                 metaData[(int)i].Set(Consts.IsTarget, i == columnIndex);
             }
+        }
+
+        public static uint? GetTargetColumn(this IDataTable table)
+        {
+            var metaData = table.AllMetaData();
+            for (uint i = 0; i < table.ColumnCount; i++) {
+                if (metaData[(int)i].Get<bool>(Consts.IsTarget))
+                    return i;
+            }
+            return null;
         }
 
         public static void SetFeatureColumn(this IDataTable table, params uint[] columnIndices)
@@ -462,16 +421,15 @@ namespace BrightTable
                     tempStream,
                     bufferSize
                 );
-            }else if (type == ColumnType.String) {
+            } else if (type == ColumnType.String) {
                 buffer = (IAutoGrowBuffer)Activator.CreateInstance(typeof(HybridStringBuffer),
                     context,
                     forColumn.Index,
                     tempStream,
                     bufferSize
                 );
-            }
-            else {
-                buffer = (IAutoGrowBuffer) Activator.CreateInstance(typeof(HybridObjectBuffer<>).MakeGenericType(type.GetColumnType()),
+            } else {
+                buffer = (IAutoGrowBuffer)Activator.CreateInstance(typeof(HybridObjectBuffer<>).MakeGenericType(type.GetColumnType()),
                     context,
                     forColumn.Index,
                     tempStream,
@@ -481,7 +439,7 @@ namespace BrightTable
 
             if (tryEncode) {
                 var encoderType = typeof(EncodingBuffer<>).MakeGenericType(columnType);
-                buffer = (IAutoGrowBuffer) Activator.CreateInstance(encoderType, new object[] {buffer, bufferSize});
+                buffer = (IAutoGrowBuffer)Activator.CreateInstance(encoderType, new object[] { buffer, bufferSize });
             }
 
             var segmentType = typeof(GrowableSegment<>).MakeGenericType(columnType);
@@ -491,7 +449,7 @@ namespace BrightTable
                 buffer
             );
 
-            return (IAutoGrowBuffer) ret;
+            return (IAutoGrowBuffer)ret;
         }
 
         public static IColumnOrientedDataTable BuildColumnOrientedTable(this IReadOnlyList<ISingleTypeTableSegment> segments, IBrightDataContext context, uint rowCount, string filePath = null)
@@ -501,7 +459,7 @@ namespace BrightTable
             using var builder = new ColumnOrientedTableBuilder(filePath);
 
             builder.WriteHeader(columnCount, rowCount);
-            foreach(var segment in segments) {
+            foreach (var segment in segments) {
                 var position = builder.Write(segment);
                 columnOffsets.Add((position, builder.GetCurrentPosition()));
             }
@@ -538,5 +496,66 @@ namespace BrightTable
                 return column;
             return new ColumnInfo(column.Index, newType, new MetaData(column.MetaData, Consts.Index, Consts.Name));
         }
+
+        public static IConvertibleTable AsConvertible(this IRowOrientedDataTable dataTable)
+        {
+            return new DataTableConverter(dataTable);
+        }
+
+        public static IEnumerable<(float[] Numeric, string Other)> ForEachAsFloat(
+            this IDataTable dataTable, 
+            Action<IReadOnlyList<uint>> numericRows = null,
+            Action<IReadOnlyList<uint>> otherRows = null)
+        {
+            var numericColumnIndex = new List<uint>();
+            var otherColumnIndex = new List<uint>();
+            uint index = 0;
+
+            foreach (var column in dataTable.ColumnTypes) {
+                if (ColumnTypeClassifier.IsNumeric(column)) {
+                    numericColumnIndex.Add(index);
+                } else
+                    otherColumnIndex.Add(index);
+                ++index;
+            }
+            if (!numericColumnIndex.Any())
+                throw new ArgumentException("No numeric columns");
+
+            numericRows?.Invoke(numericColumnIndex.AsReadOnly());
+            otherRows?.Invoke(otherColumnIndex.AsReadOnly());
+
+            var rowCount = dataTable.RowCount;
+            var numericColumns = dataTable
+                .Columns(numericColumnIndex.ToArray())
+                .Select(c => {
+                    var vector = dataTable.Context.CreateVector<float>(rowCount);
+                    c.CopyTo(vector.Data);
+                    return vector;
+                })
+                .ToList()
+            ;
+            var otherColumns = new List<object[]>();
+            if (otherColumnIndex.Any())
+                otherColumns.AddRange(dataTable.Columns(otherColumnIndex.ToArray()).Select(c => c.Enumerate().ToArray()));
+
+            var numericCount = numericColumns.Count;
+            var otherCount = otherColumns.Count;
+            var row = new float[numericCount];
+            var sb = new StringBuilder();
+            for (uint i = 0, len = dataTable.RowCount; i < len; i++) {
+                for (var j = 0; j < numericCount; j++)
+                    row[j] = numericColumns[j][i];
+                for (var j = 0; j < otherCount; j++) {
+                    if(j > 0)
+                        sb.Append(", ");
+                    sb.Append(otherColumns[j][i].ToString());
+                }
+                yield return (row, sb.ToString());
+                sb.Clear();
+            }
+        }
+
+        public static ColumnType GetColumnType(this IMetaData metadata) => metadata.Get<ColumnType>(Consts.Type);
+        public static int GetNumDistinct(this IMetaData metadata) => metadata.Get<int>(Consts.NumDistinct, -1);
     }
 }

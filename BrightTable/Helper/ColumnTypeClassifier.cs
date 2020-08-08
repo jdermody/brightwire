@@ -7,7 +7,7 @@ namespace BrightTable.Helper
     /// <summary>
     /// Classifies data table column types
     /// </summary>
-    static class ColumnTypeClassifier
+    public static class ColumnTypeClassifier
     {
         static readonly HashSet<ColumnType> _continuousType = new HashSet<ColumnType> {
             ColumnType.Date,
@@ -37,25 +37,22 @@ namespace BrightTable.Helper
             ColumnType.Decimal,
             ColumnType.Float
         };
+        static readonly HashSet<ColumnType> _structableType = new HashSet<ColumnType> {
+            ColumnType.Boolean,
+            ColumnType.Byte,
+            ColumnType.Date,
+            ColumnType.Double,
+            ColumnType.Decimal,
+            ColumnType.Float,
+            ColumnType.Short,
+            ColumnType.Int,
+            ColumnType.Long,
+        };
 
-        public static bool IsDecimal(ColumnType columnType)
-        {
-            return _decimalType.Contains(columnType);
-        }
-
-        public static bool IsNumeric(ColumnType columnType)
-        {
-            return _numericType.Contains(columnType);
-        }
-
-        public static bool IsContinuous(ColumnType columnType)
-        {
-            return _continuousType.Contains(columnType);
-        }
-
-        public static bool IsCategorical(ColumnType columnType)
-        {
-            return _categoricalType.Contains(columnType);
-        }
+        public static bool IsDecimal(ColumnType columnType) => _decimalType.Contains(columnType);
+        public static bool IsNumeric(ColumnType columnType) => _numericType.Contains(columnType);
+        public static bool IsContinuous(ColumnType columnType) => _continuousType.Contains(columnType);
+        public static bool IsCategorical(ColumnType columnType) => _categoricalType.Contains(columnType);
+        public static bool IsStructable(ColumnType columnType) => _structableType.Contains(columnType);
     }
 }

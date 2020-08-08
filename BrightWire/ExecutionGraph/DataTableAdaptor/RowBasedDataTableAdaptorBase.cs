@@ -1,16 +1,18 @@
-﻿namespace BrightWire.ExecutionGraph.DataTableAdaptor
+﻿using BrightTable;
+
+namespace BrightWire.ExecutionGraph.DataTableAdaptor
 {
     /// <summary>
     /// Base class for data tables that work with data table rows
     /// </summary>
-    public abstract class RowBasedDataTableAdaptorBase : DataTableAdaptorBase<IRow>
+    public abstract class RowBasedDataTableAdaptorBase : DataTableAdaptorBase<object[]>
     {
 	    /// <inheritdoc />
-	    protected RowBasedDataTableAdaptorBase(ILinearAlgebraProvider lap, IDataTable dataTable) 
+	    protected RowBasedDataTableAdaptorBase(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable) 
             : base(lap, dataTable)
         {
             // read the entire data table into memory
-            dataTable.ForEach(row => _data.Add(row));
+            dataTable.ForEachRow(row => _data.Add(row));
         }
     }
 }

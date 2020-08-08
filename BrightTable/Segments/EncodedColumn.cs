@@ -12,11 +12,10 @@ namespace BrightTable.Segments
     {
         readonly T[] _data;
         readonly InputBufferReader _buffer;
-        readonly IBrightDataContext _context;
 
         public EncodedColumn(IBrightDataContext context, InputBufferReader buffer, ColumnType type, IMetaData metadata)
         {
-            _context = context;
+            Context = context;
             _buffer = buffer;
             SingleType = type;
             Types = new[] { type };
@@ -52,6 +51,7 @@ namespace BrightTable.Segments
             }
         }
 
+        public IBrightDataContext Context { get; }
         public ColumnType SingleType { get; }
         public IMetaData MetaData { get; }
         public ColumnType[] Types { get; }
@@ -88,7 +88,7 @@ namespace BrightTable.Segments
 
         public IEnumerable<object> Enumerate()
         {
-            foreach(var item in EnumerateTyped())
+            foreach (var item in EnumerateTyped())
                 yield return item;
         }
     }

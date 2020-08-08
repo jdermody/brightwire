@@ -18,13 +18,6 @@ namespace BrightData.Analysis
         {
             foreach(var index in obj.Indices)
                 _Add(index);
-            //if (obj is IndexList indexList) {
-            //    foreach (var index in indexList.Indices)
-            //        _Add(index);
-            //}else if (obj is WeightedIndexList weightedIndexList) {
-            //    foreach(var index in weightedIndexList.Indices)
-            //        _Add(index.Index);
-            //}
         }
 
         void _Add(uint index)
