@@ -18,7 +18,7 @@ namespace BrightTable.Transformations
             where T: struct
         {
             readonly IEnumerator<T> _enumerator;
-            readonly ConvertToFloat<T> _converter = new ConvertToFloat<T>();
+            readonly ConvertToFloat2<T> _converter = new ConvertToFloat2<T>();
 
             public NumericVectoriser(ISingleTypeTableSegment column)
             {

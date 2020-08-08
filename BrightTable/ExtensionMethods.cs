@@ -125,14 +125,6 @@ namespace BrightTable
             _ => false
         };
 
-        public static bool IsDecimal(this ColumnType type) => type switch
-        {
-            ColumnType.Double => true,
-            ColumnType.Decimal => true,
-            ColumnType.Float => true,
-            _ => false
-        };
-
         public static bool IsIndexed(this ColumnType type) => type switch
         {
             ColumnType.IndexList => true,

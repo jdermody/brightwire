@@ -1,6 +1,4 @@
 ﻿using BrightWire.Models.Bayesian;
-using BrightWire.TabularData.Analysis;
-using BrightWire.TabularData.Helper;
 using System;
 using System.Collections.Generic;
 using System.Linq;

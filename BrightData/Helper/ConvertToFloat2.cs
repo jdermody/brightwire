@@ -2,14 +2,14 @@
 
 namespace BrightData.Helper
 {
-    public class ConvertToFloat<T>
+    public class ConvertToFloat2<T>
         where T: struct
     {
         readonly Lazy<GenericConverter<float>> _genericConverter = new Lazy<GenericConverter<float>>();
         readonly bool _throwOnFailure;
         readonly Func<T, float> _converter;
 
-        public ConvertToFloat(bool throwOnFailure = false)
+        public ConvertToFloat2(bool throwOnFailure = false)
         {
             var from = Type.GetTypeCode(typeof(T));
             _throwOnFailure = throwOnFailure;

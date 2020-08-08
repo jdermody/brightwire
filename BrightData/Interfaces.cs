@@ -108,7 +108,6 @@ namespace BrightData
         T Get<T>(string name);
         T Set<T>(string name, T value);
         T Set<T>(string name, Func<T> valueCreator);
-        IComputableFactory ComputableFactory { get; set; }
     }
 
     public interface ITensorSegment<T> : IReferenceCountedMemory, IDisposable
