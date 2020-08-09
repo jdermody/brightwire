@@ -104,12 +104,12 @@ namespace BrightWire.ExecutionGraph
         /// <param name="analysis"></param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
-        public WireBuilder AddClassifier(IRowClassifier classifier, IDataTable dataTable, IDataTableAnalysis analysis = null, string name = null)
-        {
-            var node = _factory.CreateClassifier(classifier, dataTable, analysis, name);
-            _SetNode(node.RowClassifier);
-            return SetNewSize(node.OutputSize);
-        }
+        //public WireBuilder AddClassifier(IRowClassifier classifier, IDataTable dataTable, IDataTableAnalysis analysis = null, string name = null)
+        //{
+        //    var node = _factory.CreateClassifier(classifier, dataTable, analysis, name);
+        //    _SetNode(node.RowClassifier);
+        //    return SetNewSize(node.OutputSize);
+        //}
 
         /// <summary>
         /// Adds a feed forward layer

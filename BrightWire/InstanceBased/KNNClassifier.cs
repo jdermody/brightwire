@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BrightTable;
 using BrightWire.Models.InstanceBased;
 
 namespace BrightWire.InstanceBased
@@ -27,13 +28,15 @@ namespace BrightWire.InstanceBased
                 _instance.Add(lap.CreateVector(model.Instance[i].Data));
         }
 
-        IEnumerable<Tuple<string, float>> _Classify(IRow row)
+        IEnumerable<Tuple<string, float>> _Classify(IConvertibleRow row)
         {
             // encode the features into a vector
-            var featureCount = _model.FeatureColumn.Length;
+            var featureCount = _model.DataColumns.Length;
             var features = new float[featureCount];
             for (var i = 0; i < featureCount; i++)
-                features[i] = row.GetField<float>(_model.FeatureColumn[i]);
+                features[i] = row.GetField<float>(_model.DataColumns[i]);
+
+            // TODO: categorical features?
 
             // find the k closest neighbours and score the results based on proximity to rank the classifications
             using (var vector = _lap.CreateVector(features)) {
@@ -48,7 +51,7 @@ namespace BrightWire.InstanceBased
             }
         }
 
-        public IReadOnlyList<(string Label, float Weight)> Classify(IRow row)
+        public IReadOnlyList<(string Label, float Weight)> Classify(IConvertibleRow row)
         {
             return _Classify(row)
                 .Select(d => (d.Item1, d.Item2))

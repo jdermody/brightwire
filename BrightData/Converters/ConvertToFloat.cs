@@ -10,7 +10,7 @@ namespace BrightData.Converters
     {
         readonly Func<T, float> _converter;
 
-        public ConvertToFloat()
+        public ConvertToFloat(bool throwOnFailure = false) : base(throwOnFailure)
         {
             _converter = _GetConverter();
         }
@@ -34,7 +34,7 @@ namespace BrightData.Converters
                 case TypeCode.Decimal:
                     return _FromDecimal;
                 default:
-                    throw new NotImplementedException();
+                    return _ConvertGeneric;
             }
         }
 
@@ -44,6 +44,13 @@ namespace BrightData.Converters
         float _FromInt16(T data) => _GetInt16(data);
         float _FromInt32(T data) => _GetInt32(data);
         float _FromInt64(T data) => _GetInt64(data);
+        float _ConvertGeneric(T data)
+        {
+            var (ret, wasConverted) = _genericConverter.Value.ConvertValue(data);
+            if(!wasConverted && _throwOnFailure)
+                throw new ArgumentException($"Could not convert {data} to float");
+            return (float)ret;
+        }
 
         public float Convert(T data) => _converter(data);
         public Type To => typeof(float);

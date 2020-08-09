@@ -24,8 +24,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             FloatMatrix inputMatrix = null;
             FloatVector outputVector = null;
             dataTable.ForEachRow((row, i) => {
-                inputMatrix = row.GetField<FloatMatrix>(_dataColumnIndex[0]);
-                outputVector = row.GetField<FloatVector>(_dataTargetIndex);
+                inputMatrix = (FloatMatrix)row[_dataColumnIndex[0]];
+                outputVector = (FloatVector)row[_dataTargetIndex];
                 _rowDepth[i] = inputMatrix.RowCount;
                 if (inputMatrix.ColumnCount != outputVector.Size)
                     throw new ArgumentException("Rows between input and output data tables do not match");
@@ -57,7 +57,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         public override IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<int> rows)
         {
             var data = _GetRows(rows)
-                .Select(r => ((FloatMatrix)r.Data[_dataColumnIndex[0]], (FloatVector)r.Data[_dataTargetIndex]))
+                .Select(r => ((FloatMatrix)r[_dataColumnIndex[0]], (FloatVector)r[_dataTargetIndex]))
                 .ToList()
             ;
             var inputData = new Dictionary<int, List<FloatVector>>();

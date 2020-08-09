@@ -24,6 +24,7 @@ using BrightWire.ExecutionGraph.Action;
 using BrightWire.ExecutionGraph.Node.Output;
 using BrightWire.Source.Helper;
 using BrightTable;
+using BrightTable.Transformations;
 
 namespace BrightWire.ExecutionGraph
 {
@@ -245,18 +246,18 @@ namespace BrightWire.ExecutionGraph
 		/// <param name="dataTable">The data table to convert</param>
 		/// <param name="vectoriser">Optional data table vectoriser (if the data table contains categorical or index based data)</param>
 		/// <returns></returns>
-		public IDataSource CreateDataSource(IRowOrientedDataTable dataTable, IDataTableVectoriser vectoriser = null)
+		public IDataSource CreateDataSource(IRowOrientedDataTable dataTable, DataTableVectoriser vectoriser = null)
 		{
-			var columns = dataTable.Columns;
+			var columns = dataTable.ColumnTypes;
+			var targetColumn = dataTable.GetTargetColumn() ?? throw new Exception("");
 			var dataColumnTypes = columns
-				.Where((c, i) => i != dataTable.TargetColumnIndex)
-				.Select(c => c.Type)
+				.Where((c, i) => i != targetColumn)
 				.ToList()
 			;
-			var targetColumnType = columns[dataTable.TargetColumnIndex].Type;
+			var targetColumnType = columns[targetColumn];
 			var firstDataColumnType = dataColumnTypes.FirstOrDefault();
 
-			if (firstDataColumnType != ColumnType.Null && dataColumnTypes.All(ct => ct == firstDataColumnType)) {
+			if (firstDataColumnType != ColumnType.Unknown && dataColumnTypes.All(ct => ct == firstDataColumnType)) {
 				// many to many
 				if (firstDataColumnType == ColumnType.Matrix && targetColumnType == ColumnType.Matrix)
 					return new SequentialDataTableAdaptor(_lap, dataTable);
@@ -274,7 +275,7 @@ namespace BrightWire.ExecutionGraph
 					return new ManyToOneDataTableAdaptor(_lap, dataTable);
 
 				// volume classification
-				else if (firstDataColumnType == ColumnType.Tensor && targetColumnType == ColumnType.Vector)
+				else if (firstDataColumnType == ColumnType.Tensor3D && targetColumnType == ColumnType.Vector)
 					return new TensorBasedDataTableAdaptor(_lap, dataTable);
 
 				// index list
@@ -299,10 +300,10 @@ namespace BrightWire.ExecutionGraph
 		/// <returns></returns>
 		public IDataSource CreateDataSource(IRowOrientedDataTable dataTable, ILearningContext learningContext, Action<WireBuilder> dataConversionBuilder)
 		{
-			var columns = dataTable.Columns;
-			if (columns.Count == 2) {
-				var column1 = columns[0].Type;
-				var column2 = columns[1].Type;
+			var columns = dataTable.ColumnTypes;
+			if (columns.Length == 2) {
+				var column1 = columns[0];
+				var column2 = columns[1];
 
 				// sequence to sequence
 				if (column1 == ColumnType.Matrix && column2 == ColumnType.Matrix)
@@ -322,10 +323,10 @@ namespace BrightWire.ExecutionGraph
 		{
 			var input = this.CreateFrom(dataSource.Graph);
 
-			var columns = dataTable.Columns;
-			if (columns.Count == 2) {
-				var column1 = columns[0].Type;
-				var column2 = columns[1].Type;
+			var columns = dataTable.ColumnTypes;
+			if (columns.Length == 2) {
+				var column1 = columns[0];
+				var column2 = columns[1];
 
 				if (column1 == ColumnType.Matrix && column2 == ColumnType.Matrix)
 					return new SequenceToSequenceDataTableAdaptor(_lap, learningContext, dataTable, input, dataSource);
@@ -341,11 +342,11 @@ namespace BrightWire.ExecutionGraph
 		/// <param name="analysis">Optional data table analysis data</param>
 		/// <param name="name">Optional name to give the node</param>
 		/// <returns></returns>
-		public (INode RowClassifier, int OutputSize) CreateClassifier(IRowClassifier classifier, IDataTable dataTable, IDataTableAnalysis analysis = null, string name = null)
-		{
-			var ret = new RowClassifier(_lap, classifier, dataTable, analysis ?? dataTable.GetAnalysis(), name);
-			return (ret, ret.OutputSize);
-		}
+		//public (INode RowClassifier, int OutputSize) CreateClassifier(IRowClassifier classifier, IDataTable dataTable, IDataTableAnalysis analysis = null, string name = null)
+		//{
+		//	var ret = new RowClassifier(_lap, classifier, dataTable, analysis ?? dataTable.GetAnalysis(), name);
+		//	return (ret, ret.OutputSize);
+		//}
 
 		/// <summary>
 		/// Creates a feed forward layer

@@ -25,10 +25,10 @@ namespace BrightWire.ExecutionGraph.Engine
 			_dataSource = dataSource;
 			_isStochastic = lap.IsStochastic;
 			LearningContext = learningContext;
-			learningContext.SetRowCount(dataSource.RowCount);
+			learningContext.SetRowCount((int)dataSource.RowCount);
 
 			if (start == null) {
-				_input = Enumerable.Range(0, dataSource.InputCount).Select(i => new InputFeeder(i)).ToList();
+				_input = Enumerable.Range(0, (int)dataSource.InputCount).Select(i => new InputFeeder(i)).ToList();
 				Start = new FlowThrough();
 				Start.Output.AddRange(_input.Select(i => new WireToNode(i)));
 			} else {

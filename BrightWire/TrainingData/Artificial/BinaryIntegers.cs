@@ -35,30 +35,31 @@ namespace BrightWire.TrainingData.Artificial
         public static IDataTable Addition(int sampleCount, bool stochastic)
         {
             Random rand = stochastic ? new Random() : new Random(0);
-            var builder = DataTableBuilder.CreateTwoColumnMatrix();
+            throw new NotImplementedException();
+            //var builder = DataTableBuilder.CreateTwoColumnMatrix();
 
-            for (var i = 0; i < sampleCount; i++) {
-                // generate some random numbers (sized to prevent overflow)
-                var a = rand.Next(int.MaxValue / 2);
-                var b = rand.Next(int.MaxValue / 2);
+            //for (var i = 0; i < sampleCount; i++) {
+            //    // generate some random numbers (sized to prevent overflow)
+            //    var a = rand.Next(int.MaxValue / 2);
+            //    var b = rand.Next(int.MaxValue / 2);
 
-                var a2 = _GetBitArray(a);
-                var b2 = _GetBitArray(b);
-                var r2 = _GetBitArray(a + b);
+            //    var a2 = _GetBitArray(a);
+            //    var b2 = _GetBitArray(b);
+            //    var r2 = _GetBitArray(a + b);
 
-                var inputList = new FloatVector[r2.Length];
-                var outputList = new FloatVector[r2.Length];
-                for (int j = 0; j < r2.Length; j++) {
-                    inputList[j] = new FloatVector {
-                        Data = new[] { a2[j], b2[j] }
-                    };
-                    outputList[j] = new FloatVector {
-                        Data = new[] { r2[j] }
-                    };
-                }
-                builder.Add(FloatMatrix.Create(inputList), FloatMatrix.Create(outputList));
-            }
-            return builder.Build();
+            //    var inputList = new FloatVector[r2.Length];
+            //    var outputList = new FloatVector[r2.Length];
+            //    for (int j = 0; j < r2.Length; j++) {
+            //        inputList[j] = new FloatVector {
+            //            Data = new[] { a2[j], b2[j] }
+            //        };
+            //        outputList[j] = new FloatVector {
+            //            Data = new[] { r2[j] }
+            //        };
+            //    }
+            //    builder.Add(FloatMatrix.Create(inputList), FloatMatrix.Create(outputList));
+            //}
+            //return builder.Build();
         }
     }
 }

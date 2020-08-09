@@ -15,17 +15,17 @@ namespace BrightWire.TreeBased.Training
     {
         class Attribute
         {
-            readonly int _columnIndex;
+            readonly uint _columnIndex;
             readonly string _category;
             readonly double? _split;
 
-            public Attribute(int columnIndex, string category)
+            public Attribute(uint columnIndex, string category)
             {
                 _columnIndex = columnIndex;
                 _category = category;
                 _split = null;
             }
-            public Attribute(int columnIndex, double split)
+            public Attribute(uint columnIndex, double split)
             {
                 _columnIndex = columnIndex;
                 _category = null;
@@ -49,7 +49,7 @@ namespace BrightWire.TreeBased.Training
                     return $"{_category} ({_columnIndex})";
                 return $"threshold: {_split} ({_columnIndex}";
             }
-            public int ColumnIndex => _columnIndex;
+            public uint ColumnIndex => _columnIndex;
 	        public string Category => _category;
 	        public double? Split => _split;
 
@@ -80,10 +80,10 @@ namespace BrightWire.TreeBased.Training
         }
         class InMemoryRow
         {
-	        readonly Dictionary<int, string> _category = new Dictionary<int, string>();
-            readonly Dictionary<int, double> _continuous = new Dictionary<int, double>();
+	        readonly Dictionary<uint, string> _category = new Dictionary<uint, string>();
+            readonly Dictionary<uint, double> _continuous = new Dictionary<uint, double>();
 
-            public InMemoryRow(IRow row, HashSet<int> categorical, HashSet<int> continuous, int classColumnIndex)
+            public InMemoryRow(IConvertibleRow row, HashSet<uint> categorical, HashSet<uint> continuous, uint classColumnIndex)
             {
                 ClassificationLabel = row.GetField<string>(classColumnIndex);
                 foreach (var columnIndex in categorical)
@@ -93,39 +93,39 @@ namespace BrightWire.TreeBased.Training
             }
             public string ClassificationLabel { get; }
 
-	        public string GetCategory(int columnIndex)
+	        public string GetCategory(uint columnIndex)
             {
                 return _category[columnIndex];
             }
-            public double GetValue(int columnIndex)
+            public double GetValue(uint columnIndex)
             {
                 return _continuous[columnIndex];
             }
         }
         class TableInfo
         {
-            readonly HashSet<int> _categorical = new HashSet<int>();
-            readonly HashSet<int> _continuous = new HashSet<int>();
+            readonly HashSet<uint> _categorical = new HashSet<uint>();
+            readonly HashSet<uint> _continuous = new HashSet<uint>();
             readonly List<InMemoryRow> _data = new List<InMemoryRow>();
 
 			public TableInfo(IRowOrientedDataTable table)
             {
-                ClassColumnIndex = table.GetTargetColumn();
+                ClassColumnIndex = table.GetTargetColumn() ?? throw new ArgumentException("");
                 for (uint i = 0, len = table.ColumnCount; i < len; i++) {
                     if (i != ClassColumnIndex) {
-                        var column = table.Columns[i];
-                        if (column.IsContinuous)
+                        var column = table.ColumnTypes[i];
+                        if (column.IsContinuous())
                             _continuous.Add(i);
                         else if (ColumnTypeClassifier.IsCategorical(column))
                             _categorical.Add(i);
                     }
                 }
-                table.ForEach(row => _data.Add(new InMemoryRow(row, _categorical, _continuous, ClassColumnIndex)));
+                //table.AsConvertible().ForEachRow(row => _data.Add(new InMemoryRow(row, _categorical, _continuous, ClassColumnIndex)));
             }
-            public IEnumerable<int> CategoricalColumns => _categorical;
-	        public IEnumerable<int> ContinuousColumns => _continuous;
+            public IEnumerable<uint> CategoricalColumns => _categorical;
+	        public IEnumerable<uint> ContinuousColumns => _continuous;
 	        public IReadOnlyList<InMemoryRow> Data => _data;
-			public uint? ClassColumnIndex { get; }
+			public uint ClassColumnIndex { get; }
 		}
         class Node
         {
@@ -147,7 +147,7 @@ namespace BrightWire.TreeBased.Training
             public DecisionTree.Node AsDecisionTreeNode()
             {
                 var ret = new DecisionTree.Node {
-                    ColumnIndex = _attribute?.ColumnIndex ?? -1,
+                    ColumnIndex = _attribute != null ? _attribute.ColumnIndex : uint.MaxValue,
                     MatchLabel = MatchLabel,
                     Split = _attribute?.Split,
                     Children = _children?.Select(c => c.AsDecisionTreeNode()).ToArray(),
@@ -160,8 +160,8 @@ namespace BrightWire.TreeBased.Training
             {
                 get
                 {
-                    var continuousValues = new Dictionary<int, HashSet<double>>();
-                    var categoricalValues = new Dictionary<int, HashSet<string>>();
+                    var continuousValues = new Dictionary<uint, HashSet<double>>();
+                    var categoricalValues = new Dictionary<uint, HashSet<string>>();
                     foreach(var item in Data) {
                         foreach(var column in _tableInfo.CategoricalColumns) {
                             if (!categoricalValues.TryGetValue(column, out HashSet<string> temp2))

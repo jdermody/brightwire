@@ -18,16 +18,16 @@ namespace BrightWire.Linear.Training
 
         public LogisticRegressionTrainer(ILinearAlgebraProvider lap, IRowOrientedDataTable table)
         {
-            _lap = lap;
-            var numRows = table.RowCount;
-            var classColumnIndex = table.TargetColumnIndex;
+            //_lap = lap;
+            //var numRows = table.RowCount;
+            //var classColumnIndex = table.TargetColumnIndex;
 
-            int numCols = table.ColumnCount;
-            var featureColumns = Enumerable.Range(0, numCols).Where(c => c != classColumnIndex).ToList();
+            //int numCols = table.ColumnCount;
+            //var featureColumns = Enumerable.Range(0, numCols).Where(c => c != classColumnIndex).ToList();
 
-            var data = table.GetNumericColumns(featureColumns);
-            _feature = lap.CreateMatrix(numRows, numCols, (i, j) => j == 0 ? 1 : data[j - 1][i]);
-            _target = lap.CreateVector(table.GetColumn<float>(classColumnIndex));
+            //var data = table.GetNumericColumns(featureColumns);
+            //_feature = lap.CreateMatrix(numRows, numCols, (i, j) => j == 0 ? 1 : data[j - 1][i]);
+            //_target = lap.CreateVector(table.GetColumn<float>(classColumnIndex));
         }
 
         public LogisticRegression GradientDescent(int iterations, float learningRate, float lambda = 0.1f, Func<float, bool> costCallback = null)

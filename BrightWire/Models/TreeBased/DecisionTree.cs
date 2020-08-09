@@ -69,7 +69,7 @@ namespace BrightWire.Models
         /// <summary>
         /// The classification label column index
         /// </summary>
-        public int ClassColumnIndex { get; set; }
+        public uint ClassColumnIndex { get; set; }
 
         /// <summary>
         /// The root of the tree

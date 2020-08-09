@@ -9,7 +9,7 @@ namespace BrightData.Converters
     {
         readonly Func<T, sbyte> _converter;
 
-        public ConvertToSignedByte()
+        public ConvertToSignedByte(bool throwOnFailure = false) : base(throwOnFailure)
         {
             _converter = _GetConverter();
         }
@@ -17,24 +17,17 @@ namespace BrightData.Converters
         Func<T, sbyte> _GetConverter()
         {
             var typeCode = Type.GetTypeCode(typeof(T));
-            switch (typeCode) {
-                case TypeCode.Single:
-                    return _FromSingle;
-                case TypeCode.Double:
-                    return _FromDouble;
-                case TypeCode.SByte:
-                    return _GetSByte;
-                case TypeCode.Int16:
-                    return _FromInt16;
-                case TypeCode.Int32:
-                    return _FromInt32;
-                case TypeCode.Int64:
-                    return _FromInt64;
-                case TypeCode.Decimal:
-                    return _FromDecimal;
-                default:
-                    throw new NotImplementedException();
-            }
+            return typeCode switch
+            {
+                TypeCode.Single => _FromSingle,
+                TypeCode.Double => _FromDouble,
+                TypeCode.SByte => _GetSByte,
+                TypeCode.Int16 => _FromInt16,
+                TypeCode.Int32 => _FromInt32,
+                TypeCode.Int64 => _FromInt64,
+                TypeCode.Decimal => _FromDecimal,
+                _ => _ConvertGeneric,
+            };
         }
 
         sbyte _FromSingle(T data) => System.Convert.ToSByte(_GetSingle(data));
@@ -43,7 +36,13 @@ namespace BrightData.Converters
         sbyte _FromInt16(T data) => System.Convert.ToSByte(_GetInt16(data));
         sbyte _FromInt32(T data) => System.Convert.ToSByte(_GetInt32(data));
         sbyte _FromInt64(T data) => System.Convert.ToSByte(_GetInt64(data));
-
+        sbyte _ConvertGeneric(T data)
+        {
+            var (ret, wasConverted) = _genericConverter.Value.ConvertValue(data);
+            if(!wasConverted && _throwOnFailure)
+                throw new ArgumentException($"Could not convert {data} to sbyte");
+            return (sbyte)ret;
+        }
         public sbyte Convert(T data) => _converter(data);
         public Type To => typeof(sbyte);
     }

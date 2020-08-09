@@ -1,4 +1,5 @@
-﻿using BrightWire.Models;
+﻿using BrightTable;
+using BrightWire.Models;
 using System;
 using System.Linq;
 
@@ -19,11 +20,11 @@ namespace BrightWire.Linear.Training
             _lap = lap;
             var numRows = table.RowCount;
             var numCols = table.ColumnCount;
-            int classColumnIndex = table.TargetColumnIndex;
+            //int classColumnIndex = table.TargetColumnIndex;
 
-            var data = table.GetNumericColumns(Enumerable.Range(0, numCols).Where(c => c != classColumnIndex));
-            _feature = lap.CreateMatrix(numRows, numCols, (i, j) => j == 0 ? 1 : data[j - 1][i]);
-            _target = lap.CreateVector(table.GetColumn<float>(classColumnIndex));
+            //var data = table.GetNumericColumns(Enumerable.Range(0, numCols).Where(c => c != classColumnIndex));
+            //_feature = lap.CreateMatrix(numRows, numCols, (i, j) => j == 0 ? 1 : data[j - 1][i]);
+            //_target = lap.CreateVector(table.GetColumn<float>(classColumnIndex));
         }
 
 		// normal method removed until GPU provider can properly calculate matrix inverses!

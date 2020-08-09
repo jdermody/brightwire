@@ -15,35 +15,36 @@ namespace BrightWire.ExecutionGraph.Node.Helper
         readonly IRowClassifier _classifier;
         readonly Dictionary<string, int> _targetLabel;
 
-        public RowClassifier(ILinearAlgebraProvider lap, IRowClassifier classifier, IRowOrientedDataTable dataTable, IDataTableAnalysis analysis, string name = null) 
+        public RowClassifier(ILinearAlgebraProvider lap, IRowClassifier classifier, IRowOrientedDataTable dataTable, string name = null) 
             : base(name)
         {
             _lap = lap;
 	        _dataTable = dataTable;
             _classifier = classifier;
-            _targetLabel = analysis.ColumnInfo
-                .First(ci => dataTable.Columns[ci.ColumnIndex].IsTarget)
-                .DistinctValues
-                .Select((v, i) => (v.ToString(), i))
-                .ToDictionary(d => d.Item1, d => d.Item2)
-            ;
+            var targetColumn = dataTable.GetTargetColumn();
+            //_targetLabel = analysis.ColumnInfo
+            //    .First(ci => dataTable.Columns[ci.ColumnIndex].IsTarget)
+            //    .DistinctValues
+            //    .Select((v, i) => (v.ToString(), i))
+            //    .ToDictionary(d => d.Item1, d => d.Item2)
+            //;
         }
 
         public int OutputSize => _targetLabel.Count;
 
         public override void ExecuteForward(IContext context)
         {
-            var rowList = _dataTable.GetRows(context.BatchSequence.MiniBatch.Rows);
-            var resultList = new List<Dictionary<int, float>>();
-            foreach (var row in rowList) {
-                var value = _classifier.Classify(row)
-                    .Select(c => (_targetLabel[c.Label], c.Weight))
-                    .ToDictionary(d => d.Item1, d => d.Item2)
-                ;
-                resultList.Add(value);
-            }
-            var output = _lap.CreateMatrix(resultList.Count, _targetLabel.Count, (i, j) => resultList[i].TryGetValue(j, out float temp) ? temp : 0f);
-            _AddNextGraphAction(context, new MatrixGraphData(output), null);
+            //var rowList = _dataTable.GetRows(context.BatchSequence.MiniBatch.Rows);
+            //var resultList = new List<Dictionary<int, float>>();
+            //foreach (var row in rowList) {
+            //    var value = _classifier.Classify(row)
+            //        .Select(c => (_targetLabel[c.Label], c.Weight))
+            //        .ToDictionary(d => d.Item1, d => d.Item2)
+            //    ;
+            //    resultList.Add(value);
+            //}
+            //var output = _lap.CreateMatrix(resultList.Count, _targetLabel.Count, (i, j) => resultList[i].TryGetValue(j, out float temp) ? temp : 0f);
+            //_AddNextGraphAction(context, new MatrixGraphData(output), null);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using BrightWire.Helper;
+﻿using BrightTable;
+using BrightWire.Helper;
 using BrightWire.Models;
 using System;
 using System.Collections.Generic;
@@ -77,32 +78,33 @@ namespace BrightWire.TrainingData.Artificial
                 }
             }
 
-            var builder = DataTableBuilder.CreateTwoColumnMatrix();
-            foreach (var str in strList2) {
-                var inputList = new FloatVector[str.Length];
-                var outputList = new FloatVector[str.Length];
+            throw new NotImplementedException();
+            //var builder = DataTableBuilder.CreateTwoColumnMatrix();
+            //foreach (var str in strList2) {
+            //    var inputList = new FloatVector[str.Length];
+            //    var outputList = new FloatVector[str.Length];
 
-                var sb = new StringBuilder();
-                for (var i = 0; i < str.Length; i++) {
-                    var ch = str[i];
-                    sb.Append(ch);
-                    var input = new float[_ch.Count];
-                    var output = new float[_ch.Count];
-                    input[_ch[ch]] = 1f;
-                    if (following.TryGetValue(sb.ToString(), out HashSet<int> temp)) {
-                        foreach (var item in temp)
-                            output[item] = 1f;
-                    }
-                    inputList[i] = new FloatVector {
-                        Data = input
-                    };
-                    outputList[i] = new FloatVector {
-                        Data = output
-                    };
-                }
-                builder.Add(FloatMatrix.Create(inputList), FloatMatrix.Create(outputList));
-            }
-            return builder.Build();
+            //    var sb = new StringBuilder();
+            //    for (var i = 0; i < str.Length; i++) {
+            //        var ch = str[i];
+            //        sb.Append(ch);
+            //        var input = new float[_ch.Count];
+            //        var output = new float[_ch.Count];
+            //        input[_ch[ch]] = 1f;
+            //        if (following.TryGetValue(sb.ToString(), out HashSet<int> temp)) {
+            //            foreach (var item in temp)
+            //                output[item] = 1f;
+            //        }
+            //        inputList[i] = new FloatVector {
+            //            Data = input
+            //        };
+            //        outputList[i] = new FloatVector {
+            //            Data = output
+            //        };
+            //    }
+            //    builder.Add(FloatMatrix.Create(inputList), FloatMatrix.Create(outputList));
+            //}
+            //return builder.Build();
         }
 
         /// <summary>

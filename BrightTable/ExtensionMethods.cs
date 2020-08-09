@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Text;
 using BrightData;
 using BrightData.Analysis;
@@ -368,6 +369,12 @@ namespace BrightTable
             for (uint i = 0; i < table.ColumnCount; i++) {
                 metaData[(int)i].Set(Consts.IsTarget, i == columnIndex);
             }
+        }
+
+        public static IMetaData SetTargetColumn(this IMetaData metaData, bool isTarget)
+        {
+            metaData.Set(Consts.IsTarget, isTarget);
+            return metaData;
         }
 
         public static uint? GetTargetColumn(this IDataTable table)

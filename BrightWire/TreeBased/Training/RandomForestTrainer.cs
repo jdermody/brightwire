@@ -24,8 +24,8 @@ namespace BrightWire.TreeBased.Training
             // repeatedly train a decision tree on a bagged subset of features
             var ret = new List<DecisionTree>();
             for(var i = 0; i < b; i++) {
-                var baggedTree = table.Bag();
-                ret.Add(DecisionTreeTrainer.Train(baggedTree, config));
+                //var baggedTree = table.Bag();
+                //ret.Add(DecisionTreeTrainer.Train(baggedTree, config));
             }
             return new RandomForest {
                 Forest = ret.ToArray()

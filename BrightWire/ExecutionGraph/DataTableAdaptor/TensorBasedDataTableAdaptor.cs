@@ -16,9 +16,9 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         public TensorBasedDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable)
             : base(lap, dataTable)
         {
-            var firstRow = dataTable.GetRow(0);
-            var input = (FloatTensor)firstRow.Data[_dataColumnIndex[0]];
-            var output = (FloatVector)firstRow.Data[_dataTargetIndex];
+            var firstRow = dataTable.Row(0);
+            var input = (FloatTensor)firstRow[(uint)_dataColumnIndex[0]];
+            var output = (FloatVector)firstRow[_dataTargetIndex];
             _outputSize = output.Size;
             _inputSize = input.Size;
             Height = input.RowCount;
@@ -51,7 +51,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 	    public override IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<int> rows)
         {
             var data = _GetRows(rows)
-                .Select(r => (_dataColumnIndex.Select(i => ((FloatTensor)r.Data[i]).GetAsRaw()).ToList(), ((FloatVector)r.Data[_dataTargetIndex]).Data))
+                .Select(r => (_dataColumnIndex.Select(i => ((FloatTensor)r[i]).GetAsRaw()).ToList(), ((FloatVector)r[_dataTargetIndex]).Data))
                 .ToList()
             ;
             var inputList = new List<IGraphData>();

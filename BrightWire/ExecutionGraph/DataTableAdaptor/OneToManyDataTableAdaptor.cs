@@ -57,7 +57,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         public override IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<int> rows)
         {
             var data = _GetRows(rows)
-                .Select(r => ((FloatVector)r.Data[_dataColumnIndex[0]], (FloatMatrix)r.Data[_dataTargetIndex]))
+                .Select(r => ((FloatVector)r[_dataColumnIndex[0]], (FloatMatrix)r[_dataTargetIndex]))
                 .ToList()
             ;
             var outputData = new Dictionary<int, List<FloatVector>>();

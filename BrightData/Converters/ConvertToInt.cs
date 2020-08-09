@@ -9,7 +9,7 @@ namespace BrightData.Converters
     {
         readonly Func<T, int> _converter;
 
-        public ConvertToInt()
+        public ConvertToInt(bool throwOnFailure = false) : base(throwOnFailure)
         {
             _converter = _GetConverter();
         }
@@ -17,24 +17,17 @@ namespace BrightData.Converters
         Func<T, int> _GetConverter()
         {
             var typeCode = Type.GetTypeCode(typeof(T));
-            switch (typeCode) {
-                case TypeCode.Single:
-                    return _FromSingle;
-                case TypeCode.Double:
-                    return _FromDouble;
-                case TypeCode.SByte:
-                    return _FromSByte;
-                case TypeCode.Int16:
-                    return _FromInt16;
-                case TypeCode.Int32:
-                    return _GetInt32;
-                case TypeCode.Int64:
-                    return _FromInt64;
-                case TypeCode.Decimal:
-                    return _FromDecimal;
-                default:
-                    throw new NotImplementedException();
-            }
+            return typeCode switch
+            {
+                TypeCode.Single => _FromSingle,
+                TypeCode.Double => _FromDouble,
+                TypeCode.SByte => _FromSByte,
+                TypeCode.Int16 => _FromInt16,
+                TypeCode.Int32 => _GetInt32,
+                TypeCode.Int64 => _FromInt64,
+                TypeCode.Decimal => _FromDecimal,
+                _ => _ConvertGeneric,
+            };
         }
 
         int _FromSingle(T data) => System.Convert.ToInt32(_GetSingle(data));
@@ -44,7 +37,13 @@ namespace BrightData.Converters
         int _FromInt16(T data) => _GetInt16(data);
         int _FromInt32(T data) => _GetInt32(data);
         int _FromInt64(T data) => System.Convert.ToInt32(_GetInt64(data));
-
+        int _ConvertGeneric(T data)
+        {
+            var (ret, wasConverted) = _genericConverter.Value.ConvertValue(data);
+            if(!wasConverted && _throwOnFailure)
+                throw new ArgumentException($"Could not convert {data} to int");
+            return (int)ret;
+        }
         public int Convert(T data) => _converter(data);
         public Type To => typeof(int);
     }

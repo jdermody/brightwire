@@ -1,4 +1,5 @@
 ﻿using BrightTable;
+using BrightTable.Transformations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,30 +11,27 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
     /// </summary>
     class DefaultDataTableAdaptor : RowBasedDataTableAdaptorBase
     {
-        public DefaultDataTableAdaptor(ILinearAlgebraProvider lap, IColumnOrientedDataTable dataTable)
+        readonly DataTableVectoriser _vectoriser;
+
+        public DefaultDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, DataTableVectoriser vectoriser)
             : base(lap, dataTable)
         {
+            _vectoriser = vectoriser ?? new DataTableVectoriser(dataTable);
         }
 
         public override IDataSource CloneWith(IRowOrientedDataTable dataTable)
         {
-            throw new NotImplementedException();
-            //return new DefaultDataTableAdaptor(_lap, dataTable, _vectoriser);
+            return new DefaultDataTableAdaptor(_lap, dataTable, _vectoriser);
         }
 
         public override int InputSize => _vectoriser.InputSize;
         public override int OutputSize => _vectoriser.OutputSize;
         public override bool IsSequential => false;
 
-        public float[] Encode(IRow row)
-        {
-            return _vectoriser.GetInput(row).Data;
-        }
-
         public override IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<int> rows)
         {
             var data = _GetRows(rows)
-                .Select(r => (new[] { Encode(r) }, _vectoriser.GetOutput(r).Data))
+                .Select(r => (new[] { _vectoriser.GetInput(r) }, _vectoriser.GetOutput(r)))
                 .ToList()
             ;
             return _GetMiniBatch(rows, data);

@@ -40,15 +40,16 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         public override bool IsSequential => true;
         public override int InputSize { get; }
 	    public override int OutputSize { get; }
-	    public override int RowCount => _rowDepth.Length;
+	    public override uint RowCount => (uint)_rowDepth.Length;
 
         public override IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<int> rows)
         {
-            var data = _GetRows(rows)
-                .Select(r => ((FloatMatrix)r.Data[0], (FloatMatrix)r.Data[1]))
-                .ToList()
-            ;
-            return _GetSequentialMiniBatch(rows, data);
+            //var data = _GetRows(rows)
+            //    .Select(r => ((FloatMatrix)r.Data[0], (FloatMatrix)r.Data[1]))
+            //    .ToList()
+            //;
+            //return _GetSequentialMiniBatch(rows, data);
+            throw new NotImplementedException();
         }
 
         public override IReadOnlyList<IReadOnlyList<int>> GetBuckets()

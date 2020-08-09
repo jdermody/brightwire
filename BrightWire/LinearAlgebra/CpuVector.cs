@@ -18,7 +18,7 @@ namespace BrightWire.LinearAlgebra
     /// </summary>
     class CpuVector : IIndexableVector
     {
-        readonly Vector<float> _vector;
+        readonly MathNet.Numerics.LinearAlgebra.Vector<float> _vector;
 
         public bool IsValid => true;
 
@@ -26,7 +26,7 @@ namespace BrightWire.LinearAlgebra
         {
             _vector = vector;
         }
-        public CpuVector(Vector<float> vector)
+        public CpuVector(MathNet.Numerics.LinearAlgebra.Vector<float> vector)
         {
             _vector = vector;
         }

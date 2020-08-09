@@ -12,9 +12,9 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
     {
 	    public VectorBasedDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable) : base(lap, dataTable)
         {
-            var firstRow = dataTable.GetRow(0);
-            var input = (FloatVector)firstRow.Data[_dataColumnIndex.First()];
-            var output = (FloatVector)firstRow.Data[_dataTargetIndex];
+            var firstRow = dataTable.Row(0);
+            var input = (FloatVector)firstRow[(uint)_dataColumnIndex.First()];
+            var output = (FloatVector)firstRow[_dataTargetIndex];
 
             InputSize = input.Size;
             OutputSize = output.Size;
@@ -27,7 +27,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         public override IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<int> rows)
         {
             var data = _GetRows(rows)
-                .Select(r => ((_dataColumnIndex.Select(i => ((FloatVector)r.Data[i]).Data).ToArray(), ((FloatVector)r.Data[_dataTargetIndex]).Data)))
+                .Select(r => ((_dataColumnIndex.Select(i => ((FloatVector)r[i]).Data).ToArray(), ((FloatVector)r[_dataTargetIndex]).Data)))
                 .ToList()
             ;
             return _GetMiniBatch(rows, data);

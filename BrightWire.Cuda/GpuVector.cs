@@ -8,6 +8,7 @@ using BrightWire.Models;
 using ManagedCuda.BasicTypes;
 using BrightWire.Cuda.Helper;
 using BrightWire.LinearAlgebra.Helper;
+using BrightData;
 
 namespace BrightWire.LinearAlgebra
 {
@@ -330,21 +331,21 @@ namespace BrightWire.LinearAlgebra
 			return _cuda.FindStdDev(_data, Count, mean ?? Average());
 		}
 
-		public void Normalise(NormalisationType type)
+		public void Normalise(NormalizationType type)
 		{
 			Debug.Assert(IsValid);
-			if (type == NormalisationType.FeatureScale) {
+			if (type == NormalizationType.FeatureScale) {
 				var minMax = GetMinMax();
 				float range = minMax.Max - minMax.Min;
 				if (range > 0)
 					_cuda.Normalise(_data, Count, minMax.Min, range);
-			} else if (type == NormalisationType.Standard) {
+			} else if (type == NormalizationType.Standard) {
 				var mean = Average();
 				var stdDev = StdDev(mean);
 				if (BoundMath.IsNotZero(stdDev))
 					_cuda.Normalise(_data, Count, mean, stdDev);
-			} else if (type == NormalisationType.Euclidean || type == NormalisationType.Manhattan) {
-				var p = type == NormalisationType.Manhattan
+			} else if (type == NormalizationType.Euclidean || type == NormalizationType.Manhattan) {
+				var p = type == NormalizationType.Manhattan
 					? L1Norm()
 					: L2Norm()
 				;

@@ -1,6 +1,8 @@
 ﻿using BrightWire.Models;
 using System.Linq;
 using BrightWire.Models.InstanceBased;
+using BrightTable;
+using System;
 
 namespace BrightWire.InstanceBased.Trainer
 {
@@ -11,15 +13,16 @@ namespace BrightWire.InstanceBased.Trainer
     {
         public static KNearestNeighbours Train(IDataTable table)
         {
-            var featureColumns = Enumerable.Range(0, table.ColumnCount).Where(i => i != table.TargetColumnIndex).ToList();
-            var data = table.GetNumericRows(featureColumns);
-            var labels = table.GetColumn<string>(table.TargetColumnIndex);
+            throw new NotImplementedException();
+            //var featureColumns = Enumerable.Range(0, table.ColumnCount).Where(i => i != table.TargetColumnIndex).ToList();
+            //var data = table.GetNumericRows(featureColumns);
+            //var labels = table.GetColumn<string>(table.TargetColumnIndex);
 
-            return new KNearestNeighbours {
-                Instance = data.Select(v => new FloatVector { Data = v }).ToArray(),
-                Classification = labels.ToArray(),
-                FeatureColumn = featureColumns.ToArray()
-            };
+            //return new KNearestNeighbours {
+            //    Instance = data.Select(v => new FloatVector { Data = v }).ToArray(),
+            //    Classification = labels.ToArray(),
+            //    FeatureColumn = featureColumns.ToArray()
+            //};
         }
     }
 }

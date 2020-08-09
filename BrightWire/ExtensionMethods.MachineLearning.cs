@@ -173,7 +173,7 @@ namespace BrightWire
         /// <returns>A model that can be used for classification</returns>
         public static RandomForest TrainRandomForest(this IRowOrientedDataTable data, int b = 100)
         {
-            return RandomForestTrainer.Train(data, b);
+            return RandomForestTrainer.Train(data.AsColumnOriented(), b);
         }
 
         /// <summary>
@@ -216,13 +216,14 @@ namespace BrightWire
 		/// <returns></returns>
 	    public static MultinomialNaiveBayes TrainMultinomialNaiveBayes(this IRowOrientedDataTable table)
 		{
-			var targetColumnIndex = table.TargetColumnIndex;
-			var indexListColumn = table.Columns.FirstOrDefault(c => c.Type == ColumnType.IndexList);
-			if (indexListColumn == null || indexListColumn.Index == targetColumnIndex)
-				throw new ArgumentException("No index list column found");
+            throw new NotImplementedException();
+			//var targetColumnIndex = table.GetTargetColumn() ?? throw new ArgumentException("");
+			//var indexListColumn = table.ColumnTypes.FirstOrDefault(c => c == ColumnType.IndexList);
+			//if (indexListColumn == null || indexListColumn.Index == targetColumnIndex)
+			//	throw new ArgumentException("No index list column found");
 
-			var data = table.Map(row => (row.GetField<string>(targetColumnIndex), row.GetField<IndexList>(indexListColumn.Index)));
-			return data.TrainMultinomialNaiveBayes();
+			//var data = table.Map(row => (row.GetField<string>(targetColumnIndex), row.GetField<IndexList>(indexListColumn.Index)));
+			//return data.TrainMultinomialNaiveBayes();
 		}
 
         /// <summary>
@@ -245,13 +246,14 @@ namespace BrightWire
 	    /// <returns>A model that can be used for classification</returns>
 	    public static BernoulliNaiveBayes TrainBernoulliNaiveBayes(this IRowOrientedDataTable table)
 	    {
-		    var targetColumnIndex = table.TargetColumnIndex;
-		    var indexListColumn = table.Columns.FirstOrDefault(c => c.Type == ColumnType.IndexList);
-		    if (indexListColumn == null || indexListColumn.Index == targetColumnIndex)
-			    throw new ArgumentException("No index list column found");
+            throw new NotImplementedException();
+		    //var targetColumnIndex = table.TargetColumnIndex;
+		    //var indexListColumn = table.Columns.FirstOrDefault(c => c.Type == ColumnType.IndexList);
+		    //if (indexListColumn == null || indexListColumn.Index == targetColumnIndex)
+			   // throw new ArgumentException("No index list column found");
 
-		    var data = table.Map(row => (row.GetField<string>(targetColumnIndex), row.GetField<IndexList>(indexListColumn.Index)));
-		    return data.TrainBernoulliNaiveBayes();
+		    //var data = table.Map(row => (row.GetField<string>(targetColumnIndex), row.GetField<IndexList>(indexListColumn.Index)));
+		    //return data.TrainBernoulliNaiveBayes();
 	    }
 
         /// <summary>
@@ -293,7 +295,7 @@ namespace BrightWire
 		/// <param name="negativeLabel">Output classification for negative class label</param>
 		/// <param name="positiveLabel">Output classification for the positive class label</param>
 	    public static IRowClassifier ConvertToRowClassifier(this ILogisticRegressionClassifier classifier,
-		    IReadOnlyList<int> attributeColumns,
+		    uint[] attributeColumns,
 		    string negativeLabel = "0",
 		    string positiveLabel = "1")
 	    {

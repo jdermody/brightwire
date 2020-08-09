@@ -9,7 +9,7 @@ namespace BrightData.Converters
     {
         readonly Func<T, decimal> _converter;
 
-        public ConvertToDecimal()
+        public ConvertToDecimal(bool throwOnFailure = false) : base(throwOnFailure)
         {
             _converter = _GetConverter();
         }
@@ -17,24 +17,17 @@ namespace BrightData.Converters
         Func<T, decimal> _GetConverter()
         {
             var typeCode = Type.GetTypeCode(typeof(T));
-            switch (typeCode) {
-                case TypeCode.Single:
-                    return _FromSingle;
-                case TypeCode.Double:
-                    return _FromDouble;
-                case TypeCode.SByte:
-                    return _FromSByte;
-                case TypeCode.Int16:
-                    return _FromInt16;
-                case TypeCode.Int32:
-                    return _FromInt32;
-                case TypeCode.Int64:
-                    return _FromInt64;
-                case TypeCode.Decimal:
-                    return _GetDecimal;
-                default:
-                    throw new NotImplementedException();
-            }
+            return typeCode switch
+            {
+                TypeCode.Single => _FromSingle,
+                TypeCode.Double => _FromDouble,
+                TypeCode.SByte => _FromSByte,
+                TypeCode.Int16 => _FromInt16,
+                TypeCode.Int32 => _FromInt32,
+                TypeCode.Int64 => _FromInt64,
+                TypeCode.Decimal => _GetDecimal,
+                _ => _ConvertGeneric,
+            };
         }
 
         decimal _FromSingle(T data) => System.Convert.ToDecimal(_GetSingle(data));
@@ -43,6 +36,13 @@ namespace BrightData.Converters
         decimal _FromInt16(T data) => _GetInt16(data);
         decimal _FromInt32(T data) => _GetInt32(data);
         decimal _FromInt64(T data) => _GetInt64(data);
+        decimal _ConvertGeneric(T data)
+        {
+            var (ret, wasConverted) = _genericConverter.Value.ConvertValue(data);
+            if(!wasConverted && _throwOnFailure)
+                throw new ArgumentException($"Could not convert {data} to decimal");
+            return (decimal)ret;
+        }
 
         public decimal Convert(T data) => _converter(data);
         public Type To => typeof(decimal);

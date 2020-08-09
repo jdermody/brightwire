@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
 
-namespace BrightData.Helper
+namespace BrightData.Converters
 {
     public class GenericConverter<T> /*: IConvertToType*/
     {

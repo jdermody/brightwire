@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using BrightTable;
+using BrightTable.Transformations;
 using BrightWire.Models;
 
 namespace BrightWire.ExecutionGraph.DataTableAdaptor
@@ -11,17 +12,17 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
     class IndexListDataTableAdaptor : DataTableAdaptorBase<(List<IndexList>, FloatVector)>, IIndexListEncoder
     {
         readonly int _inputSize;
-        readonly IDataTableVectoriser _vectoriser;
+        readonly DataTableVectoriser _vectoriser;
 
-        public IndexListDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, IDataTableVectoriser vectoriser)
+        public IndexListDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, DataTableVectoriser vectoriser)
             : base(lap, dataTable)
         {
-            _vectoriser = vectoriser;
-            _inputSize = vectoriser.InputSize;
+            _vectoriser = vectoriser ?? new DataTableVectoriser(dataTable);
+            _inputSize = _vectoriser.InputSize;
             OutputSize = _vectoriser.OutputSize;
 
             // load the data
-            dataTable.ForEachRow(row => _data.Add((_dataColumnIndex.Select(i => (IndexList)row[i]).ToList(), _vectoriser.GetOutput(row))));
+            //dataTable.ForEachRow(row => _data.Add((_dataColumnIndex.Select(i => (IndexList)row[i]).ToList(), _vectoriser.GetOutput(row))));
         }
 
         public override bool IsSequential => false;
