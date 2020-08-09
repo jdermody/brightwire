@@ -15,6 +15,7 @@ using BrightTable.Builders;
 using BrightTable.Helper;
 using BrightTable.Input;
 using BrightTable.Segments;
+using BrightTable.Transformations;
 
 namespace BrightTable
 {
@@ -226,6 +227,8 @@ namespace BrightTable
 
         public static IMetaData Analyse(this ISingleTypeTableSegment segment, bool force = false, int distinctValueCount = 100)
         {
+            // TODO: strongly typed enumeration?
+
             var ret = segment.MetaData;
             if (force || !ret.Get<bool>(Consts.HasBeenAnalysed)) {
                 var type = segment.SingleType;
@@ -385,6 +388,12 @@ namespace BrightTable
                     return i;
             }
             return null;
+        }
+
+        public static IMetaData SetType(this IMetaData metaData, ColumnType type)
+        {
+            metaData.Set(Consts.Type, (byte)type);
+            return metaData;
         }
 
         public static void SetFeatureColumn(this IDataTable table, params uint[] columnIndices)
@@ -556,5 +565,11 @@ namespace BrightTable
 
         public static ColumnType GetColumnType(this IMetaData metadata) => metadata.Get<ColumnType>(Consts.Type);
         public static int GetNumDistinct(this IMetaData metadata) => metadata.Get<int>(Consts.NumDistinct, -1);
+
+        public static IRowOrientedDataTable Vectorise(this IColumnOrientedDataTable dataTable, string filePath = null)
+        {
+            var vectoriser = new DataTableVectoriser(dataTable);
+            return vectoriser.Vectorize(filePath);
+        }
     }
 }

@@ -24,8 +24,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             return new DefaultDataTableAdaptor(_lap, dataTable, _vectoriser);
         }
 
-        public override int InputSize => _vectoriser.InputSize;
-        public override int OutputSize => _vectoriser.OutputSize;
+        public override int InputSize => (int)_vectoriser.InputSize;
+        public override int OutputSize => (int)_vectoriser.OutputSize;
         public override bool IsSequential => false;
 
         public override IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<int> rows)

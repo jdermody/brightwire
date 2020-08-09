@@ -17,7 +17,7 @@ namespace BrightTable
     /// <summary>
     /// Data table column type
     /// </summary>
-    public enum ColumnType
+    public enum ColumnType : byte
     {
         /// <summary>
         /// Nothing

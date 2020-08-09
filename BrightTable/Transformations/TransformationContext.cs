@@ -28,7 +28,7 @@ namespace BrightTable.Transformations
 
             var segment = (ISingleTypeTableSegment) _buffer;
             var metaData = segment.MetaData;
-            metaData.Set(Consts.Type, segment.SingleType.ToString());
+            metaData.SetType(segment.SingleType);
             _converter.Finalise(metaData);
             return ret;
         }

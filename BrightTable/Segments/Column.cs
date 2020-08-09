@@ -20,7 +20,7 @@ namespace BrightTable.Segments
             Types = new[] { type };
             Size = buffer.Length;
             MetaData = metadata;
-            metadata.Set(Consts.Type, type);
+            metadata.SetType(type);
         }
 
         public void Dispose()

@@ -8,7 +8,7 @@
         /// <summary>
         /// Data contract version number
         /// </summary>
-        public string Version { get; set; } = "2.0";
+        public string Version { get; set; } = "3.0";
 
         /// <summary>
         /// The name of the graph

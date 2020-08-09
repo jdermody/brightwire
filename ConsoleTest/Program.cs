@@ -37,6 +37,8 @@ namespace ConsoleTest
             using var trainingTable = numericTable.Convert(ColumnConversion.Create<int, int>(4, v => v == 1 ? 1 : 0));
             trainingTable.SetTargetColumn(4);
 
+            var vectorised = trainingTable.Vectorise();
+
             // train model
             //var costFunction = new BinaryClassification();
             //var trainer = trainingTable.GetLogisticRegressionTrainer();

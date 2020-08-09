@@ -18,8 +18,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             : base(lap, dataTable)
         {
             _vectoriser = vectoriser ?? new DataTableVectoriser(dataTable);
-            _inputSize = _vectoriser.InputSize;
-            OutputSize = _vectoriser.OutputSize;
+            _inputSize = (int)_vectoriser.InputSize;
+            OutputSize = (int)_vectoriser.OutputSize;
 
             // load the data
             //dataTable.ForEachRow(row => _data.Add((_dataColumnIndex.Select(i => (IndexList)row[i]).ToList(), _vectoriser.GetOutput(row))));
