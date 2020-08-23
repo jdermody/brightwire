@@ -43,7 +43,7 @@ namespace BrightData
 
             foreach (var key in keys) {
                 other._orderedValues.Add(key);
-                other._values.Add(key, _values[key]);
+                other._values[key] = _values[key];
             }
         }
 

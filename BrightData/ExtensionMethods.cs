@@ -160,7 +160,7 @@ namespace BrightData
             );
         }
 
-        public static bool WriteIfNotNull<T>(this IMetaData metadata, string name, T? value)
+        public static bool SetIfNotNull<T>(this IMetaData metadata, string name, T? value)
             where T : struct, IConvertible
         {
             if (value.HasValue) {
@@ -170,7 +170,7 @@ namespace BrightData
             return false;
         }
 
-        public static bool WriteIfNotNull<T>(this IMetaData metadata, string name, T value)
+        public static bool SetIfNotNull<T>(this IMetaData metadata, string name, T value)
             where T : class, IConvertible
         {
             if (value != null) {
@@ -228,14 +228,14 @@ namespace BrightData
         public static uint Index(this IMetaData metadata) => metadata.Get<uint>(Consts.Index);
         public static bool IsNumeric(this IMetaData metadata) => metadata.Get<bool>(Consts.IsNumeric);
         public static bool IsTarget(this IMetaData metadata) => metadata.Get<bool>(Consts.IsTarget);
-        public static bool IsFeature(this IMetaData metadata) => metadata.Get<bool>(Consts.IsFeature);
+        //public static bool IsFeature(this IMetaData metadata) => metadata.Get<bool>(Consts.IsFeature);
         public static bool IsSequential(this IMetaData metadata) => metadata.Get<bool>(Consts.IsSequential);
 
         public static string Name(this IHaveMetaData metadataProvider) => metadataProvider.MetaData.Name();
         public static uint Index(this IHaveMetaData metadataProvider) => metadataProvider.MetaData.Index();
         public static bool IsNumeric(this IHaveMetaData metadataProvider) => metadataProvider.MetaData.IsNumeric();
         public static bool IsTarget(this IHaveMetaData metadataProvider) => metadataProvider.MetaData.IsTarget();
-        public static bool IsFeature(this IHaveMetaData metadataProvider) => metadataProvider.MetaData.IsFeature();
+        //public static bool IsFeature(this IHaveMetaData metadataProvider) => metadataProvider.MetaData.IsFeature();
         public static bool IsSequential(this IHaveMetaData metadataProvider) => metadataProvider.MetaData.IsSequential();
 
 

@@ -48,8 +48,8 @@ namespace BrightData.Analysis
         public virtual void WriteTo(IMetaData metadata)
         {
             metadata.Set(Consts.HasBeenAnalysed, true);
-            metadata.WriteIfNotNull(Consts.Mode, MostFrequent);
-            if (metadata.WriteIfNotNull(Consts.NumDistinct, NumDistinct)) {
+            metadata.SetIfNotNull(Consts.Mode, MostFrequent);
+            if (metadata.SetIfNotNull(Consts.NumDistinct, NumDistinct)) {
                 var total = (double)Total;
                 foreach (var item in _valueCount.OrderByDescending(kv => kv.Value).Take(_writeCount))
                     metadata.Set($"{Consts.FrequencyPrefix}{item.Key}", item.Value / total);

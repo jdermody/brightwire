@@ -44,11 +44,14 @@ namespace BrightData.Analysis
         public void WriteTo(IMetaData metadata)
         {
             metadata.Set(Consts.HasBeenAnalysed, true);
-            metadata.WriteIfNotNull(Consts.XDimension, XDimension);
-            metadata.WriteIfNotNull(Consts.YDimension, YDimension);
-            metadata.WriteIfNotNull(Consts.ZDimension, ZDimension);
+            metadata.SetIfNotNull(Consts.XDimension, XDimension);
+            metadata.SetIfNotNull(Consts.YDimension, YDimension);
+            metadata.SetIfNotNull(Consts.ZDimension, ZDimension);
             if (_distinct.Count < Consts.MaxDistinct)
                 metadata.Set(Consts.NumDistinct, _distinct.Count);
+
+            var size = (XDimension ?? 1) * (YDimension ?? 1) * (ZDimension ?? 1);
+            metadata.Set(Consts.Size, size);
         }
     }
 }

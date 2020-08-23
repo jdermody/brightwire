@@ -25,6 +25,7 @@ namespace ConsoleTest
             //using var table = (IColumnOrientedDataTable)context.LoadTable(@"c:\temp\table.dat");
             //using var table2 = table.Convert(@"c:\temp\table2.dat", Enumerable.Range(0, (int)table.ColumnCount).Select(i => ColumnConversion.ToNumeric).ToArray());
             using var table = context.ParseCsv(@"c:\data\iris.data", true);
+            table.SetTargetColumn(4);
             using var numericTable = table.Convert(
                 ColumnConversionType.ToNumeric, 
                 ColumnConversionType.ToNumeric, 
@@ -34,10 +35,12 @@ namespace ConsoleTest
             var head = numericTable.Head(60);
             using var normalized = numericTable.Normalize(NormalizationType.Standard);
             head = normalized.Head(60);
-            using var trainingTable = numericTable.Convert(ColumnConversion.Create<int, int>(4, v => v == 1 ? 1 : 0));
-            trainingTable.SetTargetColumn(4);
+            
+            var vectorised = normalized.Vectorise();
+            head = vectorised.Head(60);
 
-            var vectorised = trainingTable.Vectorise();
+            //vectorised.
+
 
             // train model
             //var costFunction = new BinaryClassification();

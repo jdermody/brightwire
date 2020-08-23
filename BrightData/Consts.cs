@@ -12,7 +12,7 @@
         public const string Type = "Type";
         public const string IsNumeric = "IsNumeric";
         public const string IsTarget = "IsTarget";
-        public const string IsFeature = "IsFeature";
+        //public const string IsFeature = "IsFeature";
 
         public const string HasUnique = "HasUnique";
         public const string IsSequential = "IsSequential";
@@ -29,6 +29,7 @@
         public const string XDimension = "XDimension";
         public const string YDimension = "YDimension";
         public const string ZDimension = "ZDimension";
+        public const string Size = "Size";
         public const string L1Norm = "L1Norm";
         public const string L2Norm = "L2Norm";
         public const string Min = "Min";
@@ -40,6 +41,6 @@
         public const string FrequencyPrefix = "Frequency:";
         public const string FrequencyRangePrefix = "FrequencyRange:";
 
-        public static readonly string[] StandardMetaData = { Index, Name, Type, IsNumeric, IsTarget, IsFeature };
+        public static readonly string[] StandardMetaData = { Index, Name, Type, IsNumeric, IsTarget/*, IsFeature*/ };
     }
 }

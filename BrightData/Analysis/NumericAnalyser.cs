@@ -126,11 +126,11 @@ namespace BrightData.Analysis
 			metadata.Set(Consts.Min, Min);
 			metadata.Set(Consts.Max, Max);
 			metadata.Set(Consts.Mean, Mean);
-			metadata.WriteIfNotNull(Consts.Variance, Variance);
-			metadata.WriteIfNotNull(Consts.StdDev, StdDev);
-			metadata.WriteIfNotNull(Consts.Median, Median);
-			metadata.WriteIfNotNull(Consts.Mode, Mode);
-			if (metadata.WriteIfNotNull(Consts.NumDistinct, NumDistinct)) {
+			metadata.SetIfNotNull(Consts.Variance, Variance);
+			metadata.SetIfNotNull(Consts.StdDev, StdDev);
+			metadata.SetIfNotNull(Consts.Median, Median);
+			metadata.SetIfNotNull(Consts.Mode, Mode);
+			if (metadata.SetIfNotNull(Consts.NumDistinct, NumDistinct)) {
 				var total = (double) _total;
                 var range = Max - Min;
                 if (range > 0) {

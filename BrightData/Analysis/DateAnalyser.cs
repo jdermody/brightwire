@@ -25,8 +25,8 @@ namespace BrightData.Analysis
         public void WriteTo(IMetaData metadata)
         {
             metadata.Set(Consts.HasBeenAnalysed, true);
-            metadata.WriteIfNotNull(Consts.MinDate, MinDate);
-            metadata.WriteIfNotNull(Consts.MaxDate, MaxDate);
+            metadata.SetIfNotNull(Consts.MinDate, MinDate);
+            metadata.SetIfNotNull(Consts.MaxDate, MaxDate);
             if(_distinct.Count < Consts.MaxDistinct)
                 metadata.Set(Consts.NumDistinct, _distinct.Count);
         }

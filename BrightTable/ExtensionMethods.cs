@@ -217,7 +217,7 @@ namespace BrightTable
                 return new IndexAnalyser(distinctValueCount);
             if (type == ColumnType.Date)
                 return new DateAnalyser();
-            if (type == ColumnType.Vector || type == ColumnType.Matrix || type == ColumnType.Tensor3D || type == ColumnType.Tensor4D)
+            if (type.IsTensor())
                 return new DimensionAnalyser();
             if (type == ColumnType.BinaryData)
                 return new FrequencyAnalyser<BinaryData>(distinctValueCount);
@@ -396,15 +396,15 @@ namespace BrightTable
             return metaData;
         }
 
-        public static void SetFeatureColumn(this IDataTable table, params uint[] columnIndices)
-        {
-            var metaData = table.AllMetaData();
-            var featureColumns = new HashSet<uint>(columnIndices);
+        //public static void SetFeatureColumn(this IDataTable table, params uint[] columnIndices)
+        //{
+        //    var metaData = table.AllMetaData();
+        //    var featureColumns = new HashSet<uint>(columnIndices);
 
-            for (uint i = 0; i < table.ColumnCount; i++) {
-                metaData[(int)i].Set(Consts.IsFeature, featureColumns.Contains(i));
-            }
-        }
+        //    for (uint i = 0; i < table.ColumnCount; i++) {
+        //        metaData[(int)i].Set(Consts.IsFeature, featureColumns.Contains(i));
+        //    }
+        //}
 
         public static void SetSequentialColumn(this IDataTable table, params uint[] columnIndices)
         {

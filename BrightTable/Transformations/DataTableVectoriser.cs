@@ -99,6 +99,46 @@ namespace BrightTable.Transformations
                     yield return indexSet.Contains(i) ? 1f : 0f;
             }
         }
+        class TensorVectoriser : VectoriserBase<BrightData.TensorBase<float, ITensor<float>>>
+        {
+            public TensorVectoriser(uint size, ISingleTypeTableSegment column)
+                : base(((IDataTableSegment<BrightData.TensorBase<float, ITensor<float>>>)column).EnumerateTyped().GetEnumerator())
+            {
+                Size = size;
+            }
+
+            public override uint Size { get; }
+
+            protected override IEnumerable<float> _Convert(TensorBase<float, ITensor<float>> obj)
+            {
+                return obj.Data.Values;
+            }
+        }
+        class OneHotEncodeVectorised : VectoriserBase<object>
+        {
+            readonly Dictionary<string, uint> _stringIndex = new Dictionary<string, uint>();
+            readonly float[] _buffer;
+            uint _nextIndex = 0;
+
+            public OneHotEncodeVectorised(uint size, ISingleTypeTableSegment column)
+                : base(column.Enumerate().GetEnumerator())
+            {
+                Size = size;
+                _buffer = new float[size];
+            }
+
+            public override uint Size { get; }
+
+            protected override IEnumerable<float> _Convert(object obj)
+            {
+                var str = obj.ToString();
+                if(_stringIndex.TryGetValue(str, out var index))
+                    _stringIndex.Add(str, index = _nextIndex++);
+                Array.Clear(_buffer, 0, _buffer.Length);
+                _buffer[index] = 1f;
+                return _buffer;
+            }
+        }
 
         public float[] GetInput(object[] r)
         {
@@ -114,7 +154,7 @@ namespace BrightTable.Transformations
         readonly IColumnVectoriser _target = null;
 
         public uint InputSize => (uint)_input.Sum(c => c.Size);
-        public uint OutputSize => _target.Size;
+        public uint OutputSize => _target?.Size ?? 0;
         public uint RowCount { get; }
 
         public IBrightDataContext Context { get; }
@@ -145,7 +185,7 @@ namespace BrightTable.Transformations
             var builder = new RowOrientedTableBuilder(RowCount, filePath);
             builder.AddColumn(ColumnType.Vector, "Input");
             if (_target != null)
-                builder.AddColumn(ColumnType.Vector, "Target");
+                builder.AddColumn(ColumnType.Vector, "Target").SetTargetColumn(true);
             var inputSize = InputSize;
             var outputSize = OutputSize;
 
@@ -181,10 +221,12 @@ namespace BrightTable.Transformations
             }
 
             var metaData = column.Analyse();
-            if(type == ColumnType.WeightedIndexList)
+            if (type == ColumnType.WeightedIndexList)
                 return new WeightedIndexListVectoriser(metaData.Get<uint>(Consts.MaxIndex), column);
-            else if(type == ColumnType.IndexList)
+            else if (type == ColumnType.IndexList)
                 return new IndexListVectoriser(metaData.Get<uint>(Consts.MaxIndex), column);
+            else if (type.IsTensor())
+                return new TensorVectoriser(metaData.Get<uint>(Consts.Size), column);
 
             return null;
         }
