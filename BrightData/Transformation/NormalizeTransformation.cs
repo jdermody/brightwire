@@ -5,13 +5,13 @@ using BrightData.Helper;
 
 namespace BrightData.Transformation
 {
-    public class NormalizeTransformation
+    public class NormalizeTransformation : INormalize
     {
         private readonly bool _divideByZero;
 
         public NormalizeTransformation(NormalizationType type, IMetaData analysedMetaData)
         {
-            Type = type;
+            NormalizationType = type;
 
             double divide, subtract = 0;
             if (analysedMetaData.Get(Consts.HasBeenAnalysed, false) && analysedMetaData.Get(Consts.IsNumeric, false)) {
@@ -40,7 +40,7 @@ namespace BrightData.Transformation
             _divideByZero = Math.Abs(Divide) <= FloatMath.AlmostZero;
         }
 
-        public NormalizationType Type { get; }
+        public NormalizationType NormalizationType { get; }
         public double Divide { get; }
         public double Subtract { get; }
 

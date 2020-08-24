@@ -212,6 +212,7 @@ namespace BrightTable
                     columnConversionTable[nextIndex++] = item;
             }
 
+            // TODO: return normalization parameters (from INormalize)
             var columnConversions = new Dictionary<uint, IColumnTransformation>();
             foreach (var columnInfo in _columns) {
                 if (columnConversionTable.TryGetValue(columnInfo.Index, out var conversion)) {

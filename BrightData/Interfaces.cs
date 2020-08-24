@@ -193,7 +193,7 @@ namespace BrightData
     }
 
     public interface ITensorComputation<T>
-        where T: struct
+        where T : struct
     {
         Matrix<T> Transpose(Matrix<T> m);
         Matrix<T> Multiply(Matrix<T> m1, Matrix<T> m2);
@@ -230,7 +230,7 @@ namespace BrightData
         FeatureScale
     }
 
-    
+
 
     public interface IAutoGrowBuffer : ICanWriteToBinaryWriter
     {
@@ -260,5 +260,12 @@ namespace BrightData
     public interface ICanConvert<in TF, out TT> : ICanConvert
     {
         TT Convert(TF data);
+    }
+
+    public interface INormalize
+    {
+        NormalizationType NormalizationType { get; }
+        double Divide { get; }
+        double Subtract { get; }
     }
 }

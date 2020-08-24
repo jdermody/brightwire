@@ -9,7 +9,7 @@ namespace BrightTable.Transformations
 {
     public class ColumnNormalization : IColumnTransformationParam
     {
-        public class Normalizer<T> : IConvert<T, T> where T: struct
+        public class Normalizer<T> : IConvert<T, T>, INormalize where T: struct
         {
             private readonly ICanConvert<T, double> _convertToDouble;
             private readonly NormalizeTransformation _normalize;
@@ -41,6 +41,10 @@ namespace BrightTable.Transformations
 
             public Type From => typeof(T);
             public Type To => typeof(T);
+
+            public NormalizationType NormalizationType => _normalize.NormalizationType;
+            public double Divide => _normalize.Divide;
+            public double Subtract => _normalize.Subtract;
         }
 
         public ICanConvert GetConverter(ColumnType fromType, ISingleTypeTableSegment column, TempStreamManager tempStreams, IBrightDataContext context)
