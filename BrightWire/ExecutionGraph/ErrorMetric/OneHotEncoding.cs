@@ -1,4 +1,5 @@
-﻿using BrightWire.Models;
+﻿using BrightData;
+using BrightWire.Models;
 
 namespace BrightWire.ExecutionGraph.ErrorMetric
 {
@@ -12,7 +13,7 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
             return targetOutput.Subtract(output);
         }
 
-        public float Compute(FloatVector output, FloatVector expectedOutput)
+        public float Compute(Vector<float> output, Vector<float> expectedOutput)
         {
             return output.MaximumIndex() == expectedOutput?.MaximumIndex() ? 1f : 0f;
         }

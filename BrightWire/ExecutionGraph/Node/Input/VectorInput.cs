@@ -26,7 +26,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
 					var learningContext = context.LearningContext;
 					learningContext.StoreUpdate(_source, columnSums, err => {
 						var delta = err.AsIndexable();
-						for (var j = 0; j < _source._data.Length; j++)
+						for (uint j = 0; j < _source._data.Length; j++)
 							_source._data[j] += delta[j] * context.LearningContext.BatchLearningRate;
 					});
 				}
@@ -44,7 +44,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
 
 		public override void ExecuteForward(IContext context)
 		{
-			var data = context.LinearAlgebraProvider.CreateMatrix(context.BatchSequence.MiniBatch.BatchSize, _data.Length, (x, y) => _data[y]);
+			var data = context.LinearAlgebraProvider.CreateMatrix(context.BatchSequence.MiniBatch.BatchSize, (uint)_data.Length, (x, y) => _data[y]);
 			_AddNextGraphAction(context, new MatrixGraphData(data), () => new Backpropagation(this));
 		}
 
@@ -60,7 +60,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
 
 		public override void ReadFrom(GraphFactory factory, BinaryReader reader)
 		{
-			FloatVector.ReadFrom(reader).Data.CopyTo(_data, 0);
+			FloatVector.ReadFrom(reader).Data.CopyTo(_data);
 		}
 	}
 }

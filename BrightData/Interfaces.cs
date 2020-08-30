@@ -124,6 +124,7 @@ namespace BrightData
         void Initialize(T initializer);
         void Initialize(T[] initialData);
         void WriteTo(Stream writerBaseStream);
+        void CopyTo(T[] array);
     }
 
     public interface ITensorAllocator

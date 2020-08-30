@@ -78,6 +78,12 @@ namespace BrightData.Memory
             }
         }
 
+        internal void CopyTo(T[] array)
+        {
+            Memory<T> ptr = array;
+            _data.Memory.CopyTo(ptr);
+        }
+
         public void WriteTo(Stream stream)
         {
             stream.Write(MemoryMarshal.Cast<T, byte>(_data.Memory.Span));

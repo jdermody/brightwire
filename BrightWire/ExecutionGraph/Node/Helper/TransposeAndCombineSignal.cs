@@ -24,9 +24,9 @@ namespace BrightWire.ExecutionGraph.Node.Helper
                 var lap = context.LinearAlgebraProvider;
 
                 var rowList = new List<IVector>();
-                for(var i = 0; i < matrix.RowCount; i++) {
+                for(uint i = 0; i < matrix.RowCount; i++) {
                     var rowMatrix = matrix.Row(i).ReshapeAsMatrix(_tensor.RowCount, _tensor.ColumnCount);
-                    var matrixList = Enumerable.Repeat(rowMatrix, _tensor.Depth).ToList();
+                    var matrixList = Enumerable.Repeat(rowMatrix, (int)_tensor.Depth).ToList();
                     var tensor = lap.Create3DTensor(matrixList);
                     rowList.Add(tensor.ReshapeAsVector());
                 }
@@ -44,7 +44,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
         {
             var tensor = context.Data.Get4DTensor();
             var rowList = new List<IVector>();
-            for(var i = 0; i < tensor.Count; i++) {
+            for(uint i = 0; i < tensor.Count; i++) {
                 var row = tensor.GetTensorAt(i).CombineDepthSlices().ReshapeAsVector();
                 rowList.Add(row);
             }

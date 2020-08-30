@@ -41,24 +41,23 @@ namespace BrightWire.TrainingData.WellKnown
             /// </summary>
             public byte[] Data => _data;
 
-	        /// <summary>
+            /// <summary>
             /// The image number (0-9)
             /// </summary>
             public int Label => _label;
 
-	        /// <summary>
+            /// <summary>
             /// Converts the image to one hot encoded float arrays
             /// </summary>
             public (FloatVector Data, FloatVector Label) AsFloatArray
             {
-                get
-                {
+                get {
                     var label = new float[10];
                     label[_label] = 1;
 
                     return (
-                        new FloatVector { Data = _data.Select(b => Convert.ToSingle((int)b) / 255f).ToArray() },
-                        new FloatVector { Data = label }
+                        FloatVector.Create(_data.Select(b => Convert.ToSingle((int)b) / 255f).ToArray()),
+                        FloatVector.Create(label)
                     );
                 }
             }
@@ -68,8 +67,7 @@ namespace BrightWire.TrainingData.WellKnown
             /// </summary>
             public (FloatTensor Tensor, FloatVector Label) AsFloatTensor
             {
-                get
-                {
+                get {
                     const int SIZE = 28;
                     var data = AsFloatArray;
                     var rows = new List<FloatVector>();
@@ -77,56 +75,54 @@ namespace BrightWire.TrainingData.WellKnown
 
                     for (var y = 0; y < SIZE; y++) {
                         var row = new float[SIZE];
-                        for(var x = 0; x < SIZE; x++)
+                        for (var x = 0; x < SIZE; x++)
                             row[x] = vector[(y * SIZE) + x];
-                        rows.Add(new FloatVector { Data = row });
+                        rows.Add(FloatVector.Create(row));
                     }
-                    var tensor = new FloatTensor {
-                        Matrix = new[] {
-                            FloatMatrix.Create(rows.ToArray())
-                        }
-                    };
+                    var tensor = FloatTensor.Create(new[] { 
+                        FloatMatrix.Create(rows.ToArray()) 
+                    });
                     return (tensor, data.Label);
                 }
-            }
+    }
+}
+
+/// <summary>
+/// Loads a set of images from the MNIST data files
+/// </summary>
+/// <param name="labelPath">Path to the label data file</param>
+/// <param name="imagePath">Path to the image data file</param>
+/// <param name="total">Maximum number of images to load</param>
+public static IReadOnlyList<Image> Load(string labelPath, string imagePath, int total = int.MaxValue)
+{
+    var labels = new List<byte>();
+    using (var file = new FileStream(labelPath, FileMode.Open, FileAccess.Read))
+    using (var reader = new BigEndianBinaryReader(file)) {
+        reader.ReadInt32();
+        var count = reader.ReadUInt32();
+        for (var i = 0; i < count && i < total; i++) {
+            labels.Add(reader.ReadByte());
         }
+    }
 
-        /// <summary>
-        /// Loads a set of images from the MNIST data files
-        /// </summary>
-        /// <param name="labelPath">Path to the label data file</param>
-        /// <param name="imagePath">Path to the image data file</param>
-        /// <param name="total">Maximum number of images to load</param>
-        public static IReadOnlyList<Image> Load(string labelPath, string imagePath, int total = int.MaxValue)
-        {
-            var labels = new List<byte>();
-            using (var file = new FileStream(labelPath, FileMode.Open, FileAccess.Read))
-            using (var reader = new BigEndianBinaryReader(file)) {
-                reader.ReadInt32();
-                var count = reader.ReadUInt32();
-                for (var i = 0; i < count && i < total; i++) {
-                    labels.Add(reader.ReadByte());
-                }
+    var images = new List<byte[]>();
+    using (var file = new FileStream(imagePath, FileMode.Open, FileAccess.Read))
+    using (var reader = new BigEndianBinaryReader(file)) {
+        reader.ReadInt32();
+        var count = reader.ReadUInt32();
+        var numRows = reader.ReadUInt32();
+        var numCols = reader.ReadUInt32();
+        var imageSize = numRows * numCols;
+        for (var i = 0; i < count && i < total; i++) {
+            var imageData = new byte[imageSize];
+            for (var j = 0; j < imageSize; j++) {
+                imageData[j] = reader.ReadByte();
             }
-
-            var images = new List<byte[]>();
-            using (var file = new FileStream(imagePath, FileMode.Open, FileAccess.Read))
-            using (var reader = new BigEndianBinaryReader(file)) {
-                reader.ReadInt32();
-                var count = reader.ReadUInt32();
-                var numRows = reader.ReadUInt32();
-                var numCols = reader.ReadUInt32();
-                var imageSize = numRows * numCols;
-                for (var i = 0; i < count && i < total; i++) {
-                    var imageData = new byte[imageSize];
-                    for (var j = 0; j < imageSize; j++) {
-                        imageData[j] = reader.ReadByte();
-                    }
-                    images.Add(imageData);
-                }
-            }
-
-            return labels.Zip(images, (l, d) => new Image(d, l)).ToList();
+            images.Add(imageData);
         }
+    }
+
+    return labels.Zip(images, (l, d) => new Image(d, l)).ToList();
+}
     }
 }

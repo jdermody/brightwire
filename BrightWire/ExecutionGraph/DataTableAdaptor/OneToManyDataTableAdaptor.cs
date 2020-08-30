@@ -1,4 +1,5 @@
-﻿using BrightTable;
+﻿using BrightData;
+using BrightTable;
 using BrightWire.ExecutionGraph.Helper;
 using BrightWire.Models;
 using System;
@@ -12,7 +13,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
     /// </summary>
     class OneToManyDataTableAdaptor : RowBasedDataTableAdaptorBase
     {
-        readonly int[] _rowDepth;
+        readonly uint[] _rowDepth;
 
 	    public OneToManyDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable) 
             : base(lap, dataTable)
@@ -20,12 +21,12 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             if (_dataColumnIndex.Length > 1)
                 throw new NotImplementedException("Sequential datasets not supported with more than one input data column");
 
-            _rowDepth = new int[dataTable.RowCount];
-            FloatVector inputVector = null;
-            FloatMatrix outputMatrix = null;
+            _rowDepth = new uint[dataTable.RowCount];
+            Vector<float> inputVector = null;
+            Matrix<float> outputMatrix = null;
             dataTable.ForEachRow((row, i) => {
-                inputVector = (FloatVector)row[_dataColumnIndex[0]];
-                outputMatrix = (FloatMatrix)row[_dataTargetIndex];
+                inputVector = (Vector<float>)row[_dataColumnIndex[0]];
+                outputMatrix = (Matrix<float>)row[_dataTargetIndex];
                 _rowDepth[i] = outputMatrix.RowCount;
                 if (outputMatrix.ColumnCount != inputVector.Size)
                     throw new ArgumentException("Rows between input and output data tables do not match");
@@ -41,37 +42,37 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         }
 
         public override bool IsSequential => true;
-        public override int InputSize { get; }
-	    public override int OutputSize { get; }
+        public override uint InputSize { get; }
+	    public override uint? OutputSize { get; }
 
-	    public override IReadOnlyList<IReadOnlyList<int>> GetBuckets()
+	    public override IReadOnlyList<IReadOnlyList<uint>> GetBuckets()
         {
             return _rowDepth
                 .Select((r, i) => (r, i))
                 .GroupBy(t => t.Item1)
-                .Select(g => g.Select(d => d.Item2).ToList())
+                .Select(g => g.Select(d => (uint)d.Item2).ToList())
                 .ToList()
             ;
         }
 
-        public override IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<int> rows)
+        public override IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<uint> rows)
         {
             var data = _GetRows(rows)
-                .Select(r => ((FloatVector)r[_dataColumnIndex[0]], (FloatMatrix)r[_dataTargetIndex]))
+                .Select(r => ((Vector<float>)r[_dataColumnIndex[0]], (FloatMatrix)r[_dataTargetIndex]))
                 .ToList()
             ;
-            var outputData = new Dictionary<int, List<FloatVector>>();
+            var outputData = new Dictionary<uint, List<Vector<float>>>();
             foreach (var item in data) {
                 var output = item.Item2;
-                for (int i = 0, len = output.RowCount; i < len; i++) {
+                for (uint i = 0, len = output.RowCount; i < len; i++) {
                     if (!outputData.TryGetValue(i, out var temp))
-                        outputData.Add(i, temp = new List<FloatVector>());
-                    temp.Add(output.Row[i]);
+                        outputData.Add(i, temp = new List<Vector<float>>());
+                    temp.Add(output.Row(i).Data);
                 }
             }
 
             var miniBatch = new MiniBatch(rows, this);
-            var curr = _lap.CreateMatrix(data.Count, InputSize, (x, y) => data[x].Item1.Data[y]);
+            var curr = _lap.CreateMatrix((uint)data.Count, (uint)InputSize, (x, y) => data[(int)x].Item1.Data[y]);
             foreach (var item in outputData.OrderBy(kv => kv.Key)) {
                 var output = _lap.CreateMatrixFromRows(item.Value);
                 var type = (item.Key == 0)

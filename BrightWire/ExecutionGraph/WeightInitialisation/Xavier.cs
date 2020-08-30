@@ -12,7 +12,7 @@ namespace BrightWire.ExecutionGraph.WeightInitialisation
     {
         readonly double _parameter;
         readonly ILinearAlgebraProvider _lap;
-        readonly Dictionary<Tuple<int, int>, IContinuousDistribution> _distributionTable = new Dictionary<Tuple<int, int>, IContinuousDistribution>();
+        readonly Dictionary<(uint, uint), IContinuousDistribution> _distributionTable = new Dictionary<(uint, uint), IContinuousDistribution>();
         readonly Random _random;
 
         public Xavier(ILinearAlgebraProvider lap, float parameter = 6)
@@ -22,19 +22,19 @@ namespace BrightWire.ExecutionGraph.WeightInitialisation
             _random = lap.IsStochastic ? new Random() : new Random(0);
         }
 
-        public IVector CreateBias(int size)
+        public IVector CreateBias(uint size)
         {
             return _lap.CreateVector(size);
         }
 
-        public IMatrix CreateWeight(int rows, int columns)
+        public IMatrix CreateWeight(uint rows, uint columns)
         {
-            return _lap.CreateMatrix(rows, columns, (x, y) => GetWeight(rows, columns, x, y));
+            return _lap.CreateMatrix(rows, columns, (x, y) => GetWeight(rows, columns));
         }
 
-        public float GetWeight(int inputSize, int outputSize, int i, int j)
+        public float GetWeight(uint inputSize, uint outputSize)
         {
-            var key = Tuple.Create(inputSize, outputSize);
+            var key = (inputSize, outputSize);
             if (!_distributionTable.TryGetValue(key, out IContinuousDistribution distribution)) {
                 var stdDev = _parameter / (inputSize + outputSize);
                 _distributionTable.Add(key, distribution = new Normal(0, stdDev, _random));

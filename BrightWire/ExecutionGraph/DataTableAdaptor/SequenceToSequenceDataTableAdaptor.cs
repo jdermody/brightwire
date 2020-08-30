@@ -13,8 +13,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
     /// </summary>
     class SequenceToSequenceDataTableAdaptor : AdaptiveDataTableAdaptorBase
     {
-        int[] _rowDepth;
-        int _inputSize, _outputSize;
+        uint[] _rowDepth;
+        uint _inputSize, _outputSize;
 
         public SequenceToSequenceDataTableAdaptor(ILinearAlgebraProvider lap, ILearningContext learningContext, GraphFactory factory, IRowOrientedDataTable dataTable, Action<WireBuilder> dataConversionBuilder)
             : base(lap, learningContext, dataTable)
@@ -26,7 +26,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 
             // execute the graph to find the input size (which is the size of the adaptive graph's output)
             using (var executionContext = new ExecutionContext(lap)) {
-                var output = _Encode(executionContext, new[] { 0 });
+                var output = _Encode(executionContext, new uint [] { 0 });
                 _inputSize = output.Item1.ColumnCount;
                 _learningContext.Clear();
             }
@@ -43,7 +43,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 
         void _Initialise(IDataTable dataTable)
         {
-            _rowDepth = new int[dataTable.RowCount];
+            _rowDepth = new uint[dataTable.RowCount];
             FloatMatrix inputMatrix = null, outputMatrix = null;
             dataTable.ForEachRow((row, i) => {
                 inputMatrix = (FloatMatrix)row[0];
@@ -55,7 +55,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             _outputSize = outputMatrix.ColumnCount;
         }
 
-        private SequenceToSequenceDataTableAdaptor(ILinearAlgebraProvider lap, ILearningContext learningContext, IRowOrientedDataTable dataTable, INode input, int inputSize, int outputSize)
+        private SequenceToSequenceDataTableAdaptor(ILinearAlgebraProvider lap, ILearningContext learningContext, IRowOrientedDataTable dataTable, INode input, uint inputSize, uint outputSize)
             : base(lap, learningContext, dataTable)
         {
             _Initialise(dataTable);
@@ -70,20 +70,20 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         }
 
         public override bool IsSequential => true;
-        public override int InputSize => _inputSize;
-        public override int OutputSize => _outputSize;
+        public override uint InputSize => _inputSize;
+        public override uint? OutputSize => _outputSize;
 
-        public override IReadOnlyList<IReadOnlyList<int>> GetBuckets()
+        public override IReadOnlyList<IReadOnlyList<uint>> GetBuckets()
         {
             return _rowDepth
                 .Select((r, i) => (r, i))
                 .GroupBy(t => t.Item1)
-                .Select(g => g.Select(d => d.Item2).ToList())
+                .Select(g => g.Select(d => (uint)d.Item2).ToList())
                 .ToList()
             ;
         }
 
-        (IMatrix, IReadOnlyList<object[]>) _Encode(IExecutionContext executionContext, IReadOnlyList<int> rows)
+        (IMatrix, IReadOnlyList<object[]>) _Encode(IExecutionContext executionContext, IReadOnlyList<uint> rows)
         {
             var data = _GetRows(rows);
 
@@ -105,18 +105,18 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             return (encoderOutput, data);
         }
 
-        public override IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<int> rows)
+        public override IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<uint> rows)
         {
             (var encoderOutput, var data) = _Encode(executionContext, rows);
 
             // create the decoder input
-            var outputData = new Dictionary<int, List<FloatVector>>();
+            var outputData = new Dictionary<uint, List<FloatVector>>();
             foreach (var item in data) {
                 var output = (FloatMatrix)item[1];
-                for (int i = 0, len = output.RowCount; i < len; i++) {
+                for (uint i = 0, len = output.RowCount; i < len; i++) {
                     if (!outputData.TryGetValue(i, out List<FloatVector> temp))
                         outputData.Add(i, temp = new List<FloatVector>());
-                    temp.Add(output.Row[i]);
+                    temp.Add(FloatVector.Create(output.Row(i).Data));
                 }
             }
             var miniBatch = new MiniBatch(rows, this);

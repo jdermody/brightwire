@@ -224,6 +224,16 @@ namespace BrightData.Numerics
             throw new NotImplementedException();
         }
 
+        public void CopyTo(float[] array, uint offset)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void CopyTo(float[] array)
+        {
+            throw new NotImplementedException();
+        }
+
         public ITensorSegment<float> Data { get; }
         public INumericComputation<float> Computation { get; }
     }

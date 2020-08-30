@@ -16,6 +16,11 @@
     <Compile Remove="Helper\DataTableBuilder.cs" />
     <Compile Remove="Helper\VectorAsRow.cs" />
     <Compile Remove="Interface.DataTable.cs" />
+    <Compile Remove="Models\FloatMatrix.cs" />
+    <Compile Remove="Models\FloatTensor.cs" />
+    <Compile Remove="Models\FloatVector.cs" />
+    <Compile Remove="Models\IndexList.cs" />
+    <Compile Remove="Models\WeightedIndexList.cs" />
   </ItemGroup>
 
   <ItemGroup>

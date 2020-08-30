@@ -18,12 +18,12 @@
         /// <summary>
         /// The size of each input training data item
         /// </summary>
-        public int InputSize { get; set; }
+        public uint InputSize { get; set; }
 
         /// <summary>
         /// The size of each training item output (classification label)
         /// </summary>
-        public int OutputSize { get; set; }
+        public uint OutputSize { get; set; }
 
         /// <summary>
         /// The preliminary graph

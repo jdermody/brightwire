@@ -16,8 +16,8 @@ namespace BrightWire
 		/// <returns></returns>
 		public static IVector CreateVector(this ILinearAlgebraProvider lap, IEnumerable<float> data)
 		{
-			var list = data.ToList();
-			return lap.CreateVector(list.Count, i => list[i]);
+			var list = data.ToArray();
+			return lap.CreateVector((uint)list.Length, i => list[i]);
 		}
 
 		/// <summary>
@@ -42,7 +42,7 @@ namespace BrightWire
             //var array = data.Data;
             //return lap.CreateVector(array.Length, i => array[i]);
 
-	        var ret = lap.CreateVector(data.Count);
+	        var ret = lap.CreateVector(data.Size);
 	        ret.Data = data;
 	        return ret;
         }
@@ -55,7 +55,7 @@ namespace BrightWire
         /// <returns></returns>
         public static IVector CreateVector(this ILinearAlgebraProvider lap, IReadOnlyList<float> data)
         {
-            return lap.CreateVector(data.Count, i => data[i]);
+            return lap.CreateVector((uint)data.Count, i => data[(int)i]);
         }
 
 	    /// <summary>
@@ -66,7 +66,7 @@ namespace BrightWire
 	    /// <returns></returns>
 	    public static IVector CreateVector(this ILinearAlgebraProvider lap, float[] data)
 	    {
-		    return lap.CreateVector(data.Length, i => data[i]);
+		    return lap.CreateVector((uint)data.Length, i => data[i]);
 	    }
 
         /// <summary>
@@ -76,7 +76,7 @@ namespace BrightWire
         /// <param name="length">Vector size</param>
         /// <param name="value">Constant value</param>
         /// <returns></returns>
-        public static IVector CreateVector(this ILinearAlgebraProvider lap, int length, float value = 0f)
+        public static IVector CreateVector(this ILinearAlgebraProvider lap, uint length, float value = 0f)
         {
             return lap.CreateVector(length, i => value);
         }
@@ -87,7 +87,7 @@ namespace BrightWire
 		/// <param name="lap"></param>
 		/// <param name="rows">Number of rows</param>
 		/// <param name="columns">Numer of columns</param>
-	    public static IMatrix CreateZeroMatrix(this ILinearAlgebraProvider lap, int rows, int columns) => lap.CreateMatrix(rows, columns, true);
+	    public static IMatrix CreateZeroMatrix(this ILinearAlgebraProvider lap, uint rows, uint columns) => lap.CreateMatrix(rows, columns, true);
 
 		/// <summary>
 		/// Create a matrix
@@ -100,7 +100,6 @@ namespace BrightWire
 			var ret = lap.CreateMatrix(matrix.RowCount, matrix.ColumnCount, false);
 			ret.Data = matrix;
 			return ret;
-			//return lap.CreateMatrix(matrix.RowCount, matrix.ColumnCount, (i, j) => matrix.Row[i].Data[j]);
 		}
 
         /// <summary>
@@ -111,9 +110,9 @@ namespace BrightWire
         /// <returns></returns>
         public static IMatrix CreateMatrixFromRows(this ILinearAlgebraProvider lap, IReadOnlyList<FloatVector> rowList)
         {
-            int rows = rowList.Count;
+            var rows = (uint)rowList.Count;
             var columns = rowList[0].Size;
-            return lap.CreateMatrix(rows, columns, (x, y) => rowList[x].Data[y]);
+            return lap.CreateMatrix(rows, columns, (x, y) => rowList[(int)x].Data[y]);
         }
 
         /// <summary>
@@ -124,9 +123,9 @@ namespace BrightWire
         /// <returns></returns>
         public static IMatrix CreateMatrixFromRows(this ILinearAlgebraProvider lap, IReadOnlyList<IIndexableVector> rowList)
         {
-            int rows = rowList.Count;
+            var rows = (uint)rowList.Count;
             var columns = rowList[0].Count;
-            return lap.CreateMatrix(rows, columns, (x, y) => rowList[x][y]);
+            return lap.CreateMatrix(rows, columns, (x, y) => rowList[(int)x][y]);
         }
 
 	    /// <summary>
@@ -137,9 +136,9 @@ namespace BrightWire
 	    /// <returns></returns>
 	    public static IMatrix CreateMatrixFromColumns(this ILinearAlgebraProvider lap, IReadOnlyList<FloatVector> columnList)
 	    {
-		    int columns = columnList.Count;
+		    var columns = (uint)columnList.Count;
 		    var rows = columnList[0].Size;
-		    return lap.CreateMatrix(rows, columns, (x, y) => columnList[y].Data[x]);
+		    return lap.CreateMatrix(rows, columns, (x, y) => columnList[(int)y].Data[x]);
 	    }
 
 	    /// <summary>
@@ -150,9 +149,9 @@ namespace BrightWire
 	    /// <returns></returns>
 	    public static IMatrix CreateMatrixFromColumns(this ILinearAlgebraProvider lap, IReadOnlyList<IIndexableVector> columnList)
 	    {
-		    int columns = columnList.Count;
+		    var columns = (uint)columnList.Count;
 		    var rows = columnList[0].Count;
-		    return lap.CreateMatrix(rows, columns, (x, y) => columnList[y][x]);
+		    return lap.CreateMatrix(rows, columns, (x, y) => columnList[(int)y][x]);
 	    }
 
         /// <summary>
@@ -163,7 +162,7 @@ namespace BrightWire
         /// <param name="columns">Matrix columns</param>
         /// <param name="value">Constant value</param>
         /// <returns></returns>
-        public static IMatrix CreateMatrix(this ILinearAlgebraProvider lap, int rows, int columns, float value)
+        public static IMatrix CreateMatrix(this ILinearAlgebraProvider lap, uint rows, uint columns, float value)
         {
             return lap.CreateMatrix(rows, columns, (i, j) => value);
         }
@@ -185,7 +184,7 @@ namespace BrightWire
         /// <param name="lap"></param>
         /// <param name="size">Width and height of the new matrix</param>
         /// <returns></returns>
-        public static IMatrix CreateIdentityMatrix(this ILinearAlgebraProvider lap, int size)
+        public static IMatrix CreateIdentityMatrix(this ILinearAlgebraProvider lap, uint size)
         {
             return lap.CreateMatrix(size, size, (x, y) => x == y ? 1f : 0f);
         }
@@ -198,7 +197,7 @@ namespace BrightWire
         /// <returns></returns>
         public static IMatrix CreateDiagonalMatrix(this ILinearAlgebraProvider lap, IReadOnlyList<float> values)
         {
-            return lap.CreateMatrix(values.Count, values.Count, (x, y) => x == y ? values[x] : 0f);
+            return lap.CreateMatrix((uint)values.Count, (uint)values.Count, (x, y) => x == y ? values[(int)x] : 0f);
         }
 
         /// <summary>
@@ -224,10 +223,8 @@ namespace BrightWire
 	    public static I3DTensor Create3DTensor(this ILinearAlgebraProvider lap, FloatMatrix[] matrices)
 	    {
 		    var first = matrices[0];
-		    var ret = lap.Create3DTensor(first.RowCount, first.ColumnCount, matrices.Length);
-		    ret.Data = new FloatTensor {
-			    Matrix = matrices
-		    };
+		    var ret = lap.Create3DTensor(first.RowCount, first.ColumnCount, (uint)matrices.Length);
+		    ret.Data = FloatTensor.Create(matrices);
 		    return ret;
 	    }
 

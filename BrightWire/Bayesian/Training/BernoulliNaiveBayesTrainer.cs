@@ -1,4 +1,5 @@
-﻿using BrightWire.Models;
+﻿using BrightData;
+using BrightWire.Models;
 using BrightWire.Models.Bayesian;
 using System;
 using System.Collections.Generic;
@@ -17,7 +18,7 @@ namespace BrightWire.Bayesian.Training
 	        if (!_documentClass.TryGetValue(documentClass, out var temp))
                 _documentClass.Add(documentClass, temp = new List<IndexList>());
 
-            foreach (var item in indexList.Index)
+            foreach (var item in indexList.Indices)
                 _vocabulary.Add(item);
             temp.Add(indexList);
         }
@@ -30,7 +31,7 @@ namespace BrightWire.Bayesian.Training
             foreach (var item in _documentClass) {
                 var docTerm = new Dictionary<uint, HashSet<int>>();
                 for (int i = 0; i < item.Value.Count; i++) {
-                    foreach (var word in item.Value[i].Index) {
+                    foreach (var word in item.Value[i].Indices) {
                         if (!docTerm.TryGetValue(word, out var temp))
                             docTerm.Add(word, temp = new HashSet<int>());
                         temp.Add(i);

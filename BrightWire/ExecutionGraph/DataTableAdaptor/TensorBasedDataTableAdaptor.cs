@@ -11,7 +11,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
     /// </summary>
     class TensorBasedDataTableAdaptor : RowBasedDataTableAdaptorBase, IVolumeDataSource
     {
-        readonly int _inputSize, _outputSize;
+        readonly uint _inputSize, _outputSize;
 
         public TensorBasedDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable)
             : base(lap, dataTable)
@@ -26,7 +26,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             Depth = input.Depth;
         }
 
-        TensorBasedDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, int inputSize, int outputSize, int rows, int columns, int depth) 
+        TensorBasedDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, uint inputSize, uint outputSize, uint rows, uint columns, uint depth) 
             :base(lap, dataTable)
         {
             _inputSize = inputSize;
@@ -42,26 +42,26 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         }
 
         public override bool IsSequential => false;
-        public override int InputSize => _inputSize;
-        public override int OutputSize => _outputSize;
-        public int Width { get; }
-	    public int Height { get; }
-	    public int Depth { get; }
+        public override uint InputSize => _inputSize;
+        public override uint? OutputSize => _outputSize;
+        public uint Width { get; }
+	    public uint Height { get; }
+	    public uint Depth { get; }
 
-	    public override IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<int> rows)
+	    public override IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<uint> rows)
         {
             var data = _GetRows(rows)
                 .Select(r => (_dataColumnIndex.Select(i => ((FloatTensor)r[i]).GetAsRaw()).ToList(), ((FloatVector)r[_dataTargetIndex]).Data))
-                .ToList()
+                .ToArray()
             ;
             var inputList = new List<IGraphData>();
             for (var i = 0; i < _dataColumnIndex.Length; i++) {
 	            var i1 = i;
-	            var input = _lap.CreateMatrix(InputSize, data.Count, (x, y) => data[y].Item1[i1][x]);
+	            var input = _lap.CreateMatrix((uint)InputSize, (uint)data.Length, (x, y) => data[y].Item1[i1][x]);
                 var tensor = new Tensor4DGraphData(input, Height, Width, Depth);
                 inputList.Add(tensor);
             }
-            var output = OutputSize > 0 ? _lap.CreateMatrix(data.Count, OutputSize, (x, y) => data[x].Item2[y]) : null;
+            var output = OutputSize > 0 ? _lap.CreateMatrix((uint)data.Length, (uint)OutputSize, (x, y) => data[x].Item2[y]) : null;
             
             return new MiniBatch(rows, this, inputList, new MatrixGraphData(output));
         }

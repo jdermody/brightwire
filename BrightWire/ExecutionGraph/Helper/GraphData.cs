@@ -15,10 +15,10 @@ namespace BrightWire.ExecutionGraph.Helper
             _matrix = matrix;
         }
 
-        public int Rows => _matrix.RowCount;
-        public int Columns => _matrix.ColumnCount;
-        public int Depth => 1;
-        public int Count => 1;
+        public uint Rows => _matrix.RowCount;
+        public uint Columns => _matrix.ColumnCount;
+        public uint Depth => 1;
+        public uint Count => 1;
 
         public IMatrix GetMatrix() => _matrix;
         public I4DTensor Get4DTensor() => null;
@@ -42,17 +42,17 @@ namespace BrightWire.ExecutionGraph.Helper
             this(tensor.ReshapeAsMatrix(), tensor.RowCount, tensor.ColumnCount)
         {
         }
-        public Tensor3DGraphData(IMatrix matrix, int rows, int columns)
+        public Tensor3DGraphData(IMatrix matrix, uint rows, uint columns)
         {
             _matrix = matrix;
             Rows = rows;
             Columns = columns;
         }
 
-        public int Rows { get; }
-	    public int Columns { get; }
-	    public int Depth => _matrix.ColumnCount;
-        public int Count => 1;
+        public uint Rows { get; }
+	    public uint Columns { get; }
+	    public uint Depth => _matrix.ColumnCount;
+        public uint Count => 1;
 	    public IMatrix GetMatrix() => _matrix;
         public IGraphData ReplaceWith(IMatrix matrix) => new Tensor3DGraphData(matrix, Rows, Columns);
         public IGraphData ReplaceWith(IContext context, IReadOnlyList<IMatrix> matrixList)
@@ -64,7 +64,7 @@ namespace BrightWire.ExecutionGraph.Helper
         public IReadOnlyList<IMatrix> GetSubMatrices()
         {
             var ret = new IMatrix[Depth];
-            for (var i = 0; i < Depth; i++)
+            for (uint i = 0; i < Depth; i++)
                 ret[i] = _matrix.Column(i).ReshapeAsMatrix(Rows, Columns);
             return ret;
         }
@@ -85,7 +85,7 @@ namespace BrightWire.ExecutionGraph.Helper
             this(tensor.ReshapeAsMatrix(), tensor.RowCount, tensor.ColumnCount, tensor.Depth)
         {
         }
-        public Tensor4DGraphData(IMatrix matrix, int rows, int columns, int depth)
+        public Tensor4DGraphData(IMatrix matrix, uint rows, uint columns, uint depth)
         {
             _matrix = matrix;
             Rows = rows;
@@ -93,19 +93,19 @@ namespace BrightWire.ExecutionGraph.Helper
             Depth = depth;
         }
 
-        public int Rows { get; }
-	    public int Columns { get; }
-	    public int Depth { get; }
-	    public int Count => _matrix.ColumnCount;
+        public uint Rows { get; }
+	    public uint Columns { get; }
+	    public uint Depth { get; }
+	    public uint Count => _matrix.ColumnCount;
         public IMatrix GetMatrix() => _matrix;
         public IGraphData ReplaceWith(IMatrix matrix) => new Tensor4DGraphData(matrix, Rows, Columns, Depth);
         public IReadOnlyList<IMatrix> GetSubMatrices()
         {
             var ret = new List<IMatrix>();
-            for (var j = 0; j < Count; j++) {
+            for (uint j = 0; j < Count; j++) {
                 var matrix = _matrix.Column(j);
                 using (var tensor = matrix.ReshapeAs3DTensor(Rows, Columns, Depth)) {
-                    for (var i = 0; i < Depth; i++)
+                    for (uint i = 0; i < Depth; i++)
                         ret.Add(tensor.GetMatrixAt(i));
                 }
             }

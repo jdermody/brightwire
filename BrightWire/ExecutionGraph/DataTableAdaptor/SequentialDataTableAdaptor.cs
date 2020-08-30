@@ -11,14 +11,14 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
     /// </summary>
     class SequentialDataTableAdaptor : RowBasedDataTableAdaptorBase
     {
-        readonly int[] _rowDepth;
+        readonly uint[] _rowDepth;
 
 	    public SequentialDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable) : base(lap, dataTable)
         {
             if (_dataColumnIndex.Length > 1)
                 throw new NotImplementedException("Sequential datasets not supported with more than one input data column");
 
-            _rowDepth = new int[dataTable.RowCount];
+            _rowDepth = new uint[dataTable.RowCount];
 
             FloatMatrix inputMatrix = null, outputMatrix = null;
             dataTable.ForEachRow((row, i) => {
@@ -38,11 +38,11 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         }
 
         public override bool IsSequential => true;
-        public override int InputSize { get; }
-	    public override int OutputSize { get; }
+        public override uint InputSize { get; }
+	    public override uint? OutputSize { get; }
 	    public override uint RowCount => (uint)_rowDepth.Length;
 
-        public override IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<int> rows)
+        public override IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<uint> rows)
         {
             //var data = _GetRows(rows)
             //    .Select(r => ((FloatMatrix)r.Data[0], (FloatMatrix)r.Data[1]))
@@ -52,12 +52,12 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             throw new NotImplementedException();
         }
 
-        public override IReadOnlyList<IReadOnlyList<int>> GetBuckets()
+        public override IReadOnlyList<IReadOnlyList<uint>> GetBuckets()
         {
             return _rowDepth
                 .Select((r, i) => (r, i))
                 .GroupBy(t => t.Item1)
-                .Select(g => g.Select(d => d.Item2).ToList())
+                .Select(g => g.Select(d => (uint)d.Item2).ToList())
                 .ToList()
             ;
         }

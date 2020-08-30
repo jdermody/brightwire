@@ -33,9 +33,9 @@ namespace BrightWire.ExecutionGraph.WeightInitialisation
             return _zeroBias ? 0f : Convert.ToSingle(_distribution.Sample());
         }
 
-        float _GetWeight(int inputSize, int outputSize, int i, int j)
+        float _GetWeight(uint inputSize, uint outputSize)
         {
-            var n = 0;
+            uint n = 0;
             if (_varianceCount == GaussianVarianceCount.FanIn || _varianceCount == GaussianVarianceCount.FanInFanOut)
                 n += inputSize;
             if (_varianceCount == GaussianVarianceCount.FanOut || _varianceCount == GaussianVarianceCount.FanInFanOut)
@@ -52,14 +52,14 @@ namespace BrightWire.ExecutionGraph.WeightInitialisation
             return Convert.ToSingle(sample);
         }
 
-        public IVector CreateBias(int size)
+        public IVector CreateBias(uint size)
         {
             return _lap.CreateVector(size, x => _GetBias());
         }
 
-        public IMatrix CreateWeight(int rows, int columns)
+        public IMatrix CreateWeight(uint rows, uint columns)
         {
-            return _lap.CreateMatrix(rows, columns, (x, y) => _GetWeight(rows, columns, x, y));
+            return _lap.CreateMatrix(rows, columns, (x, y) => _GetWeight(rows, columns));
         }
     }
 }

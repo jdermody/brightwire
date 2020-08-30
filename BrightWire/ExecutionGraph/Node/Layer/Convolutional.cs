@@ -17,9 +17,9 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 		class Backpropagation : SingleBackpropagationBase<Convolutional>
 		{
 			readonly I3DTensor _im2Col;
-			readonly int _inputWidth, _inputHeight, _inputDepth, _inputCount, _newWidth, _newHeight;
+			readonly uint _inputWidth, _inputHeight, _inputDepth, _inputCount, _newWidth, _newHeight;
 
-			public Backpropagation(Convolutional source, I3DTensor im2Col, int inputWidth, int inputHeight, int inputDepth, int inputCount, int newWidth, int newHeight)
+			public Backpropagation(Convolutional source, I3DTensor im2Col, uint inputWidth, uint inputHeight, uint inputDepth, uint inputCount, uint newWidth, uint newHeight)
 				: base(source)
 			{
 				_im2Col = im2Col;
@@ -75,7 +75,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 			}
 		}
 		IGradientDescentOptimisation _updater;
-		int _padding, _filterWidth, _filterHeight, _xStride, _yStride, _inputDepth;
+		uint _padding, _filterWidth, _filterHeight, _xStride, _yStride, _inputDepth;
 		IMatrix _filter;
 		IVector _bias;
 		bool _shouldBackpropagate;
@@ -84,13 +84,13 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 			bool shouldBackpropagate,
 			IWeightInitialisation weightInitialisation,
 			Func<IMatrix, IGradientDescentOptimisation> updater,
-			int inputDepth,
-			int filterCount,
-			int padding,
-			int filterWidth,
-			int filterHeight,
-			int xStride, 
-			int yStride,
+			uint inputDepth,
+			uint filterCount,
+			uint padding,
+			uint filterWidth,
+			uint filterHeight,
+			uint xStride, 
+			uint yStride,
 			string name = null) : base(name)
 		{
 			_shouldBackpropagate = shouldBackpropagate;
@@ -106,7 +106,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 			_updater = updater(_filter);
 		}
 
-		public int FilterCount => _filter.ColumnCount;
+		public uint FilterCount => _filter.ColumnCount;
 
 		protected override void _Dispose(bool isDisposing)
 		{
@@ -151,12 +151,12 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 		{
 			var lap = factory?.LinearAlgebraProvider;
 
-			_padding = reader.ReadInt32();
-			_filterWidth = reader.ReadInt32();
-			_filterHeight = reader.ReadInt32();
-			_xStride = reader.ReadInt32();
-			_yStride = reader.ReadInt32();
-			_inputDepth = reader.ReadInt32();
+			_padding = (uint)reader.ReadInt32();
+			_filterWidth = (uint)reader.ReadInt32();
+			_filterHeight = (uint)reader.ReadInt32();
+			_xStride = (uint)reader.ReadInt32();
+			_yStride = (uint)reader.ReadInt32();
+			_inputDepth = (uint)reader.ReadInt32();
 			_shouldBackpropagate = reader.ReadBoolean();
 
 			// read the bias parameters

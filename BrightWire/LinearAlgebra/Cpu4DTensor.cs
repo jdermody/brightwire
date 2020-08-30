@@ -16,9 +16,9 @@ namespace BrightWire.LinearAlgebra
     class Cpu4DTensor : IIndexable4DTensor
     {
         readonly CpuMatrix _data;
-	    readonly int _rows, _columns, _depth, _count;
+	    readonly uint _rows, _columns, _depth, _count;
 
-	    public Cpu4DTensor(int rows, int columns, int depth, int count)
+	    public Cpu4DTensor(uint rows, uint columns, uint depth, uint count)
 	    {
 		    _rows = rows;
 			_columns = columns;
@@ -47,10 +47,10 @@ namespace BrightWire.LinearAlgebra
 	        _data = new CpuMatrix(DenseMatrix.Build.Dense(rowSize, _count, data));
         }
 
-        public int RowCount => _rows;
-	    public int ColumnCount => _columns;
-	    public int Depth => _depth;
-	    public int Count => _count;
+        public uint RowCount => _rows;
+	    public uint ColumnCount => _columns;
+	    public uint Depth => _depth;
+	    public uint Count => _count;
 	    public float[] GetInternalArray() => _data.GetInternalArray();
 
         public void Dispose()
@@ -63,12 +63,12 @@ namespace BrightWire.LinearAlgebra
 		    return $"4D tensor, rows:{RowCount} columns:{ColumnCount} depth:{Depth} count:{Count}";
 	    }
 
-	    public I3DTensor GetTensorAt(int index) => _data.Column(index).ReshapeAs3DTensor(_rows, _columns, _depth);
+	    public I3DTensor GetTensorAt(uint index) => _data.Column(index).ReshapeAs3DTensor(_rows, _columns, _depth);
 	    public IReadOnlyList<IIndexable3DTensor> Tensors => _data.Columns.Select(c => c.ReshapeAs3DTensor(_rows, _columns, _depth).AsIndexable()).ToList();
 
         public IIndexable4DTensor AsIndexable() => this;
 
-        public I4DTensor AddPadding(int padding)
+        public I4DTensor AddPadding(uint padding)
         {
             var ret = new List<IIndexable3DTensor>();
             foreach (var item in Tensors)
@@ -76,7 +76,7 @@ namespace BrightWire.LinearAlgebra
             return new Cpu4DTensor(ret);
         }
 
-        public I4DTensor RemovePadding(int padding)
+        public I4DTensor RemovePadding(uint padding)
         {
             var ret = new List<IIndexable3DTensor>();
             foreach (var item in Tensors)
@@ -84,7 +84,7 @@ namespace BrightWire.LinearAlgebra
             return new Cpu4DTensor(ret);
         }
 
-        public (I4DTensor Result, I4DTensor Indices) MaxPool(int filterWidth, int filterHeight, int xStride, int yStride, bool saveIndices)
+        public (I4DTensor Result, I4DTensor Indices) MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices)
         {
             List<IIndexable3DTensor> indexList = saveIndices ? new List<IIndexable3DTensor>() : null;
             var ret = new List<IIndexable3DTensor>();
@@ -96,7 +96,7 @@ namespace BrightWire.LinearAlgebra
             return (new Cpu4DTensor(ret), saveIndices ? new Cpu4DTensor(indexList) : null);
         }
 
-        public I4DTensor ReverseMaxPool(I4DTensor indices, int outputRows, int outputColumns, int filterWidth, int filterHeight, int xStride, int yStride)
+        public I4DTensor ReverseMaxPool(I4DTensor indices, uint outputRows, uint outputColumns, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
         {
             var ret = new List<IIndexable3DTensor>();
             for (var i = 0; i < Count; i++) {
@@ -106,7 +106,7 @@ namespace BrightWire.LinearAlgebra
             return new Cpu4DTensor(ret);
         }
 
-        public I3DTensor Im2Col(int filterWidth, int filterHeight, int xStride, int yStride)
+        public I3DTensor Im2Col(uint filterWidth, uint filterHeight, uint xStride, uint yStride)
         {
             var ret = new List<IIndexableMatrix>();
             for (var i = 0; i < Count; i++) {
@@ -116,7 +116,7 @@ namespace BrightWire.LinearAlgebra
             return new Cpu3DTensor(ret);
         }
 
-        public I4DTensor ReverseIm2Col(IMatrix filters, int outputRows, int outputColumns, int outputDepth, int filterWidth, int filterHeight, int xStride, int yStride)
+        public I4DTensor ReverseIm2Col(IMatrix filters, uint outputRows, uint outputColumns, uint outputDepth, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
         {
             var ret = new List<IIndexable3DTensor>();
             for (var i = 0; i < Count; i++) {
@@ -174,12 +174,12 @@ namespace BrightWire.LinearAlgebra
             return ret;
         }
 
-	    public float this[int row, int column, int depth, int index] {
+	    public float this[uint row, uint column, uint depth, uint index] {
 		    get => _data[_RowIndex(row, column, depth), index];
 		    set => _data[_RowIndex(row, column, depth), index] = value;
 	    }
 
-	    int _RowIndex(int row, int column, int depth) => depth * _depth + (column * _rows + row);
+	    uint _RowIndex(uint row, uint column, uint depth) => depth * _depth + (column * _rows + row);
 
 	    public string AsXml
 	    {

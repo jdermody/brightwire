@@ -8,7 +8,8 @@ namespace BrightData.Memory
     /// "Pointer" to a tensor block that manages reference counting
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    class TensorSegment<T> : ITensorSegment<T> where T: struct
+    class TensorSegment<T> : ITensorSegment<T> 
+        where T: struct
     {
         readonly TensorBlock<T> _data;
         bool _wasDisposed = false;
@@ -61,5 +62,6 @@ namespace BrightData.Memory
         public void Initialize(T initializer) => _data.Initialize(initializer);
         public void Initialize(T[] initialData) => initialData.CopyTo(_data.Data);
         public void WriteTo(Stream stream) => _data.WriteTo(stream);
+        public void CopyTo(T[] array) => _data.CopyTo(array);
     }
 }

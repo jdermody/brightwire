@@ -410,5 +410,8 @@ namespace BrightData
                     throw new NotImplementedException();
             }
         }
+
+        public static IEnumerable<uint> AsRange(this uint count) => Enumerable.Range(0, (int)count).Cast<uint>();
+        public static IEnumerable<uint> AsRange(this int count) => Enumerable.Range(0, count).Cast<uint>();
     }
 }

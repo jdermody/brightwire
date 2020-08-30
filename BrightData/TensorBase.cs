@@ -184,5 +184,10 @@ namespace BrightData
             var shape = _ResolveShape(_data.Size, new[] { count, depth, rows, columns });
             return new Tensor4D<T>(GetDataCopy(), shape[0], shape[1], shape[2], shape[3]);
         }
+
+        /// <summary>
+        /// Finds the index with the highest value
+        /// </summary>
+        public uint MaximumIndex() => GetMinAndMaxValues().MaxIndex;
     }
 }

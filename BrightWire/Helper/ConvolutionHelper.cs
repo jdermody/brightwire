@@ -7,8 +7,8 @@ namespace BrightWire.Helper
     /// </summary>
     public static class ConvolutionHelper
     {
-	    static readonly Dictionary<(int, int, int, int, int, int), List<(int X, int Y)>> _leftToRight = new Dictionary<(int, int, int, int, int, int), List<(int, int)>>();
-	    static readonly Dictionary<(int, int, int, int, int, int), List<(int X, int Y)>> _topToBottm = new Dictionary<(int, int, int, int, int, int), List<(int, int)>>();
+	    static readonly Dictionary<(uint, uint, uint, uint, uint, uint), List<(uint X, uint Y)>> _leftToRight = new Dictionary<(uint, uint, uint, uint, uint, uint), List<(uint, uint)>>();
+	    static readonly Dictionary<(uint, uint, uint, uint, uint, uint), List<(uint X, uint Y)>> _topToBottm = new Dictionary<(uint, uint, uint, uint, uint, uint), List<(uint, uint)>>();
 		    
 		/// <summary>
 		/// Generates convolution indices from left to right
@@ -20,14 +20,14 @@ namespace BrightWire.Helper
 		/// <param name="xStride">X Stride</param>
 		/// <param name="yStride">Y Stride</param>
 		/// <returns>List of (x, y) indices</returns>
-        public static List<(int X, int Y)> LeftToRight(int width, int height, int filterWidth, int filterHeight, int xStride, int yStride)
+        public static List<(uint X, uint Y)> LeftToRight(uint width, uint height, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
 		{
 			var key = (width, height, filterWidth, filterHeight, xStride, yStride);
 			if (_leftToRight.TryGetValue(key, out var ret))
 				return ret;
 
-            int y = 0, x = 0;
-            ret = new List<(int X, int Y)>();
+            uint y = 0, x = 0;
+            ret = new List<(uint X, uint Y)>();
 
             if (x <= width - filterWidth) {
                 while (y <= height - filterHeight) {
@@ -56,14 +56,14 @@ namespace BrightWire.Helper
 	    /// <param name="xStride">X Stride</param>
 	    /// <param name="yStride">Y Stride</param>
 	    /// <returns>List of (x, y) indices</returns>
-        public static List<(int X, int Y)> TopToBottom(int width, int height, int filterWidth, int filterHeight, int xStride, int yStride)
+        public static List<(uint X, uint Y)> TopToBottom(uint width, uint height, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
         {
 	        var key = (width, height, filterWidth, filterHeight, xStride, yStride);
 	        if (_topToBottm.TryGetValue(key, out var ret))
 		        return ret;
 
-            int y = 0, x = 0;
-            ret = new List<(int X, int Y)>();
+            uint y = 0, x = 0;
+            ret = new List<(uint X, uint Y)>();
 
             if (y <= height - filterHeight) {
                 while (x <= width - filterWidth) {
@@ -83,7 +83,7 @@ namespace BrightWire.Helper
         }
 
 	    /// <inheritdoc />
-	    public delegate List<(int X, int Y)> ConvolutionalDelegate(int width, int height, int filterWidth, int filterHeight, int xStride, int yStride);
+	    public delegate List<(uint X, uint Y)> ConvolutionalDelegate(uint width, uint height, uint filterWidth, uint filterHeight, uint xStride, uint yStride);
 
 		/// <summary>
 		/// Default convolutional direction

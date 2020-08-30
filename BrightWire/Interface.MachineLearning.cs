@@ -1,4 +1,5 @@
-﻿using BrightTable;
+﻿using BrightData;
+using BrightTable;
 using BrightWire.Models;
 using BrightWire.Models.Bayesian;
 using System;
@@ -22,7 +23,7 @@ namespace BrightWire
 		/// <param name="output">The vector that was the output of the model</param>
 		/// <param name="targetOutput">The vector that the model was expected to output</param>
 		/// <returns></returns>
-		float Compute(FloatVector output, FloatVector targetOutput);
+		float Compute(Vector<float> output, Vector<float> targetOutput);
 
 		/// <summary>
 		/// Calculates the gradient of the error function
@@ -442,14 +443,14 @@ namespace BrightWire
 		/// Creates the bias vector
 		/// </summary>
 		/// <param name="size">The size of the vector</param>
-		IVector CreateBias(int size);
+		IVector CreateBias(uint size);
 
 		/// <summary>
 		/// Creates the weight matrix
 		/// </summary>
 		/// <param name="rows">Row count</param>
 		/// <param name="columns">Column count</param>
-		IMatrix CreateWeight(int rows, int columns);
+		IMatrix CreateWeight(uint rows, uint columns);
 	}
 
 	/// <summary>

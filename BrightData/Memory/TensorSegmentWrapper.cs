@@ -111,5 +111,11 @@ namespace BrightData.Memory
             }
             stream.Write(buffer);
         }
+
+        public void CopyTo(T[] array)
+        {
+            for (uint i = 0; i < Size; i++)
+                array[i] = this[i];
+        }
     }
 }

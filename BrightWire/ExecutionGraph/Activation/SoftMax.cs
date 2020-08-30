@@ -22,8 +22,8 @@ namespace BrightWire.ExecutionGraph.Activation
             {
                 var matrix = errorSignal.GetMatrix();
                 var rowList = new List<IVector>();
-                for (var i = 0; i < matrix.RowCount; i++) {
-                    using (var derivative = _rows[i].SoftmaxDerivative()) {
+                for (uint i = 0; i < matrix.RowCount; i++) {
+                    using (var derivative = _rows[(int)i].SoftmaxDerivative()) {
                         var sm = derivative.Multiply(matrix.Row(i));
                         rowList.Add(sm.ReshapeAsVector());
                     }
@@ -41,7 +41,7 @@ namespace BrightWire.ExecutionGraph.Activation
         {
             var input = context.Data.GetMatrix();
             var rowList = new List<IVector>();
-            for (var i = 0; i < input.RowCount; i++) {
+            for (uint i = 0; i < input.RowCount; i++) {
                 using (var row = input.Row(i))
                     rowList.Add(row.Softmax());
             }

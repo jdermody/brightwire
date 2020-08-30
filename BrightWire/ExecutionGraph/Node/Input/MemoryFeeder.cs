@@ -25,7 +25,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
                     using (var columnSums = es.ColumnSums()) {
 	                    columnSums.Multiply(1f / es.RowCount);
                         var initialDelta = columnSums.AsIndexable();
-                        for (var j = 0; j < _source._data.Length; j++)
+                        for (uint j = 0; j < _source._data.Length; j++)
                             _source._data[j] += initialDelta[j] * context.LearningContext.BatchLearningRate;
                     }
                 }
@@ -44,8 +44,8 @@ namespace BrightWire.ExecutionGraph.Node.Input
         public IAction SetMemoryAction => _setMemory;
         public FloatVector Data
         {
-            get => new FloatVector { Data = _data };
-	        set => value.Data.CopyTo(_data, 0);
+            get => FloatVector.Create(_data);
+	        set => value.Data.CopyTo(_data);
         }
 
         public override void ExecuteForward(IContext context)
@@ -58,7 +58,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
 
         void _OnStart(IContext context)
         {
-            var memory = context.LinearAlgebraProvider.CreateMatrix(context.BatchSequence.MiniBatch.BatchSize, _data.Length, (x, y) => _data[y]);
+            var memory = context.LinearAlgebraProvider.CreateMatrix(context.BatchSequence.MiniBatch.BatchSize, (uint)_data.Length, (x, y) => _data[y]);
             _AddNextGraphAction(context, new MatrixGraphData(memory), () => new Backpropagation(this));
         }
 

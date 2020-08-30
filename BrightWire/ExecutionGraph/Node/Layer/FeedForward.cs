@@ -46,9 +46,9 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         IVector _bias;
         IMatrix _weight;
         IGradientDescentOptimisation _updater;
-        int _inputSize, _outputSize;
+        uint _inputSize, _outputSize;
 
-        public FeedForward(int inputSize, int outputSize, IVector bias, IMatrix weight, IGradientDescentOptimisation updater, string name = null) : base(name)
+        public FeedForward(uint inputSize, uint outputSize, IVector bias, IMatrix weight, IGradientDescentOptimisation updater, string name = null) : base(name)
         {
             _bias = bias;
             _weight = weight;
@@ -59,8 +59,8 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
         public IVector Bias => _bias;
         public IMatrix Weight => _weight;
-        public int InputSize => _inputSize;
-        public int OutputSize => _outputSize;
+        public uint InputSize => _inputSize;
+        public uint OutputSize => _outputSize;
 
         protected override void _Dispose(bool isDisposing)
         {
@@ -105,8 +105,8 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         {
             var lap = factory?.LinearAlgebraProvider;
 
-            _inputSize = reader.ReadInt32();
-            _outputSize = reader.ReadInt32();
+            _inputSize = (uint)reader.ReadInt32();
+            _outputSize = (uint)reader.ReadInt32();
 
             // read the bias parameters
             var bias = FloatVector.ReadFrom(reader);
@@ -128,8 +128,8 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
         public override void WriteTo(BinaryWriter writer)
         {
-            writer.Write(_inputSize);
-            writer.Write(_outputSize);
+            writer.Write((int)_inputSize);
+            writer.Write((int)_outputSize);
             _bias.Data.WriteTo(writer);
             _weight.Data.WriteTo(writer);
         }

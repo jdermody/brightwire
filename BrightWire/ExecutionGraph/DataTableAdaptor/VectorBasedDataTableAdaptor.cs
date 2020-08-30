@@ -20,14 +20,14 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             OutputSize = output.Size;
         }
 
-        public override int InputSize { get; }
-	    public override int OutputSize { get; }
+        public override uint InputSize { get; }
+	    public override uint? OutputSize { get; }
 	    public override bool IsSequential => false;
 
-        public override IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<int> rows)
+        public override IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<uint> rows)
         {
             var data = _GetRows(rows)
-                .Select(r => ((_dataColumnIndex.Select(i => ((FloatVector)r[i]).Data).ToArray(), ((FloatVector)r[_dataTargetIndex]).Data)))
+                .Select(r => ((_dataColumnIndex.Select(i => ((FloatVector)r[i]).Data.ToArray()).ToArray(), ((FloatVector)r[_dataTargetIndex]).Data.ToArray())))
                 .ToList()
             ;
             return _GetMiniBatch(rows, data);

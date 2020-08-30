@@ -13,7 +13,7 @@ namespace BrightWire.ExecutionGraph
         readonly GraphFactory _factory;
         readonly INode _first;
         INode _node;
-        int _width, _height, _depth;
+        uint _width, _height, _depth;
 
         /// <summary>
         /// Connects new nodes starting from the specified node
@@ -21,7 +21,7 @@ namespace BrightWire.ExecutionGraph
         /// <param name="factory">Graph factory</param>
         /// <param name="size">Initial wire size</param>
         /// <param name="node">The node to build from</param>
-        public WireBuilder(GraphFactory factory, int size, INode node)
+        public WireBuilder(GraphFactory factory, uint size, INode node)
         {
             _factory = factory;
             _first = _node = node;
@@ -38,7 +38,7 @@ namespace BrightWire.ExecutionGraph
         /// <param name="height">Initial input height</param>
         /// <param name="depth">Initial input depth</param>
         /// <param name="node">The node to build from</param>
-        public WireBuilder(GraphFactory factory, int width, int height, int depth, INode node)
+        public WireBuilder(GraphFactory factory, uint width, uint height, uint depth, INode node)
         {
             _factory = factory;
             _first = _node = node;
@@ -53,7 +53,7 @@ namespace BrightWire.ExecutionGraph
         /// <param name="factory">Graph factory</param>
         /// <param name="engine">Graph engine</param>
         /// <param name="inputIndex">Input index to connect</param>
-        public WireBuilder(GraphFactory factory, IGraphTrainingEngine engine, int inputIndex = 0) 
+        public WireBuilder(GraphFactory factory, IGraphTrainingEngine engine, uint inputIndex = 0) 
             : this(factory, engine.DataSource.InputSize, engine.GetInput(inputIndex))
         {
             if(engine.DataSource is IVolumeDataSource volumeDataSource) {
@@ -66,13 +66,13 @@ namespace BrightWire.ExecutionGraph
         /// <summary>
         /// The current wire size
         /// </summary>
-        public int CurrentSize => _width * _height * _depth;
+        public uint CurrentSize => _width * _height * _depth;
 
         /// <summary>
         /// Changes the current size of the builder
         /// </summary>
         /// <param name="newSize">New wire builder size</param>
-        public WireBuilder SetNewSize(int newSize)
+        public WireBuilder SetNewSize(uint newSize)
         {
             _width = newSize;
             _height = 1;
@@ -85,10 +85,10 @@ namespace BrightWire.ExecutionGraph
         /// </summary>
         /// <param name="delta">Amount to add to the current wire size</param>
         /// <returns></returns>
-        public WireBuilder IncrementSizeBy(int delta)
-        {
-            return SetNewSize(_width + delta);
-        }
+        //public WireBuilder IncrementSizeBy(int delta)
+        //{
+        //    return SetNewSize(_width + delta);
+        //}
 
         void _SetNode(INode node)
         {
@@ -117,7 +117,7 @@ namespace BrightWire.ExecutionGraph
         /// <param name="outputSize">Number of outgoing connections</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
-        public WireBuilder AddFeedForward(int outputSize, string name = null)
+        public WireBuilder AddFeedForward(uint outputSize, string name = null)
         {
             INode node = _factory.CreateFeedForward(CurrentSize, outputSize, name);
             _SetNode(node);
@@ -154,7 +154,7 @@ namespace BrightWire.ExecutionGraph
         /// <param name="dropOutPercentage">Percentage of connections to drop</param>
         /// <param name="outputSize">Number of outgoing connections</param>
         /// <param name="name">Optional name to give the node</param>
-        public WireBuilder AddDropConnect(float dropOutPercentage, int outputSize, string name = null)
+        public WireBuilder AddDropConnect(float dropOutPercentage, uint outputSize, string name = null)
         {
             _SetNode(_factory.CreateDropConnect(dropOutPercentage, CurrentSize, outputSize, name));
             return SetNewSize(outputSize);

@@ -95,9 +95,7 @@ namespace BrightWire.TrainingData.Artificial
         {
             var ret = new float[DictionarySize];
             ret[_charTable[ch]] = val;
-            return new FloatVector {
-                Data = ret
-            };
+            return FloatVector.Create(ret);
         }
 
         /// <summary>
@@ -110,9 +108,7 @@ namespace BrightWire.TrainingData.Artificial
             var ret = new float[DictionarySize];
             foreach(var item in data)
                 ret[_charTable[item.Item1]] = item.Item2;
-            return new FloatVector {
-                Data = ret
-            };
+            return FloatVector.Create(ret);
         }
 
         /// <summary>

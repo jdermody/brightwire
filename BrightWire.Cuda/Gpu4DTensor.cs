@@ -16,7 +16,7 @@ namespace BrightWire.LinearAlgebra
     {
 	    readonly CudaProvider _cuda;
 	    readonly IDeviceMemoryPtr _data;
-        readonly int _rows, _columns, _depth, _count, _blockSize;
+        readonly uint _rows, _columns, _depth, _count, _blockSize;
         bool _disposed = false;
 
 #if DEBUG
@@ -31,7 +31,7 @@ namespace BrightWire.LinearAlgebra
         public bool IsValid => true;
 #endif
 
-	    public Gpu4DTensor(CudaProvider provider, int rows, int columns, int depth, int count, IDeviceMemoryPtr data, bool isOwner)
+	    public Gpu4DTensor(CudaProvider provider, uint rows, uint columns, uint depth, uint count, IDeviceMemoryPtr data, bool isOwner)
 	    {
 		    Debug.Assert(rows * columns * depth * count == data.Size);
 		    _cuda = provider;
@@ -113,7 +113,7 @@ namespace BrightWire.LinearAlgebra
 		    }
 	    }
 
-        public I3DTensor GetTensorAt(int index)
+        public I3DTensor GetTensorAt(uint index)
         {
             return new Gpu3DTensor(_cuda, _rows, _columns, _depth, _cuda.OffsetByBlock(_data, index, _blockSize), false);
         }
@@ -126,7 +126,7 @@ namespace BrightWire.LinearAlgebra
 	        return _cuda.NumericsProvider.Create4DTensor(ret).AsIndexable();
         }
 
-        public int ColumnCount
+        public uint ColumnCount
         {
             get
             {
@@ -135,7 +135,7 @@ namespace BrightWire.LinearAlgebra
             }
         }
 
-        public int Depth
+        public uint Depth
         {
             get
             {
@@ -144,7 +144,7 @@ namespace BrightWire.LinearAlgebra
             }
         }
 
-        public int RowCount
+        public uint RowCount
         {
             get
             {
@@ -153,7 +153,7 @@ namespace BrightWire.LinearAlgebra
             }
         }
 
-        public int Count
+        public uint Count
         {
             get
             {
@@ -162,21 +162,21 @@ namespace BrightWire.LinearAlgebra
             }
         }
 
-        public I4DTensor AddPadding(int padding)
+        public I4DTensor AddPadding(uint padding)
         {
 	        Debug.Assert(IsValid);
             var ret = _cuda.TensorAddPadding(_data, _rows, _columns, _depth, _count, padding);
 	        return new Gpu4DTensor(_cuda, ret.Rows, ret.Columns, _depth, _count, ret.Data, true);
         }
 
-        public I4DTensor RemovePadding(int padding)
+        public I4DTensor RemovePadding(uint padding)
         {
 	        Debug.Assert(IsValid);
             var ret = _cuda.TensorRemovePadding(_data, _rows, _columns, _depth, _count, padding);
 	        return new Gpu4DTensor(_cuda, ret.Rows, ret.Columns, _depth, _count, ret.Data, true);
         }
 
-        public (I4DTensor Result, I4DTensor Indices) MaxPool(int filterWidth, int filterHeight, int xStride, int yStride, bool saveIndices)
+        public (I4DTensor Result, I4DTensor Indices) MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices)
         {
 	        Debug.Assert(IsValid);
 	        var maxPool = _cuda.TensorMaxPool(_data, _rows, _columns, _depth, _count, filterWidth, filterHeight, xStride, yStride, saveIndices);
@@ -185,7 +185,7 @@ namespace BrightWire.LinearAlgebra
 	        return (ret, indices);
         }
 
-        public I4DTensor ReverseMaxPool(I4DTensor indices, int outputRows, int outputColumns, int filterWidth, int filterHeight, int xStride, int yStride)
+        public I4DTensor ReverseMaxPool(I4DTensor indices, uint outputRows, uint outputColumns, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
         {
 	        Debug.Assert(IsValid);
 	        var indicesPtr = ((IHaveDeviceMemory) indices).Memory;
@@ -193,13 +193,13 @@ namespace BrightWire.LinearAlgebra
 	        return new Gpu4DTensor(_cuda, outputRows, outputColumns, _depth, _count, ret, true);
         }
 
-        public I3DTensor Im2Col(int filterWidth, int filterHeight, int xStride, int yStride)
+        public I3DTensor Im2Col(uint filterWidth, uint filterHeight, uint xStride, uint yStride)
         {
 			var ret = _cuda.TensorIm2Col(_data, _rows, _columns, _depth, _count, filterWidth, filterHeight, xStride, yStride);
 	        return new Gpu3DTensor(_cuda, ret.Rows, ret.Columns, ret.Depth, ret.Data, true);
         }
 
-        public I4DTensor ReverseIm2Col(IMatrix filter, int outputRows, int outputColumns, int outputDepth, int filterWidth, int filterHeight, int xStride, int yStride)
+        public I4DTensor ReverseIm2Col(IMatrix filter, uint outputRows, uint outputColumns, uint outputDepth, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
         {
 	        var filterPtr = ((IHaveDeviceMemory) filter).Memory;
 			var ret = _cuda.TensorReverseIm2Col(_data, filterPtr, _rows, _columns, _depth, _count, outputRows, outputColumns, outputDepth, filterWidth, filterHeight, xStride, yStride);

@@ -1,4 +1,5 @@
-﻿using BrightWire.LinearAlgebra.Helper;
+﻿using BrightData;
+using BrightWire.LinearAlgebra.Helper;
 using BrightWire.Models;
 
 namespace BrightWire.ExecutionGraph.ErrorMetric
@@ -20,7 +21,7 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
             }
         }
 
-        public float Compute(FloatVector output, FloatVector targetOutput)
+        public float Compute(Vector<float> output, Vector<float> targetOutput)
         {
             float ret = 0;
             var len = output.Size;

@@ -1,4 +1,5 @@
-﻿using BrightTable;
+﻿using BrightData;
+using BrightTable;
 using BrightWire.ExecutionGraph.Helper;
 using BrightWire.Models;
 using System;
@@ -9,18 +10,18 @@ namespace BrightWire.ExecutionGraph.DataSource
 {
     class TensorDataSource : IDataSource
     {
-        readonly int _rows, _columns, _depth, _matrixSize;
-        readonly IReadOnlyList<FloatTensor> _data;
+        readonly uint _rows, _columns, _depth, _matrixSize;
+        readonly IReadOnlyList<Tensor3D<float>> _data;
         readonly ILinearAlgebraProvider _lap;
 
-        public TensorDataSource(ILinearAlgebraProvider lap, IReadOnlyList<FloatTensor> data)
+        public TensorDataSource(ILinearAlgebraProvider lap, IReadOnlyList<Tensor3D<float>> data)
         {
             _lap = lap;
             _data = data;
 
             var first = data.First();
             InputSize = first.Size;
-            OutputSize = -1;
+            OutputSize = null;
             _rows = first.RowCount;
             _columns = first.ColumnCount;
             _depth = first.Depth;
@@ -28,8 +29,8 @@ namespace BrightWire.ExecutionGraph.DataSource
         }
 
         public bool IsSequential => false;
-        public int InputSize { get; }
-	    public int OutputSize { get; }
+        public uint InputSize { get; }
+	    public uint? OutputSize { get; }
 	    public uint InputCount => 1;
         public uint RowCount => (uint)_data.Count;
 
@@ -38,16 +39,16 @@ namespace BrightWire.ExecutionGraph.DataSource
             throw new NotImplementedException();
         }
 
-        public IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<int> rows)
+        public IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<uint> rows)
         {
-            var data = rows.Select(i => _data[i]).ToList();
-            var input = _lap.CreateMatrix(InputSize, data.Count, (i, j) => {
-                var tensor = _data[j];
+            var data = rows.Select(i => _data[(int)i]).ToList();
+            var input = _lap.CreateMatrix((uint)InputSize, (uint)data.Count, (i, j) => {
+                var tensor = _data[(int)j];
                 var rem = i % _matrixSize;
                 var z = i / _matrixSize;
                 var x = rem % _rows;
                 var y = rem / _rows;
-                return tensor.Matrix[z].Row[x].Data[y];
+                return tensor.Matrix(z).Row(x).Data[y];
             });
 
             var inputList = new List<IGraphData> {
@@ -56,10 +57,10 @@ namespace BrightWire.ExecutionGraph.DataSource
             return new MiniBatch(rows, this, inputList, null);
         }
 
-        public IReadOnlyList<IReadOnlyList<int>> GetBuckets()
+        public IReadOnlyList<IReadOnlyList<uint>> GetBuckets()
         {
             return new[] {
-                Enumerable.Range(0, _data.Count).ToList()
+                _data.Count.AsRange().ToList()
             };
         }
 

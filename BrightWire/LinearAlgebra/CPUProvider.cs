@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BrightWire.Models;
 using MathNet.Numerics.LinearAlgebra.Storage;
+using BrightData;
 
 namespace BrightWire.LinearAlgebra
 {
@@ -30,48 +31,48 @@ namespace BrightWire.LinearAlgebra
             GC.SuppressFinalize(this);
         }
 
-		public IVector CreateVector(int length, Func<int, float> init)
+		public IVector CreateVector(uint length, Func<uint, float> init)
 		{
-			return new CpuVector(DenseVector.Create(length, init));
+			return new CpuVector(DenseVector.Create((int)length, i => init((uint)i)));
 		}
 
 		public IMatrix CreateMatrixFromRows(IReadOnlyList<IVector> vectorData)
 		{
-			var rows = vectorData.Select(r => r.AsIndexable()).ToList();
+			var rows = vectorData.Select(r => r.AsIndexable()).ToArray();
 			var columns = rows.First().Count;
-			return CreateMatrix(rows.Count, columns, (i, j) => rows[i][j]);
+			return CreateMatrix((uint)rows.Length, columns, (i, j) => rows[i][j]);
 		}
 
 	    public IMatrix CreateMatrixFromColumns(IReadOnlyList<IVector> vectorData)
 	    {
-		    var columns = vectorData.Select(r => r.AsIndexable()).ToList();
+		    var columns = vectorData.Select(r => r.AsIndexable()).ToArray();
 		    var rows = columns.First().Count;
-		    return CreateMatrix(rows, columns.Count, (i, j) => columns[j][i]);
+		    return CreateMatrix(rows, (uint)columns.Length, (i, j) => columns[j][i]);
 	    }
 
-		public IVector CreateVector(int length, bool setToZero = false)
+		public IVector CreateVector(uint length, bool setToZero = false)
 	    {
-		    return new CpuVector(DenseVector.Create(length, 0f));
+		    return new CpuVector(DenseVector.Create((int)length, 0f));
 	    }
 
-	    public IMatrix CreateMatrix(int rows, int columns, bool setToZero)
+	    public IMatrix CreateMatrix(uint rows, uint columns, bool setToZero)
         {
-	        return new CpuMatrix(DenseMatrix.Create(rows, columns, 0f));
+	        return new CpuMatrix(DenseMatrix.Create((int)rows, (int)columns, 0f));
         }
 
-	    public I3DTensor Create3DTensor(int rows, int columns, int depth, bool setToZero = false)
+	    public I3DTensor Create3DTensor(uint rows, uint columns, uint depth, bool setToZero = false)
 	    {
-		    return new Cpu3DTensor(Enumerable.Range(0, depth).Select(i => CreateMatrix(rows, columns, setToZero).AsIndexable()).ToList());
+		    return new Cpu3DTensor(depth.AsRange().Select(i => CreateMatrix(rows, columns, setToZero).AsIndexable()).ToList());
 	    }
 
-	    public I4DTensor Create4DTensor(int rows, int columns, int depth, int count, bool setToZero = false)
+	    public I4DTensor Create4DTensor(uint rows, uint columns, uint depth, uint count, bool setToZero = false)
 	    {
-		    return new Cpu4DTensor(Enumerable.Range(0, count).Select(i => Create3DTensor(rows, columns, depth, setToZero).AsIndexable()).ToList());
+		    return new Cpu4DTensor(count.AsRange().Select(i => Create3DTensor(rows, columns, depth, setToZero).AsIndexable()).ToList());
 	    }
 
-		public IMatrix CreateMatrix(int rows, int columns, Func<int, int, float> init)
+		public IMatrix CreateMatrix(uint rows, uint columns, Func<uint, uint, float> init)
 		{
-			return new CpuMatrix(DenseMatrix.Create(rows, columns, init));
+			return new CpuMatrix(DenseMatrix.Create((int)rows, (int)columns, (x, y) => init((uint)x, (uint)y)));
 		}
 
 		public I3DTensor Create3DTensor(IReadOnlyList<IMatrix> data)
@@ -116,5 +117,10 @@ namespace BrightWire.LinearAlgebra
 
 		    return new CpuMatrix(DenseMatrix.Build.Dense(rows, columns, ret));
 	    }
+
+        public IVector CreateVector(ITensorSegment<float> data)
+        {
+            return CreateVector(data.Size, i => data[i]);
+        }
     }
 }

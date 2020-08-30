@@ -11,7 +11,7 @@ namespace BrightWire.ExecutionGraph.Helper
 	        /// <inheritdoc />
 	        public IMiniBatch MiniBatch { get; set; }
 	        /// <inheritdoc />
-            public int SequenceIndex { get; set; }
+            public uint SequenceIndex { get; set; }
 	        /// <inheritdoc />
             public MiniBatchSequenceType Type { get; set; }
 	        /// <inheritdoc />
@@ -29,7 +29,7 @@ namespace BrightWire.ExecutionGraph.Helper
 		/// <param name="dataSource">Associated data source</param>
 		/// <param name="input">Mini batch input data</param>
 		/// <param name="output">Expected output data (when training, otherwise null)</param>
-        public MiniBatch(IReadOnlyList<int> rows, IDataSource dataSource, IReadOnlyList<IGraphData> input, IGraphData output) : this(rows, dataSource)
+        public MiniBatch(IReadOnlyList<uint> rows, IDataSource dataSource, IReadOnlyList<IGraphData> input, IGraphData output) : this(rows, dataSource)
         {
             IsSequential = false;
             _sequence.Add(new Sequence {
@@ -46,7 +46,7 @@ namespace BrightWire.ExecutionGraph.Helper
 		/// </summary>
 		/// <param name="rows">The indices of the rows in this mini batch</param>
 		/// <param name="dataSource">Associated data source</param>
-        public MiniBatch(IReadOnlyList<int> rows, IDataSource dataSource)
+        public MiniBatch(IReadOnlyList<uint> rows, IDataSource dataSource)
         {
             Rows = rows;
             IsSequential = true;
@@ -64,26 +64,26 @@ namespace BrightWire.ExecutionGraph.Helper
             _sequence.Add(new Sequence {
                 Input = input,
                 Target = output,
-                SequenceIndex = _sequence.Count,
+                SequenceIndex = (uint)_sequence.Count,
                 Type = type,
                 MiniBatch = this
             });
         }
 
 	    /// <inheritdoc />
-	    public IReadOnlyList<int> Rows { get; }
+	    public IReadOnlyList<uint> Rows { get; }
 	    /// <inheritdoc />
 	    public IDataSource DataSource { get; }
 	    /// <inheritdoc />
 	    public bool IsSequential { get; }
 	    /// <inheritdoc />
-	    public int BatchSize => Rows.Count;
+	    public uint BatchSize => (uint)Rows.Count;
 	    /// <inheritdoc />
         public IMiniBatchSequence CurrentSequence => _sequence[_index];
 	    /// <inheritdoc />
         public bool HasNextSequence => _index < _sequence.Count;
 	    /// <inheritdoc />
-        public int SequenceCount => _sequence.Count;
+        public uint SequenceCount => (uint)_sequence.Count;
 	    /// <inheritdoc />
         public void Reset() => _index = 0;
 
@@ -96,9 +96,9 @@ namespace BrightWire.ExecutionGraph.Helper
         }
 
 	    /// <inheritdoc />
-        public IMiniBatchSequence GetSequenceAtIndex(int index)
+        public IMiniBatchSequence GetSequenceAtIndex(uint index)
         {
-            return _sequence[index];
+            return _sequence[(int)index];
         }
     }
 }

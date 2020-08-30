@@ -12,7 +12,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
     /// </summary>
     class ManyToOneDataTableAdaptor : RowBasedDataTableAdaptorBase
     {
-        readonly int[] _rowDepth;
+        readonly uint[] _rowDepth;
 
 	    public ManyToOneDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable) 
             : base(lap, dataTable)
@@ -20,7 +20,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             if (_dataColumnIndex.Length > 1)
                 throw new NotImplementedException("Sequential datasets not supported with more than one input data column");
 
-            _rowDepth = new int[dataTable.RowCount];
+            _rowDepth = new uint[dataTable.RowCount];
             FloatMatrix inputMatrix = null;
             FloatVector outputVector = null;
             dataTable.ForEachRow((row, i) => {
@@ -41,37 +41,37 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         }
 
         public override bool IsSequential => true;
-        public override int InputSize { get; }
-	    public override int OutputSize { get; }
+        public override uint InputSize { get; }
+	    public override uint? OutputSize { get; }
 
-	    public override IReadOnlyList<IReadOnlyList<int>> GetBuckets()
+	    public override IReadOnlyList<IReadOnlyList<uint>> GetBuckets()
         {
             return _rowDepth
                 .Select((r, i) => (r, i))
                 .GroupBy(t => t.Item1)
-                .Select(g => g.Select(d => d.Item2).ToList())
+                .Select(g => g.Select(d => (uint)d.Item2).ToList())
                 .ToList()
             ;
         }
 
-        public override IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<int> rows)
+        public override IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<uint> rows)
         {
             var data = _GetRows(rows)
                 .Select(r => ((FloatMatrix)r[_dataColumnIndex[0]], (FloatVector)r[_dataTargetIndex]))
                 .ToList()
             ;
-            var inputData = new Dictionary<int, List<FloatVector>>();
+            var inputData = new Dictionary<uint, List<FloatVector>>();
             foreach (var item in data) {
                 var input = item.Item1;
-                for (int i = 0, len = input.RowCount; i < len; i++) {
+                for (uint i = 0, len = input.RowCount; i < len; i++) {
                     if (!inputData.TryGetValue(i, out List<FloatVector> temp))
                         inputData.Add(i, temp = new List<FloatVector>());
-                    temp.Add(input.Row[i]);
+                    temp.Add(FloatVector.Create(input.Row(i).Data));
                 }
             }
 
             var miniBatch = new MiniBatch(rows, this);
-            var outputVector = _lap.CreateMatrix(data.Count, OutputSize, (x, y) => data[x].Item2.Data[y]);
+            var outputVector = _lap.CreateMatrix((uint)data.Count, (uint)OutputSize, (x, y) => data[(int)x].Item2.Data[y]);
             foreach (var item in inputData.OrderBy(kv => kv.Key)) {
                 var input = _lap.CreateMatrixFromRows(item.Value);
                 var type = (item.Key == 0)

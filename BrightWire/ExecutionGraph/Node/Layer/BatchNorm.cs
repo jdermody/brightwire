@@ -15,19 +15,19 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 	/// </summary>
 	class BatchNorm : NodeBase
 	{
-		int _inputSize;
+		uint _inputSize;
 		INode _input, _output;
 		VectorInput _gamma, _beta;
 		VectorBasedStatistics _statistics;
 		OneToMany _start;
 		IMatrix _gammaCached, _betaCached, _meanCached, _stdDevCached;
 
-		public BatchNorm(GraphFactory graph, int inputSize, string name = null) : base(name)
+		public BatchNorm(GraphFactory graph, uint inputSize, string name = null) : base(name)
 		{
 			_Create(graph, inputSize, null, null, null, null, 0);
 		}
 
-		void _Create(GraphFactory graph, int inputSize, float[] gamma, float[] beta, float[] derivedMean, float[] derivedM2, int count)
+		void _Create(GraphFactory graph, uint inputSize, float[] gamma, float[] beta, float[] derivedMean, float[] derivedM2, int count)
         {
             _inputSize = inputSize;
 	        _statistics = new VectorBasedStatistics(graph.LinearAlgebraProvider, inputSize, derivedMean, derivedM2, count);

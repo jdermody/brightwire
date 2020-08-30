@@ -15,12 +15,12 @@
             _weightValue = weightValue;
         }
 
-        public IVector CreateBias(int size)
+        public IVector CreateBias(uint size)
         {
             return _lap.CreateVector(size, _biasValue);
         }
 
-        public IMatrix CreateWeight(int rows, int columns)
+        public IMatrix CreateWeight(uint rows, uint columns)
         {
             return _lap.CreateMatrix(rows, columns, _weightValue);
         }

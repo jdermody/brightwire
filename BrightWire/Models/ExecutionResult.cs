@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using BrightData;
+using MathNet.Numerics.LinearAlgebra.Complex;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace BrightWire.Models
@@ -16,7 +18,7 @@ namespace BrightWire.Models
 		/// <param name="miniBatch">The mini batch sequence</param>
 		/// <param name="output">The mini batch output</param>
 		/// <param name="index">Output index</param>
-		public ExecutionResult(IMiniBatchSequence miniBatch, IReadOnlyList<FloatVector> output, int index)
+		public ExecutionResult(IMiniBatchSequence miniBatch, IReadOnlyList<Vector<float>> output, uint index)
 		{
 			Index = index;
 			_miniBatch = miniBatch;
@@ -28,22 +30,22 @@ namespace BrightWire.Models
 		/// <summary>
 		/// Output index
 		/// </summary>
-		public int Index { get; }
+		public uint Index { get; }
 
 		/// <summary>
 		/// The list of output rows
 		/// </summary>
-		public IReadOnlyList<FloatVector> Output { get; }
+		public IReadOnlyList<Vector<float>> Output { get; }
 
 		/// <summary>
 		/// The list of target rows
 		/// </summary>
-		public IReadOnlyList<FloatVector> Target { get; }
+		public IReadOnlyList<Vector<float>> Target { get; }
 
 		/// <summary>
 		/// The list of input rows
 		/// </summary>
-		public IReadOnlyList<IReadOnlyList<FloatVector>> Input { get; }
+		public IReadOnlyList<IReadOnlyList<Vector<float>>> Input { get; }
 
 		/// <summary>
 		/// The mini batch

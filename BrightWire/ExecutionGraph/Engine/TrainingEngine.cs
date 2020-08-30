@@ -5,6 +5,7 @@ using BrightWire.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using BrightData;
 
 namespace BrightWire.ExecutionGraph.Engine
 {
@@ -13,7 +14,7 @@ namespace BrightWire.ExecutionGraph.Engine
 	/// </summary>
 	class TrainingEngine : EngineBase, IGraphTrainingEngine
 	{
-		readonly List<(IMiniBatchSequence Sequence, double? TrainingError, IReadOnlyList<FloatMatrix> Output)> _executionResults = new List<(IMiniBatchSequence Sequence, double? TrainingError, IReadOnlyList<FloatMatrix> Output)>();
+		readonly List<(IMiniBatchSequence Sequence, double? TrainingError, IReadOnlyList<Matrix<float>> Output)> _executionResults = new List<(IMiniBatchSequence Sequence, double? TrainingError, IReadOnlyList<Matrix<float>> Output)>();
 		readonly List<IContext> _contextList = new List<IContext>();
 		readonly IReadOnlyList<INode> _input;
 		readonly bool _isStochastic;
@@ -52,9 +53,9 @@ namespace BrightWire.ExecutionGraph.Engine
 					operation.Execute(executionContext);
 					_ClearContextList();
 					foreach (var item in _executionResults) {
-						int outputIndex = 0;
+						uint outputIndex = 0;
 						foreach (var output in item.Output) {
-							ret.Add(new ExecutionResult(item.Sequence, output.Row, outputIndex));
+							ret.Add(new ExecutionResult(item.Sequence, output, outputIndex));
 							++outputIndex;
 						}
 					}
@@ -76,9 +77,9 @@ namespace BrightWire.ExecutionGraph.Engine
 		{
 			var ret = new List<ExecutionResult>();
 			foreach (var item in _executionResults) {
-				int outputIndex = 0;
+				uint outputIndex = 0;
 				foreach (var output in item.Output) {
-					ret.Add(new ExecutionResult(item.Sequence, output.Row, outputIndex));
+					ret.Add(new ExecutionResult(item.Sequence, output.Rows, outputIndex));
 					++outputIndex;
 				}
 			}
@@ -151,7 +152,7 @@ namespace BrightWire.ExecutionGraph.Engine
 
 		public IDataSource DataSource => _dataSource;
 		public ILearningContext LearningContext { get; }
-		public INode GetInput(int index) => _input[index];
+		public INode GetInput(uint index) => _input[(int)index];
 		public Models.ExecutionGraph Graph => Start.GetGraph();
 		public ILinearAlgebraProvider LinearAlgebraProvider => _lap;
 		public INode Start { get; }

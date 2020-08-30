@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using BrightData;
 using BrightTable;
 using BrightTable.Transformations;
 using BrightWire.Models;
@@ -9,39 +10,39 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
     /// <summary>
     /// Adapts data tables with a weighted index list based column (corresponding to a sparse vector)
     /// </summary>
-    class WeightedIndexListDataTableAdaptor : DataTableAdaptorBase<(List<WeightedIndexList>, FloatVector)>, IWeightedIndexListEncoder
+    class WeightedIndexListDataTableAdaptor : DataTableAdaptorBase<(List<WeightedIndexList>, Vector<float>)>, IWeightedIndexListEncoder
     {
-        readonly int _inputSize;
+        readonly uint _inputSize;
         readonly DataTableVectoriser _vectoriser;
 
         public WeightedIndexListDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, DataTableVectoriser vectoriser)
             : base(lap, dataTable)
         {
             _vectoriser = vectoriser ?? new DataTableVectoriser(dataTable);
-            _inputSize = (int)_vectoriser.InputSize;
-            OutputSize = (int)_vectoriser.OutputSize;
+            _inputSize = _vectoriser.InputSize;
+            OutputSize = _vectoriser.OutputSize;
 
             // load the data
             //dataTable.ForEachRow(row => _data.Add((_dataColumnIndex.Select(i => (WeightedIndexList)row[i]).ToList(), _vectoriser.GetOutput(row))));
         }
 
         public override bool IsSequential => false;
-        public override int InputSize => _inputSize;
-        public override int OutputSize { get; }
+        public override uint InputSize => _inputSize;
+        public override uint? OutputSize { get; }
 	    public override uint RowCount => (uint)_data.Count;
 
         public float[] Encode(WeightedIndexList indexList)
         {
             var ret = new float[_inputSize];
-            foreach (var item in indexList.IndexList)
+            foreach (var item in indexList.Indices)
                 ret[item.Index] = item.Weight;
             return ret;
         }
 
-        public override IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<int> rows)
+        public override IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<uint> rows)
         {
             var data = _GetRows(rows)
-                .Select(r => (r.Item1.Select(Encode).ToArray(), r.Item2.Data))
+                .Select(r => (r.Item1.Select(Encode).ToArray(), r.Item2.Data.ToArray()))
                 .ToList()
             ;
             return _GetMiniBatch(rows, data);

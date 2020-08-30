@@ -198,10 +198,8 @@ namespace BrightWire.Models.DataTable
 			    ret = normalise ? norm.Normalise(val) : norm.ReverseNormalise(val);
 		    }else if (VectorColumnTable != null && VectorColumnTable.TryGetValue(columnIndex, out var vectorNorm)) {
 			    var vector = (FloatVector)obj;
-			    var normalised = vector.Data.Zip(vectorNorm.VectorColumns, (v, n) => (float)n.Normalise(Convert.ToDouble(v))).ToArray();
-			    ret = new FloatVector {
-				    Data = normalised
-			    };
+			    var normalised = vector.Data.Values.Zip(vectorNorm.VectorColumns, (v, n) => (float)n.Normalise(Convert.ToDouble(v))).ToArray();
+			    ret = FloatVector.Create(normalised);
 		    } else
 			    ret = obj;
 

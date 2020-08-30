@@ -1,4 +1,5 @@
-﻿using BrightTable;
+﻿using BrightData;
+using BrightTable;
 using BrightWire.ExecutionGraph.Helper;
 using BrightWire.Models;
 using System;
@@ -12,39 +13,39 @@ namespace BrightWire.ExecutionGraph.DataSource
     /// </summary>
     class VectorDataSource : IDataSource
     {
-	    readonly IReadOnlyList<FloatVector> _data;
+	    readonly IReadOnlyList<Vector<float>> _data;
         readonly ILinearAlgebraProvider _lap;
 
-        public VectorDataSource(ILinearAlgebraProvider lap, IReadOnlyList<FloatVector> data)
+        public VectorDataSource(ILinearAlgebraProvider lap, IReadOnlyList<Vector<float>> data)
         {
             _lap = lap;
             _data = data;
 
             var first = data.First();
             InputSize = first.Size;
-            OutputSize = -1;
+            OutputSize = null;
         }
 
         public uint InputCount => 1;
         public bool IsSequential => false;
-        public int InputSize { get; }
-	    public int OutputSize { get; }
+        public uint InputSize { get; }
+	    public uint? OutputSize { get; }
 	    public uint RowCount => (uint)_data.Count;
 
-        public IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<int> rows)
+        public IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<uint> rows)
         {
-            var data = rows.Select(i => _data[i]).ToList();
-            var input = _lap.CreateMatrix(data.Count, InputSize, (x, y) => data[x].Data[y]);
+            var data = rows.Select(i => _data[(int)i]).ToList();
+            var input = _lap.CreateMatrix((uint)data.Count, (uint)InputSize, (x, y) => data[(int)x].Data[y]);
             var inputList = new List<IGraphData> {
                 new MatrixGraphData(input)
             };
             return new MiniBatch(rows, this, inputList, null);
         }
 
-        public IReadOnlyList<IReadOnlyList<int>> GetBuckets()
+        public IReadOnlyList<IReadOnlyList<uint>> GetBuckets()
         {
             return new[] {
-                Enumerable.Range(0, _data.Count).ToList()
+                _data.Count.AsRange().ToList()
             };
         }
 

@@ -15,22 +15,22 @@ namespace BrightWire
         /// <summary>
         /// Row count
         /// </summary>
-        int Rows { get; }
+        uint Rows { get; }
 
         /// <summary>
         /// Column count
         /// </summary>
-        int Columns { get; }
+        uint Columns { get; }
 
         /// <summary>
         /// 3D Tensor depth (1 if the signal is a matrix)
         /// </summary>
-        int Depth { get; }
+        uint Depth { get; }
 
         /// <summary>
         /// Count of 3D tensors (1 of the signal is a matrix or 3D tensor)
         /// </summary>
-        int Count { get; }
+        uint Count { get; }
 
         /// <summary>
         /// Gets the signal as a matrix
@@ -416,12 +416,12 @@ namespace BrightWire
         /// <summary>
         /// The size of the input data
         /// </summary>
-        int InputSize { get; }
+        uint InputSize { get; }
 
         /// <summary>
         /// The size of the output data
         /// </summary>
-        int OutputSize { get; }
+        uint? OutputSize { get; }
 
         /// <summary>
         /// The number of inputs that can feed into the graph
@@ -438,13 +438,13 @@ namespace BrightWire
         /// </summary>
         /// <param name="executionContext">Graph execution context</param>
         /// <param name="rows">List of rows</param>
-        IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<int> rows);
+        IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<uint> rows);
 
         /// <summary>
         /// For sequential data, returns the row indexes grouped by sequence length
         /// </summary>
         /// <returns></returns>
-        IReadOnlyList<IReadOnlyList<int>> GetBuckets();
+        IReadOnlyList<IReadOnlyList<uint>> GetBuckets();
 
         /// <summary>
         /// Called when the current batch has completed
@@ -512,7 +512,7 @@ namespace BrightWire
         /// <summary>
         /// Index of the sequence
         /// </summary>
-        int SequenceIndex { get; }
+        uint SequenceIndex { get; }
 
         /// <summary>
         /// Sequence type
@@ -538,7 +538,7 @@ namespace BrightWire
         /// <summary>
         /// Row indexes of the current batch
         /// </summary>
-        IReadOnlyList<int> Rows { get; }
+        IReadOnlyList<uint> Rows { get; }
 
         /// <summary>
         /// Data source
@@ -553,7 +553,7 @@ namespace BrightWire
         /// <summary>
         /// Number of items in the batch
         /// </summary>
-        int BatchSize { get; }
+        uint BatchSize { get; }
 
         /// <summary>
         /// Current sequence (non sequential batches have a single sequence)
@@ -574,14 +574,14 @@ namespace BrightWire
         /// <summary>
         /// Gets the length of the sequence
         /// </summary>
-        int SequenceCount { get; }
+        uint SequenceCount { get; }
 
         /// <summary>
         /// Gets a sequence item
         /// </summary>
         /// <param name="index">The index to retrieve</param>
         /// <returns></returns>
-        IMiniBatchSequence GetSequenceAtIndex(int index);
+        IMiniBatchSequence GetSequenceAtIndex(uint index);
 
         /// <summary>
         /// Resets the sequence iterator
@@ -669,7 +669,7 @@ namespace BrightWire
         /// Returns the specified input node
         /// </summary>
         /// <param name="index">Index of the input node to retrieve</param>
-        INode GetInput(int index);
+        INode GetInput(uint index);
 
 	    /// <summary>
 	    /// Executes a training epoch on the graph
@@ -738,12 +738,12 @@ namespace BrightWire
         /// <summary>
         /// Size of incoming connections
         /// </summary>
-        int InputSize { get; }
+        uint InputSize { get; }
 
         /// <summary>
         /// Size of outgoing connections
         /// </summary>
-        int OutputSize { get; }
+        uint OutputSize { get; }
 
         /// <summary>
         /// Bias vector
@@ -783,16 +783,16 @@ namespace BrightWire
         /// <summary>
         /// Width of each input volume
         /// </summary>
-        int Width { get; }
+        uint Width { get; }
 
         /// <summary>
         /// Height of each input volume
         /// </summary>
-        int Height { get; }
+        uint Height { get; }
 
         /// <summary>
         /// Depth of each input volume
         /// </summary>
-        int Depth { get; }
+        uint Depth { get; }
     }
 }

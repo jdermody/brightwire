@@ -44,7 +44,7 @@ namespace BrightWire.LinearAlgebra
 				var handleList = new GCHandle[param.Length];
 
 				//Get pointers to kernel parameters
-				for (int i = 0; i < param.Length; i++) {
+				for (var i = 0; i < param.Length; i++) {
 					handleList[i] = GCHandle.Alloc(param[i], GCHandleType.Pinned);
 					paramList[i] = handleList[i].AddrOfPinnedObject();
 				}
@@ -59,7 +59,7 @@ namespace BrightWire.LinearAlgebra
 				);
 
 				// free the handles
-				for (int i = 0; i < param.Length; i++)
+				for (var i = 0; i < param.Length; i++)
 					handleList[i].Free();
 
 				CheckForError(result);
@@ -153,7 +153,7 @@ namespace BrightWire.LinearAlgebra
 			_isFinite,
 			_calculateDistance
 		;
-		readonly ConcurrentDictionary<CUfunction, (int BlockSize, int MinGridSize)> _blockSize = new ConcurrentDictionary<CUfunction, (int BlockSize, int MinGridSize)>();
+		readonly ConcurrentDictionary<CUfunction, (int BlockSize, int MinGridSize)> _blockSize = new ConcurrentDictionary<CUfunction, (int, int)>();
 		bool _disposed = false;
 
 		public CudaProvider(string cudaKernelPath, bool stochastic, int memoryCacheSize)
@@ -966,9 +966,9 @@ namespace BrightWire.LinearAlgebra
 			if (!(distanceMetric == DistanceMetric.Euclidean || distanceMetric == DistanceMetric.Manhattan || distanceMetric == DistanceMetric.Cosine))
 				throw new NotImplementedException();
 
-			var size = vectors[0].Count;
-			var rows = compareTo.Count;
-			var columns = vectors.Count;
+			int size = (int)vectors[0].Count;
+			int rows = compareTo.Count;
+			int columns = vectors.Count;
 			var ret = Allocate(rows * columns, true);
 
 			using (var vectorPtr = new PtrToDeviceMemoryList(vectors.Cast<IHaveDeviceMemory>().ToList()))

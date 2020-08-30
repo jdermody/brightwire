@@ -14,12 +14,12 @@
             _value = value;
         }
 
-        public IVector CreateBias(int size)
+        public IVector CreateBias(uint size)
         {
             return _lap.CreateVector(size);
         }
 
-        public IMatrix CreateWeight(int rows, int columns)
+        public IMatrix CreateWeight(uint rows, uint columns)
         {
             return _lap.CreateMatrix(rows, columns, (x, y) => x == y ? _value : 0f);
         }

@@ -36,14 +36,14 @@ namespace BrightWire
 		/// </summary>
 		/// <param name="length">Length of the vector</param>
 		/// <param name="setToZero">True to initialise the data to zero (otherwise it might be anything)</param>
-		IVector CreateVector(int length, bool setToZero = false);
+		IVector CreateVector(uint length, bool setToZero = false);
 
 		/// <summary>
 		/// Creates a vector
 		/// </summary>
 		/// <param name="length">Size of the vector</param>
 		/// <param name="init">Callback to initialise each element of the vector</param>
-		IVector CreateVector(int length, Func<int, float> init);
+		IVector CreateVector(uint length, Func<uint, float> init);
 
 		/// <summary>
 		/// Creates a matrix
@@ -51,7 +51,7 @@ namespace BrightWire
 		/// <param name="rows">The number of rows</param>
 		/// <param name="columns">The number of columns</param>
 		/// <param name="setToZero">True to initialise the data to zero (otherwise it might be anything)</param>
-		IMatrix CreateMatrix(int rows, int columns, bool setToZero = false);
+		IMatrix CreateMatrix(uint rows, uint columns, bool setToZero = false);
 
 		/// <summary>
 		/// Creates a matrix
@@ -59,7 +59,7 @@ namespace BrightWire
 		/// <param name="rows">The number of rows</param>
 		/// <param name="columns">The number of columns</param>
 		/// <param name="init">Callback to initialise each element of the matrix</param>
-		IMatrix CreateMatrix(int rows, int columns, Func<int, int, float> init);
+		IMatrix CreateMatrix(uint rows, uint columns, Func<uint, uint, float> init);
 
 		/// <summary>
 		/// Creates a matrix from a list of vectors. Each vector will become a row in the new matrix
@@ -82,7 +82,7 @@ namespace BrightWire
 		/// <param name="columns">Number of columns</param>
 		/// <param name="depth">Number of depth slices</param>
 		/// <param name="setToZero">True to initialise the data to zero (otherwise it might be anything)</param>
-		I3DTensor Create3DTensor(int rows, int columns, int depth, bool setToZero = false);
+		I3DTensor Create3DTensor(uint rows, uint columns, uint depth, bool setToZero = false);
 
 		/// <summary>
 		/// Creates a 3D tensor from a list of matrices
@@ -99,7 +99,7 @@ namespace BrightWire
 		/// <param name="depth">Number of matrices</param>
 		/// <param name="count">Number of 3D tensors</param>
 		/// <param name="setToZero">True to initialise the data to zero (otherwise it might be anything)</param>
-		I4DTensor Create4DTensor(int rows, int columns, int depth, int count, bool setToZero = false);
+		I4DTensor Create4DTensor(uint rows, uint columns, uint depth, uint count, bool setToZero = false);
 
 		/// <summary>
 		/// Creates a 4D tensor from a list of 3D tensors
@@ -143,7 +143,8 @@ namespace BrightWire
 		/// <param name="distanceMetric"></param>
 		/// <returns></returns>
 		IMatrix CalculateDistances(IReadOnlyList<IVector> vectors, IReadOnlyList<IVector> comparison, DistanceMetric distanceMetric);
-	}
+        IVector CreateVector(ITensorSegment<float> data);
+    }
 
 	/// <summary>
 	/// Distance metrics
@@ -199,7 +200,7 @@ namespace BrightWire
 		/// <summary>
 		/// The number of elements in the vector
 		/// </summary>
-		int Count { get; }
+		uint Count { get; }
 
 		/// <summary>
 		/// Converts the vector into protobuf format
@@ -231,12 +232,12 @@ namespace BrightWire
 		/// <summary>
 		/// Returns the index of the vector with the greatest value
 		/// </summary>
-		int MaximumIndex();
+		uint MaximumIndex();
 
 		/// <summary>
 		/// Returns the index of the vector with the smallest value
 		/// </summary>
-		int MinimumIndex();
+		uint MinimumIndex();
 
 		/// <summary>
 		/// Multiples (in place) by a scalar
@@ -286,7 +287,7 @@ namespace BrightWire
 		/// Returns a new vector from a subset of the vector indices
 		/// </summary>
 		/// <param name="indices">A list of indexes to use as the source of the new vector</param>
-		IVector GetNewVectorFromIndexes(IReadOnlyList<int> indices);
+		IVector GetNewVectorFromIndexes(IReadOnlyList<uint> indices);
 
 		/// <summary>
 		/// Creates a new copy of the vector
@@ -411,7 +412,7 @@ namespace BrightWire
 		/// </summary>
 		/// <param name="rows">The number of rows in the matrix</param>
 		/// <param name="columns">The number of columns in the matrix</param>
-		IMatrix ReshapeAsMatrix(int rows, int columns);
+		IMatrix ReshapeAsMatrix(uint rows, uint columns);
 
 		/// <summary>
 		/// Converts the vector to a 3D tensor
@@ -420,7 +421,7 @@ namespace BrightWire
 		/// <param name="columns">Number of columns in matrix</param>
 		/// <param name="depth">Number of matrices</param>
 		/// <returns></returns>
-		I3DTensor ReshapeAs3DTensor(int rows, int columns, int depth);
+		I3DTensor ReshapeAs3DTensor(uint rows, uint columns, uint depth);
 
 		/// <summary>
 		/// Converts the vector to a 4D tensor
@@ -430,19 +431,19 @@ namespace BrightWire
 		/// <param name="depth">Number of matrices</param>
 		/// <param name="count">Number of 3D tensors</param>
 		/// <returns></returns>
-		I4DTensor ReshapeAs4DTensor(int rows, int columns, int depth, int count);
+		I4DTensor ReshapeAs4DTensor(uint rows, uint columns, uint depth, uint count);
 
 		/// <summary>
 		/// Splits the vector into a list of vectors
 		/// </summary>
 		/// <param name="blockCount">The number of sub vectors to split into</param>
-		IReadOnlyList<IVector> Split(int blockCount);
+		IReadOnlyList<IVector> Split(uint blockCount);
 
 		/// <summary>
 		/// Rotates values in the vector (both horizontally and vertically within blocks)
 		/// </summary>
 		/// <param name="blockCount"></param>
-		void RotateInPlace(int blockCount = 1);
+		void RotateInPlace(uint blockCount = 1);
 
 		/// <summary>
 		/// Returns a reversed copy of the vector's values
@@ -455,14 +456,14 @@ namespace BrightWire
 		/// </summary>
 		/// <param name="index">The index of the vector to return</param>
 		/// <returns></returns>
-		float GetAt(int index);
+		float GetAt(uint index);
 
 		/// <summary>
 		/// Updates the value at the specified index
 		/// </summary>
 		/// <param name="index"></param>
 		/// <param name="value"></param>
-		void SetAt(int index, float value);
+		void SetAt(uint index, float value);
 
 		/// <summary>
 		/// Checks if every value in the vector is finite (not NaN or positive/negative infinity)
@@ -480,7 +481,7 @@ namespace BrightWire
 		/// Returns an element at the specified index
 		/// </summary>
 		/// <param name="index">The index to retrieve</param>
-		float this[int index] { get; set; }
+		float this[uint index] { get; set; }
 
 		/// <summary>
 		/// Gets the values as an enumerable
@@ -523,18 +524,18 @@ namespace BrightWire
 		/// <summary>
 		/// The number of columns
 		/// </summary>
-		int ColumnCount { get; }
+		uint ColumnCount { get; }
 
 		/// <summary>
 		/// The number of rows
 		/// </summary>
-		int RowCount { get; }
+		uint RowCount { get; }
 
 		/// <summary>
 		/// Returns a column as a vector
 		/// </summary>
 		/// <param name="index">The column index</param>
-		IVector Column(int index);
+		IVector Column(uint index);
 
 		/// <summary>
 		/// Returns the matrix diagonal as a vector
@@ -545,7 +546,7 @@ namespace BrightWire
 		/// Returns a row as a vector
 		/// </summary>
 		/// <param name="index">The row index</param>
-		IVector Row(int index);
+		IVector Row(uint index);
 
 		/// <summary>
 		/// Returns the current matrix (without in place modification) added to the target matrix
@@ -671,25 +672,25 @@ namespace BrightWire
 		/// Returns a new matrix from a subset of the current matrix's rows
 		/// </summary>
 		/// <param name="rowIndexes">The list of row indices</param>
-		IMatrix GetNewMatrixFromRows(IReadOnlyList<int> rowIndexes);
+		IMatrix GetNewMatrixFromRows(IReadOnlyList<uint> rowIndexes);
 
 		/// <summary>
 		/// Returns a new matrix from a subset of the current matrix's columns
 		/// </summary>
 		/// <param name="columnIndexes">The list of column indices</param>
-		IMatrix GetNewMatrixFromColumns(IReadOnlyList<int> columnIndexes);
+		IMatrix GetNewMatrixFromColumns(IReadOnlyList<uint> columnIndexes);
 
 		/// <summary>
 		/// Set to zero the specified rows in the current matrix
 		/// </summary>
 		/// <param name="indexes">The list of row indices</param>
-		void ClearRows(IReadOnlyList<int> indexes);
+		void ClearRows(IReadOnlyList<uint> indexes);
 
 		/// <summary>
 		/// Set to zero the specified columns in the current matrix
 		/// </summary>
 		/// <param name="indexes">The list of column indices</param>
-		void ClearColumns(IReadOnlyList<int> indexes);
+		void ClearColumns(IReadOnlyList<uint> indexes);
 
 		/// <summary>
 		/// Returns the RELU function applied to each element of the current matrix
@@ -780,7 +781,7 @@ namespace BrightWire
 		/// <param name="rowIndex">The row index</param>
 		/// <param name="columnIndex">The start index to return</param>
 		/// <param name="length">The number of elements to return</param>
-		IVector GetRowSegment(int rowIndex, int columnIndex, int length);
+		IVector GetRowSegment(uint rowIndex, uint columnIndex, uint length);
 
 		/// <summary>
 		/// Returns a segment from a column of the current matrix
@@ -788,7 +789,7 @@ namespace BrightWire
 		/// <param name="columnIndex">The column index</param>
 		/// <param name="rowIndex">The start index to return</param>
 		/// <param name="length">The number of elements to return</param>
-		IVector GetColumnSegment(int columnIndex, int rowIndex, int length);
+		IVector GetColumnSegment(uint columnIndex, uint rowIndex, uint length);
 
 		/// <summary>
 		/// Returns a new matrix with the columns of the target matrix appended to each column of the current matrix
@@ -806,13 +807,13 @@ namespace BrightWire
 		/// Splits the rows of the current matrix into two matrices
 		/// </summary>
 		/// <param name="columnIndex">The column index at which to split</param>
-		(IMatrix Left, IMatrix Right) SplitAtColumn(int columnIndex);
+		(IMatrix Left, IMatrix Right) SplitAtColumn(uint columnIndex);
 
 		/// <summary>
 		/// Splits the columns of the current matrix into two matrices
 		/// </summary>
 		/// <param name="rowIndex">The row index at which to split</param>
-		(IMatrix Top, IMatrix Bottom) SplitAtRow(int rowIndex);
+		(IMatrix Top, IMatrix Bottom) SplitAtRow(uint rowIndex);
 
 		/// <summary>
 		/// Singular value decomposition
@@ -830,7 +831,7 @@ namespace BrightWire
 		/// <param name="rows">Row count of each sub matrix</param>
 		/// <param name="columns">Column count of each sub matrix</param>
 		/// <returns></returns>
-		I3DTensor ReshapeAs3DTensor(int rows, int columns);
+		I3DTensor ReshapeAs3DTensor(uint rows, uint columns);
 
 		/// <summary>
 		/// Converts the matrix to a 4D tensor, treating each column as a 3D tensor
@@ -839,7 +840,7 @@ namespace BrightWire
 		/// <param name="columns">Column count of each sub matrix</param>
 		/// <param name="depth">Depth of each 3D tensor</param>
 		/// <returns></returns>
-		I4DTensor ReshapeAs4DTensor(int rows, int columns, int depth);
+		I4DTensor ReshapeAs4DTensor(uint rows, uint columns, uint depth);
 
 		/// <summary>
 		/// Returns the value at the specified row and column index
@@ -847,7 +848,7 @@ namespace BrightWire
 		/// <param name="row">Row index</param>
 		/// <param name="column">Column index</param>
 		/// <returns></returns>
-		float GetAt(int row, int column);
+		float GetAt(uint row, uint column);
 
 		/// <summary>
 		/// Updates the value at the specified row and column index
@@ -855,7 +856,7 @@ namespace BrightWire
 		/// <param name="row">Row index</param>
 		/// <param name="column">Column index</param>
 		/// <param name="value">Value to set</param>
-		void SetAt(int row, int column, float value);
+		void SetAt(uint row, uint column, float value);
 
 		/// <summary>
 		/// Returns the columns of the matrix as vectors
@@ -880,7 +881,7 @@ namespace BrightWire
 		/// </summary>
 		/// <param name="row">Row index</param>
 		/// <param name="column">Column index</param>
-		float this[int row, int column] { get; set; }
+		float this[uint row, uint column] { get; set; }
 
 		/// <summary>
 		/// Returns the rows of the current matrix as vectors
@@ -907,9 +908,9 @@ namespace BrightWire
 		/// <summary>
 		/// Mutates each element of the current matrix
 		/// </summary>
-		/// <param name="mutator">The function to apply to each element (rowIndex: int, columnIndex: int, value: float) => float</param>
+		/// <param name="mutator">The function to apply to each element (rowIndex: uint, columnIndex: uint, value: float) => float</param>
 		/// <returns></returns>
-		IIndexableMatrix MapIndexed(Func<int, int, float, float> mutator);
+		IIndexableMatrix MapIndexed(Func<uint, uint, float, float> mutator);
 
 		/// <summary>
 		/// Returns the matrix as xml
@@ -930,17 +931,17 @@ namespace BrightWire
 		/// <summary>
 		/// The number of rows in each matrix
 		/// </summary>
-		int RowCount { get; }
+		uint RowCount { get; }
 
 		/// <summary>
 		/// The number of columns in each matrix
 		/// </summary>
-		int ColumnCount { get; }
+		uint ColumnCount { get; }
 
 		/// <summary>
 		/// The number of matrices
 		/// </summary>
-		int Depth { get; }
+		uint Depth { get; }
 
 		/// <summary>
 		/// Converts the current tensor to protobuf format
@@ -952,7 +953,7 @@ namespace BrightWire
 		/// </summary>
 		/// <param name="depth">The depth to query</param>
 		/// <returns></returns>
-		IMatrix GetMatrixAt(int depth);
+		IMatrix GetMatrixAt(uint depth);
 
 		/// <summary>
 		/// Returns an indexable 3D tensor
@@ -965,14 +966,14 @@ namespace BrightWire
 		/// </summary>
 		/// <param name="padding">The padding (both vertical and horizontal)</param>
 		/// <returns>A new tensor</returns>
-		I3DTensor AddPadding(int padding);
+		I3DTensor AddPadding(uint padding);
 
 		/// <summary>
 		/// Removes padding from each matrix
 		/// </summary>
 		/// <param name="padding">The padding to remove</param>
 		/// <returns>A new tensor</returns>
-		I3DTensor RemovePadding(int padding);
+		I3DTensor RemovePadding(uint padding);
 
 		/// <summary>
 		/// Performs a convolution on each source matrix
@@ -982,7 +983,7 @@ namespace BrightWire
 		/// <param name="xStride">Filter x stride</param>
 		/// <param name="yStride">Filter y stride</param>
 		/// <returns></returns>
-		IMatrix Im2Col(int filterWidth, int filterHeight, int xStride, int yStride);
+		IMatrix Im2Col(uint filterWidth, uint filterHeight, uint xStride, uint yStride);
 
 		/// <summary>
 		/// Converts the tensor to a vector
@@ -1001,7 +1002,7 @@ namespace BrightWire
 		/// </summary>
 		/// <param name="rows">Rows in each 4D tensor</param>
 		/// <param name="columns">Columns in each 4D tensor</param>
-		I4DTensor ReshapeAs4DTensor(int rows, int columns);
+		I4DTensor ReshapeAs4DTensor(uint rows, uint columns);
 
 		/// <summary>
 		/// Performs a max pooling operation on the tensor
@@ -1012,7 +1013,7 @@ namespace BrightWire
 		/// <param name="yStride">Filter y stride</param>
 		/// <param name="saveIndices">True to save the indices for a future reverse max pool operation</param>
 		/// <returns>A max pooled tensor</returns>
-		(I3DTensor Result, I3DTensor Indices) MaxPool(int filterWidth, int filterHeight, int xStride, int yStride, bool saveIndices);
+		(I3DTensor Result, I3DTensor Indices) MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices);
 
 		/// <summary>
 		/// Reverses a max pooling operation
@@ -1024,7 +1025,7 @@ namespace BrightWire
 		/// <param name="filterHeight">Height of each filter</param>
 		/// <param name="xStride">Filter x stride</param>
 		/// <param name="yStride">Filter y stride</param>
-		I3DTensor ReverseMaxPool(I3DTensor indices, int outputRows, int outputColumns, int filterWidth, int filterHeight, int xStride, int yStride);
+		I3DTensor ReverseMaxPool(I3DTensor indices, uint outputRows, uint outputColumns, uint filterWidth, uint filterHeight, uint xStride, uint yStride);
 
 		/// <summary>
 		/// Reverses a im2col operation
@@ -1038,7 +1039,7 @@ namespace BrightWire
 		/// <param name="xStride">Filter x stride</param>
 		/// <param name="yStride">Filter y stride</param>
 		/// <returns></returns>
-		I3DTensor ReverseIm2Col(IMatrix filter, int outputRows, int outputColumns, int outputDepth, int filterWidth, int filterHeight, int xStride, int yStride);
+		I3DTensor ReverseIm2Col(IMatrix filter, uint outputRows, uint outputColumns, uint outputDepth, uint filterWidth, uint filterHeight, uint xStride, uint yStride);
 
 		/// <summary>
 		/// Adds each depth slice into a single matrix
@@ -1083,7 +1084,7 @@ namespace BrightWire
 		/// <param name="row">The row to query</param>
 		/// <param name="column">The column to query</param>
 		/// <param name="depth">The depth to query</param>
-		float this[int row, int column, int depth] { get; set; }
+		float this[uint row, uint column, uint depth] { get; set; }
 
 		/// <summary>
 		/// Gets a list of the indexable matrices
@@ -1109,28 +1110,28 @@ namespace BrightWire
 		/// <summary>
 		/// The number of rows in each 3D tensor
 		/// </summary>
-		int RowCount { get; }
+		uint RowCount { get; }
 
 		/// <summary>
 		/// The number of columns in each 3D tensor
 		/// </summary>
-		int ColumnCount { get; }
+		uint ColumnCount { get; }
 
 		/// <summary>
 		/// The depth of each 3D tensor
 		/// </summary>
-		int Depth { get; }
+		uint Depth { get; }
 
 		/// <summary>
 		/// The count of 3D tensors
 		/// </summary>
-		int Count { get; }
+		uint Count { get; }
 
 		/// <summary>
 		/// Returns the tensor at the specified index
 		/// </summary>
 		/// <param name="index">The index to query</param>
-		I3DTensor GetTensorAt(int index);
+		I3DTensor GetTensorAt(uint index);
 
 		/// <summary>
 		/// Returns an indexable list of 3D tensors
@@ -1143,14 +1144,14 @@ namespace BrightWire
 		/// </summary>
 		/// <param name="padding">Padding to add to the left, top, right and bottom edges of the tensor</param>
 		/// <returns>A new tensor with the padding added</returns>
-		I4DTensor AddPadding(int padding);
+		I4DTensor AddPadding(uint padding);
 
 		/// <summary>
 		/// Removes padding from the 4D tensor
 		/// </summary>
 		/// <param name="padding">Padding to remove from the left, top, right and bottom edges of the tensor</param>
 		/// <returns>A new tensor with the padding removed</returns>
-		I4DTensor RemovePadding(int padding);
+		I4DTensor RemovePadding(uint padding);
 
 		/// <summary>
 		/// Applies a max pooling operation to the current tensor
@@ -1160,7 +1161,7 @@ namespace BrightWire
 		/// <param name="xStride">Filter x stride</param>
 		/// <param name="yStride">Filter y stride</param>
 		/// <param name="saveIndices">True to save the indices for a future reverse pool operation</param>
-		(I4DTensor Result, I4DTensor Indices) MaxPool(int filterWidth, int filterHeight, int xStride, int yStride, bool saveIndices);
+		(I4DTensor Result, I4DTensor Indices) MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices);
 
 		/// <summary>
 		/// Reverses a max pool operation
@@ -1173,7 +1174,7 @@ namespace BrightWire
 		/// <param name="xStride">Filter x stride</param>
 		/// <param name="yStride">Filter y stride</param>
 		/// <returns></returns>
-		I4DTensor ReverseMaxPool(I4DTensor indices, int outputRows, int outputColumns, int filterWidth, int filterHeight, int xStride, int yStride);
+		I4DTensor ReverseMaxPool(I4DTensor indices, uint outputRows, uint outputColumns, uint filterWidth, uint filterHeight, uint xStride, uint yStride);
 
 		/// <summary>
 		/// Applies the convolutional filter to each 3D tensor, producing a 3D tensor which can be multipled by the filter matrix
@@ -1183,7 +1184,7 @@ namespace BrightWire
 		/// <param name="xStride">Filter x stride</param>
 		/// <param name="yStride">Filter y stride</param>
 		/// <returns></returns>
-		I3DTensor Im2Col(int filterWidth, int filterHeight, int xStride, int yStride);
+		I3DTensor Im2Col(uint filterWidth, uint filterHeight, uint xStride, uint yStride);
 
 		/// <summary>
 		/// Reverse a previously applied im2Col
@@ -1197,7 +1198,7 @@ namespace BrightWire
 		/// <param name="xStride">Filter x stride</param>
 		/// <param name="yStride">Filter y stride</param>
 		/// <returns></returns>
-		I4DTensor ReverseIm2Col(IMatrix filter, int outputRows, int outputColumns, int outputDepth, int filterWidth, int filterHeight, int xStride, int yStride);
+		I4DTensor ReverseIm2Col(IMatrix filter, uint outputRows, uint outputColumns, uint outputDepth, uint filterWidth, uint filterHeight, uint xStride, uint yStride);
 
 		/// <summary>
 		/// Sums the columns of each sub-tensor's sub matrix
@@ -1234,7 +1235,7 @@ namespace BrightWire
 		/// <param name="column">The column to query</param>
 		/// <param name="depth">The depth to query</param>
 		/// <param name="index">The tensor index to query</param>
-		float this[int row, int column, int depth, int index] { get; set; }
+		float this[uint row, uint column, uint depth, uint index] { get; set; }
 
 		/// <summary>
 		/// Gets a list of the indexable matrices

@@ -1,4 +1,5 @@
-﻿using BrightWire.Models;
+﻿using BrightData;
+using BrightWire.Models;
 using BrightWire.Models.Bayesian;
 using System;
 using System.Collections.Generic;
@@ -17,7 +18,7 @@ namespace BrightWire.Bayesian.Training
 	        if (!_documentClass.TryGetValue(documentClass, out var temp))
                 _documentClass.Add(documentClass, temp = new List<IndexList>());
 
-            foreach (var item in indexList.Index)
+            foreach (var item in indexList.Indices)
                 _vocabulary.Add(item);
             temp.Add(indexList);
         }
@@ -30,7 +31,7 @@ namespace BrightWire.Bayesian.Training
             var ret = new List<MultinomialNaiveBayes.Class>();
             foreach (var item in _documentClass) {
                 var indexData = new List<MultinomialNaiveBayes.StringIndexProbability>();
-                var allClassToken = item.Value.SelectMany(d => d.Index).ToList();
+                var allClassToken = item.Value.SelectMany(d => d.Indices).ToList();
                 double denominator = allClassToken.Count + numWords;
                 foreach (var word in allClassToken.GroupBy(d => d).Select(d => Tuple.Create(d.Key, d.Count()))) {
                     indexData.Add(new MultinomialNaiveBayes.StringIndexProbability {

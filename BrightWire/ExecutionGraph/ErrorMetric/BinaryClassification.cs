@@ -1,6 +1,8 @@
 ﻿using System;
+using BrightData;
 using BrightWire.LinearAlgebra.Helper;
 using BrightWire.Models;
+using MathNet.Numerics.LinearAlgebra.Complex;
 
 namespace BrightWire.ExecutionGraph.ErrorMetric
 {
@@ -14,7 +16,7 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
             return targetOutput.Subtract(output);
         }
 
-        public float Compute(FloatVector output, FloatVector targetOutput)
+        public float Compute(Vector<float> output, Vector<float> targetOutput)
         {
             float ret = 0;
             for (var i = 0; i < output.Size; i++) {

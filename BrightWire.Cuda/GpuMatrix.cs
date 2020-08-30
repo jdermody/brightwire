@@ -17,7 +17,7 @@ namespace BrightWire.LinearAlgebra
     {
         readonly CudaProvider _cuda;
         readonly IDeviceMemoryPtr _data;
-        readonly int _rows, _columns;
+        readonly uint _rows, _columns;
         bool _disposed = false;
 #if DEBUG
         static int _gid = 0;
@@ -31,7 +31,7 @@ namespace BrightWire.LinearAlgebra
         public bool IsValid => true;
 #endif
 
-        public GpuMatrix(CudaProvider cuda, int rows, int columns, IDeviceMemoryPtr data, bool isOwner)
+        public GpuMatrix(CudaProvider cuda, uint rows, uint columns, IDeviceMemoryPtr data, bool isOwner)
         {
 	        Debug.Assert(rows * columns == data.Size);
             _cuda = cuda;
@@ -78,8 +78,8 @@ namespace BrightWire.LinearAlgebra
             return AsIndexable().ToString();
         }
 
-        public int ColumnCount => _columns;
-	    public int RowCount => _rows;
+        public uint ColumnCount => _columns;
+	    public uint RowCount => _rows;
 	    public IDeviceMemoryPtr Memory => _data;
 
         public IMatrix Add(IMatrix matrix)
@@ -131,14 +131,14 @@ namespace BrightWire.LinearAlgebra
             _data.DeviceVariable.Memset(0);
         }
 
-        public void ClearColumns(IReadOnlyList<int> indices)
+        public void ClearColumns(IReadOnlyList<uint> indices)
         {
             Debug.Assert(IsValid);
             foreach (var item in indices)
                 _cuda.MemClear(_data, _rows, item * _rows);
         }
 
-        public void ClearRows(IReadOnlyList<int> indices)
+        public void ClearRows(IReadOnlyList<uint> indices)
         {
             Debug.Assert(IsValid);
             foreach (var item in indices)
@@ -153,7 +153,7 @@ namespace BrightWire.LinearAlgebra
             return new GpuMatrix(_cuda, _rows, _columns, ret, true);
         }
 
-        public IVector Column(int index)
+        public IVector Column(uint index)
         {
             Debug.Assert(IsValid);
 	        var ptr = _cuda.OffsetByBlock(_data, index, _rows);
@@ -214,7 +214,7 @@ namespace BrightWire.LinearAlgebra
             return new GpuVector(_cuda, ret, true);
         }
 
-        public IVector GetColumnSegment(int columnIndex, int rowIndex, int length)
+        public IVector GetColumnSegment(uint columnIndex, uint rowIndex, uint length)
         {
             Debug.Assert(IsValid);
 
@@ -224,7 +224,7 @@ namespace BrightWire.LinearAlgebra
             return new GpuVector(_cuda, ret, true);
         }
 
-        public IMatrix GetNewMatrixFromColumns(IReadOnlyList<int> columnIndices)
+        public IMatrix GetNewMatrixFromColumns(IReadOnlyList<uint> columnIndices)
         {
             Debug.Assert(IsValid);
             int offset = 0;
@@ -236,7 +236,7 @@ namespace BrightWire.LinearAlgebra
             return new GpuMatrix(_cuda, _rows, columnIndices.Count, ret, true);
         }
 
-        public IMatrix GetNewMatrixFromRows(IReadOnlyList<int> rowIndices)
+        public IMatrix GetNewMatrixFromRows(IReadOnlyList<uint> rowIndices)
         {
             Debug.Assert(IsValid);
             int offset = 0;
@@ -254,7 +254,7 @@ namespace BrightWire.LinearAlgebra
             return new GpuMatrix(_cuda, rowIndices.Count, _columns, ret, true);
         }
 
-        public IVector GetRowSegment(int rowIndex, int columnIndex, int length)
+        public IVector GetRowSegment(uint rowIndex, uint columnIndex, uint length)
         {
             Debug.Assert(IsValid);
             int offset = (rowIndex + (columnIndex * _rows)) * CudaProvider.FLOAT_SIZE;
@@ -371,7 +371,7 @@ namespace BrightWire.LinearAlgebra
             return new GpuMatrix(_cuda, _rows, _columns, _cuda.RELUDerivative(_data, _rows * _columns), true);
         }
 
-        public IVector Row(int index)
+        public IVector Row(uint index)
         {
             Debug.Assert(IsValid);
             var ret = _cuda.Allocate(_columns);
@@ -426,7 +426,7 @@ namespace BrightWire.LinearAlgebra
                 return temp.Transpose();
         }
 
-        public (IMatrix Top, IMatrix Bottom) SplitAtRow(int rowIndex)
+        public (IMatrix Top, IMatrix Bottom) SplitAtRow(uint rowIndex)
         {
             Debug.Assert(IsValid);
             int size = _rows - rowIndex;
@@ -436,7 +436,7 @@ namespace BrightWire.LinearAlgebra
             return (new GpuMatrix(_cuda, rowIndex, _columns, ret1, true), new GpuMatrix(_cuda, size, _columns, ret2, true));
         }
 
-        public (IMatrix Left, IMatrix Right) SplitAtColumn(int columnIndex)
+        public (IMatrix Left, IMatrix Right) SplitAtColumn(uint columnIndex)
         {
             Debug.Assert(IsValid);
             int size = _columns - columnIndex;
@@ -645,24 +645,24 @@ namespace BrightWire.LinearAlgebra
             return new GpuVector(_cuda, _data, false);
         }
 
-		public I3DTensor ReshapeAs3DTensor(int rows, int columns)
+		public I3DTensor ReshapeAs3DTensor(uint rows, uint columns)
 		{
 			Debug.Assert(IsValid && rows * columns == _rows);
 			return new Gpu3DTensor(_cuda, rows, columns, _columns, _data, false);
 		}
 
-		public I4DTensor ReshapeAs4DTensor(int rows, int columns, int depth)
+		public I4DTensor ReshapeAs4DTensor(uint rows, uint columns, uint depth)
         {
 	        Debug.Assert(IsValid && rows * columns * depth == _rows);
             return new Gpu4DTensor(_cuda, rows, columns, depth, _columns, _data, false);
         }
 
-	    public float GetAt(int row, int column)
+	    public float GetAt(uint row, uint column)
 	    {
 		    return _data.DeviceVariable[column * _rows + row];
 	    }
 
-	    public void SetAt(int row, int column, float value)
+	    public void SetAt(uint row, uint column, float value)
 	    {
 		    _data.DeviceVariable[column * _rows + row] = value;
 	    }

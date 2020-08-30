@@ -76,7 +76,7 @@ namespace BrightWire.LinearAlgebra
 			return AsIndexable().ToString();
 		}
 
-		public int Count => _data.Size;
+		public uint Count => _data.Size;
 		public IDeviceMemoryPtr Memory => _data;
 
 		public FloatVector Data
@@ -87,9 +87,7 @@ namespace BrightWire.LinearAlgebra
 				var data = new float[Count];
 				_data.CopyToHost(data);
 
-				return new FloatVector {
-					Data = data
-				};
+				return FloatVector.Create(data);
 			}
 
 			set
@@ -100,7 +98,7 @@ namespace BrightWire.LinearAlgebra
 
 				if (value.Data != null) {
 					var data2 = value.Data;
-					for (int i = 0, len = data.Length; i < len; i++)
+					for (uint i = 0, len = (uint)data.Length; i < len; i++)
 						data[i] = data2[i];
 				}
 
@@ -163,7 +161,7 @@ namespace BrightWire.LinearAlgebra
 			return _cuda.Blas.Dot(_data.DeviceVariable, 1, other._data.DeviceVariable, 1);
 		}
 
-		public IVector GetNewVectorFromIndexes(IReadOnlyList<int> indices)
+		public IVector GetNewVectorFromIndexes(IReadOnlyList<uint> indices)
 		{
 			Debug.Assert(IsValid);
 			var data = _cuda.VectorCopy(_data, Count, indices.ToArray());
@@ -201,13 +199,13 @@ namespace BrightWire.LinearAlgebra
 			return _cuda.Blas.Norm2(_data.DeviceVariable, 1);
 		}
 
-		public int MaximumIndex()
+		public uint MaximumIndex()
 		{
 			Debug.Assert(IsValid);
 			return _cuda.Blas.Max(_data.DeviceVariable, 1) - 1;
 		}
 
-		public int MinimumIndex()
+		public uint MinimumIndex()
 		{
 			Debug.Assert(IsValid);
 			return _cuda.Blas.Min(_data.DeviceVariable, 1) - 1;
@@ -432,7 +430,7 @@ namespace BrightWire.LinearAlgebra
 			_cuda.VectorAdd(_data, Count, scalar);
 		}
 
-		public IReadOnlyList<IVector> Split(int blockCount)
+		public IReadOnlyList<IVector> Split(uint blockCount)
 		{
 			Debug.Assert(IsValid);
 			var blockSize = Count / blockCount;
@@ -450,7 +448,7 @@ namespace BrightWire.LinearAlgebra
 			return new GpuMatrix(_cuda, Count, Count, ret, true);
 		}
 
-		public void RotateInPlace(int blockCount)
+		public void RotateInPlace(uint blockCount)
 		{
 			Debug.Assert(IsValid);
 			_cuda.RotateInPlace(_data, Count, blockCount);
@@ -463,13 +461,13 @@ namespace BrightWire.LinearAlgebra
 			return new GpuVector(_cuda, ret, true);
 		}
 
-		public float GetAt(int index)
+		public float GetAt(uint index)
 		{
 			Debug.Assert(IsValid);
 			return _data.DeviceVariable[index];
 		}
 
-		public void SetAt(int index, float value)
+		public void SetAt(uint index, float value)
 		{
 			Debug.Assert(IsValid);
 			_data.DeviceVariable[index] = value;
@@ -480,19 +478,19 @@ namespace BrightWire.LinearAlgebra
 			return _cuda.IsFinite(_data, _data.Size);
 		}
 
-		public IMatrix ReshapeAsMatrix(int rows, int columns)
+		public IMatrix ReshapeAsMatrix(uint rows, uint columns)
 		{
 			Debug.Assert(IsValid && rows * columns == _data.Size);
 			return new GpuMatrix(_cuda, rows, columns, _data, false);
 		}
 
-		public I3DTensor ReshapeAs3DTensor(int rows, int columns, int depth)
+		public I3DTensor ReshapeAs3DTensor(uint rows, uint columns, uint depth)
 		{
 			Debug.Assert(IsValid && rows * columns * depth == _data.Size);
 			return new Gpu3DTensor(_cuda, rows, columns, depth, _data, false);
 		}
 
-		public I4DTensor ReshapeAs4DTensor(int rows, int columns, int depth, int count)
+		public I4DTensor ReshapeAs4DTensor(uint rows, uint columns, uint depth, uint count)
 		{
 			Debug.Assert(IsValid && rows * columns * depth * count == _data.Size);
 			return new Gpu4DTensor(_cuda, rows, columns, depth, count, _data, false);

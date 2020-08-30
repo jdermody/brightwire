@@ -4,6 +4,7 @@ using BrightWire.Models;
 using BrightWire.ExecutionGraph.Helper;
 using BrightTable;
 using System;
+using BrightData;
 
 namespace BrightWire.ExecutionGraph.DataTableAdaptor
 {
@@ -46,23 +47,23 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 	    /// <inheritdoc />
         public abstract bool IsSequential { get; }
 	    /// <inheritdoc />
-        public abstract int InputSize { get; }
+        public abstract uint InputSize { get; }
 	    /// <inheritdoc />
-        public abstract int OutputSize { get; }
+        public abstract uint? OutputSize { get; }
 	    /// <inheritdoc />
         public virtual uint RowCount => (uint)_data.Count;
 
 	    /// <inheritdoc />
-        public abstract IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<int> rows);
+        public abstract IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<uint> rows);
 
 	    /// <inheritdoc />
         public abstract IDataSource CloneWith(IRowOrientedDataTable dataTable);
 
 	    /// <inheritdoc />
-        public virtual IReadOnlyList<IReadOnlyList<int>> GetBuckets()
+        public virtual IReadOnlyList<IReadOnlyList<uint>> GetBuckets()
         {
             return new[] {
-                Enumerable.Range(0, _data.Count).ToList()
+                _data.Count.AsRange().ToList()
             };
         }
 
@@ -76,9 +77,9 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 		/// Returns the row data
 		/// </summary>
 		/// <param name="rows">List of row indices</param>
-        protected IReadOnlyList<T> _GetRows(IReadOnlyList<int> rows)
+        protected IReadOnlyList<T> _GetRows(IReadOnlyList<uint> rows)
         {
-            return rows.Select(i => _data[i]).ToList();
+            return rows.Select(i => _data[(int)i]).ToList();
         }
 
 		/// <summary>
@@ -86,16 +87,16 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 		/// </summary>
 		/// <param name="rows">Row indices</param>
 		/// <param name="data">List of input/output tuples</param>
-        protected IMiniBatch _GetMiniBatch(IReadOnlyList<int> rows, IReadOnlyList<(float[][], float[])> data)
+        protected IMiniBatch _GetMiniBatch(IReadOnlyList<uint> rows, IReadOnlyList<(float[][], float[])> data)
         {
             var inputList = new List<IGraphData>();
             for (int i = 0, len = data.First().Item1.Length; i < len; i++)
             {
 	            var i1 = i;
-		        inputList.Add(new MatrixGraphData(_lap.CreateMatrix(data.Count, InputSize, (x, y) => data[x].Item1[i1][y])));
+		        inputList.Add(new MatrixGraphData(_lap.CreateMatrix((uint)data.Count, (uint)InputSize, (x, y) => data[(int)x].Item1[i1][y])));
 	        }
 
-	        var output = OutputSize > 0 ? _lap.CreateMatrix(data.Count, OutputSize, (x, y) => data[x].Item2[y]) : null;
+	        var output = OutputSize > 0 ? _lap.CreateMatrix((uint)data.Count, (uint)OutputSize, (x, y) => data[(int)x].Item2[y]) : null;
             return new MiniBatch(rows, this, inputList, new MatrixGraphData(output));
         }
 
@@ -104,24 +105,24 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 		/// </summary>
 		/// <param name="rows">Row indices</param>
 		/// <param name="data">List of input/output matrix tuples</param>
-        protected IMiniBatch _GetSequentialMiniBatch(IReadOnlyList<int> rows, IReadOnlyList<(FloatMatrix Input, FloatMatrix Output)> data)
+        protected IMiniBatch _GetSequentialMiniBatch(IReadOnlyList<uint> rows, IReadOnlyList<(FloatMatrix Input, FloatMatrix Output)> data)
         {
             List<FloatVector> temp;
-            var inputData = new Dictionary<int, List<FloatVector>>();
-            var outputData = new Dictionary<int, List<FloatVector>>();
+            var inputData = new Dictionary<uint, List<FloatVector>>();
+            var outputData = new Dictionary<uint, List<FloatVector>>();
 
             foreach (var item in data) {
                 var input = item.Input;
                 var output = item.Output;
-                for (int i = 0, len = input.RowCount; i < len; i++) {
+                for (uint i = 0, len = input.RowCount; i < len; i++) {
                     if (!inputData.TryGetValue(i, out temp))
                         inputData.Add(i, temp = new List<FloatVector>());
-                    temp.Add(input.Row[i]);
+                    temp.Add(FloatVector.Create(input.Row(i).Data));
 
                     if (output != null) {
                         if (!outputData.TryGetValue(i, out temp))
                             outputData.Add(i, temp = new List<FloatVector>());
-                        temp.Add(output.Row[i]);
+                        temp.Add(FloatVector.Create(output.Row(i).Data));
                     }
                 }
             }

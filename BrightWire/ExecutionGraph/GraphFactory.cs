@@ -355,7 +355,7 @@ namespace BrightWire.ExecutionGraph
 		/// <param name="outputSize">Number of outgoing connections</param>
 		/// <param name="name">Optional name to give the node</param>
 		/// <returns></returns>
-		public INode CreateFeedForward(int inputSize, int outputSize, string name = null)
+		public INode CreateFeedForward(uint inputSize, uint outputSize, string name = null)
 		{
 			// create weights and bias
 			var weightInit = _GetWeightInitialisation();
@@ -377,7 +377,7 @@ namespace BrightWire.ExecutionGraph
 		/// <param name="outputSize">Number of outgoing connections</param>
 		/// <param name="name">Optional name to give the node</param>
 		/// <returns></returns>
-		public INode CreateDropConnect(float dropoutPercentage, int inputSize, int outputSize, string name = null)
+		public INode CreateDropConnect(float dropoutPercentage, uint inputSize, uint outputSize, string name = null)
 		{
 			// create weights and bias
 			var weightInit = _GetWeightInitialisation();
@@ -387,7 +387,7 @@ namespace BrightWire.ExecutionGraph
 			// get the gradient descent optimisations
 			var optimisation = CreateWeightUpdater(weight);
 
-			return new DropConnect(dropoutPercentage, inputSize, outputSize, bias, weight, _lap.IsStochastic, optimisation, name);
+			return new DropConnect(dropoutPercentage, (int)inputSize, (int)outputSize, bias, weight, _lap.IsStochastic, optimisation, name);
 		}
 
 		/// <summary>
@@ -415,7 +415,7 @@ namespace BrightWire.ExecutionGraph
 		/// <param name="shouldBackpropagate">True to calculate the backpropagation error signal</param>
 		/// <param name="name">Optional name to give the node</param>
 		/// <returns></returns>
-		public INode CreateConvolutional(int inputDepth, int filterCount, int padding, int filterWidth, int filterHeight, int xStride, int yStride, bool shouldBackpropagate = true, string name = null)
+		public INode CreateConvolutional(uint inputDepth, uint filterCount, uint padding, uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool shouldBackpropagate = true, string name = null)
 		{
 			var weightInit = _GetWeightInitialisation();
 			return new Convolutional(shouldBackpropagate, weightInit, CreateWeightUpdater, inputDepth, filterCount, padding, filterWidth, filterHeight, xStride, yStride, name);
@@ -430,7 +430,7 @@ namespace BrightWire.ExecutionGraph
 		/// <param name="yStride">Y stride</param>
 		/// <param name="name">Optional name to give the node</param>
 		/// <returns></returns>
-		public INode CreateMaxPool(int filterWidth, int filterHeight, int xStride, int yStride, string name = null)
+		public INode CreateMaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, string name = null)
 		{
 			return new MaxPool(filterWidth, filterHeight, xStride, yStride, name);
 		}
@@ -497,7 +497,7 @@ namespace BrightWire.ExecutionGraph
 			return new ReverseSequence(index, name);
 		}
 
-		public INode CreateBatchNormalisation(int inputSize, string name)
+		public INode CreateBatchNormalisation(uint inputSize, string name)
 		{
 			return new BatchNorm(this, inputSize, name);
 		}
@@ -576,7 +576,7 @@ namespace BrightWire.ExecutionGraph
 		/// <param name="inputSize">Number of outgoing connections</param>
 		/// <param name="node">The node to build from</param>
 		/// <returns></returns>
-		public WireBuilder Connect(int inputSize, INode node)
+		public WireBuilder Connect(uint inputSize, INode node)
 		{
 			return new WireBuilder(this, inputSize, node);
 		}
@@ -589,7 +589,7 @@ namespace BrightWire.ExecutionGraph
 		/// <param name="depth">Volume depth</param>
 		/// <param name="node">The node to build from</param>
 		/// <returns></returns>
-		public WireBuilder Connect(int width, int height, int depth, INode node)
+		public WireBuilder Connect(uint width, uint height, uint depth, INode node)
 		{
 			return new WireBuilder(this, width, height, depth, node);
 		}
@@ -628,7 +628,7 @@ namespace BrightWire.ExecutionGraph
 		/// <param name="input2">The node to subtract</param>
 		/// <param name="name">Optional name to give the node</param>
 		/// <returns></returns>
-		public WireBuilder Subtract(int inputSize, INode input1, INode input2, string name = null)
+		public WireBuilder Subtract(uint inputSize, INode input1, INode input2, string name = null)
 		{
 			var subtract = new SubtractGate(name);
 			var wireToPrimary = new WireToNode(subtract);
@@ -648,7 +648,7 @@ namespace BrightWire.ExecutionGraph
 		/// <param name="input2">Second node</param>
 		/// <param name="name">Optional name to give the node</param>
 		/// <returns></returns>
-		public WireBuilder Add(int inputSize, INode input1, INode input2, string name = null)
+		public WireBuilder Add(uint inputSize, INode input1, INode input2, string name = null)
 		{
 			var add = new AddGate(name);
 			var wireToPrimary = new WireToNode(add);
@@ -681,7 +681,7 @@ namespace BrightWire.ExecutionGraph
 		/// <param name="input2">Second node</param>
 		/// <param name="name">Optional name to give the node</param>
 		/// <returns></returns>
-		public WireBuilder Multiply(int inputSize, INode input1, INode input2, string name = null)
+		public WireBuilder Multiply(uint inputSize, INode input1, INode input2, string name = null)
 		{
 			var multiply = new MultiplyGate(name);
 			var wireToPrimary = new WireToNode(multiply);

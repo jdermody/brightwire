@@ -41,15 +41,12 @@ namespace BrightWire.TrainingData.Artificial
         /// <param name="sequence">The reber sequence to encode</param>
         public static FloatMatrix Encode(string sequence)
         {
-            return new FloatMatrix {
-                Row = sequence.Select(ch => {
+            return FloatMatrix.Create(sequence.Select(ch => {
                     var ret = new float[_ch.Count];
                     ret[_ch[ch]] = 1f;
-                    return new FloatVector {
-                        Data = ret
-                    };
+                    return FloatVector.Create(ret);
                 }).ToArray()
-            };
+            );
         }
 
         /// <summary>
