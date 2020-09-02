@@ -15,19 +15,19 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         MemoryFeeder _memory;
         INode _input, _output = null, _activation;
         OneToMany _start;
-        int _inputSize;
+        uint _inputSize;
 
-        public SimpleRecurrent(GraphFactory graph, int inputSize, float[] memory, INode activation, string name = null)
+        public SimpleRecurrent(GraphFactory graph, uint inputSize, float[] memory, INode activation, string name = null)
             : base(name)
         {
             _Create(graph, inputSize, memory, activation, null);
         }
 
-        void _Create(GraphFactory graph, int inputSize, float[] memory, INode activation, string memoryId)
+        void _Create(GraphFactory graph, uint inputSize, float[] memory, INode activation, string memoryId)
         {
             _inputSize = inputSize;
             _activation = activation;
-            int hiddenLayerSize = memory.Length;
+            var hiddenLayerSize = (uint)memory.Length;
             _memory = new MemoryFeeder(memory, null, memoryId);
             _input = new FlowThrough();
 
@@ -84,13 +84,13 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
         public override void ReadFrom(GraphFactory factory, BinaryReader reader)
         {
-            var inputSize = reader.ReadInt32();
+            var inputSize = (uint)reader.ReadInt32();
             var memoryId = reader.ReadString();
             var memory = FloatVector.ReadFrom(reader);
             var activation = _Hydrate(factory, reader);
 
             if (_memory == null)
-                _Create(factory, inputSize, memory.Data, activation, memoryId);
+                _Create(factory, inputSize, memory.Data.ToArray(), activation, memoryId);
             else
                 _memory.Data = memory;
 

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using BrightData;
 using BrightWire.Models;
 using BrightWire.ExecutionGraph.Helper;
 using BrightTable;
@@ -17,8 +18,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             : base(lap, dataTable)
         {
             var firstRow = dataTable.Row(0);
-            var input = (FloatTensor)firstRow[(uint)_dataColumnIndex[0]];
-            var output = (FloatVector)firstRow[_dataTargetIndex];
+            var input = (Tensor3D<float>)firstRow[(uint)_dataColumnIndex[0]];
+            var output = (Vector<float>)firstRow[_dataTargetIndex];
             _outputSize = output.Size;
             _inputSize = input.Size;
             Height = input.RowCount;
@@ -51,7 +52,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 	    public override IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<uint> rows)
         {
             var data = _GetRows(rows)
-                .Select(r => (_dataColumnIndex.Select(i => ((FloatTensor)r[i]).GetAsRaw()).ToList(), ((FloatVector)r[_dataTargetIndex]).Data))
+                .Select(r => (_dataColumnIndex.Select(i => ((Tensor3D<float>)r[i]).GetAsRaw()).ToList(), ((Vector<float>)r[_dataTargetIndex]).Data))
                 .ToArray()
             ;
             var inputList = new List<IGraphData>();

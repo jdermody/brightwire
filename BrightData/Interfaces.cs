@@ -231,8 +231,6 @@ namespace BrightData
         FeatureScale
     }
 
-
-
     public interface IAutoGrowBuffer : ICanWriteToBinaryWriter
     {
         uint Size { get; }
@@ -269,4 +267,6 @@ namespace BrightData
         double Divide { get; }
         double Subtract { get; }
     }
+
+
 }

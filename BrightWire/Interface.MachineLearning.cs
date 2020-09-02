@@ -43,7 +43,7 @@ namespace BrightWire
 		/// <summary>
 		/// The size to reduce to
 		/// </summary>
-		int Size { get; }
+		uint Size { get; }
 
 		/// <summary>
 		/// The transformation matrix
@@ -146,7 +146,7 @@ namespace BrightWire
 		/// <summary>
 		/// The index of the current epoch (starting from one)
 		/// </summary>
-		int CurrentEpoch { get; }
+		uint CurrentEpoch { get; }
 
 		/// <summary>
 		/// The current learning/training rate
@@ -161,12 +161,12 @@ namespace BrightWire
 		/// <summary>
 		/// The current mini batch size
 		/// </summary>
-		int BatchSize { get; set; }
+		uint BatchSize { get; set; }
 
 		/// <summary>
 		/// The total number of rows per epoch
 		/// </summary>
-		int RowCount { get; }
+		uint RowCount { get; }
 
 		/// <summary>
 		/// Stores an update to the model parameters
@@ -206,7 +206,7 @@ namespace BrightWire
 		/// Sets the number of rows
 		/// </summary>
 		/// <param name="rowCount">The number of rows per epoch</param>
-		void SetRowCount(int rowCount);
+		void SetRowCount(uint rowCount);
 
 		/// <summary>
 		/// Register the backpropagation to be deferred
@@ -227,7 +227,7 @@ namespace BrightWire
 		/// </summary>
 		/// <param name="atEpoch">The epoch to change the learning rate</param>
 		/// <param name="newLearningRate">The learning rate to use at that epoch</param>
-		void ScheduleLearningRate(int atEpoch, float newLearningRate);
+		void ScheduleLearningRate(uint atEpoch, float newLearningRate);
 
 		/// <summary>
 		/// Enable or disable node parameter updates

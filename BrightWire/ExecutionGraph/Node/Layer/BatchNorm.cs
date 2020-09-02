@@ -27,7 +27,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 			_Create(graph, inputSize, null, null, null, null, 0);
 		}
 
-		void _Create(GraphFactory graph, uint inputSize, float[] gamma, float[] beta, float[] derivedMean, float[] derivedM2, int count)
+		void _Create(GraphFactory graph, uint inputSize, float[] gamma, float[] beta, float[] derivedMean, float[] derivedM2, uint count)
         {
             _inputSize = inputSize;
 	        _statistics = new VectorBasedStatistics(graph.LinearAlgebraProvider, inputSize, derivedMean, derivedM2, count);
@@ -140,12 +140,12 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 					_betaCached = context.LinearAlgebraProvider.CreateMatrix(input.RowCount, input.ColumnCount, (x, y) => _beta.Data[y]);
 				if (_meanCached?.IsValid != true || _meanCached?.RowCount != input.RowCount || _meanCached?.ColumnCount != input.ColumnCount) {
 					var mean = _statistics.Mean;
-					_meanCached = context.LinearAlgebraProvider.CreateMatrixFromRows(Enumerable.Repeat(mean, input.RowCount).ToList());
+					_meanCached = context.LinearAlgebraProvider.CreateMatrixFromRows(Enumerable.Repeat(mean, (int)input.RowCount).ToList());
 				}
 				if (_stdDevCached?.IsValid != true || _stdDevCached?.RowCount != input.RowCount || _stdDevCached?.ColumnCount != input.ColumnCount) {
 					using (var variance = _statistics.GetSampleVariance())
 					using (var stdDev = variance.Sqrt()) {
-						_stdDevCached = context.LinearAlgebraProvider.CreateMatrixFromRows(Enumerable.Repeat(stdDev, input.RowCount).ToList());
+						_stdDevCached = context.LinearAlgebraProvider.CreateMatrixFromRows(Enumerable.Repeat(stdDev, (int)input.RowCount).ToList());
 					}
 				}
 				
@@ -182,13 +182,13 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
 		public override void ReadFrom(GraphFactory factory, BinaryReader reader)
 		{
-			var inputSize = reader.ReadInt32();
-			var gamma = FloatVector.ReadFrom(reader).Data;
-			var beta = FloatVector.ReadFrom(reader).Data;
+			var inputSize = (uint)reader.ReadInt32();
+			var gamma = FloatVector.ReadFrom(reader).ToArray();
+			var beta = FloatVector.ReadFrom(reader).ToArray();
 
-			var count = reader.ReadInt32();
-			var mean = FloatVector.ReadFrom(reader).Data;
-			var m2 = FloatVector.ReadFrom(reader).Data;
+			var count = (uint)reader.ReadInt32();
+			var mean = FloatVector.ReadFrom(reader).ToArray();
+			var m2 = FloatVector.ReadFrom(reader).ToArray();
 
 			_Create(factory, inputSize, gamma, beta, mean, m2, count);
 		}

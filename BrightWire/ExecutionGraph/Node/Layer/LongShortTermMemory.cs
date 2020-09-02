@@ -11,21 +11,21 @@ namespace BrightWire.ExecutionGraph.Node.Layer
     /// </summary>
     class LongShortTermMemory : NodeBase, IHaveMemoryNode
     {
-        int _inputSize;
+        uint _inputSize;
         MemoryFeeder _memory, _state;
         INode _input, _output = null;
         IReadOnlyDictionary<INode, IGraphData> _lastBackpropagation = null;
         OneToMany _start;
 
-        public LongShortTermMemory(GraphFactory graph, int inputSize, float[] memory, string name = null) : base(name)
+        public LongShortTermMemory(GraphFactory graph, uint inputSize, float[] memory, string name = null) : base(name)
         {
             _Create(graph, inputSize, memory, null);
         }
 
-        void _Create(GraphFactory graph, int inputSize, float[] memory, string memoryId)
+        void _Create(GraphFactory graph, uint inputSize, float[] memory, string memoryId)
         {
             _inputSize = inputSize;
-            int hiddenLayerSize = memory.Length;
+            var hiddenLayerSize = (uint)memory.Length;
             _memory = new MemoryFeeder(memory, null, memoryId);
             _state = new MemoryFeeder(new float[memory.Length]);
             _input = new FlowThrough();
@@ -117,12 +117,12 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
         public override void ReadFrom(GraphFactory factory, BinaryReader reader)
         {
-            var inputSize = reader.ReadInt32();
+            var inputSize = (uint)reader.ReadInt32();
             var memoryId = reader.ReadString();
             var memory = FloatVector.ReadFrom(reader);
 
             if (_memory == null)
-                _Create(factory, inputSize, memory.Data, memoryId);
+                _Create(factory, inputSize, memory.Data.ToArray(), memoryId);
             else
                 _memory.Data = memory;
 

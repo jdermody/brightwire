@@ -19,7 +19,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             /// <summary>
             /// The channel on which the signal was received
             /// </summary>
-            public int Channel { get; }
+            public uint Channel { get; }
 
             /// <summary>
             /// The signal
@@ -34,14 +34,14 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             /// <summary>
             /// The size of the input signal
             /// </summary>
-            public int Size { get; }
+            public uint Size { get; }
 
             /// <summary>
             /// Constructor
             /// </summary>
             /// <param name="size">The size of the input signal</param>
             /// <param name="channel">The channel</param>
-            public IncomingChannel(int size, int channel)
+            public IncomingChannel(uint size, uint channel)
             {
                 Channel = channel;
                 Size = size;
@@ -72,7 +72,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             /// </summary>
             public bool IsValid => Data != null;
         }
-        Dictionary<int, IncomingChannel> _data;
+        Dictionary<uint, IncomingChannel> _data;
 
         /// <summary>
         /// Constructor
@@ -81,8 +81,8 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// <param name="incoming">The list of incoming wires</param>
         protected MultiGateBase(string name, params WireBuilder[] incoming) : base(name)
         {
-            _data = new Dictionary<int, IncomingChannel>();
-            for (int i = 0, len = incoming.Length; i < len; i++)
+            _data = new Dictionary<uint, IncomingChannel>();
+            for (uint i = 0, len = (uint)incoming.Length; i < len; i++)
                 _data[i] = new IncomingChannel(incoming[i].CurrentSize, i);
         }
 
@@ -100,7 +100,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// </summary>
         /// <param name="context">The graph context</param>
         /// <param name="channel">The channel</param>
-        protected override void _ExecuteForward(IContext context, int channel)
+        protected override void _ExecuteForward(IContext context, uint channel)
         {
             if (_data.TryGetValue(channel, out IncomingChannel data)) {
                 data.SetData(context.Data.GetMatrix(), context.Source);
@@ -144,14 +144,14 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         public override void ReadFrom(GraphFactory factory, BinaryReader reader)
         {
             if (_data == null)
-                _data = new Dictionary<int, IncomingChannel>();
+                _data = new Dictionary<uint, IncomingChannel>();
             else
                 _data.Clear();
 
             var len = reader.ReadInt32();
-            for(var i = 0; i < len; i++) {
-                var size = reader.ReadInt32();
-                var channel = reader.ReadInt32();
+            for(uint i = 0; i < len; i++) {
+                var size = (uint)reader.ReadInt32();
+                var channel = (uint)reader.ReadInt32();
                 _data[i] = new IncomingChannel(size, channel);
             }
         }

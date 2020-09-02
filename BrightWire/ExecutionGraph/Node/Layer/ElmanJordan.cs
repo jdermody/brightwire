@@ -16,22 +16,22 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         MemoryFeeder _memory;
         INode _input, _output = null, _activation, _activation2;
         OneToMany _start;
-        int _inputSize;
+        uint _inputSize;
         bool _isElman;
 
-        public ElmanJordan(GraphFactory graph, bool isElman, int inputSize, float[] memory, INode activation, INode activation2, string name = null)
+        public ElmanJordan(GraphFactory graph, bool isElman, uint inputSize, float[] memory, INode activation, INode activation2, string name = null)
             : base(name)
         {
             _Create(graph, isElman, inputSize, memory, activation, activation2, null);
         }
 
-        void _Create(GraphFactory graph, bool isElman, int inputSize, float[] memory, INode activation, INode activation2, string memoryName)
+        void _Create(GraphFactory graph, bool isElman, uint inputSize, float[] memory, INode activation, INode activation2, string memoryName)
         {
             _isElman = isElman;
             _inputSize = inputSize;
             _activation = activation;
             _activation2 = activation2;
-            int hiddenLayerSize = memory.Length;
+            var hiddenLayerSize = (uint)memory.Length;
             _memory = new MemoryFeeder(memory, null, memoryName);
             _input = new FlowThrough();
 
@@ -102,14 +102,14 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         public override void ReadFrom(GraphFactory factory, BinaryReader reader)
         {
             var isElman = reader.ReadBoolean();
-            var inputSize = reader.ReadInt32();
+            var inputSize = (uint)reader.ReadInt32();
             var memoryId = reader.ReadString();
             var memory = FloatVector.ReadFrom(reader);
             var activation = _Hydrate(factory, reader);
             var activation2 = _Hydrate(factory, reader);
 
             if (_memory == null)
-                _Create(factory, isElman, inputSize, memory.Data, activation, activation2, memoryId);
+                _Create(factory, isElman, inputSize, memory.Data.ToArray(), activation, activation2, memoryId);
             else
                 _memory.Data = memory;
 

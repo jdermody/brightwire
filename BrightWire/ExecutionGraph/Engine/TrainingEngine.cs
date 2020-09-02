@@ -26,7 +26,7 @@ namespace BrightWire.ExecutionGraph.Engine
 			_dataSource = dataSource;
 			_isStochastic = lap.IsStochastic;
 			LearningContext = learningContext;
-			learningContext.SetRowCount((int)dataSource.RowCount);
+			learningContext.SetRowCount(dataSource.RowCount);
 
 			if (start == null) {
 				_input = Enumerable.Range(0, (int)dataSource.InputCount).Select(i => new InputFeeder(i)).ToList();
@@ -38,7 +38,7 @@ namespace BrightWire.ExecutionGraph.Engine
 			}
 		}
 
-		public IReadOnlyList<ExecutionResult> Execute(IDataSource dataSource, int batchSize = 128, Action<float> batchCompleteCallback = null)
+		public IReadOnlyList<ExecutionResult> Execute(IDataSource dataSource, uint batchSize = 128, Action<float> batchCompleteCallback = null)
 		{
 			_lap.PushLayer();
 			var ret = new List<ExecutionResult>();
@@ -55,7 +55,7 @@ namespace BrightWire.ExecutionGraph.Engine
 					foreach (var item in _executionResults) {
 						uint outputIndex = 0;
 						foreach (var output in item.Output) {
-							ret.Add(new ExecutionResult(item.Sequence, output, outputIndex));
+							ret.Add(new ExecutionResult(item.Sequence, output.Rows.ToList(), outputIndex));
 							++outputIndex;
 						}
 					}
@@ -79,7 +79,7 @@ namespace BrightWire.ExecutionGraph.Engine
 			foreach (var item in _executionResults) {
 				uint outputIndex = 0;
 				foreach (var output in item.Output) {
-					ret.Add(new ExecutionResult(item.Sequence, output.Rows, outputIndex));
+					ret.Add(new ExecutionResult(item.Sequence, output.Rows.ToList(), outputIndex));
 					++outputIndex;
 				}
 			}
@@ -214,7 +214,7 @@ namespace BrightWire.ExecutionGraph.Engine
 		public bool Test(
 			IDataSource testDataSource,
 			IErrorMetric errorMetric,
-			int batchSize = 128,
+			uint batchSize = 128,
 			Action<float> batchCompleteCallback = null,
 			Action<float, double, bool, bool> values = null
 		)

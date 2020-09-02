@@ -25,7 +25,7 @@ namespace BrightWire.LinearAlgebra
             _rows = rows;
             _columns = columns;
 	        _depth = depth;
-	        _data = new CpuMatrix(DenseMatrix.Build.Dense(rows * columns, depth));
+	        _data = new CpuMatrix(DenseMatrix.Build.Dense((int)(rows * columns), (int)depth));
         }
 
         public Cpu3DTensor(IReadOnlyList<IIndexableMatrix> matrixList)
@@ -34,7 +34,7 @@ namespace BrightWire.LinearAlgebra
             Debug.Assert(matrixList.All(m => m.RowCount == first.RowCount && m.ColumnCount == first.ColumnCount));
             _rows = first.RowCount;
             _columns = first.ColumnCount;
-			_depth = matrixList.Count;
+			_depth = (uint)matrixList.Count;
 
 	        uint offset = 0;
 	        var rowSize = _rows * _columns;
@@ -44,7 +44,7 @@ namespace BrightWire.LinearAlgebra
 		        offset += rowSize;
 	        }
 
-	        _data = new CpuMatrix(DenseMatrix.Build.Dense(rowSize, _depth, data));
+	        _data = new CpuMatrix(DenseMatrix.Build.Dense((int)rowSize, (int)_depth, data));
         }
 
         public void Dispose()
@@ -65,7 +65,7 @@ namespace BrightWire.LinearAlgebra
 
 	    uint _RowIndex(uint row, uint column) => column * _rows + row;
 
-        public FloatTensor Data
+        public BrightData.Tensor3D<float> Data
         {
             get
             {
@@ -73,17 +73,15 @@ namespace BrightWire.LinearAlgebra
             }
             set
             {
-                var matrixList = value.Matrix;
+                var matrixList = value.Matrices.ToArray();
                 var matrixCount = matrixList.Length;
-                for (var k = 0; k < matrixCount && k < _depth; k++) {
+                for (uint k = 0; k < matrixCount && k < _depth; k++) {
                     var matrix = matrixList[k];
-	                if (matrix.Row != null) {
-		                for (int i = 0, len = matrix.Row.Length; i < len; i++) {
-			                var row = matrix.Row[i];
-			                for (int j = 0, len2 = row.Count; j < len2; j++)
-				                this[i, j, k] = row.Data[j];
-		                }
-	                }
+                    for (uint i = 0, len = matrix.RowCount; i < len; i++) {
+                        var row = matrix.Row(i);
+                        for (uint j = 0, len2 = row.Size; j < len2; j++)
+                            this[i, j, k] = row.Data[j];
+                    }
                 }
             }
         }
@@ -145,7 +143,7 @@ namespace BrightWire.LinearAlgebra
 		{
 			Debug.Assert(rows * columns == _rows);
 			var tensorList = new List<IIndexable3DTensor>();
-			for (var i = 0; i < Depth; i++) {
+			for (uint i = 0; i < Depth; i++) {
 				var slice = GetMatrixAt(i);
 				tensorList.Add(slice.ReshapeAs3DTensor(rows, columns).AsIndexable());
 			}
@@ -166,8 +164,8 @@ namespace BrightWire.LinearAlgebra
             var convolutions = ConvolutionHelper.Default(ColumnCount, RowCount, filterWidth, filterHeight, xStride, yStride);
 
             for (uint k = 0; k < Depth; k++) {
-                var indices = saveIndices ? new CpuMatrix(DenseMatrix.Create(newRows, newColumns, 0f)) : null;
-                var layer = new CpuMatrix(DenseMatrix.Create(newRows, newColumns, 0f));
+                var indices = saveIndices ? new CpuMatrix(DenseMatrix.Create((int)newRows, (int)newColumns, 0f)) : null;
+                var layer = new CpuMatrix(DenseMatrix.Create((int)newRows, (int)newColumns, 0f));
                 
                 foreach(var (cx, cy) in convolutions) {
                     var targetX = cx / xStride;
@@ -233,9 +231,9 @@ namespace BrightWire.LinearAlgebra
 	    {
 		    var convolutions = ConvolutionHelper.Default(ColumnCount, RowCount, filterWidth, filterHeight, xStride, yStride);
 		    var filterSize = filterWidth * filterHeight;
-		    var ret = new CpuMatrix(DenseMatrix.Create(convolutions.Count, filterSize * Depth, 0f));
+		    var ret = new CpuMatrix(DenseMatrix.Create(convolutions.Count, (int)(filterSize * Depth), 0f));
 
-		    for(uint i = 0; i < convolutions.Count; i++) {
+		    for(int i = 0; i < convolutions.Count; i++) {
 			    var (offsetX, offsetY) = convolutions[i];
 			    for (uint k = 0; k < Depth; k++) {
 					var filterOffset = k * filterSize;
@@ -243,7 +241,7 @@ namespace BrightWire.LinearAlgebra
 					    for (uint x = 0; x < filterWidth; x++) {
 							// write in column major format
 							var filterIndex = filterOffset + (x * filterHeight + y);
-						    ret[i, filterIndex] = this[offsetY + y, offsetX + x, k];
+						    ret[(uint)i, filterIndex] = this[offsetY + y, offsetX + x, k];
 					    }
 				    }
 			    }
@@ -263,9 +261,9 @@ namespace BrightWire.LinearAlgebra
             uint yStride)
         {
             var convolutions = ConvolutionHelper.Default(outputColumns, outputRows, filterWidth, filterHeight, xStride, yStride);
-	        var output = outputDepth.AsRange().Select(i => DenseMatrix.Create(outputRows, outputColumns, 0f)).ToList();
+	        var output = outputDepth.AsRange().Select(i => DenseMatrix.Create((int)outputRows, (int)outputColumns, 0f)).ToList();
 
-			for (var k = 0; k < Depth; k++) {
+			for (uint k = 0; k < Depth; k++) {
 				var slice = GetMatrixAt(k).AsIndexable();
 				var filters = filterMatrix.Column(k).Split(outputDepth).Select(v => v.AsIndexable()).ToList();
 
@@ -278,7 +276,7 @@ namespace BrightWire.LinearAlgebra
 							for (uint x = 0; x < filterWidth; x++) {
 								var filterIndex = (filterWidth-x-1)  * filterHeight + (filterHeight-y-1);
 								for (var z = 0; z < outputDepth; z++)
-									output[z][cy + y, cx + x] += filters[z][filterIndex] * error;
+									output[z][(int)(cy + y), (int)(cx + x)] += filters[z][filterIndex] * error;
 							}
 						}
 					}
@@ -289,8 +287,8 @@ namespace BrightWire.LinearAlgebra
 
         public IMatrix CombineDepthSlices()
         {
-            var ret = new CpuMatrix(DenseMatrix.Create(_rows, _columns, 0f));
-            for (var i = 0; i < Depth; i++)
+            var ret = new CpuMatrix(DenseMatrix.Create((int)_rows, (int)_columns, 0f));
+            for (uint i = 0; i < Depth; i++)
                 ret.AddInPlace(GetMatrixAt(i));
             return ret;
         }

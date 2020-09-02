@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using BrightData;
 using MathNet.Numerics.Distributions;
 
 namespace BrightWire.Source.Helper
@@ -83,10 +84,10 @@ namespace BrightWire.Source.Helper
 		/// <summary>
 		/// Returns the index of the closest comparison vector for each vector
 		/// </summary>
-		public IReadOnlyList<int> GetClosest()
+		public IReadOnlyList<uint> GetClosest()
 		{
 			using (var distance = _lap.CalculateDistances(_data, _comparison, _distanceMetric)) {
-				return Enumerable.Range(0, _data.Count)
+				return _data.Count.AsRange()
 					.Select(i => _GetMinimum(distance, i).Index)
 					.ToList();
 			}
@@ -105,11 +106,9 @@ namespace BrightWire.Source.Helper
 			}
 		}
 
-		(int Index, float Value) _GetMinimum(IMatrix data, int columnIndex)
+		(uint Index, float Value) _GetMinimum(IMatrix data, uint columnIndex)
 		{
-			var bestIndex = -1;
-			var min = float.MaxValue;
-			var len = _comparison.Count;
+            var len = _comparison.Count;
 
 			if (_lap.IsGpu) {
 				if (len == 1)
@@ -124,16 +123,20 @@ namespace BrightWire.Source.Helper
 				
 				if (len == 1)
 					return (0, matrix[0, columnIndex]);
+				else if(len == 0)
+					throw new Exception("Cannot find minimum with zero length");
 
-				for (int j = 0; j < len; j++) {
+                uint bestIndex = uint.MaxValue;
+                var min = float.MaxValue;
+				for (uint j = 0; j < len; j++) {
 					var val = matrix[j, columnIndex];
 					if (val < min) {
 						bestIndex = j;
 						min = val;
 					}
 				}
+                return (bestIndex, min);
 			}
-			return (bestIndex, min);
-		}
+        }
 	}
 }

@@ -9,9 +9,9 @@ namespace BrightWire.ExecutionGraph.Node.Gate
     {
         class Backpropagation : BackpropagationBase<ReverseTemporalJoin>
         {
-            readonly int _reverseSize;
+            readonly uint _reverseSize;
 
-            public Backpropagation(ReverseTemporalJoin source, int reverseSize) : base(source)
+            public Backpropagation(ReverseTemporalJoin source, uint reverseSize) : base(source)
             {
                 _reverseSize = reverseSize;
             }
@@ -30,7 +30,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
 
                 if (sequenceIndex == 0) {
                     // process in order as we are pushing onto a stack (so will be read in reverse order)
-                    for(var i = 0; i < batch.SequenceCount; i++) {
+                    for(uint i = 0; i < batch.SequenceCount; i++) {
                         var data = _source._reverseBackpropagation[i];
                         var reverseContext = _source._contextTable[i];
                         reverseContext.AddBackward(data.Item2, data.Item1, _source);
@@ -40,11 +40,11 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 }
             }
         }
-        Dictionary<int, (IMatrix Data, int ReversedSize, INode ForwardParent)> _input = new Dictionary<int, (IMatrix Data, int ReversedSize, INode ForwardParent)>();
-        Dictionary<int, (IMatrix Data, INode ReverseParent)> _reverseInput = new Dictionary<int, (IMatrix Data, INode ReverseParent)>();
+        Dictionary<uint, (IMatrix Data, uint ReversedSize, INode ForwardParent)> _input = new Dictionary<uint, (IMatrix Data, uint ReversedSize, INode ForwardParent)>();
+        Dictionary<uint, (IMatrix Data, INode ReverseParent)> _reverseInput = new Dictionary<uint, (IMatrix Data, INode ReverseParent)>();
 
-        Dictionary<int, (INode, IGraphData)> _reverseBackpropagation = new Dictionary<int, (INode, IGraphData)>();
-        Dictionary<int, IContext> _contextTable = new Dictionary<int, IContext>();
+        Dictionary<uint, (INode, IGraphData)> _reverseBackpropagation = new Dictionary<uint, (INode, IGraphData)>();
+        Dictionary<uint, IContext> _contextTable = new Dictionary<uint, IContext>();
 
         public ReverseTemporalJoin(string name, WireBuilder forwardInput, WireBuilder reverseInput) 
             : base(name, forwardInput, reverseInput)
@@ -53,11 +53,11 @@ namespace BrightWire.ExecutionGraph.Node.Gate
 
         public override void OnDeserialise(IReadOnlyDictionary<string, INode> graph)
         {
-            _input = new Dictionary<int, (IMatrix Data, int ReversedSize, INode ForwardParent)>();
-            _reverseInput = new Dictionary<int, (IMatrix Data, INode ReverseParent)>();
+            _input = new Dictionary<uint, (IMatrix Data, uint ReversedSize, INode ForwardParent)>();
+            _reverseInput = new Dictionary<uint, (IMatrix Data, INode ReverseParent)>();
 
-            _reverseBackpropagation = new Dictionary<int, (INode, IGraphData)>();
-            _contextTable = new Dictionary<int, IContext>();
+            _reverseBackpropagation = new Dictionary<uint, (INode, IGraphData)>();
+            _contextTable = new Dictionary<uint, IContext>();
         }
 
         void _Continue(IContext context)

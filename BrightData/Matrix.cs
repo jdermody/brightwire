@@ -29,7 +29,7 @@ namespace BrightData
         {
             get => _data[rowY * ColumnCount + columnX];
             set => _data[rowY * ColumnCount + columnX] = value;
-        }
+        }                  
         public T this[uint rowY, uint columnX]
         {
             get => _data[rowY * ColumnCount + columnX];

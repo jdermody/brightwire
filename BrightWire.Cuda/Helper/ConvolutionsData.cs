@@ -11,9 +11,9 @@ namespace BrightWire.Cuda.Helper
 {
     class ConvolutionsData : IDisposable
     {
-		public ConvolutionsData(CudaProvider cuda, List<(int X, int Y)> convolutions)
+		public ConvolutionsData(CudaProvider cuda, List<(uint X, uint Y)> convolutions)
 	    {
-		    Count = convolutions.Count;
+		    Count = (uint)convolutions.Count;
 		    X = cuda.Allocate(Count);
 		    Y = cuda.Allocate(Count);
 
@@ -31,7 +31,7 @@ namespace BrightWire.Cuda.Helper
 
 		public IDeviceMemoryPtr X { get; }
 		public IDeviceMemoryPtr Y { get; }
-		public int Count { get; }
+		public uint Count { get; }
 
 		public void Dispose()
 	    {

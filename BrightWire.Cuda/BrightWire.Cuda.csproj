@@ -10,7 +10,7 @@
 
   <ItemGroup>
     <Reference Include="ManagedCudaStandard">
-      <HintPath>..\..\..\BrightTable\BrightTable.Cuda\ManagedCuda\ManagedCudaStandard.dll</HintPath>
+      <HintPath>..\ManagedCuda\ManagedCudaStandard.dll</HintPath>
     </Reference>
   </ItemGroup>
 

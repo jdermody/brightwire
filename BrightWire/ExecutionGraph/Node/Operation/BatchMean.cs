@@ -9,9 +9,9 @@ namespace BrightWire.ExecutionGraph.Node.Operation
     {
         class Backpropagation : SingleBackpropagationBase<BatchMean>
         {
-            readonly int _rowCount;
+            readonly uint _rowCount;
 
-            public Backpropagation(BatchMean source, int rowCount) : base(source)
+            public Backpropagation(BatchMean source, uint rowCount) : base(source)
             {
                 _rowCount = rowCount;
             }

@@ -25,7 +25,7 @@ namespace BrightWire.Cuda.Helper
 
         public CudaDeviceVariable<float> DeviceVariable => _ptr;
         public CUdeviceptr DevicePointer => _ptr.DevicePointer;
-        public int Size => _ptr.Size;
+        public uint Size => _ptr.Size;
 
         public void Clear()
         {

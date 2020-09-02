@@ -87,7 +87,7 @@ namespace BrightWire.ExecutionGraph.Node
         /// </summary>
         /// <param name="context"></param>
         /// <param name="channel"></param>
-        protected virtual void _ExecuteForward(IContext context, int channel)
+        protected virtual void _ExecuteForward(IContext context, uint channel)
         {
             ExecuteForward(context);
         }
@@ -97,7 +97,7 @@ namespace BrightWire.ExecutionGraph.Node
         /// </summary>
         /// <param name="context"></param>
         /// <param name="channel"></param>
-        public void ExecuteForward(IContext context, int channel)
+        public void ExecuteForward(IContext context, uint channel)
         {
             if (channel == 0)
                 ExecuteForward(context);

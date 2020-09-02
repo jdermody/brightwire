@@ -7,10 +7,10 @@ namespace BrightWire.Helper
 	public class VectorBasedStatistics
 	{
 		readonly IVector _mean, _m2;
-		readonly int _size;
-		int _count;
+		readonly uint _size;
+		uint _count;
 
-		public VectorBasedStatistics(ILinearAlgebraProvider lap, int size, float[] mean, float[] m2, int count)
+		public VectorBasedStatistics(ILinearAlgebraProvider lap, uint size, float[] mean, float[] m2, uint count)
 		{
 			_size = size;
 			_count = count;
@@ -18,8 +18,8 @@ namespace BrightWire.Helper
 			_m2 = m2 != null ? lap.CreateVector(m2) : lap.CreateVector(size, 0f);
 		}
 
-		public int Size => _size;
-		public int Count => _count;
+		public uint Size => _size;
+		public uint Count => _count;
 
 		public void Update(IVector data)
 		{

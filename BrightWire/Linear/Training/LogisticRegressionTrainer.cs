@@ -68,7 +68,7 @@ namespace BrightWire.Linear.Training
                     var reg = new float[th.Count];
                     using (var thi = th.AsIndexable()) {
                         var term = lambda / _feature.RowCount;
-                        for (var i = 1; i < th.Count; i++) {
+                        for (uint i = 1; i < th.Count; i++) {
                             reg[i] = thi[i] * term;
                         }
                         using(var regVector = _lap.CreateVector(reg))

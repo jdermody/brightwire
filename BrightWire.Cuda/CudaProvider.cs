@@ -10,6 +10,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using BrightData;
 using BrightWire.Helper;
 using BrightWire.LinearAlgebra.Helper;
 
@@ -156,11 +157,11 @@ namespace BrightWire.LinearAlgebra
 		readonly ConcurrentDictionary<CUfunction, (int BlockSize, int MinGridSize)> _blockSize = new ConcurrentDictionary<CUfunction, (int, int)>();
 		bool _disposed = false;
 
-		public CudaProvider(string cudaKernelPath, bool stochastic, int memoryCacheSize)
+		public CudaProvider(string cudaKernelPath, bool stochastic, uint memoryCacheSize)
 		{
 			IsStochastic = stochastic;
 			_cuda = new CudaContext();
-			_cache = new DeviceMemory(_cuda, memoryCacheSize);
+			_cache = new DeviceMemory(_cuda, (int)memoryCacheSize);
 			_kernel = new KernelModule(_cuda, cudaKernelPath);
 			_blas = new CudaBlas(AtomicsMode.Allowed);
 			_cuda.SetCurrent();
@@ -272,7 +273,7 @@ namespace BrightWire.LinearAlgebra
 			}
 		}
 
-		void _Invoke(CUfunction function, int size, params object[] param)
+		void _Invoke(CUfunction function, uint size, params object[] param)
 		{
 			if (!_blockSize.TryGetValue(function, out var data)) {
 				int blockSize = 0, minGridSize = 0;
@@ -280,53 +281,53 @@ namespace BrightWire.LinearAlgebra
 				_blockSize.TryAdd(function, data = (blockSize, minGridSize));
 			}
 			var gridSize = (size + data.BlockSize - 1) / data.BlockSize;
-			var execution = _kernel.CreateExecution(function, gridSize, data.BlockSize);
+			var execution = _kernel.CreateExecution(function, (int)gridSize, data.BlockSize);
 			execution.Run(0, param);
 		}
 
-		void _InvokeManual(CUfunction function, int size, params object[] param)
+		void _InvokeManual(CUfunction function, uint size, params object[] param)
 		{
-			var gridSize = _GetBlockCount(size, BLOCK_DIM2);
+			var gridSize = _GetBlockCount((int)size, BLOCK_DIM2);
 			var execution = _kernel.CreateExecution(function, gridSize, BLOCK_DIM2);
 			execution.Run(0, param);
 		}
 
-		void _InvokeWithSharedMemory(CUfunction function, int size, uint sharedMemorySize, params object[] param)
+		void _InvokeWithSharedMemory(CUfunction function, uint size, uint sharedMemorySize, params object[] param)
 		{
-			var gridSize = _GetBlockCount(size, BLOCK_DIM2);
+			var gridSize = _GetBlockCount((int)size, BLOCK_DIM2);
 			var execution = _kernel.CreateExecution(function, gridSize, BLOCK_DIM2);
 			execution.Run(sharedMemorySize, param);
 		}
 
-		void _Invoke2(CUfunction function, int rows, int columns, params object[] param)
+		void _Invoke2(CUfunction function, uint rows, uint columns, params object[] param)
 		{
 			if (!_blockSize.TryGetValue(function, out var data)) {
 				int blockSize = 0, minGridSize = 0;
 				DriverAPINativeMethods.Occupancy.cuOccupancyMaxPotentialBlockSize(ref minGridSize, ref blockSize, function, bs => 0, 0, 0);
 				_blockSize.TryAdd(function, data = (Convert.ToInt32(System.Math.Pow(blockSize, 1.0/2)), minGridSize));
 			}
-			int gridSizeRows = (rows + data.BlockSize - 1) / data.BlockSize;
-			int gridSizeCols = (columns + data.BlockSize - 1) / data.BlockSize;
-			var execution = _kernel.CreateExecution(function, new dim3(gridSizeRows, gridSizeCols), new dim3(data.BlockSize, data.BlockSize));
+			var gridSizeRows = (rows + data.BlockSize - 1) / data.BlockSize;
+			var gridSizeCols = (columns + data.BlockSize - 1) / data.BlockSize;
+			var execution = _kernel.CreateExecution(function, new dim3((int)gridSizeRows, (int)gridSizeCols), new dim3(data.BlockSize, data.BlockSize));
 			
 			execution.Run(0, param);
 		}
 
-		void _Invoke3(CUfunction function, int rows, int columns, int depth, params object[] param)
+		void _Invoke3(CUfunction function, uint rows, uint columns, uint depth, params object[] param)
 		{
 			if (!_blockSize.TryGetValue(function, out var data)) {
 				int blockSize = 0, minGridSize = 0;
 				DriverAPINativeMethods.Occupancy.cuOccupancyMaxPotentialBlockSize(ref minGridSize, ref blockSize, function, bs => 0, 0, 0);
 				_blockSize.TryAdd(function, data = (Convert.ToInt32(System.Math.Pow(blockSize, 1.0/3)), minGridSize));
 			}
-			int gridSizeRows = (rows + data.BlockSize - 1) / data.BlockSize;
-			int gridSizeCols = (columns + data.BlockSize - 1) / data.BlockSize;
-			int gridSizeDepth = (depth + data.BlockSize - 1) / data.BlockSize;
-			var execution = _kernel.CreateExecution(function, new dim3(gridSizeRows, gridSizeCols, gridSizeDepth), new dim3(data.BlockSize, data.BlockSize, data.BlockSize));
+			var gridSizeRows = (rows + data.BlockSize - 1) / data.BlockSize;
+			var gridSizeCols = (columns + data.BlockSize - 1) / data.BlockSize;
+			var gridSizeDepth = (depth + data.BlockSize - 1) / data.BlockSize;
+			var execution = _kernel.CreateExecution(function, new dim3((int)gridSizeRows, (int)gridSizeCols, (int)gridSizeDepth), new dim3(data.BlockSize, data.BlockSize, data.BlockSize));
 			execution.Run(0, param);
 		}
 
-		internal bool IsFinite(IDeviceMemoryPtr a, int size)
+		internal bool IsFinite(IDeviceMemoryPtr a, uint size)
 		{
 			var ret = Allocate(size);
 			try {
@@ -339,7 +340,7 @@ namespace BrightWire.LinearAlgebra
 			}
 		}
 
-		internal IDeviceMemoryPtr PointwiseMultiply(IDeviceMemoryPtr a, IDeviceMemoryPtr b, int size)
+		internal IDeviceMemoryPtr PointwiseMultiply(IDeviceMemoryPtr a, IDeviceMemoryPtr b, uint size)
 		{
 			var ret = Allocate(size);
 			ret.CopyToDevice(b);
@@ -347,7 +348,7 @@ namespace BrightWire.LinearAlgebra
 			return ret;
 		}
 
-		internal IDeviceMemoryPtr PointwiseDivide(IDeviceMemoryPtr a, IDeviceMemoryPtr b, int size)
+		internal IDeviceMemoryPtr PointwiseDivide(IDeviceMemoryPtr a, IDeviceMemoryPtr b, uint size)
 		{
 			var ret = Allocate(size);
 			ret.CopyToDevice(b);
@@ -355,139 +356,139 @@ namespace BrightWire.LinearAlgebra
 			return ret;
 		}
 
-		internal void AddInPlace(IDeviceMemoryPtr a, IDeviceMemoryPtr b, int size, float coefficient1, float coefficient2)
+		internal void AddInPlace(IDeviceMemoryPtr a, IDeviceMemoryPtr b, uint size, float coefficient1, float coefficient2)
 		{
 			_Invoke(_addInPlace, size, a.DevicePointer, b.DevicePointer, size, coefficient1, coefficient2);
 		}
 
-		internal void SubtractInPlace(IDeviceMemoryPtr a, IDeviceMemoryPtr b, int size, float coefficient1, float coefficient2)
+		internal void SubtractInPlace(IDeviceMemoryPtr a, IDeviceMemoryPtr b, uint size, float coefficient1, float coefficient2)
 		{
 			_Invoke(_subtractInPlace, size, a.DevicePointer, b.DevicePointer, size, coefficient1, coefficient2);
 		}
 
-		internal void AddToEachRow(IDeviceMemoryPtr matrix, IDeviceMemoryPtr vector, int rows, int columns)
+		internal void AddToEachRow(IDeviceMemoryPtr matrix, IDeviceMemoryPtr vector, uint rows, uint columns)
 		{
 			_Invoke2(_addToEachRow, rows, columns, matrix.DevicePointer, vector.DevicePointer, rows, columns);
 		}
 
-		internal void AddToEachColumn(IDeviceMemoryPtr matrix, IDeviceMemoryPtr vector, int rows, int columns)
+		internal void AddToEachColumn(IDeviceMemoryPtr matrix, IDeviceMemoryPtr vector, uint rows, uint columns)
 		{
 			_Invoke2(_addToEachColumn, rows, columns, matrix.DevicePointer, vector.DevicePointer, rows, columns);
 		}
 
-		internal IDeviceMemoryPtr TanH(IDeviceMemoryPtr a, int size)
+		internal IDeviceMemoryPtr TanH(IDeviceMemoryPtr a, uint size)
 		{
 			var ret = Allocate(size);
 			_Invoke(_tanh, size, a.DevicePointer, ret.DevicePointer, size);
 			return ret;
 		}
 
-		internal IDeviceMemoryPtr TanHDerivative(IDeviceMemoryPtr a, int size)
+		internal IDeviceMemoryPtr TanHDerivative(IDeviceMemoryPtr a, uint size)
 		{
 			var ret = Allocate(size);
 			_Invoke(_tanhDerivative, size, a.DevicePointer, ret.DevicePointer, size);
 			return ret;
 		}
 
-		internal IDeviceMemoryPtr Sigmoid(IDeviceMemoryPtr a, int size)
+		internal IDeviceMemoryPtr Sigmoid(IDeviceMemoryPtr a, uint size)
 		{
 			var ret = Allocate(size);
 			_Invoke(_sigmoid, size, a.DevicePointer, ret.DevicePointer, size);
 			return ret;
 		}
 
-		internal IDeviceMemoryPtr SigmoidDerivative(IDeviceMemoryPtr a, int size)
+		internal IDeviceMemoryPtr SigmoidDerivative(IDeviceMemoryPtr a, uint size)
 		{
 			var ret = Allocate(size);
 			_Invoke(_sigmoidDerivative, size, a.DevicePointer, ret.DevicePointer, size);
 			return ret;
 		}
 
-		internal IDeviceMemoryPtr RELU(IDeviceMemoryPtr a, int size)
+		internal IDeviceMemoryPtr RELU(IDeviceMemoryPtr a, uint size)
 		{
 			var ret = Allocate(size);
 			_Invoke(_relu, size, a.DevicePointer, ret.DevicePointer, size);
 			return ret;
 		}
 
-		internal IDeviceMemoryPtr RELUDerivative(IDeviceMemoryPtr a, int size)
+		internal IDeviceMemoryPtr RELUDerivative(IDeviceMemoryPtr a, uint size)
 		{
 			var ret = Allocate(size);
 			_Invoke(_reluDerivative, size, a.DevicePointer, ret.DevicePointer, size);
 			return ret;
 		}
 
-		internal IDeviceMemoryPtr LeakyRELU(IDeviceMemoryPtr a, int size)
+		internal IDeviceMemoryPtr LeakyRELU(IDeviceMemoryPtr a, uint size)
 		{
 			var ret = Allocate(size);
 			_Invoke(_leakyRelu, size, a.DevicePointer, ret.DevicePointer, size);
 			return ret;
 		}
 
-		internal IDeviceMemoryPtr LeakyRELUDerivative(IDeviceMemoryPtr a, int size)
+		internal IDeviceMemoryPtr LeakyRELUDerivative(IDeviceMemoryPtr a, uint size)
 		{
 			var ret = Allocate(size);
 			_Invoke(_leakyReluDerivative, size, a.DevicePointer, ret.DevicePointer, size);
 			return ret;
 		}
 
-		internal IDeviceMemoryPtr SumRows(IDeviceMemoryPtr a, int rows, int columns)
+		internal IDeviceMemoryPtr SumRows(IDeviceMemoryPtr a, uint rows, uint columns)
 		{
 			var ret = Allocate(rows, true);
 			_Invoke2(_sumRows, rows, columns, a.DevicePointer, ret.DevicePointer, rows, columns);
 			return ret;
 		}
 
-		internal IDeviceMemoryPtr SumColumns(IDeviceMemoryPtr a, int rows, int columns)
+		internal IDeviceMemoryPtr SumColumns(IDeviceMemoryPtr a, uint rows, uint columns)
 		{
 			var ret = Allocate(columns, true);
 			_Invoke2(_sumColumns, rows, columns, a.DevicePointer, ret.DevicePointer, rows, columns);
 			return ret;
 		}
 
-		internal void MemClear(IDeviceMemoryPtr data, int count, int offset = 0, int increment = 1)
+		internal void MemClear(IDeviceMemoryPtr data, uint count, uint offset = 0, uint increment = 1)
 		{
 			_Invoke(_memClear, count, data.DevicePointer, count, offset, increment);
 		}
 
-		internal IDeviceMemoryPtr Sqrt(IDeviceMemoryPtr a, int size, float valueAdjustment)
+		internal IDeviceMemoryPtr Sqrt(IDeviceMemoryPtr a, uint size, float valueAdjustment)
 		{
 			var ret = Allocate(size);
 			_Invoke(_sqrt, size, a.DevicePointer, ret.DevicePointer, size, valueAdjustment);
 			return ret;
 		}
 
-		internal IDeviceMemoryPtr Abs(IDeviceMemoryPtr a, int size)
+		internal IDeviceMemoryPtr Abs(IDeviceMemoryPtr a, uint size)
 		{
 			var ret = Allocate(size);
 			_Invoke(_abs, size, a.DevicePointer, ret.DevicePointer, size);
 			return ret;
 		}
 
-		internal IDeviceMemoryPtr Log(IDeviceMemoryPtr a, int size)
+		internal IDeviceMemoryPtr Log(IDeviceMemoryPtr a, uint size)
 		{
 			var ret = Allocate(size);
 			_InvokeManual(_log, size, a.DevicePointer, ret.DevicePointer, size);
 			return ret;
 		}
 
-		internal void VectorAdd(IDeviceMemoryPtr a, int size, float scalar)
+		internal void VectorAdd(IDeviceMemoryPtr a, uint size, float scalar)
 		{
 			_Invoke(_vectorAdd, size, a.DevicePointer, size, scalar);
 		}
 
-		internal IDeviceMemoryPtr VectorCopy(IDeviceMemoryPtr a, int size, int[] indexList)
+		internal IDeviceMemoryPtr VectorCopy(IDeviceMemoryPtr a, uint size, uint[] indexList)
 		{
-			var retSize = indexList.Length;
+			var retSize = (uint)indexList.Length;
 			var ret = Allocate(retSize);
-			using (var indexGpu = new CudaDeviceVariable<int>(retSize)) {
+			using (var indexGpu = new CudaDeviceVariable<uint>(retSize)) {
 				indexGpu.CopyToDevice(indexList);
 				_Invoke(_vectorCopyRandom, retSize, a.DevicePointer, ret.DevicePointer, indexGpu.DevicePointer, retSize);
 				return ret;
 			}
 		}
 
-		internal (float Min, float Max) FindMinAndMax(IDeviceMemoryPtr a, int size)
+		internal (float Min, float Max) FindMinAndMax(IDeviceMemoryPtr a, uint size)
 		{
 			if (size > 0) {
 				var ptr = a;
@@ -527,7 +528,7 @@ namespace BrightWire.LinearAlgebra
 			return (0f, 0f);
 		}
 
-		internal float SumValues(IDeviceMemoryPtr a, int size)
+		internal float SumValues(IDeviceMemoryPtr a, uint size)
 		{
 			var ptr = a;
 			while (size > BLOCK_DIM2) {
@@ -546,7 +547,7 @@ namespace BrightWire.LinearAlgebra
 			return total.Sum();
 		}
 
-		internal float FindStdDev(IDeviceMemoryPtr a, int size, float mean)
+		internal float FindStdDev(IDeviceMemoryPtr a, uint size, float mean)
 		{
 			var inputSize = size;
 			if (size > 0) {
@@ -570,19 +571,19 @@ namespace BrightWire.LinearAlgebra
 			return 0f;
 		}
 
-		internal void Constrain(IDeviceMemoryPtr a, int size, float min, float max)
+		internal void Constrain(IDeviceMemoryPtr a, uint size, float min, float max)
 		{
 			_Invoke(_constrain, size, a.DevicePointer, size, min, max);
 		}
 
-		internal IDeviceMemoryPtr Pow(IDeviceMemoryPtr a, int size, float power)
+		internal IDeviceMemoryPtr Pow(IDeviceMemoryPtr a, uint size, float power)
 		{
 			var ret = Allocate(size);
 			_Invoke(_pow, size, a.DevicePointer, ret.DevicePointer, size, power);
 			return ret;
 		}
 
-		internal IDeviceMemoryPtr Diagonal(IDeviceMemoryPtr a, int rows, int columns)
+		internal IDeviceMemoryPtr Diagonal(IDeviceMemoryPtr a, uint rows, uint columns)
 		{
 			var len = System.Math.Min(rows, columns);
 			var ret = Allocate(len);
@@ -590,19 +591,19 @@ namespace BrightWire.LinearAlgebra
 			return ret;
 		}
 
-		internal void L1Regularisation(IDeviceMemoryPtr a, int size, float coefficient)
+		internal void L1Regularisation(IDeviceMemoryPtr a, uint size, float coefficient)
 		{
 			_Invoke(_l1Regularisation, size, a.DevicePointer, size, coefficient);
 		}
 
-		internal float EuclideanDistance(IDeviceMemoryPtr a, IDeviceMemoryPtr b, int size)
+		internal float EuclideanDistance(IDeviceMemoryPtr a, IDeviceMemoryPtr b, uint size)
 		{
 			var ret = Allocate(size);
 			_Invoke(_euclideanDistance, size, a.DevicePointer, b.DevicePointer, ret.DevicePointer, size);
 			return Convert.ToSingle(System.Math.Sqrt(SumValues(ret, size)));
 		}
 
-		internal float ManhattanDistance(IDeviceMemoryPtr a, IDeviceMemoryPtr b, int size)
+		internal float ManhattanDistance(IDeviceMemoryPtr a, IDeviceMemoryPtr b, uint size)
 		{
 			var ret = Allocate(size);
 			_Invoke(_manhattanDistance, size, a.DevicePointer, b.DevicePointer, ret.DevicePointer, size);
@@ -616,7 +617,7 @@ namespace BrightWire.LinearAlgebra
 			return buffer[0];
 		}
 
-		internal float CosineDistance(IDeviceMemoryPtr a, IDeviceMemoryPtr b, int size)
+		internal float CosineDistance(IDeviceMemoryPtr a, IDeviceMemoryPtr b, uint size)
 		{
 			var aaDevice = Allocate(1);
 			var abDevice = Allocate(1);
@@ -642,49 +643,49 @@ namespace BrightWire.LinearAlgebra
 			}
 		}
 
-		internal void Normalise(IDeviceMemoryPtr a, int size, float min, float range)
+		internal void Normalise(IDeviceMemoryPtr a, uint size, float min, float range)
 		{
 			_Invoke(_normalise, size, a.DevicePointer, size, min, range);
 		}
 
-		internal IDeviceMemoryPtr SoftmaxVector(IDeviceMemoryPtr a, int size, float max)
+		internal IDeviceMemoryPtr SoftmaxVector(IDeviceMemoryPtr a, uint size, float max)
 		{
 			var ret = Allocate(size);
 			_Invoke(_softmaxVector, size, a.DevicePointer, ret.DevicePointer, size, max);
 			return ret;
 		}
 
-		internal void PointwiseDivideRows(IDeviceMemoryPtr a, IDeviceMemoryPtr b, int rows, int columns)
+		internal void PointwiseDivideRows(IDeviceMemoryPtr a, IDeviceMemoryPtr b, uint rows, uint columns)
 		{
 			_Invoke2(_pointwiseDivideRows, rows, columns, a.DevicePointer, b.DevicePointer, rows, columns);
 		}
 
-		internal void PointwiseDivideColumns(IDeviceMemoryPtr a, IDeviceMemoryPtr b, int rows, int columns)
+		internal void PointwiseDivideColumns(IDeviceMemoryPtr a, IDeviceMemoryPtr b, uint rows, uint columns)
 		{
 			_Invoke2(_pointwiseDivideColumns, rows, columns, a.DevicePointer, b.DevicePointer, rows, columns);
 		}
 
-		internal void SplitRows(IDeviceMemoryPtr a, IDeviceMemoryPtr b, IDeviceMemoryPtr c, int rows, int columns, int position)
+		internal void SplitRows(IDeviceMemoryPtr a, IDeviceMemoryPtr b, IDeviceMemoryPtr c, uint rows, uint columns, uint position)
 		{
 			_Invoke2(_splitRows, rows, columns, a.DevicePointer, b.DevicePointer, c.DevicePointer, rows, columns, position);
 		}
 
-		internal void SplitColumns(IDeviceMemoryPtr a, IDeviceMemoryPtr b, IDeviceMemoryPtr c, int rows, int columns, int position)
+		internal void SplitColumns(IDeviceMemoryPtr a, IDeviceMemoryPtr b, IDeviceMemoryPtr c, uint rows, uint columns, uint position)
 		{
 			_Invoke2(_splitColumns, rows, columns, a.DevicePointer, b.DevicePointer, c.DevicePointer, rows, columns, position);
 		}
 
-		internal void ConcatRows(IDeviceMemoryPtr a, IDeviceMemoryPtr b, IDeviceMemoryPtr c, int rows, int columns, int leftColumnCount)
+		internal void ConcatRows(IDeviceMemoryPtr a, IDeviceMemoryPtr b, IDeviceMemoryPtr c, uint rows, uint columns, uint leftColumnCount)
 		{
 			_Invoke2(_concatRows, rows, columns, a.DevicePointer, b.DevicePointer, c.DevicePointer, rows, columns, leftColumnCount);
 		}
 
-		internal void ConcatColumns(IDeviceMemoryPtr a, IDeviceMemoryPtr b, IDeviceMemoryPtr c, int rows, int columns, int topRowCount, int bottomRowCount)
+		internal void ConcatColumns(IDeviceMemoryPtr a, IDeviceMemoryPtr b, IDeviceMemoryPtr c, uint rows, uint columns, uint topRowCount, uint bottomRowCount)
 		{
 			_Invoke2(_concatColumns, rows, columns, a.DevicePointer, b.DevicePointer, c.DevicePointer, rows, columns, topRowCount, bottomRowCount);
 		}
 
-		//internal IDeviceMemoryPtr MultiEuclideanDistance(IDeviceMemoryPtr vector, CUdeviceptr[] compareTo, int size)
+		//internal IDeviceMemoryPtr MultiEuclideanDistance(IDeviceMemoryPtr vector, CUdeviceptr[] compareTo, uint size)
 		//{
 		//	IDeviceMemoryPtr ret;
 		//	var buffer = Allocate(compareTo.Length);
@@ -699,7 +700,7 @@ namespace BrightWire.LinearAlgebra
 		//	return ret;
 		//}
 
-		//internal IDeviceMemoryPtr MultiManhattanDistance(IDeviceMemoryPtr vector, CUdeviceptr[] compareTo, int size)
+		//internal IDeviceMemoryPtr MultiManhattanDistance(IDeviceMemoryPtr vector, CUdeviceptr[] compareTo, uint size)
 		//{
 		//	IDeviceMemoryPtr ret;
 		//	var buffer = Allocate(compareTo.Length);
@@ -714,7 +715,7 @@ namespace BrightWire.LinearAlgebra
 		//	return ret;
 		//}
 
-		//internal IDeviceMemoryPtr MultiCosineDistance(IDeviceMemoryPtr vector, CUdeviceptr[] compareTo, int size)
+		//internal IDeviceMemoryPtr MultiCosineDistance(IDeviceMemoryPtr vector, CUdeviceptr[] compareTo, uint size)
 		//{
 		//	IDeviceMemoryPtr ret;
 		//	var buffer = Allocate(compareTo.Length);
@@ -729,13 +730,13 @@ namespace BrightWire.LinearAlgebra
 		//	return ret;
 		//}
 
-		internal (IDeviceMemoryPtr Data, int Rows, int Columns) TensorAddPadding(
+		internal (IDeviceMemoryPtr Data, uint Rows, uint Columns) TensorAddPadding(
 			IDeviceMemoryPtr tensor, 
-			int rows, 
-			int columns, 
-			int depth, 
-			int count, 
-			int padding
+			uint rows, 
+			uint columns, 
+			uint depth, 
+			uint count, 
+			uint padding
 		) {
 			var outputRows = rows + padding * 2;
 			var outputColumns = columns + padding * 2;
@@ -757,13 +758,13 @@ namespace BrightWire.LinearAlgebra
 			return (ret, outputRows, outputColumns);
 		}
 
-		internal (IDeviceMemoryPtr Data, int Rows, int Columns) TensorRemovePadding(
+		internal (IDeviceMemoryPtr Data, uint Rows, uint Columns) TensorRemovePadding(
 			IDeviceMemoryPtr tensor, 
-			int rows, 
-			int columns, 
-			int depth, 
-			int count, 
-			int padding
+			uint rows, 
+			uint columns, 
+			uint depth, 
+			uint count, 
+			uint padding
 		) {
 			var outputRows = rows - padding * 2;
 			var outputColumns = columns - padding * 2;
@@ -786,36 +787,36 @@ namespace BrightWire.LinearAlgebra
 			return (ret, outputRows, outputColumns);
 		}
 
-		internal IDeviceMemoryPtr VectorSoftmaxDerivative(IDeviceMemoryPtr a, int size)
+		internal IDeviceMemoryPtr VectorSoftmaxDerivative(IDeviceMemoryPtr a, uint size)
 		{
 			var ret = Allocate(size * size);
 			_Invoke2(_softmaxDerivative, size, size, a.DevicePointer, ret.DevicePointer, size);
 			return ret;
 		}
 
-		internal IDeviceMemoryPtr Reverse(IDeviceMemoryPtr a, int size)
+		internal IDeviceMemoryPtr Reverse(IDeviceMemoryPtr a, uint size)
 		{
 			var ret = Allocate(size);
 			_Invoke(_reverse, size, a.DevicePointer, ret.DevicePointer, size);
 			return ret;
 		}
 
-		internal void RotateInPlace(IDeviceMemoryPtr a, int size, int blockCount)
+		internal void RotateInPlace(IDeviceMemoryPtr a, uint size, uint blockCount)
 		{
 			var blockSize = size / blockCount;
 			_Invoke(_rotateInPlace, size, a.DevicePointer, size, blockCount, blockSize);
 		}
 
-		internal (IDeviceMemoryPtr Data, IDeviceMemoryPtr Indices, int Rows, int Columns) TensorMaxPool(
+		internal (IDeviceMemoryPtr Data, IDeviceMemoryPtr Indices, uint Rows, uint Columns) TensorMaxPool(
 			IDeviceMemoryPtr tensor, 
-			int rows, 
-			int columns, 
-			int depth, 
-			int count,
-			int filterWidth,
-			int filterHeight,
-			int xStride,
-			int yStride,
+			uint rows, 
+			uint columns, 
+			uint depth, 
+			uint count,
+			uint filterWidth,
+			uint filterHeight,
+			uint xStride,
+			uint yStride,
 			bool saveIndices
 		) {
 			var outputColumns = (columns - filterWidth) / xStride + 1;
@@ -824,7 +825,7 @@ namespace BrightWire.LinearAlgebra
 			var ret = Allocate(outputMatrixSize * depth * count, true);
 			var indices = saveIndices ? Allocate(outputMatrixSize * depth * count, true) : null;
 			var convolutions = ConvolutionHelper.Default(columns, rows, filterWidth, filterHeight, xStride, yStride);
-			var size = convolutions.Count * depth * count;
+			var size = (uint)convolutions.Count * depth * count;
 
 			using (var convolutionData = new ConvolutionsData(this, convolutions)) {
 				_Invoke(_tensorMaxPool, size,
@@ -852,7 +853,7 @@ namespace BrightWire.LinearAlgebra
 			}
 		}
 
-		internal IDeviceMemoryPtr TensorReverseMaxPool(IDeviceMemoryPtr tensor, IDeviceMemoryPtr indices, int rows, int columns, int depth, int count, int outputRows, int outputColumns, int filterWidth, int filterHeight, int xStride, int yStride)
+		internal IDeviceMemoryPtr TensorReverseMaxPool(IDeviceMemoryPtr tensor, IDeviceMemoryPtr indices, uint rows, uint columns, uint depth, uint count, uint outputRows, uint outputColumns, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
 		{
 			var ret = Allocate(outputRows * outputColumns * depth * count, true);
 			var size = rows * columns * depth * count;
@@ -877,20 +878,20 @@ namespace BrightWire.LinearAlgebra
 			return ret;
 		}
 
-		internal (IDeviceMemoryPtr Data, int Rows, int Columns, int Depth) TensorIm2Col(
+		internal (IDeviceMemoryPtr Data, uint Rows, uint Columns, uint Depth) TensorIm2Col(
 			IDeviceMemoryPtr tensor, 
-			int rows, 
-			int columns, 
-			int depth, 
-			int count, 
-			int filterWidth, 
-			int filterHeight, 
-			int xStride, 
-			int yStride
+			uint rows, 
+			uint columns, 
+			uint depth, 
+			uint count, 
+			uint filterWidth, 
+			uint filterHeight, 
+			uint xStride, 
+			uint yStride
 		) {
 			var convolutions = ConvolutionHelper.Default(columns, rows, filterWidth, filterHeight, xStride, yStride);
 			var filterSize = filterWidth * filterHeight;
-			var outputRows = convolutions.Count;
+			var outputRows = (uint)convolutions.Count;
 			var outputColumns = filterSize * depth;
 			var ret = Allocate(outputRows * outputColumns * count, true);
 
@@ -917,20 +918,20 @@ namespace BrightWire.LinearAlgebra
 			}
 		}
 
-		internal (IDeviceMemoryPtr Data, int Rows, int Columns, int Depth, int Count) TensorReverseIm2Col(
+		internal (IDeviceMemoryPtr Data, uint Rows, uint Columns, uint Depth, uint Count) TensorReverseIm2Col(
 			IDeviceMemoryPtr tensor,
 			IDeviceMemoryPtr filters,
-			int rows,
-			int columns,
-			int depth,
-			int count,
-			int outputRows, 
-			int outputColumns,
-			int outputDepth,
-			int filterWidth,
-			int filterHeight,
-			int xStride, 
-			int yStride
+			uint rows,
+			uint columns,
+			uint depth,
+			uint count,
+			uint outputRows, 
+			uint outputColumns,
+			uint outputDepth,
+			uint filterWidth,
+			uint filterHeight,
+			uint xStride, 
+			uint yStride
 		) {
 			var ret = Allocate(outputRows * outputColumns * outputDepth * count, true);
 
@@ -966,9 +967,9 @@ namespace BrightWire.LinearAlgebra
 			if (!(distanceMetric == DistanceMetric.Euclidean || distanceMetric == DistanceMetric.Manhattan || distanceMetric == DistanceMetric.Cosine))
 				throw new NotImplementedException();
 
-			int size = (int)vectors[0].Count;
-			int rows = compareTo.Count;
-			int columns = vectors.Count;
+            var size = (uint)vectors[0].Count;
+            var rows = (uint)compareTo.Count;
+            var columns = (uint)vectors.Count;
 			var ret = Allocate(rows * columns, true);
 
 			using (var vectorPtr = new PtrToDeviceMemoryList(vectors.Cast<IHaveDeviceMemory>().ToList()))
@@ -1005,7 +1006,7 @@ namespace BrightWire.LinearAlgebra
 					rows,
 					columns,
 					size,
-					(int) distanceMetric
+					(uint) distanceMetric
 				);
 			}
 
@@ -1019,16 +1020,18 @@ namespace BrightWire.LinearAlgebra
 			return matrix;
 		}
 
-		public IVector CreateVector(int length, bool setToZero = false)
+        public IVector CreateVector(ITensorSegment<float> data) => CreateVector(data.Size, i => data[i]);
+
+        public IVector CreateVector(uint length, bool setToZero = false)
 		{
 			var data = Allocate(length, setToZero);
 			return new GpuVector(this, data, true);
 		}
 
-		public IVector CreateVector(int length, Func<int, float> init)
+		public IVector CreateVector(uint length, Func<uint, float> init)
 		{
 			var data = new float[length];
-			for (var i = 0; i < length; i++)
+			for (uint i = 0; i < length; i++)
 				data[i] = init(i);
 			var ptr = Allocate(length);
 			ptr.CopyToDevice(data);
@@ -1036,7 +1039,7 @@ namespace BrightWire.LinearAlgebra
 			return new GpuVector(this, ptr, true);
 		}
 
-		public IMatrix CreateMatrix(int rows, int columns, bool setToZero = false)
+		public IMatrix CreateMatrix(uint rows, uint columns, bool setToZero = false)
 		{
 			var data = Allocate(rows * columns, setToZero);
 			return new GpuMatrix(this, rows, columns, data, true);
@@ -1044,8 +1047,8 @@ namespace BrightWire.LinearAlgebra
 
 		public IMatrix CreateMatrixFromRows(IReadOnlyList<IVector> vectorRows)
 		{
-			var rows = vectorRows.Count;
-			var columns = vectorRows[0].Count;
+			var rows = (uint)vectorRows.Count;
+			var columns = (uint)vectorRows[0].Count;
 
 			var ret = Allocate(rows * columns);
 			using (var devicePtr = new CudaDeviceVariable<CUdeviceptr>(rows)) {
@@ -1057,8 +1060,8 @@ namespace BrightWire.LinearAlgebra
 
 		public IMatrix CreateMatrixFromColumns(IReadOnlyList<IVector> vectorColumns)
 		{
-			var columns = vectorColumns.Count;
-			var rows = vectorColumns[0].Count;
+			var columns = (uint)vectorColumns.Count;
+			var rows = (uint)vectorColumns[0].Count;
 
 			var ret = Allocate(rows * columns);
 			using (var devicePtr = new CudaDeviceVariable<CUdeviceptr>(columns)) {
@@ -1068,12 +1071,12 @@ namespace BrightWire.LinearAlgebra
 			return new GpuMatrix(this, rows, columns, ret, true);
 		}
 
-		public IMatrix CreateMatrix(int rows, int columns, Func<int, int, float> init)
+		public IMatrix CreateMatrix(uint rows, uint columns, Func<uint, uint, float> init)
 		{
 			var size = rows * columns;
 			var data = new float[size];
-			for (var j = 0; j < columns; j++) {
-				for (var i = 0; i < rows; i++) {
+			for (uint j = 0; j < columns; j++) {
+				for (uint i = 0; i < rows; i++) {
 					data[j * rows + i] = init(i, j);
 				}
 			}
@@ -1082,7 +1085,7 @@ namespace BrightWire.LinearAlgebra
 			return new GpuMatrix(this, rows, columns, ptr, true);
 		}
 
-		public I3DTensor Create3DTensor(int rows, int columns, int depth, bool setToZero = false)
+		public I3DTensor Create3DTensor(uint rows, uint columns, uint depth, bool setToZero = false)
 		{
 			var data = Allocate(rows * columns * depth, setToZero);
 			return new Gpu3DTensor(this, rows, columns, depth, data, true);
@@ -1090,7 +1093,7 @@ namespace BrightWire.LinearAlgebra
 
 		public I3DTensor Create3DTensor(IReadOnlyList<IMatrix> matrices)
 		{
-			var depth = matrices.Count;
+			var depth = (uint)matrices.Count;
 			var first = matrices[0];
 			var rows = first.RowCount;
 			var columns = first.ColumnCount;
@@ -1105,7 +1108,7 @@ namespace BrightWire.LinearAlgebra
 			return new Gpu3DTensor(this, rows, columns, depth, ret, true);
 		}
 
-		public I4DTensor Create4DTensor(int rows, int columns, int depth, int count, bool setToZero = false)
+		public I4DTensor Create4DTensor(uint rows, uint columns, uint depth, uint count, bool setToZero = false)
 		{
 			var data = Allocate(rows * columns * depth * count, setToZero);
 			return new Gpu4DTensor(this, rows, columns, depth, count, data, true);
@@ -1113,7 +1116,7 @@ namespace BrightWire.LinearAlgebra
 
 		public I4DTensor Create4DTensor(IReadOnlyList<I3DTensor> tensors)
 		{
-			var count = tensors.Count;
+			var count = (uint)tensors.Count;
 			var first = tensors[0];
 			var rows = first.RowCount;
 			var columns = first.ColumnCount;
@@ -1129,14 +1132,14 @@ namespace BrightWire.LinearAlgebra
 			return new Gpu4DTensor(this, rows, columns, depth, count, ret, true);
 		}
 
-		public I4DTensor Create4DTensor(IReadOnlyList<FloatTensor> tensors)
+		public I4DTensor Create4DTensor(IReadOnlyList<Tensor3D<float>> tensors)
 		{
 			var first = tensors[0];
-			var data = Allocate(first.RowCount * first.ColumnCount * first.Depth * tensors.Count);
-			var ret = new Gpu4DTensor(this, first.RowCount, first.ColumnCount, first.Depth, tensors.Count, data, true);
+			var data = Allocate(first.RowCount * first.ColumnCount * first.Depth * (uint)tensors.Count);
+			var ret = new Gpu4DTensor(this, first.RowCount, first.ColumnCount, first.Depth, (uint)tensors.Count, data, true);
 
-			for (var i = 0; i < tensors.Count; i++)
-				ret.GetTensorAt(i).Data = tensors[i];
+			for (int i = 0; i < tensors.Count; i++)
+				ret.GetTensorAt((uint)i).Data = tensors[i];
 			return ret;
 		}
 
@@ -1150,7 +1153,7 @@ namespace BrightWire.LinearAlgebra
 			_cache.PopLayer();
 		}
 
-		internal IDeviceMemoryPtr Allocate(int size, bool setToZero = false)
+		internal IDeviceMemoryPtr Allocate(uint size, bool setToZero = false)
 		{
 			var ret = _cache.GetMemory(size);
 			if (setToZero)

@@ -44,7 +44,7 @@ namespace BrightWire.ExecutionGraph.Node.Filter
         float _dropOutPercentage;
         Bernoulli _probabilityToDrop;
 
-        public DropConnect(float dropOutPercentage, int inputSize, int outputSize, IVector bias, IMatrix weight, bool stochastic, IGradientDescentOptimisation updater, string name = null) 
+        public DropConnect(float dropOutPercentage, uint inputSize, uint outputSize, IVector bias, IMatrix weight, bool stochastic, IGradientDescentOptimisation updater, string name = null) 
             : base(inputSize, outputSize, bias, weight, updater, name)
         {
             _dropOutPercentage = dropOutPercentage;

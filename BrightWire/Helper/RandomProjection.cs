@@ -8,9 +8,9 @@ namespace BrightWire.Helper
     /// </summary>
     class RandomProjection : IRandomProjection
     {
-	    readonly int _fixedSize;
+	    readonly uint _fixedSize;
 
-		public RandomProjection(ILinearAlgebraProvider lap, int fixedSize, int reducedSize, int s = 3)
+		public RandomProjection(ILinearAlgebraProvider lap, uint fixedSize, uint reducedSize, int s = 3)
         {
             LinearAlgebraProvider = lap;
             _fixedSize = fixedSize;
@@ -34,7 +34,7 @@ namespace BrightWire.Helper
         }
 
         public ILinearAlgebraProvider LinearAlgebraProvider { get; }
-	    public int Size { get; }
+	    public uint Size { get; }
 		public IMatrix Matrix { get; }
 
 	    public IVector Compute(IVector vector)

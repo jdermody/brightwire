@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using BrightData;
 
 namespace BrightWire.TrainingData.Artificial
 {
@@ -91,7 +92,7 @@ namespace BrightWire.TrainingData.Artificial
         /// <param name="ch"></param>
         /// <param name="val"></param>
         /// <returns></returns>
-        public FloatVector Encode(char ch, float val = 1f)
+        public Vector<float> Encode(char ch, float val = 1f)
         {
             var ret = new float[DictionarySize];
             ret[_charTable[ch]] = val;
@@ -103,7 +104,7 @@ namespace BrightWire.TrainingData.Artificial
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public FloatVector Encode(IEnumerable<(char, float)> data)
+        public Vector<float> Encode(IEnumerable<(char, float)> data)
         {
             var ret = new float[DictionarySize];
             foreach(var item in data)
@@ -116,9 +117,9 @@ namespace BrightWire.TrainingData.Artificial
         /// </summary>
         /// <param name="str"></param>
         /// <returns></returns>
-        public FloatMatrix Encode(string str)
+        public Matrix<float> Encode(string str)
         {
-            var data = new FloatVector[str.Length];
+            var data = new Vector<float>[str.Length];
             for(int i = 0, len = str.Length; i < len; i++)
                 data[i] = Encode(str[i]);
 

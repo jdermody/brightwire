@@ -84,7 +84,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             _node.ExecuteForward(new ContextProxy(context, this), 0);
         }
 
-        protected override void _ExecuteForward(IContext context, int channel)
+        protected override void _ExecuteForward(IContext context, uint channel)
         {
             _node.ExecuteForward(new ContextProxy(context, this), channel);
         }

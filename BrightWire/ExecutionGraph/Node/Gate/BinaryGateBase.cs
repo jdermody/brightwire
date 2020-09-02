@@ -33,7 +33,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// </summary>
         /// <param name="context">The graph context</param>
         /// <param name="channel">The channel</param>
-        protected override void _ExecuteForward(IContext context, int channel)
+        protected override void _ExecuteForward(IContext context, uint channel)
         {
             if (channel == 1) {
                 _secondarySource = context.Source;

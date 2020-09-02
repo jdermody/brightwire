@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using BrightData;
 
 namespace BrightWire.TrainingData.Artificial
 {
@@ -39,7 +40,7 @@ namespace BrightWire.TrainingData.Artificial
         /// Encodes a reber sequence as a sequence of one hot encoded vectors
         /// </summary>
         /// <param name="sequence">The reber sequence to encode</param>
-        public static FloatMatrix Encode(string sequence)
+        public static Matrix<float> Encode(string sequence)
         {
             return FloatMatrix.Create(sequence.Select(ch => {
                     var ret = new float[_ch.Count];

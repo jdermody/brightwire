@@ -4,6 +4,7 @@ using BrightWire.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using BrightData;
 
 namespace BrightWire
 {
@@ -140,7 +141,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="context">Graph context</param>
         /// <param name="channel">Channel the signal was received on</param>
-        void ExecuteForward(IContext context, int channel);
+        void ExecuteForward(IContext context, uint channel);
 
         /// <summary>
         /// Searches for a node by friendly name
@@ -196,7 +197,7 @@ namespace BrightWire
         /// <summary>
         /// The channel
         /// </summary>
-        int Channel { get; }
+        uint Channel { get; }
     }
 
     /// <summary>
@@ -628,7 +629,7 @@ namespace BrightWire
         /// <param name="batchSize">Initial size of each mini batch</param>
         /// <param name="batchCompleteCallback">Optional callback to be notifiied after each mini batch has completed</param>
         /// <returns></returns>
-        IReadOnlyList<ExecutionResult> Execute(IDataSource dataSource, int batchSize = 128, Action<float> batchCompleteCallback = null);
+        IReadOnlyList<ExecutionResult> Execute(IDataSource dataSource, uint batchSize = 128, Action<float> batchCompleteCallback = null);
 
         /// <summary>
         /// Executes a single vector on the current graph
@@ -645,7 +646,7 @@ namespace BrightWire
         /// <param name="executionContext">Graph execution context</param>
         /// <param name="sequenceType">The sequence type (start, standard, end)</param>
         /// <returns></returns>
-        ExecutionResult ExecuteSequential(int sequenceIndex, float[] input, IExecutionContext executionContext, MiniBatchSequenceType sequenceType);
+        ExecutionResult ExecuteSequential(uint sequenceIndex, float[] input, IExecutionContext executionContext, MiniBatchSequenceType sequenceType);
 
 	    /// <summary>
 	    /// Executes a sequence of inputs on the current graph
@@ -691,7 +692,7 @@ namespace BrightWire
         bool Test(
 	        IDataSource testDataSource, 
 	        IErrorMetric errorMetric, 
-	        int batchSize = 128, 
+	        uint batchSize = 128, 
 	        Action<float> batchCompleteCallback = null, 
 	        Action<float, double, bool, bool> values = null
 	    );
@@ -724,10 +725,10 @@ namespace BrightWire
 	/// </summary>
 	public interface IMemoryNode
 	{
-		/// <summary>
-		/// The current state of the memory node
-		/// </summary>
-		FloatVector Data { get; set; }
+        /// <summary>
+        /// The current state of the memory node
+        /// </summary>
+        Vector<float> Data { get; set; }
 	}
 
     /// <summary>

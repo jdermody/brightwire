@@ -80,7 +80,7 @@ namespace BrightWire.LinearAlgebra
 			return new Cpu3DTensor(data.Select(m => m.AsIndexable()).ToList());
 		}
 
-		public I4DTensor Create4DTensor(IReadOnlyList<FloatTensor> data)
+		public I4DTensor Create4DTensor(IReadOnlyList<Tensor3D<float>> data)
 		{
 			return new Cpu4DTensor(data.Select(this.Create3DTensor).Select(t => t.AsIndexable()).ToList());
 		}

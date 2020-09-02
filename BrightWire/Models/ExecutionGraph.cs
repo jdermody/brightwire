@@ -71,7 +71,7 @@ namespace BrightWire.Models
             /// <summary>
             /// The channel on the target node to send the source node's output
             /// </summary>
-            public int InputChannel { get; set; }
+            public uint InputChannel { get; set; }
 
 	        /// <inheritdoc />
 	        public override string ToString()

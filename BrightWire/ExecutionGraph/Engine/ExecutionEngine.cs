@@ -33,7 +33,7 @@ namespace BrightWire.ExecutionGraph.Engine
 		{
 			var ret = new List<ExecutionResult>();
 			foreach (var item in _executionResults) {
-				int outputIndex = 0;
+				uint outputIndex = 0;
 				foreach (var output in item.Data) {
 					ret.Add(new ExecutionResult(item.Context.BatchSequence, output.AsIndexable().Rows.Select(r => r.Data).ToList(), outputIndex));
 					++outputIndex;
@@ -46,7 +46,7 @@ namespace BrightWire.ExecutionGraph.Engine
 			return ret;
 		}
 
-		public IReadOnlyList<ExecutionResult> Execute(IDataSource dataSource, int batchSize = 128, Action<float> batchCompleteCallback = null)
+		public IReadOnlyList<ExecutionResult> Execute(IDataSource dataSource, uint batchSize = 128, Action<float> batchCompleteCallback = null)
 		{
 			_lap.PushLayer();
 			_dataSource = dataSource;
@@ -62,7 +62,7 @@ namespace BrightWire.ExecutionGraph.Engine
 					_lap.PushLayer();
 					operation.Execute(executionContext);
 					foreach (var item in _executionResults) {
-						int outputIndex = 0;
+						uint outputIndex = 0;
 						foreach (var output in item.Data) {
 							ret.Add(new ExecutionResult(item.Context.BatchSequence, output.AsIndexable().Rows.Select(r => r.Data).ToList(), outputIndex));
 							++outputIndex;

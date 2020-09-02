@@ -31,13 +31,13 @@ namespace BrightWire.Unsupervised
             var data2 = new List<IIndexableVector>();
             foreach (var item in data)
                 data2.Add(item.AsIndexable());
-            using (var v = _lap.CreateMatrix(data.Count, data.First().Count, (x, y) => data2[x][y])) {
+            using (var v = _lap.CreateMatrix((uint)data.Count, (uint)data.First().Count, (x, y) => data2[(int)x][y])) {
                 data2.ForEach(d => d.Dispose());
 
                 // create the weights and features
                 var rand = new Random();
-                var weights = _lap.CreateMatrix(v.RowCount, _numClusters, (x, y) => Convert.ToSingle(rand.NextDouble()));
-                var features = _lap.CreateMatrix(_numClusters, v.ColumnCount, (x, y) => Convert.ToSingle(rand.NextDouble()));
+                var weights = _lap.CreateMatrix(v.RowCount, (uint)_numClusters, (x, y) => Convert.ToSingle(rand.NextDouble()));
+                var features = _lap.CreateMatrix((uint)_numClusters, v.ColumnCount, (x, y) => Convert.ToSingle(rand.NextDouble()));
 
                 // iterate
                 //float lastCost = 0;

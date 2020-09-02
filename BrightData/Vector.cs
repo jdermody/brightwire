@@ -36,5 +36,7 @@ namespace BrightData
                 preview += "|...";
             return $"Vector ({Size}): {preview}";
         }
+
+        public void CopyFrom(T[] array) => _data.Initialize(array);
     }
 }

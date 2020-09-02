@@ -23,8 +23,8 @@ namespace BrightWire.Models
 			Index = index;
 			_miniBatch = miniBatch;
 			Output = output;
-			Target = _miniBatch.Target?.GetMatrix().Data.Row;
-			Input = _miniBatch.Input.Select(input => input.GetMatrix().Data.Row).ToList();
+			Target = _miniBatch.Target?.GetMatrix().Data.Rows.ToList();
+			Input = _miniBatch.Input.Select(input => input.GetMatrix().Data.Rows.ToList()).ToList();
 		}
 
 		/// <summary>

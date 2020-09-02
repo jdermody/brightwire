@@ -5,6 +5,7 @@ using BrightWire.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using BrightData;
 
 namespace BrightWire.ExecutionGraph.DataTableAdaptor
 {
@@ -44,10 +45,10 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         void _Initialise(IDataTable dataTable)
         {
             _rowDepth = new uint[dataTable.RowCount];
-            FloatMatrix inputMatrix = null, outputMatrix = null;
+            Matrix<float> inputMatrix = null, outputMatrix = null;
             dataTable.ForEachRow((row, i) => {
-                inputMatrix = (FloatMatrix)row[0];
-                outputMatrix = (FloatMatrix)row[1];
+                inputMatrix = (Matrix<float>)row[0];
+                outputMatrix = (Matrix<float>)row[1];
                 _rowDepth[i] = outputMatrix.RowCount;
             });
 
@@ -88,9 +89,9 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             var data = _GetRows(rows);
 
             // create the input batch
-            var inputData = new List<(FloatMatrix Input, FloatMatrix Output)>();
+            var inputData = new List<(Matrix<float> Input, Matrix<float> Output)>();
             foreach (var row in data)
-                inputData.Add(((FloatMatrix)row[0], null));
+                inputData.Add(((Matrix<float>)row[0], null));
             var encoderInput = _GetSequentialMiniBatch(rows, inputData);
 
             // execute the encoder
@@ -110,12 +111,12 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             (var encoderOutput, var data) = _Encode(executionContext, rows);
 
             // create the decoder input
-            var outputData = new Dictionary<uint, List<FloatVector>>();
+            var outputData = new Dictionary<uint, List<Vector<float>>>();
             foreach (var item in data) {
-                var output = (FloatMatrix)item[1];
+                var output = (Matrix<float>)item[1];
                 for (uint i = 0, len = output.RowCount; i < len; i++) {
-                    if (!outputData.TryGetValue(i, out List<FloatVector> temp))
-                        outputData.Add(i, temp = new List<FloatVector>());
+                    if (!outputData.TryGetValue(i, out List<Vector<float>> temp))
+                        outputData.Add(i, temp = new List<Vector<float>>());
                     temp.Add(FloatVector.Create(output.Row(i).Data));
                 }
             }

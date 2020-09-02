@@ -9,17 +9,17 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     /// </summary>
     class LearningContext : ILearningContext
     {
-	    readonly Dictionary<int, float> _learningRateSchedule = new Dictionary<int, float>();
+	    readonly Dictionary<uint, float> _learningRateSchedule = new Dictionary<uint, float>();
         readonly List<(object Error, Action<object> Updater)> _layerUpdate = new List<(object, Action<object>)>();
         readonly Stack<(IGraphData Data, Action<IGraphData> Callback)> _deferredBackpropagation = new Stack<(IGraphData, Action<IGraphData>)>();
 	    readonly Stopwatch _timer = new Stopwatch();
         readonly HashSet<INode> _noUpdateNodeSet = new HashSet<INode>();
-	    int _rowCount = 0, _currentEpoch = 0;
+	    uint _rowCount = 0, _currentEpoch = 0;
 
         public LearningContext(
 	        ILinearAlgebraProvider lap, 
 	        float learningRate, 
-	        int batchSize, 
+	        uint batchSize, 
 	        TrainingErrorCalculation trainingErrorCalculation, 
 	        bool deferUpdates
 	    ) {
@@ -43,16 +43,16 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 
 	    public IErrorMetric ErrorMetric { get; set; }
         public ILinearAlgebraProvider LinearAlgebraProvider { get; }
-	    public int RowCount => _rowCount;
-	    public int CurrentEpoch => _currentEpoch;
+	    public uint RowCount => _rowCount;
+	    public uint CurrentEpoch => _currentEpoch;
 	    public float LearningRate { get; set; }
 	    public float BatchLearningRate => LearningRate / BatchSize;
-        public int BatchSize { get; set; }
+        public uint BatchSize { get; set; }
 	    public TrainingErrorCalculation TrainingErrorCalculation { get; }
 	    public long EpochMilliseconds => _timer.ElapsedMilliseconds;
 	    public double EpochSeconds => EpochMilliseconds / 1000.0;
 	    public bool DeferUpdates { get; }
-	    public void ScheduleLearningRate(int atEpoch, float newLearningRate) => _learningRateSchedule[atEpoch] = newLearningRate;
+	    public void ScheduleLearningRate(uint atEpoch, float newLearningRate) => _learningRateSchedule[atEpoch] = newLearningRate;
 	    public Action<string> MessageLog { get; set; } = Console.WriteLine;
 
         public void EnableNodeUpdates(INode node, bool enableUpdates)
@@ -86,7 +86,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             _layerUpdate.Clear();
         }
 
-        public void SetRowCount(int rowCount)
+        public void SetRowCount(uint rowCount)
         {
             _rowCount = rowCount;
         }

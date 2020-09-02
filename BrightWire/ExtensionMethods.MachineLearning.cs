@@ -25,7 +25,7 @@ namespace BrightWire
         /// <param name="fixedSize">The vector size to reduce from</param>
         /// <param name="reducedSize">The vector size to reduce to</param>
         /// <param name="s"></param>
-        public static IRandomProjection CreateRandomProjection(this ILinearAlgebraProvider lap, int fixedSize, int reducedSize, int s = 3)
+        public static IRandomProjection CreateRandomProjection(this ILinearAlgebraProvider lap, uint fixedSize, uint reducedSize, int s = 3)
         {
             return new RandomProjection(lap, fixedSize, reducedSize, s);
         }

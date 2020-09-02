@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using BrightData;
 using ManagedCuda;
 
 namespace BrightWire.LinearAlgebra
@@ -84,7 +85,7 @@ namespace BrightWire.LinearAlgebra
 
 	    public IDeviceMemoryPtr Memory => _data;
         public IMatrix ReshapeAsMatrix() => new GpuMatrix(_cuda, _blockSize, _count, _data, false);
-	    public IReadOnlyList<FloatTensor> Data {
+	    public IReadOnlyList<Tensor3D<float>> Data {
 		    get
 		    {
 			    Debug.Assert(IsValid);
@@ -93,8 +94,8 @@ namespace BrightWire.LinearAlgebra
 		    set {
 			    Debug.Assert(IsValid);
 			    var count = value.Count;
-			    for (var i = 0; i < count && i < _depth; i++) {
-				    var tensor = value[i];
+			    for (uint i = 0; i < count && i < _depth; i++) {
+				    var tensor = value[(int)i];
 				    if (tensor != null)
 					    GetTensorAt(i).Data = tensor;
 			    }
@@ -106,7 +107,7 @@ namespace BrightWire.LinearAlgebra
 	    {
 		    get 
 		    {
-			    var i = 0;
+			    uint i = 0;
 			    while (i < Count) {
 				    yield return GetTensorAt(i++);
 			    }
@@ -121,7 +122,7 @@ namespace BrightWire.LinearAlgebra
         public IIndexable4DTensor AsIndexable()
         {
             var ret = new List<IIndexable3DTensor>();
-            for(var i = 0; i < _count; i++)
+            for(uint i = 0; i < _count; i++)
                 ret.Add(GetTensorAt(i).AsIndexable());
 	        return _cuda.NumericsProvider.Create4DTensor(ret).AsIndexable();
         }
@@ -209,7 +210,7 @@ namespace BrightWire.LinearAlgebra
 		public IVector ColumnSums()
         {
             IVector ret = null;
-            for (var i = 0; i < Count; i++) {
+            for (uint i = 0; i < Count; i++) {
                 var tensorAsMatrix = GetTensorAt(i).ReshapeAsMatrix();
                 var columnSums = tensorAsMatrix.ColumnSums();
                 if (ret == null)

@@ -79,7 +79,7 @@ namespace BrightWire.LinearAlgebra
 		public uint Count => _data.Size;
 		public IDeviceMemoryPtr Memory => _data;
 
-		public FloatVector Data
+		public Vector<float> Data
 		{
 			get
 			{
@@ -202,13 +202,13 @@ namespace BrightWire.LinearAlgebra
 		public uint MaximumIndex()
 		{
 			Debug.Assert(IsValid);
-			return _cuda.Blas.Max(_data.DeviceVariable, 1) - 1;
+			return (uint)_cuda.Blas.Max(_data.DeviceVariable, 1) - 1;
 		}
 
 		public uint MinimumIndex()
 		{
 			Debug.Assert(IsValid);
-			return _cuda.Blas.Min(_data.DeviceVariable, 1) - 1;
+			return (uint)_cuda.Blas.Min(_data.DeviceVariable, 1) - 1;
 		}
 
 		public void Multiply(float scalar)
@@ -391,7 +391,7 @@ namespace BrightWire.LinearAlgebra
 				var ret = new float[data.Count];
 				for (var i = 0; i < data.Count; i++)
 					ret[i] = Convert.ToSingle(1d - DotProduct(data[i]) / Math.Sqrt(norm * dataNorm[i]));
-				return _cuda.CreateVector(data.Count, i => ret[i]);
+				return _cuda.CreateVector((uint)data.Count, i => ret[i]);
 			} else if (distance == DistanceMetric.Euclidean || distance == DistanceMetric.Manhattan) {
 				var ret = _cuda.CalculateDistances(new[] { this }, data, distance);
 				return ret.ReshapeAsVector();
@@ -400,7 +400,7 @@ namespace BrightWire.LinearAlgebra
 				var ret = new float[data.Count];
 				for (var i = 0; i < data.Count; i++)
 					ret[i] = distanceFunc(data[i]);
-				return _cuda.CreateVector(data.Count, i => ret[i]);
+				return _cuda.CreateVector((uint)data.Count, i => ret[i]);
 			}
 		}
 
@@ -421,7 +421,7 @@ namespace BrightWire.LinearAlgebra
 			var ret = new float[data.Count];
 			for (var i = 0; i < data.Count; i++)
 				ret[i] = Convert.ToSingle(1d - DotProduct(data[i]) / Math.Sqrt(norm * dataNorm[i]));
-			return _cuda.CreateVector(data.Count, i => ret[i]);
+			return _cuda.CreateVector((uint)data.Count, i => ret[i]);
 		}
 
 		public void Add(float scalar)
@@ -434,7 +434,7 @@ namespace BrightWire.LinearAlgebra
 		{
 			Debug.Assert(IsValid);
 			var blockSize = Count / blockCount;
-			return Enumerable.Range(0, blockCount).Select(i => {
+			return blockCount.AsRange().Select(i => {
 				var ptr2 = _cuda.OffsetByBlock(_data, i, blockSize);
 				var vector = new GpuVector(_cuda, ptr2, false);
 				return vector;

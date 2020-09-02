@@ -105,23 +105,23 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 		/// </summary>
 		/// <param name="rows">Row indices</param>
 		/// <param name="data">List of input/output matrix tuples</param>
-        protected IMiniBatch _GetSequentialMiniBatch(IReadOnlyList<uint> rows, IReadOnlyList<(FloatMatrix Input, FloatMatrix Output)> data)
+        protected IMiniBatch _GetSequentialMiniBatch(IReadOnlyList<uint> rows, IReadOnlyList<(Matrix<float> Input, Matrix<float> Output)> data)
         {
-            List<FloatVector> temp;
-            var inputData = new Dictionary<uint, List<FloatVector>>();
-            var outputData = new Dictionary<uint, List<FloatVector>>();
+            List<Vector<float>> temp;
+            var inputData = new Dictionary<uint, List<Vector<float>>>();
+            var outputData = new Dictionary<uint, List<Vector<float>>>();
 
             foreach (var item in data) {
                 var input = item.Input;
                 var output = item.Output;
                 for (uint i = 0, len = input.RowCount; i < len; i++) {
                     if (!inputData.TryGetValue(i, out temp))
-                        inputData.Add(i, temp = new List<FloatVector>());
+                        inputData.Add(i, temp = new List<Vector<float>>());
                     temp.Add(FloatVector.Create(input.Row(i).Data));
 
                     if (output != null) {
                         if (!outputData.TryGetValue(i, out temp))
-                            outputData.Add(i, temp = new List<FloatVector>());
+                            outputData.Add(i, temp = new List<Vector<float>>());
                         temp.Add(FloatVector.Create(output.Row(i).Data));
                     }
                 }

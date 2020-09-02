@@ -113,7 +113,7 @@ namespace BrightWire
 		/// </summary>
 		/// <param name="tensors">List of 3D tensors</param>
 		/// <returns></returns>
-		I4DTensor Create4DTensor(IReadOnlyList<FloatTensor> tensors);
+		I4DTensor Create4DTensor(IReadOnlyList<Tensor3D<float>> tensors);
 
 		/// <summary>
 		/// Creates a save point in the allocation history
@@ -203,9 +203,9 @@ namespace BrightWire
 		uint Count { get; }
 
 		/// <summary>
-		/// Converts the vector into protobuf format
+		/// Converts the vector
 		/// </summary>
-		FloatVector Data { get; set; }
+		Vector<float> Data { get; set; }
 
 		/// <summary>
 		/// Adds a vector (without in place modification)
@@ -659,9 +659,9 @@ namespace BrightWire
 		void AddToEachColumn(IVector vector);
 
 		/// <summary>
-		/// Converts the current matrix to protobuf format
+		/// Converts the current matrix
 		/// </summary>
-		FloatMatrix Data { get; set; }
+		Matrix<float> Data { get; set; }
 
 		/// <summary>
 		/// Converts the matrix to an indexable matrix
@@ -946,7 +946,7 @@ namespace BrightWire
 		/// <summary>
 		/// Converts the current tensor to protobuf format
 		/// </summary>
-		FloatTensor Data { get; set; }
+		Tensor3D<float> Data { get; set; }
 
 		/// <summary>
 		/// Returns a matrix at the specified depth
@@ -1220,7 +1220,7 @@ namespace BrightWire
 		/// <summary>
 		/// Converts the current tensor to protobuf format
 		/// </summary>
-		IReadOnlyList<FloatTensor> Data { get; set; }
+		IReadOnlyList<Tensor3D<float>> Data { get; set; }
 	}
 
 	/// <summary>

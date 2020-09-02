@@ -2,6 +2,7 @@
 using BrightWire.Models;
 using System.Collections.Generic;
 using System.IO;
+using BrightData;
 using BrightWire.ExecutionGraph.Action;
 
 namespace BrightWire.ExecutionGraph.Node.Input
@@ -42,7 +43,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
         }
 
         public IAction SetMemoryAction => _setMemory;
-        public FloatVector Data
+        public Vector<float> Data
         {
             get => FloatVector.Create(_data);
 	        set => value.Data.CopyTo(_data);

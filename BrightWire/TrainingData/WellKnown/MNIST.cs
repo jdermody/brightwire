@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BrightData;
 
 namespace BrightWire.TrainingData.WellKnown
 {
@@ -49,7 +50,7 @@ namespace BrightWire.TrainingData.WellKnown
             /// <summary>
             /// Converts the image to one hot encoded float arrays
             /// </summary>
-            public (FloatVector Data, FloatVector Label) AsFloatArray
+            public (Vector<float> Data, Vector<float> Label) AsFloatArray
             {
                 get {
                     var label = new float[10];
@@ -65,13 +66,13 @@ namespace BrightWire.TrainingData.WellKnown
             /// <summary>
             /// Converts the image to a tensor with one hot encoded label vector
             /// </summary>
-            public (FloatTensor Tensor, FloatVector Label) AsFloatTensor
+            public (Tensor3D<float> Tensor, Vector<float> Label) AsFloatTensor
             {
                 get {
                     const int SIZE = 28;
                     var data = AsFloatArray;
-                    var rows = new List<FloatVector>();
-                    var vector = data.Data.Data;
+                    var rows = new List<Vector<float>>();
+                    var vector = data.Data;
 
                     for (var y = 0; y < SIZE; y++) {
                         var row = new float[SIZE];

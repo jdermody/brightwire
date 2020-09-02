@@ -104,7 +104,7 @@ namespace BrightWire.ExecutionGraph.Engine
             return ret;
         }
 
-        public ExecutionResult ExecuteSequential(int sequenceIndex, float[] input, IExecutionContext executionContext, MiniBatchSequenceType sequenceType)
+        public ExecutionResult ExecuteSequential(uint sequenceIndex, float[] input, IExecutionContext executionContext, MiniBatchSequenceType sequenceType)
         {
             _lap.PushLayer();
             _dataSource = new SingleRowDataSource(input, true, sequenceType, sequenceIndex);

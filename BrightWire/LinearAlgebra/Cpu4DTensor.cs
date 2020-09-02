@@ -24,7 +24,7 @@ namespace BrightWire.LinearAlgebra
 			_columns = columns;
 		    _depth = depth;
 		    _count = count;
-		    _data = new CpuMatrix(DenseMatrix.Build.Dense(_rows * _count * _depth, _count));
+		    _data = new CpuMatrix(DenseMatrix.Build.Dense((int)(_rows * _count * _depth), (int)_count));
 	    }
 
         public Cpu4DTensor(IReadOnlyList<IIndexable3DTensor> tensorList)
@@ -34,9 +34,9 @@ namespace BrightWire.LinearAlgebra
             _rows = first.RowCount;
             _columns = first.ColumnCount;
             _depth = first.Depth;
-	        _count = tensorList.Count;
+	        _count = (uint)tensorList.Count;
 
-	        var offset = 0;
+	        uint offset = 0;
 	        var rowSize = _rows * _columns * _depth;
 	        var data = new float[rowSize * _count];
 	        foreach (var matrix in tensorList) {
@@ -44,7 +44,7 @@ namespace BrightWire.LinearAlgebra
 		        offset += rowSize;
 	        }
 
-	        _data = new CpuMatrix(DenseMatrix.Build.Dense(rowSize, _count, data));
+	        _data = new CpuMatrix(DenseMatrix.Build.Dense((int)rowSize, (int)_count, data));
         }
 
         public uint RowCount => _rows;
@@ -88,7 +88,7 @@ namespace BrightWire.LinearAlgebra
         {
             List<IIndexable3DTensor> indexList = saveIndices ? new List<IIndexable3DTensor>() : null;
             var ret = new List<IIndexable3DTensor>();
-            for (var i = 0; i < Count; i++) {
+            for (uint i = 0; i < Count; i++) {
                 var (result, indices) = GetTensorAt(i).MaxPool(filterWidth, filterHeight, xStride, yStride, saveIndices);
                 indexList?.Add(indices.AsIndexable());
                 ret.Add(result.AsIndexable());
@@ -99,7 +99,7 @@ namespace BrightWire.LinearAlgebra
         public I4DTensor ReverseMaxPool(I4DTensor indices, uint outputRows, uint outputColumns, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
         {
             var ret = new List<IIndexable3DTensor>();
-            for (var i = 0; i < Count; i++) {
+            for (uint i = 0; i < Count; i++) {
                 var result = GetTensorAt(i).ReverseMaxPool(indices.GetTensorAt(i), outputRows, outputColumns, filterWidth, filterHeight, xStride, yStride);
                 ret.Add(result.AsIndexable());
             }
@@ -109,7 +109,7 @@ namespace BrightWire.LinearAlgebra
         public I3DTensor Im2Col(uint filterWidth, uint filterHeight, uint xStride, uint yStride)
         {
             var ret = new List<IIndexableMatrix>();
-            for (var i = 0; i < Count; i++) {
+            for (uint i = 0; i < Count; i++) {
                 var result = GetTensorAt(i).Im2Col(filterWidth, filterHeight, xStride, yStride);
                 ret.Add(result.AsIndexable());
             }
@@ -119,7 +119,7 @@ namespace BrightWire.LinearAlgebra
         public I4DTensor ReverseIm2Col(IMatrix filters, uint outputRows, uint outputColumns, uint outputDepth, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
         {
             var ret = new List<IIndexable3DTensor>();
-            for (var i = 0; i < Count; i++) {
+            for (uint i = 0; i < Count; i++) {
                 var result = GetTensorAt(i).ReverseIm2Col(filters, outputRows, outputColumns, outputDepth, filterWidth, filterHeight, xStride, yStride);
                 ret.Add(result.AsIndexable());
             }
@@ -131,25 +131,23 @@ namespace BrightWire.LinearAlgebra
 			return _data;
 		}
 
-	    public IReadOnlyList<FloatTensor> Data {
+	    public IReadOnlyList<BrightData.Tensor3D<float>> Data {
 		    get => Tensors.Select(t => t.Data).ToList();
 		    set {
 			    var count = value.Count;
 			    for (var z = 0; z < count && z < _count; z++) {
 				    var tensor = value[z];
 				    if (tensor != null) {
-					    var matrixList = tensor.Matrix;
+					    var matrixList = tensor.Matrices.ToArray();
 					    var matrixCount = matrixList.Length;
-					    for (var k = 0; k < matrixCount && k < _depth; k++) {
+					    for (uint k = 0; k < matrixCount && k < _depth; k++) {
 						    var matrix = matrixList[k];
-						    if (matrix.Row != null) {
-							    for (int i = 0, len = matrix.Row.Length; i < len; i++) {
-								    var row = matrix.Row[i];
-								    for (int j = 0, len2 = row.Count; j < len2; j++)
-									    this[i, j, k, z] = row.Data[j];
-							    }
-						    }
-					    }
+                            for (uint i = 0, len = matrix.RowCount; i < len; i++) {
+                                var row = matrix.Row(i);
+                                for (uint j = 0, len2 = row.Size; j < len2; j++)
+                                    this[i, j, k, (uint)z] = row.Data[j];
+                            }
+                        }
 				    }
 			    }
 		    }
@@ -163,7 +161,7 @@ namespace BrightWire.LinearAlgebra
         public IVector ColumnSums()
         {
             IVector ret = null;
-            for (var i = 0; i < Count; i++) {
+            for (uint i = 0; i < Count; i++) {
                 var tensorAsMatrix = GetTensorAt(i).ReshapeAsMatrix();
                 var columnSums = tensorAsMatrix.ColumnSums();
                 if (ret == null)

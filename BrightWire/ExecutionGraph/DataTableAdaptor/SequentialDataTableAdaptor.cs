@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using BrightWire.Models;
 using System.Linq;
+using BrightData;
 using BrightTable;
 
 namespace BrightWire.ExecutionGraph.DataTableAdaptor
@@ -20,10 +21,10 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 
             _rowDepth = new uint[dataTable.RowCount];
 
-            FloatMatrix inputMatrix = null, outputMatrix = null;
+            Matrix<float> inputMatrix = null, outputMatrix = null;
             dataTable.ForEachRow((row, i) => {
-                inputMatrix = (FloatMatrix)row[_dataColumnIndex[0]];
-                outputMatrix = (FloatMatrix)row[_dataTargetIndex];
+                inputMatrix = (Matrix<float>)row[_dataColumnIndex[0]];
+                outputMatrix = (Matrix<float>)row[_dataTargetIndex];
                 _rowDepth[i] = inputMatrix.RowCount;
                 if (outputMatrix.RowCount != inputMatrix.RowCount)
                     throw new ArgumentException("Rows between input and output data tables do not match");

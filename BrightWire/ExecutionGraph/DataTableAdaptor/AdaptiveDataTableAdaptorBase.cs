@@ -1,4 +1,5 @@
-﻿using BrightTable;
+﻿using System;
+using BrightTable;
 using BrightWire.ExecutionGraph.Engine.Helper;
 using BrightWire.ExecutionGraph.Node.Input;
 using System.Diagnostics;
@@ -29,7 +30,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             return new Models.DataSourceModel {
                 Name = name,
                 InputSize = InputSize,
-                OutputSize = OutputSize,
+                OutputSize = OutputSize ?? throw new Exception("Output size not set"),
                 Graph = _input.GetGraph()
             };
         }

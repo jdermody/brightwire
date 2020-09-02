@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
+using BrightData;
 using BrightWire.Source.Helper;
 
 namespace BrightWire
@@ -125,9 +126,9 @@ namespace BrightWire
 		/// Aligns the output of sequential graph execution into an ordered list of results
 		/// </summary>
 		/// <param name="results">Output from sequential graph execution</param>
-	    public static IReadOnlyList<FloatVector[]> OrderSequentialOutput(this IReadOnlyList<ExecutionResult> results)
+	    public static IReadOnlyList<Vector<float>[]> OrderSequentialOutput(this IReadOnlyList<ExecutionResult> results)
 	    {
-		    var ret = new Dictionary<(uint RowIndex, uint SequenceIndex), FloatVector>();
+		    var ret = new Dictionary<(uint RowIndex, uint SequenceIndex), Vector<float>>();
 		    foreach (var result in results) {
 			    var sequenceIndex = result.MiniBatchSequence.SequenceIndex;
 			    var rows = result.MiniBatchSequence.MiniBatch.Rows;

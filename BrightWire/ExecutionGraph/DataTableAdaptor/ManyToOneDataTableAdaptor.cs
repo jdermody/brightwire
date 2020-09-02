@@ -4,6 +4,7 @@ using BrightWire.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using BrightData;
 
 namespace BrightWire.ExecutionGraph.DataTableAdaptor
 {
@@ -18,14 +19,14 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             : base(lap, dataTable)
         {
             if (_dataColumnIndex.Length > 1)
-                throw new NotImplementedException("Sequential datasets not supported with more than one input data column");
+                throw new NotImplementedException("Sequential data sets not supported with more than one input data column");
 
             _rowDepth = new uint[dataTable.RowCount];
-            FloatMatrix inputMatrix = null;
-            FloatVector outputVector = null;
+            Matrix<float> inputMatrix = null;
+            Vector<float> outputVector = null;
             dataTable.ForEachRow((row, i) => {
-                inputMatrix = (FloatMatrix)row[_dataColumnIndex[0]];
-                outputVector = (FloatVector)row[_dataTargetIndex];
+                inputMatrix = (Matrix<float>)row[_dataColumnIndex[0]];
+                outputVector = (Vector<float>)row[_dataTargetIndex];
                 _rowDepth[i] = inputMatrix.RowCount;
                 if (inputMatrix.ColumnCount != outputVector.Size)
                     throw new ArgumentException("Rows between input and output data tables do not match");
@@ -57,15 +58,15 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         public override IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<uint> rows)
         {
             var data = _GetRows(rows)
-                .Select(r => ((FloatMatrix)r[_dataColumnIndex[0]], (FloatVector)r[_dataTargetIndex]))
+                .Select(r => ((Matrix<float>)r[_dataColumnIndex[0]], (Vector<float>)r[_dataTargetIndex]))
                 .ToList()
             ;
-            var inputData = new Dictionary<uint, List<FloatVector>>();
+            var inputData = new Dictionary<uint, List<Vector<float>>>();
             foreach (var item in data) {
                 var input = item.Item1;
                 for (uint i = 0, len = input.RowCount; i < len; i++) {
-                    if (!inputData.TryGetValue(i, out List<FloatVector> temp))
-                        inputData.Add(i, temp = new List<FloatVector>());
+                    if (!inputData.TryGetValue(i, out List<Vector<float>> temp))
+                        inputData.Add(i, temp = new List<Vector<float>>());
                     temp.Add(FloatVector.Create(input.Row(i).Data));
                 }
             }

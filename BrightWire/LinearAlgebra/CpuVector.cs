@@ -110,7 +110,7 @@ namespace BrightWire.LinearAlgebra
             return _vector.ToVectorString();
         }
 
-        public FloatVector Data
+        public BrightData.Vector<float> Data
         {
             get => FloatVector.Create(_vector.ToArray());
 

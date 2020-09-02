@@ -4,6 +4,7 @@ using System.Linq;
 using BrightWire.Models;
 using System.Diagnostics;
 using System.Threading;
+using BrightData;
 using BrightWire.Cuda.Helper;
 using ManagedCuda;
 using ManagedCuda.CudaBlas;
@@ -115,14 +116,14 @@ namespace BrightWire.LinearAlgebra
 		{
 			get
 			{
-				var i = 0;
+				uint i = 0;
 				while (i < Depth) {
 					yield return GetMatrixAt(i++);
 				}
 			}
 		}
 
-		public FloatTensor Data
+		public Tensor3D<float> Data
 		{
 			get
 			{
@@ -132,12 +133,11 @@ namespace BrightWire.LinearAlgebra
 			set
 			{
 				Debug.Assert(IsValid);
-				var matrixList = value.Matrix;
-				var matrixCount = matrixList.Length;
-				for (var i = 0; i < matrixCount && i < _depth; i++) {
-					var matrix = matrixList[i];
-					if (matrix.Row != null)
-						GetMatrixAt(i).Data = matrix;
+				var matrixList = value.Matrices.ToList();
+				var matrixCount = matrixList.Count();
+				for (uint i = 0; i < matrixCount && i < _depth; i++) {
+					var matrix = matrixList[(int)i];
+					GetMatrixAt(i).Data = matrix;
 				}
 			}
 		}
@@ -234,7 +234,7 @@ namespace BrightWire.LinearAlgebra
 		{
 			var other = (Gpu3DTensor)tensor;
 			Debug.Assert(IsValid && other.IsValid);
-			for (var i = 0; i < _depth; i++)
+			for (uint i = 0; i < _depth; i++)
 				GetMatrixAt(i).AddInPlace(other.GetMatrixAt(i));
 		}
 
@@ -242,28 +242,28 @@ namespace BrightWire.LinearAlgebra
 		{
 			var other = (GpuMatrix)matrix;
 			var ptr = _data.DevicePointer;
-			int rowsA = _rows, columnsArowsB = _columns, columnsB = matrix.ColumnCount;
+			uint rowsA = _rows, columnsArowsB = _columns, columnsB = (uint)matrix.ColumnCount;
 			float alpha = 1.0f, beta = 0.0f;
 			var output = new Gpu3DTensor(_cuda, _rows, columnsB, _depth, _cuda.Allocate(_rows * columnsB * _depth), true);
 
 			var status = CudaBlasNativeMethods.cublasSgemmStridedBatched(_cuda.Blas.CublasHandle,
 				Operation.NonTranspose,
 				Operation.NonTranspose,
-				rowsA,
-				columnsB,
-				columnsArowsB,
+				(int)rowsA,
+                (int)columnsB,
+                (int)columnsArowsB,
 				ref alpha,
 				ptr,
-				rowsA,
+                (int)rowsA,
 				_blockSize,
 				other.Memory.DevicePointer,
-				columnsArowsB,
+                (int)columnsArowsB,
 				0,
 				ref beta,
 				output.Memory.DevicePointer,
-				rowsA,
+                (int)rowsA,
 				_rows * columnsB,
-				_depth
+                (int)_depth
 			);
 			if (status != CublasStatus.Success)
 				throw new CudaBlasException(status);
@@ -312,28 +312,28 @@ namespace BrightWire.LinearAlgebra
 #endif
 			var ptr = _data.DevicePointer;
 			var ptr2 = other.Memory.DevicePointer;
-			int rowsA = _rows, columnsA = _columns, columnsB = other.Depth, rowsB = other.RowCount * other.ColumnCount, blockSize2 = columnsB * rowsB;
+			uint rowsA = _rows, columnsA = _columns, columnsB = other.Depth, rowsB = other.RowCount * other.ColumnCount, blockSize2 = columnsB * rowsB;
 			float alpha = 1.0f, beta = 0.0f;
 			var output = new Gpu3DTensor(_cuda, _columns, columnsB, _depth, _cuda.Allocate(_columns * columnsB * _depth), true);
 
 			var status = CudaBlasNativeMethods.cublasSgemmStridedBatched(_cuda.Blas.CublasHandle,
 				Operation.Transpose,
 				Operation.NonTranspose,
-				columnsA,
-				columnsB,
-				rowsB,
+				(int)columnsA,
+                (int)columnsB,
+                (int)rowsB,
 				ref alpha,
 				ptr,
-				rowsA,
+                (int)rowsA,
 				_blockSize,
 				ptr2,
-				rowsB,
+                (int)rowsB,
 				blockSize2,
 				ref beta,
 				output.Memory.DevicePointer,
-				columnsA,
+                (int)columnsA,
 				_columns * columnsB,
-				_depth
+                (int)_depth
 			);
 			if (status != CublasStatus.Success)
 				throw new CudaBlasException(status);

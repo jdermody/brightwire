@@ -1,4 +1,5 @@
-﻿using BrightWire.Linear;
+﻿using BrightData;
+using BrightWire.Linear;
 
 namespace BrightWire.Models
 {
@@ -10,7 +11,7 @@ namespace BrightWire.Models
         /// <summary>
         /// The model parameters
         /// </summary>
-        public FloatVector Theta { get; set; }
+        public Vector<float> Theta { get; set; }
 
         /// <summary>
         /// Creates a classifier from this model

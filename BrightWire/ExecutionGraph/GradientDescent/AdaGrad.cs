@@ -36,8 +36,8 @@ namespace BrightWire.ExecutionGraph.GradientDescent
 
         public virtual void ReadFrom(GraphFactory factory, BinaryReader reader)
         {
-            var rows = reader.ReadInt32();
-            var columns = reader.ReadInt32();
+            var rows = (uint)reader.ReadInt32();
+            var columns = (uint)reader.ReadInt32();
             _cache = factory.LinearAlgebraProvider.CreateZeroMatrix(rows, columns);
             _updater = factory.CreateGradientDescentOptimisation(reader);
         }

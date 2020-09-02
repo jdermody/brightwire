@@ -48,9 +48,9 @@ namespace BrightWire.ExecutionGraph.GradientDescent
         {
             base.ReadFrom(factory, reader);
 
-            _decayRate2 = reader.ReadSingle();
-            var rows = reader.ReadInt32();
-            var columns = reader.ReadInt32();
+            _decayRate2 = (uint)reader.ReadSingle();
+            var rows = (uint)reader.ReadInt32();
+            var columns = (uint)reader.ReadInt32();
             _cache2 = factory.LinearAlgebraProvider.CreateZeroMatrix(rows, columns);
         }
 

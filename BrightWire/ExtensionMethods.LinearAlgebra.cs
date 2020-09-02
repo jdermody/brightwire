@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using BrightData;
 using BrightWire.ExecutionGraph.Helper;
 
 namespace BrightWire
@@ -37,7 +38,7 @@ namespace BrightWire
         /// <param name="lap"></param>
         /// <param name="data">Vector to copy</param>
         /// <returns></returns>
-        public static IVector CreateVector(this ILinearAlgebraProvider lap, FloatVector data)
+        public static IVector CreateVector(this ILinearAlgebraProvider lap, Vector<float> data)
         {
             //var array = data.Data;
             //return lap.CreateVector(array.Length, i => array[i]);
@@ -95,7 +96,7 @@ namespace BrightWire
 		/// <param name="lap"></param>
 		/// <param name="matrix">Matrix to copy</param>
 		/// <returns></returns>
-		public static IMatrix CreateMatrix(this ILinearAlgebraProvider lap, FloatMatrix matrix)
+		public static IMatrix CreateMatrix(this ILinearAlgebraProvider lap, Matrix<float> matrix)
 		{
 			var ret = lap.CreateMatrix(matrix.RowCount, matrix.ColumnCount, false);
 			ret.Data = matrix;
@@ -108,7 +109,7 @@ namespace BrightWire
         /// <param name="lap"></param>
         /// <param name="rowList">List of vectors (each vector becomes a row in the new matrix)</param>
         /// <returns></returns>
-        public static IMatrix CreateMatrixFromRows(this ILinearAlgebraProvider lap, IReadOnlyList<FloatVector> rowList)
+        public static IMatrix CreateMatrixFromRows(this ILinearAlgebraProvider lap, IReadOnlyList<Vector<float>> rowList)
         {
             var rows = (uint)rowList.Count;
             var columns = rowList[0].Size;
@@ -134,7 +135,7 @@ namespace BrightWire
 	    /// <param name="lap"></param>
 	    /// <param name="columnList">List of vectors (each vector becomes a column in the new matrix)</param>
 	    /// <returns></returns>
-	    public static IMatrix CreateMatrixFromColumns(this ILinearAlgebraProvider lap, IReadOnlyList<FloatVector> columnList)
+	    public static IMatrix CreateMatrixFromColumns(this ILinearAlgebraProvider lap, IReadOnlyList<Vector<float>> columnList)
 	    {
 		    var columns = (uint)columnList.Count;
 		    var rows = columnList[0].Size;
@@ -206,7 +207,7 @@ namespace BrightWire
         /// <param name="lap"></param>
         /// <param name="tensor">The serialised representation of the 3D tensor</param>
         /// <returns></returns>
-        public static I3DTensor Create3DTensor(this ILinearAlgebraProvider lap, FloatTensor tensor)
+        public static I3DTensor Create3DTensor(this ILinearAlgebraProvider lap, Tensor3D<float> tensor)
         {
 	        var ret = lap.Create3DTensor(tensor.RowCount, tensor.ColumnCount, tensor.Depth);
 	        ret.Data = tensor;
@@ -220,7 +221,7 @@ namespace BrightWire
 	    /// <param name="lap"></param>
 	    /// <param name="matrices">List of matrices</param>
 	    /// <returns></returns>
-	    public static I3DTensor Create3DTensor(this ILinearAlgebraProvider lap, FloatMatrix[] matrices)
+	    public static I3DTensor Create3DTensor(this ILinearAlgebraProvider lap, Matrix<float>[] matrices)
 	    {
 		    var first = matrices[0];
 		    var ret = lap.Create3DTensor(first.RowCount, first.ColumnCount, (uint)matrices.Length);

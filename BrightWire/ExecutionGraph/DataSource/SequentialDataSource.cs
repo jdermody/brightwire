@@ -14,10 +14,10 @@ namespace BrightWire.ExecutionGraph.DataSource
     class SequentialDataSource : IDataSource
     {
         readonly uint[] _rowDepth;
-	    readonly IReadOnlyList<FloatMatrix> _data;
+	    readonly IReadOnlyList<Matrix<float>> _data;
         readonly ILinearAlgebraProvider _lap;
 
-        public SequentialDataSource(ILinearAlgebraProvider lap, IReadOnlyList<FloatMatrix> matrixList)
+        public SequentialDataSource(ILinearAlgebraProvider lap, IReadOnlyList<Matrix<float>> matrixList)
         {
             _lap = lap;
             _data = matrixList;
@@ -42,12 +42,12 @@ namespace BrightWire.ExecutionGraph.DataSource
         {
             var data = rows.Select(i => _data[(int)i]).ToList();
 
-            var inputData = new Dictionary<uint, List<FloatVector>>();
+            var inputData = new Dictionary<uint, List<Vector<float>>>();
             foreach (var item in data) {
                 var input = item;
                 for (uint i = 0, len = input.RowCount; i < len; i++) {
                     if (!inputData.TryGetValue(i, out var temp))
-                        inputData.Add(i, temp = new List<FloatVector>());
+                        inputData.Add(i, temp = new List<Vector<float>>());
                     temp.Add(FloatVector.Create(input.Row(i).Data));
                 }
             }

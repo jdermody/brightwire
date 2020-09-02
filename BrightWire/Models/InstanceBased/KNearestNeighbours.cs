@@ -1,4 +1,5 @@
-﻿using BrightWire.InstanceBased;
+﻿using BrightData;
+using BrightWire.InstanceBased;
 
 namespace BrightWire.Models.InstanceBased
 {
@@ -10,7 +11,7 @@ namespace BrightWire.Models.InstanceBased
         /// <summary>
         /// The list of vectors to match against
         /// </summary>
-        public FloatVector[] Instance { get; set; }
+        public Vector<float>[] Instance { get; set; }
 
         /// <summary>
         /// The corresponding list of classifications
