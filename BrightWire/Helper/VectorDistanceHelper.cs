@@ -15,8 +15,8 @@ namespace BrightWire.Source.Helper
 	{
 		readonly ILinearAlgebraProvider _lap;
 		readonly DistanceMetric _distanceMetric;
-		readonly List<IVector> _comparison = new List<IVector>();
-		readonly IReadOnlyList<IVector> _data;
+		readonly List<IFloatVector> _comparison = new List<IFloatVector>();
+		readonly IReadOnlyList<IFloatVector> _data;
 
 		/// <summary>
 		/// Constructor
@@ -24,7 +24,7 @@ namespace BrightWire.Source.Helper
 		/// <param name="lap">Linear algebra provider</param>
 		/// <param name="data">List of vectors to compare</param>
 		/// <param name="distanceMetric">Distance metric for comparison</param>
-	    public VectorDistanceHelper(ILinearAlgebraProvider lap, IReadOnlyList<IVector> data, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
+	    public VectorDistanceHelper(ILinearAlgebraProvider lap, IReadOnlyList<IFloatVector> data, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
 	    {
 			_lap = lap;
 		    _distanceMetric = distanceMetric;
@@ -40,7 +40,7 @@ namespace BrightWire.Source.Helper
 		/// <summary>
 		/// The list of vectors to compare against
 		/// </summary>
-		public IReadOnlyList<IVector> CompareTo => _comparison;
+		public IReadOnlyList<IFloatVector> CompareTo => _comparison;
 
 		/// <summary>
 		/// Distance metric
@@ -52,7 +52,7 @@ namespace BrightWire.Source.Helper
 		/// </summary>
 		/// <param name="comparison">Vector to compare against</param>
 		/// <returns>Index of the comparison vector</returns>
-		public int AddComparison(IVector comparison)
+		public int AddComparison(IFloatVector comparison)
 		{
 			var ret = _comparison.Count;
 			_comparison.Add(comparison);
@@ -64,7 +64,7 @@ namespace BrightWire.Source.Helper
 		/// </summary>
 		/// <param name="index">Index to update</param>
 		/// <param name="newVector">Vector to replace with</param>
-		public void UpdateComparisonVector(int index, IVector newVector)
+		public void UpdateComparisonVector(int index, IFloatVector newVector)
 		{
 			_comparison[index].Dispose();
 			_comparison[index] = newVector;
@@ -74,7 +74,7 @@ namespace BrightWire.Source.Helper
 		/// Updates the entire list of comparison vectors
 		/// </summary>
 		/// <param name="comparisonVectors">List of vectors to compare against</param>
-		public void SetComparisonVectors(IReadOnlyList<IVector> comparisonVectors)
+		public void SetComparisonVectors(IReadOnlyList<IFloatVector> comparisonVectors)
 		{
 			_comparison.ForEach(c => c.Dispose());
 			_comparison.Clear();
@@ -97,7 +97,7 @@ namespace BrightWire.Source.Helper
 		/// Returns a vector averaged from the data vectors
 		/// </summary>
 		/// <param name="indices">Indices of the data vectors to use in the averaged vector</param>
-		public IVector GetAverageFromData(IReadOnlyList<int> indices)
+		public IFloatVector GetAverageFromData(IReadOnlyList<int> indices)
 		{
 			using (var data = _lap.CreateMatrixFromColumns(indices.Select(i => _data[i]).ToList())) {
 				var result = data.RowSums();
@@ -106,7 +106,7 @@ namespace BrightWire.Source.Helper
 			}
 		}
 
-		(uint Index, float Value) _GetMinimum(IMatrix data, uint columnIndex)
+		(uint Index, float Value) _GetMinimum(IFloatMatrix data, uint columnIndex)
 		{
             var len = _comparison.Count;
 

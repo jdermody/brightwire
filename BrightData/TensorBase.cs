@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BrightData
 {
-    public abstract class TensorBase<T, DT> : ITensor<T>, ICanWriteToBinaryWriter, ICanInitializeFromBinaryReader
+    public abstract class TensorBase<T, DT> : ITensor<T>
         where DT : ITensor<T>
         where T : struct
     {

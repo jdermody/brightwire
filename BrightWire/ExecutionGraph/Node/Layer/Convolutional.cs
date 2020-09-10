@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using BrightData;
 
 namespace BrightWire.ExecutionGraph.Node.Layer
 {
@@ -16,10 +17,10 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 	{
 		class Backpropagation : SingleBackpropagationBase<Convolutional>
 		{
-			readonly I3DTensor _im2Col;
+			readonly I3DFloatTensor _im2Col;
 			readonly uint _inputWidth, _inputHeight, _inputDepth, _inputCount, _newWidth, _newHeight;
 
-			public Backpropagation(Convolutional source, I3DTensor im2Col, uint inputWidth, uint inputHeight, uint inputDepth, uint inputCount, uint newWidth, uint newHeight)
+			public Backpropagation(Convolutional source, I3DFloatTensor im2Col, uint inputWidth, uint inputHeight, uint inputDepth, uint inputCount, uint newWidth, uint newHeight)
 				: base(source)
 			{
 				_im2Col = im2Col;
@@ -31,7 +32,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 				_inputCount = inputCount;
 			}
 
-			void _UpdateBias(IVector delta, ILearningContext context)
+			void _UpdateBias(IFloatVector delta, ILearningContext context)
 			{
 				_source._bias.AddInPlace(delta, 1f, context.BatchLearningRate);
 			}
@@ -76,14 +77,14 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 		}
 		IGradientDescentOptimisation _updater;
 		uint _padding, _filterWidth, _filterHeight, _xStride, _yStride, _inputDepth;
-		IMatrix _filter;
-		IVector _bias;
+		IFloatMatrix _filter;
+		IFloatVector _bias;
 		bool _shouldBackpropagate;
 
 		public Convolutional(
 			bool shouldBackpropagate,
 			IWeightInitialisation weightInitialisation,
-			Func<IMatrix, IGradientDescentOptimisation> updater,
+			Func<IFloatMatrix, IGradientDescentOptimisation> updater,
 			uint inputDepth,
 			uint filterCount,
 			uint padding,
@@ -114,7 +115,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 			_bias.Dispose();
 		}
 
-		public void Update(IMatrix delta, ILearningContext context)
+		public void Update(IFloatMatrix delta, ILearningContext context)
 		{
 			_updater.Update(_filter, delta, context);
 		}

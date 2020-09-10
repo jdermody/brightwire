@@ -2,6 +2,7 @@
 using BrightWire.ExecutionGraph.Helper;
 using System.Collections.Generic;
 using System.Linq;
+using BrightData;
 
 namespace BrightWire.ExecutionGraph.Node.Helper
 {

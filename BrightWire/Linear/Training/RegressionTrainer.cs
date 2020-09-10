@@ -2,6 +2,7 @@
 using BrightWire.Models;
 using System;
 using System.Linq;
+using BrightData;
 
 namespace BrightWire.Linear.Training
 {
@@ -12,8 +13,8 @@ namespace BrightWire.Linear.Training
     class RegressionTrainer : ILinearRegressionTrainer
     {
         readonly ILinearAlgebraProvider _lap;
-        readonly IMatrix _feature;
-        readonly IVector _target;
+        readonly IFloatMatrix _feature;
+        readonly IFloatVector _target;
 
         public RegressionTrainer(ILinearAlgebraProvider lap, IDataTable table)
         {
@@ -87,7 +88,7 @@ namespace BrightWire.Linear.Training
             return ret;
         }
 
-        public float ComputeCost(IVector theta, float lambda)
+        public float ComputeCost(IFloatVector theta, float lambda)
         {
             var regularisationCost = theta.AsIndexable().Values.Skip(1).Sum(v => v * v * lambda);
 

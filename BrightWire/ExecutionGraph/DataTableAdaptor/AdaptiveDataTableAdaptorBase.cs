@@ -3,6 +3,7 @@ using BrightTable;
 using BrightWire.ExecutionGraph.Engine.Helper;
 using BrightWire.ExecutionGraph.Node.Input;
 using System.Diagnostics;
+using BrightData;
 
 namespace BrightWire.ExecutionGraph.DataTableAdaptor
 {

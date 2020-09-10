@@ -1,6 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using BrightData;
 
 namespace BrightWire.ExecutionGraph.Engine.Helper
 {
@@ -10,7 +11,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     class ExecutionContext : IExecutionContext
     {
         readonly ConcurrentQueue<IGraphOperation> _operationList = new ConcurrentQueue<IGraphOperation>();
-        readonly ConcurrentDictionary<string, IMatrix> _memory = new ConcurrentDictionary<string, IMatrix>();
+        readonly ConcurrentDictionary<string, IFloatMatrix> _memory = new ConcurrentDictionary<string, IFloatMatrix>();
         readonly ConcurrentDictionary<IMiniBatchSequence, System.Action<IContext>> _continuationTable = new ConcurrentDictionary<IMiniBatchSequence, System.Action<IContext>>();
 
 	    public ExecutionContext(ILinearAlgebraProvider lap)
@@ -43,9 +44,9 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
                 callback(context);
         }
 
-        public IMatrix GetMemory(string index)
+        public IFloatMatrix GetMemory(string index)
         {
-            if (_memory.TryGetValue(index, out IMatrix output))
+            if (_memory.TryGetValue(index, out IFloatMatrix output))
                 return output;
             return null;
         }
@@ -57,10 +58,10 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             return null;
         }
 
-        public void SetMemory(string index, IMatrix memory)
+        public void SetMemory(string index, IFloatMatrix memory)
         {
             if (memory == null) {
-                if (_memory.TryRemove(index, out IMatrix temp))
+                if (_memory.TryRemove(index, out IFloatMatrix temp))
                     temp.Dispose();
             } else {
                 _memory[index] = memory;

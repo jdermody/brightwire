@@ -37,24 +37,24 @@ namespace BrightWire
         /// Gets the signal as a matrix
         /// </summary>
         /// <returns></returns>
-        IMatrix GetMatrix();
+        IFloatMatrix GetMatrix();
 
         /// <summary>
         /// Gets the signal as a 4D tensor
         /// </summary>
         /// <returns></returns>
-        I4DTensor Get4DTensor();
+        I4DFloatTensor Get4DTensor();
 
         /// <summary>
         /// Replaces the data with the specified matrix (but preserves any tensor meta data)
         /// </summary>
         /// <param name="matrix">The matrix to use as a replacement</param>
-        IGraphData ReplaceWith(IMatrix matrix);
+        IGraphData ReplaceWith(IFloatMatrix matrix);
 
         /// <summary>
         /// Returns the list of matrices that compose the signal (single item if the signal is a matrix)
         /// </summary>
-        IReadOnlyList<IMatrix> GetSubMatrices();
+        IReadOnlyList<IFloatMatrix> GetSubMatrices();
     }
 
     /// <summary>
@@ -339,14 +339,14 @@ namespace BrightWire
         /// </summary>
         /// <param name="slotName">Slot name</param>
         /// <param name="memory">Data</param>
-        void SetMemory(string slotName, IMatrix memory);
+        void SetMemory(string slotName, IFloatMatrix memory);
 
         /// <summary>
         /// Reads from a named memory slot
         /// </summary>
         /// <param name="slotName">Slot name</param>
         /// <returns></returns>
-        IMatrix GetMemory(string slotName);
+        IFloatMatrix GetMemory(string slotName);
 
         /// <summary>
         /// Gets the next queued graph operation (if any)
@@ -749,19 +749,19 @@ namespace BrightWire
         /// <summary>
         /// Bias vector
         /// </summary>
-        IVector Bias { get; }
+        IFloatVector Bias { get; }
 
         /// <summary>
         /// Weight matrix
         /// </summary>
-        IMatrix Weight { get; }
+        IFloatMatrix Weight { get; }
 
         /// <summary>
         /// Updates the weights
         /// </summary>
         /// <param name="delta">Weight delta matrix</param>
         /// <param name="context">Graph learning context</param>
-        void UpdateWeights(IMatrix delta, ILearningContext context);
+        void UpdateWeights(IFloatMatrix delta, ILearningContext context);
     }
 
 

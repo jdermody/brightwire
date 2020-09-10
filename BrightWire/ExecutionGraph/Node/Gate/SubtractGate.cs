@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using BrightData;
 
 namespace BrightWire.ExecutionGraph.Node.Gate
 {
@@ -26,7 +27,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         }
         public SubtractGate(string name = null) : base(name) { }
 
-        protected override void _Activate(IContext context, IMatrix primary, IMatrix secondary)
+        protected override void _Activate(IContext context, IFloatMatrix primary, IFloatMatrix secondary)
         {
             var output = primary.Subtract(secondary);
             _AddHistory(context, output, () => new Backpropagation(this));

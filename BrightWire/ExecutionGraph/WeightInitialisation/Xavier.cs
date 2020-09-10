@@ -1,6 +1,7 @@
 ﻿using MathNet.Numerics.Distributions;
 using System;
 using System.Collections.Generic;
+using BrightData;
 
 namespace BrightWire.ExecutionGraph.WeightInitialisation
 {
@@ -22,12 +23,12 @@ namespace BrightWire.ExecutionGraph.WeightInitialisation
             _random = lap.IsStochastic ? new Random() : new Random(0);
         }
 
-        public IVector CreateBias(uint size)
+        public IFloatVector CreateBias(uint size)
         {
             return _lap.CreateVector(size);
         }
 
-        public IMatrix CreateWeight(uint rows, uint columns)
+        public IFloatMatrix CreateWeight(uint rows, uint columns)
         {
             return _lap.CreateMatrix(rows, columns, (x, y) => GetWeight(rows, columns));
         }

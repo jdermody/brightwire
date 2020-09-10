@@ -13,22 +13,23 @@ namespace BrightTable.Input
         {
             readonly DataTableConverter _converter;
 
-            public ConvertibleRow(IDataTableSegment row, DataTableConverter converter)
+            public ConvertibleRow(uint rowIndex, IDataTableSegment row, DataTableConverter converter)
             {
-                Row = row;
+                Segment = row;
+                RowIndex = rowIndex;
                 _converter = converter;
             }
 
-            public IDataTableSegment Row { get; }
+            public IDataTableSegment Segment { get; }
             public IDataTable DataTable => _converter.DataTable;
 
-            public T GetField<T>(uint index) => _converter.GetField<T>(index, Row[index]);
+            public T GetField<T>(uint index) => _converter.GetField<T>(index, Segment[index]);
+            public uint RowIndex { get; }
         }
         enum TypeConversion
         {
             Cast,
             ToString,
-            FromNumeric,
             DateTicks,
             ChangeType
         }
@@ -41,7 +42,7 @@ namespace BrightTable.Input
 
         public IRowOrientedDataTable DataTable { get; }
 
-        public IConvertibleRow GetRow(uint index) => new ConvertibleRow(DataTable.Row(index), this);
+        public IConvertibleRow GetRow(uint index) => new ConvertibleRow(index, DataTable.Row(index), this);
 
         T GetField<T>(uint index, object ret)
         {
@@ -54,29 +55,20 @@ namespace BrightTable.Input
                 var retType = ret.GetType();
                 if (retType == targetType || targetType.GetTypeInfo().IsAssignableFrom(retType.GetTypeInfo()))
                     typeConversion = TypeConversion.Cast;
-                else if (retType == typeof(DateTime)) {
-                    if (targetType == typeof(string))
-                        typeConversion = TypeConversion.ToString;
-                    else
-                        typeConversion = TypeConversion.DateTicks;
-                } else {
+                else if (retType == typeof(DateTime))
+                    typeConversion = targetType == typeof(string) ? TypeConversion.ToString : TypeConversion.DateTicks;
+                else
                     typeConversion = TypeConversion.ChangeType;
-                }
                 _typeConversionTable.Add(key, typeConversion);
             }
 
-            switch (typeConversion) {
-                case TypeConversion.Cast:
-                    return (T)ret;
-                case TypeConversion.ToString:
-                    return (T)(object)ret.ToString();
-                case TypeConversion.DateTicks:
-                    return (T)Convert.ChangeType(((DateTime)ret).Ticks, targetType);
-                case TypeConversion.ChangeType:
-                    return (T)Convert.ChangeType(ret, targetType);
-                default:
-                    throw new NotImplementedException();
-            }
+            return typeConversion switch {
+                TypeConversion.Cast => (T) ret,
+                TypeConversion.ToString => (T) (object) ret.ToString(),
+                TypeConversion.DateTicks => (T) Convert.ChangeType(((DateTime) ret).Ticks, targetType),
+                TypeConversion.ChangeType => (T) Convert.ChangeType(ret, targetType),
+                _ => throw new NotImplementedException()
+            };
         }
     }
 }

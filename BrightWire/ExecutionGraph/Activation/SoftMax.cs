@@ -1,5 +1,6 @@
 ﻿using BrightWire.ExecutionGraph.Node;
 using System.Collections.Generic;
+using BrightData;
 
 namespace BrightWire.ExecutionGraph.Activation
 {
@@ -11,9 +12,9 @@ namespace BrightWire.ExecutionGraph.Activation
     {
         class Backpropagation : SingleBackpropagationBase<SoftMax>
         {
-            readonly IReadOnlyList<IVector> _rows;
+            readonly IReadOnlyList<IFloatVector> _rows;
 
-            public Backpropagation(SoftMax source, IReadOnlyList<IVector> rows) : base(source)
+            public Backpropagation(SoftMax source, IReadOnlyList<IFloatVector> rows) : base(source)
             {
                 _rows = rows;
             }
@@ -21,7 +22,7 @@ namespace BrightWire.ExecutionGraph.Activation
             protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
                 var matrix = errorSignal.GetMatrix();
-                var rowList = new List<IVector>();
+                var rowList = new List<IFloatVector>();
                 for (uint i = 0; i < matrix.RowCount; i++) {
                     using (var derivative = _rows[(int)i].SoftmaxDerivative()) {
                         var sm = derivative.Multiply(matrix.Row(i));
@@ -40,7 +41,7 @@ namespace BrightWire.ExecutionGraph.Activation
         public override void ExecuteForward(IContext context)
         {
             var input = context.Data.GetMatrix();
-            var rowList = new List<IVector>();
+            var rowList = new List<IFloatVector>();
             for (uint i = 0; i < input.RowCount; i++) {
                 using (var row = input.Row(i))
                     rowList.Add(row.Softmax());

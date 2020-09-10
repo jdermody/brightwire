@@ -1,4 +1,5 @@
-﻿using BrightWire.ExecutionGraph.GradientDescent;
+﻿using BrightData;
+using BrightWire.ExecutionGraph.GradientDescent;
 
 namespace BrightWire.Descriptor
 {
@@ -7,7 +8,7 @@ namespace BrightWire.Descriptor
     /// </summary>
     class AdaGradDescriptor : ICreateTemplateBasedGradientDescent
     {
-        public IGradientDescentOptimisation Create(IGradientDescentOptimisation prev, IMatrix template, IPropertySet propertySet)
+        public IGradientDescentOptimisation Create(IGradientDescentOptimisation prev, IFloatMatrix template, IPropertySet propertySet)
         {
             var cache = propertySet.LinearAlgebraProvider.CreateZeroMatrix(template.RowCount, template.ColumnCount);
             return new AdaGrad(cache, prev);

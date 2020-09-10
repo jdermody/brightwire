@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\BrightData.Numerics\BrightData.Numerics.csproj" />
     <ProjectReference Include="..\BrightWire\BrightWire.csproj" />
   </ItemGroup>
 

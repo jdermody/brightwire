@@ -11,8 +11,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using BrightData;
+using BrightData.Helper;
 using BrightWire.Helper;
-using BrightWire.LinearAlgebra.Helper;
 
 namespace BrightWire.LinearAlgebra
 {
@@ -21,7 +21,8 @@ namespace BrightWire.LinearAlgebra
 	/// </summary>
 	class CudaProvider : ILinearAlgebraProvider, IGpuLinearAlgebraProvider
 	{
-		const int BLOCK_DIM = 16;
+        private readonly IBrightDataContext _context;
+        const int BLOCK_DIM = 16;
 		const int BLOCK_DIM2 = BLOCK_DIM * BLOCK_DIM;
 		const int PTR_SIZE = 8;
 		internal const int FLOAT_SIZE = sizeof(float);
@@ -94,7 +95,7 @@ namespace BrightWire.LinearAlgebra
 		readonly CudaBlas _blas;
 		readonly Lazy<CudaSolveDense> _solver = new Lazy<CudaSolveDense>();
 		readonly KernelModule _kernel;
-		readonly ILinearAlgebraProvider _numerics = BrightWireProvider.CreateLinearAlgebra();
+		readonly ILinearAlgebraProvider _numerics;
 		readonly DeviceMemory _cache;
 		readonly CUfunction
 			_pointwiseMultiply,
@@ -157,8 +158,10 @@ namespace BrightWire.LinearAlgebra
 		readonly ConcurrentDictionary<CUfunction, (int BlockSize, int MinGridSize)> _blockSize = new ConcurrentDictionary<CUfunction, (int, int)>();
 		bool _disposed = false;
 
-		public CudaProvider(string cudaKernelPath, bool stochastic, uint memoryCacheSize)
-		{
+		public CudaProvider(IBrightDataContext context, string cudaKernelPath, bool stochastic, uint memoryCacheSize)
+        {
+            _context = context;
+            _numerics = new CpuProvider(context, stochastic);
 			IsStochastic = stochastic;
 			_cuda = new CudaContext();
 			_cache = new DeviceMemory(_cuda, (int)memoryCacheSize);
@@ -244,6 +247,7 @@ namespace BrightWire.LinearAlgebra
 		}
 
 		public ILinearAlgebraProvider NumericsProvider => _numerics;
+        IBrightDataContext ILinearAlgebraProvider.Context => _context;
 		public bool IsStochastic { get; }
 		public bool IsGpu => true;
 		internal CudaContext Context => _cuda;
@@ -333,7 +337,7 @@ namespace BrightWire.LinearAlgebra
 			try {
 				_Invoke(_isFinite, size, a.DevicePointer, ret.DevicePointer, size);
 				var sum = _blas.AbsoluteSum(ret.DeviceVariable, 1);
-				return BoundMath.IsZero(sum);
+				return FloatMath.IsZero(sum);
 			}
 			finally {
 				ret.Free();
@@ -962,7 +966,7 @@ namespace BrightWire.LinearAlgebra
 			return (ret, outputRows, outputColumns, outputDepth, count);
 		}
 
-		public IMatrix CalculateDistances(IReadOnlyList<IVector> vectors, IReadOnlyList<IVector> compareTo, DistanceMetric distanceMetric)
+		public IFloatMatrix CalculateDistances(IReadOnlyList<IFloatVector> vectors, IReadOnlyList<IFloatVector> compareTo, DistanceMetric distanceMetric)
 		{
 			if (!(distanceMetric == DistanceMetric.Euclidean || distanceMetric == DistanceMetric.Manhattan || distanceMetric == DistanceMetric.Cosine))
 				throw new NotImplementedException();
@@ -1010,7 +1014,7 @@ namespace BrightWire.LinearAlgebra
 				);
 			}
 
-			IMatrix matrix = new GpuMatrix(this, rows, columns, ret, true);
+			IFloatMatrix matrix = new GpuMatrix(this, rows, columns, ret, true);
 			if (distanceMetric == DistanceMetric.Euclidean) {
 				var sqrt = matrix.Sqrt();
 				matrix.Dispose();
@@ -1020,15 +1024,15 @@ namespace BrightWire.LinearAlgebra
 			return matrix;
 		}
 
-        public IVector CreateVector(ITensorSegment<float> data) => CreateVector(data.Size, i => data[i]);
+        public IFloatVector CreateVector(ITensorSegment<float> data) => CreateVector(data.Size, i => data[i]);
 
-        public IVector CreateVector(uint length, bool setToZero = false)
+        public IFloatVector CreateVector(uint length, bool setToZero = false)
 		{
 			var data = Allocate(length, setToZero);
 			return new GpuVector(this, data, true);
 		}
 
-		public IVector CreateVector(uint length, Func<uint, float> init)
+		public IFloatVector CreateVector(uint length, Func<uint, float> init)
 		{
 			var data = new float[length];
 			for (uint i = 0; i < length; i++)
@@ -1039,13 +1043,13 @@ namespace BrightWire.LinearAlgebra
 			return new GpuVector(this, ptr, true);
 		}
 
-		public IMatrix CreateMatrix(uint rows, uint columns, bool setToZero = false)
+		public IFloatMatrix CreateMatrix(uint rows, uint columns, bool setToZero = false)
 		{
 			var data = Allocate(rows * columns, setToZero);
 			return new GpuMatrix(this, rows, columns, data, true);
 		}
 
-		public IMatrix CreateMatrixFromRows(IReadOnlyList<IVector> vectorRows)
+		public IFloatMatrix CreateMatrixFromRows(IReadOnlyList<IFloatVector> vectorRows)
 		{
 			var rows = (uint)vectorRows.Count;
 			var columns = (uint)vectorRows[0].Count;
@@ -1058,7 +1062,7 @@ namespace BrightWire.LinearAlgebra
 			return new GpuMatrix(this, rows, columns, ret, true);
 		}
 
-		public IMatrix CreateMatrixFromColumns(IReadOnlyList<IVector> vectorColumns)
+		public IFloatMatrix CreateMatrixFromColumns(IReadOnlyList<IFloatVector> vectorColumns)
 		{
 			var columns = (uint)vectorColumns.Count;
 			var rows = (uint)vectorColumns[0].Count;
@@ -1071,7 +1075,7 @@ namespace BrightWire.LinearAlgebra
 			return new GpuMatrix(this, rows, columns, ret, true);
 		}
 
-		public IMatrix CreateMatrix(uint rows, uint columns, Func<uint, uint, float> init)
+		public IFloatMatrix CreateMatrix(uint rows, uint columns, Func<uint, uint, float> init)
 		{
 			var size = rows * columns;
 			var data = new float[size];
@@ -1085,13 +1089,13 @@ namespace BrightWire.LinearAlgebra
 			return new GpuMatrix(this, rows, columns, ptr, true);
 		}
 
-		public I3DTensor Create3DTensor(uint rows, uint columns, uint depth, bool setToZero = false)
+		public I3DFloatTensor Create3DTensor(uint rows, uint columns, uint depth, bool setToZero = false)
 		{
 			var data = Allocate(rows * columns * depth, setToZero);
 			return new Gpu3DTensor(this, rows, columns, depth, data, true);
 		}
 
-		public I3DTensor Create3DTensor(IReadOnlyList<IMatrix> matrices)
+		public I3DFloatTensor Create3DTensor(IReadOnlyList<IFloatMatrix> matrices)
 		{
 			var depth = (uint)matrices.Count;
 			var first = matrices[0];
@@ -1108,13 +1112,13 @@ namespace BrightWire.LinearAlgebra
 			return new Gpu3DTensor(this, rows, columns, depth, ret, true);
 		}
 
-		public I4DTensor Create4DTensor(uint rows, uint columns, uint depth, uint count, bool setToZero = false)
+		public I4DFloatTensor Create4DTensor(uint rows, uint columns, uint depth, uint count, bool setToZero = false)
 		{
 			var data = Allocate(rows * columns * depth * count, setToZero);
 			return new Gpu4DTensor(this, rows, columns, depth, count, data, true);
 		}
 
-		public I4DTensor Create4DTensor(IReadOnlyList<I3DTensor> tensors)
+		public I4DFloatTensor Create4DTensor(IReadOnlyList<I3DFloatTensor> tensors)
 		{
 			var count = (uint)tensors.Count;
 			var first = tensors[0];
@@ -1132,7 +1136,7 @@ namespace BrightWire.LinearAlgebra
 			return new Gpu4DTensor(this, rows, columns, depth, count, ret, true);
 		}
 
-		public I4DTensor Create4DTensor(IReadOnlyList<Tensor3D<float>> tensors)
+		public I4DFloatTensor Create4DTensor(IReadOnlyList<Tensor3D<float>> tensors)
 		{
 			var first = tensors[0];
 			var data = Allocate(first.RowCount * first.ColumnCount * first.Depth * (uint)tensors.Count);

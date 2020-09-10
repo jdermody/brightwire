@@ -2,7 +2,8 @@
 using MathNet.Numerics.Distributions;
 using System.Collections.Generic;
 using System.IO;
-using BrightWire.LinearAlgebra.Helper;
+using BrightData;
+using BrightData.Helper;
 
 namespace BrightWire.ExecutionGraph.Node.Filter
 {
@@ -14,9 +15,9 @@ namespace BrightWire.ExecutionGraph.Node.Filter
     {
         new class Backpropagation : SingleBackpropagationBase<DropConnect>
         {
-            readonly IMatrix _input, _filter, _filteredWeights;
+            readonly IFloatMatrix _input, _filter, _filteredWeights;
 
-            public Backpropagation(DropConnect source, IMatrix input, IMatrix filter, IMatrix filteredWeights) : base(source)
+            public Backpropagation(DropConnect source, IFloatMatrix input, IFloatMatrix filter, IFloatMatrix filteredWeights) : base(source)
             {
                 _input = input;
                 _filter = filter;
@@ -28,7 +29,7 @@ namespace BrightWire.ExecutionGraph.Node.Filter
                 var es = errorSignal.GetMatrix();
 
                 // work out the next error signal against the filtered weights
-                IMatrix ret = es.TransposeAndMultiply(_filteredWeights);
+                IFloatMatrix ret = es.TransposeAndMultiply(_filteredWeights);
 
                 // calculate the update to the weights and filter out the dropped connections
                 var weightUpdate = _input.TransposeThisAndMultiply(es).PointwiseMultiply(_filter);
@@ -44,7 +45,7 @@ namespace BrightWire.ExecutionGraph.Node.Filter
         float _dropOutPercentage;
         Bernoulli _probabilityToDrop;
 
-        public DropConnect(float dropOutPercentage, uint inputSize, uint outputSize, IVector bias, IMatrix weight, bool stochastic, IGradientDescentOptimisation updater, string name = null) 
+        public DropConnect(float dropOutPercentage, uint inputSize, uint outputSize, IFloatVector bias, IFloatMatrix weight, bool stochastic, IGradientDescentOptimisation updater, string name = null) 
             : base(inputSize, outputSize, bias, weight, updater, name)
         {
             _dropOutPercentage = dropOutPercentage;
@@ -57,7 +58,7 @@ namespace BrightWire.ExecutionGraph.Node.Filter
                 var lap = context.LinearAlgebraProvider;
                 var input = context.Data;
                 var inputMatrix = input.GetMatrix();
-                var filter = lap.CreateMatrix(Weight.RowCount, Weight.ColumnCount, (i, j) => BoundMath.IsZero(_dropOutPercentage) ? 1f : _probabilityToDrop.Sample() == 1 ? 0f : 1f / _dropOutPercentage);
+                var filter = lap.CreateMatrix(Weight.RowCount, Weight.ColumnCount, (i, j) => FloatMath.IsZero(_dropOutPercentage) ? 1f : _probabilityToDrop.Sample() == 1 ? 0f : 1f / _dropOutPercentage);
                 var filteredWeights = Weight.PointwiseMultiply(filter);
                 var output = _FeedForward(inputMatrix, filteredWeights);
                 _AddNextGraphAction(context, input.ReplaceWith(output), () => new Backpropagation(this, inputMatrix, filter, filteredWeights));

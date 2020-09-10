@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using BrightData;
 
 namespace BrightWire.ExecutionGraph.Node.Layer
 {
@@ -12,9 +13,9 @@ namespace BrightWire.ExecutionGraph.Node.Layer
     {
         class Backpropagation : SingleBackpropagationBase<TiedFeedForward>
         {
-            readonly IMatrix _input = null;
+            readonly IFloatMatrix _input = null;
 
-            public Backpropagation(TiedFeedForward source, IMatrix input) : base(source)
+            public Backpropagation(TiedFeedForward source, IFloatMatrix input) : base(source)
             {
                 _input = input;
             }
@@ -38,7 +39,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             }
         }
         IFeedForward _layer;
-        IVector _bias;
+        IFloatVector _bias;
         string _layerId;
 
         public TiedFeedForward(IFeedForward layer, IWeightInitialisation weightInit, string name = null) : base(name)
@@ -48,7 +49,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             _bias = weightInit.CreateBias(layer.InputSize);
         }
 
-        public void UpdateBias(IMatrix delta, ILearningContext context)
+        public void UpdateBias(IFloatMatrix delta, ILearningContext context)
         {
             using (var columnSums = delta.ColumnSums())
                 _bias.AddInPlace(columnSums, 1f / columnSums.Count, context.BatchLearningRate);

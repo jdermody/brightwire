@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using BrightData;
 
 namespace BrightWire.ExecutionGraph.GradientDescent
 {
@@ -10,9 +11,9 @@ namespace BrightWire.ExecutionGraph.GradientDescent
     class Adam : RmsProp
     {
         float _decayRate2;
-        IMatrix _cache2;
+        IFloatMatrix _cache2;
 
-        public Adam(float decay, float decay2, IMatrix cache, IMatrix cache2, IGradientDescentOptimisation updater) : base(decay, cache, updater)
+        public Adam(float decay, float decay2, IFloatMatrix cache, IFloatMatrix cache2, IGradientDescentOptimisation updater) : base(decay, cache, updater)
         {
             _decayRate2 = decay2;
             _cache2 = cache2;
@@ -24,7 +25,7 @@ namespace BrightWire.ExecutionGraph.GradientDescent
             base.Dispose();
         }
 
-        public override void Update(IMatrix source, IMatrix delta, ILearningContext context)
+        public override void Update(IFloatMatrix source, IFloatMatrix delta, ILearningContext context)
         {
             var t = context.CurrentEpoch;
 

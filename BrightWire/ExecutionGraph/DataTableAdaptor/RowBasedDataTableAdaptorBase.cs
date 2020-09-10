@@ -1,4 +1,5 @@
-﻿using BrightTable;
+﻿using BrightData;
+using BrightTable;
 
 namespace BrightWire.ExecutionGraph.DataTableAdaptor
 {

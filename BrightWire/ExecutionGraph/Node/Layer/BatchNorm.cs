@@ -3,6 +3,7 @@ using BrightWire.ExecutionGraph.Node.Input;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BrightData;
 using BrightWire.ExecutionGraph.Node.Operation;
 using BrightWire.Helper;
 using BrightWire.Models;
@@ -20,7 +21,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 		VectorInput _gamma, _beta;
 		VectorBasedStatistics _statistics;
 		OneToMany _start;
-		IMatrix _gammaCached, _betaCached, _meanCached, _stdDevCached;
+		IFloatMatrix _gammaCached, _betaCached, _meanCached, _stdDevCached;
 
 		public BatchNorm(GraphFactory graph, uint inputSize, string name = null) : base(name)
 		{
@@ -80,17 +81,17 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 		public override void ExecuteForward(IContext context)
 		{
 			var data = context.Data;
-			IMatrix input;
-			IReadOnlyList<IVector> samples;
+			IFloatMatrix input;
+			IReadOnlyList<IFloatVector> samples;
 			var lap = context.LinearAlgebraProvider;
 			var shouldDispose = false;
 
 			if (data.Depth > 1) {
 				// reshape the tensor by depth slice
 				var tensor4D = data.Get4DTensor();
-				var slots = new List<IVector>[data.Depth];
+				var slots = new List<IFloatVector>[data.Depth];
 				for (var i = 0; i < data.Depth; i++)
-					slots[i] = new List<IVector>();
+					slots[i] = new List<IFloatVector>();
 
 				foreach (var tensor in tensor4D.ReshapeAsMatrix().ColumnVectors()) {
 					var depthSlices = tensor.ReshapeAsColumnMatrix().ReshapeAsVector().Split(data.Depth);

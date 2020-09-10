@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using BrightWire.LinearAlgebra.Helper;
+using BrightData;
 using BrightWire.Models;
 using BrightWire.Source.Helper;
 
@@ -15,10 +15,10 @@ namespace BrightWire.Unsupervised
 	class KMeans : IDisposable
 	{
 		readonly VectorDistanceHelper _distance;
-		List<(int[] DataIndices, IVector Cluster)> _clusters = new List<(int[] DataIndices, IVector Cluster)>();
-		readonly IReadOnlyList<IVector> _data;
+		List<(int[] DataIndices, IFloatVector Cluster)> _clusters = new List<(int[] DataIndices, IFloatVector Cluster)>();
+		readonly IReadOnlyList<IFloatVector> _data;
 
-		public KMeans(ILinearAlgebraProvider lap, int k, IReadOnlyList<IVector> data, DistanceMetric distanceMetric = DistanceMetric.Euclidean, int? randomSeed = null)
+		public KMeans(ILinearAlgebraProvider lap, int k, IReadOnlyList<IFloatVector> data, DistanceMetric distanceMetric = DistanceMetric.Euclidean, int? randomSeed = null)
 		{
 			_data = data;
 			_distance = new VectorDistanceHelper(lap, data, distanceMetric);
@@ -80,7 +80,7 @@ namespace BrightWire.Unsupervised
 				.ToList();
 
 			var differenceCount = 0;
-			var newClusters = new List<(int[] DataIndices, IVector Cluster)>();
+			var newClusters = new List<(int[] DataIndices, IFloatVector Cluster)>();
 			for (var i = 0; i < _clusters.Count; i++) {
 				var oldIndices = _clusters[i].DataIndices;
 				if (i < clusters.Count) {
@@ -111,7 +111,7 @@ namespace BrightWire.Unsupervised
 			}
 		}
 
-		public IReadOnlyList<IReadOnlyList<IVector>> Clusters => _clusters.Select(c => c.DataIndices.Select(i => _data[i]).ToList()).ToList();
+		public IReadOnlyList<IReadOnlyList<IFloatVector>> Clusters => _clusters.Select(c => c.DataIndices.Select(i => _data[i]).ToList()).ToList();
 
 
 

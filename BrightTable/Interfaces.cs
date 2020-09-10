@@ -246,6 +246,7 @@ namespace BrightTable
     public interface IConvertibleTable
     {
         IConvertibleRow GetRow(uint index);
+        IRowOrientedDataTable DataTable { get; }
     }
 
     public interface IHaveDataTable
@@ -260,7 +261,9 @@ namespace BrightTable
 
     public interface IConvertibleRow : IHaveDataTable
     {
+        IDataTableSegment Segment { get; }
         T GetField<T>(uint index);
+        uint RowIndex { get; }
     }
 
     

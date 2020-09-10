@@ -84,7 +84,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             ;
         }
 
-        (IMatrix, IReadOnlyList<object[]>) _Encode(IExecutionContext executionContext, IReadOnlyList<uint> rows)
+        (IFloatMatrix, IReadOnlyList<object[]>) _Encode(IExecutionContext executionContext, IReadOnlyList<uint> rows)
         {
             var data = _GetRows(rows);
 
@@ -96,7 +96,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 
             // execute the encoder
             IMiniBatchSequence sequence;
-            IMatrix encoderOutput = null;
+            IFloatMatrix encoderOutput = null;
             while ((sequence = encoderInput.GetNextSequence()) != null) {
                 using (var context = _Process(executionContext, sequence)) {
                     if (sequence.Type == MiniBatchSequenceType.SequenceEnd)

@@ -1,4 +1,6 @@
-﻿namespace BrightWire.ExecutionGraph.WeightInitialisation
+﻿using BrightData;
+
+namespace BrightWire.ExecutionGraph.WeightInitialisation
 {
     /// <summary>
     /// Identity matrix: https://arxiv.org/abs/1504.00941
@@ -14,12 +16,12 @@
             _value = value;
         }
 
-        public IVector CreateBias(uint size)
+        public IFloatVector CreateBias(uint size)
         {
             return _lap.CreateVector(size);
         }
 
-        public IMatrix CreateWeight(uint rows, uint columns)
+        public IFloatMatrix CreateWeight(uint rows, uint columns)
         {
             return _lap.CreateMatrix(rows, columns, (x, y) => x == y ? _value : 0f);
         }

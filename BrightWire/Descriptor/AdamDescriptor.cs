@@ -1,4 +1,5 @@
-﻿using BrightWire.ExecutionGraph.GradientDescent;
+﻿using BrightData;
+using BrightWire.ExecutionGraph.GradientDescent;
 
 namespace BrightWire.Descriptor
 {
@@ -15,7 +16,7 @@ namespace BrightWire.Descriptor
             _decay2 = decay2;
         }
 
-        public IGradientDescentOptimisation Create(IGradientDescentOptimisation prev, IMatrix template, IPropertySet propertySet)
+        public IGradientDescentOptimisation Create(IGradientDescentOptimisation prev, IFloatMatrix template, IPropertySet propertySet)
         {
             var cache = propertySet.LinearAlgebraProvider.CreateZeroMatrix(template.RowCount, template.ColumnCount);
             var cache2 = propertySet.LinearAlgebraProvider.CreateZeroMatrix(template.RowCount, template.ColumnCount);

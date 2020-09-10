@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using BrightData;
 
 namespace BrightWire.ExecutionGraph.GradientDescent
 {
@@ -8,10 +9,10 @@ namespace BrightWire.ExecutionGraph.GradientDescent
     /// </summary>
     class AdaGrad : IGradientDescentOptimisation
     {
-        protected IMatrix _cache;
+        protected IFloatMatrix _cache;
         protected IGradientDescentOptimisation _updater;
 
-        public AdaGrad(IMatrix cache, IGradientDescentOptimisation updater)
+        public AdaGrad(IFloatMatrix cache, IGradientDescentOptimisation updater)
         {
             _cache = cache;
             _updater = updater;
@@ -22,7 +23,7 @@ namespace BrightWire.ExecutionGraph.GradientDescent
             _cache.Dispose();
         }
 
-        public virtual void Update(IMatrix source, IMatrix delta, ILearningContext context)
+        public virtual void Update(IFloatMatrix source, IFloatMatrix delta, ILearningContext context)
         {
             using (var deltaSquared = delta.PointwiseMultiply(delta)) {
                 _cache.AddInPlace(deltaSquared);

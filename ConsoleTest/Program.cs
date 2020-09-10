@@ -19,7 +19,7 @@ namespace ConsoleTest
         static void Main(string[] args)
         {
             using var context = new BrightDataContext();
-            context.UseNumericsComputation();
+
 
             //var table = context.ParseCsv(@"C:\data\plotly\processed_data.csv", true, ',', @"c:\temp\table.dat", true);
             //using var table = (IColumnOrientedDataTable)context.LoadTable(@"c:\temp\table.dat");
@@ -39,8 +39,11 @@ namespace ConsoleTest
             var vectorised = normalized.Vectorise();
             head = vectorised.Head(60);
 
-            //vectorised.
-
+            var naiveBayes = normalized.TrainNaiveBayes().CreateClassifier();
+            var normalisedConvertible = normalized.AsRowOriented().AsConvertible();
+            foreach (var result in normalisedConvertible.Classify(naiveBayes)) {
+                var (row, classification) = result;
+            }
 
             // train model
             //var costFunction = new BinaryClassification();
@@ -56,7 +59,7 @@ namespace ConsoleTest
             //    }
             //}
 
-            
+
 
             //numericTable.SetTargetColumn(4);
             //using var trainer = numericTable.GetLogisticRegressionTrainer();

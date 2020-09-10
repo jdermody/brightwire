@@ -1,5 +1,6 @@
 ﻿using BrightWire.ExecutionGraph.Node;
 using System.Collections.Generic;
+using BrightData;
 
 namespace BrightWire.ExecutionGraph.Activation
 {
@@ -11,9 +12,9 @@ namespace BrightWire.ExecutionGraph.Activation
     {
         class Backpropagation : SingleBackpropagationBase<Relu>
         {
-            readonly IMatrix _input;
+            readonly IFloatMatrix _input;
 
-            public Backpropagation(Relu source, IMatrix matrix) : base(source)
+            public Backpropagation(Relu source, IFloatMatrix matrix) : base(source)
             {
                 _input = matrix;
             }

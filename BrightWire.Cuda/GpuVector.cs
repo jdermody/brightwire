@@ -7,15 +7,15 @@ using System.Threading;
 using BrightWire.Models;
 using ManagedCuda.BasicTypes;
 using BrightWire.Cuda.Helper;
-using BrightWire.LinearAlgebra.Helper;
 using BrightData;
+using BrightData.Helper;
 
 namespace BrightWire.LinearAlgebra
 {
 	/// <summary>
 	/// GPU backed vector
 	/// </summary>
-	class GpuVector : IVector, IHaveDeviceMemory
+	class GpuVector : IFloatVector, IHaveDeviceMemory
 	{
 		readonly CudaProvider _cuda;
 		readonly IDeviceMemoryPtr _data;
@@ -106,7 +106,7 @@ namespace BrightWire.LinearAlgebra
 			}
 		}
 
-		public IVector Add(IVector vector)
+		public IFloatVector Add(IFloatVector vector)
 		{
 			Debug.Assert(IsValid && vector.IsValid);
 			var other = (GpuVector)vector;
@@ -118,7 +118,7 @@ namespace BrightWire.LinearAlgebra
 			return new GpuVector(_cuda, ret, true);
 		}
 
-		public void AddInPlace(IVector vector, float coefficient1 = 1, float coefficient2 = 1)
+		public void AddInPlace(IFloatVector vector, float coefficient1 = 1, float coefficient2 = 1)
 		{
 			Debug.Assert(IsValid && vector.IsValid);
 			var other = (GpuVector)vector;
@@ -127,7 +127,7 @@ namespace BrightWire.LinearAlgebra
 			_cuda.AddInPlace(_data, other._data, Count, coefficient1, coefficient2);
 		}
 
-		public IIndexableVector AsIndexable()
+		public IIndexableFloatVector AsIndexable()
 		{
 			Debug.Assert(IsValid);
 			var data = new float[Count];
@@ -135,7 +135,7 @@ namespace BrightWire.LinearAlgebra
 			return _cuda.NumericsProvider.CreateVector(Count, i => data[i]).AsIndexable();
 		}
 
-		public IVector Clone()
+		public IFloatVector Clone()
 		{
 			Debug.Assert(IsValid);
 			var data = _cuda.Allocate(Count);
@@ -143,7 +143,7 @@ namespace BrightWire.LinearAlgebra
 			return new GpuVector(_cuda, data, true);
 		}
 
-		public void CopyFrom(IVector vector)
+		public void CopyFrom(IFloatVector vector)
 		{
 			Debug.Assert(vector.IsValid);
 			var other = (GpuVector)vector;
@@ -152,7 +152,7 @@ namespace BrightWire.LinearAlgebra
 			_data.CopyToDevice(other._data);
 		}
 
-		public float DotProduct(IVector vector)
+		public float DotProduct(IFloatVector vector)
 		{
 			Debug.Assert(IsValid && vector.IsValid);
 			var other = (GpuVector)vector;
@@ -161,26 +161,26 @@ namespace BrightWire.LinearAlgebra
 			return _cuda.Blas.Dot(_data.DeviceVariable, 1, other._data.DeviceVariable, 1);
 		}
 
-		public IVector GetNewVectorFromIndexes(IReadOnlyList<uint> indices)
+		public IFloatVector GetNewVectorFromIndexes(IReadOnlyList<uint> indices)
 		{
 			Debug.Assert(IsValid);
 			var data = _cuda.VectorCopy(_data, Count, indices.ToArray());
 			return new GpuVector(_cuda, data, true);
 		}
 
-		public IVector Abs()
+		public IFloatVector Abs()
 		{
 			Debug.Assert(IsValid);
 			return new GpuVector(_cuda, _cuda.Abs(_data, Count), true);
 		}
 
-		public IVector Log()
+		public IFloatVector Log()
 		{
 			Debug.Assert(IsValid);
 			return new GpuVector(_cuda, _cuda.Log(_data, Count), true);
 		}
 
-		public IVector Sigmoid()
+		public IFloatVector Sigmoid()
 		{
 			Debug.Assert(IsValid);
 			return new GpuVector(_cuda, _cuda.Sigmoid(_data, Count), true);
@@ -217,7 +217,7 @@ namespace BrightWire.LinearAlgebra
 			_cuda.Blas.Scale(scalar, _data.DeviceVariable, 1);
 		}
 
-		public IVector PointwiseMultiply(IVector vector)
+		public IFloatVector PointwiseMultiply(IFloatVector vector)
 		{
 			Debug.Assert(IsValid && vector.IsValid);
 			var other = (GpuVector)vector;
@@ -226,14 +226,14 @@ namespace BrightWire.LinearAlgebra
 			return new GpuVector(_cuda, _cuda.PointwiseMultiply(_data, other._data, Count), true);
 		}
 
-		public IVector Sqrt()
+		public IFloatVector Sqrt()
 		{
 			Debug.Assert(IsValid);
 			var ret = _cuda.Sqrt(_data, Count, 1e-8f);
 			return new GpuVector(_cuda, ret, true);
 		}
 
-		public IVector Subtract(IVector vector)
+		public IFloatVector Subtract(IFloatVector vector)
 		{
 			Debug.Assert(IsValid && vector.IsValid);
 			var other = (GpuVector)vector;
@@ -245,7 +245,7 @@ namespace BrightWire.LinearAlgebra
 			return new GpuVector(_cuda, ret, true);
 		}
 
-		public void SubtractInPlace(IVector vector, float coefficient1 = 1, float coefficient2 = 1)
+		public void SubtractInPlace(IFloatVector vector, float coefficient1 = 1, float coefficient2 = 1)
 		{
 			Debug.Assert(IsValid && vector.IsValid);
 			var other = (GpuVector)vector;
@@ -254,19 +254,19 @@ namespace BrightWire.LinearAlgebra
 			_cuda.SubtractInPlace(_data, other._data, Count, coefficient1, coefficient2);
 		}
 
-		public IMatrix ReshapeAsColumnMatrix()
+		public IFloatMatrix ReshapeAsColumnMatrix()
 		{
 			Debug.Assert(IsValid);
 			return new GpuMatrix(_cuda, Count, 1, _data, false);
 		}
 
-		public IMatrix ReshapeAsRowMatrix()
+		public IFloatMatrix ReshapeAsRowMatrix()
 		{
 			Debug.Assert(IsValid);
 			return new GpuMatrix(_cuda, 1, Count, _data, false);
 		}
 
-		public float EuclideanDistance(IVector vector)
+		public float EuclideanDistance(IFloatVector vector)
 		{
 			Debug.Assert(IsValid && vector.IsValid);
 			var other = (GpuVector)vector;
@@ -275,7 +275,7 @@ namespace BrightWire.LinearAlgebra
 			return _cuda.EuclideanDistance(_data, other._data, Count);
 		}
 
-		public float CosineDistance(IVector vector)
+		public float CosineDistance(IFloatVector vector)
 		{
 			Debug.Assert(IsValid && vector.IsValid);
 			var other = (GpuVector)vector;
@@ -288,7 +288,7 @@ namespace BrightWire.LinearAlgebra
 			//return (float)(1d - (ab / (Math.Sqrt(a2 * b2))));
 		}
 
-		public float ManhattanDistance(IVector vector)
+		public float ManhattanDistance(IFloatVector vector)
 		{
 			Debug.Assert(IsValid && vector.IsValid);
 			var other = (GpuVector)vector;
@@ -297,14 +297,14 @@ namespace BrightWire.LinearAlgebra
 			return _cuda.ManhattanDistance(_data, other._data, Count);
 		}
 
-		public float MeanSquaredDistance(IVector vector)
+		public float MeanSquaredDistance(IFloatVector vector)
 		{
 			Debug.Assert(IsValid && vector.IsValid);
 			var norm = Subtract(vector).L2Norm();
 			return norm * norm / Count;
 		}
 
-		public float SquaredEuclidean(IVector vector)
+		public float SquaredEuclidean(IFloatVector vector)
 		{
 			Debug.Assert(IsValid && vector.IsValid);
 			var norm = Subtract(vector).L2Norm();
@@ -340,7 +340,7 @@ namespace BrightWire.LinearAlgebra
 			} else if (type == NormalizationType.Standard) {
 				var mean = Average();
 				var stdDev = StdDev(mean);
-				if (BoundMath.IsNotZero(stdDev))
+				if (FloatMath.IsNotZero(stdDev))
 					_cuda.Normalise(_data, Count, mean, stdDev);
 			} else if (type == NormalizationType.Euclidean || type == NormalizationType.Manhattan) {
 				var p = type == NormalizationType.Manhattan
@@ -348,24 +348,24 @@ namespace BrightWire.LinearAlgebra
 					: L2Norm()
 				;
 
-				if (BoundMath.IsNotZero(p))
+				if (FloatMath.IsNotZero(p))
 					Multiply(1f / p);
 			}
 		}
 
-		public IVector Softmax()
+		public IFloatVector Softmax()
 		{
 			Debug.Assert(IsValid);
 			var minMax = GetMinMax();
 
 			var softmax = _cuda.SoftmaxVector(_data, Count, minMax.Max);
 			var softmaxSum = _cuda.SumValues(softmax, Count);
-			if (BoundMath.IsNotZero(softmaxSum))
+			if (FloatMath.IsNotZero(softmaxSum))
 				_cuda.Blas.Scale(1f / softmaxSum, softmax.DeviceVariable, 1);
 			return new GpuVector(_cuda, softmax, true);
 		}
 
-		Func<IVector, float> _GetDistanceFunc(DistanceMetric distance)
+		Func<IFloatVector, float> _GetDistanceFunc(DistanceMetric distance)
 		{
 			switch (distance) {
 				case DistanceMetric.Cosine:
@@ -382,7 +382,7 @@ namespace BrightWire.LinearAlgebra
 			throw new NotImplementedException();
 		}
 
-		public IVector FindDistances(IReadOnlyList<IVector> data, DistanceMetric distance)
+		public IFloatVector FindDistances(IReadOnlyList<IFloatVector> data, DistanceMetric distance)
 		{
 			Debug.Assert(IsValid && data.All(v => v.IsValid));
 			if (distance == DistanceMetric.Cosine) {
@@ -404,14 +404,14 @@ namespace BrightWire.LinearAlgebra
 			}
 		}
 
-		public float FindDistance(IVector other, DistanceMetric distance)
+		public float FindDistance(IFloatVector other, DistanceMetric distance)
 		{
 			Debug.Assert(IsValid && other.IsValid);
 			using (var ret = FindDistances(new[] { other }, distance))
 				return ret.Data.Data[0];
 		}
 
-		public IVector CosineDistance(IReadOnlyList<IVector> data, ref float[] dataNorm)
+		public IFloatVector CosineDistance(IReadOnlyList<IFloatVector> data, ref float[] dataNorm)
 		{
 			Debug.Assert(IsValid && data.All(v => v.IsValid));
 			var norm = DotProduct(this);
@@ -430,7 +430,7 @@ namespace BrightWire.LinearAlgebra
 			_cuda.VectorAdd(_data, Count, scalar);
 		}
 
-		public IReadOnlyList<IVector> Split(uint blockCount)
+		public IReadOnlyList<IFloatVector> Split(uint blockCount)
 		{
 			Debug.Assert(IsValid);
 			var blockSize = Count / blockCount;
@@ -441,7 +441,7 @@ namespace BrightWire.LinearAlgebra
 			}).ToList();
 		}
 
-		public IMatrix SoftmaxDerivative()
+		public IFloatMatrix SoftmaxDerivative()
 		{
 			Debug.Assert(IsValid);
 			var ret = _cuda.VectorSoftmaxDerivative(_data, Count);
@@ -454,7 +454,7 @@ namespace BrightWire.LinearAlgebra
 			_cuda.RotateInPlace(_data, Count, blockCount);
 		}
 
-		public IVector Reverse()
+		public IFloatVector Reverse()
 		{
 			Debug.Assert(IsValid);
 			var ret = _cuda.Reverse(_data, Count);
@@ -478,19 +478,19 @@ namespace BrightWire.LinearAlgebra
 			return _cuda.IsFinite(_data, _data.Size);
 		}
 
-		public IMatrix ReshapeAsMatrix(uint rows, uint columns)
+		public IFloatMatrix ReshapeAsMatrix(uint rows, uint columns)
 		{
 			Debug.Assert(IsValid && rows * columns == _data.Size);
 			return new GpuMatrix(_cuda, rows, columns, _data, false);
 		}
 
-		public I3DTensor ReshapeAs3DTensor(uint rows, uint columns, uint depth)
+		public I3DFloatTensor ReshapeAs3DTensor(uint rows, uint columns, uint depth)
 		{
 			Debug.Assert(IsValid && rows * columns * depth == _data.Size);
 			return new Gpu3DTensor(_cuda, rows, columns, depth, _data, false);
 		}
 
-		public I4DTensor ReshapeAs4DTensor(uint rows, uint columns, uint depth, uint count)
+		public I4DFloatTensor ReshapeAs4DTensor(uint rows, uint columns, uint depth, uint count)
 		{
 			Debug.Assert(IsValid && rows * columns * depth * count == _data.Size);
 			return new Gpu4DTensor(_cuda, rows, columns, depth, count, _data, false);

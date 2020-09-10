@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BrightData;
 
 namespace BrightWire.ExecutionGraph.Node.Gate
 {
@@ -24,7 +25,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             /// <summary>
             /// The signal
             /// </summary>
-            public IMatrix Data { get; private set; }
+            public IFloatMatrix Data { get; private set; }
 
             /// <summary>
             /// The node the signal came from
@@ -52,7 +53,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             /// </summary>
             /// <param name="data">The node signal</param>
             /// <param name="source">The source node</param>
-            public void SetData(IMatrix data, INode source)
+            public void SetData(IFloatMatrix data, INode source)
             {
                 Data = data;
                 Source = source;
@@ -128,7 +129,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// <param name="data">The list of incoming signals</param>
         /// <param name="output">Output signal</param>
         /// <param name="backpropagation">Backpropagation creator (optional)</param>
-        protected void _AddHistory(IContext context, IReadOnlyList<IncomingChannel> data, IMatrix output, Func<IBackpropagation> backpropagation)
+        protected void _AddHistory(IContext context, IReadOnlyList<IncomingChannel> data, IFloatMatrix output, Func<IBackpropagation> backpropagation)
         {
             var sources = data.Select(d => d.Source).ToList();
             context.AddForward(new TrainingAction(this, new MatrixGraphData(output), sources), backpropagation);

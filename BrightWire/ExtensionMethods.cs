@@ -70,5 +70,18 @@ namespace BrightWire
         {
             return indices.Select(i => row.GetField<T>(i)).ToArray();
         }
+
+        public static IEnumerable<(IConvertibleRow Row, IReadOnlyList<(string Label, float Weight)> Classification)> Classify(this IRowOrientedDataTable dataTable, IRowClassifier classifier)
+        {
+            return Classify(dataTable.AsConvertible(), classifier);
+        }
+
+        public static IEnumerable<(IConvertibleRow Row, IReadOnlyList<(string Label, float Weight)> Classification)> Classify(this IConvertibleTable convertible, IRowClassifier classifier)
+        {
+            for (uint i = 0, len = convertible.DataTable.RowCount; i < len; i++) {
+                var row = convertible.GetRow(i);
+                yield return (row, classifier.Classify(row));
+            }
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using BrightWire.ExecutionGraph.Helper;
 using System;
+using BrightData;
 
 namespace BrightWire.ExecutionGraph.Node.Gate
 {
@@ -8,7 +9,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
     /// </summary>
     public abstract class BinaryGateBase : NodeBase
     {
-        IMatrix _primary = null, _secondary = null;
+        IFloatMatrix _primary = null, _secondary = null;
         INode _primarySource, _secondarySource = null;
 
         /// <summary>
@@ -57,7 +58,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// <param name="context">Graph context</param>
         /// <param name="primary">Primary signal</param>
         /// <param name="secondary">Secondary signal</param>
-        protected abstract void _Activate(IContext context, IMatrix primary, IMatrix secondary);
+        protected abstract void _Activate(IContext context, IFloatMatrix primary, IFloatMatrix secondary);
 
         /// <summary>
         /// Records the network activity
@@ -65,7 +66,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// <param name="context">Graph context</param>
         /// <param name="output">The output signal</param>
         /// <param name="backpropagation">Backpropagation creator (optional)</param>
-        protected void _AddHistory(IContext context, IMatrix output, Func<IBackpropagation> backpropagation)
+        protected void _AddHistory(IContext context, IFloatMatrix output, Func<IBackpropagation> backpropagation)
         {
             context.AddForward(new TrainingAction(this, new MatrixGraphData(output), new[] { _primarySource, _secondarySource }), backpropagation);
         }

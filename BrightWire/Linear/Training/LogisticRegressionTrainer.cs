@@ -1,7 +1,8 @@
 ﻿using BrightWire.Models;
 using System;
 using System.Linq;
-using BrightWire.LinearAlgebra.Helper;
+using BrightData;
+using BrightData.Helper;
 using BrightTable;
 
 namespace BrightWire.Linear.Training
@@ -13,8 +14,8 @@ namespace BrightWire.Linear.Training
     internal class LogisticRegressionTrainer : ILogisticRegressionTrainer
     {
         readonly ILinearAlgebraProvider _lap;
-        readonly IMatrix _feature;
-        readonly IVector _target;
+        readonly IFloatMatrix _feature;
+        readonly IFloatVector _target;
 
         public LogisticRegressionTrainer(ILinearAlgebraProvider lap, IRowOrientedDataTable table)
         {
@@ -54,7 +55,7 @@ namespace BrightWire.Linear.Training
             return ret;
         }
 
-        IVector _Derivative(IVector th, float lambda)
+        IFloatVector _Derivative(IFloatVector th, float lambda)
         {
             using (var p0 = _feature.Multiply(th))
             using (var p1 = p0.Column(0))
@@ -64,7 +65,7 @@ namespace BrightWire.Linear.Training
             using (var e2 = e.Multiply(_feature)) {
                 e2.Multiply(1f / _feature.RowCount);
                 var ret = e2.Row(0);
-                if (BoundMath.IsNotZero(lambda)) {
+                if (FloatMath.IsNotZero(lambda)) {
                     var reg = new float[th.Count];
                     using (var thi = th.AsIndexable()) {
                         var term = lambda / _feature.RowCount;
@@ -79,7 +80,7 @@ namespace BrightWire.Linear.Training
             }
         }
 
-        public float ComputeCost(IVector th, float lambda)
+        public float ComputeCost(IFloatVector th, float lambda)
         {
             using (var h0 = _feature.Multiply(th))
             using (var h1 = h0.Column(0))
@@ -93,7 +94,7 @@ namespace BrightWire.Linear.Training
                 h.Add(1f);
                 var b = t.DotProduct(hLog);
                 var ret = -(a + b) / _feature.RowCount;
-                if (BoundMath.IsNotZero(lambda))
+                if (FloatMath.IsNotZero(lambda))
                     ret += th.AsIndexable().Values.Skip(1).Select(v => v * v).Sum() * lambda / (2 * _feature.RowCount);
                 return ret;
             }

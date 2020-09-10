@@ -4,6 +4,7 @@ using BrightWire.ExecutionGraph.Helper;
 using BrightWire.ExecutionGraph.Engine.Helper;
 using BrightWire.Models;
 using System;
+using BrightData;
 
 namespace BrightWire.ExecutionGraph.Engine
 {
@@ -12,7 +13,7 @@ namespace BrightWire.ExecutionGraph.Engine
 	/// </summary>
 	class ExecutionEngine : EngineBase, IGraphEngine
 	{
-		readonly List<(ExecutionEngineContext Context, IReadOnlyList<IMatrix> Data)> _executionResults = new List<(ExecutionEngineContext, IReadOnlyList<IMatrix>)>();
+		readonly List<(ExecutionEngineContext Context, IReadOnlyList<IFloatMatrix> Data)> _executionResults = new List<(ExecutionEngineContext, IReadOnlyList<IFloatMatrix>)>();
 
 		public ExecutionEngine(ILinearAlgebraProvider lap, Models.ExecutionGraph graph, INode start) : base(lap)
 		{

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using BrightData;
 
 namespace BrightWire.Linear
 {
@@ -7,10 +8,10 @@ namespace BrightWire.Linear
     /// </summary>
     class LogisticRegressionPredictor : ILogisticRegressionClassifier
     {
-        readonly IVector _theta;
+        readonly IFloatVector _theta;
         readonly ILinearAlgebraProvider _lap;
 
-        public LogisticRegressionPredictor(ILinearAlgebraProvider lap, IVector theta)
+        public LogisticRegressionPredictor(ILinearAlgebraProvider lap, IFloatVector theta)
         {
             _lap = lap;
             _theta = theta;

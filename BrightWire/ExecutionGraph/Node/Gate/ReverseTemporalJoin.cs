@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using BrightData;
 
 namespace BrightWire.ExecutionGraph.Node.Gate
 {
@@ -19,7 +20,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             public override void _Backward(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
                 var matrix = errorSignal.GetMatrix();
-                (IMatrix left, IMatrix right) = matrix.SplitAtColumn(matrix.ColumnCount - _reverseSize);
+                (IFloatMatrix left, IFloatMatrix right) = matrix.SplitAtColumn(matrix.ColumnCount - _reverseSize);
                 context.AddBackward(errorSignal.ReplaceWith(left), parents[0], _source);
 
                 var batch = context.BatchSequence.MiniBatch;
@@ -40,8 +41,8 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 }
             }
         }
-        Dictionary<uint, (IMatrix Data, uint ReversedSize, INode ForwardParent)> _input = new Dictionary<uint, (IMatrix Data, uint ReversedSize, INode ForwardParent)>();
-        Dictionary<uint, (IMatrix Data, INode ReverseParent)> _reverseInput = new Dictionary<uint, (IMatrix Data, INode ReverseParent)>();
+        Dictionary<uint, (IFloatMatrix Data, uint ReversedSize, INode ForwardParent)> _input = new Dictionary<uint, (IFloatMatrix Data, uint ReversedSize, INode ForwardParent)>();
+        Dictionary<uint, (IFloatMatrix Data, INode ReverseParent)> _reverseInput = new Dictionary<uint, (IFloatMatrix Data, INode ReverseParent)>();
 
         Dictionary<uint, (INode, IGraphData)> _reverseBackpropagation = new Dictionary<uint, (INode, IGraphData)>();
         Dictionary<uint, IContext> _contextTable = new Dictionary<uint, IContext>();
@@ -53,8 +54,8 @@ namespace BrightWire.ExecutionGraph.Node.Gate
 
         public override void OnDeserialise(IReadOnlyDictionary<string, INode> graph)
         {
-            _input = new Dictionary<uint, (IMatrix Data, uint ReversedSize, INode ForwardParent)>();
-            _reverseInput = new Dictionary<uint, (IMatrix Data, INode ReverseParent)>();
+            _input = new Dictionary<uint, (IFloatMatrix Data, uint ReversedSize, INode ForwardParent)>();
+            _reverseInput = new Dictionary<uint, (IFloatMatrix Data, INode ReverseParent)>();
 
             _reverseBackpropagation = new Dictionary<uint, (INode, IGraphData)>();
             _contextTable = new Dictionary<uint, IContext>();

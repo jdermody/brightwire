@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using BrightData;
 
 namespace BrightWire.ExecutionGraph.GradientDescent
 {
@@ -10,12 +11,12 @@ namespace BrightWire.ExecutionGraph.GradientDescent
     {
         protected float _momentum;
         
-        public Momentum(float momentum, IMatrix cache, IGradientDescentOptimisation updater) : base(cache, updater)
+        public Momentum(float momentum, IFloatMatrix cache, IGradientDescentOptimisation updater) : base(cache, updater)
         {
             _momentum = momentum;
         }
 
-        public override void Update(IMatrix source, IMatrix delta, ILearningContext context)
+        public override void Update(IFloatMatrix source, IFloatMatrix delta, ILearningContext context)
         {
             _cache.AddInPlace(delta, 1f, _momentum);
             _updater.Update(source, _cache, context);

@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using BrightData;
 
 namespace BrightWire.Helper
 {
 	public class VectorBasedStatistics
 	{
-		readonly IVector _mean, _m2;
+		readonly IFloatVector _mean, _m2;
 		readonly uint _size;
 		uint _count;
 
@@ -21,7 +22,7 @@ namespace BrightWire.Helper
 		public uint Size => _size;
 		public uint Count => _count;
 
-		public void Update(IVector data)
+		public void Update(IFloatVector data)
 		{
 			++_count;
 			using (var delta = data.Subtract(_mean))
@@ -36,17 +37,17 @@ namespace BrightWire.Helper
 			}
 		}
 
-		public IVector Mean => _mean;
-		public IVector M2 => _m2;
+		public IFloatVector Mean => _mean;
+		public IFloatVector M2 => _m2;
 
-		public IVector GetVariance()
+		public IFloatVector GetVariance()
 		{
 			var ret = _m2.Clone();
 			ret.Multiply(1f / _count);
 			return ret;
 		}
 
-		public IVector GetSampleVariance()
+		public IFloatVector GetSampleVariance()
 		{
 			var ret = _m2.Clone();
 			ret.Multiply(1f / (_count-1));

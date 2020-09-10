@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using BrightData;
 
 namespace BrightWire.ExecutionGraph.Engine.Helper
 {

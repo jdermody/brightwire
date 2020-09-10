@@ -1,5 +1,5 @@
 ﻿using BrightData;
-using BrightWire.LinearAlgebra.Helper;
+using BrightData.Helper;
 using BrightWire.Models;
 
 namespace BrightWire.ExecutionGraph.ErrorMetric
@@ -10,7 +10,7 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
     /// </summary>
     class CrossEntropy : IErrorMetric
     {
-        public IMatrix CalculateGradient(IContext context, IMatrix output, IMatrix targetOutput)
+        public IFloatMatrix CalculateGradient(IContext context, IFloatMatrix output, IFloatMatrix targetOutput)
         {
             var lap = context.LinearAlgebraProvider;
             using (var ones = lap.CreateMatrix(output.RowCount, output.ColumnCount, 1f))
@@ -28,7 +28,7 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
             for (var i = 0; i < len; i++) {
                 var a = output.Data[i];
                 var y = targetOutput.Data[i];
-                ret += BoundMath.Constrain(-y * BoundMath.Log(a) - (1.0f - y) * BoundMath.Log(1.0f - a));
+                ret += FloatMath.Constrain(-y * FloatMath.Log(a) - (1.0f - y) * FloatMath.Log(1.0f - a));
             }
             return ret / len;
         }

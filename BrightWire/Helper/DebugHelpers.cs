@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using BrightData;
 
 namespace BrightWire.Helper
 {
@@ -19,7 +20,7 @@ namespace BrightWire.Helper
 		/// <param name="t1">First tensor</param>
 		/// <param name="t2">Second tensor</param>
 		/// <returns>Xml string</returns>
-	    public static string WriteComparison(IIndexable3DTensor t1, IIndexable3DTensor t2)
+	    public static string WriteComparison(IIndexable3DFloatTensor t1, IIndexable3DFloatTensor t2)
 	    {
 		    using (var stringWriter = new StringWriter())
 		    using (var writer = new XmlTextWriter(stringWriter)) {
@@ -35,7 +36,7 @@ namespace BrightWire.Helper
 		/// <param name="t1">First tensor</param>
 		/// <param name="t2">Second tensor</param>
 		/// <returns>Xml string</returns>
-	    public static string WriteComparison(IIndexable4DTensor t1, IIndexable4DTensor t2)
+	    public static string WriteComparison(IIndexable4DFloatTensor t1, IIndexable4DFloatTensor t2)
 	    {
 		    using (var stringWriter = new StringWriter())
 		    using (var writer = new XmlTextWriter(stringWriter)) {
@@ -51,7 +52,7 @@ namespace BrightWire.Helper
 		/// <param name="m1">First matrix</param>
 		/// <param name="m2">Second matrix</param>
 		/// <returns>Xml string</returns>
-	    public static string WriteComparison(IIndexableMatrix m1, IIndexableMatrix m2)
+	    public static string WriteComparison(IIndexableFloatMatrix m1, IIndexableFloatMatrix m2)
 	    {
 		    using (var stringWriter = new StringWriter())
 		    using (var writer = new XmlTextWriter(stringWriter)) {
@@ -61,7 +62,7 @@ namespace BrightWire.Helper
 		    }
 	    }
 
-	    static void _Write(IIndexableMatrix m1, IIndexableMatrix m2, XmlTextWriter writer)
+	    static void _Write(IIndexableFloatMatrix m1, IIndexableFloatMatrix m2, XmlTextWriter writer)
 	    {
 		    writer.WriteStartElement("matrix");
 		    writer.WriteAttributeString("r1", m1.RowCount.ToString());
@@ -81,7 +82,7 @@ namespace BrightWire.Helper
 		    writer.WriteEndElement();
 	    }
 
-	    static void _Write(IIndexable3DTensor t1, IIndexable3DTensor t2, XmlTextWriter writer)
+	    static void _Write(IIndexable3DFloatTensor t1, IIndexable3DFloatTensor t2, XmlTextWriter writer)
 	    {
 		    writer.WriteStartElement("tensor-3d");
 		    writer.WriteAttributeString("d1", t1.Depth.ToString());
@@ -91,7 +92,7 @@ namespace BrightWire.Helper
 		    writer.WriteEndElement();
 	    }
 
-	    static void _Write(IIndexable4DTensor t1, IIndexable4DTensor t2, XmlTextWriter writer)
+	    static void _Write(IIndexable4DFloatTensor t1, IIndexable4DFloatTensor t2, XmlTextWriter writer)
 	    {
 		    writer.WriteStartElement("tensor-4d");
 		    writer.WriteAttributeString("c1", t1.Count.ToString());

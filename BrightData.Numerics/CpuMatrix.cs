@@ -1,23 +1,21 @@
-﻿using BrightWire.LinearAlgebra.Helper;
-using BrightWire.Models;
-using MathNet.Numerics.LinearAlgebra.Single;
-using System;
-using System.Collections.Concurrent;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
-using BrightData;
+using BrightData.Helper;
+using BrightWire.LinearAlgebra;
+using BrightWire.Models;
+using MathNet.Numerics.LinearAlgebra.Single;
 
-namespace BrightWire.LinearAlgebra
+namespace BrightData.Numerics
 {
     /// <summary>
     /// Matrix that uses the CPU based math.net numerics library
     /// </summary>
-    class CpuMatrix : IIndexableMatrix
+    class CpuMatrix : IIndexableFloatMatrix
     {
         readonly MathNet.Numerics.LinearAlgebra.Matrix<float> _matrix;
 
@@ -55,71 +53,71 @@ namespace BrightWire.LinearAlgebra
 	    public IEnumerable<float> Values => _matrix.Enumerate();
 	    public float[] GetInternalArray() => _matrix.AsColumnMajorArray();
 
-	    public IVector Column(uint index)
+	    public IFloatVector Column(uint index)
         {
             return new CpuVector(_matrix.Column((int)index));
         }
 
-        public IIndexableMatrix Map(Func<float, float> mutator)
+        public IIndexableFloatMatrix Map(Func<float, float> mutator)
         {
             return new CpuMatrix(_matrix.Map(mutator));
         }
 
-        public IIndexableMatrix MapIndexed(Func<uint, uint, float, float> mutator)
+        public IIndexableFloatMatrix MapIndexed(Func<uint, uint, float, float> mutator)
         {
             return new CpuMatrix(_matrix.MapIndexed((i, j, v) => mutator((uint)i, (uint)j, v)));
         }
 
-        public IMatrix Multiply(IMatrix matrix)
+        public IFloatMatrix Multiply(IFloatMatrix matrix)
         {
             var other = (CpuMatrix)matrix;
             return new CpuMatrix(_matrix.Multiply(other._matrix));
         }
 
-        public IMatrix PointwiseMultiply(IMatrix matrix)
+        public IFloatMatrix PointwiseMultiply(IFloatMatrix matrix)
         {
             var other = (CpuMatrix)matrix;
             Debug.Assert(RowCount == matrix.RowCount && ColumnCount == matrix.ColumnCount);
             return new CpuMatrix(_matrix.PointwiseMultiply(other._matrix));
         }
 
-        public IVector RowSums()
+        public IFloatVector RowSums()
         {
             var ret = _matrix.RowSums();
             return new CpuVector(ret);
         }
 
-        public IVector ColumnSums()
+        public IFloatVector ColumnSums()
         {
             var ret = _matrix.ColumnSums();
             return new CpuVector(ret);
         }
 
-        public IMatrix Add(IMatrix matrix)
+        public IFloatMatrix Add(IFloatMatrix matrix)
         {
             var other = (CpuMatrix)matrix;
             return new CpuMatrix(_matrix.Add(other._matrix));
         }
 
-        public IMatrix Subtract(IMatrix matrix)
+        public IFloatMatrix Subtract(IFloatMatrix matrix)
         {
             var other = (CpuMatrix)matrix;
             return new CpuMatrix(_matrix.Subtract(other._matrix));
         }
 
-        public IMatrix TransposeAndMultiply(IMatrix matrix)
+        public IFloatMatrix TransposeAndMultiply(IFloatMatrix matrix)
         {
             var other = (CpuMatrix)matrix;
             return new CpuMatrix(_matrix.TransposeAndMultiply(other._matrix));
         }
 
-        public IMatrix TransposeThisAndMultiply(IMatrix matrix)
+        public IFloatMatrix TransposeThisAndMultiply(IFloatMatrix matrix)
         {
             var other = (CpuMatrix)matrix;
             return new CpuMatrix(_matrix.TransposeThisAndMultiply(other._matrix));
         }
 
-        public IMatrix Transpose()
+        public IFloatMatrix Transpose()
         {
             return new CpuMatrix(_matrix.Transpose());
         }
@@ -134,14 +132,14 @@ namespace BrightWire.LinearAlgebra
             return _matrix.ToMatrixString();
         }
 
-        public void AddInPlace(IMatrix matrix, float coefficient1 = 1.0f, float coefficient2 = 1.0f)
+        public void AddInPlace(IFloatMatrix matrix, float coefficient1 = 1.0f, float coefficient2 = 1.0f)
         {
             Debug.Assert(RowCount == matrix.RowCount && ColumnCount == matrix.ColumnCount);
             var other = (CpuMatrix)matrix;
             _matrix.MapIndexedInplace((i, j, v) => (v * coefficient1) + (other[(uint)i, (uint)j] * coefficient2));
         }
 
-        public void SubtractInPlace(IMatrix matrix, float coefficient1 = 1.0f, float coefficient2 = 1.0f)
+        public void SubtractInPlace(IFloatMatrix matrix, float coefficient1 = 1.0f, float coefficient2 = 1.0f)
         {
             Debug.Assert(RowCount == matrix.RowCount && ColumnCount == matrix.ColumnCount);
             var other = (CpuMatrix)matrix;
@@ -150,13 +148,13 @@ namespace BrightWire.LinearAlgebra
 
         internal static float _Sigmoid(float val)
         {
-            return BoundMath.Constrain(1.0f / (1.0f + BoundMath.Exp(-1.0f * val)));
+            return FloatMath.Constrain(1.0f / (1.0f + FloatMath.Exp(-1.0f * val)));
         }
 
         internal static float _SigmoidDerivative(float val)
         {
             var score = _Sigmoid(val);
-            return BoundMath.Constrain(score * (1.0f - score));
+            return FloatMath.Constrain(score * (1.0f - score));
         }
 
         internal static float _Tanh(float val)
@@ -171,7 +169,7 @@ namespace BrightWire.LinearAlgebra
 
         internal static float _Relu(float val)
         {
-            return (val <= 0) ? 0 : BoundMath.Constrain(val);
+            return (val <= 0) ? 0 : FloatMath.Constrain(val);
         }
 
         internal static float _ReluDerivative(float val)
@@ -181,7 +179,7 @@ namespace BrightWire.LinearAlgebra
 
         internal static float _LeakyRelu(float val)
         {
-            return (val <= 0) ? 0.01f * val : BoundMath.Constrain(val);
+            return (val <= 0) ? 0.01f * val : FloatMath.Constrain(val);
         }
 
         internal static float _LeakyReluDerivative(float val)
@@ -189,59 +187,59 @@ namespace BrightWire.LinearAlgebra
             return (val <= 0) ? 0.01f : 1;
         }
 
-        public IMatrix ReluActivation()
+        public IFloatMatrix ReluActivation()
         {
             return new CpuMatrix(_matrix.Map(_Relu));
         }
 
-        public IMatrix ReluDerivative()
+        public IFloatMatrix ReluDerivative()
         {
             return new CpuMatrix(_matrix.Map(_ReluDerivative));
         }
 
-        public IMatrix LeakyReluActivation()
+        public IFloatMatrix LeakyReluActivation()
         {
             return new CpuMatrix(_matrix.Map(_LeakyRelu));
         }
 
-        public IMatrix LeakyReluDerivative()
+        public IFloatMatrix LeakyReluDerivative()
         {
             return new CpuMatrix(_matrix.Map(_LeakyReluDerivative));
         }
 
-        public IMatrix SigmoidActivation()
+        public IFloatMatrix SigmoidActivation()
         {
             return new CpuMatrix(_matrix.Map(_Sigmoid));
         }
 
-        public IMatrix SigmoidDerivative()
+        public IFloatMatrix SigmoidDerivative()
         {
             return new CpuMatrix(_matrix.Map(_SigmoidDerivative));
         }
 
-        public IMatrix TanhActivation()
+        public IFloatMatrix TanhActivation()
         {
             return new CpuMatrix(_matrix.Map(_Tanh));
         }
 
-        public IMatrix TanhDerivative()
+        public IFloatMatrix TanhDerivative()
         {
             return new CpuMatrix(_matrix.Map(_TanhDerivative));
         }
 
-        public IMatrix SoftmaxActivation()
+        public IFloatMatrix SoftmaxActivation()
         {
             var activation = Rows.Select(r => r.Softmax().AsIndexable()).ToList();
             return new CpuMatrix(DenseMatrix.Create((int)RowCount, (int)ColumnCount, (x, y) => activation[x][(uint)y]));
         }
 
-        public void AddToEachRow(IVector vector)
+        public void AddToEachRow(IFloatVector vector)
         {
             var other = (CpuVector)vector;
             _matrix.MapIndexedInplace((j, k, v) => v + other[(uint)k]);
         }
 
-        public void AddToEachColumn(IVector vector)
+        public void AddToEachColumn(IFloatVector vector)
         {
             var other = (CpuVector)vector;
             _matrix.MapIndexedInplace((j, k, v) => v + other[(uint)j]);
@@ -280,17 +278,17 @@ namespace BrightWire.LinearAlgebra
             }
         }
 
-        public IIndexableMatrix AsIndexable()
+        public IIndexableFloatMatrix AsIndexable()
         {
             return this;
         }
 
-        public IVector Row(uint index)
+        public IFloatVector Row(uint index)
         {
             return new CpuVector(_matrix.Row((int)index));
         }
 
-        public IEnumerable<IIndexableVector> Rows
+        public IEnumerable<IIndexableFloatVector> Rows
         {
             get
             {
@@ -298,7 +296,7 @@ namespace BrightWire.LinearAlgebra
             }
         }
 
-        public IEnumerable<IIndexableVector> Columns
+        public IEnumerable<IIndexableFloatVector> Columns
         {
             get
             {
@@ -306,12 +304,12 @@ namespace BrightWire.LinearAlgebra
             }
         }
 
-	    public IMatrix GetNewMatrixFromRows(IReadOnlyList<uint> rowIndexes)
+	    public IFloatMatrix GetNewMatrixFromRows(IReadOnlyList<uint> rowIndexes)
         {
             return new CpuMatrix(DenseMatrix.Create(rowIndexes.Count, (int)ColumnCount, (x, y) => _matrix[(int)rowIndexes[x], y]));
         }
 
-        public IMatrix GetNewMatrixFromColumns(IReadOnlyList<uint> columnIndexes)
+        public IFloatMatrix GetNewMatrixFromColumns(IReadOnlyList<uint> columnIndexes)
         {
             return new CpuMatrix(DenseMatrix.Create((int)RowCount, columnIndexes.Count, (x, y) => _matrix[x, (int)columnIndexes[y]]));
         }
@@ -326,7 +324,7 @@ namespace BrightWire.LinearAlgebra
             _matrix.ClearColumns(indexes.Cast<int>().ToArray());
         }
 
-        public IMatrix Clone()
+        public IFloatMatrix Clone()
         {
             return new CpuMatrix(DenseMatrix.OfMatrix(_matrix));
         }
@@ -336,7 +334,7 @@ namespace BrightWire.LinearAlgebra
             _matrix.Clear();
         }
 
-        public IMatrix ConcatColumns(IMatrix bottom)
+        public IFloatMatrix ConcatColumns(IFloatMatrix bottom)
         {
             var t = this;
             var b = (CpuMatrix)bottom;
@@ -349,7 +347,7 @@ namespace BrightWire.LinearAlgebra
             return new CpuMatrix(ret);
         }
 
-        public IMatrix ConcatRows(IMatrix right)
+        public IFloatMatrix ConcatRows(IFloatMatrix right)
         {
             var t = this;
             var b = (CpuMatrix)right;
@@ -362,26 +360,26 @@ namespace BrightWire.LinearAlgebra
             return new CpuMatrix(ret);
         }
 
-        public (IMatrix Left, IMatrix Right) SplitAtColumn(uint columnIndex)
+        public (IFloatMatrix Left, IFloatMatrix Right) SplitAtColumn(uint columnIndex)
         {
             var ret1 = DenseMatrix.Create((int)RowCount, (int)columnIndex, (x, y) => this[(uint)x, (uint)y]);
             var ret2 = DenseMatrix.Create((int)RowCount, (int)(ColumnCount - columnIndex), (x, y) => this[(uint)x, (uint)(columnIndex + y)]);
             return (new CpuMatrix(ret1), new CpuMatrix(ret2));
         }
 
-        public (IMatrix Top, IMatrix Bottom) SplitAtRow(uint rowIndex)
+        public (IFloatMatrix Top, IFloatMatrix Bottom) SplitAtRow(uint rowIndex)
         {
             var ret1 = DenseMatrix.Create((int)rowIndex, (int)ColumnCount, (x, y) => this[(uint)x, (uint)y]);
             var ret2 = DenseMatrix.Create((int)(RowCount - rowIndex), (int)ColumnCount, (x, y) => this[(uint)(rowIndex + x), (uint)y]);
             return (new CpuMatrix(ret1), new CpuMatrix(ret2));
         }
 
-        public IMatrix Sqrt(float valueAdjustment = 1e-8f)
+        public IFloatMatrix Sqrt(float valueAdjustment = 1e-8f)
         {
             return new CpuMatrix((DenseMatrix)_matrix.Map(v => Convert.ToSingle(Math.Sqrt(v + valueAdjustment))));
         }
 
-        public IMatrix PointwiseDivide(IMatrix matrix)
+        public IFloatMatrix PointwiseDivide(IFloatMatrix matrix)
         {
             var other = (CpuMatrix)matrix;
             return new CpuMatrix(_matrix.PointwiseDivide(other._matrix));
@@ -397,41 +395,41 @@ namespace BrightWire.LinearAlgebra
             _matrix.MapInplace(v => v < min ? min : v > max ? max : v);
         }
 
-        public IVector ColumnL2Norm()
+        public IFloatVector ColumnL2Norm()
         {
             var ret = _matrix.ColumnNorms(2.0);
             return new CpuVector(DenseVector.Create(ret.Count, i => Convert.ToSingle(ret[i])));
         }
 
-        public IVector RowL2Norm()
+        public IFloatVector RowL2Norm()
         {
             var ret = _matrix.RowNorms(2.0);
             return new CpuVector(DenseVector.Create(ret.Count, i => Convert.ToSingle(ret[i])));
         }
 
-        public void PointwiseDivideRows(IVector vector)
+        public void PointwiseDivideRows(IFloatVector vector)
         {
             var v2 = vector.AsIndexable();
             _matrix.MapIndexedInplace((x, y, v) => v /= v2[(uint)x]);
         }
 
-        public void PointwiseDivideColumns(IVector vector)
+        public void PointwiseDivideColumns(IFloatVector vector)
         {
             var v2 = vector.AsIndexable();
             _matrix.MapIndexedInplace((x, y, v) => v /= v2[(uint)y]);
         }
 
-        public IVector Diagonal()
+        public IFloatVector Diagonal()
         {
             return new CpuVector((DenseVector)_matrix.Diagonal());
         }
 
-        public IMatrix Pow(float power)
+        public IFloatMatrix Pow(float power)
         {
             return new CpuMatrix(_matrix.Map(v => Convert.ToSingle(Math.Pow(v, power))));
         }
 
-        public IVector GetRowSegment(uint index, uint columnIndex, uint length)
+        public IFloatVector GetRowSegment(uint index, uint columnIndex, uint length)
         {
             var buffer = new float[length];
             for (uint i = 0; i < length; i++)
@@ -439,7 +437,7 @@ namespace BrightWire.LinearAlgebra
             return new CpuVector(DenseVector.OfArray(buffer));
         }
 
-        public IVector GetColumnSegment(uint columnIndex, uint rowIndex, uint length)
+        public IFloatVector GetColumnSegment(uint columnIndex, uint rowIndex, uint length)
         {
             var buffer = new float[length];
             for (var i = 0; i < length; i++)
@@ -447,35 +445,35 @@ namespace BrightWire.LinearAlgebra
             return new CpuVector(DenseVector.OfArray(buffer));
         }
 
-        public IMatrix Multiply(IVector vector)
+        public IFloatMatrix Multiply(IFloatVector vector)
         {
             using (var column = vector.ReshapeAsColumnMatrix())
                 return Multiply(column);
         }
 
-        public (IMatrix U, IVector S, IMatrix VT) Svd()
+        public (IFloatMatrix U, IFloatVector S, IFloatMatrix VT) Svd()
         {
             var svd = _matrix.Svd(true);
             return (new CpuMatrix(svd.U), new CpuVector(svd.S), new CpuMatrix(svd.VT));
         }
 
-        public IVector ReshapeAsVector()
+        public IFloatVector ReshapeAsVector()
         {
             return new CpuVector(_matrix.AsColumnMajorArray());
         }
 
-		public I3DTensor ReshapeAs3DTensor(uint rows, uint columns)
+		public I3DFloatTensor ReshapeAs3DTensor(uint rows, uint columns)
 		{
 			Debug.Assert(rows * columns == RowCount);
-			var matrixList = new List<IIndexableMatrix>();
+			var matrixList = new List<IIndexableFloatMatrix>();
 			for (uint i = 0, len = ColumnCount; i < len; i++)
 				matrixList.Add(Column(i).ReshapeAsMatrix(rows, columns).AsIndexable());
 			return new Cpu3DTensor(matrixList);
 		}
 
-		public I4DTensor ReshapeAs4DTensor(uint rows, uint columns, uint depth)
+		public I4DFloatTensor ReshapeAs4DTensor(uint rows, uint columns, uint depth)
 		{
-			var list = new List<IIndexable3DTensor>();
+			var list = new List<IIndexable3DFloatTensor>();
 			for (uint i = 0; i < ColumnCount; i++)
 				list.Add(new Cpu3DTensor(Column(i).Split(depth).Select(v => v.ReshapeAsMatrix(rows, columns).AsIndexable()).ToList()));
 			return new Cpu4DTensor(list);
@@ -491,9 +489,9 @@ namespace BrightWire.LinearAlgebra
 		    this[row, column] = value;
 	    }
 
-	    public IReadOnlyList<IVector> ColumnVectors() => Columns.ToList();
+	    public IReadOnlyList<IFloatVector> ColumnVectors() => Columns.ToList();
 
-	    public IReadOnlyList<IVector> RowVectors() => Rows.ToList();
+	    public IReadOnlyList<IFloatVector> RowVectors() => Rows.ToList();
 
 	    public string AsXml
         {

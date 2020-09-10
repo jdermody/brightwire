@@ -1,5 +1,6 @@
 ﻿using MathNet.Numerics.Distributions;
 using System;
+using BrightData;
 
 namespace BrightWire.Helper
 {
@@ -35,16 +36,16 @@ namespace BrightWire.Helper
 
         public ILinearAlgebraProvider LinearAlgebraProvider { get; }
 	    public uint Size { get; }
-		public IMatrix Matrix { get; }
+		public IFloatMatrix Matrix { get; }
 
-	    public IVector Compute(IVector vector)
+	    public IFloatVector Compute(IFloatVector vector)
         {
             using (var m = vector.ReshapeAsRowMatrix())
             using (var m2 = m.Multiply(Matrix))
                 return m2.Row(0);
         }
 
-        public IMatrix Compute(IMatrix matrix)
+        public IFloatMatrix Compute(IFloatMatrix matrix)
         {
             return matrix.Multiply(Matrix);
         }

@@ -1,6 +1,7 @@
 ﻿using BrightWire.ExecutionGraph.Helper;
 using System.Collections.Generic;
 using System.Linq;
+using BrightData;
 
 namespace BrightWire.ExecutionGraph.Node.Helper
 {
@@ -11,9 +12,9 @@ namespace BrightWire.ExecutionGraph.Node.Helper
     {
         class Backpropagation : SingleBackpropagationBase<TransposeAndCombineSignal>
         {
-            readonly I4DTensor _tensor;
+            readonly I4DFloatTensor _tensor;
 
-            public Backpropagation(TransposeAndCombineSignal source, I4DTensor tensor) : base(source)
+            public Backpropagation(TransposeAndCombineSignal source, I4DFloatTensor tensor) : base(source)
             {
                 _tensor = tensor;
             }
@@ -23,7 +24,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
                 var matrix = errorSignal.GetMatrix();
                 var lap = context.LinearAlgebraProvider;
 
-                var rowList = new List<IVector>();
+                var rowList = new List<IFloatVector>();
                 for(uint i = 0; i < matrix.RowCount; i++) {
                     var rowMatrix = matrix.Row(i).ReshapeAsMatrix(_tensor.RowCount, _tensor.ColumnCount);
                     var matrixList = Enumerable.Repeat(rowMatrix, (int)_tensor.Depth).ToList();
@@ -43,7 +44,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
         public override void ExecuteForward(IContext context)
         {
             var tensor = context.Data.Get4DTensor();
-            var rowList = new List<IVector>();
+            var rowList = new List<IFloatVector>();
             for(uint i = 0; i < tensor.Count; i++) {
                 var row = tensor.GetTensorAt(i).CombineDepthSlices().ReshapeAsVector();
                 rowList.Add(row);

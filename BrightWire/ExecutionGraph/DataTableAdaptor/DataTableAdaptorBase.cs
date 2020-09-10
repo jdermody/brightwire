@@ -130,7 +130,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             var miniBatch = new MiniBatch(rows, this);
             foreach (var item in inputData.OrderBy(kv => kv.Key)) {
                 var input = _lap.CreateMatrixFromRows(item.Value);
-                IMatrix output = null;
+                IFloatMatrix output = null;
                 if (outputData.TryGetValue(item.Key, out temp))
                     output = _lap.CreateMatrixFromRows(temp);
                 var type = (item.Key == 0)

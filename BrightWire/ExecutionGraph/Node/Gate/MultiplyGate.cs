@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using BrightData;
 
 namespace BrightWire.ExecutionGraph.Node.Gate
 {
@@ -10,9 +11,9 @@ namespace BrightWire.ExecutionGraph.Node.Gate
     {
         class Backpropagation : BackpropagationBase<MultiplyGate>
         {
-            readonly IMatrix _input1, _input2;
+            readonly IFloatMatrix _input1, _input2;
 
-            public Backpropagation(MultiplyGate source, IMatrix input1, IMatrix input2) : base(source)
+            public Backpropagation(MultiplyGate source, IFloatMatrix input1, IFloatMatrix input2) : base(source)
             {
                 _input1 = input1;
                 _input2 = input2;
@@ -35,7 +36,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         }
         public MultiplyGate(string name = null) : base(name) { }
 
-        protected override void _Activate(IContext context, IMatrix primary, IMatrix secondary)
+        protected override void _Activate(IContext context, IFloatMatrix primary, IFloatMatrix secondary)
         {
             var output = primary.PointwiseMultiply(secondary);
             _AddHistory(context, output, () => new Backpropagation(this, primary,  secondary));

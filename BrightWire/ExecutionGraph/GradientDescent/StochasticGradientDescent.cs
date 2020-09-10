@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using BrightData;
 
 namespace BrightWire.ExecutionGraph.GradientDescent
 {
@@ -13,12 +14,12 @@ namespace BrightWire.ExecutionGraph.GradientDescent
             // nop
         }
 
-        public virtual void Update(IMatrix source, IMatrix delta, ILearningContext context)
+        public virtual void Update(IFloatMatrix source, IFloatMatrix delta, ILearningContext context)
         {
             _Update(source, delta, context, 1f, context.BatchLearningRate);
         }
 
-        protected void _Update(IMatrix source, IMatrix delta, ILearningContext context, float coefficient1, float coefficient2)
+        protected void _Update(IFloatMatrix source, IFloatMatrix delta, ILearningContext context, float coefficient1, float coefficient2)
         {
             source.AddInPlace(delta, coefficient1, coefficient2);
         }

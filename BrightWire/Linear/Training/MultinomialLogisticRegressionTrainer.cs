@@ -2,6 +2,7 @@
 using BrightWire.Models;
 using System.Collections.Generic;
 using System.Linq;
+using BrightData;
 using BrightTable;
 
 namespace BrightWire.Linear.Training

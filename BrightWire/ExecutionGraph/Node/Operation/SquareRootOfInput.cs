@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using BrightData;
 
 namespace BrightWire.ExecutionGraph.Node.Operation
 {
@@ -12,9 +13,9 @@ namespace BrightWire.ExecutionGraph.Node.Operation
         /// </summary>
         class Backpropagation : SingleBackpropagationBase<SquareRootOfInput>
         {
-            readonly IMatrix _sqrtOutput;
+            readonly IFloatMatrix _sqrtOutput;
 
-            public Backpropagation(SquareRootOfInput source, IMatrix output) : base(source)
+            public Backpropagation(SquareRootOfInput source, IFloatMatrix output) : base(source)
             {
 	            _sqrtOutput = output;
             }

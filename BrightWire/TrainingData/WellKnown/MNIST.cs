@@ -80,7 +80,7 @@ namespace BrightWire.TrainingData.WellKnown
                             row[x] = vector[(y * SIZE) + x];
                         rows.Add(FloatVector.Create(row));
                     }
-                    var tensor = FloatTensor.Create(new[] { 
+                    var tensor = Float3DTensor.Create(new[] { 
                         FloatMatrix.Create(rows.ToArray()) 
                     });
                     return (tensor, data.Label);

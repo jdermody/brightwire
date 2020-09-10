@@ -2,7 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using BrightWire.LinearAlgebra.Helper;
+using BrightData;
+using BrightData.Helper;
 using BrightTable;
 
 namespace BrightWire.Linear
@@ -45,7 +46,7 @@ namespace BrightWire.Linear
             }
             var softmax = new List<Tuple<string, float>>();
             foreach (var item in raw) {
-                var exp = BoundMath.Exp(item.Item2);
+                var exp = FloatMath.Exp(item.Item2);
                 total += exp;
                 softmax.Add(Tuple.Create(item.Item1, exp));
             }

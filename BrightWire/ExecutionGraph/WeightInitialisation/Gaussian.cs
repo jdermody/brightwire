@@ -1,5 +1,6 @@
 ﻿using MathNet.Numerics.Distributions;
 using System;
+using BrightData;
 
 namespace BrightWire.ExecutionGraph.WeightInitialisation
 {
@@ -52,12 +53,12 @@ namespace BrightWire.ExecutionGraph.WeightInitialisation
             return Convert.ToSingle(sample);
         }
 
-        public IVector CreateBias(uint size)
+        public IFloatVector CreateBias(uint size)
         {
             return _lap.CreateVector(size, x => _GetBias());
         }
 
-        public IMatrix CreateWeight(uint rows, uint columns)
+        public IFloatMatrix CreateWeight(uint rows, uint columns)
         {
             return _lap.CreateMatrix(rows, columns, (x, y) => _GetWeight(rows, columns));
         }

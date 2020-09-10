@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using BrightData;
 
 namespace BrightWire.Linear
 {
@@ -8,10 +9,10 @@ namespace BrightWire.Linear
     /// </summary>
     class RegressionPredictor : ILinearRegressionPredictor
     {
-        readonly IVector _theta;
+        readonly IFloatVector _theta;
         readonly ILinearAlgebraProvider _lap;
 
-        public RegressionPredictor(ILinearAlgebraProvider lap, IVector theta)
+        public RegressionPredictor(ILinearAlgebraProvider lap, IFloatVector theta)
         {
             _lap = lap;
             _theta = theta;

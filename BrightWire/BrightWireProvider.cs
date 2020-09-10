@@ -2,11 +2,11 @@
 using BrightTable.Input;
 using BrightWire.Bayesian.Training;
 using BrightWire.Helper;
-using BrightWire.LinearAlgebra;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using BrightData;
 
 namespace BrightWire
 {
@@ -92,15 +92,6 @@ namespace BrightWire
         //    else
         //        return DataTable.Create(dataStream, indexStream, null);
         //}
-
-        /// <summary>
-        /// Creates a linear algebra provider that runs on the CPU
-        /// </summary>
-        /// <param name="stochastic">False to use the same random number generation each time</param>
-        public static ILinearAlgebraProvider CreateLinearAlgebra(bool stochastic = true)
-        {
-            return new CpuProvider(stochastic);
-        }
 
         /// <summary>
         /// Creates a data table builder to programatically create data tables

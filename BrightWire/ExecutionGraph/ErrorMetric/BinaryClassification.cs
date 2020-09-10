@@ -1,8 +1,6 @@
 ﻿using System;
 using BrightData;
-using BrightWire.LinearAlgebra.Helper;
-using BrightWire.Models;
-using MathNet.Numerics.LinearAlgebra.Complex;
+using BrightData.Helper;
 
 namespace BrightWire.ExecutionGraph.ErrorMetric
 {
@@ -11,7 +9,7 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
     /// </summary>
     class BinaryClassification : IErrorMetric
     {
-        public IMatrix CalculateGradient(IContext context, IMatrix output, IMatrix targetOutput)
+        public IFloatMatrix CalculateGradient(IContext context, IFloatMatrix output, IFloatMatrix targetOutput)
         {
             return targetOutput.Subtract(output);
         }
@@ -21,7 +19,7 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
             float ret = 0;
             for (var i = 0; i < output.Size; i++) {
                 var val = (output.Data[i] >= 0.5) ? 1.0f : 0.0f;
-                ret += (Math.Abs(val - targetOutput.Data[i]) < BoundMath.ZERO_LIKE) ? 1.0f : 0.0f;
+                ret += (Math.Abs(val - targetOutput.Data[i]) < FloatMath.AlmostZero) ? 1.0f : 0.0f;
             }
             return ret / output.Size;
         }

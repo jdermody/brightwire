@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using BrightData;
+using BrightData.Helper;
 using BrightTable;
-using BrightWire.LinearAlgebra.Helper;
 
 namespace BrightWire.Models.DataTable
 {
@@ -64,7 +64,7 @@ namespace BrightWire.Models.DataTable
             /// <returns>The normalused input value</returns>
             public object Normalise(double val)
             {
-                var ret = (Math.Abs(Divide) < BoundMath.ZERO_LIKE) ? val : (val - Subtract) / Divide;
+                var ret = (Math.Abs(Divide) < FloatMath.AlmostZero) ? val : (val - Subtract) / Divide;
 	            return _Convert(ret);
             }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BrightData;
 using BrightTable;
 using BrightWire.Models.InstanceBased;
 
@@ -13,7 +14,7 @@ namespace BrightWire.InstanceBased
     {
         readonly KNearestNeighbours _model;
         readonly ILinearAlgebraProvider _lap;
-        readonly List<IVector> _instance = new List<IVector>();
+        readonly List<IFloatVector> _instance = new List<IFloatVector>();
         readonly DistanceMetric _distanceMetric;
         readonly int _k;
 

@@ -1,6 +1,7 @@
 ﻿using BrightWire.Models;
 using System.Collections.Generic;
 using System.IO;
+using BrightData;
 
 namespace BrightWire.ExecutionGraph.Node.Layer
 {
@@ -12,9 +13,9 @@ namespace BrightWire.ExecutionGraph.Node.Layer
     {
         protected class Backpropagation : SingleBackpropagationBase<FeedForward>
         {
-            readonly IMatrix _input = null;
+            readonly IFloatMatrix _input = null;
 
-            public Backpropagation(FeedForward source, IMatrix input) : base(source)
+            public Backpropagation(FeedForward source, IFloatMatrix input) : base(source)
             {
                 _input = input;
             }
@@ -43,12 +44,12 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             }
         }
 
-        IVector _bias;
-        IMatrix _weight;
+        IFloatVector _bias;
+        IFloatMatrix _weight;
         IGradientDescentOptimisation _updater;
         uint _inputSize, _outputSize;
 
-        public FeedForward(uint inputSize, uint outputSize, IVector bias, IMatrix weight, IGradientDescentOptimisation updater, string name = null) : base(name)
+        public FeedForward(uint inputSize, uint outputSize, IFloatVector bias, IFloatMatrix weight, IGradientDescentOptimisation updater, string name = null) : base(name)
         {
             _bias = bias;
             _weight = weight;
@@ -57,8 +58,8 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             _outputSize = outputSize;
         }
 
-        public IVector Bias => _bias;
-        public IMatrix Weight => _weight;
+        public IFloatVector Bias => _bias;
+        public IFloatMatrix Weight => _weight;
         public uint InputSize => _inputSize;
         public uint OutputSize => _outputSize;
 
@@ -68,19 +69,19 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             _weight.Dispose();
         }
 
-        public void UpdateWeights(IMatrix delta, ILearningContext context)
+        public void UpdateWeights(IFloatMatrix delta, ILearningContext context)
         {
             _updater.Update(_weight, delta, context);
         }
 
-        public void UpdateBias(IMatrix delta, ILearningContext context)
+        public void UpdateBias(IFloatMatrix delta, ILearningContext context)
         {
             using (var columnSums = delta.ColumnSums()) {
                 _bias.AddInPlace(columnSums, 1f / delta.RowCount, context.BatchLearningRate);
             }
         }
 
-        protected IMatrix _FeedForward(IMatrix input, IMatrix weight)
+        protected IFloatMatrix _FeedForward(IFloatMatrix input, IFloatMatrix weight)
         {
             var output = input.Multiply(weight);
             output.AddToEachRow(_bias);

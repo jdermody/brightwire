@@ -45,9 +45,11 @@ namespace BrightData
         bool IsValid { get; }
     }
 
-    public interface ITensor : IDisposable
+    public interface ITensor : IDisposable, ICanWriteToBinaryWriter, ICanInitializeFromBinaryReader
     {
         uint[] Shape { get; }
+        uint Size { get; }
+        uint Rank { get; }
     }
 
     public interface ITensor<T> : ITensor
@@ -56,6 +58,7 @@ namespace BrightData
         ITensorSegment<T> GetDataCopy();
         ITensorSegment<T> Data { get; }
         INumericComputation<T> Computation { get; }
+        T[] ToArray();
     }
 
     public interface IMemoryDeallocator
@@ -98,6 +101,11 @@ namespace BrightData
         void Pop();
     }
 
+    public interface ISetLinearAlgebraProvider
+    {
+        ILinearAlgebraProvider LinearAlgebraProvider { set; }
+    }
+
     public interface IBrightDataContext : IDisposable
     {
         Random Random { get; }
@@ -105,6 +113,7 @@ namespace BrightData
         IDisposableLayers MemoryLayer { get; }
         IDataReader DataReader { get; }
         INumericComputation<T> GetComputation<T>() where T : struct;
+        ILinearAlgebraProvider LinearAlgebraProvider { get; }
         T Get<T>(string name);
         T Set<T>(string name, T value);
         T Set<T>(string name, Func<T> valueCreator);

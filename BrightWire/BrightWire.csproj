@@ -5,8 +5,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="LinearAlgebra\**" />
     <Compile Remove="TabularData\**" />
+    <EmbeddedResource Remove="LinearAlgebra\**" />
     <EmbeddedResource Remove="TabularData\**" />
+    <None Remove="LinearAlgebra\**" />
     <None Remove="TabularData\**" />
   </ItemGroup>
 

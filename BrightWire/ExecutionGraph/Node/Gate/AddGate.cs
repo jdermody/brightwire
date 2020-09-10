@@ -1,4 +1,6 @@
-﻿namespace BrightWire.ExecutionGraph.Node.Gate
+﻿using BrightData;
+
+namespace BrightWire.ExecutionGraph.Node.Gate
 {
     /// <summary>
     /// Outputs the two input signals added together
@@ -7,7 +9,7 @@
     {
         public AddGate(string name = null) : base(name) { }
 
-        protected override void _Activate(IContext context, IMatrix primary, IMatrix secondary)
+        protected override void _Activate(IContext context, IFloatMatrix primary, IFloatMatrix secondary)
         {
             var output = primary.Add(secondary);
 

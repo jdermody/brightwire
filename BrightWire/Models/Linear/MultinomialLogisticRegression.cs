@@ -1,4 +1,5 @@
-﻿using BrightWire.Linear;
+﻿using BrightData;
+using BrightWire.Linear;
 
 namespace BrightWire.Models
 {

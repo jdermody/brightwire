@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using BrightData;
 
 namespace BrightWire.ExecutionGraph.Node.Gate
 {
@@ -17,7 +18,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
 
             public override void _Backward(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
             {
-                IMatrix split, residual = errorSignal.GetMatrix();
+                IFloatMatrix split, residual = errorSignal.GetMatrix();
                 int index = parents.Count-1;
                 foreach(var item in _channels) {
                     (residual, split) = residual.SplitAtColumn(residual.ColumnCount - (uint)item.Size);

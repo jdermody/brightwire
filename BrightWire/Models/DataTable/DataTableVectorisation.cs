@@ -2,7 +2,6 @@
 using BrightWire.Models;
 using System.Collections.Generic;
 using System.Linq;
-using BrightWire.LinearAlgebra.Helper;
 using BrightTable;
 
 namespace BrightWire.Models.DataTable
@@ -296,7 +295,7 @@ namespace BrightWire.Models.DataTable
 		//		    offset += vector.Count;
 		//	    }
 		//    }else if (columnType == ColumnType.Tensor) {
-		//	    var tensor = row.GetField<FloatTensor>(columnIndex);
+		//	    var tensor = row.GetField<Float3DTensor>(columnIndex);
 		//	    foreach (var matrix in tensor.Matrix) {
 		//		    foreach (var vector in matrix.Row) {
 		//			    Array.Copy(vector.Data, 0, buffer, offset, vector.Count);

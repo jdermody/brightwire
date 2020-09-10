@@ -8,7 +8,7 @@ using BrightData.Memory;
 
 namespace BrightData
 {
-    public class BrightDataContext : IBrightDataContext
+    public class BrightDataContext : IBrightDataContext, ISetLinearAlgebraProvider
     {
         readonly ConcurrentDictionary<string, object> _attachedProperties = new ConcurrentDictionary<string, object>();
         readonly TensorPool _tensorPool;
@@ -64,6 +64,8 @@ namespace BrightData
             }
             throw new NotImplementedException();
         }
+
+        public ILinearAlgebraProvider LinearAlgebraProvider { get; set; }
 
         public T Get<T>(string name) => _attachedProperties.TryGetValue(name, out var obj) ? (T)obj : default(T);
         public T Set<T>(string name, T value) => (T)_attachedProperties.AddOrUpdate(name, value, (n, o) => value);

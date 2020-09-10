@@ -107,7 +107,7 @@ namespace BrightWire.ExecutionGraph
 		/// </summary>
 		/// <param name="weight"></param>
 		/// <returns></returns>
-		public IGradientDescentOptimisation CreateWeightUpdater(IMatrix weight)
+		public IGradientDescentOptimisation CreateWeightUpdater(IFloatMatrix weight)
 		{
 			var propertySet = CurrentPropertySet;
 

@@ -1,4 +1,6 @@
-﻿namespace BrightWire.ExecutionGraph.WeightInitialisation
+﻿using BrightData;
+
+namespace BrightWire.ExecutionGraph.WeightInitialisation
 {
     /// <summary>
     /// Initalises all weights to a constant
@@ -15,12 +17,12 @@
             _weightValue = weightValue;
         }
 
-        public IVector CreateBias(uint size)
+        public IFloatVector CreateBias(uint size)
         {
             return _lap.CreateVector(size, _biasValue);
         }
 
-        public IMatrix CreateWeight(uint rows, uint columns)
+        public IFloatMatrix CreateWeight(uint rows, uint columns)
         {
             return _lap.CreateMatrix(rows, columns, _weightValue);
         }

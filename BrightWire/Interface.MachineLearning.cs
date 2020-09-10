@@ -32,7 +32,7 @@ namespace BrightWire
 		/// <param name="output">The mini batch of output vectors</param>
 		/// <param name="targetOutput">The mini batch of expected target vectors</param>
 		/// <returns></returns>
-		IMatrix CalculateGradient(IContext context, IMatrix output, IMatrix targetOutput);
+		IFloatMatrix CalculateGradient(IContext context, IFloatMatrix output, IFloatMatrix targetOutput);
 	}
 
 	/// <summary>
@@ -48,21 +48,21 @@ namespace BrightWire
 		/// <summary>
 		/// The transformation matrix
 		/// </summary>
-		IMatrix Matrix { get; }
+		IFloatMatrix Matrix { get; }
 
 		/// <summary>
 		/// Reduces a vector
 		/// </summary>
 		/// <param name="vector"></param>
 		/// <returns></returns>
-		IVector Compute(IVector vector);
+		IFloatVector Compute(IFloatVector vector);
 
 		/// <summary>
 		/// Reduces a matrix
 		/// </summary>
 		/// <param name="matrix"></param>
 		/// <returns></returns>
-		IMatrix Compute(IMatrix matrix);
+		IFloatMatrix Compute(IFloatMatrix matrix);
 	}
 
 	/// <summary>
@@ -273,7 +273,7 @@ namespace BrightWire
 		/// <param name="source">The matrix to update</param>
 		/// <param name="delta">The delta matrix</param>
 		/// <param name="context">The graph learning context</param>
-		void Update(IMatrix source, IMatrix delta, ILearningContext context);
+		void Update(IFloatMatrix source, IFloatMatrix delta, ILearningContext context);
 	}
 
 	/// <summary>
@@ -300,7 +300,7 @@ namespace BrightWire
 		/// <param name="template">The instance of the matrix that will be updated</param>
 		/// <param name="propertySet">The property set that contains initialisation parameters</param>
 		/// <returns></returns>
-		IGradientDescentOptimisation Create(IGradientDescentOptimisation prev, IMatrix template, IPropertySet propertySet);
+		IGradientDescentOptimisation Create(IGradientDescentOptimisation prev, IFloatMatrix template, IPropertySet propertySet);
 	}
 
 	/// <summary>
@@ -443,14 +443,14 @@ namespace BrightWire
 		/// Creates the bias vector
 		/// </summary>
 		/// <param name="size">The size of the vector</param>
-		IVector CreateBias(uint size);
+		IFloatVector CreateBias(uint size);
 
 		/// <summary>
 		/// Creates the weight matrix
 		/// </summary>
 		/// <param name="rows">Row count</param>
 		/// <param name="columns">Column count</param>
-		IMatrix CreateWeight(uint rows, uint columns);
+		IFloatMatrix CreateWeight(uint rows, uint columns);
 	}
 
 	/// <summary>
@@ -523,7 +523,7 @@ namespace BrightWire
 		/// <param name="theta">The model parameters</param>
 		/// <param name="lambda">Regularisation lambda</param>
 		/// <returns></returns>
-		float ComputeCost(IVector theta, float lambda);
+		float ComputeCost(IFloatVector theta, float lambda);
 	}
 
 	/// <summary>
@@ -552,7 +552,7 @@ namespace BrightWire
 		/// </summary>
 		/// <param name="theta">The model parameters</param>
 		/// <param name="lambda">Regularisation lambda</param>
-		float ComputeCost(IVector theta, float lambda);
+		float ComputeCost(IFloatVector theta, float lambda);
 	}
 
 	/// <summary>

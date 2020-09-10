@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using BrightData;
 
 namespace BrightWire.Unsupervised
 {
@@ -22,13 +23,13 @@ namespace BrightWire.Unsupervised
             _costFunction = costFunction ?? new Quadratic();
         }
 
-        public IReadOnlyList<IReadOnlyList<IVector>> Cluster(IReadOnlyList<IVector> data, int numIterations, float errorThreshold = 0.001f)
+        public IReadOnlyList<IReadOnlyList<IFloatVector>> Cluster(IReadOnlyList<IFloatVector> data, int numIterations, float errorThreshold = 0.001f)
         {
             if (data.Count == 0)
-                return new List<IVector[]>();
+                return new List<IFloatVector[]>();
 
             // create the main matrix
-            var data2 = new List<IIndexableVector>();
+            var data2 = new List<IIndexableFloatVector>();
             foreach (var item in data)
                 data2.Add(item.AsIndexable());
             using (var v = _lap.CreateMatrix((uint)data.Count, (uint)data.First().Count, (x, y) => data2[(int)x][y])) {
@@ -78,7 +79,7 @@ namespace BrightWire.Unsupervised
             }
         }
 
-        float _DifferenceCost(IMatrix m1, IMatrix m2)
+        float _DifferenceCost(IFloatMatrix m1, IFloatMatrix m2)
         {
             return m1.AsIndexable().Rows.Zip(m2.AsIndexable().Rows, (r1, r2) => _costFunction.Compute(r1.Data, r2.Data)).Average();
         }

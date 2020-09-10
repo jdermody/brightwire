@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BrightData;
 
 namespace BrightWire.Unsupervised
 {
@@ -12,13 +13,13 @@ namespace BrightWire.Unsupervised
     {
         class Centroid : IDisposable
         {
-            readonly List<IVector> _data = new List<IVector>();
+            readonly List<IFloatVector> _data = new List<IFloatVector>();
             readonly Centroid _left = null, _right = null;
 
-            public IVector Center { get; }
-            public IReadOnlyList<IVector> Data => _data;
+            public IFloatVector Center { get; }
+            public IReadOnlyList<IFloatVector> Data => _data;
 
-	        public Centroid(IVector data)
+	        public Centroid(IFloatVector data)
             {
                 _data.Add(data);
                 Center = data.Clone();
@@ -81,7 +82,7 @@ namespace BrightWire.Unsupervised
         readonly DistanceMatrix _distanceMatrix = new DistanceMatrix();
         readonly List<Centroid> _centroid;
 
-        public Hierachical(int k, IReadOnlyList<IVector> data, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
+        public Hierachical(int k, IReadOnlyList<IFloatVector> data, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
         {
             _k = k;
             _distanceMetric = distanceMetric;
@@ -128,7 +129,7 @@ namespace BrightWire.Unsupervised
             }
         }
 
-        public IReadOnlyList<IReadOnlyList<IVector>> Clusters
+        public IReadOnlyList<IReadOnlyList<IFloatVector>> Clusters
         {
             get
             {
