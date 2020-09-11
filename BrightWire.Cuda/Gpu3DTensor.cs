@@ -5,6 +5,7 @@ using BrightWire.Models;
 using System.Diagnostics;
 using System.Threading;
 using BrightData;
+using BrightData.FloatTensors;
 using BrightWire.Cuda.Helper;
 using ManagedCuda;
 using ManagedCuda.CudaBlas;
@@ -128,7 +129,7 @@ namespace BrightWire.LinearAlgebra
 			get
 			{
 				Debug.Assert(IsValid);
-				return Float3DTensor.Create(Matrices.Select(m => m.Data).ToArray());
+				return Float3DTensor.Create(_cuda.DataContext, Matrices.Select(m => m.Data).ToArray());
 			}
 			set
 			{

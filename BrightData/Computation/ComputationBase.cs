@@ -28,7 +28,7 @@ namespace BrightData.Computation
         public abstract T Abs(T a);
         public abstract T Log(T a);
         public abstract T Exp(T a);
-        public abstract T Pow(T a, int rank);
+        public abstract T Pow(T a, T rank);
         public abstract T OneMinusInput(T input);
         public abstract T OnePlusInput(T input);
         public abstract T OneDividedByInput(T input);
@@ -70,6 +70,7 @@ namespace BrightData.Computation
         {
             MutateInPlace(target, v => Multiply(v, scalar));
         }
+        public ITensorSegment<T> Multiply(ITensorSegment<T> target, T scalar) => Transform(target, v => Multiply(v, scalar));
 
         public ITensorSegment<T> Subtract(ITensorSegment<T> tensor1, ITensorSegment<T> tensor2)
         {
@@ -215,6 +216,8 @@ namespace BrightData.Computation
             return Sum(squared);
         }
 
+        public ITensorSegment<T> Pow(ITensorSegment<T> segment, T power) => Transform(segment, v => Pow(v, power));
+
         public abstract T Get(uint val);
         public abstract T Get(float val);
         public abstract T Get(double val);
@@ -293,9 +296,9 @@ namespace BrightData.Computation
 
         ITensorSegment<T> _Create(T[] values)
         {
-            var ret = (TensorBlock<T>)_context.TensorPool.Get<T>((uint)values.Length);
-            ret.InitializeFrom(values);
-            return ret.GetSegment();
+            var ret = _context.TensorPool.Get<T>((uint)values.Length).GetSegment();
+            ret.Initialize(values);
+            return ret;
         }
 
         public static IEnumerable<ITensorSegment<T>> SplitSegment(ITensorSegment<T> segment, int blockCount)
@@ -315,12 +318,11 @@ namespace BrightData.Computation
             var score = Sigmoid(val);
             return Constrain(Multiply(score, OneMinusInput(score)));
         }
-        public T TanhDerivative(T val) => Constrain(OneMinusInput(Pow(Tanh(val), 2)));
+        public T TanhDerivative(T val) => Constrain(OneMinusInput(Pow(Tanh(val), Get(2))));
         public T Relu(T val) => IsEqualOrLessThanZero(val) ? Zero : Constrain(val);
         public T ReluDerivative(T val) => IsEqualOrLessThanZero(val) ? Zero : One;
         public T LeakyRelu(T val) => IsEqualOrLessThanZero(val) ? Multiply(ZeroZeroOne, val) : Constrain(val);
         public T LeakyReluDerivative(T val) => IsEqualOrLessThanZero(val) ? ZeroZeroOne : One;
-
         public ITensorSegment<T> Sigmoid(ITensorSegment<T> segment) => Transform(segment, Sigmoid);
         public ITensorSegment<T> SigmoidDerivative(ITensorSegment<T> segment) => Transform(segment, SigmoidDerivative);
         public ITensorSegment<T> Tanh(ITensorSegment<T> segment) => Transform(segment, Tanh);

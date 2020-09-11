@@ -115,9 +115,9 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             foreach (var item in data) {
                 var output = (Matrix<float>)item[1];
                 for (uint i = 0, len = output.RowCount; i < len; i++) {
-                    if (!outputData.TryGetValue(i, out List<Vector<float>> temp))
+                    if (!outputData.TryGetValue(i, out var temp))
                         outputData.Add(i, temp = new List<Vector<float>>());
-                    temp.Add(FloatVector.Create(output.Row(i).Data));
+                    temp.Add(output.Row(i));
                 }
             }
             var miniBatch = new MiniBatch(rows, this);

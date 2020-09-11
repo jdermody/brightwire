@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using BrightData;
+using BrightData.FloatTensors;
 
 namespace BrightWire.TrainingData.Artificial
 {
@@ -39,13 +40,14 @@ namespace BrightWire.TrainingData.Artificial
         /// <summary>
         /// Encodes a reber sequence as a sequence of one hot encoded vectors
         /// </summary>
+        /// <param name="context"></param>
         /// <param name="sequence">The reber sequence to encode</param>
-        public static Matrix<float> Encode(string sequence)
+        public static Matrix<float> Encode(IBrightDataContext context, string sequence)
         {
-            return FloatMatrix.Create(sequence.Select(ch => {
+            return FloatMatrix.Create(context, sequence.Select(ch => {
                     var ret = new float[_ch.Count];
                     ret[_ch[ch]] = 1f;
-                    return FloatVector.Create(ret);
+                    return FloatVector.Create(context, ret);
                 }).ToArray()
             );
         }

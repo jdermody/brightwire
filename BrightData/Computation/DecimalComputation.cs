@@ -27,7 +27,7 @@ namespace BrightData.Computation
         public override decimal Abs(decimal a) => Math.Abs(a);
         public override decimal Log(decimal a) => (decimal)Math.Log((double)a);
         public override decimal Exp(decimal a) => (decimal)Math.Exp((double)a);
-        public override decimal Pow(decimal a, int rank) => (decimal)Math.Pow((double)a, rank);
+        public override decimal Pow(decimal a, decimal rank) => (decimal)Math.Pow((double)a, (double)rank);
 
         public override decimal OneMinusInput(decimal input) => 1M - input;
         public override decimal OnePlusInput(decimal input) => 1M + input;

@@ -248,6 +248,7 @@ namespace BrightWire.LinearAlgebra
 
 		public ILinearAlgebraProvider NumericsProvider => _numerics;
         IBrightDataContext ILinearAlgebraProvider.Context => _context;
+        public IBrightDataContext DataContext => _context;
 		public bool IsStochastic { get; }
 		public bool IsGpu => true;
 		internal CudaContext Context => _cuda;

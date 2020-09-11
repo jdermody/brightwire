@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using BrightData;
+using BrightData.FloatTensors;
 
 namespace BrightWire.ExecutionGraph.DataTableAdaptor
 {
@@ -67,7 +68,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
                 for (uint i = 0, len = input.RowCount; i < len; i++) {
                     if (!inputData.TryGetValue(i, out List<Vector<float>> temp))
                         inputData.Add(i, temp = new List<Vector<float>>());
-                    temp.Add(FloatVector.Create(input.Row(i).Data));
+                    temp.Add(input.Row(i));
                 }
             }
 

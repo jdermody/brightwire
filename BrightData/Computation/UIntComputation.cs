@@ -30,7 +30,7 @@ namespace BrightData.Computation
         public override uint Abs(uint a) => (uint)Math.Abs(a);
         public override uint Log(uint a) => (uint)Math.Log(a);
         public override uint Exp(uint a) => (uint)Math.Exp(a);
-        public override uint Pow(uint a, int rank) => (uint) Math.Pow(a, rank);
+        public override uint Pow(uint a, uint rank) => (uint) Math.Pow(a, rank);
 
         public override uint OneMinusInput(uint input) => 1 - input;
         public override uint OnePlusInput(uint input) => 1 + input;

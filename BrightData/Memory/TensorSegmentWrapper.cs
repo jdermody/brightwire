@@ -117,5 +117,10 @@ namespace BrightData.Memory
             for (uint i = 0; i < Size; i++)
                 array[i] = this[i];
         }
+
+        public void CopyTo(ITensorSegment<T> segment)
+        {
+            segment.Initialize(i => this[i]);
+        }
     }
 }

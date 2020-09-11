@@ -74,6 +74,8 @@ namespace BrightWire.ExecutionGraph
 		/// </summary>
 		public ILinearAlgebraProvider LinearAlgebraProvider => _lap;
 
+        public IBrightDataContext Context => _lap.Context;
+
 		/// <summary>
 		/// The current property set
 		/// </summary>

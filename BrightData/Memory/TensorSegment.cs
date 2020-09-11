@@ -63,5 +63,6 @@ namespace BrightData.Memory
         public void Initialize(T[] initialData) => initialData.CopyTo(_data.Data);
         public void WriteTo(Stream stream) => _data.WriteTo(stream);
         public void CopyTo(T[] array) => _data.CopyTo(array);
+        public void CopyTo(ITensorSegment<T> segment) => segment.Initialize(i => _data[i]);
     }
 }

@@ -5,6 +5,7 @@ using BrightWire.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using BrightData.FloatTensors;
 
 namespace BrightWire.ExecutionGraph.DataSource
 {
@@ -48,7 +49,7 @@ namespace BrightWire.ExecutionGraph.DataSource
                 for (uint i = 0, len = input.RowCount; i < len; i++) {
                     if (!inputData.TryGetValue(i, out var temp))
                         inputData.Add(i, temp = new List<Vector<float>>());
-                    temp.Add(FloatVector.Create(input.Row(i).Data));
+                    temp.Add(input.Row(i));
                 }
             }
 

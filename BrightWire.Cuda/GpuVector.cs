@@ -8,6 +8,7 @@ using BrightWire.Models;
 using ManagedCuda.BasicTypes;
 using BrightWire.Cuda.Helper;
 using BrightData;
+using BrightData.FloatTensors;
 using BrightData.Helper;
 
 namespace BrightWire.LinearAlgebra
@@ -87,7 +88,7 @@ namespace BrightWire.LinearAlgebra
 				var data = new float[Count];
 				_data.CopyToHost(data);
 
-				return FloatVector.Create(data);
+				return FloatVector.Create(_cuda.DataContext, data);
 			}
 
 			set

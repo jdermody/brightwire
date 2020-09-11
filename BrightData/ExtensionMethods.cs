@@ -115,6 +115,27 @@ namespace BrightData
             return new Tensor3D<T>(segment, depth, rows, columns);
         }
 
+        public static Tensor3D<T> CreateTensor3D<T>(this IBrightDataContext context, params Matrix<T>[] slices) where T : struct
+        {
+            var first = slices.First();
+            var depth = (uint) slices.Length;
+            var rows = first.RowCount;
+            var columns = first.ColumnCount;
+
+            var data = context.TensorPool.Get<T>(depth * rows * columns).GetSegment();
+            var ret = new Tensor3D<T>(data, depth, rows, columns);
+            var allSame = ret.Matrices.Zip(slices, (t, s) => {
+                if (s.RowCount == t.RowCount && s.ColumnCount == t.ColumnCount) {
+                    s.Data.CopyTo(t.Data);
+                    return true;
+                }
+                return false;
+            }).All(v => v);
+            if(!allSame)
+                throw new ArgumentException("Input matrices had different sizes");
+            return ret;
+        }
+
         public static Tensor4D<T> CreateTensor4D<T>(this IBrightDataContext context, uint count, uint depth, uint rows, uint columns) where T : struct
         {
             var data = context.TensorPool.Get<T>(count * depth * rows * columns);

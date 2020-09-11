@@ -3,6 +3,7 @@ using BrightWire.ExecutionGraph.Node.Input;
 using BrightWire.Models;
 using System.Collections.Generic;
 using System.IO;
+using BrightData.FloatTensors;
 
 namespace BrightWire.ExecutionGraph.Node.Layer
 {
@@ -28,7 +29,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         {
             _inputSize = inputSize;
             var hiddenLayerSize = (uint)memory.Length;
-            _memory = new MemoryFeeder(memory, null, memoryId);
+            _memory = new MemoryFeeder(graph.Context, memory, null, memoryId);
             _input = new FlowThrough();
 
             var Wz = graph.Connect(inputSize, _input).AddFeedForward(hiddenLayerSize, "Wz");
@@ -116,7 +117,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         {
             var inputSize = (uint)reader.ReadInt32();
             var memoryId = reader.ReadString();
-            var memory = FloatVector.ReadFrom(reader);
+            var memory = FloatVector.ReadFrom(factory.Context, reader);
 
             if (_memory == null)
                 _Create(factory, inputSize, memory.Data.ToArray(), memoryId);

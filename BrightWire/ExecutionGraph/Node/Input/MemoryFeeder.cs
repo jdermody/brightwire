@@ -3,6 +3,7 @@ using BrightWire.Models;
 using System.Collections.Generic;
 using System.IO;
 using BrightData;
+using BrightData.FloatTensors;
 using BrightWire.ExecutionGraph.Action;
 
 namespace BrightWire.ExecutionGraph.Node.Input
@@ -33,11 +34,13 @@ namespace BrightWire.ExecutionGraph.Node.Input
             }
         }
 
+        private readonly IBrightDataContext _context;
         readonly float[] _data;
 	    readonly SetMemory _setMemory;
 
-        public MemoryFeeder(float[] data, string name = null, string id = null) : base(name, id)
+        public MemoryFeeder(IBrightDataContext context, float[] data, string name = null, string id = null) : base(name, id)
         {
+            _context = context;
             _data = data;
             _setMemory = new SetMemory(Id);
         }
@@ -45,7 +48,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
         public IAction SetMemoryAction => _setMemory;
         public Vector<float> Data
         {
-            get => FloatVector.Create(_data);
+            get => FloatVector.Create(_context, _data);
 	        set => value.Data.CopyTo(_data);
         }
 
@@ -81,7 +84,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
 
         public override void ReadFrom(GraphFactory factory, BinaryReader reader)
         {
-            Data = FloatVector.ReadFrom(reader);
+            Data = FloatVector.ReadFrom(_context, reader);
         }
     }
 }

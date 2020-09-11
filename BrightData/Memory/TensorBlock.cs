@@ -84,6 +84,11 @@ namespace BrightData.Memory
             _data.Memory.CopyTo(ptr);
         }
 
+        internal void CopyTo(TensorBlock<T> block)
+        {
+            _data.Memory.CopyTo(block._data.Memory);
+        }
+
         public void WriteTo(Stream stream)
         {
             stream.Write(MemoryMarshal.Cast<T, byte>(_data.Memory.Span));
@@ -98,13 +103,6 @@ namespace BrightData.Memory
         {
             tensor.Data.CopyTo(Data);
         }
-
-        public void InitializeFrom(T[] array)
-        {
-            var ptr = new Span<T>(array);
-            ptr.CopyTo(Data);
-        }
-
         public void Initialize(Func<uint, T> initializer)
         {
             var span = _data.Memory.Span;

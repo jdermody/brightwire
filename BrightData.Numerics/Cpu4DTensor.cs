@@ -15,20 +15,23 @@ namespace BrightData.Numerics
     /// </summary>
     class Cpu4DTensor : IIndexable4DFloatTensor
     {
+        public IBrightDataContext Context { get; }
         readonly CpuMatrix _data;
 	    readonly uint _rows, _columns, _depth, _count;
 
-	    public Cpu4DTensor(uint rows, uint columns, uint depth, uint count)
+	    public Cpu4DTensor(IBrightDataContext context, uint rows, uint columns, uint depth, uint count)
 	    {
-		    _rows = rows;
+            Context = context;
+            _rows = rows;
 			_columns = columns;
 		    _depth = depth;
 		    _count = count;
-		    _data = new CpuMatrix(DenseMatrix.Build.Dense((int)(_rows * _count * _depth), (int)_count));
+		    _data = new CpuMatrix(context, DenseMatrix.Build.Dense((int)(_rows * _count * _depth), (int)_count));
 	    }
 
-        public Cpu4DTensor(IReadOnlyList<IIndexable3DFloatTensor> tensorList)
+        public Cpu4DTensor(IBrightDataContext context, IReadOnlyList<IIndexable3DFloatTensor> tensorList)
         {
+            Context = context;
             var first = tensorList.First();
             Debug.Assert(tensorList.All(m => m.RowCount == first.RowCount && m.ColumnCount == first.ColumnCount && m.Depth == first.Depth));
             _rows = first.RowCount;
@@ -44,7 +47,7 @@ namespace BrightData.Numerics
 		        offset += rowSize;
 	        }
 
-	        _data = new CpuMatrix(DenseMatrix.Build.Dense((int)rowSize, (int)_count, data));
+	        _data = new CpuMatrix(context, DenseMatrix.Build.Dense((int)rowSize, (int)_count, data));
         }
 
         public uint RowCount => _rows;
@@ -73,7 +76,7 @@ namespace BrightData.Numerics
             var ret = new List<IIndexable3DFloatTensor>();
             foreach (var item in Tensors)
                 ret.Add(item.AddPadding(padding).AsIndexable());
-            return new Cpu4DTensor(ret);
+            return new Cpu4DTensor(Context, ret);
         }
 
         public I4DFloatTensor RemovePadding(uint padding)
@@ -81,7 +84,7 @@ namespace BrightData.Numerics
             var ret = new List<IIndexable3DFloatTensor>();
             foreach (var item in Tensors)
                 ret.Add(item.RemovePadding(padding).AsIndexable());
-            return new Cpu4DTensor(ret);
+            return new Cpu4DTensor(Context, ret);
         }
 
         public (I4DFloatTensor Result, I4DFloatTensor Indices) MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices)
@@ -93,7 +96,7 @@ namespace BrightData.Numerics
                 indexList?.Add(indices.AsIndexable());
                 ret.Add(result.AsIndexable());
             }
-            return (new Cpu4DTensor(ret), saveIndices ? new Cpu4DTensor(indexList) : null);
+            return (new Cpu4DTensor(Context, ret), saveIndices ? new Cpu4DTensor(Context, indexList) : null);
         }
 
         public I4DFloatTensor ReverseMaxPool(I4DFloatTensor indices, uint outputRows, uint outputColumns, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
@@ -103,7 +106,7 @@ namespace BrightData.Numerics
                 var result = GetTensorAt(i).ReverseMaxPool(indices.GetTensorAt(i), outputRows, outputColumns, filterWidth, filterHeight, xStride, yStride);
                 ret.Add(result.AsIndexable());
             }
-            return new Cpu4DTensor(ret);
+            return new Cpu4DTensor(Context, ret);
         }
 
         public I3DFloatTensor Im2Col(uint filterWidth, uint filterHeight, uint xStride, uint yStride)
@@ -113,7 +116,7 @@ namespace BrightData.Numerics
                 var result = GetTensorAt(i).Im2Col(filterWidth, filterHeight, xStride, yStride);
                 ret.Add(result.AsIndexable());
             }
-            return new Cpu3DTensor(ret);
+            return new Cpu3DTensor(Context, ret);
         }
 
         public I4DFloatTensor ReverseIm2Col(IFloatMatrix filters, uint outputRows, uint outputColumns, uint outputDepth, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
@@ -123,7 +126,7 @@ namespace BrightData.Numerics
                 var result = GetTensorAt(i).ReverseIm2Col(filters, outputRows, outputColumns, outputDepth, filterWidth, filterHeight, xStride, yStride);
                 ret.Add(result.AsIndexable());
             }
-            return new Cpu4DTensor(ret);
+            return new Cpu4DTensor(Context, ret);
         }
 
 		public IFloatMatrix ReshapeAsMatrix()

@@ -67,7 +67,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
                 for (uint i = 0, len = output.RowCount; i < len; i++) {
                     if (!outputData.TryGetValue(i, out var temp))
                         outputData.Add(i, temp = new List<Vector<float>>());
-                    temp.Add(FloatVector.Create(output.Row(i).Data));
+                    temp.Add(output.Row(i));
                 }
             }
 

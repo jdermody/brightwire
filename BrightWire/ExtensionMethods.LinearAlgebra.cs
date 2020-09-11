@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using BrightData;
+using BrightData.FloatTensors;
 using BrightWire.ExecutionGraph.Helper;
 
 namespace BrightWire
@@ -225,7 +226,7 @@ namespace BrightWire
 	    {
 		    var first = matrices[0];
 		    var ret = lap.Create3DTensor(first.RowCount, first.ColumnCount, (uint)matrices.Length);
-		    ret.Data = Float3DTensor.Create(matrices);
+		    ret.Data = Float3DTensor.Create(lap.Context, matrices);
 		    return ret;
 	    }
 

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BrightData;
+using BrightData.FloatTensors;
 
 namespace BrightWire.TrainingData.WellKnown
 {
@@ -50,80 +51,76 @@ namespace BrightWire.TrainingData.WellKnown
             /// <summary>
             /// Converts the image to one hot encoded float arrays
             /// </summary>
-            public (Vector<float> Data, Vector<float> Label) AsFloatArray
+            public (Vector<float> Data, Vector<float> Label) AsFloatArray(IBrightDataContext context)
             {
-                get {
-                    var label = new float[10];
-                    label[_label] = 1;
+                var label = new float[10];
+                label[_label] = 1;
 
-                    return (
-                        FloatVector.Create(_data.Select(b => Convert.ToSingle((int)b) / 255f).ToArray()),
-                        FloatVector.Create(label)
-                    );
-                }
+                return (
+                    FloatVector.Create(context, _data.Select(b => Convert.ToSingle((int)b) / 255f).ToArray()),
+                    FloatVector.Create(context, label)
+                );
             }
 
             /// <summary>
             /// Converts the image to a tensor with one hot encoded label vector
             /// </summary>
-            public (Tensor3D<float> Tensor, Vector<float> Label) AsFloatTensor
+            public (Tensor3D<float> Tensor, Vector<float> Label) AsFloatTensor(IBrightDataContext context)
             {
-                get {
-                    const int SIZE = 28;
-                    var data = AsFloatArray;
-                    var rows = new List<Vector<float>>();
-                    var vector = data.Data;
+                const int SIZE = 28;
+                var data = AsFloatArray(context);
+                var rows = new List<Vector<float>>();
+                var vector = data.Data;
 
-                    for (var y = 0; y < SIZE; y++) {
-                        var row = new float[SIZE];
-                        for (var x = 0; x < SIZE; x++)
-                            row[x] = vector[(y * SIZE) + x];
-                        rows.Add(FloatVector.Create(row));
-                    }
-                    var tensor = Float3DTensor.Create(new[] { 
-                        FloatMatrix.Create(rows.ToArray()) 
-                    });
-                    return (tensor, data.Label);
+                for (var y = 0; y < SIZE; y++) {
+                    var row = new float[SIZE];
+                    for (var x = 0; x < SIZE; x++)
+                        row[x] = vector[(y * SIZE) + x];
+                    rows.Add(FloatVector.Create(context, row));
                 }
-    }
-}
-
-/// <summary>
-/// Loads a set of images from the MNIST data files
-/// </summary>
-/// <param name="labelPath">Path to the label data file</param>
-/// <param name="imagePath">Path to the image data file</param>
-/// <param name="total">Maximum number of images to load</param>
-public static IReadOnlyList<Image> Load(string labelPath, string imagePath, int total = int.MaxValue)
-{
-    var labels = new List<byte>();
-    using (var file = new FileStream(labelPath, FileMode.Open, FileAccess.Read))
-    using (var reader = new BigEndianBinaryReader(file)) {
-        reader.ReadInt32();
-        var count = reader.ReadUInt32();
-        for (var i = 0; i < count && i < total; i++) {
-            labels.Add(reader.ReadByte());
-        }
-    }
-
-    var images = new List<byte[]>();
-    using (var file = new FileStream(imagePath, FileMode.Open, FileAccess.Read))
-    using (var reader = new BigEndianBinaryReader(file)) {
-        reader.ReadInt32();
-        var count = reader.ReadUInt32();
-        var numRows = reader.ReadUInt32();
-        var numCols = reader.ReadUInt32();
-        var imageSize = numRows * numCols;
-        for (var i = 0; i < count && i < total; i++) {
-            var imageData = new byte[imageSize];
-            for (var j = 0; j < imageSize; j++) {
-                imageData[j] = reader.ReadByte();
+                var tensor = Float3DTensor.Create(context, new[] {
+                    FloatMatrix.Create(context, rows.ToArray())
+                });
+                return (tensor, data.Label);
             }
-            images.Add(imageData);
         }
-    }
 
-    return labels.Zip(images, (l, d) => new Image(d, l)).ToList();
-}
+        /// <summary>
+        /// Loads a set of images from the MNIST data files
+        /// </summary>
+        /// <param name="labelPath">Path to the label data file</param>
+        /// <param name="imagePath">Path to the image data file</param>
+        /// <param name="total">Maximum number of images to load</param>
+        public static IReadOnlyList<Image> Load(string labelPath, string imagePath, int total = int.MaxValue)
+        {
+            var labels = new List<byte>();
+            using (var file = new FileStream(labelPath, FileMode.Open, FileAccess.Read))
+            using (var reader = new BigEndianBinaryReader(file)) {
+                reader.ReadInt32();
+                var count = reader.ReadUInt32();
+                for (var i = 0; i < count && i < total; i++) {
+                    labels.Add(reader.ReadByte());
+                }
+            }
+
+            var images = new List<byte[]>();
+            using (var file = new FileStream(imagePath, FileMode.Open, FileAccess.Read))
+            using (var reader = new BigEndianBinaryReader(file)) {
+                reader.ReadInt32();
+                var count = reader.ReadUInt32();
+                var numRows = reader.ReadUInt32();
+                var numCols = reader.ReadUInt32();
+                var imageSize = numRows * numCols;
+                for (var i = 0; i < count && i < total; i++) {
+                    var imageData = new byte[imageSize];
+                    for (var j = 0; j < imageSize; j++) {
+                        imageData[j] = reader.ReadByte();
+                    }
+                    images.Add(imageData);
+                }
+            }
+
+            return labels.Zip(images, (l, d) => new Image(d, l)).ToList();
+        }
     }
 }

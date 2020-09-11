@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BrightData;
+using BrightData.FloatTensors;
 using BrightWire.ExecutionGraph.Node.Operation;
 using BrightWire.Helper;
 using BrightWire.Models;
@@ -43,8 +44,8 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 	        }
 
 	        _input = new FlowThrough();
-	        _gamma = new VectorInput(gamma, "gamma");
-	        _beta = new VectorInput(beta, "beta");
+	        _gamma = new VectorInput(graph.Context, gamma, "gamma");
+	        _beta = new VectorInput(graph.Context, beta, "beta");
 
 	        var mean = graph.Connect(inputSize, _input).Add(new BatchMean());
 	        var subtractMean = graph.Subtract(inputSize, _input, mean.LastNode);
@@ -184,12 +185,12 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 		public override void ReadFrom(GraphFactory factory, BinaryReader reader)
 		{
 			var inputSize = (uint)reader.ReadInt32();
-			var gamma = FloatVector.ReadFrom(reader).ToArray();
-			var beta = FloatVector.ReadFrom(reader).ToArray();
+			var gamma = FloatVector.ReadFrom(factory.Context, reader).ToArray();
+			var beta = FloatVector.ReadFrom(factory.Context, reader).ToArray();
 
 			var count = (uint)reader.ReadInt32();
-			var mean = FloatVector.ReadFrom(reader).ToArray();
-			var m2 = FloatVector.ReadFrom(reader).ToArray();
+			var mean = FloatVector.ReadFrom(factory.Context, reader).ToArray();
+			var m2 = FloatVector.ReadFrom(factory.Context, reader).ToArray();
 
 			_Create(factory, inputSize, gamma, beta, mean, m2, count);
 		}

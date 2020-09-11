@@ -6,10 +6,13 @@
 
   <ItemGroup>
     <Compile Remove="LinearAlgebra\**" />
+    <Compile Remove="Models\DataTable\**" />
     <Compile Remove="TabularData\**" />
     <EmbeddedResource Remove="LinearAlgebra\**" />
+    <EmbeddedResource Remove="Models\DataTable\**" />
     <EmbeddedResource Remove="TabularData\**" />
     <None Remove="LinearAlgebra\**" />
+    <None Remove="Models\DataTable\**" />
     <None Remove="TabularData\**" />
   </ItemGroup>
 

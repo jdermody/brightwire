@@ -102,12 +102,14 @@ namespace BrightData
         public void PointwiseMultiplyInPlace(DT tensor) => Computation.SubtractInPlace(_data, tensor.Data);
         public DT PointwiseDivide(DT tensor) => Create(Computation.PointwiseDivide(_data, tensor.Data));
         public void PointwiseDivideInPlace(DT tensor) => Computation.PointwiseDivideInPlace(_data, tensor.Data);
+        public DT Multiply(T scalar) => Create(Computation.Multiply(_data, scalar));
 
         public DT Log() => Create(Computation.Log(_data));
         public DT Abs() => Create(Computation.Abs(_data));
         public DT Sqrt() => Create(Computation.Sqrt(_data));
         public DT Squared() => Create(Computation.Squared(_data));
-        
+        public DT Pow(T power) => Create(Computation.Pow(_data, power));
+
         public T DotProduct(DT tensor) => Computation.DotProduct(_data, tensor.Data);
         public T Sum() => Computation.Sum(_data);
         public uint? Search(T value) => Computation.Search(_data, value);

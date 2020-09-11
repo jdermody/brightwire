@@ -62,6 +62,39 @@ namespace BrightData
             return ret;
         }
 
+        public Matrix<T> Multiply(Matrix<T> other)
+        {
+            var ret = new Matrix<T>(Context.TensorPool.Get<T>(Size).GetSegment(), RowCount, other.ColumnCount);
+            Parallel.For(0, ret.Size, ind => {
+                var i = (uint)(ind % RowCount);
+                var j = (uint)(ind / other.ColumnCount);
+                ret[i, j] = Row(i).DotProduct(other.Column(j));
+            });
+            return ret;
+        }
+
+        public Vector<T> GetDiagonal()
+        {
+            if(RowCount != ColumnCount)
+                throw new Exception("Diagonal can only be found from square matrices");
+            return Context.CreateVector(RowCount, i => this[i, i]);
+        }
+
+        public Vector<T> RowSums()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Vector<T> ColumnSums()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Matrix<T> Multiply(Vector<T> vector)
+        {
+            throw new NotImplementedException();
+        }
+
         protected override Matrix<T> Create(ITensorSegment<T> segment)
         {
             return new Matrix<T>(segment, RowCount, ColumnCount);

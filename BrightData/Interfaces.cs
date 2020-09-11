@@ -74,7 +74,6 @@ namespace BrightData
         IBrightDataContext Context { get; }
         void InitializeFrom(Stream stream);
         void InitializeFrom(ITensorBlock<T> tensor);
-        void InitializeFrom(T[] array);
         Span<T> Data { get; }
         ITensorBlock<T> Clone();
     }
@@ -134,6 +133,7 @@ namespace BrightData
         void Initialize(T[] initialData);
         void WriteTo(Stream writerBaseStream);
         void CopyTo(T[] array);
+        void CopyTo(ITensorSegment<T> segment);
     }
 
     public interface ITensorAllocator
@@ -167,6 +167,7 @@ namespace BrightData
         ITensorSegment<T> Log(ITensorSegment<T> tensor);
         T ManhattanDistance(ITensorSegment<T> tensor, ITensorSegment<T> other);
         void MultiplyInPlace(ITensorSegment<T> target, T scalar);
+        ITensorSegment<T> Multiply(ITensorSegment<T> target, T scalar);
         T NextRandom();
         ITensorSegment<T> PointwiseDivide(ITensorSegment<T> tensor1, ITensorSegment<T> tensor2);
         void PointwiseDivideInPlace(ITensorSegment<T> target, ITensorSegment<T> other);
@@ -195,6 +196,7 @@ namespace BrightData
         ITensorSegment<T> LeakyReluDerivative(ITensorSegment<T> segment);
         ITensorSegment<T> Softmax(ITensorSegment<T> segment);
         Matrix<T> SoftmaxDerivative(ITensorSegment<T> segment);
+        ITensorSegment<T> Pow(ITensorSegment<T> segment, T power);
 
         T Get(uint val);
         T Get(float val);

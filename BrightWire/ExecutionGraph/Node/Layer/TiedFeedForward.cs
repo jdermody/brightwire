@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using BrightData;
+using BrightData.FloatTensors;
 
 namespace BrightWire.ExecutionGraph.Node.Layer
 {
@@ -77,7 +78,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             _layerId = reader.ReadString();
 
             var lap = factory?.LinearAlgebraProvider;
-            var bias = FloatVector.ReadFrom(reader);
+            var bias = FloatVector.ReadFrom(factory.Context, reader);
             if (_bias == null)
                 _bias = lap.CreateVector(bias);
             else

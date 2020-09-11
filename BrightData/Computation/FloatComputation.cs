@@ -24,6 +24,8 @@ namespace BrightData.Computation
 
         public void AddInPlace(ITensorSegment<float> target, float scalar) => MutateInPlace(target, v => v + scalar);
         public void MultiplyInPlace(ITensorSegment<float> target, float scalar) => MutateInPlace(target, v => v * scalar);
+        public ITensorSegment<float> Multiply(ITensorSegment<float> target, float scalar) => Transform(target, v => v * scalar);
+
         public ITensorSegment<float> Subtract(ITensorSegment<float> tensor1, ITensorSegment<float> tensor2) => Zip(tensor1, tensor2, (a, b) => a - b);
         public void SubtractInPlace(ITensorSegment<float> target, ITensorSegment<float> other) => Mutate(target, other, (a, b) => a - b);
         public void SubtractInPlace(ITensorSegment<float> target, ITensorSegment<float> other, float coefficient1, float coefficient2) => Mutate(target, other, (a, b) => a * coefficient1 - b * coefficient2);
@@ -173,6 +175,8 @@ namespace BrightData.Computation
                 : -segment[x] * segment[y]
             );
         }
+
+        public ITensorSegment<float> Pow(ITensorSegment<float> segment, float power) => Transform(segment, v => FloatMath.Pow(v, power));
 
         public float NextRandom() => Convert.ToSingle(_context.Random.NextDouble());
 

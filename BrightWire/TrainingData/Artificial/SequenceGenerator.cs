@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using BrightData;
+using BrightData.FloatTensors;
 
 namespace BrightWire.TrainingData.Artificial
 {
@@ -13,6 +14,7 @@ namespace BrightWire.TrainingData.Artificial
     public class SequenceGenerator
     {
 	    readonly int _minSize, _maxSize;
+        private readonly IBrightDataContext _context;
         readonly bool _noRepeat;
         readonly Random _rnd;
 
@@ -34,14 +36,16 @@ namespace BrightWire.TrainingData.Artificial
         /// <summary>
         /// Constructor
         /// </summary>
+        /// <param name="context"></param>
         /// <param name="dictionarySize">The number of letters to use</param>
         /// <param name="minSize">The minimum size of each sequence</param>
         /// <param name="maxSize">The maximum size of each sequence</param>
         /// <param name="noRepeat">True to avoid repeating any previous character within each sequence</param>
         /// <param name="isStochastic">True to generate different sequences each time</param>
-        public SequenceGenerator(int dictionarySize, int minSize, int maxSize, bool noRepeat = true, bool isStochastic = true)
+        public SequenceGenerator(IBrightDataContext context, int dictionarySize, int minSize, int maxSize, bool noRepeat = true, bool isStochastic = true)
         {
             _rnd = isStochastic ? new Random() : new Random(0);
+            _context = context;
             _noRepeat = noRepeat;
             DictionarySize = Math.Min(_dictionary.Length, dictionarySize);
             if (noRepeat) {
@@ -96,7 +100,7 @@ namespace BrightWire.TrainingData.Artificial
         {
             var ret = new float[DictionarySize];
             ret[_charTable[ch]] = val;
-            return FloatVector.Create(ret);
+            return FloatVector.Create(_context, ret);
         }
 
         /// <summary>
@@ -109,7 +113,7 @@ namespace BrightWire.TrainingData.Artificial
             var ret = new float[DictionarySize];
             foreach(var item in data)
                 ret[_charTable[item.Item1]] = item.Item2;
-            return FloatVector.Create(ret);
+            return FloatVector.Create(_context, ret);
         }
 
         /// <summary>
@@ -123,7 +127,7 @@ namespace BrightWire.TrainingData.Artificial
             for(int i = 0, len = str.Length; i < len; i++)
                 data[i] = Encode(str[i]);
 
-            return FloatMatrix.Create(data);
+            return FloatMatrix.Create(_context, data);
         }
 
         /// <summary>
