@@ -72,7 +72,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             }
 
             var miniBatch = new MiniBatch(rows, this);
-            var curr = _lap.CreateMatrix((uint)data.Count, (uint)InputSize, (x, y) => data[(int)x].Item1.Data[y]);
+            var curr = _lap.CreateMatrix((uint)data.Count, (uint)InputSize, (x, y) => data[(int)x].Item1.Segment[y]);
             foreach (var item in outputData.OrderBy(kv => kv.Key)) {
                 var output = _lap.CreateMatrixFromRows(item.Value);
                 var type = (item.Key == 0)

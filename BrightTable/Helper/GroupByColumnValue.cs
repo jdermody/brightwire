@@ -25,9 +25,9 @@ namespace BrightTable.Helper
             });
         }
 
-        public IReadOnlyCollection<(string Item, IReadOnlyList<uint> Indices)> Groups => _groups
+        public IReadOnlyCollection<(string Item, List<uint> Indices)> Groups => _groups
             .OrderBy(kv => kv.Key)
-            .Select(kv => (Item: kv.Key, Indices: (IReadOnlyList<uint>)kv.Value.AsReadOnly()))
+            .Select(kv => (Item: kv.Key, Indices: kv.Value))
             .ToList();
     }
 }

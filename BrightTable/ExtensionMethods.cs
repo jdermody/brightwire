@@ -168,7 +168,7 @@ namespace BrightTable
             return Enumerable.Range(0, (int)dataTable.ColumnCount).Select(i => (uint)i);
         }
 
-        public static IReadOnlyList<IMetaData> AllMetaData(this IDataTable dataTable)
+        public static IEnumerable<IMetaData> AllMetaData(this IDataTable dataTable)
         {
             return dataTable.ColumnMetaData(dataTable.ColumnIndices().ToArray());
         }
@@ -183,15 +183,15 @@ namespace BrightTable
         public static void ForEachRow<T0, T1, T2>(this IDataTable dataTable, Action<T0, T1, T2> callback) => dataTable.ForEachRow((row, index) => callback((T0)row[0], (T1)row[1], (T2)row[2]));
         public static void ForEachRow<T0, T1, T2, T3>(this IDataTable dataTable, Action<T0, T1, T2, T3> callback) => dataTable.ForEachRow((row, index) => callback((T0)row[0], (T1)row[1], (T2)row[2], (T3)row[3]));
 
-        public static IReadOnlyList<T> MapRows<T>(this IDataTable dataTable, Func<object[], uint, T> callback)
+        public static List<T> MapRows<T>(this IDataTable dataTable, Func<object[], uint, T> callback)
         {
             var ret = new List<T>();
             dataTable.ForEachRow((row, index) => ret.Add(callback(row, index)));
-            return ret.AsReadOnly();
+            return ret;
         }
 
-        public static IReadOnlyList<T> MapRows<T0, T>(this IDataTable dataTable, Func<T0, T> callback) => MapRows(dataTable, (rows, index) => callback((T0)rows[0]));
-        public static IReadOnlyList<T> MapRows<T0, T1, T>(this IDataTable dataTable, Func<T0, T1, T> callback) => MapRows(dataTable, (rows, index) => callback((T0)rows[0], (T1)rows[1]));
+        public static List<T> MapRows<T0, T>(this IDataTable dataTable, Func<T0, T> callback) => MapRows(dataTable, (rows, index) => callback((T0)rows[0]));
+        public static List<T> MapRows<T0, T1, T>(this IDataTable dataTable, Func<T0, T1, T> callback) => MapRows(dataTable, (rows, index) => callback((T0)rows[0], (T1)rows[1]));
 
         public static IDataAnalyser GetColumnAnalyser(this ColumnType type, int distinctValueCount = 100)
         {
@@ -252,9 +252,6 @@ namespace BrightTable
             }
             return ret;
         }
-
-        public static IReadOnlyList<ISingleTypeTableSegment> AllColumns(this IDataTable dataTable) => dataTable.Columns(Range(0, dataTable.ColumnCount).ToArray());
-        public static IReadOnlyList<IDataTableSegment> AllRows(this IRowOrientedDataTable dataTable) => dataTable.Rows(Range(0, dataTable.RowCount).ToArray());
 
         public static IColumnOrientedDataTable ParseCsv(
             this IBrightDataContext context,
@@ -325,7 +322,7 @@ namespace BrightTable
             }
         }
 
-        public static IReadOnlyList<object[]> Head(this IDataTable dataTable, uint size = 10)
+        public static List<object[]> Head(this IDataTable dataTable, uint size = 10)
         {
             var ret = new List<object[]>();
             dataTable.ForEachRow((row, index) => ret.Add(row), size);
@@ -339,7 +336,7 @@ namespace BrightTable
             var version = reader.ReadInt32();
 
             if (version > Consts.DataTableVersion)
-                throw new Exception($"Data table version {version} exceeds {Consts.DataTableVersion}");
+                throw new Exception($"Segment table version {version} exceeds {Consts.DataTableVersion}");
             var orientation = (DataTableOrientation)reader.ReadByte();
             if (orientation == DataTableOrientation.ColumnOriented)
                 return new ColumnOrientedDataTable(context, input, false);
@@ -368,7 +365,7 @@ namespace BrightTable
 
         public static void SetTargetColumn(this IDataTable table, uint? columnIndex)
         {
-            var metaData = table.AllMetaData();
+            var metaData = table.AllMetaData().ToList();
             for (uint i = 0; i < table.ColumnCount; i++) {
                 metaData[(int)i].Set(Consts.IsTarget, i == columnIndex);
             }
@@ -382,7 +379,7 @@ namespace BrightTable
 
         public static uint? GetTargetColumn(this IDataTable table)
         {
-            var metaData = table.AllMetaData();
+            var metaData = table.AllMetaData().ToList();
             for (uint i = 0; i < table.ColumnCount; i++) {
                 if (metaData[(int)i].Get<bool>(Consts.IsTarget))
                     return i;
@@ -408,7 +405,7 @@ namespace BrightTable
 
         public static void SetSequentialColumn(this IDataTable table, params uint[] columnIndices)
         {
-            var metaData = table.AllMetaData();
+            var metaData = table.AllMetaData().ToList();
             var featureColumns = new HashSet<uint>(columnIndices);
 
             for (uint i = 0; i < table.ColumnCount; i++) {
@@ -460,7 +457,7 @@ namespace BrightTable
             return (IAutoGrowBuffer)ret;
         }
 
-        public static IColumnOrientedDataTable BuildColumnOrientedTable(this IReadOnlyList<ISingleTypeTableSegment> segments, IBrightDataContext context, uint rowCount, string filePath = null)
+        public static IColumnOrientedDataTable BuildColumnOrientedTable(this List<ISingleTypeTableSegment> segments, IBrightDataContext context, uint rowCount, string filePath = null)
         {
             var columnCount = (uint)segments.Count;
             var columnOffsets = new List<(long Position, long EndOfColumnOffset)>();
@@ -475,17 +472,17 @@ namespace BrightTable
             return builder.Build(context);
         }
 
-        public static IColumnOrientedDataTable BuildColumnOrientedTable(this IReadOnlyList<IAutoGrowBuffer> buffers, IBrightDataContext context, uint rowCount, string filePath = null)
+        public static IColumnOrientedDataTable BuildColumnOrientedTable(this List<IAutoGrowBuffer> buffers, IBrightDataContext context, uint rowCount, string filePath = null)
         {
             return buffers.Cast<ISingleTypeTableSegment>().ToList().BuildColumnOrientedTable(context, rowCount, filePath);
         }
 
-        public static IColumnOrientedDataTable BuildColumnOrientedTable<T>(this IReadOnlyList<GrowableSegment<T>> buffers, IBrightDataContext context, uint rowCount, string filePath = null)
+        public static IColumnOrientedDataTable BuildColumnOrientedTable<T>(this List<GrowableSegment<T>> buffers, IBrightDataContext context, uint rowCount, string filePath = null)
         {
             return buffers.Cast<ISingleTypeTableSegment>().ToList().BuildColumnOrientedTable(context, rowCount, filePath);
         }
 
-        public static IRowOrientedDataTable BuildRowOrientedTable(this IReadOnlyList<IAutoGrowBuffer> buffers, IBrightDataContext context, uint rowCount, string filePath = null)
+        public static IRowOrientedDataTable BuildRowOrientedTable(this List<IAutoGrowBuffer> buffers, IBrightDataContext context, uint rowCount, string filePath = null)
         {
             using var builder = new RowOrientedTableBuilder(rowCount, filePath);
             var readers = buffers.Cast<ISingleTypeTableSegment>()
@@ -512,8 +509,8 @@ namespace BrightTable
 
         public static IEnumerable<(float[] Numeric, string Other)> ForEachAsFloat(
             this IDataTable dataTable, 
-            Action<IReadOnlyList<uint>> numericRows = null,
-            Action<IReadOnlyList<uint>> otherRows = null)
+            Action<List<uint>> numericRows = null,
+            Action<List<uint>> otherRows = null)
         {
             var numericColumnIndex = new List<uint>();
             var otherColumnIndex = new List<uint>();
@@ -529,15 +526,15 @@ namespace BrightTable
             if (!numericColumnIndex.Any())
                 throw new ArgumentException("No numeric columns");
 
-            numericRows?.Invoke(numericColumnIndex.AsReadOnly());
-            otherRows?.Invoke(otherColumnIndex.AsReadOnly());
+            numericRows?.Invoke(numericColumnIndex);
+            otherRows?.Invoke(otherColumnIndex);
 
             var rowCount = dataTable.RowCount;
             var numericColumns = dataTable
                 .Columns(numericColumnIndex.ToArray())
                 .Select(c => {
                     var vector = dataTable.Context.CreateVector<float>(rowCount);
-                    c.CopyTo(vector.Data);
+                    c.CopyTo(vector.Segment);
                     return vector;
                 })
                 .ToList()

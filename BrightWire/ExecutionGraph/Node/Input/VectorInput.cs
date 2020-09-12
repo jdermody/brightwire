@@ -64,7 +64,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
 
 		public override void ReadFrom(GraphFactory factory, BinaryReader reader)
 		{
-			FloatVector.ReadFrom(_context, reader).Data.CopyTo(_data);
+			FloatVector.ReadFrom(_context, reader).Segment.CopyTo(_data);
 		}
 	}
 }

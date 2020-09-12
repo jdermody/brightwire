@@ -19,7 +19,7 @@ namespace BrightWire.Models
         /// <param name="lap">The linear algebra provider</param>
         public ILinearRegressionPredictor CreatePredictor(ILinearAlgebraProvider lap)
         {
-            return new RegressionPredictor(lap, lap.CreateVector(Theta.Data));
+            return new RegressionPredictor(lap, lap.CreateVector(Theta.Segment));
         }
     }
 }

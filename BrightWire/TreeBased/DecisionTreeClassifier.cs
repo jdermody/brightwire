@@ -21,13 +21,13 @@ namespace BrightWire.TreeBased
         {
             var p = _tree.Root;
             while(p != null) {
-                if (p.ColumnIndex >= 0) {
+                if (p.ColumnIndex.HasValue) {
                     string findChild = null;
                     if(p.Split.HasValue) {
-                        var val = row.GetField<double>(p.ColumnIndex);
+                        var val = row.GetField<double>(p.ColumnIndex.Value);
                         findChild = (val < p.Split.Value) ? "-" : "+";
                     }else
-                        findChild = row.GetField<string>(p.ColumnIndex);
+                        findChild = row.GetField<string>(p.ColumnIndex.Value);
 
                     if (findChild != null) {
                         var child = p.Children.FirstOrDefault(c => c.MatchLabel == findChild);

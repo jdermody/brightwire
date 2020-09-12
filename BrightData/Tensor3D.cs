@@ -9,7 +9,7 @@ namespace BrightData
     public class Tensor3D<T> : TensorBase<T, Tensor3D<T>>
         where T: struct
     {
-        public Tensor3D(ITensorSegment<T> data, uint depth, uint rows, uint columns) : base(data, new[] {depth, rows, columns}) { }
+        public Tensor3D(ITensorSegment<T> segment, uint depth, uint rows, uint columns) : base(segment, new[] {depth, rows, columns}) { }
         public Tensor3D(IBrightDataContext context, BinaryReader reader) : base(context, reader) { }
 
         public uint Depth => Shape[0];
@@ -20,18 +20,18 @@ namespace BrightData
 
         public T this[int depth, int rowY, int columnX]
         {
-            get => _data[depth * MatrixSize + rowY * ColumnCount + columnX];
-            set => _data[depth * MatrixSize + rowY * ColumnCount + columnX] = value;
+            get => _segment[depth * MatrixSize + rowY * ColumnCount + columnX];
+            set => _segment[depth * MatrixSize + rowY * ColumnCount + columnX] = value;
         }
         public T this[uint depth, uint rowY, uint columnX]
         {
-            get => _data[depth * MatrixSize + rowY * ColumnCount + columnX];
-            set => _data[depth * MatrixSize + rowY * ColumnCount + columnX] = value;
+            get => _segment[depth * MatrixSize + rowY * ColumnCount + columnX];
+            set => _segment[depth * MatrixSize + rowY * ColumnCount + columnX] = value;
         }
 
         public Matrix<T> Matrix(uint index)
         {
-            var segment = new TensorSegmentWrapper<T>(_data, index * MatrixSize, 1, MatrixSize);
+            var segment = new TensorSegmentWrapper<T>(_segment, index * MatrixSize, 1, MatrixSize);
             return new Matrix<T>(segment, RowCount, ColumnCount);
         }
 
@@ -48,7 +48,7 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Converts the data to a column major vector
+        /// Converts the segment to a column major vector
         /// </summary>
         public T[] GetAsRaw()
         {
@@ -60,7 +60,7 @@ namespace BrightData
                 var rowCount = matrix.RowCount;
                 foreach(var row in matrix.Rows) {
                     int j = 0;
-                    foreach(var item in row.Data.Values) {
+                    foreach(var item in row.Segment.Values) {
                         data[(j * rowCount + i) + (k * blockSize)] = item;
                         ++j;
                     }

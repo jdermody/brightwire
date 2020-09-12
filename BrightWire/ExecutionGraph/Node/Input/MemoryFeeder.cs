@@ -49,7 +49,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
         public Vector<float> Data
         {
             get => FloatVector.Create(_context, _data);
-	        set => value.Data.CopyTo(_data);
+	        set => value.Segment.CopyTo(_data);
         }
 
         public override void ExecuteForward(IContext context)

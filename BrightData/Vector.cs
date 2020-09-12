@@ -8,7 +8,7 @@ namespace BrightData
     public class Vector<T> : TensorBase<T, Vector<T>>
         where T: struct
     {
-        public Vector(ITensorSegment<T> data) : base(data, new[] { data.Size }) { }
+        public Vector(ITensorSegment<T> segment) : base(segment, new[] { segment.Size }) { }
         public Vector(IBrightDataContext context, BinaryReader reader) : base(context, reader) { }
 
         public new uint Size => Shape[0];
@@ -17,26 +17,26 @@ namespace BrightData
 
         public T this[int index]
         {
-            get => _data[(uint)index];
-            set => _data[(uint)index] = value;
+            get => _segment[(uint)index];
+            set => _segment[(uint)index] = value;
         }
 
         public T this[uint index]
         {
-            get => _data[index];
-            set => _data[index] = value;
+            get => _segment[index];
+            set => _segment[index] = value;
         }
 
-        public IEnumerable<T> Values => _data.Values;
+        public IEnumerable<T> Values => _segment.Values;
 
         public override string ToString()
         {
-            var preview = String.Join("|", _data.Values.Take(8));
+            var preview = String.Join("|", _segment.Values.Take(8));
             if (Size > 8)
                 preview += "|...";
             return $"Vector ({Size}): {preview}";
         }
 
-        public void CopyFrom(T[] array) => _data.Initialize(array);
+        public void CopyFrom(T[] array) => _segment.Initialize(array);
     }
 }

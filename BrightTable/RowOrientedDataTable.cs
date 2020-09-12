@@ -28,7 +28,7 @@ namespace BrightTable
             if (readHeader) {
                 var version = reader.ReadInt32();
                 if (version > Consts.DataTableVersion)
-                    throw new Exception($"Data table version {version} exceeds {Consts.DataTableVersion}");
+                    throw new Exception($"Segment table version {version} exceeds {Consts.DataTableVersion}");
                 var orientation = (DataTableOrientation)reader.ReadInt32();
                 if (orientation != DataTableOrientation.RowOriented)
                     throw new Exception("Invalid orientation");
@@ -59,13 +59,12 @@ namespace BrightTable
         public DataTableOrientation Orientation => DataTableOrientation.RowOriented;
         public ColumnType[] ColumnTypes { get; }
 
-        public IReadOnlyList<IDataTableSegment> Rows(params uint[] rowIndices)
+        public IEnumerable<IDataTableSegment> Rows(params uint[] rowIndices)
         {
             var ret = new List<IDataTableSegment>();
             if (rowIndices.Any()) {
                 ForEachRow(rowIndices, row => ret.Add(new Row(ColumnTypes, row)));
             }
-
             return ret;
         }
 
@@ -85,7 +84,7 @@ namespace BrightTable
             }
         }
 
-        public IReadOnlyList<ISingleTypeTableSegment> Columns(params uint[] columnIndices)
+        public IEnumerable<ISingleTypeTableSegment> Columns(params uint[] columnIndices)
         {
             // TODO: optionally compress the columns based on unique count statistics
             var columns = columnIndices.Select(i => (Index: i, Column: _GetColumn(ColumnTypes[i], _columns[i].MetaData))).ToList();
@@ -104,12 +103,12 @@ namespace BrightTable
                 });
             }
 
-            return columns.Select(c => c.Column.Segment).ToList();
+            return columns.Select(c => c.Column.Segment);
         }
 
-        public IReadOnlyList<IMetaData> ColumnMetaData(params uint[] columnIndices)
+        public IEnumerable<IMetaData> ColumnMetaData(params uint[] columnIndices)
         {
-            return columnIndices.Select(i => _columns[i].MetaData).ToList().AsReadOnly();
+            return columnIndices.Select(i => _columns[i].MetaData);
         }
 
         public IRowOrientedDataTable AsRowOriented(string filePath = null)
@@ -238,7 +237,7 @@ namespace BrightTable
 
         public IRowOrientedDataTable Bag(uint sampleCount, int? randomSeed = null, string filePath = null)
         {
-            var rowIndices = this.RowIndices().ToList().Bag(sampleCount, randomSeed);
+            var rowIndices = this.RowIndices().ToArray().Bag(sampleCount, randomSeed);
             return _Copy(rowIndices, filePath);
         }
 

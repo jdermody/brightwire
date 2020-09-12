@@ -35,28 +35,27 @@ namespace BrightWire.Models
 			get
 			{
 				var ret = new StringBuilder();
-				using (var writer = XmlWriter.Create(new StringWriter(ret))) {
-					writer.WriteStartElement("confusion-matrix");
-					if (Classifications != null) {
-						foreach (var expected in Classifications) {
-							writer.WriteStartElement("expected-classification");
-							writer.WriteAttributeString("label", ClassificationLabels[expected.ClassificationIndex]);
+                using var writer = XmlWriter.Create(new StringWriter(ret));
+                writer.WriteStartElement("confusion-matrix");
+                if (Classifications != null) {
+                    foreach (var expected in Classifications) {
+                        writer.WriteStartElement("expected-classification");
+                        writer.WriteAttributeString("label", ClassificationLabels[expected.ClassificationIndex]);
 
-							if (expected.ActualClassifications != null) {
-								foreach (var actual in expected.ActualClassifications) {
-									writer.WriteStartElement("actual-classification");
-									writer.WriteAttributeString("label", ClassificationLabels[actual.ClassificationIndex]);
-									writer.WriteAttributeString("count", actual.Count.ToString());
-									writer.WriteEndElement();
-								}
-							}
+                        if (expected.ActualClassifications != null) {
+                            foreach (var actual in expected.ActualClassifications) {
+                                writer.WriteStartElement("actual-classification");
+                                writer.WriteAttributeString("label", ClassificationLabels[actual.ClassificationIndex]);
+                                writer.WriteAttributeString("count", actual.Count.ToString());
+                                writer.WriteEndElement();
+                            }
+                        }
 
-							writer.WriteEndElement();
-						}
-					}
-					writer.WriteEndElement();
-				}
-				return ret.ToString();
+                        writer.WriteEndElement();
+                    }
+                }
+                writer.WriteEndElement();
+                return ret.ToString();
 			}
 		}
 

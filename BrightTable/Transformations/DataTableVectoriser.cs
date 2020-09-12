@@ -111,7 +111,7 @@ namespace BrightTable.Transformations
 
             protected override IEnumerable<float> _Convert(TensorBase<float, ITensor<float>> obj)
             {
-                return obj.Data.Values;
+                return obj.Segment.Values;
             }
         }
         class OneHotEncodeVectorised : VectoriserBase<object>

@@ -117,8 +117,8 @@ namespace BrightData.Numerics
 
 	        set
             {
-                if (value.Data != null) {
-                    var data = value.Data;
+                if (value.Segment != null) {
+                    var data = value.Segment;
                     for (uint i = 0, len = data.Size; i < len; i++)
                         _vector[(int)i] = data[i];
                 }

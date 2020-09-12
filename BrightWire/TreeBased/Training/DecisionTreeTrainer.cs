@@ -120,7 +120,7 @@ namespace BrightWire.TreeBased.Training
                             _categorical.Add(i);
                     }
                 }
-                //table.AsConvertible().ForEachRow(row => _data.Add(new InMemoryRow(row, _categorical, _continuous, ClassColumnIndex)));
+                //table.AsConvertible().ForEachRow(row => _segment.Add(new InMemoryRow(row, _categorical, _continuous, ClassColumnIndex)));
             }
             public IEnumerable<uint> CategoricalColumns => _categorical;
 	        public IEnumerable<uint> ContinuousColumns => _continuous;
@@ -147,7 +147,7 @@ namespace BrightWire.TreeBased.Training
             public DecisionTree.Node AsDecisionTreeNode()
             {
                 var ret = new DecisionTree.Node {
-                    ColumnIndex = _attribute != null ? _attribute.ColumnIndex : uint.MaxValue,
+                    ColumnIndex = _attribute?.ColumnIndex,
                     MatchLabel = MatchLabel,
                     Split = _attribute?.Split,
                     Children = _children?.Select(c => c.AsDecisionTreeNode()).ToArray(),

@@ -88,7 +88,7 @@ namespace BrightTable
             if (readHeader) {
                 var version = reader.ReadInt32();
                 if (version > Consts.DataTableVersion)
-                    throw new Exception($"Data table version {version} exceeds {Consts.DataTableVersion}");
+                    throw new Exception($"Segment table version {version} exceeds {Consts.DataTableVersion}");
                 var orientation = (DataTableOrientation)reader.ReadByte();
                 if (orientation != DataTableOrientation.ColumnOriented)
                     throw new Exception("Invalid orientation");
@@ -137,12 +137,12 @@ namespace BrightTable
             return _GetColumn(columnIndex);
         }
 
-        public IReadOnlyList<ISingleTypeTableSegment> Columns(params uint[] columnIndices)
+        public IEnumerable<ISingleTypeTableSegment> Columns(params uint[] columnIndices)
         {
             var table = new Dictionary<uint, ISingleTypeTableSegment>();
             foreach (var index in columnIndices.OrderBy(i => i).Distinct())
                 table.Add(index, _GetColumn(index));
-            return columnIndices.Select(i => table[i]).ToList();
+            return columnIndices.Select(i => table[i]);
         }
 
         public void ForEachRow(Action<object[], uint> callback, uint maxRows = uint.MaxValue)
@@ -161,7 +161,7 @@ namespace BrightTable
             }
         }
 
-        public IReadOnlyList<IMetaData> ColumnMetaData(params uint[] columnIndices) => columnIndices.Select(i => _columns[i].MetaData).ToList();
+        public IEnumerable<IMetaData> ColumnMetaData(params uint[] columnIndices) => columnIndices.Select(i => _columns[i].MetaData);
 
         public IRowOrientedDataTable AsRowOriented(string filePath = null)
         {
@@ -254,8 +254,7 @@ namespace BrightTable
         public IColumnOrientedDataTable SelectColumns(params uint[] columnIndices) => SelectColumns(null, columnIndices);
         public IColumnOrientedDataTable SelectColumns(string filePath, params uint[] columnIndices)
         {
-            var columns = Columns(columnIndices);
-            return columns.BuildColumnOrientedTable(Context, RowCount, filePath);
+            return Columns(columnIndices).ToList().BuildColumnOrientedTable(Context, RowCount, filePath);
         }
 
         public IColumnOrientedDataTable Normalize(NormalizationType type, string filePath = null)
@@ -292,13 +291,13 @@ namespace BrightTable
             using var tempStream = new TempStreamManager();
             var buffers = ExtensionMethods.Range(0, ColumnCount)
                 .Select(i => _columns[i].GetGrowableSegment(Context, tempStream, false))
-                .ToArray();
+                .ToList();
 
             uint rowCount = 0;
             ForEachRow((row, index) => {
                 if (predicate(row)) {
                     ++rowCount;
-                    for (uint i = 0; i < ColumnCount; i++)
+                    for (int i = 0; i < ColumnCount; i++)
                         buffers[i].Add(row[i]);
                 }
             });

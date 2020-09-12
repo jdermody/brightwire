@@ -5,7 +5,7 @@ using System.Text;
 namespace BrightData
 {
 	/// <summary>
-	/// Provides linear algebra functionality
+	/// Linear algebra adaptor interfaces
 	/// </summary>
 	public interface ILinearAlgebraProvider : IDisposable
 	{

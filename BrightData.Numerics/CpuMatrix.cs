@@ -269,8 +269,8 @@ namespace BrightData.Numerics
                 var rowCount = arrayList.Length;
                 for (var i = 0; i < rowCount; i++) {
                     var row = arrayList[i];
-                    if (row.Data != null) {
-                        var data = row.Data;
+                    if (row.Segment != null) {
+                        var data = row.Segment;
                         var columnCount = data.Size;
                         for (var j = 0; j < columnCount; j++) {
                             if (i < _matrix.RowCount && j < _matrix.ColumnCount)

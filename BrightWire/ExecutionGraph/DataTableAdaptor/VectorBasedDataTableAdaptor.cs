@@ -7,7 +7,7 @@ using BrightData;
 namespace BrightWire.ExecutionGraph.DataTableAdaptor
 {
     /// <summary>
-    /// Data table adaptor for tables with vector data
+    /// Segment table adaptor for tables with vector data
     /// </summary>
     class VectorBasedDataTableAdaptor : RowBasedDataTableAdaptorBase
     {
@@ -28,7 +28,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         public override IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<uint> rows)
         {
             var data = _GetRows(rows)
-                .Select(r => ((_dataColumnIndex.Select(i => ((Vector<float>)r[i]).Data.ToArray()).ToArray(), ((Vector<float>)r[_dataTargetIndex]).Data.ToArray())))
+                .Select(r => ((_dataColumnIndex.Select(i => ((Vector<float>)r[i]).Segment.ToArray()).ToArray(), ((Vector<float>)r[_dataTargetIndex]).Segment.ToArray())))
                 .ToList()
             ;
             return _GetMiniBatch(rows, data);

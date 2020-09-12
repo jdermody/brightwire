@@ -67,13 +67,13 @@ namespace BrightData.FloatTensors
         public void ClearRows(IReadOnlyList<uint> indexes)
         {
             foreach(var i in indexes)
-                Row(i).Data.Data.Initialize(0f);
+                Row(i).Data.Segment.Initialize(0f);
         }
 
         public void ClearColumns(IReadOnlyList<uint> indexes)
         {
             foreach (var i in indexes)
-                Column(i).Data.Data.Initialize(0f);
+                Column(i).Data.Segment.Initialize(0f);
         }
 
         public IFloatMatrix ReluActivation() => new FloatMatrix(Data.Relu());
@@ -81,7 +81,7 @@ namespace BrightData.FloatTensors
         public IFloatMatrix LeakyReluActivation() => new FloatMatrix(Data.LeakyRelu());
         public IFloatMatrix LeakyReluDerivative() => new FloatMatrix(Data.LeakyReluDerivative());
         public IFloatMatrix Clone() => new FloatMatrix(Data.Clone());
-        public void Clear() => Data.Data.Initialize(0f);
+        public void Clear() => Data.Segment.Initialize(0f);
 
         // TODO: remove value adjustment
         public IFloatMatrix Sqrt(float valueAdjustment = 1E-08f) => new FloatMatrix(Data.Sqrt());
@@ -152,7 +152,7 @@ namespace BrightData.FloatTensors
             throw new NotImplementedException();
         }
 
-        public IFloatVector ReshapeAsVector() => new FloatVector(new Vector<float>(Data.Data));
+        public IFloatVector ReshapeAsVector() => new FloatVector(new Vector<float>(Data.Segment));
 
         public I3DFloatTensor ReshapeAs3DTensor(uint rows, uint columns)
         {
@@ -178,7 +178,7 @@ namespace BrightData.FloatTensors
 
         public IEnumerable<IIndexableFloatVector> Rows => Data.Rows.Select(r => new FloatVector(r));
         public IEnumerable<IIndexableFloatVector> Columns => Data.Columns.Select(r => new FloatVector(r));
-        public IEnumerable<float> Values => Data.Data.Values;
+        public IEnumerable<float> Values => Data.Segment.Values;
         public IIndexableFloatMatrix Map(Func<float, float> mutator)
         {
             throw new NotImplementedException();

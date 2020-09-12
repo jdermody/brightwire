@@ -23,7 +23,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             OutputSize = _vectoriser.OutputSize;
 
             // load the data
-            //dataTable.ForEachRow(row => _data.Add((_dataColumnIndex.Select(i => (WeightedIndexList)row[i]).ToList(), _vectoriser.GetOutput(row))));
+            //dataTable.ForEachRow(row => _segment.Add((_dataColumnIndex.Select(i => (WeightedIndexList)row[i]).ToList(), _vectoriser.GetOutput(row))));
         }
 
         public override bool IsSequential => false;
@@ -42,7 +42,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         public override IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<uint> rows)
         {
             var data = _GetRows(rows)
-                .Select(r => (r.Item1.Select(Encode).ToArray(), r.Item2.Data.ToArray()))
+                .Select(r => (r.Item1.Select(Encode).ToArray(), r.Item2.Segment.ToArray()))
                 .ToList()
             ;
             return _GetMiniBatch(rows, data);

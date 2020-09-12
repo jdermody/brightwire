@@ -301,13 +301,13 @@ namespace BrightData.Computation
             return ret;
         }
 
-        public static IEnumerable<ITensorSegment<T>> SplitSegment(ITensorSegment<T> segment, int blockCount)
+        public static IEnumerable<ITensorSegment<T>> SplitSegment(ITensorSegment<T> segment, uint blockCount)
         {
-            for (uint i = 0, size = segment.Size, blockSize = size / (uint)blockCount; i < size; i += blockSize)
+            for (uint i = 0, size = segment.Size, blockSize = size / blockCount; i < size; i += blockSize)
                 yield return new TensorSegmentWrapper<T>(segment, i, 1, blockSize);
         }
 
-        public List<ITensorSegment<T>> Split(ITensorSegment<T> segment, int blockCount)
+        public List<ITensorSegment<T>> Split(ITensorSegment<T> segment, uint blockCount)
         {
             return SplitSegment(segment, blockCount).ToList();
         }

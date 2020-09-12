@@ -24,7 +24,7 @@ namespace BrightWire.Models
             /// <summary>
             /// The column index that is being split on
             /// </summary>
-            public uint ColumnIndex { get; set; }
+            public uint? ColumnIndex { get; set; }
 
             /// <summary>
             /// The value to match this node
@@ -53,8 +53,8 @@ namespace BrightWire.Models
 
                 if (Split.HasValue)
                     writer.WriteAttributeString("split", Split.Value.ToString(CultureInfo.InvariantCulture));
-                if(ColumnIndex >= 0)
-                    writer.WriteAttributeString("column", ColumnIndex.ToString());
+                if(ColumnIndex.HasValue)
+                    writer.WriteAttributeString("column", ColumnIndex.Value.ToString());
                 if (Classification != null)
                     writer.WriteAttributeString("classification", Classification);
 

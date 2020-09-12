@@ -6,7 +6,7 @@
     public class GraphModel
     {
         /// <summary>
-        /// Data contract version number
+        /// Segment contract version number
         /// </summary>
         public string Version { get; set; } = "3.0";
 

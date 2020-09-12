@@ -10,7 +10,7 @@ namespace BrightData
         where DT : ITensor<T>
         where T : struct
     {
-        protected ITensorSegment<T> _data;
+        protected ITensorSegment<T> _segment;
         Lazy<INumericComputation<T>> _computation;
         bool _wasDisposed = false;
 
@@ -21,10 +21,10 @@ namespace BrightData
             context.MemoryLayer.Add(this);
         }
 
-        protected TensorBase(ITensorSegment<T> data, uint[] shape) : this(data.Context)
+        protected TensorBase(ITensorSegment<T> segment, uint[] shape) : this(segment.Context)
         {
             Shape = shape;
-            _data = data;
+            _segment = segment;
         }
 
         public void Initialize(IBrightDataContext context, BinaryReader reader)
@@ -44,7 +44,7 @@ namespace BrightData
 
             var data = context.TensorPool.Get<T>(size);
             data.InitializeFrom(reader.BaseStream);
-            _data = data.GetSegment();
+            _segment = data.GetSegment();
         }
 
         public void Dispose()
@@ -53,7 +53,7 @@ namespace BrightData
                 lock (this) {
                     if (_wasDisposed) {
                         _wasDisposed = true;
-                        _data.Release();
+                        _segment.Release();
                     }
                 }
             }
@@ -70,7 +70,7 @@ namespace BrightData
             foreach (var item in Shape)
                 writer.Write(item);
             writer.Flush();
-            _data.WriteTo(writer.BaseStream);
+            _segment.WriteTo(writer.BaseStream);
         }
 
         protected abstract DT Create(ITensorSegment<T> segment);
@@ -80,71 +80,71 @@ namespace BrightData
 
         public ITensorSegment<T> GetDataCopy()
         {
-            _data.AddRef();
-            return _data;
+            _segment.AddRef();
+            return _segment;
         }
         public IBrightDataContext Context { get; private set; }
         public uint Size => this.GetSize();
         public uint Rank => this.GetRank();
 
-        public T[] ToArray() => _data.ToArray();
-        public void InitializeFrom(Stream stream) => _data.InitializeFrom(stream);
+        public T[] ToArray() => _segment.ToArray();
+        public void InitializeFrom(Stream stream) => _segment.InitializeFrom(stream);
 
-        public DT Add(DT tensor) => Create(Computation.Add(_data, tensor.Data));
-        public void AddInPlace(DT tensor) => Computation.AddInPlace(_data, tensor.Data);
-        public void AddInPlace(DT tensor, T coefficient1, T coefficient2) => Computation.AddInPlace(_data, tensor.Data, coefficient1, coefficient2);
-        public void AddInPlace(T scalar) => Computation.AddInPlace(_data, scalar);
-        public DT Subtract(DT tensor) => Create(Computation.Subtract(_data, tensor.Data));
-        public void SubtractInPlace(DT tensor) => Computation.SubtractInPlace(_data, tensor.Data);
-        public void SubtractInPlace(DT tensor, T coefficient1, T coefficient2) => Computation.SubtractInPlace(_data, tensor.Data, coefficient1, coefficient2);
-        public DT PointwiseMultiply(DT tensor) => Create(Computation.PointwiseMultiply(_data, tensor.Data));
-        public void MultiplyInPlace(T scalar) => Computation.MultiplyInPlace(_data, scalar);
-        public void PointwiseMultiplyInPlace(DT tensor) => Computation.SubtractInPlace(_data, tensor.Data);
-        public DT PointwiseDivide(DT tensor) => Create(Computation.PointwiseDivide(_data, tensor.Data));
-        public void PointwiseDivideInPlace(DT tensor) => Computation.PointwiseDivideInPlace(_data, tensor.Data);
-        public DT Multiply(T scalar) => Create(Computation.Multiply(_data, scalar));
+        public DT Add(DT tensor) => Create(Computation.Add(_segment, tensor.Segment));
+        public void AddInPlace(DT tensor) => Computation.AddInPlace(_segment, tensor.Segment);
+        public void AddInPlace(DT tensor, T coefficient1, T coefficient2) => Computation.AddInPlace(_segment, tensor.Segment, coefficient1, coefficient2);
+        public void AddInPlace(T scalar) => Computation.AddInPlace(_segment, scalar);
+        public DT Subtract(DT tensor) => Create(Computation.Subtract(_segment, tensor.Segment));
+        public void SubtractInPlace(DT tensor) => Computation.SubtractInPlace(_segment, tensor.Segment);
+        public void SubtractInPlace(DT tensor, T coefficient1, T coefficient2) => Computation.SubtractInPlace(_segment, tensor.Segment, coefficient1, coefficient2);
+        public DT PointwiseMultiply(DT tensor) => Create(Computation.PointwiseMultiply(_segment, tensor.Segment));
+        public void MultiplyInPlace(T scalar) => Computation.MultiplyInPlace(_segment, scalar);
+        public void PointwiseMultiplyInPlace(DT tensor) => Computation.SubtractInPlace(_segment, tensor.Segment);
+        public DT PointwiseDivide(DT tensor) => Create(Computation.PointwiseDivide(_segment, tensor.Segment));
+        public void PointwiseDivideInPlace(DT tensor) => Computation.PointwiseDivideInPlace(_segment, tensor.Segment);
+        public DT Multiply(T scalar) => Create(Computation.Multiply(_segment, scalar));
 
-        public DT Log() => Create(Computation.Log(_data));
-        public DT Abs() => Create(Computation.Abs(_data));
-        public DT Sqrt() => Create(Computation.Sqrt(_data));
-        public DT Squared() => Create(Computation.Squared(_data));
-        public DT Pow(T power) => Create(Computation.Pow(_data, power));
+        public DT Log() => Create(Computation.Log(_segment));
+        public DT Abs() => Create(Computation.Abs(_segment));
+        public DT Sqrt() => Create(Computation.Sqrt(_segment));
+        public DT Squared() => Create(Computation.Squared(_segment));
+        public DT Pow(T power) => Create(Computation.Pow(_segment, power));
 
-        public T DotProduct(DT tensor) => Computation.DotProduct(_data, tensor.Data);
-        public T Sum() => Computation.Sum(_data);
-        public uint? Search(T value) => Computation.Search(_data, value);
-        public void ConstrainInPlace(T? minValue, T? maxValue) => Computation.ConstrainInPlace(_data, minValue, maxValue);
-        public T Average() => Computation.Average(_data);
-        public T L1Norm() => Computation.L1Norm(_data);
-        public T L2Norm() => Computation.L2Norm(_data);
+        public T DotProduct(DT tensor) => Computation.DotProduct(_segment, tensor.Segment);
+        public T Sum() => Computation.Sum(_segment);
+        public uint? Search(T value) => Computation.Search(_segment, value);
+        public void ConstrainInPlace(T? minValue, T? maxValue) => Computation.ConstrainInPlace(_segment, minValue, maxValue);
+        public T Average() => Computation.Average(_segment);
+        public T L1Norm() => Computation.L1Norm(_segment);
+        public T L2Norm() => Computation.L2Norm(_segment);
 
-        public T CosineDistance(DT tensor) => Computation.CosineDistance(_data, tensor.Data);
-        public T EuclideanDistance(DT tensor) => Computation.EuclideanDistance(_data, tensor.Data);
-        public T ManhattanDistance(DT tensor) => Computation.ManhattanDistance(_data, tensor.Data);
+        public T CosineDistance(DT tensor) => Computation.CosineDistance(_segment, tensor.Segment);
+        public T EuclideanDistance(DT tensor) => Computation.EuclideanDistance(_segment, tensor.Segment);
+        public T ManhattanDistance(DT tensor) => Computation.ManhattanDistance(_segment, tensor.Segment);
 
-        public T Mean() => Computation.Average(_data);
-        public T StdDev(T? mean) => Computation.StdDev(_data, mean);
+        public T Mean() => Computation.Average(_segment);
+        public T StdDev(T? mean) => Computation.StdDev(_segment, mean);
 
-        public DT Softmax() => Create(Computation.Softmax(_data));
-        public Matrix<T> SoftmaxDerivative() => Computation.SoftmaxDerivative(_data);
-        public DT Sigmoid() => Create(Computation.Sigmoid(_data));
-        public DT SigmoidDerivative() => Create(Computation.SigmoidDerivative(_data));
-        public DT Tanh() => Create(Computation.Tanh(_data));
-        public DT TanhDerivative() => Create(Computation.TanhDerivative(_data));
-        public DT Relu() => Create(Computation.Relu(_data));
-        public DT ReluDerivative() => Create(Computation.ReluDerivative(_data));
-        public DT LeakyRelu() => Create(Computation.LeakyRelu(_data));
-        public DT LeakyReluDerivative() => Create(Computation.LeakyReluDerivative(_data));
+        public DT Softmax() => Create(Computation.Softmax(_segment));
+        public Matrix<T> SoftmaxDerivative() => Computation.SoftmaxDerivative(_segment);
+        public DT Sigmoid() => Create(Computation.Sigmoid(_segment));
+        public DT SigmoidDerivative() => Create(Computation.SigmoidDerivative(_segment));
+        public DT Tanh() => Create(Computation.Tanh(_segment));
+        public DT TanhDerivative() => Create(Computation.TanhDerivative(_segment));
+        public DT Relu() => Create(Computation.Relu(_segment));
+        public DT ReluDerivative() => Create(Computation.ReluDerivative(_segment));
+        public DT LeakyRelu() => Create(Computation.LeakyRelu(_segment));
+        public DT LeakyReluDerivative() => Create(Computation.LeakyReluDerivative(_segment));
 
-        public (T Min, T Max, uint MinIndex, uint MaxIndex) GetMinAndMaxValues() => Computation.GetMinAndMaxValues(_data);
-        public bool IsEntirelyFinite() => Computation.IsEntirelyFinite(_data);
-        public DT Reverse() => Create(Computation.Reverse(_data));
-        public List<ITensorSegment<T>> Split(int blockCount) => Computation.Split(_data, blockCount);
-        public ITensorSegment<T> Data => _data;
+        public (T Min, T Max, uint MinIndex, uint MaxIndex) GetMinAndMaxValues() => Computation.GetMinAndMaxValues(_segment);
+        public bool IsEntirelyFinite() => Computation.IsEntirelyFinite(_segment);
+        public DT Reverse() => Create(Computation.Reverse(_segment));
+        public List<ITensorSegment<T>> Split(uint blockCount) => Computation.Split(_segment, blockCount);
+        public ITensorSegment<T> Segment => _segment;
 
         public DT Clone()
         {
-            var (block, isNewCopy) = _data.GetBlock(Context.TensorPool);
+            var (block, isNewCopy) = _segment.GetBlock(Context.TensorPool);
             return Create((isNewCopy ? block : block.Clone()).GetSegment());
         }
 
@@ -171,19 +171,19 @@ namespace BrightData
 
         public Matrix<T> Reshape(uint? rows, uint? columns)
         {
-            var shape = _ResolveShape(_data.Size, new[] { rows, columns });
+            var shape = _ResolveShape(_segment.Size, new[] { rows, columns });
             return new Matrix<T>(GetDataCopy(), shape[0], shape[1]);
         }
 
         public Tensor3D<T> Reshape(uint? depth, uint? rows, uint? columns)
         {
-            var shape = _ResolveShape(_data.Size, new[] { depth, rows, columns });
+            var shape = _ResolveShape(_segment.Size, new[] { depth, rows, columns });
             return new Tensor3D<T>(GetDataCopy(), shape[0], shape[1], shape[2]);
         }
 
         public Tensor4D<T> Reshape(uint? count, uint? depth, uint? rows, uint? columns)
         {
-            var shape = _ResolveShape(_data.Size, new[] { count, depth, rows, columns });
+            var shape = _ResolveShape(_segment.Size, new[] { count, depth, rows, columns });
             return new Tensor4D<T>(GetDataCopy(), shape[0], shape[1], shape[2], shape[3]);
         }
 
@@ -191,5 +191,7 @@ namespace BrightData
         /// Finds the index with the highest value
         /// </summary>
         public uint MaximumIndex() => GetMinAndMaxValues().MaxIndex;
+
+        public uint MinimumIndex() => GetMinAndMaxValues().MinIndex;
     }
 }

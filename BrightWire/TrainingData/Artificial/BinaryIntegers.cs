@@ -51,10 +51,10 @@ namespace BrightWire.TrainingData.Artificial
             //    var outputList = new FloatVector[r2.Length];
             //    for (int j = 0; j < r2.Length; j++) {
             //        inputList[j] = new FloatVector {
-            //            Data = new[] { a2[j], b2[j] }
+            //            Segment = new[] { a2[j], b2[j] }
             //        };
             //        outputList[j] = new FloatVector {
-            //            Data = new[] { r2[j] }
+            //            Segment = new[] { r2[j] }
             //        };
             //    }
             //    builder.Add(FloatMatrix.Create(inputList), FloatMatrix.Create(outputList));

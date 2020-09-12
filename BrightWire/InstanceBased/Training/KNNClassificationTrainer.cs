@@ -19,7 +19,7 @@ namespace BrightWire.InstanceBased.Trainer
             //var labels = table.GetColumn<string>(table.TargetColumnIndex);
 
             //return new KNearestNeighbours {
-            //    Instance = data.Select(v => new FloatVector { Data = v }).ToArray(),
+            //    Instance = data.Select(v => new FloatVector { Segment = v }).ToArray(),
             //    Classification = labels.ToArray(),
             //    FeatureColumn = featureColumns.ToArray()
             //};

@@ -578,8 +578,8 @@ namespace BrightWire.LinearAlgebra
                 var rowCount = value.RowCount;
                 for (uint i = 0; i < rowCount && i < _rows; i++) {
                     var row = value.Row(i);
-                    if (row.Data != null) {
-                        var data2 = row.Data;
+                    if (row.Segment != null) {
+                        var data2 = row.Segment;
                         var columnCount = data2.Size;
                         for (uint j = 0; j < columnCount && j < _columns; j++) {
                             buffer[j * _rows + i] = data2[j];

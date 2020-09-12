@@ -41,7 +41,7 @@ namespace BrightWire
         /// <returns></returns>
         public static IFloatVector CreateVector(this ILinearAlgebraProvider lap, Vector<float> data)
         {
-            //var array = data.Data;
+            //var array = data.Segment;
             //return lap.CreateVector(array.Length, i => array[i]);
 
 	        var ret = lap.CreateVector(data.Size);
@@ -114,7 +114,7 @@ namespace BrightWire
         {
             var rows = (uint)rowList.Count;
             var columns = rowList[0].Size;
-            return lap.CreateMatrix(rows, columns, (x, y) => rowList[(int)x].Data[y]);
+            return lap.CreateMatrix(rows, columns, (x, y) => rowList[(int)x].Segment[y]);
         }
 
         /// <summary>
@@ -140,7 +140,7 @@ namespace BrightWire
 	    {
 		    var columns = (uint)columnList.Count;
 		    var rows = columnList[0].Size;
-		    return lap.CreateMatrix(rows, columns, (x, y) => columnList[(int)y].Data[x]);
+		    return lap.CreateMatrix(rows, columns, (x, y) => columnList[(int)y].Segment[x]);
 	    }
 
 	    /// <summary>

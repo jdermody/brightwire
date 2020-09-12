@@ -148,7 +148,7 @@ namespace BrightData.Numerics
                             for (uint i = 0, len = matrix.RowCount; i < len; i++) {
                                 var row = matrix.Row(i);
                                 for (uint j = 0, len2 = row.Size; j < len2; j++)
-                                    this[i, j, k, (uint)z] = row.Data[j];
+                                    this[i, j, k, (uint)z] = row.Segment[j];
                             }
                         }
 				    }

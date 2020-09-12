@@ -26,8 +26,8 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
             float ret = 0;
             var len = output.Size;
             for (var i = 0; i < len; i++) {
-                var a = output.Data[i];
-                var y = targetOutput.Data[i];
+                var a = output.Segment[i];
+                var y = targetOutput.Segment[i];
                 ret += FloatMath.Constrain(-y * FloatMath.Log(a) - (1.0f - y) * FloatMath.Log(1.0f - a));
             }
             return ret / len;

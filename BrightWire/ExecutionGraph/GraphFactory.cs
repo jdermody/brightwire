@@ -163,7 +163,7 @@ namespace BrightWire.ExecutionGraph
 		/// <summary>
 		/// Creates a graph training engine
 		/// </summary>
-		/// <param name="dataSource">Data source with training data</param>
+		/// <param name="dataSource">Segment source with training data</param>
 		/// <param name="learningRate">Initial learning rate</param>
 		/// <param name="batchSize">Mini batch size</param>
 		/// <param name="trainingErrorCalculation">How to calculate the training error</param>
@@ -177,7 +177,7 @@ namespace BrightWire.ExecutionGraph
 		/// <summary>
 		/// Creates a graph training engine
 		/// </summary>
-		/// <param name="dataSource">Data source with training data</param>
+		/// <param name="dataSource">Segment source with training data</param>
 		/// <param name="graph">The serialised graph to execute</param>
 		/// <param name="trainingRate">Initial learning rate</param>
 		/// <param name="batchSize">Mini batch size</param>
@@ -193,7 +193,7 @@ namespace BrightWire.ExecutionGraph
 		/// <summary>
 		/// Creates a graph training engine
 		/// </summary>
-		/// <param name="dataSource">Data source with training data</param>
+		/// <param name="dataSource">Segment source with training data</param>
 		/// <param name="learningContext">Previously created training context</param>
 		/// <param name="graph">The serialised graph to execute (optional)</param>
 		/// <returns></returns>
@@ -297,7 +297,7 @@ namespace BrightWire.ExecutionGraph
 		/// <summary>
 		/// Creates an adaptive data source (that uses the output from a preliminary graph)
 		/// </summary>
-		/// <param name="dataTable">Data that will be sent to the preliminary graph</param>
+		/// <param name="dataTable">Segment that will be sent to the preliminary graph</param>
 		/// <param name="learningContext">Learning context to use while training the preliminary graph</param>
 		/// <param name="dataConversionBuilder">Callback to build the preliminary graph</param>
 		/// <returns></returns>
@@ -318,7 +318,7 @@ namespace BrightWire.ExecutionGraph
 		/// <summary>
 		/// Creates an adaptive data source from a serialised model
 		/// </summary>
-		/// <param name="dataTable">Data that will be sent to the preliminary graph</param>
+		/// <param name="dataTable">Segment that will be sent to the preliminary graph</param>
 		/// <param name="dataSource">The serialised preliminary graph</param>
 		/// <param name="learningContext">Learning context to use while training the preliminary graph</param>
 		/// <returns></returns>

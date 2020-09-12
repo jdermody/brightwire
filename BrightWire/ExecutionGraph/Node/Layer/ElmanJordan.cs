@@ -110,7 +110,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             var activation2 = _Hydrate(factory, reader);
 
             if (_memory == null)
-                _Create(factory, isElman, inputSize, memory.Data.ToArray(), activation, activation2, memoryId);
+                _Create(factory, isElman, inputSize, memory.Segment.ToArray(), activation, activation2, memoryId);
             else
                 _memory.Data = memory;
 

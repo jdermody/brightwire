@@ -48,7 +48,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 
             foreach (var item in _history) {
                 foreach (var item2 in item.Value) {
-                    //item2.Data.Dispose();
+                    //item2.Segment.Dispose();
                     item2.Backpropagation?.Dispose();
                 }
             }

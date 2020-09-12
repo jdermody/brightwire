@@ -46,7 +46,7 @@ namespace BrightWire.Linear.Training
 		//		using (var ret = pinv3.Multiply(a2))
 		//		using (var theta = ret.Column(0)) {
 		//			return new LinearRegression {
-		//				Theta = theta.Data
+		//				Theta = theta.Segment
 		//			};
 		//		}
 		//	}

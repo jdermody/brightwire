@@ -56,7 +56,7 @@ namespace BrightData
         where T : struct
     {
         ITensorSegment<T> GetDataCopy();
-        ITensorSegment<T> Data { get; }
+        ITensorSegment<T> Segment { get; }
         INumericComputation<T> Computation { get; }
         T[] ToArray();
     }
@@ -144,7 +144,7 @@ namespace BrightData
     //public interface IHaveTensorSegment<T>
     //    where T : struct
     //{
-    //    ITensorSegment<T> Data { get; }
+    //    ITensorSegment<T> Segment { get; }
     //}
 
     public interface INumericComputation<T>
@@ -185,7 +185,7 @@ namespace BrightData
         (T Min, T Max, uint MinIndex, uint MaxIndex) GetMinAndMaxValues(ITensorSegment<T> segment);
         bool IsEntirelyFinite(ITensorSegment<T> segment);
         ITensorSegment<T> Reverse(ITensorSegment<T> segment);
-        List<ITensorSegment<T>> Split(ITensorSegment<T> segment, int blockCount);
+        List<ITensorSegment<T>> Split(ITensorSegment<T> segment, uint blockCount);
         ITensorSegment<T> Sigmoid(ITensorSegment<T> segment);
         ITensorSegment<T> SigmoidDerivative(ITensorSegment<T> segment);
         ITensorSegment<T> Tanh(ITensorSegment<T> segment);

@@ -26,7 +26,7 @@ namespace BrightWire.InstanceBased
             _distanceMetric = distanceMetric;
 
             for (int i = 0, len = model.Instance.Length; i < len; i++)
-                _instance.Add(lap.CreateVector(model.Instance[i].Data));
+                _instance.Add(lap.CreateVector(model.Instance[i].Segment));
         }
 
         IEnumerable<Tuple<string, float>> _Classify(IConvertibleRow row)

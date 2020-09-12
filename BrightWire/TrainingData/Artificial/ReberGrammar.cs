@@ -96,10 +96,10 @@ namespace BrightWire.TrainingData.Artificial
             //                output[item] = 1f;
             //        }
             //        inputList[i] = new FloatVector {
-            //            Data = input
+            //            Segment = input
             //        };
             //        outputList[i] = new FloatVector {
-            //            Data = output
+            //            Segment = output
             //        };
             //    }
             //    builder.Add(FloatMatrix.Create(inputList), FloatMatrix.Create(outputList));

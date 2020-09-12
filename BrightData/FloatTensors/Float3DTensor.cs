@@ -33,7 +33,7 @@ namespace BrightData.FloatTensors
             throw new NotImplementedException();
         }
 
-        public IFloatVector ReshapeAsVector() => new FloatVector(new Vector<float>(Data.Data));
+        public IFloatVector ReshapeAsVector() => new FloatVector(new Vector<float>(Data.Segment));
 
         public IFloatMatrix ReshapeAsMatrix()
         {

@@ -123,7 +123,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             var memory = FloatVector.ReadFrom(factory.Context, reader);
 
             if (_memory == null)
-                _Create(factory, inputSize, memory.Data.ToArray(), memoryId);
+                _Create(factory, inputSize, memory.Segment.ToArray(), memoryId);
             else
                 _memory.Data = memory;
 

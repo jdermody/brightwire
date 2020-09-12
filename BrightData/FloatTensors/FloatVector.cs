@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
+using BrightData.Analysis;
+using BrightData.Transformation;
 
 namespace BrightData.FloatTensors
 {
@@ -23,16 +26,8 @@ namespace BrightData.FloatTensors
 
         public uint Count => Data.Size;
         public Vector<float> Data { get; set; }
-        public IFloatVector Add(IFloatVector vector)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IFloatVector Subtract(IFloatVector vector)
-        {
-            throw new NotImplementedException();
-        }
-
+        public IFloatVector Add(IFloatVector vector) => new FloatVector(Data.Add(vector.Data));
+        public IFloatVector Subtract(IFloatVector vector) => new FloatVector(Data.Subtract(vector.Data));
         public float L1Norm()
         {
             throw new NotImplementedException();
@@ -43,91 +38,23 @@ namespace BrightData.FloatTensors
             throw new NotImplementedException();
         }
 
-        public uint MaximumIndex()
-        {
-            throw new NotImplementedException();
-        }
-
-        public uint MinimumIndex()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Multiply(float scalar)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Add(float scalar)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void AddInPlace(IFloatVector vector, float coefficient1 = 1, float coefficient2 = 1)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SubtractInPlace(IFloatVector vector, float coefficient1 = 1, float coefficient2 = 1)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IIndexableFloatVector AsIndexable()
-        {
-            throw new NotImplementedException();
-        }
-
-        public IFloatVector PointwiseMultiply(IFloatVector vector)
-        {
-            throw new NotImplementedException();
-        }
-
-        public float DotProduct(IFloatVector vector)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IFloatVector GetNewVectorFromIndexes(IReadOnlyList<uint> indices)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IFloatVector Clone()
-        {
-            throw new NotImplementedException();
-        }
-
-        public IFloatVector Sqrt()
-        {
-            throw new NotImplementedException();
-        }
-
-        public IFloatVector Abs()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void CopyFrom(IFloatVector vector)
-        {
-            throw new NotImplementedException();
-        }
-
-        public float EuclideanDistance(IFloatVector vector)
-        {
-            throw new NotImplementedException();
-        }
-
-        public float CosineDistance(IFloatVector vector)
-        {
-            throw new NotImplementedException();
-        }
-
-        public float ManhattanDistance(IFloatVector vector)
-        {
-            throw new NotImplementedException();
-        }
-
+        public uint MaximumIndex() => Data.MaximumIndex();
+        public uint MinimumIndex() => Data.MinimumIndex();
+        public void Multiply(float scalar) => Data.Multiply(scalar);
+        public void Add(float scalar) => Data.AddInPlace(scalar);
+        public void AddInPlace(IFloatVector vector, float coefficient1 = 1, float coefficient2 = 1) => Data.AddInPlace(vector.Data, coefficient1, coefficient2);
+        public void SubtractInPlace(IFloatVector vector, float coefficient1 = 1, float coefficient2 = 1) => Data.SubtractInPlace(vector.Data, coefficient1, coefficient2);
+        public IIndexableFloatVector AsIndexable() => this;
+        public IFloatVector PointwiseMultiply(IFloatVector vector) => new FloatVector(Data.PointwiseMultiply(vector.Data));
+        public float DotProduct(IFloatVector vector) => Data.DotProduct(vector.Data);
+        public IFloatVector GetNewVectorFromIndexes(IReadOnlyList<uint> indices) => new FloatVector(Data.Context.CreateVector(indices.Select(i => Data[i]).ToArray()));
+        public IFloatVector Clone() => new FloatVector(Data.Clone());
+        public IFloatVector Sqrt() => new FloatVector(Data.Sqrt());
+        public IFloatVector Abs() => new FloatVector(Data.Abs());
+        public void CopyFrom(IFloatVector vector) => Data.CopyFrom(vector.AsIndexable().ToArray());
+        public float EuclideanDistance(IFloatVector vector) => Data.EuclideanDistance(vector.Data);
+        public float CosineDistance(IFloatVector vector) => Data.CosineDistance(vector.Data);
+        public float ManhattanDistance(IFloatVector vector) => Data.ManhattanDistance(vector.Data);
         public float MeanSquaredDistance(IFloatVector vector)
         {
             throw new NotImplementedException();
@@ -140,33 +67,31 @@ namespace BrightData.FloatTensors
 
         public (float Min, float Max) GetMinMax()
         {
-            throw new NotImplementedException();
+            var ret = Data.GetMinAndMaxValues();
+            return (ret.Min, ret.Max);
         }
 
-        public float Average()
-        {
-            throw new NotImplementedException();
-        }
-
-        public float StdDev(float? mean)
-        {
-            throw new NotImplementedException();
-        }
+        public float Average() => Data.Average();
+        public float StdDev(float? mean) => Data.StdDev(mean);
 
         public void Normalise(NormalizationType type)
         {
-            throw new NotImplementedException();
+            // analyse the data
+            var analyser = new NumericAnalyser();
+            foreach (var value in Data.Values)
+                analyser.Add(value);
+
+            // write the results
+            var metaData = new MetaData();
+            analyser.WriteTo(metaData);
+            
+            // normalize
+            var normalizer = new NormalizeTransformation(type, metaData);
+            Data.Segment.Initialize(i => Convert.ToSingle(normalizer.Normalize(this[i])));
         }
 
-        public IFloatVector Softmax()
-        {
-            throw new NotImplementedException();
-        }
-
-        public IFloatMatrix SoftmaxDerivative()
-        {
-            throw new NotImplementedException();
-        }
+        public IFloatVector Softmax() => new FloatVector(Data.Softmax());
+        public IFloatMatrix SoftmaxDerivative() => new FloatMatrix(Data.SoftmaxDerivative());
 
         public IFloatVector FindDistances(IReadOnlyList<IFloatVector> data, DistanceMetric distance)
         {
@@ -183,72 +108,35 @@ namespace BrightData.FloatTensors
             throw new NotImplementedException();
         }
 
-        public IFloatVector Log()
-        {
-            throw new NotImplementedException();
-        }
-
-        public IFloatVector Sigmoid()
-        {
-            throw new NotImplementedException();
-        }
-
-        public IFloatMatrix ReshapeAsMatrix(uint rows, uint columns)
-        {
-            throw new NotImplementedException();
-        }
-
-        public I3DFloatTensor ReshapeAs3DTensor(uint rows, uint columns, uint depth)
-        {
-            throw new NotImplementedException();
-        }
-
+        public IFloatVector Log() => new FloatVector(Data.Log());
+        public IFloatVector Sigmoid() => new FloatVector(Data.Sigmoid());
+        public IFloatMatrix ReshapeAsMatrix(uint rows, uint columns) => new FloatMatrix(Data.Reshape(rows, columns));
+        public I3DFloatTensor ReshapeAs3DTensor(uint rows, uint columns, uint depth) => new Float3DTensor(Data.Reshape(depth, rows, columns));
         public I4DFloatTensor ReshapeAs4DTensor(uint rows, uint columns, uint depth, uint count)
         {
             throw new NotImplementedException();
         }
 
-        public IReadOnlyList<IFloatVector> Split(uint blockCount)
-        {
-            throw new NotImplementedException();
-        }
+        public IReadOnlyList<IFloatVector> Split(uint blockCount) => Data.Split(blockCount).Select(v => new FloatVector(new Vector<float>(v))).ToList();
 
         public void RotateInPlace(uint blockCount = 1)
         {
             throw new NotImplementedException();
         }
 
-        public IFloatVector Reverse()
-        {
-            throw new NotImplementedException();
-        }
-
-        public float GetAt(uint index)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SetAt(uint index, float value)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool IsEntirelyFinite()
-        {
-            throw new NotImplementedException();
-        }
+        public IFloatVector Reverse() => new FloatVector(Data.Reverse());
+        public float GetAt(uint index) => Data[index];
+        public void SetAt(uint index, float value) => Data[index] = value;
+        public bool IsEntirelyFinite() => Data.IsEntirelyFinite();
 
         public float this[uint index]
         {
-            get => throw new NotImplementedException();
-            set => throw new NotImplementedException();
+            get => Data[index];
+            set => Data[index] = value;
         }
 
-        public IEnumerable<float> Values { get; }
-        public float[] ToArray()
-        {
-            throw new NotImplementedException();
-        }
+        public IEnumerable<float> Values => Data.Values;
+        public float[] ToArray() => Data.ToArray();
 
         public float[] GetInternalArray()
         {
@@ -257,7 +145,12 @@ namespace BrightData.FloatTensors
 
         public IIndexableFloatVector Append(IReadOnlyList<float> data)
         {
-            throw new NotImplementedException();
+            var segment = Data.Context.TensorPool.Get<float>(Count + (uint) data.Count).GetSegment();
+            Data.Segment.CopyTo(segment);
+            uint index = 0;
+            foreach (var item in data)
+                segment[Count + index++] = item;
+            return new FloatVector(new Vector<float>(segment));
         }
     }
 }

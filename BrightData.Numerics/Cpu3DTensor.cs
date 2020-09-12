@@ -84,7 +84,7 @@ namespace BrightWire.LinearAlgebra
                     for (uint i = 0, len = matrix.RowCount; i < len; i++) {
                         var row = matrix.Row(i);
                         for (uint j = 0, len2 = row.Size; j < len2; j++)
-                            this[i, j, k] = row.Data[j];
+                            this[i, j, k] = row.Segment[j];
                     }
                 }
             }
@@ -313,7 +313,7 @@ namespace BrightWire.LinearAlgebra
 
         public void AddToEachRow(IFloatVector vector)
         {
-	        var row = vector.Data.Data;
+	        var row = vector.Data.Segment;
 	        for (uint k = 0; k < _depth; k++) {
 		        for (uint j = 0; j < _columns; j++) {
 			        for (uint i = 0; i < _rows; i++)

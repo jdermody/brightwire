@@ -15,7 +15,7 @@ namespace BrightTable
     }
 
     /// <summary>
-    /// Data table column type
+    /// Segment table column type
     /// </summary>
     public enum ColumnType : byte
     {
@@ -143,9 +143,9 @@ namespace BrightTable
         uint ColumnCount { get; }
         ColumnType[] ColumnTypes { get; }
         DataTableOrientation Orientation { get; }
-        IReadOnlyList<IMetaData> ColumnMetaData(params uint[] columnIndices);
+        IEnumerable<IMetaData> ColumnMetaData(params uint[] columnIndices);
         void ForEachRow(Action<object[], uint> callback, uint maxRows = uint.MaxValue);
-        IReadOnlyList<ISingleTypeTableSegment> Columns(params uint[] columnIndices);
+        IEnumerable<ISingleTypeTableSegment> Columns(params uint[] columnIndices);
     }
 
     public interface IColumnOrientedDataTable : IDataTable, IDisposable
@@ -171,7 +171,7 @@ namespace BrightTable
         void ForEachRow(IEnumerable<uint> rowIndices, Action<object[]> callback);
         IRowOrientedDataTable Bag(uint sampleCount, int? randomSeed = null, string filePath = null);
         IDataTableSegment Row(uint rowIndex);
-        IReadOnlyList<IDataTableSegment> Rows(params uint[] rowIndices);
+        IEnumerable<IDataTableSegment> Rows(params uint[] rowIndices);
         IRowOrientedDataTable Concat(params IRowOrientedDataTable[] others);
         IRowOrientedDataTable Concat(string filePath, params IRowOrientedDataTable[] others);
         IRowOrientedDataTable Mutate(Func<object[], object[]> projector, string filePath = null);

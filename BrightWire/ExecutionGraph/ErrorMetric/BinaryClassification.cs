@@ -18,8 +18,8 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
         {
             float ret = 0;
             for (var i = 0; i < output.Size; i++) {
-                var val = (output.Data[i] >= 0.5) ? 1.0f : 0.0f;
-                ret += (Math.Abs(val - targetOutput.Data[i]) < FloatMath.AlmostZero) ? 1.0f : 0.0f;
+                var val = (output.Segment[i] >= 0.5) ? 1.0f : 0.0f;
+                ret += (Math.Abs(val - targetOutput.Segment[i]) < FloatMath.AlmostZero) ? 1.0f : 0.0f;
             }
             return ret / output.Size;
         }

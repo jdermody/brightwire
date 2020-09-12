@@ -120,13 +120,13 @@ namespace BrightWire.Unsupervised
 		//{
 		//	public class Centroid : IDisposable
 		//	{
-		//		readonly List<IVector> _data = new List<IVector>();
+		//		readonly List<IVector> _segment = new List<IVector>();
 		//		public IVector Current { get; private set; }
-		//		public IReadOnlyList<IVector> Data => _data;
+		//		public IReadOnlyList<IVector> Segment => _segment;
 
 		//		public Centroid(IVector data)
 		//		{
-		//			_data.Add(data);
+		//			_segment.Add(data);
 		//			Current = data.Clone();
 		//		}
 		//		public void Dispose()
@@ -136,9 +136,9 @@ namespace BrightWire.Unsupervised
 		//		public bool Update(IReadOnlyList<IVector> data)
 		//		{
 		//			// check if the cluster has been updated
-		//			if (data.Count == _data.Count) {
+		//			if (data.Count == _segment.Count) {
 		//				var isChanged = false;
-		//				var existing = new HashSet<IVector>(_data);
+		//				var existing = new HashSet<IVector>(_segment);
 		//				foreach (var item in data) {
 		//					if (!existing.Contains(item)) {
 		//						isChanged = true;
@@ -151,7 +151,7 @@ namespace BrightWire.Unsupervised
 
 		//			Current.Dispose();
 		//			Current = null;
-		//			_data.Clear();
+		//			_segment.Clear();
 		//			var denominator = 1f / data.Count;
 
 		//			var isFirst = true;
@@ -162,7 +162,7 @@ namespace BrightWire.Unsupervised
 		//					Current.AddInPlace(item, isFirst ? denominator : 1, denominator);
 		//					isFirst = false;
 		//				}
-		//				_data.Add(item);
+		//				_segment.Add(item);
 		//			}
 		//			return true;
 		//		}
@@ -207,7 +207,7 @@ namespace BrightWire.Unsupervised
 		//	}
 		//	public IReadOnlyList<IReadOnlyList<IVector>> GetClusters()
 		//	{
-		//		return _centroid.Select(c => c.Data).ToList();
+		//		return _centroid.Select(c => c.Segment).ToList();
 		//	}
 		//	public IReadOnlyList<Centroid> Centroids => _centroid;
 		//}
@@ -215,14 +215,14 @@ namespace BrightWire.Unsupervised
 		//readonly int _k;
 		//readonly ClusterData _cluster;
 		//readonly DistanceMetric _distanceMetric;
-		//readonly IReadOnlyList<IVector> _data;
+		//readonly IReadOnlyList<IVector> _segment;
 
 		//public KMeans(ILinearAlgebraProvider lap, int k, IReadOnlyList<IVector> data, DistanceMetric distanceMetric = DistanceMetric.Euclidean, int? randomSeed = null)
 		//{
 		//	_k = k;
 		//	_distanceMetric = distanceMetric;
 		//	_cluster = new ClusterData();
-		//	_data = data;
+		//	_segment = data;
 
 		//	// use kmeans++ to find best initial positions
 		//	// https://normaldeviate.wordpress.com/2012/09/30/the-remarkable-k-means/
@@ -259,7 +259,7 @@ namespace BrightWire.Unsupervised
 		//{
 		//	var clusterAssignment = Enumerable.Range(0, _k).Select(i => new List<IVector>()).ToArray();
 
-		//	foreach (var item in _data) {
+		//	foreach (var item in _segment) {
 		//		using (var distance = _cluster.CalculateDistance(item, _distanceMetric)) {
 		//			clusterAssignment[distance.MinimumIndex()].Add(item);
 		//		}

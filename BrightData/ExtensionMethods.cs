@@ -126,7 +126,7 @@ namespace BrightData
             var ret = new Tensor3D<T>(data, depth, rows, columns);
             var allSame = ret.Matrices.Zip(slices, (t, s) => {
                 if (s.RowCount == t.RowCount && s.ColumnCount == t.ColumnCount) {
-                    s.Data.CopyTo(t.Data);
+                    s.Segment.CopyTo(t.Segment);
                     return true;
                 }
                 return false;
@@ -226,21 +226,21 @@ namespace BrightData
             return seq.OrderBy(e => rnd.Next()).ToList();
         }
 
-        public static (IReadOnlyList<T> Training, IReadOnlyList<T> Test) Split<T>(this IReadOnlyList<T> seq, double trainPercentage = 0.8)
+        public static (T[] Training, T[] Test) Split<T>(this T[] seq, double trainPercentage = 0.8)
         {
-            var input = Enumerable.Range(0, seq.Count).ToList();
-            int trainingCount = Convert.ToInt32(seq.Count * trainPercentage);
+            var input = Enumerable.Range(0, seq.Length).ToList();
+            int trainingCount = Convert.ToInt32(seq.Length * trainPercentage);
             return (
                 input.Take(trainingCount).Select(i => seq[i]).ToArray(),
                 input.Skip(trainingCount).Select(i => seq[i]).ToArray()
             );
         }
 
-        public static T[] Bag<T>(this IReadOnlyList<T> list, uint count, int? randomSeed = null)
+        public static T[] Bag<T>(this T[] list, uint count, int? randomSeed = null)
         {
             var rnd = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
             return Enumerable.Range(0, (int)count)
-                .Select(i => list[rnd.Next(0, list.Count)])
+                .Select(i => list[rnd.Next(0, list.Length)])
                 .ToArray()
             ;
         }
@@ -349,52 +349,20 @@ namespace BrightData
             return analysis.GetMetaData();
         }
 
-        public static IReadOnlyList<Vector<T>> AllColumns<T>(this Matrix<T> matrix) where T: struct
-        {
-            var ret = new List<Vector<T>>();
-            for(uint i = 0; i < matrix.ColumnCount; i++)
-                ret.Add(matrix.Column(i));
-            return ret;
-        }
-
-        public static IReadOnlyList<Vector<T>> AllRows<T>(this Matrix<T> matrix) where T : struct
-        {
-            var ret = new List<Vector<T>>();
-            for (uint i = 0; i < matrix.RowCount; i++)
-                ret.Add(matrix.Column(i));
-            return ret;
-        }
-
-        public static IReadOnlyList<Matrix<T>> AllMatrices<T>(this Tensor3D<T> tensor) where T : struct
-        {
-            var ret = new List<Matrix<T>>();
-            for (uint i = 0; i < tensor.Depth; i++)
-                ret.Add(tensor.Matrix(i));
-            return ret;
-        }
-
-        public static IReadOnlyList<Tensor3D<T>> AllTensors<T>(this Tensor4D<T> tensor) where T : struct
-        {
-            var ret = new List<Tensor3D<T>>();
-            for (uint i = 0; i < tensor.Count; i++)
-                ret.Add(tensor.Tensor(i));
-            return ret;
-        }
-
         public static void InitializeRandomly<T>(this ITensor<T> tensor) where T : struct
         {
             var computation = tensor.Computation;
-            tensor.Data.Initialize(i => computation.NextRandom());
+            tensor.Segment.Initialize(i => computation.NextRandom());
         }
 
         public static void Initialize<T>(this ITensor<T> tensor, T value) where T : struct
         {
-            tensor.Data.Initialize(value);
+            tensor.Segment.Initialize(value);
         }
 
         public static void Initialize<T>(this ITensor<T> tensor, Func<uint, T> initializer) where T : struct
         {
-            tensor.Data.Initialize(initializer);
+            tensor.Segment.Initialize(initializer);
         }
 
         public static ConvertToFloat<T> GetFloatConverter<T>(this IBrightDataContext context) where T: struct

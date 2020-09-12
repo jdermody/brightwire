@@ -33,21 +33,23 @@ namespace BrightData.Analysis
             }
         }
 
-        public IReadOnlyList<(double Start, double End, ulong Count)> ContinuousFrequency
+        public IEnumerable<(double Start, double End, ulong Count)> ContinuousFrequency
         {
             get 
             {
-                var ret = new List<(double Start, double End, ulong Count)>();
                 if (_belowRange > 0)
-                    ret.Add((double.NegativeInfinity, _min, _belowRange));
-                ret.AddRange(_bins.Select((c, i) => (
-                    _min + (i * _step), 
-                    _min + (i + 1) * _step, 
-                    c
-                )));
+                    yield return (double.NegativeInfinity, _min, _belowRange);
+                var index = 0;
+                foreach (var c in _bins) {
+                    yield return (
+                        _min + (index * _step),
+                        _min + (index + 1) * _step,
+                        c
+                    );
+                    ++index;
+                }
                 if(_aboveRange > 0)
-                    ret.Add((_max, double.PositiveInfinity, _aboveRange));
-                return ret;
+                    yield return (_max, double.PositiveInfinity, _aboveRange);
             }
         }
     }

@@ -131,11 +131,11 @@ namespace BrightTable.Transformations
         private static readonly ICanConvert StringToBool = new Converter<string, bool>(str => TrueStrings.Contains(str));
         private static readonly ICanConvert StringToDate = new Converter<string, DateTime>(DateTime.Parse);
         private static readonly ICanConvert WeightedIndexListToIndexList = new Converter<WeightedIndexList, IndexList>(w => w.AsIndexList());
-        private static readonly ICanConvert VectorToIndexList = new Converter<Vector<float>, IndexList>(v => v.Data.ToSparse().AsIndexList());
+        private static readonly ICanConvert VectorToIndexList = new Converter<Vector<float>, IndexList>(v => v.Segment.ToSparse().AsIndexList());
         private static readonly ICanConvert IndexListToVector = new Converter<IndexList, Vector<float>>(v => v.ToDense());
         private static readonly ICanConvert WeightedIndexListToVector = new Converter<IndexList, Vector<float>>(v => v.ToDense());
         private static readonly ICanConvert IndexListToWeightedIndexList = new Converter<IndexList, WeightedIndexList>(indexList => WeightedIndexList.Create(indexList.Context, indexList.Indices.Select(ind => new WeightedIndexList.Item(ind, 1f)).ToArray()));
-        private static readonly ICanConvert VectorToWeightedIndexList = new Converter<Vector<float>, WeightedIndexList>(v => v.Data.ToSparse());
+        private static readonly ICanConvert VectorToWeightedIndexList = new Converter<Vector<float>, WeightedIndexList>(v => v.Segment.ToSparse());
 
         public ColumnConversion(uint? columnIndex, ColumnConversionType type)
         {

@@ -6,9 +6,9 @@
     public class DataSourceModel
     {
         /// <summary>
-        /// Data contract version number
+        /// Segment contract version number
         /// </summary>
-        public string Version { get; set; } = "2.0";
+        public string Version { get; set; } = "3.0";
 
         /// <summary>
         /// The name of the data source

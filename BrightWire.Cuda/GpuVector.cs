@@ -97,8 +97,8 @@ namespace BrightWire.LinearAlgebra
 				var data = new float[Count];
 				_data.CopyToHost(data);
 
-				if (value.Data != null) {
-					var data2 = value.Data;
+				if (value.Segment != null) {
+					var data2 = value.Segment;
 					for (uint i = 0, len = (uint)data.Length; i < len; i++)
 						data[i] = data2[i];
 				}
@@ -409,7 +409,7 @@ namespace BrightWire.LinearAlgebra
 		{
 			Debug.Assert(IsValid && other.IsValid);
 			using (var ret = FindDistances(new[] { other }, distance))
-				return ret.Data.Data[0];
+				return ret.Data.Segment[0];
 		}
 
 		public IFloatVector CosineDistance(IReadOnlyList<IFloatVector> data, ref float[] dataNorm)

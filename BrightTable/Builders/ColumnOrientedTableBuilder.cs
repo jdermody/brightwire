@@ -29,7 +29,7 @@ namespace BrightTable.Builders
             }
         }
 
-        public void WriteColumnOffsets(IReadOnlyList<(long Position, long EndOfColumnOffset)> offsets)
+        public void WriteColumnOffsets(IEnumerable<(long Position, long EndOfColumnOffset)> offsets)
         {
             _writer.Flush();
             foreach (var offset in offsets) {

@@ -91,7 +91,7 @@ namespace BrightData.Computation
             return TransformIndexed(segment, i => segment[len - i]);
         }
 
-        public List<ITensorSegment<float>> Split(ITensorSegment<float> segment, int blockCount) => ComputationBase<float>.SplitSegment(segment, blockCount).ToList();
+        public List<ITensorSegment<float>> Split(ITensorSegment<float> segment, uint blockCount) => ComputationBase<float>.SplitSegment(segment, blockCount).ToList();
 
         public float CosineDistance(ITensorSegment<float> tensor, ITensorSegment<float> other)
         {

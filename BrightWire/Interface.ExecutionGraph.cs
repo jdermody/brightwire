@@ -313,7 +313,7 @@ namespace BrightWire
 		/// <summary>
 		/// Saves the data as an output of the graph
 		/// </summary>
-		/// <param name="data">Data to save</param>
+		/// <param name="data">Segment to save</param>
 		/// <param name="channel">Channel to save against (optional)</param>
 	    void SetOutput(IGraphData data, int channel = 0);
 
@@ -338,7 +338,7 @@ namespace BrightWire
         /// Writes to a named memory slot
         /// </summary>
         /// <param name="slotName">Slot name</param>
-        /// <param name="memory">Data</param>
+        /// <param name="memory">Segment</param>
         void SetMemory(string slotName, IFloatMatrix memory);
 
         /// <summary>
@@ -405,7 +405,7 @@ namespace BrightWire
     }
 
     /// <summary>
-    /// Data sources feed data into a graph
+    /// Segment sources feed data into a graph
     /// </summary>
     public interface IDataSource
     {
@@ -542,7 +542,7 @@ namespace BrightWire
         IReadOnlyList<uint> Rows { get; }
 
         /// <summary>
-        /// Data source
+        /// Segment source
         /// </summary>
         IDataSource DataSource { get; }
 
@@ -618,14 +618,14 @@ namespace BrightWire
         Models.ExecutionGraph Graph { get; }
 
         /// <summary>
-        /// Data source that feeds into the graph
+        /// Segment source that feeds into the graph
         /// </summary>
         IDataSource DataSource { get; }
 
         /// <summary>
         /// Executes a data source on the current graph
         /// </summary>
-        /// <param name="dataSource">Data source to process</param>
+        /// <param name="dataSource">Segment source to process</param>
         /// <param name="batchSize">Initial size of each mini batch</param>
         /// <param name="batchCompleteCallback">Optional callback to be notifiied after each mini batch has completed</param>
         /// <returns></returns>
@@ -683,7 +683,7 @@ namespace BrightWire
         /// <summary>
         /// Executes test data on the current graph
         /// </summary>
-        /// <param name="testDataSource">Data source with test data</param>
+        /// <param name="testDataSource">Segment source with test data</param>
         /// <param name="errorMetric">Error metric to use to evaluate the test score</param>
         /// <param name="batchSize">Initial size of each mini batch</param>
         /// <param name="batchCompleteCallback">Optional callback to be notifiied after each mini batch has completed</param>

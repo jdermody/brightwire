@@ -117,7 +117,7 @@ namespace BrightData
 
         public void WriteTo(BinaryWriter writer)
         {
-            var items = _GetNonEmpty();
+            var items = _GetNonEmpty().ToList();
             writer.Write(items.Count);
             foreach(var item in items) {
                 writer.Write(item.Name);
@@ -156,18 +156,16 @@ namespace BrightData
             return value.ToString(System.Globalization.CultureInfo.InvariantCulture);
         }
 
-        IReadOnlyList<(string Name, IConvertible Value, string String)> _GetNonEmpty()
+        IEnumerable<(string Name, IConvertible Value, string String)> _GetNonEmpty()
         {
-            var ret = new List<(string Name, IConvertible Value, string String)>();
             var nonNull = _values.Where(kv => kv.Value != null).ToDictionary(d => d.Key, d => d.Value);
             foreach (var item in _orderedValues) {
                 if (nonNull.TryGetValue(item, out var val)) {
                     var str = _Write(val);
                     if(!String.IsNullOrWhiteSpace(str))
-                        ret.Add((item, val, str));
+                        yield return (item, val, str);
                 }
             }
-            return ret;
         }
 
         public override string ToString()

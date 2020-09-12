@@ -35,7 +35,7 @@ namespace BrightWire.ExecutionGraph.DataSource
         public IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<uint> rows)
         {
             var data = rows.Select(i => _data[(int)i]).ToList();
-            var input = _lap.CreateMatrix((uint)data.Count, (uint)InputSize, (x, y) => data[(int)x].Data[y]);
+            var input = _lap.CreateMatrix((uint)data.Count, (uint)InputSize, (x, y) => data[(int)x].Segment[y]);
             var inputList = new List<IGraphData> {
                 new MatrixGraphData(input)
             };

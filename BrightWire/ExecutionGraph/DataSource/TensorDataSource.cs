@@ -48,7 +48,7 @@ namespace BrightWire.ExecutionGraph.DataSource
                 var z = i / _matrixSize;
                 var x = rem % _rows;
                 var y = rem / _rows;
-                return tensor.Matrix(z).Row(x).Data[y];
+                return tensor.Matrix(z).Row(x).Segment[y];
             });
 
             var inputList = new List<IGraphData> {
