@@ -27,7 +27,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrightData.Numerics", "Brig
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrightWire", "BrightWire\BrightWire.csproj", "{078845C2-D784-4A13-A496-C69158B836A9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrightWire.Cuda", "BrightWire.Cuda\BrightWire.Cuda.csproj", "{8FA1B9A3-A517-48D1-995E-59F30AFDB68D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrightData.Cuda", "BrightWire.Cuda\BrightData.Cuda.csproj", "{8FA1B9A3-A517-48D1-995E-59F30AFDB68D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

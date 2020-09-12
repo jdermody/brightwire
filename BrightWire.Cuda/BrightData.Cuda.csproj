@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BrightData.Numerics\BrightData.Numerics.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="managed-cuda\" />
+    <Folder Include="Properties\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="CudaBlas.netCore">
+      <HintPath>managed-cuda\CudaBlas.netCore.dll</HintPath>
+    </Reference>
+    <Reference Include="CudaSolve.netCore">
+      <HintPath>managed-cuda\CudaSolve.netCore.dll</HintPath>
+    </Reference>
+    <Reference Include="ManagedCuda.netCore">
+      <HintPath>managed-cuda\ManagedCuda.netCore.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="cuda\brightwire.ptx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

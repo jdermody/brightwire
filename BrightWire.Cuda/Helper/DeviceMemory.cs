@@ -1,14 +1,13 @@
-﻿using ManagedCuda;
-using ManagedCuda.BasicTypes;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
-using BrightWire.LinearAlgebra;
+using ManagedCuda;
+using ManagedCuda.BasicTypes;
 
-namespace BrightWire.Cuda.Helper
+namespace BrightData.Cuda.Helper
 {
 	/// <summary>
 	/// Maintains a cache of available device memory

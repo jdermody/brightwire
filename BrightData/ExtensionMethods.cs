@@ -11,7 +11,7 @@ using BrightData.Helper;
 
 namespace BrightData
 {
-    public static class ExtensionMethods
+    public static partial class ExtensionMethods
     {
         public static Type ToType(this TypeCode code)
         {

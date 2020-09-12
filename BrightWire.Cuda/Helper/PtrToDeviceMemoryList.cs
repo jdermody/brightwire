@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using ManagedCuda;
 using ManagedCuda.BasicTypes;
 
-namespace BrightWire.Cuda.Helper
+namespace BrightData.Cuda.Helper
 {
     class PtrToDeviceMemoryList : IDisposable
     {

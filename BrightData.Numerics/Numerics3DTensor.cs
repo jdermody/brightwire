@@ -1,37 +1,35 @@
 ﻿using System;
-using MathNet.Numerics.LinearAlgebra.Single;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
-using BrightData;
 using BrightData.FloatTensors;
 using BrightData.Helper;
-using BrightData.Numerics;
+using MathNet.Numerics.LinearAlgebra.Single;
 
-namespace BrightWire.LinearAlgebra
+namespace BrightData.Numerics
 {
     /// <summary>
     /// 3D Tensor that uses the CPU based math.net numerics library
     /// </summary>
-    class Cpu3DTensor : IIndexable3DFloatTensor
+    class Numerics3DTensor : IIndexable3DFloatTensor
     {
         public IBrightDataContext Context { get; }
-        readonly CpuMatrix _data;
+        readonly NumericsMatrix _data;
         readonly uint _rows, _columns, _depth;
 
-        public Cpu3DTensor(IBrightDataContext context, uint rows, uint columns, uint depth)
+        public Numerics3DTensor(IBrightDataContext context, uint rows, uint columns, uint depth)
         {
             Context = context;
             _rows = rows;
             _columns = columns;
 	        _depth = depth;
-	        _data = new CpuMatrix(context, DenseMatrix.Build.Dense((int)(rows * columns), (int)depth));
+	        _data = new NumericsMatrix(context, DenseMatrix.Build.Dense((int)(rows * columns), (int)depth));
         }
 
-        public Cpu3DTensor(IBrightDataContext context, IReadOnlyList<IIndexableFloatMatrix> matrixList)
+        public Numerics3DTensor(IBrightDataContext context, IReadOnlyList<IIndexableFloatMatrix> matrixList)
         {
             Context = context;
             var first = matrixList.First();
@@ -48,7 +46,7 @@ namespace BrightWire.LinearAlgebra
 		        offset += rowSize;
 	        }
 
-	        _data = new CpuMatrix(context, DenseMatrix.Build.Dense((int)rowSize, (int)_depth, data));
+	        _data = new NumericsMatrix(context, DenseMatrix.Build.Dense((int)rowSize, (int)_depth, data));
         }
 
         public void Dispose()
@@ -102,7 +100,7 @@ namespace BrightWire.LinearAlgebra
         {
             var newRows = _rows + padding * 2;
             var newColumns = _columns + padding * 2;
-            var ret = new Cpu3DTensor(Context, newRows, newColumns, Depth);
+            var ret = new Numerics3DTensor(Context, newRows, newColumns, Depth);
 
             for (uint k = 0; k < Depth; k++) {
                 for (uint i = 0; i < newRows; i++) {
@@ -122,7 +120,7 @@ namespace BrightWire.LinearAlgebra
         {
             var newRows = _rows - padding * 2;
             var newColumns = _columns - padding * 2;
-            var ret = new Cpu3DTensor(Context, newRows, newColumns, Depth);
+            var ret = new Numerics3DTensor(Context, newRows, newColumns, Depth);
             for (uint k = 0; k < Depth; k++) {
                 for (uint i = 0; i < newRows; i++) {
                     for (uint j = 0; j < newColumns; j++) {
@@ -135,7 +133,7 @@ namespace BrightWire.LinearAlgebra
 
         public IFloatVector ReshapeAsVector()
         {
-	        return new CpuVector(Context, DenseVector.Build.Dense(_data.GetInternalArray()));
+	        return new NumericsVector(Context, DenseVector.Build.Dense(_data.GetInternalArray()));
         }
 
 		public IFloatMatrix ReshapeAsMatrix()
@@ -151,7 +149,7 @@ namespace BrightWire.LinearAlgebra
 				var slice = GetMatrixAt(i);
 				tensorList.Add(slice.ReshapeAs3DTensor(rows, columns).AsIndexable());
 			}
-			return new Cpu4DTensor(Context, tensorList);
+			return new Numerics4DTensor(Context, tensorList);
 		}
 
 		public (I3DFloatTensor Result, I3DFloatTensor Indices) MaxPool(
@@ -163,13 +161,13 @@ namespace BrightWire.LinearAlgebra
 		) {
             var newColumns = (ColumnCount - filterWidth) / xStride + 1;
             var newRows = (RowCount - filterHeight) / yStride + 1;
-            var matrixList = new List<CpuMatrix>();
-            var indexList = saveIndices ? new List<CpuMatrix>() : null;
+            var matrixList = new List<NumericsMatrix>();
+            var indexList = saveIndices ? new List<NumericsMatrix>() : null;
             var convolutions = ConvolutionHelper.Default(ColumnCount, RowCount, filterWidth, filterHeight, xStride, yStride);
 
             for (uint k = 0; k < Depth; k++) {
-                var indices = saveIndices ? new CpuMatrix(Context, DenseMatrix.Create((int)newRows, (int)newColumns, 0f)) : null;
-                var layer = new CpuMatrix(Context, DenseMatrix.Create((int)newRows, (int)newColumns, 0f));
+                var indices = saveIndices ? new NumericsMatrix(Context, DenseMatrix.Create((int)newRows, (int)newColumns, 0f)) : null;
+                var layer = new NumericsMatrix(Context, DenseMatrix.Create((int)newRows, (int)newColumns, 0f));
                 
                 foreach(var (cx, cy) in convolutions) {
                     var targetX = cx / xStride;
@@ -196,7 +194,7 @@ namespace BrightWire.LinearAlgebra
                 matrixList.Add(layer);
 	            indexList?.Add(indices);
             }
-            return (new Cpu3DTensor(Context, matrixList), saveIndices ? new Cpu3DTensor(Context, indexList) : null);
+            return (new Numerics3DTensor(Context, matrixList), saveIndices ? new Numerics3DTensor(Context, indexList) : null);
         }
 
         public I3DFloatTensor ReverseMaxPool(
@@ -228,14 +226,14 @@ namespace BrightWire.LinearAlgebra
 		        }
 	        }
 
-	        return new Cpu3DTensor(Context, matrixList.Select(m => new CpuMatrix(Context, m)).ToList());
+	        return new Numerics3DTensor(Context, matrixList.Select(m => new NumericsMatrix(Context, m)).ToList());
         }
 
 	    public IFloatMatrix Im2Col(uint filterWidth, uint filterHeight, uint xStride, uint yStride)
 	    {
 		    var convolutions = ConvolutionHelper.Default(ColumnCount, RowCount, filterWidth, filterHeight, xStride, yStride);
 		    var filterSize = filterWidth * filterHeight;
-		    var ret = new CpuMatrix(Context, DenseMatrix.Create(convolutions.Count, (int)(filterSize * Depth), 0f));
+		    var ret = new NumericsMatrix(Context, DenseMatrix.Create(convolutions.Count, (int)(filterSize * Depth), 0f));
 
 		    for(int i = 0; i < convolutions.Count; i++) {
 			    var (offsetX, offsetY) = convolutions[i];
@@ -286,12 +284,12 @@ namespace BrightWire.LinearAlgebra
 					}
 				}
 			}
-			return new Cpu3DTensor(Context, output.Select(m => new CpuMatrix(Context, m)).ToList());
+			return new Numerics3DTensor(Context, output.Select(m => new NumericsMatrix(Context, m)).ToList());
         }
 
         public IFloatMatrix CombineDepthSlices()
         {
-            var ret = new CpuMatrix(Context, DenseMatrix.Create((int)_rows, (int)_columns, 0f));
+            var ret = new NumericsMatrix(Context, DenseMatrix.Create((int)_rows, (int)_columns, 0f));
             for (uint i = 0; i < Depth; i++)
                 ret.AddInPlace(GetMatrixAt(i));
             return ret;
@@ -299,7 +297,7 @@ namespace BrightWire.LinearAlgebra
 
         public void AddInPlace(I3DFloatTensor tensor)
         {
-            var other = (Cpu3DTensor)tensor;
+            var other = (Numerics3DTensor)tensor;
 	        _data.AddInPlace(other._data);
         }
 
@@ -308,7 +306,7 @@ namespace BrightWire.LinearAlgebra
             var ret = new List<IIndexableFloatMatrix>();
             foreach (var item in Matrix)
                 ret.Add(item.Multiply(matrix).AsIndexable());
-            return new Cpu3DTensor(Context, ret);
+            return new Numerics3DTensor(Context, ret);
         }
 
         public void AddToEachRow(IFloatVector vector)
@@ -331,7 +329,7 @@ namespace BrightWire.LinearAlgebra
                 var slice = GetMatrixAt(i);
                 ret.Add(slice.TransposeThisAndMultiply(multiplyWith).AsIndexable());
             }
-            return new Cpu3DTensor(Context, ret);
+            return new Numerics3DTensor(Context, ret);
         }
 
 	    public string AsXml

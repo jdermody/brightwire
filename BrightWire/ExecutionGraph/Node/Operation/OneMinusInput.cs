@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using BrightData;
 
 namespace BrightWire.ExecutionGraph.Node.Operation
 {

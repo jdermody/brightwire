@@ -7,7 +7,6 @@ using System.Text;
 using System.Xml;
 using BrightData.FloatTensors;
 using BrightData.Helper;
-using BrightWire.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Single;
 
 namespace BrightData.Numerics
@@ -15,19 +14,19 @@ namespace BrightData.Numerics
     /// <summary>
     /// Matrix that uses the CPU based math.net numerics library
     /// </summary>
-    class CpuMatrix : IIndexableFloatMatrix
+    class NumericsMatrix : IIndexableFloatMatrix
     {
         readonly MathNet.Numerics.LinearAlgebra.Matrix<float> _matrix;
 
         public bool IsValid => true;
 
-	    public CpuMatrix(IBrightDataContext context, DenseMatrix matrix)
+	    public NumericsMatrix(IBrightDataContext context, DenseMatrix matrix)
         {
             Context = context;
             _matrix = matrix;
         }
 
-        public CpuMatrix(IBrightDataContext context, MathNet.Numerics.LinearAlgebra.Matrix<float> matrix)
+        public NumericsMatrix(IBrightDataContext context, MathNet.Numerics.LinearAlgebra.Matrix<float> matrix)
         {
             _matrix = matrix;
             Context = context;
@@ -58,71 +57,71 @@ namespace BrightData.Numerics
 
         public IFloatVector Column(uint index)
         {
-            return new CpuVector(Context, _matrix.Column((int)index));
+            return new NumericsVector(Context, _matrix.Column((int)index));
         }
 
         public IIndexableFloatMatrix Map(Func<float, float> mutator)
         {
-            return new CpuMatrix(Context, _matrix.Map(mutator));
+            return new NumericsMatrix(Context, _matrix.Map(mutator));
         }
 
         public IIndexableFloatMatrix MapIndexed(Func<uint, uint, float, float> mutator)
         {
-            return new CpuMatrix(Context, _matrix.MapIndexed((i, j, v) => mutator((uint)i, (uint)j, v)));
+            return new NumericsMatrix(Context, _matrix.MapIndexed((i, j, v) => mutator((uint)i, (uint)j, v)));
         }
 
         public IFloatMatrix Multiply(IFloatMatrix matrix)
         {
-            var other = (CpuMatrix)matrix;
-            return new CpuMatrix(Context, _matrix.Multiply(other._matrix));
+            var other = (NumericsMatrix)matrix;
+            return new NumericsMatrix(Context, _matrix.Multiply(other._matrix));
         }
 
         public IFloatMatrix PointwiseMultiply(IFloatMatrix matrix)
         {
-            var other = (CpuMatrix)matrix;
+            var other = (NumericsMatrix)matrix;
             Debug.Assert(RowCount == matrix.RowCount && ColumnCount == matrix.ColumnCount);
-            return new CpuMatrix(Context, _matrix.PointwiseMultiply(other._matrix));
+            return new NumericsMatrix(Context, _matrix.PointwiseMultiply(other._matrix));
         }
 
         public IFloatVector RowSums()
         {
             var ret = _matrix.RowSums();
-            return new CpuVector(Context, ret);
+            return new NumericsVector(Context, ret);
         }
 
         public IFloatVector ColumnSums()
         {
             var ret = _matrix.ColumnSums();
-            return new CpuVector(Context, ret);
+            return new NumericsVector(Context, ret);
         }
 
         public IFloatMatrix Add(IFloatMatrix matrix)
         {
-            var other = (CpuMatrix)matrix;
-            return new CpuMatrix(Context, _matrix.Add(other._matrix));
+            var other = (NumericsMatrix)matrix;
+            return new NumericsMatrix(Context, _matrix.Add(other._matrix));
         }
 
         public IFloatMatrix Subtract(IFloatMatrix matrix)
         {
-            var other = (CpuMatrix)matrix;
-            return new CpuMatrix(Context, _matrix.Subtract(other._matrix));
+            var other = (NumericsMatrix)matrix;
+            return new NumericsMatrix(Context, _matrix.Subtract(other._matrix));
         }
 
         public IFloatMatrix TransposeAndMultiply(IFloatMatrix matrix)
         {
-            var other = (CpuMatrix)matrix;
-            return new CpuMatrix(Context, _matrix.TransposeAndMultiply(other._matrix));
+            var other = (NumericsMatrix)matrix;
+            return new NumericsMatrix(Context, _matrix.TransposeAndMultiply(other._matrix));
         }
 
         public IFloatMatrix TransposeThisAndMultiply(IFloatMatrix matrix)
         {
-            var other = (CpuMatrix)matrix;
-            return new CpuMatrix(Context, _matrix.TransposeThisAndMultiply(other._matrix));
+            var other = (NumericsMatrix)matrix;
+            return new NumericsMatrix(Context, _matrix.TransposeThisAndMultiply(other._matrix));
         }
 
         public IFloatMatrix Transpose()
         {
-            return new CpuMatrix(Context, _matrix.Transpose());
+            return new NumericsMatrix(Context, _matrix.Transpose());
         }
 
         public void Multiply(float scalar)
@@ -138,14 +137,14 @@ namespace BrightData.Numerics
         public void AddInPlace(IFloatMatrix matrix, float coefficient1 = 1.0f, float coefficient2 = 1.0f)
         {
             Debug.Assert(RowCount == matrix.RowCount && ColumnCount == matrix.ColumnCount);
-            var other = (CpuMatrix)matrix;
+            var other = (NumericsMatrix)matrix;
             _matrix.MapIndexedInplace((i, j, v) => (v * coefficient1) + (other[(uint)i, (uint)j] * coefficient2));
         }
 
         public void SubtractInPlace(IFloatMatrix matrix, float coefficient1 = 1.0f, float coefficient2 = 1.0f)
         {
             Debug.Assert(RowCount == matrix.RowCount && ColumnCount == matrix.ColumnCount);
-            var other = (CpuMatrix)matrix;
+            var other = (NumericsMatrix)matrix;
             _matrix.MapIndexedInplace((i, j, v) => (v * coefficient1) - (other[(uint)i, (uint)j] * coefficient2));
         }
 
@@ -192,59 +191,59 @@ namespace BrightData.Numerics
 
         public IFloatMatrix ReluActivation()
         {
-            return new CpuMatrix(Context, _matrix.Map(_Relu));
+            return new NumericsMatrix(Context, _matrix.Map(_Relu));
         }
 
         public IFloatMatrix ReluDerivative()
         {
-            return new CpuMatrix(Context, _matrix.Map(_ReluDerivative));
+            return new NumericsMatrix(Context, _matrix.Map(_ReluDerivative));
         }
 
         public IFloatMatrix LeakyReluActivation()
         {
-            return new CpuMatrix(Context, _matrix.Map(_LeakyRelu));
+            return new NumericsMatrix(Context, _matrix.Map(_LeakyRelu));
         }
 
         public IFloatMatrix LeakyReluDerivative()
         {
-            return new CpuMatrix(Context, _matrix.Map(_LeakyReluDerivative));
+            return new NumericsMatrix(Context, _matrix.Map(_LeakyReluDerivative));
         }
 
         public IFloatMatrix SigmoidActivation()
         {
-            return new CpuMatrix(Context, _matrix.Map(_Sigmoid));
+            return new NumericsMatrix(Context, _matrix.Map(_Sigmoid));
         }
 
         public IFloatMatrix SigmoidDerivative()
         {
-            return new CpuMatrix(Context, _matrix.Map(_SigmoidDerivative));
+            return new NumericsMatrix(Context, _matrix.Map(_SigmoidDerivative));
         }
 
         public IFloatMatrix TanhActivation()
         {
-            return new CpuMatrix(Context, _matrix.Map(_Tanh));
+            return new NumericsMatrix(Context, _matrix.Map(_Tanh));
         }
 
         public IFloatMatrix TanhDerivative()
         {
-            return new CpuMatrix(Context, _matrix.Map(_TanhDerivative));
+            return new NumericsMatrix(Context, _matrix.Map(_TanhDerivative));
         }
 
         public IFloatMatrix SoftmaxActivation()
         {
             var activation = Rows.Select(r => r.Softmax().AsIndexable()).ToList();
-            return new CpuMatrix(Context, DenseMatrix.Create((int)RowCount, (int)ColumnCount, (x, y) => activation[x][(uint)y]));
+            return new NumericsMatrix(Context, DenseMatrix.Create((int)RowCount, (int)ColumnCount, (x, y) => activation[x][(uint)y]));
         }
 
         public void AddToEachRow(IFloatVector vector)
         {
-            var other = (CpuVector)vector;
+            var other = (NumericsVector)vector;
             _matrix.MapIndexedInplace((j, k, v) => v + other[(uint)k]);
         }
 
         public void AddToEachColumn(IFloatVector vector)
         {
-            var other = (CpuVector)vector;
+            var other = (NumericsVector)vector;
             _matrix.MapIndexedInplace((j, k, v) => v + other[(uint)j]);
         }
 
@@ -288,14 +287,14 @@ namespace BrightData.Numerics
 
         public IFloatVector Row(uint index)
         {
-            return new CpuVector(Context, _matrix.Row((int)index));
+            return new NumericsVector(Context, _matrix.Row((int)index));
         }
 
         public IEnumerable<IIndexableFloatVector> Rows
         {
             get
             {
-                return _matrix.EnumerateRows().Select(v => new CpuVector(Context, v));
+                return _matrix.EnumerateRows().Select(v => new NumericsVector(Context, v));
             }
         }
 
@@ -303,18 +302,18 @@ namespace BrightData.Numerics
         {
             get
             {
-                return _matrix.EnumerateColumns().Select(v => new CpuVector(Context, v));
+                return _matrix.EnumerateColumns().Select(v => new NumericsVector(Context, v));
             }
         }
 
 	    public IFloatMatrix GetNewMatrixFromRows(IReadOnlyList<uint> rowIndexes)
         {
-            return new CpuMatrix(Context, DenseMatrix.Create(rowIndexes.Count, (int)ColumnCount, (x, y) => _matrix[(int)rowIndexes[x], y]));
+            return new NumericsMatrix(Context, DenseMatrix.Create(rowIndexes.Count, (int)ColumnCount, (x, y) => _matrix[(int)rowIndexes[x], y]));
         }
 
         public IFloatMatrix GetNewMatrixFromColumns(IReadOnlyList<uint> columnIndexes)
         {
-            return new CpuMatrix(Context, DenseMatrix.Create((int)RowCount, columnIndexes.Count, (x, y) => _matrix[x, (int)columnIndexes[y]]));
+            return new NumericsMatrix(Context, DenseMatrix.Create((int)RowCount, columnIndexes.Count, (x, y) => _matrix[x, (int)columnIndexes[y]]));
         }
 
         public void ClearRows(IReadOnlyList<uint> indexes)
@@ -329,7 +328,7 @@ namespace BrightData.Numerics
 
         public IFloatMatrix Clone()
         {
-            return new CpuMatrix(Context, DenseMatrix.OfMatrix(_matrix));
+            return new NumericsMatrix(Context, DenseMatrix.OfMatrix(_matrix));
         }
 
         public void Clear()
@@ -340,52 +339,52 @@ namespace BrightData.Numerics
         public IFloatMatrix ConcatColumns(IFloatMatrix bottom)
         {
             var t = this;
-            var b = (CpuMatrix)bottom;
+            var b = (NumericsMatrix)bottom;
             Debug.Assert(ColumnCount == bottom.ColumnCount);
 
             var ret = DenseMatrix.Create((int)(t.RowCount + b.RowCount), (int)t.ColumnCount, (x, y) => {
                 var m = x >= t.RowCount ? b._matrix : t._matrix;
                 return m[(int)(x >= t.RowCount ? x - t.RowCount : x), y];
             });
-            return new CpuMatrix(Context, ret);
+            return new NumericsMatrix(Context, ret);
         }
 
         public IFloatMatrix ConcatRows(IFloatMatrix right)
         {
             var t = this;
-            var b = (CpuMatrix)right;
+            var b = (NumericsMatrix)right;
             Debug.Assert(RowCount == right.RowCount);
 
             var ret = DenseMatrix.Create((int)t.RowCount, (int)(t.ColumnCount + b.ColumnCount), (x, y) => {
                 var m = y >= t.ColumnCount ? b._matrix : t._matrix;
                 return m[x, (int)(y >= t.ColumnCount ? y - t.ColumnCount : y)];
             });
-            return new CpuMatrix(Context, ret);
+            return new NumericsMatrix(Context, ret);
         }
 
         public (IFloatMatrix Left, IFloatMatrix Right) SplitAtColumn(uint columnIndex)
         {
             var ret1 = DenseMatrix.Create((int)RowCount, (int)columnIndex, (x, y) => this[(uint)x, (uint)y]);
             var ret2 = DenseMatrix.Create((int)RowCount, (int)(ColumnCount - columnIndex), (x, y) => this[(uint)x, (uint)(columnIndex + y)]);
-            return (new CpuMatrix(Context, ret1), new CpuMatrix(Context, ret2));
+            return (new NumericsMatrix(Context, ret1), new NumericsMatrix(Context, ret2));
         }
 
         public (IFloatMatrix Top, IFloatMatrix Bottom) SplitAtRow(uint rowIndex)
         {
             var ret1 = DenseMatrix.Create((int)rowIndex, (int)ColumnCount, (x, y) => this[(uint)x, (uint)y]);
             var ret2 = DenseMatrix.Create((int)(RowCount - rowIndex), (int)ColumnCount, (x, y) => this[(uint)(rowIndex + x), (uint)y]);
-            return (new CpuMatrix(Context, ret1), new CpuMatrix(Context, ret2));
+            return (new NumericsMatrix(Context, ret1), new NumericsMatrix(Context, ret2));
         }
 
         public IFloatMatrix Sqrt(float valueAdjustment = 1e-8f)
         {
-            return new CpuMatrix(Context, (DenseMatrix)_matrix.Map(v => Convert.ToSingle(Math.Sqrt(v + valueAdjustment))));
+            return new NumericsMatrix(Context, (DenseMatrix)_matrix.Map(v => Convert.ToSingle(Math.Sqrt(v + valueAdjustment))));
         }
 
         public IFloatMatrix PointwiseDivide(IFloatMatrix matrix)
         {
-            var other = (CpuMatrix)matrix;
-            return new CpuMatrix(Context, _matrix.PointwiseDivide(other._matrix));
+            var other = (NumericsMatrix)matrix;
+            return new NumericsMatrix(Context, _matrix.PointwiseDivide(other._matrix));
         }
 
         public void L1Regularisation(float coefficient)
@@ -401,13 +400,13 @@ namespace BrightData.Numerics
         public IFloatVector ColumnL2Norm()
         {
             var ret = _matrix.ColumnNorms(2.0);
-            return new CpuVector(Context, DenseVector.Create(ret.Count, i => Convert.ToSingle(ret[i])));
+            return new NumericsVector(Context, DenseVector.Create(ret.Count, i => Convert.ToSingle(ret[i])));
         }
 
         public IFloatVector RowL2Norm()
         {
             var ret = _matrix.RowNorms(2.0);
-            return new CpuVector(Context, DenseVector.Create(ret.Count, i => Convert.ToSingle(ret[i])));
+            return new NumericsVector(Context, DenseVector.Create(ret.Count, i => Convert.ToSingle(ret[i])));
         }
 
         public void PointwiseDivideRows(IFloatVector vector)
@@ -424,12 +423,12 @@ namespace BrightData.Numerics
 
         public IFloatVector Diagonal()
         {
-            return new CpuVector(Context, (DenseVector)_matrix.Diagonal());
+            return new NumericsVector(Context, (DenseVector)_matrix.Diagonal());
         }
 
         public IFloatMatrix Pow(float power)
         {
-            return new CpuMatrix(Context, _matrix.Map(v => Convert.ToSingle(Math.Pow(v, power))));
+            return new NumericsMatrix(Context, _matrix.Map(v => Convert.ToSingle(Math.Pow(v, power))));
         }
 
         public IFloatVector GetRowSegment(uint index, uint columnIndex, uint length)
@@ -437,7 +436,7 @@ namespace BrightData.Numerics
             var buffer = new float[length];
             for (uint i = 0; i < length; i++)
                 buffer[i] = _matrix[(int)index, (int)(columnIndex + i)];
-            return new CpuVector(Context, DenseVector.OfArray(buffer));
+            return new NumericsVector(Context, DenseVector.OfArray(buffer));
         }
 
         public IFloatVector GetColumnSegment(uint columnIndex, uint rowIndex, uint length)
@@ -445,7 +444,7 @@ namespace BrightData.Numerics
             var buffer = new float[length];
             for (var i = 0; i < length; i++)
                 buffer[i] = _matrix[(int)(rowIndex + i), (int)columnIndex];
-            return new CpuVector(Context, DenseVector.OfArray(buffer));
+            return new NumericsVector(Context, DenseVector.OfArray(buffer));
         }
 
         public IFloatMatrix Multiply(IFloatVector vector)
@@ -457,12 +456,12 @@ namespace BrightData.Numerics
         public (IFloatMatrix U, IFloatVector S, IFloatMatrix VT) Svd()
         {
             var svd = _matrix.Svd(true);
-            return (new CpuMatrix(Context, svd.U), new CpuVector(Context, svd.S), new CpuMatrix(Context, svd.VT));
+            return (new NumericsMatrix(Context, svd.U), new NumericsVector(Context, svd.S), new NumericsMatrix(Context, svd.VT));
         }
 
         public IFloatVector ReshapeAsVector()
         {
-            return new CpuVector(Context, _matrix.AsColumnMajorArray());
+            return new NumericsVector(Context, _matrix.AsColumnMajorArray());
         }
 
 		public I3DFloatTensor ReshapeAs3DTensor(uint rows, uint columns)
@@ -471,15 +470,15 @@ namespace BrightData.Numerics
 			var matrixList = new List<IIndexableFloatMatrix>();
 			for (uint i = 0, len = ColumnCount; i < len; i++)
 				matrixList.Add(Column(i).ReshapeAsMatrix(rows, columns).AsIndexable());
-			return new Cpu3DTensor(Context, matrixList);
+			return new Numerics3DTensor(Context, matrixList);
 		}
 
 		public I4DFloatTensor ReshapeAs4DTensor(uint rows, uint columns, uint depth)
 		{
 			var list = new List<IIndexable3DFloatTensor>();
 			for (uint i = 0; i < ColumnCount; i++)
-				list.Add(new Cpu3DTensor(Context, Column(i).Split(depth).Select(v => v.ReshapeAsMatrix(rows, columns).AsIndexable()).ToList()));
-			return new Cpu4DTensor(Context, list);
+				list.Add(new Numerics3DTensor(Context, Column(i).Split(depth).Select(v => v.ReshapeAsMatrix(rows, columns).AsIndexable()).ToList()));
+			return new Numerics4DTensor(Context, list);
 		}
 
 	    public float GetAt(uint row, uint column)

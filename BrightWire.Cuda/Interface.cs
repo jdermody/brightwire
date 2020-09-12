@@ -1,7 +1,7 @@
 ﻿using ManagedCuda;
 using ManagedCuda.BasicTypes;
 
-namespace BrightWire
+namespace BrightData.Cuda
 {
 	/// <summary>
 	/// Wrapper for a device memory pointer

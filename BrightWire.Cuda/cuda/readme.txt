@@ -18,8 +18,10 @@ using the previous version of visual studio might be a better option.
 
 IMPORTANT: You will need to have installed a c++ compiler as part of your Visual Studio installation.
 
-Open a Visual Studio command prompt to this directory (with the brightwire.cu file) and execute the following:
-
+**************************************
+IMPORTANT: 
+Open a Visual Studio *x64* native tools command prompt to this directory (with the brightwire.cu file) and execute the following:
+**************************************
 
 nvcc brightwire.cu -use_fast_math -ptx -m 64 -arch compute_35 -code sm_35 -o brightwire.ptx
 

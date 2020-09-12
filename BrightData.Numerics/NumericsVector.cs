@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using BrightData.FloatTensors;
 using BrightData.Helper;
-using BrightWire.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Single;
 
@@ -14,18 +13,18 @@ namespace BrightData.Numerics
     /// <summary>
     /// Vector that uses the CPU based math.net numerics library
     /// </summary>
-    class CpuVector : IIndexableFloatVector
+    class NumericsVector : IIndexableFloatVector
     {
         readonly MathNet.Numerics.LinearAlgebra.Vector<float> _vector;
 
         public bool IsValid => true;
 
-	    public CpuVector(IBrightDataContext context, DenseVector vector)
+	    public NumericsVector(IBrightDataContext context, DenseVector vector)
         {
             Context = context;
             _vector = vector;
         }
-        public CpuVector(IBrightDataContext context, MathNet.Numerics.LinearAlgebra.Vector<float> vector)
+        public NumericsVector(IBrightDataContext context, MathNet.Numerics.LinearAlgebra.Vector<float> vector)
         {
             Context = context;
             _vector = vector;
@@ -49,13 +48,13 @@ namespace BrightData.Numerics
 
 	    public IFloatVector Add(IFloatVector vector)
         {
-            var other = (CpuVector)vector;
-            return new CpuVector(Context, _vector.Add(other._vector));
+            var other = (NumericsVector)vector;
+            return new NumericsVector(Context, _vector.Add(other._vector));
         }
 
         public void AddInPlace(IFloatVector vector, float coefficient1 = 1.0f, float coefficient2 = 1.0f)
         {
-            var other = (CpuVector)vector;
+            var other = (NumericsVector)vector;
             _vector.MapIndexedInplace((i, v) => (v * coefficient1) + (other[(uint)i] * coefficient2));
         }
 
@@ -86,24 +85,24 @@ namespace BrightData.Numerics
 
         public IFloatVector Subtract(IFloatVector vector)
         {
-            var other = (CpuVector)vector;
-            return new CpuVector(Context, _vector.Subtract(other._vector));
+            var other = (NumericsVector)vector;
+            return new NumericsVector(Context, _vector.Subtract(other._vector));
         }
 
         public void SubtractInPlace(IFloatVector vector, float coefficient1 = 1.0f, float coefficient2 = 1.0f)
         {
-            var other = (CpuVector)vector;
+            var other = (NumericsVector)vector;
             _vector.MapIndexedInplace((i, v) => (v * coefficient1) - (other[(uint)i] * coefficient2));
         }
 
         public IFloatMatrix ReshapeAsColumnMatrix()
         {
-            return new CpuMatrix(Context, DenseMatrix.Build.Dense(_vector.Count, 1, GetInternalArray()));
+            return new NumericsMatrix(Context, DenseMatrix.Build.Dense(_vector.Count, 1, GetInternalArray()));
         }
 
         public IFloatMatrix ReshapeAsRowMatrix()
         {
-            return new CpuMatrix(Context, DenseMatrix.Build.Dense(1, _vector.Count, GetInternalArray()));
+            return new NumericsMatrix(Context, DenseMatrix.Build.Dense(1, _vector.Count, GetInternalArray()));
         }
 
         public override string ToString()
@@ -132,13 +131,13 @@ namespace BrightData.Numerics
 
         public IFloatVector PointwiseMultiply(IFloatVector vector)
         {
-            var other = (CpuVector)vector;
-            return new CpuVector(Context, _vector.PointwiseMultiply(other._vector));
+            var other = (NumericsVector)vector;
+            return new NumericsVector(Context, _vector.PointwiseMultiply(other._vector));
         }
 
         public float DotProduct(IFloatVector vector)
         {
-            var other = (CpuVector)vector;
+            var other = (NumericsVector)vector;
             return _vector.DotProduct(other._vector);
         }
 
@@ -146,27 +145,27 @@ namespace BrightData.Numerics
 
 	    public IFloatVector GetNewVectorFromIndexes(IReadOnlyList<uint> indexes)
         {
-            return new CpuVector(Context, DenseVector.Create(indexes.Count, i => this[indexes[i]]));
+            return new NumericsVector(Context, DenseVector.Create(indexes.Count, i => this[indexes[i]]));
         }
 
         public IFloatVector Abs()
         {
-            return new CpuVector(Context, DenseVector.Create(_vector.Count, i => Convert.ToSingle(Math.Abs(_vector[i]))));
+            return new NumericsVector(Context, DenseVector.Create(_vector.Count, i => Convert.ToSingle(Math.Abs(_vector[i]))));
         }
 
         public IFloatVector Sqrt()
         {
-            return new CpuVector(Context, DenseVector.Create(_vector.Count, i => Convert.ToSingle(Math.Sqrt(_vector[i] + 1e-8f))));
+            return new NumericsVector(Context, DenseVector.Create(_vector.Count, i => Convert.ToSingle(Math.Sqrt(_vector[i] + 1e-8f))));
         }
 
         public IFloatVector Clone()
         {
-            return new CpuVector(Context, DenseVector.OfVector(_vector));
+            return new NumericsVector(Context, DenseVector.OfVector(_vector));
         }
 
         public float EuclideanDistance(IFloatVector vector)
         {
-            var other = (CpuVector)vector;
+            var other = (NumericsVector)vector;
 	        Debug.Assert(other.Count == Count);
 
 	        return Subtract(other).L2Norm();
@@ -174,31 +173,31 @@ namespace BrightData.Numerics
 
         public float CosineDistance(IFloatVector vector)
         {
-            var other = (CpuVector)vector;
+            var other = (NumericsVector)vector;
             return Convert.ToSingle(MathNet.Numerics.Distance.Cosine(GetInternalArray(), other.GetInternalArray()));
         }
 
         public float ManhattanDistance(IFloatVector vector)
         {
-            var other = (CpuVector)vector;
+            var other = (NumericsVector)vector;
             return Convert.ToSingle(MathNet.Numerics.Distance.Manhattan(_vector, other._vector));
         }
 
         public float MeanSquaredDistance(IFloatVector vector)
         {
-            var other = (CpuVector)vector;
+            var other = (NumericsVector)vector;
             return Convert.ToSingle(MathNet.Numerics.Distance.MSE(_vector, other._vector));
         }
 
         public float SquaredEuclidean(IFloatVector vector)
         {
-            var other = (CpuVector)vector;
+            var other = (NumericsVector)vector;
             return Convert.ToSingle(MathNet.Numerics.Distance.SSD(_vector, other._vector));
         }
 
         public void CopyFrom(IFloatVector vector)
         {
-            var other = (CpuVector)vector;
+            var other = (NumericsVector)vector;
             other._vector.CopyTo(_vector);
         }
 
@@ -247,7 +246,7 @@ namespace BrightData.Numerics
         public IIndexableFloatVector Append(IReadOnlyList<float> data)
         {
             var count = (int)Count;
-            return new CpuVector(Context, DenseVector.Create(count + data.Count, i => i < Count ? _vector[i] : data[i - count]));
+            return new NumericsVector(Context, DenseVector.Create(count + data.Count, i => i < Count ? _vector[i] : data[i - count]));
         }
 
         public IFloatVector Softmax()
@@ -258,14 +257,14 @@ namespace BrightData.Numerics
             var softmax = _vector.Map(v => Math.Exp(v - max));
             var sum = softmax.Sum();
             if (FloatMath.IsNotZero(Convert.ToSingle(sum)))
-                return new CpuVector(Context, softmax.Divide(sum).ToSingle());
-            return new CpuVector(Context, softmax.ToSingle());
+                return new NumericsVector(Context, softmax.Divide(sum).ToSingle());
+            return new NumericsVector(Context, softmax.ToSingle());
         }
 
         public IFloatMatrix SoftmaxDerivative()
         {
             var count = (int)Count;
-            return new CpuMatrix(Context, DenseMatrix.Build.Dense(count, count, (x, y) => x == y 
+            return new NumericsMatrix(Context, DenseMatrix.Build.Dense(count, count, (x, y) => x == y 
                 ? this[(uint)x] * (1 - this[(uint)x]) 
                 : -this[(uint)x] * this[(uint)y])
             );
@@ -293,7 +292,7 @@ namespace BrightData.Numerics
             var distanceFunc = _GetDistanceFunc(distance);
             var ret = new float[data.Count];
             Parallel.ForEach(data, (vec, ps, ind) => ret[ind] = distanceFunc(vec));
-            return new CpuVector(Context, DenseVector.Create(data.Count, i => ret[i]));
+            return new NumericsVector(Context, DenseVector.Create(data.Count, i => ret[i]));
         }
 
         public float FindDistance(IFloatVector other, DistanceMetric distance)
@@ -310,17 +309,17 @@ namespace BrightData.Numerics
             var ret = new float[data.Count];
             for (var i = 0; i < data.Count; i++)
                 ret[i] = Convert.ToSingle(1d - DotProduct(data[i]) / (Math.Sqrt(norm) * Math.Sqrt(dataNorm[i])));
-            return new CpuVector(Context, DenseVector.Create(data.Count, i => ret[i]));
+            return new NumericsVector(Context, DenseVector.Create(data.Count, i => ret[i]));
         }
 
         public IFloatVector Log()
         {
-            return new CpuVector(Context, _vector.PointwiseLog());
+            return new NumericsVector(Context, _vector.PointwiseLog());
         }
 
         public IFloatVector Sigmoid()
         {
-            return new CpuVector(Context, _vector.Map(CpuMatrix._Sigmoid));
+            return new NumericsVector(Context, _vector.Map(NumericsMatrix._Sigmoid));
         }
 
         public void Add(float scalar)
@@ -331,7 +330,7 @@ namespace BrightData.Numerics
         public IFloatMatrix ReshapeAsMatrix(uint rows, uint columns)
         {
 	        Debug.Assert(rows * columns == _vector.Count);
-            return new CpuMatrix(Context, DenseMatrix.Build.Dense((int)rows, (int)columns, GetInternalArray()));
+            return new NumericsMatrix(Context, DenseMatrix.Build.Dense((int)rows, (int)columns, GetInternalArray()));
         }
 
         public I3DFloatTensor ReshapeAs3DTensor(uint rows, uint columns, uint depth)
@@ -340,10 +339,10 @@ namespace BrightData.Numerics
             if (depth > 1) {
 	            var slice = Split(depth);
 	            var matrixList = slice.Select(part => part.ReshapeAsMatrix(rows, columns).AsIndexable()).ToList();
-	            return new Cpu3DTensor(Context, matrixList);
+	            return new Numerics3DTensor(Context, matrixList);
             } else {
                 var matrix = ReshapeAsMatrix(rows, columns).AsIndexable();
-                return new Cpu3DTensor(Context, new[] { matrix });
+                return new Numerics3DTensor(Context, new[] { matrix });
             }
         }
 
@@ -353,10 +352,10 @@ namespace BrightData.Numerics
 		    if (count > 1) {
 			    var slice = Split(count);
 			    var tensorList = slice.Select(part => part.ReshapeAs3DTensor(rows, columns, depth).AsIndexable()).ToList();
-			    return new Cpu4DTensor(Context, tensorList);
+			    return new Numerics4DTensor(Context, tensorList);
 		    } else {
 			    var tensor = ReshapeAs3DTensor(rows, columns, depth).AsIndexable();
-			    return new Cpu4DTensor(Context, new[] { tensor });
+			    return new Numerics4DTensor(Context, new[] { tensor });
 		    }
 	    }
 
@@ -370,14 +369,14 @@ namespace BrightData.Numerics
             for (uint i = 0, len = Count; i < len; i++) {
                 if (i % blockSize == 0) {
                     if (curr != null)
-                        ret.Add(new CpuVector(Context, curr));
+                        ret.Add(new NumericsVector(Context, curr));
                     curr = new float[blockSize];
                     index = 0;
                 }
 	            // ReSharper disable once PossibleNullReferenceException
                 curr[index++] = _vector[(int)i];
             }
-            ret.Add(new CpuVector(Context, curr));
+            ret.Add(new NumericsVector(Context, curr));
             return ret;
         }
 
@@ -400,7 +399,7 @@ namespace BrightData.Numerics
         public IFloatVector Reverse()
         {
             var len = Count - 1;
-            return new CpuVector(Context, DenseVector.Create((int)Count, i => this[len - (uint)i]));
+            return new NumericsVector(Context, DenseVector.Create((int)Count, i => this[len - (uint)i]));
         }
 
 	    public float GetAt(uint index)

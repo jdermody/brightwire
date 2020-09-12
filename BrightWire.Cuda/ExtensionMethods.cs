@@ -1,14 +1,12 @@
-﻿using BrightWire.LinearAlgebra;
-using System.IO;
+﻿using System.IO;
 using System.Reflection;
-using BrightData;
 
-namespace BrightWire
+namespace BrightData.Cuda
 {
     /// <summary>
     /// Provides a GPU based linear algebra provider
     /// </summary>
-    public static class BrightWireGpuProvider
+    public static class ExtensionMethods
     {
         /// <summary>
         /// Creates a linear alebra provider that runs on the GPU
@@ -16,7 +14,7 @@ namespace BrightWire
         /// <param name="stochastic">False to disable random number generation</param>
         /// <param name="memoryCacheSize">The amount of device memory to use an application memory cache</param>
         /// <param name="cudaKernelPath">Path to .cubin or .ptx kernel file (defaults to .ptx file for forward compatability)</param>
-        public static ILinearAlgebraProvider CreateLinearAlgebra(IBrightDataContext context, bool stochastic = true, uint memoryCacheSize = 512 * 1048576, string cudaKernelPath = null)
+        public static ILinearAlgebraProvider UseCudaLinearAlgebra(this IBrightDataContext context, bool stochastic = true, uint memoryCacheSize = 512 * 1048576, string cudaKernelPath = null)
         {
             var path = cudaKernelPath ?? GetKernelPath();
             if (!File.Exists(path))

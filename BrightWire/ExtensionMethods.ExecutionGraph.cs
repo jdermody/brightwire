@@ -144,5 +144,32 @@ namespace BrightWire
 				.ToList()
 			;
 	    }
-	}
+
+        /// <summary>
+        /// Converts the matrix to a generic IGraphData
+        /// </summary>
+        /// <param name="matrix">Matrix to convert</param>
+        public static IGraphData AsGraphData(this IFloatMatrix matrix)
+        {
+            return new MatrixGraphData(matrix);
+        }
+
+        /// <summary>
+        /// Converts the 3D tensor to a generic IGraphData
+        /// </summary>
+        /// <param name="tensor">Tensor to convert</param>
+        public static IGraphData AsGraphData(this I3DFloatTensor tensor)
+        {
+            return new Tensor3DGraphData(tensor);
+        }
+
+        /// <summary>
+        /// Converts the 4D tensor to a generic IGraphData
+        /// </summary>
+        /// <param name="tensor">Tensor to convert</param>
+        public static IGraphData AsGraphData(this I4DFloatTensor tensor)
+        {
+            return new Tensor4DGraphData(tensor);
+        }
+    }
 }

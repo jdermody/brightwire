@@ -1,9 +1,8 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using ManagedCuda;
 using ManagedCuda.BasicTypes;
 
-namespace BrightWire.Cuda.Helper
+namespace BrightData.Cuda.Helper
 {
     /// <summary>
     /// A pointer to a block of device memory (the block is owned by another pointer)

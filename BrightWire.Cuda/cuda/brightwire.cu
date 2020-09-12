@@ -752,7 +752,7 @@ extern "C"
             float* target = b + targetOffset;
 
             float maxVal = 0;
-	        uint bestOffset = -1;
+	        int bestOffset = -1;
 	        uint offset = 0;
 	                
 	        for (uint x = 0; x < filterWidth; x++) {
@@ -809,7 +809,7 @@ extern "C"
             float* target = b + (z * outputRows * outputColumns * depth) + (k * outputRows * outputColumns);
             uint sourceIndex = j * rows + i;
             float val = source[sourceIndex];
-            uint offset = indexPtr[sourceIndex];
+            int offset = indexPtr[sourceIndex];
 
             if(offset < 0)
                 offset = 0;

@@ -1,13 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using BrightWire.Cuda.Helper;
-using BrightWire.LinearAlgebra;
-using ManagedCuda;
-using ManagedCuda.BasicTypes;
 
-namespace BrightWire.Cuda.Helper
+namespace BrightData.Cuda.Helper
 {
     class ConvolutionsData : IDisposable
     {

@@ -1,21 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using MathNet.Numerics.LinearAlgebra.Single;
 using System.Linq;
 using System.Threading.Tasks;
-using MathNet.Numerics.LinearAlgebra.Storage;
-using BrightData;
-using BrightData.Numerics;
+using MathNet.Numerics.LinearAlgebra.Single;
 
-namespace BrightWire.LinearAlgebra
+namespace BrightData.Numerics
 {
     /// <summary>
     /// Creates vectors, matrices and tensors using the CPU based math.net numerics library
     /// </summary>
-    public class CpuProvider : ILinearAlgebraProvider
+    public class NumericsProvider : ILinearAlgebraProvider
     {
-	    public CpuProvider(IBrightDataContext context, bool stochastic = true)
+	    public NumericsProvider(IBrightDataContext context, bool stochastic = true)
         {
             Context = context;
 			IsStochastic = stochastic;
@@ -34,7 +31,7 @@ namespace BrightWire.LinearAlgebra
 
 		public IFloatVector CreateVector(uint length, Func<uint, float> init)
 		{
-			return new CpuVector(Context, DenseVector.Create((int)length, i => init((uint)i)));
+			return new NumericsVector(Context, DenseVector.Create((int)length, i => init((uint)i)));
 		}
 
 		public IFloatMatrix CreateMatrixFromRows(IReadOnlyList<IFloatVector> vectorData)
@@ -55,27 +52,27 @@ namespace BrightWire.LinearAlgebra
 
         public IFloatVector CreateVector(uint length, bool setToZero = false)
 	    {
-		    return new CpuVector(Context, DenseVector.Create((int)length, 0f));
+		    return new NumericsVector(Context, DenseVector.Create((int)length, 0f));
 	    }
 
 	    public IFloatMatrix CreateMatrix(uint rows, uint columns, bool setToZero)
         {
-	        return new CpuMatrix(Context, DenseMatrix.Create((int)rows, (int)columns, 0f));
+	        return new NumericsMatrix(Context, DenseMatrix.Create((int)rows, (int)columns, 0f));
         }
 
 	    public I3DFloatTensor Create3DTensor(uint rows, uint columns, uint depth, bool setToZero = false)
 	    {
-		    return new Cpu3DTensor(Context, depth.AsRange().Select(i => CreateMatrix(rows, columns, setToZero).AsIndexable()).ToList());
+		    return new Numerics3DTensor(Context, depth.AsRange().Select(i => CreateMatrix(rows, columns, setToZero).AsIndexable()).ToList());
 	    }
 
 	    public I4DFloatTensor Create4DTensor(uint rows, uint columns, uint depth, uint count, bool setToZero = false)
 	    {
-		    return new Cpu4DTensor(Context, count.AsRange().Select(i => Create3DTensor(rows, columns, depth, setToZero).AsIndexable()).ToList());
+		    return new Numerics4DTensor(Context, count.AsRange().Select(i => Create3DTensor(rows, columns, depth, setToZero).AsIndexable()).ToList());
 	    }
 
 		public IFloatMatrix CreateMatrix(uint rows, uint columns, Func<uint, uint, float> init)
 		{
-			return new CpuMatrix(Context, DenseMatrix.Create((int)rows, (int)columns, (x, y) => init((uint)x, (uint)y)));
+			return new NumericsMatrix(Context, DenseMatrix.Create((int)rows, (int)columns, (x, y) => init((uint)x, (uint)y)));
 		}
 
         public IFloatMatrix CreateMatrix(Matrix<float> matrix)
@@ -85,22 +82,22 @@ namespace BrightWire.LinearAlgebra
 
 		public I3DFloatTensor Create3DTensor(IReadOnlyList<IFloatMatrix> data)
 		{
-			return new Cpu3DTensor(Context, data.Select(m => m.AsIndexable()).ToList());
+			return new Numerics3DTensor(Context, data.Select(m => m.AsIndexable()).ToList());
 		}
 
 		public I4DFloatTensor Create4DTensor(IReadOnlyList<Tensor3D<float>> data)
 		{
-			return new Cpu4DTensor(Context, data.Select(t => Create3DTensor(t.Matrices.Select(m => CreateMatrix(m)).ToList()).AsIndexable()).ToList());
+			return new Numerics4DTensor(Context, data.Select(t => Create3DTensor(t.Matrices.Select(m => CreateMatrix(m)).ToList()).AsIndexable()).ToList());
 		}
 
         private I3DFloatTensor Create3DTensor(Tensor3D<float> tensor)
         {
-            return new Cpu3DTensor(Context, tensor.Matrices.Select(m => CreateMatrix(m).AsIndexable()).ToList());
+            return new Numerics3DTensor(Context, tensor.Matrices.Select(m => CreateMatrix(m).AsIndexable()).ToList());
         }
 
         public I4DFloatTensor Create4DTensor(IReadOnlyList<I3DFloatTensor> tensorList)
 		{
-			return new Cpu4DTensor(Context, tensorList.Select(m => m.AsIndexable()).ToList());
+			return new Numerics4DTensor(Context, tensorList.Select(m => m.AsIndexable()).ToList());
 		}
 
 		public void PushLayer()
@@ -128,7 +125,7 @@ namespace BrightWire.LinearAlgebra
 				});
 			});
 
-		    return new CpuMatrix(Context, DenseMatrix.Build.Dense(rows, columns, ret));
+		    return new NumericsMatrix(Context, DenseMatrix.Build.Dense(rows, columns, ret));
 	    }
 
         public IFloatVector CreateVector(ITensorSegment<float> data)

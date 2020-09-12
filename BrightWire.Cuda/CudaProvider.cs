@@ -1,20 +1,18 @@
-﻿using BrightWire.Cuda.Helper;
-using BrightWire.Models;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.InteropServices;
+using BrightData.Cuda.Helper;
+using BrightData.Helper;
+using BrightData.Numerics;
 using ManagedCuda;
 using ManagedCuda.BasicTypes;
 using ManagedCuda.CudaBlas;
 using ManagedCuda.CudaSolve;
 using ManagedCuda.VectorTypes;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using BrightData;
-using BrightData.Helper;
-using BrightWire.Helper;
 
-namespace BrightWire.LinearAlgebra
+namespace BrightData.Cuda
 {
 	/// <summary>
 	/// Manages the bright wire cuda kernels and implements the cuda linear algebra provider
@@ -161,7 +159,7 @@ namespace BrightWire.LinearAlgebra
 		public CudaProvider(IBrightDataContext context, string cudaKernelPath, bool stochastic, uint memoryCacheSize)
         {
             _context = context;
-            _numerics = new CpuProvider(context, stochastic);
+            _numerics = new NumericsProvider(context, stochastic);
 			IsStochastic = stochastic;
 			_cuda = new CudaContext();
 			_cache = new DeviceMemory(_cuda, (int)memoryCacheSize);
@@ -993,12 +991,12 @@ namespace BrightWire.LinearAlgebra
 						size
 					);
 					using(var ones = CreateMatrix(rows, columns, (i, j) => 1f))
-					using(var vectorMagnitude = new GpuMatrix(this, rows, columns, aa, true))
+					using(var vectorMagnitude = new CudaMatrix(this, rows, columns, aa, true))
 					using(var vectorSqrt = vectorMagnitude.Sqrt())
-					using (var compareToMagnitude = new GpuMatrix(this, rows, columns, bb, true))
+					using (var compareToMagnitude = new CudaMatrix(this, rows, columns, bb, true))
 					using(var compareToSqrt = compareToMagnitude.Sqrt()) {
 						using(var norms = vectorSqrt.PointwiseMultiply(compareToSqrt))
-						using(var result = new GpuMatrix(this, rows, columns, ret, true))
+						using(var result = new CudaMatrix(this, rows, columns, ret, true))
 						using (var distance = result.PointwiseDivide(norms))
 							return ones.Subtract(distance);
 					}
@@ -1015,7 +1013,7 @@ namespace BrightWire.LinearAlgebra
 				);
 			}
 
-			IFloatMatrix matrix = new GpuMatrix(this, rows, columns, ret, true);
+			IFloatMatrix matrix = new CudaMatrix(this, rows, columns, ret, true);
 			if (distanceMetric == DistanceMetric.Euclidean) {
 				var sqrt = matrix.Sqrt();
 				matrix.Dispose();
@@ -1030,7 +1028,7 @@ namespace BrightWire.LinearAlgebra
         public IFloatVector CreateVector(uint length, bool setToZero = false)
 		{
 			var data = Allocate(length, setToZero);
-			return new GpuVector(this, data, true);
+			return new CudaVector(this, data, true);
 		}
 
 		public IFloatVector CreateVector(uint length, Func<uint, float> init)
@@ -1041,13 +1039,13 @@ namespace BrightWire.LinearAlgebra
 			var ptr = Allocate(length);
 			ptr.CopyToDevice(data);
 
-			return new GpuVector(this, ptr, true);
+			return new CudaVector(this, ptr, true);
 		}
 
 		public IFloatMatrix CreateMatrix(uint rows, uint columns, bool setToZero = false)
 		{
 			var data = Allocate(rows * columns, setToZero);
-			return new GpuMatrix(this, rows, columns, data, true);
+			return new CudaMatrix(this, rows, columns, data, true);
 		}
 
 		public IFloatMatrix CreateMatrixFromRows(IReadOnlyList<IFloatVector> vectorRows)
@@ -1060,7 +1058,7 @@ namespace BrightWire.LinearAlgebra
 				devicePtr.CopyToDevice(vectorRows.Cast<IHaveDeviceMemory>().Select(d => d.Memory.DevicePointer).ToArray());
 				_Invoke2(_copyToMatrixRows, rows, columns, devicePtr.DevicePointer, ret.DevicePointer, rows, columns);
 			}
-			return new GpuMatrix(this, rows, columns, ret, true);
+			return new CudaMatrix(this, rows, columns, ret, true);
 		}
 
 		public IFloatMatrix CreateMatrixFromColumns(IReadOnlyList<IFloatVector> vectorColumns)
@@ -1073,7 +1071,7 @@ namespace BrightWire.LinearAlgebra
 				devicePtr.CopyToDevice(vectorColumns.Cast<IHaveDeviceMemory>().Select(d => d.Memory.DevicePointer).ToArray());
 				_Invoke2(_copyToMatrixColumns, rows, columns, devicePtr.DevicePointer, ret.DevicePointer, rows, columns);
 			}
-			return new GpuMatrix(this, rows, columns, ret, true);
+			return new CudaMatrix(this, rows, columns, ret, true);
 		}
 
 		public IFloatMatrix CreateMatrix(uint rows, uint columns, Func<uint, uint, float> init)
@@ -1087,13 +1085,13 @@ namespace BrightWire.LinearAlgebra
 			}
 			var ptr = Allocate(size);
 			ptr.CopyToDevice(data);
-			return new GpuMatrix(this, rows, columns, ptr, true);
+			return new CudaMatrix(this, rows, columns, ptr, true);
 		}
 
 		public I3DFloatTensor Create3DTensor(uint rows, uint columns, uint depth, bool setToZero = false)
 		{
 			var data = Allocate(rows * columns * depth, setToZero);
-			return new Gpu3DTensor(this, rows, columns, depth, data, true);
+			return new Cuda3DTensor(this, rows, columns, depth, data, true);
 		}
 
 		public I3DFloatTensor Create3DTensor(IReadOnlyList<IFloatMatrix> matrices)
@@ -1110,13 +1108,13 @@ namespace BrightWire.LinearAlgebra
 				devicePtr.CopyToDevice(matrices.Cast<IHaveDeviceMemory>().Select(d => d.Memory.DevicePointer).ToArray());
 				_Invoke2(_copyToMatrixColumns, outputRows, outputColumns, devicePtr.DevicePointer, ret.DevicePointer, outputRows, outputColumns);
 			}
-			return new Gpu3DTensor(this, rows, columns, depth, ret, true);
+			return new Cuda3DTensor(this, rows, columns, depth, ret, true);
 		}
 
 		public I4DFloatTensor Create4DTensor(uint rows, uint columns, uint depth, uint count, bool setToZero = false)
 		{
 			var data = Allocate(rows * columns * depth * count, setToZero);
-			return new Gpu4DTensor(this, rows, columns, depth, count, data, true);
+			return new Cuda4DTensor(this, rows, columns, depth, count, data, true);
 		}
 
 		public I4DFloatTensor Create4DTensor(IReadOnlyList<I3DFloatTensor> tensors)
@@ -1134,14 +1132,14 @@ namespace BrightWire.LinearAlgebra
 				devicePtr.CopyToDevice(tensors.Cast<IHaveDeviceMemory>().Select(d => d.Memory.DevicePointer).ToArray());
 				_Invoke2(_copyToMatrixColumns, outputRows, outputColumns, devicePtr.DevicePointer, ret.DevicePointer, outputRows, outputColumns);
 			}
-			return new Gpu4DTensor(this, rows, columns, depth, count, ret, true);
+			return new Cuda4DTensor(this, rows, columns, depth, count, ret, true);
 		}
 
 		public I4DFloatTensor Create4DTensor(IReadOnlyList<Tensor3D<float>> tensors)
 		{
 			var first = tensors[0];
 			var data = Allocate(first.RowCount * first.ColumnCount * first.Depth * (uint)tensors.Count);
-			var ret = new Gpu4DTensor(this, first.RowCount, first.ColumnCount, first.Depth, (uint)tensors.Count, data, true);
+			var ret = new Cuda4DTensor(this, first.RowCount, first.ColumnCount, first.Depth, (uint)tensors.Count, data, true);
 
 			for (int i = 0; i < tensors.Count; i++)
 				ret.GetTensorAt((uint)i).Data = tensors[i];
