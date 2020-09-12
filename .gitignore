@@ -54,3 +54,5 @@
 /BrightWire/bin
 /BrightWire/obj
 /BrightWire.Cuda/bin
+/BrightTable.UnitTests/bin
+/BrightTable.UnitTests/obj

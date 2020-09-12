@@ -10,7 +10,7 @@ using BrightTable.Input;
 
 namespace BrightTable.Builders
 {
-    public class RowOrientedTableBuilder : IDisposable
+    class RowOrientedTableBuilder : IDisposable
     {
         class Column
         {

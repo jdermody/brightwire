@@ -16,7 +16,7 @@ namespace BrightWire.TrainingData.Artificial
         /// <returns></returns>
         public static IDataTable Get(IBrightDataContext context)
         {
-            var builder = new RowOrientedTableBuilder(4);
+            var builder = context.BuildTable();
             builder.AddColumn(ColumnType.Float, "X");
             builder.AddColumn(ColumnType.Float, "Y");
             builder.AddColumn(ColumnType.Float, "AND").SetTargetColumn(true);
@@ -26,7 +26,7 @@ namespace BrightWire.TrainingData.Artificial
             builder.AddRow(0.0f, 1.0f, 0.0f);
             builder.AddRow(1.0f, 1.0f, 1.0f);
 
-            return builder.Build(context);
+            return builder.Build();
         }
     }
 }

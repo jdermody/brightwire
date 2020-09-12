@@ -19,14 +19,14 @@ namespace BrightData.UnitTests
         {
             DataEncoder.Write(_context.Writer, input);
             var output = _context.Encoder.Read<T>(_context.ReadFromStart());
-            output.ShouldBeEquivalentTo(input);
+            output.Should().BeEquivalentTo(input);
         }
 
         void _EncodeArray<T>(T[] input)
         {
             DataEncoder.Write(_context.Writer, input);
             var output = _context.Encoder.ReadArray<T>(_context.ReadFromStart());
-            output.ShouldBeEquivalentTo(input);
+            output.Should().BeEquivalentTo(input);
         }
 
         [Fact]

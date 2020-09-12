@@ -568,5 +568,7 @@ namespace BrightTable
             var vectoriser = new DataTableVectoriser(dataTable);
             return vectoriser.Vectorize(filePath);
         }
+
+        public static TableBuilder BuildTable(this IBrightDataContext context) => new TableBuilder(context);
     }
 }
