@@ -16,9 +16,9 @@ namespace BrightWire.Unsupervised
 	{
 		readonly VectorDistanceHelper _distance;
 		List<(int[] DataIndices, IFloatVector Cluster)> _clusters = new List<(int[] DataIndices, IFloatVector Cluster)>();
-		readonly IReadOnlyList<IFloatVector> _data;
+		readonly IFloatVector[] _data;
 
-		public KMeans(ILinearAlgebraProvider lap, int k, IReadOnlyList<IFloatVector> data, DistanceMetric distanceMetric = DistanceMetric.Euclidean, int? randomSeed = null)
+		public KMeans(ILinearAlgebraProvider lap, int k, IFloatVector[] data, DistanceMetric distanceMetric = DistanceMetric.Euclidean, int? randomSeed = null)
 		{
 			_data = data;
 			_distance = new VectorDistanceHelper(lap, data, distanceMetric);
@@ -27,7 +27,7 @@ namespace BrightWire.Unsupervised
 			// https://normaldeviate.wordpress.com/2012/09/30/the-remarkable-k-means/
 			var rand = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
 			var clusterIndexSet = new HashSet<int>();
-			var distanceTable = new List<float>[data.Count];
+			var distanceTable = new List<float>[data.Length];
 
 			bool AddCluster(int index, Action<int, float> callback)
 			{
@@ -39,7 +39,7 @@ namespace BrightWire.Unsupervised
 				_clusters.Add((new[] { index }, vector));
 
 				// calculate distances
-				for (var i = 0; i < data.Count; i++) {
+				for (var i = 0; i < data.Length; i++) {
 					float distance = 0;
 					if (i != index)
 						distance = data[i].FindDistance(vector, distanceMetric);
@@ -50,9 +50,9 @@ namespace BrightWire.Unsupervised
 			}
 
 			// pick the first cluster at random and set up the distance table
-			AddCluster(rand.Next(0, data.Count), (index, distance) => distanceTable[index] = new List<float>{ distance });
+			AddCluster(rand.Next(0, data.Length), (index, distance) => distanceTable[index] = new List<float>{ distance });
 
-			for (var i = 1; i < k && i < data.Count; i++) {
+			for (var i = 1; i < k && i < data.Length; i++) {
 				// create a categorical distribution to calculate the probability of choosing each subsequent item
 				var distribution = new Categorical(distanceTable.Select(l => (double)l.Min()).ToArray());
 
@@ -111,7 +111,7 @@ namespace BrightWire.Unsupervised
 			}
 		}
 
-		public IReadOnlyList<IReadOnlyList<IFloatVector>> Clusters => _clusters.Select(c => c.DataIndices.Select(i => _data[i]).ToList()).ToList();
+		public IFloatVector[][] Clusters => _clusters.Select(c => c.DataIndices.Select(i => _data[i]).ToArray()).ToArray();
 
 
 

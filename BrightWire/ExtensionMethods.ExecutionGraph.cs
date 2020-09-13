@@ -132,7 +132,7 @@ namespace BrightWire
 		    foreach (var result in results) {
 			    var sequenceIndex = result.MiniBatchSequence.SequenceIndex;
 			    var rows = result.MiniBatchSequence.MiniBatch.Rows;
-			    for (var i = 0; i < result.Output.Count; i++) {
+			    for (var i = 0; i < result.Output.Length; i++) {
 				    var rowIndex = rows[i];
 				    ret.Add((rowIndex, sequenceIndex), result.Output[i]);
 			    }

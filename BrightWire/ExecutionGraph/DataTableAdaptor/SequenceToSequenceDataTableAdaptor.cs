@@ -74,39 +74,36 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         public override uint InputSize => _inputSize;
         public override uint? OutputSize => _outputSize;
 
-        public override IReadOnlyList<IReadOnlyList<uint>> GetBuckets()
+        public override uint[][] GetBuckets()
         {
             return _rowDepth
                 .Select((r, i) => (r, i))
                 .GroupBy(t => t.Item1)
-                .Select(g => g.Select(d => (uint)d.Item2).ToList())
-                .ToList()
+                .Select(g => g.Select(d => (uint)d.Item2).ToArray())
+                .ToArray()
             ;
         }
 
-        (IFloatMatrix, IReadOnlyList<object[]>) _Encode(IExecutionContext executionContext, IReadOnlyList<uint> rows)
+        (IFloatMatrix, IReadOnlyList<object[]>) _Encode(IExecutionContext executionContext, uint[] rows)
         {
-            var data = _GetRows(rows);
+            var data = _GetRows(rows).ToList();
 
             // create the input batch
-            var inputData = new List<(Matrix<float> Input, Matrix<float> Output)>();
-            foreach (var row in data)
-                inputData.Add(((Matrix<float>)row[0], null));
+            var inputData = data.Select(r => ((Matrix<float>) r[0], (Matrix<float>) null)).ToArray();
             var encoderInput = _GetSequentialMiniBatch(rows, inputData);
 
             // execute the encoder
             IMiniBatchSequence sequence;
             IFloatMatrix encoderOutput = null;
             while ((sequence = encoderInput.GetNextSequence()) != null) {
-                using (var context = _Process(executionContext, sequence)) {
-                    if (sequence.Type == MiniBatchSequenceType.SequenceEnd)
-                        encoderOutput = context.Data.GetMatrix();
-                }
+                using var context = _Process(executionContext, sequence);
+                if (sequence.Type == MiniBatchSequenceType.SequenceEnd)
+                    encoderOutput = context.Data.GetMatrix();
             }
-            return (encoderOutput, data);
+            return (encoderOutput, data.AsReadOnly());
         }
 
-        public override IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<uint> rows)
+        public override IMiniBatch Get(IExecutionContext executionContext, uint[] rows)
         {
             (var encoderOutput, var data) = _Encode(executionContext, rows);
 

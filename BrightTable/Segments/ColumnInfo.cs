@@ -12,6 +12,7 @@ namespace BrightTable.Segments
         {
             ColumnType = (ColumnType)reader.ReadSByte();
             MetaData = new MetaData(reader);
+            MetaData.Set(Consts.Index, index);
             Index = index;
         }
 

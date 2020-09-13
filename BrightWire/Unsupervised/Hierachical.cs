@@ -13,27 +13,25 @@ namespace BrightWire.Unsupervised
     {
         class Centroid : IDisposable
         {
-            readonly List<IFloatVector> _data = new List<IFloatVector>();
             readonly Centroid _left = null, _right = null;
 
             public IFloatVector Center { get; }
-            public IReadOnlyList<IFloatVector> Data => _data;
+            public IFloatVector[] Data { get; }
 
-	        public Centroid(IFloatVector data)
+            public Centroid(IFloatVector data)
             {
-                _data.Add(data);
+                Data = new[] { data };
                 Center = data.Clone();
             }
             public Centroid(Centroid left, Centroid right)
             {
                 _left = left;
                 _right = right;
-                _data.AddRange(left._data);
-                _data.AddRange(right._data);
+                Data = left.Data.Concat(right.Data).ToArray();
 
-				// average the two centroid vectors
-	            Center = left.Center;
-	            Center.AddInPlace(right.Center, 0.5f, 0.5f);
+                // average the two centroid vectors
+                Center = left.Center;
+                Center.AddInPlace(right.Center, 0.5f, 0.5f);
             }
             public void Dispose()
             {
@@ -42,11 +40,10 @@ namespace BrightWire.Unsupervised
 
             public IEnumerable<Centroid> Children
             {
-                get
-                {
-                    if(_left != null)
+                get {
+                    if (_left != null)
                         yield return _left;
-                    if(_right != null)
+                    if (_right != null)
                         yield return _right;
                 }
             }
@@ -62,7 +59,7 @@ namespace BrightWire.Unsupervised
             }
             public void Remove(Centroid centroid)
             {
-                foreach(var item in _distance.ToList()) {
+                foreach (var item in _distance.ToList()) {
                     if (item.Key.Item1 == centroid || item.Key.Item2 == centroid)
                         _distance.Remove(item.Key);
                 }
@@ -82,7 +79,7 @@ namespace BrightWire.Unsupervised
         readonly DistanceMatrix _distanceMatrix = new DistanceMatrix();
         readonly List<Centroid> _centroid;
 
-        public Hierachical(int k, IReadOnlyList<IFloatVector> data, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
+        public Hierachical(int k, IFloatVector[] data, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
         {
             _k = k;
             _distanceMetric = distanceMetric;
@@ -97,9 +94,9 @@ namespace BrightWire.Unsupervised
         public void Cluster()
         {
             // build the distance matrix
-            foreach(var item1 in _centroid) {
-                foreach(var item2 in _centroid.Where(c => c != item1)) {
-                    if(!_distanceMatrix.HasDistance(item1, item2)) {
+            foreach (var item1 in _centroid) {
+                foreach (var item2 in _centroid.Where(c => c != item1)) {
+                    if (!_distanceMatrix.HasDistance(item1, item2)) {
                         var distance = item1.Center.FindDistance(item2.Center, _distanceMetric);
                         _distanceMatrix.Add(item1, item2, distance);
                     }
@@ -107,7 +104,7 @@ namespace BrightWire.Unsupervised
             }
 
             // agglomerative cluster
-            while(_centroid.Count > _k) {
+            while (_centroid.Count > _k) {
                 var merge = _distanceMatrix.GetNextMerge();
                 var target = merge.Key.Item1;
                 var source = merge.Key.Item2;
@@ -129,11 +126,10 @@ namespace BrightWire.Unsupervised
             }
         }
 
-        public IReadOnlyList<IReadOnlyList<IFloatVector>> Clusters
+        public IFloatVector[][] Clusters
         {
-            get
-            {
-                return _centroid.Select(c => c.Data).ToList();
+            get {
+                return _centroid.Select(c => c.Data).ToArray();
             }
         }
     }

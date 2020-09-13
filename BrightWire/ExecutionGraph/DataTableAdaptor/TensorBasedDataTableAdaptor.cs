@@ -49,7 +49,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 	    public uint Height { get; }
 	    public uint Depth { get; }
 
-	    public override IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<uint> rows)
+	    public override IMiniBatch Get(IExecutionContext executionContext, uint[] rows)
         {
             var data = _GetRows(rows)
                 .Select(r => (_dataColumnIndex.Select(i => ((Tensor3D<float>)r[i]).GetAsRaw()).ToList(), Data: ((Vector<float>)r[_dataTargetIndex]).Segment))

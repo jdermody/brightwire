@@ -23,10 +23,10 @@ namespace BrightWire.Unsupervised
             _costFunction = costFunction ?? new Quadratic();
         }
 
-        public IReadOnlyList<IReadOnlyList<IFloatVector>> Cluster(IReadOnlyList<IFloatVector> data, int numIterations, float errorThreshold = 0.001f)
+        public IFloatVector[][] Cluster(IReadOnlyList<IFloatVector> data, int numIterations, float errorThreshold = 0.001f)
         {
             if (data.Count == 0)
-                return new List<IFloatVector[]>();
+                return new IFloatVector[][] {};
 
             // create the main matrix
             var data2 = new List<IIndexableFloatVector>();
@@ -75,7 +75,7 @@ namespace BrightWire.Unsupervised
                 var documentClusters = weights.AsIndexable().Rows.Select((c, i) => Tuple.Create(i, c.MaximumIndex())).ToList();
                 weights.Dispose();
                 features.Dispose();
-                return documentClusters.GroupBy(d => d.Item2).Select(g => g.Select(d => data[d.Item1]).ToArray()).ToList();
+                return documentClusters.GroupBy(d => d.Item2).Select(g => g.Select(d => data[d.Item1]).ToArray()).ToArray();
             }
         }
 

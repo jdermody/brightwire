@@ -36,7 +36,7 @@ namespace BrightWire.ExecutionGraph.Engine
 			foreach (var item in _executionResults) {
 				uint outputIndex = 0;
 				foreach (var output in item.Data) {
-					ret.Add(new ExecutionResult(item.Context.BatchSequence, output.AsIndexable().Rows.Select(r => r.Data).ToList(), outputIndex));
+					ret.Add(new ExecutionResult(item.Context.BatchSequence, output.AsIndexable().Rows.Select(r => r.Data).ToArray(), outputIndex));
 					++outputIndex;
 				}
 				item.Context.Dispose();
@@ -65,7 +65,7 @@ namespace BrightWire.ExecutionGraph.Engine
 					foreach (var item in _executionResults) {
 						uint outputIndex = 0;
 						foreach (var output in item.Data) {
-							ret.Add(new ExecutionResult(item.Context.BatchSequence, output.AsIndexable().Rows.Select(r => r.Data).ToList(), outputIndex));
+							ret.Add(new ExecutionResult(item.Context.BatchSequence, output.AsIndexable().Rows.Select(r => r.Data).ToArray(), outputIndex));
 							++outputIndex;
 						}
 						item.Context.Dispose();

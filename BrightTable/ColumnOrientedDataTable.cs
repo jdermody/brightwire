@@ -31,6 +31,7 @@ namespace BrightTable
                 Index = index;
                 ColumnType = (ColumnType)reader.ReadByte();
                 _metadata = new MetaData(reader);
+                _metadata.Set(Consts.Index, index);
                 IsEncoded = reader.ReadBoolean();
             }
 

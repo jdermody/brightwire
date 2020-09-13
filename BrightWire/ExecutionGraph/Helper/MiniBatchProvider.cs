@@ -11,11 +11,11 @@ namespace BrightWire.ExecutionGraph.Helper
     {
         class MiniBatchOperation : IGraphOperation
         {
-            readonly IReadOnlyList<uint> _rows;
+            readonly uint[] _rows;
             readonly MiniBatchProvider _provider;
             readonly Action<IMiniBatch> _handler;
 
-            public MiniBatchOperation(IReadOnlyList<uint> rows, MiniBatchProvider provider, Action<IMiniBatch> handler)
+            public MiniBatchOperation(uint[] rows, MiniBatchProvider provider, Action<IMiniBatch> handler)
             {
                 _rows = rows;
                 _handler = handler;
@@ -46,12 +46,12 @@ namespace BrightWire.ExecutionGraph.Helper
                 buckets.Shuffle();
 
             foreach (var bucket in buckets) {
-                var range = Enumerable.Range(0, bucket.Count);
+                var range = Enumerable.Range(0, bucket.Length);
                 var iterationOrder = (_isStochastic ? range.Shuffle() : range).ToList();
 
-                for (uint j = 0; j < bucket.Count; j += batchSize) {
+                for (uint j = 0; j < bucket.Length; j += batchSize) {
                     var maxRows = Math.Min(iterationOrder.Count, batchSize + j) - j;
-                    var rows = iterationOrder.Skip((int)j).Take((int)maxRows).Select(i => bucket[i]).ToList();
+                    var rows = iterationOrder.Skip((int)j).Take((int)maxRows).Select(i => bucket[i]).ToArray();
                     ret.Add(new MiniBatchOperation(rows, this, handler));
                 }
             }

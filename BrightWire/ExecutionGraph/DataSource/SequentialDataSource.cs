@@ -39,7 +39,7 @@ namespace BrightWire.ExecutionGraph.DataSource
 	    public uint? OutputSize { get; }
 	    public uint RowCount => (uint)_data.Count;
 
-        public IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<uint> rows)
+        public IMiniBatch Get(IExecutionContext executionContext, uint[] rows)
         {
             var data = rows.Select(i => _data[(int)i]).ToList();
 
@@ -70,13 +70,13 @@ namespace BrightWire.ExecutionGraph.DataSource
             return miniBatch;
         }
 
-        public IReadOnlyList<IReadOnlyList<uint>> GetBuckets()
+        public uint[][] GetBuckets()
         {
             return _rowDepth
                 .Select((r, i) => (r, (uint)i))
                 .GroupBy(t => t.Item1)
-                .Select(g => g.Select(d => d.Item2).ToList())
-                .ToList()
+                .Select(g => g.Select(d => d.Item2).ToArray())
+                .ToArray()
             ;
         }
 

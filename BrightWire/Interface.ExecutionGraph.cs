@@ -439,13 +439,13 @@ namespace BrightWire
         /// </summary>
         /// <param name="executionContext">Graph execution context</param>
         /// <param name="rows">List of rows</param>
-        IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<uint> rows);
+        IMiniBatch Get(IExecutionContext executionContext, uint[] rows);
 
         /// <summary>
         /// For sequential data, returns the row indexes grouped by sequence length
         /// </summary>
         /// <returns></returns>
-        IReadOnlyList<IReadOnlyList<uint>> GetBuckets();
+        uint[][] GetBuckets();
 
         /// <summary>
         /// Called when the current batch has completed
@@ -539,7 +539,7 @@ namespace BrightWire
         /// <summary>
         /// Row indexes of the current batch
         /// </summary>
-        IReadOnlyList<uint> Rows { get; }
+        uint[] Rows { get; }
 
         /// <summary>
         /// Segment source

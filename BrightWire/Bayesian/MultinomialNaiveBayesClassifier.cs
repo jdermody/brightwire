@@ -56,14 +56,13 @@ namespace BrightWire.Bayesian
         /// <summary>
         ///  Naive bayes values should only be used for ranking against each other
         /// </summary>
-        public IReadOnlyList<(string Label, float Weight)> Classify(IndexList indexList)
+        public (string Label, float Weight)[] Classify(IndexList indexList)
         {
             return _Classify(indexList.Indices)
                 .OrderByDescending(kv => kv.Item2)
                 .Take(1)
                 .Select((d, i) => (d.Item1, 1f))
-                .ToList()
-            ;
+                .ToArray();
         }
     }
 }

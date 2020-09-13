@@ -37,7 +37,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
                 IsSequential = isSequential;
             }
 
-            public IReadOnlyList<uint> Rows { get; } = new[] { (uint)0 };
+            public uint[] Rows { get; } = { (uint)0 };
             public IDataSource DataSource { get; }
             public bool IsSequential { get; }
             public uint BatchSize => 1;
@@ -80,13 +80,13 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             throw new NotImplementedException();
         }
 
-        public IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<uint> rows)
+        public IMiniBatch Get(IExecutionContext executionContext, uint[] rows)
         {
             var data = executionContext.LinearAlgebraProvider.CreateVector(_data);
             return new SingleRowMiniBatch(this, new MatrixGraphData(data.ReshapeAsRowMatrix()), IsSequential, _sequenceType, _sequenceIndex);
         }
 
-        public IReadOnlyList<IReadOnlyList<uint>> GetBuckets()
+        public uint[][] GetBuckets()
         {
             return new[] {
                 new uint [] {

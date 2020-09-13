@@ -42,6 +42,8 @@ namespace BrightData
             _tensorPool.LogAllocations(str => Debug.WriteLine(str));
 #endif
             _tensorPool.Dispose();
+
+            LinearAlgebraProvider?.Dispose();
         }
 
         public Random Random { get; }

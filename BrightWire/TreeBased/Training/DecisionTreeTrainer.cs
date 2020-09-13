@@ -106,9 +106,8 @@ namespace BrightWire.TreeBased.Training
         {
             readonly HashSet<uint> _categorical = new HashSet<uint>();
             readonly HashSet<uint> _continuous = new HashSet<uint>();
-            readonly List<InMemoryRow> _data = new List<InMemoryRow>();
 
-			public TableInfo(IRowOrientedDataTable table)
+            public TableInfo(IRowOrientedDataTable table)
             {
                 ClassColumnIndex = table.GetTargetColumn() ?? throw new ArgumentException("");
                 for (uint i = 0, len = table.ColumnCount; i < len; i++) {
@@ -124,7 +123,7 @@ namespace BrightWire.TreeBased.Training
             }
             public IEnumerable<uint> CategoricalColumns => _categorical;
 	        public IEnumerable<uint> ContinuousColumns => _continuous;
-	        public IReadOnlyList<InMemoryRow> Data => _data;
+	        public List<InMemoryRow> Data { get; }
 			public uint ClassColumnIndex { get; }
 		}
         class Node
@@ -133,10 +132,10 @@ namespace BrightWire.TreeBased.Training
 	        readonly Dictionary<string, int> _classCount;
             Node _parent = null;
             Attribute _attribute = null;
-            IReadOnlyList<Node> _children = null;
+            Node[] _children = null;
             readonly string _matchLabel;
 
-            public Node(TableInfo tableInfo, IReadOnlyList<InMemoryRow> data, string matchLabel)
+            public Node(TableInfo tableInfo, List<InMemoryRow> data, string matchLabel)
             {
                 Data = data;
                 _tableInfo = tableInfo;
@@ -156,7 +155,7 @@ namespace BrightWire.TreeBased.Training
                 return ret;
             }
 
-            public IReadOnlyList<Attribute> Attributes
+            public Attribute[] Attributes
             {
                 get
                 {
@@ -191,7 +190,7 @@ namespace BrightWire.TreeBased.Training
                             }
                         }
                     }
-                    return ret.ToList();
+                    return ret.ToArray();
                 }
             }
 
@@ -209,7 +208,7 @@ namespace BrightWire.TreeBased.Training
                 }
             }
 
-            public IReadOnlyList<Node> SetAttribute(Attribute attribute, IReadOnlyList<Node> children)
+            public Node[] SetAttribute(Attribute attribute, Node[] children)
             {
                 _attribute = attribute;
                 _children = children;
@@ -248,7 +247,7 @@ namespace BrightWire.TreeBased.Training
             }
             public bool IsLeaf => _classCount.Count <= 1;
 	        public string PredictedClass => _classCount.OrderByDescending(kv => kv.Value).Select(kv => kv.Key).FirstOrDefault();
-            public IReadOnlyList<InMemoryRow> Data { get; }
+            public List<InMemoryRow> Data { get; }
 	        public string MatchLabel => _matchLabel;
         }
 
@@ -300,21 +299,24 @@ namespace BrightWire.TreeBased.Training
 
                 // randomly select a subset of attributes if configured
                 else if (maxAttributes.HasValue)
-                    attributes = attributes.Shuffle().Take(maxAttributes.Value).ToList();
+                    attributes = attributes.Shuffle().Take(maxAttributes.Value).ToArray();
                 
                 var nodeEntropy = node.Entropy;
                 double nodeTotal = node.Data.Count;
-                var scoreTable = new Dictionary<Tuple<Attribute, List<Node>>, double>();
+                var scoreTable = new List<(Attribute Attribute, Node[] Nodes, double Score)>();
                 foreach (var item in attributes) {
-                    var newChildren = item.Partition(node.Data).Select(d => new Node(tableInfo, d.Value, d.Key)).ToList();
+                    var newChildren = item.Partition(node.Data).Select(d => new Node(tableInfo, d.Value, d.Key)).ToArray();
                     var informationGain = _GetInformationGain(nodeEntropy, nodeTotal, newChildren);
                     if (minInformationGain.HasValue && informationGain < minInformationGain.Value)
                         continue;
-                    scoreTable.Add(Tuple.Create(item, newChildren), informationGain);
+                    scoreTable.Add((item, newChildren, informationGain));
                 }
-                var bestSplit = scoreTable.OrderByDescending(kv => kv.Value).Select(kv => kv.Key).FirstOrDefault();
-                if (bestSplit != null) {
-                    foreach (var child in node.SetAttribute(bestSplit.Item1, bestSplit.Item2))
+
+                if (scoreTable.Any()) {
+                    var bestSplit = scoreTable
+                        .OrderByDescending(kv => kv.Score)
+                        .First();
+                    foreach (var child in node.SetAttribute(bestSplit.Attribute, bestSplit.Nodes))
                         stack.Push(child);
                 }
             }
@@ -325,7 +327,7 @@ namespace BrightWire.TreeBased.Training
             };
         }
 
-        static double _GetInformationGain(double setEntity, double setCount, IReadOnlyList<Node> splits)
+        static double _GetInformationGain(double setEntity, double setCount, Node[] splits)
         {
             var total = setEntity;
             foreach(var item in splits) {

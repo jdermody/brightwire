@@ -253,40 +253,40 @@ namespace BrightWire.ExecutionGraph
 		{
 			var columns = dataTable.ColumnTypes;
 			var targetColumn = dataTable.GetTargetColumn() ?? throw new Exception("");
-			var dataColumnTypes = columns
+			var featureColumnTypes = columns
 				.Where((c, i) => i != targetColumn)
 				.ToList()
 			;
 			var targetColumnType = columns[targetColumn];
-			var firstDataColumnType = dataColumnTypes.FirstOrDefault();
+			var featureColumnType = featureColumnTypes.FirstOrDefault();
 
-			if (firstDataColumnType != ColumnType.Unknown && dataColumnTypes.All(ct => ct == firstDataColumnType)) {
+			if (featureColumnType != ColumnType.Unknown && featureColumnTypes.All(ct => ct == featureColumnType)) {
 				// many to many
-				if (firstDataColumnType == ColumnType.Matrix && targetColumnType == ColumnType.Matrix)
+				if (featureColumnType == ColumnType.Matrix && targetColumnType == ColumnType.Matrix)
 					return new SequentialDataTableAdaptor(_lap, dataTable);
 
 				// one to one
-				else if (firstDataColumnType == ColumnType.Vector && targetColumnType == ColumnType.Vector)
+				else if (featureColumnType == ColumnType.Vector && targetColumnType == ColumnType.Vector)
 					return new VectorBasedDataTableAdaptor(_lap, dataTable);
 
 				// one to many
-				else if (firstDataColumnType == ColumnType.Vector && targetColumnType == ColumnType.Matrix)
+				else if (featureColumnType == ColumnType.Vector && targetColumnType == ColumnType.Matrix)
 					return new OneToManyDataTableAdaptor(_lap, dataTable);
 
 				// many to one
-				else if (firstDataColumnType == ColumnType.Matrix && targetColumnType == ColumnType.Vector)
+				else if (featureColumnType == ColumnType.Matrix && targetColumnType == ColumnType.Vector)
 					return new ManyToOneDataTableAdaptor(_lap, dataTable);
 
 				// volume classification
-				else if (firstDataColumnType == ColumnType.Tensor3D && targetColumnType == ColumnType.Vector)
+				else if (featureColumnType == ColumnType.Tensor3D && targetColumnType == ColumnType.Vector)
 					return new TensorBasedDataTableAdaptor(_lap, dataTable);
 
 				// index list
-				else if (firstDataColumnType == ColumnType.IndexList)
+				else if (featureColumnType == ColumnType.IndexList)
 					return new IndexListDataTableAdaptor(_lap, dataTable, vectoriser);
 
 				// weighted index list
-				else if (firstDataColumnType == ColumnType.WeightedIndexList)
+				else if (featureColumnType == ColumnType.WeightedIndexList)
 					return new WeightedIndexListDataTableAdaptor(_lap, dataTable, vectoriser);
 			}
 

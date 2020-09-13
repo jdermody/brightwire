@@ -29,7 +29,7 @@ namespace BrightWire.ExecutionGraph.Helper
 		/// <param name="dataSource">Associated data source</param>
 		/// <param name="input">Mini batch input data</param>
 		/// <param name="output">Expected output data (when training, otherwise null)</param>
-        public MiniBatch(IReadOnlyList<uint> rows, IDataSource dataSource, IReadOnlyList<IGraphData> input, IGraphData output) : this(rows, dataSource)
+        public MiniBatch(uint[] rows, IDataSource dataSource, IReadOnlyList<IGraphData> input, IGraphData output) : this(rows, dataSource)
         {
             IsSequential = false;
             _sequence.Add(new Sequence {
@@ -46,7 +46,7 @@ namespace BrightWire.ExecutionGraph.Helper
 		/// </summary>
 		/// <param name="rows">The indices of the rows in this mini batch</param>
 		/// <param name="dataSource">Associated data source</param>
-        public MiniBatch(IReadOnlyList<uint> rows, IDataSource dataSource)
+        public MiniBatch(uint[] rows, IDataSource dataSource)
         {
             Rows = rows;
             IsSequential = true;
@@ -71,13 +71,13 @@ namespace BrightWire.ExecutionGraph.Helper
         }
 
 	    /// <inheritdoc />
-	    public IReadOnlyList<uint> Rows { get; }
+	    public uint[] Rows { get; }
 	    /// <inheritdoc />
 	    public IDataSource DataSource { get; }
 	    /// <inheritdoc />
 	    public bool IsSequential { get; }
 	    /// <inheritdoc />
-	    public uint BatchSize => (uint)Rows.Count;
+	    public uint BatchSize => (uint)Rows.Length;
 	    /// <inheritdoc />
         public IMiniBatchSequence CurrentSequence => _sequence[_index];
 	    /// <inheritdoc />

@@ -612,11 +612,11 @@ namespace BrightWire
 		/// Classifies the input data and returns the classifications with their weights
 		/// </summary>
 		/// <param name="indexList">The index list to classify</param>
-		IReadOnlyList<(string Label, float Weight)> Classify(IndexList indexList);
+        (string Label, float Weight)[] Classify(IndexList indexList);
 	}
 
 	public interface IRowClassifier
 	{
-		IReadOnlyList<(string Label, float Weight)> Classify(IConvertibleRow row);
+        (string Label, float Weight)[] Classify(IConvertibleRow row);
 	}
 }

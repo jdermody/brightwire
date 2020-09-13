@@ -52,11 +52,11 @@ namespace BrightWire.InstanceBased
             }
         }
 
-        public IReadOnlyList<(string Label, float Weight)> Classify(IConvertibleRow row)
+        public (string Label, float Weight)[] Classify(IConvertibleRow row)
         {
             return _Classify(row)
                 .Select(d => (d.Item1, d.Item2))
-                .ToList()
+                .ToArray()
             ;
         }
     }

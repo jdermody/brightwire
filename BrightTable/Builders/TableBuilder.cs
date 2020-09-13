@@ -27,7 +27,7 @@ namespace BrightTable.Builders
 
         public void AddRow(params object[] data) => _rows.Add(data);
 
-        public IDataTable Build()
+        public IRowOrientedDataTable Build()
         {
             using var builder = new RowOrientedTableBuilder((uint)_rows.Count);
             foreach (var column in _columns)

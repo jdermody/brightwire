@@ -24,7 +24,7 @@ namespace BrightWire.Source.Linear
 			_attributeColumns = attributeColumns;
 		}
 
-		public IReadOnlyList<(String Label, Single Weight)> Classify(IConvertibleRow row)
+		public (String Label, Single Weight)[] Classify(IConvertibleRow row)
 		{
 			var prediction = _classifier.Predict(row.GetFields<float>(_attributeColumns));
 			return new[] {(prediction >= 0.5f ? _positiveLabel : _negativeLabel, 1f)};

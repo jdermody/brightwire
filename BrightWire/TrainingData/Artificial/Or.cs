@@ -14,7 +14,7 @@ namespace BrightWire.TrainingData.Artificial
         /// Generates a data table containing OR training data
         /// </summary>
         /// <returns></returns>
-        public static IDataTable Get(IBrightDataContext context)
+        public static IRowOrientedDataTable Get(IBrightDataContext context)
         {
             var builder = context.BuildTable();
             builder.AddColumn(ColumnType.Float, "X");

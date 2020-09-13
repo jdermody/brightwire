@@ -46,17 +46,17 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         public override uint InputSize { get; }
 	    public override uint? OutputSize { get; }
 
-	    public override IReadOnlyList<IReadOnlyList<uint>> GetBuckets()
+	    public override uint[][] GetBuckets()
         {
             return _rowDepth
                 .Select((r, i) => (r, i))
                 .GroupBy(t => t.Item1)
-                .Select(g => g.Select(d => (uint)d.Item2).ToList())
-                .ToList()
+                .Select(g => g.Select(d => (uint)d.Item2).ToArray())
+                .ToArray()
             ;
         }
 
-        public override IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<uint> rows)
+        public override IMiniBatch Get(IExecutionContext executionContext, uint[] rows)
         {
             var data = _GetRows(rows)
                 .Select(r => ((Matrix<float>)r[_dataColumnIndex[0]], (Vector<float>)r[_dataTargetIndex]))

@@ -32,7 +32,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             throw new NotImplementedException();
         }
 
-        public IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<uint> rows)
+        public IMiniBatch Get(IExecutionContext executionContext, uint[] rows)
         {
             var ret = new MiniBatch(rows, this);
             int index = 0;
@@ -46,11 +46,12 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
                     new MatrixGraphData(executionContext.LinearAlgebraProvider.CreateVector(row).ReshapeAsRowMatrix())
                 };
                 ret.Add(type, inputList, null);
+                ++index;
             }
             return ret;
         }
 
-        public IReadOnlyList<IReadOnlyList<uint>> GetBuckets()
+        public uint[][] GetBuckets()
         {
             return new[] {
                 new uint [] {

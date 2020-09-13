@@ -18,13 +18,13 @@ namespace BrightWire.Models
 		/// <param name="miniBatch">The mini batch sequence</param>
 		/// <param name="output">The mini batch output</param>
 		/// <param name="index">Output index</param>
-		public ExecutionResult(IMiniBatchSequence miniBatch, IReadOnlyList<Vector<float>> output, uint index)
+		public ExecutionResult(IMiniBatchSequence miniBatch, Vector<float>[] output, uint index)
 		{
 			Index = index;
 			_miniBatch = miniBatch;
 			Output = output;
-			Target = _miniBatch.Target?.GetMatrix().Data.Rows.ToList();
-			Input = _miniBatch.Input.Select(input => input.GetMatrix().Data.Rows.ToList()).ToList();
+			Target = _miniBatch.Target?.GetMatrix().Data.Rows.ToArray();
+			Input = _miniBatch.Input.Select(input => input.GetMatrix().Data.Rows.ToArray()).ToArray();
 		}
 
 		/// <summary>
@@ -35,17 +35,17 @@ namespace BrightWire.Models
 		/// <summary>
 		/// The list of output rows
 		/// </summary>
-		public IReadOnlyList<Vector<float>> Output { get; }
+		public Vector<float>[] Output { get; }
 
 		/// <summary>
 		/// The list of target rows
 		/// </summary>
-		public IReadOnlyList<Vector<float>> Target { get; }
+		public Vector<float>[] Target { get; }
 
 		/// <summary>
 		/// The list of input rows
 		/// </summary>
-		public IReadOnlyList<IReadOnlyList<Vector<float>>> Input { get; }
+		public Vector<float>[][] Input { get; }
 
 		/// <summary>
 		/// The mini batch

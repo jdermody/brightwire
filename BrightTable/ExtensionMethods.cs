@@ -570,5 +570,21 @@ namespace BrightTable
         }
 
         public static TableBuilder BuildTable(this IBrightDataContext context) => new TableBuilder(context);
+
+        public static IRowOrientedDataTable ToRowOriented(this IDataTable table, string filePath = null)
+        {
+            if (table.Orientation == DataTableOrientation.RowOriented)
+                return (IRowOrientedDataTable) table;
+            var columnOriented = (IColumnOrientedDataTable) table;
+            return columnOriented.AsRowOriented(filePath);
+        }
+
+        public static IColumnOrientedDataTable ToColumnOriented(this IDataTable table, string filePath = null)
+        {
+            if (table.Orientation == DataTableOrientation.ColumnOriented)
+                return (IColumnOrientedDataTable)table;
+            var rowOriented = (IRowOrientedDataTable)table;
+            return rowOriented.AsColumnOriented(filePath);
+        }
     }
 }

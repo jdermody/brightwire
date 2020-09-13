@@ -117,7 +117,7 @@ namespace BrightWire
         /// <param name="data">The list of vectors to cluster</param>
         /// <param name="k">The number of clusters to find</param>
         /// <returns>A list of k clusters</returns>
-        public static IReadOnlyList<IReadOnlyList<IFloatVector>> HierachicalCluster(this IReadOnlyList<IFloatVector> data, int k)
+        public static IReadOnlyList<IReadOnlyList<IFloatVector>> HierachicalCluster(this IFloatVector[] data, int k)
         {
             using (var clusterer = new Hierachical(k, data, DistanceMetric.Euclidean)) {
                 clusterer.Cluster();
@@ -134,7 +134,7 @@ namespace BrightWire
 	    /// <param name="maxIterations">The maximum number of iterations</param>
 	    /// <param name="distanceMetric">Distance metric to use to compare centroids</param>
 	    /// <returns>A list of k clusters</returns>
-	    public static IReadOnlyList<IReadOnlyList<IFloatVector>> KMeans(this IReadOnlyList<IFloatVector> data, ILinearAlgebraProvider lap, int k, int maxIterations = 1000, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
+	    public static IReadOnlyList<IReadOnlyList<IFloatVector>> KMeans(this IFloatVector[] data, ILinearAlgebraProvider lap, int k, int maxIterations = 1000, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
         {
             using (var clusterer = new KMeans(lap, k, data, distanceMetric)) {
                 clusterer.ClusterUntilConverged(maxIterations);

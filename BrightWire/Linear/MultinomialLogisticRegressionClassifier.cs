@@ -32,7 +32,7 @@ namespace BrightWire.Linear
             return _classifier.Select((m, i) => Tuple.Create(i, m.Predict(features)));
         }
 
-        public IReadOnlyList<(string Label, float Weight)> Classify(IConvertibleRow row)
+        public (string Label, float Weight)[] Classify(IConvertibleRow row)
         {
             // calculate softmax over output value
             float max = float.MinValue, total = 0;
@@ -53,7 +53,7 @@ namespace BrightWire.Linear
 
             return softmax
                 .Select(r => (r.Item1, r.Item2 / total))
-                .ToList()
+                .ToArray()
             ;
         }
     }

@@ -55,7 +55,7 @@ namespace BrightWire.ExecutionGraph.Engine
 					foreach (var item in _executionResults) {
 						uint outputIndex = 0;
 						foreach (var output in item.Output) {
-							ret.Add(new ExecutionResult(item.Sequence, output.Rows.ToList(), outputIndex));
+							ret.Add(new ExecutionResult(item.Sequence, output.Rows.ToArray(), outputIndex));
 							++outputIndex;
 						}
 					}
@@ -79,7 +79,7 @@ namespace BrightWire.ExecutionGraph.Engine
 			foreach (var item in _executionResults) {
 				uint outputIndex = 0;
 				foreach (var output in item.Output) {
-					ret.Add(new ExecutionResult(item.Sequence, output.Rows.ToList(), outputIndex));
+					ret.Add(new ExecutionResult(item.Sequence, output.Rows.ToArray(), outputIndex));
 					++outputIndex;
 				}
 			}

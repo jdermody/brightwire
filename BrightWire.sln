@@ -19,7 +19,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrightTable", "BrightTable\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrightData", "BrightData\BrightData.csproj", "{9F981624-ABE1-4350-A1F8-DA466BC11711}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleTest", "ConsoleTest\ConsoleTest.csproj", "{F5CA55EE-C3E1-4BDF-81DD-5B40B2362EFC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExampleCode", "ConsoleTest\ExampleCode.csproj", "{F5CA55EE-C3E1-4BDF-81DD-5B40B2362EFC}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrightData.UnitTests", "BrightData.UnitTests\BrightData.UnitTests.csproj", "{9CDDEEF5-067C-44C5-8000-272BA7D6172D}"
 EndProject

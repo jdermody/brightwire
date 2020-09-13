@@ -25,11 +25,11 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 	    public override uint? OutputSize { get; }
 	    public override bool IsSequential => false;
 
-        public override IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<uint> rows)
+        public override IMiniBatch Get(IExecutionContext executionContext, uint[] rows)
         {
             var data = _GetRows(rows)
                 .Select(r => ((_dataColumnIndex.Select(i => ((Vector<float>)r[i]).Segment.ToArray()).ToArray(), ((Vector<float>)r[_dataTargetIndex]).Segment.ToArray())))
-                .ToList()
+                .ToArray()
             ;
             return _GetMiniBatch(rows, data);
         }

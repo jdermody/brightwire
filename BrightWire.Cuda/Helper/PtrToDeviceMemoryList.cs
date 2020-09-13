@@ -10,9 +10,9 @@ namespace BrightData.Cuda.Helper
     {
 		readonly CudaDeviceVariable<CUdeviceptr> _ptr;
 
-	    public PtrToDeviceMemoryList(IReadOnlyList<IHaveDeviceMemory> list)
+	    public PtrToDeviceMemoryList(IHaveDeviceMemory[] list)
 	    {
-		    _ptr = new CudaDeviceVariable<CUdeviceptr>(list.Count);
+		    _ptr = new CudaDeviceVariable<CUdeviceptr>(list.Length);
 		    _ptr.CopyToDevice(list.Select(d => d.Memory.DevicePointer).ToArray());
 	    }
 

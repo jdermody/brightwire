@@ -17,13 +17,13 @@ namespace BrightWire.TreeBased
             _forest = forest.Forest.Select(m => new DecisionTreeClassifier(m)).ToList();
         }
 
-        public IReadOnlyList<(string Label, float Weight)> Classify(IConvertibleRow row)
+        public (string Label, float Weight)[] Classify(IConvertibleRow row)
         {
             return _forest
                 .Select(t => t.Classify(row).Single())
                 .GroupBy(d => d.Label)
                 .Select(g => (g.Key, g.Average(d => d.Weight)))
-                .ToList()
+                .ToArray()
             ;
         }
     }

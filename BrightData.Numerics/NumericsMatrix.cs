@@ -247,19 +247,18 @@ namespace BrightData.Numerics
             _matrix.MapIndexedInplace((j, k, v) => v + other[(uint)j]);
         }
 
-        public BrightData.Matrix<float> Data
+        public Matrix<float> Data
         {
             get
             {
-                var ret = FloatMatrix.Create(Context, new BrightData.Vector<float>[_matrix.RowCount]);
-                for (int i = 0; i < _matrix.RowCount; i++) {
+                var ret = new Vector<float>[_matrix.RowCount];
+                for (var i = 0; i < _matrix.RowCount; i++) {
                     var row = new float[_matrix.ColumnCount];
-                    for (var j = 0; j < _matrix.ColumnCount; j++) {
+                    for (var j = 0; j < _matrix.ColumnCount; j++)
                         row[j] = _matrix[i, j];
-                    }
-                    ret.Row((uint)i).CopyFrom(row);
+                    ret[i] = Context.CreateVector(row);
                 }
-                return ret;
+                return Context.CreateMatrixFromRows(ret);
             }
 
             set

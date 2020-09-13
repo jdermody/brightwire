@@ -39,11 +39,11 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             return ret;
         }
 
-        public override IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<uint> rows)
+        public override IMiniBatch Get(IExecutionContext executionContext, uint[] rows)
         {
             var data = _GetRows(rows)
                 .Select(r => (r.Item1.Select(Encode).ToArray(), r.Item2.Segment.ToArray()))
-                .ToList()
+                .ToArray()
             ;
             return _GetMiniBatch(rows, data);
         }

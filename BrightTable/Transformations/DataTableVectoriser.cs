@@ -12,6 +12,7 @@ namespace BrightTable.Transformations
     {
         interface IColumnVectoriser : IDisposable
         {
+            uint ColumnIndex { get; }
             IEnumerable<float> GetNext();
             IEnumerable<float> Convert(object obj);
             uint Size { get; }
@@ -20,9 +21,10 @@ namespace BrightTable.Transformations
         {
             readonly IEnumerator<T> _enumerator;
 
-            public VectoriserBase(IEnumerator<T> enumerator)
+            public VectoriserBase(uint columnIndex, IEnumerator<T> enumerator)
             {
                 _enumerator = enumerator;
+                ColumnIndex = columnIndex;
             }
 
             public void Dispose()
@@ -31,6 +33,7 @@ namespace BrightTable.Transformations
             }
 
             public abstract uint Size { get; }
+            public uint ColumnIndex { get; }
 
             public IEnumerable<float> Convert(object obj) => _Convert((T)obj);
 
@@ -50,7 +53,7 @@ namespace BrightTable.Transformations
             readonly ConvertToFloat<T> _converter = new ConvertToFloat<T>();
 
             public NumericVectoriser(ISingleTypeTableSegment column)
-                : base(((IDataTableSegment<T>)column).EnumerateTyped().GetEnumerator())
+                : base(column.Index(), ((IDataTableSegment<T>)column).EnumerateTyped().GetEnumerator())
             {
             }
 
@@ -66,7 +69,7 @@ namespace BrightTable.Transformations
             readonly uint _maxSize;
 
             public WeightedIndexListVectoriser(uint maxSize, ISingleTypeTableSegment column)
-                : base(((IDataTableSegment<WeightedIndexList>)column).EnumerateTyped().GetEnumerator())
+                : base(column.Index(), ((IDataTableSegment<WeightedIndexList>)column).EnumerateTyped().GetEnumerator())
             {
                 _maxSize = maxSize;
             }
@@ -85,7 +88,7 @@ namespace BrightTable.Transformations
             readonly uint _maxSize;
 
             public IndexListVectoriser(uint maxSize, ISingleTypeTableSegment column)
-                : base(((IDataTableSegment<IndexList>)column).EnumerateTyped().GetEnumerator())
+                : base(column.Index(), ((IDataTableSegment<IndexList>)column).EnumerateTyped().GetEnumerator())
             {
                 _maxSize = maxSize;
             }
@@ -102,7 +105,7 @@ namespace BrightTable.Transformations
         class TensorVectoriser : VectoriserBase<BrightData.TensorBase<float, ITensor<float>>>
         {
             public TensorVectoriser(uint size, ISingleTypeTableSegment column)
-                : base(((IDataTableSegment<BrightData.TensorBase<float, ITensor<float>>>)column).EnumerateTyped().GetEnumerator())
+                : base(column.Index(), ((IDataTableSegment<BrightData.TensorBase<float, ITensor<float>>>)column).EnumerateTyped().GetEnumerator())
             {
                 Size = size;
             }
@@ -121,7 +124,7 @@ namespace BrightTable.Transformations
             uint _nextIndex = 0;
 
             public OneHotEncodeVectorised(uint size, ISingleTypeTableSegment column)
-                : base(column.Enumerate().GetEnumerator())
+                : base(column.Index(), column.Enumerate().GetEnumerator())
             {
                 Size = size;
                 _buffer = new float[size];
@@ -140,24 +143,23 @@ namespace BrightTable.Transformations
             }
         }
 
-        public float[] GetInput(object[] r)
-        {
-            return r.Zip(_input, (o, c) => c.Convert(o)).SelectMany(d => d).ToArray();
-        }
-
-        public float[] GetOutput(object r)
-        {
-            throw new NotImplementedException();
-        }
-
         readonly List<IColumnVectoriser> _input = new List<IColumnVectoriser>();
         readonly IColumnVectoriser _target = null;
 
         public uint InputSize => (uint)_input.Sum(c => c.Size);
         public uint OutputSize => _target?.Size ?? 0;
         public uint RowCount { get; }
-
         public IBrightDataContext Context { get; }
+
+        public float[] GetInput(object[] row)
+        {
+            return _input.SelectMany(i => i.Convert(row[i.ColumnIndex])).ToArray();
+        }
+
+        public float[] GetOutput(object[] row)
+        {
+            return _target.Convert(row[_target.ColumnIndex]).ToArray();
+        }
 
         public DataTableVectoriser(IDataTable dataTable)
         {

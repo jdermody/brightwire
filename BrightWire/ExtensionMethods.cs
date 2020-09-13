@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using BrightTable.Transformations;
+using BrightWire.ExecutionGraph;
 
 namespace BrightWire
 {
@@ -57,12 +59,12 @@ namespace BrightWire
         /// <param name="count">The size of the output sequence</param>
         /// <param name="randomSeed">The random seed or null initialise randomlu</param>
         /// <returns></returns>
-        public static IReadOnlyList<T> Bag<T>(this IReadOnlyList<T> list, int count, int? randomSeed = null)
+        public static T[] Bag<T>(this T[] list, int count, int? randomSeed = null)
         {
             var rnd = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
             return Enumerable.Range(0, count)
-                .Select(i => list[rnd.Next(0, list.Count)])
-                .ToList()
+                .Select(i => list[rnd.Next(0, list.Length)])
+                .ToArray()
             ;
         }
 

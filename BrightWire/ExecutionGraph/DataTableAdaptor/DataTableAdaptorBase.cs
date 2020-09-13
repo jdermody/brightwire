@@ -35,7 +35,6 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 		/// </summary>
         protected readonly List<T> _data = new List<T>();
 
-	    /// <inheritdoc />
 	    protected DataTableAdaptorBase(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable)
         {
             _lap = lap;
@@ -54,17 +53,14 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 	    /// <inheritdoc />
         public virtual uint RowCount => (uint)_data.Count;
 
-	    /// <inheritdoc />
-        public abstract IMiniBatch Get(IExecutionContext executionContext, IReadOnlyList<uint> rows);
-
-	    /// <inheritdoc />
+        public abstract IMiniBatch Get(IExecutionContext executionContext, uint[] rows);
         public abstract IDataSource CloneWith(IRowOrientedDataTable dataTable);
 
 	    /// <inheritdoc />
-        public virtual IReadOnlyList<IReadOnlyList<uint>> GetBuckets()
+        public virtual uint[][] GetBuckets()
         {
             return new[] {
-                _data.Count.AsRange().ToList()
+                _data.Count.AsRange().ToArray()
             };
         }
 
@@ -78,9 +74,9 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 		/// Returns the row data
 		/// </summary>
 		/// <param name="rows">List of row indices</param>
-        protected IReadOnlyList<T> _GetRows(IReadOnlyList<uint> rows)
+        protected IEnumerable<T> _GetRows(uint[] rows)
         {
-            return rows.Select(i => _data[(int)i]).ToList();
+            return rows.Select(i => _data[(int)i]);
         }
 
 		/// <summary>
@@ -88,16 +84,16 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 		/// </summary>
 		/// <param name="rows">Row indices</param>
 		/// <param name="data">List of input/output tuples</param>
-        protected IMiniBatch _GetMiniBatch(IReadOnlyList<uint> rows, IReadOnlyList<(float[][], float[])> data)
+        protected IMiniBatch _GetMiniBatch(uint[] rows, (float[][] Input, float[] Output)[] data)
         {
             var inputList = new List<IGraphData>();
-            for (int i = 0, len = data.First().Item1.Length; i < len; i++)
-            {
-	            var i1 = i;
-		        inputList.Add(new MatrixGraphData(_lap.CreateMatrix((uint)data.Count, (uint)InputSize, (x, y) => data[(int)x].Item1[i1][y])));
-	        }
+            var numInputs = (uint)data[0].Input.Length;
+            for (uint i = 0; i < numInputs; i++) {
+                var i1 = i;
+                inputList.Add(new MatrixGraphData(_lap.CreateMatrix((uint)data.Length, InputSize, (x, y) => data[(int)x].Input[i1][y])));
+            }
 
-	        var output = OutputSize > 0 ? _lap.CreateMatrix((uint)data.Count, (uint)OutputSize, (x, y) => data[(int)x].Item2[y]) : null;
+	        var output = OutputSize > 0 ? _lap.CreateMatrix((uint)data.Length, (uint)OutputSize, (x, y) => data[(int)x].Output[y]) : null;
             return new MiniBatch(rows, this, inputList, new MatrixGraphData(output));
         }
 
@@ -106,7 +102,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 		/// </summary>
 		/// <param name="rows">Row indices</param>
 		/// <param name="data">List of input/output matrix tuples</param>
-        protected IMiniBatch _GetSequentialMiniBatch(IReadOnlyList<uint> rows, IReadOnlyList<(Matrix<float> Input, Matrix<float> Output)> data)
+        protected IMiniBatch _GetSequentialMiniBatch(uint[] rows, (Matrix<float> Input, Matrix<float> Output)[] data)
         {
             List<Vector<float>> temp;
             var inputData = new Dictionary<uint, List<Vector<float>>>();

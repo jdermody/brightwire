@@ -12,6 +12,7 @@ using BrightWire;
 using BrightData.Numerics;
 using BrightTable.Transformations;
 using BrightData.Cuda;
+using ExampleCode;
 
 namespace ConsoleTest
 {
@@ -20,6 +21,8 @@ namespace ConsoleTest
         static void Main(string[] args)
         {
             using var context = new BrightDataContext();
+            Simple.Xor(context);
+            
             var lap = context.UseCudaLinearAlgebra();
 
             //var table = context.ParseCsv(@"C:\data\plotly\processed_data.csv", true, ',', @"c:\temp\table.dat", true);

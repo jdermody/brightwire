@@ -39,7 +39,7 @@ namespace BrightData
         public void CopyTo(IMetaData metadata)
         {
             var other = (MetaData)metadata;
-            var keys = _orderedValues.AsEnumerable();
+            var keys = _orderedValues.ToList();
 
             foreach (var key in keys) {
                 other._orderedValues.Add(key);
