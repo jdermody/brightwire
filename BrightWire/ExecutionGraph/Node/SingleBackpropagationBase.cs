@@ -23,7 +23,7 @@ namespace BrightWire.ExecutionGraph
         /// <param name="errorSignal">The backpropagating error</param>
         /// <param name="context">Graph context</param>
         /// <param name="parents">Parents of the current node</param>
-        public override void _Backward(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
+        public override void _Backward(INode fromNode, IGraphData errorSignal, IContext context, INode[] parents)
         {
             IGraphData nextError = null;
             if(errorSignal != null)
@@ -40,6 +40,6 @@ namespace BrightWire.ExecutionGraph
         /// <param name="context">Graph context</param>
         /// <param name="parents">Parents of the current node</param>
         /// <returns></returns>
-        protected abstract IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents);
+        protected abstract IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, INode[] parents);
     }
 }

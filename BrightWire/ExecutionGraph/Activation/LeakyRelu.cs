@@ -19,7 +19,7 @@ namespace BrightWire.ExecutionGraph.Activation
                 _input = matrix;
             }
 
-            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
+            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, INode[] parents)
             {
                 using (var od = _input.LeakyReluDerivative()) {
                     var delta = errorSignal.GetMatrix().PointwiseMultiply(od);

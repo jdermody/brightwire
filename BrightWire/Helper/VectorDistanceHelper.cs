@@ -16,7 +16,7 @@ namespace BrightWire.Source.Helper
 		readonly ILinearAlgebraProvider _lap;
 		readonly DistanceMetric _distanceMetric;
 		readonly List<IFloatVector> _comparison = new List<IFloatVector>();
-		readonly IReadOnlyList<IFloatVector> _data;
+		readonly IFloatVector[] _data;
 
 		/// <summary>
 		/// Constructor
@@ -24,7 +24,7 @@ namespace BrightWire.Source.Helper
 		/// <param name="lap">Linear algebra provider</param>
 		/// <param name="data">List of vectors to compare</param>
 		/// <param name="distanceMetric">Distance metric for comparison</param>
-	    public VectorDistanceHelper(ILinearAlgebraProvider lap, IReadOnlyList<IFloatVector> data, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
+	    public VectorDistanceHelper(ILinearAlgebraProvider lap, IFloatVector[] data, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
 	    {
 			_lap = lap;
 		    _distanceMetric = distanceMetric;
@@ -74,7 +74,7 @@ namespace BrightWire.Source.Helper
 		/// Updates the entire list of comparison vectors
 		/// </summary>
 		/// <param name="comparisonVectors">List of vectors to compare against</param>
-		public void SetComparisonVectors(IReadOnlyList<IFloatVector> comparisonVectors)
+		public void SetComparisonVectors(IEnumerable<IFloatVector> comparisonVectors)
 		{
 			_comparison.ForEach(c => c.Dispose());
 			_comparison.Clear();
@@ -84,27 +84,25 @@ namespace BrightWire.Source.Helper
 		/// <summary>
 		/// Returns the index of the closest comparison vector for each vector
 		/// </summary>
-		public IReadOnlyList<uint> GetClosest()
-		{
-			using (var distance = _lap.CalculateDistances(_data, _comparison, _distanceMetric)) {
-				return _data.Count.AsRange()
-					.Select(i => _GetMinimum(distance, i).Index)
-					.ToList();
-			}
-		}
+		public uint[] GetClosest()
+        {
+            using var distance = _lap.CalculateDistances(_data, _comparison, _distanceMetric);
+            return _data.Length.AsRange()
+                .Select(i => _GetMinimum(distance, i).Index)
+                .ToArray();
+        }
 
 		/// <summary>
 		/// Returns a vector averaged from the data vectors
 		/// </summary>
 		/// <param name="indices">Indices of the data vectors to use in the averaged vector</param>
-		public IFloatVector GetAverageFromData(IReadOnlyList<int> indices)
-		{
-			using (var data = _lap.CreateMatrixFromColumns(indices.Select(i => _data[i]).ToList())) {
-				var result = data.RowSums();
-				result.Multiply(1f / indices.Count);
-				return result;
-			}
-		}
+		public IFloatVector GetAverageFromData(int[] indices)
+        {
+            using var data = _lap.CreateMatrixFromColumns(indices.Select(i => _data[i]).ToArray());
+            var result = data.RowSums();
+            result.Multiply(1f / indices.Length);
+            return result;
+        }
 
 		(uint Index, float Value) _GetMinimum(IFloatMatrix data, uint columnIndex)
 		{
@@ -118,25 +116,24 @@ namespace BrightWire.Source.Helper
 				var index = column.MinimumIndex();
 				return (index, column.GetAt(index));
 			}
-			else {
-				var matrix = data.AsIndexable();
-				
-				if (len == 1)
-					return (0, matrix[0, columnIndex]);
-				else if(len == 0)
-					throw new Exception("Cannot find minimum with zero length");
 
-                uint bestIndex = uint.MaxValue;
-                var min = float.MaxValue;
-				for (uint j = 0; j < len; j++) {
-					var val = matrix[j, columnIndex];
-					if (val < min) {
-						bestIndex = j;
-						min = val;
-					}
-				}
-                return (bestIndex, min);
-			}
+            var matrix = data.AsIndexable();
+				
+            if (len == 1)
+                return (0, matrix[0, columnIndex]);
+            else if(len == 0)
+                throw new Exception("Cannot find minimum with zero length");
+
+            uint bestIndex = uint.MaxValue;
+            var min = float.MaxValue;
+            for (uint j = 0; j < len; j++) {
+                var val = matrix[j, columnIndex];
+                if (val < min) {
+                    bestIndex = j;
+                    min = val;
+                }
+            }
+            return (bestIndex, min);
         }
 	}
 }

@@ -15,17 +15,17 @@ namespace BrightWire.ExecutionGraph.DataSource
     class SequentialDataSource : IDataSource
     {
         readonly uint[] _rowDepth;
-	    readonly IReadOnlyList<Matrix<float>> _data;
+	    readonly Matrix<float>[] _data;
         readonly ILinearAlgebraProvider _lap;
 
-        public SequentialDataSource(ILinearAlgebraProvider lap, IReadOnlyList<Matrix<float>> matrixList)
+        public SequentialDataSource(ILinearAlgebraProvider lap, Matrix<float>[] matrixList)
         {
             _lap = lap;
             _data = matrixList;
             OutputSize = null;
 
             int index = 0;
-            _rowDepth = new uint[matrixList.Count];
+            _rowDepth = new uint[matrixList.Length];
             foreach (var item in matrixList) {
                 if(index == 0)
                     InputSize = item.ColumnCount;
@@ -37,7 +37,7 @@ namespace BrightWire.ExecutionGraph.DataSource
         public bool IsSequential => true;
         public uint InputSize { get; }
 	    public uint? OutputSize { get; }
-	    public uint RowCount => (uint)_data.Count;
+	    public uint RowCount => (uint)_data.Length;
 
         public IMiniBatch Get(IExecutionContext executionContext, uint[] rows)
         {
@@ -62,7 +62,7 @@ namespace BrightWire.ExecutionGraph.DataSource
                         ? MiniBatchSequenceType.SequenceEnd
                         : MiniBatchSequenceType.Standard
                 ;
-                var inputList = new List<IGraphData> {
+                var inputList = new IGraphData[] {
                     new MatrixGraphData(input)
                 };
                 miniBatch.Add(type, inputList, null);

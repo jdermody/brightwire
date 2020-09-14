@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using BrightData;
 using BrightTable.Transformations;
 using BrightWire.ExecutionGraph;
 
@@ -41,10 +42,10 @@ namespace BrightWire
         /// <typeparam name="T">The type of the sequence</typeparam>
         /// <param name="seq">The sequence to split</param>
         /// <param name="trainPercentage">The percentage of the sequence to add to the training set</param>
-        public static (IReadOnlyList<T> Training, IReadOnlyList<T> Test) Split<T>(this IReadOnlyList<T> seq, double trainPercentage = 0.8)
+        public static (T[] Training, T[] Test) Split<T>(this T[] seq, double trainPercentage = 0.8)
         {
-            var input = Enumerable.Range(0, seq.Count).ToList();
-            int trainingCount = Convert.ToInt32(seq.Count * trainPercentage);
+            var input = seq.Length.AsRange().ToList();
+            int trainingCount = Convert.ToInt32(seq.Length * trainPercentage);
             return (
                 input.Take(trainingCount).Select(i => seq[i]).ToArray(),
                 input.Skip(trainingCount).Select(i => seq[i]).ToArray()
@@ -73,12 +74,12 @@ namespace BrightWire
             return indices.Select(i => row.GetField<T>(i)).ToArray();
         }
 
-        public static IEnumerable<(IConvertibleRow Row, IReadOnlyList<(string Label, float Weight)> Classification)> Classify(this IRowOrientedDataTable dataTable, IRowClassifier classifier)
+        public static IEnumerable<(IConvertibleRow Row, (string Label, float Weight)[] Classification)> Classify(this IRowOrientedDataTable dataTable, IRowClassifier classifier)
         {
             return Classify(dataTable.AsConvertible(), classifier);
         }
 
-        public static IEnumerable<(IConvertibleRow Row, IReadOnlyList<(string Label, float Weight)> Classification)> Classify(this IConvertibleTable convertible, IRowClassifier classifier)
+        public static IEnumerable<(IConvertibleRow Row, (string Label, float Weight)[] Classification)> Classify(this IConvertibleTable convertible, IRowClassifier classifier)
         {
             for (uint i = 0, len = convertible.DataTable.RowCount; i < len; i++) {
                 var row = convertible.GetRow(i);

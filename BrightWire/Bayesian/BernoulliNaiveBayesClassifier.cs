@@ -58,7 +58,7 @@ namespace BrightWire.Bayesian
             _classification = model.ClassData.Select(c => new Classification(model.Vocabulary, c)).ToList();
         }
 
-        List<(string, double)> _Classify(IReadOnlyList<uint> featureIndexList)
+        List<(string, double)> _Classify(uint[] featureIndexList)
         {
             var documentSet = new HashSet<uint>(featureIndexList);
             var ret = new List<(string, double)>();

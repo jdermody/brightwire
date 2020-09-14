@@ -120,7 +120,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// </summary>
         /// <param name="context">The graph context</param>
         /// <param name="data">The list of incoming signals</param>
-        protected abstract void _Activate(IContext context, IReadOnlyList<IncomingChannel> data);
+        protected abstract void _Activate(IContext context, List<IncomingChannel> data);
 
         /// <summary>
         /// Records the network activity
@@ -129,9 +129,9 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// <param name="data">The list of incoming signals</param>
         /// <param name="output">Output signal</param>
         /// <param name="backpropagation">Backpropagation creator (optional)</param>
-        protected void _AddHistory(IContext context, IReadOnlyList<IncomingChannel> data, IFloatMatrix output, Func<IBackpropagation> backpropagation)
+        protected void _AddHistory(IContext context, List<IncomingChannel> data, IFloatMatrix output, Func<IBackpropagation> backpropagation)
         {
-            var sources = data.Select(d => d.Source).ToList();
+            var sources = data.Select(d => d.Source).ToArray();
             context.AddForward(new TrainingAction(this, new MatrixGraphData(output), sources), backpropagation);
         }
 

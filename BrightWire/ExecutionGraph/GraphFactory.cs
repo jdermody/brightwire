@@ -218,7 +218,7 @@ namespace BrightWire.ExecutionGraph
 		/// Creates a data source from a list of vectors
 		/// </summary>
 		/// <param name="vectorList">The list of vectors that will be the rows in the data source</param>
-		public IDataSource CreateDataSource(IReadOnlyList<Vector<float>> vectorList)
+		public IDataSource CreateDataSource(Vector<float>[] vectorList)
 		{
 			return new VectorDataSource(_lap, vectorList);
 		}
@@ -228,7 +228,7 @@ namespace BrightWire.ExecutionGraph
 		/// </summary>
 		/// <param name="sequenceList">The list of matrices that will be the rows in the data source</param>
 		/// <returns></returns>
-		public IDataSource CreateDataSource(IReadOnlyList<Matrix<float>> sequenceList)
+		public IDataSource CreateDataSource(Matrix<float>[] sequenceList)
 		{
 			return new SequentialDataSource(_lap, sequenceList);
 		}
@@ -238,7 +238,7 @@ namespace BrightWire.ExecutionGraph
 		/// </summary>
 		/// <param name="tensorList">The list of tensors that will be the rows in the data source</param>
 		/// <returns></returns>
-		public IDataSource CreateDataSource(IReadOnlyList<Tensor3D<float>> tensorList)
+		public IDataSource CreateDataSource(Tensor3D<float>[] tensorList)
 		{
 			return new TensorDataSource(_lap, tensorList);
 		}

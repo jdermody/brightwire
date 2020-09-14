@@ -126,7 +126,7 @@ namespace BrightWire
 		/// Aligns the output of sequential graph execution into an ordered list of results
 		/// </summary>
 		/// <param name="results">Output from sequential graph execution</param>
-	    public static IReadOnlyList<Vector<float>[]> OrderSequentialOutput(this IReadOnlyList<ExecutionResult> results)
+	    public static Vector<float>[][] OrderSequentialOutput(this IEnumerable<ExecutionResult> results)
 	    {
 		    var ret = new Dictionary<(uint RowIndex, uint SequenceIndex), Vector<float>>();
 		    foreach (var result in results) {
@@ -141,7 +141,7 @@ namespace BrightWire
 				.Select(g => (g.Key, g.OrderBy(d => d.Key.SequenceIndex).Select(d => d.Value).ToArray()))
 				.OrderBy(d => d.Item1)
 				.Select(d => d.Item2)
-				.ToList()
+				.ToArray()
 			;
 	    }
 

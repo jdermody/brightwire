@@ -74,6 +74,8 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 		    return null;
 	    }
 
-	    public IReadOnlyList<IGraphData> Output => _output.OrderBy(kv => kv.Key).Select(kv => kv.Value).ToList();
+	    public IEnumerable<IGraphData> Output => _output
+            .OrderBy(kv => kv.Key)
+            .Select(kv => kv.Value);
     }
 }

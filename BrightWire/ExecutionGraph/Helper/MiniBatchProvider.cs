@@ -38,9 +38,8 @@ namespace BrightWire.ExecutionGraph.Helper
             _isStochastic = isStochastic;
         }
 
-        public IReadOnlyList<IGraphOperation> GetMiniBatches(uint batchSize, Action<IMiniBatch> handler)
+        public IEnumerable<IGraphOperation> GetMiniBatches(uint batchSize, Action<IMiniBatch> handler)
         {
-            var ret = new List<IGraphOperation>();
             var buckets = _dataSource.GetBuckets();
             if (_isStochastic)
                 buckets.Shuffle();
@@ -52,10 +51,9 @@ namespace BrightWire.ExecutionGraph.Helper
                 for (uint j = 0; j < bucket.Length; j += batchSize) {
                     var maxRows = Math.Min(iterationOrder.Count, batchSize + j) - j;
                     var rows = iterationOrder.Skip((int)j).Take((int)maxRows).Select(i => bucket[i]).ToArray();
-                    ret.Add(new MiniBatchOperation(rows, this, handler));
+                    yield return new MiniBatchOperation(rows, this, handler);
                 }
             }
-            return ret;
         }
     }
 }

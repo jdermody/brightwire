@@ -16,7 +16,7 @@ namespace BrightWire.ExecutionGraph.Helper
             if (parent != null)
                 Parents = new[] { parent };
             else
-                Parents = new List<INode>();
+                Parents = new INode[0];
 
             Source = source;
             Data = data;
@@ -28,7 +28,7 @@ namespace BrightWire.ExecutionGraph.Helper
 		/// <param name="source">The node that executed</param>
 		/// <param name="data">The output of the node</param>
 		/// <param name="parents">The parent nodes that contributed to the output</param>
-        public TrainingAction(INode source, IGraphData data, IReadOnlyList<INode> parents)
+        public TrainingAction(INode source, IGraphData data, INode[] parents)
         {
             Parents = parents;
             Source = source;
@@ -42,6 +42,6 @@ namespace BrightWire.ExecutionGraph.Helper
 	    /// <inheritdoc />
         public IBackpropagation Backpropagation { get; set; }
 	    /// <inheritdoc />
-        public IReadOnlyList<INode> Parents { get; }
+        public INode[] Parents { get; }
     }
 }

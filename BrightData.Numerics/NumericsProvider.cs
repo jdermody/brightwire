@@ -34,14 +34,14 @@ namespace BrightData.Numerics
 			return new NumericsVector(Context, DenseVector.Create((int)length, i => init((uint)i)));
 		}
 
-		public IFloatMatrix CreateMatrixFromRows(IReadOnlyList<IFloatVector> vectorData)
+		public IFloatMatrix CreateMatrixFromRows(params IFloatVector[] vectorData)
 		{
 			var rows = vectorData.Select(r => r.AsIndexable()).ToArray();
 			var columns = rows.First().Count;
 			return CreateMatrix((uint)rows.Length, columns, (i, j) => rows[i][j]);
 		}
 
-	    public IFloatMatrix CreateMatrixFromColumns(IReadOnlyList<IFloatVector> vectorData)
+	    public IFloatMatrix CreateMatrixFromColumns(params IFloatVector[] vectorData)
 	    {
 		    var columns = vectorData.Select(r => r.AsIndexable()).ToArray();
 		    var rows = columns.First().Count;
@@ -62,12 +62,12 @@ namespace BrightData.Numerics
 
 	    public I3DFloatTensor Create3DTensor(uint rows, uint columns, uint depth, bool setToZero = false)
 	    {
-		    return new Numerics3DTensor(Context, depth.AsRange().Select(i => CreateMatrix(rows, columns, setToZero).AsIndexable()).ToList());
+		    return new Numerics3DTensor(Context, depth.AsRange().Select(i => CreateMatrix(rows, columns, setToZero).AsIndexable()).ToArray());
 	    }
 
 	    public I4DFloatTensor Create4DTensor(uint rows, uint columns, uint depth, uint count, bool setToZero = false)
 	    {
-		    return new Numerics4DTensor(Context, count.AsRange().Select(i => Create3DTensor(rows, columns, depth, setToZero).AsIndexable()).ToList());
+		    return new Numerics4DTensor(Context, count.AsRange().Select(i => Create3DTensor(rows, columns, depth, setToZero).AsIndexable()).ToArray());
 	    }
 
 		public IFloatMatrix CreateMatrix(uint rows, uint columns, Func<uint, uint, float> init)
@@ -80,24 +80,24 @@ namespace BrightData.Numerics
             return CreateMatrix(matrix.RowCount, matrix.ColumnCount, (i, j) => matrix[i, j]);
         }
 
-		public I3DFloatTensor Create3DTensor(IReadOnlyList<IFloatMatrix> data)
+		public I3DFloatTensor Create3DTensor(params IFloatMatrix[] data)
 		{
-			return new Numerics3DTensor(Context, data.Select(m => m.AsIndexable()).ToList());
+			return new Numerics3DTensor(Context, data.Select(m => m.AsIndexable()).ToArray());
 		}
 
-		public I4DFloatTensor Create4DTensor(IReadOnlyList<Tensor3D<float>> data)
+		public I4DFloatTensor Create4DTensor(params Tensor3D<float>[] data)
 		{
-			return new Numerics4DTensor(Context, data.Select(t => Create3DTensor(t.Matrices.Select(m => CreateMatrix(m)).ToList()).AsIndexable()).ToList());
+			return new Numerics4DTensor(Context, data.Select(t => Create3DTensor(t.Matrices.Select(m => CreateMatrix(m)).ToArray()).AsIndexable()).ToArray());
 		}
 
         private I3DFloatTensor Create3DTensor(Tensor3D<float> tensor)
         {
-            return new Numerics3DTensor(Context, tensor.Matrices.Select(m => CreateMatrix(m).AsIndexable()).ToList());
+            return new Numerics3DTensor(Context, tensor.Matrices.Select(m => CreateMatrix(m).AsIndexable()).ToArray());
         }
 
-        public I4DFloatTensor Create4DTensor(IReadOnlyList<I3DFloatTensor> tensorList)
+        public I4DFloatTensor Create4DTensor(I3DFloatTensor[] tensorList)
 		{
-			return new Numerics4DTensor(Context, tensorList.Select(m => m.AsIndexable()).ToList());
+			return new Numerics4DTensor(Context, tensorList.Select(m => m.AsIndexable()).ToArray());
 		}
 
 		public void PushLayer()
@@ -112,10 +112,10 @@ namespace BrightData.Numerics
         public bool IsStochastic { get; }
 	    public bool IsGpu => false;
 
-	    public IFloatMatrix CalculateDistances(IReadOnlyList<IFloatVector> vectors, IReadOnlyList<IFloatVector> compareTo, DistanceMetric distanceMetric)
+	    public IFloatMatrix CalculateDistances(IFloatVector[] vectors, IReadOnlyList<IFloatVector> compareTo, DistanceMetric distanceMetric)
 	    {
 		    var rows = compareTo.Count;
-		    var columns = vectors.Count;
+		    var columns = vectors.Length;
 			Debug.Assert(vectors[0].Count == compareTo[0].Count);
 		    var ret = new float[rows * columns];
 

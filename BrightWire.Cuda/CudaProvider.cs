@@ -965,14 +965,14 @@ namespace BrightData.Cuda
 			return (ret, outputRows, outputColumns, outputDepth, count);
 		}
 
-		public IFloatMatrix CalculateDistances(IReadOnlyList<IFloatVector> vectors, IReadOnlyList<IFloatVector> compareTo, DistanceMetric distanceMetric)
+		public IFloatMatrix CalculateDistances(IFloatVector[] vectors, IReadOnlyList<IFloatVector> compareTo, DistanceMetric distanceMetric)
 		{
 			if (!(distanceMetric == DistanceMetric.Euclidean || distanceMetric == DistanceMetric.Manhattan || distanceMetric == DistanceMetric.Cosine))
 				throw new NotImplementedException();
 
-            var size = (uint)vectors[0].Count;
+            var size = vectors[0].Count;
             var rows = (uint)compareTo.Count;
-            var columns = (uint)vectors.Count;
+            var columns = (uint)vectors.Length;
 			var ret = Allocate(rows * columns, true);
 
 			using (var vectorPtr = new PtrToDeviceMemoryList(vectors.Cast<IHaveDeviceMemory>().ToArray()))
@@ -1048,9 +1048,9 @@ namespace BrightData.Cuda
 			return new CudaMatrix(this, rows, columns, data, true);
 		}
 
-		public IFloatMatrix CreateMatrixFromRows(IReadOnlyList<IFloatVector> vectorRows)
+		public IFloatMatrix CreateMatrixFromRows(IFloatVector[] vectorRows)
 		{
-			var rows = (uint)vectorRows.Count;
+			var rows = (uint)vectorRows.Length;
 			var columns = (uint)vectorRows[0].Count;
 
 			var ret = Allocate(rows * columns);
@@ -1061,9 +1061,9 @@ namespace BrightData.Cuda
 			return new CudaMatrix(this, rows, columns, ret, true);
 		}
 
-		public IFloatMatrix CreateMatrixFromColumns(IReadOnlyList<IFloatVector> vectorColumns)
+		public IFloatMatrix CreateMatrixFromColumns(IFloatVector[] vectorColumns)
 		{
-			var columns = (uint)vectorColumns.Count;
+			var columns = (uint)vectorColumns.Length;
 			var rows = (uint)vectorColumns[0].Count;
 
 			var ret = Allocate(rows * columns);
@@ -1094,9 +1094,9 @@ namespace BrightData.Cuda
 			return new Cuda3DTensor(this, rows, columns, depth, data, true);
 		}
 
-		public I3DFloatTensor Create3DTensor(IReadOnlyList<IFloatMatrix> matrices)
+		public I3DFloatTensor Create3DTensor(params IFloatMatrix[] matrices)
 		{
-			var depth = (uint)matrices.Count;
+			var depth = (uint)matrices.Length;
 			var first = matrices[0];
 			var rows = first.RowCount;
 			var columns = first.ColumnCount;
@@ -1117,9 +1117,9 @@ namespace BrightData.Cuda
 			return new Cuda4DTensor(this, rows, columns, depth, count, data, true);
 		}
 
-		public I4DFloatTensor Create4DTensor(IReadOnlyList<I3DFloatTensor> tensors)
+		public I4DFloatTensor Create4DTensor(params I3DFloatTensor[] tensors)
 		{
-			var count = (uint)tensors.Count;
+			var count = (uint)tensors.Length;
 			var first = tensors[0];
 			var rows = first.RowCount;
 			var columns = first.ColumnCount;
@@ -1135,13 +1135,13 @@ namespace BrightData.Cuda
 			return new Cuda4DTensor(this, rows, columns, depth, count, ret, true);
 		}
 
-		public I4DFloatTensor Create4DTensor(IReadOnlyList<Tensor3D<float>> tensors)
+		public I4DFloatTensor Create4DTensor(params Tensor3D<float>[] tensors)
 		{
 			var first = tensors[0];
-			var data = Allocate(first.RowCount * first.ColumnCount * first.Depth * (uint)tensors.Count);
-			var ret = new Cuda4DTensor(this, first.RowCount, first.ColumnCount, first.Depth, (uint)tensors.Count, data, true);
+			var data = Allocate(first.RowCount * first.ColumnCount * first.Depth * (uint)tensors.Length);
+			var ret = new Cuda4DTensor(this, first.RowCount, first.ColumnCount, first.Depth, (uint)tensors.Length, data, true);
 
-			for (int i = 0; i < tensors.Count; i++)
+			for (int i = 0; i < tensors.Length; i++)
 				ret.GetTensorAt((uint)i).Data = tensors[i];
 			return ret;
 		}

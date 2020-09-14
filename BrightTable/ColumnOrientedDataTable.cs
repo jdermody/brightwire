@@ -72,7 +72,8 @@ namespace BrightTable
 
             public override string ToString()
             {
-                return $"Encoded: {IsEncoded}, {MetaData}";
+                var encoded = IsEncoded ? " (Encoded)" : "";
+                return $"[{ColumnType}] {encoded}: {MetaData}";
             }
         }
 
@@ -305,5 +306,7 @@ namespace BrightTable
 
             return buffers.BuildColumnOrientedTable(Context, rowCount, filePath);
         }
+
+        public override string ToString() => String.Join(", ", _columns.Select(c => c.ToString()));
     }
 }

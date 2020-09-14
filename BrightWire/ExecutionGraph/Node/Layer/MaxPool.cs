@@ -31,7 +31,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 				_yStride = yStride;
             }
 
-            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
+            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, INode[] parents)
             {
 	            var errorMatrix = errorSignal.GetMatrix();
                 var tensor = errorMatrix.ReshapeAs4DTensor(_outputRows, _outputColumns, _depth);

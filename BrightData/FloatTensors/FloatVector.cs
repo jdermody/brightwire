@@ -47,7 +47,7 @@ namespace BrightData.FloatTensors
         public IIndexableFloatVector AsIndexable() => this;
         public IFloatVector PointwiseMultiply(IFloatVector vector) => new FloatVector(Data.PointwiseMultiply(vector.Data));
         public float DotProduct(IFloatVector vector) => Data.DotProduct(vector.Data);
-        public IFloatVector GetNewVectorFromIndexes(IReadOnlyList<uint> indices) => new FloatVector(Data.Context.CreateVector(indices.Select(i => Data[i]).ToArray()));
+        public IFloatVector GetNewVectorFromIndexes(IEnumerable<uint> indices) => new FloatVector(Data.Context.CreateVector(indices.Select(i => Data[i]).ToArray()));
         public IFloatVector Clone() => new FloatVector(Data.Clone());
         public IFloatVector Sqrt() => new FloatVector(Data.Sqrt());
         public IFloatVector Abs() => new FloatVector(Data.Abs());
@@ -93,7 +93,7 @@ namespace BrightData.FloatTensors
         public IFloatVector Softmax() => new FloatVector(Data.Softmax());
         public IFloatMatrix SoftmaxDerivative() => new FloatMatrix(Data.SoftmaxDerivative());
 
-        public IFloatVector FindDistances(IReadOnlyList<IFloatVector> data, DistanceMetric distance)
+        public IFloatVector FindDistances(IFloatVector[] data, DistanceMetric distance)
         {
             throw new NotImplementedException();
         }
@@ -103,7 +103,7 @@ namespace BrightData.FloatTensors
             throw new NotImplementedException();
         }
 
-        public IFloatVector CosineDistance(IReadOnlyList<IFloatVector> data, ref float[] dataNorm)
+        public IFloatVector CosineDistance(IFloatVector[] data, ref float[] dataNorm)
         {
             throw new NotImplementedException();
         }
@@ -117,7 +117,11 @@ namespace BrightData.FloatTensors
             throw new NotImplementedException();
         }
 
-        public IReadOnlyList<IFloatVector> Split(uint blockCount) => Data.Split(blockCount).Select(v => new FloatVector(new Vector<float>(v))).ToList();
+        public IFloatVector[] Split(uint blockCount) => Data
+            .Split(blockCount)
+            .Select(v => new FloatVector(new Vector<float>(v)))
+            .Cast<IFloatVector>()
+            .ToArray();
 
         public void RotateInPlace(uint blockCount = 1)
         {
@@ -143,9 +147,9 @@ namespace BrightData.FloatTensors
             throw new NotImplementedException();
         }
 
-        public IIndexableFloatVector Append(IReadOnlyList<float> data)
+        public IIndexableFloatVector Append(float[] data)
         {
-            var segment = Data.Context.TensorPool.Get<float>(Count + (uint) data.Count).GetSegment();
+            var segment = Data.Context.TensorPool.Get<float>(Count + (uint) data.Length).GetSegment();
             Data.Segment.CopyTo(segment);
             uint index = 0;
             foreach (var item in data)

@@ -14,7 +14,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             {
             }
 
-            public override void _Backward(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
+            public override void _Backward(INode fromNode, IGraphData errorSignal, IContext context, INode[] parents)
             {
                 _source._tryRestore(context);
                 _SendErrorTo(errorSignal, context, parents);

@@ -21,6 +21,7 @@ namespace BrightTable.Segments
             Index = index;
             ColumnType = type;
             MetaData = metaData;
+            MetaData.Set(Consts.Index, index);
         }
 
         public uint Index { get; }
@@ -35,7 +36,7 @@ namespace BrightTable.Segments
 
         public override string ToString()
         {
-            return $"{Index}) {ColumnType} - {MetaData}";
+            return $"[{ColumnType}]: {MetaData}";
         }
     }
 }

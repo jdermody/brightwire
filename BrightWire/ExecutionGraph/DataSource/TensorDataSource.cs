@@ -11,10 +11,10 @@ namespace BrightWire.ExecutionGraph.DataSource
     class TensorDataSource : IDataSource
     {
         readonly uint _rows, _columns, _depth, _matrixSize;
-        readonly IReadOnlyList<Tensor3D<float>> _data;
+        readonly Tensor3D<float>[] _data;
         readonly ILinearAlgebraProvider _lap;
 
-        public TensorDataSource(ILinearAlgebraProvider lap, IReadOnlyList<Tensor3D<float>> data)
+        public TensorDataSource(ILinearAlgebraProvider lap, Tensor3D<float>[] data)
         {
             _lap = lap;
             _data = data;
@@ -32,7 +32,7 @@ namespace BrightWire.ExecutionGraph.DataSource
         public uint InputSize { get; }
 	    public uint? OutputSize { get; }
 	    public uint InputCount => 1;
-        public uint RowCount => (uint)_data.Count;
+        public uint RowCount => (uint)_data.Length;
 
         public IDataSource CloneWith(IRowOrientedDataTable dataTable)
         {
@@ -51,7 +51,7 @@ namespace BrightWire.ExecutionGraph.DataSource
                 return tensor.Matrix(z).Row(x).Segment[y];
             });
 
-            var inputList = new List<IGraphData> {
+            var inputList = new IGraphData[] {
                 new Tensor4DGraphData(input, _rows, _columns, _depth)
             };
             return new MiniBatch(rows, this, inputList, null);
@@ -60,7 +60,7 @@ namespace BrightWire.ExecutionGraph.DataSource
         public uint[][] GetBuckets()
         {
             return new[] {
-                _data.Count.AsRange().ToArray()
+                _data.Length.AsRange().ToArray()
             };
         }
 

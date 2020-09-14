@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using ManagedCuda;
 using ManagedCuda.BasicTypes;
@@ -129,14 +130,14 @@ namespace BrightData.Cuda
             _data.DeviceVariable.Memset(0);
         }
 
-        public void ClearColumns(IReadOnlyList<uint> indices)
+        public void ClearColumns(IEnumerable<uint> indices)
         {
             Debug.Assert(IsValid);
             foreach (var item in indices)
                 _cuda.MemClear(_data, _rows, item * _rows);
         }
 
-        public void ClearRows(IReadOnlyList<uint> indices)
+        public void ClearRows(IEnumerable<uint> indices)
         {
             Debug.Assert(IsValid);
             foreach (var item in indices)
@@ -222,34 +223,36 @@ namespace BrightData.Cuda
             return new CudaVector(_cuda, ret, true);
         }
 
-        public IFloatMatrix GetNewMatrixFromColumns(IReadOnlyList<uint> columnIndices)
+        public IFloatMatrix GetNewMatrixFromColumns(IEnumerable<uint> columnIndices)
         {
             Debug.Assert(IsValid);
             uint offset = 0;
-            var ret = _cuda.Allocate(_rows * (uint)columnIndices.Count);
-            foreach (var item in columnIndices) {
+            var indices = columnIndices.ToList();
+            var ret = _cuda.Allocate(_rows * (uint)indices.Count);
+            foreach (var item in indices) {
                 ret.DeviceVariable.CopyToDevice(_data.DeviceVariable, item * _rows * CudaProvider.FLOAT_SIZE, offset * CudaProvider.FLOAT_SIZE, _rows * CudaProvider.FLOAT_SIZE);
                 offset += _rows;
             }
-            return new CudaMatrix(_cuda, _rows, (uint)columnIndices.Count, ret, true);
+            return new CudaMatrix(_cuda, _rows, (uint)indices.Count, ret, true);
         }
 
-        public IFloatMatrix GetNewMatrixFromRows(IReadOnlyList<uint> rowIndices)
+        public IFloatMatrix GetNewMatrixFromRows(IEnumerable<uint> rowIndices)
         {
             Debug.Assert(IsValid);
             int offset = 0;
-            var ret = _cuda.Allocate(_columns * (uint)rowIndices.Count);
-            foreach (var item in rowIndices) {
+            var indices = rowIndices.ToList();
+            var ret = _cuda.Allocate(_columns * (uint)indices.Count);
+            foreach (var item in indices) {
                 CudaBlasNativeMethods.cublasScopy_v2(_cuda.Blas.CublasHandle,
                     n: (int)_columns,
                     x: _data.DevicePointer + (item * CudaProvider.FLOAT_SIZE),
                     incx: (int)_rows,
                     y: ret.DevicePointer + (offset * CudaProvider.FLOAT_SIZE),
-                    incy: rowIndices.Count
+                    incy: indices.Count
                 );
                 offset += 1;
             }
-            return new CudaMatrix(_cuda, (uint)rowIndices.Count, _columns, ret, true);
+            return new CudaMatrix(_cuda, (uint)indices.Count, _columns, ret, true);
         }
 
         public IFloatVector GetRowSegment(uint rowIndex, uint columnIndex, uint length)
@@ -665,19 +668,19 @@ namespace BrightData.Cuda
 		    _data.DeviceVariable[column * _rows + row] = value;
 	    }
 
-	    public IReadOnlyList<IFloatVector> ColumnVectors()
+	    public IFloatVector[] ColumnVectors()
 	    {
-		    var ret = new List<IFloatVector>();
+		    var ret = new IFloatVector[ColumnCount];
 		    for (uint i = 0; i < ColumnCount; i++)
-			    ret.Add(Column(i));
+			    ret[i] = Column(i);
 		    return ret;
 	    }
 
-	    public IReadOnlyList<IFloatVector> RowVectors()
+	    public IFloatVector[] RowVectors()
 	    {
-		    var ret = new List<IFloatVector>();
+		    var ret = new IFloatVector[RowCount];
 		    for (uint i = 0; i < RowCount; i++)
-			    ret.Add(Row(i));
+			    ret[i] = Row(i);
 		    return ret;
 	    }
     }

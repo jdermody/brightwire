@@ -83,7 +83,7 @@ namespace BrightWire.TrainingData.Helper
         /// Finds sentences from a list of strings
         /// </summary>
         /// <param name="stringList">The list of strings</param>
-        public static IEnumerable<IReadOnlyList<string>> FindSentences(IEnumerable<string> stringList)
+        public static IEnumerable<string[]> FindSentences(IEnumerable<string> stringList)
         {
             var curr = new List<string>();
             foreach (var item in stringList) {

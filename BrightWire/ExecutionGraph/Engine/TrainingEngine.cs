@@ -14,9 +14,9 @@ namespace BrightWire.ExecutionGraph.Engine
 	/// </summary>
 	class TrainingEngine : EngineBase, IGraphTrainingEngine
 	{
-		readonly List<(IMiniBatchSequence Sequence, double? TrainingError, IReadOnlyList<Matrix<float>> Output)> _executionResults = new List<(IMiniBatchSequence Sequence, double? TrainingError, IReadOnlyList<Matrix<float>> Output)>();
+		readonly List<(IMiniBatchSequence Sequence, double? TrainingError, Matrix<float>[] Output)> _executionResults = new List<(IMiniBatchSequence, double?, Matrix<float>[])>();
 		readonly List<IContext> _contextList = new List<IContext>();
-		readonly IReadOnlyList<INode> _input;
+		readonly INode[] _input;
 		readonly bool _isStochastic;
 		float? _lastTestError = null;
 		double? _lastTrainingError = null, _trainingErrorDelta = null;
@@ -29,20 +29,19 @@ namespace BrightWire.ExecutionGraph.Engine
 			learningContext.SetRowCount(dataSource.RowCount);
 
 			if (start == null) {
-				_input = Enumerable.Range(0, (int)dataSource.InputCount).Select(i => new InputFeeder(i)).ToList();
+				_input = Enumerable.Range(0, (int)dataSource.InputCount).Select(i => new InputFeeder(i)).ToArray();
 				Start = new FlowThrough();
 				Start.Output.AddRange(_input.Select(i => new WireToNode(i)));
 			} else {
 				Start = start;
-				_input = start.Output.Select(w => w.SendTo).ToList();
+				_input = start.Output.Select(w => w.SendTo).ToArray();
 			}
 		}
 
-		public IReadOnlyList<ExecutionResult> Execute(IDataSource dataSource, uint batchSize = 128, Action<float> batchCompleteCallback = null)
+		public IEnumerable<ExecutionResult> Execute(IDataSource dataSource, uint batchSize = 128, Action<float> batchCompleteCallback = null)
 		{
 			_lap.PushLayer();
-			var ret = new List<ExecutionResult>();
-			var provider = new MiniBatchProvider(dataSource, _isStochastic);
+            var provider = new MiniBatchProvider(dataSource, _isStochastic);
 			using (var executionContext = new ExecutionContext(_lap)) {
 				executionContext.Add(provider.GetMiniBatches(batchSize, mb => _Execute(executionContext, mb)));
 				float operationCount = executionContext.RemainingOperationCount;
@@ -55,7 +54,7 @@ namespace BrightWire.ExecutionGraph.Engine
 					foreach (var item in _executionResults) {
 						uint outputIndex = 0;
 						foreach (var output in item.Output) {
-							ret.Add(new ExecutionResult(item.Sequence, output.Rows.ToArray(), outputIndex));
+							yield return new ExecutionResult(item.Sequence, output.Rows.ToArray(), outputIndex);
 							++outputIndex;
 						}
 					}
@@ -70,23 +69,20 @@ namespace BrightWire.ExecutionGraph.Engine
 				}
 			}
 			_lap.PopLayer();
-			return ret;
-		}
+        }
 
-		protected override IReadOnlyList<ExecutionResult> _GetResults()
+		protected override IEnumerable<ExecutionResult> _GetResults()
 		{
-			var ret = new List<ExecutionResult>();
-			foreach (var item in _executionResults) {
+            foreach (var item in _executionResults) {
 				uint outputIndex = 0;
 				foreach (var output in item.Output) {
-					ret.Add(new ExecutionResult(item.Sequence, output.Rows.ToArray(), outputIndex));
+					yield return new ExecutionResult(item.Sequence, output.Rows.ToArray(), outputIndex);
 					++outputIndex;
 				}
 			}
 
 			_executionResults.Clear();
-			return ret;
-		}
+        }
 
 		protected override void _ClearContextList()
 		{
@@ -162,7 +158,7 @@ namespace BrightWire.ExecutionGraph.Engine
 			_contextList.AddRange(_Train(executionContext, null, batch));
 		}
 
-		IReadOnlyList<IContext> _Train(IExecutionContext executionContext, ILearningContext learningContext, IMiniBatch batch)
+		List<TrainingEngineContext> _Train(IExecutionContext executionContext, ILearningContext learningContext, IMiniBatch batch)
 		{
 			var ret = new List<TrainingEngineContext>();
 			if (batch.IsSequential) {
@@ -184,7 +180,7 @@ namespace BrightWire.ExecutionGraph.Engine
 		void _CompleteSequence(TrainingEngineContext context)
 		{
 			_dataSource.OnBatchProcessed(context);
-			var output = context.Output;
+			var output = context.Output.ToList();
 			_executionResults.Add((context.BatchSequence, context.TrainingError, output.Any()
 				? output.Select(o => o.GetMatrix().Data).ToArray()
 				: new[] { context.Data.GetMatrix().Data }

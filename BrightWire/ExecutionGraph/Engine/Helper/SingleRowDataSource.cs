@@ -13,7 +13,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     {
         class Sequence : IMiniBatchSequence
         {
-            public Sequence(IReadOnlyList<IGraphData> data, IMiniBatch miniBatch, MiniBatchSequenceType sequenceType, uint sequenceIndex)
+            public Sequence(IGraphData[] data, IMiniBatch miniBatch, MiniBatchSequenceType sequenceType, uint sequenceIndex)
             {
                 Input = data;
                 MiniBatch = miniBatch;
@@ -23,7 +23,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             public IMiniBatch MiniBatch { get; }
             public uint SequenceIndex { get; }
             public MiniBatchSequenceType Type { get; }
-            public IReadOnlyList<IGraphData> Input { get; }
+            public IGraphData[] Input { get; }
             public IGraphData Target => null;
         }
         class SingleRowMiniBatch : IMiniBatch

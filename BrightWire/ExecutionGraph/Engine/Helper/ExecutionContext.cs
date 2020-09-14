@@ -28,7 +28,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 
         public ILinearAlgebraProvider LinearAlgebraProvider { get; }
 
-	    public void Add(IReadOnlyList<IGraphOperation> operations)
+	    public void Add(IEnumerable<IGraphOperation> operations)
         {
             foreach (var item in operations)
                 _operationList.Enqueue(item);

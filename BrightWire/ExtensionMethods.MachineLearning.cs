@@ -105,7 +105,7 @@ namespace BrightWire
         /// <param name="k">The number of clusters</param>
         /// <param name="maxIterations">The maximum number of iterations</param>
         /// <returns>A list of k clusters</returns>
-        public static IReadOnlyList<IReadOnlyList<IFloatVector>> NNMF(this IReadOnlyList<IFloatVector> data, ILinearAlgebraProvider lap, int k, int maxIterations = 1000)
+        public static IFloatVector[][] NNMF(this IFloatVector[] data, ILinearAlgebraProvider lap, int k, int maxIterations = 1000)
         {
             var clusterer = new NonNegativeMatrixFactorisation(lap, k);
             return clusterer.Cluster(data, maxIterations);
@@ -117,12 +117,11 @@ namespace BrightWire
         /// <param name="data">The list of vectors to cluster</param>
         /// <param name="k">The number of clusters to find</param>
         /// <returns>A list of k clusters</returns>
-        public static IReadOnlyList<IReadOnlyList<IFloatVector>> HierachicalCluster(this IFloatVector[] data, int k)
+        public static IFloatVector[][] HierachicalCluster(this IFloatVector[] data, int k)
         {
-            using (var clusterer = new Hierachical(k, data, DistanceMetric.Euclidean)) {
-                clusterer.Cluster();
-                return clusterer.Clusters;
-            }
+            using var clusterer = new Hierachical(k, data, DistanceMetric.Euclidean);
+            clusterer.Cluster();
+            return clusterer.Clusters;
         }
 
 	    /// <summary>
@@ -134,12 +133,11 @@ namespace BrightWire
 	    /// <param name="maxIterations">The maximum number of iterations</param>
 	    /// <param name="distanceMetric">Distance metric to use to compare centroids</param>
 	    /// <returns>A list of k clusters</returns>
-	    public static IReadOnlyList<IReadOnlyList<IFloatVector>> KMeans(this IFloatVector[] data, ILinearAlgebraProvider lap, int k, int maxIterations = 1000, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
+	    public static IFloatVector[][] KMeans(this IFloatVector[] data, ILinearAlgebraProvider lap, int k, int maxIterations = 1000, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
         {
-            using (var clusterer = new KMeans(lap, k, data, distanceMetric)) {
-                clusterer.ClusterUntilConverged(maxIterations);
-                return clusterer.Clusters;
-            }
+            using var clusterer = new KMeans(lap, k, data, distanceMetric);
+            clusterer.ClusterUntilConverged(maxIterations);
+            return clusterer.Clusters;
         }
 
         /// <summary>
@@ -202,7 +200,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="data">The training data</param>
         /// <returns>A model that can be used for classification</returns>
-        public static MultinomialNaiveBayes TrainMultinomialNaiveBayes(this IReadOnlyList<(string Classification, IndexList Data)> data)
+        public static MultinomialNaiveBayes TrainMultinomialNaiveBayes(this IEnumerable<(string Classification, IndexList Data)> data)
         {
             var trainer = new MultinomialNaiveBayesTrainer();
             foreach (var item in data)
@@ -232,7 +230,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="data">The training data</param>
         /// <returns>A model that can be used for classification</returns>
-        public static BernoulliNaiveBayes TrainBernoulliNaiveBayes(this IReadOnlyList<(string Classification, IndexList Data)> data)
+        public static BernoulliNaiveBayes TrainBernoulliNaiveBayes(this IEnumerable<(string Classification, IndexList Data)> data)
         {
             var trainer = new BernoulliNaiveBayesTrainer();
             foreach (var item in data)
@@ -283,7 +281,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="classifications">List of weighted classifications</param>
         /// <returns></returns>
-        public static string GetBestClassification(this IReadOnlyList<(string Label, float Weight)> classifications)
+        public static string GetBestClassification(this IEnumerable<(string Label, float Weight)> classifications)
         {
             return classifications.OrderByDescending(c => c.Weight).First().Label;
         }

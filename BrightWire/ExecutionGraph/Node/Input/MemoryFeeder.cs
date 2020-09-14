@@ -19,17 +19,16 @@ namespace BrightWire.ExecutionGraph.Node.Input
             {
             }
 
-            public override void _Backward(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
+            public override void _Backward(INode fromNode, IGraphData errorSignal, IContext context, INode[] parents)
             {
                 if (context.BatchSequence.Type == MiniBatchSequenceType.SequenceStart) {
                     var es = errorSignal.GetMatrix();
 
-                    using (var columnSums = es.ColumnSums()) {
-	                    columnSums.Multiply(1f / es.RowCount);
-                        var initialDelta = columnSums.AsIndexable();
-                        for (uint j = 0; j < _source._data.Length; j++)
-                            _source._data[j] += initialDelta[j] * context.LearningContext.BatchLearningRate;
-                    }
+                    using var columnSums = es.ColumnSums();
+                    columnSums.Multiply(1f / es.RowCount);
+                    var initialDelta = columnSums.AsIndexable();
+                    for (uint j = 0; j < _source._data.Length; j++)
+                        _source._data[j] += initialDelta[j] * context.LearningContext.BatchLearningRate;
                 }
             }
         }

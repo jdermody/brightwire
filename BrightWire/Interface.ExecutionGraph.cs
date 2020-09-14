@@ -54,7 +54,7 @@ namespace BrightWire
         /// <summary>
         /// Returns the list of matrices that compose the signal (single item if the signal is a matrix)
         /// </summary>
-        IReadOnlyList<IFloatMatrix> GetSubMatrices();
+        IFloatMatrix[] GetSubMatrices();
     }
 
     /// <summary>
@@ -213,7 +213,7 @@ namespace BrightWire
         /// <summary>
         /// The node's parents
         /// </summary>
-        IReadOnlyList<INode> Parents { get; }
+        INode[] Parents { get; }
 
         /// <summary>
         /// Node output signal
@@ -326,7 +326,7 @@ namespace BrightWire
 		/// <summary>
 		/// Returns all stored output
 		/// </summary>
-		IReadOnlyList<IGraphData> Output { get; }
+		IEnumerable<IGraphData> Output { get; }
     }
 
     /// <summary>
@@ -358,7 +358,7 @@ namespace BrightWire
         /// Adds a list of graph operations to the queue
         /// </summary>
         /// <param name="operationList">List of operations</param>
-        void Add(IReadOnlyList<IGraphOperation> operationList);
+        void Add(IEnumerable<IGraphOperation> operationList);
 
         /// <summary>
         /// Linear algebra provider
@@ -401,7 +401,7 @@ namespace BrightWire
         /// <param name="errorSignal">Error signal</param>
         /// <param name="context">Graph context</param>
         /// <param name="parents">The current node's parents</param>
-        void Backward(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents);
+        void Backward(INode fromNode, IGraphData errorSignal, IContext context, INode[] parents);
     }
 
     /// <summary>
@@ -523,7 +523,7 @@ namespace BrightWire
         /// <summary>
         /// Input data
         /// </summary>
-        IReadOnlyList<IGraphData> Input { get; }
+        IGraphData[] Input { get; }
 
         /// <summary>
         /// Training target data
@@ -629,7 +629,7 @@ namespace BrightWire
         /// <param name="batchSize">Initial size of each mini batch</param>
         /// <param name="batchCompleteCallback">Optional callback to be notifiied after each mini batch has completed</param>
         /// <returns></returns>
-        IReadOnlyList<ExecutionResult> Execute(IDataSource dataSource, uint batchSize = 128, Action<float> batchCompleteCallback = null);
+        IEnumerable<ExecutionResult> Execute(IDataSource dataSource, uint batchSize = 128, Action<float> batchCompleteCallback = null);
 
         /// <summary>
         /// Executes a single vector on the current graph
@@ -648,12 +648,12 @@ namespace BrightWire
         /// <returns></returns>
         ExecutionResult ExecuteSequential(uint sequenceIndex, float[] input, IExecutionContext executionContext, MiniBatchSequenceType sequenceType);
 
-	    /// <summary>
-	    /// Executes a sequence of inputs on the current graph
-	    /// </summary>
-	    /// <param name="input">List of vector inputs</param>
-	    /// <returns>List of execution results</returns>
-	    IReadOnlyList<ExecutionResult> ExecuteSequential(IReadOnlyList<float[]> input);
+        /// <summary>
+        /// Executes a sequence of inputs on the current graph
+        /// </summary>
+        /// <param name="input">List of vector inputs</param>
+        /// <returns>List of execution results</returns>
+        IEnumerable<ExecutionResult> ExecuteSequential(float[][] input);
 
 		/// <summary>
 		/// The graph's single start node

@@ -86,14 +86,17 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 		/// <param name="data">List of input/output tuples</param>
         protected IMiniBatch _GetMiniBatch(uint[] rows, (float[][] Input, float[] Output)[] data)
         {
-            var inputList = new List<IGraphData>();
             var numInputs = (uint)data[0].Input.Length;
+            var inputList = new IGraphData[numInputs];
             for (uint i = 0; i < numInputs; i++) {
                 var i1 = i;
-                inputList.Add(new MatrixGraphData(_lap.CreateMatrix((uint)data.Length, InputSize, (x, y) => data[(int)x].Input[i1][y])));
+                inputList[i] = new MatrixGraphData(_lap.CreateMatrix((uint)data.Length, InputSize, (x, y) => data[(int)x].Input[i1][y]));
             }
 
-	        var output = OutputSize > 0 ? _lap.CreateMatrix((uint)data.Length, (uint)OutputSize, (x, y) => data[(int)x].Output[y]) : null;
+	        var output = OutputSize > 0 
+                ? _lap.CreateMatrix((uint)data.Length, (uint)OutputSize, (x, y) => data[(int)x].Output[y]) 
+                : null;
+
             return new MiniBatch(rows, this, inputList, new MatrixGraphData(output));
         }
 
@@ -136,7 +139,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
                         ? MiniBatchSequenceType.SequenceEnd
                         : MiniBatchSequenceType.Standard
                 ;
-                var inputList = new List<IGraphData> {
+                var inputList = new IGraphData[] {
                     new MatrixGraphData(input)
                 };
                 miniBatch.Add(type, inputList, new MatrixGraphData(output));

@@ -305,24 +305,26 @@ namespace BrightData.Numerics
             }
         }
 
-	    public IFloatMatrix GetNewMatrixFromRows(IReadOnlyList<uint> rowIndexes)
+	    public IFloatMatrix GetNewMatrixFromRows(IEnumerable<uint> rowIndexes)
         {
-            return new NumericsMatrix(Context, DenseMatrix.Create(rowIndexes.Count, (int)ColumnCount, (x, y) => _matrix[(int)rowIndexes[x], y]));
+            var indices = rowIndexes.ToList();
+            return new NumericsMatrix(Context, DenseMatrix.Create(indices.Count, (int)ColumnCount, (x, y) => _matrix[(int)indices[x], y]));
         }
 
-        public IFloatMatrix GetNewMatrixFromColumns(IReadOnlyList<uint> columnIndexes)
+        public IFloatMatrix GetNewMatrixFromColumns(IEnumerable<uint> columnIndexes)
         {
-            return new NumericsMatrix(Context, DenseMatrix.Create((int)RowCount, columnIndexes.Count, (x, y) => _matrix[x, (int)columnIndexes[y]]));
+            var indices = columnIndexes.ToList();
+            return new NumericsMatrix(Context, DenseMatrix.Create((int)RowCount, indices.Count, (x, y) => _matrix[x, (int)indices[y]]));
         }
 
-        public void ClearRows(IReadOnlyList<uint> indexes)
+        public void ClearRows(IEnumerable<uint> indexes)
         {
-            _matrix.ClearRows(indexes.Cast<int>().ToArray());
+            _matrix.ClearRows(indexes.Select(i => (int)i).ToArray());
         }
 
-        public void ClearColumns(IReadOnlyList<uint> indexes)
+        public void ClearColumns(IEnumerable<uint> indexes)
         {
-            _matrix.ClearColumns(indexes.Cast<int>().ToArray());
+            _matrix.ClearColumns(indexes.Select(i => (int)i).ToArray());
         }
 
         public IFloatMatrix Clone()
@@ -466,17 +468,17 @@ namespace BrightData.Numerics
 		public I3DFloatTensor ReshapeAs3DTensor(uint rows, uint columns)
 		{
 			Debug.Assert(rows * columns == RowCount);
-			var matrixList = new List<IIndexableFloatMatrix>();
+			var matrixList = new IIndexableFloatMatrix[ColumnCount];
 			for (uint i = 0, len = ColumnCount; i < len; i++)
-				matrixList.Add(Column(i).ReshapeAsMatrix(rows, columns).AsIndexable());
+				matrixList[i] = Column(i).ReshapeAsMatrix(rows, columns).AsIndexable();
 			return new Numerics3DTensor(Context, matrixList);
 		}
 
 		public I4DFloatTensor ReshapeAs4DTensor(uint rows, uint columns, uint depth)
 		{
-			var list = new List<IIndexable3DFloatTensor>();
+			var list = new IIndexable3DFloatTensor[ColumnCount];
 			for (uint i = 0; i < ColumnCount; i++)
-				list.Add(new Numerics3DTensor(Context, Column(i).Split(depth).Select(v => v.ReshapeAsMatrix(rows, columns).AsIndexable()).ToList()));
+				list[i] = new Numerics3DTensor(Context, Column(i).Split(depth).Select(v => v.ReshapeAsMatrix(rows, columns).AsIndexable()).ToArray());
 			return new Numerics4DTensor(Context, list);
 		}
 
@@ -490,9 +492,9 @@ namespace BrightData.Numerics
 		    this[row, column] = value;
 	    }
 
-	    public IReadOnlyList<IFloatVector> ColumnVectors() => Columns.ToList();
+	    public IFloatVector[] ColumnVectors() => Columns.Cast<IFloatVector>().ToArray();
 
-	    public IReadOnlyList<IFloatVector> RowVectors() => Rows.ToList();
+	    public IFloatVector[] RowVectors() => Rows.Cast<IFloatVector>().ToArray();
 
 	    public string AsXml
         {

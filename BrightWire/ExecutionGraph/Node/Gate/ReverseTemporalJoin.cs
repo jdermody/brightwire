@@ -17,7 +17,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 _reverseSize = reverseSize;
             }
 
-            public override void _Backward(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
+            public override void _Backward(INode fromNode, IGraphData errorSignal, IContext context, INode[] parents)
             {
                 var matrix = errorSignal.GetMatrix();
                 (IFloatMatrix left, IFloatMatrix right) = matrix.SplitAtColumn(matrix.ColumnCount - _reverseSize);
@@ -81,7 +81,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             );
         }
 
-        protected override void _Activate(IContext context, IReadOnlyList<IncomingChannel> data)
+        protected override void _Activate(IContext context, List<IncomingChannel> data)
         {
             Debug.Assert(data.Count == 2);
             var forward = data.First();

@@ -29,14 +29,14 @@ namespace BrightData.Numerics
 	        _data = new NumericsMatrix(context, DenseMatrix.Build.Dense((int)(rows * columns), (int)depth));
         }
 
-        public Numerics3DTensor(IBrightDataContext context, IReadOnlyList<IIndexableFloatMatrix> matrixList)
+        public Numerics3DTensor(IBrightDataContext context, IIndexableFloatMatrix[] matrixList)
         {
             Context = context;
             var first = matrixList.First();
             Debug.Assert(matrixList.All(m => m.RowCount == first.RowCount && m.ColumnCount == first.ColumnCount));
             _rows = first.RowCount;
             _columns = first.ColumnCount;
-			_depth = (uint)matrixList.Count;
+			_depth = (uint)matrixList.Length;
 
 	        uint offset = 0;
 	        var rowSize = _rows * _columns;
@@ -88,7 +88,9 @@ namespace BrightData.Numerics
             }
         }
 
-        public IReadOnlyList<IIndexableFloatMatrix> Matrix => _data.Columns.Select(c => c.ReshapeAsMatrix(_rows, _columns).AsIndexable()).ToList();
+        public IIndexableFloatMatrix[] Matrix => _data.Columns
+            .Select(c => c.ReshapeAsMatrix(_rows, _columns).AsIndexable())
+            .ToArray();
 	    public uint Depth => _depth;
         public uint RowCount => _rows;
         public uint ColumnCount => _columns;
@@ -144,10 +146,10 @@ namespace BrightData.Numerics
 		public I4DFloatTensor ReshapeAs4DTensor(uint rows, uint columns)
 		{
 			Debug.Assert(rows * columns == _rows);
-			var tensorList = new List<IIndexable3DFloatTensor>();
+			var tensorList = new IIndexable3DFloatTensor[Depth];
 			for (uint i = 0; i < Depth; i++) {
 				var slice = GetMatrixAt(i);
-				tensorList.Add(slice.ReshapeAs3DTensor(rows, columns).AsIndexable());
+				tensorList[i] = slice.ReshapeAs3DTensor(rows, columns).AsIndexable();
 			}
 			return new Numerics4DTensor(Context, tensorList);
 		}
@@ -161,8 +163,8 @@ namespace BrightData.Numerics
 		) {
             var newColumns = (ColumnCount - filterWidth) / xStride + 1;
             var newRows = (RowCount - filterHeight) / yStride + 1;
-            var matrixList = new List<NumericsMatrix>();
-            var indexList = saveIndices ? new List<NumericsMatrix>() : null;
+            var matrixList = new IIndexableFloatMatrix[Depth];
+            var indexList = saveIndices ? new IIndexableFloatMatrix[Depth] : null;
             var convolutions = ConvolutionHelper.Default(ColumnCount, RowCount, filterWidth, filterHeight, xStride, yStride);
 
             for (uint k = 0; k < Depth; k++) {
@@ -191,8 +193,9 @@ namespace BrightData.Numerics
 						indices[targetY, targetX] = bestOffset;
                     layer[targetY, targetX] = maxVal;
                 }
-                matrixList.Add(layer);
-	            indexList?.Add(indices);
+                matrixList[k] = layer;
+                if(indexList != null)
+	                indexList[k] = indices;
             }
             return (new Numerics3DTensor(Context, matrixList), saveIndices ? new Numerics3DTensor(Context, indexList) : null);
         }
@@ -226,7 +229,7 @@ namespace BrightData.Numerics
 		        }
 	        }
 
-	        return new Numerics3DTensor(Context, matrixList.Select(m => new NumericsMatrix(Context, m)).ToList());
+	        return new Numerics3DTensor(Context, matrixList.Select(m => new NumericsMatrix(Context, m)).ToArray());
         }
 
 	    public IFloatMatrix Im2Col(uint filterWidth, uint filterHeight, uint xStride, uint yStride)
@@ -284,7 +287,7 @@ namespace BrightData.Numerics
 					}
 				}
 			}
-			return new Numerics3DTensor(Context, output.Select(m => new NumericsMatrix(Context, m)).ToList());
+			return new Numerics3DTensor(Context, output.Select(m => new NumericsMatrix(Context, m)).ToArray());
         }
 
         public IFloatMatrix CombineDepthSlices()
@@ -303,9 +306,7 @@ namespace BrightData.Numerics
 
         public I3DFloatTensor Multiply(IFloatMatrix matrix)
         {
-            var ret = new List<IIndexableFloatMatrix>();
-            foreach (var item in Matrix)
-                ret.Add(item.Multiply(matrix).AsIndexable());
+            var ret = Matrix.Select(m => m.Multiply(matrix).AsIndexable()).ToArray();
             return new Numerics3DTensor(Context, ret);
         }
 
@@ -323,11 +324,11 @@ namespace BrightData.Numerics
         public I3DFloatTensor TransposeThisAndMultiply(I4DFloatTensor tensor)
         {
             Debug.Assert(tensor.Count == Depth);
-            var ret = new List<IIndexableFloatMatrix>();
+            var ret = new IIndexableFloatMatrix[tensor.Count];
             for (uint i = 0; i < tensor.Count; i++) {
                 var multiplyWith = tensor.GetTensorAt(i).ReshapeAsMatrix();
                 var slice = GetMatrixAt(i);
-                ret.Add(slice.TransposeThisAndMultiply(multiplyWith).AsIndexable());
+                ret[i] = slice.TransposeThisAndMultiply(multiplyWith).AsIndexable();
             }
             return new Numerics3DTensor(Context, ret);
         }
@@ -340,14 +341,13 @@ namespace BrightData.Numerics
 			    var settings = new XmlWriterSettings {
 				    OmitXmlDeclaration = true
 			    };
-			    using (var writer = XmlWriter.Create(new StringWriter(ret), settings)) {
-				    writer.WriteStartElement("tensor-3d");
-				    foreach(var matrix in Matrix) {
-					    writer.WriteRaw(matrix.AsXml);
-				    }
-				    writer.WriteEndElement();
-			    }
-			    return ret.ToString();
+                using var writer = XmlWriter.Create(new StringWriter(ret), settings);
+                writer.WriteStartElement("tensor-3d");
+                foreach(var matrix in Matrix) {
+                    writer.WriteRaw(matrix.AsXml);
+                }
+                writer.WriteEndElement();
+                return ret.ToString();
 		    }
 	    }
     }

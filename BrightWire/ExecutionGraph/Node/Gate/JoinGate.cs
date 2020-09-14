@@ -9,17 +9,17 @@ namespace BrightWire.ExecutionGraph.Node.Gate
     {
         class Backpropagation : BackpropagationBase<JoinGate>
         {
-            readonly IReadOnlyList<IncomingChannel> _channels;
+            readonly List<IncomingChannel> _channels;
 
-            public Backpropagation(JoinGate source, IReadOnlyList<IncomingChannel> channels) : base(source)
+            public Backpropagation(JoinGate source, List<IncomingChannel> channels) : base(source)
             {
                 _channels = channels;
             }
 
-            public override void _Backward(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
+            public override void _Backward(INode fromNode, IGraphData errorSignal, IContext context, INode[] parents)
             {
                 IFloatMatrix split, residual = errorSignal.GetMatrix();
-                int index = parents.Count-1;
+                int index = parents.Length-1;
                 foreach(var item in _channels) {
                     (residual, split) = residual.SplitAtColumn(residual.ColumnCount - (uint)item.Size);
                     context.AddBackward(errorSignal.ReplaceWith(split), parents[index--], _source);
@@ -32,7 +32,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         {
         }
 
-        protected override void _Activate(IContext context, IReadOnlyList<IncomingChannel> data)
+        protected override void _Activate(IContext context, List<IncomingChannel> data)
         {
             var curr = data.First().Data;
             Debug.Assert(curr.ColumnCount == data.First().Size);

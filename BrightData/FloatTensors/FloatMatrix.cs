@@ -52,25 +52,25 @@ namespace BrightData.FloatTensors
         public Matrix<float> Data { get; set; }
         public IIndexableFloatMatrix AsIndexable() => this;
 
-        public IFloatMatrix GetNewMatrixFromRows(IReadOnlyList<uint> rowIndexes)
+        public IFloatMatrix GetNewMatrixFromRows(IEnumerable<uint> rowIndexes)
         {
             var ret = Data.Context.CreateMatrixFromRows(rowIndexes.Select(i => Data.Row(i)).ToArray());
             return new FloatMatrix(ret);
         }
 
-        public IFloatMatrix GetNewMatrixFromColumns(IReadOnlyList<uint> columnIndexes)
+        public IFloatMatrix GetNewMatrixFromColumns(IEnumerable<uint> columnIndexes)
         {
             var ret = Data.Context.CreateMatrixFromColumns(columnIndexes.Select(i => Data.Column(i)).ToArray());
             return new FloatMatrix(ret);
         }
 
-        public void ClearRows(IReadOnlyList<uint> indexes)
+        public void ClearRows(IEnumerable<uint> indexes)
         {
             foreach(var i in indexes)
                 Row(i).Data.Segment.Initialize(0f);
         }
 
-        public void ClearColumns(IReadOnlyList<uint> indexes)
+        public void ClearColumns(IEnumerable<uint> indexes)
         {
             foreach (var i in indexes)
                 Column(i).Data.Segment.Initialize(0f);
@@ -167,8 +167,8 @@ namespace BrightData.FloatTensors
         public float GetAt(uint row, uint column) => this[row, column];
         public void SetAt(uint row, uint column, float value) => this[row, column] = value;
 
-        public IReadOnlyList<IFloatVector> ColumnVectors() => Columns.ToList();
-        public IReadOnlyList<IFloatVector> RowVectors() => Rows.ToList();
+        public IFloatVector[] ColumnVectors() => Columns.Cast<IFloatVector>().ToArray();
+        public IFloatVector[] RowVectors() => Rows.Cast<IFloatVector>().ToArray();
 
         public float this[uint row, uint column]
         {

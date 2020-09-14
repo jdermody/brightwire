@@ -157,7 +157,7 @@ namespace BrightData.Cuda
 			return _cuda.Blas.Dot(_data.DeviceVariable, 1, other._data.DeviceVariable, 1);
 		}
 
-		public IFloatVector GetNewVectorFromIndexes(IReadOnlyList<uint> indices)
+		public IFloatVector GetNewVectorFromIndexes(IEnumerable<uint> indices)
 		{
 			Debug.Assert(IsValid);
 			var data = _cuda.VectorCopy(_data, Count, indices.ToArray());
@@ -378,25 +378,25 @@ namespace BrightData.Cuda
 			throw new NotImplementedException();
 		}
 
-		public IFloatVector FindDistances(IReadOnlyList<IFloatVector> data, DistanceMetric distance)
+		public IFloatVector FindDistances(IFloatVector[] data, DistanceMetric distance)
 		{
 			Debug.Assert(IsValid && data.All(v => v.IsValid));
 			if (distance == DistanceMetric.Cosine) {
 				var norm = DotProduct(this);
 				var dataNorm = data.Select(d => d.DotProduct(d)).ToList();
-				var ret = new float[data.Count];
-				for (var i = 0; i < data.Count; i++)
+				var ret = new float[data.Length];
+				for (var i = 0; i < data.Length; i++)
 					ret[i] = Convert.ToSingle(1d - DotProduct(data[i]) / Math.Sqrt(norm * dataNorm[i]));
-				return _cuda.CreateVector((uint)data.Count, i => ret[i]);
+				return _cuda.CreateVector((uint)data.Length, i => ret[i]);
 			} else if (distance == DistanceMetric.Euclidean || distance == DistanceMetric.Manhattan) {
 				var ret = _cuda.CalculateDistances(new[] { this }, data, distance);
 				return ret.ReshapeAsVector();
 			} else {
 				var distanceFunc = _GetDistanceFunc(distance);
-				var ret = new float[data.Count];
-				for (var i = 0; i < data.Count; i++)
+				var ret = new float[data.Length];
+				for (var i = 0; i < data.Length; i++)
 					ret[i] = distanceFunc(data[i]);
-				return _cuda.CreateVector((uint)data.Count, i => ret[i]);
+				return _cuda.CreateVector((uint)data.Length, i => ret[i]);
 			}
 		}
 
@@ -407,17 +407,17 @@ namespace BrightData.Cuda
 				return ret.Data.Segment[0];
 		}
 
-		public IFloatVector CosineDistance(IReadOnlyList<IFloatVector> data, ref float[] dataNorm)
+		public IFloatVector CosineDistance(IFloatVector[] data, ref float[] dataNorm)
 		{
 			Debug.Assert(IsValid && data.All(v => v.IsValid));
 			var norm = DotProduct(this);
 			if (dataNorm == null)
 				dataNorm = data.Select(d => d.DotProduct(d)).ToArray();
 
-			var ret = new float[data.Count];
-			for (var i = 0; i < data.Count; i++)
+			var ret = new float[data.Length];
+			for (var i = 0; i < data.Length; i++)
 				ret[i] = Convert.ToSingle(1d - DotProduct(data[i]) / Math.Sqrt(norm * dataNorm[i]));
-			return _cuda.CreateVector((uint)data.Count, i => ret[i]);
+			return _cuda.CreateVector((uint)data.Length, i => ret[i]);
 		}
 
 		public void Add(float scalar)
@@ -426,7 +426,7 @@ namespace BrightData.Cuda
 			_cuda.VectorAdd(_data, Count, scalar);
 		}
 
-		public IReadOnlyList<IFloatVector> Split(uint blockCount)
+		public IFloatVector[] Split(uint blockCount)
 		{
 			Debug.Assert(IsValid);
 			var blockSize = Count / blockCount;
@@ -434,7 +434,7 @@ namespace BrightData.Cuda
 				var ptr2 = _cuda.OffsetByBlock(_data, i, blockSize);
 				var vector = new CudaVector(_cuda, ptr2, false);
 				return vector;
-			}).ToList();
+			}).ToArray();
 		}
 
 		public IFloatMatrix SoftmaxDerivative()

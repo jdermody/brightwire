@@ -22,19 +22,14 @@ namespace BrightWire.Linear
             _theta.Dispose();
         }
 
-        public float Predict(params float[] vals)
+        public float Predict(params float[] input)
         {
-            return Predict(new[] { vals })[0];
+            return Predict(new[] { input })[0];
         }
 
-        public float Predict(IReadOnlyList<float> vals)
+        public float[] Predict(float[][] input)
         {
-            return Predict(new[] { vals })[0];
-        }
-
-        public float[] Predict(IReadOnlyList<IReadOnlyList<float>> input)
-        {
-            using var feature = _lap.CreateMatrix((uint)input.Count, (uint)input[0].Count + 1, (i, j) => j == 0 ? 1 : input[(int)i][(int)j - 1]);
+            using var feature = _lap.CreateMatrix((uint)input.Length, (uint)input[0].Length + 1, (i, j) => j == 0 ? 1 : input[(int)i][(int)j - 1]);
             using var h0 = feature.Multiply(_theta);
             using var h1 = h0.Column(0);
             using var h = h1.Sigmoid();

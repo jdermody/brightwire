@@ -46,14 +46,14 @@ namespace BrightData
 		/// </summary>
 		/// <param name="vectorRows">List of vectors for each row</param>
 		/// <returns></returns>
-		IFloatMatrix CreateMatrixFromRows(IReadOnlyList<IFloatVector> vectorRows);
+		IFloatMatrix CreateMatrixFromRows(params IFloatVector[] vectorRows);
 
 		/// <summary>
 		/// Creates a matrix from a list of vectors. Each vector will become a column in the new matrix
 		/// </summary>
 		/// <param name="vectorColumns">List of vectors for each column</param>
 		/// <returns></returns>
-		IFloatMatrix CreateMatrixFromColumns(IReadOnlyList<IFloatVector> vectorColumns);
+		IFloatMatrix CreateMatrixFromColumns(params IFloatVector[] vectorColumns);
 
 		/// <summary>
 		/// Creates a 3D tensor
@@ -69,7 +69,7 @@ namespace BrightData
 		/// </summary>
 		/// <param name="matrices">List of matrices</param>
 		/// <returns></returns>
-		I3DFloatTensor Create3DTensor(IReadOnlyList<IFloatMatrix> matrices);
+		I3DFloatTensor Create3DTensor(params IFloatMatrix[] matrices);
 
 		/// <summary>
 		/// Creates a 4D tensor
@@ -86,14 +86,14 @@ namespace BrightData
 		/// </summary>
 		/// <param name="tensors">List of 3D tensors</param>
 		/// <returns></returns>
-		I4DFloatTensor Create4DTensor(IReadOnlyList<I3DFloatTensor> tensors);
+		I4DFloatTensor Create4DTensor(params I3DFloatTensor[] tensors);
 
 		/// <summary>
 		/// Creates a 4D tensor from a list of 3D tensors
 		/// </summary>
 		/// <param name="tensors">List of 3D tensors</param>
 		/// <returns></returns>
-		I4DFloatTensor Create4DTensor(IReadOnlyList<Tensor3D<float>> tensors);
+		I4DFloatTensor Create4DTensor(params Tensor3D<float>[] tensors);
 
 		/// <summary>
 		/// Creates a save point in the allocation history
@@ -122,7 +122,7 @@ namespace BrightData
 		/// <param name="comparison"></param>
 		/// <param name="distanceMetric"></param>
 		/// <returns></returns>
-		IFloatMatrix CalculateDistances(IReadOnlyList<IFloatVector> vectors, IReadOnlyList<IFloatVector> comparison, DistanceMetric distanceMetric);
+		IFloatMatrix CalculateDistances(IFloatVector[] vectors, IReadOnlyList<IFloatVector> comparison, DistanceMetric distanceMetric);
 		IFloatVector CreateVector(ITensorSegment<float> data);
 	}
 
@@ -267,7 +267,7 @@ namespace BrightData
 		/// Returns a new vector from a subset of the vector indices
 		/// </summary>
 		/// <param name="indices">A list of indexes to use as the source of the new vector</param>
-		IFloatVector GetNewVectorFromIndexes(IReadOnlyList<uint> indices);
+		IFloatVector GetNewVectorFromIndexes(IEnumerable<uint> indices);
 
 		/// <summary>
 		/// Creates a new copy of the vector
@@ -360,7 +360,7 @@ namespace BrightData
 		/// <param name="data">The list of target vectors</param>
 		/// <param name="distance">The distance metric</param>
 		/// <returns>A vector in which each element n is the distance between the current and the nth target vector</returns>
-		IFloatVector FindDistances(IReadOnlyList<IFloatVector> data, DistanceMetric distance);
+		IFloatVector FindDistances(IFloatVector[] data, DistanceMetric distance);
 
 		/// <summary>
 		/// Returns the distance between the current and the target vector
@@ -375,7 +375,7 @@ namespace BrightData
 		/// <param name="data">The list of target vectors</param>
 		/// <param name="dataNorm">A buffer to hold the norms of the target vectors</param>
 		/// <returns>A vector in which each element n is the cosine distance between the current and the nth target vector</returns>
-		IFloatVector CosineDistance(IReadOnlyList<IFloatVector> data, ref float[] dataNorm);
+		IFloatVector CosineDistance(IFloatVector[] data, ref float[] dataNorm);
 
 		/// <summary>
 		/// Returns a vector (without in place modification) in which each element is the natural log of each element in the current vector
@@ -417,7 +417,7 @@ namespace BrightData
 		/// Splits the vector into a list of vectors
 		/// </summary>
 		/// <param name="blockCount">The number of sub vectors to split into</param>
-		IReadOnlyList<IFloatVector> Split(uint blockCount);
+        IFloatVector[] Split(uint blockCount);
 
 		/// <summary>
 		/// Rotates values in the vector (both horizontally and vertically within blocks)
@@ -482,7 +482,7 @@ namespace BrightData
 		/// Creates a new vector (without in place modification) in which new values are appended onto the end of the current vector
 		/// </summary>
 		/// <param name="data">The values to append</param>
-		IIndexableFloatVector Append(IReadOnlyList<float> data);
+		IIndexableFloatVector Append(params float[] data);
 	}
 
 	/// <summary>
@@ -652,25 +652,25 @@ namespace BrightData
 		/// Returns a new matrix from a subset of the current matrix's rows
 		/// </summary>
 		/// <param name="rowIndexes">The list of row indices</param>
-		IFloatMatrix GetNewMatrixFromRows(IReadOnlyList<uint> rowIndexes);
+		IFloatMatrix GetNewMatrixFromRows(IEnumerable<uint> rowIndexes);
 
 		/// <summary>
 		/// Returns a new matrix from a subset of the current matrix's columns
 		/// </summary>
 		/// <param name="columnIndexes">The list of column indices</param>
-		IFloatMatrix GetNewMatrixFromColumns(IReadOnlyList<uint> columnIndexes);
+		IFloatMatrix GetNewMatrixFromColumns(IEnumerable<uint> columnIndexes);
 
 		/// <summary>
 		/// Set to zero the specified rows in the current matrix
 		/// </summary>
 		/// <param name="indexes">The list of row indices</param>
-		void ClearRows(IReadOnlyList<uint> indexes);
+		void ClearRows(IEnumerable<uint> indexes);
 
 		/// <summary>
 		/// Set to zero the specified columns in the current matrix
 		/// </summary>
 		/// <param name="indexes">The list of column indices</param>
-		void ClearColumns(IReadOnlyList<uint> indexes);
+		void ClearColumns(IEnumerable<uint> indexes);
 
 		/// <summary>
 		/// Returns the RELU function applied to each element of the current matrix
@@ -842,13 +842,13 @@ namespace BrightData
 		/// Returns the columns of the matrix as vectors
 		/// </summary>
 		/// <returns></returns>
-		IReadOnlyList<IFloatVector> ColumnVectors();
+        IFloatVector[] ColumnVectors();
 
 		/// <summary>
 		/// Returns the rows of the matrix as vectors
 		/// </summary>
 		/// <returns></returns>
-		IReadOnlyList<IFloatVector> RowVectors();
+        IFloatVector[] RowVectors();
 	}
 
 	/// <summary>
@@ -1069,7 +1069,7 @@ namespace BrightData
 		/// <summary>
 		/// Gets a list of the indexable matrices
 		/// </summary>
-		IReadOnlyList<IIndexableFloatMatrix> Matrix { get; }
+        IIndexableFloatMatrix[] Matrix { get; }
 
 		/// <summary>
 		/// Returns the matrix as xml
@@ -1200,7 +1200,7 @@ namespace BrightData
 		/// <summary>
 		/// Converts the current tensor to protobuf format
 		/// </summary>
-		IReadOnlyList<Tensor3D<float>> Data { get; set; }
+        Tensor3D<float>[] Data { get; set; }
 	}
 
 	/// <summary>
@@ -1220,7 +1220,7 @@ namespace BrightData
 		/// <summary>
 		/// Gets a list of the indexable matrices
 		/// </summary>
-		IReadOnlyList<IIndexable3DFloatTensor> Tensors { get; }
+        IIndexable3DFloatTensor[] Tensors { get; }
 
 		/// <summary>
 		/// Returns the matrix as xml

@@ -20,7 +20,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
                 _signalTable = _source._children.ToDictionary(n => n, n => (IGraphData)null);
             }
 
-            public override void _Backward(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
+            public override void _Backward(INode fromNode, IGraphData errorSignal, IContext context, INode[] parents)
             {
                 Debug.Assert(_source._children.Contains(fromNode));
                 _signalTable[fromNode] = errorSignal;
@@ -42,12 +42,12 @@ namespace BrightWire.ExecutionGraph.Node.Input
                 }
             }
         }
-        readonly IReadOnlyList<INode> _children;
+        readonly INode[] _children;
         readonly Action<IReadOnlyDictionary<INode, IGraphData>> _onBackpropagation;
 
         public OneToMany(IEnumerable<INode> children, Action<IReadOnlyDictionary<INode, IGraphData>> onBackpropagation, string name = null) : base(name)
         {
-            _children = children.ToList();
+            _children = children.ToArray();
             _onBackpropagation = onBackpropagation;
             foreach (var child in _children)
                 Output.Add(new WireToNode(child));

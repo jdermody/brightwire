@@ -25,10 +25,9 @@ namespace BrightWire.TrainingData.Helper
         /// </summary>
         /// <param name="data">The sequence to analyse</param>
         /// <returns>A new sequence, augmented with contextual information</returns>
-        public IReadOnlyList<float[]> Get(IReadOnlyList<float[]> data)
+        public IEnumerable<float[]> Get(float[][] data)
         {
-            var ret = new List<float[]>();
-            for (var i = 0; i < data.Count; i++) {
+            for (var i = 0; i < data.Length; i++) {
                 var item = data[i];
                 int size = item.Length, offset;
                 var windowSize = size;
@@ -48,15 +47,14 @@ namespace BrightWire.TrainingData.Helper
                     context[offset + j] = item[j];
 
                 offset = windowSize * _before + size;
-                for (var j = 1; j <= _after && i + j < data.Count; j++) {
+                for (var j = 1; j <= _after && i + j < data.Length; j++) {
                     item = data[i + j];
                     for (var k = 0; k < windowSize; k++)
                         context[offset + k] = item[k];
                     offset += windowSize;
                 }
-                ret.Add(context);
+                yield return context;
             }
-            return ret;
         }
 
         /// <summary>

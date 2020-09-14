@@ -462,19 +462,13 @@ namespace BrightWire
 		/// Outputs a value from 0 to 1
 		/// </summary>
 		/// <param name="vals">Input data</param>
-		float Predict(params float[] vals);
+		float Predict(params float[] input);
 
-		/// <summary>
-		/// Outputs a value from 0 to 1
-		/// </summary>
-		/// <param name="vals">Input data</param>
-		float Predict(IReadOnlyList<float> vals);
-
-		/// <summary>
+        /// <summary>
 		/// Outputs a list of values from 0 to 1 for each input data
 		/// </summary>
 		/// <param name="input">Input data</param>
-		float[] Predict(IReadOnlyList<IReadOnlyList<float>> input);
+		float[] Predict(float[][] input);
 	}
 
 	/// <summary>
@@ -486,20 +480,14 @@ namespace BrightWire
 		/// Predicts a value from input data
 		/// </summary>
 		/// <param name="vals">The input data</param>
-		float Predict(params float[] vals);
+		float Predict(params float[] input);
 
-		/// <summary>
-		/// Predicts a value from input data
-		/// </summary>
-		/// <param name="vals">The input data</param>
-		float Predict(IReadOnlyList<float> vals);
-
-		/// <summary>
+        /// <summary>
 		/// Bulk value prediction
 		/// </summary>
 		/// <param name="input">List of data to predict</param>
 		/// <returns>List of predictions</returns>
-		float[] Predict(IReadOnlyList<IReadOnlyList<float>> input);
+		float[] Predict(float[][] input);
 	}
 
 	/// <summary>

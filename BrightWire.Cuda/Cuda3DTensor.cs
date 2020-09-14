@@ -149,7 +149,7 @@ namespace BrightData.Cuda
 		{
 			Debug.Assert(IsValid);
 			return _cuda.NumericsProvider
-				.Create3DTensor(Matrices.Select(m => _cuda.NumericsProvider.CreateMatrix(m.Data)).ToList())
+				.Create3DTensor(Matrices.Select(m => _cuda.NumericsProvider.CreateMatrix(m.Data)).ToArray())
 				.AsIndexable()
 			;
 		}

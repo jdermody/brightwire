@@ -17,22 +17,21 @@ namespace BrightWire.ExecutionGraph.Node.Input
 			{
 			}
 
-			public override void _Backward(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
+			public override void _Backward(INode fromNode, IGraphData errorSignal, IContext context, INode[] parents)
 			{
 				var es = errorSignal.GetMatrix();
 
-				using (var columnSums = es.ColumnSums()) {
-					columnSums.Multiply(1f / es.RowCount);
+                using var columnSums = es.ColumnSums();
+                columnSums.Multiply(1f / es.RowCount);
 
-					// store the updates
-					var learningContext = context.LearningContext;
-					learningContext.StoreUpdate(_source, columnSums, err => {
-						var delta = err.AsIndexable();
-						for (uint j = 0; j < _source._data.Length; j++)
-							_source._data[j] += delta[j] * context.LearningContext.BatchLearningRate;
-					});
-				}
-			}
+                // store the updates
+                var learningContext = context.LearningContext;
+                learningContext.StoreUpdate(_source, columnSums, err => {
+                    var delta = err.AsIndexable();
+                    for (uint j = 0; j < _source._data.Length; j++)
+                        _source._data[j] += delta[j] * context.LearningContext.BatchLearningRate;
+                });
+            }
 		}
 
         private readonly IBrightDataContext _context;

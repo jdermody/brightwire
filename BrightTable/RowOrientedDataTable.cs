@@ -68,7 +68,7 @@ namespace BrightTable
             return ret;
         }
 
-        public IDataTableSegment Row(uint rowIndex) => Rows(rowIndex).Single();
+        public IDataTableSegment Row(uint rowIndex) => Rows(rowIndex).SingleOrDefault();
 
         public void ForEachRow(IEnumerable<uint> rowIndices, Action<object[]> callback)
         {
@@ -76,10 +76,12 @@ namespace BrightTable
             lock (_data) {
                 var reader = _data.Reader;
                 foreach (var index in rowIndices) {
-                    _data.MoveTo(_rowOffset[index]);
-                    for (int i = 0, len = _columnReaders.Length; i < len; i++)
-                        row[i] = _columnReaders[i](reader);
-                    callback(row);
+                    if (index < _rowOffset.Length) {
+                        _data.MoveTo(_rowOffset[index]);
+                        for (int i = 0, len = _columnReaders.Length; i < len; i++)
+                            row[i] = _columnReaders[i](reader);
+                        callback(row);
+                    }
                 }
             }
         }
@@ -129,7 +131,6 @@ namespace BrightTable
 
         public void ForEachRow(Action<object[], uint> callback, uint maxRows = uint.MaxValue)
         {
-            var row = new object[ColumnCount];
             var rowCount = Math.Min(maxRows, RowCount);
 
             lock (_data) {
@@ -137,6 +138,7 @@ namespace BrightTable
                 var reader = _data.Reader;
 
                 for (uint i = 0; i < rowCount; i++) {
+                    var row = new object[ColumnCount];
                     for (int j = 0, len = _columnReaders.Length; j < len; j++)
                         row[j] = _columnReaders[j](reader);
                     callback(row, i);
@@ -226,9 +228,9 @@ namespace BrightTable
             }
         }
 
-        IRowOrientedDataTable _Copy(IReadOnlyList<uint> rowIndices, string filePath)
+        IRowOrientedDataTable _Copy(uint[] rowIndices, string filePath)
         {
-            using var builder = new RowOrientedTableBuilder((uint)rowIndices.Count, filePath);
+            using var builder = new RowOrientedTableBuilder((uint)rowIndices.Length, filePath);
             builder.AddColumnsFrom(this);
             // ReSharper disable once AccessToDisposedClosure
             ForEachRow(rowIndices, row => builder.AddRow(row));
@@ -298,7 +300,7 @@ namespace BrightTable
 
         public IRowOrientedDataTable Shuffle(int? randomSeed = null, string filePath = null)
         {
-            var rowIndices = this.RowIndices().Shuffle(randomSeed).ToList();
+            var rowIndices = this.RowIndices().Shuffle(randomSeed).ToArray();
             return _Copy(rowIndices, filePath);
         }
 
@@ -309,9 +311,31 @@ namespace BrightTable
             var sorted = ascending
                 ? sortData.OrderBy(d => d.Item)
                 : sortData.OrderByDescending(d => d.Item);
-            var rowIndices = sorted.Select(d => d.RowIndex).ToList();
+            var rowIndices = sorted.Select(d => d.RowIndex).ToArray();
 
             return _Copy(rowIndices, filePath);
+        }
+
+        public override string ToString() => String.Join(", ", _columns.Select(c => c.ToString()));
+
+        public string FirstRow => _ToString(Row(0));
+        public string SecondRow => _ToString(Row(1));
+        public string ThirdRow => _ToString(Row(2));
+        public string LastRow => _ToString(Row(RowCount-1));
+
+
+        string _ToString(IDataTableSegment segment)
+        {
+            var sb = new StringBuilder();
+            if (segment != null) {
+                for (uint i = 0; i < segment.Size; i++) {
+                    if (sb.Length > 0)
+                        sb.Append(", ");
+                    sb.Append(segment[i].ToString());
+                }
+            }
+
+            return sb.ToString();
         }
     }
 }

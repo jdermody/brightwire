@@ -12,13 +12,13 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     /// </summary>
     class SequentialRowDataSource : IDataSource
     {
-        readonly IReadOnlyList<float[]> _data;
+        readonly float[][] _data;
 
-        public SequentialRowDataSource(IReadOnlyList<float[]> data)
+        public SequentialRowDataSource(float[][] data)
         {
             _data = data;
             InputSize = (uint)data.First().Length;
-            InputCount = (uint)data.Count;
+            InputCount = (uint)data.Length;
         }
 
         public bool IsSequential => true;
@@ -40,7 +40,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
                 var type = MiniBatchSequenceType.Standard;
                 if (index == 0)
                     type = MiniBatchSequenceType.SequenceStart;
-                else if (index == _data.Count - 1)
+                else if (index == _data.Length - 1)
                     type = MiniBatchSequenceType.SequenceEnd;
                 var inputList = new[] {
                     new MatrixGraphData(executionContext.LinearAlgebraProvider.CreateVector(row).ReshapeAsRowMatrix())

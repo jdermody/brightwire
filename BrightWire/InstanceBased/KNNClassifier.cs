@@ -14,7 +14,7 @@ namespace BrightWire.InstanceBased
     {
         readonly KNearestNeighbours _model;
         readonly ILinearAlgebraProvider _lap;
-        readonly List<IFloatVector> _instance = new List<IFloatVector>();
+        readonly IFloatVector[] _instance;
         readonly DistanceMetric _distanceMetric;
         readonly int _k;
 
@@ -25,8 +25,9 @@ namespace BrightWire.InstanceBased
             _model = model;
             _distanceMetric = distanceMetric;
 
+            _instance = new IFloatVector[model.Instance.Length];
             for (int i = 0, len = model.Instance.Length; i < len; i++)
-                _instance.Add(lap.CreateVector(model.Instance[i].Segment));
+                _instance[i] = lap.CreateVector(model.Instance[i].Segment);
         }
 
         IEnumerable<Tuple<string, float>> _Classify(IConvertibleRow row)

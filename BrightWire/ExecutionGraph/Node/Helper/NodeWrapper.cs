@@ -69,7 +69,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
 		        return _context.GetOutput(channel);
 	        }
 
-	        public IReadOnlyList<IGraphData> Output => _context.Output;
+	        public IEnumerable<IGraphData> Output => _context.Output;
         }
         INode _node;
         string _nodeId;

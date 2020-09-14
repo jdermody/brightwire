@@ -17,7 +17,7 @@ namespace BrightWire.ExecutionGraph.Engine
 
         protected abstract void _ClearContextList();
         protected abstract void _Execute(IExecutionContext context, IMiniBatch miniBatch);
-        protected abstract IReadOnlyList<ExecutionResult> _GetResults();
+        protected abstract IEnumerable<ExecutionResult> _GetResults();
 
         protected bool _Continue(IMiniBatch batch, IExecutionContext executionContext, Func<IMiniBatchSequence, IContext> lookupContext)
         {
@@ -82,10 +82,9 @@ namespace BrightWire.ExecutionGraph.Engine
             return ret;
         }
 
-        public IReadOnlyList<ExecutionResult> ExecuteSequential(IReadOnlyList<float[]> input)
+        public IEnumerable<ExecutionResult> ExecuteSequential(float[][] input)
         {
             _lap.PushLayer();
-            var ret = new List<ExecutionResult>();
             _dataSource = new SequentialRowDataSource(input);
             var provider = new MiniBatchProvider(_dataSource, false);
             using (var executionContext = new ExecutionContext(_lap)) {
@@ -95,14 +94,14 @@ namespace BrightWire.ExecutionGraph.Engine
                 while ((operation = executionContext.GetNextOperation()) != null) {
                     _lap.PushLayer();
                     operation.Execute(executionContext);
-                    ret.AddRange(_GetResults());
+                    foreach (var result in _GetResults())
+                        yield return result;
                     _ClearContextList();
                     _lap.PopLayer();
                 }
             }
             _lap.PopLayer();
             _dataSource = null;
-            return ret;
         }
 
         public ExecutionResult ExecuteSequential(uint sequenceIndex, float[] input, IExecutionContext executionContext, MiniBatchSequenceType sequenceType)

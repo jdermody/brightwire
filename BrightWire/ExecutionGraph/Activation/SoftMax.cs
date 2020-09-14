@@ -12,22 +12,21 @@ namespace BrightWire.ExecutionGraph.Activation
     {
         class Backpropagation : SingleBackpropagationBase<SoftMax>
         {
-            readonly IReadOnlyList<IFloatVector> _rows;
+            readonly IFloatVector[] _rows;
 
-            public Backpropagation(SoftMax source, IReadOnlyList<IFloatVector> rows) : base(source)
+            public Backpropagation(SoftMax source, IFloatVector[] rows) : base(source)
             {
                 _rows = rows;
             }
 
-            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
+            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, INode[] parents)
             {
                 var matrix = errorSignal.GetMatrix();
                 var rowList = new List<IFloatVector>();
                 for (uint i = 0; i < matrix.RowCount; i++) {
-                    using (var derivative = _rows[(int)i].SoftmaxDerivative()) {
-                        var sm = derivative.Multiply(matrix.Row(i));
-                        rowList.Add(sm.ReshapeAsVector());
-                    }
+                    using var derivative = _rows[(int)i].SoftmaxDerivative();
+                    var sm = derivative.Multiply(matrix.Row(i));
+                    rowList.Add(sm.ReshapeAsVector());
                 }
                 var ret = context.LinearAlgebraProvider.CreateMatrixFromRows(rowList);
                 foreach (var item in rowList)
@@ -41,10 +40,10 @@ namespace BrightWire.ExecutionGraph.Activation
         public override void ExecuteForward(IContext context)
         {
             var input = context.Data.GetMatrix();
-            var rowList = new List<IFloatVector>();
+            var rowList = new IFloatVector[input.RowCount];
             for (uint i = 0; i < input.RowCount; i++) {
-                using (var row = input.Row(i))
-                    rowList.Add(row.Softmax());
+                using var row = input.Row(i);
+                rowList[i] = row.Softmax();
             }
             var output = context.LinearAlgebraProvider.CreateMatrixFromRows(rowList);
             _AddNextGraphAction(context, context.Data.ReplaceWith(output), () => new Backpropagation(this, rowList));

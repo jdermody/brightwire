@@ -19,7 +19,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
                 _tensor = tensor;
             }
 
-            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
+            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, INode[] parents)
             {
                 var matrix = errorSignal.GetMatrix();
                 var lap = context.LinearAlgebraProvider;
@@ -27,7 +27,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
                 var rowList = new List<IFloatVector>();
                 for(uint i = 0; i < matrix.RowCount; i++) {
                     var rowMatrix = matrix.Row(i).ReshapeAsMatrix(_tensor.RowCount, _tensor.ColumnCount);
-                    var matrixList = Enumerable.Repeat(rowMatrix, (int)_tensor.Depth).ToList();
+                    var matrixList = Enumerable.Repeat(rowMatrix, (int)_tensor.Depth).ToArray();
                     var tensor = lap.Create3DTensor(matrixList);
                     rowList.Add(tensor.ReshapeAsVector());
                 }

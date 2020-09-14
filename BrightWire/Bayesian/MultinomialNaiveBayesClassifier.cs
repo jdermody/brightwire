@@ -26,7 +26,7 @@ namespace BrightWire.Bayesian
             }
             public string Label { get; }
 
-	        public double GetScore(IReadOnlyList<uint> stringIndexList)
+	        public double GetScore(uint[] stringIndexList)
             {
                 double score = _prior;
                 foreach (var item in stringIndexList) {
@@ -45,7 +45,7 @@ namespace BrightWire.Bayesian
             _classification = model.ClassData.Select(c => new Classification(c)).ToList();
         }
 
-        List<(string, double)> _Classify(IReadOnlyList<uint> stringIndexList)
+        List<(string, double)> _Classify(uint[] stringIndexList)
         {
             var ret = new List<(string, double)>();
             foreach (var cls in _classification)

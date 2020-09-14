@@ -38,7 +38,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 				_source._bias.AddInPlace(delta, 1f, context.BatchLearningRate);
 			}
 
-			protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
+			protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, INode[] parents)
 			{
 				var tensor = errorSignal.GetMatrix().ReshapeAs4DTensor(_newHeight, _newWidth, _source._filter.ColumnCount);
 				var padding = _source._padding;

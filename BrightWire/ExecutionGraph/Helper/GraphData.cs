@@ -24,7 +24,7 @@ namespace BrightWire.ExecutionGraph.Helper
         public IFloatMatrix GetMatrix() => _matrix;
         public I4DFloatTensor Get4DTensor() => null;
         public IGraphData ReplaceWith(IFloatMatrix matrix) => new MatrixGraphData(matrix);
-        public IReadOnlyList<IFloatMatrix> GetSubMatrices()
+        public IFloatMatrix[] GetSubMatrices()
         {
             return new[] {
                 _matrix
@@ -56,13 +56,13 @@ namespace BrightWire.ExecutionGraph.Helper
         public uint Count => 1;
 	    public IFloatMatrix GetMatrix() => _matrix;
         public IGraphData ReplaceWith(IFloatMatrix matrix) => new Tensor3DGraphData(matrix, Rows, Columns);
-        public IGraphData ReplaceWith(IContext context, IReadOnlyList<IFloatMatrix> matrixList)
+        public IGraphData ReplaceWith(IContext context, IFloatMatrix[] matrixList)
         {
-            Debug.Assert(matrixList.Count == Depth);
+            Debug.Assert(matrixList.Length == Depth);
             var tensor = context.LinearAlgebraProvider.Create3DTensor(matrixList);
             return new Tensor3DGraphData(tensor);
         }
-        public IReadOnlyList<IFloatMatrix> GetSubMatrices()
+        public IFloatMatrix[] GetSubMatrices()
         {
             var ret = new IFloatMatrix[Depth];
             for (uint i = 0; i < Depth; i++)
@@ -100,15 +100,15 @@ namespace BrightWire.ExecutionGraph.Helper
 	    public uint Count => _matrix.ColumnCount;
         public IFloatMatrix GetMatrix() => _matrix;
         public IGraphData ReplaceWith(IFloatMatrix matrix) => new Tensor4DGraphData(matrix, Rows, Columns, Depth);
-        public IReadOnlyList<IFloatMatrix> GetSubMatrices()
+        public IFloatMatrix[] GetSubMatrices()
         {
-            var ret = new List<IFloatMatrix>();
+            var index = 0;
+            var ret = new IFloatMatrix[Count * Depth];
             for (uint j = 0; j < Count; j++) {
                 var matrix = _matrix.Column(j);
-                using (var tensor = matrix.ReshapeAs3DTensor(Rows, Columns, Depth)) {
-                    for (uint i = 0; i < Depth; i++)
-                        ret.Add(tensor.GetMatrixAt(i));
-                }
+                using var tensor = matrix.ReshapeAs3DTensor(Rows, Columns, Depth);
+                for (uint i = 0; i < Depth; i++)
+                    ret[index++] = tensor.GetMatrixAt(i);
             }
             return ret;
         }

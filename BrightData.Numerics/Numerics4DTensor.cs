@@ -28,7 +28,7 @@ namespace BrightData.Numerics
 		    _data = new NumericsMatrix(context, DenseMatrix.Build.Dense((int)(_rows * _count * _depth), (int)_count));
 	    }
 
-        public Numerics4DTensor(IBrightDataContext context, IReadOnlyList<IIndexable3DFloatTensor> tensorList)
+        public Numerics4DTensor(IBrightDataContext context, IIndexable3DFloatTensor[] tensorList)
         {
             Context = context;
             var first = tensorList.First();
@@ -36,7 +36,7 @@ namespace BrightData.Numerics
             _rows = first.RowCount;
             _columns = first.ColumnCount;
             _depth = first.Depth;
-	        _count = (uint)tensorList.Count;
+	        _count = (uint)tensorList.Length;
 
 	        uint offset = 0;
 	        var rowSize = _rows * _columns * _depth;
@@ -66,64 +66,68 @@ namespace BrightData.Numerics
 	    }
 
 	    public I3DFloatTensor GetTensorAt(uint index) => _data.Column(index).ReshapeAs3DTensor(_rows, _columns, _depth);
-	    public IReadOnlyList<IIndexable3DFloatTensor> Tensors => _data.Columns.Select(c => c.ReshapeAs3DTensor(_rows, _columns, _depth).AsIndexable()).ToList();
+	    public IIndexable3DFloatTensor[] Tensors => _data.Columns.Select(c => c.ReshapeAs3DTensor(_rows, _columns, _depth).AsIndexable()).ToArray();
 
         public IIndexable4DFloatTensor AsIndexable() => this;
 
         public I4DFloatTensor AddPadding(uint padding)
         {
-            var ret = new List<IIndexable3DFloatTensor>();
-            foreach (var item in Tensors)
-                ret.Add(item.AddPadding(padding).AsIndexable());
+            var ret = Tensors
+                .Select(t => t.AddPadding(padding).AsIndexable())
+                .ToArray();
             return new Numerics4DTensor(Context, ret);
         }
 
         public I4DFloatTensor RemovePadding(uint padding)
         {
-            var ret = new List<IIndexable3DFloatTensor>();
-            foreach (var item in Tensors)
-                ret.Add(item.RemovePadding(padding).AsIndexable());
+            var ret = Tensors
+                .Select(t => t.RemovePadding(padding).AsIndexable())
+                .ToArray();
             return new Numerics4DTensor(Context, ret);
         }
 
         public (I4DFloatTensor Result, I4DFloatTensor Indices) MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices)
         {
-            List<IIndexable3DFloatTensor> indexList = saveIndices ? new List<IIndexable3DFloatTensor>() : null;
-            var ret = new List<IIndexable3DFloatTensor>();
+            IIndexable3DFloatTensor[] indexList = saveIndices 
+                ? new IIndexable3DFloatTensor[Count]
+                : null;
+            var ret = new IIndexable3DFloatTensor[Count];
+
             for (uint i = 0; i < Count; i++) {
                 var (result, indices) = GetTensorAt(i).MaxPool(filterWidth, filterHeight, xStride, yStride, saveIndices);
-                indexList?.Add(indices.AsIndexable());
-                ret.Add(result.AsIndexable());
+                ret[i] = result.AsIndexable();
+                if(indexList != null)
+                    indexList[i] = indices.AsIndexable();
             }
             return (new Numerics4DTensor(Context, ret), saveIndices ? new Numerics4DTensor(Context, indexList) : null);
         }
 
         public I4DFloatTensor ReverseMaxPool(I4DFloatTensor indices, uint outputRows, uint outputColumns, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
         {
-            var ret = new List<IIndexable3DFloatTensor>();
+            var ret = new IIndexable3DFloatTensor[Count];
             for (uint i = 0; i < Count; i++) {
                 var result = GetTensorAt(i).ReverseMaxPool(indices.GetTensorAt(i), outputRows, outputColumns, filterWidth, filterHeight, xStride, yStride);
-                ret.Add(result.AsIndexable());
+                ret[i] = result.AsIndexable();
             }
             return new Numerics4DTensor(Context, ret);
         }
 
         public I3DFloatTensor Im2Col(uint filterWidth, uint filterHeight, uint xStride, uint yStride)
         {
-            var ret = new List<IIndexableFloatMatrix>();
+            var ret = new IIndexableFloatMatrix[Count];
             for (uint i = 0; i < Count; i++) {
                 var result = GetTensorAt(i).Im2Col(filterWidth, filterHeight, xStride, yStride);
-                ret.Add(result.AsIndexable());
+                ret[i] = result.AsIndexable();
             }
             return new Numerics3DTensor(Context, ret);
         }
 
         public I4DFloatTensor ReverseIm2Col(IFloatMatrix filters, uint outputRows, uint outputColumns, uint outputDepth, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
         {
-            var ret = new List<IIndexable3DFloatTensor>();
+            var ret = new IIndexable3DFloatTensor[Count];
             for (uint i = 0; i < Count; i++) {
                 var result = GetTensorAt(i).ReverseIm2Col(filters, outputRows, outputColumns, outputDepth, filterWidth, filterHeight, xStride, yStride);
-                ret.Add(result.AsIndexable());
+                ret[i] = result.AsIndexable();
             }
             return new Numerics4DTensor(Context, ret);
         }
@@ -133,10 +137,10 @@ namespace BrightData.Numerics
 			return _data;
 		}
 
-	    public IReadOnlyList<BrightData.Tensor3D<float>> Data {
-		    get => Tensors.Select(t => t.Data).ToList();
+	    public BrightData.Tensor3D<float>[] Data {
+		    get => Tensors.Select(t => t.Data).ToArray();
 		    set {
-			    var count = value.Count;
+			    var count = value.Length;
 			    for (var z = 0; z < count && z < _count; z++) {
 				    var tensor = value[z];
 				    if (tensor != null) {

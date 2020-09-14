@@ -19,12 +19,11 @@ namespace BrightWire.ExecutionGraph.Activation
                 _input = matrix;
             }
 
-            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
+            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, INode[] parents)
             {
-                using (var od = _input.TanhDerivative()) {
-                    var delta = errorSignal.GetMatrix().PointwiseMultiply(od);
-                    return errorSignal.ReplaceWith(delta);
-                }
+                using var od = _input.TanhDerivative();
+                var delta = errorSignal.GetMatrix().PointwiseMultiply(od);
+                return errorSignal.ReplaceWith(delta);
             }
         }
 

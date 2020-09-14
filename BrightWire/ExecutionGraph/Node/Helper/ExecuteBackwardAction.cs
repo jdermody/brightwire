@@ -15,7 +15,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
         {
             public Backpropagation(ExecuteBackwardAction source) : base(source) { }
 
-            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
+            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, INode[] parents)
             {
                 return _source.Action.Execute(errorSignal, context);
             }

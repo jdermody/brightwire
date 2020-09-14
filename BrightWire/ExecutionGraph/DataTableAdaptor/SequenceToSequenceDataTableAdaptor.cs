@@ -84,9 +84,9 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             ;
         }
 
-        (IFloatMatrix, IReadOnlyList<object[]>) _Encode(IExecutionContext executionContext, uint[] rows)
+        (IFloatMatrix, object[][]) _Encode(IExecutionContext executionContext, uint[] rows)
         {
-            var data = _GetRows(rows).ToList();
+            var data = _GetRows(rows).ToArray();
 
             // create the input batch
             var inputData = data.Select(r => ((Matrix<float>) r[0], (Matrix<float>) null)).ToArray();
@@ -100,12 +100,12 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
                 if (sequence.Type == MiniBatchSequenceType.SequenceEnd)
                     encoderOutput = context.Data.GetMatrix();
             }
-            return (encoderOutput, data.AsReadOnly());
+            return (encoderOutput, data);
         }
 
         public override IMiniBatch Get(IExecutionContext executionContext, uint[] rows)
         {
-            (var encoderOutput, var data) = _Encode(executionContext, rows);
+            var (encoderOutput, data) = _Encode(executionContext, rows);
 
             // create the decoder input
             var outputData = new Dictionary<uint, List<Vector<float>>>();
@@ -127,7 +127,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
                         ? MiniBatchSequenceType.SequenceEnd
                         : MiniBatchSequenceType.Standard
                 ;
-                var inputList = new List<IGraphData> {
+                var inputList = new IGraphData[] {
                     new MatrixGraphData(curr)
                 };
                 miniBatch.Add(type, inputList, new MatrixGraphData(output));

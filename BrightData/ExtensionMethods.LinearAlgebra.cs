@@ -7,19 +7,15 @@ namespace BrightData
 {
     public static partial class ExtensionMethods
     {
-		/// <summary>
-		/// Creates a vector based on an enumerable of floats
-		/// </summary>
-		/// <param name="lap"></param>
-		/// <param name="data">The initial values in the vector</param>
-		/// <returns></returns>
-		public static IFloatVector CreateVector(this ILinearAlgebraProvider lap, IEnumerable<float> data)
-		{
-			var list = data.ToArray();
-			return lap.CreateVector((uint)list.Length, i => list[i]);
-		}
+        /// <summary>
+        /// Creates a vector based on an enumerable of floats
+        /// </summary>
+        /// <param name="lap"></param>
+        /// <param name="data">The initial values in the vector</param>
+        /// <returns></returns>
+        public static IFloatVector CreateVector(this ILinearAlgebraProvider lap, IEnumerable<float> data) => CreateVector(lap, data.ToArray());
 
-		/// <summary>
+        /// <summary>
 		/// Create a vector
 		/// </summary>
 		/// <param name="lap"></param>
@@ -52,21 +48,10 @@ namespace BrightData
         /// <param name="lap"></param>
         /// <param name="data">List of values</param>
         /// <returns></returns>
-        public static IFloatVector CreateVector(this ILinearAlgebraProvider lap, IReadOnlyList<float> data)
+        public static IFloatVector CreateVector(this ILinearAlgebraProvider lap, params float[] data)
         {
-            return lap.CreateVector((uint)data.Count, i => data[(int)i]);
+            return lap.CreateVector((uint)data.Length, i => data[i]);
         }
-
-	    /// <summary>
-	    /// Create a vector
-	    /// </summary>
-	    /// <param name="lap"></param>
-	    /// <param name="data">Array of values</param>
-	    /// <returns></returns>
-	    public static IFloatVector CreateVector(this ILinearAlgebraProvider lap, float[] data)
-	    {
-		    return lap.CreateVector((uint)data.Length, i => data[i]);
-	    }
 
         /// <summary>
         /// Create a vector
@@ -107,11 +92,11 @@ namespace BrightData
         /// <param name="lap"></param>
         /// <param name="rowList">List of vectors (each vector becomes a row in the new matrix)</param>
         /// <returns></returns>
-        public static IFloatMatrix CreateMatrixFromRows(this ILinearAlgebraProvider lap, IReadOnlyList<Vector<float>> rowList)
+        public static IFloatMatrix CreateMatrixFromRows(this ILinearAlgebraProvider lap, Vector<float>[] rowList)
         {
-            var rows = (uint)rowList.Count;
+            var rows = (uint)rowList.Length;
             var columns = rowList[0].Size;
-            return lap.CreateMatrix(rows, columns, (x, y) => rowList[(int)x].Segment[y]);
+            return lap.CreateMatrix(rows, columns, (x, y) => rowList[x].Segment[y]);
         }
 
         /// <summary>
@@ -120,11 +105,11 @@ namespace BrightData
         /// <param name="lap"></param>
         /// <param name="rowList">List of indexable vectors (each vector becomes a row in the new matrix)</param>
         /// <returns></returns>
-        public static IFloatMatrix CreateMatrixFromRows(this ILinearAlgebraProvider lap, IReadOnlyList<IIndexableFloatVector> rowList)
+        public static IFloatMatrix CreateMatrixFromRows(this ILinearAlgebraProvider lap, IIndexableFloatVector[] rowList)
         {
-            var rows = (uint)rowList.Count;
+            var rows = (uint)rowList.Length;
             var columns = rowList[0].Count;
-            return lap.CreateMatrix(rows, columns, (x, y) => rowList[(int)x][y]);
+            return lap.CreateMatrix(rows, columns, (x, y) => rowList[x][y]);
         }
 
 	    /// <summary>
@@ -133,11 +118,11 @@ namespace BrightData
 	    /// <param name="lap"></param>
 	    /// <param name="columnList">List of vectors (each vector becomes a column in the new matrix)</param>
 	    /// <returns></returns>
-	    public static IFloatMatrix CreateMatrixFromColumns(this ILinearAlgebraProvider lap, IReadOnlyList<Vector<float>> columnList)
+	    public static IFloatMatrix CreateMatrixFromColumns(this ILinearAlgebraProvider lap, Vector<float>[] columnList)
 	    {
-		    var columns = (uint)columnList.Count;
+		    var columns = (uint)columnList.Length;
 		    var rows = columnList[0].Size;
-		    return lap.CreateMatrix(rows, columns, (x, y) => columnList[(int)y].Segment[x]);
+		    return lap.CreateMatrix(rows, columns, (x, y) => columnList[y].Segment[x]);
 	    }
 
 	    /// <summary>
@@ -146,11 +131,11 @@ namespace BrightData
 	    /// <param name="lap"></param>
 	    /// <param name="columnList">List of indexable vectors (each vector becomes a column in the new matrix)</param>
 	    /// <returns></returns>
-	    public static IFloatMatrix CreateMatrixFromColumns(this ILinearAlgebraProvider lap, IReadOnlyList<IIndexableFloatVector> columnList)
+	    public static IFloatMatrix CreateMatrixFromColumns(this ILinearAlgebraProvider lap, IIndexableFloatVector[] columnList)
 	    {
-		    var columns = (uint)columnList.Count;
+		    var columns = (uint)columnList.Length;
 		    var rows = columnList[0].Count;
-		    return lap.CreateMatrix(rows, columns, (x, y) => columnList[(int)y][x]);
+		    return lap.CreateMatrix(rows, columns, (x, y) => columnList[y][x]);
 	    }
 
         /// <summary>
@@ -194,9 +179,9 @@ namespace BrightData
         /// <param name="lap"></param>
         /// <param name="values">List of diagonal values</param>
         /// <returns></returns>
-        public static IFloatMatrix CreateDiagonalMatrix(this ILinearAlgebraProvider lap, IReadOnlyList<float> values)
+        public static IFloatMatrix CreateDiagonalMatrix(this ILinearAlgebraProvider lap, params float[] values)
         {
-            return lap.CreateMatrix((uint)values.Count, (uint)values.Count, (x, y) => x == y ? values[(int)x] : 0f);
+            return lap.CreateMatrix((uint)values.Length, (uint)values.Length, (x, y) => x == y ? values[x] : 0f);
         }
 
         /// <summary>
@@ -277,5 +262,18 @@ namespace BrightData
                     return vector1.MeanSquaredDistance(vector2);
             }
         }
+
+        public static IFloatMatrix CreateMatrixFromRows(this ILinearAlgebraProvider lap, IEnumerable<Vector<float>> rows) => 
+            lap.CreateMatrixFromRows(rows.ToArray());
+        public static IFloatMatrix CreateMatrixFromRows(this ILinearAlgebraProvider lap, IEnumerable<IFloatVector> rows) =>
+            lap.CreateMatrixFromRows(rows.ToArray());
+
+        public static IFloatMatrix CreateMatrixFromColumns(this ILinearAlgebraProvider lap, IEnumerable<Vector<float>> columns) =>
+            lap.CreateMatrixFromColumns(columns.ToArray());
+        public static IFloatMatrix CreateMatrixFromColumns(this ILinearAlgebraProvider lap, IEnumerable<IFloatVector> columns) =>
+            lap.CreateMatrixFromColumns(columns.ToArray());
+
+        //public static IFloatMatrix Create3DTensor(this ILinearAlgebraProvider lap, IEnumerable<IFloatMatrix> columns) =>
+        //    lap.CreateMatrixFromColumns(columns.ToArray());
     }
 }

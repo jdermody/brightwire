@@ -81,15 +81,15 @@ namespace BrightData.Cuda
 
 	    public IDeviceMemoryPtr Memory => _data;
         public IFloatMatrix ReshapeAsMatrix() => new CudaMatrix(_cuda, _blockSize, _count, _data, false);
-	    public IReadOnlyList<Tensor3D<float>> Data {
+	    public Tensor3D<float>[] Data {
 		    get
 		    {
 			    Debug.Assert(IsValid);
-			    return Tensors.Select(m => m.Data).ToList();
+			    return Tensors.Select(m => m.Data).ToArray();
 		    }
 		    set {
 			    Debug.Assert(IsValid);
-			    var count = value.Count;
+			    var count = value.Length;
 			    for (uint i = 0; i < count && i < _depth; i++) {
 				    var tensor = value[(int)i];
 				    if (tensor != null)
@@ -117,9 +117,9 @@ namespace BrightData.Cuda
 
         public IIndexable4DFloatTensor AsIndexable()
         {
-            var ret = new List<IIndexable3DFloatTensor>();
+            var ret = new I3DFloatTensor[_count];
             for(uint i = 0; i < _count; i++)
-                ret.Add(GetTensorAt(i).AsIndexable());
+                ret[i] = GetTensorAt(i).AsIndexable();
 	        return _cuda.NumericsProvider.Create4DTensor(ret).AsIndexable();
         }
 

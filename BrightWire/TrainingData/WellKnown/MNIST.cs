@@ -91,7 +91,7 @@ namespace BrightWire.TrainingData.WellKnown
         /// <param name="labelPath">Path to the label data file</param>
         /// <param name="imagePath">Path to the image data file</param>
         /// <param name="total">Maximum number of images to load</param>
-        public static IReadOnlyList<Image> Load(string labelPath, string imagePath, int total = int.MaxValue)
+        public static Image[] Load(string labelPath, string imagePath, int total = int.MaxValue)
         {
             var labels = new List<byte>();
             using (var file = new FileStream(labelPath, FileMode.Open, FileAccess.Read))
@@ -120,7 +120,7 @@ namespace BrightWire.TrainingData.WellKnown
                 }
             }
 
-            return labels.Zip(images, (l, d) => new Image(d, l)).ToList();
+            return labels.Zip(images, (l, d) => new Image(d, l)).ToArray();
         }
     }
 }

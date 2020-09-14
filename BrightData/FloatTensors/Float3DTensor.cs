@@ -88,7 +88,7 @@ namespace BrightData.FloatTensors
             set => Data[depth, row, column] = value;
         }
 
-        public IReadOnlyList<IIndexableFloatMatrix> Matrix => Data.Matrices.Select(m => new FloatMatrix(m)).ToList();
+        public IIndexableFloatMatrix[] Matrix => Data.Matrices.Select(m => new FloatMatrix(m)).ToArray();
         public string AsXml => throw new NotImplementedException();
         public float[] GetInternalArray()
         {

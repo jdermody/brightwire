@@ -40,12 +40,12 @@ namespace BrightData.FloatTensors
             throw new NotImplementedException();
         }
 
-        public IFloatMatrix CreateMatrixFromRows(IReadOnlyList<IFloatVector> vectorRows)
+        public IFloatMatrix CreateMatrixFromRows(params IFloatVector[] vectorRows)
         {
             throw new NotImplementedException();
         }
 
-        public IFloatMatrix CreateMatrixFromColumns(IReadOnlyList<IFloatVector> vectorColumns)
+        public IFloatMatrix CreateMatrixFromColumns(params IFloatVector[] vectorColumns)
         {
             throw new NotImplementedException();
         }
@@ -55,7 +55,7 @@ namespace BrightData.FloatTensors
             throw new NotImplementedException();
         }
 
-        public I3DFloatTensor Create3DTensor(IReadOnlyList<IFloatMatrix> matrices)
+        public I3DFloatTensor Create3DTensor(params IFloatMatrix[] matrices)
         {
             throw new NotImplementedException();
         }
@@ -65,12 +65,12 @@ namespace BrightData.FloatTensors
             throw new NotImplementedException();
         }
 
-        public I4DFloatTensor Create4DTensor(IReadOnlyList<I3DFloatTensor> tensors)
+        public I4DFloatTensor Create4DTensor(params I3DFloatTensor[] tensors)
         {
             throw new NotImplementedException();
         }
 
-        public I4DFloatTensor Create4DTensor(IReadOnlyList<Tensor3D<float>> tensors)
+        public I4DFloatTensor Create4DTensor(params Tensor3D<float>[] tensors)
         {
             throw new NotImplementedException();
         }
@@ -87,7 +87,9 @@ namespace BrightData.FloatTensors
 
         public bool IsStochastic { get; }
         public bool IsGpu { get; } = false;
-        public IFloatMatrix CalculateDistances(IReadOnlyList<IFloatVector> vectors, IReadOnlyList<IFloatVector> comparison, DistanceMetric distanceMetric)
+
+
+        public IFloatMatrix CalculateDistances(IFloatVector[] vectors, IReadOnlyList<IFloatVector> comparison, DistanceMetric distanceMetric)
         {
             throw new NotImplementedException();
         }

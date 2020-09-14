@@ -26,7 +26,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 //_input.Dispose();
             }
 
-            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
+            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, INode[] parents)
             {
                 var es = errorSignal.GetMatrix();
 

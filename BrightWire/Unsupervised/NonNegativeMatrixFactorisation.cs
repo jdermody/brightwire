@@ -23,16 +23,16 @@ namespace BrightWire.Unsupervised
             _costFunction = costFunction ?? new Quadratic();
         }
 
-        public IFloatVector[][] Cluster(IReadOnlyList<IFloatVector> data, int numIterations, float errorThreshold = 0.001f)
+        public IFloatVector[][] Cluster(IFloatVector[] data, int numIterations, float errorThreshold = 0.001f)
         {
-            if (data.Count == 0)
+            if (data.Length == 0)
                 return new IFloatVector[][] {};
 
             // create the main matrix
             var data2 = new List<IIndexableFloatVector>();
             foreach (var item in data)
                 data2.Add(item.AsIndexable());
-            using (var v = _lap.CreateMatrix((uint)data.Count, (uint)data.First().Count, (x, y) => data2[(int)x][y])) {
+            using (var v = _lap.CreateMatrix((uint)data.Length, (uint)data.First().Count, (x, y) => data2[(int)x][y])) {
                 data2.ForEach(d => d.Dispose());
 
                 // create the weights and features

@@ -21,7 +21,7 @@ namespace BrightWire.ExecutionGraph.Node.Filter
                 _filter = filter;
             }
 
-            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
+            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, INode[] parents)
             {
                 var output = errorSignal.GetMatrix().PointwiseMultiply(_filter);
                 return errorSignal.ReplaceWith(output);

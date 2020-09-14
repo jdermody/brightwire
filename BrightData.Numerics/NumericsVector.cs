@@ -143,9 +143,10 @@ namespace BrightData.Numerics
 
         public IEnumerable<float> Values => _vector.AsEnumerable();
 
-	    public IFloatVector GetNewVectorFromIndexes(IReadOnlyList<uint> indexes)
+	    public IFloatVector GetNewVectorFromIndexes(IEnumerable<uint> indexes)
         {
-            return new NumericsVector(Context, DenseVector.Create(indexes.Count, i => this[indexes[i]]));
+            var data = indexes.Select(i => this[i]).ToArray();
+            return new NumericsVector(Context, DenseVector.Create(data.Length, i => data[i]));
         }
 
         public IFloatVector Abs()
@@ -243,10 +244,10 @@ namespace BrightData.Numerics
             }
         }
 
-        public IIndexableFloatVector Append(IReadOnlyList<float> data)
+        public IIndexableFloatVector Append(params float[] data)
         {
             var count = (int)Count;
-            return new NumericsVector(Context, DenseVector.Create(count + data.Count, i => i < Count ? _vector[i] : data[i - count]));
+            return new NumericsVector(Context, DenseVector.Create(count + data.Length, i => i < Count ? _vector[i] : data[i - count]));
         }
 
         public IFloatVector Softmax()
@@ -287,12 +288,12 @@ namespace BrightData.Numerics
             throw new NotImplementedException();
         }
 
-        public IFloatVector FindDistances(IReadOnlyList<IFloatVector> data, DistanceMetric distance)
+        public IFloatVector FindDistances(IFloatVector[] data, DistanceMetric distance)
         {
             var distanceFunc = _GetDistanceFunc(distance);
-            var ret = new float[data.Count];
+            var ret = new float[data.Length];
             Parallel.ForEach(data, (vec, ps, ind) => ret[ind] = distanceFunc(vec));
-            return new NumericsVector(Context, DenseVector.Create(data.Count, i => ret[i]));
+            return new NumericsVector(Context, DenseVector.Create(data.Length, i => ret[i]));
         }
 
         public float FindDistance(IFloatVector other, DistanceMetric distance)
@@ -300,16 +301,15 @@ namespace BrightData.Numerics
             return _GetDistanceFunc(distance)(other);
         }
 
-        public IFloatVector CosineDistance(IReadOnlyList<IFloatVector> data, ref float[] dataNorm)
+        public IFloatVector CosineDistance(IFloatVector[] data, ref float[] dataNorm)
         {
             var norm = DotProduct(this);
-            if (dataNorm == null)
-                dataNorm = data.Select(d => d.DotProduct(d)).ToArray();
+            dataNorm ??= data.Select(d => d.DotProduct(d)).ToArray();
 
-            var ret = new float[data.Count];
-            for (var i = 0; i < data.Count; i++)
+            var ret = new float[data.Length];
+            for (var i = 0; i < data.Length; i++)
                 ret[i] = Convert.ToSingle(1d - DotProduct(data[i]) / (Math.Sqrt(norm) * Math.Sqrt(dataNorm[i])));
-            return new NumericsVector(Context, DenseVector.Create(data.Count, i => ret[i]));
+            return new NumericsVector(Context, DenseVector.Create(data.Length, i => ret[i]));
         }
 
         public IFloatVector Log()
@@ -338,7 +338,7 @@ namespace BrightData.Numerics
 	        Debug.Assert(rows * columns * depth == _vector.Count);
             if (depth > 1) {
 	            var slice = Split(depth);
-	            var matrixList = slice.Select(part => part.ReshapeAsMatrix(rows, columns).AsIndexable()).ToList();
+	            var matrixList = slice.Select(part => part.ReshapeAsMatrix(rows, columns).AsIndexable()).ToArray();
 	            return new Numerics3DTensor(Context, matrixList);
             } else {
                 var matrix = ReshapeAsMatrix(rows, columns).AsIndexable();
@@ -351,7 +351,7 @@ namespace BrightData.Numerics
 		    Debug.Assert(rows * columns * depth * count == _vector.Count);
 		    if (count > 1) {
 			    var slice = Split(count);
-			    var tensorList = slice.Select(part => part.ReshapeAs3DTensor(rows, columns, depth).AsIndexable()).ToList();
+			    var tensorList = slice.Select(part => part.ReshapeAs3DTensor(rows, columns, depth).AsIndexable()).ToArray();
 			    return new Numerics4DTensor(Context, tensorList);
 		    } else {
 			    var tensor = ReshapeAs3DTensor(rows, columns, depth).AsIndexable();
@@ -359,24 +359,24 @@ namespace BrightData.Numerics
 		    }
 	    }
 
-        public IReadOnlyList<IFloatVector> Split(uint blockCount)
+        public IFloatVector[] Split(uint blockCount)
         {
-            int index = 0;
+            int index = 0, blockIndex = 0;
             float[] curr = null;
-            var ret = new List<IFloatVector>();
+            var ret = new IFloatVector[blockCount];
             var blockSize = Count / blockCount;
 
             for (uint i = 0, len = Count; i < len; i++) {
                 if (i % blockSize == 0) {
                     if (curr != null)
-                        ret.Add(new NumericsVector(Context, curr));
+                        ret[blockIndex++] = new NumericsVector(Context, curr);
                     curr = new float[blockSize];
                     index = 0;
                 }
 	            // ReSharper disable once PossibleNullReferenceException
                 curr[index++] = _vector[(int)i];
             }
-            ret.Add(new NumericsVector(Context, curr));
+            ret[blockIndex] = new NumericsVector(Context, curr);
             return ret;
         }
 

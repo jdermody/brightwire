@@ -13,10 +13,10 @@ namespace BrightWire.ExecutionGraph.DataSource
     /// </summary>
     class VectorDataSource : IDataSource
     {
-	    readonly IReadOnlyList<Vector<float>> _data;
+	    readonly Vector<float>[] _data;
         readonly ILinearAlgebraProvider _lap;
 
-        public VectorDataSource(ILinearAlgebraProvider lap, IReadOnlyList<Vector<float>> data)
+        public VectorDataSource(ILinearAlgebraProvider lap, Vector<float>[] data)
         {
             _lap = lap;
             _data = data;
@@ -30,13 +30,13 @@ namespace BrightWire.ExecutionGraph.DataSource
         public bool IsSequential => false;
         public uint InputSize { get; }
 	    public uint? OutputSize { get; }
-	    public uint RowCount => (uint)_data.Count;
+	    public uint RowCount => (uint)_data.Length;
 
         public IMiniBatch Get(IExecutionContext executionContext, uint[] rows)
         {
             var data = rows.Select(i => _data[(int)i]).ToList();
             var input = _lap.CreateMatrix((uint)data.Count, (uint)InputSize, (x, y) => data[(int)x].Segment[y]);
-            var inputList = new List<IGraphData> {
+            var inputList = new IGraphData[] {
                 new MatrixGraphData(input)
             };
             return new MiniBatch(rows, this, inputList, null);
@@ -45,7 +45,7 @@ namespace BrightWire.ExecutionGraph.DataSource
         public uint[][] GetBuckets()
         {
             return new[] {
-                _data.Count.AsRange().ToArray()
+                _data.Length.AsRange().ToArray()
             };
         }
 

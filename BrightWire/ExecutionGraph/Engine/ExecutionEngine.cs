@@ -13,7 +13,7 @@ namespace BrightWire.ExecutionGraph.Engine
 	/// </summary>
 	class ExecutionEngine : EngineBase, IGraphEngine
 	{
-		readonly List<(ExecutionEngineContext Context, IReadOnlyList<IFloatMatrix> Data)> _executionResults = new List<(ExecutionEngineContext, IReadOnlyList<IFloatMatrix>)>();
+		readonly List<(ExecutionEngineContext Context, IFloatMatrix[] Data)> _executionResults = new List<(ExecutionEngineContext, IFloatMatrix[])>();
 
 		public ExecutionEngine(ILinearAlgebraProvider lap, Models.ExecutionGraph graph, INode start) : base(lap)
 		{
@@ -30,13 +30,13 @@ namespace BrightWire.ExecutionGraph.Engine
 		{
 			// nop
 		}
-		protected override IReadOnlyList<ExecutionResult> _GetResults()
+
+		protected override IEnumerable<ExecutionResult> _GetResults()
 		{
-			var ret = new List<ExecutionResult>();
-			foreach (var item in _executionResults) {
+            foreach (var item in _executionResults) {
 				uint outputIndex = 0;
 				foreach (var output in item.Data) {
-					ret.Add(new ExecutionResult(item.Context.BatchSequence, output.AsIndexable().Rows.Select(r => r.Data).ToArray(), outputIndex));
+					yield return new ExecutionResult(item.Context.BatchSequence, output.AsIndexable().Rows.Select(r => r.Data).ToArray(), outputIndex);
 					++outputIndex;
 				}
 				item.Context.Dispose();
@@ -44,10 +44,9 @@ namespace BrightWire.ExecutionGraph.Engine
 					matrix.Dispose();
 			}
 			_executionResults.Clear();
-			return ret;
-		}
+        }
 
-		public IReadOnlyList<ExecutionResult> Execute(IDataSource dataSource, uint batchSize = 128, Action<float> batchCompleteCallback = null)
+		public IEnumerable<ExecutionResult> Execute(IDataSource dataSource, uint batchSize = 128, Action<float> batchCompleteCallback = null)
 		{
 			_lap.PushLayer();
 			_dataSource = dataSource;

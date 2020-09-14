@@ -14,7 +14,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             {
             }
 
-            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, IReadOnlyList<INode> parents)
+            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, INode[] parents)
             {
                 var matrix = errorSignal.GetMatrix();
                 return errorSignal.ReplaceWith(matrix.Transpose());
