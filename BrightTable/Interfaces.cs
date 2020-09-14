@@ -179,8 +179,13 @@ namespace BrightTable
         IRowOrientedDataTable SelectRows(string filePath, params uint[] rowIndices);
         IRowOrientedDataTable Shuffle(int? randomSeed = null, string filePath = null);
         IRowOrientedDataTable Sort(bool ascending, uint columnIndex, string filePath = null);
-        IRowOrientedDataTable Vectorise(string columnName, params uint[] vectorColumnIndices);
-        IRowOrientedDataTable Vectorise(string filePath, string columnName, params uint[] vectorColumnIndices);
+        void ReadTyped(ITypedRowConsumer[] consumers, uint maxRows = uint.MaxValue);
+        string FirstRow { get; }
+        string SecondRow { get; }
+        string ThirdRow { get; }
+        string LastRow { get; }
+        //IRowOrientedDataTable Vectorise(string columnName, params uint[] vectorColumnIndices);
+        //IRowOrientedDataTable Vectorise(string filePath, string columnName, params uint[] vectorColumnIndices);
     }
 
     interface IProvideStrings
@@ -194,6 +199,11 @@ namespace BrightTable
     {
         void Set(uint index, object value);
         void Finalise();
+    }
+
+    public interface IEditableBuffer<in T>
+    {
+        void Set(uint index, T value);
     }
 
     public enum ColumnConversionType
@@ -266,5 +276,13 @@ namespace BrightTable
         uint RowIndex { get; }
     }
 
-    
+    public interface ITypedRowConsumer
+    {
+        uint ColumnIndex { get; }
+        Type ColumnType { get; }
+    }
+
+    public interface ITypedRowConsumer<in T> : ITypedRowConsumer, IEditableBuffer<T>
+    {
+    }
 }

@@ -225,11 +225,12 @@ namespace BrightTable.Transformations
             var metaData = column.Analyse();
             if (type == ColumnType.WeightedIndexList)
                 return new WeightedIndexListVectoriser(metaData.Get<uint>(Consts.MaxIndex), column);
-            else if (type == ColumnType.IndexList)
+            if (type == ColumnType.IndexList)
                 return new IndexListVectoriser(metaData.Get<uint>(Consts.MaxIndex), column);
-            else if (type.IsTensor())
+            if (type.IsTensor())
                 return new TensorVectoriser(metaData.Get<uint>(Consts.Size), column);
 
+            throw new NotImplementedException();
             return null;
         }
     }

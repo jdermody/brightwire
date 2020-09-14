@@ -39,9 +39,14 @@ namespace ConsoleTest
             var head = numericTable.Head(60);
             using var normalized = numericTable.Normalize(NormalizationType.Standard);
             head = normalized.Head(60);
-            
+
+            var rowOriented = numericTable.ToRowOriented();
+            var head2 = rowOriented.Head();
+            var columnOrieted = rowOriented.AsColumnOriented();
+
             var vectorised = normalized.Vectorise();
             head = vectorised.Head(60);
+
 
             var naiveBayes = normalized.TrainNaiveBayes().CreateClassifier();
             var normalisedConvertible = normalized.AsRowOriented().AsConvertible();

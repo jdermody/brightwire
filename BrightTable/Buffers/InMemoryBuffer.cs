@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BrightData;
@@ -6,32 +7,34 @@ using BrightData.Helper;
 
 namespace BrightTable.Buffers
 {
-    class InMemoryBuffer<T> : IDataTableSegment<T>, IEditableBuffer, ICanWriteToBinaryWriter
+    class InMemoryBuffer<T> : IDataTableSegment<T>, ITypedRowConsumer<T>, ICanWriteToBinaryWriter
     {
         readonly T[] _data;
 
-        public InMemoryBuffer(IBrightDataContext context, ColumnType type, IMetaData metaData, uint size)
+        public InMemoryBuffer(IBrightDataContext context, ColumnType type, uint columnIndex, IMetaData metaData, uint size)
         {
-            // TODO: implement max size and overflow to disk?
+            // TODO: implement max size and overflow to disk - possible using HybridBuffers?
 
             Context = context;
             SingleType = type;
+            ColumnIndex = columnIndex;
             Types = new[] { type };
             Size = size;
             _data = new T[size];
             MetaData = metaData ?? new MetaData();
         }
 
-        public InMemoryBuffer(IBrightDataContext context, ColumnType type, uint size, IEnumerable<T> data) : this(context, type, null, size)
+        public InMemoryBuffer(IBrightDataContext context, ColumnType type, uint columnIndex, uint size, IEnumerable<T> data) : this(context, type, columnIndex, null, size)
         {
             uint index = 0;
             foreach (var item in data)
                 _data[index++] = item;
         }
 
-        public void Set(uint index, object value)
+        public void Set(uint index, object value) => Set(index, (T) value);
+        public void Set(uint index, T value)
         {
-            _data[index] = (T)value;
+            _data[index] = value;
         }
         public IBrightDataContext Context { get; }
         public IEnumerable<T> EnumerateTyped() => _data;
@@ -58,5 +61,8 @@ namespace BrightTable.Buffers
         {
             // TODO: try to encode and analyse the column
         }
+
+        public uint ColumnIndex { get; }
+        public Type ColumnType => SingleType.GetColumnType();
     }
 }

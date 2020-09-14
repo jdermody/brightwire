@@ -15,10 +15,44 @@ namespace BrightTable
 {
     class RowOrientedDataTable : DataTableBase, IRowOrientedDataTable
     {
+        interface IColumnReader
+        {
+            object Read(BinaryReader reader);
+        }
+        interface IColumnReader<out T>
+        {
+            T ReadTyped(BinaryReader reader);
+        }
+        class ColumnReader<T> : IColumnReader, IColumnReader<T>
+        {
+            private readonly Func<BinaryReader, T> _reader;
+            public ColumnReader(Func<BinaryReader, T> reader) => _reader = reader;
+            public object Read(BinaryReader reader) => (object)ReadTyped(reader);
+            public T ReadTyped(BinaryReader reader) => _reader(reader);
+        }
+
+        interface IConsumerBinding
+        {
+            void Read(uint rowIndex, BinaryReader reader);
+        }
+        class ConsumerBinding<T> : IConsumerBinding
+        {
+            private readonly ColumnReader<T> _reader;
+            private readonly ITypedRowConsumer<T> _consumer;
+
+            public ConsumerBinding(IColumnReader reader, ITypedRowConsumer consumer)
+            {
+                _reader = (ColumnReader<T>)reader;
+                _consumer = (ITypedRowConsumer<T>)consumer;
+            }
+
+            public uint ColumnIndex => _consumer.ColumnIndex;
+            public void Read(uint rowIndex, BinaryReader reader) => _consumer.Set(rowIndex, _reader.ReadTyped(reader));
+        }
         readonly ColumnInfo[] _columns;
         readonly uint[] _rowOffset;
         readonly InputData _data;
-        readonly Func<BinaryReader, object>[] _columnReaders;
+        readonly IColumnReader[] _columnReaders;
 
         public RowOrientedDataTable(IBrightDataContext context, InputData data, bool readHeader) : base(context)
         {
@@ -48,7 +82,7 @@ namespace BrightTable
             RowCount = (uint)_rowOffset.Length;
             ColumnCount = (uint)_columns.Length;
 
-            _columnReaders = ColumnTypes.Select(ct => _GetReader(ct)).ToArray();
+            _columnReaders = ColumnTypes.Select(_GetReader).ToArray();
         }
 
         public void Dispose()
@@ -79,7 +113,7 @@ namespace BrightTable
                     if (index < _rowOffset.Length) {
                         _data.MoveTo(_rowOffset[index]);
                         for (int i = 0, len = _columnReaders.Length; i < len; i++)
-                            row[i] = _columnReaders[i](reader);
+                            row[i] = _columnReaders[i].Read(reader);
                         callback(row);
                     }
                 }
@@ -89,7 +123,7 @@ namespace BrightTable
         public IEnumerable<ISingleTypeTableSegment> Columns(params uint[] columnIndices)
         {
             // TODO: optionally compress the columns based on unique count statistics
-            var columns = columnIndices.Select(i => (Index: i, Column: _GetColumn(ColumnTypes[i], _columns[i].MetaData))).ToList();
+            var columns = columnIndices.Select(i => (Index: i, Column: _GetColumn(ColumnTypes[i], i, _columns[i].MetaData))).ToList();
             if (columns.Any()) {
                 // set the column metadata
                 columns.ForEach(item => {
@@ -97,12 +131,8 @@ namespace BrightTable
                     var column = _columns[item.Index];
                     column.MetaData.CopyTo(metadata);
                 });
-
-                // copy the column data
-                ForEachRow((row, index) => {
-                    foreach (var column in columns)
-                        column.Column.Buffer.Set(index, row[column.Index]);
-                });
+                var consumers = columns.Select(c => c.Column.Consumer).ToArray();
+                ReadTyped(consumers);
             }
 
             return columns.Select(c => c.Column.Segment);
@@ -140,8 +170,38 @@ namespace BrightTable
                 for (uint i = 0; i < rowCount; i++) {
                     var row = new object[ColumnCount];
                     for (int j = 0, len = _columnReaders.Length; j < len; j++)
-                        row[j] = _columnReaders[j](reader);
+                        row[j] = _columnReaders[j].Read(reader);
                     callback(row, i);
+                }
+            }
+        }
+
+        public void ReadTyped(ITypedRowConsumer[] consumers, uint maxRows = uint.MaxValue)
+        {
+            // create bindings for each column
+            var bindings = new Dictionary<uint, IConsumerBinding>();
+            foreach (var consumer in consumers) {
+                var column = _columns[consumer.ColumnIndex];
+                var columnReader = _columnReaders[column.Index];
+                var type = typeof(ConsumerBinding<>).MakeGenericType(consumer.ColumnType);
+                var binding = (IConsumerBinding)Activator.CreateInstance(type, columnReader, consumer);
+                bindings.Add(column.Index, binding);
+            }
+
+            var rowCount = Math.Min(maxRows, RowCount);
+            lock (_data) {
+                _data.MoveTo(_rowOffset[0]);
+                var reader = _data.Reader;
+
+                for (uint i = 0; i < rowCount; i++) {
+                    for (uint j = 0, len = ColumnCount; j < len; j++) {
+                        if (bindings.TryGetValue(j, out var binding))
+                            binding.Read(i, reader);
+                        else {
+                            // read and discard value
+                            _columnReaders[j].Read(reader);
+                        }
+                    }
                 }
             }
         }
@@ -161,68 +221,68 @@ namespace BrightTable
             return builder.Build(Context);
         }
 
-        (ISingleTypeTableSegment Segment, IEditableBuffer Buffer) _GetColumn(ColumnType columnType, IMetaData metadata)
+        (ISingleTypeTableSegment Segment, ITypedRowConsumer Consumer) _GetColumn(ColumnType columnType, uint columnIndex, IMetaData metadata)
         {
             var type = typeof(InMemoryBuffer<>).MakeGenericType(columnType.GetColumnType());
-            var ret = Activator.CreateInstance(type, Context, columnType, metadata, RowCount);
-            return ((ISingleTypeTableSegment)ret, (IEditableBuffer)ret);
+            var ret = Activator.CreateInstance(type, Context, columnType, columnIndex, metadata, RowCount);
+            return ((ISingleTypeTableSegment)ret, (ITypedRowConsumer)ret);
         }
 
-        private object _ReadString(BinaryReader reader) => reader.ReadString();
-        private object _ReadDouble(BinaryReader reader) => reader.ReadDouble();
-        private object _ReadDecimal(BinaryReader reader) => reader.ReadDecimal();
-        private object _ReadInt32(BinaryReader reader) => reader.ReadInt32();
-        private object _ReadInt16(BinaryReader reader) => reader.ReadInt16();
-        private object _ReadSingle(BinaryReader reader) => reader.ReadSingle();
-        private object _ReadBoolean(BinaryReader reader) => reader.ReadBoolean();
-        private object _ReadDate(BinaryReader reader) => new DateTime(reader.ReadInt64());
-        private object _ReadInt64(BinaryReader reader) => reader.ReadInt64();
-        private object _ReadByte(BinaryReader reader) => reader.ReadSByte();
-        private object _ReadIndexList(BinaryReader reader) => IndexList.ReadFrom(Context, reader);
-        private object _ReadWeightedIndexList(BinaryReader reader) => WeightedIndexList.ReadFrom(Context, reader);
-        private object _ReadVector(BinaryReader reader) => new Vector<float>(Context, reader);
-        private object _ReadMatrix(BinaryReader reader) => new Matrix<float>(Context, reader);
-        private object _ReadTensor3D(BinaryReader reader) => new Tensor3D<float>(Context, reader);
-        private object _ReadTensor4D(BinaryReader reader) => new Tensor4D<float>(Context, reader);
-        private object _ReadBinaryData(BinaryReader reader) => new BinaryData(reader);
+        private string _ReadString(BinaryReader reader) => reader.ReadString();
+        private double _ReadDouble(BinaryReader reader) => reader.ReadDouble();
+        private decimal _ReadDecimal(BinaryReader reader) => reader.ReadDecimal();
+        private int _ReadInt32(BinaryReader reader) => reader.ReadInt32();
+        private short _ReadInt16(BinaryReader reader) => reader.ReadInt16();
+        private float _ReadSingle(BinaryReader reader) => reader.ReadSingle();
+        private bool _ReadBoolean(BinaryReader reader) => reader.ReadBoolean();
+        private DateTime _ReadDate(BinaryReader reader) => new DateTime(reader.ReadInt64());
+        private long _ReadInt64(BinaryReader reader) => reader.ReadInt64();
+        private sbyte _ReadByte(BinaryReader reader) => reader.ReadSByte();
+        private IndexList _ReadIndexList(BinaryReader reader) => IndexList.ReadFrom(Context, reader);
+        private WeightedIndexList _ReadWeightedIndexList(BinaryReader reader) => WeightedIndexList.ReadFrom(Context, reader);
+        private Vector<float> _ReadVector(BinaryReader reader) => new Vector<float>(Context, reader);
+        private Matrix<float> _ReadMatrix(BinaryReader reader) => new Matrix<float>(Context, reader);
+        private Tensor3D<float> _ReadTensor3D(BinaryReader reader) => new Tensor3D<float>(Context, reader);
+        private Tensor4D<float> _ReadTensor4D(BinaryReader reader) => new Tensor4D<float>(Context, reader);
+        private BinaryData _ReadBinaryData(BinaryReader reader) => new BinaryData(reader);
 
-        Func<BinaryReader, object> _GetReader(ColumnType type)
+        IColumnReader _GetReader(ColumnType type)
         {
             switch (type) {
                 case ColumnType.String:
-                    return _ReadString;
+                    return new ColumnReader<string>(_ReadString);
                 case ColumnType.Double:
-                    return _ReadDouble;
+                    return new ColumnReader<double>(_ReadDouble);
                 case ColumnType.Decimal:
-                    return _ReadDecimal;
+                    return new ColumnReader<decimal>(_ReadDecimal);
                 case ColumnType.Int:
-                    return _ReadInt32;
+                    return new ColumnReader<int>(_ReadInt32);
                 case ColumnType.Short:
-                    return _ReadInt16;
+                    return new ColumnReader<short>(_ReadInt16);
                 case ColumnType.Float:
-                    return _ReadSingle;
+                    return new ColumnReader<Single>(_ReadSingle);
                 case ColumnType.Boolean:
-                    return _ReadBoolean;
+                    return new ColumnReader<bool>(_ReadBoolean);
                 case ColumnType.Date:
-                    return _ReadDate;
+                    return new ColumnReader<DateTime>(_ReadDate);
                 case ColumnType.Long:
-                    return _ReadInt64;
+                    return new ColumnReader<long>(_ReadInt64);
                 case ColumnType.Byte:
-                    return _ReadByte;
+                    return new ColumnReader<sbyte>(_ReadByte);
                 case ColumnType.IndexList:
-                    return _ReadIndexList;
+                    return new ColumnReader<IndexList>(_ReadIndexList);
                 case ColumnType.WeightedIndexList:
-                    return _ReadWeightedIndexList;
+                    return new ColumnReader<WeightedIndexList>(_ReadWeightedIndexList);
                 case ColumnType.Vector:
-                    return _ReadVector;
+                    return new ColumnReader<Vector<float>>(_ReadVector);
                 case ColumnType.Matrix:
-                    return _ReadMatrix;
+                    return new ColumnReader<Matrix<float>>(_ReadMatrix);
                 case ColumnType.Tensor3D:
-                    return _ReadTensor3D;
+                    return new ColumnReader<Tensor3D<float>>(_ReadTensor3D);
                 case ColumnType.Tensor4D:
-                    return _ReadTensor4D;
+                    return new ColumnReader<Tensor4D<float>>(_ReadTensor4D);
                 case ColumnType.BinaryData:
-                    return _ReadBinaryData;
+                    return new ColumnReader<BinaryData>(_ReadBinaryData);
                 default:
                     return null;
             }
@@ -321,8 +381,7 @@ namespace BrightTable
         public string FirstRow => _ToString(Row(0));
         public string SecondRow => _ToString(Row(1));
         public string ThirdRow => _ToString(Row(2));
-        public string LastRow => _ToString(Row(RowCount-1));
-
+        public string LastRow => _ToString(Row(RowCount - 1));
 
         string _ToString(IDataTableSegment segment)
         {

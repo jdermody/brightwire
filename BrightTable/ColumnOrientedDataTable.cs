@@ -4,8 +4,6 @@ using System.IO;
 using System.Linq;
 using BrightData;
 using BrightData.Helper;
-using BrightData.Transformation;
-using BrightTable.Buffers;
 using BrightTable.Builders;
 using BrightTable.Segments;
 using BrightTable.Input;
