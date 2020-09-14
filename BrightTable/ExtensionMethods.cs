@@ -160,12 +160,12 @@ namespace BrightTable
 
         public static IEnumerable<uint> RowIndices(this IDataTable dataTable)
         {
-            return Enumerable.Range(0, (int)dataTable.RowCount).Select(i => (uint)i);
+            return dataTable.RowCount.AsRange().Select(i => (uint)i);
         }
 
         public static IEnumerable<uint> ColumnIndices(this IDataTable dataTable)
         {
-            return Enumerable.Range(0, (int)dataTable.ColumnCount).Select(i => (uint)i);
+            return dataTable.ColumnCount.AsRange().Select(i => (uint)i);
         }
 
         public static IEnumerable<IMetaData> AllMetaData(this IDataTable dataTable)
@@ -255,13 +255,12 @@ namespace BrightTable
 
         public static IColumnOrientedDataTable ParseCsv(
             this IBrightDataContext context,
-            string filePath,
+            StreamReader reader,
             bool hasHeader,
             char delimiter = ',',
             string fileOutputPath = null,
             bool writeProgress = false,
             string tempBasePath = null
-            //uint maxRowsInMemory = 32768 * 32
         )
         {
             using var tempStreams = new TempStreamManager(tempBasePath);
@@ -269,37 +268,34 @@ namespace BrightTable
             var isFirst = hasHeader;
             uint rowCount = 0;
 
-            using (var reader = new StreamReader(filePath)) {
-                var parser = new CsvParser(reader, delimiter, hasHeader);
+            var parser = new CsvParser(reader, delimiter, hasHeader);
 
-                if (writeProgress) {
-                    var progress = -1;
-                    parser.OnProgress = p => p.WriteProgress(ref progress);
-                    Console.WriteLine($"Parsing {filePath}...");
+            if (writeProgress) {
+                var progress = -1;
+                parser.OnProgress = p => p.WriteProgress(ref progress);
+            }
+
+            foreach (var row in parser.Parse()) {
+                var cols = row.Length;
+
+                for (var i = columns.Count; i < cols; i++) {
+                    var buffer = new EncodingBuffer<string>(new HybridStringBuffer(context, (uint)i, tempStreams));
+                    columns.Add(new GrowableSegment<string>(ColumnType.String, new MetaData(), buffer));
                 }
 
-                foreach (var row in parser.Parse()) {
-                    var cols = row.Length;
-
-                    for (var i = columns.Count; i < cols; i++) {
-                        var buffer = new EncodingBuffer<string>(new HybridStringBuffer(context, (uint)i, tempStreams));
-                        columns.Add(new GrowableSegment<string>(ColumnType.String, new MetaData(), buffer));
-                    }
-
-                    for (var i = 0; i < cols; i++) {
-                        var column = columns[i];
-                        var text = row[i];
-                        if (isFirst)
-                            column.MetaData.Set(Consts.Name, text);
-                        else
-                            column.Add(text);
-                    }
-
+                for (var i = 0; i < cols; i++) {
+                    var column = columns[i];
+                    var text = row[i];
                     if (isFirst)
-                        isFirst = false;
+                        column.MetaData.Set(Consts.Name, text);
                     else
-                        ++rowCount;
+                        column.Add(text);
                 }
+
+                if (isFirst)
+                    isFirst = false;
+                else
+                    ++rowCount;
             }
 
             if (writeProgress) {
@@ -585,6 +581,12 @@ namespace BrightTable
                 return (IColumnOrientedDataTable)table;
             var rowOriented = (IRowOrientedDataTable)table;
             return rowOriented.AsColumnOriented(filePath);
+        }
+
+        public static (IRowOrientedDataTable Training, IRowOrientedDataTable Test) Split(this IRowOrientedDataTable table, double trainingPercentage = 0.8, string trainingFilePath = null, string testFilePath = null)
+        {
+            var (training, test) = table.RowIndices().Shuffle(table.Context.Random).ToArray().Split(trainingPercentage);
+            return (table.SelectRows(trainingFilePath, training), table.SelectRows(testFilePath, test));
         }
     }
 }

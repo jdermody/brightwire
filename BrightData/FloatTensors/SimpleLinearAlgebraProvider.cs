@@ -16,6 +16,7 @@ namespace BrightData.FloatTensors
         {
         }
 
+        public string Name { get; } = "Simple";
         public IBrightDataContext Context { get; }
         public IFloatVector CreateVector(uint length, bool setToZero = false)
         {

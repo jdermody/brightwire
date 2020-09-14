@@ -11,15 +11,14 @@ namespace BrightData.Cuda
         /// <summary>
         /// Creates a linear alebra provider that runs on the GPU
         /// </summary>
-        /// <param name="stochastic">False to disable random number generation</param>
         /// <param name="memoryCacheSize">The amount of device memory to use an application memory cache</param>
         /// <param name="cudaKernelPath">Path to .cubin or .ptx kernel file (defaults to .ptx file for forward compatability)</param>
-        public static ILinearAlgebraProvider UseCudaLinearAlgebra(this IBrightDataContext context, bool stochastic = true, uint memoryCacheSize = 512 * 1048576, string cudaKernelPath = null)
+        public static ILinearAlgebraProvider UseCudaLinearAlgebra(this IBrightDataContext context, uint memoryCacheSize = 512 * 1048576, string cudaKernelPath = null)
         {
             var path = cudaKernelPath ?? GetKernelPath();
             if (!File.Exists(path))
                 throw new FileNotFoundException($"Could not find cuda kernel at: {path}. Is the \\cuda\\brightwire.ptx file set to 'Copy to Output Directory'?");
-            return new CudaProvider(context, path, stochastic, memoryCacheSize);
+            return new CudaProvider(context, path, memoryCacheSize);
         }
 
         /// <summary>

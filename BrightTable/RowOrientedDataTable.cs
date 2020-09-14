@@ -212,7 +212,7 @@ namespace BrightTable
             using var builder = new ColumnOrientedTableBuilder(filePath);
 
             builder.WriteHeader(ColumnCount, RowCount);
-            var columns = Columns(Enumerable.Range(0, _columns.Length).Select(i => (uint)i).ToArray());
+            var columns = Columns(_columns.Length.AsRange().ToArray());
             foreach (var column in columns) {
                 var position = builder.Write(column);
                 columnOffsets.Add((position, builder.GetCurrentPosition()));

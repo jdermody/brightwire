@@ -18,7 +18,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         /// <summary>
         /// The data table columns with attributes
         /// </summary>
-        protected readonly int[] _dataColumnIndex;
+        protected readonly uint[] _dataColumnIndex;
 
 		/// <summary>
 		/// Target column index
@@ -39,7 +39,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         {
             _lap = lap;
             _dataTargetIndex = dataTable.GetTargetColumn() ?? throw new ArgumentException("");
-            _dataColumnIndex = Enumerable.Range(0, (int)dataTable.ColumnCount).Where(ci => ci != _dataTargetIndex).ToArray();
+            _dataColumnIndex = dataTable.ColumnCount.AsRange().Where(ci => ci != _dataTargetIndex).ToArray();
         }
 
 	    /// <inheritdoc />

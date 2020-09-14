@@ -9,6 +9,7 @@ namespace BrightData
 	/// </summary>
 	public interface ILinearAlgebraProvider : IDisposable
 	{
+		string Name { get; }
 		IBrightDataContext Context { get; }
 
 		/// <summary>

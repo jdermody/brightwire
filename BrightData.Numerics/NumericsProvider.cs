@@ -12,10 +12,9 @@ namespace BrightData.Numerics
     /// </summary>
     public class NumericsProvider : ILinearAlgebraProvider
     {
-	    public NumericsProvider(IBrightDataContext context, bool stochastic = true)
+	    public NumericsProvider(IBrightDataContext context)
         {
             Context = context;
-			IsStochastic = stochastic;
         }
 
         protected virtual void Dispose(bool disposing)
@@ -48,6 +47,7 @@ namespace BrightData.Numerics
 		    return CreateMatrix(rows, (uint)columns.Length, (i, j) => columns[j][i]);
 	    }
 
+        public string Name { get; } = "Numerics";
         public IBrightDataContext Context { get; }
 
         public IFloatVector CreateVector(uint length, bool setToZero = false)
@@ -109,7 +109,7 @@ namespace BrightData.Numerics
             // nop
         }
 
-        public bool IsStochastic { get; }
+        public bool IsStochastic => Context.IsStochastic;
 	    public bool IsGpu => false;
 
 	    public IFloatMatrix CalculateDistances(IFloatVector[] vectors, IReadOnlyList<IFloatVector> compareTo, DistanceMetric distanceMetric)

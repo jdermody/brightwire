@@ -4,9 +4,9 @@ namespace BrightWire.ExecutionGraph.Node.Input
 {
     class InputFeeder : NodeBase
     {
-        int _index;
+        uint _index;
 
-        public InputFeeder(int index, string name = null) : base(name)
+        public InputFeeder(uint index, string name = null) : base(name)
         {
             _index = index;
         }
@@ -24,12 +24,12 @@ namespace BrightWire.ExecutionGraph.Node.Input
 
         public override void WriteTo(BinaryWriter writer)
         {
-            writer.Write(_index);
+            writer.Write((int)_index);
         }
 
         public override void ReadFrom(GraphFactory factory, BinaryReader reader)
         {
-            _index = reader.ReadInt32();
+            _index = (uint)reader.ReadInt32();
         }
     }
 }

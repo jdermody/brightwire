@@ -146,6 +146,7 @@ namespace BrightTable
         IEnumerable<IMetaData> ColumnMetaData(params uint[] columnIndices);
         void ForEachRow(Action<object[], uint> callback, uint maxRows = uint.MaxValue);
         IEnumerable<ISingleTypeTableSegment> Columns(params uint[] columnIndices);
+        void ReadTyped(ITypedRowConsumer[] consumers, uint maxRows = uint.MaxValue);
     }
 
     public interface IColumnOrientedDataTable : IDataTable, IDisposable
@@ -179,7 +180,6 @@ namespace BrightTable
         IRowOrientedDataTable SelectRows(string filePath, params uint[] rowIndices);
         IRowOrientedDataTable Shuffle(int? randomSeed = null, string filePath = null);
         IRowOrientedDataTable Sort(bool ascending, uint columnIndex, string filePath = null);
-        void ReadTyped(ITypedRowConsumer[] consumers, uint maxRows = uint.MaxValue);
         string FirstRow { get; }
         string SecondRow { get; }
         string ThirdRow { get; }

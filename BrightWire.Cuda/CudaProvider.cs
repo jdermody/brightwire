@@ -156,12 +156,11 @@ namespace BrightData.Cuda
 		readonly ConcurrentDictionary<CUfunction, (int BlockSize, int MinGridSize)> _blockSize = new ConcurrentDictionary<CUfunction, (int, int)>();
 		bool _disposed = false;
 
-		public CudaProvider(IBrightDataContext context, string cudaKernelPath, bool stochastic, uint memoryCacheSize)
+		public CudaProvider(IBrightDataContext context, string cudaKernelPath, uint memoryCacheSize)
         {
             _context = context;
-            _numerics = new NumericsProvider(context, stochastic);
-			IsStochastic = stochastic;
-			_cuda = new CudaContext();
+            _numerics = new NumericsProvider(context);
+            _cuda = new CudaContext();
 			_cache = new DeviceMemory(_cuda, (int)memoryCacheSize);
 			_kernel = new KernelModule(_cuda, cudaKernelPath);
 			_blas = new CudaBlas(AtomicsMode.Allowed);
@@ -245,9 +244,10 @@ namespace BrightData.Cuda
 		}
 
 		public ILinearAlgebraProvider NumericsProvider => _numerics;
+        public string Name { get; } = "Cuda";
         IBrightDataContext ILinearAlgebraProvider.Context => _context;
         public IBrightDataContext DataContext => _context;
-		public bool IsStochastic { get; }
+        public bool IsStochastic => _context.IsStochastic;
 		public bool IsGpu => true;
 		internal CudaContext Context => _cuda;
 		internal CudaBlas Blas => _blas;

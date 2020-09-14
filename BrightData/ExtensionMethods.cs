@@ -239,7 +239,7 @@ namespace BrightData
         public static T[] Bag<T>(this T[] list, uint count, int? randomSeed = null)
         {
             var rnd = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
-            return Enumerable.Range(0, (int)count)
+            return count.AsRange()
                 .Select(i => list[rnd.Next(0, list.Length)])
                 .ToArray()
             ;

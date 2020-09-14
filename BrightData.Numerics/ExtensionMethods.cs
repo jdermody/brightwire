@@ -11,9 +11,9 @@ namespace BrightData.Numerics
         /// </summary>
         /// <param name="context"></param>
         /// <param name="stochastic">False to use the same random number generation each time</param>
-        public static ILinearAlgebraProvider UseNumericsLinearAlgebra(this IBrightDataContext context, bool stochastic = true)
+        public static ILinearAlgebraProvider UseNumericsLinearAlgebra(this IBrightDataContext context)
         {
-            var ret = new NumericsProvider(context, stochastic);
+            var ret = new NumericsProvider(context);
             ((ISetLinearAlgebraProvider) context).LinearAlgebraProvider = ret;
             return ret;
         }

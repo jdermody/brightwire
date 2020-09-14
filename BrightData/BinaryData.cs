@@ -33,18 +33,17 @@ namespace BrightData
         public override string ToString()
         {
             string hash;
-            using (var hasher = SHA512.Create()) {
-                var binaryHash = hasher.ComputeHash(Data);
+            using var hasher = SHA512.Create();
+            var binaryHash = hasher.ComputeHash(Data);
 
-                var sb = new StringBuilder();
-                for (var i = 0; i < binaryHash.Length; i++) {
-                    sb.Append($"{binaryHash[i]:X2}");
-                    if (i % 4 == 3)
-                        sb.Append(" ");
-                }
-
-                hash = sb.ToString();
+            var sb = new StringBuilder();
+            for (var i = 0; i < binaryHash.Length; i++) {
+                sb.Append($"{binaryHash[i]:X2}");
+                if (i % 4 == 3)
+                    sb.Append(" ");
             }
+
+            hash = sb.ToString();
 
             return $"Hash:{hash}, Size:{Data.Length:N0}";
         }

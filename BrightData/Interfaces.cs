@@ -116,6 +116,11 @@ namespace BrightData
         T Get<T>(string name);
         T Set<T>(string name, T value);
         T Set<T>(string name, Func<T> valueCreator);
+
+        /// <summary>
+        /// Underlying setting for stochastic vs deterministic behaviour
+        /// </summary>
+        bool IsStochastic { get; }
     }
 
     public interface ITensorSegment<T> : IReferenceCountedMemory, IDisposable
@@ -236,6 +241,7 @@ namespace BrightData
 
     public enum NormalizationType
     {
+        None = 0,
         Standard,
         Euclidean,
         Manhattan,

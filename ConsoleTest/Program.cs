@@ -13,6 +13,7 @@ using BrightData.Numerics;
 using BrightTable.Transformations;
 using BrightData.Cuda;
 using ExampleCode;
+using ExampleCode.Datasets;
 
 namespace ConsoleTest
 {
@@ -20,15 +21,26 @@ namespace ConsoleTest
     {
         static void Main(string[] args)
         {
-            using var context = new BrightDataContext();
-            Simple.Xor(context);
+            using var context = new BrightDataContext(0);
+
+            // set to cache data files locally
+            context.Set("DataFileDirectory", new DirectoryInfo(@"c:\data"));
+
+            var xor = context.Xor();
+            xor.TrainSigmoidNeuralNetwork(6, 0.1f, 4);
+
+            var iris = context.Iris();
+            iris.TrainNaiveBayes();
+            //Xor.TrainNeuralNetwork(context);
+
             
-            var lap = context.UseCudaLinearAlgebra();
+            var lap = context.UseNumericsLinearAlgebra();
 
             //var table = context.ParseCsv(@"C:\data\plotly\processed_data.csv", true, ',', @"c:\temp\table.dat", true);
             //using var table = (IColumnOrientedDataTable)context.LoadTable(@"c:\temp\table.dat");
             //using var table2 = table.Convert(@"c:\temp\table2.dat", Enumerable.Range(0, (int)table.ColumnCount).Select(i => ColumnConversion.ToNumeric).ToArray());
-            using var table = context.ParseCsv(@"c:\data\iris.data", true);
+            using var reader = new StreamReader(@"c:\data\iris.data");
+            using var table = context.ParseCsv(reader, true);
             table.SetTargetColumn(4);
             using var numericTable = table.Convert(
                 ColumnConversionType.ToNumeric, 

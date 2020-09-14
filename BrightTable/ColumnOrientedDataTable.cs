@@ -75,6 +75,30 @@ namespace BrightTable
             }
         }
 
+        interface IConsumerBinding
+        {
+            void Copy(uint maxRows);
+        }
+        class ConsumerBinding<T> : IConsumerBinding
+        {
+            private readonly IDataTableSegment<T> _segment;
+            private readonly ITypedRowConsumer<T> _consumer;
+
+            public ConsumerBinding(ISingleTypeTableSegment segment, ITypedRowConsumer consumer)
+            {
+                _segment = (IDataTableSegment<T>)segment;
+                _consumer = (ITypedRowConsumer<T>)consumer;
+            }
+
+            public void Copy(uint maxRows)
+            {
+                uint index = 0;
+                using var enumerator = _segment.EnumerateTyped().GetEnumerator();
+                while (index < maxRows && enumerator.MoveNext())
+                    _consumer.Set(index++, enumerator.Current);
+            }
+        }
+
         readonly object _lock = new object();
         readonly InputData _data;
         readonly long[] _columnOffset;
@@ -143,6 +167,17 @@ namespace BrightTable
             foreach (var index in columnIndices.OrderBy(i => i).Distinct())
                 table.Add(index, _GetColumn(index));
             return columnIndices.Select(i => table[i]);
+        }
+
+        public void ReadTyped(ITypedRowConsumer[] consumers, uint maxRows = UInt32.MaxValue)
+        {
+            var bindings = consumers.Select(consumer => (IConsumerBinding)Activator.CreateInstance(
+                typeof(ConsumerBinding<>).MakeGenericType(consumer.ColumnType),
+                _GetColumn(consumer.ColumnIndex),
+                consumer
+            ));
+            foreach(var binding in bindings)
+                binding?.Copy(maxRows);
         }
 
         public void ForEachRow(Action<object[], uint> callback, uint maxRows = uint.MaxValue)

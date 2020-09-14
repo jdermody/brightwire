@@ -29,7 +29,7 @@ namespace BrightWire.ExecutionGraph.Engine
 			learningContext.SetRowCount(dataSource.RowCount);
 
 			if (start == null) {
-				_input = Enumerable.Range(0, (int)dataSource.InputCount).Select(i => new InputFeeder(i)).ToArray();
+				_input = dataSource.InputCount.AsRange().Select(i => new InputFeeder(i)).ToArray();
 				Start = new FlowThrough();
 				Start.Output.AddRange(_input.Select(i => new WireToNode(i)));
 			} else {

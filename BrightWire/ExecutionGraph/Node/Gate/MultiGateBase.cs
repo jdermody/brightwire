@@ -162,8 +162,8 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         {
             writer.Write(_data.Count);
             foreach (var item in _data) {
-                writer.Write(item.Value.Size);
-                writer.Write(item.Value.Channel);
+                writer.Write((int)item.Value.Size);
+                writer.Write((int)item.Value.Channel);
             }
         }
     }

@@ -257,12 +257,11 @@ namespace BrightWire.ExecutionGraph.Node
         /// <param name="writer">The binary writer</param>
         protected static void _Serialise(INode node, BinaryWriter writer)
         {
-            using (var buffer = new MemoryStream()) {
-                node.SerialiseTo(null, null, null).WriteTo(buffer);
-                var activationData = buffer.ToArray();
-                writer.Write(activationData.Length);
-                writer.Write(activationData);
-            }
+            using var buffer = new MemoryStream();
+            node.SerialiseTo(null, null, null).WriteTo(buffer);
+            var activationData = buffer.ToArray();
+            writer.Write(activationData.Length);
+            writer.Write(activationData);
         }
 
         /// <summary>
@@ -272,11 +271,10 @@ namespace BrightWire.ExecutionGraph.Node
         /// <returns></returns>
         protected static byte[] _WriteData(Action<BinaryWriter> callback)
         {
-            using (var stream = new MemoryStream()) {
-                using (var writer = new BinaryWriter(stream, Encoding.UTF8, true))
-                    callback(writer);
-                return stream.ToArray();
-            }
+            using var stream = new MemoryStream();
+            using (var writer = new BinaryWriter(stream, Encoding.UTF8, true))
+                callback(writer);
+            return stream.ToArray();
         }
 
         /// <summary>
@@ -286,9 +284,8 @@ namespace BrightWire.ExecutionGraph.Node
         /// <param name="callback">Callback to receive the writer</param>
         protected static void _ReadFrom(byte[] data, Action<BinaryReader> callback)
         {
-            using (var reader = new BinaryReader(new MemoryStream(data), Encoding.UTF8)) {
-                callback(reader);
-            }
+            using var reader = new BinaryReader(new MemoryStream(data), Encoding.UTF8);
+            callback(reader);
         }
 
         /// <summary>
