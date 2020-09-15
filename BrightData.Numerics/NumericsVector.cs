@@ -416,5 +416,7 @@ namespace BrightData.Numerics
 	    {
 		    return !_vector.Any(v => float.IsNaN(v) || float.IsInfinity(v));
 	    }
+
+        public ILinearAlgebraProvider LinearAlgebraProvider => Context.LinearAlgebraProvider;
     }
 }

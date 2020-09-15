@@ -24,9 +24,9 @@ namespace BrightWire.Source.Helper
 		/// <param name="lap">Linear algebra provider</param>
 		/// <param name="data">List of vectors to compare</param>
 		/// <param name="distanceMetric">Distance metric for comparison</param>
-	    public VectorDistanceHelper(ILinearAlgebraProvider lap, IFloatVector[] data, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
+	    public VectorDistanceHelper(IFloatVector[] data, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
 	    {
-			_lap = lap;
+			_lap = data[0].LinearAlgebraProvider;
 		    _distanceMetric = distanceMetric;
 		    _data = data;
 	    }

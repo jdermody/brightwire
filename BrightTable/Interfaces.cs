@@ -147,6 +147,7 @@ namespace BrightTable
         void ForEachRow(Action<object[], uint> callback, uint maxRows = uint.MaxValue);
         IEnumerable<ISingleTypeTableSegment> Columns(params uint[] columnIndices);
         void ReadTyped(ITypedRowConsumer[] consumers, uint maxRows = uint.MaxValue);
+        ISingleTypeTableSegment Column(uint columnIndex);
     }
 
     public interface IColumnOrientedDataTable : IDataTable, IDisposable
@@ -157,7 +158,6 @@ namespace BrightTable
         IColumnOrientedDataTable Normalize(NormalizationType type, string filePath = null);
         IColumnOrientedDataTable Normalize(params ColumnNormalization[] conversion);
         IColumnOrientedDataTable Normalize(string filePath, params ColumnNormalization[] conversion);
-        ISingleTypeTableSegment Column(uint columnIndex);
         IColumnOrientedDataTable SelectColumns(params uint[] columnIndices);
         IColumnOrientedDataTable SelectColumns(string filePath, params uint[] columnIndices);
         IColumnOrientedDataTable ConcatColumns(params IColumnOrientedDataTable[] others);
@@ -279,7 +279,7 @@ namespace BrightTable
     public interface ITypedRowConsumer
     {
         uint ColumnIndex { get; }
-        Type ColumnType { get; }
+        ColumnType ColumnType { get; }
     }
 
     public interface ITypedRowConsumer<in T> : ITypedRowConsumer, IEditableBuffer<T>

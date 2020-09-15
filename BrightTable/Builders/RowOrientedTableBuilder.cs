@@ -119,7 +119,7 @@ namespace BrightTable.Builders
                         val = DateTime.MinValue;
                     else if (type != ColumnType.Unknown)
                     {
-                        var columnType = type.GetColumnType();
+                        var columnType = ExtensionMethods.GetDataType(type);
                         if (columnType.GetTypeInfo().IsValueType)
                             val = Activator.CreateInstance(columnType);
                     }

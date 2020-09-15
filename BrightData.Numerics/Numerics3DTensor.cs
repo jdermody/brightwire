@@ -88,6 +88,7 @@ namespace BrightData.Numerics
             }
         }
 
+        public ILinearAlgebraProvider LinearAlgebraProvider => Context.LinearAlgebraProvider;
         public IIndexableFloatMatrix[] Matrix => _data.Columns
             .Select(c => c.ReshapeAsMatrix(_rows, _columns).AsIndexable())
             .ToArray();

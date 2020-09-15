@@ -57,7 +57,7 @@ namespace ExampleCode.Datasets
         {
             var reader = GetReader(context, "iris.csv", "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data");
             try {
-                using var table = context.ParseCsv(reader, true);
+                using var table = context.ParseCsv(reader, false);
                 table.SetTargetColumn(4);
                 using var numericTable = table.Convert(
                     ColumnConversionType.ToNumeric,

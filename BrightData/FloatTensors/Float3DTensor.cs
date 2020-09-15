@@ -94,5 +94,8 @@ namespace BrightData.FloatTensors
         {
             throw new NotImplementedException();
         }
+        public override string ToString() => $"Simple: {Data}";
+
+        public ILinearAlgebraProvider LinearAlgebraProvider => Data.Context.LinearAlgebraProvider;
     }
 }

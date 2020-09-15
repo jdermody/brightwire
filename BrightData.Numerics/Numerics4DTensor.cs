@@ -49,6 +49,7 @@ namespace BrightData.Numerics
 	        _data = new NumericsMatrix(context, DenseMatrix.Build.Dense((int)rowSize, (int)_count, data));
         }
 
+        public ILinearAlgebraProvider LinearAlgebraProvider => Context.LinearAlgebraProvider;
         public uint RowCount => _rows;
 	    public uint ColumnCount => _columns;
 	    public uint Depth => _depth;

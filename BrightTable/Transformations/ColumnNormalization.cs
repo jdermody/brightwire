@@ -49,7 +49,7 @@ namespace BrightTable.Transformations
 
         public ICanConvert GetConverter(ColumnType fromType, ISingleTypeTableSegment column, TempStreamManager tempStreams, IBrightDataContext context)
         {
-            var columnType = column.SingleType.GetColumnType();
+            var columnType = ExtensionMethods.GetDataType(column.SingleType);
             var contextType = typeof(Normalizer<>).MakeGenericType(columnType);
             var analysedMetaData = column.Analyse();
             return (ICanConvert) Activator.CreateInstance(contextType, NormalizationType, analysedMetaData);

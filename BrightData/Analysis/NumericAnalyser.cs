@@ -61,7 +61,7 @@ namespace BrightData.Analysis
 	    public double Max => _max;
 	    public double Mean => _mean;
 	    public double? Variance => _total > 1 ? _m2 / (_total - 1) : (double?)null;
-	    public int? NumDistinct => _distinct.Count < Consts.MaxDistinct ? _distinct.Count : (int?)null;
+	    public uint? NumDistinct => _distinct.Count < Consts.MaxDistinct ? (uint?)_distinct.Count : null;
 
 	    public double? StdDev {
             get

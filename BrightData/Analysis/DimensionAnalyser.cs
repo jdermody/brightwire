@@ -48,7 +48,7 @@ namespace BrightData.Analysis
             metadata.SetIfNotNull(Consts.YDimension, YDimension);
             metadata.SetIfNotNull(Consts.ZDimension, ZDimension);
             if (_distinct.Count < Consts.MaxDistinct)
-                metadata.Set(Consts.NumDistinct, _distinct.Count);
+                metadata.Set(Consts.NumDistinct, (uint)_distinct.Count);
 
             var size = (XDimension ?? 1) * (YDimension ?? 1) * (ZDimension ?? 1);
             metadata.Set(Consts.Size, size);

@@ -40,7 +40,7 @@ namespace BrightTable
 
             public ISingleTypeTableSegment Load(IBrightDataContext context, InputData data, long columnOffset, uint rowCount)
             {
-                var dataType = ColumnType.GetColumnType();
+                var dataType = ExtensionMethods.GetDataType(ColumnType);
                 var buffer = new InputBufferReader(data, columnOffset, rowCount);
 
                 if (IsEncoded) {
@@ -156,7 +156,7 @@ namespace BrightTable
             return ret;
         }
 
-        ISingleTypeTableSegment IColumnOrientedDataTable.Column(uint columnIndex)
+        ISingleTypeTableSegment IDataTable.Column(uint columnIndex)
         {
             return _GetColumn(columnIndex);
         }
@@ -172,7 +172,7 @@ namespace BrightTable
         public void ReadTyped(ITypedRowConsumer[] consumers, uint maxRows = UInt32.MaxValue)
         {
             var bindings = consumers.Select(consumer => (IConsumerBinding)Activator.CreateInstance(
-                typeof(ConsumerBinding<>).MakeGenericType(consumer.ColumnType),
+                typeof(ConsumerBinding<>).MakeGenericType(ExtensionMethods.GetDataType(consumer.ColumnType)),
                 _GetColumn(consumer.ColumnIndex),
                 consumer
             ));

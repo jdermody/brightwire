@@ -108,7 +108,7 @@ namespace BrightData.Cuda
 		}
 
 		public IDeviceMemoryPtr Memory => _data;
-
+        public ILinearAlgebraProvider LinearAlgebraProvider => _cuda.DataContext.LinearAlgebraProvider;
 		public IEnumerable<IFloatMatrix> Matrices
 		{
 			get

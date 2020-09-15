@@ -63,6 +63,6 @@ namespace BrightTable.Buffers
         }
 
         public uint ColumnIndex { get; }
-        public Type ColumnType => SingleType.GetColumnType();
+        public ColumnType ColumnType => SingleType;
     }
 }

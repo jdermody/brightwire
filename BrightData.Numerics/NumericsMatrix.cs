@@ -49,6 +49,7 @@ namespace BrightData.Numerics
 	        set => _matrix[(int)row, (int)column] = value;
         }
 
+        public ILinearAlgebraProvider LinearAlgebraProvider => Context.LinearAlgebraProvider;
         public uint ColumnCount => (uint)_matrix.ColumnCount;
 	    public uint RowCount => (uint)_matrix.RowCount;
 	    public IEnumerable<float> Values => _matrix.Enumerate();

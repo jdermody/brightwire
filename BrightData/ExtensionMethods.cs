@@ -402,5 +402,14 @@ namespace BrightData
 
         public static IEnumerable<uint> AsRange(this uint count) => Enumerable.Range(0, (int)count).Select(i => (uint)i);
         public static IEnumerable<uint> AsRange(this int count) => Enumerable.Range(0, count).Select(i => (uint)i);
+
+        public static IEnumerable<IFloatVector> AsFloatVectors(this IEnumerable<Vector<float>> vectors)
+        {
+            IBrightDataContext context = null;
+            foreach (var vector in vectors) {
+                context ??= vector.Context;
+                yield return context.LinearAlgebraProvider.CreateVector(vector);
+            }
+        }
     }
 }

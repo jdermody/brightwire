@@ -79,7 +79,8 @@ namespace BrightData.Cuda
 		    return $"4D tensor (GPU), rows:{RowCount} columns:{ColumnCount} depth:{Depth} count:{Count}";
 	    }
 
-	    public IDeviceMemoryPtr Memory => _data;
+        public ILinearAlgebraProvider LinearAlgebraProvider => _cuda.DataContext.LinearAlgebraProvider;
+        public IDeviceMemoryPtr Memory => _data;
         public IFloatMatrix ReshapeAsMatrix() => new CudaMatrix(_cuda, _blockSize, _count, _data, false);
 	    public Tensor3D<float>[] Data {
 		    get

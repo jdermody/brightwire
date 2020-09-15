@@ -156,5 +156,9 @@ namespace BrightData.FloatTensors
                 segment[Count + index++] = item;
             return new FloatVector(new Vector<float>(segment));
         }
+
+        public override string ToString() => $"Simple: {Data}";
+
+        public ILinearAlgebraProvider LinearAlgebraProvider => Data.Context.LinearAlgebraProvider;
     }
 }

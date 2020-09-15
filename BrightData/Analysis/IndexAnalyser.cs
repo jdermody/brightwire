@@ -50,7 +50,7 @@ namespace BrightData.Analysis
                 metadata.Set(Consts.MaxIndex, _max);
 
             if (_indexFrequency.Count < Consts.MaxDistinct) {
-                metadata.Set(Consts.NumDistinct, _indexFrequency.Count);
+                metadata.Set(Consts.NumDistinct, (uint)_indexFrequency.Count);
                 var total = (double) _indexFrequency.Count;
                 foreach (var item in _indexFrequency.OrderByDescending(kv => kv.Value).Take(_writeCount))
                     metadata.Set($"{Consts.FrequencyPrefix}{item.Key}", item.Value / total);

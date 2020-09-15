@@ -217,21 +217,25 @@ namespace BrightTable.Transformations
             var type = column.SingleType;
             if (type.IsNumeric()) {
                 return (IColumnVectoriser)Activator.CreateInstance(
-                    typeof(NumericVectoriser<>).MakeGenericType(type.GetColumnType()),
+                    typeof(NumericVectoriser<>).MakeGenericType(ExtensionMethods.GetDataType(type)),
                     column
                 );
             }
 
             var metaData = column.Analyse();
+            if (type == ColumnType.String)
+                return new OneHotEncodeVectorised(metaData.GetNumDistinct(), column);
+
             if (type == ColumnType.WeightedIndexList)
                 return new WeightedIndexListVectoriser(metaData.Get<uint>(Consts.MaxIndex), column);
+
             if (type == ColumnType.IndexList)
                 return new IndexListVectoriser(metaData.Get<uint>(Consts.MaxIndex), column);
+
             if (type.IsTensor())
                 return new TensorVectoriser(metaData.Get<uint>(Consts.Size), column);
 
             throw new NotImplementedException();
-            return null;
         }
     }
 }

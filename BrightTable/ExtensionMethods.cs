@@ -27,7 +27,7 @@ namespace BrightTable
                 yield return start + i;
         }
 
-        public static Type GetColumnType(this ColumnType type)
+        public static Type GetDataType(this ColumnType type)
         {
             return type switch
             {
@@ -354,7 +354,7 @@ namespace BrightTable
 
         public static uint CopyTo(this ISingleTypeTableSegment column, ITensorSegment<float> vector)
         {
-            var type = column.SingleType.GetColumnType();
+            var type = GetDataType(column.SingleType);
             var copySegment = typeof(ExtensionMethods).GetMethod("CopyToFloatSegment").MakeGenericMethod(type);
             return (uint)copySegment.Invoke(null, new object[] { column, vector });
         }
@@ -412,11 +412,11 @@ namespace BrightTable
         public static IAutoGrowBuffer GetGrowableSegment(this IColumnInfo forColumn, IBrightDataContext context, TempStreamManager tempStream, bool tryEncode, uint bufferSize = 32768)
         {
             var type = forColumn.ColumnType;
-            var columnType = type.GetColumnType();
+            var columnType = GetDataType(type);
 
             IAutoGrowBuffer buffer;
             if (type.IsStructable()) {
-                buffer = (IAutoGrowBuffer)Activator.CreateInstance(typeof(HybridStructBuffer<>).MakeGenericType(type.GetColumnType()),
+                buffer = (IAutoGrowBuffer)Activator.CreateInstance(typeof(HybridStructBuffer<>).MakeGenericType(GetDataType(type)),
                     context,
                     forColumn.Index,
                     tempStream,
@@ -430,7 +430,7 @@ namespace BrightTable
                     bufferSize
                 );
             } else {
-                buffer = (IAutoGrowBuffer)Activator.CreateInstance(typeof(HybridObjectBuffer<>).MakeGenericType(type.GetColumnType()),
+                buffer = (IAutoGrowBuffer)Activator.CreateInstance(typeof(HybridObjectBuffer<>).MakeGenericType(GetDataType(type)),
                     context,
                     forColumn.Index,
                     tempStream,
@@ -557,9 +557,9 @@ namespace BrightTable
         }
 
         public static ColumnType GetColumnType(this IMetaData metadata) => metadata.Get<ColumnType>(Consts.Type);
-        public static int GetNumDistinct(this IMetaData metadata) => metadata.Get<int>(Consts.NumDistinct, -1);
+        public static uint GetNumDistinct(this IMetaData metadata) => metadata.Get<uint>(Consts.NumDistinct, 0);
 
-        public static IRowOrientedDataTable Vectorise(this IColumnOrientedDataTable dataTable, string filePath = null)
+        public static IRowOrientedDataTable Vectorise(this IDataTable dataTable, string filePath = null)
         {
             var vectoriser = new DataTableVectoriser(dataTable);
             return vectoriser.Vectorize(filePath);
@@ -588,5 +588,56 @@ namespace BrightTable
             var (training, test) = table.RowIndices().Shuffle(table.Context.Random).ToArray().Split(trainingPercentage);
             return (table.SelectRows(trainingFilePath, training), table.SelectRows(testFilePath, test));
         }
+
+        interface IHaveFloatArray
+        {
+            float[] Data { get; }
+        }
+        class ColumnReader<T> : ITypedRowConsumer<T>, IHaveFloatArray
+            where T: struct
+        {
+            readonly List<(uint RowIndex, float Value)> _data = new List<(uint RowIndex, float Value)>();
+            readonly ConvertToFloat<T> _converter = new ConvertToFloat<T>();
+
+            public ColumnReader(uint columnIndex, ColumnType type)
+            {
+                ColumnIndex = columnIndex;
+                ColumnType = type;
+            }
+
+            public uint ColumnIndex { get; }
+            public ColumnType ColumnType { get; }
+            public void Set(uint index, T value)
+            {
+                _data.Add((index, _converter.Convert(value)));
+            }
+
+            public float[] Data => _data
+                .OrderBy(r => r.RowIndex)
+                .Select(r => r.Value)
+                .ToArray();
+        }
+
+        static (ITypedRowConsumer Consumer, IHaveFloatArray Array) _GetColumnReader(uint columnIndex, ColumnType columnType)
+        {
+            if(!columnType.IsNumeric())
+                throw new ArgumentException("Column is not numeric");
+            var dataType = GetDataType(columnType);
+            var ret = Activator.CreateInstance(typeof(ColumnReader<>).MakeGenericType(dataType), columnIndex, columnType);
+            return ((ITypedRowConsumer) ret, (IHaveFloatArray) ret);
+        }
+
+        public static IEnumerable<Vector<float>> GetColumnsAsVectors(this IDataTable dataTable, params uint[] columnIndices)
+        {
+            var readers = columnIndices.Select(i => _GetColumnReader(i, dataTable.ColumnTypes[i])).ToList();
+            var consumers = readers.Select(r => r.Consumer).ToArray();
+            dataTable.ReadTyped(consumers);
+            var context = dataTable.Context;
+            return readers.Select(r => context.CreateVector(r.Array.Data));
+        }
+
+        public static IEnumerable<T> EnumerateTyped<T>(this ISingleTypeTableSegment segment) => ((IDataTableSegment<T>)segment).EnumerateTyped();
+
+        public static T[] ToArray<T>(this ISingleTypeTableSegment segment) => EnumerateTyped<T>(segment).ToArray();
     }
 }

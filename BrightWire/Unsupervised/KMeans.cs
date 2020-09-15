@@ -18,10 +18,10 @@ namespace BrightWire.Unsupervised
 		List<(int[] DataIndices, IFloatVector Cluster)> _clusters = new List<(int[] DataIndices, IFloatVector Cluster)>();
 		readonly IFloatVector[] _data;
 
-		public KMeans(ILinearAlgebraProvider lap, int k, IFloatVector[] data, DistanceMetric distanceMetric = DistanceMetric.Euclidean, int? randomSeed = null)
+		public KMeans(int k, IFloatVector[] data, DistanceMetric distanceMetric = DistanceMetric.Euclidean, int? randomSeed = null)
 		{
 			_data = data;
-			_distance = new VectorDistanceHelper(lap, data, distanceMetric);
+			_distance = new VectorDistanceHelper(data, distanceMetric);
 
 			// use kmeans++ to find best initial positions
 			// https://normaldeviate.wordpress.com/2012/09/30/the-remarkable-k-means/

@@ -22,14 +22,20 @@ namespace ConsoleTest
         static void Main(string[] args)
         {
             using var context = new BrightDataContext(0);
+            context.UseNumericsLinearAlgebra();
 
             // set to cache data files locally
             context.Set("DataFileDirectory", new DirectoryInfo(@"c:\data"));
 
-            var xor = context.Xor();
-            xor.TrainSigmoidNeuralNetwork(6, 0.1f, 4);
+            //var xor = context.Xor();
+            //xor.TrainSigmoidNeuralNetwork(6, 0.1f, 4);
 
             var iris = context.Iris();
+            var vectorisedIris = iris.Table.Vectorise();
+            var floatVectors = vectorisedIris.Column(0).EnumerateTyped<Vector<float>>().AsFloatVectors().ToArray();
+            var clusters = floatVectors.KMeans(3);
+
+            var vectors = iris.Table.GetColumnsAsVectors(0, 1, 2, 3).ToList();
             iris.TrainNaiveBayes();
             //Xor.TrainNeuralNetwork(context);
 

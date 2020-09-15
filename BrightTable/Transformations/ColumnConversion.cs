@@ -156,7 +156,7 @@ namespace BrightTable.Transformations
         {
             ICanConvert ViaString<T>(Func<string, T> convertFromString)
             {
-                var t = typeof(ConvertViaString<,>).MakeGenericType(fromType.GetColumnType(), typeof(T));
+                var t = typeof(ConvertViaString<,>).MakeGenericType(ExtensionMethods.GetDataType(fromType), typeof(T));
                 var ret = Activator.CreateInstance(t, new object[] { convertFromString });
                 return (ICanConvert)ret;
             }
@@ -178,7 +178,7 @@ namespace BrightTable.Transformations
                 case ColumnConversionType.ToString when fromType == ColumnType.String:
                     return null;
                 case ColumnConversionType.ToString: {
-                    var t = typeof(AnyToString<>).MakeGenericType(fromType.GetColumnType());
+                    var t = typeof(AnyToString<>).MakeGenericType(ExtensionMethods.GetDataType(fromType));
                     return (ICanConvert)Activator.CreateInstance(t);
                 }
                 case ColumnConversionType.ToNumeric: {
@@ -216,12 +216,12 @@ namespace BrightTable.Transformations
                     }
                 
                     var enumerable = _GetEnumerableNumbers(toType, buffer.EnumerateTyped());
-                    var converterType = typeof(NumericConverter<,>).MakeGenericType(fromType.GetColumnType(), toType.GetColumnType());
+                    var converterType = typeof(NumericConverter<,>).MakeGenericType(ExtensionMethods.GetDataType(fromType), ExtensionMethods.GetDataType(toType));
                     var converter = Activator.CreateInstance(converterType, enumerable);
                     return (ICanConvert) converter;
                 }
                 case ColumnConversionType.ToCategoricalIndex: {
-                    var converterType = typeof(CategoricalIndexConverter<>).MakeGenericType(fromType.GetColumnType());
+                    var converterType = typeof(CategoricalIndexConverter<>).MakeGenericType(ExtensionMethods.GetDataType(fromType));
                     var converter = Activator.CreateInstance(converterType);
                     return (ICanConvert)converter;
                 }

@@ -138,6 +138,8 @@ namespace BrightTable
             return columns.Select(c => c.Column.Segment);
         }
 
+        public ISingleTypeTableSegment Column(uint columnIndex) => Columns(columnIndex).Single();
+
         public IEnumerable<IMetaData> ColumnMetaData(params uint[] columnIndices)
         {
             return columnIndices.Select(i => _columns[i].MetaData);
@@ -183,7 +185,7 @@ namespace BrightTable
             foreach (var consumer in consumers) {
                 var column = _columns[consumer.ColumnIndex];
                 var columnReader = _columnReaders[column.Index];
-                var type = typeof(ConsumerBinding<>).MakeGenericType(consumer.ColumnType);
+                var type = typeof(ConsumerBinding<>).MakeGenericType(ExtensionMethods.GetDataType(consumer.ColumnType));
                 var binding = (IConsumerBinding)Activator.CreateInstance(type, columnReader, consumer);
                 bindings.Add(column.Index, binding);
             }
@@ -223,7 +225,7 @@ namespace BrightTable
 
         (ISingleTypeTableSegment Segment, ITypedRowConsumer Consumer) _GetColumn(ColumnType columnType, uint columnIndex, IMetaData metadata)
         {
-            var type = typeof(InMemoryBuffer<>).MakeGenericType(columnType.GetColumnType());
+            var type = typeof(InMemoryBuffer<>).MakeGenericType(ExtensionMethods.GetDataType(columnType));
             var ret = Activator.CreateInstance(type, Context, columnType, columnIndex, metadata, RowCount);
             return ((ISingleTypeTableSegment)ret, (ITypedRowConsumer)ret);
         }

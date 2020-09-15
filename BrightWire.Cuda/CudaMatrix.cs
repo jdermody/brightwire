@@ -77,6 +77,7 @@ namespace BrightData.Cuda
             return AsIndexable().ToString();
         }
 
+        public ILinearAlgebraProvider LinearAlgebraProvider => _cuda.DataContext.LinearAlgebraProvider;
         public uint ColumnCount => _columns;
 	    public uint RowCount => _rows;
 	    public IDeviceMemoryPtr Memory => _data;

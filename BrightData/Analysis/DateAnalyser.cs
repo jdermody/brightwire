@@ -28,7 +28,7 @@ namespace BrightData.Analysis
             metadata.SetIfNotNull(Consts.MinDate, MinDate);
             metadata.SetIfNotNull(Consts.MaxDate, MaxDate);
             if(_distinct.Count < Consts.MaxDistinct)
-                metadata.Set(Consts.NumDistinct, _distinct.Count);
+                metadata.Set(Consts.NumDistinct, (uint)_distinct.Count);
         }
 
         void IDataAnalyser.AddObject(object obj) => Add((DateTime) obj);

@@ -16,7 +16,7 @@ namespace BrightData.Analysis
             _writeCount = writeCount;
         }
 
-        public int? NumDistinct => _valueCount.Count < Consts.MaxDistinct ? _valueCount.Count : (int?)null;
+        public uint? NumDistinct => _valueCount.Count < Consts.MaxDistinct ? (uint?)_valueCount.Count : null;
         public string MostFrequent => _valueCount.Count < Consts.MaxDistinct ? _mostFrequent : null;
         public ulong Total { get; private set; } = 0;
         public virtual void Add(T obj)
