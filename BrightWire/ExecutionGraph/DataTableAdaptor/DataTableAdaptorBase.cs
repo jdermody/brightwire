@@ -38,7 +38,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 	    protected DataTableAdaptorBase(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable)
         {
             _lap = lap;
-            _dataTargetIndex = dataTable.GetTargetColumn() ?? throw new ArgumentException("");
+            _dataTargetIndex = dataTable.GetTargetColumnOrThrow();
             _dataColumnIndex = dataTable.ColumnCount.AsRange().Where(ci => ci != _dataTargetIndex).ToArray();
         }
 

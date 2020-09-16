@@ -110,13 +110,6 @@ namespace BrightTable
         BinaryData
     }
 
-    public interface IStringIterator
-    {
-        char Next();
-        long Position { get; }
-        long ProgressPercent { get; }
-    }
-
     public interface ISingleTypeTableSegment : IHaveMetaData, ICanWriteToBinaryWriter, IDisposable
     {
         ColumnType SingleType { get; }
@@ -180,6 +173,7 @@ namespace BrightTable
         IRowOrientedDataTable SelectRows(string filePath, params uint[] rowIndices);
         IRowOrientedDataTable Shuffle(int? randomSeed = null, string filePath = null);
         IRowOrientedDataTable Sort(bool ascending, uint columnIndex, string filePath = null);
+        IEnumerable<(string Label, IRowOrientedDataTable Table)> GroupBy(uint columnIndex);
         string FirstRow { get; }
         string SecondRow { get; }
         string ThirdRow { get; }
@@ -256,7 +250,10 @@ namespace BrightTable
     public interface IConvertibleTable
     {
         IConvertibleRow GetRow(uint index);
+        IEnumerable<IConvertibleRow> Rows(params uint[] rowIndices);
         IRowOrientedDataTable DataTable { get; }
+        IEnumerable<T> Map<T>(Func<IConvertibleRow, T> rowMapper);
+        void ForEachRow(Action<IConvertibleRow> action);
     }
 
     public interface IHaveDataTable
@@ -271,6 +268,7 @@ namespace BrightTable
 
     public interface IConvertibleRow : IHaveDataTable
     {
+        IDataTable DataTable { get; }
         IDataTableSegment Segment { get; }
         T GetField<T>(uint index);
         uint RowIndex { get; }

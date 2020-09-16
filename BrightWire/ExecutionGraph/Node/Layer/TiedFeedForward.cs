@@ -52,8 +52,8 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
         public void UpdateBias(IFloatMatrix delta, ILearningContext context)
         {
-            using (var columnSums = delta.ColumnSums())
-                _bias.AddInPlace(columnSums, 1f / columnSums.Count, context.BatchLearningRate);
+            using var columnSums = delta.ColumnSums();
+            _bias.AddInPlace(columnSums, 1f / columnSums.Count, context.BatchLearningRate);
         }
 
         public override void ExecuteForward(IContext context)

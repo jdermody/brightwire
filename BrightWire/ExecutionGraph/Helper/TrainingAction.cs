@@ -13,10 +13,9 @@ namespace BrightWire.ExecutionGraph.Helper
 		/// <param name="parent">The single parent that contributed to the output (optional)</param>
 	    public TrainingAction(INode source, IGraphData data, INode parent = null)
         {
-            if (parent != null)
-                Parents = new[] { parent };
-            else
-                Parents = new INode[0];
+            Parents = parent != null 
+                ? new[] { parent } 
+                : new INode[0];
 
             Source = source;
             Data = data;

@@ -39,9 +39,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 		        for (var i = 0; i < inputSize; i++)
 			        gamma[i] = 1f;
 	        }
-	        if (beta == null) {
-		        beta = new float[inputSize];
-	        }
+	        beta ??= new float[inputSize];
 
 	        _input = new FlowThrough();
 	        _gamma = new VectorInput(graph.Context, gamma, "gamma");
@@ -57,10 +55,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 		        .Add(new SquareRootOfInput())
 		        .Add(new OneDividedByInput());
 
-	        var normalised = graph.Multiply(_inputSize, subtractMeanOutput, stdDev.LastNode)/*.Add(new InspectSignals(data => {
-		        var matrix = data.GetMatrix().AsIndexable();
-		        var statistics = matrix.Columns.Select(v => (v, v.Average())).Select(v2 => (v2.Item2, v2.Item1.StdDev(v2.Item2))).ToList();
-	        }))*/;
+            var normalised = graph.Multiply(_inputSize, subtractMeanOutput, stdDev.LastNode);
 	        var adjusted = graph.Multiply(_inputSize, _gamma, normalised.LastNode);
 	        _output = graph.Add(_inputSize, _beta, adjusted.LastNode).LastNode;
 
@@ -145,20 +140,17 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 					_meanCached = context.LinearAlgebraProvider.CreateMatrixFromRows(Enumerable.Repeat(mean, (int)input.RowCount).ToList());
 				}
 				if (_stdDevCached?.IsValid != true || _stdDevCached?.RowCount != input.RowCount || _stdDevCached?.ColumnCount != input.ColumnCount) {
-					using (var variance = _statistics.GetSampleVariance())
-					using (var stdDev = variance.Sqrt()) {
-						_stdDevCached = context.LinearAlgebraProvider.CreateMatrixFromRows(Enumerable.Repeat(stdDev, (int)input.RowCount).ToList());
-					}
-				}
+                    using var variance = _statistics.GetSampleVariance();
+                    using var stdDev = variance.Sqrt();
+                    _stdDevCached = context.LinearAlgebraProvider.CreateMatrixFromRows(Enumerable.Repeat(stdDev, (int)input.RowCount).ToList());
+                }
 				
 				input.SubtractInPlace(_meanCached);
-				using (var xHat = input.PointwiseDivide(_stdDevCached)) {
-					using (var ret = xHat.PointwiseMultiply(_gammaCached)) {
-						ret.AddInPlace(_betaCached);
-						_AddNextGraphAction(context, context.Data.ReplaceWith(ret), null);
-					}
-				}
-			}
+                using var xHat = input.PointwiseDivide(_stdDevCached);
+                using var ret = xHat.PointwiseMultiply(_gammaCached);
+                ret.AddInPlace(_betaCached);
+                _AddNextGraphAction(context, context.Data.ReplaceWith(ret), null);
+            }
 
 			if (shouldDispose)
 				input.Dispose();

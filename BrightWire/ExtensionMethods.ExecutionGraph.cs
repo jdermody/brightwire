@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using BrightData;
+using BrightTable;
 using BrightWire.Source.Helper;
 
 namespace BrightWire
@@ -50,10 +51,10 @@ namespace BrightWire
         /// <param name="classifier"></param>
         /// <param name="dataTable"></param>
         /// <returns>A list of rows with their corresponding classifications</returns>
-        //public static IReadOnlyList<(IRow Row, string Classification)> Classifiy(this IRowClassifier classifier, IDataTable dataTable)
-        //{
-        //    return dataTable.Classify(classifier, percentage => Console.Write("\r({0:P}) ", percentage));
-        //}
+        public static IEnumerable<(IConvertibleRow Row, (string Label, float Weight)[] Classification)> Classifiy(this IRowClassifier classifier, IRowOrientedDataTable dataTable)
+        {
+            return dataTable.Classify(classifier);
+        }
 
         /// <summary>
         /// Serialises the node and any other connected nodes to an execution graph

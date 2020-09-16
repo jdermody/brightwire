@@ -95,23 +95,25 @@ namespace BrightTable
 
         public IEnumerable<IDataTableSegment> Rows(params uint[] rowIndices)
         {
-            var ret = new List<IDataTableSegment>();
             if (rowIndices.Any()) {
+                var ret = new List<IDataTableSegment>();
                 ForEachRow(rowIndices, row => ret.Add(new Row(ColumnTypes, row)));
+                return ret;
             }
-            return ret;
+
+            return Enumerable.Empty<IDataTableSegment>();
         }
 
         public IDataTableSegment Row(uint rowIndex) => Rows(rowIndex).SingleOrDefault();
 
         public void ForEachRow(IEnumerable<uint> rowIndices, Action<object[]> callback)
         {
-            var row = new object[_columns.Length];
             lock (_data) {
                 var reader = _data.Reader;
                 foreach (var index in rowIndices) {
                     if (index < _rowOffset.Length) {
                         _data.MoveTo(_rowOffset[index]);
+                        var row = new object[_columns.Length];
                         for (int i = 0, len = _columnReaders.Length; i < len; i++)
                             row[i] = _columnReaders[i].Read(reader);
                         callback(row);
@@ -123,7 +125,7 @@ namespace BrightTable
         public IEnumerable<ISingleTypeTableSegment> Columns(params uint[] columnIndices)
         {
             // TODO: optionally compress the columns based on unique count statistics
-            var columns = columnIndices.Select(i => (Index: i, Column: _GetColumn(ColumnTypes[i], i, _columns[i].MetaData))).ToList();
+            var columns = AllOrSpecifiedColumns(columnIndices).Select(i => (Index: i, Column: _GetColumn(ColumnTypes[i], i, _columns[i].MetaData))).ToList();
             if (columns.Any()) {
                 // set the column metadata
                 columns.ForEach(item => {
@@ -142,15 +144,12 @@ namespace BrightTable
 
         public IEnumerable<IMetaData> ColumnMetaData(params uint[] columnIndices)
         {
-            return columnIndices.Select(i => _columns[i].MetaData);
+            return AllOrSpecifiedColumns(columnIndices).Select(i => _columns[i].MetaData);
         }
 
         public IRowOrientedDataTable AsRowOriented(string filePath = null)
         {
-            using var builder = new RowOrientedTableBuilder(RowCount, filePath);
-
-            foreach (var column in _columns)
-                builder.AddColumn(column.ColumnType, column.MetaData);
+            using var builder = GetBuilderForSelf(RowCount, filePath);
 
             // ReSharper disable once AccessToDisposedClosure
             ForEachRow((row, index) => builder.AddRow(row));
@@ -292,11 +291,17 @@ namespace BrightTable
 
         IRowOrientedDataTable _Copy(uint[] rowIndices, string filePath)
         {
-            using var builder = new RowOrientedTableBuilder((uint)rowIndices.Length, filePath);
-            builder.AddColumnsFrom(this);
+            using var builder = GetBuilderForSelf((uint)rowIndices.Length, filePath);
             // ReSharper disable once AccessToDisposedClosure
             ForEachRow(rowIndices, row => builder.AddRow(row));
             return builder.Build(Context);
+        }
+
+        RowOrientedTableBuilder GetBuilderForSelf(uint rowCount, string filePath)
+        {
+            var ret = new RowOrientedTableBuilder(rowCount, filePath);
+            ret.AddColumnsFrom(this);
+            return ret;
         }
 
         public IRowOrientedDataTable Bag(uint sampleCount, int? randomSeed = null, string filePath = null)
@@ -317,10 +322,9 @@ namespace BrightTable
 
                 rowCount += other.RowCount;
             }
-            using var builder = new RowOrientedTableBuilder(rowCount, filePath);
-            builder.AddColumnsFrom(this);
-
+            using var builder = GetBuilderForSelf(rowCount, filePath);
             ForEachRow(builder.AddRow);
+
             foreach (var other in others)
                 other.ForEachRow(builder.AddRow);
             return builder.Build(Context);
@@ -374,8 +378,24 @@ namespace BrightTable
                 ? sortData.OrderBy(d => d.Item)
                 : sortData.OrderByDescending(d => d.Item);
             var rowIndices = sorted.Select(d => d.RowIndex).ToArray();
-
             return _Copy(rowIndices, filePath);
+        }
+
+        public IEnumerable<(string Label, IRowOrientedDataTable Table)> GroupBy(uint columnIndex)
+        {
+            var groupedData = new Dictionary<string, List<object[]>>();
+            ForEachRow(row => {
+                var label = row[columnIndex].ToString();
+                if (!groupedData.TryGetValue(label, out var data))
+                    groupedData.Add(label, data = new List<object[]>());
+                data.Add(row);
+            });
+
+            return groupedData.Select(g => {
+                using var builder = GetBuilderForSelf((uint) g.Value.Count, null);
+                g.Value.ForEach(builder.AddRow);
+                return (g.Key, builder.Build(Context));
+            });
         }
 
         public override string ToString() => String.Join(", ", _columns.Select(c => c.ToString()));

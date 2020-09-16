@@ -22,7 +22,8 @@ namespace BrightWire.TreeBased
             return _forest
                 .Select(t => t.Classify(row).Single())
                 .GroupBy(d => d.Label)
-                .Select(g => (g.Key, g.Average(d => d.Weight)))
+                .Select(g => (Label: g.Key, CombinedScore: g.Sum(d => d.Weight)))
+                .OrderByDescending(d => d.CombinedScore)
                 .ToArray()
             ;
         }

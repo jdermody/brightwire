@@ -285,5 +285,10 @@ namespace BrightData
         double Subtract { get; }
     }
 
-
+    public enum OperationType
+    {
+        Add,
+        Average,
+        Max
+    }
 }

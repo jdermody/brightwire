@@ -12,27 +12,29 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
     /// </summary>
     class DefaultDataTableAdaptor : RowBasedDataTableAdaptorBase
     {
-        readonly DataTableVectoriser _vectoriser;
+        readonly DataTableVectoriser _inputVectoriser;
+        readonly DataTableVectoriser _outputVectoriser;
 
-        public DefaultDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, DataTableVectoriser vectoriser)
+        public DefaultDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, DataTableVectoriser inputVectoriser, DataTableVectoriser outputVectoriser)
             : base(lap, dataTable)
         {
-            _vectoriser = vectoriser ?? new DataTableVectoriser(dataTable);
+            _inputVectoriser = inputVectoriser ?? new DataTableVectoriser(dataTable, _dataColumnIndex);
+            _outputVectoriser = outputVectoriser ?? new DataTableVectoriser(dataTable, dataTable.GetTargetColumnOrThrow());
         }
 
         public override IDataSource CloneWith(IRowOrientedDataTable dataTable)
         {
-            return new DefaultDataTableAdaptor(_lap, dataTable, _vectoriser);
+            return new DefaultDataTableAdaptor(_lap, dataTable, _inputVectoriser, _outputVectoriser);
         }
 
-        public override uint InputSize => _vectoriser.InputSize;
-        public override uint? OutputSize => _vectoriser.OutputSize;
+        public override uint InputSize => _inputVectoriser.Size;
+        public override uint? OutputSize => _outputVectoriser.Size;
         public override bool IsSequential => false;
 
         public override IMiniBatch Get(IExecutionContext executionContext, uint[] rows)
         {
             var data = _GetRows(rows)
-                .Select(r => (new[] { _vectoriser.GetInput(r) }, _vectoriser.GetOutput(r)))
+                .Select(r => (new[] { _inputVectoriser.Convert(r) }, _outputVectoriser.Convert(r)))
                 .ToArray()
             ;
             return _GetMiniBatch(rows, data);

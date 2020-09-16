@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using BrightData;
 using BrightData.FloatTensors;
+using BrightWire.TrainingData.Helper;
 
 namespace BrightWire.TrainingData.Artificial
 {
@@ -55,9 +56,10 @@ namespace BrightWire.TrainingData.Artificial
         /// <summary>
         /// One hot encodes the REBER strings
         /// </summary>
+        /// <param name="context"></param>
         /// <param name="strList">A list of REBER sequences</param>
         /// <returns>A data table with matrices to represent the sequences of vectors and their corresponding outputs</returns>
-        public static IDataTable GetOneHot(IEnumerable<string> strList)
+        public static IDataTable GetOneHot(IBrightDataContext context, IEnumerable<string> strList)
         {
 	        var strList2 = strList.ToList();
 
@@ -78,33 +80,28 @@ namespace BrightWire.TrainingData.Artificial
                 }
             }
 
-            throw new NotImplementedException();
-            //var builder = DataTableBuilder.CreateTwoColumnMatrix();
-            //foreach (var str in strList2) {
-            //    var inputList = new FloatVector[str.Length];
-            //    var outputList = new FloatVector[str.Length];
+            var builder = DataTableBuilder.CreateTwoColumnMatrix(context);
+            foreach (var str in strList2) {
+                var inputList = new Vector<float>[str.Length];
+                var outputList = new Vector<float>[str.Length];
 
-            //    var sb = new StringBuilder();
-            //    for (var i = 0; i < str.Length; i++) {
-            //        var ch = str[i];
-            //        sb.Append(ch);
-            //        var input = new float[_ch.Count];
-            //        var output = new float[_ch.Count];
-            //        input[_ch[ch]] = 1f;
-            //        if (following.TryGetValue(sb.ToString(), out HashSet<int> temp)) {
-            //            foreach (var item in temp)
-            //                output[item] = 1f;
-            //        }
-            //        inputList[i] = new FloatVector {
-            //            Segment = input
-            //        };
-            //        outputList[i] = new FloatVector {
-            //            Segment = output
-            //        };
-            //    }
-            //    builder.Add(FloatMatrix.Create(inputList), FloatMatrix.Create(outputList));
-            //}
-            //return builder.Build();
+                var sb = new StringBuilder();
+                for (var i = 0; i < str.Length; i++) {
+                    var ch = str[i];
+                    sb.Append(ch);
+                    var input = new float[_ch.Count];
+                    var output = new float[_ch.Count];
+                    input[_ch[ch]] = 1f;
+                    if (following.TryGetValue(sb.ToString(), out HashSet<int> temp)) {
+                        foreach (var item in temp)
+                            output[item] = 1f;
+                    }
+                    inputList[i] = context.CreateVector(input);
+                    outputList[i] = context.CreateVector(output);
+                }
+                builder.AddRow(context.CreateMatrixFromRows(inputList), context.CreateMatrixFromRows(outputList));
+            }
+            return builder.Build();
         }
 
         /// <summary>

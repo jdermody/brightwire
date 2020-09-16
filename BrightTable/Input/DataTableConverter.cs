@@ -2,8 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Reflection;
 using System.Text;
+using BrightTable.Segments;
 
 namespace BrightTable.Input
 {
@@ -40,7 +42,20 @@ namespace BrightTable.Input
             DataTable = dataTable;
         }
 
+        public IEnumerable<IConvertibleRow> Rows(params uint[] rowIndices) => rowIndices.Select(GetRow);
+
         public IRowOrientedDataTable DataTable { get; }
+        public IEnumerable<T> Map<T>(Func<IConvertibleRow, T> rowMapper)
+        {
+            for (uint i = 0, len = DataTable.RowCount; i < len; i++)
+                yield return rowMapper(GetRow(i));
+        }
+
+        public void ForEachRow(Action<IConvertibleRow> action)
+        {
+            for (uint i = 0, len = DataTable.RowCount; i < len; i++)
+                action(GetRow(i));
+        }
 
         public IConvertibleRow GetRow(uint index) => new ConvertibleRow(index, DataTable.Row(index), this);
 

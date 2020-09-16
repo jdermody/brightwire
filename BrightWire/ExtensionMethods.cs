@@ -13,65 +13,9 @@ namespace BrightWire
     /// </summary>
     public static partial class ExtensionMethods
     {
-        /// <summary>
-        /// Shuffles the enumerable
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="seq">The sequence to shuffle</param>
-        /// <param name="randomSeed">The random seed to use or null for a random shuffle</param>
-        public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> seq, int? randomSeed = null)
-        {
-            var rnd = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
-            return Shuffle(seq, rnd);
-        }
-
-        /// <summary>
-        /// Shuffles the enumerable
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="seq">The sequence to shuffle</param>
-        /// <param name="rnd">The random number generator to use</param>
-        public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> seq, Random rnd)
-        {
-            return seq.OrderBy(e => rnd.Next()).ToList();
-        }
-
-        /// <summary>
-        /// Splits a sequence into training and test splits
-        /// </summary>
-        /// <typeparam name="T">The type of the sequence</typeparam>
-        /// <param name="seq">The sequence to split</param>
-        /// <param name="trainPercentage">The percentage of the sequence to add to the training set</param>
-        public static (T[] Training, T[] Test) Split<T>(this T[] seq, double trainPercentage = 0.8)
-        {
-            var input = seq.Length.AsRange().ToList();
-            int trainingCount = Convert.ToInt32(seq.Length * trainPercentage);
-            return (
-                input.Take(trainingCount).Select(i => seq[i]).ToArray(),
-                input.Skip(trainingCount).Select(i => seq[i]).ToArray()
-            );
-        }
-
-        /// <summary>
-        /// Bags (select with replacement) the input sequence
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="list">The input sequence</param>
-        /// <param name="count">The size of the output sequence</param>
-        /// <param name="randomSeed">The random seed or null initialise randomlu</param>
-        /// <returns></returns>
-        public static T[] Bag<T>(this T[] list, int count, int? randomSeed = null)
-        {
-            var rnd = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
-            return Enumerable.Range(0, count)
-                .Select(i => list[rnd.Next(0, list.Length)])
-                .ToArray()
-            ;
-        }
-
         public static T[] GetFields<T>(this IConvertibleRow row, params uint[] indices)
         {
-            return indices.Select(i => row.GetField<T>(i)).ToArray();
+            return indices.Select(row.GetField<T>).ToArray();
         }
 
         public static IEnumerable<(IConvertibleRow Row, (string Label, float Weight)[] Classification)> Classify(this IRowOrientedDataTable dataTable, IRowClassifier classifier)
@@ -85,6 +29,36 @@ namespace BrightWire
                 var row = convertible.GetRow(i);
                 yield return (row, classifier.Classify(row));
             }
+        }
+
+        public static IEnumerable<uint[]> HierachicalCluster(this IDataTable dataTable, int k)
+        {
+            var lap = dataTable.Context.LinearAlgebraProvider;
+            var data = dataTable.ForEachAsFloat()
+                .Select((r, i) => (Vector: lap.CreateVector(r.Numeric), RowIndex: (uint)i))
+                .ToDictionary(d => d.Vector);
+            return data.Keys.HierachicalCluster(k)
+                .Select(c => c.Select(v => data[v].RowIndex).ToArray());
+        }
+
+        public static IEnumerable<uint[]> KMeans(this IDataTable dataTable, int k, int maxIterations = 1000, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
+        {
+            var lap = dataTable.Context.LinearAlgebraProvider;
+            var data = dataTable.ForEachAsFloat()
+                .Select((r, i) => (Vector: lap.CreateVector(r.Numeric), RowIndex: (uint)i))
+                .ToDictionary(d => d.Vector);
+            return data.Keys.KMeans(k, maxIterations, distanceMetric)
+                .Select(c => c.Select(v => data[v].RowIndex).ToArray());
+        }
+
+        public static IEnumerable<uint[]> NonNegativeMatrixFactorisation(this IDataTable dataTable, int k, int maxIterations = 1000)
+        {
+            var lap = dataTable.Context.LinearAlgebraProvider;
+            var data = dataTable.ForEachAsFloat()
+                .Select((r, i) => (Vector: lap.CreateVector(r.Numeric), RowIndex: (uint)i))
+                .ToDictionary(d => d.Vector);
+            return data.Keys.NNMF(lap, k, maxIterations)
+                .Select(c => c.Select(v => data[v].RowIndex).ToArray());
         }
     }
 }

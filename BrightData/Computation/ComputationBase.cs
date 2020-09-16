@@ -230,12 +230,12 @@ namespace BrightData.Computation
             uint index = 0;
 
             foreach (var value in segment.Values) {
-                if (value.CompareTo(max) > 0) {
+                if (value.CompareTo(max) < 0) {
                     max = value;
                     maxIndex = index;
                 }
 
-                if (value.CompareTo(min) < 0) {
+                if (value.CompareTo(min) > 0) {
                     min = value;
                     minIndex = index;
                 }

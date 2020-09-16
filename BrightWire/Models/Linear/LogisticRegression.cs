@@ -17,7 +17,7 @@ namespace BrightWire.Models
         /// Creates a classifier from this model
         /// </summary>
         /// <param name="lap">Linear algebra provider</param>
-        public ILogisticRegressionClassifier CreatePredictor(ILinearAlgebraProvider lap)
+        public ILogisticRegressionClassifier CreateClassifier(ILinearAlgebraProvider lap)
         {
             return new LogisticRegressionPredictor(lap, lap.CreateVector(Theta.Segment));
         }

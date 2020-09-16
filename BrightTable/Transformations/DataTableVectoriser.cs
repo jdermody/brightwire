@@ -144,72 +144,43 @@ namespace BrightTable.Transformations
         }
 
         readonly List<IColumnVectoriser> _input = new List<IColumnVectoriser>();
-        readonly IColumnVectoriser _target = null;
 
-        public uint InputSize => (uint)_input.Sum(c => c.Size);
-        public uint OutputSize => _target?.Size ?? 0;
+        public uint Size => (uint)_input.Sum(c => c.Size);
         public uint RowCount { get; }
         public IBrightDataContext Context { get; }
+        public IEnumerable<uint> ColumnIndices => _input.Select(c => c.ColumnIndex);
 
-        public float[] GetInput(object[] row)
+        public float[] Convert(object[] row)
         {
             return _input.SelectMany(i => i.Convert(row[i.ColumnIndex])).ToArray();
         }
 
-        public float[] GetOutput(object[] row)
+        public DataTableVectoriser(IDataTable dataTable, params uint[] columnIndices)
         {
-            return _target.Convert(row[_target.ColumnIndex]).ToArray();
-        }
+            if (columnIndices == null || columnIndices.Length == 0)
+                columnIndices = dataTable.ColumnIndices().ToArray();
 
-        public DataTableVectoriser(IDataTable dataTable)
-        {
-            var targetColumn = dataTable.GetTargetColumn();
             RowCount = dataTable.RowCount;
             Context = dataTable.Context;
 
-            var inputColumnIndices = dataTable.ColumnIndices().ToList();
-            var targetColumnIndices = new List<uint>();
-            if (targetColumn.HasValue) {
-                inputColumnIndices.Remove(targetColumn.Value);
-                _target = dataTable.Columns(new[] { targetColumn.Value })
-                    .Select(_GetColumnVectoriser)
-                    .Single()
-                ;
-            }
-
-            _input.AddRange(dataTable.Columns(inputColumnIndices.ToArray())
+            _input.AddRange(dataTable.Columns(columnIndices)
                 .Select(_GetColumnVectoriser)
             );
         }
 
-        public IRowOrientedDataTable Vectorize(string filePath = null)
+        public IEnumerable<Vector<float>> Enumerate()
         {
-            var builder = new RowOrientedTableBuilder(RowCount, filePath);
-            builder.AddColumn(ColumnType.Vector, "Input");
-            if (_target != null)
-                builder.AddColumn(ColumnType.Vector, "Target").SetTargetColumn(true);
-            var inputSize = InputSize;
-            var outputSize = OutputSize;
+            var ret = new float[Size];
 
-            var inputBuffer = new float[inputSize];
-            var outputBuffer = new float[outputSize];
             for (uint i = 0; i < RowCount; i++) {
                 var index = 0;
                 foreach (var column in _input) {
                     foreach (var value in column.GetNext())
-                        inputBuffer[index++] = value;
+                        ret[index++] = value;
                 }
-                var input = Context.CreateVector(inputBuffer);
-                if (_target != null) {
-                    index = 0;
-                    foreach (var value in _target.GetNext())
-                        outputBuffer[index++] = value;
-                    builder.AddRow(input, Context.CreateVector(outputBuffer));
-                } else
-                    builder.AddRow(input);
+                var input = Context.CreateVector(ret);
+                yield return input;
             }
-
-            return builder.Build(Context);
         }
 
         static IColumnVectoriser _GetColumnVectoriser(ISingleTypeTableSegment column)

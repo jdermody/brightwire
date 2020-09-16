@@ -16,9 +16,9 @@ namespace BrightWire.InstanceBased
         readonly ILinearAlgebraProvider _lap;
         readonly IFloatVector[] _instance;
         readonly DistanceMetric _distanceMetric;
-        readonly int _k;
+        readonly uint _k;
 
-        public KNNClassifier(ILinearAlgebraProvider lap, KNearestNeighbours model, int k, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
+        public KNNClassifier(ILinearAlgebraProvider lap, KNearestNeighbours model, uint k, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
         {
             _k = k;
             _lap = lap;
@@ -41,16 +41,15 @@ namespace BrightWire.InstanceBased
             // TODO: categorical features?
 
             // find the k closest neighbours and score the results based on proximity to rank the classifications
-            using (var vector = _lap.CreateVector(features)) {
-                var distances = vector.FindDistances(_instance, _distanceMetric).AsIndexable();
-                return distances.Values
+            using var vector = _lap.CreateVector(features);
+            var distances = vector.FindDistances(_instance, _distanceMetric).AsIndexable();
+            return distances.Values
                     .Zip(_model.Classification, (s, l) => Tuple.Create(l, s))
                     .OrderBy(d => d.Item2)
-                    .Take(_k)
+                    .Take((int)_k)
                     .GroupBy(d => d.Item1)
                     .Select(g => Tuple.Create(g.Key, g.Sum(d => 1f / d.Item2)))
                 ;
-            }
         }
 
         public (string Label, float Weight)[] Classify(IConvertibleRow row)

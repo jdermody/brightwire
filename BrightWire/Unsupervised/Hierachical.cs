@@ -79,7 +79,7 @@ namespace BrightWire.Unsupervised
         readonly DistanceMatrix _distanceMatrix = new DistanceMatrix();
         readonly List<Centroid> _centroid;
 
-        public Hierachical(int k, IFloatVector[] data, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
+        public Hierachical(int k, IEnumerable<IFloatVector> data, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
         {
             _k = k;
             _distanceMetric = distanceMetric;

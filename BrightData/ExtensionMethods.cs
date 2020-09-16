@@ -262,17 +262,17 @@ namespace BrightData
 
         public static float CosineDistance(this float[] vector, float[] other)
         {
-            return BrightData.Distance.CosineDistance.Calculate(vector, other);
+            return Distance.CosineDistance.Calculate(vector, other);
         }
 
         public static float EuclideanDistance(this float[] vector, float[] other)
         {
-            return BrightData.Distance.EuclideanDistance.Calculate(vector, other);
+            return Distance.EuclideanDistance.Calculate(vector, other);
         }
 
         public static float ManhattanDistance(this float[] vector, float[] other)
         {
-            return BrightData.Distance.ManhattanDistance.Calculate(vector, other);
+            return Distance.ManhattanDistance.Calculate(vector, other);
         }
 
         public static Vector<float> Mutate(this Vector<float> vector, Func<float, float> mutator)
@@ -410,6 +410,18 @@ namespace BrightData
                 context ??= vector.Context;
                 yield return context.LinearAlgebraProvider.CreateVector(vector);
             }
+        }
+
+        public static float Execute(this OperationType operation, List<float> data)
+        {
+            if (operation == OperationType.Add)
+                return data.Sum();
+            else if (operation == OperationType.Average)
+                return data.Average();
+            else if (operation == OperationType.Max)
+                return data.Max();
+
+            throw new NotImplementedException();
         }
     }
 }

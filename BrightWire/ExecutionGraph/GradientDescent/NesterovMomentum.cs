@@ -13,11 +13,10 @@ namespace BrightWire.ExecutionGraph.GradientDescent
 
         public override void Update(IFloatMatrix source, IFloatMatrix delta, ILearningContext context)
         {
-            using (var previousVelocity = _cache.Clone()) {
-                _cache.AddInPlace(delta, _momentum);
-                previousVelocity.AddInPlace(_cache, -_momentum, 1 + _momentum);
-                _updater.Update(source, previousVelocity, context);
-            }
+            using var previousVelocity = _cache.Clone();
+            _cache.AddInPlace(delta, _momentum);
+            previousVelocity.AddInPlace(_cache, -_momentum, 1 + _momentum);
+            _updater.Update(source, previousVelocity, context);
         }
     }
 }

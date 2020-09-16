@@ -8,6 +8,7 @@ using BrightWire;
 using BrightWire.ExecutionGraph;
 using BrightWire.Models;
 using BrightWire.Models.Bayesian;
+using BrightWire.Models.InstanceBased;
 
 namespace ExampleCode
 {
@@ -15,7 +16,7 @@ namespace ExampleCode
     {
         public DataTableTrainer(IRowOrientedDataTable table)
         {
-            TargetColumn = table.GetTargetColumn() ?? throw new Exception("No target column was set");
+            TargetColumn = table.GetTargetColumnOrThrow();
             Table = table;
             var split = table.Split();
             Training = split.Training;
@@ -24,7 +25,7 @@ namespace ExampleCode
 
         public DataTableTrainer(IRowOrientedDataTable table, IRowOrientedDataTable training, IRowOrientedDataTable test)
         {
-            TargetColumn = table.GetTargetColumn() ?? throw new Exception("No target column was set");
+            TargetColumn = table.GetTargetColumnOrThrow();
             Table = table;
             Training = training;
             Test = test;
@@ -38,13 +39,40 @@ namespace ExampleCode
         public NaiveBayes TrainNaiveBayes(bool writeResults = true)
         {
             var ret = Training.TrainNaiveBayes();
-            if (writeResults) {
-                Console.WriteLine("Naive bayes accuracy: {0:P}", Test
-                    .Classify(ret.CreateClassifier())
-                    .Average(d => d.Row.GetField<string>(TargetColumn) == d.Classification.Single().Label ? 1.0 : 0.0)
-                );
-            }
+            if (writeResults)
+                WriteResults("Naive bayes", ret.CreateClassifier());
             return ret;
+        }
+
+        public DecisionTree TrainDecisionTree(bool writeResults = true)
+        {
+            var ret = Training.TrainDecisionTree();
+            if (writeResults)
+                WriteResults("Decision tree", ret.CreateClassifier());
+            return ret;
+        }
+
+        public RandomForest TrainRandomForest(uint numTrees, uint? baggedRowCount = null, bool writeResults = true)
+        {
+            var ret = Training.TrainRandomForest(numTrees, baggedRowCount);
+            if(writeResults)
+                WriteResults("Random forest", ret.CreateClassifier());
+            return ret;
+        }
+
+        public KNearestNeighbours TrainKNearestNeighbours(uint k, bool writeResults = true)
+        {
+            var ret = Training.TrainKNearestNeighbours();
+            if (writeResults)
+                WriteResults("K nearest neighbours", ret.CreateClassifier(Table.Context.LinearAlgebraProvider, k));
+            return ret;
+        }
+
+        public void TrainMultinomialLogisticRegression(uint iterations, float trainingRate, bool writeResults = true)
+        {
+            var ret = Training.TrainMultinomialLogisticRegression(iterations, trainingRate);
+            if (writeResults)
+                WriteResults("Multinomial logistic regression", ret.CreateClassifier(Table.Context.LinearAlgebraProvider));
         }
 
         public ExecutionGraph TrainSigmoidNeuralNetwork(uint hiddenLayerSize, float learningRate, uint batchSize, bool writeResults = true)
@@ -109,6 +137,25 @@ namespace ExampleCode
 			}
 
             return networkGraph;
+        }
+
+        void WriteResults(string type, IRowClassifier classifier)
+        {
+            var results = Test.Classify(classifier).ToList();
+            var score = results
+                .Average(d => d.Row.GetField<string>(TargetColumn) == d.Classification.OrderByDescending(d => d.Weight).First().Label ? 1.0 : 0.0);
+
+            Console.WriteLine($"{type} accuracy: {score:P}");
+        }
+
+        void WriteResults(string type, ITableClassifier classifier)
+        {
+            var results = classifier.Classify(Test).ToList();
+            var expectedLabels = Test.Column(TargetColumn).Enumerate().Select(o => o.ToString()).ToArray();
+            var score = results
+                .Average(d => expectedLabels[d.RowIndex] == d.Predictions.OrderByDescending(d => d.Weight).First().Classification ? 1.0 : 0.0);
+
+            Console.WriteLine($"{type} accuracy: {score:P}");
         }
     }
 }

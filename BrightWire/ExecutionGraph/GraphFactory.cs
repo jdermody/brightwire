@@ -34,10 +34,7 @@ namespace BrightWire.ExecutionGraph
 	/// </summary>
 	public class GraphFactory
 	{
-		readonly ILinearAlgebraProvider _lap;
-		readonly IGradientDescentOptimisation _simpleGradientDescent = new StochasticGradientDescent();
-		readonly ICreateTemplateBasedGradientDescent _rmsProp = new RmsPropDescriptor(0.9f);
-		//readonly List<(TypeInfo, Type, string)> _queryTypes = new List<(TypeInfo, Type, string)>();
+        readonly ICreateTemplateBasedGradientDescent _rmsProp = new RmsPropDescriptor(0.9f);
 		readonly Stack<IPropertySet> _propertySetStack = new Stack<IPropertySet>();
 		readonly IPropertySet _defaultPropertySet;
 
@@ -48,33 +45,22 @@ namespace BrightWire.ExecutionGraph
 		/// <param name="propertySet">A property set with initialisation data (optional)</param>
 		public GraphFactory(ILinearAlgebraProvider lap, IPropertySet propertySet = null)
 		{
-			_lap = lap;
-			WeightInitialisation = new WeightInitialisationProvider(_lap);
+			LinearAlgebraProvider = lap;
+			WeightInitialisation = new WeightInitialisationProvider(LinearAlgebraProvider);
 			GraphOperation = new GraphOperationProvider();
 			GraphAction = new GraphActionProvider();
-			_defaultPropertySet = propertySet ?? new PropertySet(_lap) {
+			_defaultPropertySet = propertySet ?? new PropertySet(LinearAlgebraProvider) {
 				WeightInitialisation = WeightInitialisation.Gaussian,
 				TemplateGradientDescentDescriptor = _rmsProp
 			};
+        }
 
-			// add the gradient descent descriptors
-			//_Add(typeof(L1RegularisationDescriptor), PropertySet.GRADIENT_DESCENT_DESCRIPTOR);
-			//_Add(typeof(L2RegularisationDescriptor), PropertySet.GRADIENT_DESCENT_DESCRIPTOR);
+        /// <summary>
+        /// Linear algebra provider
+        /// </summary>
+        public ILinearAlgebraProvider LinearAlgebraProvider { get; }
 
-			//// add the template based gradient descent descriptors
-			//_Add(typeof(AdaGradDescriptor), PropertySet.TEMPLATE_GRADIENT_DESCENT_DESCRIPTOR);
-			//_Add(typeof(AdamDescriptor), PropertySet.TEMPLATE_GRADIENT_DESCENT_DESCRIPTOR);
-			//_Add(typeof(MomentumDescriptor), PropertySet.TEMPLATE_GRADIENT_DESCENT_DESCRIPTOR);
-			//_Add(typeof(NesterovMomentumDescriptor), PropertySet.TEMPLATE_GRADIENT_DESCENT_DESCRIPTOR);
-			//_Add(typeof(RmsPropDescriptor), PropertySet.TEMPLATE_GRADIENT_DESCENT_DESCRIPTOR);
-		}
-
-		/// <summary>
-		/// Linear algebra provider
-		/// </summary>
-		public ILinearAlgebraProvider LinearAlgebraProvider => _lap;
-
-        public IBrightDataContext Context => _lap.Context;
+        public IBrightDataContext Context => LinearAlgebraProvider.Context;
 
 		/// <summary>
 		/// The current property set
@@ -126,9 +112,9 @@ namespace BrightWire.ExecutionGraph
 			// look for a template based descriptor
 			var createTemplateGradientDescent = propertySet.TemplateGradientDescentDescriptor;
 			if (createTemplateGradientDescent != null)
-				ret = createTemplateGradientDescent.Create(ret ?? _simpleGradientDescent, weight, propertySet);
+				ret = createTemplateGradientDescent.Create(ret ?? SimpleGradientDescent, weight, propertySet);
 
-			return ret ?? _simpleGradientDescent;
+			return ret ?? SimpleGradientDescent;
 		}
 
 		IWeightInitialisation _GetWeightInitialisation()
@@ -144,7 +130,7 @@ namespace BrightWire.ExecutionGraph
 		/// <returns></returns>
 		public IExecutionContext CreateExecutionContext()
 		{
-			return new ExecutionContext(_lap);
+			return new ExecutionContext(LinearAlgebraProvider);
 		}
 
 		/// <summary>
@@ -157,7 +143,7 @@ namespace BrightWire.ExecutionGraph
 		/// <returns></returns>
 		public ILearningContext CreateLearningContext(float learningRate, uint batchSize, TrainingErrorCalculation trainingErrorCalculation = TrainingErrorCalculation.Fast, bool deferUpdates = false)
 		{
-			return new LearningContext(_lap, learningRate, batchSize, trainingErrorCalculation, deferUpdates);
+			return new LearningContext(LinearAlgebraProvider, learningRate, batchSize, trainingErrorCalculation, deferUpdates);
 		}
 
 		/// <summary>
@@ -170,8 +156,8 @@ namespace BrightWire.ExecutionGraph
 		/// <returns></returns>
 		public IGraphTrainingEngine CreateTrainingEngine(IDataSource dataSource, float learningRate = 0.1f, uint batchSize = 128, TrainingErrorCalculation trainingErrorCalculation = TrainingErrorCalculation.Fast)
 		{
-			var learningContext = new LearningContext(_lap, learningRate, batchSize, trainingErrorCalculation, dataSource.IsSequential);
-			return new TrainingEngine(_lap, dataSource, learningContext, null);
+			var learningContext = new LearningContext(LinearAlgebraProvider, learningRate, batchSize, trainingErrorCalculation, dataSource.IsSequential);
+			return new TrainingEngine(LinearAlgebraProvider, dataSource, learningContext, null);
 		}
 
 		/// <summary>
@@ -185,9 +171,9 @@ namespace BrightWire.ExecutionGraph
 		/// <returns></returns>
 		public IGraphTrainingEngine CreateTrainingEngine(IDataSource dataSource, Models.ExecutionGraph graph, float trainingRate = 0.1f, uint batchSize = 128, TrainingErrorCalculation trainingErrorCalculation = TrainingErrorCalculation.Fast)
 		{
-			var learningContext = new LearningContext(_lap, trainingRate, batchSize, trainingErrorCalculation, dataSource.IsSequential);
+			var learningContext = new LearningContext(LinearAlgebraProvider, trainingRate, batchSize, trainingErrorCalculation, dataSource.IsSequential);
 			var input = this.CreateFrom(graph);
-			return new TrainingEngine(_lap, dataSource, learningContext, input);
+			return new TrainingEngine(LinearAlgebraProvider, dataSource, learningContext, input);
 		}
 
 		/// <summary>
@@ -200,7 +186,7 @@ namespace BrightWire.ExecutionGraph
 		public IGraphTrainingEngine CreateTrainingEngine(IDataSource dataSource, ILearningContext learningContext, Models.ExecutionGraph graph = null)
 		{
 			var input = this.CreateFrom(graph);
-			return new TrainingEngine(_lap, dataSource, learningContext, input);
+			return new TrainingEngine(LinearAlgebraProvider, dataSource, learningContext, input);
 		}
 
 		/// <summary>
@@ -211,7 +197,7 @@ namespace BrightWire.ExecutionGraph
 		public IGraphEngine CreateEngine(Models.ExecutionGraph graph)
 		{
 			var input = this.CreateFrom(graph);
-			return new ExecutionEngine(_lap, graph, input);
+			return new ExecutionEngine(LinearAlgebraProvider, graph, input);
 		}
 
 		/// <summary>
@@ -220,7 +206,7 @@ namespace BrightWire.ExecutionGraph
 		/// <param name="vectorList">The list of vectors that will be the rows in the data source</param>
 		public IDataSource CreateDataSource(Vector<float>[] vectorList)
 		{
-			return new VectorDataSource(_lap, vectorList);
+			return new VectorDataSource(LinearAlgebraProvider, vectorList);
 		}
 
 		/// <summary>
@@ -230,7 +216,7 @@ namespace BrightWire.ExecutionGraph
 		/// <returns></returns>
 		public IDataSource CreateDataSource(Matrix<float>[] sequenceList)
 		{
-			return new SequentialDataSource(_lap, sequenceList);
+			return new SequentialDataSource(LinearAlgebraProvider, sequenceList);
 		}
 
 		/// <summary>
@@ -240,19 +226,18 @@ namespace BrightWire.ExecutionGraph
 		/// <returns></returns>
 		public IDataSource CreateDataSource(Tensor3D<float>[] tensorList)
 		{
-			return new TensorDataSource(_lap, tensorList);
+			return new TensorDataSource(LinearAlgebraProvider, tensorList);
 		}
 
 		/// <summary>
 		/// Creates a data source from a data table
 		/// </summary>
 		/// <param name="dataTable">The data table to convert</param>
-		/// <param name="vectoriser">Optional data table vectoriser (if the data table contains categorical or index based data)</param>
 		/// <returns></returns>
-		public IDataSource CreateDataSource(IRowOrientedDataTable dataTable, DataTableVectoriser vectoriser = null)
+		public IDataSource CreateDataSource(IRowOrientedDataTable dataTable)
 		{
 			var columns = dataTable.ColumnTypes;
-			var targetColumn = dataTable.GetTargetColumn() ?? throw new Exception("");
+			var targetColumn = dataTable.GetTargetColumnOrThrow();
 			var featureColumnTypes = columns
 				.Where((c, i) => i != targetColumn)
 				.ToList()
@@ -263,35 +248,35 @@ namespace BrightWire.ExecutionGraph
 			if (featureColumnType != ColumnType.Unknown && featureColumnTypes.All(ct => ct == featureColumnType)) {
 				// many to many
 				if (featureColumnType == ColumnType.Matrix && targetColumnType == ColumnType.Matrix)
-					return new SequentialDataTableAdaptor(_lap, dataTable);
+					return new SequentialDataTableAdaptor(LinearAlgebraProvider, dataTable);
 
 				// one to one
-				else if (featureColumnType == ColumnType.Vector && targetColumnType == ColumnType.Vector)
-					return new VectorBasedDataTableAdaptor(_lap, dataTable);
+				if (featureColumnType == ColumnType.Vector && targetColumnType == ColumnType.Vector)
+					return new VectorBasedDataTableAdaptor(LinearAlgebraProvider, dataTable);
 
 				// one to many
-				else if (featureColumnType == ColumnType.Vector && targetColumnType == ColumnType.Matrix)
-					return new OneToManyDataTableAdaptor(_lap, dataTable);
+				if (featureColumnType == ColumnType.Vector && targetColumnType == ColumnType.Matrix)
+					return new OneToManyDataTableAdaptor(LinearAlgebraProvider, dataTable);
 
 				// many to one
-				else if (featureColumnType == ColumnType.Matrix && targetColumnType == ColumnType.Vector)
-					return new ManyToOneDataTableAdaptor(_lap, dataTable);
+				if (featureColumnType == ColumnType.Matrix && targetColumnType == ColumnType.Vector)
+					return new ManyToOneDataTableAdaptor(LinearAlgebraProvider, dataTable);
 
 				// volume classification
-				else if (featureColumnType == ColumnType.Tensor3D && targetColumnType == ColumnType.Vector)
-					return new TensorBasedDataTableAdaptor(_lap, dataTable);
+				if (featureColumnType == ColumnType.Tensor3D && targetColumnType == ColumnType.Vector)
+					return new TensorBasedDataTableAdaptor(LinearAlgebraProvider, dataTable);
 
 				// index list
-				else if (featureColumnType == ColumnType.IndexList)
-					return new IndexListDataTableAdaptor(_lap, dataTable, vectoriser);
+				if (featureColumnType == ColumnType.IndexList)
+					return new IndexListDataTableAdaptor(LinearAlgebraProvider, dataTable, null);
 
 				// weighted index list
-				else if (featureColumnType == ColumnType.WeightedIndexList)
-					return new WeightedIndexListDataTableAdaptor(_lap, dataTable, vectoriser);
+				if (featureColumnType == ColumnType.WeightedIndexList)
+					return new WeightedIndexListDataTableAdaptor(LinearAlgebraProvider, dataTable, null);
 			}
 
 			// default adapator
-			return new DefaultDataTableAdaptor(_lap, dataTable, vectoriser);
+			return new DefaultDataTableAdaptor(LinearAlgebraProvider, dataTable, null, null);
 		}
 
 		/// <summary>
@@ -310,7 +295,7 @@ namespace BrightWire.ExecutionGraph
 
 				// sequence to sequence
 				if (column1 == ColumnType.Matrix && column2 == ColumnType.Matrix)
-					return new SequenceToSequenceDataTableAdaptor(_lap, learningContext, this, dataTable, dataConversionBuilder);
+					return new SequenceToSequenceDataTableAdaptor(LinearAlgebraProvider, learningContext, this, dataTable, dataConversionBuilder);
 			}
 			throw new ArgumentException($"{nameof(dataTable)} does not contain a recognised data format");
 		}
@@ -332,33 +317,33 @@ namespace BrightWire.ExecutionGraph
 				var column2 = columns[1];
 
 				if (column1 == ColumnType.Matrix && column2 == ColumnType.Matrix)
-					return new SequenceToSequenceDataTableAdaptor(_lap, learningContext, dataTable, input, dataSource);
+					return new SequenceToSequenceDataTableAdaptor(LinearAlgebraProvider, learningContext, dataTable, input, dataSource);
 			}
 			throw new ArgumentException($"{nameof(dataTable)} does not contain a recognised data format");
 		}
 
-		/// <summary>
-		/// Create a row classifier node
-		/// </summary>
-		/// <param name="classifier">The classifier for each row</param>
-		/// <param name="dataTable">The data table that contains the rows to classify (linked by mini batch index)</param>
-		/// <param name="analysis">Optional data table analysis data</param>
-		/// <param name="name">Optional name to give the node</param>
-		/// <returns></returns>
-		//public (INode RowClassifier, int OutputSize) CreateClassifier(IRowClassifier classifier, IDataTable dataTable, IDataTableAnalysis analysis = null, string name = null)
-		//{
-		//	var ret = new RowClassifier(_lap, classifier, dataTable, analysis ?? dataTable.GetAnalysis(), name);
-		//	return (ret, ret.OutputSize);
-		//}
+        /// <summary>
+        /// Create a row classifier node
+        /// </summary>
+        /// <param name="classifier">The classifier for each row</param>
+        /// <param name="dataTable">The data table that contains the rows to classify (linked by mini batch index)</param>
+        /// <param name="analysis">Optional data table analysis data</param>
+        /// <param name="name">Optional name to give the node</param>
+        /// <returns></returns>
+        public (INode RowClassifier, uint OutputSize) CreateClassifier(IRowClassifier classifier, IRowOrientedDataTable dataTable, string name = null)
+        {
+            var ret = new RowClassifier(LinearAlgebraProvider, classifier, dataTable, name);
+            return (ret, ret.OutputSize);
+        }
 
-		/// <summary>
-		/// Creates a feed forward layer
-		/// </summary>
-		/// <param name="inputSize">Number of incoming connections</param>
-		/// <param name="outputSize">Number of outgoing connections</param>
-		/// <param name="name">Optional name to give the node</param>
-		/// <returns></returns>
-		public INode CreateFeedForward(uint inputSize, uint outputSize, string name = null)
+        /// <summary>
+        /// Creates a feed forward layer
+        /// </summary>
+        /// <param name="inputSize">Number of incoming connections</param>
+        /// <param name="outputSize">Number of outgoing connections</param>
+        /// <param name="name">Optional name to give the node</param>
+        /// <returns></returns>
+        public INode CreateFeedForward(uint inputSize, uint outputSize, string name = null)
 		{
 			// create weights and bias
 			var weightInit = _GetWeightInitialisation();
@@ -390,7 +375,7 @@ namespace BrightWire.ExecutionGraph
 			// get the gradient descent optimisations
 			var optimisation = CreateWeightUpdater(weight);
 
-			return new DropConnect(dropoutPercentage, inputSize, outputSize, bias, weight, _lap.IsStochastic, optimisation, name);
+			return new DropConnect(dropoutPercentage, inputSize, outputSize, bias, weight, LinearAlgebraProvider.IsStochastic, optimisation, name);
 		}
 
 		/// <summary>
@@ -549,7 +534,7 @@ namespace BrightWire.ExecutionGraph
 		/// <returns></returns>
 		public INode CreateDropOut(float dropoutPercentage, string name = null)
 		{
-			return new DropOut(dropoutPercentage, _lap.IsStochastic, name);
+			return new DropOut(dropoutPercentage, LinearAlgebraProvider.IsStochastic, name);
 		}
 
 		/// <summary>
@@ -792,7 +777,7 @@ namespace BrightWire.ExecutionGraph
 		/// </summary>
 		/// <param name="biasValue">Single bias value</param>
 		/// <param name="weightValue">Single weight value</param>
-		public IWeightInitialisation ConstantWeightInitialisation(float biasValue = 0f, float weightValue = 1f) => new Constant(_lap, biasValue, weightValue);
+		public IWeightInitialisation ConstantWeightInitialisation(float biasValue = 0f, float weightValue = 1f) => new Constant(LinearAlgebraProvider, biasValue, weightValue);
 
 		/// <summary>
 		/// Creates a gaussian weight initialiser
@@ -806,19 +791,19 @@ namespace BrightWire.ExecutionGraph
 			float stdDev = 0.1f,
 			GaussianVarianceCalibration varianceCalibration = GaussianVarianceCalibration.SquareRootN,
 			GaussianVarianceCount varianceCount = GaussianVarianceCount.FanIn
-		) => new Gaussian(_lap, zeroBias, stdDev, varianceCalibration, varianceCount);
+		) => new Gaussian(LinearAlgebraProvider, zeroBias, stdDev, varianceCalibration, varianceCount);
 
 		/// <summary>
 		/// Creates an identity weight initialiser
 		/// </summary>
 		/// <param name="identityValue">The value to give to each diagonal value</param>
-		public IWeightInitialisation IdentityWeightInitialisation(float identityValue = 1f) => new Identity(_lap, identityValue);
+		public IWeightInitialisation IdentityWeightInitialisation(float identityValue = 1f) => new Identity(LinearAlgebraProvider, identityValue);
 
 		/// <summary>
 		/// Creates a xavier weight initialiser
 		/// </summary>
 		/// <param name="parameter">Xavier parameter</param>
-		public IWeightInitialisation XavierWeightInitialisation(float parameter = 6) => new Xavier(_lap, parameter);
+		public IWeightInitialisation XavierWeightInitialisation(float parameter = 6) => new Xavier(LinearAlgebraProvider, parameter);
 
 		/// <summary>
 		/// Creates an AdaGrad gradient descent optimiser
@@ -864,15 +849,15 @@ namespace BrightWire.ExecutionGraph
 		/// <returns></returns>
 		public ICreateTemplateBasedGradientDescent RmsProp(float decay = 0.9f) => new RmsPropDescriptor(decay);
 
-		/// <summary>
-		/// Uses vanilla stochastic gradient descent
-		/// </summary>
-		public IGradientDescentOptimisation SimpleGradientDescent => _simpleGradientDescent;
+        /// <summary>
+        /// Uses vanilla stochastic gradient descent
+        /// </summary>
+        public IGradientDescentOptimisation SimpleGradientDescent { get; } = new StochasticGradientDescent();
 
-		/// <summary>
-		/// Prebuilt regularisation
-		/// </summary>
-		public class RegularisationProvider
+        /// <summary>
+        /// Prebuilt regularisation
+        /// </summary>
+        public class RegularisationProvider
 		{
 			/// <summary>
 			/// L1 regularisation

@@ -28,7 +28,7 @@ namespace BrightWire.Models
         /// </summary>
         /// <param name="lap">Linear algebra provider</param>
         /// <returns></returns>
-        public IRowClassifier CreateClassifier(ILinearAlgebraProvider lap)
+        public ITableClassifier CreateClassifier(ILinearAlgebraProvider lap)
         {
             return new MultinomialLogisticRegressionClassifier(lap, this);
         }

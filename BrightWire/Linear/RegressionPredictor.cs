@@ -31,11 +31,10 @@ namespace BrightWire.Linear
 
         public float[] Predict(float[][] input)
         {
-            using (var v = _lap.CreateMatrix((uint)input.Length, (uint)(input[0].Length + 1), (i, j) => j == 0 ? 1 : input[(int)i][(int)(j - 1)]))
-            using (var r = v.Multiply(_theta))
-            using(var r2 = r.Row(0)) {
-                return r.AsIndexable().Values.ToArray();
-            }
+            using var v = _lap.CreateMatrix((uint)input.Length, (uint)(input[0].Length + 1), (i, j) => j == 0 ? 1 : input[(int)i][(int)(j - 1)]);
+            using var r = v.Multiply(_theta);
+            using var r2 = r.Row(0);
+            return r.AsIndexable().Values.ToArray();
         }
     }
 }

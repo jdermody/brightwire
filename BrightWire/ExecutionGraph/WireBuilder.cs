@@ -1,4 +1,5 @@
 ﻿using System;
+using BrightTable;
 using BrightWire.ExecutionGraph.Action;
 using BrightWire.ExecutionGraph.Helper;
 using BrightWire.ExecutionGraph.Node.Helper;
@@ -12,7 +13,6 @@ namespace BrightWire.ExecutionGraph
     {
         readonly GraphFactory _factory;
         readonly INode _first;
-        INode _node;
         uint _width, _height, _depth;
 
         /// <summary>
@@ -24,7 +24,7 @@ namespace BrightWire.ExecutionGraph
         public WireBuilder(GraphFactory factory, uint size, INode node)
         {
             _factory = factory;
-            _first = _node = node;
+            _first = LastNode = node;
             _width = size;
             _height = 1;
             _depth = 1;
@@ -41,7 +41,7 @@ namespace BrightWire.ExecutionGraph
         public WireBuilder(GraphFactory factory, uint width, uint height, uint depth, INode node)
         {
             _factory = factory;
-            _first = _node = node;
+            _first = LastNode = node;
             _width = width;
             _height = height;
             _depth = depth;
@@ -92,8 +92,8 @@ namespace BrightWire.ExecutionGraph
 
         void _SetNode(INode node)
         {
-	        _node?.Output.Add(new WireToNode(node));
-	        _node = node;
+	        LastNode?.Output.Add(new WireToNode(node));
+	        LastNode = node;
         }
 
         /// <summary>
@@ -104,12 +104,12 @@ namespace BrightWire.ExecutionGraph
         /// <param name="analysis"></param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
-        //public WireBuilder AddClassifier(IRowClassifier classifier, IDataTable dataTable, IDataTableAnalysis analysis = null, string name = null)
-        //{
-        //    var node = _factory.CreateClassifier(classifier, dataTable, analysis, name);
-        //    _SetNode(node.RowClassifier);
-        //    return SetNewSize(node.OutputSize);
-        //}
+        public WireBuilder AddClassifier(IRowClassifier classifier, IRowOrientedDataTable dataTable, string name = null)
+        {
+            var node = _factory.CreateClassifier(classifier, dataTable, name);
+            _SetNode(node.RowClassifier);
+            return SetNewSize(node.OutputSize);
+        }
 
         /// <summary>
         /// Adds a feed forward layer
@@ -214,9 +214,8 @@ namespace BrightWire.ExecutionGraph
 			var size = CurrentSize;
 			if (_depth > 1)
 				throw new NotImplementedException("Currently only implemented for non convolutional networks");
-				//size = _depth;
 
-			_SetNode(_factory.CreateBatchNormalisation(size, name));
+            _SetNode(_factory.CreateBatchNormalisation(size, name));
 			return this;
 		}
 
@@ -537,6 +536,6 @@ namespace BrightWire.ExecutionGraph
         /// <summary>
         /// The last added node
         /// </summary>
-        public INode LastNode => _node;
+        public INode LastNode { get; private set; }
     }
 }

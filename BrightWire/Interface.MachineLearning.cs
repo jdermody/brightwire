@@ -458,17 +458,11 @@ namespace BrightWire
 	/// </summary>
 	public interface ILogisticRegressionClassifier : IDisposable
 	{
-		/// <summary>
-		/// Outputs a value from 0 to 1
-		/// </summary>
-		/// <param name="vals">Input data</param>
-		float Predict(params float[] input);
-
         /// <summary>
 		/// Outputs a list of values from 0 to 1 for each input data
 		/// </summary>
 		/// <param name="input">Input data</param>
-		float[] Predict(float[][] input);
+		Vector<float> Predict(Matrix<float> input);
 	}
 
 	/// <summary>
@@ -503,7 +497,7 @@ namespace BrightWire
 		/// <param name="lambda">Regularisation lambda</param>
 		/// <param name="costCallback">Callback with current cost - False to stop training</param>
 		/// <returns></returns>
-		LogisticRegression GradientDescent(int iterations, float learningRate, float lambda = 0.1f, Func<float, bool> costCallback = null);
+		LogisticRegression GradientDescent(uint iterations, float learningRate, float lambda = 0.1f, Func<float, bool> costCallback = null);
 
 		/// <summary>
 		/// Computes the cost of the specified parameters
@@ -606,5 +600,10 @@ namespace BrightWire
 	public interface IRowClassifier
 	{
         (string Label, float Weight)[] Classify(IConvertibleRow row);
+	}
+
+    public interface ITableClassifier
+    {
+        IEnumerable<(uint RowIndex, (string Classification, float Weight)[] Predictions)> Classify(IDataTable table);
 	}
 }

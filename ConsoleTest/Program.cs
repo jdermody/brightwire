@@ -12,6 +12,7 @@ using BrightWire;
 using BrightData.Numerics;
 using BrightTable.Transformations;
 using BrightData.Cuda;
+using BrightTable.Helper;
 using ExampleCode;
 using ExampleCode.Datasets;
 
@@ -31,12 +32,17 @@ namespace ConsoleTest
             //xor.TrainSigmoidNeuralNetwork(6, 0.1f, 4);
 
             var iris = context.Iris();
-            var vectorisedIris = iris.Table.Vectorise();
-            var floatVectors = vectorisedIris.Column(0).EnumerateTyped<Vector<float>>().AsFloatVectors().ToArray();
-            var clusters = floatVectors.KMeans(3);
+            //var vectorisedIris = iris.Table.Vectorise();
+            //var floatVectors = vectorisedIris.Column(0).EnumerateTyped<Vector<float>>().AsFloatVectors().ToArray();
+            //var clusters = floatVectors.KMeans(3);
+            //var clusters2 = iris.Table.NonNegativeMatrixFactorisation(3).Select(c => iris.Table.Rows(c)).ToList();
 
-            var vectors = iris.Table.GetColumnsAsVectors(0, 1, 2, 3).ToList();
+            //var vectors = iris.Table.GetColumnsAsVectors(0, 1, 2, 3).ToList();
             iris.TrainNaiveBayes();
+            iris.TrainDecisionTree();
+            iris.TrainRandomForest(500, 7);
+            iris.TrainKNearestNeighbours(10);
+            iris.TrainMultinomialLogisticRegression(500, 0.1f);
             //Xor.TrainNeuralNetwork(context);
 
             

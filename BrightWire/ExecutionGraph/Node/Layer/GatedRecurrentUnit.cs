@@ -101,7 +101,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             var Ur = _memory.FindByName("Ur");
             var Uz = _memory.FindByName("Uz");
 
-            writer.Write(_inputSize);
+            writer.Write((int)_inputSize);
             writer.Write(_memory.Id);
             _memory.Data.WriteTo(writer);
 

@@ -47,10 +47,7 @@ namespace BrightWire.Bayesian.Training
         public static NaiveBayes Train(IDataTable table)
         {
             // analyse the table to get the set of class values
-            var classColumnIndex = table.GetTargetColumn();
-            if (classColumnIndex == null)
-                throw new ArgumentException("No target column was set");
-            var targetColumn = classColumnIndex.Value;
+            var targetColumn = table.GetTargetColumnOrThrow();
 
             // analyse each row by its classification
             var rowsByClassification = new Dictionary<string, FrequencyAnalysis>();

@@ -164,7 +164,7 @@ namespace BrightTable
         public IEnumerable<ISingleTypeTableSegment> Columns(params uint[] columnIndices)
         {
             var table = new Dictionary<uint, ISingleTypeTableSegment>();
-            foreach (var index in columnIndices.OrderBy(i => i).Distinct())
+            foreach (var index in AllOrSpecifiedColumns(columnIndices).OrderBy(i => i).Distinct())
                 table.Add(index, _GetColumn(index));
             return columnIndices.Select(i => table[i]);
         }
@@ -196,7 +196,7 @@ namespace BrightTable
             }
         }
 
-        public IEnumerable<IMetaData> ColumnMetaData(params uint[] columnIndices) => columnIndices.Select(i => _columns[i].MetaData);
+        public IEnumerable<IMetaData> ColumnMetaData(params uint[] columnIndices) => AllOrSpecifiedColumns(columnIndices).Select(i => _columns[i].MetaData);
 
         public IRowOrientedDataTable AsRowOriented(string filePath = null)
         {
@@ -314,9 +314,9 @@ namespace BrightTable
             if (others.Any(t => t.RowCount != RowCount))
                 throw new ArgumentException("Row count across tables must agree");
 
-            var columns = ExtensionMethods.Range(0, ColumnCount).Select(_GetColumn);
+            var columns = ColumnCount.AsRange().Select(_GetColumn);
             foreach (var other in others)
-                columns = columns.Concat(ExtensionMethods.Range(0, other.ColumnCount).Select(i => other.Column(i)));
+                columns = columns.Concat(other.ColumnCount.AsRange().Select(i => other.Column(i)));
 
             return columns.ToList().BuildColumnOrientedTable(Context, RowCount, filePath);
         }
@@ -324,7 +324,7 @@ namespace BrightTable
         public IColumnOrientedDataTable FilterRows(Predicate<object[]> predicate, string filePath = null)
         {
             using var tempStream = new TempStreamManager();
-            var buffers = ExtensionMethods.Range(0, ColumnCount)
+            var buffers = ColumnCount.AsRange()
                 .Select(i => _columns[i].GetGrowableSegment(Context, tempStream, false))
                 .ToList();
 

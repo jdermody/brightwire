@@ -26,7 +26,7 @@ namespace BrightWire.Models.InstanceBased
         /// <summary>
         /// The vector indexes to use to encode the other column(s) as a classification target
         /// </summary>
-        public uint[] OtherColumns { get; set; }
+        public uint TargetColumn { get; set; }
 
         /// <summary>
         /// Creates a classifier from this model
@@ -34,7 +34,7 @@ namespace BrightWire.Models.InstanceBased
         /// <param name="lap">The linear algebra provider</param>
         /// <param name="k">The number of instances to consider</param>
         /// <param name="distanceMetric">The distance metric to compare each row with each instance</param>
-        public IRowClassifier CreateClassifier(ILinearAlgebraProvider lap, int k, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
+        public IRowClassifier CreateClassifier(ILinearAlgebraProvider lap, uint k, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
         {
             return new KNNClassifier(lap, this, k, distanceMetric);
         }

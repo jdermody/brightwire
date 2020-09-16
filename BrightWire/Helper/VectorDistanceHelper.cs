@@ -14,20 +14,18 @@ namespace BrightWire.Source.Helper
     public class VectorDistanceHelper : IDisposable
 	{
 		readonly ILinearAlgebraProvider _lap;
-		readonly DistanceMetric _distanceMetric;
-		readonly List<IFloatVector> _comparison = new List<IFloatVector>();
+        readonly List<IFloatVector> _comparison = new List<IFloatVector>();
 		readonly IFloatVector[] _data;
 
 		/// <summary>
 		/// Constructor
 		/// </summary>
-		/// <param name="lap">Linear algebra provider</param>
-		/// <param name="data">List of vectors to compare</param>
+        /// <param name="data">List of vectors to compare</param>
 		/// <param name="distanceMetric">Distance metric for comparison</param>
 	    public VectorDistanceHelper(IFloatVector[] data, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
 	    {
 			_lap = data[0].LinearAlgebraProvider;
-		    _distanceMetric = distanceMetric;
+		    Metric = distanceMetric;
 		    _data = data;
 	    }
 
@@ -45,9 +43,9 @@ namespace BrightWire.Source.Helper
 		/// <summary>
 		/// Distance metric
 		/// </summary>
-		public DistanceMetric Metric => _distanceMetric;
+		public DistanceMetric Metric { get; }
 
-		/// <summary>
+        /// <summary>
 		/// Adds a comparison vector (will be owned and disposed by the helper class)
 		/// </summary>
 		/// <param name="comparison">Vector to compare against</param>
@@ -86,7 +84,7 @@ namespace BrightWire.Source.Helper
 		/// </summary>
 		public uint[] GetClosest()
         {
-            using var distance = _lap.CalculateDistances(_data, _comparison, _distanceMetric);
+            using var distance = _lap.CalculateDistances(_data, _comparison, Metric);
             return _data.Length.AsRange()
                 .Select(i => _GetMinimum(distance, i).Index)
                 .ToArray();

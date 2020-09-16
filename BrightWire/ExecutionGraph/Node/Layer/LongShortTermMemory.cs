@@ -101,7 +101,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             var Uo = (FeedForward)_memory.FindByName("Uo");
             var Uc = (FeedForward)_memory.FindByName("Uc");
 
-            writer.Write(_inputSize);
+            writer.Write((int)_inputSize);
             writer.Write(_memory.Id);
             _memory.Data.WriteTo(writer);
 

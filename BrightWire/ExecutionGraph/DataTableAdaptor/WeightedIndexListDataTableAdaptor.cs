@@ -8,32 +8,41 @@ using BrightWire.Models;
 namespace BrightWire.ExecutionGraph.DataTableAdaptor
 {
     /// <summary>
-    /// Adapts data tables with a weighted index list based column (corresponding to a sparse vector)
+    /// Adapts data tables with weighted index list based columns (corresponding to a sparse vector)
     /// </summary>
-    class WeightedIndexListDataTableAdaptor : DataTableAdaptorBase<(List<WeightedIndexList>, Vector<float>)>, IWeightedIndexListEncoder
+    class WeightedIndexListDataTableAdaptor : DataTableAdaptorBase<(WeightedIndexList, float[])>, IWeightedIndexListEncoder
     {
-        readonly uint _inputSize;
-        readonly DataTableVectoriser _vectoriser;
+        private readonly DataTableVectoriser _outputVectoriser;
 
-        public WeightedIndexListDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, DataTableVectoriser vectoriser)
+        public WeightedIndexListDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, DataTableVectoriser outputVectoriser)
             : base(lap, dataTable)
         {
-            _vectoriser = vectoriser ?? new DataTableVectoriser(dataTable);
-            _inputSize = _vectoriser.InputSize;
-            OutputSize = _vectoriser.OutputSize;
+            _outputVectoriser = outputVectoriser ?? new DataTableVectoriser(dataTable, dataTable.GetTargetColumnOrThrow());
+            OutputSize = _outputVectoriser.Size;
 
             // load the data
-            //dataTable.ForEachRow(row => _segment.Add((_dataColumnIndex.Select(i => (WeightedIndexList)row[i]).ToList(), _vectoriser.GetOutput(row))));
+            uint inputSize = 0;
+            dataTable.ForEachRow(row => _data.Add((Combine(_dataColumnIndex.Select(i => (WeightedIndexList)row[i]), ref inputSize), _outputVectoriser.Convert(row))));
+            InputSize = inputSize;
         }
 
         public override bool IsSequential => false;
-        public override uint InputSize => _inputSize;
+        public override uint InputSize { get; }
         public override uint? OutputSize { get; }
-	    public override uint RowCount => (uint)_data.Count;
+        public override uint RowCount => (uint)_data.Count;
+
+        public WeightedIndexList Combine(IEnumerable<WeightedIndexList> lists, ref uint inputSize)
+        {
+            var ret = WeightedIndexList.Merge(lists);
+            var maxIndex = ret.Indices.Max(i => i.Index);
+            if (maxIndex > inputSize)
+                inputSize = maxIndex + 1;
+            return ret;
+        }
 
         public float[] Encode(WeightedIndexList indexList)
         {
-            var ret = new float[_inputSize];
+            var ret = new float[InputSize];
             foreach (var item in indexList.Indices)
                 ret[item.Index] = item.Weight;
             return ret;
@@ -42,7 +51,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         public override IMiniBatch Get(IExecutionContext executionContext, uint[] rows)
         {
             var data = _GetRows(rows)
-                .Select(r => (r.Item1.Select(Encode).ToArray(), r.Item2.Segment.ToArray()))
+                .Select(r => (new[] { Encode(r.Item1) }, r.Item2))
                 .ToArray()
             ;
             return _GetMiniBatch(rows, data);
@@ -50,7 +59,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 
         public override IDataSource CloneWith(IRowOrientedDataTable dataTable)
         {
-            return new WeightedIndexListDataTableAdaptor(_lap, dataTable, _vectoriser);
+            return new WeightedIndexListDataTableAdaptor(_lap, dataTable, _outputVectoriser);
         }
     }
 }

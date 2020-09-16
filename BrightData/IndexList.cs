@@ -44,6 +44,21 @@ namespace BrightData
             return $"{Count} indices";
         }
 
+        public static IndexList Merge(IEnumerable<IndexList> lists)
+        {
+            IBrightDataContext context = null;
+            var items = new HashSet<uint>();
+            foreach (var list in lists) {
+                context = list.Context;
+                foreach (var index in list.Indices)
+                    items.Add(index);
+            }
+
+            return new IndexList(context) {
+                Indices = items.OrderBy(d => d).ToArray()
+            };
+        }
+
         /// <summary>
         /// Writes the data to an XML writer
         /// </summary>

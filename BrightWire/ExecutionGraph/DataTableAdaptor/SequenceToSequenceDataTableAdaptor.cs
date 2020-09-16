@@ -26,11 +26,10 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             dataConversionBuilder(wireBuilder);
 
             // execute the graph to find the input size (which is the size of the adaptive graph's output)
-            using (var executionContext = new ExecutionContext(lap)) {
-                var output = _Encode(executionContext, new uint [] { 0 });
-                _inputSize = output.Item1.ColumnCount;
-                _learningContext.Clear();
-            }
+            using var executionContext = new ExecutionContext(lap);
+            var output = _Encode(executionContext, new uint [] { 0 });
+            _inputSize = output.Item1.ColumnCount;
+            _learningContext.Clear();
         }
 
         public SequenceToSequenceDataTableAdaptor(ILinearAlgebraProvider lap, ILearningContext learningContext, IRowOrientedDataTable dataTable, INode input, DataSourceModel dataSource)

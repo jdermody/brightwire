@@ -18,14 +18,12 @@ namespace BrightWire.ExecutionGraph.GradientDescent
 
         public override void Update(IFloatMatrix source, IFloatMatrix delta, ILearningContext context)
         {
-            using (var deltaSquared = delta.PointwiseMultiply(delta)) {
-                _cache.AddInPlace(deltaSquared, _decayRate, 1 - _decayRate);
+            using var deltaSquared = delta.PointwiseMultiply(delta);
+            _cache.AddInPlace(deltaSquared, _decayRate, 1 - _decayRate);
 
-                using (var cachedSqrt = _cache.Sqrt(1e-8f))
-                using (var delta2 = delta.PointwiseDivide(cachedSqrt)) {
-                    _updater.Update(source, delta2, context);
-                }
-            }
+            using var cachedSqrt = _cache.Sqrt(1e-8f);
+            using var delta2 = delta.PointwiseDivide(cachedSqrt);
+            _updater.Update(source, delta2, context);
         }
 
         public override void ReadFrom(GraphFactory factory, BinaryReader reader)

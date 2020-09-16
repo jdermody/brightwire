@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using BrightData;
 
@@ -15,6 +16,23 @@ namespace BrightTable.Builders
         public TableBuilder(IBrightDataContext context)
         {
             Context = context;
+        }
+
+        public void CopyColumnsFrom(IDataTable table, params uint[] columnIndices)
+        {
+            if (columnIndices == null || columnIndices.Length == 0)
+                columnIndices = table.ColumnIndices().ToArray();
+
+            var columnSet = new HashSet<uint>(columnIndices);
+            var columnTypes = table.ColumnTypes.Zip(table.ColumnMetaData(), (t, m) => (Type: t, MetaData: m))
+                .Select((c, i) => (Column: c, Index: (uint) i));
+
+            var wantedColumnTypes = columnTypes
+                .Where(c => columnSet.Contains(c.Index))
+                .Select(c => c.Column);
+
+            foreach (var column in wantedColumnTypes)
+                _columns.Add(column);
         }
 
         public IMetaData AddColumn(ColumnType type, string name)

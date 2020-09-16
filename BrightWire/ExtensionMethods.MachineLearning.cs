@@ -40,9 +40,9 @@ namespace BrightWire
 	    /// <param name="lambda">Regularisation lambda</param>
 	    /// <param name="costCallback">Optional callback that is called after each iteration with the current cost</param>
 	    /// <returns>The trained model</returns>
-	    public static LogisticRegression TrainLogisticRegression(this IRowOrientedDataTable table, ILinearAlgebraProvider lap, int iterations, float learningRate, float lambda = 0.1f, Func<float, bool> costCallback = null)
+	    public static LogisticRegression TrainLogisticRegression(this IRowOrientedDataTable table, uint iterations, float learningRate, float lambda = 0.1f, Func<float, bool> costCallback = null)
         {
-            var trainer = table.CreateLogisticRegressionTrainer(lap);
+            var trainer = table.CreateLogisticRegressionTrainer();
             return trainer.GradientDescent(iterations, learningRate, lambda, costCallback);
         }
 
@@ -52,9 +52,9 @@ namespace BrightWire
         /// <param name="table">The training data provider</param>
         /// <param name="lap">Linear algebra provider</param>
         /// <returns>A trainer that can be used to build a logistic regression model</returns>
-        public static ILogisticRegressionTrainer CreateLogisticRegressionTrainer(this IRowOrientedDataTable table, ILinearAlgebraProvider lap)
+        public static ILogisticRegressionTrainer CreateLogisticRegressionTrainer(this IRowOrientedDataTable table)
         {
-            return new LogisticRegressionTrainer(lap, table);
+            return new LogisticRegressionTrainer(table);
         }
 
         /// <summary>
@@ -105,7 +105,7 @@ namespace BrightWire
         /// <param name="k">The number of clusters</param>
         /// <param name="maxIterations">The maximum number of iterations</param>
         /// <returns>A list of k clusters</returns>
-        public static IFloatVector[][] NNMF(this IFloatVector[] data, ILinearAlgebraProvider lap, int k, int maxIterations = 1000)
+        public static IFloatVector[][] NNMF(this IEnumerable<IFloatVector> data, ILinearAlgebraProvider lap, int k, int maxIterations = 1000)
         {
             var clusterer = new NonNegativeMatrixFactorisation(lap, k);
             return clusterer.Cluster(data, maxIterations);
@@ -117,7 +117,7 @@ namespace BrightWire
         /// <param name="data">The list of vectors to cluster</param>
         /// <param name="k">The number of clusters to find</param>
         /// <returns>A list of k clusters</returns>
-        public static IFloatVector[][] HierachicalCluster(this IFloatVector[] data, int k)
+        public static IFloatVector[][] HierachicalCluster(this IEnumerable<IFloatVector> data, int k)
         {
             using var clusterer = new Hierachical(k, data, DistanceMetric.Euclidean);
             clusterer.Cluster();
@@ -133,7 +133,7 @@ namespace BrightWire
 	    /// <param name="maxIterations">The maximum number of iterations</param>
 	    /// <param name="distanceMetric">Distance metric to use to compare centroids</param>
 	    /// <returns>A list of k clusters</returns>
-	    public static IFloatVector[][] KMeans(this IFloatVector[] data, int k, int maxIterations = 1000, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
+	    public static IFloatVector[][] KMeans(this IEnumerable<IFloatVector> data, int k, int maxIterations = 1000, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
         {
             using var clusterer = new KMeans(k, data, distanceMetric);
             clusterer.ClusterUntilConverged(maxIterations);
@@ -159,9 +159,9 @@ namespace BrightWire
 	    /// <param name="lambda">L2 regularisation</param>
 	    /// <param name="costCallback">Optional callback that is called after each iteration with the current cost</param>
 	    /// <returns></returns>
-	    public static MultinomialLogisticRegression TrainMultinomialLogisticRegression(this IRowOrientedDataTable data, ILinearAlgebraProvider lap, int trainingIterations, float trainingRate, float lambda = 0.1f, Func<float, bool> costCallback = null)
+	    public static MultinomialLogisticRegression TrainMultinomialLogisticRegression(this IRowOrientedDataTable data, uint trainingIterations, float trainingRate, float lambda = 0.1f, Func<float, bool> costCallback = null)
         {
-            return MultinomialLogisticRegressionTrainner.Train(data, lap, trainingIterations, trainingRate, lambda, costCallback);
+            return MultinomialLogisticRegressionTrainner.Train(data, trainingIterations, trainingRate, lambda, costCallback);
         }
 
         /// <summary>
@@ -169,10 +169,11 @@ namespace BrightWire
         /// </summary>
         /// <param name="data">The training data</param>
         /// <param name="b">The number of trees in the forest</param>
+        /// <param name="config"></param>
         /// <returns>A model that can be used for classification</returns>
-        public static RandomForest TrainRandomForest(this IRowOrientedDataTable data, int b = 100)
+        public static RandomForest TrainRandomForest(this IRowOrientedDataTable data, uint b = 100, uint? baggedRowCount = null, DecisionTreeTrainer.Config config = null)
         {
-            return RandomForestTrainer.Train(data.AsColumnOriented(), b);
+            return RandomForestTrainer.Train(data, b, baggedRowCount, config);
         }
 
         /// <summary>
@@ -183,15 +184,10 @@ namespace BrightWire
         /// <param name="maxDepth">The maximum depth of each leaf</param>
         /// <param name="minInformationGain">The minimum information gain to continue splitting</param>
         /// <param name="maxAttributes">The maximum number of attributes to consider at each split</param>
+        /// <param name="config"></param>
         /// <returns>A model that can be used for classification</returns>
-        public static DecisionTree TrainDecisionTree(this IRowOrientedDataTable data, int? minDataPerNode = null, int? maxDepth = null, double? minInformationGain = null, int? maxAttributes = null)
+        public static DecisionTree TrainDecisionTree(this IRowOrientedDataTable data, DecisionTreeTrainer.Config config = null)
         {
-            var config = new DecisionTreeTrainer.Config {
-                MinDataPerNode = minDataPerNode,
-                MaxDepth = maxDepth,
-                MinInformationGain = minInformationGain,
-                MaxAttributes = maxAttributes
-            };
             return DecisionTreeTrainer.Train(data, config);
         }
 
@@ -215,15 +211,17 @@ namespace BrightWire
 		/// <returns></returns>
 	    public static MultinomialNaiveBayes TrainMultinomialNaiveBayes(this IRowOrientedDataTable table)
 		{
-            throw new NotImplementedException();
-			//var targetColumnIndex = table.GetTargetColumn() ?? throw new ArgumentException("");
-			//var indexListColumn = table.ColumnTypes.FirstOrDefault(c => c == ColumnType.IndexList);
-			//if (indexListColumn == null || indexListColumn.Index == targetColumnIndex)
-			//	throw new ArgumentException("No index list column found");
+            var targetColumnIndex = table.GetTargetColumnOrThrow();
+            var indexListColumn = table.ColumnTypes
+                .Select((c, i) => (ColumnType: c, Index: (uint)i))
+                .Single(c => c.ColumnType == ColumnType.IndexList);
+            if (indexListColumn.Index == targetColumnIndex)
+                throw new ArgumentException("No index list column of features");
 
-			//var data = table.Map(row => (row.GetField<string>(targetColumnIndex), row.GetField<IndexList>(indexListColumn.Index)));
-			//return data.TrainMultinomialNaiveBayes();
-		}
+            var data = table.AsConvertible()
+                .Map((row => (row.GetField<string>(targetColumnIndex), row.GetField<IndexList>(indexListColumn.Index))));
+            return data.TrainMultinomialNaiveBayes();
+        }
 
         /// <summary>
         /// Bernoulli naive bayes treats each feature as either 1 or 0 - all feature counts are discarded. Useful for short documents.
@@ -245,15 +243,15 @@ namespace BrightWire
 	    /// <returns>A model that can be used for classification</returns>
 	    public static BernoulliNaiveBayes TrainBernoulliNaiveBayes(this IRowOrientedDataTable table)
 	    {
-            throw new NotImplementedException();
-		    //var targetColumnIndex = table.TargetColumnIndex;
-		    //var indexListColumn = table.Columns.FirstOrDefault(c => c.Type == ColumnType.IndexList);
-		    //if (indexListColumn == null || indexListColumn.Index == targetColumnIndex)
-			   // throw new ArgumentException("No index list column found");
+            var targetColumnIndex = table.GetTargetColumnOrThrow();
+            var indexListColumn = table.ColumnTypes
+                .Select((c, i) => (ColumnType: c, Index: (uint)i))
+                .Single(c => c.ColumnType == ColumnType.IndexList);
 
-		    //var data = table.Map(row => (row.GetField<string>(targetColumnIndex), row.GetField<IndexList>(indexListColumn.Index)));
-		    //return data.TrainBernoulliNaiveBayes();
-	    }
+            var data = table.AsConvertible()
+                .Map(row => (row.GetField<string>(targetColumnIndex), row.GetField<IndexList>(indexListColumn.Index)));
+            return data.TrainBernoulliNaiveBayes();
+        }
 
         /// <summary>
         /// Naive bayes is a classifier that assumes conditional independence between all features
@@ -285,20 +283,5 @@ namespace BrightWire
         {
             return classifications.OrderByDescending(c => c.Weight).First().Label;
         }
-
-		/// <summary>
-		/// Converts the logistic regression classifier into a row classifier
-		/// </summary>
-		/// <param name="classifier">Logistic regression classifier to convert</param>
-		/// <param name="attributeColumns">Attribute columns in data table to use</param>
-		/// <param name="negativeLabel">Output classification for negative class label</param>
-		/// <param name="positiveLabel">Output classification for the positive class label</param>
-	    public static IRowClassifier ConvertToRowClassifier(this ILogisticRegressionClassifier classifier,
-		    uint[] attributeColumns,
-		    string negativeLabel = "0",
-		    string positiveLabel = "1")
-	    {
-		    return new LogisticRegressionClassifierAdapter(classifier, attributeColumns, negativeLabel, positiveLabel);
-	    }
     }
 }

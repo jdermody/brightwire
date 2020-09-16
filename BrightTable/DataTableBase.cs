@@ -31,6 +31,10 @@ namespace BrightTable
 
         protected abstract IDataTable Table { get; }
 
+        protected IEnumerable<uint> AllOrSpecifiedColumns(uint[] indices) => (indices?.Length ?? 0) == 0 
+            ? ColumnCount.AsRange()
+            : indices;
+
         //public IRowOrientedDataTable Vectorise(string columnName, params uint[] vectorColumnIndices) => Vectorise(null, columnName, vectorColumnIndices);
         //public IRowOrientedDataTable Vectorise(string filePath, string columnName, params uint[] vectorColumnIndices)
         //{

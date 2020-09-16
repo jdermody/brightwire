@@ -4,6 +4,7 @@ using BrightWire.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using BrightData;
 
 namespace BrightWire.TreeBased.Training
 {
@@ -11,7 +12,7 @@ namespace BrightWire.TreeBased.Training
     /// Decision tree classifier
     /// https://en.wikipedia.org/wiki/Decision_tree_learning
     /// </summary>
-    internal static class DecisionTreeTrainer
+    public static class DecisionTreeTrainer
     {
         class Attribute
         {
@@ -109,7 +110,7 @@ namespace BrightWire.TreeBased.Training
 
             public TableInfo(IRowOrientedDataTable table)
             {
-                ClassColumnIndex = table.GetTargetColumn() ?? throw new ArgumentException("");
+                ClassColumnIndex = table.GetTargetColumnOrThrow();
                 for (uint i = 0, len = table.ColumnCount; i < len; i++) {
                     if (i != ClassColumnIndex) {
                         var column = table.ColumnTypes[i];
@@ -119,11 +120,11 @@ namespace BrightWire.TreeBased.Training
                             _categorical.Add(i);
                     }
                 }
-                //table.AsConvertible().ForEachRow(row => _segment.Add(new InMemoryRow(row, _categorical, _continuous, ClassColumnIndex)));
+                table.AsConvertible().ForEachRow(row => Data.Add(new InMemoryRow(row, _categorical, _continuous, ClassColumnIndex)));
             }
             public IEnumerable<uint> CategoricalColumns => _categorical;
 	        public IEnumerable<uint> ContinuousColumns => _continuous;
-	        public List<InMemoryRow> Data { get; }
+	        public List<InMemoryRow> Data { get; } = new List<InMemoryRow>();
 			public uint ClassColumnIndex { get; }
 		}
         class Node
@@ -253,11 +254,11 @@ namespace BrightWire.TreeBased.Training
 
         public class Config
         {
-            public int? FeatureBagCount { get; set; } = null;
+            public uint? FeatureBagCount { get; set; } = null;
             public int? MinDataPerNode { get; set; } = null;
             public int? MaxDepth { get; set; } = null;
             public double? MinInformationGain { get; set; } = null;
-            public int? MaxAttributes { get; set; } = null;
+            public uint? MaxAttributes { get; set; } = null;
         }
 
         public static DecisionTree Train(IRowOrientedDataTable table, Config config = null)
@@ -267,11 +268,11 @@ namespace BrightWire.TreeBased.Training
             var stack = new Stack<Node>();
             stack.Push(root);
 
-            int? maxDepth = config?.MaxDepth;
-            int? minDataPerNode = config?.MinDataPerNode;
-            int? featureBagCount = config?.FeatureBagCount;
+            var maxDepth = config?.MaxDepth;
+            var minDataPerNode = config?.MinDataPerNode;
+            var featureBagCount = config?.FeatureBagCount;
             double? minInformationGain = config?.MinInformationGain;
-            int? maxAttributes = config?.MaxAttributes;
+            var maxAttributes = config?.MaxAttributes;
 
             while (stack.Any()) {
                 var node = stack.Pop();
@@ -295,11 +296,11 @@ namespace BrightWire.TreeBased.Training
 
                 // bag the features if configured
                 if (featureBagCount.HasValue)
-                    attributes = attributes.Bag(maxAttributes ?? featureBagCount.Value);
+                    attributes = attributes.Bag((maxAttributes ?? featureBagCount.Value));
 
                 // randomly select a subset of attributes if configured
                 else if (maxAttributes.HasValue)
-                    attributes = attributes.Shuffle().Take(maxAttributes.Value).ToArray();
+                    attributes = attributes.Shuffle().Take((int)maxAttributes.Value).ToArray();
                 
                 var nodeEntropy = node.Entropy;
                 double nodeTotal = node.Data.Count;

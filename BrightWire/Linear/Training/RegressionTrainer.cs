@@ -21,16 +21,16 @@ namespace BrightWire.Linear.Training
             _lap = lap;
             var numRows = table.RowCount;
             var numCols = table.ColumnCount;
-            //int classColumnIndex = table.TargetColumnIndex;
+            var classColumnIndex = table.GetTargetColumnOrThrow();
 
-            //var data = table.GetNumericColumns(Enumerable.Range(0, numCols).Where(c => c != classColumnIndex));
-            //_feature = lap.CreateMatrix(numRows, numCols, (i, j) => j == 0 ? 1 : data[j - 1][i]);
-            //_target = lap.CreateVector(table.GetColumn<float>(classColumnIndex));
+            // TODO: support target matrix instead of vector
+            var data = table.GetColumnsAsVectors(numCols.AsRange().Where(c => c != classColumnIndex).ToArray()).ToArray();
+            _feature = lap.CreateMatrix(numRows, numCols, (i, j) => j == 0 ? 1 : data[j - 1][i]);
+            _target = lap.CreateVector(table.GetColumnsAsVectors(classColumnIndex).Single());
         }
 
 		// normal method removed until GPU provider can properly calculate matrix inverses!
-
-		//public LinearRegression Solve()
+        //public LinearRegression Solve()
 		//{
 		//	// solve using normal method
 		//	using (var lambdaMatrix = _lap.CreateIdentityMatrix(_feature.ColumnCount))
@@ -57,28 +57,25 @@ namespace BrightWire.Linear.Training
             var regularisation = 1f - (learningRate * lambda) / _feature.RowCount;
             var theta = _lap.CreateVector(_feature.ColumnCount, 0f);
 
-            using (var regularisationVector = _lap.CreateVector(theta.Count, i => i == 0 ? 1f : regularisation)) {
-                for (var i = 0; i < iterations; i++) {
-                    if (costCallback != null) {
-                        var cost = ComputeCost(theta, lambda);
-                        if (!costCallback(cost))
-                            break;
-                    }
-
-                    using (var p = _feature.Multiply(theta))
-                    using (var pc = p.Column(0))
-                    using (var e = pc.Subtract(_target))
-                    using (var e2 = e.ReshapeAsRowMatrix())
-                    using (var d = e2.Multiply(_feature))
-                    using(var delta = d.Row(0)) {
-                        delta.Multiply(learningRate);
-                        using (var temp = theta.PointwiseMultiply(regularisationVector)) {
-                            var theta2 = temp.Subtract(delta);
-                            theta.Dispose();
-                            theta = theta2;
-                        }
-                    }
+            using var regularisationVector = _lap.CreateVector(theta.Count, i => i == 0 ? 1f : regularisation);
+            for (var i = 0; i < iterations; i++) {
+                if (costCallback != null) {
+                    var cost = ComputeCost(theta, lambda);
+                    if (!costCallback(cost))
+                        break;
                 }
+
+                using var p = _feature.Multiply(theta);
+                using var pc = p.Column(0);
+                using var e = pc.Subtract(_target);
+                using var e2 = e.ReshapeAsRowMatrix();
+                using var d = e2.Multiply(_feature);
+                using var delta = d.Row(0);
+                delta.Multiply(learningRate);
+                using var temp = theta.PointwiseMultiply(regularisationVector);
+                var theta2 = temp.Subtract(delta);
+                theta.Dispose();
+                theta = theta2;
             }
 
             var ret = new LinearRegression {

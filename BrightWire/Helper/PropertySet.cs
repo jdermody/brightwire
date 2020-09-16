@@ -9,7 +9,6 @@ namespace BrightWire.Helper
     class PropertySet : IPropertySet
     {
         public const string WEIGHT_INITIALISATION = "bw:weight-initialisation";
-        public const string WEIGHT_INITIALISATION_DESCRIPTOR = "bw:weight-initialisation-descriptor";
         public const string GRADIENT_DESCENT = "bw:gradient-descent";
         public const string TEMPLATE_GRADIENT_DESCENT_DESCRIPTOR = "bw:template-gradient-descent-descriptor";
         public const string GRADIENT_DESCENT_DESCRIPTOR = "bw:gradient-descent-descriptor";
@@ -56,7 +55,7 @@ namespace BrightWire.Helper
         public IPropertySet Use(IGradientDescentOptimisation optimisation) { GradientDescent = optimisation; return this; }
         public IPropertySet Use(IWeightInitialisation weightInit) { WeightInitialisation = weightInit; return this; }
 
-        public T Get<T>(string name, T defaultValue = default(T))
+        public T Get<T>(string name, T defaultValue = default)
         {
 	        if(_data.TryGetValue(name, out var obj))
                 return (T)obj;

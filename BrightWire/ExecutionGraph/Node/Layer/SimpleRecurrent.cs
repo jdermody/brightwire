@@ -74,7 +74,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             var Wh = (FeedForward)_input.FindByName("Wh");
             var Uh = (FeedForward)_memory.FindByName("Uh");
 
-            writer.Write(_inputSize);
+            writer.Write((int)_inputSize);
             writer.Write(_memory.Id);
             _memory.Data.WriteTo(writer);
             _Serialise(_activation, writer);

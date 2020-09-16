@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace BrightTable.Helper
@@ -9,20 +10,6 @@ namespace BrightTable.Helper
     /// </summary>
     public static class ColumnTypeClassifier
     {
-        static readonly HashSet<ColumnType> _continuousType = new HashSet<ColumnType> {
-            ColumnType.Date,
-            ColumnType.Double,
-            ColumnType.Decimal,
-            ColumnType.Float,
-            ColumnType.Int,
-            ColumnType.Short,
-            ColumnType.Long,
-            ColumnType.Byte,
-        };
-        static readonly HashSet<ColumnType> _categoricalType = new HashSet<ColumnType> {
-            ColumnType.Boolean,
-            ColumnType.String,
-        };
         static readonly HashSet<ColumnType> _numericType = new HashSet<ColumnType> {
             ColumnType.Double,
             ColumnType.Decimal,
@@ -32,21 +19,20 @@ namespace BrightTable.Helper
             ColumnType.Long,
             ColumnType.Byte
         };
+        static readonly HashSet<ColumnType> _continuousType = new HashSet<ColumnType>(_numericType) {
+            ColumnType.Date
+        };
+        static readonly HashSet<ColumnType> _structableType = new HashSet<ColumnType>(_continuousType) {
+            ColumnType.Boolean
+        };
+        static readonly HashSet<ColumnType> _categoricalType = new HashSet<ColumnType> {
+            ColumnType.Boolean,
+            ColumnType.String,
+        };
         static readonly HashSet<ColumnType> _decimalType = new HashSet<ColumnType> {
             ColumnType.Double,
             ColumnType.Decimal,
             ColumnType.Float
-        };
-        static readonly HashSet<ColumnType> _structableType = new HashSet<ColumnType> {
-            ColumnType.Boolean,
-            ColumnType.Byte,
-            ColumnType.Date,
-            ColumnType.Double,
-            ColumnType.Decimal,
-            ColumnType.Float,
-            ColumnType.Short,
-            ColumnType.Int,
-            ColumnType.Long,
         };
 
         public static bool IsDecimal(ColumnType columnType) => _decimalType.Contains(columnType);

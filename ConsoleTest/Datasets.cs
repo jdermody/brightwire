@@ -8,6 +8,36 @@ namespace ExampleCode.Datasets
 {
     static class Datasets
     {
+        public static DataTableTrainer Iris(this IBrightDataContext context)
+        {
+            var reader = GetReader(context, "iris.csv", "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data");
+            try {
+                using var table = context.ParseCsv(reader, false);
+                table.SetTargetColumn(4);
+                using var numericTable = table.Convert(
+                    ColumnConversionType.ToNumeric,
+                    ColumnConversionType.ToNumeric,
+                    ColumnConversionType.ToNumeric,
+                    ColumnConversionType.ToNumeric);
+                using var normalized = numericTable.Normalize(NormalizationType.FeatureScale);
+                return new DataTableTrainer(normalized.AsRowOriented());
+            }
+            finally {
+                reader?.Dispose();
+            }
+        }
+
+        public static DataTableTrainer Xor(this IBrightDataContext context)
+        {
+            // Some training data that the network will learn.  The XOR pattern looks like:
+            // 0 0 => 0
+            // 1 0 => 1
+            // 0 1 => 1
+            // 1 1 => 0
+            var table = BrightWire.TrainingData.Artificial.Xor.Get(context);
+            return new DataTableTrainer(table, table, table);
+        }
+
         static string GetDataFilePath(this IBrightDataContext context, string name)
         {
             var dataDirectory = context.Get<DirectoryInfo>("DataFileDirectory");
@@ -30,7 +60,7 @@ namespace ExampleCode.Datasets
             return Path.Combine(dataDirectory.FullName, name);
         }
 
-        public static StreamReader GetReader(this IBrightDataContext context, string fileName, string remoteUrl = null)
+        static StreamReader GetReader(this IBrightDataContext context, string fileName, string remoteUrl = null)
         {
             var filePath = GetDataFilePath(context, fileName);
             if (filePath == null || !File.Exists(filePath) && !String.IsNullOrWhiteSpace(remoteUrl)) {
@@ -51,36 +81,6 @@ namespace ExampleCode.Datasets
                 }
             }
             return new StreamReader(filePath);
-        }
-
-        public static DataTableTrainer Iris(this IBrightDataContext context)
-        {
-            var reader = GetReader(context, "iris.csv", "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data");
-            try {
-                using var table = context.ParseCsv(reader, false);
-                table.SetTargetColumn(4);
-                using var numericTable = table.Convert(
-                    ColumnConversionType.ToNumeric,
-                    ColumnConversionType.ToNumeric,
-                    ColumnConversionType.ToNumeric,
-                    ColumnConversionType.ToNumeric);
-                using var normalized = numericTable.Normalize(NormalizationType.Standard);
-                return new DataTableTrainer(normalized.AsRowOriented());
-            }
-            finally {
-                reader?.Dispose();
-            }
-        }
-
-        public static DataTableTrainer Xor(this IBrightDataContext context)
-        {
-            // Some training data that the network will learn.  The XOR pattern looks like:
-            // 0 0 => 0
-            // 1 0 => 1
-            // 0 1 => 1
-            // 1 1 => 0
-            var table = BrightWire.TrainingData.Artificial.Xor.Get(context);
-            return new DataTableTrainer(table, table, table);
         }
     }
 }

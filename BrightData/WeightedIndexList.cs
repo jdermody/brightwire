@@ -76,6 +76,24 @@ namespace BrightData
             reader.BaseStream.Read(span);
         }
 
+        public static WeightedIndexList Merge(IEnumerable<WeightedIndexList> lists, OperationType mergeOperation = OperationType.Average)
+        {
+            IBrightDataContext context = null;
+            var items = new Dictionary<uint, List<float>>();
+            foreach (var list in lists) {
+                context = list.Context;
+                foreach (var index in list.Indices) {
+                    if(!items.TryGetValue(index.Index, out var weights))
+                        items.Add(index.Index, weights = new List<float>());
+                    weights.Add(index.Weight);
+                }
+            }
+
+            return new WeightedIndexList(context) {
+                Indices = items.Select(d => new Item(d.Key, mergeOperation.Execute(d.Value))).ToArray()
+            };
+        }
+
         /// <summary>
         /// Writes the data to an XML writer
         /// </summary>

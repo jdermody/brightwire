@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using BrightWire.Models;
 using System.Linq;
 using BrightData;
+using BrightData.FloatTensors;
 using BrightTable;
 
 namespace BrightWire.ExecutionGraph.DataTableAdaptor
@@ -45,12 +46,11 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 
         public override IMiniBatch Get(IExecutionContext executionContext, uint[] rows)
         {
-            //var data = _GetRows(rows)
-            //    .Select(r => ((FloatMatrix)r.Segment[0], (FloatMatrix)r.Segment[1]))
-            //    .ToList()
-            //;
-            //return _GetSequentialMiniBatch(rows, data);
-            throw new NotImplementedException();
+            var data = _GetRows(rows)
+                .Select(r => ((Matrix<float>)r[0], (Matrix<float>)r[1]))
+                .ToArray()
+            ;
+            return _GetSequentialMiniBatch(rows, data);
         }
 
         public override uint[][] GetBuckets()

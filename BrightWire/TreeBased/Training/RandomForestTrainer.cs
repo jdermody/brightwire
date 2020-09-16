@@ -12,20 +12,22 @@ namespace BrightWire.TreeBased.Training
     /// </summary>
     static class RandomForestTrainer
     {
-        public static RandomForest Train(IColumnOrientedDataTable table, int b = 100, DecisionTreeTrainer.Config config = null)
+        public static RandomForest Train(IRowOrientedDataTable table, uint b = 100, uint? baggedRowCount = null, DecisionTreeTrainer.Config config = null)
         {
-            config = config ?? new DecisionTreeTrainer.Config();
-            var columnAnalysis = table.Analyse();
+            config ??= new DecisionTreeTrainer.Config();
 
             // set the feature bag count as the square root of the total number of features
-            if(!config.FeatureBagCount.HasValue)
-                config.FeatureBagCount = Convert.ToInt32(Math.Round(Math.Sqrt(columnAnalysis.Sum(c => c.GetColumnType().IsContinuous() ? 1 : c.GetNumDistinct()))));
+            if (!config.FeatureBagCount.HasValue) {
+                var columnAnalysis = table.GetColumnAnalysis();
+                var numValues = columnAnalysis.Sum(c => c.GetColumnType().IsContinuous() ? 1 : c.GetNumDistinct());
+                config.FeatureBagCount = Convert.ToUInt32(Math.Round(Math.Sqrt(numValues)));
+            }
 
-            // repeatedly train a decision tree on a bagged subset of features
+            // repeatedly train a decision tree
             var ret = new List<DecisionTree>();
-            for(var i = 0; i < b; i++) {
-                //var baggedTree = table.Bag();
-                //ret.Add(DecisionTreeTrainer.Train(baggedTree, config));
+            for(uint i = 0; i < b; i++) {
+                var baggedTree = table.Bag(baggedRowCount ?? table.RowCount);
+                ret.Add(DecisionTreeTrainer.Train(baggedTree, config));
             }
             return new RandomForest {
                 Forest = ret.ToArray()

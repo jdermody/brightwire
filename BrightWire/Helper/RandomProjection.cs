@@ -9,12 +9,9 @@ namespace BrightWire.Helper
     /// </summary>
     class RandomProjection : IRandomProjection
     {
-	    readonly uint _fixedSize;
-
-		public RandomProjection(ILinearAlgebraProvider lap, uint fixedSize, uint reducedSize, int s = 3)
+        public RandomProjection(ILinearAlgebraProvider lap, uint fixedSize, uint reducedSize, int s = 3)
         {
             LinearAlgebraProvider = lap;
-            _fixedSize = fixedSize;
             Size = reducedSize;
 
             var c1 = Math.Sqrt(3);
@@ -40,9 +37,9 @@ namespace BrightWire.Helper
 
 	    public IFloatVector Compute(IFloatVector vector)
         {
-            using (var m = vector.ReshapeAsRowMatrix())
-            using (var m2 = m.Multiply(Matrix))
-                return m2.Row(0);
+            using var m = vector.ReshapeAsRowMatrix();
+            using var m2 = m.Multiply(Matrix);
+            return m2.Row(0);
         }
 
         public IFloatMatrix Compute(IFloatMatrix matrix)

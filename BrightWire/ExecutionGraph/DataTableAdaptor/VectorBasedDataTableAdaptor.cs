@@ -14,7 +14,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 	    public VectorBasedDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable) : base(lap, dataTable)
         {
             var firstRow = dataTable.Row(0);
-            var input = (Vector<float>)firstRow[(uint)_dataColumnIndex.First()];
+            var input = (Vector<float>)firstRow[_dataColumnIndex.First()];
             var output = (Vector<float>)firstRow[_dataTargetIndex];
 
             InputSize = input.Size;
