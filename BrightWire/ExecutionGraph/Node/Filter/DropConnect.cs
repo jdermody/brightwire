@@ -1,4 +1,5 @@
-﻿using BrightWire.ExecutionGraph.Node.Layer;
+﻿using System;
+using BrightWire.ExecutionGraph.Node.Layer;
 using MathNet.Numerics.Distributions;
 using System.Collections.Generic;
 using System.IO;
@@ -45,11 +46,11 @@ namespace BrightWire.ExecutionGraph.Node.Filter
         float _dropOutPercentage;
         Bernoulli _probabilityToDrop;
 
-        public DropConnect(float dropOutPercentage, uint inputSize, uint outputSize, IFloatVector bias, IFloatMatrix weight, bool stochastic, IGradientDescentOptimisation updater, string name = null) 
+        public DropConnect(float dropOutPercentage, uint inputSize, uint outputSize, IFloatVector bias, IFloatMatrix weight, IGradientDescentOptimisation updater, Random random, string name = null) 
             : base(inputSize, outputSize, bias, weight, updater, name)
         {
             _dropOutPercentage = dropOutPercentage;
-            _probabilityToDrop = stochastic ? new Bernoulli(_dropOutPercentage) : new Bernoulli(_dropOutPercentage, new System.Random(0));
+            _probabilityToDrop = new Bernoulli(_dropOutPercentage, random);
         }
 
         public override void ExecuteForward(IContext context)

@@ -61,22 +61,22 @@ namespace BrightData
         T[] ToArray();
     }
 
-    public interface IMemoryDeallocator
-    {
-        void Free();
-    }
+    //public interface IMemoryDeallocator
+    //{
+    //    void Free();
+    //}
 
-    public interface ITensorBlock<T> : IReferenceCountedMemory
-        where T : struct
-    {
-        string TensorType { get; }
-        ITensorSegment<T> GetSegment();
-        IBrightDataContext Context { get; }
-        void InitializeFrom(Stream stream);
-        void InitializeFrom(ITensorBlock<T> tensor);
-        Span<T> Data { get; }
-        ITensorBlock<T> Clone();
-    }
+    //public interface ITensorBlock<T> : IReferenceCountedMemory
+    //    where T : struct
+    //{
+    //    string TensorType { get; }
+    //    ITensorSegment<T> GetSegment();
+    //    IBrightDataContext Context { get; }
+    //    void InitializeFrom(Stream stream);
+    //    void InitializeFrom(ITensorBlock<T> tensor);
+    //    Span<T> Data { get; }
+    //    ITensorBlock<T> Clone();
+    //}
 
     public interface IDataReader
     {
@@ -86,10 +86,9 @@ namespace BrightData
 
     public interface ITensorPool
     {
-        ITensorBlock<T> Get<T>(uint size) where T : struct;
-        void Add<T>(ITensorBlock<T> block) where T : struct;
+        T[] Get<T>(uint size) where T : struct;
+        void Reuse<T>(T[] block) where T : struct;
         long MaxCacheSize { get; }
-        long AllocationSize { get; }
         long CacheSize { get; }
     }
 
@@ -127,7 +126,7 @@ namespace BrightData
         where T : struct
     {
         IBrightDataContext Context { get; }
-        (ITensorBlock<T> Block, bool IsNewCopy) GetBlock(ITensorPool pool);
+        (T[] Block, bool IsNewCopy) GetBlock(ITensorPool pool);
         T this[uint index] { get; set; }
         T this[long index] { get; set; }
         T[] ToArray();
@@ -141,10 +140,10 @@ namespace BrightData
         void CopyTo(ITensorSegment<T> segment);
     }
 
-    public interface ITensorAllocator
-    {
-        ITensorBlock<T> Create<T>(IBrightDataContext context, uint size) where T : struct;
-    }
+    //public interface ITensorAllocator
+    //{
+    //    ITensorBlock<T> Create<T>(IBrightDataContext context, uint size) where T : struct;
+    //}
 
     //public interface IHaveTensorSegment<T>
     //    where T : struct

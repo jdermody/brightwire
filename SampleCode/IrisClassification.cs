@@ -82,7 +82,7 @@ namespace BrightWire.SampleCode
                 var trainingData = graph.CreateDataSource(split.Training);
                 var testData = trainingData.CloneWith(split.Test);
 
-                // create a 4x3x3 neural network with sigmoid activations after each neural network
+                // create a 4x8x3 neural network with sigmoid activations after each neural network
                 const int HIDDEN_LAYER_SIZE = 8, BATCH_SIZE = 8;
                 const float LEARNING_RATE = 0.01f;
                 var engine = graph.CreateTrainingEngine(trainingData, LEARNING_RATE, BATCH_SIZE, TrainingErrorCalculation.TrainingData);

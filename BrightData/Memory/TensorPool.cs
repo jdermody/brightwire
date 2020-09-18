@@ -11,40 +11,34 @@ namespace BrightData.Memory
     /// </summary>
     class TensorPool : ITensorPool, IDisposable
     {
-        readonly ITensorAllocator _allocator;
         readonly IBrightDataContext _context;
-        readonly ConcurrentDictionary<string, ConcurrentBag<IReferenceCountedMemory>> _cache = new ConcurrentDictionary<string, ConcurrentBag<IReferenceCountedMemory>>();
-        readonly HashSet<IReferenceCountedMemory> _allocated = new HashSet<IReferenceCountedMemory>();
+        readonly ConcurrentDictionary<string, ConcurrentBag<Array>> _cache = new ConcurrentDictionary<string, ConcurrentBag<Array>>();
         readonly ConcurrentDictionary<string, long> _requestHistory = new ConcurrentDictionary<string, long>();
         long _requestIndex = 0;
 
-        public TensorPool(IBrightDataContext context, ITensorAllocator allocator, long maxCacheSize)
+        public TensorPool(IBrightDataContext context, long maxCacheSize)
         {
             MaxCacheSize = maxCacheSize;
-            _allocator = allocator;
             _context = context;
         }
 
-        public ITensorBlock<T> Get<T>(uint size) where T: struct
+        public T[] Get<T>(uint size) where T: struct
         {
             var key = _GetKey<T>(size);
             _requestHistory[key] = Interlocked.Increment(ref _requestIndex);
 
             if (_cache.TryGetValue(key, out var bag) && bag.TryTake(out var ptr))
-                return (ITensorBlock<T>)ptr;
+                return (T[])ptr;
 
-            var ret = _allocator.Create<T>(_context, size);
-            lock (_allocated) {
-                _allocated.Add(ret);
-            }
+            var ret = new T[size];
             return ret;
         }
 
-        public void Add<T>(ITensorBlock<T> block) where T: struct
+        public void Reuse<T>(T[] block) where T: struct
         {
             _cache.AddOrUpdate(
-                _GetKey<T>(block.Size),
-                key => new ConcurrentBag<IReferenceCountedMemory> { block },
+                _GetKey<T>((uint)block.Length),
+                key => new ConcurrentBag<Array> { block },
                 (key, bag) => {
                     bag.Add(block);
                     return bag;
@@ -54,29 +48,13 @@ namespace BrightData.Memory
                 var lru = _cache
                     .OrderBy(d => _requestHistory[d.Key])
                     .FirstOrDefault();
-                if (lru.Value.TryTake(out var ptr)) {
-                    lock (_allocated) {
-                        if (_allocated.Remove(ptr)) {
-                            var deallocator = (IMemoryDeallocator)ptr;
-                            deallocator.Free();
-                        }
-                    }
-                }
+                lru.Value.TryTake(out _);
             }
         }
 
         public long MaxCacheSize { get; }
 
-        public long AllocationSize
-        {
-            get
-            {
-                lock (_allocated) {
-                    return _allocated.Sum(b => b.Size);
-                }
-            }
-        }
-        public long CacheSize => _cache.Sum(kv => kv.Value.Sum(b => b.Size));
+        public long CacheSize => _cache.Sum(kv => kv.Value.Sum(b => b.Length));
 
         static string _GetKey<T>(uint size)
         {
@@ -85,23 +63,6 @@ namespace BrightData.Memory
 
         public void Dispose()
         {
-            lock (_allocated) {
-                foreach (var item in _allocated) {
-                    var deallocator = (IMemoryDeallocator)item;
-                    deallocator.Free();
-                }
-            }
-        }
-
-        public void LogAllocations(Action<string> callback)
-        {
-            var cached = new HashSet<IReferenceCountedMemory>(_cache.SelectMany(b => b.Value));
-            lock (_allocated) {
-                foreach (var item in _allocated) {
-                    if (!cached.Contains(item))
-                        callback($"Allocation {item.AllocationIndex} was not released");
-                }
-            }
         }
     }
 }

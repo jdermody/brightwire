@@ -149,7 +149,7 @@ namespace BrightData.FloatTensors
 
         public IIndexableFloatVector Append(float[] data)
         {
-            var segment = Data.Context.TensorPool.Get<float>(Count + (uint) data.Length).GetSegment();
+            var segment = Data.Context.CreateSegment<float>(Count + (uint) data.Length);
             Data.Segment.CopyTo(segment);
             uint index = 0;
             foreach (var item in data)

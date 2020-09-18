@@ -42,9 +42,8 @@ namespace BrightData
                 Shape[i] = item;
             }
 
-            var data = context.TensorPool.Get<T>(size);
-            data.InitializeFrom(reader.BaseStream);
-            _segment = data.GetSegment();
+            _segment = context.CreateSegment<T>(size);
+            _segment.InitializeFrom(reader.BaseStream);
         }
 
         public void Dispose()
@@ -145,7 +144,7 @@ namespace BrightData
         public DT Clone()
         {
             var (block, isNewCopy) = _segment.GetBlock(Context.TensorPool);
-            return Create((isNewCopy ? block : block.Clone()).GetSegment());
+            return Create(Context.CreateSegment(isNewCopy ? block : (T[])block.Clone()));
         }
 
         static uint[] _ResolveShape(uint total, uint?[] shape)

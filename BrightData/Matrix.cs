@@ -53,7 +53,7 @@ namespace BrightData
 
         public Matrix<T> Transpose()
         {
-            var ret = new Matrix<T>(Context.TensorPool.Get<T>(Size).GetSegment(), ColumnCount, RowCount);
+            var ret = new Matrix<T>(Context.CreateSegment<T>(Size), ColumnCount, RowCount);
             Parallel.For(0, ret.Size, ind => {
                 var j = (uint)(ind / ColumnCount);
                 var i = (uint)(ind % ColumnCount);
@@ -64,7 +64,7 @@ namespace BrightData
 
         public Matrix<T> Multiply(Matrix<T> other)
         {
-            var ret = new Matrix<T>(Context.TensorPool.Get<T>(Size).GetSegment(), RowCount, other.ColumnCount);
+            var ret = new Matrix<T>(Context.CreateSegment<T>(Size), RowCount, other.ColumnCount);
             Parallel.For(0, ret.Size, ind => {
                 var i = (uint)(ind % RowCount);
                 var j = (uint)(ind / other.ColumnCount);

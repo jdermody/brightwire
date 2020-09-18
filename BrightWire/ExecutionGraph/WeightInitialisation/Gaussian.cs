@@ -26,7 +26,7 @@ namespace BrightWire.ExecutionGraph.WeightInitialisation
             _zeroBias = zeroInitialBias;
             _varianceCalibration = varianceCalibration;
             _varianceCount = varianceCount;
-            _distribution = lap.IsStochastic ? new Normal(0, stdDev) : new Normal(0, stdDev, new Random(0));
+            _distribution = new Normal(0, stdDev, lap.Context.Random);
         }
 
         float _GetBias()

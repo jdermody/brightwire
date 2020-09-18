@@ -137,7 +137,7 @@ namespace BrightData.Computation
             return Aggregate(tensor, default, Add);
         }
 
-        public (T Min, T Max, uint MinIndex, uint MaxIndex) GetMinAndMaxValues(ITensorSegment<T> segment) => GetMinAndMaxValues(segment, MinValue, MaxValue);
+        public (T Min, T Max, uint MinIndex, uint MaxIndex) GetMinAndMaxValues(ITensorSegment<T> segment) => GetMinAndMaxValues(segment, MaxValue, MinValue);
 
         public uint? Search(ITensorSegment<T> segment, T value)
         {
@@ -230,12 +230,12 @@ namespace BrightData.Computation
             uint index = 0;
 
             foreach (var value in segment.Values) {
-                if (value.CompareTo(max) < 0) {
+                if (value.CompareTo(max) > 0) {
                     max = value;
                     maxIndex = index;
                 }
 
-                if (value.CompareTo(min) > 0) {
+                if (value.CompareTo(min) < 0) {
                     min = value;
                     minIndex = index;
                 }
@@ -251,16 +251,16 @@ namespace BrightData.Computation
             if (segment.Size != other.Size)
                 throw new ArgumentException("Segments were different sizes");
 
-            var ret = (TensorBlock<T>)_context.TensorPool.Get<T>(segment.Size);
+            var ret = _context.TensorPool.Get<T>(segment.Size);
             Parallel.ForEach(segment.Values, (v, s, i) => { ret[i] = func(v, other[i]); });
-            return ret.GetSegment();
+            return _context.CreateSegment(ret);
         }
 
         protected ITensorSegment<T> Transform(ITensorSegment<T> segment, Func<T, T> transfomer)
         {
-            var ret = (TensorBlock<T>)_context.TensorPool.Get<T>(segment.Size);
+            var ret = _context.TensorPool.Get<T>(segment.Size);
             Parallel.ForEach(segment.Values, (v, s, i) => { ret[i] = transfomer(v); });
-            return ret.GetSegment();
+            return _context.CreateSegment(ret);
         }
 
         protected void Mutate(ITensorSegment<T> segment, ITensorSegment<T> other, Func<T, T, T> func)
@@ -289,16 +289,9 @@ namespace BrightData.Computation
         public ITensorSegment<T> Reverse(ITensorSegment<T> segment)
         {
             var len = segment.Size;
-            var ret = (TensorBlock<T>)_context.TensorPool.Get<T>(segment.Size);
+            var ret = _context.TensorPool.Get<T>(segment.Size);
             Parallel.ForEach(segment.Values, (v, s, i) => { ret[len - i] = v; });
-            return ret.GetSegment();
-        }
-
-        ITensorSegment<T> _Create(T[] values)
-        {
-            var ret = _context.TensorPool.Get<T>((uint)values.Length).GetSegment();
-            ret.Initialize(values);
-            return ret;
+            return _context.CreateSegment(ret);
         }
 
         public static IEnumerable<ITensorSegment<T>> SplitSegment(ITensorSegment<T> segment, uint blockCount)

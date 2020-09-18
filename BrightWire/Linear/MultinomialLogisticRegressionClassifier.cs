@@ -61,8 +61,8 @@ namespace BrightWire.Linear
             var matrix = table.AsMatrix(_model.FeatureColumn);
             var output = _classifier.Select(c => c.Predict(matrix)).ToArray();
             for (uint i = 0; i < matrix.RowCount; i++) {
-                var rowOutput = table.Context.CreateVector(output.Select(v => v[i]).ToArray());
-                var classification = _model.Classification.Zip(rowOutput.Softmax().Values).ToArray();
+                var rowOutput = table.Context.CreateVector(output.Select(v => v[i]).ToArray()).Softmax();
+                var classification = _model.Classification.Zip(rowOutput.Values).ToArray();
                 yield return (i, classification);
             }
         }

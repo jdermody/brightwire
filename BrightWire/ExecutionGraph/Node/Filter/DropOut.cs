@@ -1,4 +1,5 @@
-﻿using MathNet.Numerics.Distributions;
+﻿using System;
+using MathNet.Numerics.Distributions;
 using System.Collections.Generic;
 using System.IO;
 using BrightData;
@@ -30,10 +31,10 @@ namespace BrightWire.ExecutionGraph.Node.Filter
         float _dropOutPercentage;
         Bernoulli _probabilityToDrop;
 
-        public DropOut(float dropOutPercentage, bool stochastic, string name = null) : base(name)
+        public DropOut(float dropOutPercentage, Random random, string name = null) : base(name)
         {
             _dropOutPercentage = dropOutPercentage;
-            _probabilityToDrop = stochastic ? new Bernoulli(_dropOutPercentage) : new Bernoulli(_dropOutPercentage, new System.Random(0));
+            _probabilityToDrop = new Bernoulli(_dropOutPercentage, random);
         }
 
         public override void ExecuteForward(IContext context)

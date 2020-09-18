@@ -51,7 +51,7 @@ namespace BrightWire.ExecutionGraph.Engine
 			_lap.PushLayer();
 			_dataSource = dataSource;
 			var ret = new List<ExecutionResult>();
-			var provider = new MiniBatchProvider(dataSource, false);
+			var provider = new MiniBatchProvider(dataSource, null);
 			using (var executionContext = new ExecutionContext(_lap)) {
 				executionContext.Add(provider.GetMiniBatches(batchSize, mb => _Execute(executionContext, mb)));
 				float operationCount = executionContext.RemainingOperationCount;

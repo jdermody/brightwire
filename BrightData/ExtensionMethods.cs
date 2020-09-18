@@ -8,6 +8,7 @@ using System.Text;
 using BrightData.Analysis;
 using BrightData.Converters;
 using BrightData.Helper;
+using BrightData.Memory;
 
 namespace BrightData
 {
@@ -62,8 +63,7 @@ namespace BrightData
 
         public static Vector<T> CreateVector<T>(this IBrightDataContext context, uint size, Func<uint, T> initializer) where T: struct
         {
-            var data = context.TensorPool.Get<T>(size);
-            var segment = data.GetSegment();
+            var segment = context.CreateSegment<T>(size);
             if (initializer != null)
                 segment.Initialize(initializer);
             return new Vector<T>(segment);
@@ -71,16 +71,14 @@ namespace BrightData
 
         public static Vector<T> CreateVector<T>(this IBrightDataContext context, uint size, T initializer = default(T)) where T: struct
         {
-            var data = context.TensorPool.Get<T>(size);
-            var segment = data.GetSegment();
+            var segment = context.CreateSegment<T>(size);
             segment.Initialize(initializer);
             return new Vector<T>(segment);
         }
 
         public static Vector<T> CreateVector<T>(this IBrightDataContext context, params T[] initialData) where T: struct
         {
-            var data = context.TensorPool.Get<T>((uint)initialData.Length);
-            var segment = data.GetSegment();
+            var segment = context.CreateSegment<T>((uint)initialData.Length);
             if (initialData.Any())
                 segment.Initialize(initialData);
             return new Vector<T>(segment);
@@ -88,8 +86,7 @@ namespace BrightData
 
         public static Matrix<T> CreateMatrix<T>(this IBrightDataContext context, uint rows, uint columns, Func<uint, uint, T> initializer = null) where T: struct
         {
-            var data = context.TensorPool.Get<T>(rows * columns);
-            var segment = data.GetSegment();
+            var segment = context.CreateSegment<T>(rows * columns);
             if (initializer != null)
                 segment.Initialize(i => initializer(i / columns, i % columns));
             return new Matrix<T>(segment, rows, columns);
@@ -110,8 +107,7 @@ namespace BrightData
 
         public static Tensor3D<T> CreateTensor3D<T>(this IBrightDataContext context, uint depth, uint rows, uint columns) where T : struct
         {
-            var data = context.TensorPool.Get<T>(depth * rows * columns);
-            var segment = data.GetSegment();
+            var segment = context.CreateSegment<T>(depth * rows * columns);
             return new Tensor3D<T>(segment, depth, rows, columns);
         }
 
@@ -122,7 +118,7 @@ namespace BrightData
             var rows = first.RowCount;
             var columns = first.ColumnCount;
 
-            var data = context.TensorPool.Get<T>(depth * rows * columns).GetSegment();
+            var data = context.CreateSegment<T>(depth * rows * columns);
             var ret = new Tensor3D<T>(data, depth, rows, columns);
             var allSame = ret.Matrices.Zip(slices, (t, s) => {
                 if (s.RowCount == t.RowCount && s.ColumnCount == t.ColumnCount) {
@@ -138,8 +134,7 @@ namespace BrightData
 
         public static Tensor4D<T> CreateTensor4D<T>(this IBrightDataContext context, uint count, uint depth, uint rows, uint columns) where T : struct
         {
-            var data = context.TensorPool.Get<T>(count * depth * rows * columns);
-            var segment = data.GetSegment();
+            var segment = context.CreateSegment<T>(count * depth * rows * columns);
             return new Tensor4D<T>(segment, count, depth, rows, columns);
         }
 
@@ -215,12 +210,6 @@ namespace BrightData
             }
         }
 
-        public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> seq, int? randomSeed = null)
-        {
-            var rnd = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
-            return Shuffle(seq, rnd);
-        }
-
         public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> seq, Random rnd)
         {
             return seq.OrderBy(e => rnd.Next()).ToList();
@@ -278,8 +267,7 @@ namespace BrightData
         public static Vector<float> Mutate(this Vector<float> vector, Func<float, float> mutator)
         {
             var context = vector.Context;
-            var data = context.TensorPool.Get<float>(vector.Size);
-            var segment = data.GetSegment();
+            var segment = context.CreateSegment<float>(vector.Size);
             segment.Initialize(i => mutator(vector[i]));
             return new Vector<float>(segment);
         }
@@ -287,8 +275,7 @@ namespace BrightData
         public static Vector<float> MutateWith(this Vector<float> vector, Vector<float> other, Func<float, float, float> mutator)
         {
             var context = vector.Context;
-            var data = context.TensorPool.Get<float>(vector.Size);
-            var segment = data.GetSegment();
+            var segment = context.CreateSegment<float>(vector.Size);
             segment.Initialize(i => mutator(vector[i], other[i]));
             return new Vector<float>(segment);
         }
@@ -423,5 +410,8 @@ namespace BrightData
 
             throw new NotImplementedException();
         }
+
+        public static ITensorSegment<T> CreateSegment<T>(this IBrightDataContext context, T[] block) where T : struct => new TensorSegment<T>(context, block);
+        public static ITensorSegment<T> CreateSegment<T>(this IBrightDataContext context, uint size) where T : struct => new TensorSegment<T>(context, context.TensorPool.Get<T>(size));
     }
 }

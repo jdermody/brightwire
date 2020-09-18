@@ -81,7 +81,7 @@ namespace BrightData.Computation
         }
 
         public float Sum(ITensorSegment<float> segment) => segment.Values.AsParallel().Sum();
-        public (float Min, float Max, uint MinIndex, uint MaxIndex) GetMinAndMaxValues(ITensorSegment<float> segment) => ComputationBase<float>.GetMinAndMaxValues(segment, float.MinValue, float.MaxValue);
+        public (float Min, float Max, uint MinIndex, uint MaxIndex) GetMinAndMaxValues(ITensorSegment<float> segment) => ComputationBase<float>.GetMinAndMaxValues(segment, float.MaxValue, float.MinValue);
 
         public bool IsEntirelyFinite(ITensorSegment<float> segment) => !segment.Values.Any(v => float.IsNaN(v) || float.IsInfinity(v));
 
@@ -185,23 +185,23 @@ namespace BrightData.Computation
             if (segment.Size != other.Size)
                 throw new ArgumentException("Segments were different sizes");
 
-            var ret = (TensorBlock<float>)_context.TensorPool.Get<float>(segment.Size);
+            var ret = _context.TensorPool.Get<float>(segment.Size);
             Parallel.ForEach(segment.Values, (v, s, i) => { ret[i] = func(v, other[i]); });
-            return ret.GetSegment();
+            return new TensorSegment<float>(_context, ret);
         }
 
         protected ITensorSegment<float> Transform(ITensorSegment<float> segment, Func<float, float> transfomer)
         {
-            var ret = (TensorBlock<float>)_context.TensorPool.Get<float>(segment.Size);
+            var ret = _context.TensorPool.Get<float>(segment.Size);
             Parallel.ForEach(segment.Values, (v, s, i) => { ret[i] = transfomer(v); });
-            return ret.GetSegment();
+            return _context.CreateSegment(ret);
         }
 
         protected ITensorSegment<float> TransformIndexed(ITensorSegment<float> segment, Func<uint, float> transfomer)
         {
-            var ret = (TensorBlock<float>)_context.TensorPool.Get<float>(segment.Size);
+            var ret = _context.TensorPool.Get<float>(segment.Size);
             Parallel.ForEach(segment.Values, (v, s, i) => { ret[i] = transfomer((uint)i); });
-            return ret.GetSegment();
+            return _context.CreateSegment(ret);
         }
 
         protected void Mutate(ITensorSegment<float> segment, ITensorSegment<float> other, Func<float, float, float> func)

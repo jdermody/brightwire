@@ -20,7 +20,7 @@ namespace BrightData.FloatTensors
         public IBrightDataContext Context { get; }
         public IFloatVector CreateVector(uint length, bool setToZero = false)
         {
-            var segment = Context.TensorPool.Get<float>(length).GetSegment();
+            var segment = Context.CreateSegment<float>(length);
             if(setToZero)
                 segment.Initialize(0f);
             return new FloatVector(new Vector<float>(segment));

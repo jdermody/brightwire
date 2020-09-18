@@ -171,7 +171,7 @@ namespace BrightTable
         IRowOrientedDataTable Mutate(Func<object[], object[]> projector, string filePath = null);
         IRowOrientedDataTable SelectRows(params uint[] rowIndices);
         IRowOrientedDataTable SelectRows(string filePath, params uint[] rowIndices);
-        IRowOrientedDataTable Shuffle(int? randomSeed = null, string filePath = null);
+        IRowOrientedDataTable Shuffle(string filePath = null);
         IRowOrientedDataTable Sort(bool ascending, uint columnIndex, string filePath = null);
         IEnumerable<(string Label, IRowOrientedDataTable Table)> GroupBy(uint columnIndex);
         string FirstRow { get; }

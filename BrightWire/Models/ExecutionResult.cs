@@ -57,6 +57,6 @@ namespace BrightWire.Models
 		/// </summary>
 		/// <param name="errorMetric">The error metric to calculate with</param>
 		/// <returns></returns>
-		public float CalculateError(IErrorMetric errorMetric) => Output.Zip(Target, (o, t) => errorMetric.Compute(o, t)).Average();
+		public float CalculateError(IErrorMetric errorMetric) => Output.Zip(Target, errorMetric.Compute).Average();
 	}
 }

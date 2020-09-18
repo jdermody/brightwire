@@ -124,18 +124,19 @@ namespace BrightWire
             return clusterer.Clusters;
         }
 
-	    /// <summary>
-	    /// K Means uses coordinate descent and a distance metric between randomly selected centroids to cluster the data
-	    /// </summary>
-	    /// <param name="data">The list of vectors to cluster</param>
-	    /// <param name="lap">Linear algebra provider</param>
-	    /// <param name="k">The number of clusters to find</param>
-	    /// <param name="maxIterations">The maximum number of iterations</param>
-	    /// <param name="distanceMetric">Distance metric to use to compare centroids</param>
-	    /// <returns>A list of k clusters</returns>
-	    public static IFloatVector[][] KMeans(this IEnumerable<IFloatVector> data, int k, int maxIterations = 1000, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
+        /// <summary>
+        /// K Means uses coordinate descent and a distance metric between randomly selected centroids to cluster the data
+        /// </summary>
+        /// <param name="data">The list of vectors to cluster</param>
+        /// <param name="lap">Linear algebra provider</param>
+        /// <param name="random"></param>
+        /// <param name="k">The number of clusters to find</param>
+        /// <param name="maxIterations">The maximum number of iterations</param>
+        /// <param name="distanceMetric">Distance metric to use to compare centroids</param>
+        /// <returns>A list of k clusters</returns>
+        public static IFloatVector[][] KMeans(this IEnumerable<IFloatVector> data, Random random, int k, int maxIterations = 1000, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
         {
-            using var clusterer = new KMeans(k, data, distanceMetric);
+            using var clusterer = new KMeans(random, k, data, distanceMetric);
             clusterer.ClusterUntilConverged(maxIterations);
             return clusterer.Clusters;
         }

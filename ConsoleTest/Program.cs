@@ -13,6 +13,7 @@ using BrightData.Numerics;
 using BrightTable.Transformations;
 using BrightData.Cuda;
 using BrightTable.Helper;
+using BrightWire.ExecutionGraph;
 using ExampleCode;
 using ExampleCode.Datasets;
 
@@ -23,7 +24,9 @@ namespace ConsoleTest
         static void Main(string[] args)
         {
             using var context = new BrightDataContext(0);
-            context.UseNumericsLinearAlgebra();
+            context.UseCudaLinearAlgebra();
+
+            MNIST.Convolutional(context, @"C:\data\mnist");
 
             // set to cache data files locally
             context.Set("DataFileDirectory", new DirectoryInfo(@"c:\data"));
@@ -43,9 +46,13 @@ namespace ConsoleTest
             iris.TrainRandomForest(500, 7);
             iris.TrainKNearestNeighbours(10);
             iris.TrainMultinomialLogisticRegression(500, 0.1f);
-            //Xor.TrainNeuralNetwork(context);
+            //iris.TrainSigmoidNeuralNetwork(4, 200, 0.03f, 16);
 
-            
+            iris.TrainSigmoidNeuralNetwork(8, 500, 0.01f, 8);
+
+            return;
+            //context.Xor().TrainSigmoidNeuralNetwork(4, 1000, 0.1f, 4);
+
             var lap = context.UseNumericsLinearAlgebra();
 
             //var table = context.ParseCsv(@"C:\data\plotly\processed_data.csv", true, ',', @"c:\temp\table.dat", true);
@@ -70,7 +77,6 @@ namespace ConsoleTest
 
             var vectorised = normalized.Vectorise();
             head = vectorised.Head(60);
-
 
             var naiveBayes = normalized.TrainNaiveBayes().CreateClassifier();
             var normalisedConvertible = normalized.AsRowOriented().AsConvertible();

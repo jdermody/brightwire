@@ -80,7 +80,7 @@ namespace BrightWire.TrainingData.Artificial
                 }
             }
 
-            var builder = DataTableBuilder.CreateTwoColumnMatrix(context);
+            var builder = DataTableBuilder.CreateTwoColumnMatrixTableBuilder(context);
             foreach (var str in strList2) {
                 var inputList = new Vector<float>[str.Length];
                 var outputList = new Vector<float>[str.Length];
@@ -115,9 +115,9 @@ namespace BrightWire.TrainingData.Artificial
         /// Creates a reber grammar builder
         /// </summary>
         /// <param name="stochastic">True to generate random sequences</param>
-        public ReberGrammar(bool stochastic = true)
+        public ReberGrammar(Random random)
         {
-            _rnd = stochastic ? new Random() : new Random(0);
+            _rnd = random;
         }
 
         /// <summary>

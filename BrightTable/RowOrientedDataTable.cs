@@ -364,9 +364,9 @@ namespace BrightTable
             return _Copy(rowIndices, filePath);
         }
 
-        public IRowOrientedDataTable Shuffle(int? randomSeed = null, string filePath = null)
+        public IRowOrientedDataTable Shuffle(string filePath = null)
         {
-            var rowIndices = this.RowIndices().Shuffle(randomSeed).ToArray();
+            var rowIndices = this.RowIndices().Shuffle(Context.Random).ToArray();
             return _Copy(rowIndices, filePath);
         }
 

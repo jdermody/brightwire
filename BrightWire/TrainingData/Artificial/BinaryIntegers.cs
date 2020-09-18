@@ -38,8 +38,8 @@ namespace BrightWire.TrainingData.Artificial
         /// <returns>A list of sequences</returns>
         public static IDataTable Addition(IBrightDataContext context, int sampleCount, bool stochastic)
         {
-            Random rand = stochastic ? new Random() : new Random(0);
-            var builder = DataTableBuilder.CreateTwoColumnMatrix(context);
+            Random rand = context.Random;
+            var builder = DataTableBuilder.CreateTwoColumnMatrixTableBuilder(context);
 
             for (var i = 0; i < sampleCount; i++) {
                 // generate some random numbers (sized to prevent overflow)

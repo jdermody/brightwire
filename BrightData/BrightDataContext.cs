@@ -27,7 +27,7 @@ namespace BrightData
         {
             IsStochastic = !randomSeed.HasValue;
             Random = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
-            _tensorPool = new TensorPool(this, new SharedPoolAllocator(), maxCacheSize);
+            _tensorPool = new TensorPool(this, maxCacheSize);
             _dataReader = new DataEncoder(this);
 
             _floatComputation = new FloatComputation(this);
@@ -42,9 +42,6 @@ namespace BrightData
         public void Dispose()
         {
             _memoryLayers.Pop();
-#if DEBUG
-            _tensorPool.LogAllocations(str => Debug.WriteLine(str));
-#endif
             _tensorPool.Dispose();
 
             LinearAlgebraProvider?.Dispose();

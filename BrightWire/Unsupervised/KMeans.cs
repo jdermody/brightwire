@@ -18,15 +18,14 @@ namespace BrightWire.Unsupervised
 		List<(int[] DataIndices, IFloatVector Cluster)> _clusters = new List<(int[] DataIndices, IFloatVector Cluster)>();
 		readonly IFloatVector[] _data;
 
-		public KMeans(int k, IEnumerable<IFloatVector> data, DistanceMetric distanceMetric = DistanceMetric.Euclidean, int? randomSeed = null)
+		public KMeans(Random random, int k, IEnumerable<IFloatVector> data, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
 		{
 			_data = data.ToArray();
 			_distance = new VectorDistanceHelper(_data, distanceMetric);
 
 			// use kmeans++ to find best initial positions
 			// https://normaldeviate.wordpress.com/2012/09/30/the-remarkable-k-means/
-			var rand = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
-			var clusterIndexSet = new HashSet<int>();
+            var clusterIndexSet = new HashSet<int>();
 			var distanceTable = new List<float>[_data.Length];
 
 			bool AddCluster(int index, Action<int, float> callback)
@@ -50,7 +49,7 @@ namespace BrightWire.Unsupervised
 			}
 
 			// pick the first cluster at random and set up the distance table
-			AddCluster(rand.Next(0, _data.Length), (index, distance) => distanceTable[index] = new List<float>{ distance });
+			AddCluster(random.Next(0, _data.Length), (index, distance) => distanceTable[index] = new List<float>{ distance });
 
 			for (var i = 1; i < k && i < _data.Length; i++) {
 				// create a categorical distribution to calculate the probability of choosing each subsequent item

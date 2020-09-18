@@ -75,7 +75,38 @@ namespace ExampleCode
                 WriteResults("Multinomial logistic regression", ret.CreateClassifier(Table.Context.LinearAlgebraProvider));
         }
 
-        public ExecutionGraph TrainSigmoidNeuralNetwork(uint hiddenLayerSize, float learningRate, uint batchSize, bool writeResults = true)
+        public void TrainSigmoidNeuralNetwork(uint hiddenLayerSize, uint numIterations, float trainingRate, uint batchSize)
+        {
+            // create a neural network graph factory
+            var graph = new GraphFactory(Table.Context.LinearAlgebraProvider);
+
+            // the default data table -> vector conversion uses one hot encoding of the classification labels, so create a corresponding cost function
+            var errorMetric = graph.ErrorMetric.OneHotEncoding;
+
+            // create the property set (use rmsprop gradient descent optimisation)
+            graph.CurrentPropertySet
+                .Use(graph.RmsProp());
+
+            // create the training and test data sources
+            var trainingData = graph.CreateDataSource(Training);
+            var testData = trainingData.CloneWith(Test);
+
+            // create a 4x8x3 neural network with sigmoid activations after each neural network
+            var engine = graph.CreateTrainingEngine(trainingData, trainingRate, batchSize, TrainingErrorCalculation.TrainingData);
+            graph.Connect(engine)
+                .AddFeedForward(hiddenLayerSize)
+                .Add(graph.SigmoidActivation())
+                .AddDropOut(dropOutPercentage: 0.5f)
+                .AddFeedForward(engine.DataSource.OutputSize ?? 0)
+                .Add(graph.SigmoidActivation())
+                .AddBackpropagation(errorMetric);
+
+            // train the network
+            Console.WriteLine("Training a 4x8x3 neural network...");
+            engine.Train(numIterations, testData, errorMetric, null, 50);
+        }
+
+        public ExecutionGraph TrainSimpleSigmoidNeuralNetwork(uint hiddenLayerSize, uint numIterations, float learningRate, uint batchSize, bool writeResults = true)
         {
             var context = Table.Context;
 
@@ -103,8 +134,10 @@ namespace ExampleCode
 				.AddFeedForward(hiddenLayerSize)
 				.Add(graph.SigmoidActivation())
 
-				// create a second feed forward layer with sigmoid activation
-				.AddFeedForward(engine.DataSource.OutputSize ?? throw new Exception("No output"))
+                .AddDropOut(dropOutPercentage: 0.5f)
+
+                // create a second feed forward layer with sigmoid activation
+                .AddFeedForward(engine.DataSource.OutputSize ?? throw new Exception("No output"))
 				.Add(graph.SigmoidActivation())
 
 				// calculate the error and backpropagate the error signal
@@ -114,27 +147,29 @@ namespace ExampleCode
 			// train the network
 			var executionContext = graph.CreateExecutionContext();
             var testData = graph.CreateDataSource(Test);
-			for (var i = 0; i < 1000; i++) {
+            engine.Test(testData, errorMetric);
+            for (var i = 0; i < numIterations; i++) {
 				engine.Train(executionContext);
-				if (i % 100 == 0)
-					engine.Test(testData, errorMetric);
+				//engine.Test(testData, errorMetric);
 			}
-			engine.Test(testData, errorMetric);
 
-			// create a new network to execute the learned network
+            // create a new network to execute the learned network
 			var networkGraph = engine.Graph;
 			var executionEngine = graph.CreateEngine(networkGraph);
 			var output = executionEngine.Execute(testData).ToList();
-			Console.WriteLine(output.Average(o => o.CalculateError(errorMetric)));
+            if (writeResults) {
+                var testAccuracy = output.Average(o => o.CalculateError(graph.ErrorMetric.OneHotEncoding));
+                Console.WriteLine($"Neural network accuracy: {testAccuracy:P}");
 
-			// print the values that have been learned
-			foreach (var item in output) {
-				foreach (var index in item.MiniBatchSequence.MiniBatch.Rows) {
-					var row = Table.Row(index);
-					var result = item.Output[index];
-					Console.WriteLine($"{row} = {result}");
-				}
-			}
+                // print the values that have been learned
+                //foreach (var item in output) {
+                //    foreach (var index in item.MiniBatchSequence.MiniBatch.Rows) {
+                //        var row = Test.Row(index);
+                //        var result = item.Output[index];
+                //        Console.WriteLine($"{row} = {result}");
+                //    }
+                //}
+            }
 
             return networkGraph;
         }

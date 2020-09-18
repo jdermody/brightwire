@@ -47,7 +47,7 @@ namespace BrightWire
             var data = dataTable.ForEachAsFloat()
                 .Select((r, i) => (Vector: lap.CreateVector(r.Numeric), RowIndex: (uint)i))
                 .ToDictionary(d => d.Vector);
-            return data.Keys.KMeans(k, maxIterations, distanceMetric)
+            return data.Keys.KMeans(dataTable.Context.Random, k, maxIterations, distanceMetric)
                 .Select(c => c.Select(v => data[v].RowIndex).ToArray());
         }
 
@@ -60,5 +60,10 @@ namespace BrightWire
             return data.Keys.NNMF(lap, k, maxIterations)
                 .Select(c => c.Select(v => data[v].RowIndex).ToArray());
         }
+
+        public static uint GetOutputSizeOrThrow(this IDataSource dataSource) => dataSource.OutputSize ?? throw new Exception("Output size not defined");
+
+        public static GraphFactory CreateGraphFactory(this IBrightDataContext context) => new GraphFactory(context.LinearAlgebraProvider);
+        public static GraphFactory CreateGraphFactory(this ILinearAlgebraProvider lap) => new GraphFactory(lap);
     }
 }

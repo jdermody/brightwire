@@ -20,7 +20,7 @@ namespace BrightWire.ExecutionGraph.WeightInitialisation
         {
             _lap = lap;
             _parameter = Math.Sqrt(parameter);
-            _random = lap.IsStochastic ? new Random() : new Random(0);
+            _random = lap.Context.Random;
         }
 
         public IFloatVector CreateBias(uint size)

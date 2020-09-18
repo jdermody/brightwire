@@ -31,13 +31,14 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         public override uint? OutputSize => _outputVectoriser.Size;
         public override bool IsSequential => false;
 
-        public override IMiniBatch Get(IExecutionContext executionContext, uint[] rows)
+        public override IMiniBatch Get(IExecutionContext executionContext, uint[] rowIndices)
         {
-            var data = _GetRows(rows)
+            var rows = _GetRows(rowIndices);
+            var data = rows
                 .Select(r => (new[] { _inputVectoriser.Convert(r) }, _outputVectoriser.Convert(r)))
                 .ToArray()
             ;
-            return _GetMiniBatch(rows, data);
+            return _GetMiniBatch(rowIndices, data);
         }
     }
 }

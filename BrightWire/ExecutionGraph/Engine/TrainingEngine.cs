@@ -17,14 +17,14 @@ namespace BrightWire.ExecutionGraph.Engine
 		readonly List<(IMiniBatchSequence Sequence, double? TrainingError, Matrix<float>[] Output)> _executionResults = new List<(IMiniBatchSequence, double?, Matrix<float>[])>();
 		readonly List<IContext> _contextList = new List<IContext>();
 		readonly INode[] _input;
-		readonly bool _isStochastic;
+		readonly Random _random;
 		float? _lastTestError = null;
 		double? _lastTrainingError = null, _trainingErrorDelta = null;
 
 		public TrainingEngine(ILinearAlgebraProvider lap, IDataSource dataSource, ILearningContext learningContext, INode start) : base(lap)
 		{
 			_dataSource = dataSource;
-			_isStochastic = lap.IsStochastic;
+            _random = lap.Context.Random;
 			LearningContext = learningContext;
 			learningContext.SetRowCount(dataSource.RowCount);
 
@@ -41,7 +41,7 @@ namespace BrightWire.ExecutionGraph.Engine
 		public IEnumerable<ExecutionResult> Execute(IDataSource dataSource, uint batchSize = 128, Action<float> batchCompleteCallback = null)
 		{
 			_lap.PushLayer();
-            var provider = new MiniBatchProvider(dataSource, _isStochastic);
+            var provider = new MiniBatchProvider(dataSource, _random);
 			using (var executionContext = new ExecutionContext(_lap)) {
 				executionContext.Add(provider.GetMiniBatches(batchSize, mb => _Execute(executionContext, mb)));
 				float operationCount = executionContext.RemainingOperationCount;
@@ -95,7 +95,7 @@ namespace BrightWire.ExecutionGraph.Engine
 		{
 			_lap.PushLayer();
 			LearningContext.StartEpoch();
-			var provider = new MiniBatchProvider(_dataSource, _isStochastic);
+			var provider = new MiniBatchProvider(_dataSource, _random);
 			executionContext.Add(provider.GetMiniBatches(LearningContext.BatchSize, batch => _contextList.AddRange(_Train(executionContext, LearningContext, batch))));
 
 			IGraphOperation operation;

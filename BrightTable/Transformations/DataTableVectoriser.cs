@@ -135,7 +135,7 @@ namespace BrightTable.Transformations
             protected override IEnumerable<float> _Convert(object obj)
             {
                 var str = obj.ToString();
-                if(_stringIndex.TryGetValue(str, out var index))
+                if(!_stringIndex.TryGetValue(str, out var index))
                     _stringIndex.Add(str, index = _nextIndex++);
                 Array.Clear(_buffer, 0, _buffer.Length);
                 _buffer[index] = 1f;

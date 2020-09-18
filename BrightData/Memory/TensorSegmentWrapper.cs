@@ -57,11 +57,11 @@ namespace BrightData.Memory
             }
         }
 
-        public (ITensorBlock<T> Block, bool IsNewCopy) GetBlock(ITensorPool pool)
+        public (T[] Block, bool IsNewCopy) GetBlock(ITensorPool pool)
         {
             var ret = pool.Get<T>(Size);
-            using var segment = ret.GetSegment();
-            segment.Initialize(i => this[i]);
+            for (uint i = 0, len = Size; i < len; i++)
+                ret[i] = this[i];
             return (ret, true);
         }
 
@@ -121,6 +121,14 @@ namespace BrightData.Memory
         public void CopyTo(ITensorSegment<T> segment)
         {
             segment.Initialize(i => this[i]);
+        }
+
+        public override string ToString()
+        {
+            var preview = String.Join("|", Values.Take(8));
+            if (Size > 8)
+                preview += "|...";
+            return $"Segment Wrapper ({Size}): {preview}";
         }
     }
 }

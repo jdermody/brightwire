@@ -300,7 +300,7 @@ namespace BrightWire.TreeBased.Training
 
                 // randomly select a subset of attributes if configured
                 else if (maxAttributes.HasValue)
-                    attributes = attributes.Shuffle().Take((int)maxAttributes.Value).ToArray();
+                    attributes = attributes.Shuffle(table.Context.Random).Take((int)maxAttributes.Value).ToArray();
                 
                 var nodeEntropy = node.Entropy;
                 double nodeTotal = node.Data.Count;

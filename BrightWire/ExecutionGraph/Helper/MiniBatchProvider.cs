@@ -31,23 +31,23 @@ namespace BrightWire.ExecutionGraph.Helper
             }
         }
         readonly IDataSource _dataSource;
-        readonly bool _isStochastic;
+        private readonly Random _random;
 
-        public MiniBatchProvider(IDataSource dataSource, bool isStochastic)
+        public MiniBatchProvider(IDataSource dataSource, Random random)
         {
             _dataSource = dataSource;
-            _isStochastic = isStochastic;
+            _random = random;
         }
 
         public IEnumerable<IGraphOperation> GetMiniBatches(uint batchSize, Action<IMiniBatch> handler)
         {
             var buckets = _dataSource.GetBuckets();
-            if (_isStochastic)
-                buckets.Shuffle();
+            if (_random != null)
+                buckets = buckets.Select(v => v.Shuffle(_random).ToArray()).Shuffle(_random).ToArray();
 
             foreach (var bucket in buckets) {
-                var range = Enumerable.Range(0, bucket.Length);
-                var iterationOrder = (_isStochastic ? range.Shuffle() : range).ToList();
+                var range = bucket.Length.AsRange();
+                var iterationOrder = (_random != null ? range.Shuffle(_random) : range).ToList();
 
                 for (uint j = 0; j < bucket.Length; j += batchSize) {
                     var maxRows = Math.Min(iterationOrder.Count, batchSize + j) - j;

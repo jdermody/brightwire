@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace BrightData.Memory
 {
@@ -8,17 +11,13 @@ namespace BrightData.Memory
     /// "Pointer" to a tensor block that manages reference counting
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    class TensorSegment<T> : ITensorSegment<T> 
+    class TensorSegment<T> : ReferenceCountedBlock<T>, ITensorSegment<T> 
         where T: struct
     {
-        readonly TensorBlock<T> _data;
         bool _wasDisposed = false;
 
-        public TensorSegment(TensorBlock<T> data)
+        public TensorSegment(IBrightDataContext context, T[] data) : base(context, data)
         {
-            _data = data;
-            data.AddRef();
-            data.Context.MemoryLayer.Add(this);
         }
 
         public void Dispose()
@@ -27,22 +26,14 @@ namespace BrightData.Memory
                 lock (this) {
                     if (!_wasDisposed) {
                         _wasDisposed = true;
-                        _data.Release();
+                        Release();
                     }
                 }
             }
         }
 
-        public uint Size => _data.Size;
-        public int AddRef() => _data.AddRef();
-        public int Release() => _data.Release();
-        public long AllocationIndex => _data.AllocationIndex;
-        public bool IsValid => !_wasDisposed && _data.IsValid;
-        public IBrightDataContext Context => _data.Context;
-
-        public (ITensorBlock<T> Block, bool IsNewCopy) GetBlock(ITensorPool pool)
+        public (T[] Block, bool IsNewCopy) GetBlock(ITensorPool pool)
         {
-            _data.AddRef();
             return (_data, false);
         }
 
@@ -56,13 +47,26 @@ namespace BrightData.Memory
         }
 
         public T[] ToArray() => _data.ToArray();
-        public IEnumerable<T> Values => _data.Values;
-        public void InitializeFrom(Stream stream) => _data.InitializeFrom(stream);
-        public void Initialize(Func<uint, T> initializer) => _data.Initialize(initializer);
-        public void Initialize(T initializer) => _data.Initialize(initializer);
-        public void Initialize(T[] initialData) => initialData.CopyTo(_data.Data);
-        public void WriteTo(Stream stream) => _data.WriteTo(stream);
-        public void CopyTo(T[] array) => _data.CopyTo(array);
+        public IEnumerable<T> Values => _data;
+        public void InitializeFrom(Stream stream) => stream.Read(MemoryMarshal.Cast<T, byte>(_data));
+
+        public void Initialize(Func<uint, T> initializer)
+        {
+            for (uint i = 0; i < Size; i++)
+                _data[(int) i] = initializer(i);
+        }
+        public void Initialize(T initializer) => Array.Fill(_data, initializer);
+        public void Initialize(T[] initialData) => Array.Copy(initialData, _data, _data.Length);
+        public void WriteTo(Stream stream) => stream.Write(MemoryMarshal.Cast<T, byte>(_data));
+        public void CopyTo(T[] array) => Array.Copy(_data, array, _data.Length);
         public void CopyTo(ITensorSegment<T> segment) => segment.Initialize(i => _data[i]);
+
+        public override string ToString()
+        {
+            var preview = String.Join("|", Values.Take(8));
+            if (Size > 8)
+                preview += "|...";
+            return $"Segment ({Size}): {preview}";
+        }
     }
 }

@@ -42,9 +42,9 @@ namespace BrightWire.TrainingData.Artificial
         /// <param name="maxSize">The maximum size of each sequence</param>
         /// <param name="noRepeat">True to avoid repeating any previous character within each sequence</param>
         /// <param name="isStochastic">True to generate different sequences each time</param>
-        public SequenceGenerator(IBrightDataContext context, int dictionarySize, int minSize, int maxSize, bool noRepeat = true, bool isStochastic = true)
+        public SequenceGenerator(IBrightDataContext context, int dictionarySize, int minSize, int maxSize, bool noRepeat = true)
         {
-            _rnd = isStochastic ? new Random() : new Random(0);
+            _rnd = context.Random;
             _context = context;
             _noRepeat = noRepeat;
             DictionarySize = Math.Min(_dictionary.Length, dictionarySize);

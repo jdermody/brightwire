@@ -709,15 +709,16 @@ namespace BrightTable
             }
             var inputVectoriser = new DataTableVectoriser(dataTable, columnIndices.ToArray());
 
+            var context = dataTable.Context;
             dataTable.ForEachRow(row => {
                 var input = inputVectoriser.Convert(row);
                 if (outputVectoriser != null)
-                    builder.AddRow(input, outputVectoriser.Convert(row));
+                    builder.AddRow(context.CreateVector(input), context.CreateVector(outputVectoriser.Convert(row)));
                 else
                     builder.AddRow(input);
             });
 
-            return builder.Build(dataTable.Context);
+            return builder.Build(context);
         }
     }
 }
