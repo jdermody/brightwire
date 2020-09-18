@@ -17,9 +17,15 @@ namespace BrightWire.Models
 
             }
 
-            public Node(Stream stream)
+            public Node(BinaryReader reader)
             {
-
+                TypeName = reader.ReadString();
+                Id = reader.ReadString();
+                Name = reader.ReadString();
+                Description = reader.ReadString();
+                var len = reader.ReadInt32();
+                if (len > 0)
+                    Data = reader.ReadBytes(len);
             }
 
             /// <summary>
@@ -47,9 +53,15 @@ namespace BrightWire.Models
             /// </summary>
             public byte[] Data { get; set; }
 
-            public void WriteTo(Stream stream)
+            public void WriteTo(BinaryWriter writer)
             {
-                // TODO
+                writer.Write(TypeName);
+                writer.Write(Id);
+                writer.Write(Name ?? "");
+                writer.Write(Description ?? "");
+                writer.Write(Data?.Length ?? 0);
+                if(Data?.Length > 0)
+                    writer.Write(Data);
             }
         }
 

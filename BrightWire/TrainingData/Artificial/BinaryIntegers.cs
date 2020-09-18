@@ -34,9 +34,8 @@ namespace BrightWire.TrainingData.Artificial
         /// </summary>
         /// <param name="context"></param>
         /// <param name="sampleCount">How many samples to generate</param>
-        /// <param name="stochastic">True to generate random integers</param>
         /// <returns>A list of sequences</returns>
-        public static IDataTable Addition(IBrightDataContext context, int sampleCount, bool stochastic)
+        public static IRowOrientedDataTable Addition(IBrightDataContext context, int sampleCount)
         {
             Random rand = context.Random;
             var builder = DataTableBuilder.CreateTwoColumnMatrixTableBuilder(context);

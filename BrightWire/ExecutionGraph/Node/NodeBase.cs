@@ -257,11 +257,7 @@ namespace BrightWire.ExecutionGraph.Node
         /// <param name="writer">The binary writer</param>
         protected static void _Serialise(INode node, BinaryWriter writer)
         {
-            using var buffer = new MemoryStream();
-            node.SerialiseTo(null, null, null).WriteTo(buffer);
-            var activationData = buffer.ToArray();
-            writer.Write(activationData.Length);
-            writer.Write(activationData);
+            node.SerialiseTo(null, null, null).WriteTo(writer);
         }
 
         /// <summary>
@@ -296,10 +292,7 @@ namespace BrightWire.ExecutionGraph.Node
         /// <returns></returns>
         protected static INode _Hydrate(GraphFactory factory, BinaryReader reader)
         {
-            var bufferSize = reader.ReadInt32();
-            Models.ExecutionGraph.Node model;
-            using (var buffer = new MemoryStream(reader.ReadBytes(bufferSize)))
-                model = new Models.ExecutionGraph.Node(buffer);
+            var model = new Models.ExecutionGraph.Node(reader);
             return factory?.Create(model);
         }
 

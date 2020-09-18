@@ -3,6 +3,7 @@ using System.IO;
 using System.Net.Http;
 using BrightData;
 using BrightTable;
+using BrightWire.TrainingData.Artificial;
 
 namespace ExampleCode.Datasets
 {
@@ -36,6 +37,13 @@ namespace ExampleCode.Datasets
             // 1 1 => 0
             var table = BrightWire.TrainingData.Artificial.Xor.Get(context);
             return new DataTableTrainer(table, table, table);
+        }
+
+        public static DataTableTrainer IntegerAddition(this IBrightDataContext context)
+        {
+            var data = BinaryIntegers.Addition(context, 1000);
+            var split = data.Split();
+            return new DataTableTrainer(data, split.Training, split.Test);
         }
 
         static string GetDataFilePath(this IBrightDataContext context, string name)
