@@ -31,34 +31,36 @@ namespace BrightWire
             }
         }
 
-        public static IEnumerable<uint[]> HierachicalCluster(this IDataTable dataTable, int k)
+        public static IEnumerable<(IFloatVector Vector, uint RowIndex, string Label)> GetRowsAsLabeledFeatures(this IDataTable dataTable)
         {
             var lap = dataTable.Context.LinearAlgebraProvider;
-            var data = dataTable.ForEachAsFloat()
-                .Select((r, i) => (Vector: lap.CreateVector(r.Numeric), RowIndex: (uint)i))
+            return dataTable.GetVectorisedFeatures()
+                .Select((r, i) => (Vector: lap.CreateVector(r.Numeric), RowIndex: (uint) i, r.Label));
+        }
+
+        public static IEnumerable<(uint RowIndex, string Label)[]> HierachicalCluster(this IDataTable dataTable, int k)
+        {
+            var data = dataTable.GetRowsAsLabeledFeatures()
                 .ToDictionary(d => d.Vector);
             return data.Keys.HierachicalCluster(k)
-                .Select(c => c.Select(v => data[v].RowIndex).ToArray());
+                .Select(c => c.Select(v => (data[v].RowIndex, data[v].Label)).ToArray());
         }
 
-        public static IEnumerable<uint[]> KMeans(this IDataTable dataTable, int k, int maxIterations = 1000, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
+        public static IEnumerable<(uint RowIndex, string Label)[]> KMeans(this IDataTable dataTable, int k, int maxIterations = 1000, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
         {
-            var lap = dataTable.Context.LinearAlgebraProvider;
-            var data = dataTable.ForEachAsFloat()
-                .Select((r, i) => (Vector: lap.CreateVector(r.Numeric), RowIndex: (uint)i))
+            var data = dataTable.GetRowsAsLabeledFeatures()
                 .ToDictionary(d => d.Vector);
             return data.Keys.KMeans(dataTable.Context.Random, k, maxIterations, distanceMetric)
-                .Select(c => c.Select(v => data[v].RowIndex).ToArray());
+                .Select(c => c.Select(v => (data[v].RowIndex, data[v].Label)).ToArray());
         }
 
-        public static IEnumerable<uint[]> NonNegativeMatrixFactorisation(this IDataTable dataTable, int k, int maxIterations = 1000)
+        public static IEnumerable<(uint RowIndex, string Label)[]> NonNegativeMatrixFactorisation(this IDataTable dataTable, int k, int maxIterations = 1000)
         {
             var lap = dataTable.Context.LinearAlgebraProvider;
-            var data = dataTable.ForEachAsFloat()
-                .Select((r, i) => (Vector: lap.CreateVector(r.Numeric), RowIndex: (uint)i))
+            var data = dataTable.GetRowsAsLabeledFeatures()
                 .ToDictionary(d => d.Vector);
             return data.Keys.NNMF(lap, k, maxIterations)
-                .Select(c => c.Select(v => data[v].RowIndex).ToArray());
+                .Select(c => c.Select(v => (data[v].RowIndex, data[v].Label)).ToArray());
         }
 
         public static uint GetOutputSizeOrThrow(this IDataSource dataSource) => dataSource.OutputSize ?? throw new Exception("Output size not defined");

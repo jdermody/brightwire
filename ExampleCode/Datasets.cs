@@ -20,7 +20,7 @@ namespace ExampleCode.Datasets
                     ColumnConversionType.ToNumeric,
                     ColumnConversionType.ToNumeric,
                     ColumnConversionType.ToNumeric);
-                using var normalized = numericTable.Normalize(NormalizationType.FeatureScale);
+                using var normalized = numericTable.Normalize(NormalizationType.Euclidean);
                 return new DataTableTrainer(normalized.AsRowOriented());
             }
             finally {

@@ -26,8 +26,7 @@ namespace ConsoleTest
             using var context = new BrightDataContext(0);
             context.UseNumericsLinearAlgebra();
 
-            IntegerAddition.Recurrent(context);
-            return;
+            //IntegerAddition.Recurrent(context);
             //context.UseCudaLinearAlgebra();
 
             //MNIST.Convolutional(context, @"C:\data\mnist");
@@ -39,6 +38,8 @@ namespace ConsoleTest
             //xor.TrainSigmoidNeuralNetwork(6, 0.1f, 4);
 
             var iris = context.Iris();
+            //var clusters = iris.KMeans(3).ToArray();
+
             //var vectorisedIris = iris.Table.Vectorise();
             //var floatVectors = vectorisedIris.Column(0).EnumerateTyped<Vector<float>>().AsFloatVectors().ToArray();
             //var clusters = floatVectors.KMeans(3);
@@ -49,10 +50,9 @@ namespace ConsoleTest
             iris.TrainDecisionTree();
             iris.TrainRandomForest(500, 7);
             iris.TrainKNearestNeighbours(10);
-            iris.TrainMultinomialLogisticRegression(500, 0.1f);
-            //iris.TrainSigmoidNeuralNetwork(4, 200, 0.03f, 16);
-
-            iris.TrainSigmoidNeuralNetwork(8, 500, 0.01f, 8);
+            iris.TrainMultinomialLogisticRegression(500, 0.3f);
+            iris.TrainLegacyMultinomialLogisticRegression(500, 0.3f, 0.1f);
+            iris.TrainSigmoidNeuralNetwork(4, 1000, 0.01f, 16);
 
             return;
             //context.Xor().TrainSigmoidNeuralNetwork(4, 1000, 0.1f, 4);

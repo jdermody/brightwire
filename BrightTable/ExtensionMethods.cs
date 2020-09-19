@@ -540,57 +540,16 @@ namespace BrightTable
             return new DataTableConverter(dataTable);
         }
 
-        public static IEnumerable<(float[] Numeric, string Other)> ForEachAsFloat(
-            this IDataTable dataTable,
-            Action<List<uint>> numericColumnIndices = null,
-            Action<List<uint>> otherColumnIndices = null)
+        public static IEnumerable<(Vector<float> Numeric, string Label)> GetVectorisedFeatures(this IDataTable dataTable)
         {
-            var numericColumnIndex = new List<uint>();
-            var otherColumnIndex = new List<uint>();
-            uint index = 0;
-
-            foreach (var column in dataTable.ColumnTypes) {
-                if (ColumnTypeClassifier.IsNumeric(column)) {
-                    numericColumnIndex.Add(index);
-                } else
-                    otherColumnIndex.Add(index);
-                ++index;
+            var target = dataTable.GetTargetColumn();
+            var vectoriser = new DataTableVectoriser(dataTable, dataTable.ColumnIndicesOfFeatures().ToArray());
+            if (target.HasValue) {
+                var targetColumn = dataTable.Column(target.Value).Enumerate().Select(o => o.ToString());
+                return vectoriser.Enumerate().Zip(targetColumn);
             }
-            if (!numericColumnIndex.Any())
-                throw new ArgumentException("No numeric columns");
 
-            numericColumnIndices?.Invoke(numericColumnIndex);
-            otherColumnIndices?.Invoke(otherColumnIndex);
-
-            var rowCount = dataTable.RowCount;
-            var numericColumns = dataTable
-                .Columns(numericColumnIndex.ToArray())
-                .Select(c => {
-                    var vector = dataTable.Context.CreateVector<float>(rowCount);
-                    c.CopyTo(vector.Segment);
-                    return vector;
-                })
-                .ToList()
-            ;
-            var otherColumns = new List<object[]>();
-            if (otherColumnIndex.Any())
-                otherColumns.AddRange(dataTable.Columns(otherColumnIndex.ToArray()).Select(c => c.Enumerate().ToArray()));
-
-            var numericCount = numericColumns.Count;
-            var otherCount = otherColumns.Count;
-            var row = new float[numericCount];
-            var sb = new StringBuilder();
-            for (uint i = 0, len = dataTable.RowCount; i < len; i++) {
-                for (var j = 0; j < numericCount; j++)
-                    row[j] = numericColumns[j][i];
-                for (var j = 0; j < otherCount; j++) {
-                    if (j > 0)
-                        sb.Append(", ");
-                    sb.Append(otherColumns[j][i].ToString());
-                }
-                yield return (row, sb.ToString());
-                sb.Clear();
-            }
+            return vectoriser.Enumerate().Select(v => (v, (string) null));
         }
 
         public static ColumnType GetColumnType(this IMetaData metadata) => metadata.Get<ColumnType>(Consts.Type);

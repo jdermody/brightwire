@@ -2,10 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using BrightData;
 using BrightData.Numerics;
 using BrightTable;
+using BrightTable.Transformations;
 using BrightWire;
 using BrightWire.ExecutionGraph;
+using BrightWire.Linear;
+using BrightWire.Linear.Training;
 using BrightWire.Models;
 using BrightWire.Models.Bayesian;
 using BrightWire.Models.InstanceBased;
@@ -35,6 +39,20 @@ namespace ExampleCode
         public IRowOrientedDataTable Table { get; }
         public IRowOrientedDataTable Training { get; }
         public IRowOrientedDataTable Test { get; }
+
+        public IEnumerable<string> KMeans(int k) => AggregateLabels(Table.KMeans(k));
+        public IEnumerable<string> HierachicalCluster(int k) => AggregateLabels(Table.HierachicalCluster(k));
+        public IEnumerable<string> NonNegativeMatrixFactorisation(int k) => AggregateLabels(Table.NonNegativeMatrixFactorisation(k));
+
+        IEnumerable<string> AggregateLabels(IEnumerable<(uint RowIndex, string Label)[]> clusters) => clusters
+            .Select(c => String.Join(';', c
+                .Select(r => r.Label)
+                .GroupBy(d => d)
+                .Select(g => (Label: g.Key, Count: g.Count()))
+                .OrderByDescending(g => g.Count)
+                .ThenBy(g => g.Label)
+                .Select(g => $"{g.Label} ({g.Count})")
+            ));
 
         public NaiveBayes TrainNaiveBayes(bool writeResults = true)
         {
@@ -75,6 +93,18 @@ namespace ExampleCode
                 WriteResults("Multinomial logistic regression", ret.CreateClassifier(Table.Context.LinearAlgebraProvider));
         }
 
+        public MultinomialLogisticRegression TrainLegacyMultinomialLogisticRegression(uint iterations, float trainingRate, float lambda, bool writeResults = true)
+        {
+            var lap = Table.Context.LinearAlgebraProvider;
+            var ret = LegacyMultinomialLogisticRegressionTrainner.Train(Training, lap, iterations, trainingRate, lambda);
+            if (writeResults) {
+                var classifier = new LegacyMultinomialLogisticRegressionClassifier(lap, ret);
+                WriteResults("(Legacy) Multinomial logistic regression", classifier);
+            }
+
+            return ret;
+        }
+
         public void TrainSigmoidNeuralNetwork(uint hiddenLayerSize, uint numIterations, float trainingRate, uint batchSize)
         {
             // create a neural network graph factory
@@ -85,7 +115,8 @@ namespace ExampleCode
 
             // create the property set (use rmsprop gradient descent optimisation)
             graph.CurrentPropertySet
-                .Use(graph.RmsProp());
+                .Use(graph.RmsProp())
+                .Use(graph.GaussianWeightInitialisation(true, 0.1f, GaussianVarianceCalibration.SquareRoot2N));
 
             // create the training and test data sources
             var trainingData = graph.CreateDataSource(Training);

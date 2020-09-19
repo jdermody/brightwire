@@ -294,6 +294,8 @@ namespace BrightTable
 
         public IColumnOrientedDataTable Normalize(NormalizationType type, string filePath = null)
         {
+            if (type == NormalizationType.None)
+                return this;
             var param = _columns.Where(c => c.ColumnType.IsDecimal()).Select(c => new ColumnNormalization(c.Index, type));
             return _Transform(param, filePath);
         }

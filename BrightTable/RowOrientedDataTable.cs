@@ -350,12 +350,17 @@ namespace BrightTable
                 }
             });
 
-            using var builder = new RowOrientedTableBuilder((uint)mutatedRows.Count, filePath);
-            foreach (var column in columnTypes.OrderBy(c => c.Key))
-                builder.AddColumn(column.Value, $"Column {column.Key}");
-            foreach (var row in mutatedRows)
-                builder.AddRow(row);
-            return builder.Build(Context);
+            if (mutatedRows.Any()) {
+                var newColumnTypes = mutatedRows.First().Select(o => o.GetType().GetColumnType());
+                using var builder = new RowOrientedTableBuilder((uint) mutatedRows.Count, filePath);
+                foreach (var column in newColumnTypes)
+                    builder.AddColumn(column);
+                foreach (var row in mutatedRows)
+                    builder.AddRow(row);
+                return builder.Build(Context);
+            }
+
+            return null;
         }
 
         public IRowOrientedDataTable SelectRows(params uint[] rowIndices) => SelectRows(null, rowIndices);
