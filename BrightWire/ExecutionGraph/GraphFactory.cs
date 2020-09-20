@@ -62,9 +62,7 @@ namespace BrightWire.ExecutionGraph
 
         public IBrightDataContext Context => LinearAlgebraProvider.Context;
 
-        public Random Random => Context.Random;
-
-		/// <summary>
+        /// <summary>
 		/// The current property set
 		/// </summary>
 		public IPropertySet CurrentPropertySet => _propertySetStack.Any()
@@ -377,7 +375,7 @@ namespace BrightWire.ExecutionGraph
 			// get the gradient descent optimisations
 			var optimisation = CreateWeightUpdater(weight);
 
-			return new DropConnect(dropoutPercentage, inputSize, outputSize, bias, weight, optimisation, Random, name);
+			return new DropConnect(Context, dropoutPercentage, inputSize, outputSize, bias, weight, optimisation, name);
 		}
 
 		/// <summary>
@@ -536,7 +534,7 @@ namespace BrightWire.ExecutionGraph
 		/// <returns></returns>
 		public INode CreateDropOut(float dropoutPercentage, string name = null)
 		{
-			return new DropOut(dropoutPercentage, Random, name);
+			return new DropOut(Context, dropoutPercentage, name);
 		}
 
 		/// <summary>

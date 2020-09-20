@@ -65,13 +65,13 @@ namespace BrightWire
         /// <param name="item1">The first observation</param>
         /// <param name="item2">The second observation</param>
         /// <returns>The list of state transitions or null if nothing was found</returns>
-        public static List<MarkovModelStateTransition<T>> GetTransitions<T>(this Dictionary<MarkovModelObservation2<T>, List<MarkovModelStateTransition<T>>> model, T item1, T item2)
+        public static MarkovModelStateTransition<T>[] GetTransitions<T>(this Dictionary<MarkovModelObservation2<T>, MarkovModelStateTransition<T>[]> model, T item1, T item2)
         {
             var observation = new MarkovModelObservation2<T> {
                 Item1 = item1,
                 Item2 = item2
             };
-            if (model.TryGetValue(observation, out List<MarkovModelStateTransition<T>> ret))
+            if (model.TryGetValue(observation, out var ret))
                 return ret;
             return null;
         }
@@ -85,14 +85,14 @@ namespace BrightWire
         /// <param name="item2">The second observation</param>
         /// <param name="item3">The third observation</param>
         /// <returns>The list of state transitions or null if nothing was found</returns>
-        public static List<MarkovModelStateTransition<T>> GetTransitions<T>(this Dictionary<MarkovModelObservation3<T>, List<MarkovModelStateTransition<T>>> model, T item1, T item2, T item3)
+        public static MarkovModelStateTransition<T>[] GetTransitions<T>(this Dictionary<MarkovModelObservation3<T>, MarkovModelStateTransition<T>[]> model, T item1, T item2, T item3)
         {
             var observation = new MarkovModelObservation3<T> {
                 Item1 = item1,
                 Item2 = item2,
                 Item3 = item3
             };
-            if (model.TryGetValue(observation, out List<MarkovModelStateTransition<T>> ret))
+            if (model.TryGetValue(observation, out var ret))
                 return ret;
             return null;
         }
@@ -128,15 +128,14 @@ namespace BrightWire
         /// K Means uses coordinate descent and a distance metric between randomly selected centroids to cluster the data
         /// </summary>
         /// <param name="data">The list of vectors to cluster</param>
-        /// <param name="lap">Linear algebra provider</param>
-        /// <param name="random"></param>
+        /// <param name="context">Bright data context</param>
         /// <param name="k">The number of clusters to find</param>
         /// <param name="maxIterations">The maximum number of iterations</param>
         /// <param name="distanceMetric">Distance metric to use to compare centroids</param>
         /// <returns>A list of k clusters</returns>
-        public static IFloatVector[][] KMeans(this IEnumerable<IFloatVector> data, Random random, int k, int maxIterations = 1000, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
+        public static IFloatVector[][] KMeans(this IEnumerable<IFloatVector> data, IBrightDataContext context, int k, int maxIterations = 1000, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
         {
-            using var clusterer = new KMeans(random, k, data, distanceMetric);
+            using var clusterer = new KMeans(context, k, data, distanceMetric);
             clusterer.ClusterUntilConverged(maxIterations);
             return clusterer.Clusters;
         }

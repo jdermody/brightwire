@@ -59,9 +59,9 @@ namespace BrightWire.Bayesian.Training
                     ret.Add(new MarkovModelObservation2<T>(item.Key.Item1, item.Key.Item2, transitions.Select(t => new MarkovModelStateTransition<T> {
                         NextState = t.Item1,
                         Probability = t.Item2 / total
-                    }).ToList()));
+                    }).ToArray()));
                 }
-            }
+            } 
             return new MarkovModel2<T> {
                 Observation = ret.ToArray()
             };
@@ -137,7 +137,7 @@ namespace BrightWire.Bayesian.Training
                     ret.Add(new MarkovModelObservation3<T>(item.Key.Item1, item.Key.Item2, item.Key.Item3, transitions.Select(t => new MarkovModelStateTransition<T> {
                         NextState = t.Item1,
                         Probability = t.Item2 / total
-                    }).ToList()));
+                    }).ToArray()));
                 }
             }
             return new MarkovModel3<T> {

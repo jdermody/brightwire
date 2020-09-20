@@ -1,8 +1,8 @@
 ﻿using System;
-using MathNet.Numerics.Distributions;
 using System.Collections.Generic;
 using System.IO;
 using BrightData;
+using BrightData.Distributions;
 using BrightData.Helper;
 
 namespace BrightWire.ExecutionGraph.Node.Filter
@@ -29,12 +29,12 @@ namespace BrightWire.ExecutionGraph.Node.Filter
             }
         }
         float _dropOutPercentage;
-        Bernoulli _probabilityToDrop;
+        BernoulliDistribution _probabilityToDrop;
 
-        public DropOut(float dropOutPercentage, Random random, string name = null) : base(name)
+        public DropOut(IBrightDataContext context, float dropOutPercentage, string name = null) : base(name)
         {
             _dropOutPercentage = dropOutPercentage;
-            _probabilityToDrop = new Bernoulli(_dropOutPercentage, random);
+            _probabilityToDrop = new BernoulliDistribution(context, _dropOutPercentage);
         }
 
         public override void ExecuteForward(IContext context)
@@ -58,8 +58,7 @@ namespace BrightWire.ExecutionGraph.Node.Filter
         public override void ReadFrom(GraphFactory factory, BinaryReader reader)
         {
             _dropOutPercentage = reader.ReadSingle();
-            if(_probabilityToDrop == null)
-                _probabilityToDrop = new Bernoulli(_dropOutPercentage);
+            _probabilityToDrop ??= new BernoulliDistribution(factory.Context, _dropOutPercentage);
         }
 
         public override void WriteTo(BinaryWriter writer)

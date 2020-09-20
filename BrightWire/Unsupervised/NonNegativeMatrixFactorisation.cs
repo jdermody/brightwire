@@ -31,9 +31,9 @@ namespace BrightWire.Unsupervised
             using var v = _lap.CreateMatrixFromRows(dataArray);
 
             // create the weights and features
-            var rand = new Random();
-            var weights = _lap.CreateMatrix(v.RowCount, (uint)_numClusters, (x, y) => Convert.ToSingle(rand.NextDouble()));
-            var features = _lap.CreateMatrix((uint)_numClusters, v.ColumnCount, (x, y) => Convert.ToSingle(rand.NextDouble()));
+            var context = _lap.Context;
+            var weights = _lap.CreateMatrix(v.RowCount, (uint)_numClusters, (x, y) => context.NextFloat());
+            var features = _lap.CreateMatrix((uint)_numClusters, v.ColumnCount, (x, y) => context.NextFloat());
 
             // iterate
             //float lastCost = 0;

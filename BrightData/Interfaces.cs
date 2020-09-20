@@ -290,4 +290,22 @@ namespace BrightData
         Average,
         Max
     }
+
+    public interface IDistribution<out T>
+        where T: struct
+    {
+        T Sample();
+    }
+
+    public interface IDiscreteDistribution : IDistribution<int>
+    {
+    }
+
+    public interface IPositiveDiscreteDistribution : IDistribution<uint>
+    {
+    }
+
+    public interface IContinuousDistribution : IDistribution<float>
+    {
+    }
 }

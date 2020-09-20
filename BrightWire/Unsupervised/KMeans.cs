@@ -1,8 +1,8 @@
-﻿using MathNet.Numerics.Distributions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using BrightData;
+using BrightData.Distributions;
 using BrightWire.Models;
 using BrightWire.Source.Helper;
 
@@ -15,20 +15,20 @@ namespace BrightWire.Unsupervised
 	class KMeans : IDisposable
 	{
 		readonly VectorDistanceHelper _distance;
-		List<(int[] DataIndices, IFloatVector Cluster)> _clusters = new List<(int[] DataIndices, IFloatVector Cluster)>();
+		List<(uint[] DataIndices, IFloatVector Cluster)> _clusters = new List<(uint[], IFloatVector)>();
 		readonly IFloatVector[] _data;
 
-		public KMeans(Random random, int k, IEnumerable<IFloatVector> data, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
+		public KMeans(IBrightDataContext context, int k, IEnumerable<IFloatVector> data, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
 		{
 			_data = data.ToArray();
 			_distance = new VectorDistanceHelper(_data, distanceMetric);
 
 			// use kmeans++ to find best initial positions
 			// https://normaldeviate.wordpress.com/2012/09/30/the-remarkable-k-means/
-            var clusterIndexSet = new HashSet<int>();
+            var clusterIndexSet = new HashSet<uint>();
 			var distanceTable = new List<float>[_data.Length];
 
-			bool AddCluster(int index, Action<int, float> callback)
+			bool AddCluster(uint index, Action<uint, float> callback)
 			{
 				if (!clusterIndexSet.Add(index))
 					return false;
@@ -38,7 +38,7 @@ namespace BrightWire.Unsupervised
 				_clusters.Add((new[] { index }, vector));
 
 				// calculate distances
-				for (var i = 0; i < _data.Length; i++) {
+				for (uint i = 0; i < _data.Length; i++) {
 					float distance = 0;
 					if (i != index)
 						distance = _data[i].FindDistance(vector, distanceMetric);
@@ -49,14 +49,14 @@ namespace BrightWire.Unsupervised
 			}
 
 			// pick the first cluster at random and set up the distance table
-			AddCluster(random.Next(0, _data.Length), (index, distance) => distanceTable[index] = new List<float>{ distance });
+            AddCluster(context.RandomIndex(_data.Length), (index, distance) => distanceTable[index] = new List<float>{ distance });
 
 			for (var i = 1; i < k && i < _data.Length; i++) {
 				// create a categorical distribution to calculate the probability of choosing each subsequent item
-				var distribution = new Categorical(distanceTable.Select(l => (double)l.Min()).ToArray());
+				var distribution = new CategoricalDistribution(context, distanceTable.Select(l => l.Min()).ToArray());
 
 				// sample the next index and add the distances to the table
-				int nextIndex;
+				uint nextIndex;
 				do {
 					nextIndex = distribution.Sample();
 				} while (!AddCluster(nextIndex, (index, distance) => distanceTable[index].Add(distance)));
@@ -73,18 +73,18 @@ namespace BrightWire.Unsupervised
 			// cluster the data
 			var closest = _distance.GetClosest();
 			var clusters = closest
-				.Select((ci, i) => (ci, i))
+				.Select((ci, i) => (ci, (uint)i))
 				.GroupBy(d => d.Item1)
 				.Select(c => c.Select(d => d.Item2).ToArray())
 				.ToList();
 
 			var differenceCount = 0;
-			var newClusters = new List<(int[] DataIndices, IFloatVector Cluster)>();
+			var newClusters = new List<(uint[] DataIndices, IFloatVector Cluster)>();
 			for (var i = 0; i < _clusters.Count; i++) {
 				var oldIndices = _clusters[i].DataIndices;
 				if (i < clusters.Count) {
 					var newIndices = clusters[i];
-					if (oldIndices.Length == newIndices.Length && new HashSet<int>(oldIndices).SetEquals(newIndices))
+					if (oldIndices.Length == newIndices.Length && new HashSet<uint>(oldIndices).SetEquals(newIndices))
 						newClusters.Add(_clusters[i]);
 					else {
 						differenceCount++;

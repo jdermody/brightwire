@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using BrightData;
-using MathNet.Numerics.Distributions;
 
 namespace BrightWire.Source.Helper
 {
@@ -94,7 +93,7 @@ namespace BrightWire.Source.Helper
 		/// Returns a vector averaged from the data vectors
 		/// </summary>
 		/// <param name="indices">Indices of the data vectors to use in the averaged vector</param>
-		public IFloatVector GetAverageFromData(int[] indices)
+		public IFloatVector GetAverageFromData(uint[] indices)
         {
             using var data = _lap.CreateMatrixFromColumns(indices.Select(i => _data[i]).ToArray());
             var result = data.RowSums();

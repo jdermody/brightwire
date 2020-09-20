@@ -1,6 +1,6 @@
-﻿using MathNet.Numerics.Distributions;
-using System;
+﻿using System;
 using BrightData;
+using BrightData.Distributions;
 
 namespace BrightWire.ExecutionGraph.WeightInitialisation
 {
@@ -9,7 +9,7 @@ namespace BrightWire.ExecutionGraph.WeightInitialisation
     /// </summary>
     class Gaussian : IWeightInitialisation
     {
-        readonly IContinuousDistribution _distribution;
+        readonly NormalDistribution _distribution;
         readonly GaussianVarianceCalibration _varianceCalibration;
         readonly GaussianVarianceCount _varianceCount;
         readonly ILinearAlgebraProvider _lap;
@@ -18,7 +18,7 @@ namespace BrightWire.ExecutionGraph.WeightInitialisation
         public Gaussian(
             ILinearAlgebraProvider lap, 
             bool zeroInitialBias = true, 
-            double stdDev = 0.1, 
+            float stdDev = 0.1f, 
             GaussianVarianceCalibration varianceCalibration = GaussianVarianceCalibration.SquareRootN,
             GaussianVarianceCount varianceCount = GaussianVarianceCount.FanIn
         ) {
@@ -26,12 +26,12 @@ namespace BrightWire.ExecutionGraph.WeightInitialisation
             _zeroBias = zeroInitialBias;
             _varianceCalibration = varianceCalibration;
             _varianceCount = varianceCount;
-            _distribution = new Normal(0, stdDev, lap.Context.Random);
+            _distribution = new NormalDistribution(_lap.Context, 0, stdDev);
         }
 
         float _GetBias()
         {
-            return _zeroBias ? 0f : Convert.ToSingle(_distribution.Sample());
+            return _zeroBias ? 0f : _distribution.Sample();
         }
 
         float _GetWeight(uint inputSize, uint outputSize)
@@ -42,15 +42,15 @@ namespace BrightWire.ExecutionGraph.WeightInitialisation
             if (_varianceCount == GaussianVarianceCount.FanOut || _varianceCount == GaussianVarianceCount.FanInFanOut)
                 n += outputSize;
 
-            double sample = _distribution.Sample();
+            var sample = _distribution.Sample();
             if(n > 0) {
                 if (_varianceCalibration == GaussianVarianceCalibration.SquareRootN)
-                    sample /= Math.Sqrt(n);
+                    sample /= MathF.Sqrt(n);
                 else if (_varianceCalibration == GaussianVarianceCalibration.SquareRoot2N)
-                    sample *= Math.Sqrt(2.0 / n);
+                    sample *= MathF.Sqrt(2.0f / n);
             }
 
-            return Convert.ToSingle(sample);
+            return sample;
         }
 
         public IFloatVector CreateBias(uint size)

@@ -1,6 +1,6 @@
-﻿using MathNet.Numerics.Distributions;
-using System;
+﻿using System;
 using BrightData;
+using BrightData.Distributions;
 
 namespace BrightWire.Helper
 {
@@ -14,8 +14,8 @@ namespace BrightWire.Helper
             LinearAlgebraProvider = lap;
             Size = reducedSize;
 
-            var c1 = Math.Sqrt(3);
-            var distribution = new Categorical(new[] { 1.0 / (2 * s), 1 - (1.0 / s), 1.0 / (2 * s) });
+            var c1 = MathF.Sqrt(3);
+            var distribution = new CategoricalDistribution(lap.Context, new[] { 1.0f / (2f * s), 1f - (1.0f / s), 1.0f / (2f * s) });
             Matrix = LinearAlgebraProvider.CreateMatrix(fixedSize, reducedSize, (i, j) => Convert.ToSingle((distribution.Sample() - 1) * c1));
         }
 

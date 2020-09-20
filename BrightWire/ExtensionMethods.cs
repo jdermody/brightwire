@@ -50,7 +50,7 @@ namespace BrightWire
         {
             var data = dataTable.GetRowsAsLabeledFeatures()
                 .ToDictionary(d => d.Vector);
-            return data.Keys.KMeans(dataTable.Context.Random, k, maxIterations, distanceMetric)
+            return data.Keys.KMeans(dataTable.Context, k, maxIterations, distanceMetric)
                 .Select(c => c.Select(v => (data[v].RowIndex, data[v].Label)).ToArray());
         }
 

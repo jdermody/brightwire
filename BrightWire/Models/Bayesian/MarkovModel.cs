@@ -19,6 +19,8 @@ namespace BrightWire.Models.Bayesian
         /// The probability of this next state
         /// </summary>
         public float Probability { get; set; }
+
+        public override string ToString() => $"{NextState} ({Probability})";
     }
 
     /// <summary>
@@ -40,10 +42,10 @@ namespace BrightWire.Models.Bayesian
         /// <summary>
         /// The list of possible transitions from this state
         /// </summary>
-        public List<MarkovModelStateTransition<T>> Transition { get; set; }
+        public MarkovModelStateTransition<T>[] Transition { get; set; }
 
         internal MarkovModelObservation2() { }
-        internal MarkovModelObservation2(T item1, T item2, List<MarkovModelStateTransition<T>> transition)
+        internal MarkovModelObservation2(T item1, T item2, MarkovModelStateTransition<T>[] transition)
         {
             Item1 = item1;
             Item2 = item2;
@@ -70,6 +72,8 @@ namespace BrightWire.Models.Bayesian
         {
             return (Item1?.GetHashCode() ?? 0) ^ (Item2?.GetHashCode() ?? 0);
         }
+
+        public override string ToString() => $"({Item1}, {Item2}) => {Transition.Length:N0}...";
     }
 
     /// <summary>
@@ -86,7 +90,7 @@ namespace BrightWire.Models.Bayesian
         /// <summary>
         /// Converts the model to a dictionary
         /// </summary>
-        public Dictionary<MarkovModelObservation2<T>, List<MarkovModelStateTransition<T>>> AsDictionary
+        public Dictionary<MarkovModelObservation2<T>, MarkovModelStateTransition<T>[]> AsDictionary
         {
             get
             {
@@ -119,10 +123,10 @@ namespace BrightWire.Models.Bayesian
         /// <summary>
         /// The list of associated transitions
         /// </summary>
-        public List<MarkovModelStateTransition<T>> Transition { get; set; }
+        public MarkovModelStateTransition<T>[] Transition { get; set; }
 
         internal MarkovModelObservation3() { }
-        internal MarkovModelObservation3(T item1, T item2, T item3, List<MarkovModelStateTransition<T>> transition)
+        internal MarkovModelObservation3(T item1, T item2, T item3, MarkovModelStateTransition<T>[] transition)
         {
             Item1 = item1;
             Item2 = item2;
@@ -150,6 +154,8 @@ namespace BrightWire.Models.Bayesian
         {
             return (Item1?.GetHashCode() ?? 0) ^ (Item2?.GetHashCode() ?? 0) ^ (Item3?.GetHashCode() ?? 0);
         }
+
+        public override string ToString() => $"({Item1}, {Item2}, {Item3}) => {Transition.Length:N0}...";
     }
 
     /// <summary>
@@ -166,7 +172,7 @@ namespace BrightWire.Models.Bayesian
         /// <summary>
         /// Converts the model to a dictionary
         /// </summary>
-        public Dictionary<MarkovModelObservation3<T>, List<MarkovModelStateTransition<T>>> AsDictionary
+        public Dictionary<MarkovModelObservation3<T>, MarkovModelStateTransition<T>[]> AsDictionary
         {
             get
             {

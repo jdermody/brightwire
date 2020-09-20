@@ -34,6 +34,9 @@ namespace ConsoleTest
             // set to cache data files locally
             context.Set("DataFileDirectory", new DirectoryInfo(@"c:\data"));
 
+            //context.BeautifulandDamned();
+            //return;
+
             //var xor = context.Xor();
             //xor.TrainSigmoidNeuralNetwork(6, 0.1f, 4);
 
@@ -52,7 +55,7 @@ namespace ConsoleTest
             iris.TrainKNearestNeighbours(10);
             iris.TrainMultinomialLogisticRegression(500, 0.3f);
             iris.TrainLegacyMultinomialLogisticRegression(500, 0.3f, 0.1f);
-            iris.TrainSigmoidNeuralNetwork(4, 1000, 0.01f, 16);
+            iris.TrainSigmoidNeuralNetwork(4, 500, 0.1f, 16);
 
             return;
             //context.Xor().TrainSigmoidNeuralNetwork(4, 1000, 0.1f, 4);

@@ -1,7 +1,7 @@
-﻿using MathNet.Numerics.Distributions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using BrightData;
+using BrightData.Distributions;
 
 namespace BrightWire.ExecutionGraph.WeightInitialisation
 {
@@ -11,16 +11,14 @@ namespace BrightWire.ExecutionGraph.WeightInitialisation
     /// </summary>
     class Xavier : IWeightInitialisation
     {
-        readonly double _parameter;
+        readonly float _parameter;
         readonly ILinearAlgebraProvider _lap;
         readonly Dictionary<(uint, uint), IContinuousDistribution> _distributionTable = new Dictionary<(uint, uint), IContinuousDistribution>();
-        readonly Random _random;
 
         public Xavier(ILinearAlgebraProvider lap, float parameter = 6)
         {
             _lap = lap;
-            _parameter = Math.Sqrt(parameter);
-            _random = lap.Context.Random;
+            _parameter = MathF.Sqrt(parameter);
         }
 
         public IFloatVector CreateBias(uint size)
@@ -38,7 +36,7 @@ namespace BrightWire.ExecutionGraph.WeightInitialisation
             var key = (inputSize, outputSize);
             if (!_distributionTable.TryGetValue(key, out IContinuousDistribution distribution)) {
                 var stdDev = _parameter / (inputSize + outputSize);
-                _distributionTable.Add(key, distribution = new Normal(0, stdDev, _random));
+                _distributionTable.Add(key, distribution = new NormalDistribution(_lap.Context, 0, stdDev));
             }
             return Convert.ToSingle(distribution.Sample());
         }
