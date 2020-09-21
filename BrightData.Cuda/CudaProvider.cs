@@ -247,8 +247,7 @@ namespace BrightData.Cuda
         public string Name { get; } = "Cuda";
         IBrightDataContext ILinearAlgebraProvider.Context => _context;
         public IBrightDataContext DataContext => _context;
-        public bool IsStochastic => _context.IsStochastic;
-		public bool IsGpu => true;
+        public bool IsGpu => true;
 		internal CudaContext Context => _cuda;
 		internal CudaBlas Blas => _blas;
 		public CudaSolveDense Solver => _solver.Value;

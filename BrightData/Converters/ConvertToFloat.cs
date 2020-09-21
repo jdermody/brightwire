@@ -18,24 +18,16 @@ namespace BrightData.Converters
         Func<T, float> _GetConverter()
         {
             var typeCode = Type.GetTypeCode(typeof(T));
-            switch (typeCode) {
-                case TypeCode.Single:
-                    return _GetSingle;
-                case TypeCode.Double:
-                    return _FromDouble;
-                case TypeCode.SByte:
-                    return _FromSByte;
-                case TypeCode.Int16:
-                    return _FromInt16;
-                case TypeCode.Int32:
-                    return _FromInt32;
-                case TypeCode.Int64:
-                    return _FromInt64;
-                case TypeCode.Decimal:
-                    return _FromDecimal;
-                default:
-                    return _ConvertGeneric;
-            }
+            return typeCode switch {
+                TypeCode.Single => _GetSingle,
+                TypeCode.Double => _FromDouble,
+                TypeCode.SByte => _FromSByte,
+                TypeCode.Int16 => _FromInt16,
+                TypeCode.Int32 => _FromInt32,
+                TypeCode.Int64 => _FromInt64,
+                TypeCode.Decimal => _FromDecimal,
+                _ => _ConvertGeneric
+            };
         }
 
         float _FromDouble(T data) => System.Convert.ToSingle(_GetDouble(data));

@@ -26,7 +26,7 @@ namespace BrightData
             public override string ToString() => $"{Index}: {Weight}";
             public override bool Equals(object obj) => obj is Item item && Equals(item);
             public bool Equals(Item item) => item.Index == Index && FloatMath.Equals(item.Weight, Weight);
-            public override int GetHashCode() => Index.GetHashCode() ^ Weight.GetHashCode();
+            public override int GetHashCode() => HashCode.Combine(Index, Weight);
         }
 
         public WeightedIndexList(IBrightDataContext context)

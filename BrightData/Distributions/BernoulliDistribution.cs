@@ -4,7 +4,7 @@ using System.Text;
 
 namespace BrightData.Distributions
 {
-    public class BernoulliDistribution : IPositiveDiscreteDistribution
+    public class BernoulliDistribution : INonNegativeDiscreteDistribution
     {
         private readonly IBrightDataContext _context;
 

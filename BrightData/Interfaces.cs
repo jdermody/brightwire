@@ -19,6 +19,10 @@ namespace BrightData
         void Initialize(IBrightDataContext context, BinaryReader reader);
     }
 
+    public interface ISerializable : ICanWriteToBinaryWriter, ICanInitializeFromBinaryReader
+    {
+    }
+
     public interface IMetaData : ICanWriteToBinaryWriter
     {
         object Get(string name);
@@ -58,25 +62,7 @@ namespace BrightData
         ITensorSegment<T> GetDataCopy();
         ITensorSegment<T> Segment { get; }
         INumericComputation<T> Computation { get; }
-        T[] ToArray();
     }
-
-    //public interface IMemoryDeallocator
-    //{
-    //    void Free();
-    //}
-
-    //public interface ITensorBlock<T> : IReferenceCountedMemory
-    //    where T : struct
-    //{
-    //    string TensorType { get; }
-    //    ITensorSegment<T> GetSegment();
-    //    IBrightDataContext Context { get; }
-    //    void InitializeFrom(Stream stream);
-    //    void InitializeFrom(ITensorBlock<T> tensor);
-    //    Span<T> Data { get; }
-    //    ITensorBlock<T> Clone();
-    //}
 
     public interface IDataReader
     {
@@ -112,14 +98,10 @@ namespace BrightData
         IDataReader DataReader { get; }
         INumericComputation<T> GetComputation<T>() where T : struct;
         ILinearAlgebraProvider LinearAlgebraProvider { get; }
+        IProvideTempStreams TempStreamProvider { get; }
         T Get<T>(string name);
         T Set<T>(string name, T value);
         T Set<T>(string name, Func<T> valueCreator);
-
-        /// <summary>
-        /// Underlying setting for stochastic vs deterministic behaviour
-        /// </summary>
-        bool IsStochastic { get; }
     }
 
     public interface ITensorSegment<T> : IReferenceCountedMemory, IDisposable
@@ -139,17 +121,6 @@ namespace BrightData
         void CopyTo(T[] array);
         void CopyTo(ITensorSegment<T> segment);
     }
-
-    //public interface ITensorAllocator
-    //{
-    //    ITensorBlock<T> Create<T>(IBrightDataContext context, uint size) where T : struct;
-    //}
-
-    //public interface IHaveTensorSegment<T>
-    //    where T : struct
-    //{
-    //    ITensorSegment<T> Segment { get; }
-    //}
 
     public interface INumericComputation<T>
         where T : struct
@@ -301,11 +272,46 @@ namespace BrightData
     {
     }
 
-    public interface IPositiveDiscreteDistribution : IDistribution<uint>
+    public interface INonNegativeDiscreteDistribution : IDistribution<uint>
     {
     }
 
     public interface IContinuousDistribution : IDistribution<float>
     {
+    }
+
+    public interface IProvideTempStreams : IDisposable
+    {
+        Stream Get(string uniqueId);
+        bool HasStream(string uniqueId);
+    }
+
+    public interface IHybridBuffer
+    {
+        void CopyTo(Stream stream);
+        IEnumerable<object> Enumerate();
+        uint Length { get; }
+        uint? NumDistinct { get; }
+    }
+
+    public interface IHybridBuffer<T> : IHybridBuffer
+    {
+        void Add(T item);
+        IEnumerable<T> EnumerateTyped();
+    }
+
+    public enum BufferType : byte
+    {
+        Unknown = 0,
+        Struct,
+        String,
+        EncodedStruct,
+        EncodedString,
+        Object
+    }
+
+    public interface ICanEnumerate<out T>
+    {
+        IEnumerable<T> EnumerateTyped();
     }
 }

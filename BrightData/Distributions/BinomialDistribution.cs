@@ -5,7 +5,7 @@ using System.Text;
 
 namespace BrightData.Distributions
 {
-    public class BinomialDistribution : IPositiveDiscreteDistribution
+    public class BinomialDistribution : INonNegativeDiscreteDistribution
     {
         private readonly BernoulliDistribution _bernoulli;
 

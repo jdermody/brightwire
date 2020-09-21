@@ -6,7 +6,7 @@ using BrightData.Helper;
 
 namespace BrightData.Distributions
 {
-    public class CategoricalDistribution : IPositiveDiscreteDistribution
+    public class CategoricalDistribution : INonNegativeDiscreteDistribution
     {
         private readonly IBrightDataContext _context;
 

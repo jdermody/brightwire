@@ -302,7 +302,7 @@ namespace BrightTable
                 var cols = row.Length;
 
                 for (var i = columns.Count; i < cols; i++) {
-                    var buffer = new EncodingBuffer<string>(new HybridStringBuffer(context, (uint)i, tempStreams));
+                    var buffer = new EncodingBuffer<string>(new HybridStringBuffer(context, tempStreams));
                     columns.Add(new GrowableSegment<string>(ColumnType.String, new MetaData(), buffer));
                 }
 
@@ -455,21 +455,18 @@ namespace BrightTable
             if (type.IsStructable()) {
                 buffer = (IAutoGrowBuffer)Activator.CreateInstance(typeof(HybridStructBuffer<>).MakeGenericType(GetDataType(type)),
                     context,
-                    forColumn.Index,
                     tempStream,
                     bufferSize
                 );
             } else if (type == ColumnType.String) {
                 buffer = (IAutoGrowBuffer)Activator.CreateInstance(typeof(HybridStringBuffer),
                     context,
-                    forColumn.Index,
                     tempStream,
                     bufferSize
                 );
             } else {
                 buffer = (IAutoGrowBuffer)Activator.CreateInstance(typeof(HybridObjectBuffer<>).MakeGenericType(GetDataType(type)),
                     context,
-                    forColumn.Index,
                     tempStream,
                     bufferSize
                 );

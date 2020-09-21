@@ -1,20 +1,14 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Text;
-using BrightData;
-using BrightData.Buffers;
 using BrightData.Helper;
 
-namespace BrightTable.Buffers
+namespace BrightData.Buffers
 {
     public class HybridStringBuffer : HybridBufferBase<string>
     {
-        public HybridStringBuffer(IBrightDataContext context, uint index, TempStreamManager tempStreams, uint bufferSize = 32768) 
-            : base(context, index, tempStreams, bufferSize)
+        public HybridStringBuffer(IBrightDataContext context, TempStreamManager tempStreams, uint bufferSize = 32768) 
+            : base(context, tempStreams, bufferSize)
         {
         }
 

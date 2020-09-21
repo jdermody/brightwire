@@ -10,7 +10,7 @@ namespace BrightData.Converters
         protected readonly Lazy<GenericConverter<float>> _genericConverter = new Lazy<GenericConverter<float>>();
         protected readonly bool _throwOnFailure;
 
-        public ConverterBase(bool throwOnFailure)
+        protected ConverterBase(bool throwOnFailure)
         {
             _throwOnFailure = throwOnFailure;
         }

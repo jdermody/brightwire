@@ -10,8 +10,8 @@ namespace BrightData.Buffers
     public class HybridObjectBuffer<T> : HybridBufferBase<T>
         where T: ICanWriteToBinaryWriter, ICanInitializeFromBinaryReader
     {
-        public HybridObjectBuffer(IBrightDataContext context, uint index, TempStreamManager tempStreams, uint bufferSize = 32768) 
-            : base(context, index, tempStreams, bufferSize)
+        public HybridObjectBuffer(IBrightDataContext context, TempStreamManager tempStreams, uint bufferSize = 32768) 
+            : base(context, tempStreams, bufferSize)
         {
         }
 

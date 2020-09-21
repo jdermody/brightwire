@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using BrightData;
+using BrightData.Buffers;
 using BrightData.Helper;
 using BrightTable.Buffers;
 using BrightTable.Input;
@@ -182,7 +183,7 @@ namespace BrightTable.Transformations
                     return (ICanConvert)Activator.CreateInstance(t);
                 }
                 case ColumnConversionType.ToNumeric: {
-                    var buffer = new HybridStructBuffer<double>(context, 0, tempStreams);
+                    var buffer = new HybridStructBuffer<double>(context, tempStreams);
                     double min = double.MaxValue, max = double.MinValue;
                     var isInteger = true;
                     foreach (var val in column.Enumerate()) {

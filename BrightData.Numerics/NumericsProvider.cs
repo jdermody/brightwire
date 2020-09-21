@@ -109,7 +109,6 @@ namespace BrightData.Numerics
             // nop
         }
 
-        public bool IsStochastic => Context.IsStochastic;
 	    public bool IsGpu => false;
 
 	    public IFloatMatrix CalculateDistances(IFloatVector[] vectors, IReadOnlyList<IFloatVector> compareTo, DistanceMetric distanceMetric)

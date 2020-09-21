@@ -107,11 +107,6 @@ namespace BrightData
         void PopLayer();
 
         /// <summary>
-        /// Underlying setting for stochastic vs deterministic behaviour for instances created from this provider
-        /// </summary>
-        bool IsStochastic { get; }
-
-        /// <summary>
         /// True if the provider uses the GPU
         /// </summary>
         bool IsGpu { get; }

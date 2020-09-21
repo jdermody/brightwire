@@ -15,13 +15,12 @@ namespace BrightData.Buffers
         readonly ConcurrentBag<T> _buffer = new ConcurrentBag<T>();
         private bool _hasWrittenToStream = false;
         protected readonly IBrightDataContext _context;
-        private readonly uint _index;
+        private readonly string _id = Guid.NewGuid().ToString("n");
         private uint _size;
 
-        protected HybridBufferBase(IBrightDataContext context, uint index, TempStreamManager tempStreams, uint maxBufferSize = 32768)
+        protected HybridBufferBase(IBrightDataContext context, TempStreamManager tempStreams, uint maxBufferSize = 32768)
         {
             _context = context;
-            _index = index;
             _tempStreams = tempStreams;
             _maxBufferSize = maxBufferSize;
         }
@@ -29,7 +28,7 @@ namespace BrightData.Buffers
         public void WriteTo(BinaryWriter writer)
         {
             if (_hasWrittenToStream) {
-                var stream = _tempStreams.Get(_index);
+                var stream = _tempStreams.Get(_id);
                 lock (stream) {
                     stream.Seek(0, SeekOrigin.Begin);
                     stream.CopyTo(writer.BaseStream);
@@ -45,7 +44,7 @@ namespace BrightData.Buffers
         public IEnumerable<T> EnumerateTyped()
         {
             if (_hasWrittenToStream) {
-                var stream = _tempStreams.Get(_index);
+                var stream = _tempStreams.Get(_id);
                 lock (stream) {
                     stream.Seek(0, SeekOrigin.Begin);
                     foreach (var item in _Read(stream))
@@ -67,7 +66,7 @@ namespace BrightData.Buffers
         public void Add(T typedObject)
         {
             if (_buffer.Count == _maxBufferSize) {
-                var stream = _tempStreams.Get(_index);
+                var stream = _tempStreams.Get(_id);
                 lock (stream) {
                     if (_buffer.Count == _maxBufferSize) {
                         using var writer = new BinaryWriter(stream, Encoding.UTF8, true);
