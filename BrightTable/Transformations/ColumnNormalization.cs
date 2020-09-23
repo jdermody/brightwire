@@ -22,7 +22,7 @@ namespace BrightTable.Transformations
                 _normalize = new NormalizeTransformation(type, analysedMetaData);
             }
 
-            public bool Convert(T input, IAutoGrowBuffer<T> buffer)
+            public bool Convert(T input, IHybridBuffer<T> buffer)
             {
                 var asDouble = _convertToDouble.Convert(input);
                 var normalized = _normalize.Normalize(asDouble);
@@ -47,7 +47,7 @@ namespace BrightTable.Transformations
             public double Subtract => _normalize.Subtract;
         }
 
-        public ICanConvert GetConverter(ColumnType fromType, ISingleTypeTableSegment column, TempStreamManager tempStreams, IBrightDataContext context)
+        public ICanConvert GetConverter(ColumnType fromType, ISingleTypeTableSegment column, TempStreamManager tempStreams, uint inMemoryRowCount)
         {
             var columnType = ExtensionMethods.GetDataType(column.SingleType);
             var contextType = typeof(Normalizer<>).MakeGenericType(columnType);

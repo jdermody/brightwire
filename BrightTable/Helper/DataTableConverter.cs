@@ -1,13 +1,9 @@
-﻿using BrightData;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using BrightTable.Segments;
 
-namespace BrightTable.Input
+namespace BrightTable.Helper
 {
     class DataTableConverter : IConvertibleTable
     {

@@ -17,7 +17,9 @@ namespace BrightTable.Builders
 
         public ColumnOrientedTableBuilder(string filePath = null)
         {
-            _stream = filePath != null ? (Stream)new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite) : new MemoryStream();
+            _stream = filePath != null 
+                ? (Stream)new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite) 
+                : new MemoryStream();
             _writer = new BinaryWriter(_stream, Encoding.UTF8, true);
         }
 
@@ -26,6 +28,7 @@ namespace BrightTable.Builders
             if (!_hasClosedStream) {
                 _writer.Dispose();
                 _stream.Dispose();
+                _hasClosedStream = true;
             }
         }
 
@@ -40,7 +43,7 @@ namespace BrightTable.Builders
             _stream.Seek(0, SeekOrigin.End);
         }
 
-        long _Write(IMetaData metadata, ColumnType type, ICanWriteToBinaryWriter column, bool isEncoded)
+        long _Write(IMetaData metadata, ColumnType type, ICanWriteToBinaryWriter column)
         {
             _writer.Flush();
             var position = _stream.Position;
@@ -52,9 +55,6 @@ namespace BrightTable.Builders
 
             // write the metadata
             metadata.WriteTo(_writer);
-
-            // write if the column is encoded
-            _writer.Write(isEncoded);
 
             // write the column data
             column.WriteTo(_writer);
@@ -72,7 +72,7 @@ namespace BrightTable.Builders
 
         public long Write(ISingleTypeTableSegment column)
         {
-            return _Write(column.MetaData, column.SingleType, column, column.IsEncoded);
+            return _Write(column.MetaData, column.SingleType, column);
         }
 
         public long GetCurrentPosition()
@@ -83,18 +83,11 @@ namespace BrightTable.Builders
 
         public IColumnOrientedDataTable Build(IBrightDataContext context)
         {
-            InputData inputData;
-            if (_stream is FileStream file) {
-                var filePath = file.Name;
-                file.Dispose();
-                inputData = new InputData(filePath);
-            } else {
-                inputData = new InputData((MemoryStream) _stream);
-                _stream.Seek(0, SeekOrigin.Begin);
-            }
-
+            _writer.Flush();
+            _stream.Flush();
+            _stream.Seek(0, SeekOrigin.Begin);
             _hasClosedStream = true;
-            return new ColumnOrientedDataTable(context, inputData, true);
+            return new ColumnOrientedDataTable(context, _stream, true);
         }
     }
 }

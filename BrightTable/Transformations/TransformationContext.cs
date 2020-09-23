@@ -9,9 +9,9 @@ namespace BrightTable.Transformations
     {
         private readonly IDataTableSegment<TF> _column;
         private readonly IConvert<TF, TT> _converter;
-        private readonly IAutoGrowBuffer<TT> _buffer;
+        private readonly IHybridBuffer<TT> _buffer;
 
-        public TransformationContext(IDataTableSegment<TF> column, IConvert<TF, TT> converter, IAutoGrowBuffer<TT> buffer)
+        public TransformationContext(IDataTableSegment<TF> column, IConvert<TF, TT> converter, IHybridBuffer<TT> buffer)
         {
             _column = column;
             _converter = converter;
@@ -35,6 +35,6 @@ namespace BrightTable.Transformations
             return ret;
         }
 
-        public IAutoGrowBuffer Buffer => _buffer;
+        public IHybridBuffer Buffer => _buffer;
     }
 }

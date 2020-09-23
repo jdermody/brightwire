@@ -28,7 +28,7 @@ namespace BrightData.UnitTests.Fixtures
         public BinaryReader ReadFromStart()
         {
             Stream.Seek(0, SeekOrigin.Begin);
-            return new BinaryReader(Stream);
+            return new BinaryReader(Stream, Encoding.UTF8);
         }
     }
 }

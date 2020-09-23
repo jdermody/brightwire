@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using BrightData;
@@ -9,13 +10,17 @@ namespace BrightTable
 {
     abstract class DataTableBase : IHaveMetaData
     {
+        protected readonly Stream _stream;
         readonly MetaData _tableMetaData = new MetaData();
         protected const uint PREVIEW_SIZE = 10;
 
-        protected DataTableBase(IBrightDataContext context)
+        protected DataTableBase(IBrightDataContext context, Stream stream)
         {
             Context = context;
+            _stream = stream;
         }
+
+        protected BinaryReader Reader => new BinaryReader(_stream, Encoding.UTF8, true);
 
         internal static string DefaultColumnName(string name, int numColumns)
         {
@@ -34,6 +39,16 @@ namespace BrightTable
         protected IEnumerable<uint> AllOrSpecifiedColumns(uint[] indices) => (indices?.Length ?? 0) == 0 
             ? ColumnCount.AsRange()
             : indices;
+
+        protected void _ReadHeader(BinaryReader reader, DataTableOrientation expectedOrientation)
+        {
+            var version = reader.ReadInt32();
+            if (version > Consts.DataTableVersion)
+                throw new Exception($"Segment table version {version} exceeds {Consts.DataTableVersion}");
+            var orientation = (DataTableOrientation)reader.ReadByte();
+            if (orientation != expectedOrientation)
+                throw new Exception("Invalid orientation");
+        }
 
         //public IRowOrientedDataTable Vectorise(string columnName, params uint[] vectorColumnIndices) => Vectorise(null, columnName, vectorColumnIndices);
         //public IRowOrientedDataTable Vectorise(string filePath, string columnName, params uint[] vectorColumnIndices)

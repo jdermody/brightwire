@@ -6,11 +6,11 @@ using BrightData;
 
 namespace BrightTable.Segments
 {
-    public class GrowableSegment<T> : ISingleTypeTableSegment, IAutoGrowBuffer<T>
+    public class GrowableSegment<T> : ISingleTypeTableSegment, IHybridBuffer<T>
     {
-        private readonly IAutoGrowBuffer<T> _buffer;
+        private readonly IHybridBuffer<T> _buffer;
 
-        public GrowableSegment(ColumnType type, IMetaData metaData, IAutoGrowBuffer<T> buffer)
+        public GrowableSegment(ColumnType type, IMetaData metaData, IHybridBuffer<T> buffer)
         {
             _buffer = buffer;
             MetaData = metaData;
@@ -25,13 +25,15 @@ namespace BrightTable.Segments
 
         public IMetaData MetaData { get; }
         public ColumnType SingleType { get; }
-        public void WriteTo(BinaryWriter writer) => _buffer.WriteTo(writer);
+        public void WriteTo(BinaryWriter writer) => _buffer.CopyTo(writer.BaseStream);
+        public void CopyTo(Stream stream) => _buffer.CopyTo(stream);
         public IEnumerable<object> Enumerate() => _buffer.Enumerate();
-        public uint Size => _buffer.Size;
-        public bool IsEncoded => (_buffer as IHaveEncodedData)?.IsEncoded == true;
-        public void Add(object obj) => _buffer.Add(obj);
+        public uint Length => _buffer.Length;
+        public uint? NumDistinct => _buffer.NumDistinct;
+        public uint Size => _buffer.Length;
+        public bool IsEncoded { get; } = true;
+        public void Add(object obj) => _buffer.Add((T)obj);
         public void Add(T obj) => _buffer.Add(obj);
         public IEnumerable<T> EnumerateTyped() => _buffer.EnumerateTyped();
-        public void Write(IReadOnlyCollection<T> items, BinaryWriter writer) => _buffer.Write(items, writer);
     }
 }

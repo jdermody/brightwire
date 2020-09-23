@@ -85,7 +85,7 @@ namespace BrightTable.Builders
             {
                 _hasWrittenHeader = true;
                 _writer.Write(Consts.DataTableVersion); // format version
-                _writer.Write((int)DataTableOrientation.RowOriented);
+                _writer.Write((byte)DataTableOrientation.RowOriented);
                 _writer.Write((uint)_columns.Count); // write the number of columns
                 foreach (var column in _columns)
                 {
@@ -119,7 +119,7 @@ namespace BrightTable.Builders
                         val = DateTime.MinValue;
                     else if (type != ColumnType.Unknown)
                     {
-                        var columnType = ExtensionMethods.GetDataType(type);
+                        var columnType = type.GetDataType();
                         if (columnType.GetTypeInfo().IsValueType)
                             val = Activator.CreateInstance(columnType);
                     }
@@ -146,18 +146,12 @@ namespace BrightTable.Builders
             foreach(var offset in _rowOffset)
                 _writer.Write(offset);
 
-            InputData inputData;
-            if (_stream is FileStream file) {
-                var filePath = file.Name;
-                file.Dispose();
-                inputData = new InputData(filePath);
-            } else {
-                inputData = new InputData((MemoryStream) _stream);
-                _stream.Seek(0, SeekOrigin.Begin);
-            }
+            _writer.Flush();
+            _stream.Flush();
 
             _hasClosedStream = true;
-            return new RowOrientedDataTable(context, inputData, true);
+            _stream.Seek(0, SeekOrigin.Begin);
+            return new RowOrientedDataTable(context, _stream, true);
         }
 
         void _WriteValueTo(BinaryWriter writer, ColumnType type, object val)

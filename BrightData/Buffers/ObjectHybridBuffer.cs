@@ -1,17 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Text;
+using BrightData.Helper;
 
-namespace BrightData.Buffers2
+namespace BrightData.Buffers
 {
     public class ObjectHybridBuffer<T> : HybridBufferBase<T>
         where T : ISerializable
     {
         private readonly IBrightDataContext _context;
 
-        public ObjectHybridBuffer(IBrightDataContext context, uint maxCount) : base(context.TempStreamProvider, maxCount, null)
+        public ObjectHybridBuffer(IBrightDataContext context, TempStreamManager tempStream, uint maxCount) : base(tempStream, maxCount, null)
         {
             _context = context;
         }

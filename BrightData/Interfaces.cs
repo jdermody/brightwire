@@ -14,6 +14,11 @@ namespace BrightData
         void WriteTo(BinaryWriter writer);
     }
 
+    //public interface ICanWriteToStream
+    //{
+    //    void WriteTo(Stream stream);
+    //}
+
     public interface ICanInitializeFromBinaryReader
     {
         void Initialize(IBrightDataContext context, BinaryReader reader);
@@ -218,19 +223,19 @@ namespace BrightData
         FeatureScale
     }
 
-    public interface IAutoGrowBuffer : ICanWriteToBinaryWriter
-    {
-        uint Size { get; }
-        void Add(object obj);
-        IEnumerable<object> Enumerate();
-    }
+    //public interface IAutoGrowBuffer : ICanWriteToBinaryWriter
+    //{
+    //    uint Size { get; }
+    //    void Add(object obj);
+    //    IEnumerable<object> Enumerate();
+    //}
 
-    public interface IAutoGrowBuffer<T> : IAutoGrowBuffer
-    {
-        void Add(T obj);
-        IEnumerable<T> EnumerateTyped();
-        void Write(IReadOnlyCollection<T> items, BinaryWriter writer);
-    }
+    //public interface IAutoGrowBuffer<T> : IAutoGrowBuffer
+    //{
+    //    void Add(T obj);
+    //    IEnumerable<T> EnumerateTyped();
+    //    //void Write(IReadOnlyCollection<T> items, BinaryWriter writer);
+    //}
 
     public interface IHaveEncodedData
     {
@@ -292,6 +297,7 @@ namespace BrightData
         IEnumerable<object> Enumerate();
         uint Length { get; }
         uint? NumDistinct { get; }
+        void Add(object obj);
     }
 
     public interface IHybridBuffer<T> : IHybridBuffer
@@ -313,5 +319,6 @@ namespace BrightData
     public interface ICanEnumerate<out T>
     {
         IEnumerable<T> EnumerateTyped();
+        uint Size { get; }
     }
 }

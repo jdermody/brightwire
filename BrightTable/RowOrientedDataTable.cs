@@ -51,22 +51,14 @@ namespace BrightTable
         }
         readonly ColumnInfo[] _columns;
         readonly uint[] _rowOffset;
-        readonly InputData _data;
         readonly IColumnReader[] _columnReaders;
 
-        public RowOrientedDataTable(IBrightDataContext context, InputData data, bool readHeader) : base(context)
+        public RowOrientedDataTable(IBrightDataContext context, Stream stream, bool readHeader) : base(context, stream)
         {
-            _data = data;
-            var reader = data.Reader;
+            var reader = Reader;
 
-            if (readHeader) {
-                var version = reader.ReadInt32();
-                if (version > Consts.DataTableVersion)
-                    throw new Exception($"Segment table version {version} exceeds {Consts.DataTableVersion}");
-                var orientation = (DataTableOrientation)reader.ReadInt32();
-                if (orientation != DataTableOrientation.RowOriented)
-                    throw new Exception("Invalid orientation");
-            }
+            if (readHeader)
+                _ReadHeader(reader, DataTableOrientation.RowOriented);
 
             var numColumns = reader.ReadUInt32();
             _columns = new ColumnInfo[numColumns];
@@ -87,7 +79,7 @@ namespace BrightTable
 
         public void Dispose()
         {
-            _data.Dispose();
+            _stream.Dispose();
         }
 
         public DataTableOrientation Orientation => DataTableOrientation.RowOriented;
@@ -108,11 +100,11 @@ namespace BrightTable
 
         public void ForEachRow(IEnumerable<uint> rowIndices, Action<object[]> callback)
         {
-            lock (_data) {
-                var reader = _data.Reader;
+            lock (_stream) {
+                var reader = Reader;
                 foreach (var index in rowIndices) {
                     if (index < _rowOffset.Length) {
-                        _data.MoveTo(_rowOffset[index]);
+                        _stream.Seek(_rowOffset[index], SeekOrigin.Begin);
                         var row = new object[_columns.Length];
                         for (int i = 0, len = _columnReaders.Length; i < len; i++)
                             row[i] = _columnReaders[i].Read(reader);
@@ -164,9 +156,9 @@ namespace BrightTable
         {
             var rowCount = Math.Min(maxRows, RowCount);
 
-            lock (_data) {
-                _data.MoveTo(_rowOffset[0]);
-                var reader = _data.Reader;
+            lock (_stream) {
+                _stream.Seek(_rowOffset[0], SeekOrigin.Begin);
+                var reader = Reader;
 
                 for (uint i = 0; i < rowCount; i++) {
                     var row = new object[ColumnCount];
@@ -190,9 +182,9 @@ namespace BrightTable
             }
 
             var rowCount = Math.Min(maxRows, RowCount);
-            lock (_data) {
-                _data.MoveTo(_rowOffset[0]);
-                var reader = _data.Reader;
+            lock (_stream) {
+                _stream.Seek(_rowOffset[0], SeekOrigin.Begin);
+                var reader = Reader;
 
                 for (uint i = 0; i < rowCount; i++) {
                     for (uint j = 0, len = ColumnCount; j < len; j++) {

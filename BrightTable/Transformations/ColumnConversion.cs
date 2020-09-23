@@ -22,7 +22,7 @@ namespace BrightTable.Transformations
                 _converter = converter;
             }
 
-            public bool Convert(TF input, IAutoGrowBuffer<TT> buffer)
+            public bool Convert(TF input, IHybridBuffer<TT> buffer)
             {
                 buffer.Add(_converter(input));
                 return true;
@@ -43,7 +43,7 @@ namespace BrightTable.Transformations
         {
             protected abstract TT _Convert(string str);
 
-            public bool Convert(TF input, IAutoGrowBuffer<TT> buffer)
+            public bool Convert(TF input, IHybridBuffer<TT> buffer)
             {
                 buffer.Add(_Convert(input.ToString()));
                 return true;
@@ -59,7 +59,7 @@ namespace BrightTable.Transformations
 
         class AnyToString<T> : IConvert<T, string>
         {
-            public bool Convert(T input, IAutoGrowBuffer<string> buffer)
+            public bool Convert(T input, IHybridBuffer<string> buffer)
             {
                 buffer.Add(input.ToString());
                 return true;
@@ -84,7 +84,7 @@ namespace BrightTable.Transformations
 
             public Type From => typeof(TF);
             public Type To => typeof(TT);
-            public bool Convert(TF input, IAutoGrowBuffer<TT> buffer)
+            public bool Convert(TF input, IHybridBuffer<TT> buffer)
             {
                 if (_list.MoveNext()) {
                     buffer.Add(_list.Current);
@@ -153,7 +153,7 @@ namespace BrightTable.Transformations
 
         public uint? Index => _columnIndex;
 
-        public ICanConvert GetConverter(ColumnType fromType, ISingleTypeTableSegment column, TempStreamManager tempStreams, IBrightDataContext context)
+        public ICanConvert GetConverter(ColumnType fromType, ISingleTypeTableSegment column, TempStreamManager tempStreams, uint inMemoryRowCount)
         {
             ICanConvert ViaString<T>(Func<string, T> convertFromString)
             {
@@ -183,7 +183,7 @@ namespace BrightTable.Transformations
                     return (ICanConvert)Activator.CreateInstance(t);
                 }
                 case ColumnConversionType.ToNumeric: {
-                    var buffer = new HybridStructBuffer<double>(context, tempStreams);
+                    var buffer = new StructHybridBuffer<double>(tempStreams, inMemoryRowCount, 1024);
                     double min = double.MaxValue, max = double.MinValue;
                     var isInteger = true;
                     foreach (var val in column.Enumerate()) {

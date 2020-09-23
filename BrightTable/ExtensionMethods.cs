@@ -283,6 +283,8 @@ namespace BrightTable
             bool hasHeader,
             char delimiter = ',',
             string fileOutputPath = null,
+            uint inMemoryRowCount = 32768,
+            ushort maxDistinct = 1024,
             bool writeProgress = false,
             string tempBasePath = null
         )
@@ -302,7 +304,7 @@ namespace BrightTable
                 var cols = row.Length;
 
                 for (var i = columns.Count; i < cols; i++) {
-                    var buffer = new EncodingBuffer<string>(new HybridStringBuffer(context, tempStreams));
+                    var buffer = new StringHybridBuffer(tempStreams, inMemoryRowCount, maxDistinct);
                     columns.Add(new GrowableSegment<string>(ColumnType.String, new MetaData(), buffer));
                 }
 
@@ -350,8 +352,8 @@ namespace BrightTable
 
         public static IDataTable LoadTable(this IBrightDataContext context, string filePath)
         {
-            var input = new InputData(filePath);
-            var reader = input.Reader;
+            var input = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+            var reader = new BinaryReader(input, Encoding.UTF8, true);
             var version = reader.ReadInt32();
 
             if (version > Consts.DataTableVersion)
@@ -446,35 +448,30 @@ namespace BrightTable
             }
         }
 
-        public static IAutoGrowBuffer GetGrowableSegment(this IColumnInfo forColumn, IBrightDataContext context, TempStreamManager tempStream, bool tryEncode, uint bufferSize = 32768)
+        public static IHybridBuffer GetHybridBuffer(this IColumnInfo forColumn, IBrightDataContext context, TempStreamManager tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024)
         {
             var type = forColumn.ColumnType;
             var columnType = GetDataType(type);
 
-            IAutoGrowBuffer buffer;
+            IHybridBuffer buffer;
             if (type.IsStructable()) {
-                buffer = (IAutoGrowBuffer)Activator.CreateInstance(typeof(HybridStructBuffer<>).MakeGenericType(GetDataType(type)),
-                    context,
+                buffer = (IHybridBuffer)Activator.CreateInstance(typeof(StructHybridBuffer<>).MakeGenericType(GetDataType(type)),
                     tempStream,
-                    bufferSize
+                    bufferSize,
+                    maxDistinct
                 );
             } else if (type == ColumnType.String) {
-                buffer = (IAutoGrowBuffer)Activator.CreateInstance(typeof(HybridStringBuffer),
-                    context,
+                buffer = (IHybridBuffer)Activator.CreateInstance(typeof(StringHybridBuffer),
                     tempStream,
-                    bufferSize
+                    bufferSize,
+                    maxDistinct
                 );
             } else {
-                buffer = (IAutoGrowBuffer)Activator.CreateInstance(typeof(HybridObjectBuffer<>).MakeGenericType(GetDataType(type)),
+                buffer = (IHybridBuffer)Activator.CreateInstance(typeof(ObjectHybridBuffer<>).MakeGenericType(GetDataType(type)),
                     context,
                     tempStream,
                     bufferSize
                 );
-            }
-
-            if (tryEncode) {
-                var encoderType = typeof(EncodingBuffer<>).MakeGenericType(columnType);
-                buffer = (IAutoGrowBuffer)Activator.CreateInstance(encoderType, new object[] { buffer, bufferSize });
             }
 
             var segmentType = typeof(GrowableSegment<>).MakeGenericType(columnType);
@@ -484,7 +481,7 @@ namespace BrightTable
                 buffer
             );
 
-            return (IAutoGrowBuffer)ret;
+            return (IHybridBuffer)ret;
         }
 
         public static IColumnOrientedDataTable BuildColumnOrientedTable(this List<ISingleTypeTableSegment> segments, IBrightDataContext context, uint rowCount, string filePath = null)
@@ -502,7 +499,7 @@ namespace BrightTable
             return builder.Build(context);
         }
 
-        public static IColumnOrientedDataTable BuildColumnOrientedTable(this List<IAutoGrowBuffer> buffers, IBrightDataContext context, uint rowCount, string filePath = null)
+        public static IColumnOrientedDataTable BuildColumnOrientedTable(this List<IHybridBuffer> buffers, IBrightDataContext context, uint rowCount, string filePath = null)
         {
             return buffers.Cast<ISingleTypeTableSegment>().ToList().BuildColumnOrientedTable(context, rowCount, filePath);
         }
@@ -512,7 +509,7 @@ namespace BrightTable
             return buffers.Cast<ISingleTypeTableSegment>().ToList().BuildColumnOrientedTable(context, rowCount, filePath);
         }
 
-        public static IRowOrientedDataTable BuildRowOrientedTable(this List<IAutoGrowBuffer> buffers, IBrightDataContext context, uint rowCount, string filePath = null)
+        public static IRowOrientedDataTable BuildRowOrientedTable(this List<IHybridBuffer> buffers, IBrightDataContext context, uint rowCount, string filePath = null)
         {
             using var builder = new RowOrientedTableBuilder(rowCount, filePath);
             var readers = buffers.Cast<ISingleTypeTableSegment>()

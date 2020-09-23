@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace BrightData.Buffers2
+namespace BrightData.Buffers
 {
     public class StringHybridBuffer : HybridBufferBase<string>
     {
-        public StringHybridBuffer(IProvideTempStreams tempStream, uint maxCount, uint maxDistinct = 1024) 
+        public StringHybridBuffer(IProvideTempStreams tempStream, uint maxCount, ushort maxDistinct) 
             : base(tempStream, maxCount, maxDistinct)
         {
         }
@@ -22,7 +21,7 @@ namespace BrightData.Buffers2
         protected override uint _ReadTo(Stream stream, uint count, string[] buffer)
         {
             uint ret = 0;
-            var reader = new BinaryReader(stream);
+            var reader = new BinaryReader(stream, Encoding.UTF8);
             for (; ret < count && stream.Position < stream.Length; ret++)
                 buffer[ret] = reader.ReadString();
             return ret;

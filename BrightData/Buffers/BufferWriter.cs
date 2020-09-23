@@ -5,17 +5,18 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace BrightData.Buffers2
+namespace BrightData.Buffers
 {
     public static class BufferWriter
     {
         public static void CopyTo<T>(IHybridBuffer<T> buffer, Stream stream)
         {
             var writer = GetWriter(buffer);
-            writer.WriteTo(stream);
+            using var binaryWriter = new BinaryWriter(stream, Encoding.UTF8, true);
+            writer.WriteTo(binaryWriter);
         }
 
-        static IWriteToStream GetWriter<T>(IHybridBuffer<T> buffer)
+        static ICanWriteToBinaryWriter GetWriter<T>(IHybridBuffer<T> buffer)
         {
             var typeOfT = typeof(T);
             var shouldEncode = buffer.NumDistinct.HasValue && buffer.NumDistinct.Value < buffer.Length / 2;
@@ -23,26 +24,21 @@ namespace BrightData.Buffers2
             if (typeOfT == typeof(string)) {
                 var stringBuffer = (IHybridBuffer<string>)buffer;
                 return shouldEncode
-                    ? (IWriteToStream)new StringEncoder(stringBuffer)
+                    ? (ICanWriteToBinaryWriter)new StringEncoder(stringBuffer)
                     : new StringWriter(stringBuffer);
             }
 
             if (typeOfT.IsValueType) {
                 var writerType = shouldEncode ? typeof(StructEncoder<>) : typeof(StructWriter<>);
-                return (IWriteToStream) Activator.CreateInstance(writerType, buffer);
+                return (ICanWriteToBinaryWriter) Activator.CreateInstance(writerType.MakeGenericType(typeOfT), buffer);
             }
 
-            return (IWriteToStream) Activator.CreateInstance(typeof(ObjectWriter<>), buffer);
+            return (ICanWriteToBinaryWriter) Activator.CreateInstance(typeof(ObjectWriter<>), buffer);
         }
 
-        interface IWriteToStream
+        internal class StringEncoder : ICanWriteToBinaryWriter
         {
-            void WriteTo(Stream stream);
-        }
-
-        class StringEncoder : IWriteToStream
-        {
-            readonly Dictionary<string, uint> _table = new Dictionary<string, uint>();
+            readonly Dictionary<string, ushort> _table = new Dictionary<string, ushort>();
             readonly IHybridBuffer<string> _buffer;
 
             public StringEncoder(IHybridBuffer<string> buffer)
@@ -52,34 +48,43 @@ namespace BrightData.Buffers2
                 // encode the values
                 foreach (var item in buffer.EnumerateTyped()) {
                     if (!_table.ContainsKey(item))
-                        _table.Add(item, (uint)_table.Count);
+                        _table.Add(item, (ushort)_table.Count);
                 }
             }
 
-            public void WriteTo(Stream stream)
+            public void WriteTo(BinaryWriter writer)
             {
-                using var writer = new BinaryWriter(stream, Encoding.UTF8, true);
+                WriteTo(
+                    (uint) _table.Count,
+                    _table.OrderBy(kv => kv.Value).Select(kv => kv.Key),
+                    _buffer.Length,
+                    _buffer.EnumerateTyped().Select(v => _table[v]),
+                    writer
+                );
+            }
 
+            internal static void WriteTo(uint stringTableCount, IEnumerable<string> stringTable, uint indexCount, IEnumerable<ushort> indices, BinaryWriter writer)
+            {
                 // write the buffer type
                 writer.Write((byte)BufferType.EncodedString);
 
                 // write the length
-                writer.Write((uint)_table.Count);
+                writer.Write(stringTableCount);
 
                 // write the strings
-                foreach (var item in _table.OrderBy(kv => kv.Value))
-                    writer.Write(item.Key);
+                foreach (var str in stringTable)
+                    writer.Write(str);
 
                 // write the buffer length and the indices
-                writer.Write(_buffer.Length);
+                writer.Write(indexCount);
                 writer.Flush();
-                WriteBuffered<uint>(_buffer.EnumerateTyped().Select(v => _table[v]), stream);
+                WriteBuffered(indices, writer.BaseStream);
             }
         }
 
-        class StructEncoder<T> : IWriteToStream where T : struct
+        internal class StructEncoder<T> : ICanWriteToBinaryWriter where T : struct
         {
-            private readonly Dictionary<T, uint> _table = new Dictionary<T, uint>();
+            private readonly Dictionary<T, ushort> _table = new Dictionary<T, ushort>();
             readonly IHybridBuffer<T> _buffer;
 
             public StructEncoder(IHybridBuffer<T> buffer)
@@ -89,32 +94,41 @@ namespace BrightData.Buffers2
                 // encode the values
                 foreach (var item in buffer.EnumerateTyped()) {
                     if (!_table.ContainsKey(item))
-                        _table.Add(item, (uint)_table.Count);
+                        _table.Add(item, (ushort)_table.Count);
                 }
             }
 
-            public void WriteTo(Stream stream)
+            public void WriteTo(BinaryWriter writer)
             {
-                using var writer = new BinaryWriter(stream, Encoding.UTF8, true);
+                var data = _table.OrderBy(kv => kv.Value).Select(kv => kv.Key).ToArray();
+                WriteTo(
+                    data, 
+                    _buffer.Length, 
+                    _buffer.EnumerateTyped().Select(v => _table[v]),
+                    writer
+                );
+            }
 
+            internal static void WriteTo(T[] keys, uint indexCount, IEnumerable<ushort> indices, BinaryWriter writer)
+            {
                 // write the buffer type
                 writer.Write((byte)BufferType.EncodedStruct);
 
                 // write the length
-                writer.Write((uint)_table.Count);
+                writer.Write((uint)keys.Length);
+                writer.Flush();
 
                 // write the data
-                var data = _table.OrderBy(kv => kv.Value).Select(kv => kv.Key).ToArray();
-                stream.Write(MemoryMarshal.Cast<T, byte>(data));
+                writer.BaseStream.Write(MemoryMarshal.Cast<T, byte>(keys));
 
                 // write the buffer length and the indices
-                writer.Write(_buffer.Length);
+                writer.Write(indexCount);
                 writer.Flush();
-                WriteBuffered(_buffer.EnumerateTyped().Select(v => _table[v]), stream);
+                WriteBuffered(indices, writer.BaseStream);
             }
         }
 
-        class ObjectWriter<T> : IWriteToStream
+        internal class ObjectWriter<T> : ICanWriteToBinaryWriter
             where T : ICanWriteToBinaryWriter
         {
             private readonly IHybridBuffer<T> _buffer;
@@ -124,23 +138,26 @@ namespace BrightData.Buffers2
                 _buffer = buffer;
             }
 
-            public void WriteTo(Stream stream)
+            public void WriteTo(BinaryWriter writer)
             {
-                using var writer = new BinaryWriter(stream, Encoding.UTF8, true);
+                WriteTo(_buffer.Length, _buffer.EnumerateTyped(), writer);
+            }
 
+            internal static void WriteTo(uint itemsCount, IEnumerable<T> items, BinaryWriter writer)
+            {
                 // write the buffer type
                 writer.Write((byte)BufferType.Object);
 
                 // write the number of items
-                writer.Write(_buffer.Length);
+                writer.Write(itemsCount);
 
                 // write the items
-                foreach (var item in _buffer.EnumerateTyped())
+                foreach (var item in items)
                     item.WriteTo(writer);
             }
         }
 
-        class StringWriter : IWriteToStream
+        internal class StringWriter : ICanWriteToBinaryWriter
         {
             private readonly IHybridBuffer<string> _buffer;
 
@@ -149,22 +166,26 @@ namespace BrightData.Buffers2
                 _buffer = buffer;
             }
 
-            public void WriteTo(Stream stream)
+            public void WriteTo(BinaryWriter writer)
             {
-                using var writer = new BinaryWriter(stream, Encoding.UTF8, true);
+                WriteTo(_buffer.Length, _buffer.EnumerateTyped(), writer);
+            }
 
+            internal static void WriteTo(uint itemCount, IEnumerable<string> items, BinaryWriter writer)
+            {
                 // write the buffer type
                 writer.Write((byte)BufferType.String);
 
                 // write the number of items
-                writer.Write(_buffer.Length);
+                writer.Write(itemCount);
 
                 // write the items
-                foreach (var item in _buffer.EnumerateTyped())
+                foreach (var item in items)
                     writer.Write(item);
             }
         }
-        class StructWriter<T> : IWriteToStream
+
+        internal class StructWriter<T> : ICanWriteToBinaryWriter
             where T : struct
         {
             private readonly IHybridBuffer<T> _buffer;
@@ -174,17 +195,20 @@ namespace BrightData.Buffers2
                 _buffer = buffer;
             }
 
-            public void WriteTo(Stream stream)
+            public void WriteTo(BinaryWriter writer)
             {
-                using var writer = new BinaryWriter(stream, Encoding.UTF8, true);
+                WriteTo(_buffer.Length, _buffer.EnumerateTyped(), writer);
+            }
 
+            internal static void WriteTo(uint numItems, IEnumerable<T> items, BinaryWriter writer)
+            {
                 // write the buffer type
                 writer.Write((byte)BufferType.Struct);
 
                 // write the items
-                writer.Write(_buffer.Length);
+                writer.Write(numItems);
                 writer.Flush();
-                WriteBuffered<T>(_buffer.EnumerateTyped(), stream);
+                WriteBuffered<T>(items, writer.BaseStream);
             }
         }
 

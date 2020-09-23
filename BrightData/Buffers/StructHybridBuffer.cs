@@ -1,15 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Text;
 
-namespace BrightData.Buffers2
+namespace BrightData.Buffers
 {
     public class StructHybridBuffer<T> : HybridBufferBase<T>
         where T: struct
     {
-        public StructHybridBuffer(IProvideTempStreams tempStream, uint maxCount, uint maxDistinct = 1024) : base(tempStream, maxCount, maxDistinct)
+        public StructHybridBuffer(IProvideTempStreams tempStream, uint maxCount, ushort maxDistinct) : base(tempStream, maxCount, maxDistinct)
         {
         }
 

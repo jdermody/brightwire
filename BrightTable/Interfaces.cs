@@ -115,7 +115,6 @@ namespace BrightTable
         ColumnType SingleType { get; }
         IEnumerable<object> Enumerate();
         uint Size { get; }
-        bool IsEncoded { get; }
     }
 
     public interface IDataTableSegment
@@ -215,14 +214,14 @@ namespace BrightTable
 
     public interface IConvert<in TF, TT> : ICanConvert
     {
-        bool Convert(TF input, IAutoGrowBuffer<TT> buffer);
+        bool Convert(TF input, IHybridBuffer<TT> buffer);
         void Finalise(IMetaData metaData);
     }
 
     public interface IColumnTransformation
     {
         uint Transform();
-        IAutoGrowBuffer Buffer { get; }
+        IHybridBuffer Buffer { get; }
     }
 
     public interface ITransformColumnOrientedDataTable
@@ -244,7 +243,7 @@ namespace BrightTable
     public interface IColumnTransformationParam
     {
         public uint? Index { get; }
-        public ICanConvert GetConverter(ColumnType fromType, ISingleTypeTableSegment column, TempStreamManager tempStreams, IBrightDataContext context);
+        public ICanConvert GetConverter(ColumnType fromType, ISingleTypeTableSegment column, TempStreamManager tempStreams, uint inMemoryRowCount = 32768);
     }
 
     public interface IConvertibleTable
