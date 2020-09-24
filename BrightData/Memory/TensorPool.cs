@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 
@@ -11,15 +10,13 @@ namespace BrightData.Memory
     /// </summary>
     class TensorPool : ITensorPool, IDisposable
     {
-        readonly IBrightDataContext _context;
         readonly ConcurrentDictionary<string, ConcurrentBag<Array>> _cache = new ConcurrentDictionary<string, ConcurrentBag<Array>>();
         readonly ConcurrentDictionary<string, long> _requestHistory = new ConcurrentDictionary<string, long>();
         long _requestIndex = 0;
 
-        public TensorPool(IBrightDataContext context, long maxCacheSize)
+        public TensorPool(long maxCacheSize)
         {
             MaxCacheSize = maxCacheSize;
-            _context = context;
         }
 
         public T[] Get<T>(uint size) where T: struct

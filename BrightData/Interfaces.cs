@@ -4,6 +4,9 @@ using System.IO;
 
 namespace BrightData
 {
+    /// <summary>
+    /// Interface 
+    /// </summary>
     public interface IHaveIndices
     {
         IEnumerable<uint> Indices { get; }
@@ -13,11 +16,6 @@ namespace BrightData
     {
         void WriteTo(BinaryWriter writer);
     }
-
-    //public interface ICanWriteToStream
-    //{
-    //    void WriteTo(Stream stream);
-    //}
 
     public interface ICanInitializeFromBinaryReader
     {
@@ -222,20 +220,6 @@ namespace BrightData
         Manhattan,
         FeatureScale
     }
-
-    //public interface IAutoGrowBuffer : ICanWriteToBinaryWriter
-    //{
-    //    uint Size { get; }
-    //    void Add(object obj);
-    //    IEnumerable<object> Enumerate();
-    //}
-
-    //public interface IAutoGrowBuffer<T> : IAutoGrowBuffer
-    //{
-    //    void Add(T obj);
-    //    IEnumerable<T> EnumerateTyped();
-    //    //void Write(IReadOnlyCollection<T> items, BinaryWriter writer);
-    //}
 
     public interface IHaveEncodedData
     {

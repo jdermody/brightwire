@@ -1,5 +1,4 @@
 ﻿using BrightWire.ExecutionGraph.Node;
-using System.Collections.Generic;
 using BrightData;
 
 namespace BrightWire.ExecutionGraph.Activation

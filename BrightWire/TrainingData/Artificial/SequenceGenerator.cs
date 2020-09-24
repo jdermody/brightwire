@@ -1,5 +1,4 @@
-﻿using BrightWire.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -41,7 +40,6 @@ namespace BrightWire.TrainingData.Artificial
         /// <param name="minSize">The minimum size of each sequence</param>
         /// <param name="maxSize">The maximum size of each sequence</param>
         /// <param name="noRepeat">True to avoid repeating any previous character within each sequence</param>
-        /// <param name="isStochastic">True to generate different sequences each time</param>
         public SequenceGenerator(IBrightDataContext context, int dictionarySize, int minSize, int maxSize, bool noRepeat = true)
         {
             _rnd = context.Random;

@@ -9,7 +9,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using BrightData;
 using BrightTable;
-using BrightWire.Source.Helper;
+using BrightWire.Helper;
 
 namespace BrightWire
 {

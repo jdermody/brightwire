@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using BrightData;
+﻿using BrightData;
 
 namespace BrightWire.ExecutionGraph.Node.Operation
 {
@@ -11,7 +10,7 @@ namespace BrightWire.ExecutionGraph.Node.Operation
         // Derivative of 1/x is -1/(x squared)
         class Backpropagation : SingleBackpropagationBase<OneDividedByInput>
         {
-            IFloatMatrix _input;
+            readonly IFloatMatrix _input;
 
             public Backpropagation(OneDividedByInput source, IFloatMatrix input) : base(source)
             {

@@ -110,7 +110,7 @@ namespace BrightData.Numerics
             return _vector.ToVectorString();
         }
 
-        public BrightData.Vector<float> Data
+        public Vector<float> Data
         {
             get => FloatVector.Create(Context, _vector.ToArray());
 

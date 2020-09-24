@@ -21,7 +21,7 @@ namespace BrightWire.ExecutionGraph.GradientDescent
             using var deltaSquared = delta.PointwiseMultiply(delta);
             _cache.AddInPlace(deltaSquared, _decayRate, 1 - _decayRate);
 
-            using var cachedSqrt = _cache.Sqrt(1e-8f);
+            using var cachedSqrt = _cache.Sqrt();
             using var delta2 = delta.PointwiseDivide(cachedSqrt);
             _updater.Update(source, delta2, context);
         }

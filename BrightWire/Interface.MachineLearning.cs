@@ -1,9 +1,9 @@
 ﻿using BrightData;
 using BrightTable;
-using BrightWire.Models;
 using BrightWire.Models.Bayesian;
 using System;
 using System.Collections.Generic;
+using BrightWire.Models.Linear;
 
 namespace BrightWire
 {
@@ -69,7 +69,7 @@ namespace BrightWire
 	/// Markov model trainer
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
-	public interface IMarkovModelTrainer<T> : ICanSerialiseToStream
+	public interface IMarkovModelTrainer<in T> : ICanSerialiseToStream
 	{
 		/// <summary>
 		/// Adds a sequence of items to the trainer
@@ -374,7 +374,7 @@ namespace BrightWire
 		/// <param name="name">The property name</param>
 		/// <param name="defaultValue">The value to use if the property has not been supplied</param>
 		/// <returns></returns>
-		T Get<T>(string name, T defaultValue = default(T));
+		T Get<T>(string name, T defaultValue = default);
 
 		/// <summary>
 		/// Sets a named property
@@ -473,7 +473,7 @@ namespace BrightWire
 		/// <summary>
 		/// Predicts a value from input data
 		/// </summary>
-		/// <param name="vals">The input data</param>
+		/// <param name="input">The input data</param>
 		float Predict(params float[] input);
 
         /// <summary>
@@ -562,30 +562,7 @@ namespace BrightWire
 		float[] Encode(WeightedIndexList indexList);
 	}
 
-	/// <summary>
-	/// Encodes data table rows to dense vectors
-	/// </summary>
-	//public interface IRowEncoder
-	//{
-	//	/// <summary>
-	//	/// Encodes a data table row to a dense vector
-	//	/// </summary>
-	//	/// <param name="row">The row to encode</param>
-	//	float[] Encode(IRow row);
-	//}
-
-	/// <summary>
-	/// An interface to retrieve the implicitly created vectorised for non linear algebra data tables
-	/// </summary>
-	//public interface IHaveDataTableVectoriser
-	//{
-	//	/// <summary>
-	//	/// The implicitly created data table vectoriser
-	//	/// </summary>
-	//	IDataTableVectoriser Vectoriser { get; }
-	//}
-
-	/// <summary>
+    /// <summary>
 	/// A classifier that classifies index lists
 	/// </summary>
 	public interface IIndexListClassifier

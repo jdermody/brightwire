@@ -1,10 +1,7 @@
 ﻿using BrightWire.ExecutionGraph.Helper;
-using BrightWire.Models;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using BrightData;
 using BrightData.FloatTensors;
 
@@ -151,7 +148,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
 		public override void ReadFrom(GraphFactory factory, BinaryReader reader)
 		{
-			var lap = factory?.LinearAlgebraProvider;
+			var lap = factory.LinearAlgebraProvider;
 
 			_padding = (uint)reader.ReadInt32();
 			_filterWidth = (uint)reader.ReadInt32();
@@ -176,9 +173,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 				_filter.Data = weight;
 
 			// read the updater
-			if (_updater == null) {
-				_updater = factory?.CreateWeightUpdater(_filter);
-			}
+			_updater ??= factory.CreateWeightUpdater(_filter);
 		}
 
 		public override void WriteTo(BinaryWriter writer)

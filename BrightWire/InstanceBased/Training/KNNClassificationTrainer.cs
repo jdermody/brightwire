@@ -1,13 +1,9 @@
-﻿using BrightWire.Models;
-using System.Linq;
-using BrightWire.Models.InstanceBased;
+﻿using System.Linq;
 using BrightTable;
-using System;
-using System.Collections.Generic;
-using BrightData;
 using BrightTable.Transformations;
+using BrightWire.Models.InstanceBased;
 
-namespace BrightWire.InstanceBased.Trainer
+namespace BrightWire.InstanceBased.Training
 {
     /// <summary>
     /// K Nearest Neighbour classification trainer

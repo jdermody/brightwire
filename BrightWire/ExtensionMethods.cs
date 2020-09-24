@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using BrightData;
-using BrightTable.Transformations;
+using BrightWire.Bayesian.Training;
 using BrightWire.ExecutionGraph;
 
 namespace BrightWire
@@ -13,6 +13,28 @@ namespace BrightWire
     /// </summary>
     public static partial class ExtensionMethods
     {
+        /// <summary>
+        /// Create a markov model trainer of window size 2
+        /// </summary>
+        /// <typeparam name="T">The markov chain data type</typeparam>
+        /// <param name="context"></param>
+        /// <param name="minObservations">Minimum number of data points to record an observation</param>
+        public static IMarkovModelTrainer2<T> CreateMarkovTrainer2<T>(this IBrightDataContext context, int minObservations = 1)
+        {
+            return new MarkovModelTrainer2<T>(minObservations);
+        }
+
+        /// <summary>
+        /// Create a markov model trainer of window size 3
+        /// </summary>
+        /// <typeparam name="T">The markov chain data type</typeparam>
+        /// <param name="context"></param>
+        /// <param name="minObservations">Minimum number of data points to record an observation</param>
+        public static IMarkovModelTrainer3<T> CreateMarkovTrainer3<T>(this IBrightDataContext context, int minObservations = 1)
+        {
+            return new MarkovModelTrainer3<T>(minObservations);
+        }
+
         public static T[] GetFields<T>(this IConvertibleRow row, params uint[] indices)
         {
             return indices.Select(row.GetField<T>).ToArray();

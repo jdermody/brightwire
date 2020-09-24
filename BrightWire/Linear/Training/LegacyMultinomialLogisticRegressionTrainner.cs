@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using BrightData;
 using BrightTable;
-using BrightWire.Models;
+using BrightWire.Models.Linear;
 
 namespace BrightWire.Linear.Training
 {

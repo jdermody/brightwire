@@ -1,11 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using BrightWire.Models;
 using BrightWire.ExecutionGraph.Helper;
 using BrightTable;
-using System;
 using BrightData;
-using BrightData.FloatTensors;
 
 namespace BrightWire.ExecutionGraph.DataTableAdaptor
 {

@@ -13,6 +13,8 @@ using BrightWire.Linear.Training;
 using BrightWire.Models;
 using BrightWire.Models.Bayesian;
 using BrightWire.Models.InstanceBased;
+using BrightWire.Models.Linear;
+using BrightWire.Models.TreeBased;
 
 namespace ExampleCode
 {

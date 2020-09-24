@@ -131,8 +131,7 @@ namespace BrightData.Cuda
 			{
 				Debug.Assert(IsValid);
 				var matrixList = value.Matrices.ToList();
-				var matrixCount = matrixList.Count();
-				for (uint i = 0; i < matrixCount && i < _depth; i++) {
+                for (uint i = 0, len = (uint)matrixList.Count; i < len && i < _depth; i++) {
 					var matrix = matrixList[(int)i];
 					GetMatrixAt(i).Data = matrix;
 				}
@@ -239,7 +238,7 @@ namespace BrightData.Cuda
 		{
 			var other = (CudaMatrix)matrix;
 			var ptr = _data.DevicePointer;
-			uint rowsA = _rows, columnsArowsB = _columns, columnsB = (uint)matrix.ColumnCount;
+			uint rowsA = _rows, columnsArowsB = _columns, columnsB = matrix.ColumnCount;
 			float alpha = 1.0f, beta = 0.0f;
 			var output = new Cuda3DTensor(_cuda, _rows, columnsB, _depth, _cuda.Allocate(_rows * columnsB * _depth), true);
 

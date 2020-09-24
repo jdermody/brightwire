@@ -5,7 +5,6 @@ using BrightTable.Helper;
 using BrightWire.Models.Bayesian;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace BrightWire.Bayesian.Training
 {

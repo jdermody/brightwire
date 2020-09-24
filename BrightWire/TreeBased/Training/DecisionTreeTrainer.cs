@@ -1,10 +1,10 @@
 ﻿using BrightTable;
 using BrightTable.Helper;
-using BrightWire.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using BrightData;
+using BrightWire.Models.TreeBased;
 
 namespace BrightWire.TreeBased.Training
 {
@@ -134,13 +134,12 @@ namespace BrightWire.TreeBased.Training
             Node _parent = null;
             Attribute _attribute = null;
             Node[] _children = null;
-            readonly string _matchLabel;
 
             public Node(TableInfo tableInfo, List<InMemoryRow> data, string matchLabel)
             {
                 Data = data;
                 _tableInfo = tableInfo;
-                _matchLabel = matchLabel;
+                MatchLabel = matchLabel;
                 _classCount = data.GroupBy(d => d.ClassificationLabel).ToDictionary(g => g.Key, g => g.Count());
             }
 
@@ -249,7 +248,7 @@ namespace BrightWire.TreeBased.Training
             public bool IsLeaf => _classCount.Count <= 1;
 	        public string PredictedClass => _classCount.OrderByDescending(kv => kv.Value).Select(kv => kv.Key).FirstOrDefault();
             public List<InMemoryRow> Data { get; }
-	        public string MatchLabel => _matchLabel;
+	        public string MatchLabel { get; }
         }
 
         public class Config

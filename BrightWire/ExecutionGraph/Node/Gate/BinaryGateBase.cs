@@ -16,7 +16,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// Constructor
         /// </summary>
         /// <param name="name"></param>
-        public BinaryGateBase(string name) : base(name) { }
+        protected BinaryGateBase(string name) : base(name) { }
 
         /// <summary>
         /// Executes on the primary channel

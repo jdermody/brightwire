@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace BrightData.Cuda
+﻿namespace BrightData.Cuda
 {
     /// <summary>
     /// Helper methods when using the GPU linear algebra provider

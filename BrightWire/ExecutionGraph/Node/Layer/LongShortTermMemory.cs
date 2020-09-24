@@ -1,5 +1,4 @@
 ﻿using BrightWire.ExecutionGraph.Node.Input;
-using BrightWire.Models;
 using System.Collections.Generic;
 using System.IO;
 using BrightData.FloatTensors;

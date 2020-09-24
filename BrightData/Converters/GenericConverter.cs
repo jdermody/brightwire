@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Text;
+﻿using System.ComponentModel;
 
 namespace BrightData.Converters
 {
@@ -10,7 +7,7 @@ namespace BrightData.Converters
 	    readonly TypeConverter _converter;
 	    readonly T _fallback;
 
-	    public GenericConverter(T fallback = default(T))
+	    public GenericConverter(T fallback = default)
 	    {
 		    _converter = TypeDescriptor.GetConverter(typeof(T));
 		    _fallback = fallback;

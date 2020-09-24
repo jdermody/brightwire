@@ -109,7 +109,7 @@ namespace BrightData.Cuda.Helper
                     ret = _hashSet.First();
                     return _hashSet.Remove(ret);
                 }
-                ret = default(T);
+                ret = default;
                 return false;
             }
             finally {

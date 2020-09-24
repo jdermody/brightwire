@@ -23,9 +23,7 @@ using System.Runtime.Serialization;
 using BrightData;
 using BrightWire.ExecutionGraph.Action;
 using BrightWire.ExecutionGraph.Node.Output;
-using BrightWire.Source.Helper;
 using BrightTable;
-using BrightTable.Transformations;
 
 namespace BrightWire.ExecutionGraph
 {
@@ -34,7 +32,7 @@ namespace BrightWire.ExecutionGraph
 	/// </summary>
 	public class GraphFactory
 	{
-        readonly ICreateTemplateBasedGradientDescent _rmsProp = new RmsPropDescriptor(0.9f);
+        readonly ICreateTemplateBasedGradientDescent _rmsProp = new RmsPropDescriptor();
 		readonly Stack<IPropertySet> _propertySetStack = new Stack<IPropertySet>();
 		readonly IPropertySet _defaultPropertySet;
 
@@ -327,7 +325,6 @@ namespace BrightWire.ExecutionGraph
         /// </summary>
         /// <param name="classifier">The classifier for each row</param>
         /// <param name="dataTable">The data table that contains the rows to classify (linked by mini batch index)</param>
-        /// <param name="analysis">Optional data table analysis data</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
         public (INode RowClassifier, uint OutputSize) CreateClassifier(IRowClassifier classifier, IRowOrientedDataTable dataTable, string name = null)
@@ -976,7 +973,7 @@ namespace BrightWire.ExecutionGraph
 
 			internal WeightInitialisationProvider(ILinearAlgebraProvider lap)
 			{
-				Ones = new Constant(lap, 0f, 1f);
+				Ones = new Constant(lap);
 				Zeroes = new Constant(lap, 0f, 0f);
 				Gaussian = new Gaussian(lap);
 				Xavier = new Xavier(lap);

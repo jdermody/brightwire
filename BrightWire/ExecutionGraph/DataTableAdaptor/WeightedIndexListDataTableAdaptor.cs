@@ -3,7 +3,6 @@ using System.Linq;
 using BrightData;
 using BrightTable;
 using BrightTable.Transformations;
-using BrightWire.Models;
 
 namespace BrightWire.ExecutionGraph.DataTableAdaptor
 {

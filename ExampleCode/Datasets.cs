@@ -48,8 +48,8 @@ namespace ExampleCode.Datasets
         public static DataTableTrainer IntegerAddition(this IBrightDataContext context)
         {
             var data = BinaryIntegers.Addition(context, 1000);
-            var split = data.Split();
-            return new DataTableTrainer(data, split.Training, split.Test);
+            var (training, test) = data.Split();
+            return new DataTableTrainer(data, training, test);
         }
 
         public static void BeautifulandDamned(this IBrightDataContext context)
@@ -67,7 +67,7 @@ namespace ExampleCode.Datasets
             var model = trainer.Build().AsDictionary;
             for (var i = 0; i < 50; i++) {
                 var sb = new StringBuilder();
-                string prevPrev = default(string), prev = default(string), curr = default(string);
+                string prevPrev = default, prev = default, curr = default;
                 for (var j = 0; j < 1024; j++) {
                     var transitions = model.GetTransitions(prevPrev, prev, curr);
                     var distribution = new CategoricalDistribution(context, transitions.Select(d => d.Probability));

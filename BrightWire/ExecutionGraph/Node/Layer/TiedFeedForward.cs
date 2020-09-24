@@ -1,5 +1,4 @@
-﻿using BrightWire.Models;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using BrightData;
@@ -77,7 +76,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         {
             _layerId = reader.ReadString();
 
-            var lap = factory?.LinearAlgebraProvider;
+            var lap = factory.LinearAlgebraProvider;
             var bias = FloatVector.ReadFrom(factory.Context, reader);
             if (_bias == null)
                 _bias = lap.CreateVector(bias);

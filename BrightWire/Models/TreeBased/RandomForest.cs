@@ -1,6 +1,6 @@
 ﻿using BrightWire.TreeBased;
 
-namespace BrightWire.Models
+namespace BrightWire.Models.TreeBased
 {
     /// <summary>
     /// A random forest model

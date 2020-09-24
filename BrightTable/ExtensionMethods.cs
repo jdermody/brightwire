@@ -1,16 +1,13 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Http.Headers;
 using System.Text;
 using BrightData;
 using BrightData.Analysis;
 using BrightData.Buffers;
 using BrightData.Converters;
 using BrightData.Helper;
-using BrightTable.Buffers;
 using BrightTable.Builders;
 using BrightTable.Helper;
 using BrightTable.Input;
@@ -150,7 +147,7 @@ namespace BrightTable
             return ret;
         }
 
-        public static Type DataType<T>(this IDataTableSegment<T> segment) => typeof(T);
+        public static Type GetDataType<T>(this IDataTableSegment<T> segment) => typeof(T);
 
         public static IEnumerable<uint> RowIndices(this IDataTable dataTable)
         {
@@ -289,7 +286,7 @@ namespace BrightTable
             string tempBasePath = null
         )
         {
-            var parser = new CsvParser(reader, delimiter, hasHeader);
+            var parser = new CsvParser(reader, delimiter);
             using var tempStreams = new TempStreamManager(tempBasePath);
             var columns = new List<GrowableSegment<string>>();
             var isFirst = hasHeader;
@@ -547,7 +544,7 @@ namespace BrightTable
         }
 
         public static ColumnType GetColumnType(this IMetaData metadata) => metadata.Get<ColumnType>(Consts.Type);
-        public static uint GetNumDistinct(this IMetaData metadata) => metadata.Get<uint>(Consts.NumDistinct, 0);
+        public static uint GetNumDistinct(this IMetaData metadata) => metadata.Get<uint>(Consts.NumDistinct);
 
         public static TableBuilder BuildTable(this IBrightDataContext context) => new TableBuilder(context);
 

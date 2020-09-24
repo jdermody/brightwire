@@ -1,7 +1,7 @@
 ﻿using BrightData;
 using BrightWire.Linear;
 
-namespace BrightWire.Models
+namespace BrightWire.Models.Linear
 {
     /// <summary>
     /// A logistic regression model

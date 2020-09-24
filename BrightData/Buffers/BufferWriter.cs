@@ -208,7 +208,7 @@ namespace BrightData.Buffers
                 // write the items
                 writer.Write(numItems);
                 writer.Flush();
-                WriteBuffered<T>(items, writer.BaseStream);
+                WriteBuffered(items, writer.BaseStream);
             }
         }
 

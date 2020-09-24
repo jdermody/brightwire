@@ -37,7 +37,7 @@ namespace BrightWire.ExecutionGraph.GradientDescent
             using var vb = _cache2.Clone();
             mb.Multiply(1f / (1f - Convert.ToSingle(Math.Pow(_decayRate, t))));
             vb.Multiply(1f / (1f - Convert.ToSingle(Math.Pow(_decayRate2, t))));
-            using var vbSqrt = vb.Sqrt(1e-8f);
+            using var vbSqrt = vb.Sqrt();
             using var delta2 = mb.PointwiseDivide(vbSqrt);
             _updater.Update(source, delta2, context);
         }

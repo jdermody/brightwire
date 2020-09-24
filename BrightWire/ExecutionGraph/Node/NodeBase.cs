@@ -198,8 +198,7 @@ namespace BrightWire.ExecutionGraph.Node
         {
             _id = id;
             _name = name;
-            if (_output == null)
-                _output = new List<IWire>();
+            _output ??= new List<IWire>();
             _Initalise(factory, description, data);
         }
 

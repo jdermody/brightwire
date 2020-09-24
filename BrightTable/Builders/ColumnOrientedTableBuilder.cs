@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Text;
 using BrightData;
-using BrightTable.Segments;
-using BrightTable.Input;
 
 namespace BrightTable.Builders
 {
@@ -35,9 +32,9 @@ namespace BrightTable.Builders
         public void WriteColumnOffsets(IEnumerable<(long Position, long EndOfColumnOffset)> offsets)
         {
             _writer.Flush();
-            foreach (var offset in offsets) {
-                _stream.Seek(offset.Position, SeekOrigin.Begin);
-                _writer.Write(offset.EndOfColumnOffset);
+            foreach (var (position, endOfColumnOffset) in offsets) {
+                _stream.Seek(position, SeekOrigin.Begin);
+                _writer.Write(endOfColumnOffset);
                 _writer.Flush();
             }
             _stream.Seek(0, SeekOrigin.End);

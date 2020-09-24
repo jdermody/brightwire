@@ -67,7 +67,7 @@ namespace BrightData.Numerics
 
 	    uint _RowIndex(uint row, uint column) => column * _rows + row;
 
-        public BrightData.Tensor3D<float> Data
+        public Tensor3D<float> Data
         {
             get
             {
@@ -230,7 +230,7 @@ namespace BrightData.Numerics
 		        }
 	        }
 
-	        return new Numerics3DTensor(Context, matrixList.Select(m => new NumericsMatrix(Context, m)).ToArray());
+	        return new Numerics3DTensor(Context, matrixList.Select(m => (IIndexableFloatMatrix)new NumericsMatrix(Context, m)).ToArray());
         }
 
 	    public IFloatMatrix Im2Col(uint filterWidth, uint filterHeight, uint xStride, uint yStride)
@@ -288,7 +288,7 @@ namespace BrightData.Numerics
 					}
 				}
 			}
-			return new Numerics3DTensor(Context, output.Select(m => new NumericsMatrix(Context, m)).ToArray());
+			return new Numerics3DTensor(Context, output.Select(m => (IIndexableFloatMatrix)new NumericsMatrix(Context, m)).ToArray());
         }
 
         public IFloatMatrix CombineDepthSlices()

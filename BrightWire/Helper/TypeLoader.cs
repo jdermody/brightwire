@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
 
-namespace BrightWire.Source.Helper
+namespace BrightWire.Helper
 {
 	/// <summary>
 	/// Loads types in an assembly agnostic fashion

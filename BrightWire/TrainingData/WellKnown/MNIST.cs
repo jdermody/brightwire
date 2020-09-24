@@ -1,5 +1,4 @@
-﻿using BrightWire.Models;
-using BrightWire.TrainingData.Helper;
+﻿using BrightWire.TrainingData.Helper;
 using System;
 using System.Collections.Generic;
 using System.IO;

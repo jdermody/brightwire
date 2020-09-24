@@ -1,10 +1,7 @@
 ﻿using BrightTable;
-using BrightWire.Helper;
-using BrightWire.Models;
 using System;
 using System.Collections;
 using BrightData;
-using BrightData.FloatTensors;
 using BrightWire.TrainingData.Helper;
 
 namespace BrightWire.TrainingData.Artificial
@@ -38,7 +35,7 @@ namespace BrightWire.TrainingData.Artificial
         public static IRowOrientedDataTable Addition(IBrightDataContext context, int sampleCount)
         {
             Random rand = context.Random;
-            var builder = DataTableBuilder.CreateTwoColumnMatrixTableBuilder(context);
+            var builder = context.CreateTwoColumnMatrixTableBuilder();
 
             for (var i = 0; i < sampleCount; i++) {
                 // generate some random numbers (sized to prevent overflow)

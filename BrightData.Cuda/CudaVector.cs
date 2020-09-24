@@ -390,7 +390,7 @@ namespace BrightData.Cuda
 					ret[i] = Convert.ToSingle(1d - DotProduct(data[i]) / Math.Sqrt(norm * dataNorm[i]));
 				return _cuda.CreateVector((uint)data.Length, i => ret[i]);
 			} else if (distance == DistanceMetric.Euclidean || distance == DistanceMetric.Manhattan) {
-				var ret = _cuda.CalculateDistances(new[] { this }, data, distance);
+				var ret = _cuda.CalculateDistances(new[] { (IFloatVector)this }, data, distance);
 				return ret.ReshapeAsVector();
 			} else {
 				var distanceFunc = _GetDistanceFunc(distance);
@@ -404,16 +404,15 @@ namespace BrightData.Cuda
 		public float FindDistance(IFloatVector other, DistanceMetric distance)
 		{
 			Debug.Assert(IsValid && other.IsValid);
-			using (var ret = FindDistances(new[] { other }, distance))
-				return ret.Data.Segment[0];
+            using var ret = FindDistances(new[] { other }, distance);
+            return ret.Data.Segment[0];
 		}
 
 		public IFloatVector CosineDistance(IFloatVector[] data, ref float[] dataNorm)
 		{
 			Debug.Assert(IsValid && data.All(v => v.IsValid));
 			var norm = DotProduct(this);
-			if (dataNorm == null)
-				dataNorm = data.Select(d => d.DotProduct(d)).ToArray();
+			dataNorm ??= data.Select(d => d.DotProduct(d)).ToArray();
 
 			var ret = new float[data.Length];
 			for (var i = 0; i < data.Length; i++)
@@ -434,7 +433,7 @@ namespace BrightData.Cuda
 			return blockCount.AsRange().Select(i => {
 				var ptr2 = _cuda.OffsetByBlock(_data, i, blockSize);
 				var vector = new CudaVector(_cuda, ptr2, false);
-				return vector;
+				return (IFloatVector)vector;
 			}).ToArray();
 		}
 

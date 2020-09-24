@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
-using BrightData.FloatTensors;
 using BrightData.Helper;
 using MathNet.Numerics.LinearAlgebra.Single;
 
@@ -414,13 +413,13 @@ namespace BrightData.Numerics
         public void PointwiseDivideRows(IFloatVector vector)
         {
             var v2 = vector.AsIndexable();
-            _matrix.MapIndexedInplace((x, y, v) => v /= v2[(uint)x]);
+            _matrix.MapIndexedInplace((x, y, v) => v / v2[(uint) x]);
         }
 
         public void PointwiseDivideColumns(IFloatVector vector)
         {
             var v2 = vector.AsIndexable();
-            _matrix.MapIndexedInplace((x, y, v) => v /= v2[(uint)y]);
+            _matrix.MapIndexedInplace((x, y, v) => v / v2[(uint)y]);
         }
 
         public IFloatVector Diagonal()
@@ -451,13 +450,13 @@ namespace BrightData.Numerics
 
         public IFloatMatrix Multiply(IFloatVector vector)
         {
-            using (var column = vector.ReshapeAsColumnMatrix())
-                return Multiply(column);
+            using var column = vector.ReshapeAsColumnMatrix();
+            return Multiply(column);
         }
 
         public (IFloatMatrix U, IFloatVector S, IFloatMatrix VT) Svd()
         {
-            var svd = _matrix.Svd(true);
+            var svd = _matrix.Svd();
             return (new NumericsMatrix(Context, svd.U), new NumericsVector(Context, svd.S), new NumericsMatrix(Context, svd.VT));
         }
 
@@ -505,22 +504,21 @@ namespace BrightData.Numerics
                 var settings = new XmlWriterSettings {
                     OmitXmlDeclaration = true
                 };
-                using (var writer = XmlWriter.Create(new StringWriter(ret), settings)) {
-                    writer.WriteStartElement("matrix");
-                    for (var i = 0; i < RowCount; i++) {
-                        writer.WriteStartElement("row");
+                using var writer = XmlWriter.Create(new StringWriter(ret), settings);
+                writer.WriteStartElement("matrix");
+                for (var i = 0; i < RowCount; i++) {
+                    writer.WriteStartElement("row");
 
-                        var row = new StringBuilder();
-                        for (var j = 0; j < ColumnCount; j++) {
-                            if (j > 0)
-                                row.Append("|");
-                            row.Append(_matrix[i, j]);
-                        }
-                        writer.WriteValue(row.ToString());
-                        writer.WriteEndElement();
+                    var row = new StringBuilder();
+                    for (var j = 0; j < ColumnCount; j++) {
+                        if (j > 0)
+                            row.Append("|");
+                        row.Append(_matrix[i, j]);
                     }
+                    writer.WriteValue(row.ToString());
                     writer.WriteEndElement();
                 }
+                writer.WriteEndElement();
                 return ret.ToString();
             }
         }

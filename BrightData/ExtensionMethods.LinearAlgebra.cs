@@ -81,7 +81,7 @@ namespace BrightData
 		/// <returns></returns>
 		public static IFloatMatrix CreateMatrix(this ILinearAlgebraProvider lap, Matrix<float> matrix)
 		{
-			var ret = lap.CreateMatrix(matrix.RowCount, matrix.ColumnCount, false);
+			var ret = lap.CreateMatrix(matrix.RowCount, matrix.ColumnCount);
 			ret.Data = matrix;
 			return ret;
 		}
@@ -233,9 +233,6 @@ namespace BrightData
                     using (var diffSquared = diff.PointwiseMultiply(diff)) {
                         return diffSquared.RowSums();
                     }
-                case DistanceMetric.Cosine:
-                case DistanceMetric.Manhattan:
-                case DistanceMetric.MeanSquared:
                 default:
                     throw new NotImplementedException();
             }

@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using BrightData;
-using BrightWire.Models;
 using BrightWire.ExecutionGraph.Helper;
 using BrightTable;
 
@@ -18,7 +16,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             : base(lap, dataTable)
         {
             var firstRow = dataTable.Row(0);
-            var input = (Tensor3D<float>)firstRow[(uint)_dataColumnIndex[0]];
+            var input = (Tensor3D<float>)firstRow[_dataColumnIndex[0]];
             var output = (Vector<float>)firstRow[_dataTargetIndex];
             _outputSize = output.Size;
             _inputSize = input.Size;
@@ -58,7 +56,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             var inputList = new IGraphData[_dataColumnIndex.Length];
             for (var i = 0; i < _dataColumnIndex.Length; i++) {
 	            var i1 = i;
-	            var input = _lap.CreateMatrix((uint)InputSize, (uint)data.Length, (x, y) => data[y].Item1[i1][x]);
+	            var input = _lap.CreateMatrix(InputSize, (uint)data.Length, (x, y) => data[y].Item1[i1][x]);
                 var tensor = new Tensor4DGraphData(input, Height, Width, Depth);
                 inputList[i] = tensor;
             }

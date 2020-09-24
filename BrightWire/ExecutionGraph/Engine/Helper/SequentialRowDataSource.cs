@@ -1,7 +1,6 @@
 ﻿using BrightTable;
 using BrightWire.ExecutionGraph.Helper;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using BrightData;
 
@@ -42,7 +41,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
                     type = MiniBatchSequenceType.SequenceStart;
                 else if (index == _data.Length - 1)
                     type = MiniBatchSequenceType.SequenceEnd;
-                var inputList = new[] {
+                var inputList = new IGraphData [] {
                     new MatrixGraphData(executionContext.LinearAlgebraProvider.CreateVector(row).ReshapeAsRowMatrix())
                 };
                 ret.Add(type, inputList, null);

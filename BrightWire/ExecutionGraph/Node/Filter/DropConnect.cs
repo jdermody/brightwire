@@ -1,6 +1,4 @@
-﻿using System;
-using BrightWire.ExecutionGraph.Node.Layer;
-using System.Collections.Generic;
+﻿using BrightWire.ExecutionGraph.Node.Layer;
 using System.IO;
 using BrightData;
 using BrightData.Distributions;

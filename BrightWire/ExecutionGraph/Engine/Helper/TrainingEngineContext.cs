@@ -11,7 +11,6 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     class TrainingEngineContext : IContext
     {
         readonly IExecutionContext _executionContext;
-        readonly IMiniBatchSequence _miniBatch;
         readonly ILearningContext _learningContext;
         readonly List<IExecutionHistory> _forward = new List<IExecutionHistory>();
         readonly Stack<(IGraphData ErrorSignal, INode Target, INode Source)> _backward = new Stack<(IGraphData, INode, INode)>();
@@ -24,14 +23,14 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 
         public TrainingEngineContext(IExecutionContext executionContext, IMiniBatchSequence miniBatch, ILearningContext learningContext)
         {
-            _miniBatch = miniBatch;
+            BatchSequence = miniBatch;
             _executionContext = executionContext;
             _learningContext = learningContext;
             _data = null;
         }
         public TrainingEngineContext(IExecutionContext executionContext, IGraphData data, ILearningContext learningContext)
         {
-            _miniBatch = null;
+            BatchSequence = null;
             _executionContext = executionContext;
             _learningContext = learningContext;
             _data = data;
@@ -59,7 +58,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public ILinearAlgebraProvider LinearAlgebraProvider => _executionContext.LinearAlgebraProvider;
         public IExecutionContext ExecutionContext => _executionContext;
         public ILearningContext LearningContext => _learningContext;
-        public IMiniBatchSequence BatchSequence => _miniBatch;
+        public IMiniBatchSequence BatchSequence { get; }
         public bool HasNext => _forward.Any();
         public double? TrainingError => _trainingError;
         public INode Source => _sourceNode;
@@ -112,9 +111,11 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 		    return null;
 	    }
 
-	    public IEnumerable<IGraphData> Output => _output
+	    public IGraphData[] Output => _output
             .OrderBy(kv => kv.Key)
-            .Select(kv => kv.Value);
+            .Select(kv => kv.Value)
+            .ToArray()
+        ;
 
 	    void _ClearBackward()
         {

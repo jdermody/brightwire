@@ -110,12 +110,12 @@ namespace BrightData
             var settings = new XmlWriterSettings {
                 OmitXmlDeclaration = true
             };
-            using (var writer = XmlWriter.Create(sb, settings))
-                WriteTo(null, writer);
+            using var writer = XmlWriter.Create(sb, settings);
+            WriteTo(null, writer);
             return sb.ToString();
         }
 
-        IEnumerable<uint> IHaveIndices.Indices => this.Indices;
+        IEnumerable<uint> IHaveIndices.Indices => Indices;
 
         public float JaccardSimilarity(IndexList other)
         {

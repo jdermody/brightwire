@@ -90,20 +90,19 @@ namespace BrightData
             get
             {
                 var ret = new StringBuilder();
-                using (var writer = XmlWriter.Create(new StringWriter(ret), new XmlWriterSettings {
+                using var writer = XmlWriter.Create(new StringWriter(ret), new XmlWriterSettings {
                     OmitXmlDeclaration = true,
                     Encoding = Encoding.UTF8
-                })) {
-                    writer.WriteStartElement("metadata");
-                    foreach (var item in _GetNonEmpty()) {
-                        writer.WriteStartElement("item");
-                        writer.WriteAttributeString("name", item.Name);
-                        writer.WriteAttributeString("type", item.Value.GetTypeCode().ToType().ToString());
-                        writer.WriteValue(item.String);
-                        writer.WriteEndElement();
-                    }
+                });
+                writer.WriteStartElement("metadata");
+                foreach (var item in _GetNonEmpty()) {
+                    writer.WriteStartElement("item");
+                    writer.WriteAttributeString("name", item.Name);
+                    writer.WriteAttributeString("type", item.Value.GetTypeCode().ToType().ToString());
+                    writer.WriteValue(item.String);
                     writer.WriteEndElement();
                 }
+                writer.WriteEndElement();
                 return ret.ToString();
             }
         }
@@ -153,7 +152,7 @@ namespace BrightData
                 return ((float)value).ToString("G9");
             if(typeCode == TypeCode.DateTime)
                 return ((DateTime)value).ToString("o");
-            return value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            return value.ToString(CultureInfo.InvariantCulture);
         }
 
         IEnumerable<(string Name, IConvertible Value, string String)> _GetNonEmpty()

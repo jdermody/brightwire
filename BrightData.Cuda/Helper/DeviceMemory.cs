@@ -87,7 +87,7 @@ namespace BrightData.Cuda.Helper
 
             public CudaDeviceVariable<float> DeviceVariable => _data;
 	        public CUdeviceptr DevicePointer => _data.DevicePointer;
-	        public uint Size => (uint)_data.Size;
+	        public uint Size => _data.Size;
 
 	        public void CopyToDevice(float[] source)
             {
@@ -122,14 +122,12 @@ namespace BrightData.Cuda.Helper
             }
         }
         readonly int _maxSize;
-		readonly CudaContext _context;
         readonly ConcurrentStack<Layer> _layer = new ConcurrentStack<Layer>();
         readonly ConcurrentDictionary<uint, ThreadSafeHashSet<Block>> _cache = new ConcurrentDictionary<uint, ThreadSafeHashSet<Block>>();
         int _index = 0;
 
-        public DeviceMemory(CudaContext context, int maxSize)
+        public DeviceMemory(int maxSize)
         {
-	        _context = context;
             _maxSize = maxSize;
             PushLayer();
         }

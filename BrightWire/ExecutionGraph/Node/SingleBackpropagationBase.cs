@@ -1,7 +1,4 @@
-﻿using BrightWire.ExecutionGraph.Node;
-using System.Collections.Generic;
-
-namespace BrightWire.ExecutionGraph
+﻿namespace BrightWire.ExecutionGraph.Node
 {
     /// <summary>
     /// Base class for nodes that back propagate to a single parent

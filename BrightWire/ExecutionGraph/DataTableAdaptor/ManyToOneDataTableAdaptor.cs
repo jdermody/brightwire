@@ -1,11 +1,9 @@
 ﻿using BrightTable;
 using BrightWire.ExecutionGraph.Helper;
-using BrightWire.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using BrightData;
-using BrightData.FloatTensors;
 
 namespace BrightWire.ExecutionGraph.DataTableAdaptor
 {
@@ -15,6 +13,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
     class ManyToOneDataTableAdaptor : RowBasedDataTableAdaptorBase
     {
         readonly uint[] _rowDepth;
+        private readonly uint _outputSize;
 
 	    public ManyToOneDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable) 
             : base(lap, dataTable)
@@ -34,7 +33,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             });
 
             InputSize = inputMatrix.ColumnCount;
-            OutputSize = outputVector.Size;
+            OutputSize = _outputSize = outputVector.Size;
         }
 
         public override IDataSource CloneWith(IRowOrientedDataTable dataTable)
@@ -73,7 +72,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             }
 
             var miniBatch = new MiniBatch(rows, this);
-            var outputVector = _lap.CreateMatrix((uint)data.Count, (uint)OutputSize, (x, y) => data[(int)x].Item2.Segment[y]);
+            var outputVector = _lap.CreateMatrix((uint)data.Count, _outputSize, (x, y) => data[(int)x].Item2.Segment[y]);
             foreach (var item in inputData.OrderBy(kv => kv.Key)) {
                 var input = _lap.CreateMatrixFromRows(item.Value);
                 var type = (item.Key == 0)

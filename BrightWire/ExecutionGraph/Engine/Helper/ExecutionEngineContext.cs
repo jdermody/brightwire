@@ -11,7 +11,6 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     class ExecutionEngineContext : IContext
     {
         readonly IExecutionContext _executionContext;
-        readonly IMiniBatchSequence _miniBatch;
         readonly List<IExecutionHistory> _forward = new List<IExecutionHistory>();
 	    readonly Dictionary<int, IGraphData> _output = new Dictionary<int, IGraphData>();
         INode _sourceNode = null;
@@ -20,7 +19,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public ExecutionEngineContext(IExecutionContext executionContext, IMiniBatchSequence miniBatch)
         {
             _executionContext = executionContext;
-            _miniBatch = miniBatch;
+            BatchSequence = miniBatch;
             _data = null;
         }
 
@@ -34,7 +33,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public IExecutionContext ExecutionContext => _executionContext;
         public ILearningContext LearningContext => null;
         public ILinearAlgebraProvider LinearAlgebraProvider => _executionContext.LinearAlgebraProvider;
-        public IMiniBatchSequence BatchSequence => _miniBatch;
+        public IMiniBatchSequence BatchSequence { get; }
         public void AddBackward(IGraphData errorSignal, INode target, INode source) => throw new NotImplementedException();
         public void Backpropagate(IGraphData delta) => throw new NotImplementedException();
         public void AppendErrorSignal(IGraphData errorSignal, INode forNode) => throw new NotImplementedException();
@@ -74,8 +73,10 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 		    return null;
 	    }
 
-	    public IEnumerable<IGraphData> Output => _output
+	    public IGraphData[] Output => _output
             .OrderBy(kv => kv.Key)
-            .Select(kv => kv.Value);
+            .Select(kv => kv.Value)
+            .ToArray()
+        ;
     }
 }

@@ -323,10 +323,10 @@ namespace BrightWire
 		/// <param name="channel">Output channel (optional)</param>
 	    IGraphData GetOutput(int channel = 0);
 
-		/// <summary>
-		/// Returns all stored output
-		/// </summary>
-		IEnumerable<IGraphData> Output { get; }
+        /// <summary>
+        /// Returns all stored output
+        /// </summary>
+        IGraphData[] Output { get; }
     }
 
     /// <summary>

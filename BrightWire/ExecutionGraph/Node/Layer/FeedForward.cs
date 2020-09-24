@@ -1,6 +1,4 @@
-﻿using BrightWire.Models;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using BrightData;
 using BrightData.FloatTensors;
 
@@ -77,9 +75,8 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
         public void UpdateBias(IFloatMatrix delta, ILearningContext context)
         {
-            using (var columnSums = delta.ColumnSums()) {
-                _bias.AddInPlace(columnSums, 1f / delta.RowCount, context.BatchLearningRate);
-            }
+            using var columnSums = delta.ColumnSums();
+            _bias.AddInPlace(columnSums, 1f / delta.RowCount, context.BatchLearningRate);
         }
 
         protected IFloatMatrix _FeedForward(IFloatMatrix input, IFloatMatrix weight)
@@ -105,7 +102,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
         public override void ReadFrom(GraphFactory factory, BinaryReader reader)
         {
-            var lap = factory?.LinearAlgebraProvider;
+            var lap = factory.LinearAlgebraProvider;
 
             _inputSize = (uint)reader.ReadInt32();
             _outputSize = (uint)reader.ReadInt32();
@@ -124,8 +121,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             else
                 _weight.Data = weight;
 
-            if (_updater == null)
-                _updater = factory?.CreateWeightUpdater(_weight);
+            _updater ??= factory.CreateWeightUpdater(_weight);
         }
 
         public override void WriteTo(BinaryWriter writer)

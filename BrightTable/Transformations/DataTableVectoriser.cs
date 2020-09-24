@@ -1,7 +1,5 @@
 ﻿using BrightData;
 using BrightData.Converters;
-using BrightData.Helper;
-using BrightTable.Builders;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,7 +19,7 @@ namespace BrightTable.Transformations
         {
             readonly IEnumerator<T> _enumerator;
 
-            public VectoriserBase(uint columnIndex, IEnumerator<T> enumerator)
+            protected VectoriserBase(uint columnIndex, IEnumerator<T> enumerator)
             {
                 _enumerator = enumerator;
                 ColumnIndex = columnIndex;
@@ -102,10 +100,10 @@ namespace BrightTable.Transformations
                     yield return indexSet.Contains(i) ? 1f : 0f;
             }
         }
-        class TensorVectoriser : VectoriserBase<BrightData.TensorBase<float, ITensor<float>>>
+        class TensorVectoriser : VectoriserBase<TensorBase<float, ITensor<float>>>
         {
             public TensorVectoriser(uint size, ISingleTypeTableSegment column)
-                : base(column.Index(), ((IDataTableSegment<BrightData.TensorBase<float, ITensor<float>>>)column).EnumerateTyped().GetEnumerator())
+                : base(column.Index(), ((IDataTableSegment<TensorBase<float, ITensor<float>>>)column).EnumerateTyped().GetEnumerator())
             {
                 Size = size;
             }
@@ -188,7 +186,7 @@ namespace BrightTable.Transformations
             var type = column.SingleType;
             if (type.IsNumeric()) {
                 return (IColumnVectoriser)Activator.CreateInstance(
-                    typeof(NumericVectoriser<>).MakeGenericType(ExtensionMethods.GetDataType(type)),
+                    typeof(NumericVectoriser<>).MakeGenericType(type.GetDataType()),
                     column
                 );
             }

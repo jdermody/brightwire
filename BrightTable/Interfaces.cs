@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using BrightData;
 using BrightData.Helper;
 using BrightTable.Transformations;
@@ -142,7 +141,7 @@ namespace BrightTable
         ISingleTypeTableSegment Column(uint columnIndex);
     }
 
-    public interface IColumnOrientedDataTable : IDataTable, IDisposable
+    public interface IColumnOrientedDataTable : IDataTable
     {
         IRowOrientedDataTable AsRowOriented(string filePath = null);
         IColumnOrientedDataTable Convert(params ColumnConversion[] conversion);
@@ -267,7 +266,6 @@ namespace BrightTable
 
     public interface IConvertibleRow : IHaveDataTable
     {
-        IDataTable DataTable { get; }
         IDataTableSegment Segment { get; }
         T GetField<T>(uint index);
         uint RowIndex { get; }

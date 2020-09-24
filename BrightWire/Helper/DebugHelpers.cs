@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
+﻿using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Xml;
 using BrightData;
 
@@ -21,14 +18,13 @@ namespace BrightWire.Helper
 		/// <param name="t2">Second tensor</param>
 		/// <returns>Xml string</returns>
 	    public static string WriteComparison(IIndexable3DFloatTensor t1, IIndexable3DFloatTensor t2)
-	    {
-		    using (var stringWriter = new StringWriter())
-		    using (var writer = new XmlTextWriter(stringWriter)) {
-			    _Write(t1, t2, writer);
-			    writer.Flush();
-			    return stringWriter.ToString();
-		    }
-	    }
+        {
+            using var stringWriter = new StringWriter();
+            using var writer = new XmlTextWriter(stringWriter);
+            _Write(t1, t2, writer);
+            writer.Flush();
+            return stringWriter.ToString();
+        }
 
 		/// <summary>
 		/// Zips two tensors and writes the values side by side
@@ -37,14 +33,13 @@ namespace BrightWire.Helper
 		/// <param name="t2">Second tensor</param>
 		/// <returns>Xml string</returns>
 	    public static string WriteComparison(IIndexable4DFloatTensor t1, IIndexable4DFloatTensor t2)
-	    {
-		    using (var stringWriter = new StringWriter())
-		    using (var writer = new XmlTextWriter(stringWriter)) {
-			    _Write(t1, t2, writer);
-			    writer.Flush();
-			    return stringWriter.ToString();
-		    }
-	    }
+        {
+            using var stringWriter = new StringWriter();
+            using var writer = new XmlTextWriter(stringWriter);
+            _Write(t1, t2, writer);
+            writer.Flush();
+            return stringWriter.ToString();
+        }
 
 		/// <summary>
 		/// Zips two matrices and writes the values side by side
@@ -53,14 +48,13 @@ namespace BrightWire.Helper
 		/// <param name="m2">Second matrix</param>
 		/// <returns>Xml string</returns>
 	    public static string WriteComparison(IIndexableFloatMatrix m1, IIndexableFloatMatrix m2)
-	    {
-		    using (var stringWriter = new StringWriter())
-		    using (var writer = new XmlTextWriter(stringWriter)) {
-			    _Write(m1, m2, writer);
-			    writer.Flush();
-			    return stringWriter.ToString();
-		    }
-	    }
+        {
+            using var stringWriter = new StringWriter();
+            using var writer = new XmlTextWriter(stringWriter);
+            _Write(m1, m2, writer);
+            writer.Flush();
+            return stringWriter.ToString();
+        }
 
 	    static void _Write(IIndexableFloatMatrix m1, IIndexableFloatMatrix m2, XmlTextWriter writer)
 	    {

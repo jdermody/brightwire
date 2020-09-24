@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using BrightData.Distributions;
-
-namespace BrightData
+﻿namespace BrightData
 {
     public partial class ExtensionMethods
     {

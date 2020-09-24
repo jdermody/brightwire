@@ -1,5 +1,4 @@
 ﻿using BrightWire.ExecutionGraph.Node;
-using System.Collections.Generic;
 using BrightData;
 
 namespace BrightWire.ExecutionGraph.Activation
@@ -21,10 +20,9 @@ namespace BrightWire.ExecutionGraph.Activation
 
             protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, INode[] parents)
             {
-                using (var od = _input.LeakyReluDerivative()) {
-                    var delta = errorSignal.GetMatrix().PointwiseMultiply(od);
-                    return errorSignal.ReplaceWith(delta);
-                }
+                using var od = _input.LeakyReluDerivative();
+                var delta = errorSignal.GetMatrix().PointwiseMultiply(od);
+                return errorSignal.ReplaceWith(delta);
             }
         }
 

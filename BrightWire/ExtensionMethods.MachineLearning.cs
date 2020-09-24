@@ -1,18 +1,18 @@
 ﻿using System;
 using BrightWire.Bayesian.Training;
 using BrightWire.Helper;
-using BrightWire.InstanceBased.Trainer;
 using BrightWire.Linear.Training;
-using BrightWire.Models;
 using BrightWire.Models.Bayesian;
 using BrightWire.Models.InstanceBased;
 using BrightWire.TreeBased.Training;
 using BrightWire.Unsupervised;
 using System.Collections.Generic;
 using System.Linq;
-using BrightWire.Source.Linear;
 using BrightTable;
 using BrightData;
+using BrightWire.InstanceBased.Training;
+using BrightWire.Models.Linear;
+using BrightWire.Models.TreeBased;
 
 namespace BrightWire
 {
@@ -34,8 +34,7 @@ namespace BrightWire
 	    /// Trains a logistic regression model on a data table
 	    /// </summary>
 	    /// <param name="table">The training data</param>
-	    /// <param name="lap">Linear algebra provider</param>
-	    /// <param name="iterations">Number of iterations to train for</param>
+        /// <param name="iterations">Number of iterations to train for</param>
 	    /// <param name="learningRate">The learning rate</param>
 	    /// <param name="lambda">Regularisation lambda</param>
 	    /// <param name="costCallback">Optional callback that is called after each iteration with the current cost</param>
@@ -50,7 +49,6 @@ namespace BrightWire
         /// Logistic regression learns a sigmoid function over a set of data that learns to classify future values into positive or negative samples
         /// </summary>
         /// <param name="table">The training data provider</param>
-        /// <param name="lap">Linear algebra provider</param>
         /// <returns>A trainer that can be used to build a logistic regression model</returns>
         public static ILogisticRegressionTrainer CreateLogisticRegressionTrainer(this IRowOrientedDataTable table)
         {
@@ -119,7 +117,7 @@ namespace BrightWire
         /// <returns>A list of k clusters</returns>
         public static IFloatVector[][] HierachicalCluster(this IEnumerable<IFloatVector> data, int k)
         {
-            using var clusterer = new Hierachical(k, data, DistanceMetric.Euclidean);
+            using var clusterer = new Hierachical(k, data);
             clusterer.Cluster();
             return clusterer.Clusters;
         }
@@ -153,8 +151,7 @@ namespace BrightWire
 	    /// Multinomial Logistic Regression generalises Logistic Regression to multi-class classification
 	    /// </summary>
 	    /// <param name="data">The training data</param>
-	    /// <param name="lap">Linear algebra provider</param>
-	    /// <param name="trainingIterations">Number of training iterations</param>
+        /// <param name="trainingIterations">Number of training iterations</param>
 	    /// <param name="trainingRate">Training rate</param>
 	    /// <param name="lambda">L2 regularisation</param>
 	    /// <param name="costCallback">Optional callback that is called after each iteration with the current cost</param>
@@ -169,6 +166,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="data">The training data</param>
         /// <param name="b">The number of trees in the forest</param>
+        /// <param name="baggedRowCount"></param>
         /// <param name="config"></param>
         /// <returns>A model that can be used for classification</returns>
         public static RandomForest TrainRandomForest(this IRowOrientedDataTable data, uint b = 100, uint? baggedRowCount = null, DecisionTreeTrainer.Config config = null)
@@ -180,10 +178,6 @@ namespace BrightWire
         /// Decision trees build a logical tree to classify data. Various measures can be specified to prevent overfitting.
         /// </summary>
         /// <param name="data">The training data</param>
-        /// <param name="minDataPerNode">Minimum number of data points per node to continue splitting</param>
-        /// <param name="maxDepth">The maximum depth of each leaf</param>
-        /// <param name="minInformationGain">The minimum information gain to continue splitting</param>
-        /// <param name="maxAttributes">The maximum number of attributes to consider at each split</param>
         /// <param name="config"></param>
         /// <returns>A model that can be used for classification</returns>
         public static DecisionTree TrainDecisionTree(this IRowOrientedDataTable data, DecisionTreeTrainer.Config config = null)

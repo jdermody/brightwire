@@ -7,7 +7,6 @@ using BrightData;
 using BrightData.FloatTensors;
 using BrightWire.ExecutionGraph.Node.Operation;
 using BrightWire.Helper;
-using BrightWire.Models;
 
 namespace BrightWire.ExecutionGraph.Node.Layer
 {

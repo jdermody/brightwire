@@ -1,6 +1,4 @@
 ﻿using BrightTable;
-using BrightWire.Helper;
-using BrightWire.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,8 +14,8 @@ namespace BrightWire.TrainingData.Artificial
     /// </summary>
     public class ReberGrammar
     {
-        static char[] CHARS = "BTSXPVE".ToCharArray();
-        static Dictionary<char, int> _ch = CHARS.Select((c, i) => Tuple.Create(c, i)).ToDictionary(d => d.Item1, d => d.Item2);
+        static readonly char[] CHARS = "BTSXPVE".ToCharArray();
+        static readonly Dictionary<char, int> _ch = CHARS.Select((c, i) => Tuple.Create(c, i)).ToDictionary(d => d.Item1, d => d.Item2);
 
         /// <summary>
         /// Gets the character at the specified index
@@ -80,7 +78,7 @@ namespace BrightWire.TrainingData.Artificial
                 }
             }
 
-            var builder = DataTableBuilder.CreateTwoColumnMatrixTableBuilder(context);
+            var builder = context.CreateTwoColumnMatrixTableBuilder();
             foreach (var str in strList2) {
                 var inputList = new Vector<float>[str.Length];
                 var outputList = new Vector<float>[str.Length];
@@ -114,7 +112,7 @@ namespace BrightWire.TrainingData.Artificial
         /// <summary>
         /// Creates a reber grammar builder
         /// </summary>
-        /// <param name="stochastic">True to generate random sequences</param>
+        /// <param name="random">Random number provider</param>
         public ReberGrammar(Random random)
         {
             _rnd = random;

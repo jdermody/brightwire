@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using BrightData;
+﻿using BrightData;
 
 namespace BrightWire.ExecutionGraph.Node.Operation
 {
@@ -23,9 +22,9 @@ namespace BrightWire.ExecutionGraph.Node.Operation
             protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, INode[] parents)
             {
                 var es = errorSignal.GetMatrix();
-                using (var oneHalf = context.LinearAlgebraProvider.CreateMatrix(es.RowCount, es.ColumnCount, 0.5f))
-                using (var delta = oneHalf.PointwiseMultiply(_sqrtOutput))
-                    return errorSignal.ReplaceWith(delta.PointwiseMultiply(es));
+                using var oneHalf = context.LinearAlgebraProvider.CreateMatrix(es.RowCount, es.ColumnCount, 0.5f);
+                using var delta = oneHalf.PointwiseMultiply(_sqrtOutput);
+                return errorSignal.ReplaceWith(delta.PointwiseMultiply(es));
             }
         }
         public SquareRootOfInput(string name = null) : base(name)
@@ -35,7 +34,7 @@ namespace BrightWire.ExecutionGraph.Node.Operation
         public override void ExecuteForward(IContext context)
         {
             var input = context.Data.GetMatrix();
-            var output = input.Sqrt(1e-8f);
+            var output = input.Sqrt();
             _AddNextGraphAction(context, context.Data.ReplaceWith(output), () => new Backpropagation(this, output));
         }
     }

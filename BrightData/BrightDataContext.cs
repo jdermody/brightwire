@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
 using BrightData.Computation;
 using BrightData.FloatTensors;
 using BrightData.Helper;
@@ -27,7 +25,7 @@ namespace BrightData
         {
             IsStochastic = !randomSeed.HasValue;
             Random = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
-            _tensorPool = new TensorPool(this, maxCacheSize);
+            _tensorPool = new TensorPool(maxCacheSize);
             _dataReader = new DataEncoder(this);
 
             _floatComputation = new FloatComputation(this);
@@ -43,7 +41,7 @@ namespace BrightData
         {
             _memoryLayers.Pop();
             _tensorPool.Dispose();
-
+            TempStreamProvider.Dispose();
             LinearAlgebraProvider?.Dispose();
         }
 
@@ -75,7 +73,7 @@ namespace BrightData
         }
 
         public IProvideTempStreams TempStreamProvider { get; } = new TempStreamManager();
-        public T Get<T>(string name) => _attachedProperties.TryGetValue(name, out var obj) ? (T)obj : default(T);
+        public T Get<T>(string name) => _attachedProperties.TryGetValue(name, out var obj) ? (T)obj : default;
         public T Set<T>(string name, T value) => (T)_attachedProperties.AddOrUpdate(name, value, (n, o) => value);
         public T Set<T>(string name, Func<T> valueCreator) => (T)_attachedProperties.AddOrUpdate(name, n => valueCreator(), (n, o) => o);
         public bool IsStochastic { get; }

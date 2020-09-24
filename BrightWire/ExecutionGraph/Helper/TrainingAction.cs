@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace BrightWire.ExecutionGraph.Helper
+﻿namespace BrightWire.ExecutionGraph.Helper
 {
 	/// <inheritdoc />
 	public class TrainingAction : IExecutionHistory

@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using BrightData;
+﻿using BrightData;
 
 namespace BrightWire.ExecutionGraph.Node.Operation
 {
@@ -15,8 +14,8 @@ namespace BrightWire.ExecutionGraph.Node.Operation
             protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, INode[] parents)
             {
                 var es = errorSignal.GetMatrix();
-                using (var minusOne = context.LinearAlgebraProvider.CreateMatrix(es.RowCount, es.ColumnCount, -1f))
-                    return errorSignal.ReplaceWith(minusOne.PointwiseMultiply(es));
+                using var minusOne = context.LinearAlgebraProvider.CreateMatrix(es.RowCount, es.ColumnCount, -1f);
+                return errorSignal.ReplaceWith(minusOne.PointwiseMultiply(es));
             }
         }
 

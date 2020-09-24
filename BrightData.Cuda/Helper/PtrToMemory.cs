@@ -12,7 +12,7 @@ namespace BrightData.Cuda.Helper
 	    readonly IDeviceMemoryPtr _rootBlock;
         readonly CudaDeviceVariable<float> _ptr;
         readonly CudaContext _context;
-	    int refCount = 1;
+	    int _refCount = 1;
 
         public PtrToMemory(CudaContext context, IDeviceMemoryPtr rootBlock, CUdeviceptr ptr, SizeT size)
         {
@@ -48,13 +48,13 @@ namespace BrightData.Cuda.Helper
 
 	    public int AddRef()
 	    {
-		    return Interlocked.Increment(ref refCount) + _rootBlock.AddRef();
+		    return Interlocked.Increment(ref _refCount) + _rootBlock.AddRef();
 	    }
 
 	    public void Free()
         {
 	        _rootBlock.Free();
-			if(Interlocked.Decrement(ref refCount) <= 0)
+			if(Interlocked.Decrement(ref _refCount) <= 0)
 				_ptr.Dispose();
         }
     }

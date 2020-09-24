@@ -21,7 +21,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 IFloatMatrix split, residual = errorSignal.GetMatrix();
                 int index = parents.Length-1;
                 foreach(var item in _channels) {
-                    (residual, split) = residual.SplitAtColumn(residual.ColumnCount - (uint)item.Size);
+                    (residual, split) = residual.SplitAtColumn(residual.ColumnCount - item.Size);
                     context.AddBackward(errorSignal.ReplaceWith(split), parents[index--], _source);
                 }
                 context.AddBackward(errorSignal.ReplaceWith(residual), parents[index], _source);

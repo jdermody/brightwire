@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Text;
 using BrightData.Analysis;
 using BrightData.Converters;
 using BrightData.Helper;
@@ -70,7 +66,7 @@ namespace BrightData
             return new Vector<T>(segment);
         }
 
-        public static Vector<T> CreateVector<T>(this IBrightDataContext context, uint size, T initializer = default(T)) where T: struct
+        public static Vector<T> CreateVector<T>(this IBrightDataContext context, uint size, T initializer = default) where T: struct
         {
             var segment = context.CreateSegment<T>(size);
             segment.Initialize(initializer);
@@ -199,11 +195,11 @@ namespace BrightData
 
         public static bool HasConversionOperator(this Type from, Type to)
         {
-            Func<Expression, UnaryExpression> bodyFunction = body => Expression.Convert(body, to);
+            UnaryExpression BodyFunction(Expression body) => Expression.Convert(body, to);
             var inp = Expression.Parameter(from, "inp");
             try {
                 // If this succeeds then we can cast 'from' type to 'to' type using implicit coercion
-                Expression.Lambda(bodyFunction(inp), inp).Compile();
+                Expression.Lambda(BodyFunction(inp), inp).Compile();
                 return true;
             }
             catch (InvalidOperationException) {

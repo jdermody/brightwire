@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace BrightData.FloatTensors
@@ -88,7 +87,7 @@ namespace BrightData.FloatTensors
             set => Data[depth, row, column] = value;
         }
 
-        public IIndexableFloatMatrix[] Matrix => Data.Matrices.Select(m => new FloatMatrix(m)).ToArray();
+        public IIndexableFloatMatrix[] Matrix => Data.Matrices.Select(m => (IIndexableFloatMatrix)new FloatMatrix(m)).ToArray();
         public string AsXml => throw new NotImplementedException();
         public float[] GetInternalArray()
         {

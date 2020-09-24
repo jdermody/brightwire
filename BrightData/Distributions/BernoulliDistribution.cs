@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace BrightData.Distributions
+﻿namespace BrightData.Distributions
 {
     public class BernoulliDistribution : INonNegativeDiscreteDistribution
     {

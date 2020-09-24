@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using BrightData.Helper;
 using BrightData.Memory;
 
 namespace BrightData
@@ -22,8 +20,8 @@ namespace BrightData
         public Vector<T> Row(uint index) => new Vector<T>(new TensorSegmentWrapper<T>(_segment, index * ColumnCount, 1, ColumnCount));
         public Vector<T> Column(uint index) => new Vector<T>(new TensorSegmentWrapper<T>(_segment, index, ColumnCount, RowCount));
 
-        public IEnumerable<Vector<T>> Rows => RowCount.AsRange().Select(i => Row(i));
-        public IEnumerable<Vector<T>> Columns => ColumnCount.AsRange().Select(i => Column(i));
+        public IEnumerable<Vector<T>> Rows => RowCount.AsRange().Select(Row);
+        public IEnumerable<Vector<T>> Columns => ColumnCount.AsRange().Select(Column);
 
         public T this[int rowY, int columnX]
         {

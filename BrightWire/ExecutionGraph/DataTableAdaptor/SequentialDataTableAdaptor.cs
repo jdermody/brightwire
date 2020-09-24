@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using BrightWire.Models;
 using System.Linq;
 using BrightData;
-using BrightData.FloatTensors;
 using BrightTable;
 
 namespace BrightWire.ExecutionGraph.DataTableAdaptor

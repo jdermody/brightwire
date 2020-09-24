@@ -58,7 +58,7 @@ namespace BrightTable.Helper
         T GetField<T>(uint index, object ret)
         {
             if (ret == null)
-                return default(T);
+                return default;
 
             var targetType = typeof(T);
             var key = (index, targetType);

@@ -1,8 +1,8 @@
 ﻿using BrightTable;
-using BrightWire.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using BrightWire.Models.TreeBased;
 
 namespace BrightWire.TreeBased.Training
 {

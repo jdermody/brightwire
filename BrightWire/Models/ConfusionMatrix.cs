@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -66,13 +65,10 @@ namespace BrightWire.Models
 			{
 				if(_classificationTable == null) {
 					lock(this) {
-						if(_classificationTable == null) {
-							_classificationTable = ClassificationLabels
-								.Select((c, i) => (c, i))
-								.ToDictionary(d => d.Item1, d => d.Item2)
-							;
-						}
-					}
+                        _classificationTable ??= ClassificationLabels
+                            .Select((c, i) => (c, i))
+                            .ToDictionary(d => d.Item1, d => d.Item2);
+                    }
 				}
 				return _classificationTable;
 			}

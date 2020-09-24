@@ -6,7 +6,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using BrightData;
-using BrightTable.Input;
 
 namespace BrightTable.Builders
 {

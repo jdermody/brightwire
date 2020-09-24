@@ -24,7 +24,7 @@ namespace BrightWire.Bayesian.Training
         public void Add(IEnumerable<T> items)
         {
 			var foundInput = false;
-            T prevPrev = default(T), prev = default(T);
+            T prevPrev = default, prev = default;
             foreach (var item in items) {
                 var head = (prevPrev, prev);
                 if (!_data.TryGetValue(head, out var tempList))
@@ -40,7 +40,7 @@ namespace BrightWire.Bayesian.Training
 		        var last = (prevPrev, prev);
 		        if (!_data.TryGetValue(last, out var tempList))
 			        _data.Add(last, tempList = new List<T>());
-		        tempList.Add(default(T));
+		        tempList.Add(default);
 	        }
         }
 
@@ -101,7 +101,7 @@ namespace BrightWire.Bayesian.Training
         public void Add(IEnumerable<T> items)
         {
             var foundInput = false;
-            T prevPrevPrev = default(T), prevPrev = default(T), prev = default(T);
+            T prevPrevPrev = default, prevPrev = default, prev = default;
             foreach (var item in items) {
                 var head = (prevPrevPrev, prevPrev, prev);
                 if (!_data.TryGetValue(head, out var tempList))
@@ -118,7 +118,7 @@ namespace BrightWire.Bayesian.Training
 		        var last = (prevPrevPrev, prevPrev, prev);
 		        if (!_data.TryGetValue(last, out var tempList))
 			        _data.Add(last, tempList = new List<T>());
-		        tempList.Add(default(T));
+		        tempList.Add(default);
 	        }
         }
 

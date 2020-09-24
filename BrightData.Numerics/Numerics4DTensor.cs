@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -138,7 +137,7 @@ namespace BrightData.Numerics
 			return _data;
 		}
 
-	    public BrightData.Tensor3D<float>[] Data {
+	    public Tensor3D<float>[] Data {
 		    get => Tensors.Select(t => t.Data).ToArray();
 		    set {
 			    var count = value.Length;
@@ -194,14 +193,13 @@ namespace BrightData.Numerics
 			    var settings = new XmlWriterSettings {
 				    OmitXmlDeclaration = true
 			    };
-			    using (var writer = XmlWriter.Create(new StringWriter(ret), settings)) {
-				    writer.WriteStartElement("tensor-4d");
-				    foreach(var tensor in Tensors) {
-					    writer.WriteRaw(tensor.AsXml);
-				    }
-				    writer.WriteEndElement();
-			    }
-			    return ret.ToString();
+                using var writer = XmlWriter.Create(new StringWriter(ret), settings);
+                writer.WriteStartElement("tensor-4d");
+                foreach(var tensor in Tensors) {
+                    writer.WriteRaw(tensor.AsXml);
+                }
+                writer.WriteEndElement();
+                return ret.ToString();
 		    }
 	    }
     }

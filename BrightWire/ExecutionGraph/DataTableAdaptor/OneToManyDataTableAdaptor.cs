@@ -1,7 +1,6 @@
 ﻿using BrightData;
 using BrightTable;
 using BrightWire.ExecutionGraph.Helper;
-using BrightWire.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -72,7 +71,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             }
 
             var miniBatch = new MiniBatch(rows, this);
-            var curr = _lap.CreateMatrix((uint)data.Count, (uint)InputSize, (x, y) => data[(int)x].Item1.Segment[y]);
+            var curr = _lap.CreateMatrix((uint)data.Count, InputSize, (x, y) => data[(int)x].Item1.Segment[y]);
             foreach (var item in outputData.OrderBy(kv => kv.Key)) {
                 var output = _lap.CreateMatrixFromRows(item.Value);
                 var type = (item.Key == 0)

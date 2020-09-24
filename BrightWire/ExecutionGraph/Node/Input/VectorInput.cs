@@ -1,11 +1,7 @@
 ﻿using BrightWire.ExecutionGraph.Helper;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using BrightData;
 using BrightData.FloatTensors;
-using BrightWire.Models;
 
 namespace BrightWire.ExecutionGraph.Node.Input
 {
@@ -35,7 +31,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
 		}
 
         private readonly IBrightDataContext _context;
-        float[] _data;
+        readonly float[] _data;
 
 		public VectorInput(IBrightDataContext context, float[] data, string name = null, string id = null) : base(name, id)
         {

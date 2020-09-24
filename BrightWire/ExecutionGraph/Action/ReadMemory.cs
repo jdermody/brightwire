@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using BrightData;
-
-namespace BrightWire.ExecutionGraph.Action
+﻿namespace BrightWire.ExecutionGraph.Action
 {
 	class ReadMemory : IAction
 	{

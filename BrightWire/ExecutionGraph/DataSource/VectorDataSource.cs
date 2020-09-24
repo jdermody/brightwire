@@ -1,9 +1,7 @@
 ﻿using BrightData;
 using BrightTable;
 using BrightWire.ExecutionGraph.Helper;
-using BrightWire.Models;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace BrightWire.ExecutionGraph.DataSource
@@ -35,7 +33,7 @@ namespace BrightWire.ExecutionGraph.DataSource
         public IMiniBatch Get(IExecutionContext executionContext, uint[] rows)
         {
             var data = rows.Select(i => _data[(int)i]).ToList();
-            var input = _lap.CreateMatrix((uint)data.Count, (uint)InputSize, (x, y) => data[(int)x].Segment[y]);
+            var input = _lap.CreateMatrix((uint)data.Count, InputSize, (x, y) => data[(int)x].Segment[y]);
             var inputList = new IGraphData[] {
                 new MatrixGraphData(input)
             };

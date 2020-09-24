@@ -1,7 +1,5 @@
 ﻿using BrightData;
 using BrightTable;
-using BrightTable.Builders;
-using BrightWire.Helper;
 
 namespace BrightWire.TrainingData.Artificial
 {

@@ -165,8 +165,8 @@ namespace BrightData.Cuda
             Debug.Assert(IsValid);
             var norm = new List<float>();
             for(uint i = 0; i < _columns; i++) {
-                using (var col = Column(i))
-                    norm.Add(col.L2Norm());
+                using var col = Column(i);
+                norm.Add(col.L2Norm());
             }
             return _cuda.CreateVector((uint)norm.Count, x => norm[(int)x]);
         }
@@ -387,8 +387,8 @@ namespace BrightData.Cuda
             Debug.Assert(IsValid);
             var norm = new List<float>();
             for (uint i = 0; i < _rows; i++) {
-                using (var row = Row(i))
-                    norm.Add(row.L2Norm());
+                using var row = Row(i);
+                norm.Add(row.L2Norm());
             }
             return _cuda.CreateVector((uint)norm.Count, x => norm[(int)x]);
         }
@@ -416,16 +416,17 @@ namespace BrightData.Cuda
             Debug.Assert(IsValid);
             var rowOutput = new List<CudaVector>();
             for (uint i = 0; i < _rows; i++) {
-                using (var row = Row(i))
-                    rowOutput.Add(row.Softmax() as CudaVector);
+                using var row = Row(i);
+                rowOutput.Add(row.Softmax() as CudaVector);
             }
             var ret = _cuda.Allocate(_rows * _columns);
             for (var i = 0; i < _rows; i++) {
-                using (var row = rowOutput[i])
-                    ret.DeviceVariable.CopyToDevice(row.Memory.DeviceVariable, 0, _columns * i * CudaProvider.FLOAT_SIZE, _columns * CudaProvider.FLOAT_SIZE);
+                using var row = rowOutput[i];
+                ret.DeviceVariable.CopyToDevice(row.Memory.DeviceVariable, 0, _columns * i * CudaProvider.FLOAT_SIZE, _columns * CudaProvider.FLOAT_SIZE);
             }
-            using(var temp = new CudaMatrix(_cuda, _columns, _rows, ret, true))
-                return temp.Transpose();
+
+            using var temp = new CudaMatrix(_cuda, _columns, _rows, ret, true);
+            return temp.Transpose();
         }
 
         public (IFloatMatrix Top, IFloatMatrix Bottom) SplitAtRow(uint rowIndex)
@@ -595,8 +596,8 @@ namespace BrightData.Cuda
         public IFloatMatrix Multiply(IFloatVector vector)
         {
             Debug.Assert(IsValid && vector.IsValid);
-            using (var column = vector.ReshapeAsColumnMatrix())
-                return Multiply(column);
+            using var column = vector.ReshapeAsColumnMatrix();
+            return Multiply(column);
         }
 
         public (IFloatMatrix U, IFloatVector S, IFloatMatrix VT) Svd()
@@ -619,15 +620,14 @@ namespace BrightData.Cuda
                 var rwork = _cuda.Allocate(mn);
                 var a = _cuda.Allocate(_rows * _columns);
                 try {
-                    using (var devInfo = new CudaDeviceVariable<int>(1)) {
-                        a.CopyToDevice(_data);
-                        solver.Gesvd('A', 'A', (int)_rows, (int)_columns, a.DeviceVariable, (int)_rows, s.DeviceVariable, u.DeviceVariable, (int)_rows, vt.DeviceVariable, (int)_columns, buffer.DeviceVariable, bufferSize, rwork.DeviceVariable, devInfo);
-                        return (
-                            new CudaMatrix(_cuda, _rows, _rows, u, true),
-                            new CudaVector(_cuda, s, true),
-                            new CudaMatrix(_cuda, _columns, _columns, vt, true)
-                        );
-                    }
+                    using var devInfo = new CudaDeviceVariable<int>(1);
+                    a.CopyToDevice(_data);
+                    solver.Gesvd('A', 'A', (int)_rows, (int)_columns, a.DeviceVariable, (int)_rows, s.DeviceVariable, u.DeviceVariable, (int)_rows, vt.DeviceVariable, (int)_columns, buffer.DeviceVariable, bufferSize, rwork.DeviceVariable, devInfo);
+                    return (
+                        new CudaMatrix(_cuda, _rows, _rows, u, true),
+                        new CudaVector(_cuda, s, true),
+                        new CudaMatrix(_cuda, _columns, _columns, vt, true)
+                    );
                 }finally {
                     buffer.Free();
                     rwork.Free();

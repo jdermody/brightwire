@@ -1,8 +1,8 @@
 ﻿using BrightTable;
-using BrightWire.Models;
 using System;
 using System.Linq;
 using BrightData;
+using BrightWire.Models.Linear;
 
 namespace BrightWire.Linear.Training
 {

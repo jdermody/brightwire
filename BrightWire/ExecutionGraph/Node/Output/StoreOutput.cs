@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace BrightWire.ExecutionGraph.Node.Output
+﻿namespace BrightWire.ExecutionGraph.Node.Output
 {
 	class StoreOutput : NodeBase
 	{

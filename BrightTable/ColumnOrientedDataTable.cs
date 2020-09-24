@@ -6,72 +6,12 @@ using BrightData;
 using BrightData.Helper;
 using BrightTable.Builders;
 using BrightTable.Segments;
-using BrightTable.Input;
 using BrightTable.Transformations;
 
 namespace BrightTable
 {
     class ColumnOrientedDataTable : DataTableBase, IColumnOrientedDataTable
     {
-        internal enum ColumnFamily
-        {
-            Normal,
-            Encoded,
-            Struct
-        }
-
-        //class Column : IColumnInfo
-        //{
-        //    readonly MetaData _metadata;
-
-        //    public Column(uint index, BinaryReader reader)
-        //    {
-        //        Index = index;
-        //        ColumnType = (ColumnType)reader.ReadByte();
-        //        _metadata = new MetaData(reader);
-        //        _metadata.Set(Consts.Index, index);
-        //    }
-
-        //    public uint Index { get; }
-        //    public ColumnType ColumnType { get; }
-        //    public IMetaData MetaData => _metadata;
-
-        //    public ISingleTypeTableSegment Load(IBrightDataContext context, Stream stream, long columnOffset, uint rowCount)
-        //    {
-        //        var dataType = ExtensionMethods.GetDataType(ColumnType);
-        //        var buffer = new InputBufferReader(data, columnOffset, rowCount);
-
-        //        if (IsEncoded) {
-        //            return (ISingleTypeTableSegment)Activator.CreateInstance(typeof(EncodedColumn<>).MakeGenericType(dataType),
-        //                context,
-        //                buffer,
-        //                ColumnType,
-        //                MetaData
-        //            );
-        //        } else if (ColumnType.IsStructable()) {
-        //            return (ISingleTypeTableSegment)Activator.CreateInstance(typeof(StructColumn<>).MakeGenericType(dataType),
-        //                context,
-        //                buffer,
-        //                ColumnType,
-        //                MetaData
-        //            );
-        //        }
-
-        //        // default column type is non-struct
-        //        return (ISingleTypeTableSegment)Activator.CreateInstance(typeof(Column<>).MakeGenericType(dataType),
-        //            context,
-        //            buffer,
-        //            ColumnType,
-        //            MetaData
-        //        );
-        //    }
-
-        //    public override string ToString()
-        //    {
-        //        return $"[{ColumnType}] {MetaData}";
-        //    }
-        //}
-
         interface IConsumerBinding
         {
             void Copy(uint maxRows);
@@ -96,8 +36,6 @@ namespace BrightTable
             }
         }
 
-        readonly object _lock = new object();
-        readonly long[] _columnOffset;
         readonly (IColumnInfo Info, ISingleTypeTableSegment Segment)[] _columns;
 
         public ColumnOrientedDataTable(IBrightDataContext context, Stream stream, bool readHeader) : base(context, stream)
@@ -108,14 +46,12 @@ namespace BrightTable
             ColumnCount = reader.ReadUInt32();
             RowCount = reader.ReadUInt32();
 
-            _columnOffset = new long[ColumnCount];
             _columns = new (IColumnInfo Info, ISingleTypeTableSegment Segment)[ColumnCount];
             ColumnTypes = new ColumnType[ColumnCount];
             for (uint i = 0; i < ColumnCount; i++) {
                 var nextColumnPosition = reader.ReadInt64();
                 _columns[i] = _Load(i, reader, 32768);
                 ColumnTypes[i] = _columns[i].Info.ColumnType;
-                _columnOffset[i] = _stream.Position;
                 _stream.Seek(nextColumnPosition, SeekOrigin.Begin);
             }
         }
@@ -131,7 +67,7 @@ namespace BrightTable
 
             // create the column
             var stream = reader.BaseStream;
-            var dataType = ExtensionMethods.GetDataType(columnType);
+            var dataType = columnType.GetDataType();
             var ret = Activator.CreateInstance(typeof(Column<>).MakeGenericType(dataType),
                 index,
                 columnType,
@@ -146,8 +82,8 @@ namespace BrightTable
 
         public void Dispose()
         {
-            foreach (var item in _columns)
-                item.Segment.Dispose();
+            foreach (var (_, segment) in _columns)
+                segment.Dispose();
             _stream.Dispose();
         }
 
@@ -181,7 +117,7 @@ namespace BrightTable
         public void ReadTyped(ITypedRowConsumer[] consumers, uint maxRows = UInt32.MaxValue)
         {
             var bindings = consumers.Select(consumer => (IConsumerBinding)Activator.CreateInstance(
-                typeof(ConsumerBinding<>).MakeGenericType(ExtensionMethods.GetDataType(consumer.ColumnType)),
+                typeof(ConsumerBinding<>).MakeGenericType(consumer.ColumnType.GetDataType()),
                 _columns[consumer.ColumnIndex].Segment,
                 consumer
             ));

@@ -87,7 +87,7 @@ namespace BrightData.Numerics
 
 		public I4DFloatTensor Create4DTensor(params Tensor3D<float>[] data)
 		{
-			return new Numerics4DTensor(Context, data.Select(t => Create3DTensor(t.Matrices.Select(m => CreateMatrix(m)).ToArray()).AsIndexable()).ToArray());
+			return new Numerics4DTensor(Context, data.Select(t => Create3DTensor(t.Matrices.Select(CreateMatrix).ToArray()).AsIndexable()).ToArray());
 		}
 
         private I3DFloatTensor Create3DTensor(Tensor3D<float> tensor)

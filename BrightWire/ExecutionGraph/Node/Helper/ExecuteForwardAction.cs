@@ -1,7 +1,6 @@
-﻿using System;
-using System.Runtime.Serialization;
+﻿using System.Runtime.Serialization;
 using System.Text;
-using BrightWire.Source.Helper;
+using BrightWire.Helper;
 
 namespace BrightWire.ExecutionGraph.Node.Helper
 {

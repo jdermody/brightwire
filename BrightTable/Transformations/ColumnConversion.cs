@@ -2,12 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using BrightData;
 using BrightData.Buffers;
 using BrightData.Helper;
-using BrightTable.Buffers;
-using BrightTable.Input;
 
 namespace BrightTable.Transformations
 {
@@ -104,10 +101,6 @@ namespace BrightTable.Transformations
         {
             readonly Dictionary<string, int> _categoryIndex = new Dictionary<string, int>();
 
-            public CategoricalIndexConverter()
-            {
-            }
-
             protected override int _Convert(string str)
             {
                 if (_categoryIndex.TryGetValue(str, out var index))
@@ -124,7 +117,6 @@ namespace BrightTable.Transformations
             }
         }
 
-        private readonly uint? _columnIndex;
         private readonly ColumnConversionType _toType;
         private readonly ICanConvert _converter;
 
@@ -140,27 +132,27 @@ namespace BrightTable.Transformations
 
         public ColumnConversion(uint? columnIndex, ColumnConversionType type)
         {
-            _columnIndex = columnIndex;
+            Index = columnIndex;
             _toType = type;
             _converter = null;
         }
 
         public ColumnConversion(uint? columnIndex, ICanConvert converter)
         {
-            _columnIndex = columnIndex;
+            Index = columnIndex;
             _converter = converter;
         }
 
-        public uint? Index => _columnIndex;
+        public uint? Index { get; }
 
         public ICanConvert GetConverter(ColumnType fromType, ISingleTypeTableSegment column, TempStreamManager tempStreams, uint inMemoryRowCount)
         {
-            ICanConvert ViaString<T>(Func<string, T> convertFromString)
-            {
-                var t = typeof(ConvertViaString<,>).MakeGenericType(ExtensionMethods.GetDataType(fromType), typeof(T));
-                var ret = Activator.CreateInstance(t, new object[] { convertFromString });
-                return (ICanConvert)ret;
-            }
+            //ICanConvert ViaString<T>(Func<string, T> convertFromString)
+            //{
+            //    var t = typeof(ConvertViaString<,>).MakeGenericType(ExtensionMethods.GetDataType(fromType), typeof(T));
+            //    var ret = Activator.CreateInstance(t, new object[] { convertFromString });
+            //    return (ICanConvert)ret;
+            //}
 
             if (_converter != null)
                 return _converter;
@@ -179,7 +171,7 @@ namespace BrightTable.Transformations
                 case ColumnConversionType.ToString when fromType == ColumnType.String:
                     return null;
                 case ColumnConversionType.ToString: {
-                    var t = typeof(AnyToString<>).MakeGenericType(ExtensionMethods.GetDataType(fromType));
+                    var t = typeof(AnyToString<>).MakeGenericType(fromType.GetDataType());
                     return (ICanConvert)Activator.CreateInstance(t);
                 }
                 case ColumnConversionType.ToNumeric: {
@@ -217,12 +209,12 @@ namespace BrightTable.Transformations
                     }
                 
                     var enumerable = _GetEnumerableNumbers(toType, buffer.EnumerateTyped());
-                    var converterType = typeof(NumericConverter<,>).MakeGenericType(ExtensionMethods.GetDataType(fromType), ExtensionMethods.GetDataType(toType));
+                    var converterType = typeof(NumericConverter<,>).MakeGenericType(fromType.GetDataType(), toType.GetDataType());
                     var converter = Activator.CreateInstance(converterType, enumerable);
                     return (ICanConvert) converter;
                 }
                 case ColumnConversionType.ToCategoricalIndex: {
-                    var converterType = typeof(CategoricalIndexConverter<>).MakeGenericType(ExtensionMethods.GetDataType(fromType));
+                    var converterType = typeof(CategoricalIndexConverter<>).MakeGenericType(fromType.GetDataType());
                     var converter = Activator.CreateInstance(converterType);
                     return (ICanConvert)converter;
                 }
@@ -255,24 +247,17 @@ namespace BrightTable.Transformations
             {
                 return list.Select(v => double.IsNaN(v) ? converter(0) : converter(v));
             }
-            switch (toType) {
-                case ColumnType.Double:
-                    return numbers;
-                case ColumnType.Float:
-                    return numbers.Select(System.Convert.ToSingle);
-                case ColumnType.Decimal:
-                    return _ConvertIntegers(numbers, System.Convert.ToDecimal);
-                case ColumnType.Long:
-                    return _ConvertIntegers(numbers, System.Convert.ToInt64);
-                case ColumnType.Int:
-                    return _ConvertIntegers(numbers, System.Convert.ToInt32);
-                case ColumnType.Short:
-                    return _ConvertIntegers(numbers, System.Convert.ToInt16);
-                case ColumnType.Byte:
-                    return _ConvertIntegers(numbers, System.Convert.ToSByte);
-                default:
-                    throw new Exception("Invalid column type for numeric");
-            }
+
+            return toType switch {
+                ColumnType.Double => numbers,
+                ColumnType.Float => numbers.Select(Convert.ToSingle),
+                ColumnType.Decimal => _ConvertIntegers(numbers, Convert.ToDecimal),
+                ColumnType.Long => _ConvertIntegers(numbers, Convert.ToInt64),
+                ColumnType.Int => _ConvertIntegers(numbers, Convert.ToInt32),
+                ColumnType.Short => _ConvertIntegers(numbers, Convert.ToInt16),
+                ColumnType.Byte => _ConvertIntegers(numbers, Convert.ToSByte),
+                _ => throw new Exception("Invalid column type for numeric")
+            };
         }
 
         public static implicit operator ColumnConversion(ColumnConversionType type)

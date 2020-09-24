@@ -1,18 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace BrightData.Distributions
+﻿namespace BrightData.Distributions
 {
     public class BinomialDistribution : INonNegativeDiscreteDistribution
     {
-        private readonly BernoulliDistribution _bernoulli;
-
         public BinomialDistribution(IBrightDataContext context, float probability, uint numTrials)
         {
             NumTrials = numTrials;
-            _bernoulli = new BernoulliDistribution(context, probability);
+            BaseDistribution = new BernoulliDistribution(context, probability);
         }
 
         public BernoulliDistribution BaseDistribution { get; }

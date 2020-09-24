@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using BrightData;
 
-namespace BrightWire.Source.Helper
+namespace BrightWire.Helper
 {
 	/// <summary>
 	/// Calculates the distance between a list of vectors and a list of vectors to compare against

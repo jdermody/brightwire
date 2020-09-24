@@ -197,7 +197,7 @@ namespace BrightData.Buffers
             public ObjectReader(BrightDataContext context, BinaryReader reader, Stream stream, uint inMemorySize)
             {
                 _context = context;
-                _reader = _GetReader<T>(reader.ReadUInt32(), inMemorySize, reader, stream, _Create);
+                _reader = _GetReader(reader.ReadUInt32(), inMemorySize, reader, stream, _Create);
             }
 
             T _Create(BinaryReader reader)

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BrightData;
@@ -7,14 +6,12 @@ using BrightData.Helper;
 
 namespace BrightTable.Buffers
 {
-    class InMemoryBuffer<T> : IDataTableSegment<T>, ITypedRowConsumer<T>, ICanWriteToBinaryWriter
+    class InMemoryBuffer<T> : IDataTableSegment<T>, ITypedRowConsumer<T>
     {
         readonly T[] _data;
 
         public InMemoryBuffer(IBrightDataContext context, ColumnType type, uint columnIndex, IMetaData metaData, uint size)
         {
-            // TODO: implement max size and overflow to disk - possible using HybridBuffers?
-
             Context = context;
             SingleType = type;
             ColumnIndex = columnIndex;
@@ -55,11 +52,6 @@ namespace BrightTable.Buffers
         public void Dispose()
         {
             // nop
-        }
-
-        public void Finalise()
-        {
-            // TODO: try to encode and analyse the column
         }
 
         public uint ColumnIndex { get; }

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using BrightData;
 using BrightData.Helper;
 using BrightData.Transformation;
@@ -49,7 +47,7 @@ namespace BrightTable.Transformations
 
         public ICanConvert GetConverter(ColumnType fromType, ISingleTypeTableSegment column, TempStreamManager tempStreams, uint inMemoryRowCount)
         {
-            var columnType = ExtensionMethods.GetDataType(column.SingleType);
+            var columnType = column.SingleType.GetDataType();
             var contextType = typeof(Normalizer<>).MakeGenericType(columnType);
             var analysedMetaData = column.Analyse();
             return (ICanConvert) Activator.CreateInstance(contextType, NormalizationType, analysedMetaData);

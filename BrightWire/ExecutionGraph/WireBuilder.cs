@@ -80,16 +80,6 @@ namespace BrightWire.ExecutionGraph
             return this;
         }
 
-        /// <summary>
-        /// Changes the current wire's input size
-        /// </summary>
-        /// <param name="delta">Amount to add to the current wire size</param>
-        /// <returns></returns>
-        //public WireBuilder IncrementSizeBy(int delta)
-        //{
-        //    return SetNewSize(_width + delta);
-        //}
-
         void _SetNode(INode node)
         {
 	        LastNode?.Output.Add(new WireToNode(node));
@@ -101,7 +91,6 @@ namespace BrightWire.ExecutionGraph
         /// </summary>
         /// <param name="classifier"></param>
         /// <param name="dataTable"></param>
-        /// <param name="analysis"></param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
         public WireBuilder AddClassifier(IRowClassifier classifier, IRowOrientedDataTable dataTable, string name = null)

@@ -12,7 +12,7 @@ namespace BrightData
     public class WeightedIndexList : IHaveIndices, ICanWriteToBinaryWriter, ICanInitializeFromBinaryReader
     {
         [StructLayout(LayoutKind.Sequential, Pack=0)]
-        public struct Item
+        public readonly struct Item
         {
             public uint Index { get; }
             public float Weight { get; }
@@ -150,8 +150,8 @@ namespace BrightData
             var settings = new XmlWriterSettings {
                 OmitXmlDeclaration = true
             };
-            using (var writer = XmlWriter.Create(sb, settings))
-                WriteTo(null, writer);
+            using var writer = XmlWriter.Create(sb, settings);
+            WriteTo(null, writer);
             return sb.ToString();
         }
 
@@ -163,7 +163,7 @@ namespace BrightData
             Indices.Where(ind => FloatMath.IsNotZero(ind.Weight)).Select(ind => ind.Index).ToArray()
         );
 
-        IEnumerable<uint> IHaveIndices.Indices => this.Indices.Select(ind => ind.Index);
+        IEnumerable<uint> IHaveIndices.Indices => Indices.Select(ind => ind.Index);
 
         public float Dot(WeightedIndexList other)
         {

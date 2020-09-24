@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using BrightData;
 using BrightData.Distributions;
-using BrightWire.Models;
-using BrightWire.Source.Helper;
+using BrightWire.Helper;
 
 namespace BrightWire.Unsupervised
 {

@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using BrightData;
 using BrightData.Buffers;
-using BrightData.Helper;
-using BrightTable.Input;
 
 namespace BrightTable.Segments
 {

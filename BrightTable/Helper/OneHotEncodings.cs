@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace BrightTable.Helper
+﻿namespace BrightTable.Helper
 {
     public class OneHotEncodings
     {

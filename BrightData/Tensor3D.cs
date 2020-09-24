@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BrightData.Memory;
@@ -35,7 +34,7 @@ namespace BrightData
             return new Matrix<T>(segment, RowCount, ColumnCount);
         }
 
-        public IEnumerable<Matrix<T>> Matrices => Depth.AsRange().Select(i => Matrix((uint)i));
+        public IEnumerable<Matrix<T>> Matrices => Depth.AsRange().Select(Matrix);
 
         public override string ToString()
         {

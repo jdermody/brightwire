@@ -1,10 +1,10 @@
 ﻿using System.Globalization;
-using BrightWire.TreeBased;
 using System.IO;
 using System.Text;
 using System.Xml;
+using BrightWire.TreeBased;
 
-namespace BrightWire.Models
+namespace BrightWire.Models.TreeBased
 {
     /// <summary>
     /// A decision tree model

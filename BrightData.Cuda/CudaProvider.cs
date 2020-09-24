@@ -161,7 +161,7 @@ namespace BrightData.Cuda
             _context = context;
             _numerics = new NumericsProvider(context);
             _cuda = new CudaContext();
-			_cache = new DeviceMemory(_cuda, (int)memoryCacheSize);
+			_cache = new DeviceMemory((int)memoryCacheSize);
 			_kernel = new KernelModule(_cuda, cudaKernelPath);
 			_blas = new CudaBlas(AtomicsMode.Allowed);
 			_cuda.SetCurrent();
@@ -483,12 +483,11 @@ namespace BrightData.Cuda
 		{
 			var retSize = (uint)indexList.Length;
 			var ret = Allocate(retSize);
-			using (var indexGpu = new CudaDeviceVariable<uint>(retSize)) {
-				indexGpu.CopyToDevice(indexList);
-				_Invoke(_vectorCopyRandom, retSize, a.DevicePointer, ret.DevicePointer, indexGpu.DevicePointer, retSize);
-				return ret;
-			}
-		}
+            using var indexGpu = new CudaDeviceVariable<uint>(retSize);
+            indexGpu.CopyToDevice(indexList);
+            _Invoke(_vectorCopyRandom, retSize, a.DevicePointer, ret.DevicePointer, indexGpu.DevicePointer, retSize);
+            return ret;
+        }
 
 		internal (float Min, float Max) FindMinAndMax(IDeviceMemoryPtr a, uint size)
 		{
@@ -829,31 +828,30 @@ namespace BrightData.Cuda
 			var convolutions = ConvolutionHelper.Default(columns, rows, filterWidth, filterHeight, xStride, yStride);
 			var size = (uint)convolutions.Count * depth * count;
 
-			using (var convolutionData = new ConvolutionsData(this, convolutions)) {
-				_Invoke(_tensorMaxPool, size,
-					size,
-					tensor.DevicePointer,
-					ret.DevicePointer,
-					saveIndices ? indices.DevicePointer : new CUdeviceptr(),
-					convolutionData.X.DevicePointer,
-					convolutionData.Y.DevicePointer,
-					convolutions.Count,
-					rows,
-					columns,
-					depth,
-					count,
-					outputRows,
-					outputColumns,
-					filterWidth,
-					filterHeight,
-					xStride,
-					yStride,
-					saveIndices ? 1 : 0
-				);
+            using var convolutionData = new ConvolutionsData(this, convolutions);
+            _Invoke(_tensorMaxPool, size,
+                size,
+                tensor.DevicePointer,
+                ret.DevicePointer,
+                saveIndices ? indices.DevicePointer : new CUdeviceptr(),
+                convolutionData.X.DevicePointer,
+                convolutionData.Y.DevicePointer,
+                convolutions.Count,
+                rows,
+                columns,
+                depth,
+                count,
+                outputRows,
+                outputColumns,
+                filterWidth,
+                filterHeight,
+                xStride,
+                yStride,
+                saveIndices ? 1 : 0
+            );
 
-				return (ret, indices, outputRows, outputColumns);
-			}
-		}
+            return (ret, indices, outputRows, outputColumns);
+        }
 
 		internal IDeviceMemoryPtr TensorReverseMaxPool(IDeviceMemoryPtr tensor, IDeviceMemoryPtr indices, uint rows, uint columns, uint depth, uint count, uint outputRows, uint outputColumns, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
 		{
@@ -897,28 +895,27 @@ namespace BrightData.Cuda
 			var outputColumns = filterSize * depth;
 			var ret = Allocate(outputRows * outputColumns * count, true);
 
-			using (var convolutionData = new ConvolutionsData(this, convolutions)) {
-				_Invoke(_tensorIm2Col, ret.Size,
-					ret.Size,
-					tensor.DevicePointer,
-					ret.DevicePointer,
-					convolutionData.X.DevicePointer,
-					convolutionData.Y.DevicePointer,
-					rows,
-					columns,
-					depth,
-					count,
-					outputRows,
-					outputColumns,
-					convolutionData.Count,
-					filterWidth,
-					filterHeight,
-					xStride,
-					yStride
-				);
-				return (ret, outputRows, outputColumns, count);
-			}
-		}
+            using var convolutionData = new ConvolutionsData(this, convolutions);
+            _Invoke(_tensorIm2Col, ret.Size,
+                ret.Size,
+                tensor.DevicePointer,
+                ret.DevicePointer,
+                convolutionData.X.DevicePointer,
+                convolutionData.Y.DevicePointer,
+                rows,
+                columns,
+                depth,
+                count,
+                outputRows,
+                outputColumns,
+                convolutionData.Count,
+                filterWidth,
+                filterHeight,
+                xStride,
+                yStride
+            );
+            return (ret, outputRows, outputColumns, count);
+        }
 
 		internal (IDeviceMemoryPtr Data, uint Rows, uint Columns, uint Depth, uint Count) TensorReverseIm2Col(
 			IDeviceMemoryPtr tensor,
@@ -989,17 +986,16 @@ namespace BrightData.Cuda
 						columns,
 						size
 					);
-					using(var ones = CreateMatrix(rows, columns, (i, j) => 1f))
-					using(var vectorMagnitude = new CudaMatrix(this, rows, columns, aa, true))
-					using(var vectorSqrt = vectorMagnitude.Sqrt())
-					using (var compareToMagnitude = new CudaMatrix(this, rows, columns, bb, true))
-					using(var compareToSqrt = compareToMagnitude.Sqrt()) {
-						using(var norms = vectorSqrt.PointwiseMultiply(compareToSqrt))
-						using(var result = new CudaMatrix(this, rows, columns, ret, true))
-						using (var distance = result.PointwiseDivide(norms))
-							return ones.Subtract(distance);
-					}
-				}
+                    using var ones = CreateMatrix(rows, columns, (i, j) => 1f);
+                    using var vectorMagnitude = new CudaMatrix(this, rows, columns, aa, true);
+                    using var vectorSqrt = vectorMagnitude.Sqrt();
+                    using var compareToMagnitude = new CudaMatrix(this, rows, columns, bb, true);
+                    using var compareToSqrt = compareToMagnitude.Sqrt();
+                    using var norms = vectorSqrt.PointwiseMultiply(compareToSqrt);
+                    using var result = new CudaMatrix(this, rows, columns, ret, true);
+                    using var distance = result.PointwiseDivide(norms);
+                    return ones.Subtract(distance);
+                }
 
 				_Invoke3(_calculateDistance, size, columns, rows,
 					vectorPtr.DevicePointer,
@@ -1050,7 +1046,7 @@ namespace BrightData.Cuda
 		public IFloatMatrix CreateMatrixFromRows(IFloatVector[] vectorRows)
 		{
 			var rows = (uint)vectorRows.Length;
-			var columns = (uint)vectorRows[0].Count;
+			var columns = vectorRows[0].Count;
 
 			var ret = Allocate(rows * columns);
 			using (var devicePtr = new CudaDeviceVariable<CUdeviceptr>(rows)) {
@@ -1063,7 +1059,7 @@ namespace BrightData.Cuda
 		public IFloatMatrix CreateMatrixFromColumns(IFloatVector[] vectorColumns)
 		{
 			var columns = (uint)vectorColumns.Length;
-			var rows = (uint)vectorColumns[0].Count;
+			var rows = vectorColumns[0].Count;
 
 			var ret = Allocate(rows * columns);
 			using (var devicePtr = new CudaDeviceVariable<CUdeviceptr>(columns)) {

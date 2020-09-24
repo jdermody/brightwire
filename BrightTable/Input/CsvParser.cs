@@ -10,18 +10,16 @@ namespace BrightTable.Input
     {
         readonly StreamReader _stream;
         readonly char _delimiter;
-        readonly bool _hasHeader;
         readonly char[] _buffer;
         readonly char _quote;
         readonly List<StringBuilder> _columns = new List<StringBuilder>();
         int _currIndex;
         bool _inQuote;
 
-        public CsvParser(StreamReader stream, char delimiter, bool hasHeader, char quote = '"')
+        public CsvParser(StreamReader stream, char delimiter, char quote = '"')
         {
             _stream = stream;
             _delimiter = delimiter;
-            _hasHeader = hasHeader;
             _quote = quote;
             _buffer = new char[32768];
         }

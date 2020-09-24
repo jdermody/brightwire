@@ -32,7 +32,6 @@ namespace BrightData
 
         public override string ToString()
         {
-            string hash;
             using var hasher = SHA512.Create();
             var binaryHash = hasher.ComputeHash(Data);
 
@@ -43,8 +42,7 @@ namespace BrightData
                     sb.Append(" ");
             }
 
-            hash = sb.ToString();
-
+            var hash = sb.ToString();
             return $"Hash:{hash}, Size:{Data.Length:N0}";
         }
 
