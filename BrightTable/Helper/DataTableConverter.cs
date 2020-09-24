@@ -38,8 +38,6 @@ namespace BrightTable.Helper
             DataTable = dataTable;
         }
 
-        public IEnumerable<IConvertibleRow> Rows(params uint[] rowIndices) => rowIndices.Select(GetRow);
-
         public IRowOrientedDataTable DataTable { get; }
         public IEnumerable<T> Map<T>(Func<IConvertibleRow, T> rowMapper)
         {
@@ -54,6 +52,8 @@ namespace BrightTable.Helper
         }
 
         public IConvertibleRow GetRow(uint index) => new ConvertibleRow(index, DataTable.Row(index), this);
+
+        public IEnumerable<IConvertibleRow> Rows(params uint[] indices) => indices.Select(GetRow);
 
         T GetField<T>(uint index, object ret)
         {

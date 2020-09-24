@@ -24,15 +24,20 @@ namespace ConsoleTest
         static void Main(string[] args)
         {
             using var context = new BrightDataContext(0);
-            context.UseNumericsLinearAlgebra();
+            context.Set("DataFileDirectory", new DirectoryInfo(@"c:\data"));
+            context.UseCudaLinearAlgebra();
 
+            context.BeautifulandDamned().TrainMarkovModel();
+
+            //var stockData = context.StockData().GetSequentialWindow();
+            //stockData.TrainLSTM(256);
             //IntegerAddition.Recurrent(context);
             //context.UseCudaLinearAlgebra();
 
             //MNIST.Convolutional(context, @"C:\data\mnist");
 
             // set to cache data files locally
-            context.Set("DataFileDirectory", new DirectoryInfo(@"c:\data"));
+            
 
             //context.BeautifulandDamned();
             //return;

@@ -28,7 +28,7 @@ namespace BrightData.Buffers
                 return (ICanEnumerate<T>) new StringReader(reader, stream, inMemorySize);
 
             if (type == BufferType.Struct)
-                return (ICanEnumerate<T>)Activator.CreateInstance(typeof(StructReader<>).MakeGenericType(typeof(T)), context, reader, stream);
+                return (ICanEnumerate<T>)Activator.CreateInstance(typeof(StructReader<>).MakeGenericType(typeof(T)), reader, stream, inMemorySize);
 
             throw new NotImplementedException();
         }

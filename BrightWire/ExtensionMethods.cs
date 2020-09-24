@@ -89,5 +89,25 @@ namespace BrightWire
 
         public static GraphFactory CreateGraphFactory(this IBrightDataContext context) => new GraphFactory(context.LinearAlgebraProvider);
         public static GraphFactory CreateGraphFactory(this ILinearAlgebraProvider lap) => new GraphFactory(lap);
+
+        public static IRowOrientedDataTable CreateSequentialWindow(this IRowOrientedDataTable dataTable, uint windowSize, params uint[] columnIndices)
+        {
+            var builder = dataTable.Context.BuildTable();
+            builder.AddColumn(ColumnType.Matrix, "Past");
+            builder.AddColumn(ColumnType.Vector, "Future").SetTargetColumn(true);
+            var convertible = dataTable.AsConvertible();
+            var context = dataTable.Context;
+            for (uint i = 0; i < dataTable.RowCount - windowSize - 1; i++) {
+                var past = context.CreateMatrixFromRows(convertible
+                    .Rows(windowSize.AsRange(i).ToArray())
+                    .Select(r => context.CreateVector(r.GetFields<float>(columnIndices)))
+                    .ToArray()
+                );
+                var target = context.CreateVector(convertible.GetRow(i + windowSize).GetFields<float>(columnIndices));
+                builder.AddRow(past, target);
+            }
+
+            return builder.Build();
+        }
     }
 }

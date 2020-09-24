@@ -9,7 +9,7 @@ using System.Xml;
 
 namespace BrightData
 {
-    public class MetaData : IMetaData, ICanWriteToBinaryWriter
+    public class MetaData : IMetaData
     {
         readonly Dictionary<string, IConvertible> _values = new Dictionary<string, IConvertible>();
         readonly List<string> _orderedValues = new List<string>();
@@ -170,11 +170,6 @@ namespace BrightData
         public override string ToString()
         {
             return String.Join(", ", _orderedValues.Select(v => v + ": " + _values[v].ToString(CultureInfo.InvariantCulture)));
-        }
-
-        public void Initialize(IBrightDataContext context, BinaryReader reader)
-        {
-            throw new NotImplementedException();
         }
     }
 }

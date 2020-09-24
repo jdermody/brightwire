@@ -10,12 +10,13 @@ using BrightTable;
 using BrightWire;
 using BrightWire.TrainingData.Artificial;
 using BrightWire.TrainingData.Helper;
+using ExampleCode.DataTableTrainers;
 
 namespace ExampleCode.Datasets
 {
     static class Datasets
     {
-        public static DataTableTrainer Iris(this IBrightDataContext context)
+        public static IrisTrainer Iris(this IBrightDataContext context)
         {
             var reader = GetReader(context, "iris.csv", "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data");
             try {
@@ -27,14 +28,36 @@ namespace ExampleCode.Datasets
                     ColumnConversionType.ToNumeric,
                     ColumnConversionType.ToNumeric);
                 using var normalized = numericTable.Normalize(NormalizationType.FeatureScale);
-                return new DataTableTrainer(normalized.AsRowOriented());
+                return new IrisTrainer(normalized.AsRowOriented());
             }
             finally {
                 reader?.Dispose();
             }
         }
 
-        public static DataTableTrainer Xor(this IBrightDataContext context)
+        public static StockDataTrainer StockData(this IBrightDataContext context)
+        {
+            var reader = GetReader(context, "stockdata.csv", "https://raw.githubusercontent.com/plotly/datasets/master/stockdata.csv");
+            try {
+                // load and normalise the data
+                using var table = context.ParseCsv(reader, true);
+                table.SetTargetColumn(5);
+                using var numericTable = table.Convert(
+                    ColumnConversionType.ToNumeric,
+                    ColumnConversionType.ToNumeric,
+                    ColumnConversionType.ToNumeric,
+                    ColumnConversionType.ToNumeric,
+                    ColumnConversionType.ToNumeric,
+                    ColumnConversionType.ToDate);
+                using var normalised = numericTable.Normalize(NormalizationType.FeatureScale);
+                return new StockDataTrainer(normalised.AsRowOriented());
+            }
+            finally {
+                reader.Dispose();
+            }
+        }
+
+        public static XorTrainer Xor(this IBrightDataContext context)
         {
             // Some training data that the network will learn.  The XOR pattern looks like:
             // 0 0 => 0
@@ -42,7 +65,7 @@ namespace ExampleCode.Datasets
             // 0 1 => 1
             // 1 1 => 0
             var table = BrightWire.TrainingData.Artificial.Xor.Get(context);
-            return new DataTableTrainer(table, table, table);
+            return new XorTrainer(table);
         }
 
         public static DataTableTrainer IntegerAddition(this IBrightDataContext context)
@@ -52,41 +75,13 @@ namespace ExampleCode.Datasets
             return new DataTableTrainer(data, training, test);
         }
 
-        public static void BeautifulandDamned(this IBrightDataContext context)
+        public static SentenceTable BeautifulandDamned(this IBrightDataContext context)
         {
             var reader = GetReader(context, "beautiful_and_damned.txt", "http://www.gutenberg.org/cache/epub/9830/pg9830.txt");
             var data = reader.ReadToEnd();
             var pos = data.IndexOf("CHAPTER I");
 
-            // create a markov trainer that uses a window of size 3
-            var trainer = context.CreateMarkovTrainer3<string>();
-            foreach (var sentence in SimpleTokeniser.FindSentences(SimpleTokeniser.Tokenise(data.Substring(pos))))
-                trainer.Add(sentence);
-
-            // generate some text
-            var model = trainer.Build().AsDictionary;
-            for (var i = 0; i < 50; i++) {
-                var sb = new StringBuilder();
-                string prevPrev = default, prev = default, curr = default;
-                for (var j = 0; j < 1024; j++) {
-                    var transitions = model.GetTransitions(prevPrev, prev, curr);
-                    var distribution = new CategoricalDistribution(context, transitions.Select(d => d.Probability));
-                    var next = transitions[distribution.Sample()].NextState;
-                    if (Char.IsLetterOrDigit(next[0]) && sb.Length > 0) {
-                        var lastChar = sb[^1];
-                        if (lastChar != '\'' && lastChar != '-')
-                            sb.Append(' ');
-                    }
-                    sb.Append(next);
-
-                    if (SimpleTokeniser.IsEndOfSentence(next))
-                        break;
-                    prevPrev = prev;
-                    prev = curr;
-                    curr = next;
-                }
-                Console.WriteLine(sb.ToString());
-            }
+            return new SentenceTable(context, SimpleTokeniser.FindSentences(SimpleTokeniser.Tokenise(data.Substring(pos))));
         }
 
         static string GetDataFilePath(this IBrightDataContext context, string name)

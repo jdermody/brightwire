@@ -670,5 +670,9 @@ namespace BrightTable
 
             return builder.Build(context);
         }
+
+        public static IDataTableSegment<T> Column<T>(this IDataTable dataTable, uint index) => (IDataTableSegment<T>) dataTable.Column(index);
+
+        public static T[] ToArray<T>(this IDataTableSegment<T> segment) => segment.EnumerateTyped().ToArray();
     }
 }
