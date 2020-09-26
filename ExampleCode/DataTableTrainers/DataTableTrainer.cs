@@ -18,7 +18,7 @@ using BrightWire.Models.TreeBased;
 
 namespace ExampleCode
 {
-    class DataTableTrainer
+    class DataTableTrainer : IDisposable
     {
         public DataTableTrainer(IRowOrientedDataTable table)
         {
@@ -31,11 +31,18 @@ namespace ExampleCode
 
         public DataTableTrainer(IRowOrientedDataTable table, IRowOrientedDataTable training, IRowOrientedDataTable test)
         {
-            TargetColumn = table.GetTargetColumnOrThrow();
+            TargetColumn = training.GetTargetColumnOrThrow();
             Table = table;
             Training = training;
             Test = test;
 		}
+
+        public void Dispose()
+        {
+            Table?.Dispose();
+            Training?.Dispose();
+            Test?.Dispose();
+        }
 
         public uint TargetColumn { get; }
         public IRowOrientedDataTable Table { get; }
@@ -125,5 +132,14 @@ namespace ExampleCode
 
             Console.WriteLine($"{type} accuracy: {score:P}");
         }
+
+        //void _WriteClusters(IFloatVector[][] clusters, Dictionary<IVector, string> labelTable)
+        //{
+        //    foreach (var cluster in clusters) {
+        //        foreach (var item in cluster)
+        //            Console.WriteLine(labelTable[item]);
+        //        Console.WriteLine("---------------------------------------------");
+        //    }
+        //}
     }
 }

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using BrightData;
 using BrightData.Distributions;
@@ -14,11 +16,11 @@ using ExampleCode.DataTableTrainers;
 
 namespace ExampleCode.Datasets
 {
-    static class Datasets
+    static class Dataset
     {
         public static IrisTrainer Iris(this IBrightDataContext context)
         {
-            var reader = GetReader(context, "iris.csv", "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data");
+            var reader = GetStreamReader(context, "iris.csv", "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data");
             try {
                 using var table = context.ParseCsv(reader, false);
                 table.SetTargetColumn(4);
@@ -37,7 +39,7 @@ namespace ExampleCode.Datasets
 
         public static StockDataTrainer StockData(this IBrightDataContext context)
         {
-            var reader = GetReader(context, "stockdata.csv", "https://raw.githubusercontent.com/plotly/datasets/master/stockdata.csv");
+            var reader = GetStreamReader(context, "stockdata.csv", "https://raw.githubusercontent.com/plotly/datasets/master/stockdata.csv");
             try {
                 // load and normalise the data
                 using var table = context.ParseCsv(reader, true);
@@ -68,20 +70,34 @@ namespace ExampleCode.Datasets
             return new XorTrainer(table);
         }
 
-        public static DataTableTrainer IntegerAddition(this IBrightDataContext context)
+        public static IntegerAdditionTrainer IntegerAddition(this IBrightDataContext context)
         {
             var data = BinaryIntegers.Addition(context, 1000);
             var (training, test) = data.Split();
-            return new DataTableTrainer(data, training, test);
+            return new IntegerAdditionTrainer(data, training, test);
         }
 
         public static SentenceTable BeautifulandDamned(this IBrightDataContext context)
         {
-            var reader = GetReader(context, "beautiful_and_damned.txt", "http://www.gutenberg.org/cache/epub/9830/pg9830.txt");
+            var reader = GetStreamReader(context, "beautiful_and_damned.txt", "http://www.gutenberg.org/cache/epub/9830/pg9830.txt");
             var data = reader.ReadToEnd();
             var pos = data.IndexOf("CHAPTER I");
 
             return new SentenceTable(context, SimpleTokeniser.FindSentences(SimpleTokeniser.Tokenise(data.Substring(pos))));
+        }
+
+        public static MNIST MNIST(this IBrightDataContext context, uint numToLoad = uint.MaxValue)
+        {
+            var testImages = Datasets.MNIST.Load(
+                GetStream(context, "t10k-labels.idx1-ubyte", "http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz"), 
+                GetStream(context, "t10k-images.idx3-ubyte", "http://yann.lecun.com/exdb/mnist/t10k-images-idx3-ubyte.gz")
+            );
+            var trainingImages = Datasets.MNIST.Load(
+                GetStream(context, "train-labels.idx1-ubyte", "http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz"),
+                GetStream(context, "train-images.idx3-ubyte", "http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz")
+            );
+
+            return new MNIST(context, trainingImages, testImages);
         }
 
         static string GetDataFilePath(this IBrightDataContext context, string name)
@@ -106,7 +122,12 @@ namespace ExampleCode.Datasets
             return Path.Combine(dataDirectory.FullName, name);
         }
 
-        static StreamReader GetReader(this IBrightDataContext context, string fileName, string remoteUrl = null)
+        static StreamReader GetStreamReader(this IBrightDataContext context, string fileName, string remoteUrl = null)
+        {
+            return new StreamReader(GetStream(context, fileName, remoteUrl));
+        }
+
+        static Stream GetStream(this IBrightDataContext context, string fileName, string remoteUrl = null)
         {
             var filePath = GetDataFilePath(context, fileName);
             if (filePath == null || !File.Exists(filePath) && !String.IsNullOrWhiteSpace(remoteUrl)) {
@@ -117,21 +138,30 @@ namespace ExampleCode.Datasets
                     AllowAutoRedirect = true,
                 };
                 using var client = new HttpClient(handler);
-                var stream = client.GetStreamAsync(remoteUrl).Result;
+                var response = client.GetAsync(remoteUrl).Result;
+                response.EnsureSuccessStatusCode();
+
+                // get the stream
+                var responseStream = response.Content.ReadAsStreamAsync().Result;
+                var mediaType = response.Content.Headers.ContentType.MediaType;
+                if (mediaType == "application/gzip" || mediaType == "application/x-gzip")
+                    responseStream = new GZipStream(responseStream, CompressionMode.Decompress);
+
                 Console.WriteLine("done");
+
                 if (String.IsNullOrWhiteSpace(filePath))
-                    return new StreamReader(stream);
+                    return responseStream;
 
                 try {
                     using var file = new FileStream(filePath, FileMode.Create, FileAccess.Write);
-                    stream.CopyTo(file);
+                    responseStream.CopyTo(file);
                 }
                 catch {
                     Console.WriteLine($"Tried to write data to {filePath} but got exception");
                     throw;
                 }
             }
-            return new StreamReader(filePath, Encoding.UTF8);
+            return new FileStream(filePath, FileMode.Open, FileAccess.Read);
         }
 
 

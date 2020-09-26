@@ -26,8 +26,11 @@ namespace ConsoleTest
             using var context = new BrightDataContext(0);
             context.Set("DataFileDirectory", new DirectoryInfo(@"c:\data"));
             context.UseCudaLinearAlgebra();
+            //context.UseNumericsLinearAlgebra();
 
-            context.BeautifulandDamned().TrainMarkovModel();
+            context.MNIST().TrainConvolutionalNeuralNetwork();
+
+            //context.BeautifulandDamned().TrainMarkovModel();
 
             //var stockData = context.StockData().GetSequentialWindow();
             //stockData.TrainLSTM(256);
@@ -37,7 +40,7 @@ namespace ConsoleTest
             //MNIST.Convolutional(context, @"C:\data\mnist");
 
             // set to cache data files locally
-            
+
 
             //context.BeautifulandDamned();
             //return;
@@ -46,7 +49,7 @@ namespace ConsoleTest
             //xor.TrainSigmoidNeuralNetwork(6, 0.1f, 4);
 
             var iris = context.Iris();
-            //var clusters = iris.KMeans(3).ToArray();
+            var clusters = iris.KMeans(3).ToArray();
 
             //var vectorisedIris = iris.Table.Vectorise();
             //var floatVectors = vectorisedIris.Column(0).EnumerateTyped<Vector<float>>().AsFloatVectors().ToArray();
