@@ -167,7 +167,7 @@ namespace BrightWire.ExecutionGraph
 		/// <param name="batchSize">Mini batch size</param>
 		/// <param name="trainingErrorCalculation">How to calculate the training error</param>
 		/// <returns></returns>
-		public IGraphTrainingEngine CreateTrainingEngine(IDataSource dataSource, Models.ExecutionGraph graph, float trainingRate = 0.1f, uint batchSize = 128, TrainingErrorCalculation trainingErrorCalculation = TrainingErrorCalculation.Fast)
+		public IGraphTrainingEngine CreateTrainingEngine(IDataSource dataSource, ExecutionGraphModel graph, float trainingRate = 0.1f, uint batchSize = 128, TrainingErrorCalculation trainingErrorCalculation = TrainingErrorCalculation.Fast)
 		{
 			var learningContext = new LearningContext(LinearAlgebraProvider, trainingRate, batchSize, trainingErrorCalculation, dataSource.IsSequential);
 			var input = this.CreateFrom(graph);
@@ -181,7 +181,7 @@ namespace BrightWire.ExecutionGraph
 		/// <param name="learningContext">Previously created training context</param>
 		/// <param name="graph">The serialised graph to execute (optional)</param>
 		/// <returns></returns>
-		public IGraphTrainingEngine CreateTrainingEngine(IDataSource dataSource, ILearningContext learningContext, Models.ExecutionGraph graph = null)
+		public IGraphTrainingEngine CreateTrainingEngine(IDataSource dataSource, ILearningContext learningContext, ExecutionGraphModel graph = null)
 		{
 			var input = this.CreateFrom(graph);
 			return new TrainingEngine(LinearAlgebraProvider, dataSource, learningContext, input);
@@ -192,7 +192,7 @@ namespace BrightWire.ExecutionGraph
 		/// </summary>
 		/// <param name="graph">The serialised graph to execute</param>
 		/// <returns></returns>
-		public IGraphEngine CreateEngine(Models.ExecutionGraph graph)
+		public IGraphEngine CreateEngine(Models.ExecutionGraphModel graph)
 		{
 			var input = this.CreateFrom(graph);
 			return new ExecutionEngine(LinearAlgebraProvider, graph, input);
@@ -731,7 +731,7 @@ namespace BrightWire.ExecutionGraph
 		/// Creates a node from it's serialised model
 		/// </summary>
 		/// <param name="node">The node model</param>
-		public INode Create(Models.ExecutionGraph.Node node)
+		public INode Create(Models.ExecutionGraphModel.Node node)
 		{
 			var type = TypeLoader.LoadType(node.TypeName);
 			var ret = (INode)FormatterServices.GetUninitializedObject(type);

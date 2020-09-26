@@ -1,16 +1,19 @@
-﻿using BrightWire.Bayesian;
+﻿using System.IO;
+using BrightData;
+using BrightWire.Bayesian;
+using BrightWire.Helper;
 
 namespace BrightWire.Models.Bayesian
 {
     /// <summary>
     /// Multinomial naive bayes model
     /// </summary>
-    public class MultinomialNaiveBayes
+    public class MultinomialNaiveBayes : ISerializable
     {
         /// <summary>
         /// The conditional probability associated with a string index
         /// </summary>
-        public class StringIndexProbability
+        public class StringIndexProbability : ISerializable
         {
             /// <summary>
             /// The string index
@@ -21,12 +24,16 @@ namespace BrightWire.Models.Bayesian
             /// The conditional probability
             /// </summary>
             public double ConditionalProbability { get; set; }
+
+            public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
+
+            public void Initialize(IBrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
         }
 
         /// <summary>
         /// Classification data
         /// </summary>
-        public class Class
+        public class Class : ISerializable
         {
             /// <summary>
             /// The classification label
@@ -47,6 +54,10 @@ namespace BrightWire.Models.Bayesian
             /// The list of string indexes and their probability
             /// </summary>
             public StringIndexProbability[] Index { get; set; }
+
+            public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
+
+            public void Initialize(IBrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
         }
 
         /// <summary>
@@ -62,5 +73,9 @@ namespace BrightWire.Models.Bayesian
         {
             return new MultinomialNaiveBayesClassifier(this);
         }
+
+        public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
+
+        public void Initialize(IBrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
     }
 }

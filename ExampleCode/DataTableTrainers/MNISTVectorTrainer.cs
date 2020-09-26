@@ -19,7 +19,7 @@ namespace ExampleCode.DataTableTrainers
 
         }
 
-        public ExecutionGraph TrainingFeedForwardNeuralNetwork(
+        public ExecutionGraphModel TrainingFeedForwardNeuralNetwork(
             uint hiddenLayerSize = 1024, 
             uint numIterations = 20, 
             float trainingRate = 0.1f,
@@ -52,7 +52,7 @@ namespace ExampleCode.DataTableTrainers
             ;
 
             // train the network for twenty iterations, saving the model on each improvement
-            ExecutionGraph bestGraph = null;
+            ExecutionGraphModel bestGraph = null;
             var testData = trainingData.CloneWith(Test);
             engine.Train(numIterations, testData, errorMetric, model => bestGraph = model.Graph);
 

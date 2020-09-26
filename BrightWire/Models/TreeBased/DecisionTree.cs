@@ -2,6 +2,8 @@
 using System.IO;
 using System.Text;
 using System.Xml;
+using BrightData;
+using BrightWire.Helper;
 using BrightWire.TreeBased;
 
 namespace BrightWire.Models.TreeBased
@@ -9,12 +11,12 @@ namespace BrightWire.Models.TreeBased
     /// <summary>
     /// A decision tree model
     /// </summary>
-    public class DecisionTree
+    public class DecisionTree : ISerializable
     {
         /// <summary>
         /// A node in the decision tree
         /// </summary>
-        public class Node
+        public class Node : ISerializable
         {
             /// <summary>
             /// The nodes children
@@ -64,6 +66,10 @@ namespace BrightWire.Models.TreeBased
                 }
                 writer.WriteEndElement();
             }
+
+            public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
+
+            public void Initialize(IBrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
         }
 
         /// <summary>
@@ -97,5 +103,9 @@ namespace BrightWire.Models.TreeBased
         {
             return new DecisionTreeClassifier(this);
         }
+
+        public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
+
+        public void Initialize(IBrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
     }
 }

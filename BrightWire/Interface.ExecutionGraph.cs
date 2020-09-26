@@ -169,7 +169,7 @@ namespace BrightWire
         /// <param name="connectedTo">List of nodes this node is connected to</param>
         /// <param name="wireList">List of wires between all connected nodes</param>
         /// <returns>Serialisation model</returns>
-        Models.ExecutionGraph.Node SerialiseTo(HashSet<INode> existing, List<Models.ExecutionGraph.Node> connectedTo, HashSet<Models.ExecutionGraph.Wire> wireList);
+        Models.ExecutionGraphModel.Node SerialiseTo(HashSet<INode> existing, List<Models.ExecutionGraphModel.Node> connectedTo, HashSet<Models.ExecutionGraphModel.Wire> wireList);
 
         /// <summary>
         /// Called after the graph has been completely deserialised
@@ -181,7 +181,7 @@ namespace BrightWire
         /// Loads parameters into an existing node
         /// </summary>
         /// <param name="nodeData">Serialised node parameters</param>
-        void LoadParameters(Models.ExecutionGraph.Node nodeData);
+        void LoadParameters(Models.ExecutionGraphModel.Node nodeData);
     }
 
     /// <summary>
@@ -615,7 +615,7 @@ namespace BrightWire
         /// <summary>
         /// Serialised version of the current graph and its parameters
         /// </summary>
-        Models.ExecutionGraph Graph { get; }
+        Models.ExecutionGraphModel Graph { get; }
 
         /// <summary>
         /// Segment source that feeds into the graph
@@ -706,7 +706,7 @@ namespace BrightWire
         /// Loads model parameters into the existing graph
         /// </summary>
         /// <param name="graph">Model to load parameters from</param>
-        void LoadParametersFrom(Models.ExecutionGraph graph);
+        void LoadParametersFrom(Models.ExecutionGraphModel graph);
     }
 
     /// <summary>

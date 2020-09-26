@@ -1,16 +1,18 @@
 ﻿using System.IO;
+using BrightData;
+using BrightWire.Helper;
 
 namespace BrightWire.Models
 {
     /// <summary>
     /// A serialised execution graph
     /// </summary>
-    public class ExecutionGraph
+    public class ExecutionGraphModel : ISerializable
     {
         /// <summary>
         /// A node within the graph
         /// </summary>
-        public class Node
+        public class Node : ISerializable
         {
             public Node()
             {
@@ -53,22 +55,15 @@ namespace BrightWire.Models
             /// </summary>
             public byte[] Data { get; set; }
 
-            public void WriteTo(BinaryWriter writer)
-            {
-                writer.Write(TypeName);
-                writer.Write(Id);
-                writer.Write(Name ?? "");
-                writer.Write(Description ?? "");
-                writer.Write(Data?.Length ?? 0);
-                if(Data?.Length > 0)
-                    writer.Write(Data);
-            }
+            public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
+
+            public void Initialize(IBrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
         }
 
         /// <summary>
         /// Wires connect nodes (aka edges)
         /// </summary>
-        public class Wire
+        public class Wire : ISerializable
         {
             /// <summary>
             /// The source node id
@@ -85,13 +80,17 @@ namespace BrightWire.Models
             /// </summary>
             public uint InputChannel { get; set; }
 
-	        /// <inheritdoc />
+            /// <inheritdoc />
 	        public override string ToString()
             {
                 return $"{FromId} -> {ToId} on channel {InputChannel}";
             }
 
-	        /// <inheritdoc />
+            public void Initialize(IBrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
+
+            public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
+
+            /// <inheritdoc />
             public override int GetHashCode()
             {
                 return (FromId + ToId + InputChannel).GetHashCode();
@@ -130,5 +129,9 @@ namespace BrightWire.Models
         /// A list of the wires that connect the nodes in the graph
         /// </summary>
         public Wire[] Wires { get; set; }
+
+        public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
+
+        public void Initialize(IBrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
     }
 }

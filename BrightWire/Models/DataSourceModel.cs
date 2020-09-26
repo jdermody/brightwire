@@ -1,9 +1,13 @@
-﻿namespace BrightWire.Models
+﻿using System.IO;
+using BrightData;
+using BrightWire.Helper;
+
+namespace BrightWire.Models
 {
     /// <summary>
     /// Serialises an adaptive data source - that is, a data source that takes the output from a preliminary output graph and sends it to the primary graph
     /// </summary>
-    public class DataSourceModel
+    public class DataSourceModel : ISerializable
     {
         /// <summary>
         /// Segment contract version number
@@ -28,6 +32,10 @@
         /// <summary>
         /// The preliminary graph
         /// </summary>
-        public ExecutionGraph Graph { get; set; }
+        public ExecutionGraphModel Graph { get; set; }
+
+        public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
+
+        public void Initialize(IBrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
     }
 }

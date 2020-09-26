@@ -1,4 +1,6 @@
-﻿using BrightData;
+﻿using System.IO;
+using BrightData;
+using BrightWire.Helper;
 using BrightWire.InstanceBased;
 
 namespace BrightWire.Models.InstanceBased
@@ -6,7 +8,7 @@ namespace BrightWire.Models.InstanceBased
     /// <summary>
     /// K Nearest Neighbour Model
     /// </summary>
-    public class KNearestNeighbours
+    public class KNearestNeighbours : ISerializable
     {
         /// <summary>
         /// The list of vectors to match against
@@ -38,5 +40,9 @@ namespace BrightWire.Models.InstanceBased
         {
             return new KNNClassifier(lap, this, k, distanceMetric);
         }
+
+        public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
+
+        public void Initialize(IBrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
     }
 }

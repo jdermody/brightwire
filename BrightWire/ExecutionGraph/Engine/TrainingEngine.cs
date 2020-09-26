@@ -149,7 +149,7 @@ namespace BrightWire.ExecutionGraph.Engine
 		public IDataSource DataSource => _dataSource;
 		public ILearningContext LearningContext { get; }
 		public INode GetInput(uint index) => _input[(int)index];
-		public Models.ExecutionGraph Graph => Start.GetGraph();
+		public ExecutionGraphModel Graph => Start.GetGraph();
 		public ILinearAlgebraProvider LinearAlgebraProvider => _lap;
 		public INode Start { get; }
 
@@ -257,13 +257,13 @@ namespace BrightWire.ExecutionGraph.Engine
 			return flag;
 		}
 
-		void _LoadParamaters(Models.ExecutionGraph.Node nodeModel)
+		void _LoadParamaters(ExecutionGraphModel.Node nodeModel)
 		{
 			var node = Start.FindById(nodeModel.Id);
 			node.LoadParameters(nodeModel);
 		}
 
-		public void LoadParametersFrom(Models.ExecutionGraph graph)
+		public void LoadParametersFrom(ExecutionGraphModel graph)
 		{
 			if (graph.InputNode != null)
 				_LoadParamaters(graph.InputNode);

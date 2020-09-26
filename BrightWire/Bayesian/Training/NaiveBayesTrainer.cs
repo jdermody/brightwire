@@ -81,7 +81,7 @@ namespace BrightWire.Bayesian.Training
                             columnList.Add(new NaiveBayes.Column {
                                 Type = NaiveBayes.ColumnType.Categorical,
                                 ColumnIndex = column.Key,
-                                Probability = list
+                                Probability = list.ToArray()
                             });
                         }
                     } else {
@@ -102,14 +102,14 @@ namespace BrightWire.Bayesian.Training
                 var probability = (double)classSummary.Value.Total / rowCount;
                 classList.Add(new NaiveBayes.ClassSummary {
                     Label = classLabel,
-                    ColumnSummary = columnList,
+                    ColumnSummary = columnList.ToArray(),
                     LogPrior = Math.Log(probability),
                     Prior = probability
                 });
             }
 
             return new NaiveBayes {
-                Class = classList
+                Class = classList.ToArray()
             };
         }
     }

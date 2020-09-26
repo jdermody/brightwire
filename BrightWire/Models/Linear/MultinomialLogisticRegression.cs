@@ -1,4 +1,6 @@
-﻿using BrightData;
+﻿using System.IO;
+using BrightData;
+using BrightWire.Helper;
 using BrightWire.Linear;
 
 namespace BrightWire.Models.Linear
@@ -6,7 +8,7 @@ namespace BrightWire.Models.Linear
     /// <summary>
     /// Multinomial logistic regression model
     /// </summary>
-    public class MultinomialLogisticRegression
+    public class MultinomialLogisticRegression : ISerializable
     {
         /// <summary>
         /// The list of logistic regression models
@@ -32,5 +34,9 @@ namespace BrightWire.Models.Linear
         {
             return new MultinomialLogisticRegressionClassifier(lap, this);
         }
+
+        public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
+
+        public void Initialize(IBrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
     }
 }

@@ -25,7 +25,7 @@ namespace ExampleCode.Datasets
             TestImages = testImages;
         }
 
-        public ExecutionGraph TrainFeedForwardNeuralNetwork(
+        public ExecutionGraphModel TrainFeedForwardNeuralNetwork(
             uint hiddenLayerSize = 1024,
             uint numIterations = 20,
             float trainingRate = 0.1f,
@@ -36,7 +36,7 @@ namespace ExampleCode.Datasets
             return trainer.TrainingFeedForwardNeuralNetwork(hiddenLayerSize, numIterations, trainingRate, batchSize);
         }
 
-        public ExecutionGraph TrainConvolutionalNeuralNetwork(
+        public ExecutionGraphModel TrainConvolutionalNeuralNetwork(
             uint hiddenLayerSize = 1024,
             uint numIterations = 20,
             float trainingRate = 0.1f,

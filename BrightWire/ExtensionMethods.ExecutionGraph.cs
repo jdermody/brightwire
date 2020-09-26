@@ -62,14 +62,14 @@ namespace BrightWire
         /// <param name="input"></param>
         /// <param name="name">Name of the graph (optional)</param>
         /// <returns></returns>
-        public static Models.ExecutionGraph GetGraph(this INode input, string name = null)
+        public static Models.ExecutionGraphModel GetGraph(this INode input, string name = null)
         {
-            var connectedTo = new List<Models.ExecutionGraph.Node>();
-            var wireList = new HashSet<Models.ExecutionGraph.Wire>();
+            var connectedTo = new List<Models.ExecutionGraphModel.Node>();
+            var wireList = new HashSet<Models.ExecutionGraphModel.Wire>();
             var existing = new HashSet<INode>();
             var data = input.SerialiseTo(existing, connectedTo, wireList);
 
-            return new Models.ExecutionGraph {
+            return new Models.ExecutionGraphModel {
                 Name = name,
                 InputNode = data,
                 OtherNodes = connectedTo.ToArray(),
@@ -82,7 +82,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="factory"></param>
         /// <param name="graph">Serialised graph</param>
-        public static INode CreateFrom(this GraphFactory factory, Models.ExecutionGraph graph)
+        public static INode CreateFrom(this GraphFactory factory, Models.ExecutionGraphModel graph)
         {
             // create the input node
             var nodeTable = new Dictionary<string, INode>();

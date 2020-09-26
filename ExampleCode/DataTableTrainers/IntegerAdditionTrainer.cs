@@ -45,7 +45,7 @@ namespace ExampleCode.DataTableTrainers
             ;
 
             // train the network for twenty iterations, saving the model on each improvement
-            ExecutionGraph bestGraph = null;
+            ExecutionGraphModel bestGraph = null;
             engine.Train(TRAINING_ITERATIONS, testData, errorMetric, bn => bestGraph = bn.Graph);
 
             if (writeResults) {

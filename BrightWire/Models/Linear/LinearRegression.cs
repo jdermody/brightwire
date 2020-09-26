@@ -1,4 +1,6 @@
-﻿using BrightData;
+﻿using System.IO;
+using BrightData;
+using BrightWire.ExecutionGraph;
 using BrightWire.Linear;
 
 namespace BrightWire.Models.Linear
@@ -6,7 +8,7 @@ namespace BrightWire.Models.Linear
     /// <summary>
     /// A linear regression model
     /// </summary>
-    public class LinearRegression
+    public class LinearRegression : ISerializable
     {
         /// <summary>
         /// The model parameters
@@ -20,6 +22,16 @@ namespace BrightWire.Models.Linear
         public ILinearRegressionPredictor CreatePredictor(ILinearAlgebraProvider lap)
         {
             return new RegressionPredictor(lap, lap.CreateVector(Theta.Segment));
+        }
+
+        public void WriteTo(BinaryWriter writer)
+        {
+            Theta.WriteTo(writer);
+        }
+
+        public void Initialize(IBrightDataContext context, BinaryReader reader)
+        {
+            Theta.Initialize(context, reader);
         }
     }
 }

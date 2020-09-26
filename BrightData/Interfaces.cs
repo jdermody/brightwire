@@ -52,7 +52,7 @@ namespace BrightData
         bool IsValid { get; }
     }
 
-    public interface ITensor : IDisposable, ICanWriteToBinaryWriter, ICanInitializeFromBinaryReader
+    public interface ITensor : IDisposable, ISerializable
     {
         uint[] Shape { get; }
         uint Size { get; }

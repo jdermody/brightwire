@@ -1,11 +1,14 @@
-﻿using BrightWire.TreeBased;
+﻿using System.IO;
+using BrightData;
+using BrightWire.Helper;
+using BrightWire.TreeBased;
 
 namespace BrightWire.Models.TreeBased
 {
     /// <summary>
     /// A random forest model
     /// </summary>
-    public class RandomForest
+    public class RandomForest : ISerializable
     {
         /// <summary>
         /// The list of trees in the forest
@@ -20,5 +23,9 @@ namespace BrightWire.Models.TreeBased
         {
             return new RandomForestClassifier(this);
         }
+
+        public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
+
+        public void Initialize(IBrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
     }
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using BrightWire.Models;
 
 namespace BrightWire.ExecutionGraph.Node
 {
@@ -123,10 +124,10 @@ namespace BrightWire.ExecutionGraph.Node
         /// <param name="connectedTo">List of nodes this node is connected to</param>
         /// <param name="wireList">List of wires between all connected nodes</param>
         /// <returns></returns>
-        public virtual Models.ExecutionGraph.Node SerialiseTo(HashSet<INode> existing, List<Models.ExecutionGraph.Node> connectedTo, HashSet<Models.ExecutionGraph.Wire> wireList)
+        public virtual ExecutionGraphModel.Node SerialiseTo(HashSet<INode> existing, List<Models.ExecutionGraphModel.Node> connectedTo, HashSet<Models.ExecutionGraphModel.Wire> wireList)
         {
             var info = _GetInfo();
-            var ret = new Models.ExecutionGraph.Node {
+            var ret = new ExecutionGraphModel.Node {
                 Id = _id,
                 Name = _name,
                 Data = info.Data,
@@ -138,7 +139,7 @@ namespace BrightWire.ExecutionGraph.Node
             if (connectedTo != null && wireList != null) {
                 foreach (var wire in Output) {
                     var sendTo = wire.SendTo;
-                    wireList.Add(new Models.ExecutionGraph.Wire {
+                    wireList.Add(new ExecutionGraphModel.Wire {
                         FromId = _id,
                         InputChannel = wire.Channel,
                         ToId = sendTo.Id
@@ -291,7 +292,7 @@ namespace BrightWire.ExecutionGraph.Node
         /// <returns></returns>
         protected static INode _Hydrate(GraphFactory factory, BinaryReader reader)
         {
-            var model = new Models.ExecutionGraph.Node(reader);
+            var model = new Models.ExecutionGraphModel.Node(reader);
             return factory?.Create(model);
         }
 
@@ -299,7 +300,7 @@ namespace BrightWire.ExecutionGraph.Node
         /// Loads parameters into an existing node
         /// </summary>
         /// <param name="nodeData">Serialised node parameters</param>
-        public virtual void LoadParameters(Models.ExecutionGraph.Node nodeData)
+        public virtual void LoadParameters(Models.ExecutionGraphModel.Node nodeData)
         {
             if(nodeData.Data != null)
                 _ReadFrom(nodeData.Data, reader => ReadFrom(null, reader));

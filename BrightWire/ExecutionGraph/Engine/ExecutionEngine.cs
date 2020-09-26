@@ -15,14 +15,14 @@ namespace BrightWire.ExecutionGraph.Engine
 	{
 		readonly List<(ExecutionEngineContext Context, IFloatMatrix[] Data)> _executionResults = new List<(ExecutionEngineContext, IFloatMatrix[])>();
 
-		public ExecutionEngine(ILinearAlgebraProvider lap, Models.ExecutionGraph graph, INode start) : base(lap)
+		public ExecutionEngine(ILinearAlgebraProvider lap, ExecutionGraphModel graph, INode start) : base(lap)
 		{
 			Graph = graph;
 			Start = start;
 		}
 
 		public INode Start { get; }
-		public Models.ExecutionGraph Graph { get; }
+		public ExecutionGraphModel Graph { get; }
 		public IDataSource DataSource => _dataSource;
 		public ILinearAlgebraProvider LinearAlgebraProvider => _lap;
 

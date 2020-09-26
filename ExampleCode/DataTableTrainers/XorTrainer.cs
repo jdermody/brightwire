@@ -16,7 +16,7 @@ namespace ExampleCode.DataTableTrainers
         {
         }
 
-        public ExecutionGraph TrainSigmoidNeuralNetwork(uint hiddenLayerSize, uint numIterations, float learningRate, uint batchSize, bool writeResults = true)
+        public ExecutionGraphModel TrainSigmoidNeuralNetwork(uint hiddenLayerSize, uint numIterations, float learningRate, uint batchSize, bool writeResults = true)
         {
             var context = Table.Context;
 

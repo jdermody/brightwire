@@ -1,9 +1,13 @@
-﻿namespace BrightWire.Models
+﻿using System.IO;
+using BrightData;
+using BrightWire.Helper;
+
+namespace BrightWire.Models
 {
     /// <summary>
     /// A serialised graph
     /// </summary>
-    public class GraphModel
+    public class GraphModel : ISerializable
     {
         /// <summary>
         /// Segment contract version number
@@ -18,11 +22,15 @@
         /// <summary>
         /// The primary execution graph
         /// </summary>
-        public ExecutionGraph Graph { get; set; }
+        public ExecutionGraphModel Graph { get; set; }
 
         /// <summary>
         /// Optional data source associated with the model
         /// </summary>
         public DataSourceModel DataSource { get; set; }
+
+        public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
+
+        public void Initialize(IBrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
     }
 }
