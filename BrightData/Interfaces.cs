@@ -111,7 +111,7 @@ namespace BrightData
         where T : struct
     {
         IBrightDataContext Context { get; }
-        (T[] Block, bool IsNewCopy) GetBlock(ITensorPool pool);
+        bool IsContiguous { get; }
         T this[uint index] { get; set; }
         T this[long index] { get; set; }
         T[] ToArray();

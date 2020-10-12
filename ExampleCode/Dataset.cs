@@ -1,20 +1,16 @@
 ﻿using System;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
 using BrightData;
-using BrightData.Distributions;
 using BrightTable;
-using BrightWire;
 using BrightWire.TrainingData.Artificial;
 using BrightWire.TrainingData.Helper;
+using ExampleCode.Datasets;
 using ExampleCode.DataTableTrainers;
 
-namespace ExampleCode.Datasets
+namespace ExampleCode
 {
     static class Dataset
     {

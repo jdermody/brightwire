@@ -20,7 +20,8 @@
 	var enumList = new List<CodeEnum>();
 	var interfaceList = new List<CodeInterface>();
 	foreach(var project in dte.Solution.Projects.Cast<Project>()) {
-        if(project.FullName.Contains("BrightWire.")) {
+        var name = project.Name;
+        if(name == "BrightWire" || name == "BrightTable" || name == "BrightData") {
 			foreach(var file in project.ProjectItems.Cast<ProjectItem>()) {
 				Collect(file, classList, enumList, interfaceList);
             }

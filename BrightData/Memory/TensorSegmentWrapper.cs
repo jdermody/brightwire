@@ -57,13 +57,7 @@ namespace BrightData.Memory
             }
         }
 
-        public (T[] Block, bool IsNewCopy) GetBlock(ITensorPool pool)
-        {
-            var ret = pool.Get<T>(Size);
-            for (uint i = 0, len = Size; i < len; i++)
-                ret[i] = this[i];
-            return (ret, true);
-        }
+        public bool IsContiguous { get; } = false;
 
         public T this[uint index] {
             get => _segment[_offset + index * _stride];

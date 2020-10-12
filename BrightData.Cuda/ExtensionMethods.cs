@@ -14,7 +14,7 @@ namespace BrightData.Cuda
         /// <param name="context"></param>
         /// <param name="memoryCacheSize">The amount of device memory to use an application memory cache</param>
         /// <param name="cudaKernelPath">Path to .cubin or .ptx kernel file (defaults to .ptx file for forward compatability)</param>
-        public static ILinearAlgebraProvider UseCudaLinearAlgebra(this IBrightDataContext context, uint memoryCacheSize = 512 * 1048576, string cudaKernelPath = null)
+        public static ILinearAlgebraProvider UseCudaLinearAlgebra(this IBrightDataContext context, string cudaKernelPath = null, uint memoryCacheSize = 512 * 1048576)
         {
             var path = cudaKernelPath ?? GetKernelPath();
             if (!File.Exists(path))

@@ -31,10 +31,7 @@ namespace BrightData.Memory
             }
         }
 
-        public (T[] Block, bool IsNewCopy) GetBlock(ITensorPool pool)
-        {
-            return (_data, false);
-        }
+        public bool IsContiguous { get; } = true;
 
         public T this[uint index] {
             get => _data[index];

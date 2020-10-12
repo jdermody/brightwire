@@ -1,29 +1,19 @@
-﻿using System;
-using System.ComponentModel;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
-using System.Text;
 using BrightData;
-using BrightData.Helper;
-using BrightTable;
-using BrightTable.Input;
-using BrightTable.Segments;
-using BrightWire;
-using BrightData.Numerics;
-using BrightTable.Transformations;
 using BrightData.Cuda;
-using BrightTable.Helper;
-using BrightWire.ExecutionGraph;
-using ExampleCode;
-using ExampleCode.Datasets;
+using BrightData.Numerics;
+using BrightTable;
+using BrightWire;
 
-namespace ConsoleTest
+namespace ExampleCode
 {
     class Program
     {
         static void Main(string[] args)
         {
             using var context = new BrightDataContext(0);
+
             context.Set("DataFileDirectory", new DirectoryInfo(@"c:\data"));
             context.UseCudaLinearAlgebra();
             //context.UseNumericsLinearAlgebra();

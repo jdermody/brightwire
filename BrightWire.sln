@@ -27,6 +27,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrightData.Cuda", "BrightDa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExampleCode", "ExampleCode\ExampleCode.csproj", "{88F70D92-65B4-4BD8-B7DA-F6842DDFB647}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrightWire.UnitTests", "BrightWire.UnitTests\BrightWire.UnitTests.csproj", "{5FF6621A-E6DC-4214-8C8A-9C2D57BF75EA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -107,6 +109,14 @@ Global
 		{88F70D92-65B4-4BD8-B7DA-F6842DDFB647}.Release|Any CPU.Build.0 = Release|Any CPU
 		{88F70D92-65B4-4BD8-B7DA-F6842DDFB647}.Release|x64.ActiveCfg = Release|Any CPU
 		{88F70D92-65B4-4BD8-B7DA-F6842DDFB647}.Release|x64.Build.0 = Release|Any CPU
+		{5FF6621A-E6DC-4214-8C8A-9C2D57BF75EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5FF6621A-E6DC-4214-8C8A-9C2D57BF75EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5FF6621A-E6DC-4214-8C8A-9C2D57BF75EA}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{5FF6621A-E6DC-4214-8C8A-9C2D57BF75EA}.Debug|x64.Build.0 = Debug|Any CPU
+		{5FF6621A-E6DC-4214-8C8A-9C2D57BF75EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5FF6621A-E6DC-4214-8C8A-9C2D57BF75EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5FF6621A-E6DC-4214-8C8A-9C2D57BF75EA}.Release|x64.ActiveCfg = Release|Any CPU
+		{5FF6621A-E6DC-4214-8C8A-9C2D57BF75EA}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

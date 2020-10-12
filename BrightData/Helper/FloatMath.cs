@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using BrightData.FloatTensors;
 
 namespace BrightData.Helper
 {
@@ -53,5 +54,136 @@ namespace BrightData.Helper
             }
         }
         public static IEqualityComparer<float> GetEqualityComparer(float tolerance = AlmostZero) => new EqualityComparer(tolerance);
+
+        public static unsafe int FloatToInt32Bits(float f)
+        {
+            return *((int*)&f);
+        }
+
+        public static bool AlmostEqual2SComplement(float a, float b, int maxDeltaBits)
+        {
+            var aInt = FloatToInt32Bits(a);
+            if (aInt < 0)
+                aInt = Int32.MinValue - aInt;
+
+            var bInt = FloatToInt32Bits(b);
+            if (bInt < 0)
+                bInt = Int32.MinValue - bInt;
+
+            var intDiff = Math.Abs(aInt - bInt);
+            return intDiff <= (1 << maxDeltaBits);
+        }
+
+        public static bool AreApproximatelyEqual(float v1, float v2, int maxDifference = 6)
+        {
+            if (float.IsNaN(v1) && float.IsNaN(v2))
+                return true;
+            return AlmostEqual2SComplement(v1, v2, maxDifference);
+        }
+
+        public static bool AreApproximatelyEqual(IIndexable4DFloatTensor t1, IIndexable4DFloatTensor t2, int maxDifference = 6)
+        {
+            if (t1.Count != t2.Count)
+                return false;
+            for (var i = 0; i < t1.Count; i++) {
+                if (!AreApproximatelyEqual(t1.Tensors[i], t2.Tensors[i]))
+                    return false;
+            }
+
+            return true;
+        }
+
+        public static bool AreApproximatelyEqual(IIndexable3DFloatTensor t1, IIndexable3DFloatTensor t2, int maxDifference = 6)
+        {
+            if (t1.Depth != t2.Depth)
+                return false;
+
+            for (var i = 0; i < t1.Depth; i++) {
+                if (!AreApproximatelyEqual(t1.Matrix[i], t2.Matrix[i]))
+                    return false;
+            }
+
+            return true;
+        }
+
+        public static bool AreApproximatelyEqual(IIndexableFloatMatrix m1, IIndexableFloatMatrix m2, int maxDifference = 6)
+        {
+            if (m1.RowCount != m2.RowCount || m1.ColumnCount != m2.ColumnCount)
+                return false;
+
+            for (uint i = 0; i < m1.RowCount; i++) {
+                for (uint j = 0; j < m1.ColumnCount; j++) {
+                    if (!AreApproximatelyEqual(m1[i, j], m2[i, j], maxDifference))
+                        return false;
+                }
+            }
+
+            return true;
+        }
+
+        public static bool AreApproximatelyEqual(IIndexableFloatVector v1, IIndexableFloatVector v2, int maxDifference = 6)
+        {
+            if (v1.Count != v2.Count)
+                return false;
+
+            for (uint i = 0; i < v1.Count; i++) {
+                if (!AreApproximatelyEqual(v1[i], v2[i], maxDifference))
+                    return false;
+            }
+
+            return true;
+        }
+
+        public static bool AreApproximatelyEqual(Tensor4D<float> t1, Tensor4D<float> t2, int maxDifference = 6)
+        {
+            if (t1.Count != t2.Count)
+                return false;
+
+            for (uint i = 0; i < t1.Count; i++) {
+                if (!AreApproximatelyEqual(t1.Tensor(i), t2.Tensor(i)))
+                    return false;
+            }
+
+            return true;
+        }
+
+        public static bool AreApproximatelyEqual(Tensor3D<float> t1, Tensor3D<float> t2, int maxDifference = 6)
+        {
+            if (t1.Depth != t2.Depth)
+                return false;
+
+            for (uint i = 0; i < t1.Depth; i++) {
+                if (!AreApproximatelyEqual(t1.Matrix(i), t2.Matrix(i)))
+                    return false;
+            }
+
+            return true;
+        }
+
+        public static bool AreApproximatelyEqual(Matrix<float> m1, Matrix<float> m2, int maxDifference = 6)
+        {
+            if (m1.RowCount != m2.RowCount || m1.ColumnCount != m2.ColumnCount)
+                return false;
+
+            for (uint i = 0; i < m1.RowCount; i++) {
+                if(!AreApproximatelyEqual(m1.Row(i), m2.Row(i), maxDifference))
+                    return false;
+            }
+
+            return true;
+        }
+
+        public static bool AreApproximatelyEqual(Vector<float> v1, Vector<float> v2, int maxDifference = 6)
+        {
+            if (v1.Size != v2.Size)
+                return false;
+
+            for (var i = 0; i < v1.Size; i++) {
+                if (!AreApproximatelyEqual(v1[i], v2[i], maxDifference))
+                    return false;
+            }
+
+            return true;
+        }
     }
 }

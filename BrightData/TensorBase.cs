@@ -24,6 +24,7 @@ namespace BrightData
         {
             Shape = shape;
             _segment = segment;
+            _segment.AddRef();
         }
 
         public void Initialize(IBrightDataContext context, BinaryReader reader)
@@ -48,12 +49,8 @@ namespace BrightData
         public void Dispose()
         {
             if (!_wasDisposed) {
-                lock (this) {
-                    if (_wasDisposed) {
-                        _wasDisposed = true;
-                        _segment.Release();
-                    }
-                }
+                _wasDisposed = true;
+                _segment.Release();
             }
         }
 
@@ -140,11 +137,10 @@ namespace BrightData
         public List<ITensorSegment<T>> Split(uint blockCount) => Computation.Split(_segment, blockCount);
         public ITensorSegment<T> Segment => _segment;
 
-        public DT Clone()
-        {
-            var (block, isNewCopy) = _segment.GetBlock(Context.TensorPool);
-            return Create(Context.CreateSegment(isNewCopy ? block : (T[])block.Clone()));
-        }
+        public DT Clone() => Create(_segment.IsContiguous
+            ? _segment
+            : Context.CreateSegment(_segment.ToArray())
+        );
 
         static uint[] _ResolveShape(uint total, uint?[] shape)
         {
