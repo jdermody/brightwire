@@ -83,6 +83,9 @@ namespace BrightWire.ExecutionGraph.DataSource
             throw new NotImplementedException();
         }
 
+        public IVectorise InputVectoriser { get; } = null;
+        public IVectorise OutputVectoriser { get; } = null;
+
         public void OnBatchProcessed(IContext context)
         {
             // nop

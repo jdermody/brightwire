@@ -36,7 +36,7 @@ namespace BrightWire.InstanceBased
             var featureCount = _model.DataColumns.Length;
             var features = new float[featureCount];
             for (var i = 0; i < featureCount; i++)
-                features[i] = row.GetField<float>(_model.DataColumns[i]);
+                features[i] = row.GetTyped<float>(_model.DataColumns[i]);
 
             // TODO: categorical features?
 

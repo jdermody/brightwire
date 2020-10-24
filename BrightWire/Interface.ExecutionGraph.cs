@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using BrightData;
+using BrightTable.Transformations;
 
 namespace BrightWire
 {
@@ -459,6 +460,10 @@ namespace BrightWire
         /// <param name="dataTable">The new data table</param>
         /// <returns></returns>
         IDataSource CloneWith(IRowOrientedDataTable dataTable);
+
+        IVectorise InputVectoriser { get; }
+
+        IVectorise OutputVectoriser { get; }
     }
 
     /// <summary>

@@ -10,30 +10,27 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
     /// </summary>
     class DefaultDataTableAdaptor : RowBasedDataTableAdaptorBase
     {
-        readonly DataTableVectoriser _inputVectoriser;
-        readonly DataTableVectoriser _outputVectoriser;
-
-        public DefaultDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, DataTableVectoriser inputVectoriser, DataTableVectoriser outputVectoriser)
+        public DefaultDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, IVectorise inputVectoriser, IVectorise outputVectoriser)
             : base(lap, dataTable)
         {
-            _inputVectoriser = inputVectoriser ?? new DataTableVectoriser(dataTable, _dataColumnIndex);
-            _outputVectoriser = outputVectoriser ?? new DataTableVectoriser(dataTable, dataTable.GetTargetColumnOrThrow());
+            InputVectoriser = inputVectoriser ?? new DataTableVectoriser(dataTable, _dataColumnIndex);
+            OutputVectoriser = outputVectoriser ?? new DataTableVectoriser(dataTable, dataTable.GetTargetColumnOrThrow());
         }
 
         public override IDataSource CloneWith(IRowOrientedDataTable dataTable)
         {
-            return new DefaultDataTableAdaptor(_lap, dataTable, _inputVectoriser, _outputVectoriser);
+            return new DefaultDataTableAdaptor(_lap, dataTable, InputVectoriser, OutputVectoriser);
         }
 
-        public override uint InputSize => _inputVectoriser.Size;
-        public override uint? OutputSize => _outputVectoriser.Size;
+        public override uint InputSize => InputVectoriser.OutputSize;
+        public override uint? OutputSize => OutputVectoriser.OutputSize;
         public override bool IsSequential => false;
 
         public override IMiniBatch Get(IExecutionContext executionContext, uint[] rowIndices)
         {
             var rows = _GetRows(rowIndices);
             var data = rows
-                .Select(r => (new[] { _inputVectoriser.Convert(r) }, _outputVectoriser.Convert(r)))
+                .Select(r => (new[] { InputVectoriser.Vectorise(r) }, OutputVectoriser.Vectorise(r)))
                 .ToArray()
             ;
             return _GetMiniBatch(rowIndices, data);

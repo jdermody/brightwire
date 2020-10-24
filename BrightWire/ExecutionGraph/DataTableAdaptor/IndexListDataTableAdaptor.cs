@@ -11,17 +11,15 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
     /// </summary>
     class IndexListDataTableAdaptor : DataTableAdaptorBase<(IndexList, float[])>, IIndexListEncoder
     {
-        private readonly DataTableVectoriser _outputVectoriser;
-
-        public IndexListDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, DataTableVectoriser outputVectoriser)
+        public IndexListDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, IVectorise outputVectoriser)
             : base(lap, dataTable)
         {
-            _outputVectoriser = outputVectoriser ?? new DataTableVectoriser(dataTable, dataTable.GetTargetColumnOrThrow());
-            OutputSize = _outputVectoriser.Size;
+            OutputVectoriser = outputVectoriser ?? new DataTableVectoriser(dataTable, dataTable.GetTargetColumnOrThrow());
+            OutputSize = OutputVectoriser.OutputSize;
 
             // load the data
             uint inputSize = 0;
-            dataTable.ForEachRow(row => _data.Add((Combine(_dataColumnIndex.Select(i => (IndexList)row[i]), ref inputSize), _outputVectoriser.Convert(row))));
+            dataTable.ForEachRow(row => _data.Add((Combine(_dataColumnIndex.Select(i => (IndexList)row[i]), ref inputSize), OutputVectoriser.Vectorise(row))));
             InputSize = inputSize;
         }
 
@@ -55,7 +53,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 
         public override IDataSource CloneWith(IRowOrientedDataTable dataTable)
         {
-            return new IndexListDataTableAdaptor(_lap, dataTable, _outputVectoriser);
+            return new IndexListDataTableAdaptor(_lap, dataTable, OutputVectoriser);
         }
     }
 }

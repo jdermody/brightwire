@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\BrightData.UnitTests\BrightData.UnitTests.csproj" />
     <ProjectReference Include="..\BrightTable\BrightTable.csproj" />
   </ItemGroup>
 

@@ -24,10 +24,10 @@ namespace BrightWire.TreeBased
                 if (p.ColumnIndex.HasValue) {
                     string findChild = null;
                     if(p.Split.HasValue) {
-                        var val = row.GetField<double>(p.ColumnIndex.Value);
+                        var val = row.GetTyped<double>(p.ColumnIndex.Value);
                         findChild = (val < p.Split.Value) ? "-" : "+";
                     }else
-                        findChild = row.GetField<string>(p.ColumnIndex.Value);
+                        findChild = row.GetTyped<string>(p.ColumnIndex.Value);
 
                     if (findChild != null) {
                         var child = p.Children.FirstOrDefault(c => c.MatchLabel == findChild);

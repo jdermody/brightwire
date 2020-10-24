@@ -26,6 +26,8 @@ namespace BrightData
             return lap.CreateVector(data.Count, i => data[i]);
         }
 
+        public static IFloatVector CreateVector(this ILinearAlgebraProvider lap, IFloatVector data) => CreateVector(lap, data.Data);
+
         /// <summary>
         /// Create a vector
         /// </summary>

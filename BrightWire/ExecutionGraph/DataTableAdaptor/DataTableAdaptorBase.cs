@@ -52,8 +52,10 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 
         public abstract IMiniBatch Get(IExecutionContext executionContext, uint[] rows);
         public abstract IDataSource CloneWith(IRowOrientedDataTable dataTable);
+        public IVectorise InputVectoriser { get; protected set; }
+        public IVectorise OutputVectoriser { get; protected set; }
 
-	    /// <inheritdoc />
+        /// <inheritdoc />
         public virtual uint[][] GetBuckets()
         {
             return new[] {

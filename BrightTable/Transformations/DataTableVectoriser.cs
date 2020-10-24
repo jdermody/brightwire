@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace BrightTable.Transformations
 {
-    public class DataTableVectoriser : IHaveDataContext
+    public class DataTableVectoriser : IHaveDataContext, IVectorise
     {
         interface IColumnVectoriser : IDisposable
         {
@@ -139,16 +139,26 @@ namespace BrightTable.Transformations
                 _buffer[index] = 1f;
                 return _buffer;
             }
+
+            public string GetOutputLabel(uint index)
+            {
+                var ret = _stringIndex
+                    .Where(kv => kv.Value == index)
+                    .Select(kv => kv.Key)
+                    .SingleOrDefault();
+                if(ret == null)
+                    throw new ArgumentException($"Index {index} not found");
+                return ret;
+            }
         }
 
         readonly List<IColumnVectoriser> _input = new List<IColumnVectoriser>();
 
-        public uint Size => (uint)_input.Sum(c => c.Size);
+        public uint OutputSize => (uint)_input.Sum(c => c.Size);
         public uint RowCount { get; }
         public IBrightDataContext Context { get; }
-        public IEnumerable<uint> ColumnIndices => _input.Select(c => c.ColumnIndex);
 
-        public float[] Convert(object[] row)
+        public float[] Vectorise(object[] row)
         {
             return _input.SelectMany(i => i.Convert(row[i.ColumnIndex])).ToArray();
         }
@@ -168,7 +178,7 @@ namespace BrightTable.Transformations
 
         public IEnumerable<Vector<float>> Enumerate()
         {
-            var ret = new float[Size];
+            var ret = new float[OutputSize];
 
             for (uint i = 0; i < RowCount; i++) {
                 var index = 0;
@@ -179,6 +189,16 @@ namespace BrightTable.Transformations
                 var input = Context.CreateVector(ret);
                 yield return input;
             }
+        }
+
+        public string GetOutputLabel(uint columnIndex, uint vectorIndex)
+        {
+            if(columnIndex < _input.Count)
+                throw new ArgumentException($"Column index should be less than {_input.Count}");
+            var column = _input[(int) columnIndex] as OneHotEncodeVectorised;
+            if(column == null)
+                throw new ArgumentException($"Column {columnIndex} is not a one hot encoded column");
+            return column.GetOutputLabel(vectorIndex);
         }
 
         static IColumnVectoriser _GetColumnVectoriser(ISingleTypeTableSegment column)

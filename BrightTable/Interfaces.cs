@@ -247,7 +247,7 @@ namespace BrightTable
 
     public interface IConvertibleTable
     {
-        IConvertibleRow GetRow(uint index);
+        IConvertibleRow Row(uint index);
         IEnumerable<IConvertibleRow> Rows(params uint[] rowIndices);
         IRowOrientedDataTable DataTable { get; }
         IEnumerable<T> Map<T>(Func<IConvertibleRow, T> rowMapper);
@@ -266,9 +266,11 @@ namespace BrightTable
 
     public interface IConvertibleRow : IHaveDataTable
     {
+        object Get(uint index);
         IDataTableSegment Segment { get; }
-        T GetField<T>(uint index);
+        T GetTyped<T>(uint index);
         uint RowIndex { get; }
+        uint NumColumns { get; }
     }
 
     public interface ITypedRowConsumer
@@ -279,5 +281,12 @@ namespace BrightTable
 
     public interface ITypedRowConsumer<in T> : ITypedRowConsumer, IEditableBuffer<T>
     {
+    }
+
+    public interface IVectorise
+    {
+        float[] Vectorise(object[] row);
+        uint OutputSize { get; }
+        string GetOutputLabel(uint columnIndex, uint vectorIndex);
     }
 }

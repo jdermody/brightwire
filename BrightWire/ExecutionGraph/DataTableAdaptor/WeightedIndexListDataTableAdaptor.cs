@@ -11,17 +11,15 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
     /// </summary>
     class WeightedIndexListDataTableAdaptor : DataTableAdaptorBase<(WeightedIndexList, float[])>, IWeightedIndexListEncoder
     {
-        private readonly DataTableVectoriser _outputVectoriser;
-
-        public WeightedIndexListDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, DataTableVectoriser outputVectoriser)
+        public WeightedIndexListDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, IVectorise outputVectoriser)
             : base(lap, dataTable)
         {
-            _outputVectoriser = outputVectoriser ?? new DataTableVectoriser(dataTable, dataTable.GetTargetColumnOrThrow());
-            OutputSize = _outputVectoriser.Size;
+            OutputVectoriser = outputVectoriser ?? new DataTableVectoriser(dataTable, dataTable.GetTargetColumnOrThrow());
+            OutputSize = OutputVectoriser.OutputSize;
 
             // load the data
             uint inputSize = 0;
-            dataTable.ForEachRow(row => _data.Add((Combine(_dataColumnIndex.Select(i => (WeightedIndexList)row[i]), ref inputSize), _outputVectoriser.Convert(row))));
+            dataTable.ForEachRow(row => _data.Add((Combine(_dataColumnIndex.Select(i => (WeightedIndexList)row[i]), ref inputSize), OutputVectoriser.Vectorise(row))));
             InputSize = inputSize;
         }
 
@@ -58,7 +56,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 
         public override IDataSource CloneWith(IRowOrientedDataTable dataTable)
         {
-            return new WeightedIndexListDataTableAdaptor(_lap, dataTable, _outputVectoriser);
+            return new WeightedIndexListDataTableAdaptor(_lap, dataTable, OutputVectoriser);
         }
     }
 }

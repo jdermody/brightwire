@@ -213,7 +213,7 @@ namespace BrightWire
                 throw new ArgumentException("No index list column of features");
 
             var data = table.AsConvertible()
-                .Map((row => (row.GetField<string>(targetColumnIndex), row.GetField<IndexList>(indexListColumn.Index))));
+                .Map((row => (row.GetTyped<string>(targetColumnIndex), row.GetTyped<IndexList>(indexListColumn.Index))));
             return data.TrainMultinomialNaiveBayes();
         }
 
@@ -243,7 +243,7 @@ namespace BrightWire
                 .Single(c => c.ColumnType == ColumnType.IndexList);
 
             var data = table.AsConvertible()
-                .Map(row => (row.GetField<string>(targetColumnIndex), row.GetField<IndexList>(indexListColumn.Index)));
+                .Map(row => (row.GetTyped<string>(targetColumnIndex), row.GetTyped<IndexList>(indexListColumn.Index)));
             return data.TrainBernoulliNaiveBayes();
         }
 

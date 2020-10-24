@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\BrightData.Cuda\BrightData.Cuda.csproj" />
     <ProjectReference Include="..\BrightData\BrightData.csproj" />
   </ItemGroup>
 

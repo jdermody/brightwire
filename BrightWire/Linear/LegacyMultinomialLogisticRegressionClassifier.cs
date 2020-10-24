@@ -24,7 +24,7 @@ namespace BrightWire.Linear
             var featureCount = _model.FeatureColumn.Length;
             var features = new float[featureCount];
             for (var i = 0; i < featureCount; i++)
-                features[i] = row.GetField<float>(_model.FeatureColumn[i]);
+                features[i] = row.GetTyped<float>(_model.FeatureColumn[i]);
 
             return _classifier.Select((m, i) => Tuple.Create(i, m.Predict(features)));
         }

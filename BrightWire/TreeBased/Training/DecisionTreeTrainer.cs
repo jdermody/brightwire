@@ -86,11 +86,11 @@ namespace BrightWire.TreeBased.Training
 
             public InMemoryRow(IConvertibleRow row, HashSet<uint> categorical, HashSet<uint> continuous, uint classColumnIndex)
             {
-                ClassificationLabel = row.GetField<string>(classColumnIndex);
+                ClassificationLabel = row.GetTyped<string>(classColumnIndex);
                 foreach (var columnIndex in categorical)
-                    _category.Add(columnIndex, row.GetField<string>(columnIndex));
+                    _category.Add(columnIndex, row.GetTyped<string>(columnIndex));
                 foreach(var columnIndex in continuous)
-                    _continuous.Add(columnIndex, row.GetField<double>(columnIndex));
+                    _continuous.Add(columnIndex, row.GetTyped<double>(columnIndex));
             }
             public string ClassificationLabel { get; }
 

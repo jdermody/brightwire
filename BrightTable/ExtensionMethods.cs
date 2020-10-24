@@ -661,9 +661,9 @@ namespace BrightTable
 
             var context = dataTable.Context;
             dataTable.ForEachRow(row => {
-                var input = inputVectoriser.Convert(row);
+                var input = inputVectoriser.Vectorise(row);
                 if (outputVectoriser != null)
-                    builder.AddRow(context.CreateVector(input), context.CreateVector(outputVectoriser.Convert(row)));
+                    builder.AddRow(context.CreateVector(input), context.CreateVector(outputVectoriser.Vectorise(row)));
                 else
                     builder.AddRow(input);
             });

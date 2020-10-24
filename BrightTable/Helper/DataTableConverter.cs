@@ -21,7 +21,7 @@ namespace BrightTable.Helper
             public IDataTableSegment Segment { get; }
             public IDataTable DataTable => _converter.DataTable;
 
-            public T GetField<T>(uint index) => _converter.GetField<T>(index, Segment[index]);
+            public T GetTyped<T>(uint index) => _converter.GetField<T>(index, Segment[index]);
             public uint RowIndex { get; }
         }
         enum TypeConversion
@@ -42,18 +42,18 @@ namespace BrightTable.Helper
         public IEnumerable<T> Map<T>(Func<IConvertibleRow, T> rowMapper)
         {
             for (uint i = 0, len = DataTable.RowCount; i < len; i++)
-                yield return rowMapper(GetRow(i));
+                yield return rowMapper(Row(i));
         }
 
         public void ForEachRow(Action<IConvertibleRow> action)
         {
             for (uint i = 0, len = DataTable.RowCount; i < len; i++)
-                action(GetRow(i));
+                action(Row(i));
         }
 
-        public IConvertibleRow GetRow(uint index) => new ConvertibleRow(index, DataTable.Row(index), this);
+        public IConvertibleRow Row(uint index) => new ConvertibleRow(index, DataTable.Row(index), this);
 
-        public IEnumerable<IConvertibleRow> Rows(params uint[] indices) => indices.Select(GetRow);
+        public IEnumerable<IConvertibleRow> Rows(params uint[] indices) => indices.Select(Row);
 
         T GetField<T>(uint index, object ret)
         {

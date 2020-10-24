@@ -30,7 +30,7 @@ namespace BrightWire.Bayesian
 
             public double GetProbability(IConvertibleRow row)
             {
-	            var val = row.GetField<string>(_columnIndex);
+	            var val = row.GetTyped<string>(_columnIndex);
                 if (_probability.TryGetValue(val, out var ret))
                     return ret;
                 return _nullValue;
@@ -47,7 +47,7 @@ namespace BrightWire.Bayesian
 
             public double GetProbability(IConvertibleRow row)
             {
-                double x = row.GetField<double>(_column.ColumnIndex);
+                double x = row.GetTyped<double>(_column.ColumnIndex);
                 var exponent = Math.Exp(-1 * Math.Pow(x - _column.Mean, 2) / (2 * _column.Variance));
                 return Math.Log(1.0 / Math.Sqrt(2 * Math.PI * _column.Variance) * exponent);
             }

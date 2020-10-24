@@ -118,7 +118,7 @@ namespace ExampleCode
         {
             var results = Test.Classify(classifier).ToList();
             var score = results
-                .Average(d => d.Row.GetField<string>(TargetColumn) == d.Classification.OrderByDescending(d => d.Weight).First().Label ? 1.0 : 0.0);
+                .Average(d => d.Row.GetTyped<string>(TargetColumn) == d.Classification.OrderByDescending(d => d.Weight).First().Label ? 1.0 : 0.0);
 
             Console.WriteLine($"{type} accuracy: {score:P}");
         }

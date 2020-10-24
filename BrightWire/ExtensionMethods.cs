@@ -37,7 +37,7 @@ namespace BrightWire
 
         public static T[] GetFields<T>(this IConvertibleRow row, params uint[] indices)
         {
-            return indices.Select(row.GetField<T>).ToArray();
+            return indices.Select(row.GetTyped<T>).ToArray();
         }
 
         public static IEnumerable<(IConvertibleRow Row, (string Label, float Weight)[] Classification)> Classify(this IRowOrientedDataTable dataTable, IRowClassifier classifier)
@@ -48,7 +48,7 @@ namespace BrightWire
         public static IEnumerable<(IConvertibleRow Row, (string Label, float Weight)[] Classification)> Classify(this IConvertibleTable convertible, IRowClassifier classifier)
         {
             for (uint i = 0, len = convertible.DataTable.RowCount; i < len; i++) {
-                var row = convertible.GetRow(i);
+                var row = convertible.Row(i);
                 yield return (row, classifier.Classify(row));
             }
         }
@@ -103,7 +103,7 @@ namespace BrightWire
                     .Select(r => context.CreateVector(r.GetFields<float>(columnIndices)))
                     .ToArray()
                 );
-                var target = context.CreateVector(convertible.GetRow(i + windowSize).GetFields<float>(columnIndices));
+                var target = context.CreateVector(convertible.Row(i + windowSize).GetFields<float>(columnIndices));
                 builder.AddRow(past, target);
             }
 
