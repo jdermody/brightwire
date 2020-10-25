@@ -29,7 +29,7 @@ namespace BrightWire.Bayesian.Training
 	        var ret = new List<BernoulliNaiveBayes.Class>();
             foreach (var item in _documentClass) {
                 var docTerm = new Dictionary<uint, HashSet<int>>();
-                for (int i = 0; i < item.Value.Count; i++) {
+                for (var i = 0; i < item.Value.Count; i++) {
                     foreach (var word in item.Value[i].Indices) {
                         if (!docTerm.TryGetValue(word, out var temp))
                             docTerm.Add(word, temp = new HashSet<int>());

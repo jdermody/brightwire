@@ -111,13 +111,16 @@ namespace BrightWire.TreeBased.Training
             public TableInfo(IRowOrientedDataTable table)
             {
                 ClassColumnIndex = table.GetTargetColumnOrThrow();
+                var metaData = table.AllColumnsMetaData();
                 for (uint i = 0, len = table.ColumnCount; i < len; i++) {
                     if (i != ClassColumnIndex) {
-                        var column = table.ColumnTypes[i];
-                        if (column.IsContinuous())
-                            _continuous.Add(i);
-                        else if (ColumnTypeClassifier.IsCategorical(column))
+                        var columnType = table.ColumnTypes[i];
+                        var columnMetaData = metaData[i];
+                        var columnClass = ColumnTypeClassifier.GetClass(columnType, columnMetaData);
+                        if ((columnClass & ColumnClass.Categorical) != 0)
                             _categorical.Add(i);
+                        else if((columnClass & ColumnClass.Numeric) != 0)
+                            _continuous.Add(i);
                     }
                 }
                 table.AsConvertible().ForEachRow(row => Data.Add(new InMemoryRow(row, _categorical, _continuous, ClassColumnIndex)));

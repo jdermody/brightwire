@@ -20,12 +20,17 @@ namespace BrightWire.Bayesian.Training
             public FrequencyAnalysis(IDataTable table, uint ignoreColumnIndex)
             {
                 uint index = 0;
-                foreach (var columnType in table.ColumnTypes) {
+                var metaData = table.AllColumnsMetaData();
+                var columnTypes = table.ColumnTypes;
+                for(int i = 0, len = columnTypes.Length; i < len; i++) {
                     if (index != ignoreColumnIndex) {
-                        if (ColumnTypeClassifier.IsContinuous(columnType))
-                            _column.Add(index, new NumericAnalyser());
-                        else if (ColumnTypeClassifier.IsCategorical(columnType))
+                        var columnClass = ColumnTypeClassifier.GetClass(columnTypes[i], metaData[i]);
+                        if ((columnClass & ColumnClass.Categorical) != 0)
                             _column.Add(index, new FrequencyAnalyser<string>());
+                        else if((columnClass & ColumnClass.Numeric) != 0)
+                            _column.Add(index, new NumericAnalyser());
+                        else
+                            throw new NotImplementedException();
                     }
                     ++index;
                 }

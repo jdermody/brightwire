@@ -12,7 +12,7 @@
         public const string Type = "Type";
         public const string IsNumeric = "IsNumeric";
         public const string IsTarget = "IsTarget";
-        //public const string IsFeature = "IsFeature";
+        public const string IsCategorical = "IsCategorical";
 
         public const string HasUnique = "HasUnique";
         public const string IsSequential = "IsSequential";

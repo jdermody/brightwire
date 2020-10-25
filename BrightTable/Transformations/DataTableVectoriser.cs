@@ -3,6 +3,8 @@ using BrightData.Converters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
+using BrightTable.Helper;
 
 namespace BrightTable.Transformations
 {
@@ -204,25 +206,27 @@ namespace BrightTable.Transformations
         static IColumnVectoriser _GetColumnVectoriser(ISingleTypeTableSegment column)
         {
             var type = column.SingleType;
-            if (type.IsNumeric()) {
+            var columnClass = ColumnTypeClassifier.GetClass(type, column.MetaData);
+            var metaData = column.Analyse();
+
+            if ((columnClass & ColumnClass.Categorical) != 0)
+                return new OneHotEncodeVectorised(metaData.GetNumDistinct(), column);
+
+            if ((columnClass & ColumnClass.Numeric) != 0) {
                 return (IColumnVectoriser)Activator.CreateInstance(
                     typeof(NumericVectoriser<>).MakeGenericType(type.GetDataType()),
                     column
                 );
             }
 
-            var metaData = column.Analyse();
-            if (type == ColumnType.String)
-                return new OneHotEncodeVectorised(metaData.GetNumDistinct(), column);
+            if ((columnClass & ColumnClass.Tensor) != 0)
+                return new TensorVectoriser(metaData.Get<uint>(Consts.Size), column);
 
             if (type == ColumnType.WeightedIndexList)
                 return new WeightedIndexListVectoriser(metaData.Get<uint>(Consts.MaxIndex), column);
 
             if (type == ColumnType.IndexList)
                 return new IndexListVectoriser(metaData.Get<uint>(Consts.MaxIndex), column);
-
-            if (type.IsTensor())
-                return new TensorVectoriser(metaData.Get<uint>(Consts.Size), column);
 
             throw new NotImplementedException();
         }

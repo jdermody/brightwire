@@ -18,11 +18,18 @@ namespace BrightTable.Helper
                 _converter = converter;
             }
 
+            object IConvertibleRow.Get(uint index)
+            {
+                return Get(index);
+            }
+
             public IDataTableSegment Segment { get; }
             public IDataTable DataTable => _converter.DataTable;
 
             public T GetTyped<T>(uint index) => _converter.GetField<T>(index, Segment[index]);
             public uint RowIndex { get; }
+            public uint NumColumns => Segment.Size;
+            object Get(uint index) => Segment[index];
         }
         enum TypeConversion
         {

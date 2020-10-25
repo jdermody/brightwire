@@ -109,6 +109,20 @@ namespace BrightTable
         BinaryData
     }
 
+    [Flags]
+    public enum ColumnClass : byte
+    {
+        Unknown = 0,
+        Categorical = 1,
+        Numeric = 2,
+        Decimal = 4,
+        Structable = 8,
+        Tensor = 16,
+        IndexBased = 32,
+        Continuous = 64,
+        Integer = 128
+    }
+
     public interface ISingleTypeTableSegment : IHaveMetaData, ICanWriteToBinaryWriter, IDisposable
     {
         ColumnType SingleType { get; }

@@ -107,7 +107,6 @@ namespace BrightTable
         public static bool IsNumeric(this ColumnType columnType) => ColumnTypeClassifier.IsNumeric(columnType);
         public static bool IsDecimal(this ColumnType columnType) => ColumnTypeClassifier.IsDecimal(columnType);
         public static bool IsContinuous(this ColumnType columnType) => ColumnTypeClassifier.IsContinuous(columnType);
-        public static bool IsCategorical(this ColumnType columnType) => ColumnTypeClassifier.IsCategorical(columnType);
 
         public static bool IsInteger(this ColumnType type) => type switch
         {
@@ -208,8 +207,19 @@ namespace BrightTable
             }
         }
 
-        public static IDataAnalyser GetColumnAnalyser(this ColumnType type, int distinctValueCount = 100)
+        public static IDataAnalyser GetColumnAnalyser(this ColumnType type, IMetaData metaData, int distinctValueCount = 100)
         {
+            var dataType = ColumnTypeClassifier.GetClass(type, metaData);
+            if ((dataType & BrightTable.ColumnClass.Categorical) != 0) {
+                if (type == ColumnType.String)
+                    return new StringAnalyser(distinctValueCount);
+                return (IDataAnalyser)Activator.CreateInstance(typeof(ConvertToStringFrequencyAnalysis<>).MakeGenericType(type.GetDataType()));
+            }
+            if ((dataType & BrightTable.ColumnClass.IndexBased) != 0)
+                return new IndexAnalyser(distinctValueCount);
+            if ((dataType & BrightTable.ColumnClass.Tensor) != 0)
+                return new DimensionAnalyser();
+
             switch (type) {
                 case ColumnType.Double:
                     return new NumericAnalyser(distinctValueCount);
@@ -226,14 +236,8 @@ namespace BrightTable
                 case ColumnType.Short:
                     return new CastToDoubleNumericAnalysis<short>(distinctValueCount);
             }
-            if (type == ColumnType.String)
-                return new StringAnalyser(distinctValueCount);
-            if (type == ColumnType.IndexList || type == ColumnType.WeightedIndexList)
-                return new IndexAnalyser(distinctValueCount);
             if (type == ColumnType.Date)
                 return new DateAnalyser();
-            if (type.IsTensor())
-                return new DimensionAnalyser();
             if (type == ColumnType.BinaryData)
                 return new FrequencyAnalyser<BinaryData>(distinctValueCount);
 
@@ -245,7 +249,7 @@ namespace BrightTable
             var ret = segment.MetaData;
             if (force || !ret.Get<bool>(Consts.HasBeenAnalysed)) {
                 var type = segment.SingleType;
-                var analyser = type.GetColumnAnalyser(distinctValueCount);
+                var analyser = type.GetColumnAnalyser(segment.MetaData, distinctValueCount);
                 var binding = (IAnalyserBinding)Activator.CreateInstance(typeof(AnalyserBinding<>).MakeGenericType(type.GetDataType()),
                     segment,
                     analyser
@@ -387,12 +391,6 @@ namespace BrightTable
             for (uint i = 0; i < table.ColumnCount; i++) {
                 metaData[(int)i].Set(Consts.IsTarget, i == columnIndex);
             }
-        }
-
-        public static IMetaData SetTargetColumn(this IMetaData metaData, bool isTarget)
-        {
-            metaData.Set(Consts.IsTarget, isTarget);
-            return metaData;
         }
 
         public static uint? GetTargetColumn(this IDataTable table)

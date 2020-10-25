@@ -235,16 +235,15 @@ namespace BrightData
         public static uint Index(this IMetaData metadata) => metadata.Get<uint>(Consts.Index);
         public static bool IsNumeric(this IMetaData metadata) => metadata.Get<bool>(Consts.IsNumeric);
         public static bool IsTarget(this IMetaData metadata) => metadata.Get<bool>(Consts.IsTarget);
-        //public static bool IsFeature(this IMetaData metadata) => metadata.Get<bool>(Consts.IsFeature);
+        public static bool IsCategorical(this IMetaData metadata) => metadata.Get<bool>(Consts.IsCategorical);
         public static bool IsSequential(this IMetaData metadata) => metadata.Get<bool>(Consts.IsSequential);
 
         public static string Name(this IHaveMetaData metadataProvider) => metadataProvider.MetaData.Name();
         public static uint Index(this IHaveMetaData metadataProvider) => metadataProvider.MetaData.Index();
         public static bool IsNumeric(this IHaveMetaData metadataProvider) => metadataProvider.MetaData.IsNumeric();
         public static bool IsTarget(this IHaveMetaData metadataProvider) => metadataProvider.MetaData.IsTarget();
-        //public static bool IsFeature(this IHaveMetaData metadataProvider) => metadataProvider.MetaData.IsFeature();
+        public static bool IsCategorical(this IHaveMetaData metadataProvider) => metadataProvider.MetaData.IsCategorical();
         public static bool IsSequential(this IHaveMetaData metadataProvider) => metadataProvider.MetaData.IsSequential();
-
 
         public static float CosineDistance(this float[] vector, float[] other)
         {
@@ -412,5 +411,17 @@ namespace BrightData
 
         public static ITensorSegment<T> CreateSegment<T>(this IBrightDataContext context, T[] block) where T : struct => new TensorSegment<T>(context, block);
         public static ITensorSegment<T> CreateSegment<T>(this IBrightDataContext context, uint size) where T : struct => new TensorSegment<T>(context, context.TensorPool.Get<T>(size));
+
+        public static IMetaData SetTargetColumn(this IMetaData metaData, bool isTarget)
+        {
+            metaData.Set(Consts.IsTarget, isTarget);
+            return metaData;
+        }
+
+        public static IMetaData SetCategorical(this IMetaData metaData, bool isCategorical)
+        {
+            metaData.Set(Consts.IsCategorical, isCategorical);
+            return metaData;
+        }
     }
 }

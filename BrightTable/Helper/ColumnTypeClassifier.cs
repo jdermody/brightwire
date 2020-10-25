@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
+using BrightData;
 
 namespace BrightTable.Helper
 {
@@ -37,5 +39,27 @@ namespace BrightTable.Helper
         public static bool IsContinuous(ColumnType columnType) => _continuousType.Contains(columnType);
         public static bool IsCategorical(ColumnType columnType) => _categoricalType.Contains(columnType);
         public static bool IsStructable(ColumnType columnType) => _structableType.Contains(columnType);
+
+        public static ColumnClass GetClass(ColumnType type, IMetaData metaData)
+        {
+            var ret = ColumnClass.Unknown;
+            if (metaData.IsCategorical() || IsCategorical(type))
+                ret |= ColumnClass.Categorical;
+            if (IsNumeric(type))
+                ret |= ColumnClass.Numeric;
+            if (IsDecimal(type))
+                ret |= ColumnClass.Decimal;
+            if (IsStructable(type))
+                ret |= ColumnClass.Structable;
+            if (type.IsTensor())
+                ret |= ColumnClass.Tensor;
+            if (type.IsIndexed())
+                ret |= ColumnClass.IndexBased;
+            if (type.IsContinuous())
+                ret |= ColumnClass.Continuous;
+            if (type.IsInteger())
+                ret |= ColumnClass.Integer;
+            return ret;
+        }
     }
 }
