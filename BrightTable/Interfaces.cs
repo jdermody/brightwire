@@ -180,7 +180,7 @@ namespace BrightTable
         IEnumerable<IDataTableSegment> Rows(params uint[] rowIndices);
         IRowOrientedDataTable Concat(params IRowOrientedDataTable[] others);
         IRowOrientedDataTable Concat(string filePath, params IRowOrientedDataTable[] others);
-        IRowOrientedDataTable Mutate(Func<object[], object[]> projector, string filePath = null);
+        IRowOrientedDataTable Project(Func<object[], object[]> projector, string filePath = null);
         IRowOrientedDataTable SelectRows(params uint[] rowIndices);
         IRowOrientedDataTable SelectRows(string filePath, params uint[] rowIndices);
         IRowOrientedDataTable Shuffle(string filePath = null);

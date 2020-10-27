@@ -2,7 +2,7 @@
 {
     public class StringAnalyser : FrequencyAnalyser<string>
     {
-        int _minLength = int.MaxValue, _maxLength = int.MinValue;
+        uint _minLength = uint.MaxValue, _maxLength = uint.MinValue;
 
         public StringAnalyser(int writeCount = 100) : base(writeCount)
         {
@@ -12,7 +12,7 @@
         {
             if (str != null) {
                 _Add(str);
-                var len = str.Length;
+                var len = (uint)str.Length;
                 if (len < _minLength)
                     _minLength = len;
                 if (len > _maxLength)

@@ -13,7 +13,7 @@ namespace BrightWire.Linear.Training
         {
             var targetColumnIndex = table.GetTargetColumnOrThrow();
             var groupedData = table.GroupBy(targetColumnIndex).ToArray();
-            var trainingData = groupedData.Select(ld => (ld.Label, Table: table.Mutate(row => {
+            var trainingData = groupedData.Select(ld => (ld.Label, Table: table.Project(row => {
                 row[targetColumnIndex] = (row[targetColumnIndex].ToString() == ld.Label) ? 1f : 0f;
                 return row;
             }))).ToArray();

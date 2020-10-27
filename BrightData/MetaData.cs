@@ -72,6 +72,13 @@ namespace BrightData
             return null;
         }
 
+        public T? GetNullable<T>(string name) where T : struct
+        {
+            if (_values.TryGetValue(name, out var obj))
+                return (T)obj;
+            return null;
+        }
+
         public T Get<T>(string name, T valueIfMissing = default) where T : IConvertible
         {
             if (_values.TryGetValue(name, out var obj))
@@ -141,6 +148,14 @@ namespace BrightData
                     _Set(name, obj);
                 }
             }
+        }
+
+        public IEnumerable<string> GetStringsWithPrefix(string prefix)
+        {
+            return _values
+                .Where(kv => kv.Key.StartsWith(prefix))
+                .Select(kv => kv.Key)
+            ;
         }
 
         static string _Write(IConvertible value)

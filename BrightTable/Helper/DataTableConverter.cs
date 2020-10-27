@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using BrightData;
 
 namespace BrightTable.Helper
 {
@@ -60,7 +61,7 @@ namespace BrightTable.Helper
 
         public IConvertibleRow Row(uint index) => new ConvertibleRow(index, DataTable.Row(index), this);
 
-        public IEnumerable<IConvertibleRow> Rows(params uint[] indices) => indices.Select(Row);
+        public IEnumerable<IConvertibleRow> Rows(params uint[] indices) => (indices.Length == 0 ? DataTable.RowCount.AsRange() : indices).Select(Row);
 
         T GetField<T>(uint index, object ret)
         {

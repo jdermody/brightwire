@@ -301,7 +301,7 @@ namespace BrightTable
             return builder.Build(Context);
         }
 
-        public IRowOrientedDataTable Mutate(Func<object[], object[]> projector, string filePath = null)
+        public IRowOrientedDataTable Project(Func<object[], object[]> projector, string filePath = null)
         {
             var mutatedRows = new List<object[]>();
             var columnTypes = new Dictionary<uint, ColumnType>();

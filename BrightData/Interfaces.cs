@@ -29,6 +29,7 @@ namespace BrightData
     public interface IMetaData : ICanWriteToBinaryWriter
     {
         object Get(string name);
+        T? GetNullable<T>(string name) where T : struct;
         T Get<T>(string name, T valueIfMissing = default) where T : IConvertible;
         T Set<T>(string name, T value) where T : IConvertible;
         string AsXml { get; }
@@ -36,6 +37,7 @@ namespace BrightData
         void CopyTo(IMetaData metadata, params string[] keys);
         void CopyAllExcept(IMetaData metadata, params string[] keys);
         void ReadFrom(BinaryReader reader);
+        IEnumerable<string> GetStringsWithPrefix(string prefix);
     }
 
     public interface IHaveMetaData

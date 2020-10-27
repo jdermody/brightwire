@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using BrightData.Analysis;
+using BrightData.Analysis.Readers;
 using BrightData.Converters;
 using BrightData.Helper;
 using BrightData.Memory;
@@ -16,41 +17,23 @@ namespace BrightData
             return code switch
             {
                 TypeCode.Boolean => typeof(bool),
-
                 TypeCode.Byte => typeof(byte),
-
                 TypeCode.Char => typeof(char),
-
                 TypeCode.DateTime => typeof(DateTime),
-
                 TypeCode.DBNull => typeof(DBNull),
-
                 TypeCode.Decimal => typeof(decimal),
-
                 TypeCode.Double => typeof(double),
-
                 TypeCode.Empty => null,
-
                 TypeCode.Int16 => typeof(short),
-
                 TypeCode.Int32 => typeof(int),
-
                 TypeCode.Int64 => typeof(long),
-
                 TypeCode.Object => typeof(object),
-
                 TypeCode.SByte => typeof(sbyte),
-
                 TypeCode.Single => typeof(Single),
-
                 TypeCode.String => typeof(string),
-
                 TypeCode.UInt16 => typeof(UInt16),
-
                 TypeCode.UInt32 => typeof(UInt32),
-
                 TypeCode.UInt64 => typeof(UInt64),
-
                 _ => null,
             };
         }
@@ -283,53 +266,60 @@ namespace BrightData
             return ret;
         }
 
-        public static IMetaData Analyze<T>(this IEnumerable<T> data)
+        public static DateAnalysis GetDateAnalysis(this IMetaData metaData) => new DateAnalysis(metaData);
+        public static DimensionAnalysis GetDimensionAnalysis(this IMetaData metaData) => new DimensionAnalysis(metaData);
+        public static FrequencyAnalysis GetFrequencyAnalysis(this IMetaData metaData) => new FrequencyAnalysis(metaData);
+        public static IndexAnalysis GetIndexAnalysis(this IMetaData metaData) => new IndexAnalysis(metaData);
+        public static NumericAnalysis GetNumericAnalysis(this IMetaData metaData) => new NumericAnalysis(metaData);
+        public static StringAnalysis GetStringAnalysis(this IMetaData metaData) => new StringAnalysis(metaData);
+
+        public static NumericAnalysis Analyze<T>(this IEnumerable<T> data)
             where T: struct
         {
             var analysis = new CastToDoubleNumericAnalysis<T>();
             foreach(var item in data)
                 analysis.Add(item);
-            return analysis.GetMetaData();
+            return analysis.GetMetaData().GetNumericAnalysis();
         }
 
-        public static IMetaData Analyze(this IEnumerable<DateTime> dates)
+        public static DateAnalysis Analyze(this IEnumerable<DateTime> dates)
         {
             var analysis = new DateAnalyser();
             foreach(var item in dates)
                 analysis.Add(item);
-            return analysis.GetMetaData();
+            return analysis.GetMetaData().GetDateAnalysis();
         }
 
-        public static IMetaData Analyze(this IEnumerable<ITensor<float>> tensors)
+        public static DimensionAnalysis Analyze(this IEnumerable<ITensor<float>> tensors)
         {
             var analysis = new DimensionAnalyser();
             foreach (var item in tensors)
                 analysis.Add(item);
-            return analysis.GetMetaData();
+            return analysis.GetMetaData().GetDimensionAnalysis();
         }
 
-        public static IMetaData Analyze<T>(this IEnumerable<IHaveIndices> items)
+        public static IndexAnalysis Analyze<T>(this IEnumerable<IHaveIndices> items)
         {
             var analysis = new IndexAnalyser();
             foreach (var item in items)
                 analysis.Add(item);
-            return analysis.GetMetaData();
+            return analysis.GetMetaData().GetIndexAnalysis();
         }
 
-        public static IMetaData Analyze<T>(this IEnumerable<string> items)
+        public static StringAnalysis Analyze<T>(this IEnumerable<string> items)
         {
             var analysis = new StringAnalyser();
             foreach (var item in items)
                 analysis.Add(item);
-            return analysis.GetMetaData();
+            return analysis.GetMetaData().GetStringAnalysis();
         }
 
-        public static IMetaData AnalyzeFrequency<T>(this IEnumerable<T> items)
+        public static FrequencyAnalysis AnalyzeFrequency<T>(this IEnumerable<T> items)
         {
             var analysis = new FrequencyAnalyser<T>();
             foreach (var item in items)
                 analysis.Add(item);
-            return analysis.GetMetaData();
+            return analysis.GetMetaData().GetFrequencyAnalysis();
         }
 
         public static void InitializeRandomly<T>(this ITensor<T> tensor) where T : struct
