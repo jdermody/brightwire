@@ -31,3 +31,13 @@
 /ExampleCode/obj
 /BrightWire.UnitTests/bin
 /BrightWire.UnitTests/obj
+/BrightWire.CUDA.Net4.x64/bin
+/BrightWire.CUDA.Standard/obj
+/BrightWire.Net4/bin
+/BrightWire.Net4/obj
+/BrightWire.Standard/obj
+/Core.SampleCode/obj
+/SampleCode/bin
+/SampleCode/obj
+/SampleProjects/CoreTest/obj
+/UnitTests/obj
