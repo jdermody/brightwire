@@ -1,0 +1,42 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+<#
+	var inputTypes = new string[] {
+		"decimal",
+        "double",
+        "float",
+        "long",
+        "int",
+        "short",
+        "sbyte"
+	};
+#>
+using System;
+using BrightData.Helper;
+using BrightData.UnitTests.Fixtures;
+using Xunit;
+using FluentAssertions;
+
+namespace BrightData.UnitTests
+{
+    public partial class DataEncoderTests
+    {
+<# foreach(var input in inputTypes) { #>
+		[Fact]
+        public void Encode<#= Char.ToUpper(input[0]) + input.Substring(1) #>()
+        {
+            _Encode((<#= input #>)123);
+        }
+
+        [Fact]
+        public void Encode<#= Char.ToUpper(input[0]) + input.Substring(1) #>Array()
+        {
+            _EncodeArray(new <#= input #>[] {1, 2, 3});
+        }
+<#	} #>
+    }
+}

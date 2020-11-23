@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="LinearAlgebra\**" />
+    <Compile Remove="Models\DataTable\**" />
+    <Compile Remove="TabularData\**" />
+    <EmbeddedResource Remove="LinearAlgebra\**" />
+    <EmbeddedResource Remove="Models\DataTable\**" />
+    <EmbeddedResource Remove="TabularData\**" />
+    <None Remove="LinearAlgebra\**" />
+    <None Remove="Models\DataTable\**" />
+    <None Remove="TabularData\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="ExtensionMethods.DataTable.cs" />
+    <Compile Remove="Helper\CSVParser.cs" />
+    <Compile Remove="Helper\DataTableBuilder.cs" />
+    <Compile Remove="Helper\VectorAsRow.cs" />
+    <Compile Remove="Interface.DataTable.cs" />
+    <Compile Remove="Models\FloatMatrix.cs" />
+    <Compile Remove="Models\FloatTensor.cs" />
+    <Compile Remove="Models\FloatVector.cs" />
+    <Compile Remove="Models\IndexList.cs" />
+    <Compile Remove="Models\WeightedIndexList.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BrightData\BrightData.csproj" />
+    <ProjectReference Include="..\BrightTable\BrightTable.csproj" />
+  </ItemGroup>
+
+</Project>

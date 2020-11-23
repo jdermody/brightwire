@@ -1,0 +1,30 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+<#
+    var operations = new [] {
+        Tuple.Create("Add", "+")
+    };
+#>
+using System;
+using BrightData.Helper;
+using BrightData.UnitTests.Fixtures;
+using Xunit;
+using FluentAssertions;
+
+namespace BrightData.UnitTests
+{
+    public partial class TensorOperationTests : UnitTestBase
+    {
+<# foreach(var operation in operations) { #>
+        public void Test<#= operation.Item1 #>() 
+        {
+            var a = CreateRandomVector();
+            var b = CreateRandomVector();
+        }
+<# } #>
+    }
+}
