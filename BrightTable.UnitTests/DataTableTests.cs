@@ -193,348 +193,348 @@ namespace BrightTable.UnitTests
             });
         }
 
-        [Fact]
-        public void TestStandardNormalisation2()
-        {
-            var table = _GetSimpleTable2();
-            var analysis = table.GetColumnAnalysis()[0];
-            var normalised = table.AsColumnOriented().Normalize(NormalizationType.Standard).AsRowOriented().AsConvertible();
+        //[Fact]
+        //public void TestStandardNormalisation2()
+        //{
+        //    var table = _GetSimpleTable2();
+        //    var analysis = table.GetColumnAnalysis()[0];
+        //    var normalised = table.AsColumnOriented().Normalize(NormalizationType.Standard).AsRowOriented().AsConvertible();
 
-            _RandomSample(normalised, (index, row) => {
-                var val = row.GetTyped<double>(0);
-                var prevVal = (double)table.Row(index)[0];
-                var expected = (prevVal - analysis.Mean) / analysis.StdDev.Value;
+        //    _RandomSample(normalised, (index, row) => {
+        //        var val = row.GetTyped<double>(0);
+        //        var prevVal = (double)table.Row(index)[0];
+        //        var expected = (prevVal - analysis.Mean) / analysis.StdDev.Value;
 
-                Assert.AreEqual(val, expected);
-            });
-        }
+        //        Assert.AreEqual(val, expected);
+        //    });
+        //}
 
-        [Fact]
-        public void TestFeatureScaleNormalisation()
-        {
-            var table = _GetSimpleTable2();
-            var analysis = table.GetAnalysis()[0] as INumericColumnInfo;
-            var normalised = table.Normalise(NormalisationType.FeatureScale);
+        //[Fact]
+        //public void TestFeatureScaleNormalisation()
+        //{
+        //    var table = _GetSimpleTable2();
+        //    var analysis = table.GetAnalysis()[0] as INumericColumnInfo;
+        //    var normalised = table.Normalise(NormalisationType.FeatureScale);
 
-            _RandomSample(normalised, (index, row) => {
-                var val = row.GetTyped<double>(0);
-                var prevVal = table.GetRow(index).GetField<double>(0);
-                var expected = (prevVal - analysis.Min) / (analysis.Max - analysis.Min);
+        //    _RandomSample(normalised, (index, row) => {
+        //        var val = row.GetTyped<double>(0);
+        //        var prevVal = table.GetRow(index).GetField<double>(0);
+        //        var expected = (prevVal - analysis.Min) / (analysis.Max - analysis.Min);
 
-                Assert.AreEqual(val, expected);
-            });
-        }
+        //        Assert.AreEqual(val, expected);
+        //    });
+        //}
 
-        [Fact]
-        public void TestFeatureScaleNormalisation2()
-        {
-            var table = _GetSimpleTable2();
-            var analysis = table.GetAnalysis()[0] as INumericColumnInfo;
-            var model = table.GetNormalisationModel(NormalisationType.FeatureScale);
-            var normalised = table.Normalise(model);
+        //[Fact]
+        //public void TestFeatureScaleNormalisation2()
+        //{
+        //    var table = _GetSimpleTable2();
+        //    var analysis = table.GetAnalysis()[0] as INumericColumnInfo;
+        //    var model = table.GetNormalisationModel(NormalisationType.FeatureScale);
+        //    var normalised = table.Normalise(model);
 
-            _RandomSample(normalised, (index, row) => {
-                var val = row.GetTyped<double>(0);
-                var prevVal = table.GetRow(index).GetField<double>(0);
-                var expected = (prevVal - analysis.Min) / (analysis.Max - analysis.Min);
+        //    _RandomSample(normalised, (index, row) => {
+        //        var val = row.GetTyped<double>(0);
+        //        var prevVal = table.GetRow(index).GetField<double>(0);
+        //        var expected = (prevVal - analysis.Min) / (analysis.Max - analysis.Min);
 
-                Assert.AreEqual(val, expected);
-            });
-        }
+        //        Assert.AreEqual(val, expected);
+        //    });
+        //}
 
-        [Fact]
-        public void TestL2Normalisation()
-        {
-            var table = _GetSimpleTable2();
-            var analysis = table.GetAnalysis()[0] as INumericColumnInfo;
-            var normalised = table.Normalise(NormalisationType.Euclidean);
+        //[Fact]
+        //public void TestL2Normalisation()
+        //{
+        //    var table = _GetSimpleTable2();
+        //    var analysis = table.GetAnalysis()[0] as INumericColumnInfo;
+        //    var normalised = table.Normalise(NormalisationType.Euclidean);
 
-            var l2Norm = Math.Sqrt(table.GetColumn<double>(0).Select(d => Math.Pow(d, 2)).Sum());
-            Assert.AreEqual(analysis.L2Norm, l2Norm);
+        //    var l2Norm = Math.Sqrt(table.GetColumn<double>(0).Select(d => Math.Pow(d, 2)).Sum());
+        //    Assert.AreEqual(analysis.L2Norm, l2Norm);
 
-            _RandomSample(normalised, (index, row) => {
-                var val = row.GetTyped<double>(0);
-                var prevVal = table.GetRow(index).GetField<double>(0);
-                var expected = prevVal / analysis.L2Norm;
+        //    _RandomSample(normalised, (index, row) => {
+        //        var val = row.GetTyped<double>(0);
+        //        var prevVal = table.GetRow(index).GetField<double>(0);
+        //        var expected = prevVal / analysis.L2Norm;
 
-                Assert.AreEqual(val, expected);
-            });
-        }
+        //        Assert.AreEqual(val, expected);
+        //    });
+        //}
 
-        [Fact]
-        public void TestL2Normalisation2()
-        {
-            var table = _GetSimpleTable2();
-            var analysis = table.GetAnalysis()[0] as INumericColumnInfo;
-            var model = table.GetNormalisationModel(NormalisationType.Euclidean);
-            var normalised = table.Normalise(model);
+        //[Fact]
+        //public void TestL2Normalisation2()
+        //{
+        //    var table = _GetSimpleTable2();
+        //    var analysis = table.GetAnalysis()[0] as INumericColumnInfo;
+        //    var model = table.GetNormalisationModel(NormalisationType.Euclidean);
+        //    var normalised = table.Normalise(model);
 
-            var l2Norm = Math.Sqrt(table.GetColumn<double>(0).Select(d => Math.Pow(d, 2)).Sum());
-            Assert.AreEqual(analysis.L2Norm, l2Norm);
+        //    var l2Norm = Math.Sqrt(table.GetColumn<double>(0).Select(d => Math.Pow(d, 2)).Sum());
+        //    Assert.AreEqual(analysis.L2Norm, l2Norm);
 
-            _RandomSample(normalised, (index, row) => {
-                var val = row.GetTyped<double>(0);
-                var prevVal = table.GetRow(index).GetField<double>(0);
-                var expected = prevVal / analysis.L2Norm;
+        //    _RandomSample(normalised, (index, row) => {
+        //        var val = row.GetTyped<double>(0);
+        //        var prevVal = table.GetRow(index).GetField<double>(0);
+        //        var expected = prevVal / analysis.L2Norm;
 
-                Assert.AreEqual(val, expected);
-            });
-        }
+        //        Assert.AreEqual(val, expected);
+        //    });
+        //}
 
-        [Fact]
-        public void TestL1Normalisation()
-        {
-            var table = _GetSimpleTable2();
-            var analysis = table.GetAnalysis()[0] as INumericColumnInfo;
-            var normalised = table.Normalise(NormalisationType.Manhattan);
+        //[Fact]
+        //public void TestL1Normalisation()
+        //{
+        //    var table = _GetSimpleTable2();
+        //    var analysis = table.GetAnalysis()[0] as INumericColumnInfo;
+        //    var normalised = table.Normalise(NormalisationType.Manhattan);
 
-            var l1Norm = table.GetColumn<double>(0).Select(d => Math.Abs(d)).Sum();
-            Assert.AreEqual(analysis.L1Norm, l1Norm);
+        //    var l1Norm = table.GetColumn<double>(0).Select(d => Math.Abs(d)).Sum();
+        //    Assert.AreEqual(analysis.L1Norm, l1Norm);
 
-            _RandomSample(normalised, (index, row) => {
-                var val = row.GetTyped<double>(0);
-                var prevVal = table.GetRow(index).GetField<double>(0);
-                var expected = prevVal / analysis.L1Norm;
+        //    _RandomSample(normalised, (index, row) => {
+        //        var val = row.GetTyped<double>(0);
+        //        var prevVal = table.GetRow(index).GetField<double>(0);
+        //        var expected = prevVal / analysis.L1Norm;
 
-                Assert.AreEqual(val, expected);
-            });
-        }
+        //        Assert.AreEqual(val, expected);
+        //    });
+        //}
 
-        [Fact]
-        public void TestL1Normalisation2()
-        {
-            var table = _GetSimpleTable2();
-            var analysis = table.GetAnalysis()[0] as INumericColumnInfo;
-            var model = table.GetNormalisationModel(NormalisationType.Manhattan);
-            var normalised = table.Normalise(model);
+        //[Fact]
+        //public void TestL1Normalisation2()
+        //{
+        //    var table = _GetSimpleTable2();
+        //    var analysis = table.GetAnalysis()[0] as INumericColumnInfo;
+        //    var model = table.GetNormalisationModel(NormalisationType.Manhattan);
+        //    var normalised = table.Normalise(model);
 
-            var l1Norm = table.GetColumn<double>(0).Select(d => Math.Abs(d)).Sum();
-            Assert.AreEqual(analysis.L1Norm, l1Norm);
+        //    var l1Norm = table.GetColumn<double>(0).Select(d => Math.Abs(d)).Sum();
+        //    Assert.AreEqual(analysis.L1Norm, l1Norm);
 
-            _RandomSample(normalised, (index, row) => {
-                var val = row.GetTyped<double>(0);
-                var prevVal = table.GetRow(index).GetField<double>(0);
-                var expected = prevVal / analysis.L1Norm;
+        //    _RandomSample(normalised, (index, row) => {
+        //        var val = row.GetTyped<double>(0);
+        //        var prevVal = table.GetRow(index).GetField<double>(0);
+        //        var expected = prevVal / analysis.L1Norm;
 
-                Assert.AreEqual(val, expected);
-            });
-        }
+        //        Assert.AreEqual(val, expected);
+        //    });
+        //}
 
-        [Fact]
-        public void TestReverseNormalisation()
-        {
-            var table = _CreateComplexTable(_context);
-            var columnIndex = table.TargetColumnIndex = 3;
-            var model = table.GetNormalisationModel(NormalisationType.FeatureScale);
-            var normalised = table.Normalise(model);
+        //[Fact]
+        //public void TestReverseNormalisation()
+        //{
+        //    var table = _CreateComplexTable(_context);
+        //    var columnIndex = table.TargetColumnIndex = 3;
+        //    var model = table.GetNormalisationModel(NormalisationType.FeatureScale);
+        //    var normalised = table.Normalise(model);
 
-            var reverseNormalised = normalised.Project(row => new[] { model.ReverseNormaliseOutput(columnIndex, row.Data[columnIndex]) });
-            var zipped = reverseNormalised.Zip(table.SelectColumns(new[] { columnIndex }));
+        //    var reverseNormalised = normalised.Project(row => new[] { model.ReverseNormaliseOutput(columnIndex, row.Data[columnIndex]) });
+        //    var zipped = reverseNormalised.Zip(table.SelectColumns(new[] { columnIndex }));
 
-            zipped.ForEach(row => Assert.AreEqual(row.Data[0], row.Data[1]));
-        }
+        //    zipped.ForEach(row => Assert.AreEqual(row.Data[0], row.Data[1]));
+        //}
 
-        [Fact]
-        public void TestTargetColumnIndex()
-        {
-            var builder = _context.BuildTable();
-            builder.AddColumn(ColumnType.String, "a");
-            builder.AddColumn(ColumnType.String, "b").SetTargetColumn(true);
-            builder.AddColumn(ColumnType.String, "c");
-            builder.AddRow("a", "b", "c");
-            var table = builder.Build();
+        //[Fact]
+        //public void TestTargetColumnIndex()
+        //{
+        //    var builder = _context.BuildTable();
+        //    builder.AddColumn(ColumnType.String, "a");
+        //    builder.AddColumn(ColumnType.String, "b").SetTargetColumn(true);
+        //    builder.AddColumn(ColumnType.String, "c");
+        //    builder.AddRow("a", "b", "c");
+        //    var table = builder.Build();
 
-            Assert.AreEqual(table.TargetColumnIndex, 1);
-            Assert.AreEqual(table.RowCount, 1);
-            Assert.AreEqual(table.ColumnCount, 3);
-        }
+        //    Assert.AreEqual(table.TargetColumnIndex, 1);
+        //    Assert.AreEqual(table.RowCount, 1);
+        //    Assert.AreEqual(table.ColumnCount, 3);
+        //}
 
-        [Fact]
-        public void GetNumericRows()
-        {
-            var builder = _context.BuildTable();
-            builder.AddColumn(ColumnType.Float, "val1");
-            builder.AddColumn(ColumnType.Double, "val2");
-            builder.AddColumn(ColumnType.String, "cls").SetTargetColumn(true);
+        //[Fact]
+        //public void GetNumericRows()
+        //{
+        //    var builder = _context.BuildTable();
+        //    builder.AddColumn(ColumnType.Float, "val1");
+        //    builder.AddColumn(ColumnType.Double, "val2");
+        //    builder.AddColumn(ColumnType.String, "cls").SetTargetColumn(true);
 
-            builder.AddRow(0.5f, 1.1, "a");
-            builder.AddRow(0.2f, 1.5, "b");
-            builder.AddRow(0.7f, 0.5, "c");
-            builder.AddRow(0.2f, 0.6, "d");
+        //    builder.AddRow(0.5f, 1.1, "a");
+        //    builder.AddRow(0.2f, 1.5, "b");
+        //    builder.AddRow(0.7f, 0.5, "c");
+        //    builder.AddRow(0.2f, 0.6, "d");
 
-            var table = builder.Build();
-            var rows = table.GetNumericRows(new[] { 1 }).Select(r => _lap.CreateVector(r)).Select(r => r.AsIndexable()).ToList();
-            Assert.AreEqual(rows[0][0], 1.1f);
-            Assert.AreEqual(rows[1][0], 1.5f);
-        }
+        //    var table = builder.Build();
+        //    var rows = table.GetNumericRows(new[] { 1 }).Select(r => _lap.CreateVector(r)).Select(r => r.AsIndexable()).ToList();
+        //    Assert.AreEqual(rows[0][0], 1.1f);
+        //    Assert.AreEqual(rows[1][0], 1.5f);
+        //}
 
-        [Fact]
-        public void GetNumericRows2()
-        {
-            var builder = _context.BuildTable();
-            builder.AddColumn(ColumnType.Float, "val1");
-            builder.AddColumn(ColumnType.Double, "val2");
-            builder.AddColumn(ColumnType.String, "cls").SetTargetColumn(true);
+        //[Fact]
+        //public void GetNumericRows2()
+        //{
+        //    var builder = _context.BuildTable();
+        //    builder.AddColumn(ColumnType.Float, "val1");
+        //    builder.AddColumn(ColumnType.Double, "val2");
+        //    builder.AddColumn(ColumnType.String, "cls").SetTargetColumn(true);
 
-            builder.AddRow(0.5f, 1.1, "a");
-            builder.AddRow(0.2f, 1.5, "b");
-            builder.AddRow(0.7f, 0.5, "c");
-            builder.AddRow(0.2f, 0.6, "d");
+        //    builder.AddRow(0.5f, 1.1, "a");
+        //    builder.AddRow(0.2f, 1.5, "b");
+        //    builder.AddRow(0.7f, 0.5, "c");
+        //    builder.AddRow(0.2f, 0.6, "d");
 
-            var table = builder.Build();
-            var rows = table.GetNumericRows(new[] { 1 });
-            Assert.AreEqual(rows[0][0], 1.1f);
-            Assert.AreEqual(rows[1][0], 1.5f);
-        }
+        //    var table = builder.Build();
+        //    var rows = table.GetNumericRows(new[] { 1 });
+        //    Assert.AreEqual(rows[0][0], 1.1f);
+        //    Assert.AreEqual(rows[1][0], 1.5f);
+        //}
 
-        [Fact]
-        public void GetNumericColumns()
-        {
-            var builder = _context.BuildTable();
-            builder.AddColumn(ColumnType.Float, "val1");
-            builder.AddColumn(ColumnType.Double, "val2");
-            builder.AddColumn(ColumnType.String, "cls").SetTargetColumn(true);
+        //[Fact]
+        //public void GetNumericColumns()
+        //{
+        //    var builder = _context.BuildTable();
+        //    builder.AddColumn(ColumnType.Float, "val1");
+        //    builder.AddColumn(ColumnType.Double, "val2");
+        //    builder.AddColumn(ColumnType.String, "cls").SetTargetColumn(true);
 
-            builder.AddRow(0.5f, 1.1, "a");
-            builder.AddRow(0.2f, 1.5, "b");
-            builder.AddRow(0.7f, 0.5, "c");
-            builder.AddRow(0.2f, 0.6, "d");
+        //    builder.AddRow(0.5f, 1.1, "a");
+        //    builder.AddRow(0.2f, 1.5, "b");
+        //    builder.AddRow(0.7f, 0.5, "c");
+        //    builder.AddRow(0.2f, 0.6, "d");
 
-            var table = builder.Build();
-            var column = table.GetNumericColumns(new[] { 1 }).Select(r => _lap.CreateVector(r)).First().AsIndexable();
-            Assert.AreEqual(column[0], 1.1f);
-            Assert.AreEqual(column[1], 1.5f);
-        }
+        //    var table = builder.Build();
+        //    var column = table.GetNumericColumns(new[] { 1 }).Select(r => _lap.CreateVector(r)).First().AsIndexable();
+        //    Assert.AreEqual(column[0], 1.1f);
+        //    Assert.AreEqual(column[1], 1.5f);
+        //}
 
-        [Fact]
-        public void GetNumericColumns2()
-        {
-            var builder = _context.BuildTable();
-            builder.AddColumn(ColumnType.Float, "val1");
-            builder.AddColumn(ColumnType.Double, "val2");
-            builder.AddColumn(ColumnType.String, "cls").SetTargetColumn(true);
+        //[Fact]
+        //public void GetNumericColumns2()
+        //{
+        //    var builder = _context.BuildTable();
+        //    builder.AddColumn(ColumnType.Float, "val1");
+        //    builder.AddColumn(ColumnType.Double, "val2");
+        //    builder.AddColumn(ColumnType.String, "cls").SetTargetColumn(true);
 
-            builder.AddRow(0.5f, 1.1, "a");
-            builder.AddRow(0.2f, 1.5, "b");
-            builder.AddRow(0.7f, 0.5, "c");
-            builder.AddRow(0.2f, 0.6, "d");
+        //    builder.AddRow(0.5f, 1.1, "a");
+        //    builder.AddRow(0.2f, 1.5, "b");
+        //    builder.AddRow(0.7f, 0.5, "c");
+        //    builder.AddRow(0.2f, 0.6, "d");
 
-            var table = builder.Build();
-            var column = table.GetNumericColumns(new[] { 1 }).First();
-            Assert.AreEqual(column[0], 1.1f);
-            Assert.AreEqual(column[1], 1.5f);
-        }
+        //    var table = builder.Build();
+        //    var column = table.GetNumericColumns(new[] { 1 }).First();
+        //    Assert.AreEqual(column[0], 1.1f);
+        //    Assert.AreEqual(column[1], 1.5f);
+        //}
 
-        [Fact]
-        public void SelectColumns()
-        {
-            var builder = _context.BuildTable();
+        //[Fact]
+        //public void SelectColumns()
+        //{
+        //    var builder = _context.BuildTable();
 
-            builder.AddColumn(ColumnType.Float, "val1");
-            builder.AddColumn(ColumnType.Double, "val2");
-            builder.AddColumn(ColumnType.String, "cls").SetTargetColumn(true);
-            builder.AddColumn(ColumnType.String, "cls2");
+        //    builder.AddColumn(ColumnType.Float, "val1");
+        //    builder.AddColumn(ColumnType.Double, "val2");
+        //    builder.AddColumn(ColumnType.String, "cls").SetTargetColumn(true);
+        //    builder.AddColumn(ColumnType.String, "cls2");
 
-            builder.AddRow(0.5f, 1.1, "a", "a2");
-            builder.AddRow(0.2f, 1.5, "b", "b2");
-            builder.AddRow(0.7f, 0.5, "c", "c2");
-            builder.AddRow(0.2f, 0.6, "d", "d2");
+        //    builder.AddRow(0.5f, 1.1, "a", "a2");
+        //    builder.AddRow(0.2f, 1.5, "b", "b2");
+        //    builder.AddRow(0.7f, 0.5, "c", "c2");
+        //    builder.AddRow(0.2f, 0.6, "d", "d2");
 
-            var table = builder.Build();
-            var table2 = table.SelectColumns(new[] { 1, 2, 3 });
+        //    var table = builder.Build();
+        //    var table2 = table.SelectColumns(new[] { 1, 2, 3 });
 
-            Assert.AreEqual(table2.TargetColumnIndex, 1);
-            Assert.AreEqual(table2.RowCount, 4);
-            Assert.AreEqual(table2.ColumnCount, 3);
+        //    Assert.AreEqual(table2.TargetColumnIndex, 1);
+        //    Assert.AreEqual(table2.RowCount, 4);
+        //    Assert.AreEqual(table2.ColumnCount, 3);
 
-            var column = table2.GetNumericColumns(new[] { 0 }).Select(r => _lap.CreateVector(r)).First().AsIndexable();
-            Assert.AreEqual(column[0], 1.1f);
-            Assert.AreEqual(column[1], 1.5f);
-        }
+        //    var column = table2.GetNumericColumns(new[] { 0 }).Select(r => _lap.CreateVector(r)).First().AsIndexable();
+        //    Assert.AreEqual(column[0], 1.1f);
+        //    Assert.AreEqual(column[1], 1.5f);
+        //}
 
-        [Fact]
-        public void Fold()
-        {
-            var builder = _context.BuildTable();
+        //[Fact]
+        //public void Fold()
+        //{
+        //    var builder = _context.BuildTable();
 
-            builder.AddColumn(ColumnType.Float, "val1");
-            builder.AddColumn(ColumnType.Double, "val2");
-            builder.AddColumn(ColumnType.String, "cls").SetTargetColumn(true);
+        //    builder.AddColumn(ColumnType.Float, "val1");
+        //    builder.AddColumn(ColumnType.Double, "val2");
+        //    builder.AddColumn(ColumnType.String, "cls").SetTargetColumn(true);
 
-            builder.AddRow(0.5f, 1.1, "a");
-            builder.AddRow(0.2f, 1.5, "b");
-            builder.AddRow(0.7f, 0.5, "c");
-            builder.AddRow(0.2f, 0.6, "d");
+        //    builder.AddRow(0.5f, 1.1, "a");
+        //    builder.AddRow(0.2f, 1.5, "b");
+        //    builder.AddRow(0.7f, 0.5, "c");
+        //    builder.AddRow(0.2f, 0.6, "d");
 
-            var table = builder.Build();
-            var folds = table.Fold(4, 0, false).ToList();
-            Assert.AreEqual(folds.Count, 4);
-            Assert.IsTrue(folds.All(r => r.Training.RowCount == 3 && r.Validation.RowCount == 1));
-        }
+        //    var table = builder.Build();
+        //    var folds = table.Fold(4, 0, false).ToList();
+        //    Assert.AreEqual(folds.Count, 4);
+        //    Assert.IsTrue(folds.All(r => r.Training.RowCount == 3 && r.Validation.RowCount == 1));
+        //}
 
-        [Fact]
-        public void TableFilter()
-        {
-            var builder = _context.BuildTable();
+        //[Fact]
+        //public void TableFilter()
+        //{
+        //    var builder = _context.BuildTable();
 
-            builder.AddColumn(ColumnType.Float, "val1");
-            builder.AddColumn(ColumnType.Double, "val2");
-            builder.AddColumn(ColumnType.String, "cls").SetTargetColumn(true);
+        //    builder.AddColumn(ColumnType.Float, "val1");
+        //    builder.AddColumn(ColumnType.Double, "val2");
+        //    builder.AddColumn(ColumnType.String, "cls").SetTargetColumn(true);
 
-            builder.AddRow(0.5f, 1.1, "a");
-            builder.AddRow(0.2f, 1.5, "b");
-            builder.AddRow(0.7f, 0.5, "c");
-            builder.AddRow(0.2f, 0.6, "d");
+        //    builder.AddRow(0.5f, 1.1, "a");
+        //    builder.AddRow(0.2f, 1.5, "b");
+        //    builder.AddRow(0.7f, 0.5, "c");
+        //    builder.AddRow(0.2f, 0.6, "d");
 
-            var table = builder.Build();
-            var projectedTable = table.Project(r => r.GetField<string>(2) == "b" ? null : r.Data);
+        //    var table = builder.Build();
+        //    var projectedTable = table.Project(r => r.GetField<string>(2) == "b" ? null : r.Data);
 
-            Assert.AreEqual(projectedTable.ColumnCount, table.ColumnCount);
-            Assert.AreEqual(projectedTable.RowCount, 3);
-        }
+        //    Assert.AreEqual(projectedTable.ColumnCount, table.ColumnCount);
+        //    Assert.AreEqual(projectedTable.RowCount, 3);
+        //}
 
-        [Fact]
-        public void TableSummarise()
-        {
-            var builder = _context.BuildTable();
+        //[Fact]
+        //public void TableSummarise()
+        //{
+        //    var builder = _context.BuildTable();
 
-            builder.AddColumn(ColumnType.Boolean, "boolean");
-            builder.AddColumn(ColumnType.Byte, "byte");
-            builder.AddColumn(ColumnType.Date, "date");
-            builder.AddColumn(ColumnType.Double, "double");
-            builder.AddColumn(ColumnType.Float, "float");
-            builder.AddColumn(ColumnType.Int, "int");
-            builder.AddColumn(ColumnType.Long, "long");
-            builder.AddColumn(ColumnType.String, "string");
+        //    builder.AddColumn(ColumnType.Boolean, "boolean");
+        //    builder.AddColumn(ColumnType.Byte, "byte");
+        //    builder.AddColumn(ColumnType.Date, "date");
+        //    builder.AddColumn(ColumnType.Double, "double");
+        //    builder.AddColumn(ColumnType.Float, "float");
+        //    builder.AddColumn(ColumnType.Int, "int");
+        //    builder.AddColumn(ColumnType.Long, "long");
+        //    builder.AddColumn(ColumnType.String, "string");
 
-            var now = DateTime.Now;
-            builder.AddRow(true, (sbyte)100, now, 1.0 / 2, 0.5f, int.MaxValue, long.MaxValue, "test");
-            builder.AddRow(true, (sbyte)0, now, 0.0, 0f, int.MinValue, long.MinValue, "test");
-            var dataTable = builder.Build();
+        //    var now = DateTime.Now;
+        //    builder.AddRow(true, (sbyte)100, now, 1.0 / 2, 0.5f, int.MaxValue, long.MaxValue, "test");
+        //    builder.AddRow(true, (sbyte)0, now, 0.0, 0f, int.MinValue, long.MinValue, "test");
+        //    var dataTable = builder.Build();
 
-            var summarisedRow = dataTable.Summarise(1).GetRow(0);
-            Assert.AreEqual(summarisedRow.GetField<bool>(0), true);
-            Assert.AreEqual(summarisedRow.GetField<sbyte>(1), (sbyte)50);
-            Assert.AreEqual(summarisedRow.GetField<double>(3), 0.25);
-            Assert.AreEqual(summarisedRow.GetField<string>(7), "test");
-        }
+        //    var summarisedRow = dataTable.Summarise(1).GetRow(0);
+        //    Assert.AreEqual(summarisedRow.GetField<bool>(0), true);
+        //    Assert.AreEqual(summarisedRow.GetField<sbyte>(1), (sbyte)50);
+        //    Assert.AreEqual(summarisedRow.GetField<double>(3), 0.25);
+        //    Assert.AreEqual(summarisedRow.GetField<string>(7), "test");
+        //}
 
-        [Fact]
-        public void TableReverseVectorise()
-        {
-            var table = _CreateComplexTable(_context);
-            uint targetColumnIndex;
-            table.SetTargetColumn(targetColumnIndex = table.ColumnCount - 1);
-            var targetColumnType = table.Column(targetColumnIndex).SingleType;
-            var vectoriser = table.GetVectoriser(true);
-            var model = vectoriser.GetVectorisationModel();
+        //[Fact]
+        //public void TableReverseVectorise()
+        //{
+        //    var table = _CreateComplexTable(_context);
+        //    uint targetColumnIndex;
+        //    table.SetTargetColumn(targetColumnIndex = table.ColumnCount - 1);
+        //    var targetColumnType = table.Column(targetColumnIndex).SingleType;
+        //    var vectoriser = table.GetVectoriser(true);
+        //    var model = vectoriser.GetVectorisationModel();
 
-            var output = table.Map(row => model.GetOutput(row));
-            var reversedOutput = output.Select(vector => model.ReverseVectoriseOutput(vector, targetColumnType)).ToList();
-            var tuples = table.Map(row => (row.Data[targetColumnIndex], reversedOutput[row.Index]));
-            foreach (var tuple in tuples)
-                Assert.AreEqual(tuple.Item1, tuple.Item2);
-        }
+        //    var output = table.Map(row => model.GetOutput(row));
+        //    var reversedOutput = output.Select(vector => model.ReverseVectoriseOutput(vector, targetColumnType)).ToList();
+        //    var tuples = table.Map(row => (row.Data[targetColumnIndex], reversedOutput[row.Index]));
+        //    foreach (var tuple in tuples)
+        //        Assert.AreEqual(tuple.Item1, tuple.Item2);
+        //}
 
         //[Fact]
         //public void TableConfusionMatrix()

@@ -11,7 +11,7 @@ using Xunit;
 
 namespace BrightWire.UnitTests
 {
-    class GraphOperationTests : NumericsBase
+    public class GraphOperationTests : NumericsBase
     {
         readonly GraphFactory _factory;
 
