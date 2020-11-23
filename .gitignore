@@ -32,12 +32,17 @@
 /BrightWire.UnitTests/bin
 /BrightWire.UnitTests/obj
 /BrightWire.CUDA.Net4.x64/bin
+/BrightWire.CUDA.Net4.x64/obj
+/BrightWire.CUDA.Standard/bin
 /BrightWire.CUDA.Standard/obj
 /BrightWire.Net4/bin
 /BrightWire.Net4/obj
+/BrightWire.Standard/bin
 /BrightWire.Standard/obj
 /Core.SampleCode/obj
 /SampleCode/bin
 /SampleCode/obj
+/SampleProjects/CoreTest/bin
 /SampleProjects/CoreTest/obj
+/UnitTests/bin
 /UnitTests/obj
