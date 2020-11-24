@@ -32,7 +32,7 @@ namespace BrightWire
 		/// <param name="output">The mini batch of output vectors</param>
 		/// <param name="targetOutput">The mini batch of expected target vectors</param>
 		/// <returns></returns>
-		IFloatMatrix CalculateGradient(IContext context, IFloatMatrix output, IFloatMatrix targetOutput);
+		IFloatMatrix CalculateGradient(IGraphContext context, IFloatMatrix output, IFloatMatrix targetOutput);
 	}
 
 	/// <summary>

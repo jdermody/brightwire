@@ -11,7 +11,7 @@ namespace BrightWire.ExecutionGraph.Node.Operation
         {
             public Backpropagation(OneMinusInput source) : base(source) { }
 
-            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, INode[] parents)
+            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
             {
                 var es = errorSignal.GetMatrix();
                 using var minusOne = context.LinearAlgebraProvider.CreateMatrix(es.RowCount, es.ColumnCount, -1f);
@@ -23,7 +23,7 @@ namespace BrightWire.ExecutionGraph.Node.Operation
         {
         }
 
-        public override void ExecuteForward(IContext context)
+        public override void ExecuteForward(IGraphContext context)
         {
             var input = context.Data.GetMatrix();
             using var ones = context.LinearAlgebraProvider.CreateMatrix(input.RowCount, input.ColumnCount, 1f);

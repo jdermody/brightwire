@@ -9,7 +9,7 @@
         {
         }
 
-        public override void ExecuteForward(IContext context)
+        public override void ExecuteForward(IGraphContext context)
         {
             _AddNextGraphAction(context, context.Data, null);
         }

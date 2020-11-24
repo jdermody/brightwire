@@ -8,7 +8,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     /// <summary>
     /// Execution engine context
     /// </summary>
-    class ExecutionEngineContext : IContext
+    class ExecutionEngineContext : IGraphContext
     {
         readonly IExecutionContext _executionContext;
         readonly List<IExecutionHistory> _forward = new List<IExecutionHistory>();

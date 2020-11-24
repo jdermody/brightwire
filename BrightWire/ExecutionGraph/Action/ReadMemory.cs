@@ -9,7 +9,7 @@
 			_id = id;
 		}
 
-		public IGraphData Execute(IGraphData input, IContext context)
+		public IGraphData Execute(IGraphData input, IGraphContext context)
 		{
 			var memory = context.ExecutionContext.GetMemory(_id);
 			return memory.AsGraphData();

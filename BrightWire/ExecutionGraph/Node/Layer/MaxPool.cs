@@ -29,7 +29,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 				_yStride = yStride;
             }
 
-            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, INode[] parents)
+            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
             {
 	            var errorMatrix = errorSignal.GetMatrix();
                 var tensor = errorMatrix.ReshapeAs4DTensor(_outputRows, _outputColumns, _depth);
@@ -54,7 +54,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             _yStride = yStride;
         }
 
-        public override void ExecuteForward(IContext context)
+        public override void ExecuteForward(IGraphContext context)
         {
             var input = context.Data;
             var tensor = input.GetMatrix().ReshapeAs4DTensor(input.Rows, input.Columns, input.Depth);

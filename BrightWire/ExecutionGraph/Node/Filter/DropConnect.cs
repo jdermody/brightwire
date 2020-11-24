@@ -23,7 +23,7 @@ namespace BrightWire.ExecutionGraph.Node.Filter
                 _filteredWeights = filteredWeights;
             }
 
-            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, INode[] parents)
+            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
             {
                 var es = errorSignal.GetMatrix();
 
@@ -51,7 +51,7 @@ namespace BrightWire.ExecutionGraph.Node.Filter
             _probabilityToDrop = new BernoulliDistribution(context, _dropOutPercentage);
         }
 
-        public override void ExecuteForward(IContext context)
+        public override void ExecuteForward(IGraphContext context)
         {
             if (context.IsTraining) {
                 var lap = context.LinearAlgebraProvider;

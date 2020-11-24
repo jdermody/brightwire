@@ -69,7 +69,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         public override List<IWire> Output => _output.Output;
         public INode Memory => _memory;
 
-        public override void ExecuteForward(IContext context)
+        public override void ExecuteForward(IGraphContext context)
         {
             if (context.BatchSequence.Type == MiniBatchSequenceType.SequenceStart)
                 _lastBackpropagation = null;

@@ -413,5 +413,130 @@ namespace BrightData
             metaData.Set(Consts.IsCategorical, isCategorical);
             return metaData;
         }
+
+        /// <summary>
+        /// Converts the indexed classifications to weighted indexed classifications
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="context"></param>
+        /// <param name="groupByClassification">True to group by classification (i.e convert the bag to a set)</param>
+        public static IReadOnlyList<(string Label, WeightedIndexList Data)> ConvertToWeightedIndexList(
+            this IReadOnlyList<(string Label, IndexList Data)> data,
+            IBrightDataContext context,
+            bool groupByClassification
+        )
+        {
+            if (groupByClassification)
+            {
+                return data.GroupBy(c => c.Label)
+                    .Select(g => (g.Key, WeightedIndexList.Create(context, g.SelectMany(d => d.Data.Indices)
+                        .GroupBy(d => d)
+                        .Select(g2 => new WeightedIndexList.Item(g2.Key, g2.Count()))
+                        .ToArray()
+                    )))
+                    .ToArray()
+                ;
+            }
+            return data
+                .Select(d => (d.Label, WeightedIndexList.Create(context, d.Data.Indices
+                    .GroupBy(i => i)
+                    .Select(g2 => new WeightedIndexList.Item(g2.Key, g2.Count()))
+                    .ToArray()
+                )))
+                .ToArray()
+            ;
+        }
+
+        /// <summary>
+        /// Finds the greatest weight within the weighted index classification list
+        /// </summary>
+        /// <param name="data"></param>
+        public static float GetMaxWeight(this IReadOnlyList<(string Label, WeightedIndexList Data)> data)
+        {
+            return data.SelectMany(r => r.Data.Indices).Max(wi => wi.Weight);
+        }
+
+        /// <summary>
+        /// Find the greatest index within the weighted index classification list
+        /// </summary>
+        /// <param name="data"></param>
+        public static uint GetMaxIndex(this IReadOnlyList<(string Label, WeightedIndexList Data)> data)
+        {
+            return data.SelectMany(r => r.Data.Indices).Max(wi => wi.Index);
+        }
+
+        /// <summary>
+        /// Find the greatest index within the index classification list
+        /// </summary>
+        /// <param name="data"></param>
+        public static uint GetMaxIndex(this IReadOnlyList<(string Label, IndexList Data)> data)
+        {
+            return data.SelectMany(r => r.Data.Indices).Max();
+        }
+
+        /// <summary>
+        /// Modifies the weights in the classification set based on relative corpus statistics to increase the weight of important words relative to each document
+        /// https://en.wikipedia.org/wiki/Tf%E2%80%93idf
+        /// </summary>
+        /// <returns>A new weighted classification set</returns>
+        public static IReadOnlyList<(string Label, WeightedIndexList Data)> TFIDF(this IReadOnlyList<(string Label, WeightedIndexList Data)> data, IBrightDataContext context)
+        {
+            var indexOccurence = new Dictionary<uint, uint>();
+            var classificationSum = new Dictionary<string, double>();
+
+            // find the overall count of each index
+            foreach (var classification in data.GroupBy(c => c.Label))
+            {
+                double sum = 0;
+                foreach (var item in classification)
+                {
+                    foreach (var index in item.Data.Indices)
+                    {
+                        var key = index.Index;
+                        if (indexOccurence.TryGetValue(key, out uint temp))
+                            indexOccurence[key] = temp + 1;
+                        else
+                            indexOccurence.Add(key, 1);
+                        sum += index.Weight;
+                    }
+                }
+                classificationSum.Add(classification.Key, sum);
+            }
+
+            // calculate tf-idf for each document
+            var numDocs = (double)data.Count;
+            var ret = new List<(string Label, WeightedIndexList Data)>();
+            foreach (var classification in data)
+            {
+                var totalWords = classificationSum[classification.Label];
+                var classificationIndex = new List<WeightedIndexList.Item>();
+                foreach (var item in classification.Data.Indices)
+                {
+                    var index = item.Index;
+                    var tf = item.Weight / totalWords;
+                    var docsWithTerm = (double)indexOccurence[index];
+                    var idf = Math.Log(numDocs / (1.0 + docsWithTerm));
+                    var score = tf * idf;
+                    classificationIndex.Add(new WeightedIndexList.Item(index, Convert.ToSingle(score)));
+                }
+                ret.Add((classification.Label, WeightedIndexList.Create(context, classificationIndex.ToArray())));
+            }
+            return ret;
+        }
+
+        /// <summary>
+        /// Normalises the weighted index classification list to fit between 0 and 1
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public static IReadOnlyList<(string Label, WeightedIndexList Data)> Normalise(this IReadOnlyList<(string Label, WeightedIndexList Data)> data, IBrightDataContext context)
+        {
+            var maxWeight = data.GetMaxWeight();
+            return data.Select(r => (r.Label, WeightedIndexList.Create(
+                context, 
+                r.Data.Indices.Select(wi => new WeightedIndexList.Item(wi.Index, wi.Weight / maxWeight)).ToArray()
+            ))).ToList();
+        }
     }
 }

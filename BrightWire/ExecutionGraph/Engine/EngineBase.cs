@@ -19,7 +19,7 @@ namespace BrightWire.ExecutionGraph.Engine
         protected abstract void _Execute(IExecutionContext context, IMiniBatch miniBatch);
         protected abstract IEnumerable<ExecutionResult> _GetResults();
 
-        protected bool _Continue(IMiniBatch batch, IExecutionContext executionContext, Func<IMiniBatchSequence, IContext> lookupContext)
+        protected bool _Continue(IMiniBatch batch, IExecutionContext executionContext, Func<IMiniBatchSequence, IGraphContext> lookupContext)
         {
             var ret = false;
 

@@ -9,7 +9,7 @@
 			_channel = channel;
 		}
 
-		public override void ExecuteForward(IContext context)
+		public override void ExecuteForward(IGraphContext context)
 		{
 			var data = context.Data;
 			context.SetOutput(data, _channel);

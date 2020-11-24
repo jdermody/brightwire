@@ -79,7 +79,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         /// Execute on the the start node, which will execute each sub node in turn
         /// </summary>
         /// <param name="context"></param>
-        public override void ExecuteForward(IContext context)
+        public override void ExecuteForward(IGraphContext context)
         {
             if (context.BatchSequence.Type == MiniBatchSequenceType.SequenceStart)
                 _lastBackpropagation = null;

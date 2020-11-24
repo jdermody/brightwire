@@ -69,7 +69,7 @@ namespace BrightWire
         /// <param name="input">Current graph signal</param>
         /// <param name="context">Graph context</param>
         /// <returns>Optional new graph signal to propagate</returns>
-        IGraphData Execute(IGraphData input, IContext context);
+        IGraphData Execute(IGraphData input, IGraphContext context);
         
         /// <summary>
         /// Serialises the action to a string
@@ -142,7 +142,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="context">Graph context</param>
         /// <param name="channel">Channel the signal was received on</param>
-        void ExecuteForward(IContext context, uint channel);
+        void ExecuteForward(IGraphContext context, uint channel);
 
         /// <summary>
         /// Searches for a node by friendly name
@@ -230,7 +230,7 @@ namespace BrightWire
     /// <summary>
     /// Graph context
     /// </summary>
-    public interface IContext : IDisposable
+    public interface IGraphContext : IDisposable
     {
         /// <summary>
         /// True if the graph is currently training
@@ -376,7 +376,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="sequence">Sequence index</param>
         /// <param name="callback">Continuation</param>
-        void RegisterContinuation(IMiniBatchSequence sequence, Action<IContext> callback);
+        void RegisterContinuation(IMiniBatchSequence sequence, Action<IGraphContext> callback);
 
         /// <summary>
         /// True if there are registered continuations
@@ -387,7 +387,7 @@ namespace BrightWire
         /// Execute any registered continuation for this context
         /// </summary>
         /// <param name="context">Context with an associated IMiniBatchSequence</param>
-        void Continue(IContext context);
+        void Continue(IGraphContext context);
     }
 
     /// <summary>
@@ -402,7 +402,7 @@ namespace BrightWire
         /// <param name="errorSignal">Error signal</param>
         /// <param name="context">Graph context</param>
         /// <param name="parents">The current node's parents</param>
-        void Backward(INode fromNode, IGraphData errorSignal, IContext context, INode[] parents);
+        void Backward(INode fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents);
     }
 
     /// <summary>
@@ -452,7 +452,7 @@ namespace BrightWire
         /// Called when the current batch has completed
         /// </summary>
         /// <param name="context"></param>
-        void OnBatchProcessed(IContext context);
+        void OnBatchProcessed(IGraphContext context);
 
         /// <summary>
         /// Creates a new data source, using the current as a template but replacing the data table

@@ -73,7 +73,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
 		public override List<IWire> Output => _output.Output;
 
-		public override void ExecuteForward(IContext context)
+		public override void ExecuteForward(IGraphContext context)
 		{
 			var data = context.Data;
 			IFloatMatrix input;

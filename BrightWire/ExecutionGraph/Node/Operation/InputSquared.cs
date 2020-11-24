@@ -13,7 +13,7 @@ namespace BrightWire.ExecutionGraph.Node.Operation
 				_input = input;
             }
 
-            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, INode[] parents)
+            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
             {
                 var es = errorSignal.GetMatrix();
 	            var err = es.PointwiseMultiply(_input);
@@ -26,7 +26,7 @@ namespace BrightWire.ExecutionGraph.Node.Operation
         {
         }
 
-        public override void ExecuteForward(IContext context)
+        public override void ExecuteForward(IGraphContext context)
         {
             var input = context.Data.GetMatrix();
             var inputSquared = input.PointwiseMultiply(input);

@@ -25,7 +25,7 @@ namespace BrightWire.ExecutionGraph.Action
             return _errorMetric.GetType().AssemblyQualifiedName;
         }
 
-        public IGraphData Execute(IGraphData input, IContext context)
+        public IGraphData Execute(IGraphData input, IGraphContext context)
         {
             var output = input.GetMatrix();
             if (context.IsTraining) {

@@ -36,7 +36,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             };
         }
 
-        protected IContext _Process(IExecutionContext executionContext, IGraphData data)
+        protected IGraphContext _Process(IExecutionContext executionContext, IGraphData data)
         {
             var context = new TrainingEngineContext(executionContext, data, _learningContext);
             _input.ExecuteForward(context, 0);
@@ -47,7 +47,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             return context;
         }
 
-        protected IContext _ConcurentProcess(IExecutionContext executionContext, IGraphData data)
+        protected IGraphContext _ConcurentProcess(IExecutionContext executionContext, IGraphData data)
         {
             var learningContext = new LearningContext(_lap, _learningContext.LearningRate, _learningContext.BatchSize, TrainingErrorCalculation.None, true);
             var context = new TrainingEngineContext(executionContext, data, learningContext);
@@ -59,7 +59,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             return context;
         }
 
-        protected IContext _Process(IExecutionContext executionContext, IMiniBatchSequence sequence)
+        protected IGraphContext _Process(IExecutionContext executionContext, IMiniBatchSequence sequence)
         {
             var context = new TrainingEngineContext(executionContext, sequence, _learningContext);
             _input.ExecuteForward(context, 0);

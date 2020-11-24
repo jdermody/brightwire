@@ -9,7 +9,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
     {
         public AddGate(string name = null) : base(name) { }
 
-        protected override void _Activate(IContext context, IFloatMatrix primary, IFloatMatrix secondary)
+        protected override void _Activate(IGraphContext context, IFloatMatrix primary, IFloatMatrix secondary)
         {
             var output = primary.Add(secondary);
 

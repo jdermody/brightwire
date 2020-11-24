@@ -9,7 +9,7 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
     /// </summary>
     class CrossEntropy : IErrorMetric
     {
-        public IFloatMatrix CalculateGradient(IContext context, IFloatMatrix output, IFloatMatrix targetOutput)
+        public IFloatMatrix CalculateGradient(IGraphContext context, IFloatMatrix output, IFloatMatrix targetOutput)
         {
             var lap = context.LinearAlgebraProvider;
             using var ones = lap.CreateMatrix(output.RowCount, output.ColumnCount, 1f);

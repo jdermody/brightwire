@@ -8,12 +8,12 @@ namespace BrightWire.ExecutionGraph.Node.Helper
 {
     class NodeWrapper : NodeBase
     {
-        class ContextProxy : IContext
+        class ContextProxy : IGraphContext
         {
-            readonly IContext _context;
+            readonly IGraphContext _context;
             readonly INode _wrapper;
 
-            public ContextProxy(IContext context, INode wrapper)
+            public ContextProxy(IGraphContext context, INode wrapper)
             {
                 _context = context;
                 _wrapper = wrapper;
@@ -80,12 +80,12 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             _nodeId = node.Id;
         }
 
-        public override void ExecuteForward(IContext context)
+        public override void ExecuteForward(IGraphContext context)
         {
             _node.ExecuteForward(new ContextProxy(context, this), 0);
         }
 
-        protected override void _ExecuteForward(IContext context, uint channel)
+        protected override void _ExecuteForward(IGraphContext context, uint channel)
         {
             _node.ExecuteForward(new ContextProxy(context, this), channel);
         }

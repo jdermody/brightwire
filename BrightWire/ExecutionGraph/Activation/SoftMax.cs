@@ -19,7 +19,7 @@ namespace BrightWire.ExecutionGraph.Activation
                 _rows = rows;
             }
 
-            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, INode[] parents)
+            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
             {
                 var matrix = errorSignal.GetMatrix();
                 var rowList = new List<IFloatVector>();
@@ -37,7 +37,7 @@ namespace BrightWire.ExecutionGraph.Activation
 
         public SoftMax(string name = null) : base(name) { }
 
-        public override void ExecuteForward(IContext context)
+        public override void ExecuteForward(IGraphContext context)
         {
             var input = context.Data.GetMatrix();
             var rowList = new IFloatVector[input.RowCount];

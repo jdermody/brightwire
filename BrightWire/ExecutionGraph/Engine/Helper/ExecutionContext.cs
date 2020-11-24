@@ -12,7 +12,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     {
         readonly ConcurrentQueue<IGraphOperation> _operationList = new ConcurrentQueue<IGraphOperation>();
         readonly ConcurrentDictionary<string, IFloatMatrix> _memory = new ConcurrentDictionary<string, IFloatMatrix>();
-        readonly ConcurrentDictionary<IMiniBatchSequence, System.Action<IContext>> _continuationTable = new ConcurrentDictionary<IMiniBatchSequence, System.Action<IContext>>();
+        readonly ConcurrentDictionary<IMiniBatchSequence, System.Action<IGraphContext>> _continuationTable = new ConcurrentDictionary<IMiniBatchSequence, System.Action<IGraphContext>>();
 
 	    public ExecutionContext(ILinearAlgebraProvider lap)
         {
@@ -34,13 +34,13 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
                 _operationList.Enqueue(item);
         }
         public void Add(IGraphOperation operation) => _operationList.Enqueue(operation);
-        public void RegisterContinuation(IMiniBatchSequence sequence, System.Action<IContext> callback) => _continuationTable[sequence] = callback;
+        public void RegisterContinuation(IMiniBatchSequence sequence, System.Action<IGraphContext> callback) => _continuationTable[sequence] = callback;
         public int RemainingOperationCount => _operationList.Count;
         public bool HasContinuations => _continuationTable.Any();
 
-        public void Continue(IContext context)
+        public void Continue(IGraphContext context)
         {
-            if(_continuationTable.TryRemove(context.BatchSequence, out System.Action<IContext> callback))
+            if(_continuationTable.TryRemove(context.BatchSequence, out System.Action<IGraphContext> callback))
                 callback(context);
         }
 

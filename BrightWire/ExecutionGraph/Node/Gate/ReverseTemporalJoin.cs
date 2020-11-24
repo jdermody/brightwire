@@ -17,7 +17,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 _reverseSize = reverseSize;
             }
 
-            public override void _Backward(INode fromNode, IGraphData errorSignal, IContext context, INode[] parents)
+            public override void _Backward(INode fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
             {
                 var matrix = errorSignal.GetMatrix();
                 (IFloatMatrix left, IFloatMatrix right) = matrix.SplitAtColumn(matrix.ColumnCount - _reverseSize);
@@ -45,7 +45,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         Dictionary<uint, (IFloatMatrix Data, INode ReverseParent)> _reverseInput = new Dictionary<uint, (IFloatMatrix Data, INode ReverseParent)>();
 
         Dictionary<uint, (INode, IGraphData)> _reverseBackpropagation = new Dictionary<uint, (INode, IGraphData)>();
-        Dictionary<uint, IContext> _contextTable = new Dictionary<uint, IContext>();
+        Dictionary<uint, IGraphContext> _contextTable = new Dictionary<uint, IGraphContext>();
 
         public ReverseTemporalJoin(string name, WireBuilder forwardInput, WireBuilder reverseInput) 
             : base(name, forwardInput, reverseInput)
@@ -58,10 +58,10 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             _reverseInput = new Dictionary<uint, (IFloatMatrix Data, INode ReverseParent)>();
 
             _reverseBackpropagation = new Dictionary<uint, (INode, IGraphData)>();
-            _contextTable = new Dictionary<uint, IContext>();
+            _contextTable = new Dictionary<uint, IGraphContext>();
         }
 
-        void _Continue(IContext context)
+        void _Continue(IGraphContext context)
         {
             var sequenceIndex = context.BatchSequence.SequenceIndex;
             var input = _input[sequenceIndex];
@@ -81,7 +81,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             );
         }
 
-        protected override void _Activate(IContext context, List<IncomingChannel> data)
+        protected override void _Activate(IGraphContext context, List<IncomingChannel> data)
         {
             Debug.Assert(data.Count == 2);
             var forward = data.First();

@@ -96,7 +96,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             };
         }
 
-        public void OnBatchProcessed(IContext context)
+        public void OnBatchProcessed(IGraphContext context)
         {
             // nop
         }

@@ -672,5 +672,96 @@ namespace BrightTable
         public static IDataTableSegment<T> Column<T>(this IDataTable dataTable, uint index) => (IDataTableSegment<T>) dataTable.Column(index);
 
         public static T[] ToArray<T>(this IDataTableSegment<T> segment) => segment.EnumerateTyped().ToArray();
+
+        /// <summary>
+        /// Converts indexed classifications to a data table
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="context"></param>
+        public static IDataTable ConvertToTable(this IReadOnlyList<(string Label, IndexList Data)> data, IBrightDataContext context)
+        {
+            var builder = context.BuildTable();
+            builder.AddColumn(ColumnType.IndexList, "Index");
+            builder.AddColumn(ColumnType.String, "Label").SetTargetColumn(true);
+
+            foreach (var item in data)
+                builder.AddRow(item.Data, item.Label);
+
+            return builder.Build();
+        }
+
+        /// <summary>
+        /// Converts weighted index classifications to a data table
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="context"></param>
+        public static IRowOrientedDataTable ConvertToTable(this IReadOnlyList<(string Label, WeightedIndexList Data)> data, IBrightDataContext context)
+        {
+            var builder = context.BuildTable();
+            builder.AddColumn(ColumnType.WeightedIndexList, "Weighted Index");
+            builder.AddColumn(ColumnType.String, "Label").SetTargetColumn(true);
+
+            foreach (var item in data)
+                builder.AddRow(item.Data, item.Label);
+
+            return builder.Build();
+        }
+
+        /// <summary>
+        /// Converts the vector classifications into a data table
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="preserveVectors">True to create a data table with a vector column type, false to to convert to columns of floats</param>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public static IDataTable ConvertToTable(this IReadOnlyList<(string Label, Vector<float> Data)> data, bool preserveVectors, IBrightDataContext context)
+        {
+            var builder = context.BuildTable();
+            if (preserveVectors)
+            {
+                builder.AddColumn(ColumnType.Vector, "Vector");
+                builder.AddColumn(ColumnType.String, "Label").SetTargetColumn(true);
+
+                foreach (var item in data)
+                    builder.AddRow(item.Data, item.Label);
+            }
+            else
+            {
+                var size = data.First().Data.Size;
+                for (var i = 1; i <= size; i++)
+                    builder.AddColumn(ColumnType.Float, "Value " + i);
+                builder.AddColumn(ColumnType.String, "Label").SetTargetColumn(true);
+
+                foreach (var item in data)
+                {
+                    var vector = item.Data;
+                    var row = new List<object>();
+                    for (var i = 0; i < size; i++)
+                        row.Add(vector[i]);
+                    row.Add(item.Label);
+                    builder.AddRow(row);
+                }
+            }
+
+            return builder.Build();
+        }
+
+        /// <summary>
+        /// Converts the weighted index classification list to a list of dense vectors
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="context"></param>
+        public static IReadOnlyList<(string Classification, Vector<float> Data)> Vectorise(this IReadOnlyList<(string Label, WeightedIndexList Data)> data, IBrightDataContext context)
+        {
+            var size = data.GetMaxIndex() + 1;
+            Vector<float> _Create(WeightedIndexList weightedIndexList)
+            {
+                var ret = new float[size];
+                foreach (var item in weightedIndexList.Indices)
+                    ret[item.Index] = item.Weight;
+                return context.CreateVector(ret);
+            }
+            return data.Select(r => (r.Label, _Create(r.Data))).ToList();
+        }
     }
 }

@@ -64,7 +64,7 @@ namespace BrightWire.ExecutionGraph.DataSource
             };
         }
 
-        public void OnBatchProcessed(IContext context)
+        public void OnBatchProcessed(IGraphContext context)
         {
             // nop
         }

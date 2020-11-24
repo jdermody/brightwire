@@ -13,7 +13,7 @@
             _max = max;
         }
 
-        public IGraphData Execute(IGraphData input, IContext context)
+        public IGraphData Execute(IGraphData input, IGraphContext context)
         {
             var matrix = input.GetMatrix();
             matrix.Constrain(_min, _max);

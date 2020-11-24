@@ -15,7 +15,7 @@ namespace BrightWire.ExecutionGraph.Engine
 	class TrainingEngine : EngineBase, IGraphTrainingEngine
 	{
 		readonly List<(IMiniBatchSequence Sequence, double? TrainingError, Matrix<float>[] Output)> _executionResults = new List<(IMiniBatchSequence, double?, Matrix<float>[])>();
-		readonly List<IContext> _contextList = new List<IContext>();
+		readonly List<IGraphContext> _contextList = new List<IGraphContext>();
 		readonly INode[] _input;
 		readonly Random _random;
 		float? _lastTestError = null;

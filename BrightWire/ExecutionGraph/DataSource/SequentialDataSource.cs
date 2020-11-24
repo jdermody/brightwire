@@ -86,7 +86,7 @@ namespace BrightWire.ExecutionGraph.DataSource
         public IVectorise InputVectoriser { get; } = null;
         public IVectorise OutputVectoriser { get; } = null;
 
-        public void OnBatchProcessed(IContext context)
+        public void OnBatchProcessed(IGraphContext context)
         {
             // nop
         }

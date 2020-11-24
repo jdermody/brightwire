@@ -5,7 +5,7 @@ using BrightData;
 
 namespace BrightWire.UnitTests
 {
-	class TestingContext : IContext
+	class TestingContext : IGraphContext
     {
         public List<(IExecutionHistory, IBackpropagation)> Forward { get; } = new List<(IExecutionHistory, IBackpropagation)>();
         public List<(IGraphData, INode, INode)> Backward { get; } = new List<(IGraphData, INode, INode)>();

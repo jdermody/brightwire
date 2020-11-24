@@ -33,7 +33,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
 
         public uint OutputSize => (uint)_targetLabel.Count;
 
-        public override void ExecuteForward(IContext context)
+        public override void ExecuteForward(IGraphContext context)
         {
             var resultList = _dataTable
                 .Rows(context.BatchSequence.MiniBatch.Rows)

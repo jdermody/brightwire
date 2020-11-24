@@ -22,7 +22,7 @@
             return _id;
         }
 
-        public IGraphData Execute(IGraphData input, IContext context)
+        public IGraphData Execute(IGraphData input, IGraphContext context)
         {
             context.ExecutionContext.SetMemory(_id, input.GetMatrix());
             return input;

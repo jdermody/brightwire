@@ -17,7 +17,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
             {
             }
 
-            public override void _Backward(INode fromNode, IGraphData errorSignal, IContext context, INode[] parents)
+            public override void _Backward(INode fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
             {
                 if (context.BatchSequence.Type == MiniBatchSequenceType.SequenceStart) {
                     var es = errorSignal.GetMatrix();
@@ -49,7 +49,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
 	        set => value.Segment.CopyTo(_data);
         }
 
-        public override void ExecuteForward(IContext context)
+        public override void ExecuteForward(IGraphContext context)
         {
             if (context.BatchSequence.Type == MiniBatchSequenceType.SequenceStart)
                 _OnStart(context);
@@ -57,13 +57,13 @@ namespace BrightWire.ExecutionGraph.Node.Input
                 _OnNext(context);
         }
 
-        void _OnStart(IContext context)
+        void _OnStart(IGraphContext context)
         {
             var memory = context.LinearAlgebraProvider.CreateMatrix(context.BatchSequence.MiniBatch.BatchSize, (uint)_data.Length, (x, y) => _data[y]);
             _AddNextGraphAction(context, new MatrixGraphData(memory), () => new Backpropagation(this));
         }
 
-        void _OnNext(IContext context)
+        void _OnNext(IGraphContext context)
         {
             var memory = context.ExecutionContext.GetMemory(Id);
             _AddNextGraphAction(context, new MatrixGraphData(memory), null);

@@ -135,7 +135,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             return miniBatch;
         }
 
-        public override void OnBatchProcessed(IContext context)
+        public override void OnBatchProcessed(IGraphContext context)
         {
             var batch = context.BatchSequence;
             if(context.IsTraining && batch.Type == MiniBatchSequenceType.SequenceStart) {

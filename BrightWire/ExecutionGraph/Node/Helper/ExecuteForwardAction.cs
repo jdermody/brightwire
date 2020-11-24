@@ -13,7 +13,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
 
         public IAction Action { get; set; }
 
-	    public override void ExecuteForward(IContext context)
+	    public override void ExecuteForward(IGraphContext context)
         {
             var input = context.Data;
             var output = Action.Execute(input, context);

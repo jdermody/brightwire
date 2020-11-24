@@ -11,73 +11,76 @@ using BrightTable;
 using BrightWire.ExecutionGraph;
 using BrightWire.Models;
 using BrightWire.TrainingData.Artificial;
+using FluentAssertions;
 using Xunit;
 
 namespace BrightWire.UnitTests
 {
     public class SerializationTests : NumericsBase
     {
-        //public class CustomErrorMetric : IErrorMetric
-        //{
-        //    public IFloatMatrix CalculateGradient(IContext context, IFloatMatrix output, IFloatMatrix targetOutput)
-        //    {
-        //        return targetOutput.Subtract(output);
-        //    }
+        public class CustomErrorMetric : IErrorMetric
+        {
+            public IFloatMatrix CalculateGradient(IGraphContext context, IFloatMatrix output, IFloatMatrix targetOutput)
+            {
+                return targetOutput.Subtract(output);
+            }
 
-        //    public float Compute(Vector<float> output, Vector<float> targetOutput)
-        //    {
-        //        return output.MaximumIndex() == targetOutput.MaximumIndex() ? 1 : 0;
-        //    }
+            public float Compute(Vector<float> output, Vector<float> targetOutput)
+            {
+                return output.MaximumIndex() == targetOutput.MaximumIndex() ? 1 : 0;
+            }
 
-        //    public bool DisplayAsPercentage => true;
-        //}
+            public bool DisplayAsPercentage => true;
+        }
 
-        //private static GraphModel bestNetwork;
+        private static GraphModel bestNetwork;
 
-        //static (GraphFactory, IDataSource) MakeGraphAndData()
-        //{
-        //    var graph = new GraphFactory(_cpu);
-        //    var data = graph.CreateDataSource(And.Get());
-        //    return (graph, data);
-        //}
+        static (GraphFactory, IDataSource) MakeGraphAndData(IBrightDataContext context)
+        {
+            var graph = new GraphFactory(context.LinearAlgebraProvider);
+            var data = graph.CreateDataSource(And.Get(context));
+            return (graph, data);
+        }
 
-        //public SerializationTests()
-        //{
-        //    var (graph, data) = MakeGraphAndData();
-        //    var engine = graph.CreateTrainingEngine(data);
+        public SerializationTests()
+        {
+            var (graph, data) = MakeGraphAndData(_context);
+            var engine = graph.CreateTrainingEngine(data);
 
-        //    var errorMetric = new CustomErrorMetric();
-        //    graph.Connect(engine)
-        //        .AddFeedForward(1)
-        //        .Add(graph.SigmoidActivation())
-        //        .AddBackpropagation(errorMetric);
-        //    engine.Train(300, data, errorMetric, bn => bestNetwork = bn);
-        //    AssertEngineGetsGoodResults(engine, data);
-        //}
+            var errorMetric = new CustomErrorMetric();
+            graph.Connect(engine)
+                .AddFeedForward(1)
+                .Add(graph.SigmoidActivation())
+                .AddBackpropagation(errorMetric);
+            engine.Train(300, data, errorMetric, bn => bestNetwork = bn);
+            AssertEngineGetsGoodResults(engine, data);
+        }
 
-        //private static void AssertEngineGetsGoodResults(IGraphEngine engine, IDataSource data)
-        //{
-        //    var results = engine.Execute(data)?.FirstOrDefault();
-        //    Assert.IsNotNull(results);
-        //    bool Handle(FloatVector value) => value.Data[0] > 0.5f;
-        //    Debug.Assert(results.Output.Zip(results.Target, (result, target) => Handle(result) == Handle(target)).All(x => x));
-        //}
+        private static void AssertEngineGetsGoodResults(IGraphEngine engine, IDataSource data)
+        {
+            var results = engine.Execute(data)?.FirstOrDefault();
+            results.Should().NotBeNull();
+            bool Handle(Vector<float> value) => value[0] > 0.5f;
+            results.Output.Zip(results.Target, (result, target) => Handle(result) == Handle(target)).All(x => x)
+                .Should().BeTrue();
+        }
 
-        //[Fact]
-        //public void CreateFromExecutionGraph()
-        //{
-        //    var (graph, data) = MakeGraphAndData();
-        //    var engine = graph.CreateEngine(bestNetwork.Graph);
-        //    AssertEngineGetsGoodResults(engine, data);
-        //}
+        [Fact]
+        public void CreateFromExecutionGraph()
+        {
+            var (graph, data) = MakeGraphAndData(_context);
+            var engine = graph.CreateEngine(bestNetwork.Graph);
+            AssertEngineGetsGoodResults(engine, data);
+        }
 
         //[Fact]
         //public void DeserialiseExecutionGraph()
         //{
-        //    var (graph, data) = MakeGraphAndData();
+        //    var (graph, data) = MakeGraphAndData(_context);
         //    ExecutionGraph executionGraphReloaded = null;
 
-        //    using (var file = new MemoryStream()) {
+        //    using (var file = new MemoryStream())
+        //    {
         //        Serializer.Serialize(file, bestNetwork.Graph);
         //        file.Position = 0;
         //        executionGraphReloaded = Serializer.Deserialize<ExecutionGraph>(file);
@@ -87,12 +90,12 @@ namespace BrightWire.UnitTests
         //    AssertEngineGetsGoodResults(engine, data);
         //}
 
-        //void _AssertEqual<T>(T[] array1, T[] array2)
-        //{
-        //    Assert.AreEqual(array1.Length, array2.Length);
-        //    for (var i = 0; i < array1.Length; i++)
-        //        Assert.AreEqual(array1[i], array2[i]);
-        //}
+        void _AssertEqual<T>(T[] array1, T[] array2)
+        {
+            array1.Should().HaveSameCount(array2);
+            for (var i = 0; i < array1.Length; i++)
+                array1[i].Should().Be(array2[i]);
+        }
 
         //[Fact]
         //public void DeserialiseVectorisationModel()

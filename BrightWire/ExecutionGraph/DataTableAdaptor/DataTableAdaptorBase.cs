@@ -64,7 +64,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         }
 
 	    /// <inheritdoc />
-        public virtual void OnBatchProcessed(IContext context)
+        public virtual void OnBatchProcessed(IGraphContext context)
         {
             // nop
         }

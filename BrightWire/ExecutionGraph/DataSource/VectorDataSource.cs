@@ -54,7 +54,7 @@ namespace BrightWire.ExecutionGraph.DataSource
             throw new NotImplementedException();
         }
 
-        public void OnBatchProcessed(IContext context)
+        public void OnBatchProcessed(IGraphContext context)
         {
             // nop
         }

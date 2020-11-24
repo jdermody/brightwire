@@ -20,7 +20,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
                 _signalTable = _source._children.ToDictionary(n => n, n => (IGraphData)null);
             }
 
-            public override void _Backward(INode fromNode, IGraphData errorSignal, IContext context, INode[] parents)
+            public override void _Backward(INode fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
             {
                 Debug.Assert(_source._children.Contains(fromNode));
                 _signalTable[fromNode] = errorSignal;
@@ -53,7 +53,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
                 Output.Add(new WireToNode(child));
         }
 
-        public override void ExecuteForward(IContext context)
+        public override void ExecuteForward(IGraphContext context)
         {
             _AddNextGraphAction(context, context.Data, () => new Backpropagation(this));
         }

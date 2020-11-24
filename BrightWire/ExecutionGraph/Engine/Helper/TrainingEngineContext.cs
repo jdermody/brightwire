@@ -8,7 +8,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     /// <summary>
     /// Training engine context
     /// </summary>
-    class TrainingEngineContext : IContext
+    class TrainingEngineContext : IGraphContext
     {
         readonly IExecutionContext _executionContext;
         readonly ILearningContext _learningContext;

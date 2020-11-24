@@ -81,14 +81,14 @@ namespace BrightWire.ExecutionGraph.Node
         /// Called when executing forward on the primary channel
         /// </summary>
         /// <param name="context"></param>
-        public abstract void ExecuteForward(IContext context);
+        public abstract void ExecuteForward(IGraphContext context);
 
         /// <summary>
         /// Called when executing forward on a non-primary channel
         /// </summary>
         /// <param name="context"></param>
         /// <param name="channel"></param>
-        protected virtual void _ExecuteForward(IContext context, uint channel)
+        protected virtual void _ExecuteForward(IGraphContext context, uint channel)
         {
             ExecuteForward(context);
         }
@@ -98,7 +98,7 @@ namespace BrightWire.ExecutionGraph.Node
         /// </summary>
         /// <param name="context"></param>
         /// <param name="channel"></param>
-        public void ExecuteForward(IContext context, uint channel)
+        public void ExecuteForward(IGraphContext context, uint channel)
         {
             if (channel == 0)
                 ExecuteForward(context);
@@ -112,7 +112,7 @@ namespace BrightWire.ExecutionGraph.Node
         /// <param name="context"></param>
         /// <param name="data"></param>
         /// <param name="backProp"></param>
-        protected void _AddNextGraphAction(IContext context, IGraphData data, Func<IBackpropagation> backProp)
+        protected void _AddNextGraphAction(IGraphContext context, IGraphData data, Func<IBackpropagation> backProp)
         {
             context.AddForward(new TrainingAction(this, data, context.Source), backProp);
         }

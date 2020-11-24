@@ -11,7 +11,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
             _index = index;
         }
 
-        public override void ExecuteForward(IContext context)
+        public override void ExecuteForward(IGraphContext context)
         {
             var input = context.BatchSequence.Input[_index];
             _AddNextGraphAction(context, input, null);

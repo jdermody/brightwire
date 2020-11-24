@@ -14,7 +14,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             {
             }
 
-            public override void _Backward(INode fromNode, IGraphData errorSignal, IContext context, INode[] parents)
+            public override void _Backward(INode fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
             {
                 var es = errorSignal.GetMatrix();
                 var negative = es.Clone();
@@ -26,7 +26,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         }
         public SubtractGate(string name = null) : base(name) { }
 
-        protected override void _Activate(IContext context, IFloatMatrix primary, IFloatMatrix secondary)
+        protected override void _Activate(IGraphContext context, IFloatMatrix primary, IFloatMatrix secondary)
         {
             var output = primary.Subtract(secondary);
             _AddHistory(context, output, () => new Backpropagation(this));

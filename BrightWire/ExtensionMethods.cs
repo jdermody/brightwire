@@ -5,6 +5,7 @@ using System.Linq;
 using BrightData;
 using BrightWire.Bayesian.Training;
 using BrightWire.ExecutionGraph;
+using BrightWire.Models;
 
 namespace BrightWire
 {
@@ -108,6 +109,68 @@ namespace BrightWire
             }
 
             return builder.Build();
+        }
+
+        /// <summary>
+        /// Creates a confusion matrix from two columns of a data table
+        /// </summary>
+        /// <param name="dataTable">Data table</param>
+        /// <param name="actualClassificationColumnIndex">The column index of the actual classifications</param>
+        /// <param name="expectedClassificationColumnIndex">The column index of the expected classifications</param>
+        public static ConfusionMatrix CreateConfusionMatrix(this IConvertibleTable dataTable, uint actualClassificationColumnIndex, uint expectedClassificationColumnIndex)
+        {
+            var labels = new Dictionary<string, int>();
+            var classifications = new Dictionary<int, Dictionary<int, uint>>();
+
+            static int _GetIndex(string classification, Dictionary<string, int> table)
+            {
+                if (table.TryGetValue(classification, out var index))
+                    return index;
+                table.Add(classification, index = table.Count);
+                return index;
+            }
+
+            dataTable.ForEachRow(r => {
+                var actual = _GetIndex(r.GetTyped<string>(actualClassificationColumnIndex), labels);
+                var expected = _GetIndex(r.GetTyped<string>(expectedClassificationColumnIndex), labels);
+                if (!classifications.TryGetValue(expected, out var expectedClassification))
+                    classifications.Add(expected, expectedClassification = new Dictionary<int, uint>());
+                if (expectedClassification.TryGetValue(actual, out var actualClassification))
+                    expectedClassification[actual] = actualClassification + 1;
+                else
+                    expectedClassification.Add(actual, 1);
+            });
+
+            return new ConfusionMatrix
+            {
+                ClassificationLabels = labels.OrderBy(kv => kv.Value).Select(kv => kv.Key).ToArray(),
+                Classifications = classifications.OrderBy(kv => kv.Key).Select(c => new ConfusionMatrix.ExpectedClassification
+                {
+                    ClassificationIndex = c.Key,
+                    ActualClassifications = c.Value.OrderBy(kv => kv.Key).Select(c2 => new ConfusionMatrix.ActualClassification
+                    {
+                        ClassificationIndex = c2.Key,
+                        Count = c2.Value
+                    }).ToArray()
+                }).ToArray()
+            };
+        }
+
+        /// <summary>
+        /// Classifies each row of the index classification list
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="classifier">The classifier to classify each item in the list</param>
+        /// <returns></returns>
+        public static IReadOnlyList<(string Label, string Classification, float Score)> Classify(this IReadOnlyList<(string Label, IndexList Data)> data, IIndexListClassifier classifier)
+        {
+            var ret = new List<(string Label, string Classification, float Score)>();
+            foreach (var item in data)
+            {
+                var classification = classifier.Classify(item.Data).GetBestClassification();
+                ret.Add((item.Label, classification, item.Label == classification ? 1f : 0f));
+            }
+            return ret;
         }
     }
 }

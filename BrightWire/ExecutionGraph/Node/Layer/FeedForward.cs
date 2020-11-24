@@ -24,7 +24,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 //_input.Dispose();
             }
 
-            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IContext context, INode[] parents)
+            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
             {
                 var es = errorSignal.GetMatrix();
 
@@ -86,7 +86,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             return output;
         }
 
-        public override void ExecuteForward(IContext context)
+        public override void ExecuteForward(IGraphContext context)
         {
             var input = context.Data.GetMatrix();
             var output = _FeedForward(input, _weight);
