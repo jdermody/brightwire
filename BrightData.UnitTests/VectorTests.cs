@@ -390,7 +390,7 @@ namespace BrightData.UnitTests
             using (var gpuB = _cuda.CreateVector(b))
                 distance2 = gpuA.MeanSquaredDistance(gpuB);
 
-            FloatMath.AreApproximatelyEqual(distance, distance2, 10).Should().BeTrue();
+            FloatMath.AreApproximatelyEqual(distance, distance2, 12).Should().BeTrue();
         }
 
         [Fact]
@@ -407,7 +407,7 @@ namespace BrightData.UnitTests
             using (var gpuB = _cuda.CreateVector(b))
                 distance2 = gpuA.SquaredEuclidean(gpuB);
 
-            FloatMath.AreApproximatelyEqual(distance, distance2, 10).Should().BeTrue();
+            FloatMath.AreApproximatelyEqual(distance, distance2, 12).Should().BeTrue();
         }
 
         [Fact]

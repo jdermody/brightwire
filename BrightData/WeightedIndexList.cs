@@ -9,7 +9,7 @@ using BrightData.Helper;
 
 namespace BrightData
 {
-    public class WeightedIndexList : IHaveIndices, ICanWriteToBinaryWriter, ICanInitializeFromBinaryReader
+    public class WeightedIndexList : IHaveIndices, ISerializable
     {
         [StructLayout(LayoutKind.Sequential, Pack=0)]
         public readonly struct Item

@@ -20,7 +20,7 @@ namespace ExampleCode.DataTableTrainers
         public uint GetStringIndex(string str)
         {
             if (!_stringIndex.TryGetValue(str, out var ret)) {
-                _stringIndex.Add(str, (uint)_strings.Count);
+                _stringIndex.Add(str, ret = (uint)_strings.Count);
                 _strings.Add(str);
             }
 

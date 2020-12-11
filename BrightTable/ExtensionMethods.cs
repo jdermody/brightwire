@@ -213,7 +213,7 @@ namespace BrightTable
             if ((dataType & BrightTable.ColumnClass.Categorical) != 0) {
                 if (type == ColumnType.String)
                     return new StringAnalyser(distinctValueCount);
-                return (IDataAnalyser)Activator.CreateInstance(typeof(ConvertToStringFrequencyAnalysis<>).MakeGenericType(type.GetDataType()));
+                return (IDataAnalyser)Activator.CreateInstance(typeof(ConvertToStringFrequencyAnalysis<>).MakeGenericType(type.GetDataType()), distinctValueCount);
             }
             if ((dataType & BrightTable.ColumnClass.IndexBased) != 0)
                 return new IndexAnalyser(distinctValueCount);
@@ -443,7 +443,7 @@ namespace BrightTable
             }
         }
 
-        public static IHybridBuffer GetHybridBuffer(this IColumnInfo forColumn, IBrightDataContext context, TempStreamManager tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024)
+        public static IHybridBuffer GetHybridBuffer(this IColumnInfo forColumn, IBrightDataContext context, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024)
         {
             var type = forColumn.ColumnType;
             var columnType = GetDataType(type);
@@ -575,7 +575,7 @@ namespace BrightTable
         class ColumnReader<T> : ITypedRowConsumer<T>, IHaveFloatArray
             where T : struct
         {
-            readonly List<(uint RowIndex, float Value)> _data = new List<(uint RowIndex, float Value)>();
+            readonly List<float> _data = new List<float>();
             readonly ConvertToFloat<T> _converter = new ConvertToFloat<T>();
 
             public ColumnReader(uint columnIndex, ColumnType type)
@@ -586,15 +586,12 @@ namespace BrightTable
 
             public uint ColumnIndex { get; }
             public ColumnType ColumnType { get; }
-            public void Set(uint index, T value)
+            public void Add(T value)
             {
-                _data.Add((index, _converter.Convert(value)));
+                _data.Add(_converter.Convert(value));
             }
 
-            public float[] Data => _data
-                .OrderBy(r => r.RowIndex)
-                .Select(r => r.Value)
-                .ToArray();
+            public float[] Data => _data.ToArray();
         }
 
         static (ITypedRowConsumer Consumer, IHaveFloatArray Array) _GetColumnReader(uint columnIndex, ColumnType columnType)

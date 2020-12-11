@@ -41,17 +41,29 @@ namespace BrightData.Memory
                     return bag;
                 });
 
-            while (CacheSize > MaxCacheSize) {
-                var lru = _cache
-                    .OrderBy(d => _requestHistory[d.Key])
-                    .FirstOrDefault();
-                lru.Value.TryTake(out _);
+            // check if we should drop items from the cache
+            if (CacheSize > MaxCacheSize)
+            {
+                lock (_cache)
+                {
+                    while (CacheSize > MaxCacheSize)
+                    {
+                        var lru = _cache
+                            .OrderBy(d => _requestHistory[d.Key])
+                            .FirstOrDefault();
+
+                        if (lru.Value.TryTake(out var stale))
+                            CacheSize -= stale.Length;
+                        else
+                            break;
+                    }
+                }
             }
         }
 
         public long MaxCacheSize { get; }
 
-        public long CacheSize => _cache.Sum(kv => kv.Value.Sum(b => b.Length));
+        public long CacheSize { get; private set; } = 0;
 
         static string _GetKey<T>(uint size)
         {

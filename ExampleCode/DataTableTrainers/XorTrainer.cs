@@ -20,49 +20,14 @@ namespace ExampleCode.DataTableTrainers
         {
             var context = Table.Context;
 
-            // create the graph
+            // train a model
             var graph = context.CreateGraphFactory();
-            var errorMetric = graph.ErrorMetric.CrossEntropy;
-            graph.CurrentPropertySet
-                // use rmsprop gradient descent optimisation
-                .Use(graph.GradientDescent.RmsProp)
-
-                // and gaussian weight initialisation
-                .Use(graph.WeightInitialisation.Gaussian)
-            ;
-
-            // create the engine
-            var trainingData = graph.CreateDataSource(Training);
-            var engine = graph.CreateTrainingEngine(trainingData, learningRate, batchSize);
-
-            // create the network
-            graph.Connect(engine)
-                // create a feed forward layer with sigmoid activation
-                .AddFeedForward(hiddenLayerSize)
-                .Add(graph.SigmoidActivation())
-
-                .AddDropOut(dropOutPercentage: 0.5f)
-
-                // create a second feed forward layer with sigmoid activation
-                .AddFeedForward(engine.DataSource.OutputSize ?? throw new Exception("No output"))
-                .Add(graph.SigmoidActivation())
-
-                // calculate the error and backpropagate the error signal
-                .AddBackpropagation(errorMetric)
-            ;
-
-            // train the network
-            var executionContext = graph.CreateExecutionContext();
-            var testData = graph.CreateDataSource(Test);
-            engine.Test(testData, errorMetric);
-            for (var i = 0; i < numIterations; i++) {
-                engine.Train(executionContext);
-                //engine.Test(testData, errorMetric);
-            }
+            var model = graph.TrainSimpleNeuralNetwork(Training, Test, graph.ErrorMetric.CrossEntropy, learningRate, batchSize,
+                hiddenLayerSize, numIterations, g => g.SigmoidActivation(), g => g.RmsProp, g => g.Gaussian);
 
             // create a new network to execute the learned network
-            var networkGraph = engine.Graph;
-            var executionEngine = graph.CreateEngine(networkGraph);
+            var executionEngine = graph.CreateEngine(model);
+            var testData = graph.CreateDataSource(Test);
             var output = executionEngine.Execute(testData).ToList();
             if (writeResults) {
                 var testAccuracy = output.Average(o => o.CalculateError(graph.ErrorMetric.OneHotEncoding));
@@ -78,7 +43,7 @@ namespace ExampleCode.DataTableTrainers
                 }
             }
 
-            return networkGraph;
+            return model;
         }
     }
 }

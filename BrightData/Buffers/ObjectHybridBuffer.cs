@@ -11,7 +11,7 @@ namespace BrightData.Buffers
     {
         private readonly IBrightDataContext _context;
 
-        public ObjectHybridBuffer(IBrightDataContext context, TempStreamManager tempStream, uint maxCount) : base(tempStream, maxCount, null)
+        public ObjectHybridBuffer(IBrightDataContext context, IProvideTempStreams tempStream, uint maxCount) : base(tempStream, maxCount, null)
         {
             _context = context;
         }

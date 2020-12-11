@@ -121,9 +121,10 @@ namespace BrightTable.UnitTests
             var table = _CreateComplexTable(_context);
             var analysis = table.GetColumnAnalysis();
 
-            var boolAnalysis = analysis[0].GetNumericAnalysis();
+            var boolAnalysis = analysis[0].GetFrequencyAnalysis();
             boolAnalysis.NumDistinct.Should().Be(2);
-            boolAnalysis.Mean.Should().Be(0.5);
+            boolAnalysis.Frequency.Single(f => f.Label == "True").value.Should().Be(0.5);
+            boolAnalysis.Frequency.Single(f => f.Label == "False").value.Should().Be(0.5);
 
             var numericAnalysis = new[] { 1, 3, 4, 5, 6 }.Select(i => analysis[i].GetNumericAnalysis()).ToList();
             numericAnalysis.All(a => a.NumDistinct == 10).Should().BeTrue();
@@ -151,7 +152,7 @@ namespace BrightTable.UnitTests
         IRowOrientedDataTable _GetSimpleTable2()
         {
             var table = _GetSimpleTable();
-            var table2 = table.Project(r => new object[] { (double)r[0] });
+            var table2 = table.Project(r => new object[] { Convert.ToDouble(r[0]) });
             table2.ColumnTypes[0].Should().Be(ColumnType.Double);
             return table2;
         }

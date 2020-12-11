@@ -209,7 +209,7 @@ namespace BrightTable
 
     public interface IEditableBuffer<in T>
     {
-        void Set(uint index, T value);
+        void Add(T value);
     }
 
     public enum ColumnConversionType
@@ -256,7 +256,7 @@ namespace BrightTable
     public interface IColumnTransformationParam
     {
         public uint? Index { get; }
-        public ICanConvert GetConverter(ColumnType fromType, ISingleTypeTableSegment column, TempStreamManager tempStreams, uint inMemoryRowCount = 32768);
+        public ICanConvert GetConverter(ColumnType fromType, ISingleTypeTableSegment column, IProvideTempStreams tempStreams, uint inMemoryRowCount = 32768);
     }
 
     public interface IConvertibleTable

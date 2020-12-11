@@ -538,5 +538,14 @@ namespace BrightData
                 r.Data.Indices.Select(wi => new WeightedIndexList.Item(wi.Index, wi.Weight / maxWeight)).ToArray()
             ))).ToList();
         }
+
+
+        public static IEnumerable<(T Item, uint Count)> GroupAndCount<T>(this IEnumerable<T> items) => items
+            .GroupBy(d => d)
+            .Select(g => (g.Key, (uint)g.Count()))
+        ;
+
+        public static string Format<T>(this IEnumerable<(T Item, uint Count)> items) =>
+            String.Join(';', items.Select(i => $"{i.Item.ToString()}: {i.Count}"));
     }
 }

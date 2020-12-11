@@ -9,8 +9,11 @@ namespace ExampleCode.DataTableTrainers
 {
     class IrisTrainer : DataTableTrainer
     {
-        public IrisTrainer(IRowOrientedDataTable table) : base(table)
+        public string[] Labels { get; }
+
+        public IrisTrainer(IRowOrientedDataTable table, string[] labels) : base(table)
         {
+            Labels = labels;
         }
 
         public void TrainSigmoidNeuralNetwork(uint hiddenLayerSize, uint numIterations, float trainingRate, uint batchSize)

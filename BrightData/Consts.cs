@@ -19,6 +19,7 @@
 
         public const string HasBeenAnalysed = "HasBeenAnalysed";
         public const string Mode = "Mode";
+        public const string MostFrequent = "MostFrequent";
         public const string NumDistinct = "NumDistinct";
         public const string MinDate = "MinDate";
         public const string MaxDate = "MaxDate";

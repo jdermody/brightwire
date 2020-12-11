@@ -10,7 +10,9 @@ using System.Collections.Generic;
 using System.Linq;
 using BrightTable;
 using BrightData;
+using BrightWire.ExecutionGraph;
 using BrightWire.InstanceBased.Training;
+using BrightWire.Models;
 using BrightWire.Models.Linear;
 using BrightWire.Models.TreeBased;
 
@@ -276,6 +278,52 @@ namespace BrightWire
         public static string GetBestClassification(this IEnumerable<(string Label, float Weight)> classifications)
         {
             return classifications.OrderByDescending(c => c.Weight).First().Label;
+        }
+
+        public static ExecutionGraphModel TrainSimpleNeuralNetwork(this GraphFactory graph,
+            IRowOrientedDataTable trainingTable,
+            IRowOrientedDataTable testTable,
+            IErrorMetric errorMetric,
+            float learningRate,
+            uint batchSize,
+            uint hiddenLayerSize,
+            uint numIterations,
+            Func<GraphFactory, INode> activation,
+            Func<GraphFactory.GradientDescentProvider, ICreateTemplateBasedGradientDescent> gradientDescent,
+            Func<GraphFactory.WeightInitialisationProvider, IWeightInitialisation> weightInitialisation
+        )
+        {
+            graph.CurrentPropertySet
+                // use rmsprop gradient descent optimisation
+                .Use(gradientDescent(graph.GradientDescent))
+
+                // and gaussian weight initialisation
+                .Use(weightInitialisation(graph.WeightInitialisation))
+            ;
+
+            // create the engine
+            var trainingData = graph.CreateDataSource(trainingTable);
+            var engine = graph.CreateTrainingEngine(trainingData, learningRate, batchSize);
+
+            // create the network
+            graph.Connect(engine)
+                // create a feed forward layer with sigmoid activation
+                .AddFeedForward(hiddenLayerSize)
+                .Add(activation(graph))
+
+                // create a second feed forward layer with sigmoid activation
+                .AddFeedForward(engine.DataSource.OutputSize ?? throw new Exception("No output size"))
+                .Add(activation(graph))
+
+                // calculate the error and backpropagate the error signal
+                .AddBackpropagation(errorMetric)
+            ;
+
+            // train the network for twenty iterations, saving the model on each improvement
+            ExecutionGraphModel bestGraph = null;
+            var testData = trainingData.CloneWith(testTable);
+            engine.Train(numIterations, testData, errorMetric, model => bestGraph = model.Graph);
+            return bestGraph;
         }
     }
 }

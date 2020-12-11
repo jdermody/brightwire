@@ -30,7 +30,7 @@ namespace BrightTable
 
         interface IConsumerBinding
         {
-            void Read(uint rowIndex, BinaryReader reader);
+            void Read(BinaryReader reader);
         }
         class ConsumerBinding<T> : IConsumerBinding
         {
@@ -44,7 +44,7 @@ namespace BrightTable
             }
 
             public uint ColumnIndex => _consumer.ColumnIndex;
-            public void Read(uint rowIndex, BinaryReader reader) => _consumer.Set(rowIndex, _reader.ReadTyped(reader));
+            public void Read(BinaryReader reader) => _consumer.Add(_reader.ReadTyped(reader));
         }
         readonly ColumnInfo[] _columns;
         readonly uint[] _rowOffset;
@@ -186,7 +186,7 @@ namespace BrightTable
                 for (uint i = 0; i < rowCount; i++) {
                     for (uint j = 0, len = ColumnCount; j < len; j++) {
                         if (bindings.TryGetValue(j, out var binding))
-                            binding.Read(i, reader);
+                            binding.Read(reader);
                         else {
                             // read and discard value
                             _columnReaders[j].Read(reader);
@@ -211,10 +211,11 @@ namespace BrightTable
             return builder.Build(Context);
         }
 
-        (ISingleTypeTableSegment Segment, ITypedRowConsumer Consumer) _GetColumn(ColumnType columnType, uint columnIndex, IMetaData metadata)
+        (ISingleTypeTableSegment Segment, ITypedRowConsumer Consumer) _GetColumn(ColumnType columnType, uint index, IMetaData metaData)
         {
             var type = typeof(InMemoryBuffer<>).MakeGenericType(columnType.GetDataType());
-            var ret = Activator.CreateInstance(type, Context, columnType, columnIndex, metadata, RowCount);
+            var columnInfo = new ColumnInfo(index, columnType, metaData);
+            var ret = Activator.CreateInstance(type, Context, columnInfo, RowCount, Context.TempStreamProvider);
             return ((ISingleTypeTableSegment)ret, (ITypedRowConsumer)ret);
         }
 

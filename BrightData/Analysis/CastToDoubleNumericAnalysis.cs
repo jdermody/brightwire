@@ -18,7 +18,7 @@ namespace BrightData.Analysis
         {
             if (_typeCode == TypeCode.SByte)
                 Analysis.Add(__refvalue(__makeref(obj), sbyte));
-            if (_typeCode == TypeCode.Byte)
+            else if (_typeCode == TypeCode.Byte)
                 Analysis.Add(__refvalue(__makeref(obj), byte));
             else if(_typeCode == TypeCode.Int16)
                 Analysis.Add(__refvalue(__makeref(obj), short));

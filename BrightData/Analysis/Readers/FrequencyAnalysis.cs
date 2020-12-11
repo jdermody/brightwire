@@ -9,7 +9,7 @@ namespace BrightData.Analysis.Readers
     {
         public FrequencyAnalysis(IMetaData metaData)
         {
-            Mode = metaData.Get<string>(Consts.Mode);
+            MostFrequent = metaData.Get<string>(Consts.MostFrequent);
             NumDistinct = metaData.GetNullable<uint>(Consts.NumDistinct);
             Frequency = metaData.GetStringsWithPrefix(Consts.FrequencyPrefix)
                 .Select(k => (Label: k.Substring(Consts.FrequencyPrefix.Length), Value: metaData.Get<double>(k)))
@@ -17,7 +17,7 @@ namespace BrightData.Analysis.Readers
             ;
         }
 
-        public string Mode { get; }
+        public string MostFrequent { get; }
         public uint? NumDistinct { get; }
         public (string Label, double value)[] Frequency { get; }
     }

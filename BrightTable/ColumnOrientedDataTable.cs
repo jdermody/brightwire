@@ -32,7 +32,10 @@ namespace BrightTable
                 uint index = 0;
                 using var enumerator = _segment.EnumerateTyped().GetEnumerator();
                 while (index < maxRows && enumerator.MoveNext())
-                    _consumer.Set(index++, enumerator.Current);
+                {
+                    _consumer.Add(enumerator.Current);
+                    ++index;
+                }
             }
         }
 

@@ -1,10 +1,15 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using BrightData;
 using BrightData.Cuda;
 using BrightData.Numerics;
 using BrightTable;
 using BrightWire;
+using ExampleCode.Datasets;
+using MathNet.Numerics;
 
 namespace ExampleCode
 {
@@ -13,40 +18,66 @@ namespace ExampleCode
         static void Main(string[] args)
         {
             using var context = new BrightDataContext(0);
+            var useCuda = false;
 
+            // performance can be improved using the Intel Math Kernel Library...
+            // IMPORTANT: uncomment below if you have installed native binaries as described in https://numerics.mathdotnet.com/MKL.html
+            //Control.UseNativeMKL();
+
+            // IMPORTANT: uncomment below to use CUDA (if you have installed the CUDA toolkit from https://developer.nvidia.com/cuda-toolkit and have a valid NVidia GPU)
+            //useCuda = true;
+
+            // set where to save training data files
             context.Set("DataFileDirectory", new DirectoryInfo(@"c:\data"));
-            context.UseCudaLinearAlgebra();
-            //context.UseNumericsLinearAlgebra();
 
-            context.MNIST().TrainConvolutionalNeuralNetwork();
+            Xor(context);
+            //IrisClassification(context);
+            //IrisClustering(context);
+            //MarkovChains(context);
+            //MNIST(context, useCuda);
+            //MNISTConvolutional(context, useCuda);
+            //SentimentClassification(context);
+            //TextClustering(context);
+            //IntegerAddition(context);
+            //ReberPrediction(context);
+            //OneToMany(context);
+            //ManyToOne(context);
+            //SequenceToSequence(context);
+            //TrainWithSelu(context);
+            //SimpleLinearTest(context);
+            //PredictBicyclesWithLinearModel(context);
+            //PredictBicyclesWithNeuralNetwork(context);
+            //MultiLabelSingleClassifier(context);
+            //MultiLabelMultiClassifiers(context);
+            //StockData(context);
+        }
 
-            //context.BeautifulandDamned().TrainMarkovModel();
+        static void WriteTitle(string title)
+        {
+            Console.WriteLine("*********************************************");
+            Console.WriteLine($"*");
+            Console.WriteLine($"*  {title}");
+            Console.WriteLine($"*");
+            Console.WriteLine("*********************************************");
+        }
 
-            //var stockData = context.StockData().GetSequentialWindow();
-            //stockData.TrainLSTM(256);
-            //IntegerAddition.Recurrent(context);
-            //context.UseCudaLinearAlgebra();
+        static void WriteSeparator()
+        {
+            Console.WriteLine("---------------------------------------------");
+        }
 
-            //MNIST.Convolutional(context, @"C:\data\mnist");
+        static void Xor(IBrightDataContext context)
+        {
+            WriteTitle("XOR");
+            context.UseNumericsLinearAlgebra();
+            context.Xor().TrainSigmoidNeuralNetwork(6, 300, 0.5f, 4);
+        }
 
-            // set to cache data files locally
-
-
-            //context.BeautifulandDamned();
-            //return;
-
-            //var xor = context.Xor();
-            //xor.TrainSigmoidNeuralNetwork(6, 0.1f, 4);
-
+        static void IrisClassification(IBrightDataContext context)
+        {
+            WriteTitle("Iris Classification");
+            context.UseNumericsLinearAlgebra();
             var iris = context.Iris();
-            var clusters = iris.KMeans(3).ToArray();
-
-            //var vectorisedIris = iris.Table.Vectorise();
-            //var floatVectors = vectorisedIris.Column(0).EnumerateTyped<Vector<float>>().AsFloatVectors().ToArray();
-            //var clusters = floatVectors.KMeans(3);
-            //var clusters2 = iris.Table.NonNegativeMatrixFactorisation(3).Select(c => iris.Table.Rows(c)).ToList();
-
-            //var vectors = iris.Table.GetColumnsAsVectors(0, 1, 2, 3).ToList();
             iris.TrainNaiveBayes();
             iris.TrainDecisionTree();
             iris.TrainRandomForest(500, 7);
@@ -54,115 +85,137 @@ namespace ExampleCode
             iris.TrainMultinomialLogisticRegression(500, 0.3f);
             iris.TrainLegacyMultinomialLogisticRegression(500, 0.3f, 0.1f);
             iris.TrainSigmoidNeuralNetwork(4, 500, 0.1f, 16);
+        }
 
-            return;
-            //context.Xor().TrainSigmoidNeuralNetwork(4, 1000, 0.1f, 4);
+        static void IrisClustering(IBrightDataContext context)
+        {
+            WriteTitle("Iris Clustering");
+            context.UseNumericsLinearAlgebra();
+            var iris = context.Iris();
 
-            var lap = context.UseNumericsLinearAlgebra();
+            // select only the first three columns (ignore the training label)
+            var irisTable = iris.Table.AsColumnOriented().SelectColumns(3.AsRange().ToArray());
 
-            //var table = context.ParseCsv(@"C:\data\plotly\processed_data.csv", true, ',', @"c:\temp\table.dat", true);
-            //using var table = (IColumnOrientedDataTable)context.LoadTable(@"c:\temp\table.dat");
-            //using var table2 = table.Convert(@"c:\temp\table2.dat", Enumerable.Range(0, (int)table.ColumnCount).Select(i => ColumnConversion.ToNumeric).ToArray());
-            using var reader = new StreamReader(@"c:\data\iris.data");
-            using var table = context.ParseCsv(reader, true);
-            table.SetTargetColumn(4);
-            using var numericTable = table.Convert(
-                ColumnConversionType.ToNumeric, 
-                ColumnConversionType.ToNumeric, 
-                ColumnConversionType.ToNumeric, 
-                ColumnConversionType.ToNumeric, 
-                ColumnConversionType.ToCategoricalIndex);
-            var head = numericTable.Head(60);
-            using var normalized = numericTable.Normalize(NormalizationType.Standard);
-            head = normalized.Head(60);
-
-            var rowOriented = numericTable.ToRowOriented();
-            var head2 = rowOriented.Head();
-            var columnOrieted = rowOriented.AsColumnOriented();
-
-            var vectorised = normalized.Vectorise();
-            head = vectorised.Head(60);
-
-            var naiveBayes = normalized.TrainNaiveBayes().CreateClassifier();
-            var normalisedConvertible = normalized.AsRowOriented().AsConvertible();
-            foreach (var result in normalisedConvertible.Classify(naiveBayes)) {
-                var (row, classification) = result;
+            void Write(IEnumerable<(uint RowIndex, string Label)[]> items)
+            {
+                var clusters = items.Select(c => c.Select(r => iris.Labels[r.RowIndex]).GroupAndCount().Format());
+                foreach (var cluster in clusters)
+                    Console.WriteLine(cluster);
             }
 
-            // train model
-            //var costFunction = new BinaryClassification();
-            //var trainer = trainingTable.GetLogisticRegressionTrainer();
-            //var trainingContext = trainer.CreateContext(0.1f, 0.1f);
-            //for (var i = 0; i < 50000; i++) {
-            //    trainingContext.Iterate();
-            //    if (i % 100 == 0) {
-            //        var finalModel = trainer.Evaluate();
-            //        var error = finalModel.Average(costFunction.Compute);
-            //        Console.WriteLine(trainer.Model.Theta);
-            //        Console.WriteLine($"{i}) MSE: {error}");
-            //    }
-            //}
+            Console.WriteLine("K Means...");
+            Console.WriteLine("---------------------------------------------");
+            Write(irisTable.KMeans(3));
+            Console.WriteLine("---------------------------------------------");
 
+            Console.WriteLine();
+            Console.WriteLine("Hierachical...");
+            Console.WriteLine("---------------------------------------------");
+            Write(irisTable.HierachicalCluster(3));
+            Console.WriteLine("---------------------------------------------");
 
+            Console.WriteLine();
+            Console.WriteLine("NNMF...");
+            Console.WriteLine("---------------------------------------------");
+            Write(irisTable.NonNegativeMatrixFactorisation(3));
+            Console.WriteLine("---------------------------------------------");
+        }
 
-            //numericTable.SetTargetColumn(4);
-            //using var trainer = numericTable.GetLogisticRegressionTrainer();
-            //var trainingContext = trainer.CreateContext(0.1f, 0.1f);
-            //for (var i = 0; i < 30; i++) {
-            //    Console.WriteLine(trainingContext.Iterate());
-            //}
+        static void MarkovChains(IBrightDataContext context)
+        {
+            WriteTitle("Markov Chains");
+            context.UseNumericsLinearAlgebra();
+            context.BeautifulandDamned().TrainMarkovModel();
+        }
 
-            //using var table2 = table.
-            //using(var reader = new StreamReader(@"C:\data\iris.data")) {
-            //    var parser =new CsvParser2(reader, ',', true);
-            //    foreach(var line in parser.Parse()) {
-            //        Console.WriteLine(String.Join(", ", line));
-            //    }
-            //}
+        static void MNIST(IBrightDataContext context, bool useCuda)
+        {
+            WriteTitle("MNIST (Feed Forward)");
+            if(useCuda)
+                context.UseCudaLinearAlgebra();
+            else
+                context.UseNumericsLinearAlgebra();
+            context.MNIST().TrainFeedForwardNeuralNetwork();
+        }
 
-            //using var context = new BrightDataContext();
-            //using var table = context.ParseCsv(@"C:\data\iris.data", false);
-            //var table2 = table.Convert(ColumnConversion.ToNumeric, ColumnConversion.ToNumeric, ColumnConversion.ToNumeric, ColumnConversion.ToNumeric);
-            //var mutatedTable = table2.CreateMutateContext()
-            //    .Add<float>(0, x => x * 2)
-            //    .Add<float>(1, x => x * 3)
-            //    .Mutate();
+        static void MNISTConvolutional(IBrightDataContext context, bool useCuda)
+        {
+            WriteTitle("MNIST (Convolutional)");
+            if (useCuda)
+                context.UseCudaLinearAlgebra();
+            else
+                context.UseNumericsLinearAlgebra();
+            context.MNIST().TrainConvolutionalNeuralNetwork();
+        }
 
-            //var table3 = mutatedTable.AsRowOriented();
-            //var baggedTable = table3.Bag(1000);
+        static void SentimentClassification(IBrightDataContext context)
+        {
+            WriteTitle("Sentiment Classification");
+            context.UseNumericsLinearAlgebra();
+            var sentiment = context.SentimentData();
 
-            //using var stream = new MemoryStream();
-            //var metaData = new MetaData();
-            //using (var writer = new BinaryWriter(stream, Encoding.UTF8, true)) {
-            //    StructColumn<float>.WriteHeader(ColumnType.Float, 32768, metaData, writer);
-            //    StructColumn<float>.WriteData(Enumerable.Repeat(1f, 32768).ToArray(), writer);
-            //}
-            //stream.Seek(0, SeekOrigin.Begin);
-            //using var inputData = new InputData(stream);
-            //var inputReader = new InputBufferReader(inputData, 0, (uint)stream.Length);
-            //var column = new StructColumn<float>(inputReader);
+            // train a bernoulli naive bayes classifier
+            var bernoulli = sentiment.TrainBernoulli();
 
-            //float total = 0f;
-            //foreach(var item in column.EnumerateTyped())
-            //    total += item;
+            // train a multinomial naive bayes classifier
+            var multinomial = sentiment.TrainMultinomialNaiveBayes();
+        }
 
-            //using var context = new BrightDataContext();
-            //using var stream = new MemoryStream();
-            //var writer = new BinaryWriter(stream);
-            //var encoder = new DataEncoder(context);
+        static void TextClustering(IBrightDataContext context)
+        {
 
-            //DataEncoder.Write(writer, new decimal[] {1, 2, 3});
-            //stream.Seek(0, SeekOrigin.Begin);
-            //var reader = new BinaryReader(stream);
-            //var data = encoder.ReadArray<decimal>(reader);
+        }
 
-            //var indexList = WeightedIndexList.Create(context, (1, 1f), (2, 2f), (3, 3f));
+        static void IntegerAddition(IBrightDataContext context)
+        {
+            context.IntegerAddition().TrainRecurrentNeuralNetwork();
+        }
 
-            //indexList.WriteTo(writer);
-            //writer.Flush();
-            //stream.Seek(0, SeekOrigin.Begin);
-            //var reader = new BinaryReader(stream);
-            //var indexList2 = WeightedIndexList.ReadFrom(context, reader);
+        static void ReberPrediction(IBrightDataContext context)
+        {
+            
+        }
+
+        static void OneToMany(IBrightDataContext context)
+        {
+        }
+
+        static void ManyToOne(IBrightDataContext context)
+        {
+        }
+
+        static void SequenceToSequence(IBrightDataContext context)
+        {
+        }
+
+        static void TrainWithSelu(IBrightDataContext context)
+        {
+        }
+
+        static void SimpleLinearTest(IBrightDataContext context)
+        {
+        }
+
+        static void PredictBicyclesWithLinearModel(IBrightDataContext context)
+        {
+        }
+
+        static void PredictBicyclesWithNeuralNetwork(IBrightDataContext context)
+        {
+        }
+
+        static void MultiLabelSingleClassifier(IBrightDataContext context)
+        {
+        }
+
+        static void MultiLabelMultiClassifiers(IBrightDataContext context)
+        {
+        }
+
+        static void StockData(IBrightDataContext context)
+        {
+            var stockData = context.StockData().GetSequentialWindow();
+            stockData.TrainLSTM(256);
         }
     }
 }

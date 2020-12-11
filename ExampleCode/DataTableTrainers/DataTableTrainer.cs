@@ -1,16 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using BrightData;
-using BrightData.Numerics;
 using BrightTable;
-using BrightTable.Transformations;
 using BrightWire;
-using BrightWire.ExecutionGraph;
 using BrightWire.Linear;
 using BrightWire.Linear.Training;
-using BrightWire.Models;
 using BrightWire.Models.Bayesian;
 using BrightWire.Models.InstanceBased;
 using BrightWire.Models.Linear;

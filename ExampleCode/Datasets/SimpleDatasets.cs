@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using BrightData;
@@ -10,9 +11,9 @@ using BrightWire.TrainingData.Helper;
 using ExampleCode.Datasets;
 using ExampleCode.DataTableTrainers;
 
-namespace ExampleCode
+namespace ExampleCode.Datasets
 {
-    static class Dataset
+    static class SimpleDatasets
     {
         public static IrisTrainer Iris(this IBrightDataContext context)
         {
@@ -26,7 +27,7 @@ namespace ExampleCode
                     ColumnConversionType.ToNumeric,
                     ColumnConversionType.ToNumeric);
                 using var normalized = numericTable.Normalize(NormalizationType.FeatureScale);
-                return new IrisTrainer(normalized.AsRowOriented());
+                return new IrisTrainer(normalized.AsRowOriented(), table.Column(4).ToArray<string>());
             }
             finally {
                 reader?.Dispose();
@@ -78,8 +79,9 @@ namespace ExampleCode
             var reader = GetStreamReader(context, "beautiful_and_damned.txt", "http://www.gutenberg.org/cache/epub/9830/pg9830.txt");
             var data = reader.ReadToEnd();
             var pos = data.IndexOf("CHAPTER I");
+            var mainText = data.Substring(pos+9).Trim();
 
-            return new SentenceTable(context, SimpleTokeniser.FindSentences(SimpleTokeniser.Tokenise(data.Substring(pos))));
+            return new SentenceTable(context, SimpleTokeniser.FindSentences(SimpleTokeniser.Tokenise(mainText)));
         }
 
         public static MNIST MNIST(this IBrightDataContext context, uint numToLoad = uint.MaxValue)
@@ -94,6 +96,13 @@ namespace ExampleCode
             );
 
             return new MNIST(context, trainingImages, testImages);
+        }
+
+        public static SentimentDataTrainer SentimentData(this IBrightDataContext context)
+        {
+            var directory = ExtractToDirectory(context, "sentiment", "sentiment.zip",
+                "https://archive.ics.uci.edu/ml/machine-learning-databases/00331/sentiment%20labelled%20sentences.zip");
+            return new SentimentDataTrainer(context, directory);
         }
 
         static string GetDataFilePath(this IBrightDataContext context, string name)
@@ -123,8 +132,9 @@ namespace ExampleCode
             return new StreamReader(GetStream(context, fileName, remoteUrl));
         }
 
-        static Stream GetStream(this IBrightDataContext context, string fileName, string remoteUrl = null)
+        static Stream GetStream(this IBrightDataContext context, string fileName, string remoteUrl = null, Action<string> downloadedToFile = null)
         {
+            var wasDownloaded = false;
             var filePath = GetDataFilePath(context, fileName);
             if (filePath == null || !File.Exists(filePath) && !String.IsNullOrWhiteSpace(remoteUrl)) {
                 Console.Write($"Downloading data set from {remoteUrl}...");
@@ -151,15 +161,25 @@ namespace ExampleCode
                 try {
                     using var file = new FileStream(filePath, FileMode.Create, FileAccess.Write);
                     responseStream.CopyTo(file);
+                    wasDownloaded = true;
                 }
                 catch {
                     Console.WriteLine($"Tried to write data to {filePath} but got exception");
                     throw;
                 }
             }
+            if(wasDownloaded)
+                downloadedToFile?.Invoke(filePath);
             return new FileStream(filePath, FileMode.Open, FileAccess.Read);
         }
 
-
+        static DirectoryInfo ExtractToDirectory(IBrightDataContext context, string directoryName, string localName, string remoteUrl)
+        {
+            var directoryPath = GetDataFilePath(context, directoryName);
+            if (!Directory.Exists(directoryPath))
+                Directory.CreateDirectory(directoryPath);
+            using var zip = GetStream(context, localName, remoteUrl, filePath => ZipFile.ExtractToDirectory(filePath, directoryPath));
+            return new DirectoryInfo(directoryPath);
+        }
     }
 }

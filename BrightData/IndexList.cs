@@ -5,17 +5,18 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Xml;
+using Microsoft.VisualBasic;
 
 namespace BrightData
 {
-    public class IndexList : IHaveIndices, ICanWriteToBinaryWriter
+    public class IndexList : IHaveIndices, ISerializable
     {
         public IndexList(IBrightDataContext context)
         {
             Context = context;
         }
 
-        public IBrightDataContext Context { get; }
+        public IBrightDataContext Context { get; private set; }
 
         /// <summary>
         /// The list of indices
@@ -87,6 +88,14 @@ namespace BrightData
             }
         }
 
+        public void Initialize(IBrightDataContext context, BinaryReader reader)
+        {
+            var len = reader.ReadInt32();
+            Indices = new uint[len];
+            reader.BaseStream.Read(MemoryMarshal.Cast<uint, byte>(Indices));
+            Context = context;
+        }
+
         /// <summary>
         /// Creates an index list from a binary reader
         /// </summary>
@@ -94,11 +103,9 @@ namespace BrightData
         /// <param name="reader">The binary reader</param>
         public static IndexList ReadFrom(IBrightDataContext context, BinaryReader reader)
         {
-            var len = reader.ReadInt32();
-            var ret = new uint[len];
-            reader.BaseStream.Read(MemoryMarshal.Cast<uint, byte>(ret));
-
-            return Create(context, ret);
+            var ret = new IndexList(context);;
+            ret.Initialize(context, reader);
+            return ret;
         }
 
         /// <summary>

@@ -15,6 +15,6 @@ namespace BrightData.Analysis
 
         public void Add(T obj) => Analysis.Add(obj.ToString());
         public void WriteTo(IMetaData metadata) => Analysis.WriteTo(metadata);
-        public void AddObject(object obj) => Analysis.AddObject(obj);
+        public void AddObject(object obj) => Analysis.AddObject(obj.ToString());
     }
 }

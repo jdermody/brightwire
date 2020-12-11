@@ -9,7 +9,7 @@ namespace BrightData.Analysis.Readers
         public StringAnalysis(IMetaData metadata) : base(metadata)
         {
             MinLength = metadata.Get<uint>(Consts.MinLength);
-            MaxLength = metadata.Get<uint>(Consts.MinLength);
+            MaxLength = metadata.Get<uint>(Consts.MaxLength);
         }
 
         public uint MinLength { get; }
