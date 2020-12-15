@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection.Metadata.Ecma335;
+using System.Runtime.CompilerServices;
 using BrightData;
 using BrightData.Cuda;
 using BrightData.Numerics;
@@ -47,16 +48,24 @@ namespace ExampleCode
             //SimpleLinearTest(context);
             //PredictBicyclesWithLinearModel(context);
             //PredictBicyclesWithNeuralNetwork(context);
-            MultiLabelSingleClassifier(context);
+            //MultiLabelSingleClassifier(context);
             //MultiLabelMultiClassifiers(context);
             //StockData(context);
         }
 
-        static void WriteTitle(string title)
+        static void Start(IBrightDataContext context, bool useCuda = false, [CallerMemberName]string title = "")
         {
             Console.WriteLine("*********************************************");
             Console.WriteLine($"*");
             Console.WriteLine($"*  {title}");
+            if (useCuda) {
+                context.UseCudaLinearAlgebra();
+                Console.WriteLine("* (CUDA)");
+            }
+            else {
+                context.UseCudaLinearAlgebra();
+                Console.WriteLine("* (Numerics)");
+            }
             Console.WriteLine($"*");
             Console.WriteLine("*********************************************");
         }
@@ -68,15 +77,13 @@ namespace ExampleCode
 
         static void Xor(IBrightDataContext context)
         {
-            WriteTitle("XOR");
-            context.UseNumericsLinearAlgebra();
+            Start(context);
             context.Xor().TrainSigmoidNeuralNetwork(6, 300, 0.5f, 4);
         }
 
         static void IrisClassification(IBrightDataContext context)
         {
-            WriteTitle("Iris Classification");
-            context.UseNumericsLinearAlgebra();
+            Start(context);
             var iris = context.Iris();
             iris.TrainNaiveBayes();
             iris.TrainDecisionTree();
@@ -89,8 +96,7 @@ namespace ExampleCode
 
         static void IrisClustering(IBrightDataContext context)
         {
-            WriteTitle("Iris Clustering");
-            context.UseNumericsLinearAlgebra();
+            Start(context);
             var iris = context.Iris();
 
             // select only the first three columns (ignore the training label)
@@ -123,35 +129,25 @@ namespace ExampleCode
 
         static void MarkovChains(IBrightDataContext context)
         {
-            WriteTitle("Markov Chains");
-            context.UseNumericsLinearAlgebra();
+            Start(context);
             context.BeautifulandDamned().TrainMarkovModel();
         }
 
-        static void MNIST(IBrightDataContext context, bool useCuda)
+        static void MNISTFeedForward(IBrightDataContext context, bool useCuda)
         {
-            WriteTitle("MNIST (Feed Forward)");
-            if(useCuda)
-                context.UseCudaLinearAlgebra();
-            else
-                context.UseNumericsLinearAlgebra();
+            Start(context, useCuda);
             context.MNIST().TrainFeedForwardNeuralNetwork();
         }
 
         static void MNISTConvolutional(IBrightDataContext context, bool useCuda)
         {
-            WriteTitle("MNIST (Convolutional)");
-            if (useCuda)
-                context.UseCudaLinearAlgebra();
-            else
-                context.UseNumericsLinearAlgebra();
+            Start(context, useCuda);
             context.MNIST().TrainConvolutionalNeuralNetwork();
         }
 
         static void SentimentClassification(IBrightDataContext context)
         {
-            WriteTitle("Sentiment Classification");
-            context.UseNumericsLinearAlgebra();
+            Start(context);
             var sentiment = context.SentimentData();
 
             // train a bernoulli naive bayes classifier
@@ -163,65 +159,77 @@ namespace ExampleCode
 
         static void TextClustering(IBrightDataContext context)
         {
+            Start(context);
             var textClustering = context.TextClustering();
         }
 
         static void IntegerAddition(IBrightDataContext context)
         {
+            Start(context);
             context.IntegerAddition().TrainRecurrentNeuralNetwork();
         }
 
         static void ReberPrediction(IBrightDataContext context)
         {
+            Start(context);
             var reber = context.ReberSequencePrediction();
         }
 
         static void OneToMany(IBrightDataContext context)
         {
+            Start(context);
             var sequences = context.OneToMany();
         }
 
         static void ManyToOne(IBrightDataContext context)
         {
+            Start(context);
             var sequences = context.ManyToOne();
         }
 
         static void SequenceToSequence(IBrightDataContext context)
         {
+            Start(context);
             var sequences = context.SequenceToSequence();
         }
 
         static void TrainWithSelu(IBrightDataContext context)
         {
+            Start(context);
             context.Iris().TrainWithSelu();
         }
 
         static void SimpleLinearTest(IBrightDataContext context)
         {
+            Start(context);
             context.SimpleLinear().TrainLinearRegression();
         }
 
         static void PredictBicyclesWithLinearModel(IBrightDataContext context)
         {
+            Start(context);
             context.Bicycles();
         }
 
         static void PredictBicyclesWithNeuralNetwork(IBrightDataContext context)
         {
-            
+            Start(context);
         }
 
         static void MultiLabelSingleClassifier(IBrightDataContext context)
         {
+            Start(context);
             context.Emotions();
         }
 
         static void MultiLabelMultiClassifiers(IBrightDataContext context)
         {
+            Start(context);
         }
 
         static void StockData(IBrightDataContext context)
         {
+            Start(context);
             var stockData = context.StockData().GetSequentialWindow();
             stockData.TrainLSTM(256);
         }

@@ -37,7 +37,12 @@ namespace ExampleCode.DataTableTrainers
                 .Concat(targetColumns.Select(i => new ColumnConversion(i, ColumnConversionType.ToBoolean)))
                 .ToArray();
             using var converted = table.Convert(columnConversions);
+
+            // convert the many feature columns to an index list and set that as the feature column
             using var reinterpeted = converted.ReinterpretColumns(new ReinterpretColumns(ColumnType.IndexList, "Targets", targetColumns));
+            reinterpeted.SetTargetColumn(reinterpeted.ColumnCount-1);
+
+            // return as row oriented
             return reinterpeted.ToRowOriented();
         }
     }
