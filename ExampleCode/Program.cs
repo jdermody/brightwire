@@ -30,7 +30,7 @@ namespace ExampleCode
             // set where to save training data files
             context.Set("DataFileDirectory", new DirectoryInfo(@"c:\data"));
 
-            Xor(context);
+            //Xor(context);
             //IrisClassification(context);
             //IrisClustering(context);
             //MarkovChains(context);
@@ -47,7 +47,7 @@ namespace ExampleCode
             //SimpleLinearTest(context);
             //PredictBicyclesWithLinearModel(context);
             //PredictBicyclesWithNeuralNetwork(context);
-            //MultiLabelSingleClassifier(context);
+            MultiLabelSingleClassifier(context);
             //MultiLabelMultiClassifiers(context);
             //StockData(context);
         }
@@ -163,7 +163,7 @@ namespace ExampleCode
 
         static void TextClustering(IBrightDataContext context)
         {
-
+            var textClustering = context.TextClustering();
         }
 
         static void IntegerAddition(IBrightDataContext context)
@@ -173,39 +173,47 @@ namespace ExampleCode
 
         static void ReberPrediction(IBrightDataContext context)
         {
-            
+            var reber = context.ReberSequencePrediction();
         }
 
         static void OneToMany(IBrightDataContext context)
         {
+            var sequences = context.OneToMany();
         }
 
         static void ManyToOne(IBrightDataContext context)
         {
+            var sequences = context.ManyToOne();
         }
 
         static void SequenceToSequence(IBrightDataContext context)
         {
+            var sequences = context.SequenceToSequence();
         }
 
         static void TrainWithSelu(IBrightDataContext context)
         {
+            context.Iris().TrainWithSelu();
         }
 
         static void SimpleLinearTest(IBrightDataContext context)
         {
+            context.SimpleLinear().TrainLinearRegression();
         }
 
         static void PredictBicyclesWithLinearModel(IBrightDataContext context)
         {
+            context.Bicycles();
         }
 
         static void PredictBicyclesWithNeuralNetwork(IBrightDataContext context)
         {
+            
         }
 
         static void MultiLabelSingleClassifier(IBrightDataContext context)
         {
+            context.Emotions();
         }
 
         static void MultiLabelMultiClassifiers(IBrightDataContext context)

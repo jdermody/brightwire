@@ -4,6 +4,7 @@ using System.Text;
 using BrightTable;
 using BrightWire;
 using BrightWire.ExecutionGraph;
+using ExampleCode.Extensions;
 
 namespace ExampleCode.DataTableTrainers
 {
@@ -45,6 +46,54 @@ namespace ExampleCode.DataTableTrainers
 
             // train the network
             Console.WriteLine("Training a 4x8x3 neural network...");
+            engine.Train(numIterations, testData, errorMetric, null, 50);
+        }
+
+        public void TrainWithSelu(uint numIterations = 500, uint layerSize = 64, float trainingRate = 0.1f, uint batchSize = 128)
+        {
+            var graph = Table.Context.CreateGraphFactory();
+            var trainingData = graph.CreateDataSource(Training);
+            var testData = trainingData.CloneWith(Test);
+
+            // one hot encoding uses the index of the output vector's maximum value as the classification label
+            var errorMetric = graph.ErrorMetric.OneHotEncoding;
+
+            // configure the network properties
+            graph.CurrentPropertySet
+                .Use(graph.GradientDescent.RmsProp)
+                .Use(graph.GaussianWeightInitialisation(true, 0.1f, GaussianVarianceCalibration.SquareRoot2N, GaussianVarianceCount.FanInFanOut));
+
+            // create the training engine and schedule a training rate change
+            var engine = graph.CreateTrainingEngine(trainingData, trainingRate, batchSize);
+
+            Func<INode> activation = () => new SeluActivation();
+            //Func<INode> activation = () => graph.ReluActivation();
+
+            // create the network with the custom activation function
+            graph.Connect(engine)
+                .AddFeedForward(layerSize)
+                .AddBatchNormalisation()
+                .Add(activation())
+                .AddFeedForward(layerSize)
+                .AddBatchNormalisation()
+                .Add(activation())
+                .AddFeedForward(layerSize)
+                .AddBatchNormalisation()
+                .Add(activation())
+                .AddFeedForward(layerSize)
+                .AddBatchNormalisation()
+                .Add(activation())
+                .AddFeedForward(layerSize)
+                .AddBatchNormalisation()
+                .Add(activation())
+                .AddFeedForward(layerSize)
+                .AddBatchNormalisation()
+                .Add(activation())
+                .AddFeedForward(trainingData.OutputSize ?? 0)
+                .Add(graph.SoftMaxActivation())
+                .AddBackpropagation(errorMetric)
+            ;
+
             engine.Train(numIterations, testData, errorMetric, null, 50);
         }
     }
