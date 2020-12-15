@@ -53,12 +53,12 @@ namespace BrightTable.Transformations
             return (ICanConvert) Activator.CreateInstance(contextType, NormalizationType, analysedMetaData);
         }
 
-        public uint? Index { get; }
+        public uint? ColumnIndex { get; }
         public NormalizationType NormalizationType { get; }
 
         public ColumnNormalization(uint? index, NormalizationType type)
         {
-            Index = index;
+            ColumnIndex = index;
             NormalizationType = type;
         }
 

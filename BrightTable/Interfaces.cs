@@ -168,6 +168,8 @@ namespace BrightTable
         IColumnOrientedDataTable ConcatColumns(params IColumnOrientedDataTable[] others);
         IColumnOrientedDataTable ConcatColumns(string filePath, params IColumnOrientedDataTable[] others);
         IColumnOrientedDataTable FilterRows(Predicate<object[]> predicate, string filePath = null);
+        IColumnOrientedDataTable ReinterpretColumns(params ReinterpretColumns[] columns);
+        IColumnOrientedDataTable ReinterpretColumns(string filePath, params ReinterpretColumns[] columns);
     }
 
     public interface IRowOrientedDataTable : IDataTable
@@ -255,7 +257,7 @@ namespace BrightTable
 
     public interface IColumnTransformationParam
     {
-        public uint? Index { get; }
+        public uint? ColumnIndex { get; }
         public ICanConvert GetConverter(ColumnType fromType, ISingleTypeTableSegment column, IProvideTempStreams tempStreams, uint inMemoryRowCount = 32768);
     }
 

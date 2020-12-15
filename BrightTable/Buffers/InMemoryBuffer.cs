@@ -18,7 +18,7 @@ namespace BrightTable.Buffers
             ColumnIndex = column.Index;
             Types = new[] { SingleType };
             Size = size;
-            var buffer = column.GetHybridBuffer(context, tempStream);
+            var buffer = column.GetHybridBuffer(column.ColumnType, context, tempStream);
 
             MetaData = column.MetaData;
             _segment = new GrowableSegment<T>(SingleType, MetaData, buffer as IHybridBuffer<T>);

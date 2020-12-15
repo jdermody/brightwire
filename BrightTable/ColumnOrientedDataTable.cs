@@ -170,9 +170,9 @@ namespace BrightTable
 
             uint nextIndex = 0;
             foreach (var item in input) {
-                if (item.Index.HasValue && item.Index.Value < ColumnCount) {
-                    columnConversionTable[item.Index.Value] = item;
-                    nextIndex = item.Index.Value + 1;
+                if (item.ColumnIndex.HasValue && item.ColumnIndex.Value < ColumnCount) {
+                    columnConversionTable[item.ColumnIndex.Value] = item;
+                    nextIndex = item.ColumnIndex.Value + 1;
                 } else if (nextIndex < ColumnCount)
                     columnConversionTable[nextIndex++] = item;
             }
@@ -185,7 +185,7 @@ namespace BrightTable
                     var converter = conversion.GetConverter(info.ColumnType, column, tempStream);
                     if (converter != null) {
                         var newColumnInfo = info.ChangeColumnType(converter.To.GetColumnType());
-                        var buffer = newColumnInfo.GetHybridBuffer(Context, tempStream);
+                        var buffer = newColumnInfo.GetHybridBuffer(newColumnInfo.ColumnType, Context, tempStream);
                         var contextType = typeof(TransformationContext<,>).MakeGenericType(converter.From, converter.To);
                         var param = new object[] { column, converter, buffer };
                         var conversionContext = (IColumnTransformation)Activator.CreateInstance(contextType, param);
@@ -260,7 +260,7 @@ namespace BrightTable
         {
             using var tempStream = new TempStreamManager();
             var buffers = ColumnCount.AsRange()
-                .Select(i => _columns[i].Info.GetHybridBuffer(Context, tempStream))
+                .Select(i => _columns[i].Info.GetHybridBuffer(_columns[i].Info.ColumnType, Context, tempStream))
                 .ToList();
 
             uint rowCount = 0;
@@ -273,6 +273,27 @@ namespace BrightTable
             });
 
             return buffers.BuildColumnOrientedTable(Context, rowCount, filePath);
+        }
+
+        public IColumnOrientedDataTable ReinterpretColumns(params ReinterpretColumns[] columns) => ReinterpretColumns(null, columns);
+        public IColumnOrientedDataTable ReinterpretColumns(string filePath, params ReinterpretColumns[] columns)
+        {
+            using var tempStream = new TempStreamManager();
+            var newColumns = new List<ISingleTypeTableSegment>();
+            var reinterpreted = columns.SelectMany(c => c.ColumnIndices.Select(i => (Column: c, Index: i)))
+                .ToDictionary(d => d.Index, d => d.Column);
+
+            foreach (var column in _columns)
+            {
+                if (reinterpreted.TryGetValue(column.Info.Index, out var rc))
+                {
+                    if (column.Info.Index == rc.ColumnIndices[0])
+                        newColumns.AddRange(rc.GetNewColumns(Context, tempStream, (uint)newColumns.Count, rc.ColumnIndices.Select(i => _columns[i]).ToArray()));
+                }else
+                    newColumns.Add(column.Segment);
+            }
+
+            return newColumns.BuildColumnOrientedTable(Context, RowCount, filePath);
         }
 
         public override string ToString() => String.Join(", ", _columns.Select(c => c.ToString()));

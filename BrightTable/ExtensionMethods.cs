@@ -443,9 +443,8 @@ namespace BrightTable
             }
         }
 
-        public static IHybridBuffer GetHybridBuffer(this IColumnInfo forColumn, IBrightDataContext context, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024)
+        public static IHybridBuffer GetHybridBuffer(this IHaveMetaData forColumn, ColumnType type, IBrightDataContext context, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024)
         {
-            var type = forColumn.ColumnType;
             var columnType = GetDataType(type);
 
             IHybridBuffer buffer;

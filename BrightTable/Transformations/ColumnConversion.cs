@@ -120,7 +120,7 @@ namespace BrightTable.Transformations
         private readonly ColumnConversionType _toType;
         private readonly ICanConvert _converter;
 
-        private static readonly HashSet<string> TrueStrings = new HashSet<string> { "Y", "YES", "TRUE", "T" };
+        private static readonly HashSet<string> TrueStrings = new HashSet<string> { "Y", "YES", "TRUE", "T", "1" };
         private static readonly ICanConvert StringToBool = new Converter<string, bool>(str => TrueStrings.Contains(str));
         private static readonly ICanConvert StringToDate = new Converter<string, DateTime>(DateTime.Parse);
         private static readonly ICanConvert WeightedIndexListToIndexList = new Converter<WeightedIndexList, IndexList>(w => w.AsIndexList());
@@ -132,28 +132,21 @@ namespace BrightTable.Transformations
 
         public ColumnConversion(uint? columnIndex, ColumnConversionType type)
         {
-            Index = columnIndex;
+            ColumnIndex = columnIndex;
             _toType = type;
             _converter = null;
         }
 
         public ColumnConversion(uint? columnIndex, ICanConvert converter)
         {
-            Index = columnIndex;
+            ColumnIndex = columnIndex;
             _converter = converter;
         }
 
-        public uint? Index { get; }
+        public uint? ColumnIndex { get; }
 
         public ICanConvert GetConverter(ColumnType fromType, ISingleTypeTableSegment column, IProvideTempStreams tempStreams, uint inMemoryRowCount)
         {
-            //ICanConvert ViaString<T>(Func<string, T> convertFromString)
-            //{
-            //    var t = typeof(ConvertViaString<,>).MakeGenericType(ExtensionMethods.GetDataType(fromType), typeof(T));
-            //    var ret = Activator.CreateInstance(t, new object[] { convertFromString });
-            //    return (ICanConvert)ret;
-            //}
-
             if (_converter != null)
                 return _converter;
 
