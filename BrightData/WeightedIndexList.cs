@@ -23,7 +23,7 @@ namespace BrightData
                 Weight = weight;
             }
 
-            public override string ToString() => $"{Index}: {Weight}";
+            public override string ToString() => $"{Index}:{Weight}";
             public override bool Equals(object obj) => obj is Item item && Equals(item);
             public bool Equals(Item item) => item.Index == Index && FloatMath.Equals(item.Weight, Weight);
             public override int GetHashCode() => HashCode.Combine(Index, Weight);
@@ -64,7 +64,12 @@ namespace BrightData
         /// </summary>
         public override string ToString()
         {
-            return $"{Count} indices";
+            if (Count < 32)
+            {
+                var indices = String.Join('|', Indices);
+                return $"Weighted Index List - {indices}";
+            }
+            return $"Weighted Index List ({Count} indices)";
         }
 
         public void Initialize(IBrightDataContext context, BinaryReader reader)

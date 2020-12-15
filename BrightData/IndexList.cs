@@ -42,7 +42,11 @@ namespace BrightData
         /// </summary>
         public override string ToString()
         {
-            return $"{Count} indices";
+            if (Count < 32) {
+                var indices = String.Join('|', Indices);
+                return $"IndexList - {indices}";
+            } 
+            return $"IndexList ({Count} indices)";
         }
 
         public static IndexList Merge(IEnumerable<IndexList> lists)

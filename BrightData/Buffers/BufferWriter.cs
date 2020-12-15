@@ -33,7 +33,7 @@ namespace BrightData.Buffers
                 return (ICanWriteToBinaryWriter) Activator.CreateInstance(writerType.MakeGenericType(typeOfT), buffer);
             }
 
-            return (ICanWriteToBinaryWriter) Activator.CreateInstance(typeof(ObjectWriter<>), buffer);
+            return (ICanWriteToBinaryWriter) Activator.CreateInstance(typeof(ObjectWriter<>).MakeGenericType(typeOfT), buffer);
         }
 
         internal class StringEncoder : ICanWriteToBinaryWriter
