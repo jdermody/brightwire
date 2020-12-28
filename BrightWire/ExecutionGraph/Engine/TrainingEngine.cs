@@ -91,7 +91,7 @@ namespace BrightWire.ExecutionGraph.Engine
 			_contextList.Clear();
 		}
 
-		public double Train(IExecutionContext executionContext, Action<float> batchCompleteCallback = null)
+		public double Train(IGraphExecutionContext executionContext, Action<float> batchCompleteCallback = null)
 		{
 			_lap.PushLayer();
 			LearningContext.StartEpoch();
@@ -153,12 +153,12 @@ namespace BrightWire.ExecutionGraph.Engine
 		public ILinearAlgebraProvider LinearAlgebraProvider => _lap;
 		public INode Start { get; }
 
-		protected override void _Execute(IExecutionContext executionContext, IMiniBatch batch)
+		protected override void _Execute(IGraphExecutionContext executionContext, IMiniBatch batch)
 		{
 			_contextList.AddRange(_Train(executionContext, null, batch));
 		}
 
-		List<TrainingEngineContext> _Train(IExecutionContext executionContext, ILearningContext learningContext, IMiniBatch batch)
+		List<TrainingEngineContext> _Train(IGraphExecutionContext executionContext, ILearningContext learningContext, IMiniBatch batch)
 		{
 			var ret = new List<TrainingEngineContext>();
 			if (batch.IsSequential) {
@@ -187,7 +187,7 @@ namespace BrightWire.ExecutionGraph.Engine
 			));
 		}
 
-		TrainingEngineContext _Train(IExecutionContext executionContext, ILearningContext learningContext, IMiniBatchSequence sequence)
+		TrainingEngineContext _Train(IGraphExecutionContext executionContext, ILearningContext learningContext, IMiniBatchSequence sequence)
 		{
 			var context = new TrainingEngineContext(executionContext, sequence, learningContext);
 			Start.ExecuteForward(context, 0);
@@ -257,19 +257,19 @@ namespace BrightWire.ExecutionGraph.Engine
 			return flag;
 		}
 
-		void _LoadParamaters(ExecutionGraphModel.Node nodeModel)
+		void _LoadParamaters(GraphFactory factory, ExecutionGraphModel.Node nodeModel)
 		{
 			var node = Start.FindById(nodeModel.Id);
-			node.LoadParameters(nodeModel);
+			node.LoadParameters(factory, nodeModel);
 		}
 
-		public void LoadParametersFrom(ExecutionGraphModel graph)
+		public void LoadParametersFrom(GraphFactory factory, ExecutionGraphModel graph)
 		{
 			if (graph.InputNode != null)
-				_LoadParamaters(graph.InputNode);
+				_LoadParamaters(factory, graph.InputNode);
 			if (graph.OtherNodes != null) {
 				foreach (var node in graph.OtherNodes)
-					_LoadParamaters(node);
+					_LoadParamaters(factory, node);
 			}
 		}
 	}

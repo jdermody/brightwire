@@ -24,7 +24,7 @@ namespace BrightWire.TrainingData.Artificial
             builder.AddRow(0.0f, 1.0f, 0.0f);
             builder.AddRow(1.0f, 1.0f, 1.0f);
 
-            return builder.Build();
+            return builder.BuildRowOriented();
         }
     }
 }

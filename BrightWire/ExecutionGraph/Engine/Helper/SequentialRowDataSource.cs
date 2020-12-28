@@ -33,7 +33,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             throw new NotImplementedException();
         }
 
-        public IMiniBatch Get(IExecutionContext executionContext, uint[] rows)
+        public IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rows)
         {
             var ret = new MiniBatch(rows, this);
             int index = 0;

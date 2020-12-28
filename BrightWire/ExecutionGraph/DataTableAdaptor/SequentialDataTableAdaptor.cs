@@ -10,12 +10,15 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
     /// </summary>
     class SequentialDataTableAdaptor : RowBasedDataTableAdaptorBase
     {
+        private readonly uint[] _featureColumns;
         readonly uint[] _rowDepth;
 
-	    public SequentialDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable) : base(lap, dataTable)
+	    public SequentialDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, uint[] featureColumns) 
+            : base(lap, dataTable, featureColumns)
         {
             if (_dataColumnIndex.Length > 1)
                 throw new NotImplementedException("Sequential datasets not supported with more than one input data column");
+            _featureColumns = featureColumns;
 
             _rowDepth = new uint[dataTable.RowCount];
 
@@ -33,7 +36,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 
         public override IDataSource CloneWith(IRowOrientedDataTable dataTable)
         {
-            return new SequentialDataTableAdaptor(_lap, dataTable);
+            return new SequentialDataTableAdaptor(_lap, dataTable, _featureColumns);
         }
 
         public override bool IsSequential => true;
@@ -41,7 +44,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 	    public override uint? OutputSize { get; }
 	    public override uint RowCount => (uint)_rowDepth.Length;
 
-        public override IMiniBatch Get(IExecutionContext executionContext, uint[] rows)
+        public override IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rows)
         {
             var data = _GetRows(rows)
                 .Select(r => ((Matrix<float>)r[0], (Matrix<float>)r[1]))

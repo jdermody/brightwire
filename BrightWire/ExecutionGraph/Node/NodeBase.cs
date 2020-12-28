@@ -300,10 +300,10 @@ namespace BrightWire.ExecutionGraph.Node
         /// Loads parameters into an existing node
         /// </summary>
         /// <param name="nodeData">Serialised node parameters</param>
-        public virtual void LoadParameters(Models.ExecutionGraphModel.Node nodeData)
+        public virtual void LoadParameters(GraphFactory factory, ExecutionGraphModel.Node nodeData)
         {
             if(nodeData.Data != null)
-                _ReadFrom(nodeData.Data, reader => ReadFrom(null, reader));
+                _ReadFrom(nodeData.Data, reader => ReadFrom(factory, reader));
         }
     }
 }

@@ -107,24 +107,9 @@ namespace BrightTable.Builders
                 var column = _columns[i];
                 var type = column.Type;
                 object val = null;
-                if (i < len2)
-                    val = values[i];
-                else
-                {
-                    // get a default value for this column
-                    if (type == ColumnType.String)
-                        val = "";
-                    else if (type == ColumnType.Date)
-                        val = DateTime.MinValue;
-                    else if (type != ColumnType.Unknown)
-                    {
-                        var columnType = type.GetDataType();
-                        if (columnType.GetTypeInfo().IsValueType)
-                            val = Activator.CreateInstance(columnType);
-                    }
-                }
-
-                //column.Analyser?.AddObject(val);
+                val = i < len2 
+                    ? values[i] 
+                    : type.GetDefaultValue();
 
                 if (!hasWrittenIndex)
                 {

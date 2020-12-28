@@ -102,21 +102,22 @@ namespace BrightTable.Transformations
                     yield return indexSet.Contains(i) ? 1f : 0f;
             }
         }
-        class TensorVectoriser : VectoriserBase<TensorBase<float, ITensor<float>>>
+        class TensorVectoriser : VectoriserBase<ITensor<float>>
         {
             public TensorVectoriser(uint size, ISingleTypeTableSegment column)
-                : base(column.Index(), ((IDataTableSegment<TensorBase<float, ITensor<float>>>)column).EnumerateTyped().GetEnumerator())
+                : base(column.Index(), ((IDataTableSegment<ITensor<float>>)column).EnumerateTyped().GetEnumerator())
             {
                 Size = size;
             }
 
             public override uint Size { get; }
 
-            protected override IEnumerable<float> _Convert(TensorBase<float, ITensor<float>> obj)
+            protected override IEnumerable<float> _Convert(ITensor<float> obj)
             {
                 return obj.Segment.Values;
             }
         }
+
         class OneHotEncodeVectorised : VectoriserBase<object>
         {
             readonly Dictionary<string, uint> _stringIndex = new Dictionary<string, uint>();

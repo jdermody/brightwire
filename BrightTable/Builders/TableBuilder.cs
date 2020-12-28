@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using BrightData;
+using BrightData.Helper;
 
 namespace BrightTable.Builders
 {
@@ -43,13 +44,38 @@ namespace BrightTable.Builders
 
         public void AddRow(params object[] data) => _rows.Add(data);
 
-        public IRowOrientedDataTable Build()
+        public IRowOrientedDataTable BuildRowOriented()
         {
             using var builder = new RowOrientedTableBuilder((uint)_rows.Count);
             foreach (var column in _columns)
                 builder.AddColumn(column.Type, column.MetaData);
             foreach(var row in _rows)
                 builder.AddRow(row);
+            return builder.Build(Context);
+        }
+
+        public IColumnOrientedDataTable BuildColumnOriented()
+        {
+            using var builder = new ColumnOrientedTableBuilder();
+            builder.WriteHeader((uint)_columns.Count, (uint)_rows.Count);
+
+            var tempStream = new TempStreamManager();
+            var columns = _columns.Select(c => c.MetaData.GetGrowableSegment(c.Type, Context, tempStream)).ToList();
+            foreach (var row in _rows) {
+                for (var i = 0; i < _columns.Count; i++) {
+                    var val = i < row.Length ? row[i] : _columns[i].Type.GetDefaultValue();
+                    columns[i].Add(val);
+                }
+            }
+
+            var segments = columns.Cast<ISingleTypeTableSegment>().ToArray();
+            var columnOffsets = new List<(long Position, long EndOfColumnOffset)>();
+            foreach (var segment in segments)
+            {
+                var position = builder.Write(segment);
+                columnOffsets.Add((position, builder.GetCurrentPosition()));
+            }
+            builder.WriteColumnOffsets(columnOffsets);
             return builder.Build(Context);
         }
     }

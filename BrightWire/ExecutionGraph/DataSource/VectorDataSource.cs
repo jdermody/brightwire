@@ -32,7 +32,7 @@ namespace BrightWire.ExecutionGraph.DataSource
         public IVectorise InputVectoriser { get; } = null;
         public IVectorise OutputVectoriser { get; } = null;
 
-        public IMiniBatch Get(IExecutionContext executionContext, uint[] rows)
+        public IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rows)
         {
             var data = rows.Select(i => _data[(int)i]).ToList();
             var input = _lap.CreateMatrix((uint)data.Count, InputSize, (x, y) => data[(int)x].Segment[y]);

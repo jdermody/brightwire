@@ -27,7 +27,7 @@ namespace BrightTable.UnitTests
 
             var now = DateTime.Now;
             builder.AddRow(true, (sbyte)100, now, 1.0 / 3, 0.5f, int.MaxValue, long.MaxValue, "test");
-            var dataTable = builder.Build();
+            var dataTable = builder.BuildRowOriented();
 
             var firstRow = dataTable.AsConvertible().Row(0);
             firstRow.GetTyped<bool>(0).Should().BeTrue();
@@ -112,7 +112,7 @@ namespace BrightTable.UnitTests
 
             for (var i = 1; i <= 10; i++)
                 builder.AddRow(i % 2 == 0, (sbyte)i, DateTime.Now, (double)i, (float)i, i, (long)i, i.ToString());
-            return builder.Build();
+            return builder.BuildRowOriented();
         }
 
         [Fact]
@@ -146,7 +146,7 @@ namespace BrightTable.UnitTests
 
             for (var i = 0; i < 10000; i++)
                 builder.AddRow(i);
-            return builder.Build();
+            return builder.BuildRowOriented();
         }
 
         IRowOrientedDataTable _GetSimpleTable2()

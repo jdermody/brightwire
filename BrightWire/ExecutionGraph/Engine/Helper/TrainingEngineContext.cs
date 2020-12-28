@@ -10,7 +10,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     /// </summary>
     class TrainingEngineContext : IGraphContext
     {
-        readonly IExecutionContext _executionContext;
+        readonly IGraphExecutionContext _executionContext;
         readonly ILearningContext _learningContext;
         readonly List<IExecutionHistory> _forward = new List<IExecutionHistory>();
         readonly Stack<(IGraphData ErrorSignal, INode Target, INode Source)> _backward = new Stack<(IGraphData, INode, INode)>();
@@ -21,14 +21,14 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         IGraphData _errorSignal = null, _data;
         double? _trainingError;
 
-        public TrainingEngineContext(IExecutionContext executionContext, IMiniBatchSequence miniBatch, ILearningContext learningContext)
+        public TrainingEngineContext(IGraphExecutionContext executionContext, IMiniBatchSequence miniBatch, ILearningContext learningContext)
         {
             BatchSequence = miniBatch;
             _executionContext = executionContext;
             _learningContext = learningContext;
             _data = null;
         }
-        public TrainingEngineContext(IExecutionContext executionContext, IGraphData data, ILearningContext learningContext)
+        public TrainingEngineContext(IGraphExecutionContext executionContext, IGraphData data, ILearningContext learningContext)
         {
             BatchSequence = null;
             _executionContext = executionContext;
@@ -56,7 +56,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 
         public bool IsTraining => _learningContext != null;
         public ILinearAlgebraProvider LinearAlgebraProvider => _executionContext.LinearAlgebraProvider;
-        public IExecutionContext ExecutionContext => _executionContext;
+        public IGraphExecutionContext ExecutionContext => _executionContext;
         public ILearningContext LearningContext => _learningContext;
         public IMiniBatchSequence BatchSequence { get; }
         public bool HasNext => _forward.Any();

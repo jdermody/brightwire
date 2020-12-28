@@ -45,7 +45,7 @@ namespace BrightWire.Linear.Training
                     }
                 }
 
-                return (Label: d.Key, Table: builder.Build());
+                return (Label: d.Key, Table: builder.BuildRowOriented());
             });
 
             // train the classifiers on each training data set

@@ -99,7 +99,7 @@ namespace BrightWire.TrainingData.Artificial
                 }
                 builder.AddRow(context.CreateMatrixFromRows(inputList), context.CreateMatrixFromRows(outputList));
             }
-            return builder.Build();
+            return builder.BuildRowOriented();
         }
 
         /// <summary>

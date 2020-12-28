@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using BrightData;
 using BrightData.Analysis;
@@ -443,7 +444,7 @@ namespace BrightTable
             }
         }
 
-        public static IHybridBuffer GetHybridBuffer(this IHaveMetaData forColumn, ColumnType type, IBrightDataContext context, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024)
+        public static IHybridBuffer GetGrowableSegment(this IMetaData metaData, ColumnType type, IBrightDataContext context, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024)
         {
             var columnType = GetDataType(type);
 
@@ -471,7 +472,7 @@ namespace BrightTable
             var segmentType = typeof(GrowableSegment<>).MakeGenericType(columnType);
             var ret = Activator.CreateInstance(segmentType,
                 type,
-                new MetaData(forColumn.MetaData, Consts.StandardMetaData),
+                new MetaData(metaData, Consts.StandardMetaData),
                 buffer
             );
 
@@ -683,7 +684,7 @@ namespace BrightTable
             foreach (var item in data)
                 builder.AddRow(item.Data, item.Label);
 
-            return builder.Build();
+            return builder.BuildRowOriented();
         }
 
         /// <summary>
@@ -700,7 +701,7 @@ namespace BrightTable
             foreach (var item in data)
                 builder.AddRow(item.Data, item.Label);
 
-            return builder.Build();
+            return builder.BuildRowOriented();
         }
 
         /// <summary>
@@ -739,7 +740,7 @@ namespace BrightTable
                 }
             }
 
-            return builder.Build();
+            return builder.BuildRowOriented();
         }
 
         /// <summary>
@@ -758,6 +759,21 @@ namespace BrightTable
                 return context.CreateVector(ret);
             }
             return data.Select(r => (r.Label, _Create(r.Data))).ToList();
+        }
+
+        public static object GetDefaultValue(this ColumnType columnType)
+        {
+            if (columnType == ColumnType.String)
+                return "";
+            if (columnType == ColumnType.Date)
+                return DateTime.MinValue;
+            if (columnType != ColumnType.Unknown) {
+                var dataType = columnType.GetDataType();
+                if (dataType.GetTypeInfo().IsValueType)
+                    return Activator.CreateInstance(dataType);
+            }
+
+            return null;
         }
     }
 }

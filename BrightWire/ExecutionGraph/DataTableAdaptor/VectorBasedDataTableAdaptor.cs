@@ -9,8 +9,12 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
     /// </summary>
     class VectorBasedDataTableAdaptor : RowBasedDataTableAdaptorBase
     {
-	    public VectorBasedDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable) : base(lap, dataTable)
+        private readonly uint[] _featureColumns;
+
+        public VectorBasedDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, uint[] featureColumns) 
+            : base(lap, dataTable, featureColumns)
         {
+            _featureColumns = featureColumns;
             var firstRow = dataTable.Row(0);
             var input = (Vector<float>)firstRow[_dataColumnIndex.First()];
             var output = (Vector<float>)firstRow[_dataTargetIndex];
@@ -23,7 +27,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 	    public override uint? OutputSize { get; }
 	    public override bool IsSequential => false;
 
-        public override IMiniBatch Get(IExecutionContext executionContext, uint[] rows)
+        public override IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rows)
         {
             var data = _GetRows(rows)
                 .Select(r => ((_dataColumnIndex.Select(i => ((Vector<float>)r[i]).Segment.ToArray()).ToArray(), ((Vector<float>)r[_dataTargetIndex]).Segment.ToArray())))
@@ -34,7 +38,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 
         public override IDataSource CloneWith(IRowOrientedDataTable dataTable)
         {
-            return new VectorBasedDataTableAdaptor(_lap, dataTable);
+            return new VectorBasedDataTableAdaptor(_lap, dataTable, _featureColumns);
         }
     }
 }

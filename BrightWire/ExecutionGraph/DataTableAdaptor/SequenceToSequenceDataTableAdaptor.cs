@@ -83,7 +83,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             ;
         }
 
-        (IFloatMatrix, object[][]) _Encode(IExecutionContext executionContext, uint[] rows)
+        (IFloatMatrix, object[][]) _Encode(IGraphExecutionContext executionContext, uint[] rows)
         {
             var data = _GetRows(rows).ToArray();
 
@@ -102,7 +102,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             return (encoderOutput, data);
         }
 
-        public override IMiniBatch Get(IExecutionContext executionContext, uint[] rows)
+        public override IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rows)
         {
             var (encoderOutput, data) = _Encode(executionContext, rows);
 

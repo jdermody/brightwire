@@ -212,18 +212,18 @@ namespace BrightData
             return 0f;
         }
 
-        public Vector<float> ToDense()
+        public Vector<float> ToDense(uint? maxIndex)
         {
             var indices = new Dictionary<uint, float>();
-            uint max = uint.MinValue;
+            uint max = maxIndex ?? uint.MinValue;
             foreach (var item in Indices) {
-                if (item.Index > max)
+                if (!maxIndex.HasValue && item.Index > max)
                     max = item.Index;
                 indices.Add(item.Index, item.Weight);
             }
             if (indices.Any())
                 return Context.CreateVector(max + 1, i => indices.TryGetValue(i, out var val) ? val : 0f);
-            return Context.CreateVector(0, i => 0f);
+            return Context.CreateVector(maxIndex ?? 0, i => 0f);
         }
     }
 }

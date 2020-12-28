@@ -168,7 +168,7 @@ namespace ExampleCode.Datasets
                 builder.AddRow(summary, context.CreateMatrixFromRows(list.ToArray()));
             }
 
-            return new SequenceToSequenceTrainer(builder.Build());
+            return new SequenceToSequenceTrainer(builder.BuildRowOriented());
         }
 
         public static SequenceToSequenceTrainer ManyToOne(this IBrightDataContext context)
@@ -192,7 +192,7 @@ namespace ExampleCode.Datasets
                 var target = grammar.Encode(charSet.Select(ch2 => (ch2, 1f)));
                 builder.AddRow(context.CreateMatrixFromRows(list.ToArray()), target);
             }
-            return new SequenceToSequenceTrainer(builder.Build());
+            return new SequenceToSequenceTrainer(builder.BuildRowOriented());
         }
 
         public static SequenceToSequenceTrainer SequenceToSequence(this IBrightDataContext context)
@@ -211,7 +211,7 @@ namespace ExampleCode.Datasets
                 builder.AddRow(encodedSequence, reversedSequence);
             }
 
-            return new SequenceToSequenceTrainer(builder.Build());
+            return new SequenceToSequenceTrainer(builder.BuildRowOriented());
         }
 
         public static LinearTrainer SimpleLinear(this IBrightDataContext context)
@@ -239,7 +239,7 @@ namespace ExampleCode.Datasets
             dataTableBuilder.AddRow(645.690f, 2.540f, 75.581f, 7.037f);
             dataTableBuilder.AddRow(288.975f, 1.416f, 42.037f, 3.507f);
 
-            var dataTable = dataTableBuilder.Build();
+            var dataTable = dataTableBuilder.BuildRowOriented();
             var normalized = dataTable.AsColumnOriented().Normalize(NormalizationType.Standard).AsRowOriented();
             return new LinearTrainer(normalized);
         }

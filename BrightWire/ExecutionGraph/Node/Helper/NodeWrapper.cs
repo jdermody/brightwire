@@ -22,7 +22,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             public bool IsTraining => _context.IsTraining;
             public INode Source => _context.Source;
             public IGraphData Data => _context.Data;
-            public IExecutionContext ExecutionContext => _context.ExecutionContext;
+            public IGraphExecutionContext ExecutionContext => _context.ExecutionContext;
             public ILearningContext LearningContext => _context.LearningContext;
             public ILinearAlgebraProvider LinearAlgebraProvider => _context.LinearAlgebraProvider;
             public IMiniBatchSequence BatchSequence => _context.BatchSequence;

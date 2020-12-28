@@ -80,7 +80,7 @@ namespace BrightTable.Transformations
                 MetaData.SetType(ColumnType.IndexList);
                 MetaData.Set(Consts.Index, newColumnIndex);
                 MetaData.Set(Consts.Name, name);
-                _buffer = (IHybridBuffer<T>)this.GetHybridBuffer(SingleType, context, tempStreams);
+                _buffer = (IHybridBuffer<T>)MetaData.GetGrowableSegment(SingleType, context, tempStreams);
 
                 // fill the buffer
                 var len = sourceColumns.Length;

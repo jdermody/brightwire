@@ -12,8 +12,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
     {
         readonly uint _inputSize, _outputSize;
 
-        public TensorBasedDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable)
-            : base(lap, dataTable)
+        public TensorBasedDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, uint[] featureColumns)
+            : base(lap, dataTable, featureColumns)
         {
             var firstRow = dataTable.Row(0);
             var input = (Tensor3D<float>)firstRow[_dataColumnIndex[0]];
@@ -26,7 +26,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         }
 
         TensorBasedDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, uint inputSize, uint outputSize, uint rows, uint columns, uint depth) 
-            :base(lap, dataTable)
+            :base(lap, dataTable, null)
         {
             _inputSize = inputSize;
             _outputSize = outputSize;
@@ -47,7 +47,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 	    public uint Height { get; }
 	    public uint Depth { get; }
 
-	    public override IMiniBatch Get(IExecutionContext executionContext, uint[] rows)
+	    public override IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rows)
         {
             var data = _GetRows(rows)
                 .Select(r => (_dataColumnIndex.Select(i => ((Tensor3D<float>)r[i]).GetAsRaw()).ToList(), Data: ((Vector<float>)r[_dataTargetIndex]).Segment))

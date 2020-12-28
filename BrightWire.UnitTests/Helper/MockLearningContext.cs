@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using BrightData;
+using BrightWire.ExecutionGraph;
 
 namespace BrightWire.UnitTests
 {
@@ -71,5 +72,6 @@ namespace BrightWire.UnitTests
         public event Action<ILearningContext> BeforeEpochStarts;
         public event Action<ILearningContext> AfterEpochEnds;
         public IErrorMetric ErrorMetric { get; set; }
+        public GraphFactory GraphFactory { get; set; }
     }
 }

@@ -10,23 +10,26 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
     /// </summary>
     class DefaultDataTableAdaptor : RowBasedDataTableAdaptorBase
     {
-        public DefaultDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, IVectorise inputVectoriser, IVectorise outputVectoriser)
-            : base(lap, dataTable)
+        private readonly uint[] _featureColumns;
+
+        public DefaultDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, IVectorise inputVectoriser, IVectorise outputVectoriser, uint[] featureColumns)
+            : base(lap, dataTable, featureColumns)
         {
+            _featureColumns = featureColumns;
             InputVectoriser = inputVectoriser ?? new DataTableVectoriser(dataTable, _dataColumnIndex);
             OutputVectoriser = outputVectoriser ?? new DataTableVectoriser(dataTable, dataTable.GetTargetColumnOrThrow());
         }
 
         public override IDataSource CloneWith(IRowOrientedDataTable dataTable)
         {
-            return new DefaultDataTableAdaptor(_lap, dataTable, InputVectoriser, OutputVectoriser);
+            return new DefaultDataTableAdaptor(_lap, dataTable, InputVectoriser, OutputVectoriser, _featureColumns);
         }
 
         public override uint InputSize => InputVectoriser.OutputSize;
         public override uint? OutputSize => OutputVectoriser.OutputSize;
         public override bool IsSequential => false;
 
-        public override IMiniBatch Get(IExecutionContext executionContext, uint[] rowIndices)
+        public override IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rowIndices)
         {
             var rows = _GetRows(rowIndices);
             var data = rows

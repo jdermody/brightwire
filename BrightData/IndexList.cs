@@ -145,19 +145,19 @@ namespace BrightData
             return 0f;
         }
 
-        public Vector<float> ToDense()
+        public Vector<float> ToDense(uint? maxIndex)
         {
             var indices = new HashSet<uint>();
-            uint max = uint.MinValue;
+            uint max = maxIndex ?? uint.MinValue;
 
             foreach(var item in Indices) {
-                if(item > max)
+                if(!maxIndex.HasValue && item > max)
                     max = item;
                 indices.Add(item);
             }
             if(indices.Any())
                 return Context.CreateVector(max+1, i => indices.Contains(i) ? 1f : 0f);
-            return Context.CreateVector(0, 0f);
+            return Context.CreateVector(maxIndex ?? 0, 0f);
         }
 
         // TODO: pearson similarity, overlap similarity

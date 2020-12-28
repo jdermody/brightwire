@@ -151,10 +151,18 @@ namespace ExampleCode
             var sentiment = context.SentimentData();
 
             // train a bernoulli naive bayes classifier
-            var bernoulli = sentiment.TrainBernoulli();
+            var bernoulli = sentiment.TrainBernoulli().CreateClassifier();
 
             // train a multinomial naive bayes classifier
-            var multinomial = sentiment.TrainMultinomialNaiveBayes();
+            var multinomial = sentiment.TrainMultinomialNaiveBayes().CreateClassifier();
+
+            // train a neural network
+            var (engine, wire, neuralNetwork) = sentiment.TrainNeuralNetwork(20);
+
+            // train a combined graph with all three classifiers
+            //sentiment.StackClassifiers(engine, wire, bernoulli, multinomial);
+
+            sentiment.TestClassifiers(bernoulli, multinomial, neuralNetwork);
         }
 
         static void TextClustering(IBrightDataContext context)

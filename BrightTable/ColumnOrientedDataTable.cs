@@ -185,7 +185,7 @@ namespace BrightTable
                     var converter = conversion.GetConverter(info.ColumnType, column, tempStream);
                     if (converter != null) {
                         var newColumnInfo = info.ChangeColumnType(converter.To.GetColumnType());
-                        var buffer = newColumnInfo.GetHybridBuffer(newColumnInfo.ColumnType, Context, tempStream);
+                        var buffer = newColumnInfo.MetaData.GetGrowableSegment(newColumnInfo.ColumnType, Context, tempStream);
                         var contextType = typeof(TransformationContext<,>).MakeGenericType(converter.From, converter.To);
                         var param = new object[] { column, converter, buffer };
                         var conversionContext = (IColumnTransformation)Activator.CreateInstance(contextType, param);
@@ -260,7 +260,7 @@ namespace BrightTable
         {
             using var tempStream = new TempStreamManager();
             var buffers = ColumnCount.AsRange()
-                .Select(i => _columns[i].Info.GetHybridBuffer(_columns[i].Info.ColumnType, Context, tempStream))
+                .Select(i => _columns[i].Info.MetaData.GetGrowableSegment(_columns[i].Info.ColumnType, Context, tempStream))
                 .ToList();
 
             uint rowCount = 0;

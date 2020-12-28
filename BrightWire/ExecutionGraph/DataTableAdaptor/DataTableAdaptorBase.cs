@@ -32,11 +32,11 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 		/// </summary>
         protected readonly List<T> _data = new List<T>();
 
-	    protected DataTableAdaptorBase(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable)
+	    protected DataTableAdaptorBase(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, uint[] featureColumns)
         {
             _lap = lap;
             _dataTargetIndex = dataTable.GetTargetColumnOrThrow();
-            _dataColumnIndex = dataTable.ColumnCount.AsRange().Where(ci => ci != _dataTargetIndex).ToArray();
+            _dataColumnIndex = featureColumns ?? dataTable.ColumnCount.AsRange().Where(ci => ci != _dataTargetIndex).ToArray();
         }
 
 	    /// <inheritdoc />
@@ -50,7 +50,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 	    /// <inheritdoc />
         public virtual uint RowCount => (uint)_data.Count;
 
-        public abstract IMiniBatch Get(IExecutionContext executionContext, uint[] rows);
+        public abstract IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rows);
         public abstract IDataSource CloneWith(IRowOrientedDataTable dataTable);
         public IVectorise InputVectoriser { get; protected set; }
         public IVectorise OutputVectoriser { get; protected set; }

@@ -16,10 +16,10 @@ namespace BrightWire.ExecutionGraph.Engine
         protected EngineBase(ILinearAlgebraProvider lap) { _lap = lap; }
 
         protected abstract void _ClearContextList();
-        protected abstract void _Execute(IExecutionContext context, IMiniBatch miniBatch);
+        protected abstract void _Execute(IGraphExecutionContext context, IMiniBatch miniBatch);
         protected abstract IEnumerable<ExecutionResult> _GetResults();
 
-        protected bool _Continue(IMiniBatch batch, IExecutionContext executionContext, Func<IMiniBatchSequence, IGraphContext> lookupContext)
+        protected bool _Continue(IMiniBatch batch, IGraphExecutionContext executionContext, Func<IMiniBatchSequence, IGraphContext> lookupContext)
         {
             var ret = false;
 
@@ -104,7 +104,7 @@ namespace BrightWire.ExecutionGraph.Engine
             _dataSource = null;
         }
 
-        public ExecutionResult ExecuteSequential(uint sequenceIndex, float[] input, IExecutionContext executionContext, MiniBatchSequenceType sequenceType)
+        public ExecutionResult ExecuteSequential(uint sequenceIndex, float[] input, IGraphExecutionContext executionContext, MiniBatchSequenceType sequenceType)
         {
             _lap.PushLayer();
             _dataSource = new SingleRowDataSource(input, true, sequenceType, sequenceIndex);

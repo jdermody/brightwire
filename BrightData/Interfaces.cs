@@ -307,4 +307,15 @@ namespace BrightData
         IEnumerable<T> EnumerateTyped();
         uint Size { get; }
     }
+
+    public interface IIndexStrings
+    {
+        uint GetIndex(string str);
+        uint OutputSize { get; }
+    }
+
+    public interface IHaveIndexer
+    {
+        IIndexStrings Indexer { get; }
+    }
 }

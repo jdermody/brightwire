@@ -30,12 +30,12 @@ namespace BrightWire.UnitTests
             dataTable.AddRow(5.5f, 150, 8, "female");
             dataTable.AddRow(5.42f, 130, 7, "female");
             dataTable.AddRow(5.75f, 150, 9, "female");
-            var index = dataTable.Build();
+            var index = dataTable.BuildRowOriented();
 
             var testData = _context.BuildTable();
             testData.CopyColumnsFrom(index);
             testData.AddRow(6f, 130, 8, "?");
-            var testDataTable = testData.Build().AsConvertible();
+            var testDataTable = testData.BuildRowOriented().AsConvertible();
 
             var model = index.TrainKNearestNeighbours();
             var classifier = model.CreateClassifier(_context.LinearAlgebraProvider, 2);

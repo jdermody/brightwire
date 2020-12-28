@@ -40,7 +40,7 @@ namespace BrightWire.UnitTests
 			builder.AddRow(0.7f, 0.5, "b", "c");
 			builder.AddRow(0.2f, 0.6, "a", "d");
 
-			var table = builder.Build();
+			var table = builder.BuildRowOriented();
             var dataSource = _factory.CreateDataSource(table);
 			var miniBatch = dataSource.Get(null, new uint[] { 1 });
 			var input = miniBatch.CurrentSequence.Input[0].GetMatrix().Row(0).AsIndexable();

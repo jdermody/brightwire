@@ -35,7 +35,7 @@ namespace ExampleCode.DataTableTrainers
             builder.AddColumn(ColumnType.IndexList, "Sentences");
             foreach(var sentence in sentences)
                 builder.AddRow(context.CreateIndexList(sentence.Select(GetStringIndex).ToArray()));
-            _sentenceTable = builder.Build();
+            _sentenceTable = builder.BuildRowOriented();
         }
 
         (uint Index, string String) Append(uint index, StringBuilder sb)

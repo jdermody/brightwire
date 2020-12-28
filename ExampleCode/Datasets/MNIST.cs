@@ -176,7 +176,7 @@ namespace ExampleCode.Datasets
                 dataTable.AddRow(data, label);
             }
 
-            return dataTable.Build();
+            return dataTable.BuildRowOriented();
         }
 
         public static IRowOrientedDataTable Build3DTensorToVectorDataTable(IBrightDataContext context, Image[] images)
@@ -189,7 +189,7 @@ namespace ExampleCode.Datasets
                 dataTable.AddRow(tensor, label);
             }
 
-            return dataTable.Build();
+            return dataTable.BuildRowOriented();
         }
     }
 }

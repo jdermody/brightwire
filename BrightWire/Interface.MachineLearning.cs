@@ -3,6 +3,7 @@ using BrightTable;
 using BrightWire.Models.Bayesian;
 using System;
 using System.Collections.Generic;
+using BrightWire.ExecutionGraph;
 using BrightWire.Models.Linear;
 
 namespace BrightWire
@@ -260,6 +261,8 @@ namespace BrightWire
 		/// Error metric to use when evaluating trainging progress
 		/// </summary>
 		IErrorMetric ErrorMetric { get; set; }
+
+		GraphFactory GraphFactory { get; }
 	}
 
 	/// <summary>

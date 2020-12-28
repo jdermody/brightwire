@@ -24,7 +24,7 @@ namespace BrightWire.UnitTests
             dataTable.AddRow(2f, 4f);
             dataTable.AddRow(4f, 8f);
             dataTable.AddRow(8f, 16f);
-            var index = dataTable.Build();
+            var index = dataTable.BuildRowOriented();
 
             var classifier = index.CreateLinearRegressionTrainer(_cpu);
             //var theta = classifier.Solve();
@@ -73,7 +73,7 @@ namespace BrightWire.UnitTests
             dataTable.AddRow(4.75f, true);
             dataTable.AddRow(5f, true);
             dataTable.AddRow(5.5f, true);
-            var index = dataTable.Build();
+            var index = dataTable.BuildRowOriented();
 
             var trainer = index.CreateLogisticRegressionTrainer();
             var theta = trainer.GradientDescent(1000, 0.1f, 0.1f, cost => true);
@@ -121,12 +121,12 @@ namespace BrightWire.UnitTests
             dataTable.AddRow(5.5f, 150, 8, "female");
             dataTable.AddRow(5.42f, 130, 7, "female");
             dataTable.AddRow(5.75f, 150, 9, "female");
-            var index = dataTable.Build();
+            var index = dataTable.BuildRowOriented();
 
             var testData = _context.BuildTable();
             testData.CopyColumnsFrom(index);
             testData.AddRow(6f, 130, 8, "?");
-            var testDataTable = testData.Build();
+            var testDataTable = testData.BuildRowOriented();
 
             var model = index.TrainMultinomialLogisticRegression(100, 0.1f);
             var classifier = model.CreateClassifier(_context.LinearAlgebraProvider);

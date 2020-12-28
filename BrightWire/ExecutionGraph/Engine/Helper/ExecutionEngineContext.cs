@@ -10,13 +10,13 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     /// </summary>
     class ExecutionEngineContext : IGraphContext
     {
-        readonly IExecutionContext _executionContext;
+        readonly IGraphExecutionContext _executionContext;
         readonly List<IExecutionHistory> _forward = new List<IExecutionHistory>();
 	    readonly Dictionary<int, IGraphData> _output = new Dictionary<int, IGraphData>();
         INode _sourceNode = null;
         IGraphData _data;
 
-        public ExecutionEngineContext(IExecutionContext executionContext, IMiniBatchSequence miniBatch)
+        public ExecutionEngineContext(IGraphExecutionContext executionContext, IMiniBatchSequence miniBatch)
         {
             _executionContext = executionContext;
             BatchSequence = miniBatch;
@@ -30,7 +30,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 
         public bool IsTraining => false;
         public INode Source => _sourceNode;
-        public IExecutionContext ExecutionContext => _executionContext;
+        public IGraphExecutionContext ExecutionContext => _executionContext;
         public ILearningContext LearningContext => null;
         public ILinearAlgebraProvider LinearAlgebraProvider => _executionContext.LinearAlgebraProvider;
         public IMiniBatchSequence BatchSequence { get; }

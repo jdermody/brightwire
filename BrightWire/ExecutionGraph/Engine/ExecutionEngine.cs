@@ -85,7 +85,7 @@ namespace BrightWire.ExecutionGraph.Engine
 			return ret;
 		}
 
-		protected override void _Execute(IExecutionContext executionContext, IMiniBatch batch)
+		protected override void _Execute(IGraphExecutionContext executionContext, IMiniBatch batch)
 		{
 			var ret = new List<ExecutionEngineContext>();
 			var table = new Dictionary<IMiniBatchSequence, IGraphContext>();

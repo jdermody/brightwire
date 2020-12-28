@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using BrightData;
+using BrightWire.Adaptors;
 using BrightWire.Bayesian.Training;
 using BrightWire.ExecutionGraph;
 using BrightWire.Models;
@@ -108,7 +109,7 @@ namespace BrightWire
                 builder.AddRow(past, target);
             }
 
-            return builder.Build();
+            return builder.BuildRowOriented();
         }
 
         /// <summary>
@@ -172,5 +173,7 @@ namespace BrightWire
             }
             return ret;
         }
+
+        public static IRowClassifier AsRowClassifier(this IIndexListClassifier classifier, uint columnIndex = 0, IIndexStrings indexer = null) => new IndexListRowClassifier(classifier, columnIndex, indexer);
     }
 }

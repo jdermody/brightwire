@@ -16,7 +16,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         protected readonly ILearningContext _learningContext;
 
 	    protected AdaptiveDataTableAdaptorBase(ILinearAlgebraProvider lap, ILearningContext learningContext, IRowOrientedDataTable dataTable)
-            : base(lap, dataTable)
+            : base(lap, dataTable, null)
         {
             Debug.Assert(learningContext == null || learningContext.DeferUpdates);
 
@@ -36,30 +36,30 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             };
         }
 
-        protected IGraphContext _Process(IExecutionContext executionContext, IGraphData data)
-        {
-            var context = new TrainingEngineContext(executionContext, data, _learningContext);
-            _input.ExecuteForward(context, 0);
+        //protected IGraphContext _Process(IGraphExecutionContext executionContext, IGraphData data)
+        //{
+        //    var context = new TrainingEngineContext(executionContext, data, _learningContext);
+        //    _input.ExecuteForward(context, 0);
 
-            while (context.HasNext)
-                context.ExecuteNext();
+        //    while (context.HasNext)
+        //        context.ExecuteNext();
 
-            return context;
-        }
+        //    return context;
+        //}
 
-        protected IGraphContext _ConcurentProcess(IExecutionContext executionContext, IGraphData data)
-        {
-            var learningContext = new LearningContext(_lap, _learningContext.LearningRate, _learningContext.BatchSize, TrainingErrorCalculation.None, true);
-            var context = new TrainingEngineContext(executionContext, data, learningContext);
-            _input.ExecuteForward(context, 0);
+        //protected IGraphContext _ConcurentProcess(IGraphExecutionContext executionContext, IGraphData data)
+        //{
+        //    var learningContext = new LearningContext(_lap, _learningContext.LearningRate, _learningContext.BatchSize, TrainingErrorCalculation.None, true);
+        //    var context = new TrainingEngineContext(executionContext, data, learningContext);
+        //    _input.ExecuteForward(context, 0);
 
-            while (context.HasNext)
-                context.ExecuteNext();
+        //    while (context.HasNext)
+        //        context.ExecuteNext();
 
-            return context;
-        }
+        //    return context;
+        //}
 
-        protected IGraphContext _Process(IExecutionContext executionContext, IMiniBatchSequence sequence)
+        protected IGraphContext _Process(IGraphExecutionContext executionContext, IMiniBatchSequence sequence)
         {
             var context = new TrainingEngineContext(executionContext, sequence, _learningContext);
             _input.ExecuteForward(context, 0);

@@ -24,7 +24,7 @@ namespace BrightWire.UnitTests
         public bool IsTraining { get; set; }
         public INode Source { get; }
         public IGraphData Data { get; set; }
-        public IExecutionContext ExecutionContext { get; }
+        public IGraphExecutionContext ExecutionContext { get; }
         public ILearningContext LearningContext { get; }
         public ILinearAlgebraProvider LinearAlgebraProvider { get; }
 

@@ -182,7 +182,7 @@ namespace BrightWire
         /// Loads parameters into an existing node
         /// </summary>
         /// <param name="nodeData">Serialised node parameters</param>
-        void LoadParameters(Models.ExecutionGraphModel.Node nodeData);
+        void LoadParameters(GraphFactory factory, ExecutionGraphModel.Node nodeData);
     }
 
     /// <summary>
@@ -250,7 +250,7 @@ namespace BrightWire
         /// <summary>
         /// Current execution context
         /// </summary>
-        IExecutionContext ExecutionContext { get; }
+        IGraphExecutionContext ExecutionContext { get; }
 
         /// <summary>
         /// Current learning context (optional)
@@ -333,7 +333,7 @@ namespace BrightWire
     /// <summary>
     /// Graph execution context
     /// </summary>
-    public interface IExecutionContext : IDisposable
+    public interface IGraphExecutionContext : IDisposable
     {
         /// <summary>
         /// Writes to a named memory slot
@@ -440,7 +440,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="executionContext">Graph execution context</param>
         /// <param name="rows">List of rows</param>
-        IMiniBatch Get(IExecutionContext executionContext, uint[] rows);
+        IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rows);
 
         /// <summary>
         /// For sequential data, returns the row indexes grouped by sequence length
@@ -604,7 +604,7 @@ namespace BrightWire
         /// Executes the operation
         /// </summary>
         /// <param name="executionContext">Graph execution context</param>
-        void Execute(IExecutionContext executionContext);
+        void Execute(IGraphExecutionContext executionContext);
     }
 
     /// <summary>
@@ -651,7 +651,7 @@ namespace BrightWire
         /// <param name="executionContext">Graph execution context</param>
         /// <param name="sequenceType">The sequence type (start, standard, end)</param>
         /// <returns></returns>
-        ExecutionResult ExecuteSequential(uint sequenceIndex, float[] input, IExecutionContext executionContext, MiniBatchSequenceType sequenceType);
+        ExecutionResult ExecuteSequential(uint sequenceIndex, float[] input, IGraphExecutionContext executionContext, MiniBatchSequenceType sequenceType);
 
         /// <summary>
         /// Executes a sequence of inputs on the current graph
@@ -683,7 +683,7 @@ namespace BrightWire
 	    /// <param name="executionContext">Graph execution context</param>
 	    /// <param name="batchCompleteCallback">Optional callback to be notifiied after each mini batch has completed</param>
 	    /// <returns>Graph training error</returns>
-	    double Train(IExecutionContext executionContext, Action<float> batchCompleteCallback = null);
+	    double Train(IGraphExecutionContext executionContext, Action<float> batchCompleteCallback = null);
 
         /// <summary>
         /// Executes test data on the current graph
@@ -711,7 +711,7 @@ namespace BrightWire
         /// Loads model parameters into the existing graph
         /// </summary>
         /// <param name="graph">Model to load parameters from</param>
-        void LoadParametersFrom(Models.ExecutionGraphModel graph);
+        void LoadParametersFrom(GraphFactory factory, ExecutionGraphModel graph);
     }
 
     /// <summary>

@@ -37,7 +37,7 @@ namespace BrightWire.ExecutionGraph.DataSource
 	    public uint? OutputSize { get; }
 	    public uint RowCount => (uint)_data.Length;
 
-        public IMiniBatch Get(IExecutionContext executionContext, uint[] rows)
+        public IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rows)
         {
             var data = rows.Select(i => _data[(int)i]).ToList();
 
