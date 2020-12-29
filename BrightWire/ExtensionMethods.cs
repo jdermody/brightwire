@@ -62,7 +62,7 @@ namespace BrightWire
                 .Select((r, i) => (Vector: lap.CreateVector(r.Numeric), RowIndex: (uint) i, r.Label));
         }
 
-        public static IEnumerable<(uint RowIndex, string Label)[]> HierachicalCluster(this IDataTable dataTable, int k)
+        public static IEnumerable<(uint RowIndex, string Label)[]> HierachicalCluster(this IDataTable dataTable, uint k)
         {
             var data = dataTable.GetRowsAsLabeledFeatures()
                 .ToDictionary(d => d.Vector);
@@ -70,7 +70,7 @@ namespace BrightWire
                 .Select(c => c.Select(v => (data[v].RowIndex, data[v].Label)).ToArray());
         }
 
-        public static IEnumerable<(uint RowIndex, string Label)[]> KMeans(this IDataTable dataTable, int k, int maxIterations = 1000, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
+        public static IEnumerable<(uint RowIndex, string Label)[]> KMeans(this IDataTable dataTable, uint k, uint maxIterations = 1000, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
         {
             var data = dataTable.GetRowsAsLabeledFeatures()
                 .ToDictionary(d => d.Vector);
@@ -78,7 +78,7 @@ namespace BrightWire
                 .Select(c => c.Select(v => (data[v].RowIndex, data[v].Label)).ToArray());
         }
 
-        public static IEnumerable<(uint RowIndex, string Label)[]> NonNegativeMatrixFactorisation(this IDataTable dataTable, int k, int maxIterations = 1000)
+        public static IEnumerable<(uint RowIndex, string Label)[]> NonNegativeMatrixFactorisation(this IDataTable dataTable, uint k, uint maxIterations = 1000)
         {
             var lap = dataTable.Context.LinearAlgebraProvider;
             var data = dataTable.GetRowsAsLabeledFeatures()

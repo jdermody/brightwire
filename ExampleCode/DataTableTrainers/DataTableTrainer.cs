@@ -43,9 +43,9 @@ namespace ExampleCode
         public IRowOrientedDataTable Training { get; }
         public IRowOrientedDataTable Test { get; }
 
-        public IEnumerable<string> KMeans(int k) => AggregateLabels(Table.KMeans(k));
-        public IEnumerable<string> HierachicalCluster(int k) => AggregateLabels(Table.HierachicalCluster(k));
-        public IEnumerable<string> NonNegativeMatrixFactorisation(int k) => AggregateLabels(Table.NonNegativeMatrixFactorisation(k));
+        public IEnumerable<string> KMeans(uint k) => AggregateLabels(Table.KMeans(k));
+        public IEnumerable<string> HierachicalCluster(uint k) => AggregateLabels(Table.HierachicalCluster(k));
+        public IEnumerable<string> NonNegativeMatrixFactorisation(uint k) => AggregateLabels(Table.NonNegativeMatrixFactorisation(k));
 
         IEnumerable<string> AggregateLabels(IEnumerable<(uint RowIndex, string Label)[]> clusters) => clusters
             .Select(c => String.Join(';', c

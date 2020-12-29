@@ -212,7 +212,7 @@ namespace BrightData
             return 0f;
         }
 
-        public Vector<float> ToDense(uint? maxIndex)
+        public Vector<float> AsDense(uint? maxIndex)
         {
             var indices = new Dictionary<uint, float>();
             uint max = maxIndex ?? uint.MinValue;

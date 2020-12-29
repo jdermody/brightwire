@@ -105,7 +105,7 @@ namespace BrightWire
         /// <param name="k">The number of clusters</param>
         /// <param name="maxIterations">The maximum number of iterations</param>
         /// <returns>A list of k clusters</returns>
-        public static IFloatVector[][] NNMF(this IEnumerable<IFloatVector> data, ILinearAlgebraProvider lap, int k, int maxIterations = 1000)
+        public static IFloatVector[][] NNMF(this IEnumerable<IFloatVector> data, ILinearAlgebraProvider lap, uint k, uint maxIterations = 1000)
         {
             var clusterer = new NonNegativeMatrixFactorisation(lap, k);
             return clusterer.Cluster(data, maxIterations);
@@ -117,7 +117,7 @@ namespace BrightWire
         /// <param name="data">The list of vectors to cluster</param>
         /// <param name="k">The number of clusters to find</param>
         /// <returns>A list of k clusters</returns>
-        public static IFloatVector[][] HierachicalCluster(this IEnumerable<IFloatVector> data, int k)
+        public static IFloatVector[][] HierachicalCluster(this IEnumerable<IFloatVector> data, uint k)
         {
             using var clusterer = new Hierachical(k, data);
             clusterer.Cluster();
@@ -133,7 +133,7 @@ namespace BrightWire
         /// <param name="maxIterations">The maximum number of iterations</param>
         /// <param name="distanceMetric">Distance metric to use to compare centroids</param>
         /// <returns>A list of k clusters</returns>
-        public static IFloatVector[][] KMeans(this IEnumerable<IFloatVector> data, IBrightDataContext context, int k, int maxIterations = 1000, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
+        public static IFloatVector[][] KMeans(this IEnumerable<IFloatVector> data, IBrightDataContext context, uint k, uint maxIterations = 1000, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
         {
             using var clusterer = new KMeans(context, k, data, distanceMetric);
             clusterer.ClusterUntilConverged(maxIterations);

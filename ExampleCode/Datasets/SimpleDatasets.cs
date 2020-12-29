@@ -130,7 +130,7 @@ namespace ExampleCode.Datasets
                 Title = (string)row[0]
             }));
 
-            return new TestClusteringTrainer(docList);
+            return new TestClusteringTrainer(context, docList);
         }
 
         public static ReberSequenceTrainer ReberSequencePrediction(this IBrightDataContext context, bool extended = true, int? minLength = 10, int? maxLength = 10)

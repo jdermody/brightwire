@@ -38,7 +38,7 @@ namespace ExampleCode
             //MNIST(context, useCuda);
             //MNISTConvolutional(context, useCuda);
             //SentimentClassification(context);
-            //TextClustering(context);
+            TextClustering(context);
             //IntegerAddition(context);
             //ReberPrediction(context);
             //OneToMany(context);
@@ -63,7 +63,7 @@ namespace ExampleCode
                 Console.WriteLine("* (CUDA)");
             }
             else {
-                context.UseCudaLinearAlgebra();
+                context.UseNumericsLinearAlgebra();
                 Console.WriteLine("* (Numerics)");
             }
             Console.WriteLine($"*");
@@ -169,6 +169,10 @@ namespace ExampleCode
         {
             Start(context);
             var textClustering = context.TextClustering();
+            textClustering.KMeans();
+            textClustering.NNMF();
+            textClustering.RandomProjection();
+            textClustering.LatentSemanticAnalysis();
         }
 
         static void IntegerAddition(IBrightDataContext context)

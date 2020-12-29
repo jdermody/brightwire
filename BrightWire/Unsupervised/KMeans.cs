@@ -17,7 +17,7 @@ namespace BrightWire.Unsupervised
 		List<(uint[] DataIndices, IFloatVector Cluster)> _clusters = new List<(uint[], IFloatVector)>();
 		readonly IFloatVector[] _data;
 
-		public KMeans(IBrightDataContext context, int k, IEnumerable<IFloatVector> data, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
+		public KMeans(IBrightDataContext context, uint k, IEnumerable<IFloatVector> data, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
 		{
 			_data = data.ToArray();
 			_distance = new VectorDistanceHelper(_data, distanceMetric);
@@ -50,7 +50,7 @@ namespace BrightWire.Unsupervised
 			// pick the first cluster at random and set up the distance table
             AddCluster(context.RandomIndex(_data.Length), (index, distance) => distanceTable[index] = new List<float>{ distance });
 
-			for (var i = 1; i < k && i < _data.Length; i++) {
+			for (uint i = 1; i < k && i < _data.Length; i++) {
 				// create a categorical distribution to calculate the probability of choosing each subsequent item
 				var distribution = new CategoricalDistribution(context, distanceTable.Select(l => l.Min()).ToArray());
 
@@ -101,7 +101,7 @@ namespace BrightWire.Unsupervised
 			return true;
 		}
 
-		public void ClusterUntilConverged(int maxIterations = 1000)
+		public void ClusterUntilConverged(uint maxIterations = 1000)
 		{
 			for (var i = 0; i < maxIterations; i++) {
 				if (!Cluster())

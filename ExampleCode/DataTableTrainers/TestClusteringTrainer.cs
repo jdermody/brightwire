@@ -1,14 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using BrightData;
+using BrightWire;
 using BrightWire.TrainingData.Helper;
 
 namespace ExampleCode.DataTableTrainers
 {
     class TestClusteringTrainer
     {
+        private readonly IBrightDataContext _context;
+
         public class AAAIDocument
         {
             /// <summary>
@@ -54,10 +58,110 @@ namespace ExampleCode.DataTableTrainers
                 ));
             }
         }
+        readonly StringTableBuilder _stringTable = new StringTableBuilder();
+        private readonly (string Classification, WeightedIndexList Data)[] _data;
+        private readonly IFloatVector[] _vectors;
+        private readonly Dictionary<IFloatVector, AAAIDocument> _documentTable = new Dictionary<IFloatVector, AAAIDocument>();
+        private readonly uint _groupCount;
 
-        public TestClusteringTrainer(IReadOnlyList<AAAIDocument> documents)
+        public TestClusteringTrainer(IBrightDataContext context, IReadOnlyCollection<AAAIDocument> documents)
         {
+            _context = context;
+            var lap = context.LinearAlgebraProvider;
+            _data = documents.Select(d => d.AsClassification(context, _stringTable)).ToArray();
+            _vectors = _data.Select(d => lap.CreateVector(d.Data.AsDense(_stringTable.Size))).ToArray();
+            foreach(var combo in _vectors.Zip(documents))
+                _documentTable.Add(combo.First, combo.Second);
+            var allGroups = new HashSet<string>(documents.SelectMany(d => d.Group));
+            _groupCount = (uint) allGroups.Count;
+        }
 
+        public void KMeans()
+        {
+            Console.Write("Kmeans clustering...");
+            var outputPath = GetOutputPath("kmeans");
+            _WriteClusters(outputPath, _vectors.KMeans(_context, _groupCount), _documentTable);
+            Console.WriteLine($"written to {outputPath}");
+        }
+
+        public void NNMF()
+        {
+            Console.Write("NNMF  clustering...");
+            var outputPath = GetOutputPath("nnmf");
+            _WriteClusters(outputPath, _vectors.NNMF(_context.LinearAlgebraProvider, _groupCount), _documentTable);
+            Console.WriteLine($"written to {outputPath}");
+        }
+
+        public void RandomProjection()
+        {
+            var lap = _context.LinearAlgebraProvider;
+            // create a term/document matrix with terms as columns and documents as rows
+            var matrix = lap.CreateMatrixFromRows(_vectors);
+
+            Console.Write("Creating random projection...");
+            var outputPath = GetOutputPath("projected-kmeans");
+            using var randomProjection = lap.CreateRandomProjection((uint)_stringTable.Size + 1, 512);
+            using var projectedMatrix = randomProjection.Compute(matrix);
+            var vectorList2 = projectedMatrix.RowCount.AsRange().Select(i => projectedMatrix.Row(i)).ToList();
+            var lookupTable2 = vectorList2.Select((v, i) => Tuple.Create(v, _vectors[i])).ToDictionary(d => d.Item1, d => _documentTable[d.Item2]);
+            Console.Write("done...");
+
+            Console.Write("Kmeans clustering of random projection...");
+            _WriteClusters(outputPath, vectorList2.KMeans(_context, _groupCount), lookupTable2);
+            vectorList2.ForEach(v => v.Dispose());
+            Console.WriteLine($"written to {outputPath}");
+        }
+
+        public void LatentSemanticAnalysis(uint k = 256)
+        {
+            Console.Write("Building latent term/document space...");
+            var outputPath = GetOutputPath("latent-kmeans");
+
+            var lap = _context.LinearAlgebraProvider;
+            // create a term/document matrix with terms as columns and documents as rows
+            var matrix = lap.CreateMatrixFromRows(_vectors);
+            var kIndices = k.AsRange().ToList();
+            var matrixT = matrix.Transpose();
+            matrix.Dispose();
+            var svd = matrixT.Svd();
+            matrixT.Dispose();
+
+            var s = lap.CreateDiagonalMatrix(svd.S.AsIndexable().Values.Take((int)k).ToArray());
+            var v2 = svd.VT.GetNewMatrixFromRows(kIndices);
+            using (var sv2 = s.Multiply(v2))
+            {
+                v2.Dispose();
+                s.Dispose();
+
+                var vectorList3 = sv2.AsIndexable().Columns.ToList();
+                var lookupTable3 = vectorList3.Select((v, i) => Tuple.Create(v, _vectors[i])).ToDictionary(d => (IFloatVector)d.Item1, d => _documentTable[d.Item2]);
+
+                Console.WriteLine("Kmeans clustering in latent document space...");
+                _WriteClusters(outputPath, vectorList3.KMeans(_context, _groupCount), lookupTable3);
+            }
+
+            Console.WriteLine($"written to {outputPath}");
+        }
+
+        string GetOutputPath(string name) => Path.Combine(_context.Get<DirectoryInfo>("DataFileDirectory").FullName, "output", $"{name}.txt");
+
+        void _WriteClusters(string filePath, IFloatVector[][] clusters, Dictionary<IFloatVector, AAAIDocument> lookupTable)
+        {
+            new FileInfo(filePath).Directory.Create();
+            using var writer = new StreamWriter(filePath);
+            foreach (var cluster in clusters)
+            {
+                foreach (var item in cluster)
+                {
+                    var document = lookupTable[item];
+                    writer.WriteLine(document.Title);
+                    writer.WriteLine(String.Join(", ", document.Keyword));
+                    writer.WriteLine(String.Join(", ", document.Topic));
+                    writer.WriteLine(String.Join(", ", document.Group));
+                    writer.WriteLine();
+                }
+                writer.WriteLine("------------------------------------------------------------------");
+            }
         }
     }
 }

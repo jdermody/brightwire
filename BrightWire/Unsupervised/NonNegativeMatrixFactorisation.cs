@@ -12,18 +12,18 @@ namespace BrightWire.Unsupervised
     /// </summary>
     class NonNegativeMatrixFactorisation
     {
-        readonly int _numClusters;
+        readonly uint _numClusters;
         readonly ILinearAlgebraProvider _lap;
         readonly IErrorMetric _costFunction;
 
-        public NonNegativeMatrixFactorisation(ILinearAlgebraProvider lap, int numClusters, IErrorMetric costFunction = null)
+        public NonNegativeMatrixFactorisation(ILinearAlgebraProvider lap, uint numClusters, IErrorMetric costFunction = null)
         {
             _lap = lap;
             _numClusters = numClusters;
             _costFunction = costFunction ?? new Quadratic();
         }
 
-        public IFloatVector[][] Cluster(IEnumerable<IFloatVector> data, int numIterations, float errorThreshold = 0.001f)
+        public IFloatVector[][] Cluster(IEnumerable<IFloatVector> data, uint numIterations, float errorThreshold = 0.001f)
         {
             var dataArray = data.ToArray();
 
