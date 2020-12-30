@@ -140,7 +140,7 @@ namespace ExampleCode.Datasets
                 ? grammar.GetExtended(minLength, maxLength)
                 : grammar.Get(minLength, maxLength);
 
-            return new ReberSequenceTrainer(ReberGrammar.GetOneHot(context, sequences.Take(500)));
+            return new ReberSequenceTrainer(context, ReberGrammar.GetOneHot(context, sequences.Take(500)));
         }
 
         public static SequenceToSequenceTrainer OneToMany(this IBrightDataContext context)

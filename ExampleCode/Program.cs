@@ -38,9 +38,9 @@ namespace ExampleCode
             //MNIST(context, useCuda);
             //MNISTConvolutional(context, useCuda);
             //SentimentClassification(context);
-            TextClustering(context);
+            //TextClustering(context);
             //IntegerAddition(context);
-            //ReberPrediction(context);
+            ReberPrediction(context);
             //OneToMany(context);
             //ManyToOne(context);
             //SequenceToSequence(context);
@@ -185,6 +185,8 @@ namespace ExampleCode
         {
             Start(context);
             var reber = context.ReberSequencePrediction();
+            var engine = reber.TrainLSTM();
+            reber.GenerateSequences(engine);
         }
 
         static void OneToMany(IBrightDataContext context)
