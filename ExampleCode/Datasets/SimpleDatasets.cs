@@ -149,7 +149,7 @@ namespace ExampleCode.Datasets
             var sequences = grammar.GenerateSequences().Take(1000).ToList();
             var builder = context.BuildTable();
             builder.AddColumn(ColumnType.Vector, "Summary");
-            builder.AddColumn(ColumnType.Matrix, "Sequence");
+            builder.AddColumn(ColumnType.Matrix, "Sequence").SetTargetColumn(true);
 
             foreach (var sequence in sequences)
             {
@@ -168,7 +168,7 @@ namespace ExampleCode.Datasets
                 builder.AddRow(summary, context.CreateMatrixFromRows(list.ToArray()));
             }
 
-            return new SequenceToSequenceTrainer(builder.BuildRowOriented());
+            return new SequenceToSequenceTrainer(context, grammar.DictionarySize, builder.BuildRowOriented());
         }
 
         public static SequenceToSequenceTrainer ManyToOne(this IBrightDataContext context)
@@ -177,7 +177,7 @@ namespace ExampleCode.Datasets
             var sequences = grammar.GenerateSequences().Take(1000).ToList();
             var builder = context.BuildTable();
             builder.AddColumn(ColumnType.Matrix, "Sequence");
-            builder.AddColumn(ColumnType.Vector, "Summary");
+            builder.AddColumn(ColumnType.Vector, "Summary").SetTargetColumn(true);
 
             foreach (var sequence in sequences)
             {
@@ -192,7 +192,7 @@ namespace ExampleCode.Datasets
                 var target = grammar.Encode(charSet.Select(ch2 => (ch2, 1f)));
                 builder.AddRow(context.CreateMatrixFromRows(list.ToArray()), target);
             }
-            return new SequenceToSequenceTrainer(builder.BuildRowOriented());
+            return new SequenceToSequenceTrainer(context, grammar.DictionarySize, builder.BuildRowOriented());
         }
 
         public static SequenceToSequenceTrainer SequenceToSequence(this IBrightDataContext context)
@@ -202,7 +202,7 @@ namespace ExampleCode.Datasets
             var sequences = grammar.GenerateSequences().Take(2000).ToList();
             var builder = context.BuildTable();
             builder.AddColumn(ColumnType.Matrix, "Input");
-            builder.AddColumn(ColumnType.Matrix, "Output");
+            builder.AddColumn(ColumnType.Matrix, "Output").SetTargetColumn(true);
 
             foreach (var sequence in sequences)
             {
@@ -211,7 +211,7 @@ namespace ExampleCode.Datasets
                 builder.AddRow(encodedSequence, reversedSequence);
             }
 
-            return new SequenceToSequenceTrainer(builder.BuildRowOriented());
+            return new SequenceToSequenceTrainer(context, grammar.DictionarySize, builder.BuildRowOriented());
         }
 
         public static LinearTrainer SimpleLinear(this IBrightDataContext context)

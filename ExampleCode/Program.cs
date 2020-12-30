@@ -40,7 +40,7 @@ namespace ExampleCode
             //SentimentClassification(context);
             //TextClustering(context);
             //IntegerAddition(context);
-            ReberPrediction(context);
+            //ReberPrediction(context);
             //OneToMany(context);
             //ManyToOne(context);
             //SequenceToSequence(context);
@@ -193,18 +193,21 @@ namespace ExampleCode
         {
             Start(context);
             var sequences = context.OneToMany();
+            sequences.TrainLSTM();
         }
 
         static void ManyToOne(IBrightDataContext context)
         {
             Start(context);
             var sequences = context.ManyToOne();
+            sequences.TrainGRU();
         }
 
         static void SequenceToSequence(IBrightDataContext context)
         {
             Start(context);
             var sequences = context.SequenceToSequence();
+            sequences.TrainSequenceToSequence();
         }
 
         static void TrainWithSelu(IBrightDataContext context)

@@ -12,7 +12,7 @@ namespace BrightWire.TrainingData.Artificial
     /// </summary>
     public class SequenceGenerator
     {
-	    readonly int _minSize, _maxSize;
+	    readonly uint _minSize, _maxSize;
         private readonly IBrightDataContext _context;
         readonly bool _noRepeat;
         readonly Random _rnd;
@@ -40,12 +40,12 @@ namespace BrightWire.TrainingData.Artificial
         /// <param name="minSize">The minimum size of each sequence</param>
         /// <param name="maxSize">The maximum size of each sequence</param>
         /// <param name="noRepeat">True to avoid repeating any previous character within each sequence</param>
-        public SequenceGenerator(IBrightDataContext context, int dictionarySize, int minSize, int maxSize, bool noRepeat = true)
+        public SequenceGenerator(IBrightDataContext context, int dictionarySize, uint minSize, uint maxSize, bool noRepeat = true)
         {
             _rnd = context.Random;
             _context = context;
             _noRepeat = noRepeat;
-            DictionarySize = Math.Min(_dictionary.Length, dictionarySize);
+            DictionarySize = (uint)Math.Min(_dictionary.Length, dictionarySize);
             if (noRepeat) {
                 _minSize = Math.Min(DictionarySize, minSize);
                 _maxSize = Math.Min(DictionarySize, maxSize);
@@ -58,14 +58,14 @@ namespace BrightWire.TrainingData.Artificial
         /// <summary>
         /// The number of letters to use
         /// </summary>
-        public int DictionarySize { get; }
+        public uint DictionarySize { get; }
 
-	    int _NextSequenceLength
+	    uint _NextSequenceLength
         {
             get
             {
                 if(_maxSize > _minSize)
-                    return _rnd.Next(_minSize, _maxSize);
+                    return (uint)_rnd.Next((int)_minSize, (int)_maxSize);
                 return _minSize;
             }
         }
@@ -78,12 +78,12 @@ namespace BrightWire.TrainingData.Artificial
         {
             var sb = new StringBuilder();
             if (_noRepeat) {
-                var indices = Enumerable.Range(0, DictionarySize).Shuffle(_rnd).Take(_NextSequenceLength);
+                var indices = DictionarySize.AsRange().Shuffle(_rnd).Take((int)_NextSequenceLength);
                 foreach(var index in indices)
                     sb.Append(_dictionary[index]);
             } else {
-                for (int i = 0, len = _NextSequenceLength; i < len; i++)
-                    sb.Append(_dictionary[_rnd.Next(0, DictionarySize)]);
+                for (uint i = 0, len = _NextSequenceLength; i < len; i++)
+                    sb.Append(_dictionary[_rnd.Next(0, (int)DictionarySize)]);
             }
             return sb.ToString();
         }
