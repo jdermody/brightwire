@@ -84,16 +84,24 @@ namespace BrightTable
 
         public IEnumerable<IDataTableSegment> Rows(params uint[] rowIndices)
         {
-            if (rowIndices.Any()) {
-                var ret = new List<IDataTableSegment>();
-                ForEachRow(rowIndices, row => ret.Add(new Row(ColumnTypes, row)));
-                return ret;
-            }
-
-            return Enumerable.Empty<IDataTableSegment>();
+            foreach (var rowIndex in AllOrSpecifiedRows(rowIndices))
+                yield return new Row(ColumnTypes, _ReadRow(rowIndex));
         }
 
-        public IDataTableSegment Row(uint rowIndex) => Rows(rowIndex).SingleOrDefault();
+        public IDataTableSegment Row(uint rowIndex) => new Row(ColumnTypes, _ReadRow(rowIndex));
+
+        object[] _ReadRow(uint rowIndex)
+        {
+            lock (_stream)
+            {
+                var reader = Reader;
+                _stream.Seek(_rowOffset[rowIndex], SeekOrigin.Begin);
+                var row = new object[_columns.Length];
+                for (int i = 0, len = _columnReaders.Length; i < len; i++)
+                    row[i] = _columnReaders[i].Read(reader);
+                return row;
+            }
+        }
 
         public void ForEachRow(IEnumerable<uint> rowIndices, Action<object[]> callback)
         {

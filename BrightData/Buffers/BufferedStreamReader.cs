@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -102,6 +103,9 @@ namespace BrightData.Buffers
             public ReadFromMemory(uint length, Stream stream)
             {
                 _data = BufferedRead<T>(stream, length).ToArray();
+#if DEBUG
+                Debug.Assert(_data.Length == length);
+#endif
             }
 
             public IEnumerable<T> EnumerateTyped() => _data;
@@ -149,7 +153,16 @@ namespace BrightData.Buffers
                 _stringTable = new string[len];
                 for (uint i = 0; i < len; i++)
                     _stringTable[i] = reader.ReadString();
-                _reader = _GetReader<ushort>(reader.ReadUInt32(), inMemorySize, stream);
+                var indicesLength = reader.ReadUInt32();
+                _reader = _GetReader<ushort>(indicesLength, inMemorySize, stream);
+
+#if DEBUG
+                int offset = 0;
+                foreach (var item in _reader.EnumerateTyped()) {
+                    Debug.Assert(item < _stringTable.Length);
+                    ++offset;
+                }
+#endif
             }
 
             public IEnumerable<string> EnumerateTyped() => _reader.EnumerateTyped().Select(i => _stringTable[i]);
@@ -267,9 +280,13 @@ namespace BrightData.Buffers
                 var totalRead = 0;
 
                 while (totalRead < count) {
-                    var readCount = stream.Read(MemoryMarshal.Cast<T, byte>(temp)) / sizeofT;
+                    var remaining = count - totalRead;
+                    var ptr = remaining >= tempBufferSize
+                        ? temp
+                        : ((Span<T>) temp).Slice(0, (int) remaining);
+                    var readCount = stream.Read(MemoryMarshal.Cast<T, byte>(ptr)) / sizeofT;
                     for (var i = 0; i < readCount; i++)
-                        yield return temp[i];
+                            yield return temp[i];
                     totalRead += readCount;
                 }
             }

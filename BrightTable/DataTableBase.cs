@@ -38,6 +38,10 @@ namespace BrightTable
             ? ColumnCount.AsRange()
             : indices;
 
+        protected IEnumerable<uint> AllOrSpecifiedRows(uint[] indices) => (indices?.Length ?? 0) == 0
+            ? RowCount.AsRange()
+            : indices;
+
         protected void _ReadHeader(BinaryReader reader, DataTableOrientation expectedOrientation)
         {
             var version = reader.ReadInt32();

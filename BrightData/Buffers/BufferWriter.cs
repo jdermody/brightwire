@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -78,7 +79,7 @@ namespace BrightData.Buffers
                 // write the buffer length and the indices
                 writer.Write(indexCount);
                 writer.Flush();
-                WriteBuffered(indices, writer.BaseStream);
+                WriteBuffered(indices, indexCount, writer.BaseStream);
             }
         }
 
@@ -124,7 +125,7 @@ namespace BrightData.Buffers
                 // write the buffer length and the indices
                 writer.Write(indexCount);
                 writer.Flush();
-                WriteBuffered(indices, writer.BaseStream);
+                WriteBuffered(indices, indexCount, writer.BaseStream);
             }
         }
 
@@ -208,23 +209,30 @@ namespace BrightData.Buffers
                 // write the items
                 writer.Write(numItems);
                 writer.Flush();
-                WriteBuffered(items, writer.BaseStream);
+                WriteBuffered(items, numItems, writer.BaseStream);
             }
         }
 
-        static void WriteBuffered<T>(IEnumerable<T> reader, Stream stream, uint tempBufferSize = 8096)
+        static void WriteBuffered<T>(IEnumerable<T> reader, uint count, Stream stream, uint tempBufferSize = 8096)
             where T : struct
         {
             var temp = new T[tempBufferSize];
             var index = 0;
-            foreach (var item in reader) {
+
+            using var enumerator = reader.GetEnumerator();
+            uint i = 0;
+            for (; i < count && enumerator.MoveNext(); i++) {
+                var val = enumerator.Current;
                 if (index == tempBufferSize) {
                     stream.Write(MemoryMarshal.Cast<T, byte>(temp));
                     index = 0;
                 }
 
-                temp[index++] = item;
+                temp[index++] = val;
             }
+#if DEBUG
+            Debug.Assert(i == count);
+#endif
             if (index > 0)
                 stream.Write(MemoryMarshal.Cast<T, byte>(((ReadOnlySpan<T>)temp).Slice(0, index)));
         }

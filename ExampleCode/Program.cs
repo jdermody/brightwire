@@ -225,12 +225,13 @@ namespace ExampleCode
         static void PredictBicyclesWithLinearModel(IBrightDataContext context)
         {
             Start(context);
-            context.Bicycles();
+            context.Bicycles().TrainLinearModel();
         }
 
         static void PredictBicyclesWithNeuralNetwork(IBrightDataContext context)
         {
             Start(context);
+            context.Bicycles().TrainNeuralNetwork();
         }
 
         static void MultiLabelSingleClassifier(IBrightDataContext context)

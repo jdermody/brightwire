@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Http;
 using BrightData;
 using BrightTable;
+using BrightTable.Transformations;
 using BrightWire.TrainingData.Artificial;
 using BrightWire.TrainingData.Helper;
 using ExampleCode.DataTableTrainers;
@@ -248,9 +249,18 @@ namespace ExampleCode.Datasets
         {
             var directory = ExtractToDirectory(context, "bicycles", "bicycles.zip", "https://archive.ics.uci.edu/ml/machine-learning-databases/00275/Bike-Sharing-Dataset.zip");
             var hoursData = new StreamReader(Path.Combine(directory.FullName, "hour.csv"));
-            var dataTable = context.ParseCsv(hoursData, true);
+            using var completeTable = context.ParseCsv(hoursData, true);
 
-            return new BicyclesTrainer(null);
+            // drop the first six columns (index and date features)
+            using var filteredTable = completeTable.SelectColumns(completeTable.ColumnCount.AsRange().Skip(5).ToArray());
+            var dataColumns = (completeTable.ColumnCount - 3).AsRange().ToArray();
+            using var converted = filteredTable.Convert(dataColumns.Select(i => new ColumnConversion(i, ColumnConversionType.ToNumeric)).ToArray());
+
+            // normalise the data columns
+            using var ret = converted.Normalize(dataColumns.Select(i => new ColumnNormalization(i, NormalizationType.Standard)).ToArray());
+
+            ret.SetTargetColumn(ret.ColumnCount-1);
+            return new BicyclesTrainer(context, ret.AsRowOriented());
         }
 
         public static EmotionsTrainer Emotions(this IBrightDataContext context)
