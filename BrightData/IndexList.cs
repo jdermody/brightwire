@@ -160,6 +160,8 @@ namespace BrightData
             return Context.CreateVector(maxIndex ?? 0, 0f);
         }
 
+        public bool HasIndex(uint index) => Indices.Contains(index);
+
         // TODO: pearson similarity, overlap similarity
         // use overlap to build a graph: https://jbarrasa.com/2017/03/31/quickgraph5-learning-a-taxonomy-from-your-tagged-data/
     }

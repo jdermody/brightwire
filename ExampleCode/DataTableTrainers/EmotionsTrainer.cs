@@ -6,13 +6,18 @@ using System.Text;
 using BrightData;
 using BrightTable;
 using BrightTable.Transformations;
+using BrightWire;
+using BrightWire.Models;
 
 namespace ExampleCode.DataTableTrainers
 {
     class EmotionsTrainer : DataTableTrainer
     {
-        public EmotionsTrainer(IRowOrientedDataTable table, IRowOrientedDataTable training, IRowOrientedDataTable test) : base(table, training, test)
+        private readonly IBrightDataContext _context;
+
+        public EmotionsTrainer(IBrightDataContext context, IRowOrientedDataTable table, IRowOrientedDataTable training, IRowOrientedDataTable test) : base(table, training, test)
         {
+            _context = context;
         }
 
         public static IRowOrientedDataTable Parse(IBrightDataContext context, string filePath)
@@ -42,8 +47,160 @@ namespace ExampleCode.DataTableTrainers
             using var reinterpeted = converted.ReinterpretColumns(new ReinterpretColumns(ColumnType.IndexList, "Targets", targetColumns));
             reinterpeted.SetTargetColumn(reinterpeted.ColumnCount-1);
 
+            using var normalized = reinterpeted.Normalize(featureColumns.Select(i => new ColumnNormalization(i, NormalizationType.FeatureScale)).ToArray());
+
             // return as row oriented
-            return reinterpeted.ToRowOriented();
+            return normalized.ToRowOriented();
+        }
+
+        static IRowOrientedDataTable ConvertToBinary(IRowOrientedDataTable table, uint indexOffset)
+        {
+            // converts the index list to a boolean based on if the flag is set
+            var ret = table.Project(r => {
+                var ret = (object[]) r.Clone();
+                var indexList = (IndexList) ret[r.Length - 1];
+                ret[r.Length - 1] = indexList.HasIndex(indexOffset);
+                return ret;
+            });
+            ret.SetTargetColumn(ret.ColumnCount-1);
+            return ret;
+        }
+
+        public void TrainNeuralNetwork()
+        {
+            var graph = _context.CreateGraphFactory();
+
+            // binary classification rounds each output to 0 or 1 and compares each output against the binary classification targets
+            var errorMetric = graph.ErrorMetric.BinaryClassification;
+
+            // configure the network properties
+            graph.CurrentPropertySet
+                .Use(graph.GradientDescent.Adam)
+                .Use(graph.WeightInitialisation.Xavier)
+                ;
+
+            // create a training engine
+            const float TRAINING_RATE = 0.3f;
+            var trainingData = graph.CreateDataSource(Training);
+            var testData = trainingData.CloneWith(Test);
+            var engine = graph.CreateTrainingEngine(trainingData, TRAINING_RATE, 128);
+
+            // build the network
+            const int HIDDEN_LAYER_SIZE = 64, TRAINING_ITERATIONS = 2000;
+            var network = graph.Connect(engine)
+                    .AddFeedForward(HIDDEN_LAYER_SIZE)
+                    .Add(graph.SigmoidActivation())
+                    .AddDropOut(dropOutPercentage: 0.5f)
+                    .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
+                    .Add(graph.SigmoidActivation())
+                    .AddBackpropagation(errorMetric)
+                ;
+
+            // train the network
+            ExecutionGraphModel bestGraph = null;
+            engine.Train(TRAINING_ITERATIONS, testData, errorMetric, model => bestGraph = model.Graph, 50);
+
+            // export the final model and execute it on the training set
+            var executionEngine = graph.CreateEngine(bestGraph ?? engine.Graph);
+            var output = executionEngine.Execute(testData);
+
+            // output the results
+            var rowIndex = 0;
+            foreach (var item in output) {
+                var sb = new StringBuilder();
+                foreach (var classification in item.Output.Zip(item.Target, (o, t) => (Output: o, Target: t))) {
+                    var columnIndex = 0;
+                    sb.AppendLine($"{rowIndex++}) ");
+                    foreach (var column in classification.Output.Values.Zip(classification.Target.Values,
+                        (o, t) => (Output: o, Target: t))) {
+                        var prediction = column.Output >= 0.5f ? "true" : "false";
+                        var actual = column.Target >= 0.5f ? "true" : "false";
+                        sb.AppendLine($"\t{columnIndex++}) predicted {prediction} (expected {actual})");
+                    }
+                }
+
+                Console.WriteLine(sb.ToString());
+            }
+        }
+
+        public void TrainMultiClassifiers()
+        {
+            var classificationLabel = new[] {
+                "amazed-suprised",
+                "happy-pleased",
+                "relaxing-calm",
+                "quiet-still",
+                "sad-lonely",
+                "angry-aggresive"
+            };
+            var trainingTables = classificationLabel
+                .Select((c, i) => (Table: ConvertToBinary(Training, (uint) i), Label: c))
+                .ToArray();
+            var testTables = classificationLabel
+                .Select((c, i) => (Table: ConvertToBinary(Test, (uint)i), Label: c))
+                .ToArray();
+
+            var graph = _context.CreateGraphFactory();
+
+            // binary classification rounds each output to 0 or 1 and compares each output against the binary classification targets
+            var errorMetric = graph.ErrorMetric.BinaryClassification;
+
+            // configure the network properties
+            graph.CurrentPropertySet
+                .Use(graph.GradientDescent.Adam)
+                .Use(graph.WeightInitialisation.Xavier)
+            ;
+
+            var targetColumn = Table.GetTargetColumnOrThrow();
+
+            foreach (var item in trainingTables.Zip(testTables, (train, test) => (Training: train, Test: test))) {
+                Console.WriteLine("Training on {0}", item.Training.Label);
+
+                // train and evaluate a naive bayes classifier
+                var naiveBayes = item.Training.Table.TrainNaiveBayes().CreateClassifier();
+                Console.WriteLine("\tNaive bayes accuracy: {0:P}", item.Test.Table
+                    .Classify(naiveBayes)
+                    .Average(d => d.Row.GetTyped<string>(targetColumn) == d.Classification.First().Label ? 1.0 : 0.0)
+                );
+
+                // train a logistic regression classifier
+                var logisticRegression = item.Training.Table
+                    .TrainMultinomialLogisticRegression(2500, 0.25f, 0.01f)
+                    .CreateClassifier(_context.LinearAlgebraProvider)
+                ;
+
+                var convertible = item.Test.Table.AsConvertible();
+                Console.WriteLine("\tLogistic regression accuracy: {0:P}", logisticRegression.Classify(item.Test.Table)
+                    .Average(d => convertible.Row(d.RowIndex).GetTyped<string>(targetColumn) == d.Predictions.First().Classification ? 1.0 : 0.0)
+                );
+
+                // train and evaluate k nearest neighbours
+                var knn = item.Training.Table.TrainKNearestNeighbours().CreateClassifier(_context.LinearAlgebraProvider, 10);
+                Console.WriteLine("\tK nearest neighbours accuracy: {0:P}", item.Test.Table
+                    .Classify(knn)
+                    .Average(d => d.Row.GetTyped<string>(targetColumn) == d.Classification.First().Label ? 1.0 : 0.0)
+                );
+
+                // create a training engine
+                const float TRAINING_RATE = 0.1f;
+                var trainingData = graph.CreateDataSource(item.Training.Table);
+                var testData = trainingData.CloneWith(item.Test.Table);
+                var engine = graph.CreateTrainingEngine(trainingData, TRAINING_RATE, 64);
+
+                // build the network
+                const int HIDDEN_LAYER_SIZE = 64, TRAINING_ITERATIONS = 2000;
+                var network = graph.Connect(engine)
+                    .AddFeedForward(HIDDEN_LAYER_SIZE)
+                    .Add(graph.SigmoidActivation())
+                    .AddDropOut(dropOutPercentage: 0.5f)
+                    .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
+                    .Add(graph.SigmoidActivation())
+                    .AddBackpropagation(errorMetric)
+                ;
+
+                // train the network
+                engine.Train(TRAINING_ITERATIONS, testData, errorMetric, null, 200);
+            }
         }
     }
 }

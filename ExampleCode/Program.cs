@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection.Metadata.Ecma335;
 using System.Runtime.CompilerServices;
 using BrightData;
 using BrightData.Cuda;
 using BrightData.Numerics;
-using BrightTable;
 using BrightWire;
 using ExampleCode.Datasets;
 using MathNet.Numerics;
@@ -26,7 +24,7 @@ namespace ExampleCode
             //Control.UseNativeMKL();
 
             // IMPORTANT: uncomment below to use CUDA (if you have installed the CUDA toolkit from https://developer.nvidia.com/cuda-toolkit and have a valid NVidia GPU)
-            //useCuda = true;
+            useCuda = true;
 
             // set where to save training data files
             context.Set("DataFileDirectory", new DirectoryInfo(@"c:\data"));
@@ -35,7 +33,7 @@ namespace ExampleCode
             //IrisClassification(context);
             //IrisClustering(context);
             //MarkovChains(context);
-            //MNIST(context, useCuda);
+            //MNISTFeedForward(context, useCuda);
             //MNISTConvolutional(context, useCuda);
             //SentimentClassification(context);
             //TextClustering(context);
@@ -49,7 +47,7 @@ namespace ExampleCode
             //PredictBicyclesWithLinearModel(context);
             //PredictBicyclesWithNeuralNetwork(context);
             //MultiLabelSingleClassifier(context);
-            //MultiLabelMultiClassifiers(context);
+            MultiLabelMultiClassifiers(context);
             //StockData(context);
         }
 
@@ -237,12 +235,13 @@ namespace ExampleCode
         static void MultiLabelSingleClassifier(IBrightDataContext context)
         {
             Start(context);
-            context.Emotions();
+            context.Emotions().TrainNeuralNetwork();
         }
 
         static void MultiLabelMultiClassifiers(IBrightDataContext context)
         {
             Start(context);
+            context.Emotions().TrainMultiClassifiers();
         }
 
         static void StockData(IBrightDataContext context)

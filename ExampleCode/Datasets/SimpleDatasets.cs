@@ -269,7 +269,7 @@ namespace ExampleCode.Datasets
             var table = EmotionsTrainer.Parse(context, Path.Combine(directory.FullName, "emotions.arff"));
             var test = EmotionsTrainer.Parse(context, Path.Combine(directory.FullName, "emotions-test.arff"));
             var training = EmotionsTrainer.Parse(context, Path.Combine(directory.FullName, "emotions-train.arff"));
-            return new EmotionsTrainer(table, training, test);
+            return new EmotionsTrainer(context, table, training, test);
         }
 
         static string GetDataFilePath(this IBrightDataContext context, string name)
