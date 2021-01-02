@@ -11,7 +11,17 @@ namespace BrightData.FloatTensors
         public void Dispose() => Data.Dispose();
 
         public static Matrix<float> Create(IBrightDataContext context, Vector<float>[] rows) => context.CreateMatrixFromRows(rows);
-        public static Matrix<float> ReadFrom(IBrightDataContext context, BinaryReader reader) => new Matrix<float>(context, reader);
+        public static Matrix<float> ReadFrom(IBrightDataContext context, BinaryReader reader)
+        {
+            if (context.Get<bool>(Consts.LegacyFloatSerialisationInput)) {
+                var len = reader.ReadInt32();
+                var ret = new Vector<float>[len];
+                for (var i = 0; i < len; i++)
+                    ret[i] = FloatVector.ReadFrom(context, reader);
+                return context.CreateMatrixFromRows(ret);
+            }
+            return new Matrix<float>(context, reader);
+        }
 
         public bool IsValid { get; } = true;
         public IFloatMatrix Multiply(IFloatMatrix matrix) => new FloatMatrix(Data.Multiply(matrix.Data));

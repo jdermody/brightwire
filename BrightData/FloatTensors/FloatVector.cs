@@ -12,7 +12,17 @@ namespace BrightData.FloatTensors
         public FloatVector(Vector<float> data) => Data = data;
 
         public static Vector<float> Create(IBrightDataContext context, float[] ret) => context.CreateVector(ret);
-        public static Vector<float> ReadFrom(IBrightDataContext context, BinaryReader reader) => new Vector<float>(context, reader);
+        public static Vector<float> ReadFrom(IBrightDataContext context, BinaryReader reader)
+        {
+            if (context.Get<bool>(Consts.LegacyFloatSerialisationInput)) {
+                var len = reader.ReadInt32();
+                var ret = new float[len];
+                for (var i = 0; i < len; i++)
+                    ret[i] = reader.ReadSingle();
+                return context.CreateVector(ret);
+            }
+            return new Vector<float>(context, reader);
+        }
 
         public void Dispose()
         {

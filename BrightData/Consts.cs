@@ -42,6 +42,8 @@
         public const string FrequencyPrefix = "Frequency:";
         public const string FrequencyRangePrefix = "FrequencyRange:";
 
+        public const string LegacyFloatSerialisationInput = "LegacyFloatSerialisationInput";
+
         public static readonly string[] StandardMetaData = { Index, Name, Type, IsNumeric, IsTarget/*, IsFeature*/ };
     }
 }

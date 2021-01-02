@@ -79,10 +79,22 @@ namespace BrightData
             return CreateMatrix(context, (uint) rows.Length, columns, (j, i) => rows[j][i]);
         }
 
+        public static Matrix<T> CreateMatrixFromRows<T>(this IBrightDataContext context, params T[][] rows) where T : struct
+        {
+            var columns = (uint)rows.First().Length;
+            return CreateMatrix(context, (uint)rows.Length, columns, (j, i) => rows[j][i]);
+        }
+
         public static Matrix<T> CreateMatrixFromColumns<T>(this IBrightDataContext context, params Vector<T>[] columns) where T: struct
         {
             var rows = columns.First().Size;
             return CreateMatrix(context, rows, (uint) columns.Length, (j, i) => columns[i][j]);
+        }
+
+        public static Matrix<T> CreateMatrixFromColumns<T>(this IBrightDataContext context, params T[][] columns) where T : struct
+        {
+            var rows = (uint)columns.First().Length;
+            return CreateMatrix(context, rows, (uint)columns.Length, (j, i) => columns[i][j]);
         }
 
         public static Tensor3D<T> CreateTensor3D<T>(this IBrightDataContext context, uint depth, uint rows, uint columns) where T : struct
@@ -547,5 +559,7 @@ namespace BrightData
 
         public static string Format<T>(this IEnumerable<(T Item, uint Count)> items) =>
             String.Join(';', items.Select(i => $"{i.Item.ToString()}: {i.Count}"));
+
+        public static void UseLegacySerialisationInput(this IBrightDataContext context, bool use = true) => context.Set(Consts.LegacyFloatSerialisationInput, use);
     }
 }
