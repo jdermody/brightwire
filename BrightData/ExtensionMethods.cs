@@ -130,16 +130,6 @@ namespace BrightData
             return new Tensor4D<T>(segment, count, depth, rows, columns);
         }
 
-        public static uint GetSize(this ITensor tensor)
-        {
-            uint ret = 1;
-            foreach(var item in tensor.Shape)
-                ret *= item;
-            return ret;
-        }
-
-        public static uint GetRank(this ITensor tensor) => (uint)tensor.Shape.Length;
-
         public static uint GetColumnCount<T>(this ITensor<T> tensor) where T : struct
         {
             return tensor.Shape.Length > 1 ? tensor.Shape[^1] : 0;

@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BrightData.Helper;
 
 namespace BrightData
 {
-    public abstract class TensorBase<T, DT> : ITensor<T>
+    public abstract class TensorBase<T, DT> : ShapedBase, ITensor<T>
         where DT : ITensor<T>
         where T : struct
     {
@@ -13,18 +14,22 @@ namespace BrightData
         Lazy<INumericComputation<T>> _computation;
         bool _wasDisposed = false;
 
-        TensorBase(IBrightDataContext context)
+        TensorBase(IBrightDataContext context, uint[] shape) : base(shape)
         {
             Context = context;
             _computation = new Lazy<INumericComputation<T>>(() => Context.GetComputation<T>());
             context.MemoryLayer.Add(this);
         }
 
-        protected TensorBase(ITensorSegment<T> segment, uint[] shape) : this(segment.Context)
+        protected TensorBase(ITensorSegment<T> segment, uint[] shape) : this(segment.Context, shape)
         {
-            Shape = shape;
             _segment = segment;
             _segment.AddRef();
+        }
+
+        protected TensorBase(IBrightDataContext context, BinaryReader reader) : base(null)
+        {
+            Initialize(context, reader);
         }
 
         public void Initialize(IBrightDataContext context, BinaryReader reader)
@@ -33,14 +38,7 @@ namespace BrightData
             _computation = new Lazy<INumericComputation<T>>(() => Context.GetComputation<T>());
             context.MemoryLayer.Add(this);
 
-            var len = reader.ReadInt32();
-            Shape = new uint[len];
-            uint size = 0;
-            for (var i = 0; i < len; i++) {
-                var item = reader.ReadUInt32();
-                size = i == 0 ? item : size * item;
-                Shape[i] = item;
-            }
+            var size = ReadFrom(reader);
 
             _segment = context.CreateSegment<T>(size);
             _segment.InitializeFrom(reader.BaseStream);
@@ -54,23 +52,16 @@ namespace BrightData
             }
         }
 
-        protected TensorBase(IBrightDataContext context, BinaryReader reader)
-        {
-            Initialize(context, reader);
-        }
-
         public void WriteTo(BinaryWriter writer)
         {
-            writer.Write(Shape.Length);
-            foreach (var item in Shape)
-                writer.Write(item);
+            base.WriteTo(writer);
             writer.Flush();
             _segment.WriteTo(writer.BaseStream);
         }
 
         protected abstract DT Create(ITensorSegment<T> segment);
 
-        public uint[] Shape { get; private set; }
+        
         public INumericComputation<T> Computation => _computation.Value;
 
         public ITensorSegment<T> GetDataCopy()
@@ -79,8 +70,6 @@ namespace BrightData
             return _segment;
         }
         public IBrightDataContext Context { get; private set; }
-        public uint Size => this.GetSize();
-        public uint Rank => this.GetRank();
 
         public T[] ToArray() => _segment.ToArray();
         public void InitializeFrom(Stream stream) => _segment.InitializeFrom(stream);
@@ -141,25 +130,6 @@ namespace BrightData
             ? _segment
             : Context.CreateSegment(_segment.ToArray())
         );
-
-        static uint[] _ResolveShape(uint total, uint?[] shape)
-        {
-            uint nonNullTotal = 0;
-            bool hasFoundNull = false;
-            foreach (var item in shape) {
-                if (item.HasValue)
-                    nonNullTotal += item.Value;
-                else if (!hasFoundNull)
-                    hasFoundNull = true;
-                else
-                    throw new ArgumentException("Only one parameter can be null");
-            }
-
-            if (hasFoundNull && nonNullTotal == 0)
-                throw new ArgumentException("Cannot resolve null parameter");
-
-            return shape.Select(v => v ?? total / nonNullTotal).ToArray();
-        }
 
         public Vector<T> Reshape() => new Vector<T>(GetDataCopy());
 
