@@ -306,7 +306,7 @@ namespace BrightTable
                 var cols = row.Length;
 
                 for (var i = columns.Count; i < cols; i++) {
-                    var buffer = new StringHybridBuffer(tempStreams, inMemoryRowCount, maxDistinct);
+                    var buffer = context.CreateHybridStringBuffer(tempStreams, inMemoryRowCount, maxDistinct);
                     columns.Add(new GrowableSegment<string>(ColumnType.String, new MetaData(), buffer));
                 }
 
@@ -449,25 +449,12 @@ namespace BrightTable
             var columnType = GetDataType(type);
 
             IHybridBuffer buffer;
-            if (type.IsStructable()) {
-                buffer = (IHybridBuffer)Activator.CreateInstance(typeof(StructHybridBuffer<>).MakeGenericType(GetDataType(type)),
-                    tempStream,
-                    bufferSize,
-                    maxDistinct
-                );
-            } else if (type == ColumnType.String) {
-                buffer = (IHybridBuffer)Activator.CreateInstance(typeof(StringHybridBuffer),
-                    tempStream,
-                    bufferSize,
-                    maxDistinct
-                );
-            } else {
-                buffer = (IHybridBuffer)Activator.CreateInstance(typeof(ObjectHybridBuffer<>).MakeGenericType(GetDataType(type)),
-                    context,
-                    tempStream,
-                    bufferSize
-                );
-            }
+            if (type.IsStructable())
+                buffer = context.CreateHybridStructBuffer(GetDataType(type), tempStream, bufferSize, maxDistinct);
+            else if (type == ColumnType.String)
+                buffer = context.CreateHybridStringBuffer(tempStream, bufferSize, maxDistinct);
+            else
+                buffer = context.CreateHybridObjectBuffer(GetDataType(type), tempStream, bufferSize, maxDistinct);
 
             var segmentType = typeof(GrowableSegment<>).MakeGenericType(columnType);
             var ret = Activator.CreateInstance(segmentType,

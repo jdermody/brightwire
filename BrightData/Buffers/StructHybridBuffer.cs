@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 
 namespace BrightData.Buffers
 {
-    public class StructHybridBuffer<T> : HybridBufferBase<T>
+    class StructHybridBuffer<T> : HybridBufferBase<T>
         where T: struct
     {
         public StructHybridBuffer(IProvideTempStreams tempStream, uint maxCount, ushort maxDistinct) : base(tempStream, maxCount, maxDistinct)

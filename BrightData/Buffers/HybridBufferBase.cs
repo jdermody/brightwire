@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace BrightData.Buffers
 {
-    public abstract class HybridBufferBase<T> : IHybridBuffer<T>
+    abstract class HybridBufferBase<T> : IHybridBuffer<T>
     {
         readonly uint _maxCount;
         readonly IProvideTempStreams _tempStream;

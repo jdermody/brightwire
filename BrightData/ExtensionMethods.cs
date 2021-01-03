@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using BrightData.Analysis;
 using BrightData.Analysis.Readers;
+using BrightData.Buffers;
 using BrightData.Converters;
 using BrightData.Helper;
 using BrightData.Memory;
@@ -564,6 +565,51 @@ namespace BrightData
         public static IDataAnalyser GetFrequencyAnalyser(this IBrightDataContext context, Type type, uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount)
         {
             return (IDataAnalyser)Activator.CreateInstance(typeof(ConvertToStringFrequencyAnalysis<>).MakeGenericType(type), writeCount, maxCount);
+        }
+
+        public static IHybridBuffer<T> CreateHybridStructBuffer<T>(this IBrightDataContext context, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024)
+        {
+            return (IHybridBuffer<T>)Activator.CreateInstance(typeof(StructHybridBuffer<>).MakeGenericType(typeof(T)),
+                tempStream,
+                bufferSize,
+                maxDistinct
+            );
+        }
+
+        public static IHybridBuffer CreateHybridStructBuffer(this IBrightDataContext context, Type type, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024)
+        {
+            return (IHybridBuffer)Activator.CreateInstance(typeof(StructHybridBuffer<>).MakeGenericType(type),
+                tempStream,
+                bufferSize,
+                maxDistinct
+            );
+        }
+
+        public static IHybridBuffer<string> CreateHybridStringBuffer(this IBrightDataContext context, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024)
+        {
+            return (IHybridBuffer<string>)Activator.CreateInstance(typeof(StringHybridBuffer),
+                tempStream,
+                bufferSize,
+                maxDistinct
+            );
+        }
+
+        public static IHybridBuffer<T> CreateHybridObjectBuffer<T>(this IBrightDataContext context, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024)
+        {
+            return (IHybridBuffer<T>)Activator.CreateInstance(typeof(ObjectHybridBuffer<>).MakeGenericType(typeof(T)),
+                context,
+                tempStream,
+                bufferSize
+            );
+        }
+
+        public static IHybridBuffer CreateHybridObjectBuffer(this IBrightDataContext context, Type type, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024)
+        {
+            return (IHybridBuffer)Activator.CreateInstance(typeof(ObjectHybridBuffer<>).MakeGenericType(type),
+                context,
+                tempStream,
+                bufferSize
+            );
         }
     }
 }

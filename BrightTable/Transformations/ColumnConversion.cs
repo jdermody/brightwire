@@ -168,7 +168,7 @@ namespace BrightTable.Transformations
                     return (ICanConvert)Activator.CreateInstance(t);
                 }
                 case ColumnConversionType.ToNumeric: {
-                    var buffer = new StructHybridBuffer<double>(tempStreams, inMemoryRowCount, 1024);
+                    var buffer = context.CreateHybridStructBuffer<double>(tempStreams, inMemoryRowCount, 1024);
                     double min = double.MaxValue, max = double.MinValue;
                     var isInteger = true;
                     foreach (var val in column.Enumerate()) {

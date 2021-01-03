@@ -4,7 +4,7 @@ using System.Text;
 
 namespace BrightData.Buffers
 {
-    public class StringHybridBuffer : HybridBufferBase<string>
+    class StringHybridBuffer : HybridBufferBase<string>
     {
         public StringHybridBuffer(IProvideTempStreams tempStream, uint maxCount, ushort maxDistinct) 
             : base(tempStream, maxCount, maxDistinct)
