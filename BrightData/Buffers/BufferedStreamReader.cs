@@ -9,8 +9,19 @@ using System.Text;
 
 namespace BrightData.Buffers
 {
+    /// <summary>
+    /// Buffered stream reader helper
+    /// </summary>
     public static class BufferedStreamReader
     {
+        /// <summary>
+        /// Returns a reader that buffers items in memory
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="stream">Stream to read from</param>
+        /// <param name="context">Bright data context</param>
+        /// <param name="inMemorySize">Number of bytes to use as an in memory buffer</param>
+        /// <returns></returns>
         public static ICanEnumerate<T> GetReader<T>(Stream stream, IBrightDataContext context, uint inMemorySize)
         {
             var reader = new BinaryReader(stream, Encoding.UTF8);

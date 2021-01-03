@@ -208,49 +208,49 @@ namespace BrightTable
             }
         }
 
-        public static IDataAnalyser GetColumnAnalyser(this ColumnType type, IMetaData metaData, int distinctValueCount = 100)
+        public static IDataAnalyser GetColumnAnalyser(this ColumnType type, IBrightDataContext context, IMetaData metaData, uint writeCount = 100, uint maxCount = Consts.MaxDistinct)
         {
             var dataType = ColumnTypeClassifier.GetClass(type, metaData);
             if ((dataType & BrightTable.ColumnClass.Categorical) != 0) {
                 if (type == ColumnType.String)
-                    return new StringAnalyser(distinctValueCount);
-                return (IDataAnalyser)Activator.CreateInstance(typeof(ConvertToStringFrequencyAnalysis<>).MakeGenericType(type.GetDataType()), distinctValueCount);
+                    return context.GetStringAnalyser(maxCount, writeCount);
+                return context.GetFrequencyAnalyser(type.GetDataType(), maxCount, writeCount);
             }
             if ((dataType & BrightTable.ColumnClass.IndexBased) != 0)
-                return new IndexAnalyser(distinctValueCount);
+                return context.GetIndexAnalyser(maxCount, writeCount);
             if ((dataType & BrightTable.ColumnClass.Tensor) != 0)
-                return new DimensionAnalyser();
+                return context.GetDimensionAnalyser(maxCount);
 
             switch (type) {
                 case ColumnType.Double:
-                    return new NumericAnalyser(distinctValueCount);
+                    return context.GetNumericAnalyser(maxCount, writeCount);
                 case ColumnType.Float:
-                    return new CastToDoubleNumericAnalysis<float>(distinctValueCount);
+                    return context.GetNumericAnalyser<float>(maxCount, writeCount);
                 case ColumnType.Decimal:
-                    return new CastToDoubleNumericAnalysis<decimal>(distinctValueCount);
+                    return context.GetNumericAnalyser<decimal>(maxCount, writeCount);
                 case ColumnType.Byte:
-                    return new CastToDoubleNumericAnalysis<sbyte>(distinctValueCount);
+                    return context.GetNumericAnalyser<sbyte>(maxCount, writeCount);
                 case ColumnType.Int:
-                    return new CastToDoubleNumericAnalysis<int>(distinctValueCount);
+                    return context.GetNumericAnalyser<int>(maxCount, writeCount);
                 case ColumnType.Long:
-                    return new CastToDoubleNumericAnalysis<long>(distinctValueCount);
+                    return context.GetNumericAnalyser<long>(maxCount, writeCount);
                 case ColumnType.Short:
-                    return new CastToDoubleNumericAnalysis<short>(distinctValueCount);
+                    return context.GetNumericAnalyser<short>(maxCount, writeCount);
             }
             if (type == ColumnType.Date)
-                return new DateAnalyser();
+                return context.GetDateAnalyser();
             if (type == ColumnType.BinaryData)
-                return new FrequencyAnalyser<BinaryData>(distinctValueCount);
+                return context.GetFrequencyAnalyser<BinaryData>(maxCount, writeCount);
 
             throw new NotImplementedException();
         }
 
-        public static IMetaData Analyse(this ISingleTypeTableSegment segment, bool force = false, int distinctValueCount = 100)
+        public static IMetaData Analyse(this ISingleTypeTableSegment segment, IBrightDataContext context, bool force = false, uint distinctValueCount = 100)
         {
             var ret = segment.MetaData;
             if (force || !ret.Get<bool>(Consts.HasBeenAnalysed)) {
                 var type = segment.SingleType;
-                var analyser = type.GetColumnAnalyser(segment.MetaData, distinctValueCount);
+                var analyser = type.GetColumnAnalyser(context, segment.MetaData, distinctValueCount);
                 var binding = (IAnalyserBinding)Activator.CreateInstance(typeof(AnalyserBinding<>).MakeGenericType(type.GetDataType()),
                     segment,
                     analyser
@@ -263,7 +263,7 @@ namespace BrightTable
             return ret;
         }
 
-        public static IMetaData[] GetColumnAnalysis(this IDataTable table, bool force = false, int distinctValueCount = 100)
+        public static IMetaData[] GetColumnAnalysis(this IDataTable table, bool force = false, uint distinctValueCount = 100)
         {
             var count = table.ColumnCount;
             var columnMetaData = table.AllColumnsMetaData();
@@ -273,7 +273,7 @@ namespace BrightTable
                     ret[i] = columnMetaData[i];
                 else {
                     var column = table.Column(i);
-                    ret[i] = column.Analyse(force, distinctValueCount);
+                    ret[i] = column.Analyse(table.Context, force, distinctValueCount);
                 }
             }
             return ret;

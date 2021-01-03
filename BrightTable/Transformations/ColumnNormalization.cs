@@ -45,11 +45,11 @@ namespace BrightTable.Transformations
             public double Subtract => _normalize.Subtract;
         }
 
-        public ICanConvert GetConverter(ColumnType fromType, ISingleTypeTableSegment column, IProvideTempStreams tempStreams, uint inMemoryRowCount)
+        public ICanConvert GetConverter(ColumnType fromType, IBrightDataContext context, ISingleTypeTableSegment column, IProvideTempStreams tempStreams, uint inMemoryRowCount)
         {
             var columnType = column.SingleType.GetDataType();
             var contextType = typeof(Normalizer<>).MakeGenericType(columnType);
-            var analysedMetaData = column.Analyse();
+            var analysedMetaData = column.Analyse(context);
             return (ICanConvert) Activator.CreateInstance(contextType, NormalizationType, analysedMetaData);
         }
 

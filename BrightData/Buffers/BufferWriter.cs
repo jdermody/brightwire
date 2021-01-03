@@ -8,8 +8,17 @@ using System.Text;
 
 namespace BrightData.Buffers
 {
+    /// <summary>
+    /// Buffered stream writer helper
+    /// </summary>
     public static class BufferWriter
     {
+        /// <summary>
+        /// Writes the hybrid buffer to a stream
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="buffer">Buffer to write</param>
+        /// <param name="stream">Stream to write to</param>
         public static void CopyTo<T>(IHybridBuffer<T> buffer, Stream stream)
         {
             var writer = GetWriter(buffer);

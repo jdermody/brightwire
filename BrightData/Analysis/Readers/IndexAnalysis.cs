@@ -5,9 +5,12 @@ using System.Text;
 
 namespace BrightData.Analysis.Readers
 {
+    /// <summary>
+    /// Index analysis results
+    /// </summary>
     public class IndexAnalysis
     {
-        public IndexAnalysis(IMetaData metaData)
+        internal IndexAnalysis(IMetaData metaData)
         {
             MinIndex = metaData.Get<uint>(Consts.MinIndex);
             MaxIndex = metaData.Get<uint>(Consts.MaxIndex);
@@ -18,9 +21,24 @@ namespace BrightData.Analysis.Readers
             ;
         }
 
+        /// <summary>
+        /// Lowest observed index
+        /// </summary>
         public uint MinIndex { get; }
+
+        /// <summary>
+        /// Highest observed index
+        /// </summary>
         public uint MaxIndex { get; }
+
+        /// <summary>
+        /// Number of distinct items
+        /// </summary>
         public uint? NumDistinct { get; }
+
+        /// <summary>
+        /// Ranked histogram
+        /// </summary>
         public (string Label, double value)[] Frequency { get; }
     }
 }

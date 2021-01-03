@@ -3,15 +3,16 @@ using System.Linq;
 
 namespace BrightData.Analysis
 {
-    public class IndexAnalyser : IDataAnalyser<IHaveIndices>
+    class IndexAnalyser : IDataAnalyser<IHaveIndices>
     {
-        readonly int _writeCount;
+        readonly uint _writeCount, _maxCount;
         readonly Dictionary<uint, uint> _indexFrequency = new Dictionary<uint, uint>();
         uint _min = uint.MaxValue, _max = uint.MinValue;
 
-        public IndexAnalyser(int writeCount = 100)
+        public IndexAnalyser(uint writeCount = Consts.MaxWriteCount, uint maxCount = Consts.MaxDistinct)
         {
             _writeCount = writeCount;
+            _maxCount = maxCount;
         }
 
         public void Add(IHaveIndices obj)
@@ -27,7 +28,7 @@ namespace BrightData.Analysis
             if(index > _max)
                 _max = index;
 
-            if (_indexFrequency.Count < Consts.MaxDistinct) {
+            if (_indexFrequency.Count < _maxCount) {
                 if (_indexFrequency.TryGetValue(index, out var count))
                     _indexFrequency[index] = count + 1;
                 else
@@ -49,10 +50,10 @@ namespace BrightData.Analysis
             if(_max != uint.MinValue)
                 metadata.Set(Consts.MaxIndex, _max);
 
-            if (_indexFrequency.Count < Consts.MaxDistinct) {
+            if (_indexFrequency.Count < _maxCount) {
                 metadata.Set(Consts.NumDistinct, (uint)_indexFrequency.Count);
                 var total = (double) _indexFrequency.Count;
-                foreach (var item in _indexFrequency.OrderByDescending(kv => kv.Value).Take(_writeCount))
+                foreach (var item in _indexFrequency.OrderByDescending(kv => kv.Value).Take((int)_writeCount))
                     metadata.Set($"{Consts.FrequencyPrefix}{item.Key}", item.Value / total);
             }
         }

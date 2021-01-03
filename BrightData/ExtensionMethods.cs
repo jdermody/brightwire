@@ -551,5 +551,19 @@ namespace BrightData
             String.Join(';', items.Select(i => $"{i.Item.ToString()}: {i.Count}"));
 
         public static void UseLegacySerialisationInput(this IBrightDataContext context, bool use = true) => context.Set(Consts.LegacyFloatSerialisationInput, use);
+
+        public static IDataAnalyser<DateTime> GetDateAnalyser(this IBrightDataContext context, uint maxCount = Consts.MaxDistinct) => new DateAnalyser(maxCount);
+        public static IDataAnalyser<T> GetNumericAnalyser<T>(this IBrightDataContext context, uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount) => new CastToDoubleNumericAnalysis<T>(writeCount, maxCount);
+        public static IDataAnalyser<T> GetConvertToStringAnalyser<T>(this IBrightDataContext context, uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount) => new ConvertToStringFrequencyAnalysis<T>(writeCount, maxCount);
+        public static IDataAnalyser<ITensor<float>> GetDimensionAnalyser(this IBrightDataContext context, uint maxCount = Consts.MaxDistinct) => new DimensionAnalyser(maxCount);
+        public static IDataAnalyser<T> GetFrequencyAnalyser<T>(this IBrightDataContext context, uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount) => new FrequencyAnalyser<T>(writeCount, maxCount);
+        public static IDataAnalyser<IHaveIndices> GetIndexAnalyser(this IBrightDataContext context, uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount) => new IndexAnalyser(writeCount, maxCount);
+        public static IDataAnalyser<double> GetNumericAnalyser(this IBrightDataContext context, uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount) => new NumericAnalyser(writeCount, maxCount);
+        public static IDataAnalyser<string> GetStringAnalyser(this IBrightDataContext context, uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount) => new StringAnalyser(writeCount, maxCount);
+
+        public static IDataAnalyser GetFrequencyAnalyser(this IBrightDataContext context, Type type, uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount)
+        {
+            return (IDataAnalyser)Activator.CreateInstance(typeof(ConvertToStringFrequencyAnalysis<>).MakeGenericType(type), writeCount, maxCount);
+        }
     }
 }

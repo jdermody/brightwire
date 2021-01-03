@@ -22,13 +22,15 @@ namespace BrightWire.Bayesian.Training
                 uint index = 0;
                 var metaData = table.AllColumnsMetaData();
                 var columnTypes = table.ColumnTypes;
+                var context = table.Context;
+
                 for(int i = 0, len = columnTypes.Length; i < len; i++) {
                     if (index != ignoreColumnIndex) {
                         var columnClass = ColumnTypeClassifier.GetClass(columnTypes[i], metaData[i]);
                         if ((columnClass & ColumnClass.Categorical) != 0)
-                            _column.Add(index, new FrequencyAnalyser<string>());
+                            _column.Add(index, context.GetFrequencyAnalyser<string>());
                         else if((columnClass & ColumnClass.Numeric) != 0)
-                            _column.Add(index, new NumericAnalyser());
+                            _column.Add(index, context.GetNumericAnalyser());
                         else
                             throw new NotImplementedException();
                     }
@@ -71,29 +73,34 @@ namespace BrightWire.Bayesian.Training
                 var frequency = classSummary.Value;
                 var columnList = new List<NaiveBayes.Column>();
                 foreach (var column in frequency.Columns) {
-                    if (column.Value is FrequencyAnalyser<string> categorical) {
-                        var total = (double)categorical.Total;
+                    var metaData = new MetaData();
+                    column.Value.WriteTo(metaData);
+                    if (metaData.Has(Consts.Total)) {
+                        var analysis = metaData.GetFrequencyAnalysis();
+                        var total = (double) analysis.Total;
                         if (total > 0) {
                             var list = new List<NaiveBayes.CategorialProbability>();
-                            foreach (var item in categorical.ItemFrequency) {
+                            foreach (var item in analysis.Frequency) {
                                 var categoryProbability = item.Value / total;
                                 list.Add(new NaiveBayes.CategorialProbability {
-                                    Category = item.Key,
+                                    Category = item.Label,
                                     LogProbability = Math.Log(categoryProbability),
                                     Probability = categoryProbability
                                 });
                             }
+
                             columnList.Add(new NaiveBayes.Column {
                                 Type = NaiveBayes.ColumnType.Categorical,
                                 ColumnIndex = column.Key,
                                 Probability = list.ToArray()
                             });
                         }
-                    } else {
-                        var continuous = column.Value as NumericAnalyser;
-                        var variance = continuous?.Variance;
+                    }
+                    else {
+                        var analysis = metaData.GetNumericAnalysis();
+                        var variance = analysis?.Variance;
                         if (variance != null) {
-                            var mean = continuous.Mean;
+                            var mean = analysis.Mean;
                             columnList.Add(new NaiveBayes.Column {
                                 Type = NaiveBayes.ColumnType.ContinuousGaussian,
                                 ColumnIndex = column.Key,
@@ -103,6 +110,7 @@ namespace BrightWire.Bayesian.Training
                         }
                     }
                 }
+
 
                 var probability = (double)classSummary.Value.Total / rowCount;
                 classList.Add(new NaiveBayes.ClassSummary {

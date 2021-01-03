@@ -4,20 +4,20 @@ using System.Linq;
 
 namespace BrightData.Analysis
 {
-    public class NumericAnalyser : IDataAnalyser<double>
+    class NumericAnalyser : IDataAnalyser<double>
 	{
-		readonly int _writeCount;
+		readonly uint _writeCount, _maxCount;
 		readonly Dictionary<double, ulong> _distinct = new Dictionary<double, ulong>();
 
 		double _mean, _m2, _min, _max, _mode, _l1, _l2;
 		ulong _total, _highestCount;
 
-		public NumericAnalyser(int writeCount = 100)
+		public NumericAnalyser(uint writeCount = Consts.MaxWriteCount, uint maxCount = Consts.MaxDistinct)
 		{
             _max = double.MinValue;
             _min = double.MaxValue;
-
-			_writeCount = writeCount;
+            _maxCount = maxCount;
+            _writeCount = writeCount;
 		}
 
 		public virtual void Add(double val)
@@ -37,7 +37,7 @@ namespace BrightData.Analysis
 				_max = val;
 
 			// add to distinct values
-			if (_distinct.Count < Consts.MaxDistinct) {
+			if (_distinct.Count < _maxCount) {
                 if (_distinct.TryGetValue(val, out var count))
 					_distinct[val] = count + 1;
 				else
@@ -60,7 +60,7 @@ namespace BrightData.Analysis
 	    public double Max => _max;
 	    public double Mean => _mean;
 	    public double? Variance => _total > 1 ? _m2 / (_total - 1) : (double?)null;
-	    public uint? NumDistinct => _distinct.Count < Consts.MaxDistinct ? (uint?)_distinct.Count : null;
+	    public uint? NumDistinct => _distinct.Count < _maxCount ? (uint?)_distinct.Count : null;
 
 	    public double? StdDev {
             get
@@ -77,7 +77,7 @@ namespace BrightData.Analysis
             get
             {
                 double? ret = null;
-                if (_distinct.Count < Consts.MaxDistinct && _distinct.Any()) {
+                if (_distinct.Count < _maxCount && _distinct.Any()) {
                     ulong middle = _total / 2, count = 0;
                     foreach (var item in _distinct.OrderBy(kv => kv.Key)) {
                         top:
@@ -104,7 +104,7 @@ namespace BrightData.Analysis
         {
             get
             {
-                if (_distinct.Count < Consts.MaxDistinct && _distinct.Any())
+                if (_distinct.Count < _maxCount && _distinct.Any())
                     return _mode;
                 return null;
             }

@@ -2,14 +2,14 @@
 
 namespace BrightData.Analysis
 {
-    public class CastToDoubleNumericAnalysis<T> : IDataAnalyser<T>
+    class CastToDoubleNumericAnalysis<T> : IDataAnalyser<T>
     {
         readonly TypeCode _typeCode;
 
-        public CastToDoubleNumericAnalysis(int writeCount = 100)
+        public CastToDoubleNumericAnalysis(uint writeCount = Consts.MaxWriteCount, uint maxCount = Consts.MaxDistinct)
         {
             _typeCode = Type.GetTypeCode(typeof(T));
-            Analysis = new NumericAnalyser(writeCount);
+            Analysis = new NumericAnalyser(writeCount, maxCount);
         }
 
         public NumericAnalyser Analysis { get; }

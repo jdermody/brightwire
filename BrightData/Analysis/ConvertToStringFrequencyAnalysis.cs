@@ -4,11 +4,11 @@ using System.Text;
 
 namespace BrightData.Analysis
 {
-    public class ConvertToStringFrequencyAnalysis<T> : IDataAnalyser<T>
+    class ConvertToStringFrequencyAnalysis<T> : IDataAnalyser<T>
     {
-        public ConvertToStringFrequencyAnalysis(int writeCount = 100)
+        public ConvertToStringFrequencyAnalysis(uint writeCount = Consts.MaxWriteCount, uint maxCount = Consts.MaxDistinct)
         {
-            Analysis = new StringAnalyser(writeCount);
+            Analysis = new StringAnalyser(writeCount, maxCount);
         }
 
         public StringAnalyser Analysis { get; }

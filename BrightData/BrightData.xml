@@ -4,6 +4,255 @@
         <name>BrightData</name>
     </assembly>
     <members>
+        <member name="T:BrightData.Analysis.Readers.DateAnalysis">
+            <summary>
+            Date analysis results
+            </summary>
+        </member>
+        <member name="P:BrightData.Analysis.Readers.DateAnalysis.MinDate">
+            <summary>
+            Minimum date (null if none)
+            </summary>
+        </member>
+        <member name="P:BrightData.Analysis.Readers.DateAnalysis.MaxDate">
+            <summary>
+            Maximum date (null if none)
+            </summary>
+        </member>
+        <member name="P:BrightData.Analysis.Readers.DateAnalysis.NumDistinct">
+            <summary>
+            Number of distinct date (null if max count exceeded)
+            </summary>
+        </member>
+        <member name="T:BrightData.Analysis.Readers.DimensionAnalysis">
+            <summary>
+            Dimension analysis results
+            </summary>
+        </member>
+        <member name="P:BrightData.Analysis.Readers.DimensionAnalysis.XDimension">
+            <summary>
+            Max size of the x dimension
+            </summary>
+        </member>
+        <member name="P:BrightData.Analysis.Readers.DimensionAnalysis.YDimension">
+            <summary>
+            Max size of the y dimension
+            </summary>
+        </member>
+        <member name="P:BrightData.Analysis.Readers.DimensionAnalysis.ZDimension">
+            <summary>
+            Max size of the z dimension
+            </summary>
+        </member>
+        <member name="P:BrightData.Analysis.Readers.DimensionAnalysis.NumDistinct">
+            <summary>
+            Number of distinct size combinations
+            </summary>
+        </member>
+        <member name="P:BrightData.Analysis.Readers.DimensionAnalysis.Size">
+            <summary>
+            Total size across all dimensions
+            </summary>
+        </member>
+        <member name="T:BrightData.Analysis.Readers.FrequencyAnalysis">
+            <summary>
+            Frequency analysis results
+            </summary>
+        </member>
+        <member name="P:BrightData.Analysis.Readers.FrequencyAnalysis.Total">
+            <summary>
+            Total number of items observed
+            </summary>
+        </member>
+        <member name="P:BrightData.Analysis.Readers.FrequencyAnalysis.MostFrequent">
+            <summary>
+            Most frequent item
+            </summary>
+        </member>
+        <member name="P:BrightData.Analysis.Readers.FrequencyAnalysis.NumDistinct">
+            <summary>
+            Number of distinct items
+            </summary>
+        </member>
+        <member name="P:BrightData.Analysis.Readers.FrequencyAnalysis.Frequency">
+            <summary>
+            Ranked histogram
+            </summary>
+        </member>
+        <member name="T:BrightData.Analysis.Readers.IndexAnalysis">
+            <summary>
+            Index analysis results
+            </summary>
+        </member>
+        <member name="P:BrightData.Analysis.Readers.IndexAnalysis.MinIndex">
+            <summary>
+            Lowest observed index
+            </summary>
+        </member>
+        <member name="P:BrightData.Analysis.Readers.IndexAnalysis.MaxIndex">
+            <summary>
+            Highest observed index
+            </summary>
+        </member>
+        <member name="P:BrightData.Analysis.Readers.IndexAnalysis.NumDistinct">
+            <summary>
+            Number of distinct items
+            </summary>
+        </member>
+        <member name="P:BrightData.Analysis.Readers.IndexAnalysis.Frequency">
+            <summary>
+            Ranked histogram
+            </summary>
+        </member>
+        <member name="T:BrightData.Analysis.Readers.NumericAnalysis">
+            <summary>
+            Numeric analysis results
+            </summary>
+        </member>
+        <member name="P:BrightData.Analysis.Readers.NumericAnalysis.L1Norm">
+            <summary>
+            L1 Norm
+            </summary>
+        </member>
+        <member name="P:BrightData.Analysis.Readers.NumericAnalysis.L2Norm">
+            <summary>
+            L2 Norm
+            </summary>
+        </member>
+        <member name="P:BrightData.Analysis.Readers.NumericAnalysis.Min">
+            <summary>
+            Minimum observed value
+            </summary>
+        </member>
+        <member name="P:BrightData.Analysis.Readers.NumericAnalysis.Max">
+            <summary>
+            Maximum observed value
+            </summary>
+        </member>
+        <member name="P:BrightData.Analysis.Readers.NumericAnalysis.Mean">
+            <summary>
+            Mean of values
+            </summary>
+        </member>
+        <member name="P:BrightData.Analysis.Readers.NumericAnalysis.Variance">
+            <summary>
+            Variance of values
+            </summary>
+        </member>
+        <member name="P:BrightData.Analysis.Readers.NumericAnalysis.StdDev">
+            <summary>
+            Standard deviation
+            </summary>
+        </member>
+        <member name="P:BrightData.Analysis.Readers.NumericAnalysis.Median">
+            <summary>
+            Median value
+            </summary>
+        </member>
+        <member name="P:BrightData.Analysis.Readers.NumericAnalysis.Mode">
+            <summary>
+            Mode
+            </summary>
+        </member>
+        <member name="P:BrightData.Analysis.Readers.NumericAnalysis.NumDistinct">
+            <summary>
+            Number of distinct values
+            </summary>
+        </member>
+        <member name="P:BrightData.Analysis.Readers.NumericAnalysis.Frequency">
+            <summary>
+            Ranked histogram
+            </summary>
+        </member>
+        <member name="P:BrightData.Analysis.Readers.NumericAnalysis.FrequencyRange">
+            <summary>
+            Bucketed histogram
+            </summary>
+        </member>
+        <member name="T:BrightData.Analysis.Readers.StringAnalysis">
+            <summary>
+            String analysis results
+            </summary>
+        </member>
+        <member name="P:BrightData.Analysis.Readers.StringAnalysis.MinLength">
+            <summary>
+            Length of smallest observed string
+            </summary>
+        </member>
+        <member name="P:BrightData.Analysis.Readers.StringAnalysis.MaxLength">
+            <summary>
+            Length of largest observed string
+            </summary>
+        </member>
+        <member name="T:BrightData.Buffers.BufferedStreamReader">
+            <summary>
+            Buffered stream reader helper
+            </summary>
+        </member>
+        <member name="M:BrightData.Buffers.BufferedStreamReader.GetReader``1(System.IO.Stream,BrightData.IBrightDataContext,System.UInt32)">
+            <summary>
+            Returns a reader that buffers items in memory
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="stream">Stream to read from</param>
+            <param name="context">Bright data context</param>
+            <param name="inMemorySize">Number of bytes to use as an in memory buffer</param>
+            <returns></returns>
+        </member>
+        <member name="T:BrightData.Buffers.BufferWriter">
+            <summary>
+            Buffered stream writer helper
+            </summary>
+        </member>
+        <member name="M:BrightData.Buffers.BufferWriter.CopyTo``1(BrightData.IHybridBuffer{``0},System.IO.Stream)">
+            <summary>
+            Writes the hybrid buffer to a stream
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="buffer">Buffer to write</param>
+            <param name="stream">Stream to write to</param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.ConvertToWeightedIndexList(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.IndexList}},BrightData.IBrightDataContext,System.Boolean)">
+            <summary>
+            Converts the indexed classifications to weighted indexed classifications
+            </summary>
+            <param name="data"></param>
+            <param name="context"></param>
+            <param name="groupByClassification">True to group by classification (i.e convert the bag to a set)</param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetMaxWeight(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.WeightedIndexList}})">
+            <summary>
+            Finds the greatest weight within the weighted index classification list
+            </summary>
+            <param name="data"></param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetMaxIndex(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.WeightedIndexList}})">
+            <summary>
+            Find the greatest index within the weighted index classification list
+            </summary>
+            <param name="data"></param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetMaxIndex(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.IndexList}})">
+            <summary>
+            Find the greatest index within the index classification list
+            </summary>
+            <param name="data"></param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.TFIDF(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.WeightedIndexList}},BrightData.IBrightDataContext)">
+            <summary>
+            Modifies the weights in the classification set based on relative corpus statistics to increase the weight of important words relative to each document
+            https://en.wikipedia.org/wiki/Tf%E2%80%93idf
+            </summary>
+            <returns>A new weighted classification set</returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Normalise(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.WeightedIndexList}},BrightData.IBrightDataContext)">
+            <summary>
+            Normalises the weighted index classification list to fit between 0 and 1
+            </summary>
+            <param name="data"></param>
+            <param name="context"></param>
+            <returns></returns>
+        </member>
         <member name="M:BrightData.ExtensionMethods.CreateVector(BrightData.ILinearAlgebraProvider,System.Collections.Generic.IEnumerable{System.Single})">
             <summary>
             Creates a vector based on an enumerable of floats
@@ -1469,6 +1718,80 @@
             <summary>
             Returns the underlying array used as storage (changes to this array will affect the tensor as well)
             </summary>
+        </member>
+        <member name="T:BrightData.Iterators.Iterator`1">
+            <summary>
+            Simple iterator with context stack
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:BrightData.Iterators.Iterator`1.First">
+            <summary>
+            Get the first element in the collection
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Iterators.Iterator`1.Push">
+            <summary>
+            Push the context stack
+            </summary>
+        </member>
+        <member name="M:BrightData.Iterators.Iterator`1.Pop(System.Boolean)">
+            <summary>
+            Pop the context stack
+            </summary>
+            <param name="restore">True to reset the position</param>
+            <returns></returns>
+        </member>
+        <member name="P:BrightData.Iterators.Iterator`1.HasData">
+            <summary>
+            True if the iterator can advance
+            </summary>
+        </member>
+        <member name="M:BrightData.Iterators.Iterator`1.GetNext">
+            <summary>
+            Read and advance the iterator
+            </summary>
+            <returns>The current item</returns>
+        </member>
+        <member name="M:BrightData.Iterators.Iterator`1.CanPeek(System.Int32)">
+            <summary>
+            Checks if the specified look ahead is within the array
+            </summary>
+            <param name="length">How far away to peek</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Iterators.Iterator`1.Peek(System.Int32)">
+            <summary>
+            Read but does not advance the iterator
+            </summary>
+            <param name="offset">How far ahead to peek</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Iterators.Iterator`1.Move(System.Int32)">
+            <summary>
+            Advance the iterator
+            </summary>
+            <param name="offset">How far to advance</param>
+        </member>
+        <member name="P:BrightData.Iterators.Iterator`1.PrevPosition">
+            <summary>
+            Position minus 1
+            </summary>
+        </member>
+        <member name="M:BrightData.Iterators.Iterator`1.MoveTo(System.Int32)">
+            <summary>
+            Move to an indexed position
+            </summary>
+            <param name="position"></param>
+        </member>
+        <member name="M:BrightData.Iterators.Iterator`1.GetRange(System.Int32,System.Int32)">
+            <summary>
+            Creates a new iterator with the specified sub range of data
+            </summary>
+            <param name="start"></param>
+            <param name="end"></param>
+            <returns></returns>
         </member>
         <member name="T:BrightData.Memory.MemoryLayer">
             <summary>

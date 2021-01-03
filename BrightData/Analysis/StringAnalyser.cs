@@ -1,10 +1,10 @@
 ﻿namespace BrightData.Analysis
 {
-    public class StringAnalyser : FrequencyAnalyser<string>
+    class StringAnalyser : FrequencyAnalyser<string>
     {
         uint _minLength = uint.MaxValue, _maxLength = uint.MinValue;
 
-        public StringAnalyser(int writeCount = 100) : base(writeCount)
+        public StringAnalyser(uint writeCount = Consts.MaxWriteCount, uint maxCount = Consts.MaxDistinct) : base(writeCount, maxCount)
         {
         }
 

@@ -3,8 +3,9 @@
     public class Consts
     {
         public const int DataTableVersion = 1;
-        public const int MaxDistinct = 131072 * 4;
-        public const int DefaultMemoryCacheSize = 1024 * 1048576;
+        public const uint MaxDistinct = 131072 * 4;
+        public const uint MaxWriteCount = 100;
+        public const uint DefaultMemoryCacheSize = 1024 * 1048576;
 
         //public const string Id = "Id";
         public const string Index = "Index";
@@ -41,6 +42,7 @@
         public const string Median = "Median";
         public const string FrequencyPrefix = "Frequency:";
         public const string FrequencyRangePrefix = "FrequencyRange:";
+        public const string Total = "Total";
 
         public const string LegacyFloatSerialisationInput = "LegacyFloatSerialisationInput";
 

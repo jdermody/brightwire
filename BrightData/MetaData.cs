@@ -186,5 +186,7 @@ namespace BrightData
         {
             return String.Join(", ", _orderedValues.Select(v => v + ": " + _values[v].ToString(CultureInfo.InvariantCulture)));
         }
+
+        public bool Has(string key) => _values.ContainsKey(key);
     }
 }

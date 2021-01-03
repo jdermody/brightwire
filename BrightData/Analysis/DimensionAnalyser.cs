@@ -3,12 +3,19 @@ using System.Collections.Generic;
 
 namespace BrightData.Analysis
 {
-    public class DimensionAnalyser : IDataAnalyser<ITensor<float>>
+    class DimensionAnalyser : IDataAnalyser<ITensor<float>>
     {
+        private readonly uint _maxCount;
+        readonly HashSet<(uint X, uint Y, uint Z)> _distinct = new HashSet<(uint X, uint Y, uint Z)>();
+
+        public DimensionAnalyser(uint maxCount = Consts.MaxDistinct)
+        {
+            _maxCount = maxCount;
+        }
+
         public uint? XDimension { get; private set; } = null;
         public uint? YDimension { get; private set; } = null;
         public uint? ZDimension { get; private set; } = null;
-        readonly HashSet<(uint X, uint Y, uint Z)> _distinct = new HashSet<(uint X, uint Y, uint Z)>();
 
         public void Add(ITensor<float> obj)
         {
@@ -31,7 +38,7 @@ namespace BrightData.Analysis
             } else
                 throw new NotImplementedException();
 
-            if (_distinct.Count < Consts.MaxDistinct)
+            if (_distinct.Count < _maxCount)
                 _distinct.Add((x, y, z));
         }
 
@@ -47,7 +54,7 @@ namespace BrightData.Analysis
             metadata.SetIfNotNull(Consts.XDimension, XDimension);
             metadata.SetIfNotNull(Consts.YDimension, YDimension);
             metadata.SetIfNotNull(Consts.ZDimension, ZDimension);
-            if (_distinct.Count < Consts.MaxDistinct)
+            if (_distinct.Count < _maxCount)
                 metadata.Set(Consts.NumDistinct, (uint)_distinct.Count);
 
             var size = (XDimension ?? 1) * (YDimension ?? 1) * (ZDimension ?? 1);

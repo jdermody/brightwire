@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>BrightData.Numerics</name>
+    </assembly>
+    <members>
+        <member name="M:BrightData.Numerics.ExtensionMethods.UseNumericsLinearAlgebra(BrightData.IBrightDataContext)">
+            <summary>
+            Creates a linear algebra provider that runs on the CPU
+            </summary>
+            <param name="context"></param>
+        </member>
+        <member name="T:BrightData.Numerics.Numerics3DTensor">
+            <summary>
+            3D Tensor that uses the CPU based math.net numerics library
+            </summary>
+        </member>
+        <member name="T:BrightData.Numerics.Numerics4DTensor">
+            <summary>
+            4D Tensor that uses the CPU based math.net numerics library
+            </summary>
+        </member>
+        <member name="T:BrightData.Numerics.NumericsMatrix">
+            <summary>
+            Matrix that uses the CPU based math.net numerics library
+            </summary>
+        </member>
+        <member name="T:BrightData.Numerics.NumericsProvider">
+            <summary>
+            Creates vectors, matrices and tensors using the CPU based math.net numerics library
+            </summary>
+        </member>
+        <member name="T:BrightData.Numerics.NumericsVector">
+            <summary>
+            Vector that uses the CPU based math.net numerics library
+            </summary>
+        </member>
+    </members>
+</doc>

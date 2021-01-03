@@ -175,7 +175,7 @@ namespace BrightTable.Transformations
             Context = dataTable.Context;
 
             _input.AddRange(dataTable.Columns(columnIndices)
-                .Select(_GetColumnVectoriser)
+                .Select(c => _GetColumnVectoriser(c, Context))
             );
         }
 
@@ -204,11 +204,11 @@ namespace BrightTable.Transformations
             return column.GetOutputLabel(vectorIndex);
         }
 
-        static IColumnVectoriser _GetColumnVectoriser(ISingleTypeTableSegment column)
+        static IColumnVectoriser _GetColumnVectoriser(ISingleTypeTableSegment column, IBrightDataContext context)
         {
             var type = column.SingleType;
             var columnClass = ColumnTypeClassifier.GetClass(type, column.MetaData);
-            var metaData = column.Analyse();
+            var metaData = column.Analyse(context);
 
             if ((columnClass & ColumnClass.Categorical) != 0)
                 return new OneHotEncodeVectorised(metaData.GetNumDistinct(), column);

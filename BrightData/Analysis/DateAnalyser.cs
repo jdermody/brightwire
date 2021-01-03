@@ -3,9 +3,15 @@ using System.Collections.Generic;
 
 namespace BrightData.Analysis
 {
-    public class DateAnalyser : IDataAnalyser<DateTime>
+    class DateAnalyser : IDataAnalyser<DateTime>
     {
         readonly HashSet<long> _distinct = new HashSet<long>();
+        private readonly uint _maxCount;
+
+        public DateAnalyser(uint maxCount = Consts.MaxDistinct)
+        {
+            _maxCount = maxCount;
+        }
 
         public void Add(DateTime date)
         {
@@ -15,7 +21,7 @@ namespace BrightData.Analysis
                 MaxDate = date;
 
             var ticks = date.Ticks;
-            if (_distinct.Count < Consts.MaxDistinct)
+            if (_distinct.Count < _maxCount)
                 _distinct.Add(ticks);
         }
 
@@ -27,7 +33,7 @@ namespace BrightData.Analysis
             metadata.Set(Consts.HasBeenAnalysed, true);
             metadata.SetIfNotNull(Consts.MinDate, MinDate);
             metadata.SetIfNotNull(Consts.MaxDate, MaxDate);
-            if(_distinct.Count < Consts.MaxDistinct)
+            if(_distinct.Count < _maxCount)
                 metadata.Set(Consts.NumDistinct, (uint)_distinct.Count);
         }
 

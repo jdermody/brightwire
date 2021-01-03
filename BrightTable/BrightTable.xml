@@ -1,0 +1,138 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>BrightTable</name>
+    </assembly>
+    <members>
+        <member name="M:BrightTable.ExtensionMethods.ConvertToTable(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.IndexList}},BrightData.IBrightDataContext)">
+            <summary>
+            Converts indexed classifications to a data table
+            </summary>
+            <param name="data"></param>
+            <param name="context"></param>
+        </member>
+        <member name="M:BrightTable.ExtensionMethods.ConvertToTable(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.WeightedIndexList}},BrightData.IBrightDataContext)">
+            <summary>
+            Converts weighted index classifications to a data table
+            </summary>
+            <param name="data"></param>
+            <param name="context"></param>
+        </member>
+        <member name="M:BrightTable.ExtensionMethods.ConvertToTable(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.Vector{System.Single}}},System.Boolean,BrightData.IBrightDataContext)">
+            <summary>
+            Converts the vector classifications into a data table
+            </summary>
+            <param name="data"></param>
+            <param name="preserveVectors">True to create a data table with a vector column type, false to to convert to columns of floats</param>
+            <param name="context"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightTable.ExtensionMethods.Vectorise(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.WeightedIndexList}},BrightData.IBrightDataContext)">
+            <summary>
+            Converts the weighted index classification list to a list of dense vectors
+            </summary>
+            <param name="data"></param>
+            <param name="context"></param>
+        </member>
+        <member name="T:BrightTable.Helper.ColumnTypeClassifier">
+            <summary>
+            Classifies data table column types
+            </summary>
+        </member>
+        <member name="T:BrightTable.ColumnType">
+            <summary>
+            Segment table column type
+            </summary>
+        </member>
+        <member name="F:BrightTable.ColumnType.Unknown">
+            <summary>
+            Nothing
+            </summary>
+        </member>
+        <member name="F:BrightTable.ColumnType.Boolean">
+            <summary>
+            Boolean values
+            </summary>
+        </member>
+        <member name="F:BrightTable.ColumnType.Byte">
+            <summary>
+            Byte values (-128 to 128)
+            </summary>
+        </member>
+        <member name="F:BrightTable.ColumnType.Short">
+            <summary>
+            Short values
+            </summary>
+        </member>
+        <member name="F:BrightTable.ColumnType.Int">
+            <summary>
+            Integer values
+            </summary>
+        </member>
+        <member name="F:BrightTable.ColumnType.Long">
+            <summary>
+            Long values
+            </summary>
+        </member>
+        <member name="F:BrightTable.ColumnType.Float">
+            <summary>
+            Float values
+            </summary>
+        </member>
+        <member name="F:BrightTable.ColumnType.Double">
+            <summary>
+            Double values
+            </summary>
+        </member>
+        <member name="F:BrightTable.ColumnType.Decimal">
+            <summary>
+            Decimal values
+            </summary>
+        </member>
+        <member name="F:BrightTable.ColumnType.String">
+            <summary>
+            String values
+            </summary>
+        </member>
+        <member name="F:BrightTable.ColumnType.Date">
+            <summary>
+            Date values
+            </summary>
+        </member>
+        <member name="F:BrightTable.ColumnType.IndexList">
+            <summary>
+            List of indices
+            </summary>
+        </member>
+        <member name="F:BrightTable.ColumnType.WeightedIndexList">
+            <summary>
+            Weighted list of indices
+            </summary>
+        </member>
+        <member name="F:BrightTable.ColumnType.Vector">
+            <summary>
+            Vector of floats
+            </summary>
+        </member>
+        <member name="F:BrightTable.ColumnType.Matrix">
+            <summary>
+            Matrix of floats
+            </summary>
+        </member>
+        <member name="F:BrightTable.ColumnType.Tensor3D">
+            <summary>
+            3D tensor of floats
+            </summary>
+        </member>
+        <member name="F:BrightTable.ColumnType.Tensor4D">
+            <summary>
+            4D tensor of floats
+            </summary>
+        </member>
+        <member name="F:BrightTable.ColumnType.BinaryData">
+            <summary>
+            Binary data
+            </summary>
+        </member>
+    </members>
+</doc>

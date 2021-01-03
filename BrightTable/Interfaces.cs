@@ -258,7 +258,7 @@ namespace BrightTable
     public interface IColumnTransformationParam
     {
         public uint? ColumnIndex { get; }
-        public ICanConvert GetConverter(ColumnType fromType, ISingleTypeTableSegment column, IProvideTempStreams tempStreams, uint inMemoryRowCount = 32768);
+        public ICanConvert GetConverter(ColumnType fromType, IBrightDataContext context, ISingleTypeTableSegment column, IProvideTempStreams tempStreams, uint inMemoryRowCount = 32768);
     }
 
     public interface IConvertibleTable

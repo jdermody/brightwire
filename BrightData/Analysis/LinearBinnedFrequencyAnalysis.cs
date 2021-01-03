@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace BrightData.Analysis
 {
-    public class LinearBinnedFrequencyAnalysis
+    class LinearBinnedFrequencyAnalysis
     {
         readonly double _min, _max, _step;
         readonly ulong[] _bins;

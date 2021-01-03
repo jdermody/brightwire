@@ -145,7 +145,7 @@ namespace BrightTable.Transformations
 
         public uint? ColumnIndex { get; }
 
-        public ICanConvert GetConverter(ColumnType fromType, ISingleTypeTableSegment column, IProvideTempStreams tempStreams, uint inMemoryRowCount)
+        public ICanConvert GetConverter(ColumnType fromType, IBrightDataContext context, ISingleTypeTableSegment column, IProvideTempStreams tempStreams, uint inMemoryRowCount)
         {
             if (_converter != null)
                 return _converter;

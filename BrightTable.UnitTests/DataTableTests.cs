@@ -123,8 +123,8 @@ namespace BrightTable.UnitTests
 
             var boolAnalysis = analysis[0].GetFrequencyAnalysis();
             boolAnalysis.NumDistinct.Should().Be(2);
-            boolAnalysis.Frequency.Single(f => f.Label == "True").value.Should().Be(0.5);
-            boolAnalysis.Frequency.Single(f => f.Label == "False").value.Should().Be(0.5);
+            boolAnalysis.Frequency.Single(f => f.Label == "True").Value.Should().Be(0.5);
+            boolAnalysis.Frequency.Single(f => f.Label == "False").Value.Should().Be(0.5);
 
             var numericAnalysis = new[] { 1, 3, 4, 5, 6 }.Select(i => analysis[i].GetNumericAnalysis()).ToList();
             numericAnalysis.All(a => a.NumDistinct == 10).Should().BeTrue();

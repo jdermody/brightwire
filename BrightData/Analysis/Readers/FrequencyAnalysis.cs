@@ -5,10 +5,14 @@ using System.Text;
 
 namespace BrightData.Analysis.Readers
 {
+    /// <summary>
+    /// Frequency analysis results
+    /// </summary>
     public class FrequencyAnalysis
     {
-        public FrequencyAnalysis(IMetaData metaData)
+        internal FrequencyAnalysis(IMetaData metaData)
         {
+            Total = metaData.Get<ulong>(Consts.Total);
             MostFrequent = metaData.Get<string>(Consts.MostFrequent);
             NumDistinct = metaData.GetNullable<uint>(Consts.NumDistinct);
             Frequency = metaData.GetStringsWithPrefix(Consts.FrequencyPrefix)
@@ -17,8 +21,24 @@ namespace BrightData.Analysis.Readers
             ;
         }
 
+        /// <summary>
+        /// Total number of items observed
+        /// </summary>
+        public ulong Total { get; }
+
+        /// <summary>
+        /// Most frequent item
+        /// </summary>
         public string MostFrequent { get; }
+
+        /// <summary>
+        /// Number of distinct items
+        /// </summary>
         public uint? NumDistinct { get; }
-        public (string Label, double value)[] Frequency { get; }
+
+        /// <summary>
+        /// Ranked histogram
+        /// </summary>
+        public (string Label, double Value)[] Frequency { get; }
     }
 }
