@@ -50,7 +50,7 @@ namespace BrightTable.Transformations
         class NumericVectoriser<T> : VectoriserBase<T>
             where T : struct
         {
-            readonly ConvertToFloat<T> _converter = new ConvertToFloat<T>();
+            readonly ICanConvert<T, float> _converter = StaticConverters.ConvertToFloat<T>();
 
             public NumericVectoriser(ISingleTypeTableSegment column)
                 : base(column.Index(), ((IDataTableSegment<T>)column).EnumerateTyped().GetEnumerator())
@@ -208,7 +208,7 @@ namespace BrightTable.Transformations
         {
             var type = column.SingleType;
             var columnClass = ColumnTypeClassifier.GetClass(type, column.MetaData);
-            var metaData = column.Analyse(context);
+            var metaData = column.Analyse();
 
             if ((columnClass & ColumnClass.Categorical) != 0)
                 return new OneHotEncodeVectorised(metaData.GetNumDistinct(), column);

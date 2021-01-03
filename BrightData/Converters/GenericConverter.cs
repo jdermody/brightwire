@@ -2,7 +2,7 @@
 
 namespace BrightData.Converters
 {
-    public class GenericConverter<T> /*: IConvertToType*/
+    class GenericConverter<T> /*: IConvertToType*/
     {
 	    readonly TypeConverter _converter;
 	    readonly T _fallback;

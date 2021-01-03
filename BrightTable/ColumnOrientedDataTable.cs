@@ -182,7 +182,7 @@ namespace BrightTable
             foreach (var (info, segment) in _columns) {
                 if (columnConversionTable.TryGetValue(info.Index, out var conversion)) {
                     var column = _columns[info.Index].Segment;
-                    var converter = conversion.GetConverter(info.ColumnType, Context, column, tempStream);
+                    var converter = conversion.GetConverter(info.ColumnType, column, tempStream);
                     if (converter != null) {
                         var newColumnInfo = info.ChangeColumnType(converter.To.GetColumnType());
                         var buffer = newColumnInfo.MetaData.GetGrowableSegment(newColumnInfo.ColumnType, Context, tempStream);

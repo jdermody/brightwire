@@ -22,15 +22,14 @@ namespace BrightWire.Bayesian.Training
                 uint index = 0;
                 var metaData = table.AllColumnsMetaData();
                 var columnTypes = table.ColumnTypes;
-                var context = table.Context;
 
                 for(int i = 0, len = columnTypes.Length; i < len; i++) {
                     if (index != ignoreColumnIndex) {
                         var columnClass = ColumnTypeClassifier.GetClass(columnTypes[i], metaData[i]);
                         if ((columnClass & ColumnClass.Categorical) != 0)
-                            _column.Add(index, context.GetFrequencyAnalyser<string>());
+                            _column.Add(index, StaticAnalysers.CreateFrequencyAnalyser<string>());
                         else if((columnClass & ColumnClass.Numeric) != 0)
-                            _column.Add(index, context.GetNumericAnalyser());
+                            _column.Add(index, StaticAnalysers.CreateNumericAnalyser());
                         else
                             throw new NotImplementedException();
                     }

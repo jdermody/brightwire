@@ -145,7 +145,7 @@ namespace BrightTable.Transformations
 
         public uint? ColumnIndex { get; }
 
-        public ICanConvert GetConverter(ColumnType fromType, IBrightDataContext context, ISingleTypeTableSegment column, IProvideTempStreams tempStreams, uint inMemoryRowCount)
+        public ICanConvert GetConverter(ColumnType fromType, ISingleTypeTableSegment column, IProvideTempStreams tempStreams, uint inMemoryRowCount)
         {
             if (_converter != null)
                 return _converter;
@@ -168,7 +168,7 @@ namespace BrightTable.Transformations
                     return (ICanConvert)Activator.CreateInstance(t);
                 }
                 case ColumnConversionType.ToNumeric: {
-                    var buffer = context.CreateHybridStructBuffer<double>(tempStreams, inMemoryRowCount, 1024);
+                    var buffer = StaticBuffers.CreateHybridStructBuffer<double>(tempStreams, inMemoryRowCount, 1024);
                     double min = double.MaxValue, max = double.MinValue;
                     var isInteger = true;
                     foreach (var val in column.Enumerate()) {

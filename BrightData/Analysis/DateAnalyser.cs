@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace BrightData.Analysis
 {
-    class DateAnalyser : IDataAnalyser<DateTime>
+    class DateAnalyser : FrequencyAnalyser<DateTime>
     {
         readonly HashSet<long> _distinct = new HashSet<long>();
         private readonly uint _maxCount;
@@ -13,13 +14,14 @@ namespace BrightData.Analysis
             _maxCount = maxCount;
         }
 
-        public void Add(DateTime date)
+        public override void Add(DateTime date)
         {
             if (MinDate == null || date < MinDate)
                 MinDate = date;
             if (MaxDate == null || date > MaxDate)
                 MaxDate = date;
 
+            _Add(date.ToString(CultureInfo.InvariantCulture));
             var ticks = date.Ticks;
             if (_distinct.Count < _maxCount)
                 _distinct.Add(ticks);
@@ -28,15 +30,13 @@ namespace BrightData.Analysis
         public DateTime? MinDate { get; private set; } = null;
         public DateTime? MaxDate { get; private set; } = null;
 
-        public void WriteTo(IMetaData metadata)
+        public override void WriteTo(IMetaData metadata)
         {
-            metadata.Set(Consts.HasBeenAnalysed, true);
+            base.WriteTo(metadata);
             metadata.SetIfNotNull(Consts.MinDate, MinDate);
             metadata.SetIfNotNull(Consts.MaxDate, MaxDate);
             if(_distinct.Count < _maxCount)
                 metadata.Set(Consts.NumDistinct, (uint)_distinct.Count);
         }
-
-        void IDataAnalyser.AddObject(object obj) => Add((DateTime) obj);
     }
 }

@@ -341,7 +341,7 @@ namespace BrightData
             tensor.Segment.Initialize(initializer);
         }
 
-        public static ConvertToFloat<T> GetFloatConverter<T>(this IBrightDataContext context) where T: struct
+        public static ICanConvert<T, float> GetFloatConverter<T>(this IBrightDataContext context) where T: struct
         {
             return context.Set($"float-converter({typeof(T)})", () => new ConvertToFloat<T>());
         }
@@ -553,63 +553,15 @@ namespace BrightData
 
         public static void UseLegacySerialisationInput(this IBrightDataContext context, bool use = true) => context.Set(Consts.LegacyFloatSerialisationInput, use);
 
-        public static IDataAnalyser<DateTime> GetDateAnalyser(this IBrightDataContext context, uint maxCount = Consts.MaxDistinct) => new DateAnalyser(maxCount);
-        public static IDataAnalyser<T> GetNumericAnalyser<T>(this IBrightDataContext context, uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount) => new CastToDoubleNumericAnalysis<T>(writeCount, maxCount);
-        public static IDataAnalyser<T> GetConvertToStringAnalyser<T>(this IBrightDataContext context, uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount) => new ConvertToStringFrequencyAnalysis<T>(writeCount, maxCount);
-        public static IDataAnalyser<ITensor<float>> GetDimensionAnalyser(this IBrightDataContext context, uint maxCount = Consts.MaxDistinct) => new DimensionAnalyser(maxCount);
-        public static IDataAnalyser<T> GetFrequencyAnalyser<T>(this IBrightDataContext context, uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount) => new FrequencyAnalyser<T>(writeCount, maxCount);
-        public static IDataAnalyser<IHaveIndices> GetIndexAnalyser(this IBrightDataContext context, uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount) => new IndexAnalyser(writeCount, maxCount);
-        public static IDataAnalyser<double> GetNumericAnalyser(this IBrightDataContext context, uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount) => new NumericAnalyser(writeCount, maxCount);
-        public static IDataAnalyser<string> GetStringAnalyser(this IBrightDataContext context, uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount) => new StringAnalyser(writeCount, maxCount);
-
-        public static IDataAnalyser GetFrequencyAnalyser(this IBrightDataContext context, Type type, uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount)
-        {
-            return (IDataAnalyser)Activator.CreateInstance(typeof(ConvertToStringFrequencyAnalysis<>).MakeGenericType(type), writeCount, maxCount);
-        }
-
-        public static IHybridBuffer<T> CreateHybridStructBuffer<T>(this IBrightDataContext context, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024)
-        {
-            return (IHybridBuffer<T>)Activator.CreateInstance(typeof(StructHybridBuffer<>).MakeGenericType(typeof(T)),
-                tempStream,
-                bufferSize,
-                maxDistinct
-            );
-        }
-
-        public static IHybridBuffer CreateHybridStructBuffer(this IBrightDataContext context, Type type, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024)
-        {
-            return (IHybridBuffer)Activator.CreateInstance(typeof(StructHybridBuffer<>).MakeGenericType(type),
-                tempStream,
-                bufferSize,
-                maxDistinct
-            );
-        }
-
-        public static IHybridBuffer<string> CreateHybridStringBuffer(this IBrightDataContext context, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024)
-        {
-            return (IHybridBuffer<string>)Activator.CreateInstance(typeof(StringHybridBuffer),
-                tempStream,
-                bufferSize,
-                maxDistinct
-            );
-        }
-
-        public static IHybridBuffer<T> CreateHybridObjectBuffer<T>(this IBrightDataContext context, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024)
-        {
-            return (IHybridBuffer<T>)Activator.CreateInstance(typeof(ObjectHybridBuffer<>).MakeGenericType(typeof(T)),
-                context,
-                tempStream,
-                bufferSize
-            );
-        }
-
-        public static IHybridBuffer CreateHybridObjectBuffer(this IBrightDataContext context, Type type, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024)
-        {
-            return (IHybridBuffer)Activator.CreateInstance(typeof(ObjectHybridBuffer<>).MakeGenericType(type),
-                context,
-                tempStream,
-                bufferSize
-            );
-        }
+        public static IHybridBuffer<T> CreateHybridStructBuffer<T>(this IBrightDataContext context, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024) where T: struct =>
+            StaticBuffers.CreateHybridStructBuffer<T>(tempStream, bufferSize, maxDistinct);
+        public static IHybridBuffer CreateHybridStructBuffer(this IBrightDataContext context, Type type, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024) =>
+            StaticBuffers.CreateHybridStructBuffer(type, tempStream, bufferSize, maxDistinct);
+        public static IHybridBuffer<string> CreateHybridStringBuffer(this IBrightDataContext context, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024) =>
+            StaticBuffers.CreateHybridStringBuffer(tempStream, bufferSize, maxDistinct);
+        public static IHybridBuffer<T> CreateHybridObjectBuffer<T>(this IBrightDataContext context, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024) =>
+            StaticBuffers.CreateHybridObjectBuffer<T>(context, tempStream, bufferSize, maxDistinct);
+        public static IHybridBuffer CreateHybridObjectBuffer(this IBrightDataContext context, Type type, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024) =>
+            StaticBuffers.CreateHybridObjectBuffer(context, type, tempStream, bufferSize, maxDistinct);
     }
 }

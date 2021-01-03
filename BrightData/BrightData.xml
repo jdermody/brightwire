@@ -19,11 +19,6 @@
             Maximum date (null if none)
             </summary>
         </member>
-        <member name="P:BrightData.Analysis.Readers.DateAnalysis.NumDistinct">
-            <summary>
-            Number of distinct date (null if max count exceeded)
-            </summary>
-        </member>
         <member name="T:BrightData.Analysis.Readers.DimensionAnalysis">
             <summary>
             Dimension analysis results
@@ -184,6 +179,85 @@
             Length of largest observed string
             </summary>
         </member>
+        <member name="T:BrightData.Analysis.StaticAnalysers">
+            <summary>
+            Static methods to create analysers
+            </summary>
+        </member>
+        <member name="M:BrightData.Analysis.StaticAnalysers.CreateDateAnalyser(System.UInt32)">
+            <summary>
+            Creates a date analyser
+            </summary>
+            <param name="maxCount">Maximum number of distinct items to track</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Analysis.StaticAnalysers.CreateNumericAnalyser``1(System.UInt32,System.UInt32)">
+            <summary>
+            Creates a numeric analyser
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="maxCount">Maximum number of distinct items to track</param>
+            <param name="writeCount">Number of items to write in histogram</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Analysis.StaticAnalysers.CreateConvertToStringAnalyser``1(System.UInt32,System.UInt32)">
+            <summary>
+            Creates an analyser that will convert each item to a string
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="maxCount"></param>
+            <param name="writeCount"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Analysis.StaticAnalysers.CreateDimensionAnalyser(System.UInt32)">
+            <summary>
+            Creates a dimension analyser (to analyse the shape of tensors)
+            </summary>
+            <param name="maxCount"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Analysis.StaticAnalysers.CreateFrequencyAnalyser``1(System.UInt32,System.UInt32)">
+            <summary>
+            Creates an analyser that tracks observed frequency of items
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="maxCount"></param>
+            <param name="writeCount"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Analysis.StaticAnalysers.CreateIndexAnalyser(System.UInt32,System.UInt32)">
+            <summary>
+            Creates an analyser that tracks observed indices (for index lists and weighted index lists)
+            </summary>
+            <param name="maxCount"></param>
+            <param name="writeCount"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Analysis.StaticAnalysers.CreateNumericAnalyser(System.UInt32,System.UInt32)">
+            <summary>
+            Creates a numeric analyser
+            </summary>
+            <param name="maxCount"></param>
+            <param name="writeCount"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Analysis.StaticAnalysers.CreateStringAnalyser(System.UInt32,System.UInt32)">
+            <summary>
+            Creates a string analyser
+            </summary>
+            <param name="maxCount"></param>
+            <param name="writeCount"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Analysis.StaticAnalysers.CreateFrequencyAnalyser(System.Type,System.UInt32,System.UInt32)">
+            <summary>
+            Creates a frequency analyser (each item will be converted to a string)
+            </summary>
+            <param name="type"></param>
+            <param name="maxCount"></param>
+            <param name="writeCount"></param>
+            <returns></returns>
+        </member>
         <member name="T:BrightData.Buffers.BufferedStreamReader">
             <summary>
             Buffered stream reader helper
@@ -211,6 +285,116 @@
             <typeparam name="T"></typeparam>
             <param name="buffer">Buffer to write</param>
             <param name="stream">Stream to write to</param>
+        </member>
+        <member name="T:BrightData.Buffers.StaticBuffers">
+            <summary>
+            Static methods to create hybrid buffers
+            </summary>
+        </member>
+        <member name="M:BrightData.Buffers.StaticBuffers.CreateHybridStructBuffer``1(BrightData.IProvideTempStreams,System.UInt32,System.UInt16)">
+            <summary>
+            Creates a buffer to store structs
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="tempStream"></param>
+            <param name="bufferSize"></param>
+            <param name="maxDistinct"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Buffers.StaticBuffers.CreateHybridStructBuffer(System.Type,BrightData.IProvideTempStreams,System.UInt32,System.UInt16)">
+            <summary>
+            Creates a buffer to store structs
+            </summary>
+            <param name="type"></param>
+            <param name="tempStream"></param>
+            <param name="bufferSize"></param>
+            <param name="maxDistinct"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Buffers.StaticBuffers.CreateHybridStringBuffer(BrightData.IProvideTempStreams,System.UInt32,System.UInt16)">
+            <summary>
+            Creates a buffer to store strings
+            </summary>
+            <param name="tempStream"></param>
+            <param name="bufferSize"></param>
+            <param name="maxDistinct"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Buffers.StaticBuffers.CreateHybridObjectBuffer``1(BrightData.IBrightDataContext,BrightData.IProvideTempStreams,System.UInt32,System.UInt16)">
+            <summary>
+            Creates a buffer to store objects
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="tempStream"></param>
+            <param name="bufferSize"></param>
+            <param name="maxDistinct"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Buffers.StaticBuffers.CreateHybridObjectBuffer(BrightData.IBrightDataContext,System.Type,BrightData.IProvideTempStreams,System.UInt32,System.UInt16)">
+            <summary>
+            Creates a buffer to store objects
+            </summary>
+            <param name="context"></param>
+            <param name="type"></param>
+            <param name="tempStream"></param>
+            <param name="bufferSize"></param>
+            <param name="maxDistinct"></param>
+            <returns></returns>
+        </member>
+        <member name="T:BrightData.Converters.StaticConverters">
+            <summary>
+            Static methods to create converters
+            </summary>
+        </member>
+        <member name="M:BrightData.Converters.StaticConverters.ConvertToDecimal``1">
+            <summary>
+            Creates a converter to decimals
+            </summary>
+            <typeparam name="T">Type to convert from</typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Converters.StaticConverters.ConvertToDouble``1">
+            <summary>
+            Creates a converter to doubles
+            </summary>
+            <typeparam name="T">Type to convert from</typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Converters.StaticConverters.ConvertToFloat``1">
+            <summary>
+            Creates a converter to floats
+            </summary>
+            <typeparam name="T">Type to convert from</typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Converters.StaticConverters.ConvertToInt``1">
+            <summary>
+            Creates a converter to ints
+            </summary>
+            <typeparam name="T">Type to convert from</typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Converters.StaticConverters.ConvertToLong``1">
+            <summary>
+            Creates a converter to longs (Int64)
+            </summary>
+            <typeparam name="T">Type to convert from</typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Converters.StaticConverters.ConvertToShort``1">
+            <summary>
+            Creates a converter to shorts (Int16)
+            </summary>
+            <typeparam name="T">Type to convert from</typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Converters.StaticConverters.ConvertToSignedByte``1">
+            <summary>
+            Creates a convert to signed bytes
+            </summary>
+            <typeparam name="T">Type to convert from</typeparam>
+            <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.ConvertToWeightedIndexList(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.IndexList}},BrightData.IBrightDataContext,System.Boolean)">
             <summary>
