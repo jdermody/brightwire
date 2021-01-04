@@ -1,6 +1,6 @@
 ﻿namespace BrightData.Distributions
 {
-    public class BinomialDistribution : INonNegativeDiscreteDistribution
+    class BinomialDistribution : INonNegativeDiscreteDistribution
     {
         public BinomialDistribution(IBrightDataContext context, float probability, uint numTrials)
         {

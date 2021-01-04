@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace BrightData.Distributions
 {
-    public class CategoricalDistribution : INonNegativeDiscreteDistribution
+    class CategoricalDistribution : INonNegativeDiscreteDistribution
     {
         private readonly IBrightDataContext _context;
 

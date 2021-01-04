@@ -6,6 +6,7 @@ using BrightData.Analysis;
 using BrightData.Analysis.Readers;
 using BrightData.Buffers;
 using BrightData.Converters;
+using BrightData.Distributions;
 using BrightData.Helper;
 using BrightData.Memory;
 
@@ -563,5 +564,12 @@ namespace BrightData
             StaticBuffers.CreateHybridObjectBuffer<T>(context, tempStream, bufferSize, maxDistinct);
         public static IHybridBuffer CreateHybridObjectBuffer(this IBrightDataContext context, Type type, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024) =>
             StaticBuffers.CreateHybridObjectBuffer(context, type, tempStream, bufferSize, maxDistinct);
+
+        public static INonNegativeDiscreteDistribution CreateBernoulliDistribution(this IBrightDataContext context, float probability) => new BernoulliDistribution(context, probability);
+        public static INonNegativeDiscreteDistribution CreateBinomialDistribution(this IBrightDataContext context, float probability, uint numTrials) => new BinomialDistribution(context, probability, numTrials);
+        public static INonNegativeDiscreteDistribution CreateCategoricalDistribution(this IBrightDataContext context, IEnumerable<float> categoricalValues) => new CategoricalDistribution(context, categoricalValues);
+        public static IContinuousDistribution CreateContinuousDistribution(this IBrightDataContext context, float inclusiveLowerBound = 0f, float exclusiveUpperBound = 1f) => new ContinuousDistribution(context, inclusiveLowerBound, exclusiveUpperBound);
+        public static IDiscreteDistribution CreateDiscreteUniformDistribution(this IBrightDataContext context, int inclusiveLowerBound, int exclusiveUpperBound) => new DiscreteUniformDistribution(context, inclusiveLowerBound, exclusiveUpperBound);
+        public static IContinuousDistribution CreateNormalDistribution(this IBrightDataContext context, float mean = 0f, float stdDev = 1f) => new NormalDistribution(context, mean, stdDev);
     }
 }

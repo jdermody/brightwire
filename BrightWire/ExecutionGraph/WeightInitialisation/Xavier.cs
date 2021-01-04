@@ -34,9 +34,9 @@ namespace BrightWire.ExecutionGraph.WeightInitialisation
         public float GetWeight(uint inputSize, uint outputSize)
         {
             var key = (inputSize, outputSize);
-            if (!_distributionTable.TryGetValue(key, out IContinuousDistribution distribution)) {
+            if (!_distributionTable.TryGetValue(key, out var distribution)) {
                 var stdDev = _parameter / (inputSize + outputSize);
-                _distributionTable.Add(key, distribution = new NormalDistribution(_lap.Context, 0, stdDev));
+                _distributionTable.Add(key, distribution = _lap.Context.CreateContinuousDistribution(0, stdDev));
             }
             return Convert.ToSingle(distribution.Sample());
         }

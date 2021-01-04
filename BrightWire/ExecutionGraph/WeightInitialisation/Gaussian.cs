@@ -9,7 +9,7 @@ namespace BrightWire.ExecutionGraph.WeightInitialisation
     /// </summary>
     class Gaussian : IWeightInitialisation
     {
-        readonly NormalDistribution _distribution;
+        readonly IContinuousDistribution _distribution;
         readonly GaussianVarianceCalibration _varianceCalibration;
         readonly GaussianVarianceCount _varianceCount;
         readonly ILinearAlgebraProvider _lap;
@@ -26,7 +26,7 @@ namespace BrightWire.ExecutionGraph.WeightInitialisation
             _zeroBias = zeroInitialBias;
             _varianceCalibration = varianceCalibration;
             _varianceCount = varianceCount;
-            _distribution = new NormalDistribution(_lap.Context, 0, stdDev);
+            _distribution = _lap.Context.CreateNormalDistribution(0, stdDev);
         }
 
         float _GetBias()

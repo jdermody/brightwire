@@ -42,13 +42,13 @@ namespace BrightWire.ExecutionGraph.Node.Filter
             }
         }
         float _dropOutPercentage;
-        BernoulliDistribution _probabilityToDrop;
+        INonNegativeDiscreteDistribution _probabilityToDrop;
 
         public DropConnect(IBrightDataContext context, float dropOutPercentage, uint inputSize, uint outputSize, IFloatVector bias, IFloatMatrix weight, IGradientDescentOptimisation updater, string name = null) 
             : base(inputSize, outputSize, bias, weight, updater, name)
         {
             _dropOutPercentage = dropOutPercentage;
-            _probabilityToDrop = new BernoulliDistribution(context, _dropOutPercentage);
+            _probabilityToDrop = context.CreateBernoulliDistribution(_dropOutPercentage);
         }
 
         public override void ExecuteForward(IGraphContext context)
@@ -74,7 +74,7 @@ namespace BrightWire.ExecutionGraph.Node.Filter
         {
             base.ReadFrom(factory, reader);
             _dropOutPercentage = reader.ReadSingle();
-            _probabilityToDrop ??= new BernoulliDistribution(factory.Context, _dropOutPercentage);
+            _probabilityToDrop ??= factory.Context.CreateBernoulliDistribution(_dropOutPercentage);
         }
 
         public override void WriteTo(BinaryWriter writer)

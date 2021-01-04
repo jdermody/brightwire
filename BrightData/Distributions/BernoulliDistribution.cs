@@ -1,6 +1,6 @@
 ﻿namespace BrightData.Distributions
 {
-    public class BernoulliDistribution : INonNegativeDiscreteDistribution
+    class BernoulliDistribution : INonNegativeDiscreteDistribution
     {
         private readonly IBrightDataContext _context;
 

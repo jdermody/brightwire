@@ -77,7 +77,7 @@ namespace ExampleCode.DataTableTrainers
                 uint prevPrev = default, prev = default, curr = default;
                 for (var j = 0; j < 1024; j++) {
                     var transitions = table.GetTransitions(prevPrev, prev, curr);
-                    var distribution = new CategoricalDistribution(context, transitions.Select(d => d.Probability));
+                    var distribution = context.CreateCategoricalDistribution(transitions.Select(d => d.Probability));
                     var next = Append(transitions[distribution.Sample()].NextState, sb);
 
                     if (SimpleTokeniser.IsEndOfSentence(next.String))

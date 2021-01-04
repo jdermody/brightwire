@@ -52,7 +52,7 @@ namespace BrightWire.Unsupervised
 
 			for (uint i = 1; i < k && i < _data.Length; i++) {
 				// create a categorical distribution to calculate the probability of choosing each subsequent item
-				var distribution = new CategoricalDistribution(context, distanceTable.Select(l => l.Min()).ToArray());
+				var distribution = context.CreateCategoricalDistribution(distanceTable.Select(l => l.Min()).ToArray());
 
 				// sample the next index and add the distances to the table
 				uint nextIndex;

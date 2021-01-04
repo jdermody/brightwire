@@ -3,7 +3,7 @@ using BrightData.Helper;
 
 namespace BrightData.Distributions
 {
-    public class NormalDistribution : IContinuousDistribution
+    class NormalDistribution : IContinuousDistribution
     {
         private readonly IBrightDataContext _context;
 
