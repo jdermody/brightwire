@@ -5,7 +5,7 @@ using BrightData.Helper;
 
 namespace BrightTable.Builders
 {
-    public class TableBuilder
+    public class TableBuilder : IHaveBrightDataContext
     {
         readonly List<(ColumnType Type, IMetaData MetaData)> _columns = new List<(ColumnType Type, IMetaData MetaData)>();
         readonly List<object[]> _rows = new List<object[]>();

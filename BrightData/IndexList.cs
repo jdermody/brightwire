@@ -9,13 +9,23 @@ using Microsoft.VisualBasic;
 
 namespace BrightData
 {
-    public class IndexList : IHaveIndices, ISerializable
+    /// <summary>
+    /// Contains a list of indices
+    /// </summary>
+    public class IndexList : IHaveIndices, ISerializable, I
     {
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="context">Bright data context</param>
         public IndexList(IBrightDataContext context)
         {
             Context = context;
         }
 
+        /// <summary>
+        /// Bright data context
+        /// </summary>
         public IBrightDataContext Context { get; private set; }
 
         /// <summary>

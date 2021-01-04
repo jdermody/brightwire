@@ -107,12 +107,17 @@ namespace BrightData
         T Get<T>(string name);
         T Set<T>(string name, T value);
         T Set<T>(string name, Func<T> valueCreator);
+        bool IsStochastic { get; }
     }
 
-    public interface ITensorSegment<T> : IReferenceCountedMemory, IDisposable
-        where T : struct
+    public interface IHaveBrightDataContext
     {
         IBrightDataContext Context { get; }
+    }
+
+    public interface ITensorSegment<T> : IReferenceCountedMemory, IDisposable, IHaveBrightDataContext
+        where T : struct
+    {
         bool IsContiguous { get; }
         T this[uint index] { get; set; }
         T this[long index] { get; set; }

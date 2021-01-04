@@ -118,6 +118,7 @@ namespace BrightData.Analysis
 
         public void WriteTo(IMetaData metadata)
         {
+            metadata.Set(Consts.HasBeenAnalysed, true);
             metadata.Set(Consts.IsNumeric, true);
             metadata.Set(Consts.L1Norm, L1Norm);
 			metadata.Set(Consts.L2Norm, L2Norm);

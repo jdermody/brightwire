@@ -3,10 +3,18 @@ using BrightData.Helper;
 
 namespace BrightData.Transformation
 {
+    /// <summary>
+    /// Normalization parameters
+    /// </summary>
     public class NormalizeTransformation : INormalize
     {
         private readonly bool _divideByZero;
 
+        /// <summary>
+        /// Creates a new set of parameters based on supplied the numeric analysis
+        /// </summary>
+        /// <param name="type">Type of normalization</param>
+        /// <param name="analysedMetaData">Numeric analysis</param>
         public NormalizeTransformation(NormalizationType type, IMetaData analysedMetaData)
         {
             NormalizationType = type;
@@ -38,10 +46,26 @@ namespace BrightData.Transformation
             _divideByZero = Math.Abs(Divide) <= FloatMath.AlmostZero;
         }
 
+        /// <summary>
+        /// Type of normalization
+        /// </summary>
         public NormalizationType NormalizationType { get; }
+
+        /// <summary>
+        /// Value that will be divided (after subtraction)
+        /// </summary>
         public double Divide { get; }
+
+        /// <summary>
+        /// Value that will be subtracted
+        /// </summary>
         public double Subtract { get; }
 
+        /// <summary>
+        /// Normalizes a value with the parameters
+        /// </summary>
+        /// <param name="val">Value to normalize</param>
+        /// <returns>Normalized result</returns>
         public double Normalize(double val) => _divideByZero ? val : (val - Subtract) / Divide;
     }
 }

@@ -7,6 +7,9 @@ using BrightData.Memory;
 
 namespace BrightData
 {
+    /// <summary>
+    /// Bright data context
+    /// </summary>
     public class BrightDataContext : IBrightDataContext, ISetLinearAlgebraProvider
     {
         private ILinearAlgebraProvider _lap;
@@ -19,6 +22,11 @@ namespace BrightData
         readonly UIntComputation _uintComputation;
         readonly DataEncoder _dataReader;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="randomSeed">Initial value of random seed (or null to randomly initialize)</param>
+        /// <param name="maxCacheSize">Max size of cache to store in memory</param>
         public BrightDataContext(
             int? randomSeed = null,
             long maxCacheSize = Consts.DefaultMemoryCacheSize)
@@ -37,6 +45,7 @@ namespace BrightData
             _lap = new SimpleLinearAlgebraProvider(this, true);
         }
 
+        /// <inheritdoc />
         public void Dispose()
         {
             _memoryLayers.Pop();
@@ -45,11 +54,19 @@ namespace BrightData
             LinearAlgebraProvider?.Dispose();
         }
 
+        /// <inheritdoc />
         public Random Random { get; }
+
+        /// <inheritdoc />
         public ITensorPool TensorPool => _tensorPool;
+
+        /// <inheritdoc />
         public IDisposableLayers MemoryLayer => _memoryLayers;
+
+        /// <inheritdoc />
         public IDataReader DataReader => _dataReader;
 
+        /// <inheritdoc />
         public INumericComputation<T> GetComputation<T>() where T : struct
         {
             var typeCode = Type.GetTypeCode(typeof(T));
@@ -62,6 +79,7 @@ namespace BrightData
             };
         }
 
+        /// <inheritdoc />
         public ILinearAlgebraProvider LinearAlgebraProvider
         {
             get => _lap;
@@ -72,10 +90,20 @@ namespace BrightData
             }
         }
 
+        /// <inheritdoc />
         public IProvideTempStreams TempStreamProvider { get; } = new TempStreamManager();
+
+        /// <inheritdoc />
         public T Get<T>(string name) => _attachedProperties.TryGetValue(name, out var obj) ? (T)obj : default;
+
+
+        /// <inheritdoc />
         public T Set<T>(string name, T value) => (T)_attachedProperties.AddOrUpdate(name, value, (n, o) => value);
+
+        /// <inheritdoc />
         public T Set<T>(string name, Func<T> valueCreator) => (T)_attachedProperties.AddOrUpdate(name, n => valueCreator(), (n, o) => o);
+
+        /// <inheritdoc />
         public bool IsStochastic { get; }
     }
 }

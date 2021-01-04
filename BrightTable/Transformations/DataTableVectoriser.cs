@@ -8,7 +8,7 @@ using BrightTable.Helper;
 
 namespace BrightTable.Transformations
 {
-    public class DataTableVectoriser : IHaveDataContext, IVectorise
+    public class DataTableVectoriser : IHaveDataContext, IVectorise, IHaveBrightDataContext
     {
         interface IColumnVectoriser : IDisposable
         {

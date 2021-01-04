@@ -6,7 +6,7 @@ using BrightData;
 
 namespace BrightTable
 {
-    abstract class DataTableBase : IHaveMetaData
+    abstract class DataTableBase : IHaveMetaData, IHaveBrightDataContext
     {
         protected readonly Stream _stream;
         readonly MetaData _tableMetaData = new MetaData();

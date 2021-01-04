@@ -48,6 +48,7 @@ namespace BrightData.Analysis
 
         public virtual void WriteTo(IMetaData metadata)
         {
+            metadata.Set(Consts.HasBeenAnalysed, true);
             metadata.Set(Consts.Total, Total);
             metadata.SetIfNotNull(Consts.MostFrequent, MostFrequent);
             if (metadata.SetIfNotNull(Consts.NumDistinct, NumDistinct)) {

@@ -5,7 +5,7 @@ using BrightData.Buffers;
 
 namespace BrightTable.Segments
 {
-    class Column<T> : IDataTableSegment<T>, IColumnInfo
+    class Column<T> : IDataTableSegment<T>, IColumnInfo, IHaveBrightDataContext
     {
         readonly MetaData _metadata;
         private readonly ICanEnumerate<T> _reader;

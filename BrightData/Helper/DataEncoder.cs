@@ -13,6 +13,11 @@ namespace BrightData.Helper
         readonly IBrightDataContext _context;
         public DataEncoder(IBrightDataContext context) => _context = context;
 
+        /// <summary>
+        /// Generic method to read from a binary reader
+        /// </summary>
+        /// <typeparam name="T">Type to read</typeparam>
+        /// <param name="reader">Source</param>
         public T Read<T>(BinaryReader reader)
         {
             var typeOfT = typeof(T);
@@ -98,15 +103,11 @@ namespace BrightData.Helper
             throw new NotImplementedException();
         }
 
-        static TS[] _ReadStructs<TS>(uint len, BinaryReader reader)
-            where TS : struct
-        {
-            var ret = new TS[len];
-            var span = MemoryMarshal.Cast<TS, byte>(ret);
-            reader.BaseStream.Read(span);
-            return ret;
-        }
-
+        /// <summary>
+        /// Generic method to read an array from a binary reader
+        /// </summary>
+        /// <typeparam name="T">Type within the array</typeparam>
+        /// <param name="reader">Source</param>
         public T[] ReadArray<T>(BinaryReader reader)
         {
             var typeOfT = typeof(T);
@@ -204,6 +205,12 @@ namespace BrightData.Helper
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Generic method to write to binary writer
+        /// </summary>
+        /// <typeparam name="T">Type to write</typeparam>
+        /// <param name="writer">Destination</param>
+        /// <param name="val">Item to write</param>
         public static void Write<T>(BinaryWriter writer, T val)
         {
             var typeOfT = typeof(T);
@@ -248,6 +255,12 @@ namespace BrightData.Helper
                 throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Generic method to write an array to a binary writer
+        /// </summary>
+        /// <typeparam name="T">Type to write</typeparam>
+        /// <param name="writer">Destination</param>
+        /// <param name="values">Array to write</param>
         public static unsafe void Write<T>(BinaryWriter writer, T[] values)
         {
             var typeOfT = typeof(T);
@@ -327,6 +340,15 @@ namespace BrightData.Helper
                     data[i].WriteTo(writer);
             } else
                 throw new NotImplementedException();
+        }
+
+        static TS[] _ReadStructs<TS>(uint len, BinaryReader reader)
+            where TS : struct
+        {
+            var ret = new TS[len];
+            var span = MemoryMarshal.Cast<TS, byte>(ret);
+            reader.BaseStream.Read(span);
+            return ret;
         }
     }
 }

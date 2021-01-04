@@ -6,10 +6,12 @@ namespace BrightData
     /// <summary>
     /// Linear algebra adaptor interfaces
     /// </summary>
-    public interface ILinearAlgebraProvider : IDisposable
+    public interface ILinearAlgebraProvider : IDisposable, IHaveBrightDataContext
     {
+        /// <summary>
+        /// Name of the linear algebra provider
+        /// </summary>
         string Name { get; }
-        IBrightDataContext Context { get; }
 
         /// <summary>
         /// Creates a new vector

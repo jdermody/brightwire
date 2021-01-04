@@ -50,6 +50,7 @@ namespace BrightData.Analysis
 
         public void WriteTo(IMetaData metadata)
         {
+            metadata.Set(Consts.HasBeenAnalysed, true);
             metadata.SetIfNotNull(Consts.XDimension, XDimension);
             metadata.SetIfNotNull(Consts.YDimension, YDimension);
             metadata.SetIfNotNull(Consts.ZDimension, ZDimension);

@@ -258,6 +258,88 @@
             <param name="writeCount"></param>
             <returns></returns>
         </member>
+        <member name="T:BrightData.BinaryData">
+            <summary>
+            Blob of binary data
+            </summary>
+        </member>
+        <member name="M:BrightData.BinaryData.#ctor(System.Byte[])">
+            <summary>
+            Constructor
+            </summary>
+            <param name="data">Binary data</param>
+        </member>
+        <member name="M:BrightData.BinaryData.#ctor(System.IO.BinaryReader)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="reader">Binary reader to read binary data from</param>
+        </member>
+        <member name="M:BrightData.BinaryData.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.BinaryData.WriteTo(System.IO.BinaryWriter)">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.BinaryData.Data">
+            <summary>
+            Byte array of binary data
+            </summary>
+        </member>
+        <member name="M:BrightData.BinaryData.ToString">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.BinaryData.Equals(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.BinaryData.GetHashCode">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.BrightDataContext">
+            <summary>
+            Bright data context
+            </summary>
+        </member>
+        <member name="M:BrightData.BrightDataContext.#ctor(System.Nullable{System.Int32},System.Int64)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="randomSeed">Initial value of random seed (or null to randomly initialize)</param>
+            <param name="maxCacheSize">Max size of cache to store in memory</param>
+        </member>
+        <member name="P:BrightData.BrightDataContext.Random">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.BrightDataContext.TensorPool">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.BrightDataContext.MemoryLayer">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.BrightDataContext.DataReader">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.BrightDataContext.GetComputation``1">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.BrightDataContext.LinearAlgebraProvider">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.BrightDataContext.TempStreamProvider">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.BrightDataContext.Get``1(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.BrightDataContext.Set``1(System.String,``0)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.BrightDataContext.Set``1(System.String,System.Func{``0})">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.BrightDataContext.IsStochastic">
+            <inheritdoc />
+        </member>
         <member name="T:BrightData.Buffers.BufferedStreamReader">
             <summary>
             Buffered stream reader helper
@@ -635,10 +717,87 @@
             Encodes types from/to bytes
             </summary>
         </member>
+        <member name="M:BrightData.Helper.DataEncoder.Read``1(System.IO.BinaryReader)">
+            <summary>
+            Generic method to read from a binary reader
+            </summary>
+            <typeparam name="T">Type to read</typeparam>
+            <param name="reader">Source</param>
+        </member>
+        <member name="M:BrightData.Helper.DataEncoder.ReadArray``1(System.IO.BinaryReader)">
+            <summary>
+            Generic method to read an array from a binary reader
+            </summary>
+            <typeparam name="T">Type within the array</typeparam>
+            <param name="reader">Source</param>
+        </member>
+        <member name="M:BrightData.Helper.DataEncoder.Write``1(System.IO.BinaryWriter,``0)">
+            <summary>
+            Generic method to write to binary writer
+            </summary>
+            <typeparam name="T">Type to write</typeparam>
+            <param name="writer">Destination</param>
+            <param name="val">Item to write</param>
+        </member>
+        <member name="M:BrightData.Helper.DataEncoder.Write``1(System.IO.BinaryWriter,``0[])">
+            <summary>
+            Generic method to write an array to a binary writer
+            </summary>
+            <typeparam name="T">Type to write</typeparam>
+            <param name="writer">Destination</param>
+            <param name="values">Array to write</param>
+        </member>
         <member name="T:BrightData.Helper.FloatMath">
             <summary>
             Constrained float math helpers - if the value is too small or too big it will be capped. Also NaN values are replaced with zero.
             </summary>
+        </member>
+        <member name="T:BrightData.Helper.StringIndexer">
+            <summary>
+            Builds a string table
+            </summary>
+        </member>
+        <member name="M:BrightData.Helper.StringIndexer.Create(System.String[])">
+            <summary>
+            Creates a string indexer
+            </summary>
+            <param name="strings">Initial strings in table</param>
+        </member>
+        <member name="M:BrightData.Helper.StringIndexer.GetIndex(System.String)">
+            <summary>
+            Returns the index of a string (creates it if not already in table)
+            </summary>
+            <param name="str">String to search</param>
+            <returns>String index</returns>
+        </member>
+        <member name="P:BrightData.Helper.StringIndexer.OutputSize">
+            <summary>
+            Size of the string table
+            </summary>
+        </member>
+        <member name="T:BrightData.Helper.TempStreamManager">
+            <summary>
+            Manages a collection of temp files
+            </summary>
+        </member>
+        <member name="M:BrightData.Helper.TempStreamManager.#ctor(System.String)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="basePath">Location on disk to write new temp files</param>
+        </member>
+        <member name="M:BrightData.Helper.TempStreamManager.Get(System.String)">
+            <summary>
+            Returns an existing (or creates a new) temp stream
+            </summary>
+            <param name="uniqueId">Unique identifier</param>
+        </member>
+        <member name="M:BrightData.Helper.TempStreamManager.HasStream(System.String)">
+            <summary>
+            Checks if the the stream has been created
+            </summary>
+            <param name="uniqueId">Unique identifier</param>
+            <returns>True if the stream has been created</returns>
         </member>
         <member name="P:BrightData.IndexList.Indices">
             <summary>
@@ -2008,6 +2167,40 @@
             <summary>
             Finds the index with the highest value
             </summary>
+        </member>
+        <member name="T:BrightData.Transformation.NormalizeTransformation">
+            <summary>
+            Normalization parameters
+            </summary>
+        </member>
+        <member name="M:BrightData.Transformation.NormalizeTransformation.#ctor(BrightData.NormalizationType,BrightData.IMetaData)">
+            <summary>
+            Creates a new set of parameters based on supplied the numeric analysis
+            </summary>
+            <param name="type">Type of normalization</param>
+            <param name="analysedMetaData">Numeric analysis</param>
+        </member>
+        <member name="P:BrightData.Transformation.NormalizeTransformation.NormalizationType">
+            <summary>
+            Type of normalization
+            </summary>
+        </member>
+        <member name="P:BrightData.Transformation.NormalizeTransformation.Divide">
+            <summary>
+            Value that will be divided (after subtraction)
+            </summary>
+        </member>
+        <member name="P:BrightData.Transformation.NormalizeTransformation.Subtract">
+            <summary>
+            Value that will be subtracted
+            </summary>
+        </member>
+        <member name="M:BrightData.Transformation.NormalizeTransformation.Normalize(System.Double)">
+            <summary>
+            Normalizes a value with the parameters
+            </summary>
+            <param name="val">Value to normalize</param>
+            <returns>Normalized result</returns>
         </member>
         <member name="P:BrightData.WeightedIndexList.Indices">
             <summary>

@@ -44,6 +44,7 @@ namespace BrightData.Analysis
 
         public void WriteTo(IMetaData metadata)
         {
+            metadata.Set(Consts.HasBeenAnalysed, true);
             if (_min != uint.MaxValue)
                 metadata.Set(Consts.MinIndex, _min);
             if(_max != uint.MinValue)

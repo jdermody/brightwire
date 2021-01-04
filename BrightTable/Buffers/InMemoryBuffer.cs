@@ -7,7 +7,7 @@ using BrightTable.Segments;
 
 namespace BrightTable.Buffers
 {
-    class InMemoryBuffer<T> : IDataTableSegment<T>, ITypedRowConsumer<T>
+    class InMemoryBuffer<T> : IDataTableSegment<T>, ITypedRowConsumer<T>, IHaveBrightDataContext
     {
         readonly GrowableSegment<T> _segment;
 
