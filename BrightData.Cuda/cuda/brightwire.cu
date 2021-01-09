@@ -91,7 +91,8 @@ extern "C"
 	__global__ void TanHDerivative(const float* __restrict a, float* __restrict b, uint size)
 	{
         for (uint index = blockDim.x * blockIdx.x + threadIdx.x; index < size; index += blockDim.x * gridDim.x) {
-            b[index] = 1.0f - pow(tanh(a[index]), 2);
+            float ta = tanh(a[index]);
+            b[index] = 1.0f - ta * ta;
         }
 	}
 
@@ -248,7 +249,8 @@ extern "C"
 			if (count - blockX * BLOCKSIZE2 < BLOCKSIZE2)
 				maxIndex = count - blockX * BLOCKSIZE2;
 			for (uint i = 0; i < maxIndex; i++) {
-				total += pow(block[i] - mean, 2);
+                float val = block[i] - mean;
+				total += val * val;
 			}
 			stdDev[blockX] = total;
 		}
@@ -268,8 +270,7 @@ extern "C"
 	__global__ void Pow(const float* __restrict a, float* __restrict b, uint count, float power)
 	{
         for (uint index = blockDim.x * blockIdx.x + threadIdx.x; index < count; index += blockDim.x * gridDim.x) {
-            float val = a[index];
-			b[index] = pow(val, power);
+			b[index] = pow(a[index], power);
         }
 	}
 
@@ -370,7 +371,8 @@ extern "C"
 	__global__ void EuclideanDistance(const float* __restrict a, const float* __restrict b, float* __restrict c, uint count)
 	{
         for (uint index = blockDim.x * blockIdx.x + threadIdx.x; index < count; index += blockDim.x * gridDim.x) {
-            c[index] = pow(a[index] - b[index], 2);
+            float val = a[index] - b[index];
+            c[index] = val * val;
         }
 	}
 
@@ -380,7 +382,8 @@ extern "C"
             for (uint j = blockDim.y * blockIdx.y + threadIdx.y; j < columns; j += blockDim.y * gridDim.y) {
                 float val1 = a[i];
 			    float val2 = b[j][i];
-			    c[j * size + i] = pow(val1 - val2, 2);
+                float val3 = val1 - val2;
+			    c[j * size + i] = val3 * val3;
             }
         }
 	}*/

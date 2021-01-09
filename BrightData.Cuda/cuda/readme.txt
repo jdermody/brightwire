@@ -23,9 +23,9 @@ IMPORTANT:
 Open a Visual Studio *x64* native tools command prompt to this directory (with the brightwire.cu file) and execute the following:
 **************************************
 
-nvcc brightwire.cu -use_fast_math -ptx -m 64 -arch compute_35 -code sm_35 -o brightwire.ptx
+nvcc brightwire.cu -use_fast_math -ptx -m 64 -arch sm_75 -o brightwire.ptx
 
 
-NOTE: The -arch and -code flags can be modified as appropriate for your GPU, as described in:
+NOTE: The -arch flag can be modified as appropriate for your GPU, as described in:
 
 http://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html
