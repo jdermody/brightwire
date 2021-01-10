@@ -245,7 +245,7 @@ namespace BrightData.Cuda
 
 		public ILinearAlgebraProvider NumericsProvider => _numerics;
         public string Name { get; } = "Cuda";
-        IBrightDataContext ILinearAlgebraProvider.Context => _context;
+        IBrightDataContext IHaveBrightDataContext.Context => _context;
         public IBrightDataContext DataContext => _context;
         public bool IsGpu => true;
 		internal CudaContext Context => _cuda;

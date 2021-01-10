@@ -5,18 +5,27 @@ using BrightData.Helper;
 
 namespace BrightTable.Builders
 {
+    /// <summary>
+    /// Builds tables dynamically in memory
+    /// </summary>
     public class TableBuilder : IHaveBrightDataContext
     {
         readonly List<(ColumnType Type, IMetaData MetaData)> _columns = new List<(ColumnType Type, IMetaData MetaData)>();
         readonly List<object[]> _rows = new List<object[]>();
 
+        /// <inheritdoc />
         public IBrightDataContext Context { get; }
 
-        public TableBuilder(IBrightDataContext context)
+        internal TableBuilder(IBrightDataContext context)
         {
             Context = context;
         }
 
+        /// <summary>
+        /// Copies column definitions from an existing table
+        /// </summary>
+        /// <param name="table">Table to copy from</param>
+        /// <param name="columnIndices">Column indices to copy</param>
         public void CopyColumnsFrom(IDataTable table, params uint[] columnIndices)
         {
             if (columnIndices == null || columnIndices.Length == 0)
@@ -34,6 +43,12 @@ namespace BrightTable.Builders
                 _columns.Add(column);
         }
 
+        /// <summary>
+        /// Adds a new column
+        /// </summary>
+        /// <param name="type">Type of the column</param>
+        /// <param name="name">Name of the column</param>
+        /// <returns></returns>
         public IMetaData AddColumn(ColumnType type, string name)
         {
             var ret = new MetaData();
@@ -44,6 +59,10 @@ namespace BrightTable.Builders
 
         public void AddRow(params object[] data) => _rows.Add(data);
 
+        /// <summary>
+        /// Creates a row oriented table
+        /// </summary>
+        /// <returns></returns>
         public IRowOrientedDataTable BuildRowOriented()
         {
             using var builder = new RowOrientedTableBuilder((uint)_rows.Count);
@@ -54,6 +73,10 @@ namespace BrightTable.Builders
             return builder.Build(Context);
         }
 
+        /// <summary>
+        /// Creates a column oriented table
+        /// </summary>
+        /// <returns></returns>
         public IColumnOrientedDataTable BuildColumnOriented()
         {
             using var builder = new ColumnOrientedTableBuilder();

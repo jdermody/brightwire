@@ -45,7 +45,7 @@ namespace BrightData.Buffers
                 _distinctSet = null;
         }
 
-        protected Span<T> _GetTempBuffer() => ((Span<T>) _tempBuffer).Slice(_index);
+        protected Span<T> _GetTempBuffer() => ((Span<T>) _tempBuffer).Slice(0, _index);
 
         public IEnumerable<T> EnumerateTyped()
         {

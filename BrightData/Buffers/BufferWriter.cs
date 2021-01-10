@@ -222,7 +222,7 @@ namespace BrightData.Buffers
             }
         }
 
-        static void WriteBuffered<T>(IEnumerable<T> reader, uint count, Stream stream, uint tempBufferSize = 8096)
+        static void WriteBuffered<T>(IEnumerable<T> reader, uint count, Stream stream, uint tempBufferSize = 8192)
             where T : struct
         {
             var temp = new T[tempBufferSize];

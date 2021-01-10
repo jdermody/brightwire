@@ -19,7 +19,7 @@ namespace BrightTable.Segments
             Types = new[] { SingleType };
             Context = context;
 
-            _reader = BufferedStreamReader.GetReader<T>(stream, context, inMemorySize);
+            _reader = context.GetReader<T>(stream, inMemorySize);
         }
 
         public uint Index { get; }

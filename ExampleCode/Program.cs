@@ -24,31 +24,31 @@ namespace ExampleCode
             //Control.UseNativeMKL();
 
             // IMPORTANT: uncomment below to use CUDA (if you have installed the CUDA toolkit from https://developer.nvidia.com/cuda-toolkit and have a valid NVidia GPU)
-            useCuda = true;
+            //useCuda = true;
 
             // set where to save training data files
             context.Set("DataFileDirectory", new DirectoryInfo(@"c:\data"));
 
-            //Xor(context);
-            //IrisClassification(context);
-            //IrisClustering(context);
-            //MarkovChains(context);
-            //MNISTFeedForward(context, useCuda);
-            //MNISTConvolutional(context, useCuda);
-            //SentimentClassification(context);
-            //TextClustering(context);
-            //IntegerAddition(context);
-            //ReberPrediction(context);
-            //OneToMany(context);
-            //ManyToOne(context);
-            //SequenceToSequence(context);
-            //TrainWithSelu(context);
-            //SimpleLinearTest(context);
-            //PredictBicyclesWithLinearModel(context);
-            //PredictBicyclesWithNeuralNetwork(context);
-            //MultiLabelSingleClassifier(context);
+            Xor(context);
+            IrisClassification(context);
+            IrisClustering(context);
+            MarkovChains(context);
+            MNISTFeedForward(context, useCuda);
+            MNISTConvolutional(context, useCuda);
+            SentimentClassification(context);
+            TextClustering(context);
+            IntegerAddition(context);
+            ReberPrediction(context);
+            OneToMany(context);
+            ManyToOne(context);
+            SequenceToSequence(context);
+            TrainWithSelu(context);
+            SimpleLinearTest(context);
+            PredictBicyclesWithLinearModel(context);
+            PredictBicyclesWithNeuralNetwork(context);
+            MultiLabelSingleClassifier(context);
             MultiLabelMultiClassifiers(context);
-            //StockData(context);
+            StockData(context);
         }
 
         static void Start(IBrightDataContext context, bool useCuda = false, [CallerMemberName]string title = "")

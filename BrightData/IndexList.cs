@@ -12,7 +12,7 @@ namespace BrightData
     /// <summary>
     /// Contains a list of indices
     /// </summary>
-    public class IndexList : IHaveIndices, ISerializable, I
+    public class IndexList : IHaveIndices, ISerializable
     {
         /// <summary>
         /// Constructor

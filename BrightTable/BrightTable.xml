@@ -4,6 +4,41 @@
         <name>BrightTable</name>
     </assembly>
     <members>
+        <member name="T:BrightTable.Builders.TableBuilder">
+            <summary>
+            Builds tables dynamically in memory
+            </summary>
+        </member>
+        <member name="P:BrightTable.Builders.TableBuilder.Context">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightTable.Builders.TableBuilder.CopyColumnsFrom(BrightTable.IDataTable,System.UInt32[])">
+            <summary>
+            Copies column definitions from an existing table
+            </summary>
+            <param name="table">Table to copy from</param>
+            <param name="columnIndices">Column indices to copy</param>
+        </member>
+        <member name="M:BrightTable.Builders.TableBuilder.AddColumn(BrightTable.ColumnType,System.String)">
+            <summary>
+            Adds a new column
+            </summary>
+            <param name="type">Type of the column</param>
+            <param name="name">Name of the column</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightTable.Builders.TableBuilder.BuildRowOriented">
+            <summary>
+            Creates a row oriented table
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightTable.Builders.TableBuilder.BuildColumnOriented">
+            <summary>
+            Creates a column oriented table
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:BrightTable.ExtensionMethods.ConvertToTable(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.IndexList}},BrightData.IBrightDataContext)">
             <summary>
             Converts indexed classifications to a data table

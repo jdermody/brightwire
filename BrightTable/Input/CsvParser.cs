@@ -65,7 +65,7 @@ namespace BrightTable.Input
                 } else if(ch == _delimiter && !_inQuote)
                     curr = _GetBuilder(true);
                 else if(ch == _quote) {
-                    // TODO: look for escaped quotes
+                    // TODO: look for escaped quotes?
                     _inQuote = !_inQuote;
                 }else
                     curr.Append(ch);

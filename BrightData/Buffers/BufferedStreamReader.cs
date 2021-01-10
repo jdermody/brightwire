@@ -18,11 +18,11 @@ namespace BrightData.Buffers
         /// Returns a reader that buffers items in memory
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="stream">Stream to read from</param>
         /// <param name="context">Bright data context</param>
+        /// <param name="stream">Stream to read from</param>
         /// <param name="inMemorySize">Number of bytes to use as an in memory buffer</param>
         /// <returns></returns>
-        public static ICanEnumerate<T> GetReader<T>(Stream stream, IBrightDataContext context, uint inMemorySize)
+        public static ICanEnumerate<T> GetReader<T>(this IBrightDataContext context, Stream stream, uint inMemorySize)
         {
             var reader = new BinaryReader(stream, Encoding.UTF8);
             var type = (BufferType)reader.ReadByte();
@@ -274,7 +274,7 @@ namespace BrightData.Buffers
             }
         }
 
-        static IEnumerable<T> BufferedRead<T>(Stream stream, uint count, uint tempBufferSize = 8096)
+        static IEnumerable<T> BufferedRead<T>(Stream stream, uint count, uint tempBufferSize = 8192)
             where T : struct
         {
             if (count < tempBufferSize) {

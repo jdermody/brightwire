@@ -83,7 +83,7 @@ namespace ExampleCode.DataTableTrainers
             Console.WriteLine($"Final accuracy: {output.Average(o => o.CalculateError(errorMetric)):P2}");
 
             // execute the model with a single image
-            var tensor = (Tensor3D<float>) Test.Row(0)[1];
+            var tensor = (Tensor3D<float>) Test.Row(0)[0];
             var singleData = graph.CreateDataSource(new[] { tensor });
             var result = executionEngine.Execute(singleData);
             var prediction = result.Single().Output.Single().MaximumIndex();

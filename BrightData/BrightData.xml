@@ -307,6 +307,9 @@
             <param name="randomSeed">Initial value of random seed (or null to randomly initialize)</param>
             <param name="maxCacheSize">Max size of cache to store in memory</param>
         </member>
+        <member name="M:BrightData.BrightDataContext.Dispose">
+            <inheritdoc />
+        </member>
         <member name="P:BrightData.BrightDataContext.Random">
             <inheritdoc />
         </member>
@@ -345,13 +348,13 @@
             Buffered stream reader helper
             </summary>
         </member>
-        <member name="M:BrightData.Buffers.BufferedStreamReader.GetReader``1(System.IO.Stream,BrightData.IBrightDataContext,System.UInt32)">
+        <member name="M:BrightData.Buffers.BufferedStreamReader.GetReader``1(BrightData.IBrightDataContext,System.IO.Stream,System.UInt32)">
             <summary>
             Returns a reader that buffers items in memory
             </summary>
             <typeparam name="T"></typeparam>
-            <param name="stream">Stream to read from</param>
             <param name="context">Bright data context</param>
+            <param name="stream">Stream to read from</param>
             <param name="inMemorySize">Number of bytes to use as an in memory buffer</param>
             <returns></returns>
         </member>
@@ -383,12 +386,12 @@
             <param name="maxDistinct"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Buffers.StaticBuffers.CreateHybridStructBuffer(System.Type,BrightData.IProvideTempStreams,System.UInt32,System.UInt16)">
+        <member name="M:BrightData.Buffers.StaticBuffers.CreateHybridStructBuffer(BrightData.IProvideTempStreams,System.Type,System.UInt32,System.UInt16)">
             <summary>
             Creates a buffer to store structs
             </summary>
-            <param name="type"></param>
             <param name="tempStream"></param>
+            <param name="type"></param>
             <param name="bufferSize"></param>
             <param name="maxDistinct"></param>
             <returns></returns>
@@ -402,24 +405,24 @@
             <param name="maxDistinct"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Buffers.StaticBuffers.CreateHybridObjectBuffer``1(BrightData.IBrightDataContext,BrightData.IProvideTempStreams,System.UInt32,System.UInt16)">
+        <member name="M:BrightData.Buffers.StaticBuffers.CreateHybridObjectBuffer``1(BrightData.IProvideTempStreams,BrightData.IBrightDataContext,System.UInt32,System.UInt16)">
             <summary>
             Creates a buffer to store objects
             </summary>
             <typeparam name="T"></typeparam>
-            <param name="context"></param>
             <param name="tempStream"></param>
+            <param name="context"></param>
             <param name="bufferSize"></param>
             <param name="maxDistinct"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Buffers.StaticBuffers.CreateHybridObjectBuffer(BrightData.IBrightDataContext,System.Type,BrightData.IProvideTempStreams,System.UInt32,System.UInt16)">
+        <member name="M:BrightData.Buffers.StaticBuffers.CreateHybridObjectBuffer(BrightData.IProvideTempStreams,BrightData.IBrightDataContext,System.Type,System.UInt32,System.UInt16)">
             <summary>
             Creates a buffer to store objects
             </summary>
+            <param name="tempStream"></param>
             <param name="context"></param>
             <param name="type"></param>
-            <param name="tempStream"></param>
             <param name="bufferSize"></param>
             <param name="maxDistinct"></param>
             <returns></returns>
@@ -799,6 +802,22 @@
             <param name="uniqueId">Unique identifier</param>
             <returns>True if the stream has been created</returns>
         </member>
+        <member name="T:BrightData.IndexList">
+            <summary>
+            Contains a list of indices
+            </summary>
+        </member>
+        <member name="M:BrightData.IndexList.#ctor(BrightData.IBrightDataContext)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="context">Bright data context</param>
+        </member>
+        <member name="P:BrightData.IndexList.Context">
+            <summary>
+            Bright data context
+            </summary>
+        </member>
         <member name="P:BrightData.IndexList.Indices">
             <summary>
             The list of indices
@@ -854,6 +873,11 @@
         <member name="T:BrightData.ILinearAlgebraProvider">
             <summary>
             Linear algebra adaptor interfaces
+            </summary>
+        </member>
+        <member name="P:BrightData.ILinearAlgebraProvider.Name">
+            <summary>
+            Name of the linear algebra provider
             </summary>
         </member>
         <member name="M:BrightData.ILinearAlgebraProvider.CreateVector(System.UInt32,System.Boolean)">
