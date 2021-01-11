@@ -13,7 +13,7 @@ namespace BrightData.Buffers
         protected readonly T[] _tempBuffer;
         readonly ushort _maxDistinct = 0;
 
-        private HashSet<T> _distinctSet;
+        private HashSet<T>? _distinctSet = null;
         int _index = 0;
 
         protected HybridBufferBase(IProvideTempStreams tempStream, uint maxCount, ushort? maxDistinct)
@@ -68,7 +68,7 @@ namespace BrightData.Buffers
 
         public void CopyTo(Stream stream) => BufferWriter.CopyTo(this, stream);
 
-        public IEnumerable<object> Enumerate() => EnumerateTyped().Select(o => (object) o);
+        public IEnumerable<object?> Enumerate() => EnumerateTyped().Select(o => (object?)o);
         public uint Length { get; private set; } = 0;
         public uint? NumDistinct => (uint?) _distinctSet?.Count;
         public void Add(object obj) => Add((T) obj);

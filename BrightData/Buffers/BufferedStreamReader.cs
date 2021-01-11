@@ -24,6 +24,7 @@ namespace BrightData.Buffers
         /// <returns></returns>
         public static ICanEnumerate<T> GetReader<T>(this IBrightDataContext context, Stream stream, uint inMemorySize)
         {
+#pragma warning disable 8600
             var reader = new BinaryReader(stream, Encoding.UTF8);
             var type = (BufferType)reader.ReadByte();
 
@@ -31,16 +32,17 @@ namespace BrightData.Buffers
                 return (ICanEnumerate<T>)new StringDecoder(reader, stream, inMemorySize);
 
             if (type == BufferType.EncodedStruct)
-                return (ICanEnumerate<T>) Activator.CreateInstance(typeof(StructDecoder<>).MakeGenericType(typeof(T)), reader, stream, inMemorySize);
+                return (ICanEnumerate<T>)Activator.CreateInstance(typeof(StructDecoder<>).MakeGenericType(typeof(T)), reader, stream, inMemorySize) ?? throw new InvalidOperationException();
 
             if(type == BufferType.Object)
-                return (ICanEnumerate<T>)Activator.CreateInstance(typeof(ObjectReader<>).MakeGenericType(typeof(T)), context, reader, stream, inMemorySize);
+                return (ICanEnumerate<T>)Activator.CreateInstance(typeof(ObjectReader<>).MakeGenericType(typeof(T)), context, reader, stream, inMemorySize) ?? throw new InvalidOperationException();
 
             if (type == BufferType.String)
-                return (ICanEnumerate<T>) new StringReader(reader, stream, inMemorySize);
+                return (ICanEnumerate<T>)new StringReader(reader, stream, inMemorySize);
 
             if (type == BufferType.Struct)
-                return (ICanEnumerate<T>)Activator.CreateInstance(typeof(StructReader<>).MakeGenericType(typeof(T)), reader, stream, inMemorySize);
+                return (ICanEnumerate<T>)Activator.CreateInstance(typeof(StructReader<>).MakeGenericType(typeof(T)), reader, stream, inMemorySize) ?? throw new InvalidOperationException();
+#pragma warning restore 8600
 
             throw new NotImplementedException();
         }

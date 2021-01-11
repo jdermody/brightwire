@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Mime;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Xml;
@@ -12,26 +14,20 @@ namespace BrightData
     /// <summary>
     /// Contains a list of indices
     /// </summary>
-    public class IndexList : IHaveIndices, ISerializable
+    public class IndexList : IHaveIndices, ISerializable, IHaveBrightDataContext
     {
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="context">Bright data context</param>
-        public IndexList(IBrightDataContext context)
+        internal IndexList(IBrightDataContext context)
         {
             Context = context;
         }
 
-        /// <summary>
-        /// Bright data context
-        /// </summary>
+        /// <inheritdoc />
         public IBrightDataContext Context { get; private set; }
 
         /// <summary>
         /// The list of indices
         /// </summary>
-        public uint[] Indices { get; private set; }
+        public uint[]? Indices { get; private set; }
 
         /// <summary>
         /// Create a new index list with the specified indices
@@ -40,6 +36,12 @@ namespace BrightData
         /// <param name="indices">Sparse list of indices</param>
         public static IndexList Create(IBrightDataContext context, params uint[] indices) => new IndexList(context) { Indices = indices };
 
+        /// <summary>
+        /// Create a new index list with the specified indices
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="indices">Sparse list of indices</param>
+        /// <returns></returns>
         public static IndexList Create(IBrightDataContext context, IEnumerable<uint> indices) => new IndexList(context) { Indices = indices.ToArray() };
 
         /// <summary>
@@ -52,26 +54,43 @@ namespace BrightData
         /// </summary>
         public override string ToString()
         {
-            if (Count < 32) {
+            if (Count < 32 && Indices != null) {
                 var indices = String.Join('|', Indices);
                 return $"IndexList - {indices}";
             } 
             return $"IndexList ({Count} indices)";
         }
 
+        /// <summary>
+        /// Merges a sequence of index lists into a single index list
+        /// </summary>
+        /// <param name="lists">Lists to merge</param>
         public static IndexList Merge(IEnumerable<IndexList> lists)
         {
-            IBrightDataContext context = null;
+            IBrightDataContext? context = null;
             var items = new HashSet<uint>();
             foreach (var list in lists) {
                 context = list.Context;
+                if (list.Indices == null)
+                    continue;
                 foreach (var index in list.Indices)
                     items.Add(index);
             }
 
-            return new IndexList(context) {
+            return new IndexList(context ?? throw new ArgumentException("No valid index lists were supplied")) {
                 Indices = items.OrderBy(d => d).ToArray()
             };
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode() => (Indices != null) ? Indices.GetHashCode() : 0;
+
+        /// <inheritdoc />
+        public override bool Equals(object? obj)
+        {
+            if (obj is IndexList other)
+                return StructuralComparisons.StructuralEqualityComparer.Equals(Indices, other.Indices);
+            return false;
         }
 
         /// <summary>
@@ -79,7 +98,7 @@ namespace BrightData
         /// </summary>
         /// <param name="name">The name to give the data</param>
         /// <param name="writer">The writer to write to</param>
-        public void WriteTo(string name, XmlWriter writer)
+        public void WriteTo(string? name, XmlWriter writer)
         {
             writer.WriteStartElement(name ?? "index-list");
 
@@ -102,6 +121,7 @@ namespace BrightData
             }
         }
 
+        /// <inheritdoc />
         public void Initialize(IBrightDataContext context, BinaryReader reader)
         {
             var len = reader.ReadInt32();
@@ -136,22 +156,26 @@ namespace BrightData
             return sb.ToString();
         }
 
-        IEnumerable<uint> IHaveIndices.Indices => Indices;
+        IEnumerable<uint> IHaveIndices.Indices => Indices ?? Enumerable.Empty<uint>();
 
         public float JaccardSimilarity(IndexList other)
         {
-            var set1 = new HashSet<uint>(Indices);
-            var set2 = new HashSet<uint>(other.Indices);
-            uint intersection = 0, union = (uint)set1.Count;
+            if (Indices != null && other.Indices != null) {
+                var set1 = new HashSet<uint>(Indices);
+                var set2 = new HashSet<uint>(other.Indices);
+                uint intersection = 0, union = (uint) set1.Count;
 
-            foreach(var item in set2) {
-                if(set1.Contains(item))
-                    intersection++;
-                else
-                    union++;
+                foreach (var item in set2) {
+                    if (set1.Contains(item))
+                        intersection++;
+                    else
+                        union++;
+                }
+
+                if (union > 0)
+                    return (float) intersection / union;
             }
-            if(union > 0)
-                return (float)intersection/union;
+
             return 0f;
         }
 
@@ -160,17 +184,20 @@ namespace BrightData
             var indices = new HashSet<uint>();
             uint max = maxIndex ?? uint.MinValue;
 
-            foreach(var item in Indices) {
-                if(!maxIndex.HasValue && item > max)
-                    max = item;
-                indices.Add(item);
+            if (Indices != null) {
+                foreach (var item in Indices) {
+                    if (!maxIndex.HasValue && item > max)
+                        max = item;
+                    indices.Add(item);
+                }
             }
+
             if(indices.Any())
                 return Context.CreateVector(max+1, i => indices.Contains(i) ? 1f : 0f);
             return Context.CreateVector(maxIndex ?? 0, 0f);
         }
 
-        public bool HasIndex(uint index) => Indices.Contains(index);
+        public bool HasIndex(uint index) => Indices?.Contains(index) ?? false;
 
         // TODO: pearson similarity, overlap similarity
         // use overlap to build a graph: https://jbarrasa.com/2017/03/31/quickgraph5-learning-a-taxonomy-from-your-tagged-data/

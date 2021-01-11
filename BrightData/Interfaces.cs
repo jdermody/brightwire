@@ -19,6 +19,11 @@ namespace BrightData
 
     public interface ICanInitializeFromBinaryReader
     {
+        /// <summary>
+        /// Initialize the index list from a binary reader
+        /// </summary>
+        /// <param name="context">Bright data context</param>
+        /// <param name="reader">Reader to initialize the list</param>
         void Initialize(IBrightDataContext context, BinaryReader reader);
     }
 
@@ -285,7 +290,7 @@ namespace BrightData
     public interface IHybridBuffer
     {
         void CopyTo(Stream stream);
-        IEnumerable<object> Enumerate();
+        IEnumerable<object?> Enumerate();
         uint Length { get; }
         uint? NumDistinct { get; }
         void Add(object obj);

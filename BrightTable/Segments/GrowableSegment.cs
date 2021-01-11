@@ -25,7 +25,7 @@ namespace BrightTable.Segments
         public ColumnType SingleType { get; }
         public void WriteTo(BinaryWriter writer) => _buffer.CopyTo(writer.BaseStream);
         public void CopyTo(Stream stream) => _buffer.CopyTo(stream);
-        public IEnumerable<object> Enumerate() => _buffer.Enumerate();
+        public IEnumerable<object?> Enumerate() => _buffer.Enumerate();
         public uint Length => _buffer.Length;
         public uint? NumDistinct => _buffer.NumDistinct;
         public uint Size => _buffer.Length;
