@@ -120,6 +120,11 @@ namespace BrightData
         /// <param name="distanceMetric"></param>
         /// <returns></returns>
         IFloatMatrix CalculateDistances(IFloatVector[] vectors, IReadOnlyList<IFloatVector> comparison, DistanceMetric distanceMetric);
+
+        /// <summary>
+        /// Creates a vector from a tensor segment
+        /// </summary>
+        /// <param name="data">Tensor segment</param>
         IFloatVector CreateVector(ITensorSegment<float> data);
     }
 

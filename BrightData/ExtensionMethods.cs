@@ -560,10 +560,10 @@ namespace BrightData
             StaticBuffers.CreateHybridStructBuffer(tempStream, type, bufferSize, maxDistinct);
         public static IHybridBuffer<string> CreateHybridStringBuffer(this IBrightDataContext context, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024) =>
             StaticBuffers.CreateHybridStringBuffer(tempStream, bufferSize, maxDistinct);
-        public static IHybridBuffer<T> CreateHybridObjectBuffer<T>(this IBrightDataContext context, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024) =>
-            StaticBuffers.CreateHybridObjectBuffer<T>(tempStream, context, bufferSize, maxDistinct);
-        public static IHybridBuffer CreateHybridObjectBuffer(this IBrightDataContext context, Type type, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024) =>
-            StaticBuffers.CreateHybridObjectBuffer(tempStream, context, type, bufferSize, maxDistinct);
+        public static IHybridBuffer<T> CreateHybridObjectBuffer<T>(this IBrightDataContext context, IProvideTempStreams tempStream, uint bufferSize = 32768) =>
+            StaticBuffers.CreateHybridObjectBuffer<T>(tempStream, context, bufferSize);
+        public static IHybridBuffer CreateHybridObjectBuffer(this IBrightDataContext context, Type type, IProvideTempStreams tempStream, uint bufferSize = 32768) =>
+            StaticBuffers.CreateHybridObjectBuffer(tempStream, context, type, bufferSize);
 
         public static INonNegativeDiscreteDistribution CreateBernoulliDistribution(this IBrightDataContext context, float probability) => new BernoulliDistribution(context, probability);
         public static INonNegativeDiscreteDistribution CreateBinomialDistribution(this IBrightDataContext context, float probability, uint numTrials) => new BinomialDistribution(context, probability, numTrials);

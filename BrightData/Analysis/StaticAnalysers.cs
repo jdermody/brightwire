@@ -21,7 +21,7 @@ namespace BrightData.Analysis
         /// <param name="maxCount">Maximum number of distinct items to track</param>
         /// <param name="writeCount">Number of items to write in histogram</param>
         /// <returns></returns>
-        public static IDataAnalyser<T> CreateNumericAnalyser<T>(uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount) => new CastToDoubleNumericAnalysis<T>(writeCount, maxCount);
+        public static IDataAnalyser<T> CreateNumericAnalyser<T>(uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount) where T:struct => new CastToDoubleNumericAnalysis<T>(writeCount, maxCount);
 
         /// <summary>
         /// Creates an analyser that will convert each item to a string

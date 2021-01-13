@@ -7,7 +7,7 @@ namespace BrightData.Analysis
     class NumericAnalyser : IDataAnalyser<double>
 	{
 		readonly uint _writeCount, _maxCount;
-		readonly Dictionary<double, ulong> _distinct = new Dictionary<double, ulong>();
+		readonly SortedDictionary<double, ulong> _distinct = new SortedDictionary<double, ulong>();
 
 		double _mean, _m2, _min, _max, _mode, _l1, _l2;
 		ulong _total, _highestCount;
@@ -39,7 +39,7 @@ namespace BrightData.Analysis
 			// add to distinct values
 			if (_distinct.Count < _maxCount) {
                 if (_distinct.TryGetValue(val, out var count))
-					_distinct[val] = count + 1;
+					_distinct[val] = ++count;
 				else
 					_distinct.Add(val, count = 1);
 
@@ -78,25 +78,22 @@ namespace BrightData.Analysis
             {
                 double? ret = null;
                 if (_distinct.Count < _maxCount && _distinct.Any()) {
-                    ulong middle = _total / 2, count = 0;
-                    foreach (var item in _distinct.OrderBy(kv => kv.Key)) {
-                        top:
-                        if (count + item.Value >= middle) {
-                            if (ret.HasValue) {
-                                ret = (ret.Value + item.Key) / 2;
-                                break;
-                            }
-
-                            ret = item.Key;
-                            if (_total % 2 == 0)
-	                            break;
-                            middle++;
-                            goto top;
-                        }
-                        count += item.Value;
-                    }
+                    if (_total % 2 == 1)
+                        return SortedValues.Skip((int) (_total / 2)).First();
+                    return SortedValues.Skip((int) (_total / 2 - 1)).Take(2).Average();
                 }
                 return ret;
+            }
+        }
+
+        IEnumerable<double> SortedValues
+        {
+            get
+            {
+                foreach (var item in _distinct) {
+                    for (ulong i = 0; i < item.Value; i++)
+                        yield return item.Key;
+                }
             }
         }
 
@@ -125,6 +122,7 @@ namespace BrightData.Analysis
 			metadata.Set(Consts.Min, Min);
 			metadata.Set(Consts.Max, Max);
 			metadata.Set(Consts.Mean, Mean);
+            metadata.Set(Consts.Total, _total);
 			metadata.SetIfNotNull(Consts.Variance, Variance);
 			metadata.SetIfNotNull(Consts.StdDev, StdDev);
 			metadata.SetIfNotNull(Consts.Median, Median);

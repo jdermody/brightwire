@@ -454,7 +454,7 @@ namespace BrightTable
             else if (type == ColumnType.String)
                 buffer = context.CreateHybridStringBuffer(tempStream, bufferSize, maxDistinct);
             else
-                buffer = context.CreateHybridObjectBuffer(GetDataType(type), tempStream, bufferSize, maxDistinct);
+                buffer = context.CreateHybridObjectBuffer(GetDataType(type), tempStream, bufferSize);
 
             var segmentType = typeof(GrowableSegment<>).MakeGenericType(columnType);
             var ret = Activator.CreateInstance(segmentType,

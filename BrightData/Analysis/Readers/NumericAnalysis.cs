@@ -18,6 +18,7 @@ namespace BrightData.Analysis.Readers
             StdDev = metaData.GetNullable<double>(Consts.StdDev);
             Median = metaData.GetNullable<double>(Consts.Median);
             Mode = metaData.GetNullable<double>(Consts.Mode);
+            Total = metaData.Get<ulong>(Consts.Total);
             NumDistinct = metaData.GetNullable<uint>(Consts.NumDistinct);
             Frequency = _Get(Consts.FrequencyPrefix, metaData);
             FrequencyRange = _Get(Consts.FrequencyRangePrefix, metaData);
@@ -56,12 +57,12 @@ namespace BrightData.Analysis.Readers
         public double Mean { get; }
 
         /// <summary>
-        /// Variance of values
+        /// Sample variance of values
         /// </summary>
         public double? Variance { get; }
 
         /// <summary>
-        /// Standard deviation
+        /// Sample standard deviation
         /// </summary>
         public double? StdDev { get; }
 
@@ -71,7 +72,7 @@ namespace BrightData.Analysis.Readers
         public double? Median { get; }
 
         /// <summary>
-        /// Mode
+        /// Mode (most frequent value)
         /// </summary>
         public double? Mode { get; }
 
@@ -79,6 +80,11 @@ namespace BrightData.Analysis.Readers
         /// Number of distinct values
         /// </summary>
         public uint? NumDistinct { get; }
+
+        /// <summary>
+        /// Total count of items
+        /// </summary>
+        public ulong Total { get; }
 
         /// <summary>
         /// Ranked histogram

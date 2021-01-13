@@ -6,11 +6,14 @@ using BrightData.Analysis.Readers;
 
 namespace BrightData
 {
+    /// <summary>
+    /// Extension methods to attach analyser creation to the bright data context
+    /// </summary>
     public static partial class ExtensionMethods
     {
         public static IDataAnalyser<DateTime> GetDateAnalyser(this IBrightDataContext context, uint maxCount = Consts.MaxDistinct) =>
             StaticAnalysers.CreateDateAnalyser(maxCount);
-        public static IDataAnalyser<T> GetNumericAnalyser<T>(this IBrightDataContext context, uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount) =>
+        public static IDataAnalyser<T> GetNumericAnalyser<T>(this IBrightDataContext context, uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount) where T: struct =>
             StaticAnalysers.CreateNumericAnalyser<T>(maxCount, writeCount);
         public static IDataAnalyser<T> GetConvertToStringAnalyser<T>(this IBrightDataContext context, uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount) =>
             StaticAnalysers.CreateConvertToStringAnalyser<T>(maxCount, writeCount);
@@ -26,35 +29,5 @@ namespace BrightData
             StaticAnalysers.CreateStringAnalyser(writeCount, maxCount);
         public static IDataAnalyser GetFrequencyAnalyser(this IBrightDataContext context, Type type, uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount) =>
             StaticAnalysers.CreateFrequencyAnalyser(type, maxCount, writeCount);
-
-        public static NumericAnalysis Analyse(this IEnumerable<double> numbers)
-        {
-            var analyser = StaticAnalysers.CreateNumericAnalyser();
-            foreach(var item in numbers)
-                analyser.Add(item);
-            var metaData = new MetaData();
-            analyser.WriteTo(metaData);
-            return new NumericAnalysis(metaData);
-        }
-
-        public static NumericAnalysis Analyse(this IEnumerable<float> numbers)
-        {
-            var analyser = StaticAnalysers.CreateNumericAnalyser<float>();
-            foreach (var item in numbers)
-                analyser.Add(item);
-            var metaData = new MetaData();
-            analyser.WriteTo(metaData);
-            return new NumericAnalysis(metaData);
-        }
-
-        public static StringAnalysis Analyse(this IEnumerable<string> strings)
-        {
-            var analyser = StaticAnalysers.CreateStringAnalyser();
-            foreach (var item in strings)
-                analyser.Add(item);
-            var metaData = new MetaData();
-            analyser.WriteTo(metaData);
-            return new StringAnalysis(metaData);
-        }
     }
 }
