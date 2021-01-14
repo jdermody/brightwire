@@ -186,7 +186,7 @@ namespace ExampleCode.DataTableTrainers
         static (string Classification, IndexList Data)[] _BuildIndexedClassifications(IBrightDataContext context, (string[], string)[] data, StringTableBuilder stringTable)
         {
             return data
-                .Select(d => (d.Item2, IndexList.Create(context, d.Item1.Select(str => stringTable.GetIndex(str)).ToArray())))
+                .Select(d => (d.Item2, context.CreateIndexList(d.Item1.Select(str => stringTable.GetIndex(str)).ToArray())))
                 .ToArray()
             ;
         }
@@ -234,7 +234,7 @@ namespace ExampleCode.DataTableTrainers
                     var vector = new float[_maxIndex+1];
                     foreach (var token in queryTokens)
                         vector[token.Item1] = token.Item2;
-                    var indexList2 = IndexList.Create(_context, indices);
+                    var indexList2 = _context.CreateIndexList(indices);
                     var encodedInput = indexList2.ToDense(_maxIndex).ToArray();
 
                     Console.WriteLine("Bernoulli classification: " + bernoulli.Classify(indexList2).First().Label);

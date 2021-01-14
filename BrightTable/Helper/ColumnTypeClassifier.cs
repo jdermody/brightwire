@@ -9,7 +9,7 @@ namespace BrightTable.Helper
     /// </summary>
     public static class ColumnTypeClassifier
     {
-        static readonly HashSet<ColumnType> _numericType = new HashSet<ColumnType> {
+        static readonly HashSet<ColumnType> NumericType = new HashSet<ColumnType> {
             ColumnType.Double,
             ColumnType.Decimal,
             ColumnType.Float,
@@ -18,27 +18,27 @@ namespace BrightTable.Helper
             ColumnType.Long,
             ColumnType.Byte
         };
-        static readonly HashSet<ColumnType> _continuousType = new HashSet<ColumnType>(_numericType) {
+        static readonly HashSet<ColumnType> ContinuousType = new HashSet<ColumnType>(NumericType) {
             ColumnType.Date
         };
-        static readonly HashSet<ColumnType> _structableType = new HashSet<ColumnType>(_continuousType) {
+        static readonly HashSet<ColumnType> StructableType = new HashSet<ColumnType>(ContinuousType) {
             ColumnType.Boolean
         };
-        static readonly HashSet<ColumnType> _categoricalType = new HashSet<ColumnType> {
+        static readonly HashSet<ColumnType> CategoricalType = new HashSet<ColumnType> {
             ColumnType.Boolean,
             ColumnType.String,
         };
-        static readonly HashSet<ColumnType> _decimalType = new HashSet<ColumnType> {
+        static readonly HashSet<ColumnType> DecimalType = new HashSet<ColumnType> {
             ColumnType.Double,
             ColumnType.Decimal,
             ColumnType.Float
         };
 
-        public static bool IsDecimal(ColumnType columnType) => _decimalType.Contains(columnType);
-        public static bool IsNumeric(ColumnType columnType) => _numericType.Contains(columnType);
-        public static bool IsContinuous(ColumnType columnType) => _continuousType.Contains(columnType);
-        public static bool IsCategorical(ColumnType columnType) => _categoricalType.Contains(columnType);
-        public static bool IsStructable(ColumnType columnType) => _structableType.Contains(columnType);
+        public static bool IsDecimal(ColumnType columnType) => DecimalType.Contains(columnType);
+        public static bool IsNumeric(ColumnType columnType) => NumericType.Contains(columnType);
+        public static bool IsContinuous(ColumnType columnType) => ContinuousType.Contains(columnType);
+        public static bool IsCategorical(ColumnType columnType) => CategoricalType.Contains(columnType);
+        public static bool IsStructable(ColumnType columnType) => StructableType.Contains(columnType);
 
         public static ColumnClass GetClass(ColumnType type, IMetaData metaData)
         {

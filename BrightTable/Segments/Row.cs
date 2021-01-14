@@ -28,7 +28,7 @@ namespace BrightTable.Segments
         {
             if (type == ColumnType.String)
                 return $"\"{obj}\"";
-            return obj.ToString();
+            return obj.ToString() ?? "???";
         }
     }
 }

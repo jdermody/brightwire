@@ -66,31 +66,18 @@ namespace BrightData
         /// </summary>
         public Item[]? Indices { get; private set; }
 
-        /// <summary>
-        /// Creates a new weighted index list with the specified weighted indices
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="indexList">Sparse list of weighted indices</param>
-        public static WeightedIndexList Create(IBrightDataContext context, params Item[] indexList) => new WeightedIndexList(context) { Indices = indexList };
-
-        /// <summary>
-        /// Creates a new weighted index list with the specified weighted indices
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="indexList">Sparse list of weighted indices</param>
-        /// <returns></returns>
-        public static WeightedIndexList Create(IBrightDataContext context, params (uint Index, float Weight)[] indexList) => 
-            new WeightedIndexList(context) { 
-                Indices = indexList.Select(d => new Item(d.Index, d.Weight)).ToArray() 
+        internal static WeightedIndexList Create(IBrightDataContext context, params Item[] indexList) => new WeightedIndexList(context) { Indices = indexList };
+        internal static WeightedIndexList Create(IBrightDataContext context, IEnumerable<Item> indexList) => new WeightedIndexList(context) { Indices = indexList.ToArray() };
+        internal static WeightedIndexList Create(IBrightDataContext context, params (uint Index, float Weight)[] indexList) =>
+            new WeightedIndexList(context)
+            {
+                Indices = indexList.Select(d => new Item(d.Index, d.Weight)).ToArray()
             };
-
-        /// <summary>
-        /// Creates a new weighted index list with the specified weighted indices
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="indexList"></param>
-        /// <returns></returns>
-        public static WeightedIndexList Create(IBrightDataContext context, IEnumerable<Item> indexList) => new WeightedIndexList(context) { Indices = indexList.ToArray() };
+        internal static WeightedIndexList Create(IBrightDataContext context, IEnumerable<(uint Index, float Weight)> indexList) =>
+            new WeightedIndexList(context)
+            {
+                Indices = indexList.Select(d => new Item(d.Index, d.Weight)).ToArray()
+            };
 
         /// <summary>
         /// The number of items in the list
@@ -179,21 +166,6 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Creates a weighted index list from a binary reader
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="reader">The binary reader</param>
-        public static WeightedIndexList ReadFrom(IBrightDataContext context, BinaryReader reader)
-        {
-            var len = reader.ReadInt32();
-            var ret = new Item[len];
-            var span = MemoryMarshal.Cast<Item, byte>(ret);
-            reader.BaseStream.Read(span);
-
-            return Create(context, ret);
-        }
-
-        /// <summary>
         /// Converts the weighted index list to XML
         /// </summary>
         public string ToXml()
@@ -235,22 +207,33 @@ namespace BrightData
             return ret;
         }
 
+        /// <summary>
+        /// Magnitude of weights
+        /// </summary>
         public float Magnitude => Indices?.Any() == true 
             ? Convert.ToSingle(Math.Sqrt(Indices.Sum(d => d.Weight * d.Weight)))
             : 0f
         ;
+
+        /// <summary>
+        /// Cosine similarity between this and another weighted index list
+        /// </summary>
+        /// <param name="other">Other list to compare</param>
+        /// <returns></returns>
         public float CosineSimilarity(WeightedIndexList other) => Dot(other) / (Magnitude * other.Magnitude);
+
+        /// <summary>
+        /// Returns the index with the highest weight
+        /// </summary>
         public float GetMaxWeight() => Indices?.Any() == true
             ? Indices.Max(item => item.Weight)
             : float.NaN
         ;
 
-        public WeightedIndexList Normalise()
-        {
-            var maxWeight = GetMaxWeight();
-            return Create(Context, Indices.Select(item => new Item(item.Index, item.Weight / maxWeight)));
-        }
-
+        /// <summary>
+        /// Computes the jaccard similarity between this and another weighted index list
+        /// </summary>
+        /// <param name="other">Other list to compare</param>
         public float JaccardSimilarity(WeightedIndexList other)
         {
             if (Indices != null && other.Indices != null) {

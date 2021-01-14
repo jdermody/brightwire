@@ -12,7 +12,7 @@ namespace BrightTable.Builders
         readonly BinaryWriter _writer;
         bool _hasClosedStream = false;
 
-        public ColumnOrientedTableBuilder(string filePath = null)
+        public ColumnOrientedTableBuilder(string? filePath = null)
         {
             _stream = filePath != null 
                 ? (Stream)new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite) 

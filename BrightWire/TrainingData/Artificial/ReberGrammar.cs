@@ -65,7 +65,7 @@ namespace BrightWire.TrainingData.Artificial
             var following = new Dictionary<string, HashSet<int>>();
             foreach (var str in strList2) {
                 var sb = new StringBuilder();
-                string prev = null;
+                string? prev = null;
                 foreach (var ch in str) {
                     sb.Append(ch);
                     var key = sb.ToString();

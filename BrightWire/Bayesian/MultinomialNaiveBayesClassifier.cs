@@ -56,11 +56,15 @@ namespace BrightWire.Bayesian
         /// </summary>
         public (string Label, float Weight)[] Classify(IndexList indexList)
         {
-            return _Classify(indexList.Indices)
-                .OrderByDescending(kv => kv.Item2)
-                .Take(1)
-                .Select((d, i) => (d.Item1, 1f))
-                .ToArray();
+            if (indexList.Indices != null) {
+                return _Classify(indexList.Indices)
+                    .OrderByDescending(kv => kv.Item2)
+                    .Take(1)
+                    .Select((d, i) => (d.Item1, 1f))
+                    .ToArray();
+            }
+
+            return new (string Label, float Weight)[0];
         }
     }
 }

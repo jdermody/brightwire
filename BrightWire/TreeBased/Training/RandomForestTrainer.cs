@@ -12,7 +12,7 @@ namespace BrightWire.TreeBased.Training
     /// </summary>
     static class RandomForestTrainer
     {
-        public static RandomForest Train(IRowOrientedDataTable table, uint b = 100, uint? baggedRowCount = null, DecisionTreeTrainer.Config config = null)
+        public static RandomForest Train(IRowOrientedDataTable table, uint b = 100, uint? baggedRowCount = null, DecisionTreeTrainer.Config? config = null)
         {
             config ??= new DecisionTreeTrainer.Config();
 

@@ -65,9 +65,6 @@ namespace BrightTable.Helper
 
         T GetField<T>(uint index, object ret)
         {
-            if (ret == null)
-                return default;
-
             var targetType = typeof(T);
             var key = (index, targetType);
             if (!_typeConversionTable.TryGetValue(key, out TypeConversion typeConversion)) {

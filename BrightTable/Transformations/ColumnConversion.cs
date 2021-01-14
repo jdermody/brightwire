@@ -127,7 +127,7 @@ namespace BrightTable.Transformations
         private static readonly ICanConvert VectorToIndexList = new Converter<Vector<float>, IndexList>(v => v.Segment.ToSparse().AsIndexList());
         private static readonly ICanConvert IndexListToVector = new Converter<IndexList, Vector<float>>(v => v.ToDense(null));
         private static readonly ICanConvert WeightedIndexListToVector = new Converter<IndexList, Vector<float>>(v => v.ToDense(null));
-        private static readonly ICanConvert IndexListToWeightedIndexList = new Converter<IndexList, WeightedIndexList>(indexList => WeightedIndexList.Create(indexList.Context, indexList.Indices.Select(ind => new WeightedIndexList.Item(ind, 1f)).ToArray()));
+        private static readonly ICanConvert IndexListToWeightedIndexList = new Converter<IndexList, WeightedIndexList>(indexList => indexList.Context.CreateWeightedIndexList(indexList.Indices.Select(ind => (ind, 1f))));
         private static readonly ICanConvert VectorToWeightedIndexList = new Converter<Vector<float>, WeightedIndexList>(v => v.Segment.ToSparse());
 
         public ColumnConversion(uint? columnIndex, ColumnConversionType type)
@@ -203,13 +203,11 @@ namespace BrightTable.Transformations
                 
                     var enumerable = _GetEnumerableNumbers(toType, buffer.EnumerateTyped());
                     var converterType = typeof(NumericConverter<,>).MakeGenericType(fromType.GetDataType(), toType.GetDataType());
-                    var converter = Activator.CreateInstance(converterType, enumerable);
-                    return (ICanConvert) converter;
+                    return GenericActivator.Create<ICanConvert>(converterType, enumerable);
                 }
                 case ColumnConversionType.ToCategoricalIndex: {
                     var converterType = typeof(CategoricalIndexConverter<>).MakeGenericType(fromType.GetDataType());
-                    var converter = Activator.CreateInstance(converterType);
-                    return (ICanConvert)converter;
+                    return GenericActivator.Create<ICanConvert>(converterType);
                 }
                 case ColumnConversionType.ToIndexList when fromType == ColumnType.IndexList:
                     return null;

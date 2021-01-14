@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using BrightData;
 
@@ -30,7 +31,7 @@ namespace BrightTable.Segments
         public uint? NumDistinct => _buffer.NumDistinct;
         public uint Size => _buffer.Length;
         public bool IsEncoded { get; } = true;
-        public void Add(object obj) => _buffer.Add((T)obj);
+        public void Add(object? obj) => _buffer.Add((obj != null ? (T)obj : default) ?? throw new ArgumentException("Value cannot be null"));
         public void Add(T obj) => _buffer.Add(obj);
         public IEnumerable<T> EnumerateTyped() => _buffer.EnumerateTyped();
     }

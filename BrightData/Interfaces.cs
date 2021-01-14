@@ -76,8 +76,8 @@ namespace BrightData
 
     public interface IDataReader
     {
-        T Read<T>(BinaryReader reader);
-        T[] ReadArray<T>(BinaryReader reader);
+        T Read<T>(BinaryReader reader) where T: notnull;
+        T[] ReadArray<T>(BinaryReader reader) where T : notnull;
     }
 
     public interface ITensorPool
@@ -293,7 +293,7 @@ namespace BrightData
         IEnumerable<object?> Enumerate();
         uint Length { get; }
         uint? NumDistinct { get; }
-        void Add(object obj);
+        void Add(object? obj);
     }
 
     public interface IHybridBuffer<T> : IHybridBuffer

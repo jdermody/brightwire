@@ -18,7 +18,7 @@ namespace BrightData.Helper
         /// </summary>
         /// <typeparam name="T">Type to read</typeparam>
         /// <param name="reader">Source</param>
-        public T Read<T>(BinaryReader reader)
+        public T Read<T>(BinaryReader reader) where T : notnull
         {
             var typeOfT = typeof(T);
 
@@ -66,12 +66,12 @@ namespace BrightData.Helper
 
 
             if (typeOfT == typeof(IndexList)) {
-                var val = IndexList.ReadFrom(_context, reader);
+                var val = _context.CreateIndexList(reader);
                 return __refvalue(__makeref(val), T);
             }
 
             if (typeOfT == typeof(WeightedIndexList)) {
-                var val = WeightedIndexList.ReadFrom(_context, reader);
+                var val = _context.CreateWeightedIndexList(reader);
                 return __refvalue(__makeref(val), T);
             }
 
@@ -108,7 +108,7 @@ namespace BrightData.Helper
         /// </summary>
         /// <typeparam name="T">Type within the array</typeparam>
         /// <param name="reader">Source</param>
-        public T[] ReadArray<T>(BinaryReader reader)
+        public T[] ReadArray<T>(BinaryReader reader) where T : notnull
         {
             var typeOfT = typeof(T);
             var typeCode = Type.GetTypeCode(typeOfT);
@@ -163,13 +163,13 @@ namespace BrightData.Helper
             if (typeOfT == typeof(IndexList)) {
                 var ret = new IndexList[len];
                 for (uint i = 0; i < len; i++)
-                    ret[i] = IndexList.ReadFrom(_context, reader);
+                    ret[i] = _context.CreateIndexList(reader);
                 return __refvalue(__makeref(ret), T[]);
             }
             if (typeOfT == typeof(WeightedIndexList)) {
                 var ret = new WeightedIndexList[len];
                 for (uint i = 0; i < len; i++)
-                    ret[i] = WeightedIndexList.ReadFrom(_context, reader);
+                    ret[i] = _context.CreateWeightedIndexList(reader);
                 return __refvalue(__makeref(ret), T[]);
             }
             if (typeOfT == typeof(Vector<float>)) {

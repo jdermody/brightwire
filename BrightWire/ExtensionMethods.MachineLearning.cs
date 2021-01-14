@@ -41,7 +41,7 @@ namespace BrightWire
 	    /// <param name="lambda">Regularisation lambda</param>
 	    /// <param name="costCallback">Optional callback that is called after each iteration with the current cost</param>
 	    /// <returns>The trained model</returns>
-	    public static LogisticRegression TrainLogisticRegression(this IRowOrientedDataTable table, uint iterations, float learningRate, float lambda = 0.1f, Func<float, bool> costCallback = null)
+	    public static LogisticRegression TrainLogisticRegression(this IRowOrientedDataTable table, uint iterations, float learningRate, float lambda = 0.1f, Func<float, bool>? costCallback = null)
         {
             var trainer = table.CreateLogisticRegressionTrainer();
             return trainer.GradientDescent(iterations, learningRate, lambda, costCallback);
@@ -158,7 +158,7 @@ namespace BrightWire
 	    /// <param name="lambda">L2 regularisation</param>
 	    /// <param name="costCallback">Optional callback that is called after each iteration with the current cost</param>
 	    /// <returns></returns>
-	    public static MultinomialLogisticRegression TrainMultinomialLogisticRegression(this IRowOrientedDataTable data, uint trainingIterations, float trainingRate, float lambda = 0.1f, Func<float, bool> costCallback = null)
+	    public static MultinomialLogisticRegression TrainMultinomialLogisticRegression(this IRowOrientedDataTable data, uint trainingIterations, float trainingRate, float lambda = 0.1f, Func<float, bool>? costCallback = null)
         {
             return MultinomialLogisticRegressionTrainner.Train(data, trainingIterations, trainingRate, lambda, costCallback);
         }
@@ -171,7 +171,7 @@ namespace BrightWire
         /// <param name="baggedRowCount"></param>
         /// <param name="config"></param>
         /// <returns>A model that can be used for classification</returns>
-        public static RandomForest TrainRandomForest(this IRowOrientedDataTable data, uint b = 100, uint? baggedRowCount = null, DecisionTreeTrainer.Config config = null)
+        public static RandomForest TrainRandomForest(this IRowOrientedDataTable data, uint b = 100, uint? baggedRowCount = null, DecisionTreeTrainer.Config? config = null)
         {
             return RandomForestTrainer.Train(data, b, baggedRowCount, config);
         }
@@ -182,7 +182,7 @@ namespace BrightWire
         /// <param name="data">The training data</param>
         /// <param name="config"></param>
         /// <returns>A model that can be used for classification</returns>
-        public static DecisionTree TrainDecisionTree(this IRowOrientedDataTable data, DecisionTreeTrainer.Config config = null)
+        public static DecisionTree TrainDecisionTree(this IRowOrientedDataTable data, DecisionTreeTrainer.Config? config = null)
         {
             return DecisionTreeTrainer.Train(data, config);
         }

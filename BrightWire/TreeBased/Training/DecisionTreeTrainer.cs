@@ -263,7 +263,7 @@ namespace BrightWire.TreeBased.Training
             public uint? MaxAttributes { get; set; } = null;
         }
 
-        public static DecisionTree Train(IRowOrientedDataTable table, Config config = null)
+        public static DecisionTree Train(IRowOrientedDataTable table, Config? config = null)
         {
             var tableInfo = new TableInfo(table);
             var root = new Node(tableInfo, tableInfo.Data, null);

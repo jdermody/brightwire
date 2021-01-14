@@ -46,7 +46,7 @@ namespace BrightTable.Transformations
                 .Select((v, i) => (Value: v, Index: i))
                 .Where(d => d.Value != 0)
                 .Select(d => (uint)d.Index);
-            return IndexList.Create(context, indices);
+            return context.CreateIndexList(indices);
         }
 
         static WeightedIndexList _ToWeightedIndexList(IBrightDataContext context, object[] vals)
@@ -55,8 +55,9 @@ namespace BrightTable.Transformations
                 .Select(Convert.ToSingle)
                 .Select((v, i) => (Value: v, Index: i))
                 .Where(d => d.Value != 0)
-                .Select(d => new WeightedIndexList.Item((uint)d.Index, d.Value));
-            return WeightedIndexList.Create(context, indices);
+                .Select(d => ((uint)d.Index, d.Value))
+                .ToArray();
+            return context.CreateWeightedIndexList(indices);
         }
 
         static Vector<float> _ToVector(IBrightDataContext context, object[] vals)

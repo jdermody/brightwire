@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.InteropServices;
 using BrightData.Analysis;
 using BrightData.Analysis.Readers;
 using BrightData.Buffers;
@@ -41,7 +43,37 @@ namespace BrightData
         }
 
         public static IndexList CreateIndexList(this IBrightDataContext context, params uint[] indices) => IndexList.Create(context, indices);
+        public static IndexList CreateIndexList(this IBrightDataContext context, IEnumerable<uint> indices) => IndexList.Create(context, indices);
+
+        /// <summary>
+        /// Creates an index list from a binary reader
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="reader">The binary reader</param>
+        public static IndexList CreateIndexList(this IBrightDataContext context, BinaryReader reader)
+        {
+            var ret = new IndexList(context); ;
+            ret.Initialize(context, reader);
+            return ret;
+        }
+
         public static WeightedIndexList CreateWeightedIndexList(this IBrightDataContext context, params (uint Index, float Weight)[] indexList) => WeightedIndexList.Create(context, indexList);
+        public static WeightedIndexList CreateWeightedIndexList(this IBrightDataContext context, IEnumerable<(uint Index, float Weight)> indexList) => WeightedIndexList.Create(context, indexList);
+
+        /// <summary>
+        /// Creates a weighted index list from a binary reader
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="reader">The binary reader</param>
+        public static WeightedIndexList CreateWeightedIndexList(this IBrightDataContext context, BinaryReader reader)
+        {
+            var len = reader.ReadInt32();
+            var ret = new WeightedIndexList.Item[len];
+            var span = MemoryMarshal.Cast<WeightedIndexList.Item, byte>(ret);
+            reader.BaseStream.Read(span);
+
+            return WeightedIndexList.Create(context, ret);
+        }
 
         public static Vector<T> CreateVector<T>(this IBrightDataContext context, uint size, Func<uint, T> initializer) where T: struct
         {
@@ -66,6 +98,11 @@ namespace BrightData
             return new Vector<T>(segment);
         }
 
+        public static Vector<T> CreateVector<T>(this IBrightDataContext context, BinaryReader reader) where T : struct
+        {
+            return new Vector<T>(context, reader);
+        }
+
         public static Matrix<T> CreateMatrix<T>(this IBrightDataContext context, uint rows, uint columns, Func<uint, uint, T> initializer = null) where T: struct
         {
             var segment = context.CreateSegment<T>(rows * columns);
@@ -74,6 +111,11 @@ namespace BrightData
             return new Matrix<T>(segment, rows, columns);
         }
         public static Matrix<T> CreateMatrix<T>(this IBrightDataContext context, uint rows, uint columns, T initializer) where T: struct => CreateMatrix(context, rows, columns, (i, j) => initializer);
+
+        public static Matrix<T> CreateMatrix<T>(this IBrightDataContext context, BinaryReader reader) where T : struct
+        {
+            return new Matrix<T>(context, reader);
+        }
 
         public static Matrix<T> CreateMatrixFromRows<T>(this IBrightDataContext context, params Vector<T>[] rows) where T: struct
         {
@@ -126,10 +168,20 @@ namespace BrightData
             return ret;
         }
 
+        public static Tensor3D<T> CreateTensor3D<T>(this IBrightDataContext context, BinaryReader reader) where T : struct
+        {
+            return new Tensor3D<T>(context, reader);
+        }
+
         public static Tensor4D<T> CreateTensor4D<T>(this IBrightDataContext context, uint count, uint depth, uint rows, uint columns) where T : struct
         {
             var segment = context.CreateSegment<T>(count * depth * rows * columns);
             return new Tensor4D<T>(segment, count, depth, rows, columns);
+        }
+
+        public static Tensor4D<T> CreateTensor4D<T>(this IBrightDataContext context, BinaryReader reader) where T : struct
+        {
+            return new Tensor4D<T>(context, reader);
         }
 
         public static uint GetColumnCount<T>(this ITensor<T> tensor) where T : struct

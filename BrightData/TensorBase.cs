@@ -152,10 +152,14 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Finds the index with the highest value
+        /// Returns the index with the highest value
         /// </summary>
         public uint MaximumIndex() => GetMinAndMaxValues().MaxIndex;
 
+        /// <summary>
+        /// Returns the index with the lowest value
+        /// </summary>
+        /// <returns></returns>
         public uint MinimumIndex() => GetMinAndMaxValues().MinIndex;
     }
 }

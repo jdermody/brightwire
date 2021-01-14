@@ -7,7 +7,7 @@ namespace BrightTable.Transformations
 {
     public class ColumnNormalization : IColumnTransformationParam
     {
-        public class Normalizer<T> : IConvert<T, T>, INormalize where T: struct
+        class Normalizer<T> : IConvert<T, T>, INormalize where T: struct
         {
             private readonly ICanConvert<T, double> _convertToDouble;
             private readonly NormalizeTransformation _normalize;

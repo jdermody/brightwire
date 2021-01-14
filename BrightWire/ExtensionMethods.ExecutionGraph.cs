@@ -24,7 +24,7 @@ namespace BrightWire
         /// <param name="errorMetric">The error metric to evaluate the test data against</param>
         /// <param name="onImprovement">Optional callback for when the test data score has improved against the error metric</param>
         /// <param name="testCadence">Determines how many epochs elapse before the test data is evaluated</param>
-        public static void Train(this IGraphTrainingEngine engine, uint numIterations, IDataSource testData, IErrorMetric errorMetric, Action<GraphModel> onImprovement = null, int testCadence = 1)
+        public static void Train(this IGraphTrainingEngine engine, uint numIterations, IDataSource testData, IErrorMetric errorMetric, Action<GraphModel>? onImprovement = null, int testCadence = 1)
         {
             var executionContext = new ExecutionContext(engine.LinearAlgebraProvider);
             engine.Test(testData, errorMetric, 128, percentage => Console.Write("\rTesting... ({0:P})    ", percentage));
@@ -82,7 +82,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="factory"></param>
         /// <param name="graph">Serialised graph</param>
-        public static INode CreateFrom(this GraphFactory factory, Models.ExecutionGraphModel graph)
+        public static INode CreateFrom(this GraphFactory factory, ExecutionGraphModel graph)
         {
             // create the input node
             var nodeTable = new Dictionary<string, INode>();

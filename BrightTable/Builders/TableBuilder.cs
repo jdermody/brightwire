@@ -86,7 +86,9 @@ namespace BrightTable.Builders
             var columns = _columns.Select(c => c.MetaData.GetGrowableSegment(c.Type, Context, tempStream)).ToList();
             foreach (var row in _rows) {
                 for (var i = 0; i < _columns.Count; i++) {
-                    var val = i < row.Length ? row[i] : _columns[i].Type.GetDefaultValue();
+                    var val = i < row.Length 
+                        ? row[i] 
+                        : _columns[i].Type.GetDefaultValue();
                     columns[i].Add(val);
                 }
             }

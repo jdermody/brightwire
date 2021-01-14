@@ -138,6 +138,7 @@ namespace BrightTable
     }
 
     public interface IDataTableSegment<out T> : ISingleTypeTableSegment, IHaveDataContext
+        where T: notnull
     {
         IEnumerable<T> EnumerateTyped();
     }
@@ -157,36 +158,36 @@ namespace BrightTable
 
     public interface IColumnOrientedDataTable : IDataTable
     {
-        IRowOrientedDataTable AsRowOriented(string filePath = null);
+        IRowOrientedDataTable AsRowOriented(string? filePath = null);
         IColumnOrientedDataTable Convert(params ColumnConversion[] conversion);
-        IColumnOrientedDataTable Convert(string filePath, params ColumnConversion[] conversion);
-        IColumnOrientedDataTable Normalize(NormalizationType type, string filePath = null);
+        IColumnOrientedDataTable Convert(string? filePath, params ColumnConversion[] conversion);
+        IColumnOrientedDataTable Normalize(NormalizationType type, string? filePath = null);
         IColumnOrientedDataTable Normalize(params ColumnNormalization[] conversion);
-        IColumnOrientedDataTable Normalize(string filePath, params ColumnNormalization[] conversion);
+        IColumnOrientedDataTable Normalize(string? filePath, params ColumnNormalization[] conversion);
         IColumnOrientedDataTable SelectColumns(params uint[] columnIndices);
-        IColumnOrientedDataTable SelectColumns(string filePath, params uint[] columnIndices);
+        IColumnOrientedDataTable SelectColumns(string? filePath, params uint[] columnIndices);
         IColumnOrientedDataTable ConcatColumns(params IColumnOrientedDataTable[] others);
-        IColumnOrientedDataTable ConcatColumns(string filePath, params IColumnOrientedDataTable[] others);
-        IColumnOrientedDataTable FilterRows(Predicate<object[]> predicate, string filePath = null);
+        IColumnOrientedDataTable ConcatColumns(string? filePath, params IColumnOrientedDataTable[] others);
+        IColumnOrientedDataTable FilterRows(Predicate<object[]> predicate, string? filePath = null);
         IColumnOrientedDataTable ReinterpretColumns(params ReinterpretColumns[] columns);
-        IColumnOrientedDataTable ReinterpretColumns(string filePath, params ReinterpretColumns[] columns);
+        IColumnOrientedDataTable ReinterpretColumns(string? filePath, params ReinterpretColumns[] columns);
     }
 
     public interface IRowOrientedDataTable : IDataTable
     {
-        IColumnOrientedDataTable AsColumnOriented(string filePath = null);
+        IColumnOrientedDataTable AsColumnOriented(string? filePath = null);
         void ForEachRow(Action<object[]> callback);
         void ForEachRow(IEnumerable<uint> rowIndices, Action<object[]> callback);
-        IRowOrientedDataTable Bag(uint sampleCount, int? randomSeed = null, string filePath = null);
+        IRowOrientedDataTable Bag(uint sampleCount, int? randomSeed = null, string? filePath = null);
         IDataTableSegment Row(uint rowIndex);
         IEnumerable<IDataTableSegment> Rows(params uint[] rowIndices);
         IRowOrientedDataTable Concat(params IRowOrientedDataTable[] others);
-        IRowOrientedDataTable Concat(string filePath, params IRowOrientedDataTable[] others);
-        IRowOrientedDataTable Project(Func<object[], object[]> projector, string filePath = null);
+        IRowOrientedDataTable Concat(string? filePath, params IRowOrientedDataTable[] others);
+        IRowOrientedDataTable Project(Func<object[], object[]> projector, string? filePath = null);
         IRowOrientedDataTable SelectRows(params uint[] rowIndices);
-        IRowOrientedDataTable SelectRows(string filePath, params uint[] rowIndices);
-        IRowOrientedDataTable Shuffle(string filePath = null);
-        IRowOrientedDataTable Sort(bool ascending, uint columnIndex, string filePath = null);
+        IRowOrientedDataTable SelectRows(string? filePath, params uint[] rowIndices);
+        IRowOrientedDataTable Shuffle(string? filePath = null);
+        IRowOrientedDataTable Sort(bool ascending, uint columnIndex, string? filePath = null);
         IEnumerable<(string Label, IRowOrientedDataTable Table)> GroupBy(uint columnIndex);
         string FirstRow { get; }
         string SecondRow { get; }

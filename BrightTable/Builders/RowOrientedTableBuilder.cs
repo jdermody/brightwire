@@ -32,7 +32,7 @@ namespace BrightTable.Builders
         long _rowIndexPosition = -1;
         bool _hasClosedStream = false;
 
-        public RowOrientedTableBuilder(uint rowCount, string filePath = null)
+        public RowOrientedTableBuilder(uint rowCount, string? filePath = null)
         {
             _rowCount = rowCount;
             _stream = filePath != null ? (Stream)new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite) : new MemoryStream();

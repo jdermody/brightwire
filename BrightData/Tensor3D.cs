@@ -8,8 +8,8 @@ namespace BrightData
     public class Tensor3D<T> : TensorBase<T, Tensor3D<T>>
         where T: struct
     {
-        public Tensor3D(ITensorSegment<T> segment, uint depth, uint rows, uint columns) : base(segment, new[] {depth, rows, columns}) { }
-        public Tensor3D(IBrightDataContext context, BinaryReader reader) : base(context, reader) { }
+        internal Tensor3D(ITensorSegment<T> segment, uint depth, uint rows, uint columns) : base(segment, new[] {depth, rows, columns}) { }
+        internal Tensor3D(IBrightDataContext context, BinaryReader reader) : base(context, reader) { }
 
         public uint Depth => Shape[0];
         public uint RowCount => Shape[1];

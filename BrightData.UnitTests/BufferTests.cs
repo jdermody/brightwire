@@ -59,7 +59,7 @@ namespace BrightData.UnitTests
         {
             using var context = new BrightDataContext();
             // ReSharper disable once AccessToDisposedClosure
-            _ObjectTests(context, i => IndexList.Create(context, i));
+            _ObjectTests(context, i => context.CreateIndexList(i));
         }
 
         [Fact]
@@ -67,7 +67,7 @@ namespace BrightData.UnitTests
         {
             using var context = new BrightDataContext();
             // ReSharper disable once AccessToDisposedClosure
-            _ObjectTests(context, i => WeightedIndexList.Create(context, (i, 1f)));
+            _ObjectTests(context, i => context.CreateWeightedIndexList((i, 1f)));
         }
 
         [Fact]

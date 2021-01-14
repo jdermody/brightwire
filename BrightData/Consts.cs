@@ -15,7 +15,7 @@
         public const string IsTarget = "IsTarget";
         public const string IsCategorical = "IsCategorical";
 
-        public const string HasUnique = "HasUnique";
+        //public const string HasUnique = "HasUnique";
         public const string IsSequential = "IsSequential";
 
         public const string HasBeenAnalysed = "HasBeenAnalysed";

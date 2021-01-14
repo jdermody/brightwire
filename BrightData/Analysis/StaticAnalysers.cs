@@ -1,4 +1,5 @@
 ﻿using System;
+using BrightData.Helper;
 
 namespace BrightData.Analysis
 {
@@ -80,6 +81,6 @@ namespace BrightData.Analysis
         /// <param name="writeCount"></param>
         /// <returns></returns>
         public static IDataAnalyser CreateFrequencyAnalyser(Type type, uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount) =>
-            (IDataAnalyser)Activator.CreateInstance(typeof(ConvertToStringFrequencyAnalysis<>).MakeGenericType(type), writeCount, maxCount);
+            GenericActivator.Create<IDataAnalyser>(typeof(ConvertToStringFrequencyAnalysis<>).MakeGenericType(type), writeCount, maxCount);
     }
 }

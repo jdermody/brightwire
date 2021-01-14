@@ -105,7 +105,7 @@ namespace BrightData
                 foreach (var item in _GetNonEmpty()) {
                     writer.WriteStartElement("item");
                     writer.WriteAttributeString("name", item.Name);
-                    writer.WriteAttributeString("type", item.Value.GetTypeCode().ToType().ToString());
+                    writer.WriteAttributeString("type", item.Value.GetTypeCode().ToType()?.ToString() ?? "???");
                     writer.WriteValue(item.String);
                     writer.WriteEndElement();
                 }

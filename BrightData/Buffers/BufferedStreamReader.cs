@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Text;
+using BrightData.Helper;
 
 namespace BrightData.Buffers
 {
@@ -24,7 +25,6 @@ namespace BrightData.Buffers
         /// <returns></returns>
         public static ICanEnumerate<T> GetReader<T>(this IBrightDataContext context, Stream stream, uint inMemorySize)
         {
-#pragma warning disable 8600
             var reader = new BinaryReader(stream, Encoding.UTF8);
             var type = (BufferType)reader.ReadByte();
 
@@ -32,17 +32,16 @@ namespace BrightData.Buffers
                 return (ICanEnumerate<T>)new StringDecoder(reader, stream, inMemorySize);
 
             if (type == BufferType.EncodedStruct)
-                return (ICanEnumerate<T>)Activator.CreateInstance(typeof(StructDecoder<>).MakeGenericType(typeof(T)), reader, stream, inMemorySize) ?? throw new InvalidOperationException();
+                return GenericActivator.Create<ICanEnumerate<T>>(typeof(StructDecoder<>).MakeGenericType(typeof(T)), reader, stream, inMemorySize);
 
             if(type == BufferType.Object)
-                return (ICanEnumerate<T>)Activator.CreateInstance(typeof(ObjectReader<>).MakeGenericType(typeof(T)), context, reader, stream, inMemorySize) ?? throw new InvalidOperationException();
+                return GenericActivator.Create<ICanEnumerate<T>>(typeof(ObjectReader<>).MakeGenericType(typeof(T)), context, reader, stream, inMemorySize);
 
             if (type == BufferType.String)
                 return (ICanEnumerate<T>)new StringReader(reader, stream, inMemorySize);
 
             if (type == BufferType.Struct)
-                return (ICanEnumerate<T>)Activator.CreateInstance(typeof(StructReader<>).MakeGenericType(typeof(T)), reader, stream, inMemorySize) ?? throw new InvalidOperationException();
-#pragma warning restore 8600
+                return GenericActivator.Create<ICanEnumerate<T>>(typeof(StructReader<>).MakeGenericType(typeof(T)), reader, stream, inMemorySize);
 
             throw new NotImplementedException();
         }

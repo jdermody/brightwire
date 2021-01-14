@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using BrightData.Helper;
 
 namespace BrightData.Buffers
 {
@@ -40,10 +41,10 @@ namespace BrightData.Buffers
 
             if (typeOfT.IsValueType) {
                 var writerType = shouldEncode ? typeof(StructEncoder<>) : typeof(StructWriter<>);
-                return (ICanWriteToBinaryWriter) Activator.CreateInstance(writerType.MakeGenericType(typeOfT), buffer);
+                return GenericActivator.Create<ICanWriteToBinaryWriter>(writerType.MakeGenericType(typeOfT), buffer);
             }
 
-            return (ICanWriteToBinaryWriter) Activator.CreateInstance(typeof(ObjectWriter<>).MakeGenericType(typeOfT), buffer);
+            return GenericActivator.Create<ICanWriteToBinaryWriter>(typeof(ObjectWriter<>).MakeGenericType(typeOfT), buffer);
         }
 
         internal class StringEncoder : ICanWriteToBinaryWriter

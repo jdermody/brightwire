@@ -251,7 +251,7 @@ namespace BrightTable
             if (force || !ret.Get<bool>(Consts.HasBeenAnalysed)) {
                 var type = segment.SingleType;
                 var analyser = type.GetColumnAnalyser(segment.MetaData, distinctValueCount);
-                var binding = (IAnalyserBinding)Activator.CreateInstance(typeof(AnalyserBinding<>).MakeGenericType(type.GetDataType()),
+                var binding = GenericActivator.Create<IAnalyserBinding>(typeof(AnalyserBinding<>).MakeGenericType(type.GetDataType()),
                     segment,
                     analyser
                 );
@@ -457,16 +457,14 @@ namespace BrightTable
                 buffer = context.CreateHybridObjectBuffer(GetDataType(type), tempStream, bufferSize);
 
             var segmentType = typeof(GrowableSegment<>).MakeGenericType(columnType);
-            var ret = Activator.CreateInstance(segmentType,
+            return GenericActivator.Create<IHybridBuffer>(segmentType,
                 type,
                 new MetaData(metaData, Consts.StandardMetaData),
                 buffer
             );
-
-            return (IHybridBuffer)ret;
         }
 
-        public static IColumnOrientedDataTable BuildColumnOrientedTable(this List<ISingleTypeTableSegment> segments, IBrightDataContext context, uint rowCount, string filePath = null)
+        public static IColumnOrientedDataTable BuildColumnOrientedTable(this List<ISingleTypeTableSegment> segments, IBrightDataContext context, uint rowCount, string? filePath = null)
         {
             var columnCount = (uint)segments.Count;
             var columnOffsets = new List<(long Position, long EndOfColumnOffset)>();
@@ -481,17 +479,17 @@ namespace BrightTable
             return builder.Build(context);
         }
 
-        public static IColumnOrientedDataTable BuildColumnOrientedTable(this List<IHybridBuffer> buffers, IBrightDataContext context, uint rowCount, string filePath = null)
+        public static IColumnOrientedDataTable BuildColumnOrientedTable(this List<IHybridBuffer> buffers, IBrightDataContext context, uint rowCount, string? filePath = null)
         {
             return buffers.Cast<ISingleTypeTableSegment>().ToList().BuildColumnOrientedTable(context, rowCount, filePath);
         }
 
-        public static IColumnOrientedDataTable BuildColumnOrientedTable<T>(this List<GrowableSegment<T>> buffers, IBrightDataContext context, uint rowCount, string filePath = null)
+        public static IColumnOrientedDataTable BuildColumnOrientedTable<T>(this List<GrowableSegment<T>> buffers, IBrightDataContext context, uint rowCount, string? filePath = null)
         {
             return buffers.Cast<ISingleTypeTableSegment>().ToList().BuildColumnOrientedTable(context, rowCount, filePath);
         }
 
-        public static IRowOrientedDataTable BuildRowOrientedTable(this List<IHybridBuffer> buffers, IBrightDataContext context, uint rowCount, string filePath = null)
+        public static IRowOrientedDataTable BuildRowOrientedTable(this List<IHybridBuffer> buffers, IBrightDataContext context, uint rowCount, string? filePath = null)
         {
             using var builder = new RowOrientedTableBuilder(rowCount, filePath);
             var readers = buffers.Cast<ISingleTypeTableSegment>()
@@ -516,7 +514,7 @@ namespace BrightTable
             return new DataTableConverter(dataTable);
         }
 
-        public static IEnumerable<(Vector<float> Numeric, string Label)> GetVectorisedFeatures(this IDataTable dataTable)
+        public static IEnumerable<(Vector<float> Numeric, string? Label)> GetVectorisedFeatures(this IDataTable dataTable)
         {
             var target = dataTable.GetTargetColumn();
             var vectoriser = new DataTableVectoriser(dataTable, dataTable.ColumnIndicesOfFeatures().ToArray());
@@ -525,7 +523,7 @@ namespace BrightTable
                 return vectoriser.Enumerate().Zip(targetColumn);
             }
 
-            return vectoriser.Enumerate().Select(v => (v, (string) null));
+            return vectoriser.Enumerate().Select(v => (v, (string?) null));
         }
 
         public static ColumnType GetColumnType(this IMetaData metadata) => metadata.Get<ColumnType>(Consts.Type);
@@ -533,7 +531,7 @@ namespace BrightTable
 
         public static TableBuilder BuildTable(this IBrightDataContext context) => new TableBuilder(context);
 
-        public static IRowOrientedDataTable ToRowOriented(this IDataTable table, string filePath = null)
+        public static IRowOrientedDataTable ToRowOriented(this IDataTable table, string? filePath = null)
         {
             if (table.Orientation == DataTableOrientation.RowOriented)
                 return (IRowOrientedDataTable)table;
@@ -541,7 +539,7 @@ namespace BrightTable
             return columnOriented.AsRowOriented(filePath);
         }
 
-        public static IColumnOrientedDataTable ToColumnOriented(this IDataTable table, string filePath = null)
+        public static IColumnOrientedDataTable ToColumnOriented(this IDataTable table, string? filePath = null)
         {
             if (table.Orientation == DataTableOrientation.ColumnOriented)
                 return (IColumnOrientedDataTable)table;
@@ -549,7 +547,7 @@ namespace BrightTable
             return rowOriented.AsColumnOriented(filePath);
         }
 
-        public static (IRowOrientedDataTable Training, IRowOrientedDataTable Test) Split(this IRowOrientedDataTable table, double trainingPercentage = 0.8, string trainingFilePath = null, string testFilePath = null)
+        public static (IRowOrientedDataTable Training, IRowOrientedDataTable Test) Split(this IRowOrientedDataTable table, double trainingPercentage = 0.8, string? trainingFilePath = null, string? testFilePath = null)
         {
             var (training, test) = table.RowIndices().Shuffle(table.Context.Random).ToArray().Split(trainingPercentage);
             return (table.SelectRows(trainingFilePath, training), table.SelectRows(testFilePath, test));
@@ -586,8 +584,7 @@ namespace BrightTable
             if (!columnType.IsNumeric())
                 throw new ArgumentException("Column is not numeric");
             var dataType = GetDataType(columnType);
-            var ret = Activator.CreateInstance(typeof(ColumnReader<>).MakeGenericType(dataType), columnIndex, columnType);
-            return ((ITypedRowConsumer)ret, (IHaveFloatArray)ret);
+            return GenericActivator.Create<ITypedRowConsumer, IHaveFloatArray>(typeof(ColumnReader<>).MakeGenericType(dataType), columnIndex, columnType);
         }
 
         public static IEnumerable<Vector<float>> GetColumnsAsVectors(this IDataTable dataTable, params uint[] columnIndices)
@@ -625,7 +622,7 @@ namespace BrightTable
             return dataTable.Context.CreateMatrixFromRows(vectoriser.Enumerate().ToArray());
         }
 
-        public static IRowOrientedDataTable Vectorise(this IDataTable dataTable, string filePath = null)
+        public static IRowOrientedDataTable Vectorise(this IDataTable dataTable, string? filePath = null)
         {
             var target = dataTable.GetTargetColumn();
             var columnIndices = dataTable.ColumnIndices().ToList();
@@ -748,7 +745,7 @@ namespace BrightTable
             return data.Select(r => (r.Label, _Create(r.Data))).ToList();
         }
 
-        public static object GetDefaultValue(this ColumnType columnType)
+        public static object? GetDefaultValue(this ColumnType columnType)
         {
             if (columnType == ColumnType.String)
                 return "";

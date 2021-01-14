@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using BrightData;
+using BrightData.Helper;
 using BrightTable.Buffers;
 using BrightTable.Builders;
 using BrightTable.Segments;
@@ -182,7 +183,7 @@ namespace BrightTable
                 var column = _columns[consumer.ColumnIndex];
                 var columnReader = _columnReaders[column.Index];
                 var type = typeof(ConsumerBinding<>).MakeGenericType(consumer.ColumnType.GetDataType());
-                var binding = (IConsumerBinding)Activator.CreateInstance(type, columnReader, consumer);
+                var binding = GenericActivator.Create<IConsumerBinding>(type, columnReader, consumer);
                 bindings.Add(column.Index, binding);
             }
 
@@ -223,27 +224,26 @@ namespace BrightTable
         {
             var type = typeof(InMemoryBuffer<>).MakeGenericType(columnType.GetDataType());
             var columnInfo = new ColumnInfo(index, columnType, metaData);
-            var ret = Activator.CreateInstance(type, Context, columnInfo, RowCount, Context.TempStreamProvider);
-            return ((ISingleTypeTableSegment)ret, (ITypedRowConsumer)ret);
+            return GenericActivator.Create<ISingleTypeTableSegment, ITypedRowConsumer>(type, Context, columnInfo, RowCount, Context.TempStreamProvider);
         }
 
-        private string _ReadString(BinaryReader reader) => reader.ReadString();
-        private double _ReadDouble(BinaryReader reader) => reader.ReadDouble();
-        private decimal _ReadDecimal(BinaryReader reader) => reader.ReadDecimal();
-        private int _ReadInt32(BinaryReader reader) => reader.ReadInt32();
-        private short _ReadInt16(BinaryReader reader) => reader.ReadInt16();
-        private float _ReadSingle(BinaryReader reader) => reader.ReadSingle();
-        private bool _ReadBoolean(BinaryReader reader) => reader.ReadBoolean();
-        private DateTime _ReadDate(BinaryReader reader) => new DateTime(reader.ReadInt64());
-        private long _ReadInt64(BinaryReader reader) => reader.ReadInt64();
-        private sbyte _ReadByte(BinaryReader reader) => reader.ReadSByte();
-        private IndexList _ReadIndexList(BinaryReader reader) => IndexList.ReadFrom(Context, reader);
-        private WeightedIndexList _ReadWeightedIndexList(BinaryReader reader) => WeightedIndexList.ReadFrom(Context, reader);
-        private Vector<float> _ReadVector(BinaryReader reader) => new Vector<float>(Context, reader);
-        private Matrix<float> _ReadMatrix(BinaryReader reader) => new Matrix<float>(Context, reader);
-        private Tensor3D<float> _ReadTensor3D(BinaryReader reader) => new Tensor3D<float>(Context, reader);
-        private Tensor4D<float> _ReadTensor4D(BinaryReader reader) => new Tensor4D<float>(Context, reader);
-        private BinaryData _ReadBinaryData(BinaryReader reader) => new BinaryData(reader);
+        static string _ReadString(BinaryReader reader) => reader.ReadString();
+        static double _ReadDouble(BinaryReader reader) => reader.ReadDouble();
+        static decimal _ReadDecimal(BinaryReader reader) => reader.ReadDecimal();
+        static int _ReadInt32(BinaryReader reader) => reader.ReadInt32();
+        static short _ReadInt16(BinaryReader reader) => reader.ReadInt16();
+        static float _ReadSingle(BinaryReader reader) => reader.ReadSingle();
+        static bool _ReadBoolean(BinaryReader reader) => reader.ReadBoolean();
+        static DateTime _ReadDate(BinaryReader reader) => new DateTime(reader.ReadInt64());
+        static long _ReadInt64(BinaryReader reader) => reader.ReadInt64();
+        static sbyte _ReadByte(BinaryReader reader) => reader.ReadSByte();
+        IndexList _ReadIndexList(BinaryReader reader) => Context.CreateIndexList(reader);
+        WeightedIndexList _ReadWeightedIndexList(BinaryReader reader) => Context.CreateWeightedIndexList(reader);
+        Vector<float> _ReadVector(BinaryReader reader) => Context.CreateVector<float>(reader);
+        Matrix<float> _ReadMatrix(BinaryReader reader) => Context.CreateMatrix<float>(reader);
+        Tensor3D<float> _ReadTensor3D(BinaryReader reader) => Context.CreateTensor3D<float>(reader);
+        Tensor4D<float> _ReadTensor4D(BinaryReader reader) => Context.CreateTensor4D<float>(reader);
+        static BinaryData _ReadBinaryData(BinaryReader reader) => new BinaryData(reader);
 
         IColumnReader _GetReader(ColumnType type)
         {
@@ -265,11 +265,11 @@ namespace BrightTable
                 ColumnType.Tensor3D => new ColumnReader<Tensor3D<float>>(_ReadTensor3D),
                 ColumnType.Tensor4D => new ColumnReader<Tensor4D<float>>(_ReadTensor4D),
                 ColumnType.BinaryData => new ColumnReader<BinaryData>(_ReadBinaryData),
-                _ => null
+                _ => throw new ArgumentException($"Invalid column type: {type}")
             };
         }
 
-        IRowOrientedDataTable _Copy(uint[] rowIndices, string filePath)
+        IRowOrientedDataTable _Copy(uint[] rowIndices, string? filePath)
         {
             using var builder = GetBuilderForSelf((uint)rowIndices.Length, filePath);
             // ReSharper disable once AccessToDisposedClosure
@@ -277,7 +277,7 @@ namespace BrightTable
             return builder.Build(Context);
         }
 
-        RowOrientedTableBuilder GetBuilderForSelf(uint rowCount, string filePath)
+        RowOrientedTableBuilder GetBuilderForSelf(uint rowCount, string? filePath)
         {
             var ret = new RowOrientedTableBuilder(rowCount, filePath);
             ret.AddColumnsFrom(this);
@@ -349,7 +349,7 @@ namespace BrightTable
             return _Copy(rowIndices, filePath);
         }
 
-        public IRowOrientedDataTable Shuffle(string filePath = null)
+        public IRowOrientedDataTable Shuffle(string? filePath = null)
         {
             var rowIndices = this.RowIndices().Shuffle(Context.Random).ToArray();
             return _Copy(rowIndices, filePath);
@@ -393,12 +393,11 @@ namespace BrightTable
         string _ToString(IDataTableSegment segment)
         {
             var sb = new StringBuilder();
-            if (segment != null) {
-                for (uint i = 0; i < segment.Size; i++) {
-                    if (sb.Length > 0)
-                        sb.Append(", ");
-                    sb.Append(segment[i]);
-                }
+            for (uint i = 0; i < segment.Size; i++)
+            {
+                if (sb.Length > 0)
+                    sb.Append(", ");
+                sb.Append(segment[i]);
             }
 
             return sb.ToString();

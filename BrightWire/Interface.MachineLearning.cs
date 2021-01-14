@@ -500,7 +500,7 @@ namespace BrightWire
 		/// <param name="lambda">Regularisation lambda</param>
 		/// <param name="costCallback">Callback with current cost - False to stop training</param>
 		/// <returns></returns>
-		LogisticRegression GradientDescent(uint iterations, float learningRate, float lambda = 0.1f, Func<float, bool> costCallback = null);
+		LogisticRegression GradientDescent(uint iterations, float learningRate, float lambda = 0.1f, Func<float, bool>? costCallback = null);
 
 		/// <summary>
 		/// Computes the cost of the specified parameters

@@ -10,8 +10,8 @@ namespace BrightData
     public class Matrix<T> : TensorBase<T, Matrix<T>>
         where T: struct
     {
-        public Matrix(ITensorSegment<T> segment, uint rows, uint columns) : base(segment, new[] { rows, columns }) { }
-        public Matrix(IBrightDataContext context, BinaryReader reader) : base(context, reader) { }
+        internal Matrix(ITensorSegment<T> segment, uint rows, uint columns) : base(segment, new[] { rows, columns }) { }
+        internal Matrix(IBrightDataContext context, BinaryReader reader) : base(context, reader) { }
 
         public uint RowCount => Shape[0];
         public uint ColumnCount => Shape[1];

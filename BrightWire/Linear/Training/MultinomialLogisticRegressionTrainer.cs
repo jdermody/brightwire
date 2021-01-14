@@ -12,7 +12,7 @@ namespace BrightWire.Linear.Training
     /// </summary>
     static class MultinomialLogisticRegressionTrainner
     {
-        public static MultinomialLogisticRegression Train(IRowOrientedDataTable table, uint trainingIterations, float trainingRate, float lambda, Func<float, bool> costCallback = null)
+        public static MultinomialLogisticRegression Train(IRowOrientedDataTable table, uint trainingIterations, float trainingRate, float lambda, Func<float, bool>? costCallback = null)
         {
             var context = table.Context;
             var targetColumnIndex = table.GetTargetColumnOrThrow();

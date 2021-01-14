@@ -51,10 +51,9 @@ namespace ExampleCode.DataTableTrainers
                 {
                     weightedIndex.Add(new WeightedIndexList.Item(stringTable.GetIndex(item), 1f));
                 }
-                return (Title, WeightedIndexList.Create(context, weightedIndex
+                return (Title, context.CreateWeightedIndexList(weightedIndex
                     .GroupBy(d => d.Index)
-                    .Select(g => new WeightedIndexList.Item(g.Key, g.Sum(d => d.Weight)))
-                    .ToArray()
+                    .Select(g => (g.Key, g.Sum(d => d.Weight)))
                 ));
             }
         }

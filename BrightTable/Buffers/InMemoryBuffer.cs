@@ -21,7 +21,7 @@ namespace BrightTable.Buffers
             var buffer = column.MetaData.GetGrowableSegment(column.ColumnType, context, tempStream);
 
             MetaData = column.MetaData;
-            _segment = new GrowableSegment<T>(SingleType, MetaData, buffer as IHybridBuffer<T>);
+            _segment = new GrowableSegment<T>(SingleType, MetaData, (IHybridBuffer<T>)buffer);
         }
 
         public InMemoryBuffer(IBrightDataContext context, IColumnInfo column, uint size, IProvideTempStreams tempStream, IEnumerable<T> data) : this(context, column, size, tempStream)

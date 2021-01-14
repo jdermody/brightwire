@@ -29,20 +29,8 @@ namespace BrightData
         /// </summary>
         public uint[]? Indices { get; private set; }
 
-        /// <summary>
-        /// Create a new index list with the specified indices
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="indices">Sparse list of indices</param>
-        public static IndexList Create(IBrightDataContext context, params uint[] indices) => new IndexList(context) { Indices = indices };
-
-        /// <summary>
-        /// Create a new index list with the specified indices
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="indices">Sparse list of indices</param>
-        /// <returns></returns>
-        public static IndexList Create(IBrightDataContext context, IEnumerable<uint> indices) => new IndexList(context) { Indices = indices.ToArray() };
+        internal static IndexList Create(IBrightDataContext context, params uint[] indices) => new IndexList(context) { Indices = indices };
+        internal static IndexList Create(IBrightDataContext context, IEnumerable<uint> indices) => new IndexList(context) { Indices = indices.ToArray() };
 
         /// <summary>
         /// The number of items in the list
@@ -128,18 +116,6 @@ namespace BrightData
             Indices = new uint[len];
             reader.BaseStream.Read(MemoryMarshal.Cast<uint, byte>(Indices));
             Context = context;
-        }
-
-        /// <summary>
-        /// Creates an index list from a binary reader
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="reader">The binary reader</param>
-        public static IndexList ReadFrom(IBrightDataContext context, BinaryReader reader)
-        {
-            var ret = new IndexList(context);;
-            ret.Initialize(context, reader);
-            return ret;
         }
 
         /// <summary>

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Metadata;
+using BrightData.Helper;
 using BrightTable.Helper;
 
 namespace BrightTable.Transformations
@@ -168,7 +169,7 @@ namespace BrightTable.Transformations
 
         public DataTableVectoriser(IDataTable dataTable, params uint[] columnIndices)
         {
-            if (columnIndices == null || columnIndices.Length == 0)
+            if (columnIndices.Length == 0)
                 columnIndices = dataTable.ColumnIndices().ToArray();
 
             RowCount = dataTable.RowCount;
@@ -214,7 +215,7 @@ namespace BrightTable.Transformations
                 return new OneHotEncodeVectorised(metaData.GetNumDistinct(), column);
 
             if ((columnClass & ColumnClass.Numeric) != 0) {
-                return (IColumnVectoriser)Activator.CreateInstance(
+                return GenericActivator.Create<IColumnVectoriser>(
                     typeof(NumericVectoriser<>).MakeGenericType(type.GetDataType()),
                     column
                 );

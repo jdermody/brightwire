@@ -6,8 +6,8 @@ namespace BrightData
     public class Tensor4D<T> : TensorBase<T, Tensor4D<T>>
         where T: struct
     {
-        public Tensor4D(ITensorSegment<T> segment, uint count, uint depth, uint rows, uint columns) : base(segment, new[] { count, depth, rows, columns }) { }
-        public Tensor4D(IBrightDataContext context, BinaryReader reader) : base(context, reader) { }
+        internal Tensor4D(ITensorSegment<T> segment, uint count, uint depth, uint rows, uint columns) : base(segment, new[] { count, depth, rows, columns }) { }
+        internal Tensor4D(IBrightDataContext context, BinaryReader reader) : base(context, reader) { }
 
         public uint Count => Shape[0];
         public uint Depth => Shape[1];
