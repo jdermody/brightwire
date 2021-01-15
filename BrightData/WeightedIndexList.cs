@@ -287,10 +287,7 @@ namespace BrightData
         }
 
         /// <inheritdoc />
-        public override int GetHashCode() => Indices != null
-            ? ((IStructuralEquatable)Indices).GetHashCode(EqualityComparer<Item>.Default)
-            : 0
-        ;
+        public override int GetHashCode() => (Indices as IStructuralEquatable)?.GetHashCode(EqualityComparer<Item>.Default) ?? 0;
 
         /// <inheritdoc />
         public override bool Equals(object? obj)

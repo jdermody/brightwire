@@ -1,33 +1,46 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using BrightData.Helper;
 
 namespace BrightData
 {
+    /// <summary>
+    /// Base class for tensors
+    /// </summary>
+    /// <typeparam name="T">Data type within the tensor</typeparam>
+    /// <typeparam name="DT">Underlying type (vector, matrix etc)</typeparam>
     public abstract class TensorBase<T, DT> : ShapedBase, ITensor<T>
         where DT : ITensor<T>
         where T : struct
     {
+        /// <summary>
+        /// Data segment
+        /// </summary>
         protected ITensorSegment<T> _segment;
         Lazy<INumericComputation<T>> _computation;
         bool _wasDisposed = false;
 
-        TensorBase(IBrightDataContext context, uint[] shape) : base(shape)
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="segment">Data segment</param>
+        /// <param name="shape">Shape of tensor</param>
+        protected TensorBase(ITensorSegment<T> segment, uint[] shape) : base(shape)
         {
-            Context = context;
+            Context = segment.Context;
             _computation = new Lazy<INumericComputation<T>>(() => Context.GetComputation<T>());
-            context.MemoryLayer.Add(this);
-        }
-
-        protected TensorBase(ITensorSegment<T> segment, uint[] shape) : this(segment.Context, shape)
-        {
+            Context.MemoryLayer.Add(this);
             _segment = segment;
             _segment.AddRef();
         }
 
-        protected TensorBase(IBrightDataContext context, BinaryReader reader) : base(null)
+        /// <summary>
+        /// Initialize from binary reader
+        /// </summary>
+        /// <param name="context">Bright data context</param>
+        /// <param name="reader">Reader to initialize from</param>
+        protected TensorBase(IBrightDataContext context, BinaryReader reader) : base(new uint[0])
         {
             Initialize(context, reader);
         }
@@ -44,6 +57,7 @@ namespace BrightData
             _segment.InitializeFrom(reader.BaseStream);
         }
 
+        /// <inheritdoc />
         public void Dispose()
         {
             if (!_wasDisposed) {
@@ -52,7 +66,7 @@ namespace BrightData
             }
         }
 
-        public void WriteTo(BinaryWriter writer)
+        public override void WriteTo(BinaryWriter writer)
         {
             base.WriteTo(writer);
             writer.Flush();

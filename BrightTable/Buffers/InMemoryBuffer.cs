@@ -8,6 +8,7 @@ using BrightTable.Segments;
 namespace BrightTable.Buffers
 {
     class InMemoryBuffer<T> : IDataTableSegment<T>, ITypedRowConsumer<T>, IHaveBrightDataContext
+        where T: notnull
     {
         readonly GrowableSegment<T> _segment;
 
@@ -40,7 +41,7 @@ namespace BrightTable.Buffers
         public IEnumerable<object> Enumerate() => EnumerateTyped().Cast<object>();
         public ColumnType[] Types { get; }
         public uint Size { get; }
-        public IEnumerable<object> Data => _segment.Enumerate();
+        public IEnumerable<object?> Data => _segment.Enumerate();
         public IMetaData MetaData { get; }
         public ColumnType SingleType { get; }
         public bool IsEncoded => false;

@@ -6,15 +6,28 @@ using System.Text;
 
 namespace BrightData.Helper
 {
-    public class ShapedBase
+    /// <summary>
+    /// Tensor shape
+    /// </summary>
+    public class ShapedBase : ICanWriteToBinaryWriter
     {
+        /// <summary>
+        /// Array of sizes
+        /// </summary>
         public uint[] Shape { get; private set; }
 
-        public ShapedBase(uint[] shape)
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="shape">Array of sizes</param>
+        protected ShapedBase(uint[] shape)
         {
             Shape = shape;
         }
 
+        /// <summary>
+        /// Total size of the shape
+        /// </summary>
         public uint Size
         {
             get
@@ -25,16 +38,26 @@ namespace BrightData.Helper
                 return ret;
             }
         }
+
+        /// <summary>
+        /// Number of sizes within the shape
+        /// </summary>
         public uint Rank => (uint)Shape.Length;
 
-        public void WriteTo(BinaryWriter writer)
+        /// <inheritdoc />
+        public virtual void WriteTo(BinaryWriter writer)
         {
             writer.Write(Shape.Length);
             foreach (var item in Shape)
                 writer.Write(item);
         }
 
-        public uint ReadFrom(BinaryReader reader)
+        /// <summary>
+        /// Reads the shape from a binary reader
+        /// </summary>
+        /// <param name="reader">Reader</param>
+        /// <returns>Size of tensor</returns>
+        protected uint ReadFrom(BinaryReader reader)
         {
             var len = reader.ReadInt32();
             Shape = new uint[len];
@@ -49,6 +72,12 @@ namespace BrightData.Helper
             return size;
         }
 
+        /// <summary>
+        /// Works out the shape from a possibly incomplete list of sizes
+        /// </summary>
+        /// <param name="total">Total size</param>
+        /// <param name="shape">List of sizes that form the shape (one can be null)</param>
+        /// <returns></returns>
         protected static uint[] _ResolveShape(uint total, uint?[] shape)
         {
             uint nonNullTotal = 0;

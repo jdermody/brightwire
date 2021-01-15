@@ -27,9 +27,8 @@ namespace BrightData
             Initialize(null, reader);
         }
 
-
         /// <inheritdoc />
-        public void Initialize(IBrightDataContext context, BinaryReader reader)
+        public void Initialize(IBrightDataContext? context, BinaryReader reader)
         {
             var size = reader.ReadInt32();
             Data = reader.ReadBytes(size);
@@ -65,7 +64,7 @@ namespace BrightData
         }
 
         /// <inheritdoc />
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if(obj is BinaryData other)
                 return ToString() == other.ToString();

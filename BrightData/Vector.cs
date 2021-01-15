@@ -15,6 +15,9 @@ namespace BrightData
         internal Vector(ITensorSegment<T> segment) : base(segment, new[] { segment.Size }) { }
         internal Vector(IBrightDataContext context, BinaryReader reader) : base(context, reader) { }
 
+        /// <summary>
+        /// Number of elements in the vector
+        /// </summary>
         public new uint Size => Shape[0];
 
         /// <summary>

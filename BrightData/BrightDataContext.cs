@@ -96,12 +96,11 @@ namespace BrightData
         /// <inheritdoc />
         public T Get<T>(string name) => _attachedProperties.TryGetValue(name, out var obj) ? (T)obj : default;
 
+        /// <inheritdoc />
+        public T Set<T>(string name, T value) where T:notnull => (T)_attachedProperties.AddOrUpdate(name, value, (n, o) => value);
 
         /// <inheritdoc />
-        public T Set<T>(string name, T value) => (T)_attachedProperties.AddOrUpdate(name, value, (n, o) => value);
-
-        /// <inheritdoc />
-        public T Set<T>(string name, Func<T> valueCreator) => (T)_attachedProperties.AddOrUpdate(name, n => valueCreator(), (n, o) => o);
+        public T Set<T>(string name, Func<T> valueCreator) where T : notnull => (T)_attachedProperties.AddOrUpdate(name, n => valueCreator(), (n, o) => o);
 
         /// <inheritdoc />
         public bool IsStochastic { get; }

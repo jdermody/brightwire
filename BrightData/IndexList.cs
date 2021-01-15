@@ -71,7 +71,7 @@ namespace BrightData
         }
 
         /// <inheritdoc />
-        public override int GetHashCode() => (Indices != null) ? Indices.GetHashCode() : 0;
+        public override int GetHashCode() => Indices?.GetHashCode() ?? 0;
 
         /// <inheritdoc />
         public override bool Equals(object? obj)
@@ -134,6 +134,11 @@ namespace BrightData
 
         IEnumerable<uint> IHaveIndices.Indices => Indices ?? Enumerable.Empty<uint>();
 
+        /// <summary>
+        /// Calculates the jaccard similarity between this and another index list
+        /// </summary>
+        /// <param name="other">Index list to compare to</param>
+        /// <returns></returns>
         public float JaccardSimilarity(IndexList other)
         {
             if (Indices != null && other.Indices != null) {
@@ -155,6 +160,11 @@ namespace BrightData
             return 0f;
         }
 
+        /// <summary>
+        /// Converts to a vector
+        /// </summary>
+        /// <param name="maxIndex">Maximum index to include</param>
+        /// <returns></returns>
         public Vector<float> ToDense(uint? maxIndex)
         {
             var indices = new HashSet<uint>();
@@ -173,6 +183,11 @@ namespace BrightData
             return Context.CreateVector(maxIndex ?? 0, 0f);
         }
 
+        /// <summary>
+        /// Checks if the specified index has been set
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         public bool HasIndex(uint index) => Indices?.Contains(index) ?? false;
 
         // TODO: pearson similarity, overlap similarity

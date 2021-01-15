@@ -210,7 +210,7 @@ namespace BrightTable
         void Finalise();
     }
 
-    public interface IEditableBuffer<in T>
+    public interface IEditableBuffer<in T> where T : notnull
     {
         void Add(T value);
     }
@@ -267,7 +267,7 @@ namespace BrightTable
         IConvertibleRow Row(uint index);
         IEnumerable<IConvertibleRow> Rows(params uint[] rowIndices);
         IRowOrientedDataTable DataTable { get; }
-        IEnumerable<T> Map<T>(Func<IConvertibleRow, T> rowMapper);
+        IEnumerable<T> Map<T>(Func<IConvertibleRow, T> rowMapper) where T : notnull;
         void ForEachRow(Action<IConvertibleRow> action);
     }
 
@@ -285,7 +285,7 @@ namespace BrightTable
     {
         object Get(uint index);
         IDataTableSegment Segment { get; }
-        T GetTyped<T>(uint index);
+        T GetTyped<T>(uint index) where T: notnull;
         uint RowIndex { get; }
         uint NumColumns { get; }
     }
@@ -297,6 +297,7 @@ namespace BrightTable
     }
 
     public interface ITypedRowConsumer<in T> : ITypedRowConsumer, IEditableBuffer<T>
+        where T: notnull
     {
     }
 

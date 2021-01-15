@@ -20,10 +20,10 @@ namespace BrightData
     public interface ICanInitializeFromBinaryReader
     {
         /// <summary>
-        /// Initialize the index list from a binary reader
+        /// Initialize from a binary reader
         /// </summary>
         /// <param name="context">Bright data context</param>
-        /// <param name="reader">Reader to initialize the list</param>
+        /// <param name="reader">Reader to read from to initialize</param>
         void Initialize(IBrightDataContext context, BinaryReader reader);
     }
 
@@ -110,8 +110,8 @@ namespace BrightData
         ILinearAlgebraProvider LinearAlgebraProvider { get; }
         IProvideTempStreams TempStreamProvider { get; }
         T Get<T>(string name);
-        T Set<T>(string name, T value);
-        T Set<T>(string name, Func<T> valueCreator);
+        T Set<T>(string name, T value) where T : notnull;
+        T Set<T>(string name, Func<T> valueCreator) where T : notnull;
         bool IsStochastic { get; }
     }
 
@@ -219,7 +219,7 @@ namespace BrightData
         void AddObject(object obj);
     }
 
-    public interface IDataAnalyser<in T> : IDataAnalyser
+    public interface IDataAnalyser<in T> : IDataAnalyser where T : notnull
     {
         void Add(T obj);
     }
@@ -245,6 +245,8 @@ namespace BrightData
     }
 
     public interface ICanConvert<in TF, out TT> : ICanConvert
+        where TF : notnull 
+        where TT : notnull
     {
         TT Convert(TF data);
     }
@@ -297,6 +299,7 @@ namespace BrightData
     }
 
     public interface IHybridBuffer<T> : IHybridBuffer
+        where T:notnull
     {
         void Add(T item);
         IEnumerable<T> EnumerateTyped();
@@ -313,6 +316,7 @@ namespace BrightData
     }
 
     public interface ICanEnumerate<out T>
+        where T : notnull
     {
         IEnumerable<T> EnumerateTyped();
         uint Size { get; }
