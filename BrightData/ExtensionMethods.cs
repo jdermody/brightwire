@@ -261,9 +261,8 @@ namespace BrightData
             );
         }
 
-        public static T[] Bag<T>(this T[] list, uint count, int? randomSeed = null)
+        public static T[] Bag<T>(this T[] list, uint count, Random rnd)
         {
-            var rnd = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
             return count.AsRange()
                 .Select(i => list[rnd.Next(0, list.Length)])
                 .ToArray()

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using BrightData;
+using BrightTable.Builders;
 
 namespace BrightTable
 {
@@ -20,7 +22,7 @@ namespace BrightTable
 
         protected BinaryReader Reader => new BinaryReader(_stream, Encoding.UTF8, true);
 
-        internal static string DefaultColumnName(string name, int numColumns)
+        internal static string DefaultColumnName(string? name, int numColumns)
         {
             return name ?? $"Column {numColumns + 1}";
         }
@@ -30,15 +32,15 @@ namespace BrightTable
         public uint ColumnCount { get; protected set; }
         public IMetaData MetaData => _tableMetaData;
 
-        public abstract void ForEachRow(Action<object[]> callback);
+        public abstract void ForEachRow(Action<object[]> callback, uint maxRows = uint.MaxValue);
 
         protected abstract IDataTable Table { get; }
 
-        protected IEnumerable<uint> AllOrSpecifiedColumns(uint[] indices) => (indices?.Length ?? 0) == 0 
+        protected IEnumerable<uint> AllOrSpecifiedColumns(uint[] indices) => indices.Length == 0 
             ? ColumnCount.AsRange()
             : indices;
 
-        protected IEnumerable<uint> AllOrSpecifiedRows(uint[] indices) => (indices?.Length ?? 0) == 0
+        protected IEnumerable<uint> AllOrSpecifiedRows(uint[] indices) => indices.Length == 0
             ? RowCount.AsRange()
             : indices;
 
@@ -50,6 +52,43 @@ namespace BrightTable
             var orientation = (DataTableOrientation)reader.ReadByte();
             if (orientation != expectedOrientation)
                 throw new Exception("Invalid orientation");
+        }
+
+        public IRowOrientedDataTable? Project(Func<object[], object[]?> projector, string? filePath = null)
+        {
+            var mutatedRows = new List<object[]>();
+            var columnTypes = new Dictionary<uint, ColumnType>();
+
+            ForEachRow(row => {
+                var projected = projector(row);
+                if (projected != null)
+                {
+                    if (projected.Length > columnTypes.Count)
+                    {
+                        for (uint i = 0, len = (uint)projected.Length; i < len; i++)
+                        {
+                            var type = projected.GetType().GetColumnType();
+                            if (columnTypes.TryGetValue(i, out var existing) && existing != type)
+                                throw new Exception($"Column {i} type changed between mutations");
+                            columnTypes.Add(i, type);
+                        }
+                    }
+                    mutatedRows.Add(projected);
+                }
+            });
+
+            if (mutatedRows.Any())
+            {
+                var newColumnTypes = mutatedRows.First().Select(o => o.GetType().GetColumnType());
+                using var builder = new RowOrientedTableBuilder((uint)mutatedRows.Count, filePath);
+                foreach (var column in newColumnTypes)
+                    builder.AddColumn(column);
+                foreach (var row in mutatedRows)
+                    builder.AddRow(row);
+                return builder.Build(Context);
+            }
+
+            return null;
         }
 
         //public IRowOrientedDataTable Vectorise(string columnName, params uint[] vectorColumnIndices) => Vectorise(null, columnName, vectorColumnIndices);

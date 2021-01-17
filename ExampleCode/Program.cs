@@ -98,7 +98,7 @@ namespace ExampleCode
             var iris = context.Iris();
 
             // select only the first three columns (ignore the training label)
-            var irisTable = iris.Table.AsColumnOriented().SelectColumns(3.AsRange().ToArray());
+            var irisTable = iris.Table.AsColumnOriented().CopyColumns(3.AsRange().ToArray());
 
             void Write(IEnumerable<(uint RowIndex, string Label)[]> items)
             {

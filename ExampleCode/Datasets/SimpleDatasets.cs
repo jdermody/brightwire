@@ -252,7 +252,7 @@ namespace ExampleCode.Datasets
             using var completeTable = context.ParseCsv(hoursData, true);
 
             // drop the first six columns (index and date features)
-            using var filteredTable = completeTable.SelectColumns(completeTable.ColumnCount.AsRange().Skip(5).ToArray());
+            using var filteredTable = completeTable.CopyColumns(completeTable.ColumnCount.AsRange().Skip(5).ToArray());
             var dataColumns = (completeTable.ColumnCount - 3).AsRange().ToArray();
             using var converted = filteredTable.Convert(dataColumns.Select(i => new ColumnConversion(i, ColumnConversionType.ToNumeric)).ToArray());
 

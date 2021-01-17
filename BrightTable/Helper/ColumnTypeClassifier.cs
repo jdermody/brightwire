@@ -21,7 +21,7 @@ namespace BrightTable.Helper
         static readonly HashSet<ColumnType> ContinuousType = new HashSet<ColumnType>(NumericType) {
             ColumnType.Date
         };
-        static readonly HashSet<ColumnType> StructableType = new HashSet<ColumnType>(ContinuousType) {
+        static readonly HashSet<ColumnType> BlittableType = new HashSet<ColumnType>(ContinuousType) {
             ColumnType.Boolean
         };
         static readonly HashSet<ColumnType> CategoricalType = new HashSet<ColumnType> {
@@ -34,12 +34,47 @@ namespace BrightTable.Helper
             ColumnType.Float
         };
 
+        /// <summary>
+        /// Checks for a decimal type (floating point)
+        /// </summary>
+        /// <param name="columnType">Column type to check</param>
+        /// <returns></returns>
         public static bool IsDecimal(ColumnType columnType) => DecimalType.Contains(columnType);
-        public static bool IsNumeric(ColumnType columnType) => NumericType.Contains(columnType);
-        public static bool IsContinuous(ColumnType columnType) => ContinuousType.Contains(columnType);
-        public static bool IsCategorical(ColumnType columnType) => CategoricalType.Contains(columnType);
-        public static bool IsStructable(ColumnType columnType) => StructableType.Contains(columnType);
 
+        /// <summary>
+        /// Checks for a numeric type (floating point or integer)
+        /// </summary>
+        /// <param name="columnType">Column type to check</param>
+        /// <returns></returns>
+        public static bool IsNumeric(ColumnType columnType) => NumericType.Contains(columnType);
+
+        /// <summary>
+        /// Checks for a continuous type (non categorical)
+        /// </summary>
+        /// <param name="columnType">Column type to check</param>
+        /// <returns></returns>
+        public static bool IsContinuous(ColumnType columnType) => ContinuousType.Contains(columnType);
+
+        /// <summary>
+        /// Checks for a categorical type (non continuous)
+        /// </summary>
+        /// <param name="columnType">Column type to check</param>
+        /// <returns></returns>
+        public static bool IsCategorical(ColumnType columnType) => CategoricalType.Contains(columnType);
+
+        /// <summary>
+        /// Checks if the type has an independent memory layout across managed and unmanaged code
+        /// </summary>
+        /// <param name="columnType">Column type to check</param>
+        /// <returns></returns>
+        public static bool IsBlittable(ColumnType columnType) => BlittableType.Contains(columnType);
+
+        /// <summary>
+        /// Returns the set of possible column classifications
+        /// </summary>
+        /// <param name="type">Column type to check</param>
+        /// <param name="metaData">Column metadata</param>
+        /// <returns></returns>
         public static ColumnClass GetClass(ColumnType type, IMetaData metaData)
         {
             var ret = ColumnClass.Unknown;
@@ -49,7 +84,7 @@ namespace BrightTable.Helper
                 ret |= ColumnClass.Numeric;
             if (IsDecimal(type))
                 ret |= ColumnClass.Decimal;
-            if (IsStructable(type))
+            if (IsBlittable(type))
                 ret |= ColumnClass.Structable;
             if (type.IsTensor())
                 ret |= ColumnClass.Tensor;

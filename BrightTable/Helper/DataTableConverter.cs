@@ -63,7 +63,7 @@ namespace BrightTable.Helper
 
         public IEnumerable<IConvertibleRow> Rows(params uint[] indices) => (indices.Length == 0 ? DataTable.RowCount.AsRange() : indices).Select(Row);
 
-        T GetField<T>(uint index, object ret)
+        T GetField<T>(uint index, object ret) where T: notnull
         {
             var targetType = typeof(T);
             var key = (index, targetType);
@@ -80,7 +80,7 @@ namespace BrightTable.Helper
 
             return typeConversion switch {
                 TypeConversion.Cast => (T) ret,
-                TypeConversion.ToString => (T) (object) ret.ToString(),
+                TypeConversion.ToString => (T) (object) (ret.ToString() ?? ""),
                 TypeConversion.DateTicks => (T) Convert.ChangeType(((DateTime) ret).Ticks, targetType),
                 TypeConversion.ChangeType => (T) Convert.ChangeType(ret, targetType),
                 _ => throw new NotImplementedException()

@@ -161,7 +161,7 @@ namespace BrightTable.UnitTests
         public void TestTableSlice()
         {
             var table = _GetSimpleTable();
-            var rows = table.SelectRows(Enumerable.Range(5000, 100).Select(i => (uint)i).ToArray()).AsConvertible().Rows().Select(r => r.GetTyped<int>(0)).ToList();
+            var rows = table.CopyRows(Enumerable.Range(5000, 100).Select(i => (uint)i).ToArray()).AsConvertible().Rows().Select(r => r.GetTyped<int>(0)).ToList();
 
             for (var i = 0; i < 100; i++)
                 rows[i].Should().Be(5000 + i);

@@ -17,13 +17,13 @@ namespace BrightTable
         {
             object Read(BinaryReader reader);
         }
-        interface IColumnReader<out T>
+        interface IColumnReader<out T> where T: notnull
         {
             T ReadTyped(BinaryReader reader);
         }
-        class ColumnReader<T> : IColumnReader, IColumnReader<T>
+        class ColumnReader<T> : IColumnReader, IColumnReader<T> where T : notnull
         {
-            private readonly Func<BinaryReader, T> _reader;
+            readonly Func<BinaryReader, T> _reader;
             public ColumnReader(Func<BinaryReader, T> reader) => _reader = reader;
             public object Read(BinaryReader reader) => ReadTyped(reader);
             public T ReadTyped(BinaryReader reader) => _reader(reader);
@@ -33,10 +33,10 @@ namespace BrightTable
         {
             void Read(BinaryReader reader);
         }
-        class ConsumerBinding<T> : IConsumerBinding
+        class ConsumerBinding<T> : IConsumerBinding where T : notnull
         {
-            private readonly ColumnReader<T> _reader;
-            private readonly ITypedRowConsumer<T> _consumer;
+            readonly ColumnReader<T> _reader;
+            readonly ITypedRowConsumer<T> _consumer;
 
             public ConsumerBinding(IColumnReader reader, ITypedRowConsumer consumer)
             {
@@ -145,7 +145,7 @@ namespace BrightTable
             return AllOrSpecifiedColumns(columnIndices).Select(i => _columns[i].MetaData);
         }
 
-        public IRowOrientedDataTable AsRowOriented(string filePath = null)
+        public IRowOrientedDataTable AsRowOriented(string? filePath = null)
         {
             using var builder = GetBuilderForSelf(RowCount, filePath);
 
@@ -155,7 +155,7 @@ namespace BrightTable
             return builder.Build(Context);
         }
 
-        public override void ForEachRow(Action<object[]> callback) => ForEachRow((row, index) => callback(row));
+        public override void ForEachRow(Action<object[]> callback, uint maxRows = uint.MaxValue) => ForEachRow((row, index) => callback(row), maxRows);
         protected override IDataTable Table => this;
 
         public void ForEachRow(Action<object[], uint> callback, uint maxRows = uint.MaxValue)
@@ -205,7 +205,7 @@ namespace BrightTable
             }
         }
 
-        public IColumnOrientedDataTable AsColumnOriented(string filePath = null)
+        public IColumnOrientedDataTable AsColumnOriented(string? filePath = null)
         {
             var columnOffsets = new List<(long Position, long EndOfColumnOffset)>();
             using var builder = new ColumnOrientedTableBuilder(filePath);
@@ -272,8 +272,7 @@ namespace BrightTable
         IRowOrientedDataTable _Copy(uint[] rowIndices, string? filePath)
         {
             using var builder = GetBuilderForSelf((uint)rowIndices.Length, filePath);
-            // ReSharper disable once AccessToDisposedClosure
-            ForEachRow(rowIndices, row => builder.AddRow(row));
+            ForEachRow(rowIndices, builder.AddRow);
             return builder.Build(Context);
         }
 
@@ -284,14 +283,14 @@ namespace BrightTable
             return ret;
         }
 
-        public IRowOrientedDataTable Bag(uint sampleCount, int? randomSeed = null, string filePath = null)
+        public IRowOrientedDataTable Bag(uint sampleCount, string? filePath = null)
         {
-            var rowIndices = this.RowIndices().ToArray().Bag(sampleCount, randomSeed);
+            var rowIndices = this.RowIndices().ToArray().Bag(sampleCount, Context.Random);
             return _Copy(rowIndices, filePath);
         }
 
         public IRowOrientedDataTable Concat(params IRowOrientedDataTable[] others) => Concat(null, others);
-        public IRowOrientedDataTable Concat(string filePath, params IRowOrientedDataTable[] others)
+        public IRowOrientedDataTable Concat(string? filePath, params IRowOrientedDataTable[] others)
         {
             var rowCount = RowCount;
             foreach (var other in others) {
@@ -310,41 +309,8 @@ namespace BrightTable
             return builder.Build(Context);
         }
 
-        public IRowOrientedDataTable Project(Func<object[], object[]> projector, string filePath = null)
-        {
-            var mutatedRows = new List<object[]>();
-            var columnTypes = new Dictionary<uint, ColumnType>();
-
-            ForEachRow(row => {
-                var projected = projector(row);
-                if (projected != null) {
-                    if (projected.Length > columnTypes.Count) {
-                        for (uint i = 0, len = (uint)projected.Length; i < len; i++) {
-                            var type = projected.GetType().GetColumnType();
-                            if (columnTypes.TryGetValue(i, out var existing) && existing != type)
-                                throw new Exception($"Column {i} type changed between mutations");
-                            columnTypes.Add(i, type);
-                        }
-                    }
-                    mutatedRows.Add(projected);
-                }
-            });
-
-            if (mutatedRows.Any()) {
-                var newColumnTypes = mutatedRows.First().Select(o => o.GetType().GetColumnType());
-                using var builder = new RowOrientedTableBuilder((uint) mutatedRows.Count, filePath);
-                foreach (var column in newColumnTypes)
-                    builder.AddColumn(column);
-                foreach (var row in mutatedRows)
-                    builder.AddRow(row);
-                return builder.Build(Context);
-            }
-
-            return null;
-        }
-
-        public IRowOrientedDataTable SelectRows(params uint[] rowIndices) => SelectRows(null, rowIndices);
-        public IRowOrientedDataTable SelectRows(string filePath, params uint[] rowIndices)
+        public IRowOrientedDataTable CopyRows(params uint[] rowIndices) => CopyRows(null, rowIndices);
+        public IRowOrientedDataTable CopyRows(string? filePath, params uint[] rowIndices)
         {
             return _Copy(rowIndices, filePath);
         }
@@ -355,7 +321,7 @@ namespace BrightTable
             return _Copy(rowIndices, filePath);
         }
 
-        public IRowOrientedDataTable Sort(bool ascending, uint columnIndex, string filePath = null)
+        public IRowOrientedDataTable Sort(bool ascending, uint columnIndex, string? filePath = null)
         {
             var sortData = new List<(object Item, uint RowIndex)>();
             ForEachRow((row, rowIndex) => sortData.Add((row[columnIndex], rowIndex)));
@@ -370,7 +336,7 @@ namespace BrightTable
         {
             var groupedData = new Dictionary<string, List<object[]>>();
             ForEachRow(row => {
-                var label = row[columnIndex].ToString();
+                var label = row[columnIndex].ToString() ?? throw new Exception("Cannot group by string when value is null");
                 if (!groupedData.TryGetValue(label, out var data))
                     groupedData.Add(label, data = new List<object[]>());
                 data.Add(row);

@@ -104,7 +104,7 @@ namespace BrightTable
             return ColumnType.Unknown;
         }
 
-        public static bool IsStructable(this ColumnType columnType) => ColumnTypeClassifier.IsStructable(columnType);
+        public static bool IsStructable(this ColumnType columnType) => ColumnTypeClassifier.IsBlittable(columnType);
         public static bool IsNumeric(this ColumnType columnType) => ColumnTypeClassifier.IsNumeric(columnType);
         public static bool IsDecimal(this ColumnType columnType) => ColumnTypeClassifier.IsDecimal(columnType);
         public static bool IsContinuous(this ColumnType columnType) => ColumnTypeClassifier.IsContinuous(columnType);
@@ -550,7 +550,7 @@ namespace BrightTable
         public static (IRowOrientedDataTable Training, IRowOrientedDataTable Test) Split(this IRowOrientedDataTable table, double trainingPercentage = 0.8, string? trainingFilePath = null, string? testFilePath = null)
         {
             var (training, test) = table.RowIndices().Shuffle(table.Context.Random).ToArray().Split(trainingPercentage);
-            return (table.SelectRows(trainingFilePath, training), table.SelectRows(testFilePath, test));
+            return (table.CopyRows(trainingFilePath, training), table.CopyRows(testFilePath, test));
         }
 
         interface IHaveFloatArray

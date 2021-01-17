@@ -90,9 +90,9 @@ namespace BrightTable
 
         public DataTableOrientation Orientation => DataTableOrientation.ColumnOriented;
         public ColumnType[] ColumnTypes { get; }
-        public override void ForEachRow(Action<object[]> callback)
+        public override void ForEachRow(Action<object[]> callback, uint maxRows = uint.MaxValue)
         {
-            ForEachRow((row, index) => callback(row));
+            ForEachRow((row, index) => callback(row), maxRows);
         }
 
         protected override IDataTable Table => this;
@@ -212,8 +212,8 @@ namespace BrightTable
             return _Transform(conversionParams, filePath);
         }
 
-        public IColumnOrientedDataTable SelectColumns(params uint[] columnIndices) => SelectColumns(null, columnIndices);
-        public IColumnOrientedDataTable SelectColumns(string? filePath, params uint[] columnIndices)
+        public IColumnOrientedDataTable CopyColumns(params uint[] columnIndices) => CopyColumns(null, columnIndices);
+        public IColumnOrientedDataTable CopyColumns(string? filePath, params uint[] columnIndices)
         {
             return Columns(columnIndices).ToList().BuildColumnOrientedTable(Context, RowCount, filePath);
         }

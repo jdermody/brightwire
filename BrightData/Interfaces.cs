@@ -5,10 +5,13 @@ using System.IO;
 namespace BrightData
 {
     /// <summary>
-    /// Interface 
+    /// Interface of any type has a list of indices
     /// </summary>
     public interface IHaveIndices
     {
+        /// <summary>
+        /// Enumerates the indices
+        /// </summary>
         IEnumerable<uint> Indices { get; }
     }
 

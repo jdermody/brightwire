@@ -8,6 +8,9 @@ using BrightData.Helper;
 
 namespace BrightTable.Transformations
 {
+    /// <summary>
+    /// Parameters that define a column conversion from one type to another
+    /// </summary>
     public class ColumnConversion : IColumnTransformationParam
     {
         public class Converter<TF, TT> : IConvert<TF, TT>

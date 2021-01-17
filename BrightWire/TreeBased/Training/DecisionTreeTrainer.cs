@@ -298,7 +298,7 @@ namespace BrightWire.TreeBased.Training
 
                 // bag the features if configured
                 if (featureBagCount.HasValue)
-                    attributes = attributes.Bag((maxAttributes ?? featureBagCount.Value));
+                    attributes = attributes.Bag(maxAttributes ?? featureBagCount.Value, table.Context.Random);
 
                 // randomly select a subset of attributes if configured
                 else if (maxAttributes.HasValue)
