@@ -23,7 +23,7 @@ namespace BrightTable.Transformations
 
         public IEnumerable<ISingleTypeTableSegment> GetNewColumns(IBrightDataContext context, IProvideTempStreams tempStreams, uint initialColumnIndex, (IColumnInfo Info, ISingleTypeTableSegment Segment)[] columns)
         {
-            if (ColumnIndices.Length > 1)
+            if (ColumnIndices.Length >= 1)
             {
                 // convert many columns to single index list
                 if (NewType == ColumnType.IndexList)
@@ -60,24 +60,28 @@ namespace BrightTable.Transformations
             return context.CreateWeightedIndexList(indices);
         }
 
-        static Vector<float> _ToVector(IBrightDataContext context, object[] vals)
+        static Vector<float> _ToVector(IBrightDataContext context, object[] values)
         {
-            var data = vals.Select(Convert.ToSingle).ToArray();
+            var data = values.Select(Convert.ToSingle).ToArray();
             return context.CreateVector(data);
         }
 
         static string _ToString(IBrightDataContext context, object[] vals) => String.Join('|', vals.Select(Convert.ToString));
 
-        public class ManyToOne<T> : ISingleTypeTableSegment
+        class ManyToOne<T> : ISingleTypeTableSegment where T: notnull
         {
-            private readonly (IColumnInfo Info, ISingleTypeTableSegment Segment)[] _sourceColumns;
-            private readonly IHybridBuffer<T> _buffer;
+            readonly IHybridBuffer<T> _buffer;
 
-            public ManyToOne(IBrightDataContext context, IProvideTempStreams tempStreams, string name, uint newColumnIndex, (IColumnInfo Info, ISingleTypeTableSegment Segment)[] sourceColumns, Func<IBrightDataContext, object[], T> converter)
-            {
+            public ManyToOne(
+                IBrightDataContext context, 
+                IProvideTempStreams tempStreams, 
+                string name, 
+                uint newColumnIndex, 
+                (IColumnInfo Info, ISingleTypeTableSegment Segment)[] sourceColumns, 
+                Func<IBrightDataContext, object[], T> converter
+            ) {
                 Index = newColumnIndex;
-                _sourceColumns = sourceColumns;
-                Size = _sourceColumns.First().Segment.Size;
+                Size = sourceColumns.First().Segment.Size;
                 MetaData.SetType(ColumnType.IndexList);
                 MetaData.Set(Consts.Index, newColumnIndex);
                 MetaData.Set(Consts.Name, name);
@@ -86,7 +90,7 @@ namespace BrightTable.Transformations
                 // fill the buffer
                 var len = sourceColumns.Length;
                 var buffer = new object[len];
-                var enumerators = sourceColumns.Select(c => c.Segment!.Enumerate().GetEnumerator()).ToList();
+                var enumerators = sourceColumns.Select(c => c.Segment.Enumerate().GetEnumerator()).ToList();
                 while (enumerators.All(e => e.MoveNext()))
                 {
                     for (var i = 0; i < len; i++)

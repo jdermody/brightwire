@@ -8,7 +8,7 @@ namespace BrightWire.TreeBased
     /// <summary>
     /// Classifies rows based on a previously trained model
     /// </summary>
-    class RandomForestClassifier : IRowClassifier
+    internal class RandomForestClassifier : IRowClassifier
     {
         readonly List<DecisionTreeClassifier> _forest;
 

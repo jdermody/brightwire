@@ -11,7 +11,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 	/// Convolutional neural network layer
 	/// https://en.wikipedia.org/wiki/Convolutional_neural_network
 	/// </summary>
-	class Convolutional : NodeBase
+    internal class Convolutional : NodeBase
 	{
 		class Backpropagation : SingleBackpropagationBase<Convolutional>
 		{

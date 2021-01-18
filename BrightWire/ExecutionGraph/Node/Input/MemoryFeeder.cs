@@ -9,7 +9,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
     /// <summary>
     /// Feeds memory into the graph from a named memory slot
     /// </summary>
-    class MemoryFeeder : NodeBase, IMemoryNode
+    internal class MemoryFeeder : NodeBase, IMemoryNode
     {
         class Backpropagation : BackpropagationBase<MemoryFeeder>
         {
@@ -31,7 +31,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
             }
         }
 
-        private readonly IBrightDataContext _context;
+        readonly IBrightDataContext _context;
         readonly float[] _data;
 	    readonly SetMemory _setMemory;
 

@@ -5,7 +5,7 @@ namespace BrightWire.ExecutionGraph.Node.Operation
     /// <summary>
     /// Calculates the square root of the input
     /// </summary>
-    class SquareRootOfInput : NodeBase
+    internal class SquareRootOfInput : NodeBase
     {
         /// <summary>
         /// Derivative of sqrt(x) is 0.5/sqrt(x)

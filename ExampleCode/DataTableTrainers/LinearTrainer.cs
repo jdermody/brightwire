@@ -6,7 +6,7 @@ using BrightWire;
 
 namespace ExampleCode.DataTableTrainers
 {
-    class LinearTrainer : DataTableTrainer
+    internal class LinearTrainer : DataTableTrainer
     {
         public LinearTrainer(IRowOrientedDataTable table) : base(table)
         {

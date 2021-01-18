@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace BrightTable.Segments
 {
-    class Row : IDataTableSegment
+    internal class Row : IDataTableSegment
     {
         readonly object[] _data;
 

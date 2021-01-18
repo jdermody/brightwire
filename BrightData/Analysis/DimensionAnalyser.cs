@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace BrightData.Analysis
 {
-    class DimensionAnalyser : IDataAnalyser<ITensor<float>>
+    internal class DimensionAnalyser : IDataAnalyser<ITensor<float>>
     {
-        private readonly uint _maxCount;
+        readonly uint _maxCount;
         readonly HashSet<(uint X, uint Y, uint Z)> _distinct = new HashSet<(uint X, uint Y, uint Z)>();
 
         public DimensionAnalyser(uint maxCount = Consts.MaxDistinct)

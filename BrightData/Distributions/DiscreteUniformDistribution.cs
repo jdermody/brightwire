@@ -2,9 +2,9 @@
 
 namespace BrightData.Distributions
 {
-    class DiscreteUniformDistribution : IDiscreteDistribution
+    internal class DiscreteUniformDistribution : IDiscreteDistribution
     {
-        private readonly IBrightDataContext _context;
+        readonly IBrightDataContext _context;
 
         public DiscreteUniformDistribution(IBrightDataContext context, int inclusiveLowerBound, int exclusiveUpperBound)
         {

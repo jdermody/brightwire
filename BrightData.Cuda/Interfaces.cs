@@ -27,7 +27,7 @@ namespace BrightData.Cuda
     /// <summary>
     /// Wrapper for a device memory pointer
     /// </summary>
-    interface IDeviceMemoryPtr
+    internal interface IDeviceMemoryPtr
     {
         int AddRef();
         void Free();
@@ -40,7 +40,7 @@ namespace BrightData.Cuda
         void Clear();
     }
 
-    interface IHaveDeviceMemory
+    internal interface IHaveDeviceMemory
     {
         IDeviceMemoryPtr Memory { get; }
     }

@@ -8,7 +8,7 @@ namespace BrightWire.ExecutionGraph.GradientDescent
     /// Adam gradient descent
     /// https://en.wikipedia.org/wiki/Stochastic_gradient_descent#Adam
     /// </summary>
-    class Adam : RmsProp
+    internal class Adam : RmsProp
     {
         float _decayRate2;
         IFloatMatrix _cache2;

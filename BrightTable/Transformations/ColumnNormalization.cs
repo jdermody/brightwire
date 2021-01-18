@@ -9,9 +9,9 @@ namespace BrightTable.Transformations
     {
         class Normalizer<T> : IConvert<T, T>, INormalize where T: struct
         {
-            private readonly ICanConvert<T, double> _convertToDouble;
-            private readonly NormalizeTransformation _normalize;
-            private readonly ICanConvert<double, T> _convertBack;
+            readonly ICanConvert<T, double> _convertToDouble;
+            readonly NormalizeTransformation _normalize;
+            readonly ICanConvert<double, T> _convertBack;
 
             public Normalizer(NormalizationType type, IMetaData analysedMetaData)
             {
@@ -35,6 +35,7 @@ namespace BrightTable.Transformations
                 var columnType = To.GetColumnType();
                 if (columnType.IsNumeric())
                     metaData.Set(Consts.IsNumeric, true);
+                _normalize.WriteTo(metaData);
             }
 
             public Type From => typeof(T);

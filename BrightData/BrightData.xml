@@ -131,12 +131,12 @@
         </member>
         <member name="P:BrightData.Analysis.Readers.NumericAnalysis.Variance">
             <summary>
-            Variance of values
+            Sample variance of values
             </summary>
         </member>
         <member name="P:BrightData.Analysis.Readers.NumericAnalysis.StdDev">
             <summary>
-            Standard deviation
+            Sample standard deviation
             </summary>
         </member>
         <member name="P:BrightData.Analysis.Readers.NumericAnalysis.Median">
@@ -146,12 +146,17 @@
         </member>
         <member name="P:BrightData.Analysis.Readers.NumericAnalysis.Mode">
             <summary>
-            Mode
+            Mode (most frequent value)
             </summary>
         </member>
         <member name="P:BrightData.Analysis.Readers.NumericAnalysis.NumDistinct">
             <summary>
             Number of distinct values
+            </summary>
+        </member>
+        <member name="P:BrightData.Analysis.Readers.NumericAnalysis.Total">
+            <summary>
+            Total count of items
             </summary>
         </member>
         <member name="P:BrightData.Analysis.Readers.NumericAnalysis.Frequency">
@@ -405,7 +410,7 @@
             <param name="maxDistinct"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Buffers.StaticBuffers.CreateHybridObjectBuffer``1(BrightData.IProvideTempStreams,BrightData.IBrightDataContext,System.UInt32,System.UInt16)">
+        <member name="M:BrightData.Buffers.StaticBuffers.CreateHybridObjectBuffer``1(BrightData.IProvideTempStreams,BrightData.IBrightDataContext,System.UInt32)">
             <summary>
             Creates a buffer to store objects
             </summary>
@@ -416,7 +421,7 @@
             <param name="maxDistinct"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Buffers.StaticBuffers.CreateHybridObjectBuffer(BrightData.IProvideTempStreams,BrightData.IBrightDataContext,System.Type,System.UInt32,System.UInt16)">
+        <member name="M:BrightData.Buffers.StaticBuffers.CreateHybridObjectBuffer(BrightData.IProvideTempStreams,BrightData.IBrightDataContext,System.Type,System.UInt32)">
             <summary>
             Creates a buffer to store objects
             </summary>
@@ -480,6 +485,25 @@
             </summary>
             <typeparam name="T">Type to convert from</typeparam>
             <returns></returns>
+        </member>
+        <member name="T:BrightData.ExtensionMethods">
+            <summary>
+            Extension methods to attach analyser creation to the bright data context
+            </summary>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.CreateIndexList(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+            <summary>
+            Creates an index list from a binary reader
+            </summary>
+            <param name="context"></param>
+            <param name="reader">The binary reader</param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.CreateWeightedIndexList(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+            <summary>
+            Creates a weighted index list from a binary reader
+            </summary>
+            <param name="context"></param>
+            <param name="reader">The binary reader</param>
         </member>
         <member name="M:BrightData.ExtensionMethods.ConvertToWeightedIndexList(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.IndexList}},BrightData.IBrightDataContext,System.Boolean)">
             <summary>
@@ -755,6 +779,72 @@
             Constrained float math helpers - if the value is too small or too big it will be capped. Also NaN values are replaced with zero.
             </summary>
         </member>
+        <member name="T:BrightData.Helper.GenericActivator">
+            <summary>
+            Generic object creator
+            </summary>
+        </member>
+        <member name="M:BrightData.Helper.GenericActivator.Create``1(System.Type,System.Object[])">
+            <summary>
+            Creates a new object
+            </summary>
+            <typeparam name="T">Type to cast created object to</typeparam>
+            <param name="type">Type of object to create</param>
+            <param name="args">Arguments to pass to constructor</param>
+        </member>
+        <member name="M:BrightData.Helper.GenericActivator.Create``2(System.Type,System.Object[])">
+            <summary>
+            Creates a new object
+            </summary>
+            <typeparam name="T1">Type to cast created object to</typeparam>
+            <typeparam name="T2">Type to cast created object to</typeparam>
+            <param name="type">Type of object to create</param>
+            <param name="args">Arguments to pass to constructor</param>
+        </member>
+        <member name="T:BrightData.Helper.ShapedBase">
+            <summary>
+            Tensor shape
+            </summary>
+        </member>
+        <member name="P:BrightData.Helper.ShapedBase.Shape">
+            <summary>
+            Array of sizes
+            </summary>
+        </member>
+        <member name="M:BrightData.Helper.ShapedBase.#ctor(System.UInt32[])">
+            <summary>
+            Constructor
+            </summary>
+            <param name="shape">Array of sizes</param>
+        </member>
+        <member name="P:BrightData.Helper.ShapedBase.Size">
+            <summary>
+            Total size of the shape
+            </summary>
+        </member>
+        <member name="P:BrightData.Helper.ShapedBase.Rank">
+            <summary>
+            Number of sizes within the shape
+            </summary>
+        </member>
+        <member name="M:BrightData.Helper.ShapedBase.WriteTo(System.IO.BinaryWriter)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Helper.ShapedBase.ReadFrom(System.IO.BinaryReader)">
+            <summary>
+            Reads the shape from a binary reader
+            </summary>
+            <param name="reader">Reader</param>
+            <returns>Size of tensor</returns>
+        </member>
+        <member name="M:BrightData.Helper.ShapedBase._ResolveShape(System.UInt32,System.Nullable{System.UInt32}[])">
+            <summary>
+            Works out the shape from a possibly incomplete list of sizes
+            </summary>
+            <param name="total">Total size</param>
+            <param name="shape">List of sizes that form the shape (one can be null)</param>
+            <returns></returns>
+        </member>
         <member name="T:BrightData.Helper.StringIndexer">
             <summary>
             Builds a string table
@@ -807,28 +897,13 @@
             Contains a list of indices
             </summary>
         </member>
-        <member name="M:BrightData.IndexList.#ctor(BrightData.IBrightDataContext)">
-            <summary>
-            Constructor
-            </summary>
-            <param name="context">Bright data context</param>
-        </member>
         <member name="P:BrightData.IndexList.Context">
-            <summary>
-            Bright data context
-            </summary>
+            <inheritdoc />
         </member>
         <member name="P:BrightData.IndexList.Indices">
             <summary>
             The list of indices
             </summary>
-        </member>
-        <member name="M:BrightData.IndexList.Create(BrightData.IBrightDataContext,System.UInt32[])">
-            <summary>
-            Create a new index list with the specified indices
-            </summary>
-            <param name="context"></param>
-            <param name="indices">Sparse list of indices</param>
         </member>
         <member name="P:BrightData.IndexList.Count">
             <summary>
@@ -839,6 +914,18 @@
             <summary>
             ToString override
             </summary>
+        </member>
+        <member name="M:BrightData.IndexList.Merge(System.Collections.Generic.IEnumerable{BrightData.IndexList})">
+            <summary>
+            Merges a sequence of index lists into a single index list
+            </summary>
+            <param name="lists">Lists to merge</param>
+        </member>
+        <member name="M:BrightData.IndexList.GetHashCode">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.IndexList.Equals(System.Object)">
+            <inheritdoc />
         </member>
         <member name="M:BrightData.IndexList.WriteTo(System.String,System.Xml.XmlWriter)">
             <summary>
@@ -853,22 +940,51 @@
             </summary>
             <param name="writer"></param>
         </member>
-        <member name="M:BrightData.IndexList.ReadFrom(BrightData.IBrightDataContext,System.IO.BinaryReader)">
-            <summary>
-            Creates an index list from a binary reader
-            </summary>
-            <param name="context"></param>
-            <param name="reader">The binary reader</param>
+        <member name="M:BrightData.IndexList.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+            <inheritdoc />
         </member>
         <member name="M:BrightData.IndexList.ToXml">
             <summary>
             Converts the index list to XML
             </summary>
         </member>
+        <member name="M:BrightData.IndexList.JaccardSimilarity(BrightData.IndexList)">
+            <summary>
+            Calculates the jaccard similarity between this and another index list
+            </summary>
+            <param name="other">Index list to compare to</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IndexList.ToDense(System.Nullable{System.UInt32})">
+            <summary>
+            Converts to a vector
+            </summary>
+            <param name="maxIndex">Maximum index to include</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IndexList.HasIndex(System.UInt32)">
+            <summary>
+            Checks if the specified index has been set
+            </summary>
+            <param name="index"></param>
+            <returns></returns>
+        </member>
         <member name="T:BrightData.IHaveIndices">
             <summary>
-            Interface 
+            Interface of any type has a list of indices
             </summary>
+        </member>
+        <member name="P:BrightData.IHaveIndices.Indices">
+            <summary>
+            Enumerates the indices
+            </summary>
+        </member>
+        <member name="M:BrightData.ICanInitializeFromBinaryReader.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+            <summary>
+            Initialize from a binary reader
+            </summary>
+            <param name="context">Bright data context</param>
+            <param name="reader">Reader to read from to initialize</param>
         </member>
         <member name="T:BrightData.ILinearAlgebraProvider">
             <summary>
@@ -987,6 +1103,12 @@
             <param name="comparison"></param>
             <param name="distanceMetric"></param>
             <returns></returns>
+        </member>
+        <member name="M:BrightData.ILinearAlgebraProvider.CreateVector(BrightData.ITensorSegment{System.Single})">
+            <summary>
+            Creates a vector from a tensor segment
+            </summary>
+            <param name="data">Tensor segment</param>
         </member>
         <member name="T:BrightData.DistanceMetric">
             <summary>
@@ -1561,11 +1683,10 @@
             Sets each element to zero
             </summary>
         </member>
-        <member name="M:BrightData.IFloatMatrix.Sqrt(System.Single)">
+        <member name="M:BrightData.IFloatMatrix.Sqrt">
             <summary>
             Returns the square root of each element in the current matrix
             </summary>
-            <param name="valueAdjustment">Term to add to each element in the result matrix</param>
         </member>
         <member name="M:BrightData.IFloatMatrix.Pow(System.Single)">
             <summary>
@@ -2160,6 +2281,113 @@
             <param name="end"></param>
             <returns></returns>
         </member>
+        <member name="T:BrightData.Matrix`1">
+            <summary>
+            Matrix type
+            </summary>
+            <typeparam name="T">Data type within the matrix</typeparam>
+        </member>
+        <member name="P:BrightData.Matrix`1.RowCount">
+            <summary>
+            Number of rows
+            </summary>
+        </member>
+        <member name="P:BrightData.Matrix`1.ColumnCount">
+            <summary>
+            Number of columns
+            </summary>
+        </member>
+        <member name="M:BrightData.Matrix`1.Row(System.UInt32)">
+            <summary>
+            Returns a row as a vector
+            </summary>
+            <param name="index">Row index</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Matrix`1.Column(System.UInt32)">
+            <summary>
+            Returns a column as a vector
+            </summary>
+            <param name="index">Column index</param>
+            <returns></returns>
+        </member>
+        <member name="P:BrightData.Matrix`1.Rows">
+            <summary>
+            All rows
+            </summary>
+        </member>
+        <member name="P:BrightData.Matrix`1.Columns">
+            <summary>
+            All columns
+            </summary>
+        </member>
+        <member name="P:BrightData.Matrix`1.Item(System.Int32,System.Int32)">
+            <summary>
+            Returns the value at the specified index
+            </summary>
+            <param name="rowY">Row index</param>
+            <param name="columnX">Column index</param>
+            <returns></returns>
+        </member>
+        <member name="P:BrightData.Matrix`1.Item(System.UInt32,System.UInt32)">
+            <summary>
+            Returns the value at the specified index
+            </summary>
+            <param name="rowY">Row index</param>
+            <param name="columnX">Column index</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Matrix`1.ToString">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Matrix`1.ToColumnMajor">
+            <summary>
+            Converts to a column major array format (default is row major)
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Matrix`1.Transpose">
+            <summary>
+            Transpose the matrix
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Matrix`1.Multiply(BrightData.Matrix{`0})">
+            <summary>
+            Multiply the matrix with another matrix
+            </summary>
+            <param name="other">Other matrix to multiply</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Matrix`1.GetDiagonal">
+            <summary>
+            Returns the diagonal of the matrix as a vector
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Matrix`1.RowSums">
+            <summary>
+            Returns the sum of each row as a vector
+            </summary>
+            <returns></returns>
+            <exception cref="T:System.NotImplementedException"></exception>
+        </member>
+        <member name="M:BrightData.Matrix`1.ColumnSums">
+            <summary>
+            Returns the sum of each column as a vector
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Matrix`1.Multiply(BrightData.Vector{`0})">
+            <summary>
+            Multiplies the matrix with a vector
+            </summary>
+            <param name="vector">Vector to multiply</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Matrix`1.Create(BrightData.ITensorSegment{`0})">
+            <inheritdoc />
+        </member>
         <member name="T:BrightData.Memory.MemoryLayer">
             <summary>
             A section of memory blocks that will be released when the layer is disposed
@@ -2182,15 +2410,184 @@
             </summary>
             <typeparam name="T"></typeparam>
         </member>
+        <member name="T:BrightData.Tensor3D`1">
+            <summary>
+            3D tensor type
+            </summary>
+            <typeparam name="T">Data type within the tensor</typeparam>
+        </member>
+        <member name="P:BrightData.Tensor3D`1.Depth">
+            <summary>
+            Number of matrices
+            </summary>
+        </member>
+        <member name="P:BrightData.Tensor3D`1.RowCount">
+            <summary>
+            Number of rows within each matrix
+            </summary>
+        </member>
+        <member name="P:BrightData.Tensor3D`1.ColumnCount">
+            <summary>
+            Number of columns within each matrix
+            </summary>
+        </member>
+        <member name="P:BrightData.Tensor3D`1.MatrixSize">
+            <summary>
+            Size of each matrix
+            </summary>
+        </member>
+        <member name="P:BrightData.Tensor3D`1.Item(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Returns the value at the specified index
+            </summary>
+            <param name="depth">Index of the matrix</param>
+            <param name="rowY">Row within the matrix</param>
+            <param name="columnX">Column within the matrix</param>
+            <returns></returns>
+        </member>
+        <member name="P:BrightData.Tensor3D`1.Item(System.UInt32,System.UInt32,System.UInt32)">
+            <summary>
+            Returns the value at the specified index
+            </summary>
+            <param name="depth">Index of the matrix</param>
+            <param name="rowY">Row within the matrix</param>
+            <param name="columnX">Column within the matrix</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Tensor3D`1.Matrix(System.UInt32)">
+            <summary>
+            Returns a matrix at the specified index
+            </summary>
+            <param name="index">Matrix index</param>
+            <returns></returns>
+        </member>
+        <member name="P:BrightData.Tensor3D`1.Matrices">
+            <summary>
+            All matrices
+            </summary>
+        </member>
+        <member name="M:BrightData.Tensor3D`1.ToString">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Tensor3D`1.Create(BrightData.ITensorSegment{`0})">
+            <inheritdoc />
+        </member>
         <member name="M:BrightData.Tensor3D`1.GetAsRaw">
             <summary>
-            Converts the segment to a column major vector
+            Converts the segment to a column major vector (default is row major)
             </summary>
+        </member>
+        <member name="T:BrightData.Tensor4D`1">
+            <summary>
+            4D tensor type
+            </summary>
+            <typeparam name="T">Data type within the tensor</typeparam>
+        </member>
+        <member name="P:BrightData.Tensor4D`1.Count">
+            <summary>
+            Number of 3D tensors
+            </summary>
+        </member>
+        <member name="P:BrightData.Tensor4D`1.Depth">
+            <summary>
+            Number of matrices within each 3D tensor
+            </summary>
+        </member>
+        <member name="P:BrightData.Tensor4D`1.RowCount">
+            <summary>
+            Number of rows within each matrix
+            </summary>
+        </member>
+        <member name="P:BrightData.Tensor4D`1.ColumnCount">
+            <summary>
+            Number of columns within each matrix
+            </summary>
+        </member>
+        <member name="P:BrightData.Tensor4D`1.MatrixSize">
+            <summary>
+            Size of each matrix
+            </summary>
+        </member>
+        <member name="P:BrightData.Tensor4D`1.TensorSize">
+            <summary>
+            Size of each 3D tensor
+            </summary>
+        </member>
+        <member name="P:BrightData.Tensor4D`1.Item(System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Returns the value at the specified index
+            </summary>
+            <param name="count">3D tensor index</param>
+            <param name="depth">Matrix depth within the 3D tensor</param>
+            <param name="rowY">Row within the matrix</param>
+            <param name="columnX">Column within the matrix</param>
+        </member>
+        <member name="P:BrightData.Tensor4D`1.Item(System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
+            <summary>
+            Returns the value at the specified index
+            </summary>
+            <param name="count">3D tensor index</param>
+            <param name="depth">Matrix depth within the 3D tensor</param>
+            <param name="rowY">Row within the matrix</param>
+            <param name="columnX">Column within the matrix</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Tensor4D`1.Tensor(System.UInt32)">
+            <summary>
+            Returns a nested 3D tensor
+            </summary>
+            <param name="index">Tensor index</param>
+        </member>
+        <member name="P:BrightData.Tensor4D`1.Tensors">
+            <summary>
+            All 3D tensors
+            </summary>
+        </member>
+        <member name="M:BrightData.Tensor4D`1.ToString">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Tensor4D`1.Create(BrightData.ITensorSegment{`0})">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.TensorBase`2">
+            <summary>
+            Base class for tensors
+            </summary>
+            <typeparam name="T">Data type within the tensor</typeparam>
+            <typeparam name="DT">Underlying type (vector, matrix etc)</typeparam>
+        </member>
+        <member name="F:BrightData.TensorBase`2._segment">
+            <summary>
+            Data segment
+            </summary>
+        </member>
+        <member name="M:BrightData.TensorBase`2.#ctor(BrightData.ITensorSegment{`0},System.UInt32[])">
+            <summary>
+            Constructor
+            </summary>
+            <param name="segment">Data segment</param>
+            <param name="shape">Shape of tensor</param>
+        </member>
+        <member name="M:BrightData.TensorBase`2.#ctor(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+            <summary>
+            Initialize from binary reader
+            </summary>
+            <param name="context">Bright data context</param>
+            <param name="reader">Reader to initialize from</param>
+        </member>
+        <member name="M:BrightData.TensorBase`2.Dispose">
+            <inheritdoc />
         </member>
         <member name="M:BrightData.TensorBase`2.MaximumIndex">
             <summary>
-            Finds the index with the highest value
+            Returns the index with the highest value
             </summary>
+        </member>
+        <member name="M:BrightData.TensorBase`2.MinimumIndex">
+            <summary>
+            Returns the index with the lowest value
+            </summary>
+            <returns></returns>
         </member>
         <member name="T:BrightData.Transformation.NormalizeTransformation">
             <summary>
@@ -2226,17 +2623,96 @@
             <param name="val">Value to normalize</param>
             <returns>Normalized result</returns>
         </member>
+        <member name="T:BrightData.Vector`1">
+            <summary>
+            Generic vector
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="P:BrightData.Vector`1.Size">
+            <summary>
+            Number of elements in the vector
+            </summary>
+        </member>
+        <member name="M:BrightData.Vector`1.Create(BrightData.ITensorSegment{`0})">
+            <summary>
+            Creates a vector from a tensor segment
+            </summary>
+            <param name="segment">Tensor segment that will be used</param>
+        </member>
+        <member name="P:BrightData.Vector`1.Item(System.Int32)">
+            <summary>
+            Returns the value at the specified index
+            </summary>
+            <param name="index">Index to retrieve</param>
+            <returns></returns>
+        </member>
+        <member name="P:BrightData.Vector`1.Item(System.UInt32)">
+            <summary>
+            Returns the value at the specified index
+            </summary>
+            <param name="index">Index to retrieve</param>
+        </member>
+        <member name="P:BrightData.Vector`1.Values">
+            <summary>
+            The values in the vector
+            </summary>
+        </member>
+        <member name="M:BrightData.Vector`1.ToString">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Vector`1.CopyFrom(`0[])">
+            <summary>
+            Copies from an array into this vector
+            </summary>
+            <param name="array">Array to copy from</param>
+        </member>
+        <member name="T:BrightData.WeightedIndexList">
+            <summary>
+            Contains a list of weighted indices
+            </summary>
+        </member>
+        <member name="T:BrightData.WeightedIndexList.Item">
+            <summary>
+            An item within a weighted index list
+            </summary>
+        </member>
+        <member name="P:BrightData.WeightedIndexList.Item.Index">
+            <summary>
+            Index of item
+            </summary>
+        </member>
+        <member name="P:BrightData.WeightedIndexList.Item.Weight">
+            <summary>
+            Weight of item
+            </summary>
+        </member>
+        <member name="M:BrightData.WeightedIndexList.Item.#ctor(System.UInt32,System.Single)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="index">Index of item</param>
+            <param name="weight">Weight of item</param>
+        </member>
+        <member name="M:BrightData.WeightedIndexList.Item.ToString">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.WeightedIndexList.Item.Equals(BrightData.WeightedIndexList.Item)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.WeightedIndexList.Item.Equals(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.WeightedIndexList.Item.GetHashCode">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.WeightedIndexList.Context">
+            <inheritdoc />
+        </member>
         <member name="P:BrightData.WeightedIndexList.Indices">
             <summary>
             The list of indices
             </summary>
-        </member>
-        <member name="M:BrightData.WeightedIndexList.Create(BrightData.IBrightDataContext,BrightData.WeightedIndexList.Item[])">
-            <summary>
-            Create a new weighted index list with the specified weighted indices
-            </summary>
-            <param name="context"></param>
-            <param name="indexList">Sparse list of weighted indices</param>
         </member>
         <member name="P:BrightData.WeightedIndexList.Count">
             <summary>
@@ -2247,6 +2723,17 @@
             <summary>
             ToString override
             </summary>
+        </member>
+        <member name="M:BrightData.WeightedIndexList.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.WeightedIndexList.Merge(System.Collections.Generic.IEnumerable{BrightData.WeightedIndexList},BrightData.OperationType)">
+            <summary>
+            Merges a sequence of weighted index lists into one list
+            </summary>
+            <param name="lists">Lists to merge</param>
+            <param name="mergeOperation">How to merge item weights</param>
+            <returns></returns>
         </member>
         <member name="M:BrightData.WeightedIndexList.WriteTo(System.String,System.Xml.XmlWriter)">
             <summary>
@@ -2261,13 +2748,6 @@
             </summary>
             <param name="writer"></param>
         </member>
-        <member name="M:BrightData.WeightedIndexList.ReadFrom(BrightData.IBrightDataContext,System.IO.BinaryReader)">
-            <summary>
-            Creates a weighted index list from a binary reader
-            </summary>
-            <param name="context"></param>
-            <param name="reader">The binary reader</param>
-        </member>
         <member name="M:BrightData.WeightedIndexList.ToXml">
             <summary>
             Converts the weighted index list to XML
@@ -2278,6 +2758,48 @@
             Converts the weighted index-list to an unweighted index-list (only those indices whose weight is not zero)
             </summary>
             <returns></returns>
+        </member>
+        <member name="M:BrightData.WeightedIndexList.Dot(BrightData.WeightedIndexList)">
+            <summary>
+            Dot product of this combined with the other weighted index list
+            </summary>
+            <param name="other">Other weighted index list</param>
+        </member>
+        <member name="P:BrightData.WeightedIndexList.Magnitude">
+            <summary>
+            Magnitude of weights
+            </summary>
+        </member>
+        <member name="M:BrightData.WeightedIndexList.CosineSimilarity(BrightData.WeightedIndexList)">
+            <summary>
+            Cosine similarity between this and another weighted index list
+            </summary>
+            <param name="other">Other list to compare</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.WeightedIndexList.GetMaxWeight">
+            <summary>
+            Returns the index with the highest weight
+            </summary>
+        </member>
+        <member name="M:BrightData.WeightedIndexList.JaccardSimilarity(BrightData.WeightedIndexList)">
+            <summary>
+            Computes the jaccard similarity between this and another weighted index list
+            </summary>
+            <param name="other">Other list to compare</param>
+        </member>
+        <member name="M:BrightData.WeightedIndexList.AsDense(System.Nullable{System.UInt32})">
+            <summary>
+            Converts to a vector
+            </summary>
+            <param name="maxIndex">Inclusive highest index to copy (optional)</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.WeightedIndexList.GetHashCode">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.WeightedIndexList.Equals(System.Object)">
+            <inheritdoc />
         </member>
     </members>
 </doc>

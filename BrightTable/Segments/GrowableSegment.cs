@@ -7,7 +7,7 @@ namespace BrightTable.Segments
 {
     public class GrowableSegment<T> : ISingleTypeTableSegment, IHybridBuffer<T>
     {
-        private readonly IHybridBuffer<T> _buffer;
+        readonly IHybridBuffer<T> _buffer;
 
         public GrowableSegment(ColumnType type, IMetaData metaData, IHybridBuffer<T> buffer)
         {

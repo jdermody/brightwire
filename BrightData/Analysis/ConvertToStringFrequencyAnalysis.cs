@@ -1,6 +1,6 @@
 ﻿namespace BrightData.Analysis
 {
-    class ConvertToStringFrequencyAnalysis<T> : IDataAnalyser<T>
+    internal class ConvertToStringFrequencyAnalysis<T> : IDataAnalyser<T>
     {
         public ConvertToStringFrequencyAnalysis(uint writeCount = Consts.MaxWriteCount, uint maxCount = Consts.MaxDistinct)
         {

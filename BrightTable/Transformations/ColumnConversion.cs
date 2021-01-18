@@ -15,7 +15,7 @@ namespace BrightTable.Transformations
     {
         public class Converter<TF, TT> : IConvert<TF, TT>
         {
-            private readonly Func<TF, TT> _converter;
+            readonly Func<TF, TT> _converter;
 
             public Converter(Func<TF, TT> converter)
             {
@@ -75,7 +75,7 @@ namespace BrightTable.Transformations
 
         class NumericConverter<TF, TT> : IConvert<TF, TT>
         {
-            private readonly IEnumerator<TT> _list;
+            readonly IEnumerator<TT> _list;
 
             public NumericConverter(IEnumerable<TT> data)
             {
@@ -115,23 +115,25 @@ namespace BrightTable.Transformations
             public override void Finalise(IMetaData metaData)
             {
                 metaData.Set(Consts.IsNumeric, true);
+                metaData.SetType(ColumnType.Int);
+
                 foreach (var category in _categoryIndex.OrderBy(d => d.Value))
-                    metaData.Set("category:" + category.Value, category.Key);
+                    metaData.Set(Consts.CategoryPrefix + category.Value, category.Key);
             }
         }
 
-        private readonly ColumnConversionType _toType;
-        private readonly ICanConvert _converter;
+        readonly ColumnConversionType _toType;
+        readonly ICanConvert? _converter;
 
-        private static readonly HashSet<string> TrueStrings = new HashSet<string> { "Y", "YES", "TRUE", "T", "1" };
-        private static readonly ICanConvert StringToBool = new Converter<string, bool>(str => TrueStrings.Contains(str));
-        private static readonly ICanConvert StringToDate = new Converter<string, DateTime>(DateTime.Parse);
-        private static readonly ICanConvert WeightedIndexListToIndexList = new Converter<WeightedIndexList, IndexList>(w => w.AsIndexList());
-        private static readonly ICanConvert VectorToIndexList = new Converter<Vector<float>, IndexList>(v => v.Segment.ToSparse().AsIndexList());
-        private static readonly ICanConvert IndexListToVector = new Converter<IndexList, Vector<float>>(v => v.ToDense(null));
-        private static readonly ICanConvert WeightedIndexListToVector = new Converter<IndexList, Vector<float>>(v => v.ToDense(null));
-        private static readonly ICanConvert IndexListToWeightedIndexList = new Converter<IndexList, WeightedIndexList>(indexList => indexList.Context.CreateWeightedIndexList(indexList.Indices.Select(ind => (ind, 1f))));
-        private static readonly ICanConvert VectorToWeightedIndexList = new Converter<Vector<float>, WeightedIndexList>(v => v.Segment.ToSparse());
+        static readonly HashSet<string> TrueStrings = new HashSet<string> { "Y", "YES", "TRUE", "T", "1" };
+        static readonly ICanConvert StringToBool = new Converter<string, bool>(str => TrueStrings.Contains(str));
+        static readonly ICanConvert StringToDate = new Converter<string, DateTime>(DateTime.Parse);
+        static readonly ICanConvert WeightedIndexListToIndexList = new Converter<WeightedIndexList, IndexList>(w => w.AsIndexList());
+        static readonly ICanConvert VectorToIndexList = new Converter<Vector<float>, IndexList>(v => v.Segment.ToSparse().AsIndexList());
+        static readonly ICanConvert IndexListToVector = new Converter<IndexList, Vector<float>>(v => v.ToDense(null));
+        static readonly ICanConvert WeightedIndexListToVector = new Converter<IndexList, Vector<float>>(v => v.ToDense(null));
+        static readonly ICanConvert IndexListToWeightedIndexList = new Converter<IndexList, WeightedIndexList>(indexList => indexList.Context.CreateWeightedIndexList(indexList.Indices.Select(ind => (ind, 1f))));
+        static readonly ICanConvert VectorToWeightedIndexList = new Converter<Vector<float>, WeightedIndexList>(v => v.Segment.ToSparse());
 
         public ColumnConversion(uint? columnIndex, ColumnConversionType type)
         {
@@ -148,7 +150,7 @@ namespace BrightTable.Transformations
 
         public uint? ColumnIndex { get; }
 
-        public ICanConvert GetConverter(ColumnType fromType, ISingleTypeTableSegment column, IProvideTempStreams tempStreams, uint inMemoryRowCount)
+        public ICanConvert? GetConverter(ColumnType fromType, ISingleTypeTableSegment column, IProvideTempStreams tempStreams, uint inMemoryRowCount)
         {
             if (_converter != null)
                 return _converter;
@@ -156,22 +158,28 @@ namespace BrightTable.Transformations
             switch (_toType) {
                 case ColumnConversionType.Unchanged:
                     return null;
+
+                // to boolean
                 case ColumnConversionType.ToBoolean when fromType == ColumnType.Boolean:
                     return null;
                 case ColumnConversionType.ToBoolean when fromType == ColumnType.String:
                     return StringToBool;
+
+                // to date
                 case ColumnConversionType.ToDate when fromType == ColumnType.Date:
                     return null;
                 case ColumnConversionType.ToDate when fromType == ColumnType.String:
                     return StringToDate;
+
+                // to string
                 case ColumnConversionType.ToString when fromType == ColumnType.String:
                     return null;
-                case ColumnConversionType.ToString: {
-                    var t = typeof(AnyToString<>).MakeGenericType(fromType.GetDataType());
-                    return (ICanConvert)Activator.CreateInstance(t);
-                }
+                case ColumnConversionType.ToString:
+                    return GenericActivator.Create<ICanConvert>(typeof(AnyToString<>).MakeGenericType(fromType.GetDataType()));
+
+                // to numeric
                 case ColumnConversionType.ToNumeric: {
-                    var buffer = StaticBuffers.CreateHybridStructBuffer<double>(tempStreams, inMemoryRowCount, 1024);
+                    var buffer = tempStreams.CreateHybridStructBuffer<double>(inMemoryRowCount, 1024);
                     double min = double.MaxValue, max = double.MinValue;
                     var isInteger = true;
                     foreach (var val in column.Enumerate()) {
@@ -208,28 +216,32 @@ namespace BrightTable.Transformations
                     var converterType = typeof(NumericConverter<,>).MakeGenericType(fromType.GetDataType(), toType.GetDataType());
                     return GenericActivator.Create<ICanConvert>(converterType, enumerable);
                 }
-                case ColumnConversionType.ToCategoricalIndex: {
-                    var converterType = typeof(CategoricalIndexConverter<>).MakeGenericType(fromType.GetDataType());
-                    return GenericActivator.Create<ICanConvert>(converterType);
-                }
+
+                // to categorical index
+                case ColumnConversionType.ToCategoricalIndex:
+                    return GenericActivator.Create<ICanConvert>(typeof(CategoricalIndexConverter<>).MakeGenericType(fromType.GetDataType()));
+
                 case ColumnConversionType.ToIndexList when fromType == ColumnType.IndexList:
                     return null;
                 case ColumnConversionType.ToIndexList when fromType == ColumnType.WeightedIndexList:
                     return WeightedIndexListToIndexList;
                 case ColumnConversionType.ToIndexList when fromType == ColumnType.Vector:
                     return VectorToIndexList;
+
                 case ColumnConversionType.ToVector when fromType == ColumnType.Vector:
                     return null;
                 case ColumnConversionType.ToVector when fromType == ColumnType.WeightedIndexList:
                     return WeightedIndexListToVector;
                 case ColumnConversionType.ToVector when fromType == ColumnType.IndexList:
                     return IndexListToVector;
+
                 case ColumnConversionType.ToWeightedIndexList when fromType == ColumnType.WeightedIndexList:
                     return null;
                 case ColumnConversionType.ToWeightedIndexList when fromType == ColumnType.IndexList:
                     return IndexListToWeightedIndexList;
                 case ColumnConversionType.ToWeightedIndexList when fromType == ColumnType.Vector:
                     return VectorToWeightedIndexList;
+
                 default:
                     throw new Exception($"Converting from {fromType} to {_toType} is not supported");
             }

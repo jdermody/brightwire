@@ -10,7 +10,7 @@ namespace BrightWire.Linear.Training
     /// Linear regression
     /// https://en.wikipedia.org/wiki/Linear_regression
     /// </summary>
-    class RegressionTrainer : ILinearRegressionTrainer
+    internal class RegressionTrainer : ILinearRegressionTrainer
     {
         readonly ILinearAlgebraProvider _lap;
         readonly IFloatMatrix _feature;

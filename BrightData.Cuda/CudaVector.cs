@@ -11,7 +11,7 @@ namespace BrightData.Cuda
 	/// <summary>
 	/// GPU backed vector
 	/// </summary>
-	class CudaVector : IFloatVector, IHaveDeviceMemory
+    internal class CudaVector : IFloatVector, IHaveDeviceMemory
 	{
 		readonly CudaProvider _cuda;
 		readonly IDeviceMemoryPtr _data;

@@ -5,7 +5,7 @@ using BrightData.Helper;
 
 namespace BrightData.Computation
 {
-    class DoubleComputation : ComputationBase<double>
+    internal class DoubleComputation : ComputationBase<double>
     {
         public DoubleComputation(IBrightDataContext context) : base(context)
         {

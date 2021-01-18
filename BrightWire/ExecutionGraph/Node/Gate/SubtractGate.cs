@@ -6,7 +6,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
     /// <summary>
     /// Subtracts the second input from the first input
     /// </summary>
-    class SubtractGate : BinaryGateBase
+    internal class SubtractGate : BinaryGateBase
     {
         class Backpropagation : BackpropagationBase<SubtractGate>
         {

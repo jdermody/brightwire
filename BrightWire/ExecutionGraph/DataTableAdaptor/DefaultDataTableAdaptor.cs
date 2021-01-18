@@ -8,9 +8,9 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
     /// <summary>
     /// Vectorises each row of the data table on demand
     /// </summary>
-    class DefaultDataTableAdaptor : RowBasedDataTableAdaptorBase
+    internal class DefaultDataTableAdaptor : RowBasedDataTableAdaptorBase
     {
-        private readonly uint[] _featureColumns;
+        readonly uint[] _featureColumns;
 
         public DefaultDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, IVectorise inputVectoriser, IVectorise outputVectoriser, uint[] featureColumns)
             : base(lap, dataTable, featureColumns)

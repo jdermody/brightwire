@@ -2,7 +2,7 @@
 
 namespace BrightData.Converters
 {
-    class ConvertToSignedByte<T> : ConverterBase<T>, ICanConvert<T, sbyte>
+    internal class ConvertToSignedByte<T> : ConverterBase<T>, ICanConvert<T, sbyte>
         where T : struct
     {
         readonly Func<T, sbyte> _converter;

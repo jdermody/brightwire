@@ -11,7 +11,7 @@ using BrightTable.Segments;
 
 namespace BrightTable
 {
-    class RowOrientedDataTable : DataTableBase, IRowOrientedDataTable
+    internal class RowOrientedDataTable : DataTableBase, IRowOrientedDataTable
     {
         interface IColumnReader
         {
@@ -321,7 +321,7 @@ namespace BrightTable
             return _Copy(rowIndices, filePath);
         }
 
-        public IRowOrientedDataTable Sort(bool ascending, uint columnIndex, string? filePath = null)
+        public IRowOrientedDataTable Sort(uint columnIndex, bool @ascending, string? filePath = null)
         {
             var sortData = new List<(object Item, uint RowIndex)>();
             ForEachRow((row, rowIndex) => sortData.Add((row[columnIndex], rowIndex)));

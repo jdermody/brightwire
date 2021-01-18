@@ -6,7 +6,7 @@ namespace BrightWire.Descriptor
     /// <summary>
     /// Creates an AdaGrad gradient descent optimisation
     /// </summary>
-    class AdaGradDescriptor : ICreateTemplateBasedGradientDescent
+    internal class AdaGradDescriptor : ICreateTemplateBasedGradientDescent
     {
         public IGradientDescentOptimisation Create(IGradientDescentOptimisation prev, IFloatMatrix template, IPropertySet propertySet)
         {

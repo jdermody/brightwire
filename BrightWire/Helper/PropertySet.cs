@@ -6,7 +6,7 @@ namespace BrightWire.Helper
     /// <summary>
     /// Property set implementation
     /// </summary>
-    class PropertySet : IPropertySet
+    internal class PropertySet : IPropertySet
     {
         public const string WEIGHT_INITIALISATION = "bw:weight-initialisation";
         public const string GRADIENT_DESCENT = "bw:gradient-descent";

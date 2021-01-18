@@ -8,7 +8,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     /// <summary>
     /// Graph engine learning context
     /// </summary>
-    class LearningContext : ILearningContext
+    internal class LearningContext : ILearningContext
     {
 	    readonly Dictionary<uint, float> _learningRateSchedule = new Dictionary<uint, float>();
         readonly List<(object Error, Action<object> Updater)> _layerUpdate = new List<(object, Action<object>)>();

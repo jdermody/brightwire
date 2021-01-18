@@ -7,7 +7,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
     /// <summary>
     /// Max pooling convolutional neural network
     /// </summary>
-    class MaxPool : NodeBase
+    internal class MaxPool : NodeBase
     {
         class Backpropagation : SingleBackpropagationBase<MaxPool>
         {

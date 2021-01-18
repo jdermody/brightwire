@@ -8,7 +8,7 @@ namespace BrightWire.ExecutionGraph.Helper
     /// <summary>
     /// Divides epochs into a list of mini batches
     /// </summary>
-    class MiniBatchProvider
+    internal class MiniBatchProvider
     {
         class MiniBatchOperation : IGraphOperation
         {
@@ -31,7 +31,7 @@ namespace BrightWire.ExecutionGraph.Helper
             }
         }
         readonly IDataSource _dataSource;
-        private readonly Random _random;
+        readonly Random _random;
 
         public MiniBatchProvider(IDataSource dataSource, Random random)
         {

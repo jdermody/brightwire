@@ -6,7 +6,7 @@ using BrightWire.ExecutionGraph;
 
 namespace BrightWire.UnitTests
 {
-	class MockLearningContext : ILearningContext
+    internal class MockLearningContext : ILearningContext
     {
         public double EpochSeconds { get; set; }
         public long EpochMilliseconds { get; set; }

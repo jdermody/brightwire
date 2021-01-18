@@ -6,10 +6,10 @@ using BrightData.Helper;
 
 namespace BrightData.Buffers
 {
-    class ObjectHybridBuffer<T> : HybridBufferBase<T>
+    internal class ObjectHybridBuffer<T> : HybridBufferBase<T>
         where T : ISerializable
     {
-        private readonly IBrightDataContext _context;
+        readonly IBrightDataContext _context;
 
         public ObjectHybridBuffer(IBrightDataContext context, IProvideTempStreams tempStream, uint maxCount) : base(tempStream, maxCount, null)
         {

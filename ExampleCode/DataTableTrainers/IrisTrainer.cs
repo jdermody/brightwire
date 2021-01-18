@@ -8,7 +8,7 @@ using ExampleCode.Extensions;
 
 namespace ExampleCode.DataTableTrainers
 {
-    class IrisTrainer : DataTableTrainer
+    internal class IrisTrainer : DataTableTrainer
     {
         public string[] Labels { get; }
 

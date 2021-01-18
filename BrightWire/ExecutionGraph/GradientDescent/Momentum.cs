@@ -7,7 +7,7 @@ namespace BrightWire.ExecutionGraph.GradientDescent
     /// Gradient descent with momentum
     /// https://en.wikipedia.org/wiki/Stochastic_gradient_descent#Momentum
     /// </summary>
-    class Momentum : AdaGrad
+    internal class Momentum : AdaGrad
     {
         protected float _momentum;
         

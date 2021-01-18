@@ -11,9 +11,9 @@ using BrightWire.Models;
 
 namespace ExampleCode.DataTableTrainers
 {
-    class EmotionsTrainer : DataTableTrainer
+    internal class EmotionsTrainer : DataTableTrainer
     {
-        private readonly IBrightDataContext _context;
+        readonly IBrightDataContext _context;
 
         public EmotionsTrainer(IBrightDataContext context, IRowOrientedDataTable table, IRowOrientedDataTable training, IRowOrientedDataTable test) : base(table, training, test)
         {

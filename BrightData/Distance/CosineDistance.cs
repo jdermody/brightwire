@@ -2,7 +2,7 @@
 
 namespace BrightData.Distance
 {
-    class CosineDistance
+    internal class CosineDistance
     {
         public static float Calculate(float[] v1, float[] v2)
         {

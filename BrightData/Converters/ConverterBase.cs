@@ -2,7 +2,7 @@
 
 namespace BrightData.Converters
 {
-    abstract class ConverterBase<T> where T: struct
+    internal abstract class ConverterBase<T> where T: struct
     {
         protected readonly Lazy<GenericConverter<float>> _genericConverter = new Lazy<GenericConverter<float>>();
         protected readonly bool _throwOnFailure;

@@ -3,7 +3,7 @@ using BrightData;
 
 namespace BrightWire.Linear
 {
-    class LegacyLogisticRegressionPredictor
+    internal class LegacyLogisticRegressionPredictor
     {
         readonly IFloatVector _theta;
         readonly ILinearAlgebraProvider _lap;

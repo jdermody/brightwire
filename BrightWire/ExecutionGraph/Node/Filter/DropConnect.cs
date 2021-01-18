@@ -10,7 +10,7 @@ namespace BrightWire.ExecutionGraph.Node.Filter
     /// Drop connect (inverted) regularisation
     /// http://cs.nyu.edu/~wanli/dropc/
     /// </summary>
-    class DropConnect : FeedForward
+    internal class DropConnect : FeedForward
     {
         new class Backpropagation : SingleBackpropagationBase<DropConnect>
         {

@@ -14,13 +14,13 @@ using BrightWire.TrainingData.Helper;
 
 namespace ExampleCode.DataTableTrainers
 {
-    class SentimentDataTrainer
+    internal class SentimentDataTrainer
     {
-        private readonly (string Classification, IndexList Data)[] _indexedSentencesTraining;
-        private readonly (string Classification, IndexList Data)[] _indexedSentencesTest;
-        private readonly IBrightDataContext _context;
-        private readonly StringTableBuilder _stringTable;
-        private readonly uint _maxIndex;
+        readonly (string Classification, IndexList Data)[] _indexedSentencesTraining;
+        readonly (string Classification, IndexList Data)[] _indexedSentencesTest;
+        readonly IBrightDataContext _context;
+        readonly StringTableBuilder _stringTable;
+        readonly uint _maxIndex;
 
         public SentimentDataTrainer(IBrightDataContext context, DirectoryInfo directory)
         {

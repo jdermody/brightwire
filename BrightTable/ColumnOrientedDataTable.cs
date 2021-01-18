@@ -10,7 +10,7 @@ using BrightTable.Transformations;
 
 namespace BrightTable
 {
-    class ColumnOrientedDataTable : DataTableBase, IColumnOrientedDataTable
+    internal class ColumnOrientedDataTable : DataTableBase, IColumnOrientedDataTable
     {
         interface IConsumerBinding
         {
@@ -18,8 +18,8 @@ namespace BrightTable
         }
         class ConsumerBinding<T> : IConsumerBinding where T: notnull
         {
-            private readonly IDataTableSegment<T> _segment;
-            private readonly ITypedRowConsumer<T> _consumer;
+            readonly IDataTableSegment<T> _segment;
+            readonly ITypedRowConsumer<T> _consumer;
 
             public ConsumerBinding(ISingleTypeTableSegment segment, ITypedRowConsumer consumer)
             {
@@ -175,7 +175,6 @@ namespace BrightTable
                     columnConversionTable[nextIndex++] = item;
             }
 
-            // TODO: return normalization parameters (from INormalize)
             var columnConversions = new Dictionary<ISingleTypeTableSegment, IColumnTransformation>();
             foreach (var (info, segment) in _columns) {
                 if (columnConversionTable.TryGetValue(info.Index, out var conversion)) {

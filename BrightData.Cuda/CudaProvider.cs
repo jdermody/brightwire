@@ -17,9 +17,9 @@ namespace BrightData.Cuda
 	/// <summary>
 	/// Manages the bright wire cuda kernels and implements the cuda linear algebra provider
 	/// </summary>
-	class CudaProvider : ILinearAlgebraProvider, IGpuLinearAlgebraProvider
+    internal class CudaProvider : ILinearAlgebraProvider, IGpuLinearAlgebraProvider
 	{
-        private readonly IBrightDataContext _context;
+        readonly IBrightDataContext _context;
         const int BLOCK_DIM = 16;
 		const int BLOCK_DIM2 = BLOCK_DIM * BLOCK_DIM;
 		const int PTR_SIZE = 8;

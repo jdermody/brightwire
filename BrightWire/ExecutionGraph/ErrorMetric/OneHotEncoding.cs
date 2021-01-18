@@ -5,7 +5,7 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
     /// <summary>
     /// Finds the single index of the highest activation and compares it to the target index
     /// </summary>
-    class OneHotEncoding : IErrorMetric
+    internal class OneHotEncoding : IErrorMetric
     {
         public IFloatMatrix CalculateGradient(IGraphContext context, IFloatMatrix output, IFloatMatrix targetOutput)
         {

@@ -12,9 +12,9 @@ using ExampleCode.DataTableTrainers;
 
 namespace ExampleCode.Datasets
 {
-    class MNIST
+    internal class MNIST
     {
-        private readonly IBrightDataContext _context;
+        readonly IBrightDataContext _context;
         public Image[] TrainingImages { get; }
         public Image[] TestImages { get; }
 

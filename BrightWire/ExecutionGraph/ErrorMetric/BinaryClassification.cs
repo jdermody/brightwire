@@ -7,7 +7,7 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
     /// <summary>
     /// Binary classification rounds outputs to 1 or 0 and compares them against the target
     /// </summary>
-    class BinaryClassification : IErrorMetric
+    internal class BinaryClassification : IErrorMetric
     {
         public IFloatMatrix CalculateGradient(IGraphContext context, IFloatMatrix output, IFloatMatrix targetOutput)
         {

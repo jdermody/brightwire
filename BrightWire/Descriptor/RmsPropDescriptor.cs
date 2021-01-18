@@ -6,7 +6,7 @@ namespace BrightWire.Descriptor
     /// <summary>
     /// Creates a rms prop gradient descent optimiser
     /// </summary>
-    class RmsPropDescriptor : ICreateTemplateBasedGradientDescent
+    internal class RmsPropDescriptor : ICreateTemplateBasedGradientDescent
     {
         readonly float _decay;
 

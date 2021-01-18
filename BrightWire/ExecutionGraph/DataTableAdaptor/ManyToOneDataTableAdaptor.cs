@@ -10,11 +10,11 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
     /// <summary>
     /// Adapts data tables that classify a sequence into a single classification
     /// </summary>
-    class ManyToOneDataTableAdaptor : RowBasedDataTableAdaptorBase
+    internal class ManyToOneDataTableAdaptor : RowBasedDataTableAdaptorBase
     {
-        private readonly uint[] _featureColumns;
+        readonly uint[] _featureColumns;
         readonly uint[] _rowDepth;
-        private readonly uint _outputSize;
+        readonly uint _outputSize;
 
 	    public ManyToOneDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, uint[] featureColumns) 
             : base(lap, dataTable, featureColumns)

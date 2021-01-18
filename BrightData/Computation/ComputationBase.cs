@@ -6,7 +6,7 @@ using BrightData.Memory;
 
 namespace BrightData.Computation
 {
-    abstract class ComputationBase<T> : INumericComputation<T> where T : struct, IComparable<T>, IConvertible, IEquatable<T>
+    internal abstract class ComputationBase<T> : INumericComputation<T> where T : struct, IComparable<T>, IConvertible, IEquatable<T>
     {
         protected readonly IBrightDataContext _context;
 

@@ -3,9 +3,9 @@ using System.Linq;
 
 namespace BrightData.Distributions
 {
-    class CategoricalDistribution : INonNegativeDiscreteDistribution
+    internal class CategoricalDistribution : INonNegativeDiscreteDistribution
     {
-        private readonly IBrightDataContext _context;
+        readonly IBrightDataContext _context;
 
         public CategoricalDistribution(IBrightDataContext context, IEnumerable<float> categoricalValues)
         {

@@ -3,7 +3,7 @@ using BrightData.Helper;
 
 namespace BrightData.Computation
 {
-    class DecimalComputation : ComputationBase<decimal>
+    internal class DecimalComputation : ComputationBase<decimal>
     {
         public DecimalComputation(IBrightDataContext context) : base(context)
         {

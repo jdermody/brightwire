@@ -7,7 +7,7 @@ namespace BrightWire.ExecutionGraph.WeightInitialisation
     /// <summary>
     /// Initialises weights randomly based on a gaussian distribution
     /// </summary>
-    class Gaussian : IWeightInitialisation
+    internal class Gaussian : IWeightInitialisation
     {
         readonly IContinuousDistribution _distribution;
         readonly GaussianVarianceCalibration _varianceCalibration;

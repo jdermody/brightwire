@@ -7,7 +7,7 @@ namespace BrightWire.ExecutionGraph.Activation
     /// RELu activation
     /// https://en.wikipedia.org/wiki/Rectifier_(neural_networks)
     /// </summary>
-    class Relu : NodeBase
+    internal class Relu : NodeBase
     {
         class Backpropagation : SingleBackpropagationBase<Relu>
         {

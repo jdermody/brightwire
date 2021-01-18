@@ -5,11 +5,11 @@ using BrightData.Buffers;
 
 namespace BrightTable.Segments
 {
-    class Column<T> : IDataTableSegment<T>, IColumnInfo, IHaveBrightDataContext
+    internal class Column<T> : IDataTableSegment<T>, IColumnInfo, IHaveBrightDataContext
         where T: notnull
     {
         readonly MetaData _metadata;
-        private readonly ICanEnumerate<T> _reader;
+        readonly ICanEnumerate<T> _reader;
 
         public Column(uint index, ColumnType columnType, MetaData metaData, IBrightDataContext context, Stream stream, uint inMemorySize)
         {

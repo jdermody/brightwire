@@ -13,7 +13,7 @@ namespace BrightData.Numerics
     /// <summary>
     /// Vector that uses the CPU based math.net numerics library
     /// </summary>
-    class NumericsVector : IIndexableFloatVector
+    internal class NumericsVector : IIndexableFloatVector
     {
         readonly MathNet.Numerics.LinearAlgebra.Vector<float> _vector;
 
@@ -116,11 +116,9 @@ namespace BrightData.Numerics
 
 	        set
             {
-                if (value.Segment != null) {
-                    var data = value.Segment;
-                    for (uint i = 0, len = data.Size; i < len; i++)
-                        _vector[(int)i] = data[i];
-                }
+                var data = value.Segment;
+                for (uint i = 0, len = data.Size; i < len; i++)
+                    _vector[(int)i] = data[i];
             }
         }
 

@@ -110,7 +110,7 @@ namespace BrightData.Buffers
         class ReadFromMemory<T> : ICanEnumerate<T>
             where T: struct
         {
-            private readonly T[] _data;
+            readonly T[] _data;
 
             public ReadFromMemory(uint length, Stream stream)
             {
@@ -126,7 +126,7 @@ namespace BrightData.Buffers
 
         class LoadIntoMemory<T> : ICanEnumerate<T>
         {
-            private readonly T[] _data;
+            readonly T[] _data;
 
             public LoadIntoMemory(uint length, BinaryReader reader, Func<BinaryReader, T> objectBuilder)
             {
@@ -156,7 +156,7 @@ namespace BrightData.Buffers
 
         class StringDecoder : ICanEnumerate<string>, ICanWriteToBinaryWriter
         {
-            private readonly ICanEnumerate<ushort> _reader;
+            readonly ICanEnumerate<ushort> _reader;
             readonly string[] _stringTable;
 
             public StringDecoder(BinaryReader reader, Stream stream, uint inMemorySize)
@@ -194,7 +194,7 @@ namespace BrightData.Buffers
         class StructDecoder<T> : ICanEnumerate<T>, ICanWriteToBinaryWriter
             where T : struct
         {
-            private readonly ICanEnumerate<ushort> _reader;
+            readonly ICanEnumerate<ushort> _reader;
             readonly T[] _table;
 
             public StructDecoder(BinaryReader reader, Stream stream, uint inMemorySize)
@@ -216,8 +216,8 @@ namespace BrightData.Buffers
         class ObjectReader<T> : ICanEnumerate<T>, ICanWriteToBinaryWriter
             where T : ICanInitializeFromBinaryReader, ICanWriteToBinaryWriter
         {
-            private readonly BrightDataContext _context;
-            private readonly ICanEnumerate<T> _reader;
+            readonly BrightDataContext _context;
+            readonly ICanEnumerate<T> _reader;
 
             public ObjectReader(BrightDataContext context, BinaryReader reader, Stream stream, uint inMemorySize)
             {

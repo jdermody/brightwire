@@ -5,7 +5,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
     /// <summary>
     /// Provides a hook into the backpropagation signal
     /// </summary>
-    class HookErrorSignal : NodeBase
+    internal class HookErrorSignal : NodeBase
     {
         class Backpropagation : BackpropagationBase<HookErrorSignal>
         {

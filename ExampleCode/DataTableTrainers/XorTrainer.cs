@@ -10,7 +10,7 @@ using BrightWire.Models;
 
 namespace ExampleCode.DataTableTrainers
 {
-    class XorTrainer : DataTableTrainer
+    internal class XorTrainer : DataTableTrainer
     {
         public XorTrainer(IRowOrientedDataTable table) : base(table, table, table)
         {

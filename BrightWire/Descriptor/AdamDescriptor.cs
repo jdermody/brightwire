@@ -6,7 +6,7 @@ namespace BrightWire.Descriptor
     /// <summary>
     /// Creates an adam gradient descent optimisation
     /// </summary>
-    class AdamDescriptor : ICreateTemplateBasedGradientDescent
+    internal class AdamDescriptor : ICreateTemplateBasedGradientDescent
     {
         readonly float _decay, _decay2;
 

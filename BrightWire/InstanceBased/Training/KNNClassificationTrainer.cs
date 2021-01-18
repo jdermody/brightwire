@@ -8,7 +8,7 @@ namespace BrightWire.InstanceBased.Training
     /// <summary>
     /// K Nearest Neighbour classification trainer
     /// </summary>
-    static class KNNClassificationTrainer
+    internal static class KNNClassificationTrainer
     {
         public static KNearestNeighbours Train(IDataTable table)
         {

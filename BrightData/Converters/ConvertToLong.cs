@@ -2,7 +2,7 @@
 
 namespace BrightData.Converters
 {
-    class ConvertToLong<T> : ConverterBase<T>, ICanConvert<T, long>
+    internal class ConvertToLong<T> : ConverterBase<T>, ICanConvert<T, long>
         where T : struct
     {
         readonly Func<T, long> _converter;

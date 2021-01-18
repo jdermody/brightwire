@@ -2,7 +2,7 @@
 
 namespace BrightWire.ExecutionGraph.Node.Helper
 {
-	class InspectSignals : NodeBase
+    internal class InspectSignals : NodeBase
 	{
 		class Backpropagation : SingleBackpropagationBase<InspectSignals>
 		{

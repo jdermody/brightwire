@@ -711,8 +711,7 @@ namespace BrightData
         /// <summary>
         /// Returns the square root of each element in the current matrix
         /// </summary>
-        /// <param name="valueAdjustment">Term to add to each element in the result matrix</param>
-        IFloatMatrix Sqrt(float valueAdjustment = 1e-8f);
+        IFloatMatrix Sqrt();
 
         /// <summary>
         /// Returns each element raised to specified power

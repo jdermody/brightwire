@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 
 namespace BrightData.Memory
 {
-    class DisposableLayers : IDisposableLayers
+    internal class DisposableLayers : IDisposableLayers
     {
         readonly ConcurrentStack<ConcurrentBag<IDisposable>> _layers = new ConcurrentStack<ConcurrentBag<IDisposable>>();
 

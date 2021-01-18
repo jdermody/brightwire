@@ -9,7 +9,7 @@ namespace BrightWire.ExecutionGraph.Node.Filter
     /// Drop out (inverted) regularisation
     /// https://en.wikipedia.org/wiki/Dropout_(neural_networks)
     /// </summary>
-    class DropOut : NodeBase
+    internal class DropOut : NodeBase
     {
         class Backpropagation : SingleBackpropagationBase<DropOut>
         {

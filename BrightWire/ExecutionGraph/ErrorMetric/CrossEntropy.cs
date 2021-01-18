@@ -7,7 +7,7 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
     /// Cross entropy error
     /// https://en.wikipedia.org/wiki/Cross_entropy#Cross-entropy_error_function_and_logistic_regression
     /// </summary>
-    class CrossEntropy : IErrorMetric
+    internal class CrossEntropy : IErrorMetric
     {
         public IFloatMatrix CalculateGradient(IGraphContext context, IFloatMatrix output, IFloatMatrix targetOutput)
         {

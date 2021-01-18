@@ -11,7 +11,7 @@ namespace BrightWire.Bayesian.Training
     /// <summary>
     /// Simple naive bayes trainer
     /// </summary>
-    static class NaiveBayesTrainer
+    internal static class NaiveBayesTrainer
     {
         class FrequencyAnalysis
         {

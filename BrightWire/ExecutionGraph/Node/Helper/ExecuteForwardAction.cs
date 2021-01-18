@@ -7,7 +7,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
     /// <summary>
     /// Executes an action when executing forward
     /// </summary>
-    class ExecuteForwardAction : NodeBase, IHaveAction
+    internal class ExecuteForwardAction : NodeBase, IHaveAction
     {
 	    public ExecuteForwardAction(IAction action, string name = null) : base(name) { Action = action; }
 

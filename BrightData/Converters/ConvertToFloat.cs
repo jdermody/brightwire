@@ -2,7 +2,7 @@
 
 namespace BrightData.Converters
 {
-    class ConvertToFloat<T> : ConverterBase<T>, ICanConvert<T, float>
+    internal class ConvertToFloat<T> : ConverterBase<T>, ICanConvert<T, float>
         where T: struct
     {
         readonly Func<T, float> _converter;

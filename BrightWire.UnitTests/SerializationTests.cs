@@ -33,7 +33,7 @@ namespace BrightWire.UnitTests
             public bool DisplayAsPercentage => true;
         }
 
-        private static GraphModel bestNetwork;
+        static GraphModel bestNetwork;
 
         static (GraphFactory, IDataSource) MakeGraphAndData(IBrightDataContext context)
         {
@@ -56,7 +56,7 @@ namespace BrightWire.UnitTests
             AssertEngineGetsGoodResults(engine, data);
         }
 
-        private static void AssertEngineGetsGoodResults(IGraphEngine engine, IDataSource data)
+        static void AssertEngineGetsGoodResults(IGraphEngine engine, IDataSource data)
         {
             var results = engine.Execute(data)?.FirstOrDefault();
             results.Should().NotBeNull();

@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace BrightData.Analysis
 {
-    class FrequencyAnalyser<T> : IDataAnalyser<T>
+    internal class FrequencyAnalyser<T> : IDataAnalyser<T>
     {
         readonly uint _writeCount, _maxCount;
         readonly Dictionary<string, ulong> _valueCount = new Dictionary<string, ulong>();

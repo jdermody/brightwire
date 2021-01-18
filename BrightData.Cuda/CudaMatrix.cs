@@ -12,7 +12,7 @@ namespace BrightData.Cuda
     /// <summary>
     /// GPU backed matrix
     /// </summary>
-    class CudaMatrix : IFloatMatrix, IHaveDeviceMemory
+    internal class CudaMatrix : IFloatMatrix, IHaveDeviceMemory
     {
         readonly CudaProvider _cuda;
         readonly IDeviceMemoryPtr _data;
@@ -449,11 +449,11 @@ namespace BrightData.Cuda
             return (new CudaMatrix(_cuda, _rows, columnIndex, ret1, true), new CudaMatrix(_cuda, _rows, size, ret2, true));
         }
 
-        public IFloatMatrix Sqrt(float valueAdjustment = 1e-8f)
+        public IFloatMatrix Sqrt()
         {
             Debug.Assert(IsValid);
             var size = _rows * _columns;
-            var ret = _cuda.Sqrt(_data, size, valueAdjustment);
+            var ret = _cuda.Sqrt(_data, size, 1e-8f);
             return new CudaMatrix(_cuda, _rows, _columns, ret, true);
         }
 

@@ -9,9 +9,9 @@ using BrightWire.TrainingData.Helper;
 
 namespace ExampleCode.DataTableTrainers
 {
-    class TestClusteringTrainer
+    internal class TestClusteringTrainer
     {
-        private readonly IBrightDataContext _context;
+        readonly IBrightDataContext _context;
 
         public class AAAIDocument
         {
@@ -58,17 +58,17 @@ namespace ExampleCode.DataTableTrainers
             }
         }
         readonly StringTableBuilder _stringTable = new StringTableBuilder();
-        private readonly (string Classification, WeightedIndexList Data)[] _data;
-        private readonly IFloatVector[] _vectors;
-        private readonly Dictionary<IFloatVector, AAAIDocument> _documentTable = new Dictionary<IFloatVector, AAAIDocument>();
-        private readonly uint _groupCount;
+        readonly (string Classification, WeightedIndexList Data)[] _data;
+        readonly IFloatVector[] _vectors;
+        readonly Dictionary<IFloatVector, AAAIDocument> _documentTable = new Dictionary<IFloatVector, AAAIDocument>();
+        readonly uint _groupCount;
 
         public TestClusteringTrainer(IBrightDataContext context, IReadOnlyCollection<AAAIDocument> documents)
         {
             _context = context;
             var lap = context.LinearAlgebraProvider;
             _data = documents.Select(d => d.AsClassification(context, _stringTable)).ToArray();
-            _vectors = _data.Select(d => lap.CreateVector(d.Data.AsDense(_stringTable.Size))).ToArray();
+            _vectors = _data.Select(d => lap.CreateVector(d.Data.AsDense(_stringTable.Size + 1))).ToArray();
             foreach(var combo in _vectors.Zip(documents))
                 _documentTable.Add(combo.First, combo.Second);
             var allGroups = new HashSet<string>(documents.SelectMany(d => d.Group));
@@ -99,7 +99,7 @@ namespace ExampleCode.DataTableTrainers
 
             Console.Write("Creating random projection...");
             var outputPath = GetOutputPath("projected-kmeans");
-            using var randomProjection = lap.CreateRandomProjection((uint)_stringTable.Size + 1, 512);
+            using var randomProjection = lap.CreateRandomProjection(_stringTable.Size + 1, 512);
             using var projectedMatrix = randomProjection.Compute(matrix);
             var vectorList2 = projectedMatrix.RowCount.AsRange().Select(i => projectedMatrix.Row(i)).ToList();
             var lookupTable2 = vectorList2.Select((v, i) => Tuple.Create(v, _vectors[i])).ToDictionary(d => d.Item1, d => _documentTable[d.Item2]);

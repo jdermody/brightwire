@@ -13,7 +13,7 @@ using BrightWire.Models.TreeBased;
 
 namespace BrightWire.Helper
 {
-    static class ModelSerialisation
+    internal static class ModelSerialisation
     {
         static void WriteTo(this String str, BinaryWriter writer) => writer.Write(str ?? "");
         static void WriteTo(this int val, BinaryWriter writer) => writer.Write(val);

@@ -12,7 +12,7 @@ namespace BrightWire.ExecutionGraph.Engine
 	/// <summary>
 	/// Trains graphs as it executes them
 	/// </summary>
-	class TrainingEngine : EngineBase, IGraphTrainingEngine
+    internal class TrainingEngine : EngineBase, IGraphTrainingEngine
 	{
 		readonly List<(IMiniBatchSequence Sequence, double? TrainingError, Matrix<float>[] Output)> _executionResults = new List<(IMiniBatchSequence, double?, Matrix<float>[])>();
 		readonly List<IGraphContext> _contextList = new List<IGraphContext>();

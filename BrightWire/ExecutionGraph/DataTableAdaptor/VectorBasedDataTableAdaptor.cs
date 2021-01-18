@@ -7,9 +7,9 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
     /// <summary>
     /// Segment table adaptor for tables with vector data
     /// </summary>
-    class VectorBasedDataTableAdaptor : RowBasedDataTableAdaptorBase
+    internal class VectorBasedDataTableAdaptor : RowBasedDataTableAdaptorBase
     {
-        private readonly uint[] _featureColumns;
+        readonly uint[] _featureColumns;
 
         public VectorBasedDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, uint[] featureColumns) 
             : base(lap, dataTable, featureColumns)

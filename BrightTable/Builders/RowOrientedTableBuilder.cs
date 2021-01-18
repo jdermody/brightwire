@@ -9,7 +9,7 @@ using BrightData;
 
 namespace BrightTable.Builders
 {
-    class RowOrientedTableBuilder : IDisposable
+    internal class RowOrientedTableBuilder : IDisposable
     {
         class Column
         {

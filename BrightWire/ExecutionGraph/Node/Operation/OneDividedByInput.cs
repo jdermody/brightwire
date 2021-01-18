@@ -5,7 +5,7 @@ namespace BrightWire.ExecutionGraph.Node.Operation
     /// <summary>
     /// Calculates 1/x
     /// </summary>
-    class OneDividedByInput : NodeBase
+    internal class OneDividedByInput : NodeBase
     {
         // Derivative of 1/x is -1/(x squared)
         class Backpropagation : SingleBackpropagationBase<OneDividedByInput>

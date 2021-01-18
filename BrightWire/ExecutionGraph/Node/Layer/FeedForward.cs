@@ -8,7 +8,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
     /// Feed forward neural network
     /// https://en.wikipedia.org/wiki/Feedforward_neural_network
     /// </summary>
-    class FeedForward : NodeBase, IFeedForward
+    internal class FeedForward : NodeBase, IFeedForward
     {
         protected class Backpropagation : SingleBackpropagationBase<FeedForward>
         {

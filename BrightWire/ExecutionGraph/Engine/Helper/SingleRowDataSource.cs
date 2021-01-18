@@ -8,7 +8,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     /// <summary>
     /// Helper class when executing a single row instead of the normal batch mode
     /// </summary>
-    class SingleRowDataSource : IDataSource
+    internal class SingleRowDataSource : IDataSource
     {
         class Sequence : IMiniBatchSequence
         {

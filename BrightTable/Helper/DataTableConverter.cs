@@ -6,7 +6,7 @@ using BrightData;
 
 namespace BrightTable.Helper
 {
-    class DataTableConverter : IConvertibleTable
+    internal class DataTableConverter : IConvertibleTable
     {
         class ConvertibleRow : IConvertibleRow
         {

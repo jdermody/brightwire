@@ -6,7 +6,7 @@ using BrightTable;
 
 namespace BrightWire.Adaptors
 {
-    class IndexListRowClassifier : IRowClassifier, IHaveIndexer
+    internal class IndexListRowClassifier : IRowClassifier, IHaveIndexer
     {
         public IIndexListClassifier Classifier { get; }
         public uint ColumnIndex { get; }

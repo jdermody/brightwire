@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace BrightData.Analysis
 {
-    class NumericAnalyser : IDataAnalyser<double>
+    internal class NumericAnalyser : IDataAnalyser<double>
 	{
 		readonly uint _writeCount, _maxCount;
 		readonly SortedDictionary<double, ulong> _distinct = new SortedDictionary<double, ulong>();

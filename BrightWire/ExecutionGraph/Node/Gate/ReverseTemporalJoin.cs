@@ -6,7 +6,7 @@ using BrightData;
 
 namespace BrightWire.ExecutionGraph.Node.Gate
 {
-    class ReverseTemporalJoin : MultiGateBase
+    internal class ReverseTemporalJoin : MultiGateBase
     {
         class Backpropagation : BackpropagationBase<ReverseTemporalJoin>
         {

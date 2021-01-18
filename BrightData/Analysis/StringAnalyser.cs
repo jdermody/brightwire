@@ -1,6 +1,6 @@
 ﻿namespace BrightData.Analysis
 {
-    class StringAnalyser : FrequencyAnalyser<string>
+    internal class StringAnalyser : FrequencyAnalyser<string>
     {
         uint _minLength = uint.MaxValue, _maxLength = uint.MinValue;
 

@@ -2,9 +2,9 @@
 
 namespace BrightData.Distributions
 {
-    class ContinuousDistribution : IContinuousDistribution
+    internal class ContinuousDistribution : IContinuousDistribution
     {
-        private readonly IBrightDataContext _context;
+        readonly IBrightDataContext _context;
 
         public ContinuousDistribution(IBrightDataContext context, float inclusiveLowerBound = 0f, float exclusiveUpperBound = 1f)
         {

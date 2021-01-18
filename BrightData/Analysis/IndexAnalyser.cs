@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace BrightData.Analysis
 {
-    class IndexAnalyser : IDataAnalyser<IHaveIndices>
+    internal class IndexAnalyser : IDataAnalyser<IHaveIndices>
     {
         readonly uint _writeCount, _maxCount;
         readonly Dictionary<uint, uint> _indexFrequency = new Dictionary<uint, uint>();

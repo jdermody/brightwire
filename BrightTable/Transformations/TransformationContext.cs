@@ -2,11 +2,13 @@
 
 namespace BrightTable.Transformations
 {
-    class TransformationContext<TF, TT> : IColumnTransformation
+    internal class TransformationContext<TF, TT> : IColumnTransformation
+        where TF: notnull
+        where TT: notnull
     {
-        private readonly IDataTableSegment<TF> _column;
-        private readonly IConvert<TF, TT> _converter;
-        private readonly IHybridBuffer<TT> _buffer;
+        readonly IDataTableSegment<TF> _column;
+        readonly IConvert<TF, TT> _converter;
+        readonly IHybridBuffer<TT> _buffer;
 
         public TransformationContext(IDataTableSegment<TF> column, IConvert<TF, TT> converter, IHybridBuffer<TT> buffer)
         {
@@ -23,7 +25,6 @@ namespace BrightTable.Transformations
                     ++ret;
             }
             var columnMetadata = _column.MetaData;
-
             var segment = (ISingleTypeTableSegment) _buffer;
             var metaData = segment.MetaData;
             columnMetadata.CopyTo(metaData);

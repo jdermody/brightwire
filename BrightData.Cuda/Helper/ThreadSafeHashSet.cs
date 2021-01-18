@@ -9,7 +9,7 @@ namespace BrightData.Cuda.Helper
     /// A hash set that can be accessed by more than one thread at the same time
     /// </summary>
     /// <typeparam name="T">The wrapped type</typeparam>
-    class ThreadSafeHashSet<T> : IDisposable
+    internal class ThreadSafeHashSet<T> : IDisposable
     {
         readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
         readonly HashSet<T> _hashSet = new HashSet<T>();

@@ -11,7 +11,7 @@ namespace ExampleCode.Extensions
     /// Example of custom activation function, implemented from:
     /// https://arxiv.org/abs/1706.02515
     /// </summary>
-    class SeluActivation : NodeBase
+    internal class SeluActivation : NodeBase
     {
         const float ALPHA = 1.6732632423543772848170429916717f;
         const float SCALE = 1.0507009873554804934193349852946f;

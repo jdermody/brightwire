@@ -12,7 +12,7 @@ namespace BrightData.Cuda.Helper
 	/// <summary>
 	/// Maintains a cache of available device memory
 	/// </summary>
-	class DeviceMemory : IDisposable
+    internal class DeviceMemory : IDisposable
     {
         class Block : IDeviceMemoryPtr
         {

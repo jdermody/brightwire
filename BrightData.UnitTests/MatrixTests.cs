@@ -271,13 +271,12 @@ namespace BrightData.UnitTests
         public void MatrixSqrt()
         {
             var a = _cpu.CreateMatrix(2, 5, (j, k) => k + 1).AsIndexable();
-            const float adjustment = 1e-8f;
-            a[0, 0] = -adjustment;
-            var cpuResults = a.Sqrt(adjustment);
+            a[0, 0] = -1e-8f;
+            var cpuResults = a.Sqrt();
 
             IIndexableFloatMatrix gpuResults;
             using (var gpuA = _cuda.CreateMatrix(a))
-            using (var gpuC = gpuA.Sqrt(1e-8f))
+            using (var gpuC = gpuA.Sqrt())
                 gpuResults = gpuC.AsIndexable();
 
             FloatMath.AreApproximatelyEqual(gpuResults, cpuResults.AsIndexable()).Should().BeTrue();

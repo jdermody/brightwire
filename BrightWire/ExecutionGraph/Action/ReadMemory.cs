@@ -1,6 +1,6 @@
 ﻿namespace BrightWire.ExecutionGraph.Action
 {
-	class ReadMemory : IAction
+    internal class ReadMemory : IAction
 	{
 		string _id;
 

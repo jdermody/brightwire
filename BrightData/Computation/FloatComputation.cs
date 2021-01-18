@@ -7,9 +7,9 @@ using BrightData.Memory;
 
 namespace BrightData.Computation
 {
-    class FloatComputation : INumericComputation<float>
+    internal class FloatComputation : INumericComputation<float>
     {
-        private readonly IBrightDataContext _context;
+        readonly IBrightDataContext _context;
 
         public FloatComputation(IBrightDataContext context)
         {

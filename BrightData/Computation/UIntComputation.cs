@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace BrightData.Computation
 {
-    class UIntComputation : ComputationBase<uint>
+    internal class UIntComputation : ComputationBase<uint>
     {
         public UIntComputation(IBrightDataContext context) : base(context) { }
 

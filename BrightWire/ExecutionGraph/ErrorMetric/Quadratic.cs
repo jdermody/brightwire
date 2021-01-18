@@ -9,7 +9,7 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
     /// Quadratic error
     /// https://en.wikipedia.org/wiki/Mean_squared_error#Loss_function
     /// </summary>
-    class Quadratic : IErrorMetric
+    internal class Quadratic : IErrorMetric
     {
         public IFloatMatrix CalculateGradient(IGraphContext context, IFloatMatrix output, IFloatMatrix targetOutput)
         {

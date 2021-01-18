@@ -5,7 +5,7 @@ namespace BrightWire.ExecutionGraph.WeightInitialisation
     /// <summary>
     /// Initalises all weights to a constant
     /// </summary>
-    class Constant : IWeightInitialisation
+    internal class Constant : IWeightInitialisation
     {
         readonly ILinearAlgebraProvider _lap;
         readonly float _biasValue, _weightValue;

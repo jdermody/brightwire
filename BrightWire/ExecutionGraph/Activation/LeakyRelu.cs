@@ -7,7 +7,7 @@ namespace BrightWire.ExecutionGraph.Activation
     /// Leaky RELU activation
     /// https://en.wikipedia.org/wiki/Rectifier_(neural_networks)
     /// </summary>
-    class LeakyRelu : NodeBase
+    internal class LeakyRelu : NodeBase
     {
         class Backpropagation : SingleBackpropagationBase<LeakyRelu>
         {

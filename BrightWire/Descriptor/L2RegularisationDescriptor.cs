@@ -5,7 +5,7 @@ namespace BrightWire.Descriptor
     /// <summary>
     /// Creates L2 regularisation
     /// </summary>
-    class L2RegularisationDescriptor : ICreateGradientDescent
+    internal class L2RegularisationDescriptor : ICreateGradientDescent
     {
         readonly float _lambda;
 

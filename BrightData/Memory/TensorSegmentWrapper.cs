@@ -11,7 +11,7 @@ namespace BrightData.Memory
     /// Tensor segment that uses offsets and strides to represent a tensor block
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    class TensorSegmentWrapper<T> : ITensorSegment<T>
+    internal class TensorSegmentWrapper<T> : ITensorSegment<T>
         where T : struct
     {
         readonly ITensorSegment<T> _segment;

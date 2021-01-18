@@ -11,7 +11,7 @@ namespace BrightData.Cuda
 	/// <summary>
 	/// GPU backed 3D tensor
 	/// </summary>
-	class Cuda3DTensor : I3DFloatTensor, IHaveDeviceMemory
+    internal class Cuda3DTensor : I3DFloatTensor, IHaveDeviceMemory
 	{
 		readonly CudaProvider _cuda;
 		readonly IDeviceMemoryPtr _data;

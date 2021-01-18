@@ -10,7 +10,7 @@ using BrightWire.Models;
 
 namespace ExampleCode.DataTableTrainers
 {
-    class SequentialWindowStockDataTrainer : DataTableTrainer
+    internal class SequentialWindowStockDataTrainer : DataTableTrainer
     {
         public SequentialWindowStockDataTrainer(IRowOrientedDataTable table) : base(table)
         {

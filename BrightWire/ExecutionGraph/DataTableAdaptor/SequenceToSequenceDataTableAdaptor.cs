@@ -12,7 +12,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
     /// <summary>
     /// Executes a preliminary graph and uses its output as the input for the main graph
     /// </summary>
-    class SequenceToSequenceDataTableAdaptor : AdaptiveDataTableAdaptorBase
+    internal class SequenceToSequenceDataTableAdaptor : AdaptiveDataTableAdaptorBase
     {
         uint[] _rowDepth;
         uint _inputSize, _outputSize;
@@ -55,7 +55,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             _outputSize = outputMatrix.ColumnCount;
         }
 
-        private SequenceToSequenceDataTableAdaptor(ILinearAlgebraProvider lap, ILearningContext learningContext, IRowOrientedDataTable dataTable, INode input, uint inputSize, uint outputSize)
+        SequenceToSequenceDataTableAdaptor(ILinearAlgebraProvider lap, ILearningContext learningContext, IRowOrientedDataTable dataTable, INode input, uint inputSize, uint outputSize)
             : base(lap, learningContext, dataTable)
         {
             _Initialise(dataTable);

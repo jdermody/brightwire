@@ -13,7 +13,7 @@ namespace BrightData.Numerics
     /// <summary>
     /// Matrix that uses the CPU based math.net numerics library
     /// </summary>
-    class NumericsMatrix : IIndexableFloatMatrix
+    internal class NumericsMatrix : IIndexableFloatMatrix
     {
         readonly MathNet.Numerics.LinearAlgebra.Matrix<float> _matrix;
 
@@ -377,9 +377,9 @@ namespace BrightData.Numerics
             return (new NumericsMatrix(Context, ret1), new NumericsMatrix(Context, ret2));
         }
 
-        public IFloatMatrix Sqrt(float valueAdjustment = 1e-8f)
+        public IFloatMatrix Sqrt()
         {
-            return new NumericsMatrix(Context, (DenseMatrix)_matrix.Map(v => Convert.ToSingle(Math.Sqrt(v + valueAdjustment))));
+            return new NumericsMatrix(Context, (DenseMatrix)_matrix.Map(v => FloatMath.Sqrt(v)));
         }
 
         public IFloatMatrix PointwiseDivide(IFloatMatrix matrix)

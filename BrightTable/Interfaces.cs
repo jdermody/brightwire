@@ -399,35 +399,93 @@ namespace BrightTable
         /// <returns></returns>
         IRowOrientedDataTable Bag(uint sampleCount, string? filePath = null);
 
-
+        /// <summary>
+        /// Returns the row at the specified index
+        /// </summary>
+        /// <param name="rowIndex">Row index to retrieve</param>
         IDataTableSegment Row(uint rowIndex);
+
+        /// <summary>
+        /// Returns the rows at the specified indices
+        /// </summary>
+        /// <param name="rowIndices">Row indices to retrieve</param>
+        /// <returns></returns>
         IEnumerable<IDataTableSegment> Rows(params uint[] rowIndices);
+
+        /// <summary>
+        /// Creates a new table of this concatenated with other row oriented data tables
+        /// </summary>
+        /// <param name="others">Other row oriented data tables to concatenate</param>
+        /// <returns></returns>
         IRowOrientedDataTable Concat(params IRowOrientedDataTable[] others);
+
+        /// <summary>
+        /// Creates a new table of this concatenated with other row oriented data tables
+        /// </summary>
+        /// <param name="filePath">File path to store new table on disk (optional)</param>
+        /// <param name="others">Other row oriented data tables to concatenate</param>
+        /// <returns></returns>
         IRowOrientedDataTable Concat(string? filePath, params IRowOrientedDataTable[] others);
+
+        /// <summary>
+        /// Copy specified rows from this to a new data table
+        /// </summary>
+        /// <param name="rowIndices">Row indices to copy</param>
+        /// <returns></returns>
         IRowOrientedDataTable CopyRows(params uint[] rowIndices);
+
+        /// <summary>
+        /// Copy specified rows from this to a new data table
+        /// </summary>
+        /// <param name="filePath">File path to store new table on disk (optional)</param>
+        /// <param name="rowIndices">Row indices to copy</param>
+        /// <returns></returns>
         IRowOrientedDataTable CopyRows(string? filePath, params uint[] rowIndices);
+
+        /// <summary>
+        /// Creates a new data table from the randomly shuffled rows of this data table
+        /// </summary>
+        /// <param name="filePath">File path to store new table on disk (optional)</param>
+        /// <returns></returns>
         IRowOrientedDataTable Shuffle(string? filePath = null);
-        IRowOrientedDataTable Sort(bool ascending, uint columnIndex, string? filePath = null);
+
+        /// <summary>
+        /// Creates a new sorted data table
+        /// </summary>
+        /// <param name="columnIndex">Column index to sort</param>
+        /// <param name="ascending">True to sort ascending</param>
+        /// <param name="filePath">File path to store new table on disk (optional)</param>
+        /// <returns></returns>
+        IRowOrientedDataTable Sort(uint columnIndex, bool ascending, string? filePath = null);
+
+        /// <summary>
+        /// Splits this table into many data tables based on the value from a column
+        /// </summary>
+        /// <param name="columnIndex">Column index to group on</param>
+        /// <returns></returns>
         IEnumerable<(string Label, IRowOrientedDataTable Table)> GroupBy(uint columnIndex);
+
+        /// <summary>
+        /// Returns the first row as a string
+        /// </summary>
         string FirstRow { get; }
+
+        /// <summary>
+        /// Returns the second row as a string
+        /// </summary>
         string SecondRow { get; }
+
+        /// <summary>
+        /// Returns the third row as a string
+        /// </summary>
         string ThirdRow { get; }
+
+        /// <summary>
+        /// Returns the last row as a string
+        /// </summary>
         string LastRow { get; }
         //IRowOrientedDataTable Vectorise(string columnName, params uint[] vectorColumnIndices);
         //IRowOrientedDataTable Vectorise(string filePath, string columnName, params uint[] vectorColumnIndices);
-    }
-
-    interface IProvideStrings
-    {
-        uint Count { get; }
-        void Reset();
-        IEnumerable<string> All { get; }
-    }
-
-    public interface IEditableBuffer
-    {
-        void Set(uint index, object value);
-        void Finalise();
     }
 
     public interface IEditableBuffer<in T> where T : notnull
@@ -435,16 +493,54 @@ namespace BrightTable
         void Add(T value);
     }
 
+    /// <summary>
+    /// Single column conversion options
+    /// </summary>
     public enum ColumnConversionType
     {
+        /// <summary>
+        /// Leave the column unchanged (nop)
+        /// </summary>
         Unchanged = 0,
+
+        /// <summary>
+        /// Convert to boolean
+        /// </summary>
         ToBoolean,
+
+        /// <summary>
+        /// Convert to date
+        /// </summary>
         ToDate,
+
+        /// <summary>
+        /// Convert to numeric (best numeric size will be automatically determined)
+        /// </summary>
         ToNumeric,
+
+        /// <summary>
+        /// Convert to string
+        /// </summary>
         ToString,
+
+        /// <summary>
+        /// Convert to index list
+        /// </summary>
         ToIndexList,
+
+        /// <summary>
+        /// Convert to weighted index list
+        /// </summary>
         ToWeightedIndexList,
+
+        /// <summary>
+        /// Convert to vector
+        /// </summary>
         ToVector,
+
+        /// <summary>
+        /// Convert each value to an index within a dictionary
+        /// </summary>
         ToCategoricalIndex
     }
 

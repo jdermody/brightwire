@@ -5,7 +5,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
     /// <summary>
     /// Transpose the input - used when translating between tensor and matrix based signals
     /// </summary>
-    class TransposeSignal : NodeBase
+    internal class TransposeSignal : NodeBase
     {
         class Backpropagation : SingleBackpropagationBase<TransposeSignal>
         {

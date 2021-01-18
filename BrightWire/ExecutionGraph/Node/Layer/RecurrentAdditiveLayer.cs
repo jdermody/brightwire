@@ -9,7 +9,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
     /// Implementation of Recurrent Additive Network
     /// http://www.kentonl.com/pub/llz.2017.pdf
     /// </summary>
-    class RecurrentAdditiveLayer : NodeBase, IHaveMemoryNode
+    internal class RecurrentAdditiveLayer : NodeBase, IHaveMemoryNode
     {
         IReadOnlyDictionary<INode, IGraphData> _lastBackpropagation = null;
         uint _inputSize;

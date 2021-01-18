@@ -11,7 +11,7 @@ namespace BrightData.Numerics
     /// <summary>
     /// 4D Tensor that uses the CPU based math.net numerics library
     /// </summary>
-    class Numerics4DTensor : IIndexable4DFloatTensor
+    internal class Numerics4DTensor : IIndexable4DFloatTensor
     {
         public IBrightDataContext Context { get; }
         readonly NumericsMatrix _data;

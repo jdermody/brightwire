@@ -7,7 +7,7 @@ using BrightWire.Models.Linear;
 
 namespace BrightWire.Linear.Training
 {
-    class LegacyLogisticRegressionTrainer : ILogisticRegressionTrainer
+    internal class LegacyLogisticRegressionTrainer : ILogisticRegressionTrainer
     {
         readonly ILinearAlgebraProvider _lap;
         readonly IFloatMatrix _feature;

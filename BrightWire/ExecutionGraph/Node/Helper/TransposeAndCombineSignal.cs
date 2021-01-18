@@ -8,7 +8,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
     /// <summary>
     /// Transpose the input and combine each depth slice - used when translating between tensor and matrix based signals
     /// </summary>
-    class TransposeAndCombineSignal : NodeBase
+    internal class TransposeAndCombineSignal : NodeBase
     {
         class Backpropagation : SingleBackpropagationBase<TransposeAndCombineSignal>
         {

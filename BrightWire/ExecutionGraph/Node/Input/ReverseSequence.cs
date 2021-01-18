@@ -7,7 +7,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
     /// Inputs the opposite sequential item from the input index (for bidirectional recurrent neural networks)
     /// https://en.wikipedia.org/wiki/Bidirectional_recurrent_neural_networks
     /// </summary>
-    class ReverseSequence : NodeBase
+    internal class ReverseSequence : NodeBase
     {
         int _inputIndex;
 

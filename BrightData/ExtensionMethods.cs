@@ -11,6 +11,7 @@ using BrightData.Converters;
 using BrightData.Distributions;
 using BrightData.Helper;
 using BrightData.Memory;
+using BrightData.Transformation;
 
 namespace BrightData
 {
@@ -327,6 +328,8 @@ namespace BrightData
         public static IndexAnalysis GetIndexAnalysis(this IMetaData metaData) => new IndexAnalysis(metaData);
         public static NumericAnalysis GetNumericAnalysis(this IMetaData metaData) => new NumericAnalysis(metaData);
         public static StringAnalysis GetStringAnalysis(this IMetaData metaData) => new StringAnalysis(metaData);
+        public static DictionaryValues GetDictionaryValues(this IMetaData metaData) => new DictionaryValues(metaData);
+        public static NormalizeTransformation GetNormalization(this IMetaData metaData) => new NormalizeTransformation(metaData);
 
         public static NumericAnalysis Analyze<T>(this IEnumerable<T> data)
             where T: struct

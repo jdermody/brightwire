@@ -7,7 +7,7 @@ namespace BrightData.Cuda.Helper
     /// <summary>
     /// A pointer to a block of device memory (the block is owned by another pointer)
     /// </summary>
-    class PtrToMemory : IDeviceMemoryPtr
+    internal class PtrToMemory : IDeviceMemoryPtr
     {
 	    readonly IDeviceMemoryPtr _rootBlock;
         readonly CudaDeviceVariable<float> _ptr;

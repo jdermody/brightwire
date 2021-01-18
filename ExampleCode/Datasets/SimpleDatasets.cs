@@ -17,7 +17,7 @@ using SharpCompress.Common;
 
 namespace ExampleCode.Datasets
 {
-    static class SimpleDatasets
+    internal static class SimpleDatasets
     {
         public static IrisTrainer Iris(this IBrightDataContext context)
         {

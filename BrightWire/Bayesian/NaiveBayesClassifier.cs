@@ -9,7 +9,7 @@ namespace BrightWire.Bayesian
     /// <summary>
     /// Naive bayes classifier
     /// </summary>
-    class NaiveBayesClassifier : IRowClassifier
+    internal class NaiveBayesClassifier : IRowClassifier
     {
         interface IProbabilityProvider
         {

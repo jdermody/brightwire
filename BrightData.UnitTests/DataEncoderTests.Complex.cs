@@ -10,7 +10,7 @@ namespace BrightData.UnitTests
 {
     public partial class DataEncoderTests
     {
-        private readonly SerialisationFixture _context;
+        readonly SerialisationFixture _context;
 
         public DataEncoderTests()
         {

@@ -2,7 +2,7 @@
 
 namespace BrightWire.ExecutionGraph.Node.Input
 {
-    class InputFeeder : NodeBase
+    internal class InputFeeder : NodeBase
     {
         uint _index;
 

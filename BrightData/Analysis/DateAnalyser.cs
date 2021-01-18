@@ -4,10 +4,10 @@ using System.Globalization;
 
 namespace BrightData.Analysis
 {
-    class DateAnalyser : FrequencyAnalyser<DateTime>
+    internal class DateAnalyser : FrequencyAnalyser<DateTime>
     {
         readonly HashSet<long> _distinct = new HashSet<long>();
-        private readonly uint _maxCount;
+        readonly uint _maxCount;
 
         public DateAnalyser(uint maxCount = Consts.MaxDistinct)
         {

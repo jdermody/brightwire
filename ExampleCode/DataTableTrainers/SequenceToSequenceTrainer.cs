@@ -9,10 +9,10 @@ using BrightWire.ExecutionGraph;
 
 namespace ExampleCode.DataTableTrainers
 {
-    class SequenceToSequenceTrainer : DataTableTrainer
+    internal class SequenceToSequenceTrainer : DataTableTrainer
     {
-        private readonly IBrightDataContext _context;
-        private readonly uint _dictionarySize;
+        readonly IBrightDataContext _context;
+        readonly uint _dictionarySize;
 
         public SequenceToSequenceTrainer(IBrightDataContext context, uint dictionarySize, IRowOrientedDataTable dataTable) : base(dataTable)
         {

@@ -9,7 +9,7 @@ namespace BrightWire.Linear
     /// <summary>
     /// Makes predictions from a previously trained model
     /// </summary>
-    class MultinomialLogisticRegressionClassifier : ITableClassifier
+    internal class MultinomialLogisticRegressionClassifier : ITableClassifier
     {
         readonly MultinomialLogisticRegression _model;
         readonly List<ILogisticRegressionClassifier> _classifier;

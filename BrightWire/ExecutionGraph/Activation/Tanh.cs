@@ -7,7 +7,7 @@ namespace BrightWire.ExecutionGraph.Activation
     /// Tanh activation function
     /// https://en.wikipedia.org/wiki/Activation_function
     /// </summary>
-    class Tanh : NodeBase
+    internal class Tanh : NodeBase
     {
         class Backpropagation : SingleBackpropagationBase<Tanh>
         {

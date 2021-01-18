@@ -8,7 +8,7 @@ namespace BrightData.Memory
     /// <summary>
     /// Tensor memory pool
     /// </summary>
-    class TensorPool : ITensorPool, IDisposable
+    internal class TensorPool : ITensorPool, IDisposable
     {
         readonly ConcurrentDictionary<string, ConcurrentBag<Array>> _cache = new ConcurrentDictionary<string, ConcurrentBag<Array>>();
         readonly ConcurrentDictionary<string, long> _requestHistory = new ConcurrentDictionary<string, long>();

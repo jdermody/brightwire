@@ -6,7 +6,7 @@ namespace BrightWire.Linear
     /// <summary>
     /// Makes predictions from a previously trained model
     /// </summary>
-    class RegressionPredictor : ILinearRegressionPredictor
+    internal class RegressionPredictor : ILinearRegressionPredictor
     {
         readonly IFloatVector _theta;
         readonly ILinearAlgebraProvider _lap;

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace BrightData.FloatTensors
 {
-    class SimpleLinearAlgebraProvider : ILinearAlgebraProvider
+    internal class SimpleLinearAlgebraProvider : ILinearAlgebraProvider
     {
         public SimpleLinearAlgebraProvider(IBrightDataContext context, bool isStochastic)
         {

@@ -9,7 +9,7 @@ namespace BrightWire.ExecutionGraph.WeightInitialisation
     /// Xavier weight initialisation
     /// http://andyljones.tumblr.com/post/110998971763/an-explanation-of-xavier-initialization
     /// </summary>
-    class Xavier : IWeightInitialisation
+    internal class Xavier : IWeightInitialisation
     {
         readonly float _parameter;
         readonly ILinearAlgebraProvider _lap;

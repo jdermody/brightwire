@@ -6,7 +6,7 @@ namespace BrightWire.Descriptor
     /// <summary>
     /// Creates a nesterov momentum gradient descent optimiser
     /// </summary>
-    class NesterovMomentumDescriptor : MomentumDescriptor
+    internal class NesterovMomentumDescriptor : MomentumDescriptor
     {
         public NesterovMomentumDescriptor(float momentum = 0.9f) : base(momentum)
         {

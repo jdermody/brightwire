@@ -9,7 +9,7 @@ namespace BrightData.Cuda
     /// <summary>
     /// GPU backed 4D tensor
     /// </summary>
-    class Cuda4DTensor : I4DFloatTensor, IHaveDeviceMemory
+    internal class Cuda4DTensor : I4DFloatTensor, IHaveDeviceMemory
     {
 	    readonly CudaProvider _cuda;
 	    readonly IDeviceMemoryPtr _data;

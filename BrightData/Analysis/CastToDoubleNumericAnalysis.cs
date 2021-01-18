@@ -3,7 +3,7 @@ using BrightData.Converters;
 
 namespace BrightData.Analysis
 {
-    class CastToDoubleNumericAnalysis<T> : IDataAnalyser<T> where T : struct
+    internal class CastToDoubleNumericAnalysis<T> : IDataAnalyser<T> where T : struct
     {
         readonly ConvertToDouble<T> _converter = new ConvertToDouble<T>();
 

@@ -95,7 +95,7 @@ namespace BrightData.Buffers
 
         internal class StructEncoder<T> : ICanWriteToBinaryWriter where T : struct
         {
-            private readonly Dictionary<T, ushort> _table = new Dictionary<T, ushort>();
+            readonly Dictionary<T, ushort> _table = new Dictionary<T, ushort>();
             readonly IHybridBuffer<T> _buffer;
 
             public StructEncoder(IHybridBuffer<T> buffer)
@@ -142,7 +142,7 @@ namespace BrightData.Buffers
         internal class ObjectWriter<T> : ICanWriteToBinaryWriter
             where T : ICanWriteToBinaryWriter
         {
-            private readonly IHybridBuffer<T> _buffer;
+            readonly IHybridBuffer<T> _buffer;
 
             public ObjectWriter(IHybridBuffer<T> buffer)
             {
@@ -170,7 +170,7 @@ namespace BrightData.Buffers
 
         internal class StringWriter : ICanWriteToBinaryWriter
         {
-            private readonly IHybridBuffer<string> _buffer;
+            readonly IHybridBuffer<string> _buffer;
 
             public StringWriter(IHybridBuffer<string> buffer)
             {
@@ -199,7 +199,7 @@ namespace BrightData.Buffers
         internal class StructWriter<T> : ICanWriteToBinaryWriter
             where T : struct
         {
-            private readonly IHybridBuffer<T> _buffer;
+            readonly IHybridBuffer<T> _buffer;
 
             public StructWriter(IHybridBuffer<T> buffer)
             {

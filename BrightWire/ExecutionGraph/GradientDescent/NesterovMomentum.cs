@@ -5,7 +5,7 @@ namespace BrightWire.ExecutionGraph.GradientDescent
     /// <summary>
     /// Gradient descent with nesterov momentum
     /// </summary>
-    class NesterovMomentum : Momentum
+    internal class NesterovMomentum : Momentum
     {
         public NesterovMomentum(float momentum, IFloatMatrix cache, IGradientDescentOptimisation updater) : base(momentum, cache, updater)
         {

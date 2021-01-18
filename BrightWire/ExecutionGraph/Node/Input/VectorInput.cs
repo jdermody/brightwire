@@ -5,7 +5,7 @@ using BrightData.FloatTensors;
 
 namespace BrightWire.ExecutionGraph.Node.Input
 {
-	class VectorInput : NodeBase
+    internal class VectorInput : NodeBase
 	{
 		class Backpropagation : BackpropagationBase<VectorInput>
 		{
@@ -30,7 +30,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
             }
 		}
 
-        private readonly IBrightDataContext _context;
+        readonly IBrightDataContext _context;
         readonly float[] _data;
 
 		public VectorInput(IBrightDataContext context, float[] data, string name = null, string id = null) : base(name, id)

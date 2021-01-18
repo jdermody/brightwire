@@ -11,7 +11,7 @@ namespace BrightWire.Unsupervised
 	/// K Means clustering
 	/// https://en.wikipedia.org/wiki/K-means_clustering
 	/// </summary>
-	class KMeans : IDisposable
+    internal class KMeans : IDisposable
 	{
 		readonly VectorDistanceHelper _distance;
 		List<(uint[] DataIndices, IFloatVector Cluster)> _clusters = new List<(uint[], IFloatVector)>();

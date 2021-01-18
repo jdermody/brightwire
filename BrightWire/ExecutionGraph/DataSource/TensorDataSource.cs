@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace BrightWire.ExecutionGraph.DataSource
 {
-    class TensorDataSource : IDataSource
+    internal class TensorDataSource : IDataSource
     {
         readonly uint _rows, _columns, _depth, _matrixSize;
         readonly Tensor3D<float>[] _data;

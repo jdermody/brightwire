@@ -8,7 +8,7 @@ namespace BrightData.Transformation
     /// </summary>
     public class NormalizeTransformation : INormalize
     {
-        private readonly bool _divideByZero;
+        readonly bool _divideByZero;
 
         /// <summary>
         /// Creates a new set of parameters based on supplied the numeric analysis
@@ -44,6 +44,20 @@ namespace BrightData.Transformation
             Divide = divide;
             Subtract = subtract;
             _divideByZero = Math.Abs(Divide) <= FloatMath.AlmostZero;
+        }
+
+        internal NormalizeTransformation(IMetaData metaData)
+        {
+            NormalizationType = (NormalizationType)metaData.Get<byte>(Consts.NormalizationType, 0);
+            Subtract = metaData.Get(Consts.NormalizationP1, 0D);
+            Divide = metaData.Get(Consts.NormalizationP2, 0D);
+        }
+
+        public void WriteTo(IMetaData metaData)
+        {
+            metaData.Set(Consts.NormalizationType, (byte)NormalizationType);
+            metaData.Set(Consts.NormalizationP1, Subtract);
+            metaData.Set(Consts.NormalizationP2, Divide);
         }
 
         /// <summary>

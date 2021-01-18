@@ -40,9 +40,14 @@
         public const string Variance = "Variance";
         public const string StdDev = "StdDev";
         public const string Median = "Median";
+        public const string Total = "Total";
+        public const string NormalizationType = "NormalizationType";
+        public const string NormalizationP1 = "NormalizationP1";
+        public const string NormalizationP2 = "NormalizationP2";
+
         public const string FrequencyPrefix = "Frequency:";
         public const string FrequencyRangePrefix = "FrequencyRange:";
-        public const string Total = "Total";
+        public const string CategoryPrefix = "Category:";
 
         public const string LegacyFloatSerialisationInput = "LegacyFloatSerialisationInput";
 

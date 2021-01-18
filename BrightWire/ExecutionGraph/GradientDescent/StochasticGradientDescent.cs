@@ -7,7 +7,7 @@ namespace BrightWire.ExecutionGraph.GradientDescent
     /// Simple SGD
     /// https://en.wikipedia.org/wiki/Stochastic_gradient_descent
     /// </summary>
-    class StochasticGradientDescent : IGradientDescentOptimisation
+    internal class StochasticGradientDescent : IGradientDescentOptimisation
     {
         public void Dispose()
         {

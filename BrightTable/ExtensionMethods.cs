@@ -192,7 +192,7 @@ namespace BrightTable
         }
         class AnalyserBinding<T> : IAnalyserBinding
         {
-            private readonly IDataAnalyser<T> _analyser;
+            readonly IDataAnalyser<T> _analyser;
             readonly IDataTableSegment<T> _segment;
 
             public AnalyserBinding(ISingleTypeTableSegment segment, IDataAnalyser analyser)

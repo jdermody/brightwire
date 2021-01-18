@@ -2,14 +2,14 @@
 
 namespace BrightData.Memory
 {
-    class ReferenceCountedBlock<T> : IReferenceCountedMemory, IHaveBrightDataContext
+    internal class ReferenceCountedBlock<T> : IReferenceCountedMemory, IHaveBrightDataContext
         where T: struct
     {
         // ReSharper disable once StaticMemberInGenericType
         static long _allocationIndex = 0;
 
         protected readonly T[] _data;
-        private int _refCount = 0;
+        int _refCount = 0;
 
         protected ReferenceCountedBlock(IBrightDataContext context, T[] data)
         {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace BrightData.Cuda.Helper
 {
-    class ConvolutionsData : IDisposable
+    internal class ConvolutionsData : IDisposable
     {
 		public ConvolutionsData(CudaProvider cuda, List<(uint X, uint Y)> convolutions)
 	    {

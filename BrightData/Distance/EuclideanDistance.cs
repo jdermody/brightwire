@@ -2,7 +2,7 @@
 
 namespace BrightData.Distance
 {
-    class EuclideanDistance
+    internal class EuclideanDistance
     {
         public static float Calculate(float[] v1, float[] v2)
         {

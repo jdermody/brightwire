@@ -2,7 +2,7 @@
 
 namespace BrightData.Converters
 {
-    class ConvertToDecimal<T> : ConverterBase<T>, ICanConvert<T, decimal>
+    internal class ConvertToDecimal<T> : ConverterBase<T>, ICanConvert<T, decimal>
         where T : struct
     {
         readonly Func<T, decimal> _converter;

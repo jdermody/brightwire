@@ -1,6 +1,6 @@
 ﻿namespace BrightWire.ExecutionGraph.Node.Output
 {
-	class StoreOutput : NodeBase
+    internal class StoreOutput : NodeBase
 	{
 		readonly int _channel;
 

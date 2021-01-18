@@ -6,7 +6,7 @@ namespace BrightWire.ExecutionGraph.GradientDescent
     /// <summary>
     /// L1 regularisation
     /// </summary>
-    class L1Regularisation : StochasticGradientDescent
+    internal class L1Regularisation : StochasticGradientDescent
     {
         float _lambda;
 

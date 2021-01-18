@@ -2,7 +2,7 @@
 
 namespace BrightWire.ExecutionGraph.Node.Operation
 {
-    class InputSquared : NodeBase
+    internal class InputSquared : NodeBase
     {
         class Backpropagation : SingleBackpropagationBase<InputSquared>
         {

@@ -7,7 +7,7 @@ namespace BrightWire.ExecutionGraph.GradientDescent
     /// Rms prop gradient descent
     /// https://en.wikipedia.org/wiki/Stochastic_gradient_descent#RMSProp
     /// </summary>
-    class RmsProp : AdaGrad
+    internal class RmsProp : AdaGrad
     {
         protected float _decayRate;
 

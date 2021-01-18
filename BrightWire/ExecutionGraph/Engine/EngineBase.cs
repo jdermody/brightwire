@@ -8,7 +8,7 @@ using BrightData;
 
 namespace BrightWire.ExecutionGraph.Engine
 {
-    abstract class EngineBase
+    internal abstract class EngineBase
     {
         protected readonly ILinearAlgebraProvider _lap;
         protected IDataSource _dataSource = null;

@@ -9,9 +9,9 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
     /// <summary>
     /// Adapts data tables with a index list based column (corresponding to an unweighted sparse vector)
     /// </summary>
-    class IndexListDataTableAdaptor : DataTableAdaptorBase<(IndexList, float[])>, IIndexListEncoder
+    internal class IndexListDataTableAdaptor : DataTableAdaptorBase<(IndexList, float[])>, IIndexListEncoder
     {
-        private readonly uint[] _featureColumns;
+        readonly uint[] _featureColumns;
 
         public IndexListDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, IVectorise outputVectoriser, uint[] featureColumns)
             : base(lap, dataTable, featureColumns)

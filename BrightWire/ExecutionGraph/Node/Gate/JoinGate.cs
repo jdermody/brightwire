@@ -5,7 +5,7 @@ using BrightData;
 
 namespace BrightWire.ExecutionGraph.Node.Gate
 {
-    class JoinGate : MultiGateBase
+    internal class JoinGate : MultiGateBase
     {
         class Backpropagation : BackpropagationBase<JoinGate>
         {

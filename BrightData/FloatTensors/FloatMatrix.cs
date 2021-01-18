@@ -92,9 +92,7 @@ namespace BrightData.FloatTensors
         public IFloatMatrix Clone() => new FloatMatrix(Data.Clone());
         public void Clear() => Data.Segment.Initialize(0f);
 
-        // TODO: remove value adjustment
-        public IFloatMatrix Sqrt(float valueAdjustment = 1E-08f) => new FloatMatrix(Data.Sqrt());
-
+        public IFloatMatrix Sqrt() => new FloatMatrix(Data.Sqrt());
         public IFloatMatrix Pow(float power) => new FloatMatrix(Data.Pow(power));
 
         public IFloatMatrix PointwiseDivide(IFloatMatrix matrix) => new FloatMatrix(Data.PointwiseDivide(matrix.Data));

@@ -5,7 +5,7 @@ namespace BrightWire.ExecutionGraph.WeightInitialisation
     /// <summary>
     /// Identity matrix: https://arxiv.org/abs/1504.00941
     /// </summary>
-    class Identity : IWeightInitialisation
+    internal class Identity : IWeightInitialisation
     {
         readonly ILinearAlgebraProvider _lap;
         readonly float _value;

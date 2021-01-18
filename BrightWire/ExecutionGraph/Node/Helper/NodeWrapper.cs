@@ -6,7 +6,7 @@ using BrightData;
 
 namespace BrightWire.ExecutionGraph.Node.Helper
 {
-    class NodeWrapper : NodeBase
+    internal class NodeWrapper : NodeBase
     {
         class ContextProxy : IGraphContext
         {

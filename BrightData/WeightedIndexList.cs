@@ -269,7 +269,8 @@ namespace BrightData
         public Vector<float> AsDense(uint? maxIndex)
         {
             var indices = new Dictionary<uint, float>();
-            uint max = uint.MinValue;
+            var max = uint.MinValue;
+
             if (Indices != null) {
                 foreach (var item in Indices) {
                     if (maxIndex.HasValue && item.Index > maxIndex.Value)
@@ -282,7 +283,7 @@ namespace BrightData
             }
 
             if (indices.Any())
-                return Context.CreateVector(max + 1, i => indices.TryGetValue(i, out var val) ? val : 0f);
+                return Context.CreateVector(maxIndex ?? (max + 1), i => indices.TryGetValue(i, out var val) ? val : 0f);
             return Context.CreateVector(maxIndex ?? 0, i => 0f);
         }
 

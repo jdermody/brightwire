@@ -9,7 +9,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
     /// LSTM recurrent neural network
     /// https://en.wikipedia.org/wiki/Long_short-term_memory
     /// </summary>
-    class LongShortTermMemory : NodeBase, IHaveMemoryNode
+    internal class LongShortTermMemory : NodeBase, IHaveMemoryNode
     {
         uint _inputSize;
         MemoryFeeder _memory, _state;

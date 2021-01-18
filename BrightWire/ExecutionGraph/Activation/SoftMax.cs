@@ -8,7 +8,7 @@ namespace BrightWire.ExecutionGraph.Activation
     /// Softmax activation function
     /// https://en.wikipedia.org/wiki/Softmax_function
     /// </summary>
-    class SoftMax : NodeBase
+    internal class SoftMax : NodeBase
     {
         class Backpropagation : SingleBackpropagationBase<SoftMax>
         {

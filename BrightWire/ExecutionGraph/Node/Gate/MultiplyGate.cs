@@ -6,7 +6,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
     /// <summary>
     /// Outputs the two input signals multiplied together
     /// </summary>
-    class MultiplyGate : BinaryGateBase
+    internal class MultiplyGate : BinaryGateBase
     {
         class Backpropagation : BackpropagationBase<MultiplyGate>
         {

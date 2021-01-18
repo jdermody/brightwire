@@ -10,9 +10,9 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
     /// <summary>
     /// Adapts data tables that generate sequences from a single vector
     /// </summary>
-    class OneToManyDataTableAdaptor : RowBasedDataTableAdaptorBase
+    internal class OneToManyDataTableAdaptor : RowBasedDataTableAdaptorBase
     {
-        private readonly uint[] _featureColumns;
+        readonly uint[] _featureColumns;
         readonly uint[] _rowDepth;
 
 	    public OneToManyDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, uint[] featureColumns) 

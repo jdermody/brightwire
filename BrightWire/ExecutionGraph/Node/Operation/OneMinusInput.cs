@@ -5,7 +5,7 @@ namespace BrightWire.ExecutionGraph.Node.Operation
     /// <summary>
     /// Subtracts the input from one (1-x)
     /// </summary>
-    class OneMinusInput : NodeBase
+    internal class OneMinusInput : NodeBase
     {
         class Backpropagation : SingleBackpropagationBase<OneMinusInput>
         {

@@ -8,9 +8,9 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
     /// <summary>
     /// Adapts data tables that classify each step of a sequence
     /// </summary>
-    class SequentialDataTableAdaptor : RowBasedDataTableAdaptorBase
+    internal class SequentialDataTableAdaptor : RowBasedDataTableAdaptorBase
     {
-        private readonly uint[] _featureColumns;
+        readonly uint[] _featureColumns;
         readonly uint[] _rowDepth;
 
 	    public SequentialDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, uint[] featureColumns) 

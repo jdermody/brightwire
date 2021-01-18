@@ -6,7 +6,7 @@ using BrightData;
 
 namespace BrightTable.Builders
 {
-    class ColumnOrientedTableBuilder : IDisposable
+    internal class ColumnOrientedTableBuilder : IDisposable
     {
         readonly Stream _stream;
         readonly BinaryWriter _writer;

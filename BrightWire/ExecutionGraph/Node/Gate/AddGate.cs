@@ -5,7 +5,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
     /// <summary>
     /// Outputs the two input signals added together
     /// </summary>
-    class AddGate : BinaryGateBase
+    internal class AddGate : BinaryGateBase
     {
         public AddGate(string name = null) : base(name) { }
 

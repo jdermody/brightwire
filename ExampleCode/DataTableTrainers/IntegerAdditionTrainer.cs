@@ -10,7 +10,7 @@ using BrightWire.TrainingData.Artificial;
 
 namespace ExampleCode.DataTableTrainers
 {
-    class IntegerAdditionTrainer : DataTableTrainer
+    internal class IntegerAdditionTrainer : DataTableTrainer
     {
         public IntegerAdditionTrainer(IRowOrientedDataTable data, IRowOrientedDataTable training, IRowOrientedDataTable test) : base(data, training, test)
         {

@@ -227,7 +227,7 @@ namespace BrightData
         void Add(T obj);
     }
 
-    public enum NormalizationType
+    public enum NormalizationType : byte
     {
         None = 0,
         Standard,
@@ -295,7 +295,7 @@ namespace BrightData
     public interface IHybridBuffer
     {
         void CopyTo(Stream stream);
-        IEnumerable<object?> Enumerate();
+        IEnumerable<object> Enumerate();
         uint Length { get; }
         uint? NumDistinct { get; }
         void Add(object? obj);

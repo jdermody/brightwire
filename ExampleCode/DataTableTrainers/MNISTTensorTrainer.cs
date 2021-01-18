@@ -10,7 +10,7 @@ using BrightWire.Models;
 
 namespace ExampleCode.DataTableTrainers
 {
-    class MNISTTensorTrainer : DataTableTrainer
+    internal class MNISTTensorTrainer : DataTableTrainer
     {
         public MNISTTensorTrainer(IRowOrientedDataTable training, IRowOrientedDataTable test) : base(null, training, test)
         {

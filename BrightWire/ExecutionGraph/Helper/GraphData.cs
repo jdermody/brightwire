@@ -6,7 +6,7 @@ namespace BrightWire.ExecutionGraph.Helper
     /// <summary>
     /// Graph data adaptor for matrices
     /// </summary>
-    class MatrixGraphData : IGraphData
+    internal class MatrixGraphData : IGraphData
     {
         readonly IFloatMatrix _matrix;
 
@@ -34,7 +34,7 @@ namespace BrightWire.ExecutionGraph.Helper
     /// <summary>
     /// Graph data adaptor for 3D tensors
     /// </summary>
-    class Tensor3DGraphData : IGraphData
+    internal class Tensor3DGraphData : IGraphData
     {
         readonly IFloatMatrix _matrix;
 
@@ -77,7 +77,7 @@ namespace BrightWire.ExecutionGraph.Helper
     /// <summary>
     /// Graph data adaptor for 4D tensors
     /// </summary>
-    class Tensor4DGraphData : IGraphData
+    internal class Tensor4DGraphData : IGraphData
     {
         readonly IFloatMatrix _matrix;
 

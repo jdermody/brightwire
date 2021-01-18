@@ -11,9 +11,9 @@ using MathNet.Numerics.Distributions;
 
 namespace ExampleCode.DataTableTrainers
 {
-    class ReberSequenceTrainer : DataTableTrainer
+    internal class ReberSequenceTrainer : DataTableTrainer
     {
-        private readonly IBrightDataContext _context;
+        readonly IBrightDataContext _context;
 
         public ReberSequenceTrainer(IBrightDataContext context, IRowOrientedDataTable dataTable) : base(dataTable)
         {

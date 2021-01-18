@@ -4,6 +4,12 @@
         <name>BrightTable</name>
     </assembly>
     <members>
+        <member name="T:BrightTable.Buffers.InMemoryBuffer`1">
+            <summary>
+            Buffer
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
         <member name="T:BrightTable.Builders.TableBuilder">
             <summary>
             Builds tables dynamically in memory
@@ -490,6 +496,142 @@
             <param name="sampleCount">Number of rows to sample</param>
             <param name="filePath">File path to store new table on disk (optional)</param>
             <returns></returns>
+        </member>
+        <member name="M:BrightTable.IRowOrientedDataTable.Row(System.UInt32)">
+            <summary>
+            Returns the row at the specified index
+            </summary>
+            <param name="rowIndex">Row index to retrieve</param>
+        </member>
+        <member name="M:BrightTable.IRowOrientedDataTable.Rows(System.UInt32[])">
+            <summary>
+            Returns the rows at the specified indices
+            </summary>
+            <param name="rowIndices">Row indices to retrieve</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightTable.IRowOrientedDataTable.Concat(BrightTable.IRowOrientedDataTable[])">
+            <summary>
+            Creates a new table of this concatenated with other row oriented data tables
+            </summary>
+            <param name="others">Other row oriented data tables to concatenate</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightTable.IRowOrientedDataTable.Concat(System.String,BrightTable.IRowOrientedDataTable[])">
+            <summary>
+            Creates a new table of this concatenated with other row oriented data tables
+            </summary>
+            <param name="filePath">File path to store new table on disk (optional)</param>
+            <param name="others">Other row oriented data tables to concatenate</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightTable.IRowOrientedDataTable.CopyRows(System.UInt32[])">
+            <summary>
+            Copy specified rows from this to a new data table
+            </summary>
+            <param name="rowIndices">Row indices to copy</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightTable.IRowOrientedDataTable.CopyRows(System.String,System.UInt32[])">
+            <summary>
+            Copy specified rows from this to a new data table
+            </summary>
+            <param name="filePath">File path to store new table on disk (optional)</param>
+            <param name="rowIndices">Row indices to copy</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightTable.IRowOrientedDataTable.Shuffle(System.String)">
+            <summary>
+            Creates a new data table from the randomly shuffled rows of this data table
+            </summary>
+            <param name="filePath">File path to store new table on disk (optional)</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightTable.IRowOrientedDataTable.Sort(System.UInt32,System.Boolean,System.String)">
+            <summary>
+            Creates a new sorted data table
+            </summary>
+            <param name="columnIndex">Column index to sort</param>
+            <param name="ascending">True to sort ascending</param>
+            <param name="filePath">File path to store new table on disk (optional)</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightTable.IRowOrientedDataTable.GroupBy(System.UInt32)">
+            <summary>
+            Splits this table into many data tables based on the value from a column
+            </summary>
+            <param name="columnIndex">Column index to group on</param>
+            <returns></returns>
+        </member>
+        <member name="P:BrightTable.IRowOrientedDataTable.FirstRow">
+            <summary>
+            Returns the first row as a string
+            </summary>
+        </member>
+        <member name="P:BrightTable.IRowOrientedDataTable.SecondRow">
+            <summary>
+            Returns the second row as a string
+            </summary>
+        </member>
+        <member name="P:BrightTable.IRowOrientedDataTable.ThirdRow">
+            <summary>
+            Returns the third row as a string
+            </summary>
+        </member>
+        <member name="P:BrightTable.IRowOrientedDataTable.LastRow">
+            <summary>
+            Returns the last row as a string
+            </summary>
+        </member>
+        <member name="T:BrightTable.ColumnConversionType">
+            <summary>
+            Single column conversion options
+            </summary>
+        </member>
+        <member name="F:BrightTable.ColumnConversionType.Unchanged">
+            <summary>
+            Leave the column unchanged (nop)
+            </summary>
+        </member>
+        <member name="F:BrightTable.ColumnConversionType.ToBoolean">
+            <summary>
+            Convert to boolean
+            </summary>
+        </member>
+        <member name="F:BrightTable.ColumnConversionType.ToDate">
+            <summary>
+            Convert to date
+            </summary>
+        </member>
+        <member name="F:BrightTable.ColumnConversionType.ToNumeric">
+            <summary>
+            Convert to numeric (best numeric size will be automatically determined)
+            </summary>
+        </member>
+        <member name="F:BrightTable.ColumnConversionType.ToString">
+            <summary>
+            Convert to string
+            </summary>
+        </member>
+        <member name="F:BrightTable.ColumnConversionType.ToIndexList">
+            <summary>
+            Convert to index list
+            </summary>
+        </member>
+        <member name="F:BrightTable.ColumnConversionType.ToWeightedIndexList">
+            <summary>
+            Convert to weighted index list
+            </summary>
+        </member>
+        <member name="F:BrightTable.ColumnConversionType.ToVector">
+            <summary>
+            Convert to vector
+            </summary>
+        </member>
+        <member name="F:BrightTable.ColumnConversionType.ToCategoricalIndex">
+            <summary>
+            Convert each value to an index within a dictionary
+            </summary>
         </member>
         <member name="T:BrightTable.Transformations.ColumnConversion">
             <summary>

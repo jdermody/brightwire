@@ -13,7 +13,7 @@ namespace BrightWire.TrainingData.Artificial
     public class SequenceGenerator
     {
 	    readonly uint _minSize, _maxSize;
-        private readonly IBrightDataContext _context;
+        readonly IBrightDataContext _context;
         readonly bool _noRepeat;
         readonly Random _rnd;
 

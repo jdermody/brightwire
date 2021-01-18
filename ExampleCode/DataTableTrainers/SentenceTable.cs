@@ -11,7 +11,7 @@ using BrightWire.TrainingData.Helper;
 
 namespace ExampleCode.DataTableTrainers
 {
-    class SentenceTable
+    internal class SentenceTable
     {
         readonly IRowOrientedDataTable _sentenceTable;
         readonly Dictionary<string, uint> _stringIndex = new Dictionary<string, uint>();

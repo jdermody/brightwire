@@ -2,7 +2,7 @@
 
 namespace BrightData.Distance
 {
-    class ManhattanDistance
+    internal class ManhattanDistance
     {
         public static float Calculate(float[] v1, float[] v2)
         {

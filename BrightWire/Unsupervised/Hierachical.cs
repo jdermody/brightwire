@@ -9,7 +9,7 @@ namespace BrightWire.Unsupervised
     /// Hierachical clustering
     /// https://en.wikipedia.org/wiki/Hierarchical_clustering
     /// </summary>
-    class Hierachical : IDisposable
+    internal class Hierachical : IDisposable
     {
         class Centroid : IDisposable
         {

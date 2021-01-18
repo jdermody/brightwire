@@ -3,9 +3,9 @@ using BrightData.Helper;
 
 namespace BrightData.Distributions
 {
-    class NormalDistribution : IContinuousDistribution
+    internal class NormalDistribution : IContinuousDistribution
     {
-        private readonly IBrightDataContext _context;
+        readonly IBrightDataContext _context;
 
         public NormalDistribution(IBrightDataContext context, float mean = 0f, float stdDev = 1f)
         {

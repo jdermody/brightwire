@@ -12,7 +12,7 @@ using BrightWire.TrainingData.Helper;
 
 namespace ExampleCode.DataTableTrainers
 {
-    class MNISTVectorTrainer : DataTableTrainer
+    internal class MNISTVectorTrainer : DataTableTrainer
     {
         public MNISTVectorTrainer(IRowOrientedDataTable training, IRowOrientedDataTable test) : base(null, training, test)
         {

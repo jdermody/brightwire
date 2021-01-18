@@ -11,7 +11,7 @@ namespace BrightWire.ExecutionGraph.Engine
 	/// <summary>
 	/// Executes (without training) graphs
 	/// </summary>
-	class ExecutionEngine : EngineBase, IGraphEngine
+    internal class ExecutionEngine : EngineBase, IGraphEngine
 	{
 		readonly List<(ExecutionEngineContext Context, IFloatMatrix[] Data)> _executionResults = new List<(ExecutionEngineContext, IFloatMatrix[])>();
 

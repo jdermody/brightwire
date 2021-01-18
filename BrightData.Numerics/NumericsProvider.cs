@@ -90,7 +90,7 @@ namespace BrightData.Numerics
 			return new Numerics4DTensor(Context, data.Select(t => Create3DTensor(t.Matrices.Select(CreateMatrix).ToArray()).AsIndexable()).ToArray());
 		}
 
-        private I3DFloatTensor Create3DTensor(Tensor3D<float> tensor)
+        I3DFloatTensor Create3DTensor(Tensor3D<float> tensor)
         {
             return new Numerics3DTensor(Context, tensor.Matrices.Select(m => CreateMatrix(m).AsIndexable()).ToArray());
         }

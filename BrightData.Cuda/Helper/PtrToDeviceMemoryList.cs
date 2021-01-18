@@ -5,7 +5,7 @@ using ManagedCuda.BasicTypes;
 
 namespace BrightData.Cuda.Helper
 {
-    class PtrToDeviceMemoryList : IDisposable
+    internal class PtrToDeviceMemoryList : IDisposable
     {
 		readonly CudaDeviceVariable<CUdeviceptr> _ptr;
 

@@ -9,7 +9,7 @@ namespace BrightWire.ExecutionGraph.DataSource
     /// <summary>
     /// Feeds data to the execution graph
     /// </summary>
-    class VectorDataSource : IDataSource
+    internal class VectorDataSource : IDataSource
     {
 	    readonly Vector<float>[] _data;
         readonly ILinearAlgebraProvider _lap;

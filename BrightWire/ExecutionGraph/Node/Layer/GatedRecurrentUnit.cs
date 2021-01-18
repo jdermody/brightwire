@@ -10,7 +10,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
     /// GRU recurrent neural network
     /// https://en.wikipedia.org/wiki/Gated_recurrent_unit
     /// </summary>
-    class GatedRecurrentUnit : NodeBase, IHaveMemoryNode
+    internal class GatedRecurrentUnit : NodeBase, IHaveMemoryNode
     {
         IReadOnlyDictionary<INode, IGraphData> _lastBackpropagation = null;
         uint _inputSize;

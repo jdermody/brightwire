@@ -7,7 +7,7 @@ namespace BrightWire.ExecutionGraph.Activation
     /// Sigmoid activation function
     /// https://en.wikipedia.org/wiki/Sigmoid_function
     /// </summary>
-    class Sigmoid : NodeBase
+    internal class Sigmoid : NodeBase
     {
         class Backpropagation : SingleBackpropagationBase<Sigmoid>
         {

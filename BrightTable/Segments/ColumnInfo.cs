@@ -3,7 +3,7 @@ using BrightData;
 
 namespace BrightTable.Segments
 {
-    class ColumnInfo : IColumnInfo
+    internal class ColumnInfo : IColumnInfo
     {
         public ColumnInfo(BinaryReader reader, uint index)
         {

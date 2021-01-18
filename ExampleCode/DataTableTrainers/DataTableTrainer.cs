@@ -12,7 +12,7 @@ using BrightWire.Models.TreeBased;
 
 namespace ExampleCode
 {
-    class DataTableTrainer : IDisposable
+    internal class DataTableTrainer : IDisposable
     {
         public DataTableTrainer(IRowOrientedDataTable table)
         {

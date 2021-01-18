@@ -7,7 +7,11 @@ using BrightTable.Segments;
 
 namespace BrightTable.Buffers
 {
-    class InMemoryBuffer<T> : IDataTableSegment<T>, ITypedRowConsumer<T>, IHaveBrightDataContext
+    /// <summary>
+    /// Buffer
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    internal class InMemoryBuffer<T> : IDataTableSegment<T>, ITypedRowConsumer<T>, IHaveBrightDataContext
         where T: notnull
     {
         readonly GrowableSegment<T> _segment;
@@ -31,11 +35,10 @@ namespace BrightTable.Buffers
                 _segment.Add(item);
         }
 
+        public void Dispose() => _segment.Dispose();
+
         public void Add(object value) => Add((T) value);
-        public void Add(T value)
-        {
-            _segment.Add(value);
-        }
+        public void Add(T value) => _segment.Add(value);
         public IBrightDataContext Context { get; }
         public IEnumerable<T> EnumerateTyped() => _segment.EnumerateTyped();
         public IEnumerable<object> Enumerate() => EnumerateTyped().Cast<object>();
@@ -45,15 +48,8 @@ namespace BrightTable.Buffers
         public IMetaData MetaData { get; }
         public ColumnType SingleType { get; }
         public bool IsEncoded => false;
-
-        public void WriteTo(BinaryWriter writer) => _segment.WriteTo(writer);
-
-        public void Dispose()
-        {
-            _segment.Dispose();
-        }
-
         public uint ColumnIndex { get; }
         public ColumnType ColumnType => SingleType;
+        public void WriteTo(BinaryWriter writer) => _segment.WriteTo(writer);
     }
 }

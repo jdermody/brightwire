@@ -10,7 +10,7 @@ namespace BrightWire.ExecutionGraph.DataSource
     /// <summary>
     /// Feeds sequential data to the graph
     /// </summary>
-    class SequentialDataSource : IDataSource
+    internal class SequentialDataSource : IDataSource
     {
         readonly uint[] _rowDepth;
 	    readonly Matrix<float>[] _data;

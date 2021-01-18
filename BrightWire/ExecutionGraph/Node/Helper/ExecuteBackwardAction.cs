@@ -7,7 +7,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
     /// <summary>
     /// Executes an action when backpropagating
     /// </summary>
-    class ExecuteBackwardAction : NodeBase, IHaveAction
+    internal class ExecuteBackwardAction : NodeBase, IHaveAction
     {
         class Backpropagation : SingleBackpropagationBase<ExecuteBackwardAction>
         {

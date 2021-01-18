@@ -9,7 +9,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
     /// <summary>
     /// Executes a row based classifier
     /// </summary>
-    class RowClassifier : NodeBase
+    internal class RowClassifier : NodeBase
     {
         class DefaultIndexer : IIndexStrings
         {

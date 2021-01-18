@@ -8,7 +8,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     /// <summary>
     /// Graph engine execution context
     /// </summary>
-    class ExecutionContext : IGraphExecutionContext
+    internal class ExecutionContext : IGraphExecutionContext
     {
         readonly ConcurrentQueue<IGraphOperation> _operationList = new ConcurrentQueue<IGraphOperation>();
         readonly ConcurrentDictionary<string, IFloatMatrix> _memory = new ConcurrentDictionary<string, IFloatMatrix>();

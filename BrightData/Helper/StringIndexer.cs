@@ -11,7 +11,7 @@ namespace BrightData.Helper
     {
         readonly Dictionary<string, uint> _index = new Dictionary<string, uint>();
 
-        private StringIndexer()
+        StringIndexer()
         {
         }
 

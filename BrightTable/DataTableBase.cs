@@ -8,7 +8,7 @@ using BrightTable.Builders;
 
 namespace BrightTable
 {
-    abstract class DataTableBase : IHaveMetaData, IHaveBrightDataContext
+    internal abstract class DataTableBase : IHaveMetaData, IHaveBrightDataContext
     {
         protected readonly Stream _stream;
         readonly MetaData _tableMetaData = new MetaData();

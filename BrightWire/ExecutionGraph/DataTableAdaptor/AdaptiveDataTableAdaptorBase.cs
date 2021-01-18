@@ -10,7 +10,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
     /// <summary>
     /// Base class for data table adaptors that adapt their input based on a preliminary execution graph
     /// </summary>
-    abstract class AdaptiveDataTableAdaptorBase : RowBasedDataTableAdaptorBase, IAdaptiveDataSource
+    internal abstract class AdaptiveDataTableAdaptorBase : RowBasedDataTableAdaptorBase, IAdaptiveDataSource
     {
         protected INode _input;
         protected readonly ILearningContext _learningContext;

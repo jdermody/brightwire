@@ -10,7 +10,7 @@ namespace BrightData.Memory
     /// "Pointer" to a tensor block that manages reference counting
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    class TensorSegment<T> : ReferenceCountedBlock<T>, ITensorSegment<T> 
+    internal class TensorSegment<T> : ReferenceCountedBlock<T>, ITensorSegment<T> 
         where T: struct
     {
         bool _wasDisposed = false;

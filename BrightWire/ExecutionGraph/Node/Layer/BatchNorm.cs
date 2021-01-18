@@ -14,7 +14,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 	/// Batch normalisation layer
 	/// https://arxiv.org/abs/1502.03167
 	/// </summary>
-	class BatchNorm : NodeBase
+    internal class BatchNorm : NodeBase
 	{
 		uint _inputSize;
 		INode _input, _output;

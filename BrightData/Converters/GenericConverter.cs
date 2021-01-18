@@ -2,7 +2,7 @@
 
 namespace BrightData.Converters
 {
-    class GenericConverter<T> where T: struct
+    internal class GenericConverter<T> where T: struct
     {
 	    readonly TypeConverter _converter;
 	    readonly T? _fallback;

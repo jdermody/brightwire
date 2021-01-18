@@ -9,7 +9,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
     /// <summary>
     /// A feed forward layer with tied weights (from a previous feed forward layer)
     /// </summary>
-    class TiedFeedForward : NodeBase
+    internal class TiedFeedForward : NodeBase
     {
         class Backpropagation : SingleBackpropagationBase<TiedFeedForward>
         {

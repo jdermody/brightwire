@@ -5,7 +5,7 @@ namespace BrightWire.ExecutionGraph.Node.Operation
     /// <summary>
     /// Calculates the mean across the batch 
     /// </summary>
-    class BatchMean : NodeBase
+    internal class BatchMean : NodeBase
     {
         class Backpropagation : SingleBackpropagationBase<BatchMean>
         {

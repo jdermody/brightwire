@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace BrightData.Buffers
 {
-    abstract class HybridBufferBase<T> : IHybridBuffer<T>
+    internal abstract class HybridBufferBase<T> : IHybridBuffer<T>
     {
         readonly uint _maxCount;
         readonly IProvideTempStreams _tempStream;
@@ -13,7 +13,7 @@ namespace BrightData.Buffers
         protected readonly T[] _tempBuffer;
         readonly ushort _maxDistinct = 0;
 
-        private HashSet<T>? _distinctSet = null;
+        HashSet<T>? _distinctSet = null;
         int _index = 0;
 
         protected HybridBufferBase(IProvideTempStreams tempStream, uint maxCount, ushort? maxDistinct)

@@ -9,9 +9,9 @@ using BrightWire;
 
 namespace ExampleCode.DataTableTrainers
 {
-    class BicyclesTrainer : DataTableTrainer
+    internal class BicyclesTrainer : DataTableTrainer
     {
-        private readonly IBrightDataContext _context;
+        readonly IBrightDataContext _context;
 
         public BicyclesTrainer(IBrightDataContext context, IRowOrientedDataTable table) : base(table)
         {

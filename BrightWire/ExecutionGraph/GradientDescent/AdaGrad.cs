@@ -7,7 +7,7 @@ namespace BrightWire.ExecutionGraph.GradientDescent
     /// AdaGrad gradient descent
     /// https://en.wikipedia.org/wiki/Stochastic_gradient_descent#AdaGrad
     /// </summary>
-    class AdaGrad : IGradientDescentOptimisation
+    internal class AdaGrad : IGradientDescentOptimisation
     {
         protected IFloatMatrix _cache;
         protected IGradientDescentOptimisation _updater;

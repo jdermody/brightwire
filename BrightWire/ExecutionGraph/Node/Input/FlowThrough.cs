@@ -3,7 +3,7 @@
     /// <summary>
     /// Simple pass through of the input signal
     /// </summary>
-    class FlowThrough : NodeBase
+    internal class FlowThrough : NodeBase
     {
         public FlowThrough() : base(null)
         {

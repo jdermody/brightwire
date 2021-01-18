@@ -9,7 +9,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     /// <summary>
     /// Helper class when executing a single sequence
     /// </summary>
-    class SequentialRowDataSource : IDataSource
+    internal class SequentialRowDataSource : IDataSource
     {
         readonly float[][] _data;
 
