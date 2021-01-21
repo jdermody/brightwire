@@ -8,7 +8,7 @@ namespace BrightData
     public static partial class ExtensionMethods
     {
         /// <summary>
-        /// Creates a vector based on an enumerable of floats
+        /// Creates a vector from an enumerable of floats
         /// </summary>
         /// <param name="lap"></param>
         /// <param name="data">The initial values in the vector</param>
@@ -16,7 +16,7 @@ namespace BrightData
         public static IFloatVector CreateVector(this ILinearAlgebraProvider lap, IEnumerable<float> data) => CreateVector(lap, data.ToArray());
 
         /// <summary>
-		/// Create a vector
+		/// Creates a vector
 		/// </summary>
 		/// <param name="lap"></param>
 		/// <param name="data">Indexable vector to copy</param>
@@ -26,26 +26,29 @@ namespace BrightData
             return lap.CreateVector(data.Count, i => data[i]);
         }
 
+        /// <summary>
+        /// Creates a vector
+        /// </summary>
+        /// <param name="lap"></param>
+        /// <param name="data">Vector to copy</param>
+        /// <returns></returns>
         public static IFloatVector CreateVector(this ILinearAlgebraProvider lap, IFloatVector data) => CreateVector(lap, data.Data);
 
         /// <summary>
-        /// Create a vector
+        /// Creates a vector
         /// </summary>
         /// <param name="lap"></param>
         /// <param name="data">Vector to copy</param>
         /// <returns></returns>
         public static IFloatVector CreateVector(this ILinearAlgebraProvider lap, Vector<float> data)
         {
-            //var array = data.Segment;
-            //return lap.CreateVector(array.Length, i => array[i]);
-
-	        var ret = lap.CreateVector(data.Size);
+            var ret = lap.CreateVector(data.Size);
 	        ret.Data = data;
 	        return ret;
         }
 
         /// <summary>
-        /// Create a vector
+        /// Creates a vector
         /// </summary>
         /// <param name="lap"></param>
         /// <param name="data">List of values</param>
@@ -56,7 +59,7 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Create a vector
+        /// Creates a vector
         /// </summary>
         /// <param name="lap"></param>
         /// <param name="length">Vector size</param>
@@ -68,15 +71,15 @@ namespace BrightData
         }
 
 		/// <summary>
-		/// Creates a matrix with every value initialised to zero
+		/// Creates a matrix with every element initialized to zero
 		/// </summary>
 		/// <param name="lap"></param>
 		/// <param name="rows">Number of rows</param>
-		/// <param name="columns">Numer of columns</param>
+		/// <param name="columns">Number of columns</param>
 	    public static IFloatMatrix CreateZeroMatrix(this ILinearAlgebraProvider lap, uint rows, uint columns) => lap.CreateMatrix(rows, columns, true);
 
 		/// <summary>
-		/// Create a matrix
+		/// Creates a matrix from an existing matrix
 		/// </summary>
 		/// <param name="lap"></param>
 		/// <param name="matrix">Matrix to copy</param>
@@ -89,7 +92,7 @@ namespace BrightData
 		}
 
         /// <summary>
-        /// Create a matrix from a list of row vectors
+        /// Creates a matrix from row vectors
         /// </summary>
         /// <param name="lap"></param>
         /// <param name="rowList">List of vectors (each vector becomes a row in the new matrix)</param>
@@ -102,7 +105,7 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Create a matrix from a list of row vectors
+        /// Creates a matrix from row vectors
         /// </summary>
         /// <param name="lap"></param>
         /// <param name="rowList">List of indexable vectors (each vector becomes a row in the new matrix)</param>
@@ -115,7 +118,7 @@ namespace BrightData
         }
 
 	    /// <summary>
-	    /// Create a matrix from a list of column vectors
+	    /// Creates a matrix from column vectors
 	    /// </summary>
 	    /// <param name="lap"></param>
 	    /// <param name="columnList">List of vectors (each vector becomes a column in the new matrix)</param>
@@ -128,7 +131,7 @@ namespace BrightData
 	    }
 
 	    /// <summary>
-	    /// Create a matrix from a list of column vectors
+	    /// Creates a matrix column vectors
 	    /// </summary>
 	    /// <param name="lap"></param>
 	    /// <param name="columnList">List of indexable vectors (each vector becomes a column in the new matrix)</param>
@@ -141,12 +144,12 @@ namespace BrightData
 	    }
 
         /// <summary>
-        /// Create a matrix
+        /// Creates a matrix
         /// </summary>
         /// <param name="lap"></param>
-        /// <param name="rows">Matrix rows</param>
-        /// <param name="columns">Matrix columns</param>
-        /// <param name="value">Constant value</param>
+        /// <param name="rows">Number of rows</param>
+        /// <param name="columns">Number of columns</param>
+        /// <param name="value">Constant value to initialize each element</param>
         /// <returns></returns>
         public static IFloatMatrix CreateMatrix(this ILinearAlgebraProvider lap, uint rows, uint columns, float value)
         {
@@ -154,7 +157,7 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Create a matrix
+        /// Creates a matrix
         /// </summary>
         /// <param name="lap"></param>
         /// <param name="matrix">Indexable matrix to copy</param>
@@ -165,7 +168,7 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Create an identity matrix
+        /// Creates an identity matrix (each diagonal element is 1, each other element is 0)
         /// </summary>
         /// <param name="lap"></param>
         /// <param name="size">Width and height of the new matrix</param>
@@ -176,10 +179,10 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Create a diagonal matrix
+        /// Creates a diagonal matrix
         /// </summary>
         /// <param name="lap"></param>
-        /// <param name="values">List of diagonal values</param>
+        /// <param name="values">Diagonal values</param>
         /// <returns></returns>
         public static IFloatMatrix CreateDiagonalMatrix(this ILinearAlgebraProvider lap, params float[] values)
         {
@@ -187,24 +190,23 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Create a 3D tensor
+        /// Creates a 3D tensor
         /// </summary>
         /// <param name="lap"></param>
-        /// <param name="tensor">The serialised representation of the 3D tensor</param>
+        /// <param name="tensor">The tensor to copy from</param>
         /// <returns></returns>
         public static I3DFloatTensor Create3DTensor(this ILinearAlgebraProvider lap, Tensor3D<float> tensor)
         {
 	        var ret = lap.Create3DTensor(tensor.RowCount, tensor.ColumnCount, tensor.Depth);
 	        ret.Data = tensor;
 	        return ret;
-	        //return lap.Create3DTensor(tensor.Matrix.Select(m => CreateMatrix(lap, m)).ToList());
         }
 
 	    /// <summary>
-	    /// Creates a 3D tensor from a list of matrices
+	    /// Creates a 3D tensor from matrices
 	    /// </summary>
 	    /// <param name="lap"></param>
-	    /// <param name="matrices">List of matrices</param>
+	    /// <param name="matrices">Matrices to copy fropm</param>
 	    /// <returns></returns>
 	    public static I3DFloatTensor Create3DTensor(this ILinearAlgebraProvider lap, Matrix<float>[] matrices)
 	    {
@@ -217,9 +219,9 @@ namespace BrightData
         /// <summary>
         /// Calculates the distance between two matrices
         /// </summary>
-        /// <param name="distance"></param>
-        /// <param name="matrix1"></param>
-        /// <param name="matrix2"></param>
+        /// <param name="distance">Distance metric (either euclidean or square euclidean)</param>
+        /// <param name="matrix1">First matrix</param>
+        /// <param name="matrix2">Second matrix</param>
         /// <returns></returns>
         public static IFloatVector Calculate(this DistanceMetric distance, IFloatMatrix matrix1, IFloatMatrix matrix2)
         {
@@ -243,9 +245,9 @@ namespace BrightData
         /// <summary>
         /// Calculates the distance between two vectors
         /// </summary>
-        /// <param name="distance"></param>
-        /// <param name="vector1"></param>
-        /// <param name="vector2"></param>
+        /// <param name="distance">Distance metric</param>
+        /// <param name="vector1">First vector</param>
+        /// <param name="vector2">Second vector</param>
         public static float Calculate(this DistanceMetric distance, IFloatVector vector1, IFloatVector vector2)
         {
             switch (distance) {
@@ -262,17 +264,40 @@ namespace BrightData
             }
         }
 
+        /// <summary>
+        /// Creates a matrix from row vectors
+        /// </summary>
+        /// <param name="lap"></param>
+        /// <param name="rows">Row vectors</param>
+        /// <returns></returns>
         public static IFloatMatrix CreateMatrixFromRows(this ILinearAlgebraProvider lap, IEnumerable<Vector<float>> rows) => 
             lap.CreateMatrixFromRows(rows.ToArray());
+
+        /// <summary>
+        /// Creates a matrix from row vectors
+        /// </summary>
+        /// <param name="lap"></param>
+        /// <param name="rows">Row vectors</param>
+        /// <returns></returns>
         public static IFloatMatrix CreateMatrixFromRows(this ILinearAlgebraProvider lap, IEnumerable<IFloatVector> rows) =>
             lap.CreateMatrixFromRows(rows.ToArray());
 
+        /// <summary>
+        /// Creates a matrix from column vectors
+        /// </summary>
+        /// <param name="lap"></param>
+        /// <param name="columns">Column vectors</param>
+        /// <returns></returns>
         public static IFloatMatrix CreateMatrixFromColumns(this ILinearAlgebraProvider lap, IEnumerable<Vector<float>> columns) =>
             lap.CreateMatrixFromColumns(columns.ToArray());
+
+        /// <summary>
+        /// Creates a matrix from column vectors
+        /// </summary>
+        /// <param name="lap"></param>
+        /// <param name="columns">Column vectors</param>
+        /// <returns></returns>
         public static IFloatMatrix CreateMatrixFromColumns(this ILinearAlgebraProvider lap, IEnumerable<IFloatVector> columns) =>
             lap.CreateMatrixFromColumns(columns.ToArray());
-
-        //public static IFloatMatrix Create3DTensor(this ILinearAlgebraProvider lap, IEnumerable<IFloatMatrix> columns) =>
-        //    lap.CreateMatrixFromColumns(columns.ToArray());
     }
 }

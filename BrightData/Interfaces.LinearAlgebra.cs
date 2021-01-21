@@ -162,7 +162,7 @@ namespace BrightData
     /// <summary>
     /// A vector
     /// </summary>
-    public interface IFloatVector : IDisposable
+    public interface IFloatVector : IDisposable, IHaveLinearAlgebraProvider
     {
         /// <summary>
         /// Checks if the vector has not been disposed
@@ -339,10 +339,10 @@ namespace BrightData
         float StdDev(float? mean);
 
         /// <summary>
-        /// Normalises (in place) the values of the current vector
+        /// Normalizes (in place) the values of the current vector
         /// </summary>
         /// <param name="type">The type of normalisation</param>
-        void Normalise(NormalizationType type);
+        void Normalize(NormalizationType type);
 
         /// <summary>
         /// Returns the softmax function (without in place modification) applied to the current vector
@@ -452,8 +452,6 @@ namespace BrightData
         /// </summary>
         /// <returns></returns>
         bool IsEntirelyFinite();
-
-        ILinearAlgebraProvider LinearAlgebraProvider { get; }
     }
 
     /// <summary>
@@ -492,10 +490,8 @@ namespace BrightData
     /// <summary>
     /// A matrix
     /// </summary>
-    public interface IFloatMatrix : IDisposable
+    public interface IFloatMatrix : IDisposable, IHaveLinearAlgebraProvider
     {
-        ILinearAlgebraProvider LinearAlgebraProvider { get; }
-
         /// <summary>
         /// Checks if the matrix has not been disposed
         /// </summary>
@@ -911,10 +907,8 @@ namespace BrightData
     /// <summary>
     /// A list of matrices
     /// </summary>
-    public interface I3DFloatTensor : IDisposable
+    public interface I3DFloatTensor : IDisposable, IHaveLinearAlgebraProvider
     {
-        ILinearAlgebraProvider LinearAlgebraProvider { get; }
-
         /// <summary>
         /// The number of rows in each matrix
         /// </summary>
@@ -931,7 +925,7 @@ namespace BrightData
         uint Depth { get; }
 
         /// <summary>
-        /// Converts the current tensor to protobuf format
+        /// Converts the current tensor
         /// </summary>
         Tensor3D<float> Data { get; set; }
 
@@ -1092,10 +1086,8 @@ namespace BrightData
     /// <summary>
     /// A list of 3D tensors
     /// </summary>
-    public interface I4DFloatTensor : IDisposable
+    public interface I4DFloatTensor : IDisposable, IHaveLinearAlgebraProvider
     {
-        ILinearAlgebraProvider LinearAlgebraProvider { get; }
-
         /// <summary>
         /// The number of rows in each 3D tensor
         /// </summary>
@@ -1207,7 +1199,7 @@ namespace BrightData
         IFloatMatrix ReshapeAsMatrix();
 
         /// <summary>
-        /// Converts the current tensor to protobuf format
+        /// Converts the current tensor
         /// </summary>
         Tensor3D<float>[] Data { get; set; }
     }

@@ -22,7 +22,7 @@ namespace BrightData.Distributions
 
         public uint Sample()
         {
-            var total = _context.NextFloat() * CumulativeTotal;
+            var total = _context.NextRandomFloat() * CumulativeTotal;
             uint index = 0;
 
             while (total > CumulativeValues[index])

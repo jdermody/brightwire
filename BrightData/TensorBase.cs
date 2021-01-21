@@ -10,15 +10,15 @@ namespace BrightData
     /// </summary>
     /// <typeparam name="T">Data type within the tensor</typeparam>
     /// <typeparam name="DT">Underlying type (vector, matrix etc)</typeparam>
-    public abstract class TensorBase<T, DT> : ShapedBase, ITensor<T>
+    public abstract class TensorBase<T, DT> : ShapedBase, ITensor<T>, IHaveBrightDataContext
         where DT : ITensor<T>
         where T : struct
     {
         /// <summary>
         /// Data segment
         /// </summary>
-        protected ITensorSegment<T> _segment;
-        Lazy<INumericComputation<T>> _computation;
+        protected ITensorSegment<T> _segment = null!;
+        Lazy<INumericComputation<T>> _computation = null!;
         bool _wasDisposed = false;
 
         /// <summary>
@@ -45,6 +45,7 @@ namespace BrightData
             Initialize(context, reader);
         }
 
+        /// <inheritdoc />
         public void Initialize(IBrightDataContext context, BinaryReader reader)
         {
             Context = context;
@@ -66,6 +67,7 @@ namespace BrightData
             }
         }
 
+        /// <inheritdoc />
         public override void WriteTo(BinaryWriter writer)
         {
             base.WriteTo(writer);
@@ -73,92 +75,387 @@ namespace BrightData
             _segment.WriteTo(writer.BaseStream);
         }
 
+        /// <summary>
+        /// Creates a derived type
+        /// </summary>
+        /// <param name="segment">Data segment</param>
+        /// <returns></returns>
         protected abstract DT Create(ITensorSegment<T> segment);
 
-        
+        /// <inheritdoc />
         public INumericComputation<T> Computation => _computation.Value;
 
+        /// <inheritdoc />
         public ITensorSegment<T> GetDataCopy()
         {
             _segment.AddRef();
             return _segment;
         }
-        public IBrightDataContext Context { get; private set; }
 
+        /// <inheritdoc />
+        public IBrightDataContext Context { get; private set; } = null!;
+
+        /// <summary>
+        /// Converts the data to an array
+        /// </summary>
+        /// <returns></returns>
         public T[] ToArray() => _segment.ToArray();
-        public void InitializeFrom(Stream stream) => _segment.InitializeFrom(stream);
 
+        /// <summary>
+        /// Adds this to another tensor (new tensor returned - this tensor is not changed)
+        /// </summary>
+        /// <param name="tensor">Other tensor</param>
+        /// <returns>New tensor</returns>
         public DT Add(DT tensor) => Create(Computation.Add(_segment, tensor.Segment));
+
+        /// <summary>
+        /// Adds this to another tensor (new tensor returned - this tensor is not changed)
+        /// </summary>
+        /// <param name="tensor">Other tensor</param>
+        /// <param name="coefficient1">Value to multiply each element of this tensor</param>
+        /// <param name="coefficient2">Value to multiply each element of the other tensor</param>
+        /// <returns>New tensor</returns>
+        public DT Add(DT tensor, T coefficient1, T coefficient2) => Create(Computation.Add(_segment, tensor.Segment, coefficient1, coefficient2));
+
+        /// <summary>
+        /// Adds a scalar to this tensor (new tensor returned - this tensor is not changed)
+        /// </summary>
+        /// <param name="scalar">Value to add to each element</param>
+        /// <returns>New tensor</returns>
+        public DT Add(T scalar) => Create(Computation.Add(_segment, scalar));
+
+        /// <summary>
+        /// Adds another tensor to this in place (this tensor is changed)
+        /// </summary>
+        /// <param name="tensor">Other tensor</param>
         public void AddInPlace(DT tensor) => Computation.AddInPlace(_segment, tensor.Segment);
+
+        /// <summary>
+        /// Adds another tensor to this in place (this tensor is changed)
+        /// </summary>
+        /// <param name="tensor">Other tensor</param>
+        /// <param name="coefficient1">Value to multiply each element of this tensor</param>
+        /// <param name="coefficient2">Value to multiply each element of the other tensor</param>
         public void AddInPlace(DT tensor, T coefficient1, T coefficient2) => Computation.AddInPlace(_segment, tensor.Segment, coefficient1, coefficient2);
+
+        /// <summary>
+        /// Adds a scalar to this in place (this tensor is changed)
+        /// </summary>
+        /// <param name="scalar">Value to add to each element</param>
         public void AddInPlace(T scalar) => Computation.AddInPlace(_segment, scalar);
+
+        /// <summary>
+        /// Subtracts another tensor from this (new tensor returned - this tensor is not changed)
+        /// </summary>
+        /// <param name="tensor">Other tensor</param>
+        /// <returns></returns>
         public DT Subtract(DT tensor) => Create(Computation.Subtract(_segment, tensor.Segment));
+
+        /// <summary>
+        /// Subtracts another tensor from this (new tensor returned - this tensor is not changed)
+        /// </summary>
+        /// <param name="tensor">Other tensor</param>
+        /// <param name="coefficient1">Value to multiply each element of this tensor</param>
+        /// <param name="coefficient2">Value to multiply each element of the other tensor</param>
+        /// <returns></returns>
+        public DT Subtract(DT tensor, T coefficient1, T coefficient2) => Create(Computation.Subtract(_segment, tensor.Segment, coefficient1, coefficient2));
+
+        /// <summary>
+        /// Subtracts another tensor from this in place (this tensor is changed)
+        /// </summary>
+        /// <param name="tensor">Other tensor</param>
         public void SubtractInPlace(DT tensor) => Computation.SubtractInPlace(_segment, tensor.Segment);
+
+        /// <summary>
+        /// Subtracts another tensor from this in place (this tensor is changed)
+        /// </summary>
+        /// <param name="tensor">Other tensor</param>
+        /// <param name="coefficient1">Value to multiply each element of this tensor</param>
+        /// <param name="coefficient2">Value to multiply each element of the other tensor</param>
         public void SubtractInPlace(DT tensor, T coefficient1, T coefficient2) => Computation.SubtractInPlace(_segment, tensor.Segment, coefficient1, coefficient2);
+
+        /// <summary>
+        /// Multiplies each element with the corresponding element from the other tensor (new tensor returned - this tensor is not changed)
+        /// </summary>
+        /// <param name="tensor">Other tensor</param>
+        /// <returns></returns>
         public DT PointwiseMultiply(DT tensor) => Create(Computation.PointwiseMultiply(_segment, tensor.Segment));
-        public void MultiplyInPlace(T scalar) => Computation.MultiplyInPlace(_segment, scalar);
+
+        /// <summary>
+        /// Multiplies each element with the corresponding element from the other tensor (this tensor is changed)
+        /// </summary>
+        /// <param name="tensor">Other tensor</param>
         public void PointwiseMultiplyInPlace(DT tensor) => Computation.SubtractInPlace(_segment, tensor.Segment);
-        public DT PointwiseDivide(DT tensor) => Create(Computation.PointwiseDivide(_segment, tensor.Segment));
-        public void PointwiseDivideInPlace(DT tensor) => Computation.PointwiseDivideInPlace(_segment, tensor.Segment);
+
+        /// <summary>
+        /// Multiplies each element with a value  (new tensor returned - this tensor is not changed)
+        /// </summary>
+        /// <param name="scalar">Value to multiply</param>
+        /// <returns></returns>
         public DT Multiply(T scalar) => Create(Computation.Multiply(_segment, scalar));
 
+        /// <summary>
+        /// Multiplies each element with a value (this tensor is changed)
+        /// </summary>
+        /// <param name="scalar">Value to multiply</param>
+        public void MultiplyInPlace(T scalar) => Computation.MultiplyInPlace(_segment, scalar);
+
+        /// <summary>
+        /// Divides each element with the corresponding element from the other tensor (new tensor returned - this tensor is not changed)
+        /// </summary>
+        /// <param name="tensor">Other tensor</param>
+        /// <returns></returns>
+        public DT PointwiseDivide(DT tensor) => Create(Computation.PointwiseDivide(_segment, tensor.Segment));
+
+        /// <summary>
+        /// Divides each element with the corresponding element from the other tensor (this tensor is changed)
+        /// </summary>
+        /// <param name="tensor">Other tensor</param>
+        public void PointwiseDivideInPlace(DT tensor) => Computation.PointwiseDivideInPlace(_segment, tensor.Segment);
+
+        /// <summary>
+        /// Creates a new tensor with each value set to the log of each element in this tensor
+        /// </summary>
+        /// <returns></returns>
         public DT Log() => Create(Computation.Log(_segment));
+
+        /// <summary>
+        /// Creates a new tensor with each value set to the absolute value of each element in this tensor
+        /// </summary>
+        /// <returns></returns>
         public DT Abs() => Create(Computation.Abs(_segment));
+
+        /// <summary>
+        /// Creates a new tensor with each value set to the square root of value of each element in this tensor
+        /// </summary>
+        /// <returns></returns>
         public DT Sqrt() => Create(Computation.Sqrt(_segment));
+
+        /// <summary>
+        /// Creates a new tensor with each value set to the squared value of each element in this tensor
+        /// </summary>
+        /// <returns></returns>
         public DT Squared() => Create(Computation.Squared(_segment));
+
+        /// <summary>
+        /// Creates a new tensor with each value set to pow(n) of element in this tensor
+        /// </summary>
+        /// <param name="power">Power</param>
+        /// <returns></returns>
         public DT Pow(T power) => Create(Computation.Pow(_segment, power));
 
+        /// <summary>
+        /// Computes the dot product of this tensor and another tensor
+        /// </summary>
+        /// <param name="tensor">Other tensor</param>
+        /// <returns></returns>
         public T DotProduct(DT tensor) => Computation.DotProduct(_segment, tensor.Segment);
+
+        /// <summary>
+        /// Sums all elements of this tensor
+        /// </summary>
+        /// <returns></returns>
         public T Sum() => Computation.Sum(_segment);
+
+        /// <summary>
+        /// Finds the index of an element of this tensor
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public uint? Search(T value) => Computation.Search(_segment, value);
+
+        /// <summary>
+        /// Mutates this tensor so that any value outside the range will be modified to fit within
+        /// </summary>
+        /// <param name="minValue">Minimum allowed value</param>
+        /// <param name="maxValue">Maximum allowed value</param>
         public void ConstrainInPlace(T? minValue, T? maxValue) => Computation.ConstrainInPlace(_segment, minValue, maxValue);
+
+        /// <summary>
+        /// Finds the average of all elements within this tensor
+        /// </summary>
+        /// <returns></returns>
         public T Average() => Computation.Average(_segment);
+
+        /// <summary>
+        /// Computes the L1 norm of this tensor
+        /// </summary>
+        /// <returns></returns>
         public T L1Norm() => Computation.L1Norm(_segment);
+
+        /// <summary>
+        /// Computes the L2 norm of this tensor
+        /// </summary>
+        /// <returns></returns>
         public T L2Norm() => Computation.L2Norm(_segment);
 
+        /// <summary>
+        /// Calculates the cosine distance between this and another tensor
+        /// </summary>
+        /// <param name="tensor">Other tensor</param>
+        /// <returns></returns>
         public T CosineDistance(DT tensor) => Computation.CosineDistance(_segment, tensor.Segment);
+
+        /// <summary>
+        /// Computes the euclidean distance between this and another tensor
+        /// </summary>
+        /// <param name="tensor">Other tensor</param>
+        /// <returns></returns>
         public T EuclideanDistance(DT tensor) => Computation.EuclideanDistance(_segment, tensor.Segment);
+
+        /// <summary>
+        /// Computes the manhattan distance between this and another tensor
+        /// </summary>
+        /// <param name="tensor">Other tensor</param>
+        /// <returns></returns>
         public T ManhattanDistance(DT tensor) => Computation.ManhattanDistance(_segment, tensor.Segment);
 
+        /// <summary>
+        /// Computes the average of the elements in this tensor
+        /// </summary>
+        /// <returns></returns>
         public T Mean() => Computation.Average(_segment);
+
+        /// <summary>
+        /// Computes the standard deviation of the elements in this tensor
+        /// </summary>
+        /// <param name="mean"></param>
+        /// <returns></returns>
         public T StdDev(T? mean) => Computation.StdDev(_segment, mean);
 
+        /// <summary>
+        /// Computes the softmax
+        /// </summary>
+        /// <returns></returns>
         public DT Softmax() => Create(Computation.Softmax(_segment));
+
+        /// <summary>
+        /// Computes the softmax derivative
+        /// </summary>
+        /// <returns></returns>
         public Matrix<T> SoftmaxDerivative() => Computation.SoftmaxDerivative(_segment);
+
+        /// <summary>
+        /// Computes the sigmoid function of each element
+        /// </summary>
+        /// <returns></returns>
         public DT Sigmoid() => Create(Computation.Sigmoid(_segment));
+
+        /// <summary>
+        /// Computes the sigmoid derivative of each element
+        /// </summary>
+        /// <returns></returns>
         public DT SigmoidDerivative() => Create(Computation.SigmoidDerivative(_segment));
+
+        /// <summary>
+        /// Computes tanh of each element in this tensor
+        /// </summary>
+        /// <returns></returns>
         public DT Tanh() => Create(Computation.Tanh(_segment));
+
+        /// <summary>
+        /// Computes tanh derivative of each element in this tensor
+        /// </summary>
+        /// <returns></returns>
         public DT TanhDerivative() => Create(Computation.TanhDerivative(_segment));
+
+        /// <summary>
+        /// Computes the relu of each element in this tensor
+        /// </summary>
+        /// <returns></returns>
         public DT Relu() => Create(Computation.Relu(_segment));
+
+        /// <summary>
+        /// Computes the relu derivative of each element in this tensor
+        /// </summary>
+        /// <returns></returns>
         public DT ReluDerivative() => Create(Computation.ReluDerivative(_segment));
+
+        /// <summary>
+        /// Computes the leaky relu of each element in this tensor
+        /// </summary>
+        /// <returns></returns>
         public DT LeakyRelu() => Create(Computation.LeakyRelu(_segment));
+
+        /// <summary>
+        /// Computes the leaky relu derivative of each element in this tensor
+        /// </summary>
+        /// <returns></returns>
         public DT LeakyReluDerivative() => Create(Computation.LeakyReluDerivative(_segment));
 
+        /// <summary>
+        /// Finds the min and max values and indices from this tensnor
+        /// </summary>
+        /// <returns></returns>
         public (T Min, T Max, uint MinIndex, uint MaxIndex) GetMinAndMaxValues() => Computation.GetMinAndMaxValues(_segment);
+
+        /// <summary>
+        /// Checks if each element is entirely finite (not infinity, NaN etc)
+        /// </summary>
+        /// <returns>True if all elements are finite</returns>
         public bool IsEntirelyFinite() => Computation.IsEntirelyFinite(_segment);
+
+        /// <summary>
+        /// Reverse the order of the elements in this tensor
+        /// </summary>
+        /// <returns></returns>
         public DT Reverse() => Create(Computation.Reverse(_segment));
+
+        /// <summary>
+        /// Splits this tensor into segments
+        /// </summary>
+        /// <param name="blockCount">Number of blocks to split into</param>
+        /// <returns></returns>
         public List<ITensorSegment<T>> Split(uint blockCount) => Computation.Split(_segment, blockCount);
+
+        /// <inheritdoc />
         public ITensorSegment<T> Segment => _segment;
 
-        public DT Clone() => Create(_segment.IsContiguous
-            ? _segment
-            : Context.CreateSegment(_segment.ToArray())
-        );
+        /// <summary>
+        /// Clones this tensor
+        /// </summary>
+        /// <returns></returns>
+        public DT Clone() => Create(Context.CreateSegment(_segment.ToArray()));
 
+        /// <summary>
+        /// Reshapes to a vector
+        /// </summary>
+        /// <returns></returns>
         public Vector<T> Reshape() => new Vector<T>(GetDataCopy());
 
+        /// <summary>
+        /// Reshapes to a matrix
+        /// </summary>
+        /// <param name="rows">Number of rows</param>
+        /// <param name="columns">Number of columns</param>
+        /// <returns></returns>
         public Matrix<T> Reshape(uint? rows, uint? columns)
         {
             var shape = _ResolveShape(_segment.Size, new[] { rows, columns });
             return new Matrix<T>(GetDataCopy(), shape[0], shape[1]);
         }
 
+        /// <summary>
+        /// Reshapes to a 3D tensor
+        /// </summary>
+        /// <param name="depth">Number of matrices</param>
+        /// <param name="rows">Number of rows</param>
+        /// <param name="columns">Number of columns</param>
+        /// <returns></returns>
         public Tensor3D<T> Reshape(uint? depth, uint? rows, uint? columns)
         {
             var shape = _ResolveShape(_segment.Size, new[] { depth, rows, columns });
             return new Tensor3D<T>(GetDataCopy(), shape[0], shape[1], shape[2]);
         }
 
+        /// <summary>
+        /// Reshapes to a 4D tensor
+        /// </summary>
+        /// <param name="count">Number of 3D tensors</param>
+        /// <param name="depth">Number of matrices</param>
+        /// <param name="rows">Number of rows</param>
+        /// <param name="columns">Number of columns</param>
+        /// <returns></returns>
         public Tensor4D<T> Reshape(uint? count, uint? depth, uint? rows, uint? columns)
         {
             var shape = _ResolveShape(_segment.Size, new[] { count, depth, rows, columns });

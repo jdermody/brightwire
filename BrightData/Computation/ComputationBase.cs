@@ -49,6 +49,16 @@ namespace BrightData.Computation
             return Zip(tensor1, tensor2, Add);
         }
 
+        public ITensorSegment<T> Add(ITensorSegment<T> tensor1, ITensorSegment<T> tensor2, T coefficient1, T coefficient2)
+        {
+            return Zip(tensor1, tensor2, (x, y) => Add(Multiply(x, coefficient1), Multiply(y, coefficient2)));
+        }
+
+        public ITensorSegment<T> Add(ITensorSegment<T> tensor1, T scalar)
+        {
+            return Transform(tensor1, a => Add(a, scalar));
+        }
+
         public void AddInPlace(ITensorSegment<T> target, ITensorSegment<T> other)
         {
             Mutate(target, other, Add);
@@ -73,6 +83,11 @@ namespace BrightData.Computation
         public ITensorSegment<T> Subtract(ITensorSegment<T> tensor1, ITensorSegment<T> tensor2)
         {
             return Zip(tensor1, tensor2, Subtract);
+        }
+
+        public ITensorSegment<T> Subtract(ITensorSegment<T> tensor1, ITensorSegment<T> tensor2, T coefficient1, T coefficient2)
+        {
+            return Zip(tensor1, tensor2, (x, y) => Subtract(Multiply(x, coefficient1), Multiply(y, coefficient2)));
         }
 
         public void SubtractInPlace(ITensorSegment<T> target, ITensorSegment<T> other)

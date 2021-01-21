@@ -17,6 +17,9 @@ namespace BrightData.Computation
         }
 
         public ITensorSegment<float> Add(ITensorSegment<float> tensor1, ITensorSegment<float> tensor2) => Zip(tensor1, tensor2, (a, b) => a+b);
+        public ITensorSegment<float> Add(ITensorSegment<float> tensor1, ITensorSegment<float> tensor2, float coefficient1, float coefficient2) => Zip(tensor1, tensor2, (a, b) => a * coefficient1 + b * coefficient2);
+        public ITensorSegment<float> Add(ITensorSegment<float> tensor1, float scalar) => Transform(tensor1, a => a + scalar);
+
         public void AddInPlace(ITensorSegment<float> target, ITensorSegment<float> other) => Mutate(target, other, (a, b) => a + b);
         public void AddInPlace(ITensorSegment<float> target, ITensorSegment<float> other, float coefficient1, float coefficient2) => Mutate(target, other, (a,b) => a * coefficient1 + b * coefficient2);
 
@@ -25,6 +28,8 @@ namespace BrightData.Computation
         public ITensorSegment<float> Multiply(ITensorSegment<float> target, float scalar) => Transform(target, v => v * scalar);
 
         public ITensorSegment<float> Subtract(ITensorSegment<float> tensor1, ITensorSegment<float> tensor2) => Zip(tensor1, tensor2, (a, b) => a - b);
+        public ITensorSegment<float> Subtract(ITensorSegment<float> tensor1, ITensorSegment<float> tensor2, float coefficient1, float coefficient2) => Zip(tensor1, tensor2, (a, b) => a * coefficient1 - b * coefficient2);
+
         public void SubtractInPlace(ITensorSegment<float> target, ITensorSegment<float> other) => Mutate(target, other, (a, b) => a - b);
         public void SubtractInPlace(ITensorSegment<float> target, ITensorSegment<float> other, float coefficient1, float coefficient2) => Mutate(target, other, (a, b) => a * coefficient1 - b * coefficient2);
 

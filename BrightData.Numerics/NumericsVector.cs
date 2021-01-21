@@ -223,7 +223,7 @@ namespace BrightData.Numerics
             return Convert.ToSingle(Math.Sqrt(_vector.Select(v => Math.Pow(v - mean2, 2)).Average()));
         }
 
-        public void Normalise(NormalizationType type)
+        public void Normalize(NormalizationType type)
         {
             if (type == NormalizationType.FeatureScale) {
                 var (min, max) = GetMinMax();

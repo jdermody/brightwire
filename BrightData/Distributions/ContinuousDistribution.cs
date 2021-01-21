@@ -19,6 +19,6 @@ namespace BrightData.Distributions
         public float From { get; }
         public float Size { get; }
 
-        public float Sample() => From + _context.NextFloat() * Size;
+        public float Sample() => From + _context.NextRandomFloat() * Size;
     }
 }

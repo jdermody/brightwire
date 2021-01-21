@@ -215,7 +215,7 @@ namespace BrightTable.UnitTests
         //{
         //    var table = _GetSimpleTable2();
         //    var analysis = table.GetAnalysis()[0] as INumericColumnInfo;
-        //    var normalised = table.Normalise(NormalisationType.FeatureScale);
+        //    var normalised = table.Normalize(NormalisationType.FeatureScale);
 
         //    _RandomSample(normalised, (index, row) => {
         //        var val = row.GetTyped<double>(0);
@@ -232,7 +232,7 @@ namespace BrightTable.UnitTests
         //    var table = _GetSimpleTable2();
         //    var analysis = table.GetAnalysis()[0] as INumericColumnInfo;
         //    var model = table.GetNormalisationModel(NormalisationType.FeatureScale);
-        //    var normalised = table.Normalise(model);
+        //    var normalised = table.Normalize(model);
 
         //    _RandomSample(normalised, (index, row) => {
         //        var val = row.GetTyped<double>(0);
@@ -248,7 +248,7 @@ namespace BrightTable.UnitTests
         //{
         //    var table = _GetSimpleTable2();
         //    var analysis = table.GetAnalysis()[0] as INumericColumnInfo;
-        //    var normalised = table.Normalise(NormalisationType.Euclidean);
+        //    var normalised = table.Normalize(NormalisationType.Euclidean);
 
         //    var l2Norm = Math.Sqrt(table.GetColumn<double>(0).Select(d => Math.Pow(d, 2)).Sum());
         //    Assert.AreEqual(analysis.L2Norm, l2Norm);
@@ -268,7 +268,7 @@ namespace BrightTable.UnitTests
         //    var table = _GetSimpleTable2();
         //    var analysis = table.GetAnalysis()[0] as INumericColumnInfo;
         //    var model = table.GetNormalisationModel(NormalisationType.Euclidean);
-        //    var normalised = table.Normalise(model);
+        //    var normalised = table.Normalize(model);
 
         //    var l2Norm = Math.Sqrt(table.GetColumn<double>(0).Select(d => Math.Pow(d, 2)).Sum());
         //    Assert.AreEqual(analysis.L2Norm, l2Norm);
@@ -287,7 +287,7 @@ namespace BrightTable.UnitTests
         //{
         //    var table = _GetSimpleTable2();
         //    var analysis = table.GetAnalysis()[0] as INumericColumnInfo;
-        //    var normalised = table.Normalise(NormalisationType.Manhattan);
+        //    var normalised = table.Normalize(NormalisationType.Manhattan);
 
         //    var l1Norm = table.GetColumn<double>(0).Select(d => Math.Abs(d)).Sum();
         //    Assert.AreEqual(analysis.L1Norm, l1Norm);
@@ -307,7 +307,7 @@ namespace BrightTable.UnitTests
         //    var table = _GetSimpleTable2();
         //    var analysis = table.GetAnalysis()[0] as INumericColumnInfo;
         //    var model = table.GetNormalisationModel(NormalisationType.Manhattan);
-        //    var normalised = table.Normalise(model);
+        //    var normalised = table.Normalize(model);
 
         //    var l1Norm = table.GetColumn<double>(0).Select(d => Math.Abs(d)).Sum();
         //    Assert.AreEqual(analysis.L1Norm, l1Norm);
@@ -327,7 +327,7 @@ namespace BrightTable.UnitTests
         //    var table = _CreateComplexTable(_context);
         //    var columnIndex = table.TargetColumnIndex = 3;
         //    var model = table.GetNormalisationModel(NormalisationType.FeatureScale);
-        //    var normalised = table.Normalise(model);
+        //    var normalised = table.Normalize(model);
 
         //    var reverseNormalised = normalised.Project(row => new[] { model.ReverseNormaliseOutput(columnIndex, row.Data[columnIndex]) });
         //    var zipped = reverseNormalised.Zip(table.SelectColumns(new[] { columnIndex }));

@@ -12,6 +12,6 @@
 
         public float Probability { get; }
 
-        public uint Sample() => _context.NextFloat() < Probability ? (uint)1 : 0;
+        public uint Sample() => _context.NextRandomFloat() < Probability ? (uint)1 : 0;
     }
 }

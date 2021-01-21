@@ -46,6 +46,7 @@ namespace BrightData
         void CopyAllExcept(IMetaData metadata, params string[] keys);
         void ReadFrom(BinaryReader reader);
         IEnumerable<string> GetStringsWithPrefix(string prefix);
+        bool Has(string key);
     }
 
     public interface IHaveMetaData
@@ -103,6 +104,17 @@ namespace BrightData
         ILinearAlgebraProvider LinearAlgebraProvider { set; }
     }
 
+    /// <summary>
+    /// Gives access to a linear algebra provider
+    /// </summary>
+    public interface IHaveLinearAlgebraProvider
+    {
+        /// <summary>
+        /// Linear algebra provider
+        /// </summary>
+        ILinearAlgebraProvider LinearAlgebraProvider { get; }
+    }
+
     public interface IBrightDataContext : IDisposable
     {
         Random Random { get; }
@@ -145,6 +157,8 @@ namespace BrightData
     {
         ITensorSegment<T> Abs(ITensorSegment<T> tensor);
         ITensorSegment<T> Add(ITensorSegment<T> tensor1, ITensorSegment<T> tensor2);
+        ITensorSegment<T> Add(ITensorSegment<T> tensor1, ITensorSegment<T> tensor2, T coefficient1, T coefficient2);
+        ITensorSegment<T> Add(ITensorSegment<T> tensor1, T scalar);
         void AddInPlace(ITensorSegment<T> target, ITensorSegment<T> other);
         void AddInPlace(ITensorSegment<T> target, ITensorSegment<T> other, T coefficient1, T coefficient2);
         void AddInPlace(ITensorSegment<T> target, T scalar);
@@ -171,6 +185,7 @@ namespace BrightData
         ITensorSegment<T> Squared(ITensorSegment<T> tensor);
         T StdDev(ITensorSegment<T> segment, T? mean);
         ITensorSegment<T> Subtract(ITensorSegment<T> tensor1, ITensorSegment<T> tensor2);
+        ITensorSegment<T> Subtract(ITensorSegment<T> tensor1, ITensorSegment<T> tensor2, T coefficient1, T coefficient2);
         void SubtractInPlace(ITensorSegment<T> target, ITensorSegment<T> other);
         void SubtractInPlace(ITensorSegment<T> target, ITensorSegment<T> other, T coefficient1, T coefficient2);
         T Sum(ITensorSegment<T> tensor);

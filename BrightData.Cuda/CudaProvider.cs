@@ -201,7 +201,7 @@ namespace BrightData.Cuda
 			_manhattanDistance = _kernel.LoadFunction("ManhattanDistance");
 			_cosineDistance = _kernel.LoadFunction("CosineDistance");
 			_abs = _kernel.LoadFunction("Abs");
-			_normalise = _kernel.LoadFunction("Normalise");
+			_normalise = _kernel.LoadFunction("Normalize");
 			_softmaxVector = _kernel.LoadFunction("SoftmaxVector");
 			//_multiEuclidean = _kernel.LoadFunction("MultiEuclideanDistance");
 			//_multiManhattan = _kernel.LoadFunction("MultiManhattanDistance");

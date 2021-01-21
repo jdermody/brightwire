@@ -83,7 +83,7 @@ namespace BrightData.FloatTensors
         public float Average() => Data.Average();
         public float StdDev(float? mean) => Data.StdDev(mean);
 
-        public void Normalise(NormalizationType type)
+        public void Normalize(NormalizationType type)
         {
             // analyse the data
             var analyser = new NumericAnalyser();

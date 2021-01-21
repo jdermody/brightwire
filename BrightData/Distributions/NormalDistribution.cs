@@ -20,7 +20,7 @@ namespace BrightData.Distributions
         public float Sample()
         {
             float x, y;
-            while (!PolarTransform(_context.NextFloat(), _context.NextFloat(), out x, out y)) {
+            while (!PolarTransform(_context.NextRandomFloat(), _context.NextRandomFloat(), out x, out y)) {
                 // nop
             }
 

@@ -9,12 +9,18 @@ using System.Xml;
 
 namespace BrightData
 {
+    /// <inheritdoc />
     public class MetaData : IMetaData
     {
         readonly Dictionary<string, IConvertible> _values = new Dictionary<string, IConvertible>();
         readonly List<string> _orderedValues = new List<string>();
 
-        public MetaData(IMetaData metaData = null, params string[] keys)
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="metaData">Existing meta data to copy from</param>
+        /// <param name="keys">Keys to copy (or all if none specified)</param>
+        public MetaData(IMetaData? metaData = null, params string[] keys)
         {
             if (metaData != null) {
                 var md = (MetaData)metaData;
@@ -29,13 +35,19 @@ namespace BrightData
             }
         }
 
+        /// <inheritdoc />
         public MetaData(IHaveMetaData metaData, params string[] keys) : this(metaData?.MetaData, keys) { }
 
+        /// <summary>
+        /// Creates meta data from a binary reader
+        /// </summary>
+        /// <param name="reader">Reader</param>
         public MetaData(BinaryReader reader)
         {
             ReadFrom(reader);
         }
 
+        /// <inheritdoc />
         public void CopyTo(IMetaData metadata)
         {
             var other = (MetaData)metadata;
@@ -47,6 +59,7 @@ namespace BrightData
             }
         }
 
+        /// <inheritdoc />
         public void CopyTo(IMetaData metadata, params string[] keysToCopy)
         {
             var other = (MetaData) metadata;
@@ -59,12 +72,14 @@ namespace BrightData
             }
         }
 
+        /// <inheritdoc />
         public void CopyAllExcept(IMetaData metadata, params string[] keys)
         {
             var except = new HashSet<string>(keys);
             CopyTo(metadata, _orderedValues.Where(v => !except.Contains(v)).ToArray());
         }
 
+        /// <inheritdoc />
         public object Get(string name)
         {
             if (_values.TryGetValue(name, out var obj))
@@ -72,6 +87,7 @@ namespace BrightData
             return null;
         }
 
+        /// <inheritdoc />
         public T? GetNullable<T>(string name) where T : struct
         {
             if (_values.TryGetValue(name, out var obj))
@@ -79,6 +95,7 @@ namespace BrightData
             return null;
         }
 
+        /// <inheritdoc />
         public T Get<T>(string name, T valueIfMissing = default) where T : IConvertible
         {
             if (_values.TryGetValue(name, out var obj))
@@ -86,12 +103,14 @@ namespace BrightData
             return valueIfMissing;
         }
 
+        /// <inheritdoc />
         public T Set<T>(string name, T value) where T : IConvertible
         {
             _Set(name, value);
             return value;
         }
 
+        /// <inheritdoc />
         public string AsXml
         {
             get
@@ -121,6 +140,7 @@ namespace BrightData
             _values[name] = value;
         }
 
+        /// <inheritdoc />
         public void WriteTo(BinaryWriter writer)
         {
             var items = _GetNonEmpty().ToList();
@@ -133,6 +153,7 @@ namespace BrightData
             }
         }
 
+        /// <inheritdoc />
         public void ReadFrom(BinaryReader reader)
         {
             var count = reader.ReadInt32();
@@ -150,6 +171,7 @@ namespace BrightData
             }
         }
 
+        /// <inheritdoc />
         public IEnumerable<string> GetStringsWithPrefix(string prefix)
         {
             return _values
@@ -182,11 +204,13 @@ namespace BrightData
             }
         }
 
+        /// <inheritdoc />
         public override string ToString()
         {
             return String.Join(", ", _orderedValues.Select(v => v + ": " + _values[v].ToString(CultureInfo.InvariantCulture)));
         }
 
+        /// <inheritdoc />
         public bool Has(string key) => _values.ContainsKey(key);
     }
 }

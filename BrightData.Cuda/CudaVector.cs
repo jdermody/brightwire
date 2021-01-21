@@ -326,7 +326,7 @@ namespace BrightData.Cuda
 			return _cuda.FindStdDev(_data, Count, mean ?? Average());
 		}
 
-		public void Normalise(NormalizationType type)
+		public void Normalize(NormalizationType type)
 		{
 			Debug.Assert(IsValid);
 			if (type == NormalizationType.FeatureScale) {

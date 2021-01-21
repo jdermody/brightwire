@@ -1319,7 +1319,7 @@
             </summary>
             <param name="mean">(optional) pre calculated mean</param>
         </member>
-        <member name="M:BrightData.IFloatVector.Normalise(BrightData.NormalizationType)">
+        <member name="M:BrightData.IFloatVector.Normalize(BrightData.NormalizationType)">
             <summary>
             Normalises (in place) the values of the current vector
             </summary>
@@ -2410,6 +2410,64 @@
             </summary>
             <typeparam name="T"></typeparam>
         </member>
+        <member name="T:BrightData.MetaData">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.MetaData.#ctor(BrightData.IMetaData,System.String[])">
+            <summary>
+            Constructor
+            </summary>
+            <param name="metaData">Existing meta data to copy from</param>
+            <param name="keys">Keys to copy (or all if none specified)</param>
+        </member>
+        <member name="M:BrightData.MetaData.#ctor(BrightData.IHaveMetaData,System.String[])">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.MetaData.#ctor(System.IO.BinaryReader)">
+            <summary>
+            Creates meta data from a binary reader
+            </summary>
+            <param name="reader">Reader</param>
+        </member>
+        <member name="M:BrightData.MetaData.CopyTo(BrightData.IMetaData)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.MetaData.CopyTo(BrightData.IMetaData,System.String[])">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.MetaData.CopyAllExcept(BrightData.IMetaData,System.String[])">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.MetaData.Get(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.MetaData.GetNullable``1(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.MetaData.Get``1(System.String,``0)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.MetaData.Set``1(System.String,``0)">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.MetaData.AsXml">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.MetaData.WriteTo(System.IO.BinaryWriter)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.MetaData.ReadFrom(System.IO.BinaryReader)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.MetaData.GetStringsWithPrefix(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.MetaData.ToString">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.MetaData.Has(System.String)">
+            <inheritdoc />
+        </member>
         <member name="T:BrightData.Tensor3D`1">
             <summary>
             3D tensor type
@@ -2575,8 +2633,385 @@
             <param name="context">Bright data context</param>
             <param name="reader">Reader to initialize from</param>
         </member>
+        <member name="M:BrightData.TensorBase`2.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+            <inheritdoc />
+        </member>
         <member name="M:BrightData.TensorBase`2.Dispose">
             <inheritdoc />
+        </member>
+        <member name="M:BrightData.TensorBase`2.WriteTo(System.IO.BinaryWriter)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.TensorBase`2.Create(BrightData.ITensorSegment{`0})">
+            <summary>
+            Creates a derived type
+            </summary>
+            <param name="segment">Data segment</param>
+            <returns></returns>
+        </member>
+        <member name="P:BrightData.TensorBase`2.Computation">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.TensorBase`2.GetDataCopy">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.TensorBase`2.Context">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.TensorBase`2.ToArray">
+            <summary>
+            Converts the data to an array
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.TensorBase`2.Add(`1)">
+            <summary>
+            Adds this to another tensor (new tensor returned - this tensor is not changed)
+            </summary>
+            <param name="tensor">Other tensor</param>
+            <returns>New tensor</returns>
+        </member>
+        <member name="M:BrightData.TensorBase`2.Add(`1,`0,`0)">
+            <summary>
+            Adds this to another tensor (new tensor returned - this tensor is not changed)
+            </summary>
+            <param name="tensor">Other tensor</param>
+            <param name="coefficient1">Value to multiply each element of this tensor</param>
+            <param name="coefficient2">Value to multiply each element of the other tensor</param>
+            <returns>New tensor</returns>
+        </member>
+        <member name="M:BrightData.TensorBase`2.Add(`0)">
+            <summary>
+            Adds a scalar to this tensor (new tensor returned - this tensor is not changed)
+            </summary>
+            <param name="scalar">Value to add to each element</param>
+            <returns>New tensor</returns>
+        </member>
+        <member name="M:BrightData.TensorBase`2.AddInPlace(`1)">
+            <summary>
+            Adds another tensor to this in place (this tensor is changed)
+            </summary>
+            <param name="tensor">Other tensor</param>
+        </member>
+        <member name="M:BrightData.TensorBase`2.AddInPlace(`1,`0,`0)">
+            <summary>
+            Adds another tensor to this in place (this tensor is changed)
+            </summary>
+            <param name="tensor">Other tensor</param>
+            <param name="coefficient1">Value to multiply each element of this tensor</param>
+            <param name="coefficient2">Value to multiply each element of the other tensor</param>
+        </member>
+        <member name="M:BrightData.TensorBase`2.AddInPlace(`0)">
+            <summary>
+            Adds a scalar to this in place (this tensor is changed)
+            </summary>
+            <param name="scalar">Value to add to each element</param>
+        </member>
+        <member name="M:BrightData.TensorBase`2.Subtract(`1)">
+            <summary>
+            Subtracts another tensor from this (new tensor returned - this tensor is not changed)
+            </summary>
+            <param name="tensor">Other tensor</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.TensorBase`2.Subtract(`1,`0,`0)">
+            <summary>
+            Subtracts another tensor from this (new tensor returned - this tensor is not changed)
+            </summary>
+            <param name="tensor">Other tensor</param>
+            <param name="coefficient1">Value to multiply each element of this tensor</param>
+            <param name="coefficient2">Value to multiply each element of the other tensor</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.TensorBase`2.SubtractInPlace(`1)">
+            <summary>
+            Subtracts another tensor from this in place (this tensor is changed)
+            </summary>
+            <param name="tensor">Other tensor</param>
+        </member>
+        <member name="M:BrightData.TensorBase`2.SubtractInPlace(`1,`0,`0)">
+            <summary>
+            Subtracts another tensor from this in place (this tensor is changed)
+            </summary>
+            <param name="tensor">Other tensor</param>
+            <param name="coefficient1">Value to multiply each element of this tensor</param>
+            <param name="coefficient2">Value to multiply each element of the other tensor</param>
+        </member>
+        <member name="M:BrightData.TensorBase`2.PointwiseMultiply(`1)">
+            <summary>
+            Multiplies each element with the corresponding element from the other tensor (new tensor returned - this tensor is not changed)
+            </summary>
+            <param name="tensor">Other tensor</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.TensorBase`2.PointwiseMultiplyInPlace(`1)">
+            <summary>
+            Multiplies each element with the corresponding element from the other tensor (this tensor is changed)
+            </summary>
+            <param name="tensor">Other tensor</param>
+        </member>
+        <member name="M:BrightData.TensorBase`2.Multiply(`0)">
+            <summary>
+            Multiplies each element with a value  (new tensor returned - this tensor is not changed)
+            </summary>
+            <param name="scalar">Value to multiply</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.TensorBase`2.MultiplyInPlace(`0)">
+            <summary>
+            Multiplies each element with a value (this tensor is changed)
+            </summary>
+            <param name="scalar">Value to multiply</param>
+        </member>
+        <member name="M:BrightData.TensorBase`2.PointwiseDivide(`1)">
+            <summary>
+            Divides each element with the corresponding element from the other tensor (new tensor returned - this tensor is not changed)
+            </summary>
+            <param name="tensor">Other tensor</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.TensorBase`2.PointwiseDivideInPlace(`1)">
+            <summary>
+            Divides each element with the corresponding element from the other tensor (this tensor is changed)
+            </summary>
+            <param name="tensor">Other tensor</param>
+        </member>
+        <member name="M:BrightData.TensorBase`2.Log">
+            <summary>
+            Creates a new tensor with each value set to the log of each element in this tensor
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.TensorBase`2.Abs">
+            <summary>
+            Creates a new tensor with each value set to the absolute value of each element in this tensor
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.TensorBase`2.Sqrt">
+            <summary>
+            Creates a new tensor with each value set to the square root of value of each element in this tensor
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.TensorBase`2.Squared">
+            <summary>
+            Creates a new tensor with each value set to the squared value of each element in this tensor
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.TensorBase`2.Pow(`0)">
+            <summary>
+            Creates a new tensor with each value set to pow(n) of element in this tensor
+            </summary>
+            <param name="power">Power</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.TensorBase`2.DotProduct(`1)">
+            <summary>
+            Computes the dot product of this tensor and another tensor
+            </summary>
+            <param name="tensor">Other tensor</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.TensorBase`2.Sum">
+            <summary>
+            Sums all elements of this tensor
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.TensorBase`2.Search(`0)">
+            <summary>
+            Finds the index of an element of this tensor
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.TensorBase`2.ConstrainInPlace(System.Nullable{`0},System.Nullable{`0})">
+            <summary>
+            Mutates this tensor so that any value outside the range will be modified to fit within
+            </summary>
+            <param name="minValue">Minimum allowed value</param>
+            <param name="maxValue">Maximum allowed value</param>
+        </member>
+        <member name="M:BrightData.TensorBase`2.Average">
+            <summary>
+            Finds the average of all elements within this tensor
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.TensorBase`2.L1Norm">
+            <summary>
+            Computes the L1 norm of this tensor
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.TensorBase`2.L2Norm">
+            <summary>
+            Computes the L2 norm of this tensor
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.TensorBase`2.CosineDistance(`1)">
+            <summary>
+            Calculates the cosine distance between this and another tensor
+            </summary>
+            <param name="tensor">Other tensor</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.TensorBase`2.EuclideanDistance(`1)">
+            <summary>
+            Computes the euclidean distance between this and another tensor
+            </summary>
+            <param name="tensor">Other tensor</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.TensorBase`2.ManhattanDistance(`1)">
+            <summary>
+            Computes the manhattan distance between this and another tensor
+            </summary>
+            <param name="tensor">Other tensor</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.TensorBase`2.Mean">
+            <summary>
+            Computes the average of the elements in this tensor
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.TensorBase`2.StdDev(System.Nullable{`0})">
+            <summary>
+            Computes the standard deviation of the elements in this tensor
+            </summary>
+            <param name="mean"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.TensorBase`2.Softmax">
+            <summary>
+            Computes the softmax
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.TensorBase`2.SoftmaxDerivative">
+            <summary>
+            Computes the softmax derivative
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.TensorBase`2.Sigmoid">
+            <summary>
+            Computes the sigmoid function of each element
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.TensorBase`2.SigmoidDerivative">
+            <summary>
+            Computes the sigmoid derivative of each element
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.TensorBase`2.Tanh">
+            <summary>
+            Computes tanh of each element in this tensor
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.TensorBase`2.TanhDerivative">
+            <summary>
+            Computes tanh derivative of each element in this tensor
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.TensorBase`2.Relu">
+            <summary>
+            Computes the relu of each element in this tensor
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.TensorBase`2.ReluDerivative">
+            <summary>
+            Computes the relu derivative of each element in this tensor
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.TensorBase`2.LeakyRelu">
+            <summary>
+            Computes the leaky relu of each element in this tensor
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.TensorBase`2.LeakyReluDerivative">
+            <summary>
+            Computes the leaky relu derivative of each element in this tensor
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.TensorBase`2.GetMinAndMaxValues">
+            <summary>
+            Finds the min and max values and indices from this tensnor
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.TensorBase`2.IsEntirelyFinite">
+            <summary>
+            Checks if each element is entirely finite (not infinity, NaN etc)
+            </summary>
+            <returns>True if all elements are finite</returns>
+        </member>
+        <member name="M:BrightData.TensorBase`2.Reverse">
+            <summary>
+            Reverse the order of the elements in this tensor
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.TensorBase`2.Split(System.UInt32)">
+            <summary>
+            Splits this tensor into segments
+            </summary>
+            <param name="blockCount">Number of blocks to split into</param>
+            <returns></returns>
+        </member>
+        <member name="P:BrightData.TensorBase`2.Segment">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.TensorBase`2.Clone">
+            <summary>
+            Clones this tensor
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.TensorBase`2.Reshape">
+            <summary>
+            Reshapes to a vector
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.TensorBase`2.Reshape(System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
+            <summary>
+            Reshapes to a matrix
+            </summary>
+            <param name="rows">Number of rows</param>
+            <param name="columns">Number of columns</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.TensorBase`2.Reshape(System.Nullable{System.UInt32},System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
+            <summary>
+            Reshapes to a 3D tensor
+            </summary>
+            <param name="depth">Number of matrices</param>
+            <param name="rows">Number of rows</param>
+            <param name="columns">Number of columns</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.TensorBase`2.Reshape(System.Nullable{System.UInt32},System.Nullable{System.UInt32},System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
+            <summary>
+            Reshapes to a 4D tensor
+            </summary>
+            <param name="count">Number of 3D tensors</param>
+            <param name="depth">Number of matrices</param>
+            <param name="rows">Number of rows</param>
+            <param name="columns">Number of columns</param>
+            <returns></returns>
         </member>
         <member name="M:BrightData.TensorBase`2.MaximumIndex">
             <summary>

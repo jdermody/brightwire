@@ -510,10 +510,10 @@ namespace BrightData.UnitTests
             IIndexableFloatVector v2;
             var a = _cpu.CreateVector(5000, i => Convert.ToSingle(distribution.Sample()));
             using (var gpuA = _cuda.CreateVector(a.AsIndexable())) {
-                gpuA.Normalise(type);
+                gpuA.Normalize(type);
                 v2 = gpuA.AsIndexable();
             }
-            a.Normalise(type);
+            a.Normalize(type);
             var v1 = a.AsIndexable();
             FloatMath.AreApproximatelyEqual(v1, v2, 12).Should().BeTrue();
         }

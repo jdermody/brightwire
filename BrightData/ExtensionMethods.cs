@@ -17,7 +17,12 @@ namespace BrightData
 {
     public static partial class ExtensionMethods
     {
-        public static Type ToType(this TypeCode code)
+        /// <summary>
+        /// Converts a type code to a type
+        /// </summary>
+        /// <param name="code">Type code</param>
+        /// <returns></returns>
+        public static Type? ToType(this TypeCode code)
         {
             return code switch
             {
@@ -43,7 +48,20 @@ namespace BrightData
             };
         }
 
+        /// <summary>
+        /// Creates an index list from indices
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="indices">Indices</param>
+        /// <returns></returns>
         public static IndexList CreateIndexList(this IBrightDataContext context, params uint[] indices) => IndexList.Create(context, indices);
+
+        /// <summary>
+        /// Creates an index list from indices
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="indices">Indices</param>
+        /// <returns></returns>
         public static IndexList CreateIndexList(this IBrightDataContext context, IEnumerable<uint> indices) => IndexList.Create(context, indices);
 
         /// <summary>
@@ -58,7 +76,20 @@ namespace BrightData
             return ret;
         }
 
+        /// <summary>
+        /// Creates a weighted index list from weighted indices
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="indexList">Weighted indices</param>
+        /// <returns></returns>
         public static WeightedIndexList CreateWeightedIndexList(this IBrightDataContext context, params (uint Index, float Weight)[] indexList) => WeightedIndexList.Create(context, indexList);
+
+        /// <summary>
+        /// Creates a weighted index list from weighted indices
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="indexList">Weighted indices</param>
+        /// <returns></returns>
         public static WeightedIndexList CreateWeightedIndexList(this IBrightDataContext context, IEnumerable<(uint Index, float Weight)> indexList) => WeightedIndexList.Create(context, indexList);
 
         /// <summary>
