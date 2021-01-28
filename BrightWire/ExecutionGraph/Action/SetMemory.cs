@@ -17,10 +17,7 @@
             _id = data;
         }
 
-        public string Serialise()
-        {
-            return _id;
-        }
+        public string Serialise() => _id;
 
         public IGraphData Execute(IGraphData input, IGraphContext context)
         {

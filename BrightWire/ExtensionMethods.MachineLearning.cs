@@ -67,10 +67,7 @@ namespace BrightWire
         /// <returns>The list of state transitions or null if nothing was found</returns>
         public static MarkovModelStateTransition<T>[] GetTransitions<T>(this Dictionary<MarkovModelObservation2<T>, MarkovModelStateTransition<T>[]> model, T item1, T item2)
         {
-            var observation = new MarkovModelObservation2<T> {
-                Item1 = item1,
-                Item2 = item2
-            };
+            var observation = new MarkovModelObservation2<T>(item1, item2);
             if (model.TryGetValue(observation, out var ret))
                 return ret;
             return null;
@@ -87,11 +84,7 @@ namespace BrightWire
         /// <returns>The list of state transitions or null if nothing was found</returns>
         public static MarkovModelStateTransition<T>[] GetTransitions<T>(this Dictionary<MarkovModelObservation3<T>, MarkovModelStateTransition<T>[]> model, T item1, T item2, T item3)
         {
-            var observation = new MarkovModelObservation3<T> {
-                Item1 = item1,
-                Item2 = item2,
-                Item3 = item3
-            };
+            var observation = new MarkovModelObservation3<T>(item1, item2, item3);
             if (model.TryGetValue(observation, out var ret))
                 return ret;
             return null;

@@ -176,7 +176,7 @@ namespace BrightWire.ExecutionGraph
         /// <param name="action">Action to execute</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
-        public WireBuilder AddForwardAction(IAction action, string name = null)
+        public WireBuilder AddForwardAction(IAction action, string? name = null)
         {
             _SetNode(new ExecuteForwardAction(action, name));
             return this;
@@ -188,7 +188,7 @@ namespace BrightWire.ExecutionGraph
         /// <param name="action">Action to execute</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
-        public WireBuilder AddBackwardAction(IAction action, string name = null)
+        public WireBuilder AddBackwardAction(IAction action, string? name = null)
         {
             _SetNode(new ExecuteBackwardAction(action, name));
             return this;
@@ -381,7 +381,7 @@ namespace BrightWire.ExecutionGraph
         /// <param name="yStride">Y stride</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
-        public WireBuilder AddMaxPooling(uint filterWidth, uint filterHeight, uint xStride, uint yStride, string name = null)
+        public WireBuilder AddMaxPooling(uint filterWidth, uint filterHeight, uint xStride, uint yStride, string? name = null)
         {
             _SetNode(_factory.CreateMaxPool(filterWidth, filterHeight, xStride, yStride, name));
 
@@ -403,7 +403,7 @@ namespace BrightWire.ExecutionGraph
         /// <param name="shouldBackpropagate">True to calculate a backpropagation signal</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
-        public WireBuilder AddConvolutional(uint filterCount, uint padding, uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool shouldBackpropagate = true, string name = null)
+        public WireBuilder AddConvolutional(uint filterCount, uint padding, uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool shouldBackpropagate = true, string? name = null)
         {
             _SetNode(_factory.CreateConvolutional(_depth, filterCount, padding, filterWidth, filterHeight, xStride, yStride, shouldBackpropagate, name));
 
@@ -419,7 +419,7 @@ namespace BrightWire.ExecutionGraph
         /// </summary>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
-        public WireBuilder Transpose(string name = null)
+        public WireBuilder Transpose(string? name = null)
         {
             _SetNode(new TransposeSignal(name));
             return this;
@@ -430,7 +430,7 @@ namespace BrightWire.ExecutionGraph
         /// </summary>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
-        public WireBuilder TransposeAndCombine(string name = null)
+        public WireBuilder TransposeAndCombine(string? name = null)
         {
             _SetNode(new TransposeAndCombineSignal(name));
             _depth = 1;
@@ -443,7 +443,7 @@ namespace BrightWire.ExecutionGraph
         /// <param name="errorMetric">Error metric to calculate the error signal</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
-        public WireBuilder AddBackpropagation(IErrorMetric errorMetric, string name = null)
+        public WireBuilder AddBackpropagation(IErrorMetric errorMetric, string? name = null)
         {
             AddForwardAction(new Backpropagate(errorMetric), name);
             return this;
@@ -455,7 +455,7 @@ namespace BrightWire.ExecutionGraph
         /// <param name="errorMetric">Error metric to calculate the error signal</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
-        public WireBuilder AddBackpropagationThroughTime(IErrorMetric errorMetric, string name = null)
+        public WireBuilder AddBackpropagationThroughTime(IErrorMetric errorMetric, string? name = null)
         {
             AddForwardAction(new BackpropagateThroughTime(errorMetric), name);
             return this;
@@ -468,7 +468,7 @@ namespace BrightWire.ExecutionGraph
         /// <param name="max">Maximum allowed value</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
-        public WireBuilder ConstrainForwardSignal(float min = -1f, float max = 1f, string name = null)
+        public WireBuilder ConstrainForwardSignal(float min = -1f, float max = 1f, string? name = null)
         {
             AddForwardAction(new ConstrainSignal(min, max), name);
             return this;
@@ -481,7 +481,7 @@ namespace BrightWire.ExecutionGraph
         /// <param name="max">Maximum allowed value</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
-        public WireBuilder ConstrainBackwardSignal(float min = -1f, float max = 1f, string name = null)
+        public WireBuilder ConstrainBackwardSignal(float min = -1f, float max = 1f, string? name = null)
         {
             AddBackwardAction(new ConstrainSignal(min, max), name);
             return this;
@@ -494,7 +494,7 @@ namespace BrightWire.ExecutionGraph
         /// <param name="node">The node to read</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
-        public WireBuilder WriteNodeMemoryToSlot(string slotName, IHaveMemoryNode node, string name = null)
+        public WireBuilder WriteNodeMemoryToSlot(string slotName, IHaveMemoryNode node, string? name = null)
         {
             AddForwardAction(new CopyNamedMemory(slotName, node), name);
             return this;
@@ -506,7 +506,7 @@ namespace BrightWire.ExecutionGraph
         /// <param name="slotName">Memory slot name</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
-        public WireBuilder JoinInputWithMemory(string slotName, string name = null)
+        public WireBuilder JoinInputWithMemory(string slotName, string? name = null)
         {
             AddForwardAction(new JoinInputWithMemory(slotName), name);
             return this;
@@ -517,7 +517,7 @@ namespace BrightWire.ExecutionGraph
         /// </summary>
         /// <param name="name">The friendly name of the node</param>
         /// <returns></returns>
-        public INode Find(string name)
+        public INode? Find(string name)
         {
             return _first.FindByName(name);
         }
@@ -525,6 +525,6 @@ namespace BrightWire.ExecutionGraph
         /// <summary>
         /// The last added node
         /// </summary>
-        public INode LastNode { get; private set; }
+        public INode? LastNode { get; private set; }
     }
 }

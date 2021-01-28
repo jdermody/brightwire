@@ -33,7 +33,7 @@ namespace BrightWire.UnitTests
 			builder.AddColumn(ColumnType.Float, "val1");
 			builder.AddColumn(ColumnType.Double, "val2");
 			builder.AddColumn(ColumnType.String, "val3");
-			builder.AddColumn(ColumnType.String, "cls").SetTargetColumn(true);
+			builder.AddColumn(ColumnType.String, "cls").SetTarget(true);
 
 			builder.AddRow(0.5f, 1.1, "d", "a");
 			builder.AddRow(0.2f, 1.5, "c", "b");

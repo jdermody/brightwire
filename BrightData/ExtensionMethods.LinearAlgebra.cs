@@ -1,12 +1,298 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using BrightData.FloatTensors;
+using BrightData.Helper;
+using BrightData.Memory;
 
 namespace BrightData
 {
     public static partial class ExtensionMethods
     {
+        /// <summary>
+        /// Creates a vector
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="context"></param>
+        /// <param name="size">Size of vector</param>
+        /// <param name="initializer">Callback to initialize each value (optional)</param>
+        /// <returns></returns>
+        public static Vector<T> CreateVector<T>(this IBrightDataContext context, uint size, Func<uint, T>? initializer) where T : struct
+        {
+            var segment = context.CreateSegment<T>(size);
+            if (initializer != null)
+                segment.InitializeFrom(initializer);
+            return new Vector<T>(segment);
+        }
+
+        /// <summary>
+        /// Creates a vector
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="context"></param>
+        /// <param name="size">Size of vector</param>
+        /// <param name="initialValue">Initial value of each element</param>
+        /// <returns></returns>
+        public static Vector<T> CreateVector<T>(this IBrightDataContext context, uint size, T initialValue = default) where T : struct
+        {
+            var segment = context.CreateSegment<T>(size);
+            segment.InitializeTo(initialValue);
+            return new Vector<T>(segment);
+        }
+
+        /// <summary>
+        /// Creates a vector
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="context"></param>
+        /// <param name="initialData">Initial data</param>
+        /// <returns></returns>
+        public static Vector<T> CreateVector<T>(this IBrightDataContext context, params T[] initialData) where T : struct
+        {
+            var segment = context.CreateSegment<T>((uint)initialData.Length);
+            if (initialData.Any())
+                segment.Initialize(initialData);
+            return new Vector<T>(segment);
+        }
+
+        /// <summary>
+        /// Creates a vector from a binary reader
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="context"></param>
+        /// <param name="reader"></param>
+        /// <returns></returns>
+        public static Vector<T> CreateVector<T>(this IBrightDataContext context, BinaryReader reader) where T : struct
+        {
+            return new Vector<T>(context, reader);
+        }
+
+        /// <summary>
+        /// Creates a matrix
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="context"></param>
+        /// <param name="rows">Number of rows</param>
+        /// <param name="columns">Number of columns</param>
+        /// <param name="initializer">Callback to initialize each value (optional)</param>
+        /// <returns></returns>
+        public static Matrix<T> CreateMatrix<T>(this IBrightDataContext context, uint rows, uint columns, Func<uint, uint, T>? initializer = null) where T : struct
+        {
+            var segment = context.CreateSegment<T>(rows * columns);
+            if (initializer != null)
+                segment.InitializeFrom(i => initializer(i / columns, i % columns));
+            return new Matrix<T>(segment, rows, columns);
+        }
+
+        /// <summary>
+        /// Creates a matrix
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="context"></param>
+        /// <param name="rows">Number of rows</param>
+        /// <param name="columns">Number of columns</param>
+        /// <param name="initialValue">Initial value of each element</param>
+        /// <returns></returns>
+        public static Matrix<T> CreateMatrix<T>(this IBrightDataContext context, uint rows, uint columns, T initialValue) where T : struct
+        {
+            var segment = context.CreateSegment<T>(rows * columns);
+            segment.InitializeTo(initialValue);
+            return new Matrix<T>(segment, rows, columns);
+        }
+
+        /// <summary>
+        /// Creates a matrix from a binary reader
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="context"></param>
+        /// <param name="reader"></param>
+        /// <returns></returns>
+        public static Matrix<T> CreateMatrix<T>(this IBrightDataContext context, BinaryReader reader) where T : struct
+        {
+            return new Matrix<T>(context, reader);
+        }
+
+        /// <summary>
+        /// Creates a matrix from vectors (each will become a row)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="context"></param>
+        /// <param name="rows"></param>
+        /// <returns></returns>
+        public static Matrix<T> CreateMatrixFromRows<T>(this IBrightDataContext context, params Vector<T>[] rows) where T : struct
+        {
+            var columns = rows.First().Size;
+            return CreateMatrix(context, (uint)rows.Length, columns, (j, i) => rows[j][i]);
+        }
+
+        /// <summary>
+        /// Creates a matrix from rows (each will become a row)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="context"></param>
+        /// <param name="rows"></param>
+        /// <returns></returns>
+        public static Matrix<T> CreateMatrixFromRows<T>(this IBrightDataContext context, params T[][] rows) where T : struct
+        {
+            var columns = (uint)rows.First().Length;
+            return CreateMatrix(context, (uint)rows.Length, columns, (j, i) => rows[j][i]);
+        }
+
+        /// <summary>
+        /// Creates a matrix from vectors (each will become a column)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="context"></param>
+        /// <param name="columns"></param>
+        /// <returns></returns>
+        public static Matrix<T> CreateMatrixFromColumns<T>(this IBrightDataContext context, params Vector<T>[] columns) where T : struct
+        {
+            var rows = columns.First().Size;
+            return CreateMatrix(context, rows, (uint)columns.Length, (j, i) => columns[i][j]);
+        }
+
+        /// <summary>
+        /// Creates a matrix from vectors (each will become a column)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="context"></param>
+        /// <param name="columns"></param>
+        /// <returns></returns>
+        public static Matrix<T> CreateMatrixFromColumns<T>(this IBrightDataContext context, params T[][] columns) where T : struct
+        {
+            var rows = (uint)columns.First().Length;
+            return CreateMatrix(context, rows, (uint)columns.Length, (j, i) => columns[i][j]);
+        }
+
+        /// <summary>
+        /// Creates a 3D tensor
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="context"></param>
+        /// <param name="depth">Number of matrices</param>
+        /// <param name="rows">Number of rows in each matrix</param>
+        /// <param name="columns">Number of columns in each matrix</param>
+        /// <returns></returns>
+        public static Tensor3D<T> CreateTensor3D<T>(this IBrightDataContext context, uint depth, uint rows, uint columns) where T : struct
+        {
+            var segment = context.CreateSegment<T>(depth * rows * columns);
+            return new Tensor3D<T>(segment, depth, rows, columns);
+        }
+
+        /// <summary>
+        /// Creates a 3D tensor from matrices
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="context"></param>
+        /// <param name="slices"></param>
+        /// <returns></returns>
+        public static Tensor3D<T> CreateTensor3D<T>(this IBrightDataContext context, params Matrix<T>[] slices) where T : struct
+        {
+            var first = slices.First();
+            var depth = (uint)slices.Length;
+            var rows = first.RowCount;
+            var columns = first.ColumnCount;
+
+            var data = context.CreateSegment<T>(depth * rows * columns);
+            var ret = new Tensor3D<T>(data, depth, rows, columns);
+            var allSame = ret.Matrices.Zip(slices, (t, s) => {
+                if (s.RowCount == t.RowCount && s.ColumnCount == t.ColumnCount)
+                {
+                    s.Segment.CopyTo(t.Segment);
+                    return true;
+                }
+                return false;
+            }).All(v => v);
+            if (!allSame)
+                throw new ArgumentException("Input matrices had different sizes");
+            return ret;
+        }
+
+        /// <summary>
+        /// Create a 3D tensor from a binary reader
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="context"></param>
+        /// <param name="reader"></param>
+        /// <returns></returns>
+        public static Tensor3D<T> CreateTensor3D<T>(this IBrightDataContext context, BinaryReader reader) where T : struct
+        {
+            return new Tensor3D<T>(context, reader);
+        }
+
+        /// <summary>
+        /// Creates a 4D tensor
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="context"></param>
+        /// <param name="count">Number of 3D tensors</param>
+        /// <param name="depth">Number of matrices in each 3D tensor</param>
+        /// <param name="rows">Number of rows in each matrix</param>
+        /// <param name="columns">Number of columns in each matrix</param>
+        /// <returns></returns>
+        public static Tensor4D<T> CreateTensor4D<T>(this IBrightDataContext context, uint count, uint depth, uint rows, uint columns) where T : struct
+        {
+            var segment = context.CreateSegment<T>(count * depth * rows * columns);
+            return new Tensor4D<T>(segment, count, depth, rows, columns);
+        }
+
+        /// <summary>
+        /// Creates a 4D tensor from a binary reader
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="context"></param>
+        /// <param name="reader"></param>
+        /// <returns></returns>
+        public static Tensor4D<T> CreateTensor4D<T>(this IBrightDataContext context, BinaryReader reader) where T : struct
+        {
+            return new Tensor4D<T>(context, reader);
+        }
+
+        /// <summary>
+        /// Returns the number of columns in this tensor
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="tensor"></param>
+        /// <returns></returns>
+        public static uint GetColumnCount<T>(this ITensor<T> tensor) where T : struct
+        {
+            return tensor.Shape.Length > 1 ? tensor.Shape[^1] : 0;
+        }
+
+        /// <summary>
+        /// Returns the number of rows in this tensor
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="tensor"></param>
+        /// <returns></returns>
+        public static uint GetRowCount<T>(this ITensor<T> tensor) where T : struct
+        {
+            return tensor.Shape.Length > 1 ? tensor.Shape[^2] : 0;
+        }
+
+        /// <summary>
+        /// Returns the number of matrices in this tensor
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="tensor"></param>
+        /// <returns></returns>
+        public static uint GetDepth<T>(this ITensor<T> tensor) where T : struct
+        {
+            return tensor.Shape.Length > 2 ? tensor.Shape[^3] : 0;
+        }
+
+        /// <summary>
+        /// Returns the number of 3D tensors in this tensor
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="tensor"></param>
+        /// <returns></returns>
+        public static uint GetCount<T>(this ITensor<T> tensor) where T : struct
+        {
+            return tensor.Shape.Length > 3 ? tensor.Shape[^4] : 0;
+        }
+
         /// <summary>
         /// Creates a vector from an enumerable of floats
         /// </summary>
@@ -299,5 +585,146 @@ namespace BrightData
         /// <returns></returns>
         public static IFloatMatrix CreateMatrixFromColumns(this ILinearAlgebraProvider lap, IEnumerable<IFloatVector> columns) =>
             lap.CreateMatrixFromColumns(columns.ToArray());
+
+        /// <summary>
+        /// Converts vectors to float vectors
+        /// </summary>
+        /// <param name="vectors"></param>
+        /// <returns></returns>
+        public static IEnumerable<IFloatVector> AsFloatVectors(this IEnumerable<Vector<float>> vectors)
+        {
+            IBrightDataContext context = null;
+            foreach (var vector in vectors)
+            {
+                context ??= vector.Context;
+                yield return context.LinearAlgebraProvider.CreateVector(vector);
+            }
+        }
+
+        /// <summary>
+        /// Sets each element in a tensor
+        /// </summary>
+        /// <param name="vector"></param>
+        /// <param name="getValue"></param>
+        /// <typeparam name="T"></typeparam>
+        public static void Set<T>(this ITensorSegment<T> vector, Func<uint, T> getValue)
+            where T : struct
+        {
+            for (uint i = 0, len = vector.Size; i < len; i++)
+                vector[i] = getValue(i);
+        }
+
+        /// <summary>
+        /// Creates a tensor segment from an existing array
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="block">Array to copy values from</param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static ITensorSegment<T> CreateSegment<T>(this IBrightDataContext context, T[] block) where T : struct => new TensorSegment<T>(context, block);
+
+        /// <summary>
+        /// Creates a tensor segment
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="context"></param>
+        /// <param name="size">Size of new segment</param>
+        /// <returns></returns>
+        public static ITensorSegment<T> CreateSegment<T>(this IBrightDataContext context, uint size) where T : struct => new TensorSegment<T>(context, context.TensorPool.Get<T>(size));
+
+        /// <summary>
+        /// Randomly initialize a tensor
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <typeparam name="T"></typeparam>
+        public static void InitializeRandomly<T>(this ITensor<T> tensor) where T : struct
+        {
+            var computation = tensor.Computation;
+            tensor.Segment.InitializeFrom(i => computation.NextRandom());
+        }
+
+        /// <summary>
+        /// Initialize a tensor to a single value
+        /// </summary>
+        /// <param name="tensor"></param>
+        /// <param name="value">Value to initialize each element of the tensor</param>
+        /// <typeparam name="T"></typeparam>
+        public static void Initialize<T>(this ITensor<T> tensor, T value) where T : struct
+        {
+            tensor.Segment.InitializeTo(value);
+        }
+
+        /// <summary>
+        /// Initialize a tensor using a callback
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="tensor"></param>
+        /// <param name="initializer">Callback for each element</param>
+        public static void Initialize<T>(this ITensor<T> tensor, Func<uint, T> initializer) where T : struct
+        {
+            tensor.Segment.InitializeFrom(initializer);
+        }
+
+        /// <summary>
+        /// Calculates the cosine distance between two vectors
+        /// </summary>
+        /// <param name="vector"></param>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        public static float CosineDistance(this float[] vector, float[] other)
+        {
+            return Distance.CosineDistance.Calculate(vector, other);
+        }
+
+        /// <summary>
+        /// Calculates euclidean distance between two vectors
+        /// </summary>
+        /// <param name="vector"></param>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        public static float EuclideanDistance(this float[] vector, float[] other)
+        {
+            return Distance.EuclideanDistance.Calculate(vector, other);
+        }
+
+        /// <summary>
+        /// Calculates manhattan distance between two vectors
+        /// </summary>
+        /// <param name="vector"></param>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        public static float ManhattanDistance(this float[] vector, float[] other)
+        {
+            return Distance.ManhattanDistance.Calculate(vector, other);
+        }
+
+        public static Vector<float> Mutate(this Vector<float> vector, Func<float, float> mutator)
+        {
+            var context = vector.Context;
+            var segment = context.CreateSegment<float>(vector.Size);
+            segment.InitializeFrom(i => mutator(vector[i]));
+            return new Vector<float>(segment);
+        }
+
+        public static Vector<float> MutateWith(this Vector<float> vector, Vector<float> other, Func<float, float, float> mutator)
+        {
+            var context = vector.Context;
+            var segment = context.CreateSegment<float>(vector.Size);
+            segment.InitializeFrom(i => mutator(vector[i], other[i]));
+            return new Vector<float>(segment);
+        }
+
+        /// <summary>
+        /// Converts the tensor segment to a sparse format (only non zero entries are preserved)
+        /// </summary>
+        /// <param name="segment"></param>
+        /// <returns></returns>
+        public static WeightedIndexList ToSparse(this ITensorSegment<float> segment)
+        {
+            return WeightedIndexList.Create(segment.Context, segment.Values
+                .Select((v, i) => new WeightedIndexList.Item((uint)i, v))
+                .Where(d => FloatMath.IsNotZero(d.Weight))
+            );
+        }
     }
 }

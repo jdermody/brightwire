@@ -53,9 +53,10 @@ namespace BrightData
             public override int GetHashCode() => HashCode.Combine(Index, Weight);
         }
 
-        internal WeightedIndexList(IBrightDataContext context)
+        internal WeightedIndexList(IBrightDataContext context, Item[] indices)
         {
             Context = context;
+            Indices = indices;
         }
 
         /// <inheritdoc />
@@ -64,32 +65,28 @@ namespace BrightData
         /// <summary>
         /// The list of indices
         /// </summary>
-        public Item[]? Indices { get; private set; }
+        public Item[] Indices { get; private set; }
 
-        internal static WeightedIndexList Create(IBrightDataContext context, params Item[] indexList) => new WeightedIndexList(context) { Indices = indexList };
-        internal static WeightedIndexList Create(IBrightDataContext context, IEnumerable<Item> indexList) => new WeightedIndexList(context) { Indices = indexList.ToArray() };
+        internal static WeightedIndexList Create(IBrightDataContext context, params Item[] indexList) => new WeightedIndexList(context, indexList);
+        internal static WeightedIndexList Create(IBrightDataContext context, IEnumerable<Item> indexList) => new WeightedIndexList(context, indexList.ToArray());
+
         internal static WeightedIndexList Create(IBrightDataContext context, params (uint Index, float Weight)[] indexList) =>
-            new WeightedIndexList(context)
-            {
-                Indices = indexList.Select(d => new Item(d.Index, d.Weight)).ToArray()
-            };
+            new WeightedIndexList(context, indexList.Select(d => new Item(d.Index, d.Weight)).ToArray());
+
         internal static WeightedIndexList Create(IBrightDataContext context, IEnumerable<(uint Index, float Weight)> indexList) =>
-            new WeightedIndexList(context)
-            {
-                Indices = indexList.Select(d => new Item(d.Index, d.Weight)).ToArray()
-            };
+            new WeightedIndexList(context, indexList.Select(d => new Item(d.Index, d.Weight)).ToArray());
 
         /// <summary>
         /// The number of items in the list
         /// </summary>
-        public int Count => Indices?.Length ?? 0;
+        public int Count => Indices.Length;
 
         /// <summary>
         /// ToString override
         /// </summary>
         public override string ToString()
         {
-            if (Count < 32 && Indices != null)
+            if (Count < 32)
             {
                 var indices = String.Join('|', Indices);
                 return $"Weighted Index List - {indices}";
@@ -113,7 +110,7 @@ namespace BrightData
         /// <param name="lists">Lists to merge</param>
         /// <param name="mergeOperation">How to merge item weights</param>
         /// <returns></returns>
-        public static WeightedIndexList Merge(IEnumerable<WeightedIndexList> lists, OperationType mergeOperation = OperationType.Average)
+        public static WeightedIndexList Merge(IEnumerable<WeightedIndexList> lists, AggregationType mergeOperation = AggregationType.Average)
         {
             IBrightDataContext? context = null;
             var items = new Dictionary<uint, List<float>>();
@@ -128,9 +125,10 @@ namespace BrightData
                 }
             }
 
-            return new WeightedIndexList(context ?? throw new ArgumentException("No valid lists were supplied")) {
-                Indices = items.Select(d => new Item(d.Key, mergeOperation.Execute(d.Value))).ToArray()
-            };
+            return new WeightedIndexList(
+                context ?? throw new ArgumentException("No valid lists were supplied"),
+                items.Select(d => new Item(d.Key, mergeOperation.Aggregate(d.Value))).ToArray()
+            );
         }
 
         /// <summary>
@@ -142,12 +140,10 @@ namespace BrightData
         {
             writer.WriteStartElement(name ?? "weighted-index-list");
 
-            if (Indices != null) {
-                writer.WriteValue(String.Join("|", Indices
-                    .OrderBy(d => d.Index)
-                    .Select(c => $"{c.Index}:{c.Weight}")
-                ));
-            }
+            writer.WriteValue(String.Join("|", Indices
+                .OrderBy(d => d.Index)
+                .Select(c => $"{c.Index}:{c.Weight}")
+            ));
             writer.WriteEndElement();
         }
 
@@ -158,10 +154,8 @@ namespace BrightData
         public unsafe void WriteTo(BinaryWriter writer)
         {
             writer.Write(Count);
-            if (Indices != null) {
-                fixed (Item* ptr = Indices) {
-                    writer.Write(new ReadOnlySpan<byte>(ptr, Indices.Length * sizeof(Item)));
-                }
+            fixed (Item* ptr = Indices) {
+                writer.Write(new ReadOnlySpan<byte>(ptr, Indices.Length * sizeof(Item)));
             }
         }
 
@@ -183,12 +177,9 @@ namespace BrightData
         /// Converts the weighted index-list to an unweighted index-list (only those indices whose weight is not zero)
         /// </summary>
         /// <returns></returns>
-        public IndexList AsIndexList() => Indices != null
-            ? IndexList.Create(Context, Indices.Where(ind => FloatMath.IsNotZero(ind.Weight)).Select(ind => ind.Index).ToArray())
-            : IndexList.Create(Context)
-        ;
+        public IndexList AsIndexList() => IndexList.Create(Context, Indices.Where(ind => FloatMath.IsNotZero(ind.Weight)).Select(ind => ind.Index).ToArray());
 
-        IEnumerable<uint> IHaveIndices.Indices => Indices?.Select(ind => ind.Index) ?? Enumerable.Empty<uint>();
+        IEnumerable<uint> IHaveIndices.Indices => Indices.Select(ind => ind.Index);
 
         /// <summary>
         /// Dot product of this combined with the other weighted index list
@@ -197,12 +188,11 @@ namespace BrightData
         public float Dot(WeightedIndexList other)
         {
             var ret = 0f;
-            if (Indices != null && other.Indices != null) {
-                var otherTable = other.Indices.ToDictionary(d => d.Index, d => d.Weight);
-                foreach (var item in Indices) {
-                    if (otherTable.TryGetValue(item.Index, out var otherWeight))
-                        ret += otherWeight * item.Weight;
-                }
+            var otherTable = other.Indices.ToDictionary(d => d.Index, d => d.Weight);
+            foreach (var item in Indices)
+            {
+                if (otherTable.TryGetValue(item.Index, out var otherWeight))
+                    ret += otherWeight * item.Weight;
             }
             return ret;
         }
@@ -210,7 +200,7 @@ namespace BrightData
         /// <summary>
         /// Magnitude of weights
         /// </summary>
-        public float Magnitude => Indices?.Any() == true 
+        public float Magnitude => Indices.Any()
             ? Convert.ToSingle(Math.Sqrt(Indices.Sum(d => d.Weight * d.Weight)))
             : 0f
         ;
@@ -225,7 +215,7 @@ namespace BrightData
         /// <summary>
         /// Returns the index with the highest weight
         /// </summary>
-        public float GetMaxWeight() => Indices?.Any() == true
+        public float GetMaxWeight() => Indices.Any()
             ? Indices.Max(item => item.Weight)
             : float.NaN
         ;
@@ -236,27 +226,28 @@ namespace BrightData
         /// <param name="other">Other list to compare</param>
         public float JaccardSimilarity(WeightedIndexList other)
         {
-            if (Indices != null && other.Indices != null) {
-                var set1 = Indices.GroupBy(d => d.Index).ToDictionary(g => g.Key, g => g.Sum(d => d.Weight));
-                var set2 = other.Indices.GroupBy(d => d.Index).ToDictionary(g => g.Key, g => g.Sum(d => d.Weight));
-                float intersection = 0f, union = 0f;
-                foreach (var item in set2) {
-                    if (set1.TryGetValue(item.Key, out var weight)) {
-                        intersection += (weight + item.Value);
-                        union += (weight + item.Value) / 2;
-                    }
-                    else
-                        union += item.Value;
+            var set1 = Indices.GroupBy(d => d.Index).ToDictionary(g => g.Key, g => g.Sum(d => d.Weight));
+            var set2 = other.Indices.GroupBy(d => d.Index).ToDictionary(g => g.Key, g => g.Sum(d => d.Weight));
+            float intersection = 0f, union = 0f;
+            foreach (var item in set2)
+            {
+                if (set1.TryGetValue(item.Key, out var weight))
+                {
+                    intersection += (weight + item.Value);
+                    union += (weight + item.Value) / 2;
                 }
-
-                foreach (var item in set1) {
-                    if (!set2.ContainsKey(item.Key))
-                        union += item.Value;
-                }
-
-                if (FloatMath.IsNotZero(union))
-                    return intersection / union;
+                else
+                    union += item.Value;
             }
+
+            foreach (var item in set1)
+            {
+                if (!set2.ContainsKey(item.Key))
+                    union += item.Value;
+            }
+
+            if (FloatMath.IsNotZero(union))
+                return intersection / union;
 
             return 0f;
         }
@@ -271,15 +262,13 @@ namespace BrightData
             var indices = new Dictionary<uint, float>();
             var max = uint.MinValue;
 
-            if (Indices != null) {
-                foreach (var item in Indices) {
-                    if (maxIndex.HasValue && item.Index > maxIndex.Value)
-                        continue;
+            foreach (var item in Indices) {
+                if (maxIndex.HasValue && item.Index > maxIndex.Value)
+                    continue;
 
-                    if (item.Index > max)
-                        max = item.Index;
-                    indices.Add(item.Index, item.Weight);
-                }
+                if (item.Index > max)
+                    max = item.Index;
+                indices.Add(item.Index, item.Weight);
             }
 
             if (indices.Any())
@@ -288,7 +277,8 @@ namespace BrightData
         }
 
         /// <inheritdoc />
-        public override int GetHashCode() => (Indices as IStructuralEquatable)?.GetHashCode(EqualityComparer<Item>.Default) ?? 0;
+        // ReSharper disable once NonReadonlyMemberInGetHashCode
+        public override int GetHashCode() => (Indices as IStructuralEquatable).GetHashCode(EqualityComparer<Item>.Default);
 
         /// <inheritdoc />
         public override bool Equals(object? obj)

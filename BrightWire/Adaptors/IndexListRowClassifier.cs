@@ -11,7 +11,7 @@ namespace BrightWire.Adaptors
         public IIndexListClassifier Classifier { get; }
         public uint ColumnIndex { get; }
 
-        public IndexListRowClassifier(IIndexListClassifier classifier, uint columnIndex = 0, IIndexStrings indexer = null)
+        public IndexListRowClassifier(IIndexListClassifier classifier, uint columnIndex = 0, IIndexStrings? indexer = null)
         {
             Classifier = classifier;
             ColumnIndex = columnIndex;
@@ -24,6 +24,6 @@ namespace BrightWire.Adaptors
             return Classifier.Classify(indexList);
         }
 
-        public IIndexStrings Indexer { get; }
+        public IIndexStrings? Indexer { get; }
     }
 }

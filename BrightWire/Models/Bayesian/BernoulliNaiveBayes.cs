@@ -30,8 +30,10 @@ namespace BrightWire.Models.Bayesian
             /// </summary>
             public double InverseProbability { get; set; }
 
+            /// <inheritdoc />
             public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
 
+            /// <inheritdoc />
             public void Initialize(IBrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
         }
 
@@ -65,8 +67,10 @@ namespace BrightWire.Models.Bayesian
             /// </summary>
             public double InverseMissingProbability { get; set; }
 
+            /// <inheritdoc />
             public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
 
+            /// <inheritdoc />
             public void Initialize(IBrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
         }
 
@@ -89,8 +93,10 @@ namespace BrightWire.Models.Bayesian
             return new BernoulliNaiveBayesClassifier(this);
         }
 
+        /// <inheritdoc />
         public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
 
+        /// <inheritdoc />
         public void Initialize(IBrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
     }
 }

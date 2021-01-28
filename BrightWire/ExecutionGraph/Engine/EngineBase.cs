@@ -11,7 +11,7 @@ namespace BrightWire.ExecutionGraph.Engine
     internal abstract class EngineBase
     {
         protected readonly ILinearAlgebraProvider _lap;
-        protected IDataSource _dataSource = null;
+        protected IDataSource? _dataSource = null;
 
         protected EngineBase(ILinearAlgebraProvider lap) { _lap = lap; }
 
@@ -25,7 +25,7 @@ namespace BrightWire.ExecutionGraph.Engine
 
 	        while (executionContext.HasContinuations) {
                 batch.Reset();
-	            IMiniBatchSequence curr = null;
+	            IMiniBatchSequence? curr = null;
 	            while ((curr = batch.GetNextSequence()) != null) {
                     var context = lookupContext(curr);
                     executionContext.Continue(context);
@@ -37,16 +37,16 @@ namespace BrightWire.ExecutionGraph.Engine
             return ret;
         }
 
-        public ExecutionResult Execute(float[] input)
+        public ExecutionResult? Execute(float[] input)
         {
             _lap.PushLayer();
-            ExecutionResult ret = null;
+            ExecutionResult? ret = null;
             _dataSource = new SingleRowDataSource(input, false, MiniBatchSequenceType.Standard, 0);
             var provider = new MiniBatchProvider(_dataSource, null);
             using (var executionContext = new ExecutionContext(_lap)) {
                 executionContext.Add(provider.GetMiniBatches(1, mb => _Execute(executionContext, mb)));
 
-                IGraphOperation operation;
+                IGraphOperation? operation;
                 while ((operation = executionContext.GetNextOperation()) != null) {
                     _lap.PushLayer();
                     operation.Execute(executionContext);

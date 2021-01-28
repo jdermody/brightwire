@@ -23,7 +23,7 @@ namespace BrightWire.ExecutionGraph.Engine
 
 		public INode Start { get; }
 		public ExecutionGraphModel Graph { get; }
-		public IDataSource DataSource => _dataSource;
+		public IDataSource? DataSource => _dataSource;
 		public ILinearAlgebraProvider LinearAlgebraProvider => _lap;
 
 		protected override void _ClearContextList()
@@ -46,7 +46,7 @@ namespace BrightWire.ExecutionGraph.Engine
 			_executionResults.Clear();
         }
 
-		public IEnumerable<ExecutionResult> Execute(IDataSource dataSource, uint batchSize = 128, Action<float> batchCompleteCallback = null)
+		public IEnumerable<ExecutionResult> Execute(IDataSource dataSource, uint batchSize = 128, Action<float>? batchCompleteCallback = null)
 		{
 			_lap.PushLayer();
 			_dataSource = dataSource;
@@ -57,7 +57,7 @@ namespace BrightWire.ExecutionGraph.Engine
 				float operationCount = executionContext.RemainingOperationCount;
 				float index = 0f;
 
-				IGraphOperation operation;
+				IGraphOperation? operation;
 				while ((operation = executionContext.GetNextOperation()) != null) {
 					_lap.PushLayer();
 					operation.Execute(executionContext);
@@ -91,7 +91,7 @@ namespace BrightWire.ExecutionGraph.Engine
 			var table = new Dictionary<IMiniBatchSequence, IGraphContext>();
 
 			if (batch.IsSequential) {
-				IMiniBatchSequence curr;
+				IMiniBatchSequence? curr;
 				while ((curr = batch.GetNextSequence()) != null) {
 					var context = new ExecutionEngineContext(executionContext, curr);
 					Start.ExecuteForward(context, 0);

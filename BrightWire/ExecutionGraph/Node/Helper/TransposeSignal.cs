@@ -20,7 +20,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             }
         }
 
-        public TransposeSignal(string name = null) : base(name)
+        public TransposeSignal(string? name = null) : base(name)
         {
         }
 

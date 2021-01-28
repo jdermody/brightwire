@@ -46,7 +46,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         }
         uint _filterWidth, _filterHeight, _xStride, _yStride;
 
-        public MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, string name = null) : base(name)
+        public MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, string? name = null) : base(name)
         {
             _filterWidth = filterWidth;
             _filterHeight = filterHeight;

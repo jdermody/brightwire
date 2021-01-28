@@ -40,28 +40,28 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 
         public void Continue(IGraphContext context)
         {
-            if(_continuationTable.TryRemove(context.BatchSequence, out System.Action<IGraphContext> callback))
+            if(_continuationTable.TryRemove(context.BatchSequence, out var callback))
                 callback(context);
         }
 
-        public IFloatMatrix GetMemory(string index)
+        public IFloatMatrix? GetMemory(string index)
         {
-            if (_memory.TryGetValue(index, out IFloatMatrix output))
+            if (_memory.TryGetValue(index, out var output))
                 return output;
             return null;
         }
 
-        public IGraphOperation GetNextOperation()
+        public IGraphOperation? GetNextOperation()
         {
-            if (_operationList.TryDequeue(out IGraphOperation ret))
+            if (_operationList.TryDequeue(out var ret))
                 return ret;
             return null;
         }
 
-        public void SetMemory(string index, IFloatMatrix memory)
+        public void SetMemory(string index, IFloatMatrix? memory)
         {
             if (memory == null) {
-                if (_memory.TryRemove(index, out IFloatMatrix temp))
+                if (_memory.TryRemove(index, out var temp))
                     temp.Dispose();
             } else {
                 _memory[index] = memory;

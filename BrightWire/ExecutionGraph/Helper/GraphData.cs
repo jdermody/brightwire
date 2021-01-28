@@ -21,7 +21,7 @@ namespace BrightWire.ExecutionGraph.Helper
         public uint Count => 1;
 
         public IFloatMatrix GetMatrix() => _matrix;
-        public I4DFloatTensor Get4DTensor() => null;
+        public I4DFloatTensor? Get4DTensor() => null;
         public IGraphData ReplaceWith(IFloatMatrix matrix) => new MatrixGraphData(matrix);
         public IFloatMatrix[] GetSubMatrices()
         {
@@ -68,7 +68,7 @@ namespace BrightWire.ExecutionGraph.Helper
                 ret[i] = _matrix.Column(i).ReshapeAsMatrix(Rows, Columns);
             return ret;
         }
-        public I4DFloatTensor Get4DTensor()
+        public I4DFloatTensor? Get4DTensor()
         {
             return null;
         }

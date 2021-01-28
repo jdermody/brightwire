@@ -77,7 +77,7 @@ namespace ExampleCode.DataTableTrainers
             graph.CurrentPropertySet
                 .Use(graph.GradientDescent.Adam)
                 .Use(graph.WeightInitialisation.Xavier)
-                ;
+            ;
 
             // create a training engine
             const float TRAINING_RATE = 0.3f;

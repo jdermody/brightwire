@@ -150,7 +150,7 @@ namespace ExampleCode.Datasets
             var sequences = grammar.GenerateSequences().Take(1000).ToList();
             var builder = context.BuildTable();
             builder.AddColumn(ColumnType.Vector, "Summary");
-            builder.AddColumn(ColumnType.Matrix, "Sequence").SetTargetColumn(true);
+            builder.AddColumn(ColumnType.Matrix, "Sequence").SetTarget(true);
 
             foreach (var sequence in sequences)
             {
@@ -178,7 +178,7 @@ namespace ExampleCode.Datasets
             var sequences = grammar.GenerateSequences().Take(1000).ToList();
             var builder = context.BuildTable();
             builder.AddColumn(ColumnType.Matrix, "Sequence");
-            builder.AddColumn(ColumnType.Vector, "Summary").SetTargetColumn(true);
+            builder.AddColumn(ColumnType.Vector, "Summary").SetTarget(true);
 
             foreach (var sequence in sequences)
             {
@@ -203,7 +203,7 @@ namespace ExampleCode.Datasets
             var sequences = grammar.GenerateSequences().Take(2000).ToList();
             var builder = context.BuildTable();
             builder.AddColumn(ColumnType.Matrix, "Input");
-            builder.AddColumn(ColumnType.Matrix, "Output").SetTargetColumn(true);
+            builder.AddColumn(ColumnType.Matrix, "Output").SetTarget(true);
 
             foreach (var sequence in sequences)
             {
@@ -221,7 +221,7 @@ namespace ExampleCode.Datasets
             dataTableBuilder.AddColumn(ColumnType.Float, "capital costs");
             dataTableBuilder.AddColumn(ColumnType.Float, "labour costs");
             dataTableBuilder.AddColumn(ColumnType.Float, "energy costs");
-            dataTableBuilder.AddColumn(ColumnType.Float, "output").SetTargetColumn(true);
+            dataTableBuilder.AddColumn(ColumnType.Float, "output").SetTarget(true);
 
             dataTableBuilder.AddRow(98.288f, 0.386f, 13.219f, 1.270f);
             dataTableBuilder.AddRow(255.068f, 1.179f, 49.145f, 4.597f);
@@ -272,7 +272,7 @@ namespace ExampleCode.Datasets
             return new EmotionsTrainer(context, table, training, test);
         }
 
-        static string GetDataFilePath(this IBrightDataContext context, string name)
+        static string? GetDataFilePath(this IBrightDataContext context, string name)
         {
             var dataDirectory = context.Get<DirectoryInfo>("DataFileDirectory");
 

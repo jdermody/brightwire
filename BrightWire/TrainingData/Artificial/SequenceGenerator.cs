@@ -17,16 +17,16 @@ namespace BrightWire.TrainingData.Artificial
         readonly bool _noRepeat;
         readonly Random _rnd;
 
-        static readonly char[] _dictionary;
-        static readonly Dictionary<char, int> _charTable;
+        static readonly char[] Dictionary;
+        static readonly Dictionary<char, int> CharTable;
 
         static SequenceGenerator()
         {
-            _dictionary = Enumerable.Range(0, 26 * 2)
+            Dictionary = Enumerable.Range(0, 26 * 2)
                 .Select(i => (i < 26) ? (char)('A' + i) : (char)('a' + i - 26))
                 .ToArray()
             ;
-            _charTable = _dictionary
+            CharTable = Dictionary
                 .Select((ch, i) => (ch, i))
                 .ToDictionary(d => d.Item1, d => d.Item2)
             ;
@@ -45,7 +45,7 @@ namespace BrightWire.TrainingData.Artificial
             _rnd = context.Random;
             _context = context;
             _noRepeat = noRepeat;
-            DictionarySize = (uint)Math.Min(_dictionary.Length, dictionarySize);
+            DictionarySize = (uint)Math.Min(Dictionary.Length, dictionarySize);
             if (noRepeat) {
                 _minSize = Math.Min(DictionarySize, minSize);
                 _maxSize = Math.Min(DictionarySize, maxSize);
@@ -60,7 +60,7 @@ namespace BrightWire.TrainingData.Artificial
         /// </summary>
         public uint DictionarySize { get; }
 
-	    uint _NextSequenceLength
+	    uint NextSequenceLength
         {
             get
             {
@@ -78,12 +78,12 @@ namespace BrightWire.TrainingData.Artificial
         {
             var sb = new StringBuilder();
             if (_noRepeat) {
-                var indices = DictionarySize.AsRange().Shuffle(_rnd).Take((int)_NextSequenceLength);
+                var indices = DictionarySize.AsRange().Shuffle(_rnd).Take((int)NextSequenceLength);
                 foreach(var index in indices)
-                    sb.Append(_dictionary[index]);
+                    sb.Append(Dictionary[index]);
             } else {
-                for (uint i = 0, len = _NextSequenceLength; i < len; i++)
-                    sb.Append(_dictionary[_rnd.Next(0, (int)DictionarySize)]);
+                for (uint i = 0, len = NextSequenceLength; i < len; i++)
+                    sb.Append(Dictionary[_rnd.Next(0, (int)DictionarySize)]);
             }
             return sb.ToString();
         }
@@ -97,7 +97,7 @@ namespace BrightWire.TrainingData.Artificial
         public Vector<float> Encode(char ch, float val = 1f)
         {
             var ret = new float[DictionarySize];
-            ret[_charTable[ch]] = val;
+            ret[CharTable[ch]] = val;
             return FloatVector.Create(_context, ret);
         }
 
@@ -110,7 +110,7 @@ namespace BrightWire.TrainingData.Artificial
         {
             var ret = new float[DictionarySize];
             foreach(var item in data)
-                ret[_charTable[item.Item1]] = item.Item2;
+                ret[CharTable[item.Item1]] = item.Item2;
             return FloatVector.Create(_context, ret);
         }
 
@@ -136,6 +136,7 @@ namespace BrightWire.TrainingData.Artificial
         {
             while (true)
                 yield return NextSequence();
+            // ReSharper disable once IteratorNeverReturns
         }
     }
 }

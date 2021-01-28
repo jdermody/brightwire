@@ -56,15 +56,11 @@ namespace BrightWire.Bayesian.Training
                 ;
                 var total = (float)transitions.Sum(t => t.Item2);
                 if (total > 0) {
-                    ret.Add(new MarkovModelObservation2<T>(item.Key.Item1, item.Key.Item2, transitions.Select(t => new MarkovModelStateTransition<T> {
-                        NextState = t.Item1,
-                        Probability = t.Item2 / total
-                    }).ToArray()));
+                    ret.Add(new MarkovModelObservation2<T>(item.Key.Item1, item.Key.Item2, transitions.Select(t => new MarkovModelStateTransition<T>(t.Item1, t.Item2 / total))));
                 }
-            } 
-            return new MarkovModel2<T> {
-                Observation = ret.ToArray()
-            };
+            }
+
+            return new MarkovModel2<T>(ret);
         }
 
         public void DeserialiseFrom(Stream stream, bool clear)
@@ -134,15 +130,11 @@ namespace BrightWire.Bayesian.Training
                 ;
                 var total = (float)transitions.Sum(t => t.Item2);
                 if (total > 0) {
-                    ret.Add(new MarkovModelObservation3<T>(item.Key.Item1, item.Key.Item2, item.Key.Item3, transitions.Select(t => new MarkovModelStateTransition<T> {
-                        NextState = t.Item1,
-                        Probability = t.Item2 / total
-                    }).ToArray()));
+                    ret.Add(new MarkovModelObservation3<T>(item.Key.Item1, item.Key.Item2, item.Key.Item3, transitions.Select(t => new MarkovModelStateTransition<T>(t.Item1, t.Item2 / total))));
                 }
             }
-            return new MarkovModel3<T> {
-                Observation = ret.ToArray()
-            };
+
+            return new MarkovModel3<T>(ret);
         }
 
         public void DeserialiseFrom(Stream stream, bool clear)

@@ -24,7 +24,7 @@ namespace BrightTable
 
         internal static string DefaultColumnName(string? name, int numColumns)
         {
-            return name ?? $"Column {numColumns + 1}";
+            return String.IsNullOrWhiteSpace(name) ? $"Column {numColumns + 1}" : name;
         }
 
         public IBrightDataContext Context { get; }

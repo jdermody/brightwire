@@ -24,7 +24,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 	        TrainingErrorCalculation trainingErrorCalculation, 
 	        bool deferUpdates,
             GraphFactory graph
-	    ) {
+        ) {
             LinearAlgebraProvider = lap;
             TrainingErrorCalculation = trainingErrorCalculation;
             LearningRate = learningRate;
@@ -33,8 +33,8 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             GraphFactory = graph;
         }
 
-        public event Action<ILearningContext> BeforeEpochStarts;
-        public event Action<ILearningContext> AfterEpochEnds;
+        public event Action<ILearningContext>? BeforeEpochStarts;
+        public event Action<ILearningContext>? AfterEpochEnds;
 
 	    public void Clear()
         {
@@ -45,7 +45,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         }
 
         public GraphFactory GraphFactory { get; }
-	    public IErrorMetric ErrorMetric { get; set; }
+	    public IErrorMetric? ErrorMetric { get; set; }
         public ILinearAlgebraProvider LinearAlgebraProvider { get; }
 	    public uint RowCount => _rowCount;
 	    public uint CurrentEpoch => _currentEpoch;

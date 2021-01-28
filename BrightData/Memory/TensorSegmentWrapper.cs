@@ -78,19 +78,19 @@ namespace BrightData.Memory
                 this[index++] = ptr[(int)i];
         }
 
-        public void Initialize(Func<uint, T> initializer)
+        public void InitializeFrom(Func<uint, T> initializer)
         {
             for (uint i = 0; i < Size; i++)
                 this[i] = initializer(i);
         }
 
-        public void Initialize(T initializer)
+        public void InitializeTo(T initializer)
         {
             for (uint i = 0; i < Size; i++)
                 this[i] = initializer;
         }
 
-        public void Initialize(T[] initialData) => Initialize(i => initialData[i]);
+        public void Initialize(T[] initialData) => InitializeFrom(i => initialData[i]);
 
         public unsafe void WriteTo(Stream stream)
         {
@@ -114,7 +114,7 @@ namespace BrightData.Memory
 
         public void CopyTo(ITensorSegment<T> segment)
         {
-            segment.Initialize(i => this[i]);
+            segment.InitializeFrom(i => this[i]);
         }
 
         public override string ToString()

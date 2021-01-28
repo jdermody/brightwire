@@ -21,7 +21,7 @@ namespace BrightWire.ExecutionGraph.Engine
 		float? _lastTestError = null;
 		double? _lastTrainingError = null, _trainingErrorDelta = null;
 
-		public TrainingEngine(ILinearAlgebraProvider lap, IDataSource dataSource, ILearningContext learningContext, INode start) : base(lap)
+		public TrainingEngine(ILinearAlgebraProvider lap, IDataSource dataSource, ILearningContext learningContext, INode? start) : base(lap)
 		{
 			_dataSource = dataSource;
             _random = lap.Context.Random;

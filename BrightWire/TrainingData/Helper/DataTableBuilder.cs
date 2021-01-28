@@ -10,7 +10,7 @@ namespace BrightWire.TrainingData.Helper
         {
             var ret = context.BuildTable();
             ret.AddColumn(ColumnType.Matrix, "Input");
-            ret.AddColumn(ColumnType.Matrix, "Target").SetTargetColumn(true);
+            ret.AddColumn(ColumnType.Matrix, "Target").SetTarget(true);
             return ret;
         }
 
@@ -18,7 +18,7 @@ namespace BrightWire.TrainingData.Helper
         {
             var ret = context.BuildTable();
             ret.AddColumn(ColumnType.Vector, "Input");
-            ret.AddColumn(ColumnType.Vector, "Target").SetTargetColumn(true);
+            ret.AddColumn(ColumnType.Vector, "Target").SetTarget(true);
             return ret;
         }
 
@@ -26,7 +26,7 @@ namespace BrightWire.TrainingData.Helper
         {
             var ret = context.BuildTable();
             ret.AddColumn(ColumnType.Tensor3D, "Input");
-            ret.AddColumn(ColumnType.Vector, "Target").SetTargetColumn(true);
+            ret.AddColumn(ColumnType.Vector, "Target").SetTarget(true);
             return ret;
         }
     }

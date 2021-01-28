@@ -14,7 +14,7 @@ namespace BrightData.FloatTensors
         public static Vector<float> Create(IBrightDataContext context, float[] ret) => context.CreateVector(ret);
         public static Vector<float> ReadFrom(IBrightDataContext context, BinaryReader reader)
         {
-            if (context.Get<bool>(Consts.LegacyFloatSerialisationInput)) {
+            if (context.Get(Consts.LegacyFloatSerialisationInput, false)) {
                 var len = reader.ReadInt32();
                 var ret = new float[len];
                 for (var i = 0; i < len; i++)
@@ -96,7 +96,7 @@ namespace BrightData.FloatTensors
             
             // normalize
             var normalizer = new NormalizeTransformation(type, metaData);
-            Data.Segment.Initialize(i => Convert.ToSingle(normalizer.Normalize(this[i])));
+            Data.Segment.InitializeFrom(i => Convert.ToSingle(normalizer.Normalize(this[i])));
         }
 
         public IFloatVector Softmax() => new FloatVector(Data.Softmax());

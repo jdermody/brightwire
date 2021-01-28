@@ -19,7 +19,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             {
                 var targetColumn = dataTable.GetTargetColumnOrThrow();
                 _targetLabel = dataTable.Column(targetColumn).Enumerate()
-                    .Select(o => o.ToString())
+                    .Select(o => o.ToString()!)
                     .Distinct()
                     .Select((v, i) => (v, (uint)i))
                     .ToDictionary(d => d.Item1, d => d.Item2)
@@ -35,7 +35,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
         readonly IRowClassifier _classifier;
         readonly IIndexStrings _indexer;
 
-        public RowClassifier(ILinearAlgebraProvider lap, IRowClassifier classifier, IRowOrientedDataTable dataTable, string name = null)
+        public RowClassifier(ILinearAlgebraProvider lap, IRowClassifier classifier, IRowOrientedDataTable dataTable, string? name = null)
             : base(name)
         {
             _lap = lap;

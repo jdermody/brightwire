@@ -12,7 +12,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
     {
         readonly uint[] _featureColumns;
 
-        public DefaultDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, IVectorise inputVectoriser, IVectorise outputVectoriser, uint[] featureColumns)
+        public DefaultDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, IVectorise? inputVectoriser, IVectorise? outputVectoriser, uint[] featureColumns)
             : base(lap, dataTable, featureColumns)
         {
             _featureColumns = featureColumns;

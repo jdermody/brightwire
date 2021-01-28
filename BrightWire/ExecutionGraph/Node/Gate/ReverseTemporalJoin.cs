@@ -47,7 +47,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         Dictionary<uint, (INode, IGraphData)> _reverseBackpropagation = new Dictionary<uint, (INode, IGraphData)>();
         Dictionary<uint, IGraphContext> _contextTable = new Dictionary<uint, IGraphContext>();
 
-        public ReverseTemporalJoin(string name, WireBuilder forwardInput, WireBuilder reverseInput) 
+        public ReverseTemporalJoin(string? name, WireBuilder forwardInput, WireBuilder reverseInput) 
             : base(name, forwardInput, reverseInput)
         {
         }

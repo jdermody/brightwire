@@ -21,7 +21,7 @@ namespace BrightWire.Models.TreeBased
             /// <summary>
             /// The nodes children
             /// </summary>
-            public Node[] Children { get; set; }
+            public Node[]? Children { get; set; }
 
             /// <summary>
             /// The column index that is being split on
@@ -31,7 +31,7 @@ namespace BrightWire.Models.TreeBased
             /// <summary>
             /// The value to match this node
             /// </summary>
-            public string MatchLabel { get; set; }
+            public string? MatchLabel { get; set; }
 
             /// <summary>
             /// The value to split on
@@ -41,7 +41,7 @@ namespace BrightWire.Models.TreeBased
             /// <summary>
             /// This node's classification label
             /// </summary>
-            public string Classification { get; set; }
+            public string? Classification { get; set; }
 
             /// <summary>
             /// Writes the node as XML
@@ -67,8 +67,10 @@ namespace BrightWire.Models.TreeBased
                 writer.WriteEndElement();
             }
 
+            /// <inheritdoc />
             public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
 
+            /// <inheritdoc />
             public void Initialize(IBrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
         }
 
@@ -80,7 +82,7 @@ namespace BrightWire.Models.TreeBased
         /// <summary>
         /// The root of the tree
         /// </summary>
-        public Node Root { get; set; }
+        public Node? Root { get; set; }
 
         /// <summary>
         /// Converts the tree to XML
@@ -104,8 +106,10 @@ namespace BrightWire.Models.TreeBased
             return new DecisionTreeClassifier(this);
         }
 
+        /// <inheritdoc />
         public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
 
+        /// <inheritdoc />
         public void Initialize(IBrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
     }
 }

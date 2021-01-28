@@ -633,6 +633,21 @@
             Convert each value to an index within a dictionary
             </summary>
         </member>
+        <member name="M:BrightTable.Segments.GrowableSegment`1.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightTable.Segments.GrowableSegment`1.MetaData">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightTable.Segments.GrowableSegment`1.SingleType">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightTable.Segments.GrowableSegment`1.WriteTo(System.IO.BinaryWriter)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightTable.Segments.GrowableSegment`1.CopyTo(System.IO.Stream)">
+            <inheritdoc />
+        </member>
         <member name="T:BrightTable.Transformations.ColumnConversion">
             <summary>
             Parameters that define a column conversion from one type to another

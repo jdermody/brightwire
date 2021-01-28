@@ -20,7 +20,7 @@ namespace BrightWire.UnitTests
             dataTable.AddColumn(ColumnType.Float, "height");
             dataTable.AddColumn(ColumnType.Int, "weight");
             dataTable.AddColumn(ColumnType.Int, "foot-size");
-            dataTable.AddColumn(ColumnType.String, "gender").SetTargetColumn(true);
+            dataTable.AddColumn(ColumnType.String, "gender").SetTarget(true);
 
             // sample data from: https://en.wikipedia.org/wiki/Naive_Bayes_classifier
             dataTable.AddRow(6f, 180, 12, "male");

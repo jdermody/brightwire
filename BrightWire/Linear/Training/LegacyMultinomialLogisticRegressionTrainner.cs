@@ -9,7 +9,7 @@ namespace BrightWire.Linear.Training
 {
     public class LegacyMultinomialLogisticRegressionTrainner
     {
-        public static MultinomialLogisticRegression Train(IRowOrientedDataTable table, ILinearAlgebraProvider lap, uint trainingIterations, float trainingRate, float lambda, Func<float, bool> costCallback = null)
+        public static MultinomialLogisticRegression Train(IRowOrientedDataTable table, ILinearAlgebraProvider lap, uint trainingIterations, float trainingRate, float lambda, Func<float, bool>? costCallback = null)
         {
             var targetColumnIndex = table.GetTargetColumnOrThrow();
             var groupedData = table.GroupBy(targetColumnIndex).ToArray();

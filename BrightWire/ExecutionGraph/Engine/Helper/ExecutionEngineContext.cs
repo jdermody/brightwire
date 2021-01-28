@@ -13,7 +13,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         readonly IGraphExecutionContext _executionContext;
         readonly List<IExecutionHistory> _forward = new List<IExecutionHistory>();
 	    readonly Dictionary<int, IGraphData> _output = new Dictionary<int, IGraphData>();
-        INode _sourceNode = null;
+        INode? _sourceNode = null;
         IGraphData _data;
 
         public ExecutionEngineContext(IGraphExecutionContext executionContext, IMiniBatchSequence miniBatch)
@@ -29,9 +29,9 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         }
 
         public bool IsTraining => false;
-        public INode Source => _sourceNode;
+        public INode? Source => _sourceNode;
         public IGraphExecutionContext ExecutionContext => _executionContext;
-        public ILearningContext LearningContext => null;
+        public ILearningContext? LearningContext => null;
         public ILinearAlgebraProvider LinearAlgebraProvider => _executionContext.LinearAlgebraProvider;
         public IMiniBatchSequence BatchSequence { get; }
         public void AddBackward(IGraphData errorSignal, INode target, INode source) => throw new NotImplementedException();

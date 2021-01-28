@@ -26,7 +26,7 @@ namespace BrightWire.ExecutionGraph.Activation
             }
         }
 
-        public Tanh(string name = null) : base(name) { }
+        public Tanh(string? name = null) : base(name) { }
 
         public override void ExecuteForward(IGraphContext context)
         {

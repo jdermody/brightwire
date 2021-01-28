@@ -48,7 +48,7 @@ namespace BrightTable.Builders
 
         public IMetaData AddColumn(ColumnType type, IMetaData metaData)
         {
-            string name = DataTableBase.DefaultColumnName(metaData?.Get<string>(Consts.Name), _columns.Count);
+            string name = DataTableBase.DefaultColumnName(metaData.GetName(), _columns.Count);
             var column = new Column((uint) _columns.Count, type, metaData, name);
             _columns.Add(column);
             return column.Metadata;

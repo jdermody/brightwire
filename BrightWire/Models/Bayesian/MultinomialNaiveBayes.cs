@@ -25,8 +25,10 @@ namespace BrightWire.Models.Bayesian
             /// </summary>
             public double ConditionalProbability { get; set; }
 
+            /// <inheritdoc />
             public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
 
+            /// <inheritdoc />
             public void Initialize(IBrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
         }
 
@@ -55,8 +57,10 @@ namespace BrightWire.Models.Bayesian
             /// </summary>
             public StringIndexProbability[] Index { get; set; }
 
+            /// <inheritdoc />
             public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
 
+            /// <inheritdoc />
             public void Initialize(IBrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
         }
 
@@ -74,8 +78,10 @@ namespace BrightWire.Models.Bayesian
             return new MultinomialNaiveBayesClassifier(this);
         }
 
+        /// <inheritdoc />
         public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
 
+        /// <inheritdoc />
         public void Initialize(IBrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
     }
 }

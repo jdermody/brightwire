@@ -15,14 +15,8 @@
 			return memory.AsGraphData();
 		}
 
-		public void Initialise(string data)
-		{
-			_id = data;
-		}
+		public void Initialise(string data) => _id = data;
 
-		public string Serialise()
-		{
-			return _id;
-		}
-	}
+        public string Serialise() => _id;
+    }
 }

@@ -17,7 +17,7 @@ namespace BrightWire.UnitTests
         {
             var dataTable = _context.BuildTable();
             dataTable.AddColumn(ColumnType.Float, "value");
-            dataTable.AddColumn(ColumnType.Float, "result").SetTargetColumn(true);
+            dataTable.AddColumn(ColumnType.Float, "result").SetTarget(true);
 
             // simple linear relationship: result is twice value
             dataTable.AddRow(1f, 2f);
@@ -50,7 +50,7 @@ namespace BrightWire.UnitTests
         {
             var dataTable = _context.BuildTable();
             dataTable.AddColumn(ColumnType.Float, "hours");
-            dataTable.AddColumn(ColumnType.Boolean, "pass").SetTargetColumn(true);
+            dataTable.AddColumn(ColumnType.Boolean, "pass").SetTarget(true);
 
             // sample data from: https://en.wikipedia.org/wiki/Logistic_regression
             dataTable.AddRow(0.5f, false);
@@ -110,7 +110,7 @@ namespace BrightWire.UnitTests
             dataTable.AddColumn(ColumnType.Float, "height");
             dataTable.AddColumn(ColumnType.Int, "weight");
             dataTable.AddColumn(ColumnType.Int, "foot-size");
-            dataTable.AddColumn(ColumnType.String, "gender").SetTargetColumn(true);
+            dataTable.AddColumn(ColumnType.String, "gender").SetTarget(true);
 
             // sample data from: https://en.wikipedia.org/wiki/Naive_Bayes_classifier
             dataTable.AddRow(6f, 180, 12, "male");

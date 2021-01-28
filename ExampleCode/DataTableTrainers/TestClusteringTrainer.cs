@@ -142,11 +142,13 @@ namespace ExampleCode.DataTableTrainers
             Console.WriteLine($"written to {outputPath}");
         }
 
-        string GetOutputPath(string name) => Path.Combine(_context.Get<DirectoryInfo>("DataFileDirectory").FullName, "output", $"{name}.txt");
+        string GetOutputPath(string name) => Path.Combine(DataFileDirectory, "output", $"{name}.txt");
+
+        string DataFileDirectory => _context.Get<DirectoryInfo>("DataFileDirectory", null)?.FullName ?? throw new Exception("Data File Directory not set");
 
         void _WriteClusters(string filePath, IFloatVector[][] clusters, Dictionary<IFloatVector, AAAIDocument> lookupTable)
         {
-            new FileInfo(filePath).Directory.Create();
+            new FileInfo(filePath).Directory?.Create();
             using var writer = new StreamWriter(filePath);
             foreach (var cluster in clusters)
             {

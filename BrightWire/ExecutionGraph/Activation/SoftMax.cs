@@ -35,7 +35,7 @@ namespace BrightWire.ExecutionGraph.Activation
             }
         }
 
-        public SoftMax(string name = null) : base(name) { }
+        public SoftMax(string? name = null) : base(name) { }
 
         public override void ExecuteForward(IGraphContext context)
         {

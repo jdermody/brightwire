@@ -29,8 +29,10 @@ namespace BrightWire.Models
         /// </summary>
         public DataSourceModel DataSource { get; set; }
 
+        /// <inheritdoc />
         public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
 
+        /// <inheritdoc />
         public void Initialize(IBrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
     }
 }

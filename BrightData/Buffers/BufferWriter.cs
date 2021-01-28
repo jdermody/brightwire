@@ -30,7 +30,7 @@ namespace BrightData.Buffers
         static ICanWriteToBinaryWriter GetWriter<T>(IHybridBuffer<T> buffer)
         {
             var typeOfT = typeof(T);
-            var shouldEncode = buffer.NumDistinct.HasValue && buffer.NumDistinct.Value < buffer.Length / 2;
+            var shouldEncode = buffer.NumDistinct.HasValue && buffer.NumDistinct.Value < buffer.Size / 2;
 
             if (typeOfT == typeof(string)) {
                 var stringBuffer = (IHybridBuffer<string>)buffer;
@@ -68,7 +68,7 @@ namespace BrightData.Buffers
                 WriteTo(
                     (uint) _table.Count,
                     _table.OrderBy(kv => kv.Value).Select(kv => kv.Key),
-                    _buffer.Length,
+                    _buffer.Size,
                     _buffer.EnumerateTyped().Select(v => _table[v]),
                     writer
                 );
@@ -77,7 +77,7 @@ namespace BrightData.Buffers
             internal static void WriteTo(uint stringTableCount, IEnumerable<string> stringTable, uint indexCount, IEnumerable<ushort> indices, BinaryWriter writer)
             {
                 // write the buffer type
-                writer.Write((byte)BufferType.EncodedString);
+                writer.Write((byte)HybridBufferType.EncodedString);
 
                 // write the length
                 writer.Write(stringTableCount);
@@ -114,7 +114,7 @@ namespace BrightData.Buffers
                 var data = _table.OrderBy(kv => kv.Value).Select(kv => kv.Key).ToArray();
                 WriteTo(
                     data, 
-                    _buffer.Length, 
+                    _buffer.Size, 
                     _buffer.EnumerateTyped().Select(v => _table[v]),
                     writer
                 );
@@ -123,7 +123,7 @@ namespace BrightData.Buffers
             internal static void WriteTo(T[] keys, uint indexCount, IEnumerable<ushort> indices, BinaryWriter writer)
             {
                 // write the buffer type
-                writer.Write((byte)BufferType.EncodedStruct);
+                writer.Write((byte)HybridBufferType.EncodedStruct);
 
                 // write the length
                 writer.Write((uint)keys.Length);
@@ -151,13 +151,13 @@ namespace BrightData.Buffers
 
             public void WriteTo(BinaryWriter writer)
             {
-                WriteTo(_buffer.Length, _buffer.EnumerateTyped(), writer);
+                WriteTo(_buffer.Size, _buffer.EnumerateTyped(), writer);
             }
 
             internal static void WriteTo(uint itemsCount, IEnumerable<T> items, BinaryWriter writer)
             {
                 // write the buffer type
-                writer.Write((byte)BufferType.Object);
+                writer.Write((byte)HybridBufferType.Object);
 
                 // write the number of items
                 writer.Write(itemsCount);
@@ -179,13 +179,13 @@ namespace BrightData.Buffers
 
             public void WriteTo(BinaryWriter writer)
             {
-                WriteTo(_buffer.Length, _buffer.EnumerateTyped(), writer);
+                WriteTo(_buffer.Size, _buffer.EnumerateTyped(), writer);
             }
 
             internal static void WriteTo(uint itemCount, IEnumerable<string> items, BinaryWriter writer)
             {
                 // write the buffer type
-                writer.Write((byte)BufferType.String);
+                writer.Write((byte)HybridBufferType.String);
 
                 // write the number of items
                 writer.Write(itemCount);
@@ -208,13 +208,13 @@ namespace BrightData.Buffers
 
             public void WriteTo(BinaryWriter writer)
             {
-                WriteTo(_buffer.Length, _buffer.EnumerateTyped(), writer);
+                WriteTo(_buffer.Size, _buffer.EnumerateTyped(), writer);
             }
 
             internal static void WriteTo(uint numItems, IEnumerable<T> items, BinaryWriter writer)
             {
                 // write the buffer type
-                writer.Write((byte)BufferType.Struct);
+                writer.Write((byte)HybridBufferType.Struct);
 
                 // write the items
                 writer.Write(numItems);

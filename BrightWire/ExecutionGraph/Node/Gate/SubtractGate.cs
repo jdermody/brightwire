@@ -24,7 +24,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 context.AddBackward(errorSignal.ReplaceWith(negative), parents.Last(), _source);
             }
         }
-        public SubtractGate(string name = null) : base(name) { }
+        public SubtractGate(string? name = null) : base(name) { }
 
         protected override void _Activate(IGraphContext context, IFloatMatrix primary, IFloatMatrix secondary)
         {

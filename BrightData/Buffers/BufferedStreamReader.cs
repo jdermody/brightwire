@@ -1,51 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Text;
-using BrightData.Helper;
 
 namespace BrightData.Buffers
 {
     /// <summary>
     /// Buffered stream reader helper
     /// </summary>
-    public static class BufferedStreamReader
+    internal static class BufferedStreamReader
     {
-        /// <summary>
-        /// Returns a reader that buffers items in memory
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="context">Bright data context</param>
-        /// <param name="stream">Stream to read from</param>
-        /// <param name="inMemorySize">Number of bytes to use as an in memory buffer</param>
-        /// <returns></returns>
-        public static ICanEnumerate<T> GetReader<T>(this IBrightDataContext context, Stream stream, uint inMemorySize)
-        {
-            var reader = new BinaryReader(stream, Encoding.UTF8);
-            var type = (BufferType)reader.ReadByte();
-
-            if (type == BufferType.EncodedString)
-                return (ICanEnumerate<T>)new StringDecoder(reader, stream, inMemorySize);
-
-            if (type == BufferType.EncodedStruct)
-                return GenericActivator.Create<ICanEnumerate<T>>(typeof(StructDecoder<>).MakeGenericType(typeof(T)), reader, stream, inMemorySize);
-
-            if(type == BufferType.Object)
-                return GenericActivator.Create<ICanEnumerate<T>>(typeof(ObjectReader<>).MakeGenericType(typeof(T)), context, reader, stream, inMemorySize);
-
-            if (type == BufferType.String)
-                return (ICanEnumerate<T>)new StringReader(reader, stream, inMemorySize);
-
-            if (type == BufferType.Struct)
-                return GenericActivator.Create<ICanEnumerate<T>>(typeof(StructReader<>).MakeGenericType(typeof(T)), reader, stream, inMemorySize);
-
-            throw new NotImplementedException();
-        }
-
         class RepeatableStreamReader
         {
             readonly Stream _stream;
@@ -85,7 +52,7 @@ namespace BrightData.Buffers
             public uint Size { get; }
         }
 
-        class ConvertFromStream<T> : ICanEnumerate<T>
+        class ConvertFromStream<T> : ICanEnumerate<T> where T : notnull
         {
             readonly Func<BinaryReader, T> _converter;
             readonly RepeatableStreamReader _stream;
@@ -124,7 +91,7 @@ namespace BrightData.Buffers
             public uint Size => (uint)_data.Length;
         }
 
-        class LoadIntoMemory<T> : ICanEnumerate<T>
+        class LoadIntoMemory<T> : ICanEnumerate<T> where T : notnull
         {
             readonly T[] _data;
 
@@ -139,7 +106,7 @@ namespace BrightData.Buffers
             public uint Size => (uint)_data.Length;
         }
 
-        static ICanEnumerate<T> _GetReader<T>(uint length, uint inMemorySize, Stream stream)
+        static ICanEnumerate<T> GetReader<T>(uint length, uint inMemorySize, Stream stream)
             where T: struct
         {
             if(length <= inMemorySize)
@@ -147,14 +114,14 @@ namespace BrightData.Buffers
             return new ReadFromRepeatableStream<T>(length, stream);
         }
 
-        static ICanEnumerate<T> _GetReader<T>(uint length, uint inMemorySize, BinaryReader reader, Stream stream, Func<BinaryReader, T> objectBuilder)
+        static ICanEnumerate<T> GetReader<T>(uint length, uint inMemorySize, BinaryReader reader, Stream stream, Func<BinaryReader, T> objectBuilder) where T: notnull
         {
             if (length <= inMemorySize)
                 return new LoadIntoMemory<T>(length, reader, objectBuilder);
             return new ConvertFromStream<T>(length, stream, objectBuilder);
         }
 
-        class StringDecoder : ICanEnumerate<string>, ICanWriteToBinaryWriter
+        public class StringDecoder : ICanEnumerate<string>, ICanWriteToBinaryWriter
         {
             readonly ICanEnumerate<ushort> _reader;
             readonly string[] _stringTable;
@@ -166,7 +133,7 @@ namespace BrightData.Buffers
                 for (uint i = 0; i < len; i++)
                     _stringTable[i] = reader.ReadString();
                 var indicesLength = reader.ReadUInt32();
-                _reader = _GetReader<ushort>(indicesLength, inMemorySize, stream);
+                _reader = GetReader<ushort>(indicesLength, inMemorySize, stream);
 
 #if DEBUG
                 int offset = 0;
@@ -191,7 +158,7 @@ namespace BrightData.Buffers
             }
         }
 
-        class StructDecoder<T> : ICanEnumerate<T>, ICanWriteToBinaryWriter
+        public class StructDecoder<T> : ICanEnumerate<T>, ICanWriteToBinaryWriter
             where T : struct
         {
             readonly ICanEnumerate<ushort> _reader;
@@ -202,7 +169,7 @@ namespace BrightData.Buffers
                 var len = reader.ReadUInt32();
                 _table = new T[len];
                 stream.Read(MemoryMarshal.Cast<T, byte>(_table));
-                _reader = _GetReader<ushort>(reader.ReadUInt32(), inMemorySize, stream);
+                _reader = GetReader<ushort>(reader.ReadUInt32(), inMemorySize, stream);
             }
 
             public IEnumerable<T> EnumerateTyped() => _reader.EnumerateTyped().Select(i => _table[i]);
@@ -213,7 +180,7 @@ namespace BrightData.Buffers
             }
         }
 
-        class ObjectReader<T> : ICanEnumerate<T>, ICanWriteToBinaryWriter
+        public class ObjectReader<T> : ICanEnumerate<T>, ICanWriteToBinaryWriter
             where T : ICanInitializeFromBinaryReader, ICanWriteToBinaryWriter
         {
             readonly BrightDataContext _context;
@@ -222,7 +189,7 @@ namespace BrightData.Buffers
             public ObjectReader(BrightDataContext context, BinaryReader reader, Stream stream, uint inMemorySize)
             {
                 _context = context;
-                _reader = _GetReader(reader.ReadUInt32(), inMemorySize, reader, stream, _Create);
+                _reader = GetReader(reader.ReadUInt32(), inMemorySize, reader, stream, _Create);
             }
 
             T _Create(BinaryReader reader)
@@ -240,14 +207,14 @@ namespace BrightData.Buffers
             }
         }
 
-        class StructReader<T> : ICanEnumerate<T>, ICanWriteToBinaryWriter
+        public class StructReader<T> : ICanEnumerate<T>, ICanWriteToBinaryWriter
             where T : struct
         {
             readonly ICanEnumerate<T> _reader;
 
             public StructReader(BinaryReader reader, Stream stream, uint inMemorySize)
             {
-                _reader = _GetReader<T>(reader.ReadUInt32(), inMemorySize, stream);
+                _reader = GetReader<T>(reader.ReadUInt32(), inMemorySize, stream);
             }
 
             public IEnumerable<T> EnumerateTyped() => _reader.EnumerateTyped();
@@ -258,13 +225,13 @@ namespace BrightData.Buffers
             }
         }
 
-        class StringReader : ICanEnumerate<string>, ICanWriteToBinaryWriter
+        public class StringReader : ICanEnumerate<string>, ICanWriteToBinaryWriter
         {
             readonly ICanEnumerate<string> _reader;
 
             public StringReader(BinaryReader reader, Stream stream, uint inMemorySize)
             {
-                _reader = _GetReader(reader.ReadUInt32(), inMemorySize, reader, stream, r => r.ReadString());
+                _reader = GetReader(reader.ReadUInt32(), inMemorySize, reader, stream, r => r.ReadString());
             }
 
             public IEnumerable<string> EnumerateTyped() => _reader.EnumerateTyped();

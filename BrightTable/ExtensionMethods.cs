@@ -248,7 +248,7 @@ namespace BrightTable
         public static IMetaData Analyse(this ISingleTypeTableSegment segment, bool force = false, uint distinctValueCount = 100)
         {
             var ret = segment.MetaData;
-            if (force || !ret.Get<bool>(Consts.HasBeenAnalysed)) {
+            if (force || !ret.Get(Consts.HasBeenAnalysed, false)) {
                 var type = segment.SingleType;
                 var analyser = type.GetColumnAnalyser(segment.MetaData, distinctValueCount);
                 var binding = GenericActivator.Create<IAnalyserBinding>(typeof(AnalyserBinding<>).MakeGenericType(type.GetDataType()),
@@ -269,7 +269,7 @@ namespace BrightTable
             var columnMetaData = table.AllColumnsMetaData();
             var ret = new IMetaData[count];
             for (uint i = 0; i < count; i++) {
-                if (columnMetaData[i].Get<bool>(Consts.HasBeenAnalysed))
+                if (columnMetaData[i].Get(Consts.HasBeenAnalysed, false))
                     ret[i] = columnMetaData[i];
                 else {
                     var column = table.Column(i);
@@ -398,7 +398,7 @@ namespace BrightTable
         {
             var metaData = table.AllMetaData().ToList();
             for (uint i = 0; i < table.ColumnCount; i++) {
-                if (metaData[(int)i].Get<bool>(Consts.IsTarget))
+                if (metaData[(int)i].IsTarget())
                     return i;
             }
             return null;
@@ -526,8 +526,8 @@ namespace BrightTable
             return vectoriser.Enumerate().Select(v => (v, (string?) null));
         }
 
-        public static ColumnType GetColumnType(this IMetaData metadata) => metadata.Get<ColumnType>(Consts.Type);
-        public static uint GetNumDistinct(this IMetaData metadata) => metadata.Get<uint>(Consts.NumDistinct);
+        public static ColumnType GetColumnType(this IMetaData metadata) => metadata.Get<ColumnType>(Consts.Type, ColumnType.Unknown);
+        public static uint GetNumDistinct(this IMetaData metadata) => metadata.Get<uint>(Consts.NumDistinct, 0);
 
         public static TableBuilder BuildTable(this IBrightDataContext context) => new TableBuilder(context);
 
@@ -632,7 +632,7 @@ namespace BrightTable
 
             DataTableVectoriser outputVectoriser = null;
             if (target.HasValue) {
-                builder.AddColumn(ColumnType.Vector, "Target").SetTargetColumn(true);
+                builder.AddColumn(ColumnType.Vector, "Target").SetTarget(true);
                 outputVectoriser = new DataTableVectoriser(dataTable, target.Value);
                 columnIndices.Remove(target.Value);
             }
@@ -663,7 +663,7 @@ namespace BrightTable
         {
             var builder = context.BuildTable();
             builder.AddColumn(ColumnType.IndexList, "Index");
-            builder.AddColumn(ColumnType.String, "Label").SetTargetColumn(true);
+            builder.AddColumn(ColumnType.String, "Label").SetTarget(true);
 
             foreach (var item in data)
                 builder.AddRow(item.Data, item.Label);
@@ -680,7 +680,7 @@ namespace BrightTable
         {
             var builder = context.BuildTable();
             builder.AddColumn(ColumnType.WeightedIndexList, "Weighted Index");
-            builder.AddColumn(ColumnType.String, "Label").SetTargetColumn(true);
+            builder.AddColumn(ColumnType.String, "Label").SetTarget(true);
 
             foreach (var item in data)
                 builder.AddRow(item.Data, item.Label);
@@ -701,7 +701,7 @@ namespace BrightTable
             if (preserveVectors)
             {
                 builder.AddColumn(ColumnType.Vector, "Vector");
-                builder.AddColumn(ColumnType.String, "Label").SetTargetColumn(true);
+                builder.AddColumn(ColumnType.String, "Label").SetTarget(true);
 
                 foreach (var item in data)
                     builder.AddRow(item.Data, item.Label);
@@ -711,7 +711,7 @@ namespace BrightTable
                 var size = data.First().Data.Size;
                 for (var i = 1; i <= size; i++)
                     builder.AddColumn(ColumnType.Float, "Value " + i);
-                builder.AddColumn(ColumnType.String, "Label").SetTargetColumn(true);
+                builder.AddColumn(ColumnType.String, "Label").SetTarget(true);
 
                 foreach (var item in data)
                 {

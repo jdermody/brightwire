@@ -214,7 +214,7 @@ namespace BrightWire
 		/// </summary>
 		/// <param name="errorSignal">The error signal associated with this backpropagation (optional, can be null)</param>
 		/// <param name="update">The callback to execute the backpropagation</param>
-		void DeferBackpropagation(IGraphData errorSignal, Action<IGraphData> update);
+		void DeferBackpropagation(IGraphData? errorSignal, Action<IGraphData> update);
 
 		/// <summary>
 		/// Backpropagates the error signal across all deferred backpropagations
@@ -260,7 +260,7 @@ namespace BrightWire
 		/// <summary>
 		/// Error metric to use when evaluating trainging progress
 		/// </summary>
-		IErrorMetric ErrorMetric { get; set; }
+		IErrorMetric? ErrorMetric { get; set; }
 
 		GraphFactory GraphFactory { get; }
 	}
@@ -324,17 +324,17 @@ namespace BrightWire
 		/// <summary>
 		/// The gradient descent optimisation to use
 		/// </summary>
-		IGradientDescentOptimisation GradientDescent { get; set; }
+		IGradientDescentOptimisation? GradientDescent { get; set; }
 
 		/// <summary>
 		/// The template based gradient descent optimisation to use
 		/// </summary>
-		ICreateTemplateBasedGradientDescent TemplateGradientDescentDescriptor { get; set; }
+		ICreateTemplateBasedGradientDescent? TemplateGradientDescentDescriptor { get; set; }
 
 		/// <summary>
 		/// The descriptor to create new gradient descent optimisations
 		/// </summary>
-		ICreateGradientDescent GradientDescentDescriptor { get; set; }
+		ICreateGradientDescent? GradientDescentDescriptor { get; set; }
 
 		/// <summary>
 		/// Use the specified template based gradient descent optimisation

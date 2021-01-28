@@ -21,7 +21,7 @@ namespace BrightData.FloatTensors
         {
             var segment = Context.CreateSegment<float>(length);
             if(setToZero)
-                segment.Initialize(0f);
+                segment.InitializeTo(0f);
             return new FloatVector(new Vector<float>(segment));
         }
 

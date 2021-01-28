@@ -17,8 +17,8 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         readonly Dictionary<INode, List<IExecutionHistory>> _history = new Dictionary<INode, List<IExecutionHistory>>();
         readonly Dictionary<INode, List<IGraphData>> _nodeErrorSignal = new Dictionary<INode, List<IGraphData>>();
 	    readonly Dictionary<int, IGraphData> _output = new Dictionary<int, IGraphData>();
-        INode _sourceNode;
-        IGraphData _errorSignal = null, _data;
+        INode? _sourceNode;
+        IGraphData? _errorSignal = null, _data;
         double? _trainingError;
 
         public TrainingEngineContext(IGraphExecutionContext executionContext, IMiniBatchSequence miniBatch, ILearningContext learningContext)
@@ -57,21 +57,21 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public bool IsTraining => _learningContext != null;
         public ILinearAlgebraProvider LinearAlgebraProvider => _executionContext.LinearAlgebraProvider;
         public IGraphExecutionContext ExecutionContext => _executionContext;
-        public ILearningContext LearningContext => _learningContext;
+        public ILearningContext? LearningContext => _learningContext;
         public IMiniBatchSequence BatchSequence { get; }
         public bool HasNext => _forward.Any();
         public double? TrainingError => _trainingError;
-        public INode Source => _sourceNode;
-        public IGraphData ErrorSignal => _errorSignal;
-        public IGraphData Data => _data;
+        public INode? Source => _sourceNode;
+        public IGraphData? ErrorSignal => _errorSignal;
+        public IGraphData? Data => _data;
 
-        public void AddForward(IExecutionHistory action, Func<IBackpropagation> callback)
+        public void AddForward(IExecutionHistory action, Func<IBackpropagation>? callback)
         {
             if (callback != null && IsTraining)
                 action.Backpropagation = callback();
             _forward.Add(action);
 
-            if (!_history.TryGetValue(action.Source, out List<IExecutionHistory> temp))
+            if (!_history.TryGetValue(action.Source, out var temp))
                 _history.Add(action.Source, temp = new List<IExecutionHistory>());
             temp.Add(action);
         }
@@ -104,7 +104,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 		    _output[channel] = data;
 	    }
 
-	    public IGraphData GetOutput(int channel = 0)
+	    public IGraphData? GetOutput(int channel = 0)
 	    {
 		    if (_output.TryGetValue(channel, out var ret))
 			    return ret;
@@ -140,7 +140,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
                 var next = _backward.Pop();
                 _errorSignal = _GetErrorSignal(next.ErrorSignal, next.Target);
 
-                if (next.Target != null && _history.TryGetValue(next.Target, out List<IExecutionHistory> history)) {
+                if (next.Target != null && _history.TryGetValue(next.Target, out var history)) {
                     foreach (var item in history) {
                         if (item.Backpropagation != null) {
                             item.Backpropagation.Backward(next.Source, _errorSignal, this, item.Parents);
@@ -154,13 +154,13 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             }
         }
 
-        IGraphData _GetErrorSignal(IGraphData errorSignal, INode node)
+        IGraphData? _GetErrorSignal(IGraphData errorSignal, INode node)
         {
             var list = new List<IGraphData>();
 
             if (errorSignal != null)
                 list.Add(errorSignal);
-            if (_nodeErrorSignal.TryGetValue(node, out List<IGraphData> temp)) {
+            if (_nodeErrorSignal.TryGetValue(node, out var temp)) {
                 foreach (var item in temp) {
                     if (item != null)
                         list.Add(item);
@@ -184,7 +184,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 
         public void AppendErrorSignal(IGraphData errorSignal, INode forNode)
         {
-            if (!_nodeErrorSignal.TryGetValue(forNode, out List<IGraphData> temp))
+            if (!_nodeErrorSignal.TryGetValue(forNode, out var temp))
                 _nodeErrorSignal.Add(forNode, temp = new List<IGraphData>());
             temp.Add(errorSignal);
         }

@@ -13,7 +13,7 @@ namespace BrightWire.Unsupervised
     {
         class Centroid : IDisposable
         {
-            readonly Centroid _left = null, _right = null;
+            readonly Centroid? _left = null, _right = null;
 
             public IFloatVector Center { get; }
             public IFloatVector[] Data { get; }

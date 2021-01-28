@@ -26,7 +26,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 
         public INode AdaptiveInput => _input;
 
-        public Models.DataSourceModel GetModel(string name = null)
+        public Models.DataSourceModel GetModel(string? name = null)
         {
             return new Models.DataSourceModel {
                 Name = name,

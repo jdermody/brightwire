@@ -54,7 +54,7 @@ namespace BrightTable.Transformations
             readonly ICanConvert<T, float> _converter = StaticConverters.ConvertToFloat<T>();
 
             public NumericVectoriser(ISingleTypeTableSegment column)
-                : base(column.Index(), ((IDataTableSegment<T>)column).EnumerateTyped().GetEnumerator())
+                : base(column.MetaData.GetIndex(), ((IDataTableSegment<T>)column).EnumerateTyped().GetEnumerator())
             {
             }
 
@@ -70,7 +70,7 @@ namespace BrightTable.Transformations
             readonly uint _maxSize;
 
             public WeightedIndexListVectoriser(uint maxSize, ISingleTypeTableSegment column)
-                : base(column.Index(), ((IDataTableSegment<WeightedIndexList>)column).EnumerateTyped().GetEnumerator())
+                : base(column.MetaData.GetIndex(), ((IDataTableSegment<WeightedIndexList>)column).EnumerateTyped().GetEnumerator())
             {
                 _maxSize = maxSize;
             }
@@ -89,7 +89,7 @@ namespace BrightTable.Transformations
             readonly uint _maxSize;
 
             public IndexListVectoriser(uint maxSize, ISingleTypeTableSegment column)
-                : base(column.Index(), ((IDataTableSegment<IndexList>)column).EnumerateTyped().GetEnumerator())
+                : base(column.MetaData.GetIndex(), ((IDataTableSegment<IndexList>)column).EnumerateTyped().GetEnumerator())
             {
                 _maxSize = maxSize;
             }
@@ -106,7 +106,7 @@ namespace BrightTable.Transformations
         class TensorVectoriser : VectoriserBase<ITensor<float>>
         {
             public TensorVectoriser(uint size, ISingleTypeTableSegment column)
-                : base(column.Index(), ((IDataTableSegment<ITensor<float>>)column).EnumerateTyped().GetEnumerator())
+                : base(column.MetaData.GetIndex(), ((IDataTableSegment<ITensor<float>>)column).EnumerateTyped().GetEnumerator())
             {
                 Size = size;
             }
@@ -126,7 +126,7 @@ namespace BrightTable.Transformations
             uint _nextIndex = 0;
 
             public OneHotEncodeVectorised(uint size, ISingleTypeTableSegment column)
-                : base(column.Index(), column.Enumerate().GetEnumerator())
+                : base(column.MetaData.GetIndex(), column.Enumerate().GetEnumerator())
             {
                 Size = size;
                 _buffer = new float[size];

@@ -9,7 +9,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
     public abstract class RowBasedDataTableAdaptorBase : DataTableAdaptorBase<object[]>
     {
 	    /// <inheritdoc />
-	    protected RowBasedDataTableAdaptorBase(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, uint[] featureColumns) 
+	    protected RowBasedDataTableAdaptorBase(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, uint[]? featureColumns) 
             : base(lap, dataTable, featureColumns)
         {
             // read the entire data table into memory

@@ -401,6 +401,11 @@
             Linear algebra provider
             </summary>
         </member>
+        <member name="P:BrightWire.ExecutionGraph.GraphFactory.Context">
+            <summary>
+            Bright data context
+            </summary>
+        </member>
         <member name="P:BrightWire.ExecutionGraph.GraphFactory.CurrentPropertySet">
             <summary>
             The current property set
@@ -1733,7 +1738,7 @@
             <summary>
             Reads serialisation information and creates a node
             </summary>
-            <param name="factory"></param>
+            <param name="factory">Graph factory</param>
             <param name="reader"></param>
             <returns></returns>
         </member>
@@ -1741,6 +1746,7 @@
             <summary>
             Loads parameters into an existing node
             </summary>
+            <param name="factory">Graph factory</param>
             <param name="nodeData">Serialised node parameters</param>
         </member>
         <member name="T:BrightWire.ExecutionGraph.Node.Operation.BatchMean">
@@ -3890,6 +3896,12 @@
             The log of the inverse conditional probability
             </summary>
         </member>
+        <member name="M:BrightWire.Models.Bayesian.BernoulliNaiveBayes.StringIndexProbability.WriteTo(System.IO.BinaryWriter)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightWire.Models.Bayesian.BernoulliNaiveBayes.StringIndexProbability.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+            <inheritdoc />
+        </member>
         <member name="T:BrightWire.Models.Bayesian.BernoulliNaiveBayes.Class">
             <summary>
             A classification
@@ -3920,6 +3932,12 @@
             The log of the inverse missing probability
             </summary>
         </member>
+        <member name="M:BrightWire.Models.Bayesian.BernoulliNaiveBayes.Class.WriteTo(System.IO.BinaryWriter)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightWire.Models.Bayesian.BernoulliNaiveBayes.Class.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+            <inheritdoc />
+        </member>
         <member name="P:BrightWire.Models.Bayesian.BernoulliNaiveBayes.ClassData">
             <summary>
             Classification data
@@ -3936,6 +3954,12 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:BrightWire.Models.Bayesian.BernoulliNaiveBayes.WriteTo(System.IO.BinaryWriter)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightWire.Models.Bayesian.BernoulliNaiveBayes.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+            <inheritdoc />
+        </member>
         <member name="T:BrightWire.Models.Bayesian.MarkovModelStateTransition`1">
             <summary>
             A markov model state transition
@@ -3951,6 +3975,16 @@
             <summary>
             The probability of this next state
             </summary>
+        </member>
+        <member name="M:BrightWire.Models.Bayesian.MarkovModelStateTransition`1.#ctor(`0,System.Single)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="nextState"></param>
+            <param name="probability"></param>
+        </member>
+        <member name="M:BrightWire.Models.Bayesian.MarkovModelStateTransition`1.ToString">
+            <inheritdoc />
         </member>
         <member name="T:BrightWire.Models.Bayesian.MarkovModelObservation2`1">
             <summary>
@@ -3986,16 +4020,25 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:BrightWire.Models.Bayesian.MarkovModelObservation2`1.ToString">
+            <inheritdoc />
+        </member>
         <member name="T:BrightWire.Models.Bayesian.MarkovModel2`1">
             <summary>
             A markov model based on observing two items at a time
             </summary>
             <typeparam name="T"></typeparam>
         </member>
-        <member name="P:BrightWire.Models.Bayesian.MarkovModel2`1.Observation">
+        <member name="P:BrightWire.Models.Bayesian.MarkovModel2`1.Observations">
             <summary>
             The list of observations
             </summary>
+        </member>
+        <member name="M:BrightWire.Models.Bayesian.MarkovModel2`1.#ctor(System.Collections.Generic.IEnumerable{BrightWire.Models.Bayesian.MarkovModelObservation2{`0}})">
+            <summary>
+            Constructor
+            </summary>
+            <param name="observations"></param>
         </member>
         <member name="P:BrightWire.Models.Bayesian.MarkovModel2`1.AsDictionary">
             <summary>
@@ -4023,7 +4066,7 @@
             The third last item
             </summary>
         </member>
-        <member name="P:BrightWire.Models.Bayesian.MarkovModelObservation3`1.Transition">
+        <member name="P:BrightWire.Models.Bayesian.MarkovModelObservation3`1.Transitions">
             <summary>
             The list of associated transitions
             </summary>
@@ -4041,16 +4084,25 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:BrightWire.Models.Bayesian.MarkovModelObservation3`1.ToString">
+            <inheritdoc />
+        </member>
         <member name="T:BrightWire.Models.Bayesian.MarkovModel3`1">
             <summary>
             A markov model based on observing the last three observations
             </summary>
             <typeparam name="T">The data type</typeparam>
         </member>
-        <member name="P:BrightWire.Models.Bayesian.MarkovModel3`1.Observation">
+        <member name="P:BrightWire.Models.Bayesian.MarkovModel3`1.Observations">
             <summary>
             The list of observations
             </summary>
+        </member>
+        <member name="M:BrightWire.Models.Bayesian.MarkovModel3`1.#ctor(System.Collections.Generic.IEnumerable{BrightWire.Models.Bayesian.MarkovModelObservation3{`0}})">
+            <summary>
+            
+            </summary>
+            <param name="observations"></param>
         </member>
         <member name="P:BrightWire.Models.Bayesian.MarkovModel3`1.AsDictionary">
             <summary>
@@ -4077,6 +4129,12 @@
             The conditional probability
             </summary>
         </member>
+        <member name="M:BrightWire.Models.Bayesian.MultinomialNaiveBayes.StringIndexProbability.WriteTo(System.IO.BinaryWriter)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightWire.Models.Bayesian.MultinomialNaiveBayes.StringIndexProbability.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+            <inheritdoc />
+        </member>
         <member name="T:BrightWire.Models.Bayesian.MultinomialNaiveBayes.Class">
             <summary>
             Classification data
@@ -4102,6 +4160,12 @@
             The list of string indexes and their probability
             </summary>
         </member>
+        <member name="M:BrightWire.Models.Bayesian.MultinomialNaiveBayes.Class.WriteTo(System.IO.BinaryWriter)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightWire.Models.Bayesian.MultinomialNaiveBayes.Class.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+            <inheritdoc />
+        </member>
         <member name="P:BrightWire.Models.Bayesian.MultinomialNaiveBayes.ClassData">
             <summary>
             The list of possible classifications
@@ -4112,6 +4176,12 @@
             Creates a classifier from the model
             </summary>
             <returns></returns>
+        </member>
+        <member name="M:BrightWire.Models.Bayesian.MultinomialNaiveBayes.WriteTo(System.IO.BinaryWriter)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightWire.Models.Bayesian.MultinomialNaiveBayes.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+            <inheritdoc />
         </member>
         <member name="T:BrightWire.Models.Bayesian.NaiveBayes">
             <summary>
@@ -4163,6 +4233,12 @@
             The list of categories within the column and their probability (categorical only)
             </summary>
         </member>
+        <member name="M:BrightWire.Models.Bayesian.NaiveBayes.Column.WriteTo(System.IO.BinaryWriter)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightWire.Models.Bayesian.NaiveBayes.Column.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+            <inheritdoc />
+        </member>
         <member name="T:BrightWire.Models.Bayesian.NaiveBayes.CategorialProbability">
             <summary>
             A category and its associated log probability
@@ -4182,6 +4258,12 @@
             <summary>
             The category's probability
             </summary>
+        </member>
+        <member name="M:BrightWire.Models.Bayesian.NaiveBayes.CategorialProbability.WriteTo(System.IO.BinaryWriter)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightWire.Models.Bayesian.NaiveBayes.CategorialProbability.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+            <inheritdoc />
         </member>
         <member name="T:BrightWire.Models.Bayesian.NaiveBayes.ClassSummary">
             <summary>
@@ -4208,6 +4290,12 @@
             The classification prior probability
             </summary>
         </member>
+        <member name="M:BrightWire.Models.Bayesian.NaiveBayes.ClassSummary.WriteTo(System.IO.BinaryWriter)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightWire.Models.Bayesian.NaiveBayes.ClassSummary.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+            <inheritdoc />
+        </member>
         <member name="P:BrightWire.Models.Bayesian.NaiveBayes.Class">
             <summary>
             A list of possible classifications and their data
@@ -4218,6 +4306,12 @@
             Creates a classifier from this model
             </summary>
             <returns></returns>
+        </member>
+        <member name="M:BrightWire.Models.Bayesian.NaiveBayes.WriteTo(System.IO.BinaryWriter)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightWire.Models.Bayesian.NaiveBayes.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+            <inheritdoc />
         </member>
         <member name="T:BrightWire.Models.ConfusionMatrix">
             <summary>
@@ -4262,6 +4356,12 @@
             The preliminary graph
             </summary>
         </member>
+        <member name="M:BrightWire.Models.DataSourceModel.WriteTo(System.IO.BinaryWriter)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightWire.Models.DataSourceModel.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+            <inheritdoc />
+        </member>
         <member name="T:BrightWire.Models.ExecutionGraphModel">
             <summary>
             A serialised execution graph
@@ -4297,6 +4397,12 @@
             The node's parameters
             </summary>
         </member>
+        <member name="M:BrightWire.Models.ExecutionGraphModel.Node.WriteTo(System.IO.BinaryWriter)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightWire.Models.ExecutionGraphModel.Node.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+            <inheritdoc />
+        </member>
         <member name="T:BrightWire.Models.ExecutionGraphModel.Wire">
             <summary>
             Wires connect nodes (aka edges)
@@ -4318,6 +4424,12 @@
             </summary>
         </member>
         <member name="M:BrightWire.Models.ExecutionGraphModel.Wire.ToString">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightWire.Models.ExecutionGraphModel.Wire.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightWire.Models.ExecutionGraphModel.Wire.WriteTo(System.IO.BinaryWriter)">
             <inheritdoc />
         </member>
         <member name="M:BrightWire.Models.ExecutionGraphModel.Wire.GetHashCode">
@@ -4350,6 +4462,12 @@
             <summary>
             A list of the wires that connect the nodes in the graph
             </summary>
+        </member>
+        <member name="M:BrightWire.Models.ExecutionGraphModel.WriteTo(System.IO.BinaryWriter)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightWire.Models.ExecutionGraphModel.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+            <inheritdoc />
         </member>
         <member name="T:BrightWire.Models.ExecutionResult">
             <summary>
@@ -4421,6 +4539,12 @@
             Optional data source associated with the model
             </summary>
         </member>
+        <member name="M:BrightWire.Models.GraphModel.WriteTo(System.IO.BinaryWriter)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightWire.Models.GraphModel.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+            <inheritdoc />
+        </member>
         <member name="T:BrightWire.Models.InstanceBased.KNearestNeighbours">
             <summary>
             K Nearest Neighbour Model
@@ -4454,6 +4578,12 @@
             <param name="k">The number of instances to consider</param>
             <param name="distanceMetric">The distance metric to compare each row with each instance</param>
         </member>
+        <member name="M:BrightWire.Models.InstanceBased.KNearestNeighbours.WriteTo(System.IO.BinaryWriter)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightWire.Models.InstanceBased.KNearestNeighbours.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+            <inheritdoc />
+        </member>
         <member name="T:BrightWire.Models.Linear.LinearRegression">
             <summary>
             A linear regression model
@@ -4470,6 +4600,12 @@
             </summary>
             <param name="lap">The linear algebra provider</param>
         </member>
+        <member name="M:BrightWire.Models.Linear.LinearRegression.WriteTo(System.IO.BinaryWriter)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightWire.Models.Linear.LinearRegression.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+            <inheritdoc />
+        </member>
         <member name="T:BrightWire.Models.Linear.LogisticRegression">
             <summary>
             A logistic regression model
@@ -4485,6 +4621,12 @@
             Creates a classifier from this model
             </summary>
             <param name="lap">Linear algebra provider</param>
+        </member>
+        <member name="M:BrightWire.Models.Linear.LogisticRegression.WriteTo(System.IO.BinaryWriter)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightWire.Models.Linear.LogisticRegression.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+            <inheritdoc />
         </member>
         <member name="T:BrightWire.Models.Linear.MultinomialLogisticRegression">
             <summary>
@@ -4512,6 +4654,12 @@
             </summary>
             <param name="lap">Linear algebra provider</param>
             <returns></returns>
+        </member>
+        <member name="M:BrightWire.Models.Linear.MultinomialLogisticRegression.WriteTo(System.IO.BinaryWriter)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightWire.Models.Linear.MultinomialLogisticRegression.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+            <inheritdoc />
         </member>
         <member name="T:BrightWire.Models.StringTable">
             <summary>
@@ -4564,6 +4712,12 @@
             </summary>
             <param name="writer">The XML writer</param>
         </member>
+        <member name="M:BrightWire.Models.TreeBased.DecisionTree.Node.WriteTo(System.IO.BinaryWriter)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightWire.Models.TreeBased.DecisionTree.Node.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+            <inheritdoc />
+        </member>
         <member name="P:BrightWire.Models.TreeBased.DecisionTree.ClassColumnIndex">
             <summary>
             The classification label column index
@@ -4585,6 +4739,12 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:BrightWire.Models.TreeBased.DecisionTree.WriteTo(System.IO.BinaryWriter)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightWire.Models.TreeBased.DecisionTree.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+            <inheritdoc />
+        </member>
         <member name="T:BrightWire.Models.TreeBased.RandomForest">
             <summary>
             A random forest model
@@ -4600,6 +4760,12 @@
             Creates a classifier from the model
             </summary>
             <returns></returns>
+        </member>
+        <member name="M:BrightWire.Models.TreeBased.RandomForest.WriteTo(System.IO.BinaryWriter)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightWire.Models.TreeBased.RandomForest.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+            <inheritdoc />
         </member>
         <member name="T:BrightWire.TrainingData.Artificial.And">
             <summary>

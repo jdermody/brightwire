@@ -7,7 +7,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
     /// </summary>
     internal class AddGate : BinaryGateBase
     {
-        public AddGate(string name = null) : base(name) { }
+        public AddGate(string? name = null) : base(name) { }
 
         protected override void _Activate(IGraphContext context, IFloatMatrix primary, IFloatMatrix secondary)
         {

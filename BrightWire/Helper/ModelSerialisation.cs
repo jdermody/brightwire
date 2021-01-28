@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
-using System.Text;
 using BrightData;
 using BrightWire.Models;
 using BrightWire.Models.Bayesian;

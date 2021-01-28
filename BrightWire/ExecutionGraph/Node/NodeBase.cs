@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using BrightWire.Helper;
 using BrightWire.Models;
 
 namespace BrightWire.ExecutionGraph.Node
@@ -13,7 +14,8 @@ namespace BrightWire.ExecutionGraph.Node
     /// </summary>
     public abstract class NodeBase : INode
     {
-        string _id, _name;
+        string _id;
+        string? _name;
         List<IWire> _output = new List<IWire>();
 
         /// <summary>
@@ -21,7 +23,7 @@ namespace BrightWire.ExecutionGraph.Node
         /// </summary>
         /// <param name="name">The name of the node (optional)</param>
         /// <param name="id">The node's unique id (optional)</param>
-        protected NodeBase(string name, string id = null)
+        protected NodeBase(string? name, string? id = null)
         {
             _id = id ?? Guid.NewGuid().ToString("n");
             _name = name;
@@ -35,8 +37,7 @@ namespace BrightWire.ExecutionGraph.Node
         /// <param name="data">Node serialisation data</param>
         protected virtual void _Initalise(GraphFactory graph, string description, byte[] data)
         {
-            if(data != null)
-                _ReadFrom(data, reader => ReadFrom(graph, reader));
+            _ReadFrom(data, reader => ReadFrom(graph, reader));
         }
 
         #region Disposal
@@ -70,7 +71,7 @@ namespace BrightWire.ExecutionGraph.Node
         /// <summary>
         /// The node's name in the graph
         /// </summary>
-        public string Name => _name;
+        public string? Name => _name;
 
         /// <summary>
         /// The list of outgoing wires along which the output signal will be sent
@@ -124,7 +125,7 @@ namespace BrightWire.ExecutionGraph.Node
         /// <param name="connectedTo">List of nodes this node is connected to</param>
         /// <param name="wireList">List of wires between all connected nodes</param>
         /// <returns></returns>
-        public virtual ExecutionGraphModel.Node SerialiseTo(HashSet<INode> existing, List<Models.ExecutionGraphModel.Node> connectedTo, HashSet<Models.ExecutionGraphModel.Wire> wireList)
+        public virtual ExecutionGraphModel.Node SerialiseTo(HashSet<INode> existing, List<ExecutionGraphModel.Node> connectedTo, HashSet<ExecutionGraphModel.Wire> wireList)
         {
             var info = _GetInfo();
             var ret = new ExecutionGraphModel.Node {
@@ -132,21 +133,19 @@ namespace BrightWire.ExecutionGraph.Node
                 Name = _name,
                 Data = info.Data,
                 Description = info.Description,
-                TypeName = GetType().AssemblyQualifiedName
+                TypeName = TypeLoader.GetTypeName(this)
             };
 
             // get the connected nodes
-            if (connectedTo != null && wireList != null) {
-                foreach (var wire in Output) {
-                    var sendTo = wire.SendTo;
-                    wireList.Add(new ExecutionGraphModel.Wire {
-                        FromId = _id,
-                        InputChannel = wire.Channel,
-                        ToId = sendTo.Id
-                    });
-                    if (existing.Add(sendTo))
-                        connectedTo.Add(sendTo.SerialiseTo(existing, connectedTo, wireList));
-                }
+            foreach (var wire in Output) {
+                var sendTo = wire.SendTo;
+                wireList.Add(new ExecutionGraphModel.Wire {
+                    FromId = _id,
+                    InputChannel = wire.Channel,
+                    ToId = sendTo.Id
+                });
+                if (existing.Add(sendTo))
+                    connectedTo.Add(sendTo.SerialiseTo(existing, connectedTo, wireList));
             }
             return ret;
         }
@@ -154,7 +153,7 @@ namespace BrightWire.ExecutionGraph.Node
         /// <summary>
         /// Returns serialisation information
         /// </summary>
-        protected virtual (string Description, byte[] Data) _GetInfo()
+        protected virtual (string Description, byte[]? Data) _GetInfo()
         {
             return (GetType().Name, null);
         }
@@ -208,7 +207,7 @@ namespace BrightWire.ExecutionGraph.Node
         /// </summary>
         /// <param name="name">The node's name to search for</param>
         /// <returns></returns>
-        public INode FindByName(string name)
+        public INode? FindByName(string name)
         {
             var context = new Stack<INode>();
             context.Push(this);
@@ -229,7 +228,7 @@ namespace BrightWire.ExecutionGraph.Node
         /// </summary>
         /// <param name="id">Unique id to find</param>
         /// <returns></returns>
-        public INode FindById(string id)
+        public INode? FindById(string id)
         {
             var context = new Stack<INode>();
             context.Push(this);
@@ -287,18 +286,19 @@ namespace BrightWire.ExecutionGraph.Node
         /// <summary>
         /// Reads serialisation information and creates a node
         /// </summary>
-        /// <param name="factory"></param>
+        /// <param name="factory">Graph factory</param>
         /// <param name="reader"></param>
         /// <returns></returns>
         protected static INode _Hydrate(GraphFactory factory, BinaryReader reader)
         {
-            var model = new Models.ExecutionGraphModel.Node(reader);
-            return factory?.Create(model);
+            var model = new ExecutionGraphModel.Node(reader);
+            return factory.Create(model);
         }
 
         /// <summary>
         /// Loads parameters into an existing node
         /// </summary>
+        /// <param name="factory">Graph factory</param>
         /// <param name="nodeData">Serialised node parameters</param>
         public virtual void LoadParameters(GraphFactory factory, ExecutionGraphModel.Node nodeData)
         {

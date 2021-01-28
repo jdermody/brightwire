@@ -96,7 +96,7 @@ namespace BrightWire
         {
             var builder = dataTable.Context.BuildTable();
             builder.AddColumn(ColumnType.Matrix, "Past");
-            builder.AddColumn(ColumnType.Vector, "Future").SetTargetColumn(true);
+            builder.AddColumn(ColumnType.Vector, "Future").SetTarget(true);
             var convertible = dataTable.AsConvertible();
             var context = dataTable.Context;
             for (uint i = 0; i < dataTable.RowCount - windowSize - 1; i++) {

@@ -169,7 +169,7 @@ namespace ExampleCode.DataTableTrainers
         {
             var builder = context.BuildTable();
             builder.AddColumn(ColumnType.Vector, "Features");
-            builder.AddColumn(ColumnType.Vector, "Target").SetTargetColumn(true);
+            builder.AddColumn(ColumnType.Vector, "Target").SetTarget(true);
 
             var vector = new float[1];
             foreach (var row in data) {
@@ -197,7 +197,7 @@ namespace ExampleCode.DataTableTrainers
             builder.AddColumn(ColumnType.Vector, "Vector");
             builder.AddColumn(ColumnType.IndexList, "Index List");
             builder.AddColumn(ColumnType.String, "Target");
-            builder.AddColumn(ColumnType.Vector, "Vector Target").SetTargetColumn(true);
+            builder.AddColumn(ColumnType.Vector, "Vector Target").SetTarget(true);
 
             var vector = new float[1];
             foreach (var row in data) {

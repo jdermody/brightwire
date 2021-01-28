@@ -28,7 +28,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             }
         }
 
-        public JoinGate(string name, params WireBuilder[] incoming) : base(name, incoming)
+        public JoinGate(string? name, params WireBuilder[] incoming) : base(name, incoming)
         {
         }
 

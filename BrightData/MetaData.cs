@@ -24,19 +24,18 @@ namespace BrightData
         {
             if (metaData != null) {
                 var md = (MetaData)metaData;
-                var keysToAdd = keys ?? md._values.Select(kv => kv.Key).ToArray();
-                foreach (var item in keysToAdd) {
+                foreach (var item in keys) {
                     if(md._values.TryGetValue(item, out var val))
                         _values.Add(item, val);
                 }
 
-                var keySet = new HashSet<string>(keysToAdd);
+                var keySet = new HashSet<string>(keys);
                 _orderedValues.AddRange(md._orderedValues.Where(v => keySet.Contains(v)));
             }
         }
 
         /// <inheritdoc />
-        public MetaData(IHaveMetaData metaData, params string[] keys) : this(metaData?.MetaData, keys) { }
+        public MetaData(IHaveMetaData metaData, params string[] keys) : this(metaData.MetaData, keys) { }
 
         /// <summary>
         /// Creates meta data from a binary reader
@@ -80,7 +79,7 @@ namespace BrightData
         }
 
         /// <inheritdoc />
-        public object Get(string name)
+        public object? Get(string name)
         {
             if (_values.TryGetValue(name, out var obj))
                 return obj;
@@ -96,11 +95,20 @@ namespace BrightData
         }
 
         /// <inheritdoc />
-        public T Get<T>(string name, T valueIfMissing = default) where T : IConvertible
+        public T Get<T>(string name, T valueIfMissing) 
+            where T : IConvertible
         {
             if (_values.TryGetValue(name, out var obj))
                 return (T)obj;
             return valueIfMissing;
+        }
+
+        /// <inheritdoc />
+        public T Get<T>(string name) where T : IConvertible
+        {
+            if (_values.TryGetValue(name, out var obj))
+                return (T)obj;
+            throw new Exception("Named value not found");
         }
 
         /// <inheritdoc />
@@ -165,8 +173,8 @@ namespace BrightData
 
                 if (type != null) {
                     var typeConverter = TypeDescriptor.GetConverter(type);
-                    var obj = (IConvertible)typeConverter.ConvertFromString(str);
-                    _Set(name, obj);
+                    if(typeConverter.ConvertFromString(str) is IConvertible obj)
+                        _Set(name, obj);
                 }
             }
         }
@@ -194,7 +202,7 @@ namespace BrightData
 
         IEnumerable<(string Name, IConvertible Value, string String)> _GetNonEmpty()
         {
-            var nonNull = _values.Where(kv => kv.Value != null).ToDictionary(d => d.Key, d => d.Value);
+            var nonNull = _values.ToDictionary(d => d.Key, d => d.Value);
             foreach (var item in _orderedValues) {
                 if (nonNull.TryGetValue(item, out var val)) {
                     var str = _Write(val);
@@ -212,5 +220,12 @@ namespace BrightData
 
         /// <inheritdoc />
         public bool Has(string key) => _values.ContainsKey(key);
+
+        /// <inheritdoc />
+        public void Remove(string key)
+        {
+            if(_values.Remove(key))
+                _orderedValues.Remove(key);
+        }
     }
 }

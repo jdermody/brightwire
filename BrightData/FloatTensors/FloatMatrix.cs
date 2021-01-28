@@ -13,7 +13,7 @@ namespace BrightData.FloatTensors
         public static Matrix<float> Create(IBrightDataContext context, Vector<float>[] rows) => context.CreateMatrixFromRows(rows);
         public static Matrix<float> ReadFrom(IBrightDataContext context, BinaryReader reader)
         {
-            if (context.Get<bool>(Consts.LegacyFloatSerialisationInput)) {
+            if (context.Get(Consts.LegacyFloatSerialisationInput, false)) {
                 var len = reader.ReadInt32();
                 var ret = new Vector<float>[len];
                 for (var i = 0; i < len; i++)
@@ -76,13 +76,13 @@ namespace BrightData.FloatTensors
         public void ClearRows(IEnumerable<uint> indexes)
         {
             foreach(var i in indexes)
-                Row(i).Data.Segment.Initialize(0f);
+                Row(i).Data.Segment.InitializeTo(0f);
         }
 
         public void ClearColumns(IEnumerable<uint> indexes)
         {
             foreach (var i in indexes)
-                Column(i).Data.Segment.Initialize(0f);
+                Column(i).Data.Segment.InitializeTo(0f);
         }
 
         public IFloatMatrix ReluActivation() => new FloatMatrix(Data.Relu());
@@ -90,7 +90,7 @@ namespace BrightData.FloatTensors
         public IFloatMatrix LeakyReluActivation() => new FloatMatrix(Data.LeakyRelu());
         public IFloatMatrix LeakyReluDerivative() => new FloatMatrix(Data.LeakyReluDerivative());
         public IFloatMatrix Clone() => new FloatMatrix(Data.Clone());
-        public void Clear() => Data.Segment.Initialize(0f);
+        public void Clear() => Data.Segment.InitializeTo(0f);
 
         public IFloatMatrix Sqrt() => new FloatMatrix(Data.Sqrt());
         public IFloatMatrix Pow(float power) => new FloatMatrix(Data.Pow(power));

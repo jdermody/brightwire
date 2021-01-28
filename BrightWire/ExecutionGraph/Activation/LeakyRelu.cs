@@ -26,7 +26,7 @@ namespace BrightWire.ExecutionGraph.Activation
             }
         }
 
-        public LeakyRelu(string name = null) : base(name) { }
+        public LeakyRelu(string? name = null) : base(name) { }
 
         public override void ExecuteForward(IGraphContext context)
         {

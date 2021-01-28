@@ -22,19 +22,18 @@ namespace BrightWire.TreeBased
             var p = _tree.Root;
             while(p != null) {
                 if (p.ColumnIndex.HasValue) {
-                    string findChild = null;
+                    string? findChild = null;
                     if(p.Split.HasValue) {
                         var val = row.GetTyped<double>(p.ColumnIndex.Value);
-                        findChild = (val < p.Split.Value) ? "-" : "+";
+                        findChild = val < p.Split.Value ? "-" : "+";
                     }else
                         findChild = row.GetTyped<string>(p.ColumnIndex.Value);
 
-                    if (findChild != null) {
-                        var child = p.Children.FirstOrDefault(c => c.MatchLabel == findChild);
-                        if (child != null) {
-                            p = child;
-                            continue;
-                        }
+                    var child = p.Children.FirstOrDefault(c => c.MatchLabel == findChild);
+                    if (child != null)
+                    {
+                        p = child;
+                        continue;
                     }
                 }
                 yield return p.Classification;

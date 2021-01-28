@@ -58,7 +58,7 @@ namespace BrightWire.Models
 			}
 		}
 
-		Dictionary<string, int> _classificationTable = null;
+		Dictionary<string, int>? _classificationTable = null;
 		Dictionary<string, int> ClassificationTable
 		{
 			get

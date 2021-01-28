@@ -26,7 +26,7 @@ namespace BrightWire.ExecutionGraph.Activation
             }
         }
 
-        public Relu(string name = null) : base(name) { }
+        public Relu(string? name = null) : base(name) { }
 
         public override void ExecuteForward(IGraphContext context)
         {

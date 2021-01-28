@@ -45,9 +45,9 @@ namespace BrightWire.UnitTests
         public SerializationTests()
         {
             var (graph, data) = MakeGraphAndData(_context);
+            var errorMetric = new CustomErrorMetric();
             var engine = graph.CreateTrainingEngine(data);
 
-            var errorMetric = new CustomErrorMetric();
             graph.Connect(engine)
                 .AddFeedForward(1)
                 .Add(graph.SigmoidActivation())

@@ -94,7 +94,10 @@ namespace BrightData
         public IProvideTempStreams TempStreamProvider { get; } = new TempStreamManager();
 
         /// <inheritdoc />
-        public T Get<T>(string name) => _attachedProperties.TryGetValue(name, out var obj) ? (T)obj : default;
+        public T Get<T>(string name, T defaultValue) where T : notnull => _attachedProperties.TryGetValue(name, out var obj) ? (T)obj : defaultValue;
+
+        /// <inheritdoc />
+        public T? Get<T>(string name) where T : class => _attachedProperties.TryGetValue(name, out var obj) ? (T)obj : null;
 
         /// <inheritdoc />
         public T Set<T>(string name, T value) where T:notnull => (T)_attachedProperties.AddOrUpdate(name, value, (n, o) => value);

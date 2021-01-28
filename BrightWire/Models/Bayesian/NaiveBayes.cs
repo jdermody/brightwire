@@ -57,8 +57,10 @@ namespace BrightWire.Models.Bayesian
 	        /// </summary>
 	        public CategorialProbability[] Probability { get; set; }
 
+            /// <inheritdoc />
             public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
 
+            /// <inheritdoc />
             public void Initialize(IBrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
         }
 
@@ -82,8 +84,10 @@ namespace BrightWire.Models.Bayesian
 	        /// </summary>
 	        public double Probability { get; set; }
 
+            /// <inheritdoc />
             public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
 
+            /// <inheritdoc />
             public void Initialize(IBrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
         }
 
@@ -112,8 +116,10 @@ namespace BrightWire.Models.Bayesian
 	        /// </summary>
 	        public double Prior { get; set; }
 
+            /// <inheritdoc />
             public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
 
+            /// <inheritdoc />
             public void Initialize(IBrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
         }
 
@@ -131,8 +137,10 @@ namespace BrightWire.Models.Bayesian
             return new NaiveBayesClassifier(this);
         }
 
+        /// <inheritdoc />
         public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
 
+        /// <inheritdoc />
         public void Initialize(IBrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
     }
 }

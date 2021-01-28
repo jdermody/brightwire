@@ -25,12 +25,12 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             /// <summary>
             /// The signal
             /// </summary>
-            public IFloatMatrix Data { get; private set; }
+            public IFloatMatrix? Data { get; private set; }
 
             /// <summary>
             /// The node the signal came from
             /// </summary>
-            public INode Source { get; private set; }
+            public INode? Source { get; private set; }
 
             /// <summary>
             /// The size of the input signal
@@ -53,7 +53,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             /// </summary>
             /// <param name="data">The node signal</param>
             /// <param name="source">The source node</param>
-            public void SetData(IFloatMatrix data, INode source)
+            public void SetData(IFloatMatrix? data, INode? source)
             {
                 Data = data;
                 Source = source;
@@ -73,14 +73,15 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             /// </summary>
             public bool IsValid => Data != null;
         }
-        Dictionary<uint, IncomingChannel> _data;
+
+        readonly Dictionary<uint, IncomingChannel> _data;
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="name">The name of the node (optional)</param>
         /// <param name="incoming">The list of incoming wires</param>
-        protected MultiGateBase(string name, params WireBuilder[] incoming) : base(name)
+        protected MultiGateBase(string? name, params WireBuilder[] incoming) : base(name)
         {
             _data = new Dictionary<uint, IncomingChannel>();
             for (uint i = 0, len = (uint)incoming.Length; i < len; i++)
@@ -103,8 +104,8 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// <param name="channel">The channel</param>
         protected override void _ExecuteForward(IGraphContext context, uint channel)
         {
-            if (_data.TryGetValue(channel, out IncomingChannel data)) {
-                data.SetData(context.Data.GetMatrix(), context.Source);
+            if (_data.TryGetValue(channel, out var data)) {
+                data.SetData(context.Data?.GetMatrix(), context.Source);
                 if(_data.All(kv => kv.Value.IsValid)) {
                     _Activate(context, _data.Select(kv => kv.Value).ToList());
 
@@ -131,7 +132,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// <param name="backpropagation">Backpropagation creator (optional)</param>
         protected void _AddHistory(IGraphContext context, List<IncomingChannel> data, IFloatMatrix output, Func<IBackpropagation> backpropagation)
         {
-            var sources = data.Select(d => d.Source).ToArray();
+            var sources = data.Where(d => d.Source != null).Select(d => d.Source!).ToArray();
             context.AddForward(new TrainingAction(this, new MatrixGraphData(output), sources), backpropagation);
         }
 
@@ -144,10 +145,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
 	    /// <inheritdoc />
         public override void ReadFrom(GraphFactory factory, BinaryReader reader)
         {
-            if (_data == null)
-                _data = new Dictionary<uint, IncomingChannel>();
-            else
-                _data.Clear();
+            _data.Clear();
 
             var len = reader.ReadInt32();
             for(uint i = 0; i < len; i++) {

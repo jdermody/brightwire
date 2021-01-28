@@ -4,14 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.InteropServices;
-using BrightData.Analysis;
-using BrightData.Analysis.Readers;
-using BrightData.Buffers;
 using BrightData.Converters;
-using BrightData.Distributions;
-using BrightData.Helper;
-using BrightData.Memory;
-using BrightData.Transformation;
 
 namespace BrightData
 {
@@ -71,7 +64,7 @@ namespace BrightData
         /// <param name="reader">The binary reader</param>
         public static IndexList CreateIndexList(this IBrightDataContext context, BinaryReader reader)
         {
-            var ret = new IndexList(context); ;
+            var ret = new IndexList(context, new uint[0]);
             ret.Initialize(context, reader);
             return ret;
         }
@@ -107,143 +100,14 @@ namespace BrightData
             return WeightedIndexList.Create(context, ret);
         }
 
-        public static Vector<T> CreateVector<T>(this IBrightDataContext context, uint size, Func<uint, T> initializer) where T: struct
-        {
-            var segment = context.CreateSegment<T>(size);
-            if (initializer != null)
-                segment.Initialize(initializer);
-            return new Vector<T>(segment);
-        }
-
-        public static Vector<T> CreateVector<T>(this IBrightDataContext context, uint size, T initializer = default) where T: struct
-        {
-            var segment = context.CreateSegment<T>(size);
-            segment.Initialize(initializer);
-            return new Vector<T>(segment);
-        }
-
-        public static Vector<T> CreateVector<T>(this IBrightDataContext context, params T[] initialData) where T: struct
-        {
-            var segment = context.CreateSegment<T>((uint)initialData.Length);
-            if (initialData.Any())
-                segment.Initialize(initialData);
-            return new Vector<T>(segment);
-        }
-
-        public static Vector<T> CreateVector<T>(this IBrightDataContext context, BinaryReader reader) where T : struct
-        {
-            return new Vector<T>(context, reader);
-        }
-
-        public static Matrix<T> CreateMatrix<T>(this IBrightDataContext context, uint rows, uint columns, Func<uint, uint, T> initializer = null) where T: struct
-        {
-            var segment = context.CreateSegment<T>(rows * columns);
-            if (initializer != null)
-                segment.Initialize(i => initializer(i / columns, i % columns));
-            return new Matrix<T>(segment, rows, columns);
-        }
-        public static Matrix<T> CreateMatrix<T>(this IBrightDataContext context, uint rows, uint columns, T initializer) where T: struct => CreateMatrix(context, rows, columns, (i, j) => initializer);
-
-        public static Matrix<T> CreateMatrix<T>(this IBrightDataContext context, BinaryReader reader) where T : struct
-        {
-            return new Matrix<T>(context, reader);
-        }
-
-        public static Matrix<T> CreateMatrixFromRows<T>(this IBrightDataContext context, params Vector<T>[] rows) where T: struct
-        {
-            var columns = rows.First().Size;
-            return CreateMatrix(context, (uint) rows.Length, columns, (j, i) => rows[j][i]);
-        }
-
-        public static Matrix<T> CreateMatrixFromRows<T>(this IBrightDataContext context, params T[][] rows) where T : struct
-        {
-            var columns = (uint)rows.First().Length;
-            return CreateMatrix(context, (uint)rows.Length, columns, (j, i) => rows[j][i]);
-        }
-
-        public static Matrix<T> CreateMatrixFromColumns<T>(this IBrightDataContext context, params Vector<T>[] columns) where T: struct
-        {
-            var rows = columns.First().Size;
-            return CreateMatrix(context, rows, (uint) columns.Length, (j, i) => columns[i][j]);
-        }
-
-        public static Matrix<T> CreateMatrixFromColumns<T>(this IBrightDataContext context, params T[][] columns) where T : struct
-        {
-            var rows = (uint)columns.First().Length;
-            return CreateMatrix(context, rows, (uint)columns.Length, (j, i) => columns[i][j]);
-        }
-
-        public static Tensor3D<T> CreateTensor3D<T>(this IBrightDataContext context, uint depth, uint rows, uint columns) where T : struct
-        {
-            var segment = context.CreateSegment<T>(depth * rows * columns);
-            return new Tensor3D<T>(segment, depth, rows, columns);
-        }
-
-        public static Tensor3D<T> CreateTensor3D<T>(this IBrightDataContext context, params Matrix<T>[] slices) where T : struct
-        {
-            var first = slices.First();
-            var depth = (uint) slices.Length;
-            var rows = first.RowCount;
-            var columns = first.ColumnCount;
-
-            var data = context.CreateSegment<T>(depth * rows * columns);
-            var ret = new Tensor3D<T>(data, depth, rows, columns);
-            var allSame = ret.Matrices.Zip(slices, (t, s) => {
-                if (s.RowCount == t.RowCount && s.ColumnCount == t.ColumnCount) {
-                    s.Segment.CopyTo(t.Segment);
-                    return true;
-                }
-                return false;
-            }).All(v => v);
-            if(!allSame)
-                throw new ArgumentException("Input matrices had different sizes");
-            return ret;
-        }
-
-        public static Tensor3D<T> CreateTensor3D<T>(this IBrightDataContext context, BinaryReader reader) where T : struct
-        {
-            return new Tensor3D<T>(context, reader);
-        }
-
-        public static Tensor4D<T> CreateTensor4D<T>(this IBrightDataContext context, uint count, uint depth, uint rows, uint columns) where T : struct
-        {
-            var segment = context.CreateSegment<T>(count * depth * rows * columns);
-            return new Tensor4D<T>(segment, count, depth, rows, columns);
-        }
-
-        public static Tensor4D<T> CreateTensor4D<T>(this IBrightDataContext context, BinaryReader reader) where T : struct
-        {
-            return new Tensor4D<T>(context, reader);
-        }
-
-        public static uint GetColumnCount<T>(this ITensor<T> tensor) where T : struct
-        {
-            return tensor.Shape.Length > 1 ? tensor.Shape[^1] : 0;
-        }
-
-        public static uint GetRowCount<T>(this ITensor<T> tensor) where T : struct
-        {
-            return tensor.Shape.Length > 1 ? tensor.Shape[^2] : 0;
-        }
-
-        public static uint GetDepth<T>(this ITensor<T> tensor) where T : struct
-        {
-            return tensor.Shape.Length > 2 ? tensor.Shape[^3] : 0;
-        }
-
-        public static uint GetCount<T>(this ITensor<T> tensor) where T : struct
-        {
-            return tensor.Shape.Length > 3 ? tensor.Shape[^4] : 0;
-        }
-
-        public static WeightedIndexList ToSparse(this ITensorSegment<float> segment)
-        {
-            return WeightedIndexList.Create(segment.Context, segment.Values
-                .Select((v, i) => new WeightedIndexList.Item((uint)i, v))
-                .Where(d => FloatMath.IsNotZero(d.Weight))
-            );
-        }
-
+        /// <summary>
+        /// Sets a value only if the value is not null
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="metadata"></param>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public static bool SetIfNotNull<T>(this IMetaData metadata, string name, T? value)
             where T : struct, IConvertible
         {
@@ -254,7 +118,15 @@ namespace BrightData
             return false;
         }
 
-        public static bool SetIfNotNull<T>(this IMetaData metadata, string name, T value)
+        /// <summary>
+        /// Sets a value only if the value is not null
+        /// </summary>
+        /// <param name="metadata"></param>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool SetIfNotNull<T>(this IMetaData metadata, string name, T? value)
             where T : class, IConvertible
         {
             if (value != null) {
@@ -264,6 +136,12 @@ namespace BrightData
             return false;
         }
 
+        /// <summary>
+        /// Checks if one type can be implicitly cast to another
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <returns></returns>
         public static bool HasConversionOperator(this Type from, Type to)
         {
             UnaryExpression BodyFunction(Expression body) => Expression.Convert(body, to);
@@ -278,11 +156,25 @@ namespace BrightData
             }
         }
 
+        /// <summary>
+        /// Randomly shuffles the items in the sequence
+        /// </summary>
+        /// <param name="seq"></param>
+        /// <param name="rnd">Random number generator to use</param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> seq, Random rnd)
         {
             return seq.OrderBy(e => rnd.Next()).ToList();
         }
 
+        /// <summary>
+        /// Randomly splits the sequence into a two arrays (either "training" or "test")
+        /// </summary>
+        /// <param name="seq"></param>
+        /// <param name="trainPercentage">Percentage of items to add to the training array</param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public static (T[] Training, T[] Test) Split<T>(this T[] seq, double trainPercentage = 0.8)
         {
             var input = Enumerable.Range(0, seq.Length).ToList();
@@ -293,6 +185,14 @@ namespace BrightData
             );
         }
 
+        /// <summary>
+        /// Sample with replacement
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
+        /// <param name="count">Number of samples</param>
+        /// <param name="rnd">Random number generator to use</param>
+        /// <returns></returns>
         public static T[] Bag<T>(this T[] list, uint count, Random rnd)
         {
             return count.AsRange()
@@ -301,51 +201,53 @@ namespace BrightData
             ;
         }
 
-        public static string Name(this IMetaData metadata) => metadata.Get<string>(Consts.Name);
-        public static uint Index(this IMetaData metadata) => metadata.Get<uint>(Consts.Index);
-        public static bool IsNumeric(this IMetaData metadata) => metadata.Get<bool>(Consts.IsNumeric);
-        public static bool IsTarget(this IMetaData metadata) => metadata.Get<bool>(Consts.IsTarget);
-        public static bool IsCategorical(this IMetaData metadata) => metadata.Get<bool>(Consts.IsCategorical);
-        public static bool IsSequential(this IMetaData metadata) => metadata.Get<bool>(Consts.IsSequential);
+        /// <summary>
+        /// Item name
+        /// </summary>
+        /// <param name="metadata"></param>
+        /// <returns></returns>
+        public static string GetName(this IMetaData metadata) => metadata.Get(Consts.Name, "");
 
-        public static string Name(this IHaveMetaData metadataProvider) => metadataProvider.MetaData.Name();
-        public static uint Index(this IHaveMetaData metadataProvider) => metadataProvider.MetaData.Index();
-        public static bool IsNumeric(this IHaveMetaData metadataProvider) => metadataProvider.MetaData.IsNumeric();
-        public static bool IsTarget(this IHaveMetaData metadataProvider) => metadataProvider.MetaData.IsTarget();
-        public static bool IsCategorical(this IHaveMetaData metadataProvider) => metadataProvider.MetaData.IsCategorical();
-        public static bool IsSequential(this IHaveMetaData metadataProvider) => metadataProvider.MetaData.IsSequential();
+        /// <summary>
+        /// Item index
+        /// </summary>
+        /// <param name="metadata"></param>
+        /// <returns></returns>
+        public static uint GetIndex(this IMetaData metadata) => metadata.Get(Consts.Index, uint.MaxValue);
 
-        public static float CosineDistance(this float[] vector, float[] other)
-        {
-            return Distance.CosineDistance.Calculate(vector, other);
-        }
+        /// <summary>
+        /// True if the item is numeric
+        /// </summary>
+        /// <param name="metadata"></param>
+        /// <returns></returns>
+        public static bool IsNumeric(this IMetaData metadata) => metadata.Get(Consts.IsNumeric, false);
 
-        public static float EuclideanDistance(this float[] vector, float[] other)
-        {
-            return Distance.EuclideanDistance.Calculate(vector, other);
-        }
+        /// <summary>
+        /// True if the item is a target
+        /// </summary>
+        /// <param name="metadata"></param>
+        /// <returns></returns>
+        public static bool IsTarget(this IMetaData metadata) => metadata.Get(Consts.IsTarget, false);
 
-        public static float ManhattanDistance(this float[] vector, float[] other)
-        {
-            return Distance.ManhattanDistance.Calculate(vector, other);
-        }
+        /// <summary>
+        /// True if the item is categorical
+        /// </summary>
+        /// <param name="metadata"></param>
+        /// <returns></returns>
+        public static bool IsCategorical(this IMetaData metadata) => metadata.Get(Consts.IsCategorical, false);
 
-        public static Vector<float> Mutate(this Vector<float> vector, Func<float, float> mutator)
-        {
-            var context = vector.Context;
-            var segment = context.CreateSegment<float>(vector.Size);
-            segment.Initialize(i => mutator(vector[i]));
-            return new Vector<float>(segment);
-        }
+        /// <summary>
+        /// True if the item is sequential
+        /// </summary>
+        /// <param name="metadata"></param>
+        /// <returns></returns>
+        public static bool IsSequential(this IMetaData metadata) => metadata.Get(Consts.IsSequential, false);
 
-        public static Vector<float> MutateWith(this Vector<float> vector, Vector<float> other, Func<float, float, float> mutator)
-        {
-            var context = vector.Context;
-            var segment = context.CreateSegment<float>(vector.Size);
-            segment.Initialize(i => mutator(vector[i], other[i]));
-            return new Vector<float>(segment);
-        }
-
+        /// <summary>
+        /// Writes available meta data to a new meta data store
+        /// </summary>
+        /// <param name="writer"></param>
+        /// <returns></returns>
         public static IMetaData GetMetaData(this IWriteToMetaData writer)
         {
             var ret = new MetaData();
@@ -353,92 +255,24 @@ namespace BrightData
             return ret;
         }
 
-        public static DateAnalysis GetDateAnalysis(this IMetaData metaData) => new DateAnalysis(metaData);
-        public static DimensionAnalysis GetDimensionAnalysis(this IMetaData metaData) => new DimensionAnalysis(metaData);
-        public static FrequencyAnalysis GetFrequencyAnalysis(this IMetaData metaData) => new FrequencyAnalysis(metaData);
-        public static IndexAnalysis GetIndexAnalysis(this IMetaData metaData) => new IndexAnalysis(metaData);
-        public static NumericAnalysis GetNumericAnalysis(this IMetaData metaData) => new NumericAnalysis(metaData);
-        public static StringAnalysis GetStringAnalysis(this IMetaData metaData) => new StringAnalysis(metaData);
-        public static DictionaryValues GetDictionaryValues(this IMetaData metaData) => new DictionaryValues(metaData);
-        public static NormalizeTransformation GetNormalization(this IMetaData metaData) => new NormalizeTransformation(metaData);
-
-        public static NumericAnalysis Analyze<T>(this IEnumerable<T> data)
-            where T: struct
-        {
-            var analysis = new CastToDoubleNumericAnalysis<T>();
-            foreach(var item in data)
-                analysis.Add(item);
-            return analysis.GetMetaData().GetNumericAnalysis();
-        }
-
-        public static DateAnalysis Analyze(this IEnumerable<DateTime> dates)
-        {
-            var analysis = new DateAnalyser();
-            foreach(var item in dates)
-                analysis.Add(item);
-            return analysis.GetMetaData().GetDateAnalysis();
-        }
-
-        public static DimensionAnalysis Analyze(this IEnumerable<ITensor<float>> tensors)
-        {
-            var analysis = new DimensionAnalyser();
-            foreach (var item in tensors)
-                analysis.Add(item);
-            return analysis.GetMetaData().GetDimensionAnalysis();
-        }
-
-        public static IndexAnalysis Analyze<T>(this IEnumerable<IHaveIndices> items)
-        {
-            var analysis = new IndexAnalyser();
-            foreach (var item in items)
-                analysis.Add(item);
-            return analysis.GetMetaData().GetIndexAnalysis();
-        }
-
-        public static StringAnalysis Analyze<T>(this IEnumerable<string> items)
-        {
-            var analysis = new StringAnalyser();
-            foreach (var item in items)
-                analysis.Add(item);
-            return analysis.GetMetaData().GetStringAnalysis();
-        }
-
-        public static FrequencyAnalysis AnalyzeFrequency<T>(this IEnumerable<T> items)
-        {
-            var analysis = new FrequencyAnalyser<T>();
-            foreach (var item in items)
-                analysis.Add(item);
-            return analysis.GetMetaData().GetFrequencyAnalysis();
-        }
-
-        public static void InitializeRandomly<T>(this ITensor<T> tensor) where T : struct
-        {
-            var computation = tensor.Computation;
-            tensor.Segment.Initialize(i => computation.NextRandom());
-        }
-
-        public static void Initialize<T>(this ITensor<T> tensor, T value) where T : struct
-        {
-            tensor.Segment.Initialize(value);
-        }
-
-        public static void Initialize<T>(this ITensor<T> tensor, Func<uint, T> initializer) where T : struct
-        {
-            tensor.Segment.Initialize(initializer);
-        }
-
+        /// <summary>
+        /// Lazy create a float converter per context
+        /// </summary>
+        /// <param name="context"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public static ICanConvert<T, float> GetFloatConverter<T>(this IBrightDataContext context) where T: struct
         {
             return context.Set($"float-converter({typeof(T)})", () => new ConvertToFloat<T>());
         }
 
-        public static void Set<T>(this ITensorSegment<T> vector, Func<uint, T> getValue)
-            where T : struct
-        {
-            for (uint i = 0, len = vector.Size; i < len; i++)
-                vector[i] = getValue(i);
-        }
-
+        /// <summary>
+        /// Creates a type converter
+        /// </summary>
+        /// <param name="toType">Type converter type</param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
         public static ICanConvert GetConverter<T>(this Type toType) where T : struct
         {
             var typeCode = Type.GetTypeCode(toType);
@@ -462,42 +296,71 @@ namespace BrightData
             }
         }
 
+        /// <summary>
+        /// Generates a range of positive integers
+        /// </summary>
+        /// <param name="count">Upper bound</param>
+        /// <returns></returns>
         public static IEnumerable<uint> AsRange(this uint count) => Enumerable.Range(0, (int)count).Select(i => (uint)i);
+
+        /// <summary>
+        /// Generates a range of positive integers
+        /// </summary>
+        /// <param name="count">Upper bound</param>
+        /// <returns></returns>
         public static IEnumerable<uint> AsRange(this int count) => Enumerable.Range(0, count).Select(i => (uint)i);
+
+        /// <summary>
+        /// Generates a range of positive integers
+        /// </summary>
+        /// <param name="count"></param>
+        /// <param name="start"></param>
+        /// <returns></returns>
         public static IEnumerable<uint> AsRange(this uint count, uint start) => Enumerable.Range((int)start, (int)count).Select(i => (uint)i);
+
+        /// <summary>
+        /// Generates a range of positive integers
+        /// </summary>
+        /// <param name="count"></param>
+        /// <param name="start"></param>
+        /// <returns></returns>
         public static IEnumerable<uint> AsRange(this int count, int start) => Enumerable.Range(start, count).Select(i => (uint)i);
 
-        public static IEnumerable<IFloatVector> AsFloatVectors(this IEnumerable<Vector<float>> vectors)
+        /// <summary>
+        /// Aggregates a list of floats
+        /// </summary>
+        /// <param name="operation"></param>
+        /// <param name="data">Data to aggregate</param>
+        /// <returns></returns>
+        public static float Aggregate(this AggregationType operation, List<float> data)
         {
-            IBrightDataContext context = null;
-            foreach (var vector in vectors) {
-                context ??= vector.Context;
-                yield return context.LinearAlgebraProvider.CreateVector(vector);
-            }
+            return operation switch {
+                AggregationType.Sum => data.Sum(),
+                AggregationType.Average => data.Average(),
+                AggregationType.Max => data.Max(),
+                _ => throw new NotImplementedException()
+            };
         }
 
-        public static float Execute(this OperationType operation, List<float> data)
-        {
-            if (operation == OperationType.Add)
-                return data.Sum();
-            else if (operation == OperationType.Average)
-                return data.Average();
-            else if (operation == OperationType.Max)
-                return data.Max();
-
-            throw new NotImplementedException();
-        }
-
-        public static ITensorSegment<T> CreateSegment<T>(this IBrightDataContext context, T[] block) where T : struct => new TensorSegment<T>(context, block);
-        public static ITensorSegment<T> CreateSegment<T>(this IBrightDataContext context, uint size) where T : struct => new TensorSegment<T>(context, context.TensorPool.Get<T>(size));
-
-        public static IMetaData SetTargetColumn(this IMetaData metaData, bool isTarget)
+        /// <summary>
+        /// Sets this as a target
+        /// </summary>
+        /// <param name="metaData"></param>
+        /// <param name="isTarget"></param>
+        /// <returns></returns>
+        public static IMetaData SetTarget(this IMetaData metaData, bool isTarget)
         {
             metaData.Set(Consts.IsTarget, isTarget);
             return metaData;
         }
 
-        public static IMetaData SetCategorical(this IMetaData metaData, bool isCategorical)
+        /// <summary>
+        /// Sets this as categorical
+        /// </summary>
+        /// <param name="metaData"></param>
+        /// <param name="isCategorical"></param>
+        /// <returns></returns>
+        public static IMetaData SetIsCategorical(this IMetaData metaData, bool isCategorical)
         {
             metaData.Set(Consts.IsCategorical, isCategorical);
             return metaData;
@@ -614,12 +477,12 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Normalises the weighted index classification list to fit between 0 and 1
+        /// Normalizes the weighted index classification list to fit between 0 and 1
         /// </summary>
         /// <param name="data"></param>
         /// <param name="context"></param>
         /// <returns></returns>
-        public static IReadOnlyList<(string Label, WeightedIndexList Data)> Normalise(this IReadOnlyList<(string Label, WeightedIndexList Data)> data, IBrightDataContext context)
+        public static IReadOnlyList<(string Label, WeightedIndexList Data)> Normalize(this IReadOnlyList<(string Label, WeightedIndexList Data)> data, IBrightDataContext context)
         {
             var maxWeight = data.GetMaxWeight();
             return data.Select(r => (r.Label, WeightedIndexList.Create(
@@ -628,33 +491,32 @@ namespace BrightData
             ))).ToList();
         }
 
-
+        /// <summary>
+        /// Groups items and counts each group
+        /// </summary>
+        /// <param name="items"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public static IEnumerable<(T Item, uint Count)> GroupAndCount<T>(this IEnumerable<T> items) => items
             .GroupBy(d => d)
             .Select(g => (g.Key, (uint)g.Count()))
         ;
 
-        public static string Format<T>(this IEnumerable<(T Item, uint Count)> items) =>
-            String.Join(';', items.Select(i => $"{i.Item.ToString()}: {i.Count}"));
+        /// <summary>
+        /// Formats groups of items
+        /// </summary>
+        /// <param name="items"></param>
+        /// <param name="separator">Group separator</param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static string Format<T>(this IEnumerable<(T Item, uint Count)> items, char separator = ';') where T: notnull =>
+            String.Join(separator, items.Select(i => $"{i.Item.ToString()}: {i.Count}"));
 
-        public static void UseLegacySerialisationInput(this IBrightDataContext context, bool use = true) => context.Set(Consts.LegacyFloatSerialisationInput, use);
-
-        public static IHybridBuffer<T> CreateHybridStructBuffer<T>(this IBrightDataContext context, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024) where T: struct =>
-            StaticBuffers.CreateHybridStructBuffer<T>(tempStream, bufferSize, maxDistinct);
-        public static IHybridBuffer CreateHybridStructBuffer(this IBrightDataContext context, Type type, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024) =>
-            StaticBuffers.CreateHybridStructBuffer(tempStream, type, bufferSize, maxDistinct);
-        public static IHybridBuffer<string> CreateHybridStringBuffer(this IBrightDataContext context, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024) =>
-            StaticBuffers.CreateHybridStringBuffer(tempStream, bufferSize, maxDistinct);
-        public static IHybridBuffer<T> CreateHybridObjectBuffer<T>(this IBrightDataContext context, IProvideTempStreams tempStream, uint bufferSize = 32768) =>
-            StaticBuffers.CreateHybridObjectBuffer<T>(tempStream, context, bufferSize);
-        public static IHybridBuffer CreateHybridObjectBuffer(this IBrightDataContext context, Type type, IProvideTempStreams tempStream, uint bufferSize = 32768) =>
-            StaticBuffers.CreateHybridObjectBuffer(tempStream, context, type, bufferSize);
-
-        public static INonNegativeDiscreteDistribution CreateBernoulliDistribution(this IBrightDataContext context, float probability) => new BernoulliDistribution(context, probability);
-        public static INonNegativeDiscreteDistribution CreateBinomialDistribution(this IBrightDataContext context, float probability, uint numTrials) => new BinomialDistribution(context, probability, numTrials);
-        public static INonNegativeDiscreteDistribution CreateCategoricalDistribution(this IBrightDataContext context, IEnumerable<float> categoricalValues) => new CategoricalDistribution(context, categoricalValues);
-        public static IContinuousDistribution CreateContinuousDistribution(this IBrightDataContext context, float inclusiveLowerBound = 0f, float exclusiveUpperBound = 1f) => new ContinuousDistribution(context, inclusiveLowerBound, exclusiveUpperBound);
-        public static IDiscreteDistribution CreateDiscreteUniformDistribution(this IBrightDataContext context, int inclusiveLowerBound, int exclusiveUpperBound) => new DiscreteUniformDistribution(context, inclusiveLowerBound, exclusiveUpperBound);
-        public static IContinuousDistribution CreateNormalDistribution(this IBrightDataContext context, float mean = 0f, float stdDev = 1f) => new NormalDistribution(context, mean, stdDev);
+        /// <summary>
+        /// Enables or disables legacy (version 2) binary serialization - only when reading
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="use">True to enable</param>
+        public static void UseLegacySerializationInput(this IBrightDataContext context, bool use = true) => context.Set(Consts.LegacyFloatSerialisationInput, use);
     }
 }

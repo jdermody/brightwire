@@ -24,11 +24,13 @@ namespace BrightWire.Models.Linear
             return new RegressionPredictor(lap, lap.CreateVector(Theta.Segment));
         }
 
+        /// <inheritdoc />
         public void WriteTo(BinaryWriter writer)
         {
             Theta.WriteTo(writer);
         }
 
+        /// <inheritdoc />
         public void Initialize(IBrightDataContext context, BinaryReader reader)
         {
             Theta.Initialize(context, reader);

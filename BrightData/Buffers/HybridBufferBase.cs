@@ -39,7 +39,7 @@ namespace BrightData.Buffers
             }
 
             _tempBuffer[_index++] = item;
-            ++Length;
+            ++Size;
 
             if (_distinctSet?.Add(item) == true && _distinctSet.Count > _maxDistinct)
                 _distinctSet = null;
@@ -69,7 +69,7 @@ namespace BrightData.Buffers
         public void CopyTo(Stream stream) => BufferWriter.CopyTo(this, stream);
 
         public IEnumerable<object?> Enumerate() => EnumerateTyped().Select(o => (object?)o);
-        public uint Length { get; private set; } = 0;
+        public uint Size { get; private set; } = 0;
         public uint? NumDistinct => (uint?) _distinctSet?.Count;
         public void Add(object obj) => Add((T) obj);
 

@@ -23,7 +23,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             public uint SequenceIndex { get; }
             public MiniBatchSequenceType Type { get; }
             public IGraphData[] Input { get; }
-            public IGraphData Target => null;
+            public IGraphData? Target => null;
         }
         class SingleRowMiniBatch : IMiniBatch
         {
@@ -44,7 +44,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             public bool HasNextSequence => false;
             public uint SequenceCount => 0;
             public void Reset() => _index = 0;
-            public IMiniBatchSequence GetNextSequence()
+            public IMiniBatchSequence? GetNextSequence()
             {
                 if (_index++ == 0)
                     return CurrentSequence;
@@ -73,8 +73,8 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public uint? OutputSize => throw new NotImplementedException();
         public uint RowCount => 1;
         public uint InputCount => 1;
-        public IVectorise InputVectoriser { get; } = null;
-        public IVectorise OutputVectoriser { get; } = null;
+        public IVectorise? InputVectoriser { get; } = null;
+        public IVectorise? OutputVectoriser { get; } = null;
 
         public IDataSource CloneWith(IRowOrientedDataTable dataTable)
         {

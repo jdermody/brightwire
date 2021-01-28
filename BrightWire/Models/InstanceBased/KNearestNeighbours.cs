@@ -41,8 +41,10 @@ namespace BrightWire.Models.InstanceBased
             return new KNNClassifier(lap, this, k, distanceMetric);
         }
 
+        /// <inheritdoc />
         public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
 
+        /// <inheritdoc />
         public void Initialize(IBrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
     }
 }

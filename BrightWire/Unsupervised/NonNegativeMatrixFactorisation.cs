@@ -16,7 +16,7 @@ namespace BrightWire.Unsupervised
         readonly ILinearAlgebraProvider _lap;
         readonly IErrorMetric _costFunction;
 
-        public NonNegativeMatrixFactorisation(ILinearAlgebraProvider lap, uint numClusters, IErrorMetric costFunction = null)
+        public NonNegativeMatrixFactorisation(ILinearAlgebraProvider lap, uint numClusters, IErrorMetric? costFunction = null)
         {
             _lap = lap;
             _numClusters = numClusters;

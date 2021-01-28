@@ -70,7 +70,7 @@ namespace BrightWire.TrainingData.Artificial
                     sb.Append(ch);
                     var key = sb.ToString();
                     if (prev != null) {
-                        if (!following.TryGetValue(prev, out HashSet<int> temp))
+                        if (!following.TryGetValue(prev, out var temp))
                             following.Add(prev, temp = new HashSet<int>());
                         temp.Add(_ch[ch]);
                     }
@@ -90,7 +90,7 @@ namespace BrightWire.TrainingData.Artificial
                     var input = new float[_ch.Count];
                     var output = new float[_ch.Count];
                     input[_ch[ch]] = 1f;
-                    if (following.TryGetValue(sb.ToString(), out HashSet<int> temp)) {
+                    if (following.TryGetValue(sb.ToString(), out var temp)) {
                         foreach (var item in temp)
                             output[item] = 1f;
                     }

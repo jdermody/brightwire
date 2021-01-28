@@ -32,7 +32,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 		/// </summary>
         protected readonly List<T> _data = new List<T>();
 
-	    protected DataTableAdaptorBase(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, uint[] featureColumns)
+	    protected DataTableAdaptorBase(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, uint[]? featureColumns)
         {
             _lap = lap;
             _dataTargetIndex = dataTable.GetTargetColumnOrThrow();
@@ -129,7 +129,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             var miniBatch = new MiniBatch(rows, this);
             foreach (var item in inputData.OrderBy(kv => kv.Key)) {
                 var input = _lap.CreateMatrixFromRows(item.Value);
-                IFloatMatrix output = null;
+                IFloatMatrix? output = null;
                 if (outputData.TryGetValue(item.Key, out temp))
                     output = _lap.CreateMatrixFromRows(temp);
                 var type = (item.Key == 0)

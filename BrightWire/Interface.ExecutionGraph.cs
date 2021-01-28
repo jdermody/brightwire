@@ -44,7 +44,7 @@ namespace BrightWire
         /// Gets the signal as a 4D tensor
         /// </summary>
         /// <returns></returns>
-        I4DFloatTensor Get4DTensor();
+        I4DFloatTensor? Get4DTensor();
 
         /// <summary>
         /// Replaces the data with the specified matrix (but preserves any tensor meta data)
@@ -130,12 +130,12 @@ namespace BrightWire
         /// <summary>
         /// Friendly name
         /// </summary>
-        string Name { get; }
+        string? Name { get; }
 
         /// <summary>
         /// List of outgoing wires
         /// </summary>
-        List<IWire> Output { get; }
+        List<IWire>? Output { get; }
 
         /// <summary>
         /// Executes the node forward
@@ -149,14 +149,14 @@ namespace BrightWire
         /// </summary>
         /// <param name="name">Friendly name of the node to find</param>
         /// <returns></returns>
-        INode FindByName(string name);
+        INode? FindByName(string name);
 
         /// <summary>
         /// Searches for a node by id
         /// </summary>
         /// <param name="id">Unique id of the node</param>
         /// <returns></returns>
-        INode FindById(string id);
+        INode? FindById(string id);
 
         /// <summary>
         /// Sub-nodes of the current node
@@ -170,7 +170,7 @@ namespace BrightWire
         /// <param name="connectedTo">List of nodes this node is connected to</param>
         /// <param name="wireList">List of wires between all connected nodes</param>
         /// <returns>Serialisation model</returns>
-        Models.ExecutionGraphModel.Node SerialiseTo(HashSet<INode> existing, List<Models.ExecutionGraphModel.Node> connectedTo, HashSet<Models.ExecutionGraphModel.Wire> wireList);
+        ExecutionGraphModel.Node SerialiseTo(HashSet<INode> existing, List<ExecutionGraphModel.Node> connectedTo, HashSet<ExecutionGraphModel.Wire> wireList);
 
         /// <summary>
         /// Called after the graph has been completely deserialised
@@ -224,7 +224,7 @@ namespace BrightWire
         /// <summary>
         /// Optional backpropagation
         /// </summary>
-        IBackpropagation Backpropagation { get; set; }
+        IBackpropagation? Backpropagation { get; set; }
     }
 
     /// <summary>
@@ -240,12 +240,12 @@ namespace BrightWire
         /// <summary>
         /// Node that sent the current signal
         /// </summary>
-        INode Source { get; }
+        INode? Source { get; }
 
         /// <summary>
         /// Current signal
         /// </summary>
-        IGraphData Data { get; }
+        IGraphData? Data { get; }
 
         /// <summary>
         /// Current execution context
@@ -255,7 +255,7 @@ namespace BrightWire
         /// <summary>
         /// Current learning context (optional)
         /// </summary>
-        ILearningContext LearningContext { get; }
+        ILearningContext? LearningContext { get; }
 
         /// <summary>
         /// Linear algebra provider
@@ -272,7 +272,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="action">Record of node execution</param>
         /// <param name="callback">Optional callback to add backpropagation</param>
-        void AddForward(IExecutionHistory action, Func<IBackpropagation> callback);
+        void AddForward(IExecutionHistory action, Func<IBackpropagation>? callback);
 
         /// <summary>
         /// Sends a backward error signal
@@ -298,7 +298,7 @@ namespace BrightWire
         /// <summary>
         /// Current error signal
         /// </summary>
-        IGraphData ErrorSignal { get; }
+        IGraphData? ErrorSignal { get; }
 
         /// <summary>
         /// Checks if there is a pending forward graph operation
@@ -322,7 +322,7 @@ namespace BrightWire
 		/// Returns a saved output
 		/// </summary>
 		/// <param name="channel">Output channel (optional)</param>
-	    IGraphData GetOutput(int channel = 0);
+	    IGraphData? GetOutput(int channel = 0);
 
         /// <summary>
         /// Returns all stored output
@@ -347,13 +347,13 @@ namespace BrightWire
         /// </summary>
         /// <param name="slotName">Slot name</param>
         /// <returns></returns>
-        IFloatMatrix GetMemory(string slotName);
+        IFloatMatrix? GetMemory(string slotName);
 
         /// <summary>
         /// Gets the next queued graph operation (if any)
         /// </summary>
         /// <returns></returns>
-        IGraphOperation GetNextOperation();
+        IGraphOperation? GetNextOperation();
 
         /// <summary>
         /// Adds a list of graph operations to the queue
@@ -461,9 +461,9 @@ namespace BrightWire
         /// <returns></returns>
         IDataSource CloneWith(IRowOrientedDataTable dataTable);
 
-        IVectorise InputVectoriser { get; }
+        IVectorise? InputVectoriser { get; }
 
-        IVectorise OutputVectoriser { get; }
+        IVectorise? OutputVectoriser { get; }
     }
 
     /// <summary>
@@ -533,7 +533,7 @@ namespace BrightWire
         /// <summary>
         /// Training target data
         /// </summary>
-        IGraphData Target { get; }
+        IGraphData? Target { get; }
     }
 
     /// <summary>
@@ -575,7 +575,7 @@ namespace BrightWire
         /// Gets the next item in the sequence
         /// </summary>
         /// <returns></returns>
-        IMiniBatchSequence GetNextSequence();
+        IMiniBatchSequence? GetNextSequence();
 
         /// <summary>
         /// Gets the length of the sequence
@@ -625,7 +625,7 @@ namespace BrightWire
         /// <summary>
         /// Segment source that feeds into the graph
         /// </summary>
-        IDataSource DataSource { get; }
+        IDataSource? DataSource { get; }
 
         /// <summary>
         /// Executes a data source on the current graph

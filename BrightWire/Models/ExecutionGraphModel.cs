@@ -43,7 +43,7 @@ namespace BrightWire.Models
             /// <summary>
             /// Node friendly name
             /// </summary>
-            public string Name { get; set; }
+            public string? Name { get; set; }
 
             /// <summary>
             /// A short description of the node
@@ -53,10 +53,12 @@ namespace BrightWire.Models
             /// <summary>
             /// The node's parameters
             /// </summary>
-            public byte[] Data { get; set; }
+            public byte[]? Data { get; set; }
 
+            /// <inheritdoc />
             public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
 
+            /// <inheritdoc />
             public void Initialize(IBrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
         }
 
@@ -86,8 +88,10 @@ namespace BrightWire.Models
                 return $"{FromId} -> {ToId} on channel {InputChannel}";
             }
 
+            /// <inheritdoc />
             public void Initialize(IBrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
 
+            /// <inheritdoc />
             public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
 
             /// <inheritdoc />
@@ -130,8 +134,10 @@ namespace BrightWire.Models
         /// </summary>
         public Wire[] Wires { get; set; }
 
+        /// <inheritdoc />
         public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
 
+        /// <inheritdoc />
         public void Initialize(IBrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
     }
 }

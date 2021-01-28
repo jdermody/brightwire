@@ -31,9 +31,9 @@ namespace BrightWire.ExecutionGraph.Helper
             }
         }
         readonly IDataSource _dataSource;
-        readonly Random _random;
+        readonly Random? _random;
 
-        public MiniBatchProvider(IDataSource dataSource, Random random)
+        public MiniBatchProvider(IDataSource dataSource, Random? random)
         {
             _dataSource = dataSource;
             _random = random;

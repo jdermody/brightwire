@@ -27,9 +27,6 @@
             _max = float.Parse(data.Substring(pos + 1));
         }
 
-        public string Serialise()
-        {
-            return $"{_min}:{_max}";
-        }
+        public string Serialise() => $"{_min}:{_max}";
     }
 }

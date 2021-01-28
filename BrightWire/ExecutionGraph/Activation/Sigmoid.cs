@@ -26,7 +26,7 @@ namespace BrightWire.ExecutionGraph.Activation
             }
         }
 
-        public Sigmoid(string name = null) : base(name) { }
+        public Sigmoid(string? name = null) : base(name) { }
 
         public override void ExecuteForward(IGraphContext context)
         {

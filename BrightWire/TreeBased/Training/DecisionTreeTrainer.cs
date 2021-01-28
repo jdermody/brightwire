@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using BrightData;
+using BrightData.Helper;
 using BrightWire.Models.TreeBased;
 
 namespace BrightWire.TreeBased.Training
@@ -17,7 +18,7 @@ namespace BrightWire.TreeBased.Training
         class Attribute
         {
             readonly uint _columnIndex;
-            readonly string _category;
+            readonly string? _category;
             readonly double? _split;
 
             public Attribute(uint columnIndex, string category)
@@ -32,10 +33,10 @@ namespace BrightWire.TreeBased.Training
                 _category = null;
                 _split = split;
             }
-            public override bool Equals(object obj)
+            public override bool Equals(object? obj)
             {
                 if (obj is Attribute other)
-                    return other._columnIndex == _columnIndex && other._category == _category && _split == other._split;
+                    return other._columnIndex == _columnIndex && other._category == _category && DoubleMath.AreApproximatelyEqual(_split, other._split);
                 return false;
             }
             public override int GetHashCode()
@@ -51,12 +52,12 @@ namespace BrightWire.TreeBased.Training
                 return $"threshold: {_split} ({_columnIndex}";
             }
             public uint ColumnIndex => _columnIndex;
-	        public string Category => _category;
+	        public string? Category => _category;
 	        public double? Split => _split;
 
 	        public IReadOnlyDictionary<string, List<InMemoryRow>> Partition(IEnumerable<InMemoryRow> rows)
             {
-                List<InMemoryRow> temp;
+                List<InMemoryRow>? temp;
                 var ret = new Dictionary<string, List<InMemoryRow>>();
                 if (_category != null) {
                     foreach (var item in rows) {
@@ -134,11 +135,11 @@ namespace BrightWire.TreeBased.Training
         {
             readonly TableInfo _tableInfo;
 	        readonly Dictionary<string, int> _classCount;
-            Node _parent = null;
-            Attribute _attribute = null;
-            Node[] _children = null;
+            Node? _parent = null;
+            Attribute? _attribute = null;
+            Node[]? _children = null;
 
-            public Node(TableInfo tableInfo, List<InMemoryRow> data, string matchLabel)
+            public Node(TableInfo tableInfo, List<InMemoryRow> data, string? matchLabel)
             {
                 Data = data;
                 _tableInfo = tableInfo;
@@ -166,12 +167,12 @@ namespace BrightWire.TreeBased.Training
                     var categoricalValues = new Dictionary<uint, HashSet<string>>();
                     foreach(var item in Data) {
                         foreach(var column in _tableInfo.CategoricalColumns) {
-                            if (!categoricalValues.TryGetValue(column, out HashSet<string> temp2))
+                            if (!categoricalValues.TryGetValue(column, out var temp2))
                                 categoricalValues.Add(column, temp2 = new HashSet<string>());
                             temp2.Add(item.GetCategory(column));
                         }
                         foreach (var column in _tableInfo.ContinuousColumns) {
-                            if (!continuousValues.TryGetValue(column, out HashSet<double> temp))
+                            if (!continuousValues.TryGetValue(column, out var temp))
                                 continuousValues.Add(column, temp = new HashSet<double>());
                             temp.Add(item.GetValue(column));
                         }
@@ -249,9 +250,9 @@ namespace BrightWire.TreeBased.Training
                 }
             }
             public bool IsLeaf => _classCount.Count <= 1;
-	        public string PredictedClass => _classCount.OrderByDescending(kv => kv.Value).Select(kv => kv.Key).FirstOrDefault();
+	        public string? PredictedClass => _classCount.OrderByDescending(kv => kv.Value).Select(kv => kv.Key).FirstOrDefault();
             public List<InMemoryRow> Data { get; }
-	        public string MatchLabel { get; }
+	        public string? MatchLabel { get; }
         }
 
         public class Config

@@ -52,7 +52,7 @@ namespace BrightWire.Linear.Training
 		//	}
 		//}
 
-		public LinearRegression GradientDescent(int iterations, float learningRate, float lambda = 0.1f, Func<float, bool> costCallback = null)
+		public LinearRegression GradientDescent(int iterations, float learningRate, float lambda = 0.1f, Func<float, bool>? costCallback = null)
         {
             var regularisation = 1f - (learningRate * lambda) / _feature.RowCount;
             var theta = _lap.CreateVector(_feature.ColumnCount, 0f);

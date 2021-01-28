@@ -29,8 +29,8 @@ namespace BrightWire.ExecutionGraph.DataSource
         public uint InputSize { get; }
 	    public uint? OutputSize { get; }
 	    public uint RowCount => (uint)_data.Length;
-        public IVectorise InputVectoriser { get; } = null;
-        public IVectorise OutputVectoriser { get; } = null;
+        public IVectorise? InputVectoriser { get; } = null;
+        public IVectorise? OutputVectoriser { get; } = null;
 
         public IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rows)
         {

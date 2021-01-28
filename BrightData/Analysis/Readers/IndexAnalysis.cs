@@ -9,8 +9,8 @@ namespace BrightData.Analysis.Readers
     {
         internal IndexAnalysis(IMetaData metaData)
         {
-            MinIndex = metaData.Get<uint>(Consts.MinIndex);
-            MaxIndex = metaData.Get<uint>(Consts.MaxIndex);
+            MinIndex = metaData.Get<uint>(Consts.MinIndex, uint.MaxValue);
+            MaxIndex = metaData.Get<uint>(Consts.MaxIndex, uint.MaxValue);
             NumDistinct = metaData.GetNullable<uint>(Consts.NumDistinct);
             Frequency = metaData.GetStringsWithPrefix(Consts.FrequencyPrefix)
                 .Select(k => (Label: k.Substring(Consts.FrequencyPrefix.Length), Value: metaData.Get<double>(k)))

@@ -18,14 +18,8 @@
             return input.ReplaceWith(input.GetMatrix().ConcatRows(memory));
         }
 
-        public void Initialise(string data)
-        {
-            _slotName = data;
-        }
+        public void Initialise(string data) => _slotName = data;
 
-        public string Serialise()
-        {
-            return _slotName;
-        }
+        public string Serialise() => _slotName;
     }
 }

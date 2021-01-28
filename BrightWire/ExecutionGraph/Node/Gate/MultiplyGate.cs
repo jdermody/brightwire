@@ -33,7 +33,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 context.AddBackward(errorSignal.ReplaceWith(delta2), parents.Last(), _source);
             }
         }
-        public MultiplyGate(string name = null) : base(name) { }
+        public MultiplyGate(string? name = null) : base(name) { }
 
         protected override void _Activate(IGraphContext context, IFloatMatrix primary, IFloatMatrix secondary)
         {

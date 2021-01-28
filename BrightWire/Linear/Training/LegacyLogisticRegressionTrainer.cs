@@ -27,7 +27,7 @@ namespace BrightWire.Linear.Training
             _target = lap.CreateVector(table.GetColumnsAsVectors(classColumnIndex).Single());
         }
 
-        public LogisticRegression GradientDescent(uint iterations, float learningRate, float lambda = 0.1f, Func<float, bool> costCallback = null)
+        public LogisticRegression GradientDescent(uint iterations, float learningRate, float lambda = 0.1f, Func<float, bool>? costCallback = null)
         {
             var theta = _lap.CreateVector(_feature.ColumnCount, 0f);
 

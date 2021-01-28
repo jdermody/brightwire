@@ -13,7 +13,7 @@ namespace BrightData.Analysis.Readers
         {
             var len = Consts.CategoryPrefix.Length;
             _table = metaData.GetStringsWithPrefix(Consts.CategoryPrefix)
-                .Select(key => (Key: Int32.Parse(key[len..]), Value: metaData.Get<string>(key)))
+                .Select(key => (Key: Int32.Parse(key[len..]), Value: metaData.Get<string>(key, "")))
                 .OrderBy(d => d.Key)
                 .Select(d => d.Value)
                 .ToList();

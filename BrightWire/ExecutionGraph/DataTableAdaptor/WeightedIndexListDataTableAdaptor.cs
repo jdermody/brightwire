@@ -13,7 +13,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
     {
         readonly uint[] _featureColumns;
 
-        public WeightedIndexListDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, IVectorise outputVectoriser, uint[] featureColumns)
+        public WeightedIndexListDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, IVectorise? outputVectoriser, uint[] featureColumns)
             : base(lap, dataTable, featureColumns)
         {
             _featureColumns = featureColumns;

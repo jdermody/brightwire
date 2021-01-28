@@ -9,14 +9,14 @@ namespace BrightWire.ExecutionGraph.Node.Gate
     /// </summary>
     public abstract class BinaryGateBase : NodeBase
     {
-        IFloatMatrix _primary = null, _secondary = null;
-        INode _primarySource, _secondarySource = null;
+        IFloatMatrix? _primary = null, _secondary = null;
+        INode? _primarySource = null, _secondarySource = null;
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="name"></param>
-        protected BinaryGateBase(string name) : base(name) { }
+        protected BinaryGateBase(string? name) : base(name) { }
 
         /// <summary>
         /// Executes on the primary channel
@@ -25,7 +25,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         public override void ExecuteForward(IGraphContext context)
         {
             _primarySource = context.Source;
-            _primary = context.Data.GetMatrix();
+            _primary = context.Data?.GetMatrix();
             _TryComplete(context);
         }
 
@@ -38,7 +38,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         {
             if (channel == 1) {
                 _secondarySource = context.Source;
-                _secondary = context.Data.GetMatrix();
+                _secondary = context.Data?.GetMatrix();
                 _TryComplete(context);
             }
         }
@@ -66,7 +66,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// <param name="context">Graph context</param>
         /// <param name="output">The output signal</param>
         /// <param name="backpropagation">Backpropagation creator (optional)</param>
-        protected void _AddHistory(IGraphContext context, IFloatMatrix output, Func<IBackpropagation> backpropagation)
+        protected void _AddHistory(IGraphContext context, IFloatMatrix output, Func<IBackpropagation>? backpropagation)
         {
             context.AddForward(new TrainingAction(this, new MatrixGraphData(output), new[] { _primarySource, _secondarySource }), backpropagation);
         }

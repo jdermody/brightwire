@@ -1,4 +1,5 @@
 ﻿using System;
+using BrightData.Helper;
 using BrightWire.Helper;
 
 namespace BrightWire.ExecutionGraph.Action
@@ -17,12 +18,12 @@ namespace BrightWire.ExecutionGraph.Action
 
         public void Initialise(string data)
         {
-            _errorMetric = (IErrorMetric)Activator.CreateInstance(TypeLoader.LoadType(data));
+            _errorMetric = GenericActivator.Create<IErrorMetric>(TypeLoader.LoadType(data));
         }
 
         public string Serialise()
         {
-            return _errorMetric.GetType().AssemblyQualifiedName;
+            return TypeLoader.GetTypeName(_errorMetric);
         }
 
         public IGraphData Execute(IGraphData input, IGraphContext context)

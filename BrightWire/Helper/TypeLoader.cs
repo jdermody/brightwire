@@ -16,11 +16,19 @@ namespace BrightWire.Helper
 			    type = Type.GetType(
 				    typeName, 
 				    assemblyName => Assembly.GetExecutingAssembly(), 
-				    (assembly, typeName2, caseInsensitive) => assembly.GetType(typeName2, false, caseInsensitive),
+				    (assembly, typeName2, caseInsensitive) => assembly?.GetType(typeName2, false, caseInsensitive),
 				    true
 			    );
 		    }
+			if(type == null)
+				throw new ArgumentException($"Unable to find: {typeName}");
 			return type;
 	    }
+
+        public static string GetTypeName<T>(T obj) where T: notnull
+		{
+			var type = obj.GetType();
+            return type.AssemblyQualifiedName ?? throw new Exception("Null AssemblyQualifiedName");
+		}
     }
 }

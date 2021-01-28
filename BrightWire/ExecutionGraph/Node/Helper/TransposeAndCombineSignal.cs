@@ -37,7 +37,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             }
         }
 
-        public TransposeAndCombineSignal(string name = null) : base(name)
+        public TransposeAndCombineSignal(string? name = null) : base(name)
         {
         }
 

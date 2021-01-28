@@ -29,7 +29,7 @@ namespace BrightWire.ExecutionGraph.Node.Filter
         float _dropOutPercentage;
         INonNegativeDiscreteDistribution _probabilityToDrop;
 
-        public DropOut(IBrightDataContext context, float dropOutPercentage, string name = null) : base(name)
+        public DropOut(IBrightDataContext context, float dropOutPercentage, string? name = null) : base(name)
         {
             _dropOutPercentage = dropOutPercentage;
             _probabilityToDrop = context.CreateBernoulliDistribution(_dropOutPercentage);

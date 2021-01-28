@@ -27,7 +27,7 @@ namespace BrightTable.Helper
             public IDataTableSegment Segment { get; }
             public IDataTable DataTable => _converter.DataTable;
 
-            public T GetTyped<T>(uint index) => _converter.GetField<T>(index, Segment[index]);
+            public T GetTyped<T>(uint index) where T: notnull => _converter.GetField<T>(index, Segment[index]);
             public uint RowIndex { get; }
             public uint NumColumns => Segment.Size;
             object Get(uint index) => Segment[index];

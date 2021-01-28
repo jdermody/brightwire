@@ -17,7 +17,7 @@ namespace BrightWire.Models
         /// <summary>
         /// The name of the data source
         /// </summary>
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         /// <summary>
         /// The size of each input training data item
@@ -34,8 +34,10 @@ namespace BrightWire.Models
         /// </summary>
         public ExecutionGraphModel Graph { get; set; }
 
+        /// <inheritdoc />
         public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
 
+        /// <inheritdoc />
         public void Initialize(IBrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
     }
 }
