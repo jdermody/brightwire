@@ -6,7 +6,7 @@ using System.Text;
 
 namespace BrightTable.Input
 {
-    public class CsvParser
+    internal class CsvParser
     {
         readonly StreamReader _stream;
         readonly char _delimiter;
@@ -24,7 +24,7 @@ namespace BrightTable.Input
             _buffer = new char[32768];
         }
 
-        public Action<int> OnProgress { get; set; }
+        public Action<int>? OnProgress { get; set; }
 
         public IEnumerable<string[]> Parse()
         {
@@ -55,8 +55,10 @@ namespace BrightTable.Input
             for (var i = 0; i < len; i++)
             {
                 var ch = _buffer[i];
-                if(ch == '\r')
+                if (ch == '\r') {
+                    // ReSharper disable once RedundantJumpStatement
                     continue;
+                }
                 else if(ch == '\n' && !_inQuote) {
                     var line = _GetLine();
                     if(line.Any(s => s.Length > 0))
@@ -67,8 +69,10 @@ namespace BrightTable.Input
                 else if(ch == _quote) {
                     // TODO: look for escaped quotes?
                     _inQuote = !_inQuote;
-                }else
+                }
+                else {
                     curr.Append(ch);
+                }
             }
         }
 

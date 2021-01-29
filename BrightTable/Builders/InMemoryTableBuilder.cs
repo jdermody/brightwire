@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using BrightData;
 using BrightData.Helper;
@@ -8,7 +9,7 @@ namespace BrightTable.Builders
     /// <summary>
     /// Builds tables dynamically in memory
     /// </summary>
-    public class TableBuilder : IHaveBrightDataContext
+    public class InMemoryTableBuilder : IHaveBrightDataContext
     {
         readonly List<(ColumnType Type, IMetaData MetaData)> _columns = new List<(ColumnType Type, IMetaData MetaData)>();
         readonly List<object[]> _rows = new List<object[]>();
@@ -16,7 +17,7 @@ namespace BrightTable.Builders
         /// <inheritdoc />
         public IBrightDataContext Context { get; }
 
-        internal TableBuilder(IBrightDataContext context)
+        internal InMemoryTableBuilder(IBrightDataContext context)
         {
             Context = context;
         }
@@ -28,7 +29,7 @@ namespace BrightTable.Builders
         /// <param name="columnIndices">Column indices to copy</param>
         public void CopyColumnsFrom(IDataTable table, params uint[] columnIndices)
         {
-            if (columnIndices == null || columnIndices.Length == 0)
+            if (columnIndices.Length == 0)
                 columnIndices = table.ColumnIndices().ToArray();
 
             var columnSet = new HashSet<uint>(columnIndices);
@@ -57,6 +58,10 @@ namespace BrightTable.Builders
             return ret;
         }
 
+        /// <summary>
+        /// Adds a new row
+        /// </summary>
+        /// <param name="data"></param>
         public void AddRow(params object[] data) => _rows.Add(data);
 
         /// <summary>
@@ -89,6 +94,8 @@ namespace BrightTable.Builders
                     var val = i < row.Length 
                         ? row[i] 
                         : _columns[i].Type.GetDefaultValue();
+                    if (val == null)
+                        throw new Exception("Values cannot be null");
                     columns[i].Add(val);
                 }
             }

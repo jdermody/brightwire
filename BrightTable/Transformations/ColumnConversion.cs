@@ -11,9 +11,9 @@ namespace BrightTable.Transformations
     /// <summary>
     /// Parameters that define a column conversion from one type to another
     /// </summary>
-    public class ColumnConversion : IColumnTransformationParam
+    internal class ColumnConversion : IColumnTransformationParam
     {
-        public class Converter<TF, TT> : IConvert<TF, TT>
+        class Converter<TF, TT> : IConvert<TF, TT> where TF: notnull where TT: notnull
         {
             readonly Func<TF, TT> _converter;
 
@@ -39,13 +39,13 @@ namespace BrightTable.Transformations
             public Type To => typeof(TT);
         }
 
-        abstract class ConvertViaString<TF, TT> : IConvert<TF, TT>
+        abstract class ConvertViaString<TF, TT> : IConvert<TF, TT> where TF : notnull where TT : notnull
         {
             protected abstract TT _Convert(string str);
 
             public bool Convert(TF input, IHybridBuffer<TT> buffer)
             {
-                buffer.Add(_Convert(input.ToString()));
+                buffer.Add(_Convert(input.ToString() ?? throw new Exception("String was null")));
                 return true;
             }
 
@@ -57,11 +57,11 @@ namespace BrightTable.Transformations
             public Type To => typeof(TT);
         }
 
-        class AnyToString<T> : IConvert<T, string>
+        class AnyToString<T> : IConvert<T, string> where T : notnull
         {
             public bool Convert(T input, IHybridBuffer<string> buffer)
             {
-                buffer.Add(input.ToString());
+                buffer.Add(input.ToString() ?? throw new Exception("String was null"));
                 return true;
             }
 
@@ -73,7 +73,7 @@ namespace BrightTable.Transformations
             public Type To => typeof(string);
         }
 
-        class NumericConverter<TF, TT> : IConvert<TF, TT>
+        class NumericConverter<TF, TT> : IConvert<TF, TT> where TF : notnull where TT : notnull
         {
             readonly IEnumerator<TT> _list;
 
@@ -100,7 +100,7 @@ namespace BrightTable.Transformations
             }
         }
 
-        class CategoricalIndexConverter<T> : ConvertViaString<T, int>
+        class CategoricalIndexConverter<T> : ConvertViaString<T, int> where T : notnull
         {
             readonly Dictionary<string, int> _categoryIndex = new Dictionary<string, int>();
 
@@ -148,8 +148,10 @@ namespace BrightTable.Transformations
             _converter = converter;
         }
 
+        /// <inheritdoc />
         public uint? ColumnIndex { get; }
 
+        /// <inheritdoc />
         public ICanConvert? GetConverter(ColumnType fromType, ISingleTypeTableSegment column, IProvideTempStreams tempStreams, uint inMemoryRowCount)
         {
             if (_converter != null)
@@ -179,7 +181,7 @@ namespace BrightTable.Transformations
 
                 // to numeric
                 case ColumnConversionType.ToNumeric: {
-                    var buffer = tempStreams.CreateHybridStructBuffer<double>(inMemoryRowCount, 1024);
+                    var buffer = tempStreams.CreateHybridStructBuffer<double>(inMemoryRowCount);
                     double min = double.MaxValue, max = double.MinValue;
                     var isInteger = true;
                     foreach (var val in column.Enumerate()) {
@@ -281,6 +283,6 @@ namespace BrightTable.Transformations
             return new ColumnConversion(column.Index, column.Converter);
         }
 
-        public static ColumnConversion Create<TF, TT>(uint index, Func<TF, TT> converter) => new ColumnConversion(index, new Converter<TF, TT>(converter));
+        public static ColumnConversion Create<TF, TT>(uint index, Func<TF, TT> converter) where TF: notnull where TT: notnull => new ColumnConversion(index, new Converter<TF, TT>(converter));
     }
 }

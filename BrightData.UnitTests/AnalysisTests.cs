@@ -14,7 +14,7 @@ namespace BrightData.UnitTests
         {
             var d1 = new DateTime(2020, 1, 1);
             var d2 = new DateTime(2020, 2, 1);
-            var analysis = (new[] { d1, d2, d2}).Analyze();
+            var analysis = new[] { d1, d2, d2}.Analyze();
 
             analysis.MinDate.Should().Be(d1);
             analysis.MaxDate.Should().Be(d2);
@@ -28,7 +28,7 @@ namespace BrightData.UnitTests
         {
             var d1 = new DateTime(2020, 1, 1);
             var d2 = new DateTime(2020, 2, 1);
-            var analysis = (new[] { d1, d2 }).Analyze();
+            var analysis = new[] { d1, d2 }.Analyze();
 
             analysis.MinDate.Should().Be(d1);
             analysis.MaxDate.Should().Be(d2);
@@ -46,6 +46,7 @@ namespace BrightData.UnitTests
             analysis.Median.Should().Be(2);
             analysis.NumDistinct.Should().Be(3);
             analysis.Total.Should().Be(3);
+            analysis.SampleStdDev.Should().Be(1);
         }
 
         [Fact]
@@ -79,6 +80,32 @@ namespace BrightData.UnitTests
             analysis.NumDistinct.Should().Be(3);
             analysis.MostFrequent.Should().Be("ab");
             analysis.Total.Should().Be(4);
+        }
+
+        [Fact]
+        public void IndexAnalysis()
+        {
+            using var context = new BrightDataContext();
+            var analysis = new[] {
+                context.CreateIndexList(1, 2, 3),
+                context.CreateIndexList(4, 5, 6),
+            }.Analyze();
+            analysis.MinIndex.Should().Be(1);
+            analysis.MaxIndex.Should().Be(6);
+            analysis.NumDistinct.Should().Be(6);
+        }
+
+        [Fact]
+        public void IndexAnalysis2()
+        {
+            using var context = new BrightDataContext();
+            var analysis = new IHaveIndices[] {
+                context.CreateIndexList(1, 2, 3),
+                context.CreateWeightedIndexList((4, 1f), (5, 2f), (6, 3f)),
+            }.Analyze();
+            analysis.MinIndex.Should().Be(1);
+            analysis.MaxIndex.Should().Be(6);
+            analysis.NumDistinct.Should().Be(6);
         }
     }
 }

@@ -14,7 +14,7 @@ namespace BrightWire.InstanceBased.Training
         {
             var targetColumnIndex = table.GetTargetColumnOrThrow();
             var featureColumns = table.ColumnIndicesOfFeatures().ToArray();
-            var vectoriser = new DataTableVectoriser(table, featureColumns);
+            var vectoriser = table.GetVectoriser(featureColumns);
             var data = vectoriser.Enumerate().ToArray();
 
             return new KNearestNeighbours {

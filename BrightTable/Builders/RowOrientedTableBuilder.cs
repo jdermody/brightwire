@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using BrightData;
 
@@ -16,7 +15,7 @@ namespace BrightTable.Builders
             public Column(uint index, ColumnType type, IMetaData metadata, string name)
             {
                 Type = type;
-                Metadata = metadata ?? new MetaData();
+                Metadata = metadata;
                 Metadata.Set(Consts.Name, name);
                 Metadata.Set(Consts.Index, index);
             }
@@ -41,7 +40,7 @@ namespace BrightTable.Builders
 
         public void Dispose()
         {
-            _writer?.Dispose();
+            _writer.Dispose();
             if(!_hasClosedStream)
                 _stream.Dispose();
         }
@@ -106,10 +105,11 @@ namespace BrightTable.Builders
             {
                 var column = _columns[i];
                 var type = column.Type;
-                object val = null;
-                val = i < len2 
+                var val = i < len2 
                     ? values[i] 
                     : type.GetDefaultValue();
+                if (val == null)
+                    throw new Exception("Values cannot be null");
 
                 if (!hasWrittenIndex)
                 {

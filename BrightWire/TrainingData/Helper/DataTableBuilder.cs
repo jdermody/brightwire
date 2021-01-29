@@ -6,7 +6,7 @@ namespace BrightWire.TrainingData.Helper
 {
     public static class DataTableBuilder
     {
-        public static TableBuilder CreateTwoColumnMatrixTableBuilder(this IBrightDataContext context)
+        public static InMemoryTableBuilder CreateTwoColumnMatrixTableBuilder(this IBrightDataContext context)
         {
             var ret = context.BuildTable();
             ret.AddColumn(ColumnType.Matrix, "Input");
@@ -14,7 +14,7 @@ namespace BrightWire.TrainingData.Helper
             return ret;
         }
 
-        public static TableBuilder CreateTwoColumnVectorTableBuilder(this IBrightDataContext context)
+        public static InMemoryTableBuilder CreateTwoColumnVectorTableBuilder(this IBrightDataContext context)
         {
             var ret = context.BuildTable();
             ret.AddColumn(ColumnType.Vector, "Input");
@@ -22,7 +22,7 @@ namespace BrightWire.TrainingData.Helper
             return ret;
         }
 
-        public static TableBuilder Create3DTensorToVectorTableBuilder(this IBrightDataContext context)
+        public static InMemoryTableBuilder Create3DTensorToVectorTableBuilder(this IBrightDataContext context)
         {
             var ret = context.BuildTable();
             ret.AddColumn(ColumnType.Tensor3D, "Input");

@@ -254,10 +254,10 @@ namespace ExampleCode.Datasets
             // drop the first six columns (index and date features)
             using var filteredTable = completeTable.CopyColumns(completeTable.ColumnCount.AsRange().Skip(5).ToArray());
             var dataColumns = (completeTable.ColumnCount - 3).AsRange().ToArray();
-            using var converted = filteredTable.Convert(dataColumns.Select(i => new ColumnConversion(i, ColumnConversionType.ToNumeric)).ToArray());
+            using var converted = filteredTable.Convert(dataColumns.Select(i => ColumnConversionType.ToNumeric.For(i)).ToArray());
 
             // normalise the data columns
-            using var ret = converted.Normalize(dataColumns.Select(i => new ColumnNormalization(i, NormalizationType.Standard)).ToArray());
+            using var ret = converted.Normalize(dataColumns.Select(i => NormalizationType.Standard.For(i)).ToArray());
 
             ret.SetTargetColumn(ret.ColumnCount-1);
             return new BicyclesTrainer(context, ret.AsRowOriented());

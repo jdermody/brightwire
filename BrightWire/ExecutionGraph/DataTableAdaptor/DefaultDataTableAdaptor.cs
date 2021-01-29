@@ -16,8 +16,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             : base(lap, dataTable, featureColumns)
         {
             _featureColumns = featureColumns;
-            InputVectoriser = inputVectoriser ?? new DataTableVectoriser(dataTable, _dataColumnIndex);
-            OutputVectoriser = outputVectoriser ?? new DataTableVectoriser(dataTable, dataTable.GetTargetColumnOrThrow());
+            InputVectoriser = inputVectoriser ?? dataTable.GetVectoriser(_dataColumnIndex);
+            OutputVectoriser = outputVectoriser ?? dataTable.GetVectoriser(dataTable.GetTargetColumnOrThrow());
         }
 
         public override IDataSource CloneWith(IRowOrientedDataTable dataTable)

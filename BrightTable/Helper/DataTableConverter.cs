@@ -47,7 +47,7 @@ namespace BrightTable.Helper
         }
 
         public IRowOrientedDataTable DataTable { get; }
-        public IEnumerable<T> Map<T>(Func<IConvertibleRow, T> rowMapper)
+        public IEnumerable<T> Map<T>(Func<IConvertibleRow, T> rowMapper) where T: notnull
         {
             for (uint i = 0, len = DataTable.RowCount; i < len; i++)
                 yield return rowMapper(Row(i));

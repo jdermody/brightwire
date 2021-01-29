@@ -286,7 +286,7 @@ namespace BrightTable
         /// </summary>
         /// <param name="conversion">Column conversion parameters</param>
         /// <returns></returns>
-        IColumnOrientedDataTable Convert(params ColumnConversion[] conversion);
+        IColumnOrientedDataTable Convert(params IColumnTransformationParam[] conversion);
 
         /// <summary>
         /// Creates a new table with columns that have been converted
@@ -294,7 +294,7 @@ namespace BrightTable
         /// <param name="filePath">File path to store new table on disk</param>
         /// <param name="conversion">Column conversion parameters</param>
         /// <returns></returns>
-        IColumnOrientedDataTable Convert(string? filePath, params ColumnConversion[] conversion);
+        IColumnOrientedDataTable Convert(string? filePath, params IColumnTransformationParam[] conversion);
 
         /// <summary>
         /// Normalizes the data in all columns of the table
@@ -309,7 +309,7 @@ namespace BrightTable
         /// </summary>
         /// <param name="conversion">Column normalization parameters</param>
         /// <returns></returns>
-        IColumnOrientedDataTable Normalize(params ColumnNormalization[] conversion);
+        IColumnOrientedDataTable Normalize(params IColumnTransformationParam[] conversion);
 
         /// <summary>
         /// Normalizes the data in all columns of the table
@@ -317,7 +317,7 @@ namespace BrightTable
         /// <param name="filePath">File path to store new table on disk</param>
         /// <param name="conversion">Column normalization parameters</param>
         /// <returns></returns>
-        IColumnOrientedDataTable Normalize(string? filePath, params ColumnNormalization[] conversion);
+        IColumnOrientedDataTable Normalize(string? filePath, params IColumnTransformationParam[] conversion);
 
         /// <summary>
         /// Copies the selected columns to a new data table
@@ -361,7 +361,7 @@ namespace BrightTable
         /// </summary>
         /// <param name="columns">Parameters to determine which columns are reinterpreted</param>
         /// <returns></returns>
-        IColumnOrientedDataTable ReinterpretColumns(params ReinterpretColumns[] columns);
+        IColumnOrientedDataTable ReinterpretColumns(params IReinterpretColumnsParam[] columns);
 
         /// <summary>
         /// Many to one or one to many style column transformations
@@ -369,7 +369,7 @@ namespace BrightTable
         /// <param name="filePath">File path to store new table on disk</param>
         /// <param name="columns">Parameters to determine which columns are reinterpreted</param>
         /// <returns></returns>
-        IColumnOrientedDataTable ReinterpretColumns(string? filePath, params ReinterpretColumns[] columns);
+        IColumnOrientedDataTable ReinterpretColumns(string? filePath, params IReinterpretColumnsParam[] columns);
     }
 
     /// <summary>
@@ -544,7 +544,9 @@ namespace BrightTable
         ToCategoricalIndex
     }
 
-    public interface IConvert<in TF, TT> : ICanConvert
+    public interface IConvert<in TF, TT> : ICanConvert 
+        where TT: notnull
+        where TF: notnull
     {
         bool Convert(TF input, IHybridBuffer<TT> buffer);
         void Finalise(IMetaData metaData);
@@ -575,7 +577,7 @@ namespace BrightTable
     public interface IColumnTransformationParam
     {
         public uint? ColumnIndex { get; }
-        public ICanConvert GetConverter(ColumnType fromType, ISingleTypeTableSegment column, IProvideTempStreams tempStreams, uint inMemoryRowCount = 32768);
+        public ICanConvert? GetConverter(ColumnType fromType, ISingleTypeTableSegment column, IProvideTempStreams tempStreams, uint inMemoryRowCount = 32768);
     }
 
     public interface IConvertibleTable
@@ -622,5 +624,12 @@ namespace BrightTable
         float[] Vectorise(object[] row);
         uint OutputSize { get; }
         string GetOutputLabel(uint columnIndex, uint vectorIndex);
+        IEnumerable<Vector<float>> Enumerate();
+    }
+
+    public interface IReinterpretColumnsParam
+    {
+        uint[] ColumnIndices { get; }
+        IEnumerable<ISingleTypeTableSegment> GetNewColumns(IBrightDataContext context, IProvideTempStreams tempStreams, uint initialColumnIndex, (IColumnInfo Info, ISingleTypeTableSegment Segment)[] columns);
     }
 }

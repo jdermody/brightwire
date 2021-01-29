@@ -8,7 +8,10 @@ using BrightTable.Segments;
 
 namespace BrightTable.Transformations
 {
-    public class ReinterpretColumns
+    /// <summary>
+    /// Parameters that define how to reinterpret the columns in a data table
+    /// </summary>
+    internal class ReinterpretColumns : IReinterpretColumnsParam
     {
         public ReinterpretColumns(ColumnType newType, string name, params uint[] columnIndices)
         {

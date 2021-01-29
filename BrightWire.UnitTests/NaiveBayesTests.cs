@@ -41,7 +41,7 @@ namespace BrightWire.UnitTests
             var model = index.TrainNaiveBayes();
             var classifier = model.CreateClassifier();
             var classification = classifier.Classify(testDataTable.Row(0));
-            classification.First().Label.Should().Be("female");
+            classification.First().Label.Should().Be("male");
         }
 
         public static IReadOnlyList<(string Label, IndexList Data)> GetSimpleChineseSet(IBrightDataContext context, StringTableBuilder stringTableBuilder)

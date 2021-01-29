@@ -252,7 +252,7 @@ namespace BrightWire.ExecutionGraph
 		{
 			var columns = dataTable.ColumnTypes;
 			var targetColumn = dataTable.GetTargetColumnOrThrow();
-            if (featureColumns == null || featureColumns.Length == 0) {
+            if (featureColumns.Length == 0) {
                 featureColumns = columns
                     .Select((c, i) => (uint) i)
                     .Where(d => d != targetColumn)

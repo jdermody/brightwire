@@ -59,13 +59,25 @@ namespace BrightData.Analysis
 	    public double Min => _min;
 	    public double Max => _max;
 	    public double Mean => _mean;
-	    public double? Variance => _total > 1 ? _m2 / (_total - 1) : (double?)null;
-	    public uint? NumDistinct => _distinct.Count < _maxCount ? (uint?)_distinct.Count : null;
+	    public double? SampleVariance => _total > 1 ? _m2 / (_total - 1) : (double?)null;
+        public double? PopulationVariance => _total > 0 ? _m2 / _total : (double?)null;
+        public uint? NumDistinct => _distinct.Count < _maxCount ? (uint?)_distinct.Count : null;
 
-	    public double? StdDev {
+	    public double? SampleStdDev {
             get
             {
-                var variance = Variance;
+                var variance = SampleVariance;
+                if (variance.HasValue)
+                    return Math.Sqrt(variance.Value);
+                return null;
+            }
+        }
+
+        public double? PopulationStdDev
+        {
+            get
+            {
+                var variance = PopulationVariance;
                 if (variance.HasValue)
                     return Math.Sqrt(variance.Value);
                 return null;
@@ -109,8 +121,11 @@ namespace BrightData.Analysis
 
         public void AddObject(object obj)
         {
-	        var val = double.Parse(obj.ToString());
-	        Add(val);
+            var str = obj.ToString();
+            if (str != null) {
+                var val = double.Parse(str);
+                Add(val);
+            }
         }
 
         public void WriteTo(IMetaData metadata)
@@ -123,9 +138,11 @@ namespace BrightData.Analysis
 			metadata.Set(Consts.Max, Max);
 			metadata.Set(Consts.Mean, Mean);
             metadata.Set(Consts.Total, _total);
-			metadata.SetIfNotNull(Consts.Variance, Variance);
-			metadata.SetIfNotNull(Consts.StdDev, StdDev);
-			metadata.SetIfNotNull(Consts.Median, Median);
+			metadata.SetIfNotNull(Consts.SampleVariance, SampleVariance);
+			metadata.SetIfNotNull(Consts.SampleStdDev, SampleStdDev);
+            metadata.SetIfNotNull(Consts.PopulationVariance, PopulationVariance);
+            metadata.SetIfNotNull(Consts.PopulationStdDev, PopulationStdDev);
+            metadata.SetIfNotNull(Consts.Median, Median);
 			metadata.SetIfNotNull(Consts.Mode, Mode);
 			if (metadata.SetIfNotNull(Consts.NumDistinct, NumDistinct)) {
 				var total = (double) _total;

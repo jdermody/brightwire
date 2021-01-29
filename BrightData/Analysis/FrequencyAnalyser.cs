@@ -4,12 +4,13 @@ using System.Linq;
 namespace BrightData.Analysis
 {
     internal class FrequencyAnalyser<T> : IDataAnalyser<T>
+        where T: notnull
     {
         readonly uint _writeCount, _maxCount;
         readonly Dictionary<string, ulong> _valueCount = new Dictionary<string, ulong>();
 
         ulong _highestCount = 0;
-        string _mostFrequent = null;
+        string? _mostFrequent = null;
 
         public FrequencyAnalyser(uint writeCount = Consts.MaxWriteCount, uint maxCount = Consts.MaxDistinct)
         {
@@ -18,17 +19,14 @@ namespace BrightData.Analysis
         }
 
         public uint? NumDistinct => _valueCount.Count < _maxCount ? (uint?)_valueCount.Count : null;
-        public string MostFrequent => _valueCount.Count < _maxCount ? _mostFrequent : null;
+        public string? MostFrequent => _valueCount.Count < _maxCount ? _mostFrequent : null;
         public ulong Total { get; private set; } = 0;
-        public virtual void Add(T obj)
-        {
-            _Add(obj.ToString());
-        }
+        public virtual void Add(T obj) => _Add(obj.ToString());
         public IEnumerable<KeyValuePair<string, ulong>> ItemFrequency => _valueCount;
 
-        protected void _Add(string str)
+        protected void _Add(string? str)
         {
-            if (_valueCount.Count < _maxCount) {
+            if (str != null && _valueCount.Count < _maxCount) {
                 if (_valueCount.TryGetValue(str, out ulong count))
                     _valueCount[str] = count + 1;
                 else
@@ -41,10 +39,7 @@ namespace BrightData.Analysis
             }
         }
 
-        public void AddObject(object obj)
-        {
-            Add((T)obj);
-        }
+        public void AddObject(object obj) => Add((T)obj);
 
         public virtual void WriteTo(IMetaData metadata)
         {

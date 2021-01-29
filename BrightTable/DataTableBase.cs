@@ -12,7 +12,6 @@ namespace BrightTable
     {
         protected readonly Stream _stream;
         readonly MetaData _tableMetaData = new MetaData();
-        protected const uint PREVIEW_SIZE = 10;
 
         protected DataTableBase(IBrightDataContext context, Stream stream)
         {

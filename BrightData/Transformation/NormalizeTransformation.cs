@@ -26,7 +26,7 @@ namespace BrightData.Transformation
                 else if (type == NormalizationType.Manhattan)
                     divide = Convert.ToDouble(analysedMetaData.Get(Consts.L1Norm));
                 else if (type == NormalizationType.Standard) {
-                    divide = Convert.ToDouble(analysedMetaData.Get(Consts.StdDev) ?? 1);
+                    divide = Convert.ToDouble(analysedMetaData.Get(Consts.PopulationStdDev) ?? 1);
                     subtract = Convert.ToDouble(analysedMetaData.Get(Consts.Mean));
                 }
                 else if (type == NormalizationType.FeatureScale) {

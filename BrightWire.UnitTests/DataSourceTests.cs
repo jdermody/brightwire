@@ -49,7 +49,7 @@ namespace BrightWire.UnitTests
             input[0].Should().Be(0.2f);
             input[1].Should().Be(1.5f);
             expectedOutput.Count.Should().Be(4);
-            dataSource.OutputVectoriser.GetOutputLabel(2, expectedOutput.MaximumIndex()).Should().Be("b");
+            dataSource.OutputVectoriser.GetOutputLabel(0, expectedOutput.MaximumIndex()).Should().Be("b");
 		}
 
 		float[] GetArray(uint value, uint size)

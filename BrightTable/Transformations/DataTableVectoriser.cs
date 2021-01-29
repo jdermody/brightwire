@@ -9,7 +9,7 @@ using BrightTable.Helper;
 
 namespace BrightTable.Transformations
 {
-    public class DataTableVectoriser : IHaveDataContext, IVectorise, IHaveBrightDataContext
+    internal class DataTableVectoriser : IHaveDataContext, IVectorise, IHaveBrightDataContext
     {
         interface IColumnVectoriser : IDisposable
         {
@@ -137,10 +137,12 @@ namespace BrightTable.Transformations
             protected override IEnumerable<float> _Convert(object obj)
             {
                 var str = obj.ToString();
-                if(!_stringIndex.TryGetValue(str, out var index))
-                    _stringIndex.Add(str, index = _nextIndex++);
                 Array.Clear(_buffer, 0, _buffer.Length);
-                _buffer[index] = 1f;
+                if (str != null) {
+                    if (!_stringIndex.TryGetValue(str, out var index))
+                        _stringIndex.Add(str, index = _nextIndex++);
+                    _buffer[index] = 1f;
+                }
                 return _buffer;
             }
 
@@ -150,7 +152,42 @@ namespace BrightTable.Transformations
                     .Where(kv => kv.Value == index)
                     .Select(kv => kv.Key)
                     .SingleOrDefault();
-                if(ret == null)
+                if (ret == null)
+                    throw new ArgumentException($"Index {index} not found");
+                return ret;
+            }
+        }
+
+        class OneHotEncode : VectoriserBase<object>
+        {
+            readonly Dictionary<string, uint> _stringIndex = new Dictionary<string, uint>();
+            uint _nextIndex = 0;
+
+            public OneHotEncode(ISingleTypeTableSegment column)
+                : base(column.MetaData.GetIndex(), column.Enumerate().GetEnumerator())
+            {
+                Size = 1;
+            }
+
+            public override uint Size { get; }
+
+            protected override IEnumerable<float> _Convert(object obj)
+            {
+                var str = obj.ToString();
+                if (str != null) {
+                    if (!_stringIndex.TryGetValue(str, out var index))
+                        _stringIndex.Add(str, index = _nextIndex++);
+                    yield return index;
+                }
+            }
+
+            public string GetOutputLabel(uint index)
+            {
+                var ret = _stringIndex
+                    .Where(kv => kv.Value == index)
+                    .Select(kv => kv.Key)
+                    .SingleOrDefault();
+                if (ret == null)
                     throw new ArgumentException($"Index {index} not found");
                 return ret;
             }
@@ -176,7 +213,7 @@ namespace BrightTable.Transformations
             Context = dataTable.Context;
 
             _input.AddRange(dataTable.Columns(columnIndices)
-                .Select(c => _GetColumnVectoriser(c, Context))
+                .Select(_GetColumnVectoriser)
             );
         }
 
@@ -197,7 +234,7 @@ namespace BrightTable.Transformations
 
         public string GetOutputLabel(uint columnIndex, uint vectorIndex)
         {
-            if(columnIndex < _input.Count)
+            if(columnIndex >= _input.Count)
                 throw new ArgumentException($"Column index should be less than {_input.Count}");
             var column = _input[(int) columnIndex] as OneHotEncodeVectorised;
             if(column == null)
@@ -205,7 +242,7 @@ namespace BrightTable.Transformations
             return column.GetOutputLabel(vectorIndex);
         }
 
-        static IColumnVectoriser _GetColumnVectoriser(ISingleTypeTableSegment column, IBrightDataContext context)
+        static IColumnVectoriser _GetColumnVectoriser(ISingleTypeTableSegment column)
         {
             var type = column.SingleType;
             var columnClass = ColumnTypeClassifier.GetClass(type, column.MetaData);

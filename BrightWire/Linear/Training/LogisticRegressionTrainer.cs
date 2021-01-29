@@ -22,12 +22,14 @@ namespace BrightWire.Linear.Training
             _lap = table.Context.LinearAlgebraProvider;
 
             // TODO: support target matrix instead of vector
-            var matrices = table.AsMatrices();
-            if(matrices.Target.ColumnCount > 1)
+            var (features, target) = table.AsMatrices();
+            if(target.ColumnCount > 1)
                 throw new ArgumentException("Multiple features are not currently supported");
 
-            _feature = _lap.CreateMatrix(matrices.Features);
-            _target = _lap.CreateVector(matrices.Target.Column(0));
+            _feature = _lap.CreateMatrix(features.RowCount, features.ColumnCount + 1, (i, j) => j == 0 ? 1 : features[i, j - 1]);
+            _target = _lap.CreateVector(target.Column(0));
+            features.Dispose();
+            target.Dispose();
         }
 
         public LogisticRegression GradientDescent(uint iterations, float learningRate, float lambda = 0.1f, Func<float, bool>? costCallback = null)

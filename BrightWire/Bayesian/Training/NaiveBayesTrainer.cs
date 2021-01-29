@@ -97,7 +97,7 @@ namespace BrightWire.Bayesian.Training
                     }
                     else {
                         var analysis = metaData.GetNumericAnalysis();
-                        var variance = analysis?.Variance;
+                        var variance = analysis.SampleVariance;
                         if (variance != null) {
                             var mean = analysis.Mean;
                             columnList.Add(new NaiveBayes.Column {

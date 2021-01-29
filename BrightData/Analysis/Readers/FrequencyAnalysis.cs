@@ -10,7 +10,7 @@ namespace BrightData.Analysis.Readers
         internal FrequencyAnalysis(IMetaData metaData)
         {
             Total = metaData.Get<ulong>(Consts.Total);
-            MostFrequent = metaData.Get<string>(Consts.MostFrequent);
+            MostFrequent = metaData.Get(Consts.MostFrequent) as string;
             NumDistinct = metaData.GetNullable<uint>(Consts.NumDistinct);
             Frequency = metaData.GetStringsWithPrefix(Consts.FrequencyPrefix)
                 .Select(k => (Label: k.Substring(Consts.FrequencyPrefix.Length), Value: metaData.Get<double>(k)))
@@ -26,7 +26,7 @@ namespace BrightData.Analysis.Readers
         /// <summary>
         /// Most frequent item
         /// </summary>
-        public string MostFrequent { get; }
+        public string? MostFrequent { get; }
 
         /// <summary>
         /// Number of distinct items

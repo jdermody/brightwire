@@ -33,10 +33,10 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             return (TypeLoader.GetTypeName(Action), Encoding.UTF8.GetBytes(Action.Serialise()));
         }
 
-        protected override void _Initalise(GraphFactory factory, string description, byte[] data)
+        protected override void _Initalise(GraphFactory factory, string description, byte[]? data)
         {
             Action = (IAction)FormatterServices.GetUninitializedObject(TypeLoader.LoadType(description));
-            Action.Initialise(Encoding.UTF8.GetString(data));
+            Action.Initialise(data != null ? Encoding.UTF8.GetString(data) : "");
         }
     }
 }

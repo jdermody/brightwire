@@ -170,7 +170,7 @@ namespace BrightWire
         /// <param name="connectedTo">List of nodes this node is connected to</param>
         /// <param name="wireList">List of wires between all connected nodes</param>
         /// <returns>Serialisation model</returns>
-        ExecutionGraphModel.Node SerialiseTo(HashSet<INode> existing, List<ExecutionGraphModel.Node> connectedTo, HashSet<ExecutionGraphModel.Wire> wireList);
+        ExecutionGraphModel.Node SerialiseTo(HashSet<INode>? existing, List<ExecutionGraphModel.Node>? connectedTo, HashSet<ExecutionGraphModel.Wire>? wireList);
 
         /// <summary>
         /// Called after the graph has been completely deserialised

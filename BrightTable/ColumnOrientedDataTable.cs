@@ -156,7 +156,7 @@ namespace BrightTable
             return builder.Build(Context);
         }
 
-        public IColumnOrientedDataTable Convert(params ColumnConversion[] conversionParams)
+        public IColumnOrientedDataTable Convert(params IColumnTransformationParam[] conversionParams)
         {
             return _Transform(conversionParams, null);
         }
@@ -180,12 +180,14 @@ namespace BrightTable
                 if (columnConversionTable.TryGetValue(info.Index, out var conversion)) {
                     var column = _columns[info.Index].Segment;
                     var converter = conversion.GetConverter(info.ColumnType, column, tempStream);
-                    var newColumnInfo = info.ChangeColumnType(converter.To.GetColumnType());
-                    var buffer = newColumnInfo.MetaData.GetGrowableSegment(newColumnInfo.ColumnType, Context, tempStream);
-                    var contextType = typeof(TransformationContext<,>).MakeGenericType(converter.From, converter.To);
-                    var param = new object[] { column, converter, buffer };
-                    var conversionContext = GenericActivator.Create<IColumnTransformation>(contextType, param);
-                    columnConversions.Add(segment, conversionContext);
+                    if (converter != null) {
+                        var newColumnInfo = info.ChangeColumnType(converter.To.GetColumnType());
+                        var buffer = newColumnInfo.MetaData.GetGrowableSegment(newColumnInfo.ColumnType, Context, tempStream);
+                        var contextType = typeof(TransformationContext<,>).MakeGenericType(converter.From, converter.To);
+                        var param = new object[] {column, converter, buffer};
+                        var conversionContext = GenericActivator.Create<IColumnTransformation>(contextType, param);
+                        columnConversions.Add(segment, conversionContext);
+                    }
                 }
             }
 
@@ -206,7 +208,7 @@ namespace BrightTable
             return convertedColumns.BuildColumnOrientedTable(Context, RowCount, filePath);
         }
 
-        public IColumnOrientedDataTable Convert(string? filePath, params ColumnConversion[] conversionParams)
+        public IColumnOrientedDataTable Convert(string? filePath, params IColumnTransformationParam[] conversionParams)
         {
             return _Transform(conversionParams, filePath);
         }
@@ -228,12 +230,12 @@ namespace BrightTable
             return _Transform(param, filePath);
         }
 
-        public IColumnOrientedDataTable Normalize(params ColumnNormalization[] param)
+        public IColumnOrientedDataTable Normalize(params IColumnTransformationParam[] param)
         {
             return _Transform(param, null);
         }
 
-        public IColumnOrientedDataTable Normalize(string? filePath, params ColumnNormalization[] param)
+        public IColumnOrientedDataTable Normalize(string? filePath, params IColumnTransformationParam[] param)
         {
             return _Transform(param, filePath);
         }
@@ -270,8 +272,8 @@ namespace BrightTable
             return buffers.BuildColumnOrientedTable(Context, rowCount, filePath);
         }
 
-        public IColumnOrientedDataTable ReinterpretColumns(params ReinterpretColumns[] columns) => ReinterpretColumns(null, columns);
-        public IColumnOrientedDataTable ReinterpretColumns(string? filePath, params ReinterpretColumns[] columns)
+        public IColumnOrientedDataTable ReinterpretColumns(params IReinterpretColumnsParam[] columns) => ReinterpretColumns(null, columns);
+        public IColumnOrientedDataTable ReinterpretColumns(string? filePath, params IReinterpretColumnsParam[] columns)
         {
             using var tempStream = new TempStreamManager();
             var newColumns = new List<ISingleTypeTableSegment>();

@@ -181,6 +181,7 @@ namespace BrightTable
             var bindings = new Dictionary<uint, IConsumerBinding>();
             foreach (var consumer in consumers) {
                 var column = _columns[consumer.ColumnIndex];
+                // ReSharper disable once InconsistentlySynchronizedField
                 var columnReader = _columnReaders[column.Index];
                 var type = typeof(ConsumerBinding<>).MakeGenericType(consumer.ColumnType.GetDataType());
                 var binding = GenericActivator.Create<IConsumerBinding>(type, columnReader, consumer);

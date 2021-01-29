@@ -16,7 +16,7 @@ namespace BrightData.Helper
         /// Constructor
         /// </summary>
         /// <param name="basePath">Location on disk to write new temp files</param>
-        public TempStreamManager(string basePath = null)
+        public TempStreamManager(string? basePath = null)
         {
             _basePath = basePath ?? Path.GetTempPath();
         }

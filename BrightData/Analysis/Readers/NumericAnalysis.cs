@@ -14,8 +14,10 @@ namespace BrightData.Analysis.Readers
             Min = metaData.Get<double>(Consts.Min);
             Max = metaData.Get<double>(Consts.Max);
             Mean = metaData.Get<double>(Consts.Mean);
-            Variance = metaData.GetNullable<double>(Consts.Variance);
-            StdDev = metaData.GetNullable<double>(Consts.StdDev);
+            SampleVariance = metaData.GetNullable<double>(Consts.SampleVariance);
+            SampleStdDev = metaData.GetNullable<double>(Consts.SampleStdDev);
+            PopulationVariance = metaData.GetNullable<double>(Consts.PopulationVariance);
+            PopulationStdDev = metaData.GetNullable<double>(Consts.PopulationStdDev);
             Median = metaData.GetNullable<double>(Consts.Median);
             Mode = metaData.GetNullable<double>(Consts.Mode);
             Total = metaData.Get<ulong>(Consts.Total);
@@ -59,12 +61,22 @@ namespace BrightData.Analysis.Readers
         /// <summary>
         /// Sample variance of values
         /// </summary>
-        public double? Variance { get; }
+        public double? SampleVariance { get; }
 
         /// <summary>
         /// Sample standard deviation
         /// </summary>
-        public double? StdDev { get; }
+        public double? SampleStdDev { get; }
+
+        /// <summary>
+        /// Population variance of values
+        /// </summary>
+        public double? PopulationVariance { get; }
+
+        /// <summary>
+        /// Population standard deviation
+        /// </summary>
+        public double? PopulationStdDev { get; }
 
         /// <summary>
         /// Median value

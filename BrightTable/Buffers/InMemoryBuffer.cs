@@ -2,7 +2,6 @@
 using System.IO;
 using System.Linq;
 using BrightData;
-using BrightData.Helper;
 using BrightTable.Segments;
 
 namespace BrightTable.Buffers

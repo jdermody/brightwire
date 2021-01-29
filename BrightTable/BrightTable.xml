@@ -10,22 +10,22 @@
             </summary>
             <typeparam name="T"></typeparam>
         </member>
-        <member name="T:BrightTable.Builders.TableBuilder">
+        <member name="T:BrightTable.Builders.InMemoryTableBuilder">
             <summary>
             Builds tables dynamically in memory
             </summary>
         </member>
-        <member name="P:BrightTable.Builders.TableBuilder.Context">
+        <member name="P:BrightTable.Builders.InMemoryTableBuilder.Context">
             <inheritdoc />
         </member>
-        <member name="M:BrightTable.Builders.TableBuilder.CopyColumnsFrom(BrightTable.IDataTable,System.UInt32[])">
+        <member name="M:BrightTable.Builders.InMemoryTableBuilder.CopyColumnsFrom(BrightTable.IDataTable,System.UInt32[])">
             <summary>
             Copies column definitions from an existing table
             </summary>
             <param name="table">Table to copy from</param>
             <param name="columnIndices">Column indices to copy</param>
         </member>
-        <member name="M:BrightTable.Builders.TableBuilder.AddColumn(BrightTable.ColumnType,System.String)">
+        <member name="M:BrightTable.Builders.InMemoryTableBuilder.AddColumn(BrightTable.ColumnType,System.String)">
             <summary>
             Adds a new column
             </summary>
@@ -33,17 +33,70 @@
             <param name="name">Name of the column</param>
             <returns></returns>
         </member>
-        <member name="M:BrightTable.Builders.TableBuilder.BuildRowOriented">
+        <member name="M:BrightTable.Builders.InMemoryTableBuilder.AddRow(System.Object[])">
+            <summary>
+            Adds a new row
+            </summary>
+            <param name="data"></param>
+        </member>
+        <member name="M:BrightTable.Builders.InMemoryTableBuilder.BuildRowOriented">
             <summary>
             Creates a row oriented table
             </summary>
             <returns></returns>
         </member>
-        <member name="M:BrightTable.Builders.TableBuilder.BuildColumnOriented">
+        <member name="M:BrightTable.Builders.InMemoryTableBuilder.BuildColumnOriented">
             <summary>
             Creates a column oriented table
             </summary>
             <returns></returns>
+        </member>
+        <member name="T:BrightTable.ExtensionMethods">
+            <summary>
+            Extension methods
+            </summary>
+        </member>
+        <member name="M:BrightTable.ExtensionMethods.GetDataType(BrightTable.ColumnType)">
+            <summary>
+            Converts from a column type to a Type
+            </summary>
+            <param name="type">Column type</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightTable.ExtensionMethods.GetColumnType(System.Type)">
+            <summary>
+            Converts from a Type to a ColumnType
+            </summary>
+            <param name="dataType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightTable.ExtensionMethods.RowIndices(BrightTable.IDataTable)">
+            <summary>
+            Returns all row indices as an enumerable
+            </summary>
+            <param name="dataTable"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightTable.ExtensionMethods.ColumnIndices(BrightTable.IDataTable)">
+            <summary>
+            Returns all column indices as an enumerable
+            </summary>
+            <param name="dataTable"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightTable.ExtensionMethods.AllMetaData(BrightTable.IDataTable)">
+            <summary>
+            Returns all meta data as an enumerable
+            </summary>
+            <param name="dataTable"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightTable.ExtensionMethods.ForEachRow(BrightTable.IDataTable,System.Action{System.Object[]})">
+            <summary>
+            Invokes a callback on each row of a data table
+            </summary>
+            <param name="dataTable"></param>
+            <param name="callback"></param>
         </member>
         <member name="M:BrightTable.ExtensionMethods.ConvertToTable(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.IndexList}},BrightData.IBrightDataContext)">
             <summary>
@@ -380,14 +433,14 @@
             <param name="filePath"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightTable.IColumnOrientedDataTable.Convert(BrightTable.Transformations.ColumnConversion[])">
+        <member name="M:BrightTable.IColumnOrientedDataTable.Convert(BrightTable.IColumnTransformationParam[])">
             <summary>
             Creates a new table with columns that have been converted
             </summary>
             <param name="conversion">Column conversion parameters</param>
             <returns></returns>
         </member>
-        <member name="M:BrightTable.IColumnOrientedDataTable.Convert(System.String,BrightTable.Transformations.ColumnConversion[])">
+        <member name="M:BrightTable.IColumnOrientedDataTable.Convert(System.String,BrightTable.IColumnTransformationParam[])">
             <summary>
             Creates a new table with columns that have been converted
             </summary>
@@ -403,14 +456,14 @@
             <param name="filePath">File path to store new table on disk (optional)</param>
             <returns></returns>
         </member>
-        <member name="M:BrightTable.IColumnOrientedDataTable.Normalize(BrightTable.Transformations.ColumnNormalization[])">
+        <member name="M:BrightTable.IColumnOrientedDataTable.Normalize(BrightTable.IColumnTransformationParam[])">
             <summary>
             Normalizes the data in all columns of the table
             </summary>
             <param name="conversion">Column normalization parameters</param>
             <returns></returns>
         </member>
-        <member name="M:BrightTable.IColumnOrientedDataTable.Normalize(System.String,BrightTable.Transformations.ColumnNormalization[])">
+        <member name="M:BrightTable.IColumnOrientedDataTable.Normalize(System.String,BrightTable.IColumnTransformationParam[])">
             <summary>
             Normalizes the data in all columns of the table
             </summary>
@@ -455,14 +508,14 @@
             <param name="filePath">File path to store new table on disk (optional)</param>
             <returns></returns>
         </member>
-        <member name="M:BrightTable.IColumnOrientedDataTable.ReinterpretColumns(BrightTable.Transformations.ReinterpretColumns[])">
+        <member name="M:BrightTable.IColumnOrientedDataTable.ReinterpretColumns(BrightTable.IReinterpretColumnsParam[])">
             <summary>
             Many to one or one to many style column transformations
             </summary>
             <param name="columns">Parameters to determine which columns are reinterpreted</param>
             <returns></returns>
         </member>
-        <member name="M:BrightTable.IColumnOrientedDataTable.ReinterpretColumns(System.String,BrightTable.Transformations.ReinterpretColumns[])">
+        <member name="M:BrightTable.IColumnOrientedDataTable.ReinterpretColumns(System.String,BrightTable.IReinterpretColumnsParam[])">
             <summary>
             Many to one or one to many style column transformations
             </summary>
@@ -651,6 +704,22 @@
         <member name="T:BrightTable.Transformations.ColumnConversion">
             <summary>
             Parameters that define a column conversion from one type to another
+            </summary>
+        </member>
+        <member name="P:BrightTable.Transformations.ColumnConversion.ColumnIndex">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightTable.Transformations.ColumnConversion.GetConverter(BrightTable.ColumnType,BrightTable.ISingleTypeTableSegment,BrightData.IProvideTempStreams,System.UInt32)">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightTable.Transformations.ColumnNormalization">
+            <summary>
+            Parameters that define how to normalize a column of a data table
+            </summary>
+        </member>
+        <member name="T:BrightTable.Transformations.ReinterpretColumns">
+            <summary>
+            Parameters that define how to reinterpret the columns in a data table
             </summary>
         </member>
     </members>

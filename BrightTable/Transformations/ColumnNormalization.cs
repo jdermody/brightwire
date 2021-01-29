@@ -5,7 +5,10 @@ using BrightData.Transformation;
 
 namespace BrightTable.Transformations
 {
-    public class ColumnNormalization : IColumnTransformationParam
+    /// <summary>
+    /// Parameters that define how to normalize a column of a data table
+    /// </summary>
+    internal class ColumnNormalization : IColumnTransformationParam
     {
         class Normalizer<T> : IConvert<T, T>, INormalize where T: struct
         {

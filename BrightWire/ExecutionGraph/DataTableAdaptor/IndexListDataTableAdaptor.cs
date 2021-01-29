@@ -17,7 +17,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             : base(lap, dataTable, featureColumns)
         {
             _featureColumns = featureColumns;
-            OutputVectoriser = outputVectoriser ?? new DataTableVectoriser(dataTable, dataTable.GetTargetColumnOrThrow());
+            OutputVectoriser = outputVectoriser ?? dataTable.GetVectoriser(dataTable.GetTargetColumnOrThrow());
             OutputSize = OutputVectoriser.OutputSize;
 
             // load the data

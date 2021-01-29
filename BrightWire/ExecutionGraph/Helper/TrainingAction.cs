@@ -9,7 +9,7 @@
 		/// <param name="source">The node that executed</param>
 		/// <param name="data">The output of the node</param>
 		/// <param name="parent">The single parent that contributed to the output (optional)</param>
-	    public TrainingAction(INode source, IGraphData data, INode? parent = null)
+	    public TrainingAction(INode source, IGraphData? data, INode? parent = null)
         {
             Parents = parent != null 
                 ? new[] { parent } 
@@ -35,7 +35,7 @@
 	    /// <inheritdoc />
         public INode Source { get; }
 	    /// <inheritdoc />
-        public IGraphData Data { get; }
+        public IGraphData? Data { get; }
 
         /// <inheritdoc />
         public IBackpropagation? Backpropagation { get; set; } = null;

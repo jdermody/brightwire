@@ -9,8 +9,8 @@ namespace BrightData.Analysis.Readers
     {
         internal DateAnalysis(IMetaData metaData) : base(metaData)
         {
-            MinDate = metaData.Get<DateTime>(Consts.MinDate);
-            MaxDate = metaData.Get<DateTime>(Consts.MaxDate);
+            MinDate = metaData.GetNullable<DateTime>(Consts.MinDate);
+            MaxDate = metaData.GetNullable<DateTime>(Consts.MaxDate);
         }
 
         /// <summary>

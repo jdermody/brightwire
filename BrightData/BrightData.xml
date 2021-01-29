@@ -19,6 +19,25 @@
             Maximum date (null if none)
             </summary>
         </member>
+        <member name="T:BrightData.Analysis.Readers.DictionaryValues">
+            <summary>
+            Dictionary that holds category string indices
+            </summary>
+        </member>
+        <member name="M:BrightData.Analysis.Readers.DictionaryValues.GetValues(System.Collections.Generic.IEnumerable{System.Int32})">
+            <summary>
+            Converts from category indices to string
+            </summary>
+            <param name="categoryIndices"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Analysis.Readers.DictionaryValues.GetValue(System.Int32)">
+            <summary>
+            Gets the string associated with a category index
+            </summary>
+            <param name="categoryIndex"></param>
+            <returns></returns>
+        </member>
         <member name="T:BrightData.Analysis.Readers.DimensionAnalysis">
             <summary>
             Dimension analysis results
@@ -129,14 +148,24 @@
             Mean of values
             </summary>
         </member>
-        <member name="P:BrightData.Analysis.Readers.NumericAnalysis.Variance">
+        <member name="P:BrightData.Analysis.Readers.NumericAnalysis.SampleVariance">
             <summary>
             Sample variance of values
             </summary>
         </member>
-        <member name="P:BrightData.Analysis.Readers.NumericAnalysis.StdDev">
+        <member name="P:BrightData.Analysis.Readers.NumericAnalysis.SampleStdDev">
             <summary>
             Sample standard deviation
+            </summary>
+        </member>
+        <member name="P:BrightData.Analysis.Readers.NumericAnalysis.PopulationVariance">
+            <summary>
+            Population variance of values
+            </summary>
+        </member>
+        <member name="P:BrightData.Analysis.Readers.NumericAnalysis.PopulationStdDev">
+            <summary>
+            Population standard deviation
             </summary>
         </member>
         <member name="P:BrightData.Analysis.Readers.NumericAnalysis.Median">
@@ -186,19 +215,19 @@
         </member>
         <member name="T:BrightData.Analysis.StaticAnalysers">
             <summary>
-            Static methods to create analysers
+            Static methods to create analyzers
             </summary>
         </member>
         <member name="M:BrightData.Analysis.StaticAnalysers.CreateDateAnalyser(System.UInt32)">
             <summary>
-            Creates a date analyser
+            Creates a date analyzer
             </summary>
             <param name="maxCount">Maximum number of distinct items to track</param>
             <returns></returns>
         </member>
         <member name="M:BrightData.Analysis.StaticAnalysers.CreateNumericAnalyser``1(System.UInt32,System.UInt32)">
             <summary>
-            Creates a numeric analyser
+            Creates a numeric analyzer
             </summary>
             <typeparam name="T"></typeparam>
             <param name="maxCount">Maximum number of distinct items to track</param>
@@ -207,7 +236,7 @@
         </member>
         <member name="M:BrightData.Analysis.StaticAnalysers.CreateConvertToStringAnalyser``1(System.UInt32,System.UInt32)">
             <summary>
-            Creates an analyser that will convert each item to a string
+            Creates an analyzer that will convert each item to a string
             </summary>
             <typeparam name="T"></typeparam>
             <param name="maxCount"></param>
@@ -216,14 +245,14 @@
         </member>
         <member name="M:BrightData.Analysis.StaticAnalysers.CreateDimensionAnalyser(System.UInt32)">
             <summary>
-            Creates a dimension analyser (to analyse the shape of tensors)
+            Creates a dimension analyzer (to analyze the shape of tensors)
             </summary>
             <param name="maxCount"></param>
             <returns></returns>
         </member>
         <member name="M:BrightData.Analysis.StaticAnalysers.CreateFrequencyAnalyser``1(System.UInt32,System.UInt32)">
             <summary>
-            Creates an analyser that tracks observed frequency of items
+            Creates an analyzer that tracks observed frequency of items
             </summary>
             <typeparam name="T"></typeparam>
             <param name="maxCount"></param>
@@ -232,7 +261,7 @@
         </member>
         <member name="M:BrightData.Analysis.StaticAnalysers.CreateIndexAnalyser(System.UInt32,System.UInt32)">
             <summary>
-            Creates an analyser that tracks observed indices (for index lists and weighted index lists)
+            Creates an analyzer that tracks observed indices (for index lists and weighted index lists)
             </summary>
             <param name="maxCount"></param>
             <param name="writeCount"></param>
@@ -240,7 +269,7 @@
         </member>
         <member name="M:BrightData.Analysis.StaticAnalysers.CreateNumericAnalyser(System.UInt32,System.UInt32)">
             <summary>
-            Creates a numeric analyser
+            Creates a numeric analyzer
             </summary>
             <param name="maxCount"></param>
             <param name="writeCount"></param>
@@ -248,7 +277,7 @@
         </member>
         <member name="M:BrightData.Analysis.StaticAnalysers.CreateStringAnalyser(System.UInt32,System.UInt32)">
             <summary>
-            Creates a string analyser
+            Creates a string analyzer
             </summary>
             <param name="maxCount"></param>
             <param name="writeCount"></param>
@@ -256,7 +285,7 @@
         </member>
         <member name="M:BrightData.Analysis.StaticAnalysers.CreateFrequencyAnalyser(System.Type,System.UInt32,System.UInt32)">
             <summary>
-            Creates a frequency analyser (each item will be converted to a string)
+            Creates a frequency analyzer (each item will be converted to a string)
             </summary>
             <param name="type"></param>
             <param name="maxCount"></param>
@@ -425,6 +454,36 @@
             <param name="maxDistinct"></param>
             <returns></returns>
         </member>
+        <member name="T:BrightData.Consts">
+            <summary>
+            Constants
+            </summary>
+        </member>
+        <member name="F:BrightData.Consts.DataTableVersion">
+            <summary>
+            Data table version
+            </summary>
+        </member>
+        <member name="F:BrightData.Consts.MaxDistinct">
+            <summary>
+            Default max distinct count
+            </summary>
+        </member>
+        <member name="F:BrightData.Consts.MaxWriteCount">
+            <summary>
+            Default max write count
+            </summary>
+        </member>
+        <member name="F:BrightData.Consts.DefaultMemoryCacheSize">
+            <summary>
+            Default memory cache size
+            </summary>
+        </member>
+        <member name="F:BrightData.Consts.StandardMetaData">
+            <summary>
+            Standard metadata
+            </summary>
+        </member>
         <member name="T:BrightData.Converters.StaticConverters">
             <summary>
             Static methods to create converters
@@ -484,6 +543,145 @@
             Extension methods to attach analyser creation to the bright data context
             </summary>
         </member>
+        <member name="M:BrightData.ExtensionMethods.GetDateAnalyser(BrightData.IBrightDataContext,System.UInt32)">
+            <summary>
+            Creates a date analyzer
+            </summary>
+            <param name="context"></param>
+            <param name="maxCount">Max distinct items</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetNumericAnalyser``1(BrightData.IBrightDataContext,System.UInt32,System.UInt32)">
+            <summary>
+            Creates a numeric analyzer
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="maxCount">Max distinct items</param>
+            <param name="writeCount">Maximum count to write to meta data</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetConvertToStringAnalyser``1(BrightData.IBrightDataContext,System.UInt32,System.UInt32)">
+            <summary>
+            Creates a frequency analyzer
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="maxCount">Max distinct items</param>
+            <param name="writeCount">Maximum count to write to meta data</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetDimensionAnalyser(BrightData.IBrightDataContext,System.UInt32)">
+            <summary>
+            Creates a dimension analyzer
+            </summary>
+            <param name="context"></param>
+            <param name="maxCount">Max distinct items</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetFrequencyAnalyser``1(BrightData.IBrightDataContext,System.UInt32,System.UInt32)">
+            <summary>
+            Creates a frequency analyzer
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="maxCount">Max distinct items</param>
+            <param name="writeCount">Maximum count to write to meta data</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetIndexAnalyser(BrightData.IBrightDataContext,System.UInt32,System.UInt32)">
+            <summary>
+            Creates an index analyzer
+            </summary>
+            <param name="context"></param>
+            <param name="maxCount">Max distinct items</param>
+            <param name="writeCount">Maximum count to write to meta data</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetNumericAnalyser(BrightData.IBrightDataContext,System.UInt32,System.UInt32)">
+            <summary>
+            Creates a numeric analyzer
+            </summary>
+            <param name="context"></param>
+            <param name="maxCount">Max distinct items</param>
+            <param name="writeCount">Maximum count to write to meta data</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetStringAnalyser(BrightData.IBrightDataContext,System.UInt32,System.UInt32)">
+            <summary>
+            Creates a string analyzer
+            </summary>
+            <param name="context"></param>
+            <param name="maxCount">Max distinct items</param>
+            <param name="writeCount">Maximum count to write to meta data</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetFrequencyAnalyser(BrightData.IBrightDataContext,System.Type,System.UInt32,System.UInt32)">
+            <summary>
+            Creates a frequency analyzer
+            </summary>
+            <param name="context"></param>
+            <param name="type"></param>
+            <param name="maxCount">Max distinct items</param>
+            <param name="writeCount">Maximum count to write to meta data</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetDateAnalysis(BrightData.IMetaData)">
+            <summary>
+            Gets the date analysis that was stored in meta data
+            </summary>
+            <param name="metaData">Meta data store</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetDimensionAnalysis(BrightData.IMetaData)">
+            <summary>
+            Gets the dimension analysis that was stored in meta data
+            </summary>
+            <param name="metaData">Meta data store</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetFrequencyAnalysis(BrightData.IMetaData)">
+            <summary>
+            Gets the frequency analysis that was stored in meta data
+            </summary>
+            <param name="metaData">Meta data store</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetIndexAnalysis(BrightData.IMetaData)">
+            <summary>
+            Gets the index analysis that was stored in meta data
+            </summary>
+            <param name="metaData">Meta data store</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetNumericAnalysis(BrightData.IMetaData)">
+            <summary>
+            Gets the numeric analysis that was stored in meta data
+            </summary>
+            <param name="metaData">Meta data store</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetStringAnalysis(BrightData.IMetaData)">
+            <summary>
+            Gets the string analysis that was stored in meta data
+            </summary>
+            <param name="metaData">Meta data store</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetDictionaryValues(BrightData.IMetaData)">
+            <summary>
+            Gets the categories that was stored in meta data
+            </summary>
+            <param name="metaData">Meta data store</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetNormalization(BrightData.IMetaData)">
+            <summary>
+            
+            </summary>
+            <param name="metaData">Meta data store</param>
+            <returns></returns>
+        </member>
         <member name="M:BrightData.ExtensionMethods.Analyze``1(System.Collections.Generic.IEnumerable{``0})">
             <summary>
             Analyzes numbers in a sequence
@@ -506,12 +704,11 @@
             <param name="tensors"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Analyze``1(System.Collections.Generic.IEnumerable{BrightData.IHaveIndices})">
+        <member name="M:BrightData.ExtensionMethods.Analyze(System.Collections.Generic.IEnumerable{BrightData.IHaveIndices})">
             <summary>
             Analyzes indices in a sequence
             </summary>
             <param name="items"></param>
-            <typeparam name="T"></typeparam>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.Analyze``1(System.Collections.Generic.IEnumerable{System.String})">
@@ -528,6 +725,58 @@
             </summary>
             <param name="items"></param>
             <typeparam name="T"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.CreateHybridStructBuffer``1(BrightData.IBrightDataContext,BrightData.IProvideTempStreams,System.UInt32,System.UInt16)">
+            <summary>
+            Creates a struct buffer
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="tempStream">Temp stream provider</param>
+            <param name="bufferSize">Max items to cache in memory</param>
+            <param name="maxDistinct">Maximum number of distinct items (to encode)</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.CreateHybridStructBuffer(BrightData.IBrightDataContext,System.Type,BrightData.IProvideTempStreams,System.UInt32,System.UInt16)">
+            <summary>
+            Creates a struct buffer
+            </summary>
+            <param name="context"></param>
+            <param name="type">Type of structs</param>
+            <param name="tempStream">Temp stream provider</param>
+            <param name="bufferSize">Max items to cache in memory</param>
+            <param name="maxDistinct">Maximum number of distinct items (to encode)</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.CreateHybridStringBuffer(BrightData.IBrightDataContext,BrightData.IProvideTempStreams,System.UInt32,System.UInt16)">
+            <summary>
+            Creates a string buffer
+            </summary>
+            <param name="context"></param>
+            <param name="tempStream">Temp stream provider</param>
+            <param name="bufferSize">Max items to cache in memory</param>
+            <param name="maxDistinct">Maximum number of distinct items (to encode)</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.CreateHybridObjectBuffer``1(BrightData.IBrightDataContext,BrightData.IProvideTempStreams,System.UInt32)">
+            <summary>
+            Creates an object buffer
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="tempStream">Temp stream provider</param>
+            <param name="bufferSize">Max items to cache in memory</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.CreateHybridObjectBuffer(BrightData.IBrightDataContext,System.Type,BrightData.IProvideTempStreams,System.UInt32)">
+            <summary>
+            Creates an object buffer
+            </summary>
+            <param name="context"></param>
+            <param name="type">Type of objects</param>
+            <param name="tempStream">Temp stream provider</param>
+            <param name="bufferSize">Max items to cache in memory</param>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.GetReader``1(BrightData.IBrightDataContext,System.IO.Stream,System.UInt32)">

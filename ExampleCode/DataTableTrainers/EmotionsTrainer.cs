@@ -38,16 +38,16 @@ namespace ExampleCode.DataTableTrainers
             var featureColumns = (table.ColumnCount - targetColumnCount).AsRange().ToArray();
             var targetColumns = targetColumnCount.AsRange((int)table.ColumnCount - targetColumnCount).ToArray();
             var columnConversions = featureColumns
-                .Select(i => new ColumnConversion(i, ColumnConversionType.ToNumeric))
-                .Concat(targetColumns.Select(i => new ColumnConversion(i, ColumnConversionType.ToBoolean)))
+                .Select(i => ColumnConversionType.ToNumeric.For(i))
+                .Concat(targetColumns.Select(i => ColumnConversionType.ToBoolean.For(i)))
                 .ToArray();
             using var converted = table.Convert(columnConversions);
 
             // convert the many feature columns to an index list and set that as the feature column
-            using var reinterpeted = converted.ReinterpretColumns(new ReinterpretColumns(ColumnType.IndexList, "Targets", targetColumns));
+            using var reinterpeted = converted.ReinterpretColumns(targetColumns.ReinterpretColumns(ColumnType.IndexList, "Targets"));
             reinterpeted.SetTargetColumn(reinterpeted.ColumnCount-1);
 
-            using var normalized = reinterpeted.Normalize(featureColumns.Select(i => new ColumnNormalization(i, NormalizationType.FeatureScale)).ToArray());
+            using var normalized = reinterpeted.Normalize(featureColumns.Select(i => NormalizationType.FeatureScale.For(i)).ToArray());
 
             // return as row oriented
             return normalized.ToRowOriented();

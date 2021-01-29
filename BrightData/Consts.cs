@@ -1,23 +1,38 @@
 ﻿namespace BrightData
 {
+    /// <summary>
+    /// Constants
+    /// </summary>
     public class Consts
     {
+        /// <summary>
+        /// Data table version
+        /// </summary>
         public const int DataTableVersion = 1;
+
+        /// <summary>
+        /// Default max distinct count
+        /// </summary>
         public const uint MaxDistinct = 131072 * 4;
+
+        /// <summary>
+        /// Default max write count
+        /// </summary>
         public const uint MaxWriteCount = 100;
+
+        /// <summary>
+        /// Default memory cache size
+        /// </summary>
         public const uint DefaultMemoryCacheSize = 1024 * 1048576;
 
-        //public const string Id = "Id";
+#pragma warning disable 1591
         public const string Index = "Index";
         public const string Name = "Name";
         public const string Type = "Type";
         public const string IsNumeric = "IsNumeric";
         public const string IsTarget = "IsTarget";
         public const string IsCategorical = "IsCategorical";
-
-        //public const string HasUnique = "HasUnique";
         public const string IsSequential = "IsSequential";
-
         public const string HasBeenAnalysed = "HasBeenAnalysed";
         public const string Mode = "Mode";
         public const string MostFrequent = "MostFrequent";
@@ -37,8 +52,10 @@
         public const string Min = "Min";
         public const string Max = "Max";
         public const string Mean = "Mean";
-        public const string Variance = "Variance";
-        public const string StdDev = "StdDev";
+        public const string SampleVariance = "SampleVariance";
+        public const string SampleStdDev = "SampleStdDev";
+        public const string PopulationVariance = "PopulationVariance";
+        public const string PopulationStdDev = "PopulationStdDev";
         public const string Median = "Median";
         public const string Total = "Total";
         public const string NormalizationType = "NormalizationType";
@@ -50,7 +67,11 @@
         public const string CategoryPrefix = "Category:";
 
         public const string LegacyFloatSerialisationInput = "LegacyFloatSerialisationInput";
+#pragma warning restore 1591
 
-        public static readonly string[] StandardMetaData = { Index, Name, Type, IsNumeric, IsTarget/*, IsFeature*/ };
+        /// <summary>
+        /// Standard metadata
+        /// </summary>
+        public static readonly string[] StandardMetaData = { Index, Name, Type, IsNumeric, IsTarget };
     }
 }

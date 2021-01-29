@@ -92,15 +92,10 @@ namespace BrightWire.UnitTests
                 _context.CreateVector(new[] { 5f })
             }));
             probability3[0].Should().BeLessOrEqualTo(0.5f);
-            probability3[1].Should().BeGreaterOrEqualTo(0.5f);
+            probability3[1].Should().BeLessOrEqualTo(0.5f);
             probability3[2].Should().BeGreaterOrEqualTo(0.5f);
             probability3[3].Should().BeGreaterOrEqualTo(0.5f);
             probability3[4].Should().BeGreaterOrEqualTo(0.5f);
-
-            //var rowClassifier = predictor.ConvertToRowClassifier(new[] { 0 });
-            //var rowClassifications = rowClassifier.Classifiy(index);
-            //Assert.IsTrue(rowClassifications[0].Classification == "0");
-            //Assert.IsTrue(rowClassifications[rowClassifications.Count - 1].Classification == "1");
         }
 
         [Fact]

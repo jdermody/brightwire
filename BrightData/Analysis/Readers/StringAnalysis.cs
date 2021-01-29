@@ -7,18 +7,18 @@
     {
         internal StringAnalysis(IMetaData metadata) : base(metadata)
         {
-            MinLength = metadata.Get<uint>(Consts.MinLength);
-            MaxLength = metadata.Get<uint>(Consts.MaxLength);
+            MinLength = metadata.GetNullable<uint>(Consts.MinLength);
+            MaxLength = metadata.GetNullable<uint>(Consts.MaxLength);
         }
 
         /// <summary>
         /// Length of smallest observed string
         /// </summary>
-        public uint MinLength { get; }
+        public uint? MinLength { get; }
 
         /// <summary>
         /// Length of largest observed string
         /// </summary>
-        public uint MaxLength { get; }
+        public uint? MaxLength { get; }
     }
 }

@@ -8,7 +8,7 @@
         {
         }
 
-        public override void Add(string str)
+        public override void Add(string? str)
         {
             if (str != null) {
                 _Add(str);
@@ -23,8 +23,10 @@
         public override void WriteTo(IMetaData metadata)
         {
             base.WriteTo(metadata);
-            metadata.Set(Consts.MinLength, _minLength);
-            metadata.Set(Consts.MaxLength, _maxLength);
+            if(_minLength != uint.MaxValue)
+                metadata.Set(Consts.MinLength, _minLength);
+            if(_minLength != uint.MinValue)
+                metadata.Set(Consts.MaxLength, _maxLength);
         }
     }
 }

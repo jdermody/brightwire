@@ -35,7 +35,7 @@ namespace BrightWire.ExecutionGraph.Node
         /// <param name="graph">Graph factory</param>
         /// <param name="description">Node description</param>
         /// <param name="data">Node serialisation data</param>
-        protected virtual void _Initalise(GraphFactory graph, string description, byte[] data)
+        protected virtual void _Initalise(GraphFactory graph, string description, byte[]? data)
         {
             _ReadFrom(data, reader => ReadFrom(graph, reader));
         }
@@ -113,7 +113,7 @@ namespace BrightWire.ExecutionGraph.Node
         /// <param name="context"></param>
         /// <param name="data"></param>
         /// <param name="backProp"></param>
-        protected void _AddNextGraphAction(IGraphContext context, IGraphData data, Func<IBackpropagation> backProp)
+        protected void _AddNextGraphAction(IGraphContext context, IGraphData? data, Func<IBackpropagation> backProp)
         {
             context.AddForward(new TrainingAction(this, data, context.Source), backProp);
         }
@@ -125,7 +125,7 @@ namespace BrightWire.ExecutionGraph.Node
         /// <param name="connectedTo">List of nodes this node is connected to</param>
         /// <param name="wireList">List of wires between all connected nodes</param>
         /// <returns></returns>
-        public virtual ExecutionGraphModel.Node SerialiseTo(HashSet<INode> existing, List<ExecutionGraphModel.Node> connectedTo, HashSet<ExecutionGraphModel.Wire> wireList)
+        public virtual ExecutionGraphModel.Node SerialiseTo(HashSet<INode>? existing, List<ExecutionGraphModel.Node>? connectedTo, HashSet<ExecutionGraphModel.Wire>? wireList)
         {
             var info = _GetInfo();
             var ret = new ExecutionGraphModel.Node {
@@ -137,16 +137,19 @@ namespace BrightWire.ExecutionGraph.Node
             };
 
             // get the connected nodes
-            foreach (var wire in Output) {
-                var sendTo = wire.SendTo;
-                wireList.Add(new ExecutionGraphModel.Wire {
-                    FromId = _id,
-                    InputChannel = wire.Channel,
-                    ToId = sendTo.Id
-                });
-                if (existing.Add(sendTo))
-                    connectedTo.Add(sendTo.SerialiseTo(existing, connectedTo, wireList));
+            if (existing != null && connectedTo != null && wireList != null) {
+                foreach (var wire in Output) {
+                    var sendTo = wire.SendTo;
+                    wireList.Add(new ExecutionGraphModel.Wire {
+                        FromId = _id,
+                        InputChannel = wire.Channel,
+                        ToId = sendTo.Id
+                    });
+                    if (existing.Add(sendTo))
+                        connectedTo.Add(sendTo.SerialiseTo(existing, connectedTo, wireList));
+                }
             }
+
             return ret;
         }
 
@@ -194,7 +197,7 @@ namespace BrightWire.ExecutionGraph.Node
         /// <param name="name">Node name</param>
         /// <param name="description">Node description</param>
         /// <param name="data">Serialisation data</param>
-        void ICanInitialiseNode.Initialise(GraphFactory factory, string id, string name, string description, byte[] data)
+        void ICanInitialiseNode.Initialise(GraphFactory factory, string id, string name, string description, byte[]? data)
         {
             _id = id;
             _name = name;
@@ -277,10 +280,12 @@ namespace BrightWire.ExecutionGraph.Node
         /// </summary>
         /// <param name="data">The data to read</param>
         /// <param name="callback">Callback to receive the writer</param>
-        protected static void _ReadFrom(byte[] data, Action<BinaryReader> callback)
+        protected static void _ReadFrom(byte[]? data, Action<BinaryReader> callback)
         {
-            using var reader = new BinaryReader(new MemoryStream(data), Encoding.UTF8);
-            callback(reader);
+            if (data != null) {
+                using var reader = new BinaryReader(new MemoryStream(data), Encoding.UTF8);
+                callback(reader);
+            }
         }
 
         /// <summary>
