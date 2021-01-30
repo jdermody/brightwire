@@ -87,8 +87,7 @@ namespace ExampleCode
             iris.TrainDecisionTree();
             iris.TrainRandomForest(500, 7);
             iris.TrainKNearestNeighbours(10);
-            iris.TrainMultinomialLogisticRegression(500, 0.3f);
-            iris.TrainLegacyMultinomialLogisticRegression(500, 0.3f, 0.1f);
+            iris.TrainMultinomialLogisticRegression(500, 0.3f, 0.1f);
             iris.TrainSigmoidNeuralNetwork(4, 500, 0.1f, 16);
         }
 

@@ -89,23 +89,11 @@ namespace ExampleCode
             return ret;
         }
 
-        public void TrainMultinomialLogisticRegression(uint iterations, float trainingRate, bool writeResults = true)
+        public void TrainMultinomialLogisticRegression(uint iterations, float trainingRate, float lambda, bool writeResults = true)
         {
-            var ret = Training.TrainMultinomialLogisticRegression(iterations, trainingRate);
+            var ret = Training.TrainMultinomialLogisticRegression(iterations, trainingRate, lambda);
             if (writeResults)
                 WriteResults("Multinomial logistic regression", ret.CreateClassifier(Table.Context.LinearAlgebraProvider));
-        }
-
-        public MultinomialLogisticRegression TrainLegacyMultinomialLogisticRegression(uint iterations, float trainingRate, float lambda, bool writeResults = true)
-        {
-            var lap = Table.Context.LinearAlgebraProvider;
-            var ret = LegacyMultinomialLogisticRegressionTrainner.Train(Training, lap, iterations, trainingRate, lambda);
-            if (writeResults) {
-                var classifier = new LegacyMultinomialLogisticRegressionClassifier(lap, ret);
-                WriteResults("(Legacy) Multinomial logistic regression", classifier);
-            }
-
-            return ret;
         }
 
         void WriteResults(string type, IRowClassifier classifier)
