@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using BrightData.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Single;
 
 namespace BrightData.Numerics

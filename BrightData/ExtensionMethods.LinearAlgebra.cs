@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using BrightData.FloatTensor;
 using BrightData.Helper;
+using BrightData.LinearAlgebra;
 using BrightData.Memory;
 
 namespace BrightData
@@ -66,6 +67,20 @@ namespace BrightData
         public static Vector<T> CreateVector<T>(this IBrightDataContext context, BinaryReader reader) where T : struct
         {
             return new Vector<T>(context, reader);
+        }
+
+        /// <summary>
+        /// Creates a matrix
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="context"></param>
+        /// <param name="rows">Number of rows</param>
+        /// <param name="columns">Number of columns</param>
+        /// <returns></returns>
+        public static Matrix<T> CreateMatrix<T>(this IBrightDataContext context, uint rows, uint columns) where T : struct
+        {
+            var segment = context.CreateSegment<T>(rows * columns);
+            return new Matrix<T>(segment, rows, columns);
         }
 
         /// <summary>
@@ -498,7 +513,7 @@ namespace BrightData
 	    {
 		    var first = matrices[0];
 		    var ret = lap.Create3DTensor(first.RowCount, first.ColumnCount, (uint)matrices.Length);
-		    ret.Data = Float3DTensor.Create(lap.Context, matrices);
+		    ret.Data = lap.Context.CreateTensor3D(matrices);
 		    return ret;
 	    }
 
@@ -725,6 +740,32 @@ namespace BrightData
                 .Select((v, i) => new WeightedIndexList.Item((uint)i, v))
                 .Where(d => FloatMath.IsNotZero(d.Weight))
             );
+        }
+
+        public static Vector<float> ReadVectorFrom(this IBrightDataContext context, BinaryReader reader)
+        {
+            if (context.Get(Consts.LegacyFloatSerialisationInput, false))
+            {
+                var len = reader.ReadInt32();
+                var ret = new float[len];
+                for (var i = 0; i < len; i++)
+                    ret[i] = reader.ReadSingle();
+                return context.CreateVector(ret);
+            }
+            return new Vector<float>(context, reader);
+        }
+
+        public static Matrix<float> ReadMatrixFrom(this IBrightDataContext context, BinaryReader reader)
+        {
+            if (context.Get(Consts.LegacyFloatSerialisationInput, false))
+            {
+                var len = reader.ReadInt32();
+                var ret = new Vector<float>[len];
+                for (var i = 0; i < len; i++)
+                    ret[i] = context.ReadVectorFrom(reader);
+                return context.CreateMatrixFromRows(ret);
+            }
+            return new Matrix<float>(context, reader);
         }
     }
 }

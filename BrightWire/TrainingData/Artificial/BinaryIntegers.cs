@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using BrightData;
+using BrightData.LinearAlgebra;
 using BrightWire.TrainingData.Helper;
 
 namespace BrightWire.TrainingData.Artificial

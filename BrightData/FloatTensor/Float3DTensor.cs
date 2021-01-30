@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using BrightData.LinearAlgebra;
 
 namespace BrightData.FloatTensor
 {
@@ -7,8 +8,6 @@ namespace BrightData.FloatTensor
     {
         public Float3DTensor(Tensor3D<float> data) => Data = data;
         public void Dispose() => Data.Dispose();
-
-        public static Tensor3D<float> Create(IBrightDataContext context, Matrix<float>[] matrices) => context.CreateTensor3D(matrices);
 
         public uint RowCount => Data.RowCount;
         public uint ColumnCount => Data.ColumnCount;

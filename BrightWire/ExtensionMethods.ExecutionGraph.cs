@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using BrightData;
+using BrightData.LinearAlgebra;
 using BrightTable;
 using BrightWire.Helper;
 

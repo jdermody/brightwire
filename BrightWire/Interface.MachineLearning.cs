@@ -3,6 +3,7 @@ using BrightTable;
 using BrightWire.Models.Bayesian;
 using System;
 using System.Collections.Generic;
+using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph;
 using BrightWire.Models.Linear;
 

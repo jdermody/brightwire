@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using BrightData.FloatTensor;
 
-namespace BrightData.FloatTensor
+namespace BrightData.LinearAlgebra
 {
     internal class SimpleLinearAlgebraProvider : ILinearAlgebraProvider
     {
@@ -27,37 +29,43 @@ namespace BrightData.FloatTensor
 
         public IFloatVector CreateVector(uint length, Func<uint, float> init)
         {
-            throw new NotImplementedException();
+            return new FloatVector(Context.CreateVector(length, init));
         }
 
         public IFloatMatrix CreateMatrix(uint rows, uint columns, bool setToZero = false)
         {
-            throw new NotImplementedException();
+            var ret = new FloatMatrix(Context.CreateMatrix<float>(rows, columns));
+            if(setToZero)
+                ret.Data.Initialize(0f);
+            return ret;
         }
 
         public IFloatMatrix CreateMatrix(uint rows, uint columns, Func<uint, uint, float> init)
         {
-            throw new NotImplementedException();
+            return new FloatMatrix(Context.CreateMatrix(rows, columns, init));
         }
 
         public IFloatMatrix CreateMatrixFromRows(params IFloatVector[] vectorRows)
         {
-            throw new NotImplementedException();
+            return new FloatMatrix(Context.CreateMatrixFromRows(vectorRows.Select(v => v.Data).ToArray()));
         }
 
         public IFloatMatrix CreateMatrixFromColumns(params IFloatVector[] vectorColumns)
         {
-            throw new NotImplementedException();
+            return new FloatMatrix(Context.CreateMatrixFromColumns(vectorColumns.Select(v => v.Data).ToArray()));
         }
 
         public I3DFloatTensor Create3DTensor(uint rows, uint columns, uint depth, bool setToZero = false)
         {
-            throw new NotImplementedException();
+            var ret = new Float3DTensor(Context.CreateTensor3D<float>(depth, rows, columns));
+            if(setToZero)
+                ret.Data.Initialize(0f);
+            return ret;
         }
 
         public I3DFloatTensor Create3DTensor(params IFloatMatrix[] matrices)
         {
-            throw new NotImplementedException();
+            return new Float3DTensor(Context.CreateTensor3D(matrices.Select(m => m.Data).ToArray()));
         }
 
         public I4DFloatTensor Create4DTensor(uint rows, uint columns, uint depth, uint count, bool setToZero = false)

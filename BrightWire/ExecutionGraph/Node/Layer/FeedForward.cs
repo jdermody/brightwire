@@ -108,14 +108,14 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             _outputSize = (uint)reader.ReadInt32();
 
             // read the bias parameters
-            var bias = FloatVector.ReadFrom(factory.Context, reader);
+            var bias = factory.Context.ReadVectorFrom(reader);
             if (_bias == null)
                 _bias = lap.CreateVector(bias);
             else
                 _bias.Data = bias;
 
             // read the weight parameters
-            var weight = FloatMatrix.ReadFrom(factory.Context, reader);
+            var weight = factory.Context.ReadMatrixFrom(reader);
             if (_weight == null)
                 _weight = lap.CreateMatrix(weight);
             else

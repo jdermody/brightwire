@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using BrightData.FloatTensor;
 using BrightData.Helper;
+using BrightData.LinearAlgebra;
 using FluentAssertions;
 using MathNet.Numerics.Distributions;
 using Xunit;

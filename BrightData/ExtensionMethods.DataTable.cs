@@ -10,6 +10,7 @@ using BrightData.DataTable;
 using BrightData.DataTable.Builders;
 using BrightData.Helper;
 using BrightData.Input;
+using BrightData.LinearAlgebra;
 using BrightData.Segment;
 using BrightData.Transformation;
 

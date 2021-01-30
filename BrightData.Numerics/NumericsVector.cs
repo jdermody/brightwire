@@ -110,9 +110,9 @@ namespace BrightData.Numerics
             return _vector.ToVectorString();
         }
 
-        public Vector<float> Data
+        public LinearAlgebra.Vector<float> Data
         {
-            get => FloatVector.Create(Context, _vector.ToArray());
+            get => Context.CreateVector(_vector.ToArray());
 
 	        set
             {

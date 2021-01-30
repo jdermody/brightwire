@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using BrightData.FloatTensor;
 using BrightData.Helper;
+using BrightData.LinearAlgebra;
 
 namespace BrightData.Cuda
 {
@@ -84,7 +85,7 @@ namespace BrightData.Cuda
 				var data = new float[Count];
 				_data.CopyToHost(data);
 
-				return FloatVector.Create(_cuda.DataContext, data);
+				return _cuda.DataContext.CreateVector(data);
 			}
 
 			set

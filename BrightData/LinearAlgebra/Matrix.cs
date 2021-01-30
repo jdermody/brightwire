@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BrightData.Memory;
 
-namespace BrightData
+namespace BrightData.LinearAlgebra
 {
     /// <summary>
     /// Matrix type

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using BrightData;
+using BrightData.LinearAlgebra;
 using BrightTable;
 
 namespace BrightWire.ExecutionGraph.DataTableAdaptor

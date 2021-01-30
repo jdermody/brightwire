@@ -3,6 +3,7 @@ using System.Linq;
 using BrightWire.ExecutionGraph.Helper;
 using BrightTable;
 using BrightData;
+using BrightData.LinearAlgebra;
 
 namespace BrightWire.ExecutionGraph.DataTableAdaptor
 {

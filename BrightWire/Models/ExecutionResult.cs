@@ -1,5 +1,6 @@
 ﻿using BrightData;
 using System.Linq;
+using BrightData.LinearAlgebra;
 
 namespace BrightWire.Models
 {

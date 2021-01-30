@@ -176,12 +176,13 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 		public override void ReadFrom(GraphFactory factory, BinaryReader reader)
 		{
 			var inputSize = (uint)reader.ReadInt32();
-			var gamma = FloatVector.ReadFrom(factory.Context, reader).ToArray();
-			var beta = FloatVector.ReadFrom(factory.Context, reader).ToArray();
+            var context = factory.Context;
+			var gamma = context.ReadVectorFrom(reader).ToArray();
+			var beta = context.ReadVectorFrom(reader).ToArray();
 
 			var count = (uint)reader.ReadInt32();
-			var mean = FloatVector.ReadFrom(factory.Context, reader).ToArray();
-			var m2 = FloatVector.ReadFrom(factory.Context, reader).ToArray();
+			var mean = context.ReadVectorFrom(reader).ToArray();
+			var m2 = context.ReadVectorFrom(reader).ToArray();
 
 			_Create(factory, inputSize, gamma, beta, mean, m2, count);
 		}

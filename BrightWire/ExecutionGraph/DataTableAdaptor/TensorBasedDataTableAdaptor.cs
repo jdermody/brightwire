@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using BrightData;
+using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph.Helper;
 using BrightTable;
 

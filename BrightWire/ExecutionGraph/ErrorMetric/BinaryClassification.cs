@@ -1,6 +1,7 @@
 ﻿using System;
 using BrightData;
 using BrightData.Helper;
+using BrightData.LinearAlgebra;
 
 namespace BrightWire.ExecutionGraph.ErrorMetric
 {

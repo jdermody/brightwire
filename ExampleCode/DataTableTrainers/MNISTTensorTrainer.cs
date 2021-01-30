@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using BrightData;
+using BrightData.LinearAlgebra;
 using BrightTable;
 using BrightWire;
 using BrightWire.Models;

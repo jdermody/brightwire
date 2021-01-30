@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BrightData.Analysis;
+using BrightData.LinearAlgebra;
 using BrightData.Transformation;
 
 namespace BrightData.FloatTensor
@@ -10,19 +11,6 @@ namespace BrightData.FloatTensor
     public class FloatVector : IIndexableFloatVector
     {
         public FloatVector(Vector<float> data) => Data = data;
-
-        public static Vector<float> Create(IBrightDataContext context, float[] ret) => context.CreateVector(ret);
-        public static Vector<float> ReadFrom(IBrightDataContext context, BinaryReader reader)
-        {
-            if (context.Get(Consts.LegacyFloatSerialisationInput, false)) {
-                var len = reader.ReadInt32();
-                var ret = new float[len];
-                for (var i = 0; i < len; i++)
-                    ret[i] = reader.ReadSingle();
-                return context.CreateVector(ret);
-            }
-            return new Vector<float>(context, reader);
-        }
 
         public void Dispose()
         {

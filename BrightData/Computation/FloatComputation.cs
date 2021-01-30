@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BrightData.Helper;
+using BrightData.LinearAlgebra;
 using BrightData.Memory;
 
 namespace BrightData.Computation

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using BrightData;
 using BrightData.FloatTensor;
+using BrightData.LinearAlgebra;
 
 namespace BrightWire.TrainingData.Artificial
 {
@@ -98,7 +99,7 @@ namespace BrightWire.TrainingData.Artificial
         {
             var ret = new float[DictionarySize];
             ret[CharTable[ch]] = val;
-            return FloatVector.Create(_context, ret);
+            return _context.CreateVector(ret);
         }
 
         /// <summary>
@@ -111,7 +112,7 @@ namespace BrightWire.TrainingData.Artificial
             var ret = new float[DictionarySize];
             foreach(var item in data)
                 ret[CharTable[item.Item1]] = item.Item2;
-            return FloatVector.Create(_context, ret);
+            return _context.CreateVector(ret);
         }
 
         /// <summary>
@@ -125,7 +126,7 @@ namespace BrightWire.TrainingData.Artificial
             for(int i = 0, len = str.Length; i < len; i++)
                 data[i] = Encode(str[i]);
 
-            return FloatMatrix.Create(_context, data);
+            return _context.CreateMatrixFromRows(data);
         }
 
         /// <summary>

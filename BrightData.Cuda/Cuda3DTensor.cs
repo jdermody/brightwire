@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using BrightData.FloatTensor;
+using BrightData.LinearAlgebra;
 using ManagedCuda.CudaBlas;
 
 namespace BrightData.Cuda
@@ -125,7 +126,7 @@ namespace BrightData.Cuda
 			get
 			{
 				Debug.Assert(IsValid);
-				return Float3DTensor.Create(_cuda.DataContext, Matrices.Select(m => m.Data).ToArray());
+				return _cuda.DataContext.CreateTensor3D(Matrices.Select(m => m.Data).ToArray());
 			}
 			set
 			{

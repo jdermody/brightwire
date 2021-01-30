@@ -3,6 +3,7 @@ using BrightTable;
 using BrightWire.ExecutionGraph.Helper;
 using System;
 using System.Linq;
+using BrightData.LinearAlgebra;
 
 namespace BrightWire.ExecutionGraph.DataSource
 {

@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Xml;
 using BrightData.Helper;
+using BrightData.LinearAlgebra;
 
 namespace BrightData
 {

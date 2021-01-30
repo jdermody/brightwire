@@ -21,6 +21,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Serialization;
 using BrightData;
+using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph.Action;
 using BrightWire.ExecutionGraph.Node.Output;
 using BrightTable;

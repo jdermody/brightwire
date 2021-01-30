@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using BrightData.LinearAlgebra;
 
 namespace BrightData.Analysis
 {

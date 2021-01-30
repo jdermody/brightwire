@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BrightData.LinearAlgebra;
 
 namespace BrightData.FloatTensor
 {
@@ -9,19 +10,6 @@ namespace BrightData.FloatTensor
     {
         public FloatMatrix(Matrix<float> data) => Data = data;
         public void Dispose() => Data.Dispose();
-
-        public static Matrix<float> Create(IBrightDataContext context, Vector<float>[] rows) => context.CreateMatrixFromRows(rows);
-        public static Matrix<float> ReadFrom(IBrightDataContext context, BinaryReader reader)
-        {
-            if (context.Get(Consts.LegacyFloatSerialisationInput, false)) {
-                var len = reader.ReadInt32();
-                var ret = new Vector<float>[len];
-                for (var i = 0; i < len; i++)
-                    ret[i] = FloatVector.ReadFrom(context, reader);
-                return context.CreateMatrixFromRows(ret);
-            }
-            return new Matrix<float>(context, reader);
-        }
 
         public bool IsValid { get; } = true;
         public IFloatMatrix Multiply(IFloatMatrix matrix) => new FloatMatrix(Data.Multiply(matrix.Data));

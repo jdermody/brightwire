@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using BrightData.Helper;
 
-namespace BrightData
+namespace BrightData.LinearAlgebra
 {
     /// <summary>
     /// Base class for tensors

@@ -2,6 +2,7 @@
 using System.IO;
 using BrightData;
 using BrightData.FloatTensor;
+using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph.Action;
 
 namespace BrightWire.ExecutionGraph.Node.Input
@@ -45,7 +46,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
         public IAction SetMemoryAction => _setMemory;
         public Vector<float> Data
         {
-            get => FloatVector.Create(_context, _data);
+            get => _context.CreateVector(_data);
 	        set => value.Segment.CopyTo(_data);
         }
 
@@ -81,7 +82,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
 
         public override void ReadFrom(GraphFactory factory, BinaryReader reader)
         {
-            Data = FloatVector.ReadFrom(_context, reader);
+            Data = _context.ReadVectorFrom(reader);
         }
     }
 }

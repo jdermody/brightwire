@@ -1,6 +1,7 @@
 ﻿using BrightWire.ExecutionGraph.Node.Input;
 using System.Collections.Generic;
 using System.IO;
+using BrightData;
 using BrightData.FloatTensor;
 
 namespace BrightWire.ExecutionGraph.Node.Layer
@@ -115,7 +116,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         {
             var inputSize = (uint)reader.ReadInt32();
             var memoryId = reader.ReadString();
-            var memory = FloatVector.ReadFrom(factory.Context, reader);
+            var memory = factory.Context.ReadVectorFrom(reader);
 
             if (_memory == null)
                 _Create(factory, inputSize, memory.Segment.ToArray(), memoryId);

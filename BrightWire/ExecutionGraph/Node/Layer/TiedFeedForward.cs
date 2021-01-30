@@ -77,7 +77,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             _layerId = reader.ReadString();
 
             var lap = factory.LinearAlgebraProvider;
-            var bias = FloatVector.ReadFrom(factory.Context, reader);
+            var bias = factory.Context.ReadVectorFrom(reader);
             if (_bias == null)
                 _bias = lap.CreateVector(bias);
             else

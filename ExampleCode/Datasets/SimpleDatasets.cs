@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using BrightData;
+using BrightData.LinearAlgebra;
 using BrightWire.TrainingData.Artificial;
 using BrightWire.TrainingData.Helper;
 using ExampleCode.DataTableTrainers;

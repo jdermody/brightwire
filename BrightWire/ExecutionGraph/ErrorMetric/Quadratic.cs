@@ -2,6 +2,7 @@
 using System;
 using System.Linq;
 using BrightData.Helper;
+using BrightData.LinearAlgebra;
 
 namespace BrightWire.ExecutionGraph.ErrorMetric
 {

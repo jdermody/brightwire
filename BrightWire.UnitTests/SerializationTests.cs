@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using BrightData;
 using BrightData.FloatTensor;
+using BrightData.LinearAlgebra;
 using BrightData.UnitTests;
 using BrightTable;
 using BrightWire.ExecutionGraph;

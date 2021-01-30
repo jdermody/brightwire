@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using BrightData;
 using BrightData.FloatTensor;
+using BrightData.LinearAlgebra;
 using BrightWire.TrainingData.Helper;
 
 namespace BrightWire.TrainingData.Artificial
@@ -43,10 +44,10 @@ namespace BrightWire.TrainingData.Artificial
         /// <param name="sequence">The reber sequence to encode</param>
         public static Matrix<float> Encode(IBrightDataContext context, string sequence)
         {
-            return FloatMatrix.Create(context, sequence.Select(ch => {
+            return context.CreateMatrixFromRows(sequence.Select(ch => {
                     var ret = new float[_ch.Count];
                     ret[_ch[ch]] = 1f;
-                    return FloatVector.Create(context, ret);
+                    return context.CreateVector(ret);
                 }).ToArray()
             );
         }

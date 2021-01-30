@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using BrightData.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Single;
 
 namespace BrightData.Numerics

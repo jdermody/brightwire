@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using BrightData.Memory;
 
-namespace BrightData
+namespace BrightData.LinearAlgebra
 {
     /// <summary>
     /// 3D tensor type

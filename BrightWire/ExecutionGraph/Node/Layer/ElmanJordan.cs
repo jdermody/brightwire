@@ -1,6 +1,7 @@
 ﻿using BrightWire.ExecutionGraph.Node.Input;
 using System.Collections.Generic;
 using System.IO;
+using BrightData;
 using BrightData.FloatTensor;
 using BrightWire.ExecutionGraph.Action;
 
@@ -104,7 +105,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             var isElman = reader.ReadBoolean();
             var inputSize = (uint)reader.ReadInt32();
             var memoryId = reader.ReadString();
-            var memory = FloatVector.ReadFrom(factory.Context, reader);
+            var memory = factory.Context.ReadVectorFrom(reader);
             var activation = _Hydrate(factory, reader);
             var activation2 = _Hydrate(factory, reader);
 

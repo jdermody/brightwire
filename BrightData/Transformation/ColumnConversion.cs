@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using BrightData.Buffer;
 using BrightData.Helper;
+using BrightData.LinearAlgebra;
 
 namespace BrightData.Transformation
 {

@@ -7,6 +7,7 @@ using System.Text;
 using System.Xml;
 using BrightData.FloatTensor;
 using BrightData.Helper;
+using BrightData.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Single;
 
 namespace BrightData.Numerics
@@ -71,7 +72,7 @@ namespace BrightData.Numerics
         {
             get
             {
-                return Float3DTensor.Create(Context, Matrix.Select(m => m.Data).ToArray());
+                return Context.CreateTensor3D(Matrix.Select(m => m.Data).ToArray());
             }
             set
             {

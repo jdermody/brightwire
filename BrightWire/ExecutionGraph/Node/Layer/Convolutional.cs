@@ -159,14 +159,14 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 			_shouldBackpropagate = reader.ReadBoolean();
 
 			// read the bias parameters
-			var bias = FloatVector.ReadFrom(factory.Context, reader);
+			var bias = factory.Context.ReadVectorFrom(reader);
 			if (_bias == null)
 				_bias = lap.CreateVector(bias);
 			else
 				_bias.Data = bias;
 
 			// read the weight parameters
-			var weight = FloatMatrix.ReadFrom(factory.Context, reader);
+			var weight = factory.Context.ReadMatrixFrom(reader);
 			if (_filter == null)
 				_filter = lap.CreateMatrix(weight);
 			else

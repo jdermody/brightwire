@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using BrightData;
+using BrightData.LinearAlgebra;
 using BrightWire.Helper;
 using BrightWire.InstanceBased;
 

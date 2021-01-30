@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using BrightData.Helper;
+using BrightData.LinearAlgebra;
 
 namespace BrightData.UnitTests
 {

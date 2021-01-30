@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using BrightData;
 using BrightData.FloatTensor;
+using BrightData.LinearAlgebra;
 using BrightWire.Models;
 using BrightWire.TrainingData.Helper;
 using ExampleCode.DataTableTrainers;
@@ -105,8 +106,8 @@ namespace ExampleCode.Datasets
                 label[_label] = 1;
 
                 return (
-                    FloatVector.Create(context, _data.Select(b => Convert.ToSingle((int)b) / 255f).ToArray()),
-                    FloatVector.Create(context, label)
+                    context.CreateVector(_data.Select(b => Convert.ToSingle((int)b) / 255f).ToArray()),
+                    context.CreateVector(label)
                 );
             }
 
@@ -124,11 +125,11 @@ namespace ExampleCode.Datasets
                     var row = new float[SIZE];
                     for (var x = 0; x < SIZE; x++)
                         row[x] = vector[(y * SIZE) + x];
-                    rows.Add(FloatVector.Create(context, row));
+                    rows.Add(context.CreateVector(row));
                 }
 
-                var tensor = Float3DTensor.Create(context, new[] {
-                    FloatMatrix.Create(context, rows.ToArray())
+                var tensor = context.CreateTensor3D(new[] {
+                    context.CreateMatrixFromRows(rows.ToArray())
                 });
                 return (tensor, data.Label);
             }
