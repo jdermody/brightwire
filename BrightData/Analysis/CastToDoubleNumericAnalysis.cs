@@ -1,5 +1,5 @@
 ﻿using System;
-using BrightData.Converters;
+using BrightData.Converter;
 
 namespace BrightData.Analysis
 {

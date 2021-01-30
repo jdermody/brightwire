@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using BrightData;
 using BrightData.Numerics;
-using BrightTable;
 using BrightWire;
 using BrightWire.ExecutionGraph;
 using BrightWire.Models;

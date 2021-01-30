@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.InteropServices;
-using BrightData.Converters;
+using BrightData.Converter;
 
 namespace BrightData
 {
@@ -178,7 +178,7 @@ namespace BrightData
         public static (T[] Training, T[] Test) Split<T>(this T[] seq, double trainPercentage = 0.8)
         {
             var input = Enumerable.Range(0, seq.Length).ToList();
-            int trainingCount = Convert.ToInt32(seq.Length * trainPercentage);
+            int trainingCount = System.Convert.ToInt32(seq.Length * trainPercentage);
             return (
                 input.Take(trainingCount).Select(i => seq[i]).ToArray(),
                 input.Skip(trainingCount).Select(i => seq[i]).ToArray()
@@ -469,7 +469,7 @@ namespace BrightData
                     var docsWithTerm = (double)indexOccurence[index];
                     var idf = Math.Log(numDocs / (1.0 + docsWithTerm));
                     var score = tf * idf;
-                    classificationIndex.Add(new WeightedIndexList.Item(index, Convert.ToSingle(score)));
+                    classificationIndex.Add(new WeightedIndexList.Item(index, System.Convert.ToSingle(score)));
                 }
                 ret.Add((classification.Label, WeightedIndexList.Create(context, classificationIndex.ToArray())));
             }

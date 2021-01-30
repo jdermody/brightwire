@@ -4,8 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using BrightData;
-using BrightTable;
-using BrightTable.Transformations;
 using BrightWire;
 using BrightWire.Models;
 
@@ -38,8 +36,8 @@ namespace ExampleCode.DataTableTrainers
             var featureColumns = (table.ColumnCount - targetColumnCount).AsRange().ToArray();
             var targetColumns = targetColumnCount.AsRange((int)table.ColumnCount - targetColumnCount).ToArray();
             var columnConversions = featureColumns
-                .Select(i => ColumnConversionType.ToNumeric.For(i))
-                .Concat(targetColumns.Select(i => ColumnConversionType.ToBoolean.For(i)))
+                .Select(i => ColumnConversionType.ToNumeric.ConvertColumn(i))
+                .Concat(targetColumns.Select(i => ColumnConversionType.ToBoolean.ConvertColumn(i)))
                 .ToArray();
             using var converted = table.Convert(columnConversions);
 
@@ -47,7 +45,7 @@ namespace ExampleCode.DataTableTrainers
             using var reinterpeted = converted.ReinterpretColumns(targetColumns.ReinterpretColumns(ColumnType.IndexList, "Targets"));
             reinterpeted.SetTargetColumn(reinterpeted.ColumnCount-1);
 
-            using var normalized = reinterpeted.Normalize(featureColumns.Select(i => NormalizationType.FeatureScale.For(i)).ToArray());
+            using var normalized = reinterpeted.Normalize(featureColumns.Select(i => NormalizationType.FeatureScale.ConvertColumn(i)).ToArray());
 
             // return as row oriented
             return normalized.ToRowOriented();

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using BrightData.FloatTensors;
+using BrightData.FloatTensor;
 using BrightData.Helper;
 using BrightData.Memory;
 

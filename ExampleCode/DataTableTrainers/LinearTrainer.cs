@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using BrightTable;
+using BrightData;
 using BrightWire;
 
 namespace ExampleCode.DataTableTrainers

@@ -413,7 +413,7 @@ namespace BrightData
     /// <summary>
     /// Indicates that the type has a data context
     /// </summary>
-    public interface IHaveBrightDataContext
+    public interface IHaveDataContext
     {
         /// <summary>
         /// Bright data context
@@ -425,7 +425,7 @@ namespace BrightData
     /// Typed indexable data
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface ITensorSegment<T> : IReferenceCountedMemory, IDisposable, IHaveBrightDataContext
+    public interface ITensorSegment<T> : IReferenceCountedMemory, IDisposable, IHaveDataContext
         where T : struct
     {
         /// <summary>

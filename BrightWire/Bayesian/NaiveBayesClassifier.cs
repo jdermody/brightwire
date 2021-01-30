@@ -1,8 +1,8 @@
-﻿using BrightTable;
-using BrightWire.Models.Bayesian;
+﻿using BrightWire.Models.Bayesian;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using BrightData;
 
 namespace BrightWire.Bayesian
 {

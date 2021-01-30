@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using BrightData;
-using BrightData.FloatTensors;
+using BrightData.FloatTensor;
 using BrightData.UnitTests;
 using BrightTable;
 using BrightWire.ExecutionGraph;

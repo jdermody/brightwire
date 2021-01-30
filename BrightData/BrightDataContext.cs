@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using BrightData.Computation;
-using BrightData.FloatTensors;
+using BrightData.FloatTensor;
 using BrightData.Helper;
 using BrightData.Memory;
 

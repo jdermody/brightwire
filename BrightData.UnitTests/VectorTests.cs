@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using BrightData.Cuda;
-using BrightData.FloatTensors;
+using BrightData.FloatTensor;
 using BrightData.Helper;
 using BrightData.Numerics;
 using Xunit;

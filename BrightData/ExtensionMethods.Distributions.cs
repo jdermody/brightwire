@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using BrightData.Distributions;
+using BrightData.Distribution;
 
 namespace BrightData
 {

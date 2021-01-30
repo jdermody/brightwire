@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
-using BrightData.FloatTensors;
+using BrightData.FloatTensor;
 using ManagedCuda.CudaBlas;
 
 namespace BrightData.Cuda

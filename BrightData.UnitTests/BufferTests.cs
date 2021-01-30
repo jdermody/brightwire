@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Xunit;
-using BrightData.Buffers;
+using BrightData.Buffer;
 using FluentAssertions;
 
 namespace BrightData.UnitTests

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using BrightData;
-using BrightData.Distributions;
+using BrightData.Distribution;
 
 namespace BrightWire.ExecutionGraph.WeightInitialisation
 {

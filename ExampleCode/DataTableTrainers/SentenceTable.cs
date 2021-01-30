@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using BrightData;
-using BrightData.Distributions;
+using BrightData.Distribution;
 using BrightTable;
 using BrightWire;
 using BrightWire.Models.Bayesian;

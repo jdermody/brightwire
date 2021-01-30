@@ -6,7 +6,7 @@ namespace BrightData
     /// <summary>
     /// Linear algebra adaptor interfaces
     /// </summary>
-    public interface ILinearAlgebraProvider : IDisposable, IHaveBrightDataContext
+    public interface ILinearAlgebraProvider : IDisposable, IHaveDataContext
     {
         /// <summary>
         /// Name of the linear algebra provider

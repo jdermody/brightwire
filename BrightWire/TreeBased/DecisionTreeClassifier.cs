@@ -1,6 +1,6 @@
-﻿using BrightTable;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using BrightData;
 using BrightWire.Models.TreeBased;
 
 namespace BrightWire.TreeBased

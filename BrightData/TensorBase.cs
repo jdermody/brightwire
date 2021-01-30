@@ -10,7 +10,7 @@ namespace BrightData
     /// </summary>
     /// <typeparam name="T">Data type within the tensor</typeparam>
     /// <typeparam name="DT">Underlying type (vector, matrix etc)</typeparam>
-    public abstract class TensorBase<T, DT> : ShapedBase, ITensor<T>, IHaveBrightDataContext
+    public abstract class TensorBase<T, DT> : ShapedBase, ITensor<T>, IHaveDataContext
         where DT : ITensor<T>
         where T : struct
     {

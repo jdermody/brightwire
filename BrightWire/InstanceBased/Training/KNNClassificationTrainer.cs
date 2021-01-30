@@ -1,6 +1,5 @@
 ﻿using System.Linq;
-using BrightTable;
-using BrightTable.Transformations;
+using BrightData;
 using BrightWire.Models.InstanceBased;
 
 namespace BrightWire.InstanceBased.Training

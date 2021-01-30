@@ -1,10 +1,9 @@
 ﻿using BrightData;
 using BrightData.Analysis;
-using BrightTable;
-using BrightTable.Helper;
 using BrightWire.Models.Bayesian;
 using System;
 using System.Collections.Generic;
+using BrightData.Helper;
 
 namespace BrightWire.Bayesian.Training
 {

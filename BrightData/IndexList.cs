@@ -12,7 +12,7 @@ namespace BrightData
     /// <summary>
     /// Contains a list of indices
     /// </summary>
-    public class IndexList : IHaveIndices, ISerializable, IHaveBrightDataContext
+    public class IndexList : IHaveIndices, ISerializable, IHaveDataContext
     {
         internal IndexList(IBrightDataContext context, uint[] indices)
         {

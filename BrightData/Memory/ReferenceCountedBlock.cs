@@ -2,7 +2,7 @@
 
 namespace BrightData.Memory
 {
-    internal class ReferenceCountedBlock<T> : IReferenceCountedMemory, IHaveBrightDataContext
+    internal class ReferenceCountedBlock<T> : IReferenceCountedMemory, IHaveDataContext
         where T: struct
     {
         // ReSharper disable once StaticMemberInGenericType

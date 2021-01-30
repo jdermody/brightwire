@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using BrightTable;
+using BrightData;
 using BrightWire;
 using BrightWire.Linear;
 using BrightWire.Linear.Training;

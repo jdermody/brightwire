@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using BrightData;
-using BrightData.FloatTensors;
+using BrightData.FloatTensor;
 using BrightWire.TrainingData.Helper;
 
 namespace BrightWire.TrainingData.Artificial

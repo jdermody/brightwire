@@ -13,7 +13,7 @@ namespace BrightData
     /// <summary>
     /// Contains a list of weighted indices
     /// </summary>
-    public class WeightedIndexList : IHaveIndices, ISerializable, IHaveBrightDataContext
+    public class WeightedIndexList : IHaveIndices, ISerializable, IHaveDataContext
     {
         /// <summary>
         /// An item within a weighted index list

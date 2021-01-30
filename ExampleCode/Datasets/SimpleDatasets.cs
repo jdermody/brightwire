@@ -6,8 +6,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using BrightData;
-using BrightTable;
-using BrightTable.Transformations;
 using BrightWire.TrainingData.Artificial;
 using BrightWire.TrainingData.Helper;
 using ExampleCode.DataTableTrainers;
@@ -26,7 +24,7 @@ namespace ExampleCode.Datasets
             {
                 using var table = context.ParseCsv(reader, false);
                 table.SetTargetColumn(4);
-                using var numericTable = table.Convert(
+                using var numericTable = table.ConvertTable(
                     ColumnConversionType.ToNumeric,
                     ColumnConversionType.ToNumeric,
                     ColumnConversionType.ToNumeric,
@@ -48,7 +46,7 @@ namespace ExampleCode.Datasets
                 // load and normalise the data
                 using var table = context.ParseCsv(reader, true);
                 table.SetTargetColumn(5);
-                using var numericTable = table.Convert(
+                using var numericTable = table.ConvertTable(
                     ColumnConversionType.ToNumeric,
                     ColumnConversionType.ToNumeric,
                     ColumnConversionType.ToNumeric,
@@ -254,10 +252,10 @@ namespace ExampleCode.Datasets
             // drop the first six columns (index and date features)
             using var filteredTable = completeTable.CopyColumns(completeTable.ColumnCount.AsRange().Skip(5).ToArray());
             var dataColumns = (completeTable.ColumnCount - 3).AsRange().ToArray();
-            using var converted = filteredTable.Convert(dataColumns.Select(i => ColumnConversionType.ToNumeric.For(i)).ToArray());
+            using var converted = filteredTable.Convert(dataColumns.Select(i => ColumnConversionType.ToNumeric.ConvertColumn(i)).ToArray());
 
             // normalise the data columns
-            using var ret = converted.Normalize(dataColumns.Select(i => NormalizationType.Standard.For(i)).ToArray());
+            using var ret = converted.Normalize(dataColumns.Select(i => NormalizationType.Standard.ConvertColumn(i)).ToArray());
 
             ret.SetTargetColumn(ret.ColumnCount-1);
             return new BicyclesTrainer(context, ret.AsRowOriented());

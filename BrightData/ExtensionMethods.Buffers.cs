@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using BrightData.Buffers;
+using BrightData.Buffer;
 using BrightData.Helper;
 
 namespace BrightData

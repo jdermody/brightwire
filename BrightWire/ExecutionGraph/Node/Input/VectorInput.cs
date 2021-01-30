@@ -1,7 +1,7 @@
 ﻿using BrightWire.ExecutionGraph.Helper;
 using System.IO;
 using BrightData;
-using BrightData.FloatTensors;
+using BrightData.FloatTensor;
 
 namespace BrightWire.ExecutionGraph.Node.Input
 {

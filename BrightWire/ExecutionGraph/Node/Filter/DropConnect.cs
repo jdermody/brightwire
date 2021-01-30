@@ -1,7 +1,7 @@
 ﻿using BrightWire.ExecutionGraph.Node.Layer;
 using System.IO;
 using BrightData;
-using BrightData.Distributions;
+using BrightData.Distribution;
 using BrightData.Helper;
 
 namespace BrightWire.ExecutionGraph.Node.Filter

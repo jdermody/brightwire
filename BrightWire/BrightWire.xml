@@ -29,7 +29,7 @@
             Naive bayes classifier
             </summary>
         </member>
-        <member name="M:BrightWire.Bayesian.NaiveBayesClassifier.Classify(BrightTable.IConvertibleRow)">
+        <member name="M:BrightWire.Bayesian.NaiveBayesClassifier.Classify(BrightData.IConvertibleRow)">
             <summary>
             Naive bayes classifications should only be used for ranking against each other and not for deriving an actual weighted probability
             </summary>
@@ -249,7 +249,7 @@
             Base class for data tables that work with data table rows
             </summary>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.DataTableAdaptor.RowBasedDataTableAdaptorBase.#ctor(BrightData.ILinearAlgebraProvider,BrightTable.IRowOrientedDataTable,System.UInt32[])">
+        <member name="M:BrightWire.ExecutionGraph.DataTableAdaptor.RowBasedDataTableAdaptorBase.#ctor(BrightData.ILinearAlgebraProvider,BrightData.IRowOrientedDataTable,System.UInt32[])">
             <inheritdoc />
         </member>
         <member name="T:BrightWire.ExecutionGraph.DataTableAdaptor.SequenceToSequenceDataTableAdaptor">
@@ -502,14 +502,14 @@
             <param name="tensorList">The list of tensors that will be the rows in the data source</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateDataSource(BrightTable.IRowOrientedDataTable,System.UInt32[])">
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateDataSource(BrightData.IRowOrientedDataTable,System.UInt32[])">
             <summary>
             Creates a data source from a data table
             </summary>
             <param name="dataTable">The data table to convert</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateDataSource(BrightTable.IRowOrientedDataTable,BrightWire.ILearningContext,System.Action{BrightWire.ExecutionGraph.WireBuilder})">
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateDataSource(BrightData.IRowOrientedDataTable,BrightWire.ILearningContext,System.Action{BrightWire.ExecutionGraph.WireBuilder})">
             <summary>
             Creates an adaptive data source (that uses the output from a preliminary graph)
             </summary>
@@ -518,7 +518,7 @@
             <param name="dataConversionBuilder">Callback to build the preliminary graph</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateDataSource(BrightTable.IRowOrientedDataTable,BrightWire.Models.DataSourceModel,BrightWire.ILearningContext)">
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateDataSource(BrightData.IRowOrientedDataTable,BrightWire.Models.DataSourceModel,BrightWire.ILearningContext)">
             <summary>
             Creates an adaptive data source from a serialised model
             </summary>
@@ -527,7 +527,7 @@
             <param name="learningContext">Learning context to use while training the preliminary graph</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateClassifier(BrightWire.IRowClassifier,BrightTable.IRowOrientedDataTable,System.String)">
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateClassifier(BrightWire.IRowClassifier,BrightData.IRowOrientedDataTable,System.String)">
             <summary>
             Create a row classifier node
             </summary>
@@ -1868,7 +1868,7 @@
             </summary>
             <param name="newSize">New wire builder size</param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.WireBuilder.AddClassifier(BrightWire.IRowClassifier,BrightTable.IRowOrientedDataTable,System.String)">
+        <member name="M:BrightWire.ExecutionGraph.WireBuilder.AddClassifier(BrightWire.IRowClassifier,BrightData.IRowOrientedDataTable,System.String)">
             <summary>
             Connects a row classifier
             </summary>
@@ -2181,7 +2181,7 @@
             <param name="empty">Null value for T</param>
             <param name="minObservations">Minimum number of data points to record an observation</param>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.CreateConfusionMatrix(BrightTable.IConvertibleTable,System.UInt32,System.UInt32)">
+        <member name="M:BrightWire.ExtensionMethods.CreateConfusionMatrix(BrightData.IConvertibleTable,System.UInt32,System.UInt32)">
             <summary>
             Creates a confusion matrix from two columns of a data table
             </summary>
@@ -2208,7 +2208,7 @@
             <param name="onImprovement">Optional callback for when the test data score has improved against the error metric</param>
             <param name="testCadence">Determines how many epochs elapse before the test data is evaluated</param>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.Classifiy(BrightWire.IRowClassifier,BrightTable.IRowOrientedDataTable)">
+        <member name="M:BrightWire.ExtensionMethods.Classifiy(BrightWire.IRowClassifier,BrightData.IRowOrientedDataTable)">
             <summary>
             Classifies each row of the data table
             </summary>
@@ -2264,7 +2264,7 @@
             <param name="reducedSize">The vector size to reduce to</param>
             <param name="s"></param>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.TrainLogisticRegression(BrightTable.IRowOrientedDataTable,System.UInt32,System.Single,System.Single,System.Func{System.Single,System.Boolean})">
+        <member name="M:BrightWire.ExtensionMethods.TrainLogisticRegression(BrightData.IRowOrientedDataTable,System.UInt32,System.Single,System.Single,System.Func{System.Single,System.Boolean})">
             <summary>
             Trains a logistic regression model on a data table
             </summary>
@@ -2275,7 +2275,7 @@
             <param name="costCallback">Optional callback that is called after each iteration with the current cost</param>
             <returns>The trained model</returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.CreateLogisticRegressionTrainer(BrightTable.IRowOrientedDataTable)">
+        <member name="M:BrightWire.ExtensionMethods.CreateLogisticRegressionTrainer(BrightData.IRowOrientedDataTable)">
             <summary>
             Logistic regression learns a sigmoid function over a set of data that learns to classify future values into positive or negative samples
             </summary>
@@ -2332,13 +2332,13 @@
             <param name="distanceMetric">Distance metric to use to compare centroids</param>
             <returns>A list of k clusters</returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.TrainKNearestNeighbours(BrightTable.IDataTable)">
+        <member name="M:BrightWire.ExtensionMethods.TrainKNearestNeighbours(BrightData.IDataTable)">
             <summary>
             K Nearest Neighbours is an instance based classification method that uses examples from training data to predict classifications
             </summary>
             <param name="data">The training data</param>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.TrainMultinomialLogisticRegression(BrightTable.IRowOrientedDataTable,System.UInt32,System.Single,System.Single,System.Func{System.Single,System.Boolean})">
+        <member name="M:BrightWire.ExtensionMethods.TrainMultinomialLogisticRegression(BrightData.IRowOrientedDataTable,System.UInt32,System.Single,System.Single,System.Func{System.Single,System.Boolean})">
             <summary>
             Multinomial Logistic Regression generalises Logistic Regression to multi-class classification
             </summary>
@@ -2349,7 +2349,7 @@
             <param name="costCallback">Optional callback that is called after each iteration with the current cost</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.TrainRandomForest(BrightTable.IRowOrientedDataTable,System.UInt32,System.Nullable{System.UInt32},BrightWire.TreeBased.Training.DecisionTreeTrainer.Config)">
+        <member name="M:BrightWire.ExtensionMethods.TrainRandomForest(BrightData.IRowOrientedDataTable,System.UInt32,System.Nullable{System.UInt32},BrightWire.TreeBased.Training.DecisionTreeTrainer.Config)">
             <summary>
             Random forests are built on a bagged collection of features to try to capture the most salient points of the training data without overfitting
             </summary>
@@ -2359,7 +2359,7 @@
             <param name="config"></param>
             <returns>A model that can be used for classification</returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.TrainDecisionTree(BrightTable.IRowOrientedDataTable,BrightWire.TreeBased.Training.DecisionTreeTrainer.Config)">
+        <member name="M:BrightWire.ExtensionMethods.TrainDecisionTree(BrightData.IRowOrientedDataTable,BrightWire.TreeBased.Training.DecisionTreeTrainer.Config)">
             <summary>
             Decision trees build a logical tree to classify data. Various measures can be specified to prevent overfitting.
             </summary>
@@ -2374,7 +2374,7 @@
             <param name="data">The training data</param>
             <returns>A model that can be used for classification</returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.TrainMultinomialNaiveBayes(BrightTable.IRowOrientedDataTable)">
+        <member name="M:BrightWire.ExtensionMethods.TrainMultinomialNaiveBayes(BrightData.IRowOrientedDataTable)">
             <summary>
             Multinomial naive bayes preserves the count of each feature within the model. Useful for long documents.
             </summary>
@@ -2388,21 +2388,21 @@
             <param name="data">The training data</param>
             <returns>A model that can be used for classification</returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.TrainBernoulliNaiveBayes(BrightTable.IRowOrientedDataTable)">
+        <member name="M:BrightWire.ExtensionMethods.TrainBernoulliNaiveBayes(BrightData.IRowOrientedDataTable)">
             <summary>
             Bernoulli naive bayes treats each feature as either 1 or 0 - all feature counts are discarded. Useful for short documents.
             </summary>
             <param name="table">The training data table that must have an index-list based column</param>
             <returns>A model that can be used for classification</returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.TrainNaiveBayes(BrightTable.IDataTable)">
+        <member name="M:BrightWire.ExtensionMethods.TrainNaiveBayes(BrightData.IDataTable)">
             <summary>
             Naive bayes is a classifier that assumes conditional independence between all features
             </summary>
             <param name="table">The training data provider</param>
             <returns>A naive bayes model</returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.CreateLinearRegressionTrainer(BrightTable.IDataTable,BrightData.ILinearAlgebraProvider)">
+        <member name="M:BrightWire.ExtensionMethods.CreateLinearRegressionTrainer(BrightData.IDataTable,BrightData.ILinearAlgebraProvider)">
             <summary>
             Linear regression fits a line to a set of data that allows you predict future values
             </summary>
@@ -2977,7 +2977,7 @@
             </summary>
             <param name="context"></param>
         </member>
-        <member name="M:BrightWire.IDataSource.CloneWith(BrightTable.IRowOrientedDataTable)">
+        <member name="M:BrightWire.IDataSource.CloneWith(BrightData.IRowOrientedDataTable)">
             <summary>
             Creates a new data source, using the current as a template but replacing the data table
             </summary>

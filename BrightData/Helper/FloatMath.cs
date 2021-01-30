@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using BrightData.FloatTensors;
+using BrightData.FloatTensor;
 
 namespace BrightData.Helper
 {

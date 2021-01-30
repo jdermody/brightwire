@@ -1,5 +1,5 @@
 ﻿using System;
-using BrightTable;
+using BrightData;
 using BrightWire.ExecutionGraph.Action;
 using BrightWire.ExecutionGraph.Helper;
 using BrightWire.ExecutionGraph.Node.Helper;

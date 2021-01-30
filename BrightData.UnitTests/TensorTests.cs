@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using BrightData.FloatTensors;
+using BrightData.FloatTensor;
 using BrightData.Helper;
 using FluentAssertions;
 using MathNet.Numerics.Distributions;

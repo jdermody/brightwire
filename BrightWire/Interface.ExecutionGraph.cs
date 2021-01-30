@@ -1,11 +1,9 @@
-﻿using BrightTable;
-using BrightWire.ExecutionGraph;
+﻿using BrightWire.ExecutionGraph;
 using BrightWire.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using BrightData;
-using BrightTable.Transformations;
 
 namespace BrightWire
 {
