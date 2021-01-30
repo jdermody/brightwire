@@ -110,7 +110,7 @@ namespace ExampleCode.DataTableTrainers
             var encoderLearningContext = graph.CreateLearningContext(TRAINING_RATE, BATCH_SIZE, TrainingErrorCalculation.Fast, true);
             var trainingData = graph.CreateDataSource(Training, encoderLearningContext, wb => wb
                 .AddLstm(HIDDEN_LAYER_SIZE, "encoder")
-                .WriteNodeMemoryToSlot("shared-memory", wb.Find("encoder") as IHaveMemoryNode)
+                .WriteNodeMemoryToSlot("shared-memory", (IHaveMemoryNode)wb.Find("encoder"))
                 .AddFeedForward(_dictionarySize)
                 .Add(graph.SigmoidActivation())
                 .AddBackpropagationThroughTime(errorMetric)

@@ -1,5 +1,4 @@
-﻿using System;
-using BrightData.Helper;
+﻿using BrightData.Helper;
 using BrightWire.Helper;
 
 namespace BrightWire.ExecutionGraph.Action
@@ -29,10 +28,10 @@ namespace BrightWire.ExecutionGraph.Action
         public IGraphData Execute(IGraphData input, IGraphContext context)
         {
             var output = input.GetMatrix();
-            if (context.IsTraining) {
+            if (context.LearningContext != null) {
 				context.LearningContext.ErrorMetric ??= _errorMetric;
 
-	            var gradient = _errorMetric.CalculateGradient(context, output, context.BatchSequence.Target.GetMatrix());
+	            var gradient = _errorMetric.CalculateGradient(context, output, context.BatchSequence.Target!.GetMatrix());
                 context.Backpropagate(input.ReplaceWith(gradient));
             }
             return input;

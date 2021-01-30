@@ -98,6 +98,51 @@
             <param name="dataTable"></param>
             <param name="callback"></param>
         </member>
+        <member name="M:BrightTable.ExtensionMethods.GetColumnAnalyser(BrightTable.ColumnType,BrightData.IMetaData,System.UInt32,System.UInt32)">
+            <summary>
+            Creates a column analyser
+            </summary>
+            <param name="type">Column type</param>
+            <param name="metaData">Column meta data</param>
+            <param name="writeCount">Maximum size of sequences to write in final meta data</param>
+            <param name="maxCount">Maximum number of distinct items to track</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightTable.ExtensionMethods.Analyse(BrightTable.ISingleTypeTableSegment,System.Boolean,System.UInt32,System.UInt32)">
+            <summary>
+            Returns the analysis for a column
+            </summary>
+            <param name="segment">Column to analyse</param>
+            <param name="force">True to refresh analysis (if cached)</param>
+            <param name="writeCount">Maximum size of sequences to write in final meta data</param>
+            <param name="maxCount">Maximum number of distinct items to track</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightTable.ExtensionMethods.GetColumnAnalysis(BrightTable.IDataTable,System.Boolean,System.UInt32,System.UInt32)">
+            <summary>
+            Returns analysis for each column in the table
+            </summary>
+            <param name="table">Data table to analyse</param>
+            <param name="force">True to refresh analysis (if cached)</param>
+            <param name="writeCount">Maximum size of sequences to write in final meta data</param>
+            <param name="maxCount">Maximum number of distinct items to track</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightTable.ExtensionMethods.ParseCsv(BrightData.IBrightDataContext,System.IO.StreamReader,System.Boolean,System.Char,System.String,System.UInt32,System.UInt16,System.Boolean,System.String)">
+            <summary>
+            Parse CSV into a column oriented data table
+            </summary>
+            <param name="context">Bright data context</param>
+            <param name="reader">CSV</param>
+            <param name="hasHeader">True if the CSV has a text based header</param>
+            <param name="delimiter">CSV delimiter</param>
+            <param name="fileOutputPath">Optional path to save final table</param>
+            <param name="inMemoryRowCount">Number of rows to cache in memory</param>
+            <param name="maxDistinct">Maximum number of distinct items to track</param>
+            <param name="writeProgress"></param>
+            <param name="tempBasePath"></param>
+            <returns></returns>
+        </member>
         <member name="M:BrightTable.ExtensionMethods.ConvertToTable(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.IndexList}},BrightData.IBrightDataContext)">
             <summary>
             Converts indexed classifications to a data table
@@ -401,7 +446,7 @@
             </summary>
             <param name="columnIndices">Column indices to retrieve</param>
         </member>
-        <member name="M:BrightTable.IDataTable.ReadTyped(BrightTable.ITypedRowConsumer[],System.UInt32)">
+        <member name="M:BrightTable.IDataTable.ReadTyped(BrightTable.IConsumeColumnData[],System.UInt32)">
             <summary>
             Consumes data in the table via an array of consumers, which will each consume data for each row in the table
             </summary>
@@ -686,6 +731,225 @@
             Convert each value to an index within a dictionary
             </summary>
         </member>
+        <member name="T:BrightTable.ITransformColumn">
+            <summary>
+            Transforms columns
+            </summary>
+        </member>
+        <member name="M:BrightTable.ITransformColumn.Finalise(BrightData.IMetaData)">
+            <summary>
+            Complete the transformation
+            </summary>
+            <param name="metaData">Meta data store to receive transformation information</param>
+        </member>
+        <member name="T:BrightTable.ITransformColumn`2">
+            <summary>
+            Typed column transformer
+            </summary>
+            <typeparam name="TF"></typeparam>
+            <typeparam name="TT"></typeparam>
+        </member>
+        <member name="M:BrightTable.ITransformColumn`2.Convert(`0,BrightData.IHybridBuffer{`1})">
+            <summary>
+            Writes the converted input to the buffer
+            </summary>
+            <param name="input"></param>
+            <param name="buffer"></param>
+            <returns></returns>
+        </member>
+        <member name="T:BrightTable.ITransformationContext">
+            <summary>
+            Transforms a column
+            </summary>
+        </member>
+        <member name="M:BrightTable.ITransformationContext.Transform">
+            <summary>
+            Performs the transformation
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:BrightTable.ITransformationContext.Buffer">
+            <summary>
+            Buffer that is written to
+            </summary>
+        </member>
+        <member name="T:BrightTable.IColumnInfo">
+            <summary>
+            Table column information
+            </summary>
+        </member>
+        <member name="P:BrightTable.IColumnInfo.Index">
+            <summary>
+            Column index
+            </summary>
+        </member>
+        <member name="P:BrightTable.IColumnInfo.ColumnType">
+            <summary>
+            Column type
+            </summary>
+        </member>
+        <member name="T:BrightTable.IColumnTransformationParam">
+            <summary>
+            Informtion about a column transformation
+            </summary>
+        </member>
+        <member name="P:BrightTable.IColumnTransformationParam.ColumnIndex">
+            <summary>
+            Column index
+            </summary>
+        </member>
+        <member name="M:BrightTable.IColumnTransformationParam.GetTransformer(BrightTable.ColumnType,BrightTable.ISingleTypeTableSegment,BrightData.IProvideTempStreams,System.UInt32)">
+            <summary>
+            Gets a column transformer
+            </summary>
+            <param name="fromType">Convert from column type</param>
+            <param name="column">Column to convert</param>
+            <param name="tempStreams">Temp stream provider</param>
+            <param name="inMemoryRowCount">Number of rows to cache in memory</param>
+            <returns></returns>
+        </member>
+        <member name="T:BrightTable.IConvertibleTable">
+            <summary>
+            A table that is easily convertible to other types
+            </summary>
+        </member>
+        <member name="M:BrightTable.IConvertibleTable.Row(System.UInt32)">
+            <summary>
+            Returns a row that can be easily converted
+            </summary>
+            <param name="index"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightTable.IConvertibleTable.Rows(System.UInt32[])">
+            <summary>
+            Returns rows that can be easily converted
+            </summary>
+            <param name="rowIndices">Row indices to return</param>
+            <returns></returns>
+        </member>
+        <member name="P:BrightTable.IConvertibleTable.DataTable">
+            <summary>
+            The underlying data table
+            </summary>
+        </member>
+        <member name="M:BrightTable.IConvertibleTable.Map``1(System.Func{BrightTable.IConvertibleRow,``0})">
+            <summary>
+            Maps each row
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="rowMapper">Callback that will be invoked on each convertible row</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightTable.IConvertibleTable.ForEachRow(System.Action{BrightTable.IConvertibleRow})">
+            <summary>
+            Invokes a callback on each convertible row
+            </summary>
+            <param name="action">Callback</param>
+        </member>
+        <member name="T:BrightTable.IHaveDataTable">
+            <summary>
+            Indicates that the type has a data table
+            </summary>
+        </member>
+        <member name="P:BrightTable.IHaveDataTable.DataTable">
+            <summary>
+            Data table
+            </summary>
+        </member>
+        <member name="T:BrightTable.IConvertibleRow">
+            <summary>
+            A row that whose elements can be converted to other types
+            </summary>
+        </member>
+        <member name="M:BrightTable.IConvertibleRow.Get(System.UInt32)">
+            <summary>
+            Gets an element
+            </summary>
+            <param name="index">Column index</param>
+            <returns></returns>
+        </member>
+        <member name="P:BrightTable.IConvertibleRow.Segment">
+            <summary>
+            Returns the row segment
+            </summary>
+        </member>
+        <member name="M:BrightTable.IConvertibleRow.GetTyped``1(System.UInt32)">
+            <summary>
+            Returns a value (dynamic conversion to type T)
+            </summary>
+            <typeparam name="T">Type to convert to</typeparam>
+            <param name="index">Column index</param>
+            <returns></returns>
+        </member>
+        <member name="P:BrightTable.IConvertibleRow.RowIndex">
+            <summary>
+            Row index
+            </summary>
+        </member>
+        <member name="T:BrightTable.IConsumeColumnData">
+            <summary>
+            Interface that 
+            </summary>
+        </member>
+        <member name="P:BrightTable.IConsumeColumnData.ColumnIndex">
+            <summary>
+            Column index that will be consumed
+            </summary>
+        </member>
+        <member name="P:BrightTable.IConsumeColumnData.ColumnType">
+            <summary>
+            Column type of incoming data
+            </summary>
+        </member>
+        <member name="T:BrightTable.IConsumeColumnData`1">
+            <summary>
+            Typed column consumer that writes to a buffer
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="T:BrightTable.IDataTableVectoriser">
+            <summary>
+            Data table vectoriser
+            </summary>
+        </member>
+        <member name="M:BrightTable.IDataTableVectoriser.Vectorise(System.Object[])">
+            <summary>
+            Vectorise a table row
+            </summary>
+            <param name="row"></param>
+            <returns></returns>
+        </member>
+        <member name="P:BrightTable.IDataTableVectoriser.OutputSize">
+            <summary>
+            Size of the output vectors
+            </summary>
+        </member>
+        <member name="M:BrightTable.IDataTableVectoriser.Enumerate">
+            <summary>
+            Returns a sequence of vectorised table rows
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:BrightTable.IReinterpretColumnsParam">
+            <summary>
+            Reinterpret columns parameters
+            </summary>
+        </member>
+        <member name="P:BrightTable.IReinterpretColumnsParam.ColumnIndices">
+            <summary>
+            Source column indices
+            </summary>
+        </member>
+        <member name="M:BrightTable.IReinterpretColumnsParam.GetNewColumns(BrightData.IBrightDataContext,BrightData.IProvideTempStreams,System.UInt32,System.ValueTuple{BrightTable.IColumnInfo,BrightTable.ISingleTypeTableSegment}[])">
+            <summary>
+            Gets new columns
+            </summary>
+            <param name="context">Bright data context</param>
+            <param name="tempStreams">Temp stream provider</param>
+            <param name="initialColumnIndex">First column index in the sequence</param>
+            <param name="columns">Source column data</param>
+            <returns></returns>
+        </member>
         <member name="M:BrightTable.Segments.GrowableSegment`1.Dispose">
             <inheritdoc />
         </member>
@@ -709,7 +973,7 @@
         <member name="P:BrightTable.Transformations.ColumnConversion.ColumnIndex">
             <inheritdoc />
         </member>
-        <member name="M:BrightTable.Transformations.ColumnConversion.GetConverter(BrightTable.ColumnType,BrightTable.ISingleTypeTableSegment,BrightData.IProvideTempStreams,System.UInt32)">
+        <member name="M:BrightTable.Transformations.ColumnConversion.GetTransformer(BrightTable.ColumnType,BrightTable.ISingleTypeTableSegment,BrightData.IProvideTempStreams,System.UInt32)">
             <inheritdoc />
         </member>
         <member name="T:BrightTable.Transformations.ColumnNormalization">

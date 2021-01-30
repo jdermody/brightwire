@@ -83,8 +83,8 @@ namespace BrightWire.ExecutionGraph.DataSource
             throw new NotImplementedException();
         }
 
-        public IVectorise? InputVectoriser { get; } = null;
-        public IVectorise? OutputVectoriser { get; } = null;
+        public IDataTableVectoriser? InputVectoriser { get; } = null;
+        public IDataTableVectoriser? OutputVectoriser { get; } = null;
 
         public void OnBatchProcessed(IGraphContext context)
         {

@@ -10,7 +10,7 @@ namespace BrightTable.Transformations
     /// </summary>
     internal class ColumnNormalization : IColumnTransformationParam
     {
-        class Normalizer<T> : IConvert<T, T>, INormalize where T: struct
+        class Normalizer<T> : ITransformColumn<T, T>, INormalize where T: struct
         {
             readonly ICanConvert<T, double> _convertToDouble;
             readonly NormalizeTransformation _normalize;
@@ -49,12 +49,12 @@ namespace BrightTable.Transformations
             public double Subtract => _normalize.Subtract;
         }
 
-        public ICanConvert GetConverter(ColumnType fromType, ISingleTypeTableSegment column, IProvideTempStreams tempStreams, uint inMemoryRowCount)
+        public ITransformColumn? GetTransformer(ColumnType fromType, ISingleTypeTableSegment column, IProvideTempStreams tempStreams, uint inMemoryRowCount)
         {
             var columnType = column.SingleType.GetDataType();
             var contextType = typeof(Normalizer<>).MakeGenericType(columnType);
             var analysedMetaData = column.Analyse();
-            return (ICanConvert) Activator.CreateInstance(contextType, NormalizationType, analysedMetaData);
+            return GenericActivator.Create<ITransformColumn>(contextType, NormalizationType, analysedMetaData);
         }
 
         public uint? ColumnIndex { get; }

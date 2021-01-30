@@ -25,8 +25,8 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public uint? OutputSize { get; } = null;
         public uint RowCount => 1;
         public uint InputCount { get; }
-        public IVectorise? InputVectoriser { get; } = null;
-        public IVectorise? OutputVectoriser { get; } = null;
+        public IDataTableVectoriser? InputVectoriser { get; } = null;
+        public IDataTableVectoriser? OutputVectoriser { get; } = null;
 
         public IDataSource CloneWith(IRowOrientedDataTable dataTable)
         {

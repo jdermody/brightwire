@@ -59,10 +59,12 @@ namespace BrightWire.Bayesian.Training
             ulong rowCount = 0;
             table.ForEachRow((row, index) => {
                 var target = row[targetColumn].ToString();
-                if (!rowsByClassification.TryGetValue(target, out var analysis))
-                    rowsByClassification.Add(target, analysis = new FrequencyAnalysis(table, targetColumn));
-                analysis.Process(row);
-                ++rowCount;
+                if (target != null) {
+                    if (!rowsByClassification.TryGetValue(target, out var analysis))
+                        rowsByClassification.Add(target, analysis = new FrequencyAnalysis(table, targetColumn));
+                    analysis.Process(row);
+                    ++rowCount;
+                }
             });
 
             // create the per-class summaries from the frequency table

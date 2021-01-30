@@ -2,15 +2,15 @@
 
 namespace BrightTable.Transformations
 {
-    internal class TransformationContext<TF, TT> : IColumnTransformation
+    internal class TransformationContext<TF, TT> : ITransformationContext
         where TF: notnull
         where TT: notnull
     {
         readonly IDataTableSegment<TF> _column;
-        readonly IConvert<TF, TT> _converter;
+        readonly ITransformColumn<TF, TT> _converter;
         readonly IHybridBuffer<TT> _buffer;
 
-        public TransformationContext(IDataTableSegment<TF> column, IConvert<TF, TT> converter, IHybridBuffer<TT> buffer)
+        public TransformationContext(IDataTableSegment<TF> column, ITransformColumn<TF, TT> converter, IHybridBuffer<TT> buffer)
         {
             _column = column;
             _converter = converter;

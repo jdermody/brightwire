@@ -2262,7 +2262,7 @@
         </member>
         <member name="T:BrightData.IHaveBrightDataContext">
             <summary>
-            Indicates that the type has a bright data context
+            Indicates that the type has a data context
             </summary>
         </member>
         <member name="P:BrightData.IHaveBrightDataContext.Context">
@@ -2555,17 +2555,23 @@
             </summary>
             <param name="obj">Object to add</param>
         </member>
+        <member name="T:BrightData.IAppendableBuffer`1">
+            <summary>
+            Append only buffer
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:BrightData.IAppendableBuffer`1.Add(`0)">
+            <summary>
+            Adds a new item
+            </summary>
+            <param name="value">Item to add</param>
+        </member>
         <member name="T:BrightData.IHybridBuffer`1">
             <summary>
             Typed hybrid buffer
             </summary>
             <typeparam name="T"></typeparam>
-        </member>
-        <member name="M:BrightData.IHybridBuffer`1.Add(`0)">
-            <summary>
-            Adds a typed item to the buffer
-            </summary>
-            <param name="item">Item to add</param>
         </member>
         <member name="T:BrightData.HybridBufferType">
             <summary>

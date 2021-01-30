@@ -83,7 +83,7 @@ namespace BrightWire
 	/// Markov model trainer (window size 2)
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
-	public interface IMarkovModelTrainer2<T> : IMarkovModelTrainer<T>
+	public interface IMarkovModelTrainer2<T> : IMarkovModelTrainer<T> where T: notnull
 	{
 		/// <summary>
 		/// Gets all current observations
@@ -95,7 +95,7 @@ namespace BrightWire
 	/// Markov model trainer (window size 3)
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
-	public interface IMarkovModelTrainer3<T> : IMarkovModelTrainer<T>
+	public interface IMarkovModelTrainer3<T> : IMarkovModelTrainer<T> where T : notnull
 	{
 		/// <summary>
 		/// Gets all current observations

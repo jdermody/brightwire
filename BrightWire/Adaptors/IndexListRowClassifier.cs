@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using BrightData;
+﻿using BrightData;
 using BrightTable;
 
 namespace BrightWire.Adaptors

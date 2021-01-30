@@ -10,7 +10,7 @@ namespace BrightTable.Buffers
     /// Buffer
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal class InMemoryBuffer<T> : IDataTableSegment<T>, ITypedRowConsumer<T>, IHaveBrightDataContext
+    internal class InMemoryBuffer<T> : IDataTableSegment<T>, IConsumeColumnData<T>, IHaveBrightDataContext
         where T: notnull
     {
         readonly GrowableSegment<T> _segment;

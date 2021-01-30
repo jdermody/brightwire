@@ -241,7 +241,15 @@ namespace BrightTable
             }
         }
 
-        public static IDataAnalyser GetColumnAnalyser(this ColumnType type, IMetaData metaData, uint writeCount = 100, uint maxCount = Consts.MaxDistinct)
+        /// <summary>
+        /// Creates a column analyser
+        /// </summary>
+        /// <param name="type">Column type</param>
+        /// <param name="metaData">Column meta data</param>
+        /// <param name="writeCount">Maximum size of sequences to write in final meta data</param>
+        /// <param name="maxCount">Maximum number of distinct items to track</param>
+        /// <returns></returns>
+        public static IDataAnalyser GetColumnAnalyser(this ColumnType type, IMetaData metaData, uint writeCount = Consts.MaxWriteCount, uint maxCount = Consts.MaxDistinct)
         {
             var dataType = ColumnTypeClassifier.GetClass(type, metaData);
             if ((dataType & BrightTable.ColumnClass.Categorical) != 0) {
@@ -278,12 +286,20 @@ namespace BrightTable
             throw new NotImplementedException();
         }
 
-        public static IMetaData Analyse(this ISingleTypeTableSegment segment, bool force = false, uint distinctValueCount = 100)
+        /// <summary>
+        /// Returns the analysis for a column
+        /// </summary>
+        /// <param name="segment">Column to analyse</param>
+        /// <param name="force">True to refresh analysis (if cached)</param>
+        /// <param name="writeCount">Maximum size of sequences to write in final meta data</param>
+        /// <param name="maxCount">Maximum number of distinct items to track</param>
+        /// <returns></returns>
+        public static IMetaData Analyse(this ISingleTypeTableSegment segment, bool force = false, uint writeCount = Consts.MaxWriteCount, uint maxCount = Consts.MaxDistinct)
         {
             var ret = segment.MetaData;
             if (force || !ret.Get(Consts.HasBeenAnalysed, false)) {
                 var type = segment.SingleType;
-                var analyser = type.GetColumnAnalyser(segment.MetaData, distinctValueCount);
+                var analyser = type.GetColumnAnalyser(segment.MetaData, writeCount, maxCount);
                 var binding = GenericActivator.Create<IAnalyserBinding>(typeof(AnalyserBinding<>).MakeGenericType(type.GetDataType()),
                     segment,
                     analyser
@@ -296,7 +312,15 @@ namespace BrightTable
             return ret;
         }
 
-        public static IMetaData[] GetColumnAnalysis(this IDataTable table, bool force = false, uint distinctValueCount = 100)
+        /// <summary>
+        /// Returns analysis for each column in the table
+        /// </summary>
+        /// <param name="table">Data table to analyse</param>
+        /// <param name="force">True to refresh analysis (if cached)</param>
+        /// <param name="writeCount">Maximum size of sequences to write in final meta data</param>
+        /// <param name="maxCount">Maximum number of distinct items to track</param>
+        /// <returns></returns>
+        public static IMetaData[] GetColumnAnalysis(this IDataTable table, bool force = false, uint writeCount = Consts.MaxWriteCount, uint maxCount = Consts.MaxDistinct)
         {
             var count = table.ColumnCount;
             var columnMetaData = table.AllColumnsMetaData();
@@ -306,12 +330,25 @@ namespace BrightTable
                     ret[i] = columnMetaData[i];
                 else {
                     var column = table.Column(i);
-                    ret[i] = column.Analyse(force, distinctValueCount);
+                    ret[i] = column.Analyse(force, writeCount, maxCount);
                 }
             }
             return ret;
         }
 
+        /// <summary>
+        /// Parse CSV into a column oriented data table
+        /// </summary>
+        /// <param name="context">Bright data context</param>
+        /// <param name="reader">CSV</param>
+        /// <param name="hasHeader">True if the CSV has a text based header</param>
+        /// <param name="delimiter">CSV delimiter</param>
+        /// <param name="fileOutputPath">Optional path to save final table</param>
+        /// <param name="inMemoryRowCount">Number of rows to cache in memory</param>
+        /// <param name="maxDistinct">Maximum number of distinct items to track</param>
+        /// <param name="writeProgress"></param>
+        /// <param name="tempBasePath"></param>
+        /// <returns></returns>
         public static IColumnOrientedDataTable ParseCsv(
             this IBrightDataContext context,
             StreamReader reader,
@@ -590,7 +627,7 @@ namespace BrightTable
         {
             float[] Data { get; }
         }
-        class ColumnReader<T> : ITypedRowConsumer<T>, IHaveFloatArray
+        class ColumnReader<T> : IConsumeColumnData<T>, IHaveFloatArray
             where T : struct
         {
             readonly List<float> _data = new List<float>();
@@ -612,12 +649,12 @@ namespace BrightTable
             public float[] Data => _data.ToArray();
         }
 
-        static (ITypedRowConsumer Consumer, IHaveFloatArray Array) _GetColumnReader(uint columnIndex, ColumnType columnType)
+        static (IConsumeColumnData Consumer, IHaveFloatArray Array) _GetColumnReader(uint columnIndex, ColumnType columnType)
         {
             if (!columnType.IsNumeric())
                 throw new ArgumentException("Column is not numeric");
             var dataType = GetDataType(columnType);
-            return GenericActivator.Create<ITypedRowConsumer, IHaveFloatArray>(typeof(ColumnReader<>).MakeGenericType(dataType), columnIndex, columnType);
+            return GenericActivator.Create<IConsumeColumnData, IHaveFloatArray>(typeof(ColumnReader<>).MakeGenericType(dataType), columnIndex, columnType);
         }
 
         public static IEnumerable<Vector<float>> GetColumnsAsVectors(this IDataTable dataTable, params uint[] columnIndices)
@@ -802,7 +839,7 @@ namespace BrightTable
             return null;
         }
 
-        public static IVectorise GetVectoriser(this IDataTable table, params uint[] columnIndices) => new DataTableVectoriser(table, columnIndices);
+        public static IDataTableVectoriser GetVectoriser(this IDataTable table, params uint[] columnIndices) => new DataTableVectoriser(table, columnIndices);
 
         public static IColumnOrientedDataTable Convert(this IColumnOrientedDataTable dataTable, params ColumnConversionType[] conversions)
         {

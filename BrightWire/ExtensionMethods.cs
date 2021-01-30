@@ -20,10 +20,11 @@ namespace BrightWire
         /// </summary>
         /// <typeparam name="T">The markov chain data type</typeparam>
         /// <param name="context"></param>
+        /// <param name="empty">Null value for T</param>
         /// <param name="minObservations">Minimum number of data points to record an observation</param>
-        public static IMarkovModelTrainer2<T> CreateMarkovTrainer2<T>(this IBrightDataContext context, int minObservations = 1)
+        public static IMarkovModelTrainer2<T> CreateMarkovTrainer2<T>(this IBrightDataContext context, T empty, int minObservations = 1) where T : notnull
         {
-            return new MarkovModelTrainer2<T>(minObservations);
+            return new MarkovModelTrainer2<T>(empty, minObservations);
         }
 
         /// <summary>
@@ -31,10 +32,11 @@ namespace BrightWire
         /// </summary>
         /// <typeparam name="T">The markov chain data type</typeparam>
         /// <param name="context"></param>
+        /// <param name="empty">Null value for T</param>
         /// <param name="minObservations">Minimum number of data points to record an observation</param>
-        public static IMarkovModelTrainer3<T> CreateMarkovTrainer3<T>(this IBrightDataContext context, int minObservations = 1)
+        public static IMarkovModelTrainer3<T> CreateMarkovTrainer3<T>(this IBrightDataContext context, T empty, int minObservations = 1) where T : notnull
         {
-            return new MarkovModelTrainer3<T>(minObservations);
+            return new MarkovModelTrainer3<T>(empty, minObservations);
         }
 
         public static T[] GetFields<T>(this IConvertibleRow row, params uint[] indices)

@@ -52,8 +52,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 
         public abstract IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rows);
         public abstract IDataSource CloneWith(IRowOrientedDataTable dataTable);
-        public IVectorise InputVectoriser { get; protected set; }
-        public IVectorise OutputVectoriser { get; protected set; }
+        public IDataTableVectoriser? InputVectoriser { get; protected set; } = null;
+        public IDataTableVectoriser? OutputVectoriser { get; protected set; } = null;
 
         /// <inheritdoc />
         public virtual uint[][] GetBuckets()
@@ -106,7 +106,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 		/// <param name="data">List of input/output matrix tuples</param>
         protected IMiniBatch _GetSequentialMiniBatch(uint[] rows, (Matrix<float> Input, Matrix<float> Output)[] data)
         {
-            List<Vector<float>> temp;
+            List<Vector<float>>? temp;
             var inputData = new Dictionary<uint, List<Vector<float>>>();
             var outputData = new Dictionary<uint, List<Vector<float>>>();
 
@@ -141,7 +141,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
                 var inputList = new IGraphData[] {
                     new MatrixGraphData(input)
                 };
-                miniBatch.Add(type, inputList, new MatrixGraphData(output));
+                if(output != null)
+                    miniBatch.Add(type, inputList, new MatrixGraphData(output));
             }
             return miniBatch;
         }

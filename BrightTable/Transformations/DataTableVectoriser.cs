@@ -9,7 +9,7 @@ using BrightTable.Helper;
 
 namespace BrightTable.Transformations
 {
-    internal class DataTableVectoriser : IHaveDataContext, IVectorise, IHaveBrightDataContext
+    internal class DataTableVectoriser : IHaveBrightDataContext, IDataTableVectoriser
     {
         interface IColumnVectoriser : IDisposable
         {

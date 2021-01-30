@@ -36,12 +36,12 @@ namespace BrightTable
         class ConsumerBinding<T> : IConsumerBinding where T : notnull
         {
             readonly ColumnReader<T> _reader;
-            readonly ITypedRowConsumer<T> _consumer;
+            readonly IConsumeColumnData<T> _consumer;
 
-            public ConsumerBinding(IColumnReader reader, ITypedRowConsumer consumer)
+            public ConsumerBinding(IColumnReader reader, IConsumeColumnData consumer)
             {
                 _reader = (ColumnReader<T>)reader;
-                _consumer = (ITypedRowConsumer<T>)consumer;
+                _consumer = (IConsumeColumnData<T>)consumer;
             }
 
             public uint ColumnIndex => _consumer.ColumnIndex;
@@ -175,7 +175,7 @@ namespace BrightTable
             }
         }
 
-        public void ReadTyped(ITypedRowConsumer[] consumers, uint maxRows = uint.MaxValue)
+        public void ReadTyped(IConsumeColumnData[] consumers, uint maxRows = uint.MaxValue)
         {
             // create bindings for each column
             var bindings = new Dictionary<uint, IConsumerBinding>();
@@ -221,11 +221,11 @@ namespace BrightTable
             return builder.Build(Context);
         }
 
-        (ISingleTypeTableSegment Segment, ITypedRowConsumer Consumer) _GetColumn(ColumnType columnType, uint index, IMetaData metaData)
+        (ISingleTypeTableSegment Segment, IConsumeColumnData Consumer) _GetColumn(ColumnType columnType, uint index, IMetaData metaData)
         {
             var type = typeof(InMemoryBuffer<>).MakeGenericType(columnType.GetDataType());
             var columnInfo = new ColumnInfo(index, columnType, metaData);
-            return GenericActivator.Create<ISingleTypeTableSegment, ITypedRowConsumer>(type, Context, columnInfo, RowCount, Context.TempStreamProvider);
+            return GenericActivator.Create<ISingleTypeTableSegment, IConsumeColumnData>(type, Context, columnInfo, RowCount, Context.TempStreamProvider);
         }
 
         static string _ReadString(BinaryReader reader) => reader.ReadString();

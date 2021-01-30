@@ -245,7 +245,7 @@ namespace BrightWire
         /// <summary>
         /// Current signal
         /// </summary>
-        IGraphData? Data { get; }
+        IGraphData Data { get; }
 
         /// <summary>
         /// Current execution context
@@ -347,7 +347,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="slotName">Slot name</param>
         /// <returns></returns>
-        IFloatMatrix? GetMemory(string slotName);
+        IFloatMatrix GetMemory(string slotName);
 
         /// <summary>
         /// Gets the next queued graph operation (if any)
@@ -461,9 +461,9 @@ namespace BrightWire
         /// <returns></returns>
         IDataSource CloneWith(IRowOrientedDataTable dataTable);
 
-        IVectorise? InputVectoriser { get; }
+        IDataTableVectoriser? InputVectoriser { get; }
 
-        IVectorise? OutputVectoriser { get; }
+        IDataTableVectoriser? OutputVectoriser { get; }
     }
 
     /// <summary>

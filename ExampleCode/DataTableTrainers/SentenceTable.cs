@@ -16,6 +16,13 @@ namespace ExampleCode.DataTableTrainers
         readonly IRowOrientedDataTable _sentenceTable;
         readonly Dictionary<string, uint> _stringIndex = new Dictionary<string, uint>();
         readonly List<string> _strings = new List<string>();
+        readonly uint _empty;
+
+        public SentenceTable()
+        {
+            // create an empty string to represent null
+            _empty = GetStringIndex("");
+        }
 
         public uint GetStringIndex(string str)
         {
@@ -26,8 +33,6 @@ namespace ExampleCode.DataTableTrainers
 
             return ret;
         }
-
-        public string GetString(uint stringIndex) => _strings[(int) stringIndex];
 
         public SentenceTable(IBrightDataContext context, IEnumerable<string[]> sentences)
         {
@@ -40,7 +45,7 @@ namespace ExampleCode.DataTableTrainers
 
         (uint Index, string String) Append(uint index, StringBuilder sb)
         {
-            var str = GetString(index);
+            var str = _strings[(int)index];
             if (Char.IsLetterOrDigit(str[0]) && sb.Length > 0) {
                 var lastChar = sb[^1];
                 if (lastChar != '\'' && lastChar != '-')
@@ -54,7 +59,7 @@ namespace ExampleCode.DataTableTrainers
         {
             // create a markov trainer that uses a window of size 3
             var context = _sentenceTable.Context;
-            var trainer = context.CreateMarkovTrainer3<uint>();
+            var trainer = context.CreateMarkovTrainer3(_empty);
             foreach(var sentence in _sentenceTable.Column<IndexList>(0).EnumerateTyped())
                 trainer.Add(sentence.Indices);
 

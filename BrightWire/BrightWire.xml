@@ -2163,20 +2163,22 @@
             Static extension methods
             </summary>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.CreateMarkovTrainer2``1(BrightData.IBrightDataContext,System.Int32)">
+        <member name="M:BrightWire.ExtensionMethods.CreateMarkovTrainer2``1(BrightData.IBrightDataContext,``0,System.Int32)">
             <summary>
             Create a markov model trainer of window size 2
             </summary>
             <typeparam name="T">The markov chain data type</typeparam>
             <param name="context"></param>
+            <param name="empty">Null value for T</param>
             <param name="minObservations">Minimum number of data points to record an observation</param>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.CreateMarkovTrainer3``1(BrightData.IBrightDataContext,System.Int32)">
+        <member name="M:BrightWire.ExtensionMethods.CreateMarkovTrainer3``1(BrightData.IBrightDataContext,``0,System.Int32)">
             <summary>
             Create a markov model trainer of window size 3
             </summary>
             <typeparam name="T">The markov chain data type</typeparam>
             <param name="context"></param>
+            <param name="empty">Null value for T</param>
             <param name="minObservations">Minimum number of data points to record an observation</param>
         </member>
         <member name="M:BrightWire.ExtensionMethods.CreateConfusionMatrix(BrightTable.IConvertibleTable,System.UInt32,System.UInt32)">

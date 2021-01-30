@@ -411,7 +411,7 @@ namespace BrightData
     }
 
     /// <summary>
-    /// Indicates that the type has a bright data context
+    /// Indicates that the type has a data context
     /// </summary>
     public interface IHaveBrightDataContext
     {
@@ -808,17 +808,26 @@ namespace BrightData
     }
 
     /// <summary>
+    /// Append only buffer
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public interface IAppendableBuffer<in T> where T : notnull
+    {
+        /// <summary>
+        /// Adds a new item
+        /// </summary>
+        /// <param name="value">Item to add</param>
+        void Add(T value);
+    }
+
+    /// <summary>
     /// Typed hybrid buffer
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IHybridBuffer<T> : IHybridBuffer, ICanEnumerate<T>
+    public interface IHybridBuffer<T> : IHybridBuffer, ICanEnumerate<T>, IAppendableBuffer<T>
         where T : notnull
     {
-        /// <summary>
-        /// Adds a typed item to the buffer
-        /// </summary>
-        /// <param name="item">Item to add</param>
-        void Add(T item);
+
     }
 
     /// <summary>
@@ -920,6 +929,6 @@ namespace BrightData
         /// <summary>
         /// String indexer
         /// </summary>
-        IIndexStrings Indexer { get; }
+        IIndexStrings? Indexer { get; }
     }
 }

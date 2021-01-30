@@ -187,7 +187,7 @@ namespace BrightTable
     /// Typed data table segment (all of the same type)
     /// </summary>
     /// <typeparam name="T">Data type of values within the segment</typeparam>
-    public interface IDataTableSegment<out T> : ISingleTypeTableSegment, IHaveDataContext
+    public interface IDataTableSegment<out T> : ISingleTypeTableSegment, IHaveBrightDataContext
         where T: notnull
     {
         /// <summary>
@@ -200,7 +200,7 @@ namespace BrightTable
     /// <summary>
     /// A data table is an immutable collection of data with columns and rows (in which the columns have the same type of data)
     /// </summary>
-    public interface IDataTable : IHaveMetaData, IDisposable, IHaveDataContext
+    public interface IDataTable : IHaveMetaData, IDisposable, IHaveBrightDataContext
     {
         /// <summary>
         /// Number of rows
@@ -253,7 +253,7 @@ namespace BrightTable
         /// </summary>
         /// <param name="consumers">Array of consumers, for each column in the table</param>
         /// <param name="maxRows">Maximum number of rows to process</param>
-        void ReadTyped(ITypedRowConsumer[] consumers, uint maxRows = uint.MaxValue);
+        void ReadTyped(IConsumeColumnData[] consumers, uint maxRows = uint.MaxValue);
 
         /// <summary>
         /// Returns a single column from the table
@@ -484,13 +484,6 @@ namespace BrightTable
         /// Returns the last row as a string
         /// </summary>
         string LastRow { get; }
-        //IRowOrientedDataTable Vectorise(string columnName, params uint[] vectorColumnIndices);
-        //IRowOrientedDataTable Vectorise(string filePath, string columnName, params uint[] vectorColumnIndices);
-    }
-
-    public interface IEditableBuffer<in T> where T : notnull
-    {
-        void Add(T value);
     }
 
     /// <summary>
@@ -544,92 +537,240 @@ namespace BrightTable
         ToCategoricalIndex
     }
 
-    public interface IConvert<in TF, TT> : ICanConvert 
-        where TT: notnull
-        where TF: notnull
+    /// <summary>
+    /// Transforms columns
+    /// </summary>
+    public interface ITransformColumn : ICanConvert
     {
-        bool Convert(TF input, IHybridBuffer<TT> buffer);
+        /// <summary>
+        /// Complete the transformation
+        /// </summary>
+        /// <param name="metaData">Meta data store to receive transformation information</param>
         void Finalise(IMetaData metaData);
     }
 
-    public interface IColumnTransformation
+    /// <summary>
+    /// Typed column transformer
+    /// </summary>
+    /// <typeparam name="TF"></typeparam>
+    /// <typeparam name="TT"></typeparam>
+    public interface ITransformColumn<in TF, TT> : ITransformColumn
+        where TT: notnull
+        where TF: notnull
     {
+        /// <summary>
+        /// Writes the converted input to the buffer
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="buffer"></param>
+        /// <returns></returns>
+        bool Convert(TF input, IHybridBuffer<TT> buffer);
+    }
+
+    /// <summary>
+    /// Transforms a column
+    /// </summary>
+    internal interface ITransformationContext
+    {
+        /// <summary>
+        /// Performs the transformation
+        /// </summary>
+        /// <returns></returns>
         uint Transform();
+
+        /// <summary>
+        /// Buffer that is written to
+        /// </summary>
         IHybridBuffer Buffer { get; }
     }
 
-    public interface ITransformColumnOrientedDataTable
-    {
-        IColumnOrientedDataTable Transform(IColumnOrientedDataTable dataTable, string filePath = null);
-    }
-
-    public interface ITransformRowOrientedDataTable
-    {
-        IRowOrientedDataTable Transform(IRowOrientedDataTable dataTable, string filePath = null);
-    }
-
+    /// <summary>
+    /// Table column information
+    /// </summary>
     public interface IColumnInfo : IHaveMetaData
     {
+        /// <summary>
+        /// Column index
+        /// </summary>
         public uint Index { get; }
+
+        /// <summary>
+        /// Column type
+        /// </summary>
         ColumnType ColumnType { get; }
     }
 
+    /// <summary>
+    /// Informtion about a column transformation
+    /// </summary>
     public interface IColumnTransformationParam
     {
+        /// <summary>
+        /// Column index
+        /// </summary>
         public uint? ColumnIndex { get; }
-        public ICanConvert? GetConverter(ColumnType fromType, ISingleTypeTableSegment column, IProvideTempStreams tempStreams, uint inMemoryRowCount = 32768);
+
+        /// <summary>
+        /// Gets a column transformer
+        /// </summary>
+        /// <param name="fromType">Convert from column type</param>
+        /// <param name="column">Column to convert</param>
+        /// <param name="tempStreams">Temp stream provider</param>
+        /// <param name="inMemoryRowCount">Number of rows to cache in memory</param>
+        /// <returns></returns>
+        public ITransformColumn? GetTransformer(ColumnType fromType, ISingleTypeTableSegment column, IProvideTempStreams tempStreams, uint inMemoryRowCount = 32768);
     }
 
+    /// <summary>
+    /// A table that is easily convertible to other types
+    /// </summary>
     public interface IConvertibleTable
     {
+        /// <summary>
+        /// Returns a row that can be easily converted
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         IConvertibleRow Row(uint index);
+
+        /// <summary>
+        /// Returns rows that can be easily converted
+        /// </summary>
+        /// <param name="rowIndices">Row indices to return</param>
+        /// <returns></returns>
         IEnumerable<IConvertibleRow> Rows(params uint[] rowIndices);
+
+        /// <summary>
+        /// The underlying data table
+        /// </summary>
         IRowOrientedDataTable DataTable { get; }
+
+        /// <summary>
+        /// Maps each row
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="rowMapper">Callback that will be invoked on each convertible row</param>
+        /// <returns></returns>
         IEnumerable<T> Map<T>(Func<IConvertibleRow, T> rowMapper) where T : notnull;
+
+        /// <summary>
+        /// Invokes a callback on each convertible row
+        /// </summary>
+        /// <param name="action">Callback</param>
         void ForEachRow(Action<IConvertibleRow> action);
     }
 
+    /// <summary>
+    /// Indicates that the type has a data table
+    /// </summary>
     public interface IHaveDataTable
     {
+        /// <summary>
+        /// Data table
+        /// </summary>
         IDataTable DataTable { get; }
     }
 
-    public interface IHaveDataContext
-    {
-        IBrightDataContext Context { get; }
-    }
-
+    /// <summary>
+    /// A row that whose elements can be converted to other types
+    /// </summary>
     public interface IConvertibleRow : IHaveDataTable
     {
+        /// <summary>
+        /// Gets an element
+        /// </summary>
+        /// <param name="index">Column index</param>
+        /// <returns></returns>
         object Get(uint index);
+
+        /// <summary>
+        /// Returns the row segment
+        /// </summary>
         IDataTableSegment Segment { get; }
+
+        /// <summary>
+        /// Returns a value (dynamic conversion to type T)
+        /// </summary>
+        /// <typeparam name="T">Type to convert to</typeparam>
+        /// <param name="index">Column index</param>
+        /// <returns></returns>
         T GetTyped<T>(uint index) where T: notnull;
+
+        /// <summary>
+        /// Row index
+        /// </summary>
         uint RowIndex { get; }
-        uint NumColumns { get; }
     }
 
-    public interface ITypedRowConsumer
+    /// <summary>
+    /// Interface that 
+    /// </summary>
+    public interface IConsumeColumnData
     {
+        /// <summary>
+        /// Column index that will be consumed
+        /// </summary>
         uint ColumnIndex { get; }
+
+        /// <summary>
+        /// Column type of incoming data
+        /// </summary>
         ColumnType ColumnType { get; }
     }
 
-    public interface ITypedRowConsumer<in T> : ITypedRowConsumer, IEditableBuffer<T>
+    /// <summary>
+    /// Typed column consumer that writes to a buffer
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public interface IConsumeColumnData<in T> : IConsumeColumnData, IAppendableBuffer<T>
         where T: notnull
     {
     }
 
-    public interface IVectorise
+    /// <summary>
+    /// Data table vectoriser
+    /// </summary>
+    public interface IDataTableVectoriser
     {
+        /// <summary>
+        /// Vectorise a table row
+        /// </summary>
+        /// <param name="row"></param>
+        /// <returns></returns>
         float[] Vectorise(object[] row);
+
+        /// <summary>
+        /// Size of the output vectors
+        /// </summary>
         uint OutputSize { get; }
+
         string GetOutputLabel(uint columnIndex, uint vectorIndex);
+
+        /// <summary>
+        /// Returns a sequence of vectorised table rows
+        /// </summary>
+        /// <returns></returns>
         IEnumerable<Vector<float>> Enumerate();
     }
 
+    /// <summary>
+    /// Reinterpret columns parameters
+    /// </summary>
     public interface IReinterpretColumnsParam
     {
+        /// <summary>
+        /// Source column indices
+        /// </summary>
         uint[] ColumnIndices { get; }
+
+        /// <summary>
+        /// Gets new columns
+        /// </summary>
+        /// <param name="context">Bright data context</param>
+        /// <param name="tempStreams">Temp stream provider</param>
+        /// <param name="initialColumnIndex">First column index in the sequence</param>
+        /// <param name="columns">Source column data</param>
+        /// <returns></returns>
         IEnumerable<ISingleTypeTableSegment> GetNewColumns(IBrightDataContext context, IProvideTempStreams tempStreams, uint initialColumnIndex, (IColumnInfo Info, ISingleTypeTableSegment Segment)[] columns);
     }
 }

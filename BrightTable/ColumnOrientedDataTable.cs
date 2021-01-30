@@ -19,12 +19,12 @@ namespace BrightTable
         class ConsumerBinding<T> : IConsumerBinding where T: notnull
         {
             readonly IDataTableSegment<T> _segment;
-            readonly ITypedRowConsumer<T> _consumer;
+            readonly IConsumeColumnData<T> _consumer;
 
-            public ConsumerBinding(ISingleTypeTableSegment segment, ITypedRowConsumer consumer)
+            public ConsumerBinding(ISingleTypeTableSegment segment, IConsumeColumnData consumer)
             {
                 _segment = (IDataTableSegment<T>)segment;
-                _consumer = (ITypedRowConsumer<T>)consumer;
+                _consumer = (IConsumeColumnData<T>)consumer;
             }
 
             public void Copy(uint maxRows)
@@ -115,7 +115,7 @@ namespace BrightTable
             return columnIndices.Select(i => table[i]);
         }
 
-        public void ReadTyped(ITypedRowConsumer[] consumers, uint maxRows = UInt32.MaxValue)
+        public void ReadTyped(IConsumeColumnData[] consumers, uint maxRows = UInt32.MaxValue)
         {
             var bindings = consumers.Select(consumer => GenericActivator.Create<IConsumerBinding>(
                 typeof(ConsumerBinding<>).MakeGenericType(consumer.ColumnType.GetDataType()),
@@ -175,17 +175,17 @@ namespace BrightTable
                     columnConversionTable[nextIndex++] = item;
             }
 
-            var columnConversions = new Dictionary<ISingleTypeTableSegment, IColumnTransformation>();
+            var columnConversions = new Dictionary<ISingleTypeTableSegment, ITransformationContext>();
             foreach (var (info, segment) in _columns) {
                 if (columnConversionTable.TryGetValue(info.Index, out var conversion)) {
                     var column = _columns[info.Index].Segment;
-                    var converter = conversion.GetConverter(info.ColumnType, column, tempStream);
+                    var converter = conversion.GetTransformer(info.ColumnType, column, tempStream);
                     if (converter != null) {
                         var newColumnInfo = info.ChangeColumnType(converter.To.GetColumnType());
                         var buffer = newColumnInfo.MetaData.GetGrowableSegment(newColumnInfo.ColumnType, Context, tempStream);
                         var contextType = typeof(TransformationContext<,>).MakeGenericType(converter.From, converter.To);
                         var param = new object[] {column, converter, buffer};
-                        var conversionContext = GenericActivator.Create<IColumnTransformation>(contextType, param);
+                        var conversionContext = GenericActivator.Create<ITransformationContext>(contextType, param);
                         columnConversions.Add(segment, conversionContext);
                     }
                 }

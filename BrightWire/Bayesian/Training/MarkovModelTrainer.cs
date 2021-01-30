@@ -11,20 +11,22 @@ namespace BrightWire.Bayesian.Training
     /// Builds markov models with a window size of 2
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal class MarkovModelTrainer2<T> : IMarkovModelTrainer2<T>
+    internal class MarkovModelTrainer2<T> : IMarkovModelTrainer2<T> where T : notnull
     {
         readonly Dictionary<(T, T), List<T>> _data = new Dictionary<(T, T), List<T>>();
         readonly int _minObservations;
+        readonly T _empty;
 
-        public MarkovModelTrainer2(int minObservations = 1)
+        public MarkovModelTrainer2(T empty, int minObservations = 1)
         {
+            _empty = empty;
             _minObservations = minObservations;
         }
 
         public void Add(IEnumerable<T> items)
         {
 			var foundInput = false;
-            T prevPrev = default, prev = default;
+            T prevPrev = _empty, prev = _empty;
             foreach (var item in items) {
                 var head = (prevPrev, prev);
                 if (!_data.TryGetValue(head, out var tempList))
@@ -40,7 +42,7 @@ namespace BrightWire.Bayesian.Training
 		        var last = (prevPrev, prev);
 		        if (!_data.TryGetValue(last, out var tempList))
 			        _data.Add(last, tempList = new List<T>());
-		        tempList.Add(default);
+		        tempList.Add(_empty);
 	        }
         }
 
@@ -84,20 +86,22 @@ namespace BrightWire.Bayesian.Training
         }
     }
 
-    internal class MarkovModelTrainer3<T> : IMarkovModelTrainer3<T>
+    internal class MarkovModelTrainer3<T> : IMarkovModelTrainer3<T> where T: notnull
     {
         readonly Dictionary<(T, T, T), List<T>> _data = new Dictionary<(T, T, T), List<T>>();
         readonly int _minObservations;
+        readonly T _empty;
 
-        public MarkovModelTrainer3(int minObservations = 1)
+        public MarkovModelTrainer3(T empty, int minObservations = 1)
         {
+            _empty = empty;
             _minObservations = minObservations;
         }
 
         public void Add(IEnumerable<T> items)
         {
             var foundInput = false;
-            T prevPrevPrev = default, prevPrev = default, prev = default;
+            T prevPrevPrev = _empty, prevPrev = _empty, prev = _empty;
             foreach (var item in items) {
                 var head = (prevPrevPrev, prevPrev, prev);
                 if (!_data.TryGetValue(head, out var tempList))
@@ -114,7 +118,7 @@ namespace BrightWire.Bayesian.Training
 		        var last = (prevPrevPrev, prevPrev, prev);
 		        if (!_data.TryGetValue(last, out var tempList))
 			        _data.Add(last, tempList = new List<T>());
-		        tempList.Add(default);
+		        tempList.Add(_empty);
 	        }
         }
 
