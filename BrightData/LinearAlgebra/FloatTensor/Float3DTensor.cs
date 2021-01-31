@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Linq;
-using BrightData.LinearAlgebra;
 
-namespace BrightData.FloatTensor
+namespace BrightData.LinearAlgebra.FloatTensor
 {
-    public class Float3DTensor : IIndexable3DFloatTensor
+    internal class Float3DTensor : IIndexable3DFloatTensor
     {
         public Float3DTensor(Tensor3D<float> data) => Data = data;
         public void Dispose() => Data.Dispose();

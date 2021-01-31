@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using BrightData;
-using BrightData.FloatTensor;
 using BrightWire.ExecutionGraph.Action;
 
 namespace BrightWire.ExecutionGraph.Node.Layer

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using BrightData;
-using BrightData.FloatTensor;
 using BrightData.LinearAlgebra;
 using BrightTable;
 using BrightWire;

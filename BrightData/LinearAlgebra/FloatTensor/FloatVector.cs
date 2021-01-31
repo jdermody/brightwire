@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using BrightData.Analysis;
-using BrightData.LinearAlgebra;
 using BrightData.Transformation;
 
-namespace BrightData.FloatTensor
+namespace BrightData.LinearAlgebra.FloatTensor
 {
-    public class FloatVector : IIndexableFloatVector
+    internal class FloatVector : IIndexableFloatVector
     {
         public FloatVector(Vector<float> data) => Data = data;
 

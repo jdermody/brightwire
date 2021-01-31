@@ -11,7 +11,7 @@
         public override void Add(string? str)
         {
             if (str != null) {
-                _Add(str);
+                base.Add(str);
                 var len = (uint)str.Length;
                 if (len < _minLength)
                     _minLength = len;

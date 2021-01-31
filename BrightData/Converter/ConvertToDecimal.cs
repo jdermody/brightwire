@@ -12,35 +12,35 @@ namespace BrightData.Converter
             var typeCode = Type.GetTypeCode(typeof(T));
             _converter = typeCode switch
             {
-                TypeCode.Single => _FromSingle,
-                TypeCode.Double => _FromDouble,
-                TypeCode.SByte => _FromSByte,
-                TypeCode.Byte => _FromByte,
-                TypeCode.Int16 => _FromInt16,
-                TypeCode.UInt16 => _FromUInt16,
-                TypeCode.Int32 => _FromInt32,
-                TypeCode.UInt32 => _FromUInt32,
-                TypeCode.Int64 => _FromInt64,
-                TypeCode.UInt64 => _FromUInt64,
-                TypeCode.Decimal => _GetDecimal,
-                _ => _ConvertGeneric,
+                TypeCode.Single => FromSingle,
+                TypeCode.Double => FromDouble,
+                TypeCode.SByte => FromSByte,
+                TypeCode.Byte => FromByte,
+                TypeCode.Int16 => FromInt16,
+                TypeCode.UInt16 => FromUInt16,
+                TypeCode.Int32 => FromInt32,
+                TypeCode.UInt32 => FromUInt32,
+                TypeCode.Int64 => FromInt64,
+                TypeCode.UInt64 => FromUInt64,
+                TypeCode.Decimal => GetDecimal,
+                _ => ConvertGeneric,
             };
         }
 
-        decimal _FromSingle(T data) => System.Convert.ToDecimal(_GetSingle(data));
-        decimal _FromDouble(T data) => System.Convert.ToDecimal(_GetDouble(data));
-        decimal _FromSByte(T data) => _GetSByte(data);
-        decimal _FromByte(T data) => _GetByte(data);
-        decimal _FromInt16(T data) => _GetInt16(data);
-        decimal _FromUInt16(T data) => _GetUInt16(data);
-        decimal _FromInt32(T data) => _GetInt32(data);
-        decimal _FromUInt32(T data) => _GetUInt32(data);
-        decimal _FromInt64(T data) => _GetInt64(data);
-        decimal _FromUInt64(T data) => _GetUInt64(data);
-        decimal _ConvertGeneric(T data)
+        decimal FromSingle(T data) => System.Convert.ToDecimal(GetSingle(data));
+        decimal FromDouble(T data) => System.Convert.ToDecimal(GetDouble(data));
+        decimal FromSByte(T data) => GetSByte(data);
+        decimal FromByte(T data) => GetByte(data);
+        decimal FromInt16(T data) => GetInt16(data);
+        decimal FromUInt16(T data) => GetUInt16(data);
+        decimal FromInt32(T data) => GetInt32(data);
+        decimal FromUInt32(T data) => GetUInt32(data);
+        decimal FromInt64(T data) => GetInt64(data);
+        decimal FromUInt64(T data) => GetUInt64(data);
+        decimal ConvertGeneric(T data)
         {
             var (ret, wasConverted) = _genericConverter.Value.ConvertValue(data);
-            if(!wasConverted && _throwOnFailure)
+            if(!wasConverted && _throwOnFailure || ret == null)
                 throw new ArgumentException($"Could not convert {data} to decimal");
             return (decimal)ret;
         }

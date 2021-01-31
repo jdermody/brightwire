@@ -7,7 +7,7 @@ using System.Text;
 
 namespace BrightData.Serialisation
 {
-    public static class SerialisationHelper
+    internal static class SerialisationHelper
     {
         public static void WriteTo(this String str, BinaryWriter writer) => writer.Write(str ?? "");
         public static void WriteTo(this int val, BinaryWriter writer) => writer.Write(val);

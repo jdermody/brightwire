@@ -1,38 +1,44 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace BrightData.Iterators
+namespace BrightData.Iterator
 {
+    /// <summary>
+    /// Iterates characters in a string
+    /// </summary>
     public class StringIterator : SimpleIterator<char>
     {
-        readonly string _data;
+        readonly string _str;
 
-        public StringIterator(string str) : base(str.ToCharArray())
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="str">String to iterate</param>
+        public StringIterator(string str) : base(str.ToCharArray(), '\0')
         {
-            _data = str;
+            _str = str;
         }
 
-        public override bool Equals(object obj)
+        /// <inheritdoc />
+        public override bool Equals(object? obj)
         {
-            var other = (StringIterator)obj;
-            return other != null && (Length == other.Length && _pos == other._pos && _data.Equals(other._data));
+            return obj is StringIterator other && Length == other.Length && Position == other.Position && _data.Equals(other._data);
         }
 
-        public override int GetHashCode()
-        {
-            return _data.GetHashCode() ^ _pos;
-        }
+        /// <inheritdoc />
+        public override int GetHashCode() => _str.GetHashCode();
 
-        public override string ToString()
-        {
-            return _data.Substring(_pos);
-        }
+        /// <inheritdoc />
+        public override string ToString() => _str[Position..];
 
+        /// <summary>
+        /// Clones this iterator
+        /// </summary>
+        /// <returns></returns>
         public new StringIterator Clone()
         {
-            var ret = new StringIterator(_data)
+            var ret = new StringIterator(_str)
             {
                 _pos = _pos
             };
@@ -41,8 +47,14 @@ namespace BrightData.Iterators
             return ret;
         }
 
-        public string Data => _data;
+        /// <summary>
+        /// Underlying string
+        /// </summary>
+        public string Data => _str;
 
+        /// <summary>
+        /// All lines in the string
+        /// </summary>
         public IEnumerable<string> Lines
         {
             get
@@ -63,7 +75,12 @@ namespace BrightData.Iterators
             }
         }
 
-        public bool IsMatch(char[] list)
+        /// <summary>
+        /// Checks if a sequence of characters matches at the current position
+        /// </summary>
+        /// <param name="list"></param>
+        /// <returns></returns>
+        public bool Matches(IEnumerable<char> list)
         {
             var curr = Peek();
             foreach (var item in list)
@@ -74,6 +91,11 @@ namespace BrightData.Iterators
             return false;
         }
 
+        /// <summary>
+        /// Checks if a string matches at the current position
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
         public bool Matches(string str)
         {
             int offset = 0;
@@ -85,13 +107,19 @@ namespace BrightData.Iterators
             return true;
         }
 
+        /// <summary>
+        /// Returns a new string iterator for a specific section of this iterator
+        /// </summary>
+        /// <param name="start">Start position</param>
+        /// <param name="end">End position</param>
+        /// <returns></returns>
         public new StringIterator GetRange(int start, int end)
         {
             var length = end - start;
-            if (length > _list.Count - start)
-                length = _list.Count - start;
-            if (start < _list.Count && length > 0)
-                return new StringIterator(new string(_list.Skip(start).Take(length).ToArray()));
+            if (length > _data.Length - start)
+                length = _data.Length - start;
+            if (start < _data.Length && length > 0)
+                return new StringIterator(new string(_data.Skip(start).Take(length).ToArray()));
             return new StringIterator("");
         }
     }

@@ -3,7 +3,6 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using BrightData;
-using BrightData.FloatTensor;
 
 namespace BrightWire.ExecutionGraph.Node.Layer
 {

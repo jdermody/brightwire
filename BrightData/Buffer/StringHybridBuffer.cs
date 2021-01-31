@@ -11,14 +11,14 @@ namespace BrightData.Buffer
         {
         }
 
-        protected override void _WriteTo(ReadOnlySpan<string> ptr, Stream stream)
+        protected override void WriteTo(ReadOnlySpan<string> ptr, Stream stream)
         {
             using var writer = new BinaryWriter(stream, Encoding.UTF8, true);
             foreach(var item in ptr)
                 writer.Write(item);
         }
 
-        protected override uint _ReadTo(Stream stream, uint count, string[] buffer)
+        protected override uint ReadTo(Stream stream, uint count, string[] buffer)
         {
             uint ret = 0;
             var reader = new BinaryReader(stream, Encoding.UTF8);

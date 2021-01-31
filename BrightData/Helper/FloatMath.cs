@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using BrightData.FloatTensor;
 using BrightData.LinearAlgebra;
 
 namespace BrightData.Helper
@@ -10,6 +9,7 @@ namespace BrightData.Helper
     /// </summary>
     public static class FloatMath
     {
+#pragma warning disable 1591
         public const float AlmostZero = 1E-08f;
         public const float TooSmall = -1.0E20f;
         public const float TooBig = 1.0E20f;
@@ -186,5 +186,6 @@ namespace BrightData.Helper
 
             return true;
         }
+#pragma warning restore 1591
     }
 }

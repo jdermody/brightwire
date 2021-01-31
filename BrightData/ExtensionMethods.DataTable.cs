@@ -114,11 +114,39 @@ namespace BrightData
             return ColumnType.Unknown;
         }
 
+        /// <summary>
+        /// Checks if the column type is blittable
+        /// </summary>
+        /// <param name="columnType"></param>
+        /// <returns></returns>
         public static bool IsStructable(this ColumnType columnType) => ColumnTypeClassifier.IsBlittable(columnType);
+
+        /// <summary>
+        /// Checks if the column type is numeric
+        /// </summary>
+        /// <param name="columnType"></param>
+        /// <returns></returns>
         public static bool IsNumeric(this ColumnType columnType) => ColumnTypeClassifier.IsNumeric(columnType);
+
+        /// <summary>
+        /// Checks if the column type is decimal
+        /// </summary>
+        /// <param name="columnType"></param>
+        /// <returns></returns>
         public static bool IsDecimal(this ColumnType columnType) => ColumnTypeClassifier.IsDecimal(columnType);
+
+        /// <summary>
+        /// Checks if the column type is continuous
+        /// </summary>
+        /// <param name="columnType"></param>
+        /// <returns></returns>
         public static bool IsContinuous(this ColumnType columnType) => ColumnTypeClassifier.IsContinuous(columnType);
 
+        /// <summary>
+        /// Checks if the column type is an integer
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public static bool IsInteger(this ColumnType type) => type switch
         {
             ColumnType.Byte => true,
@@ -128,13 +156,23 @@ namespace BrightData
             _ => false
         };
 
-        public static bool IsIndexed(this ColumnType type) => type switch
+        /// <summary>
+        /// Checks if the column type is an indexed list (or weighted index list)
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static bool IsIndexedList(this ColumnType type) => type switch
         {
             ColumnType.IndexList => true,
             ColumnType.WeightedIndexList => true,
             _ => false
         };
 
+        /// <summary>
+        /// Checks if the column type is a tensor
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public static bool IsTensor(this ColumnType type) => type switch
         {
             ColumnType.Vector => true,
@@ -144,12 +182,17 @@ namespace BrightData
             _ => false
         };
 
-        public static Type DataType(this IDataTableSegment segment)
+        /// <summary>
+        /// Returns the underlying Type for a data table segment
+        /// </summary>
+        /// <param name="segment"></param>
+        /// <returns></returns>
+        public static Type? DataType(this IDataTableSegment segment)
         {
-            Type ret = null;
+            Type? ret = null;
             for (uint i = 0; i < segment.Size; i++)
             {
-                var type = segment[i]?.GetType();
+                var type = segment[i].GetType();
                 if (ret == null)
                     ret = type;
                 else if (type != null && type != ret)
@@ -158,7 +201,13 @@ namespace BrightData
             return ret;
         }
 
-        public static Type GetDataType<T>(this IDataTableSegment<T> segment) => typeof(T);
+        /// <summary>
+        /// Returns the underlying Type for a data table segment
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="segment"></param>
+        /// <returns></returns>
+        public static Type GetDataType<T>(this IDataTableSegment<T> segment) where T : notnull => typeof(T);
 
         /// <summary>
         /// Returns all row indices as an enumerable
@@ -200,21 +249,26 @@ namespace BrightData
             dataTable.ForEachRow((row, index) => callback(row));
         }
 
-        public static void ForEachRow<T0>(this IDataTable dataTable, Action<T0> callback) => dataTable.ForEachRow((row, index) => callback((T0)row[0]));
-        public static void ForEachRow<T0, T1>(this IDataTable dataTable, Action<T0, T1> callback) => dataTable.ForEachRow((row, index) => callback((T0)row[0], (T1)row[1]));
-        public static void ForEachRow<T0, T1, T2>(this IDataTable dataTable, Action<T0, T1, T2> callback) => dataTable.ForEachRow((row, index) => callback((T0)row[0], (T1)row[1], (T2)row[2]));
-        public static void ForEachRow<T0, T1, T2, T3>(this IDataTable dataTable, Action<T0, T1, T2, T3> callback) => dataTable.ForEachRow((row, index) => callback((T0)row[0], (T1)row[1], (T2)row[2], (T3)row[3]));
+        //public static void ForEachRow<T0>(this IDataTable dataTable, Action<T0> callback) => dataTable.ForEachRow((row, index) => callback((T0)row[0]));
+        //public static void ForEachRow<T0, T1>(this IDataTable dataTable, Action<T0, T1> callback) => dataTable.ForEachRow((row, index) => callback((T0)row[0], (T1)row[1]));
+        //public static void ForEachRow<T0, T1, T2>(this IDataTable dataTable, Action<T0, T1, T2> callback) => dataTable.ForEachRow((row, index) => callback((T0)row[0], (T1)row[1], (T2)row[2]));
+        //public static void ForEachRow<T0, T1, T2, T3>(this IDataTable dataTable, Action<T0, T1, T2, T3> callback) => dataTable.ForEachRow((row, index) => callback((T0)row[0], (T1)row[1], (T2)row[2], (T3)row[3]));
 
-        public static List<T> MapRows<T>(this IDataTable dataTable, Func<object[], uint, T> callback)
-        {
-            var ret = new List<T>();
-            dataTable.ForEachRow((row, index) => ret.Add(callback(row, index)));
-            return ret;
-        }
+        //public static List<T> MapRows<T>(this IDataTable dataTable, Func<object[], uint, T> callback)
+        //{
+        //    var ret = new List<T>();
+        //    dataTable.ForEachRow((row, index) => ret.Add(callback(row, index)));
+        //    return ret;
+        //}
 
-        public static List<T> MapRows<T0, T>(this IDataTable dataTable, Func<T0, T> callback) => MapRows(dataTable, (rows, index) => callback((T0)rows[0]));
-        public static List<T> MapRows<T0, T1, T>(this IDataTable dataTable, Func<T0, T1, T> callback) => MapRows(dataTable, (rows, index) => callback((T0)rows[0], (T1)rows[1]));
+        //public static List<T> MapRows<T0, T>(this IDataTable dataTable, Func<T0, T> callback) => MapRows(dataTable, (rows, index) => callback((T0)rows[0]));
+        //public static List<T> MapRows<T0, T1, T>(this IDataTable dataTable, Func<T0, T1, T> callback) => MapRows(dataTable, (rows, index) => callback((T0)rows[0], (T1)rows[1]));
 
+        /// <summary>
+        /// Returns meta data for all columns
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <returns></returns>
         public static IMetaData[] AllColumnsMetaData(this IDataTable dataTable) => dataTable.ColumnMetaData(dataTable.ColumnCount.AsRange().ToArray()).ToArray();
 
         interface IAnalyserBinding
@@ -408,9 +462,15 @@ namespace BrightData
                 Console.WriteLine($"Read {rowCount:N0} lines into {columns.Count:N0} columns");
             }
 
-            return columns.BuildColumnOrientedTable(context, rowCount, fileOutputPath);
+            return columns.Cast<ISingleTypeTableSegment>().ToList().BuildColumnOrientedTable(context, rowCount, fileOutputPath);
         }
 
+        /// <summary>
+        /// Writes a progress bar to the console
+        /// </summary>
+        /// <param name="newProgress">Current progress</param>
+        /// <param name="oldProgress">Previous progress</param>
+        /// <param name="max">Maximum progress</param>
         public static void WriteProgress(this int newProgress, ref int oldProgress, int max = 100)
         {
             if (newProgress > oldProgress)
@@ -424,6 +484,12 @@ namespace BrightData
             }
         }
 
+        /// <summary>
+        /// Returns the head (first few rows) of the data table
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <param name="size">Number of rows to return</param>
+        /// <returns></returns>
         public static List<object[]> Head(this IDataTable dataTable, uint size = 10)
         {
             var ret = new List<object[]>();
@@ -431,6 +497,12 @@ namespace BrightData
             return ret;
         }
 
+        /// <summary>
+        /// Loads a data table from disk
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="filePath">File path on disk</param>
+        /// <returns></returns>
         public static IDataTable LoadTable(this IBrightDataContext context, string filePath)
         {
             var input = new FileStream(filePath, FileMode.Open, FileAccess.Read);
@@ -442,11 +514,18 @@ namespace BrightData
             var orientation = (DataTableOrientation)reader.ReadByte();
             if (orientation == DataTableOrientation.ColumnOriented)
                 return new ColumnOrientedDataTable(context, input, false);
-            else if (orientation == DataTableOrientation.RowOriented)
+            if (orientation == DataTableOrientation.RowOriented)
                 return new RowOrientedDataTable(context, input, false);
             throw new Exception($"Found unknown data table orientation: {orientation}");
         }
 
+        /// <summary>
+        /// Copies a data table segment to a tensor segment
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="column">Data table segment</param>
+        /// <param name="vector">Tensor segment</param>
+        /// <returns></returns>
         public static uint CopyToFloatSegment<T>(this IDataTableSegment<T> column, ITensorSegment<float> vector)
             where T : struct
         {
@@ -458,13 +537,24 @@ namespace BrightData
             return index;
         }
 
+        /// <summary>
+        /// Copies a data table segment to tensor segment
+        /// </summary>
+        /// <param name="column">Data table segment</param>
+        /// <param name="vector">Tensor segment</param>
+        /// <returns></returns>
         public static uint CopyTo(this ISingleTypeTableSegment column, ITensorSegment<float> vector)
         {
             var type = GetDataType(column.SingleType);
-            var copySegment = typeof(ExtensionMethods).GetMethod("CopyToFloatSegment").MakeGenericMethod(type);
-            return (uint)copySegment.Invoke(null, new object[] { column, vector });
+            var copySegment = typeof(ExtensionMethods).GetMethod("CopyToFloatSegment")!.MakeGenericMethod(type);
+            return (uint)copySegment.Invoke(null, new object[] { column, vector })!;
         }
 
+        /// <summary>
+        /// Sets the target column of the data table
+        /// </summary>
+        /// <param name="table"></param>
+        /// <param name="columnIndex">Column index to make target (or null to set no target)</param>
         public static void SetTargetColumn(this IDataTable table, uint? columnIndex)
         {
             var metaData = table.AllMetaData().ToList();
@@ -474,6 +564,11 @@ namespace BrightData
             }
         }
 
+        /// <summary>
+        /// Returns the target column of the data table
+        /// </summary>
+        /// <param name="table"></param>
+        /// <returns></returns>
         public static uint? GetTargetColumn(this IDataTable table)
         {
             var metaData = table.AllMetaData().ToList();
@@ -485,11 +580,21 @@ namespace BrightData
             return null;
         }
 
+        /// <summary>
+        /// Returns the target column or throws an exception if none set
+        /// </summary>
+        /// <param name="table"></param>
+        /// <returns></returns>
         public static uint GetTargetColumnOrThrow(this IDataTable table)
         {
             return GetTargetColumn(table) ?? throw new Exception("No target column was set on the table");
         }
 
+        /// <summary>
+        /// Returns the feature (non target) columns of the data table
+        /// </summary>
+        /// <param name="table"></param>
+        /// <returns></returns>
         public static IEnumerable<uint> ColumnIndicesOfFeatures(this IDataTable table)
         {
             var targetColumn = table.GetTargetColumn();
@@ -499,6 +604,12 @@ namespace BrightData
             return ret;
         }
 
+        /// <summary>
+        /// Sets the column type in a meta data store
+        /// </summary>
+        /// <param name="metaData"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public static IMetaData SetType(this IMetaData metaData, ColumnType type)
         {
             metaData.Set(Consts.Type, (byte)type);
@@ -515,17 +626,27 @@ namespace BrightData
         //    }
         //}
 
-        public static void SetSequentialColumn(this IDataTable table, params uint[] columnIndices)
-        {
-            var metaData = table.AllMetaData().ToList();
-            var featureColumns = new HashSet<uint>(columnIndices);
+        //public static void SetSequentialColumn(this IDataTable table, params uint[] columnIndices)
+        //{
+        //    var metaData = table.AllMetaData().ToList();
+        //    var featureColumns = new HashSet<uint>(columnIndices);
 
-            for (uint i = 0; i < table.ColumnCount; i++)
-            {
-                metaData[(int)i].Set(Consts.IsSequential, featureColumns.Contains(i));
-            }
-        }
+        //    for (uint i = 0; i < table.ColumnCount; i++)
+        //    {
+        //        metaData[(int)i].Set(Consts.IsSequential, featureColumns.Contains(i));
+        //    }
+        //}
 
+        /// <summary>
+        /// Creates an appendable buffer for a column type
+        /// </summary>
+        /// <param name="metaData"></param>
+        /// <param name="type">Column type</param>
+        /// <param name="context"></param>
+        /// <param name="tempStream"></param>
+        /// <param name="bufferSize">In memory cache size</param>
+        /// <param name="maxDistinct">Maximum number of distinct items to track</param>
+        /// <returns></returns>
         public static IHybridBuffer GetGrowableSegment(this IMetaData metaData, ColumnType type, IBrightDataContext context, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024)
         {
             var columnType = GetDataType(type);
@@ -546,6 +667,14 @@ namespace BrightData
             );
         }
 
+        /// <summary>
+        /// Creates a column oriented data table from a list of segments
+        /// </summary>
+        /// <param name="segments"></param>
+        /// <param name="context"></param>
+        /// <param name="rowCount">Number of rows</param>
+        /// <param name="filePath">File path to save on disk (optional)</param>
+        /// <returns></returns>
         public static IColumnOrientedDataTable BuildColumnOrientedTable(this List<ISingleTypeTableSegment> segments, IBrightDataContext context, uint rowCount, string? filePath = null)
         {
             var columnCount = (uint)segments.Count;
@@ -562,20 +691,18 @@ namespace BrightData
             return builder.Build(context);
         }
 
-        public static IColumnOrientedDataTable BuildColumnOrientedTable(this List<IHybridBuffer> buffers, IBrightDataContext context, uint rowCount, string? filePath = null)
-        {
-            return buffers.Cast<ISingleTypeTableSegment>().ToList().BuildColumnOrientedTable(context, rowCount, filePath);
-        }
-
-        internal static IColumnOrientedDataTable BuildColumnOrientedTable<T>(this List<GrowableSegment<T>> buffers, IBrightDataContext context, uint rowCount, string? filePath = null)
-        {
-            return buffers.Cast<ISingleTypeTableSegment>().ToList().BuildColumnOrientedTable(context, rowCount, filePath);
-        }
-
-        public static IRowOrientedDataTable BuildRowOrientedTable(this List<IHybridBuffer> buffers, IBrightDataContext context, uint rowCount, string? filePath = null)
+        /// <summary>
+        /// Creates a row oriented data table from a list of segments
+        /// </summary>
+        /// <param name="segments"></param>
+        /// <param name="context"></param>
+        /// <param name="rowCount">Number of rows</param>
+        /// <param name="filePath">File path to save on disk (optional)</param>
+        /// <returns></returns>
+        public static IRowOrientedDataTable BuildRowOrientedTable(this List<ISingleTypeTableSegment> segments, IBrightDataContext context, uint rowCount, string? filePath = null)
         {
             using var builder = new RowOrientedTableBuilder(rowCount, filePath);
-            var readers = buffers.Cast<ISingleTypeTableSegment>()
+            var readers = segments
                 .Select(b => b.Enumerate().GetEnumerator())
                 .ToList();
             while (readers.All(r => r.MoveNext()))
@@ -586,6 +713,12 @@ namespace BrightData
             return builder.Build(context);
         }
 
+        /// <summary>
+        /// Creates a column info with a new column type
+        /// </summary>
+        /// <param name="column">Column info source</param>
+        /// <param name="newType">New column type</param>
+        /// <returns></returns>
         public static IColumnInfo ChangeColumnType(this IColumnInfo column, ColumnType newType)
         {
             if (column.ColumnType == newType)
@@ -593,11 +726,21 @@ namespace BrightData
             return new ColumnInfo(column.Index, newType, new MetaData(column.MetaData, Consts.Index, Consts.Name));
         }
 
+        /// <summary>
+        /// Creates a convertible data table
+        /// </summary>
+        /// <param name="dataTable">Data table to use as basis</param>
+        /// <returns></returns>
         public static IConvertibleTable AsConvertible(this IRowOrientedDataTable dataTable)
         {
             return new DataTableConverter(dataTable);
         }
 
+        /// <summary>
+        /// Converts the data table to a sequence of labelled vectors (feature columns are vectorised, target column is converted to a string)
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <returns></returns>
         public static IEnumerable<(Vector<float> Numeric, string? Label)> GetVectorisedFeatures(this IDataTable dataTable)
         {
             var target = dataTable.GetTargetColumn();
@@ -611,30 +754,38 @@ namespace BrightData
             return vectoriser.Enumerate().Select(v => (v, (string?)null));
         }
 
-        public static ColumnType GetColumnType(this IMetaData metadata) => metadata.Get<ColumnType>(Consts.Type, ColumnType.Unknown);
+        /// <summary>
+        /// Gets the column type
+        /// </summary>
+        /// <param name="metadata"></param>
+        /// <returns></returns>
+        public static ColumnType GetColumnType(this IMetaData metadata) => metadata.Get(Consts.Type, ColumnType.Unknown);
+
+        /// <summary>
+        /// Gets the number of distinct items
+        /// </summary>
+        /// <param name="metadata"></param>
+        /// <returns></returns>
         public static uint GetNumDistinct(this IMetaData metadata) => metadata.Get<uint>(Consts.NumDistinct, 0);
 
+        /// <summary>
+        /// Creates a table builder
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
         public static InMemoryTableBuilder BuildTable(this IBrightDataContext context) => new InMemoryTableBuilder(context);
 
-        public static IRowOrientedDataTable ToRowOriented(this IDataTable table, string? filePath = null)
+        /// <summary>
+        /// Splits a data table into training and test tables (rows are randomly selected for either)
+        /// </summary>
+        /// <param name="table"></param>
+        /// <param name="trainingFraction">Fraction (0..1) of rows to add to the training table</param>
+        /// <param name="trainingFilePath">Path to write training table to disk (optional)</param>
+        /// <param name="testFilePath">Path to write test table to disk (optional)</param>
+        /// <returns></returns>
+        public static (IRowOrientedDataTable Training, IRowOrientedDataTable Test) Split(this IRowOrientedDataTable table, double trainingFraction = 0.8, string? trainingFilePath = null, string? testFilePath = null)
         {
-            if (table.Orientation == DataTableOrientation.RowOriented)
-                return (IRowOrientedDataTable)table;
-            var columnOriented = (IColumnOrientedDataTable)table;
-            return columnOriented.AsRowOriented(filePath);
-        }
-
-        public static IColumnOrientedDataTable ToColumnOriented(this IDataTable table, string? filePath = null)
-        {
-            if (table.Orientation == DataTableOrientation.ColumnOriented)
-                return (IColumnOrientedDataTable)table;
-            var rowOriented = (IRowOrientedDataTable)table;
-            return rowOriented.AsColumnOriented(filePath);
-        }
-
-        public static (IRowOrientedDataTable Training, IRowOrientedDataTable Test) Split(this IRowOrientedDataTable table, double trainingPercentage = 0.8, string? trainingFilePath = null, string? testFilePath = null)
-        {
-            var (training, test) = table.RowIndices().Shuffle(table.Context.Random).ToArray().Split(trainingPercentage);
+            var (training, test) = table.RowIndices().Shuffle(table.Context.Random).ToArray().Split(trainingFraction);
             return (table.CopyRows(trainingFilePath, training), table.CopyRows(testFilePath, test));
         }
 
@@ -664,7 +815,7 @@ namespace BrightData
             public float[] Data => _data.ToArray();
         }
 
-        static (IConsumeColumnData Consumer, IHaveFloatArray Array) _GetColumnReader(uint columnIndex, ColumnType columnType)
+        static (IConsumeColumnData Consumer, IHaveFloatArray Array) GetColumnReader(uint columnIndex, ColumnType columnType)
         {
             if (!columnType.IsNumeric())
                 throw new ArgumentException("Column is not numeric");
@@ -672,19 +823,42 @@ namespace BrightData
             return GenericActivator.Create<IConsumeColumnData, IHaveFloatArray>(typeof(ColumnReader<>).MakeGenericType(dataType), columnIndex, columnType);
         }
 
+        /// <summary>
+        /// Returns columns as vectors
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <param name="columnIndices">Column indices to return as vectors</param>
+        /// <returns></returns>
         public static IEnumerable<Vector<float>> GetColumnsAsVectors(this IDataTable dataTable, params uint[] columnIndices)
         {
-            var readers = columnIndices.Select(i => _GetColumnReader(i, dataTable.ColumnTypes[i])).ToList();
+            var readers = columnIndices.Select(i => GetColumnReader(i, dataTable.ColumnTypes[i])).ToList();
             var consumers = readers.Select(r => r.Consumer).ToArray();
             dataTable.ReadTyped(consumers);
             var context = dataTable.Context;
             return readers.Select(r => context.CreateVector(r.Array.Data));
         }
 
-        public static IEnumerable<T> EnumerateTyped<T>(this ISingleTypeTableSegment segment) => ((IDataTableSegment<T>)segment).EnumerateTyped();
+        /// <summary>
+        /// Strongly typed enumeration of items in segment
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="segment"></param>
+        /// <returns></returns>
+        public static IEnumerable<T> EnumerateTyped<T>(this ISingleTypeTableSegment segment) where T: notnull => ((IDataTableSegment<T>)segment).EnumerateTyped();
 
-        public static T[] ToArray<T>(this ISingleTypeTableSegment segment) => EnumerateTyped<T>(segment).ToArray();
+        /// <summary>
+        /// Reads the segment as a strongly typed array
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="segment"></param>
+        /// <returns></returns>
+        public static T[] ToArray<T>(this ISingleTypeTableSegment segment) where T : notnull => EnumerateTyped<T>(segment).ToArray();
 
+        /// <summary>
+        /// Converts the data table to feature and target matrices
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <returns></returns>
         public static (Matrix<float> Features, Matrix<float> Target) AsMatrices(this IDataTable dataTable)
         {
             var targetColumn = dataTable.GetTargetColumnOrThrow();
@@ -692,6 +866,12 @@ namespace BrightData
             return (AsMatrix(dataTable, featureColumns), AsMatrix(dataTable, targetColumn));
         }
 
+        /// <summary>
+        /// Converts data table columns to a matrix
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <param name="columnIndices">Column indices to include in the matrix</param>
+        /// <returns></returns>
         public static Matrix<float> AsMatrix(this IDataTable dataTable, params uint[] columnIndices)
         {
             // consider the simple case
@@ -719,15 +899,21 @@ namespace BrightData
             return dataTable.Context.CreateMatrixFromRows(vectoriser.Enumerate().ToArray());
         }
 
+        /// <summary>
+        /// Creates a new data table that has two vector columns, one for the features and the other for the target
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <param name="filePath">Optional path to save data table to disk</param>
+        /// <returns></returns>
         public static IRowOrientedDataTable Vectorise(this IDataTable dataTable, string? filePath = null)
         {
             var target = dataTable.GetTargetColumn();
             var columnIndices = dataTable.ColumnIndices().ToList();
 
             var builder = new RowOrientedTableBuilder(dataTable.RowCount, filePath);
-            builder.AddColumn(ColumnType.Vector, "Input");
+            builder.AddColumn(ColumnType.Vector, "Features");
 
-            DataTableVectoriser outputVectoriser = null;
+            DataTableVectoriser? outputVectoriser = null;
             if (target.HasValue)
             {
                 builder.AddColumn(ColumnType.Vector, "Target").SetTarget(true);
@@ -748,9 +934,22 @@ namespace BrightData
             return builder.Build(context);
         }
 
-        public static IDataTableSegment<T> Column<T>(this IDataTable dataTable, uint index) => (IDataTableSegment<T>)dataTable.Column(index);
+        /// <summary>
+        /// Returns a data table segment from the data table
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="dataTable"></param>
+        /// <param name="columnIndex"></param>
+        /// <returns></returns>
+        public static IDataTableSegment<T> Column<T>(this IDataTable dataTable, uint columnIndex) where T : notnull => (IDataTableSegment<T>)dataTable.Column(columnIndex);
 
-        public static T[] ToArray<T>(this IDataTableSegment<T> segment) => segment.EnumerateTyped().ToArray();
+        /// <summary>
+        /// Converts a data table segment to an array
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="segment"></param>
+        /// <returns></returns>
+        public static T[] ToArray<T>(this IDataTableSegment<T> segment) where T : notnull => segment.EnumerateTyped().ToArray();
 
         /// <summary>
         /// Converts indexed classifications to a data table
@@ -843,6 +1042,11 @@ namespace BrightData
             return data.Select(r => (r.Label, _Create(r.Data))).ToList();
         }
 
+        /// <summary>
+        /// Returns a default value for a column type
+        /// </summary>
+        /// <param name="columnType"></param>
+        /// <returns></returns>
         public static object? GetDefaultValue(this ColumnType columnType)
         {
             if (columnType == ColumnType.String)
@@ -859,16 +1063,48 @@ namespace BrightData
             return null;
         }
 
+        /// <summary>
+        /// Returns a vectoriser
+        /// </summary>
+        /// <param name="table"></param>
+        /// <param name="columnIndices">Column indices to vectorise</param>
+        /// <returns></returns>
         public static IDataTableVectoriser GetVectoriser(this IDataTable table, params uint[] columnIndices) => new DataTableVectoriser(table, columnIndices);
 
+        /// <summary>
+        /// Converts columns
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <param name="conversions"></param>
+        /// <returns></returns>
         public static IColumnOrientedDataTable ConvertTable(this IColumnOrientedDataTable dataTable, params ColumnConversionType[] conversions)
         {
             return dataTable.Convert(conversions.Select((c, i) => (IColumnTransformationParam)new ColumnConversion((uint)i, c)).ToArray());
         }
 
+        /// <summary>
+        /// Creates a column conversion parameter
+        /// </summary>
+        /// <param name="type">Type of column conversion</param>
+        /// <param name="columnIndex"></param>
+        /// <returns></returns>
         public static IColumnTransformationParam ConvertColumn(this ColumnConversionType type, uint columnIndex) => new ColumnConversion(columnIndex, type);
+
+        /// <summary>
+        /// Creates a column normalization parameter
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="columnIndex"></param>
+        /// <returns></returns>
         public static IColumnTransformationParam ConvertColumn(this NormalizationType type, uint columnIndex) => new ColumnNormalization(columnIndex, type);
 
+        /// <summary>
+        /// Creates a reinterpret columns parameter
+        /// </summary>
+        /// <param name="sourceColumnIndices"></param>
+        /// <param name="newColumnType"></param>
+        /// <param name="newColumnName"></param>
+        /// <returns></returns>
         public static IReinterpretColumnsParam ReinterpretColumns(this uint[] sourceColumnIndices, ColumnType newColumnType, string newColumnName)
         {
             return new ReinterpretColumns(newColumnType, newColumnName, sourceColumnIndices);

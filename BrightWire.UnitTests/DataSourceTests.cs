@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using BrightData;
 using BrightData.Cuda;
-using BrightData.FloatTensor;
 using BrightData.Helper;
 using BrightData.Numerics;
 using BrightData.UnitTests;

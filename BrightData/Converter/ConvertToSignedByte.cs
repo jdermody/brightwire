@@ -12,35 +12,35 @@ namespace BrightData.Converter
             var typeCode = Type.GetTypeCode(typeof(T));
             _converter = typeCode switch
             {
-                TypeCode.Single => _FromSingle,
-                TypeCode.Double => _FromDouble,
-                TypeCode.SByte => _GetSByte,
-                TypeCode.Byte => _FromByte,
-                TypeCode.Int16 => _FromInt16,
-                TypeCode.UInt16 => _FromUInt16,
-                TypeCode.Int32 => _FromInt32,
-                TypeCode.UInt32 => _FromUInt32,
-                TypeCode.Int64 => _FromInt64,
-                TypeCode.UInt64 => _FromUInt64,
-                TypeCode.Decimal => _FromDecimal,
-                _ => _ConvertGeneric,
+                TypeCode.Single => FromSingle,
+                TypeCode.Double => FromDouble,
+                TypeCode.SByte => GetSByte,
+                TypeCode.Byte => FromByte,
+                TypeCode.Int16 => FromInt16,
+                TypeCode.UInt16 => FromUInt16,
+                TypeCode.Int32 => FromInt32,
+                TypeCode.UInt32 => FromUInt32,
+                TypeCode.Int64 => FromInt64,
+                TypeCode.UInt64 => FromUInt64,
+                TypeCode.Decimal => FromDecimal,
+                _ => ConvertGeneric,
             };
         }
 
-        sbyte _FromSingle(T data) => System.Convert.ToSByte(_GetSingle(data));
-        sbyte _FromDouble(T data) => System.Convert.ToSByte(_GetDouble(data));
-        sbyte _FromDecimal(T data) => System.Convert.ToSByte(_GetDecimal(data));
-        sbyte _FromByte(T data) => System.Convert.ToSByte(_GetByte(data));
-        sbyte _FromInt16(T data) => System.Convert.ToSByte(_GetInt16(data));
-        sbyte _FromUInt16(T data) => System.Convert.ToSByte(_GetUInt16(data));
-        sbyte _FromInt32(T data) => System.Convert.ToSByte(_GetInt32(data));
-        sbyte _FromUInt32(T data) => System.Convert.ToSByte(_GetUInt32(data));
-        sbyte _FromInt64(T data) => System.Convert.ToSByte(_GetInt64(data));
-        sbyte _FromUInt64(T data) => System.Convert.ToSByte(_GetUInt64(data));
-        sbyte _ConvertGeneric(T data)
+        sbyte FromSingle(T data) => System.Convert.ToSByte(GetSingle(data));
+        sbyte FromDouble(T data) => System.Convert.ToSByte(GetDouble(data));
+        sbyte FromDecimal(T data) => System.Convert.ToSByte(GetDecimal(data));
+        sbyte FromByte(T data) => System.Convert.ToSByte(GetByte(data));
+        sbyte FromInt16(T data) => System.Convert.ToSByte(GetInt16(data));
+        sbyte FromUInt16(T data) => System.Convert.ToSByte(GetUInt16(data));
+        sbyte FromInt32(T data) => System.Convert.ToSByte(GetInt32(data));
+        sbyte FromUInt32(T data) => System.Convert.ToSByte(GetUInt32(data));
+        sbyte FromInt64(T data) => System.Convert.ToSByte(GetInt64(data));
+        sbyte FromUInt64(T data) => System.Convert.ToSByte(GetUInt64(data));
+        sbyte ConvertGeneric(T data)
         {
             var (ret, wasConverted) = _genericConverter.Value.ConvertValue(data);
-            if(!wasConverted && _throwOnFailure)
+            if(!wasConverted && _throwOnFailure || ret == null)
                 throw new ArgumentException($"Could not convert {data} to sbyte");
             return (sbyte)ret;
         }

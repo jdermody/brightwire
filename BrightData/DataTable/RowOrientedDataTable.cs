@@ -55,7 +55,7 @@ namespace BrightData.DataTable
             var reader = Reader;
 
             if (readHeader)
-                _ReadHeader(reader, DataTableOrientation.RowOriented);
+                ReadHeader(reader, DataTableOrientation.RowOriented);
 
             var numColumns = reader.ReadUInt32();
             _columns = new ColumnInfo[numColumns];
@@ -71,7 +71,7 @@ namespace BrightData.DataTable
             RowCount = (uint)_rowOffset.Length;
             ColumnCount = (uint)_columns.Length;
 
-            _columnReaders = ColumnTypes.Select(_GetReader).ToArray();
+            _columnReaders = ColumnTypes.Select(GetReader).ToArray();
         }
 
         public void Dispose()
@@ -85,12 +85,12 @@ namespace BrightData.DataTable
         public IEnumerable<IDataTableSegment> Rows(params uint[] rowIndices)
         {
             foreach (var rowIndex in AllOrSpecifiedRows(rowIndices))
-                yield return new Row(ColumnTypes, _ReadRow(rowIndex));
+                yield return new Row(ColumnTypes, ReadRow(rowIndex));
         }
 
-        public IDataTableSegment Row(uint rowIndex) => new Row(ColumnTypes, _ReadRow(rowIndex));
+        public IDataTableSegment Row(uint rowIndex) => new Row(ColumnTypes, ReadRow(rowIndex));
 
-        object[] _ReadRow(uint rowIndex)
+        object[] ReadRow(uint rowIndex)
         {
             lock (_stream)
             {
@@ -122,7 +122,7 @@ namespace BrightData.DataTable
         public IEnumerable<ISingleTypeTableSegment> Columns(params uint[] columnIndices)
         {
             // TODO: optionally compress the columns based on unique count statistics
-            var columns = AllOrSpecifiedColumns(columnIndices).Select(i => (Index: i, Column: _GetColumn(ColumnTypes[i], i, _columns[i].MetaData))).ToList();
+            var columns = AllOrSpecifiedColumns(columnIndices).Select(i => (Index: i, Column: GetColumn(ColumnTypes[i], i, _columns[i].MetaData))).ToList();
             if (columns.Any()) {
                 // set the column metadata
                 columns.ForEach(item => {
@@ -220,56 +220,56 @@ namespace BrightData.DataTable
             return builder.Build(Context);
         }
 
-        (ISingleTypeTableSegment Segment, IConsumeColumnData Consumer) _GetColumn(ColumnType columnType, uint index, IMetaData metaData)
+        (ISingleTypeTableSegment Segment, IConsumeColumnData Consumer) GetColumn(ColumnType columnType, uint index, IMetaData metaData)
         {
             var type = typeof(InMemoryBuffer<>).MakeGenericType(columnType.GetDataType());
             var columnInfo = new ColumnInfo(index, columnType, metaData);
             return GenericActivator.Create<ISingleTypeTableSegment, IConsumeColumnData>(type, Context, columnInfo, RowCount, Context.TempStreamProvider);
         }
 
-        static string _ReadString(BinaryReader reader) => reader.ReadString();
-        static double _ReadDouble(BinaryReader reader) => reader.ReadDouble();
-        static decimal _ReadDecimal(BinaryReader reader) => reader.ReadDecimal();
-        static int _ReadInt32(BinaryReader reader) => reader.ReadInt32();
-        static short _ReadInt16(BinaryReader reader) => reader.ReadInt16();
-        static float _ReadSingle(BinaryReader reader) => reader.ReadSingle();
-        static bool _ReadBoolean(BinaryReader reader) => reader.ReadBoolean();
-        static DateTime _ReadDate(BinaryReader reader) => new DateTime(reader.ReadInt64());
-        static long _ReadInt64(BinaryReader reader) => reader.ReadInt64();
-        static sbyte _ReadByte(BinaryReader reader) => reader.ReadSByte();
-        IndexList _ReadIndexList(BinaryReader reader) => Context.CreateIndexList(reader);
-        WeightedIndexList _ReadWeightedIndexList(BinaryReader reader) => Context.CreateWeightedIndexList(reader);
-        Vector<float> _ReadVector(BinaryReader reader) => Context.CreateVector<float>(reader);
-        Matrix<float> _ReadMatrix(BinaryReader reader) => Context.CreateMatrix<float>(reader);
-        Tensor3D<float> _ReadTensor3D(BinaryReader reader) => Context.CreateTensor3D<float>(reader);
-        Tensor4D<float> _ReadTensor4D(BinaryReader reader) => Context.CreateTensor4D<float>(reader);
-        static BinaryData _ReadBinaryData(BinaryReader reader) => new BinaryData(reader);
+        static string ReadString(BinaryReader reader) => reader.ReadString();
+        static double ReadDouble(BinaryReader reader) => reader.ReadDouble();
+        static decimal ReadDecimal(BinaryReader reader) => reader.ReadDecimal();
+        static int ReadInt32(BinaryReader reader) => reader.ReadInt32();
+        static short ReadInt16(BinaryReader reader) => reader.ReadInt16();
+        static float ReadSingle(BinaryReader reader) => reader.ReadSingle();
+        static bool ReadBoolean(BinaryReader reader) => reader.ReadBoolean();
+        static DateTime ReadDate(BinaryReader reader) => new DateTime(reader.ReadInt64());
+        static long ReadInt64(BinaryReader reader) => reader.ReadInt64();
+        static sbyte ReadByte(BinaryReader reader) => reader.ReadSByte();
+        IndexList ReadIndexList(BinaryReader reader) => Context.CreateIndexList(reader);
+        WeightedIndexList ReadWeightedIndexList(BinaryReader reader) => Context.CreateWeightedIndexList(reader);
+        Vector<float> ReadVector(BinaryReader reader) => Context.CreateVector<float>(reader);
+        Matrix<float> ReadMatrix(BinaryReader reader) => Context.CreateMatrix<float>(reader);
+        Tensor3D<float> ReadTensor3D(BinaryReader reader) => Context.CreateTensor3D<float>(reader);
+        Tensor4D<float> ReadTensor4D(BinaryReader reader) => Context.CreateTensor4D<float>(reader);
+        static BinaryData ReadBinaryData(BinaryReader reader) => new BinaryData(reader);
 
-        IColumnReader _GetReader(ColumnType type)
+        IColumnReader GetReader(ColumnType type)
         {
             return type switch {
-                ColumnType.String => new ColumnReader<string>(_ReadString),
-                ColumnType.Double => new ColumnReader<double>(_ReadDouble),
-                ColumnType.Decimal => new ColumnReader<decimal>(_ReadDecimal),
-                ColumnType.Int => new ColumnReader<int>(_ReadInt32),
-                ColumnType.Short => new ColumnReader<short>(_ReadInt16),
-                ColumnType.Float => new ColumnReader<Single>(_ReadSingle),
-                ColumnType.Boolean => new ColumnReader<bool>(_ReadBoolean),
-                ColumnType.Date => new ColumnReader<DateTime>(_ReadDate),
-                ColumnType.Long => new ColumnReader<long>(_ReadInt64),
-                ColumnType.Byte => new ColumnReader<sbyte>(_ReadByte),
-                ColumnType.IndexList => new ColumnReader<IndexList>(_ReadIndexList),
-                ColumnType.WeightedIndexList => new ColumnReader<WeightedIndexList>(_ReadWeightedIndexList),
-                ColumnType.Vector => new ColumnReader<Vector<float>>(_ReadVector),
-                ColumnType.Matrix => new ColumnReader<Matrix<float>>(_ReadMatrix),
-                ColumnType.Tensor3D => new ColumnReader<Tensor3D<float>>(_ReadTensor3D),
-                ColumnType.Tensor4D => new ColumnReader<Tensor4D<float>>(_ReadTensor4D),
-                ColumnType.BinaryData => new ColumnReader<BinaryData>(_ReadBinaryData),
+                ColumnType.String => new ColumnReader<string>(ReadString),
+                ColumnType.Double => new ColumnReader<double>(ReadDouble),
+                ColumnType.Decimal => new ColumnReader<decimal>(ReadDecimal),
+                ColumnType.Int => new ColumnReader<int>(ReadInt32),
+                ColumnType.Short => new ColumnReader<short>(ReadInt16),
+                ColumnType.Float => new ColumnReader<Single>(ReadSingle),
+                ColumnType.Boolean => new ColumnReader<bool>(ReadBoolean),
+                ColumnType.Date => new ColumnReader<DateTime>(ReadDate),
+                ColumnType.Long => new ColumnReader<long>(ReadInt64),
+                ColumnType.Byte => new ColumnReader<sbyte>(ReadByte),
+                ColumnType.IndexList => new ColumnReader<IndexList>(ReadIndexList),
+                ColumnType.WeightedIndexList => new ColumnReader<WeightedIndexList>(ReadWeightedIndexList),
+                ColumnType.Vector => new ColumnReader<Vector<float>>(ReadVector),
+                ColumnType.Matrix => new ColumnReader<Matrix<float>>(ReadMatrix),
+                ColumnType.Tensor3D => new ColumnReader<Tensor3D<float>>(ReadTensor3D),
+                ColumnType.Tensor4D => new ColumnReader<Tensor4D<float>>(ReadTensor4D),
+                ColumnType.BinaryData => new ColumnReader<BinaryData>(ReadBinaryData),
                 _ => throw new ArgumentException($"Invalid column type: {type}")
             };
         }
 
-        IRowOrientedDataTable _Copy(uint[] rowIndices, string? filePath)
+        IRowOrientedDataTable Copy(uint[] rowIndices, string? filePath)
         {
             using var builder = GetBuilderForSelf((uint)rowIndices.Length, filePath);
             ForEachRow(rowIndices, builder.AddRow);
@@ -286,7 +286,7 @@ namespace BrightData.DataTable
         public IRowOrientedDataTable Bag(uint sampleCount, string? filePath = null)
         {
             var rowIndices = this.RowIndices().ToArray().Bag(sampleCount, Context.Random);
-            return _Copy(rowIndices, filePath);
+            return Copy(rowIndices, filePath);
         }
 
         public IRowOrientedDataTable Concat(params IRowOrientedDataTable[] others) => Concat(null, others);
@@ -312,13 +312,13 @@ namespace BrightData.DataTable
         public IRowOrientedDataTable CopyRows(params uint[] rowIndices) => CopyRows(null, rowIndices);
         public IRowOrientedDataTable CopyRows(string? filePath, params uint[] rowIndices)
         {
-            return _Copy(rowIndices, filePath);
+            return Copy(rowIndices, filePath);
         }
 
         public IRowOrientedDataTable Shuffle(string? filePath = null)
         {
             var rowIndices = this.RowIndices().Shuffle(Context.Random).ToArray();
-            return _Copy(rowIndices, filePath);
+            return Copy(rowIndices, filePath);
         }
 
         public IRowOrientedDataTable Sort(uint columnIndex, bool @ascending, string? filePath = null)
@@ -329,7 +329,7 @@ namespace BrightData.DataTable
                 ? sortData.OrderBy(d => d.Item)
                 : sortData.OrderByDescending(d => d.Item);
             var rowIndices = sorted.Select(d => d.RowIndex).ToArray();
-            return _Copy(rowIndices, filePath);
+            return Copy(rowIndices, filePath);
         }
 
         public IEnumerable<(string Label, IRowOrientedDataTable Table)> GroupBy(uint columnIndex)
@@ -351,12 +351,12 @@ namespace BrightData.DataTable
 
         public override string ToString() => String.Join(", ", _columns.Select(c => c.ToString()));
 
-        public string FirstRow => _ToString(Row(0));
-        public string SecondRow => _ToString(Row(1));
-        public string ThirdRow => _ToString(Row(2));
-        public string LastRow => _ToString(Row(RowCount - 1));
+        public string FirstRow => ToString(Row(0));
+        public string SecondRow => ToString(Row(1));
+        public string ThirdRow => ToString(Row(2));
+        public string LastRow => ToString(Row(RowCount - 1));
 
-        string _ToString(IDataTableSegment segment)
+        string ToString(IDataTableSegment segment)
         {
             var sb = new StringBuilder();
             for (uint i = 0; i < segment.Size; i++)

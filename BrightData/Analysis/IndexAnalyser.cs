@@ -18,10 +18,10 @@ namespace BrightData.Analysis
         public void Add(IHaveIndices obj)
         {
             foreach(var index in obj.Indices)
-                _Add(index);
+                Add(index);
         }
 
-        void _Add(uint index)
+        void Add(uint index)
         {
             if(index < _min)
                 _min = index;

@@ -42,7 +42,7 @@ namespace BrightData.DataTable
             ? RowCount.AsRange()
             : indices;
 
-        protected void _ReadHeader(BinaryReader reader, DataTableOrientation expectedOrientation)
+        protected void ReadHeader(BinaryReader reader, DataTableOrientation expectedOrientation)
         {
             var version = reader.ReadInt32();
             if (version > Consts.DataTableVersion)

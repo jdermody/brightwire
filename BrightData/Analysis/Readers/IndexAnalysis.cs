@@ -13,7 +13,7 @@ namespace BrightData.Analysis.Readers
             MaxIndex = metaData.GetNullable<uint>(Consts.MaxIndex);
             NumDistinct = metaData.GetNullable<uint>(Consts.NumDistinct);
             Frequency = metaData.GetStringsWithPrefix(Consts.FrequencyPrefix)
-                .Select(k => (Label: k.Substring(Consts.FrequencyPrefix.Length), Value: metaData.Get<double>(k)))
+                .Select(k => (Label: k[Consts.FrequencyPrefix.Length..], Value: metaData.Get<double>(k)))
                 .ToArray()
             ;
         }

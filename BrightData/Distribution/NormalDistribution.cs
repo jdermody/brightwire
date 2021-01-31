@@ -19,12 +19,12 @@ namespace BrightData.Distribution
 
         public float Sample()
         {
-            float x, y;
-            while (!PolarTransform(_context.NextRandomFloat(), _context.NextRandomFloat(), out x, out y)) {
+            float x;
+            while (!PolarTransform(_context.NextRandomFloat(), _context.NextRandomFloat(), out x, out _)) {
                 // nop
             }
 
-            return Mean + (StdDev * x);
+            return Mean + StdDev * x;
         }
 
         static bool PolarTransform(float a, float b, out float x, out float y)

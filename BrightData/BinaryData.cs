@@ -22,7 +22,9 @@ namespace BrightData
         /// Constructor
         /// </summary>
         /// <param name="reader">Binary reader to read binary data from</param>
+#pragma warning disable 8618
         public BinaryData(BinaryReader reader)
+#pragma warning restore 8618
         {
             Initialize(null, reader);
         }

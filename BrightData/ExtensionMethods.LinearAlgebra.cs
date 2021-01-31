@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using BrightData.FloatTensor;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
 using BrightData.Memory;
@@ -608,11 +607,11 @@ namespace BrightData
         /// <returns></returns>
         public static IEnumerable<IFloatVector> AsFloatVectors(this IEnumerable<Vector<float>> vectors)
         {
-            IBrightDataContext context = null;
+            ILinearAlgebraProvider? lap = null;
             foreach (var vector in vectors)
             {
-                context ??= vector.Context;
-                yield return context.LinearAlgebraProvider.CreateVector(vector);
+                lap ??= vector.Context.LinearAlgebraProvider;
+                yield return lap.CreateVector(vector);
             }
         }
 
@@ -713,6 +712,12 @@ namespace BrightData
             return Distance.ManhattanDistance.Calculate(vector, other);
         }
 
+        /// <summary>
+        /// Mutates a vector via a callback
+        /// </summary>
+        /// <param name="vector">Vector to mutate</param>
+        /// <param name="mutator">Callback that can mutate each value of the vector</param>
+        /// <returns>New vector</returns>
         public static Vector<float> Mutate(this Vector<float> vector, Func<float, float> mutator)
         {
             var context = vector.Context;
@@ -721,6 +726,13 @@ namespace BrightData
             return new Vector<float>(segment);
         }
 
+        /// <summary>
+        /// Mutates a vector by combining it with another vector
+        /// </summary>
+        /// <param name="vector">Vector to mutate</param>
+        /// <param name="other">Other vector</param>
+        /// <param name="mutator">Callback that can mutate each value of the vector</param>
+        /// <returns></returns>
         public static Vector<float> MutateWith(this Vector<float> vector, Vector<float> other, Func<float, float, float> mutator)
         {
             var context = vector.Context;
@@ -742,6 +754,12 @@ namespace BrightData
             );
         }
 
+        /// <summary>
+        /// Reads a vector from a binary reader
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="reader"></param>
+        /// <returns></returns>
         public static Vector<float> ReadVectorFrom(this IBrightDataContext context, BinaryReader reader)
         {
             if (context.Get(Consts.LegacyFloatSerialisationInput, false))
@@ -755,6 +773,12 @@ namespace BrightData
             return new Vector<float>(context, reader);
         }
 
+        /// <summary>
+        /// Reads a matrix from a binary reader
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="reader"></param>
+        /// <returns></returns>
         public static Matrix<float> ReadMatrixFrom(this IBrightDataContext context, BinaryReader reader)
         {
             if (context.Get(Consts.LegacyFloatSerialisationInput, false))

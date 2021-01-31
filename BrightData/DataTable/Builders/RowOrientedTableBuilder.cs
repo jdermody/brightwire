@@ -117,7 +117,7 @@ namespace BrightData.DataTable.Builders
                     if (_rowOffset.Count > _rowCount)
                         throw new Exception("Added more rows than specified");
                 }
-                _WriteValueTo(_writer, type, val);
+                WriteValueTo(_writer, type, val);
             }
         }
 
@@ -137,7 +137,7 @@ namespace BrightData.DataTable.Builders
             return new RowOrientedDataTable(context, _stream, true);
         }
 
-        void _WriteValueTo(BinaryWriter writer, ColumnType type, object val)
+        void WriteValueTo(BinaryWriter writer, ColumnType type, object val)
         {
             if (type == ColumnType.Date)
                 writer.Write(((DateTime)val).Ticks);

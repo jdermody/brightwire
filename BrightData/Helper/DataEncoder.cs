@@ -12,7 +12,7 @@ namespace BrightData.Helper
     public class DataEncoder : IDataReader
     {
         readonly IBrightDataContext _context;
-        public DataEncoder(IBrightDataContext context) => _context = context;
+        internal DataEncoder(IBrightDataContext context) => _context = context;
 
         /// <summary>
         /// Generic method to read from a binary reader

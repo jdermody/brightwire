@@ -39,7 +39,7 @@ namespace BrightData.DataTable.Builders
             _stream.Seek(0, SeekOrigin.End);
         }
 
-        long _Write(IMetaData metadata, ColumnType type, ICanWriteToBinaryWriter column)
+        long Write(IMetaData metadata, ColumnType type, ICanWriteToBinaryWriter column)
         {
             _writer.Flush();
             var position = _stream.Position;
@@ -68,7 +68,7 @@ namespace BrightData.DataTable.Builders
 
         public long Write(ISingleTypeTableSegment column)
         {
-            return _Write(column.MetaData, column.SingleType, column);
+            return Write(column.MetaData, column.SingleType, column);
         }
 
         public long GetCurrentPosition()

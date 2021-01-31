@@ -16,14 +16,14 @@ namespace BrightData.Buffer
             _context = context;
         }
 
-        protected override void _WriteTo(ReadOnlySpan<T> ptr, Stream stream)
+        protected override void WriteTo(ReadOnlySpan<T> ptr, Stream stream)
         {
             using var writer = new BinaryWriter(stream, Encoding.UTF8, true);
             foreach(var item in ptr)
                 item.WriteTo(writer);
         }
 
-        protected override uint _ReadTo(Stream stream, uint count, T[] buffer)
+        protected override uint ReadTo(Stream stream, uint count, T[] buffer)
         {
             var type = typeof(T);
             var reader = new BinaryReader(stream, Encoding.UTF8);

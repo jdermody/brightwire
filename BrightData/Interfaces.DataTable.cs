@@ -128,6 +128,7 @@ namespace BrightData
     [Flags]
     public enum ColumnClass : byte
     {
+#pragma warning disable 1591
         Unknown = 0,
         Categorical = 1,
         Numeric = 2,
@@ -137,6 +138,7 @@ namespace BrightData
         IndexBased = 32,
         Continuous = 64,
         Integer = 128
+#pragma warning restore 1591
     }
 
     /// <summary>

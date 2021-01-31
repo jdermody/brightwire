@@ -86,7 +86,7 @@ namespace BrightData.Helper
                 ret |= ColumnClass.Structable;
             if (type.IsTensor())
                 ret |= ColumnClass.Tensor;
-            if (type.IsIndexed())
+            if (type.IsIndexedList())
                 ret |= ColumnClass.IndexBased;
             if (type.IsContinuous())
                 ret |= ColumnClass.Continuous;

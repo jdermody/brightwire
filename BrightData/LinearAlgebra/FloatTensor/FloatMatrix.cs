@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using BrightData.LinearAlgebra;
 
-namespace BrightData.FloatTensor
+namespace BrightData.LinearAlgebra.FloatTensor
 {
-    public class FloatMatrix : IIndexableFloatMatrix
+    internal class FloatMatrix : IIndexableFloatMatrix
     {
         public FloatMatrix(Matrix<float> data) => Data = data;
         public void Dispose() => Data.Dispose();

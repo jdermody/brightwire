@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace BrightData.Buffer
 {
-    internal abstract class HybridBufferBase<T> : IHybridBuffer<T>
+    internal abstract class HybridBufferBase<T> : IHybridBuffer<T> where T : notnull
     {
         readonly uint _maxCount;
         readonly IProvideTempStreams _tempStream;
@@ -34,7 +34,7 @@ namespace BrightData.Buffer
             if (_index == _maxCount) {
                 var stream = _tempStream.Get(_id);
                 stream.Seek(0, SeekOrigin.End);
-                _WriteTo(_GetTempBuffer(), stream);
+                WriteTo(GetTempBuffer(), stream);
                 _index = 0;
             }
 
@@ -45,7 +45,7 @@ namespace BrightData.Buffer
                 _distinctSet = null;
         }
 
-        protected Span<T> _GetTempBuffer() => ((Span<T>) _tempBuffer).Slice(0, _index);
+        protected Span<T> GetTempBuffer() => ((Span<T>) _tempBuffer).Slice(0, _index);
 
         public IEnumerable<T> EnumerateTyped()
         {
@@ -55,7 +55,7 @@ namespace BrightData.Buffer
                 stream.Seek(0, SeekOrigin.Begin);
                 var buffer = new T[_maxCount];
                 while (stream.Position < stream.Length) {
-                    var count = _ReadTo(stream, _maxCount, buffer);
+                    var count = ReadTo(stream, _maxCount, buffer);
                     for(uint i = 0; i < count; i++)
                         yield return buffer[i];
                 }
@@ -68,12 +68,12 @@ namespace BrightData.Buffer
 
         public void CopyTo(Stream stream) => BufferWriter.CopyTo(this, stream);
 
-        public IEnumerable<object?> Enumerate() => EnumerateTyped().Select(o => (object?)o);
+        public IEnumerable<object> Enumerate() => EnumerateTyped().Select(o => (object)o);
         public uint Size { get; private set; } = 0;
         public uint? NumDistinct => (uint?) _distinctSet?.Count;
         public void Add(object obj) => Add((T) obj);
 
-        protected abstract void _WriteTo(ReadOnlySpan<T> ptr, Stream stream);
-        protected abstract uint _ReadTo(Stream stream, uint count, T[] buffer);
+        protected abstract void WriteTo(ReadOnlySpan<T> ptr, Stream stream);
+        protected abstract uint ReadTo(Stream stream, uint count, T[] buffer);
     }
 }

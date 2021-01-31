@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using BrightData;
-using BrightData.FloatTensor;
 using BrightData.LinearAlgebra;
 
 namespace BrightWire.TrainingData.Artificial
@@ -28,8 +27,8 @@ namespace BrightWire.TrainingData.Artificial
                 .ToArray()
             ;
             CharTable = Dictionary
-                .Select((ch, i) => (ch, i))
-                .ToDictionary(d => d.Item1, d => d.Item2)
+                .Select((ch, i) => (Char: ch, Index: i))
+                .ToDictionary(d => d.Char, d => d.Index)
             ;
         }
 

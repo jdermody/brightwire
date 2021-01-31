@@ -53,6 +53,10 @@ namespace BrightData.Transformation
             Divide = metaData.Get(Consts.NormalizationP2, 0D);
         }
 
+        /// <summary>
+        /// Writes the normalization parameters to a meta data store
+        /// </summary>
+        /// <param name="metaData"></param>
         public void WriteTo(IMetaData metaData)
         {
             metaData.Set(Consts.NormalizationType, (byte)NormalizationType);

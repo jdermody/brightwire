@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using BrightData.Computation;
-using BrightData.FloatTensor;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
 using BrightData.Memory;

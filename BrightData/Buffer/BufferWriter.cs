@@ -20,14 +20,14 @@ namespace BrightData.Buffer
         /// <typeparam name="T"></typeparam>
         /// <param name="buffer">Buffer to write</param>
         /// <param name="stream">Stream to write to</param>
-        public static void CopyTo<T>(IHybridBuffer<T> buffer, Stream stream)
+        public static void CopyTo<T>(IHybridBuffer<T> buffer, Stream stream) where T : notnull
         {
             var writer = GetWriter(buffer);
             using var binaryWriter = new BinaryWriter(stream, Encoding.UTF8, true);
             writer.WriteTo(binaryWriter);
         }
 
-        static ICanWriteToBinaryWriter GetWriter<T>(IHybridBuffer<T> buffer)
+        static ICanWriteToBinaryWriter GetWriter<T>(IHybridBuffer<T> buffer) where T : notnull
         {
             var typeOfT = typeof(T);
             var shouldEncode = buffer.NumDistinct.HasValue && buffer.NumDistinct.Value < buffer.Size / 2;

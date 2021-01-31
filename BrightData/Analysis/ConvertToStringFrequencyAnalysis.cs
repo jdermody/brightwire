@@ -10,11 +10,11 @@
 
         public StringAnalyser Analysis { get; }
 
-        public void Add(T obj) => _Add(obj.ToString());
+        public void Add(T obj) => Add(obj.ToString());
         public void WriteTo(IMetaData metadata) => Analysis.WriteTo(metadata);
-        public void AddObject(object obj) => _Add(obj.ToString());
+        public void AddObject(object obj) => Add(obj.ToString());
 
-        void _Add(string? str)
+        void Add(string? str)
         {
             if(str != null)
                 Analysis.Add(str);

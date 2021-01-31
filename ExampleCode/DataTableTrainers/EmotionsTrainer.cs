@@ -48,7 +48,7 @@ namespace ExampleCode.DataTableTrainers
             using var normalized = reinterpeted.Normalize(featureColumns.Select(i => NormalizationType.FeatureScale.ConvertColumn(i)).ToArray());
 
             // return as row oriented
-            return normalized.ToRowOriented();
+            return normalized.AsRowOriented();
         }
 
         static IRowOrientedDataTable ConvertToBinary(IRowOrientedDataTable table, uint indexOffset)

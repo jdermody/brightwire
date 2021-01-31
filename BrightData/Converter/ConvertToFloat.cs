@@ -12,35 +12,35 @@ namespace BrightData.Converter
             var typeCode = Type.GetTypeCode(typeof(T));
             _converter = typeCode switch
             {
-                TypeCode.Single => _GetSingle,
-                TypeCode.Double => _FromDouble,
-                TypeCode.SByte => _FromSByte,
-                TypeCode.Byte => _FromByte,
-                TypeCode.Int16 => _FromInt16,
-                TypeCode.UInt16 => _FromUInt16,
-                TypeCode.Int32 => _FromInt32,
-                TypeCode.UInt32 => _FromUInt32,
-                TypeCode.Int64 => _FromInt64,
-                TypeCode.UInt64 => _FromUInt64,
-                TypeCode.Decimal => _FromDecimal,
-                _ => _ConvertGeneric
+                TypeCode.Single => GetSingle,
+                TypeCode.Double => FromDouble,
+                TypeCode.SByte => FromSByte,
+                TypeCode.Byte => FromByte,
+                TypeCode.Int16 => FromInt16,
+                TypeCode.UInt16 => FromUInt16,
+                TypeCode.Int32 => FromInt32,
+                TypeCode.UInt32 => FromUInt32,
+                TypeCode.Int64 => FromInt64,
+                TypeCode.UInt64 => FromUInt64,
+                TypeCode.Decimal => FromDecimal,
+                _ => ConvertGeneric
             };
         }
 
-        float _FromDouble(T data) => System.Convert.ToSingle(_GetDouble(data));
-        float _FromDecimal(T data) => System.Convert.ToSingle(_GetDecimal(data));
-        float _FromSByte(T data) => _GetSByte(data);
-        float _FromByte(T data) => _GetByte(data);
-        float _FromInt16(T data) => _GetInt16(data);
-        float _FromUInt16(T data) => _GetUInt16(data);
-        float _FromInt32(T data) => _GetInt32(data);
-        float _FromUInt32(T data) => _GetUInt32(data);
-        float _FromInt64(T data) => _GetInt64(data);
-        float _FromUInt64(T data) => _GetUInt64(data);
-        float _ConvertGeneric(T data)
+        float FromDouble(T data) => System.Convert.ToSingle(GetDouble(data));
+        float FromDecimal(T data) => System.Convert.ToSingle(GetDecimal(data));
+        float FromSByte(T data) => GetSByte(data);
+        float FromByte(T data) => GetByte(data);
+        float FromInt16(T data) => GetInt16(data);
+        float FromUInt16(T data) => GetUInt16(data);
+        float FromInt32(T data) => GetInt32(data);
+        float FromUInt32(T data) => GetUInt32(data);
+        float FromInt64(T data) => GetInt64(data);
+        float FromUInt64(T data) => GetUInt64(data);
+        float ConvertGeneric(T data)
         {
             var (ret, wasConverted) = _genericConverter.Value.ConvertValue(data);
-            if(!wasConverted && _throwOnFailure)
+            if(!wasConverted && _throwOnFailure || ret == null)
                 throw new ArgumentException($"Could not convert {data} to float");
             return (float)ret;
         }

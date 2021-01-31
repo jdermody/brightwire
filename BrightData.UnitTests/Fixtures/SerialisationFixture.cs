@@ -16,7 +16,7 @@ namespace BrightData.UnitTests.Fixtures
         public SerialisationFixture()
         {
             Writer = new BinaryWriter(Stream);
-            Encoder = new DataEncoder(Context);
+            Encoder = Context.GetDataEncoder();
         }
 
         public void Dispose()

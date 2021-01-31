@@ -510,6 +510,7 @@ namespace BrightData
     public interface INumericComputation<T>
         where T : struct
     {
+#pragma warning disable 1591
         ITensorSegment<T> Abs(ITensorSegment<T> tensor);
         ITensorSegment<T> Add(ITensorSegment<T> tensor1, ITensorSegment<T> tensor2);
         ITensorSegment<T> Add(ITensorSegment<T> tensor1, ITensorSegment<T> tensor2, T coefficient1, T coefficient2);
@@ -565,6 +566,7 @@ namespace BrightData
         T Get(float val);
         T Get(double val);
         T Get(decimal val);
+#pragma warning restore 1591
     }
 
     //public interface ITensorComputation<T>

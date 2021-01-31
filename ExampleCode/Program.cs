@@ -14,7 +14,7 @@ namespace ExampleCode
 {
     internal class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             using var context = new BrightDataContext(0);
             var useCuda = false;
@@ -107,21 +107,21 @@ namespace ExampleCode
             }
 
             Console.WriteLine("K Means...");
-            Console.WriteLine("---------------------------------------------");
+            WriteSeparator();
             Write(irisTable.KMeans(3));
-            Console.WriteLine("---------------------------------------------");
+            WriteSeparator();
 
             Console.WriteLine();
             Console.WriteLine("Hierachical...");
-            Console.WriteLine("---------------------------------------------");
+            WriteSeparator();
             Write(irisTable.HierachicalCluster(3));
-            Console.WriteLine("---------------------------------------------");
+            WriteSeparator();
 
             Console.WriteLine();
             Console.WriteLine("NNMF...");
-            Console.WriteLine("---------------------------------------------");
+            WriteSeparator();
             Write(irisTable.NonNegativeMatrixFactorisation(3));
-            Console.WriteLine("---------------------------------------------");
+            WriteSeparator();
         }
 
         static void MarkovChains(IBrightDataContext context)
@@ -154,7 +154,7 @@ namespace ExampleCode
             var multinomial = sentiment.TrainMultinomialNaiveBayes().CreateClassifier();
 
             // train a neural network
-            var (engine, wire, neuralNetwork) = sentiment.TrainNeuralNetwork(20);
+            var (_, _, neuralNetwork) = sentiment.TrainNeuralNetwork(20);
 
             // train a combined graph with all three classifiers
             //sentiment.StackClassifiers(engine, wire, bernoulli, multinomial);

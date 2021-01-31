@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
-using BrightData.FloatTensor;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Single;

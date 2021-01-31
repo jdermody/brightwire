@@ -22,14 +22,14 @@ namespace BrightData.Analysis.Readers
             Mode = metaData.GetNullable<double>(Consts.Mode);
             Total = metaData.Get<ulong>(Consts.Total);
             NumDistinct = metaData.GetNullable<uint>(Consts.NumDistinct);
-            Frequency = _Get(Consts.FrequencyPrefix, metaData);
-            FrequencyRange = _Get(Consts.FrequencyRangePrefix, metaData);
+            Frequency = Get(Consts.FrequencyPrefix, metaData);
+            FrequencyRange = Get(Consts.FrequencyRangePrefix, metaData);
         }
 
-        (string Label, double value)[] _Get(string prefix, IMetaData metaData)
+        (string Label, double value)[] Get(string prefix, IMetaData metaData)
         {
             return metaData.GetStringsWithPrefix(prefix)
-                .Select(k => (Label: k.Substring(prefix.Length), Value: metaData.Get<double>(k)))
+                .Select(k => (Label: k[prefix.Length..], Value: metaData.Get<double>(k)))
                 .ToArray();
         }
 

@@ -341,8 +341,7 @@ namespace BrightData.Computation
 
         public ITensorSegment<T> Softmax(ITensorSegment<T> segment)
         {
-            var minMax = GetMinAndMaxValues(segment);
-            var max = minMax.Max;
+            var (_, max, _, _) = GetMinAndMaxValues(segment);
 
             var softmax = Transform(segment, v => Exp(Subtract(v, max)));
             var sum = Sum(softmax);

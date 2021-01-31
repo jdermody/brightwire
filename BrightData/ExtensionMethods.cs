@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.InteropServices;
 using BrightData.Converter;
+using BrightData.Helper;
 
 namespace BrightData
 {
@@ -276,24 +277,16 @@ namespace BrightData
         public static ICanConvert GetConverter<T>(this Type toType) where T : struct
         {
             var typeCode = Type.GetTypeCode(toType);
-            switch (typeCode) {
-                case TypeCode.Single:
-                    return new ConvertToFloat<T>();
-                case TypeCode.Double:
-                    return new ConvertToDouble<T>();
-                case TypeCode.SByte:
-                    return new ConvertToSignedByte<T>();
-                case TypeCode.Int16:
-                    return new ConvertToShort<T>();
-                case TypeCode.Int32:
-                    return new ConvertToInt<T>();
-                case TypeCode.Int64:
-                    return new ConvertToLong<T>();
-                case TypeCode.Decimal:
-                    return new ConvertToDecimal<T>();
-                default:
-                    throw new NotImplementedException();
-            }
+            return typeCode switch {
+                TypeCode.Single => new ConvertToFloat<T>(),
+                TypeCode.Double => new ConvertToDouble<T>(),
+                TypeCode.SByte => new ConvertToSignedByte<T>(),
+                TypeCode.Int16 => new ConvertToShort<T>(),
+                TypeCode.Int32 => new ConvertToInt<T>(),
+                TypeCode.Int64 => new ConvertToLong<T>(),
+                TypeCode.Decimal => new ConvertToDecimal<T>(),
+                _ => throw new NotImplementedException()
+            };
         }
 
         /// <summary>
@@ -440,9 +433,9 @@ namespace BrightData
             foreach (var classification in data.GroupBy(c => c.Label))
             {
                 double sum = 0;
-                foreach (var item in classification)
+                foreach (var (_, weightedIndexList) in classification)
                 {
-                    foreach (var index in item.Data.Indices)
+                    foreach (var index in weightedIndexList.Indices)
                     {
                         var key = index.Index;
                         if (indexOccurence.TryGetValue(key, out uint temp))
@@ -458,11 +451,11 @@ namespace BrightData
             // calculate tf-idf for each document
             var numDocs = (double)data.Count;
             var ret = new List<(string Label, WeightedIndexList Data)>();
-            foreach (var classification in data)
+            foreach (var (label, weightedIndexList) in data)
             {
-                var totalWords = classificationSum[classification.Label];
+                var totalWords = classificationSum[label];
                 var classificationIndex = new List<WeightedIndexList.Item>();
-                foreach (var item in classification.Data.Indices)
+                foreach (var item in weightedIndexList.Indices)
                 {
                     var index = item.Index;
                     var tf = item.Weight / totalWords;
@@ -471,7 +464,7 @@ namespace BrightData
                     var score = tf * idf;
                     classificationIndex.Add(new WeightedIndexList.Item(index, System.Convert.ToSingle(score)));
                 }
-                ret.Add((classification.Label, WeightedIndexList.Create(context, classificationIndex.ToArray())));
+                ret.Add((label, WeightedIndexList.Create(context, classificationIndex.ToArray())));
             }
             return ret;
         }
@@ -510,7 +503,7 @@ namespace BrightData
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         public static string Format<T>(this IEnumerable<(T Item, uint Count)> items, char separator = ';') where T: notnull =>
-            String.Join(separator, items.Select(i => $"{i.Item.ToString()}: {i.Count}"));
+            String.Join(separator, items.Select(i => $"{i.Item}: {i.Count}"));
 
         /// <summary>
         /// Enables or disables legacy (version 2) binary serialization - only when reading
@@ -518,5 +511,12 @@ namespace BrightData
         /// <param name="context"></param>
         /// <param name="use">True to enable</param>
         public static void UseLegacySerializationInput(this IBrightDataContext context, bool use = true) => context.Set(Consts.LegacyFloatSerialisationInput, use);
+
+        /// <summary>
+        /// Creates a data encoder
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public static DataEncoder GetDataEncoder(this IBrightDataContext context) => new DataEncoder(context);
     }
 }

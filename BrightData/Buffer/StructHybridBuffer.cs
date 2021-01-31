@@ -11,13 +11,13 @@ namespace BrightData.Buffer
         {
         }
 
-        protected override void _WriteTo(ReadOnlySpan<T> ptr, Stream stream)
+        protected override void WriteTo(ReadOnlySpan<T> ptr, Stream stream)
         {
             var bytes = MemoryMarshal.Cast<T, byte>(ptr);
             stream.Write(bytes);
         }
 
-        protected override uint _ReadTo(Stream stream, uint count, T[] buffer)
+        protected override uint ReadTo(Stream stream, uint count, T[] buffer)
         {
             var ptr = MemoryMarshal.Cast<T, byte>(buffer);
             var len = stream.Read(ptr);

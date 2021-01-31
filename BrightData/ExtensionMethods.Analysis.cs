@@ -15,10 +15,10 @@ namespace BrightData
         /// <summary>
         /// Creates a date analyzer
         /// </summary>
-        /// <param name="context"></param>
+        /// <param name="_"></param>
         /// <param name="maxCount">Max distinct items</param>
         /// <returns></returns>
-        public static IDataAnalyser<DateTime> GetDateAnalyser(this IBrightDataContext context, uint maxCount = Consts.MaxDistinct) =>
+        public static IDataAnalyser<DateTime> GetDateAnalyser(this IBrightDataContext _, uint maxCount = Consts.MaxDistinct) =>
             StaticAnalysers.CreateDateAnalyser(maxCount);
 
 
@@ -26,83 +26,83 @@ namespace BrightData
         /// Creates a numeric analyzer
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="context"></param>
+        /// <param name="_"></param>
         /// <param name="maxCount">Max distinct items</param>
         /// <param name="writeCount">Maximum count to write to meta data</param>
         /// <returns></returns>
-        public static IDataAnalyser<T> GetNumericAnalyser<T>(this IBrightDataContext context, uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount) where T: struct =>
+        public static IDataAnalyser<T> GetNumericAnalyser<T>(this IBrightDataContext _, uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount) where T: struct =>
             StaticAnalysers.CreateNumericAnalyser<T>(maxCount, writeCount);
 
         /// <summary>
         /// Creates a frequency analyzer
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="context"></param>
+        /// <param name="_"></param>
         /// <param name="maxCount">Max distinct items</param>
         /// <param name="writeCount">Maximum count to write to meta data</param>
         /// <returns></returns>
-        public static IDataAnalyser<T> GetConvertToStringAnalyser<T>(this IBrightDataContext context, uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount) where T : notnull =>
+        public static IDataAnalyser<T> GetConvertToStringAnalyser<T>(this IBrightDataContext _, uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount) where T : notnull =>
             StaticAnalysers.CreateConvertToStringAnalyser<T>(maxCount, writeCount);
 
         /// <summary>
         /// Creates a dimension analyzer
         /// </summary>
-        /// <param name="context"></param>
+        /// <param name="_"></param>
         /// <param name="maxCount">Max distinct items</param>
         /// <returns></returns>
-        public static IDataAnalyser<ITensor<float>> GetDimensionAnalyser(this IBrightDataContext context, uint maxCount = Consts.MaxDistinct) =>
+        public static IDataAnalyser<ITensor<float>> GetDimensionAnalyser(this IBrightDataContext _, uint maxCount = Consts.MaxDistinct) =>
             StaticAnalysers.CreateDimensionAnalyser(maxCount);
 
         /// <summary>
         /// Creates a frequency analyzer
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="context"></param>
+        /// <param name="_"></param>
         /// <param name="maxCount">Max distinct items</param>
         /// <param name="writeCount">Maximum count to write to meta data</param>
         /// <returns></returns>
-        public static IDataAnalyser<T> GetFrequencyAnalyser<T>(this IBrightDataContext context, uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount) where T: notnull =>
-            StaticAnalysers.CreateFrequencyAnalyser<T>(maxCount);
+        public static IDataAnalyser<T> GetFrequencyAnalyser<T>(this IBrightDataContext _, uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount) where T: notnull =>
+            StaticAnalysers.CreateFrequencyAnalyser<T>(maxCount, writeCount);
 
         /// <summary>
         /// Creates an index analyzer
         /// </summary>
-        /// <param name="context"></param>
+        /// <param name="_"></param>
         /// <param name="maxCount">Max distinct items</param>
         /// <param name="writeCount">Maximum count to write to meta data</param>
         /// <returns></returns>
-        public static IDataAnalyser<IHaveIndices> GetIndexAnalyser(this IBrightDataContext context, uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount) =>
-            StaticAnalysers.CreateIndexAnalyser(maxCount);
+        public static IDataAnalyser<IHaveIndices> GetIndexAnalyser(this IBrightDataContext _, uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount) =>
+            StaticAnalysers.CreateIndexAnalyser(maxCount, writeCount);
 
         /// <summary>
         /// Creates a numeric analyzer
         /// </summary>
-        /// <param name="context"></param>
+        /// <param name="_"></param>
         /// <param name="maxCount">Max distinct items</param>
         /// <param name="writeCount">Maximum count to write to meta data</param>
         /// <returns></returns>
-        public static IDataAnalyser<double> GetNumericAnalyser(this IBrightDataContext context, uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount) =>
+        public static IDataAnalyser<double> GetNumericAnalyser(this IBrightDataContext _, uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount) =>
             StaticAnalysers.CreateNumericAnalyser(writeCount, maxCount);
 
         /// <summary>
         /// Creates a string analyzer
         /// </summary>
-        /// <param name="context"></param>
+        /// <param name="_"></param>
         /// <param name="maxCount">Max distinct items</param>
         /// <param name="writeCount">Maximum count to write to meta data</param>
         /// <returns></returns>
-        public static IDataAnalyser<string> GetStringAnalyser(this IBrightDataContext context, uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount) =>
+        public static IDataAnalyser<string> GetStringAnalyser(this IBrightDataContext _, uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount) =>
             StaticAnalysers.CreateStringAnalyser(writeCount, maxCount);
 
         /// <summary>
         /// Creates a frequency analyzer
         /// </summary>
-        /// <param name="context"></param>
+        /// <param name="_"></param>
         /// <param name="type"></param>
         /// <param name="maxCount">Max distinct items</param>
         /// <param name="writeCount">Maximum count to write to meta data</param>
         /// <returns></returns>
-        public static IDataAnalyser GetFrequencyAnalyser(this IBrightDataContext context, Type type, uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount) =>
+        public static IDataAnalyser GetFrequencyAnalyser(this IBrightDataContext _, Type type, uint maxCount = Consts.MaxDistinct, uint writeCount = Consts.MaxWriteCount) =>
             StaticAnalysers.CreateFrequencyAnalyser(type, maxCount, writeCount);
 
         /// <summary>
@@ -235,7 +235,7 @@ namespace BrightData
         /// <param name="items"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static FrequencyAnalysis AnalyzeFrequency<T>(this IEnumerable<T> items)
+        public static FrequencyAnalysis AnalyzeFrequency<T>(this IEnumerable<T> items) where T : notnull
         {
             var analysis = new FrequencyAnalyser<T>();
             foreach (var item in items)

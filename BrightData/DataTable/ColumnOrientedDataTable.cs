@@ -45,7 +45,7 @@ namespace BrightData.DataTable
         {
             var reader = Reader;
             if (readHeader)
-                _ReadHeader(reader, DataTableOrientation.ColumnOriented);
+                ReadHeader(reader, DataTableOrientation.ColumnOriented);
             ColumnCount = reader.ReadUInt32();
             RowCount = reader.ReadUInt32();
 
@@ -53,13 +53,13 @@ namespace BrightData.DataTable
             ColumnTypes = new ColumnType[ColumnCount];
             for (uint i = 0; i < ColumnCount; i++) {
                 var nextColumnPosition = reader.ReadInt64();
-                _columns[i] = _Load(i, reader, 32768);
+                _columns[i] = Load(i, reader, 32768);
                 ColumnTypes[i] = _columns[i].Info.ColumnType;
                 _stream.Seek(nextColumnPosition, SeekOrigin.Begin);
             }
         }
 
-        (IColumnInfo Info, ISingleTypeTableSegment Segment) _Load(uint index, BinaryReader reader, uint inMemorySize)
+        (IColumnInfo Info, ISingleTypeTableSegment Segment) Load(uint index, BinaryReader reader, uint inMemorySize)
         {
             var columnType = (ColumnType) reader.ReadByte();
             var metadata = new MetaData(reader);
@@ -158,10 +158,10 @@ namespace BrightData.DataTable
 
         public IColumnOrientedDataTable Convert(params IColumnTransformationParam[] conversionParams)
         {
-            return _Transform(conversionParams, null);
+            return Transform(conversionParams, null);
         }
 
-        IColumnOrientedDataTable _Transform(IEnumerable<IColumnTransformationParam> input, string? filePath)
+        IColumnOrientedDataTable Transform(IEnumerable<IColumnTransformationParam> input, string? filePath)
         {
             using var tempStream = new TempStreamManager();
             var columnConversionTable = new Dictionary<uint, IColumnTransformationParam>();
@@ -210,7 +210,7 @@ namespace BrightData.DataTable
 
         public IColumnOrientedDataTable Convert(string? filePath, params IColumnTransformationParam[] conversionParams)
         {
-            return _Transform(conversionParams, filePath);
+            return Transform(conversionParams, filePath);
         }
 
         public IColumnOrientedDataTable CopyColumns(params uint[] columnIndices) => CopyColumns(null, columnIndices);
@@ -227,17 +227,17 @@ namespace BrightData.DataTable
                 .Select(c => c.Info)
                 .Where(c => c.ColumnType.IsDecimal())
                 .Select(c => new ColumnNormalization(c.Index, type));
-            return _Transform(param, filePath);
+            return Transform(param, filePath);
         }
 
         public IColumnOrientedDataTable Normalize(params IColumnTransformationParam[] param)
         {
-            return _Transform(param, null);
+            return Transform(param, null);
         }
 
         public IColumnOrientedDataTable Normalize(string? filePath, params IColumnTransformationParam[] param)
         {
-            return _Transform(param, filePath);
+            return Transform(param, filePath);
         }
 
         public IColumnOrientedDataTable ConcatColumns(params IColumnOrientedDataTable[] others) => ConcatColumns(null, others);
@@ -269,7 +269,7 @@ namespace BrightData.DataTable
                 }
             });
 
-            return buffers.BuildColumnOrientedTable(Context, rowCount, filePath);
+            return buffers.Cast<ISingleTypeTableSegment>().ToList().BuildColumnOrientedTable(Context, rowCount, filePath);
         }
 
         public IColumnOrientedDataTable ReinterpretColumns(params IReinterpretColumnsParam[] columns) => ReinterpretColumns(null, columns);

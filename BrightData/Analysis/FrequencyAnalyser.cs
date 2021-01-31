@@ -21,10 +21,10 @@ namespace BrightData.Analysis
         public uint? NumDistinct => _valueCount.Count < _maxCount ? (uint?)_valueCount.Count : null;
         public string? MostFrequent => _valueCount.Count < _maxCount ? _mostFrequent : null;
         public ulong Total { get; private set; } = 0;
-        public virtual void Add(T obj) => _Add(obj.ToString());
+        public virtual void Add(T obj) => AddString(obj.ToString());
         public IEnumerable<KeyValuePair<string, ulong>> ItemFrequency => _valueCount;
 
-        protected void _Add(string? str)
+        protected void AddString(string? str)
         {
             if (str != null && _valueCount.Count < _maxCount) {
                 if (_valueCount.TryGetValue(str, out ulong count))

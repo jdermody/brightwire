@@ -68,9 +68,8 @@ namespace BrightData.Buffer
         /// <param name="tempStream"></param>
         /// <param name="context"></param>
         /// <param name="bufferSize"></param>
-        /// <param name="maxDistinct"></param>
         /// <returns></returns>
-        public static IHybridBuffer<T> CreateHybridObjectBuffer<T>(this IProvideTempStreams tempStream, IBrightDataContext context, uint bufferSize = 32768)
+        public static IHybridBuffer<T> CreateHybridObjectBuffer<T>(this IProvideTempStreams tempStream, IBrightDataContext context, uint bufferSize = 32768) where T : notnull
         {
             return GenericActivator.Create<IHybridBuffer<T>>(typeof(ObjectHybridBuffer<>).MakeGenericType(typeof(T)),
                 context,
@@ -86,7 +85,6 @@ namespace BrightData.Buffer
         /// <param name="context"></param>
         /// <param name="type"></param>
         /// <param name="bufferSize"></param>
-        /// <param name="maxDistinct"></param>
         /// <returns></returns>
         public static IHybridBuffer CreateHybridObjectBuffer(this IProvideTempStreams tempStream, IBrightDataContext context, Type type, uint bufferSize = 32768)
         {

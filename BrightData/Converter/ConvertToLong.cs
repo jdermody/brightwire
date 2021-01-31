@@ -12,35 +12,35 @@ namespace BrightData.Converter
             var typeCode = Type.GetTypeCode(typeof(T));
             _converter = typeCode switch
             {
-                TypeCode.Single => _FromSingle,
-                TypeCode.Double => _FromDouble,
-                TypeCode.SByte => _FromSByte,
-                TypeCode.Byte => _FromByte,
-                TypeCode.Int16 => _FromInt16,
-                TypeCode.UInt16 => _FromUInt16,
-                TypeCode.Int32 => _FromInt32,
-                TypeCode.UInt32 => _FromUInt32,
-                TypeCode.Int64 => _GetInt64,
-                TypeCode.UInt64 => _FromUInt64,
-                TypeCode.Decimal => _FromDecimal,
-                _ => _ConvertGeneric,
+                TypeCode.Single => FromSingle,
+                TypeCode.Double => FromDouble,
+                TypeCode.SByte => FromSByte,
+                TypeCode.Byte => FromByte,
+                TypeCode.Int16 => FromInt16,
+                TypeCode.UInt16 => FromUInt16,
+                TypeCode.Int32 => FromInt32,
+                TypeCode.UInt32 => FromUInt32,
+                TypeCode.Int64 => GetInt64,
+                TypeCode.UInt64 => FromUInt64,
+                TypeCode.Decimal => FromDecimal,
+                _ => ConvertGeneric,
             };
         }
 
-        long _FromSingle(T data) => System.Convert.ToInt64(_GetSingle(data));
-        long _FromDouble(T data) => System.Convert.ToInt64(_GetDouble(data));
-        long _FromDecimal(T data) => System.Convert.ToInt64(_GetDecimal(data));
-        long _FromSByte(T data) => _GetSByte(data);
-        long _FromByte(T data) => _GetByte(data);
-        long _FromInt16(T data) => _GetInt16(data);
-        long _FromUInt16(T data) => _GetUInt16(data);
-        long _FromInt32(T data) => _GetInt32(data);
-        long _FromUInt32(T data) => _GetUInt32(data);
-        long _FromUInt64(T data) => System.Convert.ToInt64(_GetUInt64(data));
-        long _ConvertGeneric(T data)
+        long FromSingle(T data) => System.Convert.ToInt64(GetSingle(data));
+        long FromDouble(T data) => System.Convert.ToInt64(GetDouble(data));
+        long FromDecimal(T data) => System.Convert.ToInt64(GetDecimal(data));
+        long FromSByte(T data) => GetSByte(data);
+        long FromByte(T data) => GetByte(data);
+        long FromInt16(T data) => GetInt16(data);
+        long FromUInt16(T data) => GetUInt16(data);
+        long FromInt32(T data) => GetInt32(data);
+        long FromUInt32(T data) => GetUInt32(data);
+        long FromUInt64(T data) => System.Convert.ToInt64(GetUInt64(data));
+        long ConvertGeneric(T data)
         {
             var (ret, wasConverted) = _genericConverter.Value.ConvertValue(data);
-            if(!wasConverted && _throwOnFailure)
+            if(!wasConverted && _throwOnFailure || ret == null)
                 throw new ArgumentException($"Could not convert {data} to long");
             return (long)ret;
         }

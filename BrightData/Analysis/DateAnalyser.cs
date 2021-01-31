@@ -21,7 +21,7 @@ namespace BrightData.Analysis
             if (MaxDate == null || date > MaxDate)
                 MaxDate = date;
 
-            _Add(date.ToString(CultureInfo.InvariantCulture));
+            AddString(date.ToString(CultureInfo.InvariantCulture));
             var ticks = date.Ticks;
             if (_distinct.Count < _maxCount)
                 _distinct.Add(ticks);

@@ -33,7 +33,7 @@ namespace BrightData.Segment
 
         /// <inheritdoc />
         public void CopyTo(Stream stream) => _buffer.CopyTo(stream);
-        public IEnumerable<object?> Enumerate() => _buffer.Enumerate();
+        public IEnumerable<object> Enumerate() => _buffer.Enumerate();
         public uint? NumDistinct => _buffer.NumDistinct;
         public uint Size => _buffer.Size;
         public bool IsEncoded { get; } = true;
