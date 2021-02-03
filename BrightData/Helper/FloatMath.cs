@@ -87,7 +87,7 @@ namespace BrightData.Helper
             if (t1.Count != t2.Count)
                 return false;
             for (var i = 0; i < t1.Count; i++) {
-                if (!AreApproximatelyEqual(t1.Tensors[i], t2.Tensors[i]))
+                if (!AreApproximatelyEqual(t1.Tensors[i], t2.Tensors[i], maxDifference))
                     return false;
             }
 
@@ -100,7 +100,7 @@ namespace BrightData.Helper
                 return false;
 
             for (var i = 0; i < t1.Depth; i++) {
-                if (!AreApproximatelyEqual(t1.Matrix[i], t2.Matrix[i]))
+                if (!AreApproximatelyEqual(t1.Matrix[i], t2.Matrix[i], maxDifference))
                     return false;
             }
 
@@ -141,7 +141,7 @@ namespace BrightData.Helper
                 return false;
 
             for (uint i = 0; i < t1.Count; i++) {
-                if (!AreApproximatelyEqual(t1.Tensor(i), t2.Tensor(i)))
+                if (!AreApproximatelyEqual(t1.Tensor(i), t2.Tensor(i), maxDifference))
                     return false;
             }
 
@@ -154,7 +154,7 @@ namespace BrightData.Helper
                 return false;
 
             for (uint i = 0; i < t1.Depth; i++) {
-                if (!AreApproximatelyEqual(t1.Matrix(i), t2.Matrix(i)))
+                if (!AreApproximatelyEqual(t1.Matrix(i), t2.Matrix(i), maxDifference))
                     return false;
             }
 

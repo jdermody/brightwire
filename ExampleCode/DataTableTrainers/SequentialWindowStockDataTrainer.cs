@@ -39,7 +39,7 @@ namespace ExampleCode.DataTableTrainers
                 .AddBackpropagationThroughTime(errorMetric);
 
             // train the network and restore the best result
-            GraphModel bestNetwork = null;
+            GraphModel? bestNetwork = null;
             engine.Train(5, testData, errorMetric, model => bestNetwork = model);
             if (bestNetwork != null) {
                 // execute each row of the test data on an execution engine

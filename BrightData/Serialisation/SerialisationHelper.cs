@@ -77,7 +77,7 @@ namespace BrightData.Serialisation
             return ret;
         }
 
-        public static T[] ReadStructArray<T>(this BinaryReader reader, IBrightDataContext context)
+        public static T[] ReadStructArray<T>(this BinaryReader reader)
             where T : struct
         {
             var len = reader.ReadInt32();
@@ -87,7 +87,7 @@ namespace BrightData.Serialisation
             return ret;
         }
 
-        public static string[] ReadStringArray(this BinaryReader reader, IBrightDataContext context)
+        public static string[] ReadStringArray(this BinaryReader reader)
         {
             var len = reader.ReadInt32();
             var ret = new string[len];

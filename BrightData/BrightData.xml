@@ -440,7 +440,6 @@
             <param name="tempStream"></param>
             <param name="context"></param>
             <param name="bufferSize"></param>
-            <param name="maxDistinct"></param>
             <returns></returns>
         </member>
         <member name="M:BrightData.Buffer.StaticBuffers.CreateHybridObjectBuffer(BrightData.IProvideTempStreams,BrightData.IBrightDataContext,System.Type,System.UInt32)">
@@ -451,7 +450,6 @@
             <param name="context"></param>
             <param name="type"></param>
             <param name="bufferSize"></param>
-            <param name="maxDistinct"></param>
             <returns></returns>
         </member>
         <member name="T:BrightData.Consts">
@@ -588,7 +586,7 @@
             <summary>
             Creates a date analyzer
             </summary>
-            <param name="context"></param>
+            <param name="_"></param>
             <param name="maxCount">Max distinct items</param>
             <returns></returns>
         </member>
@@ -597,7 +595,7 @@
             Creates a numeric analyzer
             </summary>
             <typeparam name="T"></typeparam>
-            <param name="context"></param>
+            <param name="_"></param>
             <param name="maxCount">Max distinct items</param>
             <param name="writeCount">Maximum count to write to meta data</param>
             <returns></returns>
@@ -607,7 +605,7 @@
             Creates a frequency analyzer
             </summary>
             <typeparam name="T"></typeparam>
-            <param name="context"></param>
+            <param name="_"></param>
             <param name="maxCount">Max distinct items</param>
             <param name="writeCount">Maximum count to write to meta data</param>
             <returns></returns>
@@ -616,7 +614,7 @@
             <summary>
             Creates a dimension analyzer
             </summary>
-            <param name="context"></param>
+            <param name="_"></param>
             <param name="maxCount">Max distinct items</param>
             <returns></returns>
         </member>
@@ -625,7 +623,7 @@
             Creates a frequency analyzer
             </summary>
             <typeparam name="T"></typeparam>
-            <param name="context"></param>
+            <param name="_"></param>
             <param name="maxCount">Max distinct items</param>
             <param name="writeCount">Maximum count to write to meta data</param>
             <returns></returns>
@@ -634,7 +632,7 @@
             <summary>
             Creates an index analyzer
             </summary>
-            <param name="context"></param>
+            <param name="_"></param>
             <param name="maxCount">Max distinct items</param>
             <param name="writeCount">Maximum count to write to meta data</param>
             <returns></returns>
@@ -643,7 +641,7 @@
             <summary>
             Creates a numeric analyzer
             </summary>
-            <param name="context"></param>
+            <param name="_"></param>
             <param name="maxCount">Max distinct items</param>
             <param name="writeCount">Maximum count to write to meta data</param>
             <returns></returns>
@@ -652,7 +650,7 @@
             <summary>
             Creates a string analyzer
             </summary>
-            <param name="context"></param>
+            <param name="_"></param>
             <param name="maxCount">Max distinct items</param>
             <param name="writeCount">Maximum count to write to meta data</param>
             <returns></returns>
@@ -661,7 +659,7 @@
             <summary>
             Creates a frequency analyzer
             </summary>
-            <param name="context"></param>
+            <param name="_"></param>
             <param name="type"></param>
             <param name="maxCount">Max distinct items</param>
             <param name="writeCount">Maximum count to write to meta data</param>
@@ -773,7 +771,7 @@
             Creates a struct buffer
             </summary>
             <typeparam name="T"></typeparam>
-            <param name="context"></param>
+            <param name="_"></param>
             <param name="tempStream">Temp stream provider</param>
             <param name="bufferSize">Max items to cache in memory</param>
             <param name="maxDistinct">Maximum number of distinct items (to encode)</param>
@@ -783,7 +781,7 @@
             <summary>
             Creates a struct buffer
             </summary>
-            <param name="context"></param>
+            <param name="_"></param>
             <param name="type">Type of structs</param>
             <param name="tempStream">Temp stream provider</param>
             <param name="bufferSize">Max items to cache in memory</param>
@@ -794,7 +792,7 @@
             <summary>
             Creates a string buffer
             </summary>
-            <param name="context"></param>
+            <param name="_"></param>
             <param name="tempStream">Temp stream provider</param>
             <param name="bufferSize">Max items to cache in memory</param>
             <param name="maxDistinct">Maximum number of distinct items (to encode)</param>
@@ -1124,6 +1122,13 @@
             <param name="context"></param>
             <param name="use">True to enable</param>
         </member>
+        <member name="M:BrightData.ExtensionMethods.GetDataEncoder(BrightData.IBrightDataContext)">
+            <summary>
+            Creates a data encoder
+            </summary>
+            <param name="context"></param>
+            <returns></returns>
+        </member>
         <member name="M:BrightData.ExtensionMethods.GetDataType(BrightData.ColumnType)">
             <summary>
             Converts from a column type to a Type
@@ -1136,6 +1141,70 @@
             Converts from a Type to a ColumnType
             </summary>
             <param name="dataType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.IsStructable(BrightData.ColumnType)">
+            <summary>
+            Checks if the column type is blittable
+            </summary>
+            <param name="columnType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.IsNumeric(BrightData.ColumnType)">
+            <summary>
+            Checks if the column type is numeric
+            </summary>
+            <param name="columnType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.IsDecimal(BrightData.ColumnType)">
+            <summary>
+            Checks if the column type is decimal
+            </summary>
+            <param name="columnType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.IsContinuous(BrightData.ColumnType)">
+            <summary>
+            Checks if the column type is continuous
+            </summary>
+            <param name="columnType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.IsInteger(BrightData.ColumnType)">
+            <summary>
+            Checks if the column type is an integer
+            </summary>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.IsIndexedList(BrightData.ColumnType)">
+            <summary>
+            Checks if the column type is an indexed list (or weighted index list)
+            </summary>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.IsTensor(BrightData.ColumnType)">
+            <summary>
+            Checks if the column type is a tensor
+            </summary>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.DataType(BrightData.IDataTableSegment)">
+            <summary>
+            Returns the underlying Type for a data table segment
+            </summary>
+            <param name="segment"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetDataType``1(BrightData.IDataTableSegment{``0})">
+            <summary>
+            Returns the underlying Type for a data table segment
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="segment"></param>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.RowIndices(BrightData.IDataTable)">
@@ -1165,6 +1234,13 @@
             </summary>
             <param name="dataTable"></param>
             <param name="callback"></param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.AllColumnsMetaData(BrightData.IDataTable)">
+            <summary>
+            Returns meta data for all columns
+            </summary>
+            <param name="dataTable"></param>
+            <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.GetColumnAnalyser(BrightData.ColumnType,BrightData.IMetaData,System.UInt32,System.UInt32)">
             <summary>
@@ -1211,6 +1287,232 @@
             <param name="tempBasePath"></param>
             <returns></returns>
         </member>
+        <member name="M:BrightData.ExtensionMethods.WriteProgress(System.Int32,System.Int32@,System.Int32)">
+            <summary>
+            Writes a progress bar to the console
+            </summary>
+            <param name="newProgress">Current progress</param>
+            <param name="oldProgress">Previous progress</param>
+            <param name="max">Maximum progress</param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Head(BrightData.IDataTable,System.UInt32)">
+            <summary>
+            Returns the head (first few rows) of the data table
+            </summary>
+            <param name="dataTable"></param>
+            <param name="size">Number of rows to return</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.LoadTable(BrightData.IBrightDataContext,System.String)">
+            <summary>
+            Loads a data table from disk
+            </summary>
+            <param name="context"></param>
+            <param name="filePath">File path on disk</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.CopyToFloatSegment``1(BrightData.IDataTableSegment{``0},BrightData.ITensorSegment{System.Single})">
+            <summary>
+            Copies a data table segment to a tensor segment
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="column">Data table segment</param>
+            <param name="vector">Tensor segment</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.CopyTo(BrightData.ISingleTypeTableSegment,BrightData.ITensorSegment{System.Single})">
+            <summary>
+            Copies a data table segment to tensor segment
+            </summary>
+            <param name="column">Data table segment</param>
+            <param name="vector">Tensor segment</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.SetTargetColumn(BrightData.IDataTable,System.Nullable{System.UInt32})">
+            <summary>
+            Sets the target column of the data table
+            </summary>
+            <param name="table"></param>
+            <param name="columnIndex">Column index to make target (or null to set no target)</param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetTargetColumn(BrightData.IDataTable)">
+            <summary>
+            Returns the target column of the data table
+            </summary>
+            <param name="table"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetTargetColumnOrThrow(BrightData.IDataTable)">
+            <summary>
+            Returns the target column or throws an exception if none set
+            </summary>
+            <param name="table"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.ColumnIndicesOfFeatures(BrightData.IDataTable)">
+            <summary>
+            Returns the feature (non target) columns of the data table
+            </summary>
+            <param name="table"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.SetType(BrightData.IMetaData,BrightData.ColumnType)">
+            <summary>
+            Sets the column type in a meta data store
+            </summary>
+            <param name="metaData"></param>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetGrowableSegment(BrightData.IMetaData,BrightData.ColumnType,BrightData.IBrightDataContext,BrightData.IProvideTempStreams,System.UInt32,System.UInt16)">
+            <summary>
+            Creates an appendable buffer for a column type
+            </summary>
+            <param name="metaData"></param>
+            <param name="type">Column type</param>
+            <param name="context"></param>
+            <param name="tempStream"></param>
+            <param name="bufferSize">In memory cache size</param>
+            <param name="maxDistinct">Maximum number of distinct items to track</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.BuildColumnOrientedTable(System.Collections.Generic.List{BrightData.ISingleTypeTableSegment},BrightData.IBrightDataContext,System.UInt32,System.String)">
+            <summary>
+            Creates a column oriented data table from a list of segments
+            </summary>
+            <param name="segments"></param>
+            <param name="context"></param>
+            <param name="rowCount">Number of rows</param>
+            <param name="filePath">File path to save on disk (optional)</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.BuildRowOrientedTable(System.Collections.Generic.List{BrightData.ISingleTypeTableSegment},BrightData.IBrightDataContext,System.UInt32,System.String)">
+            <summary>
+            Creates a row oriented data table from a list of segments
+            </summary>
+            <param name="segments"></param>
+            <param name="context"></param>
+            <param name="rowCount">Number of rows</param>
+            <param name="filePath">File path to save on disk (optional)</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.ChangeColumnType(BrightData.IColumnInfo,BrightData.ColumnType)">
+            <summary>
+            Creates a column info with a new column type
+            </summary>
+            <param name="column">Column info source</param>
+            <param name="newType">New column type</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.AsConvertible(BrightData.IRowOrientedDataTable)">
+            <summary>
+            Creates a convertible data table
+            </summary>
+            <param name="dataTable">Data table to use as basis</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetVectorisedFeatures(BrightData.IDataTable)">
+            <summary>
+            Converts the data table to a sequence of labelled vectors (feature columns are vectorised, target column is converted to a string)
+            </summary>
+            <param name="dataTable"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetColumnType(BrightData.IMetaData)">
+            <summary>
+            Gets the column type
+            </summary>
+            <param name="metadata"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetNumDistinct(BrightData.IMetaData)">
+            <summary>
+            Gets the number of distinct items
+            </summary>
+            <param name="metadata"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.BuildTable(BrightData.IBrightDataContext)">
+            <summary>
+            Creates a table builder
+            </summary>
+            <param name="context"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Split(BrightData.IRowOrientedDataTable,System.Double,System.String,System.String)">
+            <summary>
+            Splits a data table into training and test tables (rows are randomly selected for either)
+            </summary>
+            <param name="table"></param>
+            <param name="trainingFraction">Fraction (0..1) of rows to add to the training table</param>
+            <param name="trainingFilePath">Path to write training table to disk (optional)</param>
+            <param name="testFilePath">Path to write test table to disk (optional)</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetColumnsAsVectors(BrightData.IDataTable,System.UInt32[])">
+            <summary>
+            Returns columns as vectors
+            </summary>
+            <param name="dataTable"></param>
+            <param name="columnIndices">Column indices to return as vectors</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.EnumerateTyped``1(BrightData.ISingleTypeTableSegment)">
+            <summary>
+            Strongly typed enumeration of items in segment
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="segment"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.ToArray``1(BrightData.ISingleTypeTableSegment)">
+            <summary>
+            Reads the segment as a strongly typed array
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="segment"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.AsMatrices(BrightData.IDataTable)">
+            <summary>
+            Converts the data table to feature and target matrices
+            </summary>
+            <param name="dataTable"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.AsMatrix(BrightData.IDataTable,System.UInt32[])">
+            <summary>
+            Converts data table columns to a matrix
+            </summary>
+            <param name="dataTable"></param>
+            <param name="columnIndices">Column indices to include in the matrix</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Vectorise(BrightData.IDataTable,System.String)">
+            <summary>
+            Creates a new data table that has two vector columns, one for the features and the other for the target
+            </summary>
+            <param name="dataTable"></param>
+            <param name="filePath">Optional path to save data table to disk</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.Column``1(BrightData.IDataTable,System.UInt32)">
+            <summary>
+            Returns a data table segment from the data table
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="dataTable"></param>
+            <param name="columnIndex"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.ToArray``1(BrightData.IDataTableSegment{``0})">
+            <summary>
+            Converts a data table segment to an array
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="segment"></param>
+            <returns></returns>
+        </member>
         <member name="M:BrightData.ExtensionMethods.ConvertToTable(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.IndexList}},BrightData.IBrightDataContext)">
             <summary>
             Converts indexed classifications to a data table
@@ -1225,7 +1527,7 @@
             <param name="data"></param>
             <param name="context"></param>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ConvertToTable(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.Vector{System.Single}}},System.Boolean,BrightData.IBrightDataContext)">
+        <member name="M:BrightData.ExtensionMethods.ConvertToTable(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.LinearAlgebra.Vector{System.Single}}},System.Boolean,BrightData.IBrightDataContext)">
             <summary>
             Converts the vector classifications into a data table
             </summary>
@@ -1240,6 +1542,54 @@
             </summary>
             <param name="data"></param>
             <param name="context"></param>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetDefaultValue(BrightData.ColumnType)">
+            <summary>
+            Returns a default value for a column type
+            </summary>
+            <param name="columnType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.GetVectoriser(BrightData.IDataTable,System.UInt32[])">
+            <summary>
+            Returns a vectoriser
+            </summary>
+            <param name="table"></param>
+            <param name="columnIndices">Column indices to vectorise</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.ConvertTable(BrightData.IColumnOrientedDataTable,BrightData.ColumnConversionType[])">
+            <summary>
+            Converts columns
+            </summary>
+            <param name="dataTable"></param>
+            <param name="conversions"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.ConvertColumn(BrightData.ColumnConversionType,System.UInt32)">
+            <summary>
+            Creates a column conversion parameter
+            </summary>
+            <param name="type">Type of column conversion</param>
+            <param name="columnIndex"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.ConvertColumn(BrightData.NormalizationType,System.UInt32)">
+            <summary>
+            Creates a column normalization parameter
+            </summary>
+            <param name="type"></param>
+            <param name="columnIndex"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.ReinterpretColumns(System.UInt32[],BrightData.ColumnType,System.String)">
+            <summary>
+            Creates a reinterpret columns parameter
+            </summary>
+            <param name="sourceColumnIndices"></param>
+            <param name="newColumnType"></param>
+            <param name="newColumnName"></param>
+            <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.NextRandomFloat(BrightData.IBrightDataContext)">
             <summary>
@@ -1262,6 +1612,58 @@
             </summary>
             <param name="context"></param>
             <param name="length">Exclusive upper bound</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.CreateBernoulliDistribution(BrightData.IBrightDataContext,System.Single)">
+            <summary>
+            Create a bernoulli distribution
+            </summary>
+            <param name="context"></param>
+            <param name="probability"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.CreateBinomialDistribution(BrightData.IBrightDataContext,System.Single,System.UInt32)">
+            <summary>
+            Create a binomial distribution
+            </summary>
+            <param name="context"></param>
+            <param name="probability"></param>
+            <param name="numTrials"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.CreateCategoricalDistribution(BrightData.IBrightDataContext,System.Collections.Generic.IEnumerable{System.Single})">
+            <summary>
+            Create a categorical distribution
+            </summary>
+            <param name="context"></param>
+            <param name="categoricalValues"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.CreateContinuousDistribution(BrightData.IBrightDataContext,System.Single,System.Single)">
+            <summary>
+            Create a continuous distribution
+            </summary>
+            <param name="context"></param>
+            <param name="inclusiveLowerBound"></param>
+            <param name="exclusiveUpperBound"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.CreateDiscreteUniformDistribution(BrightData.IBrightDataContext,System.Int32,System.Int32)">
+            <summary>
+            Create a discrete uniform distribution
+            </summary>
+            <param name="context"></param>
+            <param name="inclusiveLowerBound"></param>
+            <param name="exclusiveUpperBound"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.CreateNormalDistribution(BrightData.IBrightDataContext,System.Single,System.Single)">
+            <summary>
+            Create a normal distribution
+            </summary>
+            <param name="context"></param>
+            <param name="mean"></param>
+            <param name="stdDev">Standard deviation</param>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.CreateVector``1(BrightData.IBrightDataContext,System.UInt32,System.Func{System.UInt32,``0})">
@@ -1302,6 +1704,16 @@
             <param name="reader"></param>
             <returns></returns>
         </member>
+        <member name="M:BrightData.ExtensionMethods.CreateMatrix``1(BrightData.IBrightDataContext,System.UInt32,System.UInt32)">
+            <summary>
+            Creates a matrix
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="context"></param>
+            <param name="rows">Number of rows</param>
+            <param name="columns">Number of columns</param>
+            <returns></returns>
+        </member>
         <member name="M:BrightData.ExtensionMethods.CreateMatrix``1(BrightData.IBrightDataContext,System.UInt32,System.UInt32,System.Func{System.UInt32,System.UInt32,``0})">
             <summary>
             Creates a matrix
@@ -1333,7 +1745,7 @@
             <param name="reader"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateMatrixFromRows``1(BrightData.IBrightDataContext,BrightData.Vector{``0}[])">
+        <member name="M:BrightData.ExtensionMethods.CreateMatrixFromRows``1(BrightData.IBrightDataContext,BrightData.LinearAlgebra.Vector{``0}[])">
             <summary>
             Creates a matrix from vectors (each will become a row)
             </summary>
@@ -1351,7 +1763,7 @@
             <param name="rows"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateMatrixFromColumns``1(BrightData.IBrightDataContext,BrightData.Vector{``0}[])">
+        <member name="M:BrightData.ExtensionMethods.CreateMatrixFromColumns``1(BrightData.IBrightDataContext,BrightData.LinearAlgebra.Vector{``0}[])">
             <summary>
             Creates a matrix from vectors (each will become a column)
             </summary>
@@ -1380,7 +1792,7 @@
             <param name="columns">Number of columns in each matrix</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateTensor3D``1(BrightData.IBrightDataContext,BrightData.Matrix{``0}[])">
+        <member name="M:BrightData.ExtensionMethods.CreateTensor3D``1(BrightData.IBrightDataContext,BrightData.LinearAlgebra.Matrix{``0}[])">
             <summary>
             Creates a 3D tensor from matrices
             </summary>
@@ -1475,7 +1887,7 @@
             <param name="data">Vector to copy</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateVector(BrightData.ILinearAlgebraProvider,BrightData.Vector{System.Single})">
+        <member name="M:BrightData.ExtensionMethods.CreateVector(BrightData.ILinearAlgebraProvider,BrightData.LinearAlgebra.Vector{System.Single})">
             <summary>
             Creates a vector
             </summary>
@@ -1508,7 +1920,7 @@
             <param name="rows">Number of rows</param>
             <param name="columns">Number of columns</param>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateMatrix(BrightData.ILinearAlgebraProvider,BrightData.Matrix{System.Single})">
+        <member name="M:BrightData.ExtensionMethods.CreateMatrix(BrightData.ILinearAlgebraProvider,BrightData.LinearAlgebra.Matrix{System.Single})">
             <summary>
             Creates a matrix from an existing matrix
             </summary>
@@ -1516,7 +1928,7 @@
             <param name="matrix">Matrix to copy</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateMatrixFromRows(BrightData.ILinearAlgebraProvider,BrightData.Vector{System.Single}[])">
+        <member name="M:BrightData.ExtensionMethods.CreateMatrixFromRows(BrightData.ILinearAlgebraProvider,BrightData.LinearAlgebra.Vector{System.Single}[])">
             <summary>
             Creates a matrix from row vectors
             </summary>
@@ -1532,7 +1944,7 @@
             <param name="rowList">List of indexable vectors (each vector becomes a row in the new matrix)</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateMatrixFromColumns(BrightData.ILinearAlgebraProvider,BrightData.Vector{System.Single}[])">
+        <member name="M:BrightData.ExtensionMethods.CreateMatrixFromColumns(BrightData.ILinearAlgebraProvider,BrightData.LinearAlgebra.Vector{System.Single}[])">
             <summary>
             Creates a matrix from column vectors
             </summary>
@@ -1582,7 +1994,7 @@
             <param name="values">Diagonal values</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Create3DTensor(BrightData.ILinearAlgebraProvider,BrightData.Tensor3D{System.Single})">
+        <member name="M:BrightData.ExtensionMethods.Create3DTensor(BrightData.ILinearAlgebraProvider,BrightData.LinearAlgebra.Tensor3D{System.Single})">
             <summary>
             Creates a 3D tensor
             </summary>
@@ -1590,7 +2002,7 @@
             <param name="tensor">The tensor to copy from</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Create3DTensor(BrightData.ILinearAlgebraProvider,BrightData.Matrix{System.Single}[])">
+        <member name="M:BrightData.ExtensionMethods.Create3DTensor(BrightData.ILinearAlgebraProvider,BrightData.LinearAlgebra.Matrix{System.Single}[])">
             <summary>
             Creates a 3D tensor from matrices
             </summary>
@@ -1615,7 +2027,7 @@
             <param name="vector1">First vector</param>
             <param name="vector2">Second vector</param>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateMatrixFromRows(BrightData.ILinearAlgebraProvider,System.Collections.Generic.IEnumerable{BrightData.Vector{System.Single}})">
+        <member name="M:BrightData.ExtensionMethods.CreateMatrixFromRows(BrightData.ILinearAlgebraProvider,System.Collections.Generic.IEnumerable{BrightData.LinearAlgebra.Vector{System.Single}})">
             <summary>
             Creates a matrix from row vectors
             </summary>
@@ -1631,7 +2043,7 @@
             <param name="rows">Row vectors</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.CreateMatrixFromColumns(BrightData.ILinearAlgebraProvider,System.Collections.Generic.IEnumerable{BrightData.Vector{System.Single}})">
+        <member name="M:BrightData.ExtensionMethods.CreateMatrixFromColumns(BrightData.ILinearAlgebraProvider,System.Collections.Generic.IEnumerable{BrightData.LinearAlgebra.Vector{System.Single}})">
             <summary>
             Creates a matrix from column vectors
             </summary>
@@ -1647,7 +2059,7 @@
             <param name="columns">Column vectors</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.AsFloatVectors(System.Collections.Generic.IEnumerable{BrightData.Vector{System.Single}})">
+        <member name="M:BrightData.ExtensionMethods.AsFloatVectors(System.Collections.Generic.IEnumerable{BrightData.LinearAlgebra.Vector{System.Single}})">
             <summary>
             Converts vectors to float vectors
             </summary>
@@ -1727,11 +2139,44 @@
             <param name="other"></param>
             <returns></returns>
         </member>
+        <member name="M:BrightData.ExtensionMethods.Mutate(BrightData.LinearAlgebra.Vector{System.Single},System.Func{System.Single,System.Single})">
+            <summary>
+            Mutates a vector via a callback
+            </summary>
+            <param name="vector">Vector to mutate</param>
+            <param name="mutator">Callback that can mutate each value of the vector</param>
+            <returns>New vector</returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.MutateWith(BrightData.LinearAlgebra.Vector{System.Single},BrightData.LinearAlgebra.Vector{System.Single},System.Func{System.Single,System.Single,System.Single})">
+            <summary>
+            Mutates a vector by combining it with another vector
+            </summary>
+            <param name="vector">Vector to mutate</param>
+            <param name="other">Other vector</param>
+            <param name="mutator">Callback that can mutate each value of the vector</param>
+            <returns></returns>
+        </member>
         <member name="M:BrightData.ExtensionMethods.ToSparse(BrightData.ITensorSegment{System.Single})">
             <summary>
             Converts the tensor segment to a sparse format (only non zero entries are preserved)
             </summary>
             <param name="segment"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.ReadVectorFrom(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+            <summary>
+            Reads a vector from a binary reader
+            </summary>
+            <param name="context"></param>
+            <param name="reader"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.ReadMatrixFrom(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+            <summary>
+            Reads a matrix from a binary reader
+            </summary>
+            <param name="context"></param>
+            <param name="reader"></param>
             <returns></returns>
         </member>
         <member name="T:BrightData.Helper.ColumnTypeClassifier">
@@ -2466,12 +2911,12 @@
             True if random generator has been initialized with a random initial seed
             </summary>
         </member>
-        <member name="T:BrightData.IHaveBrightDataContext">
+        <member name="T:BrightData.IHaveDataContext">
             <summary>
             Indicates that the type has a data context
             </summary>
         </member>
-        <member name="P:BrightData.IHaveBrightDataContext.Context">
+        <member name="P:BrightData.IHaveDataContext.Context">
             <summary>
             Bright data context
             </summary>
@@ -3690,7 +4135,7 @@
             <param name="tensors">List of 3D tensors</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ILinearAlgebraProvider.Create4DTensor(BrightData.Tensor3D{System.Single}[])">
+        <member name="M:BrightData.ILinearAlgebraProvider.Create4DTensor(BrightData.LinearAlgebra.Tensor3D{System.Single}[])">
             <summary>
             Creates a 4D tensor from a list of 3D tensors
             </summary>
@@ -4824,73 +5269,112 @@
             Returns the underlying array used as storage (changes to this array will affect the tensor as well)
             </summary>
         </member>
-        <member name="T:BrightData.Iterators.SimpleIterator`1">
+        <member name="T:BrightData.Iterator.SimpleIterator`1">
             <summary>
             Simple iterator with context stack
             </summary>
             <typeparam name="T"></typeparam>
         </member>
-        <member name="M:BrightData.Iterators.SimpleIterator`1.First">
+        <member name="F:BrightData.Iterator.SimpleIterator`1._contextStack">
+            <summary>
+            Stack of positions
+            </summary>
+        </member>
+        <member name="F:BrightData.Iterator.SimpleIterator`1._pos">
+            <summary>
+            Current iterator position
+            </summary>
+        </member>
+        <member name="F:BrightData.Iterator.SimpleIterator`1._data">
+            <summary>
+            Data sequence
+            </summary>
+            
+        </member>
+        <member name="M:BrightData.Iterator.SimpleIterator`1.#ctor(`0[],`0)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="data">Data to iterate</param>
+            <param name="endOfSequence">Item that indicates that the iterator is at the end of the sequence</param>
+        </member>
+        <member name="M:BrightData.Iterator.SimpleIterator`1.Clone">
+            <summary>
+            Clones this iterator
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Iterator.SimpleIterator`1.First">
             <summary>
             Get the first element in the collection
             </summary>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Iterators.SimpleIterator`1.Push">
+        <member name="M:BrightData.Iterator.SimpleIterator`1.Push">
             <summary>
             Push the context stack
             </summary>
         </member>
-        <member name="M:BrightData.Iterators.SimpleIterator`1.Pop(System.Boolean)">
+        <member name="M:BrightData.Iterator.SimpleIterator`1.Pop(System.Boolean)">
             <summary>
             Pop the context stack
             </summary>
             <param name="restore">True to reset the position</param>
             <returns></returns>
         </member>
-        <member name="P:BrightData.Iterators.SimpleIterator`1.HasData">
+        <member name="P:BrightData.Iterator.SimpleIterator`1.HasData">
             <summary>
             True if the iterator can advance
             </summary>
         </member>
-        <member name="M:BrightData.Iterators.SimpleIterator`1.GetNext">
+        <member name="M:BrightData.Iterator.SimpleIterator`1.GetNext">
             <summary>
             Read and advance the iterator
             </summary>
             <returns>The current item</returns>
         </member>
-        <member name="M:BrightData.Iterators.SimpleIterator`1.CanPeek(System.Int32)">
+        <member name="M:BrightData.Iterator.SimpleIterator`1.CanPeek(System.Int32)">
             <summary>
             Checks if the specified look ahead is within the array
             </summary>
             <param name="length">How far away to peek</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Iterators.SimpleIterator`1.Peek(System.Int32)">
+        <member name="M:BrightData.Iterator.SimpleIterator`1.Peek(System.Int32)">
             <summary>
             Read but does not advance the iterator
             </summary>
             <param name="offset">How far ahead to peek</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Iterators.SimpleIterator`1.Move(System.Int32)">
+        <member name="M:BrightData.Iterator.SimpleIterator`1.Move(System.Int32)">
             <summary>
             Advance the iterator
             </summary>
             <param name="offset">How far to advance</param>
         </member>
-        <member name="P:BrightData.Iterators.SimpleIterator`1.PrevPosition">
+        <member name="P:BrightData.Iterator.SimpleIterator`1.Position">
+            <summary>
+            Current iterator position
+            </summary>
+        </member>
+        <member name="P:BrightData.Iterator.SimpleIterator`1.PrevPosition">
             <summary>
             Position minus 1
             </summary>
         </member>
-        <member name="M:BrightData.Iterators.SimpleIterator`1.MoveTo(System.Int32)">
+        <member name="P:BrightData.Iterator.SimpleIterator`1.Length">
+            <summary>
+            Maximum position in data
+            </summary>
+        </member>
+        <member name="M:BrightData.Iterator.SimpleIterator`1.MoveTo(System.Int32)">
             <summary>
             Move to an indexed position
             </summary>
             <param name="position"></param>
         </member>
-        <member name="M:BrightData.Iterators.SimpleIterator`1.GetRange(System.Int32,System.Int32)">
+        <member name="M:BrightData.Iterator.SimpleIterator`1.GetRange(System.Int32,System.Int32)">
             <summary>
             Creates a new iterator with the specified sub range of data
             </summary>
@@ -4898,47 +5382,105 @@
             <param name="end"></param>
             <returns></returns>
         </member>
-        <member name="T:BrightData.Matrix`1">
+        <member name="T:BrightData.Iterator.StringIterator">
+            <summary>
+            Iterates characters in a string
+            </summary>
+        </member>
+        <member name="M:BrightData.Iterator.StringIterator.#ctor(System.String)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="str">String to iterate</param>
+        </member>
+        <member name="M:BrightData.Iterator.StringIterator.Equals(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Iterator.StringIterator.GetHashCode">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Iterator.StringIterator.ToString">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Iterator.StringIterator.Clone">
+            <summary>
+            Clones this iterator
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:BrightData.Iterator.StringIterator.Data">
+            <summary>
+            Underlying string
+            </summary>
+        </member>
+        <member name="P:BrightData.Iterator.StringIterator.Lines">
+            <summary>
+            All lines in the string
+            </summary>
+        </member>
+        <member name="M:BrightData.Iterator.StringIterator.Matches(System.Collections.Generic.IEnumerable{System.Char})">
+            <summary>
+            Checks if a sequence of characters matches at the current position
+            </summary>
+            <param name="list"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Iterator.StringIterator.Matches(System.String)">
+            <summary>
+            Checks if a string matches at the current position
+            </summary>
+            <param name="str"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Iterator.StringIterator.GetRange(System.Int32,System.Int32)">
+            <summary>
+            Returns a new string iterator for a specific section of this iterator
+            </summary>
+            <param name="start">Start position</param>
+            <param name="end">End position</param>
+            <returns></returns>
+        </member>
+        <member name="T:BrightData.LinearAlgebra.Matrix`1">
             <summary>
             Matrix type
             </summary>
             <typeparam name="T">Data type within the matrix</typeparam>
         </member>
-        <member name="P:BrightData.Matrix`1.RowCount">
+        <member name="P:BrightData.LinearAlgebra.Matrix`1.RowCount">
             <summary>
             Number of rows
             </summary>
         </member>
-        <member name="P:BrightData.Matrix`1.ColumnCount">
+        <member name="P:BrightData.LinearAlgebra.Matrix`1.ColumnCount">
             <summary>
             Number of columns
             </summary>
         </member>
-        <member name="M:BrightData.Matrix`1.Row(System.UInt32)">
+        <member name="M:BrightData.LinearAlgebra.Matrix`1.Row(System.UInt32)">
             <summary>
             Returns a row as a vector
             </summary>
             <param name="index">Row index</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Matrix`1.Column(System.UInt32)">
+        <member name="M:BrightData.LinearAlgebra.Matrix`1.Column(System.UInt32)">
             <summary>
             Returns a column as a vector
             </summary>
             <param name="index">Column index</param>
             <returns></returns>
         </member>
-        <member name="P:BrightData.Matrix`1.Rows">
+        <member name="P:BrightData.LinearAlgebra.Matrix`1.Rows">
             <summary>
             All rows
             </summary>
         </member>
-        <member name="P:BrightData.Matrix`1.Columns">
+        <member name="P:BrightData.LinearAlgebra.Matrix`1.Columns">
             <summary>
             All columns
             </summary>
         </member>
-        <member name="P:BrightData.Matrix`1.Item(System.Int32,System.Int32)">
+        <member name="P:BrightData.LinearAlgebra.Matrix`1.Item(System.Int32,System.Int32)">
             <summary>
             Returns the value at the specified index
             </summary>
@@ -4946,7 +5488,7 @@
             <param name="columnX">Column index</param>
             <returns></returns>
         </member>
-        <member name="P:BrightData.Matrix`1.Item(System.UInt32,System.UInt32)">
+        <member name="P:BrightData.LinearAlgebra.Matrix`1.Item(System.UInt32,System.UInt32)">
             <summary>
             Returns the value at the specified index
             </summary>
@@ -4954,56 +5496,656 @@
             <param name="columnX">Column index</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Matrix`1.ToString">
+        <member name="M:BrightData.LinearAlgebra.Matrix`1.ToString">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Matrix`1.ToColumnMajor">
+        <member name="M:BrightData.LinearAlgebra.Matrix`1.ToColumnMajor">
             <summary>
             Converts to a column major array format (default is row major)
             </summary>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Matrix`1.Transpose">
+        <member name="M:BrightData.LinearAlgebra.Matrix`1.Transpose">
             <summary>
             Transpose the matrix
             </summary>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Matrix`1.Multiply(BrightData.Matrix{`0})">
+        <member name="M:BrightData.LinearAlgebra.Matrix`1.Multiply(BrightData.LinearAlgebra.Matrix{`0})">
             <summary>
             Multiply the matrix with another matrix
             </summary>
             <param name="other">Other matrix to multiply</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Matrix`1.GetDiagonal">
+        <member name="M:BrightData.LinearAlgebra.Matrix`1.GetDiagonal">
             <summary>
             Returns the diagonal of the matrix as a vector
             </summary>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Matrix`1.RowSums">
+        <member name="M:BrightData.LinearAlgebra.Matrix`1.RowSums">
             <summary>
             Returns the sum of each row as a vector
             </summary>
             <returns></returns>
             <exception cref="T:System.NotImplementedException"></exception>
         </member>
-        <member name="M:BrightData.Matrix`1.ColumnSums">
+        <member name="M:BrightData.LinearAlgebra.Matrix`1.ColumnSums">
             <summary>
             Returns the sum of each column as a vector
             </summary>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Matrix`1.Multiply(BrightData.Vector{`0})">
+        <member name="M:BrightData.LinearAlgebra.Matrix`1.Multiply(BrightData.LinearAlgebra.Vector{`0})">
             <summary>
             Multiplies the matrix with a vector
             </summary>
             <param name="vector">Vector to multiply</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Matrix`1.Create(BrightData.ITensorSegment{`0})">
+        <member name="M:BrightData.LinearAlgebra.Matrix`1.Create(BrightData.ITensorSegment{`0})">
             <inheritdoc />
+        </member>
+        <member name="T:BrightData.LinearAlgebra.Tensor3D`1">
+            <summary>
+            3D tensor type
+            </summary>
+            <typeparam name="T">Data type within the tensor</typeparam>
+        </member>
+        <member name="P:BrightData.LinearAlgebra.Tensor3D`1.Depth">
+            <summary>
+            Number of matrices
+            </summary>
+        </member>
+        <member name="P:BrightData.LinearAlgebra.Tensor3D`1.RowCount">
+            <summary>
+            Number of rows within each matrix
+            </summary>
+        </member>
+        <member name="P:BrightData.LinearAlgebra.Tensor3D`1.ColumnCount">
+            <summary>
+            Number of columns within each matrix
+            </summary>
+        </member>
+        <member name="P:BrightData.LinearAlgebra.Tensor3D`1.MatrixSize">
+            <summary>
+            Size of each matrix
+            </summary>
+        </member>
+        <member name="P:BrightData.LinearAlgebra.Tensor3D`1.Item(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Returns the value at the specified index
+            </summary>
+            <param name="depth">Index of the matrix</param>
+            <param name="rowY">Row within the matrix</param>
+            <param name="columnX">Column within the matrix</param>
+            <returns></returns>
+        </member>
+        <member name="P:BrightData.LinearAlgebra.Tensor3D`1.Item(System.UInt32,System.UInt32,System.UInt32)">
+            <summary>
+            Returns the value at the specified index
+            </summary>
+            <param name="depth">Index of the matrix</param>
+            <param name="rowY">Row within the matrix</param>
+            <param name="columnX">Column within the matrix</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.Tensor3D`1.Matrix(System.UInt32)">
+            <summary>
+            Returns a matrix at the specified index
+            </summary>
+            <param name="index">Matrix index</param>
+            <returns></returns>
+        </member>
+        <member name="P:BrightData.LinearAlgebra.Tensor3D`1.Matrices">
+            <summary>
+            All matrices
+            </summary>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.Tensor3D`1.ToString">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.Tensor3D`1.Create(BrightData.ITensorSegment{`0})">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.Tensor3D`1.GetAsRaw">
+            <summary>
+            Converts the segment to a column major vector (default is row major)
+            </summary>
+        </member>
+        <member name="T:BrightData.LinearAlgebra.Tensor4D`1">
+            <summary>
+            4D tensor type
+            </summary>
+            <typeparam name="T">Data type within the tensor</typeparam>
+        </member>
+        <member name="P:BrightData.LinearAlgebra.Tensor4D`1.Count">
+            <summary>
+            Number of 3D tensors
+            </summary>
+        </member>
+        <member name="P:BrightData.LinearAlgebra.Tensor4D`1.Depth">
+            <summary>
+            Number of matrices within each 3D tensor
+            </summary>
+        </member>
+        <member name="P:BrightData.LinearAlgebra.Tensor4D`1.RowCount">
+            <summary>
+            Number of rows within each matrix
+            </summary>
+        </member>
+        <member name="P:BrightData.LinearAlgebra.Tensor4D`1.ColumnCount">
+            <summary>
+            Number of columns within each matrix
+            </summary>
+        </member>
+        <member name="P:BrightData.LinearAlgebra.Tensor4D`1.MatrixSize">
+            <summary>
+            Size of each matrix
+            </summary>
+        </member>
+        <member name="P:BrightData.LinearAlgebra.Tensor4D`1.TensorSize">
+            <summary>
+            Size of each 3D tensor
+            </summary>
+        </member>
+        <member name="P:BrightData.LinearAlgebra.Tensor4D`1.Item(System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Returns the value at the specified index
+            </summary>
+            <param name="count">3D tensor index</param>
+            <param name="depth">Matrix depth within the 3D tensor</param>
+            <param name="rowY">Row within the matrix</param>
+            <param name="columnX">Column within the matrix</param>
+        </member>
+        <member name="P:BrightData.LinearAlgebra.Tensor4D`1.Item(System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
+            <summary>
+            Returns the value at the specified index
+            </summary>
+            <param name="count">3D tensor index</param>
+            <param name="depth">Matrix depth within the 3D tensor</param>
+            <param name="rowY">Row within the matrix</param>
+            <param name="columnX">Column within the matrix</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.Tensor4D`1.Tensor(System.UInt32)">
+            <summary>
+            Returns a nested 3D tensor
+            </summary>
+            <param name="index">Tensor index</param>
+        </member>
+        <member name="P:BrightData.LinearAlgebra.Tensor4D`1.Tensors">
+            <summary>
+            All 3D tensors
+            </summary>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.Tensor4D`1.ToString">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.Tensor4D`1.Create(BrightData.ITensorSegment{`0})">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.LinearAlgebra.TensorBase`2">
+            <summary>
+            Base class for tensors
+            </summary>
+            <typeparam name="T">Data type within the tensor</typeparam>
+            <typeparam name="DT">Underlying type (vector, matrix etc)</typeparam>
+        </member>
+        <member name="F:BrightData.LinearAlgebra.TensorBase`2._segment">
+            <summary>
+            Data segment
+            </summary>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.#ctor(BrightData.ITensorSegment{`0},System.UInt32[])">
+            <summary>
+            Constructor
+            </summary>
+            <param name="segment">Data segment</param>
+            <param name="shape">Shape of tensor</param>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.#ctor(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+            <summary>
+            Initialize from binary reader
+            </summary>
+            <param name="context">Bright data context</param>
+            <param name="reader">Reader to initialize from</param>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.WriteTo(System.IO.BinaryWriter)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.Create(BrightData.ITensorSegment{`0})">
+            <summary>
+            Creates a derived type
+            </summary>
+            <param name="segment">Data segment</param>
+            <returns></returns>
+        </member>
+        <member name="P:BrightData.LinearAlgebra.TensorBase`2.Computation">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.GetDataCopy">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.LinearAlgebra.TensorBase`2.Context">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.ToArray">
+            <summary>
+            Converts the data to an array
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.Add(`1)">
+            <summary>
+            Adds this to another tensor (new tensor returned - this tensor is not changed)
+            </summary>
+            <param name="tensor">Other tensor</param>
+            <returns>New tensor</returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.Add(`1,`0,`0)">
+            <summary>
+            Adds this to another tensor (new tensor returned - this tensor is not changed)
+            </summary>
+            <param name="tensor">Other tensor</param>
+            <param name="coefficient1">Value to multiply each element of this tensor</param>
+            <param name="coefficient2">Value to multiply each element of the other tensor</param>
+            <returns>New tensor</returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.Add(`0)">
+            <summary>
+            Adds a scalar to this tensor (new tensor returned - this tensor is not changed)
+            </summary>
+            <param name="scalar">Value to add to each element</param>
+            <returns>New tensor</returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.AddInPlace(`1)">
+            <summary>
+            Adds another tensor to this in place (this tensor is changed)
+            </summary>
+            <param name="tensor">Other tensor</param>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.AddInPlace(`1,`0,`0)">
+            <summary>
+            Adds another tensor to this in place (this tensor is changed)
+            </summary>
+            <param name="tensor">Other tensor</param>
+            <param name="coefficient1">Value to multiply each element of this tensor</param>
+            <param name="coefficient2">Value to multiply each element of the other tensor</param>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.AddInPlace(`0)">
+            <summary>
+            Adds a scalar to this in place (this tensor is changed)
+            </summary>
+            <param name="scalar">Value to add to each element</param>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.Subtract(`1)">
+            <summary>
+            Subtracts another tensor from this (new tensor returned - this tensor is not changed)
+            </summary>
+            <param name="tensor">Other tensor</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.Subtract(`1,`0,`0)">
+            <summary>
+            Subtracts another tensor from this (new tensor returned - this tensor is not changed)
+            </summary>
+            <param name="tensor">Other tensor</param>
+            <param name="coefficient1">Value to multiply each element of this tensor</param>
+            <param name="coefficient2">Value to multiply each element of the other tensor</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.SubtractInPlace(`1)">
+            <summary>
+            Subtracts another tensor from this in place (this tensor is changed)
+            </summary>
+            <param name="tensor">Other tensor</param>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.SubtractInPlace(`1,`0,`0)">
+            <summary>
+            Subtracts another tensor from this in place (this tensor is changed)
+            </summary>
+            <param name="tensor">Other tensor</param>
+            <param name="coefficient1">Value to multiply each element of this tensor</param>
+            <param name="coefficient2">Value to multiply each element of the other tensor</param>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.PointwiseMultiply(`1)">
+            <summary>
+            Multiplies each element with the corresponding element from the other tensor (new tensor returned - this tensor is not changed)
+            </summary>
+            <param name="tensor">Other tensor</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.PointwiseMultiplyInPlace(`1)">
+            <summary>
+            Multiplies each element with the corresponding element from the other tensor (this tensor is changed)
+            </summary>
+            <param name="tensor">Other tensor</param>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.Multiply(`0)">
+            <summary>
+            Multiplies each element with a value  (new tensor returned - this tensor is not changed)
+            </summary>
+            <param name="scalar">Value to multiply</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.MultiplyInPlace(`0)">
+            <summary>
+            Multiplies each element with a value (this tensor is changed)
+            </summary>
+            <param name="scalar">Value to multiply</param>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.PointwiseDivide(`1)">
+            <summary>
+            Divides each element with the corresponding element from the other tensor (new tensor returned - this tensor is not changed)
+            </summary>
+            <param name="tensor">Other tensor</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.PointwiseDivideInPlace(`1)">
+            <summary>
+            Divides each element with the corresponding element from the other tensor (this tensor is changed)
+            </summary>
+            <param name="tensor">Other tensor</param>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.Log">
+            <summary>
+            Creates a new tensor with each value set to the log of each element in this tensor
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.Abs">
+            <summary>
+            Creates a new tensor with each value set to the absolute value of each element in this tensor
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.Sqrt">
+            <summary>
+            Creates a new tensor with each value set to the square root of value of each element in this tensor
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.Squared">
+            <summary>
+            Creates a new tensor with each value set to the squared value of each element in this tensor
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.Pow(`0)">
+            <summary>
+            Creates a new tensor with each value set to pow(n) of element in this tensor
+            </summary>
+            <param name="power">Power</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.DotProduct(`1)">
+            <summary>
+            Computes the dot product of this tensor and another tensor
+            </summary>
+            <param name="tensor">Other tensor</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.Sum">
+            <summary>
+            Sums all elements of this tensor
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.Search(`0)">
+            <summary>
+            Finds the index of an element of this tensor
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.ConstrainInPlace(System.Nullable{`0},System.Nullable{`0})">
+            <summary>
+            Mutates this tensor so that any value outside the range will be modified to fit within
+            </summary>
+            <param name="minValue">Minimum allowed value</param>
+            <param name="maxValue">Maximum allowed value</param>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.Average">
+            <summary>
+            Finds the average of all elements within this tensor
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.L1Norm">
+            <summary>
+            Computes the L1 norm of this tensor
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.L2Norm">
+            <summary>
+            Computes the L2 norm of this tensor
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.CosineDistance(`1)">
+            <summary>
+            Calculates the cosine distance between this and another tensor
+            </summary>
+            <param name="tensor">Other tensor</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.EuclideanDistance(`1)">
+            <summary>
+            Computes the euclidean distance between this and another tensor
+            </summary>
+            <param name="tensor">Other tensor</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.ManhattanDistance(`1)">
+            <summary>
+            Computes the manhattan distance between this and another tensor
+            </summary>
+            <param name="tensor">Other tensor</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.Mean">
+            <summary>
+            Computes the average of the elements in this tensor
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.StdDev(System.Nullable{`0})">
+            <summary>
+            Computes the standard deviation of the elements in this tensor
+            </summary>
+            <param name="mean"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.Softmax">
+            <summary>
+            Computes the softmax
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.SoftmaxDerivative">
+            <summary>
+            Computes the softmax derivative
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.Sigmoid">
+            <summary>
+            Computes the sigmoid function of each element
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.SigmoidDerivative">
+            <summary>
+            Computes the sigmoid derivative of each element
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.Tanh">
+            <summary>
+            Computes tanh of each element in this tensor
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.TanhDerivative">
+            <summary>
+            Computes tanh derivative of each element in this tensor
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.Relu">
+            <summary>
+            Computes the relu of each element in this tensor
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.ReluDerivative">
+            <summary>
+            Computes the relu derivative of each element in this tensor
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.LeakyRelu">
+            <summary>
+            Computes the leaky relu of each element in this tensor
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.LeakyReluDerivative">
+            <summary>
+            Computes the leaky relu derivative of each element in this tensor
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.GetMinAndMaxValues">
+            <summary>
+            Finds the min and max values and indices from this tensnor
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.IsEntirelyFinite">
+            <summary>
+            Checks if each element is entirely finite (not infinity, NaN etc)
+            </summary>
+            <returns>True if all elements are finite</returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.Reverse">
+            <summary>
+            Reverse the order of the elements in this tensor
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.Split(System.UInt32)">
+            <summary>
+            Splits this tensor into segments
+            </summary>
+            <param name="blockCount">Number of blocks to split into</param>
+            <returns></returns>
+        </member>
+        <member name="P:BrightData.LinearAlgebra.TensorBase`2.Segment">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.Clone">
+            <summary>
+            Clones this tensor
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.Reshape">
+            <summary>
+            Reshapes to a vector
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.Reshape(System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
+            <summary>
+            Reshapes to a matrix
+            </summary>
+            <param name="rows">Number of rows</param>
+            <param name="columns">Number of columns</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.Reshape(System.Nullable{System.UInt32},System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
+            <summary>
+            Reshapes to a 3D tensor
+            </summary>
+            <param name="depth">Number of matrices</param>
+            <param name="rows">Number of rows</param>
+            <param name="columns">Number of columns</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.Reshape(System.Nullable{System.UInt32},System.Nullable{System.UInt32},System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
+            <summary>
+            Reshapes to a 4D tensor
+            </summary>
+            <param name="count">Number of 3D tensors</param>
+            <param name="depth">Number of matrices</param>
+            <param name="rows">Number of rows</param>
+            <param name="columns">Number of columns</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.MaximumIndex">
+            <summary>
+            Returns the index with the highest value
+            </summary>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.TensorBase`2.MinimumIndex">
+            <summary>
+            Returns the index with the lowest value
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:BrightData.LinearAlgebra.Vector`1">
+            <summary>
+            Generic vector
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="P:BrightData.LinearAlgebra.Vector`1.Size">
+            <summary>
+            Number of elements in the vector
+            </summary>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.Vector`1.Create(BrightData.ITensorSegment{`0})">
+            <summary>
+            Creates a vector from a tensor segment
+            </summary>
+            <param name="segment">Tensor segment that will be used</param>
+        </member>
+        <member name="P:BrightData.LinearAlgebra.Vector`1.Item(System.Int32)">
+            <summary>
+            Returns the value at the specified index
+            </summary>
+            <param name="index">Index to retrieve</param>
+            <returns></returns>
+        </member>
+        <member name="P:BrightData.LinearAlgebra.Vector`1.Item(System.UInt32)">
+            <summary>
+            Returns the value at the specified index
+            </summary>
+            <param name="index">Index to retrieve</param>
+        </member>
+        <member name="P:BrightData.LinearAlgebra.Vector`1.Values">
+            <summary>
+            The values in the vector
+            </summary>
+        </member>
+        <member name="M:BrightData.LinearAlgebra.Vector`1.ToString">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.LinearAlgebra.Vector`1.CopyFrom(`0[])">
+            <summary>
+            Copies from an array into this vector
+            </summary>
+            <param name="array">Array to copy from</param>
         </member>
         <member name="T:BrightData.Memory.MemoryLayer">
             <summary>
@@ -5106,562 +6248,6 @@
         <member name="M:BrightData.Segment.GrowableSegment`1.CopyTo(System.IO.Stream)">
             <inheritdoc />
         </member>
-        <member name="T:BrightData.Tensor3D`1">
-            <summary>
-            3D tensor type
-            </summary>
-            <typeparam name="T">Data type within the tensor</typeparam>
-        </member>
-        <member name="P:BrightData.Tensor3D`1.Depth">
-            <summary>
-            Number of matrices
-            </summary>
-        </member>
-        <member name="P:BrightData.Tensor3D`1.RowCount">
-            <summary>
-            Number of rows within each matrix
-            </summary>
-        </member>
-        <member name="P:BrightData.Tensor3D`1.ColumnCount">
-            <summary>
-            Number of columns within each matrix
-            </summary>
-        </member>
-        <member name="P:BrightData.Tensor3D`1.MatrixSize">
-            <summary>
-            Size of each matrix
-            </summary>
-        </member>
-        <member name="P:BrightData.Tensor3D`1.Item(System.Int32,System.Int32,System.Int32)">
-            <summary>
-            Returns the value at the specified index
-            </summary>
-            <param name="depth">Index of the matrix</param>
-            <param name="rowY">Row within the matrix</param>
-            <param name="columnX">Column within the matrix</param>
-            <returns></returns>
-        </member>
-        <member name="P:BrightData.Tensor3D`1.Item(System.UInt32,System.UInt32,System.UInt32)">
-            <summary>
-            Returns the value at the specified index
-            </summary>
-            <param name="depth">Index of the matrix</param>
-            <param name="rowY">Row within the matrix</param>
-            <param name="columnX">Column within the matrix</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.Tensor3D`1.Matrix(System.UInt32)">
-            <summary>
-            Returns a matrix at the specified index
-            </summary>
-            <param name="index">Matrix index</param>
-            <returns></returns>
-        </member>
-        <member name="P:BrightData.Tensor3D`1.Matrices">
-            <summary>
-            All matrices
-            </summary>
-        </member>
-        <member name="M:BrightData.Tensor3D`1.ToString">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Tensor3D`1.Create(BrightData.ITensorSegment{`0})">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Tensor3D`1.GetAsRaw">
-            <summary>
-            Converts the segment to a column major vector (default is row major)
-            </summary>
-        </member>
-        <member name="T:BrightData.Tensor4D`1">
-            <summary>
-            4D tensor type
-            </summary>
-            <typeparam name="T">Data type within the tensor</typeparam>
-        </member>
-        <member name="P:BrightData.Tensor4D`1.Count">
-            <summary>
-            Number of 3D tensors
-            </summary>
-        </member>
-        <member name="P:BrightData.Tensor4D`1.Depth">
-            <summary>
-            Number of matrices within each 3D tensor
-            </summary>
-        </member>
-        <member name="P:BrightData.Tensor4D`1.RowCount">
-            <summary>
-            Number of rows within each matrix
-            </summary>
-        </member>
-        <member name="P:BrightData.Tensor4D`1.ColumnCount">
-            <summary>
-            Number of columns within each matrix
-            </summary>
-        </member>
-        <member name="P:BrightData.Tensor4D`1.MatrixSize">
-            <summary>
-            Size of each matrix
-            </summary>
-        </member>
-        <member name="P:BrightData.Tensor4D`1.TensorSize">
-            <summary>
-            Size of each 3D tensor
-            </summary>
-        </member>
-        <member name="P:BrightData.Tensor4D`1.Item(System.Int32,System.Int32,System.Int32,System.Int32)">
-            <summary>
-            Returns the value at the specified index
-            </summary>
-            <param name="count">3D tensor index</param>
-            <param name="depth">Matrix depth within the 3D tensor</param>
-            <param name="rowY">Row within the matrix</param>
-            <param name="columnX">Column within the matrix</param>
-        </member>
-        <member name="P:BrightData.Tensor4D`1.Item(System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
-            <summary>
-            Returns the value at the specified index
-            </summary>
-            <param name="count">3D tensor index</param>
-            <param name="depth">Matrix depth within the 3D tensor</param>
-            <param name="rowY">Row within the matrix</param>
-            <param name="columnX">Column within the matrix</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.Tensor4D`1.Tensor(System.UInt32)">
-            <summary>
-            Returns a nested 3D tensor
-            </summary>
-            <param name="index">Tensor index</param>
-        </member>
-        <member name="P:BrightData.Tensor4D`1.Tensors">
-            <summary>
-            All 3D tensors
-            </summary>
-        </member>
-        <member name="M:BrightData.Tensor4D`1.ToString">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Tensor4D`1.Create(BrightData.ITensorSegment{`0})">
-            <inheritdoc />
-        </member>
-        <member name="T:BrightData.TensorBase`2">
-            <summary>
-            Base class for tensors
-            </summary>
-            <typeparam name="T">Data type within the tensor</typeparam>
-            <typeparam name="DT">Underlying type (vector, matrix etc)</typeparam>
-        </member>
-        <member name="F:BrightData.TensorBase`2._segment">
-            <summary>
-            Data segment
-            </summary>
-        </member>
-        <member name="M:BrightData.TensorBase`2.#ctor(BrightData.ITensorSegment{`0},System.UInt32[])">
-            <summary>
-            Constructor
-            </summary>
-            <param name="segment">Data segment</param>
-            <param name="shape">Shape of tensor</param>
-        </member>
-        <member name="M:BrightData.TensorBase`2.#ctor(BrightData.IBrightDataContext,System.IO.BinaryReader)">
-            <summary>
-            Initialize from binary reader
-            </summary>
-            <param name="context">Bright data context</param>
-            <param name="reader">Reader to initialize from</param>
-        </member>
-        <member name="M:BrightData.TensorBase`2.Initialize(BrightData.IBrightDataContext,System.IO.BinaryReader)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.TensorBase`2.Dispose">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.TensorBase`2.WriteTo(System.IO.BinaryWriter)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.TensorBase`2.Create(BrightData.ITensorSegment{`0})">
-            <summary>
-            Creates a derived type
-            </summary>
-            <param name="segment">Data segment</param>
-            <returns></returns>
-        </member>
-        <member name="P:BrightData.TensorBase`2.Computation">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.TensorBase`2.GetDataCopy">
-            <inheritdoc />
-        </member>
-        <member name="P:BrightData.TensorBase`2.Context">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.TensorBase`2.ToArray">
-            <summary>
-            Converts the data to an array
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.TensorBase`2.Add(`1)">
-            <summary>
-            Adds this to another tensor (new tensor returned - this tensor is not changed)
-            </summary>
-            <param name="tensor">Other tensor</param>
-            <returns>New tensor</returns>
-        </member>
-        <member name="M:BrightData.TensorBase`2.Add(`1,`0,`0)">
-            <summary>
-            Adds this to another tensor (new tensor returned - this tensor is not changed)
-            </summary>
-            <param name="tensor">Other tensor</param>
-            <param name="coefficient1">Value to multiply each element of this tensor</param>
-            <param name="coefficient2">Value to multiply each element of the other tensor</param>
-            <returns>New tensor</returns>
-        </member>
-        <member name="M:BrightData.TensorBase`2.Add(`0)">
-            <summary>
-            Adds a scalar to this tensor (new tensor returned - this tensor is not changed)
-            </summary>
-            <param name="scalar">Value to add to each element</param>
-            <returns>New tensor</returns>
-        </member>
-        <member name="M:BrightData.TensorBase`2.AddInPlace(`1)">
-            <summary>
-            Adds another tensor to this in place (this tensor is changed)
-            </summary>
-            <param name="tensor">Other tensor</param>
-        </member>
-        <member name="M:BrightData.TensorBase`2.AddInPlace(`1,`0,`0)">
-            <summary>
-            Adds another tensor to this in place (this tensor is changed)
-            </summary>
-            <param name="tensor">Other tensor</param>
-            <param name="coefficient1">Value to multiply each element of this tensor</param>
-            <param name="coefficient2">Value to multiply each element of the other tensor</param>
-        </member>
-        <member name="M:BrightData.TensorBase`2.AddInPlace(`0)">
-            <summary>
-            Adds a scalar to this in place (this tensor is changed)
-            </summary>
-            <param name="scalar">Value to add to each element</param>
-        </member>
-        <member name="M:BrightData.TensorBase`2.Subtract(`1)">
-            <summary>
-            Subtracts another tensor from this (new tensor returned - this tensor is not changed)
-            </summary>
-            <param name="tensor">Other tensor</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.TensorBase`2.Subtract(`1,`0,`0)">
-            <summary>
-            Subtracts another tensor from this (new tensor returned - this tensor is not changed)
-            </summary>
-            <param name="tensor">Other tensor</param>
-            <param name="coefficient1">Value to multiply each element of this tensor</param>
-            <param name="coefficient2">Value to multiply each element of the other tensor</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.TensorBase`2.SubtractInPlace(`1)">
-            <summary>
-            Subtracts another tensor from this in place (this tensor is changed)
-            </summary>
-            <param name="tensor">Other tensor</param>
-        </member>
-        <member name="M:BrightData.TensorBase`2.SubtractInPlace(`1,`0,`0)">
-            <summary>
-            Subtracts another tensor from this in place (this tensor is changed)
-            </summary>
-            <param name="tensor">Other tensor</param>
-            <param name="coefficient1">Value to multiply each element of this tensor</param>
-            <param name="coefficient2">Value to multiply each element of the other tensor</param>
-        </member>
-        <member name="M:BrightData.TensorBase`2.PointwiseMultiply(`1)">
-            <summary>
-            Multiplies each element with the corresponding element from the other tensor (new tensor returned - this tensor is not changed)
-            </summary>
-            <param name="tensor">Other tensor</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.TensorBase`2.PointwiseMultiplyInPlace(`1)">
-            <summary>
-            Multiplies each element with the corresponding element from the other tensor (this tensor is changed)
-            </summary>
-            <param name="tensor">Other tensor</param>
-        </member>
-        <member name="M:BrightData.TensorBase`2.Multiply(`0)">
-            <summary>
-            Multiplies each element with a value  (new tensor returned - this tensor is not changed)
-            </summary>
-            <param name="scalar">Value to multiply</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.TensorBase`2.MultiplyInPlace(`0)">
-            <summary>
-            Multiplies each element with a value (this tensor is changed)
-            </summary>
-            <param name="scalar">Value to multiply</param>
-        </member>
-        <member name="M:BrightData.TensorBase`2.PointwiseDivide(`1)">
-            <summary>
-            Divides each element with the corresponding element from the other tensor (new tensor returned - this tensor is not changed)
-            </summary>
-            <param name="tensor">Other tensor</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.TensorBase`2.PointwiseDivideInPlace(`1)">
-            <summary>
-            Divides each element with the corresponding element from the other tensor (this tensor is changed)
-            </summary>
-            <param name="tensor">Other tensor</param>
-        </member>
-        <member name="M:BrightData.TensorBase`2.Log">
-            <summary>
-            Creates a new tensor with each value set to the log of each element in this tensor
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.TensorBase`2.Abs">
-            <summary>
-            Creates a new tensor with each value set to the absolute value of each element in this tensor
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.TensorBase`2.Sqrt">
-            <summary>
-            Creates a new tensor with each value set to the square root of value of each element in this tensor
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.TensorBase`2.Squared">
-            <summary>
-            Creates a new tensor with each value set to the squared value of each element in this tensor
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.TensorBase`2.Pow(`0)">
-            <summary>
-            Creates a new tensor with each value set to pow(n) of element in this tensor
-            </summary>
-            <param name="power">Power</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.TensorBase`2.DotProduct(`1)">
-            <summary>
-            Computes the dot product of this tensor and another tensor
-            </summary>
-            <param name="tensor">Other tensor</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.TensorBase`2.Sum">
-            <summary>
-            Sums all elements of this tensor
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.TensorBase`2.Search(`0)">
-            <summary>
-            Finds the index of an element of this tensor
-            </summary>
-            <param name="value"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.TensorBase`2.ConstrainInPlace(System.Nullable{`0},System.Nullable{`0})">
-            <summary>
-            Mutates this tensor so that any value outside the range will be modified to fit within
-            </summary>
-            <param name="minValue">Minimum allowed value</param>
-            <param name="maxValue">Maximum allowed value</param>
-        </member>
-        <member name="M:BrightData.TensorBase`2.Average">
-            <summary>
-            Finds the average of all elements within this tensor
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.TensorBase`2.L1Norm">
-            <summary>
-            Computes the L1 norm of this tensor
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.TensorBase`2.L2Norm">
-            <summary>
-            Computes the L2 norm of this tensor
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.TensorBase`2.CosineDistance(`1)">
-            <summary>
-            Calculates the cosine distance between this and another tensor
-            </summary>
-            <param name="tensor">Other tensor</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.TensorBase`2.EuclideanDistance(`1)">
-            <summary>
-            Computes the euclidean distance between this and another tensor
-            </summary>
-            <param name="tensor">Other tensor</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.TensorBase`2.ManhattanDistance(`1)">
-            <summary>
-            Computes the manhattan distance between this and another tensor
-            </summary>
-            <param name="tensor">Other tensor</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.TensorBase`2.Mean">
-            <summary>
-            Computes the average of the elements in this tensor
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.TensorBase`2.StdDev(System.Nullable{`0})">
-            <summary>
-            Computes the standard deviation of the elements in this tensor
-            </summary>
-            <param name="mean"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.TensorBase`2.Softmax">
-            <summary>
-            Computes the softmax
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.TensorBase`2.SoftmaxDerivative">
-            <summary>
-            Computes the softmax derivative
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.TensorBase`2.Sigmoid">
-            <summary>
-            Computes the sigmoid function of each element
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.TensorBase`2.SigmoidDerivative">
-            <summary>
-            Computes the sigmoid derivative of each element
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.TensorBase`2.Tanh">
-            <summary>
-            Computes tanh of each element in this tensor
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.TensorBase`2.TanhDerivative">
-            <summary>
-            Computes tanh derivative of each element in this tensor
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.TensorBase`2.Relu">
-            <summary>
-            Computes the relu of each element in this tensor
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.TensorBase`2.ReluDerivative">
-            <summary>
-            Computes the relu derivative of each element in this tensor
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.TensorBase`2.LeakyRelu">
-            <summary>
-            Computes the leaky relu of each element in this tensor
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.TensorBase`2.LeakyReluDerivative">
-            <summary>
-            Computes the leaky relu derivative of each element in this tensor
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.TensorBase`2.GetMinAndMaxValues">
-            <summary>
-            Finds the min and max values and indices from this tensnor
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.TensorBase`2.IsEntirelyFinite">
-            <summary>
-            Checks if each element is entirely finite (not infinity, NaN etc)
-            </summary>
-            <returns>True if all elements are finite</returns>
-        </member>
-        <member name="M:BrightData.TensorBase`2.Reverse">
-            <summary>
-            Reverse the order of the elements in this tensor
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.TensorBase`2.Split(System.UInt32)">
-            <summary>
-            Splits this tensor into segments
-            </summary>
-            <param name="blockCount">Number of blocks to split into</param>
-            <returns></returns>
-        </member>
-        <member name="P:BrightData.TensorBase`2.Segment">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.TensorBase`2.Clone">
-            <summary>
-            Clones this tensor
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.TensorBase`2.Reshape">
-            <summary>
-            Reshapes to a vector
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.TensorBase`2.Reshape(System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
-            <summary>
-            Reshapes to a matrix
-            </summary>
-            <param name="rows">Number of rows</param>
-            <param name="columns">Number of columns</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.TensorBase`2.Reshape(System.Nullable{System.UInt32},System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
-            <summary>
-            Reshapes to a 3D tensor
-            </summary>
-            <param name="depth">Number of matrices</param>
-            <param name="rows">Number of rows</param>
-            <param name="columns">Number of columns</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.TensorBase`2.Reshape(System.Nullable{System.UInt32},System.Nullable{System.UInt32},System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
-            <summary>
-            Reshapes to a 4D tensor
-            </summary>
-            <param name="count">Number of 3D tensors</param>
-            <param name="depth">Number of matrices</param>
-            <param name="rows">Number of rows</param>
-            <param name="columns">Number of columns</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.TensorBase`2.MaximumIndex">
-            <summary>
-            Returns the index with the highest value
-            </summary>
-        </member>
-        <member name="M:BrightData.TensorBase`2.MinimumIndex">
-            <summary>
-            Returns the index with the lowest value
-            </summary>
-            <returns></returns>
-        </member>
         <member name="T:BrightData.Transformation.ColumnConversion">
             <summary>
             Parameters that define a column conversion from one type to another
@@ -5690,6 +6276,12 @@
             <param name="type">Type of normalization</param>
             <param name="analysedMetaData">Numeric analysis</param>
         </member>
+        <member name="M:BrightData.Transformation.NormalizeTransformation.WriteTo(BrightData.IMetaData)">
+            <summary>
+            Writes the normalization parameters to a meta data store
+            </summary>
+            <param name="metaData"></param>
+        </member>
         <member name="P:BrightData.Transformation.NormalizeTransformation.NormalizationType">
             <summary>
             Type of normalization
@@ -5716,50 +6308,6 @@
             <summary>
             Parameters that define how to reinterpret the columns in a data table
             </summary>
-        </member>
-        <member name="T:BrightData.Vector`1">
-            <summary>
-            Generic vector
-            </summary>
-            <typeparam name="T"></typeparam>
-        </member>
-        <member name="P:BrightData.Vector`1.Size">
-            <summary>
-            Number of elements in the vector
-            </summary>
-        </member>
-        <member name="M:BrightData.Vector`1.Create(BrightData.ITensorSegment{`0})">
-            <summary>
-            Creates a vector from a tensor segment
-            </summary>
-            <param name="segment">Tensor segment that will be used</param>
-        </member>
-        <member name="P:BrightData.Vector`1.Item(System.Int32)">
-            <summary>
-            Returns the value at the specified index
-            </summary>
-            <param name="index">Index to retrieve</param>
-            <returns></returns>
-        </member>
-        <member name="P:BrightData.Vector`1.Item(System.UInt32)">
-            <summary>
-            Returns the value at the specified index
-            </summary>
-            <param name="index">Index to retrieve</param>
-        </member>
-        <member name="P:BrightData.Vector`1.Values">
-            <summary>
-            The values in the vector
-            </summary>
-        </member>
-        <member name="M:BrightData.Vector`1.ToString">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Vector`1.CopyFrom(`0[])">
-            <summary>
-            Copies from an array into this vector
-            </summary>
-            <param name="array">Array to copy from</param>
         </member>
         <member name="T:BrightData.WeightedIndexList">
             <summary>

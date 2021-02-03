@@ -42,7 +42,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
                 item.Backpropagation?.Dispose();
             _forward.Clear();
 
-            _ClearBackward();
+            ClearBackward();
             _nodeErrorSignal.Clear();
 
             foreach (var item in _history) {
@@ -117,7 +117,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             .ToArray()
         ;
 
-	    void _ClearBackward()
+	    void ClearBackward()
         {
             _backward.Clear();
         }
@@ -131,14 +131,14 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             }
 
             // initialise backpropagation stack
-            _ClearBackward();
+            ClearBackward();
             AddBackward(delta, _sourceNode, null);
 
             // backpropagate the error through the graph
             _errorSignal = null;
             while (_backward.Any()) {
                 var next = _backward.Pop();
-                _errorSignal = _GetErrorSignal(next.ErrorSignal, next.Target);
+                _errorSignal = GetErrorSignal(next.ErrorSignal, next.Target);
 
                 if (next.Target != null && _history.TryGetValue(next.Target, out var history)) {
                     foreach (var item in history) {
@@ -154,7 +154,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             }
         }
 
-        IGraphData? _GetErrorSignal(IGraphData errorSignal, INode node)
+        IGraphData? GetErrorSignal(IGraphData errorSignal, INode node)
         {
             var list = new List<IGraphData>();
 

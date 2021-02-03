@@ -60,7 +60,7 @@ namespace BrightWire.UnitTests
         {
             var results = engine.Execute(data)?.FirstOrDefault();
             results.Should().NotBeNull();
-            bool Handle(Vector<float> value) => value[0] > 0.5f;
+            static bool Handle(Vector<float> value) => value[0] > 0.5f;
             results.Output.Zip(results.Target, (result, target) => Handle(result) == Handle(target)).All(x => x)
                 .Should().BeTrue();
         }
@@ -90,12 +90,12 @@ namespace BrightWire.UnitTests
         //    AssertEngineGetsGoodResults(engine, data);
         //}
 
-        void _AssertEqual<T>(T[] array1, T[] array2)
-        {
-            array1.Should().HaveSameCount(array2);
-            for (var i = 0; i < array1.Length; i++)
-                array1[i].Should().Be(array2[i]);
-        }
+        //void _AssertEqual<T>(T[] array1, T[] array2)
+        //{
+        //    array1.Should().HaveSameCount(array2);
+        //    for (var i = 0; i < array1.Length; i++)
+        //        array1[i].Should().Be(array2[i]);
+        //}
 
         //[Fact]
         //public void DeserialiseVectorisationModel()

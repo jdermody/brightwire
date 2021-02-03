@@ -13,8 +13,8 @@ namespace ExampleCode.Extensions
     /// </summary>
     internal class SeluActivation : NodeBase
     {
-        const float ALPHA = 1.6732632423543772848170429916717f;
-        const float SCALE = 1.0507009873554804934193349852946f;
+        const float Alpha = 1.6732632423543772848170429916717f;
+        const float Scale = 1.0507009873554804934193349852946f;
 
         /// <summary>
         /// Backpropagation of SELU activation
@@ -30,14 +30,14 @@ namespace ExampleCode.Extensions
                 {
                     var x = matrix[i, j];
                     if (x >= 0)
-                        return SCALE;
-                    return SCALE * ALPHA * FloatMath.Exp(x);
+                        return Scale;
+                    return Scale * Alpha * FloatMath.Exp(x);
                 });
                 return errorSignal.ReplaceWith(delta);
             }
         }
 
-        public SeluActivation(string name = null) : base(name) { }
+        public SeluActivation(string? name = null) : base(name) { }
 
         public override void ExecuteForward(IGraphContext context)
         {
@@ -46,8 +46,8 @@ namespace ExampleCode.Extensions
             {
                 var x = matrix[i, j];
                 if (x >= 0)
-                    return SCALE * x;
-                return SCALE * (ALPHA * FloatMath.Exp(x) - ALPHA);
+                    return Scale * x;
+                return Scale * (Alpha * FloatMath.Exp(x) - Alpha);
             });
             _AddNextGraphAction(context, context.Data.ReplaceWith(output), () => new Backpropagation(this));
         }

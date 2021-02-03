@@ -51,16 +51,16 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 	    public override uint[][] GetBuckets()
         {
             return _rowDepth
-                .Select((r, i) => (r, i))
-                .GroupBy(t => t.Item1)
-                .Select(g => g.Select(d => (uint)d.Item2).ToArray())
+                .Select((r, i) => (Row: r, Index: i))
+                .GroupBy(t => t.Row)
+                .Select(g => g.Select(d => (uint)d.Index).ToArray())
                 .ToArray()
             ;
         }
 
         public override IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rows)
         {
-            var data = _GetRows(rows)
+            var data = GetRows(rows)
                 .Select(r => ((Matrix<float>)r[_dataColumnIndex[0]], (Vector<float>)r[_dataTargetIndex]))
                 .ToList()
             ;
@@ -68,7 +68,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             foreach (var item in data) {
                 var input = item.Item1;
                 for (uint i = 0, len = input.RowCount; i < len; i++) {
-                    if (!inputData.TryGetValue(i, out List<Vector<float>> temp))
+                    if (!inputData.TryGetValue(i, out var temp))
                         inputData.Add(i, temp = new List<Vector<float>>());
                     temp.Add(input.Row(i));
                 }

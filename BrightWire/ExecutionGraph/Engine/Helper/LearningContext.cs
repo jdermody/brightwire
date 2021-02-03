@@ -106,8 +106,8 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public void ApplyUpdates()
         {
             BackpropagateThroughTime(null);
-            foreach(var item in _layerUpdate)
-                item.Updater(item.Error);
+            foreach(var (error, updater) in _layerUpdate)
+                updater(error);
             _layerUpdate.Clear();
         }
 
@@ -119,11 +119,12 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public void BackpropagateThroughTime(IGraphData signal, int maxDepth = int.MaxValue)
         {
             int depth = 0;
+            IGraphData? currentSignal = signal;
             while (_deferredBackpropagation.Count > 0 && depth < maxDepth) {
-                var next = _deferredBackpropagation.Pop();
+                var (data, callback) = _deferredBackpropagation.Pop();
                 // TODO: add signal to the data?
-                next.Callback(signal ?? next.Data);
-                signal = null;
+                callback(currentSignal ?? data);
+                currentSignal = null;
                 ++depth;
             }
             _deferredBackpropagation.Clear();

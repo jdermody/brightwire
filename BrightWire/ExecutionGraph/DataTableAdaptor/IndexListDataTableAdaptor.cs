@@ -48,8 +48,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 
         public override IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rows)
         {
-            var data = _GetRows(rows).Select(r => (new[] { Encode(r.Item1)}, r.Item2)).ToArray();
-            return _GetMiniBatch(rows, data);
+            var data = GetRows(rows).Select(r => (new[] { Encode(r.Item1)}, r.Item2)).ToArray();
+            return GetMiniBatch(rows, data);
         }
 
         public override IDataSource CloneWith(IRowOrientedDataTable dataTable)

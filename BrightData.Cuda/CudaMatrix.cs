@@ -21,8 +21,8 @@ namespace BrightData.Cuda
         bool _disposed = false;
 #if DEBUG
         static int _gid = 0;
-        static int _GetNextIndex() => Interlocked.Increment(ref _gid);
-        readonly int _id = _GetNextIndex();
+        static int GetNextIndex() => Interlocked.Increment(ref _gid);
+        readonly int _id = GetNextIndex();
         public static int _badAlloc = -1;
         public static int _badDispose = -1;
 
@@ -220,7 +220,7 @@ namespace BrightData.Cuda
             Debug.Assert(IsValid);
 
             var ret = _cuda.Allocate(length);
-            ret.DeviceVariable.CopyToDevice(_data.DeviceVariable, ((columnIndex * _rows) + rowIndex) * CudaProvider.FLOAT_SIZE, 0, length * CudaProvider.FLOAT_SIZE);
+            ret.DeviceVariable.CopyToDevice(_data.DeviceVariable, ((columnIndex * _rows) + rowIndex) * CudaProvider.FloatSize, 0, length * CudaProvider.FloatSize);
 
             return new CudaVector(_cuda, ret, true);
         }
@@ -232,7 +232,7 @@ namespace BrightData.Cuda
             var indices = columnIndices.ToList();
             var ret = _cuda.Allocate(_rows * (uint)indices.Count);
             foreach (var item in indices) {
-                ret.DeviceVariable.CopyToDevice(_data.DeviceVariable, item * _rows * CudaProvider.FLOAT_SIZE, offset * CudaProvider.FLOAT_SIZE, _rows * CudaProvider.FLOAT_SIZE);
+                ret.DeviceVariable.CopyToDevice(_data.DeviceVariable, item * _rows * CudaProvider.FloatSize, offset * CudaProvider.FloatSize, _rows * CudaProvider.FloatSize);
                 offset += _rows;
             }
             return new CudaMatrix(_cuda, _rows, (uint)indices.Count, ret, true);
@@ -247,9 +247,9 @@ namespace BrightData.Cuda
             foreach (var item in indices) {
                 CudaBlasNativeMethods.cublasScopy_v2(_cuda.Blas.CublasHandle,
                     n: (int)_columns,
-                    x: _data.DevicePointer + (item * CudaProvider.FLOAT_SIZE),
+                    x: _data.DevicePointer + (item * CudaProvider.FloatSize),
                     incx: (int)_rows,
-                    y: ret.DevicePointer + (offset * CudaProvider.FLOAT_SIZE),
+                    y: ret.DevicePointer + (offset * CudaProvider.FloatSize),
                     incy: indices.Count
                 );
                 offset += 1;
@@ -260,7 +260,7 @@ namespace BrightData.Cuda
         public IFloatVector GetRowSegment(uint rowIndex, uint columnIndex, uint length)
         {
             Debug.Assert(IsValid);
-            var offset = (rowIndex + (columnIndex * _rows)) * CudaProvider.FLOAT_SIZE;
+            var offset = (rowIndex + (columnIndex * _rows)) * CudaProvider.FloatSize;
             var ret = _cuda.Allocate(length);
             CudaBlasNativeMethods.cublasScopy_v2(_cuda.Blas.CublasHandle, (int)length, _data.DevicePointer + offset, (int)_rows, ret.DevicePointer, 1);
             return new CudaVector(_cuda, ret, true);
@@ -378,7 +378,7 @@ namespace BrightData.Cuda
         {
             Debug.Assert(IsValid);
             var ret = _cuda.Allocate(_columns);
-            var offset = index * CudaProvider.FLOAT_SIZE;
+            var offset = index * CudaProvider.FloatSize;
             CudaBlasNativeMethods.cublasScopy_v2(_cuda.Blas.CublasHandle, (int)_columns, _data.DevicePointer + offset, (int)_rows, ret.DevicePointer, 1);
             return new CudaVector(_cuda, ret, true);
         }
@@ -423,7 +423,7 @@ namespace BrightData.Cuda
             var ret = _cuda.Allocate(_rows * _columns);
             for (var i = 0; i < _rows; i++) {
                 using var row = rowOutput[i];
-                ret.DeviceVariable.CopyToDevice(row.Memory.DeviceVariable, 0, _columns * i * CudaProvider.FLOAT_SIZE, _columns * CudaProvider.FLOAT_SIZE);
+                ret.DeviceVariable.CopyToDevice(row.Memory.DeviceVariable, 0, _columns * i * CudaProvider.FloatSize, _columns * CudaProvider.FloatSize);
             }
 
             using var temp = new CudaMatrix(_cuda, _columns, _rows, ret, true);

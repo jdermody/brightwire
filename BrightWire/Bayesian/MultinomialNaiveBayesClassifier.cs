@@ -43,12 +43,10 @@ namespace BrightWire.Bayesian
             _classification = model.ClassData.Select(c => new Classification(c)).ToList();
         }
 
-        List<(string, double)> _Classify(uint[] stringIndexList)
+        IEnumerable<(string Classification, double Score)> Classify(uint[] stringIndexList)
         {
-            var ret = new List<(string, double)>();
             foreach (var cls in _classification)
-                ret.Add((cls.Label, cls.GetScore(stringIndexList)));
-            return ret;
+                yield return (cls.Label, cls.GetScore(stringIndexList));
         }
 
         /// <summary>
@@ -56,10 +54,10 @@ namespace BrightWire.Bayesian
         /// </summary>
         public (string Label, float Weight)[] Classify(IndexList indexList)
         {
-            return _Classify(indexList.Indices)
-                .OrderByDescending(kv => kv.Item2)
+            return Classify(indexList.Indices)
+                .OrderByDescending(kv => kv.Score)
                 .Take(1)
-                .Select((d, i) => (d.Item1, 1f))
+                .Select((d, i) => (d.Classification, 1f))
                 .ToArray();
         }
     }

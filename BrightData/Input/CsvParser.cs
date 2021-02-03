@@ -29,16 +29,16 @@ namespace BrightData.Input
         public IEnumerable<string[]> Parse()
         {
             while(!_stream.EndOfStream) {
-                foreach(var line in _ReadPage())
+                foreach(var line in ReadPage())
                     yield return line;
                 OnProgress?.Invoke((int) (_stream.BaseStream.Position * 100 / _stream.BaseStream.Length));
             }
-            var lastLine = _GetLine();
+            var lastLine = GetLine();
             if(lastLine.Any(s => s.Length > 0))
                 yield return lastLine;
         }
 
-        StringBuilder _GetBuilder(bool increment)
+        StringBuilder GetBuilder(bool increment)
         {
             if(increment)
                 _currIndex++;
@@ -47,10 +47,10 @@ namespace BrightData.Input
             return _columns[_currIndex];
         }
 
-        IEnumerable<string[]> _ReadPage()
+        IEnumerable<string[]> ReadPage()
         {
             var len = _stream.Read(_buffer);
-            var curr = _GetBuilder(false);
+            var curr = GetBuilder(false);
 
             for (var i = 0; i < len; i++)
             {
@@ -59,13 +59,13 @@ namespace BrightData.Input
                     // ReSharper disable once RedundantJumpStatement
                     continue;
                 }
-                else if(ch == '\n' && !_inQuote) {
-                    var line = _GetLine();
+                if(ch == '\n' && !_inQuote) {
+                    var line = GetLine();
                     if(line.Any(s => s.Length > 0))
                         yield return line;
-                    curr = _GetBuilder(false);
+                    curr = GetBuilder(false);
                 } else if(ch == _delimiter && !_inQuote)
-                    curr = _GetBuilder(true);
+                    curr = GetBuilder(true);
                 else if(ch == _quote) {
                     // TODO: look for escaped quotes?
                     _inQuote = !_inQuote;
@@ -76,7 +76,7 @@ namespace BrightData.Input
             }
         }
 
-        string[] _GetLine()
+        string[] GetLine()
         {
             var ret = new string[_columns.Count];
             for (int i = 0, len = _columns.Count; i < len; i++)

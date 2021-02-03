@@ -19,6 +19,10 @@ namespace ExampleCode
             using var context = new BrightDataContext(0);
             var useCuda = false;
 
+            var test = "1234";
+            var test2 = test[..2];
+            var test3 = test[2..];
+
             // CPU based performance can be improved using the Intel Math Kernel Library...
             // IMPORTANT: uncomment below if you have installed native binaries as described in https://numerics.mathdotnet.com/MKL.html
             //Control.UseNativeMKL();
@@ -133,13 +137,13 @@ namespace ExampleCode
         static void MNISTFeedForward(IBrightDataContext context, bool useCuda)
         {
             Start(context, useCuda);
-            context.MNIST().TrainFeedForwardNeuralNetwork();
+            context.Mnist().TrainFeedForwardNeuralNetwork();
         }
 
         static void MNISTConvolutional(IBrightDataContext context, bool useCuda)
         {
             Start(context, useCuda);
-            context.MNIST().TrainConvolutionalNeuralNetwork();
+            context.Mnist().TrainConvolutionalNeuralNetwork();
         }
 
         static void SentimentClassification(IBrightDataContext context, bool useCuda)

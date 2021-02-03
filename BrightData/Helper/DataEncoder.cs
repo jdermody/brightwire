@@ -123,36 +123,36 @@ namespace BrightData.Helper
             }
 
             if (typeCode == TypeCode.Decimal) {
-                var ret = _ReadStructs<decimal>(len, reader);
+                var ret = ReadStructs<decimal>(len, reader);
                 return __refvalue(__makeref(ret), T[]);
             }
             if (typeCode == TypeCode.Double) {
-                var ret = _ReadStructs<double>(len, reader);
+                var ret = ReadStructs<double>(len, reader);
                 return __refvalue(__makeref(ret), T[]);
             }
             if (typeCode == TypeCode.Single) {
-                var ret = _ReadStructs<float>(len, reader);
+                var ret = ReadStructs<float>(len, reader);
                 return __refvalue(__makeref(ret), T[]);
             }
             if (typeCode == TypeCode.Int64) {
-                var ret = _ReadStructs<long>(len, reader);
+                var ret = ReadStructs<long>(len, reader);
                 return __refvalue(__makeref(ret), T[]);
             }
             if (typeCode == TypeCode.Int32) {
-                var ret = _ReadStructs<int>(len, reader);
+                var ret = ReadStructs<int>(len, reader);
                 return __refvalue(__makeref(ret), T[]);
             }
             if (typeCode == TypeCode.Int16) {
-                var ret = _ReadStructs<short>(len, reader);
+                var ret = ReadStructs<short>(len, reader);
                 return __refvalue(__makeref(ret), T[]);
             }
             if (typeCode == TypeCode.SByte) {
-                var ret = _ReadStructs<sbyte>(len, reader);
+                var ret = ReadStructs<sbyte>(len, reader);
                 return __refvalue(__makeref(ret), T[]);
             }
             if (typeCode == TypeCode.Boolean) {
                 // TODO: encode as bits?
-                var ret = _ReadStructs<bool>(len, reader);
+                var ret = ReadStructs<bool>(len, reader);
                 return __refvalue(__makeref(ret), T[]);
             }
             if (typeCode == TypeCode.DateTime) {
@@ -343,7 +343,7 @@ namespace BrightData.Helper
                 throw new NotImplementedException();
         }
 
-        static TS[] _ReadStructs<TS>(uint len, BinaryReader reader)
+        static TS[] ReadStructs<TS>(uint len, BinaryReader reader)
             where TS : struct
         {
             var ret = new TS[len];

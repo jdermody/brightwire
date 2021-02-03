@@ -59,7 +59,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         //    return context;
         //}
 
-        protected IGraphContext _Process(IGraphExecutionContext executionContext, IMiniBatchSequence sequence)
+        protected IGraphContext Process(IGraphExecutionContext executionContext, IMiniBatchSequence sequence)
         {
             var context = new TrainingEngineContext(executionContext, sequence, _learningContext);
             _input.ExecuteForward(context, 0);

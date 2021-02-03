@@ -157,12 +157,12 @@ namespace BrightData.Analysis
                             bin.Add(item.Key);
                     }
 
-                    foreach (var item in bin.ContinuousFrequency) {
-                        if (item.Count == 0 && (double.IsNegativeInfinity(item.Start) || double.IsPositiveInfinity(item.End)))
+                    foreach (var (s, e, c) in bin.ContinuousFrequency) {
+                        if (c == 0 && (double.IsNegativeInfinity(s) || double.IsPositiveInfinity(e)))
                             continue;
-                        var start = double.IsNegativeInfinity(item.Start) ? "-∞" : item.Start.ToString("G17");
-                        var end = double.IsPositiveInfinity(item.End) ? "∞" : item.End.ToString("G17");
-                        metadata.Set($"{Consts.FrequencyRangePrefix}{start}/{end}", item.Count / total);
+                        var start = double.IsNegativeInfinity(s) ? "-∞" : s.ToString("G17");
+                        var end = double.IsPositiveInfinity(e) ? "∞" : e.ToString("G17");
+                        metadata.Set($"{Consts.FrequencyRangePrefix}{start}/{end}", c / total);
                     }
                 }
             }

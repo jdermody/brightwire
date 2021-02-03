@@ -44,14 +44,14 @@ namespace BrightWire.ExecutionGraph.Engine
 			_lap.PushLayer();
             var provider = new MiniBatchProvider(dataSource, _random);
 			using (var executionContext = new ExecutionContext(_lap)) {
-				executionContext.Add(provider.GetMiniBatches(batchSize, mb => _Execute(executionContext, mb)));
+				executionContext.Add(provider.GetMiniBatches(batchSize, mb => Execute(executionContext, mb)));
 				float operationCount = executionContext.RemainingOperationCount;
 				float index = 0f;
 				IGraphOperation operation;
 				while ((operation = executionContext.GetNextOperation()) != null) {
 					_lap.PushLayer();
 					operation.Execute(executionContext);
-					_ClearContextList();
+					ClearContextList();
 					foreach (var item in _executionResults) {
 						uint outputIndex = 0;
 						foreach (var output in item.Output) {
@@ -72,7 +72,7 @@ namespace BrightWire.ExecutionGraph.Engine
 			_lap.PopLayer();
         }
 
-		protected override IEnumerable<ExecutionResult> _GetResults()
+		protected override IEnumerable<ExecutionResult> GetResults()
 		{
             foreach (var item in _executionResults) {
 				uint outputIndex = 0;
@@ -85,7 +85,7 @@ namespace BrightWire.ExecutionGraph.Engine
 			_executionResults.Clear();
         }
 
-		protected override void _ClearContextList()
+		protected override void ClearContextList()
 		{
 			foreach (var item in _contextList)
 				item.Dispose();
@@ -106,7 +106,7 @@ namespace BrightWire.ExecutionGraph.Engine
 				_lap.PushLayer();
 				operation.Execute(executionContext);
 				LearningContext.ApplyUpdates();
-				_ClearContextList();
+				ClearContextList();
 				_lap.PopLayer();
 
 				if (batchCompleteCallback != null) {
@@ -154,7 +154,7 @@ namespace BrightWire.ExecutionGraph.Engine
 		public ILinearAlgebraProvider LinearAlgebraProvider => _lap;
 		public INode Start { get; }
 
-		protected override void _Execute(IGraphExecutionContext executionContext, IMiniBatch batch)
+		protected override void Execute(IGraphExecutionContext executionContext, IMiniBatch batch)
 		{
 			_contextList.AddRange(_Train(executionContext, null, batch));
 		}
@@ -168,7 +168,7 @@ namespace BrightWire.ExecutionGraph.Engine
 					ret.Add(_Train(executionContext, learningContext, curr));
 
 				var contextTable = new Lazy<Dictionary<IMiniBatchSequence, TrainingEngineContext>>(() => ret.ToDictionary(c => c.BatchSequence, c => c));
-				var didContinue = _Continue(batch, executionContext, sequence => contextTable.Value[sequence]);
+				var didContinue = Continue(batch, executionContext, sequence => contextTable.Value[sequence]);
 				if (didContinue) {
 					foreach (var context in ret)
 						_CompleteSequence(context);

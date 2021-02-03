@@ -20,7 +20,7 @@ namespace BrightWire.UnitTests
             _factory = new GraphFactory(_cpu);
         }
 
-		void _TestNode(INode node, IFloatMatrix forwardInput, IFloatMatrix expectedForwardOutput, IFloatMatrix backwardInput, IFloatMatrix expectedBackwardOutput, bool isTraining = true)
+		void TestNode(INode node, IFloatMatrix forwardInput, IFloatMatrix expectedForwardOutput, IFloatMatrix backwardInput, IFloatMatrix expectedBackwardOutput, bool isTraining = true)
 		{
 			var context = new TestingContext(_cpu);
 			var matrix = forwardInput.AsIndexable();
@@ -39,90 +39,90 @@ namespace BrightWire.UnitTests
 
 		const uint SIZE = 2;
 
-		float _DefaultInit(uint i, uint j) => (i + 1) * (j + 1);
+		float DefaultInit(uint i, uint j) => (i + 1) * (j + 1);
 
 		[Fact]
 		public void TestInputSquared()
 		{
-			var forwardInput = _cpu.CreateMatrix(SIZE, SIZE, _DefaultInit).AsIndexable();
+			var forwardInput = _cpu.CreateMatrix(SIZE, SIZE, DefaultInit).AsIndexable();
 			var expectedOutput = _cpu.CreateMatrix(SIZE, SIZE, (i, j) => (float)Math.Pow(forwardInput[i, j], 2));
 
-			var backwardInput = _cpu.CreateMatrix(SIZE, SIZE, _DefaultInit).AsIndexable();
+			var backwardInput = _cpu.CreateMatrix(SIZE, SIZE, DefaultInit).AsIndexable();
 			var expectedBpOutput = _cpu.CreateMatrix(SIZE, SIZE, (i, j) => backwardInput[i, j] * 2f * forwardInput[i, j]);
 
-			_TestNode(_factory.GraphOperation.InputSquared(), forwardInput, expectedOutput, backwardInput, expectedBpOutput);
+			TestNode(_factory.GraphOperation.InputSquared(), forwardInput, expectedOutput, backwardInput, expectedBpOutput);
 		}
 
 		[Fact]
 		public void TestOneDividedBy()
 		{
-			var forwardInput = _cpu.CreateMatrix(SIZE, SIZE, _DefaultInit).AsIndexable();
+			var forwardInput = _cpu.CreateMatrix(SIZE, SIZE, DefaultInit).AsIndexable();
 			var expectedOutput = _cpu.CreateMatrix(SIZE, SIZE, (i, j) => 1f / forwardInput[i, j]);
 
-			var backwardInput = _cpu.CreateMatrix(SIZE, SIZE, _DefaultInit).AsIndexable();
+			var backwardInput = _cpu.CreateMatrix(SIZE, SIZE, DefaultInit).AsIndexable();
 			var expectedBpOutput = _cpu.CreateMatrix(SIZE, SIZE, (i, j) => -1f / (float)Math.Pow(forwardInput[i, j], 2) * backwardInput[i, j]);
 
-			_TestNode(_factory.GraphOperation.OneDividedBy(), forwardInput, expectedOutput, backwardInput, expectedBpOutput);
+			TestNode(_factory.GraphOperation.OneDividedBy(), forwardInput, expectedOutput, backwardInput, expectedBpOutput);
 		}
 
 		[Fact]
 		public void TestOneMinus()
 		{
-			var forwardInput = _cpu.CreateMatrix(SIZE, SIZE, _DefaultInit).AsIndexable();
+			var forwardInput = _cpu.CreateMatrix(SIZE, SIZE, DefaultInit).AsIndexable();
 			var expectedOutput = _cpu.CreateMatrix(SIZE, SIZE, (i, j) => 1f - forwardInput[i, j]);
 
-			var backwardInput = _cpu.CreateMatrix(SIZE, SIZE, _DefaultInit).AsIndexable();
+			var backwardInput = _cpu.CreateMatrix(SIZE, SIZE, DefaultInit).AsIndexable();
 			var expectedBpOutput = _cpu.CreateMatrix(SIZE, SIZE, (i, j) => -backwardInput[i, j]);
 
-			_TestNode(_factory.GraphOperation.OneMinusInput(), forwardInput, expectedOutput, backwardInput, expectedBpOutput);
+			TestNode(_factory.GraphOperation.OneMinusInput(), forwardInput, expectedOutput, backwardInput, expectedBpOutput);
 		}
 
 		[Fact]
 		public void TestSquareRootOf()
 		{
-			var forwardInput = _cpu.CreateMatrix(SIZE, SIZE, _DefaultInit).AsIndexable();
+			var forwardInput = _cpu.CreateMatrix(SIZE, SIZE, DefaultInit).AsIndexable();
 			var expectedOutput = _cpu.CreateMatrix(SIZE, SIZE, (i, j) => (float)Math.Sqrt(forwardInput[i, j])).AsIndexable();
 
-			var backwardInput = _cpu.CreateMatrix(SIZE, SIZE, _DefaultInit).AsIndexable();
+			var backwardInput = _cpu.CreateMatrix(SIZE, SIZE, DefaultInit).AsIndexable();
 			var expectedBpOutput = _cpu.CreateMatrix(SIZE, SIZE, (i, j) => 0.5f * expectedOutput[i, j] * backwardInput[i, j]);
 
-			_TestNode(_factory.GraphOperation.SquareRootOf(), forwardInput, expectedOutput, backwardInput, expectedBpOutput);
+			TestNode(_factory.GraphOperation.SquareRootOf(), forwardInput, expectedOutput, backwardInput, expectedBpOutput);
 		}
 
 		[Fact]
 		public void TestDropoutEmpty()
 		{
-			var forwardInput = _cpu.CreateMatrix(SIZE, SIZE, _DefaultInit).AsIndexable();
+			var forwardInput = _cpu.CreateMatrix(SIZE, SIZE, DefaultInit).AsIndexable();
 			var expectedOutput = _cpu.CreateMatrix(SIZE, SIZE, (i, j) => 0f);
 
-			var backwardInput = _cpu.CreateMatrix(SIZE, SIZE, _DefaultInit).AsIndexable();
+			var backwardInput = _cpu.CreateMatrix(SIZE, SIZE, DefaultInit).AsIndexable();
 			var expectedBpOutput = _cpu.CreateMatrix(SIZE, SIZE, (i, j) => 0f);
 
-			_TestNode(_factory.CreateDropOut(1f), forwardInput, expectedOutput, backwardInput, expectedBpOutput);
+			TestNode(_factory.CreateDropOut(1f), forwardInput, expectedOutput, backwardInput, expectedBpOutput);
 		}
 
 		[Fact]
 		public void TestDropoutFull()
 		{
-			var forwardInput = _cpu.CreateMatrix(SIZE, SIZE, _DefaultInit).AsIndexable();
+			var forwardInput = _cpu.CreateMatrix(SIZE, SIZE, DefaultInit).AsIndexable();
 			var expectedOutput = _cpu.CreateMatrix(SIZE, SIZE, (i, j) => forwardInput[i, j]);
 
-			var backwardInput = _cpu.CreateMatrix(SIZE, SIZE, _DefaultInit).AsIndexable();
+			var backwardInput = _cpu.CreateMatrix(SIZE, SIZE, DefaultInit).AsIndexable();
 			var expectedBpOutput = _cpu.CreateMatrix(SIZE, SIZE, (i, j) => forwardInput[i, j]);
 
-			_TestNode(_factory.CreateDropOut(0f), forwardInput, expectedOutput, backwardInput, expectedBpOutput);
+			TestNode(_factory.CreateDropOut(0f), forwardInput, expectedOutput, backwardInput, expectedBpOutput);
 		}
 
 		[Fact]
 		public void TestDropConnectEmpty()
 		{
-			var forwardInput = _cpu.CreateMatrix(SIZE, SIZE, _DefaultInit).AsIndexable();
+			var forwardInput = _cpu.CreateMatrix(SIZE, SIZE, DefaultInit).AsIndexable();
 			var expectedOutput = _cpu.CreateMatrix(SIZE, SIZE, (i, j) => 0f);
 
-			var backwardInput = _cpu.CreateMatrix(SIZE, SIZE, _DefaultInit).AsIndexable();
+			var backwardInput = _cpu.CreateMatrix(SIZE, SIZE, DefaultInit).AsIndexable();
 			var expectedBpOutput = _cpu.CreateMatrix(SIZE, SIZE, (i, j) => 0f);
 
-			_TestNode(_factory.CreateDropConnect(1f, SIZE, SIZE), forwardInput, expectedOutput, backwardInput, expectedBpOutput);
+			TestNode(_factory.CreateDropConnect(1f, SIZE, SIZE), forwardInput, expectedOutput, backwardInput, expectedBpOutput);
 		}
 	}
 }

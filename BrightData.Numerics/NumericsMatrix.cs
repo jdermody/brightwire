@@ -149,85 +149,85 @@ namespace BrightData.Numerics
             _matrix.MapIndexedInplace((i, j, v) => (v * coefficient1) - (other[(uint)i, (uint)j] * coefficient2));
         }
 
-        internal static float _Sigmoid(float val)
+        internal static float Sigmoid(float val)
         {
             return FloatMath.Constrain(1.0f / (1.0f + FloatMath.Exp(-1.0f * val)));
         }
 
-        internal static float _SigmoidDerivative(float val)
+        internal static float SigmoidDerivative(float val)
         {
-            var score = _Sigmoid(val);
+            var score = Sigmoid(val);
             return FloatMath.Constrain(score * (1.0f - score));
         }
 
-        internal static float _Tanh(float val)
+        internal static float Tanh(float val)
         {
             return Convert.ToSingle(Math.Tanh(val));
         }
 
-        internal static float _TanhDerivative(float val)
+        internal static float TanhDerivative(float val)
         {
-            return 1.0f - Convert.ToSingle(Math.Pow(_Tanh(val), 2));
+            return 1.0f - Convert.ToSingle(Math.Pow(Tanh(val), 2));
         }
 
-        internal static float _Relu(float val)
+        internal static float Relu(float val)
         {
             return (val <= 0) ? 0 : FloatMath.Constrain(val);
         }
 
-        internal static float _ReluDerivative(float val)
+        internal static float ReluDerivative(float val)
         {
             return (val <= 0) ? 0f : 1;
         }
 
-        internal static float _LeakyRelu(float val)
+        internal static float LeakyRelu(float val)
         {
             return (val <= 0) ? 0.01f * val : FloatMath.Constrain(val);
         }
 
-        internal static float _LeakyReluDerivative(float val)
+        internal static float LeakyReluDerivative(float val)
         {
             return (val <= 0) ? 0.01f : 1;
         }
 
         public IFloatMatrix ReluActivation()
         {
-            return new NumericsMatrix(Context, _matrix.Map(_Relu));
+            return new NumericsMatrix(Context, _matrix.Map(Relu));
         }
 
         public IFloatMatrix ReluDerivative()
         {
-            return new NumericsMatrix(Context, _matrix.Map(_ReluDerivative));
+            return new NumericsMatrix(Context, _matrix.Map(ReluDerivative));
         }
 
         public IFloatMatrix LeakyReluActivation()
         {
-            return new NumericsMatrix(Context, _matrix.Map(_LeakyRelu));
+            return new NumericsMatrix(Context, _matrix.Map(LeakyRelu));
         }
 
         public IFloatMatrix LeakyReluDerivative()
         {
-            return new NumericsMatrix(Context, _matrix.Map(_LeakyReluDerivative));
+            return new NumericsMatrix(Context, _matrix.Map(LeakyReluDerivative));
         }
 
         public IFloatMatrix SigmoidActivation()
         {
-            return new NumericsMatrix(Context, _matrix.Map(_Sigmoid));
+            return new NumericsMatrix(Context, _matrix.Map(Sigmoid));
         }
 
         public IFloatMatrix SigmoidDerivative()
         {
-            return new NumericsMatrix(Context, _matrix.Map(_SigmoidDerivative));
+            return new NumericsMatrix(Context, _matrix.Map(SigmoidDerivative));
         }
 
         public IFloatMatrix TanhActivation()
         {
-            return new NumericsMatrix(Context, _matrix.Map(_Tanh));
+            return new NumericsMatrix(Context, _matrix.Map(Tanh));
         }
 
         public IFloatMatrix TanhDerivative()
         {
-            return new NumericsMatrix(Context, _matrix.Map(_TanhDerivative));
+            return new NumericsMatrix(Context, _matrix.Map(TanhDerivative));
         }
 
         public IFloatMatrix SoftmaxActivation()

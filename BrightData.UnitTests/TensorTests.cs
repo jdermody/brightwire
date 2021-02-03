@@ -90,7 +90,7 @@ namespace BrightData.UnitTests
             FloatMath.AreApproximatelyEqual(cpuPadding.AsIndexable(), gpuPadding.AsIndexable());
         }
 
-		void _TensorIm2Col(uint rows, uint columns, uint depth, uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool randomData)
+		void CheckTensorIm2Col(uint rows, uint columns, uint depth, uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool randomData)
 		{
 			var normalDistribution = new Normal(0, 1);
             using var cpuTensor = _cpu.Create3DTensor(depth.AsRange().Select(i => _cpu.CreateMatrix(rows, columns, (j, k) => randomData
@@ -108,68 +108,68 @@ namespace BrightData.UnitTests
 		[Fact]
 		public void TensorIm2Col()
 		{
-			_TensorIm2Col(4, 4, 3, 2, 2, 2, 2, false);
+			CheckTensorIm2Col(4, 4, 3, 2, 2, 2, 2, false);
 		}
 
 		[Fact]
 		public void TensorIm2Col2()
 		{
-			_TensorIm2Col(8, 8, 1, 2, 2, 2, 2, true);
+			CheckTensorIm2Col(8, 8, 1, 2, 2, 2, 2, true);
 		}
 
 		[Fact]
 		public void TensorIm2Col3()
 		{
-			_TensorIm2Col(8, 8, 2, 2, 2, 1, 1, true);
+			CheckTensorIm2Col(8, 8, 2, 2, 2, 1, 1, true);
 		}
 
 		[Fact]
 		public void TensorIm2Col4()
 		{
-			_TensorIm2Col(8, 8, 2, 1, 2, 1, 1, true);
+			CheckTensorIm2Col(8, 8, 2, 1, 2, 1, 1, true);
 		}
 
 		[Fact]
 		public void TensorIm2Col5()
 		{
-			_TensorIm2Col(8, 8, 2, 2, 1, 1, 1, true);
+			CheckTensorIm2Col(8, 8, 2, 2, 1, 1, 1, true);
 		}
 
 		[Fact]
 		public void TensorIm2Col6()
 		{
-			_TensorIm2Col(8, 8, 3, 2, 1, 2, 2, true);
+			CheckTensorIm2Col(8, 8, 3, 2, 1, 2, 2, true);
 		}
 
 		[Fact]
 		public void TensorIm2Col7()
 		{
-			_TensorIm2Col(8, 8, 3, 2, 1, 1, 1, true);
+			CheckTensorIm2Col(8, 8, 3, 2, 1, 1, 1, true);
 		}
 
 		[Fact]
 		public void TensorIm2Col8()
 		{
-			_TensorIm2Col(8, 8, 3, 8, 1, 1, 1, true);
+			CheckTensorIm2Col(8, 8, 3, 8, 1, 1, 1, true);
 		}
 
 		[Fact]
 		public void TensorIm2Col9()
 		{
-			_TensorIm2Col(12, 8, 1, 4, 1, 1, 1, true);
+			CheckTensorIm2Col(12, 8, 1, 4, 1, 1, 1, true);
 		}
 
-		void _AssertAreSame(IReadOnlyList<(uint[] X, uint[] Y)> cpuIndex, IReadOnlyList<(uint[] X, uint[] Y)> gpuIndex)
-        {
-            cpuIndex.Count.Should().Be(gpuIndex.Count);
-            for (var i = 0; i < cpuIndex.Count; i++) {
-				var list1 = cpuIndex[i];
-				var list2 = gpuIndex[i];
-                list1.Should().BeEquivalentTo(list2);
-            }
-		}
+		//void _AssertAreSame(IReadOnlyList<(uint[] X, uint[] Y)> cpuIndex, IReadOnlyList<(uint[] X, uint[] Y)> gpuIndex)
+  //      {
+  //          cpuIndex.Count.Should().Be(gpuIndex.Count);
+  //          for (var i = 0; i < cpuIndex.Count; i++) {
+		//		var list1 = cpuIndex[i];
+		//		var list2 = gpuIndex[i];
+  //              list1.Should().BeEquivalentTo(list2);
+  //          }
+		//}
 
-		void _AssertValuesAreInSamePlace(IIndexable3DFloatTensor maxPool, IIndexable3DFloatTensor source)
+		void AssertValuesAreInSamePlace(IIndexable3DFloatTensor maxPool, IIndexable3DFloatTensor source)
 		{
 			for (uint z = 0; z < maxPool.Depth; z++) {
 				var slice = maxPool.GetMatrixAt(z).AsIndexable();
@@ -213,43 +213,43 @@ namespace BrightData.UnitTests
 		[Fact]
 		public void TensorMaxPool2()
 		{
-			_TensorMaxPool(8, 8, 3, 2, 2, 2, 2, false, true);
+			CheckTensorMaxPool(8, 8, 3, 2, 2, 2, 2, false, true);
 		}
 
 		[Fact]
 		public void TensorMaxPool3()
 		{
-			_TensorMaxPool(8, 8, 3, 2, 2, 2, 2, true, false);
+			CheckTensorMaxPool(8, 8, 3, 2, 2, 2, 2, true, false);
 		}
 
 		[Fact]
 		public void TensorMaxPool4()
 		{
-			_TensorMaxPool(8, 8, 3, 2, 2, 2, 2, true, true);
+			CheckTensorMaxPool(8, 8, 3, 2, 2, 2, 2, true, true);
 		}
 
 		[Fact]
 		public void TensorMaxPool5()
 		{
-			_TensorMaxPool(8, 8, 3, 2, 1, 2, 2, true, true);
+			CheckTensorMaxPool(8, 8, 3, 2, 1, 2, 2, true, true);
 		}
 
 		[Fact]
 		public void TensorMaxPool6()
 		{
-			_TensorMaxPool(8, 8, 3, 1, 2, 2, 2, true, true);
+			CheckTensorMaxPool(8, 8, 3, 1, 2, 2, 2, true, true);
 		}
 
 		[Fact]
 		public void TensorMaxPool7()
 		{
-			_TensorMaxPool(8, 8, 2, 2, 1, 1, 1, true, true);
+			CheckTensorMaxPool(8, 8, 2, 2, 1, 1, 1, true, true);
 		}
 
 		[Fact]
 		public void TensorMaxPool8()
 		{
-			_TensorMaxPool(8, 8, 1, 1, 2, 1, 1, true, true);
+			CheckTensorMaxPool(8, 8, 1, 1, 2, 1, 1, true, true);
 		}
 
 		[Fact]
@@ -260,7 +260,7 @@ namespace BrightData.UnitTests
 
 			var (cpuMaxPool, cpuIndices) = cpuTensor.MaxPool(filterWidth, filterHeight, xStride, yStride, true);
 			var cpuReverseMaxPool = cpuMaxPool.ReverseMaxPool(cpuIndices, rows, columns, filterWidth, filterHeight, xStride, yStride).AsIndexable();
-			_AssertValuesAreInSamePlace(cpuReverseMaxPool, cpuTensor);
+			AssertValuesAreInSamePlace(cpuReverseMaxPool, cpuTensor);
 
             using var gpuTensor = _cuda.Create3DTensor(cpuTensor.Data);
             var (gpuMaxPool, gpuIndices) = gpuTensor.MaxPool(filterWidth, filterHeight, xStride, yStride, true);
@@ -270,7 +270,7 @@ namespace BrightData.UnitTests
             FloatMath.AreApproximatelyEqual(gpuReverseMaxPool.AsIndexable(), cpuReverseMaxPool);
         }
 
-		void _TensorMaxPool(uint rows, uint columns, uint depth, uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool randomInit, bool calculateIndices)
+		void CheckTensorMaxPool(uint rows, uint columns, uint depth, uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool randomInit, bool calculateIndices)
 		{
 			var normalDistribution = new Normal(0, 1);
 			var cpuTensor = _cpu.Create3DTensor(depth.AsRange().Select(i => _cpu.CreateMatrix(rows, columns, (j, k) => randomInit
@@ -280,7 +280,7 @@ namespace BrightData.UnitTests
 
 			var (cpuMaxPool, cpuIndices) = cpuTensor.MaxPool(filterWidth, filterHeight, xStride, yStride, true);
 			var cpuReverseMaxPool = cpuMaxPool.ReverseMaxPool(cpuIndices, rows, columns, filterWidth, filterHeight, xStride, yStride).AsIndexable();
-			_AssertValuesAreInSamePlace(cpuReverseMaxPool, cpuTensor);
+			AssertValuesAreInSamePlace(cpuReverseMaxPool, cpuTensor);
 
             using var gpuTensor = _cuda.Create3DTensor(cpuTensor.Data);
             var (gpuMaxPool, gpuIndices) = gpuTensor.MaxPool(filterWidth, filterHeight, xStride, yStride, calculateIndices);
@@ -292,7 +292,7 @@ namespace BrightData.UnitTests
             }
         }
 
-		void _TensorReverseIm2Col(uint filterWidth, uint filterHeight, uint xStride, uint yStride, uint depth, uint filterCount, uint inputWidth, uint inputHeight)
+		void CheckTensorReverseIm2Col(uint filterWidth, uint filterHeight, uint xStride, uint yStride, uint depth, uint filterCount, uint inputWidth, uint inputHeight)
 		{
 			var normalDistribution = new Normal(0, 1);
 			var cpuTensor = _cpu.Create3DTensor(depth.AsRange().Select(i => _cpu.CreateMatrix(inputHeight, inputWidth, (j, k) => Convert.ToSingle(normalDistribution.Sample()))).ToArray());
@@ -319,60 +319,60 @@ namespace BrightData.UnitTests
 		[Fact]
 		public void TensorReverseIm2Col()
 		{
-			_TensorReverseIm2Col(2, 2, 2, 2, 1, 1, 4, 4);
+			CheckTensorReverseIm2Col(2, 2, 2, 2, 1, 1, 4, 4);
 		}
 
 		[Fact]
 		public void TensorReverseIm2Col2()
 		{
-			_TensorReverseIm2Col(2, 2, 2, 2, 1, 2, 4, 4);
+			CheckTensorReverseIm2Col(2, 2, 2, 2, 1, 2, 4, 4);
 		}
 
 		[Fact]
 		public void TensorReverseIm2Col3()
 		{
-			_TensorReverseIm2Col(2, 2, 2, 2, 2, 1, 4, 4);
+			CheckTensorReverseIm2Col(2, 2, 2, 2, 2, 1, 4, 4);
 		}
 
 		[Fact]
 		public void TensorReverseIm2Col4()
 		{
-			_TensorReverseIm2Col(2, 2, 2, 2, 2, 2, 4, 4);
+			CheckTensorReverseIm2Col(2, 2, 2, 2, 2, 2, 4, 4);
 		}
 
 		[Fact]
 		public void TensorReverseIm2Col5()
 		{
-			_TensorReverseIm2Col(2, 2, 1, 1, 2, 2, 4, 4);
+			CheckTensorReverseIm2Col(2, 2, 1, 1, 2, 2, 4, 4);
 		}
 
 		[Fact]
 		public void TensorReverseIm2Col6()
 		{
-			_TensorReverseIm2Col(2, 1, 1, 1, 1, 1, 4, 4);
+			CheckTensorReverseIm2Col(2, 1, 1, 1, 1, 1, 4, 4);
 		}
 
 		[Fact]
 		public void TensorReverseIm2Col7()
 		{
-			_TensorReverseIm2Col(10, 3, 1, 1, 1, 2, 10, 12);
+			CheckTensorReverseIm2Col(10, 3, 1, 1, 1, 2, 10, 12);
 		}
 
-        Matrix<float> _CreateMatrix(uint depth, uint rows, uint columns, Func<uint, uint, uint, float> valueProvider)
+        Matrix<float> CheckCreateMatrix(uint depth, uint rows, uint columns, Func<uint, uint, uint, float> valueProvider)
         {
             return _context.CreateMatrixFromRows(rows.AsRange().Select(i => _context.CreateVector(columns, j => valueProvider?.Invoke(i, j, depth) ?? 0f)).ToArray());
         }
 
-		Tensor3D<float> _CreateTensor(uint rows, uint columns, uint depth, Func<uint, uint, uint, float> valueProvider)
+		Tensor3D<float> CheckCreateTensor(uint rows, uint columns, uint depth, Func<uint, uint, uint, float> valueProvider)
         {
-            return _context.CreateTensor3D(depth.AsRange().Select(k => _CreateMatrix(k, rows, columns, valueProvider)).ToArray());
+            return _context.CreateTensor3D(depth.AsRange().Select(k => CheckCreateMatrix(k, rows, columns, valueProvider)).ToArray());
         }
 
         [Fact]
 		public void Tensor4DCreate()
 		{
 			const uint ROWS = 3, COLUMNS = 4, DEPTH = 2, COUNT = 5;
-			var data = COUNT.AsRange().Select(z => _CreateTensor(ROWS, COLUMNS, DEPTH, null)).ToArray();
+			var data = COUNT.AsRange().Select(z => CheckCreateTensor(ROWS, COLUMNS, DEPTH, null)).ToArray();
 			for (var i = 0; i < COUNT; i++) {
 				var item = data[i];
 				for (uint j = 0; j < DEPTH; j++)
@@ -387,7 +387,7 @@ namespace BrightData.UnitTests
 		public void Tensor4DAddPadding()
 		{
 			var data = Enumerable.Range(0, 5)
-				.Select(z => _CreateTensor(3, 4, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1))).ToArray();
+				.Select(z => CheckCreateTensor(3, 4, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1))).ToArray();
 
 			var cpuTensor = _cpu.Create4DTensor(data);
 			var cpuPadded = cpuTensor.AddPadding(1);
@@ -400,7 +400,7 @@ namespace BrightData.UnitTests
 		public void Tensor4DRemovePadding()
 		{
 			var data = Enumerable.Range(0, 5)
-				.Select(z => _CreateTensor(3, 4, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1))).ToArray();
+				.Select(z => CheckCreateTensor(3, 4, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1))).ToArray();
 
 			var cpuTensor = _cpu.Create4DTensor(data);
 			var cpuPadded = cpuTensor.RemovePadding(1);
@@ -412,7 +412,7 @@ namespace BrightData.UnitTests
 		[Fact]
 		public void TensorCombineDepthSlices()
 		{
-			var tensor = _CreateTensor(3, 4, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1));
+			var tensor = CheckCreateTensor(3, 4, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1));
 			var cpuTensor = _cpu.Create3DTensor(tensor);
 			var cpuCombined = cpuTensor.CombineDepthSlices();
 
@@ -424,7 +424,7 @@ namespace BrightData.UnitTests
 		[Fact]
 		public void TensorCombineDepthSlices2()
 		{
-			var tensor = _CreateTensor(12, 6, 3, (i, j, k) => (i + 1) * (j + 1) * (k + 1));
+			var tensor = CheckCreateTensor(12, 6, 3, (i, j, k) => (i + 1) * (j + 1) * (k + 1));
 			var cpuTensor = _cpu.Create3DTensor(tensor);
 			var cpuCombined = cpuTensor.CombineDepthSlices();
 
@@ -436,8 +436,8 @@ namespace BrightData.UnitTests
 		[Fact]
 		public void TensorAddInPlace()
 		{
-			var tensor = _CreateTensor(3, 4, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1));
-			var tensor2 = _CreateTensor(3, 4, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1));
+			var tensor = CheckCreateTensor(3, 4, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1));
+			var tensor2 = CheckCreateTensor(3, 4, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1));
 			var cpuTensor = _cpu.Create3DTensor(tensor);
 			var cpuTensor2 = _cpu.Create3DTensor(tensor2);
 			cpuTensor.AddInPlace(cpuTensor2);
@@ -452,7 +452,7 @@ namespace BrightData.UnitTests
 		public void Tensor4DMaxPool()
 		{
 			var data = Enumerable.Range(0, 5)
-				.Select(z => _CreateTensor(4, 4, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1))).ToArray();
+				.Select(z => CheckCreateTensor(4, 4, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1))).ToArray();
 
 			var cpuTensor = _cpu.Create4DTensor(data);
 			var cpuPooled = cpuTensor.MaxPool(2, 2, 2, 2, false).Result;
@@ -466,7 +466,7 @@ namespace BrightData.UnitTests
 		public void Tensor4DReverseMaxPool()
 		{
 			var data = Enumerable.Range(0, 5)
-				.Select(z => _CreateTensor(4, 4, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1))).ToArray();
+				.Select(z => CheckCreateTensor(4, 4, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1))).ToArray();
 
 			var cpuTensor = _cpu.Create4DTensor(data);
 			var cpuResult = cpuTensor.MaxPool(2, 2, 2, 2, true);
@@ -482,7 +482,7 @@ namespace BrightData.UnitTests
 		public void Tensor4DIm2Col()
 		{
 			var data = Enumerable.Range(0, 5)
-				.Select(z => _CreateTensor(4, 4, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1) * (z + 1))).ToArray();
+				.Select(z => CheckCreateTensor(4, 4, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1) * (z + 1))).ToArray();
 			var cpuTensor = _cpu.Create4DTensor(data);
 			var cpuResult = cpuTensor.Im2Col(2, 2, 1, 1);
 
@@ -495,7 +495,7 @@ namespace BrightData.UnitTests
 		public void TensorMultiplyMatrix()
 		{
 			var data = Enumerable.Range(0, 5)
-				.Select(z => _CreateTensor(4, 4, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1))).ToArray();
+				.Select(z => CheckCreateTensor(4, 4, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1))).ToArray();
 			var cpuTensor = _cpu.Create4DTensor(data);
 			var cpuIm2Col = cpuTensor.Im2Col(2, 2, 1, 1);
 			var cpuFilter = _cpu.CreateMatrix(2 * 2 * 2, 5, (i, j) => (i + 1) * (j + 1));
@@ -510,7 +510,7 @@ namespace BrightData.UnitTests
 		[Fact]
 		public void Tensor3DToVector()
 		{
-			var data = _CreateTensor(4, 3, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1));
+			var data = CheckCreateTensor(4, 3, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1));
 			var tensor = _cpu.Create3DTensor(data);
 			var raw = data.GetAsRaw();
 			var vector = _cpu.CreateVector(raw);
@@ -526,7 +526,7 @@ namespace BrightData.UnitTests
 		[Fact]
 		public void Tensor3DToVector2()
 		{
-			var data = _CreateTensor(4, 3, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1));
+			var data = CheckCreateTensor(4, 3, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1));
 			var tensor = _cpu.Create3DTensor(data);
 			var vector = tensor.ReshapeAsVector();
 			var tensor2 = vector.ReshapeAs3DTensor(4, 3, 2);
@@ -542,7 +542,7 @@ namespace BrightData.UnitTests
 		[Fact]
 		public void Tensor3DToMatrix()
 		{
-			var data = _CreateTensor(4, 3, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1));
+			var data = CheckCreateTensor(4, 3, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1));
 			var tensor = _cpu.Create3DTensor(data);
 			var matrix = tensor.ReshapeAsMatrix();
 			var tensor2 = matrix.ReshapeAs3DTensor(4, 3);
@@ -558,7 +558,7 @@ namespace BrightData.UnitTests
 		[Fact]
 		public void Tensor3DToTensor4D()
 		{
-			var data = _CreateTensor(12, 3, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1));
+			var data = CheckCreateTensor(12, 3, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1));
 			var tensor = _cpu.Create3DTensor(data);
 			var tensor2 = tensor.ReshapeAs4DTensor(3, 4);
 
@@ -571,7 +571,7 @@ namespace BrightData.UnitTests
 		public void Tensor4DToMatrix()
 		{
 			var data = Enumerable.Range(0, 5)
-				.Select(z => _CreateTensor(3, 4, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1) * (z + 1))).ToArray();
+				.Select(z => CheckCreateTensor(3, 4, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1) * (z + 1))).ToArray();
 			var cpuTensor = _cpu.Create4DTensor(data);
 			var cpuMatrix = cpuTensor.ReshapeAsMatrix();
 			var cpuTensor2 = cpuMatrix.ReshapeAs4DTensor(3, 4, 2);
@@ -587,7 +587,7 @@ namespace BrightData.UnitTests
 		[Fact]
 		public void Tensor3DAddVectorToEachRow()
 		{
-			var tensor = _CreateTensor(3, 4, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1));
+			var tensor = CheckCreateTensor(3, 4, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1));
 			var cpuTensor = _cpu.Create3DTensor(tensor);
 			var cpuVector = _cpu.CreateVector(4, 1f);
 			cpuTensor.AddToEachRow(cpuVector);
@@ -601,7 +601,7 @@ namespace BrightData.UnitTests
 		[Fact]
 		public void Tensor3DToFloatTensor()
 		{
-			var tensor = _CreateTensor(3, 4, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1));
+			var tensor = CheckCreateTensor(3, 4, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1));
 			var cpuTensor = _cpu.Create3DTensor(tensor);
 			FloatMath.AreApproximatelyEqual(cpuTensor.Data, tensor);
 
@@ -613,9 +613,9 @@ namespace BrightData.UnitTests
 		public void Tensor3DTransposeThisAndMultiply()
 		{
 			var normalDistribution = new Normal(0, 1);
-			var tensor1 = _CreateTensor(9, 3, 3, (i, j, k) => (float)normalDistribution.Sample());
+			var tensor1 = CheckCreateTensor(9, 3, 3, (i, j, k) => (float)normalDistribution.Sample());
 			var data = Enumerable.Range(0, 3)
-				.Select(z => _CreateTensor(3, 3, 3, (i, j, k) => (i + 1) * (j + 1) * (k + 1))).ToArray();
+				.Select(z => CheckCreateTensor(3, 3, 3, (i, j, k) => (i + 1) * (j + 1) * (k + 1))).ToArray();
 
 			var cpuTensor1 = _cpu.Create3DTensor(tensor1);
 			var cpuTensor2 = _cpu.Create4DTensor(data);
@@ -631,7 +631,7 @@ namespace BrightData.UnitTests
 		public void Tensor4DCounts()
 		{
 			var data = Enumerable.Range(0, 5)
-				.Select(z => _CreateTensor(3, 4, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1))).ToArray();
+				.Select(z => CheckCreateTensor(3, 4, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1))).ToArray();
 			var cpuTensor = _cpu.Create4DTensor(data);
 
             cpuTensor.Count.Should().Be(5);
@@ -650,7 +650,7 @@ namespace BrightData.UnitTests
 		public void Tensor4DColumnSums()
 		{
 			var data = Enumerable.Range(0, 5)
-				.Select(z => _CreateTensor(3, 4, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1))).ToArray();
+				.Select(z => CheckCreateTensor(3, 4, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1))).ToArray();
 			var cpuTensor = _cpu.Create4DTensor(data);
 			var cpuResult = cpuTensor.ColumnSums();
 
@@ -663,7 +663,7 @@ namespace BrightData.UnitTests
 		public void Tensor4DGetTensorAt()
 		{
 			var data = 5.AsRange()
-				.Select(z => _CreateTensor(3, 4, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1))).ToArray();
+				.Select(z => CheckCreateTensor(3, 4, 2, (i, j, k) => (i + 1) * (j + 1) * (k + 1))).ToArray();
 			var cpu4dTensor = _cpu.Create4DTensor(data);
 
             using var gpu4dTensor = _cuda.Create4DTensor(data);
@@ -681,7 +681,7 @@ namespace BrightData.UnitTests
 
 			var normalDistribution = new Normal(0, 1);
 			var data = Enumerable.Range(0, count)
-				.Select(z => _CreateTensor(rows, columns, depth, (i, j, k) => (float)normalDistribution.Sample())).ToArray();
+				.Select(z => CheckCreateTensor(rows, columns, depth, (i, j, k) => (float)normalDistribution.Sample())).ToArray();
 			var cpuTensor = _cpu.Create4DTensor(data);
 			var cpuFilter = _cpu.CreateMatrix(depth * filterWidth * filterHeight, filterCount, (i, j) => (float)normalDistribution.Sample());
 

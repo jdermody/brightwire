@@ -29,8 +29,8 @@ namespace BrightWire.ExecutionGraph.Action
         {
             var str = Encoding.UTF8.GetString(Convert.FromBase64String(data));
             var pos = str.IndexOf(':');
-            _readFrom = str.Substring(0, pos);
-            _writeTo = str.Substring(pos + 1);
+            _readFrom = str[..pos];
+            _writeTo = str[(pos + 1)..];
         }
 
         public string Serialise()

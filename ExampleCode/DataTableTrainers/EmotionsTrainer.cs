@@ -60,7 +60,7 @@ namespace ExampleCode.DataTableTrainers
                 ret[r.Length - 1] = indexList.HasIndex(indexOffset);
                 return ret;
             });
-            ret.SetTargetColumn(ret.ColumnCount-1);
+            ret!.SetTargetColumn(ret!.ColumnCount-1);
             return ret;
         }
 

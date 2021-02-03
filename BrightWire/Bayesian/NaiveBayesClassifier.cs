@@ -68,16 +68,14 @@ namespace BrightWire.Bayesian
             }
         }
 
-        Dictionary<string, double> _Classify(IConvertibleRow row)
+        IEnumerable<(string Classification, double Score)> GetClassificationScores(IConvertibleRow row)
         {
-            var ret = new Dictionary<string, double>();
             foreach (var cls in _classProbability) {
                 var score = cls.Item2;
                 foreach (var item in cls.Item3)
                     score += item.GetProbability(row);
-                ret.Add(cls.Item1, score);
+                yield return (cls.Item1, score);
             }
-            return ret;
         }
 
         /// <summary>
@@ -87,10 +85,10 @@ namespace BrightWire.Bayesian
         /// <returns></returns>
         public (string Label, float Weight)[] Classify(IConvertibleRow row)
         {
-            return _Classify(row)
-                .OrderByDescending(kv => kv.Value)
+            return GetClassificationScores(row)
+                .OrderByDescending(kv => kv.Score)
                 .Take(1)
-                .Select((kv, i) => (kv.Key, 1f))
+                .Select((kv, i) => (kv.Classification, 1f))
                 .ToArray()
             ;
         }

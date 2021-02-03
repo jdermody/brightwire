@@ -47,19 +47,19 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 
         public override IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rows)
         {
-            var data = _GetRows(rows)
+            var data = GetRows(rows)
                 .Select(r => ((Matrix<float>)r[0], (Matrix<float>)r[1]))
                 .ToArray()
             ;
-            return _GetSequentialMiniBatch(rows, data);
+            return GetSequentialMiniBatch(rows, data);
         }
 
         public override uint[][] GetBuckets()
         {
             return _rowDepth
-                .Select((r, i) => (r, i))
-                .GroupBy(t => t.Item1)
-                .Select(g => g.Select(d => (uint)d.Item2).ToArray())
+                .Select((r, i) => (Row: r, Index: i))
+                .GroupBy(t => t.Row)
+                .Select(g => g.Select(d => (uint)d.Index).ToArray())
                 .ToArray()
             ;
         }

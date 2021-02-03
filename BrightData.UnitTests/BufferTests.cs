@@ -45,13 +45,13 @@ namespace BrightData.UnitTests
         [Fact]
         public void IntBuffer()
         {
-            _StructTests(i => (int) i);
+            StructTests(i => (int) i);
         }
 
         [Fact]
         public void FloatBuffer()
         {
-            _StructTests(i => (float)i);
+            StructTests(i => (float)i);
         }
 
         [Fact]
@@ -59,7 +59,7 @@ namespace BrightData.UnitTests
         {
             using var context = new BrightDataContext();
             // ReSharper disable once AccessToDisposedClosure
-            _ObjectTests(context, i => context.CreateIndexList(i));
+            ObjectTests(context, i => context.CreateIndexList(i));
         }
 
         [Fact]
@@ -67,31 +67,31 @@ namespace BrightData.UnitTests
         {
             using var context = new BrightDataContext();
             // ReSharper disable once AccessToDisposedClosure
-            _ObjectTests(context, i => context.CreateWeightedIndexList((i, 1f)));
+            ObjectTests(context, i => context.CreateWeightedIndexList((i, 1f)));
         }
 
         [Fact]
         public void StringBuffer()
         {
             using var context = new BrightDataContext();
-            foreach(var config in _configurations)
-                _StringBufferReadWriteTest(context, (uint)config.numItems, (uint)config.bufferSize, (uint)config.inMemoryReadSize, (ushort)config.numDistinct, i => i.ToString());
+            foreach(var (numItems, bufferSize, inMemoryReadSize, numDistinct) in _configurations)
+                StringBufferReadWriteTest(context, (uint)numItems, (uint)bufferSize, (uint)inMemoryReadSize, (ushort)numDistinct, i => i.ToString());
         }
 
-        void _ObjectTests<T>(IBrightDataContext context, Func<uint, T> indexTranslator) where T : ISerializable
+        void ObjectTests<T>(IBrightDataContext context, Func<uint, T> indexTranslator) where T : ISerializable
         {
-            foreach (var config in _configurations)
-                _ObjectBufferReadWriteTest(context, (uint)config.numItems, (uint)config.bufferSize, (uint)config.inMemoryReadSize, (ushort)config.numDistinct, indexTranslator);
+            foreach (var (numItems, bufferSize, inMemoryReadSize, numDistinct) in _configurations)
+                ObjectBufferReadWriteTest(context, (uint)numItems, (uint)bufferSize, (uint)inMemoryReadSize, (ushort)numDistinct, indexTranslator);
         }
 
-        void _StructTests<T>(Func<uint, T> indexTranslator) where T: struct
+        void StructTests<T>(Func<uint, T> indexTranslator) where T: struct
         {
             using var context = new BrightDataContext();
-            foreach (var config in _configurations)
-                _StructBufferReadWriteTest(context, (uint)config.numItems, (uint)config.bufferSize, (uint)config.inMemoryReadSize, (ushort)config.numDistinct, indexTranslator);
+            foreach (var (numItems, bufferSize, inMemoryReadSize, numDistinct) in _configurations)
+                StructBufferReadWriteTest(context, (uint)numItems, (uint)bufferSize, (uint)inMemoryReadSize, (ushort)numDistinct, indexTranslator);
         }
 
-        void _StringBufferReadWriteTest(IBrightDataContext context, uint numItems, uint bufferSize, uint inMemoryReadSize, ushort numDistinct, Func<uint, string> indexTranslator)
+        void StringBufferReadWriteTest(IBrightDataContext context, uint numItems, uint bufferSize, uint inMemoryReadSize, ushort numDistinct, Func<uint, string> indexTranslator)
         {
             var buffer = _streamProvider.CreateHybridStringBuffer(bufferSize, numDistinct);
             for (uint i = 0; i < numItems; i++)
@@ -107,7 +107,7 @@ namespace BrightData.UnitTests
                 item.Should().Be(indexTranslator(index++));
         }
 
-        void _ObjectBufferReadWriteTest<T>(IBrightDataContext context, uint numItems, uint bufferSize, uint inMemoryReadSize, ushort numDistinct, Func<uint, T> indexTranslator) where T : ISerializable
+        void ObjectBufferReadWriteTest<T>(IBrightDataContext context, uint numItems, uint bufferSize, uint inMemoryReadSize, ushort _, Func<uint, T> indexTranslator) where T : ISerializable
         {
             var buffer = _streamProvider.CreateHybridObjectBuffer<T>(context, bufferSize);
             for (uint i = 0; i < numItems; i++)
@@ -123,7 +123,7 @@ namespace BrightData.UnitTests
                 item.Should().Be(indexTranslator(index++));
         }
 
-        void _StructBufferReadWriteTest<T>(IBrightDataContext context, uint numItems, uint bufferSize, uint inMemoryReadSize, ushort numDistinct, Func<uint, T> indexTranslator) where T : struct
+        void StructBufferReadWriteTest<T>(IBrightDataContext context, uint numItems, uint bufferSize, uint inMemoryReadSize, ushort numDistinct, Func<uint, T> indexTranslator) where T : struct
         {
             var buffer = _streamProvider.CreateHybridStructBuffer<T>(bufferSize, numDistinct);
             for (uint i = 0; i < numItems; i++)

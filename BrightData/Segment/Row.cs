@@ -21,10 +21,10 @@ namespace BrightData.Segment
 
         public override string ToString()
         {
-            return string.Join(",", _data.Zip(Types, (d, t) => $"{_Format(d, t)} [{t}]"));
+            return string.Join(",", _data.Zip(Types, (d, t) => $"{Format(d, t)} [{t}]"));
         }
 
-        string _Format(object obj, ColumnType type)
+        string Format(object obj, ColumnType type)
         {
             if (type == ColumnType.String)
                 return $"\"{obj}\"";

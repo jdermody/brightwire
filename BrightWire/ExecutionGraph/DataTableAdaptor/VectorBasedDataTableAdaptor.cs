@@ -30,11 +30,11 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 
         public override IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rows)
         {
-            var data = _GetRows(rows)
+            var data = GetRows(rows)
                 .Select(r => ((_dataColumnIndex.Select(i => ((Vector<float>)r[i]).Segment.ToArray()).ToArray(), ((Vector<float>)r[_dataTargetIndex]).Segment.ToArray())))
                 .ToArray()
             ;
-            return _GetMiniBatch(rows, data);
+            return GetMiniBatch(rows, data);
         }
 
         public override IDataSource CloneWith(IRowOrientedDataTable dataTable)

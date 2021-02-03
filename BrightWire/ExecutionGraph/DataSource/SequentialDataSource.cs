@@ -72,9 +72,9 @@ namespace BrightWire.ExecutionGraph.DataSource
         public uint[][] GetBuckets()
         {
             return _rowDepth
-                .Select((r, i) => (r, (uint)i))
-                .GroupBy(t => t.Item1)
-                .Select(g => g.Select(d => d.Item2).ToArray())
+                .Select((r, i) => (Row: r, Index: (uint)i))
+                .GroupBy(t => t.Row)
+                .Select(g => g.Select(d => d.Index).ToArray())
                 .ToArray()
             ;
         }

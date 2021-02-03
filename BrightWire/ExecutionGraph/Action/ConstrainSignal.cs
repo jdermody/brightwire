@@ -23,8 +23,8 @@
         public void Initialise(string data)
         {
             var pos = data.IndexOf(':');
-            _min = float.Parse(data.Substring(0, pos));
-            _max = float.Parse(data.Substring(pos + 1));
+            _min = float.Parse(data[..pos]);
+            _max = float.Parse(data[(pos + 1)..]);
         }
 
         public string Serialise() => $"{_min}:{_max}";

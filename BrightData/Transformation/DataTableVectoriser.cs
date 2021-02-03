@@ -34,17 +34,17 @@ namespace BrightData.Transformation
             public abstract uint Size { get; }
             public uint ColumnIndex { get; }
 
-            public IEnumerable<float> Convert(object obj) => _Convert((T)obj);
+            public IEnumerable<float> Convert(object obj) => Vectorize((T)obj);
 
             public IEnumerable<float> GetNext()
             {
                 if (_enumerator.MoveNext()) {
-                    foreach (var item in _Convert(_enumerator.Current))
+                    foreach (var item in Vectorize(_enumerator.Current))
                         yield return item;
                 }
             }
 
-            protected abstract IEnumerable<float> _Convert(T obj);
+            protected abstract IEnumerable<float> Vectorize(T obj);
         }
         class NumericVectoriser<T> : VectoriserBase<T>
             where T : struct
@@ -58,7 +58,7 @@ namespace BrightData.Transformation
 
             public override uint Size => 1;
 
-            protected override IEnumerable<float> _Convert(T obj)
+            protected override IEnumerable<float> Vectorize(T obj)
             {
                 yield return _converter.Convert(obj);
             }
@@ -75,7 +75,7 @@ namespace BrightData.Transformation
 
             public override uint Size => _maxSize;
 
-            protected override IEnumerable<float> _Convert(WeightedIndexList obj)
+            protected override IEnumerable<float> Vectorize(WeightedIndexList obj)
             {
                 var indexTable = obj.Indices.ToDictionary(d => d.Index, d => d.Weight);
                 for (uint i = 0; i < _maxSize; i++)
@@ -94,7 +94,7 @@ namespace BrightData.Transformation
 
             public override uint Size => _maxSize;
 
-            protected override IEnumerable<float> _Convert(IndexList obj)
+            protected override IEnumerable<float> Vectorize(IndexList obj)
             {
                 var indexSet = new HashSet<uint>(obj.Indices);
                 for (uint i = 0; i < _maxSize; i++)
@@ -111,7 +111,7 @@ namespace BrightData.Transformation
 
             public override uint Size { get; }
 
-            protected override IEnumerable<float> _Convert(ITensor<float> obj)
+            protected override IEnumerable<float> Vectorize(ITensor<float> obj)
             {
                 return obj.Segment.Values;
             }
@@ -132,7 +132,7 @@ namespace BrightData.Transformation
 
             public override uint Size { get; }
 
-            protected override IEnumerable<float> _Convert(object obj)
+            protected override IEnumerable<float> Vectorize(object obj)
             {
                 var str = obj.ToString();
                 Array.Clear(_buffer, 0, _buffer.Length);
@@ -169,7 +169,7 @@ namespace BrightData.Transformation
 
             public override uint Size { get; }
 
-            protected override IEnumerable<float> _Convert(object obj)
+            protected override IEnumerable<float> Vectorize(object obj)
             {
                 var str = obj.ToString();
                 if (str != null) {
@@ -211,7 +211,7 @@ namespace BrightData.Transformation
             Context = dataTable.Context;
 
             _input.AddRange(dataTable.Columns(columnIndices)
-                .Select(_GetColumnVectoriser)
+                .Select(GetColumnVectoriser)
             );
         }
 
@@ -234,13 +234,12 @@ namespace BrightData.Transformation
         {
             if(columnIndex >= _input.Count)
                 throw new ArgumentException($"Column index should be less than {_input.Count}");
-            var column = _input[(int) columnIndex] as OneHotEncodeVectorised;
-            if(column == null)
+            if(!(_input[(int) columnIndex] is OneHotEncodeVectorised column))
                 throw new ArgumentException($"Column {columnIndex} is not a one hot encoded column");
             return column.GetOutputLabel(vectorIndex);
         }
 
-        static IColumnVectoriser _GetColumnVectoriser(ISingleTypeTableSegment column)
+        static IColumnVectoriser GetColumnVectoriser(ISingleTypeTableSegment column)
         {
             var type = column.SingleType;
             var columnClass = ColumnTypeClassifier.GetClass(type, column.MetaData);

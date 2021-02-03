@@ -415,14 +415,14 @@ namespace BrightData.UnitTests
             var distribution = new Normal(0, 5);
 
             var a = _cpu.CreateVector(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
-            var minMax = a.GetMinMax();
+            var (min, max) = a.GetMinMax();
 
             (float Min, float Max) minMax2;
             using (var gpuA = _cuda.CreateVector(a))
                 minMax2 = gpuA.GetMinMax();
 
-            FloatMath.AreApproximatelyEqual(minMax.Min, minMax2.Min).Should().BeTrue();
-            FloatMath.AreApproximatelyEqual(minMax.Max, minMax2.Max).Should().BeTrue();
+            FloatMath.AreApproximatelyEqual(min, minMax2.Min).Should().BeTrue();
+            FloatMath.AreApproximatelyEqual(max, minMax2.Max).Should().BeTrue();
         }
 
         [Fact]
@@ -502,7 +502,7 @@ namespace BrightData.UnitTests
             FloatMath.AreApproximatelyEqual(stdDev, stdDev2).Should().BeTrue();
         }
 
-        void _TestNormalise(NormalizationType type)
+        void TestNormalise(NormalizationType type)
         {
             var distribution = new Normal(0, 5);
 
@@ -520,25 +520,25 @@ namespace BrightData.UnitTests
         [Fact]
         public void VectorFeatureScaleNormalise()
         {
-            _TestNormalise(NormalizationType.FeatureScale);
+            TestNormalise(NormalizationType.FeatureScale);
         }
 
         [Fact]
         public void VectorStandardNormalise()
         {
-            _TestNormalise(NormalizationType.Standard);
+            TestNormalise(NormalizationType.Standard);
         }
 
         [Fact]
         public void VectorManhattanNormalise()
         {
-            _TestNormalise(NormalizationType.Manhattan);
+            TestNormalise(NormalizationType.Manhattan);
         }
 
         [Fact]
         public void VectorEuclideanNormalise()
         {
-            _TestNormalise(NormalizationType.Euclidean);
+            TestNormalise(NormalizationType.Euclidean);
         }
 
         [Fact]

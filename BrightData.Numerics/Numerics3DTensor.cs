@@ -61,11 +61,11 @@ namespace BrightData.Numerics
 
 		public float this[uint row, uint column, uint depth]
         {
-            get => _data[_RowIndex(row, column), depth];
-	        set => _data[_RowIndex(row, column), depth] = value;
+            get => _data[RowIndex(row, column), depth];
+	        set => _data[RowIndex(row, column), depth] = value;
         }
 
-	    uint _RowIndex(uint row, uint column) => column * _rows + row;
+	    uint RowIndex(uint row, uint column) => column * _rows + row;
 
         public Tensor3D<float> Data
         {

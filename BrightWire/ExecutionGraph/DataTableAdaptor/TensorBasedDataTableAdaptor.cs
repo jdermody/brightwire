@@ -50,7 +50,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 
 	    public override IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rows)
         {
-            var data = _GetRows(rows)
+            var data = GetRows(rows)
                 .Select(r => (_dataColumnIndex.Select(i => ((Tensor3D<float>)r[i]).GetAsRaw()).ToList(), Data: ((Vector<float>)r[_dataTargetIndex]).Segment))
                 .ToArray()
             ;
@@ -62,7 +62,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
                 inputList[i] = tensor;
             }
             var output = OutputSize > 0 
-                ? _lap.CreateMatrix((uint)data.Length, (uint)OutputSize, (x, y) => data[x].Item2[y]) 
+                ? _lap.CreateMatrix((uint)data.Length, (uint)OutputSize, (x, y) => data[x].Data[y]) 
                 : null;
             
             return new MiniBatch(rows, this, inputList, new MatrixGraphData(output));

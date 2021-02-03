@@ -21,14 +21,14 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         public SequenceToSequenceDataTableAdaptor(ILinearAlgebraProvider lap, ILearningContext learningContext, GraphFactory factory, IRowOrientedDataTable dataTable, Action<WireBuilder> dataConversionBuilder)
             : base(lap, learningContext, dataTable)
         {
-            _Initialise(dataTable);
+            Initialise(dataTable);
 
             var wireBuilder = factory.Connect(_inputSize, _input);
             dataConversionBuilder(wireBuilder);
 
             // execute the graph to find the input size (which is the size of the adaptive graph's output)
             using var executionContext = new ExecutionContext(lap);
-            var output = _Encode(executionContext, new uint [] { 0 });
+            var output = Encode(executionContext, new uint [] { 0 });
             _inputSize = output.Item1.ColumnCount;
             _learningContext.Clear();
         }
@@ -36,13 +36,13 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         public SequenceToSequenceDataTableAdaptor(ILinearAlgebraProvider lap, ILearningContext learningContext, IRowOrientedDataTable dataTable, INode input, DataSourceModel dataSource)
             : base(lap, learningContext, dataTable)
         {
-            _Initialise(dataTable);
+            Initialise(dataTable);
             _input = input;
             _inputSize = dataSource.InputSize;
             _outputSize = dataSource.OutputSize;
         }
 
-        void _Initialise(IDataTable dataTable)
+        void Initialise(IDataTable dataTable)
         {
             _rowDepth = new uint[dataTable.RowCount];
             Matrix<float> inputMatrix = null, outputMatrix = null;
@@ -59,7 +59,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         SequenceToSequenceDataTableAdaptor(ILinearAlgebraProvider lap, ILearningContext learningContext, IRowOrientedDataTable dataTable, INode input, uint inputSize, uint outputSize)
             : base(lap, learningContext, dataTable)
         {
-            _Initialise(dataTable);
+            Initialise(dataTable);
             _input = input;
             _inputSize = inputSize;
             _outputSize = outputSize;
@@ -77,26 +77,26 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         public override uint[][] GetBuckets()
         {
             return _rowDepth
-                .Select((r, i) => (r, i))
-                .GroupBy(t => t.Item1)
-                .Select(g => g.Select(d => (uint)d.Item2).ToArray())
+                .Select((r, i) => (Row: r, Index: i))
+                .GroupBy(t => t.Row)
+                .Select(g => g.Select(d => (uint)d.Index).ToArray())
                 .ToArray()
             ;
         }
 
-        (IFloatMatrix, object[][]) _Encode(IGraphExecutionContext executionContext, uint[] rows)
+        (IFloatMatrix, object[][]) Encode(IGraphExecutionContext executionContext, uint[] rows)
         {
-            var data = _GetRows(rows).ToArray();
+            var data = GetRows(rows).ToArray();
 
             // create the input batch
             var inputData = data.Select(r => ((Matrix<float>) r[0], (Matrix<float>) null)).ToArray();
-            var encoderInput = _GetSequentialMiniBatch(rows, inputData);
+            var encoderInput = GetSequentialMiniBatch(rows, inputData);
 
             // execute the encoder
-            IMiniBatchSequence sequence;
-            IFloatMatrix encoderOutput = null;
+            IMiniBatchSequence? sequence;
+            IFloatMatrix? encoderOutput = null;
             while ((sequence = encoderInput.GetNextSequence()) != null) {
-                using var context = _Process(executionContext, sequence);
+                using var context = Process(executionContext, sequence);
                 if (sequence.Type == MiniBatchSequenceType.SequenceEnd)
                     encoderOutput = context.Data.GetMatrix();
             }
@@ -105,7 +105,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 
         public override IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rows)
         {
-            var (encoderOutput, data) = _Encode(executionContext, rows);
+            var (encoderOutput, data) = Encode(executionContext, rows);
 
             // create the decoder input
             var outputData = new Dictionary<uint, List<Vector<float>>>();

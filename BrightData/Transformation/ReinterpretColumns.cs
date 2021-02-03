@@ -28,19 +28,19 @@ namespace BrightData.Transformation
             {
                 // convert many columns to single index list
                 if (NewType == ColumnType.IndexList)
-                    yield return new ManyToOne<IndexList>(context, tempStreams, Name, initialColumnIndex, columns, _ToIndexList);
+                    yield return new ManyToOne<IndexList>(context, tempStreams, Name, initialColumnIndex, columns, ToIndexList);
                 else if(NewType == ColumnType.WeightedIndexList)
-                    yield return new ManyToOne<WeightedIndexList>(context, tempStreams, Name, initialColumnIndex, columns, _ToWeightedIndexList);
+                    yield return new ManyToOne<WeightedIndexList>(context, tempStreams, Name, initialColumnIndex, columns, ToWeightedIndexList);
                 else if (NewType == ColumnType.Vector)
-                    yield return new ManyToOne<Vector<float>>(context, tempStreams, Name, initialColumnIndex, columns, _ToVector);
+                    yield return new ManyToOne<Vector<float>>(context, tempStreams, Name, initialColumnIndex, columns, ToVector);
                 else if (NewType == ColumnType.String)
-                    yield return new ManyToOne<string>(context, tempStreams, Name, initialColumnIndex, columns, _ToString);
+                    yield return new ManyToOne<string>(context, tempStreams, Name, initialColumnIndex, columns, ToString);
             }
             else
                 throw new NotImplementedException("Currently not supported");
         }
 
-        static IndexList _ToIndexList(IBrightDataContext context, object[] vals)
+        static IndexList ToIndexList(IBrightDataContext context, object[] vals)
         {
             var indices = vals
                 .Select(Convert.ToSingle)
@@ -50,7 +50,7 @@ namespace BrightData.Transformation
             return context.CreateIndexList(indices);
         }
 
-        static WeightedIndexList _ToWeightedIndexList(IBrightDataContext context, object[] vals)
+        static WeightedIndexList ToWeightedIndexList(IBrightDataContext context, object[] vals)
         {
             var indices = vals
                 .Select(Convert.ToSingle)
@@ -61,13 +61,13 @@ namespace BrightData.Transformation
             return context.CreateWeightedIndexList(indices);
         }
 
-        static Vector<float> _ToVector(IBrightDataContext context, object[] values)
+        static Vector<float> ToVector(IBrightDataContext context, object[] values)
         {
             var data = values.Select(Convert.ToSingle).ToArray();
             return context.CreateVector(data);
         }
 
-        static string _ToString(IBrightDataContext context, object[] vals) => String.Join('|', vals.Select(Convert.ToString));
+        static string ToString(IBrightDataContext context, object[] vals) => String.Join('|', vals.Select(Convert.ToString));
 
         class ManyToOne<T> : ISingleTypeTableSegment where T: notnull
         {

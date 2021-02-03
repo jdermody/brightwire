@@ -114,7 +114,7 @@ namespace BrightData
         /// <inheritdoc />
         public T Set<T>(string name, T value) where T : IConvertible
         {
-            _Set(name, value);
+            Set(name, (IConvertible) value);
             return value;
         }
 
@@ -129,7 +129,7 @@ namespace BrightData
                     Encoding = Encoding.UTF8
                 });
                 writer.WriteStartElement("metadata");
-                foreach (var item in _GetNonEmpty()) {
+                foreach (var item in GetNonEmpty()) {
                     writer.WriteStartElement("item");
                     writer.WriteAttributeString("name", item.Name);
                     writer.WriteAttributeString("type", item.Value.GetTypeCode().ToType()?.ToString() ?? "???");
@@ -141,7 +141,7 @@ namespace BrightData
             }
         }
 
-        void _Set(string name, IConvertible value)
+        void Set(string name, IConvertible value)
         {
             if (!_values.ContainsKey(name))
                 _orderedValues.Add(name);
@@ -151,7 +151,7 @@ namespace BrightData
         /// <inheritdoc />
         public void WriteTo(BinaryWriter writer)
         {
-            var items = _GetNonEmpty().ToList();
+            var items = GetNonEmpty().ToList();
             writer.Write(items.Count);
             foreach(var item in items) {
                 writer.Write(item.Name);
@@ -174,7 +174,7 @@ namespace BrightData
                 if (type != null) {
                     var typeConverter = TypeDescriptor.GetConverter(type);
                     if(typeConverter.ConvertFromString(str) is IConvertible obj)
-                        _Set(name, obj);
+                        Set(name, obj);
                 }
             }
         }
@@ -188,7 +188,7 @@ namespace BrightData
             ;
         }
 
-        static string _Write(IConvertible value)
+        static string Write(IConvertible value)
         {
             var typeCode = value.GetTypeCode();
             if (typeCode == TypeCode.Double)
@@ -200,12 +200,12 @@ namespace BrightData
             return value.ToString(CultureInfo.InvariantCulture);
         }
 
-        IEnumerable<(string Name, IConvertible Value, string String)> _GetNonEmpty()
+        IEnumerable<(string Name, IConvertible Value, string String)> GetNonEmpty()
         {
             var nonNull = _values.ToDictionary(d => d.Key, d => d.Value);
             foreach (var item in _orderedValues) {
                 if (nonNull.TryGetValue(item, out var val)) {
-                    var str = _Write(val);
+                    var str = Write(val);
                     if(!String.IsNullOrWhiteSpace(str))
                         yield return (item, val, str);
                 }

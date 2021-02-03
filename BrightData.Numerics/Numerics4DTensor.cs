@@ -180,11 +180,11 @@ namespace BrightData.Numerics
         }
 
 	    public float this[uint row, uint column, uint depth, uint index] {
-		    get => _data[_RowIndex(row, column, depth), index];
-		    set => _data[_RowIndex(row, column, depth), index] = value;
+		    get => _data[RowIndex(row, column, depth), index];
+		    set => _data[RowIndex(row, column, depth), index] = value;
 	    }
 
-	    uint _RowIndex(uint row, uint column, uint depth) => depth * _depth + (column * _rows + row);
+	    uint RowIndex(uint row, uint column, uint depth) => depth * _depth + (column * _rows + row);
 
 	    public string AsXml
 	    {

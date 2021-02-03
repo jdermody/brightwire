@@ -41,11 +41,11 @@ namespace BrightData.Transformation
 
         abstract class ConvertViaString<TF, TT> : ITransformColumn<TF, TT> where TF : notnull where TT : notnull
         {
-            protected abstract TT _Convert(string str);
+            protected abstract TT Convert(string str);
 
             public bool Convert(TF input, IHybridBuffer<TT> buffer)
             {
-                buffer.Add(_Convert(input.ToString() ?? throw new Exception("String was null")));
+                buffer.Add(Convert(input.ToString() ?? throw new Exception("String was null")));
                 return true;
             }
 
@@ -104,7 +104,7 @@ namespace BrightData.Transformation
         {
             readonly Dictionary<string, int> _categoryIndex = new Dictionary<string, int>();
 
-            protected override int _Convert(string str)
+            protected override int Convert(string str)
             {
                 if (_categoryIndex.TryGetValue(str, out var index))
                     return index;
@@ -214,7 +214,7 @@ namespace BrightData.Transformation
                             toType = ColumnType.Double;
                     }
                 
-                    var enumerable = _GetEnumerableNumbers(toType, buffer.EnumerateTyped());
+                    var enumerable = GetEnumerableNumbers(toType, buffer.EnumerateTyped());
                     var converterType = typeof(NumericConverter<,>).MakeGenericType(fromType.GetDataType(), toType.GetDataType());
                     return GenericActivator.Create<ITransformColumn>(converterType, enumerable);
                 }
@@ -249,9 +249,9 @@ namespace BrightData.Transformation
             }
         }
 
-        IEnumerable _GetEnumerableNumbers(ColumnType toType, IEnumerable<double> numbers)
+        IEnumerable GetEnumerableNumbers(ColumnType toType, IEnumerable<double> numbers)
         {
-            IEnumerable<T> _ConvertIntegers<T>(IEnumerable<double> list, Func<double, T> converter)
+            IEnumerable<T> ConvertIntegers<T>(IEnumerable<double> list, Func<double, T> converter)
             {
                 return list.Select(v => double.IsNaN(v) ? converter(0) : converter(v));
             }
@@ -259,11 +259,11 @@ namespace BrightData.Transformation
             return toType switch {
                 ColumnType.Double => numbers,
                 ColumnType.Float => numbers.Select(Convert.ToSingle),
-                ColumnType.Decimal => _ConvertIntegers(numbers, Convert.ToDecimal),
-                ColumnType.Long => _ConvertIntegers(numbers, Convert.ToInt64),
-                ColumnType.Int => _ConvertIntegers(numbers, Convert.ToInt32),
-                ColumnType.Short => _ConvertIntegers(numbers, Convert.ToInt16),
-                ColumnType.Byte => _ConvertIntegers(numbers, Convert.ToSByte),
+                ColumnType.Decimal => ConvertIntegers(numbers, Convert.ToDecimal),
+                ColumnType.Long => ConvertIntegers(numbers, Convert.ToInt64),
+                ColumnType.Int => ConvertIntegers(numbers, Convert.ToInt32),
+                ColumnType.Short => ConvertIntegers(numbers, Convert.ToInt16),
+                ColumnType.Byte => ConvertIntegers(numbers, Convert.ToSByte),
                 _ => throw new Exception("Invalid column type for numeric")
             };
         }

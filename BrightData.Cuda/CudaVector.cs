@@ -18,8 +18,8 @@ namespace BrightData.Cuda
 		bool _disposed = false;
 #if DEBUG
 		static int _gid = 0;
-		static int _GetNextIndex() => Interlocked.Increment(ref _gid);
-		readonly int _id = _GetNextIndex();
+		static int GetNextIndex() => Interlocked.Increment(ref _gid);
+		readonly int _id = GetNextIndex();
 		public static int _badAlloc = -1;
 		public static int _badDispose = -1;
 
@@ -161,7 +161,7 @@ namespace BrightData.Cuda
 		public IFloatVector GetNewVectorFromIndexes(IEnumerable<uint> indices)
 		{
 			Debug.Assert(IsValid);
-			var data = _cuda.VectorCopy(_data, Count, indices.ToArray());
+			var data = _cuda.VectorCopy(_data, indices.ToArray());
 			return new CudaVector(_cuda, data, true);
 		}
 
@@ -330,10 +330,10 @@ namespace BrightData.Cuda
 		{
 			Debug.Assert(IsValid);
 			if (type == NormalizationType.FeatureScale) {
-				var minMax = GetMinMax();
-				float range = minMax.Max - minMax.Min;
+				var (min, max) = GetMinMax();
+				float range = max - min;
 				if (range > 0)
-					_cuda.Normalise(_data, Count, minMax.Min, range);
+					_cuda.Normalise(_data, Count, min, range);
 			} else if (type == NormalizationType.Standard) {
 				var mean = Average();
 				var stdDev = StdDev(mean);
@@ -353,31 +353,26 @@ namespace BrightData.Cuda
 		public IFloatVector Softmax()
 		{
 			Debug.Assert(IsValid);
-			var minMax = GetMinMax();
+			var (_, max) = GetMinMax();
 
-			var softmax = _cuda.SoftmaxVector(_data, Count, minMax.Max);
+			var softmax = _cuda.SoftmaxVector(_data, Count, max);
 			var softmaxSum = _cuda.SumValues(softmax, Count);
 			if (FloatMath.IsNotZero(softmaxSum))
 				_cuda.Blas.Scale(1f / softmaxSum, softmax.DeviceVariable, 1);
 			return new CudaVector(_cuda, softmax, true);
 		}
 
-		Func<IFloatVector, float> _GetDistanceFunc(DistanceMetric distance)
-		{
-			switch (distance) {
-				case DistanceMetric.Cosine:
-					return CosineDistance;
-				case DistanceMetric.Euclidean:
-					return EuclideanDistance;
-				case DistanceMetric.Manhattan:
-					return ManhattanDistance;
-				case DistanceMetric.MeanSquared:
-					return MeanSquaredDistance;
-				case DistanceMetric.SquaredEuclidean:
-					return SquaredEuclidean;
-			}
-			throw new NotImplementedException();
-		}
+		Func<IFloatVector, float> GetDistanceFunc(DistanceMetric distance)
+        {
+            return distance switch {
+                DistanceMetric.Cosine => CosineDistance,
+                DistanceMetric.Euclidean => EuclideanDistance,
+                DistanceMetric.Manhattan => ManhattanDistance,
+                DistanceMetric.MeanSquared => MeanSquaredDistance,
+                DistanceMetric.SquaredEuclidean => SquaredEuclidean,
+                _ => throw new NotImplementedException()
+            };
+        }
 
 		public IFloatVector FindDistances(IFloatVector[] data, DistanceMetric distance)
 		{
@@ -393,7 +388,7 @@ namespace BrightData.Cuda
 				var ret = _cuda.CalculateDistances(new[] { (IFloatVector)this }, data, distance);
 				return ret.ReshapeAsVector();
 			} else {
-				var distanceFunc = _GetDistanceFunc(distance);
+				var distanceFunc = GetDistanceFunc(distance);
 				var ret = new float[data.Length];
 				for (var i = 0; i < data.Length; i++)
 					ret[i] = distanceFunc(data[i]);

@@ -62,8 +62,8 @@ namespace BrightData.LinearAlgebra.FloatTensor
 
         public (float Min, float Max) GetMinMax()
         {
-            var ret = Data.GetMinAndMaxValues();
-            return (ret.Min, ret.Max);
+            var (min, max, _, _) = Data.GetMinAndMaxValues();
+            return (min, max);
         }
 
         public float Average() => Data.Average();

@@ -18,7 +18,7 @@ namespace ExampleCode.DataTableTrainers
 
         }
 
-        public ExecutionGraphModel TrainConvolutionalNeuralNetwork(
+        public ExecutionGraphModel? TrainConvolutionalNeuralNetwork(
             uint hiddenLayerSize = 1024,
             uint numIterations = 20,
             float trainingRate = 0.1f,
@@ -67,7 +67,7 @@ namespace ExampleCode.DataTableTrainers
             engine.LearningContext.ScheduleLearningRate(Convert.ToUInt32(numIterations * 0.75), trainingRate / 2);
 
             // train the network for twenty iterations, saving the model on each improvement
-            ExecutionGraphModel bestGraph = null;
+            ExecutionGraphModel? bestGraph = null;
             var testData = trainingData.CloneWith(Test);
             engine.Train(numIterations, testData, errorMetric, model => {
                 bestGraph = model.Graph;

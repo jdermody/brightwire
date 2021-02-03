@@ -36,14 +36,14 @@ namespace BrightData.UnitTests
 
         }
 
-        void _CompareRows(IDataTableSegment row1, IDataTableSegment row2)
+        void CompareRows(IDataTableSegment row1, IDataTableSegment row2)
         {
             row1.Size.Should().Be(row2.Size);
             for (uint i = 0; i < row1.Size; i++)
                 row1[i].Should().BeEquivalentTo(row2[i]);
         }
 
-        void _CompareTables(IRowOrientedDataTable table1, IRowOrientedDataTable table2)
+        void CompareTables(IRowOrientedDataTable table1, IRowOrientedDataTable table2)
         {
             var rand = new Random();
             table1.ColumnCount.Should().Be(table2.ColumnCount);
@@ -54,11 +54,11 @@ namespace BrightData.UnitTests
                 var index = (uint)rand.Next((int)table1.RowCount);
                 var row1 = table1.Row(index);
                 var row2 = table2.Row(index);
-                _CompareRows(row1, row2);
+                CompareRows(row1, row2);
             }
         }
 
-        void _RandomSample(IConvertibleTable table, Action<uint, IConvertibleRow> callback)
+        void RandomSample(IConvertibleTable table, Action<uint, IConvertibleRow> callback)
         {
             var rand = new Random();
             for (var i = 0; i < 128; i++) {
@@ -86,14 +86,14 @@ namespace BrightData.UnitTests
         //    dataStream.Seek(0, SeekOrigin.Begin);
         //    indexStream.Seek(0, SeekOrigin.Begin);
         //    var newTable = _context.BuildTable(dataStream, indexStream);
-        //    _CompareTables(table, newTable);
+        //    CompareTables(table, newTable);
 
         //    dataStream.Seek(0, SeekOrigin.Begin);
         //    var newTable2 = _context.BuildTable(dataStream, null);
-        //    _CompareTables(table, newTable2);
+        //    CompareTables(table, newTable2);
         //}
 
-        static IDataTable _CreateComplexTable(IBrightDataContext context)
+        static IDataTable CreateComplexTable(IBrightDataContext context)
         {
             var builder = context.BuildTable();
             builder.AddColumn(ColumnType.Boolean, "boolean");
@@ -113,7 +113,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void TestDataTableAnalysis()
         {
-            var table = _CreateComplexTable(_context);
+            var table = CreateComplexTable(_context);
             var analysis = table.GetColumnAnalysis();
 
             var boolAnalysis = analysis[0].GetFrequencyAnalysis();
@@ -134,7 +134,7 @@ namespace BrightData.UnitTests
             stringAnalysis.MaxLength.Should().Be(2);
         }
 
-        IRowOrientedDataTable _GetSimpleTable()
+        IRowOrientedDataTable GetSimpleTable()
         {
             var builder = _context.BuildTable();
             builder.AddColumn(ColumnType.Int, "val");
@@ -144,9 +144,9 @@ namespace BrightData.UnitTests
             return builder.BuildRowOriented();
         }
 
-        IRowOrientedDataTable _GetSimpleTable2()
+        IRowOrientedDataTable GetSimpleTable2()
         {
-            var table = _GetSimpleTable();
+            var table = GetSimpleTable();
             var table2 = table.Project(r => new object[] { Convert.ToDouble(r[0]) });
             table2.ColumnTypes[0].Should().Be(ColumnType.Double);
             return table2;
@@ -155,7 +155,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void TestTableSlice()
         {
-            var table = _GetSimpleTable();
+            var table = GetSimpleTable();
             var rows = table.CopyRows(Enumerable.Range(5000, 100).Select(i => (uint)i).ToArray()).AsConvertible().Rows().Select(r => r.GetTyped<int>(0)).ToList();
 
             for (var i = 0; i < 100; i++)
@@ -165,23 +165,23 @@ namespace BrightData.UnitTests
         [Fact]
         public void TestTableSplit()
         {
-            var table = _GetSimpleTable();
-            var split = table.Split(0.75);
-            split.Training.RowCount.Should().Be(7500);
-            split.Test.RowCount.Should().Be(2500);
+            var table = GetSimpleTable();
+            var (training, test) = table.Split(0.75);
+            training.RowCount.Should().Be(7500);
+            test.RowCount.Should().Be(2500);
         }
 
         [Fact]
         public void TestStandardNormalisation()
         {
-            var table = _GetSimpleTable2();
+            var table = GetSimpleTable2();
             var convertible = table.AsConvertible();
             var analysis = table.GetColumnAnalysis()[0].GetNumericAnalysis();
             var mean = analysis.Mean;
             var stdDev = analysis.PopulationStdDev.Value;
             var normalised = table.AsColumnOriented().Normalize(NormalizationType.Standard).AsRowOriented().AsConvertible();
 
-            _RandomSample(normalised, (index, row) => {
+            RandomSample(normalised, (index, row) => {
                 var val = row.GetTyped<double>(0);
                 var prevVal = convertible.Row(index).GetTyped<double>(0);
                 var expected = (prevVal - mean) / stdDev;
@@ -192,11 +192,11 @@ namespace BrightData.UnitTests
         //[Fact]
         //public void TestStandardNormalisation2()
         //{
-        //    var table = _GetSimpleTable2();
+        //    var table = GetSimpleTable2();
         //    var analysis = table.GetColumnAnalysis()[0];
         //    var normalised = table.AsColumnOriented().Normalize(NormalizationType.Standard).AsRowOriented().AsConvertible();
 
-        //    _RandomSample(normalised, (index, row) => {
+        //    RandomSample(normalised, (index, row) => {
         //        var val = row.GetTyped<double>(0);
         //        var prevVal = (double)table.Row(index)[0];
         //        var expected = (prevVal - analysis.Mean) / analysis.StdDev.Value;
@@ -208,11 +208,11 @@ namespace BrightData.UnitTests
         //[Fact]
         //public void TestFeatureScaleNormalisation()
         //{
-        //    var table = _GetSimpleTable2();
+        //    var table = GetSimpleTable2();
         //    var analysis = table.GetAnalysis()[0] as INumericColumnInfo;
         //    var normalised = table.Normalize(NormalisationType.FeatureScale);
 
-        //    _RandomSample(normalised, (index, row) => {
+        //    RandomSample(normalised, (index, row) => {
         //        var val = row.GetTyped<double>(0);
         //        var prevVal = table.GetRow(index).GetField<double>(0);
         //        var expected = (prevVal - analysis.Min) / (analysis.Max - analysis.Min);
@@ -224,12 +224,12 @@ namespace BrightData.UnitTests
         //[Fact]
         //public void TestFeatureScaleNormalisation2()
         //{
-        //    var table = _GetSimpleTable2();
+        //    var table = GetSimpleTable2();
         //    var analysis = table.GetAnalysis()[0] as INumericColumnInfo;
         //    var model = table.GetNormalisationModel(NormalisationType.FeatureScale);
         //    var normalised = table.Normalize(model);
 
-        //    _RandomSample(normalised, (index, row) => {
+        //    RandomSample(normalised, (index, row) => {
         //        var val = row.GetTyped<double>(0);
         //        var prevVal = table.GetRow(index).GetField<double>(0);
         //        var expected = (prevVal - analysis.Min) / (analysis.Max - analysis.Min);
@@ -241,14 +241,14 @@ namespace BrightData.UnitTests
         //[Fact]
         //public void TestL2Normalisation()
         //{
-        //    var table = _GetSimpleTable2();
+        //    var table = GetSimpleTable2();
         //    var analysis = table.GetAnalysis()[0] as INumericColumnInfo;
         //    var normalised = table.Normalize(NormalisationType.Euclidean);
 
         //    var l2Norm = Math.Sqrt(table.GetColumn<double>(0).Select(d => Math.Pow(d, 2)).Sum());
         //    Assert.AreEqual(analysis.L2Norm, l2Norm);
 
-        //    _RandomSample(normalised, (index, row) => {
+        //    RandomSample(normalised, (index, row) => {
         //        var val = row.GetTyped<double>(0);
         //        var prevVal = table.GetRow(index).GetField<double>(0);
         //        var expected = prevVal / analysis.L2Norm;
@@ -260,7 +260,7 @@ namespace BrightData.UnitTests
         //[Fact]
         //public void TestL2Normalisation2()
         //{
-        //    var table = _GetSimpleTable2();
+        //    var table = GetSimpleTable2();
         //    var analysis = table.GetAnalysis()[0] as INumericColumnInfo;
         //    var model = table.GetNormalisationModel(NormalisationType.Euclidean);
         //    var normalised = table.Normalize(model);
@@ -268,7 +268,7 @@ namespace BrightData.UnitTests
         //    var l2Norm = Math.Sqrt(table.GetColumn<double>(0).Select(d => Math.Pow(d, 2)).Sum());
         //    Assert.AreEqual(analysis.L2Norm, l2Norm);
 
-        //    _RandomSample(normalised, (index, row) => {
+        //    RandomSample(normalised, (index, row) => {
         //        var val = row.GetTyped<double>(0);
         //        var prevVal = table.GetRow(index).GetField<double>(0);
         //        var expected = prevVal / analysis.L2Norm;
@@ -280,14 +280,14 @@ namespace BrightData.UnitTests
         //[Fact]
         //public void TestL1Normalisation()
         //{
-        //    var table = _GetSimpleTable2();
+        //    var table = GetSimpleTable2();
         //    var analysis = table.GetAnalysis()[0] as INumericColumnInfo;
         //    var normalised = table.Normalize(NormalisationType.Manhattan);
 
         //    var l1Norm = table.GetColumn<double>(0).Select(d => Math.Abs(d)).Sum();
         //    Assert.AreEqual(analysis.L1Norm, l1Norm);
 
-        //    _RandomSample(normalised, (index, row) => {
+        //    RandomSample(normalised, (index, row) => {
         //        var val = row.GetTyped<double>(0);
         //        var prevVal = table.GetRow(index).GetField<double>(0);
         //        var expected = prevVal / analysis.L1Norm;
@@ -299,7 +299,7 @@ namespace BrightData.UnitTests
         //[Fact]
         //public void TestL1Normalisation2()
         //{
-        //    var table = _GetSimpleTable2();
+        //    var table = GetSimpleTable2();
         //    var analysis = table.GetAnalysis()[0] as INumericColumnInfo;
         //    var model = table.GetNormalisationModel(NormalisationType.Manhattan);
         //    var normalised = table.Normalize(model);
@@ -307,7 +307,7 @@ namespace BrightData.UnitTests
         //    var l1Norm = table.GetColumn<double>(0).Select(d => Math.Abs(d)).Sum();
         //    Assert.AreEqual(analysis.L1Norm, l1Norm);
 
-        //    _RandomSample(normalised, (index, row) => {
+        //    RandomSample(normalised, (index, row) => {
         //        var val = row.GetTyped<double>(0);
         //        var prevVal = table.GetRow(index).GetField<double>(0);
         //        var expected = prevVal / analysis.L1Norm;
@@ -319,7 +319,7 @@ namespace BrightData.UnitTests
         //[Fact]
         //public void TestReverseNormalisation()
         //{
-        //    var table = _CreateComplexTable(_context);
+        //    var table = CreateComplexTable(_context);
         //    var columnIndex = table.TargetColumnIndex = 3;
         //    var model = table.GetNormalisationModel(NormalisationType.FeatureScale);
         //    var normalised = table.Normalize(model);
@@ -518,7 +518,7 @@ namespace BrightData.UnitTests
         //[Fact]
         //public void TableReverseVectorise()
         //{
-        //    var table = _CreateComplexTable(_context);
+        //    var table = CreateComplexTable(_context);
         //    uint targetColumnIndex;
         //    table.SetTargetColumn(targetColumnIndex = table.ColumnCount - 1);
         //    var targetColumnType = table.Column(targetColumnIndex).SingleType;

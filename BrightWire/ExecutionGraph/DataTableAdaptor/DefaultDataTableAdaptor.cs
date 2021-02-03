@@ -29,12 +29,12 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 
         public override IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rowIndices)
         {
-            var rows = _GetRows(rowIndices);
+            var rows = GetRows(rowIndices);
             var data = rows
                 .Select(r => (new[] { InputVectoriser.Vectorise(r) }, OutputVectoriser.Vectorise(r)))
                 .ToArray()
             ;
-            return _GetMiniBatch(rowIndices, data);
+            return GetMiniBatch(rowIndices, data);
         }
     }
 }

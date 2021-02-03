@@ -217,7 +217,7 @@
             <param name="rows">Row indices</param>
             <param name="data">List of input/output tuples</param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.DataTableAdaptor.DataTableAdaptorBase`1._GetSequentialMiniBatch(System.UInt32[],System.ValueTuple{BrightData.Matrix{System.Single},BrightData.Matrix{System.Single}}[])">
+        <member name="M:BrightWire.ExecutionGraph.DataTableAdaptor.DataTableAdaptorBase`1._GetSequentialMiniBatch(System.UInt32[],System.ValueTuple{BrightData.LinearAlgebra.Matrix{System.Single},BrightData.LinearAlgebra.Matrix{System.Single}}[])">
             <summary>
             Creates a sequential mini batch
             </summary>
@@ -482,20 +482,20 @@
             <param name="graph">The serialised graph to execute</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateDataSource(BrightData.Vector{System.Single}[])">
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateDataSource(BrightData.LinearAlgebra.Vector{System.Single}[])">
             <summary>
             Creates a data source from a list of vectors
             </summary>
             <param name="vectorList">The list of vectors that will be the rows in the data source</param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateDataSource(BrightData.Matrix{System.Single}[])">
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateDataSource(BrightData.LinearAlgebra.Matrix{System.Single}[])">
             <summary>
             Creates a data source from a list of matrices (sequential vectors)
             </summary>
             <param name="sequenceList">The list of matrices that will be the rows in the data source</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateDataSource(BrightData.Tensor3D{System.Single}[])">
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateDataSource(BrightData.LinearAlgebra.Tensor3D{System.Single}[])">
             <summary>
             Creates a data source from a list of tensors
             </summary>
@@ -3311,7 +3311,7 @@
             True if the result should be formatted as a percentage
             </summary>
         </member>
-        <member name="M:BrightWire.IErrorMetric.Compute(BrightData.Vector{System.Single},BrightData.Vector{System.Single})">
+        <member name="M:BrightWire.IErrorMetric.Compute(BrightData.LinearAlgebra.Vector{System.Single},BrightData.LinearAlgebra.Vector{System.Single})">
             <summary>
             Computes the error between the output vector and target vector
             </summary>
@@ -3738,7 +3738,7 @@
             Logistic regression classifier
             </summary>
         </member>
-        <member name="M:BrightWire.ILogisticRegressionClassifier.Predict(BrightData.Matrix{System.Single})">
+        <member name="M:BrightWire.ILogisticRegressionClassifier.Predict(BrightData.LinearAlgebra.Matrix{System.Single})">
             <summary>
             Outputs a list of values from 0 to 1 for each input data
             </summary>
@@ -4476,7 +4476,7 @@
             The output from a mini batch
             </summary>
         </member>
-        <member name="M:BrightWire.Models.ExecutionResult.#ctor(BrightWire.IMiniBatchSequence,BrightData.Vector{System.Single}[],System.UInt32)">
+        <member name="M:BrightWire.Models.ExecutionResult.#ctor(BrightWire.IMiniBatchSequence,BrightData.LinearAlgebra.Vector{System.Single}[],System.UInt32)">
             <summary>
             Constructor
             </summary>

@@ -21,7 +21,7 @@ namespace BrightData.Memory
 
         public T[] Get<T>(uint size) where T: struct
         {
-            var key = _GetKey<T>(size);
+            var key = GetKey<T>(size);
             _requestHistory[key] = Interlocked.Increment(ref _requestIndex);
 
             if (_cache.TryGetValue(key, out var bag) && bag.TryTake(out var ptr))
@@ -34,7 +34,7 @@ namespace BrightData.Memory
         public void Reuse<T>(T[] block) where T: struct
         {
             _cache.AddOrUpdate(
-                _GetKey<T>((uint)block.Length),
+                GetKey<T>((uint)block.Length),
                 key => new ConcurrentBag<Array> { block },
                 (key, bag) => {
                     bag.Add(block);
@@ -65,10 +65,7 @@ namespace BrightData.Memory
 
         public long CacheSize { get; private set; } = 0;
 
-        static string _GetKey<T>(uint size)
-        {
-            return $"({size})" + typeof(T).AssemblyQualifiedName;
-        }
+        static string GetKey<T>(uint size) => $"({size})" + typeof(T).AssemblyQualifiedName;
 
         public void Dispose()
         {

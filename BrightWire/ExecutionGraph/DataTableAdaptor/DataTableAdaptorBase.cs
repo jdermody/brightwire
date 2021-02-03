@@ -74,7 +74,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 		/// Returns the row data
 		/// </summary>
 		/// <param name="rows">List of row indices</param>
-        protected IEnumerable<T> _GetRows(uint[] rows)
+        protected IEnumerable<T> GetRows(uint[] rows)
         {
             return rows.Select(i => _data[(int)i]);
         }
@@ -84,7 +84,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 		/// </summary>
 		/// <param name="rows">Row indices</param>
 		/// <param name="data">List of input/output tuples</param>
-        protected IMiniBatch _GetMiniBatch(uint[] rows, (float[][] Input, float[] Output)[] data)
+        protected IMiniBatch GetMiniBatch(uint[] rows, (float[][] Input, float[] Output)[] data)
         {
             var numInputs = (uint)data[0].Input.Length;
             var inputList = new IGraphData[numInputs];
@@ -105,15 +105,13 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 		/// </summary>
 		/// <param name="rows">Row indices</param>
 		/// <param name="data">List of input/output matrix tuples</param>
-        protected IMiniBatch _GetSequentialMiniBatch(uint[] rows, (Matrix<float> Input, Matrix<float> Output)[] data)
+        protected IMiniBatch GetSequentialMiniBatch(uint[] rows, (Matrix<float> Input, Matrix<float> Output)[] data)
         {
             List<Vector<float>>? temp;
             var inputData = new Dictionary<uint, List<Vector<float>>>();
             var outputData = new Dictionary<uint, List<Vector<float>>>();
 
-            foreach (var item in data) {
-                var input = item.Input;
-                var output = item.Output;
+            foreach (var (input, output) in data) {
                 for (uint i = 0, len = input.RowCount; i < len; i++) {
                     if (!inputData.TryGetValue(i, out temp))
                         inputData.Add(i, temp = new List<Vector<float>>());

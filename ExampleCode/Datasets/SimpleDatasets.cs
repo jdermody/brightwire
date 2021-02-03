@@ -35,7 +35,7 @@ namespace ExampleCode.Datasets
             }
             finally
             {
-                reader?.Dispose();
+                reader.Dispose();
             }
         }
 
@@ -85,19 +85,19 @@ namespace ExampleCode.Datasets
         {
             using var reader = GetStreamReader(context, "beautiful_and_damned.txt", "http://www.gutenberg.org/cache/epub/9830/pg9830.txt");
             var data = reader.ReadToEnd();
-            var pos = data.IndexOf("CHAPTER I");
+            var pos = data.IndexOf("CHAPTER I", StringComparison.Ordinal);
             var mainText = data.Substring(pos + 9).Trim();
 
             return new SentenceTable(context, SimpleTokeniser.FindSentences(SimpleTokeniser.Tokenise(mainText)));
         }
 
-        public static MNIST MNIST(this IBrightDataContext context, uint numToLoad = uint.MaxValue)
+        public static MNIST Mnist(this IBrightDataContext context, uint numToLoad = uint.MaxValue)
         {
-            var testImages = Datasets.MNIST.Load(
+            var testImages = MNIST.Load(
                 GetStream(context, "t10k-labels.idx1-ubyte", "http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz"),
                 GetStream(context, "t10k-images.idx3-ubyte", "http://yann.lecun.com/exdb/mnist/t10k-images-idx3-ubyte.gz")
             );
-            var trainingImages = Datasets.MNIST.Load(
+            var trainingImages = MNIST.Load(
                 GetStream(context, "train-labels.idx1-ubyte", "http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz"),
                 GetStream(context, "train-images.idx3-ubyte", "http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz")
             );
@@ -117,18 +117,17 @@ namespace ExampleCode.Datasets
                 "https://archive.ics.uci.edu/ml/machine-learning-databases/00307/%5bUCI%5d%20AAAI-14%20Accepted%20Papers%20-%20Papers.csv");
             using var table = context.ParseCsv(reader, true);
 
-            var KEYWORD_SPLIT = " \n".ToCharArray();
-            var TOPIC_SPLIT = "\n".ToCharArray();
+            var keywordSplit = " \n".ToCharArray();
+            var topicSplit = "\n".ToCharArray();
 
             var docList = new List<TestClusteringTrainer.AAAIDocument>();
-            table.ForEachRow(row => docList.Add(new TestClusteringTrainer.AAAIDocument
-            {
-                Abstract = (string)row[5],
-                Keyword = ((string)row[3]).Split(KEYWORD_SPLIT, StringSplitOptions.RemoveEmptyEntries).Select(str => str.ToLower()).ToArray(),
-                Topic = ((string)row[4]).Split(TOPIC_SPLIT, StringSplitOptions.RemoveEmptyEntries),
-                Group = ((string)row[2]).Split(TOPIC_SPLIT, StringSplitOptions.RemoveEmptyEntries),
-                Title = (string)row[0]
-            }));
+            table.ForEachRow(row => docList.Add(new TestClusteringTrainer.AAAIDocument(
+                (string) row[0],
+                ((string) row[3]).Split(keywordSplit, StringSplitOptions.RemoveEmptyEntries).Select(str => str.ToLower()).ToArray(),
+                ((string) row[4]).Split(topicSplit, StringSplitOptions.RemoveEmptyEntries),
+                (string) row[5],
+                ((string) row[2]).Split(topicSplit, StringSplitOptions.RemoveEmptyEntries)
+            )));
 
             return new TestClusteringTrainer(context, docList);
         }
@@ -198,7 +197,7 @@ namespace ExampleCode.Datasets
         public static SequenceToSequenceTrainer SequenceToSequence(this IBrightDataContext context)
         {
             const int SEQUENCE_LENGTH = 5;
-            var grammar = new SequenceGenerator(context, 8, SEQUENCE_LENGTH, SEQUENCE_LENGTH, true);
+            var grammar = new SequenceGenerator(context, 8, SEQUENCE_LENGTH, SEQUENCE_LENGTH);
             var sequences = grammar.GenerateSequences().Take(2000).ToList();
             var builder = context.BuildTable();
             builder.AddColumn(ColumnType.Matrix, "Input");
@@ -271,13 +270,13 @@ namespace ExampleCode.Datasets
             return new EmotionsTrainer(context, table, training, test);
         }
 
-        static string? GetDataFilePath(this IBrightDataContext context, string name)
+        static string GetDataFilePath(this IBrightDataContext context, string name)
         {
             var dataDirectory = context.Get<DirectoryInfo>("DataFileDirectory");
 
             // no directory specified
             if (dataDirectory == null)
-                return null;
+                throw new Exception("DataFileDirectory not set");
 
             // try to create the directory if it doesn't exist
             if (!dataDirectory.Exists)
@@ -289,23 +288,23 @@ namespace ExampleCode.Datasets
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Tried to create directory at {dataDirectory.FullName} but got exception: {ex}");
-                    return null;
+                    throw;
                 }
             }
 
             return Path.Combine(dataDirectory.FullName, name);
         }
 
-        static StreamReader GetStreamReader(this IBrightDataContext context, string fileName, string remoteUrl = null)
+        static StreamReader GetStreamReader(this IBrightDataContext context, string fileName, string? remoteUrl = null)
         {
             return new StreamReader(GetStream(context, fileName, remoteUrl));
         }
 
-        static Stream GetStream(this IBrightDataContext context, string fileName, string remoteUrl = null, Action<string> downloadedToFile = null)
+        static Stream GetStream(this IBrightDataContext context, string fileName, string? remoteUrl = null, Action<string>? downloadedToFile = null)
         {
             var wasDownloaded = false;
             var filePath = GetDataFilePath(context, fileName);
-            if (filePath == null || !File.Exists(filePath) && !String.IsNullOrWhiteSpace(remoteUrl))
+            if (!File.Exists(filePath) && !String.IsNullOrWhiteSpace(remoteUrl))
             {
                 Console.Write($"Downloading data set from {remoteUrl}...");
 
@@ -357,7 +356,7 @@ namespace ExampleCode.Datasets
             var isRar = (extension == ".rar");
             if (!isZip && !isRar)
                 throw new Exception($"Unknown file extension to extract: {extension}");
-            Action<string> extractor = null;
+            Action<string>? extractor = null;
             if (isZip)
                 extractor = filePath => ZipFile.ExtractToDirectory(filePath, directoryPath);
             else if (isRar)
@@ -374,6 +373,9 @@ namespace ExampleCode.Datasets
                     }
                 };
             }
+
+            if (extractor == null)
+                throw new Exception("Could not create an extractor");
 
             using var output = GetStream(context, localName, remoteUrl, filePath => extractor(filePath));
             return new DirectoryInfo(directoryPath);

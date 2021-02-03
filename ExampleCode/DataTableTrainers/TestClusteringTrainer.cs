@@ -15,30 +15,39 @@ namespace ExampleCode.DataTableTrainers
 
         public class AAAIDocument
         {
+            public AAAIDocument(string title, string[] keyword, string[] topic, string @abstract, string[] @group)
+            {
+                Title = title;
+                Keyword = keyword;
+                Topic = topic;
+                Abstract = @abstract;
+                Group = @group;
+            }
+
             /// <summary>
             /// Free text description of the document
             /// </summary>
-            public string Title { get; set; }
+            public string Title { get; }
 
             /// <summary>
             /// Free text; author-generated keywords
             /// </summary>
-            public string[] Keyword { get; set; }
+            public string[] Keyword { get; }
 
             /// <summary>
             /// Free text; author-selected, low-level keywords
             /// </summary>
-            public string[] Topic { get; set; }
+            public string[] Topic { get; }
 
             /// <summary>
             /// Free text; paper abstracts
             /// </summary>
-            public string Abstract { get; set; }
+            public string Abstract { get; }
 
             /// <summary>
             /// Categorical; author-selected, high-level keyword(s)
             /// </summary>
-            public string[] Group { get; set; }
+            public string[] Group { get; }
 
             public (string Classification, WeightedIndexList Data) AsClassification(IBrightDataContext context, StringTableBuilder stringTable)
             {
@@ -144,7 +153,7 @@ namespace ExampleCode.DataTableTrainers
 
         string GetOutputPath(string name) => Path.Combine(DataFileDirectory, "output", $"{name}.txt");
 
-        string DataFileDirectory => _context.Get<DirectoryInfo>("DataFileDirectory", null)?.FullName ?? throw new Exception("Data File Directory not set");
+        string DataFileDirectory => _context.Get<DirectoryInfo>("DataFileDirectory")?.FullName ?? throw new Exception("Data File Directory not set");
 
         void _WriteClusters(string filePath, IFloatVector[][] clusters, Dictionary<IFloatVector, AAAIDocument> lookupTable)
         {

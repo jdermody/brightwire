@@ -23,8 +23,8 @@ namespace BrightData.Cuda.Helper
 	        int _refCount = 1;
 
 #if DEBUG
-            static int _badAlloc = -1;
-            static int _badDispose = -1;
+            static readonly int _badAlloc = -1;
+            static readonly int _badDispose = -1;
             public bool IsValid => !_disposed;
 #else
             public bool IsValid => true;
@@ -35,7 +35,7 @@ namespace BrightData.Cuda.Helper
                 _cache = cache;
                 _index = index;
 
-	            var sizeInBytes = size * CudaProvider.FLOAT_SIZE;
+	            var sizeInBytes = size * CudaProvider.FloatSize;
 	            var ptr = new CUdeviceptr();
 	            var result = DriverAPINativeMethods.MemoryManagement.cuMemAlloc_v2(ref ptr, sizeInBytes);
 	            CudaProvider.CheckForError(result);
@@ -133,14 +133,14 @@ namespace BrightData.Cuda.Helper
         }
         ~DeviceMemory()
         {
-            _Dispose();
+            DisposeMemory();
         }
         public void Dispose()
         {
             GC.SuppressFinalize(this);
-            _Dispose();
+            DisposeMemory();
         }
-        void _Dispose()
+        void DisposeMemory()
         {
             while (_layer.TryPop(out Layer layer)) {
                 lock (layer) {
@@ -207,7 +207,7 @@ namespace BrightData.Cuda.Helper
                 }
             }
 
-            ret = new Block(this, _GetNextIndex(), size);
+            ret = new Block(this, GetNextIndex(), size);
             if (_layer.TryPeek(out Layer layer)) {
                 lock (layer) {
                     layer.Add(ret);
@@ -226,7 +226,7 @@ namespace BrightData.Cuda.Helper
             }
         }
 
-        int _GetNextIndex()
+        int GetNextIndex()
         {
             return Interlocked.Increment(ref _index);
         }

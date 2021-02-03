@@ -249,8 +249,7 @@ namespace BrightData.Numerics
 
         public IFloatVector Softmax()
         {
-            var minMax = GetMinMax();
-            var max = minMax.Max;
+            var (_, max) = GetMinMax();
 
             var softmax = _vector.Map(v => Math.Exp(v - max));
             var sum = softmax.Sum();
@@ -268,26 +267,21 @@ namespace BrightData.Numerics
             );
         }
 
-        Func<IFloatVector, float> _GetDistanceFunc(DistanceMetric distance)
+        Func<IFloatVector, float> GetDistanceFunc(DistanceMetric distance)
         {
-            switch (distance) {
-                case DistanceMetric.Cosine:
-                    return CosineDistance;
-                case DistanceMetric.Euclidean:
-                    return EuclideanDistance;
-                case DistanceMetric.Manhattan:
-                    return ManhattanDistance;
-                case DistanceMetric.MeanSquared:
-                    return MeanSquaredDistance;
-                case DistanceMetric.SquaredEuclidean:
-                    return SquaredEuclidean;
-            }
-            throw new NotImplementedException();
+            return distance switch {
+                DistanceMetric.Cosine => CosineDistance,
+                DistanceMetric.Euclidean => EuclideanDistance,
+                DistanceMetric.Manhattan => ManhattanDistance,
+                DistanceMetric.MeanSquared => MeanSquaredDistance,
+                DistanceMetric.SquaredEuclidean => SquaredEuclidean,
+                _ => throw new NotImplementedException()
+            };
         }
 
         public IFloatVector FindDistances(IFloatVector[] data, DistanceMetric distance)
         {
-            var distanceFunc = _GetDistanceFunc(distance);
+            var distanceFunc = GetDistanceFunc(distance);
             var ret = new float[data.Length];
             Parallel.ForEach(data, (vec, ps, ind) => ret[ind] = distanceFunc(vec));
             return new NumericsVector(Context, DenseVector.Create(data.Length, i => ret[i]));
@@ -295,7 +289,7 @@ namespace BrightData.Numerics
 
         public float FindDistance(IFloatVector other, DistanceMetric distance)
         {
-            return _GetDistanceFunc(distance)(other);
+            return GetDistanceFunc(distance)(other);
         }
 
         public IFloatVector CosineDistance(IFloatVector[] data, ref float[] dataNorm)
@@ -316,7 +310,7 @@ namespace BrightData.Numerics
 
         public IFloatVector Sigmoid()
         {
-            return new NumericsVector(Context, _vector.Map(NumericsMatrix._Sigmoid));
+            return new NumericsVector(Context, _vector.Map(NumericsMatrix.Sigmoid));
         }
 
         public void Add(float scalar)

@@ -550,18 +550,13 @@ namespace BrightData
         /// <param name="vector2">Second vector</param>
         public static float Calculate(this DistanceMetric distance, IFloatVector vector1, IFloatVector vector2)
         {
-            switch (distance) {
-                case DistanceMetric.Cosine:
-                    return vector1.CosineDistance(vector2);
-                case DistanceMetric.Euclidean:
-                    return vector1.EuclideanDistance(vector2);
-                case DistanceMetric.Manhattan:
-                    return vector1.ManhattanDistance(vector2);
-                case DistanceMetric.SquaredEuclidean:
-                    return vector1.SquaredEuclidean(vector2);
-                default:
-                    return vector1.MeanSquaredDistance(vector2);
-            }
+            return distance switch {
+                DistanceMetric.Cosine => vector1.CosineDistance(vector2),
+                DistanceMetric.Euclidean => vector1.EuclideanDistance(vector2),
+                DistanceMetric.Manhattan => vector1.ManhattanDistance(vector2),
+                DistanceMetric.SquaredEuclidean => vector1.SquaredEuclidean(vector2),
+                _ => vector1.MeanSquaredDistance(vector2)
+            };
         }
 
         /// <summary>

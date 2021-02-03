@@ -26,21 +26,21 @@ namespace BrightWire.ExecutionGraph.Engine
 		public IDataSource? DataSource => _dataSource;
 		public ILinearAlgebraProvider LinearAlgebraProvider => _lap;
 
-		protected override void _ClearContextList()
+		protected override void ClearContextList()
 		{
 			// nop
 		}
 
-		protected override IEnumerable<ExecutionResult> _GetResults()
+		protected override IEnumerable<ExecutionResult> GetResults()
 		{
-            foreach (var item in _executionResults) {
+            foreach (var (context, data) in _executionResults) {
 				uint outputIndex = 0;
-				foreach (var output in item.Data) {
-					yield return new ExecutionResult(item.Context.BatchSequence, output.AsIndexable().Rows.Select(r => r.Data).ToArray(), outputIndex);
+				foreach (var output in data) {
+					yield return new ExecutionResult(context.BatchSequence, output.AsIndexable().Rows.Select(r => r.Data).ToArray(), outputIndex);
 					++outputIndex;
 				}
-				item.Context.Dispose();
-				foreach (var matrix in item.Data)
+				context.Dispose();
+				foreach (var matrix in data)
 					matrix.Dispose();
 			}
 			_executionResults.Clear();
@@ -53,7 +53,7 @@ namespace BrightWire.ExecutionGraph.Engine
 			var ret = new List<ExecutionResult>();
 			var provider = new MiniBatchProvider(dataSource, null);
 			using (var executionContext = new ExecutionContext(_lap)) {
-				executionContext.Add(provider.GetMiniBatches(batchSize, mb => _Execute(executionContext, mb)));
+				executionContext.Add(provider.GetMiniBatches(batchSize, mb => Execute(executionContext, mb)));
 				float operationCount = executionContext.RemainingOperationCount;
 				float index = 0f;
 
@@ -61,14 +61,14 @@ namespace BrightWire.ExecutionGraph.Engine
 				while ((operation = executionContext.GetNextOperation()) != null) {
 					_lap.PushLayer();
 					operation.Execute(executionContext);
-					foreach (var item in _executionResults) {
+					foreach (var (context, data) in _executionResults) {
 						uint outputIndex = 0;
-						foreach (var output in item.Data) {
-							ret.Add(new ExecutionResult(item.Context.BatchSequence, output.AsIndexable().Rows.Select(r => r.Data).ToArray(), outputIndex));
+						foreach (var output in data) {
+							ret.Add(new ExecutionResult(context.BatchSequence, output.AsIndexable().Rows.Select(r => r.Data).ToArray(), outputIndex));
 							++outputIndex;
 						}
-						item.Context.Dispose();
-						foreach (var matrix in item.Data)
+						context.Dispose();
+						foreach (var matrix in data)
 							matrix.Dispose();
 					}
 					_executionResults.Clear();
@@ -85,7 +85,7 @@ namespace BrightWire.ExecutionGraph.Engine
 			return ret;
 		}
 
-		protected override void _Execute(IGraphExecutionContext executionContext, IMiniBatch batch)
+		protected override void Execute(IGraphExecutionContext executionContext, IMiniBatch batch)
 		{
 			var ret = new List<ExecutionEngineContext>();
 			var table = new Dictionary<IMiniBatchSequence, IGraphContext>();
@@ -111,7 +111,7 @@ namespace BrightWire.ExecutionGraph.Engine
 				table.Add(batch.CurrentSequence, context);
 			}
 
-			_Continue(batch, executionContext, sequence => table[sequence]);
+			Continue(batch, executionContext, sequence => table[sequence]);
 
 			foreach (var item in ret) {
 				var output = item.Output;

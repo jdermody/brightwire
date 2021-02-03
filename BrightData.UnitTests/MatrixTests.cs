@@ -11,7 +11,7 @@ namespace BrightData.UnitTests
 {
     public class MatrixTests : CudaBase
     {
-        void _MatrixMultiplication(uint rowsA, uint columnsArowsB, uint columnsB)
+        void CheckMatrixMultiplication(uint rowsA, uint columnsArowsB, uint columnsB)
         {
             var rand = new Random(1);
             var a = _cpu.CreateMatrix(rowsA, columnsArowsB, (j, k) => Convert.ToSingle(rand.NextDouble())).AsIndexable();
@@ -66,52 +66,52 @@ namespace BrightData.UnitTests
         [Fact]
         public void MatrixMultiplication()
         {
-            _MatrixMultiplication(5, 2, 5);
+            CheckMatrixMultiplication(5, 2, 5);
         }
 
         [Fact]
         public void MatrixMultiplication2()
         {
-            _MatrixMultiplication(500, 200, 500);
+            CheckMatrixMultiplication(500, 200, 500);
         }
 
         [Fact]
         public void MatrixMultiplication3()
         {
-            _MatrixMultiplication(5, 5, 5);
+            CheckMatrixMultiplication(5, 5, 5);
         }
 
         [Fact]
         public void MatrixMultiplication4()
         {
-            _MatrixMultiplication(5, 10, 5);
+            CheckMatrixMultiplication(5, 10, 5);
         }
 
         [Fact]
         public void MatrixMultiplication5()
         {
-            _MatrixMultiplication(5, 10, 2);
+            CheckMatrixMultiplication(5, 10, 2);
         }
 
         [Fact]
         public void MatrixMultiplication6()
         {
-            _MatrixMultiplication(50, 10, 2);
+            CheckMatrixMultiplication(50, 10, 2);
         }
 
         [Fact]
         public void MatrixMultiplication7()
         {
-            _MatrixMultiplication(2, 10, 20);
+            CheckMatrixMultiplication(2, 10, 20);
         }
 
         [Fact]
         public void MatrixMultiplication8()
         {
-            _MatrixMultiplication(20, 1, 19);
+            CheckMatrixMultiplication(20, 1, 19);
         }
 
-        void _Transpose(uint rows, uint columns)
+        void Transpose(uint rows, uint columns)
         {
             var a = _cpu.CreateMatrix(rows, columns, (j, k) => k).AsIndexable();
             var aT = a.Transpose();
@@ -127,37 +127,37 @@ namespace BrightData.UnitTests
         [Fact]
         public void MatrixTranspose()
         {
-            _Transpose(2, 5);
+            Transpose(2, 5);
         }
 
         [Fact]
         public void MatrixTranspose2()
         {
-            _Transpose(5, 2);
+            Transpose(5, 2);
         }
 
         [Fact]
         public void MatrixTranspose3()
         {
-            _Transpose(500, 2);
+            Transpose(500, 2);
         }
 
         [Fact]
         public void MatrixTranspose4()
         {
-            _Transpose(2, 500);
+            Transpose(2, 500);
         }
 
         [Fact]
         public void MatrixTranspose5()
         {
-            _Transpose(20, 20);
+            Transpose(20, 20);
         }
 
         [Fact]
         public void MatrixTranspose6()
         {
-            _Transpose(500, 500);
+            Transpose(500, 500);
         }
 
         [Fact]
@@ -701,11 +701,10 @@ namespace BrightData.UnitTests
             var c = a.ConcatRows(b).AsIndexable();
 
             IIndexableFloatMatrix gpuResults;
-            using (var gpuA = _cuda.CreateMatrix(a))
-            using (var gpuB = _cuda.CreateMatrix(b))
-            using (var concat = gpuA.ConcatRows(gpuB)) {
-                gpuResults = concat.AsIndexable();
-            }
+            using var gpuA = _cuda.CreateMatrix(a);
+            using var gpuB = _cuda.CreateMatrix(b);
+            using var concat = gpuA.ConcatRows(gpuB);
+            gpuResults = concat.AsIndexable();
             FloatMath.AreApproximatelyEqual(c, gpuResults).Should().BeTrue();
         }
 
@@ -715,19 +714,18 @@ namespace BrightData.UnitTests
             const int POSITION = 2000;
             var rand = new Random();
             var a = _cpu.CreateMatrix(6000, 3000, (x, y) => Convert.ToSingle(rand.NextDouble())).AsIndexable();
-            var r = a.SplitAtRow(POSITION);
+            var (top, bottom) = a.SplitAtRow(POSITION);
 
             IIndexableFloatMatrix gpuResults1, gpuResults2;
             using (var gpuA = _cuda.CreateMatrix(a)) {
-                var r2 = gpuA.SplitAtRow(POSITION);
-                using (var m1 = r2.Top)
-                using (var m2 = r2.Bottom) {
-                    gpuResults1 = m1.AsIndexable();
-                    gpuResults2 = m2.AsIndexable();
-                }
+                var (top2, bottom2) = gpuA.SplitAtRow(POSITION);
+                using var m1 = top2;
+                using var m2 = bottom2;
+                gpuResults1 = m1.AsIndexable();
+                gpuResults2 = m2.AsIndexable();
             }
-            FloatMath.AreApproximatelyEqual(gpuResults1, r.Top.AsIndexable()).Should().BeTrue();
-            FloatMath.AreApproximatelyEqual(gpuResults2, r.Bottom.AsIndexable()).Should().BeTrue();
+            FloatMath.AreApproximatelyEqual(gpuResults1, top.AsIndexable()).Should().BeTrue();
+            FloatMath.AreApproximatelyEqual(gpuResults2, bottom.AsIndexable()).Should().BeTrue();
         }
 
         [Fact]
@@ -736,19 +734,18 @@ namespace BrightData.UnitTests
             const int POSITION = 2000;
             var rand = new Random();
             var a = _cpu.CreateMatrix(6000, 3000, (x, y) => Convert.ToSingle(rand.NextDouble())).AsIndexable();
-            var r = a.SplitAtColumn(POSITION);
+            var (left, right) = a.SplitAtColumn(POSITION);
 
             IIndexableFloatMatrix gpuResults1, gpuResults2;
             using (var gpuA = _cuda.CreateMatrix(a)) {
-                var r2 = gpuA.SplitAtColumn(POSITION);
-                using (var m1 = r2.Left)
-                using (var m2 = r2.Right) {
-                    gpuResults1 = m1.AsIndexable();
-                    gpuResults2 = m2.AsIndexable();
-                }
+                var (left2, right2) = gpuA.SplitAtColumn(POSITION);
+                using var m1 = left2;
+                using var m2 = right2;
+                gpuResults1 = m1.AsIndexable();
+                gpuResults2 = m2.AsIndexable();
             }
-            FloatMath.AreApproximatelyEqual(gpuResults1, r.Left.AsIndexable()).Should().BeTrue();
-            FloatMath.AreApproximatelyEqual(gpuResults2, r.Right.AsIndexable()).Should().BeTrue();
+            FloatMath.AreApproximatelyEqual(gpuResults1, left.AsIndexable()).Should().BeTrue();
+            FloatMath.AreApproximatelyEqual(gpuResults2, right.AsIndexable()).Should().BeTrue();
         }
 
         [Fact]
@@ -919,10 +916,10 @@ namespace BrightData.UnitTests
             a[1, 0] = 2;
             a[1, 1] = 6;
 
-            var svd = a.Svd();
-            var cpuU = svd.U.AsIndexable();
-            var cpuVT = svd.VT.AsIndexable();
-            var cpuS = svd.S.AsIndexable();
+            var (u, s, vt) = a.Svd();
+            var cpuU = u.AsIndexable();
+            var cpuVT = vt.AsIndexable();
+            var cpuS = s.AsIndexable();
 
             IIndexableFloatMatrix gpuU, gpuVT;
             IIndexableFloatVector gpuS;

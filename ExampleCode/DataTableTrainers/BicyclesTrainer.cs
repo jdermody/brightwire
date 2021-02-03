@@ -35,7 +35,7 @@ namespace ExampleCode.DataTableTrainers
             var numericColumns = numFeatures.AsRange().ToArray();
             var testData = Test.AsConvertible().Rows().Select(r => (Features: numericColumns.Select(r.GetTyped<float>).ToArray(), Label: (float)r.GetTyped<float>(numFeatures)));
             var predictor = theta.CreatePredictor(lap);
-            int index = 0;
+            
             foreach (var row in testData)
             {
                 var prediction = predictor.Predict(row.Features);

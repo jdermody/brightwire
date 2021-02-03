@@ -205,9 +205,8 @@ namespace BrightData
         /// Returns the underlying Type for a data table segment
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="segment"></param>
         /// <returns></returns>
-        public static Type GetDataType<T>(this IDataTableSegment<T> segment) where T : notnull => typeof(T);
+        public static Type GetDataType<T>(this IDataTableSegment<T> _) where T : notnull => typeof(T);
 
         /// <summary>
         /// Returns all row indices as an enumerable
@@ -962,8 +961,8 @@ namespace BrightData
             builder.AddColumn(ColumnType.IndexList, "Index");
             builder.AddColumn(ColumnType.String, "Label").SetTarget(true);
 
-            foreach (var item in data)
-                builder.AddRow(item.Data, item.Label);
+            foreach (var (label, indexList) in data)
+                builder.AddRow(indexList, label);
 
             return builder.BuildRowOriented();
         }
@@ -979,8 +978,8 @@ namespace BrightData
             builder.AddColumn(ColumnType.WeightedIndexList, "Weighted Index");
             builder.AddColumn(ColumnType.String, "Label").SetTarget(true);
 
-            foreach (var item in data)
-                builder.AddRow(item.Data, item.Label);
+            foreach (var (label, weightedIndexList) in data)
+                builder.AddRow(weightedIndexList, label);
 
             return builder.BuildRowOriented();
         }
@@ -1000,8 +999,8 @@ namespace BrightData
                 builder.AddColumn(ColumnType.Vector, "Vector");
                 builder.AddColumn(ColumnType.String, "Label").SetTarget(true);
 
-                foreach (var item in data)
-                    builder.AddRow(item.Data, item.Label);
+                foreach (var (label, vector) in data)
+                    builder.AddRow(vector, label);
             }
             else
             {
@@ -1010,13 +1009,12 @@ namespace BrightData
                     builder.AddColumn(ColumnType.Float, "Value " + i);
                 builder.AddColumn(ColumnType.String, "Label").SetTarget(true);
 
-                foreach (var item in data)
+                foreach (var (label, vector) in data)
                 {
-                    var vector = item.Data;
                     var row = new List<object>();
                     for (var i = 0; i < size; i++)
                         row.Add(vector[i]);
-                    row.Add(item.Label);
+                    row.Add(label);
                     builder.AddRow(row);
                 }
             }
