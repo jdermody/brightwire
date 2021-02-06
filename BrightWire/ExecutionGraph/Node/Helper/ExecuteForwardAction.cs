@@ -1,5 +1,6 @@
-﻿using System.Runtime.Serialization;
+﻿using System;
 using System.Text;
+using BrightData.Helper;
 using BrightWire.Helper;
 
 namespace BrightWire.ExecutionGraph.Node.Helper
@@ -9,7 +10,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
     /// </summary>
     internal class ExecuteForwardAction : NodeBase, IHaveAction
     {
-	    public ExecuteForwardAction(IAction action, string name = null) : base(name) { Action = action; }
+	    public ExecuteForwardAction(IAction action, string? name = null) : base(name) { Action = action; }
 
         public IAction Action { get; set; }
 
@@ -17,18 +18,21 @@ namespace BrightWire.ExecutionGraph.Node.Helper
         {
             var input = context.Data;
             var output = Action.Execute(input, context);
-            _AddNextGraphAction(context, output ?? input, null);
+            AddNextGraphAction(context, output ?? input, null);
         }
 
-        protected override (string Description, byte[] Data) _GetInfo()
+        protected override (string Description, byte[] Data) GetInfo()
         {
             return (TypeLoader.GetTypeName(Action), Encoding.UTF8.GetBytes(Action.Serialise()));
         }
 
-        protected override void _Initalise(GraphFactory factory, string description, byte[]? data)
+        protected override void Initalise(GraphFactory factory, string? description, byte[]? data)
         {
-            Action = (IAction)FormatterServices.GetUninitializedObject(TypeLoader.LoadType(description));
-            Action.Initialise(Encoding.UTF8.GetString(data));
+            if (description == null)
+                throw new ArgumentException("Description cannot be null");
+
+            Action = GenericActivator.CreateUninitialized<IAction>(TypeLoader.LoadType(description));
+            Action.Initialise(data != null ? Encoding.UTF8.GetString(data) : "");
         }
     }
 }

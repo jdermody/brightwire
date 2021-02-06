@@ -20,14 +20,16 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 		VectorInput _gamma, _beta;
 		VectorBasedStatistics _statistics;
 		OneToMany _start;
-		IFloatMatrix _gammaCached, _betaCached, _meanCached, _stdDevCached;
+		IFloatMatrix? _gammaCached, _betaCached, _meanCached, _stdDevCached;
 
-		public BatchNorm(GraphFactory graph, uint inputSize, string name = null) : base(name)
-		{
-			_Create(graph, inputSize, null, null, null, null, 0);
+#pragma warning disable 8618
+        public BatchNorm(GraphFactory graph, uint inputSize, string? name = null) : base(name)
+#pragma warning restore 8618
+        {
+			Create(graph, inputSize, null, null, null, null, 0);
 		}
 
-		void _Create(GraphFactory graph, uint inputSize, float[] gamma, float[] beta, float[] derivedMean, float[] derivedM2, uint count)
+		void Create(GraphFactory graph, uint inputSize, float[]? gamma, float[]? beta, float[]? derivedMean, float[]? derivedM2, uint count)
         {
             _inputSize = inputSize;
 	        _statistics = new VectorBasedStatistics(graph.LinearAlgebraProvider, inputSize, derivedMean, derivedM2, count);
@@ -44,8 +46,8 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 	        _beta = new VectorInput(graph.Context, beta, "beta");
 
 	        var mean = graph.Connect(inputSize, _input).Add(new BatchMean());
-	        var subtractMean = graph.Subtract(inputSize, _input, mean.LastNode);
-			var subtractMeanOutput = subtractMean.LastNode;
+	        var subtractMean = graph.Subtract(inputSize, _input, mean.LastNode!);
+			var subtractMeanOutput = subtractMean.LastNode!;
 
 	        var stdDev = subtractMean
 		        .Add(new InputSquared())
@@ -53,9 +55,9 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 		        .Add(new SquareRootOfInput())
 		        .Add(new OneDividedByInput());
 
-            var normalised = graph.Multiply(_inputSize, subtractMeanOutput, stdDev.LastNode);
-	        var adjusted = graph.Multiply(_inputSize, _gamma, normalised.LastNode);
-	        _output = graph.Add(_inputSize, _beta, adjusted.LastNode).LastNode;
+            var normalised = graph.Multiply(_inputSize, subtractMeanOutput, stdDev.LastNode!);
+	        var adjusted = graph.Multiply(_inputSize, _gamma, normalised.LastNode!);
+	        _output = graph.Add(_inputSize, _beta, adjusted.LastNode!).LastNode!;
 
 	        _start = new OneToMany(SubNodes, bp => { });
         }
@@ -77,43 +79,42 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 			var data = context.Data;
 			IFloatMatrix input;
 			IReadOnlyList<IFloatVector> samples;
-			var lap = context.LinearAlgebraProvider;
-			var shouldDispose = false;
+            var shouldDispose = false;
 
 			if (data.Depth > 1) {
+                throw new NotImplementedException();
 				// reshape the tensor by depth slice
-				var tensor4D = data.Get4DTensor();
-				var slots = new List<IFloatVector>[data.Depth];
-				for (var i = 0; i < data.Depth; i++)
-					slots[i] = new List<IFloatVector>();
+				//var tensor4D = data.Get4DTensor();
+				//var slots = new List<IFloatVector>[data.Depth];
+				//for (var i = 0; i < data.Depth; i++)
+				//	slots[i] = new List<IFloatVector>();
 
-				foreach (var tensor in tensor4D.ReshapeAsMatrix().ColumnVectors()) {
-					var depthSlices = tensor.ReshapeAsColumnMatrix().ReshapeAsVector().Split(data.Depth);
-					for (var i = 0; i < data.Depth; i++)
-						slots[i].Add(depthSlices[i]);
-				}
+				//foreach (var tensor in tensor4D.ReshapeAsMatrix().ColumnVectors()) {
+				//	var depthSlices = tensor.ReshapeAsColumnMatrix().ReshapeAsVector().Split(data.Depth);
+				//	for (var i = 0; i < data.Depth; i++)
+				//		slots[i].Add(depthSlices[i]);
+				//}
 
-				// TODO: create row vectors from slots and matrix from rows
+				//// TODO: create row vectors from slots and matrix from rows
 
-				//input = lap.CreateMatrixFromRows(list);
-				//samples = list;
-				shouldDispose = true;
-				throw new NotImplementedException();
-			}
+				////input = lap.CreateMatrixFromRows(list);
+				////samples = list;
+				//shouldDispose = true;
+            }
 			else {
 				input = context.Data.GetMatrix();
 				samples = input.RowVectors();
 			}
 
 			// collect statistics
-			if (context.IsTraining && _statistics != null) {
+			if (context.LearningContext != null && _statistics != null) {
 				foreach (var vector in samples) {
 					_statistics.Update(vector);
 					vector.Dispose();
 				}
 			}
 
-			if (context.IsTraining) {
+			if (context.LearningContext != null) {
 				_start.ExecuteForward(context);
 
 				// invalidate the cache
@@ -147,7 +148,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 using var xHat = input.PointwiseDivide(_stdDevCached);
                 using var ret = xHat.PointwiseMultiply(_gammaCached);
                 ret.AddInPlace(_betaCached);
-                _AddNextGraphAction(context, context.Data.ReplaceWith(ret), null);
+                AddNextGraphAction(context, context.Data.ReplaceWith(ret), null);
             }
 
 			if (shouldDispose)
@@ -156,9 +157,9 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 				item.Dispose();
 		}
 
-		protected override (string Description, byte[] Data) _GetInfo()
+		protected override (string Description, byte[] Data) GetInfo()
 		{
-			return ("BN", _WriteData(WriteTo));
+			return ("BN", WriteData(WriteTo));
 		}
 
 		public override void WriteTo(BinaryWriter writer)
@@ -183,7 +184,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 			var mean = context.ReadVectorFrom(reader).ToArray();
 			var m2 = context.ReadVectorFrom(reader).ToArray();
 
-			_Create(factory, inputSize, gamma, beta, mean, m2, count);
+			Create(factory, inputSize, gamma, beta, mean, m2, count);
 		}
 	}
 }

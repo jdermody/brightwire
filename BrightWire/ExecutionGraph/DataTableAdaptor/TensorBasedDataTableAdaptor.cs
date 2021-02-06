@@ -2,7 +2,6 @@
 using BrightData;
 using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph.Helper;
-using BrightTable;
 
 namespace BrightWire.ExecutionGraph.DataTableAdaptor
 {
@@ -62,10 +61,10 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
                 inputList[i] = tensor;
             }
             var output = OutputSize > 0 
-                ? _lap.CreateMatrix((uint)data.Length, (uint)OutputSize, (x, y) => data[x].Data[y]) 
+                ? new MatrixGraphData(_lap.CreateMatrix((uint)data.Length, OutputSize.Value, (x, y) => data[x].Data[y]))
                 : null;
             
-            return new MiniBatch(rows, this, inputList, new MatrixGraphData(output));
+            return new MiniBatch(rows, this, inputList, output);
         }
     }
 }

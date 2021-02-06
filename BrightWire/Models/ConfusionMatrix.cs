@@ -11,6 +11,9 @@ namespace BrightWire.Models
 	/// </summary>
 	public class ConfusionMatrix
 	{
+		/// <summary>
+		/// 
+		/// </summary>
 		public class ActualClassification
 		{
 			public int ClassificationIndex { get; set; }
@@ -18,16 +21,19 @@ namespace BrightWire.Models
 			public uint Count { get; set; }
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
 		public class ExpectedClassification
 		{
 			public int ClassificationIndex { get; set; }
 
-			public ActualClassification[] ActualClassifications { get; set; }
-		}
+            public ActualClassification[] ActualClassifications { get; set; } = new ActualClassification[0];
+        }
 
-		public string[] ClassificationLabels { get; set; }
+        public string[] ClassificationLabels { get; set; } = new string[0];
 
-		public ExpectedClassification[] Classifications { get; set; }
+        public ExpectedClassification[] Classifications { get; set; } = new ExpectedClassification[0];
 
 		public string AsXml
 		{
@@ -36,22 +42,16 @@ namespace BrightWire.Models
 				var ret = new StringBuilder();
                 using var writer = XmlWriter.Create(new StringWriter(ret));
                 writer.WriteStartElement("confusion-matrix");
-                if (Classifications != null) {
-                    foreach (var expected in Classifications) {
-                        writer.WriteStartElement("expected-classification");
-                        writer.WriteAttributeString("label", ClassificationLabels[expected.ClassificationIndex]);
-
-                        if (expected.ActualClassifications != null) {
-                            foreach (var actual in expected.ActualClassifications) {
-                                writer.WriteStartElement("actual-classification");
-                                writer.WriteAttributeString("label", ClassificationLabels[actual.ClassificationIndex]);
-                                writer.WriteAttributeString("count", actual.Count.ToString());
-                                writer.WriteEndElement();
-                            }
-                        }
-
+                foreach (var expected in Classifications) {
+                    writer.WriteStartElement("expected-classification");
+                    writer.WriteAttributeString("label", ClassificationLabels[expected.ClassificationIndex]);
+                    foreach (var actual in expected.ActualClassifications) {
+                        writer.WriteStartElement("actual-classification");
+                        writer.WriteAttributeString("label", ClassificationLabels[actual.ClassificationIndex]);
+                        writer.WriteAttributeString("count", actual.Count.ToString());
                         writer.WriteEndElement();
                     }
+                    writer.WriteEndElement();
                 }
                 writer.WriteEndElement();
                 return ret.ToString();
@@ -67,7 +67,7 @@ namespace BrightWire.Models
 					lock(this) {
                         _classificationTable ??= ClassificationLabels
                             .Select((c, i) => (c, i))
-                            .ToDictionary(d => d.Item1, d => d.Item2);
+                            .ToDictionary(d => d.c, d => d.i);
                     }
 				}
 				return _classificationTable;

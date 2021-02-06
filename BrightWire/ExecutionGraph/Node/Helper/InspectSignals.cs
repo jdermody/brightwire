@@ -10,17 +10,17 @@ namespace BrightWire.ExecutionGraph.Node.Helper
 			{
 			}
 
-			protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
+			protected override IGraphData Backpropagate(INode? fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
 			{
-				_source._backwardCallback(errorSignal);
+				_source._backwardCallback?.Invoke(errorSignal);
 				return errorSignal;
 			}
 		}
 
-		readonly Action<IGraphData> _forwardCallback;
-		readonly Action<IGraphData> _backwardCallback;
+		readonly Action<IGraphData>? _forwardCallback;
+		readonly Action<IGraphData>? _backwardCallback;
 
-		public InspectSignals(Action<IGraphData> forwardCallback, Action<IGraphData> backwardCallback = null, string name = null, string id = null) : base(name, id)
+		public InspectSignals(Action<IGraphData>? forwardCallback, Action<IGraphData>? backwardCallback = null, string? name = null, string? id = null) : base(name, id)
 		{
 			_forwardCallback = forwardCallback;
 			_backwardCallback = backwardCallback;
@@ -30,9 +30,9 @@ namespace BrightWire.ExecutionGraph.Node.Helper
 		{
 			_forwardCallback?.Invoke(context.Data);
 			if(_backwardCallback != null)
-				_AddNextGraphAction(context, context.Data, () => new Backpropagation(this));
+				AddNextGraphAction(context, context.Data, () => new Backpropagation(this));
 			else
-				_AddNextGraphAction(context, context.Data, null);
+				AddNextGraphAction(context, context.Data, null);
 		}
 	}
 }

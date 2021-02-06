@@ -1,5 +1,4 @@
 ﻿using BrightWire.Bayesian;
-using System.Collections.Generic;
 using System.IO;
 using BrightData;
 using BrightWire.Helper;
@@ -52,10 +51,10 @@ namespace BrightWire.Models.Bayesian
             /// </summary>
             public double Mean { get; set; }
 
-	        /// <summary>
-	        /// The list of categories within the column and their probability (categorical only)
-	        /// </summary>
-	        public CategorialProbability[] Probability { get; set; }
+            /// <summary>
+            /// The list of categories within the column and their probability (categorical only)
+            /// </summary>
+            public CategorialProbability[] Probability { get; set; } = new CategorialProbability[0];
 
             /// <inheritdoc />
             public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
@@ -72,7 +71,7 @@ namespace BrightWire.Models.Bayesian
             /// <summary>
             /// The category label
             /// </summary>
-            public string Category { get; set; }
+            public string Category { get; set; } = "";
 
             /// <summary>
             /// The natural log of the category's probability
@@ -99,7 +98,7 @@ namespace BrightWire.Models.Bayesian
             /// <summary>
             /// The classification label
             /// </summary>
-            public string Label { get; set; }
+            public string Label { get; set; } = "";
 
             /// <summary>
             /// The natural log of the prior
@@ -109,7 +108,7 @@ namespace BrightWire.Models.Bayesian
             /// <summary>
             /// The column data associated with this classification
             /// </summary>
-            public Column[] ColumnSummary { get; set; }
+            public Column[] ColumnSummary { get; set; } = new Column[0];
 
 	        /// <summary>
 	        /// The classification prior probability
@@ -126,7 +125,7 @@ namespace BrightWire.Models.Bayesian
         /// <summary>
         /// A list of possible classifications and their data
         /// </summary>
-        public ClassSummary[] Class { get; set; }
+        public ClassSummary[] Class { get; set; } = new ClassSummary[0];
 
         /// <summary>
         /// Creates a classifier from this model

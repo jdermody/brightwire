@@ -39,30 +39,28 @@ namespace BrightWire.Unsupervised
             //float lastCost = 0;
             for (int i = 0; i < numIterations; i++) {
                 using var wh = weights.Multiply(features);
-                var cost = _DifferenceCost(v, wh);
+                var cost = DifferenceCost(v, wh);
                 //if (i % (numIterations / 10) == 0)
                 //    Console.WriteLine("NNMF cost: " + cost);
                 if (cost <= errorThreshold)
                     break;
                 //lastCost = cost;
 
-                using (var wT = weights.Transpose())
-                using (var hn = wT.Multiply(v))
-                using (var wTw = wT.Multiply(weights))
-                using (var hd = wTw.Multiply(features))
-                using (var fhn = features.PointwiseMultiply(hn)) {
-                    features.Dispose();
-                    features = fhn.PointwiseDivide(hd);
-                }
+                using var wT = weights.Transpose();
+                using var hn = wT.Multiply(v);
+                using var wTw = wT.Multiply(weights);
+                using var hd = wTw.Multiply(features);
+                using var fhn = features.PointwiseMultiply(hn);
+                features.Dispose();
+                features = fhn.PointwiseDivide(hd);
 
-                using (var fT = features.Transpose())
-                using (var wn = v.Multiply(fT))
-                using (var wf = weights.Multiply(features))
-                using (var wd = wf.Multiply(fT))
-                using (var wwn = weights.PointwiseMultiply(wn)) {
-                    weights.Dispose();
-                    weights = wwn.PointwiseDivide(wd);
-                }
+                using var fT = features.Transpose();
+                using var wn = v.Multiply(fT);
+                using var wf = weights.Multiply(features);
+                using var wd = wf.Multiply(fT);
+                using var wwn = weights.PointwiseMultiply(wn);
+                weights.Dispose();
+                weights = wwn.PointwiseDivide(wd);
             }
 
             // weights gives cluster membership
@@ -77,7 +75,7 @@ namespace BrightWire.Unsupervised
                 .ToArray();
         }
 
-        float _DifferenceCost(IFloatMatrix m1, IFloatMatrix m2)
+        float DifferenceCost(IFloatMatrix m1, IFloatMatrix m2)
         {
             return m1.AsIndexable().Rows.Zip(m2.AsIndexable().Rows, (r1, r2) => _costFunction.Compute(r1.Data, r2.Data)).Average();
         }

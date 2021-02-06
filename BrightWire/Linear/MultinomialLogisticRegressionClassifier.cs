@@ -20,7 +20,7 @@ namespace BrightWire.Linear
             _classifier = _model.Model.Select(c => c.CreateClassifier(lap)).ToList();
         }
 
-        //IEnumerable<Tuple<int, float>> _Classify(IConvertibleRow row)
+        //IEnumerable<Tuple<int, float>> ClassifyInternal(IConvertibleRow row)
         //{
         //    var featureCount = _model.FeatureColumn.Length;
         //    var features = new float[featureCount];
@@ -35,7 +35,7 @@ namespace BrightWire.Linear
         //    // calculate softmax over output value
         //    float max = float.MinValue, total = 0;
         //    var raw = new List<Tuple<string, float>>();
-        //    foreach (var item in _Classify(row)) {
+        //    foreach (var item in ClassifyInternal(row)) {
         //        var classification = _model.Classification[item.Item1];
         //        var score = item.Item2;
         //        if (score > max)

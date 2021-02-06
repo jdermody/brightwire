@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 
 namespace BrightWire.ExecutionGraph.Node
 {
@@ -27,21 +26,21 @@ namespace BrightWire.ExecutionGraph.Node
         /// </summary>
         ~BackpropagationBase()
         {
-            _Dispose(false);
+            DisposeMemory(false);
         }
         /// <summary>
         /// Dispose
         /// </summary>
         public void Dispose()
         {
-            _Dispose(true);
+            DisposeMemory(true);
             GC.SuppressFinalize(this);
         }
         /// <summary>
         /// Dispose
         /// </summary>
         /// <param name="isDisposing"></param>
-        protected virtual void _Dispose(bool isDisposing) { }
+        protected virtual void DisposeMemory(bool isDisposing) { }
         #endregion
 
         /// <summary>
@@ -51,15 +50,13 @@ namespace BrightWire.ExecutionGraph.Node
         /// <param name="errorSignal">The backpropagating error</param>
         /// <param name="context">Graph context</param>
         /// <param name="parents">Parents of the current node</param>
-        public void Backward(INode fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
+        public void Backward(INode? fromNode, IGraphData? errorSignal, IGraphContext context, INode[] parents)
         {
             if (errorSignal == null) {
-                if (parents?.Any() == true) {
-                    foreach (var parent in parents)
-                        context.AddBackward(null, parent, _source);
-                }
+                foreach (var parent in parents)
+                    context.AddBackward(null, parent, _source);
             } else
-                _Backward(fromNode, errorSignal, context, parents);
+                BackwardInternal(fromNode, errorSignal, context, parents);
         }
 
         /// <summary>
@@ -69,7 +66,7 @@ namespace BrightWire.ExecutionGraph.Node
         /// <param name="errorSignal">The backpropagating error</param>
         /// <param name="context">Graph context</param>
         /// <param name="parents">Parents of the current node</param>
-        public abstract void _Backward(INode fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents);
+        public abstract void BackwardInternal(INode? fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents);
 
         /// <summary>
         /// Sends a backpropagation signal further up the graph
@@ -77,12 +74,10 @@ namespace BrightWire.ExecutionGraph.Node
         /// <param name="errorSignal">The backpropagating error</param>
         /// <param name="context">Graph context</param>
         /// <param name="parents">Parents of the current node</param>
-        protected void _SendErrorTo(IGraphData errorSignal, IGraphContext context, INode[] parents)
+        protected void SendErrorTo(IGraphData errorSignal, IGraphContext context, INode[] parents)
         {
-            if (parents?.Any() == true) {
-                foreach (var parent in parents)
-                    context.AddBackward(errorSignal, parent, _source);
-            }
+            foreach (var parent in parents)
+                context.AddBackward(errorSignal, parent, _source);
         }
     }
 }

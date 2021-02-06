@@ -52,35 +52,36 @@ namespace BrightWire.ExecutionGraph.Engine
 			_dataSource = dataSource;
 			var ret = new List<ExecutionResult>();
 			var provider = new MiniBatchProvider(dataSource, null);
-			using (var executionContext = new ExecutionContext(_lap)) {
-				executionContext.Add(provider.GetMiniBatches(batchSize, mb => Execute(executionContext, mb)));
-				float operationCount = executionContext.RemainingOperationCount;
-				float index = 0f;
+            using var executionContext = new ExecutionContext(_lap);
+            // ReSharper disable once AccessToDisposedClosure
+            executionContext.Add(provider.GetMiniBatches(batchSize, mb => Execute(executionContext, mb)));
+            float operationCount = executionContext.RemainingOperationCount;
+            float index = 0f;
 
-				IGraphOperation? operation;
-				while ((operation = executionContext.GetNextOperation()) != null) {
-					_lap.PushLayer();
-					operation.Execute(executionContext);
-					foreach (var (context, data) in _executionResults) {
-						uint outputIndex = 0;
-						foreach (var output in data) {
-							ret.Add(new ExecutionResult(context.BatchSequence, output.AsIndexable().Rows.Select(r => r.Data).ToArray(), outputIndex));
-							++outputIndex;
-						}
-						context.Dispose();
-						foreach (var matrix in data)
-							matrix.Dispose();
-					}
-					_executionResults.Clear();
-					_lap.PopLayer();
+            IGraphOperation? operation;
+            while ((operation = executionContext.GetNextOperation()) != null) {
+                _lap.PushLayer();
+                operation.Execute(executionContext);
+                foreach (var (context, data) in _executionResults) {
+                    uint outputIndex = 0;
+                    foreach (var output in data) {
+                        ret.Add(new ExecutionResult(context.BatchSequence, output.AsIndexable().Rows.Select(r => r.Data).ToArray(), outputIndex));
+                        ++outputIndex;
+                    }
+                    context.Dispose();
+                    foreach (var matrix in data)
+                        matrix.Dispose();
+                }
+                _executionResults.Clear();
+                _lap.PopLayer();
 
-					if (batchCompleteCallback != null) {
-						var percentage = (++index) / operationCount;
-						batchCompleteCallback(percentage);
-					}
-				}
-			}
-			_lap.PopLayer();
+                if (batchCompleteCallback != null) {
+                    var percentage = (++index) / operationCount;
+                    batchCompleteCallback(percentage);
+                }
+            }
+
+            _lap.PopLayer();
 			_dataSource = null;
 			return ret;
 		}

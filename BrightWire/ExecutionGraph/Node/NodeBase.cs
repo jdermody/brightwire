@@ -30,14 +30,14 @@ namespace BrightWire.ExecutionGraph.Node
         }
 
         /// <summary>
-        /// Called when serialising the node
+        /// Called when deserialising the node
         /// </summary>
         /// <param name="graph">Graph factory</param>
         /// <param name="description">Node description</param>
         /// <param name="data">Node serialisation data</param>
-        protected virtual void _Initalise(GraphFactory graph, string description, byte[]? data)
+        protected virtual void Initalise(GraphFactory graph, string? description, byte[]? data)
         {
-            _ReadFrom(data, reader => ReadFrom(graph, reader));
+            ReadFrom(data, reader => ReadFrom(graph, reader));
         }
 
         #region Disposal
@@ -46,21 +46,21 @@ namespace BrightWire.ExecutionGraph.Node
         /// </summary>
         ~NodeBase()
         {
-            _Dispose(false);
+            DisposeInternal(false);
         }
         /// <summary>
         /// Disposal
         /// </summary>
         public void Dispose()
         {
-            _Dispose(true);
+            DisposeInternal(true);
             GC.SuppressFinalize(this);
         }
         /// <summary>
         /// Disposal
         /// </summary>
         /// <param name="isDisposing"></param>
-        protected virtual void _Dispose(bool isDisposing) { } 
+        protected virtual void DisposeInternal(bool isDisposing) { } 
         #endregion
 
         /// <summary>
@@ -89,7 +89,7 @@ namespace BrightWire.ExecutionGraph.Node
         /// </summary>
         /// <param name="context"></param>
         /// <param name="channel"></param>
-        protected virtual void _ExecuteForward(IGraphContext context, uint channel)
+        protected virtual void ExecuteForwardInternal(IGraphContext context, uint channel)
         {
             ExecuteForward(context);
         }
@@ -104,7 +104,7 @@ namespace BrightWire.ExecutionGraph.Node
             if (channel == 0)
                 ExecuteForward(context);
             else
-                _ExecuteForward(context, channel);
+                ExecuteForwardInternal(context, channel);
         }
 
         /// <summary>
@@ -113,7 +113,7 @@ namespace BrightWire.ExecutionGraph.Node
         /// <param name="context"></param>
         /// <param name="data"></param>
         /// <param name="backProp"></param>
-        protected void _AddNextGraphAction(IGraphContext context, IGraphData? data, Func<IBackpropagation> backProp)
+        protected void AddNextGraphAction(IGraphContext context, IGraphData data, Func<IBackpropagation>? backProp)
         {
             context.AddForward(new TrainingAction(this, data, context.Source), backProp);
         }
@@ -127,12 +127,12 @@ namespace BrightWire.ExecutionGraph.Node
         /// <returns></returns>
         public virtual ExecutionGraphModel.Node SerialiseTo(HashSet<INode>? existing, List<ExecutionGraphModel.Node>? connectedTo, HashSet<ExecutionGraphModel.Wire>? wireList)
         {
-            var info = _GetInfo();
+            var (description, data) = GetInfo();
             var ret = new ExecutionGraphModel.Node {
                 Id = _id,
                 Name = _name,
-                Data = info.Data,
-                Description = info.Description,
+                Data = data,
+                Description = description,
                 TypeName = TypeLoader.GetTypeName(this)
             };
 
@@ -156,7 +156,7 @@ namespace BrightWire.ExecutionGraph.Node
         /// <summary>
         /// Returns serialisation information
         /// </summary>
-        protected virtual (string Description, byte[]? Data) _GetInfo()
+        protected virtual (string Description, byte[]? Data) GetInfo()
         {
             return (GetType().Name, null);
         }
@@ -197,12 +197,12 @@ namespace BrightWire.ExecutionGraph.Node
         /// <param name="name">Node name</param>
         /// <param name="description">Node description</param>
         /// <param name="data">Serialisation data</param>
-        void ICanInitialiseNode.Initialise(GraphFactory factory, string id, string name, string description, byte[]? data)
+        void ICanInitialiseNode.Initialise(GraphFactory factory, string id, string? name, string? description, byte[]? data)
         {
             _id = id;
             _name = name;
-            _output ??= new List<IWire>();
-            _Initalise(factory, description, data);
+            _output = new List<IWire>();
+            Initalise(factory, description, data);
         }
 
         /// <summary>
@@ -257,7 +257,7 @@ namespace BrightWire.ExecutionGraph.Node
         /// </summary>
         /// <param name="node">The node to serialise</param>
         /// <param name="writer">The binary writer</param>
-        protected static void _Serialise(INode node, BinaryWriter writer)
+        protected static void Serialise(INode node, BinaryWriter writer)
         {
             node.SerialiseTo(null, null, null).WriteTo(writer);
         }
@@ -267,7 +267,7 @@ namespace BrightWire.ExecutionGraph.Node
         /// </summary>
         /// <param name="callback">Callback to receive the writer</param>
         /// <returns></returns>
-        protected static byte[] _WriteData(Action<BinaryWriter> callback)
+        protected static byte[] WriteData(Action<BinaryWriter> callback)
         {
             using var stream = new MemoryStream();
             using (var writer = new BinaryWriter(stream, Encoding.UTF8, true))
@@ -280,7 +280,7 @@ namespace BrightWire.ExecutionGraph.Node
         /// </summary>
         /// <param name="data">The data to read</param>
         /// <param name="callback">Callback to receive the writer</param>
-        protected static void _ReadFrom(byte[]? data, Action<BinaryReader> callback)
+        protected static void ReadFrom(byte[]? data, Action<BinaryReader> callback)
         {
             if (data != null) {
                 using var reader = new BinaryReader(new MemoryStream(data), Encoding.UTF8);
@@ -294,7 +294,7 @@ namespace BrightWire.ExecutionGraph.Node
         /// <param name="factory">Graph factory</param>
         /// <param name="reader"></param>
         /// <returns></returns>
-        protected static INode _Hydrate(GraphFactory factory, BinaryReader reader)
+        protected static INode Hydrate(GraphFactory factory, BinaryReader reader)
         {
             var model = new ExecutionGraphModel.Node(reader);
             return factory.Create(model);
@@ -308,7 +308,38 @@ namespace BrightWire.ExecutionGraph.Node
         public virtual void LoadParameters(GraphFactory factory, ExecutionGraphModel.Node nodeData)
         {
             if(nodeData.Data != null)
-                _ReadFrom(nodeData.Data, reader => ReadFrom(factory, reader));
+                ReadFrom(nodeData.Data, reader => ReadFrom(factory, reader));
         }
+
+        /// <summary>
+        /// Finds a sub node by name, or throws an exception if not found
+        /// </summary>
+        /// <param name="name">Sub node name</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public INode FindSubNodeByNameOrThrow(string name)
+        {
+            foreach (var subNode in SubNodes) {
+                var ret = subNode.FindByName(name);
+                if (ret != null)
+                    return ret;
+            }
+            throw new ArgumentException($"Node not found: {name}");
+        }
+
+        /// <summary>
+        /// Writes a sub node to the binary writer
+        /// </summary>
+        /// <param name="name">Sub node name</param>
+        /// <param name="writer"></param>
+        protected void WriteSubNode(string name, BinaryWriter writer) => FindSubNodeByNameOrThrow(name).WriteTo(writer);
+
+        /// <summary>
+        /// Initializes a sub node from a binary reader
+        /// </summary>
+        /// <param name="name">Sub node name</param>
+        /// <param name="factory"></param>
+        /// <param name="reader"></param>
+        protected void ReadSubNode(string name, GraphFactory factory, BinaryReader reader) => FindSubNodeByNameOrThrow(name).ReadFrom(factory, reader);
     }
 }

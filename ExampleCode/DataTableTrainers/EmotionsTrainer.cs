@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -20,7 +19,7 @@ namespace ExampleCode.DataTableTrainers
 
         public static IRowOrientedDataTable Parse(IBrightDataContext context, string filePath)
         {
-            const int targetColumnCount = 6;
+            const int TARGET_COLUMN_COUNT = 6;
 
             // read the data as CSV, skipping the header
             using var reader = new StreamReader(filePath);
@@ -33,8 +32,8 @@ namespace ExampleCode.DataTableTrainers
             using var table = context.ParseCsv(reader, false);
 
             // convert the feature columns to numeric and the target columns to boolean
-            var featureColumns = (table.ColumnCount - targetColumnCount).AsRange().ToArray();
-            var targetColumns = targetColumnCount.AsRange((int)table.ColumnCount - targetColumnCount).ToArray();
+            var featureColumns = (table.ColumnCount - TARGET_COLUMN_COUNT).AsRange().ToArray();
+            var targetColumns = TARGET_COLUMN_COUNT.AsRange((int)table.ColumnCount - TARGET_COLUMN_COUNT).ToArray();
             var columnConversions = featureColumns
                 .Select(i => ColumnConversionType.ToNumeric.ConvertColumn(i))
                 .Concat(targetColumns.Select(i => ColumnConversionType.ToBoolean.ConvertColumn(i)))
@@ -55,10 +54,10 @@ namespace ExampleCode.DataTableTrainers
         {
             // converts the index list to a boolean based on if the flag is set
             var ret = table.Project(r => {
-                var ret = (object[]) r.Clone();
-                var indexList = (IndexList) ret[r.Length - 1];
-                ret[r.Length - 1] = indexList.HasIndex(indexOffset);
-                return ret;
+                var ret2 = (object[]) r.Clone();
+                var indexList = (IndexList) ret2[r.Length - 1];
+                ret2[r.Length - 1] = indexList.HasIndex(indexOffset);
+                return ret2;
             });
             ret!.SetTargetColumn(ret!.ColumnCount-1);
             return ret;
@@ -81,21 +80,20 @@ namespace ExampleCode.DataTableTrainers
             const float TRAINING_RATE = 0.3f;
             var trainingData = graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
-            var engine = graph.CreateTrainingEngine(trainingData, TRAINING_RATE, 128);
+            var engine = graph.CreateTrainingEngine(trainingData, TRAINING_RATE);
 
             // build the network
             const int HIDDEN_LAYER_SIZE = 64, TRAINING_ITERATIONS = 2000;
-            var network = graph.Connect(engine)
-                    .AddFeedForward(HIDDEN_LAYER_SIZE)
-                    .Add(graph.SigmoidActivation())
-                    .AddDropOut(dropOutPercentage: 0.5f)
-                    .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
-                    .Add(graph.SigmoidActivation())
-                    .AddBackpropagation(errorMetric)
-                ;
+            graph.Connect(engine)
+                .AddFeedForward(HIDDEN_LAYER_SIZE)
+                .Add(graph.SigmoidActivation())
+                .AddDropOut(dropOutPercentage: 0.5f)
+                .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
+                .Add(graph.SigmoidActivation())
+                .AddBackpropagation(errorMetric);
 
             // train the network
-            ExecutionGraphModel bestGraph = null;
+            ExecutionGraphModel? bestGraph = null;
             engine.Train(TRAINING_ITERATIONS, testData, errorMetric, model => bestGraph = model.Graph, 50);
 
             // export the final model and execute it on the training set
@@ -106,10 +104,10 @@ namespace ExampleCode.DataTableTrainers
             var rowIndex = 0;
             foreach (var item in output) {
                 var sb = new StringBuilder();
-                foreach (var classification in item.Output.Zip(item.Target, (o, t) => (Output: o, Target: t))) {
+                foreach (var (vector, target) in item.Output.Zip(item.Target, (o, t) => (Output: o, Target: t))) {
                     var columnIndex = 0;
                     sb.AppendLine($"{rowIndex++}) ");
-                    foreach (var column in classification.Output.Values.Zip(classification.Target.Values,
+                    foreach (var column in vector.Values.Zip(target.Values,
                         (o, t) => (Output: o, Target: t))) {
                         var prediction = column.Output >= 0.5f ? "true" : "false";
                         var actual = column.Target >= 0.5f ? "true" : "false";
@@ -187,7 +185,7 @@ namespace ExampleCode.DataTableTrainers
 
                 // build the network
                 const int HIDDEN_LAYER_SIZE = 64, TRAINING_ITERATIONS = 2000;
-                var network = graph.Connect(engine)
+                graph.Connect(engine)
                     .AddFeedForward(HIDDEN_LAYER_SIZE)
                     .Add(graph.SigmoidActivation())
                     .AddDropOut(dropOutPercentage: 0.5f)

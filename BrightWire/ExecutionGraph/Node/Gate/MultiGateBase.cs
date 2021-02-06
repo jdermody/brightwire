@@ -94,7 +94,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// <param name="context">The graph context</param>
         public override void ExecuteForward(IGraphContext context)
         {
-            _ExecuteForward(context, 0);
+            ExecuteForwardInternal(context, 0);
         }
 
         /// <summary>
@@ -102,12 +102,12 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// </summary>
         /// <param name="context">The graph context</param>
         /// <param name="channel">The channel</param>
-        protected override void _ExecuteForward(IGraphContext context, uint channel)
+        protected override void ExecuteForwardInternal(IGraphContext context, uint channel)
         {
             if (_data.TryGetValue(channel, out var data)) {
-                data.SetData(context.Data?.GetMatrix(), context.Source);
+                data.SetData(context.Data.GetMatrix(), context.Source);
                 if(_data.All(kv => kv.Value.IsValid)) {
-                    _Activate(context, _data.Select(kv => kv.Value).ToList());
+                    Activate(context, _data.Select(kv => kv.Value).ToList());
 
                     // reset the inputs
                     foreach (var item in _data)
@@ -121,7 +121,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// </summary>
         /// <param name="context">The graph context</param>
         /// <param name="data">The list of incoming signals</param>
-        protected abstract void _Activate(IGraphContext context, List<IncomingChannel> data);
+        protected abstract void Activate(IGraphContext context, List<IncomingChannel> data);
 
         /// <summary>
         /// Records the network activity
@@ -130,16 +130,16 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// <param name="data">The list of incoming signals</param>
         /// <param name="output">Output signal</param>
         /// <param name="backpropagation">Backpropagation creator (optional)</param>
-        protected void _AddHistory(IGraphContext context, List<IncomingChannel> data, IFloatMatrix output, Func<IBackpropagation> backpropagation)
+        protected void AddHistory(IGraphContext context, List<IncomingChannel> data, IFloatMatrix output, Func<IBackpropagation> backpropagation)
         {
             var sources = data.Where(d => d.Source != null).Select(d => d.Source!).ToArray();
             context.AddForward(new TrainingAction(this, new MatrixGraphData(output), sources), backpropagation);
         }
 
 	    /// <inheritdoc />
-	    protected override (string Description, byte[] Data) _GetInfo()
+	    protected override (string Description, byte[] Data) GetInfo()
         {
-            return ("MG", _WriteData(WriteTo));
+            return ("MG", WriteData(WriteTo));
         }
 
 	    /// <inheritdoc />

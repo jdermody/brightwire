@@ -1,5 +1,4 @@
-﻿using BrightTable;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using BrightData;
@@ -19,10 +18,10 @@ namespace BrightWire
         /// Create a markov model trainer of window size 2
         /// </summary>
         /// <typeparam name="T">The markov chain data type</typeparam>
-        /// <param name="context"></param>
+        /// <param name="_"></param>
         /// <param name="empty">Null value for T</param>
         /// <param name="minObservations">Minimum number of data points to record an observation</param>
-        public static IMarkovModelTrainer2<T> CreateMarkovTrainer2<T>(this IBrightDataContext context, T empty, int minObservations = 1) where T : notnull
+        public static IMarkovModelTrainer2<T> CreateMarkovTrainer2<T>(this IBrightDataContext _, T empty, int minObservations = 1) where T : notnull
         {
             return new MarkovModelTrainer2<T>(empty, minObservations);
         }
@@ -31,24 +30,40 @@ namespace BrightWire
         /// Create a markov model trainer of window size 3
         /// </summary>
         /// <typeparam name="T">The markov chain data type</typeparam>
-        /// <param name="context"></param>
+        /// <param name="_"></param>
         /// <param name="empty">Null value for T</param>
         /// <param name="minObservations">Minimum number of data points to record an observation</param>
-        public static IMarkovModelTrainer3<T> CreateMarkovTrainer3<T>(this IBrightDataContext context, T empty, int minObservations = 1) where T : notnull
+        public static IMarkovModelTrainer3<T> CreateMarkovTrainer3<T>(this IBrightDataContext _, T empty, int minObservations = 1) where T : notnull
         {
             return new MarkovModelTrainer3<T>(empty, minObservations);
         }
 
-        public static T[] GetFields<T>(this IConvertibleRow row, params uint[] indices)
-        {
-            return indices.Select(row.GetTyped<T>).ToArray();
-        }
+        /// <summary>
+        /// Gets the strongly typed fields from a convertible row as an array
+        /// </summary>
+        /// <param name="row"></param>
+        /// <param name="indices">Column indices to retrieve</param>
+        /// <typeparam name="T">Type to convert to</typeparam>
+        /// <returns></returns>
+        public static T[] GetFields<T>(this IConvertibleRow row, params uint[] indices) where T: notnull => indices.Select(row.GetTyped<T>).ToArray();
 
+        /// <summary>
+        /// Classifies each row in the data table
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <param name="classifier"></param>
+        /// <returns></returns>
         public static IEnumerable<(IConvertibleRow Row, (string Label, float Weight)[] Classification)> Classify(this IRowOrientedDataTable dataTable, IRowClassifier classifier)
         {
             return Classify(dataTable.AsConvertible(), classifier);
         }
 
+        /// <summary>
+        /// Classifies each row in the data table
+        /// </summary>
+        /// <param name="convertible"></param>
+        /// <param name="classifier"></param>
+        /// <returns></returns>
         public static IEnumerable<(IConvertibleRow Row, (string Label, float Weight)[] Classification)> Classify(this IConvertibleTable convertible, IRowClassifier classifier)
         {
             for (uint i = 0, len = convertible.DataTable.RowCount; i < len; i++) {
@@ -57,14 +72,25 @@ namespace BrightWire
             }
         }
 
-        public static IEnumerable<(IFloatVector Vector, uint RowIndex, string Label)> GetRowsAsLabeledFeatures(this IDataTable dataTable)
+        /// <summary>
+        /// Enumerates rows in the table as vectorized rows
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <returns></returns>
+        public static IEnumerable<(IFloatVector Vector, uint RowIndex, string? Label)> GetRowsAsLabeledFeatures(this IDataTable dataTable)
         {
             var lap = dataTable.Context.LinearAlgebraProvider;
             return dataTable.GetVectorisedFeatures()
                 .Select((r, i) => (Vector: lap.CreateVector(r.Numeric), RowIndex: (uint) i, r.Label));
         }
 
-        public static IEnumerable<(uint RowIndex, string Label)[]> HierachicalCluster(this IDataTable dataTable, uint k)
+        /// <summary>
+        /// Clusters the rows in the data table using hierarchical clustering
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <param name="k">Number of clusters</param>
+        /// <returns></returns>
+        public static IEnumerable<(uint RowIndex, string? Label)[]> HierarchicalCluster(this IDataTable dataTable, uint k)
         {
             var data = dataTable.GetRowsAsLabeledFeatures()
                 .ToDictionary(d => d.Vector);
@@ -72,7 +98,15 @@ namespace BrightWire
                 .Select(c => c.Select(v => (data[v].RowIndex, data[v].Label)).ToArray());
         }
 
-        public static IEnumerable<(uint RowIndex, string Label)[]> KMeans(this IDataTable dataTable, uint k, uint maxIterations = 1000, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
+        /// <summary>
+        /// Clusters the rows in the data table using k-means clustering
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <param name="k">Number of clusters</param>
+        /// <param name="maxIterations">Maximum number of iterations</param>
+        /// <param name="distanceMetric">Distance metric to use</param>
+        /// <returns></returns>
+        public static IEnumerable<(uint RowIndex, string? Label)[]> KMeans(this IDataTable dataTable, uint k, uint maxIterations = 1000, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
         {
             var data = dataTable.GetRowsAsLabeledFeatures()
                 .ToDictionary(d => d.Vector);
@@ -80,18 +114,42 @@ namespace BrightWire
                 .Select(c => c.Select(v => (data[v].RowIndex, data[v].Label)).ToArray());
         }
 
-        public static IEnumerable<(uint RowIndex, string Label)[]> NonNegativeMatrixFactorisation(this IDataTable dataTable, uint k, uint maxIterations = 1000)
+        /// <summary>
+        /// Clusters the rows in the data table using non negative matrix factorisation clustering
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <param name="k">Number of clusters</param>
+        /// <param name="maxIterations">Maximum number of iterations</param>
+        /// <returns></returns>
+        public static IEnumerable<(uint RowIndex, string? Label)[]> NonNegativeMatrixFactorisation(this IDataTable dataTable, uint k, uint maxIterations = 1000)
         {
             var lap = dataTable.Context.LinearAlgebraProvider;
             var data = dataTable.GetRowsAsLabeledFeatures()
                 .ToDictionary(d => d.Vector);
-            return data.Keys.NNMF(lap, k, maxIterations)
+            return data.Keys.Nnmf(lap, k, maxIterations)
                 .Select(c => c.Select(v => (data[v].RowIndex, data[v].Label)).ToArray());
         }
 
-        public static uint GetOutputSizeOrThrow(this IDataSource dataSource) => dataSource.OutputSize ?? throw new Exception("Output size not defined");
+        /// <summary>
+        /// Returns the output size (throw exception if not set)
+        /// </summary>
+        /// <param name="dataSource"></param>
+        /// <returns></returns>
+        public static uint GetOutputSizeOrThrow(this IDataSource? dataSource) => dataSource?.OutputSize ?? throw new Exception("Output size not defined");
 
+        /// <summary>
+        /// Creates a graph factory
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
         public static GraphFactory CreateGraphFactory(this IBrightDataContext context) => new GraphFactory(context.LinearAlgebraProvider);
+
+
+        /// <summary>
+        /// Creates a graph factory
+        /// </summary>
+        /// <param name="lap"></param>
+        /// <returns></returns>
         public static GraphFactory CreateGraphFactory(this ILinearAlgebraProvider lap) => new GraphFactory(lap);
 
         public static IRowOrientedDataTable CreateSequentialWindow(this IRowOrientedDataTable dataTable, uint windowSize, params uint[] columnIndices)
@@ -125,7 +183,7 @@ namespace BrightWire
             var labels = new Dictionary<string, int>();
             var classifications = new Dictionary<int, Dictionary<int, uint>>();
 
-            static int _GetIndex(string classification, Dictionary<string, int> table)
+            static int GetIndex(string classification, Dictionary<string, int> table)
             {
                 if (table.TryGetValue(classification, out var index))
                     return index;
@@ -134,8 +192,8 @@ namespace BrightWire
             }
 
             dataTable.ForEachRow(r => {
-                var actual = _GetIndex(r.GetTyped<string>(actualClassificationColumnIndex), labels);
-                var expected = _GetIndex(r.GetTyped<string>(expectedClassificationColumnIndex), labels);
+                var actual = GetIndex(r.GetTyped<string>(actualClassificationColumnIndex), labels);
+                var expected = GetIndex(r.GetTyped<string>(expectedClassificationColumnIndex), labels);
                 if (!classifications.TryGetValue(expected, out var expectedClassification))
                     classifications.Add(expected, expectedClassification = new Dictionary<int, uint>());
                 if (expectedClassification.TryGetValue(actual, out var actualClassification))
@@ -168,14 +226,21 @@ namespace BrightWire
         public static IReadOnlyList<(string Label, string Classification, float Score)> Classify(this IReadOnlyList<(string Label, IndexList Data)> data, IIndexListClassifier classifier)
         {
             var ret = new List<(string Label, string Classification, float Score)>();
-            foreach (var item in data)
+            foreach (var (label, indexList) in data)
             {
-                var classification = classifier.Classify(item.Data).GetBestClassification();
-                ret.Add((item.Label, classification, item.Label == classification ? 1f : 0f));
+                var classification = classifier.Classify(indexList).GetBestClassification();
+                ret.Add((label, classification, label == classification ? 1f : 0f));
             }
             return ret;
         }
 
-        public static IRowClassifier AsRowClassifier(this IIndexListClassifier classifier, uint columnIndex = 0, IIndexStrings indexer = null) => new IndexListRowClassifier(classifier, columnIndex, indexer);
+        /// <summary>
+        /// Converts the index list classifier to a row classifier
+        /// </summary>
+        /// <param name="classifier">Index list classifier</param>
+        /// <param name="columnIndex">Column index to classify</param>
+        /// <param name="indexer">String indexer (optional)</param>
+        /// <returns></returns>
+        public static IRowClassifier AsRowClassifier(this IIndexListClassifier classifier, uint columnIndex = 0, IIndexStrings? indexer = null) => new IndexListRowClassifier(classifier, columnIndex, indexer);
     }
 }

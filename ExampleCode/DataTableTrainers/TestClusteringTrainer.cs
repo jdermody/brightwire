@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using BrightData;
 using BrightWire;
 using BrightWire.TrainingData.Helper;
@@ -67,7 +66,6 @@ namespace ExampleCode.DataTableTrainers
             }
         }
         readonly StringTableBuilder _stringTable = new StringTableBuilder();
-        readonly (string Classification, WeightedIndexList Data)[] _data;
         readonly IFloatVector[] _vectors;
         readonly Dictionary<IFloatVector, AAAIDocument> _documentTable = new Dictionary<IFloatVector, AAAIDocument>();
         readonly uint _groupCount;
@@ -76,10 +74,10 @@ namespace ExampleCode.DataTableTrainers
         {
             _context = context;
             var lap = context.LinearAlgebraProvider;
-            _data = documents.Select(d => d.AsClassification(context, _stringTable)).ToArray();
-            _vectors = _data.Select(d => lap.CreateVector(d.Data.AsDense(_stringTable.Size + 1))).ToArray();
-            foreach(var combo in _vectors.Zip(documents))
-                _documentTable.Add(combo.First, combo.Second);
+            (string Classification, WeightedIndexList Data)[] data = documents.Select(d => d.AsClassification(context, _stringTable)).ToArray();
+            _vectors = data.Select(d => lap.CreateVector(d.Data.AsDense(_stringTable.Size + 1))).ToArray();
+            foreach(var (first, second) in _vectors.Zip(documents))
+                _documentTable.Add(first, second);
             var allGroups = new HashSet<string>(documents.SelectMany(d => d.Group));
             _groupCount = (uint) allGroups.Count;
         }
@@ -88,15 +86,15 @@ namespace ExampleCode.DataTableTrainers
         {
             Console.Write("Kmeans clustering...");
             var outputPath = GetOutputPath("kmeans");
-            _WriteClusters(outputPath, _vectors.KMeans(_context, _groupCount), _documentTable);
+            WriteClusters(outputPath, _vectors.KMeans(_context, _groupCount), _documentTable);
             Console.WriteLine($"written to {outputPath}");
         }
 
-        public void NNMF()
+        public void Nnmf()
         {
             Console.Write("NNMF  clustering...");
             var outputPath = GetOutputPath("nnmf");
-            _WriteClusters(outputPath, _vectors.NNMF(_context.LinearAlgebraProvider, _groupCount), _documentTable);
+            WriteClusters(outputPath, _vectors.Nnmf(_context.LinearAlgebraProvider, _groupCount), _documentTable);
             Console.WriteLine($"written to {outputPath}");
         }
 
@@ -115,7 +113,7 @@ namespace ExampleCode.DataTableTrainers
             Console.Write("done...");
 
             Console.Write("Kmeans clustering of random projection...");
-            _WriteClusters(outputPath, vectorList2.KMeans(_context, _groupCount), lookupTable2);
+            WriteClusters(outputPath, vectorList2.KMeans(_context, _groupCount), lookupTable2);
             vectorList2.ForEach(v => v.Dispose());
             Console.WriteLine($"written to {outputPath}");
         }
@@ -131,11 +129,11 @@ namespace ExampleCode.DataTableTrainers
             var kIndices = k.AsRange().ToList();
             var matrixT = matrix.Transpose();
             matrix.Dispose();
-            var svd = matrixT.Svd();
+            var (_, floatVector, vt) = matrixT.Svd();
             matrixT.Dispose();
 
-            var s = lap.CreateDiagonalMatrix(svd.S.AsIndexable().Values.Take((int)k).ToArray());
-            var v2 = svd.VT.GetNewMatrixFromRows(kIndices);
+            var s = lap.CreateDiagonalMatrix(floatVector.AsIndexable().Values.Take((int)k).ToArray());
+            var v2 = vt.GetNewMatrixFromRows(kIndices);
             using (var sv2 = s.Multiply(v2))
             {
                 v2.Dispose();
@@ -145,7 +143,7 @@ namespace ExampleCode.DataTableTrainers
                 var lookupTable3 = vectorList3.Select((v, i) => Tuple.Create(v, _vectors[i])).ToDictionary(d => (IFloatVector)d.Item1, d => _documentTable[d.Item2]);
 
                 Console.WriteLine("Kmeans clustering in latent document space...");
-                _WriteClusters(outputPath, vectorList3.KMeans(_context, _groupCount), lookupTable3);
+                WriteClusters(outputPath, vectorList3.KMeans(_context, _groupCount), lookupTable3);
             }
 
             Console.WriteLine($"written to {outputPath}");
@@ -155,7 +153,7 @@ namespace ExampleCode.DataTableTrainers
 
         string DataFileDirectory => _context.Get<DirectoryInfo>("DataFileDirectory")?.FullName ?? throw new Exception("Data File Directory not set");
 
-        void _WriteClusters(string filePath, IFloatVector[][] clusters, Dictionary<IFloatVector, AAAIDocument> lookupTable)
+        void WriteClusters(string filePath, IFloatVector[][] clusters, Dictionary<IFloatVector, AAAIDocument> lookupTable)
         {
             new FileInfo(filePath).Directory?.Create();
             using var writer = new StreamWriter(filePath);

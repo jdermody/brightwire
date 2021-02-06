@@ -11,7 +11,7 @@ namespace BrightWire.ExecutionGraph.Node.Operation
         {
             public Backpropagation(OneMinusInput source) : base(source) { }
 
-            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
+            protected override IGraphData Backpropagate(INode? fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
             {
                 var es = errorSignal.GetMatrix();
                 using var minusOne = context.LinearAlgebraProvider.CreateMatrix(es.RowCount, es.ColumnCount, -1f);
@@ -19,7 +19,7 @@ namespace BrightWire.ExecutionGraph.Node.Operation
             }
         }
 
-        public OneMinusInput(string name = null) : base(name)
+        public OneMinusInput(string? name = null) : base(name)
         {
         }
 
@@ -28,7 +28,7 @@ namespace BrightWire.ExecutionGraph.Node.Operation
             var input = context.Data.GetMatrix();
             using var ones = context.LinearAlgebraProvider.CreateMatrix(input.RowCount, input.ColumnCount, 1f);
             var output = ones.Subtract(input);
-            _AddNextGraphAction(context, context.Data.ReplaceWith(output), () => new Backpropagation(this));
+            AddNextGraphAction(context, context.Data.ReplaceWith(output), () => new Backpropagation(this));
         }
     }
 }

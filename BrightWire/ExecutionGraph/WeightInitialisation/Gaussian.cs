@@ -29,12 +29,12 @@ namespace BrightWire.ExecutionGraph.WeightInitialisation
             _distribution = _lap.Context.CreateNormalDistribution(0, stdDev);
         }
 
-        float _GetBias()
+        float GetBias()
         {
             return _zeroBias ? 0f : _distribution.Sample();
         }
 
-        float _GetWeight(uint inputSize, uint outputSize)
+        float GetWeight(uint inputSize, uint outputSize)
         {
             uint n = 0;
             if (_varianceCount == GaussianVarianceCount.FanIn || _varianceCount == GaussianVarianceCount.FanInFanOut)
@@ -55,12 +55,12 @@ namespace BrightWire.ExecutionGraph.WeightInitialisation
 
         public IFloatVector CreateBias(uint size)
         {
-            return _lap.CreateVector(size, x => _GetBias());
+            return _lap.CreateVector(size, x => GetBias());
         }
 
         public IFloatMatrix CreateWeight(uint rows, uint columns)
         {
-            return _lap.CreateMatrix(rows, columns, (x, y) => _GetWeight(rows, columns));
+            return _lap.CreateMatrix(rows, columns, (x, y) => GetWeight(rows, columns));
         }
     }
 }

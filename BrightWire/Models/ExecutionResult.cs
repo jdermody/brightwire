@@ -1,4 +1,4 @@
-﻿using BrightData;
+﻿using System;
 using System.Linq;
 using BrightData.LinearAlgebra;
 
@@ -18,10 +18,10 @@ namespace BrightWire.Models
 		/// <param name="output">The mini batch output</param>
 		/// <param name="index">Output index</param>
 		public ExecutionResult(IMiniBatchSequence miniBatch, Vector<float>[] output, uint index)
-		{
-			Index = index;
-			_miniBatch = miniBatch;
-			Output = output;
+        {
+            _miniBatch = miniBatch;
+            Index = index;
+            Output = output;
 			Target = _miniBatch.Target?.GetMatrix().Data.Rows.ToArray();
 			Input = _miniBatch.Input.Select(input => input.GetMatrix().Data.Rows.ToArray()).ToArray();
 		}
@@ -39,7 +39,7 @@ namespace BrightWire.Models
 		/// <summary>
 		/// The list of target rows
 		/// </summary>
-		public Vector<float>[] Target { get; }
+		public Vector<float>[]? Target { get; }
 
 		/// <summary>
 		/// The list of input rows

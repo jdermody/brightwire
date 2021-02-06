@@ -2,61 +2,64 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using BrightData;
 using BrightData.LinearAlgebra;
 using BrightWire.Models;
 using BrightWire.TrainingData.Helper;
 using ExampleCode.DataTableTrainers;
 
-namespace ExampleCode.Datasets
+namespace ExampleCode.DataSet
 {
-    internal class MNIST
+    internal class Mnist
     {
         readonly IBrightDataContext _context;
         public Image[] TrainingImages { get; }
         public Image[] TestImages { get; }
 
-        public MNIST(IBrightDataContext context, Image[] trainingImages, Image[] testImages)
+        public Mnist(IBrightDataContext context, Image[] trainingImages, Image[] testImages)
         {
             _context = context;
             TrainingImages = trainingImages;
             TestImages = testImages;
         }
 
-        public ExecutionGraphModel TrainFeedForwardNeuralNetwork(
+        public ExecutionGraphModel? TrainFeedForwardNeuralNetwork(
             uint hiddenLayerSize = 1024,
             uint numIterations = 20,
             float trainingRate = 0.1f,
             uint batchSize = 128
         )
         {
+            Console.Write("Loading MNIST...");
             using var trainer = GetVectorTrainer();
+            Console.WriteLine("done");
             return trainer.TrainingFeedForwardNeuralNetwork(hiddenLayerSize, numIterations, trainingRate, batchSize);
         }
 
-        public ExecutionGraphModel TrainConvolutionalNeuralNetwork(
+        public ExecutionGraphModel? TrainConvolutionalNeuralNetwork(
             uint hiddenLayerSize = 1024,
             uint numIterations = 20,
             float trainingRate = 0.1f,
             uint batchSize = 128
         )
         {
+            Console.Write("Loading MNIST...");
             using var trainer = GetTensorTrainer();
+            Console.WriteLine("done");
             return trainer.TrainConvolutionalNeuralNetwork(hiddenLayerSize, numIterations, trainingRate, batchSize);
         }
 
-        public MNISTVectorTrainer GetVectorTrainer()
+        public MnistVectorTrainer GetVectorTrainer()
         {
-            return new MNISTVectorTrainer(
+            return new MnistVectorTrainer(
                 BuildVectorToVectorDataTable(_context, TrainingImages),
                 BuildVectorToVectorDataTable(_context, TestImages)
             );
         }
 
-        public MNISTTensorTrainer GetTensorTrainer()
+        public MnistTensorTrainer GetTensorTrainer()
         {
-            return new MNISTTensorTrainer(
+            return new MnistTensorTrainer(
                 Build3DTensorToVectorDataTable(_context, TrainingImages),
                 Build3DTensorToVectorDataTable(_context, TestImages)
             );
@@ -65,12 +68,12 @@ namespace ExampleCode.Datasets
         /// <summary>
         /// Input layer size
         /// </summary>
-        public const int INPUT_SIZE = 784;
+        public const int InputSize = 784;
 
         /// <summary>
         /// Output layer size
         /// </summary>
-        public const int OUTPUT_SIZE = 10;
+        public const int OutputSize = 10;
 
         /// <summary>
         /// Image data

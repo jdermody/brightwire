@@ -4,8 +4,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Runtime.Serialization;
 using System.Text;
+using BrightData.Helper;
 
 namespace BrightData.Buffer
 {
@@ -137,11 +137,8 @@ namespace BrightData.Buffer
                 _reader = GetReader<ushort>(indicesLength, inMemorySize, stream);
 
 #if DEBUG
-                int offset = 0;
-                foreach (var item in _reader.EnumerateTyped()) {
+                foreach (var item in _reader.EnumerateTyped())
                     Debug.Assert(item < _stringTable.Length);
-                    ++offset;
-                }
 #endif
             }
 
@@ -195,7 +192,7 @@ namespace BrightData.Buffer
 
             T Create(BinaryReader reader)
             {
-                var ret = (T)FormatterServices.GetUninitializedObject(typeof(T));
+                var ret = GenericActivator.CreateUninitialized<T>();
                 ret.Initialize(_context, reader);
                 return ret;
             }

@@ -1,19 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 using BrightData;
 using BrightData.LinearAlgebra;
-using BrightTable;
 using BrightWire;
 using BrightWire.Models;
 
 namespace ExampleCode.DataTableTrainers
 {
-    internal class MNISTTensorTrainer : DataTableTrainer
+    internal class MnistTensorTrainer : DataTableTrainer
     {
-        public MNISTTensorTrainer(IRowOrientedDataTable training, IRowOrientedDataTable test) : base(null, training, test)
+        public MnistTensorTrainer(IRowOrientedDataTable training, IRowOrientedDataTable test) : base(null, training, test)
         {
 
         }
@@ -88,6 +84,8 @@ namespace ExampleCode.DataTableTrainers
             var singleData = graph.CreateDataSource(new[] { tensor });
             var result = executionEngine.Execute(singleData);
             var prediction = result.Single().Output.Single().MaximumIndex();
+            var expectedPrediction = ((Vector<float>) Test.Row(0)[1]).MaximumIndex();
+            Console.WriteLine($"Final model predicted: {prediction}, expected {expectedPrediction}");
             return bestGraph;
         }
     }

@@ -72,9 +72,9 @@ namespace BrightWire.Unsupervised
 			// cluster the data
 			var closest = _distance.GetClosest();
 			var clusters = closest
-				.Select((ci, i) => (ci, (uint)i))
-				.GroupBy(d => d.Item1)
-				.Select(c => c.Select(d => d.Item2).ToArray())
+				.Select((ci, i) => (ClusterIndex: ci, Index: (uint)i))
+				.GroupBy(d => d.ClusterIndex)
+				.Select(c => c.Select(d => d.Index).ToArray())
 				.ToList();
 
 			var differenceCount = 0;
@@ -97,7 +97,7 @@ namespace BrightWire.Unsupervised
 				return false;
 
 			_clusters = newClusters;
-			_distance.SetComparisonVectors(newClusters.Select(d => d.Item2).ToList());
+			_distance.SetComparisonVectors(newClusters.Select(d => d.Cluster).ToList());
 			return true;
 		}
 

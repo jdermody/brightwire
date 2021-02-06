@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Runtime.Serialization;
 using System.Text;
 using BrightData.Helper;
 
@@ -25,11 +24,10 @@ namespace BrightData.Buffer
 
         protected override uint ReadTo(Stream stream, uint count, T[] buffer)
         {
-            var type = typeof(T);
             var reader = new BinaryReader(stream, Encoding.UTF8);
             uint ret = 0;
             for (; ret < count && stream.Position < stream.Length; ret++) {
-                var obj = (T)FormatterServices.GetUninitializedObject(type);
+                var obj = GenericActivator.CreateUninitialized<T>();
                 obj.Initialize(_context, reader);
                 buffer[ret] = obj;
             }

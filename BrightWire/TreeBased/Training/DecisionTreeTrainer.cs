@@ -253,6 +253,9 @@ namespace BrightWire.TreeBased.Training
 	        public string? MatchLabel { get; }
         }
 
+        /// <summary>
+        /// Decision tree configuration
+        /// </summary>
         public class Config
         {
             public uint? FeatureBagCount { get; set; } = null;
@@ -262,6 +265,12 @@ namespace BrightWire.TreeBased.Training
             public uint? MaxAttributes { get; set; } = null;
         }
 
+        /// <summary>
+        /// Trains a decision tree
+        /// </summary>
+        /// <param name="table">Training data</param>
+        /// <param name="config">Decision tree configuration</param>
+        /// <returns></returns>
         public static DecisionTree Train(IRowOrientedDataTable table, Config? config = null)
         {
             var tableInfo = new TableInfo(table);
@@ -308,7 +317,7 @@ namespace BrightWire.TreeBased.Training
                 var scoreTable = new List<(Attribute Attribute, Node[] Nodes, double Score)>();
                 foreach (var item in attributes) {
                     var newChildren = item.Partition(node.Data).Select(d => new Node(tableInfo, d.Value, d.Key)).ToArray();
-                    var informationGain = _GetInformationGain(nodeEntropy, nodeTotal, newChildren);
+                    var informationGain = GetInformationGain(nodeEntropy, nodeTotal, newChildren);
                     if (minInformationGain.HasValue && informationGain < minInformationGain.Value)
                         continue;
                     scoreTable.Add((item, newChildren, informationGain));
@@ -329,7 +338,7 @@ namespace BrightWire.TreeBased.Training
             };
         }
 
-        static double _GetInformationGain(double setEntity, double setCount, Node[] splits)
+        static double GetInformationGain(double setEntity, double setCount, Node[] splits)
         {
             var total = setEntity;
             foreach(var item in splits) {

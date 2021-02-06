@@ -25,8 +25,8 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         public override void ExecuteForward(IGraphContext context)
         {
             _primarySource = context.Source;
-            _primary = context.Data?.GetMatrix();
-            _TryComplete(context);
+            _primary = context.Data.GetMatrix();
+            TryComplete(context);
         }
 
         /// <summary>
@@ -34,19 +34,19 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// </summary>
         /// <param name="context">The graph context</param>
         /// <param name="channel">The channel</param>
-        protected override void _ExecuteForward(IGraphContext context, uint channel)
+        protected override void ExecuteForwardInternal(IGraphContext context, uint channel)
         {
             if (channel == 1) {
                 _secondarySource = context.Source;
-                _secondary = context.Data?.GetMatrix();
-                _TryComplete(context);
+                _secondary = context.Data.GetMatrix();
+                TryComplete(context);
             }
         }
 
-        void _TryComplete(IGraphContext context)
+        void TryComplete(IGraphContext context)
         {
             if (_primary != null && _secondary != null) {
-                _Activate(context, _primary, _secondary);
+                Activate(context, _primary, _secondary);
                 _primary = _secondary = null;
                 _primarySource = _secondarySource = null;
             }
@@ -58,7 +58,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// <param name="context">Graph context</param>
         /// <param name="primary">Primary signal</param>
         /// <param name="secondary">Secondary signal</param>
-        protected abstract void _Activate(IGraphContext context, IFloatMatrix primary, IFloatMatrix secondary);
+        protected abstract void Activate(IGraphContext context, IFloatMatrix primary, IFloatMatrix secondary);
 
         /// <summary>
         /// Records the network activity
@@ -66,8 +66,11 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// <param name="context">Graph context</param>
         /// <param name="output">The output signal</param>
         /// <param name="backpropagation">Backpropagation creator (optional)</param>
-        protected void _AddHistory(IGraphContext context, IFloatMatrix output, Func<IBackpropagation>? backpropagation)
+        protected void AddHistory(IGraphContext context, IFloatMatrix output, Func<IBackpropagation>? backpropagation)
         {
+            if (_primarySource == null || _secondarySource == null)
+                throw new Exception("Source nodes cannot be null");
+
             context.AddForward(new TrainingAction(this, new MatrixGraphData(output), new[] { _primarySource, _secondarySource }), backpropagation);
         }
     }

@@ -3,14 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using BrightData;
 using BrightWire;
-using BrightWire.Linear;
-using BrightWire.Linear.Training;
 using BrightWire.Models.Bayesian;
 using BrightWire.Models.InstanceBased;
-using BrightWire.Models.Linear;
 using BrightWire.Models.TreeBased;
 
-namespace ExampleCode
+namespace ExampleCode.DataTableTrainers
 {
     internal class DataTableTrainer : IDisposable
     {
@@ -18,24 +15,24 @@ namespace ExampleCode
         {
             TargetColumn = table.GetTargetColumnOrThrow();
             Table = table;
-            var split = table.Split();
-            Training = split.Training;
-            Test = split.Test;
-        }
-
-        public DataTableTrainer(IRowOrientedDataTable table, IRowOrientedDataTable training, IRowOrientedDataTable test)
-        {
-            TargetColumn = training.GetTargetColumnOrThrow();
-            Table = table;
+            var (training, test) = table.Split();
             Training = training;
             Test = test;
-		}
+        }
+
+        public DataTableTrainer(IRowOrientedDataTable? table, IRowOrientedDataTable training, IRowOrientedDataTable test)
+        {
+            TargetColumn = training.GetTargetColumnOrThrow();
+            Training = training;
+            Test = test;
+            Table = table ?? training.Concat(test);
+        }
 
         public void Dispose()
         {
-            Table?.Dispose();
-            Training?.Dispose();
-            Test?.Dispose();
+            Table.Dispose();
+            Training.Dispose();
+            Test.Dispose();
         }
 
         public uint TargetColumn { get; }
@@ -44,17 +41,17 @@ namespace ExampleCode
         public IRowOrientedDataTable Test { get; }
 
         public IEnumerable<string> KMeans(uint k) => AggregateLabels(Table.KMeans(k));
-        public IEnumerable<string> HierachicalCluster(uint k) => AggregateLabels(Table.HierachicalCluster(k));
+        public IEnumerable<string> HierarchicalCluster(uint k) => AggregateLabels(Table.HierarchicalCluster(k));
         public IEnumerable<string> NonNegativeMatrixFactorisation(uint k) => AggregateLabels(Table.NonNegativeMatrixFactorisation(k));
 
-        IEnumerable<string> AggregateLabels(IEnumerable<(uint RowIndex, string Label)[]> clusters) => clusters
+        IEnumerable<string> AggregateLabels(IEnumerable<(uint RowIndex, string? Label)[]> clusters) => clusters
             .Select(c => String.Join(';', c
                 .Select(r => r.Label)
                 .GroupBy(d => d)
                 .Select(g => (Label: g.Key, Count: g.Count()))
                 .OrderByDescending(g => g.Count)
                 .ThenBy(g => g.Label)
-                .Select(g => $"{g.Label} ({g.Count})")
+                .Select(g => $"{g.Label ?? "<<NULL>>"} ({g.Count})")
             ));
 
         public NaiveBayes TrainNaiveBayes(bool writeResults = true)
@@ -100,7 +97,7 @@ namespace ExampleCode
         {
             var results = Test.Classify(classifier).ToList();
             var score = results
-                .Average(d => d.Row.GetTyped<string>(TargetColumn) == d.Classification.OrderByDescending(d => d.Weight).First().Label ? 1.0 : 0.0);
+                .Average(d => d.Row.GetTyped<string>(TargetColumn) == d.Classification.OrderByDescending(c => c.Weight).First().Label ? 1.0 : 0.0);
 
             Console.WriteLine($"{type} accuracy: {score:P}");
         }
@@ -110,7 +107,7 @@ namespace ExampleCode
             var results = classifier.Classify(Test).ToList();
             var expectedLabels = Test.Column(TargetColumn).Enumerate().Select(o => o.ToString()).ToArray();
             var score = results
-                .Average(d => expectedLabels[d.RowIndex] == d.Predictions.OrderByDescending(d => d.Weight).First().Classification ? 1.0 : 0.0);
+                .Average(d => expectedLabels[d.RowIndex] == d.Predictions.OrderByDescending(c => c.Weight).First().Classification ? 1.0 : 0.0);
 
             Console.WriteLine($"{type} accuracy: {score:P}");
         }

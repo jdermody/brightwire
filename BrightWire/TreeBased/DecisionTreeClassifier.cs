@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using BrightData;
 using BrightWire.Models.TreeBased;
@@ -17,7 +18,7 @@ namespace BrightWire.TreeBased
             _tree = tree;
         }
 
-        public IEnumerable<string> _Classify(IConvertibleRow row)
+        public IEnumerable<string> ClassifyInternal(IConvertibleRow row)
         {
             var p = _tree.Root;
             while(p != null) {
@@ -36,14 +37,14 @@ namespace BrightWire.TreeBased
                         continue;
                     }
                 }
-                yield return p.Classification;
+                yield return p.Classification ?? throw new Exception("Classification was null");
                 break;
             }
         }
 
         public (string Label, float Weight)[] Classify(IConvertibleRow row)
         {
-            var classification = _Classify(row).First();
+            var classification = ClassifyInternal(row).First();
             return new[] {
                 (classification, 1f)
             };

@@ -1,5 +1,6 @@
-﻿using System.Runtime.Serialization;
+﻿using System;
 using System.Text;
+using BrightData.Helper;
 using BrightWire.Helper;
 
 namespace BrightWire.ExecutionGraph.Node.Helper
@@ -13,29 +14,32 @@ namespace BrightWire.ExecutionGraph.Node.Helper
         {
             public Backpropagation(ExecuteBackwardAction source) : base(source) { }
 
-            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
+            protected override IGraphData Backpropagate(INode? fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
             {
                 return _source.Action.Execute(errorSignal, context);
             }
         }
 
-	    public ExecuteBackwardAction(IAction action, string name = null) : base(name) { Action = action; }
+	    public ExecuteBackwardAction(IAction action, string? name = null) : base(name) { Action = action; }
 
         public IAction Action { get; set; }
 
 	    public override void ExecuteForward(IGraphContext context)
         {
-            _AddNextGraphAction(context, context.Data, () => new Backpropagation(this));
+            AddNextGraphAction(context, context.Data, () => new Backpropagation(this));
         }
 
-        protected override (string Description, byte[] Data) _GetInfo()
+        protected override (string Description, byte[] Data) GetInfo()
         {
             return (TypeLoader.GetTypeName(Action), Encoding.UTF8.GetBytes(Action.Serialise()));
         }
 
-        protected override void _Initalise(GraphFactory factory, string description, byte[]? data)
+        protected override void Initalise(GraphFactory factory, string? description, byte[]? data)
         {
-            Action = (IAction)FormatterServices.GetUninitializedObject(TypeLoader.LoadType(description));
+            if (description == null)
+                throw new Exception("Description cannot be null");
+
+            Action = GenericActivator.CreateUninitialized<IAction>(TypeLoader.LoadType(description));
             Action.Initialise(data != null ? Encoding.UTF8.GetString(data) : "");
         }
     }

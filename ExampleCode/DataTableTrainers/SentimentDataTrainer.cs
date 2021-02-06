@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using BrightData;
 using BrightData.Helper;
-using BrightTable;
 using BrightWire;
 using BrightWire.ExecutionGraph;
 using BrightWire.Models;
@@ -30,25 +28,25 @@ namespace ExampleCode.DataTableTrainers
                 "imdb_labelled.txt",
                 "yelp_labelled.txt"
             };
-            var LINE_SEPARATOR = "\n".ToCharArray();
-            var SEPARATOR = "\t".ToCharArray();
+            var lineSeparator = "\n".ToCharArray();
+            var separator = "\t".ToCharArray();
             _stringTable = new StringTableBuilder();
 
             var sentences = new List<(string[] Sentence, string Classification)>();
             foreach (var path in files.Select(f => Path.Combine(directory.FullName, "sentiment labelled sentences", f)))
             {
                 var data = File.ReadAllText(path)
-                    .Split(LINE_SEPARATOR)
+                    .Split(lineSeparator)
                     .Where(l => !String.IsNullOrWhiteSpace(l))
-                    .Select(l => l.Split(SEPARATOR))
-                    .Select(s => (Sentence: _Tokenise(s[0]), Classification: s[1][0] == '1' ? "positive" : "negative"))
-                    .Where(d => (d.Sentence ?? Array.Empty<string>()).Any());
+                    .Select(l => l.Split(separator))
+                    .Select(s => (Sentence: Tokenise(s[0]), Classification: s[1][0] == '1' ? "positive" : "negative"))
+                    .Where(d => d.Sentence.Any());
                 sentences.AddRange(data);
             }
 
-            var trainingData = sentences.Shuffle(context.Random).ToArray().Split();
-            _indexedSentencesTraining = _BuildIndexedClassifications(context, trainingData.Training, _stringTable);
-            _indexedSentencesTest = _BuildIndexedClassifications(context, trainingData.Test, _stringTable);
+            var (training, test) = sentences.Shuffle(context.Random).ToArray().Split();
+            _indexedSentencesTraining = BuildIndexedClassifications(context, training, _stringTable);
+            _indexedSentencesTest = BuildIndexedClassifications(context, test, _stringTable);
             _maxIndex = _indexedSentencesTraining.Concat(_indexedSentencesTest).Max(d => d!.Data.Indices.Max());
             _context = context;
         }
@@ -76,8 +74,8 @@ namespace ExampleCode.DataTableTrainers
         public (IGraphTrainingEngine, WireBuilder, IGraphEngine) TrainNeuralNetwork(uint numIterations = 10)
         {
             var indexer = GetIndexer();
-            var trainingTable = _GetTable(_context, _maxIndex, indexer, _indexedSentencesTraining);
-            var testTable = _GetTable(_context, _maxIndex, indexer, _indexedSentencesTest);
+            var trainingTable = GetTable(_context, _maxIndex, indexer, _indexedSentencesTraining);
+            var testTable = GetTable(_context, _maxIndex, indexer, _indexedSentencesTest);
             var graph = _context.CreateGraphFactory();
 
             var trainingData = graph.CreateDataSource(trainingTable);
@@ -90,7 +88,7 @@ namespace ExampleCode.DataTableTrainers
                 .Use(graph.WeightInitialisation.Xavier)
             ;
 
-            var engine = graph.CreateTrainingEngine(trainingData, 0.3f, 128);
+            var engine = graph.CreateTrainingEngine(trainingData, 0.3f);
             engine.LearningContext.ScheduleLearningRate(10, 0.2f);
 
             var neuralNetworkWire = graph.Connect(engine)
@@ -104,7 +102,7 @@ namespace ExampleCode.DataTableTrainers
             ;
 
             Console.WriteLine("Training neural network classifier...");
-            GraphModel bestNetwork = null;
+            GraphModel? bestNetwork = null;
             engine.Train(numIterations, testData, errorMetric, network => bestNetwork = network);
             if (bestNetwork != null)
                 engine.LoadParametersFrom(graph, bestNetwork.Graph);
@@ -128,8 +126,8 @@ namespace ExampleCode.DataTableTrainers
             var outputSize = trainingData.GetOutputSizeOrThrow();
 
             // stop the backpropagation to the first neural network
-            engine.LearningContext.EnableNodeUpdates(neuralNetworkWire.Find("layer1"), false);
-            engine.LearningContext.EnableNodeUpdates(neuralNetworkWire.Find("layer2"), false);
+            engine.LearningContext.EnableNodeUpdates(neuralNetworkWire.Find("layer1")!, false);
+            engine.LearningContext.EnableNodeUpdates(neuralNetworkWire.Find("layer2")!, false);
 
             // create the bernoulli classifier wire
             var bernoulliWire = graph.Connect(engine)
@@ -142,7 +140,7 @@ namespace ExampleCode.DataTableTrainers
             ;
 
             // join the bernoulli, multinomial and neural network classification outputs
-            var firstNetwork = neuralNetworkWire.Find("first-network");
+            var firstNetwork = neuralNetworkWire.Find("first-network")!;
             var joined = graph.Join(multinomialWire, graph.Join(bernoulliWire, graph.Connect(outputSize, firstNetwork)));
 
             // train an additional classifier on the output of the previous three classifiers
@@ -157,7 +155,7 @@ namespace ExampleCode.DataTableTrainers
 
             // train the network again
             Console.WriteLine("Training stacked neural network classifier...");
-            GraphModel bestStackedNetwork = null;
+            GraphModel? bestStackedNetwork = null;
             engine.Train(20, testData, errorMetric, network => bestStackedNetwork = network);
             if (bestStackedNetwork != null)
                 engine.LoadParametersFrom(graph, bestStackedNetwork.Graph);
@@ -165,25 +163,25 @@ namespace ExampleCode.DataTableTrainers
             return graph.CreateEngine(engine.Graph);
         }
 
-        static IRowOrientedDataTable _GetTable(IBrightDataContext context, uint maxIndex, IIndexStrings indexer, (string Classification, IndexList Data)[] data)
+        static IRowOrientedDataTable GetTable(IBrightDataContext context, uint maxIndex, IIndexStrings indexer, (string Classification, IndexList Data)[] data)
         {
             var builder = context.BuildTable();
             builder.AddColumn(ColumnType.Vector, "Features");
             builder.AddColumn(ColumnType.Vector, "Target").SetTarget(true);
 
             var vector = new float[1];
-            foreach (var row in data) {
-                var features = row.Data.ToDense(maxIndex);
-                vector[0] = Convert.ToSingle(indexer.GetIndex(row.Classification));
+            foreach (var (classification, indexList) in data) {
+                var features = indexList.ToDense(maxIndex);
+                vector[0] = Convert.ToSingle(indexer.GetIndex(classification));
                 builder.AddRow(features, context.CreateVector(vector));
             }
 
             return builder.BuildRowOriented();
         }
 
-        static string[] _Tokenise(string str) => SimpleTokeniser.JoinNegations(SimpleTokeniser.Tokenise(str).Select(s => s.ToLower())).ToArray();
+        static string[] Tokenise(string str) => SimpleTokeniser.JoinNegations(SimpleTokeniser.Tokenise(str).Select(s => s.ToLower())).ToArray();
 
-        static (string Classification, IndexList Data)[] _BuildIndexedClassifications(IBrightDataContext context, (string[], string)[] data, StringTableBuilder stringTable)
+        static (string Classification, IndexList Data)[] BuildIndexedClassifications(IBrightDataContext context, (string[], string)[] data, StringTableBuilder stringTable)
         {
             return data
                 .Select(d => (d.Item2, context.CreateIndexList(d.Item1.Select(str => stringTable.GetIndex(str)).ToArray())))
@@ -200,10 +198,10 @@ namespace ExampleCode.DataTableTrainers
             builder.AddColumn(ColumnType.Vector, "Vector Target").SetTarget(true);
 
             var vector = new float[1];
-            foreach (var row in data) {
-                var features = row.Data.ToDense(maxIndex);
-                vector[0] = Convert.ToSingle(indexer.GetIndex(row.Classification));
-                builder.AddRow(features, row.Data, row.Classification, context.CreateVector(vector));
+            foreach (var (classification, indexList) in data) {
+                var features = indexList.ToDense(maxIndex);
+                vector[0] = Convert.ToSingle(indexer.GetIndex(classification));
+                builder.AddRow(features, indexList, classification, context.CreateVector(vector));
             }
 
             return builder.BuildRowOriented();
@@ -221,7 +219,7 @@ namespace ExampleCode.DataTableTrainers
                 if (String.IsNullOrWhiteSpace(line))
                     break;
 
-                var tokens = _Tokenise(line);
+                var tokens = Tokenise(line);
                 var indices = new List<uint>();
                 foreach (var token in tokens)
                 {
@@ -240,9 +238,11 @@ namespace ExampleCode.DataTableTrainers
                     Console.WriteLine("Bernoulli classification: " + bernoulli.Classify(indexList2).First().Label);
                     Console.WriteLine("Multinomial classification: " + multinomial.Classify(indexList2).First().Label);
                     var result = neuralNetwork.Execute(encodedInput);
-                    var output = result.Output[0][0];
-                    var label = output >= 0.5f ? "positive" : "negative";
-                    Console.WriteLine($"Neural network classification: {label} ({output})");
+                    if (result != null) {
+                        var output = result.Output[0][0];
+                        var label = output >= 0.5f ? "positive" : "negative";
+                        Console.WriteLine($"Neural network classification: {label} ({output})");
+                    }
                 }
                 else
                     Console.WriteLine("Sorry, none of those words have been seen before.");

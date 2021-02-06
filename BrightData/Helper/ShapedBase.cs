@@ -78,7 +78,7 @@ namespace BrightData.Helper
         /// <param name="total">Total size</param>
         /// <param name="shape">List of sizes that form the shape (one can be null)</param>
         /// <returns></returns>
-        protected static uint[] _ResolveShape(uint total, uint?[] shape)
+        protected static uint[] ResolveShape(uint total, uint?[] shape)
         {
             uint nonNullTotal = 0;
             bool hasFoundNull = false;

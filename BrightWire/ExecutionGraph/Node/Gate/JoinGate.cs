@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using BrightData;
 
@@ -16,7 +16,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 _channels = channels;
             }
 
-            public override void _Backward(INode fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
+            public override void BackwardInternal(INode? fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
             {
                 IFloatMatrix split, residual = errorSignal.GetMatrix();
                 int index = parents.Length-1;
@@ -32,19 +32,20 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         {
         }
 
-        protected override void _Activate(IGraphContext context, List<IncomingChannel> data)
+        protected override void Activate(IGraphContext context, List<IncomingChannel> data)
         {
             var curr = data.First().Data;
-            Debug.Assert(curr.ColumnCount == data.First().Size);
+            if (curr?.ColumnCount != data.First().Size)
+                throw new Exception("Sizes are different");
+
             var list = new List<IncomingChannel>();
             foreach(var item in data.Skip(1)) {
-                Debug.Assert(item.Data.ColumnCount == item.Size);
-                var next = curr.ConcatRows(item.Data);
+                var next = curr.ConcatRows(item.Data!);
                 //curr.Dispose();
                 curr = next;
                 list.Add(item);
             }
-            _AddHistory(context, data, curr, () => new Backpropagation(this, list));
+            AddHistory(context, data, curr, () => new Backpropagation(this, list));
         }
     }
 }

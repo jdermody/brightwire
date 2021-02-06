@@ -43,18 +43,19 @@ namespace BrightWire.ExecutionGraph.Engine
             ExecutionResult? ret = null;
             _dataSource = new SingleRowDataSource(input, false, MiniBatchSequenceType.Standard, 0);
             var provider = new MiniBatchProvider(_dataSource, null);
-            using (var executionContext = new ExecutionContext(_lap)) {
-                executionContext.Add(provider.GetMiniBatches(1, mb => Execute(executionContext, mb)));
+            using var executionContext = new ExecutionContext(_lap);
+            // ReSharper disable once AccessToDisposedClosure
+            executionContext.Add(provider.GetMiniBatches(1, mb => Execute(executionContext, mb)));
 
-                IGraphOperation? operation;
-                while ((operation = executionContext.GetNextOperation()) != null) {
-                    _lap.PushLayer();
-                    operation.Execute(executionContext);
-                    ret = GetResults().Single();
-                    ClearContextList();
-                    _lap.PopLayer();
-                }
+            IGraphOperation? operation;
+            while ((operation = executionContext.GetNextOperation()) != null) {
+                _lap.PushLayer();
+                operation.Execute(executionContext);
+                ret = GetResults().Single();
+                ClearContextList();
+                _lap.PopLayer();
             }
+
             _lap.PopLayer();
             _dataSource = null;
             return ret;
@@ -87,37 +88,38 @@ namespace BrightWire.ExecutionGraph.Engine
             _lap.PushLayer();
             _dataSource = new SequentialRowDataSource(input);
             var provider = new MiniBatchProvider(_dataSource, null);
-            using (var executionContext = new ExecutionContext(_lap)) {
-                executionContext.Add(provider.GetMiniBatches(1, mb => Execute(executionContext, mb)));
+            using var executionContext = new ExecutionContext(_lap);
+            // ReSharper disable once AccessToDisposedClosure
+            executionContext.Add(provider.GetMiniBatches(1, mb => Execute(executionContext, mb)));
 
-                IGraphOperation operation;
-                while ((operation = executionContext.GetNextOperation()) != null) {
-                    _lap.PushLayer();
-                    operation.Execute(executionContext);
-                    foreach (var result in GetResults())
-                        yield return result;
-                    ClearContextList();
-                    _lap.PopLayer();
-                }
+            IGraphOperation? operation;
+            while ((operation = executionContext.GetNextOperation()) != null) {
+                _lap.PushLayer();
+                operation.Execute(executionContext);
+                foreach (var result in GetResults())
+                    yield return result;
+                ClearContextList();
+                _lap.PopLayer();
             }
+
             _lap.PopLayer();
             _dataSource = null;
         }
 
-        public ExecutionResult ExecuteSequential(uint sequenceIndex, float[] input, IGraphExecutionContext executionContext, MiniBatchSequenceType sequenceType)
+        public ExecutionResult? ExecuteSequential(uint sequenceIndex, float[] input, IGraphExecutionContext executionContext, MiniBatchSequenceType sequenceType)
         {
             _lap.PushLayer();
             _dataSource = new SingleRowDataSource(input, true, sequenceType, sequenceIndex);
             var provider = new MiniBatchProvider(_dataSource, _lap.Context.Random);
             executionContext.Add(provider.GetMiniBatches(1, mb => Execute(executionContext, mb)));
 
-            IGraphOperation operation;
+            IGraphOperation? operation;
             while ((operation = executionContext.GetNextOperation()) != null) {
                 operation.Execute(executionContext);
                 ClearContextList();
             }
 
-            var ret = GetResults().Single();
+            var ret = GetResults().SingleOrDefault();
             _lap.PopLayer();
             _dataSource = null;
             return ret;

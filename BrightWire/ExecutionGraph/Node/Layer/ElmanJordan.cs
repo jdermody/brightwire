@@ -12,20 +12,21 @@ namespace BrightWire.ExecutionGraph.Node.Layer
     /// </summary>
     internal class ElmanJordan : NodeBase, IHaveMemoryNode
     {
-        IReadOnlyDictionary<INode, IGraphData> _lastBackpropagation = null;
         MemoryFeeder _memory;
-        INode _input, _output = null, _activation, _activation2;
+        INode _input, _activation, _activation2, _output;
         OneToMany _start;
         uint _inputSize;
         bool _isElman;
 
-        public ElmanJordan(GraphFactory graph, bool isElman, uint inputSize, float[] memory, INode activation, INode activation2, string name = null)
+#pragma warning disable 8618
+        public ElmanJordan(GraphFactory graph, bool isElman, uint inputSize, float[] memory, INode activation, INode activation2, string? name = null)
+#pragma warning restore 8618
             : base(name)
         {
-            _Create(graph, isElman, inputSize, memory, activation, activation2, null);
+            Create(graph, isElman, inputSize, memory, activation, activation2, null);
         }
 
-        void _Create(GraphFactory graph, bool isElman, uint inputSize, float[] memory, INode activation, INode activation2, string memoryName)
+        void Create(GraphFactory graph, bool isElman, uint inputSize, float[] memory, INode activation, INode activation2, string? memoryName)
         {
             _isElman = isElman;
             _inputSize = inputSize;
@@ -52,17 +53,8 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             if (!isElman)
                 h.AddForwardAction(_memory.SetMemoryAction);
 
-            _output = h
-                //.Add(new HookErrorSignal(context => {
-                //    if (_lastBackpropagation != null) {
-                //        foreach (var item in _lastBackpropagation)
-                //            context.AppendErrorSignal(item.Value, item.Key);
-                //        _lastBackpropagation = null;
-                //    }
-                //}))
-                .LastNode
-            ;
-            _start = new OneToMany(SubNodes, bp => _lastBackpropagation = bp);
+            _output = h.LastNode!;
+            _start = new OneToMany(SubNodes);
         }
 
         public override List<IWire> Output => _output.Output;
@@ -70,34 +62,28 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
         public override void ExecuteForward(IGraphContext context)
         {
-            if (context.BatchSequence.Type == MiniBatchSequenceType.SequenceStart)
-                _lastBackpropagation = null;
-
             _start.ExecuteForward(context);
         }
 
-        protected override (string Description, byte[] Data) _GetInfo()
+        protected override (string Description, byte[] Data) GetInfo()
         {
-            return (_isElman ? "ERN" : "JRN", _WriteData(WriteTo));
+            return (_isElman ? "ERN" : "JRN", WriteData(WriteTo));
         }
 
         public override void WriteTo(BinaryWriter writer)
         {
-            var Wh = (FeedForward)_input.FindByName("Wh");
-            var Wy = (FeedForward)_input.FindByName("Wy");
-            var Uh = (FeedForward)_memory.FindByName("Uh");
-
             writer.Write(_isElman);
             writer.Write((int)_inputSize);
             writer.Write(_memory.Id);
             _memory.Data.WriteTo(writer);
-            _Serialise(_activation, writer);
-            _Serialise(_activation2, writer);
+            Serialise(_activation, writer);
+            Serialise(_activation2, writer);
 
-            Wh.WriteTo(writer);
-            Wy.WriteTo(writer);
-            Uh.WriteTo(writer);
+            foreach(var item in SerializedNodes)
+                WriteSubNode(item, writer);
         }
+
+        static readonly string[] SerializedNodes = {"Wh", "Wy", "Uh"};
 
         public override void ReadFrom(GraphFactory factory, BinaryReader reader)
         {
@@ -105,21 +91,17 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             var inputSize = (uint)reader.ReadInt32();
             var memoryId = reader.ReadString();
             var memory = factory.Context.ReadVectorFrom(reader);
-            var activation = _Hydrate(factory, reader);
-            var activation2 = _Hydrate(factory, reader);
+            var activation = Hydrate(factory, reader);
+            var activation2 = Hydrate(factory, reader);
 
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (_memory == null)
-                _Create(factory, isElman, inputSize, memory.Segment.ToArray(), activation, activation2, memoryId);
+                Create(factory, isElman, inputSize, memory.Segment.ToArray(), activation, activation2, memoryId);
             else
                 _memory.Data = memory;
 
-            var Wh = _input.FindByName("Wh");
-            var Wy = _input.FindByName("Wy");
-            var Uh = _memory.FindByName("Uh");
-
-            Wh.ReadFrom(factory, reader);
-            Wy.ReadFrom(factory, reader);
-            Uh.ReadFrom(factory, reader);
+            foreach(var item in SerializedNodes)
+                ReadSubNode(item, factory, reader);
         }
 
         public override IEnumerable<INode> SubNodes

@@ -1,11 +1,7 @@
-﻿using BrightTable;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
-using System.Text;
 using BrightData;
 using BrightWire;
-using BrightWire.ExecutionGraph;
 using BrightWire.TrainingData.Artificial;
 using MathNet.Numerics.Distributions;
 
@@ -20,7 +16,7 @@ namespace ExampleCode.DataTableTrainers
             _context = context;
         }
 
-        public IGraphEngine TrainLSTM()
+        public IGraphEngine TrainLstm()
         {
             var graph = _context.CreateGraphFactory();
 
@@ -66,25 +62,25 @@ namespace ExampleCode.DataTableTrainers
                 uint index = 0, eCount = 0;
                 using var executionContext = graph.CreateExecutionContext();
                 var result = engine.ExecuteSequential(index++, input, executionContext, MiniBatchSequenceType.SequenceStart);
-                for (var i = 0; i < 32; i++)
-                {
-                    var next = result.Output[0].Values
-                        .Select((v, j) => ((double)v, j))
-                        .Where(d => d.Item1 >= 0.1f)
-                        .ToList();
+                if (result != null) {
+                    for (var i = 0; i < 32; i++) {
+                        var next = result!.Output[0].Values
+                            .Select((v, j) => ((double) v, j))
+                            .Where(d => d.Item1 >= 0.1f)
+                            .ToList();
 
-                    var distribution = new Categorical(next.Select(d => d.Item1).ToArray());
-                    var nextIndex = next[distribution.Sample()].Item2;
-                    Console.Write(ReberGrammar.GetChar(nextIndex));
-                    if (nextIndex == ReberGrammar.GetIndex('E') && ++eCount == 2)
-                        break;
+                        var distribution = new Categorical(next.Select(d => d.Item1).ToArray());
+                        var nextIndex = next[distribution.Sample()].j;
+                        Console.Write(ReberGrammar.GetChar(nextIndex));
+                        if (nextIndex == ReberGrammar.GetIndex('E') && ++eCount == 2)
+                            break;
 
-                    Array.Clear(input, 0, ReberGrammar.Size);
-                    input[nextIndex] = 1f;
-                    result = engine.ExecuteSequential(index++, input, executionContext, MiniBatchSequenceType.Standard);
+                        Array.Clear(input, 0, ReberGrammar.Size);
+                        input[nextIndex] = 1f;
+                        result = engine.ExecuteSequential(index++, input, executionContext, MiniBatchSequenceType.Standard);
+                    }
+                    Console.WriteLine();
                 }
-
-                Console.WriteLine();
             }
         }
     }

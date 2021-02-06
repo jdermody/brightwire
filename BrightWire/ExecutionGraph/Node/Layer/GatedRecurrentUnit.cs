@@ -12,58 +12,52 @@ namespace BrightWire.ExecutionGraph.Node.Layer
     /// </summary>
     internal class GatedRecurrentUnit : NodeBase, IHaveMemoryNode
     {
-        IReadOnlyDictionary<INode, IGraphData> _lastBackpropagation = null;
         uint _inputSize;
         MemoryFeeder _memory;
-        INode _input, _output = null;
+        INode _input, _output;
         OneToMany _start;
 
-        public GatedRecurrentUnit(GraphFactory graph, uint inputSize, float[] memory, string name = null)
+#pragma warning disable 8618
+        public GatedRecurrentUnit(GraphFactory graph, uint inputSize, float[] memory, string? name = null)
+#pragma warning restore 8618
             : base(name)
         {
-            _Create(graph, inputSize, memory, null);
+            Create(graph, inputSize, memory, null);
         }
 
-        void _Create(GraphFactory graph, uint inputSize, float[] memory, string memoryId)
+        void Create(GraphFactory graph, uint inputSize, float[] memory, string? memoryId)
         {
             _inputSize = inputSize;
             var hiddenLayerSize = (uint)memory.Length;
             _memory = new MemoryFeeder(graph.Context, memory, null, memoryId);
             _input = new FlowThrough();
 
-            var Wz = graph.Connect(inputSize, _input).AddFeedForward(hiddenLayerSize, "Wz");
-            var Uz = graph.Connect(hiddenLayerSize, _memory).AddFeedForward(hiddenLayerSize, "Uz");
+            var wz = graph.Connect(inputSize, _input).AddFeedForward(hiddenLayerSize, "Wz");
+            var uz = graph.Connect(hiddenLayerSize, _memory).AddFeedForward(hiddenLayerSize, "Uz");
 
-            var Wr = graph.Connect(inputSize, _input).AddFeedForward(hiddenLayerSize, "Wr");
-            var Ur = graph.Connect(hiddenLayerSize, _memory).AddFeedForward(hiddenLayerSize, "Ur");
+            var wr = graph.Connect(inputSize, _input).AddFeedForward(hiddenLayerSize, "Wr");
+            var ur = graph.Connect(hiddenLayerSize, _memory).AddFeedForward(hiddenLayerSize, "Ur");
 
             // add sigmoids to the gates
-            var Rt = graph.Add(Wr, Ur).AddBackwardAction(new ConstrainSignal()).Add(graph.SigmoidActivation("Rt")).LastNode;
-            var Zt = graph.Add(Wz, Uz).AddBackwardAction(new ConstrainSignal()).Add(graph.SigmoidActivation("Zt")).LastNode;
+            var rt = graph.Add(wr, ur).AddBackwardAction(new ConstrainSignal()).Add(graph.SigmoidActivation("Rt")).LastNode!;
+            var zt = graph.Add(wz, uz).AddBackwardAction(new ConstrainSignal()).Add(graph.SigmoidActivation("Zt")).LastNode!;
 
             // h1 = tanh(Wh(x) + Uh(Ht1xRt))
-            var Wh = graph.Connect(inputSize, _input).AddFeedForward(hiddenLayerSize, "Wh");
-            var Uh = graph.Multiply(hiddenLayerSize, Rt, _memory).AddFeedForward(hiddenLayerSize, "Uh");
-            var h1 = graph.Add(Wh, Uh).AddBackwardAction(new ConstrainSignal()).Add(graph.TanhActivation());
+            var wh = graph.Connect(inputSize, _input).AddFeedForward(hiddenLayerSize, "Wh");
+            var uh = graph.Multiply(hiddenLayerSize, rt, _memory).AddFeedForward(hiddenLayerSize, "Uh");
+            var h1 = graph.Add(wh, uh).AddBackwardAction(new ConstrainSignal()).Add(graph.TanhActivation());
 
             // h2 = h1x(1-Zt)
-            var h2 = graph.Multiply(h1, graph.Connect(hiddenLayerSize, Zt).Add(graph.GraphOperation.OneMinusInput()));
+            var h2 = graph.Multiply(h1, graph.Connect(hiddenLayerSize, zt).Add(graph.GraphOperation.OneMinusInput()));
 
             // h = h1xh2
-            var previous = graph.Multiply(hiddenLayerSize, Zt, _memory);
+            var previous = graph.Multiply(hiddenLayerSize, zt, _memory);
             _output = graph
                 .Add(h2, previous)
                 .AddForwardAction(_memory.SetMemoryAction)
-                //.Add(new HookErrorSignal(context => {
-                //    if (_lastBackpropagation != null) {
-                //        foreach (var item in _lastBackpropagation)
-                //            context.AppendErrorSignal(item.Value, item.Key);
-                //        _lastBackpropagation = null;
-                //    }
-                //}))
-                .LastNode
+                .LastNode!
             ;
-            _start = new OneToMany(SubNodes, bp => _lastBackpropagation = bp);
+            _start = new OneToMany(SubNodes);
         }
 
         public override List<IWire> Output => _output.Output;
@@ -71,9 +65,6 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
         public override void ExecuteForward(IGraphContext context)
         {
-            if (context.BatchSequence.Type == MiniBatchSequenceType.SequenceStart)
-                _lastBackpropagation = null;
-
             _start.ExecuteForward(context);
         }
 
@@ -86,31 +77,22 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             }
         }
 
-        protected override (string Description, byte[] Data) _GetInfo()
+        protected override (string Description, byte[] Data) GetInfo()
         {
-            return ("GRU", _WriteData(WriteTo));
+            return ("GRU", WriteData(WriteTo));
         }
 
         public override void WriteTo(BinaryWriter writer)
         {
-            var Wh = _input.FindByName("Wh");
-            var Wr = _input.FindByName("Wr");
-            var Wz = _input.FindByName("Wz");
-            var Uh = _memory.FindByName("Uh");
-            var Ur = _memory.FindByName("Ur");
-            var Uz = _memory.FindByName("Uz");
-
             writer.Write((int)_inputSize);
             writer.Write(_memory.Id);
             _memory.Data.WriteTo(writer);
 
-            Wh.WriteTo(writer);
-            Wr.WriteTo(writer);
-            Wz.WriteTo(writer);
-            Uh.WriteTo(writer);
-            Ur.WriteTo(writer);
-            Uz.WriteTo(writer);
+            foreach(var item in SerializedNodes)
+                WriteSubNode(item, writer);
         }
+
+        static readonly string[] SerializedNodes = {"Wh", "Wr", "Wz", "Uh", "Ur", "Uz"};
 
         public override void ReadFrom(GraphFactory factory, BinaryReader reader)
         {
@@ -118,24 +100,14 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             var memoryId = reader.ReadString();
             var memory = factory.Context.ReadVectorFrom(reader);
 
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (_memory == null)
-                _Create(factory, inputSize, memory.Segment.ToArray(), memoryId);
+                Create(factory, inputSize, memory.Segment.ToArray(), memoryId);
             else
                 _memory.Data = memory;
 
-            var Wh = _input.FindByName("Wh");
-            var Wr = _input.FindByName("Wr");
-            var Wz = _input.FindByName("Wz");
-            var Uh = _memory.FindByName("Uh");
-            var Ur = _memory.FindByName("Ur");
-            var Uz = _memory.FindByName("Uz");
-
-            Wh.ReadFrom(factory, reader);
-            Wr.ReadFrom(factory, reader);
-            Wz.ReadFrom(factory, reader);
-            Uh.ReadFrom(factory, reader);
-            Ur.ReadFrom(factory, reader);
-            Uz.ReadFrom(factory, reader);
+            foreach(var item in SerializedNodes)
+                ReadSubNode(item, factory, reader);
         }
     }
 }

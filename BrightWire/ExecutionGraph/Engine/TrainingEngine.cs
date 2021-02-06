@@ -5,8 +5,10 @@ using BrightWire.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using BrightData;
 using BrightData.LinearAlgebra;
+using BrightWire.TrainingData.Artificial;
 
 namespace BrightWire.ExecutionGraph.Engine
 {
@@ -39,45 +41,47 @@ namespace BrightWire.ExecutionGraph.Engine
 			}
 		}
 
-		public IEnumerable<ExecutionResult> Execute(IDataSource dataSource, uint batchSize = 128, Action<float> batchCompleteCallback = null)
+		public IEnumerable<ExecutionResult> Execute(IDataSource dataSource, uint batchSize = 128, Action<float>? batchCompleteCallback = null)
 		{
 			_lap.PushLayer();
             var provider = new MiniBatchProvider(dataSource, _random);
-			using (var executionContext = new ExecutionContext(_lap)) {
-				executionContext.Add(provider.GetMiniBatches(batchSize, mb => Execute(executionContext, mb)));
-				float operationCount = executionContext.RemainingOperationCount;
-				float index = 0f;
-				IGraphOperation operation;
-				while ((operation = executionContext.GetNextOperation()) != null) {
-					_lap.PushLayer();
-					operation.Execute(executionContext);
-					ClearContextList();
-					foreach (var item in _executionResults) {
-						uint outputIndex = 0;
-						foreach (var output in item.Output) {
-							yield return new ExecutionResult(item.Sequence, output.Rows.ToArray(), outputIndex);
-							++outputIndex;
-						}
-					}
+            using var executionContext = new ExecutionContext(_lap);
 
-					_executionResults.Clear();
-					_lap.PopLayer();
+            // ReSharper disable once AccessToDisposedClosure
+            executionContext.Add(provider.GetMiniBatches(batchSize, mb => Execute(executionContext, mb)));
+            float operationCount = executionContext.RemainingOperationCount;
+            float index = 0f;
+            IGraphOperation? operation;
+            while ((operation = executionContext.GetNextOperation()) != null) {
+                _lap.PushLayer();
+                operation.Execute(executionContext);
+                ClearContextList();
+                foreach (var (sequence, _, matrices) in _executionResults) {
+                    uint outputIndex = 0;
+                    foreach (var output in matrices) {
+                        yield return new ExecutionResult(sequence, output.Rows.ToArray(), outputIndex);
+                        ++outputIndex;
+                    }
+                }
 
-					if (batchCompleteCallback != null) {
-						var percentage = (++index) / operationCount;
-						batchCompleteCallback(percentage);
-					}
-				}
-			}
-			_lap.PopLayer();
+                _executionResults.Clear();
+                _lap.PopLayer();
+
+                if (batchCompleteCallback != null) {
+                    var percentage = (++index) / operationCount;
+                    batchCompleteCallback(percentage);
+                }
+            }
+
+            _lap.PopLayer();
         }
 
 		protected override IEnumerable<ExecutionResult> GetResults()
 		{
-            foreach (var item in _executionResults) {
+            foreach (var (sequence, _, matrices) in _executionResults) {
 				uint outputIndex = 0;
-				foreach (var output in item.Output) {
-					yield return new ExecutionResult(item.Sequence, output.Rows.ToArray(), outputIndex);
+				foreach (var output in matrices) {
+					yield return new ExecutionResult(sequence, output.Rows.ToArray(), outputIndex);
 					++outputIndex;
 				}
 			}
@@ -92,14 +96,14 @@ namespace BrightWire.ExecutionGraph.Engine
 			_contextList.Clear();
 		}
 
-		public double Train(IGraphExecutionContext executionContext, Action<float> batchCompleteCallback = null)
+		public double Train(IGraphExecutionContext executionContext, Action<float>? batchCompleteCallback = null)
 		{
 			_lap.PushLayer();
 			LearningContext.StartEpoch();
-			var provider = new MiniBatchProvider(_dataSource, _random);
-			executionContext.Add(provider.GetMiniBatches(LearningContext.BatchSize, batch => _contextList.AddRange(_Train(executionContext, LearningContext, batch))));
+			var provider = new MiniBatchProvider(_dataSource ?? throw new Exception("No data source was set"), _random);
+			executionContext.Add(provider.GetMiniBatches(LearningContext.BatchSize, batch => _contextList.AddRange(Train(executionContext, LearningContext, batch))));
 
-			IGraphOperation operation;
+			IGraphOperation? operation;
 			float operationCount = executionContext.RemainingOperationCount;
 			float index = 0f;
 			while ((operation = executionContext.GetNextOperation()) != null) {
@@ -118,9 +122,9 @@ namespace BrightWire.ExecutionGraph.Engine
 			double trainingError = 0;
 			if (LearningContext.TrainingErrorCalculation == TrainingErrorCalculation.Fast) {
 				var count = 0;
-				foreach (var item in _executionResults) {
-					if (item.TrainingError.HasValue) {
-						trainingError += item.TrainingError.Value;
+				foreach (var (_, d, _) in _executionResults) {
+					if (d.HasValue) {
+						trainingError += d.Value;
 						++count;
 					}
 				}
@@ -147,7 +151,7 @@ namespace BrightWire.ExecutionGraph.Engine
 			return trainingError;
 		}
 
-		public IDataSource DataSource => _dataSource;
+		public IDataSource? DataSource => _dataSource;
 		public ILearningContext LearningContext { get; }
 		public INode GetInput(uint index) => _input[(int)index];
 		public ExecutionGraphModel Graph => Start.GetGraph();
@@ -156,31 +160,31 @@ namespace BrightWire.ExecutionGraph.Engine
 
 		protected override void Execute(IGraphExecutionContext executionContext, IMiniBatch batch)
 		{
-			_contextList.AddRange(_Train(executionContext, null, batch));
+			_contextList.AddRange(Train(executionContext, null, batch));
 		}
 
-		List<TrainingEngineContext> _Train(IGraphExecutionContext executionContext, ILearningContext learningContext, IMiniBatch batch)
+		List<TrainingEngineContext> Train(IGraphExecutionContext executionContext, ILearningContext? learningContext, IMiniBatch batch)
 		{
 			var ret = new List<TrainingEngineContext>();
 			if (batch.IsSequential) {
-				IMiniBatchSequence curr;
+				IMiniBatchSequence? curr;
 				while ((curr = batch.GetNextSequence()) != null)
-					ret.Add(_Train(executionContext, learningContext, curr));
+					ret.Add(Train(executionContext, learningContext, curr));
 
 				var contextTable = new Lazy<Dictionary<IMiniBatchSequence, TrainingEngineContext>>(() => ret.ToDictionary(c => c.BatchSequence, c => c));
 				var didContinue = Continue(batch, executionContext, sequence => contextTable.Value[sequence]);
 				if (didContinue) {
 					foreach (var context in ret)
-						_CompleteSequence(context);
+						CompleteSequence(context);
 				}
 			} else
-				ret.Add(_Train(executionContext, learningContext, batch.CurrentSequence));
+				ret.Add(Train(executionContext, learningContext, batch.CurrentSequence));
 			return ret;
 		}
 
-		void _CompleteSequence(TrainingEngineContext context)
+		void CompleteSequence(TrainingEngineContext context)
 		{
-			_dataSource.OnBatchProcessed(context);
+			_dataSource?.OnBatchProcessed(context);
 			var output = context.Output.ToList();
 			_executionResults.Add((context.BatchSequence, context.TrainingError, output.Any()
 				? output.Select(o => o.GetMatrix().Data).ToArray()
@@ -188,7 +192,7 @@ namespace BrightWire.ExecutionGraph.Engine
 			));
 		}
 
-		TrainingEngineContext _Train(IGraphExecutionContext executionContext, ILearningContext learningContext, IMiniBatchSequence sequence)
+		TrainingEngineContext Train(IGraphExecutionContext executionContext, ILearningContext? learningContext, IMiniBatchSequence sequence)
 		{
 			var context = new TrainingEngineContext(executionContext, sequence, learningContext);
 			Start.ExecuteForward(context, 0);
@@ -197,11 +201,11 @@ namespace BrightWire.ExecutionGraph.Engine
 				context.ExecuteNext();
 
 			if (!executionContext.HasContinuations)
-				_CompleteSequence(context);
+				CompleteSequence(context);
 			return context;
 		}
 
-		static string _Write(string name, float score, bool isPercentage)
+		static string Write(string name, float score, bool isPercentage)
 		{
 			if (isPercentage)
 				return $"{name}-score: {score:P}";
@@ -212,8 +216,8 @@ namespace BrightWire.ExecutionGraph.Engine
 			IDataSource testDataSource,
 			IErrorMetric errorMetric,
 			uint batchSize = 128,
-			Action<float> batchCompleteCallback = null,
-			Action<float, double, bool, bool> values = null
+			Action<float>? batchCompleteCallback = null,
+			Action<float, double, bool, bool>? values = null
 		)
 		{
 			var testError = Execute(testDataSource, batchSize, batchCompleteCallback)
@@ -234,43 +238,47 @@ namespace BrightWire.ExecutionGraph.Engine
 			} else
 				_lastTestError = testError;
 
+            var msg = new StringBuilder();
 			values?.Invoke(testError, _lastTrainingError ?? 0, isPercentage, flag);
-			if (LearningContext.CurrentEpoch == 0) {
-				LearningContext.MessageLog(_Write("\rInitial test", testError, isPercentage));
-				return false;
-			}
+			if (LearningContext.CurrentEpoch == 0)
+                msg.Append(Write("\rInitial test", testError, isPercentage));
+            else {
+                var trainingScore = "";
+                if (LearningContext.TrainingErrorCalculation != TrainingErrorCalculation.None) {
+                    trainingScore = Write(" training", Convert.ToSingle(_lastTrainingError ?? 0), LearningContext.TrainingErrorCalculation == TrainingErrorCalculation.TrainingData && isPercentage);
+                    trainingScore += $" [{_trainingErrorDelta:N4}];";
+                }
 
-			var trainingScore = "";
-			if (LearningContext.TrainingErrorCalculation != TrainingErrorCalculation.None) {
-				trainingScore = _Write(" training", Convert.ToSingle(_lastTrainingError ?? 0), LearningContext.TrainingErrorCalculation == TrainingErrorCalculation.TrainingData && isPercentage);
-				trainingScore += $" [{_trainingErrorDelta:N4}];";
-			}
+                var testScore = Write("test", testError, isPercentage);
+                if (testErrorDelta.HasValue)
+                    testScore += $" [{testErrorDelta.Value:N4}]";
 
-			var testScore = _Write("test", testError, isPercentage);
-			if (testErrorDelta.HasValue)
-				testScore += $" [{testErrorDelta.Value:N4}]";
 
-			var msg = $"\rEpoch {LearningContext.CurrentEpoch} -{trainingScore} time: {LearningContext.EpochSeconds:N2}s; {testScore}";
-			if (flag)
-				msg += "!!";
+                msg.Append($"\rEpoch {LearningContext.CurrentEpoch} -{trainingScore} time: {LearningContext.EpochSeconds:N2}s; {testScore}");
+                if (flag)
+                    msg.Append("!!");
+            }
 
-			LearningContext.MessageLog(msg);
+            for (var i = msg.Length; i < 117; i++)
+                msg.Append(' ');
+
+			LearningContext.MessageLog(msg.ToString());
 			return flag;
 		}
 
-		void _LoadParamaters(GraphFactory factory, ExecutionGraphModel.Node nodeModel)
+		void LoadParamaters(GraphFactory factory, ExecutionGraphModel.Node nodeModel)
 		{
 			var node = Start.FindById(nodeModel.Id);
-			node.LoadParameters(factory, nodeModel);
+			node?.LoadParameters(factory, nodeModel);
 		}
 
 		public void LoadParametersFrom(GraphFactory factory, ExecutionGraphModel graph)
 		{
 			if (graph.InputNode != null)
-				_LoadParamaters(factory, graph.InputNode);
+				LoadParamaters(factory, graph.InputNode);
 			if (graph.OtherNodes != null) {
 				foreach (var node in graph.OtherNodes)
-					_LoadParamaters(factory, node);
+					LoadParamaters(factory, node);
 			}
 		}
 	}

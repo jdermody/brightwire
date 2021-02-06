@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using BrightData;
-using BrightTable;
 using BrightWire.Models.Linear;
 
 namespace BrightWire.Linear.Training
@@ -19,7 +18,7 @@ namespace BrightWire.Linear.Training
             var featureColumns = table.ColumnIndicesOfFeatures().ToArray();
             var targetGroups = new Dictionary<string, HashSet<object[]>>();
             table.ForEachRow(row => {
-                var label = row[targetColumnIndex].ToString();
+                var label = row[targetColumnIndex].ToString() ?? throw new Exception("Cannot get string representation");
                 if (!targetGroups.TryGetValue(label, out var set))
                     targetGroups.Add(label, set = new HashSet<object[]>());
                 set.Add(row);
@@ -51,9 +50,9 @@ namespace BrightWire.Linear.Training
             // train the classifiers on each training data set
             var classifier = new List<LogisticRegression>();
             var labels = new List<string>();
-            foreach (var item in trainingTables) {
-                classifier.Add(item.Table.TrainLogisticRegression(trainingIterations, trainingRate, lambda, costCallback));
-                labels.Add(item.Label);
+            foreach (var (label, rowOrientedDataTable) in trainingTables) {
+                classifier.Add(rowOrientedDataTable.TrainLogisticRegression(trainingIterations, trainingRate, lambda, costCallback));
+                labels.Add(label);
             }
 
             // build the model

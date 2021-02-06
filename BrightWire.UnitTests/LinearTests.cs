@@ -125,8 +125,8 @@ namespace BrightWire.UnitTests
 
             var model = index.TrainMultinomialLogisticRegression(100, 0.1f);
             var classifier = model.CreateClassifier(_context.LinearAlgebraProvider);
-            var classification = classifier.Classify(testDataTable).Single();
-            classification.Predictions.GetBestClassification().Should().Be("female");
+            var (_, predictions) = classifier.Classify(testDataTable).Single();
+            predictions.GetBestClassification().Should().Be("female");
         }
     }
 }

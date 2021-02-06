@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using BrightData.Helper;
+﻿using BrightData.Helper;
 using BrightWire;
 using BrightWire.ExecutionGraph.Node;
 
@@ -23,7 +20,7 @@ namespace ExampleCode.Extensions
         {
             public Backpropagation(SeluActivation source) : base(source) { }
 
-            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
+            protected override IGraphData Backpropagate(INode? fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
             {
                 var matrix = errorSignal.GetMatrix().AsIndexable();
                 var delta = context.LinearAlgebraProvider.CreateMatrix(matrix.RowCount, matrix.ColumnCount, (i, j) =>
@@ -49,7 +46,7 @@ namespace ExampleCode.Extensions
                     return Scale * x;
                 return Scale * (Alpha * FloatMath.Exp(x) - Alpha);
             });
-            _AddNextGraphAction(context, context.Data.ReplaceWith(output), () => new Backpropagation(this));
+            AddNextGraphAction(context, context.Data.ReplaceWith(output), () => new Backpropagation(this));
         }
     }
 }

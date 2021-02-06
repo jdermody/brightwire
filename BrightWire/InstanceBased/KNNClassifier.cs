@@ -30,7 +30,7 @@ namespace BrightWire.InstanceBased
                 _instance[i] = lap.CreateVector(model.Instance[i].Segment);
         }
 
-        IEnumerable<Tuple<string, float>> _Classify(IConvertibleRow row)
+        IEnumerable<Tuple<string, float>> ClassifyInternal(IConvertibleRow row)
         {
             // encode the features into a vector
             var featureCount = _model.DataColumns.Length;
@@ -54,7 +54,7 @@ namespace BrightWire.InstanceBased
 
         public (string Label, float Weight)[] Classify(IConvertibleRow row)
         {
-            return _Classify(row)
+            return ClassifyInternal(row)
                 .Select(d => (d.Item1, d.Item2))
                 .ToArray()
             ;

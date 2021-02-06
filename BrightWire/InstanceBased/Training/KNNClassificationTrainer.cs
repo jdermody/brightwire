@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using BrightData;
 using BrightWire.Models.InstanceBased;
 
@@ -18,7 +19,7 @@ namespace BrightWire.InstanceBased.Training
 
             return new KNearestNeighbours {
                 Instance = data,
-                Classification = table.Column(targetColumnIndex).Enumerate().Select(v => v.ToString()).ToArray(),
+                Classification = table.Column(targetColumnIndex).Enumerate().Select(v => v.ToString() ?? throw new Exception("Cannot convert to string")).ToArray(),
                 DataColumns = featureColumns,
                 TargetColumn = targetColumnIndex
             };

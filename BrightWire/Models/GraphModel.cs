@@ -17,17 +17,17 @@ namespace BrightWire.Models
         /// <summary>
         /// The name of the graph
         /// </summary>
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         /// <summary>
         /// The primary execution graph
         /// </summary>
-        public ExecutionGraphModel Graph { get; set; }
+        public ExecutionGraphModel Graph { get; set; } = new ExecutionGraphModel();
 
         /// <summary>
         /// Optional data source associated with the model
         /// </summary>
-        public DataSourceModel DataSource { get; set; }
+        public DataSourceModel? DataSource { get; set; }
 
         /// <inheritdoc />
         public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);

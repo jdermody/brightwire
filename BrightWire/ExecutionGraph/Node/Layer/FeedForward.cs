@@ -11,19 +11,19 @@ namespace BrightWire.ExecutionGraph.Node.Layer
     {
         protected class Backpropagation : SingleBackpropagationBase<FeedForward>
         {
-            readonly IFloatMatrix _input = null;
+            readonly IFloatMatrix _input;
 
             public Backpropagation(FeedForward source, IFloatMatrix input) : base(source)
             {
                 _input = input;
             }
 
-            protected override void _Dispose(bool isDisposing)
+            protected override void DisposeMemory(bool isDisposing)
             {
                 //_input.Dispose();
             }
 
-            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
+            protected override IGraphData Backpropagate(INode? fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
             {
                 var es = errorSignal.GetMatrix();
 
@@ -34,7 +34,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 var weightUpdate = _input.TransposeThisAndMultiply(es);
 
                 // store the updates
-                var learningContext = context.LearningContext;
+                var learningContext = context.LearningContext!;
                 learningContext.StoreUpdate(_source, es, err => _source.UpdateBias(err, learningContext));
                 learningContext.StoreUpdate(_source, weightUpdate, err => _source.UpdateWeights(err, learningContext));
 
@@ -47,7 +47,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         IGradientDescentOptimisation _updater;
         uint _inputSize, _outputSize;
 
-        public FeedForward(uint inputSize, uint outputSize, IFloatVector bias, IFloatMatrix weight, IGradientDescentOptimisation updater, string name = null) : base(name)
+        public FeedForward(uint inputSize, uint outputSize, IFloatVector bias, IFloatMatrix weight, IGradientDescentOptimisation updater, string? name = null) : base(name)
         {
             _bias = bias;
             _weight = weight;
@@ -61,7 +61,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         public uint InputSize => _inputSize;
         public uint OutputSize => _outputSize;
 
-        protected override void _Dispose(bool isDisposing)
+        protected override void DisposeInternal(bool isDisposing)
         {
             _bias.Dispose();
             _weight.Dispose();
@@ -78,7 +78,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             _bias.AddInPlace(columnSums, 1f / delta.RowCount, context.BatchLearningRate);
         }
 
-        protected IFloatMatrix _FeedForward(IFloatMatrix input, IFloatMatrix weight)
+        protected IFloatMatrix FeedForwardInternal(IFloatMatrix input, IFloatMatrix weight)
         {
             var output = input.Multiply(weight);
             output.AddToEachRow(_bias);
@@ -88,15 +88,15 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         public override void ExecuteForward(IGraphContext context)
         {
             var input = context.Data.GetMatrix();
-            var output = _FeedForward(input, _weight);
+            var output = FeedForwardInternal(input, _weight);
 
             // set output
-            _AddNextGraphAction(context, context.Data.ReplaceWith(output), () => new Backpropagation(this, input));
+            AddNextGraphAction(context, context.Data.ReplaceWith(output), () => new Backpropagation(this, input));
         }
 
-        protected override (string Description, byte[] Data) _GetInfo()
+        protected override (string Description, byte[] Data) GetInfo()
         {
-            return ("FF", _WriteData(WriteTo));
+            return ("FF", WriteData(WriteTo));
         }
 
         public override void ReadFrom(GraphFactory factory, BinaryReader reader)
@@ -108,6 +108,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
             // read the bias parameters
             var bias = factory.Context.ReadVectorFrom(reader);
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (_bias == null)
                 _bias = lap.CreateVector(bias);
             else
@@ -115,11 +116,13 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
             // read the weight parameters
             var weight = factory.Context.ReadMatrixFrom(reader);
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (_weight == null)
                 _weight = lap.CreateMatrix(weight);
             else
                 _weight.Data = weight;
 
+            // ReSharper disable once ConstantNullCoalescingCondition
             _updater ??= factory.CreateWeightUpdater(_weight);
         }
 

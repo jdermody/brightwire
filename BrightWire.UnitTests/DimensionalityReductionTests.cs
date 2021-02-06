@@ -24,12 +24,12 @@ namespace BrightData.UnitTests
         public void TestSVD()
         {
             var a = _cpu.CreateMatrix(256, 128, (x, y) => x * y).AsIndexable();
-            var svd = a.Svd();
+            var (floatMatrix, floatVector, floatMatrix1) = a.Svd();
             var reducedSize = 32.AsRange().ToList();
 
-            var u = svd.U.GetNewMatrixFromRows(reducedSize);
-            var s = _cpu.CreateDiagonalMatrix(svd.S.AsIndexable().Values.Take(reducedSize.Count).ToArray());
-            var vt = svd.VT.GetNewMatrixFromColumns(reducedSize);
+            var u = floatMatrix.GetNewMatrixFromRows(reducedSize);
+            var s = _cpu.CreateDiagonalMatrix(floatVector.AsIndexable().Values.Take(reducedSize.Count).ToArray());
+            var vt = floatMatrix1.GetNewMatrixFromColumns(reducedSize);
             var us = u.TransposeThisAndMultiply(s);
             var usvt = us.TransposeAndMultiply(vt);
             a.RowCount.Should().Be(usvt.RowCount);

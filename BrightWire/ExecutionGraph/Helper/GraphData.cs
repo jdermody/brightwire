@@ -3,6 +3,35 @@ using BrightData;
 
 namespace BrightWire.ExecutionGraph.Helper
 {
+    class NullGraphData : IGraphData
+    {
+        public uint Rows { get; } = 0;
+        public uint Columns { get; } = 0;
+        public uint Depth { get; } = 0;
+        public uint Count { get; } = 0;
+        public IFloatMatrix GetMatrix()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public I4DFloatTensor Get4DTensor()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public IGraphData ReplaceWith(IFloatMatrix matrix)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public IFloatMatrix[] GetSubMatrices()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public bool HasValue { get; } = false;
+    }
+
     /// <summary>
     /// Graph data adaptor for matrices
     /// </summary>
@@ -29,6 +58,7 @@ namespace BrightWire.ExecutionGraph.Helper
                 _matrix
             };
         }
+        public bool HasValue { get; } = true;
     }
 
     /// <summary>
@@ -72,6 +102,7 @@ namespace BrightWire.ExecutionGraph.Helper
         {
             return null;
         }
+        public bool HasValue { get; } = true;
     }
 
     /// <summary>
@@ -115,5 +146,6 @@ namespace BrightWire.ExecutionGraph.Helper
         {
             return _matrix.ReshapeAs4DTensor(Rows, Columns, Depth);
         }
+        public bool HasValue { get; } = true;
     }
 }

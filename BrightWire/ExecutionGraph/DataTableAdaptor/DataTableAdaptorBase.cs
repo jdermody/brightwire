@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using BrightWire.ExecutionGraph.Helper;
-using BrightTable;
 using BrightData;
 using BrightData.LinearAlgebra;
 
@@ -33,6 +32,12 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 		/// </summary>
         protected readonly List<T> _data = new List<T>();
 
+	    /// <summary>
+	    /// Constructor
+	    /// </summary>
+	    /// <param name="lap"></param>
+	    /// <param name="dataTable"></param>
+	    /// <param name="featureColumns"></param>
 	    protected DataTableAdaptorBase(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, uint[]? featureColumns)
         {
             _lap = lap;
@@ -51,9 +56,16 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 	    /// <inheritdoc />
         public virtual uint RowCount => (uint)_data.Count;
 
+        /// <inheritdoc />
         public abstract IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rows);
+
+        /// <inheritdoc />
         public abstract IDataSource CloneWith(IRowOrientedDataTable dataTable);
+
+        /// <inheritdoc />
         public IDataTableVectoriser? InputVectoriser { get; protected set; } = null;
+
+        /// <inheritdoc />
         public IDataTableVectoriser? OutputVectoriser { get; protected set; } = null;
 
         /// <inheritdoc />
@@ -94,10 +106,10 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             }
 
 	        var output = OutputSize > 0 
-                ? _lap.CreateMatrix((uint)data.Length, (uint)OutputSize, (x, y) => data[(int)x].Output[y]) 
+                ? new MatrixGraphData(_lap.CreateMatrix((uint)data.Length, (uint)OutputSize, (x, y) => data[(int)x].Output[y])) 
                 : null;
 
-            return new MiniBatch(rows, this, inputList, new MatrixGraphData(output));
+            return new MiniBatch(rows, this, inputList, output);
         }
 
 		/// <summary>
@@ -105,7 +117,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 		/// </summary>
 		/// <param name="rows">Row indices</param>
 		/// <param name="data">List of input/output matrix tuples</param>
-        protected IMiniBatch GetSequentialMiniBatch(uint[] rows, (Matrix<float> Input, Matrix<float> Output)[] data)
+        protected IMiniBatch GetSequentialMiniBatch(uint[] rows, (Matrix<float> Input, Matrix<float>? Output)[] data)
         {
             List<Vector<float>>? temp;
             var inputData = new Dictionary<uint, List<Vector<float>>>();
@@ -128,9 +140,9 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             var miniBatch = new MiniBatch(rows, this);
             foreach (var item in inputData.OrderBy(kv => kv.Key)) {
                 var input = _lap.CreateMatrixFromRows(item.Value);
-                IFloatMatrix? output = null;
+                IGraphData? output = null;
                 if (outputData.TryGetValue(item.Key, out temp))
-                    output = _lap.CreateMatrixFromRows(temp);
+                    output = new MatrixGraphData(_lap.CreateMatrixFromRows(temp));
                 var type = (item.Key == 0)
                     ? MiniBatchSequenceType.SequenceStart
                     : item.Key == (inputData.Count - 1)
@@ -140,8 +152,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
                 var inputList = new IGraphData[] {
                     new MatrixGraphData(input)
                 };
-                if(output != null)
-                    miniBatch.Add(type, inputList, new MatrixGraphData(output));
+                miniBatch.Add(type, inputList, output);
             }
             return miniBatch;
         }

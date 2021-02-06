@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using BrightData;
-using BrightData.Distribution;
-using BrightTable;
 using BrightWire;
 using BrightWire.Models.Bayesian;
 using BrightWire.TrainingData.Helper;
@@ -18,10 +16,16 @@ namespace ExampleCode.DataTableTrainers
         readonly List<string> _strings = new List<string>();
         readonly uint _empty;
 
-        public SentenceTable()
+        public SentenceTable(IBrightDataContext context, IEnumerable<string[]> sentences)
         {
             // create an empty string to represent null
             _empty = GetStringIndex("");
+
+            var builder = context.BuildTable();
+            builder.AddColumn(ColumnType.IndexList, "Sentences");
+            foreach(var sentence in sentences)
+                builder.AddRow(context.CreateIndexList(sentence.Select(GetStringIndex).ToArray()));
+            _sentenceTable = builder.BuildRowOriented();
         }
 
         public uint GetStringIndex(string str)
@@ -32,15 +36,6 @@ namespace ExampleCode.DataTableTrainers
             }
 
             return ret;
-        }
-
-        public SentenceTable(IBrightDataContext context, IEnumerable<string[]> sentences)
-        {
-            var builder = context.BuildTable();
-            builder.AddColumn(ColumnType.IndexList, "Sentences");
-            foreach(var sentence in sentences)
-                builder.AddRow(context.CreateIndexList(sentence.Select(GetStringIndex).ToArray()));
-            _sentenceTable = builder.BuildRowOriented();
         }
 
         (uint Index, string String) Append(uint index, StringBuilder sb)
@@ -77,11 +72,13 @@ namespace ExampleCode.DataTableTrainers
             var context = _sentenceTable.Context;
             var table = model.AsDictionary;
 
-            for (var i = 0; i < 50; i++) {
+            for (var i = 0; i < count; i++) {
                 var sb = new StringBuilder();
                 uint prevPrev = default, prev = default, curr = default;
                 for (var j = 0; j < 1024; j++) {
                     var transitions = table.GetTransitions(prevPrev, prev, curr);
+                    if (transitions == null)
+                        break;
                     var distribution = context.CreateCategoricalDistribution(transitions.Select(d => d.Probability));
                     var next = Append(transitions[distribution.Sample()].NextState, sb);
 

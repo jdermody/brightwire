@@ -431,7 +431,7 @@ namespace BrightData.LinearAlgebra
         /// <returns></returns>
         public Matrix<T> Reshape(uint? rows, uint? columns)
         {
-            var shape = _ResolveShape(_segment.Size, new[] { rows, columns });
+            var shape = ResolveShape(_segment.Size, new[] { rows, columns });
             return new Matrix<T>(GetDataCopy(), shape[0], shape[1]);
         }
 
@@ -444,7 +444,7 @@ namespace BrightData.LinearAlgebra
         /// <returns></returns>
         public Tensor3D<T> Reshape(uint? depth, uint? rows, uint? columns)
         {
-            var shape = _ResolveShape(_segment.Size, new[] { depth, rows, columns });
+            var shape = ResolveShape(_segment.Size, new[] { depth, rows, columns });
             return new Tensor3D<T>(GetDataCopy(), shape[0], shape[1], shape[2]);
         }
 
@@ -458,7 +458,7 @@ namespace BrightData.LinearAlgebra
         /// <returns></returns>
         public Tensor4D<T> Reshape(uint? count, uint? depth, uint? rows, uint? columns)
         {
-            var shape = _ResolveShape(_segment.Size, new[] { count, depth, rows, columns });
+            var shape = ResolveShape(_segment.Size, new[] { count, depth, rows, columns });
             return new Tensor4D<T>(GetDataCopy(), shape[0], shape[1], shape[2], shape[3]);
         }
 

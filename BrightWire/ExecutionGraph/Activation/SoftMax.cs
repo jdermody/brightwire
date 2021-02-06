@@ -19,7 +19,7 @@ namespace BrightWire.ExecutionGraph.Activation
                 _rows = rows;
             }
 
-            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
+            protected override IGraphData Backpropagate(INode? fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
             {
                 var matrix = errorSignal.GetMatrix();
                 var rowList = new List<IFloatVector>();
@@ -46,7 +46,7 @@ namespace BrightWire.ExecutionGraph.Activation
                 rowList[i] = row.Softmax();
             }
             var output = context.LinearAlgebraProvider.CreateMatrixFromRows(rowList);
-            _AddNextGraphAction(context, context.Data.ReplaceWith(output), () => new Backpropagation(this, rowList));
+            AddNextGraphAction(context, context.Data.ReplaceWith(output), () => new Backpropagation(this, rowList));
         }
     }
 }

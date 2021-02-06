@@ -32,7 +32,7 @@ namespace BrightWire.Models
         /// <summary>
         /// The preliminary graph
         /// </summary>
-        public ExecutionGraphModel Graph { get; set; }
+        public ExecutionGraphModel Graph { get; set; } = new ExecutionGraphModel();
 
         /// <inheritdoc />
         public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);

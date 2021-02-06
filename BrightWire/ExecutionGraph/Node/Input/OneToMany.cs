@@ -1,7 +1,6 @@
 ﻿using BrightWire.ExecutionGraph.Helper;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace BrightWire.ExecutionGraph.Node.Input
@@ -17,14 +16,16 @@ namespace BrightWire.ExecutionGraph.Node.Input
 
             public Backpropagation(OneToMany source) : base(source)
             {
-                _signalTable = _source._children.ToDictionary(n => n, n => (IGraphData)null);
+                _signalTable = _source._children.ToDictionary(n => n, n => (IGraphData)new NullGraphData());
             }
 
-            public override void _Backward(INode fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
+            public override void BackwardInternal(INode? fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
             {
-                Debug.Assert(_source._children.Contains(fromNode));
+                if (fromNode == null || !_source._children.Contains(fromNode))
+                    throw new Exception("Unknown from node");
+
                 _signalTable[fromNode] = errorSignal;
-                if(_signalTable.All(s => s.Value != null) && parents?.Any() == true) {
+                if(_signalTable.All(s => s.Value.HasValue) && parents.Any()) {
                     var firstSignal = _signalTable[_source._children.First()];
                     var otherSignals = _signalTable
                         .Where(s => s.Value != firstSignal && s.Value.Columns == firstSignal.Columns && s.Value.Rows == firstSignal.Rows)
@@ -43,9 +44,9 @@ namespace BrightWire.ExecutionGraph.Node.Input
             }
         }
         readonly INode[] _children;
-        readonly Action<IReadOnlyDictionary<INode, IGraphData>> _onBackpropagation;
+        readonly Action<IReadOnlyDictionary<INode, IGraphData>>? _onBackpropagation;
 
-        public OneToMany(IEnumerable<INode> children, Action<IReadOnlyDictionary<INode, IGraphData>> onBackpropagation, string name = null) : base(name)
+        public OneToMany(IEnumerable<INode> children, Action<IReadOnlyDictionary<INode, IGraphData>>? onBackpropagation = null, string? name = null) : base(name)
         {
             _children = children.ToArray();
             _onBackpropagation = onBackpropagation;
@@ -55,7 +56,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
 
         public override void ExecuteForward(IGraphContext context)
         {
-            _AddNextGraphAction(context, context.Data, () => new Backpropagation(this));
+            AddNextGraphAction(context, context.Data, () => new Backpropagation(this));
         }
     }
 }

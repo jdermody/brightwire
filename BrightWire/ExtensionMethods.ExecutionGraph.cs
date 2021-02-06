@@ -4,12 +4,13 @@ using BrightWire.ExecutionGraph.Helper;
 using BrightWire.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization;
+using System.Text;
 using BrightData;
+using BrightData.Helper;
 using BrightData.LinearAlgebra;
-using BrightTable;
 using BrightWire.Helper;
 
 namespace BrightWire
@@ -28,12 +29,20 @@ namespace BrightWire
         public static void Train(this IGraphTrainingEngine engine, uint numIterations, IDataSource testData, IErrorMetric errorMetric, Action<GraphModel>? onImprovement = null, int testCadence = 1)
         {
             var executionContext = new ExecutionContext(engine.LinearAlgebraProvider);
-            engine.Test(testData, errorMetric, 128, percentage => Console.Write("\rTesting... ({0:P})    ", percentage));
-            int count = 0;
+            var progress = -1;
+            var sw = Stopwatch.StartNew();
+            // ReSharper disable once AccessToModifiedClosure
+            engine.Test(testData, errorMetric, 128, percentage => percentage.WriteProgressPercentage(ref progress, sw));
+
+            var count = 0;
             for (var i = 0; i < numIterations; i++) {
-                engine.Train(executionContext, percentage => Console.Write("\rTraining... ({0:P})    ", percentage));
+                progress = -1;
+                sw.Restart();
+                engine.Train(executionContext, percentage => percentage.WriteProgressPercentage(ref progress, sw));
                 if (++count == testCadence) {
-                    if (engine.Test(testData, errorMetric, 128, percentage => Console.Write("\rTesting... ({0:P})    ", percentage)) && onImprovement != null) {
+                    progress = -1;
+                    sw.Restart();
+                    if (engine.Test(testData, errorMetric, 128, percentage => percentage.WriteProgressPercentage(ref progress, sw)) && onImprovement != null) {
                         var bestModel = new GraphModel {
                             Graph = engine.Graph
                         };
@@ -43,6 +52,33 @@ namespace BrightWire
                     }
                     count = 0;
                 }
+            }
+        }
+
+        static void WriteProgressPercentage(this float progress, ref int previousPercentage, Stopwatch sw)
+        {
+            var curr = Convert.ToInt32(progress * 100);
+            if (curr > previousPercentage) {
+                var sb = new StringBuilder();
+                sb.Append($"\r");
+                var i = 0;
+                for (; i < curr; i++)
+                    sb.Append('█');
+                var fore = Console.ForegroundColor;
+                Console.ForegroundColor = ConsoleColor.Gray;
+                Console.Write(sb.ToString());
+
+                sb.Clear();
+                for (; i < 100; i++)
+                    sb.Append('█');
+                sb.Append($" {progress:P0}");
+                Console.ForegroundColor = ConsoleColor.DarkGray;
+                Console.Write(sb.ToString());
+
+                Console.ForegroundColor = fore;
+                Console.Write($" {sw.Elapsed.Minutes:00}:{sw.Elapsed.Seconds:00}:{sw.Elapsed.Milliseconds:0000}");
+
+                previousPercentage = curr;
             }
         }
 
@@ -63,15 +99,15 @@ namespace BrightWire
         /// <param name="input"></param>
         /// <param name="name">Name of the graph (optional)</param>
         /// <returns></returns>
-        public static Models.ExecutionGraphModel GetGraph(this INode input, string name = null)
+        public static ExecutionGraphModel GetGraph(this INode input, string? name = null)
         {
-            var connectedTo = new List<Models.ExecutionGraphModel.Node>();
-            var wireList = new HashSet<Models.ExecutionGraphModel.Wire>();
+            var connectedTo = new List<ExecutionGraphModel.Node>();
+            var wireList = new HashSet<ExecutionGraphModel.Wire>();
             var existing = new HashSet<INode>();
             var data = input.SerialiseTo(existing, connectedTo, wireList);
 
-            return new Models.ExecutionGraphModel {
-                Name = name,
+            return new ExecutionGraphModel {
+                Name = name!,
                 InputNode = data,
                 OtherNodes = connectedTo.ToArray(),
                 Wires = wireList.ToArray()
@@ -119,7 +155,7 @@ namespace BrightWire
         internal static IGradientDescentOptimisation CreateGradientDescentOptimisation(this GraphFactory factory, BinaryReader reader)
         {
             var updaterType = TypeLoader.LoadType(reader.ReadString());
-            var ret = (IGradientDescentOptimisation)FormatterServices.GetUninitializedObject(updaterType);
+            var ret = GenericActivator.CreateUninitialized<IGradientDescentOptimisation>(updaterType);
             ret.ReadFrom(factory, reader);
             return ret;
         }
@@ -141,7 +177,7 @@ namespace BrightWire
 		    }
 		    return ret.GroupBy(d => d.Key.RowIndex)
 				.Select(g => (g.Key, g.OrderBy(d => d.Key.SequenceIndex).Select(d => d.Value).ToArray()))
-				.OrderBy(d => d.Item1)
+				.OrderBy(d => d.Key)
 				.Select(d => d.Item2)
 				.ToArray()
 			;

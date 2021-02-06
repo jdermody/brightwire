@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using BrightData;
 
@@ -12,14 +11,14 @@ namespace BrightWire.ExecutionGraph.Node.Layer
     {
         class Backpropagation : SingleBackpropagationBase<TiedFeedForward>
         {
-            readonly IFloatMatrix _input = null;
+            readonly IFloatMatrix _input;
 
             public Backpropagation(TiedFeedForward source, IFloatMatrix input) : base(source)
             {
                 _input = input;
             }
 
-            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
+            protected override IGraphData Backpropagate(INode? fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
             {
                 var es = errorSignal.GetMatrix();
 
@@ -30,7 +29,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 var weightUpdate = _input.TransposeThisAndMultiply(es).Transpose();
 
                 // store the updates
-                var learningContext = context.LearningContext;
+                var learningContext = context.LearningContext!;
                 learningContext.StoreUpdate(_source, es, err => _source.UpdateBias(err, learningContext));
                 learningContext.StoreUpdate(_source, weightUpdate, err => _source._layer.UpdateWeights(err, learningContext));
 
@@ -41,7 +40,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         IFloatVector _bias;
         string _layerId;
 
-        public TiedFeedForward(IFeedForward layer, IWeightInitialisation weightInit, string name = null) : base(name)
+        public TiedFeedForward(IFeedForward layer, IWeightInitialisation weightInit, string? name = null) : base(name)
         {
             _layer = layer;
             _layerId = layer.Id;
@@ -63,12 +62,12 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             output.AddToEachRow(_bias);
 
             // set output
-            _AddNextGraphAction(context, context.Data.ReplaceWith(output), () => new Backpropagation(this, input));
+            AddNextGraphAction(context, context.Data.ReplaceWith(output), () => new Backpropagation(this, input));
         }
 
-        protected override (string Description, byte[] Data) _GetInfo()
+        protected override (string Description, byte[] Data) GetInfo()
         {
-            return ("TFF", _WriteData(WriteTo));
+            return ("TFF", WriteData(WriteTo));
         }
 
         public override void ReadFrom(GraphFactory factory, BinaryReader reader)
@@ -77,16 +76,15 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
             var lap = factory.LinearAlgebraProvider;
             var bias = factory.Context.ReadVectorFrom(reader);
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (_bias == null)
                 _bias = lap.CreateVector(bias);
-            else
-                _bias.Data = bias;
+            _bias.Data = bias;
         }
 
         public override void OnDeserialise(IReadOnlyDictionary<string, INode> graph)
         {
-            _layer = graph[_layerId] as IFeedForward;
-            Debug.Assert(_layer != null);
+            _layer = (IFeedForward)graph[_layerId];
         }
 
         public override void WriteTo(BinaryWriter writer)

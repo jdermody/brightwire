@@ -14,11 +14,18 @@ namespace BrightWire.Models
         /// </summary>
         public class Node : ISerializable
         {
+            /// <summary>
+            /// Default constructor
+            /// </summary>
             public Node()
             {
 
             }
 
+            /// <summary>
+            /// Initialize from binary reader
+            /// </summary>
+            /// <param name="reader"></param>
             public Node(BinaryReader reader)
             {
                 TypeName = reader.ReadString();
@@ -33,12 +40,12 @@ namespace BrightWire.Models
             /// <summary>
             /// The .NET type name of the node type
             /// </summary>
-            public string TypeName { get; set; }
+            public string TypeName { get; set; } = "";
 
             /// <summary>
             /// The unique id within the graph
             /// </summary>
-            public string Id { get; set; }
+            public string Id { get; set; } = "";
 
             /// <summary>
             /// Node friendly name
@@ -48,7 +55,7 @@ namespace BrightWire.Models
             /// <summary>
             /// A short description of the node
             /// </summary>
-            public string Description { get; set; }
+            public string? Description { get; set; }
 
             /// <summary>
             /// The node's parameters
@@ -70,12 +77,12 @@ namespace BrightWire.Models
             /// <summary>
             /// The source node id
             /// </summary>
-            public string FromId { get; set; }
+            public string FromId { get; set; } = "";
 
             /// <summary>
             /// The target node id
             /// </summary>
-            public string ToId { get; set; }
+            public string ToId { get; set; } = "";
 
             /// <summary>
             /// The channel on the target node to send the source node's output
@@ -101,7 +108,7 @@ namespace BrightWire.Models
             }
 
 	        /// <inheritdoc />
-            public override bool Equals(object obj)
+            public override bool Equals(object? obj)
             {
                 if (obj is Wire other)
                     return FromId == other.FromId && ToId == other.ToId && InputChannel == other.InputChannel;
@@ -117,22 +124,22 @@ namespace BrightWire.Models
         /// <summary>
         /// The name of the graph
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; set; } = "";
 
         /// <summary>
         /// The primary input node
         /// </summary>
-        public Node InputNode { get; set; }
+        public Node InputNode { get; set; } = new Node();
 
         /// <summary>
         /// Other connected nodes
         /// </summary>
-        public Node[] OtherNodes { get; set; }
+        public Node[] OtherNodes { get; set; } = new Node[0];
 
         /// <summary>
         /// A list of the wires that connect the nodes in the graph
         /// </summary>
-        public Wire[] Wires { get; set; }
+        public Wire[] Wires { get; set; } = new Wire[0];
 
         /// <inheritdoc />
         public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);

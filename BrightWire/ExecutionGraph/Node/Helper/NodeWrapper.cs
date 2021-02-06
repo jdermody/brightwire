@@ -19,22 +19,21 @@ namespace BrightWire.ExecutionGraph.Node.Helper
                 _wrapper = wrapper;
             }
 
-            public bool IsTraining => _context.IsTraining;
-            public INode Source => _context.Source;
+            public INode? Source => _context.Source;
             public IGraphData Data => _context.Data;
             public IGraphExecutionContext ExecutionContext => _context.ExecutionContext;
-            public ILearningContext LearningContext => _context.LearningContext;
+            public ILearningContext? LearningContext => _context.LearningContext;
             public ILinearAlgebraProvider LinearAlgebraProvider => _context.LinearAlgebraProvider;
             public IMiniBatchSequence BatchSequence => _context.BatchSequence;
-            public IGraphData ErrorSignal => _context.ErrorSignal;
+            public IGraphData? ErrorSignal => _context.ErrorSignal;
             public bool HasNext => _context.HasNext;
 
-            public void AddBackward(IGraphData errorSignal, INode target, INode source)
+            public void AddBackward(IGraphData? errorSignal, INode target, INode source)
             {
                 _context.AddBackward(errorSignal, target, source);
             }
 
-            public void AddForward(IExecutionHistory action, Func<IBackpropagation> callback)
+            public void AddForward(IExecutionHistory action, Func<IBackpropagation>? callback)
             {
                 // TODO: wrap the backpropagation?
                 _context.AddForward(new TrainingAction(_wrapper, action.Data, action.Source), callback);
@@ -45,7 +44,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
                 _context.AppendErrorSignal(errorSignal, forNode);
             }
 
-            public void Backpropagate(IGraphData delta)
+            public void Backpropagate(IGraphData? delta)
             {
                 _context.Backpropagate(delta);
             }
@@ -64,7 +63,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
 		        _context.SetOutput(data, channel);
 	        }
 
-	        public IGraphData GetOutput(int channel = 0)
+	        public IGraphData? GetOutput(int channel = 0)
 	        {
 		        return _context.GetOutput(channel);
 	        }
@@ -74,7 +73,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
         INode _node;
         string _nodeId;
 
-        public NodeWrapper(INode node, string name = null) : base(name)
+        public NodeWrapper(INode node, string? name = null) : base(name)
         {
             _node = node;
             _nodeId = node.Id;
@@ -85,14 +84,14 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             _node.ExecuteForward(new ContextProxy(context, this), 0);
         }
 
-        protected override void _ExecuteForward(IGraphContext context, uint channel)
+        protected override void ExecuteForwardInternal(IGraphContext context, uint channel)
         {
             _node.ExecuteForward(new ContextProxy(context, this), channel);
         }
 
-        protected override (string Description, byte[] Data) _GetInfo()
+        protected override (string Description, byte[] Data) GetInfo()
         {
-            return ("WRAPPER", _WriteData(WriteTo));
+            return ("WRAPPER", WriteData(WriteTo));
         }
 
         public override void WriteTo(BinaryWriter writer)

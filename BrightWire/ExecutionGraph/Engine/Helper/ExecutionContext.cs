@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using BrightData;
@@ -44,11 +45,11 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
                 callback(context);
         }
 
-        public IFloatMatrix? GetMemory(string index)
+        public IFloatMatrix GetMemory(string index)
         {
             if (_memory.TryGetValue(index, out var output))
                 return output;
-            return null;
+            throw new Exception($"Memory not found: {index}");
         }
 
         public IGraphOperation? GetNextOperation()

@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
+using System.Runtime.Serialization;
 
 namespace BrightData.Helper
 {
@@ -42,5 +40,41 @@ namespace BrightData.Helper
                 : throw new Exception($"Could not create object of type: {type}")
             ;
         }
+
+        static readonly ConcurrentDictionary<Type, Delegate> TypeCreators = new ConcurrentDictionary<Type, Delegate>();
+
+        /// <summary>
+        /// Creates a new object (via default constructor)
+        /// </summary>
+        /// <typeparam name="T">Type to create</typeparam>
+        /// <returns></returns>
+        public static T Create<T>()
+        {
+            var creator = (Func<T>)TypeCreators.GetOrAdd(typeof(T), CompileCreator<T>);
+            return creator();
+        }
+
+        /// <summary>
+        /// Creates a new unitialized object (constructor is not invoked)
+        /// </summary>
+        /// <typeparam name="T">Type to create</typeparam>
+        /// <returns></returns>
+        public static T CreateUninitialized<T>()
+        {
+            return CreateUninitialized<T>(typeof(T));
+        }
+
+        /// <summary>
+        /// Creates a new unitialized object (constructor is not invoked)
+        /// </summary>
+        /// <param name="type">Type to create</param>
+        /// <typeparam name="T">Type to return (created object cast to this type)</typeparam>
+        /// <returns></returns>
+        public static T CreateUninitialized<T>(Type type)
+        {
+            return (T)FormatterServices.GetUninitializedObject(type);
+        }
+
+        static Func<T> CompileCreator<T>(Type type) => Expression.Lambda<Func<T>>(Expression.New(type)).Compile();
     }
 }

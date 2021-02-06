@@ -2,7 +2,6 @@
 using System.Linq;
 using BrightData;
 using BrightData.LinearAlgebra;
-using BrightTable;
 
 namespace BrightWire.ExecutionGraph.DataTableAdaptor
 {
@@ -23,7 +22,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 
             _rowDepth = new uint[dataTable.RowCount];
 
-            Matrix<float> inputMatrix = null, outputMatrix = null;
+            Matrix<float>? inputMatrix = null, outputMatrix = null;
             dataTable.ForEachRow((row, i) => {
                 inputMatrix = (Matrix<float>)row[_dataColumnIndex[0]];
                 outputMatrix = (Matrix<float>)row[_dataTargetIndex];
@@ -31,6 +30,9 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
                 if (outputMatrix.RowCount != inputMatrix.RowCount)
                     throw new ArgumentException("Rows between input and output data tables do not match");
             });
+            if (inputMatrix == null || outputMatrix == null)
+                throw new Exception("No data found");
+
             InputSize = inputMatrix.ColumnCount;
             OutputSize = outputMatrix.ColumnCount;
         }
@@ -48,7 +50,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         public override IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rows)
         {
             var data = GetRows(rows)
-                .Select(r => ((Matrix<float>)r[0], (Matrix<float>)r[1]))
+                .Select(r => ((Matrix<float>)r[0], (Matrix<float>?)r[1]))
                 .ToArray()
             ;
             return GetSequentialMiniBatch(rows, data);

@@ -18,7 +18,7 @@ namespace BrightWire.ExecutionGraph.Activation
                 _input = matrix;
             }
 
-            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
+            protected override IGraphData Backpropagate(INode? fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
             {
                 using var od = _input.SigmoidDerivative();
                 var delta = errorSignal.GetMatrix().PointwiseMultiply(od);
@@ -32,7 +32,7 @@ namespace BrightWire.ExecutionGraph.Activation
         {
             var input = context.Data.GetMatrix();
             var output = context.Data.ReplaceWith(input.SigmoidActivation());
-            _AddNextGraphAction(context, output, () => new Backpropagation(this, input));
+            AddNextGraphAction(context, output, () => new Backpropagation(this, input));
         }
     }
 }

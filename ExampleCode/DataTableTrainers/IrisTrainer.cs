@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using BrightData;
 using BrightWire;
-using BrightWire.ExecutionGraph;
 using ExampleCode.Extensions;
 
 namespace ExampleCode.DataTableTrainers
@@ -40,7 +37,7 @@ namespace ExampleCode.DataTableTrainers
                 .AddFeedForward(hiddenLayerSize)
                 .Add(graph.SigmoidActivation())
                 .AddDropOut(dropOutPercentage: 0.5f)
-                .AddFeedForward(engine.DataSource.OutputSize ?? 0)
+                .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                 .Add(graph.SigmoidActivation())
                 .AddBackpropagation(errorMetric);
 
@@ -66,30 +63,30 @@ namespace ExampleCode.DataTableTrainers
             // create the training engine and schedule a training rate change
             var engine = graph.CreateTrainingEngine(trainingData, trainingRate, batchSize);
 
-            Func<INode> activation = () => new SeluActivation();
+            static INode Activation() => new SeluActivation();
             //Func<INode> activation = () => graph.ReluActivation();
 
             // create the network with the custom activation function
             graph.Connect(engine)
                 .AddFeedForward(layerSize)
                 .AddBatchNormalisation()
-                .Add(activation())
+                .Add(Activation())
                 .AddFeedForward(layerSize)
                 .AddBatchNormalisation()
-                .Add(activation())
+                .Add(Activation())
                 .AddFeedForward(layerSize)
                 .AddBatchNormalisation()
-                .Add(activation())
+                .Add(Activation())
                 .AddFeedForward(layerSize)
                 .AddBatchNormalisation()
-                .Add(activation())
+                .Add(Activation())
                 .AddFeedForward(layerSize)
                 .AddBatchNormalisation()
-                .Add(activation())
+                .Add(Activation())
                 .AddFeedForward(layerSize)
                 .AddBatchNormalisation()
-                .Add(activation())
-                .AddFeedForward(trainingData.OutputSize ?? 0)
+                .Add(Activation())
+                .AddFeedForward(trainingData.GetOutputSizeOrThrow())
                 .Add(graph.SoftMaxActivation())
                 .AddBackpropagation(errorMetric)
             ;

@@ -1,5 +1,4 @@
-﻿using BrightTable;
-using BrightWire.ExecutionGraph.Engine.Helper;
+﻿using BrightWire.ExecutionGraph.Engine.Helper;
 using BrightWire.ExecutionGraph.Helper;
 using BrightWire.Models;
 using System;
@@ -15,14 +14,12 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
     /// </summary>
     internal class SequenceToSequenceDataTableAdaptor : AdaptiveDataTableAdaptorBase
     {
-        uint[] _rowDepth;
-        uint _inputSize, _outputSize;
+        readonly uint[] _rowDepth;
+        readonly uint _inputSize, _outputSize;
 
-        public SequenceToSequenceDataTableAdaptor(ILinearAlgebraProvider lap, ILearningContext learningContext, GraphFactory factory, IRowOrientedDataTable dataTable, Action<WireBuilder> dataConversionBuilder)
-            : base(lap, learningContext, dataTable)
+        public SequenceToSequenceDataTableAdaptor(ILinearAlgebraProvider lap, ILearningContext? learningContext, GraphFactory factory, IRowOrientedDataTable dataTable, Action<WireBuilder> dataConversionBuilder)
+            : this(lap, learningContext, dataTable)
         {
-            Initialise(dataTable);
-
             var wireBuilder = factory.Connect(_inputSize, _input);
             dataConversionBuilder(wireBuilder);
 
@@ -30,39 +27,39 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             using var executionContext = new ExecutionContext(lap);
             var output = Encode(executionContext, new uint [] { 0 });
             _inputSize = output.Item1.ColumnCount;
-            _learningContext.Clear();
+            _learningContext?.Clear();
         }
 
-        public SequenceToSequenceDataTableAdaptor(ILinearAlgebraProvider lap, ILearningContext learningContext, IRowOrientedDataTable dataTable, INode input, DataSourceModel dataSource)
-            : base(lap, learningContext, dataTable)
+        public SequenceToSequenceDataTableAdaptor(ILinearAlgebraProvider lap, ILearningContext? learningContext, IRowOrientedDataTable dataTable, INode input, DataSourceModel dataSource)
+            : this(lap, learningContext, dataTable)
         {
-            Initialise(dataTable);
             _input = input;
             _inputSize = dataSource.InputSize;
             _outputSize = dataSource.OutputSize;
         }
 
-        void Initialise(IDataTable dataTable)
+        SequenceToSequenceDataTableAdaptor(ILinearAlgebraProvider lap, ILearningContext? learningContext, IRowOrientedDataTable dataTable, INode input, uint inputSize, uint outputSize)
+            : this(lap, learningContext, dataTable)
+        {
+            _input = input;
+            _inputSize = inputSize;
+            _outputSize = outputSize;
+        }
+
+        SequenceToSequenceDataTableAdaptor(ILinearAlgebraProvider lap, ILearningContext? learningContext, IRowOrientedDataTable dataTable) : base(lap, learningContext, dataTable)
         {
             _rowDepth = new uint[dataTable.RowCount];
-            Matrix<float> inputMatrix = null, outputMatrix = null;
+            Matrix<float>? inputMatrix = null, outputMatrix = null;
             dataTable.ForEachRow((row, i) => {
                 inputMatrix = (Matrix<float>)row[0];
                 outputMatrix = (Matrix<float>)row[1];
                 _rowDepth[i] = outputMatrix.RowCount;
             });
+            if (inputMatrix == null || outputMatrix == null)
+                throw new ArgumentException("No matrices found in data table");
 
             _inputSize = inputMatrix.ColumnCount;
             _outputSize = outputMatrix.ColumnCount;
-        }
-
-        SequenceToSequenceDataTableAdaptor(ILinearAlgebraProvider lap, ILearningContext learningContext, IRowOrientedDataTable dataTable, INode input, uint inputSize, uint outputSize)
-            : base(lap, learningContext, dataTable)
-        {
-            Initialise(dataTable);
-            _input = input;
-            _inputSize = inputSize;
-            _outputSize = outputSize;
         }
 
         public override IDataSource CloneWith(IRowOrientedDataTable dataTable)
@@ -89,7 +86,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             var data = GetRows(rows).ToArray();
 
             // create the input batch
-            var inputData = data.Select(r => ((Matrix<float>) r[0], (Matrix<float>) null)).ToArray();
+            var inputData = data.Select(r => ((Matrix<float>) r[0], (Matrix<float>?) null)).ToArray();
             var encoderInput = GetSequentialMiniBatch(rows, inputData);
 
             // execute the encoder
@@ -100,6 +97,9 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
                 if (sequence.Type == MiniBatchSequenceType.SequenceEnd)
                     encoderOutput = context.Data.GetMatrix();
             }
+
+            if (encoderOutput == null)
+                throw new Exception("Encoder produced no output");
             return (encoderOutput, data);
         }
 
@@ -139,9 +139,9 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         public override void OnBatchProcessed(IGraphContext context)
         {
             var batch = context.BatchSequence;
-            if(context.IsTraining && batch.Type == MiniBatchSequenceType.SequenceStart) {
+            if(context.LearningContext != null && batch.Type == MiniBatchSequenceType.SequenceStart) {
                 context.LearningContext.DeferBackpropagation(null, signal => {
-                    _learningContext.BackpropagateThroughTime(signal);
+                    context.LearningContext.BackpropagateThroughTime(signal);
                 });
             }
         }

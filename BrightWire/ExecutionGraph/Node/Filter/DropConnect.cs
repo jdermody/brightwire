@@ -1,7 +1,6 @@
 ﻿using BrightWire.ExecutionGraph.Node.Layer;
 using System.IO;
 using BrightData;
-using BrightData.Distribution;
 using BrightData.Helper;
 
 namespace BrightWire.ExecutionGraph.Node.Filter
@@ -23,7 +22,7 @@ namespace BrightWire.ExecutionGraph.Node.Filter
                 _filteredWeights = filteredWeights;
             }
 
-            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
+            protected override IGraphData Backpropagate(INode? fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
             {
                 var es = errorSignal.GetMatrix();
 
@@ -34,7 +33,7 @@ namespace BrightWire.ExecutionGraph.Node.Filter
                 var weightUpdate = _input.TransposeThisAndMultiply(es).PointwiseMultiply(_filter);
 
                 // store the updates
-                var learningContext = context.LearningContext;
+                var learningContext = context.LearningContext!;
                 learningContext.StoreUpdate(_source, es, err => _source.UpdateBias(err, learningContext));
                 learningContext.StoreUpdate(_source, weightUpdate, err => _source.UpdateWeights(err, learningContext));
 
@@ -42,9 +41,9 @@ namespace BrightWire.ExecutionGraph.Node.Filter
             }
         }
         float _dropOutPercentage;
-        INonNegativeDiscreteDistribution _probabilityToDrop;
+        INonNegativeDiscreteDistribution? _probabilityToDrop;
 
-        public DropConnect(IBrightDataContext context, float dropOutPercentage, uint inputSize, uint outputSize, IFloatVector bias, IFloatMatrix weight, IGradientDescentOptimisation updater, string name = null) 
+        public DropConnect(IBrightDataContext context, float dropOutPercentage, uint inputSize, uint outputSize, IFloatVector bias, IFloatMatrix weight, IGradientDescentOptimisation updater, string? name = null) 
             : base(inputSize, outputSize, bias, weight, updater, name)
         {
             _dropOutPercentage = dropOutPercentage;
@@ -53,21 +52,21 @@ namespace BrightWire.ExecutionGraph.Node.Filter
 
         public override void ExecuteForward(IGraphContext context)
         {
-            if (context.IsTraining) {
+            if (context.LearningContext != null) {
                 var lap = context.LinearAlgebraProvider;
                 var input = context.Data;
                 var inputMatrix = input.GetMatrix();
-                var filter = lap.CreateMatrix(Weight.RowCount, Weight.ColumnCount, (i, j) => FloatMath.IsZero(_dropOutPercentage) ? 1f : _probabilityToDrop.Sample() == 1 ? 0f : 1f / _dropOutPercentage);
+                var filter = lap.CreateMatrix(Weight.RowCount, Weight.ColumnCount, (i, j) => FloatMath.IsZero(_dropOutPercentage) ? 1f : _probabilityToDrop!.Sample() == 1 ? 0f : 1f / _dropOutPercentage);
                 var filteredWeights = Weight.PointwiseMultiply(filter);
-                var output = _FeedForward(inputMatrix, filteredWeights);
-                _AddNextGraphAction(context, input.ReplaceWith(output), () => new Backpropagation(this, inputMatrix, filter, filteredWeights));
+                var output = FeedForwardInternal(inputMatrix, filteredWeights);
+                AddNextGraphAction(context, input.ReplaceWith(output), () => new Backpropagation(this, inputMatrix, filter, filteredWeights));
             } else
                 base.ExecuteForward(context);
         }
 
-        protected override (string Description, byte[] Data) _GetInfo()
+        protected override (string Description, byte[] Data) GetInfo()
         {
-            return ("DC", _WriteData(WriteTo));
+            return ("DC", WriteData(WriteTo));
         }
 
         public override void ReadFrom(GraphFactory factory, BinaryReader reader)

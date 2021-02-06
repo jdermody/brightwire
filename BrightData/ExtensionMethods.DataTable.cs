@@ -1030,14 +1030,14 @@ namespace BrightData
         public static IReadOnlyList<(string Classification, Vector<float> Data)> Vectorise(this IReadOnlyList<(string Label, WeightedIndexList Data)> data, IBrightDataContext context)
         {
             var size = data.GetMaxIndex() + 1;
-            Vector<float> _Create(WeightedIndexList weightedIndexList)
+            Vector<float> Create(WeightedIndexList weightedIndexList)
             {
                 var ret = new float[size];
                 foreach (var item in weightedIndexList.Indices)
                     ret[item.Index] = item.Weight;
                 return context.CreateVector(ret);
             }
-            return data.Select(r => (r.Label, _Create(r.Data))).ToList();
+            return data.Select(r => (r.Label, Create(r.Data))).ToList();
         }
 
         /// <summary>

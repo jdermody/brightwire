@@ -12,7 +12,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
 			{
 			}
 
-			public override void _Backward(INode fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
+			public override void BackwardInternal(INode? fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
 			{
 				var es = errorSignal.GetMatrix();
 
@@ -20,11 +20,11 @@ namespace BrightWire.ExecutionGraph.Node.Input
                 columnSums.Multiply(1f / es.RowCount);
 
                 // store the updates
-                var learningContext = context.LearningContext;
+                var learningContext = context.LearningContext!;
                 learningContext.StoreUpdate(_source, columnSums, err => {
                     var delta = err.AsIndexable();
                     for (uint j = 0; j < _source._data.Length; j++)
-                        _source._data[j] += delta[j] * context.LearningContext.BatchLearningRate;
+                        _source._data[j] += delta[j] * learningContext.BatchLearningRate;
                 });
             }
 		}
@@ -32,7 +32,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
         readonly IBrightDataContext _context;
         readonly float[] _data;
 
-		public VectorInput(IBrightDataContext context, float[] data, string name = null, string id = null) : base(name, id)
+		public VectorInput(IBrightDataContext context, float[] data, string? name = null, string? id = null) : base(name, id)
         {
             _context = context;
             _data = data;
@@ -43,12 +43,12 @@ namespace BrightWire.ExecutionGraph.Node.Input
 		public override void ExecuteForward(IGraphContext context)
 		{
 			var data = context.LinearAlgebraProvider.CreateMatrix(context.BatchSequence.MiniBatch.BatchSize, (uint)_data.Length, (x, y) => _data[y]);
-			_AddNextGraphAction(context, new MatrixGraphData(data), () => new Backpropagation(this));
+			AddNextGraphAction(context, new MatrixGraphData(data), () => new Backpropagation(this));
 		}
 
-		protected override (string Description, byte[] Data) _GetInfo()
+		protected override (string Description, byte[] Data) GetInfo()
 		{
-			return ("VI", _WriteData(WriteTo));
+			return ("VI", WriteData(WriteTo));
 		}
 
 		public override void WriteTo(BinaryWriter writer)

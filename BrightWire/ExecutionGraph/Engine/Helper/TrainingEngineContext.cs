@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using BrightData;
+using BrightWire.ExecutionGraph.Helper;
 
 namespace BrightWire.ExecutionGraph.Engine.Helper
 {
@@ -11,29 +12,23 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     internal class TrainingEngineContext : IGraphContext
     {
         readonly IGraphExecutionContext _executionContext;
-        readonly ILearningContext _learningContext;
+        readonly ILearningContext? _learningContext;
         readonly List<IExecutionHistory> _forward = new List<IExecutionHistory>();
-        readonly Stack<(IGraphData ErrorSignal, INode Target, INode Source)> _backward = new Stack<(IGraphData, INode, INode)>();
+        readonly Stack<(IGraphData? ErrorSignal, INode Target, INode? Source)> _backward = new Stack<(IGraphData?, INode, INode?)>();
         readonly Dictionary<INode, List<IExecutionHistory>> _history = new Dictionary<INode, List<IExecutionHistory>>();
         readonly Dictionary<INode, List<IGraphData>> _nodeErrorSignal = new Dictionary<INode, List<IGraphData>>();
 	    readonly Dictionary<int, IGraphData> _output = new Dictionary<int, IGraphData>();
         INode? _sourceNode;
-        IGraphData? _errorSignal = null, _data;
+        IGraphData? _errorSignal;
+        IGraphData _data;
         double? _trainingError;
 
-        public TrainingEngineContext(IGraphExecutionContext executionContext, IMiniBatchSequence miniBatch, ILearningContext learningContext)
+        public TrainingEngineContext(IGraphExecutionContext executionContext, IMiniBatchSequence miniBatch, ILearningContext? learningContext)
         {
             BatchSequence = miniBatch;
             _executionContext = executionContext;
             _learningContext = learningContext;
-            _data = null;
-        }
-        public TrainingEngineContext(IGraphExecutionContext executionContext, IGraphData data, ILearningContext learningContext)
-        {
-            BatchSequence = null;
-            _executionContext = executionContext;
-            _learningContext = learningContext;
-            _data = data;
+            _data = new NullGraphData();
         }
 
         public void Dispose()
@@ -54,7 +49,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             _history.Clear();
         }
 
-        public bool IsTraining => _learningContext != null;
+        public bool IsTraining { get; } = true;
         public ILinearAlgebraProvider LinearAlgebraProvider => _executionContext.LinearAlgebraProvider;
         public IGraphExecutionContext ExecutionContext => _executionContext;
         public ILearningContext? LearningContext => _learningContext;
@@ -63,7 +58,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public double? TrainingError => _trainingError;
         public INode? Source => _sourceNode;
         public IGraphData? ErrorSignal => _errorSignal;
-        public IGraphData? Data => _data;
+        public IGraphData Data => _data;
 
         public void AddForward(IExecutionHistory action, Func<IBackpropagation>? callback)
         {
@@ -76,7 +71,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             temp.Add(action);
         }
 
-        public void AddBackward(IGraphData error, INode target, INode source)
+        public void AddBackward(IGraphData? error, INode target, INode? source)
         {
             _backward.Push((error, target, source));
         }
@@ -89,10 +84,8 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 
                 _data = next.Data;
                 _sourceNode = next.Source;
-                if (next.Source.Output != null) {
-                    foreach (var output in next.Source.Output)
-                        output.SendTo?.ExecuteForward(this, output.Channel);
-                }
+                foreach (var output in next.Source.Output)
+                    output.SendTo.ExecuteForward(this, output.Channel);
 
                 return true;
             }
@@ -122,7 +115,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             _backward.Clear();
         }
 
-        public void Backpropagate(IGraphData delta)
+        public void Backpropagate(IGraphData? delta)
         {
             // calculate training error
             if (delta != null) {
@@ -132,7 +125,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 
             // initialise backpropagation stack
             ClearBackward();
-            AddBackward(delta, _sourceNode, null);
+            AddBackward(delta, _sourceNode!, null);
 
             // backpropagate the error through the graph
             _errorSignal = null;
@@ -140,7 +133,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
                 var next = _backward.Pop();
                 _errorSignal = GetErrorSignal(next.ErrorSignal, next.Target);
 
-                if (next.Target != null && _history.TryGetValue(next.Target, out var history)) {
+                if (_history.TryGetValue(next.Target, out var history)) {
                     foreach (var item in history) {
                         if (item.Backpropagation != null) {
                             item.Backpropagation.Backward(next.Source, _errorSignal, this, item.Parents);
@@ -154,7 +147,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             }
         }
 
-        IGraphData? GetErrorSignal(IGraphData errorSignal, INode node)
+        IGraphData? GetErrorSignal(IGraphData? errorSignal, INode node)
         {
             var list = new List<IGraphData>();
 

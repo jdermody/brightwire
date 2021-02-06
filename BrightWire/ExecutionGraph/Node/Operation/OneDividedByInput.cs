@@ -17,7 +17,7 @@ namespace BrightWire.ExecutionGraph.Node.Operation
                 _input = input;
             }
 
-            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
+            protected override IGraphData Backpropagate(INode? fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
             {
                 var es = errorSignal.GetMatrix();
                 using var minusOne = context.LinearAlgebraProvider.CreateMatrix(es.RowCount, es.ColumnCount, -1f);
@@ -27,7 +27,7 @@ namespace BrightWire.ExecutionGraph.Node.Operation
             }
         }
 
-        public OneDividedByInput(string name = null) : base(name)
+        public OneDividedByInput(string? name = null) : base(name)
         {
         }
 
@@ -36,7 +36,7 @@ namespace BrightWire.ExecutionGraph.Node.Operation
             var input = context.Data.GetMatrix();
             using var ones = context.LinearAlgebraProvider.CreateMatrix(input.RowCount, input.ColumnCount, 1f);
             var output = ones.PointwiseDivide(input);
-            _AddNextGraphAction(context, context.Data.ReplaceWith(output), () => new Backpropagation(this, input));
+            AddNextGraphAction(context, context.Data.ReplaceWith(output), () => new Backpropagation(this, input));
         }
     }
 }

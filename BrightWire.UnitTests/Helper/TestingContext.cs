@@ -21,7 +21,6 @@ namespace BrightWire.UnitTests
             // nop
         }
 
-        public bool IsTraining { get; set; }
         public INode Source { get; }
         public IGraphData Data { get; set; }
         public IGraphExecutionContext ExecutionContext { get; }

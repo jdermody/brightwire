@@ -17,7 +17,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
             {
             }
 
-            public override void _Backward(INode fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
+            public override void BackwardInternal(INode? fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
             {
                 if (context.BatchSequence.Type == MiniBatchSequenceType.SequenceStart) {
                     var es = errorSignal.GetMatrix();
@@ -26,7 +26,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
                     columnSums.Multiply(1f / es.RowCount);
                     var initialDelta = columnSums.AsIndexable();
                     for (uint j = 0; j < _source._data.Length; j++)
-                        _source._data[j] += initialDelta[j] * context.LearningContext.BatchLearningRate;
+                        _source._data[j] += initialDelta[j] * context.LearningContext!.BatchLearningRate;
                 }
             }
         }
@@ -35,7 +35,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
         readonly float[] _data;
 	    readonly SetMemory _setMemory;
 
-        public MemoryFeeder(IBrightDataContext context, float[] data, string name = null, string id = null) : base(name, id)
+        public MemoryFeeder(IBrightDataContext context, float[] data, string? name = null, string? id = null) : base(name, id)
         {
             _context = context;
             _data = data;
@@ -52,26 +52,27 @@ namespace BrightWire.ExecutionGraph.Node.Input
         public override void ExecuteForward(IGraphContext context)
         {
             if (context.BatchSequence.Type == MiniBatchSequenceType.SequenceStart)
-                _OnStart(context);
+                OnStart(context);
             else
-                _OnNext(context);
+                OnNext(context);
         }
 
-        void _OnStart(IGraphContext context)
+        void OnStart(IGraphContext context)
         {
             var memory = context.LinearAlgebraProvider.CreateMatrix(context.BatchSequence.MiniBatch.BatchSize, (uint)_data.Length, (x, y) => _data[y]);
-            _AddNextGraphAction(context, new MatrixGraphData(memory), () => new Backpropagation(this));
+            context.ExecutionContext.SetMemory(Id, memory);
+            AddNextGraphAction(context, new MatrixGraphData(memory), () => new Backpropagation(this));
         }
 
-        void _OnNext(IGraphContext context)
+        void OnNext(IGraphContext context)
         {
             var memory = context.ExecutionContext.GetMemory(Id);
-            _AddNextGraphAction(context, new MatrixGraphData(memory), null);
+            AddNextGraphAction(context, new MatrixGraphData(memory), null);
         }
 
-        protected override (string Description, byte[] Data) _GetInfo()
+        protected override (string Description, byte[] Data) GetInfo()
         {
-            return ("MF", _WriteData(WriteTo));
+            return ("MF", WriteData(WriteTo));
         }
 
         public override void WriteTo(BinaryWriter writer)

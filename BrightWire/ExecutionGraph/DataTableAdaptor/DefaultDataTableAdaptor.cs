@@ -23,15 +23,15 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             return new DefaultDataTableAdaptor(_lap, dataTable, InputVectoriser, OutputVectoriser, _featureColumns);
         }
 
-        public override uint InputSize => InputVectoriser.OutputSize;
-        public override uint? OutputSize => OutputVectoriser.OutputSize;
+        public override uint InputSize => InputVectoriser!.OutputSize;
+        public override uint? OutputSize => OutputVectoriser?.OutputSize;
         public override bool IsSequential => false;
 
         public override IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rowIndices)
         {
             var rows = GetRows(rowIndices);
             var data = rows
-                .Select(r => (new[] { InputVectoriser.Vectorise(r) }, OutputVectoriser.Vectorise(r)))
+                .Select(r => (new[] { InputVectoriser!.Vectorise(r) }, OutputVectoriser!.Vectorise(r)))
                 .ToArray()
             ;
             return GetMiniBatch(rowIndices, data);

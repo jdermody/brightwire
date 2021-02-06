@@ -43,7 +43,7 @@ namespace BrightWire.Linear.Training
                         break;
                 }
 
-                using var d = _Derivative(theta, lambda);
+                using var d = Derivative(theta, lambda);
                 d.Multiply(learningRate);
                 var theta2 = theta.Subtract(d);
                 theta.Dispose();
@@ -56,7 +56,7 @@ namespace BrightWire.Linear.Training
             return ret;
         }
 
-        IFloatVector _Derivative(IFloatVector th, float lambda)
+        IFloatVector Derivative(IFloatVector th, float lambda)
         {
             using var p0 = _feature.Multiply(th);
             using var p1 = p0.Column(0);

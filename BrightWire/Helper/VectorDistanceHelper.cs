@@ -83,7 +83,7 @@ namespace BrightWire.Helper
         {
             using var distance = _lap.CalculateDistances(_data, _comparison, Metric);
             return _data.Length.AsRange()
-                .Select(i => _GetMinimum(distance, i).Index)
+                .Select(i => GetMinimum(distance, i).Index)
                 .ToArray();
         }
 
@@ -99,7 +99,7 @@ namespace BrightWire.Helper
             return result;
         }
 
-		(uint Index, float Value) _GetMinimum(IFloatMatrix data, uint columnIndex)
+		(uint Index, float Value) GetMinimum(IFloatMatrix data, uint columnIndex)
 		{
             var len = _comparison.Count;
 

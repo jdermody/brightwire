@@ -13,17 +13,17 @@ namespace BrightWire.Models.Linear
         /// <summary>
         /// The list of logistic regression models
         /// </summary>
-        public LogisticRegression[] Model { get; set; }
+        public LogisticRegression[] Model { get; set; } = new LogisticRegression[0];
 
         /// <summary>
         /// The associated classification labels
         /// </summary>
-        public string[] Classification { get; set; }
+        public string[] Classification { get; set; } = new string[0];
 
         /// <summary>
         /// The columns used to build the dense input vectors
         /// </summary>
-        public uint[] FeatureColumn { get; set; }
+        public uint[] FeatureColumn { get; set; } = new uint[0];
 
         /// <summary>
         /// Creates a classifier from this model

@@ -29,7 +29,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 				_yStride = yStride;
             }
 
-            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
+            protected override IGraphData Backpropagate(INode? fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
             {
 	            var errorMatrix = errorSignal.GetMatrix();
                 var tensor = errorMatrix.ReshapeAs4DTensor(_outputRows, _outputColumns, _depth);
@@ -66,12 +66,12 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 //#endif
 
 			var graphData = new Tensor4DGraphData(output);
-            _AddNextGraphAction(context, graphData, () => new Backpropagation(this, index, tensor.ColumnCount, tensor.RowCount, output.ColumnCount, output.RowCount, output.Depth, _filterWidth, _filterHeight, _xStride, _yStride));
+            AddNextGraphAction(context, graphData, () => new Backpropagation(this, index, tensor.ColumnCount, tensor.RowCount, output.ColumnCount, output.RowCount, output.Depth, _filterWidth, _filterHeight, _xStride, _yStride));
         }
 
-        protected override (string Description, byte[] Data) _GetInfo()
+        protected override (string Description, byte[] Data) GetInfo()
         {
-            return ("MAX", _WriteData(WriteTo));
+            return ("MAX", WriteData(WriteTo));
         }
 
         public override void ReadFrom(GraphFactory factory, BinaryReader reader)

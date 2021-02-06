@@ -1,6 +1,6 @@
-﻿using BrightWire.ExecutionGraph.Helper;
+﻿using System;
+using BrightWire.ExecutionGraph.Helper;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using BrightData;
 
@@ -17,7 +17,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 _reverseSize = reverseSize;
             }
 
-            public override void _Backward(INode fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
+            public override void BackwardInternal(INode? fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
             {
                 var matrix = errorSignal.GetMatrix();
                 (IFloatMatrix left, IFloatMatrix right) = matrix.SplitAtColumn(matrix.ColumnCount - _reverseSize);
@@ -61,38 +61,44 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             _contextTable = new Dictionary<uint, IGraphContext>();
         }
 
-        void _Continue(IGraphContext context)
+        void Continue(IGraphContext context)
         {
             var sequenceIndex = context.BatchSequence.SequenceIndex;
-            var input = _input[sequenceIndex];
-            var input2 = _reverseInput[sequenceIndex];
+            var (data, reversedSize, forwardParent) = _input[sequenceIndex];
+            var (floatMatrix, reverseParent) = _reverseInput[sequenceIndex];
 
             _input.Remove(sequenceIndex);
             _reverseInput.Remove(sequenceIndex);
 
             // concatenate the inputs
-            var next = input.Data.ConcatRows(input2.Data);
+            var next = data.ConcatRows(floatMatrix);
 
             context.AddForward(new TrainingAction(
                 this, 
                 new MatrixGraphData(next), 
-                new[] { input.ForwardParent, input2.ReverseParent }), 
-                () => new Backpropagation(this, input.ReversedSize)
+                new[] { forwardParent, reverseParent }), 
+                () => new Backpropagation(this, reversedSize)
             );
         }
 
-        protected override void _Activate(IGraphContext context, List<IncomingChannel> data)
+        protected override void Activate(IGraphContext context, List<IncomingChannel> data)
         {
-            Debug.Assert(data.Count == 2);
+            if (data.Count != 2)
+                throw new Exception("Expected two incoming channels");
+
             var forward = data.First();
             var backward = data.Last();
+
+            if (forward.Data == null || backward.Data == null)
+                throw new Exception("Expected incoming channels to have data");
+
             var sequenceIndex = context.BatchSequence.SequenceIndex;
             var reversedSequenceIndex = context.BatchSequence.MiniBatch.SequenceCount - sequenceIndex - 1;
 
-            _input.Add(sequenceIndex, (forward.Data, backward.Size, forward.Source));
-            _reverseInput.Add(reversedSequenceIndex, (data.Last().Data, backward.Source));
+            _input.Add(sequenceIndex, (forward.Data, backward.Size, forward.Source!));
+            _reverseInput.Add(reversedSequenceIndex, (backward.Data, backward.Source!));
 
-            context.ExecutionContext.RegisterContinuation(context.BatchSequence, _Continue);
+            context.ExecutionContext.RegisterContinuation(context.BatchSequence, Continue);
         }
     }
 }

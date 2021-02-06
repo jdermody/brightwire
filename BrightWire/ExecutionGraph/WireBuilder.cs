@@ -54,7 +54,7 @@ namespace BrightWire.ExecutionGraph
         /// <param name="engine">Graph engine</param>
         /// <param name="inputIndex">Input index to connect</param>
         public WireBuilder(GraphFactory factory, IGraphTrainingEngine engine, uint inputIndex = 0) 
-            : this(factory, engine.DataSource.InputSize, engine.GetInput(inputIndex))
+            : this(factory, engine.DataSource?.InputSize ?? throw new Exception("Engine has no data source"), engine.GetInput(inputIndex))
         {
             if(engine.DataSource is IVolumeDataSource volumeDataSource) {
                 _width = volumeDataSource.Width;
@@ -80,7 +80,7 @@ namespace BrightWire.ExecutionGraph
             return this;
         }
 
-        void _SetNode(INode node)
+        void SetNode(INode node)
         {
 	        LastNode?.Output.Add(new WireToNode(node));
 	        LastNode = node;
@@ -93,10 +93,10 @@ namespace BrightWire.ExecutionGraph
         /// <param name="dataTable"></param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
-        public WireBuilder AddClassifier(IRowClassifier classifier, IRowOrientedDataTable dataTable, string name = null)
+        public WireBuilder AddClassifier(IRowClassifier classifier, IRowOrientedDataTable dataTable, string? name = null)
         {
             var node = _factory.CreateClassifier(classifier, dataTable, name);
-            _SetNode(node.RowClassifier);
+            SetNode(node.RowClassifier);
             return SetNewSize(node.OutputSize);
         }
 
@@ -106,10 +106,10 @@ namespace BrightWire.ExecutionGraph
         /// <param name="outputSize">Number of outgoing connections</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
-        public WireBuilder AddFeedForward(uint outputSize, string name = null)
+        public WireBuilder AddFeedForward(uint outputSize, string? name = null)
         {
             INode node = _factory.CreateFeedForward(CurrentSize, outputSize, name);
-            _SetNode(node);
+            SetNode(node);
             return SetNewSize(outputSize);
         }
 
@@ -119,9 +119,9 @@ namespace BrightWire.ExecutionGraph
         /// <param name="layer">The layer whose weights are tied</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
-        public WireBuilder AddTiedFeedForward(IFeedForward layer, string name = null)
+        public WireBuilder AddTiedFeedForward(IFeedForward layer, string? name = null)
         {
-            _SetNode(_factory.CreateTiedFeedForward(layer, name));
+            SetNode(_factory.CreateTiedFeedForward(layer, name));
             return SetNewSize(layer.InputSize);
         }
 
@@ -131,9 +131,9 @@ namespace BrightWire.ExecutionGraph
         /// <param name="dropOutPercentage">Percentage of connections to drop</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
-        public WireBuilder AddDropOut(float dropOutPercentage, string name = null)
+        public WireBuilder AddDropOut(float dropOutPercentage, string? name = null)
         {
-            _SetNode(_factory.CreateDropOut(dropOutPercentage, name));
+            SetNode(_factory.CreateDropOut(dropOutPercentage, name));
             return this;
         }
 
@@ -143,9 +143,9 @@ namespace BrightWire.ExecutionGraph
         /// <param name="dropOutPercentage">Percentage of connections to drop</param>
         /// <param name="outputSize">Number of outgoing connections</param>
         /// <param name="name">Optional name to give the node</param>
-        public WireBuilder AddDropConnect(float dropOutPercentage, uint outputSize, string name = null)
+        public WireBuilder AddDropConnect(float dropOutPercentage, uint outputSize, string? name = null)
         {
-            _SetNode(_factory.CreateDropConnect(dropOutPercentage, CurrentSize, outputSize, name));
+            SetNode(_factory.CreateDropConnect(dropOutPercentage, CurrentSize, outputSize, name));
             return SetNewSize(outputSize);
         }
 
@@ -154,9 +154,9 @@ namespace BrightWire.ExecutionGraph
 		/// </summary>
 		/// <param name="channel">Output channel</param>
 		/// <param name="name">Optional name to give the node</param>
-	    public WireBuilder AddOutput(int channel = 0, string name = null)
+	    public WireBuilder AddOutput(int channel = 0, string? name = null)
 	    {
-		    _SetNode(_factory.CreateOutputNode(channel, name));
+		    SetNode(_factory.CreateOutputNode(channel, name));
 		    return this;
 	    }
 
@@ -166,7 +166,7 @@ namespace BrightWire.ExecutionGraph
         /// <returns></returns>
         public WireBuilder Add(INode node)
         {
-            _SetNode(node);
+            SetNode(node);
             return this;
         }
 
@@ -178,7 +178,7 @@ namespace BrightWire.ExecutionGraph
         /// <returns></returns>
         public WireBuilder AddForwardAction(IAction action, string? name = null)
         {
-            _SetNode(new ExecuteForwardAction(action, name));
+            SetNode(new ExecuteForwardAction(action, name));
             return this;
         }
 
@@ -190,7 +190,7 @@ namespace BrightWire.ExecutionGraph
         /// <returns></returns>
         public WireBuilder AddBackwardAction(IAction action, string? name = null)
         {
-            _SetNode(new ExecuteBackwardAction(action, name));
+            SetNode(new ExecuteBackwardAction(action, name));
             return this;
         }
 
@@ -198,13 +198,13 @@ namespace BrightWire.ExecutionGraph
 		/// Adds a batch normalisation layer
 		/// </summary>
 		/// <param name="name">Optional name to give the node</param>
-		public WireBuilder AddBatchNormalisation(string name = null)
+		public WireBuilder AddBatchNormalisation(string? name = null)
 		{
 			var size = CurrentSize;
 			if (_depth > 1)
 				throw new NotImplementedException("Currently only implemented for non convolutional networks");
 
-            _SetNode(_factory.CreateBatchNormalisation(size, name));
+            SetNode(_factory.CreateBatchNormalisation(size, name));
 			return this;
 		}
 
@@ -215,9 +215,9 @@ namespace BrightWire.ExecutionGraph
 		/// <param name="initialMemory">Initial memory</param>
 		/// <param name="name">Optional name to give the node</param>
 		/// <returns></returns>
-		public WireBuilder AddSimpleRecurrent(INode activation, float[] initialMemory, string name = null)
+		public WireBuilder AddSimpleRecurrent(INode activation, float[] initialMemory, string? name = null)
         {
-            _SetNode(_factory.CreateSimpleRecurrent(CurrentSize, initialMemory, activation, name));
+            SetNode(_factory.CreateSimpleRecurrent(CurrentSize, initialMemory, activation, name));
             return SetNewSize((uint)initialMemory.Length);
         }
 
@@ -228,9 +228,9 @@ namespace BrightWire.ExecutionGraph
 	    /// <param name="memorySize">Size of the memory buffer</param>
 	    /// <param name="name">Optional name to give the node</param>
 	    /// <returns></returns>
-	    public WireBuilder AddSimpleRecurrent(INode activation, uint memorySize, string name = null)
+	    public WireBuilder AddSimpleRecurrent(INode activation, uint memorySize, string? name = null)
 	    {
-		    _SetNode(_factory.CreateSimpleRecurrent(CurrentSize, new float[memorySize], activation, name));
+		    SetNode(_factory.CreateSimpleRecurrent(CurrentSize, new float[memorySize], activation, name));
 		    return SetNewSize(memorySize);
 	    }
 
@@ -242,9 +242,9 @@ namespace BrightWire.ExecutionGraph
         /// <param name="initialMemory">Initial memory</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
-        public WireBuilder AddElman(INode activation, INode activation2, float[] initialMemory, string name = null)
+        public WireBuilder AddElman(INode activation, INode activation2, float[] initialMemory, string? name = null)
         {
-            _SetNode(_factory.CreateElman(CurrentSize, initialMemory, activation, activation2, name));
+            SetNode(_factory.CreateElman(CurrentSize, initialMemory, activation, activation2, name));
             return SetNewSize((uint)initialMemory.Length);
         }
 
@@ -256,9 +256,9 @@ namespace BrightWire.ExecutionGraph
 	    /// <param name="memorySize">Size of the memory buffer</param>
 	    /// <param name="name">Optional name to give the node</param>
 	    /// <returns></returns>
-	    public WireBuilder AddElman(INode activation, INode activation2, uint memorySize, string name = null)
+	    public WireBuilder AddElman(INode activation, INode activation2, uint memorySize, string? name = null)
 	    {
-		    _SetNode(_factory.CreateElman(CurrentSize, new float[memorySize], activation, activation2, name));
+		    SetNode(_factory.CreateElman(CurrentSize, new float[memorySize], activation, activation2, name));
 		    return SetNewSize(memorySize);
 	    }
 
@@ -270,9 +270,9 @@ namespace BrightWire.ExecutionGraph
         /// <param name="initialMemory">Initial memory</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
-        public WireBuilder AddJordan(INode activation, INode activation2, float[] initialMemory, string name = null)
+        public WireBuilder AddJordan(INode activation, INode activation2, float[] initialMemory, string? name = null)
         {
-            _SetNode(_factory.CreateJordan(CurrentSize, initialMemory, activation, activation2, name));
+            SetNode(_factory.CreateJordan(CurrentSize, initialMemory, activation, activation2, name));
             return SetNewSize((uint)initialMemory.Length);
         }
 
@@ -284,9 +284,9 @@ namespace BrightWire.ExecutionGraph
 	    /// <param name="memorySize">Size of the memory buffer</param>
 	    /// <param name="name">Optional name to give the node</param>
 	    /// <returns></returns>
-	    public WireBuilder AddJordan(INode activation, INode activation2, uint memorySize, string name = null)
+	    public WireBuilder AddJordan(INode activation, INode activation2, uint memorySize, string? name = null)
 	    {
-		    _SetNode(_factory.CreateJordan(CurrentSize, new float[memorySize], activation, activation2, name));
+		    SetNode(_factory.CreateJordan(CurrentSize, new float[memorySize], activation, activation2, name));
 		    return SetNewSize(memorySize);
 	    }
 
@@ -296,9 +296,9 @@ namespace BrightWire.ExecutionGraph
         /// <param name="initialMemory">Initial memory</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
-        public WireBuilder AddGru(float[] initialMemory, string name = null)
+        public WireBuilder AddGru(float[] initialMemory, string? name = null)
         {
-            _SetNode(_factory.CreateGru(CurrentSize, initialMemory, name));
+            SetNode(_factory.CreateGru(CurrentSize, initialMemory, name));
             return SetNewSize((uint)initialMemory.Length);
         }
 
@@ -308,9 +308,9 @@ namespace BrightWire.ExecutionGraph
 	    /// <param name="memorySize">Size of the memory buffer</param>
 	    /// <param name="name">Optional name to give the node</param>
 	    /// <returns></returns>
-	    public WireBuilder AddGru(uint memorySize, string name = null)
+	    public WireBuilder AddGru(uint memorySize, string? name = null)
 	    {
-		    _SetNode(_factory.CreateGru(CurrentSize, new float[memorySize], name));
+		    SetNode(_factory.CreateGru(CurrentSize, new float[memorySize], name));
 		    return SetNewSize(memorySize);
 	    }
 
@@ -319,9 +319,9 @@ namespace BrightWire.ExecutionGraph
         /// </summary>
         /// <param name="initialMemory">Initial memory</param>
         /// <param name="name">Optional name to give the node</param>
-        public WireBuilder AddRan(float[] initialMemory, string name = null)
+        public WireBuilder AddRan(float[] initialMemory, string? name = null)
         {
-            _SetNode(_factory.CreateRan(CurrentSize, initialMemory, name));
+            SetNode(_factory.CreateRan(CurrentSize, initialMemory, name));
             return SetNewSize((uint)initialMemory.Length);
         }
 
@@ -330,9 +330,9 @@ namespace BrightWire.ExecutionGraph
 	    /// </summary>
 	    /// <param name="memorySize">Size of the memory buffer</param>
 	    /// <param name="name">Optional name to give the node</param>
-	    public WireBuilder AddRan(uint memorySize, string name = null)
+	    public WireBuilder AddRan(uint memorySize, string? name = null)
 	    {
-		    _SetNode(_factory.CreateRan(CurrentSize, new float[memorySize], name));
+		    SetNode(_factory.CreateRan(CurrentSize, new float[memorySize], name));
 		    return SetNewSize(memorySize);
 	    }
 
@@ -342,9 +342,9 @@ namespace BrightWire.ExecutionGraph
         /// <param name="initialMemory">Initial memory</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
-        public WireBuilder AddLstm(float[] initialMemory, string name = null)
+        public WireBuilder AddLstm(float[] initialMemory, string? name = null)
         {
-            _SetNode(_factory.CreateLstm(CurrentSize, initialMemory, name));
+            SetNode(_factory.CreateLstm(CurrentSize, initialMemory, name));
             return SetNewSize((uint)initialMemory.Length);
         }
 
@@ -354,9 +354,9 @@ namespace BrightWire.ExecutionGraph
 	    /// <param name="memorySize">Size of the memory buffer</param>
 	    /// <param name="name">Optional name to give the node</param>
 	    /// <returns></returns>
-	    public WireBuilder AddLstm(uint memorySize, string name = null)
+	    public WireBuilder AddLstm(uint memorySize, string? name = null)
 	    {
-		    _SetNode(_factory.CreateLstm(CurrentSize, new float[memorySize], name));
+		    SetNode(_factory.CreateLstm(CurrentSize, new float[memorySize], name));
 		    return SetNewSize(memorySize);
 	    }
 
@@ -366,9 +366,9 @@ namespace BrightWire.ExecutionGraph
         /// <param name="name">Optional name to give the node</param>
         /// <param name="index">Input index to reverse</param>
         /// <returns></returns>
-        public WireBuilder ReverseSequence(int index = 0, string name = null)
+        public WireBuilder ReverseSequence(int index = 0, string? name = null)
         {
-            _SetNode(_factory.CreateSequenceReverser(index, name));
+            SetNode(_factory.CreateSequenceReverser(index, name));
             return this;
         }
 
@@ -383,7 +383,7 @@ namespace BrightWire.ExecutionGraph
         /// <returns></returns>
         public WireBuilder AddMaxPooling(uint filterWidth, uint filterHeight, uint xStride, uint yStride, string? name = null)
         {
-            _SetNode(_factory.CreateMaxPool(filterWidth, filterHeight, xStride, yStride, name));
+            SetNode(_factory.CreateMaxPool(filterWidth, filterHeight, xStride, yStride, name));
 
             _width = (_width - filterWidth) / xStride + 1;
             _height = (_height - filterHeight) / yStride + 1;
@@ -405,7 +405,7 @@ namespace BrightWire.ExecutionGraph
         /// <returns></returns>
         public WireBuilder AddConvolutional(uint filterCount, uint padding, uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool shouldBackpropagate = true, string? name = null)
         {
-            _SetNode(_factory.CreateConvolutional(_depth, filterCount, padding, filterWidth, filterHeight, xStride, yStride, shouldBackpropagate, name));
+            SetNode(_factory.CreateConvolutional(_depth, filterCount, padding, filterWidth, filterHeight, xStride, yStride, shouldBackpropagate, name));
 
             _width = (_width + (2 * padding) - filterWidth) / xStride + 1;
             _height = (_height + (2 * padding) - filterHeight) / yStride + 1;
@@ -421,7 +421,7 @@ namespace BrightWire.ExecutionGraph
         /// <returns></returns>
         public WireBuilder Transpose(string? name = null)
         {
-            _SetNode(new TransposeSignal(name));
+            SetNode(new TransposeSignal(name));
             return this;
         }
 
@@ -432,7 +432,7 @@ namespace BrightWire.ExecutionGraph
         /// <returns></returns>
         public WireBuilder TransposeAndCombine(string? name = null)
         {
-            _SetNode(new TransposeAndCombineSignal(name));
+            SetNode(new TransposeAndCombineSignal(name));
             _depth = 1;
             return this;
         }

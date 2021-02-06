@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Emit;
-using System.Text;
 using BrightData;
-using BrightTable;
 using BrightWire;
 
 namespace ExampleCode.DataTableTrainers
@@ -36,10 +32,9 @@ namespace ExampleCode.DataTableTrainers
             var testData = Test.AsConvertible().Rows().Select(r => (Features: numericColumns.Select(r.GetTyped<float>).ToArray(), Label: (float)r.GetTyped<float>(numFeatures)));
             var predictor = theta.CreatePredictor(lap);
             
-            foreach (var row in testData)
+            foreach (var (features, actual) in testData)
             {
-                var prediction = predictor.Predict(row.Features);
-                var actual = row.Label;
+                var prediction = predictor.Predict(features);
             }
         }
 

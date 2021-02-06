@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using BrightData;
 using BrightData.LinearAlgebra;
-using BrightTable;
 using BrightWire;
 using BrightWire.Models;
 using BrightWire.TrainingData.Artificial;
@@ -46,7 +43,7 @@ namespace ExampleCode.DataTableTrainers
             ;
 
             // train the network for twenty iterations, saving the model on each improvement
-            ExecutionGraphModel bestGraph = null;
+            ExecutionGraphModel? bestGraph = null;
             engine.Train(TRAINING_ITERATIONS, testData, errorMetric, bn => bestGraph = bn.Graph);
 
             if (writeResults) {
@@ -63,7 +60,7 @@ namespace ExampleCode.DataTableTrainers
                     var output = new Vector<float>[32];
                     for (var j = 0; j < 32; j++) {
                         input[j] = results[j].Input[0][i];
-                        target[j] = results[j].Target[i];
+                        target[j] = results[j].Target![i];
                         output[j] = results[j].Output[i];
                     }
 
@@ -71,32 +68,32 @@ namespace ExampleCode.DataTableTrainers
                 }
 
                 // write the results
-                foreach (var result in groupedResults) {
+                foreach (var (input, target, output) in groupedResults) {
                     Console.Write("First:     ");
-                    foreach (var item in result.Input)
-                        _WriteAsBinary(item[0]);
+                    foreach (var item in input)
+                        WriteAsBinary(item[0]);
                     Console.WriteLine();
 
                     Console.Write("Second:    ");
-                    foreach (var item in result.Input)
-                        _WriteAsBinary(item[1]);
+                    foreach (var item in input)
+                        WriteAsBinary(item[1]);
                     Console.WriteLine();
                     Console.WriteLine("           --------------------------------");
 
                     Console.Write("Expected:  ");
-                    foreach (var item in result.Target)
-                        _WriteAsBinary(item[0]);
+                    foreach (var item in target)
+                        WriteAsBinary(item[0]);
                     Console.WriteLine();
 
                     Console.Write("Predicted: ");
-                    foreach (var item in result.Output)
-                        _WriteAsBinary(item[0]);
+                    foreach (var item in output)
+                        WriteAsBinary(item[0]);
                     Console.WriteLine();
                     Console.WriteLine();
                 }
             }
         }
 
-        static void _WriteAsBinary(float value) => Console.Write(value >= 0.5 ? "1" : "0");
+        static void WriteAsBinary(float value) => Console.Write(value >= 0.5 ? "1" : "0");
     }
 }

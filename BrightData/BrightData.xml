@@ -1204,7 +1204,6 @@
             Returns the underlying Type for a data table segment
             </summary>
             <typeparam name="T"></typeparam>
-            <param name="segment"></param>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.RowIndices(BrightData.IDataTable)">
@@ -2354,6 +2353,28 @@
             <param name="type">Type of object to create</param>
             <param name="args">Arguments to pass to constructor</param>
         </member>
+        <member name="M:BrightData.Helper.GenericActivator.Create``1">
+            <summary>
+            Creates a new object (via default constructor)
+            </summary>
+            <typeparam name="T">Type to create</typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Helper.GenericActivator.CreateUninitialized``1">
+            <summary>
+            Creates a new unitialized object (constructor is not invoked)
+            </summary>
+            <typeparam name="T">Type to create</typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Helper.GenericActivator.CreateUninitialized``1(System.Type)">
+            <summary>
+            Creates a new unitialized object (constructor is not invoked)
+            </summary>
+            <param name="type">Type to create</param>
+            <typeparam name="T">Type to return (created object cast to this type)</typeparam>
+            <returns></returns>
+        </member>
         <member name="T:BrightData.Helper.ShapedBase">
             <summary>
             Tensor shape
@@ -2390,7 +2411,7 @@
             <param name="reader">Reader</param>
             <returns>Size of tensor</returns>
         </member>
-        <member name="M:BrightData.Helper.ShapedBase._ResolveShape(System.UInt32,System.Nullable{System.UInt32}[])">
+        <member name="M:BrightData.Helper.ShapedBase.ResolveShape(System.UInt32,System.Nullable{System.UInt32}[])">
             <summary>
             Works out the shape from a possibly incomplete list of sizes
             </summary>

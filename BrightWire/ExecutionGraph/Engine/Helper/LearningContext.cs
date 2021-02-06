@@ -12,7 +12,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     {
 	    readonly Dictionary<uint, float> _learningRateSchedule = new Dictionary<uint, float>();
         readonly List<(object Error, Action<object> Updater)> _layerUpdate = new List<(object, Action<object>)>();
-        readonly Stack<(IGraphData Data, Action<IGraphData> Callback)> _deferredBackpropagation = new Stack<(IGraphData, Action<IGraphData>)>();
+        readonly Stack<(IGraphData? Data, Action<IGraphData?> Callback)> _deferredBackpropagation = new Stack<(IGraphData?, Action<IGraphData?>)>();
 	    readonly Stopwatch _timer = new Stopwatch();
         readonly HashSet<INode> _noUpdateNodeSet = new HashSet<INode>();
 	    uint _rowCount = 0, _currentEpoch = 0;
@@ -67,7 +67,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
                 _noUpdateNodeSet.Add(node);
         }
 
-        public void StoreUpdate<T>(INode fromNode, T error, Action<T> updater)
+        public void StoreUpdate<T>(INode fromNode, T error, Action<T> updater) where T: notnull
         {
             if (!_noUpdateNodeSet.Contains(fromNode)) {
                 if (DeferUpdates)
@@ -111,12 +111,12 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             _layerUpdate.Clear();
         }
 
-        public void DeferBackpropagation(IGraphData data, Action<IGraphData> update)
+        public void DeferBackpropagation(IGraphData? data, Action<IGraphData?> update)
         {
             _deferredBackpropagation.Push((data, update));
         }
 
-        public void BackpropagateThroughTime(IGraphData signal, int maxDepth = int.MaxValue)
+        public void BackpropagateThroughTime(IGraphData? signal, int maxDepth = int.MaxValue)
         {
             int depth = 0;
             IGraphData? currentSignal = signal;

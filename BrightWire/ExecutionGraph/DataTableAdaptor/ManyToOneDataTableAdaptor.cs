@@ -1,5 +1,4 @@
-﻿using BrightTable;
-using BrightWire.ExecutionGraph.Helper;
+﻿using BrightWire.ExecutionGraph.Helper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,8 +24,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             _featureColumns = featureColumns;
 
             _rowDepth = new uint[dataTable.RowCount];
-            Matrix<float> inputMatrix = null;
-            Vector<float> outputVector = null;
+            Matrix<float>? inputMatrix = null;
+            Vector<float>? outputVector = null;
             dataTable.ForEachRow((row, i) => {
                 inputMatrix = (Matrix<float>)row[_dataColumnIndex[0]];
                 outputVector = (Vector<float>)row[_dataTargetIndex];
@@ -34,6 +33,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
                 if (inputMatrix.ColumnCount != outputVector.Size)
                     throw new ArgumentException("Rows between input and output data tables do not match");
             });
+            if (inputMatrix == null || outputVector == null)
+                throw new Exception("No data found");
 
             InputSize = inputMatrix.ColumnCount;
             OutputSize = _outputSize = outputVector.Size;

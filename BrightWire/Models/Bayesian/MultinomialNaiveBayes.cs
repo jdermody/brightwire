@@ -40,7 +40,7 @@ namespace BrightWire.Models.Bayesian
             /// <summary>
             /// The classification label
             /// </summary>
-            public string Label { get; set; }
+            public string Label { get; set; } = "";
 
             /// <summary>
             /// The classification's prior log probability
@@ -55,7 +55,7 @@ namespace BrightWire.Models.Bayesian
             /// <summary>
             /// The list of string indexes and their probability
             /// </summary>
-            public StringIndexProbability[] Index { get; set; }
+            public StringIndexProbability[] Index { get; set; } = new StringIndexProbability[0];
 
             /// <inheritdoc />
             public void WriteTo(BinaryWriter writer) => ModelSerialisation.WriteTo(this, writer);
@@ -67,7 +67,7 @@ namespace BrightWire.Models.Bayesian
         /// <summary>
         /// The list of possible classifications
         /// </summary>
-        public Class[] ClassData { get; set; }
+        public Class[] ClassData { get; set; } = new Class[0];
 
         /// <summary>
         /// Creates a classifier from the model

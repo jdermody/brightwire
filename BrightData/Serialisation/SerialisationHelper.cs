@@ -2,14 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Runtime.Serialization;
-using System.Text;
+using BrightData.Helper;
 
 namespace BrightData.Serialisation
 {
     internal static class SerialisationHelper
     {
-        public static void WriteTo(this String str, BinaryWriter writer) => writer.Write(str ?? "");
+        public static void WriteTo(this String? str, BinaryWriter writer) => writer.Write(str ?? "");
         public static void WriteTo(this int val, BinaryWriter writer) => writer.Write(val);
         public static void WriteTo(this uint val, BinaryWriter writer) => writer.Write((int)val);
         public static void WriteTo(this double val, BinaryWriter writer) => writer.Write(val);
@@ -28,7 +27,7 @@ namespace BrightData.Serialisation
             return null;
         }
 
-        public static void WriteTo(this IReadOnlyCollection<ICanWriteToBinaryWriter> list, BinaryWriter writer)
+        public static void WriteTo(this IReadOnlyCollection<ICanWriteToBinaryWriter>? list, BinaryWriter writer)
         {
             writer.Write(list?.Count ?? 0);
             if (list?.Count > 0)
@@ -38,7 +37,7 @@ namespace BrightData.Serialisation
             }
         }
 
-        public static void WriteTo<T>(this T[] array, BinaryWriter writer) where T : struct
+        public static void WriteTo<T>(this T[]? array, BinaryWriter writer) where T : struct
         {
             writer.Write(array?.Length ?? 0);
             if (array?.Length > 0)
@@ -49,7 +48,7 @@ namespace BrightData.Serialisation
             }
         }
 
-        public static void WriteTo(this string[] array, BinaryWriter writer)
+        public static void WriteTo(this string[]? array, BinaryWriter writer)
         {
             writer.Write(array?.Length ?? 0);
             if (array?.Length > 0)
@@ -62,7 +61,7 @@ namespace BrightData.Serialisation
         public static T Create<T>(this IBrightDataContext context, BinaryReader reader)
             where T : ICanInitializeFromBinaryReader
         {
-            var ret = (T)FormatterServices.GetUninitializedObject(typeof(T));
+            var ret = GenericActivator.CreateUninitialized<T>();
             ret.Initialize(context, reader);
             return ret;
         }

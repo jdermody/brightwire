@@ -6,7 +6,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
     {
         uint _index;
 
-        public InputFeeder(uint index, string name = null) : base(name)
+        public InputFeeder(uint index, string? name = null) : base(name)
         {
             _index = index;
         }
@@ -14,12 +14,12 @@ namespace BrightWire.ExecutionGraph.Node.Input
         public override void ExecuteForward(IGraphContext context)
         {
             var input = context.BatchSequence.Input[_index];
-            _AddNextGraphAction(context, input, null);
+            AddNextGraphAction(context, input, null);
         }
 
-        protected override (string Description, byte[] Data) _GetInfo()
+        protected override (string Description, byte[] Data) GetInfo()
         {
-            return ("INPUT", _WriteData(WriteTo));
+            return ("INPUT", WriteData(WriteTo));
         }
 
         public override void WriteTo(BinaryWriter writer)

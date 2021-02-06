@@ -55,6 +55,11 @@ namespace BrightWire
         /// Returns the list of matrices that compose the signal (single item if the signal is a matrix)
         /// </summary>
         IFloatMatrix[] GetSubMatrices();
+
+        /// <summary>
+        /// True if this graph data has been set (false for null)
+        /// </summary>
+        public bool HasValue { get; }
     }
 
     /// <summary>
@@ -95,7 +100,7 @@ namespace BrightWire
         /// <param name="name">Friendly name</param>
         /// <param name="description">Node description</param>
         /// <param name="data">Serialisation data</param>
-        void Initialise(GraphFactory factory, string id, string name, string description, byte[] data);
+        void Initialise(GraphFactory factory, string id, string? name, string? description, byte[]? data);
     }
 
     /// <summary>
@@ -134,7 +139,7 @@ namespace BrightWire
         /// <summary>
         /// List of outgoing wires
         /// </summary>
-        List<IWire>? Output { get; }
+        List<IWire> Output { get; }
 
         /// <summary>
         /// Executes the node forward
@@ -180,6 +185,7 @@ namespace BrightWire
         /// <summary>
         /// Loads parameters into an existing node
         /// </summary>
+        /// <param name="factory">Graph factory</param>
         /// <param name="nodeData">Serialised node parameters</param>
         void LoadParameters(GraphFactory factory, ExecutionGraphModel.Node nodeData);
     }
@@ -232,11 +238,6 @@ namespace BrightWire
     public interface IGraphContext : IDisposable
     {
         /// <summary>
-        /// True if the graph is currently training
-        /// </summary>
-        bool IsTraining { get; }
-
-        /// <summary>
         /// Node that sent the current signal
         /// </summary>
         INode? Source { get; }
@@ -279,7 +280,7 @@ namespace BrightWire
         /// <param name="errorSignal">Error signal</param>
         /// <param name="target">Node to send to</param>
         /// <param name="source">Node that sent the error</param>
-        void AddBackward(IGraphData errorSignal, INode target, INode source);
+        void AddBackward(IGraphData? errorSignal, INode target, INode source);
 
         /// <summary>
         /// Records an error signal against a node
@@ -292,7 +293,7 @@ namespace BrightWire
         /// Backpropagates the signal
         /// </summary>
         /// <param name="delta">Error signal</param>
-        void Backpropagate(IGraphData delta);
+        void Backpropagate(IGraphData? delta);
 
         /// <summary>
         /// Current error signal
@@ -401,7 +402,7 @@ namespace BrightWire
         /// <param name="errorSignal">Error signal</param>
         /// <param name="context">Graph context</param>
         /// <param name="parents">The current node's parents</param>
-        void Backward(INode fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents);
+        void Backward(INode? fromNode, IGraphData? errorSignal, IGraphContext context, INode[] parents);
     }
 
     /// <summary>
@@ -460,8 +461,14 @@ namespace BrightWire
         /// <returns></returns>
         IDataSource CloneWith(IRowOrientedDataTable dataTable);
 
+        /// <summary>
+        /// Table vectoriser to create a feature vector
+        /// </summary>
         IDataTableVectoriser? InputVectoriser { get; }
 
+        /// <summary>
+        /// Table vectoriser to create a target vector
+        /// </summary>
         IDataTableVectoriser? OutputVectoriser { get; }
     }
 
@@ -480,7 +487,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="name">Optional name to give the data source</param>
         /// <returns></returns>
-        DataSourceModel GetModel(string name = null);
+        DataSourceModel GetModel(string? name = null);
     }
 
     /// <summary>
@@ -619,7 +626,7 @@ namespace BrightWire
         /// <summary>
         /// Serialised version of the current graph and its parameters
         /// </summary>
-        Models.ExecutionGraphModel Graph { get; }
+        ExecutionGraphModel Graph { get; }
 
         /// <summary>
         /// Segment source that feeds into the graph
@@ -633,14 +640,14 @@ namespace BrightWire
         /// <param name="batchSize">Initial size of each mini batch</param>
         /// <param name="batchCompleteCallback">Optional callback to be notifiied after each mini batch has completed</param>
         /// <returns></returns>
-        IEnumerable<ExecutionResult> Execute(IDataSource dataSource, uint batchSize = 128, Action<float> batchCompleteCallback = null);
+        IEnumerable<ExecutionResult> Execute(IDataSource dataSource, uint batchSize = 128, Action<float>? batchCompleteCallback = null);
 
         /// <summary>
         /// Executes a single vector on the current graph
         /// </summary>
         /// <param name="input">Vector to execute</param>
         /// <returns></returns>
-        ExecutionResult Execute(float[] input);
+        ExecutionResult? Execute(float[] input);
 
         /// <summary>
         /// Executes a sequential input on the current graph
@@ -650,7 +657,7 @@ namespace BrightWire
         /// <param name="executionContext">Graph execution context</param>
         /// <param name="sequenceType">The sequence type (start, standard, end)</param>
         /// <returns></returns>
-        ExecutionResult ExecuteSequential(uint sequenceIndex, float[] input, IGraphExecutionContext executionContext, MiniBatchSequenceType sequenceType);
+        ExecutionResult? ExecuteSequential(uint sequenceIndex, float[] input, IGraphExecutionContext executionContext, MiniBatchSequenceType sequenceType);
 
         /// <summary>
         /// Executes a sequence of inputs on the current graph
@@ -682,7 +689,7 @@ namespace BrightWire
 	    /// <param name="executionContext">Graph execution context</param>
 	    /// <param name="batchCompleteCallback">Optional callback to be notifiied after each mini batch has completed</param>
 	    /// <returns>Graph training error</returns>
-	    double Train(IGraphExecutionContext executionContext, Action<float> batchCompleteCallback = null);
+	    double Train(IGraphExecutionContext executionContext, Action<float>? batchCompleteCallback = null);
 
         /// <summary>
         /// Executes test data on the current graph
@@ -697,8 +704,8 @@ namespace BrightWire
 	        IDataSource testDataSource, 
 	        IErrorMetric errorMetric, 
 	        uint batchSize = 128, 
-	        Action<float> batchCompleteCallback = null, 
-	        Action<float, double, bool, bool> values = null
+	        Action<float>? batchCompleteCallback = null, 
+	        Action<float, double, bool, bool>? values = null
 	    );
 
         /// <summary>
@@ -709,6 +716,7 @@ namespace BrightWire
         /// <summary>
         /// Loads model parameters into the existing graph
         /// </summary>
+        /// <param name="factory">Graph factory</param>
         /// <param name="graph">Model to load parameters from</param>
         void LoadParametersFrom(GraphFactory factory, ExecutionGraphModel graph);
     }

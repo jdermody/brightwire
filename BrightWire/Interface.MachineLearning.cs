@@ -1,5 +1,4 @@
 ﻿using BrightData;
-using BrightTable;
 using BrightWire.Models.Bayesian;
 using System;
 using System.Collections.Generic;
@@ -177,7 +176,7 @@ namespace BrightWire
 		/// <param name="fromNode">The node that is affected by this update</param>
 		/// <param name="update">The update</param>
 		/// <param name="updater">Callback to execute the update</param>
-		void StoreUpdate<T>(INode fromNode, T update, Action<T> updater);
+		void StoreUpdate<T>(INode fromNode, T update, Action<T> updater) where T: notnull;
 
 		/// <summary>
 		/// True if the graph should calculate training error
@@ -215,14 +214,14 @@ namespace BrightWire
 		/// </summary>
 		/// <param name="errorSignal">The error signal associated with this backpropagation (optional, can be null)</param>
 		/// <param name="update">The callback to execute the backpropagation</param>
-		void DeferBackpropagation(IGraphData? errorSignal, Action<IGraphData> update);
+		void DeferBackpropagation(IGraphData? errorSignal, Action<IGraphData?> update);
 
 		/// <summary>
 		/// Backpropagates the error signal across all deferred backpropagations
 		/// </summary>
 		/// <param name="signal">The backpropagation signal</param>
 		/// <param name="maxDepth">The maximum depth to backpropagate the signal</param>
-		void BackpropagateThroughTime(IGraphData signal, int maxDepth = int.MaxValue);
+		void BackpropagateThroughTime(IGraphData? signal, int maxDepth = int.MaxValue);
 
 		/// <summary>
 		/// Schedules a change in the learning rate the specified epoch
@@ -263,6 +262,9 @@ namespace BrightWire
 		/// </summary>
 		IErrorMetric? ErrorMetric { get; set; }
 
+		/// <summary>
+		/// Graph factory
+		/// </summary>
 		GraphFactory GraphFactory { get; }
 	}
 
@@ -320,7 +322,7 @@ namespace BrightWire
 		/// <summary>
 		/// The weight initialiser to use
 		/// </summary>
-		IWeightInitialisation WeightInitialisation { get; set; }
+		IWeightInitialisation? WeightInitialisation { get; set; }
 
 		/// <summary>
 		/// The gradient descent optimisation to use
@@ -376,9 +378,8 @@ namespace BrightWire
 		/// </summary>
 		/// <typeparam name="T">The type of the property</typeparam>
 		/// <param name="name">The property name</param>
-		/// <param name="defaultValue">The value to use if the property has not been supplied</param>
-		/// <returns></returns>
-		T Get<T>(string name, T defaultValue = default);
+        /// <returns></returns>
+		T? Get<T>(string name) where T: class;
 
 		/// <summary>
 		/// Sets a named property
@@ -387,7 +388,7 @@ namespace BrightWire
 		/// <param name="name">The property name</param>
 		/// <param name="obj">The property value</param>
 		/// <returns></returns>
-		IPropertySet Set<T>(string name, T obj);
+		IPropertySet Set<T>(string name, T? obj) where T: class;
 
 		/// <summary>
 		/// Clears the named property
@@ -531,7 +532,7 @@ namespace BrightWire
 		/// <param name="lambda">Regularisation lambda</param>
 		/// <param name="costCallback">Callback with current cost - False to stop training</param>
 		/// <returns>A trained model</returns>
-		LinearRegression GradientDescent(int iterations, float learningRate, float lambda = 0.1f, Func<float, bool> costCallback = null);
+		LinearRegression GradientDescent(int iterations, float learningRate, float lambda = 0.1f, Func<float, bool>? costCallback = null);
 
 		/// <summary>
 		/// Computes the cost of the specified parameters
@@ -578,13 +579,29 @@ namespace BrightWire
         (string Label, float Weight)[] Classify(IndexList indexList);
 	}
 
+	/// <summary>
+	/// Classifies convertible rows
+	/// </summary>
 	public interface IRowClassifier
 	{
+		/// <summary>
+		/// Classifies a convertible row
+		/// </summary>
+		/// <param name="row">Row to classify</param>
+		/// <returns></returns>
         (string Label, float Weight)[] Classify(IConvertibleRow row);
 	}
 
+    /// <summary>
+    /// Classifies a data table
+    /// </summary>
     public interface ITableClassifier
     {
+        /// <summary>
+        /// Classifies each row of a data table
+        /// </summary>
+        /// <param name="table">Table to classify</param>
+        /// <returns></returns>
         IEnumerable<(uint RowIndex, (string Classification, float Weight)[] Predictions)> Classify(IDataTable table);
 	}
 }

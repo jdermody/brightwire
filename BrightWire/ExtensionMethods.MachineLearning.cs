@@ -8,7 +8,6 @@ using BrightWire.TreeBased.Training;
 using BrightWire.Unsupervised;
 using System.Collections.Generic;
 using System.Linq;
-using BrightTable;
 using BrightData;
 using BrightWire.ExecutionGraph;
 using BrightWire.InstanceBased.Training;
@@ -65,7 +64,7 @@ namespace BrightWire
         /// <param name="item1">The first observation</param>
         /// <param name="item2">The second observation</param>
         /// <returns>The list of state transitions or null if nothing was found</returns>
-        public static MarkovModelStateTransition<T>[]? GetTransitions<T>(this Dictionary<MarkovModelObservation2<T>, MarkovModelStateTransition<T>[]> model, T item1, T item2) where T: notnull
+        public static MarkovModelStateTransition<T>[]? GetTransitions<T>(this Dictionary<MarkovModelObservation2<T>, MarkovModelStateTransition<T>[]?> model, T item1, T item2) where T: notnull
         {
             var observation = new MarkovModelObservation2<T>(item1, item2);
             if (model.TryGetValue(observation, out var ret))
@@ -82,7 +81,7 @@ namespace BrightWire
         /// <param name="item2">The second observation</param>
         /// <param name="item3">The third observation</param>
         /// <returns>The list of state transitions or null if nothing was found</returns>
-        public static MarkovModelStateTransition<T>[]? GetTransitions<T>(this Dictionary<MarkovModelObservation3<T>, MarkovModelStateTransition<T>[]> model, T item1, T item2, T item3) where T : notnull
+        public static MarkovModelStateTransition<T>[]? GetTransitions<T>(this Dictionary<MarkovModelObservation3<T>, MarkovModelStateTransition<T>[]?> model, T item1, T item2, T item3) where T : notnull
         {
             var observation = new MarkovModelObservation3<T>(item1, item2, item3);
             if (model.TryGetValue(observation, out var ret))
@@ -98,7 +97,7 @@ namespace BrightWire
         /// <param name="k">The number of clusters</param>
         /// <param name="maxIterations">The maximum number of iterations</param>
         /// <returns>A list of k clusters</returns>
-        public static IFloatVector[][] NNMF(this IEnumerable<IFloatVector> data, ILinearAlgebraProvider lap, uint k, uint maxIterations = 1000)
+        public static IFloatVector[][] Nnmf(this IEnumerable<IFloatVector> data, ILinearAlgebraProvider lap, uint k, uint maxIterations = 1000)
         {
             var clusterer = new NonNegativeMatrixFactorisation(lap, k);
             return clusterer.Cluster(data, maxIterations);
@@ -188,8 +187,8 @@ namespace BrightWire
         public static MultinomialNaiveBayes TrainMultinomialNaiveBayes(this IEnumerable<(string Classification, IndexList Data)> data)
         {
             var trainer = new MultinomialNaiveBayesTrainer();
-            foreach (var item in data)
-                trainer.AddClassification(item.Classification, item.Data);
+            foreach (var (classification, indexList) in data)
+                trainer.AddClassification(classification, indexList);
             return trainer.Train();
         }
 
@@ -220,8 +219,8 @@ namespace BrightWire
         public static BernoulliNaiveBayes TrainBernoulliNaiveBayes(this IEnumerable<(string Classification, IndexList Data)> data)
         {
             var trainer = new BernoulliNaiveBayesTrainer();
-            foreach (var item in data)
-                trainer.AddClassification(item.Classification, item.Data);
+            foreach (var (classification, indexList) in data)
+                trainer.AddClassification(classification, indexList);
             return trainer.Train();
         }
 
@@ -273,7 +272,7 @@ namespace BrightWire
             return classifications.OrderByDescending(c => c.Weight).First().Label;
         }
 
-        public static ExecutionGraphModel TrainSimpleNeuralNetwork(this GraphFactory graph,
+        public static ExecutionGraphModel? TrainSimpleNeuralNetwork(this GraphFactory graph,
             IRowOrientedDataTable trainingTable,
             IRowOrientedDataTable testTable,
             IErrorMetric errorMetric,
@@ -305,7 +304,7 @@ namespace BrightWire
                 .Add(activation(graph))
 
                 // create a second feed forward layer with sigmoid activation
-                .AddFeedForward(engine.DataSource.OutputSize ?? throw new Exception("No output size"))
+                .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                 .Add(activation(graph))
 
                 // calculate the error and backpropagate the error signal
@@ -313,7 +312,7 @@ namespace BrightWire
             ;
 
             // train the network for twenty iterations, saving the model on each improvement
-            ExecutionGraphModel bestGraph = null;
+            ExecutionGraphModel? bestGraph = null;
             var testData = trainingData.CloneWith(testTable);
             engine.Train(numIterations, testData, errorMetric, model => bestGraph = model.Graph);
             return bestGraph;

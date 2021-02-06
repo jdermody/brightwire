@@ -18,13 +18,13 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 _input2 = input2;
             }
 
-            protected override void _Dispose(bool isDisposing)
+            protected override void DisposeMemory(bool isDisposing)
             {
                 //_input1.Dispose();
                 //_input2.Dispose();
             }
 
-            public override void _Backward(INode fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
+            public override void BackwardInternal(INode? fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
             {
                 var es = errorSignal.GetMatrix();
                 var delta1 = es.PointwiseMultiply(_input2);
@@ -35,10 +35,10 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         }
         public MultiplyGate(string? name = null) : base(name) { }
 
-        protected override void _Activate(IGraphContext context, IFloatMatrix primary, IFloatMatrix secondary)
+        protected override void Activate(IGraphContext context, IFloatMatrix primary, IFloatMatrix secondary)
         {
             var output = primary.PointwiseMultiply(secondary);
-            _AddHistory(context, output, () => new Backpropagation(this, primary,  secondary));
+            AddHistory(context, output, () => new Backpropagation(this, primary,  secondary));
         }
     }
 }

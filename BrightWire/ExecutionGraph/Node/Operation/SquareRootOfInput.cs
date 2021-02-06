@@ -19,7 +19,7 @@ namespace BrightWire.ExecutionGraph.Node.Operation
 	            _sqrtOutput = output;
             }
 
-            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
+            protected override IGraphData Backpropagate(INode? fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
             {
                 var es = errorSignal.GetMatrix();
                 using var oneHalf = context.LinearAlgebraProvider.CreateMatrix(es.RowCount, es.ColumnCount, 0.5f);
@@ -27,7 +27,7 @@ namespace BrightWire.ExecutionGraph.Node.Operation
                 return errorSignal.ReplaceWith(delta.PointwiseMultiply(es));
             }
         }
-        public SquareRootOfInput(string name = null) : base(name)
+        public SquareRootOfInput(string? name = null) : base(name)
         {
         }
 
@@ -35,7 +35,7 @@ namespace BrightWire.ExecutionGraph.Node.Operation
         {
             var input = context.Data.GetMatrix();
             var output = input.Sqrt();
-            _AddNextGraphAction(context, context.Data.ReplaceWith(output), () => new Backpropagation(this, output));
+            AddNextGraphAction(context, context.Data.ReplaceWith(output), () => new Backpropagation(this, output));
         }
     }
 }

@@ -82,7 +82,7 @@ namespace BrightWire.Models.TreeBased
         /// <summary>
         /// The root of the tree
         /// </summary>
-        public Node? Root { get; set; }
+        public Node Root { get; set; } = new Node();
 
         /// <summary>
         /// Converts the tree to XML
@@ -92,7 +92,7 @@ namespace BrightWire.Models.TreeBased
             get
             {
                 var sb = new StringBuilder();
-	            Root?.WriteTo(XmlWriter.Create(new StringWriter(sb)));
+	            Root.WriteTo(XmlWriter.Create(new StringWriter(sb)));
 	            return sb.ToString();
             }
         }

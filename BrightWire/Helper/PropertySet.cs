@@ -8,10 +8,10 @@ namespace BrightWire.Helper
     /// </summary>
     internal class PropertySet : IPropertySet
     {
-        public const string WEIGHT_INITIALISATION = "bw:weight-initialisation";
-        public const string GRADIENT_DESCENT = "bw:gradient-descent";
-        public const string TEMPLATE_GRADIENT_DESCENT_DESCRIPTOR = "bw:template-gradient-descent-descriptor";
-        public const string GRADIENT_DESCENT_DESCRIPTOR = "bw:gradient-descent-descriptor";
+        public const string WeightInitialisationLabel = "bw:weight-initialisation";
+        public const string GradientDescentLabel = "bw:gradient-descent";
+        public const string TemplateGradientDescentDescriptorLabel = "bw:template-gradient-descent-descriptor";
+        public const string GradientDescentDescriptorLabel = "bw:gradient-descent-descriptor";
 
         readonly Dictionary<string, object> _data = new Dictionary<string, object>();
 
@@ -29,25 +29,25 @@ namespace BrightWire.Helper
         }
 
 		public ILinearAlgebraProvider LinearAlgebraProvider { get; }
-		public IWeightInitialisation WeightInitialisation
+		public IWeightInitialisation? WeightInitialisation
         {
-            get => Get<IWeightInitialisation>(WEIGHT_INITIALISATION);
-			set => Set(WEIGHT_INITIALISATION, value);
+            get => Get<IWeightInitialisation>(WeightInitialisationLabel);
+			set => Set(WeightInitialisationLabel, value);
 		}
-        public IGradientDescentOptimisation GradientDescent
+        public IGradientDescentOptimisation? GradientDescent
         {
-            get => Get<IGradientDescentOptimisation>(GRADIENT_DESCENT);
-	        set => Set(GRADIENT_DESCENT, value);
+            get => Get<IGradientDescentOptimisation>(GradientDescentLabel);
+	        set => Set(GradientDescentLabel, value);
         }
-        public ICreateTemplateBasedGradientDescent TemplateGradientDescentDescriptor
+        public ICreateTemplateBasedGradientDescent? TemplateGradientDescentDescriptor
         {
-            get => Get<ICreateTemplateBasedGradientDescent>(TEMPLATE_GRADIENT_DESCENT_DESCRIPTOR);
-	        set => Set(TEMPLATE_GRADIENT_DESCENT_DESCRIPTOR, value);
+            get => Get<ICreateTemplateBasedGradientDescent>(TemplateGradientDescentDescriptorLabel);
+	        set => Set(TemplateGradientDescentDescriptorLabel, value);
         }
-        public ICreateGradientDescent GradientDescentDescriptor
+        public ICreateGradientDescent? GradientDescentDescriptor
         {
-            get => Get<ICreateGradientDescent>(GRADIENT_DESCENT_DESCRIPTOR);
-	        set => Set(GRADIENT_DESCENT_DESCRIPTOR, value);
+            get => Get<ICreateGradientDescent>(GradientDescentDescriptorLabel);
+	        set => Set(GradientDescentDescriptorLabel, value);
         }
 
         public IPropertySet Use(ICreateTemplateBasedGradientDescent descriptor) { TemplateGradientDescentDescriptor = descriptor; return this; }
@@ -55,16 +55,19 @@ namespace BrightWire.Helper
         public IPropertySet Use(IGradientDescentOptimisation optimisation) { GradientDescent = optimisation; return this; }
         public IPropertySet Use(IWeightInitialisation weightInit) { WeightInitialisation = weightInit; return this; }
 
-        public T Get<T>(string name, T defaultValue = default)
+        public T? Get<T>(string name) where T: class
         {
 	        if(_data.TryGetValue(name, out var obj))
-                return (T)obj;
-            return defaultValue;
+                return (T?)obj;
+            return null;
         }
 
-        public IPropertySet Set<T>(string name, T obj)
+        public IPropertySet Set<T>(string name, T? obj) where T: class
         {
-            _data[name] = obj;
+            if (obj == null)
+                _data.Remove(name);
+            else
+                _data[name] = obj;
             return this;
         }
 

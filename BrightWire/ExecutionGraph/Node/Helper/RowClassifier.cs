@@ -21,8 +21,8 @@ namespace BrightWire.ExecutionGraph.Node.Helper
                 _targetLabel = dataTable.Column(targetColumn).Enumerate()
                     .Select(o => o.ToString()!)
                     .Distinct()
-                    .Select((v, i) => (v, (uint)i))
-                    .ToDictionary(d => d.Item1, d => d.Item2)
+                    .Select((v, i) => (Classification: v, Index: (uint)i))
+                    .ToDictionary(d => d.Classification, d => d.Index)
                 ;
             }
 
@@ -51,11 +51,11 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             var resultList = _dataTable
                 .Rows(context.BatchSequence.MiniBatch.Rows)
                 .Select(row => _classifier.Classify(row)
-                    .Select(c => (_indexer.GetIndex(c.Label), c.Weight))
-                    .ToDictionary(d => d.Item1, d => d.Item2)
+                    .Select(c => (Index: _indexer.GetIndex(c.Label), c.Weight))
+                    .ToDictionary(d => d.Index, d => d.Weight)
                 ).ToArray();
             var output = _lap.CreateMatrix((uint)resultList.Length, _indexer.OutputSize, (i, j) => resultList[i].TryGetValue(j, out var temp) ? temp : 0f);
-            _AddNextGraphAction(context, new MatrixGraphData(output), null);
+            AddNextGraphAction(context, new MatrixGraphData(output), null);
         }
     }
 }

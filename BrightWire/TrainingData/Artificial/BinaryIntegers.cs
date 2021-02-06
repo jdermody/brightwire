@@ -16,7 +16,7 @@ namespace BrightWire.TrainingData.Artificial
         /// Converts a value to an array of floats, with 1 or 0 for each bit position
         /// </summary>
         /// <param name="val">The number to convert</param>
-        static float[] _GetBitArray(int val)
+        static float[] GetBitArray(int val)
         {
             var data = new BitArray(new[] { val });
             var ret = new float[32];
@@ -43,9 +43,9 @@ namespace BrightWire.TrainingData.Artificial
                 var a = rand.Next(int.MaxValue / 2);
                 var b = rand.Next(int.MaxValue / 2);
 
-                var a2 = _GetBitArray(a);
-                var b2 = _GetBitArray(b);
-                var r2 = _GetBitArray(a + b);
+                var a2 = GetBitArray(a);
+                var b2 = GetBitArray(b);
+                var r2 = GetBitArray(a + b);
 
                 var inputList = new Vector<float>[r2.Length];
                 var outputList = new Vector<float>[r2.Length];

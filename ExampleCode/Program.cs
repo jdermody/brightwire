@@ -7,7 +7,8 @@ using BrightData;
 using BrightData.Cuda;
 using BrightData.Numerics;
 using BrightWire;
-using ExampleCode.Datasets;
+using ExampleCode.DataSet;
+// ReSharper disable once RedundantUsingDirective
 using MathNet.Numerics;
 
 namespace ExampleCode
@@ -19,10 +20,6 @@ namespace ExampleCode
             using var context = new BrightDataContext(0);
             var useCuda = false;
 
-            var test = "1234";
-            var test2 = test[..2];
-            var test3 = test[2..];
-
             // CPU based performance can be improved using the Intel Math Kernel Library...
             // IMPORTANT: uncomment below if you have installed native binaries as described in https://numerics.mathdotnet.com/MKL.html
             //Control.UseNativeMKL();
@@ -33,25 +30,25 @@ namespace ExampleCode
             // set where to save training data files
             context.Set("DataFileDirectory", new DirectoryInfo(@"c:\data"));
 
-            Xor(context);
-            IrisClassification(context);
-            IrisClustering(context);
-            MarkovChains(context);
-            TextClustering(context);
-            IntegerAddition(context);
-            ReberPrediction(context);
-            OneToMany(context, useCuda);
-            ManyToOne(context, useCuda);
-            SequenceToSequence(context, useCuda);
-            TrainWithSelu(context);
-            StockData(context, useCuda);
-            SimpleLinearTest(context);
-            PredictBicyclesWithLinearModel(context);
-            PredictBicyclesWithNeuralNetwork(context);
-            MultiLabelSingleClassifier(context);
-            MultiLabelMultiClassifiers(context);
-            MNISTFeedForward(context, useCuda);
-            MNISTConvolutional(context, useCuda);
+            //Xor(context);
+            //IrisClassification(context);
+            //IrisClustering(context);
+            //MarkovChains(context);
+            //TextClustering(context);
+            //IntegerAddition(context);
+            //ReberPrediction(context);
+            //OneToMany(context, useCuda);
+            //ManyToOne(context, useCuda);
+            //SequenceToSequence(context, useCuda);
+            //TrainWithSelu(context);
+            //StockData(context, useCuda);
+            //SimpleLinearTest(context);
+            //PredictBicyclesWithLinearModel(context);
+            //PredictBicyclesWithNeuralNetwork(context);
+            //MultiLabelSingleClassifier(context);
+            //MultiLabelMultiClassifiers(context);
+            MnistFeedForward(context, useCuda);
+            MnistConvolutional(context, useCuda);
             SentimentClassification(context, useCuda);
         }
 
@@ -103,7 +100,7 @@ namespace ExampleCode
             // select only the first three columns (ignore the training label)
             var irisTable = iris.Table.AsColumnOriented().CopyColumns(3.AsRange().ToArray());
 
-            void Write(IEnumerable<(uint RowIndex, string Label)[]> items)
+            void Write(IEnumerable<(uint RowIndex, string? Label)[]> items)
             {
                 var clusters = items.Select(c => c.Select(r => iris.Labels[r.RowIndex]).GroupAndCount().Format());
                 foreach (var cluster in clusters)
@@ -118,7 +115,7 @@ namespace ExampleCode
             Console.WriteLine();
             Console.WriteLine("Hierachical...");
             WriteSeparator();
-            Write(irisTable.HierachicalCluster(3));
+            Write(irisTable.HierarchicalCluster(3));
             WriteSeparator();
 
             Console.WriteLine();
@@ -134,13 +131,13 @@ namespace ExampleCode
             context.BeautifulandDamned().TrainMarkovModel();
         }
 
-        static void MNISTFeedForward(IBrightDataContext context, bool useCuda)
+        static void MnistFeedForward(IBrightDataContext context, bool useCuda)
         {
             Start(context, useCuda);
             context.Mnist().TrainFeedForwardNeuralNetwork();
         }
 
-        static void MNISTConvolutional(IBrightDataContext context, bool useCuda)
+        static void MnistConvolutional(IBrightDataContext context, bool useCuda)
         {
             Start(context, useCuda);
             context.Mnist().TrainConvolutionalNeuralNetwork();
@@ -171,7 +168,7 @@ namespace ExampleCode
             Start(context);
             var textClustering = context.TextClustering();
             textClustering.KMeans();
-            textClustering.NNMF();
+            textClustering.Nnmf();
             textClustering.RandomProjection();
             textClustering.LatentSemanticAnalysis();
         }
@@ -186,7 +183,7 @@ namespace ExampleCode
         {
             Start(context);
             var reber = context.ReberSequencePrediction();
-            var engine = reber.TrainLSTM();
+            var engine = reber.TrainLstm();
             reber.GenerateSequences(engine);
         }
 

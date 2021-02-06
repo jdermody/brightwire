@@ -13,7 +13,7 @@ namespace BrightWire.ExecutionGraph.Node.Operation
 				_input = input;
             }
 
-            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
+            protected override IGraphData Backpropagate(INode? fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
             {
                 var es = errorSignal.GetMatrix();
 	            var err = es.PointwiseMultiply(_input);
@@ -22,7 +22,7 @@ namespace BrightWire.ExecutionGraph.Node.Operation
             }
         }
 
-        public InputSquared(string name = null) : base(name)
+        public InputSquared(string? name = null) : base(name)
         {
         }
 
@@ -30,7 +30,7 @@ namespace BrightWire.ExecutionGraph.Node.Operation
         {
             var input = context.Data.GetMatrix();
             var inputSquared = input.PointwiseMultiply(input);
-            _AddNextGraphAction(context, context.Data.ReplaceWith(inputSquared), () => new Backpropagation(this, input));
+            AddNextGraphAction(context, context.Data.ReplaceWith(inputSquared), () => new Backpropagation(this, input));
         }
     }
 }

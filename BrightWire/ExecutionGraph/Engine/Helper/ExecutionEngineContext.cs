@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using BrightData;
+using BrightWire.ExecutionGraph.Helper;
 
 namespace BrightWire.ExecutionGraph.Engine.Helper
 {
@@ -13,14 +14,14 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         readonly IGraphExecutionContext _executionContext;
         readonly List<IExecutionHistory> _forward = new List<IExecutionHistory>();
 	    readonly Dictionary<int, IGraphData> _output = new Dictionary<int, IGraphData>();
-        INode? _sourceNode = null;
+        INode? _sourceNode;
         IGraphData _data;
 
         public ExecutionEngineContext(IGraphExecutionContext executionContext, IMiniBatchSequence miniBatch)
         {
             _executionContext = executionContext;
             BatchSequence = miniBatch;
-            _data = null;
+            _data = new NullGraphData();
         }
 
         public void Dispose()
@@ -34,10 +35,10 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public ILearningContext? LearningContext => null;
         public ILinearAlgebraProvider LinearAlgebraProvider => _executionContext.LinearAlgebraProvider;
         public IMiniBatchSequence BatchSequence { get; }
-        public void AddBackward(IGraphData errorSignal, INode target, INode source) => throw new NotImplementedException();
-        public void Backpropagate(IGraphData delta) => throw new NotImplementedException();
+        public void AddBackward(IGraphData? errorSignal, INode target, INode source) => throw new NotImplementedException();
+        public void Backpropagate(IGraphData? delta) => throw new NotImplementedException();
         public void AppendErrorSignal(IGraphData errorSignal, INode forNode) => throw new NotImplementedException();
-        public void AddForward(IExecutionHistory action, Func<IBackpropagation> callback) => _forward.Add(action);
+        public void AddForward(IExecutionHistory action, Func<IBackpropagation>? callback) => _forward.Add(action);
         public IGraphData ErrorSignal => throw new NotImplementedException();
         public bool HasNext => _forward.Any();
         public IGraphData Data => _data;
@@ -51,10 +52,8 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
                 _data = next.Data;
 
                 _sourceNode = next.Source;
-                if (next.Source.Output != null) {
-                    foreach (var output in next.Source.Output)
-                        output.SendTo?.ExecuteForward(this, output.Channel);
-                }
+                foreach (var output in next.Source.Output)
+                    output.SendTo.ExecuteForward(this, output.Channel);
 
                 return true;
             }
@@ -66,7 +65,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 		    _output[channel] = data;
 	    }
 
-	    public IGraphData GetOutput(int channel = 0)
+	    public IGraphData? GetOutput(int channel = 0)
 	    {
 		    if (_output.TryGetValue(channel, out var ret))
 			    return ret;

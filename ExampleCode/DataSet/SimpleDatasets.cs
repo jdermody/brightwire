@@ -14,9 +14,9 @@ using SharpCompress.Archives;
 using SharpCompress.Archives.Rar;
 using SharpCompress.Common;
 
-namespace ExampleCode.Datasets
+namespace ExampleCode.DataSet
 {
-    internal static class SimpleDatasets
+    internal static class SimpleDataSets
     {
         public static IrisTrainer Iris(this IBrightDataContext context)
         {
@@ -91,18 +91,20 @@ namespace ExampleCode.Datasets
             return new SentenceTable(context, SimpleTokeniser.FindSentences(SimpleTokeniser.Tokenise(mainText)));
         }
 
-        public static MNIST Mnist(this IBrightDataContext context, uint numToLoad = uint.MaxValue)
+        public static Mnist Mnist(this IBrightDataContext context, uint numToLoad = uint.MaxValue)
         {
-            var testImages = MNIST.Load(
+            var testImages = DataSet.Mnist.Load(
                 GetStream(context, "t10k-labels.idx1-ubyte", "http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz"),
-                GetStream(context, "t10k-images.idx3-ubyte", "http://yann.lecun.com/exdb/mnist/t10k-images-idx3-ubyte.gz")
+                GetStream(context, "t10k-images.idx3-ubyte", "http://yann.lecun.com/exdb/mnist/t10k-images-idx3-ubyte.gz"),
+                numToLoad
             );
-            var trainingImages = MNIST.Load(
+            var trainingImages = DataSet.Mnist.Load(
                 GetStream(context, "train-labels.idx1-ubyte", "http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz"),
-                GetStream(context, "train-images.idx3-ubyte", "http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz")
+                GetStream(context, "train-images.idx3-ubyte", "http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz"),
+                numToLoad
             );
 
-            return new MNIST(context, trainingImages, testImages);
+            return new Mnist(context, trainingImages, testImages);
         }
 
         public static SentimentDataTrainer SentimentData(this IBrightDataContext context)
@@ -155,7 +157,7 @@ namespace ExampleCode.Datasets
                 var sequenceData = sequence
                         .GroupBy(ch => ch)
                         .Select(g => (g.Key, g.Count()))
-                        .ToDictionary(d => d.Item1, d => (float)d.Item2)
+                        .ToDictionary(d => d.Key, d => (float)d.Item2)
                     ;
                 var summary = grammar.Encode(sequenceData.Select(kv => (kv.Key, kv.Value)));
                 var list = new List<Vector<float>>();

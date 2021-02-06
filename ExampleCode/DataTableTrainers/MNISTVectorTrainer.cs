@@ -1,23 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 using BrightData;
 using BrightWire;
 using BrightWire.Models;
-using BrightWire.TrainingData.Helper;
 
 namespace ExampleCode.DataTableTrainers
 {
-    internal class MNISTVectorTrainer : DataTableTrainer
+    internal class MnistVectorTrainer : DataTableTrainer
     {
-        public MNISTVectorTrainer(IRowOrientedDataTable training, IRowOrientedDataTable test) : base(null, training, test)
+        public MnistVectorTrainer(IRowOrientedDataTable training, IRowOrientedDataTable test) : base(null, training, test)
         {
 
         }
 
-        public ExecutionGraphModel TrainingFeedForwardNeuralNetwork(
+        public ExecutionGraphModel? TrainingFeedForwardNeuralNetwork(
             uint hiddenLayerSize = 1024, 
             uint numIterations = 20, 
             float trainingRate = 0.1f,
@@ -50,7 +46,7 @@ namespace ExampleCode.DataTableTrainers
             ;
 
             // train the network for twenty iterations, saving the model on each improvement
-            ExecutionGraphModel bestGraph = null;
+            ExecutionGraphModel? bestGraph = null;
             var testData = trainingData.CloneWith(Test);
             engine.Train(numIterations, testData, errorMetric, model => bestGraph = model.Graph);
 

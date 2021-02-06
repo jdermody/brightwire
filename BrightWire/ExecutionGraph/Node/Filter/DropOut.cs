@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using BrightData;
-using BrightData.Distribution;
 using BrightData.Helper;
 
 namespace BrightWire.ExecutionGraph.Node.Filter
@@ -20,14 +19,14 @@ namespace BrightWire.ExecutionGraph.Node.Filter
                 _filter = filter;
             }
 
-            protected override IGraphData _Backpropagate(INode fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
+            protected override IGraphData Backpropagate(INode? fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
             {
                 var output = errorSignal.GetMatrix().PointwiseMultiply(_filter);
                 return errorSignal.ReplaceWith(output);
             }
         }
         float _dropOutPercentage;
-        INonNegativeDiscreteDistribution _probabilityToDrop;
+        INonNegativeDiscreteDistribution? _probabilityToDrop;
 
         public DropOut(IBrightDataContext context, float dropOutPercentage, string? name = null) : base(name)
         {
@@ -37,20 +36,20 @@ namespace BrightWire.ExecutionGraph.Node.Filter
 
         public override void ExecuteForward(IGraphContext context)
         {
-            if (context.IsTraining) {
+            if (context.LearningContext != null) {
                 // drop out random neurons during training
                 var lap = context.LinearAlgebraProvider;
                 var matrix = context.Data.GetMatrix();
-                var filter = lap.CreateMatrix(matrix.RowCount, matrix.ColumnCount, (i, j) => FloatMath.IsZero(_dropOutPercentage) ? 1f : _probabilityToDrop.Sample() == 1 ? 0f : 1f / _dropOutPercentage);
+                var filter = lap.CreateMatrix(matrix.RowCount, matrix.ColumnCount, (i, j) => FloatMath.IsZero(_dropOutPercentage) ? 1f : _probabilityToDrop!.Sample() == 1 ? 0f : 1f / _dropOutPercentage);
                 var output = matrix.PointwiseMultiply(filter);
-                _AddNextGraphAction(context, context.Data.ReplaceWith(output), () => new Backpropagation(this, filter));
+                AddNextGraphAction(context, context.Data.ReplaceWith(output), () => new Backpropagation(this, filter));
             } else
-                _AddNextGraphAction(context, context.Data, null);
+                AddNextGraphAction(context, context.Data, null);
         }
 
-        protected override (string Description, byte[] Data) _GetInfo()
+        protected override (string Description, byte[] Data) GetInfo()
         {
-            return ("DO", _WriteData(WriteTo));
+            return ("DO", WriteData(WriteTo));
         }
 
         public override void ReadFrom(GraphFactory factory, BinaryReader reader)

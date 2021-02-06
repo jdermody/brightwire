@@ -11,7 +11,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
     {
         int _inputIndex;
 
-        public ReverseSequence(int inputIndex = 0, string name = null) : base(name)
+        public ReverseSequence(int inputIndex = 0, string? name = null) : base(name)
         {
             _inputIndex = inputIndex;
         }
@@ -25,9 +25,9 @@ namespace BrightWire.ExecutionGraph.Node.Input
             context.AddForward(new TrainingAction(this, reversed[_inputIndex], context.Source), null);
         }
 
-        protected override (string Description, byte[] Data) _GetInfo()
+        protected override (string Description, byte[] Data) GetInfo()
         {
-            return ("RS", _WriteData(WriteTo));
+            return ("RS", WriteData(WriteTo));
         }
 
         public override void WriteTo(BinaryWriter writer)
