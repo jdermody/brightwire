@@ -8,13 +8,13 @@ namespace BrightWire.InstanceBased.Training
     /// <summary>
     /// K Nearest Neighbour classification trainer
     /// </summary>
-    internal static class KNNClassificationTrainer
+    internal static class KnnClassificationTrainer
     {
         public static KNearestNeighbours Train(IDataTable table)
         {
             var targetColumnIndex = table.GetTargetColumnOrThrow();
             var featureColumns = table.ColumnIndicesOfFeatures().ToArray();
-            var vectoriser = table.GetVectoriser(featureColumns);
+            var vectoriser = table.GetVectoriser(true, featureColumns);
             var data = vectoriser.Enumerate().ToArray();
 
             return new KNearestNeighbours {

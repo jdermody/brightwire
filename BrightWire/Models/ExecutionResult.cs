@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using BrightData.LinearAlgebra;
 
 namespace BrightWire.Models
@@ -56,6 +55,6 @@ namespace BrightWire.Models
 		/// </summary>
 		/// <param name="errorMetric">The error metric to calculate with</param>
 		/// <returns></returns>
-		public float CalculateError(IErrorMetric errorMetric) => Output.Zip(Target, errorMetric.Compute).Average();
+		public float CalculateError(IErrorMetric errorMetric) => Output.Zip(Target!, errorMetric.Compute).Average();
 	}
 }

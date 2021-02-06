@@ -117,7 +117,12 @@ namespace BrightData.Transformation
             }
         }
 
-        class OneHotEncodeVectorised : VectoriserBase<object>
+        interface IHaveOutputLabel
+        {
+            string GetOutputLabel(uint index);
+        }
+
+        class OneHotEncodeVectorised : VectoriserBase<object>, IHaveOutputLabel
         {
             readonly Dictionary<string, uint> _stringIndex = new Dictionary<string, uint>();
             readonly float[] _buffer;
@@ -156,7 +161,7 @@ namespace BrightData.Transformation
             }
         }
 
-        class OneHotEncode : VectoriserBase<object>
+        class OneHotEncode : VectoriserBase<object>, IHaveOutputLabel
         {
             readonly Dictionary<string, uint> _stringIndex = new Dictionary<string, uint>();
             uint _nextIndex = 0;
@@ -202,7 +207,7 @@ namespace BrightData.Transformation
             return _input.SelectMany(i => i.Convert(row[i.ColumnIndex])).ToArray();
         }
 
-        public DataTableVectoriser(IDataTable dataTable, params uint[] columnIndices)
+        public DataTableVectoriser(IDataTable dataTable, bool oneHotEncodeToMultipleColumns, params uint[] columnIndices)
         {
             if (columnIndices.Length == 0)
                 columnIndices = dataTable.ColumnIndices().ToArray();
@@ -211,7 +216,7 @@ namespace BrightData.Transformation
             Context = dataTable.Context;
 
             _input.AddRange(dataTable.Columns(columnIndices)
-                .Select(GetColumnVectoriser)
+                .Select(c => GetColumnVectoriser(c, oneHotEncodeToMultipleColumns))
             );
         }
 
@@ -234,19 +239,23 @@ namespace BrightData.Transformation
         {
             if(columnIndex >= _input.Count)
                 throw new ArgumentException($"Column index should be less than {_input.Count}");
-            if(!(_input[(int) columnIndex] is OneHotEncodeVectorised column))
+            if(!(_input[(int) columnIndex] is IHaveOutputLabel column))
                 throw new ArgumentException($"Column {columnIndex} is not a one hot encoded column");
             return column.GetOutputLabel(vectorIndex);
         }
 
-        static IColumnVectoriser GetColumnVectoriser(ISingleTypeTableSegment column)
+        static IColumnVectoriser GetColumnVectoriser(ISingleTypeTableSegment column, bool oneHotEncodeToMultipleColumns)
         {
             var type = column.SingleType;
             var columnClass = ColumnTypeClassifier.GetClass(type, column.MetaData);
             var metaData = column.Analyse();
 
-            if ((columnClass & ColumnClass.Categorical) != 0)
-                return new OneHotEncodeVectorised(metaData.GetNumDistinct(), column);
+            if ((columnClass & ColumnClass.Categorical) != 0) {
+                return oneHotEncodeToMultipleColumns
+                    ? (IColumnVectoriser) new OneHotEncodeVectorised(metaData.GetNumDistinct(), column)
+                    : new OneHotEncode(column)
+                ;
+            }
 
             if ((columnClass & ColumnClass.Numeric) != 0) {
                 return GenericActivator.Create<IColumnVectoriser>(

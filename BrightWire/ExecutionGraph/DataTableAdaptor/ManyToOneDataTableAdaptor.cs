@@ -59,7 +59,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             ;
         }
 
-        public override IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rows)
+        public override IMiniBatch Get(uint[] rows)
         {
             var data = GetRows(rows)
                 .Select(r => ((Matrix<float>)r[_dataColumnIndex[0]], (Vector<float>)r[_dataTargetIndex]))

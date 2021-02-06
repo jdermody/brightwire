@@ -30,7 +30,7 @@ namespace BrightWire.TreeBased
                     }else
                         findChild = row.GetTyped<string>(p.ColumnIndex.Value);
 
-                    var child = p.Children.FirstOrDefault(c => c.MatchLabel == findChild);
+                    var child = p.Children?.FirstOrDefault(c => c.MatchLabel == findChild);
                     if (child != null)
                     {
                         p = child;

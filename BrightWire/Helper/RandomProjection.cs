@@ -1,6 +1,5 @@
 ﻿using System;
 using BrightData;
-using BrightData.Distribution;
 
 namespace BrightWire.Helper
 {

@@ -318,7 +318,7 @@ namespace BrightWire.TreeBased.Training
                 foreach (var item in attributes) {
                     var newChildren = item.Partition(node.Data).Select(d => new Node(tableInfo, d.Value, d.Key)).ToArray();
                     var informationGain = GetInformationGain(nodeEntropy, nodeTotal, newChildren);
-                    if (minInformationGain.HasValue && informationGain < minInformationGain.Value)
+                    if (informationGain < minInformationGain)
                         continue;
                     scoreTable.Add((item, newChildren, informationGain));
                 }

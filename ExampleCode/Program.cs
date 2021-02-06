@@ -20,33 +20,32 @@ namespace ExampleCode
             using var context = new BrightDataContext(0);
             var useCuda = false;
 
-            // CPU based performance can be improved using the Intel Math Kernel Library...
-            // IMPORTANT: uncomment below if you have installed native binaries as described in https://numerics.mathdotnet.com/MKL.html
+            // IMPORTANT: uncomment below if you have installed native Intel Math Kernel Library binaries as described in https://numerics.mathdotnet.com/MKL.html
             //Control.UseNativeMKL();
 
             // IMPORTANT: uncomment below to use CUDA (if you have installed the CUDA toolkit from https://developer.nvidia.com/cuda-toolkit and have a supported Nvidia GPU)
-            //useCuda = true;
+            useCuda = true;
 
             // set where to save training data files
             context.Set("DataFileDirectory", new DirectoryInfo(@"c:\data"));
 
-            //Xor(context);
-            //IrisClassification(context);
-            //IrisClustering(context);
-            //MarkovChains(context);
-            //TextClustering(context);
-            //IntegerAddition(context);
-            //ReberPrediction(context);
-            //OneToMany(context, useCuda);
-            //ManyToOne(context, useCuda);
-            //SequenceToSequence(context, useCuda);
-            //TrainWithSelu(context);
-            //StockData(context, useCuda);
-            //SimpleLinearTest(context);
-            //PredictBicyclesWithLinearModel(context);
-            //PredictBicyclesWithNeuralNetwork(context);
-            //MultiLabelSingleClassifier(context);
-            //MultiLabelMultiClassifiers(context);
+            Xor(context);
+            IrisClassification(context);
+            IrisClustering(context);
+            MarkovChains(context);
+            TextClustering(context);
+            IntegerAddition(context);
+            ReberPrediction(context);
+            OneToMany(context, useCuda);
+            ManyToOne(context, useCuda);
+            SequenceToSequence(context, useCuda);
+            TrainWithSelu(context);
+            StockData(context, useCuda);
+            SimpleLinearTest(context);
+            PredictBicyclesWithLinearModel(context);
+            PredictBicyclesWithNeuralNetwork(context);
+            MultiLabelSingleClassifier(context);
+            MultiLabelMultiClassifiers(context);
             MnistFeedForward(context, useCuda);
             MnistConvolutional(context, useCuda);
             SentimentClassification(context, useCuda);
@@ -55,7 +54,7 @@ namespace ExampleCode
         static void Start(IBrightDataContext context, bool useCuda = false, [CallerMemberName]string title = "")
         {
             Console.WriteLine("*********************************************");
-            Console.WriteLine($"*");
+            Console.WriteLine("*");
             Console.WriteLine($"*  {title}");
             if (useCuda) {
                 context.UseCudaLinearAlgebra();
@@ -191,14 +190,14 @@ namespace ExampleCode
         {
             Start(context, useCuda);
             var sequences = context.OneToMany();
-            sequences.TrainLSTM();
+            sequences.TrainLstm();
         }
 
         static void ManyToOne(IBrightDataContext context, bool useCuda)
         {
             Start(context, useCuda);
             var sequences = context.ManyToOne();
-            sequences.TrainGRU();
+            sequences.TrainGru();
         }
 
         static void SequenceToSequence(IBrightDataContext context, bool useCuda)
@@ -248,7 +247,7 @@ namespace ExampleCode
         {
             Start(context, useCuda);
             var stockData = context.StockData().GetSequentialWindow();
-            stockData.TrainLSTM(256);
+            stockData.TrainLstm(256);
         }
     }
 }

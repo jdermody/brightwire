@@ -59,8 +59,6 @@ namespace BrightData
             var items = new HashSet<uint>();
             foreach (var list in lists) {
                 context = list.Context;
-                if (list.Indices == null)
-                    continue;
                 foreach (var index in list.Indices)
                     items.Add(index);
             }

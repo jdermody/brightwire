@@ -117,12 +117,10 @@ namespace BrightData
             var items = new Dictionary<uint, List<float>>();
             foreach (var list in lists) {
                 context = list.Context;
-                if (list.Indices != null) {
-                    foreach (var index in list.Indices) {
-                        if (!items.TryGetValue(index.Index, out var weights))
-                            items.Add(index.Index, weights = new List<float>());
-                        weights.Add(index.Weight);
-                    }
+                foreach (var index in list.Indices) {
+                    if (!items.TryGetValue(index.Index, out var weights))
+                        items.Add(index.Index, weights = new List<float>());
+                    weights.Add(index.Weight);
                 }
             }
 

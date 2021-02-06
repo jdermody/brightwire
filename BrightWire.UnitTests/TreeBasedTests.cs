@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using BrightData;
 using BrightData.UnitTests;
-using BrightTable;
 using BrightWire.TrainingData.Helper;
 using FluentAssertions;
 using Xunit;

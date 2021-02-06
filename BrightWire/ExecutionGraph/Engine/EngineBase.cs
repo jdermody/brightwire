@@ -41,7 +41,7 @@ namespace BrightWire.ExecutionGraph.Engine
         {
             _lap.PushLayer();
             ExecutionResult? ret = null;
-            _dataSource = new SingleRowDataSource(input, false, MiniBatchSequenceType.Standard, 0);
+            _dataSource = new SingleRowDataSource(input, _lap, false, MiniBatchSequenceType.Standard, 0);
             var provider = new MiniBatchProvider(_dataSource, null);
             using var executionContext = new ExecutionContext(_lap);
             // ReSharper disable once AccessToDisposedClosure
@@ -86,7 +86,7 @@ namespace BrightWire.ExecutionGraph.Engine
         public IEnumerable<ExecutionResult> ExecuteSequential(float[][] input)
         {
             _lap.PushLayer();
-            _dataSource = new SequentialRowDataSource(input);
+            _dataSource = new SequentialRowDataSource(input, _lap);
             var provider = new MiniBatchProvider(_dataSource, null);
             using var executionContext = new ExecutionContext(_lap);
             // ReSharper disable once AccessToDisposedClosure
@@ -109,7 +109,7 @@ namespace BrightWire.ExecutionGraph.Engine
         public ExecutionResult? ExecuteSequential(uint sequenceIndex, float[] input, IGraphExecutionContext executionContext, MiniBatchSequenceType sequenceType)
         {
             _lap.PushLayer();
-            _dataSource = new SingleRowDataSource(input, true, sequenceType, sequenceIndex);
+            _dataSource = new SingleRowDataSource(input, _lap, true, sequenceType, sequenceIndex);
             var provider = new MiniBatchProvider(_dataSource, _lap.Context.Random);
             executionContext.Add(provider.GetMiniBatches(1, mb => Execute(executionContext, mb)));
 

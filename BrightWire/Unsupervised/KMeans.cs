@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using BrightData;
-using BrightData.Distribution;
 using BrightWire.Helper;
 
 namespace BrightWire.Unsupervised

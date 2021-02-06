@@ -275,14 +275,14 @@ namespace BrightData.Cuda
         public IFloatMatrix LeakyReluActivation()
         {
             Debug.Assert(IsValid);
-            var ret = _cuda.LeakyRELU(_data, _rows * _columns);
+            var ret = _cuda.LeakyRelu(_data, _rows * _columns);
             return new CudaMatrix(_cuda, _rows, _columns, ret, true);
         }
 
         public IFloatMatrix LeakyReluDerivative()
         {
             Debug.Assert(IsValid);
-            var ret = _cuda.LeakyRELUDerivative(_data, _rows * _columns);
+            var ret = _cuda.LeakyReluDerivative(_data, _rows * _columns);
             return new CudaMatrix(_cuda, _rows, _columns, ret, true);
         }
 
@@ -365,13 +365,13 @@ namespace BrightData.Cuda
         public IFloatMatrix ReluActivation()
         {
             Debug.Assert(IsValid);
-            return new CudaMatrix(_cuda, _rows, _columns, _cuda.RELU(_data, _rows * _columns), true);
+            return new CudaMatrix(_cuda, _rows, _columns, _cuda.Relu(_data, _rows * _columns), true);
         }
 
         public IFloatMatrix ReluDerivative()
         {
             Debug.Assert(IsValid);
-            return new CudaMatrix(_cuda, _rows, _columns, _cuda.RELUDerivative(_data, _rows * _columns), true);
+            return new CudaMatrix(_cuda, _rows, _columns, _cuda.ReluDerivative(_data, _rows * _columns), true);
         }
 
         public IFloatVector Row(uint index)
@@ -581,12 +581,10 @@ namespace BrightData.Cuda
                 var rowCount = value.RowCount;
                 for (uint i = 0; i < rowCount && i < _rows; i++) {
                     var row = value.Row(i);
-                    if (row.Segment != null) {
-                        var data2 = row.Segment;
-                        var columnCount = data2.Size;
-                        for (uint j = 0; j < columnCount && j < _columns; j++) {
-                            buffer[j * _rows + i] = data2[j];
-                        }
+                    var data2 = row.Segment;
+                    var columnCount = data2.Size;
+                    for (uint j = 0; j < columnCount && j < _columns; j++) {
+                        buffer[j * _rows + i] = data2[j];
                     }
                 }
 

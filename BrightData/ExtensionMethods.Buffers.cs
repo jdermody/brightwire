@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using BrightData.Buffer;
@@ -19,7 +18,7 @@ namespace BrightData
         /// <param name="maxDistinct">Maximum number of distinct items (to encode)</param>
         /// <returns></returns>
         public static IHybridBuffer<T> CreateHybridStructBuffer<T>(this IBrightDataContext _, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024) where T : struct =>
-            StaticBuffers.CreateHybridStructBuffer<T>(tempStream, bufferSize, maxDistinct);
+            tempStream.CreateHybridStructBuffer<T>(bufferSize, maxDistinct);
 
         /// <summary>
         /// Creates a struct buffer
@@ -31,7 +30,7 @@ namespace BrightData
         /// <param name="maxDistinct">Maximum number of distinct items (to encode)</param>
         /// <returns></returns>
         public static IHybridBuffer CreateHybridStructBuffer(this IBrightDataContext _, Type type, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024) =>
-            StaticBuffers.CreateHybridStructBuffer(tempStream, type, bufferSize, maxDistinct);
+            tempStream.CreateHybridStructBuffer(type, bufferSize, maxDistinct);
 
         /// <summary>
         /// Creates a string buffer
@@ -42,7 +41,7 @@ namespace BrightData
         /// <param name="maxDistinct">Maximum number of distinct items (to encode)</param>
         /// <returns></returns>
         public static IHybridBuffer<string> CreateHybridStringBuffer(this IBrightDataContext _, IProvideTempStreams tempStream, uint bufferSize = 32768, ushort maxDistinct = 1024) =>
-            StaticBuffers.CreateHybridStringBuffer(tempStream, bufferSize, maxDistinct);
+            tempStream.CreateHybridStringBuffer(bufferSize, maxDistinct);
 
         /// <summary>
         /// Creates an object buffer
@@ -53,7 +52,7 @@ namespace BrightData
         /// <param name="bufferSize">Max items to cache in memory</param>
         /// <returns></returns>
         public static IHybridBuffer<T> CreateHybridObjectBuffer<T>(this IBrightDataContext context, IProvideTempStreams tempStream, uint bufferSize = 32768) where T : notnull =>
-            StaticBuffers.CreateHybridObjectBuffer<T>(tempStream, context, bufferSize);
+            tempStream.CreateHybridObjectBuffer<T>(context, bufferSize);
 
         /// <summary>
         /// Creates an object buffer
@@ -64,7 +63,7 @@ namespace BrightData
         /// <param name="bufferSize">Max items to cache in memory</param>
         /// <returns></returns>
         public static IHybridBuffer CreateHybridObjectBuffer(this IBrightDataContext context, Type type, IProvideTempStreams tempStream, uint bufferSize = 32768) =>
-            StaticBuffers.CreateHybridObjectBuffer(tempStream, context, type, bufferSize);
+            tempStream.CreateHybridObjectBuffer(context, type, bufferSize);
 
         /// <summary>
         /// Returns a reader that buffers items in memory

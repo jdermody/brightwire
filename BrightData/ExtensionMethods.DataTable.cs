@@ -736,14 +736,14 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Converts the data table to a sequence of labelled vectors (feature columns are vectorised, target column is converted to a string)
+        /// Converts the data table to a sequence of labeled vectors (feature columns are vectorised, target column is converted to a string)
         /// </summary>
         /// <param name="dataTable"></param>
         /// <returns></returns>
         public static IEnumerable<(Vector<float> Numeric, string? Label)> GetVectorisedFeatures(this IDataTable dataTable)
         {
             var target = dataTable.GetTargetColumn();
-            var vectoriser = new DataTableVectoriser(dataTable, dataTable.ColumnIndicesOfFeatures().ToArray());
+            var vectoriser = new DataTableVectoriser(dataTable, true, dataTable.ColumnIndicesOfFeatures().ToArray());
             if (target.HasValue)
             {
                 var targetColumn = dataTable.Column(target.Value).Enumerate().Select(o => o.ToString());
@@ -894,7 +894,7 @@ namespace BrightData
                 }
             }
 
-            var vectoriser = new DataTableVectoriser(dataTable, columnIndices);
+            var vectoriser = new DataTableVectoriser(dataTable, false, columnIndices);
             return dataTable.Context.CreateMatrixFromRows(vectoriser.Enumerate().ToArray());
         }
 
@@ -902,9 +902,10 @@ namespace BrightData
         /// Creates a new data table that has two vector columns, one for the features and the other for the target
         /// </summary>
         /// <param name="dataTable"></param>
+        /// <param name="oneHotEncodeToMultipleColumns"></param>
         /// <param name="filePath">Optional path to save data table to disk</param>
         /// <returns></returns>
-        public static IRowOrientedDataTable Vectorise(this IDataTable dataTable, string? filePath = null)
+        public static IRowOrientedDataTable Vectorise(this IDataTable dataTable, bool oneHotEncodeToMultipleColumns, string? filePath = null)
         {
             var target = dataTable.GetTargetColumn();
             var columnIndices = dataTable.ColumnIndices().ToList();
@@ -916,10 +917,10 @@ namespace BrightData
             if (target.HasValue)
             {
                 builder.AddColumn(ColumnType.Vector, "Target").SetTarget(true);
-                outputVectoriser = new DataTableVectoriser(dataTable, target.Value);
+                outputVectoriser = new DataTableVectoriser(dataTable, oneHotEncodeToMultipleColumns, target.Value);
                 columnIndices.Remove(target.Value);
             }
-            var inputVectoriser = new DataTableVectoriser(dataTable, columnIndices.ToArray());
+            var inputVectoriser = new DataTableVectoriser(dataTable, oneHotEncodeToMultipleColumns, columnIndices.ToArray());
 
             var context = dataTable.Context;
             dataTable.ForEachRow(row => {
@@ -1065,9 +1066,10 @@ namespace BrightData
         /// Returns a vectoriser
         /// </summary>
         /// <param name="table"></param>
+        /// <param name="oneHotEncodeToMultipleColumns"></param>
         /// <param name="columnIndices">Column indices to vectorise</param>
         /// <returns></returns>
-        public static IDataTableVectoriser GetVectoriser(this IDataTable table, params uint[] columnIndices) => new DataTableVectoriser(table, columnIndices);
+        public static IDataTableVectoriser GetVectoriser(this IDataTable table, bool oneHotEncodeToMultipleColumns, params uint[] columnIndices) => new DataTableVectoriser(table, oneHotEncodeToMultipleColumns, columnIndices);
 
         /// <summary>
         /// Converts columns

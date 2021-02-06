@@ -130,9 +130,7 @@ namespace ExampleCode.DataSet
                     rows.Add(context.CreateVector(row));
                 }
 
-                var tensor = context.CreateTensor3D(new[] {
-                    context.CreateMatrixFromRows(rows.ToArray())
-                });
+                var tensor = context.CreateTensor3D(context.CreateMatrixFromRows(rows.ToArray()));
                 return (tensor, data.Label);
             }
         }

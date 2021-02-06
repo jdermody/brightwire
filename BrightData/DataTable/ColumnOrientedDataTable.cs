@@ -6,7 +6,6 @@ using BrightData.DataTable.Builders;
 using BrightData.Helper;
 using BrightData.Segment;
 using BrightData.Transformation;
-using BrightTable;
 
 namespace BrightData.DataTable
 {

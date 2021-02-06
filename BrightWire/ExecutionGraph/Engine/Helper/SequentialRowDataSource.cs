@@ -1,5 +1,4 @@
-﻿using BrightTable;
-using BrightWire.ExecutionGraph.Helper;
+﻿using BrightWire.ExecutionGraph.Helper;
 using System;
 using System.Linq;
 using BrightData;
@@ -12,10 +11,12 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     internal class SequentialRowDataSource : IDataSource
     {
         readonly float[][] _data;
+        readonly ILinearAlgebraProvider _lap;
 
-        public SequentialRowDataSource(float[][] data)
+        public SequentialRowDataSource(float[][] data, ILinearAlgebraProvider lap)
         {
             _data = data;
+            _lap = lap;
             InputSize = (uint)data.First().Length;
             InputCount = (uint)data.Length;
         }
@@ -33,7 +34,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             throw new NotImplementedException();
         }
 
-        public IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rows)
+        public IMiniBatch Get(uint[] rows)
         {
             var ret = new MiniBatch(rows, this);
             int index = 0;
@@ -44,13 +45,15 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
                 else if (index == _data.Length - 1)
                     type = MiniBatchSequenceType.SequenceEnd;
                 var inputList = new IGraphData [] {
-                    new MatrixGraphData(executionContext.LinearAlgebraProvider.CreateVector(row).ReshapeAsRowMatrix())
+                    new MatrixGraphData(_lap.CreateVector(row).ReshapeAsRowMatrix())
                 };
                 ret.Add(type, inputList, null);
                 ++index;
             }
             return ret;
         }
+
+        public IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rows) => Get(rows);
 
         public uint[][] GetBuckets()
         {

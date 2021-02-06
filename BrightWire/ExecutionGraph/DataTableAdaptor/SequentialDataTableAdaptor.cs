@@ -47,7 +47,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 	    public override uint? OutputSize { get; }
 	    public override uint RowCount => (uint)_rowDepth.Length;
 
-        public override IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rows)
+        public override IMiniBatch Get(uint[] rows)
         {
             var data = GetRows(rows)
                 .Select(r => ((Matrix<float>)r[0], (Matrix<float>?)r[1]))

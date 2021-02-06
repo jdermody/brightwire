@@ -438,6 +438,12 @@ namespace BrightWire
         /// <summary>
         /// Gets a mini batch with the specified rows
         /// </summary>
+        /// <param name="rows">List of rows</param>
+        IMiniBatch Get(uint[] rows);
+
+        /// <summary>
+        /// Gets a mini batch with the specified rows
+        /// </summary>
         /// <param name="executionContext">Graph execution context</param>
         /// <param name="rows">List of rows</param>
         IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rows);

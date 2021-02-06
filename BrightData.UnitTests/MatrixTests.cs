@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using BrightData.Helper;
 using FluentAssertions;
 using MathNet.Numerics.Distributions;
@@ -700,11 +698,10 @@ namespace BrightData.UnitTests
             var b = _cpu.CreateMatrix(300, 200, (x, y) => Convert.ToSingle(rand.NextDouble())).AsIndexable();
             var c = a.ConcatRows(b).AsIndexable();
 
-            IIndexableFloatMatrix gpuResults;
             using var gpuA = _cuda.CreateMatrix(a);
             using var gpuB = _cuda.CreateMatrix(b);
             using var concat = gpuA.ConcatRows(gpuB);
-            gpuResults = concat.AsIndexable();
+            var gpuResults = concat.AsIndexable();
             FloatMath.AreApproximatelyEqual(c, gpuResults).Should().BeTrue();
         }
 

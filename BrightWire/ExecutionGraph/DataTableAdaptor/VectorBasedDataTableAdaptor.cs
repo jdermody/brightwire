@@ -1,5 +1,4 @@
-﻿using BrightTable;
-using System.Linq;
+﻿using System.Linq;
 using BrightData;
 using BrightData.LinearAlgebra;
 
@@ -28,10 +27,10 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 	    public override uint? OutputSize { get; }
 	    public override bool IsSequential => false;
 
-        public override IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rows)
+        public override IMiniBatch Get(uint[] rows)
         {
             var data = GetRows(rows)
-                .Select(r => ((_dataColumnIndex.Select(i => ((Vector<float>)r[i]).Segment.ToArray()).ToArray(), ((Vector<float>)r[_dataTargetIndex]).Segment.ToArray())))
+                .Select(r => (_dataColumnIndex.Select(i => ((Vector<float>)r[i]).Segment.ToArray()).ToArray(), ((Vector<float>)r[_dataTargetIndex]).Segment.ToArray()))
                 .ToArray()
             ;
             return GetMiniBatch(rows, data);

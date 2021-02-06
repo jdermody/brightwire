@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace BrightData.Converter
+﻿namespace BrightData.Converter
 {
     /// <summary>
     /// Static methods to create converters

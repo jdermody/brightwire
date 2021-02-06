@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using BrightData;
 using BrightData.LinearAlgebra;
 using BrightData.UnitTests;
-using BrightTable;
 using BrightWire.ExecutionGraph;
 using BrightWire.Models;
 using BrightWire.TrainingData.Artificial;
@@ -33,7 +27,7 @@ namespace BrightWire.UnitTests
             public bool DisplayAsPercentage => true;
         }
 
-        static GraphModel bestNetwork;
+        static GraphModel _bestNetwork;
 
         static (GraphFactory, IDataSource) MakeGraphAndData(IBrightDataContext context)
         {
@@ -52,16 +46,16 @@ namespace BrightWire.UnitTests
                 .AddFeedForward(1)
                 .Add(graph.SigmoidActivation())
                 .AddBackpropagation(errorMetric);
-            engine.Train(300, data, errorMetric, bn => bestNetwork = bn);
+            engine.Train(300, data, errorMetric, bn => _bestNetwork = bn);
             AssertEngineGetsGoodResults(engine, data);
         }
 
         static void AssertEngineGetsGoodResults(IGraphEngine engine, IDataSource data)
         {
-            var results = engine.Execute(data)?.FirstOrDefault();
+            var results = engine.Execute(data).FirstOrDefault();
             results.Should().NotBeNull();
             static bool Handle(Vector<float> value) => value[0] > 0.5f;
-            results.Output.Zip(results.Target, (result, target) => Handle(result) == Handle(target)).All(x => x)
+            results!.Output.Zip(results.Target!, (result, target) => Handle(result) == Handle(target)).All(x => x)
                 .Should().BeTrue();
         }
 
@@ -69,7 +63,7 @@ namespace BrightWire.UnitTests
         public void CreateFromExecutionGraph()
         {
             var (graph, data) = MakeGraphAndData(_context);
-            var engine = graph.CreateEngine(bestNetwork.Graph);
+            var engine = graph.CreateEngine(_bestNetwork.Graph);
             AssertEngineGetsGoodResults(engine, data);
         }
 

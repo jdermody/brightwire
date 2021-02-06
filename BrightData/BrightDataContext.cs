@@ -51,7 +51,7 @@ namespace BrightData
             _memoryLayers.Pop();
             _tensorPool.Dispose();
             TempStreamProvider.Dispose();
-            LinearAlgebraProvider?.Dispose();
+            LinearAlgebraProvider.Dispose();
         }
 
         /// <inheritdoc />
@@ -79,7 +79,9 @@ namespace BrightData
             };
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Linear algebra provider
+        /// </summary>
         public ILinearAlgebraProvider LinearAlgebraProvider
         {
             get => _lap;

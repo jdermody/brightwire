@@ -14,7 +14,7 @@ namespace BrightData.Numerics
     /// </summary>
     internal class NumericsVector : IIndexableFloatVector
     {
-        readonly MathNet.Numerics.LinearAlgebra.Vector<float> _vector;
+        readonly Vector<float> _vector;
 
         public bool IsValid => true;
 
@@ -23,7 +23,7 @@ namespace BrightData.Numerics
             Context = context;
             _vector = vector;
         }
-        public NumericsVector(IBrightDataContext context, MathNet.Numerics.LinearAlgebra.Vector<float> vector)
+        public NumericsVector(IBrightDataContext context, Vector<float> vector)
         {
             Context = context;
             _vector = vector;

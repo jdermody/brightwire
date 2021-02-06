@@ -1,5 +1,4 @@
-﻿using BrightTable;
-using BrightWire.ExecutionGraph.Helper;
+﻿using BrightWire.ExecutionGraph.Helper;
 using System;
 using BrightData;
 
@@ -57,12 +56,14 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         }
 
         readonly float[] _data;
+        readonly ILinearAlgebraProvider _lap;
         readonly uint _sequenceIndex;
         readonly MiniBatchSequenceType _sequenceType;
 
-        public SingleRowDataSource(float[] data, bool isSequential, MiniBatchSequenceType sequenceType, uint sequenceIndex)
+        public SingleRowDataSource(float[] data, ILinearAlgebraProvider lap, bool isSequential, MiniBatchSequenceType sequenceType, uint sequenceIndex)
         {
             _data = data;
+            _lap = lap;
             _sequenceIndex = sequenceIndex;
             IsSequential = isSequential;
             _sequenceType = sequenceType;
@@ -81,11 +82,13 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             throw new NotImplementedException();
         }
 
-        public IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rows)
+        public IMiniBatch Get(uint[] rows)
         {
-            var data = executionContext.LinearAlgebraProvider.CreateVector(_data);
+            var data = _lap.CreateVector(_data);
             return new SingleRowMiniBatch(this, new MatrixGraphData(data.ReshapeAsRowMatrix()), IsSequential, _sequenceType, _sequenceIndex);
         }
+
+        public IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rows) => Get(rows);
 
         public uint[][] GetBuckets()
         {

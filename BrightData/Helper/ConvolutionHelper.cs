@@ -7,8 +7,8 @@ namespace BrightData.Helper
 	/// </summary>
 	public static class ConvolutionHelper
 	{
-		static readonly Dictionary<(uint, uint, uint, uint, uint, uint), List<(uint X, uint Y)>> _leftToRight = new Dictionary<(uint, uint, uint, uint, uint, uint), List<(uint, uint)>>();
-		static readonly Dictionary<(uint, uint, uint, uint, uint, uint), List<(uint X, uint Y)>> _topToBottm = new Dictionary<(uint, uint, uint, uint, uint, uint), List<(uint, uint)>>();
+		static readonly Dictionary<(uint, uint, uint, uint, uint, uint), List<(uint X, uint Y)>> LeftToRightCache = new Dictionary<(uint, uint, uint, uint, uint, uint), List<(uint, uint)>>();
+		static readonly Dictionary<(uint, uint, uint, uint, uint, uint), List<(uint X, uint Y)>> TopToBottomCache = new Dictionary<(uint, uint, uint, uint, uint, uint), List<(uint, uint)>>();
 
 		/// <summary>
 		/// Generates convolution indices from left to right
@@ -23,7 +23,7 @@ namespace BrightData.Helper
 		public static List<(uint X, uint Y)> LeftToRight(uint width, uint height, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
 		{
 			var key = (width, height, filterWidth, filterHeight, xStride, yStride);
-			if (_leftToRight.TryGetValue(key, out var ret))
+			if (LeftToRightCache.TryGetValue(key, out var ret))
 				return ret;
 
 			uint y = 0, x = 0;
@@ -42,7 +42,7 @@ namespace BrightData.Helper
 				}
 			}
 
-			_leftToRight[key] = ret;
+            LeftToRightCache[key] = ret;
 			return ret;
 		}
 
@@ -59,7 +59,7 @@ namespace BrightData.Helper
 		public static List<(uint X, uint Y)> TopToBottom(uint width, uint height, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
 		{
 			var key = (width, height, filterWidth, filterHeight, xStride, yStride);
-			if (_topToBottm.TryGetValue(key, out var ret))
+			if (TopToBottomCache.TryGetValue(key, out var ret))
 				return ret;
 
 			uint y = 0, x = 0;
@@ -78,7 +78,7 @@ namespace BrightData.Helper
 				}
 			}
 
-			_topToBottm[key] = ret;
+			TopToBottomCache[key] = ret;
 			return ret;
 		}
 

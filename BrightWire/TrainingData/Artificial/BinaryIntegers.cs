@@ -1,5 +1,4 @@
-﻿using BrightTable;
-using System;
+﻿using System;
 using System.Collections;
 using BrightData;
 using BrightData.LinearAlgebra;

@@ -184,7 +184,7 @@ namespace ExampleCode.DataTableTrainers
         static (string Classification, IndexList Data)[] BuildIndexedClassifications(IBrightDataContext context, (string[], string)[] data, StringTableBuilder stringTable)
         {
             return data
-                .Select(d => (d.Item2, context.CreateIndexList(d.Item1.Select(str => stringTable.GetIndex(str)).ToArray())))
+                .Select(d => (d.Item2, context.CreateIndexList(d.Item1.Select(stringTable.GetIndex).ToArray())))
                 .ToArray()
             ;
         }

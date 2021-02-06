@@ -1,5 +1,4 @@
-﻿using BrightTable;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,8 +13,8 @@ namespace BrightWire.TrainingData.Artificial
     /// </summary>
     public class ReberGrammar
     {
-        static readonly char[] CHARS = "BTSXPVE".ToCharArray();
-        static readonly Dictionary<char, int> _ch = CHARS.Select((c, i) => Tuple.Create(c, i)).ToDictionary(d => d.Item1, d => d.Item2);
+        static readonly char[] Chars = "BTSXPVE".ToCharArray();
+        static readonly Dictionary<char, int> Ch = Chars.Select((c, i) => Tuple.Create(c, i)).ToDictionary(d => d.Item1, d => d.Item2);
 
         /// <summary>
         /// Gets the character at the specified index
@@ -23,7 +22,7 @@ namespace BrightWire.TrainingData.Artificial
         /// <param name="index">Index to query</param>
         public static char GetChar(int index)
         {
-            return CHARS[index];
+            return Chars[index];
         }
 
         /// <summary>
@@ -33,7 +32,7 @@ namespace BrightWire.TrainingData.Artificial
         /// <returns></returns>
         public static int GetIndex(char ch)
         {
-            return _ch[ch];
+            return Ch[ch];
         }
 
         /// <summary>
@@ -44,8 +43,8 @@ namespace BrightWire.TrainingData.Artificial
         public static Matrix<float> Encode(IBrightDataContext context, string sequence)
         {
             return context.CreateMatrixFromRows(sequence.Select(ch => {
-                    var ret = new float[_ch.Count];
-                    ret[_ch[ch]] = 1f;
+                    var ret = new float[Ch.Count];
+                    ret[Ch[ch]] = 1f;
                     return context.CreateVector(ret);
                 }).ToArray()
             );
@@ -72,7 +71,7 @@ namespace BrightWire.TrainingData.Artificial
                     if (prev != null) {
                         if (!following.TryGetValue(prev, out var temp))
                             following.Add(prev, temp = new HashSet<int>());
-                        temp.Add(_ch[ch]);
+                        temp.Add(Ch[ch]);
                     }
                     prev = key;
                 }
@@ -87,9 +86,9 @@ namespace BrightWire.TrainingData.Artificial
                 for (var i = 0; i < str.Length; i++) {
                     var ch = str[i];
                     sb.Append(ch);
-                    var input = new float[_ch.Count];
-                    var output = new float[_ch.Count];
-                    input[_ch[ch]] = 1f;
+                    var input = new float[Ch.Count];
+                    var output = new float[Ch.Count];
+                    input[Ch[ch]] = 1f;
                     if (following.TryGetValue(sb.ToString(), out var temp)) {
                         foreach (var item in temp)
                             output[item] = 1f;
@@ -105,7 +104,7 @@ namespace BrightWire.TrainingData.Artificial
         /// <summary>
         /// The number of REBER characters
         /// </summary>
-        public static int Size => _ch.Count;
+        public static int Size => Ch.Count;
 
 	    readonly Random _rnd;
 

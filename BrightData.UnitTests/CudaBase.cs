@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using BrightData.Cuda;
-using BrightData.Numerics;
 
 namespace BrightData.UnitTests
 {

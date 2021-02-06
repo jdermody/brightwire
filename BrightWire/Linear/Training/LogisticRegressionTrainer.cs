@@ -2,7 +2,6 @@
 using System.Linq;
 using BrightData;
 using BrightData.Helper;
-using BrightTable;
 using BrightWire.Models.Linear;
 
 namespace BrightWire.Linear.Training
@@ -26,6 +25,7 @@ namespace BrightWire.Linear.Training
             if(target.ColumnCount > 1)
                 throw new ArgumentException("Multiple features are not currently supported");
 
+            // ReSharper disable once AccessToDisposedClosure
             _feature = _lap.CreateMatrix(features.RowCount, features.ColumnCount + 1, (i, j) => j == 0 ? 1 : features[i, j - 1]);
             _target = _lap.CreateVector(target.Column(0));
             features.Dispose();

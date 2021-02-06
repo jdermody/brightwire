@@ -407,28 +407,28 @@ namespace BrightData.Cuda
 			return ret;
 		}
 
-		internal IDeviceMemoryPtr RELU(IDeviceMemoryPtr a, uint size)
+		internal IDeviceMemoryPtr Relu(IDeviceMemoryPtr a, uint size)
 		{
 			var ret = Allocate(size);
 			Invoke(_relu, size, a.DevicePointer, ret.DevicePointer, size);
 			return ret;
 		}
 
-		internal IDeviceMemoryPtr RELUDerivative(IDeviceMemoryPtr a, uint size)
+		internal IDeviceMemoryPtr ReluDerivative(IDeviceMemoryPtr a, uint size)
 		{
 			var ret = Allocate(size);
 			Invoke(_reluDerivative, size, a.DevicePointer, ret.DevicePointer, size);
 			return ret;
 		}
 
-		internal IDeviceMemoryPtr LeakyRELU(IDeviceMemoryPtr a, uint size)
+		internal IDeviceMemoryPtr LeakyRelu(IDeviceMemoryPtr a, uint size)
 		{
 			var ret = Allocate(size);
 			Invoke(_leakyRelu, size, a.DevicePointer, ret.DevicePointer, size);
 			return ret;
 		}
 
-		internal IDeviceMemoryPtr LeakyRELUDerivative(IDeviceMemoryPtr a, uint size)
+		internal IDeviceMemoryPtr LeakyReluDerivative(IDeviceMemoryPtr a, uint size)
 		{
 			var ret = Allocate(size);
 			Invoke(_leakyReluDerivative, size, a.DevicePointer, ret.DevicePointer, size);

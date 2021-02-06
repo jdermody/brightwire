@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
-using BrightData.Cuda;
 using BrightData.Helper;
-using BrightData.Numerics;
 using Xunit;
 using FluentAssertions;
 using MathNet.Numerics.Distributions;
@@ -34,8 +30,8 @@ namespace BrightData.UnitTests
         public void TestManhattanDistance()
         {
             var distribution = new Normal(0, 5);
-            var vectors = Enumerable.Range(0, 10).Select(i => _cpu.CreateVector(100, j => Convert.ToSingle(distribution.Sample())).AsIndexable()).ToArray();
-            var compareTo = Enumerable.Range(0, 20).Select(i => _cpu.CreateVector(100, j => Convert.ToSingle(distribution.Sample())).AsIndexable()).ToArray();
+            var vectors = Enumerable.Range(0, 10).Select(i => _cpu.CreateVector(100, j => Convert.ToSingle(distribution.Sample()))).ToArray();
+            var compareTo = Enumerable.Range(0, 20).Select(i => _cpu.CreateVector(100, j => Convert.ToSingle(distribution.Sample()))).ToArray();
             var distances = _cpu.CalculateDistances(vectors, compareTo, DistanceMetric.Manhattan);
 
             var gpuVectors = vectors.Select(v => _cuda.CreateVector(v)).ToArray();
@@ -168,7 +164,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void VectorMaximumIndex()
         {
-            var a = _cpu.CreateVector(new[] { 1.0f, 2.0f, 1.0f, 1.0f }).AsIndexable();
+            var a = _cpu.CreateVector(1.0f, 2.0f, 1.0f, 1.0f).AsIndexable();
             var res1 = a.MaximumIndex();
 
             uint res2;
@@ -180,7 +176,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void VectorMinimumIndex()
         {
-            var a = _cpu.CreateVector(new[] { 3.0f, -2.0f, 1.0f, 2.0f }).AsIndexable();
+            var a = _cpu.CreateVector(3.0f, -2.0f, 1.0f, 2.0f).AsIndexable();
             var res1 = a.MinimumIndex();
 
             uint res2;
@@ -547,8 +543,8 @@ namespace BrightData.UnitTests
             var distribution = new Normal(0, 5);
 
             var a = _cpu.CreateVector(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
-            var b = _cpu.CreateVector(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
-            var c = _cpu.CreateVector(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var b = _cpu.CreateVector(5000, i => Convert.ToSingle(distribution.Sample()));
+            var c = _cpu.CreateVector(5000, i => Convert.ToSingle(distribution.Sample()));
             var distance = a.FindDistances(new[] { b, c }, DistanceMetric.Euclidean).AsIndexable();
 
             IIndexableFloatVector distance2;
@@ -567,8 +563,8 @@ namespace BrightData.UnitTests
             var distribution = new Normal(0, 5);
 
             var a = _cpu.CreateVector(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
-            var b = _cpu.CreateVector(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
-            var c = _cpu.CreateVector(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var b = _cpu.CreateVector(5000, i => Convert.ToSingle(distribution.Sample()));
+            var c = _cpu.CreateVector(5000, i => Convert.ToSingle(distribution.Sample()));
             var distance = a.FindDistances(new[] { b, c }, DistanceMetric.Manhattan).AsIndexable();
 
             IIndexableFloatVector distance2;
@@ -587,8 +583,8 @@ namespace BrightData.UnitTests
             var distribution = new Normal(0, 5);
 
             var a = _cpu.CreateVector(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
-            var b = _cpu.CreateVector(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
-            var c = _cpu.CreateVector(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var b = _cpu.CreateVector(5000, i => Convert.ToSingle(distribution.Sample()));
+            var c = _cpu.CreateVector(5000, i => Convert.ToSingle(distribution.Sample()));
             var distance = a.FindDistances(new[] { b, c }, DistanceMetric.Cosine).AsIndexable();
 
             IIndexableFloatVector distance2;
@@ -609,8 +605,8 @@ namespace BrightData.UnitTests
             float[] dataNorm2 = null;
 
             var a = _cpu.CreateVector(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
-            var b = _cpu.CreateVector(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
-            var c = _cpu.CreateVector(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
+            var b = _cpu.CreateVector(5000, i => Convert.ToSingle(distribution.Sample()));
+            var c = _cpu.CreateVector(5000, i => Convert.ToSingle(distribution.Sample()));
             var distance = a.CosineDistance(new[] { b, c }, ref dataNorm1).AsIndexable();
 
             IIndexableFloatVector distance2;
@@ -735,29 +731,28 @@ namespace BrightData.UnitTests
         [Fact]
         public void VectorRotate()
         {
-            const int blockCount = 1;
             var a = _cpu.CreateVector(4, i => i + 1).AsIndexable();
             using var gpuA = _cuda.CreateVector(a);
-            a.RotateInPlace(blockCount);
-            gpuA.RotateInPlace(blockCount);
+            a.RotateInPlace();
+            gpuA.RotateInPlace();
             FloatMath.AreApproximatelyEqual(gpuA.AsIndexable(), a.AsIndexable()).Should().BeTrue();
         }
 
         [Fact]
         public void VectorRotate2()
         {
-            const int blockCount = 2;
+            const int BLOCK_COUNT = 2;
             var a = _cpu.CreateVector(8, i => i + 1).AsIndexable();
             using var gpuA = _cuda.CreateVector(a);
-            a.RotateInPlace(blockCount);
-            gpuA.RotateInPlace(blockCount);
+            a.RotateInPlace(BLOCK_COUNT);
+            gpuA.RotateInPlace(BLOCK_COUNT);
             FloatMath.AreApproximatelyEqual(gpuA.AsIndexable(), a.AsIndexable()).Should().BeTrue();
         }
 
         [Fact]
         public void TestFinite()
         {
-            var vector = _cpu.CreateVector(new[] { 0f, 1f, 2f, 3f, -1f });
+            var vector = _cpu.CreateVector(0f, 1f, 2f, 3f, -1f);
             vector.IsEntirelyFinite().Should().BeTrue();
 
             using var gpuVector = _cuda.CreateVector(vector.AsIndexable());
@@ -767,7 +762,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void TestFinite2()
         {
-            var vector = _cpu.CreateVector(new[] { 0f, 1f, 2f, 3f, -1f, float.Epsilon });
+            var vector = _cpu.CreateVector(0f, 1f, 2f, 3f, -1f, float.Epsilon);
             vector.IsEntirelyFinite().Should().BeTrue();
 
             using var gpuVector = _cuda.CreateVector(vector.AsIndexable());
@@ -777,7 +772,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void TestNotFinite()
         {
-            var vector = _cpu.CreateVector(new[] { 0f, 1f, 2f, 3f, float.NaN });
+            var vector = _cpu.CreateVector(0f, 1f, 2f, 3f, float.NaN);
             vector.IsEntirelyFinite().Should().BeFalse();
 
             using var gpuVector = _cuda.CreateVector(vector.AsIndexable());
@@ -787,7 +782,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void TestNotFinite2()
         {
-            var vector = _cpu.CreateVector(new[] { 0f, 1f, 2f, 3f, float.NegativeInfinity });
+            var vector = _cpu.CreateVector(0f, 1f, 2f, 3f, float.NegativeInfinity);
             vector.IsEntirelyFinite().Should().BeFalse();
 
             using var gpuVector = _cuda.CreateVector(vector.AsIndexable());
@@ -797,7 +792,7 @@ namespace BrightData.UnitTests
         [Fact]
         public void TestNotFinite3()
         {
-            var vector = _cpu.CreateVector(new[] { 0f, 1f, 2f, 3f, float.PositiveInfinity });
+            var vector = _cpu.CreateVector(0f, 1f, 2f, 3f, float.PositiveInfinity);
             vector.IsEntirelyFinite().Should().BeFalse();
 
             using var gpuVector = _cuda.CreateVector(vector.AsIndexable());

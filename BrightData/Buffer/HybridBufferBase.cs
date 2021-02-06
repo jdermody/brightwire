@@ -23,7 +23,7 @@ namespace BrightData.Buffer
             _maxCount = maxCount;
             _tempBuffer = new T[maxCount];
 
-            if (maxDistinct.HasValue && maxDistinct.Value > 0) {
+            if (maxDistinct > 0) {
                 _distinctSet = new HashSet<T>();
                 _maxDistinct = maxDistinct.Value;
             }

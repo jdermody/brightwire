@@ -179,7 +179,7 @@ namespace BrightData
         public static (T[] Training, T[] Test) Split<T>(this T[] seq, double trainPercentage = 0.8)
         {
             var input = Enumerable.Range(0, seq.Length).ToList();
-            int trainingCount = System.Convert.ToInt32(seq.Length * trainPercentage);
+            int trainingCount = Convert.ToInt32(seq.Length * trainPercentage);
             return (
                 input.Take(trainingCount).Select(i => seq[i]).ToArray(),
                 input.Skip(trainingCount).Select(i => seq[i]).ToArray()
@@ -424,7 +424,7 @@ namespace BrightData
         /// https://en.wikipedia.org/wiki/Tf%E2%80%93idf
         /// </summary>
         /// <returns>A new weighted classification set</returns>
-        public static IReadOnlyList<(string Label, WeightedIndexList Data)> TFIDF(this IReadOnlyList<(string Label, WeightedIndexList Data)> data, IBrightDataContext context)
+        public static IReadOnlyList<(string Label, WeightedIndexList Data)> Tfidf(this IReadOnlyList<(string Label, WeightedIndexList Data)> data, IBrightDataContext context)
         {
             var indexOccurence = new Dictionary<uint, uint>();
             var classificationSum = new Dictionary<string, double>();
@@ -462,7 +462,7 @@ namespace BrightData
                     var docsWithTerm = (double)indexOccurence[index];
                     var idf = Math.Log(numDocs / (1.0 + docsWithTerm));
                     var score = tf * idf;
-                    classificationIndex.Add(new WeightedIndexList.Item(index, System.Convert.ToSingle(score)));
+                    classificationIndex.Add(new WeightedIndexList.Item(index, Convert.ToSingle(score)));
                 }
                 ret.Add((label, WeightedIndexList.Create(context, classificationIndex.ToArray())));
             }

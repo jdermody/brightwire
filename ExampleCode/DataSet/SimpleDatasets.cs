@@ -86,7 +86,7 @@ namespace ExampleCode.DataSet
             using var reader = GetStreamReader(context, "beautiful_and_damned.txt", "http://www.gutenberg.org/cache/epub/9830/pg9830.txt");
             var data = reader.ReadToEnd();
             var pos = data.IndexOf("CHAPTER I", StringComparison.Ordinal);
-            var mainText = data.Substring(pos + 9).Trim();
+            var mainText = data[(pos + 9)..].Trim();
 
             return new SentenceTable(context, SimpleTokeniser.FindSentences(SimpleTokeniser.Tokenise(mainText)));
         }
@@ -122,8 +122,8 @@ namespace ExampleCode.DataSet
             var keywordSplit = " \n".ToCharArray();
             var topicSplit = "\n".ToCharArray();
 
-            var docList = new List<TestClusteringTrainer.AAAIDocument>();
-            table.ForEachRow(row => docList.Add(new TestClusteringTrainer.AAAIDocument(
+            var docList = new List<TestClusteringTrainer.AaaiDocument>();
+            table.ForEachRow(row => docList.Add(new TestClusteringTrainer.AaaiDocument(
                 (string) row[0],
                 ((string) row[3]).Split(keywordSplit, StringSplitOptions.RemoveEmptyEntries).Select(str => str.ToLower()).ToArray(),
                 ((string) row[4]).Split(topicSplit, StringSplitOptions.RemoveEmptyEntries),

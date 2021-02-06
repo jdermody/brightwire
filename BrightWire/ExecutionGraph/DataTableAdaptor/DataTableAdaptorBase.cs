@@ -57,7 +57,9 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         public virtual uint RowCount => (uint)_data.Count;
 
         /// <inheritdoc />
-        public abstract IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rows);
+        public abstract IMiniBatch Get(uint[] rows);
+
+        public virtual IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rows) => Get(rows);
 
         /// <inheritdoc />
         public abstract IDataSource CloneWith(IRowOrientedDataTable dataTable);

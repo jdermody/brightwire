@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using BrightData.Helper;
 using BrightData.UnitTests.Fixtures;
 using Xunit;

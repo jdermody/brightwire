@@ -1,10 +1,4 @@
-﻿using System;
-using BrightData.Helper;
-using BrightData.UnitTests.Fixtures;
-using Xunit;
-using FluentAssertions;
-
-namespace BrightData.UnitTests
+﻿namespace BrightData.UnitTests
 {
     public partial class TensorOperationTests : UnitTestBase
     {

@@ -1,5 +1,4 @@
 ﻿using BrightData;
-using BrightTable;
 using BrightWire.ExecutionGraph.Helper;
 using System;
 using System.Linq;
@@ -40,7 +39,7 @@ namespace BrightWire.ExecutionGraph.DataSource
             throw new NotImplementedException();
         }
 
-        public IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rows)
+        public IMiniBatch Get(uint[] rows)
         {
             var data = rows.Select(i => _data[(int)i]).ToList();
             var input = _lap.CreateMatrix(InputSize, (uint)data.Count, (i, j) => {
@@ -57,6 +56,8 @@ namespace BrightWire.ExecutionGraph.DataSource
             };
             return new MiniBatch(rows, this, inputList, null);
         }
+
+        public IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rows) => Get(rows);
 
         public uint[][] GetBuckets()
         {

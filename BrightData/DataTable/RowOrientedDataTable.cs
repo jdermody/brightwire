@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using BrightData.Buffer;
 using BrightData.DataTable.Builders;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
 using BrightData.Segment;
-using BrightTable.Buffer;
 
 namespace BrightData.DataTable
 {
@@ -321,7 +321,7 @@ namespace BrightData.DataTable
             return Copy(rowIndices, filePath);
         }
 
-        public IRowOrientedDataTable Sort(uint columnIndex, bool @ascending, string? filePath = null)
+        public IRowOrientedDataTable Sort(uint columnIndex, bool ascending, string? filePath = null)
         {
             var sortData = new List<(object Item, uint RowIndex)>();
             ForEachRow((row, rowIndex) => sortData.Add((row[columnIndex], rowIndex)));

@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using BrightData;
 using BrightData.UnitTests;
-using BrightTable;
 using BrightWire.TrainingData.Helper;
 using Xunit;
 
@@ -33,7 +29,7 @@ namespace BrightWire.UnitTests
         }
 
         [Fact]
-        public void TestNNMF()
+        public void TestNnmf()
         {
             var stringTableBuilder = new StringTableBuilder();
             var data = NaiveBayesTests.GetSimpleChineseSet(_context, stringTableBuilder)

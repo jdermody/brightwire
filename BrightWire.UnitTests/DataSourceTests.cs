@@ -1,16 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using BrightData;
-using BrightData.Cuda;
-using BrightData.Helper;
-using BrightData.Numerics;
 using BrightData.UnitTests;
 using BrightWire.ExecutionGraph;
 using FluentAssertions;
-using MathNet.Numerics.Distributions;
 using Xunit;
 
 namespace BrightWire.UnitTests
@@ -40,14 +32,14 @@ namespace BrightWire.UnitTests
 
 			var table = builder.BuildRowOriented();
             var dataSource = _factory.CreateDataSource(table);
-			var miniBatch = dataSource.Get(null, new uint[] { 1 });
+			var miniBatch = dataSource.Get(new uint[] { 1 });
 			var input = miniBatch.CurrentSequence.Input[0].GetMatrix().Row(0).AsIndexable();
-			var expectedOutput = miniBatch.CurrentSequence.Target.GetMatrix().Row(0).AsIndexable();
+			var expectedOutput = miniBatch.CurrentSequence.Target!.GetMatrix().Row(0).AsIndexable();
 
             input[0].Should().Be(0.2f);
             input[1].Should().Be(1.5f);
             expectedOutput.Count.Should().Be(4);
-            dataSource.OutputVectoriser.GetOutputLabel(0, expectedOutput.MaximumIndex()).Should().Be("b");
+            dataSource.OutputVectoriser!.GetOutputLabel(0, expectedOutput.MaximumIndex()).Should().Be("b");
 		}
 
 		float[] GetArray(uint value, uint size)
@@ -63,7 +55,7 @@ namespace BrightWire.UnitTests
 		{
 			var vectors = 10.AsRange().Select(i => _context.CreateVector(GetArray(i, 10))).ToArray();
 			var dataSource = _factory.CreateDataSource(vectors);
-			var miniBatch = dataSource.Get(null, new uint[] { 0, 1, 2 });
+			var miniBatch = dataSource.Get(new uint[] { 0, 1, 2 });
 
 			var currentSequence = miniBatch.CurrentSequence;
 			var batchMatrix = currentSequence.Input[0].GetMatrix();
@@ -79,7 +71,7 @@ namespace BrightWire.UnitTests
 		{
 			var matrices = Enumerable.Range(0, 10).Select(j => _context.CreateMatrixFromRows(10.AsRange().Select(i => _context.CreateVector(GetArray(i, 10))).ToArray())).ToArray();
 			var dataSource = _factory.CreateDataSource(matrices);
-			var miniBatch = dataSource.Get(null, new uint[] { 0, 1, 2 });
+			var miniBatch = dataSource.Get(new uint[] { 0, 1, 2 });
 
 			var currentSequence = miniBatch.CurrentSequence;
 			var batchMatrix = currentSequence.Input[0].GetMatrix();
@@ -94,7 +86,7 @@ namespace BrightWire.UnitTests
 		{
 			var tensors = Enumerable.Range(0, 10).Select(k => _context.CreateTensor3D(10.AsRange().Select(j => _context.CreateMatrixFromRows(10.AsRange().Select(i => _context.CreateVector(GetArray(i, 10))).ToArray())).ToArray())).ToArray();
 			var dataSource = _factory.CreateDataSource(tensors);
-			var miniBatch = dataSource.Get(null, new uint[] { 0, 1, 2 });
+			var miniBatch = dataSource.Get(new uint[] { 0, 1, 2 });
 
 			var currentSequence = miniBatch.CurrentSequence;
 			var batchMatrix = currentSequence.Input[0].GetMatrix();

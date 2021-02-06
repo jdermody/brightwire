@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using BrightWire;
+﻿using System.Linq;
+using BrightData;
+using BrightData.UnitTests;
 using FluentAssertions;
 using Xunit;
 
-namespace BrightData.UnitTests
+namespace BrightWire.UnitTests
 {
     public class DimensionalityReductionTests : NumericsBase
     {
@@ -21,7 +19,7 @@ namespace BrightData.UnitTests
         }
 
         [Fact]
-        public void TestSVD()
+        public void TestSvd()
         {
             var a = _cpu.CreateMatrix(256, 128, (x, y) => x * y).AsIndexable();
             var (floatMatrix, floatVector, floatMatrix1) = a.Svd();

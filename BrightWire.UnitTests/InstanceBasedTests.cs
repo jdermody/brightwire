@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using BrightData;
 using BrightData.UnitTests;
-using BrightTable;
 using FluentAssertions;
 using Xunit;
 
@@ -13,7 +9,7 @@ namespace BrightWire.UnitTests
     public class InstanceBasedTests : NumericsBase
     {
         [Fact]
-        public void KNN()
+        public void Knn()
         {
             var dataTable = _context.BuildTable();
             dataTable.AddColumn(ColumnType.Float, "height");

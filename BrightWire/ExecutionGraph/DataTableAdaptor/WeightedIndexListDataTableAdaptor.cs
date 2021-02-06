@@ -15,7 +15,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             : base(lap, dataTable, featureColumns)
         {
             _featureColumns = featureColumns;
-            OutputVectoriser = outputVectoriser ?? dataTable.GetVectoriser(dataTable.GetTargetColumnOrThrow());
+            OutputVectoriser = outputVectoriser ?? dataTable.GetVectoriser(true, dataTable.GetTargetColumnOrThrow());
             OutputSize = OutputVectoriser.OutputSize;
 
             // load the data
@@ -46,7 +46,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             return ret;
         }
 
-        public override IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rows)
+        public override IMiniBatch Get(uint[] rows)
         {
             var data = GetRows(rows)
                 .Select(r => (new[] { Encode(r.Item1) }, r.Item2))

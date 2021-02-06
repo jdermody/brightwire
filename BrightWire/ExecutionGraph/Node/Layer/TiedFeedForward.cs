@@ -79,7 +79,8 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (_bias == null)
                 _bias = lap.CreateVector(bias);
-            _bias.Data = bias;
+            else
+                _bias.Data = bias;
         }
 
         public override void OnDeserialise(IReadOnlyDictionary<string, INode> graph)

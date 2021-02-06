@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using BrightData;
 using BrightData.UnitTests;
-using BrightTable;
 using BrightWire.TrainingData.Helper;
 using FluentAssertions;
 using Xunit;
@@ -59,7 +56,7 @@ namespace BrightWire.UnitTests
 
         public static IndexList GetTestRow(IBrightDataContext context, StringTableBuilder stringTableBuilder)
         {
-            return context.CreateIndexList(new[] {"Chinese", "Chinese", "Chinese", "Tokyo", "Japan"}.Select(s => stringTableBuilder.GetIndex(s)));
+            return context.CreateIndexList(new[] {"Chinese", "Chinese", "Chinese", "Tokyo", "Japan"}.Select(stringTableBuilder.GetIndex));
         }
 
         [Fact]

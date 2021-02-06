@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using BrightData.Analysis;
 using BrightData.Analysis.Readers;
 using BrightData.Transformation;

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using BrightData;
-using BrightTable;
 using BrightWire.Models.InstanceBased;
 
 namespace BrightWire.InstanceBased
@@ -10,7 +9,7 @@ namespace BrightWire.InstanceBased
     /// <summary>
     /// K Nearest Neighbour classifier
     /// </summary>
-    internal class KNNClassifier : IRowClassifier
+    internal class KnnClassifier : IRowClassifier
     {
         readonly KNearestNeighbours _model;
         readonly ILinearAlgebraProvider _lap;
@@ -18,7 +17,7 @@ namespace BrightWire.InstanceBased
         readonly DistanceMetric _distanceMetric;
         readonly uint _k;
 
-        public KNNClassifier(ILinearAlgebraProvider lap, KNearestNeighbours model, uint k, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
+        public KnnClassifier(ILinearAlgebraProvider lap, KNearestNeighbours model, uint k, DistanceMetric distanceMetric = DistanceMetric.Euclidean)
         {
             _k = k;
             _lap = lap;

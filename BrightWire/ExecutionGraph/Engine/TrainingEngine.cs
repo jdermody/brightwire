@@ -8,7 +8,6 @@ using System.Linq;
 using System.Text;
 using BrightData;
 using BrightData.LinearAlgebra;
-using BrightWire.TrainingData.Artificial;
 
 namespace BrightWire.ExecutionGraph.Engine
 {
@@ -274,12 +273,9 @@ namespace BrightWire.ExecutionGraph.Engine
 
 		public void LoadParametersFrom(GraphFactory factory, ExecutionGraphModel graph)
 		{
-			if (graph.InputNode != null)
-				LoadParamaters(factory, graph.InputNode);
-			if (graph.OtherNodes != null) {
-				foreach (var node in graph.OtherNodes)
-					LoadParamaters(factory, node);
-			}
+			LoadParamaters(factory, graph.InputNode);
+            foreach (var node in graph.OtherNodes)
+                LoadParamaters(factory, node);
 		}
 	}
 }

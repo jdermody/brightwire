@@ -16,7 +16,7 @@ namespace ExampleCode.DataTableTrainers
             _dictionarySize = dictionarySize;
         }
 
-        public void TrainLSTM()
+        public void TrainLstm()
         {
             var graph = _context.CreateGraphFactory();
             var errorMetric = graph.ErrorMetric.BinaryClassification;
@@ -52,7 +52,7 @@ namespace ExampleCode.DataTableTrainers
             Console.WriteLine(output.Average(o => o.CalculateError(errorMetric)));
         }
 
-        public void TrainGRU()
+        public void TrainGru()
         {
             var graph = _context.CreateGraphFactory();
             var errorMetric = graph.ErrorMetric.BinaryClassification;
@@ -93,13 +93,13 @@ namespace ExampleCode.DataTableTrainers
             var errorMetric = graph.ErrorMetric.BinaryClassification;
 
             // create the property set
-            var propertySet = graph.CurrentPropertySet
+            graph.CurrentPropertySet
                 .Use(graph.GradientDescent.RmsProp)
                 .Use(graph.WeightInitialisation.Xavier)
             ;
 
             const uint BATCH_SIZE = 16;
-            uint HIDDEN_LAYER_SIZE = 64;
+            const uint HIDDEN_LAYER_SIZE = 64;
             const float TRAINING_RATE = 0.1f;
 
             // create the encoder

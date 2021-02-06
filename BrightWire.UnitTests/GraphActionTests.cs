@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using BrightData;
+﻿using BrightData;
 using BrightData.Helper;
 using BrightData.UnitTests;
 using BrightWire.ExecutionGraph;
+using BrightWire.UnitTests.Helper;
 using FluentAssertions;
 using Xunit;
 
@@ -30,10 +28,10 @@ namespace BrightWire.UnitTests
         [Fact]
         public void TestConstrainInput()
         {
-            var input = _cpu.CreateVector(new[] { -1.5f, -1f, -0.5f, 0, 0.5f, 1f, 1.5f }).ReshapeAsMatrix(1, 7);
-            var output = _cpu.CreateVector(new[] { -1f, -1f, -0.5f, 0, 0.5f, 1f, 1f }).ReshapeAsMatrix(1, 7);
+            var input = _cpu.CreateVector(-1.5f, -1f, -0.5f, 0, 0.5f, 1f, 1.5f).ReshapeAsMatrix(1, 7);
+            var output = _cpu.CreateVector(-1f, -1f, -0.5f, 0, 0.5f, 1f, 1f).ReshapeAsMatrix(1, 7);
 
-            CheckTestAction(_factory.GraphAction.Constrain(-1f, 1f), input.AsGraphData(), output.AsGraphData());
+            CheckTestAction(_factory.GraphAction.Constrain(), input.AsGraphData(), output.AsGraphData());
         }
 	}
 }

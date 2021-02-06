@@ -1,5 +1,4 @@
-﻿using BrightTable;
-using System;
+﻿using System;
 using System.Linq;
 using BrightData;
 using BrightWire.Models.Linear;

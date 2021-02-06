@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using BrightData;
 
-namespace BrightWire.UnitTests
+namespace BrightWire.UnitTests.Helper
 {
     internal class TestingContext : IGraphContext
     {

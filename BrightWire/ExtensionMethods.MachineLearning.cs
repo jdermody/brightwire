@@ -138,7 +138,7 @@ namespace BrightWire
         /// <param name="data">The training data</param>
         public static KNearestNeighbours TrainKNearestNeighbours(this IDataTable data)
         {
-            return KNNClassificationTrainer.Train(data);
+            return KnnClassificationTrainer.Train(data);
         }
 
 	    /// <summary>

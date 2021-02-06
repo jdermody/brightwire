@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using BrightData;
 using BrightData.UnitTests;
-using BrightTable;
 using FluentAssertions;
 using Xunit;
 
@@ -39,8 +36,8 @@ namespace BrightWire.UnitTests
             Math.Round(prediction).Should().Be(6f);
 
             var prediction3 = predictor.Predict(new[] {
-                new float[] { 10f },
-                new float[] { 3f }
+                new[] { 10f },
+                new[] { 3f }
             });
             Math.Round(prediction3[1]).Should().Be(6f);
         }
@@ -84,13 +81,7 @@ namespace BrightWire.UnitTests
             var probability2 = predictor.Predict(_context.CreateMatrix(1, 1, 4f));
             probability2[0].Should().BeGreaterOrEqualTo(0.5f);
 
-            var probability3 = predictor.Predict(_context.CreateMatrixFromRows(new[] {
-                _context.CreateVector(new[] { 1f }),
-                _context.CreateVector(new[] { 2f }),
-                _context.CreateVector(new[] { 3f }),
-                _context.CreateVector(new[] { 4f }),
-                _context.CreateVector(new[] { 5f })
-            }));
+            var probability3 = predictor.Predict(_context.CreateMatrixFromRows(_context.CreateVector(1f), _context.CreateVector(2f), _context.CreateVector(3f), _context.CreateVector(4f), _context.CreateVector(5f)));
             probability3[0].Should().BeLessOrEqualTo(0.5f);
             probability3[1].Should().BeLessOrEqualTo(0.5f);
             probability3[2].Should().BeGreaterOrEqualTo(0.5f);

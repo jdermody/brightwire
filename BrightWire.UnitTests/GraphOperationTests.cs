@@ -4,6 +4,7 @@ using BrightData;
 using BrightData.Helper;
 using BrightData.UnitTests;
 using BrightWire.ExecutionGraph;
+using BrightWire.UnitTests.Helper;
 using FluentAssertions;
 using Xunit;
 

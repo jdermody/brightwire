@@ -60,7 +60,7 @@ namespace BrightWire
             var curr = Convert.ToInt32(progress * 100);
             if (curr > previousPercentage) {
                 var sb = new StringBuilder();
-                sb.Append($"\r");
+                sb.Append('\r');
                 var i = 0;
                 for (; i < curr; i++)
                     sb.Append('█');

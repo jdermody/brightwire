@@ -14,8 +14,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             : base(lap, dataTable, featureColumns)
         {
             _featureColumns = featureColumns;
-            InputVectoriser = inputVectoriser ?? dataTable.GetVectoriser(_dataColumnIndex);
-            OutputVectoriser = outputVectoriser ?? dataTable.GetVectoriser(dataTable.GetTargetColumnOrThrow());
+            InputVectoriser = inputVectoriser ?? dataTable.GetVectoriser(true, _dataColumnIndex);
+            OutputVectoriser = outputVectoriser ?? dataTable.GetVectoriser(true, dataTable.GetTargetColumnOrThrow());
         }
 
         public override IDataSource CloneWith(IRowOrientedDataTable dataTable)
@@ -27,7 +27,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         public override uint? OutputSize => OutputVectoriser?.OutputSize;
         public override bool IsSequential => false;
 
-        public override IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rowIndices)
+        public override IMiniBatch Get(uint[] rowIndices)
         {
             var rows = GetRows(rowIndices);
             var data = rows

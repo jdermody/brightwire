@@ -1,5 +1,4 @@
 ﻿using BrightData;
-using BrightTable;
 using BrightWire.ExecutionGraph.Helper;
 using System;
 using System.Linq;
@@ -33,7 +32,7 @@ namespace BrightWire.ExecutionGraph.DataSource
         public IDataTableVectoriser? InputVectoriser { get; } = null;
         public IDataTableVectoriser? OutputVectoriser { get; } = null;
 
-        public IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rows)
+        public IMiniBatch Get(uint[] rows)
         {
             var data = rows.Select(i => _data[(int)i]).ToList();
             var input = _lap.CreateMatrix((uint)data.Count, InputSize, (x, y) => data[(int)x].Segment[y]);
@@ -42,6 +41,8 @@ namespace BrightWire.ExecutionGraph.DataSource
             };
             return new MiniBatch(rows, this, inputList, null);
         }
+
+        public IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rows) => Get(rows);
 
         public uint[][] GetBuckets()
         {

@@ -17,7 +17,13 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         readonly uint[] _rowDepth;
         readonly uint _inputSize, _outputSize;
 
-        public SequenceToSequenceDataTableAdaptor(ILinearAlgebraProvider lap, ILearningContext? learningContext, GraphFactory factory, IRowOrientedDataTable dataTable, Action<WireBuilder> dataConversionBuilder)
+        public SequenceToSequenceDataTableAdaptor(
+            ILinearAlgebraProvider lap, 
+            ILearningContext? learningContext, 
+            GraphFactory factory, 
+            IRowOrientedDataTable dataTable, 
+            Action<WireBuilder> dataConversionBuilder
+        )
             : this(lap, learningContext, dataTable)
         {
             var wireBuilder = factory.Connect(_inputSize, _input);
@@ -30,7 +36,13 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             _learningContext?.Clear();
         }
 
-        public SequenceToSequenceDataTableAdaptor(ILinearAlgebraProvider lap, ILearningContext? learningContext, IRowOrientedDataTable dataTable, INode input, DataSourceModel dataSource)
+        public SequenceToSequenceDataTableAdaptor(
+            ILinearAlgebraProvider lap, 
+            ILearningContext? learningContext, 
+            IRowOrientedDataTable dataTable, 
+            INode input, 
+            DataSourceModel dataSource
+        )
             : this(lap, learningContext, dataTable)
         {
             _input = input;
@@ -38,7 +50,14 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             _outputSize = dataSource.OutputSize;
         }
 
-        SequenceToSequenceDataTableAdaptor(ILinearAlgebraProvider lap, ILearningContext? learningContext, IRowOrientedDataTable dataTable, INode input, uint inputSize, uint outputSize)
+        SequenceToSequenceDataTableAdaptor(
+            ILinearAlgebraProvider lap, 
+            ILearningContext? learningContext, 
+            IRowOrientedDataTable dataTable, 
+            INode input, 
+            uint inputSize, 
+            uint outputSize
+        )
             : this(lap, learningContext, dataTable)
         {
             _input = input;
@@ -46,7 +65,12 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             _outputSize = outputSize;
         }
 
-        SequenceToSequenceDataTableAdaptor(ILinearAlgebraProvider lap, ILearningContext? learningContext, IRowOrientedDataTable dataTable) : base(lap, learningContext, dataTable)
+        SequenceToSequenceDataTableAdaptor(
+            ILinearAlgebraProvider lap, 
+            ILearningContext? learningContext, 
+            IRowOrientedDataTable dataTable
+        ) 
+            : base(lap, learningContext, dataTable)
         {
             _rowDepth = new uint[dataTable.RowCount];
             Matrix<float>? inputMatrix = null, outputMatrix = null;
@@ -102,6 +126,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
                 throw new Exception("Encoder produced no output");
             return (encoderOutput, data);
         }
+
+        public override IMiniBatch Get(uint[] rows) => throw new NotImplementedException();
 
         public override IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rows)
         {

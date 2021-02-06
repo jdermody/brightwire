@@ -1,5 +1,4 @@
 ﻿using BrightData;
-using BrightTable;
 using BrightWire.ExecutionGraph.Helper;
 using System;
 using System.Collections.Generic;
@@ -38,7 +37,7 @@ namespace BrightWire.ExecutionGraph.DataSource
 	    public uint? OutputSize { get; }
 	    public uint RowCount => (uint)_data.Length;
 
-        public IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rows)
+        public IMiniBatch Get(uint[] rows)
         {
             var data = rows.Select(i => _data[(int)i]).ToList();
 
@@ -68,6 +67,8 @@ namespace BrightWire.ExecutionGraph.DataSource
             }
             return miniBatch;
         }
+
+        public IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rows) => Get(rows);
 
         public uint[][] GetBuckets()
         {

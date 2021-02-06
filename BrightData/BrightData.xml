@@ -360,7 +360,9 @@
             <inheritdoc />
         </member>
         <member name="P:BrightData.BrightDataContext.LinearAlgebraProvider">
-            <inheritdoc />
+            <summary>
+            Linear algebra provider
+            </summary>
         </member>
         <member name="P:BrightData.BrightDataContext.TempStreamProvider">
             <inheritdoc />
@@ -397,6 +399,12 @@
             <typeparam name="T"></typeparam>
             <param name="buffer">Buffer to write</param>
             <param name="stream">Stream to write to</param>
+        </member>
+        <member name="T:BrightData.Buffer.InMemoryBuffer`1">
+            <summary>
+            Buffer
+            </summary>
+            <typeparam name="T"></typeparam>
         </member>
         <member name="T:BrightData.Buffer.StaticBuffers">
             <summary>
@@ -1083,7 +1091,7 @@
             </summary>
             <param name="data"></param>
         </member>
-        <member name="M:BrightData.ExtensionMethods.TFIDF(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.WeightedIndexList}},BrightData.IBrightDataContext)">
+        <member name="M:BrightData.ExtensionMethods.Tfidf(System.Collections.Generic.IReadOnlyList{System.ValueTuple{System.String,BrightData.WeightedIndexList}},BrightData.IBrightDataContext)">
             <summary>
             Modifies the weights in the classification set based on relative corpus statistics to increase the weight of important words relative to each document
             https://en.wikipedia.org/wiki/Tf%E2%80%93idf
@@ -1412,7 +1420,7 @@
         </member>
         <member name="M:BrightData.ExtensionMethods.GetVectorisedFeatures(BrightData.IDataTable)">
             <summary>
-            Converts the data table to a sequence of labelled vectors (feature columns are vectorised, target column is converted to a string)
+            Converts the data table to a sequence of labeled vectors (feature columns are vectorised, target column is converted to a string)
             </summary>
             <param name="dataTable"></param>
             <returns></returns>
@@ -1487,11 +1495,12 @@
             <param name="columnIndices">Column indices to include in the matrix</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.Vectorise(BrightData.IDataTable,System.String)">
+        <member name="M:BrightData.ExtensionMethods.Vectorise(BrightData.IDataTable,System.Boolean,System.String)">
             <summary>
             Creates a new data table that has two vector columns, one for the features and the other for the target
             </summary>
             <param name="dataTable"></param>
+            <param name="oneHotEncodeToMultipleColumns"></param>
             <param name="filePath">Optional path to save data table to disk</param>
             <returns></returns>
         </member>
@@ -1549,11 +1558,12 @@
             <param name="columnType"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetVectoriser(BrightData.IDataTable,System.UInt32[])">
+        <member name="M:BrightData.ExtensionMethods.GetVectoriser(BrightData.IDataTable,System.Boolean,System.UInt32[])">
             <summary>
             Returns a vectoriser
             </summary>
             <param name="table"></param>
+            <param name="oneHotEncodeToMultipleColumns"></param>
             <param name="columnIndices">Column indices to vectorise</param>
             <returns></returns>
         </member>
@@ -1701,16 +1711,6 @@
             <typeparam name="T"></typeparam>
             <param name="context"></param>
             <param name="reader"></param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.CreateMatrix``1(BrightData.IBrightDataContext,System.UInt32,System.UInt32)">
-            <summary>
-            Creates a matrix
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="context"></param>
-            <param name="rows">Number of rows</param>
-            <param name="columns">Number of columns</param>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.CreateMatrix``1(BrightData.IBrightDataContext,System.UInt32,System.UInt32,System.Func{System.UInt32,System.UInt32,``0})">
@@ -6463,12 +6463,6 @@
         </member>
         <member name="M:BrightData.WeightedIndexList.Equals(System.Object)">
             <inheritdoc />
-        </member>
-        <member name="T:BrightTable.Buffer.InMemoryBuffer`1">
-            <summary>
-            Buffer
-            </summary>
-            <typeparam name="T"></typeparam>
         </member>
     </members>
 </doc>

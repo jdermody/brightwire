@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using BrightData;
 using BrightData.Segment;
 
-namespace BrightTable.Buffer
+namespace BrightData.Buffer
 {
     /// <summary>
     /// Buffer

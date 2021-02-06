@@ -12,15 +12,15 @@ namespace ExampleCode.DataTableTrainers
     {
         readonly IBrightDataContext _context;
 
-        public class AAAIDocument
+        public class AaaiDocument
         {
-            public AAAIDocument(string title, string[] keyword, string[] topic, string @abstract, string[] @group)
+            public AaaiDocument(string title, string[] keyword, string[] topic, string @abstract, string[] group)
             {
                 Title = title;
                 Keyword = keyword;
                 Topic = topic;
                 Abstract = @abstract;
-                Group = @group;
+                Group = group;
             }
 
             /// <summary>
@@ -67,10 +67,10 @@ namespace ExampleCode.DataTableTrainers
         }
         readonly StringTableBuilder _stringTable = new StringTableBuilder();
         readonly IFloatVector[] _vectors;
-        readonly Dictionary<IFloatVector, AAAIDocument> _documentTable = new Dictionary<IFloatVector, AAAIDocument>();
+        readonly Dictionary<IFloatVector, AaaiDocument> _documentTable = new Dictionary<IFloatVector, AaaiDocument>();
         readonly uint _groupCount;
 
-        public TestClusteringTrainer(IBrightDataContext context, IReadOnlyCollection<AAAIDocument> documents)
+        public TestClusteringTrainer(IBrightDataContext context, IReadOnlyCollection<AaaiDocument> documents)
         {
             _context = context;
             var lap = context.LinearAlgebraProvider;
@@ -153,7 +153,7 @@ namespace ExampleCode.DataTableTrainers
 
         string DataFileDirectory => _context.Get<DirectoryInfo>("DataFileDirectory")?.FullName ?? throw new Exception("Data File Directory not set");
 
-        void WriteClusters(string filePath, IFloatVector[][] clusters, Dictionary<IFloatVector, AAAIDocument> lookupTable)
+        void WriteClusters(string filePath, IFloatVector[][] clusters, Dictionary<IFloatVector, AaaiDocument> lookupTable)
         {
             new FileInfo(filePath).Directory?.Create();
             using var writer = new StreamWriter(filePath);

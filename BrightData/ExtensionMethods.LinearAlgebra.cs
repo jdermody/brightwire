@@ -68,19 +68,6 @@ namespace BrightData
             return new Vector<T>(context, reader);
         }
 
-        /// <summary>
-        /// Creates a matrix
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="context"></param>
-        /// <param name="rows">Number of rows</param>
-        /// <param name="columns">Number of columns</param>
-        /// <returns></returns>
-        public static Matrix<T> CreateMatrix<T>(this IBrightDataContext context, uint rows, uint columns) where T : struct
-        {
-            var segment = context.CreateSegment<T>(rows * columns);
-            return new Matrix<T>(segment, rows, columns);
-        }
 
         /// <summary>
         /// Creates a matrix

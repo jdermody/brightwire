@@ -206,7 +206,7 @@
         <member name="P:BrightWire.ExecutionGraph.DataTableAdaptor.DataTableAdaptorBase`1.RowCount">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.ExecutionGraph.DataTableAdaptor.DataTableAdaptorBase`1.Get(BrightWire.IGraphExecutionContext,System.UInt32[])">
+        <member name="M:BrightWire.ExecutionGraph.DataTableAdaptor.DataTableAdaptorBase`1.Get(System.UInt32[])">
             <inheritdoc />
         </member>
         <member name="M:BrightWire.ExecutionGraph.DataTableAdaptor.DataTableAdaptorBase`1.CloneWith(BrightData.IRowOrientedDataTable)">
@@ -2660,12 +2660,12 @@
             </summary>
             <param name="indices">Indices of the data vectors to use in the averaged vector</param>
         </member>
-        <member name="T:BrightWire.InstanceBased.KNNClassifier">
+        <member name="T:BrightWire.InstanceBased.KnnClassifier">
             <summary>
             K Nearest Neighbour classifier
             </summary>
         </member>
-        <member name="T:BrightWire.InstanceBased.Training.KNNClassificationTrainer">
+        <member name="T:BrightWire.InstanceBased.Training.KnnClassificationTrainer">
             <summary>
             K Nearest Neighbour classification trainer
             </summary>
@@ -3104,6 +3104,12 @@
             <summary>
             Number of rows
             </summary>
+        </member>
+        <member name="M:BrightWire.IDataSource.Get(System.UInt32[])">
+            <summary>
+            Gets a mini batch with the specified rows
+            </summary>
+            <param name="rows">List of rows</param>
         </member>
         <member name="M:BrightWire.IDataSource.Get(BrightWire.IGraphExecutionContext,System.UInt32[])">
             <summary>

@@ -13,7 +13,7 @@ namespace ExampleCode.DataTableTrainers
         {
         }
 
-        public void TrainLSTM(uint hiddenLayerSize)
+        public void TrainLstm(uint hiddenLayerSize)
         {
             var graph = Table.Context.CreateGraphFactory();
             var errorMetric = graph.ErrorMetric.Quadratic;
