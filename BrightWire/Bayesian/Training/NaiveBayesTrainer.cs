@@ -75,7 +75,20 @@ namespace BrightWire.Bayesian.Training
                 foreach (var column in frequency.Columns) {
                     var metaData = new MetaData();
                     column.Value.WriteTo(metaData);
-                    if (metaData.Has(Consts.Total)) {
+                    if (metaData.IsNumeric()) {
+                        var analysis = metaData.GetNumericAnalysis();
+                        var variance = analysis.SampleVariance;
+                        if (variance != null) {
+                            var mean = analysis.Mean;
+                            columnList.Add(new NaiveBayes.Column {
+                                Type = NaiveBayes.ColumnType.ContinuousGaussian,
+                                ColumnIndex = column.Key,
+                                Mean = mean,
+                                Variance = variance.Value
+                            });
+                        }
+                    }
+                    else {
                         var analysis = metaData.GetFrequencyAnalysis();
                         var total = (double) analysis.Total;
                         if (total > 0) {
@@ -93,19 +106,6 @@ namespace BrightWire.Bayesian.Training
                                 Type = NaiveBayes.ColumnType.Categorical,
                                 ColumnIndex = column.Key,
                                 Probability = list.ToArray()
-                            });
-                        }
-                    }
-                    else {
-                        var analysis = metaData.GetNumericAnalysis();
-                        var variance = analysis.SampleVariance;
-                        if (variance != null) {
-                            var mean = analysis.Mean;
-                            columnList.Add(new NaiveBayes.Column {
-                                Type = NaiveBayes.ColumnType.ContinuousGaussian,
-                                ColumnIndex = column.Key,
-                                Mean = mean,
-                                Variance = variance.Value
                             });
                         }
                     }
