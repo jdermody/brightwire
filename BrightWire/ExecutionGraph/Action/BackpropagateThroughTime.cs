@@ -1,4 +1,5 @@
-﻿using BrightData.Helper;
+﻿using System.Linq;
+using BrightData.Helper;
 using BrightWire.Helper;
 
 namespace BrightWire.ExecutionGraph.Action
@@ -25,13 +26,14 @@ namespace BrightWire.ExecutionGraph.Action
             return TypeLoader.GetTypeName(_errorMetric);
         }
 
-        public IGraphData Execute(IGraphData input, IGraphContext context)
+        public IGraphData Execute(IGraphData input, IGraphSequenceContext context)
         {
             var output = input.GetMatrix();
             if (context.LearningContext != null) {
 	            context.LearningContext.ErrorMetric ??= _errorMetric;
 
-                var target = context.BatchSequence.Target?.GetMatrix();
+                var batchSequence = context.BatchSequence;
+                var target = batchSequence.Target?.GetMatrix();
                 if (target == null)
                     context.LearningContext.DeferBackpropagation(null, context.Backpropagate);
                 else {

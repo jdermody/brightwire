@@ -2,16 +2,16 @@
 using System.Linq;
 using BrightData;
 
-namespace BrightWire.ExecutionGraph.DataTableAdaptor
+namespace BrightWire.ExecutionGraph.DataTableAdapter
 {
     /// <summary>
     /// Adapts data tables with a index list based column (corresponding to an unweighted sparse vector)
     /// </summary>
-    internal class IndexListDataTableAdaptor : DataTableAdaptorBase<(IndexList, float[])>, IIndexListEncoder
+    internal class IndexListDataTableAdapter : DataTableAdapterBase<(IndexList, float[])>, IIndexListEncoder
     {
         readonly uint[] _featureColumns;
 
-        public IndexListDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, IDataTableVectoriser? outputVectoriser, uint[] featureColumns)
+        public IndexListDataTableAdapter(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, IDataTableVectoriser? outputVectoriser, uint[] featureColumns)
             : base(lap, dataTable, featureColumns)
         {
             _featureColumns = featureColumns;
@@ -20,7 +20,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 
             // load the data
             uint inputSize = 0;
-            dataTable.ForEachRow(row => _data.Add((Combine(_dataColumnIndex.Select(i => (IndexList)row[i]), ref inputSize), OutputVectoriser.Vectorise(row))));
+            dataTable.ForEachRow(row => _data.Add((Combine(_featureColumnIndices.Select(i => (IndexList)row[i]), ref inputSize), OutputVectoriser.Vectorise(row))));
             InputSize = inputSize;
         }
 
@@ -54,7 +54,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 
         public override IDataSource CloneWith(IRowOrientedDataTable dataTable)
         {
-            return new IndexListDataTableAdaptor(_lap, dataTable, OutputVectoriser, _featureColumns);
+            return new IndexListDataTableAdapter(_lap, dataTable, OutputVectoriser, _featureColumns);
         }
     }
 }

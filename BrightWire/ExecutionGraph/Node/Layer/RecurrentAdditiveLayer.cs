@@ -70,7 +70,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         /// Execute on the the start node, which will execute each sub node in turn
         /// </summary>
         /// <param name="context"></param>
-        public override void ExecuteForward(IGraphContext context)
+        public override void ExecuteForward(IGraphSequenceContext context)
         {
             _start.ExecuteForward(context);
         }

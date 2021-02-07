@@ -73,7 +73,7 @@ namespace BrightWire
         /// <param name="input">Current graph signal</param>
         /// <param name="context">Graph context</param>
         /// <returns>Optional new graph signal to propagate</returns>
-        IGraphData Execute(IGraphData input, IGraphContext context);
+        IGraphData Execute(IGraphData input, IGraphSequenceContext context);
         
         /// <summary>
         /// Serialises the action to a string
@@ -146,7 +146,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="context">Graph context</param>
         /// <param name="channel">Channel the signal was received on</param>
-        void ExecuteForward(IGraphContext context, uint channel);
+        void ExecuteForward(IGraphSequenceContext context, uint channel);
 
         /// <summary>
         /// Searches for a node by friendly name
@@ -233,9 +233,9 @@ namespace BrightWire
     }
 
     /// <summary>
-    /// Graph context
+    /// Represents a single pass through the graph, from a single mini batch sequence
     /// </summary>
-    public interface IGraphContext : IDisposable
+    public interface IGraphSequenceContext : IDisposable
     {
         /// <summary>
         /// Node that sent the current signal
@@ -328,6 +328,10 @@ namespace BrightWire
         /// Returns all stored output
         /// </summary>
         IGraphData[] Output { get; }
+
+        void StoreExecutionResult();
+
+        IEnumerable<ExecutionResult> Results { get; }
     }
 
     /// <summary>
@@ -376,7 +380,9 @@ namespace BrightWire
         /// </summary>
         /// <param name="sequence">Sequence index</param>
         /// <param name="callback">Continuation</param>
-        void RegisterContinuation(IMiniBatchSequence sequence, Action<IGraphContext> callback);
+        void RegisterContinuation(IMiniBatchSequence sequence, Action<IGraphSequenceContext> callback);
+
+        void RegisterAdditional(IMiniBatch miniBatch, IGraphData data, Action<IGraphSequenceContext, IGraphData> startCallback, Action<IGraphSequenceContext[]> endCallback);
 
         /// <summary>
         /// True if there are registered continuations
@@ -387,7 +393,14 @@ namespace BrightWire
         /// Execute any registered continuation for this context
         /// </summary>
         /// <param name="context">Context with an associated IMiniBatchSequence</param>
-        void Continue(IGraphContext context);
+        void Continue(IGraphSequenceContext context);
+
+        IEnumerable<(IGraphSequenceContext Context, Action<IGraphSequenceContext[]> Callback)> ExecuteAdditional();
+    }
+
+    public interface ICreateGraphContext
+    {
+        IGraphSequenceContext Create(IGraphExecutionContext executionContext, IMiniBatchSequence sequence);
     }
 
     /// <summary>
@@ -402,7 +415,7 @@ namespace BrightWire
         /// <param name="errorSignal">Error signal</param>
         /// <param name="context">Graph context</param>
         /// <param name="parents">The current node's parents</param>
-        void Backward(INode? fromNode, IGraphData? errorSignal, IGraphContext context, INode[] parents);
+        void Backward(INode? fromNode, IGraphData? errorSignal, IGraphSequenceContext context, INode[] parents);
     }
 
     /// <summary>
@@ -458,7 +471,7 @@ namespace BrightWire
         /// Called when the current batch has completed
         /// </summary>
         /// <param name="context"></param>
-        void OnBatchProcessed(IGraphContext context);
+        void OnBatchProcessed(IGraphSequenceContext context);
 
         /// <summary>
         /// Creates a new data source, using the current as a template but replacing the data table
@@ -540,7 +553,7 @@ namespace BrightWire
         /// <summary>
         /// Input data
         /// </summary>
-        IGraphData[] Input { get; }
+        IGraphData? Input { get; }
 
         /// <summary>
         /// Training target data
@@ -605,6 +618,8 @@ namespace BrightWire
         /// Resets the sequence iterator
         /// </summary>
         void Reset();
+
+        IMiniBatch? NextMiniBatch { get; }
     }
 
     /// <summary>
@@ -616,13 +631,13 @@ namespace BrightWire
         /// Executes the operation
         /// </summary>
         /// <param name="executionContext">Graph execution context</param>
-        void Execute(IGraphExecutionContext executionContext);
+        IEnumerable<ExecutionResult> Execute(IGraphExecutionContext executionContext);
     }
 
     /// <summary>
     /// Graph engines drive execution within a graph
     /// </summary>
-    public interface IGraphEngine
+    public interface IGraphEngine : ICreateGraphContext
     {
         /// <summary>
         /// Linear algebra provider
@@ -660,10 +675,9 @@ namespace BrightWire
         /// </summary>
         /// <param name="sequenceIndex">Index of the current sequence (starting from 0)</param>
         /// <param name="input">Input vector</param>
-        /// <param name="executionContext">Graph execution context</param>
         /// <param name="sequenceType">The sequence type (start, standard, end)</param>
         /// <returns></returns>
-        ExecutionResult? ExecuteSequential(uint sequenceIndex, float[] input, IGraphExecutionContext executionContext, MiniBatchSequenceType sequenceType);
+        ExecutionResult? ExecuteSequential(uint sequenceIndex, float[] input, MiniBatchSequenceType sequenceType);
 
         /// <summary>
         /// Executes a sequence of inputs on the current graph
@@ -695,7 +709,7 @@ namespace BrightWire
 	    /// <param name="executionContext">Graph execution context</param>
 	    /// <param name="batchCompleteCallback">Optional callback to be notifiied after each mini batch has completed</param>
 	    /// <returns>Graph training error</returns>
-	    double Train(IGraphExecutionContext executionContext, Action<float>? batchCompleteCallback = null);
+	    void Train(IGraphExecutionContext executionContext, Action<float>? batchCompleteCallback = null);
 
         /// <summary>
         /// Executes test data on the current graph
@@ -711,7 +725,7 @@ namespace BrightWire
 	        IErrorMetric errorMetric, 
 	        uint batchSize = 128, 
 	        Action<float>? batchCompleteCallback = null, 
-	        Action<float, double, bool, bool>? values = null
+	        Action<float, bool, bool>? values = null
 	    );
 
         /// <summary>

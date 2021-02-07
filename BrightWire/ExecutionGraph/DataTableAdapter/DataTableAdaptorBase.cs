@@ -4,23 +4,23 @@ using BrightWire.ExecutionGraph.Helper;
 using BrightData;
 using BrightData.LinearAlgebra;
 
-namespace BrightWire.ExecutionGraph.DataTableAdaptor
+namespace BrightWire.ExecutionGraph.DataTableAdapter
 {
     /// <summary>
-    /// Base class for data table based data adaptors
+    /// Base class for data table based data adapters
     /// </summary>
     /// <typeparam name="T">The type of the cached data</typeparam>
-    public abstract class DataTableAdaptorBase<T> : IDataSource
+    public abstract class DataTableAdapterBase<T> : IDataSource
     {
         /// <summary>
-        /// The data table columns with attributes
+        /// The data table column indices with features
         /// </summary>
-        protected readonly uint[] _dataColumnIndex;
+        protected readonly uint[] _featureColumnIndices;
 
 		/// <summary>
 		/// Target column index
 		/// </summary>
-        protected readonly uint _dataTargetIndex;
+        protected readonly uint _targetColumnIndex;
 
 		/// <summary>
 		/// Linear algebra provider
@@ -38,11 +38,11 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 	    /// <param name="lap"></param>
 	    /// <param name="dataTable"></param>
 	    /// <param name="featureColumns"></param>
-	    protected DataTableAdaptorBase(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, uint[]? featureColumns)
+	    protected DataTableAdapterBase(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, uint[] featureColumns)
         {
             _lap = lap;
-            _dataTargetIndex = dataTable.GetTargetColumnOrThrow();
-            _dataColumnIndex = featureColumns ?? dataTable.ColumnCount.AsRange().Where(ci => ci != _dataTargetIndex).ToArray();
+            _targetColumnIndex = dataTable.GetTargetColumnOrThrow();
+            _featureColumnIndices = featureColumns;
         }
 
 	    /// <inheritdoc />
@@ -79,7 +79,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         }
 
 	    /// <inheritdoc />
-        public virtual void OnBatchProcessed(IGraphContext context)
+        public virtual void OnBatchProcessed(IGraphSequenceContext context)
         {
             // nop
         }
@@ -108,10 +108,10 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             }
 
 	        var output = OutputSize > 0 
-                ? new MatrixGraphData(_lap.CreateMatrix((uint)data.Length, (uint)OutputSize, (x, y) => data[(int)x].Output[y])) 
+                ? new MatrixGraphData(_lap.CreateMatrix((uint)data.Length, (uint)OutputSize, (x, y) => data[(int)x].Output[y]))
                 : null;
 
-            return new MiniBatch(rows, this, inputList, output);
+            return new MiniBatch(rows, this, inputList.Single(), output);
         }
 
 		/// <summary>
@@ -151,10 +151,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
                         ? MiniBatchSequenceType.SequenceEnd
                         : MiniBatchSequenceType.Standard
                 ;
-                var inputList = new IGraphData[] {
-                    new MatrixGraphData(input)
-                };
-                miniBatch.Add(type, inputList, output);
+                miniBatch.Add(type, new MatrixGraphData(input), output);
             }
             return miniBatch;
         }

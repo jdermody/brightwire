@@ -14,14 +14,12 @@ namespace BrightWire.ExecutionGraph.Engine
 	/// <summary>
 	/// Trains graphs as it executes them
 	/// </summary>
-    internal class TrainingEngine : EngineBase, IGraphTrainingEngine
+    internal class TrainingEngine : EngineBase<TrainingEngineContext>, IGraphTrainingEngine
 	{
-		readonly List<(IMiniBatchSequence Sequence, double? TrainingError, Matrix<float>[] Output)> _executionResults = new List<(IMiniBatchSequence, double?, Matrix<float>[])>();
-		readonly List<IGraphContext> _contextList = new List<IGraphContext>();
-		readonly INode[] _input;
+        readonly INode[] _input;
 		readonly Random _random;
 		float? _lastTestError = null;
-		double? _lastTrainingError = null, _trainingErrorDelta = null;
+        bool _isTraining;
 
 		public TrainingEngine(ILinearAlgebraProvider lap, IDataSource dataSource, ILearningContext learningContext, INode? start) : base(lap)
 		{
@@ -41,10 +39,11 @@ namespace BrightWire.ExecutionGraph.Engine
 		}
 
 		public IEnumerable<ExecutionResult> Execute(IDataSource dataSource, uint batchSize = 128, Action<float>? batchCompleteCallback = null)
-		{
+        {
+            _isTraining = false;
 			_lap.PushLayer();
             var provider = new MiniBatchProvider(dataSource, _random);
-            using var executionContext = new ExecutionContext(_lap);
+            using var executionContext = new ExecutionContext(_lap, this);
 
             // ReSharper disable once AccessToDisposedClosure
             executionContext.Add(provider.GetMiniBatches(batchSize, mb => Execute(executionContext, mb)));
@@ -53,17 +52,16 @@ namespace BrightWire.ExecutionGraph.Engine
             IGraphOperation? operation;
             while ((operation = executionContext.GetNextOperation()) != null) {
                 _lap.PushLayer();
-                operation.Execute(executionContext);
-                ClearContextList();
-                foreach (var (sequence, _, matrices) in _executionResults) {
-                    uint outputIndex = 0;
-                    foreach (var output in matrices) {
-                        yield return new ExecutionResult(sequence, output.Rows.ToArray(), outputIndex);
-                        ++outputIndex;
-                    }
-                }
+                foreach(var result in operation.Execute(executionContext))
+                    yield return result;
+                //foreach (var (sequence, matrices) in _executionResults) {
+                //    uint outputIndex = 0;
+                //    foreach (var output in matrices) {
+                //        yield return new ExecutionResult(sequence, output.Rows.ToArray(), outputIndex);
+                //        ++outputIndex;
+                //    }
+                //}
 
-                _executionResults.Clear();
                 _lap.PopLayer();
 
                 if (batchCompleteCallback != null) {
@@ -75,32 +73,31 @@ namespace BrightWire.ExecutionGraph.Engine
             _lap.PopLayer();
         }
 
-		protected override IEnumerable<ExecutionResult> GetResults()
-		{
-            foreach (var (sequence, _, matrices) in _executionResults) {
-				uint outputIndex = 0;
-				foreach (var output in matrices) {
-					yield return new ExecutionResult(sequence, output.Rows.ToArray(), outputIndex);
-					++outputIndex;
-				}
-			}
+		//protected override IEnumerable<ExecutionResult> GetResults()
+		//{
+  //          foreach (var (sequence, matrices) in _executionResults) {
+		//		uint outputIndex = 0;
+		//		foreach (var output in matrices) {
+		//			yield return new ExecutionResult(sequence, output.Rows.ToArray(), outputIndex);
+		//			++outputIndex;
+		//		}
+		//	}
 
-			_executionResults.Clear();
-        }
+		//	_executionResults.Clear();
+  //      }
 
-		protected override void ClearContextList()
-		{
-			foreach (var item in _contextList)
-				item.Dispose();
-			_contextList.Clear();
-		}
+        public override TrainingEngineContext CreateContext(IGraphExecutionContext executionContext, IMiniBatchSequence sequence) =>
+            new TrainingEngineContext(executionContext, sequence, _isTraining ? LearningContext : null);
 
-		public double Train(IGraphExecutionContext executionContext, Action<float>? batchCompleteCallback = null)
+        public override IGraphEngine GraphEngine => this;
+
+        public void Train(IGraphExecutionContext executionContext, Action<float>? batchCompleteCallback = null)
 		{
+            _isTraining = true;
 			_lap.PushLayer();
 			LearningContext.StartEpoch();
 			var provider = new MiniBatchProvider(_dataSource ?? throw new Exception("No data source was set"), _random);
-			executionContext.Add(provider.GetMiniBatches(LearningContext.BatchSize, batch => _contextList.AddRange(Train(executionContext, LearningContext, batch))));
+			executionContext.Add(provider.GetMiniBatches(LearningContext.BatchSize, batch => Train(executionContext, LearningContext, batch)));
 
 			IGraphOperation? operation;
 			float operationCount = executionContext.RemainingOperationCount;
@@ -118,37 +115,11 @@ namespace BrightWire.ExecutionGraph.Engine
 				}
 			}
 
-			double trainingError = 0;
-			if (LearningContext.TrainingErrorCalculation == TrainingErrorCalculation.Fast) {
-				var count = 0;
-				foreach (var (_, d, _) in _executionResults) {
-					if (d.HasValue) {
-						trainingError += d.Value;
-						++count;
-					}
-				}
-
-				if (count > 0)
-					trainingError /= count;
-			}
 			LearningContext.EndEpoch();
-			_executionResults.Clear();
-			_lap.PopLayer();
+            _lap.PopLayer();
 
-			if (LearningContext.TrainingErrorCalculation == TrainingErrorCalculation.TrainingData) {
-				if (LearningContext.ErrorMetric != null) {
-					trainingError = Execute(_dataSource, LearningContext.BatchSize, batchCompleteCallback)
-						.Where(b => b.Target != null)
-						.Average(o => o.CalculateError(LearningContext.ErrorMetric))
-					;
-				}
-			}
-
-			if (_lastTrainingError.HasValue)
-				_trainingErrorDelta = trainingError - _lastTrainingError.Value;
-			_lastTrainingError = trainingError;
-			return trainingError;
-		}
+            _isTraining = false;
+        }
 
 		public IDataSource? DataSource => _dataSource;
 		public ILearningContext LearningContext { get; }
@@ -157,15 +128,16 @@ namespace BrightWire.ExecutionGraph.Engine
 		public ILinearAlgebraProvider LinearAlgebraProvider => _lap;
 		public INode Start { get; }
 
-		protected override void Execute(IGraphExecutionContext executionContext, IMiniBatch batch)
+		protected override IEnumerable<ExecutionResult> Execute(IGraphExecutionContext executionContext, IMiniBatch batch)
 		{
+            _isTraining = false;
 			_contextList.AddRange(Train(executionContext, null, batch));
 		}
 
-		List<TrainingEngineContext> Train(IGraphExecutionContext executionContext, ILearningContext? learningContext, IMiniBatch batch)
-		{
-			var ret = new List<TrainingEngineContext>();
-			if (batch.IsSequential) {
+		IEnumerable<ExecutionResult> Train(IGraphExecutionContext executionContext, ILearningContext? learningContext, IMiniBatch batch)
+        {
+            _isTraining = learningContext != null;
+            if (batch.IsSequential) {
 				IMiniBatchSequence? curr;
 				while ((curr = batch.GetNextSequence()) != null)
 					ret.Add(Train(executionContext, learningContext, curr));
@@ -184,15 +156,20 @@ namespace BrightWire.ExecutionGraph.Engine
 		void CompleteSequence(TrainingEngineContext context)
 		{
 			_dataSource?.OnBatchProcessed(context);
-			var output = context.Output.ToList();
-			_executionResults.Add((context.BatchSequence, context.TrainingError, output.Any()
-				? output.Select(o => o.GetMatrix().Data).ToArray()
-				: new[] { context.Data.GetMatrix().Data }
-			));
-		}
+        }
+
+        //public void AddExecutionResult(IGraphSequenceContext context)
+        //{
+        //    var output = context.Output;
+        //    _executionResults.Add((context.BatchSequence, output.Any()
+        //        ? output.Select(o => o.GetMatrix().Data).ToArray()
+        //        : new[] { context.Data.GetMatrix().Data }
+        //    ));
+        //}
 
 		TrainingEngineContext Train(IGraphExecutionContext executionContext, ILearningContext? learningContext, IMiniBatchSequence sequence)
 		{
+            _isTraining = learningContext != null;
 			var context = new TrainingEngineContext(executionContext, sequence, learningContext);
 			Start.ExecuteForward(context, 0);
 
@@ -207,8 +184,8 @@ namespace BrightWire.ExecutionGraph.Engine
 		static string Write(string name, float score, bool isPercentage)
 		{
 			if (isPercentage)
-				return $"{name}-score: {score:P}";
-			return $"{name}-error: {score:N4}";
+				return $"{name}score: {score:P}";
+			return $"{name}error: {score:N4}";
 		}
 
 		public bool Test(
@@ -216,15 +193,15 @@ namespace BrightWire.ExecutionGraph.Engine
 			IErrorMetric errorMetric,
 			uint batchSize = 128,
 			Action<float>? batchCompleteCallback = null,
-			Action<float, double, bool, bool>? values = null
+			Action<float, bool, bool>? values = null
 		)
-		{
-			var testError = Execute(testDataSource, batchSize, batchCompleteCallback)
-				.Where(b => b.Target != null)
-				.Average(o => o.CalculateError(errorMetric))
-			;
+        {
+            var testResults = Execute(testDataSource, batchSize, batchCompleteCallback)
+                .Where(b => b.Target != null)
+                .ToList();
+            var testError = testResults.Any() ? testResults.Average(o => o.CalculateError(errorMetric)) : 0;
 
-			bool flag = true, isPercentage = errorMetric.DisplayAsPercentage;
+            bool flag = true, isPercentage = errorMetric.DisplayAsPercentage;
 			float? testErrorDelta = null;
 			if (_lastTestError.HasValue) {
 				testErrorDelta = testError - _lastTestError.Value;
@@ -238,22 +215,15 @@ namespace BrightWire.ExecutionGraph.Engine
 				_lastTestError = testError;
 
             var msg = new StringBuilder();
-			values?.Invoke(testError, _lastTrainingError ?? 0, isPercentage, flag);
+			values?.Invoke(testError, isPercentage, flag);
 			if (LearningContext.CurrentEpoch == 0)
-                msg.Append(Write("\rInitial test", testError, isPercentage));
+                msg.Append(Write("\rInitial ", testError, isPercentage));
             else {
-                var trainingScore = "";
-                if (LearningContext.TrainingErrorCalculation != TrainingErrorCalculation.None) {
-                    trainingScore = Write(" training", Convert.ToSingle(_lastTrainingError ?? 0), LearningContext.TrainingErrorCalculation == TrainingErrorCalculation.TrainingData && isPercentage);
-                    trainingScore += $" [{_trainingErrorDelta:N4}];";
-                }
-
-                var testScore = Write("test", testError, isPercentage);
+                var testScore = Write("", testError, isPercentage);
                 if (testErrorDelta.HasValue)
                     testScore += $" [{testErrorDelta.Value:N4}]";
 
-
-                msg.Append($"\rEpoch {LearningContext.CurrentEpoch} -{trainingScore} time: {LearningContext.EpochSeconds:N2}s; {testScore}");
+                msg.Append($"\rEpoch {LearningContext.CurrentEpoch} - time: {LearningContext.EpochSeconds:N2}s; {testScore}");
                 if (flag)
                     msg.Append("!!");
             }

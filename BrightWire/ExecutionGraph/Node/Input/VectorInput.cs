@@ -12,7 +12,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
 			{
 			}
 
-			public override void BackwardInternal(INode? fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
+			public override void BackwardInternal(INode? fromNode, IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
 			{
 				var es = errorSignal.GetMatrix();
 
@@ -26,6 +26,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
                     for (uint j = 0; j < _source._data.Length; j++)
                         _source._data[j] += delta[j] * learningContext.BatchLearningRate;
                 });
+                SendErrorTo(errorSignal, context, parents);
             }
 		}
 
@@ -40,7 +41,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
 
 		public float[] Data => _data;
 
-		public override void ExecuteForward(IGraphContext context)
+		public override void ExecuteForward(IGraphSequenceContext context)
 		{
 			var data = context.LinearAlgebraProvider.CreateMatrix(context.BatchSequence.MiniBatch.BatchSize, (uint)_data.Length, (x, y) => _data[y]);
 			AddNextGraphAction(context, new MatrixGraphData(data), () => new Backpropagation(this));

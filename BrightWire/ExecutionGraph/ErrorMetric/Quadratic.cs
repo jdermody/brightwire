@@ -12,7 +12,7 @@ namespace BrightWire.ExecutionGraph.ErrorMetric
     /// </summary>
     internal class Quadratic : IErrorMetric
     {
-        public IFloatMatrix CalculateGradient(IGraphContext context, IFloatMatrix output, IFloatMatrix targetOutput)
+        public IFloatMatrix CalculateGradient(IGraphSequenceContext context, IFloatMatrix output, IFloatMatrix targetOutput)
         {
             return targetOutput.Subtract(output);
         }

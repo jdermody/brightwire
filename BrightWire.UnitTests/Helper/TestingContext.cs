@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using BrightData;
+using BrightWire.Models;
 
 namespace BrightWire.UnitTests.Helper
 {
-    internal class TestingContext : IGraphContext
+    internal class TestingContext : IGraphSequenceContext
     {
         public List<(IExecutionHistory, IBackpropagation)> Forward { get; } = new List<(IExecutionHistory, IBackpropagation)>();
         public List<(IGraphData, INode, INode)> Backward { get; } = new List<(IGraphData, INode, INode)>();
@@ -65,5 +66,11 @@ namespace BrightWire.UnitTests.Helper
         }
 
         public IGraphData[] Output { get; set; }
+        public void StoreExecutionResult()
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<ExecutionResult> Results { get; }
     }
 }

@@ -13,21 +13,21 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             {
             }
 
-            public override void BackwardInternal(INode? fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
+            public override void BackwardInternal(INode? fromNode, IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
             {
                 _source._tryRestore(context);
                 SendErrorTo(errorSignal, context, parents);
             }
         }
 
-        readonly Action<IGraphContext> _tryRestore;
+        readonly Action<IGraphSequenceContext> _tryRestore;
 
-        public HookErrorSignal(Action<IGraphContext> tryRestore, string? name = null) : base(name)
+        public HookErrorSignal(Action<IGraphSequenceContext> tryRestore, string? name = null) : base(name)
         {
             _tryRestore = tryRestore;
         }
 
-        public override void ExecuteForward(IGraphContext context)
+        public override void ExecuteForward(IGraphSequenceContext context)
         {
             AddNextGraphAction(context, context.Data, () => new Backpropagation(this));
         }

@@ -14,7 +14,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
         {
             public Backpropagation(ExecuteBackwardAction source) : base(source) { }
 
-            protected override IGraphData Backpropagate(INode? fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
+            protected override IGraphData Backpropagate(INode? fromNode, IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
             {
                 return _source.Action.Execute(errorSignal, context);
             }
@@ -24,7 +24,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
 
         public IAction Action { get; set; }
 
-	    public override void ExecuteForward(IGraphContext context)
+	    public override void ExecuteForward(IGraphSequenceContext context)
         {
             AddNextGraphAction(context, context.Data, () => new Backpropagation(this));
         }

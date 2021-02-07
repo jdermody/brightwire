@@ -3,17 +3,18 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using BrightData;
+using BrightWire.Models;
 
 namespace BrightWire.ExecutionGraph.Node.Helper
 {
     internal class NodeWrapper : NodeBase
     {
-        class ContextProxy : IGraphContext
+        class ContextProxy : IGraphSequenceContext
         {
-            readonly IGraphContext _context;
+            readonly IGraphSequenceContext _context;
             readonly INode _wrapper;
 
-            public ContextProxy(IGraphContext context, INode wrapper)
+            public ContextProxy(IGraphSequenceContext context, INode wrapper)
             {
                 _context = context;
                 _wrapper = wrapper;
@@ -69,6 +70,8 @@ namespace BrightWire.ExecutionGraph.Node.Helper
 	        }
 
 	        public IGraphData[] Output => _context.Output;
+            public void StoreExecutionResult() => _context.StoreExecutionResult();
+            public IEnumerable<ExecutionResult> Results => _context.Results;
         }
         INode _node;
         string _nodeId;
@@ -79,12 +82,12 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             _nodeId = node.Id;
         }
 
-        public override void ExecuteForward(IGraphContext context)
+        public override void ExecuteForward(IGraphSequenceContext context)
         {
             _node.ExecuteForward(new ContextProxy(context, this), 0);
         }
 
-        protected override void ExecuteForwardInternal(IGraphContext context, uint channel)
+        protected override void ExecuteForwardInternal(IGraphSequenceContext context, uint channel)
         {
             _node.ExecuteForward(new ContextProxy(context, this), channel);
         }

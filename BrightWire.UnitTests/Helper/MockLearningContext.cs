@@ -19,7 +19,6 @@ namespace BrightWire.UnitTests.Helper
 
         }
 
-        public TrainingErrorCalculation TrainingErrorCalculation { get; set; }
         public bool DeferUpdates { get; set; }
         public void ApplyUpdates()
         {

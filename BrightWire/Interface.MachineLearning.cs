@@ -33,7 +33,7 @@ namespace BrightWire
 		/// <param name="output">The mini batch of output vectors</param>
 		/// <param name="targetOutput">The mini batch of expected target vectors</param>
 		/// <returns></returns>
-		IFloatMatrix CalculateGradient(IGraphContext context, IFloatMatrix output, IFloatMatrix targetOutput);
+		IFloatMatrix CalculateGradient(IGraphSequenceContext context, IFloatMatrix output, IFloatMatrix targetOutput);
 	}
 
 	/// <summary>
@@ -103,28 +103,7 @@ namespace BrightWire
 		MarkovModel3<T> Build();
 	}
 
-	/// <summary>
-	/// Describes how to calculate the training error
-	/// </summary>
-	public enum TrainingErrorCalculation
-	{
-		/// <summary>
-		/// Do not calculate the training error
-		/// </summary>
-		None,
-
-		/// <summary>
-		/// Compare the output against the target output and calculate the euclidean distance
-		/// </summary>
-		Fast,
-
-		/// <summary>
-		/// Execute the model against the training data
-		/// </summary>
-		TrainingData
-	}
-
-	/// <summary>
+    /// <summary>
 	/// Graph learning context
 	/// </summary>
 	public interface ILearningContext
@@ -178,12 +157,7 @@ namespace BrightWire
 		/// <param name="updater">Callback to execute the update</param>
 		void StoreUpdate<T>(INode fromNode, T update, Action<T> updater) where T: notnull;
 
-		/// <summary>
-		/// True if the graph should calculate training error
-		/// </summary>
-		TrainingErrorCalculation TrainingErrorCalculation { get; }
-
-		/// <summary>
+        /// <summary>
 		/// True if updates are deferred until the mini batch is complete
 		/// </summary>
 		bool DeferUpdates { get; }

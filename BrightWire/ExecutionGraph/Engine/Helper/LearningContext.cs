@@ -20,13 +20,11 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public LearningContext(
 	        ILinearAlgebraProvider lap, 
 	        float learningRate, 
-	        uint batchSize, 
-	        TrainingErrorCalculation trainingErrorCalculation, 
-	        bool deferUpdates,
+	        uint batchSize,
+            bool deferUpdates,
             GraphFactory graph
         ) {
             LinearAlgebraProvider = lap;
-            TrainingErrorCalculation = trainingErrorCalculation;
             LearningRate = learningRate;
             BatchSize = batchSize;
             DeferUpdates = deferUpdates;
@@ -52,8 +50,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 	    public float LearningRate { get; set; }
 	    public float BatchLearningRate => LearningRate / BatchSize;
         public uint BatchSize { get; set; }
-	    public TrainingErrorCalculation TrainingErrorCalculation { get; }
-	    public long EpochMilliseconds => _timer.ElapsedMilliseconds;
+        public long EpochMilliseconds => _timer.ElapsedMilliseconds;
 	    public double EpochSeconds => EpochMilliseconds / 1000.0;
 	    public bool DeferUpdates { get; }
 	    public void ScheduleLearningRate(uint atEpoch, float newLearningRate) => _learningRateSchedule[atEpoch] = newLearningRate;
@@ -119,12 +116,15 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public void BackpropagateThroughTime(IGraphData? signal, int maxDepth = int.MaxValue)
         {
             int depth = 0;
-            IGraphData? currentSignal = signal;
+            IGraphData? currentSignal = null;
             while (_deferredBackpropagation.Count > 0 && depth < maxDepth) {
                 var (data, callback) = _deferredBackpropagation.Pop();
-                // TODO: add signal to the data?
-                callback(currentSignal ?? data);
-                currentSignal = null;
+                if (depth == 0)
+                    callback(signal ?? data);
+                else
+                    callback(data ?? currentSignal);
+                if (data != null)
+                    currentSignal = data;
                 ++depth;
             }
             _deferredBackpropagation.Clear();

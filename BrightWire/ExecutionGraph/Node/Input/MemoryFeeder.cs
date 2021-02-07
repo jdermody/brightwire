@@ -17,7 +17,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
             {
             }
 
-            public override void BackwardInternal(INode? fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
+            public override void BackwardInternal(INode? fromNode, IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
             {
                 if (context.BatchSequence.Type == MiniBatchSequenceType.SequenceStart) {
                     var es = errorSignal.GetMatrix();
@@ -28,6 +28,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
                     for (uint j = 0; j < _source._data.Length; j++)
                         _source._data[j] += initialDelta[j] * context.LearningContext!.BatchLearningRate;
                 }
+                SendErrorTo(errorSignal, context, parents);
             }
         }
 
@@ -49,25 +50,17 @@ namespace BrightWire.ExecutionGraph.Node.Input
 	        set => value.Segment.CopyTo(_data);
         }
 
-        public override void ExecuteForward(IGraphContext context)
+        public override void ExecuteForward(IGraphSequenceContext context)
         {
-            if (context.BatchSequence.Type == MiniBatchSequenceType.SequenceStart)
-                OnStart(context);
-            else
-                OnNext(context);
-        }
-
-        void OnStart(IGraphContext context)
-        {
-            var memory = context.LinearAlgebraProvider.CreateMatrix(context.BatchSequence.MiniBatch.BatchSize, (uint)_data.Length, (x, y) => _data[y]);
-            context.ExecutionContext.SetMemory(Id, memory);
-            AddNextGraphAction(context, new MatrixGraphData(memory), () => new Backpropagation(this));
-        }
-
-        void OnNext(IGraphContext context)
-        {
-            var memory = context.ExecutionContext.GetMemory(Id);
-            AddNextGraphAction(context, new MatrixGraphData(memory), null);
+            if (context.BatchSequence.Type == MiniBatchSequenceType.SequenceStart) {
+                var memory = context.LinearAlgebraProvider.CreateMatrix(context.BatchSequence.MiniBatch.BatchSize, (uint)_data.Length, (x, y) => _data[y]);
+                context.ExecutionContext.SetMemory(Id, memory);
+                AddNextGraphAction(context, new MatrixGraphData(memory), () => new Backpropagation(this));
+            }
+            else {
+                var memory = context.ExecutionContext.GetMemory(Id);
+                AddNextGraphAction(context, new MatrixGraphData(memory), null);
+            }
         }
 
         protected override (string Description, byte[] Data) GetInfo()

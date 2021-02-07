@@ -5,21 +5,21 @@ using System.Linq;
 using BrightData;
 using BrightData.LinearAlgebra;
 
-namespace BrightWire.ExecutionGraph.DataTableAdaptor
+namespace BrightWire.ExecutionGraph.DataTableAdapter
 {
     /// <summary>
     /// Adapts data tables that classify a sequence into a single classification
     /// </summary>
-    internal class ManyToOneDataTableAdaptor : RowBasedDataTableAdaptorBase
+    internal class ManyToOneDataTableAdapter : RowBasedDataTableAdapterBase
     {
         readonly uint[] _featureColumns;
         readonly uint[] _rowDepth;
         readonly uint _outputSize;
 
-	    public ManyToOneDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, uint[] featureColumns) 
+	    public ManyToOneDataTableAdapter(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, uint[] featureColumns) 
             : base(lap, dataTable, featureColumns)
         {
-            if (_dataColumnIndex.Length > 1)
+            if (_featureColumnIndices.Length > 1)
                 throw new NotImplementedException("Sequential data sets not supported with more than one input data column");
             _featureColumns = featureColumns;
 
@@ -27,8 +27,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
             Matrix<float>? inputMatrix = null;
             Vector<float>? outputVector = null;
             dataTable.ForEachRow((row, i) => {
-                inputMatrix = (Matrix<float>)row[_dataColumnIndex[0]];
-                outputVector = (Vector<float>)row[_dataTargetIndex];
+                inputMatrix = (Matrix<float>)row[_featureColumnIndices[0]];
+                outputVector = (Vector<float>)row[_targetColumnIndex];
                 _rowDepth[i] = inputMatrix.RowCount;
                 if (inputMatrix.ColumnCount != outputVector.Size)
                     throw new ArgumentException("Rows between input and output data tables do not match");
@@ -42,7 +42,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 
         public override IDataSource CloneWith(IRowOrientedDataTable dataTable)
         {
-            return new ManyToOneDataTableAdaptor(_lap, dataTable, _featureColumns);
+            return new ManyToOneDataTableAdapter(_lap, dataTable, _featureColumns);
         }
 
         public override bool IsSequential => true;
@@ -62,7 +62,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         public override IMiniBatch Get(uint[] rows)
         {
             var data = GetRows(rows)
-                .Select(r => ((Matrix<float>)r[_dataColumnIndex[0]], (Vector<float>)r[_dataTargetIndex]))
+                .Select(r => ((Matrix<float>)r[_featureColumnIndices[0]], (Vector<float>)r[_targetColumnIndex]))
                 .ToList()
             ;
             var inputData = new Dictionary<uint, List<Vector<float>>>();
@@ -85,10 +85,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
                         ? MiniBatchSequenceType.SequenceEnd
                         : MiniBatchSequenceType.Standard
                 ;
-                var inputList = new IGraphData[] {
-                    new MatrixGraphData(input)
-                };
-                miniBatch.Add(type, inputList, type == MiniBatchSequenceType.SequenceEnd ? new MatrixGraphData(outputVector) : null);
+                miniBatch.Add(type, new MatrixGraphData(input), type == MiniBatchSequenceType.SequenceEnd ? new MatrixGraphData(outputVector) : null);
             }
             return miniBatch;
         }

@@ -49,7 +49,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         public override List<IWire> Output => _output.Output;
         public INode Memory => _memory;
 
-        public override void ExecuteForward(IGraphContext context)
+        public override void ExecuteForward(IGraphSequenceContext context)
         {
             _start.ExecuteForward(context);
         }

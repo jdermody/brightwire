@@ -2,6 +2,7 @@
 using BrightData;
 using BrightWire.ExecutionGraph.Action;
 using BrightWire.ExecutionGraph.Helper;
+using BrightWire.ExecutionGraph.Node.Gate;
 using BrightWire.ExecutionGraph.Node.Helper;
 
 namespace BrightWire.ExecutionGraph
@@ -461,6 +462,12 @@ namespace BrightWire.ExecutionGraph
             return this;
         }
 
+        public WireBuilder AddSequenceToSequencePivot(string? name = null)
+        {
+            SetNode(new SequenceToSequenceGate(name));
+            return this;
+        }
+
         /// <summary>
         /// Constrains the error signal in the forward direction
         /// </summary>
@@ -491,12 +498,14 @@ namespace BrightWire.ExecutionGraph
         /// Writes node memory to a named memory slot
         /// </summary>
         /// <param name="slotName">Memory slot name</param>
-        /// <param name="node">The node to read</param>
+        /// <param name="nodeName">The node name to read</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
-        public WireBuilder WriteNodeMemoryToSlot(string slotName, IHaveMemoryNode node, string? name = null)
+        public WireBuilder WriteNodeMemoryToSlot(string slotName, string nodeName, string? name = null)
         {
-            AddForwardAction(new CopyNamedMemory(slotName, node), name);
+            if (!(Find(nodeName) is IHaveMemoryNode memoryNode))
+                throw new ArgumentException($"Node not found: {nodeName}");
+            AddForwardAction(new CopyNamedMemory(slotName, memoryNode), name);
             return this;
         }
 
@@ -504,11 +513,13 @@ namespace BrightWire.ExecutionGraph
         /// Concatenates the named memory slot with the input signal
         /// </summary>
         /// <param name="slotName">Memory slot name</param>
+        /// <param name="memorySize">Size of the memory</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
-        public WireBuilder JoinInputWithMemory(string slotName, string? name = null)
+        public WireBuilder JoinInputWithMemory(string slotName, uint memorySize, string? name = null)
         {
             AddForwardAction(new JoinInputWithMemory(slotName), name);
+            SetNewSize(CurrentSize + memorySize);
             return this;
         }
 

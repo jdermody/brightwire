@@ -16,7 +16,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 _channels = channels;
             }
 
-            public override void BackwardInternal(INode? fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
+            public override void BackwardInternal(INode? fromNode, IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
             {
                 IFloatMatrix split, residual = errorSignal.GetMatrix();
                 int index = parents.Length-1;
@@ -32,7 +32,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         {
         }
 
-        protected override void Activate(IGraphContext context, List<IncomingChannel> data)
+        protected override void Activate(IGraphSequenceContext context, List<IncomingChannel> data)
         {
             var curr = data.First().Data;
             if (curr?.ColumnCount != data.First().Size)

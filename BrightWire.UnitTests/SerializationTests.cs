@@ -14,7 +14,7 @@ namespace BrightWire.UnitTests
     {
         public class CustomErrorMetric : IErrorMetric
         {
-            public IFloatMatrix CalculateGradient(IGraphContext context, IFloatMatrix output, IFloatMatrix targetOutput)
+            public IFloatMatrix CalculateGradient(IGraphSequenceContext context, IFloatMatrix output, IFloatMatrix targetOutput)
             {
                 return targetOutput.Subtract(output);
             }

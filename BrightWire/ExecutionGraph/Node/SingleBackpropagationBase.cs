@@ -20,7 +20,7 @@
         /// <param name="errorSignal">The backpropagating error</param>
         /// <param name="context">Graph context</param>
         /// <param name="parents">Parents of the current node</param>
-        public override void BackwardInternal(INode? fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
+        public override void BackwardInternal(INode? fromNode, IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
         {
             var nextError = Backpropagate(fromNode, errorSignal, context, parents);
             SendErrorTo(nextError, context, parents);
@@ -34,6 +34,6 @@
         /// <param name="context">Graph context</param>
         /// <param name="parents">Parents of the current node</param>
         /// <returns></returns>
-        protected abstract IGraphData Backpropagate(INode? fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents);
+        protected abstract IGraphData Backpropagate(INode? fromNode, IGraphData errorSignal, IGraphSequenceContext context, INode[] parents);
     }
 }

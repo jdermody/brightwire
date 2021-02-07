@@ -22,7 +22,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// Executes on the primary channel
         /// </summary>
         /// <param name="context">The graph context</param>
-        public override void ExecuteForward(IGraphContext context)
+        public override void ExecuteForward(IGraphSequenceContext context)
         {
             _primarySource = context.Source;
             _primary = context.Data.GetMatrix();
@@ -34,7 +34,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// </summary>
         /// <param name="context">The graph context</param>
         /// <param name="channel">The channel</param>
-        protected override void ExecuteForwardInternal(IGraphContext context, uint channel)
+        protected override void ExecuteForwardInternal(IGraphSequenceContext context, uint channel)
         {
             if (channel == 1) {
                 _secondarySource = context.Source;
@@ -43,7 +43,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             }
         }
 
-        void TryComplete(IGraphContext context)
+        void TryComplete(IGraphSequenceContext context)
         {
             if (_primary != null && _secondary != null) {
                 Activate(context, _primary, _secondary);
@@ -58,7 +58,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// <param name="context">Graph context</param>
         /// <param name="primary">Primary signal</param>
         /// <param name="secondary">Secondary signal</param>
-        protected abstract void Activate(IGraphContext context, IFloatMatrix primary, IFloatMatrix secondary);
+        protected abstract void Activate(IGraphSequenceContext context, IFloatMatrix primary, IFloatMatrix secondary);
 
         /// <summary>
         /// Records the network activity
@@ -66,7 +66,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// <param name="context">Graph context</param>
         /// <param name="output">The output signal</param>
         /// <param name="backpropagation">Backpropagation creator (optional)</param>
-        protected void AddHistory(IGraphContext context, IFloatMatrix output, Func<IBackpropagation>? backpropagation)
+        protected void AddHistory(IGraphSequenceContext context, IFloatMatrix output, Func<IBackpropagation>? backpropagation)
         {
             if (_primarySource == null || _secondarySource == null)
                 throw new Exception("Source nodes cannot be null");

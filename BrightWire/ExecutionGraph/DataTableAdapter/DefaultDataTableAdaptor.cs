@@ -1,26 +1,26 @@
 ﻿using System.Linq;
 using BrightData;
 
-namespace BrightWire.ExecutionGraph.DataTableAdaptor
+namespace BrightWire.ExecutionGraph.DataTableAdapter
 {
     /// <summary>
     /// Vectorises each row of the data table on demand
     /// </summary>
-    internal class DefaultDataTableAdaptor : RowBasedDataTableAdaptorBase
+    internal class DefaultDataTableAdapter : RowBasedDataTableAdapterBase
     {
         readonly uint[] _featureColumns;
 
-        public DefaultDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, IDataTableVectoriser? inputVectoriser, IDataTableVectoriser? outputVectoriser, uint[] featureColumns)
+        public DefaultDataTableAdapter(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, IDataTableVectoriser? inputVectoriser, IDataTableVectoriser? outputVectoriser, uint[] featureColumns)
             : base(lap, dataTable, featureColumns)
         {
             _featureColumns = featureColumns;
-            InputVectoriser = inputVectoriser ?? dataTable.GetVectoriser(true, _dataColumnIndex);
+            InputVectoriser = inputVectoriser ?? dataTable.GetVectoriser(true, _featureColumnIndices);
             OutputVectoriser = outputVectoriser ?? dataTable.GetVectoriser(true, dataTable.GetTargetColumnOrThrow());
         }
 
         public override IDataSource CloneWith(IRowOrientedDataTable dataTable)
         {
-            return new DefaultDataTableAdaptor(_lap, dataTable, InputVectoriser, OutputVectoriser, _featureColumns);
+            return new DefaultDataTableAdapter(_lap, dataTable, InputVectoriser, OutputVectoriser, _featureColumns);
         }
 
         public override uint InputSize => InputVectoriser!.OutputSize;

@@ -2,22 +2,22 @@
 using BrightData;
 using BrightData.LinearAlgebra;
 
-namespace BrightWire.ExecutionGraph.DataTableAdaptor
+namespace BrightWire.ExecutionGraph.DataTableAdapter
 {
     /// <summary>
     /// Segment table adaptor for tables with vector data
     /// </summary>
-    internal class VectorBasedDataTableAdaptor : RowBasedDataTableAdaptorBase
+    internal class VectorBasedDataTableAdapter : RowBasedDataTableAdapterBase
     {
         readonly uint[] _featureColumns;
 
-        public VectorBasedDataTableAdaptor(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, uint[] featureColumns) 
+        public VectorBasedDataTableAdapter(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, uint[] featureColumns) 
             : base(lap, dataTable, featureColumns)
         {
             _featureColumns = featureColumns;
             var firstRow = dataTable.Row(0);
-            var input = (Vector<float>)firstRow[_dataColumnIndex.First()];
-            var output = (Vector<float>)firstRow[_dataTargetIndex];
+            var input = (Vector<float>)firstRow[_featureColumnIndices.First()];
+            var output = (Vector<float>)firstRow[_targetColumnIndex];
 
             InputSize = input.Size;
             OutputSize = output.Size;
@@ -30,7 +30,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
         public override IMiniBatch Get(uint[] rows)
         {
             var data = GetRows(rows)
-                .Select(r => (_dataColumnIndex.Select(i => ((Vector<float>)r[i]).Segment.ToArray()).ToArray(), ((Vector<float>)r[_dataTargetIndex]).Segment.ToArray()))
+                .Select(r => (_featureColumnIndices.Select(i => ((Vector<float>)r[i]).Segment.ToArray()).ToArray(), ((Vector<float>)r[_targetColumnIndex]).Segment.ToArray()))
                 .ToArray()
             ;
             return GetMiniBatch(rows, data);
@@ -38,7 +38,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
 
         public override IDataSource CloneWith(IRowOrientedDataTable dataTable)
         {
-            return new VectorBasedDataTableAdaptor(_lap, dataTable, _featureColumns);
+            return new VectorBasedDataTableAdapter(_lap, dataTable, _featureColumns);
         }
     }
 }

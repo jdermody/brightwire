@@ -20,7 +20,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
                 _tensor = tensor;
             }
 
-            protected override IGraphData Backpropagate(INode? fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
+            protected override IGraphData Backpropagate(INode? fromNode, IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
             {
                 var matrix = errorSignal.GetMatrix();
                 var lap = context.LinearAlgebraProvider;
@@ -42,7 +42,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
         {
         }
 
-        public override void ExecuteForward(IGraphContext context)
+        public override void ExecuteForward(IGraphSequenceContext context)
         {
             var tensor = context.Data.Get4DTensor() ?? throw new Exception("No data");
             var rowList = new List<IFloatVector>();

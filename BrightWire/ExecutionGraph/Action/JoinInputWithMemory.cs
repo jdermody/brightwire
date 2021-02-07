@@ -12,7 +12,7 @@
             _slotName = slotName;
         }
 
-        public IGraphData Execute(IGraphData input, IGraphContext context)
+        public IGraphData Execute(IGraphData input, IGraphSequenceContext context)
         {
             var memory = context.ExecutionContext.GetMemory(_slotName);
             return input.ReplaceWith(input.GetMatrix().ConcatRows(memory));

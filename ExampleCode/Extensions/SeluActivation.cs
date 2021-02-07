@@ -20,7 +20,7 @@ namespace ExampleCode.Extensions
         {
             public Backpropagation(SeluActivation source) : base(source) { }
 
-            protected override IGraphData Backpropagate(INode? fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
+            protected override IGraphData Backpropagate(INode? fromNode, IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
             {
                 var matrix = errorSignal.GetMatrix().AsIndexable();
                 var delta = context.LinearAlgebraProvider.CreateMatrix(matrix.RowCount, matrix.ColumnCount, (i, j) =>
@@ -36,7 +36,7 @@ namespace ExampleCode.Extensions
 
         public SeluActivation(string? name = null) : base(name) { }
 
-        public override void ExecuteForward(IGraphContext context)
+        public override void ExecuteForward(IGraphSequenceContext context)
         {
             var matrix = context.Data.GetMatrix().AsIndexable();
             var output = context.LinearAlgebraProvider.CreateMatrix(matrix.RowCount, matrix.ColumnCount, (i, j) =>

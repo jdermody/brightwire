@@ -32,7 +32,7 @@ namespace ExampleCode.DataTableTrainers
             var testData = trainingData.CloneWith(Test);
 
             // create a 4x8x3 neural network with sigmoid activations after each neural network
-            var engine = graph.CreateTrainingEngine(trainingData, trainingRate, batchSize, TrainingErrorCalculation.TrainingData);
+            var engine = graph.CreateTrainingEngine(trainingData, trainingRate, batchSize);
             graph.Connect(engine)
                 .AddFeedForward(hiddenLayerSize)
                 .Add(graph.SigmoidActivation())

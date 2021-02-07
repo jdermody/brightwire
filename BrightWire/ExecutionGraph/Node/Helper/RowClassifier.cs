@@ -45,7 +45,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
 
         public uint OutputSize => _indexer.OutputSize;
 
-        public override void ExecuteForward(IGraphContext context)
+        public override void ExecuteForward(IGraphSequenceContext context)
         {
             var resultList = _dataTable
                 .Rows(context.BatchSequence.MiniBatch.Rows)

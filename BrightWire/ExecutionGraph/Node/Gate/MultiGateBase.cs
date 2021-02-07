@@ -92,7 +92,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// Executes on the primary channel
         /// </summary>
         /// <param name="context">The graph context</param>
-        public override void ExecuteForward(IGraphContext context)
+        public override void ExecuteForward(IGraphSequenceContext context)
         {
             ExecuteForwardInternal(context, 0);
         }
@@ -102,7 +102,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// </summary>
         /// <param name="context">The graph context</param>
         /// <param name="channel">The channel</param>
-        protected override void ExecuteForwardInternal(IGraphContext context, uint channel)
+        protected override void ExecuteForwardInternal(IGraphSequenceContext context, uint channel)
         {
             if (_data.TryGetValue(channel, out var data)) {
                 data.SetData(context.Data.GetMatrix(), context.Source);
@@ -121,7 +121,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// </summary>
         /// <param name="context">The graph context</param>
         /// <param name="data">The list of incoming signals</param>
-        protected abstract void Activate(IGraphContext context, List<IncomingChannel> data);
+        protected abstract void Activate(IGraphSequenceContext context, List<IncomingChannel> data);
 
         /// <summary>
         /// Records the network activity
@@ -130,7 +130,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// <param name="data">The list of incoming signals</param>
         /// <param name="output">Output signal</param>
         /// <param name="backpropagation">Backpropagation creator (optional)</param>
-        protected void AddHistory(IGraphContext context, List<IncomingChannel> data, IFloatMatrix output, Func<IBackpropagation> backpropagation)
+        protected void AddHistory(IGraphSequenceContext context, List<IncomingChannel> data, IFloatMatrix output, Func<IBackpropagation> backpropagation)
         {
             var sources = data.Where(d => d.Source != null).Select(d => d.Source!).ToArray();
             context.AddForward(new TrainingAction(this, new MatrixGraphData(output), sources), backpropagation);

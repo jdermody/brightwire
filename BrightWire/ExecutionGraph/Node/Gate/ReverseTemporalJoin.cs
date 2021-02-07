@@ -17,7 +17,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 _reverseSize = reverseSize;
             }
 
-            public override void BackwardInternal(INode? fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
+            public override void BackwardInternal(INode? fromNode, IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
             {
                 var matrix = errorSignal.GetMatrix();
                 (IFloatMatrix left, IFloatMatrix right) = matrix.SplitAtColumn(matrix.ColumnCount - _reverseSize);
@@ -39,13 +39,14 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                     _source._reverseBackpropagation.Clear();
                     _source._contextTable.Clear();
                 }
+                SendErrorTo(errorSignal, context, parents);
             }
         }
         Dictionary<uint, (IFloatMatrix Data, uint ReversedSize, INode ForwardParent)> _input = new Dictionary<uint, (IFloatMatrix Data, uint ReversedSize, INode ForwardParent)>();
         Dictionary<uint, (IFloatMatrix Data, INode ReverseParent)> _reverseInput = new Dictionary<uint, (IFloatMatrix Data, INode ReverseParent)>();
 
         Dictionary<uint, (INode, IGraphData)> _reverseBackpropagation = new Dictionary<uint, (INode, IGraphData)>();
-        Dictionary<uint, IGraphContext> _contextTable = new Dictionary<uint, IGraphContext>();
+        Dictionary<uint, IGraphSequenceContext> _contextTable = new Dictionary<uint, IGraphSequenceContext>();
 
         public ReverseTemporalJoin(string? name, WireBuilder forwardInput, WireBuilder reverseInput) 
             : base(name, forwardInput, reverseInput)
@@ -58,10 +59,10 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             _reverseInput = new Dictionary<uint, (IFloatMatrix Data, INode ReverseParent)>();
 
             _reverseBackpropagation = new Dictionary<uint, (INode, IGraphData)>();
-            _contextTable = new Dictionary<uint, IGraphContext>();
+            _contextTable = new Dictionary<uint, IGraphSequenceContext>();
         }
 
-        void Continue(IGraphContext context)
+        void Continue(IGraphSequenceContext context)
         {
             var sequenceIndex = context.BatchSequence.SequenceIndex;
             var (data, reversedSize, forwardParent) = _input[sequenceIndex];
@@ -81,7 +82,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             );
         }
 
-        protected override void Activate(IGraphContext context, List<IncomingChannel> data)
+        protected override void Activate(IGraphSequenceContext context, List<IncomingChannel> data)
         {
             if (data.Count != 2)
                 throw new Exception("Expected two incoming channels");

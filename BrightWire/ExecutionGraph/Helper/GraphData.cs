@@ -85,7 +85,7 @@ namespace BrightWire.ExecutionGraph.Helper
         public uint Count => 1;
 	    public IFloatMatrix GetMatrix() => _matrix;
         public IGraphData ReplaceWith(IFloatMatrix matrix) => new Tensor3DGraphData(matrix, Rows, Columns);
-        public IGraphData ReplaceWith(IGraphContext context, IFloatMatrix[] matrixList)
+        public IGraphData ReplaceWith(IGraphSequenceContext context, IFloatMatrix[] matrixList)
         {
             Debug.Assert(matrixList.Length == Depth);
             var tensor = context.LinearAlgebraProvider.Create3DTensor(matrixList);

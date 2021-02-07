@@ -28,7 +28,7 @@ namespace BrightWire
         /// <param name="testCadence">Determines how many epochs elapse before the test data is evaluated</param>
         public static void Train(this IGraphTrainingEngine engine, uint numIterations, IDataSource testData, IErrorMetric errorMetric, Action<GraphModel>? onImprovement = null, int testCadence = 1)
         {
-            var executionContext = new ExecutionContext(engine.LinearAlgebraProvider);
+            var executionContext = new ExecutionContext(engine.LinearAlgebraProvider, engine);
             var progress = -1;
             var sw = Stopwatch.StartNew();
             // ReSharper disable once AccessToModifiedClosure

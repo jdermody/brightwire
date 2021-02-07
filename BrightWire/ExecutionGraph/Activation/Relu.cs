@@ -18,7 +18,7 @@ namespace BrightWire.ExecutionGraph.Activation
                 _input = matrix;
             }
 
-            protected override IGraphData Backpropagate(INode? fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
+            protected override IGraphData Backpropagate(INode? fromNode, IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
             {
                 using var od = _input.ReluDerivative();
                 var delta = errorSignal.GetMatrix().PointwiseMultiply(od);
@@ -28,7 +28,7 @@ namespace BrightWire.ExecutionGraph.Activation
 
         public Relu(string? name = null) : base(name) { }
 
-        public override void ExecuteForward(IGraphContext context)
+        public override void ExecuteForward(IGraphSequenceContext context)
         {
             var input = context.Data.GetMatrix();
             var output = context.Data.ReplaceWith(input.ReluActivation());

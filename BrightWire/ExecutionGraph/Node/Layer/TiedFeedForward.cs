@@ -18,7 +18,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 _input = input;
             }
 
-            protected override IGraphData Backpropagate(INode? fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
+            protected override IGraphData Backpropagate(INode? fromNode, IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
             {
                 var es = errorSignal.GetMatrix();
 
@@ -53,7 +53,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             _bias.AddInPlace(columnSums, 1f / columnSums.Count, context.BatchLearningRate);
         }
 
-        public override void ExecuteForward(IGraphContext context)
+        public override void ExecuteForward(IGraphSequenceContext context)
         {
             var input = context.Data.GetMatrix();
 

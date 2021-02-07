@@ -1,7 +1,7 @@
 ﻿using BrightWire.Descriptor;
 using BrightWire.ExecutionGraph.Activation;
 using BrightWire.ExecutionGraph.DataSource;
-using BrightWire.ExecutionGraph.DataTableAdaptor;
+using BrightWire.ExecutionGraph.DataTableAdapter;
 using BrightWire.ExecutionGraph.Engine;
 using BrightWire.ExecutionGraph.Engine.Helper;
 using BrightWire.ExecutionGraph.GradientDescent;
@@ -124,15 +124,6 @@ namespace BrightWire.ExecutionGraph
 			return ret ?? WeightInitialisation.Gaussian;
 		}
 
-		/// <summary>
-		/// Creates a graph execution context
-		/// </summary>
-		/// <returns></returns>
-		public IGraphExecutionContext CreateExecutionContext()
-		{
-			return new ExecutionContext(LinearAlgebraProvider);
-		}
-
         /// <summary>
         /// Creates a graph learning context
         /// </summary>
@@ -143,11 +134,10 @@ namespace BrightWire.ExecutionGraph
         /// <returns></returns>
         public ILearningContext CreateLearningContext(
             float learningRate, 
-            uint batchSize, 
-            TrainingErrorCalculation trainingErrorCalculation = TrainingErrorCalculation.Fast, 
+            uint batchSize,
             bool deferUpdates = false)
 		{
-			return new LearningContext(LinearAlgebraProvider, learningRate, batchSize, trainingErrorCalculation, deferUpdates, this);
+			return new LearningContext(LinearAlgebraProvider, learningRate, batchSize, deferUpdates, this);
 		}
 
         /// <summary>
@@ -161,10 +151,10 @@ namespace BrightWire.ExecutionGraph
         public IGraphTrainingEngine CreateTrainingEngine(
             IDataSource dataSource, 
             float learningRate = 0.1f, 
-            uint batchSize = 128, 
-            TrainingErrorCalculation trainingErrorCalculation = TrainingErrorCalculation.Fast)
+            uint batchSize = 128
+        )
 		{
-			var learningContext = new LearningContext(LinearAlgebraProvider, learningRate, batchSize, trainingErrorCalculation, dataSource.IsSequential, this);
+			var learningContext = new LearningContext(LinearAlgebraProvider, learningRate, batchSize, dataSource.IsSequential, this);
 			return new TrainingEngine(LinearAlgebraProvider, dataSource, learningContext, null);
 		}
 
@@ -181,10 +171,10 @@ namespace BrightWire.ExecutionGraph
             IDataSource dataSource, 
             ExecutionGraphModel graph, 
             float trainingRate = 0.1f, 
-            uint batchSize = 128, 
-            TrainingErrorCalculation trainingErrorCalculation = TrainingErrorCalculation.Fast)
+            uint batchSize = 128
+        )
 		{
-			var learningContext = new LearningContext(LinearAlgebraProvider, trainingRate, batchSize, trainingErrorCalculation, dataSource.IsSequential, this);
+			var learningContext = new LearningContext(LinearAlgebraProvider, trainingRate, batchSize, dataSource.IsSequential, this);
 			var input = this.CreateFrom(graph);
 			return new TrainingEngine(LinearAlgebraProvider, dataSource, learningContext, input);
 		}
@@ -266,78 +256,35 @@ namespace BrightWire.ExecutionGraph
 			if (featureColumnType != ColumnType.Unknown && featureColumnTypes.All(ct => ct == featureColumnType)) {
 				// many to many
 				if (featureColumnType == ColumnType.Matrix && targetColumnType == ColumnType.Matrix)
-					return new SequentialDataTableAdaptor(LinearAlgebraProvider, dataTable, featureColumns);
+					return new SequentialDataTableAdapter(LinearAlgebraProvider, dataTable, featureColumns);
 
 				// one to one
 				if (featureColumnType == ColumnType.Vector && targetColumnType == ColumnType.Vector)
-					return new VectorBasedDataTableAdaptor(LinearAlgebraProvider, dataTable, featureColumns);
+					return new VectorBasedDataTableAdapter(LinearAlgebraProvider, dataTable, featureColumns);
 
 				// one to many
 				if (featureColumnType == ColumnType.Vector && targetColumnType == ColumnType.Matrix)
-					return new OneToManyDataTableAdaptor(LinearAlgebraProvider, dataTable, featureColumns);
+					return new OneToManyDataTableAdapter(LinearAlgebraProvider, dataTable, featureColumns);
 
 				// many to one
 				if (featureColumnType == ColumnType.Matrix && targetColumnType == ColumnType.Vector)
-					return new ManyToOneDataTableAdaptor(LinearAlgebraProvider, dataTable, featureColumns);
+					return new ManyToOneDataTableAdapter(LinearAlgebraProvider, dataTable, featureColumns);
 
 				// volume classification
 				if (featureColumnType == ColumnType.Tensor3D && targetColumnType == ColumnType.Vector)
-					return new TensorBasedDataTableAdaptor(LinearAlgebraProvider, dataTable, featureColumns);
+					return new TensorBasedDataTableAdapter(LinearAlgebraProvider, dataTable, featureColumns);
 
 				// index list
 				if (featureColumnType == ColumnType.IndexList)
-					return new IndexListDataTableAdaptor(LinearAlgebraProvider, dataTable, null, featureColumns);
+					return new IndexListDataTableAdapter(LinearAlgebraProvider, dataTable, null, featureColumns);
 
 				// weighted index list
 				if (featureColumnType == ColumnType.WeightedIndexList)
-					return new WeightedIndexListDataTableAdaptor(LinearAlgebraProvider, dataTable, null, featureColumns);
+					return new WeightedIndexListDataTableAdapter(LinearAlgebraProvider, dataTable, null, featureColumns);
 			}
 
 			// default adapator
-			return new DefaultDataTableAdaptor(LinearAlgebraProvider, dataTable, null, null, featureColumns);
-		}
-
-		/// <summary>
-		/// Creates an adaptive data source (that uses the output from a preliminary graph)
-		/// </summary>
-		/// <param name="dataTable">Segment that will be sent to the preliminary graph</param>
-		/// <param name="learningContext">Learning context to use while training the preliminary graph</param>
-		/// <param name="dataConversionBuilder">Callback to build the preliminary graph</param>
-		/// <returns></returns>
-		public IDataSource CreateDataSource(IRowOrientedDataTable dataTable, ILearningContext learningContext, Action<WireBuilder> dataConversionBuilder)
-		{
-			var columns = dataTable.ColumnTypes;
-			if (columns.Length == 2) {
-				var column1 = columns[0];
-				var column2 = columns[1];
-
-				// sequence to sequence
-				if (column1 == ColumnType.Matrix && column2 == ColumnType.Matrix)
-					return new SequenceToSequenceDataTableAdaptor(LinearAlgebraProvider, learningContext, this, dataTable, dataConversionBuilder);
-			}
-			throw new ArgumentException($"{nameof(dataTable)} does not contain a recognised data format");
-		}
-
-		/// <summary>
-		/// Creates an adaptive data source from a serialised model
-		/// </summary>
-		/// <param name="dataTable">Segment that will be sent to the preliminary graph</param>
-		/// <param name="dataSource">The serialised preliminary graph</param>
-		/// <param name="learningContext">Learning context to use while training the preliminary graph</param>
-		/// <returns></returns>
-		public IDataSource CreateDataSource(IRowOrientedDataTable dataTable, DataSourceModel dataSource, ILearningContext? learningContext = null)
-		{
-			var input = this.CreateFrom(dataSource.Graph);
-
-			var columns = dataTable.ColumnTypes;
-			if (columns.Length == 2) {
-				var column1 = columns[0];
-				var column2 = columns[1];
-
-				if (column1 == ColumnType.Matrix && column2 == ColumnType.Matrix)
-					return new SequenceToSequenceDataTableAdaptor(LinearAlgebraProvider, learningContext, dataTable, input, dataSource);
-			}
-			throw new ArgumentException($"{nameof(dataTable)} does not contain a recognised data format");
+			return new DefaultDataTableAdapter(LinearAlgebraProvider, dataTable, null, null, featureColumns);
 		}
 
         /// <summary>

@@ -8,22 +8,37 @@ using BrightData;
 
 namespace BrightWire.ExecutionGraph.Engine
 {
-    internal abstract class EngineBase
+    internal abstract class EngineBase<GCT> : ICreateGraphContext
+        where GCT: IGraphSequenceContext
     {
         protected readonly ILinearAlgebraProvider _lap;
         protected IDataSource? _dataSource = null;
 
         protected EngineBase(ILinearAlgebraProvider lap) { _lap = lap; }
 
-        protected abstract void ClearContextList();
-        protected abstract void Execute(IGraphExecutionContext context, IMiniBatch miniBatch);
-        protected abstract IEnumerable<ExecutionResult> GetResults();
+        protected abstract IEnumerable<ExecutionResult> Execute(IGraphExecutionContext context, IMiniBatch miniBatch);
+        public abstract GCT CreateContext(IGraphExecutionContext executionContext, IMiniBatchSequence sequence);
+        public abstract IGraphEngine GraphEngine { get; }
 
-        protected bool Continue(IMiniBatch batch, IGraphExecutionContext executionContext, Func<IMiniBatchSequence, IGraphContext> lookupContext)
+        protected IEnumerable<ExecutionResult> Continue(IMiniBatch batch, IGraphExecutionContext executionContext, Func<IMiniBatchSequence, IGraphSequenceContext> lookupContext)
         {
-            var ret = false;
+            while (executionContext.HasContinuations) {
+                var additionalContext = new List<(IGraphSequenceContext Context, Action<IGraphSequenceContext[]> OnEnd)>();
+                foreach (var item in executionContext.ExecuteAdditional())
+                    additionalContext.Add(item);
 
-	        while (executionContext.HasContinuations) {
+                // after all have executed...
+                if (additionalContext.Any()) {
+                    var groups = additionalContext.GroupBy(d => d.OnEnd);
+                    foreach (var group in groups)
+                        group.Key(group.Select(d => d.Context).ToArray());
+                    foreach (var (context, _) in additionalContext) {
+                        foreach (var result in context.Results)
+                            yield return result;
+                        context.Dispose();
+                    }
+                }
+
                 batch.Reset();
 	            IMiniBatchSequence? currentSequence;
 	            while ((currentSequence = batch.GetNextSequence()) != null) {
@@ -32,9 +47,7 @@ namespace BrightWire.ExecutionGraph.Engine
                     while (context.HasNext)
                         context.ExecuteNext();
                 }
-                ret = true;
             }
-            return ret;
         }
 
         public ExecutionResult? Execute(float[] input)
@@ -43,16 +56,14 @@ namespace BrightWire.ExecutionGraph.Engine
             ExecutionResult? ret = null;
             _dataSource = new SingleRowDataSource(input, _lap, false, MiniBatchSequenceType.Standard, 0);
             var provider = new MiniBatchProvider(_dataSource, null);
-            using var executionContext = new ExecutionContext(_lap);
+            using var executionContext = new ExecutionContext(_lap, this);
             // ReSharper disable once AccessToDisposedClosure
             executionContext.Add(provider.GetMiniBatches(1, mb => Execute(executionContext, mb)));
 
             IGraphOperation? operation;
             while ((operation = executionContext.GetNextOperation()) != null) {
                 _lap.PushLayer();
-                operation.Execute(executionContext);
-                ret = GetResults().Single();
-                ClearContextList();
+                ret = operation.Execute(executionContext).Single();
                 _lap.PopLayer();
             }
 
@@ -88,17 +99,15 @@ namespace BrightWire.ExecutionGraph.Engine
             _lap.PushLayer();
             _dataSource = new SequentialRowDataSource(input, _lap);
             var provider = new MiniBatchProvider(_dataSource, null);
-            using var executionContext = new ExecutionContext(_lap);
+            using var executionContext = new ExecutionContext(_lap, this);
             // ReSharper disable once AccessToDisposedClosure
             executionContext.Add(provider.GetMiniBatches(1, mb => Execute(executionContext, mb)));
 
             IGraphOperation? operation;
             while ((operation = executionContext.GetNextOperation()) != null) {
                 _lap.PushLayer();
-                operation.Execute(executionContext);
-                foreach (var result in GetResults())
+                foreach (var result in operation.Execute(executionContext))
                     yield return result;
-                ClearContextList();
                 _lap.PopLayer();
             }
 
@@ -106,23 +115,27 @@ namespace BrightWire.ExecutionGraph.Engine
             _dataSource = null;
         }
 
-        public ExecutionResult? ExecuteSequential(uint sequenceIndex, float[] input, IGraphExecutionContext executionContext, MiniBatchSequenceType sequenceType)
+        public ExecutionResult? ExecuteSequential(uint sequenceIndex, float[] input, MiniBatchSequenceType sequenceType)
         {
             _lap.PushLayer();
             _dataSource = new SingleRowDataSource(input, _lap, true, sequenceType, sequenceIndex);
             var provider = new MiniBatchProvider(_dataSource, _lap.Context.Random);
+            using var executionContext = new ExecutionContext(_lap, this);
+            // ReSharper disable once AccessToDisposedClosure
             executionContext.Add(provider.GetMiniBatches(1, mb => Execute(executionContext, mb)));
 
             IGraphOperation? operation;
+            var results = new List<ExecutionResult>();
             while ((operation = executionContext.GetNextOperation()) != null) {
-                operation.Execute(executionContext);
-                ClearContextList();
+                results.AddRange(operation.Execute(executionContext));
             }
 
-            var ret = GetResults().SingleOrDefault();
+            var ret = results.SingleOrDefault();
             _lap.PopLayer();
             _dataSource = null;
             return ret;
         }
+
+        IGraphSequenceContext ICreateGraphContext.Create(IGraphExecutionContext executionContext, IMiniBatchSequence sequence) => CreateContext(executionContext, sequence);
     }
 }

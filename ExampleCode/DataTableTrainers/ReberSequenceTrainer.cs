@@ -35,7 +35,7 @@ namespace ExampleCode.DataTableTrainers
             var engine = graph.CreateTrainingEngine(trainingData, learningRate: 0.1f, batchSize: 32);
 
             // build the network
-            const int HIDDEN_LAYER_SIZE = 38, TRAINING_ITERATIONS = 50;
+            const int HIDDEN_LAYER_SIZE = 38, TRAINING_ITERATIONS = 2;
             graph.Connect(engine)
                 .AddLstm(HIDDEN_LAYER_SIZE)
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
@@ -60,8 +60,7 @@ namespace ExampleCode.DataTableTrainers
                 Console.Write("B");
 
                 uint index = 0, eCount = 0;
-                using var executionContext = graph.CreateExecutionContext();
-                var result = engine.ExecuteSequential(index++, input, executionContext, MiniBatchSequenceType.SequenceStart);
+                var result = engine.ExecuteSequential(index++, input, MiniBatchSequenceType.SequenceStart);
                 if (result != null) {
                     for (var i = 0; i < 32; i++) {
                         var next = result!.Output[0].Values
@@ -77,7 +76,7 @@ namespace ExampleCode.DataTableTrainers
 
                         Array.Clear(input, 0, ReberGrammar.Size);
                         input[nextIndex] = 1f;
-                        result = engine.ExecuteSequential(index++, input, executionContext, MiniBatchSequenceType.Standard);
+                        result = engine.ExecuteSequential(index++, input, MiniBatchSequenceType.Standard);
                     }
                     Console.WriteLine();
                 }
