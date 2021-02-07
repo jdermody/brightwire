@@ -55,7 +55,7 @@ namespace BrightData
         }
 
         /// <inheritdoc />
-        public Random Random { get; }
+        public Random Random { get; private set; }
 
         /// <inheritdoc />
         public ITensorPool TensorPool => _tensorPool;
@@ -109,5 +109,8 @@ namespace BrightData
 
         /// <inheritdoc />
         public bool IsStochastic { get; }
+
+        /// <inheritdoc />
+        public void ResetRandom(int? seed) => Random = seed.HasValue ? new Random(seed.Value) : new Random();
     }
 }

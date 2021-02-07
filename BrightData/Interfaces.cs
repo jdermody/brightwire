@@ -409,6 +409,12 @@ namespace BrightData
         /// True if random generator has been initialized with a random initial seed
         /// </summary>
         bool IsStochastic { get; }
+
+        /// <summary>
+        /// Resets the random number generator
+        /// </summary>
+        /// <param name="seed">Random seed (or null to randomly initialize)</param>
+        public void ResetRandom(int? seed);
     }
 
     /// <summary>
