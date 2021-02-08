@@ -106,8 +106,7 @@ namespace BrightWire.ExecutionGraph.Engine
 				_lap.PushLayer();
 				operation.Execute(executionContext);
 				LearningContext.ApplyUpdates();
-				ClearContextList();
-				_lap.PopLayer();
+                _lap.PopLayer();
 
 				if (batchCompleteCallback != null) {
 					var percentage = (++index) / operationCount;
@@ -131,27 +130,39 @@ namespace BrightWire.ExecutionGraph.Engine
 		protected override IEnumerable<ExecutionResult> Execute(IGraphExecutionContext executionContext, IMiniBatch batch)
 		{
             _isTraining = false;
-			_contextList.AddRange(Train(executionContext, null, batch));
+			return Train(executionContext, null, batch);
 		}
 
 		IEnumerable<ExecutionResult> Train(IGraphExecutionContext executionContext, ILearningContext? learningContext, IMiniBatch batch)
         {
             _isTraining = learningContext != null;
             if (batch.IsSequential) {
-				IMiniBatchSequence? curr;
-				while ((curr = batch.GetNextSequence()) != null)
-					ret.Add(Train(executionContext, learningContext, curr));
+                IMiniBatchSequence? curr;
+                var contextTable = new Dictionary<IMiniBatchSequence, IGraphSequenceContext>();
+                while ((curr = batch.GetNextSequence()) != null) {
+                    var context = Train(executionContext, learningContext, curr);
+                    contextTable.Add(context.BatchSequence, context);
+                }
 
-				var contextTable = new Lazy<Dictionary<IMiniBatchSequence, TrainingEngineContext>>(() => ret.ToDictionary(c => c.BatchSequence, c => c));
-				var didContinue = Continue(batch, executionContext, sequence => contextTable.Value[sequence]);
-				if (didContinue) {
-					foreach (var context in ret)
-						CompleteSequence(context);
-				}
-			} else
-				ret.Add(Train(executionContext, learningContext, batch.CurrentSequence));
-			return ret;
-		}
+                var additionalResults = new List<ExecutionResult>();
+                if (executionContext.HasContinuations)
+                    additionalResults.AddRange(Continue(batch, executionContext, sequence => contextTable[sequence]));
+
+                foreach (var item in contextTable) {
+                    foreach (var result in item.Value.Results)
+                        yield return result;
+					item.Value.Dispose();
+                }
+
+				foreach(var result in additionalResults)
+                    yield return result;
+            }
+            else {
+                using var ret = Train(executionContext, learningContext, batch.CurrentSequence);
+                foreach (var result in ret.Results)
+                    yield return result;
+            }
+        }
 
 		void CompleteSequence(TrainingEngineContext context)
 		{
