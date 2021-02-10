@@ -39,6 +39,24 @@ namespace BrightWire.ExecutionGraph.Node.Filter
 
                 return errorSignal.ReplaceWith(ret);
             }
+
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
+            {
+                var es = errorSignal.GetMatrix();
+
+                // work out the next error signal against the filtered weights
+                IFloatMatrix ret = es.TransposeAndMultiply(_filteredWeights);
+
+                // calculate the update to the weights and filter out the dropped connections
+                var weightUpdate = _input.TransposeThisAndMultiply(es).PointwiseMultiply(_filter);
+
+                // store the updates
+                var learningContext = context.LearningContext!;
+                learningContext.StoreUpdate(_source, es, err => _source.UpdateBias(err, learningContext));
+                learningContext.StoreUpdate(_source, weightUpdate, err => _source.UpdateWeights(err, learningContext));
+
+                return errorSignal.ReplaceWith(ret);
+            }
         }
         float _dropOutPercentage;
         INonNegativeDiscreteDistribution? _probabilityToDrop;

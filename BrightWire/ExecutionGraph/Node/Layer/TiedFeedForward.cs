@@ -35,6 +35,24 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
                 return errorSignal.ReplaceWith(ret);
             }
+
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
+            {
+                var es = errorSignal.GetMatrix();
+
+                // work out the next error signal
+                var ret = es.Multiply(_source._layer.Weight);
+
+                // calculate the update to the weights
+                var weightUpdate = _input.TransposeThisAndMultiply(es).Transpose();
+
+                // store the updates
+                var learningContext = context.LearningContext!;
+                learningContext.StoreUpdate(_source, es, err => _source.UpdateBias(err, learningContext));
+                learningContext.StoreUpdate(_source, weightUpdate, err => _source._layer.UpdateWeights(err, learningContext));
+
+                return errorSignal.ReplaceWith(ret);
+            }
         }
         IFeedForward _layer;
         IFloatVector _bias;

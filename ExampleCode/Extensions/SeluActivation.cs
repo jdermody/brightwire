@@ -32,6 +32,19 @@ namespace ExampleCode.Extensions
                 });
                 return errorSignal.ReplaceWith(delta);
             }
+
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
+            {
+                var matrix = errorSignal.GetMatrix().AsIndexable();
+                var delta = context.LinearAlgebraProvider.CreateMatrix(matrix.RowCount, matrix.ColumnCount, (i, j) =>
+                {
+                    var x = matrix[i, j];
+                    if (x >= 0)
+                        return Scale;
+                    return Scale * Alpha * FloatMath.Exp(x);
+                });
+                return errorSignal.ReplaceWith(delta);
+            }
         }
 
         public SeluActivation(string? name = null) : base(name) { }

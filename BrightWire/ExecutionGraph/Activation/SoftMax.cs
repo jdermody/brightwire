@@ -33,6 +33,21 @@ namespace BrightWire.ExecutionGraph.Activation
                     item.Dispose();
                 return errorSignal.ReplaceWith(ret);
             }
+
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
+            {
+                var matrix = errorSignal.GetMatrix();
+                var rowList = new List<IFloatVector>();
+                for (uint i = 0; i < matrix.RowCount; i++) {
+                    using var derivative = _rows[(int)i].SoftmaxDerivative();
+                    var sm = derivative.Multiply(matrix.Row(i));
+                    rowList.Add(sm.ReshapeAsVector());
+                }
+                var ret = context.LinearAlgebraProvider.CreateMatrixFromRows(rowList);
+                foreach (var item in rowList)
+                    item.Dispose();
+                return errorSignal.ReplaceWith(ret);
+            }
         }
 
         public SoftMax(string? name = null) : base(name) { }

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using BrightData;
 
 namespace BrightWire.ExecutionGraph.Node.Gate
@@ -31,6 +32,15 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 var delta2 = es.PointwiseMultiply(_input1);
                 context.AddBackward(errorSignal.ReplaceWith(delta1), parents.First(), _source);
                 context.AddBackward(errorSignal.ReplaceWith(delta2), parents.Last(), _source);
+            }
+
+            public override IEnumerable<(IGraphData signal, INode toNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
+            {
+                var es = errorSignal.GetMatrix();
+                var delta1 = es.PointwiseMultiply(_input2);
+                var delta2 = es.PointwiseMultiply(_input1);
+                yield return (errorSignal.ReplaceWith(delta1), parents.First());
+                yield return (errorSignal.ReplaceWith(delta2), parents.Last());
             }
         }
         public MultiplyGate(string? name = null) : base(name) { }

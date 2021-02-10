@@ -26,6 +26,17 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 }
                 context.AddBackward(errorSignal.ReplaceWith(residual), parents[index], _source);
             }
+
+            public override IEnumerable<(IGraphData signal, INode toNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
+            {
+                IFloatMatrix split, residual = errorSignal.GetMatrix();
+                int index = parents.Length-1;
+                foreach(var item in _channels) {
+                    (residual, split) = residual.SplitAtColumn(residual.ColumnCount - item.Size);
+                    yield return (errorSignal.ReplaceWith(split), parents[index--]);
+                }
+                yield return (errorSignal.ReplaceWith(residual), parents[index]);
+            }
         }
 
         public JoinGate(string? name, params WireBuilder[] incoming) : base(name, incoming)

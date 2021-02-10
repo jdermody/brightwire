@@ -21,6 +21,14 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                     SendErrorTo(context.Data, context, parents);
                 }
             }
+
+            public override IEnumerable<(IGraphData signal, INode toNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
+            {
+                if (context.BatchSequence.Type == MiniBatchSequenceType.SequenceStart) {
+                    foreach(var parent in parents)
+                        yield return (context.Data, parent);
+                }
+            }
         }
 
         readonly ConcurrentStack<IGraphSequenceContext> _encoderContext = new ConcurrentStack<IGraphSequenceContext>();

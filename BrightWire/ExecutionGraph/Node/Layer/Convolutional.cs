@@ -71,7 +71,46 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 				}
 				return errorSignal;
 			}
-		}
+
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
+            {
+                var tensor = errorSignal.GetMatrix().ReshapeAs4DTensor(_newHeight, _newWidth, _source._filter.ColumnCount);
+                var padding = _source._padding;
+
+                // calculate the weight and bias updates
+                using (var update = _im2Col.TransposeThisAndMultiply(tensor)) {
+                    var weightUpdate = update.CombineDepthSlices();
+                    var biasUpdate = tensor.ColumnSums();
+
+                    var learningContext = context.LearningContext!;
+                    learningContext.StoreUpdate(_source, weightUpdate, err => _source.Update(err, learningContext));
+                    learningContext.StoreUpdate(_source, biasUpdate, bu => UpdateBias(bu, learningContext));
+                }
+
+                if (_source._shouldBackpropagate) {
+                    var filters = _source._filter;
+                    var inputDepth = _source._inputDepth;
+                    var filterWidth = _source._filterWidth;
+                    var filterHeight = _source._filterHeight;
+                    var xStride = _source._xStride;
+                    var yStride = _source._yStride;
+
+                    var outputRows = _inputHeight + padding * 2;
+                    var outputColumns = _inputWidth + padding * 2;
+                    var outputDepth = _inputDepth;
+
+                    var reverseIm2Col = tensor.ReverseIm2Col(filters, outputRows, outputColumns, outputDepth, filterWidth, filterHeight, xStride, yStride);
+                    var delta = reverseIm2Col;
+                    if (padding > 0) {
+                        var delta2 = delta.RemovePadding(padding);
+                        delta.Dispose();
+                        delta = delta2;
+                    }
+                    return new Tensor4DGraphData(delta.ReshapeAsMatrix(), _inputHeight, _inputWidth, inputDepth);
+                }
+                return errorSignal;
+            }
+        }
 		IGradientDescentOptimisation? _updater;
 		uint _padding, _filterWidth, _filterHeight, _xStride, _yStride, _inputDepth;
 		IFloatMatrix _filter;

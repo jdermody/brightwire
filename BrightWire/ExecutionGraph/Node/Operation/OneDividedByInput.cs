@@ -25,6 +25,15 @@ namespace BrightWire.ExecutionGraph.Node.Operation
                 using var delta = minusOne.PointwiseDivide(inputSquared);
                 return errorSignal.ReplaceWith(delta.PointwiseMultiply(es));
             }
+
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
+            {
+                var es = errorSignal.GetMatrix();
+                using var minusOne = context.LinearAlgebraProvider.CreateMatrix(es.RowCount, es.ColumnCount, -1f);
+                using var inputSquared = _input.PointwiseMultiply(_input);
+                using var delta = minusOne.PointwiseDivide(inputSquared);
+                return errorSignal.ReplaceWith(delta.PointwiseMultiply(es));
+            }
         }
 
         public OneDividedByInput(string? name = null) : base(name)

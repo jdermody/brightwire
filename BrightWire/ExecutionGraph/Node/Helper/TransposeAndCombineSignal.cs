@@ -36,6 +36,23 @@ namespace BrightWire.ExecutionGraph.Node.Helper
 
                 return errorSignal.ReplaceWith(errorMatrix.Transpose());
             }
+
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
+            {
+                var matrix = errorSignal.GetMatrix();
+                var lap = context.LinearAlgebraProvider;
+
+                var rowList = new List<IFloatVector>();
+                for(uint i = 0; i < matrix.RowCount; i++) {
+                    var rowMatrix = matrix.Row(i).ReshapeAsMatrix(_tensor.RowCount, _tensor.ColumnCount);
+                    var matrixList = Enumerable.Repeat(rowMatrix, (int)_tensor.Depth).ToArray();
+                    var tensor = lap.Create3DTensor(matrixList);
+                    rowList.Add(tensor.ReshapeAsVector());
+                }
+                var errorMatrix = lap.CreateMatrixFromRows(rowList);
+
+                return errorSignal.ReplaceWith(errorMatrix.Transpose());
+            }
         }
 
         public TransposeAndCombineSignal(string? name = null) : base(name)

@@ -118,7 +118,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         {
             // initialise backpropagation stack
             ClearBackward();
-            AddBackward(delta, _sourceNode!, null);
+            AddBackward(delta, _sourceNode ?? throw new Exception("No backpropagation target"), null);
 
             // backpropagate the error through the graph
             _errorSignal = null;

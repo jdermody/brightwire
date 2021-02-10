@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace BrightWire.ExecutionGraph.Node
 {
@@ -79,5 +80,13 @@ namespace BrightWire.ExecutionGraph.Node
             foreach (var parent in parents)
                 context.AddBackward(errorSignal, parent, _source);
         }
+
+        protected IEnumerable<(IGraphData signal, INode toNode)> ErrorTo(IGraphData errorSignal, INode[] parents)
+        {
+            foreach (var parent in parents)
+                yield return (errorSignal, parent);
+        }
+
+        public abstract IEnumerable<(IGraphData signal, INode toNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, INode[] parents);
     }
 }

@@ -42,6 +42,11 @@ namespace BrightWire.ExecutionGraph.Node.Input
                     _source._onBackpropagation?.Invoke(_signalTable);
                 }
             }
+
+            public override IEnumerable<(IGraphData signal, INode toNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
+            {
+                return ErrorTo(errorSignal, parents);
+            }
         }
         readonly INode[] _children;
         readonly Action<IReadOnlyDictionary<INode, IGraphData>>? _onBackpropagation;

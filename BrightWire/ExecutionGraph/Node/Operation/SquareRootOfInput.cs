@@ -26,6 +26,14 @@ namespace BrightWire.ExecutionGraph.Node.Operation
                 using var delta = oneHalf.PointwiseMultiply(_sqrtOutput);
                 return errorSignal.ReplaceWith(delta.PointwiseMultiply(es));
             }
+
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
+            {
+                var es = errorSignal.GetMatrix();
+                using var oneHalf = context.LinearAlgebraProvider.CreateMatrix(es.RowCount, es.ColumnCount, 0.5f);
+                using var delta = oneHalf.PointwiseMultiply(_sqrtOutput);
+                return errorSignal.ReplaceWith(delta.PointwiseMultiply(es));
+            }
         }
         public SquareRootOfInput(string? name = null) : base(name)
         {

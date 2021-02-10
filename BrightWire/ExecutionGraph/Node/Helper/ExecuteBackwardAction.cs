@@ -18,6 +18,11 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             {
                 return _source.Action.Execute(errorSignal, context);
             }
+
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
+            {
+                return _source.Action.Execute(errorSignal, context);
+            }
         }
 
 	    public ExecuteBackwardAction(IAction action, string? name = null) : base(name) { Action = action; }

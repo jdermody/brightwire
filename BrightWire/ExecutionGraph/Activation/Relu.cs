@@ -24,6 +24,13 @@ namespace BrightWire.ExecutionGraph.Activation
                 var delta = errorSignal.GetMatrix().PointwiseMultiply(od);
                 return errorSignal.ReplaceWith(delta);
             }
+
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
+            {
+                using var od = _input.ReluDerivative();
+                var delta = errorSignal.GetMatrix().PointwiseMultiply(od);
+                return errorSignal.ReplaceWith(delta);
+            }
         }
 
         public Relu(string? name = null) : base(name) { }

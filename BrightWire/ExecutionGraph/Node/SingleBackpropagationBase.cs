@@ -1,4 +1,6 @@
-﻿namespace BrightWire.ExecutionGraph.Node
+﻿using System.Collections.Generic;
+
+namespace BrightWire.ExecutionGraph.Node
 {
     /// <summary>
     /// Base class for nodes that back propagate to a single parent
@@ -35,5 +37,13 @@
         /// <param name="parents">Parents of the current node</param>
         /// <returns></returns>
         protected abstract IGraphData Backpropagate(INode? fromNode, IGraphData errorSignal, IGraphSequenceContext context, INode[] parents);
+
+        protected abstract IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context);
+
+        public override IEnumerable<(IGraphData signal, INode toNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
+        {
+            foreach (var parent in parents)
+                yield return (Backpropagate(errorSignal, context), parent);
+        }
     }
 }

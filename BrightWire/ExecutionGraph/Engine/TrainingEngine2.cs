@@ -148,17 +148,110 @@ namespace BrightWire.ExecutionGraph.Engine
             public GraphFactory GraphFactory { get; }
         }
 
+        class BackpropagationInput
+        {
+            readonly ExecutionNode[] _input;
+            readonly Dictionary<ExecutionNode, IGraphData?> _error = new Dictionary<ExecutionNode, IGraphData?>();
+
+            public BackpropagationInput(ExecutionNode[] input)
+            {
+                _input = input;
+            }
+
+            public void Add(ExecutionNode node, IGraphData? error)
+            {
+                _error.Add(node, error);
+                if (_error.Count == _input.Length)
+                    IsComplete = _input.All(n => _error.ContainsKey(n));
+                else if (_error.Count > _input.Length)
+                    throw new Exception("Errors do not match input");
+            }
+
+            public bool IsComplete { get; private set; } = false;
+
+            public IGraphData? GetError()
+            {
+                if (_error.Count == 1)
+                    return _error.Single().Value;
+
+                IGraphData? ret = null;
+                IFloatMatrix? matrix = null;
+                var count = 0;
+                foreach (var item in _error.Values) {
+                    if (item?.HasValue != true) 
+                        continue;
+
+                    ret ??= item;
+                    if (matrix == null) {
+                        matrix = item.GetMatrix();
+                        count = 1;
+                    }
+                    else {
+                        matrix.AddInPlace(item.GetMatrix());
+                        ++count;
+                    }
+                }
+
+                if (matrix != null) {
+                    if (count > 1)
+                        matrix.Multiply(1f / count);
+                    return ret!.ReplaceWith(matrix);
+                }
+
+                return null;
+            }
+        }
+
         class ExecutionNode
         {
             readonly TrainingEngine2 _engine;
-            readonly ExecutionHistory _history;
             readonly List<ExecutionNode> _ancestors = new List<ExecutionNode>();
             readonly List<ExecutionNode> _descendants = new List<ExecutionNode>();
+            readonly Lazy<BackpropagationInput> _inputError;
+            ExecutionHistory? _history = null;
 
-            public ExecutionNode(TrainingEngine2 engine, ExecutionHistory history)
+            public ExecutionNode(TrainingEngine2 engine)
             {
                 _engine = engine;
+                _inputError = new Lazy<BackpropagationInput>(() => new BackpropagationInput(_descendants.Any() ? _descendants.ToArray() : new []{this}));
+            }
+
+            public void Add(ExecutionHistory history)
+            {
+                if (_history != null)
+                    throw new Exception("History was repeated");
                 _history = history;
+            }
+
+            public INode? Node => _history?.Source;
+
+            public void AddDescendant(ExecutionNode executionNode)
+            {
+                _descendants.Add(executionNode);
+                executionNode._ancestors.Add(this);
+            }
+
+            public void Backpropagate(IGraphSequenceContext context, IGraphData? delta, ExecutionNode fromNode)
+            {
+                var input = _inputError.Value;
+                input.Add(fromNode, delta);
+
+                // if all inputs have been received
+                if (input.IsComplete) {
+                    var error = input.GetError();
+                    if (error != null) {
+                        var parents = _ancestors.Select(d => d._history!.Source).ToArray();
+                        var ret = _history!.Backpropagation?.Backward(error, context, parents);
+                        if(ret != null) {
+                            foreach (var (signal, toNode) in ret) {
+                                var context2 = (GraphSequenceContext) context;
+                                var executionNode = context2.GetExecutionNode(toNode);
+                                executionNode.Backpropagate(context, signal, this);
+                            }
+                        }else foreach(var item in _ancestors)
+                            item.Backpropagate(context, error, this);
+                    }
+                }
             }
         }
 
@@ -191,22 +284,64 @@ namespace BrightWire.ExecutionGraph.Engine
             public ILearningContext? LearningContext { get; }
             public ILinearAlgebraProvider LinearAlgebraProvider => ExecutionContext.LinearAlgebraProvider;
             public IMiniBatchSequence BatchSequence { get; }
+
             public void AddForward(ExecutionHistory action, Func<IBackpropagate>? callback)
             {
                 if (callback != null && LearningContext != null)
                     action.Backpropagation = callback();
                 _pendingForward.Add(action);
 
-                // TODO: build the execution graph
+                // add the history to the execution node
+                if (!_nodeExecution.TryGetValue(action.Source, out var executionNode))
+                    _nodeExecution.Add(action.Source, executionNode = new ExecutionNode(_engine));
+                executionNode.Add(action);
+
+                // connect the node to its parents in the graph
+                foreach (var parent in action.Parents)
+                    _nodeExecution[parent].AddDescendant(executionNode);
             }
 
-            public void AddBackward(IGraphData errorSignal, INode target, INode source)
+            public ExecutionNode GetExecutionNode(INode node) => _nodeExecution[node];
+
+            public void AddBackward(IGraphData? errorSignal, INode target, INode? source)
             {
                 throw new NotImplementedException();
+                //_backward.Push((error, target, source));
             }
 
             public void Backpropagate(IGraphData? delta)
             {
+                var curr = _nodeExecution[Source ?? throw new Exception("No target node")];
+                curr.Backpropagate(this, delta ?? ErrorSignal, curr);
+
+                // initialise backpropagation stack
+                //AddBackward(delta, Source ?? throw new Exception("No target node"), null);
+
+                //// backpropagate the error through the graph
+                //ErrorSignal = null;
+                //while (_backward.Any())
+                //{
+                //    var next = _backward.Pop();
+                //    _errorSignal = GetErrorSignal(next.ErrorSignal, next.Target);
+
+                //    if (_history.TryGetValue(next.Target, out var history))
+                //    {
+                //        foreach (var item in history)
+                //        {
+                //            if (item.Backpropagation != null)
+                //            {
+                //                item.Backpropagation.Backward(next.Source, _errorSignal, this, item.Parents);
+                //                item.Backpropagation.Dispose();
+                //            }
+                //            else
+                //            {
+                //                foreach (var parent in item.Parents)
+                //                    AddBackward(_errorSignal, parent, next.Target);
+                //            }
+                //        }
+                //    }
+                //}
+
                 //ErrorSignal = _engine.Backpropagate(delta);
             }
 

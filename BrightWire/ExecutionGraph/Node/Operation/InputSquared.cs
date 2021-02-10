@@ -20,6 +20,14 @@ namespace BrightWire.ExecutionGraph.Node.Operation
 	            err.Multiply(2f);
                 return errorSignal.ReplaceWith(err);
             }
+
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
+            {
+                var es = errorSignal.GetMatrix();
+                var err = es.PointwiseMultiply(_input);
+                err.Multiply(2f);
+                return errorSignal.ReplaceWith(err);
+            }
         }
 
         public InputSquared(string? name = null) : base(name)

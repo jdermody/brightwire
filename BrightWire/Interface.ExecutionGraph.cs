@@ -382,6 +382,15 @@ namespace BrightWire
         /// <param name="context">Graph context</param>
         /// <param name="parents">The current node's parents</param>
         void Backward(INode? fromNode, IGraphData? errorSignal, IGraphSequenceContext context, INode[] parents);
+
+
+        /// <summary>
+        /// Backpropagate
+        /// </summary>
+        /// <param name="errorSignal">Error signal</param>
+        /// <param name="context">Graph context</param>
+        /// <param name="parents">The current node's parents</param>
+        IEnumerable<(IGraphData signal, INode toNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, INode[] parents);
     }
 
     /// <summary>

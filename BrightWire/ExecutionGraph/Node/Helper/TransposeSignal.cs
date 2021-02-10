@@ -18,6 +18,12 @@ namespace BrightWire.ExecutionGraph.Node.Helper
                 var matrix = errorSignal.GetMatrix();
                 return errorSignal.ReplaceWith(matrix.Transpose());
             }
+
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
+            {
+                var matrix = errorSignal.GetMatrix();
+                return errorSignal.ReplaceWith(matrix.Transpose());
+            }
         }
 
         public TransposeSignal(string? name = null) : base(name)

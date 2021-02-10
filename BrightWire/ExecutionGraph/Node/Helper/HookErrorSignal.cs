@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace BrightWire.ExecutionGraph.Node.Helper
 {
@@ -17,6 +18,12 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             {
                 _source._tryRestore(context);
                 SendErrorTo(errorSignal, context, parents);
+            }
+
+            public override IEnumerable<(IGraphData signal, INode toNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
+            {
+                _source._tryRestore(context);
+                return ErrorTo(errorSignal, parents);
             }
         }
 

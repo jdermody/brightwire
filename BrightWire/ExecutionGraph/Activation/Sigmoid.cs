@@ -24,6 +24,13 @@ namespace BrightWire.ExecutionGraph.Activation
                 var delta = errorSignal.GetMatrix().PointwiseMultiply(od);
                 return errorSignal.ReplaceWith(delta);
             }
+
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
+            {
+                using var od = _input.SigmoidDerivative();
+                var delta = errorSignal.GetMatrix().PointwiseMultiply(od);
+                return errorSignal.ReplaceWith(delta);
+            }
         }
 
         public Sigmoid(string? name = null) : base(name) { }

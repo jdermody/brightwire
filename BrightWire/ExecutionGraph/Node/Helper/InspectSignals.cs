@@ -15,7 +15,13 @@ namespace BrightWire.ExecutionGraph.Node.Helper
 				_source._backwardCallback?.Invoke(errorSignal);
 				return errorSignal;
 			}
-		}
+
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
+            {
+                _source._backwardCallback?.Invoke(errorSignal);
+                return errorSignal;
+            }
+        }
 
 		readonly Action<IGraphData>? _forwardCallback;
 		readonly Action<IGraphData>? _backwardCallback;

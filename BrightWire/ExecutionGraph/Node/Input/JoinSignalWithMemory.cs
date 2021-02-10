@@ -23,6 +23,14 @@ namespace BrightWire.ExecutionGraph.Action
                 var parts = matrix.SplitAtColumn(matrix.RowCount - _memorySize);
                 return errorSignal.ReplaceWith(parts.Left);
             }
+
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
+            {
+                var matrix = errorSignal.GetMatrix();
+                var parts = matrix.SplitAtColumn(matrix.RowCount - _memorySize);
+                parts.Right.Dispose();
+                return errorSignal.ReplaceWith(parts.Left);
+            }
         }
         string _slotName;
 

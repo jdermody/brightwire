@@ -17,6 +17,13 @@ namespace BrightWire.ExecutionGraph.Node.Operation
                 using var minusOne = context.LinearAlgebraProvider.CreateMatrix(es.RowCount, es.ColumnCount, -1f);
                 return errorSignal.ReplaceWith(minusOne.PointwiseMultiply(es));
             }
+
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
+            {
+                var es = errorSignal.GetMatrix();
+                using var minusOne = context.LinearAlgebraProvider.CreateMatrix(es.RowCount, es.ColumnCount, -1f);
+                return errorSignal.ReplaceWith(minusOne.PointwiseMultiply(es));
+            }
         }
 
         public OneMinusInput(string? name = null) : base(name)

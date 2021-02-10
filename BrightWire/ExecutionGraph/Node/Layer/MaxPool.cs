@@ -43,6 +43,21 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
 				return new Tensor4DGraphData(output.ReshapeAsMatrix(), output.RowCount, output.ColumnCount, output.Depth);
             }
+
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
+            {
+                var errorMatrix = errorSignal.GetMatrix();
+                var tensor = errorMatrix.ReshapeAs4DTensor(_outputRows, _outputColumns, _depth);
+                var output = tensor.ReverseMaxPool(_indices, _inputRows, _inputColumns, _filterWidth, _filterHeight, _xStride, _yStride);
+
+                //output.AsMatrix().Constrain(-1f, 1f);
+
+//#if DEBUG
+//				Debug.Assert(output.ReshapeAsVector().IsEntirelyFinite());
+//#endif
+
+                return new Tensor4DGraphData(output.ReshapeAsMatrix(), output.RowCount, output.ColumnCount, output.Depth);
+            }
         }
         uint _filterWidth, _filterHeight, _xStride, _yStride;
 

@@ -24,6 +24,12 @@ namespace BrightWire.ExecutionGraph.Node.Filter
                 var output = errorSignal.GetMatrix().PointwiseMultiply(_filter);
                 return errorSignal.ReplaceWith(output);
             }
+
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
+            {
+                var output = errorSignal.GetMatrix().PointwiseMultiply(_filter);
+                return errorSignal.ReplaceWith(output);
+            }
         }
         float _dropOutPercentage;
         INonNegativeDiscreteDistribution? _probabilityToDrop;

@@ -1,4 +1,5 @@
-﻿using BrightWire.ExecutionGraph.Helper;
+﻿using System.Collections.Generic;
+using BrightWire.ExecutionGraph.Helper;
 using System.IO;
 using BrightData;
 
@@ -28,7 +29,24 @@ namespace BrightWire.ExecutionGraph.Node.Input
                 });
                 SendErrorTo(errorSignal, context, parents);
             }
-		}
+
+            public override IEnumerable<(IGraphData signal, INode toNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
+            {
+                var es = errorSignal.GetMatrix();
+
+                using var columnSums = es.ColumnSums();
+                columnSums.Multiply(1f / es.RowCount);
+
+                // store the updates
+                var learningContext = context.LearningContext!;
+                learningContext.StoreUpdate(_source, columnSums, err => {
+                    var delta = err.AsIndexable();
+                    for (uint j = 0; j < _source._data.Length; j++)
+                        _source._data[j] += delta[j] * learningContext.BatchLearningRate;
+                });
+                return ErrorTo(errorSignal, parents);
+            }
+        }
 
         readonly IBrightDataContext _context;
         readonly float[] _data;

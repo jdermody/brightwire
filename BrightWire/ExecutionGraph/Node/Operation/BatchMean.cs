@@ -22,6 +22,13 @@ namespace BrightWire.ExecutionGraph.Node.Operation
                 using var ones = context.LinearAlgebraProvider.CreateMatrix(es.RowCount, es.ColumnCount, 1f / _rowCount);
                 return errorSignal.ReplaceWith(ones.PointwiseMultiply(es));
             }
+
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
+            {
+                var es = errorSignal.GetMatrix();
+                using var ones = context.LinearAlgebraProvider.CreateMatrix(es.RowCount, es.ColumnCount, 1f / _rowCount);
+                return errorSignal.ReplaceWith(ones.PointwiseMultiply(es));
+            }
         }
 
         public BatchMean(string? name = null) : base(name)
