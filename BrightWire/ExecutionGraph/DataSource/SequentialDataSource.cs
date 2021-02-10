@@ -84,10 +84,5 @@ namespace BrightWire.ExecutionGraph.DataSource
 
         public IDataTableVectoriser? InputVectoriser { get; } = null;
         public IDataTableVectoriser? OutputVectoriser { get; } = null;
-
-        public void OnBatchProcessed(IGraphSequenceContext context)
-        {
-            // nop
-        }
     }
 }

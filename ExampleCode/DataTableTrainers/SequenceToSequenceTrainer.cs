@@ -31,7 +31,7 @@ namespace ExampleCode.DataTableTrainers
             const float TRAINING_RATE = 0.1f;
             var trainingData = graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
-            var engine = graph.CreateTrainingEngine(trainingData, TRAINING_RATE, 8);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, TRAINING_RATE, 8);
             engine.LearningContext.ScheduleLearningRate(30, TRAINING_RATE / 3);
 
             // build the network
@@ -46,7 +46,7 @@ namespace ExampleCode.DataTableTrainers
             engine.Train(40, testData, errorMetric);
 
             var networkGraph = engine.Graph;
-            var executionEngine = graph.CreateEngine(networkGraph);
+            var executionEngine = graph.CreateExecutionEngine(networkGraph);
 
             var output = executionEngine.Execute(testData);
             Console.WriteLine(output.Average(o => o.CalculateError(errorMetric)));
@@ -66,7 +66,7 @@ namespace ExampleCode.DataTableTrainers
             // create the engine
             var trainingData = graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
-            var engine = graph.CreateTrainingEngine(trainingData, 0.01f, 8);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, 0.01f, 8);
 
             // build the network
             const int HIDDEN_LAYER_SIZE = 128;
@@ -80,7 +80,7 @@ namespace ExampleCode.DataTableTrainers
             engine.Train(20, testData, errorMetric);
 
             var networkGraph = engine.Graph;
-            var executionEngine = graph.CreateEngine(networkGraph);
+            var executionEngine = graph.CreateExecutionEngine(networkGraph);
 
             var output = executionEngine.Execute(testData);
             Console.WriteLine(output.Where(o => o.Target != null).Average(o => o.CalculateError(errorMetric)));
@@ -99,19 +99,19 @@ namespace ExampleCode.DataTableTrainers
 
             const uint BATCH_SIZE = 16;
             const uint HIDDEN_LAYER_SIZE = 64;
-            const float TRAINING_RATE = 0.1f;
+            const float TRAINING_RATE = 0.01f;
 
             var trainingData = graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
-            var engine = graph.CreateTrainingEngine(trainingData, TRAINING_RATE, BATCH_SIZE);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, TRAINING_RATE, BATCH_SIZE);
 
             graph.Connect(engine)
                 .AddLstm(HIDDEN_LAYER_SIZE, "encoder")
-                .WriteNodeMemoryToSlot("shared-memory", "encoder")
-                .AddFeedForward(_dictionarySize)
-                .Add(graph.SigmoidActivation())
+                //.WriteNodeMemoryToSlot("shared-memory", "encoder")
+                //.AddFeedForward(_dictionarySize)
+                //.Add(graph.SigmoidActivation())
                 .AddSequenceToSequencePivot()
-                .JoinInputWithMemory("shared-memory", HIDDEN_LAYER_SIZE)
+                //.JoinInputWithMemory("shared-memory", HIDDEN_LAYER_SIZE)
                 .AddLstm(HIDDEN_LAYER_SIZE, "decoder")
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                 .Add(graph.SigmoidActivation())

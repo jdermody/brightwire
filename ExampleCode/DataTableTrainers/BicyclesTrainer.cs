@@ -48,7 +48,7 @@ namespace ExampleCode.DataTableTrainers
                 .Use(graph.RmsProp())
             ;
 
-            var engine = graph.CreateTrainingEngine(trainingData, 0.1f, 32);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, 0.1f, 32);
             graph.Connect(engine)
                 .AddFeedForward(16)
                 .Add(graph.SigmoidActivation())

@@ -78,13 +78,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             };
         }
 
-	    /// <inheritdoc />
-        public virtual void OnBatchProcessed(IGraphSequenceContext context)
-        {
-            // nop
-        }
-
-		/// <summary>
+        /// <summary>
 		/// Returns the row data
 		/// </summary>
 		/// <param name="rows">List of row indices</param>

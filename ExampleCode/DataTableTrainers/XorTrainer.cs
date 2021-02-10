@@ -23,7 +23,7 @@ namespace ExampleCode.DataTableTrainers
 
             if (model != null) {
                 // create a new network to execute the learned network
-                var executionEngine = graph.CreateEngine(model);
+                var executionEngine = graph.CreateExecutionEngine(model);
                 var testData = graph.CreateDataSource(Test);
                 var output = executionEngine.Execute(testData).ToList();
                 if (writeResults) {

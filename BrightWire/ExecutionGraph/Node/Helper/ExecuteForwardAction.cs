@@ -18,7 +18,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
         {
             var input = context.Data;
             var output = Action.Execute(input, context);
-            AddNextGraphAction(context, output ?? input, null);
+            AddNextGraphAction(context, output, null);
         }
 
         protected override (string Description, byte[] Data) GetInfo()

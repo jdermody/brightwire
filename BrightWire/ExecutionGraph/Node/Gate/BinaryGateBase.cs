@@ -66,12 +66,12 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// <param name="context">Graph context</param>
         /// <param name="output">The output signal</param>
         /// <param name="backpropagation">Backpropagation creator (optional)</param>
-        protected void AddHistory(IGraphSequenceContext context, IFloatMatrix output, Func<IBackpropagation>? backpropagation)
+        protected void AddHistory(IGraphSequenceContext context, IFloatMatrix output, Func<IBackpropagate>? backpropagation)
         {
             if (_primarySource == null || _secondarySource == null)
                 throw new Exception("Source nodes cannot be null");
 
-            context.AddForward(new TrainingAction(this, new MatrixGraphData(output), new[] { _primarySource, _secondarySource }), backpropagation);
+            context.AddForward(new ExecutionHistory(this, new MatrixGraphData(output), new[] { _primarySource, _secondarySource }), backpropagation);
         }
     }
 }

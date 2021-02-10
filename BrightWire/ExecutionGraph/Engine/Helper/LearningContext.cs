@@ -11,7 +11,9 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     internal class LearningContext : ILearningContext
     {
 	    readonly Dictionary<uint, float> _learningRateSchedule = new Dictionary<uint, float>();
-        readonly List<(object Error, Action<object> Updater)> _layerUpdate = new List<(object, Action<object>)>();
+        readonly List<(IFloatMatrix Error, Action<IFloatMatrix> Updater)> _layerMatrixUpdate = new List<(IFloatMatrix, Action<IFloatMatrix>)>();
+        readonly List<(IFloatVector Error, Action<IFloatVector> Updater)> _layerVectorUpdate = new List<(IFloatVector, Action<IFloatVector>)>();
+
         readonly Stack<(IGraphData? Data, Action<IGraphData?> Callback)> _deferredBackpropagation = new Stack<(IGraphData?, Action<IGraphData?>)>();
 	    readonly Stopwatch _timer = new Stopwatch();
         readonly HashSet<INode> _noUpdateNodeSet = new HashSet<INode>();
@@ -21,13 +23,11 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 	        ILinearAlgebraProvider lap, 
 	        float learningRate, 
 	        uint batchSize,
-            bool deferUpdates,
             GraphFactory graph
         ) {
             LinearAlgebraProvider = lap;
             LearningRate = learningRate;
             BatchSize = batchSize;
-            DeferUpdates = deferUpdates;
             GraphFactory = graph;
         }
 
@@ -36,7 +36,8 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 
 	    public void Clear()
         {
-            _layerUpdate.Clear();
+            _layerVectorUpdate.Clear();
+            _layerMatrixUpdate.Clear();
             _deferredBackpropagation.Clear();
             _currentEpoch = 0;
             _rowCount = 0;
@@ -52,8 +53,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public uint BatchSize { get; set; }
         public long EpochMilliseconds => _timer.ElapsedMilliseconds;
 	    public double EpochSeconds => EpochMilliseconds / 1000.0;
-	    public bool DeferUpdates { get; }
-	    public void ScheduleLearningRate(uint atEpoch, float newLearningRate) => _learningRateSchedule[atEpoch] = newLearningRate;
+        public void ScheduleLearningRate(uint atEpoch, float newLearningRate) => _learningRateSchedule[atEpoch] = newLearningRate;
 	    public Action<string> MessageLog { get; set; } = Console.WriteLine;
 
         public void EnableNodeUpdates(INode node, bool enableUpdates)
@@ -64,13 +64,23 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
                 _noUpdateNodeSet.Add(node);
         }
 
-        public void StoreUpdate<T>(INode fromNode, T error, Action<T> updater) where T: notnull
+        public void StoreUpdate(INode fromNode, IFloatMatrix error, Action<IFloatMatrix> updater)
         {
             if (!_noUpdateNodeSet.Contains(fromNode)) {
-                if (DeferUpdates)
-                    _layerUpdate.Add((error, o => updater((T)o)));
-                else
-                    updater(error);
+                //if (DeferUpdates)
+                    _layerMatrixUpdate.Add((error, updater));
+                //else
+                //    updater(error);
+            }
+        }
+
+        public void StoreUpdate(INode fromNode, IFloatVector error, Action<IFloatVector> updater)
+        {
+            if (!_noUpdateNodeSet.Contains(fromNode)) {
+                //if (DeferUpdates)
+                _layerVectorUpdate.Add((error, updater));
+                //else
+                //    updater(error);
             }
         }
 
@@ -84,7 +94,8 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 
             _rowCount = 0;
             _timer.Restart();
-            _layerUpdate.Clear();
+            _layerVectorUpdate.Clear();
+            _layerMatrixUpdate.Clear();
         }
 
         public void SetRowCount(uint rowCount)
@@ -95,17 +106,21 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public void EndEpoch()
         {
             AfterEpochEnds?.Invoke(this);
-            ApplyUpdates();
+            ApplyUpdates(null);
             _timer.Stop();
             _rowCount = 0;
         }
 
-        public void ApplyUpdates()
+        public IGraphData? ApplyUpdates(IGraphData? gradient)
         {
-            BackpropagateThroughTime(null);
-            foreach(var (error, updater) in _layerUpdate)
+            var ret = BackpropagateThroughTime(gradient);
+            foreach(var (error, updater) in _layerMatrixUpdate)
                 updater(error);
-            _layerUpdate.Clear();
+            foreach(var (error, updater) in _layerVectorUpdate)
+                updater(error);
+            _layerMatrixUpdate.Clear();
+            _layerVectorUpdate.Clear();
+            return ret;
         }
 
         public void DeferBackpropagation(IGraphData? data, Action<IGraphData?> update)
@@ -113,7 +128,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             _deferredBackpropagation.Push((data, update));
         }
 
-        public void BackpropagateThroughTime(IGraphData? signal, int maxDepth = int.MaxValue)
+        public IGraphData? BackpropagateThroughTime(IGraphData? signal, int maxDepth = int.MaxValue)
         {
             int depth = 0;
             IGraphData? currentSignal = null;
@@ -128,6 +143,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
                 ++depth;
             }
             _deferredBackpropagation.Clear();
+            return currentSignal;
         }
     }
 }

@@ -26,7 +26,7 @@ namespace ExampleCode.DataTableTrainers
             // create the engine
             var trainingData = graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
-            var engine = graph.CreateTrainingEngine(trainingData, learningRate: 0.03f, batchSize: 128);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate: 0.03f, batchSize: 128);
 
             // build the network
             graph.Connect(engine)
@@ -40,7 +40,7 @@ namespace ExampleCode.DataTableTrainers
             engine.Train(5, testData, errorMetric, model => bestNetwork = model);
             if (bestNetwork != null) {
                 // execute each row of the test data on an execution engine
-                var executionEngine = graph.CreateEngine(bestNetwork.Graph);
+                var executionEngine = graph.CreateExecutionEngine(bestNetwork.Graph);
                 var results = executionEngine.Execute(testData).OrderSequentialOutput();
                 var expectedOutput = Test.Column<Vector<float>>(1).ToArray();
 

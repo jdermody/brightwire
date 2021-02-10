@@ -74,7 +74,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             // concatenate the inputs
             var next = data.ConcatRows(floatMatrix);
 
-            context.AddForward(new TrainingAction(
+            context.AddForward(new ExecutionHistory(
                 this, 
                 new MatrixGraphData(next), 
                 new[] { forwardParent, reverseParent }), 

@@ -61,10 +61,5 @@ namespace BrightWire.ExecutionGraph.DataSource
                 _data.Length.AsRange().ToArray()
             };
         }
-
-        public void OnBatchProcessed(IGraphSequenceContext context)
-        {
-            // nop
-        }
     }
 }

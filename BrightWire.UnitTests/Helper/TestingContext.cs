@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using BrightData;
+using BrightWire.ExecutionGraph.Helper;
 using BrightWire.Models;
 
 namespace BrightWire.UnitTests.Helper
 {
     internal class TestingContext : IGraphSequenceContext
     {
-        public List<(IExecutionHistory, IBackpropagation)> Forward { get; } = new List<(IExecutionHistory, IBackpropagation)>();
+        public List<(ExecutionHistory, IBackpropagate)> Forward { get; } = new List<(ExecutionHistory, IBackpropagate)>();
         public List<(IGraphData, INode, INode)> Backward { get; } = new List<(IGraphData, INode, INode)>();
 
         public TestingContext(ILinearAlgebraProvider lap)
@@ -28,7 +29,7 @@ namespace BrightWire.UnitTests.Helper
         public ILinearAlgebraProvider LinearAlgebraProvider { get; }
 
         public IMiniBatchSequence BatchSequence { get; }
-        public void AddForward(IExecutionHistory action, Func<IBackpropagation> callback)
+        public void AddForward(ExecutionHistory action, Func<IBackpropagate>? callback)
         {
             Forward.Add((action, callback()));
         }
@@ -43,7 +44,7 @@ namespace BrightWire.UnitTests.Helper
             throw new NotImplementedException();
         }
 
-        public void Backpropagate(IGraphData delta)
+        public void Backpropagate(IGraphData? delta)
         {
             throw new NotImplementedException();
         }
@@ -66,11 +67,7 @@ namespace BrightWire.UnitTests.Helper
         }
 
         public IGraphData[] Output { get; set; }
-        public void StoreExecutionResult()
-        {
-            throw new NotImplementedException();
-        }
 
-        public IEnumerable<ExecutionResult> Results { get; }
+        public ExecutionResult Result { get; }
     }
 }

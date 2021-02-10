@@ -55,7 +55,7 @@ namespace BrightWire.ExecutionGraph
         /// <param name="engine">Graph engine</param>
         /// <param name="inputIndex">Input index to connect</param>
         public WireBuilder(GraphFactory factory, IGraphTrainingEngine engine, uint inputIndex = 0) 
-            : this(factory, engine.DataSource?.InputSize ?? throw new Exception("Engine has no data source"), engine.GetInput(inputIndex))
+            : this(factory, engine.DataSource.InputSize, engine.Start)
         {
             if(engine.DataSource is IVolumeDataSource volumeDataSource) {
                 _width = volumeDataSource.Width;
@@ -72,12 +72,26 @@ namespace BrightWire.ExecutionGraph
         /// <summary>
         /// Changes the current size of the builder
         /// </summary>
-        /// <param name="newSize">New wire builder size</param>
+        /// <param name="newSize">New size</param>
         public WireBuilder SetNewSize(uint newSize)
         {
             _width = newSize;
             _height = 1;
             _depth = 1;
+            return this;
+        }
+
+        /// <summary>
+        /// Changes the current size of the builder
+        /// </summary>
+        /// <param name="width">New width</param>
+        /// <param name="height">New height</param>
+        /// <param name="depth">New depth</param>
+        public WireBuilder SetNewSize(uint width, uint height, uint depth)
+        {
+            _width = width;
+            _height = height;
+            _depth = depth;
             return this;
         }
 
@@ -518,7 +532,7 @@ namespace BrightWire.ExecutionGraph
         /// <returns></returns>
         public WireBuilder JoinInputWithMemory(string slotName, uint memorySize, string? name = null)
         {
-            AddForwardAction(new JoinInputWithMemory(slotName), name);
+            SetNode(new JoinSignalWithMemory(slotName, name));
             SetNewSize(CurrentSize + memorySize);
             return this;
         }

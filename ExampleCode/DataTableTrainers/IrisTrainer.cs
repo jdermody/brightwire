@@ -32,7 +32,7 @@ namespace ExampleCode.DataTableTrainers
             var testData = trainingData.CloneWith(Test);
 
             // create a 4x8x3 neural network with sigmoid activations after each neural network
-            var engine = graph.CreateTrainingEngine(trainingData, trainingRate, batchSize);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, trainingRate, batchSize);
             graph.Connect(engine)
                 .AddFeedForward(hiddenLayerSize)
                 .Add(graph.SigmoidActivation())
@@ -61,7 +61,7 @@ namespace ExampleCode.DataTableTrainers
                 .Use(graph.GaussianWeightInitialisation(true, 0.1f, GaussianVarianceCalibration.SquareRoot2N, GaussianVarianceCount.FanInFanOut));
 
             // create the training engine and schedule a training rate change
-            var engine = graph.CreateTrainingEngine(trainingData, trainingRate, batchSize);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, trainingRate, batchSize);
 
             static INode Activation() => new SeluActivation();
             //Func<INode> activation = () => graph.ReluActivation();

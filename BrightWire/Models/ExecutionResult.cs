@@ -15,22 +15,15 @@ namespace BrightWire.Models
 		/// </summary>
 		/// <param name="miniBatch">The mini batch sequence</param>
 		/// <param name="output">The mini batch output</param>
-		/// <param name="index">Output index</param>
-		public ExecutionResult(IMiniBatchSequence miniBatch, Vector<float>[] output, uint index)
+        public ExecutionResult(IMiniBatchSequence miniBatch, Vector<float>[] output)
         {
             _miniBatch = miniBatch;
-            Index = index;
             Output = output;
 			Target = _miniBatch.Target?.GetMatrix().Data.Rows.ToArray();
 			Input = _miniBatch.Input?.GetMatrix().Data.Rows.ToArray();
 		}
 
-		/// <summary>
-		/// Output index
-		/// </summary>
-		public uint Index { get; }
-
-		/// <summary>
+        /// <summary>
 		/// The list of output rows
 		/// </summary>
 		public Vector<float>[] Output { get; }

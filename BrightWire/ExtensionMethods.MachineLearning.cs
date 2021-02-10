@@ -285,25 +285,23 @@ namespace BrightWire
             Func<GraphFactory.WeightInitialisationProvider, IWeightInitialisation> weightInitialisation
         )
         {
+            // set gradient descent and weight initialisation parameters
             graph.CurrentPropertySet
-                // use rmsprop gradient descent optimisation
                 .Use(gradientDescent(graph.GradientDescent))
-
-                // and gaussian weight initialisation
                 .Use(weightInitialisation(graph.WeightInitialisation))
             ;
 
             // create the engine
             var trainingData = graph.CreateDataSource(trainingTable);
-            var engine = graph.CreateTrainingEngine(trainingData, learningRate, batchSize);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate, batchSize);
 
             // create the network
             graph.Connect(engine)
-                // create a feed forward layer with sigmoid activation
+                // create the initial feed forward layer with activation
                 .AddFeedForward(hiddenLayerSize)
                 .Add(activation(graph))
 
-                // create a second feed forward layer with sigmoid activation
+                // create a second feed forward layer with activation
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                 .Add(activation(graph))
 
@@ -311,7 +309,7 @@ namespace BrightWire
                 .AddBackpropagation(errorMetric)
             ;
 
-            // train the network for twenty iterations, saving the model on each improvement
+            // train the network, saving the model on each improvement
             ExecutionGraphModel? bestGraph = null;
             var testData = trainingData.CloneWith(testTable);
             engine.Train(numIterations, testData, errorMetric, model => bestGraph = model.Graph);

@@ -60,10 +60,5 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
                 }
             };
         }
-
-        public void OnBatchProcessed(IGraphSequenceContext context)
-        {
-            // nop
-        }
     }
 }

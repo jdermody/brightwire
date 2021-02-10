@@ -13,9 +13,9 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     {
         readonly IGraphExecutionContext _executionContext;
         readonly ILearningContext? _learningContext;
-        readonly List<IExecutionHistory> _forward = new List<IExecutionHistory>();
-        readonly Stack<(IGraphData? ErrorSignal, INode Target, INode? Source)> _backward = new Stack<(IGraphData?, INode, INode?)>();
-        readonly Dictionary<INode, List<IExecutionHistory>> _history = new Dictionary<INode, List<IExecutionHistory>>();
+        readonly List<ExecutionHistory> _forward = new List<ExecutionHistory>();
+        readonly Stack<(IGraphData ErrorSignal, INode Target, INode? Source)> _backward = new Stack<(IGraphData, INode, INode?)>();
+        readonly Dictionary<INode, List<ExecutionHistory>> _history = new Dictionary<INode, List<ExecutionHistory>>();
         readonly Dictionary<INode, List<IGraphData>> _nodeErrorSignal = new Dictionary<INode, List<IGraphData>>();
 	    readonly Dictionary<int, IGraphData> _output = new Dictionary<int, IGraphData>();
         INode? _sourceNode;
@@ -57,19 +57,20 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public INode? Source => _sourceNode;
         public IGraphData? ErrorSignal => _errorSignal;
         public IGraphData Data => _data;
+        protected override IGraphSequenceContext Context => this;
 
-        public void AddForward(IExecutionHistory action, Func<IBackpropagation>? callback)
+        public void AddForward(ExecutionHistory action, Func<IBackpropagate>? callback)
         {
             if (callback != null && IsTraining)
                 action.Backpropagation = callback();
             _forward.Add(action);
 
             if (!_history.TryGetValue(action.Source, out var temp))
-                _history.Add(action.Source, temp = new List<IExecutionHistory>());
+                _history.Add(action.Source, temp = new List<ExecutionHistory>());
             temp.Add(action);
         }
 
-        public void AddBackward(IGraphData? error, INode target, INode? source)
+        public void AddBackward(IGraphData error, INode target, INode source)
         {
             _backward.Push((error, target, source));
         }
@@ -128,7 +129,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
                 if (_history.TryGetValue(next.Target, out var history)) {
                     foreach (var item in history) {
                         if (item.Backpropagation != null) {
-                            item.Backpropagation.Backward(next.Source, _errorSignal, this, item.Parents);
+                             item.Backpropagation.Backward(next.Source, _errorSignal, this, item.Parents);
                             item.Backpropagation.Dispose();
                         } else {
                             foreach (var parent in item.Parents)

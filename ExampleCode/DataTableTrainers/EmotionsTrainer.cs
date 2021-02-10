@@ -80,7 +80,7 @@ namespace ExampleCode.DataTableTrainers
             const float TRAINING_RATE = 0.3f;
             var trainingData = graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
-            var engine = graph.CreateTrainingEngine(trainingData, TRAINING_RATE);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, TRAINING_RATE);
 
             // build the network
             const int HIDDEN_LAYER_SIZE = 64, TRAINING_ITERATIONS = 2000;
@@ -97,7 +97,7 @@ namespace ExampleCode.DataTableTrainers
             engine.Train(TRAINING_ITERATIONS, testData, errorMetric, model => bestGraph = model.Graph, 50);
 
             // export the final model and execute it on the training set
-            var executionEngine = graph.CreateEngine(bestGraph ?? engine.Graph);
+            var executionEngine = graph.CreateExecutionEngine(bestGraph ?? engine.Graph);
             var output = executionEngine.Execute(testData);
 
             // output the results
@@ -181,7 +181,7 @@ namespace ExampleCode.DataTableTrainers
                 const float TRAINING_RATE = 0.1f;
                 var trainingData = graph.CreateDataSource(item.Training.Table);
                 var testData = trainingData.CloneWith(item.Test.Table);
-                var engine = graph.CreateTrainingEngine(trainingData, TRAINING_RATE, 64);
+                var engine = graph.CreateTrainingEngine(trainingData, errorMetric, TRAINING_RATE, 64);
 
                 // build the network
                 const int HIDDEN_LAYER_SIZE = 64, TRAINING_ITERATIONS = 2000;

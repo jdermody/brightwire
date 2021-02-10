@@ -31,7 +31,7 @@ namespace ExampleCode.DataTableTrainers
             // create the engine
             var trainingData = graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
-            var engine = graph.CreateTrainingEngine(trainingData, learningRate: 0.01f, batchSize: 16);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate: 0.01f, batchSize: 16);
 
             // build the network
             const int HIDDEN_LAYER_SIZE = 32, TRAINING_ITERATIONS = 30;
@@ -48,7 +48,7 @@ namespace ExampleCode.DataTableTrainers
 
             if (writeResults) {
                 // export the graph and verify it against some unseen integers on the best model
-                var executionEngine = graph.CreateEngine(bestGraph ?? engine.Graph);
+                var executionEngine = graph.CreateExecutionEngine(bestGraph ?? engine.Graph);
                 var testData2 = graph.CreateDataSource(BinaryIntegers.Addition(context, 8));
                 var results = executionEngine.Execute(testData2).ToArray();
 

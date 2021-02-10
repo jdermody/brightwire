@@ -34,7 +34,7 @@ namespace ExampleCode.DataTableTrainers
             ;
 
             // create the network
-            var engine = graph.CreateTrainingEngine(trainingData, trainingRate, batchSize);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, trainingRate, batchSize);
             //if (!String.IsNullOrWhiteSpace(outputModelPath) && File.Exists(outputModelPath)) {
             //    Console.WriteLine("Loading existing model from: " + outputModelPath);
                 //using (var file = new FileStream(outputModelPath, FileMode.Open, FileAccess.Read)) {
@@ -75,7 +75,7 @@ namespace ExampleCode.DataTableTrainers
             });
 
             // export the final model and execute it on the training set
-            var executionEngine = graph.CreateEngine(bestGraph ?? engine.Graph);
+            var executionEngine = graph.CreateExecutionEngine(bestGraph ?? engine.Graph);
             var output = executionEngine.Execute(testData);
             Console.WriteLine($"Final accuracy: {output.Average(o => o.CalculateError(errorMetric)):P2}");
 

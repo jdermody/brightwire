@@ -29,20 +29,15 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             public IGraphData? ErrorSignal => _context.ErrorSignal;
             public bool HasNext => _context.HasNext;
 
-            public void AddBackward(IGraphData? errorSignal, INode target, INode source)
+            public void AddBackward(IGraphData errorSignal, INode target, INode source)
             {
                 _context.AddBackward(errorSignal, target, source);
             }
 
-            public void AddForward(IExecutionHistory action, Func<IBackpropagation>? callback)
+            public void AddForward(ExecutionHistory action, Func<IBackpropagate>? callback)
             {
                 // TODO: wrap the backpropagation?
-                _context.AddForward(new TrainingAction(_wrapper, action.Data, action.Source), callback);
-            }
-
-            public void AppendErrorSignal(IGraphData errorSignal, INode forNode)
-            {
-                _context.AppendErrorSignal(errorSignal, forNode);
+                _context.AddForward(new ExecutionHistory(_wrapper, action.Data, action.Source), callback);
             }
 
             public void Backpropagate(IGraphData? delta)
@@ -70,8 +65,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
 	        }
 
 	        public IGraphData[] Output => _context.Output;
-            public void StoreExecutionResult() => _context.StoreExecutionResult();
-            public IEnumerable<ExecutionResult> Results => _context.Results;
+            public ExecutionResult Result => _context.Result;
         }
         INode _node;
         string _nodeId;

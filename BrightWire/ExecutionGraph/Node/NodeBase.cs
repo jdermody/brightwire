@@ -113,9 +113,9 @@ namespace BrightWire.ExecutionGraph.Node
         /// <param name="context"></param>
         /// <param name="data"></param>
         /// <param name="backProp"></param>
-        protected void AddNextGraphAction(IGraphSequenceContext context, IGraphData data, Func<IBackpropagation>? backProp)
+        protected void AddNextGraphAction(IGraphSequenceContext context, IGraphData data, Func<IBackpropagate>? backProp)
         {
-            context.AddForward(new TrainingAction(this, data, context.Source), backProp);
+            context.AddForward(new ExecutionHistory(this, data, context.Source), backProp);
         }
 
         /// <summary>

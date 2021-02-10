@@ -125,79 +125,35 @@ namespace BrightWire.ExecutionGraph
 		}
 
         /// <summary>
-        /// Creates a graph learning context
-        /// </summary>
-        /// <param name="learningRate">Initial learning rate</param>
-        /// <param name="batchSize">Mini batch size</param>
-        /// <param name="trainingErrorCalculation">How to calculate the training error</param>
-        /// <param name="deferUpdates">True to defer updates (used when training recurrent neural networks)</param>
-        /// <returns></returns>
-        public ILearningContext CreateLearningContext(
-            float learningRate, 
-            uint batchSize,
-            bool deferUpdates = false)
-		{
-			return new LearningContext(LinearAlgebraProvider, learningRate, batchSize, deferUpdates, this);
-		}
-
-        /// <summary>
         /// Creates a graph training engine
         /// </summary>
         /// <param name="dataSource">Segment source with training data</param>
+        /// <param name="errorMetric">Error metric to train with</param>
         /// <param name="learningRate">Initial learning rate</param>
         /// <param name="batchSize">Mini batch size</param>
-        /// <param name="trainingErrorCalculation">How to calculate the training error</param>
         /// <returns></returns>
         public IGraphTrainingEngine CreateTrainingEngine(
             IDataSource dataSource, 
+			IErrorMetric errorMetric,
             float learningRate = 0.1f, 
             uint batchSize = 128
         )
 		{
-			var learningContext = new LearningContext(LinearAlgebraProvider, learningRate, batchSize, dataSource.IsSequential, this);
-			return new TrainingEngine(LinearAlgebraProvider, dataSource, learningContext, null);
-		}
+			//var learningContext = new LearningContext(LinearAlgebraProvider, learningRate, batchSize, this);
+			//return new TrainingEngine(LinearAlgebraProvider, dataSource, learningContext, null);
+            var ret = new TrainingEngine2(this, dataSource, errorMetric);
+            var learningContext = ret.LearningContext;
+            learningContext.LearningRate = learningRate;
+            learningContext.BatchSize = batchSize;
+            return ret;
+        }
 
         /// <summary>
-        /// Creates a graph training engine
-        /// </summary>
-        /// <param name="dataSource">Segment source with training data</param>
-        /// <param name="graph">The serialised graph to execute</param>
-        /// <param name="trainingRate">Initial learning rate</param>
-        /// <param name="batchSize">Mini batch size</param>
-        /// <param name="trainingErrorCalculation">How to calculate the training error</param>
-        /// <returns></returns>
-        public IGraphTrainingEngine CreateTrainingEngine(
-            IDataSource dataSource, 
-            ExecutionGraphModel graph, 
-            float trainingRate = 0.1f, 
-            uint batchSize = 128
-        )
-		{
-			var learningContext = new LearningContext(LinearAlgebraProvider, trainingRate, batchSize, dataSource.IsSequential, this);
-			var input = this.CreateFrom(graph);
-			return new TrainingEngine(LinearAlgebraProvider, dataSource, learningContext, input);
-		}
-
-		/// <summary>
-		/// Creates a graph training engine
-		/// </summary>
-		/// <param name="dataSource">Segment source with training data</param>
-		/// <param name="learningContext">Previously created training context</param>
-		/// <param name="graph">The serialised graph to execute</param>
-		/// <returns></returns>
-		public IGraphTrainingEngine CreateTrainingEngine(IDataSource dataSource, ILearningContext learningContext, ExecutionGraphModel graph)
-		{
-			var input = this.CreateFrom(graph);
-			return new TrainingEngine(LinearAlgebraProvider, dataSource, learningContext, input);
-		}
-
-		/// <summary>
 		/// Creates a graph execution engine
 		/// </summary>
 		/// <param name="graph">The serialised graph to execute</param>
 		/// <returns></returns>
-		public IGraphEngine CreateEngine(ExecutionGraphModel graph)
+		public IGraphExecutionEngine CreateExecutionEngine(ExecutionGraphModel graph)
 		{
 			var input = this.CreateFrom(graph);
 			return new ExecutionEngine(LinearAlgebraProvider, graph, input);
@@ -539,20 +495,7 @@ namespace BrightWire.ExecutionGraph
 			return new WireBuilder(this, inputSize, node);
 		}
 
-		/// <summary>
-		/// Builds a new wire from the selected node
-		/// </summary>
-		/// <param name="width">Volume width</param>
-		/// <param name="height">Volume height</param>
-		/// <param name="depth">Volume depth</param>
-		/// <param name="node">The node to build from</param>
-		/// <returns></returns>
-		public WireBuilder Connect(uint width, uint height, uint depth, INode node)
-		{
-			return new WireBuilder(this, width, height, depth, node);
-		}
-
-		/// <summary>
+        /// <summary>
 		/// Adds the output of two wires into a new wire
 		/// </summary>
 		/// <param name="input1">First wire</param>

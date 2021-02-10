@@ -28,7 +28,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
                     for (uint j = 0; j < _source._data.Length; j++)
                         _source._data[j] += initialDelta[j] * context.LearningContext!.BatchLearningRate;
                 }
-                SendErrorTo(errorSignal, context, parents);
+                SendErrorTo(null, context, parents);
             }
         }
 
@@ -56,7 +56,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
                 var memory = context.LinearAlgebraProvider.CreateMatrix(context.BatchSequence.MiniBatch.BatchSize, (uint)_data.Length, (x, y) => _data[y]);
                 context.ExecutionContext.SetMemory(Id, memory);
                 AddNextGraphAction(context, new MatrixGraphData(memory), () => new Backpropagation(this));
-            }
+            } 
             else {
                 var memory = context.ExecutionContext.GetMemory(Id);
                 AddNextGraphAction(context, new MatrixGraphData(memory), null);

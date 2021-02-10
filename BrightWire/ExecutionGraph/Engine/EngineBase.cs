@@ -16,11 +16,10 @@ namespace BrightWire.ExecutionGraph.Engine
 
         protected EngineBase(ILinearAlgebraProvider lap) { _lap = lap; }
 
-        protected abstract IEnumerable<ExecutionResult> Execute(IGraphExecutionContext context, IMiniBatch miniBatch);
+        protected abstract IEnumerable<IGraphSequenceContext> Execute(IGraphExecutionContext context, IMiniBatch miniBatch);
         public abstract GCT CreateContext(IGraphExecutionContext executionContext, IMiniBatchSequence sequence);
-        public abstract IGraphEngine GraphEngine { get; }
 
-        protected IEnumerable<ExecutionResult> Continue(IMiniBatch batch, IGraphExecutionContext executionContext, Func<IMiniBatchSequence, IGraphSequenceContext> lookupContext)
+        protected IEnumerable<IGraphSequenceContext> Continue(IMiniBatch batch, IGraphExecutionContext executionContext, Func<IMiniBatchSequence, IGraphSequenceContext> lookupContext)
         {
             while (executionContext.HasContinuations) {
                 var additionalContext = new List<(IGraphSequenceContext Context, Action<IGraphSequenceContext[]> OnEnd)>();
@@ -32,11 +31,9 @@ namespace BrightWire.ExecutionGraph.Engine
                     var groups = additionalContext.GroupBy(d => d.OnEnd);
                     foreach (var group in groups)
                         group.Key(group.Select(d => d.Context).ToArray());
-                    foreach (var (context, _) in additionalContext) {
-                        foreach (var result in context.Results)
-                            yield return result;
-                        context.Dispose();
-                    }
+
+                    foreach (var item in additionalContext)
+                        yield return item.Context;
                 }
 
                 batch.Reset();
@@ -46,14 +43,55 @@ namespace BrightWire.ExecutionGraph.Engine
                     executionContext.Continue(context);
                     while (context.HasNext)
                         context.ExecuteNext();
+                    yield return context;
                 }
             }
+        }
+
+        public IEnumerable<ExecutionResult> Execute(IDataSource dataSource, uint batchSize = 128, Action<float>? batchCompleteCallback = null)
+        {
+            _lap.PushLayer();
+            _dataSource = dataSource;
+            var provider = new MiniBatchProvider(dataSource, null);
+            using var executionContext = new ExecutionContext(_lap, this);
+            // ReSharper disable once AccessToDisposedClosure
+            executionContext.Add(provider.GetMiniBatches(batchSize, mb => Execute(executionContext, mb)));
+            float operationCount = executionContext.RemainingOperationCount;
+            float index = 0f;
+
+            IGraphOperation? operation;
+            while ((operation = executionContext.GetNextOperation()) != null) {
+                _lap.PushLayer();
+                foreach (var context in operation.Execute(executionContext)) {
+                    yield return context.Result;
+                    context.Dispose();
+                }
+
+                //foreach (var (context, data) in _executionResults) {
+                //    uint outputIndex = 0;
+                //    foreach (var output in data) {
+                //        ret.Add(new ExecutionResult(context.BatchSequence, output.AsIndexable().Rows.Select(r => r.Data).ToArray(), outputIndex));
+                //        ++outputIndex;
+                //    }
+                //    context.Dispose();
+                //    foreach (var matrix in data)
+                //        matrix.Dispose();
+                //}
+                //_executionResults.Clear();
+                _lap.PopLayer();
+
+                if (batchCompleteCallback != null) {
+                    var percentage = (++index) / operationCount;
+                    batchCompleteCallback(percentage);
+                }
+            }
+
+            _lap.PopLayer();
         }
 
         public ExecutionResult? Execute(float[] input)
         {
             _lap.PushLayer();
-            ExecutionResult? ret = null;
             _dataSource = new SingleRowDataSource(input, _lap, false, MiniBatchSequenceType.Standard, 0);
             var provider = new MiniBatchProvider(_dataSource, null);
             using var executionContext = new ExecutionContext(_lap, this);
@@ -61,12 +99,15 @@ namespace BrightWire.ExecutionGraph.Engine
             executionContext.Add(provider.GetMiniBatches(1, mb => Execute(executionContext, mb)));
 
             IGraphOperation? operation;
+            IGraphSequenceContext? context = null;
+            // TODO: check that there is a single operation?
             while ((operation = executionContext.GetNextOperation()) != null) {
                 _lap.PushLayer();
-                ret = operation.Execute(executionContext).Single();
+                context = operation.Execute(executionContext).Single();
                 _lap.PopLayer();
             }
-
+            var ret = context?.Result;
+            context?.Dispose();
             _lap.PopLayer();
             _dataSource = null;
             return ret;
@@ -106,8 +147,11 @@ namespace BrightWire.ExecutionGraph.Engine
             IGraphOperation? operation;
             while ((operation = executionContext.GetNextOperation()) != null) {
                 _lap.PushLayer();
-                foreach (var result in operation.Execute(executionContext))
-                    yield return result;
+                foreach (var context in operation.Execute(executionContext)) {
+                    yield return context.Result;
+                    context.Dispose();
+                }
+
                 _lap.PopLayer();
             }
 
@@ -115,7 +159,7 @@ namespace BrightWire.ExecutionGraph.Engine
             _dataSource = null;
         }
 
-        public ExecutionResult? ExecuteSequential(uint sequenceIndex, float[] input, MiniBatchSequenceType sequenceType)
+        public ExecutionResult? ExecuteSingleSequentialStep(uint sequenceIndex, float[] input, MiniBatchSequenceType sequenceType)
         {
             _lap.PushLayer();
             _dataSource = new SingleRowDataSource(input, _lap, true, sequenceType, sequenceIndex);
@@ -125,12 +169,14 @@ namespace BrightWire.ExecutionGraph.Engine
             executionContext.Add(provider.GetMiniBatches(1, mb => Execute(executionContext, mb)));
 
             IGraphOperation? operation;
-            var results = new List<ExecutionResult>();
+            IGraphSequenceContext? context = null;
+            // TODO: check that there is a single operation?
             while ((operation = executionContext.GetNextOperation()) != null) {
-                results.AddRange(operation.Execute(executionContext));
+                context = operation.Execute(executionContext).Single();
             }
 
-            var ret = results.SingleOrDefault();
+            var ret = context?.Result;
+            context?.Dispose();
             _lap.PopLayer();
             _dataSource = null;
             return ret;

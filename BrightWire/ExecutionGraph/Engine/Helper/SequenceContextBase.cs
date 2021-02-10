@@ -1,19 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using BrightWire.Models;
 
 namespace BrightWire.ExecutionGraph.Engine.Helper
 {
-    class SequenceContextBase
+    abstract class SequenceContextBase
     {
-        readonly List<ExecutionResult> _results = new List<ExecutionResult>();
-
         public void StoreExecutionResult()
         {
-
+            
         }
 
-        public IEnumerable<ExecutionResult> Results => _results;
+        protected abstract IGraphSequenceContext Context { get; }
+
+        public ExecutionResult Result 
+        {
+            get
+            {
+                var context = Context;
+                var output = context.Output;
+                var matrixOutput = output.Any()
+                    ? output.Select(o => o.GetMatrix().Data)
+                    : new[] {context.Data.GetMatrix().Data};
+
+                return new ExecutionResult(context.BatchSequence, matrixOutput.SelectMany(m => m.Rows).ToArray());
+            }
+        }
     }
 }

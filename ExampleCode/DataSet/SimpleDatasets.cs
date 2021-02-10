@@ -155,18 +155,19 @@ namespace ExampleCode.DataSet
             foreach (var sequence in sequences)
             {
                 var sequenceData = sequence
-                        .GroupBy(ch => ch)
-                        .Select(g => (g.Key, g.Count()))
-                        .ToDictionary(d => d.Key, d => (float)d.Item2)
-                    ;
+                    .GroupBy(ch => ch)
+                    .Select(g => (g.Key, g.Count()))
+                    .ToDictionary(d => d.Key, d => (float)d.Item2)
+                ;
                 var summary = grammar.Encode(sequenceData.Select(kv => (kv.Key, kv.Value)));
-                var list = new List<Vector<float>>();
+                var rows = new Vector<float>[sequenceData.Count];
+                var index = 0;
                 foreach (var item in sequenceData.OrderBy(kv => kv.Key))
                 {
                     var row = grammar.Encode(item.Key, item.Value);
-                    list.Add(row);
+                    rows[index++] = row;
                 }
-                builder.AddRow(summary, context.CreateMatrixFromRows(list.ToArray()));
+                builder.AddRow(summary, context.CreateMatrixFromRows(rows));
             }
 
             return new SequenceToSequenceTrainer(context, grammar.DictionarySize, builder.BuildRowOriented());
@@ -180,18 +181,18 @@ namespace ExampleCode.DataSet
             builder.AddColumn(ColumnType.Matrix, "Sequence");
             builder.AddColumn(ColumnType.Vector, "Summary").SetTarget(true);
 
-            foreach (var sequence in sequences)
-            {
-                var list = new List<Vector<float>>();
+            foreach (var sequence in sequences) {
+                var index = 0;
+                var rows = new Vector<float>[sequence.Length];
                 var charSet = new HashSet<char>();
                 foreach (var ch in sequence)
                 {
                     charSet.Add(ch);
-                    list.Add(grammar.Encode(ch));
+                    rows[index++] = grammar.Encode(ch);
                 }
 
                 var target = grammar.Encode(charSet.Select(ch2 => (ch2, 1f)));
-                builder.AddRow(context.CreateMatrixFromRows(list.ToArray()), target);
+                builder.AddRow(context.CreateMatrixFromRows(rows), target);
             }
             return new SequenceToSequenceTrainer(context, grammar.DictionarySize, builder.BuildRowOriented());
         }

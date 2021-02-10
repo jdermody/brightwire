@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using BrightData;
 using BrightData.LinearAlgebra;
+using BrightWire.ExecutionGraph.Helper;
 
 namespace BrightWire
 {
@@ -207,32 +208,6 @@ namespace BrightWire
     }
 
     /// <summary>
-    /// Record of node execution
-    /// </summary>
-    public interface IExecutionHistory
-    {
-        /// <summary>
-        /// Node that was executed
-        /// </summary>
-        INode Source { get; }
-
-        /// <summary>
-        /// The node's parents
-        /// </summary>
-        INode[] Parents { get; }
-
-        /// <summary>
-        /// Node output signal
-        /// </summary>
-        IGraphData Data { get; }
-
-        /// <summary>
-        /// Optional backpropagation
-        /// </summary>
-        IBackpropagation? Backpropagation { get; set; }
-    }
-
-    /// <summary>
     /// Represents a single pass through the graph, from a single mini batch sequence
     /// </summary>
     public interface IGraphSequenceContext : IDisposable
@@ -260,7 +235,7 @@ namespace BrightWire
         /// <summary>
         /// Linear algebra provider
         /// </summary>
-        ILinearAlgebraProvider LinearAlgebraProvider { get; }
+        ILinearAlgebraProvider LinearAlgebraProvider => ExecutionContext.LinearAlgebraProvider;
 
         /// <summary>
         /// Current mini batch sequence
@@ -272,7 +247,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="action">Record of node execution</param>
         /// <param name="callback">Optional callback to add backpropagation</param>
-        void AddForward(IExecutionHistory action, Func<IBackpropagation>? callback);
+        void AddForward(ExecutionHistory action, Func<IBackpropagate>? callback);
 
         /// <summary>
         /// Sends a backward error signal
@@ -280,14 +255,7 @@ namespace BrightWire
         /// <param name="errorSignal">Error signal</param>
         /// <param name="target">Node to send to</param>
         /// <param name="source">Node that sent the error</param>
-        void AddBackward(IGraphData? errorSignal, INode target, INode source);
-
-        /// <summary>
-        /// Records an error signal against a node
-        /// </summary>
-        /// <param name="errorSignal">Error signal</param>
-        /// <param name="forNode">Node to record against</param>
-        void AppendErrorSignal(IGraphData errorSignal, INode forNode);
+        void AddBackward(IGraphData errorSignal, INode target, INode source);
 
         /// <summary>
         /// Backpropagates the signal
@@ -329,9 +297,7 @@ namespace BrightWire
         /// </summary>
         IGraphData[] Output { get; }
 
-        void StoreExecutionResult();
-
-        IEnumerable<ExecutionResult> Results { get; }
+        ExecutionResult Result { get; }
     }
 
     /// <summary>
@@ -406,7 +372,7 @@ namespace BrightWire
     /// <summary>
     /// Backpropagation handler
     /// </summary>
-    public interface IBackpropagation : IDisposable
+    public interface IBackpropagate : IDisposable
     {
         /// <summary>
         /// Backpropagate
@@ -466,12 +432,6 @@ namespace BrightWire
         /// </summary>
         /// <returns></returns>
         uint[][] GetBuckets();
-
-        /// <summary>
-        /// Called when the current batch has completed
-        /// </summary>
-        /// <param name="context"></param>
-        void OnBatchProcessed(IGraphSequenceContext context);
 
         /// <summary>
         /// Creates a new data source, using the current as a template but replacing the data table
@@ -631,7 +591,7 @@ namespace BrightWire
         /// Executes the operation
         /// </summary>
         /// <param name="executionContext">Graph execution context</param>
-        IEnumerable<ExecutionResult> Execute(IGraphExecutionContext executionContext);
+        IEnumerable<IGraphSequenceContext> Execute(IGraphExecutionContext executionContext);
     }
 
     /// <summary>
@@ -652,8 +612,16 @@ namespace BrightWire
         /// <summary>
         /// Segment source that feeds into the graph
         /// </summary>
-        IDataSource? DataSource { get; }
+        IDataSource DataSource { get; }
 
+        /// <summary>
+		/// The graph's single start node
+		/// </summary>
+		INode Start { get; }
+    }
+
+    public interface IGraphExecutionEngine : IGraphEngine
+    {
         /// <summary>
         /// Executes a data source on the current graph
         /// </summary>
@@ -677,7 +645,7 @@ namespace BrightWire
         /// <param name="input">Input vector</param>
         /// <param name="sequenceType">The sequence type (start, standard, end)</param>
         /// <returns></returns>
-        ExecutionResult? ExecuteSequential(uint sequenceIndex, float[] input, MiniBatchSequenceType sequenceType);
+        ExecutionResult? ExecuteSingleSequentialStep(uint sequenceIndex, float[] input, MiniBatchSequenceType sequenceType);
 
         /// <summary>
         /// Executes a sequence of inputs on the current graph
@@ -685,11 +653,6 @@ namespace BrightWire
         /// <param name="input">List of vector inputs</param>
         /// <returns>List of execution results</returns>
         IEnumerable<ExecutionResult> ExecuteSequential(float[][] input);
-
-		/// <summary>
-		/// The graph's single start node
-		/// </summary>
-		INode Start { get; }
     }
 
     /// <summary>
@@ -698,12 +661,6 @@ namespace BrightWire
     public interface IGraphTrainingEngine : IGraphEngine
     {
         /// <summary>
-        /// Returns the specified input node
-        /// </summary>
-        /// <param name="index">Index of the input node to retrieve</param>
-        INode GetInput(uint index);
-
-	    /// <summary>
 	    /// Executes a training epoch on the graph
 	    /// </summary>
 	    /// <param name="executionContext">Graph execution context</param>
@@ -739,6 +696,8 @@ namespace BrightWire
         /// <param name="factory">Graph factory</param>
         /// <param name="graph">Model to load parameters from</param>
         void LoadParametersFrom(GraphFactory factory, ExecutionGraphModel graph);
+
+        IGraphExecutionEngine CreateExecutionEngine(ExecutionGraphModel? model);
     }
 
     /// <summary>

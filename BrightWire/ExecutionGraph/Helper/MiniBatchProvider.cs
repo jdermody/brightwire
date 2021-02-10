@@ -15,16 +15,16 @@ namespace BrightWire.ExecutionGraph.Helper
         {
             readonly uint[] _rows;
             readonly MiniBatchProvider _provider;
-            readonly Func<IMiniBatch, IEnumerable<ExecutionResult>> _handler;
+            readonly Func<IMiniBatch, IEnumerable<IGraphSequenceContext>> _handler;
 
-            public MiniBatchOperation(uint[] rows, MiniBatchProvider provider, Func<IMiniBatch, IEnumerable<ExecutionResult>> handler)
+            public MiniBatchOperation(uint[] rows, MiniBatchProvider provider, Func<IMiniBatch, IEnumerable<IGraphSequenceContext>> handler)
             {
                 _rows = rows;
                 _handler = handler;
                 _provider = provider;
             }
 
-            public IEnumerable<ExecutionResult> Execute(IGraphExecutionContext executionContext)
+            public IEnumerable<IGraphSequenceContext> Execute(IGraphExecutionContext executionContext)
             {
                 var dataSource = _provider._dataSource;
                 var miniBatch = dataSource.Get(executionContext, _rows);
@@ -40,7 +40,7 @@ namespace BrightWire.ExecutionGraph.Helper
             _random = random;
         }
 
-        public IEnumerable<IGraphOperation> GetMiniBatches(uint batchSize, Func<IMiniBatch, IEnumerable<ExecutionResult>> handler)
+        public IEnumerable<IGraphOperation> GetMiniBatches(uint batchSize, Func<IMiniBatch, IEnumerable<IGraphSequenceContext>> handler)
         {
             var buckets = _dataSource.GetBuckets();
             if (_random != null)

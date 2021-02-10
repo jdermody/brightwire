@@ -91,7 +91,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
                     var output = _lap.CreateMatrixFromRows(item.Value);
                     var type = item.Key == 0
                         ? MiniBatchSequenceType.SequenceStart
-                        : item.Key == (inputData.Count - 1)
+                        : item.Key == (outputData.Count - 1)
                             ? MiniBatchSequenceType.SequenceEnd
                             : MiniBatchSequenceType.Standard
                     ;

@@ -130,10 +130,10 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// <param name="data">The list of incoming signals</param>
         /// <param name="output">Output signal</param>
         /// <param name="backpropagation">Backpropagation creator (optional)</param>
-        protected void AddHistory(IGraphSequenceContext context, List<IncomingChannel> data, IFloatMatrix output, Func<IBackpropagation> backpropagation)
+        protected void AddHistory(IGraphSequenceContext context, List<IncomingChannel> data, IFloatMatrix output, Func<IBackpropagate> backpropagation)
         {
             var sources = data.Where(d => d.Source != null).Select(d => d.Source!).ToArray();
-            context.AddForward(new TrainingAction(this, new MatrixGraphData(output), sources), backpropagation);
+            context.AddForward(new ExecutionHistory(this, new MatrixGraphData(output), sources), backpropagation);
         }
 
 	    /// <inheritdoc />

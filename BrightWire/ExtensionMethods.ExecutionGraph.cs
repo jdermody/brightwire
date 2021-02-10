@@ -26,15 +26,16 @@ namespace BrightWire
         /// <param name="errorMetric">The error metric to evaluate the test data against</param>
         /// <param name="onImprovement">Optional callback for when the test data score has improved against the error metric</param>
         /// <param name="testCadence">Determines how many epochs elapse before the test data is evaluated</param>
-        public static void Train(this IGraphTrainingEngine engine, uint numIterations, IDataSource testData, IErrorMetric errorMetric, Action<GraphModel>? onImprovement = null, int testCadence = 1)
+        public static GraphModel? Train(this IGraphTrainingEngine engine, uint numIterations, IDataSource testData, IErrorMetric errorMetric, Action<GraphModel>? onImprovement = null, int testCadence = 1)
         {
             var executionContext = new ExecutionContext(engine.LinearAlgebraProvider, engine);
             var progress = -1;
             var sw = Stopwatch.StartNew();
             // ReSharper disable once AccessToModifiedClosure
-            engine.Test(testData, errorMetric, 128, percentage => percentage.WriteProgressPercentage(ref progress, sw));
+            //engine.Test(testData, errorMetric, 128, percentage => percentage.WriteProgressPercentage(ref progress, sw));
 
             var count = 0;
+            GraphModel? ret = null;
             for (var i = 0; i < numIterations; i++) {
                 progress = -1;
                 sw.Restart();
@@ -43,16 +44,16 @@ namespace BrightWire
                     progress = -1;
                     sw.Restart();
                     if (engine.Test(testData, errorMetric, 128, percentage => percentage.WriteProgressPercentage(ref progress, sw)) && onImprovement != null) {
-                        var bestModel = new GraphModel {
+                        ret = new GraphModel {
                             Graph = engine.Graph
                         };
-                        if (engine.DataSource is IAdaptiveDataSource adaptiveDataSource)
-                            bestModel.DataSource = adaptiveDataSource.GetModel();
-                        onImprovement(bestModel);
+                        onImprovement(ret);
                     }
                     count = 0;
                 }
             }
+
+            return ret;
         }
 
         static void WriteProgressPercentage(this float progress, ref int previousPercentage, Stopwatch sw)

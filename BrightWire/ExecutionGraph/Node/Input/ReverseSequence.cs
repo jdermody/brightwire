@@ -26,7 +26,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
                 if (reversed == null)
                     throw new Exception("Input data was null");
 
-                context.AddForward(new TrainingAction(this, reversed, context.Source), null);
+                context.AddForward(new ExecutionHistory(this, reversed, context.Source), null);
             }
             else 
                 throw new NotImplementedException();

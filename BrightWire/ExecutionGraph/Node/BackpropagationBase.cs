@@ -6,7 +6,7 @@ namespace BrightWire.ExecutionGraph.Node
     /// Base class for node backpropagation
     /// </summary>
     /// <typeparam name="T">The node type</typeparam>
-    public abstract class BackpropagationBase<T> : IBackpropagation
+    public abstract class BackpropagationBase<T> : IBackpropagate
         where T : INode
     {
         /// <summary>

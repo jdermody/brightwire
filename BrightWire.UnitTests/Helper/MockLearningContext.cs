@@ -14,13 +14,18 @@ namespace BrightWire.UnitTests.Helper
         public float BatchLearningRate { get; set; }
         public uint BatchSize { get; set; }
         public uint RowCount { get; set; }
-        public void StoreUpdate<T>(INode fromNode, T update, Action<T> updater)
+        public void StoreUpdate(INode fromNode, IFloatMatrix update, Action<IFloatMatrix> updater)
         {
 
         }
 
+        public void StoreUpdate(INode fromNode, IFloatVector update, Action<IFloatVector> updater)
+        {
+            
+        }
+
         public bool DeferUpdates { get; set; }
-        public void ApplyUpdates()
+        public IGraphData? ApplyUpdates(IGraphData? gradient)
         {
             throw new NotImplementedException();
         }
@@ -45,7 +50,7 @@ namespace BrightWire.UnitTests.Helper
             throw new NotImplementedException();
         }
 
-        public void BackpropagateThroughTime(IGraphData signal, int maxDepth = 2147483647)
+        public IGraphData? BackpropagateThroughTime(IGraphData signal, int maxDepth = 2147483647)
         {
             throw new NotImplementedException();
         }
@@ -60,10 +65,6 @@ namespace BrightWire.UnitTests.Helper
             throw new NotImplementedException();
         }
 
-        public void Clear()
-        {
-            throw new NotImplementedException();
-        }
 
         public Action<string> MessageLog { get; set; }
         public event Action<ILearningContext> BeforeEpochStarts;
