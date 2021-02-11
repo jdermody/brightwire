@@ -227,7 +227,7 @@ namespace BrightWire
 		/// <summary>
 		/// Error metric to use when evaluating trainging progress
 		/// </summary>
-		IErrorMetric? ErrorMetric { get; set; }
+		IErrorMetric ErrorMetric { get; set; }
 
 		/// <summary>
 		/// Graph factory

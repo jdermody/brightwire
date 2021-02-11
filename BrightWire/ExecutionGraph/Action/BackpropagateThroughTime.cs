@@ -9,35 +9,31 @@ namespace BrightWire.ExecutionGraph.Action
     /// </summary>
     internal class BackpropagateThroughTime : IAction
     {
-        IErrorMetric _errorMetric;
-
-        public BackpropagateThroughTime(IErrorMetric errorMetric)
+        public BackpropagateThroughTime()
         {
-            _errorMetric = errorMetric;
         }
 
         public void Initialise(string data)
         {
-            _errorMetric = GenericActivator.Create<IErrorMetric>(TypeLoader.LoadType(data));
+            //_errorMetric = GenericActivator.Create<IErrorMetric>(TypeLoader.LoadType(data));
         }
 
         public string Serialise()
         {
-            return TypeLoader.GetTypeName(_errorMetric);
+            return "";
+            //return TypeLoader.GetTypeName(_errorMetric);
         }
 
         public IGraphData Execute(IGraphData input, IGraphSequenceContext context)
         {
             var output = input.GetMatrix();
             if (context.LearningContext != null) {
-	            context.LearningContext.ErrorMetric ??= _errorMetric;
-
                 var batchSequence = context.BatchSequence;
                 var target = batchSequence.Target?.GetMatrix();
                 if (target == null)
                     context.LearningContext.DeferBackpropagation(null, context.Backpropagate);
                 else {
-                    var gradient = _errorMetric.CalculateGradient(context, output, target);
+                    var gradient = context.LearningContext.ErrorMetric.CalculateGradient(context, output, target);
                     context.LearningContext.DeferBackpropagation(input.ReplaceWith(gradient), context.Backpropagate);
                 }
             }

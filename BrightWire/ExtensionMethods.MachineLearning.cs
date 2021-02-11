@@ -306,13 +306,13 @@ namespace BrightWire
                 .Add(activation(graph))
 
                 // calculate the error and backpropagate the error signal
-                .AddBackpropagation(errorMetric)
+                .AddBackpropagation()
             ;
 
             // train the network, saving the model on each improvement
             ExecutionGraphModel? bestGraph = null;
             var testData = trainingData.CloneWith(testTable);
-            engine.Train(numIterations, testData, errorMetric, model => bestGraph = model.Graph);
+            engine.Train(numIterations, testData, model => bestGraph = model.Graph);
             return bestGraph;
         }
     }

@@ -5,6 +5,10 @@ namespace BrightWire.ExecutionGraph.Helper
 {
     class NullGraphData : IGraphData
     {
+        private NullGraphData()
+        {
+        }
+
         public uint Rows { get; } = 0;
         public uint Columns { get; } = 0;
         public uint Depth { get; } = 0;
@@ -30,6 +34,10 @@ namespace BrightWire.ExecutionGraph.Helper
         }
 
         public bool HasValue { get; } = false;
+
+        public override string ToString() => "Null graph data";
+
+        public static NullGraphData Instance = new NullGraphData();
     }
 
     /// <summary>
@@ -59,6 +67,8 @@ namespace BrightWire.ExecutionGraph.Helper
             };
         }
         public bool HasValue { get; } = true;
+
+        public override string ToString() => $"Matrix graph data (rows:{Rows}, columns:{Columns})";
     }
 
     /// <summary>
@@ -103,6 +113,7 @@ namespace BrightWire.ExecutionGraph.Helper
             return null;
         }
         public bool HasValue { get; } = true;
+        public override string ToString() => $"Tensor 3D graph data (rows:{Rows}, columns:{Columns}, depth:{Depth})";
     }
 
     /// <summary>
@@ -147,5 +158,6 @@ namespace BrightWire.ExecutionGraph.Helper
             return _matrix.ReshapeAs4DTensor(Rows, Columns, Depth);
         }
         public bool HasValue { get; } = true;
+        public override string ToString() => $"Tensor 4D graph data (rows:{Rows}, columns:{Columns}, depth:{Depth}, count:{Count})";
     }
 }

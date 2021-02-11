@@ -69,7 +69,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 					}
 					return new Tensor4DGraphData(delta.ReshapeAsMatrix(), _inputHeight, _inputWidth, inputDepth);
 				}
-				return errorSignal;
+				return NullGraphData.Instance;
 			}
 
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
@@ -108,7 +108,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                     }
                     return new Tensor4DGraphData(delta.ReshapeAsMatrix(), _inputHeight, _inputWidth, inputDepth);
                 }
-                return errorSignal;
+                return NullGraphData.Instance;
             }
         }
 		IGradientDescentOptimisation? _updater;

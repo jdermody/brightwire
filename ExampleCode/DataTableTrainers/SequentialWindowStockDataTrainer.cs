@@ -33,11 +33,11 @@ namespace ExampleCode.DataTableTrainers
                 .AddLstm(hiddenLayerSize)
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                 .Add(graph.TanhActivation())
-                .AddBackpropagationThroughTime(errorMetric);
+                .AddBackpropagationThroughTime();
 
             // train the network and restore the best result
             GraphModel? bestNetwork = null;
-            engine.Train(5, testData, errorMetric, model => bestNetwork = model);
+            engine.Train(5, testData, model => bestNetwork = model);
             if (bestNetwork != null) {
                 // execute each row of the test data on an execution engine
                 var executionEngine = graph.CreateExecutionEngine(bestNetwork.Graph);
@@ -46,8 +46,6 @@ namespace ExampleCode.DataTableTrainers
 
                 var score = results.Select((r, i) => errorMetric.Compute(r.Last(), expectedOutput[i])).Average();
                 Console.WriteLine(score);
-
-
             }
         }
     }

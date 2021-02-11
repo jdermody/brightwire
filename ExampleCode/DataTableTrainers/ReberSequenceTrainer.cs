@@ -16,7 +16,7 @@ namespace ExampleCode.DataTableTrainers
             _context = context;
         }
 
-        public IGraphExecutionEngine TrainLstm()
+        public IGraphExecutionEngine TrainGru()
         {
             var graph = _context.CreateGraphFactory();
 
@@ -35,15 +35,15 @@ namespace ExampleCode.DataTableTrainers
             var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate: 0.1f, batchSize: 32);
 
             // build the network
-            const int HIDDEN_LAYER_SIZE = 38, TRAINING_ITERATIONS = 2;
+            const int HIDDEN_LAYER_SIZE = 38, TRAINING_ITERATIONS = 50;
             graph.Connect(engine)
-                .AddLstm(HIDDEN_LAYER_SIZE)
+                .AddGru(HIDDEN_LAYER_SIZE)
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                 .Add(graph.SoftMaxActivation())
-                .AddBackpropagationThroughTime(errorMetric)
+                .AddBackpropagationThroughTime()
             ;
 
-            var model = engine.Train(TRAINING_ITERATIONS, testData, errorMetric);
+            var model = engine.Train(TRAINING_ITERATIONS, testData);
             return engine.CreateExecutionEngine(model?.Graph);
         }
 
@@ -52,7 +52,7 @@ namespace ExampleCode.DataTableTrainers
             Console.WriteLine("Generating new reber sequences from the observed state probabilities...");
             var graph = _context.CreateGraphFactory();
 
-            for (var z = 0; z < 5; z++)
+            for (var z = 0; z < 10; z++)
             {
                 // prepare the first input
                 var input = new float[ReberGrammar.Size];
@@ -60,7 +60,8 @@ namespace ExampleCode.DataTableTrainers
                 Console.Write("B");
 
                 uint index = 0, eCount = 0;
-                var result = engine.ExecuteSingleSequentialStep(index++, input, MiniBatchSequenceType.SequenceStart);
+                var executionContext = engine.CreateExecutionContext();
+                var result = engine.ExecuteSingleSequentialStep(executionContext, index++, input, MiniBatchSequenceType.SequenceStart);
                 if (result != null) {
                     for (var i = 0; i < 32; i++) {
                         var next = result!.Output[0].Values
@@ -76,7 +77,7 @@ namespace ExampleCode.DataTableTrainers
 
                         Array.Clear(input, 0, ReberGrammar.Size);
                         input[nextIndex] = 1f;
-                        result = engine.ExecuteSingleSequentialStep(index++, input, MiniBatchSequenceType.Standard);
+                        result = engine.ExecuteSingleSequentialStep(executionContext, index++, input, MiniBatchSequenceType.Standard);
                     }
                     Console.WriteLine();
                 }

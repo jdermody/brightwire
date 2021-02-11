@@ -40,10 +40,10 @@ namespace ExampleCode.DataTableTrainers
                 .AddLstm(HIDDEN_LAYER_SIZE)
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                 .Add(graph.SigmoidActivation())
-                .AddBackpropagation(errorMetric)
+                .AddBackpropagation()
             ;
 
-            engine.Train(40, testData, errorMetric);
+            engine.Train(40, testData);
 
             var networkGraph = engine.Graph;
             var executionEngine = graph.CreateExecutionEngine(networkGraph);
@@ -74,10 +74,10 @@ namespace ExampleCode.DataTableTrainers
                 .AddGru(HIDDEN_LAYER_SIZE)
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                 .Add(graph.TanhActivation())
-                .AddBackpropagationThroughTime(errorMetric)
+                .AddBackpropagationThroughTime()
             ;
 
-            engine.Train(20, testData, errorMetric);
+            engine.Train(20, testData);
 
             var networkGraph = engine.Graph;
             var executionEngine = graph.CreateExecutionEngine(networkGraph);
@@ -115,7 +115,7 @@ namespace ExampleCode.DataTableTrainers
                 .AddLstm(HIDDEN_LAYER_SIZE, "decoder")
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                 .Add(graph.SigmoidActivation())
-                .AddBackpropagationThroughTime(errorMetric)
+                .AddBackpropagationThroughTime()
             ;
 
             // create the engine
@@ -123,7 +123,7 @@ namespace ExampleCode.DataTableTrainers
             engine.LearningContext.ScheduleLearningRate(30, TRAINING_RATE / 3);
             engine.LearningContext.ScheduleLearningRate(40, TRAINING_RATE / 9);
 
-            engine.Train(50, testData, errorMetric);
+            engine.Train(50, testData);
         }
     }
 }

@@ -27,7 +27,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             BatchSequence = miniBatch;
             _executionContext = executionContext;
             _learningContext = learningContext;
-            _data = new NullGraphData();
+            _data = NullGraphData.Instance;
         }
 
         public void Dispose()

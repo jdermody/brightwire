@@ -90,11 +90,11 @@ namespace ExampleCode.DataTableTrainers
                 .AddDropOut(dropOutPercentage: 0.5f)
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                 .Add(graph.SigmoidActivation())
-                .AddBackpropagation(errorMetric);
+                .AddBackpropagation();
 
             // train the network
             ExecutionGraphModel? bestGraph = null;
-            engine.Train(TRAINING_ITERATIONS, testData, errorMetric, model => bestGraph = model.Graph, 50);
+            engine.Train(TRAINING_ITERATIONS, testData, model => bestGraph = model.Graph, 50);
 
             // export the final model and execute it on the training set
             var executionEngine = graph.CreateExecutionEngine(bestGraph ?? engine.Graph);
@@ -191,11 +191,11 @@ namespace ExampleCode.DataTableTrainers
                     .AddDropOut(dropOutPercentage: 0.5f)
                     .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                     .Add(graph.SigmoidActivation())
-                    .AddBackpropagation(errorMetric)
+                    .AddBackpropagation()
                 ;
 
                 // train the network
-                engine.Train(TRAINING_ITERATIONS, testData, errorMetric, null, 200);
+                engine.Train(TRAINING_ITERATIONS, testData, null, 200);
             }
         }
     }

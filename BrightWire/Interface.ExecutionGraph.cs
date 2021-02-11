@@ -621,7 +621,7 @@ namespace BrightWire
         /// <summary>
         /// Segment source that feeds into the graph
         /// </summary>
-        IDataSource DataSource { get; }
+        IDataSource? DataSource { get; }
 
         /// <summary>
 		/// The graph's single start node
@@ -650,11 +650,12 @@ namespace BrightWire
         /// <summary>
         /// Executes a sequential input on the current graph
         /// </summary>
+        /// <param name="executionContext">Execution context</param>
         /// <param name="sequenceIndex">Index of the current sequence (starting from 0)</param>
         /// <param name="input">Input vector</param>
         /// <param name="sequenceType">The sequence type (start, standard, end)</param>
         /// <returns></returns>
-        ExecutionResult? ExecuteSingleSequentialStep(uint sequenceIndex, float[] input, MiniBatchSequenceType sequenceType);
+        ExecutionResult? ExecuteSingleSequentialStep(IGraphExecutionContext executionContext, uint sequenceIndex, float[] input, MiniBatchSequenceType sequenceType);
 
         /// <summary>
         /// Executes a sequence of inputs on the current graph
@@ -662,6 +663,8 @@ namespace BrightWire
         /// <param name="input">List of vector inputs</param>
         /// <returns>List of execution results</returns>
         IEnumerable<ExecutionResult> ExecuteSequential(float[][] input);
+
+        IGraphExecutionContext CreateExecutionContext();
     }
 
     /// <summary>
@@ -681,15 +684,13 @@ namespace BrightWire
         /// Executes test data on the current graph
         /// </summary>
         /// <param name="testDataSource">Segment source with test data</param>
-        /// <param name="errorMetric">Error metric to use to evaluate the test score</param>
         /// <param name="batchSize">Initial size of each mini batch</param>
         /// <param name="batchCompleteCallback">Optional callback to be notifiied after each mini batch has completed</param>
         /// <param name="values">Optional callback to get the (testError, trainingRate, isPercentage, isImprovedScore) data</param>
         /// <returns>True if the model performance has improved since the last test</returns>
         bool Test(
-	        IDataSource testDataSource, 
-	        IErrorMetric errorMetric, 
-	        uint batchSize = 128, 
+	        IDataSource testDataSource,
+            uint batchSize = 128, 
 	        Action<float>? batchCompleteCallback = null, 
 	        Action<float, bool, bool>? values = null
 	    );

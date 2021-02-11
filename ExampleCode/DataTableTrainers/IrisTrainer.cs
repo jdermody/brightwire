@@ -39,11 +39,11 @@ namespace ExampleCode.DataTableTrainers
                 .AddDropOut(dropOutPercentage: 0.5f)
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                 .Add(graph.SigmoidActivation())
-                .AddBackpropagation(errorMetric);
+                .AddBackpropagation();
 
             // train the network
             Console.WriteLine("Training a 4x8x3 neural network...");
-            engine.Train(numIterations, testData, errorMetric, null, 50);
+            engine.Train(numIterations, testData, null, 50);
         }
 
         public void TrainWithSelu(uint numIterations = 500, uint layerSize = 64, float trainingRate = 0.1f, uint batchSize = 128)
@@ -88,10 +88,10 @@ namespace ExampleCode.DataTableTrainers
                 .Add(Activation())
                 .AddFeedForward(trainingData.GetOutputSizeOrThrow())
                 .Add(graph.SoftMaxActivation())
-                .AddBackpropagation(errorMetric)
+                .AddBackpropagation()
             ;
 
-            engine.Train(numIterations, testData, errorMetric, null, 50);
+            engine.Train(numIterations, testData, null, 50);
         }
     }
 }

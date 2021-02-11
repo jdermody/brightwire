@@ -23,10 +23,9 @@ namespace BrightWire
         /// <param name="engine">The graph training engine</param>
         /// <param name="numIterations">The number of iterations to train for</param>
         /// <param name="testData">The test data source to use</param>
-        /// <param name="errorMetric">The error metric to evaluate the test data against</param>
         /// <param name="onImprovement">Optional callback for when the test data score has improved against the error metric</param>
         /// <param name="testCadence">Determines how many epochs elapse before the test data is evaluated</param>
-        public static GraphModel? Train(this IGraphTrainingEngine engine, uint numIterations, IDataSource testData, IErrorMetric errorMetric, Action<GraphModel>? onImprovement = null, int testCadence = 1)
+        public static GraphModel? Train(this IGraphTrainingEngine engine, uint numIterations, IDataSource testData, Action<GraphModel>? onImprovement = null, int testCadence = 1)
         {
             var executionContext = new ExecutionContext(engine.LinearAlgebraProvider, engine);
             var progress = -1;
@@ -43,7 +42,7 @@ namespace BrightWire
                 if (++count == testCadence) {
                     progress = -1;
                     sw.Restart();
-                    if (engine.Test(testData, errorMetric, 128, percentage => percentage.WriteProgressPercentage(ref progress, sw)) && onImprovement != null) {
+                    if (engine.Test(testData, 128, percentage => percentage.WriteProgressPercentage(ref progress, sw)) && onImprovement != null) {
                         ret = new GraphModel {
                             Graph = engine.Graph
                         };

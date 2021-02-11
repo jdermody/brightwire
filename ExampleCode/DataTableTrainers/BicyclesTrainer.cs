@@ -54,10 +54,10 @@ namespace ExampleCode.DataTableTrainers
                 .Add(graph.SigmoidActivation())
                 //.AddDropOut(dropOutPercentage: 0.5f)
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
-                .AddBackpropagation(errorMetric)
+                .AddBackpropagation()
             ;
 
-            engine.Train(100, testData, errorMetric);
+            engine.Train(100, testData);
         }
     }
 }

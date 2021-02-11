@@ -49,13 +49,13 @@ namespace ExampleCode.DataTableTrainers
                  .AddConvolutional(filterCount: 32, padding: 2, filterWidth: 5, filterHeight: 5, xStride: 1, yStride: 1)
                  .Add(graph.LeakyReluActivation())
                  .AddMaxPooling(filterWidth: 2, filterHeight: 2, xStride: 2, yStride: 2)
-                 .Transpose()
+                 .TransposeFrom4DTensorToMatrix()
                  .AddFeedForward(hiddenLayerSize)
                  .Add(graph.LeakyReluActivation())
                  .AddDropOut(dropOutPercentage: 0.5f)
                  .AddFeedForward(trainingData.GetOutputSizeOrThrow())
                  .Add(graph.SoftMaxActivation())
-                 .AddBackpropagation(errorMetric)
+                 .AddBackpropagation()
                 ;
             //}
 
@@ -65,7 +65,7 @@ namespace ExampleCode.DataTableTrainers
             // train the network for twenty iterations, saving the model on each improvement
             ExecutionGraphModel? bestGraph = null;
             var testData = trainingData.CloneWith(Test);
-            engine.Train(numIterations, testData, errorMetric, model => {
+            engine.Train(numIterations, testData, model => {
                 bestGraph = model.Graph;
                 //if (!String.IsNullOrWhiteSpace(outputModelPath)) {
                 //    using (var file = new FileStream(outputModelPath, FileMode.Create, FileAccess.Write)) {

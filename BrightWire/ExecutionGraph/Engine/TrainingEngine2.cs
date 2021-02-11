@@ -152,14 +152,21 @@ namespace BrightWire.ExecutionGraph.Engine
         {
             readonly ExecutionNode[] _input;
             readonly Dictionary<ExecutionNode, IGraphData?> _error = new Dictionary<ExecutionNode, IGraphData?>();
+            readonly IGraphData? _output;
 
-            public BackpropagationInput(ExecutionNode[] input)
+            public BackpropagationInput(ExecutionHistory? history, ExecutionNode[] input)
             {
+                _output = history?.Data;
                 _input = input;
             }
 
             public void Add(ExecutionNode node, IGraphData? error)
             {
+                if (error?.HasValue == true && _output?.HasValue == true) {
+                    if (error.Columns != _output.Columns || error.Count != _output.Count || error.Depth != _output.Depth || error.Rows != _output.Rows)
+                        throw new ArgumentException("Unexpected delta size");
+                }
+
                 _error.Add(node, error);
                 if (_error.Count == _input.Length)
                     IsComplete = _input.All(n => _error.ContainsKey(n));
@@ -204,16 +211,14 @@ namespace BrightWire.ExecutionGraph.Engine
 
         class ExecutionNode
         {
-            readonly TrainingEngine2 _engine;
             readonly List<ExecutionNode> _ancestors = new List<ExecutionNode>();
             readonly List<ExecutionNode> _descendants = new List<ExecutionNode>();
             readonly Lazy<BackpropagationInput> _inputError;
             ExecutionHistory? _history = null;
 
-            public ExecutionNode(TrainingEngine2 engine)
+            public ExecutionNode()
             {
-                _engine = engine;
-                _inputError = new Lazy<BackpropagationInput>(() => new BackpropagationInput(_descendants.Any() ? _descendants.ToArray() : new []{this}));
+                _inputError = new Lazy<BackpropagationInput>(() => new BackpropagationInput(_history, _descendants.Any() ? _descendants.ToArray() : new []{this}));
             }
 
             public void Add(ExecutionHistory history)
@@ -253,6 +258,8 @@ namespace BrightWire.ExecutionGraph.Engine
                     }
                 }
             }
+
+            public override string ToString() => $"{Node} ({_ancestors.Count:N0} ancestors, {_descendants.Count:N0} descendants)";
         }
 
         class GraphSequenceContext : IGraphSequenceContext
@@ -271,7 +278,7 @@ namespace BrightWire.ExecutionGraph.Engine
                 LearningContext = learningContext;
                 ExecutionContext = executionContext;
                 BatchSequence = batchSequence;
-                Data = new NullGraphData();
+                Data = NullGraphData.Instance;
             }
 
             public void Dispose()
@@ -293,7 +300,7 @@ namespace BrightWire.ExecutionGraph.Engine
 
                 // add the history to the execution node
                 if (!_nodeExecution.TryGetValue(action.Source, out var executionNode))
-                    _nodeExecution.Add(action.Source, executionNode = new ExecutionNode(_engine));
+                    _nodeExecution.Add(action.Source, executionNode = new ExecutionNode());
                 executionNode.Add(action);
 
                 // connect the node to its parents in the graph
@@ -486,6 +493,9 @@ namespace BrightWire.ExecutionGraph.Engine
                 if (executionContext.HasContinuations)
                     additionalResults.AddRange(Continue(batch, executionContext, sequence => contextTable[sequence]));
 
+                foreach (var item in contextTable)
+                    yield return item.Value;
+
                 foreach(var result in additionalResults)
                     yield return result;
             }
@@ -532,7 +542,7 @@ namespace BrightWire.ExecutionGraph.Engine
             return context;
         }
 
-        public bool Test(IDataSource testDataSource, IErrorMetric errorMetric, uint batchSize = 128, Action<float>? batchCompleteCallback = null, Action<float, bool, bool>? values = null)
+        public bool Test(IDataSource testDataSource, uint batchSize = 128, Action<float>? batchCompleteCallback = null, Action<float, bool, bool>? values = null)
         {
             static string Write(string name, float score, bool isPercentage)
 		{
@@ -543,6 +553,7 @@ namespace BrightWire.ExecutionGraph.Engine
             var testResults = Execute(testDataSource, batchSize, batchCompleteCallback)
                 .Where(b => b.Target != null)
                 .ToList();
+            var errorMetric = LearningContext.ErrorMetric;
             var testError = testResults.Any() ? testResults.Average(o => o.CalculateError(errorMetric)) : 0;
 
             bool flag = true, isPercentage = errorMetric.DisplayAsPercentage;

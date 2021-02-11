@@ -45,8 +45,8 @@ namespace BrightWire.UnitTests
             graph.Connect(engine)
                 .AddFeedForward(1)
                 .Add(graph.SigmoidActivation())
-                .AddBackpropagation(errorMetric);
-            engine.Train(300, data, errorMetric, bn => _bestNetwork = bn);
+                .AddBackpropagation();
+            engine.Train(300, data, bn => _bestNetwork = bn);
 
             var executionEngine = graph.CreateExecutionEngine(_bestNetwork.Graph);
             AssertEngineGetsGoodResults(executionEngine, data);

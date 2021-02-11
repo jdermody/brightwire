@@ -43,7 +43,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
                     for (uint j = 0; j < _source._data.Length; j++)
                         _source._data[j] += initialDelta[j] * context.LearningContext!.BatchLearningRate;
                 }
-                return ErrorTo(new NullGraphData(), parents);
+                return ErrorTo(NullGraphData.Instance, parents);
             }
         }
 
@@ -67,15 +67,14 @@ namespace BrightWire.ExecutionGraph.Node.Input
 
         public override void ExecuteForward(IGraphSequenceContext context)
         {
+            IFloatMatrix memory;
             if (context.BatchSequence.Type == MiniBatchSequenceType.SequenceStart) {
-                var memory = context.LinearAlgebraProvider.CreateMatrix(context.BatchSequence.MiniBatch.BatchSize, (uint)_data.Length, (x, y) => _data[y]);
+                memory = context.LinearAlgebraProvider.CreateMatrix(context.BatchSequence.MiniBatch.BatchSize, (uint)_data.Length, (x, y) => _data[y]);
                 context.ExecutionContext.SetMemory(Id, memory);
-                AddNextGraphAction(context, new MatrixGraphData(memory), () => new Backpropagation(this));
             } 
-            else {
-                var memory = context.ExecutionContext.GetMemory(Id);
-                AddNextGraphAction(context, new MatrixGraphData(memory), null);
-            }
+            else
+                memory = context.ExecutionContext.GetMemory(Id);
+            AddNextGraphAction(context, new MatrixGraphData(memory), () => new Backpropagation(this));
         }
 
         protected override (string Description, byte[] Data) GetInfo()

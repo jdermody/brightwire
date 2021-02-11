@@ -98,12 +98,12 @@ namespace ExampleCode.DataTableTrainers
                 //.AddDropOut(0.5f)
                 .AddFeedForward(trainingData.GetOutputSizeOrThrow(), "layer2")
                 .Add(graph.ReluActivation())
-                .AddBackpropagation(errorMetric, "first-network")
+                .AddBackpropagation("first-network")
             ;
 
             Console.WriteLine("Training neural network classifier...");
             GraphModel? bestNetwork = null;
-            engine.Train(numIterations, testData, errorMetric, network => bestNetwork = network);
+            engine.Train(numIterations, testData, network => bestNetwork = network);
             var firstClassifier = graph.CreateExecutionEngine(engine.Graph);
             return (engine.CreateExecutionEngine(bestNetwork?.Graph), neuralNetworkWire, firstClassifier);
         }
@@ -147,13 +147,13 @@ namespace ExampleCode.DataTableTrainers
                 .AddDropOut(dropOutPercentage: 0.5f)
                 .AddFeedForward(outputSize)
                 .Add(graph.ReluActivation())
-                .AddBackpropagation(errorMetric)
+                .AddBackpropagation()
             ;
 
             // train the network again
             Console.WriteLine("Training stacked neural network classifier...");
             GraphModel? bestStackedNetwork = null;
-            engine.Train(20, testData, errorMetric, network => bestStackedNetwork = network);
+            engine.Train(20, testData, network => bestStackedNetwork = network);
             if (bestStackedNetwork != null)
                 engine.LoadParametersFrom(graph, bestStackedNetwork.Graph);
 

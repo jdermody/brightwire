@@ -16,7 +16,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
 
             public Backpropagation(OneToMany source) : base(source)
             {
-                _signalTable = _source._children.ToDictionary(n => n, n => (IGraphData)new NullGraphData());
+                _signalTable = _source._children.ToDictionary(n => n, n => (IGraphData)NullGraphData.Instance);
             }
 
             public override void BackwardInternal(INode? fromNode, IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)

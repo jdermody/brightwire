@@ -42,13 +42,13 @@ namespace ExampleCode.DataTableTrainers
                 .AddDropOut(dropOutPercentage: 0.5f)
                 .AddFeedForward(outputSize: trainingData.GetOutputSizeOrThrow())
                 .Add(graph.SoftMaxActivation())
-                .AddBackpropagation(errorMetric)
+                .AddBackpropagation()
             ;
 
             // train the network for twenty iterations, saving the model on each improvement
             ExecutionGraphModel? bestGraph = null;
             var testData = trainingData.CloneWith(Test);
-            engine.Train(numIterations, testData, errorMetric, model => bestGraph = model.Graph);
+            engine.Train(numIterations, testData, model => bestGraph = model.Graph);
 
             // export the final model and execute it on the training set
             var executionEngine = graph.CreateExecutionEngine(bestGraph ?? engine.Graph);
