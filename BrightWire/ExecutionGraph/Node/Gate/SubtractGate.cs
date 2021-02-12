@@ -15,17 +15,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             {
             }
 
-            public override void BackwardInternal(INode? fromNode, IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
-            {
-                var es = errorSignal.GetMatrix();
-                var negative = es.Clone();
-                negative.Multiply(-1f);
-
-                context.AddBackward(errorSignal, parents.First(), _source);
-                context.AddBackward(errorSignal.ReplaceWith(negative), parents.Last(), _source);
-            }
-
-            public override IEnumerable<(IGraphData signal, INode toNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
+            public override IEnumerable<(IGraphData Signal, INode ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
             {
                 var es = errorSignal.GetMatrix();
                 var negative = es.Clone();

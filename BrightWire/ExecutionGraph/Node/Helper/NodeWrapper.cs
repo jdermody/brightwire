@@ -29,11 +29,6 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             public IGraphData? ErrorSignal => _context.ErrorSignal;
             public bool HasNext => _context.HasNext;
 
-            public void AddBackward(IGraphData errorSignal, INode target, INode source)
-            {
-                _context.AddBackward(errorSignal, target, source);
-            }
-
             public void AddForward(ExecutionHistory action, Func<IBackpropagate>? callback)
             {
                 // TODO: wrap the backpropagation?

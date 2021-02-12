@@ -17,11 +17,11 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 _reverseSize = reverseSize;
             }
 
-            public override void BackwardInternal(INode? fromNode, IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
+            public override IEnumerable<(IGraphData Signal, INode ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
             {
                 var matrix = errorSignal.GetMatrix();
                 (IFloatMatrix left, IFloatMatrix right) = matrix.SplitAtColumn(matrix.ColumnCount - _reverseSize);
-                context.AddBackward(errorSignal.ReplaceWith(left), parents[0], _source);
+                yield return (errorSignal.ReplaceWith(left), parents[0]);
 
                 var batch = context.BatchSequence.MiniBatch;
                 var sequenceIndex = context.BatchSequence.SequenceIndex;
@@ -34,37 +34,14 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                     for(uint i = 0; i < batch.SequenceCount; i++) {
                         var data = _source._reverseBackpropagation[i];
                         var reverseContext = _source._contextTable[i];
-                        reverseContext.AddBackward(data.Item2, data.Item1, _source);
+                        
+                        //TODO: fix this
+                        //reverseContext.AddBackward(data.Item2, data.Item1, _source);
                     }
                     _source._reverseBackpropagation.Clear();
                     _source._contextTable.Clear();
                 }
-                SendErrorTo(errorSignal, context, parents);
-            }
-
-            public override IEnumerable<(IGraphData signal, INode toNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
-            {
-                var matrix = errorSignal.GetMatrix();
-                (IFloatMatrix left, IFloatMatrix right) = matrix.SplitAtColumn(matrix.ColumnCount - _reverseSize);
-                context.AddBackward(errorSignal.ReplaceWith(left), parents[0], _source);
-
-                var batch = context.BatchSequence.MiniBatch;
-                var sequenceIndex = context.BatchSequence.SequenceIndex;
-                var reversedSequenceIndex = batch.SequenceCount - sequenceIndex - 1;
-                _source._reverseBackpropagation.Add(reversedSequenceIndex, (parents[1], errorSignal.ReplaceWith(right)));
-                _source._contextTable.Add(sequenceIndex, context);
-
-                if (sequenceIndex == 0) {
-                    // process in order as we are pushing onto a stack (so will be read in reverse order)
-                    for(uint i = 0; i < batch.SequenceCount; i++) {
-                        var data = _source._reverseBackpropagation[i];
-                        var reverseContext = _source._contextTable[i];
-                        reverseContext.AddBackward(data.Item2, data.Item1, _source);
-                    }
-                    _source._reverseBackpropagation.Clear();
-                    _source._contextTable.Clear();
-                }
-                return ErrorTo(errorSignal, parents);
+                //return ErrorTo(errorSignal, parents);
             }
         }
         Dictionary<uint, (IFloatMatrix Data, uint ReversedSize, INode ForwardParent)> _input = new Dictionary<uint, (IFloatMatrix Data, uint ReversedSize, INode ForwardParent)>();

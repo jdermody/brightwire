@@ -16,19 +16,6 @@ namespace BrightWire.ExecutionGraph.Node
         protected SingleBackpropagationBase(T source) : base(source) { }
 
         /// <summary>
-        /// Called when a valid error signal has been received
-        /// </summary>
-        /// <param name="fromNode">The node that sent the backpropagation signal</param>
-        /// <param name="errorSignal">The backpropagating error</param>
-        /// <param name="context">Graph context</param>
-        /// <param name="parents">Parents of the current node</param>
-        public override void BackwardInternal(INode? fromNode, IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
-        {
-            var nextError = Backpropagate(fromNode, errorSignal, context, parents);
-            SendErrorTo(nextError, context, parents);
-        }
-
-        /// <summary>
         /// Backpropagation implementation
         /// </summary>
         /// <param name="fromNode">The node that sent the backpropagation signal</param>
@@ -40,7 +27,7 @@ namespace BrightWire.ExecutionGraph.Node
 
         protected abstract IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context);
 
-        public override IEnumerable<(IGraphData signal, INode toNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
+        public override IEnumerable<(IGraphData Signal, INode ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
         {
             foreach (var parent in parents)
                 yield return (Backpropagate(errorSignal, context), parent);

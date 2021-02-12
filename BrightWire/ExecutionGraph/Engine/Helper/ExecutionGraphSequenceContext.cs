@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using BrightData;
 using BrightWire.ExecutionGraph.Helper;
+using BrightWire.Models;
 
 namespace BrightWire.ExecutionGraph.Engine.Helper
 {
     /// <summary>
     /// Execution engine context
     /// </summary>
-    internal class ExecutionEngineContext : SequenceContextBase, IGraphSequenceContext
+    internal class ExecutionGraphSequenceContext : IGraphSequenceContext
     {
         readonly IGraphExecutionContext _executionContext;
         readonly List<ExecutionHistory> _forward = new List<ExecutionHistory>();
@@ -17,7 +18,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         INode? _sourceNode;
         IGraphData _data;
 
-        public ExecutionEngineContext(IGraphExecutionContext executionContext, IMiniBatchSequence miniBatch)
+        public ExecutionGraphSequenceContext(IGraphExecutionContext executionContext, IMiniBatchSequence miniBatch)
         {
             _executionContext = executionContext;
             BatchSequence = miniBatch;
@@ -35,9 +36,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public ILearningContext? LearningContext => null;
         public ILinearAlgebraProvider LinearAlgebraProvider => _executionContext.LinearAlgebraProvider;
         public IMiniBatchSequence BatchSequence { get; }
-        public void AddBackward(IGraphData errorSignal, INode target, INode source) => throw new NotImplementedException();
         public IGraphData? Backpropagate(IGraphData? delta) => throw new NotImplementedException();
-        public void AppendErrorSignal(IGraphData errorSignal, INode forNode) => throw new NotImplementedException();
         public void AddForward(ExecutionHistory action, Func<IBackpropagate>? callback) => _forward.Add(action);
         public IGraphData ErrorSignal => throw new NotImplementedException();
         public bool HasNext => _forward.Any();
@@ -78,6 +77,17 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             .ToArray()
         ;
 
-        protected override IGraphSequenceContext Context => this;
+        public ExecutionResult Result 
+        {
+            get
+            {
+                var output = Output;
+                var matrixOutput = output.Any()
+                    ? output.Select(o => o.GetMatrix().Data)
+                    : new[] {Data.GetMatrix().Data};
+
+                return new ExecutionResult(BatchSequence, matrixOutput.SelectMany(m => m.Rows).ToArray());
+            }
+        }
     }
 }

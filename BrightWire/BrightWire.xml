@@ -294,7 +294,7 @@
             Graph engine execution context
             </summary>
         </member>
-        <member name="T:BrightWire.ExecutionGraph.Engine.Helper.ExecutionEngineContext">
+        <member name="T:BrightWire.ExecutionGraph.Engine.Helper.ExecutionGraphSequenceContext">
             <summary>
             Execution engine context
             </summary>
@@ -312,11 +312,6 @@
         <member name="T:BrightWire.ExecutionGraph.Engine.Helper.SingleRowDataSource">
             <summary>
             Helper class when executing a single row instead of the normal batch mode
-            </summary>
-        </member>
-        <member name="T:BrightWire.ExecutionGraph.Engine.Helper.TrainingEngineContext">
-            <summary>
-            Training engine context
             </summary>
         </member>
         <member name="T:BrightWire.ExecutionGraph.ErrorMetric.BinaryClassification">
@@ -1208,32 +1203,6 @@
             </summary>
             <param name="isDisposing"></param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.BackpropagationBase`1.Backward(BrightWire.INode,BrightWire.IGraphData,BrightWire.IGraphSequenceContext,BrightWire.INode[])">
-            <summary>
-            Called when backpropagating
-            </summary>
-            <param name="fromNode">The node that sent the backpropagation signal</param>
-            <param name="errorSignal">The backpropagating error</param>
-            <param name="context">Graph context</param>
-            <param name="parents">Parents of the current node</param>
-        </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.BackpropagationBase`1.BackwardInternal(BrightWire.INode,BrightWire.IGraphData,BrightWire.IGraphSequenceContext,BrightWire.INode[])">
-            <summary>
-            Called when a valid error signal has been received
-            </summary>
-            <param name="fromNode">>The node that sent the backpropagation signal</param>
-            <param name="errorSignal">The backpropagating error</param>
-            <param name="context">Graph context</param>
-            <param name="parents">Parents of the current node</param>
-        </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.BackpropagationBase`1.SendErrorTo(BrightWire.IGraphData,BrightWire.IGraphSequenceContext,BrightWire.INode[])">
-            <summary>
-            Sends a backpropagation signal further up the graph
-            </summary>
-            <param name="errorSignal">The backpropagating error</param>
-            <param name="context">Graph context</param>
-            <param name="parents">Parents of the current node</param>
-        </member>
         <member name="T:BrightWire.ExecutionGraph.Node.Filter.DropConnect">
             <summary>
             Drop connect (inverted) regularisation
@@ -1760,15 +1729,6 @@
             Constructor
             </summary>
             <param name="source">The node that generated the forward signal</param>
-        </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.SingleBackpropagationBase`1.BackwardInternal(BrightWire.INode,BrightWire.IGraphData,BrightWire.IGraphSequenceContext,BrightWire.INode[])">
-            <summary>
-            Called when a valid error signal has been received
-            </summary>
-            <param name="fromNode">The node that sent the backpropagation signal</param>
-            <param name="errorSignal">The backpropagating error</param>
-            <param name="context">Graph context</param>
-            <param name="parents">Parents of the current node</param>
         </member>
         <member name="M:BrightWire.ExecutionGraph.Node.SingleBackpropagationBase`1.Backpropagate(BrightWire.INode,BrightWire.IGraphData,BrightWire.IGraphSequenceContext,BrightWire.INode[])">
             <summary>
@@ -2852,14 +2812,6 @@
             <param name="action">Record of node execution</param>
             <param name="callback">Optional callback to add backpropagation</param>
         </member>
-        <member name="M:BrightWire.IGraphSequenceContext.AddBackward(BrightWire.IGraphData,BrightWire.INode,BrightWire.INode)">
-            <summary>
-            Sends a backward error signal
-            </summary>
-            <param name="errorSignal">Error signal</param>
-            <param name="target">Node to send to</param>
-            <param name="source">Node that sent the error</param>
-        </member>
         <member name="M:BrightWire.IGraphSequenceContext.Backpropagate(BrightWire.IGraphData)">
             <summary>
             Backpropagates the signal
@@ -2963,15 +2915,6 @@
             <summary>
             Backpropagation handler
             </summary>
-        </member>
-        <member name="M:BrightWire.IBackpropagate.Backward(BrightWire.INode,BrightWire.IGraphData,BrightWire.IGraphSequenceContext,BrightWire.INode[])">
-            <summary>
-            Backpropagate
-            </summary>
-            <param name="fromNode">Node that sent the signal</param>
-            <param name="errorSignal">Error signal</param>
-            <param name="context">Graph context</param>
-            <param name="parents">The current node's parents</param>
         </member>
         <member name="M:BrightWire.IBackpropagate.Backward(BrightWire.IGraphData,BrightWire.IGraphSequenceContext,BrightWire.INode[])">
             <summary>

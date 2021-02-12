@@ -250,14 +250,6 @@ namespace BrightWire
         void AddForward(ExecutionHistory action, Func<IBackpropagate>? callback);
 
         /// <summary>
-        /// Sends a backward error signal
-        /// </summary>
-        /// <param name="errorSignal">Error signal</param>
-        /// <param name="target">Node to send to</param>
-        /// <param name="source">Node that sent the error</param>
-        void AddBackward(IGraphData errorSignal, INode target, INode source);
-
-        /// <summary>
         /// Backpropagates the signal
         /// </summary>
         /// <param name="delta">Error signal</param>
@@ -377,20 +369,10 @@ namespace BrightWire
         /// <summary>
         /// Backpropagate
         /// </summary>
-        /// <param name="fromNode">Node that sent the signal</param>
         /// <param name="errorSignal">Error signal</param>
         /// <param name="context">Graph context</param>
         /// <param name="parents">The current node's parents</param>
-        void Backward(INode? fromNode, IGraphData? errorSignal, IGraphSequenceContext context, INode[] parents);
-
-
-        /// <summary>
-        /// Backpropagate
-        /// </summary>
-        /// <param name="errorSignal">Error signal</param>
-        /// <param name="context">Graph context</param>
-        /// <param name="parents">The current node's parents</param>
-        IEnumerable<(IGraphData signal, INode toNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, INode[] parents);
+        IEnumerable<(IGraphData Signal, INode ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, INode[] parents);
     }
 
     /// <summary>

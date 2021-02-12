@@ -12,38 +12,38 @@ namespace BrightWire.ExecutionGraph.Node.Input
     {
         class Backpropagation : BackpropagationBase<OneToMany>
         {
-            readonly Dictionary<INode, IGraphData> _signalTable;
+            //readonly Dictionary<INode, IGraphData> _signalTable;
 
             public Backpropagation(OneToMany source) : base(source)
             {
-                _signalTable = _source._children.ToDictionary(n => n, n => (IGraphData)NullGraphData.Instance);
+                //_signalTable = _source._children.ToDictionary(n => n, n => (IGraphData)NullGraphData.Instance);
             }
 
-            public override void BackwardInternal(INode? fromNode, IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
-            {
-                if (fromNode == null || !_source._children.Contains(fromNode))
-                    throw new Exception("Unknown from node");
+            //public override void BackwardInternal(INode? fromNode, IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
+            //{
+            //    if (fromNode == null || !_source._children.Contains(fromNode))
+            //        throw new Exception("Unknown from node");
 
-                _signalTable[fromNode] = errorSignal;
-                if(_signalTable.All(s => s.Value.HasValue) && parents.Any()) {
-                    var firstSignal = _signalTable[_source._children.First()];
-                    var otherSignals = _signalTable
-                        .Where(s => s.Value != firstSignal && s.Value.Columns == firstSignal.Columns && s.Value.Rows == firstSignal.Rows)
-                        .ToList()
-                    ;
-                    if(otherSignals.Any()) {
-                        var matrix = firstSignal.GetMatrix();
-                        foreach (var item in otherSignals)
-                            matrix.AddInPlace(item.Value.GetMatrix());
-                        firstSignal = firstSignal.ReplaceWith(matrix);
-                    }
-                    foreach (var parent in parents)
-                        context.AddBackward(firstSignal, parent, _source);
-                    _source._onBackpropagation?.Invoke(_signalTable);
-                }
-            }
+            //    _signalTable[fromNode] = errorSignal;
+            //    if(_signalTable.All(s => s.Value.HasValue) && parents.Any()) {
+            //        var firstSignal = _signalTable[_source._children.First()];
+            //        var otherSignals = _signalTable
+            //            .Where(s => s.Value != firstSignal && s.Value.Columns == firstSignal.Columns && s.Value.Rows == firstSignal.Rows)
+            //            .ToList()
+            //        ;
+            //        if(otherSignals.Any()) {
+            //            var matrix = firstSignal.GetMatrix();
+            //            foreach (var item in otherSignals)
+            //                matrix.AddInPlace(item.Value.GetMatrix());
+            //            firstSignal = firstSignal.ReplaceWith(matrix);
+            //        }
+            //        foreach (var parent in parents)
+            //            context.AddBackward(firstSignal, parent, _source);
+            //        _source._onBackpropagation?.Invoke(_signalTable);
+            //    }
+            //}
 
-            public override IEnumerable<(IGraphData signal, INode toNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
+            public override IEnumerable<(IGraphData Signal, INode ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
             {
                 return ErrorTo(errorSignal, parents);
             }

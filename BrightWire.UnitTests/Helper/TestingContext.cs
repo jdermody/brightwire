@@ -9,7 +9,6 @@ namespace BrightWire.UnitTests.Helper
     internal class TestingContext : IGraphSequenceContext
     {
         public List<(ExecutionHistory, IBackpropagate)> Forward { get; } = new List<(ExecutionHistory, IBackpropagate)>();
-        public List<(IGraphData, INode, INode)> Backward { get; } = new List<(IGraphData, INode, INode)>();
 
         public TestingContext(ILinearAlgebraProvider lap)
         {
@@ -32,11 +31,6 @@ namespace BrightWire.UnitTests.Helper
         public void AddForward(ExecutionHistory action, Func<IBackpropagate>? callback)
         {
             Forward.Add((action, callback()));
-        }
-
-        public void AddBackward(IGraphData errorSignal, INode target, INode source)
-        {
-            Backward.Add((errorSignal, target, source));
         }
 
         public void AppendErrorSignal(IGraphData errorSignal, INode forNode)

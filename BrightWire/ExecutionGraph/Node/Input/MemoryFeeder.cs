@@ -18,21 +18,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
             {
             }
 
-            public override void BackwardInternal(INode? fromNode, IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
-            {
-                if (context.BatchSequence.Type == MiniBatchSequenceType.SequenceStart) {
-                    var es = errorSignal.GetMatrix();
-
-                    using var columnSums = es.ColumnSums();
-                    columnSums.Multiply(1f / es.RowCount);
-                    var initialDelta = columnSums.AsIndexable();
-                    for (uint j = 0; j < _source._data.Length; j++)
-                        _source._data[j] += initialDelta[j] * context.LearningContext!.BatchLearningRate;
-                }
-                SendErrorTo(null, context, parents);
-            }
-
-            public override IEnumerable<(IGraphData signal, INode toNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
+            public override IEnumerable<(IGraphData Signal, INode ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
             {
                 if (context.BatchSequence.Type == MiniBatchSequenceType.SequenceStart) {
                     var es = errorSignal.GetMatrix();

@@ -16,18 +16,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 _channels = channels;
             }
 
-            public override void BackwardInternal(INode? fromNode, IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
-            {
-                IFloatMatrix split, residual = errorSignal.GetMatrix();
-                int index = parents.Length-1;
-                foreach(var item in _channels) {
-                    (residual, split) = residual.SplitAtColumn(residual.ColumnCount - item.Size);
-                    context.AddBackward(errorSignal.ReplaceWith(split), parents[index--], _source);
-                }
-                context.AddBackward(errorSignal.ReplaceWith(residual), parents[index], _source);
-            }
-
-            public override IEnumerable<(IGraphData signal, INode toNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
+            public override IEnumerable<(IGraphData Signal, INode ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
             {
                 IFloatMatrix split, residual = errorSignal.GetMatrix();
                 int index = parents.Length-1;

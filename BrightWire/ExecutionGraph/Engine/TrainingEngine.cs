@@ -1,203 +1,265 @@
-﻿using BrightWire.ExecutionGraph.Engine.Helper;
-using BrightWire.ExecutionGraph.Helper;
-using BrightWire.ExecutionGraph.Node.Input;
-using BrightWire.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using BrightData;
+using BrightWire.ExecutionGraph.Engine.Helper;
+using BrightWire.ExecutionGraph.Helper;
+using BrightWire.ExecutionGraph.Node.Input;
+using BrightWire.Models;
 
 namespace BrightWire.ExecutionGraph.Engine
 {
-	/// <summary>
-	/// Trains graphs as it executes them
-	/// </summary>
- //   internal class TrainingEngine : EngineBase<TrainingEngineContext>, IGraphTrainingEngine
-	//{
- //       readonly GraphFactory _factory;
- //       readonly INode[] _input;
-	//	readonly Random _random;
-	//	float? _lastTestError = null;
- //       bool _isTraining;
+    class TrainingEngine : IGraphTrainingEngine
+    {
+        readonly GraphFactory _factory;
 
-	//	public TrainingEngine(GraphFactory factory, IDataSource dataSource, ILearningContext learningContext, INode? start) : base(factory.LinearAlgebraProvider)
-	//	{
- //           _factory = factory;
- //           _dataSource = dataSource;
- //           _random = factory.LinearAlgebraProvider.Context.Random;
-	//		LearningContext = learningContext;
-	//		learningContext.SetRowCount(dataSource.RowCount);
+        public TrainingEngine(GraphFactory factory, IDataSource dataSource, IErrorMetric errorMetric)
+        {
+            _factory = factory;
+            DataSource = dataSource;
+            LinearAlgebraProvider = factory.LinearAlgebraProvider;
+            LearningContext = new LearningContext(factory, errorMetric);
+            Start = new InputFeeder(0, "engine-input-feeder");
+        }
 
-	//		if (start == null) {
- //               _input = new INode[] { new InputFeeder(0) };
-	//			Start = new FlowThrough();
-	//			Start.Output.AddRange(_input.Select(i => new WireToNode(i)));
-	//		} else {
-	//			Start = start;
-	//			_input = start.Output.Select(w => w.SendTo).ToArray();
-	//		}
-	//	}
+        float? _lastTestError = null;
 
- //       public override TrainingEngineContext CreateContext(IGraphExecutionContext executionContext, IMiniBatchSequence sequence) =>
- //           new TrainingEngineContext(executionContext, sequence, _isTraining ? LearningContext : null);
+        public IGraphSequenceContext Create(IGraphExecutionContext executionContext, IMiniBatchSequence sequence, ILearningContext? learningContext)
+        {
+            return new TrainingGraphSequenceContext(learningContext, executionContext, sequence);
+        }
 
- //       public void Train(IGraphExecutionContext executionContext, Action<float>? batchCompleteCallback = null)
-	//	{
- //           _isTraining = true;
-	//		_lap.PushLayer();
-	//		LearningContext.StartEpoch();
-	//		var provider = new MiniBatchProvider(_dataSource ?? throw new Exception("No data source was set"), _random);
-	//		executionContext.Add(provider.GetMiniBatches(LearningContext.BatchSize, batch => Train(executionContext, LearningContext, batch)));
+        public ILinearAlgebraProvider LinearAlgebraProvider { get; }
+        public ExecutionGraphModel Graph => Start.GetGraph();
+        public IDataSource DataSource { get; }
+        public IEnumerable<ExecutionResult> Execute(IDataSource dataSource, uint batchSize = 128, Action<float>? batchCompleteCallback = null)
+        {
+            LinearAlgebraProvider.PushLayer();
+            var provider = new MiniBatchProvider(dataSource, null);
+            using var executionContext = new Helper.ExecutionContext(LinearAlgebraProvider, this);
+            // ReSharper disable once AccessToDisposedClosure
+            executionContext.Add(provider.GetMiniBatches(batchSize, mb => Execute(executionContext, mb)));
+            float operationCount = executionContext.RemainingOperationCount;
+            float index = 0f;
 
-	//		IGraphOperation? operation;
-	//		float operationCount = executionContext.RemainingOperationCount;
-	//		float index = 0f;
-	//		while ((operation = executionContext.GetNextOperation()) != null) {
-	//			_lap.PushLayer();
- //               var contextList = operation.Execute(executionContext).ToList();
- //               LearningContext.ApplyUpdates(null);
-	//			foreach(var context in contextList)
-	//				context.Dispose();
- //               _lap.PopLayer();
+            IGraphOperation? operation;
+            while ((operation = executionContext.GetNextOperation()) != null) {
+                LinearAlgebraProvider.PushLayer();
+                foreach (var context in operation.Execute(executionContext)) {
+                    yield return context.Result;
+                    context.Dispose();
+                }
 
-	//			if (batchCompleteCallback != null) {
-	//				var percentage = (++index) / operationCount;
-	//				batchCompleteCallback(percentage);
-	//			}
-	//		}
+                //foreach (var (context, data) in _executionResults) {
+                //    uint outputIndex = 0;
+                //    foreach (var output in data) {
+                //        ret.Add(new ExecutionResult(context.BatchSequence, output.AsIndexable().Rows.Select(r => r.Data).ToArray(), outputIndex));
+                //        ++outputIndex;
+                //    }
+                //    context.Dispose();
+                //    foreach (var matrix in data)
+                //        matrix.Dispose();
+                //}
+                //_executionResults.Clear();
+                LinearAlgebraProvider.PopLayer();
 
-	//		LearningContext.EndEpoch();
- //           _lap.PopLayer();
+                if (batchCompleteCallback != null) {
+                    var percentage = (++index) / operationCount;
+                    batchCompleteCallback(percentage);
+                }
+            }
 
- //           _isTraining = false;
- //       }
+            LinearAlgebraProvider.PopLayer();
+        }
 
-	//	public IDataSource DataSource => _dataSource;
-	//	public ILearningContext LearningContext { get; }
-	//	public INode GetInput(uint index) => _input[(int)index];
-	//	public ExecutionGraphModel Graph => Start.GetGraph();
-	//	public ILinearAlgebraProvider LinearAlgebraProvider => _lap;
-	//	public INode Start { get; }
+        IEnumerable<IGraphSequenceContext> Execute(IGraphExecutionContext executionContext, IMiniBatch batch)
+        {
+            return Train(executionContext, null, batch);
+        }
 
-	//	protected override IEnumerable<IGraphSequenceContext> Execute(IGraphExecutionContext executionContext, IMiniBatch batch)
-	//	{
- //           _isTraining = false;
-	//		return Train(executionContext, null, batch);
-	//	}
+        public INode Start { get; }
 
-	//	IEnumerable<IGraphSequenceContext> Train(IGraphExecutionContext executionContext, ILearningContext? learningContext, IMiniBatch batch)
- //       {
- //           _isTraining = learningContext != null;
- //           if (batch.IsSequential) {
- //               IMiniBatchSequence? curr;
- //               var contextTable = new Dictionary<IMiniBatchSequence, IGraphSequenceContext>();
- //               while ((curr = batch.GetNextSequence()) != null) {
- //                   var context = Train(executionContext, learningContext, curr);
- //                   contextTable.Add(context.BatchSequence, context);
- //               }
+        public void Train(IGraphExecutionContext executionContext, Action<float>? batchCompleteCallback = null)
+        {
+            LinearAlgebraProvider.PushLayer();
+            LearningContext.StartEpoch();
+            var provider = new MiniBatchProvider(DataSource, LinearAlgebraProvider.Context.Random);
+            executionContext.Add(provider.GetMiniBatches(LearningContext.BatchSize, batch => Train(executionContext, LearningContext, batch)));
 
- //               var additionalResults = new List<IGraphSequenceContext>();
- //               if (executionContext.HasContinuations)
- //                   additionalResults.AddRange(Continue(batch, executionContext, sequence => contextTable[sequence]));
+            IGraphOperation? operation;
+            float operationCount = executionContext.RemainingOperationCount;
+            float index = 0f;
+            while ((operation = executionContext.GetNextOperation()) != null) {
+                LinearAlgebraProvider.PushLayer();
+                var contextList = operation.Execute(executionContext).ToList();
+                LearningContext.BackpropagateThroughTime(null);
+                LearningContext.ApplyUpdates();
+                foreach (var context in contextList) {
+                    var result = context.Result;
+                    context.Dispose();
+                }
+                LinearAlgebraProvider.PopLayer();
 
- //               foreach(var result in additionalResults)
- //                   yield return result;
- //           }
- //           else
- //               yield return Train(executionContext, learningContext, batch.CurrentSequence);
- //       }
+                if (batchCompleteCallback != null) {
+                    var percentage = (++index) / operationCount;
+                    batchCompleteCallback(percentage);
+                }
+            }
 
- //       //public void AddExecutionResult(IGraphSequenceContext context)
- //       //{
- //       //    var output = context.Output;
- //       //    _executionResults.Add((context.BatchSequence, output.Any()
- //       //        ? output.Select(o => o.GetMatrix().Data).ToArray()
- //       //        : new[] { context.Data.GetMatrix().Data }
- //       //    ));
- //       //}
+            LearningContext.EndEpoch();
+            LinearAlgebraProvider.PopLayer();
+        }
 
-	//	TrainingEngineContext Train(IGraphExecutionContext executionContext, ILearningContext? learningContext, IMiniBatchSequence sequence)
-	//	{
- //           _isTraining = learningContext != null;
-	//		var context = new TrainingEngineContext(executionContext, sequence, learningContext);
-	//		Start.ExecuteForward(context, 0);
+        IEnumerable<IGraphSequenceContext> Train(IGraphExecutionContext executionContext, ILearningContext? learningContext, IMiniBatch batch)
+        {
+            if (batch.IsSequential) {
+                IMiniBatchSequence? curr;
+                var contextTable = new Dictionary<IMiniBatchSequence, IGraphSequenceContext>();
+                while ((curr = batch.GetNextSequence()) != null) {
+                    var context = Train(executionContext, learningContext, curr);
+                    contextTable.Add(context.BatchSequence, context);
+                }
 
-	//		while (context.HasNext)
-	//			context.ExecuteNext();
- //           return context;
-	//	}
+                var additionalResults = new List<IGraphSequenceContext>();
+                if (executionContext.HasContinuations)
+                    additionalResults.AddRange(Continue(batch, executionContext, sequence => contextTable[sequence], learningContext));
 
-	//	static string Write(string name, float score, bool isPercentage)
-	//	{
-	//		if (isPercentage)
-	//			return $"{name}score: {score:P}";
-	//		return $"{name}error: {score:N4}";
-	//	}
+                foreach (var item in contextTable)
+                    yield return item.Value;
 
-	//	public bool Test(
-	//		IDataSource testDataSource,
-	//		IErrorMetric errorMetric,
-	//		uint batchSize = 128,
-	//		Action<float>? batchCompleteCallback = null,
-	//		Action<float, bool, bool>? values = null
-	//	)
- //       {
- //           var testResults = Execute(testDataSource, batchSize, batchCompleteCallback)
- //               .Where(b => b.Target != null)
- //               .ToList();
- //           var testError = testResults.Any() ? testResults.Average(o => o.CalculateError(errorMetric)) : 0;
+                foreach(var result in additionalResults)
+                    yield return result;
+            }
+            else
+                yield return Train(executionContext, learningContext, batch.CurrentSequence);
+        }
 
- //           bool flag = true, isPercentage = errorMetric.DisplayAsPercentage;
-	//		float? testErrorDelta = null;
-	//		if (_lastTestError.HasValue) {
-	//			testErrorDelta = testError - _lastTestError.Value;
-	//			if (isPercentage && _lastTestError.Value > testError)
-	//				flag = false;
-	//			else if (!isPercentage && _lastTestError.Value < testError)
-	//				flag = false;
-	//			else
-	//				_lastTestError = testError;
-	//		} else
-	//			_lastTestError = testError;
+        IEnumerable<IGraphSequenceContext> Continue(IMiniBatch batch, IGraphExecutionContext executionContext, Func<IMiniBatchSequence, IGraphSequenceContext> lookupContext, ILearningContext? learningContext)
+        {
+            while (executionContext.HasContinuations) {
+                var additionalContext = new List<(IGraphSequenceContext Context, Action<IGraphSequenceContext[]> OnEnd)>();
+                foreach (var item in executionContext.ExecuteAdditional(learningContext))
+                    additionalContext.Add(item);
 
- //           var msg = new StringBuilder();
-	//		values?.Invoke(testError, isPercentage, flag);
-	//		if (LearningContext.CurrentEpoch == 0)
- //               msg.Append(Write("\rInitial ", testError, isPercentage));
- //           else {
- //               var testScore = Write("", testError, isPercentage);
- //               if (testErrorDelta.HasValue)
- //                   testScore += $" [{testErrorDelta.Value:N4}]";
+                // after all have executed...
+                if (additionalContext.Any()) {
+                    var groups = additionalContext.GroupBy(d => d.OnEnd);
+                    foreach (var group in groups)
+                        group.Key(group.Select(d => d.Context).ToArray());
 
- //               msg.Append($"\rEpoch {LearningContext.CurrentEpoch} - time: {LearningContext.EpochSeconds:N2}s; {testScore}");
- //               if (flag)
- //                   msg.Append("!!");
- //           }
+                    foreach (var item in additionalContext)
+                        yield return item.Context;
+                }
 
- //           for (var i = msg.Length; i < 117; i++)
- //               msg.Append(' ');
+                batch.Reset();
+                IMiniBatchSequence? currentSequence;
+                while ((currentSequence = batch.GetNextSequence()) != null) {
+                    var context = lookupContext(currentSequence);
+                    executionContext.Continue(context);
+                    while (context.HasNext)
+                        context.ExecuteNext();
+                    yield return context;
+                }
+            }
+        }
 
-	//		LearningContext.MessageLog(msg.ToString());
-	//		return flag;
-	//	}
+        IGraphSequenceContext Train(IGraphExecutionContext executionContext, ILearningContext? learningContext, IMiniBatchSequence sequence)
+        {
+            var context = Create(executionContext, sequence, learningContext);
+            Start.ExecuteForward(context, 0);
 
-	//	void LoadParamaters(GraphFactory factory, ExecutionGraphModel.Node nodeModel)
-	//	{
-	//		var node = Start.FindById(nodeModel.Id);
-	//		node?.LoadParameters(factory, nodeModel);
-	//	}
+            while (context.HasNext)
+                context.ExecuteNext();
+            return context;
+        }
 
-	//	public void LoadParametersFrom(GraphFactory factory, ExecutionGraphModel graph)
-	//	{
-	//		LoadParamaters(factory, graph.InputNode);
- //           foreach (var node in graph.OtherNodes)
- //               LoadParamaters(factory, node);
-	//	}
+        public bool Test(IDataSource testDataSource, uint batchSize = 128, Action<float>? batchCompleteCallback = null, Action<float, bool, bool>? values = null)
+        {
+            static string Write(string name, float score, bool isPercentage)
+		{
+			if (isPercentage)
+				return $"{name}score: {score:P}";
+			return $"{name}error: {score:N4}";
+		}
+            var testResults = Execute(testDataSource, batchSize, batchCompleteCallback)
+                .Where(b => b.Target != null)
+                .ToList();
+            var errorMetric = LearningContext.ErrorMetric;
+            var testError = testResults.Any() ? testResults.Average(o => o.CalculateError(errorMetric)) : 0;
 
- //       public IGraphExecutionEngine CreateExecutionEngine(ExecutionGraphModel? model)
- //       {
- //           return _factory.CreateExecutionEngine(model ?? Graph);
- //       }
- //   }
+            bool flag = true, isPercentage = errorMetric.DisplayAsPercentage;
+            float? testErrorDelta = null;
+            if (_lastTestError.HasValue) {
+                testErrorDelta = testError - _lastTestError.Value;
+                if (isPercentage && _lastTestError.Value > testError)
+                    flag = false;
+                else if (!isPercentage && _lastTestError.Value < testError)
+                    flag = false;
+                else
+                    _lastTestError = testError;
+            } else
+                _lastTestError = testError;
+
+            var msg = new StringBuilder();
+            values?.Invoke(testError, isPercentage, flag);
+            if (LearningContext.CurrentEpoch == 0)
+                msg.Append(Write("\rInitial ", testError, isPercentage));
+            else {
+                var testScore = Write("", testError, isPercentage);
+                if (testErrorDelta.HasValue)
+                    testScore += $" [{testErrorDelta.Value:N4}]";
+
+                msg.Append($"\rEpoch {LearningContext.CurrentEpoch} - time: {LearningContext.EpochSeconds:N2}s; {testScore}");
+                if (flag)
+                    msg.Append("!!");
+            }
+
+            for (var i = msg.Length; i < 117; i++)
+                msg.Append(' ');
+
+            LearningContext.MessageLog(msg.ToString());
+            return flag;
+        }
+
+        public ILearningContext LearningContext { get; }
+        public void LoadParametersFrom(GraphFactory factory, ExecutionGraphModel graph)
+        {
+            LoadParamaters(factory, graph.InputNode);
+            foreach (var node in graph.OtherNodes)
+                LoadParamaters(factory, node);
+        }
+
+        public IGraphExecutionEngine CreateExecutionEngine(ExecutionGraphModel? model)
+        {
+            return _factory.CreateExecutionEngine(model ?? Graph);
+        }
+
+        void LoadParamaters(GraphFactory factory, ExecutionGraphModel.Node nodeModel)
+		{
+			var node = Start.FindById(nodeModel.Id);
+			node?.LoadParameters(factory, nodeModel);
+		}
+
+        IGraphData? BackpropagateThroughTime(IGraphData? signal, int maxDepth)
+        {
+            throw new NotImplementedException();
+        }
+
+        void DeferBackpropagation(IGraphData? errorSignal, Action<IGraphData?> update)
+        {
+            throw new NotImplementedException();
+        }
+
+        IGraphData? ApplyUpdates(IGraphData? gradient)
+        {
+            throw new NotImplementedException();
+        }
+
+        void StoreUpdate<T>(INode fromNode, T update, Action<T> updater) where T : notnull
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

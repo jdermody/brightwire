@@ -44,49 +44,12 @@ namespace BrightWire.ExecutionGraph.Node
         protected virtual void DisposeMemory(bool isDisposing) { }
         #endregion
 
-        /// <summary>
-        /// Called when backpropagating
-        /// </summary>
-        /// <param name="fromNode">The node that sent the backpropagation signal</param>
-        /// <param name="errorSignal">The backpropagating error</param>
-        /// <param name="context">Graph context</param>
-        /// <param name="parents">Parents of the current node</param>
-        public void Backward(INode? fromNode, IGraphData? errorSignal, IGraphSequenceContext context, INode[] parents)
-        {
-            if (errorSignal == null) {
-                foreach (var parent in parents)
-                    context.AddBackward(null, parent, _source);
-            } else
-                BackwardInternal(fromNode, errorSignal, context, parents);
-        }
-
-        /// <summary>
-        /// Called when a valid error signal has been received
-        /// </summary>
-        /// <param name="fromNode">>The node that sent the backpropagation signal</param>
-        /// <param name="errorSignal">The backpropagating error</param>
-        /// <param name="context">Graph context</param>
-        /// <param name="parents">Parents of the current node</param>
-        public abstract void BackwardInternal(INode? fromNode, IGraphData errorSignal, IGraphSequenceContext context, INode[] parents);
-
-        /// <summary>
-        /// Sends a backpropagation signal further up the graph
-        /// </summary>
-        /// <param name="errorSignal">The backpropagating error</param>
-        /// <param name="context">Graph context</param>
-        /// <param name="parents">Parents of the current node</param>
-        protected void SendErrorTo(IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
-        {
-            foreach (var parent in parents)
-                context.AddBackward(errorSignal, parent, _source);
-        }
-
         protected IEnumerable<(IGraphData signal, INode toNode)> ErrorTo(IGraphData errorSignal, INode[] parents)
         {
             foreach (var parent in parents)
                 yield return (errorSignal, parent);
         }
 
-        public abstract IEnumerable<(IGraphData signal, INode toNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, INode[] parents);
+        public abstract IEnumerable<(IGraphData Signal, INode ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, INode[] parents);
     }
 }

@@ -30,8 +30,8 @@ namespace BrightWire.UnitTests
 			var outputMatrix = output.Item1.Data.GetMatrix();
 			FloatMath.AreApproximatelyEqual(outputMatrix.AsIndexable(), expectedForwardOutput.AsIndexable()).Should().BeTrue();
 
-			output.Item2.Backward(null, backwardInput.Clone().AsGraphData(), context, new[] { node });
-			var bpOutput = context.Backward.First().Item1.GetMatrix();
+			var backward = output.Item2.Backward(backwardInput.Clone().AsGraphData(), context, new[] { node }).ToList();
+			var bpOutput = backward.First().Signal.GetMatrix();
             FloatMath.AreApproximatelyEqual(bpOutput.AsIndexable(), expectedBackwardOutput.AsIndexable()).Should().BeTrue();
 		}
 
