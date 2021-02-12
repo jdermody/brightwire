@@ -49,12 +49,12 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
                 callback(context);
         }
 
-        public IEnumerable<(IGraphSequenceContext Context, Action<IGraphSequenceContext[]> Callback)> ExecuteAdditional()
+        public IEnumerable<(IGraphSequenceContext Context, Action<IGraphSequenceContext[]> Callback)> ExecuteAdditional(ILearningContext? learningContext)
         {
             while (_additionalBatches.TryPop(out var item)) {
                 IMiniBatchSequence? sequence;
                 while ((sequence = item.Batch.GetNextSequence()) != null) {
-                    var context = _createGraphContext.Create(this, sequence);
+                    var context = _createGraphContext.Create(this, sequence, learningContext);
                     item.Start(context, item.Data);
                     while (context.HasNext)
                         context.ExecuteNext();

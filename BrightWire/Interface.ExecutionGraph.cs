@@ -261,10 +261,10 @@ namespace BrightWire
         /// Backpropagates the signal
         /// </summary>
         /// <param name="delta">Error signal</param>
-        void Backpropagate(IGraphData? delta);
+        IGraphData? Backpropagate(IGraphData? delta);
 
         /// <summary>
-        /// Current error signal
+        /// Final error signal
         /// </summary>
         IGraphData? ErrorSignal { get; }
 
@@ -361,12 +361,12 @@ namespace BrightWire
         /// <param name="context">Context with an associated IMiniBatchSequence</param>
         void Continue(IGraphSequenceContext context);
 
-        IEnumerable<(IGraphSequenceContext Context, Action<IGraphSequenceContext[]> Callback)> ExecuteAdditional();
+        IEnumerable<(IGraphSequenceContext Context, Action<IGraphSequenceContext[]> Callback)> ExecuteAdditional(ILearningContext? learningContext);
     }
 
     public interface ICreateGraphContext
     {
-        IGraphSequenceContext Create(IGraphExecutionContext executionContext, IMiniBatchSequence sequence);
+        IGraphSequenceContext Create(IGraphExecutionContext executionContext, IMiniBatchSequence sequence, ILearningContext? learningContext);
     }
 
     /// <summary>

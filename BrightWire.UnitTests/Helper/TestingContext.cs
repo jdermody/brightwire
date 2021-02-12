@@ -44,7 +44,7 @@ namespace BrightWire.UnitTests.Helper
             throw new NotImplementedException();
         }
 
-        public void Backpropagate(IGraphData? delta)
+        public IGraphData? Backpropagate(IGraphData? delta)
         {
             throw new NotImplementedException();
         }

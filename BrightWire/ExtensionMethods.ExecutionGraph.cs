@@ -31,7 +31,7 @@ namespace BrightWire
             var progress = -1;
             var sw = Stopwatch.StartNew();
             // ReSharper disable once AccessToModifiedClosure
-            //engine.Test(testData, errorMetric, 128, percentage => percentage.WriteProgressPercentage(ref progress, sw));
+            engine.Test(testData, 128, percentage => percentage.WriteProgressPercentage(ref progress, sw));
 
             var count = 0;
             GraphModel? ret = null;

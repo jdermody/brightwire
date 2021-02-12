@@ -25,7 +25,7 @@ namespace BrightWire.UnitTests.Helper
         }
 
         public bool DeferUpdates { get; set; }
-        public IGraphData? ApplyUpdates(IGraphData? gradient)
+        public void ApplyUpdates()
         {
             throw new NotImplementedException();
         }
@@ -45,7 +45,7 @@ namespace BrightWire.UnitTests.Helper
             throw new NotImplementedException();
         }
 
-        public void DeferBackpropagation(IGraphData errorSignal, Action<IGraphData> update)
+        public void DeferBackpropagation(IGraphData errorSignal, Func<IGraphData?, IGraphData?> update)
         {
             throw new NotImplementedException();
         }

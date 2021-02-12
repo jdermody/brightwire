@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using BrightData;
 using BrightWire.ExecutionGraph.Helper;
@@ -9,29 +10,29 @@ namespace BrightWire.ExecutionGraph.Node.Gate
 {
     class SequenceToSequenceGate : NodeBase
     {
-        class Backpropagation : BackpropagationBase<SequenceToSequenceGate>
-        {
-            public Backpropagation(SequenceToSequenceGate source) : base(source)
-            {
-            }
+        //class Backpropagation : BackpropagationBase<SequenceToSequenceGate>
+        //{
+        //    public Backpropagation(SequenceToSequenceGate source) : base(source)
+        //    {
+        //    }
 
-            public override void BackwardInternal(INode? fromNode, IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
-            {
-                if (context.BatchSequence.Type == MiniBatchSequenceType.SequenceStart) {
-                    SendErrorTo(context.Data, context, parents);
-                }
-            }
+        //    public override void BackwardInternal(INode? fromNode, IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
+        //    {
+        //        if (context.BatchSequence.Type == MiniBatchSequenceType.SequenceStart) {
+        //            SendErrorTo(context.Data, context, parents);
+        //        }
+        //    }
 
-            public override IEnumerable<(IGraphData signal, INode toNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
-            {
-                if (context.BatchSequence.Type == MiniBatchSequenceType.SequenceStart) {
-                    foreach(var parent in parents)
-                        yield return (context.Data, parent);
-                }
-            }
-        }
+        //    public override IEnumerable<(IGraphData signal, INode toNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
+        //    {
+        //        if (context.BatchSequence.Type == MiniBatchSequenceType.SequenceStart) {
+        //            foreach(var parent in parents)
+        //                yield return (context.Data, parent);
+        //        }
+        //    }
+        //}
 
-        readonly ConcurrentStack<IGraphSequenceContext> _encoderContext = new ConcurrentStack<IGraphSequenceContext>();
+        ConcurrentStack<IGraphSequenceContext> _encoderContext;
 
         public SequenceToSequenceGate(string? name, string? id = null) : base(name, id)
         {
@@ -39,6 +40,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
 
         public override void ExecuteForward(IGraphSequenceContext context)
         {
+            _encoderContext ??= new ConcurrentStack<IGraphSequenceContext>();
             _encoderContext.Push(context);
             if (context.BatchSequence.Type == MiniBatchSequenceType.SequenceEnd) {
                 var nextBatch = context.BatchSequence.MiniBatch.NextMiniBatch;
@@ -51,19 +53,25 @@ namespace BrightWire.ExecutionGraph.Node.Gate
 
         void OnStartEncoder(IGraphSequenceContext context, IGraphData data)
         {
-            AddNextGraphAction(context, data, () => new Backpropagation(this));
+            AddNextGraphAction(context, data, null/*, () => new Backpropagation(this)*/);
         }
 
         void OnEndEncoder(IGraphSequenceContext[] context)
         {
             var learningContext = context.FirstOrDefault()?.LearningContext;
             if (learningContext != null) {
-                var lastContext = context.Single(c => c.BatchSequence.Type == MiniBatchSequenceType.SequenceEnd);
-                var gradient = learningContext.ApplyUpdates(lastContext.Data);
+                var gradient = learningContext.BackpropagateThroughTime(null);
+
+                var firstContext = (ICanTrace)context.Single(c => c.BatchSequence.Type == MiniBatchSequenceType.SequenceStart);
+                var lastContext = (ICanTrace)context.Single(c => c.BatchSequence.Type == MiniBatchSequenceType.SequenceEnd);
+
+                //firstContext.Trace();
+                //lastContext.Trace();
+                
                 if (gradient != null) {
                     foreach (var item in _encoderContext.Reverse())
                         learningContext.DeferBackpropagation(null, item.Backpropagate);
-                    learningContext.ApplyUpdates(gradient);
+                    learningContext.BackpropagateThroughTime(gradient);
                 }
             }
 

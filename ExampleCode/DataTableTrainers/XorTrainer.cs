@@ -18,7 +18,7 @@ namespace ExampleCode.DataTableTrainers
 
             // train a model
             var graph = context.CreateGraphFactory();
-            var model = graph.TrainSimpleNeuralNetwork(Training, Test, graph.ErrorMetric.CrossEntropy, learningRate, batchSize,
+            var model = graph.TrainSimpleNeuralNetwork(Training, Test, graph.ErrorMetric.BinaryClassification, learningRate, batchSize,
                 hiddenLayerSize, numIterations, g => g.SigmoidActivation(), g => g.RmsProp, g => g.Gaussian);
 
             if (model != null) {

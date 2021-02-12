@@ -2868,7 +2868,7 @@
         </member>
         <member name="P:BrightWire.IGraphSequenceContext.ErrorSignal">
             <summary>
-            Current error signal
+            Final error signal
             </summary>
         </member>
         <member name="P:BrightWire.IGraphSequenceContext.HasNext">
@@ -3505,7 +3505,7 @@
             <param name="update">The vector update</param>
             <param name="updater">Callback to execute the update</param>
         </member>
-        <member name="M:BrightWire.ILearningContext.ApplyUpdates(BrightWire.IGraphData)">
+        <member name="M:BrightWire.ILearningContext.ApplyUpdates">
             <summary>
             Apply any deferred updates
             </summary>
@@ -3526,7 +3526,7 @@
             </summary>
             <param name="rowCount">The number of rows per epoch</param>
         </member>
-        <member name="M:BrightWire.ILearningContext.DeferBackpropagation(BrightWire.IGraphData,System.Action{BrightWire.IGraphData})">
+        <member name="M:BrightWire.ILearningContext.DeferBackpropagation(BrightWire.IGraphData,System.Func{BrightWire.IGraphData,BrightWire.IGraphData})">
             <summary>
             Register the backpropagation to be deferred
             </summary>

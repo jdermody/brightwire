@@ -197,6 +197,8 @@ namespace ExampleCode.DataSet
             return new SequenceToSequenceTrainer(context, grammar.DictionarySize, builder.BuildRowOriented());
         }
 
+        static string Reverse(string str) => new string(str.Reverse().ToArray());
+
         public static SequenceToSequenceTrainer SequenceToSequence(this IBrightDataContext context)
         {
             const int SEQUENCE_LENGTH = 5;
@@ -209,7 +211,7 @@ namespace ExampleCode.DataSet
             foreach (var sequence in sequences)
             {
                 var encodedSequence = grammar.Encode(sequence);
-                var reversedSequence = context.CreateMatrixFromRows(encodedSequence.Rows.Reverse().Take(SEQUENCE_LENGTH - 1).ToArray());
+                var reversedSequence = grammar.Encode(sequence.Substring(0, SEQUENCE_LENGTH-1));
                 builder.AddRow(encodedSequence, reversedSequence);
             }
 

@@ -27,7 +27,7 @@ namespace BrightWire.ExecutionGraph.Action
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
             {
                 var matrix = errorSignal.GetMatrix();
-                var parts = matrix.SplitAtColumn(matrix.RowCount - _memorySize);
+                var parts = matrix.SplitAtColumn(matrix.ColumnCount - _memorySize);
                 parts.Right.Dispose();
                 return errorSignal.ReplaceWith(parts.Left);
             }
@@ -44,7 +44,7 @@ namespace BrightWire.ExecutionGraph.Action
             var memory = context.ExecutionContext.GetMemory(_slotName);
             var data = context.Data;
             var output = data.ReplaceWith(data.GetMatrix().ConcatRows(memory));
-            AddNextGraphAction(context, output, () => new Backpropagation(this, memory.RowCount));
+            AddNextGraphAction(context, output, () => new Backpropagation(this, memory.ColumnCount));
         }
 
         protected override (string Description, byte[] Data) GetInfo()

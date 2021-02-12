@@ -40,10 +40,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
                 _context.AddForward(new ExecutionHistory(_wrapper, action.Data, action.Source), callback);
             }
 
-            public void Backpropagate(IGraphData? delta)
-            {
-                _context.Backpropagate(delta);
-            }
+            public IGraphData? Backpropagate(IGraphData? delta) => _context.Backpropagate(delta);
 
             public void Dispose()
             {

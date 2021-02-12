@@ -86,7 +86,7 @@ namespace BrightWire.ExecutionGraph.Engine
         {
             while (executionContext.HasContinuations) {
                 var additionalContext = new List<(IGraphSequenceContext Context, Action<IGraphSequenceContext[]> OnEnd)>();
-                foreach (var item in executionContext.ExecuteAdditional())
+                foreach (var item in executionContext.ExecuteAdditional(null))
                     additionalContext.Add(item);
 
                 // after all have executed...
@@ -244,6 +244,6 @@ namespace BrightWire.ExecutionGraph.Engine
             return ret;
         }
 
-        IGraphSequenceContext ICreateGraphContext.Create(IGraphExecutionContext executionContext, IMiniBatchSequence sequence) => CreateContext(executionContext, sequence);
+        IGraphSequenceContext ICreateGraphContext.Create(IGraphExecutionContext executionContext, IMiniBatchSequence sequence, ILearningContext? learningContext) => CreateContext(executionContext, sequence);
     }
 }

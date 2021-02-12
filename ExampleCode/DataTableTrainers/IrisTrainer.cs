@@ -46,14 +46,14 @@ namespace ExampleCode.DataTableTrainers
             engine.Train(numIterations, testData, null, 50);
         }
 
-        public void TrainWithSelu(uint numIterations = 500, uint layerSize = 64, float trainingRate = 0.1f, uint batchSize = 128)
+        public void TrainWithSelu(uint numIterations = 1000, uint layerSize = 64, float trainingRate = 0.01f, uint batchSize = 128)
         {
             var graph = Table.Context.CreateGraphFactory();
             var trainingData = graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
 
             // one hot encoding uses the index of the output vector's maximum value as the classification label
-            var errorMetric = graph.ErrorMetric.OneHotEncoding;
+            var errorMetric = graph.ErrorMetric.BinaryClassification;
 
             // configure the network properties
             graph.CurrentPropertySet
@@ -64,30 +64,30 @@ namespace ExampleCode.DataTableTrainers
             var engine = graph.CreateTrainingEngine(trainingData, errorMetric, trainingRate, batchSize);
 
             static INode Activation() => new SeluActivation();
-            //Func<INode> activation = () => graph.ReluActivation();
+            //Func<INode> Activation = () => graph.ReluActivation();
 
             // create the network with the custom activation function
             graph.Connect(engine)
                 .AddFeedForward(layerSize)
-                .AddBatchNormalisation()
+                //.AddBatchNormalisation()
                 .Add(Activation())
                 .AddFeedForward(layerSize)
-                .AddBatchNormalisation()
+                //.AddBatchNormalisation()
                 .Add(Activation())
                 .AddFeedForward(layerSize)
-                .AddBatchNormalisation()
+                //.AddBatchNormalisation()
                 .Add(Activation())
                 .AddFeedForward(layerSize)
-                .AddBatchNormalisation()
+                //.AddBatchNormalisation()
                 .Add(Activation())
                 .AddFeedForward(layerSize)
-                .AddBatchNormalisation()
+                //.AddBatchNormalisation()
                 .Add(Activation())
                 .AddFeedForward(layerSize)
-                .AddBatchNormalisation()
+                //.AddBatchNormalisation()
                 .Add(Activation())
                 .AddFeedForward(trainingData.GetOutputSizeOrThrow())
-                .Add(graph.SoftMaxActivation())
+                .Add(graph.TanhActivation())
                 .AddBackpropagation()
             ;
 

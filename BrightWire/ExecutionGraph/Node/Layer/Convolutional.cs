@@ -43,6 +43,8 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 					var weightUpdate = update.CombineDepthSlices();
 					var biasUpdate = tensor.ColumnSums();
 
+					// TODO: divide bias update by number of columns?
+
                     var learningContext = context.LearningContext!;
                     learningContext.StoreUpdate(_source, weightUpdate, err => _source.Update(err, learningContext));
                     learningContext.StoreUpdate(_source, biasUpdate, bu => UpdateBias(bu, learningContext));

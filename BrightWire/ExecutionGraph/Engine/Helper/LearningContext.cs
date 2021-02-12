@@ -14,7 +14,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         readonly List<(IFloatMatrix Error, Action<IFloatMatrix> Updater)> _layerMatrixUpdate = new List<(IFloatMatrix, Action<IFloatMatrix>)>();
         readonly List<(IFloatVector Error, Action<IFloatVector> Updater)> _layerVectorUpdate = new List<(IFloatVector, Action<IFloatVector>)>();
 
-        readonly Stack<(IGraphData? Data, Action<IGraphData?> Callback)> _deferredBackpropagation = new Stack<(IGraphData?, Action<IGraphData?>)>();
+        readonly Stack<(IGraphData? Data, Func<IGraphData?, IGraphData?> Callback)> _deferredBackpropagation = new Stack<(IGraphData?, Func<IGraphData?, IGraphData?>)>();
 	    readonly Stopwatch _timer = new Stopwatch();
         readonly HashSet<INode> _noUpdateNodeSet = new HashSet<INode>();
 	    uint _rowCount = 0, _currentEpoch = 0;
@@ -106,24 +106,22 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public void EndEpoch()
         {
             AfterEpochEnds?.Invoke(this);
-            ApplyUpdates(null);
+            ApplyUpdates();
             _timer.Stop();
             _rowCount = 0;
         }
 
-        public IGraphData? ApplyUpdates(IGraphData? gradient)
+        public void ApplyUpdates()
         {
-            var ret = BackpropagateThroughTime(gradient);
             foreach(var (error, updater) in _layerMatrixUpdate)
                 updater(error);
             foreach(var (error, updater) in _layerVectorUpdate)
                 updater(error);
             _layerMatrixUpdate.Clear();
             _layerVectorUpdate.Clear();
-            return ret;
         }
 
-        public void DeferBackpropagation(IGraphData? data, Action<IGraphData?> update)
+        public void DeferBackpropagation(IGraphData? data, Func<IGraphData?, IGraphData?> update)
         {
             _deferredBackpropagation.Push((data, update));
         }

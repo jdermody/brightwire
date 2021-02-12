@@ -163,7 +163,7 @@ namespace BrightWire
         /// <summary>
 		/// Apply any deferred updates
 		/// </summary>
-        IGraphData? ApplyUpdates(IGraphData? gradient);
+        void ApplyUpdates();
 
 		/// <summary>
 		/// Start a new epoch
@@ -186,7 +186,7 @@ namespace BrightWire
 		/// </summary>
 		/// <param name="errorSignal">The error signal associated with this backpropagation (optional, can be null)</param>
 		/// <param name="update">The callback to execute the backpropagation</param>
-		void DeferBackpropagation(IGraphData? errorSignal, Action<IGraphData?> update);
+		void DeferBackpropagation(IGraphData? errorSignal, Func<IGraphData?, IGraphData?> update);
 
 		/// <summary>
 		/// Backpropagates the error signal across all deferred backpropagations

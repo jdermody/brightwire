@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Diagnostics;
+using System.IO;
 
 namespace BrightWire
 {
@@ -19,6 +20,11 @@ namespace BrightWire
         /// <param name="stream">Stream to read from</param>
         /// <param name="clear">True to clear the existing state</param>
         void DeserialiseFrom(Stream stream, bool clear);
+    }
+
+    public interface ICanTrace
+    {
+        string Trace();
     }
 
     // other declarations in nested files...

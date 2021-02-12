@@ -114,8 +114,9 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             _backward.Clear();
         }
 
-        public void Backpropagate(IGraphData? delta)
+        public IGraphData? Backpropagate(IGraphData? delta)
         {
+            throw new NotImplementedException();
             // initialise backpropagation stack
             ClearBackward();
             AddBackward(delta, _sourceNode ?? throw new Exception("No backpropagation target"), null);

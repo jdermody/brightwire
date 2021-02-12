@@ -37,7 +37,7 @@ namespace ExampleCode.DataTableTrainers
 
             // train the network and restore the best result
             GraphModel? bestNetwork = null;
-            engine.Train(5, testData, model => bestNetwork = model);
+            engine.Train(20, testData, model => bestNetwork = model);
             if (bestNetwork != null) {
                 // execute each row of the test data on an execution engine
                 var executionEngine = graph.CreateExecutionEngine(bestNetwork.Graph);
@@ -45,7 +45,7 @@ namespace ExampleCode.DataTableTrainers
                 var expectedOutput = Test.Column<Vector<float>>(1).ToArray();
 
                 var score = results.Select((r, i) => errorMetric.Compute(r.Last(), expectedOutput[i])).Average();
-                Console.WriteLine(score);
+                Console.WriteLine($"Final quadratic prediction error: {score}");
             }
         }
     }
