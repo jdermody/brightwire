@@ -14,7 +14,7 @@ namespace BrightWire.UnitTests
     {
         public class CustomErrorMetric : IErrorMetric
         {
-            public IFloatMatrix CalculateGradient(IGraphContext context, IFloatMatrix output, IFloatMatrix targetOutput)
+            public IFloatMatrix CalculateGradient(IGraphSequenceContext context, IFloatMatrix output, IFloatMatrix targetOutput)
             {
                 return targetOutput.Subtract(output);
             }
@@ -40,17 +40,19 @@ namespace BrightWire.UnitTests
         {
             var (graph, data) = MakeGraphAndData(_context);
             var errorMetric = new CustomErrorMetric();
-            var engine = graph.CreateTrainingEngine(data);
+            var engine = graph.CreateTrainingEngine(data, errorMetric);
 
             graph.Connect(engine)
                 .AddFeedForward(1)
                 .Add(graph.SigmoidActivation())
-                .AddBackpropagation(errorMetric);
-            engine.Train(300, data, errorMetric, bn => _bestNetwork = bn);
-            AssertEngineGetsGoodResults(engine, data);
+                .AddBackpropagation();
+            engine.Train(300, data, bn => _bestNetwork = bn);
+
+            var executionEngine = graph.CreateExecutionEngine(_bestNetwork.Graph);
+            AssertEngineGetsGoodResults(executionEngine, data);
         }
 
-        static void AssertEngineGetsGoodResults(IGraphEngine engine, IDataSource data)
+        static void AssertEngineGetsGoodResults(IGraphExecutionEngine engine, IDataSource data)
         {
             var results = engine.Execute(data).FirstOrDefault();
             results.Should().NotBeNull();
@@ -63,7 +65,7 @@ namespace BrightWire.UnitTests
         public void CreateFromExecutionGraph()
         {
             var (graph, data) = MakeGraphAndData(_context);
-            var engine = graph.CreateEngine(_bestNetwork.Graph);
+            var engine = graph.CreateExecutionEngine(_bestNetwork.Graph);
             AssertEngineGetsGoodResults(engine, data);
         }
 

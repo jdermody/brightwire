@@ -71,7 +71,7 @@ namespace ExampleCode.DataTableTrainers
             return multinomial;
         }
 
-        public (IGraphTrainingEngine, WireBuilder, IGraphEngine) TrainNeuralNetwork(uint numIterations = 10)
+        public (IGraphExecutionEngine, WireBuilder, IGraphExecutionEngine) TrainNeuralNetwork(uint numIterations = 10)
         {
             var indexer = GetIndexer();
             var trainingTable = GetTable(_context, _maxIndex, indexer, _indexedSentencesTraining);
@@ -88,7 +88,7 @@ namespace ExampleCode.DataTableTrainers
                 .Use(graph.WeightInitialisation.Xavier)
             ;
 
-            var engine = graph.CreateTrainingEngine(trainingData, 0.3f);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, 0.3f);
             engine.LearningContext.ScheduleLearningRate(10, 0.2f);
 
             var neuralNetworkWire = graph.Connect(engine)
@@ -98,17 +98,14 @@ namespace ExampleCode.DataTableTrainers
                 //.AddDropOut(0.5f)
                 .AddFeedForward(trainingData.GetOutputSizeOrThrow(), "layer2")
                 .Add(graph.ReluActivation())
-                .AddBackpropagation(errorMetric, "first-network")
+                .AddBackpropagation("first-network")
             ;
 
             Console.WriteLine("Training neural network classifier...");
             GraphModel? bestNetwork = null;
-            engine.Train(numIterations, testData, errorMetric, network => bestNetwork = network);
-            if (bestNetwork != null)
-                engine.LoadParametersFrom(graph, bestNetwork.Graph);
-            var firstClassifier = graph.CreateEngine(engine.Graph);
-
-            return (engine, neuralNetworkWire, firstClassifier);
+            engine.Train(numIterations, testData, network => bestNetwork = network);
+            var firstClassifier = graph.CreateExecutionEngine(engine.Graph);
+            return (engine.CreateExecutionEngine(bestNetwork?.Graph), neuralNetworkWire, firstClassifier);
         }
 
         public IGraphEngine StackClassifiers(IGraphTrainingEngine engine, WireBuilder neuralNetworkWire, IIndexListClassifier bernoulli, IIndexListClassifier multinomial)
@@ -130,7 +127,7 @@ namespace ExampleCode.DataTableTrainers
             engine.LearningContext.EnableNodeUpdates(neuralNetworkWire.Find("layer2")!, false);
 
             // create the bernoulli classifier wire
-            var bernoulliWire = graph.Connect(engine)
+            var bernoullWireToNode = graph.Connect(engine)
                 .AddClassifier(bernoulli.AsRowClassifier(1, indexer), training)
             ;
 
@@ -141,7 +138,7 @@ namespace ExampleCode.DataTableTrainers
 
             // join the bernoulli, multinomial and neural network classification outputs
             var firstNetwork = neuralNetworkWire.Find("first-network")!;
-            var joined = graph.Join(multinomialWire, graph.Join(bernoulliWire, graph.Connect(outputSize, firstNetwork)));
+            var joined = graph.Join(multinomialWire, graph.Join(bernoullWireToNode, graph.Connect(outputSize, firstNetwork)));
 
             // train an additional classifier on the output of the previous three classifiers
             joined
@@ -150,17 +147,17 @@ namespace ExampleCode.DataTableTrainers
                 .AddDropOut(dropOutPercentage: 0.5f)
                 .AddFeedForward(outputSize)
                 .Add(graph.ReluActivation())
-                .AddBackpropagation(errorMetric)
+                .AddBackpropagation()
             ;
 
             // train the network again
             Console.WriteLine("Training stacked neural network classifier...");
             GraphModel? bestStackedNetwork = null;
-            engine.Train(20, testData, errorMetric, network => bestStackedNetwork = network);
+            engine.Train(20, testData, network => bestStackedNetwork = network);
             if (bestStackedNetwork != null)
                 engine.LoadParametersFrom(graph, bestStackedNetwork.Graph);
 
-            return graph.CreateEngine(engine.Graph);
+            return graph.CreateExecutionEngine(engine.Graph);
         }
 
         static IRowOrientedDataTable GetTable(IBrightDataContext context, uint maxIndex, IIndexStrings indexer, (string Classification, IndexList Data)[] data)
@@ -209,7 +206,7 @@ namespace ExampleCode.DataTableTrainers
 
         static IIndexStrings GetIndexer() => StringIndexer.Create("negative", "positive");
 
-        public void TestClassifiers(IIndexListClassifier bernoulli, IIndexListClassifier multinomial, IGraphEngine neuralNetwork)
+        public void TestClassifiers(IIndexListClassifier bernoulli, IIndexListClassifier multinomial, IGraphExecutionEngine neuralNetwork)
         {
             Console.WriteLine("Enter some text to test the classifiers...");
             while (true)

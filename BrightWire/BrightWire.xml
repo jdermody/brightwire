@@ -82,66 +82,6 @@
             Creates a rms prop gradient descent optimiser
             </summary>
         </member>
-        <member name="T:BrightWire.ExecutionGraph.Action.Backpropagate">
-            <summary>
-            Backpropagates the graph against the error metric
-            </summary>
-        </member>
-        <member name="T:BrightWire.ExecutionGraph.Action.BackpropagateThroughTime">
-            <summary>
-            Backpropagates through time (for recurrent neural networks)
-            </summary>
-        </member>
-        <member name="T:BrightWire.ExecutionGraph.Action.ConstrainSignal">
-            <summary>
-            Constrains the signal through the graph to lie between two values
-            </summary>
-        </member>
-        <member name="T:BrightWire.ExecutionGraph.Action.CopyNamedMemory">
-            <summary>
-            Copies named memory from one slot to another
-            </summary>
-        </member>
-        <member name="T:BrightWire.ExecutionGraph.Action.JoinInputWithMemory">
-            <summary>
-            Joins the graph signal with a saved signal stored in named memory
-            </summary>
-        </member>
-        <member name="T:BrightWire.ExecutionGraph.Action.SetMemory">
-            <summary>
-            Saves the current graph signal into named memory
-            </summary>
-        </member>
-        <member name="T:BrightWire.ExecutionGraph.Activation.LeakyRelu">
-            <summary>
-            Leaky RELU activation
-            https://en.wikipedia.org/wiki/Rectifier_(neural_networks)
-            </summary>
-        </member>
-        <member name="T:BrightWire.ExecutionGraph.Activation.Relu">
-            <summary>
-            RELu activation
-            https://en.wikipedia.org/wiki/Rectifier_(neural_networks)
-            </summary>
-        </member>
-        <member name="T:BrightWire.ExecutionGraph.Activation.Sigmoid">
-            <summary>
-            Sigmoid activation function
-            https://en.wikipedia.org/wiki/Sigmoid_function
-            </summary>
-        </member>
-        <member name="T:BrightWire.ExecutionGraph.Activation.SoftMax">
-            <summary>
-            Softmax activation function
-            https://en.wikipedia.org/wiki/Softmax_function
-            </summary>
-        </member>
-        <member name="T:BrightWire.ExecutionGraph.Activation.Tanh">
-            <summary>
-            Tanh activation function
-            https://en.wikipedia.org/wiki/Activation_function
-            </summary>
-        </member>
         <member name="T:BrightWire.ExecutionGraph.DataSource.SequentialDataSource">
             <summary>
             Feeds sequential data to the graph
@@ -152,38 +92,33 @@
             Feeds data to the execution graph
             </summary>
         </member>
-        <member name="T:BrightWire.ExecutionGraph.DataTableAdaptor.AdaptiveDataTableAdaptorBase">
+        <member name="T:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1">
             <summary>
-            Base class for data table adaptors that adapt their input based on a preliminary execution graph
-            </summary>
-        </member>
-        <member name="T:BrightWire.ExecutionGraph.DataTableAdaptor.DataTableAdaptorBase`1">
-            <summary>
-            Base class for data table based data adaptors
+            Base class for data table based data adapters
             </summary>
             <typeparam name="T">The type of the cached data</typeparam>
         </member>
-        <member name="F:BrightWire.ExecutionGraph.DataTableAdaptor.DataTableAdaptorBase`1._dataColumnIndex">
+        <member name="F:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1._featureColumnIndices">
             <summary>
-            The data table columns with attributes
+            The data table column indices with features
             </summary>
         </member>
-        <member name="F:BrightWire.ExecutionGraph.DataTableAdaptor.DataTableAdaptorBase`1._dataTargetIndex">
+        <member name="F:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1._targetColumnIndex">
             <summary>
             Target column index
             </summary>
         </member>
-        <member name="F:BrightWire.ExecutionGraph.DataTableAdaptor.DataTableAdaptorBase`1._lap">
+        <member name="F:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1._lap">
             <summary>
             Linear algebra provider
             </summary>
         </member>
-        <member name="F:BrightWire.ExecutionGraph.DataTableAdaptor.DataTableAdaptorBase`1._data">
+        <member name="F:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1._data">
             <summary>
             The list of raw row data
             </summary>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.DataTableAdaptor.DataTableAdaptorBase`1.#ctor(BrightData.ILinearAlgebraProvider,BrightData.IRowOrientedDataTable,System.UInt32[])">
+        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1.#ctor(BrightData.ILinearAlgebraProvider,BrightData.IRowOrientedDataTable,System.UInt32[])">
             <summary>
             Constructor
             </summary>
@@ -191,108 +126,100 @@
             <param name="dataTable"></param>
             <param name="featureColumns"></param>
         </member>
-        <member name="P:BrightWire.ExecutionGraph.DataTableAdaptor.DataTableAdaptorBase`1.InputCount">
+        <member name="P:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1.InputCount">
             <inheritdoc />
         </member>
-        <member name="P:BrightWire.ExecutionGraph.DataTableAdaptor.DataTableAdaptorBase`1.IsSequential">
+        <member name="P:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1.IsSequential">
             <inheritdoc />
         </member>
-        <member name="P:BrightWire.ExecutionGraph.DataTableAdaptor.DataTableAdaptorBase`1.InputSize">
+        <member name="P:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1.InputSize">
             <inheritdoc />
         </member>
-        <member name="P:BrightWire.ExecutionGraph.DataTableAdaptor.DataTableAdaptorBase`1.OutputSize">
+        <member name="P:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1.OutputSize">
             <inheritdoc />
         </member>
-        <member name="P:BrightWire.ExecutionGraph.DataTableAdaptor.DataTableAdaptorBase`1.RowCount">
+        <member name="P:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1.RowCount">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.ExecutionGraph.DataTableAdaptor.DataTableAdaptorBase`1.Get(System.UInt32[])">
+        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1.Get(System.UInt32[])">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.ExecutionGraph.DataTableAdaptor.DataTableAdaptorBase`1.CloneWith(BrightData.IRowOrientedDataTable)">
+        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1.CloneWith(BrightData.IRowOrientedDataTable)">
             <inheritdoc />
         </member>
-        <member name="P:BrightWire.ExecutionGraph.DataTableAdaptor.DataTableAdaptorBase`1.InputVectoriser">
+        <member name="P:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1.InputVectoriser">
             <inheritdoc />
         </member>
-        <member name="P:BrightWire.ExecutionGraph.DataTableAdaptor.DataTableAdaptorBase`1.OutputVectoriser">
+        <member name="P:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1.OutputVectoriser">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.ExecutionGraph.DataTableAdaptor.DataTableAdaptorBase`1.GetBuckets">
+        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1.GetBuckets">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.ExecutionGraph.DataTableAdaptor.DataTableAdaptorBase`1.OnBatchProcessed(BrightWire.IGraphContext)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightWire.ExecutionGraph.DataTableAdaptor.DataTableAdaptorBase`1.GetRows(System.UInt32[])">
+        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1.GetRows(System.UInt32[])">
             <summary>
             Returns the row data
             </summary>
             <param name="rows">List of row indices</param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.DataTableAdaptor.DataTableAdaptorBase`1.GetMiniBatch(System.UInt32[],System.ValueTuple{System.Single[][],System.Single[]}[])">
+        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1.GetMiniBatch(System.UInt32[],System.ValueTuple{System.Single[][],System.Single[]}[])">
             <summary>
             Creates a mini batch
             </summary>
             <param name="rows">Row indices</param>
             <param name="data">List of input/output tuples</param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.DataTableAdaptor.DataTableAdaptorBase`1.GetSequentialMiniBatch(System.UInt32[],System.ValueTuple{BrightData.LinearAlgebra.Matrix{System.Single},BrightData.LinearAlgebra.Matrix{System.Single}}[])">
+        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1.GetSequentialMiniBatch(System.UInt32[],System.ValueTuple{BrightData.LinearAlgebra.Matrix{System.Single},BrightData.LinearAlgebra.Matrix{System.Single}}[])">
             <summary>
             Creates a sequential mini batch
             </summary>
             <param name="rows">Row indices</param>
             <param name="data">List of input/output matrix tuples</param>
         </member>
-        <member name="T:BrightWire.ExecutionGraph.DataTableAdaptor.DefaultDataTableAdaptor">
+        <member name="T:BrightWire.ExecutionGraph.DataTableAdapter.DefaultDataTableAdapter">
             <summary>
             Vectorises each row of the data table on demand
             </summary>
         </member>
-        <member name="T:BrightWire.ExecutionGraph.DataTableAdaptor.IndexListDataTableAdaptor">
+        <member name="T:BrightWire.ExecutionGraph.DataTableAdapter.IndexListDataTableAdapter">
             <summary>
             Adapts data tables with a index list based column (corresponding to an unweighted sparse vector)
             </summary>
         </member>
-        <member name="T:BrightWire.ExecutionGraph.DataTableAdaptor.ManyToOneDataTableAdaptor">
+        <member name="T:BrightWire.ExecutionGraph.DataTableAdapter.ManyToOneDataTableAdapter">
             <summary>
             Adapts data tables that classify a sequence into a single classification
             </summary>
         </member>
-        <member name="T:BrightWire.ExecutionGraph.DataTableAdaptor.OneToManyDataTableAdaptor">
+        <member name="T:BrightWire.ExecutionGraph.DataTableAdapter.OneToManyDataTableAdapter">
             <summary>
             Adapts data tables that generate sequences from a single vector
             </summary>
         </member>
-        <member name="T:BrightWire.ExecutionGraph.DataTableAdaptor.RowBasedDataTableAdaptorBase">
+        <member name="T:BrightWire.ExecutionGraph.DataTableAdapter.RowBasedDataTableAdapterBase">
             <summary>
             Base class for data tables that work with data table rows
             </summary>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.DataTableAdaptor.RowBasedDataTableAdaptorBase.#ctor(BrightData.ILinearAlgebraProvider,BrightData.IRowOrientedDataTable,System.UInt32[])">
+        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.RowBasedDataTableAdapterBase.#ctor(BrightData.ILinearAlgebraProvider,BrightData.IRowOrientedDataTable,System.UInt32[])">
             <inheritdoc />
         </member>
-        <member name="T:BrightWire.ExecutionGraph.DataTableAdaptor.SequenceToSequenceDataTableAdaptor">
-            <summary>
-            Executes a preliminary graph and uses its output as the input for the main graph
-            </summary>
-        </member>
-        <member name="T:BrightWire.ExecutionGraph.DataTableAdaptor.SequentialDataTableAdaptor">
+        <member name="T:BrightWire.ExecutionGraph.DataTableAdapter.SequentialDataTableAdapter">
             <summary>
             Adapts data tables that classify each step of a sequence
             </summary>
         </member>
-        <member name="T:BrightWire.ExecutionGraph.DataTableAdaptor.TensorBasedDataTableAdaptor">
+        <member name="T:BrightWire.ExecutionGraph.DataTableAdapter.TensorBasedDataTableAdapter">
             <summary>
             Adapts data tables that classify tensors (volumes)
             </summary>
         </member>
-        <member name="T:BrightWire.ExecutionGraph.DataTableAdaptor.VectorBasedDataTableAdaptor">
+        <member name="T:BrightWire.ExecutionGraph.DataTableAdapter.VectorBasedDataTableAdapter">
             <summary>
             Segment table adaptor for tables with vector data
             </summary>
         </member>
-        <member name="T:BrightWire.ExecutionGraph.DataTableAdaptor.WeightedIndexListDataTableAdaptor">
+        <member name="T:BrightWire.ExecutionGraph.DataTableAdapter.WeightedIndexListDataTableAdapter">
             <summary>
             Adapts data tables with weighted index list based columns (corresponding to a sparse vector)
             </summary>
@@ -307,7 +234,7 @@
             Graph engine execution context
             </summary>
         </member>
-        <member name="T:BrightWire.ExecutionGraph.Engine.Helper.ExecutionEngineContext">
+        <member name="T:BrightWire.ExecutionGraph.Engine.Helper.ExecutionGraphSequenceContext">
             <summary>
             Execution engine context
             </summary>
@@ -325,16 +252,6 @@
         <member name="T:BrightWire.ExecutionGraph.Engine.Helper.SingleRowDataSource">
             <summary>
             Helper class when executing a single row instead of the normal batch mode
-            </summary>
-        </member>
-        <member name="T:BrightWire.ExecutionGraph.Engine.Helper.TrainingEngineContext">
-            <summary>
-            Training engine context
-            </summary>
-        </member>
-        <member name="T:BrightWire.ExecutionGraph.Engine.TrainingEngine">
-            <summary>
-            Trains graphs as it executes them
             </summary>
         </member>
         <member name="T:BrightWire.ExecutionGraph.ErrorMetric.BinaryClassification">
@@ -449,53 +366,17 @@
             <param name="weight"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateExecutionContext">
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateTrainingEngine(BrightWire.IDataSource,BrightWire.IErrorMetric,System.Single,System.UInt32)">
             <summary>
-            Creates a graph execution context
+            Creates a graph training engine
             </summary>
-            <returns></returns>
-        </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateLearningContext(System.Single,System.UInt32,BrightWire.TrainingErrorCalculation,System.Boolean)">
-            <summary>
-            Creates a graph learning context
-            </summary>
+            <param name="dataSource">Segment source with training data</param>
+            <param name="errorMetric">Error metric to train with</param>
             <param name="learningRate">Initial learning rate</param>
             <param name="batchSize">Mini batch size</param>
-            <param name="trainingErrorCalculation">How to calculate the training error</param>
-            <param name="deferUpdates">True to defer updates (used when training recurrent neural networks)</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateTrainingEngine(BrightWire.IDataSource,System.Single,System.UInt32,BrightWire.TrainingErrorCalculation)">
-            <summary>
-            Creates a graph training engine
-            </summary>
-            <param name="dataSource">Segment source with training data</param>
-            <param name="learningRate">Initial learning rate</param>
-            <param name="batchSize">Mini batch size</param>
-            <param name="trainingErrorCalculation">How to calculate the training error</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateTrainingEngine(BrightWire.IDataSource,BrightWire.Models.ExecutionGraphModel,System.Single,System.UInt32,BrightWire.TrainingErrorCalculation)">
-            <summary>
-            Creates a graph training engine
-            </summary>
-            <param name="dataSource">Segment source with training data</param>
-            <param name="graph">The serialised graph to execute</param>
-            <param name="trainingRate">Initial learning rate</param>
-            <param name="batchSize">Mini batch size</param>
-            <param name="trainingErrorCalculation">How to calculate the training error</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateTrainingEngine(BrightWire.IDataSource,BrightWire.ILearningContext,BrightWire.Models.ExecutionGraphModel)">
-            <summary>
-            Creates a graph training engine
-            </summary>
-            <param name="dataSource">Segment source with training data</param>
-            <param name="learningContext">Previously created training context</param>
-            <param name="graph">The serialised graph to execute</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateEngine(BrightWire.Models.ExecutionGraphModel)">
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateExecutionEngine(BrightWire.Models.ExecutionGraphModel)">
             <summary>
             Creates a graph execution engine
             </summary>
@@ -528,24 +409,6 @@
             </summary>
             <param name="dataTable">The data table to convert</param>
             <param name="featureColumns">Column indices to use as features (or none to use all non target columns)</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateDataSource(BrightData.IRowOrientedDataTable,BrightWire.ILearningContext,System.Action{BrightWire.ExecutionGraph.WireBuilder})">
-            <summary>
-            Creates an adaptive data source (that uses the output from a preliminary graph)
-            </summary>
-            <param name="dataTable">Segment that will be sent to the preliminary graph</param>
-            <param name="learningContext">Learning context to use while training the preliminary graph</param>
-            <param name="dataConversionBuilder">Callback to build the preliminary graph</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateDataSource(BrightData.IRowOrientedDataTable,BrightWire.Models.DataSourceModel,BrightWire.ILearningContext)">
-            <summary>
-            Creates an adaptive data source from a serialised model
-            </summary>
-            <param name="dataTable">Segment that will be sent to the preliminary graph</param>
-            <param name="dataSource">The serialised preliminary graph</param>
-            <param name="learningContext">Learning context to use while training the preliminary graph</param>
             <returns></returns>
         </member>
         <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateClassifier(BrightWire.IRowClassifier,BrightData.IRowOrientedDataTable,System.String)">
@@ -610,7 +473,7 @@
             <param name="name">Optional name to give the node</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateSimpleRecurrent(System.UInt32,System.Single[],BrightWire.INode,System.String)">
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateSimpleRecurrent(System.UInt32,System.Single[],BrightWire.ExecutionGraph.Node.NodeBase,System.String)">
             <summary>
             Creates a simple recurrent layer
             </summary>
@@ -620,7 +483,7 @@
             <param name="name">Optional name to give the node</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateElman(System.UInt32,System.Single[],BrightWire.INode,BrightWire.INode,System.String)">
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateElman(System.UInt32,System.Single[],BrightWire.ExecutionGraph.Node.NodeBase,BrightWire.ExecutionGraph.Node.NodeBase,System.String)">
             <summary>
             Creates an Elman recurrent layer
             </summary>
@@ -631,7 +494,7 @@
             <param name="name">Optional name to give the node</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateJordan(System.UInt32,System.Single[],BrightWire.INode,BrightWire.INode,System.String)">
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateJordan(System.UInt32,System.Single[],BrightWire.ExecutionGraph.Node.NodeBase,BrightWire.ExecutionGraph.Node.NodeBase,System.String)">
             <summary>
             Creates a Jordan recurrent layer
             </summary>
@@ -715,21 +578,11 @@
             <param name="inputIndex">Input index to connect to</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.Connect(System.UInt32,BrightWire.INode)">
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.Connect(System.UInt32,BrightWire.ExecutionGraph.Node.NodeBase)">
             <summary>
             Builds a new wire from the selected node
             </summary>
             <param name="inputSize">Number of outgoing connections</param>
-            <param name="node">The node to build from</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.Connect(System.UInt32,System.UInt32,System.UInt32,BrightWire.INode)">
-            <summary>
-            Builds a new wire from the selected node
-            </summary>
-            <param name="width">Volume width</param>
-            <param name="height">Volume height</param>
-            <param name="depth">Volume depth</param>
             <param name="node">The node to build from</param>
             <returns></returns>
         </member>
@@ -751,7 +604,7 @@
             <param name="name">Optional name to give the node</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.Subtract(System.UInt32,BrightWire.INode,BrightWire.INode,System.String)">
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.Subtract(System.UInt32,BrightWire.ExecutionGraph.Node.NodeBase,BrightWire.ExecutionGraph.Node.NodeBase,System.String)">
             <summary>
             Subtracts the second input from the first input and sends the result to a new wire
             </summary>
@@ -761,7 +614,7 @@
             <param name="name">Optional name to give the node</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.Add(System.UInt32,BrightWire.INode,BrightWire.INode,System.String)">
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.Add(System.UInt32,BrightWire.ExecutionGraph.Node.NodeBase,BrightWire.ExecutionGraph.Node.NodeBase,System.String)">
             <summary>
             Adds the output of two nodes together into a new wire
             </summary>
@@ -780,7 +633,7 @@
             <param name="name">Optional name to give the node</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.Multiply(System.UInt32,BrightWire.INode,BrightWire.INode,System.String)">
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.Multiply(System.UInt32,BrightWire.ExecutionGraph.Node.NodeBase,BrightWire.ExecutionGraph.Node.NodeBase,System.String)">
             <summary>
             Multiplies the output of two nodes together into a new wire
             </summary>
@@ -808,7 +661,7 @@
             <param name="name">Optional name to give the node</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateWrapper(BrightWire.INode,System.String)">
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateWrapper(BrightWire.ExecutionGraph.Node.NodeBase,System.String)">
             <summary>
             Wraps an existing node, enabling that node to be used at multiple locations in the same graph
             </summary>
@@ -1110,6 +963,42 @@
             Standard graph actions
             </summary>
         </member>
+        <member name="M:BrightWire.ExecutionGraph.Helper.ExecutionHistory.#ctor(BrightWire.ExecutionGraph.Node.NodeBase,BrightWire.IGraphData,BrightWire.ExecutionGraph.Node.NodeBase)">
+            <summary>
+            Creates a training action history from a single optional parent
+            </summary>
+            <param name="source">The node that executed</param>
+            <param name="data">The output of the node</param>
+            <param name="parent">The single parent that contributed to the output (optional)</param>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.Helper.ExecutionHistory.#ctor(BrightWire.ExecutionGraph.Node.NodeBase,BrightWire.IGraphData,BrightWire.ExecutionGraph.Node.NodeBase[])">
+            <summary>
+            Creates a training action history from multiple parents
+            </summary>
+            <param name="source">The node that executed</param>
+            <param name="data">The output of the node</param>
+            <param name="parents">The parent nodes that contributed to the output</param>
+        </member>
+        <member name="P:BrightWire.ExecutionGraph.Helper.ExecutionHistory.Source">
+            <summary>
+            Node that was executed
+            </summary>
+        </member>
+        <member name="P:BrightWire.ExecutionGraph.Helper.ExecutionHistory.Data">
+            <summary>
+            Node output signal
+            </summary>
+        </member>
+        <member name="P:BrightWire.ExecutionGraph.Helper.ExecutionHistory.Backpropagation">
+            <summary>
+            Optional backpropagation
+            </summary>
+        </member>
+        <member name="P:BrightWire.ExecutionGraph.Helper.ExecutionHistory.Parents">
+            <summary>
+            The node's parents
+            </summary>
+        </member>
         <member name="T:BrightWire.ExecutionGraph.Helper.MatrixGraphData">
             <summary>
             Graph data adaptor for matrices
@@ -1146,7 +1035,7 @@
         <member name="P:BrightWire.ExecutionGraph.Helper.MiniBatch.Sequence.Target">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Helper.MiniBatch.#ctor(System.UInt32[],BrightWire.IDataSource,BrightWire.IGraphData[],BrightWire.IGraphData)">
+        <member name="M:BrightWire.ExecutionGraph.Helper.MiniBatch.#ctor(System.UInt32[],BrightWire.IDataSource,BrightWire.IGraphData,BrightWire.IGraphData)">
             <summary>
             Creates a non sequential mini batch
             </summary>
@@ -1162,7 +1051,7 @@
             <param name="rows">The indices of the rows in this mini batch</param>
             <param name="dataSource">Associated data source</param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Helper.MiniBatch.Add(BrightWire.MiniBatchSequenceType,BrightWire.IGraphData[],BrightWire.IGraphData)">
+        <member name="M:BrightWire.ExecutionGraph.Helper.MiniBatch.Add(BrightWire.MiniBatchSequenceType,BrightWire.IGraphData,BrightWire.IGraphData)">
             <summary>
             Adds another item to the sequential mini batch
             </summary>
@@ -1205,41 +1094,12 @@
             Divides epochs into a list of mini batches
             </summary>
         </member>
-        <member name="T:BrightWire.ExecutionGraph.Helper.TrainingAction">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightWire.ExecutionGraph.Helper.TrainingAction.#ctor(BrightWire.INode,BrightWire.IGraphData,BrightWire.INode)">
-            <summary>
-            Creates a training action history from a single optional parent
-            </summary>
-            <param name="source">The node that executed</param>
-            <param name="data">The output of the node</param>
-            <param name="parent">The single parent that contributed to the output (optional)</param>
-        </member>
-        <member name="M:BrightWire.ExecutionGraph.Helper.TrainingAction.#ctor(BrightWire.INode,BrightWire.IGraphData,BrightWire.INode[])">
-            <summary>
-            Creates a training action history from multiple parents
-            </summary>
-            <param name="source">The node that executed</param>
-            <param name="data">The output of the node</param>
-            <param name="parents">The parent nodes that contributed to the output</param>
-        </member>
-        <member name="P:BrightWire.ExecutionGraph.Helper.TrainingAction.Source">
-            <inheritdoc />
-        </member>
-        <member name="P:BrightWire.ExecutionGraph.Helper.TrainingAction.Data">
-            <inheritdoc />
-        </member>
-        <member name="P:BrightWire.ExecutionGraph.Helper.TrainingAction.Backpropagation">
-            <inheritdoc />
-        </member>
-        <member name="P:BrightWire.ExecutionGraph.Helper.TrainingAction.Parents">
-            <inheritdoc />
-        </member>
         <member name="T:BrightWire.ExecutionGraph.Helper.WireToNode">
-            <inheritdoc />
+            <summary>
+            Wires connect nodes in the graph
+            </summary>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Helper.WireToNode.#ctor(BrightWire.INode,System.UInt32)">
+        <member name="M:BrightWire.ExecutionGraph.Helper.WireToNode.#ctor(BrightWire.ExecutionGraph.Node.NodeBase,System.UInt32)">
             <summary>
             Constructor
             </summary>
@@ -1247,10 +1107,69 @@
             <param name="channel">The input channel on the node</param>
         </member>
         <member name="P:BrightWire.ExecutionGraph.Helper.WireToNode.SendTo">
-            <inheritdoc />
+            <summary>
+            The node to send a signal to
+            </summary>
         </member>
         <member name="P:BrightWire.ExecutionGraph.Helper.WireToNode.Channel">
-            <inheritdoc />
+            <summary>
+            The channel to send the signal on
+            </summary>
+        </member>
+        <member name="T:BrightWire.ExecutionGraph.Node.Action.Backpropagate">
+            <summary>
+            Backpropagates the graph against the error metric
+            </summary>
+        </member>
+        <member name="T:BrightWire.ExecutionGraph.Node.Action.BackpropagateThroughTime">
+            <summary>
+            Backpropagates through time (for recurrent neural networks)
+            </summary>
+        </member>
+        <member name="T:BrightWire.ExecutionGraph.Node.Action.ConstrainSignal">
+            <summary>
+            Constrains the signal through the graph to lie between two values
+            </summary>
+        </member>
+        <member name="T:BrightWire.ExecutionGraph.Node.Action.CopyNamedMemory">
+            <summary>
+            Copies named memory from one slot to another
+            </summary>
+        </member>
+        <member name="T:BrightWire.ExecutionGraph.Node.Action.SetMemory">
+            <summary>
+            Saves the current graph signal into named memory
+            </summary>
+        </member>
+        <member name="T:BrightWire.ExecutionGraph.Node.Activation.LeakyRelu">
+            <summary>
+            Leaky RELU activation
+            https://en.wikipedia.org/wiki/Rectifier_(neural_networks)
+            </summary>
+        </member>
+        <member name="T:BrightWire.ExecutionGraph.Node.Activation.Relu">
+            <summary>
+            RELu activation
+            https://en.wikipedia.org/wiki/Rectifier_(neural_networks)
+            </summary>
+        </member>
+        <member name="T:BrightWire.ExecutionGraph.Node.Activation.Sigmoid">
+            <summary>
+            Sigmoid activation function
+            https://en.wikipedia.org/wiki/Sigmoid_function
+            </summary>
+        </member>
+        <member name="T:BrightWire.ExecutionGraph.Node.Activation.SoftMax">
+            <summary>
+            Softmax activation function
+            https://en.wikipedia.org/wiki/Softmax_function
+            </summary>
+        </member>
+        <member name="T:BrightWire.ExecutionGraph.Node.Activation.Tanh">
+            <summary>
+            Tanh activation function
+            https://en.wikipedia.org/wiki/Activation_function
+            </summary>
         </member>
         <member name="T:BrightWire.ExecutionGraph.Node.BackpropagationBase`1">
             <summary>
@@ -1285,32 +1204,6 @@
             </summary>
             <param name="isDisposing"></param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.BackpropagationBase`1.Backward(BrightWire.INode,BrightWire.IGraphData,BrightWire.IGraphContext,BrightWire.INode[])">
-            <summary>
-            Called when backpropagating
-            </summary>
-            <param name="fromNode">The node that sent the backpropagation signal</param>
-            <param name="errorSignal">The backpropagating error</param>
-            <param name="context">Graph context</param>
-            <param name="parents">Parents of the current node</param>
-        </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.BackpropagationBase`1.BackwardInternal(BrightWire.INode,BrightWire.IGraphData,BrightWire.IGraphContext,BrightWire.INode[])">
-            <summary>
-            Called when a valid error signal has been received
-            </summary>
-            <param name="fromNode">>The node that sent the backpropagation signal</param>
-            <param name="errorSignal">The backpropagating error</param>
-            <param name="context">Graph context</param>
-            <param name="parents">Parents of the current node</param>
-        </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.BackpropagationBase`1.SendErrorTo(BrightWire.IGraphData,BrightWire.IGraphContext,BrightWire.INode[])">
-            <summary>
-            Sends a backpropagation signal further up the graph
-            </summary>
-            <param name="errorSignal">The backpropagating error</param>
-            <param name="context">Graph context</param>
-            <param name="parents">Parents of the current node</param>
-        </member>
         <member name="T:BrightWire.ExecutionGraph.Node.Filter.DropConnect">
             <summary>
             Drop connect (inverted) regularisation
@@ -1339,20 +1232,7 @@
             </summary>
             <param name="name"></param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.Gate.BinaryGateBase.ExecuteForward(BrightWire.IGraphContext)">
-            <summary>
-            Executes on the primary channel
-            </summary>
-            <param name="context">The graph context</param>
-        </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.Gate.BinaryGateBase.ExecuteForwardInternal(BrightWire.IGraphContext,System.UInt32)">
-            <summary>
-            Executes on a secondary channel
-            </summary>
-            <param name="context">The graph context</param>
-            <param name="channel">The channel</param>
-        </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.Gate.BinaryGateBase.Activate(BrightWire.IGraphContext,BrightData.IFloatMatrix,BrightData.IFloatMatrix)">
+        <member name="M:BrightWire.ExecutionGraph.Node.Gate.BinaryGateBase.Activate(BrightWire.IGraphSequenceContext,BrightData.IFloatMatrix,BrightData.IFloatMatrix)">
             <summary>
             When both the primary and secondary inputs have arrived
             </summary>
@@ -1360,7 +1240,7 @@
             <param name="primary">Primary signal</param>
             <param name="secondary">Secondary signal</param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.Gate.BinaryGateBase.AddHistory(BrightWire.IGraphContext,BrightData.IFloatMatrix,System.Func{BrightWire.IBackpropagation})">
+        <member name="M:BrightWire.ExecutionGraph.Node.Gate.BinaryGateBase.AddHistory(BrightWire.IGraphSequenceContext,BrightData.IFloatMatrix,System.Func{BrightWire.IBackpropagate})">
             <summary>
             Records the network activity
             </summary>
@@ -1405,7 +1285,7 @@
             <param name="size">The size of the input signal</param>
             <param name="channel">The channel</param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.Gate.MultiGateBase.IncomingChannel.SetData(BrightData.IFloatMatrix,BrightWire.INode)">
+        <member name="M:BrightWire.ExecutionGraph.Node.Gate.MultiGateBase.IncomingChannel.SetData(BrightData.IFloatMatrix,BrightWire.ExecutionGraph.Node.NodeBase)">
             <summary>
             Sets data
             </summary>
@@ -1429,27 +1309,14 @@
             <param name="name">The name of the node (optional)</param>
             <param name="incoming">The list of incoming wires</param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.Gate.MultiGateBase.ExecuteForward(BrightWire.IGraphContext)">
-            <summary>
-            Executes on the primary channel
-            </summary>
-            <param name="context">The graph context</param>
-        </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.Gate.MultiGateBase.ExecuteForwardInternal(BrightWire.IGraphContext,System.UInt32)">
-            <summary>
-            Executes on a secondary channel
-            </summary>
-            <param name="context">The graph context</param>
-            <param name="channel">The channel</param>
-        </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.Gate.MultiGateBase.Activate(BrightWire.IGraphContext,System.Collections.Generic.List{BrightWire.ExecutionGraph.Node.Gate.MultiGateBase.IncomingChannel})">
+        <member name="M:BrightWire.ExecutionGraph.Node.Gate.MultiGateBase.Activate(BrightWire.IGraphSequenceContext,System.Collections.Generic.List{BrightWire.ExecutionGraph.Node.Gate.MultiGateBase.IncomingChannel})">
             <summary>
             Called when all registered inputs have arrived
             </summary>
             <param name="context">The graph context</param>
             <param name="data">The list of incoming signals</param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.Gate.MultiGateBase.AddHistory(BrightWire.IGraphContext,System.Collections.Generic.List{BrightWire.ExecutionGraph.Node.Gate.MultiGateBase.IncomingChannel},BrightData.IFloatMatrix,System.Func{BrightWire.IBackpropagation})">
+        <member name="M:BrightWire.ExecutionGraph.Node.Gate.MultiGateBase.AddHistory(BrightWire.IGraphSequenceContext,System.Collections.Generic.List{BrightWire.ExecutionGraph.Node.Gate.MultiGateBase.IncomingChannel},BrightData.IFloatMatrix,System.Func{BrightWire.IBackpropagate})">
             <summary>
             Records the network activity
             </summary>
@@ -1502,7 +1369,7 @@
             Transpose the input and combine each depth slice - used when translating between tensor and matrix based signals
             </summary>
         </member>
-        <member name="T:BrightWire.ExecutionGraph.Node.Helper.TransposeSignal">
+        <member name="T:BrightWire.ExecutionGraph.Node.Helper.TransposeFrom4DTensorToMatrix">
             <summary>
             Transpose the input - used when translating between tensor and matrix based signals
             </summary>
@@ -1585,12 +1452,6 @@
             The list of sub nodes
             </summary>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.Layer.RecurrentAdditiveLayer.ExecuteForward(BrightWire.IGraphContext)">
-            <summary>
-            Execute on the the start node, which will execute each sub node in turn
-            </summary>
-            <param name="context"></param>
-        </member>
         <member name="T:BrightWire.ExecutionGraph.Node.Layer.SimpleRecurrent">
             <summary>
             Simple recurrent neural network
@@ -1652,35 +1513,17 @@
             The list of outgoing wires along which the output signal will be sent
             </summary>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.NodeBase.ExecuteForward(BrightWire.IGraphContext)">
+        <member name="M:BrightWire.ExecutionGraph.Node.NodeBase.ForwardInternal(BrightWire.IGraphData,System.UInt32,BrightWire.IGraphSequenceContext,BrightWire.ExecutionGraph.Node.NodeBase)">
             <summary>
-            Called when executing forward on the primary channel
+            
             </summary>
-            <param name="context"></param>
-        </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.NodeBase.ExecuteForwardInternal(BrightWire.IGraphContext,System.UInt32)">
-            <summary>
-            Called when executing forward on a non-primary channel
-            </summary>
-            <param name="context"></param>
+            <param name="signal"></param>
             <param name="channel"></param>
-        </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.NodeBase.ExecuteForward(BrightWire.IGraphContext,System.UInt32)">
-            <summary>
-            Called when executing forward
-            </summary>
             <param name="context"></param>
-            <param name="channel"></param>
+            <param name="source"></param>
+            <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.NodeBase.AddNextGraphAction(BrightWire.IGraphContext,BrightWire.IGraphData,System.Func{BrightWire.IBackpropagation})">
-            <summary>
-            Records the node execution and queues the output nodes for execution
-            </summary>
-            <param name="context"></param>
-            <param name="data"></param>
-            <param name="backProp"></param>
-        </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.NodeBase.SerialiseTo(System.Collections.Generic.HashSet{BrightWire.INode},System.Collections.Generic.List{BrightWire.Models.ExecutionGraphModel.Node},System.Collections.Generic.HashSet{BrightWire.Models.ExecutionGraphModel.Wire})">
+        <member name="M:BrightWire.ExecutionGraph.Node.NodeBase.SerialiseTo(System.Collections.Generic.HashSet{BrightWire.ExecutionGraph.Node.NodeBase},System.Collections.Generic.List{BrightWire.Models.ExecutionGraphModel.Node},System.Collections.Generic.HashSet{BrightWire.Models.ExecutionGraphModel.Wire})">
             <summary>
             Serialise this node and any connected nodes
             </summary>
@@ -1694,7 +1537,7 @@
             Returns serialisation information
             </summary>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.NodeBase.OnDeserialise(System.Collections.Generic.IReadOnlyDictionary{System.String,BrightWire.INode})">
+        <member name="M:BrightWire.ExecutionGraph.Node.NodeBase.OnDeserialise(System.Collections.Generic.IReadOnlyDictionary{System.String,BrightWire.ExecutionGraph.Node.NodeBase})">
             <summary>
             Called after the graph has been completely deserialised
             </summary>
@@ -1713,7 +1556,7 @@
             <param name="factory">Graph factory</param>
             <param name="reader">Binary reader</param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.NodeBase.BrightWire#ICanInitialiseNode#Initialise(BrightWire.ExecutionGraph.GraphFactory,System.String,System.String,System.String,System.Byte[])">
+        <member name="M:BrightWire.ExecutionGraph.Node.NodeBase.Initialise(BrightWire.ExecutionGraph.GraphFactory,System.String,System.String,System.String,System.Byte[])">
             <summary>
             Initialise the node from serialised data
             </summary>
@@ -1742,7 +1585,7 @@
             The list of sub-nodes
             </summary>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.NodeBase.Serialise(BrightWire.INode,System.IO.BinaryWriter)">
+        <member name="M:BrightWire.ExecutionGraph.Node.NodeBase.Serialise(BrightWire.ExecutionGraph.Node.NodeBase,System.IO.BinaryWriter)">
             <summary>
             Serialise the node to the writer
             </summary>
@@ -1838,16 +1681,7 @@
             </summary>
             <param name="source">The node that generated the forward signal</param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.SingleBackpropagationBase`1.BackwardInternal(BrightWire.INode,BrightWire.IGraphData,BrightWire.IGraphContext,BrightWire.INode[])">
-            <summary>
-            Called when a valid error signal has been received
-            </summary>
-            <param name="fromNode">The node that sent the backpropagation signal</param>
-            <param name="errorSignal">The backpropagating error</param>
-            <param name="context">Graph context</param>
-            <param name="parents">Parents of the current node</param>
-        </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.SingleBackpropagationBase`1.Backpropagate(BrightWire.INode,BrightWire.IGraphData,BrightWire.IGraphContext,BrightWire.INode[])">
+        <member name="M:BrightWire.ExecutionGraph.Node.SingleBackpropagationBase`1.Backpropagate(BrightWire.IGraphData,BrightWire.IGraphSequenceContext)">
             <summary>
             Backpropagation implementation
             </summary>
@@ -1856,6 +1690,11 @@
             <param name="context">Graph context</param>
             <param name="parents">Parents of the current node</param>
             <returns></returns>
+        </member>
+        <member name="T:BrightWire.ExecutionGraph.Action.JoinSignalWithMemory">
+            <summary>
+            Joins the graph signal with a saved signal stored in named memory
+            </summary>
         </member>
         <member name="T:BrightWire.ExecutionGraph.WeightInitialisation.Constant">
             <summary>
@@ -1883,7 +1722,7 @@
             Wires nodes together to build strands of a graph
             </summary>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.WireBuilder.#ctor(BrightWire.ExecutionGraph.GraphFactory,System.UInt32,BrightWire.INode)">
+        <member name="M:BrightWire.ExecutionGraph.WireBuilder.#ctor(BrightWire.ExecutionGraph.GraphFactory,System.UInt32,BrightWire.ExecutionGraph.Node.NodeBase)">
             <summary>
             Connects new nodes starting from the specified node
             </summary>
@@ -1891,7 +1730,7 @@
             <param name="size">Initial wire size</param>
             <param name="node">The node to build from</param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.WireBuilder.#ctor(BrightWire.ExecutionGraph.GraphFactory,System.UInt32,System.UInt32,System.UInt32,BrightWire.INode)">
+        <member name="M:BrightWire.ExecutionGraph.WireBuilder.#ctor(BrightWire.ExecutionGraph.GraphFactory,System.UInt32,System.UInt32,System.UInt32,BrightWire.ExecutionGraph.Node.NodeBase)">
             <summary>
             Connects new nodes starting from the specified node
             </summary>
@@ -1918,7 +1757,15 @@
             <summary>
             Changes the current size of the builder
             </summary>
-            <param name="newSize">New wire builder size</param>
+            <param name="newSize">New size</param>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.WireBuilder.SetNewSize(System.UInt32,System.UInt32,System.UInt32)">
+            <summary>
+            Changes the current size of the builder
+            </summary>
+            <param name="width">New width</param>
+            <param name="height">New height</param>
+            <param name="depth">New depth</param>
         </member>
         <member name="M:BrightWire.ExecutionGraph.WireBuilder.AddClassifier(BrightWire.IRowClassifier,BrightData.IRowOrientedDataTable,System.String)">
             <summary>
@@ -1968,7 +1815,7 @@
             <param name="channel">Output channel</param>
             <param name="name">Optional name to give the node</param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.WireBuilder.Add(BrightWire.INode)">
+        <member name="M:BrightWire.ExecutionGraph.WireBuilder.Add(BrightWire.ExecutionGraph.Node.NodeBase)">
             <summary>
             Adds a node
             </summary>
@@ -1996,7 +1843,7 @@
             </summary>
             <param name="name">Optional name to give the node</param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.WireBuilder.AddSimpleRecurrent(BrightWire.INode,System.Single[],System.String)">
+        <member name="M:BrightWire.ExecutionGraph.WireBuilder.AddSimpleRecurrent(BrightWire.ExecutionGraph.Node.NodeBase,System.Single[],System.String)">
             <summary>
             Adds a simple recurrent neural network layer
             </summary>
@@ -2005,7 +1852,7 @@
             <param name="name">Optional name to give the node</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.WireBuilder.AddSimpleRecurrent(BrightWire.INode,System.UInt32,System.String)">
+        <member name="M:BrightWire.ExecutionGraph.WireBuilder.AddSimpleRecurrent(BrightWire.ExecutionGraph.Node.NodeBase,System.UInt32,System.String)">
             <summary>
             Adds a simple recurrent neural network layer
             </summary>
@@ -2014,7 +1861,7 @@
             <param name="name">Optional name to give the node</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.WireBuilder.AddElman(BrightWire.INode,BrightWire.INode,System.Single[],System.String)">
+        <member name="M:BrightWire.ExecutionGraph.WireBuilder.AddElman(BrightWire.ExecutionGraph.Node.NodeBase,BrightWire.ExecutionGraph.Node.NodeBase,System.Single[],System.String)">
             <summary>
             Adds an Elman recurrent neural network layer
             </summary>
@@ -2024,7 +1871,7 @@
             <param name="name">Optional name to give the node</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.WireBuilder.AddElman(BrightWire.INode,BrightWire.INode,System.UInt32,System.String)">
+        <member name="M:BrightWire.ExecutionGraph.WireBuilder.AddElman(BrightWire.ExecutionGraph.Node.NodeBase,BrightWire.ExecutionGraph.Node.NodeBase,System.UInt32,System.String)">
             <summary>
             Adds an Elman recurrent neural network layer
             </summary>
@@ -2034,7 +1881,7 @@
             <param name="name">Optional name to give the node</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.WireBuilder.AddJordan(BrightWire.INode,BrightWire.INode,System.Single[],System.String)">
+        <member name="M:BrightWire.ExecutionGraph.WireBuilder.AddJordan(BrightWire.ExecutionGraph.Node.NodeBase,BrightWire.ExecutionGraph.Node.NodeBase,System.Single[],System.String)">
             <summary>
             Adds a Jordan recurrent neural network layer
             </summary>
@@ -2044,7 +1891,7 @@
             <param name="name">Optional name to give the node</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.WireBuilder.AddJordan(BrightWire.INode,BrightWire.INode,System.UInt32,System.String)">
+        <member name="M:BrightWire.ExecutionGraph.WireBuilder.AddJordan(BrightWire.ExecutionGraph.Node.NodeBase,BrightWire.ExecutionGraph.Node.NodeBase,System.UInt32,System.String)">
             <summary>
             Adds a Jordan recurrent neural network layer
             </summary>
@@ -2133,7 +1980,7 @@
             <param name="name">Optional name to give the node</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.WireBuilder.Transpose(System.String)">
+        <member name="M:BrightWire.ExecutionGraph.WireBuilder.TransposeFrom4DTensorToMatrix(System.String)">
             <summary>
             Transposes the graph signal to move between convolutional and non-convolutional layers
             </summary>
@@ -2147,7 +1994,7 @@
             <param name="name">Optional name to give the node</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.WireBuilder.AddBackpropagation(BrightWire.IErrorMetric,System.String)">
+        <member name="M:BrightWire.ExecutionGraph.WireBuilder.AddBackpropagation(System.String)">
             <summary>
             Adds backpropagation - when executed an error signal will be calculated and flow backwards to previous nodes
             </summary>
@@ -2155,11 +2002,10 @@
             <param name="name">Optional name to give the node</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.WireBuilder.AddBackpropagationThroughTime(BrightWire.IErrorMetric,System.String)">
+        <member name="M:BrightWire.ExecutionGraph.WireBuilder.AddBackpropagationThroughTime(System.String)">
             <summary>
             Adds backpropagation through time
             </summary>
-            <param name="errorMetric">Error metric to calculate the error signal</param>
             <param name="name">Optional name to give the node</param>
             <returns></returns>
         </member>
@@ -2181,20 +2027,21 @@
             <param name="name">Optional name to give the node</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.WireBuilder.WriteNodeMemoryToSlot(System.String,BrightWire.IHaveMemoryNode,System.String)">
+        <member name="M:BrightWire.ExecutionGraph.WireBuilder.WriteNodeMemoryToSlot(System.String,System.String,System.String)">
             <summary>
             Writes node memory to a named memory slot
             </summary>
             <param name="slotName">Memory slot name</param>
-            <param name="node">The node to read</param>
+            <param name="nodeName">The node name to read</param>
             <param name="name">Optional name to give the node</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.WireBuilder.JoinInputWithMemory(System.String,System.String)">
+        <member name="M:BrightWire.ExecutionGraph.WireBuilder.JoinInputWithMemory(System.String,System.UInt32,System.String)">
             <summary>
             Concatenates the named memory slot with the input signal
             </summary>
             <param name="slotName">Memory slot name</param>
+            <param name="memorySize">Size of the memory</param>
             <param name="name">Optional name to give the node</param>
             <returns></returns>
         </member>
@@ -2338,14 +2185,13 @@
             <param name="indexer">String indexer (optional)</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.Train(BrightWire.IGraphTrainingEngine,System.UInt32,BrightWire.IDataSource,BrightWire.IErrorMetric,System.Action{BrightWire.Models.GraphModel},System.Int32)">
+        <member name="M:BrightWire.ExtensionMethods.Train(BrightWire.IGraphTrainingEngine,System.UInt32,BrightWire.IDataSource,System.Action{BrightWire.Models.GraphModel},System.Int32)">
             <summary>
             Trains a graph for a fixed number of iterations
             </summary>
             <param name="engine">The graph training engine</param>
             <param name="numIterations">The number of iterations to train for</param>
             <param name="testData">The test data source to use</param>
-            <param name="errorMetric">The error metric to evaluate the test data against</param>
             <param name="onImprovement">Optional callback for when the test data score has improved against the error metric</param>
             <param name="testCadence">Determines how many epochs elapse before the test data is evaluated</param>
         </member>
@@ -2357,7 +2203,7 @@
             <param name="dataTable"></param>
             <returns>A list of rows with their corresponding classifications</returns>
         </member>
-        <member name="M:BrightWire.ExtensionMethods.GetGraph(BrightWire.INode,System.String)">
+        <member name="M:BrightWire.ExtensionMethods.GetGraph(BrightWire.ExecutionGraph.Node.NodeBase,System.String)">
             <summary>
             Serialises the node and any other connected nodes to an execution graph
             </summary>
@@ -2746,12 +2592,13 @@
             An action to perform when a signal reaches a node
             </summary>
         </member>
-        <member name="M:BrightWire.IAction.Execute(BrightWire.IGraphData,BrightWire.IGraphContext)">
+        <member name="M:BrightWire.IAction.Execute(BrightWire.IGraphData,BrightWire.IGraphSequenceContext,BrightWire.ExecutionGraph.Node.NodeBase)">
             <summary>
             Executes the action
             </summary>
             <param name="input">Current graph signal</param>
             <param name="context">Graph context</param>
+            <param name="node"></param>
             <returns>Optional new graph signal to propagate</returns>
         </member>
         <member name="M:BrightWire.IAction.Serialise">
@@ -2797,207 +2644,74 @@
             <param name="factory">Graph factory</param>
             <param name="reader">Binary reader that holds the node's state</param>
         </member>
-        <member name="T:BrightWire.INode">
+        <member name="T:BrightWire.IGraphSequenceContext">
             <summary>
-            Graph node
+            Represents a single pass through the graph, from a single mini batch sequence
             </summary>
         </member>
-        <member name="P:BrightWire.INode.Id">
-            <summary>
-            Unique id
-            </summary>
-        </member>
-        <member name="P:BrightWire.INode.Name">
-            <summary>
-            Friendly name
-            </summary>
-        </member>
-        <member name="P:BrightWire.INode.Output">
-            <summary>
-            List of outgoing wires
-            </summary>
-        </member>
-        <member name="M:BrightWire.INode.ExecuteForward(BrightWire.IGraphContext,System.UInt32)">
-            <summary>
-            Executes the node forward
-            </summary>
-            <param name="context">Graph context</param>
-            <param name="channel">Channel the signal was received on</param>
-        </member>
-        <member name="M:BrightWire.INode.FindByName(System.String)">
-            <summary>
-            Searches for a node by friendly name
-            </summary>
-            <param name="name">Friendly name of the node to find</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightWire.INode.FindById(System.String)">
-            <summary>
-            Searches for a node by id
-            </summary>
-            <param name="id">Unique id of the node</param>
-            <returns></returns>
-        </member>
-        <member name="P:BrightWire.INode.SubNodes">
-            <summary>
-            Sub-nodes of the current node
-            </summary>
-        </member>
-        <member name="M:BrightWire.INode.SerialiseTo(System.Collections.Generic.HashSet{BrightWire.INode},System.Collections.Generic.List{BrightWire.Models.ExecutionGraphModel.Node},System.Collections.Generic.HashSet{BrightWire.Models.ExecutionGraphModel.Wire})">
-            <summary>
-            Serialise the node
-            </summary>
-            <param name="existing">Set of nodes that have already been serialised in the current context</param>
-            <param name="connectedTo">List of nodes this node is connected to</param>
-            <param name="wireList">List of wires between all connected nodes</param>
-            <returns>Serialisation model</returns>
-        </member>
-        <member name="M:BrightWire.INode.OnDeserialise(System.Collections.Generic.IReadOnlyDictionary{System.String,BrightWire.INode})">
-            <summary>
-            Called after the graph has been completely deserialised
-            </summary>
-            <param name="graph">Dictionary of nodes with their associated unique ids</param>
-        </member>
-        <member name="M:BrightWire.INode.LoadParameters(BrightWire.ExecutionGraph.GraphFactory,BrightWire.Models.ExecutionGraphModel.Node)">
-            <summary>
-            Loads parameters into an existing node
-            </summary>
-            <param name="factory">Graph factory</param>
-            <param name="nodeData">Serialised node parameters</param>
-        </member>
-        <member name="T:BrightWire.IWire">
-            <summary>
-            Wires connect nodes in the graph
-            </summary>
-        </member>
-        <member name="P:BrightWire.IWire.SendTo">
-            <summary>
-            The node to send a signal to
-            </summary>
-        </member>
-        <member name="P:BrightWire.IWire.Channel">
-            <summary>
-            The channel
-            </summary>
-        </member>
-        <member name="T:BrightWire.IExecutionHistory">
-            <summary>
-            Record of node execution
-            </summary>
-        </member>
-        <member name="P:BrightWire.IExecutionHistory.Source">
-            <summary>
-            Node that was executed
-            </summary>
-        </member>
-        <member name="P:BrightWire.IExecutionHistory.Parents">
-            <summary>
-            The node's parents
-            </summary>
-        </member>
-        <member name="P:BrightWire.IExecutionHistory.Data">
-            <summary>
-            Node output signal
-            </summary>
-        </member>
-        <member name="P:BrightWire.IExecutionHistory.Backpropagation">
-            <summary>
-            Optional backpropagation
-            </summary>
-        </member>
-        <member name="T:BrightWire.IGraphContext">
-            <summary>
-            Graph context
-            </summary>
-        </member>
-        <member name="P:BrightWire.IGraphContext.Source">
+        <member name="P:BrightWire.IGraphSequenceContext.Source">
             <summary>
             Node that sent the current signal
             </summary>
         </member>
-        <member name="P:BrightWire.IGraphContext.Data">
+        <member name="P:BrightWire.IGraphSequenceContext.Data">
             <summary>
             Current signal
             </summary>
         </member>
-        <member name="P:BrightWire.IGraphContext.ExecutionContext">
+        <member name="P:BrightWire.IGraphSequenceContext.ExecutionContext">
             <summary>
             Current execution context
             </summary>
         </member>
-        <member name="P:BrightWire.IGraphContext.LearningContext">
+        <member name="P:BrightWire.IGraphSequenceContext.LearningContext">
             <summary>
             Current learning context (optional)
             </summary>
         </member>
-        <member name="P:BrightWire.IGraphContext.LinearAlgebraProvider">
+        <member name="P:BrightWire.IGraphSequenceContext.LinearAlgebraProvider">
             <summary>
             Linear algebra provider
             </summary>
         </member>
-        <member name="P:BrightWire.IGraphContext.BatchSequence">
+        <member name="P:BrightWire.IGraphSequenceContext.BatchSequence">
             <summary>
             Current mini batch sequence
             </summary>
         </member>
-        <member name="M:BrightWire.IGraphContext.AddForward(BrightWire.IExecutionHistory,System.Func{BrightWire.IBackpropagation})">
+        <member name="M:BrightWire.IGraphSequenceContext.AddForward(BrightWire.ExecutionGraph.Node.NodeBase,BrightWire.IGraphData,System.Func{BrightWire.IBackpropagate},BrightWire.ExecutionGraph.Node.NodeBase[])">
             <summary>
             Records node execution
             </summary>
             <param name="action">Record of node execution</param>
             <param name="callback">Optional callback to add backpropagation</param>
         </member>
-        <member name="M:BrightWire.IGraphContext.AddBackward(BrightWire.IGraphData,BrightWire.INode,BrightWire.INode)">
-            <summary>
-            Sends a backward error signal
-            </summary>
-            <param name="errorSignal">Error signal</param>
-            <param name="target">Node to send to</param>
-            <param name="source">Node that sent the error</param>
-        </member>
-        <member name="M:BrightWire.IGraphContext.AppendErrorSignal(BrightWire.IGraphData,BrightWire.INode)">
-            <summary>
-            Records an error signal against a node
-            </summary>
-            <param name="errorSignal">Error signal</param>
-            <param name="forNode">Node to record against</param>
-        </member>
-        <member name="M:BrightWire.IGraphContext.Backpropagate(BrightWire.IGraphData)">
+        <member name="M:BrightWire.IGraphSequenceContext.Backpropagate(BrightWire.IGraphData)">
             <summary>
             Backpropagates the signal
             </summary>
+            <param name="source"></param>
             <param name="delta">Error signal</param>
         </member>
-        <member name="P:BrightWire.IGraphContext.ErrorSignal">
+        <member name="P:BrightWire.IGraphSequenceContext.ErrorSignal">
             <summary>
-            Current error signal
+            Final error signal
             </summary>
         </member>
-        <member name="P:BrightWire.IGraphContext.HasNext">
-            <summary>
-            Checks if there is a pending forward graph operation
-            </summary>
-        </member>
-        <member name="M:BrightWire.IGraphContext.ExecuteNext">
-            <summary>
-            Executes the next pending forward graph operation
-            </summary>
-            <returns>True if an operation was executed</returns>
-        </member>
-        <member name="M:BrightWire.IGraphContext.SetOutput(BrightWire.IGraphData,System.Int32)">
+        <member name="M:BrightWire.IGraphSequenceContext.SetOutput(BrightWire.IGraphData,System.Int32)">
             <summary>
             Saves the data as an output of the graph
             </summary>
             <param name="data">Segment to save</param>
             <param name="channel">Channel to save against (optional)</param>
         </member>
-        <member name="M:BrightWire.IGraphContext.GetOutput(System.Int32)">
+        <member name="M:BrightWire.IGraphSequenceContext.GetOutput(System.Int32)">
             <summary>
             Returns a saved output
             </summary>
             <param name="channel">Output channel (optional)</param>
         </member>
-        <member name="P:BrightWire.IGraphContext.Output">
+        <member name="P:BrightWire.IGraphSequenceContext.Output">
             <summary>
             Returns all stored output
             </summary>
@@ -3043,7 +2757,7 @@
             How many operations remain queued
             </summary>
         </member>
-        <member name="M:BrightWire.IGraphExecutionContext.RegisterContinuation(BrightWire.IMiniBatchSequence,System.Action{BrightWire.IGraphContext})">
+        <member name="M:BrightWire.IGraphExecutionContext.RegisterContinuation(BrightWire.IMiniBatchSequence,System.Action{BrightWire.IGraphSequenceContext})">
             <summary>
             Registers a continuation that will be executed after the current sequence has been processed in full
             </summary>
@@ -3055,22 +2769,21 @@
             True if there are registered continuations
             </summary>
         </member>
-        <member name="M:BrightWire.IGraphExecutionContext.Continue(BrightWire.IGraphContext)">
+        <member name="M:BrightWire.IGraphExecutionContext.Continue(BrightWire.IGraphSequenceContext)">
             <summary>
             Execute any registered continuation for this context
             </summary>
             <param name="context">Context with an associated IMiniBatchSequence</param>
         </member>
-        <member name="T:BrightWire.IBackpropagation">
+        <member name="T:BrightWire.IBackpropagate">
             <summary>
             Backpropagation handler
             </summary>
         </member>
-        <member name="M:BrightWire.IBackpropagation.Backward(BrightWire.INode,BrightWire.IGraphData,BrightWire.IGraphContext,BrightWire.INode[])">
+        <member name="M:BrightWire.IBackpropagate.Backward(BrightWire.IGraphData,BrightWire.IGraphSequenceContext,BrightWire.ExecutionGraph.Node.NodeBase[])">
             <summary>
             Backpropagate
             </summary>
-            <param name="fromNode">Node that sent the signal</param>
             <param name="errorSignal">Error signal</param>
             <param name="context">Graph context</param>
             <param name="parents">The current node's parents</param>
@@ -3123,12 +2836,6 @@
             For sequential data, returns the row indexes grouped by sequence length
             </summary>
             <returns></returns>
-        </member>
-        <member name="M:BrightWire.IDataSource.OnBatchProcessed(BrightWire.IGraphContext)">
-            <summary>
-            Called when the current batch has completed
-            </summary>
-            <param name="context"></param>
         </member>
         <member name="M:BrightWire.IDataSource.CloneWith(BrightData.IRowOrientedDataTable)">
             <summary>
@@ -3303,7 +3010,12 @@
             Segment source that feeds into the graph
             </summary>
         </member>
-        <member name="M:BrightWire.IGraphEngine.Execute(BrightWire.IDataSource,System.UInt32,System.Action{System.Single})">
+        <member name="P:BrightWire.IGraphEngine.Start">
+            <summary>
+            The graph's single start node
+            </summary>
+        </member>
+        <member name="M:BrightWire.IGraphExecutionEngine.Execute(BrightWire.IDataSource,System.UInt32,System.Action{System.Single})">
             <summary>
             Executes a data source on the current graph
             </summary>
@@ -3312,45 +3024,34 @@
             <param name="batchCompleteCallback">Optional callback to be notifiied after each mini batch has completed</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.IGraphEngine.Execute(System.Single[])">
+        <member name="M:BrightWire.IGraphExecutionEngine.Execute(System.Single[])">
             <summary>
             Executes a single vector on the current graph
             </summary>
             <param name="input">Vector to execute</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.IGraphEngine.ExecuteSequential(System.UInt32,System.Single[],BrightWire.IGraphExecutionContext,BrightWire.MiniBatchSequenceType)">
+        <member name="M:BrightWire.IGraphExecutionEngine.ExecuteSingleSequentialStep(BrightWire.IGraphExecutionContext,System.UInt32,System.Single[],BrightWire.MiniBatchSequenceType)">
             <summary>
             Executes a sequential input on the current graph
             </summary>
+            <param name="executionContext">Execution context</param>
             <param name="sequenceIndex">Index of the current sequence (starting from 0)</param>
             <param name="input">Input vector</param>
-            <param name="executionContext">Graph execution context</param>
             <param name="sequenceType">The sequence type (start, standard, end)</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.IGraphEngine.ExecuteSequential(System.Single[][])">
+        <member name="M:BrightWire.IGraphExecutionEngine.ExecuteSequential(System.Single[][])">
             <summary>
             Executes a sequence of inputs on the current graph
             </summary>
             <param name="input">List of vector inputs</param>
             <returns>List of execution results</returns>
         </member>
-        <member name="P:BrightWire.IGraphEngine.Start">
-            <summary>
-            The graph's single start node
-            </summary>
-        </member>
         <member name="T:BrightWire.IGraphTrainingEngine">
             <summary>
             A graph engine that also trains the graph's parameters against training data
             </summary>
-        </member>
-        <member name="M:BrightWire.IGraphTrainingEngine.GetInput(System.UInt32)">
-            <summary>
-            Returns the specified input node
-            </summary>
-            <param name="index">Index of the input node to retrieve</param>
         </member>
         <member name="M:BrightWire.IGraphTrainingEngine.Train(BrightWire.IGraphExecutionContext,System.Action{System.Single})">
             <summary>
@@ -3360,12 +3061,11 @@
             <param name="batchCompleteCallback">Optional callback to be notifiied after each mini batch has completed</param>
             <returns>Graph training error</returns>
         </member>
-        <member name="M:BrightWire.IGraphTrainingEngine.Test(BrightWire.IDataSource,BrightWire.IErrorMetric,System.UInt32,System.Action{System.Single},System.Action{System.Single,System.Double,System.Boolean,System.Boolean})">
+        <member name="M:BrightWire.IGraphTrainingEngine.Test(BrightWire.IDataSource,System.UInt32,System.Action{System.Single},System.Action{System.Single,System.Boolean,System.Boolean})">
             <summary>
             Executes test data on the current graph
             </summary>
             <param name="testDataSource">Segment source with test data</param>
-            <param name="errorMetric">Error metric to use to evaluate the test score</param>
             <param name="batchSize">Initial size of each mini batch</param>
             <param name="batchCompleteCallback">Optional callback to be notifiied after each mini batch has completed</param>
             <param name="values">Optional callback to get the (testError, trainingRate, isPercentage, isImprovedScore) data</param>
@@ -3406,6 +3106,11 @@
         <member name="T:BrightWire.IFeedForward">
             <summary>
             Feed forward layer
+            </summary>
+        </member>
+        <member name="P:BrightWire.IFeedForward.Id">
+            <summary>
+            Node id
             </summary>
         </member>
         <member name="P:BrightWire.IFeedForward.InputSize">
@@ -3483,7 +3188,7 @@
             <param name="targetOutput">The vector that the model was expected to output</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.IErrorMetric.CalculateGradient(BrightWire.IGraphContext,BrightData.IFloatMatrix,BrightData.IFloatMatrix)">
+        <member name="M:BrightWire.IErrorMetric.CalculateGradient(BrightWire.IGraphSequenceContext,BrightData.IFloatMatrix,BrightData.IFloatMatrix)">
             <summary>
             Calculates the gradient of the error function
             </summary>
@@ -3555,26 +3260,6 @@
             Gets all current observations
             </summary>
         </member>
-        <member name="T:BrightWire.TrainingErrorCalculation">
-            <summary>
-            Describes how to calculate the training error
-            </summary>
-        </member>
-        <member name="F:BrightWire.TrainingErrorCalculation.None">
-            <summary>
-            Do not calculate the training error
-            </summary>
-        </member>
-        <member name="F:BrightWire.TrainingErrorCalculation.Fast">
-            <summary>
-            Compare the output against the target output and calculate the euclidean distance
-            </summary>
-        </member>
-        <member name="F:BrightWire.TrainingErrorCalculation.TrainingData">
-            <summary>
-            Execute the model against the training data
-            </summary>
-        </member>
         <member name="T:BrightWire.ILearningContext">
             <summary>
             Graph learning context
@@ -3588,11 +3273,6 @@
         <member name="P:BrightWire.ILearningContext.EpochMilliseconds">
             <summary>
             The duration in milliseconds of the last epoch
-            </summary>
-        </member>
-        <member name="P:BrightWire.ILearningContext.LinearAlgebraProvider">
-            <summary>
-            The linear algebra provider
             </summary>
         </member>
         <member name="P:BrightWire.ILearningContext.CurrentEpoch">
@@ -3620,24 +3300,22 @@
             The total number of rows per epoch
             </summary>
         </member>
-        <member name="M:BrightWire.ILearningContext.StoreUpdate``1(BrightWire.INode,``0,System.Action{``0})">
+        <member name="M:BrightWire.ILearningContext.StoreUpdate(BrightWire.ExecutionGraph.Node.NodeBase,BrightData.IFloatMatrix,System.Action{BrightData.IFloatMatrix})">
+            <summary>
+            Stores an update to the model parameters
+            </summary>
+            <param name="fromNode">The node that is affected by this update</param>
+            <param name="update">The matrix update</param>
+            <param name="updater">Callback to execute the update</param>
+        </member>
+        <member name="M:BrightWire.ILearningContext.StoreUpdate(BrightWire.ExecutionGraph.Node.NodeBase,BrightData.IFloatVector,System.Action{BrightData.IFloatVector})">
             <summary>
             Stores an update to the model parameters
             </summary>
             <typeparam name="T">The type of update</typeparam>
             <param name="fromNode">The node that is affected by this update</param>
-            <param name="update">The update</param>
+            <param name="update">The vector update</param>
             <param name="updater">Callback to execute the update</param>
-        </member>
-        <member name="P:BrightWire.ILearningContext.TrainingErrorCalculation">
-            <summary>
-            True if the graph should calculate training error
-            </summary>
-        </member>
-        <member name="P:BrightWire.ILearningContext.DeferUpdates">
-            <summary>
-            True if updates are deferred until the mini batch is complete
-            </summary>
         </member>
         <member name="M:BrightWire.ILearningContext.ApplyUpdates">
             <summary>
@@ -3660,7 +3338,7 @@
             </summary>
             <param name="rowCount">The number of rows per epoch</param>
         </member>
-        <member name="M:BrightWire.ILearningContext.DeferBackpropagation(BrightWire.IGraphData,System.Action{BrightWire.IGraphData})">
+        <member name="M:BrightWire.ILearningContext.DeferBackpropagation(BrightWire.IGraphData,System.Func{BrightWire.IGraphData,BrightWire.IGraphData})">
             <summary>
             Register the backpropagation to be deferred
             </summary>
@@ -3681,17 +3359,12 @@
             <param name="atEpoch">The epoch to change the learning rate</param>
             <param name="newLearningRate">The learning rate to use at that epoch</param>
         </member>
-        <member name="M:BrightWire.ILearningContext.EnableNodeUpdates(BrightWire.INode,System.Boolean)">
+        <member name="M:BrightWire.ILearningContext.EnableNodeUpdates(BrightWire.ExecutionGraph.Node.NodeBase,System.Boolean)">
             <summary>
             Enable or disable node parameter updates
             </summary>
             <param name="node">The node to modify</param>
             <param name="enableUpdates">True if the node can make updates via backpropagation</param>
-        </member>
-        <member name="M:BrightWire.ILearningContext.Clear">
-            <summary>
-            Resets the learning context
-            </summary>
         </member>
         <member name="P:BrightWire.ILearningContext.MessageLog">
             <summary>
@@ -4689,18 +4362,12 @@
             The output from a mini batch
             </summary>
         </member>
-        <member name="M:BrightWire.Models.ExecutionResult.#ctor(BrightWire.IMiniBatchSequence,BrightData.LinearAlgebra.Vector{System.Single}[],System.UInt32)">
+        <member name="M:BrightWire.Models.ExecutionResult.#ctor(BrightWire.IMiniBatchSequence,BrightData.LinearAlgebra.Vector{System.Single}[])">
             <summary>
             Constructor
             </summary>
             <param name="miniBatch">The mini batch sequence</param>
             <param name="output">The mini batch output</param>
-            <param name="index">Output index</param>
-        </member>
-        <member name="P:BrightWire.Models.ExecutionResult.Index">
-            <summary>
-            Output index
-            </summary>
         </member>
         <member name="P:BrightWire.Models.ExecutionResult.Output">
             <summary>

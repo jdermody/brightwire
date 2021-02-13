@@ -1,4 +1,5 @@
-﻿using BrightData.Helper;
+﻿using System;
+using BrightData.Helper;
 using BrightWire;
 using BrightWire.ExecutionGraph.Node;
 
@@ -20,7 +21,7 @@ namespace ExampleCode.Extensions
         {
             public Backpropagation(SeluActivation source) : base(source) { }
 
-            protected override IGraphData Backpropagate(INode? fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
             {
                 var matrix = errorSignal.GetMatrix().AsIndexable();
                 var delta = context.LinearAlgebraProvider.CreateMatrix(matrix.RowCount, matrix.ColumnCount, (i, j) =>
@@ -36,9 +37,9 @@ namespace ExampleCode.Extensions
 
         public SeluActivation(string? name = null) : base(name) { }
 
-        public override void ExecuteForward(IGraphContext context)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
-            var matrix = context.Data.GetMatrix().AsIndexable();
+            var matrix = signal.GetMatrix().AsIndexable();
             var output = context.LinearAlgebraProvider.CreateMatrix(matrix.RowCount, matrix.ColumnCount, (i, j) =>
             {
                 var x = matrix[i, j];
@@ -46,7 +47,7 @@ namespace ExampleCode.Extensions
                     return Scale * x;
                 return Scale * (Alpha * FloatMath.Exp(x) - Alpha);
             });
-            AddNextGraphAction(context, context.Data.ReplaceWith(output), () => new Backpropagation(this));
+            return (this, signal.ReplaceWith(output), () => new Backpropagation(this));
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using BrightData;
 
 namespace BrightWire.ExecutionGraph.Node.Gate
@@ -24,21 +26,27 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 //_input2.Dispose();
             }
 
-            public override void BackwardInternal(INode? fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
+            public override IEnumerable<(IGraphData Signal, NodeBase ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents)
             {
                 var es = errorSignal.GetMatrix();
                 var delta1 = es.PointwiseMultiply(_input2);
                 var delta2 = es.PointwiseMultiply(_input1);
-                context.AddBackward(errorSignal.ReplaceWith(delta1), parents.First(), _source);
-                context.AddBackward(errorSignal.ReplaceWith(delta2), parents.Last(), _source);
+                yield return (errorSignal.ReplaceWith(delta1), parents.First());
+                yield return (errorSignal.ReplaceWith(delta2), parents.Last());
             }
         }
         public MultiplyGate(string? name = null) : base(name) { }
 
-        protected override void Activate(IGraphContext context, IFloatMatrix primary, IFloatMatrix secondary)
+        protected override void Activate(IGraphSequenceContext context, IFloatMatrix primary, IFloatMatrix secondary)
         {
             var output = primary.PointwiseMultiply(secondary);
             AddHistory(context, output, () => new Backpropagation(this, primary,  secondary));
+        }
+
+        protected override (IFloatMatrix Next, Func<IBackpropagate>? BackProp) Activate2(IGraphSequenceContext context, IFloatMatrix primary, IFloatMatrix secondary)
+        {
+            var output = primary.PointwiseMultiply(secondary);
+            return (output, () => new Backpropagation(this, primary,  secondary));
         }
     }
 }

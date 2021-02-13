@@ -11,7 +11,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     {
         class Sequence : IMiniBatchSequence
         {
-            public Sequence(IGraphData[] data, IMiniBatch miniBatch, MiniBatchSequenceType sequenceType, uint sequenceIndex)
+            public Sequence(IGraphData data, IMiniBatch miniBatch, MiniBatchSequenceType sequenceType, uint sequenceIndex)
             {
                 Input = data;
                 MiniBatch = miniBatch;
@@ -21,7 +21,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             public IMiniBatch MiniBatch { get; }
             public uint SequenceIndex { get; }
             public MiniBatchSequenceType Type { get; }
-            public IGraphData[] Input { get; }
+            public IGraphData Input { get; }
             public IGraphData? Target => null;
         }
         class SingleRowMiniBatch : IMiniBatch
@@ -30,7 +30,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 
             public SingleRowMiniBatch(IDataSource dataSource, IGraphData data, bool isSequential, MiniBatchSequenceType sequenceType, uint sequenceIndex)
             {
-                CurrentSequence = new Sequence(new[] { data }, this, sequenceType, sequenceIndex);
+                CurrentSequence = new Sequence(data, this, sequenceType, sequenceIndex);
                 DataSource = dataSource;
                 IsSequential = isSequential;
             }
@@ -43,6 +43,8 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             public bool HasNextSequence => false;
             public uint SequenceCount => 0;
             public void Reset() => _index = 0;
+            public IMiniBatch? NextMiniBatch { get; } = null;
+
             public IMiniBatchSequence? GetNextSequence()
             {
                 if (_index++ == 0)
@@ -97,11 +99,6 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
                     1
                 }
             };
-        }
-
-        public void OnBatchProcessed(IGraphContext context)
-        {
-            // nop
         }
     }
 }

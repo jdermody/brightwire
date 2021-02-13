@@ -16,15 +16,15 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 _channels = channels;
             }
 
-            public override void BackwardInternal(INode? fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
+            public override IEnumerable<(IGraphData Signal, NodeBase ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents)
             {
                 IFloatMatrix split, residual = errorSignal.GetMatrix();
                 int index = parents.Length-1;
                 foreach(var item in _channels) {
                     (residual, split) = residual.SplitAtColumn(residual.ColumnCount - item.Size);
-                    context.AddBackward(errorSignal.ReplaceWith(split), parents[index--], _source);
+                    yield return (errorSignal.ReplaceWith(split), parents[index--]);
                 }
-                context.AddBackward(errorSignal.ReplaceWith(residual), parents[index], _source);
+                yield return (errorSignal.ReplaceWith(residual), parents[index]);
             }
         }
 
@@ -32,7 +32,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         {
         }
 
-        protected override void Activate(IGraphContext context, List<IncomingChannel> data)
+        protected override void Activate(IGraphSequenceContext context, List<IncomingChannel> data)
         {
             var curr = data.First().Data;
             if (curr?.ColumnCount != data.First().Size)
@@ -46,6 +46,22 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 list.Add(item);
             }
             AddHistory(context, data, curr, () => new Backpropagation(this, list));
+        }
+
+        protected override (IFloatMatrix Next, Func<IBackpropagate>? BackProp) Activate2(IGraphSequenceContext context, List<IncomingChannel> data)
+        {
+            var curr = data.First().Data;
+            if (curr?.ColumnCount != data.First().Size)
+                throw new Exception("Sizes are different");
+
+            var list = new List<IncomingChannel>();
+            foreach(var item in data.Skip(1)) {
+                var next = curr.ConcatRows(item.Data!);
+                //curr.Dispose();
+                curr = next;
+                list.Add(item);
+            }
+            return (curr, () => new Backpropagation(this, list));
         }
     }
 }

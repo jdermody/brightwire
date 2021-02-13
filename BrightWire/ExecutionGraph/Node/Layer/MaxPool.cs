@@ -1,4 +1,5 @@
-﻿using BrightWire.ExecutionGraph.Helper;
+﻿using System;
+using BrightWire.ExecutionGraph.Helper;
 using System.IO;
 using BrightData;
 
@@ -29,19 +30,19 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 				_yStride = yStride;
             }
 
-            protected override IGraphData Backpropagate(INode? fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
             {
-	            var errorMatrix = errorSignal.GetMatrix();
+                var errorMatrix = errorSignal.GetMatrix();
                 var tensor = errorMatrix.ReshapeAs4DTensor(_outputRows, _outputColumns, _depth);
                 var output = tensor.ReverseMaxPool(_indices, _inputRows, _inputColumns, _filterWidth, _filterHeight, _xStride, _yStride);
 
-				//output.AsMatrix().Constrain(-1f, 1f);
+                //output.AsMatrix().Constrain(-1f, 1f);
 
 //#if DEBUG
 //				Debug.Assert(output.ReshapeAsVector().IsEntirelyFinite());
 //#endif
 
-				return new Tensor4DGraphData(output.ReshapeAsMatrix(), output.RowCount, output.ColumnCount, output.Depth);
+                return new Tensor4DGraphData(output.ReshapeAsMatrix(), output.RowCount, output.ColumnCount, output.Depth);
             }
         }
         uint _filterWidth, _filterHeight, _xStride, _yStride;
@@ -54,19 +55,13 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             _yStride = yStride;
         }
 
-        public override void ExecuteForward(IGraphContext context)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
-            var input = context.Data;
-            var tensor = input.GetMatrix().ReshapeAs4DTensor(input.Rows, input.Columns, input.Depth);
+            var tensor = signal.GetMatrix().ReshapeAs4DTensor(signal.Rows, signal.Columns, signal.Depth);
             var (output, index) = tensor.MaxPool(_filterWidth, _filterHeight, _xStride, _yStride, true);
 
-//#if DEBUG
-//			Debug.Assert(output.ReshapeAsVector().IsEntirelyFinite());
-//			Debug.Assert(index.ReshapeAsVector().IsEntirelyFinite());
-//#endif
-
-			var graphData = new Tensor4DGraphData(output);
-            AddNextGraphAction(context, graphData, () => new Backpropagation(this, index, tensor.ColumnCount, tensor.RowCount, output.ColumnCount, output.RowCount, output.Depth, _filterWidth, _filterHeight, _xStride, _yStride));
+            var graphData = new Tensor4DGraphData(output);
+            return (this, graphData, () => new Backpropagation(this, index, tensor.ColumnCount, tensor.RowCount, output.ColumnCount, output.RowCount, output.Depth, _filterWidth, _filterHeight, _xStride, _yStride));
         }
 
         protected override (string Description, byte[] Data) GetInfo()

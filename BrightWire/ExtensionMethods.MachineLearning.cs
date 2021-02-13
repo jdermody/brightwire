@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using BrightData;
 using BrightWire.ExecutionGraph;
+using BrightWire.ExecutionGraph.Node;
 using BrightWire.InstanceBased.Training;
 using BrightWire.Models;
 using BrightWire.Models.Linear;
@@ -280,41 +281,39 @@ namespace BrightWire
             uint batchSize,
             uint hiddenLayerSize,
             uint numIterations,
-            Func<GraphFactory, INode> activation,
+            Func<GraphFactory, NodeBase> activation,
             Func<GraphFactory.GradientDescentProvider, ICreateTemplateBasedGradientDescent> gradientDescent,
             Func<GraphFactory.WeightInitialisationProvider, IWeightInitialisation> weightInitialisation
         )
         {
+            // set gradient descent and weight initialisation parameters
             graph.CurrentPropertySet
-                // use rmsprop gradient descent optimisation
                 .Use(gradientDescent(graph.GradientDescent))
-
-                // and gaussian weight initialisation
                 .Use(weightInitialisation(graph.WeightInitialisation))
             ;
 
             // create the engine
             var trainingData = graph.CreateDataSource(trainingTable);
-            var engine = graph.CreateTrainingEngine(trainingData, learningRate, batchSize);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate, batchSize);
 
             // create the network
             graph.Connect(engine)
-                // create a feed forward layer with sigmoid activation
+                // create the initial feed forward layer with activation
                 .AddFeedForward(hiddenLayerSize)
                 .Add(activation(graph))
 
-                // create a second feed forward layer with sigmoid activation
+                // create a second feed forward layer with activation
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                 .Add(activation(graph))
 
                 // calculate the error and backpropagate the error signal
-                .AddBackpropagation(errorMetric)
+                .AddBackpropagation()
             ;
 
-            // train the network for twenty iterations, saving the model on each improvement
+            // train the network, saving the model on each improvement
             ExecutionGraphModel? bestGraph = null;
             var testData = trainingData.CloneWith(testTable);
-            engine.Train(numIterations, testData, errorMetric, model => bestGraph = model.Graph);
+            engine.Train(numIterations, testData, model => bestGraph = model.Graph);
             return bestGraph;
         }
     }

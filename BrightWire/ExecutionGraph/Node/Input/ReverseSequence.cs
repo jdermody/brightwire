@@ -1,4 +1,5 @@
-﻿using BrightWire.ExecutionGraph.Helper;
+﻿using System;
+using BrightWire.ExecutionGraph.Helper;
 using System.IO;
 
 namespace BrightWire.ExecutionGraph.Node.Input
@@ -16,13 +17,20 @@ namespace BrightWire.ExecutionGraph.Node.Input
             _inputIndex = inputIndex;
         }
 
-        public override void ExecuteForward(IGraphContext context)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
-            var curr = context.BatchSequence;
-            var batch = curr.MiniBatch;
-            var reversed = batch.GetSequenceAtIndex(batch.SequenceCount - curr.SequenceIndex - 1).Input;
+            if (_inputIndex == 0) {
+                var curr = context.BatchSequence;
+                var batch = curr.MiniBatch;
+                var reversed = batch.GetSequenceAtIndex(batch.SequenceCount - curr.SequenceIndex - 1).Input;
+                if (reversed == null)
+                    throw new Exception("Input data was null");
 
-            context.AddForward(new TrainingAction(this, reversed[_inputIndex], context.Source), null);
+                //context.AddForward(new ExecutionHistory(this, reversed, context.Source), null);
+                return (this, reversed, null);
+            }
+            else 
+                throw new NotImplementedException();
         }
 
         protected override (string Description, byte[] Data) GetInfo()

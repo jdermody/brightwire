@@ -31,24 +31,24 @@ namespace ExampleCode.DataTableTrainers
             // create the engine
             var trainingData = graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
-            var engine = graph.CreateTrainingEngine(trainingData, learningRate: 0.01f, batchSize: 16);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate: 0.01f, batchSize: 16);
 
             // build the network
-            const int HIDDEN_LAYER_SIZE = 32, TRAINING_ITERATIONS = 30;
+            const int HIDDEN_LAYER_SIZE = 20, TRAINING_ITERATIONS = 30;
             graph.Connect(engine)
                 .AddSimpleRecurrent(graph.ReluActivation(), HIDDEN_LAYER_SIZE)
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                 .Add(graph.ReluActivation())
-                .AddBackpropagationThroughTime(errorMetric)
+                .AddBackpropagationThroughTime()
             ;
 
             // train the network for twenty iterations, saving the model on each improvement
             ExecutionGraphModel? bestGraph = null;
-            engine.Train(TRAINING_ITERATIONS, testData, errorMetric, bn => bestGraph = bn.Graph);
+            engine.Train(TRAINING_ITERATIONS, testData, bn => bestGraph = bn.Graph);
 
             if (writeResults) {
                 // export the graph and verify it against some unseen integers on the best model
-                var executionEngine = graph.CreateEngine(bestGraph ?? engine.Graph);
+                var executionEngine = graph.CreateExecutionEngine(bestGraph ?? engine.Graph);
                 var testData2 = graph.CreateDataSource(BinaryIntegers.Addition(context, 8));
                 var results = executionEngine.Execute(testData2).ToArray();
 
@@ -59,7 +59,7 @@ namespace ExampleCode.DataTableTrainers
                     var target = new Vector<float>[32];
                     var output = new Vector<float>[32];
                     for (var j = 0; j < 32; j++) {
-                        input[j] = results[j].Input[0][i];
+                        input[j] = results[j].Input![i];
                         target[j] = results[j].Target![i];
                         output[j] = results[j].Output[i];
                     }

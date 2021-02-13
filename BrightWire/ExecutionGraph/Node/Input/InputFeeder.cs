@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace BrightWire.ExecutionGraph.Node.Input
 {
@@ -11,10 +12,17 @@ namespace BrightWire.ExecutionGraph.Node.Input
             _index = index;
         }
 
-        public override void ExecuteForward(IGraphContext context)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
-            var input = context.BatchSequence.Input[_index];
-            AddNextGraphAction(context, input, null);
+            if (_index == 0) {
+                var input = context.BatchSequence.Input;
+                if (input == null)
+                    throw new Exception("Input data was null");
+
+                return (this, input, null);
+            }
+            else
+                throw new NotImplementedException();
         }
 
         protected override (string Description, byte[] Data) GetInfo()

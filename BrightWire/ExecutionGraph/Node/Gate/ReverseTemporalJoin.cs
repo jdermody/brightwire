@@ -17,11 +17,11 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 _reverseSize = reverseSize;
             }
 
-            public override void BackwardInternal(INode? fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
+            public override IEnumerable<(IGraphData Signal, NodeBase ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents)
             {
                 var matrix = errorSignal.GetMatrix();
                 (IFloatMatrix left, IFloatMatrix right) = matrix.SplitAtColumn(matrix.ColumnCount - _reverseSize);
-                context.AddBackward(errorSignal.ReplaceWith(left), parents[0], _source);
+                yield return (errorSignal.ReplaceWith(left), parents[0]);
 
                 var batch = context.BatchSequence.MiniBatch;
                 var sequenceIndex = context.BatchSequence.SequenceIndex;
@@ -34,34 +34,37 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                     for(uint i = 0; i < batch.SequenceCount; i++) {
                         var data = _source._reverseBackpropagation[i];
                         var reverseContext = _source._contextTable[i];
-                        reverseContext.AddBackward(data.Item2, data.Item1, _source);
+                        
+                        //TODO: fix this
+                        //reverseContext.AddBackward(data.Item2, data.Item1, _source);
                     }
                     _source._reverseBackpropagation.Clear();
                     _source._contextTable.Clear();
                 }
+                //return ErrorTo(errorSignal, parents);
             }
         }
-        Dictionary<uint, (IFloatMatrix Data, uint ReversedSize, INode ForwardParent)> _input = new Dictionary<uint, (IFloatMatrix Data, uint ReversedSize, INode ForwardParent)>();
-        Dictionary<uint, (IFloatMatrix Data, INode ReverseParent)> _reverseInput = new Dictionary<uint, (IFloatMatrix Data, INode ReverseParent)>();
+        Dictionary<uint, (IFloatMatrix Data, uint ReversedSize, NodeBase ForwardParent)> _input = new Dictionary<uint, (IFloatMatrix Data, uint ReversedSize, NodeBase ForwardParent)>();
+        Dictionary<uint, (IFloatMatrix Data, NodeBase ReverseParent)> _reverseInput = new Dictionary<uint, (IFloatMatrix Data, NodeBase ReverseParent)>();
 
-        Dictionary<uint, (INode, IGraphData)> _reverseBackpropagation = new Dictionary<uint, (INode, IGraphData)>();
-        Dictionary<uint, IGraphContext> _contextTable = new Dictionary<uint, IGraphContext>();
+        Dictionary<uint, (NodeBase, IGraphData)> _reverseBackpropagation = new Dictionary<uint, (NodeBase, IGraphData)>();
+        Dictionary<uint, IGraphSequenceContext> _contextTable = new Dictionary<uint, IGraphSequenceContext>();
 
         public ReverseTemporalJoin(string? name, WireBuilder forwardInput, WireBuilder reverseInput) 
             : base(name, forwardInput, reverseInput)
         {
         }
 
-        public override void OnDeserialise(IReadOnlyDictionary<string, INode> graph)
+        public override void OnDeserialise(IReadOnlyDictionary<string, NodeBase> graph)
         {
-            _input = new Dictionary<uint, (IFloatMatrix Data, uint ReversedSize, INode ForwardParent)>();
-            _reverseInput = new Dictionary<uint, (IFloatMatrix Data, INode ReverseParent)>();
+            _input = new Dictionary<uint, (IFloatMatrix Data, uint ReversedSize, NodeBase ForwardParent)>();
+            _reverseInput = new Dictionary<uint, (IFloatMatrix Data, NodeBase ReverseParent)>();
 
-            _reverseBackpropagation = new Dictionary<uint, (INode, IGraphData)>();
-            _contextTable = new Dictionary<uint, IGraphContext>();
+            _reverseBackpropagation = new Dictionary<uint, (NodeBase, IGraphData)>();
+            _contextTable = new Dictionary<uint, IGraphSequenceContext>();
         }
 
-        void Continue(IGraphContext context)
+        void Continue(IGraphSequenceContext context)
         {
             var sequenceIndex = context.BatchSequence.SequenceIndex;
             var (data, reversedSize, forwardParent) = _input[sequenceIndex];
@@ -73,15 +76,15 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             // concatenate the inputs
             var next = data.ConcatRows(floatMatrix);
 
-            context.AddForward(new TrainingAction(
-                this, 
-                new MatrixGraphData(next), 
-                new[] { forwardParent, reverseParent }), 
-                () => new Backpropagation(this, reversedSize)
-            );
+            //context.AddForward(new ExecutionHistory(
+            //    this, 
+            //    new MatrixGraphData(next), 
+            //    new[] { forwardParent, reverseParent }), 
+            //    () => new Backpropagation(this, reversedSize)
+            //);
         }
 
-        protected override void Activate(IGraphContext context, List<IncomingChannel> data)
+        protected override void Activate(IGraphSequenceContext context, List<IncomingChannel> data)
         {
             if (data.Count != 2)
                 throw new Exception("Expected two incoming channels");
@@ -99,6 +102,11 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             _reverseInput.Add(reversedSequenceIndex, (backward.Data, backward.Source!));
 
             context.ExecutionContext.RegisterContinuation(context.BatchSequence, Continue);
+        }
+
+        protected override (IFloatMatrix Next, Func<IBackpropagate>? BackProp) Activate2(IGraphSequenceContext context, List<IncomingChannel> data)
+        {
+            throw new NotImplementedException();
         }
     }
 }

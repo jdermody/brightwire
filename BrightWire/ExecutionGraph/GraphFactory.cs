@@ -1,7 +1,6 @@
 ﻿using BrightWire.Descriptor;
-using BrightWire.ExecutionGraph.Activation;
 using BrightWire.ExecutionGraph.DataSource;
-using BrightWire.ExecutionGraph.DataTableAdaptor;
+using BrightWire.ExecutionGraph.DataTableAdapter;
 using BrightWire.ExecutionGraph.Engine;
 using BrightWire.ExecutionGraph.Engine.Helper;
 using BrightWire.ExecutionGraph.GradientDescent;
@@ -22,6 +21,9 @@ using BrightData;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph.Action;
+using BrightWire.ExecutionGraph.Node;
+using BrightWire.ExecutionGraph.Node.Action;
+using BrightWire.ExecutionGraph.Node.Activation;
 using BrightWire.ExecutionGraph.Node.Output;
 
 namespace BrightWire.ExecutionGraph
@@ -124,90 +126,36 @@ namespace BrightWire.ExecutionGraph
 			return ret ?? WeightInitialisation.Gaussian;
 		}
 
-		/// <summary>
-		/// Creates a graph execution context
-		/// </summary>
-		/// <returns></returns>
-		public IGraphExecutionContext CreateExecutionContext()
-		{
-			return new ExecutionContext(LinearAlgebraProvider);
-		}
-
-        /// <summary>
-        /// Creates a graph learning context
-        /// </summary>
-        /// <param name="learningRate">Initial learning rate</param>
-        /// <param name="batchSize">Mini batch size</param>
-        /// <param name="trainingErrorCalculation">How to calculate the training error</param>
-        /// <param name="deferUpdates">True to defer updates (used when training recurrent neural networks)</param>
-        /// <returns></returns>
-        public ILearningContext CreateLearningContext(
-            float learningRate, 
-            uint batchSize, 
-            TrainingErrorCalculation trainingErrorCalculation = TrainingErrorCalculation.Fast, 
-            bool deferUpdates = false)
-		{
-			return new LearningContext(LinearAlgebraProvider, learningRate, batchSize, trainingErrorCalculation, deferUpdates, this);
-		}
-
         /// <summary>
         /// Creates a graph training engine
         /// </summary>
         /// <param name="dataSource">Segment source with training data</param>
+        /// <param name="errorMetric">Error metric to train with</param>
         /// <param name="learningRate">Initial learning rate</param>
         /// <param name="batchSize">Mini batch size</param>
-        /// <param name="trainingErrorCalculation">How to calculate the training error</param>
         /// <returns></returns>
         public IGraphTrainingEngine CreateTrainingEngine(
             IDataSource dataSource, 
+			IErrorMetric errorMetric,
             float learningRate = 0.1f, 
-            uint batchSize = 128, 
-            TrainingErrorCalculation trainingErrorCalculation = TrainingErrorCalculation.Fast)
+            uint batchSize = 128
+        )
 		{
-			var learningContext = new LearningContext(LinearAlgebraProvider, learningRate, batchSize, trainingErrorCalculation, dataSource.IsSequential, this);
-			return new TrainingEngine(LinearAlgebraProvider, dataSource, learningContext, null);
-		}
+			//var learningContext = new LearningContext(LinearAlgebraProvider, learningRate, batchSize, this);
+			//return new TrainingEngine(LinearAlgebraProvider, dataSource, learningContext, null);
+            var ret = new TrainingEngine(this, dataSource, errorMetric);
+            var learningContext = ret.LearningContext;
+            learningContext.LearningRate = learningRate;
+            learningContext.BatchSize = batchSize;
+            return ret;
+        }
 
         /// <summary>
-        /// Creates a graph training engine
-        /// </summary>
-        /// <param name="dataSource">Segment source with training data</param>
-        /// <param name="graph">The serialised graph to execute</param>
-        /// <param name="trainingRate">Initial learning rate</param>
-        /// <param name="batchSize">Mini batch size</param>
-        /// <param name="trainingErrorCalculation">How to calculate the training error</param>
-        /// <returns></returns>
-        public IGraphTrainingEngine CreateTrainingEngine(
-            IDataSource dataSource, 
-            ExecutionGraphModel graph, 
-            float trainingRate = 0.1f, 
-            uint batchSize = 128, 
-            TrainingErrorCalculation trainingErrorCalculation = TrainingErrorCalculation.Fast)
-		{
-			var learningContext = new LearningContext(LinearAlgebraProvider, trainingRate, batchSize, trainingErrorCalculation, dataSource.IsSequential, this);
-			var input = this.CreateFrom(graph);
-			return new TrainingEngine(LinearAlgebraProvider, dataSource, learningContext, input);
-		}
-
-		/// <summary>
-		/// Creates a graph training engine
-		/// </summary>
-		/// <param name="dataSource">Segment source with training data</param>
-		/// <param name="learningContext">Previously created training context</param>
-		/// <param name="graph">The serialised graph to execute</param>
-		/// <returns></returns>
-		public IGraphTrainingEngine CreateTrainingEngine(IDataSource dataSource, ILearningContext learningContext, ExecutionGraphModel graph)
-		{
-			var input = this.CreateFrom(graph);
-			return new TrainingEngine(LinearAlgebraProvider, dataSource, learningContext, input);
-		}
-
-		/// <summary>
 		/// Creates a graph execution engine
 		/// </summary>
 		/// <param name="graph">The serialised graph to execute</param>
 		/// <returns></returns>
-		public IGraphEngine CreateEngine(ExecutionGraphModel graph)
+		public IGraphExecutionEngine CreateExecutionEngine(ExecutionGraphModel graph)
 		{
 			var input = this.CreateFrom(graph);
 			return new ExecutionEngine(LinearAlgebraProvider, graph, input);
@@ -266,78 +214,35 @@ namespace BrightWire.ExecutionGraph
 			if (featureColumnType != ColumnType.Unknown && featureColumnTypes.All(ct => ct == featureColumnType)) {
 				// many to many
 				if (featureColumnType == ColumnType.Matrix && targetColumnType == ColumnType.Matrix)
-					return new SequentialDataTableAdaptor(LinearAlgebraProvider, dataTable, featureColumns);
+					return new SequentialDataTableAdapter(LinearAlgebraProvider, dataTable, featureColumns);
 
 				// one to one
 				if (featureColumnType == ColumnType.Vector && targetColumnType == ColumnType.Vector)
-					return new VectorBasedDataTableAdaptor(LinearAlgebraProvider, dataTable, featureColumns);
+					return new VectorBasedDataTableAdapter(LinearAlgebraProvider, dataTable, featureColumns);
 
 				// one to many
 				if (featureColumnType == ColumnType.Vector && targetColumnType == ColumnType.Matrix)
-					return new OneToManyDataTableAdaptor(LinearAlgebraProvider, dataTable, featureColumns);
+					return new OneToManyDataTableAdapter(LinearAlgebraProvider, dataTable, featureColumns);
 
 				// many to one
 				if (featureColumnType == ColumnType.Matrix && targetColumnType == ColumnType.Vector)
-					return new ManyToOneDataTableAdaptor(LinearAlgebraProvider, dataTable, featureColumns);
+					return new ManyToOneDataTableAdapter(LinearAlgebraProvider, dataTable, featureColumns);
 
 				// volume classification
 				if (featureColumnType == ColumnType.Tensor3D && targetColumnType == ColumnType.Vector)
-					return new TensorBasedDataTableAdaptor(LinearAlgebraProvider, dataTable, featureColumns);
+					return new TensorBasedDataTableAdapter(LinearAlgebraProvider, dataTable, featureColumns);
 
 				// index list
 				if (featureColumnType == ColumnType.IndexList)
-					return new IndexListDataTableAdaptor(LinearAlgebraProvider, dataTable, null, featureColumns);
+					return new IndexListDataTableAdapter(LinearAlgebraProvider, dataTable, null, featureColumns);
 
 				// weighted index list
 				if (featureColumnType == ColumnType.WeightedIndexList)
-					return new WeightedIndexListDataTableAdaptor(LinearAlgebraProvider, dataTable, null, featureColumns);
+					return new WeightedIndexListDataTableAdapter(LinearAlgebraProvider, dataTable, null, featureColumns);
 			}
 
 			// default adapator
-			return new DefaultDataTableAdaptor(LinearAlgebraProvider, dataTable, null, null, featureColumns);
-		}
-
-		/// <summary>
-		/// Creates an adaptive data source (that uses the output from a preliminary graph)
-		/// </summary>
-		/// <param name="dataTable">Segment that will be sent to the preliminary graph</param>
-		/// <param name="learningContext">Learning context to use while training the preliminary graph</param>
-		/// <param name="dataConversionBuilder">Callback to build the preliminary graph</param>
-		/// <returns></returns>
-		public IDataSource CreateDataSource(IRowOrientedDataTable dataTable, ILearningContext learningContext, Action<WireBuilder> dataConversionBuilder)
-		{
-			var columns = dataTable.ColumnTypes;
-			if (columns.Length == 2) {
-				var column1 = columns[0];
-				var column2 = columns[1];
-
-				// sequence to sequence
-				if (column1 == ColumnType.Matrix && column2 == ColumnType.Matrix)
-					return new SequenceToSequenceDataTableAdaptor(LinearAlgebraProvider, learningContext, this, dataTable, dataConversionBuilder);
-			}
-			throw new ArgumentException($"{nameof(dataTable)} does not contain a recognised data format");
-		}
-
-		/// <summary>
-		/// Creates an adaptive data source from a serialised model
-		/// </summary>
-		/// <param name="dataTable">Segment that will be sent to the preliminary graph</param>
-		/// <param name="dataSource">The serialised preliminary graph</param>
-		/// <param name="learningContext">Learning context to use while training the preliminary graph</param>
-		/// <returns></returns>
-		public IDataSource CreateDataSource(IRowOrientedDataTable dataTable, DataSourceModel dataSource, ILearningContext? learningContext = null)
-		{
-			var input = this.CreateFrom(dataSource.Graph);
-
-			var columns = dataTable.ColumnTypes;
-			if (columns.Length == 2) {
-				var column1 = columns[0];
-				var column2 = columns[1];
-
-				if (column1 == ColumnType.Matrix && column2 == ColumnType.Matrix)
-					return new SequenceToSequenceDataTableAdaptor(LinearAlgebraProvider, learningContext, dataTable, input, dataSource);
-			}
-			throw new ArgumentException($"{nameof(dataTable)} does not contain a recognised data format");
+			return new DefaultDataTableAdapter(LinearAlgebraProvider, dataTable, null, null, featureColumns);
 		}
 
         /// <summary>
@@ -347,7 +252,7 @@ namespace BrightWire.ExecutionGraph
         /// <param name="dataTable">The data table that contains the rows to classify (linked by mini batch index)</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
-        public (INode RowClassifier, uint OutputSize) CreateClassifier(IRowClassifier classifier, IRowOrientedDataTable dataTable, string? name = null)
+        public (NodeBase RowClassifier, uint OutputSize) CreateClassifier(IRowClassifier classifier, IRowOrientedDataTable dataTable, string? name = null)
         {
             var ret = new RowClassifier(LinearAlgebraProvider, classifier, dataTable, name);
             return (ret, ret.OutputSize);
@@ -360,7 +265,7 @@ namespace BrightWire.ExecutionGraph
         /// <param name="outputSize">Number of outgoing connections</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
-        public INode CreateFeedForward(uint inputSize, uint outputSize, string? name = null)
+        public NodeBase CreateFeedForward(uint inputSize, uint outputSize, string? name = null)
 		{
 			// create weights and bias
 			var weightInit = GetWeightInitialisation();
@@ -382,7 +287,7 @@ namespace BrightWire.ExecutionGraph
 		/// <param name="outputSize">Number of outgoing connections</param>
 		/// <param name="name">Optional name to give the node</param>
 		/// <returns></returns>
-		public INode CreateDropConnect(float dropoutPercentage, uint inputSize, uint outputSize, string? name = null)
+		public NodeBase CreateDropConnect(float dropoutPercentage, uint inputSize, uint outputSize, string? name = null)
 		{
 			// create weights and bias
 			var weightInit = GetWeightInitialisation();
@@ -401,7 +306,7 @@ namespace BrightWire.ExecutionGraph
 		/// <param name="layer">The layer that shares weights</param>
 		/// <param name="name">Optional name to give the node</param>
 		/// <returns></returns>
-		public INode CreateTiedFeedForward(IFeedForward layer, string? name = null)
+		public NodeBase CreateTiedFeedForward(IFeedForward layer, string? name = null)
 		{
 			var weightInit = GetWeightInitialisation();
 			return new TiedFeedForward(layer, weightInit, name);
@@ -420,7 +325,7 @@ namespace BrightWire.ExecutionGraph
 		/// <param name="shouldBackpropagate">True to calculate the backpropagation error signal</param>
 		/// <param name="name">Optional name to give the node</param>
 		/// <returns></returns>
-		public INode CreateConvolutional(uint inputDepth, uint filterCount, uint padding, uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool shouldBackpropagate = true, string? name = null)
+		public NodeBase CreateConvolutional(uint inputDepth, uint filterCount, uint padding, uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool shouldBackpropagate = true, string? name = null)
 		{
 			var weightInit = GetWeightInitialisation();
 			return new Convolutional(shouldBackpropagate, weightInit, CreateWeightUpdater, inputDepth, filterCount, padding, filterWidth, filterHeight, xStride, yStride, name);
@@ -435,7 +340,7 @@ namespace BrightWire.ExecutionGraph
 		/// <param name="yStride">Y stride</param>
 		/// <param name="name">Optional name to give the node</param>
 		/// <returns></returns>
-		public INode CreateMaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, string? name = null)
+		public NodeBase CreateMaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, string? name = null)
 		{
 			return new MaxPool(filterWidth, filterHeight, xStride, yStride, name);
 		}
@@ -448,7 +353,7 @@ namespace BrightWire.ExecutionGraph
 		/// <param name="activation">Activation layer</param>
 		/// <param name="name">Optional name to give the node</param>
 		/// <returns></returns>
-		public INode CreateSimpleRecurrent(uint inputSize, float[] memory, INode activation, string? name = null)
+		public NodeBase CreateSimpleRecurrent(uint inputSize, float[] memory, NodeBase activation, string? name = null)
 		{
 			return new SimpleRecurrent(this, inputSize, memory, activation, name);
 		}
@@ -462,7 +367,7 @@ namespace BrightWire.ExecutionGraph
 		/// <param name="activation2">Second activation layer</param>
 		/// <param name="name">Optional name to give the node</param>
 		/// <returns></returns>
-		public INode CreateElman(uint inputSize, float[] memory, INode activation, INode activation2, string? name = null)
+		public NodeBase CreateElman(uint inputSize, float[] memory, NodeBase activation, NodeBase activation2, string? name = null)
 		{
 			return new ElmanJordan(this, true, inputSize, memory, activation, activation2, name);
 		}
@@ -476,7 +381,7 @@ namespace BrightWire.ExecutionGraph
 		/// <param name="activation2">Second activation layer</param>
 		/// <param name="name">Optional name to give the node</param>
 		/// <returns></returns>
-		public INode CreateJordan(uint inputSize, float[] memory, INode activation, INode activation2, string? name = null)
+		public NodeBase CreateJordan(uint inputSize, float[] memory, NodeBase activation, NodeBase activation2, string? name = null)
 		{
 			return new ElmanJordan(this, false, inputSize, memory, activation, activation2, name);
 		}
@@ -486,7 +391,7 @@ namespace BrightWire.ExecutionGraph
 		/// </summary>
 		/// <param name="name">Optional name to give the node</param>
 		/// <returns></returns>
-		public INode CreateOneMinusInput(string? name = null)
+		public NodeBase CreateOneMinusInput(string? name = null)
 		{
 			return GraphOperation.OneMinusInput(name);
 		}
@@ -497,7 +402,7 @@ namespace BrightWire.ExecutionGraph
 		/// <param name="index">Input index to reverse</param>
 		/// <param name="name">Optional name to give the node</param>
 		/// <returns></returns>
-		public INode CreateSequenceReverser(int index = 0, string? name = null)
+		public NodeBase CreateSequenceReverser(int index = 0, string? name = null)
 		{
 			return new ReverseSequence(index, name);
 		}
@@ -508,7 +413,7 @@ namespace BrightWire.ExecutionGraph
 		/// <param name="inputSize">Number of incoming connections</param>
 		/// <param name="name">Optional name to give the node</param>
 		/// <returns></returns>
-		public INode CreateBatchNormalisation(uint inputSize, string? name)
+		public NodeBase CreateBatchNormalisation(uint inputSize, string? name)
 		{
 			return new BatchNorm(this, inputSize, name);
 		}
@@ -520,7 +425,7 @@ namespace BrightWire.ExecutionGraph
 		/// <param name="memory">Size of the layer memory</param>
 		/// <param name="name">Optional name to give the node</param>
 		/// <returns></returns>
-		public INode CreateGru(uint inputSize, float[] memory, string? name = null)
+		public NodeBase CreateGru(uint inputSize, float[] memory, string? name = null)
 		{
 			return new GatedRecurrentUnit(this, inputSize, memory, name);
 		}
@@ -532,7 +437,7 @@ namespace BrightWire.ExecutionGraph
 		/// <param name="memory">Size of the layer memory</param>
 		/// <param name="name">Optional name to give the node</param>
 		/// <returns></returns>
-		public INode CreateRan(uint inputSize, float[] memory, string? name = null)
+		public NodeBase CreateRan(uint inputSize, float[] memory, string? name = null)
 		{
 			return new RecurrentAdditiveLayer(this, inputSize, memory, name);
 		}
@@ -544,7 +449,7 @@ namespace BrightWire.ExecutionGraph
 		/// <param name="memory">Size of the layer memory</param>
 		/// <param name="name">Optional name to give the node</param>
 		/// <returns></returns>
-		public INode CreateLstm(uint inputSize, float[] memory, string? name = null)
+		public NodeBase CreateLstm(uint inputSize, float[] memory, string? name = null)
 		{
 			return new LongShortTermMemory(this, inputSize, memory, name);
 		}
@@ -555,7 +460,7 @@ namespace BrightWire.ExecutionGraph
 		/// <param name="dropoutPercentage">Percentage to drop (0..1)</param>
 		/// <param name="name">Optional name to give the node</param>
 		/// <returns></returns>
-		public INode CreateDropOut(float dropoutPercentage, string? name = null)
+		public NodeBase CreateDropOut(float dropoutPercentage, string? name = null)
 		{
 			return new DropOut(Context, dropoutPercentage, name);
 		}
@@ -565,7 +470,7 @@ namespace BrightWire.ExecutionGraph
 		/// </summary>
 		/// <param name="channel">Output channel</param>
 		/// <param name="name">Optional name to give the node</param>
-		public INode CreateOutputNode(int channel = 0, string? name = null)
+		public NodeBase CreateOutputNode(int channel = 0, string? name = null)
 		{
 			return new StoreOutput(channel, name);
 		}
@@ -587,25 +492,12 @@ namespace BrightWire.ExecutionGraph
 		/// <param name="inputSize">Number of outgoing connections</param>
 		/// <param name="node">The node to build from</param>
 		/// <returns></returns>
-		public WireBuilder Connect(uint inputSize, INode node)
+		public WireBuilder Connect(uint inputSize, NodeBase node)
 		{
 			return new WireBuilder(this, inputSize, node);
 		}
 
-		/// <summary>
-		/// Builds a new wire from the selected node
-		/// </summary>
-		/// <param name="width">Volume width</param>
-		/// <param name="height">Volume height</param>
-		/// <param name="depth">Volume depth</param>
-		/// <param name="node">The node to build from</param>
-		/// <returns></returns>
-		public WireBuilder Connect(uint width, uint height, uint depth, INode node)
-		{
-			return new WireBuilder(this, width, height, depth, node);
-		}
-
-		/// <summary>
+        /// <summary>
 		/// Adds the output of two wires into a new wire
 		/// </summary>
 		/// <param name="input1">First wire</param>
@@ -645,7 +537,7 @@ namespace BrightWire.ExecutionGraph
 		/// <param name="input2">The node to subtract</param>
 		/// <param name="name">Optional name to give the node</param>
 		/// <returns></returns>
-		public WireBuilder Subtract(uint inputSize, INode input1, INode input2, string? name = null)
+		public WireBuilder Subtract(uint inputSize, NodeBase input1, NodeBase input2, string? name = null)
 		{
 			var subtract = new SubtractGate(name);
 			var wireToPrimary = new WireToNode(subtract);
@@ -665,7 +557,7 @@ namespace BrightWire.ExecutionGraph
 		/// <param name="input2">Second node</param>
 		/// <param name="name">Optional name to give the node</param>
 		/// <returns></returns>
-		public WireBuilder Add(uint inputSize, INode input1, INode input2, string? name = null)
+		public WireBuilder Add(uint inputSize, NodeBase input1, NodeBase input2, string? name = null)
 		{
 			var add = new AddGate(name);
 			var wireToPrimary = new WireToNode(add);
@@ -701,7 +593,7 @@ namespace BrightWire.ExecutionGraph
 		/// <param name="input2">Second node</param>
 		/// <param name="name">Optional name to give the node</param>
 		/// <returns></returns>
-		public WireBuilder Multiply(uint inputSize, INode input1, INode input2, string? name = null)
+		public WireBuilder Multiply(uint inputSize, NodeBase input1, NodeBase input2, string? name = null)
 		{
 			var multiply = new MultiplyGate(name);
 			var wireToPrimary = new WireToNode(multiply);
@@ -757,7 +649,7 @@ namespace BrightWire.ExecutionGraph
 		/// <param name="nodeToWrap">Node to wrap</param>
 		/// <param name="name">Optional name to give the wrapping node</param>
 		/// <returns></returns>
-		public INode CreateWrapper(INode nodeToWrap, string? name = null)
+		public NodeBase CreateWrapper(NodeBase nodeToWrap, string? name = null)
 		{
 			return new NodeWrapper(nodeToWrap, name);
 		}
@@ -766,10 +658,10 @@ namespace BrightWire.ExecutionGraph
 		/// Creates a node from it's serialised model
 		/// </summary>
 		/// <param name="node">The node model</param>
-		public INode Create(ExecutionGraphModel.Node node)
+		public NodeBase Create(ExecutionGraphModel.Node node)
 		{
 			var type = TypeLoader.LoadType(node.TypeName);
-			var ret = GenericActivator.CreateUninitialized<INode>(type);
+			var ret = GenericActivator.CreateUninitialized<NodeBase>(type);
 			ret.Initialise(this, node.Id, node.Name, node.Description, node.Data);
 			return ret;
 		}
@@ -778,31 +670,31 @@ namespace BrightWire.ExecutionGraph
 		/// Creates a new leaky relu activation layer
 		/// </summary>
 		/// <param name="name">Optional name to give the node</param>
-		public INode LeakyReluActivation(string? name = null) => new LeakyRelu(name);
+		public NodeBase LeakyReluActivation(string? name = null) => new LeakyRelu(name);
 
 		/// <summary>
 		/// Creates a new relu activation layer
 		/// </summary>
 		/// <param name="name">Optional name to give the node</param>
-		public INode ReluActivation(string? name = null) => new Relu(name);
+		public NodeBase ReluActivation(string? name = null) => new Relu(name);
 
 		/// <summary>
 		/// Creates a new sigmoid activation layer
 		/// </summary>
 		/// <param name="name">Optional name to give the node</param>
-		public INode SigmoidActivation(string? name = null) => new Sigmoid(name);
+		public NodeBase SigmoidActivation(string? name = null) => new Sigmoid(name);
 
 		/// <summary>
 		/// Creates a new tanh activation layer
 		/// </summary>
 		/// <param name="name">Optional name to give the node</param>
-		public INode TanhActivation(string? name = null) => new Tanh(name);
+		public NodeBase TanhActivation(string? name = null) => new Tanh(name);
 
 		/// <summary>
 		/// Creates a new softmax activation layer
 		/// </summary>
 		/// <param name="name">Optional name to give the node</param>
-		public INode SoftMaxActivation(string? name = null) => new SoftMax(name);
+		public NodeBase SoftMaxActivation(string? name = null) => new SoftMax(name);
 
 		/// <summary>
 		/// Creates a constant weight initialiser
@@ -1031,28 +923,28 @@ namespace BrightWire.ExecutionGraph
 			/// </summary>
 			/// <param name="name"></param>
 			/// <returns></returns>
-			public INode OneDividedBy(string? name = null) => new OneDividedByInput(name);
+			public NodeBase OneDividedBy(string? name = null) => new OneDividedByInput(name);
 
 			/// <summary>
 			/// Calculates square (x^2) of graph input
 			/// </summary>
 			/// <param name="name"></param>
 			/// <returns></returns>
-			public INode InputSquared(string? name = null) => new InputSquared(name);
+			public NodeBase InputSquared(string? name = null) => new InputSquared(name);
 
 			/// <summary>
 			/// Calculates square root of graph input
 			/// </summary>
 			/// <param name="name"></param>
 			/// <returns></returns>
-			public INode SquareRootOf(string? name = null) => new SquareRootOfInput(name);
+			public NodeBase SquareRootOf(string? name = null) => new SquareRootOfInput(name);
 
 			/// <summary>
 			/// Caclculates one minus graph input (1-x)
 			/// </summary>
 			/// <param name="name"></param>
 			/// <returns></returns>
-			public INode OneMinusInput(string? name = null) => new OneMinusInput(name);
+			public NodeBase OneMinusInput(string? name = null) => new OneMinusInput(name);
 		}
 
 		/// <summary>

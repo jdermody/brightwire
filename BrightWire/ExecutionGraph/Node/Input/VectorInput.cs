@@ -1,4 +1,6 @@
-﻿using BrightWire.ExecutionGraph.Helper;
+﻿using System;
+using System.Collections.Generic;
+using BrightWire.ExecutionGraph.Helper;
 using System.IO;
 using BrightData;
 
@@ -12,9 +14,9 @@ namespace BrightWire.ExecutionGraph.Node.Input
 			{
 			}
 
-			public override void BackwardInternal(INode? fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
-			{
-				var es = errorSignal.GetMatrix();
+            public override IEnumerable<(IGraphData Signal, NodeBase ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents)
+            {
+                var es = errorSignal.GetMatrix();
 
                 using var columnSums = es.ColumnSums();
                 columnSums.Multiply(1f / es.RowCount);
@@ -26,8 +28,9 @@ namespace BrightWire.ExecutionGraph.Node.Input
                     for (uint j = 0; j < _source._data.Length; j++)
                         _source._data[j] += delta[j] * learningContext.BatchLearningRate;
                 });
+                return ErrorTo(errorSignal, parents);
             }
-		}
+        }
 
         readonly IBrightDataContext _context;
         readonly float[] _data;
@@ -40,13 +43,13 @@ namespace BrightWire.ExecutionGraph.Node.Input
 
 		public float[] Data => _data;
 
-		public override void ExecuteForward(IGraphContext context)
-		{
-			var data = context.LinearAlgebraProvider.CreateMatrix(context.BatchSequence.MiniBatch.BatchSize, (uint)_data.Length, (x, y) => _data[y]);
-			AddNextGraphAction(context, new MatrixGraphData(data), () => new Backpropagation(this));
-		}
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        {
+            var data = context.LinearAlgebraProvider.CreateMatrix(context.BatchSequence.MiniBatch.BatchSize, (uint)_data.Length, (x, y) => _data[y]);
+            return (this, new MatrixGraphData(data), () => new Backpropagation(this));
+        }
 
-		protected override (string Description, byte[] Data) GetInfo()
+        protected override (string Description, byte[] Data) GetInfo()
 		{
 			return ("VI", WriteData(WriteTo));
 		}

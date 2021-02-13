@@ -33,7 +33,7 @@ namespace BrightWire.UnitTests
 			var table = builder.BuildRowOriented();
             var dataSource = _factory.CreateDataSource(table);
 			var miniBatch = dataSource.Get(new uint[] { 1 });
-			var input = miniBatch.CurrentSequence.Input[0].GetMatrix().Row(0).AsIndexable();
+			var input = miniBatch.CurrentSequence.Input.GetMatrix().Row(0).AsIndexable();
 			var expectedOutput = miniBatch.CurrentSequence.Target!.GetMatrix().Row(0).AsIndexable();
 
             input[0].Should().Be(0.2f);
@@ -58,7 +58,7 @@ namespace BrightWire.UnitTests
 			var miniBatch = dataSource.Get(new uint[] { 0, 1, 2 });
 
 			var currentSequence = miniBatch.CurrentSequence;
-			var batchMatrix = currentSequence.Input[0].GetMatrix();
+			var batchMatrix = currentSequence.Input.GetMatrix();
             currentSequence.Target.Should().BeNull();
             batchMatrix.RowCount.Should().Be(3);
             batchMatrix.ColumnCount.Should().Be(10);
@@ -74,7 +74,7 @@ namespace BrightWire.UnitTests
 			var miniBatch = dataSource.Get(new uint[] { 0, 1, 2 });
 
 			var currentSequence = miniBatch.CurrentSequence;
-			var batchMatrix = currentSequence.Input[0].GetMatrix();
+			var batchMatrix = currentSequence.Input.GetMatrix();
             currentSequence.Target.Should().BeNull();
             batchMatrix.RowCount.Should().Be(3);
             batchMatrix.ColumnCount.Should().Be(10);
@@ -89,7 +89,7 @@ namespace BrightWire.UnitTests
 			var miniBatch = dataSource.Get(new uint[] { 0, 1, 2 });
 
 			var currentSequence = miniBatch.CurrentSequence;
-			var batchMatrix = currentSequence.Input[0].GetMatrix();
+			var batchMatrix = currentSequence.Input.GetMatrix();
 
             currentSequence.Target.Should().BeNull();
             batchMatrix.RowCount.Should().Be(1000);

@@ -36,10 +36,7 @@ namespace BrightWire.ExecutionGraph.DataSource
         {
             var data = rows.Select(i => _data[(int)i]).ToList();
             var input = _lap.CreateMatrix((uint)data.Count, InputSize, (x, y) => data[(int)x].Segment[y]);
-            var inputList = new IGraphData[] {
-                new MatrixGraphData(input)
-            };
-            return new MiniBatch(rows, this, inputList, null);
+            return new MiniBatch(rows, this, new MatrixGraphData(input), null);
         }
 
         public IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rows) => Get(rows);
@@ -54,11 +51,6 @@ namespace BrightWire.ExecutionGraph.DataSource
         public IDataSource CloneWith(IRowOrientedDataTable dataTable)
         {
             throw new NotImplementedException();
-        }
-
-        public void OnBatchProcessed(IGraphContext context)
-        {
-            // nop
         }
     }
 }

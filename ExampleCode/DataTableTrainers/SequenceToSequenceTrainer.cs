@@ -2,6 +2,7 @@
 using System.Linq;
 using BrightData;
 using BrightWire;
+using BrightWire.Models;
 
 namespace ExampleCode.DataTableTrainers
 {
@@ -31,7 +32,7 @@ namespace ExampleCode.DataTableTrainers
             const float TRAINING_RATE = 0.1f;
             var trainingData = graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
-            var engine = graph.CreateTrainingEngine(trainingData, TRAINING_RATE, 8);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, TRAINING_RATE, 8);
             engine.LearningContext.ScheduleLearningRate(30, TRAINING_RATE / 3);
 
             // build the network
@@ -40,13 +41,13 @@ namespace ExampleCode.DataTableTrainers
                 .AddLstm(HIDDEN_LAYER_SIZE)
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                 .Add(graph.SigmoidActivation())
-                .AddBackpropagation(errorMetric)
+                .AddBackpropagation()
             ;
 
-            engine.Train(40, testData, errorMetric);
+            engine.Train(40, testData);
 
             var networkGraph = engine.Graph;
-            var executionEngine = graph.CreateEngine(networkGraph);
+            var executionEngine = graph.CreateExecutionEngine(networkGraph);
 
             var output = executionEngine.Execute(testData);
             Console.WriteLine(output.Average(o => o.CalculateError(errorMetric)));
@@ -58,7 +59,7 @@ namespace ExampleCode.DataTableTrainers
             var errorMetric = graph.ErrorMetric.BinaryClassification;
 
             // create the property set
-            var propertySet = graph.CurrentPropertySet
+            graph.CurrentPropertySet
                 .Use(graph.GradientDescent.RmsProp)
                 .Use(graph.WeightInitialisation.Xavier)
             ;
@@ -66,22 +67,21 @@ namespace ExampleCode.DataTableTrainers
             // create the engine
             var trainingData = graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
-            var engine = graph.CreateTrainingEngine(trainingData, 0.03f, 8);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, 0.01f, 8);
 
             // build the network
             const int HIDDEN_LAYER_SIZE = 128;
             graph.Connect(engine)
                 .AddGru(HIDDEN_LAYER_SIZE)
-                //.AddSimpleRecurrent(graph.ReluActivation(), memory)
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
-                .Add(graph.SigmoidActivation())
-                .AddBackpropagationThroughTime(errorMetric)
+                .Add(graph.TanhActivation())
+                .AddBackpropagationThroughTime()
             ;
 
-            engine.Train(20, testData, errorMetric);
+            engine.Train(10, testData);
 
             var networkGraph = engine.Graph;
-            var executionEngine = graph.CreateEngine(networkGraph);
+            var executionEngine = graph.CreateExecutionEngine(networkGraph);
 
             var output = executionEngine.Execute(testData);
             Console.WriteLine(output.Where(o => o.Target != null).Average(o => o.CalculateError(errorMetric)));
@@ -90,46 +90,48 @@ namespace ExampleCode.DataTableTrainers
         public void TrainSequenceToSequence()
         {
             var graph = _context.CreateGraphFactory();
-            var errorMetric = graph.ErrorMetric.BinaryClassification;
+            var errorMetric = graph.ErrorMetric.CrossEntropy;
 
             // create the property set
             graph.CurrentPropertySet
                 .Use(graph.GradientDescent.RmsProp)
-                .Use(graph.WeightInitialisation.Xavier)
+                .Use(graph.WeightInitialisation.Gaussian)
             ;
 
-            const uint BATCH_SIZE = 16;
-            const uint HIDDEN_LAYER_SIZE = 64;
-            const float TRAINING_RATE = 0.1f;
+            const uint BATCH_SIZE = 8;
+            const uint HIDDEN_LAYER_SIZE = 128;
+            const float TRAINING_RATE = 0.03f;
 
-            // create the encoder
-            var encoderLearningContext = graph.CreateLearningContext(TRAINING_RATE, BATCH_SIZE, TrainingErrorCalculation.Fast, true);
-            var trainingData = graph.CreateDataSource(Training, encoderLearningContext, wb => wb
-                .AddLstm(HIDDEN_LAYER_SIZE, "encoder")
-                .WriteNodeMemoryToSlot("shared-memory", (IHaveMemoryNode)wb.Find("encoder")!)
-                .AddFeedForward(_dictionarySize)
-                .Add(graph.SigmoidActivation())
-                .AddBackpropagationThroughTime(errorMetric)
-            );
+            var trainingData = graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, TRAINING_RATE, BATCH_SIZE);
 
-            // create the engine
-            var engine = graph.CreateTrainingEngine(trainingData, TRAINING_RATE, BATCH_SIZE);
+            graph.Connect(engine)
+                .AddGru(HIDDEN_LAYER_SIZE, "encoder")
+                //.WriteNodeMemoryToSlot("shared-memory", "encoder")
+                .AddSequenceToSequencePivot()
+                //.JoinInputWithMemory("shared-memory", HIDDEN_LAYER_SIZE)
+                .AddGru(HIDDEN_LAYER_SIZE, "decoder")
+                .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
+                .Add(graph.SoftMaxActivation())
+                .AddBackpropagationThroughTime()
+            ;
+
+            // progressively update the learning reate
             engine.LearningContext.ScheduleLearningRate(30, TRAINING_RATE / 3);
             engine.LearningContext.ScheduleLearningRate(40, TRAINING_RATE / 9);
 
-            // create the decoder
-            var wb2 = graph.Connect(engine);
-            wb2
-                .JoinInputWithMemory("shared-memory")
-                .SetNewSize(wb2.CurrentSize + HIDDEN_LAYER_SIZE)
-                .AddLstm(HIDDEN_LAYER_SIZE, "decoder")
-                .AddFeedForward(trainingData.GetOutputSizeOrThrow())
-                .Add(graph.SigmoidActivation())
-                .AddBackpropagationThroughTime(errorMetric)
-            ;
+            // train
+            ExecutionGraphModel? bestModel = null;
+            engine.Train(50, testData, model => bestModel = model.Graph);
 
-            engine.Train(50, testData, errorMetric);
+            // execute
+            var executionEngine = engine.CreateExecutionEngine(bestModel);
+            var testResults = executionEngine.Execute(testData)
+                .Where(b => b.Target != null)
+                .ToList();
+            var testError = testResults.Any() ? testResults.Average(o => o.CalculateError(errorMetric)) : 0;
+            Console.WriteLine($"Final cross entropy error: {testError}");
         }
     }
 }

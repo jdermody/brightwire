@@ -14,11 +14,10 @@ namespace BrightWire.ExecutionGraph.Node.Helper
 
         public IAction Action { get; set; }
 
-	    public override void ExecuteForward(IGraphContext context)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
-            var input = context.Data;
-            var output = Action.Execute(input, context);
-            AddNextGraphAction(context, output ?? input, null);
+            var output = Action.Execute(signal, context, source!);
+            return (this, output, null);
         }
 
         protected override (string Description, byte[] Data) GetInfo()

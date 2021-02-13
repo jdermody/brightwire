@@ -26,28 +26,26 @@ namespace ExampleCode.DataTableTrainers
             // create the engine
             var trainingData = graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
-            var engine = graph.CreateTrainingEngine(trainingData, learningRate: 0.03f, batchSize: 128);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate: 0.03f, batchSize: 128);
 
             // build the network
             graph.Connect(engine)
                 .AddLstm(hiddenLayerSize)
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                 .Add(graph.TanhActivation())
-                .AddBackpropagationThroughTime(errorMetric);
+                .AddBackpropagationThroughTime();
 
             // train the network and restore the best result
             GraphModel? bestNetwork = null;
-            engine.Train(5, testData, errorMetric, model => bestNetwork = model);
+            engine.Train(20, testData, model => bestNetwork = model);
             if (bestNetwork != null) {
                 // execute each row of the test data on an execution engine
-                var executionEngine = graph.CreateEngine(bestNetwork.Graph);
+                var executionEngine = graph.CreateExecutionEngine(bestNetwork.Graph);
                 var results = executionEngine.Execute(testData).OrderSequentialOutput();
                 var expectedOutput = Test.Column<Vector<float>>(1).ToArray();
 
                 var score = results.Select((r, i) => errorMetric.Compute(r.Last(), expectedOutput[i])).Average();
-                Console.WriteLine(score);
-
-
+                Console.WriteLine($"Final quadratic prediction error: {score}");
             }
         }
     }

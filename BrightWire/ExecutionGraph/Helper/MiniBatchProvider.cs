@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using BrightData;
+using BrightWire.Models;
 
 namespace BrightWire.ExecutionGraph.Helper
 {
@@ -14,20 +15,20 @@ namespace BrightWire.ExecutionGraph.Helper
         {
             readonly uint[] _rows;
             readonly MiniBatchProvider _provider;
-            readonly Action<IMiniBatch> _handler;
+            readonly Func<IMiniBatch, IEnumerable<IGraphSequenceContext>> _handler;
 
-            public MiniBatchOperation(uint[] rows, MiniBatchProvider provider, Action<IMiniBatch> handler)
+            public MiniBatchOperation(uint[] rows, MiniBatchProvider provider, Func<IMiniBatch, IEnumerable<IGraphSequenceContext>> handler)
             {
                 _rows = rows;
                 _handler = handler;
                 _provider = provider;
             }
 
-            public void Execute(IGraphExecutionContext executionContext)
+            public IEnumerable<IGraphSequenceContext> Execute(IGraphExecutionContext executionContext)
             {
                 var dataSource = _provider._dataSource;
                 var miniBatch = dataSource.Get(executionContext, _rows);
-                _handler(miniBatch);
+                return _handler(miniBatch);
             }
         }
         readonly IDataSource _dataSource;
@@ -39,7 +40,7 @@ namespace BrightWire.ExecutionGraph.Helper
             _random = random;
         }
 
-        public IEnumerable<IGraphOperation> GetMiniBatches(uint batchSize, Action<IMiniBatch> handler)
+        public IEnumerable<IGraphOperation> GetMiniBatches(uint batchSize, Func<IMiniBatch, IEnumerable<IGraphSequenceContext>> handler)
         {
             var buckets = _dataSource.GetBuckets();
             if (_random != null)

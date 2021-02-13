@@ -10,12 +10,12 @@ namespace BrightWire.ExecutionGraph.Node.Helper
 			{
 			}
 
-			protected override IGraphData Backpropagate(INode? fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
-			{
-				_source._backwardCallback?.Invoke(errorSignal);
-				return errorSignal;
-			}
-		}
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
+            {
+                _source._backwardCallback?.Invoke(errorSignal);
+                return errorSignal;
+            }
+        }
 
 		readonly Action<IGraphData>? _forwardCallback;
 		readonly Action<IGraphData>? _backwardCallback;
@@ -26,13 +26,13 @@ namespace BrightWire.ExecutionGraph.Node.Helper
 			_backwardCallback = backwardCallback;
 		}
 
-		public override void ExecuteForward(IGraphContext context)
-		{
-			_forwardCallback?.Invoke(context.Data);
-			if(_backwardCallback != null)
-				AddNextGraphAction(context, context.Data, () => new Backpropagation(this));
-			else
-				AddNextGraphAction(context, context.Data, null);
-		}
-	}
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        {
+            _forwardCallback?.Invoke(signal);
+            if(_backwardCallback != null)
+                return (this, signal, () => new Backpropagation(this));
+            else
+                return (this, signal, null);
+        }
+    }
 }

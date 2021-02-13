@@ -1,4 +1,5 @@
-﻿using BrightData;
+﻿using System;
+using BrightData;
 
 namespace BrightWire.ExecutionGraph.Node.Operation
 {
@@ -13,11 +14,11 @@ namespace BrightWire.ExecutionGraph.Node.Operation
 				_input = input;
             }
 
-            protected override IGraphData Backpropagate(INode? fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
             {
                 var es = errorSignal.GetMatrix();
-	            var err = es.PointwiseMultiply(_input);
-	            err.Multiply(2f);
+                var err = es.PointwiseMultiply(_input);
+                err.Multiply(2f);
                 return errorSignal.ReplaceWith(err);
             }
         }
@@ -26,11 +27,11 @@ namespace BrightWire.ExecutionGraph.Node.Operation
         {
         }
 
-        public override void ExecuteForward(IGraphContext context)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
-            var input = context.Data.GetMatrix();
+            var input = signal.GetMatrix();
             var inputSquared = input.PointwiseMultiply(input);
-            AddNextGraphAction(context, context.Data.ReplaceWith(inputSquared), () => new Backpropagation(this, input));
+            return (this, signal.ReplaceWith(inputSquared), () => new Backpropagation(this, input));
         }
     }
 }

@@ -11,6 +11,7 @@ using System.Text;
 using BrightData;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
+using BrightWire.ExecutionGraph.Node;
 using BrightWire.Helper;
 
 namespace BrightWire
@@ -23,18 +24,18 @@ namespace BrightWire
         /// <param name="engine">The graph training engine</param>
         /// <param name="numIterations">The number of iterations to train for</param>
         /// <param name="testData">The test data source to use</param>
-        /// <param name="errorMetric">The error metric to evaluate the test data against</param>
         /// <param name="onImprovement">Optional callback for when the test data score has improved against the error metric</param>
         /// <param name="testCadence">Determines how many epochs elapse before the test data is evaluated</param>
-        public static void Train(this IGraphTrainingEngine engine, uint numIterations, IDataSource testData, IErrorMetric errorMetric, Action<GraphModel>? onImprovement = null, int testCadence = 1)
+        public static GraphModel? Train(this IGraphTrainingEngine engine, uint numIterations, IDataSource testData, Action<GraphModel>? onImprovement = null, int testCadence = 1)
         {
-            var executionContext = new ExecutionContext(engine.LinearAlgebraProvider);
+            var executionContext = new ExecutionContext(engine.LinearAlgebraProvider, engine);
             var progress = -1;
             var sw = Stopwatch.StartNew();
             // ReSharper disable once AccessToModifiedClosure
-            engine.Test(testData, errorMetric, 128, percentage => percentage.WriteProgressPercentage(ref progress, sw));
+            engine.Test(testData, 128, percentage => percentage.WriteProgressPercentage(ref progress, sw));
 
             var count = 0;
+            GraphModel? ret = null;
             for (var i = 0; i < numIterations; i++) {
                 progress = -1;
                 sw.Restart();
@@ -42,17 +43,17 @@ namespace BrightWire
                 if (++count == testCadence) {
                     progress = -1;
                     sw.Restart();
-                    if (engine.Test(testData, errorMetric, 128, percentage => percentage.WriteProgressPercentage(ref progress, sw)) && onImprovement != null) {
-                        var bestModel = new GraphModel {
+                    if (engine.Test(testData, 128, percentage => percentage.WriteProgressPercentage(ref progress, sw)) && onImprovement != null) {
+                        ret = new GraphModel {
                             Graph = engine.Graph
                         };
-                        if (engine.DataSource is IAdaptiveDataSource adaptiveDataSource)
-                            bestModel.DataSource = adaptiveDataSource.GetModel();
-                        onImprovement(bestModel);
+                        onImprovement(ret);
                     }
                     count = 0;
                 }
             }
+
+            return ret;
         }
 
         static void WriteProgressPercentage(this float progress, ref int previousPercentage, Stopwatch sw)
@@ -99,11 +100,11 @@ namespace BrightWire
         /// <param name="input"></param>
         /// <param name="name">Name of the graph (optional)</param>
         /// <returns></returns>
-        public static ExecutionGraphModel GetGraph(this INode input, string? name = null)
+        public static ExecutionGraphModel GetGraph(this NodeBase input, string? name = null)
         {
             var connectedTo = new List<ExecutionGraphModel.Node>();
             var wireList = new HashSet<ExecutionGraphModel.Wire>();
-            var existing = new HashSet<INode>();
+            var existing = new HashSet<NodeBase>();
             var data = input.SerialiseTo(existing, connectedTo, wireList);
 
             return new ExecutionGraphModel {
@@ -119,10 +120,10 @@ namespace BrightWire
         /// </summary>
         /// <param name="factory"></param>
         /// <param name="graph">Serialised graph</param>
-        public static INode CreateFrom(this GraphFactory factory, ExecutionGraphModel graph)
+        public static NodeBase CreateFrom(this GraphFactory factory, ExecutionGraphModel graph)
         {
             // create the input node
-            var nodeTable = new Dictionary<string, INode>();
+            var nodeTable = new Dictionary<string, NodeBase>();
             var ret = factory.Create(graph.InputNode);
             nodeTable.Add(ret.Id, ret);
 

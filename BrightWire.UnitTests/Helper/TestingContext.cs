@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using BrightData;
+using BrightWire.ExecutionGraph.Helper;
+using BrightWire.ExecutionGraph.Node;
+using BrightWire.Models;
 
 namespace BrightWire.UnitTests.Helper
 {
-    internal class TestingContext : IGraphContext
+    internal class TestingContext : IGraphSequenceContext
     {
-        public List<(IExecutionHistory, IBackpropagation)> Forward { get; } = new List<(IExecutionHistory, IBackpropagation)>();
-        public List<(IGraphData, INode, INode)> Backward { get; } = new List<(IGraphData, INode, INode)>();
+        public List<(ExecutionHistory, IBackpropagate)> Forward { get; } = new List<(ExecutionHistory, IBackpropagate)>();
 
         public TestingContext(ILinearAlgebraProvider lap)
         {
@@ -20,29 +22,29 @@ namespace BrightWire.UnitTests.Helper
             // nop
         }
 
-        public INode Source { get; }
+        public NodeBase Source { get; }
         public IGraphData Data { get; set; }
         public IGraphExecutionContext ExecutionContext { get; }
         public ILearningContext LearningContext { get; }
         public ILinearAlgebraProvider LinearAlgebraProvider { get; }
 
         public IMiniBatchSequence BatchSequence { get; }
-        public void AddForward(IExecutionHistory action, Func<IBackpropagation> callback)
+        public void AddForward(ExecutionHistory action, Func<IBackpropagate>? callback)
         {
             Forward.Add((action, callback()));
         }
 
-        public void AddBackward(IGraphData errorSignal, INode target, INode source)
-        {
-            Backward.Add((errorSignal, target, source));
-        }
-
-        public void AppendErrorSignal(IGraphData errorSignal, INode forNode)
+        public void AppendErrorSignal(IGraphData errorSignal, NodeBase forNode)
         {
             throw new NotImplementedException();
         }
 
-        public void Backpropagate(IGraphData delta)
+        public void AddForward(NodeBase source, IGraphData data, Func<IBackpropagate>? callback, params NodeBase[] prev)
+        {
+            Forward.Add((new ExecutionHistory(source, data), callback()));
+        }
+
+        public IGraphData? Backpropagate(IGraphData? delta)
         {
             throw new NotImplementedException();
         }
@@ -65,5 +67,7 @@ namespace BrightWire.UnitTests.Helper
         }
 
         public IGraphData[] Output { get; set; }
+
+        public IEnumerable<ExecutionResult> Results { get; }
     }
 }

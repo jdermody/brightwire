@@ -1,4 +1,6 @@
-﻿namespace BrightWire.ExecutionGraph.Node.Output
+﻿using System;
+
+namespace BrightWire.ExecutionGraph.Node.Output
 {
     internal class StoreOutput : NodeBase
 	{
@@ -9,11 +11,11 @@
 			_channel = channel;
 		}
 
-		public override void ExecuteForward(IGraphContext context)
-		{
-			var data = context.Data;
-			context.SetOutput(data, _channel);
-			AddNextGraphAction(context, data, null);
-		}
-	}
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        {
+            var data = context.Data;
+            context.SetOutput(data, _channel);
+            return (this, data, null);
+        }
+    }
 }

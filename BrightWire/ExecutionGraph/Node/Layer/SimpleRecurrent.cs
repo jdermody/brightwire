@@ -1,8 +1,11 @@
-﻿using BrightWire.ExecutionGraph.Node.Input;
+﻿using System;
+using BrightWire.ExecutionGraph.Node.Input;
 using System.Collections.Generic;
 using System.IO;
 using BrightData;
 using BrightWire.ExecutionGraph.Action;
+using BrightWire.ExecutionGraph.Helper;
+using BrightWire.ExecutionGraph.Node.Action;
 
 namespace BrightWire.ExecutionGraph.Node.Layer
 {
@@ -12,19 +15,19 @@ namespace BrightWire.ExecutionGraph.Node.Layer
     internal class SimpleRecurrent : NodeBase, IHaveMemoryNode
     {
         MemoryFeeder _memory;
-        INode _input, _activation, _output;
+        NodeBase _input, _activation, _output;
         OneToMany _start;
         uint _inputSize;
 
 #pragma warning disable 8618
-        public SimpleRecurrent(GraphFactory graph, uint inputSize, float[] memory, INode activation, string? name = null)
+        public SimpleRecurrent(GraphFactory graph, uint inputSize, float[] memory, NodeBase activation, string? name = null)
 #pragma warning restore 8618
             : base(name)
         {
             Create(graph, inputSize, memory, activation, null);
         }
 
-        void Create(GraphFactory graph, uint inputSize, float[] memory, INode activation, string? memoryId)
+        void Create(GraphFactory graph, uint inputSize, float[] memory, NodeBase activation, string? memoryId)
         {
             _inputSize = inputSize;
             _activation = activation;
@@ -46,13 +49,10 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             _start = new OneToMany(SubNodes);
         }
 
-        public override List<IWire> Output => _output.Output;
-        public INode Memory => _memory;
+        public override List<WireToNode> Output => _output.Output;
+        public NodeBase Memory => _memory;
 
-        public override void ExecuteForward(IGraphContext context)
-        {
-            _start.ExecuteForward(context);
-        }
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source) => _start.ForwardInternal(signal, channel, context, source);
 
         protected override (string Description, byte[] Data) GetInfo()
         {
@@ -89,7 +89,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 ReadSubNode(item, factory, reader);
         }
 
-        public override IEnumerable<INode> SubNodes
+        public override IEnumerable<NodeBase> SubNodes
         {
             get
             {

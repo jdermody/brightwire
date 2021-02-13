@@ -342,7 +342,7 @@
 	<summary>
 		Adaptive data sources apply the output from a preliminary graph
 	</summary>
-		<property type="BrightWire.INode" name="AdaptiveInput">
+		<property type="BrightWire.NodeBase" name="AdaptiveInput">
 		<summary>The input node of the preliminary graph</summary>
 	</property>
 	<method type="BrightWire.Models.DataSourceModel" name="GetModel">
@@ -356,10 +356,10 @@
 	</summary>
 		<method type="System.Void" name="Backward">
 		<summary>Backpropagate</summary>
-				<param type="BrightWire.INode" name="fromNode" summary="Node that sent the signal" />
+				<param type="BrightWire.NodeBase" name="fromNode" summary="Node that sent the signal" />
 				<param type="BrightWire.IGraphData" name="errorSignal" summary="Error signal" />
 				<param type="BrightWire.IGraphContext" name="context" summary="Graph context" />
-				<param type="BrightWire.INode[]" name="parents" summary="The current node's parents" />
+				<param type="BrightWire.NodeBase[]" name="parents" summary="The current node's parents" />
 			</method>
 </interface>
 <interface name="BrightData.IBrightDataContext" base="System.IDisposable">
@@ -886,10 +886,10 @@
 	<summary>
 		Record of node execution
 	</summary>
-		<property type="BrightWire.INode" name="Source">
+		<property type="BrightWire.NodeBase" name="Source">
 		<summary>Node that was executed</summary>
 	</property>
-	<property type="BrightWire.INode[]" name="Parents">
+	<property type="BrightWire.NodeBase[]" name="Parents">
 		<summary>The node's parents</summary>
 	</property>
 	<property type="BrightWire.IGraphData" name="Data">
@@ -899,7 +899,7 @@
 		<summary>Optional backpropagation</summary>
 	</property>
 </interface>
-<interface name="BrightWire.IFeedForward" base="BrightWire.INode">
+<interface name="BrightWire.IFeedForward" base="BrightWire.NodeBase">
 	<summary>
 		Feed forward layer
 	</summary>
@@ -1374,7 +1374,7 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 		<property type="System.Boolean" name="IsTraining">
 		<summary>True if the graph is currently training</summary>
 	</property>
-	<property type="BrightWire.INode" name="Source">
+	<property type="BrightWire.NodeBase" name="Source">
 		<summary>Node that sent the current signal</summary>
 	</property>
 	<property type="BrightWire.IGraphData" name="Data">
@@ -1400,13 +1400,13 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 	<method type="System.Void" name="AddBackward">
 		<summary>Sends a backward error signal</summary>
 				<param type="BrightWire.IGraphData" name="errorSignal" summary="Error signal" />
-				<param type="BrightWire.INode" name="target" summary="Node to send to" />
-				<param type="BrightWire.INode" name="source" summary="Node that sent the error" />
+				<param type="BrightWire.NodeBase" name="target" summary="Node to send to" />
+				<param type="BrightWire.NodeBase" name="source" summary="Node that sent the error" />
 			</method>
 	<method type="System.Void" name="AppendErrorSignal">
 		<summary>Records an error signal against a node</summary>
 				<param type="BrightWire.IGraphData" name="errorSignal" summary="Error signal" />
-				<param type="BrightWire.INode" name="forNode" summary="Node to record against" />
+				<param type="BrightWire.NodeBase" name="forNode" summary="Node to record against" />
 			</method>
 	<method type="System.Void" name="Backpropagate">
 		<summary>Backpropagates the signal</summary>
@@ -1498,7 +1498,7 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 		<summary>Executes a sequence of inputs on the current graph</summary>
 				<param type="System.Single[][]" name="input" summary="List of vector inputs" />
 			</method>
-	<property type="BrightWire.INode" name="Start">
+	<property type="BrightWire.NodeBase" name="Start">
 		<summary>The graph's single start node</summary>
 	</property>
 </interface>
@@ -1554,7 +1554,7 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 	<summary>
 		A graph engine that also trains the graph's parameters against training data
 	</summary>
-		<method type="BrightWire.INode" name="GetInput">
+		<method type="BrightWire.NodeBase" name="GetInput">
 		<summary>Returns the specified input node</summary>
 				<param type="System.UInt32" name="index" summary="Index of the input node to retrieve" />
 			</method>
@@ -1632,7 +1632,7 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 	<summary>
 		Nodes that have a memory feeder sub-node
 	</summary>
-		<property type="BrightWire.INode" name="Memory">
+		<property type="BrightWire.NodeBase" name="Memory">
 		<summary>The memory feed sub node</summary>
 	</property>
 </interface>
@@ -1824,7 +1824,7 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 	</property>
 	<method type="System.Void" name="StoreUpdate">
 		<summary>Stores an update to the model parameters</summary>
-				<param type="BrightWire.INode" name="fromNode" summary="The node that is affected by this update" />
+				<param type="BrightWire.NodeBase" name="fromNode" summary="The node that is affected by this update" />
 				<param type="T" name="update" summary="The update" />
 				<param type="System.Action&lt;T&gt;" name="updater" summary="Callback to execute the update" />
 			</method>
@@ -1864,7 +1864,7 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 			</method>
 	<method type="System.Void" name="EnableNodeUpdates">
 		<summary>Enable or disable node parameter updates</summary>
-				<param type="BrightWire.INode" name="node" summary="The node to modify" />
+				<param type="BrightWire.NodeBase" name="node" summary="The node to modify" />
 				<param type="System.Boolean" name="enableUpdates" summary="True if the node can make updates via backpropagation" />
 			</method>
 	<method type="System.Void" name="Clear">
@@ -2160,7 +2160,7 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 		<summary>Training target data</summary>
 	</property>
 </interface>
-<interface name="BrightWire.INode" base="BrightWire.ICanInitialiseNode">
+<interface name="BrightWire.NodeBase" base="BrightWire.ICanInitialiseNode">
 	<summary>
 		Graph node
 	</summary>
@@ -2170,7 +2170,7 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 	<property type="System.String" name="Name">
 		<summary>Friendly name</summary>
 	</property>
-	<property type="System.Collections.Generic.List&lt;BrightWire.IWire&gt;" name="Output">
+	<property type="System.Collections.Generic.List&lt;BrightWire.WireToNode&gt;" name="Output">
 		<summary>List of outgoing wires</summary>
 	</property>
 	<method type="System.Void" name="ExecuteForward">
@@ -2178,26 +2178,26 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 				<param type="BrightWire.IGraphContext" name="context" summary="Graph context" />
 				<param type="System.UInt32" name="channel" summary="Channel the signal was received on" />
 			</method>
-	<method type="BrightWire.INode" name="FindByName">
+	<method type="BrightWire.NodeBase" name="FindByName">
 		<summary>Searches for a node by friendly name</summary>
 				<param type="System.String" name="name" summary="Friendly name of the node to find" />
 			</method>
-	<method type="BrightWire.INode" name="FindById">
+	<method type="BrightWire.NodeBase" name="FindById">
 		<summary>Searches for a node by id</summary>
 				<param type="System.String" name="id" summary="Unique id of the node" />
 			</method>
-	<property type="System.Collections.Generic.IEnumerable&lt;BrightWire.INode&gt;" name="SubNodes">
+	<property type="System.Collections.Generic.IEnumerable&lt;BrightWire.NodeBase&gt;" name="SubNodes">
 		<summary>Sub-nodes of the current node</summary>
 	</property>
 	<method type="BrightWire.Models.ExecutionGraphModel.Node" name="SerialiseTo">
 		<summary>Serialise the node</summary>
-				<param type="System.Collections.Generic.HashSet&lt;BrightWire.INode&gt;" name="existing" summary="Set of nodes that have already been serialised in the current context" />
+				<param type="System.Collections.Generic.HashSet&lt;BrightWire.NodeBase&gt;" name="existing" summary="Set of nodes that have already been serialised in the current context" />
 				<param type="System.Collections.Generic.List&lt;BrightWire.Models.ExecutionGraphModel.Node&gt;" name="connectedTo" summary="List of nodes this node is connected to" />
 				<param type="System.Collections.Generic.HashSet&lt;BrightWire.Models.ExecutionGraphModel.Wire&gt;" name="wireList" summary="List of wires between all connected nodes" />
 			</method>
 	<method type="System.Void" name="OnDeserialise">
 		<summary>Called after the graph has been completely deserialised</summary>
-				<param type="System.Collections.Generic.IReadOnlyDictionary&lt;System.String, BrightWire.INode&gt;" name="graph" summary="Dictionary of nodes with their associated unique ids" />
+				<param type="System.Collections.Generic.IReadOnlyDictionary&lt;System.String, BrightWire.NodeBase&gt;" name="graph" summary="Dictionary of nodes with their associated unique ids" />
 			</method>
 	<method type="System.Void" name="LoadParameters">
 		<summary>Loads parameters into an existing node</summary>
@@ -2922,11 +2922,11 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 				<param type="System.UInt32" name="columns" summary="Column count" />
 			</method>
 </interface>
-<interface name="BrightWire.IWire" base="">
+<interface name="BrightWire.WireToNode" base="">
 	<summary>
 		Wires connect nodes in the graph
 	</summary>
-		<property type="BrightWire.INode" name="SendTo">
+		<property type="BrightWire.NodeBase" name="SendTo">
 		<summary>The node to send a signal to</summary>
 	</property>
 	<property type="System.UInt32" name="Channel">
@@ -2972,17 +2972,17 @@ https://en.wikipedia.org/wiki/Softmax_function</summary>
 			</method>
 	<method type="System.Void" name="Backward" is-static="false">
 		<summary>Called when backpropagating</summary>
-				<param type="BrightWire.INode" name="fromNode" summary="The node that sent the backpropagation signal" />
+				<param type="BrightWire.NodeBase" name="fromNode" summary="The node that sent the backpropagation signal" />
 				<param type="BrightWire.IGraphData" name="errorSignal" summary="The backpropagating error" />
 				<param type="BrightWire.IGraphContext" name="context" summary="Graph context" />
-				<param type="BrightWire.INode[]" name="parents" summary="Parents of the current node" />
+				<param type="BrightWire.NodeBase[]" name="parents" summary="Parents of the current node" />
 			</method>
 	<method type="System.Void" name="_Backward" is-static="false">
 		<summary>Called when a valid error signal has been received</summary>
-				<param type="BrightWire.INode" name="fromNode" summary=">The node that sent the backpropagation signal" />
+				<param type="BrightWire.NodeBase" name="fromNode" summary=">The node that sent the backpropagation signal" />
 				<param type="BrightWire.IGraphData" name="errorSignal" summary="The backpropagating error" />
 				<param type="BrightWire.IGraphContext" name="context" summary="Graph context" />
-				<param type="BrightWire.INode[]" name="parents" summary="Parents of the current node" />
+				<param type="BrightWire.NodeBase[]" name="parents" summary="Parents of the current node" />
 			</method>
 </class>
 <class name="BrightData.Distributions.BernoulliDistribution" base="" is-static="false" is-abstract="false">
@@ -4995,10 +4995,10 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 			</method>
 	<method type="BrightWire.Models.ExecutionGraphModel" name="GetGraph" is-static="true">
 		<summary>Serialises the node and any other connected nodes to an execution graph</summary>
-				<param type="BrightWire.INode" name="input" summary="" />
+				<param type="BrightWire.NodeBase" name="input" summary="" />
 				<param type="System.String" name="name" summary="Name of the graph (optional)" />
 			</method>
-	<method type="BrightWire.INode" name="CreateFrom" is-static="true">
+	<method type="BrightWire.NodeBase" name="CreateFrom" is-static="true">
 		<summary>Creates a node and any other connected nodes from a serialised execution graph</summary>
 				<param type="BrightWire.ExecutionGraph.GraphFactory" name="factory" summary="" />
 				<param type="BrightWire.Models.ExecutionGraphModel" name="graph" summary="Serialised graph" />
@@ -5139,7 +5139,7 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 				<param type="System.UInt32" name="batchSize" summary="" />
 				<param type="System.UInt32" name="hiddenLayerSize" summary="" />
 				<param type="System.UInt32" name="numIterations" summary="" />
-				<param type="System.Func&lt;BrightWire.ExecutionGraph.GraphFactory, BrightWire.INode&gt;" name="activation" summary="" />
+				<param type="System.Func&lt;BrightWire.ExecutionGraph.GraphFactory, BrightWire.NodeBase&gt;" name="activation" summary="" />
 				<param type="System.Func&lt;BrightWire.ExecutionGraph.GraphFactory.GradientDescentProvider, BrightWire.ICreateTemplateBasedGradientDescent&gt;" name="gradientDescent" summary="" />
 				<param type="System.Func&lt;BrightWire.ExecutionGraph.GraphFactory.WeightInitialisationProvider, BrightWire.IWeightInitialisation&gt;" name="weightInitialisation" summary="" />
 			</method>
@@ -6092,31 +6092,31 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 				<param type="BrightWire.Models.DataSourceModel" name="dataSource" summary="The serialised preliminary graph" />
 				<param type="BrightWire.ILearningContext" name="learningContext" summary="Learning context to use while training the preliminary graph" />
 			</method>
-	<method type="(BrightWire.INode RowClassifier, System.UInt32 OutputSize)" name="CreateClassifier" is-static="false">
+	<method type="(BrightWire.NodeBase RowClassifier, System.UInt32 OutputSize)" name="CreateClassifier" is-static="false">
 		<summary>Create a row classifier node</summary>
 				<param type="BrightWire.IRowClassifier" name="classifier" summary="The classifier for each row" />
 				<param type="BrightTable.IRowOrientedDataTable" name="dataTable" summary="The data table that contains the rows to classify (linked by mini batch index)" />
 				<param type="System.String" name="name" summary="Optional name to give the node" />
 			</method>
-	<method type="BrightWire.INode" name="CreateFeedForward" is-static="false">
+	<method type="BrightWire.NodeBase" name="CreateFeedForward" is-static="false">
 		<summary>Creates a feed forward layer</summary>
 				<param type="System.UInt32" name="inputSize" summary="Number of incoming connections" />
 				<param type="System.UInt32" name="outputSize" summary="Number of outgoing connections" />
 				<param type="System.String" name="name" summary="Optional name to give the node" />
 			</method>
-	<method type="BrightWire.INode" name="CreateDropConnect" is-static="false">
+	<method type="BrightWire.NodeBase" name="CreateDropConnect" is-static="false">
 		<summary>Creates a new drop connect layer (a feed forward layer with drop out applied to the weights)</summary>
 				<param type="System.Single" name="dropoutPercentage" summary="Percentage of connections to drop (0..1)" />
 				<param type="System.UInt32" name="inputSize" summary="Number of incoming connections" />
 				<param type="System.UInt32" name="outputSize" summary="Number of outgoing connections" />
 				<param type="System.String" name="name" summary="Optional name to give the node" />
 			</method>
-	<method type="BrightWire.INode" name="CreateTiedFeedForward" is-static="false">
+	<method type="BrightWire.NodeBase" name="CreateTiedFeedForward" is-static="false">
 		<summary>Creates a layer whose weights are shared with another layer (but transposed)</summary>
 				<param type="BrightWire.IFeedForward" name="layer" summary="The layer that shares weights" />
 				<param type="System.String" name="name" summary="Optional name to give the node" />
 			</method>
-	<method type="BrightWire.INode" name="CreateConvolutional" is-static="false">
+	<method type="BrightWire.NodeBase" name="CreateConvolutional" is-static="false">
 		<summary>Creates a convolutional layer</summary>
 				<param type="System.UInt32" name="inputDepth" summary="Input depth" />
 				<param type="System.UInt32" name="filterCount" summary="Number of convolutional filters" />
@@ -6128,7 +6128,7 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 				<param type="System.Boolean" name="shouldBackpropagate" summary="True to calculate the backpropagation error signal" />
 				<param type="System.String" name="name" summary="Optional name to give the node" />
 			</method>
-	<method type="BrightWire.INode" name="CreateMaxPool" is-static="false">
+	<method type="BrightWire.NodeBase" name="CreateMaxPool" is-static="false">
 		<summary>Creates a max pooling convolutional layer</summary>
 				<param type="System.UInt32" name="filterWidth" summary="Width of each filter" />
 				<param type="System.UInt32" name="filterHeight" summary="Height of each filter" />
@@ -6136,67 +6136,67 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 				<param type="System.UInt32" name="yStride" summary="Y stride" />
 				<param type="System.String" name="name" summary="Optional name to give the node" />
 			</method>
-	<method type="BrightWire.INode" name="CreateSimpleRecurrent" is-static="false">
+	<method type="BrightWire.NodeBase" name="CreateSimpleRecurrent" is-static="false">
 		<summary>Creates a simple recurrent layer</summary>
 				<param type="System.UInt32" name="inputSize" summary="Number of incoming connections" />
 				<param type="System.Single[]" name="memory" summary="Size of the layer memory" />
-				<param type="BrightWire.INode" name="activation" summary="Activation layer" />
+				<param type="BrightWire.NodeBase" name="activation" summary="Activation layer" />
 				<param type="System.String" name="name" summary="Optional name to give the node" />
 			</method>
-	<method type="BrightWire.INode" name="CreateElman" is-static="false">
+	<method type="BrightWire.NodeBase" name="CreateElman" is-static="false">
 		<summary>Creates an Elman recurrent layer</summary>
 				<param type="System.UInt32" name="inputSize" summary="Number of incoming connections" />
 				<param type="System.Single[]" name="memory" summary="Size of the layer memory" />
-				<param type="BrightWire.INode" name="activation" summary="First activation layer" />
-				<param type="BrightWire.INode" name="activation2" summary="Second activation layer" />
+				<param type="BrightWire.NodeBase" name="activation" summary="First activation layer" />
+				<param type="BrightWire.NodeBase" name="activation2" summary="Second activation layer" />
 				<param type="System.String" name="name" summary="Optional name to give the node" />
 			</method>
-	<method type="BrightWire.INode" name="CreateJordan" is-static="false">
+	<method type="BrightWire.NodeBase" name="CreateJordan" is-static="false">
 		<summary>Creates a Jordan recurrent layer</summary>
 				<param type="System.UInt32" name="inputSize" summary="Number of incoming connections" />
 				<param type="System.Single[]" name="memory" summary="Size of the layer memory" />
-				<param type="BrightWire.INode" name="activation" summary="First activation layer" />
-				<param type="BrightWire.INode" name="activation2" summary="Second activation layer" />
+				<param type="BrightWire.NodeBase" name="activation" summary="First activation layer" />
+				<param type="BrightWire.NodeBase" name="activation2" summary="Second activation layer" />
 				<param type="System.String" name="name" summary="Optional name to give the node" />
 			</method>
-	<method type="BrightWire.INode" name="CreateOneMinusInput" is-static="false">
+	<method type="BrightWire.NodeBase" name="CreateOneMinusInput" is-static="false">
 		<summary>Creates a node that subtracts each input from 1 (1-x)</summary>
 				<param type="System.String" name="name" summary="Optional name to give the node" />
 			</method>
-	<method type="BrightWire.INode" name="CreateSequenceReverser" is-static="false">
+	<method type="BrightWire.NodeBase" name="CreateSequenceReverser" is-static="false">
 		<summary>Creates a node that outputs the reversed index of the current sequence (for bidirectional recurrent networks)</summary>
 				<param type="System.Int32" name="index" summary="Input index to reverse" />
 				<param type="System.String" name="name" summary="Optional name to give the node" />
 			</method>
-	<method type="BrightWire.INode" name="CreateBatchNormalisation" is-static="false">
+	<method type="BrightWire.NodeBase" name="CreateBatchNormalisation" is-static="false">
 		<summary></summary>
 				<param type="System.UInt32" name="inputSize" summary="" />
 				<param type="System.String" name="name" summary="" />
 			</method>
-	<method type="BrightWire.INode" name="CreateGru" is-static="false">
+	<method type="BrightWire.NodeBase" name="CreateGru" is-static="false">
 		<summary>Creates a GRU recurrent layer</summary>
 				<param type="System.UInt32" name="inputSize" summary="Number of incoming connections" />
 				<param type="System.Single[]" name="memory" summary="Size of the layer memory" />
 				<param type="System.String" name="name" summary="Optional name to give the node" />
 			</method>
-	<method type="BrightWire.INode" name="CreateRan" is-static="false">
+	<method type="BrightWire.NodeBase" name="CreateRan" is-static="false">
 		<summary>Creates a Recurrent Additive Layer (recurrent)</summary>
 				<param type="System.UInt32" name="inputSize" summary="Number of incoming connections" />
 				<param type="System.Single[]" name="memory" summary="Size of the layer memory" />
 				<param type="System.String" name="name" summary="Optional name to give the node" />
 			</method>
-	<method type="BrightWire.INode" name="CreateLstm" is-static="false">
+	<method type="BrightWire.NodeBase" name="CreateLstm" is-static="false">
 		<summary>Creates a LSTM recurrent layer</summary>
 				<param type="System.UInt32" name="inputSize" summary="Number of incoming connections" />
 				<param type="System.Single[]" name="memory" summary="Size of the layer memory" />
 				<param type="System.String" name="name" summary="Optional name to give the node" />
 			</method>
-	<method type="BrightWire.INode" name="CreateDropOut" is-static="false">
+	<method type="BrightWire.NodeBase" name="CreateDropOut" is-static="false">
 		<summary>Creates a layer that drops random connections</summary>
 				<param type="System.Single" name="dropoutPercentage" summary="Percentage to drop (0..1)" />
 				<param type="System.String" name="name" summary="Optional name to give the node" />
 			</method>
-	<method type="BrightWire.INode" name="CreateOutputNode" is-static="false">
+	<method type="BrightWire.NodeBase" name="CreateOutputNode" is-static="false">
 		<summary>Creates a node that writes the current forward signal as an output of the graph</summary>
 				<param type="System.Int32" name="channel" summary="Output channel" />
 				<param type="System.String" name="name" summary="Optional name to give the node" />
@@ -6209,14 +6209,14 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 	<method type="BrightWire.ExecutionGraph.WireBuilder" name="Connect" is-static="false">
 		<summary>Builds a new wire from the selected node</summary>
 				<param type="System.UInt32" name="inputSize" summary="Number of outgoing connections" />
-				<param type="BrightWire.INode" name="node" summary="The node to build from" />
+				<param type="BrightWire.NodeBase" name="node" summary="The node to build from" />
 			</method>
 	<method type="BrightWire.ExecutionGraph.WireBuilder" name="Connect" is-static="false">
 		<summary>Builds a new wire from the selected node</summary>
 				<param type="System.UInt32" name="width" summary="Volume width" />
 				<param type="System.UInt32" name="height" summary="Volume height" />
 				<param type="System.UInt32" name="depth" summary="Volume depth" />
-				<param type="BrightWire.INode" name="node" summary="The node to build from" />
+				<param type="BrightWire.NodeBase" name="node" summary="The node to build from" />
 			</method>
 	<method type="BrightWire.ExecutionGraph.WireBuilder" name="Add" is-static="false">
 		<summary>Adds the output of two wires into a new wire</summary>
@@ -6233,15 +6233,15 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 	<method type="BrightWire.ExecutionGraph.WireBuilder" name="Subtract" is-static="false">
 		<summary>Subtracts the second input from the first input and sends the result to a new wire</summary>
 				<param type="System.UInt32" name="inputSize" summary="The number of connections" />
-				<param type="BrightWire.INode" name="input1" summary="The node to subtract from" />
-				<param type="BrightWire.INode" name="input2" summary="The node to subtract" />
+				<param type="BrightWire.NodeBase" name="input1" summary="The node to subtract from" />
+				<param type="BrightWire.NodeBase" name="input2" summary="The node to subtract" />
 				<param type="System.String" name="name" summary="Optional name to give the node" />
 			</method>
 	<method type="BrightWire.ExecutionGraph.WireBuilder" name="Add" is-static="false">
 		<summary>Adds the output of two nodes together into a new wire</summary>
 				<param type="System.UInt32" name="inputSize" summary="The number of connections" />
-				<param type="BrightWire.INode" name="input1" summary="First node" />
-				<param type="BrightWire.INode" name="input2" summary="Second node" />
+				<param type="BrightWire.NodeBase" name="input1" summary="First node" />
+				<param type="BrightWire.NodeBase" name="input2" summary="Second node" />
 				<param type="System.String" name="name" summary="Optional name to give the node" />
 			</method>
 	<method type="BrightWire.ExecutionGraph.WireBuilder" name="Multiply" is-static="false">
@@ -6253,8 +6253,8 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 	<method type="BrightWire.ExecutionGraph.WireBuilder" name="Multiply" is-static="false">
 		<summary>Multiplies the output of two nodes together into a new wire</summary>
 				<param type="System.UInt32" name="inputSize" summary="The number of connections" />
-				<param type="BrightWire.INode" name="input1" summary="First node" />
-				<param type="BrightWire.INode" name="input2" summary="Second node" />
+				<param type="BrightWire.NodeBase" name="input1" summary="First node" />
+				<param type="BrightWire.NodeBase" name="input2" summary="Second node" />
 				<param type="System.String" name="name" summary="Optional name to give the node" />
 			</method>
 	<method type="BrightWire.ExecutionGraph.WireBuilder" name="Join" is-static="false">
@@ -6269,32 +6269,32 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 				<param type="BrightWire.ExecutionGraph.WireBuilder" name="backwardInput" summary="Backward wire to join" />
 				<param type="System.String" name="name" summary="Optional name to give the node" />
 			</method>
-	<method type="BrightWire.INode" name="CreateWrapper" is-static="false">
+	<method type="BrightWire.NodeBase" name="CreateWrapper" is-static="false">
 		<summary>Wraps an existing node, enabling that node to be used at multiple locations in the same graph</summary>
-				<param type="BrightWire.INode" name="nodeToWrap" summary="Node to wrap" />
+				<param type="BrightWire.NodeBase" name="nodeToWrap" summary="Node to wrap" />
 				<param type="System.String" name="name" summary="Optional name to give the wrapping node" />
 			</method>
-	<method type="BrightWire.INode" name="Create" is-static="false">
+	<method type="BrightWire.NodeBase" name="Create" is-static="false">
 		<summary>Creates a node from it's serialised model</summary>
 				<param type="BrightWire.Models.ExecutionGraphModel.Node" name="node" summary="The node model" />
 			</method>
-	<method type="BrightWire.INode" name="LeakyReluActivation" is-static="false">
+	<method type="BrightWire.NodeBase" name="LeakyReluActivation" is-static="false">
 		<summary>Creates a new leaky relu activation layer</summary>
 				<param type="System.String" name="name" summary="Optional name to give the node" />
 			</method>
-	<method type="BrightWire.INode" name="ReluActivation" is-static="false">
+	<method type="BrightWire.NodeBase" name="ReluActivation" is-static="false">
 		<summary>Creates a new relu activation layer</summary>
 				<param type="System.String" name="name" summary="Optional name to give the node" />
 			</method>
-	<method type="BrightWire.INode" name="SigmoidActivation" is-static="false">
+	<method type="BrightWire.NodeBase" name="SigmoidActivation" is-static="false">
 		<summary>Creates a new sigmoid activation layer</summary>
 				<param type="System.String" name="name" summary="Optional name to give the node" />
 			</method>
-	<method type="BrightWire.INode" name="TanhActivation" is-static="false">
+	<method type="BrightWire.NodeBase" name="TanhActivation" is-static="false">
 		<summary>Creates a new tanh activation layer</summary>
 				<param type="System.String" name="name" summary="Optional name to give the node" />
 			</method>
-	<method type="BrightWire.INode" name="SoftMaxActivation" is-static="false">
+	<method type="BrightWire.NodeBase" name="SoftMaxActivation" is-static="false">
 		<summary>Creates a new softmax activation layer</summary>
 				<param type="System.String" name="name" summary="Optional name to give the node" />
 			</method>
@@ -6398,19 +6398,19 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 	<summary>
 		Provides standard graph operations
 	</summary>
-	<method type="BrightWire.INode" name="OneDividedBy" is-static="false">
+	<method type="BrightWire.NodeBase" name="OneDividedBy" is-static="false">
 		<summary>Calculates inverse (1/x) of graph input</summary>
 				<param type="System.String" name="name" summary="" />
 			</method>
-	<method type="BrightWire.INode" name="InputSquared" is-static="false">
+	<method type="BrightWire.NodeBase" name="InputSquared" is-static="false">
 		<summary>Calculates square (x^2) of graph input</summary>
 				<param type="System.String" name="name" summary="" />
 			</method>
-	<method type="BrightWire.INode" name="SquareRootOf" is-static="false">
+	<method type="BrightWire.NodeBase" name="SquareRootOf" is-static="false">
 		<summary>Calculates square root of graph input</summary>
 				<param type="System.String" name="name" summary="" />
 			</method>
-	<method type="BrightWire.INode" name="OneMinusInput" is-static="false">
+	<method type="BrightWire.NodeBase" name="OneMinusInput" is-static="false">
 		<summary>Caclculates one minus graph input (1-x)</summary>
 				<param type="System.String" name="name" summary="" />
 			</method>
@@ -7271,7 +7271,7 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 	<property type="System.String" name="Name">
 		<summary>The node's name in the graph</summary>
 	</property>
-	<property type="System.Collections.Generic.List&lt;BrightWire.IWire&gt;" name="Output">
+	<property type="System.Collections.Generic.List&lt;BrightWire.WireToNode&gt;" name="Output">
 		<summary>The list of outgoing wires along which the output signal will be sent</summary>
 	</property>
 	<method type="System.Void" name="ExecuteForward" is-static="false">
@@ -7285,13 +7285,13 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 			</method>
 	<method type="BrightWire.Models.ExecutionGraphModel.Node" name="SerialiseTo" is-static="false">
 		<summary>Serialise this node and any connected nodes</summary>
-				<param type="System.Collections.Generic.HashSet&lt;BrightWire.INode&gt;" name="existing" summary="Set of nodes that have already been serialised in the current context" />
+				<param type="System.Collections.Generic.HashSet&lt;BrightWire.NodeBase&gt;" name="existing" summary="Set of nodes that have already been serialised in the current context" />
 				<param type="System.Collections.Generic.List&lt;BrightWire.Models.ExecutionGraphModel.Node&gt;" name="connectedTo" summary="List of nodes this node is connected to" />
 				<param type="System.Collections.Generic.HashSet&lt;BrightWire.Models.ExecutionGraphModel.Wire&gt;" name="wireList" summary="List of wires between all connected nodes" />
 			</method>
 	<method type="System.Void" name="OnDeserialise" is-static="false">
 		<summary>Called after the graph has been completely deserialised</summary>
-				<param type="System.Collections.Generic.IReadOnlyDictionary&lt;System.String, BrightWire.INode&gt;" name="graph" summary="The complete graph" />
+				<param type="System.Collections.Generic.IReadOnlyDictionary&lt;System.String, BrightWire.NodeBase&gt;" name="graph" summary="The complete graph" />
 			</method>
 	<method type="System.Void" name="WriteTo" is-static="false">
 		<summary>Serialise the node</summary>
@@ -7302,15 +7302,15 @@ https://en.wikipedia.org/wiki/Tf%E2%80%93idf</summary>
 				<param type="BrightWire.ExecutionGraph.GraphFactory" name="factory" summary="Graph factory" />
 				<param type="System.IO.BinaryReader" name="reader" summary="Binary reader" />
 			</method>
-	<method type="BrightWire.INode" name="FindByName" is-static="false">
+	<method type="BrightWire.NodeBase" name="FindByName" is-static="false">
 		<summary>Finds a connected node by friendly name</summary>
 				<param type="System.String" name="name" summary="The node's name to search for" />
 			</method>
-	<method type="BrightWire.INode" name="FindById" is-static="false">
+	<method type="BrightWire.NodeBase" name="FindById" is-static="false">
 		<summary>Finds a connected node by id</summary>
 				<param type="System.String" name="id" summary="Unique id to find" />
 			</method>
-	<property type="System.Collections.Generic.IEnumerable&lt;BrightWire.INode&gt;" name="SubNodes">
+	<property type="System.Collections.Generic.IEnumerable&lt;BrightWire.NodeBase&gt;" name="SubNodes">
 		<summary>The list of sub-nodes</summary>
 	</property>
 	<method type="System.Void" name="LoadParameters" is-static="false">
@@ -7828,10 +7828,10 @@ Double not or punctuation stops the not mode</summary>
 	</summary>
 	<method type="System.Void" name="_Backward" is-static="false">
 		<summary>Called when a valid error signal has been received</summary>
-				<param type="BrightWire.INode" name="fromNode" summary="The node that sent the backpropagation signal" />
+				<param type="BrightWire.NodeBase" name="fromNode" summary="The node that sent the backpropagation signal" />
 				<param type="BrightWire.IGraphData" name="errorSignal" summary="The backpropagating error" />
 				<param type="BrightWire.IGraphContext" name="context" summary="Graph context" />
-				<param type="BrightWire.INode[]" name="parents" summary="Parents of the current node" />
+				<param type="BrightWire.NodeBase[]" name="parents" summary="Parents of the current node" />
 			</method>
 </class>
 <class name="BrightData.Analysis.StringAnalyser" base="BrightData.Analysis.FrequencyAnalyser&lt;System.String&gt;" is-static="false" is-abstract="false">
@@ -8417,17 +8417,17 @@ Double not or punctuation stops the not mode</summary>
 	</summary>
 	<method type="System.Void" name="TrainingAction" is-static="false">
 		<summary>Creates a training action history from a single optional parent</summary>
-				<param type="BrightWire.INode" name="source" summary="The node that executed" />
+				<param type="BrightWire.NodeBase" name="source" summary="The node that executed" />
 				<param type="BrightWire.IGraphData" name="data" summary="The output of the node" />
-				<param type="BrightWire.INode" name="parent" summary="The single parent that contributed to the output (optional)" />
+				<param type="BrightWire.NodeBase" name="parent" summary="The single parent that contributed to the output (optional)" />
 			</method>
 	<method type="System.Void" name="TrainingAction" is-static="false">
 		<summary>Creates a training action history from multiple parents</summary>
-				<param type="BrightWire.INode" name="source" summary="The node that executed" />
+				<param type="BrightWire.NodeBase" name="source" summary="The node that executed" />
 				<param type="BrightWire.IGraphData" name="data" summary="The output of the node" />
-				<param type="BrightWire.INode[]" name="parents" summary="The parent nodes that contributed to the output" />
+				<param type="BrightWire.NodeBase[]" name="parents" summary="The parent nodes that contributed to the output" />
 			</method>
-	<property type="BrightWire.INode" name="Source">
+	<property type="BrightWire.NodeBase" name="Source">
 		<summary></summary>
 	</property>
 	<property type="BrightWire.IGraphData" name="Data">
@@ -8436,7 +8436,7 @@ Double not or punctuation stops the not mode</summary>
 	<property type="BrightWire.IBackpropagation" name="Backpropagation">
 		<summary></summary>
 	</property>
-	<property type="BrightWire.INode[]" name="Parents">
+	<property type="BrightWire.NodeBase[]" name="Parents">
 		<summary></summary>
 	</property>
 </class>
@@ -8699,7 +8699,7 @@ Double not or punctuation stops the not mode</summary>
 		<summary>Connects new nodes starting from the specified node</summary>
 				<param type="BrightWire.ExecutionGraph.GraphFactory" name="factory" summary="Graph factory" />
 				<param type="System.UInt32" name="size" summary="Initial wire size" />
-				<param type="BrightWire.INode" name="node" summary="The node to build from" />
+				<param type="BrightWire.NodeBase" name="node" summary="The node to build from" />
 			</method>
 	<method type="System.Void" name="WireBuilder" is-static="false">
 		<summary>Connects new nodes starting from the specified node</summary>
@@ -8707,7 +8707,7 @@ Double not or punctuation stops the not mode</summary>
 				<param type="System.UInt32" name="width" summary="Initial input width" />
 				<param type="System.UInt32" name="height" summary="Initial input height" />
 				<param type="System.UInt32" name="depth" summary="Initial input depth" />
-				<param type="BrightWire.INode" name="node" summary="The node to build from" />
+				<param type="BrightWire.NodeBase" name="node" summary="The node to build from" />
 			</method>
 	<method type="System.Void" name="WireBuilder" is-static="false">
 		<summary>Connects new nodes to the engine output node</summary>
@@ -8756,7 +8756,7 @@ Double not or punctuation stops the not mode</summary>
 			</method>
 	<method type="BrightWire.ExecutionGraph.WireBuilder" name="Add" is-static="false">
 		<summary>Adds a node</summary>
-				<param type="BrightWire.INode" name="node" summary="" />
+				<param type="BrightWire.NodeBase" name="node" summary="" />
 			</method>
 	<method type="BrightWire.ExecutionGraph.WireBuilder" name="AddForwardAction" is-static="false">
 		<summary>Adds an action that will be executed in the forward pass</summary>
@@ -8774,41 +8774,41 @@ Double not or punctuation stops the not mode</summary>
 			</method>
 	<method type="BrightWire.ExecutionGraph.WireBuilder" name="AddSimpleRecurrent" is-static="false">
 		<summary>Adds a simple recurrent neural network layer</summary>
-				<param type="BrightWire.INode" name="activation" summary="Activation layer" />
+				<param type="BrightWire.NodeBase" name="activation" summary="Activation layer" />
 				<param type="System.Single[]" name="initialMemory" summary="Initial memory" />
 				<param type="System.String" name="name" summary="Optional name to give the node" />
 			</method>
 	<method type="BrightWire.ExecutionGraph.WireBuilder" name="AddSimpleRecurrent" is-static="false">
 		<summary>Adds a simple recurrent neural network layer</summary>
-				<param type="BrightWire.INode" name="activation" summary="Activation layer" />
+				<param type="BrightWire.NodeBase" name="activation" summary="Activation layer" />
 				<param type="System.UInt32" name="memorySize" summary="Size of the memory buffer" />
 				<param type="System.String" name="name" summary="Optional name to give the node" />
 			</method>
 	<method type="BrightWire.ExecutionGraph.WireBuilder" name="AddElman" is-static="false">
 		<summary>Adds an Elman recurrent neural network layer</summary>
-				<param type="BrightWire.INode" name="activation" summary="First activation layer" />
-				<param type="BrightWire.INode" name="activation2" summary="Second activation layer" />
+				<param type="BrightWire.NodeBase" name="activation" summary="First activation layer" />
+				<param type="BrightWire.NodeBase" name="activation2" summary="Second activation layer" />
 				<param type="System.Single[]" name="initialMemory" summary="Initial memory" />
 				<param type="System.String" name="name" summary="Optional name to give the node" />
 			</method>
 	<method type="BrightWire.ExecutionGraph.WireBuilder" name="AddElman" is-static="false">
 		<summary>Adds an Elman recurrent neural network layer</summary>
-				<param type="BrightWire.INode" name="activation" summary="First activation layer" />
-				<param type="BrightWire.INode" name="activation2" summary="Second activation layer" />
+				<param type="BrightWire.NodeBase" name="activation" summary="First activation layer" />
+				<param type="BrightWire.NodeBase" name="activation2" summary="Second activation layer" />
 				<param type="System.UInt32" name="memorySize" summary="Size of the memory buffer" />
 				<param type="System.String" name="name" summary="Optional name to give the node" />
 			</method>
 	<method type="BrightWire.ExecutionGraph.WireBuilder" name="AddJordan" is-static="false">
 		<summary>Adds a Jordan recurrent neural network layer</summary>
-				<param type="BrightWire.INode" name="activation" summary="First activation layer" />
-				<param type="BrightWire.INode" name="activation2" summary="Second activation layer" />
+				<param type="BrightWire.NodeBase" name="activation" summary="First activation layer" />
+				<param type="BrightWire.NodeBase" name="activation2" summary="Second activation layer" />
 				<param type="System.Single[]" name="initialMemory" summary="Initial memory" />
 				<param type="System.String" name="name" summary="Optional name to give the node" />
 			</method>
 	<method type="BrightWire.ExecutionGraph.WireBuilder" name="AddJordan" is-static="false">
 		<summary>Adds a Jordan recurrent neural network layer</summary>
-				<param type="BrightWire.INode" name="activation" summary="First activation layer" />
-				<param type="BrightWire.INode" name="activation2" summary="Second activation layer" />
+				<param type="BrightWire.NodeBase" name="activation" summary="First activation layer" />
+				<param type="BrightWire.NodeBase" name="activation2" summary="Second activation layer" />
 				<param type="System.UInt32" name="memorySize" summary="Size of the memory buffer" />
 				<param type="System.String" name="name" summary="Optional name to give the node" />
 			</method>
@@ -8907,11 +8907,11 @@ Double not or punctuation stops the not mode</summary>
 				<param type="System.String" name="slotName" summary="Memory slot name" />
 				<param type="System.String" name="name" summary="Optional name to give the node" />
 			</method>
-	<method type="BrightWire.INode" name="Find" is-static="false">
+	<method type="BrightWire.NodeBase" name="Find" is-static="false">
 		<summary>Tries to find the specified node</summary>
 				<param type="System.String" name="name" summary="The friendly name of the node" />
 			</method>
-	<property type="BrightWire.INode" name="LastNode">
+	<property type="BrightWire.NodeBase" name="LastNode">
 		<summary>The last added node</summary>
 	</property>
 </class>
@@ -8921,10 +8921,10 @@ Double not or punctuation stops the not mode</summary>
 	</summary>
 	<method type="System.Void" name="WireToNode" is-static="false">
 		<summary>Constructor</summary>
-				<param type="BrightWire.INode" name="node" summary="The destination node" />
+				<param type="BrightWire.NodeBase" name="node" summary="The destination node" />
 				<param type="System.UInt32" name="channel" summary="The input channel on the node" />
 			</method>
-	<property type="BrightWire.INode" name="SendTo">
+	<property type="BrightWire.NodeBase" name="SendTo">
 		<summary></summary>
 	</property>
 	<property type="System.UInt32" name="Channel">

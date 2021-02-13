@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BrightData;
+using BrightWire.ExecutionGraph.Helper;
 using BrightWire.ExecutionGraph.Node.Operation;
 using BrightWire.Helper;
 
@@ -16,7 +17,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
     internal class BatchNorm : NodeBase
 	{
 		uint _inputSize;
-		INode _input, _output;
+		NodeBase _input, _output;
 		VectorInput _gamma, _beta;
 		VectorBasedStatistics _statistics;
 		OneToMany _start;
@@ -62,7 +63,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 	        _start = new OneToMany(SubNodes, bp => { });
         }
 
-		public override IEnumerable<INode> SubNodes
+		public override IEnumerable<NodeBase> SubNodes
 		{
 			get
 			{
@@ -72,16 +73,16 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 			}
 		}
 
-		public override List<IWire> Output => _output.Output;
+		public override List<WireToNode> Output => _output.Output;
 
-		public override void ExecuteForward(IGraphContext context)
-		{
-			var data = context.Data;
-			IFloatMatrix input;
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        {
+            IFloatMatrix input;
 			IReadOnlyList<IFloatVector> samples;
             var shouldDispose = false;
+            (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ret = (this, GraphData.Null, null);
 
-			if (data.Depth > 1) {
+			if (signal.Depth > 1) {
                 throw new NotImplementedException();
 				// reshape the tensor by depth slice
 				//var tensor4D = data.Get4DTensor();
@@ -102,7 +103,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 				//shouldDispose = true;
             }
 			else {
-				input = context.Data.GetMatrix();
+				input = signal.GetMatrix();
 				samples = input.RowVectors();
 			}
 
@@ -115,7 +116,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 			}
 
 			if (context.LearningContext != null) {
-				_start.ExecuteForward(context);
+				ret = _start.ForwardInternal(signal, channel, context, source);
 
 				// invalidate the cache
 				if (_gammaCached != null) {
@@ -146,18 +147,19 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 				
 				input.SubtractInPlace(_meanCached);
                 using var xHat = input.PointwiseDivide(_stdDevCached);
-                using var ret = xHat.PointwiseMultiply(_gammaCached);
-                ret.AddInPlace(_betaCached);
-                AddNextGraphAction(context, context.Data.ReplaceWith(ret), null);
+                using var output = xHat.PointwiseMultiply(_gammaCached);
+                output.AddInPlace(_betaCached);
+                ret = (this, signal.ReplaceWith(output), null);
             }
 
 			if (shouldDispose)
 				input.Dispose();
 			foreach (var item in samples)
 				item.Dispose();
-		}
+            return ret;
+        }
 
-		protected override (string Description, byte[] Data) GetInfo()
+        protected override (string Description, byte[] Data) GetInfo()
 		{
 			return ("BN", WriteData(WriteTo));
 		}

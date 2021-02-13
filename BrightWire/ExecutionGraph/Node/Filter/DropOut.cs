@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using BrightData;
 using BrightData.Helper;
 
@@ -19,7 +20,7 @@ namespace BrightWire.ExecutionGraph.Node.Filter
                 _filter = filter;
             }
 
-            protected override IGraphData Backpropagate(INode? fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
             {
                 var output = errorSignal.GetMatrix().PointwiseMultiply(_filter);
                 return errorSignal.ReplaceWith(output);
@@ -34,17 +35,17 @@ namespace BrightWire.ExecutionGraph.Node.Filter
             _probabilityToDrop = context.CreateBernoulliDistribution(_dropOutPercentage);
         }
 
-        public override void ExecuteForward(IGraphContext context)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
             if (context.LearningContext != null) {
                 // drop out random neurons during training
                 var lap = context.LinearAlgebraProvider;
-                var matrix = context.Data.GetMatrix();
+                var matrix = signal.GetMatrix();
                 var filter = lap.CreateMatrix(matrix.RowCount, matrix.ColumnCount, (i, j) => FloatMath.IsZero(_dropOutPercentage) ? 1f : _probabilityToDrop!.Sample() == 1 ? 0f : 1f / _dropOutPercentage);
                 var output = matrix.PointwiseMultiply(filter);
-                AddNextGraphAction(context, context.Data.ReplaceWith(output), () => new Backpropagation(this, filter));
-            } else
-                AddNextGraphAction(context, context.Data, null);
+                return (this, signal.ReplaceWith(output), () => new Backpropagation(this, filter));
+            }
+            return (this, signal, null);
         }
 
         protected override (string Description, byte[] Data) GetInfo()

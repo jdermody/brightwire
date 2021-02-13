@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace BrightWire.ExecutionGraph.Node.Helper
 {
@@ -13,23 +14,23 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             {
             }
 
-            public override void BackwardInternal(INode? fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
+            public override IEnumerable<(IGraphData Signal, NodeBase ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents)
             {
                 _source._tryRestore(context);
-                SendErrorTo(errorSignal, context, parents);
+                return ErrorTo(errorSignal, parents);
             }
         }
 
-        readonly Action<IGraphContext> _tryRestore;
+        readonly Action<IGraphSequenceContext> _tryRestore;
 
-        public HookErrorSignal(Action<IGraphContext> tryRestore, string? name = null) : base(name)
+        public HookErrorSignal(Action<IGraphSequenceContext> tryRestore, string? name = null) : base(name)
         {
             _tryRestore = tryRestore;
         }
 
-        public override void ExecuteForward(IGraphContext context)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
-            AddNextGraphAction(context, context.Data, () => new Backpropagation(this));
+            return (this, signal, () => new Backpropagation(this));
         }
     }
 }

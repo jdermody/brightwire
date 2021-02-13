@@ -30,7 +30,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             /// <summary>
             /// The node the signal came from
             /// </summary>
-            public INode? Source { get; private set; }
+            public NodeBase? Source { get; private set; }
 
             /// <summary>
             /// The size of the input signal
@@ -53,7 +53,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             /// </summary>
             /// <param name="data">The node signal</param>
             /// <param name="source">The source node</param>
-            public void SetData(IFloatMatrix? data, INode? source)
+            public void SetData(IFloatMatrix? data, NodeBase? source)
             {
                 Data = data;
                 Source = source;
@@ -88,32 +88,25 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 _data[i] = new IncomingChannel(incoming[i].CurrentSize, i);
         }
 
-        /// <summary>
-        /// Executes on the primary channel
-        /// </summary>
-        /// <param name="context">The graph context</param>
-        public override void ExecuteForward(IGraphContext context)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
-            ExecuteForwardInternal(context, 0);
-        }
+            IGraphData next = GraphData.Null;
+            Func<IBackpropagate>? backProp = null;
 
-        /// <summary>
-        /// Executes on a secondary channel
-        /// </summary>
-        /// <param name="context">The graph context</param>
-        /// <param name="channel">The channel</param>
-        protected override void ExecuteForwardInternal(IGraphContext context, uint channel)
-        {
             if (_data.TryGetValue(channel, out var data)) {
-                data.SetData(context.Data.GetMatrix(), context.Source);
+                data.SetData(signal.GetMatrix(), source);
                 if(_data.All(kv => kv.Value.IsValid)) {
-                    Activate(context, _data.Select(kv => kv.Value).ToList());
+                    IFloatMatrix matrix;
+                    (matrix, backProp) = Activate2(context, _data.Select(kv => kv.Value).ToList());
+                    next = signal.ReplaceWith(matrix);
 
                     // reset the inputs
                     foreach (var item in _data)
                         item.Value.Clear();
                 }
             }
+
+            return (this, next, backProp);
         }
 
         /// <summary>
@@ -121,7 +114,9 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// </summary>
         /// <param name="context">The graph context</param>
         /// <param name="data">The list of incoming signals</param>
-        protected abstract void Activate(IGraphContext context, List<IncomingChannel> data);
+        protected abstract void Activate(IGraphSequenceContext context, List<IncomingChannel> data);
+
+        protected abstract (IFloatMatrix Next, Func<IBackpropagate>? BackProp) Activate2(IGraphSequenceContext context, List<IncomingChannel> data);
 
         /// <summary>
         /// Records the network activity
@@ -130,10 +125,10 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// <param name="data">The list of incoming signals</param>
         /// <param name="output">Output signal</param>
         /// <param name="backpropagation">Backpropagation creator (optional)</param>
-        protected void AddHistory(IGraphContext context, List<IncomingChannel> data, IFloatMatrix output, Func<IBackpropagation> backpropagation)
+        protected void AddHistory(IGraphSequenceContext context, List<IncomingChannel> data, IFloatMatrix output, Func<IBackpropagate> backpropagation)
         {
             var sources = data.Where(d => d.Source != null).Select(d => d.Source!).ToArray();
-            context.AddForward(new TrainingAction(this, new MatrixGraphData(output), sources), backpropagation);
+            context.AddForward(this, new MatrixGraphData(output), backpropagation, sources);
         }
 
 	    /// <inheritdoc />

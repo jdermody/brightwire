@@ -3,62 +3,55 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using BrightData;
+using BrightWire.Models;
 
 namespace BrightWire.ExecutionGraph.Node.Helper
 {
     internal class NodeWrapper : NodeBase
     {
-        class ContextProxy : IGraphContext
+        class ContextProxy : IGraphSequenceContext
         {
-            readonly IGraphContext _context;
-            readonly INode _wrapper;
+            readonly IGraphSequenceContext _context;
+            readonly NodeBase _wrapper;
 
-            public ContextProxy(IGraphContext context, INode wrapper)
+            public ContextProxy(IGraphSequenceContext context, NodeBase wrapper)
             {
                 _context = context;
                 _wrapper = wrapper;
             }
 
-            public INode? Source => _context.Source;
-            public IGraphData Data => _context.Data;
+            public NodeBase? Source => _context.Source;
+
+            public IGraphData Data
+            {
+                get =>_context.Data;
+                set => _context.Data = value;
+            }
             public IGraphExecutionContext ExecutionContext => _context.ExecutionContext;
             public ILearningContext? LearningContext => _context.LearningContext;
             public ILinearAlgebraProvider LinearAlgebraProvider => _context.LinearAlgebraProvider;
             public IMiniBatchSequence BatchSequence => _context.BatchSequence;
             public IGraphData? ErrorSignal => _context.ErrorSignal;
-            public bool HasNext => _context.HasNext;
 
-            public void AddBackward(IGraphData? errorSignal, INode target, INode source)
+            public void AddForward(ExecutionHistory action, Func<IBackpropagate>? callback)
             {
-                _context.AddBackward(errorSignal, target, source);
+                
+                
             }
 
-            public void AddForward(IExecutionHistory action, Func<IBackpropagation>? callback)
+            public void AddForward(NodeBase source, IGraphData data, Func<IBackpropagate>? callback, params NodeBase[] prev)
             {
                 // TODO: wrap the backpropagation?
-                _context.AddForward(new TrainingAction(_wrapper, action.Data, action.Source), callback);
+                _context.AddForward(_wrapper, data, callback, prev);
             }
 
-            public void AppendErrorSignal(IGraphData errorSignal, INode forNode)
-            {
-                _context.AppendErrorSignal(errorSignal, forNode);
-            }
-
-            public void Backpropagate(IGraphData? delta)
-            {
-                _context.Backpropagate(delta);
-            }
+            public IGraphData? Backpropagate(IGraphData? delta) => _context.Backpropagate(delta);
 
             public void Dispose()
             {
             }
 
-            public bool ExecuteNext()
-            {
-                return _context.ExecuteNext();
-            }
-
-	        public void SetOutput(IGraphData data, int channel = 0)
+            public void SetOutput(IGraphData data, int channel = 0)
 	        {
 		        _context.SetOutput(data, channel);
 	        }
@@ -69,24 +62,20 @@ namespace BrightWire.ExecutionGraph.Node.Helper
 	        }
 
 	        public IGraphData[] Output => _context.Output;
+            public IEnumerable<ExecutionResult> Results => _context.Results;
         }
-        INode _node;
+        NodeBase _node;
         string _nodeId;
 
-        public NodeWrapper(INode node, string? name = null) : base(name)
+        public NodeWrapper(NodeBase node, string? name = null) : base(name)
         {
             _node = node;
             _nodeId = node.Id;
         }
 
-        public override void ExecuteForward(IGraphContext context)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
-            _node.ExecuteForward(new ContextProxy(context, this), 0);
-        }
-
-        protected override void ExecuteForwardInternal(IGraphContext context, uint channel)
-        {
-            _node.ExecuteForward(new ContextProxy(context, this), channel);
+            return _node.ForwardInternal(signal, channel, context, source);
         }
 
         protected override (string Description, byte[] Data) GetInfo()
@@ -104,7 +93,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             _nodeId = reader.ReadString();
         }
 
-        public override void OnDeserialise(IReadOnlyDictionary<string, INode> graph)
+        public override void OnDeserialise(IReadOnlyDictionary<string, NodeBase> graph)
         {
             _node = graph[_nodeId];
         }

@@ -18,12 +18,12 @@ namespace ExampleCode.DataTableTrainers
 
             // train a model
             var graph = context.CreateGraphFactory();
-            var model = graph.TrainSimpleNeuralNetwork(Training, Test, graph.ErrorMetric.CrossEntropy, learningRate, batchSize,
+            var model = graph.TrainSimpleNeuralNetwork(Training, Test, graph.ErrorMetric.BinaryClassification, learningRate, batchSize,
                 hiddenLayerSize, numIterations, g => g.SigmoidActivation(), g => g.RmsProp, g => g.Gaussian);
 
             if (model != null) {
                 // create a new network to execute the learned network
-                var executionEngine = graph.CreateEngine(model);
+                var executionEngine = graph.CreateExecutionEngine(model);
                 var testData = graph.CreateDataSource(Test);
                 var output = executionEngine.Execute(testData).ToList();
                 if (writeResults) {

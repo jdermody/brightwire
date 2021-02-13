@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using BrightData;
 
 namespace BrightWire.ExecutionGraph.Node.Layer
@@ -23,7 +25,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 //_input.Dispose();
             }
 
-            protected override IGraphData Backpropagate(INode? fromNode, IGraphData errorSignal, IGraphContext context, INode[] parents)
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
             {
                 var es = errorSignal.GetMatrix();
 
@@ -85,13 +87,12 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             return output;
         }
 
-        public override void ExecuteForward(IGraphContext context)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
-            var input = context.Data.GetMatrix();
+            var input = signal.GetMatrix();
             var output = FeedForwardInternal(input, _weight);
 
-            // set output
-            AddNextGraphAction(context, context.Data.ReplaceWith(output), () => new Backpropagation(this, input));
+            return (this, signal.ReplaceWith(output), () => new Backpropagation(this, input));
         }
 
         protected override (string Description, byte[] Data) GetInfo()

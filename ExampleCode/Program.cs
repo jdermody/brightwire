@@ -26,7 +26,7 @@ namespace ExampleCode
             //Control.UseNativeMKL();
 
             // IMPORTANT: uncomment below to use CUDA (if you have installed the CUDA toolkit from https://developer.nvidia.com/cuda-toolkit and have a supported Nvidia GPU)
-            //useCuda = true;
+            useCuda = true;
 
             // set where to save training data files
             context.Set("DataFileDirectory", new DirectoryInfo(@"c:\data"));
@@ -80,7 +80,7 @@ namespace ExampleCode
         static void Xor(IBrightDataContext context)
         {
             Start(context);
-            context.Xor().TrainSigmoidNeuralNetwork(6, 300, 0.5f, 4);
+            context.Xor().TrainSigmoidNeuralNetwork(6, 50, 0.5f, 4);
         }
 
         static void IrisClassification(IBrightDataContext context)
@@ -186,7 +186,7 @@ namespace ExampleCode
         {
             Start(context);
             var reber = context.ReberSequencePrediction();
-            var engine = reber.TrainLstm();
+            var engine = reber.TrainGru();
             reber.GenerateSequences(engine);
         }
 

@@ -3,8 +3,17 @@ using BrightData;
 
 namespace BrightWire.ExecutionGraph.Helper
 {
+    public static class GraphData
+    {
+        public static readonly IGraphData Null = new NullGraphData();
+    }
+
     class NullGraphData : IGraphData
     {
+        internal NullGraphData()
+        {
+        }
+
         public uint Rows { get; } = 0;
         public uint Columns { get; } = 0;
         public uint Depth { get; } = 0;
@@ -30,6 +39,8 @@ namespace BrightWire.ExecutionGraph.Helper
         }
 
         public bool HasValue { get; } = false;
+
+        public override string ToString() => "Null graph data";
     }
 
     /// <summary>
@@ -59,6 +70,8 @@ namespace BrightWire.ExecutionGraph.Helper
             };
         }
         public bool HasValue { get; } = true;
+
+        public override string ToString() => $"Matrix graph data (rows:{Rows}, columns:{Columns})";
     }
 
     /// <summary>
@@ -85,7 +98,7 @@ namespace BrightWire.ExecutionGraph.Helper
         public uint Count => 1;
 	    public IFloatMatrix GetMatrix() => _matrix;
         public IGraphData ReplaceWith(IFloatMatrix matrix) => new Tensor3DGraphData(matrix, Rows, Columns);
-        public IGraphData ReplaceWith(IGraphContext context, IFloatMatrix[] matrixList)
+        public IGraphData ReplaceWith(IGraphSequenceContext context, IFloatMatrix[] matrixList)
         {
             Debug.Assert(matrixList.Length == Depth);
             var tensor = context.LinearAlgebraProvider.Create3DTensor(matrixList);
@@ -103,6 +116,7 @@ namespace BrightWire.ExecutionGraph.Helper
             return null;
         }
         public bool HasValue { get; } = true;
+        public override string ToString() => $"Tensor 3D graph data (rows:{Rows}, columns:{Columns}, depth:{Depth})";
     }
 
     /// <summary>
@@ -147,5 +161,6 @@ namespace BrightWire.ExecutionGraph.Helper
             return _matrix.ReshapeAs4DTensor(Rows, Columns, Depth);
         }
         public bool HasValue { get; } = true;
+        public override string ToString() => $"Tensor 4D graph data (rows:{Rows}, columns:{Columns}, depth:{Depth}, count:{Count})";
     }
 }

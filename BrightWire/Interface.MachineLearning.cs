@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph;
+using BrightWire.ExecutionGraph.Node;
 using BrightWire.Models.Linear;
 
 namespace BrightWire
@@ -33,7 +34,7 @@ namespace BrightWire
 		/// <param name="output">The mini batch of output vectors</param>
 		/// <param name="targetOutput">The mini batch of expected target vectors</param>
 		/// <returns></returns>
-		IFloatMatrix CalculateGradient(IGraphContext context, IFloatMatrix output, IFloatMatrix targetOutput);
+		IFloatMatrix CalculateGradient(IGraphSequenceContext context, IFloatMatrix output, IFloatMatrix targetOutput);
 	}
 
 	/// <summary>
@@ -103,28 +104,7 @@ namespace BrightWire
 		MarkovModel3<T> Build();
 	}
 
-	/// <summary>
-	/// Describes how to calculate the training error
-	/// </summary>
-	public enum TrainingErrorCalculation
-	{
-		/// <summary>
-		/// Do not calculate the training error
-		/// </summary>
-		None,
-
-		/// <summary>
-		/// Compare the output against the target output and calculate the euclidean distance
-		/// </summary>
-		Fast,
-
-		/// <summary>
-		/// Execute the model against the training data
-		/// </summary>
-		TrainingData
-	}
-
-	/// <summary>
+    /// <summary>
 	/// Graph learning context
 	/// </summary>
 	public interface ILearningContext
@@ -139,12 +119,7 @@ namespace BrightWire
 		/// </summary>
 		long EpochMilliseconds { get; }
 
-		/// <summary>
-		/// The linear algebra provider
-		/// </summary>
-		ILinearAlgebraProvider LinearAlgebraProvider { get; }
-
-		/// <summary>
+        /// <summary>
 		/// The index of the current epoch (starting from one)
 		/// </summary>
 		uint CurrentEpoch { get; }
@@ -172,26 +147,24 @@ namespace BrightWire
 		/// <summary>
 		/// Stores an update to the model parameters
 		/// </summary>
-		/// <typeparam name="T">The type of update</typeparam>
-		/// <param name="fromNode">The node that is affected by this update</param>
-		/// <param name="update">The update</param>
+        /// <param name="fromNode">The node that is affected by this update</param>
+		/// <param name="update">The matrix update</param>
 		/// <param name="updater">Callback to execute the update</param>
-		void StoreUpdate<T>(INode fromNode, T update, Action<T> updater) where T: notnull;
+		void StoreUpdate(NodeBase fromNode, IFloatMatrix update, Action<IFloatMatrix> updater);
 
-		/// <summary>
-		/// True if the graph should calculate training error
-		/// </summary>
-		TrainingErrorCalculation TrainingErrorCalculation { get; }
+        /// <summary>
+        /// Stores an update to the model parameters
+        /// </summary>
+        /// <typeparam name="T">The type of update</typeparam>
+        /// <param name="fromNode">The node that is affected by this update</param>
+        /// <param name="update">The vector update</param>
+        /// <param name="updater">Callback to execute the update</param>
+        void StoreUpdate(NodeBase fromNode, IFloatVector update, Action<IFloatVector> updater);
 
-		/// <summary>
-		/// True if updates are deferred until the mini batch is complete
-		/// </summary>
-		bool DeferUpdates { get; }
-
-		/// <summary>
+        /// <summary>
 		/// Apply any deferred updates
 		/// </summary>
-		void ApplyUpdates();
+        void ApplyUpdates();
 
 		/// <summary>
 		/// Start a new epoch
@@ -214,14 +187,14 @@ namespace BrightWire
 		/// </summary>
 		/// <param name="errorSignal">The error signal associated with this backpropagation (optional, can be null)</param>
 		/// <param name="update">The callback to execute the backpropagation</param>
-		void DeferBackpropagation(IGraphData? errorSignal, Action<IGraphData?> update);
+		void DeferBackpropagation(IGraphData? errorSignal, Func<IGraphData?, IGraphData?> update);
 
 		/// <summary>
 		/// Backpropagates the error signal across all deferred backpropagations
 		/// </summary>
 		/// <param name="signal">The backpropagation signal</param>
 		/// <param name="maxDepth">The maximum depth to backpropagate the signal</param>
-		void BackpropagateThroughTime(IGraphData? signal, int maxDepth = int.MaxValue);
+        IGraphData? BackpropagateThroughTime(IGraphData? signal, int maxDepth = int.MaxValue);
 
 		/// <summary>
 		/// Schedules a change in the learning rate the specified epoch
@@ -230,19 +203,14 @@ namespace BrightWire
 		/// <param name="newLearningRate">The learning rate to use at that epoch</param>
 		void ScheduleLearningRate(uint atEpoch, float newLearningRate);
 
-		/// <summary>
-		/// Enable or disable node parameter updates
-		/// </summary>
-		/// <param name="node">The node to modify</param>
-		/// <param name="enableUpdates">True if the node can make updates via backpropagation</param>
-		void EnableNodeUpdates(INode node, bool enableUpdates);
+        /// <summary>
+        /// Enable or disable node parameter updates
+        /// </summary>
+        /// <param name="node">The node to modify</param>
+        /// <param name="enableUpdates">True if the node can make updates via backpropagation</param>
+        void EnableNodeUpdates(NodeBase node, bool enableUpdates);
 
-		/// <summary>
-		/// Resets the learning context
-		/// </summary>
-		void Clear();
-
-		/// <summary>
+        /// <summary>
 		/// Sends the message to some output
 		/// </summary>
 		Action<string> MessageLog { get; set; }
@@ -260,7 +228,7 @@ namespace BrightWire
 		/// <summary>
 		/// Error metric to use when evaluating trainging progress
 		/// </summary>
-		IErrorMetric? ErrorMetric { get; set; }
+		IErrorMetric ErrorMetric { get; set; }
 
 		/// <summary>
 		/// Graph factory

@@ -80,7 +80,7 @@ namespace ExampleCode.DataTableTrainers
             const float TRAINING_RATE = 0.3f;
             var trainingData = graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
-            var engine = graph.CreateTrainingEngine(trainingData, TRAINING_RATE);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, TRAINING_RATE);
 
             // build the network
             const int HIDDEN_LAYER_SIZE = 64, TRAINING_ITERATIONS = 2000;
@@ -90,14 +90,14 @@ namespace ExampleCode.DataTableTrainers
                 .AddDropOut(dropOutPercentage: 0.5f)
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                 .Add(graph.SigmoidActivation())
-                .AddBackpropagation(errorMetric);
+                .AddBackpropagation();
 
             // train the network
             ExecutionGraphModel? bestGraph = null;
-            engine.Train(TRAINING_ITERATIONS, testData, errorMetric, model => bestGraph = model.Graph, 50);
+            engine.Train(TRAINING_ITERATIONS, testData, model => bestGraph = model.Graph, 50);
 
             // export the final model and execute it on the training set
-            var executionEngine = graph.CreateEngine(bestGraph ?? engine.Graph);
+            var executionEngine = graph.CreateExecutionEngine(bestGraph ?? engine.Graph);
             var output = executionEngine.Execute(testData);
 
             // output the results
@@ -181,7 +181,7 @@ namespace ExampleCode.DataTableTrainers
                 const float TRAINING_RATE = 0.1f;
                 var trainingData = graph.CreateDataSource(item.Training.Table);
                 var testData = trainingData.CloneWith(item.Test.Table);
-                var engine = graph.CreateTrainingEngine(trainingData, TRAINING_RATE, 64);
+                var engine = graph.CreateTrainingEngine(trainingData, errorMetric, TRAINING_RATE, 64);
 
                 // build the network
                 const int HIDDEN_LAYER_SIZE = 64, TRAINING_ITERATIONS = 2000;
@@ -191,11 +191,11 @@ namespace ExampleCode.DataTableTrainers
                     .AddDropOut(dropOutPercentage: 0.5f)
                     .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                     .Add(graph.SigmoidActivation())
-                    .AddBackpropagation(errorMetric)
+                    .AddBackpropagation()
                 ;
 
                 // train the network
-                engine.Train(TRAINING_ITERATIONS, testData, errorMetric, null, 200);
+                engine.Train(TRAINING_ITERATIONS, testData, null, 200);
             }
         }
     }

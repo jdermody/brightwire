@@ -32,7 +32,7 @@ namespace ExampleCode.DataTableTrainers
             ;
 
             // create the training engine and schedule a training rate change
-            var engine = graph.CreateTrainingEngine(trainingData, trainingRate, batchSize);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, trainingRate, batchSize);
             engine.LearningContext.ScheduleLearningRate(Convert.ToUInt32(numIterations * 0.75), trainingRate / 3);
 
             // create the network
@@ -42,16 +42,16 @@ namespace ExampleCode.DataTableTrainers
                 .AddDropOut(dropOutPercentage: 0.5f)
                 .AddFeedForward(outputSize: trainingData.GetOutputSizeOrThrow())
                 .Add(graph.SoftMaxActivation())
-                .AddBackpropagation(errorMetric)
+                .AddBackpropagation()
             ;
 
             // train the network for twenty iterations, saving the model on each improvement
             ExecutionGraphModel? bestGraph = null;
             var testData = trainingData.CloneWith(Test);
-            engine.Train(numIterations, testData, errorMetric, model => bestGraph = model.Graph);
+            engine.Train(numIterations, testData, model => bestGraph = model.Graph);
 
             // export the final model and execute it on the training set
-            var executionEngine = graph.CreateEngine(bestGraph ?? engine.Graph);
+            var executionEngine = graph.CreateExecutionEngine(bestGraph ?? engine.Graph);
             var output = executionEngine.Execute(testData);
             Console.WriteLine($"Final accuracy: {output.Average(o => o.CalculateError(errorMetric)):P2}");
 
