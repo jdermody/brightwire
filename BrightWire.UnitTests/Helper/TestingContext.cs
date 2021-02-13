@@ -68,6 +68,6 @@ namespace BrightWire.UnitTests.Helper
 
         public IGraphData[] Output { get; set; }
 
-        public ExecutionResult Result { get; }
+        public IEnumerable<ExecutionResult> Results { get; }
     }
 }

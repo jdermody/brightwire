@@ -36,11 +36,11 @@ namespace ExampleCode
             //IrisClustering(context);
             //MarkovChains(context);
             //TextClustering(context);
-            IntegerAddition(context);
+            //IntegerAddition(context);
             //ReberPrediction(context);
             //OneToMany(context, useCuda);
             //ManyToOne(context, useCuda);
-            //SequenceToSequence(context, useCuda);
+            SequenceToSequence(context, useCuda);
             //TrainWithSelu(context);
             //StockData(context, useCuda);
             //SimpleLinearTest(context);

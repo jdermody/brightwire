@@ -79,12 +79,7 @@ namespace BrightWire.ExecutionGraph.Node
         /// </summary>
         public virtual List<WireToNode> Output => _output;
 
-        public void Forward(IGraphData signal, IGraphSequenceContext context)
-        {
-            Forward(signal, 0, context, null);
-        }
-
-        void Forward(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? prev)
+        public void Forward(IGraphData signal, IGraphSequenceContext context, uint channel = 0, NodeBase? prev = null)
         {
             // execute the node
             var (from, output, backProp) = ForwardInternal(signal, channel, context, prev);
@@ -98,7 +93,7 @@ namespace BrightWire.ExecutionGraph.Node
             // send output to connected nodes
             if (output.HasValue) {
                 foreach (var wire in from.Output) {
-                    wire.SendTo.Forward(output, wire.Channel, context, from);
+                    wire.SendTo.Forward(output, context, wire.Channel, @from);
                 }
             }
         }

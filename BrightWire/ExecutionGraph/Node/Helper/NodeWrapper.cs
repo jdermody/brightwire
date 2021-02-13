@@ -62,7 +62,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
 	        }
 
 	        public IGraphData[] Output => _context.Output;
-            public ExecutionResult Result => _context.Result;
+            public IEnumerable<ExecutionResult> Results => _context.Results;
         }
         NodeBase _node;
         string _nodeId;

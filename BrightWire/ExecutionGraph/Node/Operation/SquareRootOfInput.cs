@@ -34,9 +34,9 @@ namespace BrightWire.ExecutionGraph.Node.Operation
 
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
-            var input = context.Data.GetMatrix();
+            var input = signal.GetMatrix();
             var output = input.Sqrt();
-            return (this, context.Data.ReplaceWith(output), () => new Backpropagation(this, output));
+            return (this, signal.ReplaceWith(output), () => new Backpropagation(this, output));
         }
     }
 }

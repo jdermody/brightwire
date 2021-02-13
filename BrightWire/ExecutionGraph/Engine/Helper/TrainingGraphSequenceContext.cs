@@ -105,18 +105,24 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         }
 
         public IGraphData[] Output { get; } = new IGraphData[0];
-        public ExecutionResult Result 
+        public IEnumerable<ExecutionResult> Results
         {
             get
             {
-                var matrixOutput = Output.Any()
-                    ? Output.Select(o => o.GetMatrix().Data)
-                    : new[] {Data.GetMatrix().Data};
+                if (Data.HasValue) {
+                    var ret = new ExecutionResult(BatchSequence, Data.GetMatrix().Data.Rows.ToArray());
+                    if (ErrorSignal != null)
+                        ret.Error = ErrorSignal.GetMatrix().Data.Rows.ToArray();
+                    yield return ret;
+                }
+                //var matrixOutput = Output.Any()
+                //    ? Output.Select(o => o.GetMatrix().Data)
+                //    : new[] {Data.GetMatrix().Data};
 
-                var ret = new ExecutionResult(BatchSequence, matrixOutput.SelectMany(m => m.Rows).ToArray());
-                if (ErrorSignal != null)
-                    ret.Error = ErrorSignal.GetMatrix().Data.Rows.ToArray();
-                return ret;
+                //var ret = new ExecutionResult(BatchSequence, matrixOutput.SelectMany(m => m.Rows).ToArray());
+                //if (ErrorSignal != null)
+                //    ret.Error = ErrorSignal.GetMatrix().Data.Rows.ToArray();
+                //return ret;
             }
         }
 

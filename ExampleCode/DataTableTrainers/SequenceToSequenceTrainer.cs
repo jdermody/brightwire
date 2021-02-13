@@ -108,9 +108,9 @@ namespace ExampleCode.DataTableTrainers
 
             graph.Connect(engine)
                 .AddGru(HIDDEN_LAYER_SIZE, "encoder")
-                .WriteNodeMemoryToSlot("shared-memory", "encoder")
+                //.WriteNodeMemoryToSlot("shared-memory", "encoder")
                 .AddSequenceToSequencePivot()
-                .JoinInputWithMemory("shared-memory", HIDDEN_LAYER_SIZE)
+                //.JoinInputWithMemory("shared-memory", HIDDEN_LAYER_SIZE)
                 .AddGru(HIDDEN_LAYER_SIZE, "decoder")
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                 .Add(graph.SoftMaxActivation())

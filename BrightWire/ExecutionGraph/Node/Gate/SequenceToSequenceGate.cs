@@ -33,6 +33,9 @@ namespace BrightWire.ExecutionGraph.Node.Gate
 
         void OnStartEncoder(IGraphSequenceContext context, IGraphData data)
         {
+            foreach (var wire in Output)
+                wire.SendTo.Forward(data, context, wire.Channel);
+
             //AddNextGraphAction(context, data, null/*, () => new Backpropagation(this)*/);
         }
 

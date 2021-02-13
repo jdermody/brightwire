@@ -196,7 +196,7 @@ namespace BrightWire
         /// </summary>
         IGraphData[] Output { get; }
 
-        ExecutionResult Result { get; }
+        IEnumerable<ExecutionResult> Results { get; }
     }
 
     /// <summary>

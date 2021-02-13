@@ -1232,19 +1232,6 @@
             </summary>
             <param name="name"></param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.Gate.BinaryGateBase.ExecuteForward(BrightWire.IGraphSequenceContext)">
-            <summary>
-            Executes on the primary channel
-            </summary>
-            <param name="context">The graph context</param>
-        </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.Gate.BinaryGateBase.ExecuteForwardInternal(BrightWire.IGraphSequenceContext,System.UInt32)">
-            <summary>
-            Executes on a secondary channel
-            </summary>
-            <param name="context">The graph context</param>
-            <param name="channel">The channel</param>
-        </member>
         <member name="M:BrightWire.ExecutionGraph.Node.Gate.BinaryGateBase.Activate(BrightWire.IGraphSequenceContext,BrightData.IFloatMatrix,BrightData.IFloatMatrix)">
             <summary>
             When both the primary and secondary inputs have arrived
@@ -1321,19 +1308,6 @@
             </summary>
             <param name="name">The name of the node (optional)</param>
             <param name="incoming">The list of incoming wires</param>
-        </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.Gate.MultiGateBase.ExecuteForward(BrightWire.IGraphSequenceContext)">
-            <summary>
-            Executes on the primary channel
-            </summary>
-            <param name="context">The graph context</param>
-        </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.Gate.MultiGateBase.ExecuteForwardInternal(BrightWire.IGraphSequenceContext,System.UInt32)">
-            <summary>
-            Executes on a secondary channel
-            </summary>
-            <param name="context">The graph context</param>
-            <param name="channel">The channel</param>
         </member>
         <member name="M:BrightWire.ExecutionGraph.Node.Gate.MultiGateBase.Activate(BrightWire.IGraphSequenceContext,System.Collections.Generic.List{BrightWire.ExecutionGraph.Node.Gate.MultiGateBase.IncomingChannel})">
             <summary>
@@ -1478,12 +1452,6 @@
             The list of sub nodes
             </summary>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.Layer.RecurrentAdditiveLayer.ExecuteForward(BrightWire.IGraphSequenceContext)">
-            <summary>
-            Execute on the the start node, which will execute each sub node in turn
-            </summary>
-            <param name="context"></param>
-        </member>
         <member name="T:BrightWire.ExecutionGraph.Node.Layer.SimpleRecurrent">
             <summary>
             Simple recurrent neural network
@@ -1545,26 +1513,6 @@
             The list of outgoing wires along which the output signal will be sent
             </summary>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.NodeBase.ExecuteForward(BrightWire.IGraphSequenceContext)">
-            <summary>
-            Called when executing forward on the primary channel
-            </summary>
-            <param name="context"></param>
-        </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.NodeBase.ExecuteForwardInternal(BrightWire.IGraphSequenceContext,System.UInt32)">
-            <summary>
-            Called when executing forward on a non-primary channel
-            </summary>
-            <param name="context"></param>
-            <param name="channel"></param>
-        </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.NodeBase.ExecuteForward(BrightWire.IGraphSequenceContext,System.UInt32)">
-            <summary>
-            Called when executing forward
-            </summary>
-            <param name="context"></param>
-            <param name="channel"></param>
-        </member>
         <member name="M:BrightWire.ExecutionGraph.Node.NodeBase.ForwardInternal(BrightWire.IGraphData,System.UInt32,BrightWire.IGraphSequenceContext,BrightWire.ExecutionGraph.Node.NodeBase)">
             <summary>
             
@@ -1574,14 +1522,6 @@
             <param name="context"></param>
             <param name="source"></param>
             <returns></returns>
-        </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.NodeBase.AddNextGraphAction(BrightWire.IGraphSequenceContext,BrightWire.IGraphData,System.Func{BrightWire.IBackpropagate})">
-            <summary>
-            Records the node execution and queues the output nodes for execution
-            </summary>
-            <param name="context"></param>
-            <param name="data"></param>
-            <param name="backProp"></param>
         </member>
         <member name="M:BrightWire.ExecutionGraph.Node.NodeBase.SerialiseTo(System.Collections.Generic.HashSet{BrightWire.ExecutionGraph.Node.NodeBase},System.Collections.Generic.List{BrightWire.Models.ExecutionGraphModel.Node},System.Collections.Generic.HashSet{BrightWire.Models.ExecutionGraphModel.Wire})">
             <summary>
@@ -2757,17 +2697,6 @@
             <summary>
             Final error signal
             </summary>
-        </member>
-        <member name="P:BrightWire.IGraphSequenceContext.HasNext">
-            <summary>
-            Checks if there is a pending forward graph operation
-            </summary>
-        </member>
-        <member name="M:BrightWire.IGraphSequenceContext.ExecuteNext">
-            <summary>
-            Executes the next pending forward graph operation
-            </summary>
-            <returns>True if an operation was executed</returns>
         </member>
         <member name="M:BrightWire.IGraphSequenceContext.SetOutput(BrightWire.IGraphData,System.Int32)">
             <summary>

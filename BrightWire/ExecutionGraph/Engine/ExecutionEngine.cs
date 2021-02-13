@@ -128,7 +128,8 @@ namespace BrightWire.ExecutionGraph.Engine
             while ((operation = executionContext.GetNextOperation()) != null) {
                 LinearAlgebraProvider.PushLayer();
                 foreach (var context in operation.Execute(executionContext)) {
-                    yield return context.Result;
+                    foreach (var result in context.Results)
+                        yield return result;
                     context.Dispose();
                 }
 
@@ -171,7 +172,7 @@ namespace BrightWire.ExecutionGraph.Engine
                 context = operation.Execute(executionContext).Single();
                 LinearAlgebraProvider.PopLayer();
             }
-            var ret = context?.Result;
+            var ret = context?.Results.SingleOrDefault();
             context?.Dispose();
             LinearAlgebraProvider.PopLayer();
             DataSource = null;
@@ -213,7 +214,7 @@ namespace BrightWire.ExecutionGraph.Engine
             while ((operation = executionContext.GetNextOperation()) != null) {
                 LinearAlgebraProvider.PushLayer();
                 foreach (var context in operation.Execute(executionContext)) {
-                    yield return context.Result;
+                    yield return context.Results.Single();
                     context.Dispose();
                 }
 
@@ -239,7 +240,7 @@ namespace BrightWire.ExecutionGraph.Engine
                 context = operation.Execute(executionContext).Single();
             }
 
-            var ret = context?.Result;
+            var ret = context?.Results.SingleOrDefault();
             context?.Dispose();
             LinearAlgebraProvider.PopLayer();
             DataSource = null;

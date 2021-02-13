@@ -77,16 +77,19 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             .ToArray()
         ;
 
-        public ExecutionResult Result 
+        public IEnumerable<ExecutionResult> Results 
         {
             get
             {
-                var output = Output;
-                var matrixOutput = output.Any()
-                    ? output.Select(o => o.GetMatrix().Data)
-                    : new[] {Data.GetMatrix().Data};
+                if (Data.HasValue) {
+                    yield return  new ExecutionResult(BatchSequence, Data.GetMatrix().Data.Rows.ToArray());
+                }
+                //var output = Output;
+                //var matrixOutput = output.Any()
+                //    ? output.Select(o => o.GetMatrix().Data)
+                //    : new[] {Data.GetMatrix().Data};
 
-                return new ExecutionResult(BatchSequence, matrixOutput.SelectMany(m => m.Rows).ToArray());
+                //return new ExecutionResult(BatchSequence, matrixOutput.SelectMany(m => m.Rows).ToArray());
             }
         }
     }
