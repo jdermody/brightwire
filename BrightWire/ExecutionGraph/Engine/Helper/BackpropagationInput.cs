@@ -21,6 +21,9 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 
         public void Add(ExecutionNode fromNode, IGraphData? error)
         {
+            if (!_input.Contains(fromNode))
+                throw new ArgumentException("Unexpected node");
+
             if (error?.HasValue == true && _nodeOutput?.HasValue == true) {
                 if (error.Columns != _nodeOutput.Columns || error.Count != _nodeOutput.Count || error.Depth != _nodeOutput.Depth || error.Rows != _nodeOutput.Rows)
                     throw new ArgumentException("Unexpected delta size");

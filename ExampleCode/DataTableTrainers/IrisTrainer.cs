@@ -46,14 +46,14 @@ namespace ExampleCode.DataTableTrainers
             engine.Train(numIterations, testData, null, 50);
         }
 
-        public void TrainWithSelu(uint numIterations = 1000, uint layerSize = 64, float trainingRate = 0.01f, uint batchSize = 128)
+        public void TrainWithSelu(uint numIterations = 1000, uint layerSize = 8, float trainingRate = 0.1f, uint batchSize = 64)
         {
             var graph = Table.Context.CreateGraphFactory();
             var trainingData = graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
 
             // one hot encoding uses the index of the output vector's maximum value as the classification label
-            var errorMetric = graph.ErrorMetric.BinaryClassification;
+            var errorMetric = graph.ErrorMetric.Quadratic;
 
             // configure the network properties
             graph.CurrentPropertySet
@@ -87,7 +87,7 @@ namespace ExampleCode.DataTableTrainers
                 //.AddBatchNormalisation()
                 .Add(Activation())
                 .AddFeedForward(trainingData.GetOutputSizeOrThrow())
-                .Add(graph.TanhActivation())
+                .Add(graph.SoftMaxActivation())
                 .AddBackpropagation()
             ;
 

@@ -35,11 +35,11 @@ namespace BrightWire.ExecutionGraph.Node.Activation
             AddNextGraphAction(context, output, () => new Backpropagation(this, input));
         }
 
-        public override (IGraphData Next, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        public override (INode FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
         {
             var input = signal.GetMatrix();
             var output = signal.ReplaceWith(input.ReluActivation());
-            return (output, () => new Backpropagation(this, input));
+            return (this, output, () => new Backpropagation(this, input));
         }
     }
 }

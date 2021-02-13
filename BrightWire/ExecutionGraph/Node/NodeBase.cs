@@ -108,36 +108,27 @@ namespace BrightWire.ExecutionGraph.Node
                 ExecuteForwardInternal(context, channel);
         }
 
-        public IGraphData Forward(IGraphData signal, IGraphSequenceContext context)
+        public void Forward(IGraphData signal, IGraphSequenceContext context)
         {
-            return Forward(this, signal, 0, context, null);
+            Forward(this, signal, 0, context, null);
         }
 
-        static IGraphData Forward(INode node, IGraphData signal, uint channel, IGraphSequenceContext context, INode? prev)
+        static void Forward(INode node, IGraphData signal, uint channel, IGraphSequenceContext context, INode? prev)
         {
-            var (ret, backProp) = node.Forward(signal, channel, context, prev);
-            if (ret.HasValue) {
+            var (from, output, backProp) = node.Forward(signal, channel, context, prev);
+            if (output.HasValue) {
                 if (prev != null)
-                    context.AddForward(node, ret, backProp, prev);
+                    context.AddForward(from, output, backProp, prev);
                 else
-                    context.AddForward(node, ret, backProp);
+                    context.AddForward(from, output, backProp);
 
-                IGraphData next = NullGraphData.Instance;
-                foreach (var wire in node.Output) {
-                    var result = Forward(wire.SendTo, ret, wire.Channel, context, node);
-                    if (result.HasValue) {
-                        Debug.Assert(!next.HasValue || ReferenceEquals(result, next));
-                        next = result;
-                    }
+                foreach (var wire in from.Output) {
+                    Forward(wire.SendTo, output, wire.Channel, context, from);
                 }
-
-                return next.HasValue ? next : ret;
             }
-
-            return ret;
         }
 
-        public abstract (IGraphData Next, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source);
+        public abstract (INode FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source);
 
         /// <summary>
         /// Records the node execution and queues the output nodes for execution

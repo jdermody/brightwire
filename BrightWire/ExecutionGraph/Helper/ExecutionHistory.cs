@@ -50,5 +50,7 @@
         /// The node's parents
         /// </summary>
         public INode[] Parents { get; }
+
+        public override string ToString() => $"{Source} {Data} ({Parents.Length})";
     }
 }

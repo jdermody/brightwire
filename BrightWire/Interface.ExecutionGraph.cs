@@ -191,9 +191,9 @@ namespace BrightWire
         /// <param name="nodeData">Serialised node parameters</param>
         void LoadParameters(GraphFactory factory, ExecutionGraphModel.Node nodeData);
 
-        IGraphData Forward(IGraphData signal, IGraphSequenceContext context);
+        void Forward(IGraphData signal, IGraphSequenceContext context);
 
-        (IGraphData Next, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source);
+        (INode FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source);
     }
 
     /// <summary>
@@ -259,7 +259,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="source"></param>
         /// <param name="delta">Error signal</param>
-        IGraphData? Backpropagate(INode source, IGraphData? delta);
+        IGraphData? Backpropagate(IGraphData? delta);
 
         /// <summary>
         /// Final error signal

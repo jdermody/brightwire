@@ -140,7 +140,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 			AddNextGraphAction(context, graphData, () => new Backpropagation(this, im2Col, inputWidth, inputHeight, tensor.Depth, newWidth, newHeight));
 		}
 
-        public override (IGraphData Next, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        public override (INode FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
         {
             var tensor = signal.GetMatrix().ReshapeAs4DTensor(signal.Rows, signal.Columns, signal.Depth);
 
@@ -159,7 +159,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             Debug.Assert(outputTensor.Depth == FilterCount && outputTensor.Count == tensor.Count);
 
             var graphData = new Tensor4DGraphData(outputTensor);
-            return (graphData, () => new Backpropagation(this, im2Col, inputWidth, inputHeight, tensor.Depth, newWidth, newHeight));
+            return (this, graphData, () => new Backpropagation(this, im2Col, inputWidth, inputHeight, tensor.Depth, newWidth, newHeight));
         }
 
         protected override (string Description, byte[] Data) GetInfo()

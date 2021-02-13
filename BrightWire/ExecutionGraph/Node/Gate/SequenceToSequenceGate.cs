@@ -51,7 +51,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             }
         }
 
-        public override (IGraphData Next, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        public override (INode FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
         {
             _encoderContext ??= new ConcurrentStack<IGraphSequenceContext>();
             _encoderContext.Push(context);
@@ -63,7 +63,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 context.ExecutionContext.RegisterAdditional(nextBatch, signal, OnStartEncoder, OnEndEncoder);
             }
 
-            return (NullGraphData.Instance, null);
+            return (this, NullGraphData.Instance, null);
         }
 
         void OnStartEncoder(IGraphSequenceContext context, IGraphData data)
@@ -85,7 +85,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 
                 if (gradient != null) {
                     foreach (var item in _encoderContext.Reverse())
-                        learningContext.DeferBackpropagation(null, delta => item.Backpropagate(this, delta));
+                        learningContext.DeferBackpropagation(null, delta => item.Backpropagate(delta));
                     learningContext.BackpropagateThroughTime(gradient);
                 }
             }

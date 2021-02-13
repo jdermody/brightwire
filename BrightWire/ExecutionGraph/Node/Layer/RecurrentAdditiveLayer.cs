@@ -76,7 +76,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             _start.ExecuteForward(context);
         }
 
-        public override (IGraphData Next, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source) => _start.Forward(signal, channel, context, source);
+        public override (INode FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source) => _start.Forward(signal, channel, context, source);
 
         protected override (string Description, byte[] Data) GetInfo()
         {

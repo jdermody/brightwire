@@ -50,9 +50,9 @@ namespace ExampleCode.Extensions
             AddNextGraphAction(context, context.Data.ReplaceWith(output), () => new Backpropagation(this));
         }
 
-        public override (IGraphData Next, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        public override (INode FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
         {
-            var matrix = context.Data.GetMatrix().AsIndexable();
+            var matrix = signal.GetMatrix().AsIndexable();
             var output = context.LinearAlgebraProvider.CreateMatrix(matrix.RowCount, matrix.ColumnCount, (i, j) =>
             {
                 var x = matrix[i, j];
@@ -60,7 +60,7 @@ namespace ExampleCode.Extensions
                     return Scale * x;
                 return Scale * (Alpha * FloatMath.Exp(x) - Alpha);
             });
-            return (context.Data.ReplaceWith(output), () => new Backpropagation(this));
+            return (this, signal.ReplaceWith(output), () => new Backpropagation(this));
         }
     }
 }

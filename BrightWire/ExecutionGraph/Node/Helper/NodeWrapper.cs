@@ -46,7 +46,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
                 _context.AddForward(_wrapper, data, callback, prev);
             }
 
-            public IGraphData? Backpropagate(INode source, IGraphData? delta) => _context.Backpropagate(source, delta);
+            public IGraphData? Backpropagate(IGraphData? delta) => _context.Backpropagate(delta);
 
             public void Dispose()
             {
@@ -89,7 +89,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             _node.ExecuteForward(new ContextProxy(context, this), channel);
         }
 
-        public override (IGraphData Next, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        public override (INode FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
         {
             return _node.Forward(signal, channel, context, source);
         }

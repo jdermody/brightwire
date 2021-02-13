@@ -48,7 +48,7 @@ namespace BrightWire.ExecutionGraph.Node.Filter
                 AddNextGraphAction(context, context.Data, null);
         }
 
-        public override (IGraphData Next, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        public override (INode FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
         {
             if (context.LearningContext != null) {
                 // drop out random neurons during training
@@ -56,9 +56,9 @@ namespace BrightWire.ExecutionGraph.Node.Filter
                 var matrix = signal.GetMatrix();
                 var filter = lap.CreateMatrix(matrix.RowCount, matrix.ColumnCount, (i, j) => FloatMath.IsZero(_dropOutPercentage) ? 1f : _probabilityToDrop!.Sample() == 1 ? 0f : 1f / _dropOutPercentage);
                 var output = matrix.PointwiseMultiply(filter);
-                return (signal.ReplaceWith(output), () => new Backpropagation(this, filter));
+                return (this, signal.ReplaceWith(output), () => new Backpropagation(this, filter));
             }
-            return (signal, null);
+            return (this, signal, null);
         }
 
         protected override (string Description, byte[] Data) GetInfo()

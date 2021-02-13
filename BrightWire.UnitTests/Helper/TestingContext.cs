@@ -43,7 +43,7 @@ namespace BrightWire.UnitTests.Helper
             Forward.Add((new ExecutionHistory(source, data), callback()));
         }
 
-        public IGraphData? Backpropagate(INode source, IGraphData? delta)
+        public IGraphData? Backpropagate(IGraphData? delta)
         {
             throw new NotImplementedException();
         }

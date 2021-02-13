@@ -158,12 +158,12 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 				item.Dispose();
 		}
 
-        public override (IGraphData Next, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        public override (INode FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
         {
             IFloatMatrix input;
 			IReadOnlyList<IFloatVector> samples;
             var shouldDispose = false;
-            (IGraphData Next, Func<IBackpropagate>? BackProp) ret = (NullGraphData.Instance, null);
+            (INode FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ret = (this, NullGraphData.Instance, null);
 
 			if (signal.Depth > 1) {
                 throw new NotImplementedException();
@@ -232,7 +232,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 using var xHat = input.PointwiseDivide(_stdDevCached);
                 using var output = xHat.PointwiseMultiply(_gammaCached);
                 output.AddInPlace(_betaCached);
-                ret = (signal.ReplaceWith(output), null);
+                ret = (this, signal.ReplaceWith(output), null);
             }
 
 			if (shouldDispose)

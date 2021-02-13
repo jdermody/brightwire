@@ -22,15 +22,17 @@
 
         public IGraphData Execute(IGraphData input, IGraphSequenceContext context, INode node)
         {
-            var output = input.GetMatrix();
+            context.Data = input;
+
             if (context.LearningContext != null) {
                 var batchSequence = context.BatchSequence;
                 var target = batchSequence.Target?.GetMatrix();
+
                 if (target == null)
-                    context.LearningContext.DeferBackpropagation(null, delta => context.Backpropagate(node, delta));
+                    context.LearningContext.DeferBackpropagation(null, context.Backpropagate);
                 else {
-                    var gradient = context.LearningContext.ErrorMetric.CalculateGradient(context, output, target);
-                    context.LearningContext.DeferBackpropagation(input.ReplaceWith(gradient), delta => context.Backpropagate(node, delta));
+                    var gradient = context.LearningContext.ErrorMetric.CalculateGradient(context, input.GetMatrix(), target);
+                    context.LearningContext.DeferBackpropagation(input.ReplaceWith(gradient), context.Backpropagate);
                 }
             }
             return input;

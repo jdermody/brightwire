@@ -166,7 +166,7 @@ namespace BrightWire.ExecutionGraph.Engine
         IGraphSequenceContext Train(IGraphExecutionContext executionContext, ILearningContext? learningContext, IMiniBatchSequence sequence)
         {
             var context = Create(executionContext, sequence, learningContext);
-            context.Data = Start.Forward(NullGraphData.Instance, context);
+            Start.Forward(NullGraphData.Instance, context);
             //Start.ExecuteForward(context, 0);
             //while (context.HasNext)
             //    context.ExecuteNext();

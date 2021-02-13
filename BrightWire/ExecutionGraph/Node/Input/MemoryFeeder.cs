@@ -65,7 +65,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
             AddNextGraphAction(context, new MatrixGraphData(memory), () => new Backpropagation(this));
         }
 
-        public override (IGraphData Next, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        public override (INode FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
         {
             IFloatMatrix memory;
             if (context.BatchSequence.Type == MiniBatchSequenceType.SequenceStart) {
@@ -74,7 +74,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
             } 
             else
                 memory = context.ExecutionContext.GetMemory(Id);
-            return (new MatrixGraphData(memory), () => new Backpropagation(this));
+            return (this, new MatrixGraphData(memory), () => new Backpropagation(this));
         }
 
         protected override (string Description, byte[] Data) GetInfo()

@@ -49,7 +49,7 @@ namespace BrightWire.ExecutionGraph.Node.Activation
             AddNextGraphAction(context, context.Data.ReplaceWith(output), () => new Backpropagation(this, rowList));
         }
 
-        public override (IGraphData Next, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        public override (INode FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
         {
             var input = signal.GetMatrix();
             var rowList = new IFloatVector[input.RowCount];
@@ -58,7 +58,7 @@ namespace BrightWire.ExecutionGraph.Node.Activation
                 rowList[i] = row.Softmax();
             }
             var output = context.LinearAlgebraProvider.CreateMatrixFromRows(rowList);
-            return (signal.ReplaceWith(output), () => new Backpropagation(this, rowList));
+            return (this, signal.ReplaceWith(output), () => new Backpropagation(this, rowList));
         }
     }
 }

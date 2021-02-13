@@ -41,11 +41,11 @@ namespace BrightWire.ExecutionGraph.Action
             AddNextGraphAction(context, output, () => new Backpropagation(this, memory.ColumnCount));
         }
 
-        public override (IGraphData Next, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        public override (INode FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
         {
             var memory = context.ExecutionContext.GetMemory(_slotName);
             var output = signal.ReplaceWith(signal.GetMatrix().ConcatRows(memory));
-            return (output, () => new Backpropagation(this, memory.ColumnCount));
+            return (this, output, () => new Backpropagation(this, memory.ColumnCount));
         }
 
         protected override (string Description, byte[] Data) GetInfo()

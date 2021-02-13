@@ -58,7 +58,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             AddNextGraphAction(context, new MatrixGraphData(output), null);
         }
 
-        public override (IGraphData Next, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        public override (INode FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
         {
             var resultList = _dataTable
                 .Rows(context.BatchSequence.MiniBatch.Rows)
@@ -67,7 +67,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
                     .ToDictionary(d => d.Index, d => d.Weight)
                 ).ToArray();
             var output = _lap.CreateMatrix((uint)resultList.Length, _indexer.OutputSize, (i, j) => resultList[i].TryGetValue(j, out var temp) ? temp : 0f);
-            return (new MatrixGraphData(output), null);
+            return (this, new MatrixGraphData(output), null);
         }
     }
 }

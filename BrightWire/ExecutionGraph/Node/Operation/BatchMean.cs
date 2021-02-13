@@ -40,7 +40,7 @@ namespace BrightWire.ExecutionGraph.Node.Operation
             AddNextGraphAction(context, context.Data.ReplaceWith(output), () => new Backpropagation(this, input.RowCount));
         }
 
-        public override (IGraphData Next, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        public override (INode FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
         {
             var input = signal.GetMatrix();
             using var columnSums = input.ColumnSums();
@@ -48,7 +48,7 @@ namespace BrightWire.ExecutionGraph.Node.Operation
             var mean = columnSums.AsIndexable();
 
             var output = context.LinearAlgebraProvider.CreateMatrix(input.RowCount, input.ColumnCount, (i, j) => mean[j]);
-            return (signal.ReplaceWith(output), () => new Backpropagation(this, input.RowCount));
+            return (this, signal.ReplaceWith(output), () => new Backpropagation(this, input.RowCount));
         }
     }
 }

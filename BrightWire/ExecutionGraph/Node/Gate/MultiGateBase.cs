@@ -116,7 +116,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             }
         }
 
-        public override (IGraphData Next, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        public override (INode FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
         {
             IGraphData next = NullGraphData.Instance;
             Func<IBackpropagate>? backProp = null;
@@ -134,7 +134,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 }
             }
 
-            return (next, backProp);
+            return (this, next, backProp);
         }
 
         /// <summary>

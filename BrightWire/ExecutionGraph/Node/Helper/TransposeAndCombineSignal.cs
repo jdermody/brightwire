@@ -56,7 +56,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             AddNextGraphAction(context, new MatrixGraphData(output), () => new Backpropagation(this, tensor));
         }
 
-        public override (IGraphData Next, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        public override (INode FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
         {
             var tensor = signal.Get4DTensor() ?? throw new Exception("No data");
             var rowList = new List<IFloatVector>();
@@ -67,7 +67,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             }
             var output = context.LinearAlgebraProvider.CreateMatrixFromRows(rowList);
 
-            return (new MatrixGraphData(output), () => new Backpropagation(this, tensor));
+            return (this, new MatrixGraphData(output), () => new Backpropagation(this, tensor));
         }
     }
 }

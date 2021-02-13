@@ -10,7 +10,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 {
     class TrainingGraphSequenceContext : IGraphSequenceContext, ICanTrace
     {
-        readonly List<ExecutionHistory> _pendingForward = new List<ExecutionHistory>();
+        readonly List<ExecutionHistory> _forward = new List<ExecutionHistory>();
         readonly Dictionary<INode, ExecutionNode> _nodeExecution = new Dictionary<INode, ExecutionNode>();
 
         public TrainingGraphSequenceContext(
@@ -40,7 +40,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             var action = new ExecutionHistory(source, data);
             if (callback != null && LearningContext != null)
                 action.Backpropagation = callback();
-            _pendingForward.Add(action);
+            _forward.Add(action);
 
             // add the history to the execution node
             if (!_nodeExecution.TryGetValue(source, out var executionNode))
@@ -52,10 +52,24 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
                 _nodeExecution[item].AddDescendant(executionNode);
         }
 
+        public string AsXml
+        {
+            get
+            {
+                var sb = new StringBuilder();
+                var first = _forward.FirstOrDefault();
+                if (first != null) {
+                    
+                }
+                return sb.ToString();
+            }
+        }
+
         public ExecutionNode GetExecutionNode(INode node) => _nodeExecution[node];
 
-        public IGraphData? Backpropagate(INode source, IGraphData? delta)
+        public IGraphData? Backpropagate(IGraphData? delta)
         {
+            var source = _forward.LastOrDefault()?.Source;
             var curr = _nodeExecution[source ?? throw new ArgumentException("No target node")];
             var errors = curr.Backpropagate(this, delta, curr).ToList();
             ErrorSignal = errors.Single();
@@ -63,12 +77,12 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         }
 
         public IGraphData? ErrorSignal { get; private set; } = null;
-        public bool HasNext => _pendingForward.Any();
+        public bool HasNext => _forward.Any();
         public bool ExecuteNext()
         {
             if (HasNext) {
-                var next = _pendingForward.ElementAt(0);
-                _pendingForward.RemoveAt(0);
+                var next = _forward.ElementAt(0);
+                _forward.RemoveAt(0);
 
                 Data = next.Data;
                 Source = next.Source;

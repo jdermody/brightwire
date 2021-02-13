@@ -43,7 +43,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             }
         }
 
-        public override (IGraphData Next, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        public override (INode FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
         {
             IGraphData next;
             Func<IBackpropagate>? backProp = null;
@@ -60,7 +60,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             else
                 throw new NotImplementedException();
 
-            return (next, backProp);
+            return (this, next, backProp);
         }
 
         void TryComplete(IGraphSequenceContext context)
