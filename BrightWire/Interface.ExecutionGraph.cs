@@ -697,8 +697,7 @@ namespace BrightWire
 	    /// </summary>
 	    /// <param name="executionContext">Graph execution context</param>
 	    /// <param name="batchCompleteCallback">Optional callback to be notifiied after each mini batch has completed</param>
-	    /// <returns>Graph training error</returns>
-	    double Train(IGraphExecutionContext executionContext, Action<float>? batchCompleteCallback = null);
+        void Train(IGraphExecutionContext executionContext, Action<float>? batchCompleteCallback = null);
 
         /// <summary>
         /// Executes test data on the current graph

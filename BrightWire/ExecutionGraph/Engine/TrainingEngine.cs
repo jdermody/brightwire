@@ -17,7 +17,7 @@ namespace BrightWire.ExecutionGraph.Engine
     internal class TrainingEngine : EngineBase, IGraphTrainingEngine
 	{
         readonly GraphFactory _factory;
-        readonly List<(IMiniBatchSequence Sequence, double? TrainingError, Matrix<float>[] Output)> _executionResults = new List<(IMiniBatchSequence, double?, Matrix<float>[])>();
+        readonly List<(IMiniBatchSequence Sequence, Matrix<float>[] Output)> _executionResults = new List<(IMiniBatchSequence, Matrix<float>[])>();
 		readonly List<IGraphContext> _contextList = new List<IGraphContext>();
 		readonly INode[] _input;
 		readonly Random _random;
@@ -57,7 +57,7 @@ namespace BrightWire.ExecutionGraph.Engine
                 _lap.PushLayer();
                 operation.Execute(executionContext);
                 ClearContextList();
-                foreach (var (sequence, _, matrices) in _executionResults) {
+                foreach (var (sequence, matrices) in _executionResults) {
                     uint outputIndex = 0;
                     foreach (var output in matrices) {
                         yield return new ExecutionResult(sequence, output.Rows.ToArray(), outputIndex);
@@ -79,7 +79,7 @@ namespace BrightWire.ExecutionGraph.Engine
 
 		protected override IEnumerable<ExecutionResult> GetResults()
 		{
-            foreach (var (sequence, _, matrices) in _executionResults) {
+            foreach (var (sequence, matrices) in _executionResults) {
 				uint outputIndex = 0;
 				foreach (var output in matrices) {
 					yield return new ExecutionResult(sequence, output.Rows.ToArray(), outputIndex);
@@ -97,7 +97,7 @@ namespace BrightWire.ExecutionGraph.Engine
 			_contextList.Clear();
 		}
 
-		public double Train(IGraphExecutionContext executionContext, Action<float>? batchCompleteCallback = null)
+		public void Train(IGraphExecutionContext executionContext, Action<float>? batchCompleteCallback = null)
 		{
 			_lap.PushLayer();
 			LearningContext.StartEpoch();
@@ -120,37 +120,10 @@ namespace BrightWire.ExecutionGraph.Engine
 				}
 			}
 
-			double trainingError = 0;
-			if (LearningContext.TrainingErrorCalculation == TrainingErrorCalculation.Fast) {
-				var count = 0;
-				foreach (var (_, d, _) in _executionResults) {
-					if (d.HasValue) {
-						trainingError += d.Value;
-						++count;
-					}
-				}
-
-				if (count > 0)
-					trainingError /= count;
-			}
 			LearningContext.EndEpoch();
 			_executionResults.Clear();
 			_lap.PopLayer();
-
-			if (LearningContext.TrainingErrorCalculation == TrainingErrorCalculation.TrainingData) {
-				if (LearningContext.ErrorMetric != null) {
-					trainingError = Execute(_dataSource, LearningContext.BatchSize, batchCompleteCallback)
-						.Where(b => b.Target != null)
-						.Average(o => o.CalculateError(LearningContext.ErrorMetric))
-					;
-				}
-			}
-
-			if (_lastTrainingError.HasValue)
-				_trainingErrorDelta = trainingError - _lastTrainingError.Value;
-			_lastTrainingError = trainingError;
-			return trainingError;
-		}
+        }
 
 		public IDataSource? DataSource => _dataSource;
 		public ILearningContext LearningContext { get; }
@@ -187,7 +160,7 @@ namespace BrightWire.ExecutionGraph.Engine
 		{
 			_dataSource?.OnBatchProcessed(context);
 			var output = context.Output.ToList();
-			_executionResults.Add((context.BatchSequence, context.TrainingError, output.Any()
+			_executionResults.Add((context.BatchSequence, output.Any()
 				? output.Select(o => o.GetMatrix().Data).ToArray()
 				: new[] { context.Data.GetMatrix().Data }
 			));
@@ -244,18 +217,12 @@ namespace BrightWire.ExecutionGraph.Engine
 			if (LearningContext.CurrentEpoch == 0)
                 msg.Append(Write("\rInitial test", testError, isPercentage));
             else {
-                var trainingScore = "";
-                if (LearningContext.TrainingErrorCalculation != TrainingErrorCalculation.None) {
-                    trainingScore = Write(" training", Convert.ToSingle(_lastTrainingError ?? 0), LearningContext.TrainingErrorCalculation == TrainingErrorCalculation.TrainingData && isPercentage);
-                    trainingScore += $" [{_trainingErrorDelta:N4}];";
-                }
-
                 var testScore = Write("test", testError, isPercentage);
                 if (testErrorDelta.HasValue)
                     testScore += $" [{testErrorDelta.Value:N4}]";
 
 
-                msg.Append($"\rEpoch {LearningContext.CurrentEpoch} -{trainingScore} time: {LearningContext.EpochSeconds:N2}s; {testScore}");
+                msg.Append($"\rEpoch {LearningContext.CurrentEpoch} - time: {LearningContext.EpochSeconds:N2}s; {testScore}");
                 if (flag)
                     msg.Append("!!");
             }

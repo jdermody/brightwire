@@ -3358,7 +3358,6 @@
             </summary>
             <param name="executionContext">Graph execution context</param>
             <param name="batchCompleteCallback">Optional callback to be notifiied after each mini batch has completed</param>
-            <returns>Graph training error</returns>
         </member>
         <member name="M:BrightWire.IGraphTrainingEngine.Test(BrightWire.IDataSource,BrightWire.IErrorMetric,System.UInt32,System.Action{System.Single},System.Action{System.Single,System.Double,System.Boolean,System.Boolean})">
             <summary>
@@ -3635,11 +3634,6 @@
             <param name="fromNode">The node that is affected by this update</param>
             <param name="update">The update</param>
             <param name="updater">Callback to execute the update</param>
-        </member>
-        <member name="P:BrightWire.ILearningContext.TrainingErrorCalculation">
-            <summary>
-            True if the graph should calculate training error
-            </summary>
         </member>
         <member name="P:BrightWire.ILearningContext.DeferUpdates">
             <summary>
