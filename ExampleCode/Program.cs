@@ -15,9 +15,11 @@ namespace ExampleCode
 {
     internal class Program
     {
+        const int RandomSeed = 0;
+
         static void Main()
         {
-            using var context = new BrightDataContext(0);
+            using var context = new BrightDataContext(RandomSeed);
             var useCuda = false;
 
             // IMPORTANT: uncomment below if you have installed native Intel Math Kernel Library binaries as described in https://numerics.mathdotnet.com/MKL.html
@@ -53,6 +55,8 @@ namespace ExampleCode
 
         static void Start(IBrightDataContext context, bool useCuda = false, [CallerMemberName]string title = "")
         {
+            context.ResetRandom(RandomSeed);
+
             Console.WriteLine("*********************************************");
             Console.WriteLine("*");
             Console.WriteLine($"*  {title}");
@@ -88,7 +92,7 @@ namespace ExampleCode
             iris.TrainRandomForest(500, 7);
             iris.TrainKNearestNeighbours(10);
             iris.TrainMultinomialLogisticRegression(500, 0.3f, 0.1f);
-            iris.TrainSigmoidNeuralNetwork(4, 500, 0.1f, 16);
+            iris.TrainSigmoidNeuralNetwork(8, 500, 0.1f, 16);
         }
 
         static void IrisClustering(IBrightDataContext context)
