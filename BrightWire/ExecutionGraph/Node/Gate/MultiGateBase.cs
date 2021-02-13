@@ -74,7 +74,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             public bool IsValid => Data != null;
         }
 
-        readonly Dictionary<uint, IncomingChannel> _data;
+        Dictionary<uint, IncomingChannel> _data;
 
         /// <summary>
         /// Constructor
@@ -145,7 +145,10 @@ namespace BrightWire.ExecutionGraph.Node.Gate
 	    /// <inheritdoc />
         public override void ReadFrom(GraphFactory factory, BinaryReader reader)
         {
-            _data.Clear();
+            if (_data == null)
+                _data = new Dictionary<uint, IncomingChannel>();
+            else
+                _data.Clear();
 
             var len = reader.ReadInt32();
             for(uint i = 0; i < len; i++) {
