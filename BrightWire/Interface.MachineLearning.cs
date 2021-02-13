@@ -258,9 +258,9 @@ namespace BrightWire
 		event Action<ILearningContext> AfterEpochEnds;
 
 		/// <summary>
-		/// Error metric to use when evaluating trainging progress
+		/// Error metric to use when evaluating training progress
 		/// </summary>
-		IErrorMetric? ErrorMetric { get; set; }
+		IErrorMetric ErrorMetric { get; }
 
 		/// <summary>
 		/// Graph factory

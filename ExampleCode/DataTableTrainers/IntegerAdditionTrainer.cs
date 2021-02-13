@@ -31,7 +31,7 @@ namespace ExampleCode.DataTableTrainers
             // create the engine
             var trainingData = graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
-            var engine = graph.CreateTrainingEngine(trainingData, learningRate: 0.01f, batchSize: 16);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate: 0.01f, batchSize: 16);
 
             // build the network
             const int HIDDEN_LAYER_SIZE = 32, TRAINING_ITERATIONS = 30;
@@ -39,7 +39,7 @@ namespace ExampleCode.DataTableTrainers
                 .AddSimpleRecurrent(graph.ReluActivation(), HIDDEN_LAYER_SIZE)
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                 .Add(graph.ReluActivation())
-                .AddBackpropagationThroughTime(errorMetric)
+                .AddBackpropagationThroughTime()
             ;
 
             // train the network for twenty iterations, saving the model on each improvement

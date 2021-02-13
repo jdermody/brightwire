@@ -48,13 +48,13 @@ namespace ExampleCode.DataTableTrainers
                 .Use(graph.RmsProp())
             ;
 
-            var engine = graph.CreateTrainingEngine(trainingData, 0.1f, 32);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, 0.1f, 32);
             graph.Connect(engine)
                 .AddFeedForward(16)
                 .Add(graph.SigmoidActivation())
                 //.AddDropOut(dropOutPercentage: 0.5f)
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
-                .AddBackpropagation(errorMetric)
+                .AddBackpropagation()
             ;
 
             engine.Train(100, testData, errorMetric);

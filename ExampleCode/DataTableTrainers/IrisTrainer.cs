@@ -32,14 +32,14 @@ namespace ExampleCode.DataTableTrainers
             var testData = trainingData.CloneWith(Test);
 
             // create a 4x8x3 neural network with sigmoid activations after each neural network
-            var engine = graph.CreateTrainingEngine(trainingData, trainingRate, batchSize, TrainingErrorCalculation.TrainingData);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, trainingRate, batchSize, TrainingErrorCalculation.TrainingData);
             graph.Connect(engine)
                 .AddFeedForward(hiddenLayerSize)
                 .Add(graph.SigmoidActivation())
                 .AddDropOut(dropOutPercentage: 0.5f)
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                 .Add(graph.SigmoidActivation())
-                .AddBackpropagation(errorMetric);
+                .AddBackpropagation();
 
             // train the network
             Console.WriteLine("Training a 4x8x3 neural network...");
@@ -61,7 +61,7 @@ namespace ExampleCode.DataTableTrainers
                 .Use(graph.GaussianWeightInitialisation(true, 0.1f, GaussianVarianceCalibration.SquareRoot2N, GaussianVarianceCount.FanInFanOut));
 
             // create the training engine and schedule a training rate change
-            var engine = graph.CreateTrainingEngine(trainingData, trainingRate, batchSize);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, trainingRate, batchSize);
 
             static INode Activation() => new SeluActivation();
             //Func<INode> activation = () => graph.ReluActivation();
@@ -88,7 +88,7 @@ namespace ExampleCode.DataTableTrainers
                 .Add(Activation())
                 .AddFeedForward(trainingData.GetOutputSizeOrThrow())
                 .Add(graph.SoftMaxActivation())
-                .AddBackpropagation(errorMetric)
+                .AddBackpropagation()
             ;
 
             engine.Train(numIterations, testData, errorMetric, null, 50);

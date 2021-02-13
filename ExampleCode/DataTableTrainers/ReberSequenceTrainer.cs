@@ -32,7 +32,7 @@ namespace ExampleCode.DataTableTrainers
             // create the engine
             var trainingData = graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
-            var engine = graph.CreateTrainingEngine(trainingData, learningRate: 0.1f, batchSize: 32);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate: 0.1f, batchSize: 32);
 
             // build the network
             const int HIDDEN_LAYER_SIZE = 38, TRAINING_ITERATIONS = 50;
@@ -40,7 +40,7 @@ namespace ExampleCode.DataTableTrainers
                 .AddLstm(HIDDEN_LAYER_SIZE)
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                 .Add(graph.SoftMaxActivation())
-                .AddBackpropagationThroughTime(errorMetric)
+                .AddBackpropagationThroughTime()
             ;
 
             engine.Train(TRAINING_ITERATIONS, testData, errorMetric);

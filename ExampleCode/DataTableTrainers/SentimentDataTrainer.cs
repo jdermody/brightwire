@@ -88,7 +88,7 @@ namespace ExampleCode.DataTableTrainers
                 .Use(graph.WeightInitialisation.Xavier)
             ;
 
-            var engine = graph.CreateTrainingEngine(trainingData, 0.3f);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, 0.3f);
             engine.LearningContext.ScheduleLearningRate(10, 0.2f);
 
             var neuralNetworkWire = graph.Connect(engine)
@@ -98,7 +98,7 @@ namespace ExampleCode.DataTableTrainers
                 //.AddDropOut(0.5f)
                 .AddFeedForward(trainingData.GetOutputSizeOrThrow(), "layer2")
                 .Add(graph.ReluActivation())
-                .AddBackpropagation(errorMetric, "first-network")
+                .AddBackpropagation("first-network")
             ;
 
             Console.WriteLine("Training neural network classifier...");
@@ -150,7 +150,7 @@ namespace ExampleCode.DataTableTrainers
                 .AddDropOut(dropOutPercentage: 0.5f)
                 .AddFeedForward(outputSize)
                 .Add(graph.ReluActivation())
-                .AddBackpropagation(errorMetric)
+                .AddBackpropagation()
             ;
 
             // train the network again

@@ -40,12 +40,12 @@ namespace BrightWire.UnitTests
         {
             var (graph, data) = MakeGraphAndData(_context);
             var errorMetric = new CustomErrorMetric();
-            var engine = graph.CreateTrainingEngine(data);
+            var engine = graph.CreateTrainingEngine(data, errorMetric);
 
             graph.Connect(engine)
                 .AddFeedForward(1)
                 .Add(graph.SigmoidActivation())
-                .AddBackpropagation(errorMetric);
+                .AddBackpropagation();
             engine.Train(300, data, errorMetric, bn => _bestNetwork = bn);
             AssertEngineGetsGoodResults(engine, data);
         }

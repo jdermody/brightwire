@@ -8,30 +8,25 @@ namespace BrightWire.ExecutionGraph.Action
     /// </summary>
     internal class Backpropagate : IAction
     {
-        IErrorMetric _errorMetric;
-
-        public Backpropagate(IErrorMetric errorMetric)
+        public Backpropagate()
         {
-            _errorMetric = errorMetric;
         }
 
         public void Initialise(string data)
         {
-            _errorMetric = GenericActivator.Create<IErrorMetric>(TypeLoader.LoadType(data));
         }
 
         public string Serialise()
         {
-            return TypeLoader.GetTypeName(_errorMetric);
+            return "";
         }
 
         public IGraphData Execute(IGraphData input, IGraphContext context)
         {
             var output = input.GetMatrix();
             if (context.LearningContext != null) {
-				context.LearningContext.ErrorMetric ??= _errorMetric;
-
-	            var gradient = _errorMetric.CalculateGradient(context, output, context.BatchSequence.Target!.GetMatrix());
+				var errorMetric = context.LearningContext.ErrorMetric;
+                var gradient = errorMetric.CalculateGradient(context, output, context.BatchSequence.Target!.GetMatrix());
                 context.Backpropagate(input.ReplaceWith(gradient));
             }
             return input;

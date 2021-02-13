@@ -455,7 +455,7 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateLearningContext(System.Single,System.UInt32,BrightWire.TrainingErrorCalculation,System.Boolean)">
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateLearningContext(BrightWire.IErrorMetric,System.Single,System.UInt32,BrightWire.TrainingErrorCalculation,System.Boolean)">
             <summary>
             Creates a graph learning context
             </summary>
@@ -465,17 +465,18 @@
             <param name="deferUpdates">True to defer updates (used when training recurrent neural networks)</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateTrainingEngine(BrightWire.IDataSource,System.Single,System.UInt32,BrightWire.TrainingErrorCalculation)">
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateTrainingEngine(BrightWire.IDataSource,BrightWire.IErrorMetric,System.Single,System.UInt32,BrightWire.TrainingErrorCalculation)">
             <summary>
             Creates a graph training engine
             </summary>
             <param name="dataSource">Segment source with training data</param>
+            <param name="errorMetric">Error metric to use while learning</param>
             <param name="learningRate">Initial learning rate</param>
             <param name="batchSize">Mini batch size</param>
             <param name="trainingErrorCalculation">How to calculate the training error</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateTrainingEngine(BrightWire.IDataSource,BrightWire.Models.ExecutionGraphModel,System.Single,System.UInt32,BrightWire.TrainingErrorCalculation)">
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateTrainingEngine(BrightWire.IDataSource,BrightWire.IErrorMetric,BrightWire.Models.ExecutionGraphModel,System.Single,System.UInt32,BrightWire.TrainingErrorCalculation)">
             <summary>
             Creates a graph training engine
             </summary>
@@ -2147,7 +2148,7 @@
             <param name="name">Optional name to give the node</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.WireBuilder.AddBackpropagation(BrightWire.IErrorMetric,System.String)">
+        <member name="M:BrightWire.ExecutionGraph.WireBuilder.AddBackpropagation(System.String)">
             <summary>
             Adds backpropagation - when executed an error signal will be calculated and flow backwards to previous nodes
             </summary>
@@ -2155,11 +2156,10 @@
             <param name="name">Optional name to give the node</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.WireBuilder.AddBackpropagationThroughTime(BrightWire.IErrorMetric,System.String)">
+        <member name="M:BrightWire.ExecutionGraph.WireBuilder.AddBackpropagationThroughTime(System.String)">
             <summary>
             Adds backpropagation through time
             </summary>
-            <param name="errorMetric">Error metric to calculate the error signal</param>
             <param name="name">Optional name to give the node</param>
             <returns></returns>
         </member>
@@ -3710,7 +3710,7 @@
         </member>
         <member name="P:BrightWire.ILearningContext.ErrorMetric">
             <summary>
-            Error metric to use when evaluating trainging progress
+            Error metric to use when evaluating training progress
             </summary>
         </member>
         <member name="P:BrightWire.ILearningContext.GraphFactory">

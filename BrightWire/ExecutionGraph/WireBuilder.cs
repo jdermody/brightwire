@@ -443,21 +443,20 @@ namespace BrightWire.ExecutionGraph
         /// <param name="errorMetric">Error metric to calculate the error signal</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
-        public WireBuilder AddBackpropagation(IErrorMetric errorMetric, string? name = null)
+        public WireBuilder AddBackpropagation(string? name = null)
         {
-            AddForwardAction(new Backpropagate(errorMetric), name);
+            AddForwardAction(new Backpropagate(), name);
             return this;
         }
 
         /// <summary>
         /// Adds backpropagation through time
         /// </summary>
-        /// <param name="errorMetric">Error metric to calculate the error signal</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
-        public WireBuilder AddBackpropagationThroughTime(IErrorMetric errorMetric, string? name = null)
+        public WireBuilder AddBackpropagationThroughTime(string? name = null)
         {
-            AddForwardAction(new BackpropagateThroughTime(errorMetric), name);
+            AddForwardAction(new BackpropagateThroughTime(), name);
             return this;
         }
 

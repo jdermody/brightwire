@@ -31,7 +31,7 @@ namespace ExampleCode.DataTableTrainers
             const float TRAINING_RATE = 0.1f;
             var trainingData = graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
-            var engine = graph.CreateTrainingEngine(trainingData, TRAINING_RATE, 8);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, TRAINING_RATE, 8);
             engine.LearningContext.ScheduleLearningRate(30, TRAINING_RATE / 3);
 
             // build the network
@@ -40,7 +40,7 @@ namespace ExampleCode.DataTableTrainers
                 .AddLstm(HIDDEN_LAYER_SIZE)
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                 .Add(graph.SigmoidActivation())
-                .AddBackpropagation(errorMetric)
+                .AddBackpropagation()
             ;
 
             engine.Train(40, testData, errorMetric);
@@ -66,7 +66,7 @@ namespace ExampleCode.DataTableTrainers
             // create the engine
             var trainingData = graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
-            var engine = graph.CreateTrainingEngine(trainingData, 0.03f, 8);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, 0.03f, 8);
 
             // build the network
             const int HIDDEN_LAYER_SIZE = 128;
@@ -75,7 +75,7 @@ namespace ExampleCode.DataTableTrainers
                 //.AddSimpleRecurrent(graph.ReluActivation(), memory)
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                 .Add(graph.SigmoidActivation())
-                .AddBackpropagationThroughTime(errorMetric)
+                .AddBackpropagationThroughTime()
             ;
 
             engine.Train(20, testData, errorMetric);
@@ -103,18 +103,18 @@ namespace ExampleCode.DataTableTrainers
             const float TRAINING_RATE = 0.1f;
 
             // create the encoder
-            var encoderLearningContext = graph.CreateLearningContext(TRAINING_RATE, BATCH_SIZE, TrainingErrorCalculation.Fast, true);
+            var encoderLearningContext = graph.CreateLearningContext(errorMetric, TRAINING_RATE, BATCH_SIZE, TrainingErrorCalculation.Fast, true);
             var trainingData = graph.CreateDataSource(Training, encoderLearningContext, wb => wb
                 .AddLstm(HIDDEN_LAYER_SIZE, "encoder")
                 .WriteNodeMemoryToSlot("shared-memory", (IHaveMemoryNode)wb.Find("encoder")!)
                 .AddFeedForward(_dictionarySize)
                 .Add(graph.SigmoidActivation())
-                .AddBackpropagationThroughTime(errorMetric)
+                .AddBackpropagationThroughTime()
             );
             var testData = trainingData.CloneWith(Test);
 
             // create the engine
-            var engine = graph.CreateTrainingEngine(trainingData, TRAINING_RATE, BATCH_SIZE);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, TRAINING_RATE, BATCH_SIZE);
             engine.LearningContext.ScheduleLearningRate(30, TRAINING_RATE / 3);
             engine.LearningContext.ScheduleLearningRate(40, TRAINING_RATE / 9);
 
@@ -126,7 +126,7 @@ namespace ExampleCode.DataTableTrainers
                 .AddLstm(HIDDEN_LAYER_SIZE, "decoder")
                 .AddFeedForward(trainingData.GetOutputSizeOrThrow())
                 .Add(graph.SoftMaxActivation())
-                .AddBackpropagationThroughTime(errorMetric)
+                .AddBackpropagationThroughTime()
             ;
 
             engine.Train(50, testData, errorMetric);

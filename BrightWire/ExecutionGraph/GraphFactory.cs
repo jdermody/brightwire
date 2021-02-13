@@ -142,29 +142,32 @@ namespace BrightWire.ExecutionGraph
         /// <param name="deferUpdates">True to defer updates (used when training recurrent neural networks)</param>
         /// <returns></returns>
         public ILearningContext CreateLearningContext(
+			IErrorMetric errorMetric,
             float learningRate, 
             uint batchSize, 
             TrainingErrorCalculation trainingErrorCalculation = TrainingErrorCalculation.Fast, 
             bool deferUpdates = false)
 		{
-			return new LearningContext(LinearAlgebraProvider, learningRate, batchSize, trainingErrorCalculation, deferUpdates, this);
+			return new LearningContext(LinearAlgebraProvider, errorMetric, learningRate, batchSize, trainingErrorCalculation, deferUpdates, this);
 		}
 
         /// <summary>
         /// Creates a graph training engine
         /// </summary>
         /// <param name="dataSource">Segment source with training data</param>
+        /// <param name="errorMetric">Error metric to use while learning</param>
         /// <param name="learningRate">Initial learning rate</param>
         /// <param name="batchSize">Mini batch size</param>
         /// <param name="trainingErrorCalculation">How to calculate the training error</param>
         /// <returns></returns>
         public IGraphTrainingEngine CreateTrainingEngine(
-            IDataSource dataSource, 
+            IDataSource dataSource,
+			IErrorMetric errorMetric,
             float learningRate = 0.1f, 
             uint batchSize = 128, 
             TrainingErrorCalculation trainingErrorCalculation = TrainingErrorCalculation.Fast)
 		{
-			var learningContext = new LearningContext(LinearAlgebraProvider, learningRate, batchSize, trainingErrorCalculation, dataSource.IsSequential, this);
+			var learningContext = new LearningContext(LinearAlgebraProvider, errorMetric, learningRate, batchSize, trainingErrorCalculation, dataSource.IsSequential, this);
 			return new TrainingEngine(LinearAlgebraProvider, dataSource, learningContext, null);
 		}
 
@@ -179,12 +182,13 @@ namespace BrightWire.ExecutionGraph
         /// <returns></returns>
         public IGraphTrainingEngine CreateTrainingEngine(
             IDataSource dataSource, 
+            IErrorMetric errorMetric,
             ExecutionGraphModel graph, 
             float trainingRate = 0.1f, 
             uint batchSize = 128, 
             TrainingErrorCalculation trainingErrorCalculation = TrainingErrorCalculation.Fast)
 		{
-			var learningContext = new LearningContext(LinearAlgebraProvider, trainingRate, batchSize, trainingErrorCalculation, dataSource.IsSequential, this);
+			var learningContext = new LearningContext(LinearAlgebraProvider, errorMetric, trainingRate, batchSize, trainingErrorCalculation, dataSource.IsSequential, this);
 			var input = this.CreateFrom(graph);
 			return new TrainingEngine(LinearAlgebraProvider, dataSource, learningContext, input);
 		}

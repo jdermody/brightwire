@@ -295,7 +295,7 @@ namespace BrightWire
 
             // create the engine
             var trainingData = graph.CreateDataSource(trainingTable);
-            var engine = graph.CreateTrainingEngine(trainingData, learningRate, batchSize);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate, batchSize);
 
             // create the network
             graph.Connect(engine)
@@ -308,7 +308,7 @@ namespace BrightWire
                 .Add(activation(graph))
 
                 // calculate the error and backpropagate the error signal
-                .AddBackpropagation(errorMetric)
+                .AddBackpropagation()
             ;
 
             // train the network for twenty iterations, saving the model on each improvement

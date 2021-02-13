@@ -34,7 +34,7 @@ namespace ExampleCode.DataTableTrainers
             ;
 
             // create the network
-            var engine = graph.CreateTrainingEngine(trainingData, trainingRate, batchSize);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, trainingRate, batchSize);
             //if (!String.IsNullOrWhiteSpace(outputModelPath) && File.Exists(outputModelPath)) {
             //    Console.WriteLine("Loading existing model from: " + outputModelPath);
                 //using (var file = new FileStream(outputModelPath, FileMode.Open, FileAccess.Read)) {
@@ -55,7 +55,7 @@ namespace ExampleCode.DataTableTrainers
                  .AddDropOut(dropOutPercentage: 0.5f)
                  .AddFeedForward(trainingData.GetOutputSizeOrThrow())
                  .Add(graph.SoftMaxActivation())
-                 .AddBackpropagation(errorMetric)
+                 .AddBackpropagation()
                 ;
             //}
 
