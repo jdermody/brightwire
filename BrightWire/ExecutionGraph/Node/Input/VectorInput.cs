@@ -14,7 +14,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
 			{
 			}
 
-            public override IEnumerable<(IGraphData Signal, INode ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
+            public override IEnumerable<(IGraphData Signal, NodeBase ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents)
             {
                 var es = errorSignal.GetMatrix();
 
@@ -43,13 +43,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
 
 		public float[] Data => _data;
 
-		public override void ExecuteForward(IGraphSequenceContext context)
-		{
-			var data = context.LinearAlgebraProvider.CreateMatrix(context.BatchSequence.MiniBatch.BatchSize, (uint)_data.Length, (x, y) => _data[y]);
-			AddNextGraphAction(context, new MatrixGraphData(data), () => new Backpropagation(this));
-		}
-
-        public override (INode FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
             var data = context.LinearAlgebraProvider.CreateMatrix(context.BatchSequence.MiniBatch.BatchSize, (uint)_data.Length, (x, y) => _data[y]);
             return (this, new MatrixGraphData(data), () => new Backpropagation(this));

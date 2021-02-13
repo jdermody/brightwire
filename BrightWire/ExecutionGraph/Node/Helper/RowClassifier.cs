@@ -46,19 +46,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
 
         public uint OutputSize => _indexer.OutputSize;
 
-        public override void ExecuteForward(IGraphSequenceContext context)
-        {
-            var resultList = _dataTable
-                .Rows(context.BatchSequence.MiniBatch.Rows)
-                .Select(row => _classifier.Classify(row)
-                    .Select(c => (Index: _indexer.GetIndex(c.Label), c.Weight))
-                    .ToDictionary(d => d.Index, d => d.Weight)
-                ).ToArray();
-            var output = _lap.CreateMatrix((uint)resultList.Length, _indexer.OutputSize, (i, j) => resultList[i].TryGetValue(j, out var temp) ? temp : 0f);
-            AddNextGraphAction(context, new MatrixGraphData(output), null);
-        }
-
-        public override (INode FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
             var resultList = _dataTable
                 .Rows(context.BatchSequence.MiniBatch.Rows)

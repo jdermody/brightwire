@@ -20,7 +20,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
             {
             }
 
-            public override IEnumerable<(IGraphData Signal, INode ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
+            public override IEnumerable<(IGraphData Signal, NodeBase ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents)
             {
                 if (context.BatchSequence.Type == MiniBatchSequenceType.SequenceStart) {
                     var es = errorSignal.GetMatrix();
@@ -31,7 +31,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
                     for (uint j = 0; j < _source._data.Length; j++)
                         _source._data[j] += initialDelta[j] * context.LearningContext!.BatchLearningRate;
                 }
-                return ErrorTo(NullGraphData.Instance, parents);
+                return ErrorTo(GraphData.Null, parents);
             }
         }
 
@@ -53,19 +53,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
 	        set => value.Segment.CopyTo(_data);
         }
 
-        public override void ExecuteForward(IGraphSequenceContext context)
-        {
-            IFloatMatrix memory;
-            if (context.BatchSequence.Type == MiniBatchSequenceType.SequenceStart) {
-                memory = context.LinearAlgebraProvider.CreateMatrix(context.BatchSequence.MiniBatch.BatchSize, (uint)_data.Length, (x, y) => _data[y]);
-                context.ExecutionContext.SetMemory(Id, memory);
-            } 
-            else
-                memory = context.ExecutionContext.GetMemory(Id);
-            AddNextGraphAction(context, new MatrixGraphData(memory), () => new Backpropagation(this));
-        }
-
-        public override (INode FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
             IFloatMatrix memory;
             if (context.BatchSequence.Type == MiniBatchSequenceType.SequenceStart) {

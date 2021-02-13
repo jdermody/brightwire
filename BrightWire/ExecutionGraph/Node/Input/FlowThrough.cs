@@ -11,12 +11,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
         {
         }
 
-        public override void ExecuteForward(IGraphSequenceContext context)
-        {
-            AddNextGraphAction(context, context.Data, null);
-        }
-
-        public override (INode FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
             return (this, signal, null);
         }

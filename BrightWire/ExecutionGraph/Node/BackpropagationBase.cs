@@ -8,7 +8,7 @@ namespace BrightWire.ExecutionGraph.Node
     /// </summary>
     /// <typeparam name="T">The node type</typeparam>
     public abstract class BackpropagationBase<T> : IBackpropagate
-        where T : INode
+        where T : NodeBase
     {
         /// <summary>
         /// The node that generated the forward signal
@@ -44,12 +44,12 @@ namespace BrightWire.ExecutionGraph.Node
         protected virtual void DisposeMemory(bool isDisposing) { }
         #endregion
 
-        protected IEnumerable<(IGraphData signal, INode toNode)> ErrorTo(IGraphData errorSignal, INode[] parents)
+        protected IEnumerable<(IGraphData signal, NodeBase toNode)> ErrorTo(IGraphData errorSignal, NodeBase[] parents)
         {
             foreach (var parent in parents)
                 yield return (errorSignal, parent);
         }
 
-        public abstract IEnumerable<(IGraphData Signal, INode ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, INode[] parents);
+        public abstract IEnumerable<(IGraphData Signal, NodeBase ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents);
     }
 }

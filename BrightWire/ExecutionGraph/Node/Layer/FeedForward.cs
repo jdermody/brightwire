@@ -87,16 +87,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             return output;
         }
 
-        public override void ExecuteForward(IGraphSequenceContext context)
-        {
-            var input = context.Data.GetMatrix();
-            var output = FeedForwardInternal(input, _weight);
-
-            // set output
-            AddNextGraphAction(context, context.Data.ReplaceWith(output), () => new Backpropagation(this, input));
-        }
-
-        public override (INode FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
             var input = signal.GetMatrix();
             var output = FeedForwardInternal(input, _weight);

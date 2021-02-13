@@ -55,22 +55,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             _yStride = yStride;
         }
 
-        public override void ExecuteForward(IGraphSequenceContext context)
-        {
-            var input = context.Data;
-            var tensor = input.GetMatrix().ReshapeAs4DTensor(input.Rows, input.Columns, input.Depth);
-            var (output, index) = tensor.MaxPool(_filterWidth, _filterHeight, _xStride, _yStride, true);
-
-//#if DEBUG
-//			Debug.Assert(output.ReshapeAsVector().IsEntirelyFinite());
-//			Debug.Assert(index.ReshapeAsVector().IsEntirelyFinite());
-//#endif
-
-			var graphData = new Tensor4DGraphData(output);
-            AddNextGraphAction(context, graphData, () => new Backpropagation(this, index, tensor.ColumnCount, tensor.RowCount, output.ColumnCount, output.RowCount, output.Depth, _filterWidth, _filterHeight, _xStride, _yStride));
-        }
-
-        public override (INode FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
             var tensor = signal.GetMatrix().ReshapeAs4DTensor(signal.Rows, signal.Columns, signal.Depth);
             var (output, index) = tensor.MaxPool(_filterWidth, _filterHeight, _xStride, _yStride, true);

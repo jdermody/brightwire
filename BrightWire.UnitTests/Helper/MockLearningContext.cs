@@ -1,6 +1,7 @@
 ﻿using System;
 using BrightData;
 using BrightWire.ExecutionGraph;
+using BrightWire.ExecutionGraph.Node;
 
 namespace BrightWire.UnitTests.Helper
 {
@@ -14,12 +15,12 @@ namespace BrightWire.UnitTests.Helper
         public float BatchLearningRate { get; set; }
         public uint BatchSize { get; set; }
         public uint RowCount { get; set; }
-        public void StoreUpdate(INode fromNode, IFloatMatrix update, Action<IFloatMatrix> updater)
+        public void StoreUpdate(NodeBase fromNode, IFloatMatrix update, Action<IFloatMatrix> updater)
         {
 
         }
 
-        public void StoreUpdate(INode fromNode, IFloatVector update, Action<IFloatVector> updater)
+        public void StoreUpdate(NodeBase fromNode, IFloatVector update, Action<IFloatVector> updater)
         {
             
         }
@@ -60,7 +61,7 @@ namespace BrightWire.UnitTests.Helper
             throw new NotImplementedException();
         }
 
-        public void EnableNodeUpdates(INode node, bool enableUpdates)
+        public void EnableNodeUpdates(NodeBase node, bool enableUpdates)
         {
             throw new NotImplementedException();
         }

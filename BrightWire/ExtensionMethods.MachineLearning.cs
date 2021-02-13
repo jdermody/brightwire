@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using BrightData;
 using BrightWire.ExecutionGraph;
+using BrightWire.ExecutionGraph.Node;
 using BrightWire.InstanceBased.Training;
 using BrightWire.Models;
 using BrightWire.Models.Linear;
@@ -280,7 +281,7 @@ namespace BrightWire
             uint batchSize,
             uint hiddenLayerSize,
             uint numIterations,
-            Func<GraphFactory, INode> activation,
+            Func<GraphFactory, NodeBase> activation,
             Func<GraphFactory.GradientDescentProvider, ICreateTemplateBasedGradientDescent> gradientDescent,
             Func<GraphFactory.WeightInitialisationProvider, IWeightInitialisation> weightInitialisation
         )

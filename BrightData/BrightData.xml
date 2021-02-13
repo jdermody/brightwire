@@ -382,6 +382,9 @@
         <member name="P:BrightData.BrightDataContext.IsStochastic">
             <inheritdoc />
         </member>
+        <member name="M:BrightData.BrightDataContext.ResetRandom(System.Nullable{System.Int32})">
+            <inheritdoc />
+        </member>
         <member name="T:BrightData.Buffer.BufferedStreamReader">
             <summary>
             Buffered stream reader helper
@@ -2931,6 +2934,12 @@
             <summary>
             True if random generator has been initialized with a random initial seed
             </summary>
+        </member>
+        <member name="M:BrightData.IBrightDataContext.ResetRandom(System.Nullable{System.Int32})">
+            <summary>
+            Resets the random number generator
+            </summary>
+            <param name="seed">Random seed (or null to randomly initialize)</param>
         </member>
         <member name="T:BrightData.IHaveDataContext">
             <summary>

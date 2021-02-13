@@ -54,19 +54,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             _bias.AddInPlace(columnSums, 1f / columnSums.Count, context.BatchLearningRate);
         }
 
-        public override void ExecuteForward(IGraphSequenceContext context)
-        {
-            var input = context.Data.GetMatrix();
-
-            // feed forward
-            var output = input.TransposeAndMultiply(_layer.Weight);
-            output.AddToEachRow(_bias);
-
-            // set output
-            AddNextGraphAction(context, context.Data.ReplaceWith(output), () => new Backpropagation(this, input));
-        }
-
-        public override (INode FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
             var input = signal.GetMatrix();
 
@@ -96,7 +84,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 _bias.Data = bias;
         }
 
-        public override void OnDeserialise(IReadOnlyDictionary<string, INode> graph)
+        public override void OnDeserialise(IReadOnlyDictionary<string, NodeBase> graph)
         {
             _layer = (IFeedForward)graph[_layerId];
         }

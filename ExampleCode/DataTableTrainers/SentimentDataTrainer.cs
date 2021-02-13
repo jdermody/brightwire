@@ -127,7 +127,7 @@ namespace ExampleCode.DataTableTrainers
             engine.LearningContext.EnableNodeUpdates(neuralNetworkWire.Find("layer2")!, false);
 
             // create the bernoulli classifier wire
-            var bernoulliWire = graph.Connect(engine)
+            var bernoullWireToNode = graph.Connect(engine)
                 .AddClassifier(bernoulli.AsRowClassifier(1, indexer), training)
             ;
 
@@ -138,7 +138,7 @@ namespace ExampleCode.DataTableTrainers
 
             // join the bernoulli, multinomial and neural network classification outputs
             var firstNetwork = neuralNetworkWire.Find("first-network")!;
-            var joined = graph.Join(multinomialWire, graph.Join(bernoulliWire, graph.Connect(outputSize, firstNetwork)));
+            var joined = graph.Join(multinomialWire, graph.Join(bernoullWireToNode, graph.Connect(outputSize, firstNetwork)));
 
             // train an additional classifier on the output of the previous three classifiers
             joined

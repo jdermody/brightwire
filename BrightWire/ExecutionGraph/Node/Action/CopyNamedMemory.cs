@@ -17,7 +17,7 @@ namespace BrightWire.ExecutionGraph.Node.Action
             _readFrom = node.Memory.Id;
         }
 
-        public IGraphData Execute(IGraphData input, IGraphSequenceContext context, INode node)
+        public IGraphData Execute(IGraphData input, IGraphSequenceContext context, NodeBase node)
         {
             var ec = context.ExecutionContext;
             var memory = ec.GetMemory(_readFrom);

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using BrightData;
 using BrightWire.ExecutionGraph.Helper;
+using BrightWire.ExecutionGraph.Node;
 using BrightWire.Models;
 
 namespace BrightWire.ExecutionGraph.Engine.Helper
@@ -15,13 +16,13 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         readonly IGraphExecutionContext _executionContext;
         readonly List<ExecutionHistory> _forward = new List<ExecutionHistory>();
 	    readonly Dictionary<int, IGraphData> _output = new Dictionary<int, IGraphData>();
-        INode? _sourceNode;
+        NodeBase? _sourceNode;
 
         public ExecutionGraphSequenceContext(IGraphExecutionContext executionContext, IMiniBatchSequence miniBatch)
         {
             _executionContext = executionContext;
             BatchSequence = miniBatch;
-            Data = NullGraphData.Instance;
+            Data = GraphData.Null;
         }
 
         public void Dispose()
@@ -30,33 +31,33 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         }
 
         public bool IsTraining => false;
-        public INode? Source => _sourceNode;
+        public NodeBase? Source => _sourceNode;
         public IGraphExecutionContext ExecutionContext => _executionContext;
         public ILearningContext? LearningContext => null;
         public ILinearAlgebraProvider LinearAlgebraProvider => _executionContext.LinearAlgebraProvider;
         public IMiniBatchSequence BatchSequence { get; }
         public IGraphData? Backpropagate(IGraphData? delta) => throw new NotImplementedException();
-        public void AddForward(INode source, IGraphData data, Func<IBackpropagate>? callback, params INode[] prev) => _forward.Add(new ExecutionHistory(source, data));
+        public void AddForward(NodeBase source, IGraphData data, Func<IBackpropagate>? callback, params NodeBase[] prev) => _forward.Add(new ExecutionHistory(source, data));
         public IGraphData ErrorSignal => throw new NotImplementedException();
-        public bool HasNext => _forward.Any();
+        //public bool HasNext => _forward.Any();
         public IGraphData Data { get; set; }
 
-        public bool ExecuteNext()
-        {
-            if (HasNext) {
-                var next = _forward.ElementAt(0);
-                _forward.RemoveAt(0);
+        //public bool ExecuteNext()
+        //{
+        //    if (HasNext) {
+        //        var next = _forward.ElementAt(0);
+        //        _forward.RemoveAt(0);
 
-                Data = next.Data;
+        //        Data = next.Data;
 
-                _sourceNode = next.Source;
-                foreach (var output in next.Source.Output)
-                    output.SendTo.ExecuteForward(this, output.Channel);
+        //        _sourceNode = next.Source;
+        //        foreach (var output in next.Source.Output)
+        //            output.SendTo.ExecuteForward(this, output.Channel);
 
-                return true;
-            }
-            return false;
-        }
+        //        return true;
+        //    }
+        //    return false;
+        //}
 
 	    public void SetOutput(IGraphData data, int channel = 0)
 	    {

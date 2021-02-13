@@ -17,7 +17,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
     internal class BatchNorm : NodeBase
 	{
 		uint _inputSize;
-		INode _input, _output;
+		NodeBase _input, _output;
 		VectorInput _gamma, _beta;
 		VectorBasedStatistics _statistics;
 		OneToMany _start;
@@ -63,7 +63,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 	        _start = new OneToMany(SubNodes, bp => { });
         }
 
-		public override IEnumerable<INode> SubNodes
+		public override IEnumerable<NodeBase> SubNodes
 		{
 			get
 			{
@@ -73,97 +73,14 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 			}
 		}
 
-		public override List<IWire> Output => _output.Output;
+		public override List<WireToNode> Output => _output.Output;
 
-		public override void ExecuteForward(IGraphSequenceContext context)
-		{
-			var data = context.Data;
-			IFloatMatrix input;
-			IReadOnlyList<IFloatVector> samples;
-            var shouldDispose = false;
-
-			if (data.Depth > 1) {
-                throw new NotImplementedException();
-				// reshape the tensor by depth slice
-				//var tensor4D = data.Get4DTensor();
-				//var slots = new List<IFloatVector>[data.Depth];
-				//for (var i = 0; i < data.Depth; i++)
-				//	slots[i] = new List<IFloatVector>();
-
-				//foreach (var tensor in tensor4D.ReshapeAsMatrix().ColumnVectors()) {
-				//	var depthSlices = tensor.ReshapeAsColumnMatrix().ReshapeAsVector().Split(data.Depth);
-				//	for (var i = 0; i < data.Depth; i++)
-				//		slots[i].Add(depthSlices[i]);
-				//}
-
-				//// TODO: create row vectors from slots and matrix from rows
-
-				////input = lap.CreateMatrixFromRows(list);
-				////samples = list;
-				//shouldDispose = true;
-            }
-			else {
-				input = context.Data.GetMatrix();
-				samples = input.RowVectors();
-			}
-
-			// collect statistics
-			if (context.LearningContext != null && _statistics != null) {
-				foreach (var vector in samples) {
-					_statistics.Update(vector);
-					vector.Dispose();
-				}
-			}
-
-			if (context.LearningContext != null) {
-				_start.ExecuteForward(context);
-
-				// invalidate the cache
-				if (_gammaCached != null) {
-					_gammaCached.Dispose();
-					_gammaCached = null;
-					_betaCached?.Dispose();
-					_betaCached = null;
-					_meanCached?.Dispose();
-					_meanCached = null;
-					_stdDevCached?.Dispose();
-					_stdDevCached = null;
-				}
-			}
-			else if(_statistics != null) {
-				if (_gammaCached?.IsValid != true || _gammaCached?.RowCount != input.RowCount || _gammaCached?.ColumnCount != input.ColumnCount)
-					_gammaCached = context.LinearAlgebraProvider.CreateMatrix(input.RowCount, input.ColumnCount, (x, y) => _gamma.Data[y]);
-				if(_betaCached?.IsValid != true || _betaCached?.RowCount != input.RowCount || _betaCached?.ColumnCount != input.ColumnCount)
-					_betaCached = context.LinearAlgebraProvider.CreateMatrix(input.RowCount, input.ColumnCount, (x, y) => _beta.Data[y]);
-				if (_meanCached?.IsValid != true || _meanCached?.RowCount != input.RowCount || _meanCached?.ColumnCount != input.ColumnCount) {
-					var mean = _statistics.Mean;
-					_meanCached = context.LinearAlgebraProvider.CreateMatrixFromRows(Enumerable.Repeat(mean, (int)input.RowCount).ToList());
-				}
-				if (_stdDevCached?.IsValid != true || _stdDevCached?.RowCount != input.RowCount || _stdDevCached?.ColumnCount != input.ColumnCount) {
-                    using var variance = _statistics.GetSampleVariance();
-                    using var stdDev = variance.Sqrt();
-                    _stdDevCached = context.LinearAlgebraProvider.CreateMatrixFromRows(Enumerable.Repeat(stdDev, (int)input.RowCount).ToList());
-                }
-				
-				input.SubtractInPlace(_meanCached);
-                using var xHat = input.PointwiseDivide(_stdDevCached);
-                using var ret = xHat.PointwiseMultiply(_gammaCached);
-                ret.AddInPlace(_betaCached);
-                AddNextGraphAction(context, context.Data.ReplaceWith(ret), null);
-            }
-
-			if (shouldDispose)
-				input.Dispose();
-			foreach (var item in samples)
-				item.Dispose();
-		}
-
-        public override (INode FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
             IFloatMatrix input;
 			IReadOnlyList<IFloatVector> samples;
             var shouldDispose = false;
-            (INode FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ret = (this, NullGraphData.Instance, null);
+            (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ret = (this, GraphData.Null, null);
 
 			if (signal.Depth > 1) {
                 throw new NotImplementedException();
@@ -199,7 +116,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 			}
 
 			if (context.LearningContext != null) {
-				ret = _start.Forward(signal, channel, context, source);
+				ret = _start.ForwardInternal(signal, channel, context, source);
 
 				// invalidate the cache
 				if (_gammaCached != null) {

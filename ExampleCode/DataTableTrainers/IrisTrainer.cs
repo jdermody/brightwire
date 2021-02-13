@@ -1,6 +1,7 @@
 ﻿using System;
 using BrightData;
 using BrightWire;
+using BrightWire.ExecutionGraph.Node;
 using ExampleCode.Extensions;
 
 namespace ExampleCode.DataTableTrainers
@@ -63,8 +64,8 @@ namespace ExampleCode.DataTableTrainers
             // create the training engine and schedule a training rate change
             var engine = graph.CreateTrainingEngine(trainingData, errorMetric, trainingRate, batchSize);
 
-            static INode Activation() => new SeluActivation();
-            //Func<INode> Activation = () => graph.ReluActivation();
+            static NodeBase Activation() => new SeluActivation();
+            //Func<NodeBase> Activation = () => graph.ReluActivation();
 
             // create the network with the custom activation function
             graph.Connect(engine)

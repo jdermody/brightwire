@@ -29,18 +29,7 @@ namespace BrightWire.ExecutionGraph.Node.Operation
         {
         }
 
-        public override void ExecuteForward(IGraphSequenceContext context)
-        {
-            var input = context.Data.GetMatrix();
-            using var columnSums = input.ColumnSums();
-            columnSums.Multiply(1f / input.RowCount);
-            var mean = columnSums.AsIndexable();
-
-            var output = context.LinearAlgebraProvider.CreateMatrix(input.RowCount, input.ColumnCount, (i, j) => mean[j]);
-            AddNextGraphAction(context, context.Data.ReplaceWith(output), () => new Backpropagation(this, input.RowCount));
-        }
-
-        public override (INode FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
             var input = signal.GetMatrix();
             using var columnSums = input.ColumnSums();

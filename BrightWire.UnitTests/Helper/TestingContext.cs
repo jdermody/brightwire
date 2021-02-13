@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using BrightData;
 using BrightWire.ExecutionGraph.Helper;
+using BrightWire.ExecutionGraph.Node;
 using BrightWire.Models;
 
 namespace BrightWire.UnitTests.Helper
@@ -21,7 +22,7 @@ namespace BrightWire.UnitTests.Helper
             // nop
         }
 
-        public INode Source { get; }
+        public NodeBase Source { get; }
         public IGraphData Data { get; set; }
         public IGraphExecutionContext ExecutionContext { get; }
         public ILearningContext LearningContext { get; }
@@ -33,12 +34,12 @@ namespace BrightWire.UnitTests.Helper
             Forward.Add((action, callback()));
         }
 
-        public void AppendErrorSignal(IGraphData errorSignal, INode forNode)
+        public void AppendErrorSignal(IGraphData errorSignal, NodeBase forNode)
         {
             throw new NotImplementedException();
         }
 
-        public void AddForward(INode source, IGraphData data, Func<IBackpropagate>? callback, params INode[] prev)
+        public void AddForward(NodeBase source, IGraphData data, Func<IBackpropagate>? callback, params NodeBase[] prev)
         {
             Forward.Add((new ExecutionHistory(source, data), callback()));
         }

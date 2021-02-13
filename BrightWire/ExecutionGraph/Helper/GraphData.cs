@@ -3,9 +3,14 @@ using BrightData;
 
 namespace BrightWire.ExecutionGraph.Helper
 {
+    public static class GraphData
+    {
+        public static readonly IGraphData Null = new NullGraphData();
+    }
+
     class NullGraphData : IGraphData
     {
-        private NullGraphData()
+        internal NullGraphData()
         {
         }
 
@@ -36,8 +41,6 @@ namespace BrightWire.ExecutionGraph.Helper
         public bool HasValue { get; } = false;
 
         public override string ToString() => "Null graph data";
-
-        public static NullGraphData Instance = new NullGraphData();
     }
 
     /// <summary>

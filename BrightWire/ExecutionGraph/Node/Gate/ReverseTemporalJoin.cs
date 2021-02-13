@@ -17,7 +17,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 _reverseSize = reverseSize;
             }
 
-            public override IEnumerable<(IGraphData Signal, INode ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
+            public override IEnumerable<(IGraphData Signal, NodeBase ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents)
             {
                 var matrix = errorSignal.GetMatrix();
                 (IFloatMatrix left, IFloatMatrix right) = matrix.SplitAtColumn(matrix.ColumnCount - _reverseSize);
@@ -44,10 +44,10 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 //return ErrorTo(errorSignal, parents);
             }
         }
-        Dictionary<uint, (IFloatMatrix Data, uint ReversedSize, INode ForwardParent)> _input = new Dictionary<uint, (IFloatMatrix Data, uint ReversedSize, INode ForwardParent)>();
-        Dictionary<uint, (IFloatMatrix Data, INode ReverseParent)> _reverseInput = new Dictionary<uint, (IFloatMatrix Data, INode ReverseParent)>();
+        Dictionary<uint, (IFloatMatrix Data, uint ReversedSize, NodeBase ForwardParent)> _input = new Dictionary<uint, (IFloatMatrix Data, uint ReversedSize, NodeBase ForwardParent)>();
+        Dictionary<uint, (IFloatMatrix Data, NodeBase ReverseParent)> _reverseInput = new Dictionary<uint, (IFloatMatrix Data, NodeBase ReverseParent)>();
 
-        Dictionary<uint, (INode, IGraphData)> _reverseBackpropagation = new Dictionary<uint, (INode, IGraphData)>();
+        Dictionary<uint, (NodeBase, IGraphData)> _reverseBackpropagation = new Dictionary<uint, (NodeBase, IGraphData)>();
         Dictionary<uint, IGraphSequenceContext> _contextTable = new Dictionary<uint, IGraphSequenceContext>();
 
         public ReverseTemporalJoin(string? name, WireBuilder forwardInput, WireBuilder reverseInput) 
@@ -55,12 +55,12 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         {
         }
 
-        public override void OnDeserialise(IReadOnlyDictionary<string, INode> graph)
+        public override void OnDeserialise(IReadOnlyDictionary<string, NodeBase> graph)
         {
-            _input = new Dictionary<uint, (IFloatMatrix Data, uint ReversedSize, INode ForwardParent)>();
-            _reverseInput = new Dictionary<uint, (IFloatMatrix Data, INode ReverseParent)>();
+            _input = new Dictionary<uint, (IFloatMatrix Data, uint ReversedSize, NodeBase ForwardParent)>();
+            _reverseInput = new Dictionary<uint, (IFloatMatrix Data, NodeBase ReverseParent)>();
 
-            _reverseBackpropagation = new Dictionary<uint, (INode, IGraphData)>();
+            _reverseBackpropagation = new Dictionary<uint, (NodeBase, IGraphData)>();
             _contextTable = new Dictionary<uint, IGraphSequenceContext>();
         }
 

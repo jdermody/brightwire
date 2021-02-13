@@ -3,6 +3,7 @@ using BrightWire.ExecutionGraph.Node.Input;
 using System.Collections.Generic;
 using System.IO;
 using BrightData;
+using BrightWire.ExecutionGraph.Helper;
 
 namespace BrightWire.ExecutionGraph.Node.Layer
 {
@@ -14,7 +15,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
     {
         uint _inputSize;
         MemoryFeeder _memory;
-        INode _input, _output;
+        NodeBase _input, _output;
         OneToMany _start;
 
 #pragma warning disable 8618
@@ -51,14 +52,14 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         /// <summary>
         /// Expose the output node so that we can append nodes to it
         /// </summary>
-        public override List<IWire> Output => _output.Output;
+        public override List<WireToNode> Output => _output.Output;
 
-        public INode Memory => _memory;
+        public NodeBase Memory => _memory;
 
         /// <summary>
         /// The list of sub nodes
         /// </summary>
-        public override IEnumerable<INode> SubNodes
+        public override IEnumerable<NodeBase> SubNodes
         {
             get
             {
@@ -67,16 +68,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             }
         }
 
-        /// <summary>
-        /// Execute on the the start node, which will execute each sub node in turn
-        /// </summary>
-        /// <param name="context"></param>
-        public override void ExecuteForward(IGraphSequenceContext context)
-        {
-            _start.ExecuteForward(context);
-        }
-
-        public override (INode FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source) => _start.Forward(signal, channel, context, source);
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source) => _start.ForwardInternal(signal, channel, context, source);
 
         protected override (string Description, byte[] Data) GetInfo()
         {

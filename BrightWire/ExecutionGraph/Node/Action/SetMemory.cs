@@ -19,7 +19,7 @@
 
         public string Serialise() => _id;
 
-        public IGraphData Execute(IGraphData input, IGraphSequenceContext context, INode node)
+        public IGraphData Execute(IGraphData input, IGraphSequenceContext context, NodeBase node)
         {
             context.ExecutionContext.SetMemory(_id, input.GetMatrix());
             return input;

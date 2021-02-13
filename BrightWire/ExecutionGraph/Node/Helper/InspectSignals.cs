@@ -26,16 +26,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
 			_backwardCallback = backwardCallback;
 		}
 
-		public override void ExecuteForward(IGraphSequenceContext context)
-		{
-			_forwardCallback?.Invoke(context.Data);
-			if(_backwardCallback != null)
-				AddNextGraphAction(context, context.Data, () => new Backpropagation(this));
-			else
-				AddNextGraphAction(context, context.Data, null);
-		}
-
-        public override (INode FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
             _forwardCallback?.Invoke(signal);
             if(_backwardCallback != null)

@@ -6,6 +6,7 @@ using System.IO;
 using BrightData;
 using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph.Helper;
+using BrightWire.ExecutionGraph.Node;
 
 namespace BrightWire
 {
@@ -75,8 +76,8 @@ namespace BrightWire
         /// <param name="context">Graph context</param>
         /// <param name="node"></param>
         /// <returns>Optional new graph signal to propagate</returns>
-        IGraphData Execute(IGraphData input, IGraphSequenceContext context, INode node);
-        
+        IGraphData Execute(IGraphData input, IGraphSequenceContext context, NodeBase node);
+
         /// <summary>
         /// Serialises the action to a string
         /// </summary>
@@ -124,95 +125,6 @@ namespace BrightWire
     }
 
     /// <summary>
-    /// Graph node
-    /// </summary>
-    public interface INode : ICanInitialiseNode, IDisposable, ICanSerialise
-    {
-        /// <summary>
-        /// Unique id
-        /// </summary>
-        string Id { get; }
-
-        /// <summary>
-        /// Friendly name
-        /// </summary>
-        string? Name { get; }
-
-        /// <summary>
-        /// List of outgoing wires
-        /// </summary>
-        List<IWire> Output { get; }
-
-        /// <summary>
-        /// Executes the node forward
-        /// </summary>
-        /// <param name="context">Graph context</param>
-        /// <param name="channel">Channel the signal was received on</param>
-        void ExecuteForward(IGraphSequenceContext context, uint channel);
-
-        /// <summary>
-        /// Searches for a node by friendly name
-        /// </summary>
-        /// <param name="name">Friendly name of the node to find</param>
-        /// <returns></returns>
-        INode? FindByName(string name);
-
-        /// <summary>
-        /// Searches for a node by id
-        /// </summary>
-        /// <param name="id">Unique id of the node</param>
-        /// <returns></returns>
-        INode? FindById(string id);
-
-        /// <summary>
-        /// Sub-nodes of the current node
-        /// </summary>
-        IEnumerable<INode> SubNodes { get; }
-
-        /// <summary>
-        /// Serialise the node
-        /// </summary>
-        /// <param name="existing">Set of nodes that have already been serialised in the current context</param>
-        /// <param name="connectedTo">List of nodes this node is connected to</param>
-        /// <param name="wireList">List of wires between all connected nodes</param>
-        /// <returns>Serialisation model</returns>
-        ExecutionGraphModel.Node SerialiseTo(HashSet<INode>? existing, List<ExecutionGraphModel.Node>? connectedTo, HashSet<ExecutionGraphModel.Wire>? wireList);
-
-        /// <summary>
-        /// Called after the graph has been completely deserialised
-        /// </summary>
-        /// <param name="graph">Dictionary of nodes with their associated unique ids</param>
-        void OnDeserialise(IReadOnlyDictionary<string, INode> graph);
-
-        /// <summary>
-        /// Loads parameters into an existing node
-        /// </summary>
-        /// <param name="factory">Graph factory</param>
-        /// <param name="nodeData">Serialised node parameters</param>
-        void LoadParameters(GraphFactory factory, ExecutionGraphModel.Node nodeData);
-
-        void Forward(IGraphData signal, IGraphSequenceContext context);
-
-        (INode FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source);
-    }
-
-    /// <summary>
-    /// Wires connect nodes in the graph
-    /// </summary>
-    public interface IWire
-    {
-        /// <summary>
-        /// The node to send a signal to
-        /// </summary>
-        INode SendTo { get; }
-
-        /// <summary>
-        /// The channel
-        /// </summary>
-        uint Channel { get; }
-    }
-
-    /// <summary>
     /// Represents a single pass through the graph, from a single mini batch sequence
     /// </summary>
     public interface IGraphSequenceContext : IDisposable
@@ -220,7 +132,7 @@ namespace BrightWire
         /// <summary>
         /// Node that sent the current signal
         /// </summary>
-        INode? Source { get; }
+        NodeBase? Source { get; }
 
         /// <summary>
         /// Current signal
@@ -252,7 +164,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="action">Record of node execution</param>
         /// <param name="callback">Optional callback to add backpropagation</param>
-        public void AddForward(INode source, IGraphData data, Func<IBackpropagate>? callback, params INode[] prev);
+        public void AddForward(NodeBase source, IGraphData data, Func<IBackpropagate>? callback, params NodeBase[] prev);
 
         /// <summary>
         /// Backpropagates the signal
@@ -267,28 +179,17 @@ namespace BrightWire
         IGraphData? ErrorSignal { get; }
 
         /// <summary>
-        /// Checks if there is a pending forward graph operation
+        /// Saves the data as an output of the graph
         /// </summary>
-        bool HasNext { get; }
+        /// <param name="data">Segment to save</param>
+        /// <param name="channel">Channel to save against (optional)</param>
+        void SetOutput(IGraphData data, int channel = 0);
 
         /// <summary>
-        /// Executes the next pending forward graph operation
+        /// Returns a saved output
         /// </summary>
-        /// <returns>True if an operation was executed</returns>
-        bool ExecuteNext();
-
-		/// <summary>
-		/// Saves the data as an output of the graph
-		/// </summary>
-		/// <param name="data">Segment to save</param>
-		/// <param name="channel">Channel to save against (optional)</param>
-	    void SetOutput(IGraphData data, int channel = 0);
-
-		/// <summary>
-		/// Returns a saved output
-		/// </summary>
-		/// <param name="channel">Output channel (optional)</param>
-	    IGraphData? GetOutput(int channel = 0);
+        /// <param name="channel">Output channel (optional)</param>
+        IGraphData? GetOutput(int channel = 0);
 
         /// <summary>
         /// Returns all stored output
@@ -378,7 +279,7 @@ namespace BrightWire
         /// <param name="errorSignal">Error signal</param>
         /// <param name="context">Graph context</param>
         /// <param name="parents">The current node's parents</param>
-        IEnumerable<(IGraphData Signal, INode ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, INode[] parents);
+        IEnumerable<(IGraphData Signal, NodeBase ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents);
     }
 
     /// <summary>
@@ -456,7 +357,7 @@ namespace BrightWire
         /// <summary>
         /// The input node of the preliminary graph
         /// </summary>
-        INode AdaptiveInput { get; }
+        NodeBase AdaptiveInput { get; }
 
         /// <summary>
         /// Gets the serialised preliminary graph
@@ -614,7 +515,7 @@ namespace BrightWire
         /// <summary>
 		/// The graph's single start node
 		/// </summary>
-		INode Start { get; }
+        NodeBase Start { get; }
     }
 
     public interface IGraphExecutionEngine : IGraphEngine
@@ -677,11 +578,11 @@ namespace BrightWire
         /// <param name="values">Optional callback to get the (testError, trainingRate, isPercentage, isImprovedScore) data</param>
         /// <returns>True if the model performance has improved since the last test</returns>
         bool Test(
-	        IDataSource testDataSource,
-            uint batchSize = 128, 
-	        Action<float>? batchCompleteCallback = null, 
-	        Action<float, bool, bool>? values = null
-	    );
+            IDataSource testDataSource,
+            uint batchSize = 128,
+            Action<float>? batchCompleteCallback = null,
+            Action<float, bool, bool>? values = null
+        );
 
         /// <summary>
         /// Graph learning context
@@ -706,25 +607,30 @@ namespace BrightWire
         /// <summary>
         /// The memory feed sub node
         /// </summary>
-        INode Memory { get; }
+        NodeBase Memory { get; }
     }
 
-	/// <summary>
-	/// Recurrent neural networks memory node
-	/// </summary>
-	public interface IMemoryNode
-	{
+    /// <summary>
+    /// Recurrent neural networks memory node
+    /// </summary>
+    public interface IMemoryNode
+    {
         /// <summary>
         /// The current state of the memory node
         /// </summary>
         Vector<float> Data { get; set; }
-	}
+    }
 
     /// <summary>
     /// Feed forward layer
     /// </summary>
-    public interface IFeedForward : INode
+    public interface IFeedForward
     {
+        /// <summary>
+        /// Node id
+        /// </summary>
+        string Id { get; }
+
         /// <summary>
         /// Size of incoming connections
         /// </summary>

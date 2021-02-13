@@ -33,15 +33,7 @@ namespace BrightWire.ExecutionGraph.Action
             _slotName = slotName;
         }
 
-        public override void ExecuteForward(IGraphSequenceContext context)
-        {
-            var memory = context.ExecutionContext.GetMemory(_slotName);
-            var data = context.Data;
-            var output = data.ReplaceWith(data.GetMatrix().ConcatRows(memory));
-            AddNextGraphAction(context, output, () => new Backpropagation(this, memory.ColumnCount));
-        }
-
-        public override (INode FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
             var memory = context.ExecutionContext.GetMemory(_slotName);
             var output = signal.ReplaceWith(signal.GetMatrix().ConcatRows(memory));

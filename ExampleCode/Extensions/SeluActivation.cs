@@ -37,20 +37,7 @@ namespace ExampleCode.Extensions
 
         public SeluActivation(string? name = null) : base(name) { }
 
-        public override void ExecuteForward(IGraphSequenceContext context)
-        {
-            var matrix = context.Data.GetMatrix().AsIndexable();
-            var output = context.LinearAlgebraProvider.CreateMatrix(matrix.RowCount, matrix.ColumnCount, (i, j) =>
-            {
-                var x = matrix[i, j];
-                if (x >= 0)
-                    return Scale * x;
-                return Scale * (Alpha * FloatMath.Exp(x) - Alpha);
-            });
-            AddNextGraphAction(context, context.Data.ReplaceWith(output), () => new Backpropagation(this));
-        }
-
-        public override (INode FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
             var matrix = signal.GetMatrix().AsIndexable();
             var output = context.LinearAlgebraProvider.CreateMatrix(matrix.RowCount, matrix.ColumnCount, (i, j) =>

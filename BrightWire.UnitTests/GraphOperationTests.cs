@@ -4,6 +4,8 @@ using BrightData;
 using BrightData.Helper;
 using BrightData.UnitTests;
 using BrightWire.ExecutionGraph;
+using BrightWire.ExecutionGraph.Helper;
+using BrightWire.ExecutionGraph.Node;
 using BrightWire.UnitTests.Helper;
 using FluentAssertions;
 using Xunit;
@@ -19,12 +21,12 @@ namespace BrightWire.UnitTests
             _factory = new GraphFactory(_cpu);
         }
 
-		void TestNode(INode node, IFloatMatrix forwardInput, IFloatMatrix expectedForwardOutput, IFloatMatrix backwardInput, IFloatMatrix expectedBackwardOutput)
+		void TestNode(NodeBase node, IFloatMatrix forwardInput, IFloatMatrix expectedForwardOutput, IFloatMatrix backwardInput, IFloatMatrix expectedBackwardOutput)
 		{
 			var context = new TestingContext(_cpu);
 			var matrix = forwardInput.AsIndexable();
 			context.Data = matrix.AsGraphData();
-            node.ExecuteForward(context, 0);
+            node.Forward(GraphData.Null, context);
 
 			var output = context.Forward.First();
 			var outputMatrix = output.Item1.Data.GetMatrix();

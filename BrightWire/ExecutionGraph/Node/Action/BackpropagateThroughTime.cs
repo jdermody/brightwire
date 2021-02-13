@@ -20,7 +20,7 @@
             //return TypeLoader.GetTypeName(_errorMetric);
         }
 
-        public IGraphData Execute(IGraphData input, IGraphSequenceContext context, INode node)
+        public IGraphData Execute(IGraphData input, IGraphSequenceContext context, NodeBase node)
         {
             context.Data = input;
 

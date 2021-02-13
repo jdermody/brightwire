@@ -3,6 +3,7 @@ using BrightWire.ExecutionGraph.Node.Input;
 using System.Collections.Generic;
 using System.IO;
 using BrightData;
+using BrightWire.ExecutionGraph.Helper;
 
 namespace BrightWire.ExecutionGraph.Node.Layer
 {
@@ -14,7 +15,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
     {
         uint _inputSize;
         MemoryFeeder _memory, _state;
-        INode _input, _output;
+        NodeBase _input, _output;
         OneToMany _start;
 
 #pragma warning disable 8618
@@ -55,17 +56,12 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             _start = new OneToMany(SubNodes);
         }
 
-        public override List<IWire> Output => _output.Output;
-        public INode Memory => _memory;
+        public override List<WireToNode> Output => _output.Output;
+        public NodeBase Memory => _memory;
 
-        public override void ExecuteForward(IGraphSequenceContext context)
-        {
-            _start.ExecuteForward(context);
-        }
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source) => _start.ForwardInternal(signal, channel, context, source);
 
-        public override (INode FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source) => _start.Forward(signal, channel, context, source);
-
-        public override IEnumerable<INode> SubNodes
+        public override IEnumerable<NodeBase> SubNodes
         {
             get
             {

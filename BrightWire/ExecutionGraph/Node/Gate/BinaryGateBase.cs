@@ -10,7 +10,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
     public abstract class BinaryGateBase : NodeBase
     {
         IFloatMatrix? _primary = null, _secondary = null;
-        INode? _primarySource = null, _secondarySource = null;
+        NodeBase? _primarySource = null, _secondarySource = null;
 
         /// <summary>
         /// Constructor
@@ -18,32 +18,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// <param name="name"></param>
         protected BinaryGateBase(string? name) : base(name) { }
 
-        /// <summary>
-        /// Executes on the primary channel
-        /// </summary>
-        /// <param name="context">The graph context</param>
-        public override void ExecuteForward(IGraphSequenceContext context)
-        {
-            _primarySource = context.Source;
-            _primary = context.Data.GetMatrix();
-            TryComplete(context);
-        }
-
-        /// <summary>
-        /// Executes on a secondary channel
-        /// </summary>
-        /// <param name="context">The graph context</param>
-        /// <param name="channel">The channel</param>
-        protected override void ExecuteForwardInternal(IGraphSequenceContext context, uint channel)
-        {
-            if (channel == 1) {
-                _secondarySource = context.Source;
-                _secondary = context.Data.GetMatrix();
-                TryComplete(context);
-            }
-        }
-
-        public override (INode FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
             IGraphData next;
             Func<IBackpropagate>? backProp = null;
@@ -81,7 +56,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 return (signal.ReplaceWith(next), backProp);
             }
 
-            return (NullGraphData.Instance, null);
+            return (GraphData.Null, null);
         }
 
         /// <summary>

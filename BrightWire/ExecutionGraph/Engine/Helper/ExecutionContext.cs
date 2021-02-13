@@ -56,8 +56,8 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
                 while ((sequence = item.Batch.GetNextSequence()) != null) {
                     var context = _createGraphContext.Create(this, sequence, learningContext);
                     item.Start(context, item.Data);
-                    while (context.HasNext)
-                        context.ExecuteNext();
+                    //while (context.HasNext)
+                    //    context.ExecuteNext();
                     yield return (context, item.End);
                 }
             }

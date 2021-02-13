@@ -27,14 +27,7 @@ namespace BrightWire.ExecutionGraph.Node.Operation
         {
         }
 
-        public override void ExecuteForward(IGraphSequenceContext context)
-        {
-            var input = context.Data.GetMatrix();
-            var inputSquared = input.PointwiseMultiply(input);
-            AddNextGraphAction(context, context.Data.ReplaceWith(inputSquared), () => new Backpropagation(this, input));
-        }
-
-        public override (INode FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
             var input = context.Data.GetMatrix();
             var inputSquared = input.PointwiseMultiply(input);

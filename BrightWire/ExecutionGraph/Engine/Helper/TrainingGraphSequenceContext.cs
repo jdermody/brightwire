@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml;
 using BrightData;
 using BrightWire.ExecutionGraph.Helper;
+using BrightWire.ExecutionGraph.Node;
 using BrightWire.Models;
 
 namespace BrightWire.ExecutionGraph.Engine.Helper
@@ -11,7 +13,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     class TrainingGraphSequenceContext : IGraphSequenceContext, ICanTrace
     {
         readonly List<ExecutionHistory> _forward = new List<ExecutionHistory>();
-        readonly Dictionary<INode, ExecutionNode> _nodeExecution = new Dictionary<INode, ExecutionNode>();
+        readonly Dictionary<NodeBase, ExecutionNode> _nodeExecution = new Dictionary<NodeBase, ExecutionNode>();
 
         public TrainingGraphSequenceContext(
             ILearningContext? learningContext, 
@@ -21,21 +23,21 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             LearningContext = learningContext;
             ExecutionContext = executionContext;
             BatchSequence = batchSequence;
-            Data = NullGraphData.Instance;
+            Data = GraphData.Null;
         }
 
         public void Dispose()
         {
         }
 
-        public INode? Source { get; private set; } = null;
+        public NodeBase? Source { get; private set; } = null;
         public IGraphData Data { get; set; }
         public IGraphExecutionContext ExecutionContext { get; }
         public ILearningContext? LearningContext { get; }
         public ILinearAlgebraProvider LinearAlgebraProvider => ExecutionContext.LinearAlgebraProvider;
         public IMiniBatchSequence BatchSequence { get; }
 
-        public void AddForward(INode source, IGraphData data, Func<IBackpropagate>? callback, params INode[] prev)
+        public void AddForward(NodeBase source, IGraphData data, Func<IBackpropagate>? callback, params NodeBase[] prev)
         {
             var action = new ExecutionHistory(source, data);
             if (callback != null && LearningContext != null)
@@ -57,42 +59,40 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             get
             {
                 var sb = new StringBuilder();
-                var first = _forward.FirstOrDefault();
-                if (first != null) {
-                    
+                using (var writer = XmlWriter.Create(sb)) {
+                    writer.WriteStartElement("context");
+                    var first = _forward.FirstOrDefault();
+                    if (first != null) {
+                        _nodeExecution[first.Source].WriteTo(writer);
+                    }
+
+                    writer.WriteEndElement();
                 }
+
                 return sb.ToString();
             }
         }
 
-        public ExecutionNode GetExecutionNode(INode node) => _nodeExecution[node];
+        public ExecutionNode GetExecutionNode(NodeBase node) => _nodeExecution[node];
 
         public IGraphData? Backpropagate(IGraphData? delta)
         {
             var source = _forward.LastOrDefault()?.Source;
             var curr = _nodeExecution[source ?? throw new ArgumentException("No target node")];
-            var errors = curr.Backpropagate(this, delta, curr).ToList();
-            ErrorSignal = errors.Single();
+            foreach (var item in curr.Backpropagate(this, delta, curr)) {
+                if (item?.HasValue == true) {
+                    #if DEBUG
+                    if(ErrorSignal?.HasValue == true)
+                        throw new Exception("Unexpected");
+                    #endif
+                    ErrorSignal = item;
+                }
+            }
             return ErrorSignal;
         }
 
         public IGraphData? ErrorSignal { get; private set; } = null;
         public bool HasNext => _forward.Any();
-        public bool ExecuteNext()
-        {
-            if (HasNext) {
-                var next = _forward.ElementAt(0);
-                _forward.RemoveAt(0);
-
-                Data = next.Data;
-                Source = next.Source;
-                foreach (var output in next.Source.Output)
-                    output.SendTo.ExecuteForward(this, output.Channel);
-
-                return true;
-            }
-            return false;
-        }
 
         public void SetOutput(IGraphData data, int channel = 0)
         {

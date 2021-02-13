@@ -17,22 +17,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
             _inputIndex = inputIndex;
         }
 
-        public override void ExecuteForward(IGraphSequenceContext context)
-        {
-            if (_inputIndex == 0) {
-                var curr = context.BatchSequence;
-                var batch = curr.MiniBatch;
-                var reversed = batch.GetSequenceAtIndex(batch.SequenceCount - curr.SequenceIndex - 1).Input;
-                if (reversed == null)
-                    throw new Exception("Input data was null");
-
-                //context.AddForward(new ExecutionHistory(this, reversed, context.Source), null);
-            }
-            else 
-                throw new NotImplementedException();
-        }
-
-        public override (INode FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
             if (_inputIndex == 0) {
                 var curr = context.BatchSequence;

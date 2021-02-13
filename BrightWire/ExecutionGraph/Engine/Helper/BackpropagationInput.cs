@@ -37,6 +37,8 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         }
 
         public bool IsComplete { get; private set; } = false;
+        public int InputCount => _input.Length;
+        public int ErrorCount => _error.Count;
 
         public IGraphData? GetError()
         {

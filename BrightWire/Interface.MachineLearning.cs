@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph;
+using BrightWire.ExecutionGraph.Node;
 using BrightWire.Models.Linear;
 
 namespace BrightWire
@@ -149,7 +150,7 @@ namespace BrightWire
         /// <param name="fromNode">The node that is affected by this update</param>
 		/// <param name="update">The matrix update</param>
 		/// <param name="updater">Callback to execute the update</param>
-		void StoreUpdate(INode fromNode, IFloatMatrix update, Action<IFloatMatrix> updater);
+		void StoreUpdate(NodeBase fromNode, IFloatMatrix update, Action<IFloatMatrix> updater);
 
         /// <summary>
         /// Stores an update to the model parameters
@@ -158,7 +159,7 @@ namespace BrightWire
         /// <param name="fromNode">The node that is affected by this update</param>
         /// <param name="update">The vector update</param>
         /// <param name="updater">Callback to execute the update</param>
-        void StoreUpdate(INode fromNode, IFloatVector update, Action<IFloatVector> updater);
+        void StoreUpdate(NodeBase fromNode, IFloatVector update, Action<IFloatVector> updater);
 
         /// <summary>
 		/// Apply any deferred updates
@@ -207,7 +208,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="node">The node to modify</param>
         /// <param name="enableUpdates">True if the node can make updates via backpropagation</param>
-        void EnableNodeUpdates(INode node, bool enableUpdates);
+        void EnableNodeUpdates(NodeBase node, bool enableUpdates);
 
         /// <summary>
 		/// Sends the message to some output

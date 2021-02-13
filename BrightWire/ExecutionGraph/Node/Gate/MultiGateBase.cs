@@ -30,7 +30,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             /// <summary>
             /// The node the signal came from
             /// </summary>
-            public INode? Source { get; private set; }
+            public NodeBase? Source { get; private set; }
 
             /// <summary>
             /// The size of the input signal
@@ -53,7 +53,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             /// </summary>
             /// <param name="data">The node signal</param>
             /// <param name="source">The source node</param>
-            public void SetData(IFloatMatrix? data, INode? source)
+            public void SetData(IFloatMatrix? data, NodeBase? source)
             {
                 Data = data;
                 Source = source;
@@ -88,37 +88,9 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 _data[i] = new IncomingChannel(incoming[i].CurrentSize, i);
         }
 
-        /// <summary>
-        /// Executes on the primary channel
-        /// </summary>
-        /// <param name="context">The graph context</param>
-        public override void ExecuteForward(IGraphSequenceContext context)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
-            ExecuteForwardInternal(context, 0);
-        }
-
-        /// <summary>
-        /// Executes on a secondary channel
-        /// </summary>
-        /// <param name="context">The graph context</param>
-        /// <param name="channel">The channel</param>
-        protected override void ExecuteForwardInternal(IGraphSequenceContext context, uint channel)
-        {
-            if (_data.TryGetValue(channel, out var data)) {
-                data.SetData(context.Data.GetMatrix(), context.Source);
-                if(_data.All(kv => kv.Value.IsValid)) {
-                    Activate(context, _data.Select(kv => kv.Value).ToList());
-
-                    // reset the inputs
-                    foreach (var item in _data)
-                        item.Value.Clear();
-                }
-            }
-        }
-
-        public override (INode FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
-        {
-            IGraphData next = NullGraphData.Instance;
+            IGraphData next = GraphData.Null;
             Func<IBackpropagate>? backProp = null;
 
             if (_data.TryGetValue(channel, out var data)) {

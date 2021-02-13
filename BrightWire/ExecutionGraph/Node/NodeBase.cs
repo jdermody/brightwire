@@ -13,11 +13,11 @@ namespace BrightWire.ExecutionGraph.Node
     /// <summary>
     /// Base class for graph nodes
     /// </summary>
-    public abstract class NodeBase : INode
+    public abstract class NodeBase : ICanInitialiseNode, IDisposable, ICanSerialise
     {
         string _id;
         string? _name;
-        List<IWire> _output = new List<IWire>();
+        List<WireToNode> _output = new List<WireToNode>();
 
         /// <summary>
         /// Constructor
@@ -77,69 +77,41 @@ namespace BrightWire.ExecutionGraph.Node
         /// <summary>
         /// The list of outgoing wires along which the output signal will be sent
         /// </summary>
-        public virtual List<IWire> Output => _output;
-
-        /// <summary>
-        /// Called when executing forward on the primary channel
-        /// </summary>
-        /// <param name="context"></param>
-        public abstract void ExecuteForward(IGraphSequenceContext context);
-
-        /// <summary>
-        /// Called when executing forward on a non-primary channel
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="channel"></param>
-        protected virtual void ExecuteForwardInternal(IGraphSequenceContext context, uint channel)
-        {
-            ExecuteForward(context);
-        }
-
-        /// <summary>
-        /// Called when executing forward
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="channel"></param>
-        public void ExecuteForward(IGraphSequenceContext context, uint channel)
-        {
-            if (channel == 0)
-                ExecuteForward(context);
-            else
-                ExecuteForwardInternal(context, channel);
-        }
+        public virtual List<WireToNode> Output => _output;
 
         public void Forward(IGraphData signal, IGraphSequenceContext context)
         {
-            Forward(this, signal, 0, context, null);
+            Forward(signal, 0, context, null);
         }
 
-        static void Forward(INode node, IGraphData signal, uint channel, IGraphSequenceContext context, INode? prev)
+        void Forward(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? prev)
         {
-            var (from, output, backProp) = node.Forward(signal, channel, context, prev);
-            if (output.HasValue) {
-                if (prev != null)
-                    context.AddForward(from, output, backProp, prev);
-                else
-                    context.AddForward(from, output, backProp);
+            // execute the node
+            var (from, output, backProp) = ForwardInternal(signal, channel, context, prev);
 
+            // add to the context history
+            if (prev != null)
+                context.AddForward(from, output, backProp, prev);
+            else
+                context.AddForward(from, output, backProp);
+
+            // send output to connected nodes
+            if (output.HasValue) {
                 foreach (var wire in from.Output) {
-                    Forward(wire.SendTo, output, wire.Channel, context, from);
+                    wire.SendTo.Forward(output, wire.Channel, context, from);
                 }
             }
         }
 
-        public abstract (INode FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source);
-
         /// <summary>
-        /// Records the node execution and queues the output nodes for execution
+        /// 
         /// </summary>
+        /// <param name="signal"></param>
+        /// <param name="channel"></param>
         /// <param name="context"></param>
-        /// <param name="data"></param>
-        /// <param name="backProp"></param>
-        protected void AddNextGraphAction(IGraphSequenceContext context, IGraphData data, Func<IBackpropagate>? backProp)
-        {
-            context.AddForward(this, data, backProp, context.Source!);
-        }
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public abstract (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source);
 
         /// <summary>
         /// Serialise this node and any connected nodes
@@ -148,7 +120,7 @@ namespace BrightWire.ExecutionGraph.Node
         /// <param name="connectedTo">List of nodes this node is connected to</param>
         /// <param name="wireList">List of wires between all connected nodes</param>
         /// <returns></returns>
-        public virtual ExecutionGraphModel.Node SerialiseTo(HashSet<INode>? existing, List<ExecutionGraphModel.Node>? connectedTo, HashSet<ExecutionGraphModel.Wire>? wireList)
+        public virtual ExecutionGraphModel.Node SerialiseTo(HashSet<NodeBase>? existing, List<ExecutionGraphModel.Node>? connectedTo, HashSet<ExecutionGraphModel.Wire>? wireList)
         {
             var (description, data) = GetInfo();
             var ret = new ExecutionGraphModel.Node {
@@ -188,7 +160,7 @@ namespace BrightWire.ExecutionGraph.Node
         /// Called after the graph has been completely deserialised
         /// </summary>
         /// <param name="graph">The complete graph</param>
-        public virtual void OnDeserialise(IReadOnlyDictionary<string, INode> graph)
+        public virtual void OnDeserialise(IReadOnlyDictionary<string, NodeBase> graph)
         {
             // nop
         }
@@ -220,11 +192,11 @@ namespace BrightWire.ExecutionGraph.Node
         /// <param name="name">Node name</param>
         /// <param name="description">Node description</param>
         /// <param name="data">Serialisation data</param>
-        void ICanInitialiseNode.Initialise(GraphFactory factory, string id, string? name, string? description, byte[]? data)
+        public void Initialise(GraphFactory factory, string id, string? name, string? description, byte[]? data)
         {
             _id = id;
             _name = name;
-            _output = new List<IWire>();
+            _output = new List<WireToNode>();
             Initalise(factory, description, data);
         }
 
@@ -233,9 +205,9 @@ namespace BrightWire.ExecutionGraph.Node
         /// </summary>
         /// <param name="name">The node's name to search for</param>
         /// <returns></returns>
-        public INode? FindByName(string name)
+        public NodeBase? FindByName(string name)
         {
-            var context = new Stack<INode>();
+            var context = new Stack<NodeBase>();
             context.Push(this);
 
             while(context.Any()) {
@@ -254,9 +226,9 @@ namespace BrightWire.ExecutionGraph.Node
         /// </summary>
         /// <param name="id">Unique id to find</param>
         /// <returns></returns>
-        public INode? FindById(string id)
+        public NodeBase? FindById(string id)
         {
-            var context = new Stack<INode>();
+            var context = new Stack<NodeBase>();
             context.Push(this);
 
             while (context.Any()) {
@@ -273,14 +245,14 @@ namespace BrightWire.ExecutionGraph.Node
         /// <summary>
         /// The list of sub-nodes
         /// </summary>
-        public virtual IEnumerable<INode> SubNodes => Enumerable.Empty<INode>();
+        public virtual IEnumerable<NodeBase> SubNodes => Enumerable.Empty<NodeBase>();
 
         /// <summary>
         /// Serialise the node to the writer
         /// </summary>
         /// <param name="node">The node to serialise</param>
         /// <param name="writer">The binary writer</param>
-        protected static void Serialise(INode node, BinaryWriter writer)
+        protected static void Serialise(NodeBase node, BinaryWriter writer)
         {
             node.SerialiseTo(null, null, null).WriteTo(writer);
         }
@@ -317,7 +289,7 @@ namespace BrightWire.ExecutionGraph.Node
         /// <param name="factory">Graph factory</param>
         /// <param name="reader"></param>
         /// <returns></returns>
-        protected static INode Hydrate(GraphFactory factory, BinaryReader reader)
+        protected static NodeBase Hydrate(GraphFactory factory, BinaryReader reader)
         {
             var model = new ExecutionGraphModel.Node(reader);
             return factory.Create(model);
@@ -340,7 +312,7 @@ namespace BrightWire.ExecutionGraph.Node
         /// <param name="name">Sub node name</param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public INode FindSubNodeByNameOrThrow(string name)
+        public NodeBase FindSubNodeByNameOrThrow(string name)
         {
             foreach (var subNode in SubNodes) {
                 var ret = subNode.FindByName(name);

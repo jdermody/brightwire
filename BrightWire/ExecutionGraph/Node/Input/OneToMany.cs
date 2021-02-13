@@ -12,14 +12,14 @@ namespace BrightWire.ExecutionGraph.Node.Input
     {
         //class Backpropagation : BackpropagationBase<OneToMany>
         //{
-        //    //readonly Dictionary<INode, IGraphData> _signalTable;
+        //    //readonly Dictionary<NodeBase, IGraphData> _signalTable;
 
         //    public Backpropagation(OneToMany source) : base(source)
         //    {
         //        //_signalTable = _source._children.ToDictionary(n => n, n => (IGraphData)NullGraphData.Instance);
         //    }
 
-        //    //public override void BackwardInternal(INode? fromNode, IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
+        //    //public override void BackwardInternal(NodeBase? fromNode, IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents)
         //    //{
         //    //    if (fromNode == null || !_source._children.Contains(fromNode))
         //    //        throw new Exception("Unknown from node");
@@ -43,15 +43,15 @@ namespace BrightWire.ExecutionGraph.Node.Input
         //    //    }
         //    //}
 
-        //    public override IEnumerable<(IGraphData Signal, INode ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
+        //    public override IEnumerable<(IGraphData Signal, NodeBase ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents)
         //    {
         //        return ErrorTo(errorSignal, parents);
         //    }
         //}
-        //readonly INode[] _children;
-        //readonly Action<IReadOnlyDictionary<INode, IGraphData>>? _onBackpropagation;
+        //readonly NodeBase[] _children;
+        //readonly Action<IReadOnlyDictionary<NodeBase, IGraphData>>? _onBackpropagation;
 
-        public OneToMany(IEnumerable<INode> children, Action<IReadOnlyDictionary<INode, IGraphData>>? onBackpropagation = null, string? name = null) : base(name)
+        public OneToMany(IEnumerable<NodeBase> children, Action<IReadOnlyDictionary<NodeBase, IGraphData>>? onBackpropagation = null, string? name = null) : base(name)
         {
             //_children = children.ToArray();
             //_onBackpropagation = onBackpropagation;
@@ -59,12 +59,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
                 Output.Add(new WireToNode(child));
         }
 
-        public override void ExecuteForward(IGraphSequenceContext context)
-        {
-            AddNextGraphAction(context, context.Data, null/*, () => new Backpropagation(this)*/);
-        }
-
-        public override (INode FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
             return (this, signal, null/*, () => new Backpropagation(this)*/);
         }

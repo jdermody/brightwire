@@ -26,7 +26,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 //_input2.Dispose();
             }
 
-            public override IEnumerable<(IGraphData Signal, INode ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
+            public override IEnumerable<(IGraphData Signal, NodeBase ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents)
             {
                 var es = errorSignal.GetMatrix();
                 var delta1 = es.PointwiseMultiply(_input2);

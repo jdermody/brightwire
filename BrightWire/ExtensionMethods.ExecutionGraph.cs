@@ -11,6 +11,7 @@ using System.Text;
 using BrightData;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
+using BrightWire.ExecutionGraph.Node;
 using BrightWire.Helper;
 
 namespace BrightWire
@@ -99,11 +100,11 @@ namespace BrightWire
         /// <param name="input"></param>
         /// <param name="name">Name of the graph (optional)</param>
         /// <returns></returns>
-        public static ExecutionGraphModel GetGraph(this INode input, string? name = null)
+        public static ExecutionGraphModel GetGraph(this NodeBase input, string? name = null)
         {
             var connectedTo = new List<ExecutionGraphModel.Node>();
             var wireList = new HashSet<ExecutionGraphModel.Wire>();
-            var existing = new HashSet<INode>();
+            var existing = new HashSet<NodeBase>();
             var data = input.SerialiseTo(existing, connectedTo, wireList);
 
             return new ExecutionGraphModel {
@@ -119,10 +120,10 @@ namespace BrightWire
         /// </summary>
         /// <param name="factory"></param>
         /// <param name="graph">Serialised graph</param>
-        public static INode CreateFrom(this GraphFactory factory, ExecutionGraphModel graph)
+        public static NodeBase CreateFrom(this GraphFactory factory, ExecutionGraphModel graph)
         {
             // create the input node
-            var nodeTable = new Dictionary<string, INode>();
+            var nodeTable = new Dictionary<string, NodeBase>();
             var ret = factory.Create(graph.InputNode);
             nodeTable.Add(ret.Id, ret);
 

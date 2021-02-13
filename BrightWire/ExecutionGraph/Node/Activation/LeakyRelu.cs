@@ -28,14 +28,7 @@ namespace BrightWire.ExecutionGraph.Node.Activation
 
         public LeakyRelu(string? name = null) : base(name) { }
 
-        public override void ExecuteForward(IGraphSequenceContext context)
-        {
-            var input = context.Data.GetMatrix();
-            var output = context.Data.ReplaceWith(input.LeakyReluActivation());
-            AddNextGraphAction(context, output, () => new Backpropagation(this, input));
-        }
-
-        public override (INode FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
             var input = signal.GetMatrix();
             var output = signal.ReplaceWith(input.LeakyReluActivation());

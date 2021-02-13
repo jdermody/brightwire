@@ -6,6 +6,7 @@ using System.Text;
 using BrightData;
 using BrightWire.ExecutionGraph.Engine.Helper;
 using BrightWire.ExecutionGraph.Helper;
+using BrightWire.ExecutionGraph.Node;
 using BrightWire.ExecutionGraph.Node.Input;
 using BrightWire.Models;
 
@@ -79,7 +80,7 @@ namespace BrightWire.ExecutionGraph.Engine
             return Train(executionContext, null, batch);
         }
 
-        public INode Start { get; }
+        public NodeBase Start { get; }
 
         public void Train(IGraphExecutionContext executionContext, Action<float>? batchCompleteCallback = null)
         {
@@ -156,8 +157,8 @@ namespace BrightWire.ExecutionGraph.Engine
                 while ((currentSequence = batch.GetNextSequence()) != null) {
                     var context = lookupContext(currentSequence);
                     executionContext.Continue(context);
-                    while (context.HasNext)
-                        context.ExecuteNext();
+                    //while (context.HasNext)
+                    //    context.ExecuteNext();
                     yield return context;
                 }
             }
@@ -166,7 +167,7 @@ namespace BrightWire.ExecutionGraph.Engine
         IGraphSequenceContext Train(IGraphExecutionContext executionContext, ILearningContext? learningContext, IMiniBatchSequence sequence)
         {
             var context = Create(executionContext, sequence, learningContext);
-            Start.Forward(NullGraphData.Instance, context);
+            Start.Forward(GraphData.Null, context);
             //Start.ExecuteForward(context, 0);
             //while (context.HasNext)
             //    context.ExecuteNext();
@@ -174,11 +175,11 @@ namespace BrightWire.ExecutionGraph.Engine
             return context;
         }
 
-        //void Execute(IGraphSequenceContext context, INode node, IGraphData signal, uint channel)
+        //void Execute(IGraphSequenceContext context, NodeBase node, IGraphData signal, uint channel)
         //{
         //    var ret = node.Forward(signal, channel, context, TODO);
         //    if (ret.Next.HasValue) {
-        //        context.AddForward(new ExecutionHistory(node, ret.Next, (INode?)null), ret.BackProp);
+        //        context.AddForward(new ExecutionHistory(node, ret.Next, (NodeBase?)null), ret.BackProp);
         //    }
         //}
 
@@ -264,7 +265,7 @@ namespace BrightWire.ExecutionGraph.Engine
             throw new NotImplementedException();
         }
 
-        void StoreUpdate<T>(INode fromNode, T update, Action<T> updater) where T : notnull
+        void StoreUpdate<T>(NodeBase fromNode, T update, Action<T> updater) where T : notnull
         {
             throw new NotImplementedException();
         }

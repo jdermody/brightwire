@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using BrightData;
+using BrightWire.ExecutionGraph.Node;
 
 namespace BrightWire.ExecutionGraph.Engine.Helper
 {
@@ -12,9 +13,9 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     {
 	    readonly Dictionary<uint, float> _learningRateSchedule = new Dictionary<uint, float>();
             readonly Stack<(IGraphData? Data, Func<IGraphData?, IGraphData?> Callback)> _deferredBackpropagation = new Stack<(IGraphData?, Func<IGraphData?, IGraphData?>)>();
-            readonly List<(INode Node, IFloatMatrix Error, Action<IFloatMatrix> Updater)> _layerMatrixUpdate = new List<(INode, IFloatMatrix, Action<IFloatMatrix>)>();
-            readonly List<(INode Node, IFloatVector Error, Action<IFloatVector> Updater)> _layerVectorUpdate = new List<(INode, IFloatVector, Action<IFloatVector>)>();
-            readonly HashSet<INode> _updatesDisabled = new HashSet<INode>();
+            readonly List<(NodeBase Node, IFloatMatrix Error, Action<IFloatMatrix> Updater)> _layerMatrixUpdate = new List<(NodeBase, IFloatMatrix, Action<IFloatMatrix>)>();
+            readonly List<(NodeBase Node, IFloatVector Error, Action<IFloatVector> Updater)> _layerVectorUpdate = new List<(NodeBase, IFloatVector, Action<IFloatVector>)>();
+            readonly HashSet<NodeBase> _updatesDisabled = new HashSet<NodeBase>();
             readonly Stopwatch _timer = new Stopwatch();
 
             public LearningContext(GraphFactory graphFactory, IErrorMetric errorMetric)
@@ -33,7 +34,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             public uint BatchSize { get; set; }
             public uint RowCount { get; private set; }
 
-            public void StoreUpdate(INode fromNode, IFloatMatrix update, Action<IFloatMatrix> updater)
+            public void StoreUpdate(NodeBase fromNode, IFloatMatrix update, Action<IFloatMatrix> updater)
             {
                 if (!_updatesDisabled.Contains(fromNode)) {
                     _layerMatrixUpdate.Add((fromNode, update, updater));
@@ -48,7 +49,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
                 //}
             }
 
-            public void StoreUpdate(INode fromNode, IFloatVector update, Action<IFloatVector> updater)
+            public void StoreUpdate(NodeBase fromNode, IFloatVector update, Action<IFloatVector> updater)
             {
                 if (!_updatesDisabled.Contains(fromNode)) {
                     _layerVectorUpdate.Add((fromNode, update, updater));
@@ -56,7 +57,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             }
 
             void Update<T>(
-                List<(INode Node, T Error, Action<T> Updater)> updates, 
+                List<(NodeBase Node, T Error, Action<T> Updater)> updates, 
                 Func<T, uint> getSize,
                 Func<T, T> cloner, 
                 Action<T, T> addInPlace, 
@@ -149,7 +150,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
                 _learningRateSchedule[atEpoch] = newLearningRate;
             }
 
-            public void EnableNodeUpdates(INode node, bool enableUpdates)
+            public void EnableNodeUpdates(NodeBase node, bool enableUpdates)
             {
                 if (enableUpdates)
                     _updatesDisabled.Remove(node);

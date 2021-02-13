@@ -5,6 +5,7 @@ using BrightWire.ExecutionGraph.Engine.Helper;
 using BrightWire.Models;
 using System;
 using BrightData;
+using BrightWire.ExecutionGraph.Node;
 
 namespace BrightWire.ExecutionGraph.Engine
 {
@@ -13,14 +14,14 @@ namespace BrightWire.ExecutionGraph.Engine
 	/// </summary>
     internal class ExecutionEngine : IGraphExecutionEngine
 	{
-        public ExecutionEngine(ILinearAlgebraProvider lap, ExecutionGraphModel graph, INode start)
+        public ExecutionEngine(ILinearAlgebraProvider lap, ExecutionGraphModel graph, NodeBase start)
         {
             LinearAlgebraProvider = lap;
 			Graph = graph;
 			Start = start;
         }
 
-        public INode Start { get; }
+        public NodeBase Start { get; }
         public ExecutionGraphModel Graph { get; }
         public IDataSource? DataSource { get; private set; } = null;
 		public ILinearAlgebraProvider LinearAlgebraProvider { get; }
@@ -59,18 +60,19 @@ namespace BrightWire.ExecutionGraph.Engine
 				IMiniBatchSequence? curr;
 				while ((curr = batch.GetNextSequence()) != null) {
 					var context = CreateContext(executionContext, curr);
-					Start.ExecuteForward(context, 0);
-					while (context.HasNext)
-						context.ExecuteNext();
+                    Start.Forward(GraphData.Null, context);
+					//Start.ExecuteForward(context, 0);
+					//while (context.HasNext)
+					//	context.ExecuteNext();
                     yield return context;
 					table.Add(curr, context);
 				}
 			} else {
 				var context = CreateContext(executionContext, batch.CurrentSequence);
-				Start.ExecuteForward(context, 0);
-
-				while (context.HasNext)
-					context.ExecuteNext();
+                Start.Forward(GraphData.Null, context);
+				//Start.ExecuteForward(context, 0);
+                //while (context.HasNext)
+				//	context.ExecuteNext();
 
                 yield return context;
                 table.Add(batch.CurrentSequence, context);
@@ -104,8 +106,8 @@ namespace BrightWire.ExecutionGraph.Engine
 	            while ((currentSequence = batch.GetNextSequence()) != null) {
                     var context = lookupContext(currentSequence);
                     executionContext.Continue(context);
-                    while (context.HasNext)
-                        context.ExecuteNext();
+                    //while (context.HasNext)
+                    //    context.ExecuteNext();
                     yield return context;
                 }
             }

@@ -42,21 +42,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
         {
         }
 
-        public override void ExecuteForward(IGraphSequenceContext context)
-        {
-            var tensor = context.Data.Get4DTensor() ?? throw new Exception("No data");
-            var rowList = new List<IFloatVector>();
-
-            for(uint i = 0; i < tensor.Count; i++) {
-                var row = tensor.GetTensorAt(i).CombineDepthSlices().ReshapeAsVector();
-                rowList.Add(row);
-            }
-            var output = context.LinearAlgebraProvider.CreateMatrixFromRows(rowList);
-
-            AddNextGraphAction(context, new MatrixGraphData(output), () => new Backpropagation(this, tensor));
-        }
-
-        public override (INode FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
             var tensor = signal.Get4DTensor() ?? throw new Exception("No data");
             var rowList = new List<IFloatVector>();

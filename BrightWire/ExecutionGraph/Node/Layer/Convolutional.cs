@@ -69,7 +69,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                     }
                     return new Tensor4DGraphData(delta.ReshapeAsMatrix(), _inputHeight, _inputWidth, inputDepth);
                 }
-                return NullGraphData.Instance;
+                return GraphData.Null;
             }
         }
 		IGradientDescentOptimisation? _updater;
@@ -117,30 +117,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 			_updater!.Update(_filter, delta, context);
 		}
 
-		public override void ExecuteForward(IGraphSequenceContext context)
-		{
-			var input = context.Data;
-			var tensor = input.GetMatrix().ReshapeAs4DTensor(input.Rows, input.Columns, input.Depth);
-
-			var inputWidth = tensor.ColumnCount;
-			var inputHeight = tensor.RowCount;
-			var newWidth = ((inputWidth - _filterWidth + (2 * _padding)) / _xStride) + 1;
-			var newHeight = ((inputHeight - _filterHeight + (2 * _padding)) / _yStride) + 1;
-
-			if (_padding > 0)
-				tensor = tensor.AddPadding(_padding);
-
-			var im2Col = tensor.Im2Col(_filterWidth, _filterHeight, _xStride, _yStride);
-			var outputSignal = im2Col.Multiply(_filter);
-			outputSignal.AddToEachRow(_bias);
-			var outputTensor = outputSignal.ReshapeAs4DTensor(newHeight, newWidth);
-			Debug.Assert(outputTensor.Depth == FilterCount && outputTensor.Count == tensor.Count);
-
-			var graphData = new Tensor4DGraphData(outputTensor);
-			AddNextGraphAction(context, graphData, () => new Backpropagation(this, im2Col, inputWidth, inputHeight, tensor.Depth, newWidth, newHeight));
-		}
-
-        public override (INode FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
             var tensor = signal.GetMatrix().ReshapeAs4DTensor(signal.Rows, signal.Columns, signal.Depth);
 

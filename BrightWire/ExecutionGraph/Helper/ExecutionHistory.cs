@@ -1,4 +1,6 @@
-﻿namespace BrightWire.ExecutionGraph.Helper
+﻿using BrightWire.ExecutionGraph.Node;
+
+namespace BrightWire.ExecutionGraph.Helper
 {
     public class ExecutionHistory
     {
@@ -8,11 +10,11 @@
 		/// <param name="source">The node that executed</param>
 		/// <param name="data">The output of the node</param>
 		/// <param name="parent">The single parent that contributed to the output (optional)</param>
-	    public ExecutionHistory(INode source, IGraphData data, INode? parent = null)
+	    public ExecutionHistory(NodeBase source, IGraphData data, NodeBase? parent = null)
         {
             Parents = parent != null 
                 ? new[] { parent } 
-                : new INode[0];
+                : new NodeBase[0];
 
             Source = source;
             Data = data;
@@ -24,7 +26,7 @@
 		/// <param name="source">The node that executed</param>
 		/// <param name="data">The output of the node</param>
 		/// <param name="parents">The parent nodes that contributed to the output</param>
-        public ExecutionHistory(INode source, IGraphData data, INode[] parents)
+        public ExecutionHistory(NodeBase source, IGraphData data, NodeBase[] parents)
         {
             Parents = parents;
             Source = source;
@@ -34,7 +36,7 @@
         /// <summary>
         /// Node that was executed
         /// </summary>
-        public INode Source { get; }
+        public NodeBase Source { get; }
         
         /// <summary>
         /// Node output signal
@@ -49,7 +51,7 @@
         /// <summary>
         /// The node's parents
         /// </summary>
-        public INode[] Parents { get; }
+        public NodeBase[] Parents { get; }
 
         public override string ToString() => $"{Source} {Data} ({Parents.Length})";
     }
