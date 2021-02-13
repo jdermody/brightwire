@@ -16,16 +16,18 @@ namespace BrightWire.ExecutionGraph.Engine
 	/// </summary>
     internal class TrainingEngine : EngineBase, IGraphTrainingEngine
 	{
-		readonly List<(IMiniBatchSequence Sequence, double? TrainingError, Matrix<float>[] Output)> _executionResults = new List<(IMiniBatchSequence, double?, Matrix<float>[])>();
+        readonly GraphFactory _factory;
+        readonly List<(IMiniBatchSequence Sequence, double? TrainingError, Matrix<float>[] Output)> _executionResults = new List<(IMiniBatchSequence, double?, Matrix<float>[])>();
 		readonly List<IGraphContext> _contextList = new List<IGraphContext>();
 		readonly INode[] _input;
 		readonly Random _random;
 		float? _lastTestError = null;
 		double? _lastTrainingError = null, _trainingErrorDelta = null;
 
-		public TrainingEngine(ILinearAlgebraProvider lap, IDataSource dataSource, ILearningContext learningContext, INode? start) : base(lap)
+		public TrainingEngine(GraphFactory factory, ILinearAlgebraProvider lap, IDataSource dataSource, ILearningContext learningContext, INode? start) : base(lap)
 		{
-			_dataSource = dataSource;
+            _factory = factory;
+            _dataSource = dataSource;
             _random = lap.Context.Random;
 			LearningContext = learningContext;
 			learningContext.SetRowCount(dataSource.RowCount);
@@ -277,5 +279,10 @@ namespace BrightWire.ExecutionGraph.Engine
             foreach (var node in graph.OtherNodes)
                 LoadParamaters(factory, node);
 		}
+
+        public IGraphExecutionEngine CreateExecutionEngine(ExecutionGraphModel? model)
+        {
+            return _factory.CreateEngine(model ?? Graph);
+        }
 	}
 }

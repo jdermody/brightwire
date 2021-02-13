@@ -47,10 +47,10 @@ namespace BrightWire.UnitTests
                 .Add(graph.SigmoidActivation())
                 .AddBackpropagation();
             engine.Train(300, data, errorMetric, bn => _bestNetwork = bn);
-            AssertEngineGetsGoodResults(engine, data);
+            AssertEngineGetsGoodResults(engine.CreateExecutionEngine(_bestNetwork.Graph), data);
         }
 
-        static void AssertEngineGetsGoodResults(IGraphEngine engine, IDataSource data)
+        static void AssertEngineGetsGoodResults(IGraphExecutionEngine engine, IDataSource data)
         {
             var results = engine.Execute(data).FirstOrDefault();
             results.Should().NotBeNull();

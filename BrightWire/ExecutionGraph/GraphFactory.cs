@@ -168,7 +168,7 @@ namespace BrightWire.ExecutionGraph
             TrainingErrorCalculation trainingErrorCalculation = TrainingErrorCalculation.Fast)
 		{
 			var learningContext = new LearningContext(LinearAlgebraProvider, errorMetric, learningRate, batchSize, trainingErrorCalculation, dataSource.IsSequential, this);
-			return new TrainingEngine(LinearAlgebraProvider, dataSource, learningContext, null);
+			return new TrainingEngine(this, LinearAlgebraProvider, dataSource, learningContext, null);
 		}
 
         /// <summary>
@@ -190,7 +190,7 @@ namespace BrightWire.ExecutionGraph
 		{
 			var learningContext = new LearningContext(LinearAlgebraProvider, errorMetric, trainingRate, batchSize, trainingErrorCalculation, dataSource.IsSequential, this);
 			var input = this.CreateFrom(graph);
-			return new TrainingEngine(LinearAlgebraProvider, dataSource, learningContext, input);
+			return new TrainingEngine(this, LinearAlgebraProvider, dataSource, learningContext, input);
 		}
 
 		/// <summary>
@@ -203,7 +203,7 @@ namespace BrightWire.ExecutionGraph
 		public IGraphTrainingEngine CreateTrainingEngine(IDataSource dataSource, ILearningContext learningContext, ExecutionGraphModel graph)
 		{
 			var input = this.CreateFrom(graph);
-			return new TrainingEngine(LinearAlgebraProvider, dataSource, learningContext, input);
+			return new TrainingEngine(this, LinearAlgebraProvider, dataSource, learningContext, input);
 		}
 
 		/// <summary>
@@ -211,7 +211,7 @@ namespace BrightWire.ExecutionGraph
 		/// </summary>
 		/// <param name="graph">The serialised graph to execute</param>
 		/// <returns></returns>
-		public IGraphEngine CreateEngine(ExecutionGraphModel graph)
+		public IGraphExecutionEngine CreateEngine(ExecutionGraphModel graph)
 		{
 			var input = this.CreateFrom(graph);
 			return new ExecutionEngine(LinearAlgebraProvider, graph, input);

@@ -3303,7 +3303,12 @@
             Segment source that feeds into the graph
             </summary>
         </member>
-        <member name="M:BrightWire.IGraphEngine.Execute(BrightWire.IDataSource,System.UInt32,System.Action{System.Single})">
+        <member name="P:BrightWire.IGraphEngine.Start">
+            <summary>
+            The graph's single start node
+            </summary>
+        </member>
+        <member name="M:BrightWire.IGraphExecutionEngine.Execute(BrightWire.IDataSource,System.UInt32,System.Action{System.Single})">
             <summary>
             Executes a data source on the current graph
             </summary>
@@ -3312,14 +3317,14 @@
             <param name="batchCompleteCallback">Optional callback to be notifiied after each mini batch has completed</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.IGraphEngine.Execute(System.Single[])">
+        <member name="M:BrightWire.IGraphExecutionEngine.Execute(System.Single[])">
             <summary>
             Executes a single vector on the current graph
             </summary>
             <param name="input">Vector to execute</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.IGraphEngine.ExecuteSequential(System.UInt32,System.Single[],BrightWire.IGraphExecutionContext,BrightWire.MiniBatchSequenceType)">
+        <member name="M:BrightWire.IGraphExecutionEngine.ExecuteSequential(System.UInt32,System.Single[],BrightWire.IGraphExecutionContext,BrightWire.MiniBatchSequenceType)">
             <summary>
             Executes a sequential input on the current graph
             </summary>
@@ -3329,17 +3334,12 @@
             <param name="sequenceType">The sequence type (start, standard, end)</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.IGraphEngine.ExecuteSequential(System.Single[][])">
+        <member name="M:BrightWire.IGraphExecutionEngine.ExecuteSequential(System.Single[][])">
             <summary>
             Executes a sequence of inputs on the current graph
             </summary>
             <param name="input">List of vector inputs</param>
             <returns>List of execution results</returns>
-        </member>
-        <member name="P:BrightWire.IGraphEngine.Start">
-            <summary>
-            The graph's single start node
-            </summary>
         </member>
         <member name="T:BrightWire.IGraphTrainingEngine">
             <summary>
@@ -3382,6 +3382,13 @@
             </summary>
             <param name="factory">Graph factory</param>
             <param name="graph">Model to load parameters from</param>
+        </member>
+        <member name="M:BrightWire.IGraphTrainingEngine.CreateExecutionEngine(BrightWire.Models.ExecutionGraphModel)">
+            <summary>
+            Creates an execution engine
+            </summary>
+            <param name="model">Model to use (optional, otherwise the last trained model)</param>
+            <returns></returns>
         </member>
         <member name="T:BrightWire.IHaveMemoryNode">
             <summary>

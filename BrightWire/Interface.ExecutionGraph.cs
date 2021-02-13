@@ -640,6 +640,14 @@ namespace BrightWire
         IDataSource? DataSource { get; }
 
         /// <summary>
+		/// The graph's single start node
+		/// </summary>
+		INode Start { get; }
+    }
+
+    public interface IGraphExecutionEngine : IGraphEngine
+    {
+        /// <summary>
         /// Executes a data source on the current graph
         /// </summary>
         /// <param name="dataSource">Segment source to process</param>
@@ -671,11 +679,6 @@ namespace BrightWire
         /// <param name="input">List of vector inputs</param>
         /// <returns>List of execution results</returns>
         IEnumerable<ExecutionResult> ExecuteSequential(float[][] input);
-
-		/// <summary>
-		/// The graph's single start node
-		/// </summary>
-		INode Start { get; }
     }
 
     /// <summary>
@@ -725,6 +728,13 @@ namespace BrightWire
         /// <param name="factory">Graph factory</param>
         /// <param name="graph">Model to load parameters from</param>
         void LoadParametersFrom(GraphFactory factory, ExecutionGraphModel graph);
+
+        /// <summary>
+        /// Creates an execution engine
+        /// </summary>
+        /// <param name="model">Model to use (optional, otherwise the last trained model)</param>
+        /// <returns></returns>
+        IGraphExecutionEngine CreateExecutionEngine(ExecutionGraphModel? model);
     }
 
     /// <summary>

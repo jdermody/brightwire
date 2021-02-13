@@ -71,7 +71,7 @@ namespace ExampleCode.DataTableTrainers
             return multinomial;
         }
 
-        public (IGraphTrainingEngine, WireBuilder, IGraphEngine) TrainNeuralNetwork(uint numIterations = 10)
+        public (IGraphTrainingEngine, WireBuilder, IGraphExecutionEngine) TrainNeuralNetwork(uint numIterations = 10)
         {
             var indexer = GetIndexer();
             var trainingTable = GetTable(_context, _maxIndex, indexer, _indexedSentencesTraining);
@@ -209,7 +209,7 @@ namespace ExampleCode.DataTableTrainers
 
         static IIndexStrings GetIndexer() => StringIndexer.Create("negative", "positive");
 
-        public void TestClassifiers(IIndexListClassifier bernoulli, IIndexListClassifier multinomial, IGraphEngine neuralNetwork)
+        public void TestClassifiers(IIndexListClassifier bernoulli, IIndexListClassifier multinomial, IGraphExecutionEngine neuralNetwork)
         {
             Console.WriteLine("Enter some text to test the classifiers...");
             while (true)

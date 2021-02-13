@@ -16,7 +16,7 @@ namespace ExampleCode.DataTableTrainers
             _context = context;
         }
 
-        public IGraphEngine TrainLstm()
+        public IGraphExecutionEngine TrainLstm()
         {
             var graph = _context.CreateGraphFactory();
 
@@ -47,7 +47,7 @@ namespace ExampleCode.DataTableTrainers
             return graph.CreateEngine(engine.Graph);
         }
 
-        public void GenerateSequences(IGraphEngine engine)
+        public void GenerateSequences(IGraphExecutionEngine engine)
         {
             Console.WriteLine("Generating new reber sequences from the observed state probabilities...");
             var graph = _context.CreateGraphFactory();
