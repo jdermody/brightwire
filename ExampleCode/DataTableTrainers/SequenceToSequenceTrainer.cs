@@ -90,7 +90,7 @@ namespace ExampleCode.DataTableTrainers
         public void TrainSequenceToSequence()
         {
             var graph = _context.CreateGraphFactory();
-            var errorMetric = graph.ErrorMetric.BinaryClassification;
+            var errorMetric = graph.ErrorMetric.CrossEntropy;
 
             // create the property set
             graph.CurrentPropertySet
@@ -125,7 +125,7 @@ namespace ExampleCode.DataTableTrainers
                 .SetNewSize(wb2.CurrentSize + HIDDEN_LAYER_SIZE)
                 .AddLstm(HIDDEN_LAYER_SIZE, "decoder")
                 .AddFeedForward(trainingData.GetOutputSizeOrThrow())
-                .Add(graph.SigmoidActivation())
+                .Add(graph.SoftMaxActivation())
                 .AddBackpropagationThroughTime(errorMetric)
             ;
 
