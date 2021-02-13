@@ -61,28 +61,6 @@ namespace BrightWire.ExecutionGraph.Engine
             return ret;
         }
 
-        //protected ExecutionResult _Execute(float[] input)
-        //{
-        //    _lap.PushLayer();
-        //    ExecutionResult ret = null;
-        //    _dataSource = new SingleRowDataSource(input, false, MiniBatchSequenceType.Standard, 0);
-        //    var provider = new MiniBatchProvider(_dataSource, _lap.Context.Random);
-        //    using (var executionContext = new ExecutionContext(_lap)) {
-        //        executionContext.Add(provider.GetMiniBatches(1, mb => _Execute(executionContext, mb)));
-
-        //        IGraphOperation operation;
-        //        while ((operation = executionContext.GetNextOperation()) != null) {
-        //            operation.Execute(executionContext);
-        //            _ClearContextList();
-        //        }
-
-        //        ret = _GetResults().Single();
-        //    }
-        //    _lap.PopLayer();
-        //    _dataSource = null;
-        //    return ret;
-        //}
-
         public IEnumerable<ExecutionResult> ExecuteSequential(float[][] input)
         {
             _lap.PushLayer();

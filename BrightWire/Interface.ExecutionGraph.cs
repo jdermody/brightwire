@@ -713,7 +713,7 @@ namespace BrightWire
 	        IErrorMetric errorMetric, 
 	        uint batchSize = 128, 
 	        Action<float>? batchCompleteCallback = null, 
-	        Action<float, double, bool, bool>? values = null
+	        Action<float, bool, bool>? values = null
 	    );
 
         /// <summary>

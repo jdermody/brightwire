@@ -178,7 +178,8 @@ namespace BrightWire
 		/// <param name="updater">Callback to execute the update</param>
 		void StoreUpdate<T>(INode fromNode, T update, Action<T> updater) where T: notnull;
 
-        /// <summary>
+
+		/// <summary>
 		/// True if updates are deferred until the mini batch is complete
 		/// </summary>
 		bool DeferUpdates { get; }

@@ -3359,7 +3359,7 @@
             <param name="executionContext">Graph execution context</param>
             <param name="batchCompleteCallback">Optional callback to be notifiied after each mini batch has completed</param>
         </member>
-        <member name="M:BrightWire.IGraphTrainingEngine.Test(BrightWire.IDataSource,BrightWire.IErrorMetric,System.UInt32,System.Action{System.Single},System.Action{System.Single,System.Double,System.Boolean,System.Boolean})">
+        <member name="M:BrightWire.IGraphTrainingEngine.Test(BrightWire.IDataSource,BrightWire.IErrorMetric,System.UInt32,System.Action{System.Single},System.Action{System.Single,System.Boolean,System.Boolean})">
             <summary>
             Executes test data on the current graph
             </summary>

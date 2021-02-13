@@ -22,9 +22,8 @@ namespace BrightWire.ExecutionGraph.Engine
 		readonly INode[] _input;
 		readonly Random _random;
 		float? _lastTestError = null;
-		double? _lastTrainingError = null, _trainingErrorDelta = null;
 
-		public TrainingEngine(GraphFactory factory, ILinearAlgebraProvider lap, IDataSource dataSource, ILearningContext learningContext, INode? start) : base(lap)
+        public TrainingEngine(GraphFactory factory, ILinearAlgebraProvider lap, IDataSource dataSource, ILearningContext learningContext, INode? start) : base(lap)
 		{
             _factory = factory;
             _dataSource = dataSource;
@@ -191,7 +190,7 @@ namespace BrightWire.ExecutionGraph.Engine
 			IErrorMetric errorMetric,
 			uint batchSize = 128,
 			Action<float>? batchCompleteCallback = null,
-			Action<float, double, bool, bool>? values = null
+			Action<float, bool, bool>? values = null
 		)
 		{
 			var testError = Execute(testDataSource, batchSize, batchCompleteCallback)
@@ -213,7 +212,7 @@ namespace BrightWire.ExecutionGraph.Engine
 				_lastTestError = testError;
 
             var msg = new StringBuilder();
-			values?.Invoke(testError, _lastTrainingError ?? 0, isPercentage, flag);
+			values?.Invoke(testError, isPercentage, flag);
 			if (LearningContext.CurrentEpoch == 0)
                 msg.Append(Write("\rInitial test", testError, isPercentage));
             else {
