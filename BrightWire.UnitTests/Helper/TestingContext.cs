@@ -38,7 +38,12 @@ namespace BrightWire.UnitTests.Helper
             throw new NotImplementedException();
         }
 
-        public IGraphData? Backpropagate(IGraphData? delta)
+        public void AddForward(INode source, IGraphData data, Func<IBackpropagate>? callback, params INode[] prev)
+        {
+            Forward.Add((new ExecutionHistory(source, data), callback()));
+        }
+
+        public IGraphData? Backpropagate(INode source, IGraphData? delta)
         {
             throw new NotImplementedException();
         }

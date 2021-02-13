@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using BrightData;
 
@@ -40,6 +41,12 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         {
             var output = primary.PointwiseMultiply(secondary);
             AddHistory(context, output, () => new Backpropagation(this, primary,  secondary));
+        }
+
+        protected override (IFloatMatrix Next, Func<IBackpropagate>? BackProp) Activate2(IGraphSequenceContext context, IFloatMatrix primary, IFloatMatrix secondary)
+        {
+            var output = primary.PointwiseMultiply(secondary);
+            return (output, () => new Backpropagation(this, primary,  secondary));
         }
     }
 }

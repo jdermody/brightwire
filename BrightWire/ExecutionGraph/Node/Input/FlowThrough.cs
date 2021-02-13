@@ -1,4 +1,6 @@
-﻿namespace BrightWire.ExecutionGraph.Node.Input
+﻿using System;
+
+namespace BrightWire.ExecutionGraph.Node.Input
 {
     /// <summary>
     /// Simple pass through of the input signal
@@ -12,6 +14,11 @@
         public override void ExecuteForward(IGraphSequenceContext context)
         {
             AddNextGraphAction(context, context.Data, null);
+        }
+
+        public override (IGraphData Next, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        {
+            return (signal, null);
         }
     }
 }

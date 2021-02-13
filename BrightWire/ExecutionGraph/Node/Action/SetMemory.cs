@@ -1,4 +1,4 @@
-﻿namespace BrightWire.ExecutionGraph.Action
+﻿namespace BrightWire.ExecutionGraph.Node.Action
 {
     /// <summary>
     /// Saves the current graph signal into named memory
@@ -19,7 +19,7 @@
 
         public string Serialise() => _id;
 
-        public IGraphData Execute(IGraphData input, IGraphSequenceContext context)
+        public IGraphData Execute(IGraphData input, IGraphSequenceContext context, INode node)
         {
             context.ExecutionContext.SetMemory(_id, input.GetMatrix());
             return input;

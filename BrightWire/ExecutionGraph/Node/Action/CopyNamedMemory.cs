@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-namespace BrightWire.ExecutionGraph.Action
+namespace BrightWire.ExecutionGraph.Node.Action
 {
     /// <summary>
     /// Copies named memory from one slot to another
@@ -17,7 +17,7 @@ namespace BrightWire.ExecutionGraph.Action
             _readFrom = node.Memory.Id;
         }
 
-        public IGraphData Execute(IGraphData input, IGraphSequenceContext context)
+        public IGraphData Execute(IGraphData input, IGraphSequenceContext context, INode node)
         {
             var ec = context.ExecutionContext;
             var memory = ec.GetMemory(_readFrom);

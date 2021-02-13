@@ -23,7 +23,7 @@ namespace BrightWire.ExecutionGraph.Node
         /// <param name="context">Graph context</param>
         /// <param name="parents">Parents of the current node</param>
         /// <returns></returns>
-        protected abstract IGraphData Backpropagate(INode? fromNode, IGraphData errorSignal, IGraphSequenceContext context, INode[] parents);
+        //protected abstract IGraphData Backpropagate(INode? fromNode, IGraphData errorSignal, IGraphSequenceContext context, INode[] parents);
 
         protected abstract IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context);
 

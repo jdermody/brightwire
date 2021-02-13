@@ -76,12 +76,12 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             // concatenate the inputs
             var next = data.ConcatRows(floatMatrix);
 
-            context.AddForward(new ExecutionHistory(
-                this, 
-                new MatrixGraphData(next), 
-                new[] { forwardParent, reverseParent }), 
-                () => new Backpropagation(this, reversedSize)
-            );
+            //context.AddForward(new ExecutionHistory(
+            //    this, 
+            //    new MatrixGraphData(next), 
+            //    new[] { forwardParent, reverseParent }), 
+            //    () => new Backpropagation(this, reversedSize)
+            //);
         }
 
         protected override void Activate(IGraphSequenceContext context, List<IncomingChannel> data)
@@ -102,6 +102,11 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             _reverseInput.Add(reversedSequenceIndex, (backward.Data, backward.Source!));
 
             context.ExecutionContext.RegisterContinuation(context.BatchSequence, Continue);
+        }
+
+        protected override (IFloatMatrix Next, Func<IBackpropagate>? BackProp) Activate2(IGraphSequenceContext context, List<IncomingChannel> data)
+        {
+            throw new NotImplementedException();
         }
     }
 }

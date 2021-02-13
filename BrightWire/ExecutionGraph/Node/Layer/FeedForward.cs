@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using BrightData;
 
 namespace BrightWire.ExecutionGraph.Node.Layer
@@ -21,24 +23,6 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             protected override void DisposeMemory(bool isDisposing)
             {
                 //_input.Dispose();
-            }
-
-            protected override IGraphData Backpropagate(INode? fromNode, IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
-            {
-                var es = errorSignal.GetMatrix();
-
-                // work out the next error signal
-                var ret = es.TransposeAndMultiply(_source._weight);
-
-                // calculate the update to the weights
-                var weightUpdate = _input.TransposeThisAndMultiply(es);
-
-                // store the updates
-                var learningContext = context.LearningContext!;
-                learningContext.StoreUpdate(_source, es, err => _source.UpdateBias(err, learningContext));
-                learningContext.StoreUpdate(_source, weightUpdate, err => _source.UpdateWeights(err, learningContext));
-
-                return errorSignal.ReplaceWith(ret);
             }
 
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
@@ -110,6 +94,14 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
             // set output
             AddNextGraphAction(context, context.Data.ReplaceWith(output), () => new Backpropagation(this, input));
+        }
+
+        public override (IGraphData Next, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        {
+            var input = signal.GetMatrix();
+            var output = FeedForwardInternal(input, _weight);
+
+            return (signal.ReplaceWith(output), () => new Backpropagation(this, input));
         }
 
         protected override (string Description, byte[] Data) GetInfo()

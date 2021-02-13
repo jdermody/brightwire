@@ -1,4 +1,5 @@
-﻿using BrightWire.ExecutionGraph.Node.Layer;
+﻿using System;
+using BrightWire.ExecutionGraph.Node.Layer;
 using System.IO;
 using BrightData;
 using BrightData.Helper;
@@ -20,24 +21,6 @@ namespace BrightWire.ExecutionGraph.Node.Filter
                 _input = input;
                 _filter = filter;
                 _filteredWeights = filteredWeights;
-            }
-
-            protected override IGraphData Backpropagate(INode? fromNode, IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
-            {
-                var es = errorSignal.GetMatrix();
-
-                // work out the next error signal against the filtered weights
-                IFloatMatrix ret = es.TransposeAndMultiply(_filteredWeights);
-
-                // calculate the update to the weights and filter out the dropped connections
-                var weightUpdate = _input.TransposeThisAndMultiply(es).PointwiseMultiply(_filter);
-
-                // store the updates
-                var learningContext = context.LearningContext!;
-                learningContext.StoreUpdate(_source, es, err => _source.UpdateBias(err, learningContext));
-                learningContext.StoreUpdate(_source, weightUpdate, err => _source.UpdateWeights(err, learningContext));
-
-                return errorSignal.ReplaceWith(ret);
             }
 
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
@@ -80,6 +63,20 @@ namespace BrightWire.ExecutionGraph.Node.Filter
                 AddNextGraphAction(context, input.ReplaceWith(output), () => new Backpropagation(this, inputMatrix, filter, filteredWeights));
             } else
                 base.ExecuteForward(context);
+        }
+
+        public override (IGraphData Next, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        {
+            if (context.LearningContext != null) {
+                var lap = context.LinearAlgebraProvider;
+                var input = signal;
+                var inputMatrix = input.GetMatrix();
+                var filter = lap.CreateMatrix(Weight.RowCount, Weight.ColumnCount, (i, j) => FloatMath.IsZero(_dropOutPercentage) ? 1f : _probabilityToDrop!.Sample() == 1 ? 0f : 1f / _dropOutPercentage);
+                var filteredWeights = Weight.PointwiseMultiply(filter);
+                var output = FeedForwardInternal(inputMatrix, filteredWeights);
+                return (input.ReplaceWith(output), () => new Backpropagation(this, inputMatrix, filter, filteredWeights));
+            }
+            return base.Forward(signal, channel, context, source);
         }
 
         protected override (string Description, byte[] Data) GetInfo()

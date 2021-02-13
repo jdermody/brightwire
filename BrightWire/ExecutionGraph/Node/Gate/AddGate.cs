@@ -1,4 +1,5 @@
-﻿using BrightData;
+﻿using System;
+using BrightData;
 
 namespace BrightWire.ExecutionGraph.Node.Gate
 {
@@ -15,6 +16,14 @@ namespace BrightWire.ExecutionGraph.Node.Gate
 
             // default is to pass the error signal through, which is correct for addition
             AddHistory(context, output, null);
+        }
+
+        protected override (IFloatMatrix Next, Func<IBackpropagate>? BackProp) Activate2(IGraphSequenceContext context, IFloatMatrix primary, IFloatMatrix secondary)
+        {
+            var output = primary.Add(secondary);
+
+            // default is to pass the error signal through, which is correct for addition
+            return (output, null);
         }
     }
 }

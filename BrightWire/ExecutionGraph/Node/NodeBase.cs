@@ -1,6 +1,7 @@
 ﻿using BrightWire.ExecutionGraph.Helper;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.IO;
@@ -107,6 +108,37 @@ namespace BrightWire.ExecutionGraph.Node
                 ExecuteForwardInternal(context, channel);
         }
 
+        public IGraphData Forward(IGraphData signal, IGraphSequenceContext context)
+        {
+            return Forward(this, signal, 0, context, null);
+        }
+
+        static IGraphData Forward(INode node, IGraphData signal, uint channel, IGraphSequenceContext context, INode? prev)
+        {
+            var (ret, backProp) = node.Forward(signal, channel, context, prev);
+            if (ret.HasValue) {
+                if (prev != null)
+                    context.AddForward(node, ret, backProp, prev);
+                else
+                    context.AddForward(node, ret, backProp);
+
+                IGraphData next = NullGraphData.Instance;
+                foreach (var wire in node.Output) {
+                    var result = Forward(wire.SendTo, ret, wire.Channel, context, node);
+                    if (result.HasValue) {
+                        Debug.Assert(!next.HasValue || ReferenceEquals(result, next));
+                        next = result;
+                    }
+                }
+
+                return next.HasValue ? next : ret;
+            }
+
+            return ret;
+        }
+
+        public abstract (IGraphData Next, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source);
+
         /// <summary>
         /// Records the node execution and queues the output nodes for execution
         /// </summary>
@@ -115,7 +147,7 @@ namespace BrightWire.ExecutionGraph.Node
         /// <param name="backProp"></param>
         protected void AddNextGraphAction(IGraphSequenceContext context, IGraphData data, Func<IBackpropagate>? backProp)
         {
-            context.AddForward(new ExecutionHistory(this, data, context.Source), backProp);
+            context.AddForward(this, data, backProp, context.Source!);
         }
 
         /// <summary>

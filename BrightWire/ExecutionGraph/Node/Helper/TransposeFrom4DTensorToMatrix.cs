@@ -1,4 +1,5 @@
-﻿using BrightWire.ExecutionGraph.Helper;
+﻿using System;
+using BrightWire.ExecutionGraph.Helper;
 
 namespace BrightWire.ExecutionGraph.Node.Helper
 {
@@ -16,12 +17,6 @@ namespace BrightWire.ExecutionGraph.Node.Helper
                 _shape = shape;
             }
 
-            protected override IGraphData Backpropagate(INode? fromNode, IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
-            {
-                var matrix = errorSignal.GetMatrix();
-                return _shape.ReplaceWith(matrix.Transpose());
-            }
-
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
             {
                 var matrix = errorSignal.GetMatrix();
@@ -37,6 +32,12 @@ namespace BrightWire.ExecutionGraph.Node.Helper
         {
             var output = context.Data.GetMatrix().Transpose();
             AddNextGraphAction(context, new MatrixGraphData(output), () => new Backpropagation(this, context.Data));
+        }
+
+        public override (IGraphData Next, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        {
+            var output = signal.GetMatrix().Transpose();
+            return (new MatrixGraphData(output), () => new Backpropagation(this, context.Data));
         }
     }
 }

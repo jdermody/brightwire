@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Linq;
-using BrightData.Helper;
-using BrightWire.Helper;
 
-namespace BrightWire.ExecutionGraph.Action
+namespace BrightWire.ExecutionGraph.Node.Action
 {
     /// <summary>
     /// Backpropagates the graph against the error metric
@@ -25,7 +22,7 @@ namespace BrightWire.ExecutionGraph.Action
             return "";
         }
 
-        public IGraphData Execute(IGraphData input, IGraphSequenceContext context)
+        public IGraphData Execute(IGraphData input, IGraphSequenceContext context, INode node)
         {
             var output = input.GetMatrix();
             if (context.LearningContext != null) {
@@ -34,7 +31,7 @@ namespace BrightWire.ExecutionGraph.Action
                     throw new Exception("Did not find a single target in the batch sequence");
 
 	            var gradient = context.LearningContext.ErrorMetric.CalculateGradient(context, output, target.GetMatrix());
-                context.Backpropagate(input.ReplaceWith(gradient));
+                context.Backpropagate(node, input.ReplaceWith(gradient));
             }
             return input;
         }

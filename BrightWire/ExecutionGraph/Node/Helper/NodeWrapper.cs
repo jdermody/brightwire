@@ -21,7 +21,12 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             }
 
             public INode? Source => _context.Source;
-            public IGraphData Data => _context.Data;
+
+            public IGraphData Data
+            {
+                get =>_context.Data;
+                set => _context.Data = value;
+            }
             public IGraphExecutionContext ExecutionContext => _context.ExecutionContext;
             public ILearningContext? LearningContext => _context.LearningContext;
             public ILinearAlgebraProvider LinearAlgebraProvider => _context.LinearAlgebraProvider;
@@ -31,11 +36,17 @@ namespace BrightWire.ExecutionGraph.Node.Helper
 
             public void AddForward(ExecutionHistory action, Func<IBackpropagate>? callback)
             {
-                // TODO: wrap the backpropagation?
-                _context.AddForward(new ExecutionHistory(_wrapper, action.Data, action.Source), callback);
+                
+                
             }
 
-            public IGraphData? Backpropagate(IGraphData? delta) => _context.Backpropagate(delta);
+            public void AddForward(INode source, IGraphData data, Func<IBackpropagate>? callback, params INode[] prev)
+            {
+                // TODO: wrap the backpropagation?
+                _context.AddForward(_wrapper, data, callback, prev);
+            }
+
+            public IGraphData? Backpropagate(INode source, IGraphData? delta) => _context.Backpropagate(source, delta);
 
             public void Dispose()
             {
@@ -76,6 +87,11 @@ namespace BrightWire.ExecutionGraph.Node.Helper
         protected override void ExecuteForwardInternal(IGraphSequenceContext context, uint channel)
         {
             _node.ExecuteForward(new ContextProxy(context, this), channel);
+        }
+
+        public override (IGraphData Next, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        {
+            return _node.Forward(signal, channel, context, source);
         }
 
         protected override (string Description, byte[] Data) GetInfo()

@@ -1,7 +1,7 @@
-﻿using BrightWire.ExecutionGraph.Node;
+﻿using System;
 using BrightData;
 
-namespace BrightWire.ExecutionGraph.Activation
+namespace BrightWire.ExecutionGraph.Node.Activation
 {
     /// <summary>
     /// Tanh activation function
@@ -16,13 +16,6 @@ namespace BrightWire.ExecutionGraph.Activation
             public Backpropagation(Tanh source, IFloatMatrix matrix) : base(source)
             {
                 _input = matrix;
-            }
-
-            protected override IGraphData Backpropagate(INode? fromNode, IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
-            {
-                using var od = _input.TanhDerivative();
-                var delta = errorSignal.GetMatrix().PointwiseMultiply(od);
-                return errorSignal.ReplaceWith(delta);
             }
 
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
@@ -40,6 +33,13 @@ namespace BrightWire.ExecutionGraph.Activation
             var input = context.Data.GetMatrix();
             var output = context.Data.ReplaceWith(input.TanhActivation());
             AddNextGraphAction(context, output, () => new Backpropagation(this, input));
+        }
+
+        public override (IGraphData Next, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        {
+            var input = signal.GetMatrix();
+            var output = signal.ReplaceWith(input.TanhActivation());
+            return (output, () => new Backpropagation(this, input));
         }
     }
 }

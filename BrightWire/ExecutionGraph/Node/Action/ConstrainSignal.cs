@@ -1,4 +1,4 @@
-﻿namespace BrightWire.ExecutionGraph.Action
+﻿namespace BrightWire.ExecutionGraph.Node.Action
 {
     /// <summary>
     /// Constrains the signal through the graph to lie between two values
@@ -13,7 +13,7 @@
             _max = max;
         }
 
-        public IGraphData Execute(IGraphData input, IGraphSequenceContext context)
+        public IGraphData Execute(IGraphData input, IGraphSequenceContext context, INode node)
         {
             var matrix = input.GetMatrix();
             matrix.Constrain(_min, _max);

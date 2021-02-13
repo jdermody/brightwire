@@ -1,8 +1,4 @@
-﻿using System.Linq;
-using BrightData.Helper;
-using BrightWire.Helper;
-
-namespace BrightWire.ExecutionGraph.Action
+﻿namespace BrightWire.ExecutionGraph.Node.Action
 {
     /// <summary>
     /// Backpropagates through time (for recurrent neural networks)
@@ -24,17 +20,17 @@ namespace BrightWire.ExecutionGraph.Action
             //return TypeLoader.GetTypeName(_errorMetric);
         }
 
-        public IGraphData Execute(IGraphData input, IGraphSequenceContext context)
+        public IGraphData Execute(IGraphData input, IGraphSequenceContext context, INode node)
         {
             var output = input.GetMatrix();
             if (context.LearningContext != null) {
                 var batchSequence = context.BatchSequence;
                 var target = batchSequence.Target?.GetMatrix();
                 if (target == null)
-                    context.LearningContext.DeferBackpropagation(null, context.Backpropagate);
+                    context.LearningContext.DeferBackpropagation(null, delta => context.Backpropagate(node, delta));
                 else {
                     var gradient = context.LearningContext.ErrorMetric.CalculateGradient(context, output, target);
-                    context.LearningContext.DeferBackpropagation(input.ReplaceWith(gradient), context.Backpropagate);
+                    context.LearningContext.DeferBackpropagation(input.ReplaceWith(gradient), delta => context.Backpropagate(node, delta));
                 }
             }
             return input;

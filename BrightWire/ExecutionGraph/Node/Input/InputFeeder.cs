@@ -25,6 +25,19 @@ namespace BrightWire.ExecutionGraph.Node.Input
                 throw new NotImplementedException();
         }
 
+        public override (IGraphData Next, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        {
+            if (_index == 0) {
+                var input = context.BatchSequence.Input;
+                if (input == null)
+                    throw new Exception("Input data was null");
+
+                return (input, null);
+            }
+            else
+                throw new NotImplementedException();
+        }
+
         protected override (string Description, byte[] Data) GetInfo()
         {
             return ("INPUT", WriteData(WriteTo));

@@ -1,5 +1,4 @@
 ﻿using BrightWire.Descriptor;
-using BrightWire.ExecutionGraph.Activation;
 using BrightWire.ExecutionGraph.DataSource;
 using BrightWire.ExecutionGraph.DataTableAdapter;
 using BrightWire.ExecutionGraph.Engine;
@@ -22,6 +21,8 @@ using BrightData;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph.Action;
+using BrightWire.ExecutionGraph.Node.Action;
+using BrightWire.ExecutionGraph.Node.Activation;
 using BrightWire.ExecutionGraph.Node.Output;
 
 namespace BrightWire.ExecutionGraph

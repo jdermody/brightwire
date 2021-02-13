@@ -26,7 +26,23 @@ namespace BrightWire.ExecutionGraph.Node.Input
                 if (reversed == null)
                     throw new Exception("Input data was null");
 
-                context.AddForward(new ExecutionHistory(this, reversed, context.Source), null);
+                //context.AddForward(new ExecutionHistory(this, reversed, context.Source), null);
+            }
+            else 
+                throw new NotImplementedException();
+        }
+
+        public override (IGraphData Next, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        {
+            if (_inputIndex == 0) {
+                var curr = context.BatchSequence;
+                var batch = curr.MiniBatch;
+                var reversed = batch.GetSequenceAtIndex(batch.SequenceCount - curr.SequenceIndex - 1).Input;
+                if (reversed == null)
+                    throw new Exception("Input data was null");
+
+                //context.AddForward(new ExecutionHistory(this, reversed, context.Source), null);
+                return (reversed, null);
             }
             else 
                 throw new NotImplementedException();

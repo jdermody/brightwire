@@ -47,5 +47,21 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             }
             AddHistory(context, data, curr, () => new Backpropagation(this, list));
         }
+
+        protected override (IFloatMatrix Next, Func<IBackpropagate>? BackProp) Activate2(IGraphSequenceContext context, List<IncomingChannel> data)
+        {
+            var curr = data.First().Data;
+            if (curr?.ColumnCount != data.First().Size)
+                throw new Exception("Sizes are different");
+
+            var list = new List<IncomingChannel>();
+            foreach(var item in data.Skip(1)) {
+                var next = curr.ConcatRows(item.Data!);
+                //curr.Dispose();
+                curr = next;
+                list.Add(item);
+            }
+            return (curr, () => new Backpropagation(this, list));
+        }
     }
 }

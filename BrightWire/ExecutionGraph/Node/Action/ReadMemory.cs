@@ -1,4 +1,4 @@
-﻿namespace BrightWire.ExecutionGraph.Action
+﻿namespace BrightWire.ExecutionGraph.Node.Action
 {
     internal class ReadMemory : IAction
 	{
@@ -9,7 +9,7 @@
 			_id = id;
 		}
 
-		public IGraphData Execute(IGraphData input, IGraphSequenceContext context)
+		public IGraphData Execute(IGraphData input, IGraphSequenceContext context, INode node)
 		{
 			var memory = context.ExecutionContext.GetMemory(_id);
 			return memory.AsGraphData();

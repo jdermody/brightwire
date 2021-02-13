@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using BrightWire.ExecutionGraph.Node;
 
 namespace BrightWire.ExecutionGraph.Action
@@ -15,13 +16,6 @@ namespace BrightWire.ExecutionGraph.Action
             public Backpropagation(JoinSignalWithMemory source, uint memorySize) : base(source)
             {
                 _memorySize = memorySize;
-            }
-
-            protected override IGraphData Backpropagate(INode? fromNode, IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
-            {
-                var matrix = errorSignal.GetMatrix();
-                var parts = matrix.SplitAtColumn(matrix.RowCount - _memorySize);
-                return errorSignal.ReplaceWith(parts.Left);
             }
 
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
@@ -45,6 +39,13 @@ namespace BrightWire.ExecutionGraph.Action
             var data = context.Data;
             var output = data.ReplaceWith(data.GetMatrix().ConcatRows(memory));
             AddNextGraphAction(context, output, () => new Backpropagation(this, memory.ColumnCount));
+        }
+
+        public override (IGraphData Next, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        {
+            var memory = context.ExecutionContext.GetMemory(_slotName);
+            var output = signal.ReplaceWith(signal.GetMatrix().ConcatRows(memory));
+            return (output, () => new Backpropagation(this, memory.ColumnCount));
         }
 
         protected override (string Description, byte[] Data) GetInfo()

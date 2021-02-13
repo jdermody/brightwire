@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using BrightWire.ExecutionGraph.Helper;
 using System.IO;
 using BrightData;
 using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph.Action;
+using BrightWire.ExecutionGraph.Node.Action;
 
 namespace BrightWire.ExecutionGraph.Node.Input
 {
@@ -61,6 +63,18 @@ namespace BrightWire.ExecutionGraph.Node.Input
             else
                 memory = context.ExecutionContext.GetMemory(Id);
             AddNextGraphAction(context, new MatrixGraphData(memory), () => new Backpropagation(this));
+        }
+
+        public override (IGraphData Next, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        {
+            IFloatMatrix memory;
+            if (context.BatchSequence.Type == MiniBatchSequenceType.SequenceStart) {
+                memory = context.LinearAlgebraProvider.CreateMatrix(context.BatchSequence.MiniBatch.BatchSize, (uint)_data.Length, (x, y) => _data[y]);
+                context.ExecutionContext.SetMemory(Id, memory);
+            } 
+            else
+                memory = context.ExecutionContext.GetMemory(Id);
+            return (new MatrixGraphData(memory), () => new Backpropagation(this));
         }
 
         protected override (string Description, byte[] Data) GetInfo()

@@ -1,4 +1,5 @@
-﻿using BrightData.Helper;
+﻿using System;
+using BrightData.Helper;
 using BrightWire;
 using BrightWire.ExecutionGraph.Node;
 
@@ -19,19 +20,6 @@ namespace ExampleCode.Extensions
         class Backpropagation : SingleBackpropagationBase<SeluActivation>
         {
             public Backpropagation(SeluActivation source) : base(source) { }
-
-            protected override IGraphData Backpropagate(INode? fromNode, IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
-            {
-                var matrix = errorSignal.GetMatrix().AsIndexable();
-                var delta = context.LinearAlgebraProvider.CreateMatrix(matrix.RowCount, matrix.ColumnCount, (i, j) =>
-                {
-                    var x = matrix[i, j];
-                    if (x >= 0)
-                        return Scale;
-                    return Scale * Alpha * FloatMath.Exp(x);
-                });
-                return errorSignal.ReplaceWith(delta);
-            }
 
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
             {
@@ -60,6 +48,19 @@ namespace ExampleCode.Extensions
                 return Scale * (Alpha * FloatMath.Exp(x) - Alpha);
             });
             AddNextGraphAction(context, context.Data.ReplaceWith(output), () => new Backpropagation(this));
+        }
+
+        public override (IGraphData Next, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        {
+            var matrix = context.Data.GetMatrix().AsIndexable();
+            var output = context.LinearAlgebraProvider.CreateMatrix(matrix.RowCount, matrix.ColumnCount, (i, j) =>
+            {
+                var x = matrix[i, j];
+                if (x >= 0)
+                    return Scale * x;
+                return Scale * (Alpha * FloatMath.Exp(x) - Alpha);
+            });
+            return (context.Data.ReplaceWith(output), () => new Backpropagation(this));
         }
     }
 }

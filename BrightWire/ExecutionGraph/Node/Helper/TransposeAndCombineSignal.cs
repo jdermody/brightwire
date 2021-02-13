@@ -20,23 +20,6 @@ namespace BrightWire.ExecutionGraph.Node.Helper
                 _tensor = tensor;
             }
 
-            protected override IGraphData Backpropagate(INode? fromNode, IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
-            {
-                var matrix = errorSignal.GetMatrix();
-                var lap = context.LinearAlgebraProvider;
-
-                var rowList = new List<IFloatVector>();
-                for(uint i = 0; i < matrix.RowCount; i++) {
-                    var rowMatrix = matrix.Row(i).ReshapeAsMatrix(_tensor.RowCount, _tensor.ColumnCount);
-                    var matrixList = Enumerable.Repeat(rowMatrix, (int)_tensor.Depth).ToArray();
-                    var tensor = lap.Create3DTensor(matrixList);
-                    rowList.Add(tensor.ReshapeAsVector());
-                }
-                var errorMatrix = lap.CreateMatrixFromRows(rowList);
-
-                return errorSignal.ReplaceWith(errorMatrix.Transpose());
-            }
-
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
             {
                 var matrix = errorSignal.GetMatrix();
@@ -71,6 +54,20 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             var output = context.LinearAlgebraProvider.CreateMatrixFromRows(rowList);
 
             AddNextGraphAction(context, new MatrixGraphData(output), () => new Backpropagation(this, tensor));
+        }
+
+        public override (IGraphData Next, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        {
+            var tensor = signal.Get4DTensor() ?? throw new Exception("No data");
+            var rowList = new List<IFloatVector>();
+
+            for(uint i = 0; i < tensor.Count; i++) {
+                var row = tensor.GetTensorAt(i).CombineDepthSlices().ReshapeAsVector();
+                rowList.Add(row);
+            }
+            var output = context.LinearAlgebraProvider.CreateMatrixFromRows(rowList);
+
+            return (new MatrixGraphData(output), () => new Backpropagation(this, tensor));
         }
     }
 }

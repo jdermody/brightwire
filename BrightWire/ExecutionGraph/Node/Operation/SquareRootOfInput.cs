@@ -1,4 +1,5 @@
-﻿using BrightData;
+﻿using System;
+using BrightData;
 
 namespace BrightWire.ExecutionGraph.Node.Operation
 {
@@ -19,14 +20,6 @@ namespace BrightWire.ExecutionGraph.Node.Operation
 	            _sqrtOutput = output;
             }
 
-            protected override IGraphData Backpropagate(INode? fromNode, IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
-            {
-                var es = errorSignal.GetMatrix();
-                using var oneHalf = context.LinearAlgebraProvider.CreateMatrix(es.RowCount, es.ColumnCount, 0.5f);
-                using var delta = oneHalf.PointwiseMultiply(_sqrtOutput);
-                return errorSignal.ReplaceWith(delta.PointwiseMultiply(es));
-            }
-
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
             {
                 var es = errorSignal.GetMatrix();
@@ -44,6 +37,13 @@ namespace BrightWire.ExecutionGraph.Node.Operation
             var input = context.Data.GetMatrix();
             var output = input.Sqrt();
             AddNextGraphAction(context, context.Data.ReplaceWith(output), () => new Backpropagation(this, output));
+        }
+
+        public override (IGraphData Next, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        {
+            var input = context.Data.GetMatrix();
+            var output = input.Sqrt();
+            return (context.Data.ReplaceWith(output), () => new Backpropagation(this, output));
         }
     }
 }

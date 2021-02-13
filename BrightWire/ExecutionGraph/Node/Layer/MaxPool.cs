@@ -1,4 +1,5 @@
-﻿using BrightWire.ExecutionGraph.Helper;
+﻿using System;
+using BrightWire.ExecutionGraph.Helper;
 using System.IO;
 using BrightData;
 
@@ -27,21 +28,6 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 				_filterHeight = filterHeight;
 				_xStride = xStride;
 				_yStride = yStride;
-            }
-
-            protected override IGraphData Backpropagate(INode? fromNode, IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
-            {
-	            var errorMatrix = errorSignal.GetMatrix();
-                var tensor = errorMatrix.ReshapeAs4DTensor(_outputRows, _outputColumns, _depth);
-                var output = tensor.ReverseMaxPool(_indices, _inputRows, _inputColumns, _filterWidth, _filterHeight, _xStride, _yStride);
-
-				//output.AsMatrix().Constrain(-1f, 1f);
-
-//#if DEBUG
-//				Debug.Assert(output.ReshapeAsVector().IsEntirelyFinite());
-//#endif
-
-				return new Tensor4DGraphData(output.ReshapeAsMatrix(), output.RowCount, output.ColumnCount, output.Depth);
             }
 
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
@@ -82,6 +68,15 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
 			var graphData = new Tensor4DGraphData(output);
             AddNextGraphAction(context, graphData, () => new Backpropagation(this, index, tensor.ColumnCount, tensor.RowCount, output.ColumnCount, output.RowCount, output.Depth, _filterWidth, _filterHeight, _xStride, _yStride));
+        }
+
+        public override (IGraphData Next, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        {
+            var tensor = signal.GetMatrix().ReshapeAs4DTensor(signal.Rows, signal.Columns, signal.Depth);
+            var (output, index) = tensor.MaxPool(_filterWidth, _filterHeight, _xStride, _yStride, true);
+
+            var graphData = new Tensor4DGraphData(output);
+            return (graphData, () => new Backpropagation(this, index, tensor.ColumnCount, tensor.RowCount, output.ColumnCount, output.RowCount, output.Depth, _filterWidth, _filterHeight, _xStride, _yStride));
         }
 
         protected override (string Description, byte[] Data) GetInfo()

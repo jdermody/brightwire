@@ -43,6 +43,26 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             }
         }
 
+        public override (IGraphData Next, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        {
+            IGraphData next;
+            Func<IBackpropagate>? backProp = null;
+
+            if (channel == 0) {
+                _primarySource = source;
+                _primary = signal.GetMatrix();
+                (next, backProp) = TryComplete2(signal, context);
+            }else if (channel == 1) {
+                _secondarySource = source;
+                _secondary = signal.GetMatrix();
+                (next, backProp) = TryComplete2(signal, context);
+            }
+            else
+                throw new NotImplementedException();
+
+            return (next, backProp);
+        }
+
         void TryComplete(IGraphSequenceContext context)
         {
             if (_primary != null && _secondary != null) {
@@ -52,6 +72,18 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             }
         }
 
+        (IGraphData Next, Func<IBackpropagate>? BackProp) TryComplete2(IGraphData signal, IGraphSequenceContext context)
+        {
+            if (_primary != null && _secondary != null) {
+                var (next, backProp) = Activate2(context, _primary, _secondary);
+                _primary = _secondary = null;
+                _primarySource = _secondarySource = null;
+                return (signal.ReplaceWith(next), backProp);
+            }
+
+            return (NullGraphData.Instance, null);
+        }
+
         /// <summary>
         /// When both the primary and secondary inputs have arrived
         /// </summary>
@@ -59,6 +91,8 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// <param name="primary">Primary signal</param>
         /// <param name="secondary">Secondary signal</param>
         protected abstract void Activate(IGraphSequenceContext context, IFloatMatrix primary, IFloatMatrix secondary);
+
+        protected abstract (IFloatMatrix Next, Func<IBackpropagate>? BackProp) Activate2(IGraphSequenceContext context, IFloatMatrix primary, IFloatMatrix secondary);
 
         /// <summary>
         /// Records the network activity
@@ -71,7 +105,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             if (_primarySource == null || _secondarySource == null)
                 throw new Exception("Source nodes cannot be null");
 
-            context.AddForward(new ExecutionHistory(this, new MatrixGraphData(output), new[] { _primarySource, _secondarySource }), backpropagation);
+            context.AddForward(this, new MatrixGraphData(output), backpropagation, _primarySource, _secondarySource);
         }
     }
 }

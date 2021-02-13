@@ -16,13 +16,12 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         readonly List<ExecutionHistory> _forward = new List<ExecutionHistory>();
 	    readonly Dictionary<int, IGraphData> _output = new Dictionary<int, IGraphData>();
         INode? _sourceNode;
-        IGraphData _data;
 
         public ExecutionGraphSequenceContext(IGraphExecutionContext executionContext, IMiniBatchSequence miniBatch)
         {
             _executionContext = executionContext;
             BatchSequence = miniBatch;
-            _data = NullGraphData.Instance;
+            Data = NullGraphData.Instance;
         }
 
         public void Dispose()
@@ -36,11 +35,11 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public ILearningContext? LearningContext => null;
         public ILinearAlgebraProvider LinearAlgebraProvider => _executionContext.LinearAlgebraProvider;
         public IMiniBatchSequence BatchSequence { get; }
-        public IGraphData? Backpropagate(IGraphData? delta) => throw new NotImplementedException();
-        public void AddForward(ExecutionHistory action, Func<IBackpropagate>? callback) => _forward.Add(action);
+        public IGraphData? Backpropagate(INode source, IGraphData? delta) => throw new NotImplementedException();
+        public void AddForward(INode source, IGraphData data, Func<IBackpropagate>? callback, params INode[] prev) => _forward.Add(new ExecutionHistory(source, data));
         public IGraphData ErrorSignal => throw new NotImplementedException();
         public bool HasNext => _forward.Any();
-        public IGraphData Data => _data;
+        public IGraphData Data { get; set; }
 
         public bool ExecuteNext()
         {
@@ -48,7 +47,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
                 var next = _forward.ElementAt(0);
                 _forward.RemoveAt(0);
 
-                _data = next.Data;
+                Data = next.Data;
 
                 _sourceNode = next.Source;
                 foreach (var output in next.Source.Output)

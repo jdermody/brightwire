@@ -1,4 +1,5 @@
-﻿using BrightData;
+﻿using System;
+using BrightData;
 
 namespace BrightWire.ExecutionGraph.Node.Operation
 {
@@ -15,15 +16,6 @@ namespace BrightWire.ExecutionGraph.Node.Operation
             public Backpropagation(OneDividedByInput source, IFloatMatrix input) : base(source)
             {
                 _input = input;
-            }
-
-            protected override IGraphData Backpropagate(INode? fromNode, IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
-            {
-                var es = errorSignal.GetMatrix();
-                using var minusOne = context.LinearAlgebraProvider.CreateMatrix(es.RowCount, es.ColumnCount, -1f);
-                using var inputSquared = _input.PointwiseMultiply(_input);
-                using var delta = minusOne.PointwiseDivide(inputSquared);
-                return errorSignal.ReplaceWith(delta.PointwiseMultiply(es));
             }
 
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
@@ -46,6 +38,14 @@ namespace BrightWire.ExecutionGraph.Node.Operation
             using var ones = context.LinearAlgebraProvider.CreateMatrix(input.RowCount, input.ColumnCount, 1f);
             var output = ones.PointwiseDivide(input);
             AddNextGraphAction(context, context.Data.ReplaceWith(output), () => new Backpropagation(this, input));
+        }
+
+        public override (IGraphData Next, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        {
+            var input = context.Data.GetMatrix();
+            using var ones = context.LinearAlgebraProvider.CreateMatrix(input.RowCount, input.ColumnCount, 1f);
+            var output = ones.PointwiseDivide(input);
+            return (context.Data.ReplaceWith(output), () => new Backpropagation(this, input));
         }
     }
 }

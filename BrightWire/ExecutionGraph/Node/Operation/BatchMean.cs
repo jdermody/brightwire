@@ -1,4 +1,5 @@
-﻿using BrightData;
+﻿using System;
+using BrightData;
 
 namespace BrightWire.ExecutionGraph.Node.Operation
 {
@@ -14,13 +15,6 @@ namespace BrightWire.ExecutionGraph.Node.Operation
             public Backpropagation(BatchMean source, uint rowCount) : base(source)
             {
                 _rowCount = rowCount;
-            }
-
-            protected override IGraphData Backpropagate(INode? fromNode, IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
-            {
-                var es = errorSignal.GetMatrix();
-                using var ones = context.LinearAlgebraProvider.CreateMatrix(es.RowCount, es.ColumnCount, 1f / _rowCount);
-                return errorSignal.ReplaceWith(ones.PointwiseMultiply(es));
             }
 
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
@@ -44,6 +38,17 @@ namespace BrightWire.ExecutionGraph.Node.Operation
 
             var output = context.LinearAlgebraProvider.CreateMatrix(input.RowCount, input.ColumnCount, (i, j) => mean[j]);
             AddNextGraphAction(context, context.Data.ReplaceWith(output), () => new Backpropagation(this, input.RowCount));
+        }
+
+        public override (IGraphData Next, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        {
+            var input = signal.GetMatrix();
+            using var columnSums = input.ColumnSums();
+            columnSums.Multiply(1f / input.RowCount);
+            var mean = columnSums.AsIndexable();
+
+            var output = context.LinearAlgebraProvider.CreateMatrix(input.RowCount, input.ColumnCount, (i, j) => mean[j]);
+            return (signal.ReplaceWith(output), () => new Backpropagation(this, input.RowCount));
         }
     }
 }

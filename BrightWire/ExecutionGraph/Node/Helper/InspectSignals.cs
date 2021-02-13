@@ -10,12 +10,6 @@ namespace BrightWire.ExecutionGraph.Node.Helper
 			{
 			}
 
-			protected override IGraphData Backpropagate(INode? fromNode, IGraphData errorSignal, IGraphSequenceContext context, INode[] parents)
-			{
-				_source._backwardCallback?.Invoke(errorSignal);
-				return errorSignal;
-			}
-
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
             {
                 _source._backwardCallback?.Invoke(errorSignal);
@@ -40,5 +34,14 @@ namespace BrightWire.ExecutionGraph.Node.Helper
 			else
 				AddNextGraphAction(context, context.Data, null);
 		}
-	}
+
+        public override (IGraphData Next, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        {
+            _forwardCallback?.Invoke(signal);
+            if(_backwardCallback != null)
+                return (signal, () => new Backpropagation(this));
+            else
+                return (signal, null);
+        }
+    }
 }

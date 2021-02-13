@@ -1,4 +1,5 @@
-﻿using BrightWire.ExecutionGraph.Helper;
+﻿using System;
+using BrightWire.ExecutionGraph.Helper;
 using System.Collections.Generic;
 using System.Linq;
 using BrightData;
@@ -55,6 +56,18 @@ namespace BrightWire.ExecutionGraph.Node.Helper
                 ).ToArray();
             var output = _lap.CreateMatrix((uint)resultList.Length, _indexer.OutputSize, (i, j) => resultList[i].TryGetValue(j, out var temp) ? temp : 0f);
             AddNextGraphAction(context, new MatrixGraphData(output), null);
+        }
+
+        public override (IGraphData Next, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        {
+            var resultList = _dataTable
+                .Rows(context.BatchSequence.MiniBatch.Rows)
+                .Select(row => _classifier.Classify(row)
+                    .Select(c => (Index: _indexer.GetIndex(c.Label), c.Weight))
+                    .ToDictionary(d => d.Index, d => d.Weight)
+                ).ToArray();
+            var output = _lap.CreateMatrix((uint)resultList.Length, _indexer.OutputSize, (i, j) => resultList[i].TryGetValue(j, out var temp) ? temp : 0f);
+            return (new MatrixGraphData(output), null);
         }
     }
 }

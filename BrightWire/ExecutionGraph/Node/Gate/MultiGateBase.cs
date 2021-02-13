@@ -116,12 +116,35 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             }
         }
 
+        public override (IGraphData Next, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source)
+        {
+            IGraphData next = NullGraphData.Instance;
+            Func<IBackpropagate>? backProp = null;
+
+            if (_data.TryGetValue(channel, out var data)) {
+                data.SetData(signal.GetMatrix(), source);
+                if(_data.All(kv => kv.Value.IsValid)) {
+                    IFloatMatrix matrix;
+                    (matrix, backProp) = Activate2(context, _data.Select(kv => kv.Value).ToList());
+                    next = signal.ReplaceWith(matrix);
+
+                    // reset the inputs
+                    foreach (var item in _data)
+                        item.Value.Clear();
+                }
+            }
+
+            return (next, backProp);
+        }
+
         /// <summary>
         /// Called when all registered inputs have arrived
         /// </summary>
         /// <param name="context">The graph context</param>
         /// <param name="data">The list of incoming signals</param>
         protected abstract void Activate(IGraphSequenceContext context, List<IncomingChannel> data);
+
+        protected abstract (IFloatMatrix Next, Func<IBackpropagate>? BackProp) Activate2(IGraphSequenceContext context, List<IncomingChannel> data);
 
         /// <summary>
         /// Records the network activity
@@ -133,7 +156,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         protected void AddHistory(IGraphSequenceContext context, List<IncomingChannel> data, IFloatMatrix output, Func<IBackpropagate> backpropagation)
         {
             var sources = data.Where(d => d.Source != null).Select(d => d.Source!).ToArray();
-            context.AddForward(new ExecutionHistory(this, new MatrixGraphData(output), sources), backpropagation);
+            context.AddForward(this, new MatrixGraphData(output), backpropagation, sources);
         }
 
 	    /// <inheritdoc />

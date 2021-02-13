@@ -96,10 +96,8 @@ namespace BrightWire.ExecutionGraph.Engine
                 var contextList = operation.Execute(executionContext).ToList();
                 LearningContext.BackpropagateThroughTime(null);
                 LearningContext.ApplyUpdates();
-                foreach (var context in contextList) {
-                    var result = context.Result;
+                foreach (var context in contextList)
                     context.Dispose();
-                }
                 LinearAlgebraProvider.PopLayer();
 
                 if (batchCompleteCallback != null) {
@@ -168,12 +166,21 @@ namespace BrightWire.ExecutionGraph.Engine
         IGraphSequenceContext Train(IGraphExecutionContext executionContext, ILearningContext? learningContext, IMiniBatchSequence sequence)
         {
             var context = Create(executionContext, sequence, learningContext);
-            Start.ExecuteForward(context, 0);
+            context.Data = Start.Forward(NullGraphData.Instance, context);
+            //Start.ExecuteForward(context, 0);
+            //while (context.HasNext)
+            //    context.ExecuteNext();
 
-            while (context.HasNext)
-                context.ExecuteNext();
             return context;
         }
+
+        //void Execute(IGraphSequenceContext context, INode node, IGraphData signal, uint channel)
+        //{
+        //    var ret = node.Forward(signal, channel, context, TODO);
+        //    if (ret.Next.HasValue) {
+        //        context.AddForward(new ExecutionHistory(node, ret.Next, (INode?)null), ret.BackProp);
+        //    }
+        //}
 
         public bool Test(IDataSource testDataSource, uint batchSize = 128, Action<float>? batchCompleteCallback = null, Action<float, bool, bool>? values = null)
         {

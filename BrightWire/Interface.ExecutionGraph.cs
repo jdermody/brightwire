@@ -73,8 +73,9 @@ namespace BrightWire
         /// </summary>
         /// <param name="input">Current graph signal</param>
         /// <param name="context">Graph context</param>
+        /// <param name="node"></param>
         /// <returns>Optional new graph signal to propagate</returns>
-        IGraphData Execute(IGraphData input, IGraphSequenceContext context);
+        IGraphData Execute(IGraphData input, IGraphSequenceContext context, INode node);
         
         /// <summary>
         /// Serialises the action to a string
@@ -189,6 +190,10 @@ namespace BrightWire
         /// <param name="factory">Graph factory</param>
         /// <param name="nodeData">Serialised node parameters</param>
         void LoadParameters(GraphFactory factory, ExecutionGraphModel.Node nodeData);
+
+        IGraphData Forward(IGraphData signal, IGraphSequenceContext context);
+
+        (IGraphData Next, Func<IBackpropagate>? BackProp) Forward(IGraphData signal, uint channel, IGraphSequenceContext context, INode? source);
     }
 
     /// <summary>
@@ -220,7 +225,7 @@ namespace BrightWire
         /// <summary>
         /// Current signal
         /// </summary>
-        IGraphData Data { get; }
+        IGraphData Data { get; set; }
 
         /// <summary>
         /// Current execution context
@@ -247,13 +252,14 @@ namespace BrightWire
         /// </summary>
         /// <param name="action">Record of node execution</param>
         /// <param name="callback">Optional callback to add backpropagation</param>
-        void AddForward(ExecutionHistory action, Func<IBackpropagate>? callback);
+        public void AddForward(INode source, IGraphData data, Func<IBackpropagate>? callback, params INode[] prev);
 
         /// <summary>
         /// Backpropagates the signal
         /// </summary>
+        /// <param name="source"></param>
         /// <param name="delta">Error signal</param>
-        IGraphData? Backpropagate(IGraphData? delta);
+        IGraphData? Backpropagate(INode source, IGraphData? delta);
 
         /// <summary>
         /// Final error signal
