@@ -22,8 +22,8 @@ namespace BrightWire.Models
             Index = index;
             Output = output;
 			Target = _miniBatch.Target?.GetMatrix().Data.Rows.ToArray();
-			Input = _miniBatch.Input.Select(input => input.GetMatrix().Data.Rows.ToArray()).ToArray();
-		}
+            Input = _miniBatch.Input.GetMatrix().Data.Rows.ToArray();
+        }
 
 		/// <summary>
 		/// Output index
@@ -43,7 +43,7 @@ namespace BrightWire.Models
 		/// <summary>
 		/// The list of input rows
 		/// </summary>
-		public Vector<float>[][] Input { get; }
+		public Vector<float>[] Input { get; }
 
 		/// <summary>
 		/// The mini batch

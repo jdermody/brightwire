@@ -85,10 +85,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
                         ? MiniBatchSequenceType.SequenceEnd
                         : MiniBatchSequenceType.Standard
                 ;
-                var inputList = new IGraphData[] {
-                    new MatrixGraphData(input)
-                };
-                miniBatch.Add(type, inputList, type == MiniBatchSequenceType.SequenceEnd ? new MatrixGraphData(outputVector) : null);
+                miniBatch.Add(type, new MatrixGraphData(input), type == MiniBatchSequenceType.SequenceEnd ? new MatrixGraphData(outputVector) : null);
             }
             return miniBatch;
         }

@@ -111,7 +111,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
                 ? new MatrixGraphData(_lap.CreateMatrix((uint)data.Length, (uint)OutputSize, (x, y) => data[(int)x].Output[y])) 
                 : null;
 
-            return new MiniBatch(rows, this, inputList, output);
+            // TODO: change from single
+            return new MiniBatch(rows, this, inputList.Single(), output);
         }
 
 		/// <summary>
@@ -151,10 +152,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
                         ? MiniBatchSequenceType.SequenceEnd
                         : MiniBatchSequenceType.Standard
                 ;
-                var inputList = new IGraphData[] {
-                    new MatrixGraphData(input)
-                };
-                miniBatch.Add(type, inputList, output);
+                miniBatch.Add(type, new MatrixGraphData(input), output);
             }
             return miniBatch;
         }

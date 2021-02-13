@@ -64,7 +64,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdaptor
                 ? new MatrixGraphData(_lap.CreateMatrix((uint)data.Length, OutputSize.Value, (x, y) => data[x].Data[y]))
                 : null;
             
-            return new MiniBatch(rows, this, inputList, output);
+            // TODO: change from single
+            return new MiniBatch(rows, this, inputList.Single(), output);
         }
     }
 }

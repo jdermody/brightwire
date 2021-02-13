@@ -59,7 +59,7 @@ namespace ExampleCode.DataTableTrainers
                     var target = new Vector<float>[32];
                     var output = new Vector<float>[32];
                     for (var j = 0; j < 32; j++) {
-                        input[j] = results[j].Input[0][i];
+                        input[j] = results[j].Input[i];
                         target[j] = results[j].Target![i];
                         output[j] = results[j].Output[i];
                     }

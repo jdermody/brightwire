@@ -540,7 +540,7 @@ namespace BrightWire
         /// <summary>
         /// Input data
         /// </summary>
-        IGraphData[] Input { get; }
+        IGraphData Input { get; }
 
         /// <summary>
         /// Training target data

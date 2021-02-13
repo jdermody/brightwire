@@ -60,10 +60,7 @@ namespace BrightWire.ExecutionGraph.DataSource
                         ? MiniBatchSequenceType.SequenceEnd
                         : MiniBatchSequenceType.Standard
                 ;
-                var inputList = new IGraphData[] {
-                    new MatrixGraphData(input)
-                };
-                miniBatch.Add(type, inputList, null);
+                miniBatch.Add(type, new MatrixGraphData(input), null);
             }
             return miniBatch;
         }

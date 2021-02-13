@@ -1,4 +1,5 @@
-﻿using BrightWire.ExecutionGraph.Helper;
+﻿using System;
+using BrightWire.ExecutionGraph.Helper;
 using System.IO;
 
 namespace BrightWire.ExecutionGraph.Node.Input
@@ -14,6 +15,8 @@ namespace BrightWire.ExecutionGraph.Node.Input
         public ReverseSequence(int inputIndex = 0, string? name = null) : base(name)
         {
             _inputIndex = inputIndex;
+            if (_inputIndex != 0)
+                throw new NotImplementedException("Only one input is now supported");
         }
 
         public override void ExecuteForward(IGraphContext context)
@@ -22,7 +25,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
             var batch = curr.MiniBatch;
             var reversed = batch.GetSequenceAtIndex(batch.SequenceCount - curr.SequenceIndex - 1).Input;
 
-            context.AddForward(new TrainingAction(this, reversed[_inputIndex], context.Source), null);
+            context.AddForward(new TrainingAction(this, reversed, context.Source), null);
         }
 
         protected override (string Description, byte[] Data) GetInfo()

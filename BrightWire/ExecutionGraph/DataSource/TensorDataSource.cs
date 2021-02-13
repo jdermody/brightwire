@@ -51,10 +51,7 @@ namespace BrightWire.ExecutionGraph.DataSource
                 return tensor.Matrix(z).Row(x).Segment[y];
             });
 
-            var inputList = new IGraphData[] {
-                new Tensor4DGraphData(input, _rows, _columns, _depth)
-            };
-            return new MiniBatch(rows, this, inputList, null);
+            return new MiniBatch(rows, this, new Tensor4DGraphData(input, _rows, _columns, _depth), null);
         }
 
         public IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rows) => Get(rows);

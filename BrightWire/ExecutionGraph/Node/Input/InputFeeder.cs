@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace BrightWire.ExecutionGraph.Node.Input
 {
@@ -9,11 +10,13 @@ namespace BrightWire.ExecutionGraph.Node.Input
         public InputFeeder(uint index, string? name = null) : base(name)
         {
             _index = index;
+            if (index != 0)
+                throw new NotImplementedException("Only one input is now supported");
         }
 
         public override void ExecuteForward(IGraphContext context)
         {
-            var input = context.BatchSequence.Input[_index];
+            var input = context.BatchSequence.Input;
             AddNextGraphAction(context, input, null);
         }
 

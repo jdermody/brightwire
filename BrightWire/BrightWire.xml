@@ -1146,7 +1146,7 @@
         <member name="P:BrightWire.ExecutionGraph.Helper.MiniBatch.Sequence.Target">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Helper.MiniBatch.#ctor(System.UInt32[],BrightWire.IDataSource,BrightWire.IGraphData[],BrightWire.IGraphData)">
+        <member name="M:BrightWire.ExecutionGraph.Helper.MiniBatch.#ctor(System.UInt32[],BrightWire.IDataSource,BrightWire.IGraphData,BrightWire.IGraphData)">
             <summary>
             Creates a non sequential mini batch
             </summary>
@@ -1162,7 +1162,7 @@
             <param name="rows">The indices of the rows in this mini batch</param>
             <param name="dataSource">Associated data source</param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Helper.MiniBatch.Add(BrightWire.MiniBatchSequenceType,BrightWire.IGraphData[],BrightWire.IGraphData)">
+        <member name="M:BrightWire.ExecutionGraph.Helper.MiniBatch.Add(BrightWire.MiniBatchSequenceType,BrightWire.IGraphData,BrightWire.IGraphData)">
             <summary>
             Adds another item to the sequential mini batch
             </summary>
