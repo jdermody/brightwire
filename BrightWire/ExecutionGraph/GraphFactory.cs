@@ -501,9 +501,9 @@ namespace BrightWire.ExecutionGraph
 		/// <param name="index">Input index to reverse</param>
 		/// <param name="name">Optional name to give the node</param>
 		/// <returns></returns>
-		public INode CreateSequenceReverser(int index = 0, string? name = null)
+		public INode CreateSequenceReverser(string? name = null)
 		{
-			return new ReverseSequence(index, name);
+			return new ReverseSequence(0, name);
 		}
 
 		/// <summary>
@@ -737,13 +737,13 @@ namespace BrightWire.ExecutionGraph
 		}
 
 		/// <summary>
-		/// Concatenates two wires together into a new wire, but reverses the temporal index of the second input to realign with reversed sequences
+		/// Concatenates two wires together into a new wire, but reverses the sequence index of the second input to join
 		/// </summary>
 		/// <param name="forwardInput">Forward wire to join</param>
 		/// <param name="backwardInput">Backward wire to join</param>
 		/// <param name="name">Optional name to give the node</param>
 		/// <returns></returns>
-		public WireBuilder ReverseTemporalJoin(WireBuilder forwardInput, WireBuilder backwardInput, string? name = null)
+		public WireBuilder BidirectionalJoin(WireBuilder forwardInput, WireBuilder backwardInput, string? name = null)
 		{
 			var ret = new ReverseTemporalJoin(name, forwardInput, backwardInput);
 			var wireToPrimary = new WireToNode(ret);

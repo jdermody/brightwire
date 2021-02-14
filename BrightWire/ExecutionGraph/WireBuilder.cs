@@ -364,11 +364,10 @@ namespace BrightWire.ExecutionGraph
         /// Adds a node that will reverse the sequence (for bidirectional recurrent neural networks)
         /// </summary>
         /// <param name="name">Optional name to give the node</param>
-        /// <param name="index">Input index to reverse</param>
         /// <returns></returns>
-        public WireBuilder ReverseSequence(int index = 0, string? name = null)
+        public WireBuilder ReverseSequence(string? name = null)
         {
-            SetNode(_factory.CreateSequenceReverser(index, name));
+            SetNode(_factory.CreateSequenceReverser(name));
             return this;
         }
 
