@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using BrightData;
 using BrightData.Helper;
+using BrightData.LinearAlgebra;
 using BrightWire;
 using BrightWire.ExecutionGraph;
 using BrightWire.Models;
@@ -50,6 +51,8 @@ namespace ExampleCode.DataTableTrainers
             _maxIndex = _indexedSentencesTraining.Concat(_indexedSentencesTest).Max(d => d!.Data.Indices.Max());
             _context = context;
         }
+
+        public StringTable StringTable => _stringTable.StringTable;
 
         public BernoulliNaiveBayes TrainBernoulli()
         {
@@ -245,6 +248,58 @@ namespace ExampleCode.DataTableTrainers
                     Console.WriteLine("Sorry, none of those words have been seen before.");
                 Console.WriteLine();
             }
+        }
+
+        public void TrainBiRecurrent()
+        {
+            var graph = _context.CreateGraphFactory();
+            var trainingTable = CreateTable(_indexedSentencesTraining);
+            var testTable = CreateTable(_indexedSentencesTest);
+            var training = graph.CreateDataSource(trainingTable);
+            var test = training.CloneWith(testTable);
+            var errorMetric = graph.ErrorMetric.BinaryClassification;
+            var engine = graph.CreateTrainingEngine(training, errorMetric, learningRate: 0.001f, batchSize: 128);
+
+            graph.CurrentPropertySet
+                .Use(graph.RmsProp())
+                .Use(graph.WeightInitialisation.Gaussian)
+            ;
+
+            // build the network
+            const int HIDDEN_LAYER_SIZE = 128;
+
+            var forward = graph.Connect(engine)
+                .AddSimpleRecurrent(graph.TanhActivation(), new float[HIDDEN_LAYER_SIZE], "forward")
+            ;
+            var reverse = graph.Connect(engine)
+                .ReverseSequence()
+                .AddSimpleRecurrent(graph.TanhActivation(), new float[HIDDEN_LAYER_SIZE], "backward")
+            ;
+            graph.BidirectionalJoin(forward, reverse)
+                .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow(), "joined")
+                .Add(graph.SigmoidActivation())
+                .AddBackpropagationThroughTime()
+            ;
+
+            ExecutionGraphModel? bestGraph = null;
+            engine.Train(20, test, errorMetric, bn => bestGraph = bn.Graph);
+        }
+
+        IRowOrientedDataTable CreateTable((string Classification, IndexList Data)[] data)
+        {
+            var builder = _context.BuildTable();
+            builder.AddColumn(ColumnType.Matrix);
+            builder.AddColumn(ColumnType.Matrix).SetTarget(true);
+
+            var empty = new float[100];
+            foreach (var row in data) {
+                var input = row.Data.Indices.Select(i => _context.CreateVector(Data.Embeddings.Get(_stringTable.GetString(i)) ?? empty)).ToArray();
+                var output = _context.CreateMatrix((uint)input.Length, 1, row.Classification == "positive" ? 1f : 0f);
+                
+                builder.AddRow(_context.CreateMatrixFromRows(input), output);
+            }
+
+            return builder.BuildRowOriented();
         }
     }
 }

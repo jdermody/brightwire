@@ -26,13 +26,20 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
                 RowCount = 0;
             }
 
-            public double EpochSeconds => EpochMilliseconds / 1000.0;
-            public long EpochMilliseconds => _timer.ElapsedMilliseconds;
-            public uint CurrentEpoch { get; private set; }
-            public float LearningRate { get; set; }
-            public float BatchLearningRate => LearningRate / BatchSize;
-            public uint BatchSize { get; set; }
-            public uint RowCount { get; private set; }
+        public GraphFactory GraphFactory { get; }
+	    public IErrorMetric? ErrorMetric { get; set; }
+        public ILinearAlgebraProvider LinearAlgebraProvider { get; }
+	    public uint RowCount => _rowCount;
+	    public uint CurrentEpoch => _currentEpoch;
+	    public float LearningRate { get; set; }
+	    public float BatchLearningRate => LearningRate / BatchSize;
+        public uint BatchSize { get; set; }
+	    public TrainingErrorCalculation TrainingErrorCalculation { get; }
+	    public long EpochMilliseconds => _timer.ElapsedMilliseconds;
+	    public double EpochSeconds => EpochMilliseconds / 1000.0;
+	    public bool DeferUpdates { get; }
+	    public void ScheduleLearningRate(uint atEpoch, float newLearningRate) => _learningRateSchedule[atEpoch] = newLearningRate;
+	    public Action<string> MessageLog { get; set; } = Console.WriteLine;
 
             public void StoreUpdate(NodeBase fromNode, IFloatMatrix update, Action<IFloatMatrix> updater)
             {

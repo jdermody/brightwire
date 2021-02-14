@@ -521,6 +521,14 @@ namespace BrightWire
     public interface IGraphExecutionEngine : IGraphEngine
     {
         /// <summary>
+		/// The graph's single start node
+		/// </summary>
+		INode Start { get; }
+    }
+
+    public interface IGraphExecutionEngine : IGraphEngine
+    {
+        /// <summary>
         /// Executes a data source on the current graph
         /// </summary>
         /// <param name="dataSource">Segment source to process</param>

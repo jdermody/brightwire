@@ -15,6 +15,8 @@ namespace BrightWire.ExecutionGraph.Node.Input
         public ReverseSequence(int inputIndex = 0, string? name = null) : base(name)
         {
             _inputIndex = inputIndex;
+            if (_inputIndex != 0)
+                throw new NotImplementedException("Only one input is now supported");
         }
 
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)

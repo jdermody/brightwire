@@ -10,6 +10,8 @@ namespace BrightWire.ExecutionGraph.Node.Input
         public InputFeeder(uint index, string? name = null) : base(name)
         {
             _index = index;
+            if (index != 0)
+                throw new NotImplementedException("Only one input is now supported");
         }
 
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)

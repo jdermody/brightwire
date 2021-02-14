@@ -158,12 +158,14 @@ namespace ExampleCode
             var multinomial = sentiment.TrainMultinomialNaiveBayes().CreateClassifier();
 
             // train a neural network
-            var (_, _, neuralNetwork) = sentiment.TrainNeuralNetwork(20);
+            //var (_, _, neuralNetwork) = sentiment.TrainNeuralNetwork(20);
 
             // train a combined graph with all three classifiers
             //sentiment.StackClassifiers(engine, wire, bernoulli, multinomial);
 
-            sentiment.TestClassifiers(bernoulli, multinomial, neuralNetwork);
+            sentiment.TrainBiRecurrent();
+
+            //sentiment.TestClassifiers(bernoulli, multinomial, neuralNetwork);
         }
 
         static void TextClustering(IBrightDataContext context)

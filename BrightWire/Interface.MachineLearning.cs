@@ -151,6 +151,10 @@ namespace BrightWire
 		/// <param name="update">The matrix update</param>
 		/// <param name="updater">Callback to execute the update</param>
 		void StoreUpdate(NodeBase fromNode, IFloatMatrix update, Action<IFloatMatrix> updater);
+		/// <summary>
+		/// True if the graph should calculate training error
+		/// </summary>
+		TrainingErrorCalculation TrainingErrorCalculation { get; }
 
         /// <summary>
         /// Stores an update to the model parameters
@@ -222,13 +226,14 @@ namespace BrightWire
 
 		/// <summary>
 		/// Fired after each epoch ends
-		/// </summary>
+		/// Error metric to use when evaluating training progress
 		event Action<ILearningContext> AfterEpochEnds;
-
-		/// <summary>
-		/// Error metric to use when evaluating trainging progress
-		/// </summary>
 		IErrorMetric ErrorMetric { get; set; }
+		IErrorMetric ErrorMetric { get; }
+		/// <summary>
+		/// Error metric to use when evaluating training progress
+		/// </summary>
+		IErrorMetric? ErrorMetric { get; set; }
 
 		/// <summary>
 		/// Graph factory
