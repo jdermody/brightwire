@@ -1,7 +1,8 @@
 ﻿using System;
 using BrightData;
+using BrightWire.ExecutionGraph.Node;
 
-namespace BrightWire.ExecutionGraph.Node.Activation
+namespace BrightWire.ExecutionGraph.Activation
 {
     /// <summary>
     /// RELu activation

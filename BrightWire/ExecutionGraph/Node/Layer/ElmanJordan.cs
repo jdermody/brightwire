@@ -5,7 +5,6 @@ using System.IO;
 using BrightData;
 using BrightWire.ExecutionGraph.Action;
 using BrightWire.ExecutionGraph.Helper;
-using BrightWire.ExecutionGraph.Node.Action;
 
 namespace BrightWire.ExecutionGraph.Node.Layer
 {

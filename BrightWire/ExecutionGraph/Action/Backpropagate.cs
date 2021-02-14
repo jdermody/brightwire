@@ -1,6 +1,7 @@
 ﻿using System;
+using BrightWire.ExecutionGraph.Node;
 
-namespace BrightWire.ExecutionGraph.Node.Action
+namespace BrightWire.ExecutionGraph.Action
 {
     /// <summary>
     /// Backpropagates the graph against the error metric

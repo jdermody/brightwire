@@ -1,4 +1,6 @@
-﻿namespace BrightWire.ExecutionGraph.Node.Action
+﻿using BrightWire.ExecutionGraph.Node;
+
+namespace BrightWire.ExecutionGraph.Action
 {
     internal class ReadMemory : IAction
 	{

@@ -21,7 +21,7 @@ namespace ExampleCode.DataTableTrainers
             var graph = _context.CreateGraphFactory();
 
             // binary classification rounds each output to either 0 or 1
-            var errorMetric = graph.ErrorMetric.BinaryClassification;
+            var errorMetric = graph.ErrorMetric.CrossEntropy;
 
             // configure the network properties
             graph.CurrentPropertySet

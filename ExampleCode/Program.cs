@@ -31,24 +31,24 @@ namespace ExampleCode
             // set where to save training data files
             context.Set("DataFileDirectory", new DirectoryInfo(@"c:\data"));
 
-            Xor(context);
-            IrisClassification(context);
-            IrisClustering(context);
-            MarkovChains(context);
-            TextClustering(context);
-            IntegerAddition(context);
-            ReberPrediction(context);
-            OneToMany(context, useCuda);
-            ManyToOne(context, useCuda);
-            SequenceToSequence(context, useCuda);
-            TrainWithSelu(context);
-            StockData(context, useCuda);
-            SimpleLinearTest(context);
-            PredictBicyclesWithLinearModel(context);
-            PredictBicyclesWithNeuralNetwork(context);
-            MultiLabelSingleClassifier(context);
-            MultiLabelMultiClassifiers(context);
-            MnistFeedForward(context, useCuda);
+            //Xor(context);
+            //IrisClassification(context);
+            //IrisClustering(context);
+            //MarkovChains(context);
+            //TextClustering(context);
+            //IntegerAddition(context);
+            //ReberPrediction(context);
+            //OneToMany(context, useCuda);
+            //ManyToOne(context, useCuda);
+            //SequenceToSequence(context, useCuda);
+            //TrainWithSelu(context);
+            //StockData(context, useCuda);
+            //SimpleLinearTest(context);
+            //PredictBicyclesWithLinearModel(context);
+            //PredictBicyclesWithNeuralNetwork(context);
+            //MultiLabelSingleClassifier(context);
+            //MultiLabelMultiClassifiers(context);
+            //MnistFeedForward(context, useCuda);
             MnistConvolutional(context, useCuda);
             SentimentClassification(context, useCuda);
         }

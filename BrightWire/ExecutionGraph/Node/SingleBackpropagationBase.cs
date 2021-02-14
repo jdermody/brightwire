@@ -27,10 +27,10 @@ namespace BrightWire.ExecutionGraph.Node
 
         protected abstract IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context);
 
-        public override IEnumerable<(IGraphData Signal, NodeBase ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents)
+        public override IEnumerable<(IGraphData Signal, IGraphSequenceContext Context, NodeBase ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents)
         {
             foreach (var parent in parents)
-                yield return (Backpropagate(errorSignal, context), parent);
+                yield return (Backpropagate(errorSignal, context), context, parent);
         }
     }
 }

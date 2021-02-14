@@ -50,8 +50,8 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
                     var parents = _ancestors.Select(d => d._history!.Source).ToArray();
                     var sendTo = _history!.Backpropagation?.Backward(error, context, parents);
                     if(sendTo != null) {
-                        foreach (var (signal, toNode) in sendTo) {
-                            var context2 = (TrainingGraphSequenceContext) context;
+                        foreach (var (signal, nextContext, toNode) in sendTo) {
+                            var context2 = (TrainingGraphSequenceContext) nextContext;
                             var executionNode = context2.GetExecutionNode(toNode);
                             foreach (var ret in executionNode.Backpropagate(context, signal, this))
                                 yield return ret;

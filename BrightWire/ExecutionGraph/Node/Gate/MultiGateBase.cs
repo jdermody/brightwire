@@ -96,9 +96,10 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             if (_data.TryGetValue(channel, out var data)) {
                 data.SetData(signal.GetMatrix(), source);
                 if(_data.All(kv => kv.Value.IsValid)) {
-                    IFloatMatrix matrix;
+                    IFloatMatrix? matrix;
                     (matrix, backProp) = Activate2(context, _data.Select(kv => kv.Value).ToList());
-                    next = signal.ReplaceWith(matrix);
+                    if(matrix != null)
+                        next = signal.ReplaceWith(matrix);
 
                     // reset the inputs
                     foreach (var item in _data)
@@ -116,7 +117,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// <param name="data">The list of incoming signals</param>
         protected abstract void Activate(IGraphSequenceContext context, List<IncomingChannel> data);
 
-        protected abstract (IFloatMatrix Next, Func<IBackpropagate>? BackProp) Activate2(IGraphSequenceContext context, List<IncomingChannel> data);
+        protected abstract (IFloatMatrix? Next, Func<IBackpropagate>? BackProp) Activate2(IGraphSequenceContext context, List<IncomingChannel> data);
 
         /// <summary>
         /// Records the network activity

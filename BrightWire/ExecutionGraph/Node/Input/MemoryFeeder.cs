@@ -5,7 +5,6 @@ using System.IO;
 using BrightData;
 using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph.Action;
-using BrightWire.ExecutionGraph.Node.Action;
 
 namespace BrightWire.ExecutionGraph.Node.Input
 {
@@ -20,7 +19,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
             {
             }
 
-            public override IEnumerable<(IGraphData Signal, NodeBase ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents)
+            public override IEnumerable<(IGraphData Signal, IGraphSequenceContext Context, NodeBase ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents)
             {
                 if (context.BatchSequence.Type == MiniBatchSequenceType.SequenceStart) {
                     var es = errorSignal.GetMatrix();
@@ -31,7 +30,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
                     for (uint j = 0; j < _source._data.Length; j++)
                         _source._data[j] += initialDelta[j] * context.LearningContext!.BatchLearningRate;
                 }
-                return ErrorTo(GraphData.Null, parents);
+                return ErrorTo(GraphData.Null, context, parents);
             }
         }
 

@@ -44,12 +44,12 @@ namespace BrightWire.ExecutionGraph.Node
         protected virtual void DisposeMemory(bool isDisposing) { }
         #endregion
 
-        protected IEnumerable<(IGraphData signal, NodeBase toNode)> ErrorTo(IGraphData errorSignal, NodeBase[] parents)
+        protected IEnumerable<(IGraphData signal, IGraphSequenceContext Context, NodeBase toNode)> ErrorTo(IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents)
         {
             foreach (var parent in parents)
-                yield return (errorSignal, parent);
+                yield return (errorSignal, context, parent);
         }
 
-        public abstract IEnumerable<(IGraphData Signal, NodeBase ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents);
+        public abstract IEnumerable<(IGraphData Signal, IGraphSequenceContext Context, NodeBase ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents);
     }
 }

@@ -26,13 +26,13 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 //_input2.Dispose();
             }
 
-            public override IEnumerable<(IGraphData Signal, NodeBase ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents)
+            public override IEnumerable<(IGraphData Signal, IGraphSequenceContext Context, NodeBase ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents)
             {
                 var es = errorSignal.GetMatrix();
                 var delta1 = es.PointwiseMultiply(_input2);
                 var delta2 = es.PointwiseMultiply(_input1);
-                yield return (errorSignal.ReplaceWith(delta1), parents.First());
-                yield return (errorSignal.ReplaceWith(delta2), parents.Last());
+                yield return (errorSignal.ReplaceWith(delta1), context, parents.First());
+                yield return (errorSignal.ReplaceWith(delta2), context, parents.Last());
             }
         }
         public MultiplyGate(string? name = null) : base(name) { }

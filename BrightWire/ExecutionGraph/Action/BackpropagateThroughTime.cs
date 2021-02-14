@@ -1,4 +1,6 @@
-﻿namespace BrightWire.ExecutionGraph.Node.Action
+﻿using BrightWire.ExecutionGraph.Node;
+
+namespace BrightWire.ExecutionGraph.Action
 {
     /// <summary>
     /// Backpropagates through time (for recurrent neural networks)

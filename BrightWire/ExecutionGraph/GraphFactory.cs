@@ -21,9 +21,8 @@ using BrightData;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
 using BrightWire.ExecutionGraph.Action;
+using BrightWire.ExecutionGraph.Activation;
 using BrightWire.ExecutionGraph.Node;
-using BrightWire.ExecutionGraph.Node.Action;
-using BrightWire.ExecutionGraph.Node.Activation;
 using BrightWire.ExecutionGraph.Node.Output;
 
 namespace BrightWire.ExecutionGraph
@@ -399,10 +398,9 @@ namespace BrightWire.ExecutionGraph
 		/// <summary>
 		/// Creates a node that outputs the reversed index of the current sequence (for bidirectional recurrent networks)
 		/// </summary>
-		/// <param name="index">Input index to reverse</param>
-		/// <param name="name">Optional name to give the node</param>
+        /// <param name="name">Optional name to give the node</param>
 		/// <returns></returns>
-		public NodeBase CreateSequenceReverser(int index = 0, string? name = null)
+		public NodeBase CreateSequenceReverser(string? name = null)
 		{
 			return new ReverseSequence(0, name);
 		}

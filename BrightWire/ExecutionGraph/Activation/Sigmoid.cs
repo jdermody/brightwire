@@ -1,37 +1,38 @@
 ﻿using System;
 using BrightData;
+using BrightWire.ExecutionGraph.Node;
 
-namespace BrightWire.ExecutionGraph.Node.Activation
+namespace BrightWire.ExecutionGraph.Activation
 {
     /// <summary>
-    /// Leaky RELU activation
-    /// https://en.wikipedia.org/wiki/Rectifier_(neural_networks)
+    /// Sigmoid activation function
+    /// https://en.wikipedia.org/wiki/Sigmoid_function
     /// </summary>
-    internal class LeakyRelu : NodeBase
+    internal class Sigmoid : NodeBase
     {
-        class Backpropagation : SingleBackpropagationBase<LeakyRelu>
+        class Backpropagation : SingleBackpropagationBase<Sigmoid>
         {
             readonly IFloatMatrix _input;
 
-            public Backpropagation(LeakyRelu source, IFloatMatrix matrix) : base(source)
+            public Backpropagation(Sigmoid source, IFloatMatrix matrix) : base(source)
             {
                 _input = matrix;
             }
 
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
             {
-                using var od = _input.LeakyReluDerivative();
+                using var od = _input.SigmoidDerivative();
                 var delta = errorSignal.GetMatrix().PointwiseMultiply(od);
                 return errorSignal.ReplaceWith(delta);
             }
         }
 
-        public LeakyRelu(string? name = null) : base(name) { }
+        public Sigmoid(string? name = null) : base(name) { }
 
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
             var input = signal.GetMatrix();
-            var output = signal.ReplaceWith(input.LeakyReluActivation());
+            var output = signal.ReplaceWith(input.SigmoidActivation());
             return (this, output, () => new Backpropagation(this, input));
         }
     }

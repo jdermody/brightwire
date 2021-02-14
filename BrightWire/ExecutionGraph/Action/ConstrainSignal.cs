@@ -1,4 +1,6 @@
-﻿namespace BrightWire.ExecutionGraph.Node.Action
+﻿using BrightWire.ExecutionGraph.Node;
+
+namespace BrightWire.ExecutionGraph.Action
 {
     /// <summary>
     /// Constrains the signal through the graph to lie between two values

@@ -14,10 +14,10 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             {
             }
 
-            public override IEnumerable<(IGraphData Signal, NodeBase ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents)
+            public override IEnumerable<(IGraphData Signal, IGraphSequenceContext Context, NodeBase ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents)
             {
                 _source._tryRestore(context);
-                return ErrorTo(errorSignal, parents);
+                return ErrorTo(errorSignal, context, parents);
             }
         }
 

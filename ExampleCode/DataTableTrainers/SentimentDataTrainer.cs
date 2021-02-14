@@ -282,7 +282,7 @@ namespace ExampleCode.DataTableTrainers
             ;
 
             ExecutionGraphModel? bestGraph = null;
-            engine.Train(20, test, errorMetric, bn => bestGraph = bn.Graph);
+            engine.Train(20, test, bn => bestGraph = bn.Graph);
         }
 
         IRowOrientedDataTable CreateTable((string Classification, IndexList Data)[] data)

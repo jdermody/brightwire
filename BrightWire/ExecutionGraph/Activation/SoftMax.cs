@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using BrightData;
+using BrightWire.ExecutionGraph.Node;
 
-namespace BrightWire.ExecutionGraph.Node.Activation
+namespace BrightWire.ExecutionGraph.Activation
 {
     /// <summary>
     /// Softmax activation function

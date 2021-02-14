@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Text;
+using BrightWire.ExecutionGraph.Node;
 
-namespace BrightWire.ExecutionGraph.Node.Action
+namespace BrightWire.ExecutionGraph.Action
 {
     /// <summary>
     /// Copies named memory from one slot to another

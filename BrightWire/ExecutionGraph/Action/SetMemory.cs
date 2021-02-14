@@ -1,4 +1,6 @@
-﻿namespace BrightWire.ExecutionGraph.Node.Action
+﻿using BrightWire.ExecutionGraph.Node;
+
+namespace BrightWire.ExecutionGraph.Action
 {
     /// <summary>
     /// Saves the current graph signal into named memory

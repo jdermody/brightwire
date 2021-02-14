@@ -16,14 +16,14 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             {
             }
 
-            public override IEnumerable<(IGraphData Signal, NodeBase ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents)
+            public override IEnumerable<(IGraphData Signal, IGraphSequenceContext Context, NodeBase ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents)
             {
                 var es = errorSignal.GetMatrix();
                 var negative = es.Clone();
                 negative.Multiply(-1f);
 
-                yield return (errorSignal, parents.First());
-                yield return (errorSignal.ReplaceWith(negative), parents.Last());
+                yield return (errorSignal, context, parents.First());
+                yield return (errorSignal.ReplaceWith(negative), context, parents.Last());
             }
         }
         public SubtractGate(string? name = null) : base(name) { }

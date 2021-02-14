@@ -279,7 +279,7 @@ namespace BrightWire
         /// <param name="errorSignal">Error signal</param>
         /// <param name="context">Graph context</param>
         /// <param name="parents">The current node's parents</param>
-        IEnumerable<(IGraphData Signal, NodeBase ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents);
+        IEnumerable<(IGraphData Signal, IGraphSequenceContext Context, NodeBase ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents);
     }
 
     /// <summary>
@@ -516,14 +516,6 @@ namespace BrightWire
 		/// The graph's single start node
 		/// </summary>
         NodeBase Start { get; }
-    }
-
-    public interface IGraphExecutionEngine : IGraphEngine
-    {
-        /// <summary>
-		/// The graph's single start node
-		/// </summary>
-		INode Start { get; }
     }
 
     public interface IGraphExecutionEngine : IGraphEngine

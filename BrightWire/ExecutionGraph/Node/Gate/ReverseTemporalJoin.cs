@@ -17,11 +17,11 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 _reverseSize = reverseSize;
             }
 
-            public override IEnumerable<(IGraphData Signal, NodeBase ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents)
+            public override IEnumerable<(IGraphData Signal, IGraphSequenceContext Context, NodeBase ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents)
             {
                 var matrix = errorSignal.GetMatrix();
                 (IFloatMatrix left, IFloatMatrix right) = matrix.SplitAtColumn(matrix.ColumnCount - _reverseSize);
-                yield return (errorSignal.ReplaceWith(left), parents[0]);
+                yield return (errorSignal.ReplaceWith(left), context, parents[0]);
 
                 var batch = context.BatchSequence.MiniBatch;
                 var sequenceIndex = context.BatchSequence.SequenceIndex;
@@ -30,24 +30,21 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 _source._contextTable.Add(sequenceIndex, context);
 
                 if (sequenceIndex == 0) {
-                    // process in order as we are pushing onto a stack (so will be read in reverse order)
-                    for(uint i = 0; i < batch.SequenceCount; i++) {
+                    //for(uint i = batch.SequenceCount-1; i >= 0; i++) {
+                    foreach(var i in batch.SequenceCount.AsRange().Reverse()) {
                         var data = _source._reverseBackpropagation[i];
                         var reverseContext = _source._contextTable[i];
-                        
-                        //TODO: fix this
-                        //reverseContext.AddBackward(data.Item2, data.Item1, _source);
+                        yield return (data.Data, reverseContext, data.Node);
                     }
                     _source._reverseBackpropagation.Clear();
                     _source._contextTable.Clear();
                 }
-                //return ErrorTo(errorSignal, parents);
             }
         }
         Dictionary<uint, (IFloatMatrix Data, uint ReversedSize, NodeBase ForwardParent)> _input = new Dictionary<uint, (IFloatMatrix Data, uint ReversedSize, NodeBase ForwardParent)>();
         Dictionary<uint, (IFloatMatrix Data, NodeBase ReverseParent)> _reverseInput = new Dictionary<uint, (IFloatMatrix Data, NodeBase ReverseParent)>();
 
-        Dictionary<uint, (NodeBase, IGraphData)> _reverseBackpropagation = new Dictionary<uint, (NodeBase, IGraphData)>();
+        Dictionary<uint, (NodeBase Node, IGraphData Data)> _reverseBackpropagation = new Dictionary<uint, (NodeBase, IGraphData)>();
         Dictionary<uint, IGraphSequenceContext> _contextTable = new Dictionary<uint, IGraphSequenceContext>();
 
         public ReverseTemporalJoin(string? name, WireBuilder forwardInput, WireBuilder reverseInput) 
@@ -74,7 +71,10 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             _reverseInput.Remove(sequenceIndex);
 
             // concatenate the inputs
-            var next = data.ConcatRows(floatMatrix);
+            var next = new MatrixGraphData(data.ConcatRows(floatMatrix));
+            context.AddForward(this, next, () => new Backpropagation(this, reversedSize));
+            foreach(var wire in Output)
+                wire.SendTo.Forward(next, context, wire.Channel, this);
 
             //context.AddForward(new ExecutionHistory(
             //    this, 
@@ -104,9 +104,25 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             context.ExecutionContext.RegisterContinuation(context.BatchSequence, Continue);
         }
 
-        protected override (IFloatMatrix Next, Func<IBackpropagate>? BackProp) Activate2(IGraphSequenceContext context, List<IncomingChannel> data)
+        protected override (IFloatMatrix? Next, Func<IBackpropagate>? BackProp) Activate2(IGraphSequenceContext context, List<IncomingChannel> data)
         {
-            throw new NotImplementedException();
+            if (data.Count != 2)
+                throw new Exception("Expected two incoming channels");
+
+            var forward = data.First();
+            var backward = data.Last();
+
+            if (forward.Data == null || backward.Data == null)
+                throw new Exception("Expected incoming channels to have data");
+
+            var sequenceIndex = context.BatchSequence.SequenceIndex;
+            var reversedSequenceIndex = context.BatchSequence.MiniBatch.SequenceCount - sequenceIndex - 1;
+
+            _input.Add(sequenceIndex, (forward.Data, backward.Size, forward.Source!));
+            _reverseInput.Add(reversedSequenceIndex, (backward.Data, backward.Source!));
+
+            context.ExecutionContext.RegisterContinuation(context.BatchSequence, Continue);
+            return (null, null);
         }
     }
 }

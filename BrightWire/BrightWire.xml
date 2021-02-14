@@ -82,6 +82,66 @@
             Creates a rms prop gradient descent optimiser
             </summary>
         </member>
+        <member name="T:BrightWire.ExecutionGraph.Action.Backpropagate">
+            <summary>
+            Backpropagates the graph against the error metric
+            </summary>
+        </member>
+        <member name="T:BrightWire.ExecutionGraph.Action.BackpropagateThroughTime">
+            <summary>
+            Backpropagates through time (for recurrent neural networks)
+            </summary>
+        </member>
+        <member name="T:BrightWire.ExecutionGraph.Action.ConstrainSignal">
+            <summary>
+            Constrains the signal through the graph to lie between two values
+            </summary>
+        </member>
+        <member name="T:BrightWire.ExecutionGraph.Action.CopyNamedMemory">
+            <summary>
+            Copies named memory from one slot to another
+            </summary>
+        </member>
+        <member name="T:BrightWire.ExecutionGraph.Action.SetMemory">
+            <summary>
+            Saves the current graph signal into named memory
+            </summary>
+        </member>
+        <member name="T:BrightWire.ExecutionGraph.Action.JoinSignalWithMemory">
+            <summary>
+            Joins the graph signal with a saved signal stored in named memory
+            </summary>
+        </member>
+        <member name="T:BrightWire.ExecutionGraph.Activation.LeakyRelu">
+            <summary>
+            Leaky RELU activation
+            https://en.wikipedia.org/wiki/Rectifier_(neural_networks)
+            </summary>
+        </member>
+        <member name="T:BrightWire.ExecutionGraph.Activation.Relu">
+            <summary>
+            RELu activation
+            https://en.wikipedia.org/wiki/Rectifier_(neural_networks)
+            </summary>
+        </member>
+        <member name="T:BrightWire.ExecutionGraph.Activation.Sigmoid">
+            <summary>
+            Sigmoid activation function
+            https://en.wikipedia.org/wiki/Sigmoid_function
+            </summary>
+        </member>
+        <member name="T:BrightWire.ExecutionGraph.Activation.SoftMax">
+            <summary>
+            Softmax activation function
+            https://en.wikipedia.org/wiki/Softmax_function
+            </summary>
+        </member>
+        <member name="T:BrightWire.ExecutionGraph.Activation.Tanh">
+            <summary>
+            Tanh activation function
+            https://en.wikipedia.org/wiki/Activation_function
+            </summary>
+        </member>
         <member name="T:BrightWire.ExecutionGraph.DataSource.SequentialDataSource">
             <summary>
             Feeds sequential data to the graph
@@ -512,11 +572,10 @@
             <param name="name">Optional name to give the node</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateSequenceReverser(System.Int32,System.String)">
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateSequenceReverser(System.String)">
             <summary>
             Creates a node that outputs the reversed index of the current sequence (for bidirectional recurrent networks)
             </summary>
-            <param name="index">Input index to reverse</param>
             <param name="name">Optional name to give the node</param>
             <returns></returns>
         </member>
@@ -652,9 +711,9 @@
             <param name="name">Optional name to give the node</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.ReverseTemporalJoin(BrightWire.ExecutionGraph.WireBuilder,BrightWire.ExecutionGraph.WireBuilder,System.String)">
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.BidirectionalJoin(BrightWire.ExecutionGraph.WireBuilder,BrightWire.ExecutionGraph.WireBuilder,System.String)">
             <summary>
-            Concatenates two wires together into a new wire, but reverses the temporal index of the second input to realign with reversed sequences
+            Concatenates two wires together into a new wire, but reverses the sequence index of the second input to join
             </summary>
             <param name="forwardInput">Forward wire to join</param>
             <param name="backwardInput">Backward wire to join</param>
@@ -1114,61 +1173,6 @@
         <member name="P:BrightWire.ExecutionGraph.Helper.WireToNode.Channel">
             <summary>
             The channel to send the signal on
-            </summary>
-        </member>
-        <member name="T:BrightWire.ExecutionGraph.Node.Action.Backpropagate">
-            <summary>
-            Backpropagates the graph against the error metric
-            </summary>
-        </member>
-        <member name="T:BrightWire.ExecutionGraph.Node.Action.BackpropagateThroughTime">
-            <summary>
-            Backpropagates through time (for recurrent neural networks)
-            </summary>
-        </member>
-        <member name="T:BrightWire.ExecutionGraph.Node.Action.ConstrainSignal">
-            <summary>
-            Constrains the signal through the graph to lie between two values
-            </summary>
-        </member>
-        <member name="T:BrightWire.ExecutionGraph.Node.Action.CopyNamedMemory">
-            <summary>
-            Copies named memory from one slot to another
-            </summary>
-        </member>
-        <member name="T:BrightWire.ExecutionGraph.Node.Action.SetMemory">
-            <summary>
-            Saves the current graph signal into named memory
-            </summary>
-        </member>
-        <member name="T:BrightWire.ExecutionGraph.Node.Activation.LeakyRelu">
-            <summary>
-            Leaky RELU activation
-            https://en.wikipedia.org/wiki/Rectifier_(neural_networks)
-            </summary>
-        </member>
-        <member name="T:BrightWire.ExecutionGraph.Node.Activation.Relu">
-            <summary>
-            RELu activation
-            https://en.wikipedia.org/wiki/Rectifier_(neural_networks)
-            </summary>
-        </member>
-        <member name="T:BrightWire.ExecutionGraph.Node.Activation.Sigmoid">
-            <summary>
-            Sigmoid activation function
-            https://en.wikipedia.org/wiki/Sigmoid_function
-            </summary>
-        </member>
-        <member name="T:BrightWire.ExecutionGraph.Node.Activation.SoftMax">
-            <summary>
-            Softmax activation function
-            https://en.wikipedia.org/wiki/Softmax_function
-            </summary>
-        </member>
-        <member name="T:BrightWire.ExecutionGraph.Node.Activation.Tanh">
-            <summary>
-            Tanh activation function
-            https://en.wikipedia.org/wiki/Activation_function
             </summary>
         </member>
         <member name="T:BrightWire.ExecutionGraph.Node.BackpropagationBase`1">
@@ -1691,11 +1695,6 @@
             <param name="parents">Parents of the current node</param>
             <returns></returns>
         </member>
-        <member name="T:BrightWire.ExecutionGraph.Action.JoinSignalWithMemory">
-            <summary>
-            Joins the graph signal with a saved signal stored in named memory
-            </summary>
-        </member>
         <member name="T:BrightWire.ExecutionGraph.WeightInitialisation.Constant">
             <summary>
             Initalises all weights to a constant
@@ -1947,12 +1946,11 @@
             <param name="name">Optional name to give the node</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.WireBuilder.ReverseSequence(System.Int32,System.String)">
+        <member name="M:BrightWire.ExecutionGraph.WireBuilder.ReverseSequence(System.String)">
             <summary>
             Adds a node that will reverse the sequence (for bidirectional recurrent neural networks)
             </summary>
             <param name="name">Optional name to give the node</param>
-            <param name="index">Input index to reverse</param>
             <returns></returns>
         </member>
         <member name="M:BrightWire.ExecutionGraph.WireBuilder.AddMaxPooling(System.UInt32,System.UInt32,System.UInt32,System.UInt32,System.String)">
@@ -3376,16 +3374,7 @@
             Fired before each epoch starts
             </summary>
         </member>
-        <member name="E:BrightWire.ILearningContext.AfterEpochEnds">
-            <summary>
-            Fired after each epoch ends
-            </summary>
-        </member>
-        <member name="P:BrightWire.ILearningContext.ErrorMetric">
-            <summary>
-            Error metric to use when evaluating trainging progress
-            </summary>
-        </member>
+        <!-- Badly formed XML comment ignored for member "E:BrightWire.ILearningContext.AfterEpochEnds" -->
         <member name="P:BrightWire.ILearningContext.GraphFactory">
             <summary>
             Graph factory
