@@ -49,7 +49,7 @@ namespace BrightData.DataTable.Builders
         /// <param name="type">Type of the column</param>
         /// <param name="name">Name of the column</param>
         /// <returns></returns>
-        public IMetaData AddColumn(ColumnType type, string name)
+        public IMetaData AddColumn(ColumnType type, string? name = null)
         {
             var ret = new MetaData();
             ret.Set(Consts.Name, DataTableBase.DefaultColumnName(name, _columns.Count));
