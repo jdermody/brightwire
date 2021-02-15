@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.IO;
+using BrightWire.ExecutionGraph.Node.Input;
 using BrightWire.Helper;
 using BrightWire.Models;
 
@@ -91,7 +92,7 @@ namespace BrightWire.ExecutionGraph.Node
                 context.AddForward(from, output, backProp);
 
             // send output to connected nodes
-            if (output.HasValue) {
+            if (output.HasValue || this is FlowThrough) {
                 foreach (var wire in from.Output) {
                     wire.SendTo.Forward(output, context, wire.Channel, @from);
                 }

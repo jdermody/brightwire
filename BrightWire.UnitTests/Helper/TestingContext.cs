@@ -69,5 +69,9 @@ namespace BrightWire.UnitTests.Helper
         public IGraphData[] Output { get; set; }
 
         public IEnumerable<ExecutionResult> Results { get; }
+        public void ClearForBackpropagation()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -4,40 +4,43 @@ using System.Linq;
 using System.Text;
 using BrightData;
 using BrightWire.ExecutionGraph.Helper;
+using BrightWire.ExecutionGraph.Node;
 
 namespace BrightWire.ExecutionGraph.Engine.Helper
 {
     class BackpropagationInput
     {
-        readonly ExecutionNode[] _input;
-        readonly Dictionary<ExecutionNode, IGraphData?> _error = new Dictionary<ExecutionNode, IGraphData?>();
+        readonly HashSet<NodeBase> _input = new HashSet<NodeBase>();
+        readonly Dictionary<NodeBase, IGraphData?> _error = new Dictionary<NodeBase, IGraphData?>();
         readonly IGraphData? _nodeOutput;
 
         public BackpropagationInput(ExecutionHistory? history, ExecutionNode[] input)
         {
             _nodeOutput = history?.Data;
-            _input = input;
+            foreach (var item in input)
+                _input.Add(item.Node ?? throw new ArgumentException("Node not found"));
         }
 
         public void Add(ExecutionNode fromNode, IGraphData? error)
         {
-            //if (!_input.Contains(fromNode))
-            //    throw new ArgumentException("Unexpected node");
+            var node = fromNode.Node ?? throw new ArgumentException("Node not found");
+            if (!_input.Contains(node))
+                throw new ArgumentException("Unexpected node");
 
             if (error?.HasValue == true && _nodeOutput?.HasValue == true) {
                 if (error.Columns != _nodeOutput.Columns || error.Count != _nodeOutput.Count || error.Depth != _nodeOutput.Depth || error.Rows != _nodeOutput.Rows)
                     throw new ArgumentException("Unexpected delta size");
             }
 
-            _error.Add(fromNode, error);
-            if (_error.Count == _input.Length)
+            _error.Add(node, error);
+            if (_error.Count == _input.Count)
                 IsComplete = _input.All(n => _error.ContainsKey(n));
-            else if (_error.Count > _input.Length)
+            else if (_error.Count > _input.Count)
                 throw new Exception("Errors do not match input");
         }
 
         public bool IsComplete { get; private set; } = false;
-        public int InputCount => _input.Length;
+        public int InputCount => _input.Count;
         public int ErrorCount => _error.Count;
 
         public IGraphData? GetError()
@@ -70,6 +73,11 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             }
 
             return null;
+        }
+
+        public void ClearForBackpropagation()
+        {
+            _error.Clear();
         }
     }
 }

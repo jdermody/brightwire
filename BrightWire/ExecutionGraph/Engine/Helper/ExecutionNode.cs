@@ -53,7 +53,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
                         foreach (var (signal, nextContext, toNode) in sendTo) {
                             var context2 = (TrainingGraphSequenceContext) nextContext;
                             var executionNode = context2.GetExecutionNode(toNode);
-                            foreach (var ret in executionNode.Backpropagate(context, signal, this))
+                            foreach (var ret in executionNode.Backpropagate(nextContext, signal, this))
                                 yield return ret;
                         }
                     }
@@ -84,6 +84,12 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             foreach(var item in _descendants)
                 item.WriteTo(writer);
             writer.WriteEndElement();
+        }
+
+        public void ClearForBackpropagation()
+        {
+            if (_inputError.IsValueCreated)
+                _inputError.Value.ClearForBackpropagation();
         }
     }
 }

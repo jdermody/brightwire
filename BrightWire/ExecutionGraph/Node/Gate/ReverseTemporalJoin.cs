@@ -34,6 +34,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                     foreach(var i in batch.SequenceCount.AsRange().Reverse()) {
                         var data = _source._reverseBackpropagation[i];
                         var reverseContext = _source._contextTable[i];
+                        reverseContext.ClearForBackpropagation();
                         yield return (data.Data, reverseContext, data.Node);
                     }
                     _source._reverseBackpropagation.Clear();

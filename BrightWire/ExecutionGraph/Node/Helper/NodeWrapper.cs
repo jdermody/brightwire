@@ -63,6 +63,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
 
 	        public IGraphData[] Output => _context.Output;
             public IEnumerable<ExecutionResult> Results => _context.Results;
+            public void ClearForBackpropagation() => _context.ClearForBackpropagation();
         }
         NodeBase _node;
         string _nodeId;

@@ -197,6 +197,7 @@ namespace BrightWire
         IGraphData[] Output { get; }
 
         IEnumerable<ExecutionResult> Results { get; }
+        void ClearForBackpropagation();
     }
 
     /// <summary>

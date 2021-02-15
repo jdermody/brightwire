@@ -126,6 +126,12 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             }
         }
 
+        public void ClearForBackpropagation()
+        {
+            foreach (var item in _nodeExecution)
+                item.Value.ClearForBackpropagation();
+        }
+
         public string Trace()
         {
             var target = BatchSequence.Target;

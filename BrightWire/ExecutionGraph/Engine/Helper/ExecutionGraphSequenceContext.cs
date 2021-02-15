@@ -92,5 +92,10 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
                 //return new ExecutionResult(BatchSequence, matrixOutput.SelectMany(m => m.Rows).ToArray());
             }
         }
+
+        public void ClearForBackpropagation()
+        {
+            // nop
+        }
     }
 }
