@@ -23,8 +23,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
 
                 return (this, input, null);
             }
-            else
-                throw new NotImplementedException();
+            throw new NotImplementedException();
         }
 
         protected override (string Description, byte[] Data) GetInfo()

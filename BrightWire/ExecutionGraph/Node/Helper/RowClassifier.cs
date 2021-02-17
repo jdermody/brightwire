@@ -11,6 +11,17 @@ namespace BrightWire.ExecutionGraph.Node.Helper
     /// </summary>
     internal class RowClassifier : NodeBase
     {
+        class Backpropagation : SingleBackpropagationBase<RowClassifier>
+        {
+            public Backpropagation(RowClassifier source) : base(source)
+            {
+            }
+
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
+            {
+                return GraphData.Null;
+            }
+        }
         class DefaultIndexer : IIndexStrings
         {
             readonly Dictionary<string, uint> _targetLabel;
@@ -55,7 +66,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
                     .ToDictionary(d => d.Index, d => d.Weight)
                 ).ToArray();
             var output = _lap.CreateMatrix((uint)resultList.Length, _indexer.OutputSize, (i, j) => resultList[i].TryGetValue(j, out var temp) ? temp : 0f);
-            return (this, new MatrixGraphData(output), null);
+            return (this, new MatrixGraphData(output), () => new Backpropagation(this));
         }
     }
 }

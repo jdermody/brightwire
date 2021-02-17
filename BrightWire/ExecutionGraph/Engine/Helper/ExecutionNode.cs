@@ -36,6 +36,9 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         {
             _descendants.Add(executionNode);
             executionNode._ancestors.Add(this);
+            if (_inputError.IsValueCreated) {
+                _inputError.Value.AddInput(executionNode);
+            }
         }
 
         public IEnumerable<IGraphData> Backpropagate(IGraphSequenceContext context, IGraphData? delta, ExecutionNode fromNode)
@@ -76,6 +79,8 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         {
             writer.WriteStartElement("node");
             writer.WriteAttributeString("type", Node?.ToString() ?? "???");
+            if(Node?.Name != null)
+                writer.WriteAttributeString("name", Node.Name);
             if (_inputError.IsValueCreated) {
                 var error = _inputError.Value;
                 writer.WriteAttributeString("input-count", error.InputCount.ToString());

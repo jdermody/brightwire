@@ -15,6 +15,7 @@ namespace BrightWire.ExecutionGraph.Engine
     class TrainingEngine : IGraphTrainingEngine
     {
         readonly GraphFactory _factory;
+        float? _lastTestError = null;
 
         public TrainingEngine(GraphFactory factory, IDataSource dataSource, IErrorMetric errorMetric)
         {
@@ -24,8 +25,6 @@ namespace BrightWire.ExecutionGraph.Engine
             LearningContext = new LearningContext(factory, errorMetric);
             Start = new InputFeeder(0, "engine-input-feeder");
         }
-
-        float? _lastTestError = null;
 
         public IGraphSequenceContext Create(IGraphExecutionContext executionContext, IMiniBatchSequence sequence, ILearningContext? learningContext)
         {
@@ -53,18 +52,6 @@ namespace BrightWire.ExecutionGraph.Engine
                         yield return result;
                     context.Dispose();
                 }
-
-                //foreach (var (context, data) in _executionResults) {
-                //    uint outputIndex = 0;
-                //    foreach (var output in data) {
-                //        ret.Add(new ExecutionResult(context.BatchSequence, output.AsIndexable().Rows.Select(r => r.Data).ToArray(), outputIndex));
-                //        ++outputIndex;
-                //    }
-                //    context.Dispose();
-                //    foreach (var matrix in data)
-                //        matrix.Dispose();
-                //}
-                //_executionResults.Clear();
                 LinearAlgebraProvider.PopLayer();
 
                 if (batchCompleteCallback != null) {
@@ -96,7 +83,6 @@ namespace BrightWire.ExecutionGraph.Engine
             while ((operation = executionContext.GetNextOperation()) != null) {
                 LinearAlgebraProvider.PushLayer();
                 var contextList = operation.Execute(executionContext).ToList();
-                LearningContext.BackpropagateThroughTime(null);
                 LearningContext.ApplyUpdates();
                 foreach (var context in contextList)
                     context.Dispose();
@@ -158,8 +144,6 @@ namespace BrightWire.ExecutionGraph.Engine
                 while ((currentSequence = batch.GetNextSequence()) != null) {
                     var context = lookupContext(currentSequence);
                     executionContext.Continue(context);
-                    //while (context.HasNext)
-                    //    context.ExecuteNext();
                     yield return context;
                 }
             }
@@ -169,20 +153,8 @@ namespace BrightWire.ExecutionGraph.Engine
         {
             var context = Create(executionContext, sequence, learningContext);
             Start.Forward(GraphData.Null, context);
-            //Start.ExecuteForward(context, 0);
-            //while (context.HasNext)
-            //    context.ExecuteNext();
-
             return context;
         }
-
-        //void Execute(IGraphSequenceContext context, NodeBase node, IGraphData signal, uint channel)
-        //{
-        //    var ret = node.Forward(signal, channel, context, TODO);
-        //    if (ret.Next.HasValue) {
-        //        context.AddForward(new ExecutionHistory(node, ret.Next, (NodeBase?)null), ret.BackProp);
-        //    }
-        //}
 
         public bool Test(IDataSource testDataSource, uint batchSize = 128, Action<float>? batchCompleteCallback = null, Action<float, bool, bool>? values = null)
         {
@@ -245,30 +217,16 @@ namespace BrightWire.ExecutionGraph.Engine
             return _factory.CreateExecutionEngine(model ?? Graph);
         }
 
+        public void Reset()
+        {
+            _lastTestError = null;
+            LearningContext.ResetEpoch();
+        }
+
         void LoadParamaters(GraphFactory factory, ExecutionGraphModel.Node nodeModel)
 		{
 			var node = Start.FindById(nodeModel.Id);
 			node?.LoadParameters(factory, nodeModel);
 		}
-
-        IGraphData? BackpropagateThroughTime(IGraphData? signal, int maxDepth)
-        {
-            throw new NotImplementedException();
-        }
-
-        void DeferBackpropagation(IGraphData? errorSignal, Action<IGraphData?> update)
-        {
-            throw new NotImplementedException();
-        }
-
-        IGraphData? ApplyUpdates(IGraphData? gradient)
-        {
-            throw new NotImplementedException();
-        }
-
-        void StoreUpdate<T>(NodeBase fromNode, T update, Action<T> updater) where T : notnull
-        {
-            throw new NotImplementedException();
-        }
     }
 }

@@ -1,4 +1,10 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Channels;
+using System.Xml;
 using BrightData;
 using BrightWire.Helper;
 
@@ -146,5 +152,48 @@ namespace BrightWire.Models
 
         /// <inheritdoc />
         public void Initialize(IBrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
+
+        public void VisitNodes<T>(T param, Action<T, Node, uint> onEnter, Action<T, Node> onLeave)
+        {
+            var nodes = OtherNodes.ToDictionary(n => n.Id);
+            var wires = Wires.ToLookup(w => w.FromId);
+            var visited = new HashSet<Node>();
+            Visit(param, InputNode, 0,visited, nodes, wires, onEnter, onLeave);
+        }
+
+        void Visit<T>(T param, Node node, uint channel, HashSet<Node> visited, Dictionary<string, Node> nodes, ILookup<string, Wire> wires, Action<T, Node, uint> onEnter, Action<T, Node> onLeave)
+        {
+            if (visited.Add(node)) {
+                onEnter(param, node, channel);
+                foreach (var next in wires[node.Id].Select(w => (Node: nodes[w.ToId], Channel: w.InputChannel))) {
+                    Visit(param, next.Node, next.Channel, visited, nodes, wires, onEnter, onLeave);
+                }
+
+                onLeave(param, node);
+            }
+        }
+
+        public string AsXml
+        {
+            get
+            {
+                var sb = new StringBuilder();
+                using (var writer = XmlWriter.Create(sb)) {
+                    writer.WriteStartElement("graph");
+                    VisitNodes(writer, (w, n, c) => {
+                        w.WriteStartElement("node");
+                        w.WriteAttributeString("channel", c.ToString());
+                        w.WriteAttributeString("type", n.TypeName);
+                        if(!String.IsNullOrWhiteSpace(n.Name))
+                            w.WriteAttributeString("name", n.Name);
+                        if(!String.IsNullOrWhiteSpace(n.Description))
+                            w.WriteAttributeString("description", n.Description);
+                    }, (w, n) => w.WriteEndElement());
+                    writer.WriteEndElement();
+                }
+
+                return sb.ToString();
+            }
+        }
     }
 }

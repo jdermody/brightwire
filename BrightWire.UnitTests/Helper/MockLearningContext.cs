@@ -72,5 +72,9 @@ namespace BrightWire.UnitTests.Helper
         public event Action<ILearningContext> AfterEpochEnds;
         public IErrorMetric ErrorMetric { get; set; }
         public GraphFactory GraphFactory { get; set; }
+        public void ResetEpoch()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

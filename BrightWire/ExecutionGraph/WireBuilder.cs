@@ -541,10 +541,7 @@ namespace BrightWire.ExecutionGraph
         /// </summary>
         /// <param name="name">The friendly name of the node</param>
         /// <returns></returns>
-        public NodeBase? Find(string name)
-        {
-            return _first.FindByName(name);
-        }
+        public NodeBase? Find(string name) => _first.FindByName(name);
 
         /// <summary>
         /// The last added node

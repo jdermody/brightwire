@@ -8,7 +8,7 @@ using BrightData;
 namespace BrightWire.ExecutionGraph.Node.Gate
 {
     /// <summary>
-    /// Base class for nodes that accept input on an arbitary number of channels and output a single signal
+    /// Base class for nodes that accept input on an arbitrary number of channels and output a single signal
     /// </summary>
     public abstract class MultiGateBase : NodeBase
     {

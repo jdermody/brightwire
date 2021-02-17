@@ -598,6 +598,11 @@ namespace BrightWire
         void LoadParametersFrom(GraphFactory factory, ExecutionGraphModel graph);
 
         IGraphExecutionEngine CreateExecutionEngine(ExecutionGraphModel? model);
+
+        /// <summary>
+        /// Resets the learning context epoch and the best test result
+        /// </summary>
+        void Reset();
     }
 
     /// <summary>

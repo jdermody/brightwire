@@ -1254,7 +1254,7 @@
         </member>
         <member name="T:BrightWire.ExecutionGraph.Node.Gate.MultiGateBase">
             <summary>
-            Base class for nodes that accept input on an arbitary number of channels and output a single signal
+            Base class for nodes that accept input on an arbitrary number of channels and output a single signal
             </summary>
         </member>
         <member name="T:BrightWire.ExecutionGraph.Node.Gate.MultiGateBase.IncomingChannel">
@@ -3081,6 +3081,11 @@
             <param name="factory">Graph factory</param>
             <param name="graph">Model to load parameters from</param>
         </member>
+        <member name="M:BrightWire.IGraphTrainingEngine.Reset">
+            <summary>
+            Resets the learning context epoch and the best test result
+            </summary>
+        </member>
         <member name="T:BrightWire.IHaveMemoryNode">
             <summary>
             Nodes that have a memory feeder sub-node
@@ -3378,6 +3383,11 @@
         <member name="P:BrightWire.ILearningContext.GraphFactory">
             <summary>
             Graph factory
+            </summary>
+        </member>
+        <member name="M:BrightWire.ILearningContext.ResetEpoch">
+            <summary>
+            Resets the epoch
             </summary>
         </member>
         <member name="T:BrightWire.IGradientDescentOptimisation">

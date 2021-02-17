@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using BrightData;
 using BrightWire.ExecutionGraph.Node;
 
@@ -22,12 +23,18 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         {
             GraphFactory = graphFactory;
             ErrorMetric = errorMetric;
-            CurrentEpoch = 0;
-            RowCount = 0;
+            ResetEpoch();
         }
 
         public GraphFactory GraphFactory { get; }
-	    public IErrorMetric? ErrorMetric { get; }
+        public void ResetEpoch()
+        {
+            CurrentEpoch = 0;
+            RowCount = 0;
+            _learningRateSchedule.Clear();  
+        }
+
+        public IErrorMetric? ErrorMetric { get; }
         public ILinearAlgebraProvider LinearAlgebraProvider { get; }
 	    public uint RowCount { get; private set; }
 	    public uint CurrentEpoch { get; private set; }
@@ -99,6 +106,8 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 
         public void ApplyUpdates()
         {
+            if(_deferredBackpropagation.Any())
+                BackpropagateThroughTime(null);
             Update(_layerMatrixUpdate, m => m.RowCount, m => m.Clone(), (m, m2) => m.AddInPlace(m2), (m, c) => c.Multiply(1f / m));
             Update(_layerVectorUpdate, m => m.Count, m => m.Clone(), (m, m2) => m.AddInPlace(m2), (m, c) => c.Multiply(1f / m));
         }

@@ -230,7 +230,12 @@ namespace BrightWire
 		/// Graph factory
 		/// </summary>
 		GraphFactory GraphFactory { get; }
-	}
+
+        /// <summary>
+        /// Resets the epoch
+        /// </summary>
+        void ResetEpoch();
+    }
 
 	/// <summary>
 	/// Gradient descent optimisation

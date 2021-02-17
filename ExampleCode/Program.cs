@@ -23,10 +23,10 @@ namespace ExampleCode
             var useCuda = false;
 
             // IMPORTANT: uncomment below if you have installed native Intel Math Kernel Library binaries as described in https://numerics.mathdotnet.com/MKL.html
-            //Control.UseNativeMKL();
+            Control.UseNativeMKL();
 
             // IMPORTANT: uncomment below to use CUDA (if you have installed the CUDA toolkit from https://developer.nvidia.com/cuda-toolkit and have a supported Nvidia GPU)
-            useCuda = true;
+            //useCuda = true;
 
             // set where to save training data files
             context.Set("DataFileDirectory", new DirectoryInfo(@"c:\data"));
@@ -49,7 +49,7 @@ namespace ExampleCode
             //MultiLabelSingleClassifier(context);
             //MultiLabelMultiClassifiers(context);
             //MnistFeedForward(context, useCuda);
-            MnistConvolutional(context, useCuda);
+            //MnistConvolutional(context, useCuda);
             SentimentClassification(context, useCuda);
         }
 
@@ -158,12 +158,12 @@ namespace ExampleCode
             var multinomial = sentiment.TrainMultinomialNaiveBayes().CreateClassifier();
 
             // train a neural network
-            //var (_, _, neuralNetwork) = sentiment.TrainNeuralNetwork(20);
+            //var (engine, wire, trainingEngine) = sentiment.TrainNeuralNetwork(10);
 
             // train a combined graph with all three classifiers
-            //sentiment.StackClassifiers(engine, wire, bernoulli, multinomial);
+            //sentiment.StackClassifiers(trainingEngine, wire, bernoulli, multinomial);
 
-            sentiment.TrainBiRecurrent();
+            sentiment.TrainBiRecurrent(bernoulli, multinomial);
 
             //sentiment.TestClassifiers(bernoulli, multinomial, neuralNetwork);
         }

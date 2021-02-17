@@ -50,6 +50,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
 
         protected override (IFloatMatrix Next, Func<IBackpropagate>? BackProp) Activate2(IGraphSequenceContext context, List<IncomingChannel> data)
         {
+            data.Reverse();
             var curr = data.First().Data;
             if (curr?.ColumnCount != data.First().Size)
                 throw new Exception("Sizes are different");

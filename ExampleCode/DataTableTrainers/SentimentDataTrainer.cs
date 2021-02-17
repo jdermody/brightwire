@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using BrightData;
@@ -74,7 +75,7 @@ namespace ExampleCode.DataTableTrainers
             return multinomial;
         }
 
-        public (IGraphExecutionEngine, WireBuilder, IGraphExecutionEngine) TrainNeuralNetwork(uint numIterations = 10)
+        public (IGraphExecutionEngine, WireBuilder, IGraphTrainingEngine) TrainNeuralNetwork(uint numIterations)
         {
             var indexer = GetIndexer();
             var trainingTable = GetTable(_context, _maxIndex, indexer, _indexedSentencesTraining);
@@ -85,30 +86,29 @@ namespace ExampleCode.DataTableTrainers
             var testData = graph.CreateDataSource(testTable);
 
             // use rmsprop gradient descent and xavier weight initialisation
-            var errorMetric = graph.ErrorMetric.BinaryClassification;
+            var errorMetric = graph.ErrorMetric.OneHotEncoding;
             graph.CurrentPropertySet
                 .Use(graph.GradientDescent.RmsProp)
                 .Use(graph.WeightInitialisation.Xavier)
             ;
 
             var engine = graph.CreateTrainingEngine(trainingData, errorMetric, 0.3f);
-            engine.LearningContext.ScheduleLearningRate(10, 0.2f);
+            engine.LearningContext.ScheduleLearningRate(5, 0.1f);
 
             var neuralNetworkWire = graph.Connect(engine)
                 .AddFeedForward(512, "layer1")
                 //.AddBatchNormalisation()
-                .Add(graph.ReluActivation())
+                .Add(graph.ReluActivation("layer1-activation"))
                 //.AddDropOut(0.5f)
                 .AddFeedForward(trainingData.GetOutputSizeOrThrow(), "layer2")
-                .Add(graph.ReluActivation())
-                .AddBackpropagation("first-network")
+                .Add(graph.SoftMaxActivation("layer2-activation"))
+                .AddBackpropagation("nn-bp")
             ;
 
             Console.WriteLine("Training neural network classifier...");
             GraphModel? bestNetwork = null;
             engine.Train(numIterations, testData, network => bestNetwork = network);
-            var firstClassifier = graph.CreateExecutionEngine(engine.Graph);
-            return (engine.CreateExecutionEngine(bestNetwork?.Graph), neuralNetworkWire, firstClassifier);
+            return (engine.CreateExecutionEngine(bestNetwork?.Graph), neuralNetworkWire, engine);
         }
 
         public IGraphEngine StackClassifiers(IGraphTrainingEngine engine, WireBuilder neuralNetworkWire, IIndexListClassifier bernoulli, IIndexListClassifier multinomial)
@@ -116,7 +116,6 @@ namespace ExampleCode.DataTableTrainers
             // create combined data tables with both index lists and encoded vectors
             var graph = engine.LearningContext.GraphFactory;
             var context = graph.Context;
-            var errorMetric = graph.ErrorMetric.BinaryClassification;
             var maxIndex = _indexedSentencesTraining.Concat(_indexedSentencesTest).Max(d => d!.Data.Indices.Max());
             var indexer = GetIndexer();
             var training = CreateCombinedDataTable(context, maxIndex, indexer, _indexedSentencesTraining);
@@ -125,37 +124,42 @@ namespace ExampleCode.DataTableTrainers
             var testData = trainingData.CloneWith(test);
             var outputSize = trainingData.GetOutputSizeOrThrow();
 
+            // remove the last layer
+            var last = neuralNetworkWire.Find("layer1-activation")!;
+            var bp = neuralNetworkWire.Find("layer2")!;
+            last.RemoveDirectDescendant(bp);
+
             // stop the backpropagation to the first neural network
             engine.LearningContext.EnableNodeUpdates(neuralNetworkWire.Find("layer1")!, false);
             engine.LearningContext.EnableNodeUpdates(neuralNetworkWire.Find("layer2")!, false);
 
             // create the bernoulli classifier wire
-            var bernoullWireToNode = graph.Connect(engine)
-                .AddClassifier(bernoulli.AsRowClassifier(1, indexer), training)
+            var bernoulliWireToNode = graph.Connect(engine)
+                .AddClassifier(bernoulli.AsRowClassifier(1, indexer), training, "bernoulli")
             ;
 
             // create the multinomial classifier wire
             var multinomialWire = graph.Connect(engine)
-                .AddClassifier(multinomial.AsRowClassifier(1, indexer), training)
+                .AddClassifier(multinomial.AsRowClassifier(1, indexer), training, "multinomial")
             ;
 
             // join the bernoulli, multinomial and neural network classification outputs
-            var firstNetwork = neuralNetworkWire.Find("first-network")!;
-            var joined = graph.Join(multinomialWire, graph.Join(bernoullWireToNode, graph.Connect(outputSize, firstNetwork)));
+            var firstNetwork = graph.Connect(512, last);
 
             // train an additional classifier on the output of the previous three classifiers
-            joined
-                .AddFeedForward(outputSize: 64)
-                .Add(graph.ReluActivation())
-                .AddDropOut(dropOutPercentage: 0.5f)
-                .AddFeedForward(outputSize)
-                .Add(graph.ReluActivation())
-                .AddBackpropagation()
+            graph.Join(multinomialWire, bernoulliWireToNode, firstNetwork)
+                .AddFeedForward(outputSize: 512, "layer3")
+                .Add(graph.ReluActivation("layer3-activation"))
+                //.AddDropOut(dropOutPercentage: 0.5f)
+                .AddFeedForward(outputSize, "layer4")
+                .Add(graph.SoftMaxActivation("layer4-activation"))
+                .AddBackpropagation("stack-bp")
             ;
 
             // train the network again
             Console.WriteLine("Training stacked neural network classifier...");
             GraphModel? bestStackedNetwork = null;
+            engine.Reset();
             engine.Train(20, testData, network => bestStackedNetwork = network);
             if (bestStackedNetwork != null)
                 engine.LoadParametersFrom(graph, bestStackedNetwork.Graph);
@@ -169,10 +173,11 @@ namespace ExampleCode.DataTableTrainers
             builder.AddColumn(ColumnType.Vector, "Features");
             builder.AddColumn(ColumnType.Vector, "Target").SetTarget(true);
 
-            var vector = new float[1];
+            var vector = new float[2];
             foreach (var (classification, indexList) in data) {
                 var features = indexList.ToDense(maxIndex);
-                vector[0] = Convert.ToSingle(indexer.GetIndex(classification));
+                vector[0] = vector[1] = 0f;
+                vector[indexer.GetIndex(classification)] = 1f;
                 builder.AddRow(features, context.CreateVector(vector));
             }
 
@@ -197,10 +202,11 @@ namespace ExampleCode.DataTableTrainers
             builder.AddColumn(ColumnType.String, "Target");
             builder.AddColumn(ColumnType.Vector, "Vector Target").SetTarget(true);
 
-            var vector = new float[1];
+            var vector = new float[2];
             foreach (var (classification, indexList) in data) {
                 var features = indexList.ToDense(maxIndex);
-                vector[0] = Convert.ToSingle(indexer.GetIndex(classification));
+                vector[0] = vector[1] = 0f;
+                vector[indexer.GetIndex(classification)] = 1f;
                 builder.AddRow(features, indexList, classification, context.CreateVector(vector));
             }
 
@@ -250,56 +256,81 @@ namespace ExampleCode.DataTableTrainers
             }
         }
 
-        public void TrainBiRecurrent()
+        public void TrainBiRecurrent(IIndexListClassifier bernoulli, IIndexListClassifier multinomial)
         {
             var graph = _context.CreateGraphFactory();
-            var trainingTable = CreateTable(_indexedSentencesTraining);
-            var testTable = CreateTable(_indexedSentencesTest);
+            var trainingTable = CreateTable(_indexedSentencesTraining, bernoulli, multinomial);
+            var testTable = CreateTable(_indexedSentencesTest, bernoulli, multinomial);
             var training = graph.CreateDataSource(trainingTable);
             var test = training.CloneWith(testTable);
-            var errorMetric = graph.ErrorMetric.BinaryClassification;
-            var engine = graph.CreateTrainingEngine(training, errorMetric, learningRate: 0.001f, batchSize: 128);
+            var errorMetric = graph.ErrorMetric.OneHotEncoding;
+            var engine = graph.CreateTrainingEngine(training, errorMetric, learningRate: 0.1f, batchSize: 128);
+            var indexer = GetIndexer();
 
             graph.CurrentPropertySet
-                .Use(graph.RmsProp())
-                .Use(graph.WeightInitialisation.Gaussian)
+                .Use(graph.Adam())
+                .Use(graph.WeightInitialisation.Xavier)
             ;
 
             // build the network
-            const int HIDDEN_LAYER_SIZE = 128;
+            const int HIDDEN_LAYER_SIZE = 100;
 
             var forward = graph.Connect(engine)
-                .AddSimpleRecurrent(graph.TanhActivation(), new float[HIDDEN_LAYER_SIZE], "forward")
+                .AddGru(new float[HIDDEN_LAYER_SIZE], "forward")
             ;
             var reverse = graph.Connect(engine)
                 .ReverseSequence()
-                .AddSimpleRecurrent(graph.TanhActivation(), new float[HIDDEN_LAYER_SIZE], "backward")
+                .AddGru(new float[HIDDEN_LAYER_SIZE], "backward")
             ;
             graph.BidirectionalJoin(forward, reverse)
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow(), "joined")
-                .Add(graph.SigmoidActivation())
+                .Add(graph.SoftMaxActivation())
                 .AddBackpropagationThroughTime()
             ;
 
             ExecutionGraphModel? bestGraph = null;
-            engine.Train(20, test, bn => bestGraph = bn.Graph);
+            engine.LearningContext.ScheduleLearningRate(10, 0.003f);
+            engine.LearningContext.ScheduleLearningRate(20, 0.001f);
+            engine.Train(30, test, bn => bestGraph = bn.Graph);
         }
 
-        IRowOrientedDataTable CreateTable((string Classification, IndexList Data)[] data)
+        IRowOrientedDataTable CreateTable((string Classification, IndexList Data)[] data, IIndexListClassifier bernoulli, IIndexListClassifier multinomial)
         {
             var builder = _context.BuildTable();
             builder.AddColumn(ColumnType.Matrix);
             builder.AddColumn(ColumnType.Matrix).SetTarget(true);
 
-            var empty = new float[100];
+            var empty = new float[102];
             foreach (var row in data) {
-                var input = row.Data.Indices.Select(i => _context.CreateVector(Data.Embeddings.Get(_stringTable.GetString(i)) ?? empty)).ToArray();
-                var output = _context.CreateMatrix((uint)input.Length, 1, row.Classification == "positive" ? 1f : 0f);
+                var c1 = bernoulli.Classify(row.Data).First().Label == "positive" ? 1f : 0f;
+                var c2 = multinomial.Classify(row.Data).First().Label == "positive" ? 1f : 0f;
+                var input = row.Data.Indices.Select(i => _context.CreateVector(GetInputVector(c1, c2, _stringTable.GetString(i)) ?? empty)).ToArray();
+                var output = _context.CreateMatrix((uint)input.Length, 2, (i, j) => GetOutputValue(j, row.Classification == "positive"));
                 
                 builder.AddRow(_context.CreateMatrixFromRows(input), output);
             }
 
             return builder.BuildRowOriented();
         }
+
+        float[]? GetInputVector(float c1, float c2, string word)
+        {
+            var embedding = Data.Embeddings.Get(word);
+            if (embedding != null) {
+                var ret = new float[embedding.Length + 2];
+                Array.Copy(embedding, ret, embedding.Length);
+                ret[embedding.Length] = c1;
+                ret[embedding.Length + 1] = c2;
+                return ret;
+            }
+
+            return null;
+        }
+
+        float GetOutputValue(uint columnIndex, bool isPositive) => columnIndex switch {
+            0 when isPositive => 1f,
+            1 when !isPositive => 1f,
+            _ => 0f
+        };
     }
 }

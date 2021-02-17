@@ -622,7 +622,21 @@ namespace BrightWire.ExecutionGraph
 			return new WireBuilder(this, input1.CurrentSize + input2.CurrentSize, ret);
 		}
 
-		/// <summary>
+        public WireBuilder Join(params WireBuilder[] wires) => Join(null, wires);
+
+        public WireBuilder Join(string name, params WireBuilder[] wires)
+        {
+            var ret = new JoinGate(name, wires);
+            uint channel = 0;
+            uint newSize = 0;
+            foreach (var wire in wires) {
+                wire.LastNode?.Output.Add(new WireToNode(ret, channel++));
+                newSize += wire.CurrentSize;
+            }
+            return new WireBuilder(this, newSize, ret);
+        }
+
+        /// <summary>
 		/// Concatenates two wires together into a new wire, but reverses the sequence index of the second input to join
 		/// </summary>
 		/// <param name="forwardInput">Forward wire to join</param>

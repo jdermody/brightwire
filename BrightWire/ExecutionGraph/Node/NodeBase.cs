@@ -94,7 +94,7 @@ namespace BrightWire.ExecutionGraph.Node
             // send output to connected nodes
             if (output.HasValue || this is FlowThrough) {
                 foreach (var wire in from.Output) {
-                    wire.SendTo.Forward(output, context, wire.Channel, @from);
+                    wire.SendTo.Forward(output, context, wire.Channel, from);
                 }
             }
         }
@@ -332,5 +332,11 @@ namespace BrightWire.ExecutionGraph.Node
         /// <param name="factory"></param>
         /// <param name="reader"></param>
         protected void ReadSubNode(string name, GraphFactory factory, BinaryReader reader) => FindSubNodeByNameOrThrow(name).ReadFrom(factory, reader);
+
+        public void RemoveDirectDescendant(NodeBase bp)
+        {
+            var wire = _output.Single(w => w.SendTo == bp);
+            _output.Remove(wire);
+        }
     }
 }

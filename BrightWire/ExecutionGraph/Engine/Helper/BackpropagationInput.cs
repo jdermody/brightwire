@@ -18,7 +18,12 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         {
             _nodeOutput = history?.Data;
             foreach (var item in input)
-                _input.Add(item.Node ?? throw new ArgumentException("Node not found"));
+                AddInput(item);
+        }
+
+        public void AddInput(ExecutionNode executionNode)
+        {
+            _input.Add(executionNode.Node ?? throw new ArgumentException("Node not found"));
         }
 
         public void Add(ExecutionNode fromNode, IGraphData? error)

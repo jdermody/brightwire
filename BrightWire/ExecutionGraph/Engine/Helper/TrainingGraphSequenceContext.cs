@@ -82,7 +82,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             foreach (var item in curr.Backpropagate(this, delta, curr)) {
                 if (item?.HasValue == true) {
                     #if DEBUG
-                    if(ErrorSignal?.HasValue == true)
+                    if(ErrorSignal?.HasValue == true && ErrorSignal.GetMatrix() != item.GetMatrix())
                         throw new Exception("Unexpected");
                     #endif
                     ErrorSignal = item;
