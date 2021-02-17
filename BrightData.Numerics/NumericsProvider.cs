@@ -13,6 +13,10 @@ namespace BrightData.Numerics
     /// </summary>
     public class NumericsProvider : ILinearAlgebraProvider
     {
+	    /// <summary>
+	    /// 
+	    /// </summary>
+	    /// <param name="context"></param>
 	    public NumericsProvider(IBrightDataContext context)
         {
             Context = context;
@@ -23,17 +27,20 @@ namespace BrightData.Numerics
             // nop
         }
 
+        /// <inheritdoc />
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
 
-		public IFloatVector CreateVector(uint length, Func<uint, float> init)
+        /// <inheritdoc />
+        public IFloatVector CreateVector(uint length, Func<uint, float> init)
 		{
 			return new NumericsVector(Context, DenseVector.Create((int)length, i => init((uint)i)));
 		}
 
+        /// <inheritdoc />
 		public IFloatMatrix CreateMatrixFromRows(params IFloatVector[] vectorData)
 		{
 			var rows = vectorData.Select(r => r.AsIndexable()).ToArray();
@@ -41,6 +48,7 @@ namespace BrightData.Numerics
 			return CreateMatrix((uint)rows.Length, columns, (i, j) => rows[i][j]);
 		}
 
+        /// <inheritdoc />
 	    public IFloatMatrix CreateMatrixFromColumns(params IFloatVector[] vectorData)
 	    {
 		    var columns = vectorData.Select(r => r.AsIndexable()).ToArray();
@@ -48,29 +56,37 @@ namespace BrightData.Numerics
 		    return CreateMatrix(rows, (uint)columns.Length, (i, j) => columns[j][i]);
 	    }
 
+        /// <inheritdoc />
         public string Name { get; } = "Numerics";
+
+        /// <inheritdoc />
         public IBrightDataContext Context { get; }
 
+        /// <inheritdoc />
         public IFloatVector CreateVector(uint length, bool setToZero = false)
 	    {
 		    return new NumericsVector(Context, DenseVector.Create((int)length, 0f));
 	    }
 
+        /// <inheritdoc />
 	    public IFloatMatrix CreateMatrix(uint rows, uint columns, bool setToZero)
         {
 	        return new NumericsMatrix(Context, DenseMatrix.Create((int)rows, (int)columns, 0f));
         }
 
+        /// <inheritdoc />
 	    public I3DFloatTensor Create3DTensor(uint rows, uint columns, uint depth, bool setToZero = false)
 	    {
 		    return new Numerics3DTensor(Context, depth.AsRange().Select(i => CreateMatrix(rows, columns, setToZero).AsIndexable()).ToArray());
 	    }
 
+        /// <inheritdoc />
 	    public I4DFloatTensor Create4DTensor(uint rows, uint columns, uint depth, uint count, bool setToZero = false)
 	    {
 		    return new Numerics4DTensor(Context, count.AsRange().Select(i => Create3DTensor(rows, columns, depth, setToZero).AsIndexable()).ToArray());
 	    }
 
+        /// <inheritdoc />
 		public IFloatMatrix CreateMatrix(uint rows, uint columns, Func<uint, uint, float> init)
 		{
 			return new NumericsMatrix(Context, DenseMatrix.Create((int)rows, (int)columns, (x, y) => init((uint)x, (uint)y)));
@@ -81,37 +97,40 @@ namespace BrightData.Numerics
             return CreateMatrix(matrix.RowCount, matrix.ColumnCount, (i, j) => matrix[i, j]);
         }
 
+        /// <inheritdoc />
 		public I3DFloatTensor Create3DTensor(params IFloatMatrix[] data)
 		{
 			return new Numerics3DTensor(Context, data.Select(m => m.AsIndexable()).ToArray());
 		}
 
+        /// <inheritdoc />
 		public I4DFloatTensor Create4DTensor(params Tensor3D<float>[] data)
 		{
 			return new Numerics4DTensor(Context, data.Select(t => Create3DTensor(t.Matrices.Select(CreateMatrix).ToArray()).AsIndexable()).ToArray());
 		}
 
-        public I3DFloatTensor Create3DTensor(Tensor3D<float> tensor)
-        {
-            return new Numerics3DTensor(Context, tensor.Matrices.Select(m => CreateMatrix(m).AsIndexable()).ToArray());
-        }
-
+        /// <inheritdoc />
         public I4DFloatTensor Create4DTensor(I3DFloatTensor[] tensorList)
 		{
 			return new Numerics4DTensor(Context, tensorList.Select(m => m.AsIndexable()).ToArray());
 		}
 
+        /// <inheritdoc />
 		public void PushLayer()
         {
             // nop
         }
+
+        /// <inheritdoc />
         public void PopLayer()
         {
             // nop
         }
 
+        /// <inheritdoc />
 	    public bool IsGpu => false;
 
+        /// <inheritdoc />
 	    public IFloatMatrix CalculateDistances(IFloatVector[] vectors, IReadOnlyList<IFloatVector> compareTo, DistanceMetric distanceMetric)
 	    {
 		    var rows = compareTo.Count;
@@ -128,6 +147,7 @@ namespace BrightData.Numerics
 		    return new NumericsMatrix(Context, DenseMatrix.Build.Dense(rows, columns, ret));
 	    }
 
+        /// <inheritdoc />
         public IFloatVector CreateVector(ITensorSegment<float> data)
         {
             return CreateVector(data.Size, i => data[i]);

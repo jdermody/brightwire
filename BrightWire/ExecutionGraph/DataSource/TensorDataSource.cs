@@ -26,10 +26,8 @@ namespace BrightWire.ExecutionGraph.DataSource
             _matrixSize = _rows * _columns;
         }
 
-        public bool IsSequential => false;
         public uint InputSize { get; }
 	    public uint? OutputSize { get; }
-	    public uint InputCount => 1;
         public uint RowCount => (uint)_data.Length;
         public IDataTableVectoriser? InputVectoriser { get; } = null;
         public IDataTableVectoriser? OutputVectoriser { get; } = null;
@@ -53,9 +51,7 @@ namespace BrightWire.ExecutionGraph.DataSource
             return new MiniBatch(rows, this, new Tensor4DGraphData(input, _rows, _columns, _depth), null);
         }
 
-        public IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rows) => Get(rows);
-
-        public uint[][] GetBuckets()
+        public uint[][] GetSequentialBatches()
         {
             return new[] {
                 _data.Length.AsRange().ToArray()

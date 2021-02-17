@@ -38,6 +38,9 @@ namespace BrightWire.Models
 		/// </summary>
 		public Vector<float>[]? Input { get; }
 
+        /// <summary>
+        /// Optional list of errors
+        /// </summary>
         public Vector<float>[]? Error { get; set; } = null;
 
 		/// <summary>

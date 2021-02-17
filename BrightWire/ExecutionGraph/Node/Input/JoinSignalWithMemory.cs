@@ -1,8 +1,7 @@
 ﻿using System;
 using System.IO;
-using BrightWire.ExecutionGraph.Node;
 
-namespace BrightWire.ExecutionGraph.Action
+namespace BrightWire.ExecutionGraph.Node.Input
 {
     /// <summary>
     /// Joins the graph signal with a saved signal stored in named memory
@@ -33,7 +32,7 @@ namespace BrightWire.ExecutionGraph.Action
             _slotName = slotName;
         }
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
             var memory = context.ExecutionContext.GetMemory(_slotName);
             var output = signal.ReplaceWith(signal.GetMatrix().ConcatRows(memory));

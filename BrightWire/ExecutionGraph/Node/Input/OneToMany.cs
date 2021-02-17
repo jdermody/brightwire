@@ -59,7 +59,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
                 Output.Add(new WireToNode(child));
         }
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
             return (this, signal, null/*, () => new Backpropagation(this)*/);
         }

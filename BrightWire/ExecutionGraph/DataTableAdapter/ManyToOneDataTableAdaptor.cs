@@ -45,11 +45,10 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             return new ManyToOneDataTableAdapter(_lap, dataTable, _featureColumns);
         }
 
-        public override bool IsSequential => true;
         public override uint InputSize { get; }
 	    public override uint? OutputSize { get; }
 
-	    public override uint[][] GetBuckets()
+	    public override uint[][] GetSequentialBatches()
         {
             return _rowDepth
                 .Select((r, i) => (Row: r, Index: i))

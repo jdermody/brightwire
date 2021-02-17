@@ -14,7 +14,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
                 throw new NotImplementedException("Only one input is now supported");
         }
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
             if (_index == 0) {
                 var input = context.BatchSequence.Input;

@@ -20,8 +20,6 @@ namespace BrightWire.ExecutionGraph.Node.Helper
                 _wrapper = wrapper;
             }
 
-            public NodeBase? Source => _context.Source;
-
             public IGraphData Data
             {
                 get =>_context.Data;
@@ -39,10 +37,10 @@ namespace BrightWire.ExecutionGraph.Node.Helper
                 
             }
 
-            public void AddForward(NodeBase source, IGraphData data, Func<IBackpropagate>? callback, params NodeBase[] prev)
+            public void AddForwardHistory(NodeBase source, IGraphData data, Func<IBackpropagate>? callback, params NodeBase[] prev)
             {
                 // TODO: wrap the backpropagation?
-                _context.AddForward(_wrapper, data, callback, prev);
+                _context.AddForwardHistory(_wrapper, data, callback, prev);
             }
 
             public IGraphData? Backpropagate(IGraphData? delta) => _context.Backpropagate(delta);
@@ -74,9 +72,9 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             _nodeId = node.Id;
         }
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
-            return _node.ForwardInternal(signal, channel, context, source);
+            return _node.ForwardSingleStep(signal, channel, context, source);
         }
 
         protected override (string Description, byte[] Data) GetInfo()

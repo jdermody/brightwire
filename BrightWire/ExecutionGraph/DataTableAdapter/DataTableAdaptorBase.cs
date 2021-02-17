@@ -46,10 +46,6 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         }
 
 	    /// <inheritdoc />
-	    public uint InputCount => 1;
-	    /// <inheritdoc />
-        public abstract bool IsSequential { get; }
-	    /// <inheritdoc />
         public abstract uint InputSize { get; }
 	    /// <inheritdoc />
         public abstract uint? OutputSize { get; }
@@ -58,8 +54,6 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 
         /// <inheritdoc />
         public abstract IMiniBatch Get(uint[] rows);
-
-        public virtual IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rows) => Get(rows);
 
         /// <inheritdoc />
         public abstract IDataSource CloneWith(IRowOrientedDataTable dataTable);
@@ -71,7 +65,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         public IDataTableVectoriser? OutputVectoriser { get; protected set; } = null;
 
         /// <inheritdoc />
-        public virtual uint[][] GetBuckets()
+        public virtual uint[][] GetSequentialBatches()
         {
             return new[] {
                 _data.Count.AsRange().ToArray()

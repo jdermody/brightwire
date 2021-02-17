@@ -47,7 +47,7 @@ namespace BrightWire.ExecutionGraph.Engine
             IGraphOperation? operation;
             while ((operation = executionContext.GetNextOperation()) != null) {
                 LinearAlgebraProvider.PushLayer();
-                foreach (var context in operation.Execute(executionContext)) {
+                foreach (var context in operation.Execute()) {
                     foreach (var result in context.Results)
                         yield return result;
                     context.Dispose();
@@ -82,7 +82,7 @@ namespace BrightWire.ExecutionGraph.Engine
             float index = 0f;
             while ((operation = executionContext.GetNextOperation()) != null) {
                 LinearAlgebraProvider.PushLayer();
-                var contextList = operation.Execute(executionContext).ToList();
+                var contextList = operation.Execute().ToList();
                 LearningContext.ApplyUpdates();
                 foreach (var context in contextList)
                     context.Dispose();
@@ -126,7 +126,7 @@ namespace BrightWire.ExecutionGraph.Engine
         {
             while (executionContext.HasContinuations) {
                 var additionalContext = new List<(IGraphSequenceContext Context, Action<IGraphSequenceContext[]> OnEnd)>();
-                foreach (var item in executionContext.ExecuteAdditional(learningContext))
+                foreach (var item in executionContext.ExecuteAdditionalMiniBatch(learningContext))
                     additionalContext.Add(item);
 
                 // after all have executed...

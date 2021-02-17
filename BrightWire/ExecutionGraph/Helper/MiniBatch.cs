@@ -2,24 +2,42 @@
 
 namespace BrightWire.ExecutionGraph.Helper
 {
-	/// <inheritdoc />
+    /// <summary>
+    /// Information about the current mini batch
+    /// </summary>
 	public class MiniBatch : IMiniBatch
     {
-	    /// <inheritdoc />
+        /// <summary>
+        /// A sequence within a mini batch
+        /// </summary>
 	    internal class Sequence : IMiniBatchSequence
         {
-	        /// <inheritdoc />
+            /// <summary>
+            /// Mini batch
+            /// </summary>
 	        public IMiniBatch MiniBatch { get; }
-	        /// <inheritdoc />
+
+            /// <summary>
+            /// Index of the sequence
+            /// </summary>
             public uint SequenceIndex { get; }
-	        /// <inheritdoc />
+
+            /// <summary>
+            /// Sequence type
+            /// </summary>
             public MiniBatchSequenceType Type { get; }
-	        /// <inheritdoc />
+
+            /// <summary>
+            /// Input data
+            /// </summary>
             public IGraphData? Input { get; }
-	        /// <inheritdoc />
+
+            /// <summary>
+            /// Training target data
+            /// </summary>
             public IGraphData? Target { get; }
 
-            public Sequence(IGraphData? input, IGraphData? target, IMiniBatch miniBatch, uint sequenceIndex = 0, MiniBatchSequenceType type = MiniBatchSequenceType.Standard)
+            public Sequence(IGraphData? input, IGraphData? target, MiniBatch miniBatch, uint sequenceIndex = 0, MiniBatchSequenceType type = MiniBatchSequenceType.Standard)
             {
                 Input = input;
                 Target = target;
@@ -28,6 +46,7 @@ namespace BrightWire.ExecutionGraph.Helper
                 Type = type;
             }
 
+            /// <inheritdoc />
             public override string ToString() => $"{SequenceIndex} - {Type}";
         }
         readonly List<Sequence> _sequence = new List<Sequence>();
@@ -69,24 +88,50 @@ namespace BrightWire.ExecutionGraph.Helper
             _sequence.Add(new Sequence(input, output, this, (uint) _sequence.Count, type));
         }
 
-	    /// <inheritdoc />
+        /// <summary>
+        /// Row indexes of the current batch
+        /// </summary>
 	    public uint[] Rows { get; }
-	    /// <inheritdoc />
+
+
+        /// <summary>
+        /// Data source
+        /// </summary>
 	    public IDataSource DataSource { get; }
-	    /// <inheritdoc />
+
+        /// <summary>
+        /// True if the data is sequential
+        /// </summary>
 	    public bool IsSequential { get; }
-	    /// <inheritdoc />
+
+        /// <summary>
+        /// Number of items in the batch
+        /// </summary>
 	    public uint BatchSize => (uint)Rows.Length;
-	    /// <inheritdoc />
+
+        /// <summary>
+        /// Current sequence (non sequential batches have a single sequence)
+        /// </summary>
         public IMiniBatchSequence CurrentSequence => _sequence[_index];
-	    /// <inheritdoc />
+
+        /// <summary>
+        /// True if there is another item in the sequence after the current item
+        /// </summary>
         public bool HasNextSequence => _index < _sequence.Count;
-	    /// <inheritdoc />
+
+        /// <summary>
+        /// Gets the length of the sequence
+        /// </summary>
         public uint SequenceCount => (uint)_sequence.Count;
-	    /// <inheritdoc />
+
+        /// <summary>
+        /// Resets the sequence iterator
+        /// </summary>
         public void Reset() => _index = 0;
 
-	    /// <inheritdoc />
+        /// <summary>
+        /// Gets the next item in the sequence (or null if none)
+        /// </summary>
         public IMiniBatchSequence? GetNextSequence()
         {
             if(HasNextSequence)
@@ -94,12 +139,23 @@ namespace BrightWire.ExecutionGraph.Helper
             return null;
         }
 
-	    /// <inheritdoc />
+        /// <summary>
+        /// Gets a sequence item
+        /// </summary>
+        /// <param name="index">The index to retrieve</param>
         public IMiniBatchSequence GetSequenceAtIndex(uint index)
         {
             return _sequence[(int)index];
         }
 
+        /// <summary>
+        /// Subsequent mini batch
+        /// </summary>
         public IMiniBatch? NextMiniBatch { get; set; } = null;
+
+        /// <summary>
+        /// Previous mini batch
+        /// </summary>
+        public IMiniBatch? PreviousMiniBatch { get; set; } = null;
     }
 }

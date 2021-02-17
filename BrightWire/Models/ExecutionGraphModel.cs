@@ -153,6 +153,13 @@ namespace BrightWire.Models
         /// <inheritdoc />
         public void Initialize(IBrightDataContext context, BinaryReader reader) => ModelSerialisation.ReadFrom(context, reader, this);
 
+        /// <summary>
+        /// Visits each node in the graph
+        /// </summary>
+        /// <param name="param"></param>
+        /// <param name="onEnter"></param>
+        /// <param name="onLeave"></param>
+        /// <typeparam name="T"></typeparam>
         public void VisitNodes<T>(T param, Action<T, Node, uint> onEnter, Action<T, Node> onLeave)
         {
             var nodes = OtherNodes.ToDictionary(n => n.Id);
@@ -173,6 +180,9 @@ namespace BrightWire.Models
             }
         }
 
+        /// <summary>
+        /// XML representation of the graph
+        /// </summary>
         public string AsXml
         {
             get

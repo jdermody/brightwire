@@ -6107,6 +6107,18 @@
         <member name="M:BrightData.Segment.GrowableSegment`1.CopyTo(System.IO.Stream)">
             <inheritdoc />
         </member>
+        <member name="T:BrightData.Serialisation.SerialisationHelper">
+            <summary>
+            Serialisation helpers
+            </summary>
+        </member>
+        <member name="M:BrightData.Serialisation.SerialisationHelper.WriteTo(System.String,System.IO.BinaryWriter)">
+            <summary>
+            Writes a string
+            </summary>
+            <param name="str"></param>
+            <param name="writer"></param>
+        </member>
         <member name="T:BrightData.Transformation.ColumnConversion">
             <summary>
             Parameters that define a column conversion from one type to another

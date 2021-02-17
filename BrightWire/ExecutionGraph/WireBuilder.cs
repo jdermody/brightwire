@@ -5,6 +5,7 @@ using BrightWire.ExecutionGraph.Helper;
 using BrightWire.ExecutionGraph.Node;
 using BrightWire.ExecutionGraph.Node.Gate;
 using BrightWire.ExecutionGraph.Node.Helper;
+using BrightWire.ExecutionGraph.Node.Input;
 
 namespace BrightWire.ExecutionGraph
 {
@@ -56,7 +57,7 @@ namespace BrightWire.ExecutionGraph
         /// <param name="engine">Graph engine</param>
         /// <param name="inputIndex">Input index to connect</param>
         public WireBuilder(GraphFactory factory, IGraphTrainingEngine engine, uint inputIndex = 0) 
-            : this(factory, engine.DataSource.InputSize, engine.Start)
+            : this(factory, engine.DataSource?.InputSize ?? throw new ArgumentException("No data source"), engine.Start)
         {
             if(engine.DataSource is IVolumeDataSource volumeDataSource) {
                 _width = volumeDataSource.Width;
@@ -455,7 +456,6 @@ namespace BrightWire.ExecutionGraph
         /// <summary>
         /// Adds backpropagation - when executed an error signal will be calculated and flow backwards to previous nodes
         /// </summary>
-        /// <param name="errorMetric">Error metric to calculate the error signal</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
         public WireBuilder AddBackpropagation(string? name = null)
@@ -475,6 +475,11 @@ namespace BrightWire.ExecutionGraph
             return this;
         }
 
+        /// <summary>
+        /// Pivots between the encoder and decoder sequences (seq2seq)
+        /// </summary>
+        /// <param name="name">Optional name to give the node</param>
+        /// <returns></returns>
         public WireBuilder AddSequenceToSequencePivot(string? name = null)
         {
             SetNode(new SequenceToSequenceGate(name));

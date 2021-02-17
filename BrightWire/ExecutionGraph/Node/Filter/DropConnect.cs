@@ -51,7 +51,7 @@ namespace BrightWire.ExecutionGraph.Node.Filter
             _probabilityToDrop = context.CreateBernoulliDistribution(_dropOutPercentage);
         }
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
             if (context.LearningContext != null) {
                 var lap = context.LinearAlgebraProvider;
@@ -62,7 +62,7 @@ namespace BrightWire.ExecutionGraph.Node.Filter
                 var output = FeedForwardInternal(inputMatrix, filteredWeights);
                 return (this, input.ReplaceWith(output), () => new Backpropagation(this, inputMatrix, filter, filteredWeights));
             }
-            return base.ForwardInternal(signal, channel, context, source);
+            return base.ForwardSingleStep(signal, channel, context, source);
         }
 
         protected override (string Description, byte[] Data) GetInfo()

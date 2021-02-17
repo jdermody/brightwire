@@ -6,8 +6,16 @@ using BrightData.Helper;
 
 namespace BrightData.Serialisation
 {
+    /// <summary>
+    /// Serialisation helpers
+    /// </summary>
     public static class SerialisationHelper
     {
+        /// <summary>
+        /// Writes a string
+        /// </summary>
+        /// <param name="str"></param>
+        /// <param name="writer"></param>
         public static void WriteTo(this String? str, BinaryWriter writer) => writer.Write(str ?? "");
         public static void WriteTo(this int val, BinaryWriter writer) => writer.Write(val);
         public static void WriteTo(this uint val, BinaryWriter writer) => writer.Write((int)val);

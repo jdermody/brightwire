@@ -29,7 +29,7 @@ namespace BrightWire.ExecutionGraph.Activation
 
         public Tanh(string? name = null) : base(name) { }
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
             var input = signal.GetMatrix();
             var output = signal.ReplaceWith(input.TanhActivation());

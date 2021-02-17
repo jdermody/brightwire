@@ -2,7 +2,6 @@
 using BrightWire.ExecutionGraph.DataSource;
 using BrightWire.ExecutionGraph.DataTableAdapter;
 using BrightWire.ExecutionGraph.Engine;
-using BrightWire.ExecutionGraph.Engine.Helper;
 using BrightWire.ExecutionGraph.GradientDescent;
 using BrightWire.ExecutionGraph.Helper;
 using BrightWire.ExecutionGraph.Node.Filter;
@@ -622,9 +621,20 @@ namespace BrightWire.ExecutionGraph
 			return new WireBuilder(this, input1.CurrentSize + input2.CurrentSize, ret);
 		}
 
+        /// <summary>
+        /// Joins multiple wires into a new wire
+        /// </summary>
+        /// <param name="wires">Wires to join</param>
+        /// <returns></returns>
         public WireBuilder Join(params WireBuilder[] wires) => Join(null, wires);
 
-        public WireBuilder Join(string name, params WireBuilder[] wires)
+		/// <summary>
+		/// Joins multiple wires into a new wire
+		/// </summary>
+		/// <param name="name">Optional name to give the node</param>
+		/// <param name="wires">Wires to join</param>
+		/// <returns></returns>
+        public WireBuilder Join(string? name, params WireBuilder[] wires)
         {
             var ret = new JoinGate(name, wires);
             uint channel = 0;

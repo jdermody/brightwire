@@ -25,7 +25,6 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 
         public override uint InputSize => InputVectoriser!.OutputSize;
         public override uint? OutputSize => OutputVectoriser?.OutputSize;
-        public override bool IsSequential => false;
 
         public override IMiniBatch Get(uint[] rowIndices)
         {

@@ -56,27 +56,24 @@ namespace BrightWire.ExecutionGraph.Engine
 		{
             var table = new Dictionary<IMiniBatchSequence, IGraphSequenceContext>();
 
-			if (batch.IsSequential) {
+            if (batch.IsSequential) {
 				IMiniBatchSequence? curr;
 				while ((curr = batch.GetNextSequence()) != null) {
 					var context = CreateContext(executionContext, curr);
                     Start.Forward(GraphData.Null, context);
-					//Start.ExecuteForward(context, 0);
-					//while (context.HasNext)
-					//	context.ExecuteNext();
-                    yield return context;
-					table.Add(curr, context);
-				}
+                    if (executionContext.HasContinuations)
+                        table.Add(curr, context);
+                    else
+                        yield return context;
+                }
 			} else {
 				var context = CreateContext(executionContext, batch.CurrentSequence);
                 Start.Forward(GraphData.Null, context);
-				//Start.ExecuteForward(context, 0);
-                //while (context.HasNext)
-				//	context.ExecuteNext();
-
-                yield return context;
-                table.Add(batch.CurrentSequence, context);
-			}
+                if (executionContext.HasContinuations)
+                    table.Add(batch.CurrentSequence, context);
+                else
+                    yield return context;
+            }
 
             foreach (var result in Continue(batch, executionContext, sequence => table[sequence]))
                 yield return result;
@@ -88,7 +85,7 @@ namespace BrightWire.ExecutionGraph.Engine
         {
             while (executionContext.HasContinuations) {
                 var additionalContext = new List<(IGraphSequenceContext Context, Action<IGraphSequenceContext[]> OnEnd)>();
-                foreach (var item in executionContext.ExecuteAdditional(null))
+                foreach (var item in executionContext.ExecuteAdditionalMiniBatch(null))
                     additionalContext.Add(item);
 
                 // after all have executed...
@@ -106,8 +103,6 @@ namespace BrightWire.ExecutionGraph.Engine
 	            while ((currentSequence = batch.GetNextSequence()) != null) {
                     var context = lookupContext(currentSequence);
                     executionContext.Continue(context);
-                    //while (context.HasNext)
-                    //    context.ExecuteNext();
                     yield return context;
                 }
             }
@@ -127,7 +122,7 @@ namespace BrightWire.ExecutionGraph.Engine
             IGraphOperation? operation;
             while ((operation = executionContext.GetNextOperation()) != null) {
                 LinearAlgebraProvider.PushLayer();
-                foreach (var context in operation.Execute(executionContext)) {
+                foreach (var context in operation.Execute()) {
                     foreach (var result in context.Results)
                         yield return result;
                     context.Dispose();
@@ -169,7 +164,7 @@ namespace BrightWire.ExecutionGraph.Engine
             // TODO: check that there is a single operation?
             while ((operation = executionContext.GetNextOperation()) != null) {
                 LinearAlgebraProvider.PushLayer();
-                context = operation.Execute(executionContext).Single();
+                context = operation.Execute().Single();
                 LinearAlgebraProvider.PopLayer();
             }
             var ret = context?.Results.SingleOrDefault();
@@ -213,7 +208,7 @@ namespace BrightWire.ExecutionGraph.Engine
             IGraphOperation? operation;
             while ((operation = executionContext.GetNextOperation()) != null) {
                 LinearAlgebraProvider.PushLayer();
-                foreach (var context in operation.Execute(executionContext)) {
+                foreach (var context in operation.Execute()) {
                     yield return context.Results.Single();
                     context.Dispose();
                 }
@@ -237,7 +232,7 @@ namespace BrightWire.ExecutionGraph.Engine
             IGraphSequenceContext? context = null;
             // TODO: check that there is a single operation?
             while ((operation = executionContext.GetNextOperation()) != null) {
-                context = operation.Execute(executionContext).Single();
+                context = operation.Execute().Single();
             }
 
             var ret = context?.Results.SingleOrDefault();

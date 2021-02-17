@@ -217,6 +217,7 @@ namespace ExampleCode.DataTableTrainers
 
         public void TestClassifiers(IIndexListClassifier bernoulli, IIndexListClassifier multinomial, IGraphExecutionEngine neuralNetwork)
         {
+            var empty = new float[102];
             Console.WriteLine("Enter some text to test the classifiers...");
             while (true)
             {
@@ -227,27 +228,30 @@ namespace ExampleCode.DataTableTrainers
 
                 var tokens = Tokenise(line);
                 var indices = new List<uint>();
+                var embeddings = new List<float[]>();
                 foreach (var token in tokens)
                 {
                     if (_stringTable.TryGetIndex(token, out uint stringIndex))
                         indices.Add(stringIndex);
+                    embeddings.Add(GetInputVector(0, 0, token) ?? empty);
                 }
                 if (indices.Any())
                 {
-                    var queryTokens = indices.GroupBy(d => d).Select(g => Tuple.Create(g.Key, (float)g.Count())).ToList();
-                    var vector = new float[_maxIndex+1];
-                    foreach (var token in queryTokens)
-                        vector[token.Item1] = token.Item2;
-                    var indexList2 = _context.CreateIndexList(indices);
-                    var encodedInput = indexList2.ToDense(_maxIndex).ToArray();
+                    var indexList = _context.CreateIndexList(indices);
+                    var bc = bernoulli.Classify(indexList).First().Label;
+                    var mc = multinomial.Classify(indexList).First().Label;
+                    Console.WriteLine("Bernoulli classification: " + bc);
+                    Console.WriteLine("Multinomial classification: " + mc);
 
-                    Console.WriteLine("Bernoulli classification: " + bernoulli.Classify(indexList2).First().Label);
-                    Console.WriteLine("Multinomial classification: " + multinomial.Classify(indexList2).First().Label);
-                    var result = neuralNetwork.Execute(encodedInput);
-                    if (result != null) {
-                        var output = result.Output[0][0];
-                        var label = output >= 0.5f ? "positive" : "negative";
-                        Console.WriteLine($"Neural network classification: {label} ({output})");
+                    // add the other classifier results into the embedding
+                    foreach (var word in embeddings) {
+                        word[100] = bc == "positive" ? 1f : 0f;
+                        word[101] = mc == "positive" ? 1f : 0f;
+                    }
+
+                    foreach (var item in tokens.Zip(neuralNetwork.ExecuteSequential(embeddings.ToArray()), (t, r) => (Token: t, Result: r.Output.Single()))) {
+                        var label = item.Result.Softmax().MaximumIndex() == 0 ? "positive" : "negative";
+                        Console.WriteLine($"{item.Token}: {label}");
                     }
                 }
                 else
@@ -256,7 +260,7 @@ namespace ExampleCode.DataTableTrainers
             }
         }
 
-        public void TrainBiRecurrent(IIndexListClassifier bernoulli, IIndexListClassifier multinomial)
+        public IGraphExecutionEngine TrainBiGru(IIndexListClassifier bernoulli, IIndexListClassifier multinomial)
         {
             var graph = _context.CreateGraphFactory();
             var trainingTable = CreateTable(_indexedSentencesTraining, bernoulli, multinomial);
@@ -265,7 +269,6 @@ namespace ExampleCode.DataTableTrainers
             var test = training.CloneWith(testTable);
             var errorMetric = graph.ErrorMetric.OneHotEncoding;
             var engine = graph.CreateTrainingEngine(training, errorMetric, learningRate: 0.1f, batchSize: 128);
-            var indexer = GetIndexer();
 
             graph.CurrentPropertySet
                 .Use(graph.Adam())
@@ -292,6 +295,7 @@ namespace ExampleCode.DataTableTrainers
             engine.LearningContext.ScheduleLearningRate(10, 0.003f);
             engine.LearningContext.ScheduleLearningRate(20, 0.001f);
             engine.Train(30, test, bn => bestGraph = bn.Graph);
+            return engine.CreateExecutionEngine(bestGraph);
         }
 
         IRowOrientedDataTable CreateTable((string Classification, IndexList Data)[] data, IIndexListClassifier bernoulli, IIndexListClassifier multinomial)

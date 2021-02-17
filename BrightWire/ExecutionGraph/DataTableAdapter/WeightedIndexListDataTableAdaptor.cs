@@ -24,7 +24,6 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             InputSize = inputSize;
         }
 
-        public override bool IsSequential => false;
         public override uint InputSize { get; }
         public override uint? OutputSize { get; }
         public override uint RowCount => (uint)_data.Count;

@@ -75,7 +75,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
 		public override List<WireToNode> Output => _output.Output;
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
             IFloatMatrix input;
 			IReadOnlyList<IFloatVector> samples;
@@ -116,7 +116,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 			}
 
 			if (context.LearningContext != null) {
-				ret = _start.ForwardInternal(signal, channel, context, source);
+				ret = _start.ForwardSingleStep(signal, channel, context, source);
 
 				// invalidate the cache
 				if (_gammaCached != null) {

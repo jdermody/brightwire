@@ -34,8 +34,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             _learningRateSchedule.Clear();  
         }
 
-        public IErrorMetric? ErrorMetric { get; }
-        public ILinearAlgebraProvider LinearAlgebraProvider { get; }
+        public IErrorMetric ErrorMetric { get; }
 	    public uint RowCount { get; private set; }
 	    public uint CurrentEpoch { get; private set; }
 	    public float LearningRate { get; set; }
@@ -43,7 +42,6 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public uint BatchSize { get; set; }
         public long EpochMilliseconds => _timer.ElapsedMilliseconds;
 	    public double EpochSeconds => EpochMilliseconds / 1000.0;
-	    public bool DeferUpdates { get; }
 
         public void StoreUpdate(NodeBase fromNode, IFloatMatrix update, Action<IFloatMatrix> updater)
         {

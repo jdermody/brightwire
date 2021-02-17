@@ -26,7 +26,7 @@ namespace ExampleCode
             Control.UseNativeMKL();
 
             // IMPORTANT: uncomment below to use CUDA (if you have installed the CUDA toolkit from https://developer.nvidia.com/cuda-toolkit and have a supported Nvidia GPU)
-            //useCuda = true;
+            useCuda = true;
 
             // set where to save training data files
             context.Set("DataFileDirectory", new DirectoryInfo(@"c:\data"));
@@ -40,7 +40,7 @@ namespace ExampleCode
             //ReberPrediction(context);
             //OneToMany(context, useCuda);
             //ManyToOne(context, useCuda);
-            //SequenceToSequence(context, useCuda);
+            SequenceToSequence(context, useCuda);
             //TrainWithSelu(context);
             //StockData(context, useCuda);
             //SimpleLinearTest(context);
@@ -50,7 +50,7 @@ namespace ExampleCode
             //MultiLabelMultiClassifiers(context);
             //MnistFeedForward(context, useCuda);
             //MnistConvolutional(context, useCuda);
-            SentimentClassification(context, useCuda);
+            //SentimentClassification(context);
         }
 
         static void Start(IBrightDataContext context, bool useCuda = false, [CallerMemberName]string title = "")
@@ -146,9 +146,9 @@ namespace ExampleCode
             context.Mnist().TrainConvolutionalNeuralNetwork();
         }
 
-        static void SentimentClassification(IBrightDataContext context, bool useCuda)
+        static void SentimentClassification(IBrightDataContext context)
         {
-            Start(context, useCuda);
+            Start(context);
             var sentiment = context.SentimentData();
 
             // train a bernoulli naive bayes classifier
@@ -157,15 +157,9 @@ namespace ExampleCode
             // train a multinomial naive bayes classifier
             var multinomial = sentiment.TrainMultinomialNaiveBayes().CreateClassifier();
 
-            // train a neural network
-            //var (engine, wire, trainingEngine) = sentiment.TrainNeuralNetwork(10);
+            var recurrent = sentiment.TrainBiGru(bernoulli, multinomial);
 
-            // train a combined graph with all three classifiers
-            //sentiment.StackClassifiers(trainingEngine, wire, bernoulli, multinomial);
-
-            sentiment.TrainBiRecurrent(bernoulli, multinomial);
-
-            //sentiment.TestClassifiers(bernoulli, multinomial, neuralNetwork);
+            sentiment.TestClassifiers(bernoulli, multinomial, recurrent);
         }
 
         static void TextClustering(IBrightDataContext context)

@@ -1,5 +1,8 @@
 ﻿namespace BrightData.Numerics
 {
+    /// <summary>
+    /// Extension methods
+    /// </summary>
     public static class ExtensionMethods
     {
         /// <summary>

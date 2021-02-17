@@ -273,6 +273,21 @@ namespace BrightWire
             return classifications.OrderByDescending(c => c.Weight).First().Label;
         }
 
+        /// <summary>
+        /// Trains a neural network with a single hidden layer
+        /// </summary>
+        /// <param name="graph"></param>
+        /// <param name="trainingTable"></param>
+        /// <param name="testTable"></param>
+        /// <param name="errorMetric"></param>
+        /// <param name="learningRate"></param>
+        /// <param name="batchSize"></param>
+        /// <param name="hiddenLayerSize"></param>
+        /// <param name="numIterations"></param>
+        /// <param name="activation"></param>
+        /// <param name="gradientDescent"></param>
+        /// <param name="weightInitialisation"></param>
+        /// <returns></returns>
         public static ExecutionGraphModel? TrainSimpleNeuralNetwork(this GraphFactory graph,
             IRowOrientedDataTable trainingTable,
             IRowOrientedDataTable testTable,

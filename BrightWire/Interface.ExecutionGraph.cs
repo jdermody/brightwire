@@ -54,11 +54,6 @@ namespace BrightWire
         IGraphData ReplaceWith(IFloatMatrix matrix);
 
         /// <summary>
-        /// Returns the list of matrices that compose the signal (single item if the signal is a matrix)
-        /// </summary>
-        IFloatMatrix[] GetSubMatrices();
-
-        /// <summary>
         /// True if this graph data has been set (false for null)
         /// </summary>
         public bool HasValue { get; }
@@ -130,11 +125,6 @@ namespace BrightWire
     public interface IGraphSequenceContext : IDisposable
     {
         /// <summary>
-        /// Node that sent the current signal
-        /// </summary>
-        NodeBase? Source { get; }
-
-        /// <summary>
         /// Current signal
         /// </summary>
         IGraphData Data { get; set; }
@@ -160,16 +150,17 @@ namespace BrightWire
         IMiniBatchSequence BatchSequence { get; }
 
         /// <summary>
-        /// Records node execution
+        /// Records forward node execution
         /// </summary>
-        /// <param name="action">Record of node execution</param>
+        /// <param name="source">Node that was executed</param>
+        /// <param name="data">Output from the node</param>
         /// <param name="callback">Optional callback to add backpropagation</param>
-        public void AddForward(NodeBase source, IGraphData data, Func<IBackpropagate>? callback, params NodeBase[] prev);
+        /// <param name="prev">Ancestors that fed input into the node</param>
+        public void AddForwardHistory(NodeBase source, IGraphData data, Func<IBackpropagate>? callback, params NodeBase[] prev);
 
         /// <summary>
         /// Backpropagates the signal
         /// </summary>
-        /// <param name="source"></param>
         /// <param name="delta">Error signal</param>
         IGraphData? Backpropagate(IGraphData? delta);
 
@@ -196,7 +187,14 @@ namespace BrightWire
         /// </summary>
         IGraphData[] Output { get; }
 
+        /// <summary>
+        /// Execution results
+        /// </summary>
         IEnumerable<ExecutionResult> Results { get; }
+
+        /// <summary>
+        /// Resets the context for another run of backpropagation
+        /// </summary>
         void ClearForBackpropagation();
     }
 
@@ -248,7 +246,14 @@ namespace BrightWire
         /// <param name="callback">Continuation</param>
         void RegisterContinuation(IMiniBatchSequence sequence, Action<IGraphSequenceContext> callback);
 
-        void RegisterAdditional(IMiniBatch miniBatch, IGraphData data, Action<IGraphSequenceContext, IGraphData> startCallback, Action<IGraphSequenceContext[]> endCallback);
+        /// <summary>
+        /// Registers an additional mini batch to execute after the current mini batch has completed
+        /// </summary>
+        /// <param name="miniBatch">Mini batch to execute</param>
+        /// <param name="data">Initial data</param>
+        /// <param name="startCallback">Callback when starting the batch</param>
+        /// <param name="endCallback">Callback when ending the batch</param>
+        void RegisterAdditionalMiniBatch(IMiniBatch miniBatch, IGraphData data, Action<IGraphSequenceContext, IGraphData> startCallback, Action<IGraphSequenceContext[]> endCallback);
 
         /// <summary>
         /// True if there are registered continuations
@@ -261,11 +266,25 @@ namespace BrightWire
         /// <param name="context">Context with an associated IMiniBatchSequence</param>
         void Continue(IGraphSequenceContext context);
 
-        IEnumerable<(IGraphSequenceContext Context, Action<IGraphSequenceContext[]> Callback)> ExecuteAdditional(ILearningContext? learningContext);
+        /// <summary>
+        /// Executes any additionally registered mini batches
+        /// </summary>
+        /// <param name="learningContext">Learning context (null if executing without training)</param>
+        IEnumerable<(IGraphSequenceContext Context, Action<IGraphSequenceContext[]> Callback)> ExecuteAdditionalMiniBatch(ILearningContext? learningContext);
     }
 
+    /// <summary>
+    /// A type that can create a graph context
+    /// </summary>
     public interface ICreateGraphContext
     {
+        /// <summary>
+        /// Creates a graph context
+        /// </summary>
+        /// <param name="executionContext">Graph execution cointext</param>
+        /// <param name="sequence">Mini batch sequence</param>
+        /// <param name="learningContext">Learning context (null if executing without training)</param>
+        /// <returns></returns>
         IGraphSequenceContext Create(IGraphExecutionContext executionContext, IMiniBatchSequence sequence, ILearningContext? learningContext);
     }
 
@@ -289,11 +308,6 @@ namespace BrightWire
     public interface IDataSource
     {
         /// <summary>
-        /// True if the data is sequential
-        /// </summary>
-        bool IsSequential { get; }
-
-        /// <summary>
         /// The size of the input data
         /// </summary>
         uint InputSize { get; }
@@ -302,11 +316,6 @@ namespace BrightWire
         /// The size of the output data
         /// </summary>
         uint? OutputSize { get; }
-
-        /// <summary>
-        /// The number of inputs that can feed into the graph
-        /// </summary>
-        uint InputCount { get; }
 
         /// <summary>
         /// Number of rows
@@ -320,17 +329,10 @@ namespace BrightWire
         IMiniBatch Get(uint[] rows);
 
         /// <summary>
-        /// Gets a mini batch with the specified rows
-        /// </summary>
-        /// <param name="executionContext">Graph execution context</param>
-        /// <param name="rows">List of rows</param>
-        IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rows);
-
-        /// <summary>
         /// For sequential data, returns the row indexes grouped by sequence length
         /// </summary>
         /// <returns></returns>
-        uint[][] GetBuckets();
+        uint[][] GetSequentialBatches();
 
         /// <summary>
         /// Creates a new data source, using the current as a template but replacing the data table
@@ -478,7 +480,15 @@ namespace BrightWire
         /// </summary>
         void Reset();
 
+        /// <summary>
+        /// Subsequent mini bach
+        /// </summary>
         IMiniBatch? NextMiniBatch { get; }
+
+        /// <summary>
+        /// Previous mini batch
+        /// </summary>
+        IMiniBatch? PreviousMiniBatch { get; }
     }
 
     /// <summary>
@@ -489,8 +499,7 @@ namespace BrightWire
         /// <summary>
         /// Executes the operation
         /// </summary>
-        /// <param name="executionContext">Graph execution context</param>
-        IEnumerable<IGraphSequenceContext> Execute(IGraphExecutionContext executionContext);
+        IEnumerable<IGraphSequenceContext> Execute();
     }
 
     /// <summary>
@@ -519,6 +528,9 @@ namespace BrightWire
         NodeBase Start { get; }
     }
 
+    /// <summary>
+    /// Graph engine that is optimised for inference
+    /// </summary>
     public interface IGraphExecutionEngine : IGraphEngine
     {
         /// <summary>
@@ -554,11 +566,15 @@ namespace BrightWire
         /// <returns>List of execution results</returns>
         IEnumerable<ExecutionResult> ExecuteSequential(float[][] input);
 
+        /// <summary>
+        /// Creates a graph execution context
+        /// </summary>
+        /// <returns></returns>
         IGraphExecutionContext CreateExecutionContext();
     }
 
     /// <summary>
-    /// A graph engine that also trains the graph's parameters against training data
+    /// A graph engine that can train the graph from training data
     /// </summary>
     public interface IGraphTrainingEngine : IGraphEngine
     {
@@ -597,6 +613,11 @@ namespace BrightWire
         /// <param name="graph">Model to load parameters from</param>
         void LoadParametersFrom(GraphFactory factory, ExecutionGraphModel graph);
 
+        /// <summary>
+        /// Creates an inference only engine from the current graph
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         IGraphExecutionEngine CreateExecutionEngine(ExecutionGraphModel? model);
 
         /// <summary>

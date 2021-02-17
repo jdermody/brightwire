@@ -18,10 +18,11 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// <param name="name"></param>
         protected BinaryGateBase(string? name) : base(name) { }
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        /// <inheritdoc />
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
             IGraphData next;
-            Func<IBackpropagate>? backProp = null;
+            Func<IBackpropagate>? backProp;
 
             if (channel == 0) {
                 _primarySource = source;
@@ -38,19 +39,10 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             return (this, next, backProp);
         }
 
-        void TryComplete(IGraphSequenceContext context)
-        {
-            if (_primary != null && _secondary != null) {
-                Activate(context, _primary, _secondary);
-                _primary = _secondary = null;
-                _primarySource = _secondarySource = null;
-            }
-        }
-
         (IGraphData Next, Func<IBackpropagate>? BackProp) TryComplete2(IGraphData signal, IGraphSequenceContext context)
         {
             if (_primary != null && _secondary != null) {
-                var (next, backProp) = Activate2(context, _primary, _secondary);
+                var (next, backProp) = Activate(context, _primary, _secondary);
                 _primary = _secondary = null;
                 _primarySource = _secondarySource = null;
                 return (signal.ReplaceWith(next), backProp);
@@ -65,22 +57,6 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// <param name="context">Graph context</param>
         /// <param name="primary">Primary signal</param>
         /// <param name="secondary">Secondary signal</param>
-        protected abstract void Activate(IGraphSequenceContext context, IFloatMatrix primary, IFloatMatrix secondary);
-
-        protected abstract (IFloatMatrix Next, Func<IBackpropagate>? BackProp) Activate2(IGraphSequenceContext context, IFloatMatrix primary, IFloatMatrix secondary);
-
-        /// <summary>
-        /// Records the network activity
-        /// </summary>
-        /// <param name="context">Graph context</param>
-        /// <param name="output">The output signal</param>
-        /// <param name="backpropagation">Backpropagation creator (optional)</param>
-        protected void AddHistory(IGraphSequenceContext context, IFloatMatrix output, Func<IBackpropagate>? backpropagation)
-        {
-            if (_primarySource == null || _secondarySource == null)
-                throw new Exception("Source nodes cannot be null");
-
-            context.AddForward(this, new MatrixGraphData(output), backpropagation, _primarySource, _secondarySource);
-        }
+        protected abstract (IFloatMatrix Next, Func<IBackpropagate>? BackProp) Activate(IGraphSequenceContext context, IFloatMatrix primary, IFloatMatrix secondary);
     }
 }

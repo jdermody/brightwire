@@ -29,19 +29,11 @@ namespace BrightWire.UnitTests.Helper
         public ILinearAlgebraProvider LinearAlgebraProvider { get; }
 
         public IMiniBatchSequence BatchSequence { get; }
-        public void AddForward(ExecutionHistory action, Func<IBackpropagate>? callback)
-        {
-            Forward.Add((action, callback()));
-        }
 
-        public void AppendErrorSignal(IGraphData errorSignal, NodeBase forNode)
-        {
-            throw new NotImplementedException();
-        }
 
-        public void AddForward(NodeBase source, IGraphData data, Func<IBackpropagate>? callback, params NodeBase[] prev)
+        public void AddForwardHistory(NodeBase source, IGraphData data, Func<IBackpropagate>? callback, params NodeBase[] prev)
         {
-            Forward.Add((new ExecutionHistory(source, data), callback()));
+            Forward.Add((new ExecutionHistory(source, data), callback!()));
         }
 
         public IGraphData? Backpropagate(IGraphData? delta)
@@ -50,11 +42,6 @@ namespace BrightWire.UnitTests.Helper
         }
 
         public IGraphData ErrorSignal { get; }
-        public bool HasNext { get; }
-        public bool ExecuteNext()
-        {
-            throw new NotImplementedException();
-        }
 
         public void SetOutput(IGraphData data, int channel = 0)
         {

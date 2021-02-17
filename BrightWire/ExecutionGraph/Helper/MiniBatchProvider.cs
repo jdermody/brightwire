@@ -24,10 +24,10 @@ namespace BrightWire.ExecutionGraph.Helper
                 _provider = provider;
             }
 
-            public IEnumerable<IGraphSequenceContext> Execute(IGraphExecutionContext executionContext)
+            public IEnumerable<IGraphSequenceContext> Execute()
             {
                 var dataSource = _provider._dataSource;
-                var miniBatch = dataSource.Get(executionContext, _rows);
+                var miniBatch = dataSource.Get(_rows);
                 return _handler(miniBatch);
             }
         }
@@ -42,7 +42,7 @@ namespace BrightWire.ExecutionGraph.Helper
 
         public IEnumerable<IGraphOperation> GetMiniBatches(uint batchSize, Func<IMiniBatch, IEnumerable<IGraphSequenceContext>> handler)
         {
-            var buckets = _dataSource.GetBuckets();
+            var buckets = _dataSource.GetSequentialBatches();
             if (_random != null)
                 buckets = buckets.Select(v => v.Shuffle(_random).ToArray()).Shuffle(_random).ToArray();
 

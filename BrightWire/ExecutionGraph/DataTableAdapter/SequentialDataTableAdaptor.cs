@@ -47,7 +47,6 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             return new SequentialDataTableAdapter(_lap, dataTable, _featureColumns, _sequenceLengthsAreVaried);
         }
 
-        public override bool IsSequential => true;
         public override uint InputSize { get; }
 	    public override uint? OutputSize { get; }
 	    public override uint RowCount => (uint)_rowDepth.Length;
@@ -99,12 +98,13 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
                 }
 
                 encoderMiniBatch.NextMiniBatch = decoderMiniBatch;
+                decoderMiniBatch.PreviousMiniBatch = encoderMiniBatch;
                 return encoderMiniBatch;
             }
             return GetSequentialMiniBatch(rows, GetRows(rows).ToArray());
         }
 
-        public override uint[][] GetBuckets()
+        public override uint[][] GetSequentialBatches()
         {
             return _rowDepth
                 .Select((r, i) => (Row: r, Index: i))

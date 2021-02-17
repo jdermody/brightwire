@@ -88,7 +88,8 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 _data[i] = new IncomingChannel(incoming[i].CurrentSize, i);
         }
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        /// <inheritdoc />
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
             IGraphData next = GraphData.Null;
             Func<IBackpropagate>? backProp = null;
@@ -97,7 +98,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 data.SetData(signal.GetMatrix(), source);
                 if(_data.All(kv => kv.Value.IsValid)) {
                     IFloatMatrix? matrix;
-                    (matrix, backProp) = Activate2(context, _data.Select(kv => kv.Value).ToList());
+                    (matrix, backProp) = Activate(context, _data.Select(kv => kv.Value).ToList());
                     if(matrix != null)
                         next = signal.ReplaceWith(matrix);
 
@@ -115,9 +116,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// </summary>
         /// <param name="context">The graph context</param>
         /// <param name="data">The list of incoming signals</param>
-        protected abstract void Activate(IGraphSequenceContext context, List<IncomingChannel> data);
-
-        protected abstract (IFloatMatrix? Next, Func<IBackpropagate>? BackProp) Activate2(IGraphSequenceContext context, List<IncomingChannel> data);
+        protected abstract (IFloatMatrix? Next, Func<IBackpropagate>? BackProp) Activate(IGraphSequenceContext context, List<IncomingChannel> data);
 
         /// <summary>
         /// Records the network activity
@@ -129,7 +128,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         protected void AddHistory(IGraphSequenceContext context, List<IncomingChannel> data, IFloatMatrix output, Func<IBackpropagate> backpropagation)
         {
             var sources = data.Where(d => d.Source != null).Select(d => d.Source!).ToArray();
-            context.AddForward(this, new MatrixGraphData(output), backpropagation, sources);
+            context.AddForwardHistory(this, new MatrixGraphData(output), backpropagation, sources);
         }
 
 	    /// <inheritdoc />

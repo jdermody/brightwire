@@ -3,8 +3,14 @@ using BrightData;
 
 namespace BrightWire.ExecutionGraph.Helper
 {
+    /// <summary>
+    /// Graph data constants
+    /// </summary>
     public static class GraphData
     {
+        /// <summary>
+        /// Null graph data
+        /// </summary>
         public static readonly IGraphData Null = new NullGraphData();
     }
 

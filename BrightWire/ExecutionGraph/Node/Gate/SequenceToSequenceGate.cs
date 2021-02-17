@@ -10,13 +10,13 @@ namespace BrightWire.ExecutionGraph.Node.Gate
 {
     class SequenceToSequenceGate : NodeBase
     {
-        ConcurrentStack<IGraphSequenceContext> _encoderContext;
+        ConcurrentStack<IGraphSequenceContext>? _encoderContext;
 
         public SequenceToSequenceGate(string? name, string? id = null) : base(name, id)
         {
         }
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
             _encoderContext ??= new ConcurrentStack<IGraphSequenceContext>();
             _encoderContext.Push(context);
@@ -25,7 +25,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 if (nextBatch == null)
                     throw new Exception("No following mini batch was found");
 
-                context.ExecutionContext.RegisterAdditional(nextBatch, signal, OnStartEncoder, OnEndEncoder);
+                context.ExecutionContext.RegisterAdditionalMiniBatch(nextBatch, signal, OnStartEncoder, OnEndEncoder);
             }
 
             return (this, GraphData.Null, null);

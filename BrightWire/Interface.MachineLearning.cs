@@ -155,7 +155,6 @@ namespace BrightWire
         /// <summary>
         /// Stores an update to the model parameters
         /// </summary>
-        /// <typeparam name="T">The type of update</typeparam>
         /// <param name="fromNode">The node that is affected by this update</param>
         /// <param name="update">The vector update</param>
         /// <param name="updater">Callback to execute the update</param>
@@ -222,10 +221,14 @@ namespace BrightWire
 
 		/// <summary>
 		/// Fired after each epoch ends
-		/// Error metric to use when evaluating training progress
+        /// /// </summary>
 		event Action<ILearningContext> AfterEpochEnds;
 
+		/// <summary>
+        /// Error metric to use when evaluating training progress
+		/// </summary>
 		IErrorMetric ErrorMetric { get; }
+
         /// <summary>
 		/// Graph factory
 		/// </summary>

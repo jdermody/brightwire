@@ -73,39 +73,12 @@ namespace BrightWire.ExecutionGraph.Node.Gate
 
             // concatenate the inputs
             var next = new MatrixGraphData(data.ConcatRows(floatMatrix));
-            context.AddForward(this, next, () => new Backpropagation(this, reversedSize));
+            context.AddForwardHistory(this, next, () => new Backpropagation(this, reversedSize));
             foreach(var wire in Output)
                 wire.SendTo.Forward(next, context, wire.Channel, this);
-
-            //context.AddForward(new ExecutionHistory(
-            //    this, 
-            //    new MatrixGraphData(next), 
-            //    new[] { forwardParent, reverseParent }), 
-            //    () => new Backpropagation(this, reversedSize)
-            //);
         }
 
-        protected override void Activate(IGraphSequenceContext context, List<IncomingChannel> data)
-        {
-            if (data.Count != 2)
-                throw new Exception("Expected two incoming channels");
-
-            var forward = data.First();
-            var backward = data.Last();
-
-            if (forward.Data == null || backward.Data == null)
-                throw new Exception("Expected incoming channels to have data");
-
-            var sequenceIndex = context.BatchSequence.SequenceIndex;
-            var reversedSequenceIndex = context.BatchSequence.MiniBatch.SequenceCount - sequenceIndex - 1;
-
-            _input.Add(sequenceIndex, (forward.Data, backward.Size, forward.Source!));
-            _reverseInput.Add(reversedSequenceIndex, (backward.Data, backward.Source!));
-
-            context.ExecutionContext.RegisterContinuation(context.BatchSequence, Continue);
-        }
-
-        protected override (IFloatMatrix? Next, Func<IBackpropagate>? BackProp) Activate2(IGraphSequenceContext context, List<IncomingChannel> data)
+        protected override (IFloatMatrix? Next, Func<IBackpropagate>? BackProp) Activate(IGraphSequenceContext context, List<IncomingChannel> data)
         {
             if (data.Count != 2)
                 throw new Exception("Expected two incoming channels");

@@ -52,7 +52,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
 	        set => value.Segment.CopyTo(_data);
         }
 
-        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
+        public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
             IFloatMatrix memory;
             if (context.BatchSequence.Type == MiniBatchSequenceType.SequenceStart) {

@@ -21,7 +21,6 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             InputCount = (uint)data.Length;
         }
 
-        public bool IsSequential => true;
         public uint InputSize { get; }
         public uint? OutputSize { get; } = null;
         public uint RowCount => 1;
@@ -50,13 +49,11 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             return ret;
         }
 
-        public IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rows) => Get(rows);
-
-        public uint[][] GetBuckets()
+        public uint[][] GetSequentialBatches()
         {
             return new[] {
                 new uint [] {
-                    1
+                    0
                 }
             };
         }

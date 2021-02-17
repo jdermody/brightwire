@@ -30,14 +30,14 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         {
         }
 
-        public NodeBase? Source { get; private set; } = null;
+        public NodeBase? Source { get; } = null;
         public IGraphData Data { get; set; }
         public IGraphExecutionContext ExecutionContext { get; }
         public ILearningContext? LearningContext { get; }
         public ILinearAlgebraProvider LinearAlgebraProvider => ExecutionContext.LinearAlgebraProvider;
         public IMiniBatchSequence BatchSequence { get; }
 
-        public void AddForward(NodeBase source, IGraphData data, Func<IBackpropagate>? callback, params NodeBase[] prev)
+        public void AddForwardHistory(NodeBase source, IGraphData data, Func<IBackpropagate>? callback, params NodeBase[] prev)
         {
             var action = new ExecutionHistory(source, data);
             if (callback != null && LearningContext != null)

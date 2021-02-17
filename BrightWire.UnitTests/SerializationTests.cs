@@ -27,7 +27,7 @@ namespace BrightWire.UnitTests
             public bool DisplayAsPercentage => true;
         }
 
-        static GraphModel _bestNetwork;
+        static GraphModel? _bestNetwork = null;
 
         static (GraphFactory, IDataSource) MakeGraphAndData(IBrightDataContext context)
         {
@@ -48,7 +48,7 @@ namespace BrightWire.UnitTests
                 .AddBackpropagation();
             engine.Train(300, data, bn => _bestNetwork = bn);
 
-            var executionEngine = graph.CreateExecutionEngine(_bestNetwork.Graph);
+            var executionEngine = graph.CreateExecutionEngine(_bestNetwork!.Graph);
             AssertEngineGetsGoodResults(executionEngine, data);
         }
 
@@ -65,7 +65,7 @@ namespace BrightWire.UnitTests
         public void CreateFromExecutionGraph()
         {
             var (graph, data) = MakeGraphAndData(_context);
-            var engine = graph.CreateExecutionEngine(_bestNetwork.Graph);
+            var engine = graph.CreateExecutionEngine(_bestNetwork!.Graph);
             AssertEngineGetsGoodResults(engine, data);
         }
 

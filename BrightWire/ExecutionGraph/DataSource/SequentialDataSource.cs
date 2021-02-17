@@ -67,7 +67,7 @@ namespace BrightWire.ExecutionGraph.DataSource
 
         public IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rows) => Get(rows);
 
-        public uint[][] GetBuckets()
+        public uint[][] GetSequentialBatches()
         {
             return _rowDepth
                 .Select((r, i) => (Row: r, Index: (uint)i))

@@ -43,7 +43,6 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             return new TensorBasedDataTableAdapter(_lap, dataTable, _inputSize, _outputSize, Height, Width, Depth, _featureColumns);
         }
 
-        public override bool IsSequential => false;
         public override uint InputSize => _inputSize;
         public override uint? OutputSize => _outputSize;
         public uint Width { get; }

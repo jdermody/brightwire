@@ -2,6 +2,9 @@
 
 namespace BrightWire.ExecutionGraph.Helper
 {
+    /// <summary>
+    /// Record of graph execution
+    /// </summary>
     public class ExecutionHistory
     {
 		/// <summary>
@@ -49,10 +52,11 @@ namespace BrightWire.ExecutionGraph.Helper
         public IBackpropagate? Backpropagation { get; set; } = null;
 
         /// <summary>
-        /// The node's parents
+        /// The node's ancestors
         /// </summary>
         public NodeBase[] Parents { get; }
 
+        /// <inheritdoc />
         public override string ToString() => $"{Source} {Data} ({Parents.Length})";
     }
 }

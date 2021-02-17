@@ -1,7 +1,6 @@
 ﻿using BrightWire.ExecutionGraph.Helper;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.IO;
@@ -80,16 +79,23 @@ namespace BrightWire.ExecutionGraph.Node
         /// </summary>
         public virtual List<WireToNode> Output => _output;
 
+        /// <summary>
+        /// Executes the graph
+        /// </summary>
+        /// <param name="signal">Initial data</param>
+        /// <param name="context">Context</param>
+        /// <param name="channel"></param>
+        /// <param name="prev"></param>
         public void Forward(IGraphData signal, IGraphSequenceContext context, uint channel = 0, NodeBase? prev = null)
         {
             // execute the node
-            var (from, output, backProp) = ForwardInternal(signal, channel, context, prev);
+            var (from, output, backProp) = ForwardSingleStep(signal, channel, context, prev);
 
             // add to the context history
             if (prev != null)
-                context.AddForward(from, output, backProp, prev);
+                context.AddForwardHistory(from, output, backProp, prev);
             else
-                context.AddForward(from, output, backProp);
+                context.AddForwardHistory(from, output, backProp);
 
             // send output to connected nodes
             if (output.HasValue || this is FlowThrough) {
@@ -100,14 +106,14 @@ namespace BrightWire.ExecutionGraph.Node
         }
 
         /// <summary>
-        /// 
+        /// Executes a single forward step
         /// </summary>
         /// <param name="signal"></param>
         /// <param name="channel"></param>
         /// <param name="context"></param>
         /// <param name="source"></param>
         /// <returns></returns>
-        public abstract (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardInternal(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source);
+        public abstract (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source);
 
         /// <summary>
         /// Serialise this node and any connected nodes
@@ -333,9 +339,13 @@ namespace BrightWire.ExecutionGraph.Node
         /// <param name="reader"></param>
         protected void ReadSubNode(string name, GraphFactory factory, BinaryReader reader) => FindSubNodeByNameOrThrow(name).ReadFrom(factory, reader);
 
-        public void RemoveDirectDescendant(NodeBase bp)
+        /// <summary>
+        /// Removes the wire that connects this from a direct descendant
+        /// </summary>
+        /// <param name="directDescendant"></param>
+        public void RemoveDirectDescendant(NodeBase directDescendant)
         {
-            var wire = _output.Single(w => w.SendTo == bp);
+            var wire = _output.Single(w => w.SendTo == directDescendant);
             _output.Remove(wire);
         }
     }

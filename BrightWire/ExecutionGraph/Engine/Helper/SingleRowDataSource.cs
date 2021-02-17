@@ -44,6 +44,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             public uint SequenceCount => 0;
             public void Reset() => _index = 0;
             public IMiniBatch? NextMiniBatch { get; } = null;
+            public IMiniBatch? PreviousMiniBatch { get; } = null;
 
             public IMiniBatchSequence? GetNextSequence()
             {
@@ -92,7 +93,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
 
         public IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rows) => Get(rows);
 
-        public uint[][] GetBuckets()
+        public uint[][] GetSequentialBatches()
         {
             return new[] {
                 new uint [] {
