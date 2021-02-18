@@ -210,5 +210,14 @@ namespace BrightWire
         {
             return new Tensor4DGraphData(tensor);
         }
+
+        public static IEnumerable<IGraphSequenceContext> GetGraphContexts(this IMiniBatch miniBatch)
+        {
+            for (uint i = 0, len = miniBatch.SequenceCount; i < len; i++) {
+                var context = miniBatch.GetSequenceAtIndex(i).GraphContext;
+                if (context != null)
+                    yield return context;
+            }
+        }
     }
 }

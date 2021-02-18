@@ -8,10 +8,12 @@ namespace BrightWire.ExecutionGraph.Action
     internal class SetMemory : IAction
     {
         string _id;
+        readonly string? _contextName;
 
-        public SetMemory(string id)
+        public SetMemory(string id, string? contextName)
         {
             _id = id;
+            _contextName = contextName;
         }
 
         public void Initialise(string data)
@@ -23,6 +25,8 @@ namespace BrightWire.ExecutionGraph.Action
 
         public IGraphData Execute(IGraphData input, IGraphSequenceContext context, NodeBase node)
         {
+            if(_contextName != null)
+                context.SetData(_contextName, "hidden-forward", input);
             context.ExecutionContext.SetMemory(_id, input.GetMatrix());
             return input;
         }

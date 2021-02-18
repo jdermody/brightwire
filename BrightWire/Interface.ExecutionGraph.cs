@@ -196,6 +196,22 @@ namespace BrightWire
         /// Resets the context for another run of backpropagation
         /// </summary>
         void ClearForBackpropagation();
+
+        /// <summary>
+        /// Stores sequence specific data
+        /// </summary>
+        /// <param name="name">Source node name</param>
+        /// <param name="type">Data type</param>
+        /// <param name="data"></param>
+        void SetData(string name, string type, IGraphData data);
+
+        /// <summary>
+        /// Retrieves sequence specific data
+        /// </summary>
+        /// <param name="name">Source node name</param>
+        /// <param name="type">Data type</param>
+        /// <returns></returns>
+        IEnumerable<(string Name, IGraphData Data)> GetData(string type);
     }
 
     /// <summary>
@@ -256,7 +272,7 @@ namespace BrightWire
         void RegisterAdditionalMiniBatch(IMiniBatch miniBatch, IGraphData data, Action<IGraphSequenceContext, IGraphData> startCallback, Action<IGraphSequenceContext[]> endCallback);
 
         /// <summary>
-        /// True if there are registered continuations
+        /// True if there are registered continuations or additional mini batches to execute
         /// </summary>
         bool HasContinuations { get; }
 
@@ -420,6 +436,8 @@ namespace BrightWire
         /// Training target data
         /// </summary>
         IGraphData? Target { get; }
+
+        IGraphSequenceContext? GraphContext { get; set; }
     }
 
     /// <summary>

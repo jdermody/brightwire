@@ -23,6 +23,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             public MiniBatchSequenceType Type { get; }
             public IGraphData Input { get; }
             public IGraphData? Target => null;
+            public IGraphSequenceContext? GraphContext { get; set; }
         }
         class SingleRowMiniBatch : IMiniBatch
         {

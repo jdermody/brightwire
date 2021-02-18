@@ -21,15 +21,15 @@ namespace BrightWire.ExecutionGraph.Node.Input
 
             public override IEnumerable<(IGraphData Signal, IGraphSequenceContext Context, NodeBase ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents)
             {
-                if (context.BatchSequence.Type == MiniBatchSequenceType.SequenceStart) {
-                    var es = errorSignal.GetMatrix();
+                var es = errorSignal.GetMatrix();
+                using var columnSums = es.ColumnSums();
+                columnSums.Multiply(1f / es.RowCount);
+                var initialDelta = columnSums.AsIndexable();
+                for (uint j = 0; j < _source._data.Length; j++)
+                    _source._data[j] += initialDelta[j] * context.LearningContext!.BatchLearningRate;
 
-                    using var columnSums = es.ColumnSums();
-                    columnSums.Multiply(1f / es.RowCount);
-                    var initialDelta = columnSums.AsIndexable();
-                    for (uint j = 0; j < _source._data.Length; j++)
-                        _source._data[j] += initialDelta[j] * context.LearningContext!.BatchLearningRate;
-                }
+                if(_source._contextName != null)
+                    context.SetData(_source._contextName, "hidden-backward", errorSignal);
                 return ErrorTo(GraphData.Null, context, parents);
             }
         }
@@ -37,12 +37,14 @@ namespace BrightWire.ExecutionGraph.Node.Input
         readonly IBrightDataContext _context;
         readonly float[] _data;
 	    readonly SetMemory _setMemory;
+        readonly string? _contextName;
 
-        public MemoryFeeder(IBrightDataContext context, float[] data, string? name = null, string? id = null) : base(name, id)
+        public MemoryFeeder(IBrightDataContext context, float[] data, string? contextName, string? name = null, string? id = null) : base(name, id)
         {
             _context = context;
             _data = data;
-            _setMemory = new SetMemory(Id);
+            _contextName = contextName;
+            _setMemory = new SetMemory(Id, contextName);
         }
 
         public IAction SetMemoryAction => _setMemory;
@@ -58,10 +60,12 @@ namespace BrightWire.ExecutionGraph.Node.Input
             if (context.BatchSequence.Type == MiniBatchSequenceType.SequenceStart) {
                 memory = context.LinearAlgebraProvider.CreateMatrix(context.BatchSequence.MiniBatch.BatchSize, (uint)_data.Length, (x, y) => _data[y]);
                 context.ExecutionContext.SetMemory(Id, memory);
-            } 
+            }
             else
                 memory = context.ExecutionContext.GetMemory(Id);
-            return (this, new MatrixGraphData(memory), () => new Backpropagation(this));
+
+            var next = new MatrixGraphData(memory);
+            return (this, next, () => new Backpropagation(this));
         }
 
         protected override (string Description, byte[] Data) GetInfo()

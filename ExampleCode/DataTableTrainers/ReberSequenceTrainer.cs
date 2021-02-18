@@ -20,7 +20,6 @@ namespace ExampleCode.DataTableTrainers
         {
             var graph = _context.CreateGraphFactory();
 
-            // binary classification rounds each output to either 0 or 1
             var errorMetric = graph.ErrorMetric.CrossEntropy;
 
             // configure the network properties
@@ -35,8 +34,9 @@ namespace ExampleCode.DataTableTrainers
             var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate: 0.1f, batchSize: 32);
 
             // build the network
-            const int HIDDEN_LAYER_SIZE = 38, TRAINING_ITERATIONS = 30;
+            const int HIDDEN_LAYER_SIZE = 50, TRAINING_ITERATIONS = 50;
             graph.Connect(engine)
+                .AddGru(HIDDEN_LAYER_SIZE)
                 .AddGru(HIDDEN_LAYER_SIZE)
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                 .Add(graph.SoftMaxActivation())

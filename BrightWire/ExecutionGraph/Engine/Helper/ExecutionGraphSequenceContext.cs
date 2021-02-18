@@ -11,16 +11,12 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
     /// <summary>
     /// Execution engine context
     /// </summary>
-    internal class ExecutionGraphSequenceContext : IGraphSequenceContext
+    internal class ExecutionGraphSequenceContext : SequenceContextBase, IGraphSequenceContext
     {
-        readonly IGraphExecutionContext _executionContext;
-        readonly Dictionary<int, IGraphData> _output = new Dictionary<int, IGraphData>();
-
-        public ExecutionGraphSequenceContext(IGraphExecutionContext executionContext, IMiniBatchSequence miniBatch)
+        public ExecutionGraphSequenceContext(IGraphExecutionContext executionContext, IMiniBatchSequence miniBatch) : base(miniBatch)
         {
-            _executionContext = executionContext;
-            BatchSequence = miniBatch;
-            Data = GraphData.Null;
+            ExecutionContext = executionContext;
+            BatchSequence.GraphContext = this;
         }
 
         public void Dispose()
@@ -29,32 +25,13 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         }
 
         public bool IsTraining => false;
-        public IGraphExecutionContext ExecutionContext => _executionContext;
+        public IGraphExecutionContext ExecutionContext { get; }
         public ILearningContext? LearningContext => null;
-        public ILinearAlgebraProvider LinearAlgebraProvider => _executionContext.LinearAlgebraProvider;
-        public IMiniBatchSequence BatchSequence { get; }
+        public ILinearAlgebraProvider LinearAlgebraProvider => ExecutionContext.LinearAlgebraProvider;
+        
         public IGraphData Backpropagate(IGraphData? delta) => throw new NotImplementedException();
         public void AddForwardHistory(NodeBase source, IGraphData data, Func<IBackpropagate>? callback, params NodeBase[] prev) { /* nop */ }
         public IGraphData ErrorSignal => throw new NotImplementedException();
-        public IGraphData Data { get; set; }
-
-        public void SetOutput(IGraphData data, int channel = 0)
-	    {
-		    _output[channel] = data;
-	    }
-
-	    public IGraphData? GetOutput(int channel = 0)
-	    {
-		    if (_output.TryGetValue(channel, out var ret))
-			    return ret;
-		    return null;
-	    }
-
-	    public IGraphData[] Output => _output
-            .OrderBy(kv => kv.Key)
-            .Select(kv => kv.Value)
-            .ToArray()
-        ;
 
         public IEnumerable<ExecutionResult> Results 
         {

@@ -29,8 +29,8 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         {
             _inputSize = inputSize;
             var hiddenLayerSize = (uint)memory.Length;
-            _memory = new MemoryFeeder(graph.Context, memory, null, memoryId);
-            _state = new MemoryFeeder(graph.Context, new float[memory.Length]);
+            _memory = new MemoryFeeder(graph.Context, memory, Name ?? Id, null, memoryId);
+            _state = new MemoryFeeder(graph.Context, new float[memory.Length], null);
             _input = new FlowThrough();
 
             var wf = graph.Connect(inputSize, _input).AddFeedForward(hiddenLayerSize, "Wf");

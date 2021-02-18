@@ -33,7 +33,7 @@ namespace ExampleCode.DataTableTrainers
             var trainingData = graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
             var engine = graph.CreateTrainingEngine(trainingData, errorMetric, TRAINING_RATE, 8);
-            engine.LearningContext.ScheduleLearningRate(30, TRAINING_RATE / 3);
+            engine.LearningContext.ScheduleLearningRate(10, TRAINING_RATE / 3);
 
             // build the network
             const int HIDDEN_LAYER_SIZE = 128;
@@ -44,7 +44,7 @@ namespace ExampleCode.DataTableTrainers
                 .AddBackpropagation()
             ;
 
-            engine.Train(40, testData);
+            engine.Train(15, testData);
 
             var networkGraph = engine.Graph;
             var executionEngine = graph.CreateExecutionEngine(networkGraph);
@@ -78,11 +78,10 @@ namespace ExampleCode.DataTableTrainers
                 .AddBackpropagationThroughTime()
             ;
 
-            engine.Train(10, testData);
+            ExecutionGraphModel? bestModel = null;
+            engine.Train(10, testData, g => bestModel = g.Graph);
 
-            var networkGraph = engine.Graph;
-            var executionEngine = graph.CreateExecutionEngine(networkGraph);
-
+            var executionEngine = engine.CreateExecutionEngine(bestModel);
             var output = executionEngine.Execute(testData);
             Console.WriteLine(output.Where(o => o.Target != null).Average(o => o.CalculateError(errorMetric)));
         }
@@ -106,12 +105,11 @@ namespace ExampleCode.DataTableTrainers
             var testData = trainingData.CloneWith(Test);
             var engine = graph.CreateTrainingEngine(trainingData, errorMetric, TRAINING_RATE, BATCH_SIZE);
 
+            var sharedMemory = new float[HIDDEN_LAYER_SIZE];
             graph.Connect(engine)
-                .AddLstm(HIDDEN_LAYER_SIZE, "encoder")
-                //.WriteNodeMemoryToSlot("shared-memory", "encoder")
+                .AddGru(sharedMemory, "encoder")
                 .AddSequenceToSequencePivot()
-                //.JoinInputWithMemory("shared-memory", HIDDEN_LAYER_SIZE)
-                .AddLstm(HIDDEN_LAYER_SIZE, "decoder")
+                .AddGru(sharedMemory, "decoder")
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                 .Add(graph.SoftMaxActivation())
                 .AddBackpropagationThroughTime()

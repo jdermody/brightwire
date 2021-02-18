@@ -34,7 +34,7 @@ namespace ExampleCode.DataTableTrainers
             var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate: 0.01f, batchSize: 16);
 
             // build the network
-            const int HIDDEN_LAYER_SIZE = 20, TRAINING_ITERATIONS = 30;
+            const int HIDDEN_LAYER_SIZE = 20, TRAINING_ITERATIONS = 10;
             graph.Connect(engine)
                 .AddSimpleRecurrent(graph.ReluActivation(), HIDDEN_LAYER_SIZE)
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())

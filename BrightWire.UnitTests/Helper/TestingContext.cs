@@ -60,5 +60,15 @@ namespace BrightWire.UnitTests.Helper
         {
             throw new NotImplementedException();
         }
+
+        public void SetData(string name, string type, IGraphData data)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<(string Name, IGraphData Data)> GetData(string type)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

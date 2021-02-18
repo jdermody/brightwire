@@ -30,7 +30,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             var hiddenLayerSize = (uint)memory.Length;
             _inputSize = inputSize;
 
-            _memory = new MemoryFeeder(graph.Context, memory, null, memoryId);
+            _memory = new MemoryFeeder(graph.Context, memory, Name ?? Id, null, memoryId);
             _input = new FlowThrough();
 
             var wx = graph.Connect(inputSize, _input).AddFeedForward(hiddenLayerSize, "Wx").LastNode!;

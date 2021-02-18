@@ -10,7 +10,7 @@ using BrightWire.Models;
 
 namespace BrightWire.ExecutionGraph.Engine.Helper
 {
-    class TrainingGraphSequenceContext : IGraphSequenceContext, ICanTrace
+    class TrainingGraphSequenceContext : SequenceContextBase, IGraphSequenceContext, ICanTrace
     {
         readonly List<ExecutionHistory> _forward = new List<ExecutionHistory>();
         readonly Dictionary<NodeBase, ExecutionNode> _nodeExecution = new Dictionary<NodeBase, ExecutionNode>();
@@ -18,24 +18,21 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public TrainingGraphSequenceContext(
             ILearningContext? learningContext, 
             IGraphExecutionContext executionContext,
-            IMiniBatchSequence batchSequence)
+            IMiniBatchSequence batchSequence) : base(batchSequence)
         {
             LearningContext = learningContext;
             ExecutionContext = executionContext;
-            BatchSequence = batchSequence;
-            Data = GraphData.Null;
+            BatchSequence.GraphContext = this;
         }
 
         public void Dispose()
         {
         }
 
-        public NodeBase? Source { get; } = null;
-        public IGraphData Data { get; set; }
+        
         public IGraphExecutionContext ExecutionContext { get; }
         public ILearningContext? LearningContext { get; }
         public ILinearAlgebraProvider LinearAlgebraProvider => ExecutionContext.LinearAlgebraProvider;
-        public IMiniBatchSequence BatchSequence { get; }
 
         public void AddForwardHistory(NodeBase source, IGraphData data, Func<IBackpropagate>? callback, params NodeBase[] prev)
         {
@@ -92,19 +89,6 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         }
 
         public IGraphData? ErrorSignal { get; private set; } = null;
-        public bool HasNext => _forward.Any();
-
-        public void SetOutput(IGraphData data, int channel = 0)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IGraphData? GetOutput(int channel = 0)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IGraphData[] Output { get; } = new IGraphData[0];
         public IEnumerable<ExecutionResult> Results
         {
             get
@@ -115,14 +99,6 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
                         ret.Error = ErrorSignal.GetMatrix().Data.Rows.ToArray();
                     yield return ret;
                 }
-                //var matrixOutput = Output.Any()
-                //    ? Output.Select(o => o.GetMatrix().Data)
-                //    : new[] {Data.GetMatrix().Data};
-
-                //var ret = new ExecutionResult(BatchSequence, matrixOutput.SelectMany(m => m.Rows).ToArray());
-                //if (ErrorSignal != null)
-                //    ret.Error = ErrorSignal.GetMatrix().Data.Rows.ToArray();
-                //return ret;
             }
         }
 

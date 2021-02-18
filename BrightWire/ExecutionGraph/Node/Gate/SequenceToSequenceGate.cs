@@ -35,8 +35,6 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         {
             foreach (var wire in Output)
                 wire.SendTo.Forward(data, context, wire.Channel);
-
-            //AddNextGraphAction(context, data, null/*, () => new Backpropagation(this)*/);
         }
 
         void OnEndEncoder(IGraphSequenceContext[] context)
@@ -52,13 +50,13 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 //lastContext.Trace();
                 
                 if (gradient != null) {
-                    foreach (var item in _encoderContext.Reverse())
+                    foreach (var item in _encoderContext!.Reverse())
                         learningContext.DeferBackpropagation(null, delta => item.Backpropagate(delta));
                     learningContext.BackpropagateThroughTime(gradient);
                 }
             }
 
-            _encoderContext.Clear();
+            _encoderContext?.Clear();
         }
     }
 }

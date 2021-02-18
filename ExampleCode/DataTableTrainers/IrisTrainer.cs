@@ -32,7 +32,7 @@ namespace ExampleCode.DataTableTrainers
             var trainingData = graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
 
-            // create a 4x8x3 neural network with sigmoid activations after each neural network
+            // create a neural network with sigmoid activations after each neural network
             var engine = graph.CreateTrainingEngine(trainingData, errorMetric, trainingRate, batchSize);
             graph.Connect(engine)
                 .AddFeedForward(hiddenLayerSize)
@@ -47,19 +47,19 @@ namespace ExampleCode.DataTableTrainers
             engine.Train(numIterations, testData, null, 50);
         }
 
-        public void TrainWithSelu(uint numIterations = 1000, uint layerSize = 8, float trainingRate = 0.1f, uint batchSize = 64)
+        public void TrainWithSelu(uint numIterations = 1000, uint layerSize = 8, float trainingRate = 0.01f, uint batchSize = 32)
         {
             var graph = Table.Context.CreateGraphFactory();
             var trainingData = graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
 
             // one hot encoding uses the index of the output vector's maximum value as the classification label
-            var errorMetric = graph.ErrorMetric.Quadratic;
+            var errorMetric = graph.ErrorMetric.CrossEntropy;
 
             // configure the network properties
             graph.CurrentPropertySet
                 .Use(graph.GradientDescent.RmsProp)
-                .Use(graph.GaussianWeightInitialisation(true, 0.1f, GaussianVarianceCalibration.SquareRoot2N, GaussianVarianceCount.FanInFanOut));
+                .Use(graph.GaussianWeightInitialisation(false, 0.1f, GaussianVarianceCalibration.SquareRoot2N, GaussianVarianceCount.FanInFanOut));
 
             // create the training engine and schedule a training rate change
             var engine = graph.CreateTrainingEngine(trainingData, errorMetric, trainingRate, batchSize);
@@ -70,22 +70,12 @@ namespace ExampleCode.DataTableTrainers
             // create the network with the custom activation function
             graph.Connect(engine)
                 .AddFeedForward(layerSize)
-                //.AddBatchNormalisation()
                 .Add(Activation())
                 .AddFeedForward(layerSize)
-                //.AddBatchNormalisation()
                 .Add(Activation())
                 .AddFeedForward(layerSize)
-                //.AddBatchNormalisation()
                 .Add(Activation())
                 .AddFeedForward(layerSize)
-                //.AddBatchNormalisation()
-                .Add(Activation())
-                .AddFeedForward(layerSize)
-                //.AddBatchNormalisation()
-                .Add(Activation())
-                .AddFeedForward(layerSize)
-                //.AddBatchNormalisation()
                 .Add(Activation())
                 .AddFeedForward(trainingData.GetOutputSizeOrThrow())
                 .Add(graph.SoftMaxActivation())
