@@ -11,8 +11,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
     {
         readonly uint[] _featureColumns;
 
-        public VectorBasedDataTableAdapter(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, uint[] featureColumns) 
-            : base(lap, dataTable, featureColumns)
+        public VectorBasedDataTableAdapter(IRowOrientedDataTable dataTable, uint[] featureColumns) 
+            : base(dataTable, featureColumns)
         {
             _featureColumns = featureColumns;
             var firstRow = dataTable.Row(0);
@@ -29,7 +29,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         public override IMiniBatch Get(uint[] rows)
         {
             var data = GetRows(rows)
-                .Select(r => (_featureColumnIndices.Select(i => ((Vector<float>)r[i]).Segment.ToArray()).ToArray(), ((Vector<float>)r[_targetColumnIndex]).Segment.ToArray()))
+                .Select(r => (_featureColumnIndices.Select(i => ((Vector<float>)r[i]).ToArray()).ToArray(), ((Vector<float>)r[_targetColumnIndex]).ToArray()))
                 .ToArray()
             ;
             return GetMiniBatch(rows, data);
@@ -37,7 +37,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 
         public override IDataSource CloneWith(IRowOrientedDataTable dataTable)
         {
-            return new VectorBasedDataTableAdapter(_lap, dataTable, _featureColumns);
+            return new VectorBasedDataTableAdapter(dataTable, _featureColumns);
         }
     }
 }

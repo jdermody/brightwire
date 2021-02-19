@@ -229,16 +229,6 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Returns all meta data as an enumerable
-        /// </summary>
-        /// <param name="dataTable"></param>
-        /// <returns></returns>
-        public static IEnumerable<IMetaData> AllMetaData(this IDataTable dataTable)
-        {
-            return dataTable.ColumnMetaData(dataTable.ColumnIndices().ToArray());
-        }
-
-        /// <summary>
         /// Invokes a callback on each row of a data table
         /// </summary>
         /// <param name="dataTable"></param>
@@ -268,28 +258,23 @@ namespace BrightData
         /// </summary>
         /// <param name="dataTable"></param>
         /// <returns></returns>
-        public static IMetaData[] AllColumnsMetaData(this IDataTable dataTable) => dataTable.ColumnMetaData(dataTable.ColumnCount.AsRange().ToArray()).ToArray();
-
-        interface IAnalyserBinding
+        public static IMetaData[] AllColumnsMetaData(this IDataTable dataTable)
         {
-            void Analyse();
+            var ret = new IMetaData[dataTable.ColumnCount];
+            for (uint i = 0, len = dataTable.ColumnCount; i < len; i++)
+                ret[i] = dataTable.ColumnMetaData(i);
+            return ret;
         }
-        class AnalyserBinding<T> : IAnalyserBinding where T : notnull
+
+        /// <summary>
+        /// Enumerates metadata for each specified column
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <param name="columnIndices">Column indices to retrieve</param>
+        public static IEnumerable<IMetaData> ColumnMetaData(this IDataTable dataTable, params uint[] columnIndices)
         {
-            readonly IDataAnalyser<T> _analyser;
-            readonly IDataTableSegment<T> _segment;
-
-            public AnalyserBinding(ISingleTypeTableSegment segment, IDataAnalyser analyser)
-            {
-                _analyser = (IDataAnalyser<T>)analyser;
-                _segment = (IDataTableSegment<T>)segment;
-            }
-
-            public void Analyse()
-            {
-                foreach (var item in _segment.EnumerateTyped())
-                    _analyser.Add(item);
-            }
+            foreach (var index in columnIndices)
+                yield return dataTable.ColumnMetaData(index);
         }
 
         /// <summary>
@@ -337,59 +322,6 @@ namespace BrightData
                 return StaticAnalysers.CreateFrequencyAnalyser<BinaryData>(maxCount, writeCount);
 
             throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Returns the analysis for a column
-        /// </summary>
-        /// <param name="segment">Column to analyse</param>
-        /// <param name="force">True to refresh analysis (if cached)</param>
-        /// <param name="writeCount">Maximum size of sequences to write in final meta data</param>
-        /// <param name="maxCount">Maximum number of distinct items to track</param>
-        /// <returns></returns>
-        public static IMetaData Analyse(this ISingleTypeTableSegment segment, bool force = false, uint writeCount = Consts.MaxWriteCount, uint maxCount = Consts.MaxDistinct)
-        {
-            var ret = segment.MetaData;
-            if (force || !ret.Get(Consts.HasBeenAnalysed, false))
-            {
-                var type = segment.SingleType;
-                var analyser = type.GetColumnAnalyser(segment.MetaData, writeCount, maxCount);
-                var binding = GenericActivator.Create<IAnalyserBinding>(typeof(AnalyserBinding<>).MakeGenericType(type.GetDataType()),
-                    segment,
-                    analyser
-                );
-                binding.Analyse();
-                analyser.WriteTo(ret);
-                ret.Set(Consts.HasBeenAnalysed, true);
-            }
-
-            return ret;
-        }
-
-        /// <summary>
-        /// Returns analysis for each column in the table
-        /// </summary>
-        /// <param name="table">Data table to analyse</param>
-        /// <param name="force">True to refresh analysis (if cached)</param>
-        /// <param name="writeCount">Maximum size of sequences to write in final meta data</param>
-        /// <param name="maxCount">Maximum number of distinct items to track</param>
-        /// <returns></returns>
-        public static IMetaData[] GetColumnAnalysis(this IDataTable table, bool force = false, uint writeCount = Consts.MaxWriteCount, uint maxCount = Consts.MaxDistinct)
-        {
-            var count = table.ColumnCount;
-            var columnMetaData = table.AllColumnsMetaData();
-            var ret = new IMetaData[count];
-            for (uint i = 0; i < count; i++)
-            {
-                if (columnMetaData[i].Get(Consts.HasBeenAnalysed, false))
-                    ret[i] = columnMetaData[i];
-                else
-                {
-                    var column = table.Column(i);
-                    ret[i] = column.Analyse(force, writeCount, maxCount);
-                }
-            }
-            return ret;
         }
 
         /// <summary>
@@ -556,11 +488,9 @@ namespace BrightData
         /// <param name="columnIndex">Column index to make target (or null to set no target)</param>
         public static void SetTargetColumn(this IDataTable table, uint? columnIndex)
         {
-            var metaData = table.AllMetaData().ToList();
+            var metaData = table.AllColumnsMetaData();
             for (uint i = 0; i < table.ColumnCount; i++)
-            {
-                metaData[(int)i].Set(Consts.IsTarget, i == columnIndex);
-            }
+                metaData[i].Set(Consts.IsTarget, i == columnIndex);
         }
 
         /// <summary>
@@ -570,10 +500,9 @@ namespace BrightData
         /// <returns></returns>
         public static uint? GetTargetColumn(this IDataTable table)
         {
-            var metaData = table.AllMetaData().ToList();
-            for (uint i = 0; i < table.ColumnCount; i++)
-            {
-                if (metaData[(int)i].IsTarget())
+            var metaData = table.AllColumnsMetaData();
+            for (uint i = 0; i < table.ColumnCount; i++) {
+                if (metaData[i].IsTarget())
                     return i;
             }
             return null;
@@ -681,8 +610,7 @@ namespace BrightData
             using var builder = new ColumnOrientedTableBuilder(filePath);
 
             builder.WriteHeader(columnCount, rowCount);
-            foreach (var segment in segments)
-            {
+            foreach (var segment in segments) {
                 var position = builder.Write(segment);
                 columnOffsets.Add((position, builder.GetCurrentPosition()));
             }
@@ -704,8 +632,7 @@ namespace BrightData
             var readers = segments
                 .Select(b => b.Enumerate().GetEnumerator())
                 .ToList();
-            while (readers.All(r => r.MoveNext()))
-            {
+            while (readers.All(r => r.MoveNext())) {
                 var row = readers.Select(r => r.Current).ToArray();
                 builder.AddRow(row);
             }
@@ -744,8 +671,7 @@ namespace BrightData
         {
             var target = dataTable.GetTargetColumn();
             var vectoriser = new DataTableVectoriser(dataTable, true, dataTable.ColumnIndicesOfFeatures().ToArray());
-            if (target.HasValue)
-            {
+            if (target.HasValue) {
                 var targetColumn = dataTable.Column(target.Value).Enumerate().Select(o => o.ToString());
                 return vectoriser.Enumerate().Zip(targetColumn);
             }
@@ -831,11 +757,25 @@ namespace BrightData
         public static IEnumerable<Vector<float>> GetColumnsAsVectors(this IDataTable dataTable, params uint[] columnIndices)
         {
             var readers = columnIndices.Select(i => GetColumnReader(i, dataTable.ColumnTypes[i])).ToList();
-            var consumers = readers.Select(r => r.Consumer).ToArray();
-            dataTable.ReadTyped(consumers);
+            dataTable.ReadTyped(readers.Select(r => r.Consumer));
             var context = dataTable.Context;
             return readers.Select(r => context.CreateVector(r.Array.Data));
         }
+
+        /// <summary>
+        /// Returns analysed column meta data
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <param name="columnIndices">Column indices</param>
+        /// <returns></returns>
+        public static IEnumerable<(uint ColumnIndex, IMetaData MetaData)> ColumnAnalysis(this IDataTable dataTable, params uint[] columnIndices) => dataTable.ColumnAnalysis(columnIndices);
+
+        /// <summary>
+        /// Returns analysed column meta data for all columns in the data table
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <returns></returns>
+        public static IMetaData[] AllColumnAnalysis(this IDataTable dataTable) => dataTable.ColumnAnalysis(dataTable.ColumnCount.AsRange()).Select(d => d.MetaData).ToArray();
 
         /// <summary>
         /// Strongly typed enumeration of items in segment
@@ -843,7 +783,7 @@ namespace BrightData
         /// <typeparam name="T"></typeparam>
         /// <param name="segment"></param>
         /// <returns></returns>
-        public static IEnumerable<T> EnumerateTyped<T>(this ISingleTypeTableSegment segment) where T: notnull => ((IDataTableSegment<T>)segment).EnumerateTyped();
+        public static IEnumerable<T> EnumerateTyped<T>(this ISingleTypeTableSegment segment) where T : notnull => ((IDataTableSegment<T>)segment).EnumerateTyped();
 
         /// <summary>
         /// Reads the segment as a strongly typed array
@@ -923,7 +863,8 @@ namespace BrightData
             var inputVectoriser = new DataTableVectoriser(dataTable, oneHotEncodeToMultipleColumns, columnIndices.ToArray());
 
             var context = dataTable.Context;
-            dataTable.ForEachRow(row => {
+            dataTable.ForEachRow(row =>
+            {
                 var input = inputVectoriser.Vectorise(row);
                 if (outputVectoriser != null)
                     builder.AddRow(context.CreateVector(input), context.CreateVector(outputVectoriser.Vectorise(row)));

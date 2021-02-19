@@ -32,7 +32,7 @@ namespace BrightData.DataTable.Builders
                 columnIndices = table.ColumnIndices().ToArray();
 
             var columnSet = new HashSet<uint>(columnIndices);
-            var columnTypes = table.ColumnTypes.Zip(table.ColumnMetaData(), (t, m) => (Type: t, MetaData: m))
+            var columnTypes = table.ColumnTypes.Zip(table.AllColumnsMetaData(), (t, m) => (Type: t, MetaData: m))
                 .Select((c, i) => (Column: c, Index: (uint) i));
 
             var wantedColumnTypes = columnTypes

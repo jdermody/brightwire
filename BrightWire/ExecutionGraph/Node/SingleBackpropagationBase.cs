@@ -15,6 +15,12 @@ namespace BrightWire.ExecutionGraph.Node
         /// <param name="source">The node that generated the forward signal</param>
         protected SingleBackpropagationBase(T source) : base(source) { }
 
+        /// <summary>
+        /// Backpropagates the error
+        /// </summary>
+        /// <param name="errorSignal"></param>
+        /// <param name="context"></param>
+        /// <returns></returns>
         protected abstract IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context);
 
         /// <inheritdoc />

@@ -114,7 +114,7 @@ namespace BrightData.UnitTests
         public void TestDataTableAnalysis()
         {
             var table = CreateComplexTable(_context);
-            var analysis = table.GetColumnAnalysis();
+            var analysis = table.AllColumnAnalysis();
 
             var boolAnalysis = analysis[0].GetFrequencyAnalysis();
             boolAnalysis.NumDistinct.Should().Be(2);
@@ -176,7 +176,7 @@ namespace BrightData.UnitTests
         {
             var table = GetSimpleTable2();
             var convertible = table.AsConvertible();
-            var analysis = table.GetColumnAnalysis()[0].GetNumericAnalysis();
+            var analysis = table.ColumnAnalysis(0).Single().MetaData.GetNumericAnalysis();
             var mean = analysis.Mean;
             var stdDev = analysis.PopulationStdDev.Value;
             var normalised = table.AsColumnOriented().Normalize(NormalizationType.Standard).AsRowOriented().AsConvertible();

@@ -207,6 +207,11 @@ namespace BrightData.Transformation
             return _input.SelectMany(i => i.Convert(row[i.ColumnIndex])).ToArray();
         }
 
+        public float[] Vectorise(IDataTableSegment segment)
+        {
+            return _input.SelectMany(i => i.Convert(segment[i.ColumnIndex])).ToArray();
+        }
+
         public DataTableVectoriser(IDataTable dataTable, bool oneHotEncodeToMultipleColumns, params uint[] columnIndices)
         {
             if (columnIndices.Length == 0)
@@ -215,8 +220,9 @@ namespace BrightData.Transformation
             RowCount = dataTable.RowCount;
             Context = dataTable.Context;
 
-            _input.AddRange(dataTable.Columns(columnIndices)
-                .Select(c => GetColumnVectoriser(c, oneHotEncodeToMultipleColumns))
+            var analysis = dataTable.ColumnAnalysis(columnIndices).ToDictionary(d => d.ColumnIndex, d => d.MetaData);
+            _input.AddRange(columnIndices
+                .Select(ci => GetColumnVectoriser(dataTable.Column(ci), analysis[ci], oneHotEncodeToMultipleColumns))
             );
         }
 
@@ -244,15 +250,14 @@ namespace BrightData.Transformation
             return column.GetOutputLabel(vectorIndex);
         }
 
-        static IColumnVectoriser GetColumnVectoriser(ISingleTypeTableSegment column, bool oneHotEncodeToMultipleColumns)
+        static IColumnVectoriser GetColumnVectoriser(ISingleTypeTableSegment column, IMetaData analysedMetaData, bool oneHotEncodeToMultipleColumns)
         {
             var type = column.SingleType;
             var columnClass = ColumnTypeClassifier.GetClass(type, column.MetaData);
-            var metaData = column.Analyse();
 
             if ((columnClass & ColumnClass.Categorical) != 0) {
                 return oneHotEncodeToMultipleColumns
-                    ? (IColumnVectoriser) new OneHotEncodeVectorised(metaData.GetNumDistinct(), column)
+                    ? (IColumnVectoriser) new OneHotEncodeVectorised(analysedMetaData.GetNumDistinct(), column)
                     : new OneHotEncode(column)
                 ;
             }
@@ -265,13 +270,13 @@ namespace BrightData.Transformation
             }
 
             if ((columnClass & ColumnClass.Tensor) != 0)
-                return new TensorVectoriser(metaData.Get<uint>(Consts.Size), column);
+                return new TensorVectoriser(analysedMetaData.Get<uint>(Consts.Size), column);
 
             if (type == ColumnType.WeightedIndexList)
-                return new WeightedIndexListVectoriser(metaData.Get<uint>(Consts.MaxIndex), column);
+                return new WeightedIndexListVectoriser(analysedMetaData.Get<uint>(Consts.MaxIndex), column);
 
             if (type == ColumnType.IndexList)
-                return new IndexListVectoriser(metaData.Get<uint>(Consts.MaxIndex), column);
+                return new IndexListVectoriser(analysedMetaData.Get<uint>(Consts.MaxIndex), column);
 
             throw new NotImplementedException();
         }

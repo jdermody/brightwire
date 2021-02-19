@@ -37,6 +37,27 @@ namespace BrightData.DataTable
                 }
             }
         }
+        interface IAnalyserBinding
+        {
+            void Analyse();
+        }
+        class AnalyserBinding<T> : IAnalyserBinding where T : notnull
+        {
+            readonly IDataAnalyser<T> _analyser;
+            readonly IDataTableSegment<T> _segment;
+
+            public AnalyserBinding(ISingleTypeTableSegment segment, IDataAnalyser analyser)
+            {
+                _analyser = (IDataAnalyser<T>)analyser;
+                _segment = (IDataTableSegment<T>)segment;
+            }
+
+            public void Analyse()
+            {
+                foreach (var item in _segment.EnumerateTyped())
+                    _analyser.Add(item);
+            }
+        }
 
         readonly (IColumnInfo Info, ISingleTypeTableSegment Segment)[] _columns;
 
@@ -105,6 +126,29 @@ namespace BrightData.DataTable
         }
 
         ISingleTypeTableSegment IDataTable.Column(uint columnIndex) => _columns[columnIndex].Segment;
+        public IEnumerable<(uint ColumnIndex, IMetaData MetaData)> ColumnAnalysis(IEnumerable<uint> columnIndices) => columnIndices.Select(ci => (ci, ColumnAnalysis(ci)));
+
+        public IMetaData ColumnAnalysis(uint columnIndex, bool force = false, uint writeCount = Consts.MaxWriteCount, uint maxCount = Consts.MaxDistinct)
+        {
+            var segment = _columns[columnIndex].Segment;
+            var ret = segment.MetaData;
+            if (force || !ret.Get(Consts.HasBeenAnalysed, false))
+            {
+                var type = segment.SingleType;
+                var analyser = type.GetColumnAnalyser(segment.MetaData, writeCount, maxCount);
+                var binding = GenericActivator.Create<IAnalyserBinding>(typeof(AnalyserBinding<>).MakeGenericType(type.GetDataType()),
+                    segment,
+                    analyser
+                );
+                binding.Analyse();
+                analyser.WriteTo(ret);
+                ret.Set(Consts.HasBeenAnalysed, true);
+            }
+
+            return ret;
+        }
+
+        public IMetaData ColumnMetaData(uint columnIndex) => _columns[columnIndex].Info.MetaData;
 
         public IEnumerable<ISingleTypeTableSegment> Columns(params uint[] columnIndices)
         {
@@ -114,7 +158,7 @@ namespace BrightData.DataTable
             return columnIndices.Select(i => table[i]);
         }
 
-        public void ReadTyped(IConsumeColumnData[] consumers, uint maxRows = UInt32.MaxValue)
+        public void ReadTyped(IEnumerable<IConsumeColumnData> consumers, uint maxRows = 4294967295U)
         {
             var bindings = consumers.Select(consumer => GenericActivator.Create<IConsumerBinding>(
                 typeof(ConsumerBinding<>).MakeGenericType(consumer.ColumnType.GetDataType()),
@@ -178,7 +222,7 @@ namespace BrightData.DataTable
             foreach (var (info, segment) in _columns) {
                 if (columnConversionTable.TryGetValue(info.Index, out var conversion)) {
                     var column = _columns[info.Index].Segment;
-                    var converter = conversion.GetTransformer(info.ColumnType, column, tempStream);
+                    var converter = conversion.GetTransformer(info.ColumnType, column, () => ColumnAnalysis(info.Index), tempStream);
                     if (converter != null) {
                         var newColumnInfo = info.ChangeColumnType(converter.To.GetColumnType());
                         var buffer = newColumnInfo.MetaData.GetGrowableSegment(newColumnInfo.ColumnType, Context, tempStream);
@@ -205,6 +249,11 @@ namespace BrightData.DataTable
             }
 
             return convertedColumns.BuildColumnOrientedTable(Context, RowCount, filePath);
+        }
+
+        public IColumnOrientedDataTable Clone(string? filePath)
+        {
+            return _columns.Select(c => c.Segment).ToList().BuildColumnOrientedTable(Context, RowCount, filePath);
         }
 
         public IColumnOrientedDataTable Convert(string? filePath, params IColumnTransformationParam[] conversionParams)

@@ -224,12 +224,6 @@ namespace BrightData
         DataTableOrientation Orientation { get; }
 
         /// <summary>
-        /// Enumerates metadata for each column
-        /// </summary>
-        /// <param name="columnIndices">Column indices to retrieve</param>
-        IEnumerable<IMetaData> ColumnMetaData(params uint[] columnIndices);
-
-        /// <summary>
         /// Invokes the callback on each row of the data table
         /// </summary>
         /// <param name="callback">Callback for each row</param>
@@ -254,13 +248,27 @@ namespace BrightData
         /// </summary>
         /// <param name="consumers">Array of consumers, for each column in the table</param>
         /// <param name="maxRows">Maximum number of rows to process</param>
-        void ReadTyped(IConsumeColumnData[] consumers, uint maxRows = uint.MaxValue);
+        void ReadTyped(IEnumerable<IConsumeColumnData> consumers, uint maxRows = uint.MaxValue);
 
         /// <summary>
         /// Returns a single column from the table
         /// </summary>
         /// <param name="columnIndex">Column index to retrieve</param>
         ISingleTypeTableSegment Column(uint columnIndex);
+
+        /// <summary>
+        /// Returns analysed metadata for the specified columns
+        /// </summary>
+        /// <param name="columnIndices">Column indices</param>
+        /// <returns></returns>
+        IEnumerable<(uint ColumnIndex, IMetaData MetaData)> ColumnAnalysis(IEnumerable<uint> columnIndices);
+
+        /// <summary>
+        /// Returns the metadata for a single column (without analysis)
+        /// </summary>
+        /// <param name="columnIndex">Column index to retrieve</param>
+        /// <returns></returns>
+        IMetaData ColumnMetaData(uint columnIndex);
 
         /// <summary>
         /// Applies a projection function to each row of this data table
@@ -371,6 +379,23 @@ namespace BrightData
         /// <param name="columns">Parameters to determine which columns are reinterpreted</param>
         /// <returns></returns>
         IColumnOrientedDataTable ReinterpretColumns(string? filePath, params IReinterpretColumnsParam[] columns);
+
+        /// <summary>
+        /// Clones the current data table
+        /// </summary>
+        /// <param name="filePath">File path to store new table on disk (optional)</param>
+        /// <returns></returns>
+        IColumnOrientedDataTable Clone(string? filePath);
+
+        /// <summary>
+        /// Returns the metadata for a single column after performing analysis on the column
+        /// </summary>
+        /// <param name="columnIndex">Column index to retrieve</param>
+        /// <param name="force">True to force metadata analysis</param>
+        /// <param name="writeCount">Maximum size of sequences to write in final meta data</param>
+        /// <param name="maxCount">Maximum number of distinct items to track</param>
+        /// <returns></returns>
+        IMetaData ColumnAnalysis(uint columnIndex, bool force = false, uint writeCount = Consts.MaxWriteCount, uint maxCount = Consts.MaxDistinct);
     }
 
     /// <summary>
@@ -485,6 +510,13 @@ namespace BrightData
         /// Returns the last row as a string
         /// </summary>
         string LastRow { get; }
+
+        /// <summary>
+        /// Clones the current data table
+        /// </summary>
+        /// <param name="filePath">File path to store new table on disk (optional)</param>
+        /// <returns></returns>
+        IRowOrientedDataTable Clone(string? filePath = null);
     }
 
     /// <summary>
@@ -616,10 +648,11 @@ namespace BrightData
         /// </summary>
         /// <param name="fromType">Convert from column type</param>
         /// <param name="column">Column to convert</param>
+        /// <param name="analysedMetaData">Function to produce analysed column meta data if needed</param>
         /// <param name="tempStreams">Temp stream provider</param>
         /// <param name="inMemoryRowCount">Number of rows to cache in memory</param>
         /// <returns></returns>
-        public ITransformColumn? GetTransformer(ColumnType fromType, ISingleTypeTableSegment column, IProvideTempStreams tempStreams, uint inMemoryRowCount = 32768);
+        public ITransformColumn? GetTransformer(ColumnType fromType, ISingleTypeTableSegment column, Func<IMetaData> analysedMetaData, IProvideTempStreams tempStreams, uint inMemoryRowCount = 32768);
     }
 
     /// <summary>
@@ -739,6 +772,13 @@ namespace BrightData
         /// <param name="row"></param>
         /// <returns></returns>
         float[] Vectorise(object[] row);
+
+        /// <summary>
+        /// Vectorise a data table segment
+        /// </summary>
+        /// <param name="segment"></param>
+        /// <returns></returns>
+        float[] Vectorise(IDataTableSegment segment);
 
         /// <summary>
         /// Size of the output vectors

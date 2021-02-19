@@ -18,7 +18,7 @@ namespace BrightWire.TreeBased.Training
 
             // set the feature bag count as the square root of the total number of features
             if (!config.FeatureBagCount.HasValue) {
-                var columnAnalysis = table.GetColumnAnalysis();
+                var columnAnalysis = table.AllColumnAnalysis();
                 var numValues = columnAnalysis.Sum(c => c.GetColumnType().IsNumeric() ? 1 : c.GetNumDistinct());
                 config.FeatureBagCount = Convert.ToUInt32(Math.Round(Math.Sqrt(numValues)));
             }

@@ -46,6 +46,7 @@ namespace BrightData.DataTable
 
             public void Read(BinaryReader reader) => _consumer.Add(_reader.ReadTyped(reader));
         }
+
         readonly ColumnInfo[] _columns;
         readonly uint[] _rowOffset;
         readonly IColumnReader[] _columnReaders;
@@ -87,8 +88,6 @@ namespace BrightData.DataTable
             foreach (var rowIndex in AllOrSpecifiedRows(rowIndices))
                 yield return new Row(ColumnTypes, ReadRow(rowIndex));
         }
-
-        public IDataTableSegment Row(uint rowIndex) => new Row(ColumnTypes, ReadRow(rowIndex));
 
         object[] ReadRow(uint rowIndex)
         {
@@ -137,14 +136,33 @@ namespace BrightData.DataTable
             return columns.Select(c => c.Column.Segment);
         }
 
+        public IDataTableSegment Row(uint rowIndex) => new Row(ColumnTypes, ReadRow(rowIndex));
         public ISingleTypeTableSegment Column(uint columnIndex) => Columns(columnIndex).Single();
-
-        public IEnumerable<IMetaData> ColumnMetaData(params uint[] columnIndices)
+        public IEnumerable<(uint ColumnIndex, IMetaData MetaData)> ColumnAnalysis(IEnumerable<uint> columnIndices)
         {
-            return AllOrSpecifiedColumns(columnIndices).Select(i => _columns[i].MetaData);
+            // see which columns need analysis
+            var columnsToAnalyse = new List<(IConsumeColumnData, ICanComplete)>();
+            var ret = new List<(uint ColumnIndex, IMetaData MetaData)>();
+            foreach (var index in columnIndices) {
+                var column = _columns[index];
+                if (!column.MetaData.Get(Consts.HasBeenAnalysed, false))
+                    columnsToAnalyse.Add(column.GetAnalysisConsumer());
+                ret.Add((index, column.MetaData));
+            }
+
+            // analyse columns
+            if (columnsToAnalyse.Any()) {
+                ReadTyped(columnsToAnalyse.Select(d => d.Item1));
+                foreach(var item in columnsToAnalyse)
+                    item.Item2.Complete();
+            }
+
+            return ret;
         }
 
-        public IRowOrientedDataTable AsRowOriented(string? filePath = null)
+        public IMetaData ColumnMetaData(uint columnIndex) => _columns[columnIndex].MetaData;
+
+        public IRowOrientedDataTable Clone(string? filePath = null)
         {
             using var builder = GetBuilderForSelf(RowCount, filePath);
 
@@ -174,7 +192,7 @@ namespace BrightData.DataTable
             }
         }
 
-        public void ReadTyped(IConsumeColumnData[] consumers, uint maxRows = uint.MaxValue)
+        public void ReadTyped(IEnumerable<IConsumeColumnData> consumers, uint maxRows = 4294967295U)
         {
             // create bindings for each column
             var bindings = new Dictionary<uint, IConsumerBinding>();

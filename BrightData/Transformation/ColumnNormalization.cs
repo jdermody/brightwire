@@ -47,12 +47,11 @@ namespace BrightData.Transformation
             public double Subtract => _normalize.Subtract;
         }
 
-        public ITransformColumn GetTransformer(ColumnType fromType, ISingleTypeTableSegment column, IProvideTempStreams tempStreams, uint inMemoryRowCount)
+        public ITransformColumn GetTransformer(ColumnType fromType, ISingleTypeTableSegment column, Func<IMetaData> analysedMetaData, IProvideTempStreams tempStreams, uint inMemoryRowCount)
         {
             var columnType = column.SingleType.GetDataType();
             var contextType = typeof(Normalizer<>).MakeGenericType(columnType);
-            var analysedMetaData = column.Analyse();
-            return GenericActivator.Create<ITransformColumn>(contextType, NormalizationType, analysedMetaData);
+            return GenericActivator.Create<ITransformColumn>(contextType, NormalizationType, analysedMetaData());
         }
 
         public uint? ColumnIndex { get; }

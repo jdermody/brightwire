@@ -16,8 +16,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         readonly uint[] _rowDepth;
         readonly bool _sequenceLengthsAreVaried = false;
 
-	    public SequentialDataTableAdapter(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, uint[] featureColumns, bool sequenceLengthsAreVaried = false) 
-            : base(lap, dataTable, featureColumns)
+	    public SequentialDataTableAdapter(IRowOrientedDataTable dataTable, uint[] featureColumns, bool sequenceLengthsAreVaried = false) 
+            : base(dataTable, featureColumns)
         {
             if (_featureColumnIndices.Length > 1)
                 throw new NotImplementedException("Sequential datasets not supported with more than one input data column");
@@ -25,14 +25,14 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 
             _rowDepth = new uint[dataTable.RowCount];
 
+            // find the number of sequences of each row
             Matrix<float>? inputMatrix = null, outputMatrix = null;
             dataTable.ForEachRow((row, i) => {
-                inputMatrix = (Matrix<float>)row[_featureColumnIndices[0]];
-                outputMatrix = (Matrix<float>)row[_targetColumnIndex];
+                inputMatrix = (Matrix<float>) row[_featureColumnIndices[0]];
+                outputMatrix = (Matrix<float>) row[_targetColumnIndex];
                 _rowDepth[i] = inputMatrix.RowCount;
                 if (outputMatrix.RowCount != inputMatrix.RowCount)
                     sequenceLengthsAreVaried = true;
-                _data.Add((inputMatrix, outputMatrix));
             });
             if (inputMatrix == null || outputMatrix == null)
                 throw new Exception("No data found");
@@ -42,9 +42,14 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             OutputSize = outputMatrix.ColumnCount;
         }
 
+        protected override IEnumerable<(Matrix<float> Input, Matrix<float>? Output)> GetRows(uint[] rows)
+        {
+            return _dataTable.Rows(rows).Select(row => ((Matrix<float>) row[_featureColumnIndices[0]], (Matrix<float>?) row[_targetColumnIndex]));
+        }
+
         public override IDataSource CloneWith(IRowOrientedDataTable dataTable)
         {
-            return new SequentialDataTableAdapter(_lap, dataTable, _featureColumns, _sequenceLengthsAreVaried);
+            return new SequentialDataTableAdapter(dataTable, _featureColumns, _sequenceLengthsAreVaried);
         }
 
         public override uint InputSize { get; }
@@ -53,6 +58,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 
         public override IMiniBatch Get(uint[] rows)
         {
+            var lap = _dataTable.Context.LinearAlgebraProvider;
             if (_sequenceLengthsAreVaried) {
                 var inputData = new Dictionary<uint, List<Vector<float>>>();
                 var outputData = new Dictionary<uint, List<Vector<float>>>();
@@ -75,7 +81,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 
                 var encoderMiniBatch = new MiniBatch(rows, this);
                 foreach (var item in inputData.OrderBy(kv => kv.Key)) {
-                    var input = _lap.CreateMatrixFromRows(item.Value);
+                    var input = lap.CreateMatrixFromRows(item.Value);
                     var type = item.Key == 0
                         ? MiniBatchSequenceType.SequenceStart
                         : item.Key == (inputData.Count - 1)
@@ -87,7 +93,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 
                 var decoderMiniBatch = new MiniBatch(rows, this);
                 foreach (var item in outputData.OrderBy(kv => kv.Key)) {
-                    var output = _lap.CreateMatrixFromRows(item.Value);
+                    var output = lap.CreateMatrixFromRows(item.Value);
                     var type = item.Key == 0
                         ? MiniBatchSequenceType.SequenceStart
                         : item.Key == (outputData.Count - 1)

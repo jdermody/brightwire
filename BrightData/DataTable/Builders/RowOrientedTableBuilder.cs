@@ -71,7 +71,7 @@ namespace BrightData.DataTable.Builders
             var types = dataTable.ColumnTypes;
             for(uint i = 0; i < dataTable.ColumnCount; i++) {
                 var type = types[(int)i];
-                var metadata = dataTable.ColumnMetaData(i).Single();
+                var metadata = dataTable.ColumnMetaData(i);
                 AddColumn(type, metadata);
             }
         }

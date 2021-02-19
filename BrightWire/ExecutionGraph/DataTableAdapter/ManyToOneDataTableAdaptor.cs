@@ -16,13 +16,15 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         readonly uint[] _rowDepth;
         readonly uint _outputSize;
 
-	    public ManyToOneDataTableAdapter(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, uint[] featureColumns) 
-            : base(lap, dataTable, featureColumns)
+	    public ManyToOneDataTableAdapter(IRowOrientedDataTable dataTable, uint[] featureColumns) 
+            : base(dataTable, featureColumns)
         {
             if (_featureColumnIndices.Length > 1)
                 throw new NotImplementedException("Sequential data sets not supported with more than one input data column");
+            var featureColumnIndex = _featureColumnIndices[0];
             _featureColumns = featureColumns;
 
+            // find the number of sequences of each row
             _rowDepth = new uint[dataTable.RowCount];
             Matrix<float>? inputMatrix = null;
             Vector<float>? outputVector = null;
@@ -42,7 +44,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 
         public override IDataSource CloneWith(IRowOrientedDataTable dataTable)
         {
-            return new ManyToOneDataTableAdapter(_lap, dataTable, _featureColumns);
+            return new ManyToOneDataTableAdapter(dataTable, _featureColumns);
         }
 
         public override uint InputSize { get; }
@@ -60,6 +62,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 
         public override IMiniBatch Get(uint[] rows)
         {
+            var lap = _dataTable.Context.LinearAlgebraProvider;
             var data = GetRows(rows)
                 .Select(r => ((Matrix<float>)r[_featureColumnIndices[0]], (Vector<float>)r[_targetColumnIndex]))
                 .ToList()
@@ -75,9 +78,9 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
             }
 
             var miniBatch = new MiniBatch(rows, this);
-            var outputVector = _lap.CreateMatrix((uint)data.Count, _outputSize, (x, y) => data[(int)x].Item2.Segment[y]);
+            var outputVector = lap.CreateMatrix((uint)data.Count, _outputSize, (x, y) => data[(int)x].Item2.Segment[y]);
             foreach (var item in inputData.OrderBy(kv => kv.Key)) {
-                var input = _lap.CreateMatrixFromRows(item.Value);
+                var input = lap.CreateMatrixFromRows(item.Value);
                 var type = (item.Key == 0)
                     ? MiniBatchSequenceType.SequenceStart
                     : item.Key == (inputData.Count - 1)

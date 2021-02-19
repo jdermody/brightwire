@@ -208,7 +208,6 @@ namespace BrightWire
         /// <summary>
         /// Retrieves sequence specific data
         /// </summary>
-        /// <param name="name">Source node name</param>
         /// <param name="type">Data type</param>
         /// <returns></returns>
         IEnumerable<(string Name, IGraphData Data)> GetData(string type);
@@ -437,6 +436,9 @@ namespace BrightWire
         /// </summary>
         IGraphData? Target { get; }
 
+        /// <summary>
+        /// Graph sequence context that has been executed for this sequence
+        /// </summary>
         IGraphSequenceContext? GraphContext { get; set; }
     }
 

@@ -163,21 +163,15 @@
             Target column index
             </summary>
         </member>
-        <member name="F:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1._lap">
+        <member name="F:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1._dataTable">
             <summary>
-            Linear algebra provider
+            Data table
             </summary>
         </member>
-        <member name="F:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1._data">
-            <summary>
-            The list of raw row data
-            </summary>
-        </member>
-        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1.#ctor(BrightData.ILinearAlgebraProvider,BrightData.IRowOrientedDataTable,System.UInt32[])">
+        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1.#ctor(BrightData.IRowOrientedDataTable,System.UInt32[])">
             <summary>
             Constructor
             </summary>
-            <param name="lap"></param>
             <param name="dataTable"></param>
             <param name="featureColumns"></param>
         </member>
@@ -207,7 +201,7 @@
         </member>
         <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.DataTableAdapterBase`1.GetRows(System.UInt32[])">
             <summary>
-            Returns the row data
+            Returns data for the specified row indices
             </summary>
             <param name="rows">List of row indices</param>
         </member>
@@ -232,7 +226,7 @@
         </member>
         <member name="T:BrightWire.ExecutionGraph.DataTableAdapter.IndexListDataTableAdapter">
             <summary>
-            Adapts data tables with a index list based column (corresponding to an unweighted sparse vector)
+            Adapts data tables with a index list based feature columns (corresponding to an unweighted sparse vector)
             </summary>
         </member>
         <member name="T:BrightWire.ExecutionGraph.DataTableAdapter.ManyToOneDataTableAdapter">
@@ -250,7 +244,10 @@
             Base class for data tables that work with data table rows
             </summary>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.RowBasedDataTableAdapterBase.#ctor(BrightData.ILinearAlgebraProvider,BrightData.IRowOrientedDataTable,System.UInt32[])">
+        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.RowBasedDataTableAdapterBase.#ctor(BrightData.IRowOrientedDataTable,System.UInt32[])">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.DataTableAdapter.RowBasedDataTableAdapterBase.GetRows(System.UInt32[])">
             <inheritdoc />
         </member>
         <member name="T:BrightWire.ExecutionGraph.DataTableAdapter.SequentialDataTableAdapter">
@@ -1105,31 +1102,6 @@
             A sequence within a mini batch
             </summary>
         </member>
-        <member name="P:BrightWire.ExecutionGraph.Helper.MiniBatch.Sequence.MiniBatch">
-            <summary>
-            Mini batch
-            </summary>
-        </member>
-        <member name="P:BrightWire.ExecutionGraph.Helper.MiniBatch.Sequence.SequenceIndex">
-            <summary>
-            Index of the sequence
-            </summary>
-        </member>
-        <member name="P:BrightWire.ExecutionGraph.Helper.MiniBatch.Sequence.Type">
-            <summary>
-            Sequence type
-            </summary>
-        </member>
-        <member name="P:BrightWire.ExecutionGraph.Helper.MiniBatch.Sequence.Input">
-            <summary>
-            Input data
-            </summary>
-        </member>
-        <member name="P:BrightWire.ExecutionGraph.Helper.MiniBatch.Sequence.Target">
-            <summary>
-            Training target data
-            </summary>
-        </member>
         <member name="M:BrightWire.ExecutionGraph.Helper.MiniBatch.Sequence.ToString">
             <inheritdoc />
         </member>
@@ -1791,6 +1763,14 @@
             </summary>
             <param name="source">The node that generated the forward signal</param>
         </member>
+        <member name="M:BrightWire.ExecutionGraph.Node.SingleBackpropagationBase`1.Backpropagate(BrightWire.IGraphData,BrightWire.IGraphSequenceContext)">
+            <summary>
+            Backpropagates the error
+            </summary>
+            <param name="errorSignal"></param>
+            <param name="context"></param>
+            <returns></returns>
+        </member>
         <member name="M:BrightWire.ExecutionGraph.Node.SingleBackpropagationBase`1.Backward(BrightWire.IGraphData,BrightWire.IGraphSequenceContext,BrightWire.ExecutionGraph.Node.NodeBase[])">
             <inheritdoc />
         </member>
@@ -2345,6 +2325,13 @@
             </summary>
             <param name="tensor">Tensor to convert</param>
         </member>
+        <member name="M:BrightWire.ExtensionMethods.GetGraphContexts(BrightWire.IMiniBatch)">
+            <summary>
+            Finds the graph sequence contexts that have been executed in this mini batch
+            </summary>
+            <param name="miniBatch"></param>
+            <returns></returns>
+        </member>
         <member name="M:BrightWire.ExtensionMethods.CreateRandomProjection(BrightData.ILinearAlgebraProvider,System.UInt32,System.UInt32,System.Int32)">
             <summary>
             Random projections allow you to reduce the dimensions of a matrix while still preserving significant information
@@ -2837,6 +2824,21 @@
             Resets the context for another run of backpropagation
             </summary>
         </member>
+        <member name="M:BrightWire.IGraphSequenceContext.SetData(System.String,System.String,BrightWire.IGraphData)">
+            <summary>
+            Stores sequence specific data
+            </summary>
+            <param name="name">Source node name</param>
+            <param name="type">Data type</param>
+            <param name="data"></param>
+        </member>
+        <member name="M:BrightWire.IGraphSequenceContext.GetData(System.String)">
+            <summary>
+            Retrieves sequence specific data
+            </summary>
+            <param name="type">Data type</param>
+            <returns></returns>
+        </member>
         <member name="T:BrightWire.IGraphExecutionContext">
             <summary>
             Graph execution context
@@ -2896,7 +2898,7 @@
         </member>
         <member name="P:BrightWire.IGraphExecutionContext.HasContinuations">
             <summary>
-            True if there are registered continuations
+            True if there are registered continuations or additional mini batches to execute
             </summary>
         </member>
         <member name="M:BrightWire.IGraphExecutionContext.Continue(BrightWire.IGraphSequenceContext)">
@@ -3052,6 +3054,11 @@
         <member name="P:BrightWire.IMiniBatchSequence.Target">
             <summary>
             Training target data
+            </summary>
+        </member>
+        <member name="P:BrightWire.IMiniBatchSequence.GraphContext">
+            <summary>
+            Graph sequence context that has been executed for this sequence
             </summary>
         </member>
         <member name="T:BrightWire.IMiniBatch">

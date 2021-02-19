@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using BrightData;
 
@@ -11,31 +12,27 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
     {
         readonly uint[] _featureColumns;
 
-        public WeightedIndexListDataTableAdapter(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, IDataTableVectoriser? outputVectoriser, uint[] featureColumns)
-            : base(lap, dataTable, featureColumns)
+        public WeightedIndexListDataTableAdapter(IRowOrientedDataTable dataTable, IDataTableVectoriser? outputVectoriser, uint[] featureColumns)
+            : base(dataTable, featureColumns)
         {
             _featureColumns = featureColumns;
             OutputVectoriser = outputVectoriser ?? dataTable.GetVectoriser(true, dataTable.GetTargetColumnOrThrow());
             OutputSize = OutputVectoriser.OutputSize;
 
-            // load the data
-            uint inputSize = 0;
-            dataTable.ForEachRow(row => _data.Add((Combine(_featureColumnIndices.Select(i => (WeightedIndexList)row[i]), ref inputSize), OutputVectoriser.Vectorise(row))));
-            InputSize = inputSize;
+            var analysis = dataTable.ColumnAnalysis(_featureColumnIndices).Select(m => m.MetaData.GetIndexAnalysis());
+            InputSize = analysis.Max(a => a.MaxIndex ?? throw new ArgumentException("Could not find the max index")) + 1;
         }
 
         public override uint InputSize { get; }
         public override uint? OutputSize { get; }
-        public override uint RowCount => (uint)_data.Count;
 
-        public WeightedIndexList Combine(IEnumerable<WeightedIndexList> lists, ref uint inputSize)
+        protected override IEnumerable<(WeightedIndexList, float[])> GetRows(uint[] rows)
         {
-            var ret = WeightedIndexList.Merge(lists);
-            var maxIndex = ret.Indices.Max(i => i.Index);
-            if (maxIndex > inputSize)
-                inputSize = maxIndex + 1;
-            return ret;
+            foreach (var tableRow in _dataTable.Rows(rows))
+                yield return (Combine(_featureColumnIndices.Select(i => (WeightedIndexList)tableRow[i])), OutputVectoriser!.Vectorise(tableRow));
         }
+
+        public WeightedIndexList Combine(IEnumerable<WeightedIndexList> lists) => WeightedIndexList.Merge(lists);
 
         public float[] Encode(WeightedIndexList indexList)
         {
@@ -56,7 +53,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 
         public override IDataSource CloneWith(IRowOrientedDataTable dataTable)
         {
-            return new WeightedIndexListDataTableAdapter(_lap, dataTable, OutputVectoriser, _featureColumns);
+            return new WeightedIndexListDataTableAdapter(dataTable, OutputVectoriser, _featureColumns);
         }
     }
 }

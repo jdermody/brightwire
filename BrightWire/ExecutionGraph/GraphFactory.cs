@@ -212,35 +212,35 @@ namespace BrightWire.ExecutionGraph
 			if (featureColumnType != ColumnType.Unknown && featureColumnTypes.All(ct => ct == featureColumnType)) {
 				// many to many
 				if (featureColumnType == ColumnType.Matrix && targetColumnType == ColumnType.Matrix)
-					return new SequentialDataTableAdapter(LinearAlgebraProvider, dataTable, featureColumns);
+					return new SequentialDataTableAdapter(dataTable, featureColumns);
 
 				// one to one
 				if (featureColumnType == ColumnType.Vector && targetColumnType == ColumnType.Vector)
-					return new VectorBasedDataTableAdapter(LinearAlgebraProvider, dataTable, featureColumns);
+					return new VectorBasedDataTableAdapter(dataTable, featureColumns);
 
 				// one to many
 				if (featureColumnType == ColumnType.Vector && targetColumnType == ColumnType.Matrix)
-					return new OneToManyDataTableAdapter(LinearAlgebraProvider, dataTable, featureColumns);
+					return new OneToManyDataTableAdapter(dataTable, featureColumns);
 
 				// many to one
 				if (featureColumnType == ColumnType.Matrix && targetColumnType == ColumnType.Vector)
-					return new ManyToOneDataTableAdapter(LinearAlgebraProvider, dataTable, featureColumns);
+					return new ManyToOneDataTableAdapter(dataTable, featureColumns);
 
 				// volume classification
 				if (featureColumnType == ColumnType.Tensor3D && targetColumnType == ColumnType.Vector)
-					return new TensorBasedDataTableAdapter(LinearAlgebraProvider, dataTable, featureColumns);
+					return new TensorBasedDataTableAdapter(dataTable, featureColumns);
 
 				// index list
 				if (featureColumnType == ColumnType.IndexList)
-					return new IndexListDataTableAdapter(LinearAlgebraProvider, dataTable, null, featureColumns);
+					return new IndexListDataTableAdapter(dataTable, null, featureColumns);
 
 				// weighted index list
 				if (featureColumnType == ColumnType.WeightedIndexList)
-					return new WeightedIndexListDataTableAdapter(LinearAlgebraProvider, dataTable, null, featureColumns);
+					return new WeightedIndexListDataTableAdapter(dataTable, null, featureColumns);
 			}
 
 			// default adapator
-			return new DefaultDataTableAdapter(LinearAlgebraProvider, dataTable, null, null, featureColumns);
+			return new DefaultDataTableAdapter(dataTable, null, null, featureColumns);
 		}
 
         /// <summary>

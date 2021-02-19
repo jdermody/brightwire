@@ -1231,13 +1231,6 @@
             <param name="dataTable"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.AllMetaData(BrightData.IDataTable)">
-            <summary>
-            Returns all meta data as an enumerable
-            </summary>
-            <param name="dataTable"></param>
-            <returns></returns>
-        </member>
         <member name="M:BrightData.ExtensionMethods.ForEachRow(BrightData.IDataTable,System.Action{System.Object[]})">
             <summary>
             Invokes a callback on each row of a data table
@@ -1252,32 +1245,19 @@
             <param name="dataTable"></param>
             <returns></returns>
         </member>
+        <member name="M:BrightData.ExtensionMethods.ColumnMetaData(BrightData.IDataTable,System.UInt32[])">
+            <summary>
+            Enumerates metadata for each specified column
+            </summary>
+            <param name="dataTable"></param>
+            <param name="columnIndices">Column indices to retrieve</param>
+        </member>
         <member name="M:BrightData.ExtensionMethods.GetColumnAnalyser(BrightData.ColumnType,BrightData.IMetaData,System.UInt32,System.UInt32)">
             <summary>
             Creates a column analyser
             </summary>
             <param name="type">Column type</param>
             <param name="metaData">Column meta data</param>
-            <param name="writeCount">Maximum size of sequences to write in final meta data</param>
-            <param name="maxCount">Maximum number of distinct items to track</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.Analyse(BrightData.ISingleTypeTableSegment,System.Boolean,System.UInt32,System.UInt32)">
-            <summary>
-            Returns the analysis for a column
-            </summary>
-            <param name="segment">Column to analyse</param>
-            <param name="force">True to refresh analysis (if cached)</param>
-            <param name="writeCount">Maximum size of sequences to write in final meta data</param>
-            <param name="maxCount">Maximum number of distinct items to track</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightData.ExtensionMethods.GetColumnAnalysis(BrightData.IDataTable,System.Boolean,System.UInt32,System.UInt32)">
-            <summary>
-            Returns analysis for each column in the table
-            </summary>
-            <param name="table">Data table to analyse</param>
-            <param name="force">True to refresh analysis (if cached)</param>
             <param name="writeCount">Maximum size of sequences to write in final meta data</param>
             <param name="maxCount">Maximum number of distinct items to track</param>
             <returns></returns>
@@ -1465,6 +1445,21 @@
             </summary>
             <param name="dataTable"></param>
             <param name="columnIndices">Column indices to return as vectors</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.ColumnAnalysis(BrightData.IDataTable,System.UInt32[])">
+            <summary>
+            Returns analysed column meta data
+            </summary>
+            <param name="dataTable"></param>
+            <param name="columnIndices">Column indices</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.AllColumnAnalysis(BrightData.IDataTable)">
+            <summary>
+            Returns analysed column meta data for all columns in the data table
+            </summary>
+            <param name="dataTable"></param>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.EnumerateTyped``1(BrightData.ISingleTypeTableSegment)">
@@ -3349,6 +3344,16 @@
             String indexer
             </summary>
         </member>
+        <member name="T:BrightData.ICanComplete">
+            <summary>
+            Indicates that an operation can be completed
+            </summary>
+        </member>
+        <member name="M:BrightData.ICanComplete.Complete">
+            <summary>
+            Complete the operation
+            </summary>
+        </member>
         <member name="T:BrightData.DataTableOrientation">
             <summary>
             Determines if the data table is oriented as either rows or columns
@@ -3548,12 +3553,6 @@
             How the table is aligned (either row or column)
             </summary>
         </member>
-        <member name="M:BrightData.IDataTable.ColumnMetaData(System.UInt32[])">
-            <summary>
-            Enumerates metadata for each column
-            </summary>
-            <param name="columnIndices">Column indices to retrieve</param>
-        </member>
         <member name="M:BrightData.IDataTable.ForEachRow(System.Action{System.Object[],System.UInt32},System.UInt32)">
             <summary>
             Invokes the callback on each row of the data table
@@ -3574,7 +3573,7 @@
             </summary>
             <param name="columnIndices">Column indices to retrieve</param>
         </member>
-        <member name="M:BrightData.IDataTable.ReadTyped(BrightData.IConsumeColumnData[],System.UInt32)">
+        <member name="M:BrightData.IDataTable.ReadTyped(System.Collections.Generic.IEnumerable{BrightData.IConsumeColumnData},System.UInt32)">
             <summary>
             Consumes data in the table via an array of consumers, which will each consume data for each row in the table
             </summary>
@@ -3586,6 +3585,20 @@
             Returns a single column from the table
             </summary>
             <param name="columnIndex">Column index to retrieve</param>
+        </member>
+        <member name="M:BrightData.IDataTable.ColumnAnalysis(System.Collections.Generic.IEnumerable{System.UInt32})">
+            <summary>
+            Returns analysed metadata for the specified columns
+            </summary>
+            <param name="columnIndices">Column indices</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IDataTable.ColumnMetaData(System.UInt32)">
+            <summary>
+            Returns the metadata for a single column (without analysis)
+            </summary>
+            <param name="columnIndex">Column index to retrieve</param>
+            <returns></returns>
         </member>
         <member name="M:BrightData.IDataTable.Project(System.Func{System.Object[],System.Object[]},System.String)">
             <summary>
@@ -3694,6 +3707,23 @@
             </summary>
             <param name="filePath">File path to store new table on disk</param>
             <param name="columns">Parameters to determine which columns are reinterpreted</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IColumnOrientedDataTable.Clone(System.String)">
+            <summary>
+            Clones the current data table
+            </summary>
+            <param name="filePath">File path to store new table on disk (optional)</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IColumnOrientedDataTable.ColumnAnalysis(System.UInt32,System.Boolean,System.UInt32,System.UInt32)">
+            <summary>
+            Returns the metadata for a single column after performing analysis on the column
+            </summary>
+            <param name="columnIndex">Column index to retrieve</param>
+            <param name="force">True to force metadata analysis</param>
+            <param name="writeCount">Maximum size of sequences to write in final meta data</param>
+            <param name="maxCount">Maximum number of distinct items to track</param>
             <returns></returns>
         </member>
         <member name="T:BrightData.IRowOrientedDataTable">
@@ -3808,6 +3838,13 @@
             <summary>
             Returns the last row as a string
             </summary>
+        </member>
+        <member name="M:BrightData.IRowOrientedDataTable.Clone(System.String)">
+            <summary>
+            Clones the current data table
+            </summary>
+            <param name="filePath">File path to store new table on disk (optional)</param>
+            <returns></returns>
         </member>
         <member name="T:BrightData.ColumnConversionType">
             <summary>
@@ -3926,12 +3963,13 @@
             Column index
             </summary>
         </member>
-        <member name="M:BrightData.IColumnTransformationParam.GetTransformer(BrightData.ColumnType,BrightData.ISingleTypeTableSegment,BrightData.IProvideTempStreams,System.UInt32)">
+        <member name="M:BrightData.IColumnTransformationParam.GetTransformer(BrightData.ColumnType,BrightData.ISingleTypeTableSegment,System.Func{BrightData.IMetaData},BrightData.IProvideTempStreams,System.UInt32)">
             <summary>
             Gets a column transformer
             </summary>
             <param name="fromType">Convert from column type</param>
             <param name="column">Column to convert</param>
+            <param name="analysedMetaData">Function to produce analysed column meta data if needed</param>
             <param name="tempStreams">Temp stream provider</param>
             <param name="inMemoryRowCount">Number of rows to cache in memory</param>
             <returns></returns>
@@ -4045,6 +4083,13 @@
             Vectorise a table row
             </summary>
             <param name="row"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.IDataTableVectoriser.Vectorise(BrightData.IDataTableSegment)">
+            <summary>
+            Vectorise a data table segment
+            </summary>
+            <param name="segment"></param>
             <returns></returns>
         </member>
         <member name="P:BrightData.IDataTableVectoriser.OutputSize">
@@ -6127,7 +6172,7 @@
         <member name="P:BrightData.Transformation.ColumnConversion.ColumnIndex">
             <inheritdoc />
         </member>
-        <member name="M:BrightData.Transformation.ColumnConversion.GetTransformer(BrightData.ColumnType,BrightData.ISingleTypeTableSegment,BrightData.IProvideTempStreams,System.UInt32)">
+        <member name="M:BrightData.Transformation.ColumnConversion.GetTransformer(BrightData.ColumnType,BrightData.ISingleTypeTableSegment,System.Func{BrightData.IMetaData},BrightData.IProvideTempStreams,System.UInt32)">
             <inheritdoc />
         </member>
         <member name="T:BrightData.Transformation.ColumnNormalization">

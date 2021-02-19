@@ -211,6 +211,11 @@ namespace BrightWire
             return new Tensor4DGraphData(tensor);
         }
 
+        /// <summary>
+        /// Finds the graph sequence contexts that have been executed in this mini batch
+        /// </summary>
+        /// <param name="miniBatch"></param>
+        /// <returns></returns>
         public static IEnumerable<IGraphSequenceContext> GetGraphContexts(this IMiniBatch miniBatch)
         {
             for (uint i = 0, len = miniBatch.SequenceCount; i < len; i++) {

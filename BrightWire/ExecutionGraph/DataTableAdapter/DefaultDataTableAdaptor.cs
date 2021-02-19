@@ -10,8 +10,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
     {
         readonly uint[] _featureColumns;
 
-        public DefaultDataTableAdapter(ILinearAlgebraProvider lap, IRowOrientedDataTable dataTable, IDataTableVectoriser? inputVectoriser, IDataTableVectoriser? outputVectoriser, uint[] featureColumns)
-            : base(lap, dataTable, featureColumns)
+        public DefaultDataTableAdapter(IRowOrientedDataTable dataTable, IDataTableVectoriser? inputVectoriser, IDataTableVectoriser? outputVectoriser, uint[] featureColumns)
+            : base(dataTable, featureColumns)
         {
             _featureColumns = featureColumns;
             InputVectoriser = inputVectoriser ?? dataTable.GetVectoriser(true, _featureColumnIndices);
@@ -20,7 +20,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 
         public override IDataSource CloneWith(IRowOrientedDataTable dataTable)
         {
-            return new DefaultDataTableAdapter(_lap, dataTable, InputVectoriser, OutputVectoriser, _featureColumns);
+            return new DefaultDataTableAdapter(dataTable, InputVectoriser, OutputVectoriser, _featureColumns);
         }
 
         public override uint InputSize => InputVectoriser!.OutputSize;

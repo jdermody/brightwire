@@ -22,16 +22,10 @@ namespace BrightData.Numerics
             Context = context;
         }
 
-        protected virtual void Dispose(bool disposing)
-        {
-            // nop
-        }
-
         /// <inheritdoc />
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            // nop
         }
 
         /// <inheritdoc />
@@ -92,6 +86,12 @@ namespace BrightData.Numerics
 			return new NumericsMatrix(Context, DenseMatrix.Create((int)rows, (int)columns, (x, y) => init((uint)x, (uint)y)));
 		}
 
+        
+        /// <summary>
+        /// Creates a float matrix
+        /// </summary>
+        /// <param name="matrix"></param>
+        /// <returns></returns>
         public IFloatMatrix CreateMatrix(Matrix<float> matrix)
         {
             return CreateMatrix(matrix.RowCount, matrix.ColumnCount, (i, j) => matrix[i, j]);

@@ -940,4 +940,15 @@ namespace BrightData
         /// </summary>
         IIndexStrings? Indexer { get; }
     }
+
+    /// <summary>
+    /// Indicates that an operation can be completed
+    /// </summary>
+    public interface ICanComplete
+    {
+        /// <summary>
+        /// Complete the operation
+        /// </summary>
+        void Complete();
+    }
 }

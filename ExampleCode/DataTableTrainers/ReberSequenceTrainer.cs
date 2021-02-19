@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Text;
 using BrightData;
 using BrightWire;
 using BrightWire.TrainingData.Artificial;
@@ -31,18 +32,20 @@ namespace ExampleCode.DataTableTrainers
             // create the engine
             var trainingData = graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
-            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate: 0.1f, batchSize: 32);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate: 0.3f, batchSize: 32);
 
             // build the network
-            const int HIDDEN_LAYER_SIZE = 50, TRAINING_ITERATIONS = 50;
+            const int HIDDEN_LAYER_SIZE = 50, TRAINING_ITERATIONS = 40;
             graph.Connect(engine)
                 .AddGru(HIDDEN_LAYER_SIZE)
-                .AddGru(HIDDEN_LAYER_SIZE)
+                //.AddGru(HIDDEN_LAYER_SIZE)
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                 .Add(graph.SoftMaxActivation())
                 .AddBackpropagationThroughTime()
             ;
 
+            engine.LearningContext.ScheduleLearningRate(20, 0.1f);
+            engine.LearningContext.ScheduleLearningRate(30, 0.03f);
             var model = engine.Train(TRAINING_ITERATIONS, testData);
             return engine.CreateExecutionEngine(model?.Graph);
         }
@@ -50,7 +53,6 @@ namespace ExampleCode.DataTableTrainers
         public void GenerateSequences(IGraphExecutionEngine engine)
         {
             Console.WriteLine("Generating new reber sequences from the observed state probabilities...");
-            var graph = _context.CreateGraphFactory();
 
             for (var z = 0; z < 10; z++)
             {
@@ -63,6 +65,7 @@ namespace ExampleCode.DataTableTrainers
                 var executionContext = engine.CreateExecutionContext();
                 var result = engine.ExecuteSingleSequentialStep(executionContext, index++, input, MiniBatchSequenceType.SequenceStart);
                 if (result != null) {
+                    var sb = new StringBuilder();
                     for (var i = 0; i < 32; i++) {
                         var next = result!.Output[0].Values
                             .Select((v, j) => ((double) v, j))
@@ -71,7 +74,7 @@ namespace ExampleCode.DataTableTrainers
 
                         var distribution = new Categorical(next.Select(d => d.Item1).ToArray());
                         var nextIndex = next[distribution.Sample()].j;
-                        Console.Write(ReberGrammar.GetChar(nextIndex));
+                        sb.Append(ReberGrammar.GetChar(nextIndex));
                         if (nextIndex == ReberGrammar.GetIndex('E') && ++eCount == 2)
                             break;
 
@@ -79,7 +82,13 @@ namespace ExampleCode.DataTableTrainers
                         input[nextIndex] = 1f;
                         result = engine.ExecuteSingleSequentialStep(executionContext, index++, input, MiniBatchSequenceType.Standard);
                     }
-                    Console.WriteLine();
+
+                    var str = sb.ToString();
+                    Console.Write(str);
+                    if(str[0] == str[^2])
+                        Console.WriteLine(" - end sequence matched start sequence");
+                    else
+                        Console.WriteLine();
                 }
             }
         }
