@@ -25,8 +25,7 @@ namespace BrightWire.UnitTests
 		{
 			var context = new TestingContext(_cpu);
 			var matrix = forwardInput.AsIndexable();
-			context.Data = matrix.AsGraphData();
-            node.Forward(GraphData.Null, context);
+            node.Forward(matrix.AsGraphData(), context);
 
 			var output = context.Forward.First();
 			var outputMatrix = output.Item1.Data.GetMatrix();
