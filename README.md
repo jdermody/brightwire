@@ -4,7 +4,11 @@ Bright Wire is an extensible machine learning library for .NET with GPU support 
 
 ## Getting Started
 
-Bright Wire runs "out of the box" for CPU based computation on .net 4.6 and above and .net standard 2.  For GPU based computation, you will need to install
+Bright Wire is a .net core 3.1 class library.
+
+The previous .net 4.6 version can be found here: https://github.com/jdermody/brightwire/tree/v2
+
+Bright Wire runs "out of the box" for CPU based computation. For GPU based computation, you will need to install
 [NVIDIA CUDA Toolkit 11](https://developer.nvidia.com/cuda-downloads) 
 (and have a [Kepler or better NVIDIA GPU](https://en.wikipedia.org/wiki/CUDA#GPUs_supported)).
 
@@ -26,6 +30,8 @@ via the [Numerics.Net Wrapper](http://numerics.mathdotnet.com/MKL.html).
 * [Deep Feed Forward Neural Networks with Batch Normalization and SELU](http://www.jackdermody.net/brightwire/article/Extending_Bright_Wire:_Custom_Activation_Function)
 
 ## Nuget Installation
+
+.Net Core Libraries will be released soon.
 
 To install the .net4 version (no CUDA support, any CPU) use:
 
@@ -75,7 +81,7 @@ Another issue you may have is that `protobuf` library complains that it is alrea
 ## Features
 
 ### Connectionist aka "Deep Learning"
-* Feed Forward, Convolutional and Bidirectional network architectures
+* Feed Forward, Convolutional, Bidirectional and Sequence to Sequence (seq2seq) network architectures
 * LSTM, GRU, Simple, Elman and Jordan recurrent neural networks
 * L2, Dropout and DropConnect regularisation
 * Relu, LeakyRelu, Sigmoid, Tanh and SoftMax activation functions
@@ -114,4 +120,3 @@ Another issue you may have is that `protobuf` library complains that it is alrea
 ## Dependencies
 * [ManagedCuda](https://github.com/kunzmi/managedCuda) (only required for CUDA version of BrightWire)
 * [MathNet.Numerics](https://github.com/mathnet/mathnet-numerics)
-* [Protobuf-net](https://github.com/mgravell/protobuf-net)
