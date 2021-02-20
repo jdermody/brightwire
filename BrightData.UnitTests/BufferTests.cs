@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using Xunit;
 using BrightData.Buffer;
 using FluentAssertions;
@@ -99,10 +100,11 @@ namespace BrightData.UnitTests
             using var stream = new MemoryStream();
             buffer.CopyTo(stream);
             stream.Seek(0, SeekOrigin.Begin);
+            using var reader = new BinaryReader(stream, Encoding.UTF8, true);
 
             uint index = 0;
-            var reader = context.GetReader<string>(stream, inMemoryReadSize);
-            foreach (var item in reader.EnumerateTyped())
+            var bufferReader = context.GetBufferReader<string>(reader, inMemoryReadSize);
+            foreach (var item in bufferReader.EnumerateTyped())
                 item.Should().Be(indexTranslator(index++));
         }
 
@@ -115,10 +117,11 @@ namespace BrightData.UnitTests
             using var stream = new MemoryStream();
             buffer.CopyTo(stream);
             stream.Seek(0, SeekOrigin.Begin);
+            using var reader = new BinaryReader(stream, Encoding.UTF8, true);
 
             uint index = 0;
-            var reader = context.GetReader<T>(stream, inMemoryReadSize);
-            foreach (var item in reader.EnumerateTyped())
+            var bufferReader = context.GetBufferReader<T>(reader, inMemoryReadSize);
+            foreach (var item in bufferReader.EnumerateTyped())
                 item.Should().Be(indexTranslator(index++));
         }
 
@@ -131,10 +134,11 @@ namespace BrightData.UnitTests
             using var stream = new MemoryStream();
             buffer.CopyTo(stream);
             stream.Seek(0, SeekOrigin.Begin);
+            using var reader = new BinaryReader(stream, Encoding.UTF8, true);
 
             uint index = 0;
-            var reader = context.GetReader<T>(stream, inMemoryReadSize);
-            foreach (var item in reader.EnumerateTyped())
+            var bufferReader = context.GetBufferReader<T>(reader, inMemoryReadSize);
+            foreach (var item in bufferReader.EnumerateTyped())
                 item.Should().Be(indexTranslator(index++));
         }
     }

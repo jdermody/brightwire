@@ -1,8 +1,11 @@
 ﻿using System.IO;
 using BrightData.Helper;
 
-namespace BrightData.Segment
+namespace BrightData.DataTable
 {
+    /// <summary>
+    /// Data table column information
+    /// </summary>
     internal class ColumnInfo : IColumnInfo
     {
         public class Analyser<T> : IConsumeColumnData<T>, ICanComplete where T: notnull
@@ -50,6 +53,7 @@ namespace BrightData.Segment
 
         public uint Index { get; }
         public ColumnType ColumnType { get; }
+        public IHaveDictionary? Dictionary { get; } = null;
         public IMetaData MetaData { get; }
 
         public void WriteTo(BinaryWriter writer)

@@ -7,10 +7,12 @@ using BrightData.Buffer;
 using BrightData.DataTable.Builders;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
-using BrightData.Segment;
 
 namespace BrightData.DataTable
 {
+    /// <summary>
+    /// Data table in which the rows are stored contiguously
+    /// </summary>
     internal class RowOrientedDataTable : DataTableBase, IRowOrientedDataTable
     {
         interface IColumnReader
@@ -50,15 +52,18 @@ namespace BrightData.DataTable
         readonly ColumnInfo[] _columns;
         readonly uint[] _rowOffset;
         readonly IColumnReader[] _columnReaders;
+        readonly Stream _stream;
 
-        public RowOrientedDataTable(IBrightDataContext context, Stream stream, bool readHeader) : base(context, stream)
+        public RowOrientedDataTable(IBrightDataContext context, Stream stream, bool readHeader) : base(context)
         {
-            var reader = Reader;
+            _stream = stream;
+            using var reader = new BinaryReader(stream, Encoding.UTF8, true);
 
             if (readHeader)
                 ReadHeader(reader, DataTableOrientation.RowOriented);
 
             var numColumns = reader.ReadUInt32();
+            MetaData.ReadFrom(reader);
             _columns = new ColumnInfo[numColumns];
             for (uint i = 0; i < numColumns; i++)
                 _columns[i] = new ColumnInfo(reader, i);
@@ -69,8 +74,8 @@ namespace BrightData.DataTable
             for (uint i = 0; i < rowCount; i++)
                 _rowOffset[i] = reader.ReadUInt32();
 
-            RowCount = (uint)_rowOffset.Length;
-            ColumnCount = (uint)_columns.Length;
+            RowCount = (uint) _rowOffset.Length;
+            ColumnCount = (uint) _columns.Length;
 
             _columnReaders = ColumnTypes.Select(GetReader).ToArray();
         }
@@ -93,7 +98,7 @@ namespace BrightData.DataTable
         {
             lock (_stream)
             {
-                var reader = Reader;
+                using var reader = new BinaryReader(_stream, Encoding.UTF8, true);
                 _stream.Seek(_rowOffset[rowIndex], SeekOrigin.Begin);
                 var row = new object[_columns.Length];
                 for (int i = 0, len = _columnReaders.Length; i < len; i++)
@@ -105,7 +110,7 @@ namespace BrightData.DataTable
         public void ForEachRow(IEnumerable<uint> rowIndices, Action<object[]> callback)
         {
             lock (_stream) {
-                var reader = Reader;
+                using var reader = new BinaryReader(_stream, Encoding.UTF8, true);
                 foreach (var index in rowIndices) {
                     if (index < _rowOffset.Length) {
                         _stream.Seek(_rowOffset[index], SeekOrigin.Begin);
@@ -181,7 +186,7 @@ namespace BrightData.DataTable
 
             lock (_stream) {
                 _stream.Seek(_rowOffset[0], SeekOrigin.Begin);
-                var reader = Reader;
+                using var reader = new BinaryReader(_stream, Encoding.UTF8, true);
 
                 for (uint i = 0; i < rowCount; i++) {
                     var row = new object[ColumnCount];
@@ -208,7 +213,7 @@ namespace BrightData.DataTable
             var rowCount = Math.Min(maxRows, RowCount);
             lock (_stream) {
                 _stream.Seek(_rowOffset[0], SeekOrigin.Begin);
-                var reader = Reader;
+                using var reader = new BinaryReader(_stream, Encoding.UTF8, true);
 
                 for (uint i = 0; i < rowCount; i++) {
                     for (uint j = 0, len = ColumnCount; j < len; j++) {
@@ -228,7 +233,7 @@ namespace BrightData.DataTable
             var columnOffsets = new List<(long Position, long EndOfColumnOffset)>();
             using var builder = new ColumnOrientedTableBuilder(filePath);
 
-            builder.WriteHeader(ColumnCount, RowCount);
+            builder.WriteHeader(ColumnCount, RowCount, MetaData);
             var columns = Columns(_columns.Length.AsRange().ToArray());
             foreach (var column in columns) {
                 var position = builder.Write(column);
@@ -240,7 +245,7 @@ namespace BrightData.DataTable
 
         (ISingleTypeTableSegment Segment, IConsumeColumnData Consumer) GetColumn(ColumnType columnType, uint index, IMetaData metaData)
         {
-            var type = typeof(InMemoryBuffer<>).MakeGenericType(columnType.GetDataType());
+            var type = typeof(Buffer.GrowableDataTableSegment<>).MakeGenericType(columnType.GetDataType());
             var columnInfo = new ColumnInfo(index, columnType, metaData);
             return GenericActivator.Create<ISingleTypeTableSegment, IConsumeColumnData>(type, Context, columnInfo, RowCount, Context.TempStreamProvider);
         }
@@ -296,7 +301,7 @@ namespace BrightData.DataTable
 
         RowOrientedTableBuilder GetBuilderForSelf(uint rowCount, string? filePath)
         {
-            var ret = new RowOrientedTableBuilder(rowCount, filePath);
+            var ret = new RowOrientedTableBuilder(MetaData, rowCount, filePath);
             ret.AddColumnsFrom(this);
             return ret;
         }

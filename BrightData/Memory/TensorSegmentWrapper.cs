@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 namespace BrightData.Memory
 {
     /// <summary>
-    /// Tensor segment that uses offsets and strides to represent a tensor block
+    /// Tensor segment that uses offsets and strides to form a translated segment from a wrapped tensor segment
     /// </summary>
     /// <typeparam name="T"></typeparam>
     internal class TensorSegmentWrapper<T> : ITensorSegment<T>

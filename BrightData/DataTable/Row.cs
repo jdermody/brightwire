@@ -1,8 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace BrightData.Segment
+namespace BrightData.DataTable
 {
+    /// <summary>
+    /// A row within a data table
+    /// </summary>
     internal class Row : IDataTableSegment
     {
         readonly object[] _data;

@@ -1,15 +1,20 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
-namespace BrightData.Segment
+namespace BrightData.DataTable
 {
-    internal class Column<T> : IDataTableSegment<T>, IColumnInfo, IHaveDataContext
+    /// <summary>
+    /// A data table column
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    internal class Column<T> : IDataTableSegment<T>, IColumnInfo
         where T: notnull
     {
         readonly MetaData _metadata;
         readonly ICanEnumerate<T> _reader;
+        readonly ICanReadSection _stream;
 
-        public Column(uint index, ColumnType columnType, MetaData metaData, IBrightDataContext context, Stream stream, uint inMemorySize)
+        public Column(uint index, ColumnType columnType, MetaData metaData, IBrightDataContext context, ICloneStreams streamCloner, uint inMemorySize)
         {
             _metadata = metaData;
 
@@ -18,7 +23,8 @@ namespace BrightData.Segment
             Types = new[] { SingleType };
             Context = context;
 
-            _reader = context.GetReader<T>(stream, inMemorySize);
+            _stream = streamCloner.Clone();
+            _reader = context.GetBufferReader<T>(_stream.GetReader(), inMemorySize);
         }
 
         public uint Index { get; }
@@ -27,7 +33,7 @@ namespace BrightData.Segment
 
         public void Dispose()
         {
-            //_buffer.Dispose();
+            _stream.Dispose();
         }
 
         public void WriteTo(BinaryWriter writer)
@@ -52,5 +58,7 @@ namespace BrightData.Segment
         {
             return $"[{ColumnType}] {MetaData}";
         }
+
+        public IHaveDictionary? Dictionary => _reader as IHaveDictionary;
     }
 }

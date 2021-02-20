@@ -31,31 +31,27 @@ via the [Numerics.Net Wrapper](http://numerics.mathdotnet.com/MKL.html).
 
 ## Nuget Installation
 
-.Net Core Libraries will be released soon.
+Version 3 is currently in beta release so when downloading from NuGet, make sure that pre-release packages are selected.
 
-To install the .net4 version (no CUDA support, any CPU) use:
-
-```
-Install-Package BrightWire.Net4
-```
-
-To add CUDA support (.net4, x64 only) use:
+To install the cpu version (no CUDA support) use:
 
 ```
-Install-Package BrightWire.CUDA.Net4.x64
+Install-Package BrightWire
+Install-Package BrightWire.Numerics
+```
+
+To add CUDA support use:
+
+```
+Install-Package BrightWire
+Install-Package BrightWire.Cuda
 ```
 
 Note: When using the CUDA version, make sure that the `/cuda/brightwire.ptx` file is copied to the output directory (Properties/Copy To Output Directory).
 
-To install the .net standard version for use with Xamarin or UWP use:
-
-```
-Install-Package BrightWire
-```
-
 ### Recompiling the PTX
 
-It's highly likely that your GPU supports different CUDA capabilities than the precompiled `brightwire.ptx` in this repository. You can find what is your capability level [here](https://developer.nvidia.com/cuda-gpus). It's a number, ex. 3.0, 3.5, that you use for specifying `compute_XX` and `sm_XX` parameters.
+It's likely that your GPU supports different CUDA capabilities than the precompiled `brightwire.ptx` in this repository. You can find what is your capability level [here](https://developer.nvidia.com/cuda-gpus). It's a number, ex. 3.0, 3.5, that you use for specifying `compute_XX` and `sm_XX` parameters.
 
 If you get an `ErrorNoBinaryForGPU` exception, that means you have to recompile. The instructions are [here](https://github.com/jdermody/brightwire/blob/master/BrightWire.CUDA.Net4.x64/cuda/readme.txt).
 
@@ -67,16 +63,10 @@ nvcc kernel.cu -use_fast_math -ptx -m 64 -arch compute_30 -code sm_30 -o kernel.
 
 ## Linux Support
 
-### Without CUDA
-
-You can use Bright Wire on Mono (tested with 4.6.2/Fedora 25) out of the box, no additional setting up is needed.
-
 ### With CUDA
 
 Bright Wire can also work with CUDA on Mono. When you build your solution, you will need to extract `ConfigForLinux.zip` archive from [here](https://github.com/kunzmi/managedCuda/releases) to your output path.
 That way, CUDA won't look for `nvcuda` on Linux, but for libcuda shared object. You can even run on your Optimus enabled laptop (tested with GTX770M with Bumblebee) with `optirun mono [binary_name]`.
-
-Another issue you may have is that `protobuf` library complains that it is already referencing `NETStandard` library. NuGet version is a bit older on Mono, so please try with the latest NuGet binary from their website. That way, all the libraries get pulled correctly.
 
 ## Features
 

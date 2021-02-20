@@ -5,6 +5,10 @@ using System.Linq;
 
 namespace BrightData.Buffer
 {
+    /// <summary>
+    /// Hybrid buffers write to disk after their in memory cache is exhausted
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     internal abstract class HybridBufferBase<T> : IHybridBuffer<T> where T : notnull
     {
         readonly uint _maxCount;
@@ -66,7 +70,7 @@ namespace BrightData.Buffer
                 yield return _tempBuffer[i];
         }
 
-        public void CopyTo(Stream stream) => BufferWriter.CopyTo(this, stream);
+        public void CopyTo(Stream stream) => EncodedStreamWriter.CopyTo(this, stream);
 
         public IEnumerable<object> Enumerate() => EnumerateTyped().Select(o => (object)o);
         public uint Size { get; private set; } = 0;

@@ -2,6 +2,17 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <Version>3.0.0-beta</Version>
+    <Authors>Jack Dermody</Authors>
+    <Product>Bright ML</Product>
+    <Description>Numerics provider for Bright Data - allows CPU computation, including with MKL</Description>
+    <Copyright>Copyright © Jack Dermody 2016-2021</Copyright>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageProjectUrl>https://github.com/jdermody/brightwire</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/jdermody/brightwire</RepositoryUrl>
+    <PackageTags>mkl</PackageTags>
+    <PackageIcon>bw_favicon.png</PackageIcon>
+    <PackageReleaseNotes>Beta release</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -14,6 +25,17 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BrightData\BrightData.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\bw_favicon.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+    <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

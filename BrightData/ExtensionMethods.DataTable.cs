@@ -5,13 +5,13 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using BrightData.Analysis;
+using BrightData.Buffer;
 using BrightData.Converter;
 using BrightData.DataTable;
 using BrightData.DataTable.Builders;
 using BrightData.Helper;
 using BrightData.Input;
 using BrightData.LinearAlgebra;
-using BrightData.Segment;
 using BrightData.Transformation;
 
 namespace BrightData
@@ -332,22 +332,22 @@ namespace BrightData
         /// <param name="hasHeader">True if the CSV has a text based header</param>
         /// <param name="delimiter">CSV delimiter</param>
         /// <param name="fileOutputPath">Optional path to save final table</param>
+        /// <param name="writeProgress"></param>
+        /// <param name="maxRows">Maximum number of rows of CSV to read</param>
         /// <param name="inMemoryRowCount">Number of rows to cache in memory</param>
         /// <param name="maxDistinct">Maximum number of distinct items to track</param>
-        /// <param name="writeProgress"></param>
         /// <param name="tempBasePath"></param>
         /// <returns></returns>
-        public static IColumnOrientedDataTable ParseCsv(
-            this IBrightDataContext context,
+        public static IColumnOrientedDataTable ParseCsv(this IBrightDataContext context,
             StreamReader reader,
             bool hasHeader,
             char delimiter = ',',
             string? fileOutputPath = null,
+            bool writeProgress = false,
+            int maxRows = int.MaxValue,
             uint inMemoryRowCount = 32768,
             ushort maxDistinct = 1024,
-            bool writeProgress = false,
-            string? tempBasePath = null
-        )
+            string? tempBasePath = null)
         {
             var parser = new CsvParser(reader, delimiter);
             using var tempStreams = new TempStreamManager(tempBasePath);
@@ -355,13 +355,22 @@ namespace BrightData
             var isFirst = hasHeader;
             uint rowCount = 0;
 
+            // write file metadata
+            var metaData = new MetaData();
+            if (reader.BaseStream is FileStream fs) {
+                metaData.Set(Consts.Name, Path.GetFileName(fs.Name));
+                metaData.Set(Consts.Source, fs.Name);
+            }
+
             if (writeProgress)
             {
                 var progress = -1;
+                Console.WriteLine($"Parsing CSV...");
                 parser.OnProgress = p => p.WriteProgress(ref progress);
+                parser.OnComplete = Console.WriteLine;
             }
 
-            foreach (var row in parser.Parse())
+            foreach (var row in parser.Parse().Take(maxRows))
             {
                 var cols = row.Length;
 
@@ -387,13 +396,14 @@ namespace BrightData
                     ++rowCount;
             }
 
+            var segments = columns.Cast<ISingleTypeTableSegment>().ToList();
             if (writeProgress)
             {
-                Console.WriteLine();
                 Console.WriteLine($"Read {rowCount:N0} lines into {columns.Count:N0} columns");
+                int index = 1;
+                return segments.BuildColumnOrientedTable(metaData, context, rowCount, fileOutputPath, segment => Console.Write($"{index++}/{columns.Count}) {segment.MetaData.GetName()}..."), size => Console.WriteLine($"done ({size:N0} bytes)"));
             }
-
-            return columns.Cast<ISingleTypeTableSegment>().ToList().BuildColumnOrientedTable(context, rowCount, fileOutputPath);
+            return segments.BuildColumnOrientedTable(metaData, context, rowCount, fileOutputPath);
         }
 
         /// <summary>
@@ -436,15 +446,16 @@ namespace BrightData
         /// <returns></returns>
         public static IDataTable LoadTable(this IBrightDataContext context, string filePath)
         {
-            var input = new FileStream(filePath, FileMode.Open, FileAccess.Read);
-            var reader = new BinaryReader(input, Encoding.UTF8, true);
+            using var input = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+            var streamCloner = new StreamCloner(input);
+            using var reader = new BinaryReader(input, Encoding.UTF8, true);
             var version = reader.ReadInt32();
 
             if (version > Consts.DataTableVersion)
                 throw new Exception($"Segment table version {version} exceeds {Consts.DataTableVersion}");
             var orientation = (DataTableOrientation)reader.ReadByte();
             if (orientation == DataTableOrientation.ColumnOriented)
-                return new ColumnOrientedDataTable(context, input, false);
+                return new ColumnOrientedDataTable(context, input, false, streamCloner);
             if (orientation == DataTableOrientation.RowOriented)
                 return new RowOrientedDataTable(context, input, false);
             throw new Exception($"Found unknown data table orientation: {orientation}");
@@ -603,16 +614,19 @@ namespace BrightData
         /// <param name="rowCount">Number of rows</param>
         /// <param name="filePath">File path to save on disk (optional)</param>
         /// <returns></returns>
-        public static IColumnOrientedDataTable BuildColumnOrientedTable(this List<ISingleTypeTableSegment> segments, IBrightDataContext context, uint rowCount, string? filePath = null)
+        public static IColumnOrientedDataTable BuildColumnOrientedTable(this List<ISingleTypeTableSegment> segments, IMetaData metaData, IBrightDataContext context, uint rowCount, string? filePath = null, Action<ISingleTypeTableSegment>? onBeforeWrite = null, Action<long>? onAfterWrite = null)
         {
             var columnCount = (uint)segments.Count;
             var columnOffsets = new List<(long Position, long EndOfColumnOffset)>();
             using var builder = new ColumnOrientedTableBuilder(filePath);
 
-            builder.WriteHeader(columnCount, rowCount);
+            builder.WriteHeader(columnCount, rowCount, metaData);
             foreach (var segment in segments) {
+                onBeforeWrite?.Invoke(segment);
                 var position = builder.Write(segment);
-                columnOffsets.Add((position, builder.GetCurrentPosition()));
+                var endPosition = builder.GetCurrentPosition();
+                onAfterWrite?.Invoke(endPosition-position);
+                columnOffsets.Add((position, endPosition));
             }
             builder.WriteColumnOffsets(columnOffsets);
             return builder.Build(context);
@@ -626,9 +640,9 @@ namespace BrightData
         /// <param name="rowCount">Number of rows</param>
         /// <param name="filePath">File path to save on disk (optional)</param>
         /// <returns></returns>
-        public static IRowOrientedDataTable BuildRowOrientedTable(this List<ISingleTypeTableSegment> segments, IBrightDataContext context, uint rowCount, string? filePath = null)
+        public static IRowOrientedDataTable BuildRowOrientedTable(this List<ISingleTypeTableSegment> segments, IMetaData metaData, IBrightDataContext context, uint rowCount, string? filePath = null)
         {
-            using var builder = new RowOrientedTableBuilder(rowCount, filePath);
+            using var builder = new RowOrientedTableBuilder(metaData, rowCount, filePath);
             var readers = segments
                 .Select(b => b.Enumerate().GetEnumerator())
                 .ToList();
@@ -850,7 +864,7 @@ namespace BrightData
             var target = dataTable.GetTargetColumn();
             var columnIndices = dataTable.ColumnIndices().ToList();
 
-            var builder = new RowOrientedTableBuilder(dataTable.RowCount, filePath);
+            var builder = new RowOrientedTableBuilder(dataTable.MetaData, dataTable.RowCount, filePath);
             builder.AddColumn(ColumnType.Vector, "Features");
 
             DataTableVectoriser? outputVectoriser = null;

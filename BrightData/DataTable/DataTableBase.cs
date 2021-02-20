@@ -7,18 +7,17 @@ using BrightData.DataTable.Builders;
 
 namespace BrightData.DataTable
 {
+    /// <summary>
+    /// Data table base class
+    /// </summary>
     internal abstract class DataTableBase : IHaveMetaData, IHaveDataContext
     {
-        protected readonly Stream _stream;
         readonly MetaData _tableMetaData = new MetaData();
 
-        protected DataTableBase(IBrightDataContext context, Stream stream)
+        protected DataTableBase(IBrightDataContext context)
         {
             Context = context;
-            _stream = stream;
         }
-
-        protected BinaryReader Reader => new BinaryReader(_stream, Encoding.UTF8, true);
 
         internal static string DefaultColumnName(string? name, int numColumns)
         {
@@ -78,7 +77,7 @@ namespace BrightData.DataTable
             if (mutatedRows.Any())
             {
                 var newColumnTypes = mutatedRows.First().Select(o => o.GetType().GetColumnType());
-                using var builder = new RowOrientedTableBuilder((uint)mutatedRows.Count, filePath);
+                using var builder = new RowOrientedTableBuilder(MetaData, (uint)mutatedRows.Count, filePath);
                 foreach (var column in newColumnTypes)
                     builder.AddColumn(column);
                 foreach (var row in mutatedRows)

@@ -67,6 +67,7 @@
         public const string CategoryPrefix = "Category:";
 
         public const string LegacyFloatSerialisationInput = "LegacyFloatSerialisationInput";
+        public const string Source = "Source";
 #pragma warning restore 1591
 
         /// <summary>

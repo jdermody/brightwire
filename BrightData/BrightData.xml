@@ -385,17 +385,17 @@
         <member name="M:BrightData.BrightDataContext.ResetRandom(System.Nullable{System.Int32})">
             <inheritdoc />
         </member>
-        <member name="T:BrightData.Buffer.BufferedStreamReader">
+        <member name="T:BrightData.Buffer.EncodedStreamReader">
             <summary>
-            Buffered stream reader helper
+            Reads from potentially encoded storage
             </summary>
         </member>
-        <member name="T:BrightData.Buffer.BufferWriter">
+        <member name="T:BrightData.Buffer.EncodedStreamWriter">
             <summary>
-            Buffered stream writer helper
+            Writes hybrid buffers to binary writers, potentially encoding along the way
             </summary>
         </member>
-        <member name="M:BrightData.Buffer.BufferWriter.CopyTo``1(BrightData.IHybridBuffer{``0},System.IO.Stream)">
+        <member name="M:BrightData.Buffer.EncodedStreamWriter.CopyTo``1(BrightData.IHybridBuffer{``0},System.IO.Stream)">
             <summary>
             Writes the hybrid buffer to a stream
             </summary>
@@ -403,9 +403,36 @@
             <param name="buffer">Buffer to write</param>
             <param name="stream">Stream to write to</param>
         </member>
-        <member name="T:BrightData.Buffer.InMemoryBuffer`1">
+        <member name="T:BrightData.Buffer.GrowableDataTableSegment`1">
             <summary>
-            Buffer
+            A typed data table segment that can grow in size
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="T:BrightData.Buffer.GrowableSegment`1">
+            <summary>
+            A single type data table segment that can grow in size
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:BrightData.Buffer.GrowableSegment`1.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Buffer.GrowableSegment`1.MetaData">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Buffer.GrowableSegment`1.SingleType">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Buffer.GrowableSegment`1.WriteTo(System.IO.BinaryWriter)">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Buffer.GrowableSegment`1.CopyTo(System.IO.Stream)">
+            <inheritdoc />
+        </member>
+        <member name="T:BrightData.Buffer.HybridBufferBase`1">
+            <summary>
+            Hybrid buffers write to disk after their in memory cache is exhausted
             </summary>
             <typeparam name="T"></typeparam>
         </member>
@@ -547,6 +574,11 @@
             <typeparam name="T">Type to convert from</typeparam>
             <returns></returns>
         </member>
+        <member name="T:BrightData.DataTable.Builders.ColumnOrientedTableBuilder">
+            <summary>
+            Builds column oriented data tables
+            </summary>
+        </member>
         <member name="T:BrightData.DataTable.Builders.InMemoryTableBuilder">
             <summary>
             Builds tables dynamically in memory
@@ -587,6 +619,42 @@
             Creates a column oriented table
             </summary>
             <returns></returns>
+        </member>
+        <member name="T:BrightData.DataTable.Builders.RowOrientedTableBuilder">
+            <summary>
+            Builds row oriented data tables
+            </summary>
+        </member>
+        <member name="T:BrightData.DataTable.Column`1">
+            <summary>
+            A data table column
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="T:BrightData.DataTable.ColumnInfo">
+            <summary>
+            Data table column information
+            </summary>
+        </member>
+        <member name="T:BrightData.DataTable.ColumnOrientedDataTable">
+            <summary>
+            Data table in which the columns are stored contiguously
+            </summary>
+        </member>
+        <member name="T:BrightData.DataTable.DataTableBase">
+            <summary>
+            Data table base class
+            </summary>
+        </member>
+        <member name="T:BrightData.DataTable.Row">
+            <summary>
+            A row within a data table
+            </summary>
+        </member>
+        <member name="T:BrightData.DataTable.RowOrientedDataTable">
+            <summary>
+            Data table in which the rows are stored contiguously
+            </summary>
         </member>
         <member name="T:BrightData.ExtensionMethods">
             <summary>
@@ -829,13 +897,13 @@
             <param name="bufferSize">Max items to cache in memory</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetReader``1(BrightData.IBrightDataContext,System.IO.Stream,System.UInt32)">
+        <member name="M:BrightData.ExtensionMethods.GetBufferReader``1(BrightData.IBrightDataContext,System.IO.BinaryReader,System.UInt32)">
             <summary>
             Returns a reader that buffers items in memory
             </summary>
             <typeparam name="T"></typeparam>
             <param name="context">Bright data context</param>
-            <param name="stream">Stream to read from</param>
+            <param name="reader">Binary reader</param>
             <param name="inMemorySize">Number of bytes to use as an in memory buffer</param>
             <returns></returns>
         </member>
@@ -1262,7 +1330,7 @@
             <param name="maxCount">Maximum number of distinct items to track</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ParseCsv(BrightData.IBrightDataContext,System.IO.StreamReader,System.Boolean,System.Char,System.String,System.UInt32,System.UInt16,System.Boolean,System.String)">
+        <member name="M:BrightData.ExtensionMethods.ParseCsv(BrightData.IBrightDataContext,System.IO.StreamReader,System.Boolean,System.Char,System.String,System.Boolean,System.Int32,System.UInt32,System.UInt16,System.String)">
             <summary>
             Parse CSV into a column oriented data table
             </summary>
@@ -1271,9 +1339,10 @@
             <param name="hasHeader">True if the CSV has a text based header</param>
             <param name="delimiter">CSV delimiter</param>
             <param name="fileOutputPath">Optional path to save final table</param>
+            <param name="writeProgress"></param>
+            <param name="maxRows">Maximum number of rows of CSV to read</param>
             <param name="inMemoryRowCount">Number of rows to cache in memory</param>
             <param name="maxDistinct">Maximum number of distinct items to track</param>
-            <param name="writeProgress"></param>
             <param name="tempBasePath"></param>
             <returns></returns>
         </member>
@@ -1366,7 +1435,7 @@
             <param name="maxDistinct">Maximum number of distinct items to track</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.BuildColumnOrientedTable(System.Collections.Generic.List{BrightData.ISingleTypeTableSegment},BrightData.IBrightDataContext,System.UInt32,System.String)">
+        <member name="M:BrightData.ExtensionMethods.BuildColumnOrientedTable(System.Collections.Generic.List{BrightData.ISingleTypeTableSegment},BrightData.IMetaData,BrightData.IBrightDataContext,System.UInt32,System.String,System.Action{BrightData.ISingleTypeTableSegment},System.Action{System.Int64})">
             <summary>
             Creates a column oriented data table from a list of segments
             </summary>
@@ -1376,7 +1445,7 @@
             <param name="filePath">File path to save on disk (optional)</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.BuildRowOrientedTable(System.Collections.Generic.List{BrightData.ISingleTypeTableSegment},BrightData.IBrightDataContext,System.UInt32,System.String)">
+        <member name="M:BrightData.ExtensionMethods.BuildRowOrientedTable(System.Collections.Generic.List{BrightData.ISingleTypeTableSegment},BrightData.IMetaData,BrightData.IBrightDataContext,System.UInt32,System.String)">
             <summary>
             Creates a row oriented data table from a list of segments
             </summary>
@@ -2416,6 +2485,11 @@
             <param name="total">Total size</param>
             <param name="shape">List of sizes that form the shape (one can be null)</param>
             <returns></returns>
+        </member>
+        <member name="T:BrightData.Helper.StreamCloner">
+            <summary>
+            Clones streams
+            </summary>
         </member>
         <member name="T:BrightData.Helper.StringIndexer">
             <summary>
@@ -6051,10 +6125,21 @@
             </summary>
             <param name="array">Array to copy from</param>
         </member>
+        <member name="T:BrightData.Memory.DisposableLayers">
+            <summary>
+            Collects allocations within a "layer" that can all be released at once
+            </summary>
+        </member>
         <member name="T:BrightData.Memory.MemoryLayer">
             <summary>
             A section of memory blocks that will be released when the layer is disposed
             </summary>
+        </member>
+        <member name="T:BrightData.Memory.ReferenceCountedBlock`1">
+            <summary>
+            Reference counted memory block
+            </summary>
+            <typeparam name="T"></typeparam>
         </member>
         <member name="T:BrightData.Memory.TensorPool">
             <summary>
@@ -6069,7 +6154,7 @@
         </member>
         <member name="T:BrightData.Memory.TensorSegmentWrapper`1">
             <summary>
-            Tensor segment that uses offsets and strides to represent a tensor block
+            Tensor segment that uses offsets and strides to form a translated segment from a wrapped tensor segment
             </summary>
             <typeparam name="T"></typeparam>
         </member>
@@ -6135,21 +6220,6 @@
             <inheritdoc />
         </member>
         <member name="M:BrightData.MetaData.Remove(System.String)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Segment.GrowableSegment`1.Dispose">
-            <inheritdoc />
-        </member>
-        <member name="P:BrightData.Segment.GrowableSegment`1.MetaData">
-            <inheritdoc />
-        </member>
-        <member name="P:BrightData.Segment.GrowableSegment`1.SingleType">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Segment.GrowableSegment`1.WriteTo(System.IO.BinaryWriter)">
-            <inheritdoc />
-        </member>
-        <member name="M:BrightData.Segment.GrowableSegment`1.CopyTo(System.IO.Stream)">
             <inheritdoc />
         </member>
         <member name="T:BrightData.Serialisation.SerialisationHelper">
@@ -6224,6 +6294,13 @@
             <summary>
             Parameters that define how to reinterpret the columns in a data table
             </summary>
+        </member>
+        <member name="T:BrightData.Transformation.TransformationContext`2">
+            <summary>
+            A transformation context reads values from a column and writes transformed values to a buffer
+            </summary>
+            <typeparam name="TF"></typeparam>
+            <typeparam name="TT"></typeparam>
         </member>
         <member name="T:BrightData.WeightedIndexList">
             <summary>

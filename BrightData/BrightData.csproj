@@ -3,6 +3,18 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <Nullable>enable</Nullable>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <Version>3.0.0-beta</Version>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageProjectUrl>https://github.com/jdermody/brightwire</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/jdermody/brightwire</RepositoryUrl>
+    <Authors>Jack Dermody</Authors>
+    <Company />
+    <Product>Bright ML</Product>
+    <Description>Bright data is a performance oriented data table and linear algebra library that supports both CPU and GPU computation</Description>
+    <Copyright>Copyright © Jack Dermody 2016-2021</Copyright>
+    <PackageIcon>bw_favicon.png</PackageIcon>
+    <PackageReleaseNotes>Beta release</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -18,6 +30,17 @@
 
   <ItemGroup>
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\bw_favicon.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+    <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

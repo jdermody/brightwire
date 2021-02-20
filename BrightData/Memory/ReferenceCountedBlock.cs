@@ -2,6 +2,10 @@
 
 namespace BrightData.Memory
 {
+    /// <summary>
+    /// Reference counted memory block
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     internal class ReferenceCountedBlock<T> : IReferenceCountedMemory, IHaveDataContext
         where T: struct
     {

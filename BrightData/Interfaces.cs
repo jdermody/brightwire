@@ -951,4 +951,19 @@ namespace BrightData
         /// </summary>
         void Complete();
     }
+
+    public interface IHaveDictionary
+    {
+        string[] Dictionary { get; }
+    }
+
+    public interface ICanReadSection : IDisposable
+    {
+        BinaryReader GetReader();
+    }
+
+    public interface ICloneStreams
+    {
+        ICanReadSection Clone();
+    }
 }

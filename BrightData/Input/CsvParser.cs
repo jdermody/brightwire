@@ -25,6 +25,7 @@ namespace BrightData.Input
         }
 
         public Action<int>? OnProgress { get; set; }
+        public Action? OnComplete { get; set; }
 
         public IEnumerable<string[]> Parse()
         {
@@ -36,6 +37,7 @@ namespace BrightData.Input
             var lastLine = GetLine();
             if(lastLine.Any(s => s.Length > 0))
                 yield return lastLine;
+            OnComplete?.Invoke();
         }
 
         StringBuilder GetBuilder(bool increment)

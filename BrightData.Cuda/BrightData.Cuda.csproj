@@ -2,6 +2,18 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <Version>3.0.0-beta</Version>
+    <Authors>Jack Dermody</Authors>
+    <Company />
+    <Product />
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <RepositoryUrl>https://github.com/jdermody/brightwire</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/jdermody/brightwire</PackageProjectUrl>
+    <Description>Cuda provider for Bright Data - allows GPU computation</Description>
+    <Copyright>Copyright © Jack Dermody 2016-2021</Copyright>
+    <PackageTags>cuda gpu</PackageTags>
+    <PackageIcon>bw_favicon.png</PackageIcon>
+    <PackageReleaseNotes>Beta release</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -12,6 +24,30 @@
     <Compile Remove="Properties\**" />
     <EmbeddedResource Remove="Properties\**" />
     <None Remove="Properties\**" />
+    <None Remove="cuda\brightwire.ptx" />
+    <Content Include="cuda\brightwire.ptx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Include="..\bw_favicon.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+    <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+    <None Include="managed-cuda\CudaBlas.netCore.dll">
+      <Pack>True</Pack>
+      <PackagePath>lib/netcoreapp3.1</PackagePath>
+    </None>
+    <None Include="managed-cuda\CudaSolve.netCore.dll">
+      <Pack>True</Pack>
+      <PackagePath>lib/netcoreapp3.1</PackagePath>
+    </None>
+    <None Include="managed-cuda\ManagedCuda.netCore.dll">
+      <Pack>True</Pack>
+      <PackagePath>lib/netcoreapp3.1</PackagePath>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
@@ -32,12 +68,6 @@
     <Reference Include="ManagedCuda.netCore">
       <HintPath>managed-cuda\ManagedCuda.netCore.dll</HintPath>
     </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="cuda\brightwire.ptx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>

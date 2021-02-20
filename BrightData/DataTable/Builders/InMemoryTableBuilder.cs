@@ -16,6 +16,8 @@ namespace BrightData.DataTable.Builders
         /// <inheritdoc />
         public IBrightDataContext Context { get; }
 
+        public IMetaData MetaData { get; } = new MetaData();
+
         internal InMemoryTableBuilder(IBrightDataContext context)
         {
             Context = context;
@@ -69,7 +71,7 @@ namespace BrightData.DataTable.Builders
         /// <returns></returns>
         public IRowOrientedDataTable BuildRowOriented()
         {
-            using var builder = new RowOrientedTableBuilder((uint)_rows.Count);
+            using var builder = new RowOrientedTableBuilder(MetaData, (uint)_rows.Count);
             foreach (var column in _columns)
                 builder.AddColumn(column.Type, column.MetaData);
             foreach(var row in _rows)
@@ -84,7 +86,7 @@ namespace BrightData.DataTable.Builders
         public IColumnOrientedDataTable BuildColumnOriented()
         {
             using var builder = new ColumnOrientedTableBuilder();
-            builder.WriteHeader((uint)_columns.Count, (uint)_rows.Count);
+            builder.WriteHeader((uint)_columns.Count, (uint)_rows.Count, MetaData);
 
             var tempStream = new TempStreamManager();
             var columns = _columns.Select(c => c.MetaData.GetGrowableSegment(c.Type, Context, tempStream)).ToList();

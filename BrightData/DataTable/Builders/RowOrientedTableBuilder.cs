@@ -7,6 +7,9 @@ using System.Text;
 
 namespace BrightData.DataTable.Builders
 {
+    /// <summary>
+    /// Builds row oriented data tables
+    /// </summary>
     internal class RowOrientedTableBuilder : IDisposable
     {
         class Column
@@ -25,13 +28,15 @@ namespace BrightData.DataTable.Builders
         readonly List<uint> _rowOffset = new List<uint>();
         readonly Stream _stream;
         readonly BinaryWriter _writer;
+        readonly IMetaData _metaData;
         readonly uint _rowCount;
         bool _hasWrittenHeader = false;
         long _rowIndexPosition = -1;
         bool _hasClosedStream = false;
 
-        public RowOrientedTableBuilder(uint rowCount, string? filePath = null)
+        public RowOrientedTableBuilder(IMetaData metaData, uint rowCount, string? filePath = null)
         {
+            _metaData = metaData;
             _rowCount = rowCount;
             _stream = filePath != null ? (Stream)new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite) : new MemoryStream();
             _writer = new BinaryWriter(_stream, Encoding.UTF8, true);
@@ -84,6 +89,7 @@ namespace BrightData.DataTable.Builders
                 _writer.Write(Consts.DataTableVersion); // format version
                 _writer.Write((byte)DataTableOrientation.RowOriented);
                 _writer.Write((uint)_columns.Count); // write the number of columns
+                _metaData.WriteTo(_writer);
                 foreach (var column in _columns)
                 {
                     var type = column.Type;

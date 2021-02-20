@@ -3,6 +3,9 @@ using System.Collections.Concurrent;
 
 namespace BrightData.Memory
 {
+    /// <summary>
+    /// Collects allocations within a "layer" that can all be released at once
+    /// </summary>
     internal class DisposableLayers : IDisposableLayers
     {
         readonly ConcurrentStack<ConcurrentBag<IDisposable>> _layers = new ConcurrentStack<ConcurrentBag<IDisposable>>();

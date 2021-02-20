@@ -1,20 +1,19 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using BrightData.Segment;
 
 namespace BrightData.Buffer
 {
     /// <summary>
-    /// Buffer
+    /// A typed data table segment that can grow in size
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal class InMemoryBuffer<T> : IDataTableSegment<T>, IConsumeColumnData<T>, IHaveDataContext
+    internal class GrowableDataTableSegment<T> : IDataTableSegment<T>, IConsumeColumnData<T>
         where T: notnull
     {
         readonly GrowableSegment<T> _segment;
 
-        public InMemoryBuffer(IBrightDataContext context, IColumnInfo column, uint size, IProvideTempStreams tempStream)
+        public GrowableDataTableSegment(IBrightDataContext context, IColumnInfo column, uint size, IProvideTempStreams tempStream)
         {
             Context = context;
             SingleType = column.ColumnType;
@@ -27,7 +26,7 @@ namespace BrightData.Buffer
             _segment = new GrowableSegment<T>(SingleType, MetaData, (IHybridBuffer<T>)buffer);
         }
 
-        public InMemoryBuffer(IBrightDataContext context, IColumnInfo column, uint size, IProvideTempStreams tempStream, IEnumerable<T> data) : this(context, column, size, tempStream)
+        public GrowableDataTableSegment(IBrightDataContext context, IColumnInfo column, uint size, IProvideTempStreams tempStream, IEnumerable<T> data) : this(context, column, size, tempStream)
         {
             foreach (var item in data)
                 _segment.Add(item);
@@ -45,7 +44,6 @@ namespace BrightData.Buffer
         public IEnumerable<object?> Data => _segment.Enumerate();
         public IMetaData MetaData { get; }
         public ColumnType SingleType { get; }
-        public bool IsEncoded => false;
         public uint ColumnIndex { get; }
         public ColumnType ColumnType => SingleType;
         public void WriteTo(BinaryWriter writer) => _segment.WriteTo(writer);

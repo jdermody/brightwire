@@ -3,6 +3,19 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <Nullable>enable</Nullable>
+    <Version>3.0.0-beta</Version>
+    <Authors>Jack Dermody</Authors>
+    <Company />
+    <Product>Bright ML</Product>
+    <Description>Bright Wire is an open source machine learning library for .net core. Includes neural networks (feed forward, convolutional and recurrent), naive bayes, linear regression, decision trees, logistic regression, k-means clustering and dimensionality reduction.</Description>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageProjectUrl>https://github.com/jdermody/brightwire</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/jdermody/brightwire</RepositoryUrl>
+    <Copyright>Copyright © Jack Dermody 2016-2021</Copyright>
+    <PackageTags>machinelearning</PackageTags>
+    <PackageIcon>bw_favicon.png</PackageIcon>
+    <EnableNETAnalyzers>false</EnableNETAnalyzers>
+    <PackageReleaseNotes>Beta release</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -19,6 +32,14 @@
     <None Remove="LinearAlgebra\**" />
     <None Remove="Models\DataTable\**" />
     <None Remove="TabularData\**" />
+    <None Include="..\bw_favicon.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+    <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
   <ItemGroup>

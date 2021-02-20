@@ -631,6 +631,8 @@ namespace BrightData
         /// Column type
         /// </summary>
         ColumnType ColumnType { get; }
+
+        IHaveDictionary? Dictionary { get; }
     }
 
     /// <summary>

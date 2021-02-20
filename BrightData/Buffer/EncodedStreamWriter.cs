@@ -10,9 +10,9 @@ using BrightData.Helper;
 namespace BrightData.Buffer
 {
     /// <summary>
-    /// Buffered stream writer helper
+    /// Writes hybrid buffers to binary writers, potentially encoding along the way
     /// </summary>
-    public static class BufferWriter
+    public static class EncodedStreamWriter
     {
         /// <summary>
         /// Writes the hybrid buffer to a stream
