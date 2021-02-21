@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BrightData.Buffer;
 
-namespace BrightData.Buffer
+namespace BrightData.DataTable.Consumers
 {
     /// <summary>
     /// A typed data table segment that can grow in size

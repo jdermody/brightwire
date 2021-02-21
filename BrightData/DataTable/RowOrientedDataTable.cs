@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using BrightData.Buffer;
 using BrightData.DataTable.Builders;
+using BrightData.DataTable.Consumers;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
 
@@ -19,11 +20,7 @@ namespace BrightData.DataTable
         {
             object Read(BinaryReader reader);
         }
-        interface IColumnReader<out T> where T: notnull
-        {
-            T ReadTyped(BinaryReader reader);
-        }
-        class ColumnReader<T> : IColumnReader, IColumnReader<T> where T : notnull
+        class ColumnReader<T> : IColumnReader where T : notnull
         {
             readonly Func<BinaryReader, T> _reader;
             public ColumnReader(Func<BinaryReader, T> reader) => _reader = reader;
@@ -40,10 +37,10 @@ namespace BrightData.DataTable
             readonly ColumnReader<T> _reader;
             readonly IConsumeColumnData<T> _consumer;
 
-            public ConsumerBinding(IColumnReader reader, IConsumeColumnData consumer)
+            public ConsumerBinding(ColumnReader<T> reader, IConsumeColumnData<T> consumer)
             {
-                _reader = (ColumnReader<T>)reader;
-                _consumer = (IConsumeColumnData<T>)consumer;
+                _reader = reader;
+                _consumer = consumer;
             }
 
             public void Read(BinaryReader reader) => _consumer.Add(_reader.ReadTyped(reader));
@@ -125,8 +122,10 @@ namespace BrightData.DataTable
 
         public IEnumerable<ISingleTypeTableSegment> Columns(params uint[] columnIndices)
         {
-            // TODO: optionally compress the columns based on unique count statistics
-            var columns = AllOrSpecifiedColumns(columnIndices).Select(i => (Index: i, Column: GetColumn(ColumnTypes[i], i, _columns[i].MetaData))).ToList();
+            var selectedColumnIndices = AllOrSpecifiedColumns(columnIndices);
+
+            // TODO: compress the columns based on frequency statistics
+            var columns = selectedColumnIndices.Select(i => (Index: i, Column: GetColumn(ColumnTypes[i], i, _columns[i].MetaData))).ToList();
             if (columns.Any()) {
                 // set the column metadata
                 columns.ForEach(item => {
@@ -245,7 +244,7 @@ namespace BrightData.DataTable
 
         (ISingleTypeTableSegment Segment, IConsumeColumnData Consumer) GetColumn(ColumnType columnType, uint index, IMetaData metaData)
         {
-            var type = typeof(Buffer.GrowableDataTableSegment<>).MakeGenericType(columnType.GetDataType());
+            var type = typeof(GrowableDataTableSegment<>).MakeGenericType(columnType.GetDataType());
             var columnInfo = new ColumnInfo(index, columnType, metaData);
             return GenericActivator.Create<ISingleTypeTableSegment, IConsumeColumnData>(type, Context, columnInfo, RowCount, Context.TempStreamProvider);
         }

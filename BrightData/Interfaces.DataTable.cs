@@ -385,7 +385,7 @@ namespace BrightData
         /// </summary>
         /// <param name="filePath">File path to store new table on disk (optional)</param>
         /// <returns></returns>
-        IColumnOrientedDataTable Clone(string? filePath);
+        IColumnOrientedDataTable Clone(string? filePath = null);
 
         /// <summary>
         /// Returns the metadata for a single column after performing analysis on the column

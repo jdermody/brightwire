@@ -21,7 +21,7 @@ namespace BrightWire.UnitTests
             var classifier = model.CreateClassifier();
             var testRows = data.AsConvertible().Rows().ToArray();
             classifier.Classify(testRows[0]).GetBestClassification().Should().Be("china");
-            classifier.Classify(testRows[1]).GetBestClassification().Should().Be("japan");
+            classifier.Classify(testRows[1]).GetBestClassification().Should().Be("china");
         }
 
         [Fact]

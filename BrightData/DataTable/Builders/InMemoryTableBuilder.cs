@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using BrightData.Helper;
+using BrightData.LinearAlgebra;
 
 namespace BrightData.DataTable.Builders
 {
@@ -16,6 +17,9 @@ namespace BrightData.DataTable.Builders
         /// <inheritdoc />
         public IBrightDataContext Context { get; }
 
+        /// <summary>
+        /// Table meta data
+        /// </summary>
         public IMetaData MetaData { get; } = new MetaData();
 
         internal InMemoryTableBuilder(IBrightDataContext context)
@@ -63,7 +67,38 @@ namespace BrightData.DataTable.Builders
         /// Adds a new row
         /// </summary>
         /// <param name="data"></param>
-        public void AddRow(params object[] data) => _rows.Add(data);
+        public void AddRow(params object[] data)
+        {
+            if (data.Length != _columns.Count)
+                throw new ArgumentException($"{data.Length} columns but needed {_columns.Count}");
+            for (int i = 0, len = data.Length; i < len; i++)
+                data[i] = EnsureType(data[i], _columns[i].Type);
+            _rows.Add(data);
+        }
+
+        static object EnsureType(object val, ColumnType type)
+        {
+            return type switch {
+                ColumnType.Matrix => (object)(Matrix<float>) val,
+                ColumnType.BinaryData => (BinaryData) val,
+                ColumnType.Boolean => Convert.ToBoolean(val),
+                ColumnType.Byte => Convert.ToSByte(val),
+                ColumnType.Date => Convert.ToDateTime(val),
+                ColumnType.Decimal => Convert.ToDecimal(val),
+                ColumnType.Short => Convert.ToInt16(val),
+                ColumnType.Int => Convert.ToInt32(val),
+                ColumnType.Long => Convert.ToInt64(val),
+                ColumnType.Float => Convert.ToSingle(val),
+                ColumnType.Double => Convert.ToDouble(val),
+                ColumnType.String => val.ToString(),
+                ColumnType.IndexList => (IndexList) val,
+                ColumnType.WeightedIndexList => (WeightedIndexList) val,
+                ColumnType.Vector => (Vector<float>) val,
+                ColumnType.Tensor3D => (Tensor3D<float>) val,
+                ColumnType.Tensor4D => (Tensor4D<float>) val,
+                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+            } ?? throw new ArgumentException("Value cannot be null");
+        }
 
         /// <summary>
         /// Creates a row oriented table

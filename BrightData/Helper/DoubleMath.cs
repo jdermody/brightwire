@@ -10,7 +10,7 @@ namespace BrightData.Helper
         /// <summary>
         /// A number that is close to zero
         /// </summary>
-        public const double AlmostZero = 1E-0128f;
+        public const double AlmostZero = 1E-32f;
 
         /// <summary>
         /// True if the numbers are approximately equal

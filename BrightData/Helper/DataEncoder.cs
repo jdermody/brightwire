@@ -251,7 +251,6 @@ namespace BrightData.Helper
                 __refvalue(valRef, Tensor4D<float>).WriteTo(writer);
             else if (typeOfT == typeof(BinaryData))
                 __refvalue(valRef, BinaryData).WriteTo(writer);
-
             else
                 throw new NotImplementedException();
         }

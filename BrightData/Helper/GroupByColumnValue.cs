@@ -17,7 +17,7 @@ namespace BrightData.Helper
         public void Analyse(IDataTable dataTable)
         {
             dataTable.ForEachRow((row, index) => {
-                var str = String.Join("", _columnIndex.Select(i => row[i].ToString()));
+                var str = String.Join('|', _columnIndex.Select(i => row[i].ToString()));
                 if (!_groups.TryGetValue(str, out var list))
                     _groups.Add(str, list = new List<uint>());
                 list.Add(index);

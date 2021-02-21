@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Linq;
+using BrightData.Helper;
+using BrightWire;
 using FluentAssertions;
 using Xunit;
 
@@ -67,33 +69,7 @@ namespace BrightData.UnitTests
             }
         }
 
-        //[Fact]
-        //public void TestIndexHydration()
-        //{
-        //    using var dataStream = new MemoryStream();
-        //    using var indexStream = new MemoryStream();
-
-        //    var builder = _context.BuildTable();
-        //    builder.AddColumn(ColumnType.Boolean, "target").SetTargetColumn(true);
-        //    builder.AddColumn(ColumnType.Int, "val");
-        //    builder.AddColumn(ColumnType.String, "label");
-        //    for (var i = 0; i < 33000; i++)
-        //        builder.AddRow(i % 2 == 0, i, i.ToString());
-
-        //    var table = builder.Build();
-        //    builder.WriteIndexTo(indexStream);
-
-        //    dataStream.Seek(0, SeekOrigin.Begin);
-        //    indexStream.Seek(0, SeekOrigin.Begin);
-        //    var newTable = _context.BuildTable(dataStream, indexStream);
-        //    CompareTables(table, newTable);
-
-        //    dataStream.Seek(0, SeekOrigin.Begin);
-        //    var newTable2 = _context.BuildTable(dataStream, null);
-        //    CompareTables(table, newTable2);
-        //}
-
-        static IDataTable CreateComplexTable(IBrightDataContext context)
+        static IRowOrientedDataTable CreateComplexTable(IBrightDataContext context)
         {
             var builder = context.BuildTable();
             builder.AddColumn(ColumnType.Boolean, "boolean");
@@ -189,66 +165,105 @@ namespace BrightData.UnitTests
             });
         }
 
-        //[Fact]
-        //public void TestStandardNormalisation2()
-        //{
-        //    var table = GetSimpleTable2();
-        //    var analysis = table.GetColumnAnalysis()[0];
-        //    var normalised = table.AsColumnOriented().Normalize(NormalizationType.Standard).AsRowOriented().AsConvertible();
+        [Fact]
+        public void TestDataTableClone()
+        {
+            using var table = CreateComplexTable(_context);
+            using var clone = table.Clone();
+            CompareTables(table, clone);
+        }
 
-        //    RandomSample(normalised, (index, row) => {
-        //        var val = row.GetTyped<double>(0);
-        //        var prevVal = (double)table.Row(index)[0];
-        //        var expected = (prevVal - analysis.Mean) / analysis.StdDev.Value;
+        [Fact]
+        public void TestDataTableClone2()
+        {
+            using var table = CreateComplexTable(_context).AsColumnOriented();
+            using var clone = table.Clone();
+            CompareTables(table.AsRowOriented(), clone.AsRowOriented());
+        }
 
-        //        Assert.AreEqual(val, expected);
-        //    });
-        //}
+        [Fact]
+        public void ConcatTables()
+        {
+            using var table = CreateComplexTable(_context);
+            using var table2 = CreateComplexTable(_context);
+            var table3 = table.Concat(table2);
+            table3.ColumnCount.Should().Be(table.ColumnCount);
+            table3.RowCount.Should().Be(table.RowCount + table2.RowCount);
+        }
 
-        //[Fact]
-        //public void TestFeatureScaleNormalisation()
-        //{
-        //    var table = GetSimpleTable2();
-        //    var analysis = table.GetAnalysis()[0] as INumericColumnInfo;
-        //    var normalised = table.Normalize(NormalisationType.FeatureScale);
+        [Fact]
+        public void ShuffleTables()
+        {
+            using var table = CreateComplexTable(_context);
+            using var shuffled = table.Shuffle();
+            shuffled.RowCount.Should().Be(table.RowCount);
+        }
 
-        //    RandomSample(normalised, (index, row) => {
-        //        var val = row.GetTyped<double>(0);
-        //        var prevVal = table.GetRow(index).GetField<double>(0);
-        //        var expected = (prevVal - analysis.Min) / (analysis.Max - analysis.Min);
+        [Fact]
+        public void SortTable()
+        {
+            using var table = CreateComplexTable(_context);
+            using var sorted = table.Sort(1, false);
+            sorted.FirstRow[1].Should().Be(table.LastRow[1]);
+        }
 
-        //        Assert.AreEqual(val, expected);
-        //    });
-        //}
+        [Fact]
+        public void GroupTable()
+        {
+            using var table = CreateComplexTable(_context);
+            foreach (var group in table.GroupBy(0)) {
+                group.Table.RowCount.Should().Be(table.RowCount / 2);
+                group.Table.Dispose();
+            }
+        }
 
-        //[Fact]
-        //public void TestFeatureScaleNormalisation2()
-        //{
-        //    var table = GetSimpleTable2();
-        //    var analysis = table.GetAnalysis()[0] as INumericColumnInfo;
-        //    var model = table.GetNormalisationModel(NormalisationType.FeatureScale);
-        //    var normalised = table.Normalize(model);
+        [Fact]
+        public void TestStandardNormalisation2()
+        {
+            var table = GetSimpleTable2();
+            var table2 = table.AsColumnOriented();
+            var analysis = table2.AllColumnAnalysis()[0].GetNumericAnalysis();
+            var normalised = table2.Normalize(NormalizationType.Standard).AsRowOriented().AsConvertible();
 
-        //    RandomSample(normalised, (index, row) => {
-        //        var val = row.GetTyped<double>(0);
-        //        var prevVal = table.GetRow(index).GetField<double>(0);
-        //        var expected = (prevVal - analysis.Min) / (analysis.Max - analysis.Min);
+            RandomSample(normalised, (index, row) =>
+            {
+                var val = row.GetTyped<double>(0);
+                var prevVal = (double)table.Row(index)[0];
+                var expected = (prevVal - analysis.Mean) / analysis.PopulationStdDev!;
+                DoubleMath.AreApproximatelyEqual(val, expected).Should().BeTrue();
+            });
+        }
 
-        //        Assert.AreEqual(val, expected);
-        //    });
-        //}
+        [Fact]
+        public void TestFeatureScaleNormalisation()
+        {
+            var table = GetSimpleTable2();
+            var table2 = table.AsColumnOriented();
+            var analysis = table2.AllColumnAnalysis()[0].GetNumericAnalysis();
+            var normalised = table2.Normalize(NormalizationType.FeatureScale).AsRowOriented().AsConvertible();
+
+            RandomSample(normalised, (index, row) =>
+            {
+                var val = row.GetTyped<double>(0);
+                var prevVal = (double)table.Row(index)[0];
+                var expected = (prevVal - analysis.Min) / (analysis.Max - analysis.Min);
+                DoubleMath.AreApproximatelyEqual(val, expected).Should().BeTrue();
+            });
+        }
 
         //[Fact]
         //public void TestL2Normalisation()
         //{
         //    var table = GetSimpleTable2();
-        //    var analysis = table.GetAnalysis()[0] as INumericColumnInfo;
-        //    var normalised = table.Normalize(NormalisationType.Euclidean);
+        //    var table2 = table.AsColumnOriented();
+        //    var analysis = table2.AllColumnAnalysis()[0].GetNumericAnalysis();
+        //    var normalised = table2.Normalize(NormalizationType.Euclidean).AsRowOriented().AsConvertible();
 
         //    var l2Norm = Math.Sqrt(table.GetColumn<double>(0).Select(d => Math.Pow(d, 2)).Sum());
         //    Assert.AreEqual(analysis.L2Norm, l2Norm);
 
-        //    RandomSample(normalised, (index, row) => {
+        //    RandomSample(normalised, (index, row) =>
+        //    {
         //        var val = row.GetTyped<double>(0);
         //        var prevVal = table.GetRow(index).GetField<double>(0);
         //        var expected = prevVal / analysis.L2Norm;
@@ -330,20 +345,20 @@ namespace BrightData.UnitTests
         //    zipped.ForEach(row => Assert.AreEqual(row.Data[0], row.Data[1]));
         //}
 
-        //[Fact]
-        //public void TestTargetColumnIndex()
-        //{
-        //    var builder = _context.BuildTable();
-        //    builder.AddColumn(ColumnType.String, "a");
-        //    builder.AddColumn(ColumnType.String, "b").SetTargetColumn(true);
-        //    builder.AddColumn(ColumnType.String, "c");
-        //    builder.AddRow("a", "b", "c");
-        //    var table = builder.Build();
+        [Fact]
+        public void TestTargetColumnIndex()
+        {
+            var builder = _context.BuildTable();
+            builder.AddColumn(ColumnType.String, "a");
+            builder.AddColumn(ColumnType.String, "b").SetTarget(true);
+            builder.AddColumn(ColumnType.String, "c");
+            builder.AddRow("a", "b", "c");
+            var table = builder.BuildRowOriented();
 
-        //    Assert.AreEqual(table.TargetColumnIndex, 1);
-        //    Assert.AreEqual(table.RowCount, 1);
-        //    Assert.AreEqual(table.ColumnCount, 3);
-        //}
+            table.GetTargetColumnOrThrow().Should().Be(1);
+            table.RowCount.Should().Be(1);
+            table.ColumnCount.Should().Be(3);
+        }
 
         //[Fact]
         //public void GetNumericRows()
@@ -532,43 +547,43 @@ namespace BrightData.UnitTests
         //        Assert.AreEqual(tuple.Item1, tuple.Item2);
         //}
 
-        //[Fact]
-        //public void TableConfusionMatrix()
-        //{
-        //    var builder = _context.BuildTable();
+        [Fact]
+        public void TableConfusionMatrix()
+        {
+            var builder = _context.BuildTable();
 
-        //    builder.AddColumn(ColumnType.String, "actual");
-        //    builder.AddColumn(ColumnType.String, "expected");
+            builder.AddColumn(ColumnType.String, "actual");
+            builder.AddColumn(ColumnType.String, "expected");
 
-        //    const int CAT_CAT = 5;
-        //    const int CAT_DOG = 2;
-        //    const int DOG_CAT = 3;
-        //    const int DOG_DOG = 5;
-        //    const int DOG_RABBIT = 2;
-        //    const int RABBIT_DOG = 1;
-        //    const int RABBIT_RABBIT = 11;
+            const int CAT_CAT = 5;
+            const int CAT_DOG = 2;
+            const int DOG_CAT = 3;
+            const int DOG_DOG = 5;
+            const int DOG_RABBIT = 2;
+            const int RABBIT_DOG = 1;
+            const int RABBIT_RABBIT = 11;
 
-        //    for (var i = 0; i < CAT_CAT; i++)
-        //        builder.AddRow("cat", "cat");
-        //    for (var i = 0; i < CAT_DOG; i++)
-        //        builder.AddRow("cat", "dog");
-        //    for (var i = 0; i < DOG_CAT; i++)
-        //        builder.AddRow("dog", "cat");
-        //    for (var i = 0; i < DOG_DOG; i++)
-        //        builder.AddRow("dog", "dog");
-        //    for (var i = 0; i < DOG_RABBIT; i++)
-        //        builder.AddRow("dog", "rabbit");
-        //    for (var i = 0; i < RABBIT_DOG; i++)
-        //        builder.AddRow("rabbit", "dog");
-        //    for (var i = 0; i < RABBIT_RABBIT; i++)
-        //        builder.AddRow("rabbit", "rabbit");
-        //    var table = builder.Build();
-        //    var confusionMatrix = table.CreateConfusionMatrix(1, 0);
-        //    var xml = confusionMatrix.AsXml;
+            for (var i = 0; i < CAT_CAT; i++)
+                builder.AddRow("cat", "cat");
+            for (var i = 0; i < CAT_DOG; i++)
+                builder.AddRow("cat", "dog");
+            for (var i = 0; i < DOG_CAT; i++)
+                builder.AddRow("dog", "cat");
+            for (var i = 0; i < DOG_DOG; i++)
+                builder.AddRow("dog", "dog");
+            for (var i = 0; i < DOG_RABBIT; i++)
+                builder.AddRow("dog", "rabbit");
+            for (var i = 0; i < RABBIT_DOG; i++)
+                builder.AddRow("rabbit", "dog");
+            for (var i = 0; i < RABBIT_RABBIT; i++)
+                builder.AddRow("rabbit", "rabbit");
+            var table = builder.BuildRowOriented();
+            var confusionMatrix = table.AsConvertible().CreateConfusionMatrix(1, 0);
+            var xml = confusionMatrix.AsXml;
 
-        //    Assert.AreEqual((uint)CAT_DOG, confusionMatrix.GetCount("cat", "dog"));
-        //    Assert.AreEqual((uint)DOG_RABBIT, confusionMatrix.GetCount("dog", "rabbit"));
-        //    Assert.AreEqual((uint)RABBIT_RABBIT, confusionMatrix.GetCount("rabbit", "rabbit"));
-        //}
+            confusionMatrix.GetCount("cat", "dog").Should().Be(CAT_DOG);
+            confusionMatrix.GetCount("dog", "rabbit").Should().Be(DOG_RABBIT);
+            confusionMatrix.GetCount("rabbit", "rabbit").Should().Be(RABBIT_RABBIT);
+        }
     }
 }

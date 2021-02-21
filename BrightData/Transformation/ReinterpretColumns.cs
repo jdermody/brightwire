@@ -78,7 +78,7 @@ namespace BrightData.Transformation
                 IProvideTempStreams tempStreams, 
                 string name, 
                 uint newColumnIndex, 
-                (IColumnInfo Info, ISingleTypeTableSegment Segment)[] sourceColumns, 
+                IReadOnlyCollection<(IColumnInfo Info, ISingleTypeTableSegment Segment)> sourceColumns, 
                 Func<IBrightDataContext, object[], T> converter
             ) {
                 Index = newColumnIndex;
@@ -89,7 +89,7 @@ namespace BrightData.Transformation
                 _buffer = (IHybridBuffer<T>)MetaData.GetGrowableSegment(SingleType, context, tempStreams);
 
                 // fill the buffer
-                var len = sourceColumns.Length;
+                var len = sourceColumns.Count;
                 var buffer = new object[len];
                 var enumerators = sourceColumns.Select(c => c.Segment.Enumerate().GetEnumerator()).ToList();
                 while (enumerators.All(e => e.MoveNext()))
