@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using BrightData.Converter;
 using BrightData.Helper;
@@ -9,14 +10,29 @@ namespace BrightData.Transformation
 {
     internal class DataTableVectoriser : IHaveDataContext, IDataTableVectoriser
     {
-        interface IColumnVectoriser : IDisposable
+        interface IColumnVectoriser : IDisposable, ICanWriteToBinaryWriter
         {
             uint ColumnIndex { get; }
             IEnumerable<float> GetNext();
             IEnumerable<float> Convert(object obj);
             uint Size { get; }
         }
-        abstract class VectoriserBase<T> : IColumnVectoriser
+
+        interface IColumnVectoriser<in T> : IColumnVectoriser where T : notnull
+        {
+            IEnumerable<float> Convert(T obj);
+        }
+
+        enum VectorisationType : byte
+        {
+            Numeric,
+            WeightedIndexList,
+            IndexList,
+            Tensor,
+            OneHotEncodeToVector,
+            OneHotEncode
+        }
+        abstract class VectoriserBase<T> : IColumnVectoriser<T> where T : notnull
         {
             readonly IEnumerator<T> _enumerator;
 
@@ -33,7 +49,9 @@ namespace BrightData.Transformation
 
             public abstract uint Size { get; }
             public uint ColumnIndex { get; }
+            public abstract VectorisationType VectorisationType { get; }
 
+            public IEnumerable<float> Convert(T obj) => Vectorize(obj);
             public IEnumerable<float> Convert(object obj) => Vectorize((T)obj);
 
             public IEnumerable<float> GetNext()
@@ -45,6 +63,12 @@ namespace BrightData.Transformation
             }
 
             protected abstract IEnumerable<float> Vectorize(T obj);
+
+            public virtual void WriteTo(BinaryWriter writer)
+            {
+                writer.Write((byte)VectorisationType);
+                writer.Write(ColumnIndex);
+            }
         }
         class NumericVectoriser<T> : VectoriserBase<T>
             where T : struct
@@ -57,6 +81,7 @@ namespace BrightData.Transformation
             }
 
             public override uint Size => 1;
+            public override VectorisationType VectorisationType => VectorisationType.Numeric;
 
             protected override IEnumerable<float> Vectorize(T obj)
             {
@@ -67,18 +92,29 @@ namespace BrightData.Transformation
         {
             readonly uint _maxSize;
 
-            public WeightedIndexListVectoriser(uint maxSize, ISingleTypeTableSegment column)
-                : base(column.MetaData.GetIndex(), ((IDataTableSegment<WeightedIndexList>)column).EnumerateTyped().GetEnumerator())
+            WeightedIndexListVectoriser(ISingleTypeTableSegment column) : base(column.MetaData.GetIndex(), ((IDataTableSegment<WeightedIndexList>)column).EnumerateTyped().GetEnumerator()) { }
+            public WeightedIndexListVectoriser(uint maxSize, ISingleTypeTableSegment column) : this(column)
             {
                 _maxSize = maxSize;
             }
+            public WeightedIndexListVectoriser(ISingleTypeTableSegment column, BinaryReader reader) : this(column)
+            {
+                _maxSize = reader.ReadUInt32();
+            }
 
-            public override uint Size => _maxSize;
+            public override void WriteTo(BinaryWriter writer)
+            {
+                base.WriteTo(writer);
+                writer.Write(_maxSize);
+            }
+
+            public override uint Size => _maxSize + 1;
+            public override VectorisationType VectorisationType => VectorisationType.WeightedIndexList;
 
             protected override IEnumerable<float> Vectorize(WeightedIndexList obj)
             {
                 var indexTable = obj.Indices.ToDictionary(d => d.Index, d => d.Weight);
-                for (uint i = 0; i < _maxSize; i++)
+                for (uint i = 0; i <= _maxSize; i++)
                     yield return indexTable.TryGetValue(i, out var val) ? val : 0f;
             }
         }
@@ -86,30 +122,52 @@ namespace BrightData.Transformation
         {
             readonly uint _maxSize;
 
-            public IndexListVectoriser(uint maxSize, ISingleTypeTableSegment column)
-                : base(column.MetaData.GetIndex(), ((IDataTableSegment<IndexList>)column).EnumerateTyped().GetEnumerator())
+            public IndexListVectoriser(ISingleTypeTableSegment column) : base(column.MetaData.GetIndex(), ((IDataTableSegment<IndexList>)column).EnumerateTyped().GetEnumerator()) { }
+            public IndexListVectoriser(uint maxSize, ISingleTypeTableSegment column) : this(column)
             {
                 _maxSize = maxSize;
             }
+            public IndexListVectoriser(ISingleTypeTableSegment column, BinaryReader reader) : this(column)
+            {
+                _maxSize = reader.ReadUInt32();
+            }
 
-            public override uint Size => _maxSize;
+            public override uint Size => _maxSize + 1;
+            public override VectorisationType VectorisationType => VectorisationType.IndexList;
 
             protected override IEnumerable<float> Vectorize(IndexList obj)
             {
                 var indexSet = new HashSet<uint>(obj.Indices);
-                for (uint i = 0; i < _maxSize; i++)
+                for (uint i = 0; i <= _maxSize; i++)
                     yield return indexSet.Contains(i) ? 1f : 0f;
+            }
+
+            public override void WriteTo(BinaryWriter writer)
+            {
+                base.WriteTo(writer);
+                writer.Write(_maxSize);
             }
         }
         class TensorVectoriser : VectoriserBase<ITensor<float>>
         {
-            public TensorVectoriser(uint size, ISingleTypeTableSegment column)
-                : base(column.MetaData.GetIndex(), ((IDataTableSegment<ITensor<float>>)column).EnumerateTyped().GetEnumerator())
+            TensorVectoriser(ISingleTypeTableSegment column) : base(column.MetaData.GetIndex(), ((IDataTableSegment<ITensor<float>>)column).EnumerateTyped().GetEnumerator()) {}
+            public TensorVectoriser(uint size, ISingleTypeTableSegment column) : this(column)
             {
                 Size = size;
             }
+            public TensorVectoriser(ISingleTypeTableSegment column, BinaryReader reader) : this(column)
+            {
+                Size = reader.ReadUInt32();
+            }
+
+            public override void WriteTo(BinaryWriter writer)
+            {
+                base.WriteTo(writer);
+                writer.Write(Size);
+            }
 
             public override uint Size { get; }
+            public override VectorisationType VectorisationType => VectorisationType.Tensor;
 
             protected override IEnumerable<float> Vectorize(ITensor<float> obj)
             {
@@ -128,14 +186,33 @@ namespace BrightData.Transformation
             readonly float[] _buffer;
             uint _nextIndex = 0;
 
-            public OneHotEncodeVectorised(uint size, ISingleTypeTableSegment column)
-                : base(column.MetaData.GetIndex(), column.Enumerate().GetEnumerator())
+            OneHotEncodeVectorised(ISingleTypeTableSegment column) : base(column.MetaData.GetIndex(), column.Enumerate().GetEnumerator()) { }
+            public OneHotEncodeVectorised(uint size, ISingleTypeTableSegment column) : this(column)
             {
-                Size = size;
-                _buffer = new float[size];
+                _buffer = new float[Size = size];
+            }
+            public OneHotEncodeVectorised(ISingleTypeTableSegment column, BinaryReader reader) : this(column)
+            {
+                _nextIndex = reader.ReadUInt32();
+                var size = reader.ReadUInt32();
+                _buffer = new float[Size = size];
+                var len = reader.ReadInt32();
+                for(uint i = 0; i < len; i++)
+                    _stringIndex.Add(reader.ReadString(), i);
+            }
+
+            public override void WriteTo(BinaryWriter writer)
+            {
+                base.WriteTo(writer);
+                writer.Write(_nextIndex);
+                writer.Write(Size);
+                writer.Write(_stringIndex.Count);
+                foreach(var item in _stringIndex.OrderBy(d => d.Value))
+                    writer.Write(item.Key);
             }
 
             public override uint Size { get; }
+            public override VectorisationType VectorisationType => VectorisationType.OneHotEncodeToVector;
 
             protected override IEnumerable<float> Vectorize(object obj)
             {
@@ -171,8 +248,26 @@ namespace BrightData.Transformation
             {
                 Size = 1;
             }
+            public OneHotEncode(ISingleTypeTableSegment column, BinaryReader reader)
+                : this(column)
+            {
+                _nextIndex = reader.ReadUInt32();
+                var len = reader.ReadInt32();
+                for(uint i = 0; i < len; i++)
+                    _stringIndex.Add(reader.ReadString(), i);
+            }
+
+            public override void WriteTo(BinaryWriter writer)
+            {
+                base.WriteTo(writer);
+                writer.Write(_nextIndex);
+                writer.Write(_stringIndex.Count);
+                foreach(var item in _stringIndex.OrderBy(d => d.Value))
+                    writer.Write(item.Key);
+            }
 
             public override uint Size { get; }
+            public override VectorisationType VectorisationType => VectorisationType.OneHotEncode;
 
             protected override IEnumerable<float> Vectorize(object obj)
             {
@@ -226,6 +321,42 @@ namespace BrightData.Transformation
             );
         }
 
+        public DataTableVectoriser(IDataTable dataTable, BinaryReader reader)
+        {
+            RowCount = dataTable.RowCount;
+            Context = dataTable.Context;
+
+            var len = reader.ReadInt32();
+            for(var i = 0; i < len; i++)
+                _input.Add(GetColumnVectoriser(dataTable, reader));
+        }
+
+        IColumnVectoriser GetColumnVectoriser(IDataTable dataTable, BinaryReader reader)
+        {
+            var type = (VectorisationType) reader.ReadByte();
+            var column = dataTable.Column(reader.ReadUInt32());
+
+            return type switch {
+                VectorisationType.WeightedIndexList => new WeightedIndexListVectoriser(column, reader),
+                VectorisationType.Numeric => GenericActivator.Create<IColumnVectoriser>(
+                    typeof(NumericVectoriser<>).MakeGenericType(column.SingleType.GetDataType()),
+                    column
+                ),
+                VectorisationType.IndexList => new IndexListVectoriser(column, reader),
+                VectorisationType.Tensor => new TensorVectoriser(column, reader),
+                VectorisationType.OneHotEncodeToVector => new OneHotEncodeVectorised(column, reader),
+                VectorisationType.OneHotEncode => new OneHotEncode(column, reader),
+                _ => throw new NotImplementedException()
+            };
+        }
+
+        public void WriteTo(BinaryWriter writer)
+        {
+            writer.Write(_input.Count);
+            foreach(var item in _input)
+                item.WriteTo(writer);
+        }
+
         public IEnumerable<Vector<float>> Enumerate()
         {
             var ret = new float[OutputSize];
@@ -241,7 +372,7 @@ namespace BrightData.Transformation
             }
         }
 
-        public string GetOutputLabel(uint columnIndex, uint vectorIndex)
+        public string GetOutputLabel(uint vectorIndex, uint columnIndex)
         {
             if(columnIndex >= _input.Count)
                 throw new ArgumentException($"Column index should be less than {_input.Count}");

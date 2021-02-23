@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.InteropServices;
+using System.Text;
 using BrightData.Converter;
 using BrightData.Helper;
 
@@ -518,5 +519,14 @@ namespace BrightData
         /// <param name="context"></param>
         /// <returns></returns>
         public static DataEncoder GetDataEncoder(this IBrightDataContext context) => new DataEncoder(context);
+
+        public static byte[] GetData(this ICanWriteToBinaryWriter writable)
+        {
+            using var stream = new MemoryStream();
+            using var writer = new BinaryWriter(stream, Encoding.UTF8, true);
+            writable.WriteTo(writer);
+            writer.Flush();
+            return stream.ToArray();
+        }
     }
 }

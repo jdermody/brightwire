@@ -124,19 +124,22 @@ namespace BrightData
             get
             {
                 var ret = new StringBuilder();
-                using var writer = XmlWriter.Create(new StringWriter(ret), new XmlWriterSettings {
+                using (var writer = XmlWriter.Create(new StringWriter(ret), new XmlWriterSettings {
                     OmitXmlDeclaration = true,
                     Encoding = Encoding.UTF8
-                });
-                writer.WriteStartElement("metadata");
-                foreach (var item in GetNonEmpty()) {
-                    writer.WriteStartElement("item");
-                    writer.WriteAttributeString("name", item.Name);
-                    writer.WriteAttributeString("type", item.Value.GetTypeCode().ToType()?.ToString() ?? "???");
-                    writer.WriteValue(item.String);
+                })) {
+                    writer.WriteStartElement("metadata");
+                    foreach (var item in GetNonEmpty()) {
+                        writer.WriteStartElement("item");
+                        writer.WriteAttributeString("name", item.Name);
+                        writer.WriteAttributeString("type", item.Value.GetTypeCode().ToType()?.ToString() ?? "???");
+                        writer.WriteValue(item.String);
+                        writer.WriteEndElement();
+                    }
+
                     writer.WriteEndElement();
                 }
-                writer.WriteEndElement();
+
                 return ret.ToString();
             }
         }

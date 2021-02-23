@@ -766,7 +766,7 @@ namespace BrightData
     /// <summary>
     /// Data table vectoriser
     /// </summary>
-    public interface IDataTableVectoriser
+    public interface IDataTableVectoriser : ICanWriteToBinaryWriter
     {
         /// <summary>
         /// Vectorise a table row
@@ -787,7 +787,13 @@ namespace BrightData
         /// </summary>
         uint OutputSize { get; }
 
-        string GetOutputLabel(uint columnIndex, uint vectorIndex);
+        /// <summary>
+        /// Returns the associated label from the one hot encoding dictionary
+        /// </summary>
+        /// <param name="vectorIndex">Index within one hot encoded vector</param>
+        /// <param name="columnIndex">Data table column index</param>
+        /// <returns></returns>
+        string GetOutputLabel(uint vectorIndex, uint columnIndex = 0);
 
         /// <summary>
         /// Returns a sequence of vectorised table rows

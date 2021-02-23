@@ -1024,7 +1024,15 @@ namespace BrightData
         /// <param name="oneHotEncodeToMultipleColumns"></param>
         /// <param name="columnIndices">Column indices to vectorise</param>
         /// <returns></returns>
-        public static IDataTableVectoriser GetVectoriser(this IDataTable table, bool oneHotEncodeToMultipleColumns, params uint[] columnIndices) => new DataTableVectoriser(table, oneHotEncodeToMultipleColumns, columnIndices);
+        public static IDataTableVectoriser GetVectoriser(this IDataTable table, bool oneHotEncodeToMultipleColumns = true, params uint[] columnIndices) => new DataTableVectoriser(table, oneHotEncodeToMultipleColumns, columnIndices);
+
+        /// <summary>
+        /// Loads a previously created data table vectoriser
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <param name="reader">Reader to load parameters from</param>
+        /// <returns></returns>
+        public static IDataTableVectoriser LoadVectoriser(this IDataTable dataTable, BinaryReader reader) => new DataTableVectoriser(dataTable, reader);
 
         /// <summary>
         /// Converts columns
@@ -1063,6 +1071,20 @@ namespace BrightData
         public static IReinterpretColumnsParam ReinterpretColumns(this uint[] sourceColumnIndices, ColumnType newColumnType, string newColumnName)
         {
             return new ReinterpretColumns(newColumnType, newColumnName, sourceColumnIndices);
+        }
+
+        /// <summary>
+        /// Converts the segment to an array
+        /// </summary>
+        /// <param name="row"></param>
+        /// <returns></returns>
+        public static object[] ToArray(this IDataTableSegment row)
+        {
+            var len = row.Size;
+            var ret = new object[len];
+            for (uint i = 0; i < len; i++)
+                ret[i] = row[i];
+            return ret;
         }
     }
 }
