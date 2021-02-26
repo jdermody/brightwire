@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using BrightData.Buffer;
 using BrightData.Helper;
@@ -24,7 +25,8 @@ namespace BrightData.Transformation
 
             public bool Convert(TF input, IHybridBuffer<TT> buffer)
             {
-                buffer.Add(_converter(input));
+                var converted = _converter(input);
+                buffer.Add(converted);
                 return true;
             }
 
@@ -126,14 +128,27 @@ namespace BrightData.Transformation
         readonly ITransformColumn? _converter;
 
         static readonly HashSet<string> TrueStrings = new HashSet<string> { "Y", "YES", "TRUE", "T", "1" };
-        static readonly ITransformColumn StringToBool = new Converter<string, bool>(str => TrueStrings.Contains(str));
-        static readonly ITransformColumn StringToDate = new Converter<string, DateTime>(DateTime.Parse);
+        static readonly ITransformColumn StringToBool = new Converter<string, bool>(str => TrueStrings.Contains(str.ToUpperInvariant()));
+        static readonly ITransformColumn StringToDate = new Converter<string, DateTime>(ParseDate);
         static readonly ITransformColumn WeightedIndexListToIndexList = new Converter<WeightedIndexList, IndexList>(w => w.AsIndexList());
         static readonly ITransformColumn VectorToIndexList = new Converter<Vector<float>, IndexList>(v => v.Segment.ToSparse().AsIndexList());
         static readonly ITransformColumn IndexListToVector = new Converter<IndexList, Vector<float>>(v => v.ToDense(null));
         static readonly ITransformColumn WeightedIndexListToVector = new Converter<IndexList, Vector<float>>(v => v.ToDense(null));
         static readonly ITransformColumn IndexListToWeightedIndexList = new Converter<IndexList, WeightedIndexList>(indexList => indexList.Context.CreateWeightedIndexList(indexList.Indices.Select(ind => (ind, 1f))));
         static readonly ITransformColumn VectorToWeightedIndexList = new Converter<Vector<float>, WeightedIndexList>(v => v.Segment.ToSparse());
+
+        static DateTime ParseDate(string str)
+        {
+            DateTime ret;
+
+            if (DateTime.TryParse(str, out ret))
+                return ret;
+
+            if (DateTime.TryParse(str, new DateTimeFormatInfo(), DateTimeStyles.AllowWhiteSpaces, out ret))
+                return ret;
+
+            throw new Exception($"{str} was not recognised as a valid date");
+        }
 
         public ColumnConversion(uint? columnIndex, ColumnConversionType type)
         {
@@ -191,7 +206,7 @@ namespace BrightData.Transformation
                                 min = num;
                             if (num > max)
                                 max = num;
-                            if (isInteger && Math.Abs(num - Math.Floor(num)) > FloatMath.AlmostZero)
+                            if (isInteger && Math.Abs(num % 1) > FloatMath.AlmostZero)
                                 isInteger = false;
                             buffer.Add(num);
                         } else

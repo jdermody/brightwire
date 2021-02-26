@@ -238,10 +238,43 @@ namespace BrightData
             dataTable.ForEachRow((row, index) => callback(row));
         }
 
-        //public static void ForEachRow<T0>(this IDataTable dataTable, Action<T0> callback) => dataTable.ForEachRow((row, index) => callback((T0)row[0]));
-        //public static void ForEachRow<T0, T1>(this IDataTable dataTable, Action<T0, T1> callback) => dataTable.ForEachRow((row, index) => callback((T0)row[0], (T1)row[1]));
-        //public static void ForEachRow<T0, T1, T2>(this IDataTable dataTable, Action<T0, T1, T2> callback) => dataTable.ForEachRow((row, index) => callback((T0)row[0], (T1)row[1], (T2)row[2]));
-        //public static void ForEachRow<T0, T1, T2, T3>(this IDataTable dataTable, Action<T0, T1, T2, T3> callback) => dataTable.ForEachRow((row, index) => callback((T0)row[0], (T1)row[1], (T2)row[2], (T3)row[3]));
+        /// <summary>
+        /// Invokes a typed callback on each row of a data table
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <param name="callback"></param>
+        /// <typeparam name="T0"></typeparam>
+        public static void ForEachRow<T0>(this IDataTable dataTable, Action<T0> callback) => dataTable.ForEachRow((row, index) => callback((T0)row[0]));
+
+        /// <summary>
+        /// Invokes a typed callback on each row of a data table
+        /// </summary>
+        /// <typeparam name="T0"></typeparam>
+        /// <typeparam name="T1"></typeparam>
+        /// <param name="dataTable"></param>
+        /// <param name="callback"></param>
+        public static void ForEachRow<T0, T1>(this IDataTable dataTable, Action<T0, T1> callback) => dataTable.ForEachRow((row, index) => callback((T0)row[0], (T1)row[1]));
+
+        /// <summary>
+        /// Invokes a typed callback on each row of a data table
+        /// </summary>
+        /// <typeparam name="T0"></typeparam>
+        /// <typeparam name="T1"></typeparam>
+        /// <typeparam name="T2"></typeparam>
+        /// <param name="dataTable"></param>
+        /// <param name="callback"></param>
+        public static void ForEachRow<T0, T1, T2>(this IDataTable dataTable, Action<T0, T1, T2> callback) => dataTable.ForEachRow((row, index) => callback((T0)row[0], (T1)row[1], (T2)row[2]));
+
+        /// <summary>
+        /// Invokes a typed callback on each row of a data table
+        /// </summary>
+        /// <typeparam name="T0"></typeparam>
+        /// <typeparam name="T1"></typeparam>
+        /// <typeparam name="T2"></typeparam>
+        /// <typeparam name="T3"></typeparam>
+        /// <param name="dataTable"></param>
+        /// <param name="callback"></param>
+        public static void ForEachRow<T0, T1, T2, T3>(this IDataTable dataTable, Action<T0, T1, T2, T3> callback) => dataTable.ForEachRow((row, index) => callback((T0)row[0], (T1)row[1], (T2)row[2], (T3)row[3]));
 
         //public static List<T> MapRows<T>(this IDataTable dataTable, Func<object[], uint, T> callback)
         //{
@@ -728,6 +761,42 @@ namespace BrightData
             return (table.CopyRows(trainingFilePath, training), table.CopyRows(testFilePath, test));
         }
 
+        /// <summary>
+        /// Folds the data table into k buckets (for k fold cross validation)
+        /// </summary>
+        /// <param name="table"></param>
+        /// <param name="k">Number of buckets to create</param>
+        /// <param name="shuffle">True to shuffle the table before folding</param>
+        /// <returns></returns>
+        public static IEnumerable<(IRowOrientedDataTable Training, IRowOrientedDataTable Validation)> Fold(this IRowOrientedDataTable table, int k, bool shuffle = true)
+        {
+            var context = table.Context;
+            var input = table.RowCount.AsRange();
+            if (shuffle)
+                input = input.Shuffle(table.Context.Random);
+            var rowIndices = input.ToList();
+            var foldSize = rowIndices.Count / k;
+            var folds = Enumerable.Range(0, k).Select(i => rowIndices.Skip(i * foldSize).Take(foldSize).ToArray()).ToList();
+
+            for (var i = 0; i < k; i++) {
+                var i1 = i;
+                var trainingRows = Enumerable.Range(0, k).Where(n => n != i1).SelectMany(n => folds[n]).ToArray();
+                var validationRows = folds[i1];
+
+                var writer1 = context.BuildTable();
+                writer1.CopyColumnsFrom(table);
+                foreach (var row in table.Rows(trainingRows))
+                    writer1.AddRow(row.ToArray());
+
+                var writer2 = context.BuildTable();
+                writer2.CopyColumnsFrom(table);
+                foreach (var row in table.Rows(validationRows))
+                    writer2.AddRow(row.ToArray());
+
+                yield return (writer1.BuildRowOriented(), writer2.BuildRowOriented());
+            }
+        }
+
         interface IHaveFloatArray
         {
             float[] Data { get; }
@@ -835,8 +904,9 @@ namespace BrightData
                 {
                     var index = 0;
                     var rows = new Vector<float>[dataTable.RowCount];
-                    foreach (var row in dataTable.Column(columnIndices[0]).Enumerate())
-                        rows[index++] = (Vector<float>)row;
+                    var vectorSegment = (IDataTableSegment<Vector<float>>) dataTable.Column(columnIndices[0]);
+                    foreach (var row in vectorSegment.EnumerateTyped())
+                        rows[index++] = row;
                     return dataTable.Context.CreateMatrixFromRows(rows);
                 }
 
@@ -1086,5 +1156,26 @@ namespace BrightData
                 ret[i] = row[i];
             return ret;
         }
+
+        /// <summary>
+        /// Returns a strongly typed column from the data table
+        /// </summary>
+        /// <param name="table"></param>
+        /// <param name="columnIndex">Column index to retrieve</param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static IDataTableSegment<T> GetColumn<T>(this IColumnOrientedDataTable table, uint columnIndex) where T : notnull
+        {
+            return (IDataTableSegment<T>)table.Column(columnIndex);
+        }
+
+        /// <summary>
+        /// Casts the value at column index to type T
+        /// </summary>
+        /// <param name="segment"></param>
+        /// <param name="columnIndex"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T Get<T>(this IDataTableSegment segment, uint columnIndex) where T : notnull => (T) segment[columnIndex];
     }
 }

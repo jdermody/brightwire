@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Globalization;
 using System.Linq;
+using BrightData.DataTable.Builders;
 using BrightData.Helper;
 using BrightWire;
 using FluentAssertions;
@@ -251,99 +253,45 @@ namespace BrightData.UnitTests
             });
         }
 
-        //[Fact]
-        //public void TestL2Normalisation()
-        //{
-        //    var table = GetSimpleTable2();
-        //    var table2 = table.AsColumnOriented();
-        //    var analysis = table2.AllColumnAnalysis()[0].GetNumericAnalysis();
-        //    var normalised = table2.Normalize(NormalizationType.Euclidean).AsRowOriented().AsConvertible();
+        [Fact]
+        public void TestL2Normalisation()
+        {
+            var table = GetSimpleTable2();
+            var table2 = table.AsColumnOriented();
+            var analysis = table2.AllColumnAnalysis()[0].GetNumericAnalysis();
+            var normalised = table2.Normalize(NormalizationType.Euclidean).AsRowOriented().AsConvertible();
 
-        //    var l2Norm = Math.Sqrt(table.GetColumn<double>(0).Select(d => Math.Pow(d, 2)).Sum());
-        //    Assert.AreEqual(analysis.L2Norm, l2Norm);
+            var l2Norm = Math.Sqrt(table2.GetColumn<double>(0).EnumerateTyped().Select(d => Math.Pow(d, 2)).Sum());
+            analysis.L2Norm.Should().Be(l2Norm);
 
-        //    RandomSample(normalised, (index, row) =>
-        //    {
-        //        var val = row.GetTyped<double>(0);
-        //        var prevVal = table.GetRow(index).GetField<double>(0);
-        //        var expected = prevVal / analysis.L2Norm;
+            RandomSample(normalised, (index, row) =>
+            {
+                var val = row.GetTyped<double>(0);
+                var prevVal = table.Row(index).Get<double>(0);
+                var expected = prevVal / analysis.L2Norm;
+                val.Should().Be(expected);
+            });
+        }
 
-        //        Assert.AreEqual(val, expected);
-        //    });
-        //}
+        [Fact]
+        public void TestL1Normalisation()
+        {
+            var table = GetSimpleTable2();
+            var table2 = table.AsColumnOriented();
+            var analysis = table2.AllColumnAnalysis()[0].GetNumericAnalysis();
+            var normalised = table2.Normalize(NormalizationType.Manhattan).AsRowOriented().AsConvertible();
 
-        //[Fact]
-        //public void TestL2Normalisation2()
-        //{
-        //    var table = GetSimpleTable2();
-        //    var analysis = table.GetAnalysis()[0] as INumericColumnInfo;
-        //    var model = table.GetNormalisationModel(NormalisationType.Euclidean);
-        //    var normalised = table.Normalize(model);
+            var l1Norm = table2.GetColumn<double>(0).EnumerateTyped().Select(Math.Abs).Sum();
+            analysis.L1Norm.Should().Be(l1Norm);
 
-        //    var l2Norm = Math.Sqrt(table.GetColumn<double>(0).Select(d => Math.Pow(d, 2)).Sum());
-        //    Assert.AreEqual(analysis.L2Norm, l2Norm);
-
-        //    RandomSample(normalised, (index, row) => {
-        //        var val = row.GetTyped<double>(0);
-        //        var prevVal = table.GetRow(index).GetField<double>(0);
-        //        var expected = prevVal / analysis.L2Norm;
-
-        //        Assert.AreEqual(val, expected);
-        //    });
-        //}
-
-        //[Fact]
-        //public void TestL1Normalisation()
-        //{
-        //    var table = GetSimpleTable2();
-        //    var analysis = table.GetAnalysis()[0] as INumericColumnInfo;
-        //    var normalised = table.Normalize(NormalisationType.Manhattan);
-
-        //    var l1Norm = table.GetColumn<double>(0).Select(d => Math.Abs(d)).Sum();
-        //    Assert.AreEqual(analysis.L1Norm, l1Norm);
-
-        //    RandomSample(normalised, (index, row) => {
-        //        var val = row.GetTyped<double>(0);
-        //        var prevVal = table.GetRow(index).GetField<double>(0);
-        //        var expected = prevVal / analysis.L1Norm;
-
-        //        Assert.AreEqual(val, expected);
-        //    });
-        //}
-
-        //[Fact]
-        //public void TestL1Normalisation2()
-        //{
-        //    var table = GetSimpleTable2();
-        //    var analysis = table.GetAnalysis()[0] as INumericColumnInfo;
-        //    var model = table.GetNormalisationModel(NormalisationType.Manhattan);
-        //    var normalised = table.Normalize(model);
-
-        //    var l1Norm = table.GetColumn<double>(0).Select(d => Math.Abs(d)).Sum();
-        //    Assert.AreEqual(analysis.L1Norm, l1Norm);
-
-        //    RandomSample(normalised, (index, row) => {
-        //        var val = row.GetTyped<double>(0);
-        //        var prevVal = table.GetRow(index).GetField<double>(0);
-        //        var expected = prevVal / analysis.L1Norm;
-
-        //        Assert.AreEqual(val, expected);
-        //    });
-        //}
-
-        //[Fact]
-        //public void TestReverseNormalisation()
-        //{
-        //    var table = CreateComplexTable(_context);
-        //    var columnIndex = table.TargetColumnIndex = 3;
-        //    var model = table.GetNormalisationModel(NormalisationType.FeatureScale);
-        //    var normalised = table.Normalize(model);
-
-        //    var reverseNormalised = normalised.Project(row => new[] { model.ReverseNormaliseOutput(columnIndex, row.Data[columnIndex]) });
-        //    var zipped = reverseNormalised.Zip(table.SelectColumns(new[] { columnIndex }));
-
-        //    zipped.ForEach(row => Assert.AreEqual(row.Data[0], row.Data[1]));
-        //}
+            RandomSample(normalised, (index, row) =>
+            {
+                var val = row.GetTyped<double>(0);
+                var prevVal = table.Row(index).Get<double>(0);
+                var expected = prevVal / analysis.L1Norm;
+                val.Should().Be(expected);
+            });
+        }
 
         [Fact]
         public void TestTargetColumnIndex()
@@ -360,192 +308,117 @@ namespace BrightData.UnitTests
             table.ColumnCount.Should().Be(3);
         }
 
-        //[Fact]
-        //public void GetNumericRows()
-        //{
-        //    var builder = _context.BuildTable();
-        //    builder.AddColumn(ColumnType.Float, "val1");
-        //    builder.AddColumn(ColumnType.Double, "val2");
-        //    builder.AddColumn(ColumnType.String, "cls").SetTargetColumn(true);
+        [Fact]
+        public void AsMatrix()
+        {
+            var builder = _context.BuildTable();
+            builder.AddColumn(ColumnType.Float, "val1");
+            builder.AddColumn(ColumnType.Double, "val2");
+            builder.AddColumn(ColumnType.String, "cls").SetTarget(true);
 
-        //    builder.AddRow(0.5f, 1.1, "a");
-        //    builder.AddRow(0.2f, 1.5, "b");
-        //    builder.AddRow(0.7f, 0.5, "c");
-        //    builder.AddRow(0.2f, 0.6, "d");
+            builder.AddRow(0.5f, 1.1, "a");
+            builder.AddRow(0.2f, 1.5, "b");
+            builder.AddRow(0.7f, 0.5, "c");
+            builder.AddRow(0.2f, 0.6, "d");
 
-        //    var table = builder.Build();
-        //    var rows = table.GetNumericRows(new[] { 1 }).Select(r => _lap.CreateVector(r)).Select(r => r.AsIndexable()).ToList();
-        //    Assert.AreEqual(rows[0][0], 1.1f);
-        //    Assert.AreEqual(rows[1][0], 1.5f);
-        //}
+            var table = builder.BuildColumnOriented();
+            var matrix = table.AsMatrix(0, 1);
+            matrix[0, 0].Should().Be(0.5f);
+            matrix[1, 0].Should().Be(0.2f);
+            matrix[1, 1].Should().Be(1.5f);
+        }
 
-        //[Fact]
-        //public void GetNumericRows2()
-        //{
-        //    var builder = _context.BuildTable();
-        //    builder.AddColumn(ColumnType.Float, "val1");
-        //    builder.AddColumn(ColumnType.Double, "val2");
-        //    builder.AddColumn(ColumnType.String, "cls").SetTargetColumn(true);
+        [Fact]
+        public void AsMatrix2()
+        {
+            var builder = _context.BuildTable();
+            builder.AddColumn(ColumnType.Float, "val1");
+            builder.AddColumn(ColumnType.Double, "val2");
+            builder.AddColumn(ColumnType.String, "cls").SetTarget(true);
 
-        //    builder.AddRow(0.5f, 1.1, "a");
-        //    builder.AddRow(0.2f, 1.5, "b");
-        //    builder.AddRow(0.7f, 0.5, "c");
-        //    builder.AddRow(0.2f, 0.6, "d");
+            builder.AddRow(0.5f, 1.1, "a");
+            builder.AddRow(0.2f, 1.5, "b");
+            builder.AddRow(0.7f, 0.5, "c");
+            builder.AddRow(0.2f, 0.6, "d");
 
-        //    var table = builder.Build();
-        //    var rows = table.GetNumericRows(new[] { 1 });
-        //    Assert.AreEqual(rows[0][0], 1.1f);
-        //    Assert.AreEqual(rows[1][0], 1.5f);
-        //}
+            var table = builder.BuildRowOriented();
+            var matrix = table.AsMatrix(0, 1);
+            matrix[0, 0].Should().Be(0.5f);
+            matrix[1, 0].Should().Be(0.2f);
+            matrix[1, 1].Should().Be(1.5f);
+        }
 
-        //[Fact]
-        //public void GetNumericColumns()
-        //{
-        //    var builder = _context.BuildTable();
-        //    builder.AddColumn(ColumnType.Float, "val1");
-        //    builder.AddColumn(ColumnType.Double, "val2");
-        //    builder.AddColumn(ColumnType.String, "cls").SetTargetColumn(true);
+        [Fact]
+        public void SelectColumns()
+        {
+            var builder = _context.BuildTable();
 
-        //    builder.AddRow(0.5f, 1.1, "a");
-        //    builder.AddRow(0.2f, 1.5, "b");
-        //    builder.AddRow(0.7f, 0.5, "c");
-        //    builder.AddRow(0.2f, 0.6, "d");
+            builder.AddColumn(ColumnType.Float, "val1");
+            builder.AddColumn(ColumnType.Double, "val2");
+            builder.AddColumn(ColumnType.String, "cls").SetTarget(true);
+            builder.AddColumn(ColumnType.String, "cls2");
 
-        //    var table = builder.Build();
-        //    var column = table.GetNumericColumns(new[] { 1 }).Select(r => _lap.CreateVector(r)).First().AsIndexable();
-        //    Assert.AreEqual(column[0], 1.1f);
-        //    Assert.AreEqual(column[1], 1.5f);
-        //}
+            builder.AddRow(0.5f, 1.1, "a", "a2");
+            builder.AddRow(0.2f, 1.5, "b", "b2");
+            builder.AddRow(0.7f, 0.5, "c", "c2");
+            builder.AddRow(0.2f, 0.6, "d", "d2");
 
-        //[Fact]
-        //public void GetNumericColumns2()
-        //{
-        //    var builder = _context.BuildTable();
-        //    builder.AddColumn(ColumnType.Float, "val1");
-        //    builder.AddColumn(ColumnType.Double, "val2");
-        //    builder.AddColumn(ColumnType.String, "cls").SetTargetColumn(true);
+            var table = builder.BuildColumnOriented();
+            var table2 = table.CopyColumns(1, 2, 3);
 
-        //    builder.AddRow(0.5f, 1.1, "a");
-        //    builder.AddRow(0.2f, 1.5, "b");
-        //    builder.AddRow(0.7f, 0.5, "c");
-        //    builder.AddRow(0.2f, 0.6, "d");
+            table2.GetTargetColumnOrThrow().Should().Be(1);
+            table2.RowCount.Should().Be(4);
+            table2.ColumnCount.Should().Be(3);
 
-        //    var table = builder.Build();
-        //    var column = table.GetNumericColumns(new[] { 1 }).First();
-        //    Assert.AreEqual(column[0], 1.1f);
-        //    Assert.AreEqual(column[1], 1.5f);
-        //}
+            var column = table2.Column(0).As<IDataTableSegment<double>>();
+            var columnValues = column.EnumerateTyped().ToArray();
+            columnValues[0].Should().Be(1.1);
+            columnValues[1].Should().Be(1.5);
+        }
 
-        //[Fact]
-        //public void SelectColumns()
-        //{
-        //    var builder = _context.BuildTable();
+        [Fact]
+        public void Fold()
+        {
+            var builder = _context.BuildTable();
 
-        //    builder.AddColumn(ColumnType.Float, "val1");
-        //    builder.AddColumn(ColumnType.Double, "val2");
-        //    builder.AddColumn(ColumnType.String, "cls").SetTargetColumn(true);
-        //    builder.AddColumn(ColumnType.String, "cls2");
+            builder.AddColumn(ColumnType.Float, "val1");
+            builder.AddColumn(ColumnType.Double, "val2");
+            builder.AddColumn(ColumnType.String, "cls").SetTarget(true);
 
-        //    builder.AddRow(0.5f, 1.1, "a", "a2");
-        //    builder.AddRow(0.2f, 1.5, "b", "b2");
-        //    builder.AddRow(0.7f, 0.5, "c", "c2");
-        //    builder.AddRow(0.2f, 0.6, "d", "d2");
+            builder.AddRow(0.5f, 1.1, "a");
+            builder.AddRow(0.2f, 1.5, "b");
+            builder.AddRow(0.7f, 0.5, "c");
+            builder.AddRow(0.2f, 0.6, "d");
 
-        //    var table = builder.Build();
-        //    var table2 = table.SelectColumns(new[] { 1, 2, 3 });
+            var table = builder.BuildRowOriented();
+            var folds = table.Fold(4).ToList();
+            folds.Count.Should().Be(4);
+            foreach (var fold in folds) {
+                fold.Training.RowCount.Should().Be(3);
+                fold.Validation.RowCount.Should().Be(1);
+            }
+        }
 
-        //    Assert.AreEqual(table2.TargetColumnIndex, 1);
-        //    Assert.AreEqual(table2.RowCount, 4);
-        //    Assert.AreEqual(table2.ColumnCount, 3);
+        [Fact]
+        public void TableFilter()
+        {
+            var builder = _context.BuildTable();
 
-        //    var column = table2.GetNumericColumns(new[] { 0 }).Select(r => _lap.CreateVector(r)).First().AsIndexable();
-        //    Assert.AreEqual(column[0], 1.1f);
-        //    Assert.AreEqual(column[1], 1.5f);
-        //}
+            builder.AddColumn(ColumnType.Float, "val1");
+            builder.AddColumn(ColumnType.Double, "val2");
+            builder.AddColumn(ColumnType.String, "cls").SetTarget(true);
 
-        //[Fact]
-        //public void Fold()
-        //{
-        //    var builder = _context.BuildTable();
+            builder.AddRow(0.5f, 1.1, "a");
+            builder.AddRow(0.2f, 1.5, "b");
+            builder.AddRow(0.7f, 0.5, "c");
+            builder.AddRow(0.2f, 0.6, "d");
 
-        //    builder.AddColumn(ColumnType.Float, "val1");
-        //    builder.AddColumn(ColumnType.Double, "val2");
-        //    builder.AddColumn(ColumnType.String, "cls").SetTargetColumn(true);
+            var table = builder.BuildRowOriented();
+            var projectedTable = table.Project(r => (string)r[2] == "b" ? null : r);
 
-        //    builder.AddRow(0.5f, 1.1, "a");
-        //    builder.AddRow(0.2f, 1.5, "b");
-        //    builder.AddRow(0.7f, 0.5, "c");
-        //    builder.AddRow(0.2f, 0.6, "d");
-
-        //    var table = builder.Build();
-        //    var folds = table.Fold(4, 0, false).ToList();
-        //    Assert.AreEqual(folds.Count, 4);
-        //    Assert.IsTrue(folds.All(r => r.Training.RowCount == 3 && r.Validation.RowCount == 1));
-        //}
-
-        //[Fact]
-        //public void TableFilter()
-        //{
-        //    var builder = _context.BuildTable();
-
-        //    builder.AddColumn(ColumnType.Float, "val1");
-        //    builder.AddColumn(ColumnType.Double, "val2");
-        //    builder.AddColumn(ColumnType.String, "cls").SetTargetColumn(true);
-
-        //    builder.AddRow(0.5f, 1.1, "a");
-        //    builder.AddRow(0.2f, 1.5, "b");
-        //    builder.AddRow(0.7f, 0.5, "c");
-        //    builder.AddRow(0.2f, 0.6, "d");
-
-        //    var table = builder.Build();
-        //    var projectedTable = table.Project(r => r.GetField<string>(2) == "b" ? null : r.Data);
-
-        //    Assert.AreEqual(projectedTable.ColumnCount, table.ColumnCount);
-        //    Assert.AreEqual(projectedTable.RowCount, 3);
-        //}
-
-        //[Fact]
-        //public void TableSummarise()
-        //{
-        //    var builder = _context.BuildTable();
-
-        //    builder.AddColumn(ColumnType.Boolean, "boolean");
-        //    builder.AddColumn(ColumnType.Byte, "byte");
-        //    builder.AddColumn(ColumnType.Date, "date");
-        //    builder.AddColumn(ColumnType.Double, "double");
-        //    builder.AddColumn(ColumnType.Float, "float");
-        //    builder.AddColumn(ColumnType.Int, "int");
-        //    builder.AddColumn(ColumnType.Long, "long");
-        //    builder.AddColumn(ColumnType.String, "string");
-
-        //    var now = DateTime.Now;
-        //    builder.AddRow(true, (sbyte)100, now, 1.0 / 2, 0.5f, int.MaxValue, long.MaxValue, "test");
-        //    builder.AddRow(true, (sbyte)0, now, 0.0, 0f, int.MinValue, long.MinValue, "test");
-        //    var dataTable = builder.Build();
-
-        //    var summarisedRow = dataTable.Summarise(1).GetRow(0);
-        //    Assert.AreEqual(summarisedRow.GetField<bool>(0), true);
-        //    Assert.AreEqual(summarisedRow.GetField<sbyte>(1), (sbyte)50);
-        //    Assert.AreEqual(summarisedRow.GetField<double>(3), 0.25);
-        //    Assert.AreEqual(summarisedRow.GetField<string>(7), "test");
-        //}
-
-        //[Fact]
-        //public void TableReverseVectorise()
-        //{
-        //    var table = CreateComplexTable(_context);
-        //    uint targetColumnIndex;
-        //    table.SetTargetColumn(targetColumnIndex = table.ColumnCount - 1);
-        //    var targetColumnType = table.Column(targetColumnIndex).SingleType;
-        //    var vectoriser = table.GetVectoriser(true);
-        //    var model = vectoriser.GetVectorisationModel();
-
-        //    var output = table.Map(row => model.GetOutput(row));
-        //    var reversedOutput = output.Select(vector => model.ReverseVectoriseOutput(vector, targetColumnType)).ToList();
-        //    var tuples = table.Map(row => (row.Data[targetColumnIndex], reversedOutput[row.Index]));
-        //    foreach (var tuple in tuples)
-        //        Assert.AreEqual(tuple.Item1, tuple.Item2);
-        //}
+            projectedTable!.ColumnCount.Should().Be(table.ColumnCount);
+            projectedTable.RowCount.Should().Be(3);
+        }
 
         [Fact]
         public void TableConfusionMatrix()
@@ -585,5 +458,106 @@ namespace BrightData.UnitTests
             confusionMatrix.GetCount("dog", "rabbit").Should().Be(DOG_RABBIT);
             confusionMatrix.GetCount("rabbit", "rabbit").Should().Be(RABBIT_RABBIT);
         }
+
+        static void CheckTableConversion<T>(InMemoryTableBuilder builder, ColumnConversionType conversionType, ColumnType columnType)
+        {
+            var table = builder.BuildColumnOriented();
+            var converted = table.Convert(conversionType.ConvertColumn(0), conversionType.ConvertColumn(1)).AsRowOriented();
+            converted.ColumnTypes[0].Should().Be(columnType);
+            converted.ColumnTypes[1].Should().Be(columnType);
+            converted.ForEachRow<T, T>((b1, b2) => b1.Should().Be(b2));
+        }
+
+        [Fact]
+        public void BooleanColumnConversion()
+        {
+            var builder = _context.BuildTable();
+            builder.AddColumn(ColumnType.String);
+            builder.AddColumn(ColumnType.Boolean);
+
+            builder.AddRow("True", true);
+            builder.AddRow("Y", true);
+            builder.AddRow("yes", true);
+            builder.AddRow("t", true);
+            builder.AddRow("1", true);
+            builder.AddRow("False", false);
+            builder.AddRow("N", false);
+            builder.AddRow("no", false);
+            builder.AddRow("f", false);
+            builder.AddRow("0", false);
+
+            CheckTableConversion<bool>(builder, ColumnConversionType.ToBoolean, ColumnType.Boolean);
+        }
+
+        [Fact]
+        public void DateColumnConversion()
+        {
+            var builder = _context.BuildTable();
+            builder.AddColumn(ColumnType.String);
+            builder.AddColumn(ColumnType.Date);
+
+            void AddRow(string dateStr) => builder.AddRow(dateStr, DateTime.Parse(dateStr));
+
+            var date = DateTime.Now.Date;
+            AddRow(date.ToLongDateString());
+            AddRow(date.ToShortDateString());
+            AddRow(date.ToString("D"));
+            AddRow(date.ToString("f"));
+            AddRow(date.ToString("F"));
+            AddRow(date.ToString("g"));
+            AddRow(date.ToString("G"));
+            AddRow(date.ToString("O"));
+            AddRow(date.ToString("R"));
+            AddRow(date.ToString("s"));
+            AddRow(date.ToString("t"));
+            AddRow(date.ToString("T"));
+            AddRow(date.ToString("u"));
+            AddRow(date.ToString("U"));
+
+            CheckTableConversion<DateTime>(builder, ColumnConversionType.ToDate, ColumnType.Date);
+        }
+
+        [Fact]
+        public void ByteColumnConversion()
+        {
+            var builder = _context.BuildTable();
+            builder.AddColumn(ColumnType.String);
+            builder.AddColumn(ColumnType.Byte);
+
+            for (int i = 0, len = sbyte.MaxValue - sbyte.MinValue; i < len; i++) {
+                var val = (sbyte) (sbyte.MinValue + i);
+                builder.AddRow(val.ToString(), val);
+            }
+            CheckTableConversion<sbyte>(builder, ColumnConversionType.ToNumeric, ColumnType.Byte);
+        }
+
+        [Fact]
+        public void ShortColumnConversion()
+        {
+            var builder = _context.BuildTable();
+            builder.AddColumn(ColumnType.String);
+            builder.AddColumn(ColumnType.Short);
+
+            foreach(var val in (short.MaxValue - short.MinValue).AsRange().Shuffle(_context.Random).Take(100).Select(o => short.MinValue + o))
+                builder.AddRow(val.ToString(), val);
+
+            CheckTableConversion<short>(builder, ColumnConversionType.ToNumeric, ColumnType.Short);
+        }
+
+        [Fact]
+        public void IntColumnConversion()
+        {
+            var builder = _context.BuildTable();
+            builder.AddColumn(ColumnType.String);
+            builder.AddColumn(ColumnType.Int);
+
+            builder.AddRow(int.MinValue, int.MinValue.ToString());
+            builder.AddRow(0, "0");
+            builder.AddRow(int.MaxValue, int.MaxValue.ToString());
+
+            CheckTableConversion<int>(builder, ColumnConversionType.ToNumeric, ColumnType.Int);
+        }
+
+        
     }
 }
