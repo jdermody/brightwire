@@ -82,7 +82,7 @@ namespace BrightData.DataTable
             _stream.Dispose();
         }
 
-        public DataTableOrientation Orientation => DataTableOrientation.RowOriented;
+        public override DataTableOrientation Orientation => DataTableOrientation.RowOriented;
         public ColumnType[] ColumnTypes { get; }
 
         public IEnumerable<IDataTableSegment> Rows(params uint[] rowIndices)

@@ -1,4 +1,6 @@
-﻿namespace BrightData.Transformation
+﻿using System;
+
+namespace BrightData.Transformation
 {
     /// <summary>
     /// A transformation context reads values from a column and writes transformed values to a buffer
@@ -25,7 +27,8 @@
             // write the transformed values
             uint ret = 0;
             foreach (var item in _column.EnumerateTyped()) {
-                if (_converter.Convert(item, _buffer))
+                var wasConverted = _converter.Convert(item, _buffer);
+                if (wasConverted)
                     ++ret;
             }
 

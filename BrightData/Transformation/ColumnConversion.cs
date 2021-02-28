@@ -118,10 +118,33 @@ namespace BrightData.Transformation
             {
                 metaData.Set(Consts.IsNumeric, true);
                 metaData.SetType(ColumnType.Int);
+                metaData.SetIsCategorical(true);
 
                 foreach (var category in _categoryIndex.OrderBy(d => d.Value))
                     metaData.Set(Consts.CategoryPrefix + category.Value, category.Key);
             }
+        }
+
+        public class CustomConverter<TF, TT> : ITransformColumn<TF, TT> where TF : notnull where TT : notnull
+        {
+            readonly Func<TF, TT> _converter;
+            readonly Action<IMetaData>? _finalise;
+
+            public CustomConverter(Func<TF, TT> converter, Action<IMetaData>? finalise)
+            {
+                _converter = converter;
+                _finalise = finalise;
+            }
+
+            public bool Convert(TF input, IHybridBuffer<TT> buffer)
+            {
+                buffer.Add(_converter(input));
+                return true;
+            }
+
+            public Type From => typeof(TF);
+            public Type To => typeof(TT);
+            public void Finalise(IMetaData metaData) => _finalise?.Invoke(metaData);
         }
 
         readonly ColumnConversionType _toType;

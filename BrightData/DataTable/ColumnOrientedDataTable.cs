@@ -110,7 +110,7 @@ namespace BrightData.DataTable
                 segment.Dispose();
         }
 
-        public DataTableOrientation Orientation => DataTableOrientation.ColumnOriented;
+        public override DataTableOrientation Orientation => DataTableOrientation.ColumnOriented;
         public ColumnType[] ColumnTypes { get; }
         public override void ForEachRow(Action<object[]> callback, uint maxRows = uint.MaxValue)
         {
@@ -248,7 +248,8 @@ namespace BrightData.DataTable
                     var wasConverted = false;
                     var column = _columns[i].Segment;
                     if (columnConversions.TryGetValue(column, out var converter)) {
-                        if (converter.Transform() == RowCount) {
+                        var convertedCount = converter.Transform();
+                        if (convertedCount == RowCount) {
                             convertedColumns.Add((ISingleTypeTableSegment) converter.Buffer);
                             wasConverted = true;
                         }
@@ -283,7 +284,7 @@ namespace BrightData.DataTable
                 return this;
             var param = _columns
                 .Select(c => c.Info)
-                .Where(c => c.ColumnType.IsDecimal())
+                .Where(c => !c.MetaData.IsCategorical() && c.ColumnType.IsNumeric())
                 .Select(c => new ColumnNormalization(c.Index, type));
             return Transform(param, filePath);
         }

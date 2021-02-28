@@ -147,7 +147,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 				
 				input.SubtractInPlace(_meanCached);
                 using var xHat = input.PointwiseDivide(_stdDevCached);
-                using var output = xHat.PointwiseMultiply(_gammaCached);
+                var output = xHat.PointwiseMultiply(_gammaCached);
                 output.AddInPlace(_betaCached);
                 ret = (this, signal.ReplaceWith(output), null);
             }

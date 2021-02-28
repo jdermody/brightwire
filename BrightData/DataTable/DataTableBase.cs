@@ -30,6 +30,7 @@ namespace BrightData.DataTable
         public IMetaData MetaData => _tableMetaData;
 
         public abstract void ForEachRow(Action<object[]> callback, uint maxRows = uint.MaxValue);
+        public abstract DataTableOrientation Orientation { get; }
 
         protected abstract IDataTable Table { get; }
 
@@ -86,6 +87,19 @@ namespace BrightData.DataTable
             }
 
             return null;
+        }
+
+        public IDataTable WriteTo(string filePath)
+        {
+            if (Orientation == DataTableOrientation.RowOriented) {
+                var table = (IRowOrientedDataTable) this;
+                return table.Clone(filePath);
+            }else if (Orientation == DataTableOrientation.ColumnOriented) {
+                var table = (IColumnOrientedDataTable) this;
+                return table.Clone(filePath);
+            }
+
+            throw new NotImplementedException();
         }
 
         //public IRowOrientedDataTable Vectorise(string columnName, params uint[] vectorColumnIndices) => Vectorise(null, columnName, vectorColumnIndices);

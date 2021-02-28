@@ -42,8 +42,7 @@ namespace ExampleCode.DataSet
         public static StockDataTrainer StockData(this IBrightDataContext context)
         {
             var reader = GetStreamReader(context, "stockdata.csv", "https://raw.githubusercontent.com/plotly/datasets/master/stockdata.csv");
-            try
-            {
+            try {
                 // load and normalise the data
                 using var table = context.ParseCsv(reader, true);
                 table.SetTargetColumn(5);
@@ -57,8 +56,7 @@ namespace ExampleCode.DataSet
                 using var normalised = numericTable.Normalize(NormalizationType.FeatureScale);
                 return new StockDataTrainer(normalised.AsRowOriented());
             }
-            finally
-            {
+            finally {
                 reader.Dispose();
             }
         }
@@ -275,6 +273,63 @@ namespace ExampleCode.DataSet
             return new EmotionsTrainer(context, table, training, test);
         }
 
+        public static AdultTrainer Adult(this IBrightDataContext context)
+        {
+            static string AdjustString(string str)
+            {
+                str = str.Trim();
+                if (str.EndsWith('.'))
+                    return str[..^1];
+                return str;
+            }
+
+            static IRowOrientedDataTable ConvertTable(IColumnOrientedDataTable table, string path)
+            {
+                using var converted = table.Convert(
+                    // convert numeric columns
+                    ColumnConversionType.ToNumeric.ConvertColumn(0), 
+                    ColumnConversionType.ToNumeric.ConvertColumn(2), 
+                    ColumnConversionType.ToNumeric.ConvertColumn(4), 
+                    ColumnConversionType.ToNumeric.ConvertColumn(10),
+                    ColumnConversionType.ToNumeric.ConvertColumn(11),
+                    ColumnConversionType.ToNumeric.ConvertColumn(12),
+
+                    // convert to categorical index
+                    ColumnConversionType.ToCategoricalIndex.ConvertColumn(1),
+                    ColumnConversionType.ToCategoricalIndex.ConvertColumn(3),
+                    ColumnConversionType.ToCategoricalIndex.ConvertColumn(5),
+                    ColumnConversionType.ToCategoricalIndex.ConvertColumn(6),
+                    ColumnConversionType.ToCategoricalIndex.ConvertColumn(7),
+                    ColumnConversionType.ToCategoricalIndex.ConvertColumn(8),
+                    ColumnConversionType.ToCategoricalIndex.ConvertColumn(9),
+                    ColumnConversionType.ToCategoricalIndex.ConvertColumn(13),
+
+                    table.CreateCustomColumnConverter<string, string>(14, AdjustString)
+                );
+                converted.SetTargetColumn(14);
+                using var normalized = converted.Normalize(NormalizationType.Standard);
+
+                return normalized.AsRowOriented(path);
+            }
+
+            var adultTraining = GetDataTable(context, "adult_data.table", path => {
+                using var reader = GetStreamReader(context, "adult.data.csv",
+                    "https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data");
+                using var data = context.ParseCsv(reader, false);
+                return ConvertTable(data, path);
+            });
+
+            var adultTest = GetDataTable(context, "adult_test.table", path => {
+                using var reader2 = GetStreamReader(context, "adult.test.csv",
+                    "https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.test");
+                reader2.ReadLine();
+                using var test = context.ParseCsv(reader2, false);
+                return ConvertTable(test, path);
+            });
+
+            return new AdultTrainer(null, adultTraining, adultTest);
+        }
+
         static string GetDataFilePath(this IBrightDataContext context, string name)
         {
             var dataDirectory = context.Get<DirectoryInfo>("DataFileDirectory");
@@ -298,6 +353,15 @@ namespace ExampleCode.DataSet
             }
 
             return Path.Combine(dataDirectory.FullName, name);
+        }
+
+        static IRowOrientedDataTable GetDataTable(this IBrightDataContext context, string fileName, Func<string, IRowOrientedDataTable> createTable)
+        {
+            var path = GetDataFilePath(context, fileName);
+            if (!File.Exists(path))
+                return createTable(path);
+
+            return (IRowOrientedDataTable)context.LoadTable(path);
         }
 
         static StreamReader GetStreamReader(this IBrightDataContext context, string fileName, string? remoteUrl = null)

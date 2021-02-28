@@ -112,13 +112,36 @@ namespace ExampleCode.DataTableTrainers
             Console.WriteLine($"{type} accuracy: {score:P}");
         }
 
-        //void _WriteClusters(IFloatVector[][] clusters, Dictionary<IVector, string> labelTable)
-        //{
-        //    foreach (var cluster in clusters) {
-        //        foreach (var item in cluster)
-        //            Console.WriteLine(labelTable[item]);
-        //        Console.WriteLine("---------------------------------------------");
-        //    }
-        //}
+        public virtual void TrainSigmoidNeuralNetwork(uint hiddenLayerSize, uint numIterations, float trainingRate, uint batchSize, int testCadence = 1)
+        {
+            // create a neural network graph factory
+            var graph = Table.Context.CreateGraphFactory();
+
+            // the default data table -> vector conversion uses one hot encoding of the classification labels, so create a corresponding cost function
+            var errorMetric = graph.ErrorMetric.OneHotEncoding;
+
+            // create the property set (use rmsprop gradient descent optimisation)
+            graph.CurrentPropertySet
+                .Use(graph.RmsProp())
+                .Use(graph.GaussianWeightInitialisation(true, 0.1f, GaussianVarianceCalibration.SquareRoot2N));
+
+            // create the training and test data sources
+            var trainingData = graph.CreateDataSource(Training);
+            var testData = trainingData.CloneWith(Test);
+
+            // create a neural network with sigmoid activations after each neural network
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, trainingRate, batchSize);
+            graph.Connect(engine)
+                .AddFeedForward(hiddenLayerSize)
+                .Add(graph.SigmoidActivation())
+                .AddDropOut(dropOutPercentage: 0.5f)
+                .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
+                .Add(graph.SigmoidActivation())
+                .AddBackpropagation();
+
+            // train the network
+            Console.WriteLine("Training neural network...");
+            engine.Train(numIterations, testData, null, testCadence);
+        }
     }
 }

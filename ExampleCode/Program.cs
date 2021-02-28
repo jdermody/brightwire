@@ -8,6 +8,7 @@ using BrightData.Cuda;
 using BrightData.Numerics;
 using BrightWire;
 using ExampleCode.DataSet;
+using ExampleCode.DataTableTrainers;
 // ReSharper disable once RedundantUsingDirective
 using MathNet.Numerics;
 
@@ -51,6 +52,7 @@ namespace ExampleCode
             MnistFeedForward(context, useCuda);
             MnistConvolutional(context, useCuda);
             SentimentClassification(context);
+            TrainIncomePrediction(context);
         }
 
         static void Start(IBrightDataContext context, bool useCuda = false, [CallerMemberName]string title = "")
@@ -248,6 +250,14 @@ namespace ExampleCode
             Start(context, useCuda);
             var stockData = context.StockData().GetSequentialWindow();
             stockData.TrainLstm(256);
+        }
+
+        static void TrainIncomePrediction(IBrightDataContext context)
+        {
+            Start(context);
+            var adult = context.Adult();
+            adult.TrainNeuralNetwork();
+            //adult.TrainNaiveBayes();
         }
     }
 }

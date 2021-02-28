@@ -430,6 +430,9 @@ namespace BrightData
             }
 
             var segments = columns.Cast<ISingleTypeTableSegment>().ToList();
+            if (segments.Any(s => s.Size != rowCount))
+                throw new Exception("Columns have irregular sizes");
+
             if (writeProgress)
             {
                 Console.WriteLine($"Read {rowCount:N0} lines into {columns.Count:N0} columns");
@@ -479,7 +482,7 @@ namespace BrightData
         /// <returns></returns>
         public static IDataTable LoadTable(this IBrightDataContext context, string filePath)
         {
-            using var input = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+            var input = new FileStream(filePath, FileMode.Open, FileAccess.Read);
             var streamCloner = new StreamCloner(input);
             using var reader = new BinaryReader(input, Encoding.UTF8, true);
             var version = reader.ReadInt32();
@@ -487,8 +490,12 @@ namespace BrightData
             if (version > Consts.DataTableVersion)
                 throw new Exception($"Segment table version {version} exceeds {Consts.DataTableVersion}");
             var orientation = (DataTableOrientation)reader.ReadByte();
-            if (orientation == DataTableOrientation.ColumnOriented)
-                return new ColumnOrientedDataTable(context, input, false, streamCloner);
+            if (orientation == DataTableOrientation.ColumnOriented) {
+                var ret = new ColumnOrientedDataTable(context, input, false, streamCloner);
+                input.Dispose();
+                return ret;
+            }
+
             if (orientation == DataTableOrientation.RowOriented)
                 return new RowOrientedDataTable(context, input, false);
             throw new Exception($"Found unknown data table orientation: {orientation}");
@@ -1177,5 +1184,29 @@ namespace BrightData
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         public static T Get<T>(this IDataTableSegment segment, uint columnIndex) where T : notnull => (T) segment[columnIndex];
+
+        /// <summary>
+        /// Samples rows from the data table
+        /// </summary>
+        /// <param name="table"></param>
+        /// <param name="sampleSize">Number of rows to sample</param>
+        /// <returns></returns>
+        public static IEnumerable<IDataTableSegment> Sample(this IRowOrientedDataTable table, uint sampleSize)
+        {
+            var rows = table.RowCount.AsRange().Shuffle(table.Context.Random).Take((int) sampleSize).OrderBy(i => i).ToArray();
+            return table.Rows(rows);
+        }
+
+        public static IColumnTransformationParam CreateCustomColumnConverter<TF, TT>(this IColumnOrientedDataTable table, uint columnIndex, Func<TF, TT> converter, Action<IMetaData>? columnFinaliser = null) where TF : notnull where TT : notnull
+        {
+            var type = table.ColumnTypes[columnIndex].GetDataType();
+            if (type != typeof(TF))
+                throw new ArgumentException("Invalid from data type");
+            if(typeof(TT).GetColumnType() == ColumnType.Unknown)
+                throw new ArgumentException("Invalid to data type");
+
+            var transformer = new ColumnConversion.CustomConverter<TF, TT>(converter, columnFinaliser);
+            return new ColumnConversion(columnIndex, transformer);
+        }
     }
 }

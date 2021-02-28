@@ -276,6 +276,13 @@ namespace BrightData
         /// <param name="projector">Mutates the rows of each row by changing values, types, or both</param>
         /// <param name="filePath">File path to store new table on disk (optional)</param>
         IRowOrientedDataTable? Project(Func<object[], object[]?> projector, string? filePath = null);
+
+        /// <summary>
+        /// Writes the data table to disk
+        /// </summary>
+        /// <param name="filePath">File path</param>
+        /// <returns></returns>
+        IDataTable WriteTo(string filePath);
     }
 
     /// <summary>
