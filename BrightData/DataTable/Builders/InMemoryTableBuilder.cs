@@ -64,6 +64,51 @@ namespace BrightData.DataTable.Builders
         }
 
         /// <summary>
+        /// Adds a new fixed size vector column
+        /// </summary>
+        /// <param name="size">Size of the vector</param>
+        /// <param name="name">Name of the column (optional)</param>
+        /// <returns></returns>
+        public IMetaData AddFixedSizeVectorColumn(uint size, string? name = null)
+        {
+            var metaData = AddColumn(ColumnType.Vector, name);
+            metaData.Set(Consts.XDimension, size);
+            return metaData;
+        }
+
+        /// <summary>
+        /// Adds a new fixed size matrix column
+        /// </summary>
+        /// <param name="rows">Row count of each matrix</param>
+        /// <param name="columns">Column count of each matrix</param>
+        /// <param name="name">Name of the column (optional)</param>
+        /// <returns></returns>
+        public IMetaData AddFixedSizeMatrixColumn(uint rows, uint columns, string? name = null)
+        {
+            var metaData = AddColumn(ColumnType.Matrix, name);
+            metaData.Set(Consts.XDimension, columns);
+            metaData.Set(Consts.YDimension, rows);
+            return metaData;
+        }
+
+        /// <summary>
+        /// Adds a new fixed size 3D tensor column
+        /// </summary>
+        /// <param name="depth">Depth of each 3D tensor</param>
+        /// <param name="rows">Row count of each matrix</param>
+        /// <param name="columns">Column count of each matrix</param>
+        /// <param name="name">Name of the column (optional)</param>
+        /// <returns></returns>
+        public IMetaData AddFixedSize3DTensorColumn(uint depth, uint rows, uint columns, string? name = null)
+        {
+            var metaData = AddColumn(ColumnType.Tensor3D, name);
+            metaData.Set(Consts.XDimension, columns);
+            metaData.Set(Consts.YDimension, rows);
+            metaData.Set(Consts.ZDimension, depth);
+            return metaData;
+        }
+
+        /// <summary>
         /// Adds a new row
         /// </summary>
         /// <param name="data"></param>
@@ -72,14 +117,14 @@ namespace BrightData.DataTable.Builders
             if (data.Length != _columns.Count)
                 throw new ArgumentException($"{data.Length} columns but needed {_columns.Count}");
             for (int i = 0, len = data.Length; i < len; i++)
-                data[i] = EnsureType(data[i], _columns[i].Type);
+                data[i] = EnsureType(i, data[i], _columns[i].Type);
             _rows.Add(data);
         }
 
-        static object EnsureType(object val, ColumnType type)
+        object EnsureType(int columnIndex, object val, ColumnType type)
         {
             return type switch {
-                ColumnType.Matrix => (object)(Matrix<float>) val,
+                ColumnType.Matrix => EnsureMatrix(columnIndex, (Matrix<float>) val),
                 ColumnType.BinaryData => (BinaryData) val,
                 ColumnType.Boolean => Convert.ToBoolean(val),
                 ColumnType.Byte => Convert.ToSByte(val),
@@ -93,11 +138,47 @@ namespace BrightData.DataTable.Builders
                 ColumnType.String => val.ToString(),
                 ColumnType.IndexList => (IndexList) val,
                 ColumnType.WeightedIndexList => (WeightedIndexList) val,
-                ColumnType.Vector => (Vector<float>) val,
-                ColumnType.Tensor3D => (Tensor3D<float>) val,
+                ColumnType.Vector => EnsureVector(columnIndex, (Vector<float>)val),
+                ColumnType.Tensor3D => EnsureTensor(columnIndex, (Tensor3D<float>) val),
                 ColumnType.Tensor4D => (Tensor4D<float>) val,
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             } ?? throw new ArgumentException("Value cannot be null");
+        }
+
+        object EnsureVector(int columnIndex, Vector<float> vector)
+        {
+            var metaData = _columns[columnIndex].MetaData;
+            if (metaData.Has(Consts.XDimension)) {
+                var expectedSize = metaData.Get<uint>(Consts.XDimension);
+                if (expectedSize != vector.Size)
+                    throw new ArgumentException($"For column {columnIndex}, expected vector of size {expectedSize} but found vector of size {vector.Size}");
+            }
+            return vector;
+        }
+
+        object EnsureMatrix(int columnIndex, Matrix<float> matrix)
+        {
+            var metaData = _columns[columnIndex].MetaData;
+            if (metaData.Has(Consts.XDimension) && metaData.Has(Consts.YDimension)) {
+                var expectedRows = metaData.Get<uint>(Consts.YDimension);
+                var expectedColumns = metaData.Get<uint>(Consts.XDimension);
+                if (expectedRows != matrix.RowCount || expectedColumns != matrix.ColumnCount)
+                    throw new ArgumentException($"For column {columnIndex}, expected a matrix with {expectedRows} rows and {expectedColumns} columns but found a matrix with {matrix.RowCount} rows and {matrix.ColumnCount} columns");
+            }
+            return matrix;
+        }
+
+        object EnsureTensor(int columnIndex, Tensor3D<float> tensor)
+        {
+            var metaData = _columns[columnIndex].MetaData;
+            if (metaData.Has(Consts.XDimension) && metaData.Has(Consts.YDimension) && metaData.Has(Consts.ZDimension)) {
+                var expectedRows = metaData.Get<uint>(Consts.YDimension);
+                var expectedColumns = metaData.Get<uint>(Consts.XDimension);
+                var expectedDepth = metaData.Get<uint>(Consts.ZDimension);
+                if (expectedRows != tensor.RowCount || expectedColumns != tensor.ColumnCount || expectedDepth != tensor.Depth)
+                    throw new ArgumentException($"For column {columnIndex}, expected a 3D tensor with {expectedRows} rows, {expectedColumns} columns and {expectedDepth} depth but found a tensor with {tensor.RowCount} rows, {tensor.ColumnCount} columns and {tensor.Depth} depth");
+            }
+            return tensor;
         }
 
         /// <summary>

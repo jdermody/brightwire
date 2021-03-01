@@ -57,18 +57,20 @@ namespace BrightData.DataTable.Builders
             return column.Metadata;
         }
 
-        public IMetaData AddColumn(ColumnType type, string name)
+        public IMetaData AddColumn(ColumnType type, string name) => Add(type, name);
+        public IMetaData AddColumn(ColumnType type) => Add(type, null);
+        IMetaData Add(ColumnType type, string? name)
         {
             var metadata = new MetaData();
             metadata.Set(Consts.Name, DataTableBase.DefaultColumnName(name, _columns.Count));
             return AddColumn(type, metadata);
         }
 
-        public IMetaData AddColumn(ColumnType type)
+        public IMetaData AddFixedSizeVectorColumn(uint size, string? name = null)
         {
-            var metadata = new MetaData();
-            metadata.Set(Consts.Name, DataTableBase.DefaultColumnName(null, _columns.Count));
-            return AddColumn(type, metadata);
+            var metaData = Add(ColumnType.Vector, name);
+            metaData.Set(Consts.XDimension, size);
+            return metaData;
         }
 
         public void AddColumnsFrom(IDataTable dataTable)

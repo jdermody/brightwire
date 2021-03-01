@@ -25,8 +25,7 @@ namespace BrightData
         /// <returns></returns>
         public static Type GetDataType(this ColumnType type)
         {
-            return type switch
-            {
+            return type switch {
                 ColumnType.Boolean => typeof(bool),
                 ColumnType.Byte => typeof(sbyte),
                 ColumnType.Date => typeof(DateTime),
@@ -57,8 +56,7 @@ namespace BrightData
         public static ColumnType GetColumnType(this Type dataType)
         {
             var typeCode = Type.GetTypeCode(dataType);
-            switch (typeCode)
-            {
+            switch (typeCode) {
                 case TypeCode.Boolean:
                     return ColumnType.Boolean;
 
@@ -190,8 +188,7 @@ namespace BrightData
         public static Type? DataType(this IDataTableSegment segment)
         {
             Type? ret = null;
-            for (uint i = 0; i < segment.Size; i++)
-            {
+            for (uint i = 0; i < segment.Size; i++) {
                 var type = segment[i].GetType();
                 if (ret == null)
                     ret = type;
@@ -321,8 +318,7 @@ namespace BrightData
         public static IDataAnalyser GetColumnAnalyser(this ColumnType type, IMetaData metaData, uint writeCount = Consts.MaxWriteCount, uint maxCount = Consts.MaxDistinct)
         {
             var dataType = ColumnTypeClassifier.GetClass(type, metaData);
-            if ((dataType & ColumnClass.Categorical) != 0)
-            {
+            if ((dataType & ColumnClass.Categorical) != 0) {
                 if (type == ColumnType.String)
                     return StaticAnalysers.CreateStringAnalyser(maxCount, writeCount);
                 return StaticAnalysers.CreateFrequencyAnalyser(type.GetDataType(), maxCount, writeCount);
@@ -395,8 +391,7 @@ namespace BrightData
                 metaData.Set(Consts.Source, fs.Name);
             }
 
-            if (writeProgress)
-            {
+            if (writeProgress) {
                 var progress = -1;
                 Console.WriteLine($"Parsing CSV...");
                 parser.OnProgress = p => p.WriteProgress(ref progress);
@@ -407,14 +402,12 @@ namespace BrightData
             {
                 var cols = row.Length;
 
-                for (var i = columns.Count; i < cols; i++)
-                {
+                for (var i = columns.Count; i < cols; i++) {
                     var buffer = context.CreateHybridStringBuffer(tempStreams, inMemoryRowCount, maxDistinct);
                     columns.Add(new GrowableSegment<string>(ColumnType.String, new MetaData(), buffer));
                 }
 
-                for (var i = 0; i < cols; i++)
-                {
+                for (var i = 0; i < cols; i++) {
                     var column = columns[i];
                     var text = row[i];
                     if (isFirst)
@@ -433,8 +426,7 @@ namespace BrightData
             if (segments.Any(s => s.Size != rowCount))
                 throw new Exception("Columns have irregular sizes");
 
-            if (writeProgress)
-            {
+            if (writeProgress) {
                 Console.WriteLine($"Read {rowCount:N0} lines into {columns.Count:N0} columns");
                 int index = 1;
                 return segments.BuildColumnOrientedTable(metaData, context, rowCount, fileOutputPath, segment => Console.Write($"{index++}/{columns.Count}) {segment.MetaData.GetName()}..."), size => Console.WriteLine($"done ({size:N0} bytes)"));
@@ -450,8 +442,7 @@ namespace BrightData
         /// <param name="max">Maximum progress</param>
         public static void WriteProgress(this int newProgress, ref int oldProgress, int max = 100)
         {
-            if (newProgress > oldProgress)
-            {
+            if (newProgress > oldProgress) {
                 var sb = new StringBuilder();
                 sb.Append('\r');
                 for (var i = 0; i < max; i++)
@@ -552,7 +543,8 @@ namespace BrightData
         public static uint? GetTargetColumn(this IDataTable table)
         {
             var metaData = table.AllColumnsMetaData();
-            for (uint i = 0; i < table.ColumnCount; i++) {
+            for (uint i = 0; i < table.ColumnCount; i++)
+            {
                 if (metaData[i].IsTarget())
                     return i;
             }
@@ -661,11 +653,12 @@ namespace BrightData
             using var builder = new ColumnOrientedTableBuilder(filePath);
 
             builder.WriteHeader(columnCount, rowCount, metaData);
-            foreach (var segment in segments) {
+            foreach (var segment in segments)
+            {
                 onBeforeWrite?.Invoke(segment);
                 var position = builder.Write(segment);
                 var endPosition = builder.GetCurrentPosition();
-                onAfterWrite?.Invoke(endPosition-position);
+                onAfterWrite?.Invoke(endPosition - position);
                 columnOffsets.Add((position, endPosition));
             }
             builder.WriteColumnOffsets(columnOffsets);
@@ -686,7 +679,8 @@ namespace BrightData
             var readers = segments
                 .Select(b => b.Enumerate().GetEnumerator())
                 .ToList();
-            while (readers.All(r => r.MoveNext())) {
+            while (readers.All(r => r.MoveNext()))
+            {
                 var row = readers.Select(r => r.Current).ToArray();
                 builder.AddRow(row);
             }
@@ -725,7 +719,8 @@ namespace BrightData
         {
             var target = dataTable.GetTargetColumn();
             var vectoriser = new DataTableVectoriser(dataTable, true, dataTable.ColumnIndicesOfFeatures().ToArray());
-            if (target.HasValue) {
+            if (target.HasValue)
+            {
                 var targetColumn = dataTable.Column(target.Value).Enumerate().Select(o => o.ToString());
                 return vectoriser.Enumerate().Zip(targetColumn);
             }
@@ -785,7 +780,8 @@ namespace BrightData
             var foldSize = rowIndices.Count / k;
             var folds = Enumerable.Range(0, k).Select(i => rowIndices.Skip(i * foldSize).Take(foldSize).ToArray()).ToList();
 
-            for (var i = 0; i < k; i++) {
+            for (var i = 0; i < k; i++)
+            {
                 var i1 = i;
                 var trainingRows = Enumerable.Range(0, k).Where(n => n != i1).SelectMany(n => folds[n]).ToArray();
                 var validationRows = folds[i1];
@@ -907,18 +903,16 @@ namespace BrightData
             if (columnIndices.Length == 1)
             {
                 var columnType = dataTable.ColumnTypes[columnIndices[0]];
-                if (columnType == ColumnType.Vector)
-                {
+                if (columnType == ColumnType.Vector) {
                     var index = 0;
                     var rows = new Vector<float>[dataTable.RowCount];
-                    var vectorSegment = (IDataTableSegment<Vector<float>>) dataTable.Column(columnIndices[0]);
+                    var vectorSegment = (IDataTableSegment<Vector<float>>)dataTable.Column(columnIndices[0]);
                     foreach (var row in vectorSegment.EnumerateTyped())
                         rows[index++] = row;
                     return dataTable.Context.CreateMatrixFromRows(rows);
                 }
 
-                if (columnType.IsNumeric())
-                {
+                if (columnType.IsNumeric()) {
                     var ret = dataTable.Context.CreateMatrix<float>(dataTable.RowCount, 1);
                     dataTable.Column(columnIndices[0]).CopyTo(ret.Segment);
                     return ret;
@@ -940,25 +934,27 @@ namespace BrightData
         {
             var target = dataTable.GetTargetColumn();
             var columnIndices = dataTable.ColumnIndices().ToList();
-
             var builder = new RowOrientedTableBuilder(dataTable.MetaData, dataTable.RowCount, filePath);
-            builder.AddColumn(ColumnType.Vector, "Features");
 
+            // create an optional output vectoriser
             DataTableVectoriser? outputVectoriser = null;
-            if (target.HasValue)
-            {
-                builder.AddColumn(ColumnType.Vector, "Target").SetTarget(true);
+            if (target.HasValue) {
                 outputVectoriser = new DataTableVectoriser(dataTable, oneHotEncodeToMultipleColumns, target.Value);
                 columnIndices.Remove(target.Value);
             }
-            var inputVectoriser = new DataTableVectoriser(dataTable, oneHotEncodeToMultipleColumns, columnIndices.ToArray());
 
+            // create the input vectoriser
+            var inputVectoriser = new DataTableVectoriser(dataTable, oneHotEncodeToMultipleColumns, columnIndices.ToArray());
+            builder.AddFixedSizeVectorColumn(inputVectoriser.OutputSize, "Features");
+            if (outputVectoriser != null)
+                builder.AddFixedSizeVectorColumn(outputVectoriser.OutputSize, "Target").SetTarget(true);
+
+            // vectorise each row
             var context = dataTable.Context;
-            dataTable.ForEachRow(row =>
-            {
-                var input = inputVectoriser.Vectorise(row);
+            dataTable.ForEachRow(row => {
+                var input = context.CreateVector(inputVectoriser.Vectorise(row));
                 if (outputVectoriser != null)
-                    builder.AddRow(context.CreateVector(input), context.CreateVector(outputVectoriser.Vectorise(row)));
+                    builder.AddRow(input, context.CreateVector(outputVectoriser.Vectorise(row)));
                 else
                     builder.AddRow(input);
             });
@@ -1027,23 +1023,22 @@ namespace BrightData
         public static IDataTable ConvertToTable(this IReadOnlyList<(string Label, Vector<float> Data)> data, bool preserveVectors, IBrightDataContext context)
         {
             var builder = context.BuildTable();
-            if (preserveVectors)
-            {
-                builder.AddColumn(ColumnType.Vector, "Vector");
+            if (preserveVectors) {
+                var first = data[0].Data;
+                builder.AddFixedSizeVectorColumn(first.Size, "Vector");
                 builder.AddColumn(ColumnType.String, "Label").SetTarget(true);
 
                 foreach (var (label, vector) in data)
                     builder.AddRow(vector, label);
             }
-            else
-            {
+
+            else {
                 var size = data.First().Data.Size;
                 for (var i = 1; i <= size; i++)
                     builder.AddColumn(ColumnType.Float, "Value " + i);
                 builder.AddColumn(ColumnType.String, "Label").SetTarget(true);
 
-                foreach (var (label, vector) in data)
-                {
+                foreach (var (label, vector) in data) {
                     var row = new List<object>();
                     for (var i = 0; i < size; i++)
                         row.Add(vector[i]);
@@ -1063,8 +1058,7 @@ namespace BrightData
         public static IReadOnlyList<(string Classification, Vector<float> Data)> Vectorise(this IReadOnlyList<(string Label, WeightedIndexList Data)> data, IBrightDataContext context)
         {
             var size = data.GetMaxIndex() + 1;
-            Vector<float> Create(WeightedIndexList weightedIndexList)
-            {
+            Vector<float> Create(WeightedIndexList weightedIndexList) {
                 var ret = new float[size];
                 foreach (var item in weightedIndexList.Indices)
                     ret[item.Index] = item.Weight;
@@ -1084,8 +1078,7 @@ namespace BrightData
                 return "";
             if (columnType == ColumnType.Date)
                 return DateTime.MinValue;
-            if (columnType != ColumnType.Unknown)
-            {
+            if (columnType != ColumnType.Unknown) {
                 var dataType = columnType.GetDataType();
                 if (dataType.GetTypeInfo().IsValueType)
                     return Activator.CreateInstance(dataType);
@@ -1183,7 +1176,7 @@ namespace BrightData
         /// <param name="columnIndex"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static T Get<T>(this IDataTableSegment segment, uint columnIndex) where T : notnull => (T) segment[columnIndex];
+        public static T Get<T>(this IDataTableSegment segment, uint columnIndex) where T : notnull => (T)segment[columnIndex];
 
         /// <summary>
         /// Samples rows from the data table
@@ -1193,7 +1186,7 @@ namespace BrightData
         /// <returns></returns>
         public static IEnumerable<IDataTableSegment> Sample(this IRowOrientedDataTable table, uint sampleSize)
         {
-            var rows = table.RowCount.AsRange().Shuffle(table.Context.Random).Take((int) sampleSize).OrderBy(i => i).ToArray();
+            var rows = table.RowCount.AsRange().Shuffle(table.Context.Random).Take((int)sampleSize).OrderBy(i => i).ToArray();
             return table.Rows(rows);
         }
 
@@ -1202,7 +1195,7 @@ namespace BrightData
             var type = table.ColumnTypes[columnIndex].GetDataType();
             if (type != typeof(TF))
                 throw new ArgumentException("Invalid from data type");
-            if(typeof(TT).GetColumnType() == ColumnType.Unknown)
+            if (typeof(TT).GetColumnType() == ColumnType.Unknown)
                 throw new ArgumentException("Invalid to data type");
 
             var transformer = new ColumnConversion.CustomConverter<TF, TT>(converter, columnFinaliser);

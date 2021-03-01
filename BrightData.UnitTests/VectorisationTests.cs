@@ -22,7 +22,7 @@ namespace BrightData.UnitTests
             builder.AddColumn(ColumnType.Long, "long");
             builder.AddColumn(ColumnType.IndexList, "index-list");
             builder.AddColumn(ColumnType.WeightedIndexList, "weighted-index-list");
-            builder.AddColumn(ColumnType.Vector, "vector");
+            builder.AddFixedSizeVectorColumn(3, "vector");
 
             var indexList = _context.CreateIndexList(1, 2, 3);
             var weightedIndexList = _context.CreateWeightedIndexList((1, 0.1f), (2, 0.5f), (3, 1f));

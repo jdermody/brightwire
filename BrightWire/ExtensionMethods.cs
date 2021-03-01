@@ -155,8 +155,7 @@ namespace BrightWire
         public static IRowOrientedDataTable CreateSequentialWindow(this IRowOrientedDataTable dataTable, uint windowSize, params uint[] columnIndices)
         {
             var builder = dataTable.Context.BuildTable();
-            builder.AddColumn(ColumnType.Matrix, "Past");
-            builder.AddColumn(ColumnType.Vector, "Future").SetTarget(true);
+            var hasAddedColumns = false;
             var convertible = dataTable.AsConvertible();
             var context = dataTable.Context;
             for (uint i = 0; i < dataTable.RowCount - windowSize - 1; i++) {
@@ -166,6 +165,11 @@ namespace BrightWire
                     .ToArray()
                 );
                 var target = context.CreateVector(convertible.Row(i + windowSize).GetFields<float>(columnIndices));
+                if (!hasAddedColumns) {
+                    hasAddedColumns = true;
+                    builder.AddFixedSizeMatrixColumn(past.RowCount, past.ColumnCount, "Past");
+                    builder.AddFixedSizeVectorColumn(target.Size, "Future").SetTarget(true);
+                }
                 builder.AddRow(past, target);
             }
 

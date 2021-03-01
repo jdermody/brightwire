@@ -5046,25 +5046,35 @@
             Creates standard data table builders
             </summary>
         </member>
-        <member name="M:BrightWire.TrainingData.Helper.DataTableBuilder.CreateTwoColumnMatrixTableBuilder(BrightData.IBrightDataContext)">
+        <member name="M:BrightWire.TrainingData.Helper.DataTableBuilder.CreateTwoColumnMatrixTableBuilder(BrightData.IBrightDataContext,System.Nullable{System.UInt32},System.Nullable{System.UInt32},System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
             <summary>
             Creates a data table builder with one feature matrix column and one target matrix column
             </summary>
             <param name="context"></param>
+            <param name="inputRows"></param>
+            <param name="inputColumns"></param>
+            <param name="outputRows"></param>
+            <param name="outputColumns"></param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.TrainingData.Helper.DataTableBuilder.CreateTwoColumnVectorTableBuilder(BrightData.IBrightDataContext)">
+        <member name="M:BrightWire.TrainingData.Helper.DataTableBuilder.CreateTwoColumnVectorTableBuilder(BrightData.IBrightDataContext,System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
             <summary>
             Creates a data table builder with one feature vector column and one target vector column
             </summary>
             <param name="context"></param>
+            <param name="inputSize">Size of the input vector</param>
+            <param name="outputSize">Size of the output vector</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.TrainingData.Helper.DataTableBuilder.Create3DTensorToVectorTableBuilder(BrightData.IBrightDataContext)">
+        <member name="M:BrightWire.TrainingData.Helper.DataTableBuilder.Create3DTensorToVectorTableBuilder(BrightData.IBrightDataContext,System.Nullable{System.UInt32},System.Nullable{System.UInt32},System.Nullable{System.UInt32},System.Nullable{System.UInt32})">
             <summary>
-            Creates a data table builder with one feature tensor 3D columna and one target vector column
+            Creates a data table builder with one feature tensor 3D columns and one target vector column
             </summary>
             <param name="context"></param>
+            <param name="inputDepth"></param>
+            <param name="inputRows"></param>
+            <param name="inputColumns"></param>
+            <param name="outputSize">Size of the output vector</param>
             <returns></returns>
         </member>
         <member name="T:BrightWire.TrainingData.Helper.SequenceWindowBuilder">

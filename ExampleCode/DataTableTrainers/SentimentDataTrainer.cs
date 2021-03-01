@@ -170,14 +170,18 @@ namespace ExampleCode.DataTableTrainers
         static IRowOrientedDataTable GetTable(IBrightDataContext context, uint maxIndex, IIndexStrings indexer, (string Classification, IndexList Data)[] data)
         {
             var builder = context.BuildTable();
-            builder.AddColumn(ColumnType.Vector, "Features");
-            builder.AddColumn(ColumnType.Vector, "Target").SetTarget(true);
+            var addColumns = true;
 
             var vector = new float[2];
             foreach (var (classification, indexList) in data) {
                 var features = indexList.ToDense(maxIndex);
                 vector[0] = vector[1] = 0f;
                 vector[indexer.GetIndex(classification)] = 1f;
+                if (addColumns) {
+                    addColumns = false;
+                    builder.AddFixedSizeVectorColumn(features.Size, "Features");
+                    builder.AddFixedSizeVectorColumn((uint)vector.Length, "Target").SetTarget(true);
+                }
                 builder.AddRow(features, context.CreateVector(vector));
             }
 
@@ -197,16 +201,20 @@ namespace ExampleCode.DataTableTrainers
         static IRowOrientedDataTable CreateCombinedDataTable(IBrightDataContext context, uint maxIndex, IIndexStrings indexer, (string Classification, IndexList Data)[] data)
         {
             var builder = context.BuildTable();
-            builder.AddColumn(ColumnType.Vector, "Vector");
-            builder.AddColumn(ColumnType.IndexList, "Index List");
-            builder.AddColumn(ColumnType.String, "Target");
-            builder.AddColumn(ColumnType.Vector, "Vector Target").SetTarget(true);
+            var addColumns = true;
 
             var vector = new float[2];
             foreach (var (classification, indexList) in data) {
                 var features = indexList.ToDense(maxIndex);
                 vector[0] = vector[1] = 0f;
                 vector[indexer.GetIndex(classification)] = 1f;
+                if (addColumns) {
+                    addColumns = false;
+                    builder.AddFixedSizeVectorColumn(features.Size, "Vector");
+                    builder.AddColumn(ColumnType.IndexList, "Index List");
+                    builder.AddColumn(ColumnType.String, "Target");
+                    builder.AddFixedSizeVectorColumn((uint)vector.Length, "Vector Target").SetTarget(true);
+                }
                 builder.AddRow(features, indexList, classification, context.CreateVector(vector));
             }
 

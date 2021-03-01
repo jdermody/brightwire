@@ -601,6 +601,33 @@
             <param name="name">Name of the column</param>
             <returns></returns>
         </member>
+        <member name="M:BrightData.DataTable.Builders.InMemoryTableBuilder.AddFixedSizeVectorColumn(System.UInt32,System.String)">
+            <summary>
+            Adds a new fixed size vector column
+            </summary>
+            <param name="size">Size of the vector</param>
+            <param name="name">Name of the column (optional)</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.DataTable.Builders.InMemoryTableBuilder.AddFixedSizeMatrixColumn(System.UInt32,System.UInt32,System.String)">
+            <summary>
+            Adds a new fixed size matrix column
+            </summary>
+            <param name="rows">Row count of each matrix</param>
+            <param name="columns">Column count of each matrix</param>
+            <param name="name">Name of the column (optional)</param>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.DataTable.Builders.InMemoryTableBuilder.AddFixedSize3DTensorColumn(System.UInt32,System.UInt32,System.UInt32,System.String)">
+            <summary>
+            Adds a new fixed size 3D tensor column
+            </summary>
+            <param name="depth">Depth of each 3D tensor</param>
+            <param name="rows">Row count of each matrix</param>
+            <param name="columns">Column count of each matrix</param>
+            <param name="name">Name of the column (optional)</param>
+            <returns></returns>
+        </member>
         <member name="M:BrightData.DataTable.Builders.InMemoryTableBuilder.AddRow(System.Object[])">
             <summary>
             Adds a new row

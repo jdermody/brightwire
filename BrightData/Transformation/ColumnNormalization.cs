@@ -10,13 +10,13 @@ namespace BrightData.Transformation
     {
         readonly bool _toFloat;
 
-        class NormalizToFloat<T> : ITransformColumn<T, float>, INormalize where T: struct
+        class NormalizeToFloat<T> : ITransformColumn<T, float>, INormalize where T: struct
         {
             readonly ICanConvert<T, double> _convertToDouble;
             readonly NormalizeTransformation _normalize;
             readonly ICanConvert<double, float> _convertToFloat;
 
-            public NormalizToFloat(NormalizationType type, IMetaData analysedMetaData)
+            public NormalizeToFloat(NormalizationType type, IMetaData analysedMetaData)
             {
                 _convertToDouble = (ICanConvert<T, double>) typeof(double).GetConverter<T>();
                 _convertToFloat = (ICanConvert<double, float>)typeof(float).GetConverter<double>();
@@ -48,12 +48,12 @@ namespace BrightData.Transformation
             public double Divide => _normalize.Divide;
             public double Subtract => _normalize.Subtract;
         }
-        class NormalizToDouble<T> : ITransformColumn<T, double>, INormalize where T: struct
+        class NormalizeToDouble<T> : ITransformColumn<T, double>, INormalize where T: struct
         {
             readonly ICanConvert<T, double> _convertToDouble;
             readonly NormalizeTransformation _normalize;
 
-            public NormalizToDouble(NormalizationType type, IMetaData analysedMetaData)
+            public NormalizeToDouble(NormalizationType type, IMetaData analysedMetaData)
             {
                 _convertToDouble = (ICanConvert<T, double>) typeof(double).GetConverter<T>();
                 _normalize = new NormalizeTransformation(type, analysedMetaData);
@@ -88,8 +88,8 @@ namespace BrightData.Transformation
         {
             var columnType = column.SingleType.GetDataType();
             var contextType = _toFloat
-                ? typeof(NormalizToFloat<>).MakeGenericType(columnType)
-                : typeof(NormalizToDouble<>).MakeGenericType(columnType)
+                ? typeof(NormalizeToFloat<>).MakeGenericType(columnType)
+                : typeof(NormalizeToDouble<>).MakeGenericType(columnType)
             ;
             return GenericActivator.Create<ITransformColumn>(contextType, NormalizationType, analysedMetaData());
         }

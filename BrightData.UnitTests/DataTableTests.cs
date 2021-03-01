@@ -163,7 +163,7 @@ namespace BrightData.UnitTests
                 var val = row.GetTyped<double>(0);
                 var prevVal = convertible.Row(index).GetTyped<double>(0);
                 var expected = (prevVal - mean) / stdDev;
-                val.Should().Be(expected);
+                DoubleMath.AreApproximatelyEqual(val, expected, 1E-4f).Should().BeTrue();
             });
         }
 
@@ -232,7 +232,7 @@ namespace BrightData.UnitTests
                 var val = row.GetTyped<double>(0);
                 var prevVal = (double)table.Row(index)[0];
                 var expected = (prevVal - analysis.Mean) / analysis.PopulationStdDev!;
-                DoubleMath.AreApproximatelyEqual(val, expected).Should().BeTrue();
+                DoubleMath.AreApproximatelyEqual(val, expected, 1E-4f).Should().BeTrue();
             });
         }
 
@@ -249,7 +249,7 @@ namespace BrightData.UnitTests
                 var val = row.GetTyped<double>(0);
                 var prevVal = (double)table.Row(index)[0];
                 var expected = (prevVal - analysis.Min) / (analysis.Max - analysis.Min);
-                DoubleMath.AreApproximatelyEqual(val, expected).Should().BeTrue();
+                DoubleMath.AreApproximatelyEqual(val, expected, 1E-4f).Should().BeTrue();
             });
         }
 
@@ -269,7 +269,7 @@ namespace BrightData.UnitTests
                 var val = row.GetTyped<double>(0);
                 var prevVal = table.Row(index).Get<double>(0);
                 var expected = prevVal / analysis.L2Norm;
-                val.Should().Be(expected);
+                DoubleMath.AreApproximatelyEqual(val, expected, 1E-4f).Should().BeTrue();
             });
         }
 
@@ -289,7 +289,7 @@ namespace BrightData.UnitTests
                 var val = row.GetTyped<double>(0);
                 var prevVal = table.Row(index).Get<double>(0);
                 var expected = prevVal / analysis.L1Norm;
-                val.Should().Be(expected);
+                DoubleMath.AreApproximatelyEqual(val, expected, 1E-4f).Should().BeTrue();
             });
         }
 

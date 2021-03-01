@@ -147,8 +147,7 @@ namespace ExampleCode.DataSet
             var grammar = new SequenceGenerator(context, dictionarySize: 10, minSize: 5, maxSize: 5, noRepeat: true);
             var sequences = grammar.GenerateSequences().Take(1000).ToList();
             var builder = context.BuildTable();
-            builder.AddColumn(ColumnType.Vector, "Summary");
-            builder.AddColumn(ColumnType.Matrix, "Sequence").SetTarget(true);
+            var addColumns = true;
 
             foreach (var sequence in sequences)
             {
@@ -165,7 +164,14 @@ namespace ExampleCode.DataSet
                     var row = grammar.Encode(item.Key, item.Value);
                     rows[index++] = row;
                 }
-                builder.AddRow(summary, context.CreateMatrixFromRows(rows));
+
+                var output = context.CreateMatrixFromRows(rows);
+                if (addColumns) {
+                    addColumns = false;
+                    builder.AddFixedSizeVectorColumn(summary.Size, "Summary");
+                    builder.AddFixedSizeMatrixColumn(output.RowCount, output.ColumnCount, "Sequence").SetTarget(true);
+                }
+                builder.AddRow(summary, output);
             }
 
             return new SequenceToSequenceTrainer(context, grammar.DictionarySize, builder.BuildRowOriented());

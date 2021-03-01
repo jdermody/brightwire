@@ -14,9 +14,9 @@ namespace BrightData.Analysis
             _maxCount = maxCount;
         }
 
-        public uint? XDimension { get; private set; } = null;
-        public uint? YDimension { get; private set; } = null;
-        public uint? ZDimension { get; private set; } = null;
+        public uint? XDimension { get; private set; }
+        public uint? YDimension { get; private set; }
+        public uint? ZDimension { get; private set; }
 
         public void Add(ITensor<float> obj)
         {
