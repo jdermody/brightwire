@@ -642,11 +642,21 @@ namespace BrightData
         /// Creates a column oriented data table from a list of segments
         /// </summary>
         /// <param name="segments"></param>
+        /// <param name="metaData">Table meta data</param>
         /// <param name="context"></param>
         /// <param name="rowCount">Number of rows</param>
         /// <param name="filePath">File path to save on disk (optional)</param>
+        /// <param name="onBeforeWrite">Callback before writing each column (optional)</param>
+        /// <param name="onAfterWrite">Callback after writing each column (optional)</param>
         /// <returns></returns>
-        public static IColumnOrientedDataTable BuildColumnOrientedTable(this List<ISingleTypeTableSegment> segments, IMetaData metaData, IBrightDataContext context, uint rowCount, string? filePath = null, Action<ISingleTypeTableSegment>? onBeforeWrite = null, Action<long>? onAfterWrite = null)
+        public static IColumnOrientedDataTable BuildColumnOrientedTable(
+            this List<ISingleTypeTableSegment> segments, 
+            IMetaData metaData, 
+            IBrightDataContext context, 
+            uint rowCount, 
+            string? filePath = null, 
+            Action<ISingleTypeTableSegment>? onBeforeWrite = null, 
+            Action<long>? onAfterWrite = null)
         {
             var columnCount = (uint)segments.Count;
             var columnOffsets = new List<(long Position, long EndOfColumnOffset)>();
@@ -669,6 +679,7 @@ namespace BrightData
         /// Creates a row oriented data table from a list of segments
         /// </summary>
         /// <param name="segments"></param>
+        /// <param name="metaData">Table meta data</param>
         /// <param name="context"></param>
         /// <param name="rowCount">Number of rows</param>
         /// <param name="filePath">File path to save on disk (optional)</param>
@@ -1190,6 +1201,17 @@ namespace BrightData
             return table.Rows(rows);
         }
 
+        /// <summary>
+        /// Creates a custom column converter
+        /// </summary>
+        /// <param name="table"></param>
+        /// <param name="columnIndex">Column index to convert</param>
+        /// <param name="converter">Column converter</param>
+        /// <param name="columnFinaliser">Called after each row </param>
+        /// <typeparam name="TF"></typeparam>
+        /// <typeparam name="TT"></typeparam>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         public static IColumnTransformationParam CreateCustomColumnConverter<TF, TT>(this IColumnOrientedDataTable table, uint columnIndex, Func<TF, TT> converter, Action<IMetaData>? columnFinaliser = null) where TF : notnull where TT : notnull
         {
             var type = table.ColumnTypes[columnIndex].GetDataType();

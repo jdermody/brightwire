@@ -639,6 +639,9 @@ namespace BrightData
         /// </summary>
         ColumnType ColumnType { get; }
 
+        /// <summary>
+        /// Encoded dictionary
+        /// </summary>
         IHaveDictionary? Dictionary { get; }
     }
 

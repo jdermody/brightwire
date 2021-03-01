@@ -2243,6 +2243,15 @@
             <param name="lap"></param>
             <returns></returns>
         </member>
+        <member name="M:BrightWire.ExtensionMethods.CreateSequentialWindow(BrightData.IRowOrientedDataTable,System.UInt32,System.UInt32[])">
+            <summary>
+            Creates a matrix to vector training table in which the matrix contains a window of sequentially ordered rows
+            </summary>
+            <param name="dataTable"></param>
+            <param name="windowSize">The number of rows in each matrix</param>
+            <param name="columnIndices">Column indices to select</param>
+            <returns></returns>
+        </member>
         <member name="M:BrightWire.ExtensionMethods.CreateConfusionMatrix(BrightData.IConvertibleTable,System.UInt32,System.UInt32)">
             <summary>
             Creates a confusion matrix from two columns of a data table

@@ -952,18 +952,38 @@ namespace BrightData
         void Complete();
     }
 
+    /// <summary>
+    /// Indicates that the type has a dictionary (string table)
+    /// </summary>
     public interface IHaveDictionary
     {
+        /// <summary>
+        /// Current dictionary (string table)
+        /// </summary>
         string[] Dictionary { get; }
     }
 
+    /// <summary>
+    /// Implemented by types that can repeatedly read the same section of a stream
+    /// </summary>
     public interface ICanReadSection : IDisposable
     {
+        /// <summary>
+        /// Creates a new reader for the readable section of the stream
+        /// </summary>
+        /// <returns></returns>
         BinaryReader GetReader();
     }
 
+    /// <summary>
+    /// Clones streams
+    /// </summary>
     public interface ICloneStreams
     {
+        /// <summary>
+        /// Creates a new repeatable section reader
+        /// </summary>
+        /// <returns></returns>
         ICanReadSection Clone();
     }
 }

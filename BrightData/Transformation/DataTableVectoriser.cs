@@ -186,7 +186,9 @@ namespace BrightData.Transformation
             readonly float[] _buffer;
             uint _nextIndex = 0;
 
+#pragma warning disable 8618
             OneHotEncodeVectorised(ISingleTypeTableSegment column) : base(column.MetaData.GetIndex(), column.Enumerate().GetEnumerator()) { }
+#pragma warning restore 8618
             public OneHotEncodeVectorised(uint size, ISingleTypeTableSegment column) : this(column)
             {
                 _buffer = new float[Size = size];

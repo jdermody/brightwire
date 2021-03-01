@@ -1240,6 +1240,13 @@
             <param name="context"></param>
             <returns></returns>
         </member>
+        <member name="M:BrightData.ExtensionMethods.GetData(BrightData.ICanWriteToBinaryWriter)">
+            <summary>
+            Converts the object to a serialized buffer
+            </summary>
+            <param name="writable"></param>
+            <returns></returns>
+        </member>
         <member name="M:BrightData.ExtensionMethods.GetDataType(BrightData.ColumnType)">
             <summary>
             Converts from a column type to a Type
@@ -1510,9 +1517,12 @@
             Creates a column oriented data table from a list of segments
             </summary>
             <param name="segments"></param>
+            <param name="metaData">Table meta data</param>
             <param name="context"></param>
             <param name="rowCount">Number of rows</param>
             <param name="filePath">File path to save on disk (optional)</param>
+            <param name="onBeforeWrite">Callback before writing each column (optional)</param>
+            <param name="onAfterWrite">Callback after writing each column (optional)</param>
             <returns></returns>
         </member>
         <member name="M:BrightData.ExtensionMethods.BuildRowOrientedTable(System.Collections.Generic.List{BrightData.ISingleTypeTableSegment},BrightData.IMetaData,BrightData.IBrightDataContext,System.UInt32,System.String)">
@@ -1520,6 +1530,7 @@
             Creates a row oriented data table from a list of segments
             </summary>
             <param name="segments"></param>
+            <param name="metaData">Table meta data</param>
             <param name="context"></param>
             <param name="rowCount">Number of rows</param>
             <param name="filePath">File path to save on disk (optional)</param>
@@ -1786,6 +1797,19 @@
             <param name="table"></param>
             <param name="sampleSize">Number of rows to sample</param>
             <returns></returns>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.CreateCustomColumnConverter``2(BrightData.IColumnOrientedDataTable,System.UInt32,System.Func{``0,``1},System.Action{BrightData.IMetaData})">
+            <summary>
+            Creates a custom column converter
+            </summary>
+            <param name="table"></param>
+            <param name="columnIndex">Column index to convert</param>
+            <param name="converter">Column converter</param>
+            <param name="columnFinaliser">Called after each row </param>
+            <typeparam name="TF"></typeparam>
+            <typeparam name="TT"></typeparam>
+            <returns></returns>
+            <exception cref="T:System.ArgumentException"></exception>
         </member>
         <member name="M:BrightData.ExtensionMethods.NextRandomFloat(BrightData.IBrightDataContext)">
             <summary>
@@ -3548,6 +3572,38 @@
             Complete the operation
             </summary>
         </member>
+        <member name="T:BrightData.IHaveDictionary">
+            <summary>
+            Indicates that the type has a dictionary (string table)
+            </summary>
+        </member>
+        <member name="P:BrightData.IHaveDictionary.Dictionary">
+            <summary>
+            Current dictionary (string table)
+            </summary>
+        </member>
+        <member name="T:BrightData.ICanReadSection">
+            <summary>
+            Implemented by types that can repeatedly read the same section of a stream
+            </summary>
+        </member>
+        <member name="M:BrightData.ICanReadSection.GetReader">
+            <summary>
+            Creates a new reader for the readable section of the stream
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:BrightData.ICloneStreams">
+            <summary>
+            Clones streams
+            </summary>
+        </member>
+        <member name="M:BrightData.ICloneStreams.Clone">
+            <summary>
+            Creates a new repeatable section reader
+            </summary>
+            <returns></returns>
+        </member>
         <member name="T:BrightData.DataTableOrientation">
             <summary>
             Determines if the data table is oriented as either rows or columns
@@ -4152,6 +4208,11 @@
         <member name="P:BrightData.IColumnInfo.ColumnType">
             <summary>
             Column type
+            </summary>
+        </member>
+        <member name="P:BrightData.IColumnInfo.Dictionary">
+            <summary>
+            Encoded dictionary
             </summary>
         </member>
         <member name="T:BrightData.IColumnTransformationParam">

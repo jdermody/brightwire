@@ -22,10 +22,10 @@ namespace BrightWire
         void DeserialiseFrom(Stream stream, bool clear);
     }
 
-    public interface ICanTrace
-    {
-        string Trace();
-    }
+    //public interface ICanTrace
+    //{
+    //    string Trace();
+    //}
 
     // other declarations in nested files...
 }

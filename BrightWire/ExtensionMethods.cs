@@ -152,6 +152,13 @@ namespace BrightWire
         /// <returns></returns>
         public static GraphFactory CreateGraphFactory(this ILinearAlgebraProvider lap) => new GraphFactory(lap);
 
+        /// <summary>
+        /// Creates a matrix to vector training table in which the matrix contains a window of sequentially ordered rows
+        /// </summary>
+        /// <param name="dataTable"></param>
+        /// <param name="windowSize">The number of rows in each matrix</param>
+        /// <param name="columnIndices">Column indices to select</param>
+        /// <returns></returns>
         public static IRowOrientedDataTable CreateSequentialWindow(this IRowOrientedDataTable dataTable, uint windowSize, params uint[] columnIndices)
         {
             var builder = dataTable.Context.BuildTable();

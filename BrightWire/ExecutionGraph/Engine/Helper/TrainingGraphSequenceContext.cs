@@ -10,7 +10,7 @@ using BrightWire.Models;
 
 namespace BrightWire.ExecutionGraph.Engine.Helper
 {
-    class TrainingGraphSequenceContext : SequenceContextBase, IGraphSequenceContext, ICanTrace
+    class TrainingGraphSequenceContext : SequenceContextBase, IGraphSequenceContext
     {
         readonly List<ExecutionHistory> _forward = new List<ExecutionHistory>();
         readonly Dictionary<NodeBase, ExecutionNode> _nodeExecution = new Dictionary<NodeBase, ExecutionNode>();

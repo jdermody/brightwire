@@ -520,6 +520,11 @@ namespace BrightData
         /// <returns></returns>
         public static DataEncoder GetDataEncoder(this IBrightDataContext context) => new DataEncoder(context);
 
+        /// <summary>
+        /// Converts the object to a serialized buffer
+        /// </summary>
+        /// <param name="writable"></param>
+        /// <returns></returns>
         public static byte[] GetData(this ICanWriteToBinaryWriter writable)
         {
             using var stream = new MemoryStream();
