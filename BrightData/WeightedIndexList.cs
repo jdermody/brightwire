@@ -12,7 +12,7 @@ using BrightData.LinearAlgebra;
 namespace BrightData
 {
     /// <summary>
-    /// Contains a list of weighted indices
+    /// A list of weighted indices is a sparse vector
     /// </summary>
     public class WeightedIndexList : IHaveIndices, ISerializable, IHaveDataContext
     {
@@ -200,7 +200,7 @@ namespace BrightData
         /// Magnitude of weights
         /// </summary>
         public float Magnitude => Indices.Any()
-            ? Convert.ToSingle(Math.Sqrt(Indices.Sum(d => d.Weight * d.Weight)))
+            ? MathF.Sqrt(Indices.Sum(d => d.Weight * d.Weight))
             : 0f
         ;
 
@@ -227,22 +227,13 @@ namespace BrightData
         {
             var set1 = Indices.GroupBy(d => d.Index).ToDictionary(g => g.Key, g => g.Sum(d => d.Weight));
             var set2 = other.Indices.GroupBy(d => d.Index).ToDictionary(g => g.Key, g => g.Sum(d => d.Weight));
-            float intersection = 0f, union = 0f;
+            float intersection = 0f, union = set1.Sum(kv => kv.Value);
+
             foreach (var item in set2)
             {
                 if (set1.TryGetValue(item.Key, out var weight))
-                {
                     intersection += (weight + item.Value);
-                    union += (weight + item.Value) / 2;
-                }
-                else
-                    union += item.Value;
-            }
-
-            foreach (var item in set1)
-            {
-                if (!set2.ContainsKey(item.Key))
-                    union += item.Value;
+                union += item.Value;
             }
 
             if (FloatMath.IsNotZero(union))
@@ -256,7 +247,7 @@ namespace BrightData
         /// </summary>
         /// <param name="maxIndex">Inclusive highest index to copy (optional)</param>
         /// <returns></returns>
-        public Vector<float> AsDense(uint? maxIndex)
+        public Vector<float> AsDense(uint? maxIndex = null)
         {
             var indices = new Dictionary<uint, float>();
             var max = uint.MinValue;

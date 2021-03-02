@@ -15,7 +15,7 @@ namespace BrightWire.Helper
 
             var c1 = MathF.Sqrt(3);
             var distribution = lap.Context.CreateCategoricalDistribution(new[] { 1.0f / (2f * s), 1f - (1.0f / s), 1.0f / (2f * s) });
-            Matrix = LinearAlgebraProvider.CreateMatrix(fixedSize, reducedSize, (i, j) => Convert.ToSingle((distribution.Sample() - 1) * c1));
+            Matrix = LinearAlgebraProvider.CreateMatrix(fixedSize, reducedSize, (i, j) => (distribution.Sample() - 1f) * c1);
         }
 
         protected virtual void Dispose(bool disposing)

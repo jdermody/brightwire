@@ -174,7 +174,7 @@ namespace ExampleCode.DataTableTrainers
 
             var vector = new float[2];
             foreach (var (classification, indexList) in data) {
-                var features = indexList.ToDense(maxIndex);
+                var features = indexList.AsDense(maxIndex);
                 vector[0] = vector[1] = 0f;
                 vector[indexer.GetIndex(classification)] = 1f;
                 if (addColumns) {
@@ -205,7 +205,7 @@ namespace ExampleCode.DataTableTrainers
 
             var vector = new float[2];
             foreach (var (classification, indexList) in data) {
-                var features = indexList.ToDense(maxIndex);
+                var features = indexList.AsDense(maxIndex);
                 vector[0] = vector[1] = 0f;
                 vector[indexer.GetIndex(classification)] = 1f;
                 if (addColumns) {

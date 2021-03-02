@@ -155,8 +155,8 @@ namespace BrightData.Transformation
         static readonly ITransformColumn StringToDate = new Converter<string, DateTime>(ParseDate);
         static readonly ITransformColumn WeightedIndexListToIndexList = new Converter<WeightedIndexList, IndexList>(w => w.AsIndexList());
         static readonly ITransformColumn VectorToIndexList = new Converter<Vector<float>, IndexList>(v => v.Segment.ToSparse().AsIndexList());
-        static readonly ITransformColumn IndexListToVector = new Converter<IndexList, Vector<float>>(v => v.ToDense(null));
-        static readonly ITransformColumn WeightedIndexListToVector = new Converter<IndexList, Vector<float>>(v => v.ToDense(null));
+        static readonly ITransformColumn IndexListToVector = new Converter<IndexList, Vector<float>>(v => v.AsDense(null));
+        static readonly ITransformColumn WeightedIndexListToVector = new Converter<IndexList, Vector<float>>(v => v.AsDense(null));
         static readonly ITransformColumn IndexListToWeightedIndexList = new Converter<IndexList, WeightedIndexList>(indexList => indexList.Context.CreateWeightedIndexList(indexList.Indices.Select(ind => (ind, 1f))));
         static readonly ITransformColumn VectorToWeightedIndexList = new Converter<Vector<float>, WeightedIndexList>(v => v.Segment.ToSparse());
 

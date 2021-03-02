@@ -6500,7 +6500,7 @@
         </member>
         <member name="T:BrightData.WeightedIndexList">
             <summary>
-            Contains a list of weighted indices
+            A list of weighted indices is a sparse vector
             </summary>
         </member>
         <member name="T:BrightData.WeightedIndexList.Item">

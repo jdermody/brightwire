@@ -37,7 +37,7 @@ namespace BrightWire.ExecutionGraph.WeightInitialisation
                 var stdDev = _parameter / (inputSize + outputSize);
                 _distributionTable.Add(key, distribution = _lap.Context.CreateContinuousDistribution(0, stdDev));
             }
-            return Convert.ToSingle(distribution.Sample());
+            return distribution.Sample();
         }
     }
 }

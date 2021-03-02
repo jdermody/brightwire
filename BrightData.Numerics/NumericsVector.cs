@@ -148,7 +148,7 @@ namespace BrightData.Numerics
 
         public IFloatVector Abs()
         {
-            return new NumericsVector(Context, DenseVector.Create(_vector.Count, i => Convert.ToSingle(Math.Abs(_vector[i]))));
+            return new NumericsVector(Context, DenseVector.Create(_vector.Count, i => MathF.Abs(_vector[i])));
         }
 
         public IFloatVector Sqrt()

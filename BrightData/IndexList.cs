@@ -159,7 +159,7 @@ namespace BrightData
         /// </summary>
         /// <param name="maxIndex">Maximum index to include</param>
         /// <returns></returns>
-        public Vector<float> ToDense(uint? maxIndex)
+        public Vector<float> AsDense(uint? maxIndex = null)
         {
             var indices = new HashSet<uint>();
             uint max = maxIndex ?? uint.MinValue;
