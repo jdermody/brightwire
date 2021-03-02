@@ -61,52 +61,46 @@ namespace BrightWire.ExecutionGraph.Engine
 				while ((curr = batch.GetNextSequence()) != null) {
 					var context = CreateContext(executionContext, curr);
                     Start.Forward(GraphData.Null, context);
-                    if (executionContext.HasContinuations)
-                        table.Add(curr, context);
-                    else
-                        yield return context;
+                    table.Add(curr, context);
                 }
 			} else {
 				var context = CreateContext(executionContext, batch.CurrentSequence);
                 Start.Forward(GraphData.Null, context);
-                if (executionContext.HasContinuations)
-                    table.Add(batch.CurrentSequence, context);
-                else
-                    yield return context;
+                yield return context;
             }
 
-            foreach (var result in Continue(batch, executionContext, sequence => table[sequence]))
-                yield return result;
+            if (executionContext.HasContinuations) {
+                while (executionContext.HasContinuations) {
+                    var additionalContext = new List<(IGraphSequenceContext Context, Action<IGraphSequenceContext[]> OnEnd)>();
+                    foreach (var item in executionContext.ExecuteAdditionalMiniBatch(null))
+                        additionalContext.Add(item);
+
+                    // after all have executed...
+                    if (additionalContext.Any()) {
+                        var groups = additionalContext.GroupBy(d => d.OnEnd);
+                        foreach (var group in groups)
+                            group.Key(group.Select(d => d.Context).ToArray());
+
+                        foreach (var item in additionalContext)
+                            yield return item.Context;
+                    }
+
+                    batch.Reset();
+                    IMiniBatchSequence? currentSequence;
+                    while ((currentSequence = batch.GetNextSequence()) != null) {
+                        var context = table[currentSequence];
+                        executionContext.Continue(context);
+                        yield return context;
+                    }
+                }
+            }
+            else {
+                foreach (var item in table)
+                    yield return item.Value;
+            }
         }
 
         public IGraphExecutionContext CreateExecutionContext() => new ExecutionContext(LinearAlgebraProvider, this);
-
-        protected IEnumerable<IGraphSequenceContext> Continue(IMiniBatch batch, IGraphExecutionContext executionContext, Func<IMiniBatchSequence, IGraphSequenceContext> lookupContext)
-        {
-            while (executionContext.HasContinuations) {
-                var additionalContext = new List<(IGraphSequenceContext Context, Action<IGraphSequenceContext[]> OnEnd)>();
-                foreach (var item in executionContext.ExecuteAdditionalMiniBatch(null))
-                    additionalContext.Add(item);
-
-                // after all have executed...
-                if (additionalContext.Any()) {
-                    var groups = additionalContext.GroupBy(d => d.OnEnd);
-                    foreach (var group in groups)
-                        group.Key(group.Select(d => d.Context).ToArray());
-
-                    foreach (var item in additionalContext)
-                        yield return item.Context;
-                }
-
-                batch.Reset();
-	            IMiniBatchSequence? currentSequence;
-	            while ((currentSequence = batch.GetNextSequence()) != null) {
-                    var context = lookupContext(currentSequence);
-                    executionContext.Continue(context);
-                    yield return context;
-                }
-            }
-        }
 
         public IEnumerable<ExecutionResult> Execute(IDataSource dataSource, uint batchSize = 128, Action<float>? batchCompleteCallback = null)
         {
@@ -127,18 +121,6 @@ namespace BrightWire.ExecutionGraph.Engine
                         yield return result;
                     context.Dispose();
                 }
-
-                //foreach (var (context, data) in _executionResults) {
-                //    uint outputIndex = 0;
-                //    foreach (var output in data) {
-                //        ret.Add(new ExecutionResult(context.BatchSequence, output.AsIndexable().Rows.Select(r => r.Data).ToArray(), outputIndex));
-                //        ++outputIndex;
-                //    }
-                //    context.Dispose();
-                //    foreach (var matrix in data)
-                //        matrix.Dispose();
-                //}
-                //_executionResults.Clear();
                 LinearAlgebraProvider.PopLayer();
 
                 if (batchCompleteCallback != null) {
