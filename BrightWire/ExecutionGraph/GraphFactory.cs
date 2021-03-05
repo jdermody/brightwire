@@ -338,50 +338,46 @@ namespace BrightWire.ExecutionGraph
 		/// <param name="yStride">Y stride</param>
 		/// <param name="name">Optional name to give the node</param>
 		/// <returns></returns>
-		public NodeBase CreateMaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, string? name = null)
-		{
-			return new MaxPool(filterWidth, filterHeight, xStride, yStride, name);
-		}
+		public NodeBase CreateMaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, string? name = null) => new MaxPool(filterWidth, filterHeight, xStride, yStride, name);
+
+        public NodeBase CreateRecurrentBridge(string fromName, string toName, string? name) => new RecurrentBridge(fromName, toName, name);
 
 		/// <summary>
 		/// Creates a simple recurrent layer
 		/// </summary>
 		/// <param name="inputSize">Number of incoming connections</param>
-		/// <param name="memory">Size of the layer memory</param>
+		/// <param name="memorySize">Size of the layer memory</param>
 		/// <param name="activation">Activation layer</param>
 		/// <param name="name">Optional name to give the node</param>
 		/// <returns></returns>
-		public NodeBase CreateSimpleRecurrent(uint inputSize, float[] memory, NodeBase activation, string? name = null)
-		{
-			return new SimpleRecurrent(this, inputSize, memory, activation, name);
-		}
+		public NodeBase CreateSimpleRecurrent(uint inputSize, uint memorySize, NodeBase activation, string? name = null) => new SimpleRecurrent(this, inputSize, new float[memorySize], activation, name);
 
-		/// <summary>
+        /// <summary>
 		/// Creates an Elman recurrent layer
 		/// </summary>
 		/// <param name="inputSize">Number of incoming connections</param>
-		/// <param name="memory">Size of the layer memory</param>
+		/// <param name="memorySize">Size of the layer memory</param>
 		/// <param name="activation">First activation layer</param>
 		/// <param name="activation2">Second activation layer</param>
 		/// <param name="name">Optional name to give the node</param>
 		/// <returns></returns>
-		public NodeBase CreateElman(uint inputSize, float[] memory, NodeBase activation, NodeBase activation2, string? name = null)
+		public NodeBase CreateElman(uint inputSize, uint memorySize, NodeBase activation, NodeBase activation2, string? name = null)
 		{
-			return new ElmanJordan(this, true, inputSize, memory, activation, activation2, name);
+			return new ElmanJordan(this, true, inputSize, new float[memorySize], activation, activation2, name);
 		}
 
 		/// <summary>
 		/// Creates a Jordan recurrent layer
 		/// </summary>
 		/// <param name="inputSize">Number of incoming connections</param>
-		/// <param name="memory">Size of the layer memory</param>
+		/// <param name="memorySize">Size of the layer memory</param>
 		/// <param name="activation">First activation layer</param>
 		/// <param name="activation2">Second activation layer</param>
 		/// <param name="name">Optional name to give the node</param>
 		/// <returns></returns>
-		public NodeBase CreateJordan(uint inputSize, float[] memory, NodeBase activation, NodeBase activation2, string? name = null)
+		public NodeBase CreateJordan(uint inputSize, uint memorySize, NodeBase activation, NodeBase activation2, string? name = null)
 		{
-			return new ElmanJordan(this, false, inputSize, memory, activation, activation2, name);
+			return new ElmanJordan(this, false, inputSize, new float[memorySize], activation, activation2, name);
 		}
 
 		/// <summary>
@@ -419,36 +415,36 @@ namespace BrightWire.ExecutionGraph
 		/// Creates a GRU recurrent layer
 		/// </summary>
 		/// <param name="inputSize">Number of incoming connections</param>
-		/// <param name="memory">Size of the layer memory</param>
+		/// <param name="memorySize">Size of the layer memory</param>
 		/// <param name="name">Optional name to give the node</param>
 		/// <returns></returns>
-		public NodeBase CreateGru(uint inputSize, float[] memory, string? name = null)
+		public NodeBase CreateGru(uint inputSize, uint memorySize, string? name = null)
 		{
-			return new GatedRecurrentUnit(this, inputSize, memory, name);
+			return new GatedRecurrentUnit(this, inputSize, new float[memorySize], name);
 		}
 
 		/// <summary>
 		/// Creates a Recurrent Additive Layer (recurrent)
 		/// </summary>
 		/// <param name="inputSize">Number of incoming connections</param>
-		/// <param name="memory">Size of the layer memory</param>
+		/// <param name="memorySize">Size of the layer memory</param>
 		/// <param name="name">Optional name to give the node</param>
 		/// <returns></returns>
-		public NodeBase CreateRan(uint inputSize, float[] memory, string? name = null)
+		public NodeBase CreateRan(uint inputSize, uint memorySize, string? name = null)
 		{
-			return new RecurrentAdditiveLayer(this, inputSize, memory, name);
+			return new RecurrentAdditiveLayer(this, inputSize, new float[memorySize], name);
 		}
 
 		/// <summary>
 		/// Creates a LSTM recurrent layer
 		/// </summary>
 		/// <param name="inputSize">Number of incoming connections</param>
-		/// <param name="memory">Size of the layer memory</param>
+		/// <param name="memorySize">Size of the layer memory</param>
 		/// <param name="name">Optional name to give the node</param>
 		/// <returns></returns>
-		public NodeBase CreateLstm(uint inputSize, float[] memory, string? name = null)
+		public NodeBase CreateLstm(uint inputSize, uint memorySize, string? name = null)
 		{
-			return new LongShortTermMemory(this, inputSize, memory, name);
+			return new LongShortTermMemory(this, inputSize, new float[memorySize], name);
 		}
 
 		/// <summary>
@@ -510,7 +506,7 @@ namespace BrightWire.ExecutionGraph
 			return Add(input1.CurrentSize, input1.LastNode, input2.LastNode, name);
 		}
 
-		/// <summary>
+        /// <summary>
 		/// Subtracts the second input from the first input and sends the result to a new wire
 		/// </summary>
 		/// <param name="input1">Wire to subtract from</param>
@@ -526,27 +522,17 @@ namespace BrightWire.ExecutionGraph
 			return Subtract(input1.CurrentSize, input1.LastNode, input2.LastNode, name);
 		}
 
-		/// <summary>
-		/// Subtracts the second input from the first input and sends the result to a new wire
-		/// </summary>
-		/// <param name="inputSize">The number of connections</param>
-		/// <param name="input1">The node to subtract from</param>
-		/// <param name="input2">The node to subtract</param>
-		/// <param name="name">Optional name to give the node</param>
-		/// <returns></returns>
-		public WireBuilder Subtract(uint inputSize, NodeBase input1, NodeBase input2, string? name = null)
-		{
-			var subtract = new SubtractGate(name);
-			var wireToPrimary = new WireToNode(subtract);
-			var wireToSecondary = new WireToNode(subtract, 1);
+        /// <summary>
+        /// Subtracts the second input from the first input and sends the result to a new wire
+        /// </summary>
+        /// <param name="inputSize">The number of connections</param>
+        /// <param name="input1">The node to subtract from</param>
+        /// <param name="input2">The node to subtract</param>
+        /// <param name="name">Optional name to give the node</param>
+        /// <returns></returns>
+        public WireBuilder Subtract(uint inputSize, NodeBase input1, NodeBase input2, string? name = null) => Join(inputSize, input1, input2, new SubtractGate(name));
 
-			input1.Output.Add(wireToPrimary);
-			input2.Output.Add(wireToSecondary);
-
-			return new WireBuilder(this, inputSize, subtract);
-		}
-
-		/// <summary>
+        /// <summary>
 		/// Adds the output of two nodes together into a new wire
 		/// </summary>
 		/// <param name="inputSize">The number of connections</param>
@@ -554,17 +540,18 @@ namespace BrightWire.ExecutionGraph
 		/// <param name="input2">Second node</param>
 		/// <param name="name">Optional name to give the node</param>
 		/// <returns></returns>
-		public WireBuilder Add(uint inputSize, NodeBase input1, NodeBase input2, string? name = null)
-		{
-			var add = new AddGate(name);
-			var wireToPrimary = new WireToNode(add);
-			var wireToSecondary = new WireToNode(add, 1);
+		public WireBuilder Add(uint inputSize, NodeBase input1, NodeBase input2, string? name = null) => Join(inputSize, input1, input2, new AddGate(name));
 
-			input1.Output.Add(wireToPrimary);
-			input2.Output.Add(wireToSecondary);
+        WireBuilder Join(uint inputSize, NodeBase input1, NodeBase input2, NodeBase joinWith)
+        {
+            var wireToPrimary = new WireToNode(joinWith);
+            var wireToSecondary = new WireToNode(joinWith, 1);
 
-			return new WireBuilder(this, inputSize, add);
-		}
+            input1.Output.Add(wireToPrimary);
+            input2.Output.Add(wireToSecondary);
+
+            return new WireBuilder(this, inputSize, joinWith);
+        }
 
 		/// <summary>
 		/// Multiplies the output of two wires into a new wire
@@ -582,27 +569,17 @@ namespace BrightWire.ExecutionGraph
 			return Multiply(input1.CurrentSize, input1.LastNode, input2.LastNode, name);
 		}
 
-		/// <summary>
-		/// Multiplies the output of two nodes together into a new wire
-		/// </summary>
-		/// <param name="inputSize">The number of connections</param>
-		/// <param name="input1">First node</param>
-		/// <param name="input2">Second node</param>
-		/// <param name="name">Optional name to give the node</param>
-		/// <returns></returns>
-		public WireBuilder Multiply(uint inputSize, NodeBase input1, NodeBase input2, string? name = null)
-		{
-			var multiply = new MultiplyGate(name);
-			var wireToPrimary = new WireToNode(multiply);
-			var wireToSecondary = new WireToNode(multiply, 1);
+        /// <summary>
+        /// Multiplies the output of two nodes together into a new wire
+        /// </summary>
+        /// <param name="inputSize">The number of connections</param>
+        /// <param name="input1">First node</param>
+        /// <param name="input2">Second node</param>
+        /// <param name="name">Optional name to give the node</param>
+        /// <returns></returns>
+        public WireBuilder Multiply(uint inputSize, NodeBase input1, NodeBase input2, string? name = null) => Join(inputSize, input1, input2, new MultiplyGate(name));
 
-			input1.Output.Add(wireToPrimary);
-			input2.Output.Add(wireToSecondary);
-
-			return new WireBuilder(this, inputSize, multiply);
-		}
-
-		/// <summary>
+        /// <summary>
 		/// Concatenates two wires together into a new wire
 		/// </summary>
 		/// <param name="input1">First wire to join</param>
@@ -992,5 +969,5 @@ namespace BrightWire.ExecutionGraph
 		/// Standard graph actions
 		/// </summary>
 		public GraphActionProvider GraphAction { get; }
-	}
+    }
 }

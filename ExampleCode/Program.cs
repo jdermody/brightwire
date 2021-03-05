@@ -184,7 +184,7 @@ namespace ExampleCode
         {
             Start(context);
             var reber = context.ReberSequencePrediction();
-            var engine = reber.TrainGru();
+            var engine = reber.TrainLstm();
             reber.GenerateSequences(engine);
         }
 

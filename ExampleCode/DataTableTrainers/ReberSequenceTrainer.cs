@@ -17,6 +17,39 @@ namespace ExampleCode.DataTableTrainers
             _context = context;
         }
 
+        public IGraphExecutionEngine TrainSimpleRecurrent()
+        {
+            var graph = _context.CreateGraphFactory();
+            var errorMetric = graph.ErrorMetric.CrossEntropy;
+
+            // configure the network properties
+            graph.CurrentPropertySet
+                .Use(graph.GradientDescent.RmsProp)
+                .Use(graph.WeightInitialisation.Xavier)
+            ;
+
+            // create the engine
+            var trainingData = graph.CreateDataSource(Training);
+            var testData = trainingData.CloneWith(Test);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate: 0.3f, batchSize: 32);
+
+            // build the network
+            const int HIDDEN_LAYER_SIZE = 50, TRAINING_ITERATIONS = 40;
+            graph.Connect(engine)
+                .AddSimpleRecurrent(graph.SigmoidActivation(), HIDDEN_LAYER_SIZE, "layer1")
+                .AddRecurrentBridge("layer1", "layer2")
+                .AddSimpleRecurrent(graph.SigmoidActivation(), HIDDEN_LAYER_SIZE, "layer2")
+                .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
+                .Add(graph.SoftMaxActivation())
+                .AddBackpropagationThroughTime()
+            ;
+
+            engine.LearningContext.ScheduleLearningRate(10, 0.1f);
+            engine.LearningContext.ScheduleLearningRate(20, 0.03f);
+            var model = engine.Train(TRAINING_ITERATIONS, testData);
+            return engine.CreateExecutionEngine(model?.Graph);
+        }
+
         public IGraphExecutionEngine TrainGru()
         {
             var graph = _context.CreateGraphFactory();
@@ -35,10 +68,41 @@ namespace ExampleCode.DataTableTrainers
             var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate: 0.3f, batchSize: 32);
 
             // build the network
-            const int HIDDEN_LAYER_SIZE = 50, TRAINING_ITERATIONS = 40;
+            const int HIDDEN_LAYER_SIZE = 30, TRAINING_ITERATIONS = 40;
             graph.Connect(engine)
-                .AddGru(HIDDEN_LAYER_SIZE)
-                //.AddGru(HIDDEN_LAYER_SIZE)
+                .AddGru(HIDDEN_LAYER_SIZE, "layer1")
+                .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
+                .Add(graph.SoftMaxActivation())
+                .AddBackpropagationThroughTime()
+            ;
+
+            engine.LearningContext.ScheduleLearningRate(20, 0.1f);
+            engine.LearningContext.ScheduleLearningRate(30, 0.03f);
+            var model = engine.Train(TRAINING_ITERATIONS, testData);
+            return engine.CreateExecutionEngine(model?.Graph);
+        }
+
+        public IGraphExecutionEngine TrainLstm()
+        {
+            var graph = _context.CreateGraphFactory();
+
+            var errorMetric = graph.ErrorMetric.CrossEntropy;
+
+            // configure the network properties
+            graph.CurrentPropertySet
+                .Use(graph.GradientDescent.RmsProp)
+                .Use(graph.WeightInitialisation.Xavier)
+            ;
+
+            // create the engine
+            var trainingData = graph.CreateDataSource(Training);
+            var testData = trainingData.CloneWith(Test);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate: 0.1f, batchSize: 32);
+
+            // build the network
+            const int HIDDEN_LAYER_SIZE = 30, TRAINING_ITERATIONS = 35;
+            graph.Connect(engine)
+                .AddLstm(HIDDEN_LAYER_SIZE)
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                 .Add(graph.SoftMaxActivation())
                 .AddBackpropagationThroughTime()

@@ -225,47 +225,26 @@ namespace BrightWire.ExecutionGraph
 			return this;
 		}
 
+        public WireBuilder AddRecurrentBridge(string fromName, string toName, string? name = null)
+        {
+            SetNode(_factory.CreateRecurrentBridge(fromName, toName, name));
+            return this;
+        }
+
 		/// <summary>
 		/// Adds a simple recurrent neural network layer
 		/// </summary>
 		/// <param name="activation">Activation layer</param>
-		/// <param name="initialMemory">Initial memory</param>
+		/// <param name="memorySize">Size of the memory layer</param>
 		/// <param name="name">Optional name to give the node</param>
 		/// <returns></returns>
-		public WireBuilder AddSimpleRecurrent(NodeBase activation, float[] initialMemory, string? name = null)
+		public WireBuilder AddSimpleRecurrent(NodeBase activation, uint memorySize, string? name = null)
         {
-            SetNode(_factory.CreateSimpleRecurrent(CurrentSize, initialMemory, activation, name));
-            return SetNewSize((uint)initialMemory.Length);
+            SetNode(_factory.CreateSimpleRecurrent(CurrentSize, memorySize, activation, name));
+            return SetNewSize(memorySize);
         }
-
-	    /// <summary>
-	    /// Adds a simple recurrent neural network layer
-	    /// </summary>
-	    /// <param name="activation">Activation layer</param>
-	    /// <param name="memorySize">Size of the memory buffer</param>
-	    /// <param name="name">Optional name to give the node</param>
-	    /// <returns></returns>
-	    public WireBuilder AddSimpleRecurrent(NodeBase activation, uint memorySize, string? name = null)
-	    {
-		    SetNode(_factory.CreateSimpleRecurrent(CurrentSize, new float[memorySize], activation, name));
-		    return SetNewSize(memorySize);
-	    }
 
         /// <summary>
-        /// Adds an Elman recurrent neural network layer
-        /// </summary>
-        /// <param name="activation">First activation layer</param>
-        /// <param name="activation2">Second activation layer</param>
-        /// <param name="initialMemory">Initial memory</param>
-        /// <param name="name">Optional name to give the node</param>
-        /// <returns></returns>
-        public WireBuilder AddElman(NodeBase activation, NodeBase activation2, float[] initialMemory, string? name = null)
-        {
-            SetNode(_factory.CreateElman(CurrentSize, initialMemory, activation, activation2, name));
-            return SetNewSize((uint)initialMemory.Length);
-        }
-
-	    /// <summary>
 	    /// Adds an Elman recurrent neural network layer
 	    /// </summary>
 	    /// <param name="activation">First activation layer</param>
@@ -275,25 +254,11 @@ namespace BrightWire.ExecutionGraph
 	    /// <returns></returns>
 	    public WireBuilder AddElman(NodeBase activation, NodeBase activation2, uint memorySize, string? name = null)
 	    {
-		    SetNode(_factory.CreateElman(CurrentSize, new float[memorySize], activation, activation2, name));
+		    SetNode(_factory.CreateElman(CurrentSize, memorySize, activation, activation2, name));
 		    return SetNewSize(memorySize);
 	    }
 
         /// <summary>
-        /// Adds a Jordan recurrent neural network layer
-        /// </summary>
-        /// <param name="activation">First activation layer</param>
-        /// <param name="activation2">Second activation layer</param>
-        /// <param name="initialMemory">Initial memory</param>
-        /// <param name="name">Optional name to give the node</param>
-        /// <returns></returns>
-        public WireBuilder AddJordan(NodeBase activation, NodeBase activation2, float[] initialMemory, string? name = null)
-        {
-            SetNode(_factory.CreateJordan(CurrentSize, initialMemory, activation, activation2, name));
-            return SetNewSize((uint)initialMemory.Length);
-        }
-
-	    /// <summary>
 	    /// Adds a Jordan recurrent neural network layer
 	    /// </summary>
 	    /// <param name="activation">First activation layer</param>
@@ -303,23 +268,11 @@ namespace BrightWire.ExecutionGraph
 	    /// <returns></returns>
 	    public WireBuilder AddJordan(NodeBase activation, NodeBase activation2, uint memorySize, string? name = null)
 	    {
-		    SetNode(_factory.CreateJordan(CurrentSize, new float[memorySize], activation, activation2, name));
+		    SetNode(_factory.CreateJordan(CurrentSize, memorySize, activation, activation2, name));
 		    return SetNewSize(memorySize);
 	    }
 
         /// <summary>
-        /// Adds a gated recurrent unit recurrent neural network layer
-        /// </summary>
-        /// <param name="initialMemory">Initial memory</param>
-        /// <param name="name">Optional name to give the node</param>
-        /// <returns></returns>
-        public WireBuilder AddGru(float[] initialMemory, string? name = null)
-        {
-            SetNode(_factory.CreateGru(CurrentSize, initialMemory, name));
-            return SetNewSize((uint)initialMemory.Length);
-        }
-
-	    /// <summary>
 	    /// Adds a gated recurrent unit recurrent neural network layer
 	    /// </summary>
 	    /// <param name="memorySize">Size of the memory buffer</param>
@@ -327,45 +280,22 @@ namespace BrightWire.ExecutionGraph
 	    /// <returns></returns>
 	    public WireBuilder AddGru(uint memorySize, string? name = null)
 	    {
-		    SetNode(_factory.CreateGru(CurrentSize, new float[memorySize], name));
+		    SetNode(_factory.CreateGru(CurrentSize, memorySize, name));
 		    return SetNewSize(memorySize);
 	    }
 
         /// <summary>
-        /// Adds a recurrent additive layer (recurrent)
-        /// </summary>
-        /// <param name="initialMemory">Initial memory</param>
-        /// <param name="name">Optional name to give the node</param>
-        public WireBuilder AddRan(float[] initialMemory, string? name = null)
-        {
-            SetNode(_factory.CreateRan(CurrentSize, initialMemory, name));
-            return SetNewSize((uint)initialMemory.Length);
-        }
-
-	    /// <summary>
 	    /// Adds a recurrent additive layer (recurrent)
 	    /// </summary>
 	    /// <param name="memorySize">Size of the memory buffer</param>
 	    /// <param name="name">Optional name to give the node</param>
 	    public WireBuilder AddRan(uint memorySize, string? name = null)
 	    {
-		    SetNode(_factory.CreateRan(CurrentSize, new float[memorySize], name));
+		    SetNode(_factory.CreateRan(CurrentSize, memorySize, name));
 		    return SetNewSize(memorySize);
 	    }
 
         /// <summary>
-        /// Adds a long short term memory recurrent neural network layer
-        /// </summary>
-        /// <param name="initialMemory">Initial memory</param>
-        /// <param name="name">Optional name to give the node</param>
-        /// <returns></returns>
-        public WireBuilder AddLstm(float[] initialMemory, string? name = null)
-        {
-            SetNode(_factory.CreateLstm(CurrentSize, initialMemory, name));
-            return SetNewSize((uint)initialMemory.Length);
-        }
-
-	    /// <summary>
 	    /// Adds a long short term memory recurrent neural network layer
 	    /// </summary>
 	    /// <param name="memorySize">Size of the memory buffer</param>
@@ -373,7 +303,7 @@ namespace BrightWire.ExecutionGraph
 	    /// <returns></returns>
 	    public WireBuilder AddLstm(uint memorySize, string? name = null)
 	    {
-		    SetNode(_factory.CreateLstm(CurrentSize, new float[memorySize], name));
+		    SetNode(_factory.CreateLstm(CurrentSize, memorySize, name));
 		    return SetNewSize(memorySize);
 	    }
 
@@ -478,11 +408,13 @@ namespace BrightWire.ExecutionGraph
         /// <summary>
         /// Pivots between the encoder and decoder sequences (seq2seq)
         /// </summary>
+        /// <param name="encoderName">Encoder node name</param>
+        /// <param name="decoderName">Decoder node name</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
-        public WireBuilder AddSequenceToSequencePivot(string? name = null)
+        public WireBuilder AddSequenceToSequencePivot(string encoderName, string decoderName, string? name = null)
         {
-            SetNode(new SequenceToSequenceGate(name));
+            SetNode(new SequenceToSequenceGate(encoderName, decoderName, name));
             return this;
         }
 

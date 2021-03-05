@@ -93,7 +93,7 @@ namespace ExampleCode.DataTableTrainers
 
             // create the property set
             graph.CurrentPropertySet
-                .Use(graph.GradientDescent.RmsProp)
+                .Use(graph.GradientDescent.Adam)
                 .Use(graph.WeightInitialisation.Gaussian)
             ;
 
@@ -105,23 +105,22 @@ namespace ExampleCode.DataTableTrainers
             var testData = trainingData.CloneWith(Test);
             var engine = graph.CreateTrainingEngine(trainingData, errorMetric, TRAINING_RATE, BATCH_SIZE);
 
-            var sharedMemory = new float[HIDDEN_LAYER_SIZE];
             graph.Connect(engine)
-                .AddGru(sharedMemory, "encoder")
-                .AddSequenceToSequencePivot()
-                .AddGru(sharedMemory, "decoder")
+                .AddGru(HIDDEN_LAYER_SIZE, "encoder")
+                .AddSequenceToSequencePivot("encoder", "decoder")
+                .AddGru(HIDDEN_LAYER_SIZE, "decoder")
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                 .Add(graph.SoftMaxActivation())
                 .AddBackpropagationThroughTime()
             ;
 
             // progressively update the learning reate
-            engine.LearningContext.ScheduleLearningRate(30, TRAINING_RATE / 3);
-            engine.LearningContext.ScheduleLearningRate(40, TRAINING_RATE / 9);
+            engine.LearningContext.ScheduleLearningRate(10, TRAINING_RATE / 3);
+            engine.LearningContext.ScheduleLearningRate(20, TRAINING_RATE / 9);
 
             // train
             ExecutionGraphModel? bestModel = null;
-            engine.Train(50, testData, model => bestModel = model.Graph);
+            engine.Train(30, testData, model => bestModel = model.Graph);
 
             // execute
             var executionEngine = engine.CreateExecutionEngine(bestModel);

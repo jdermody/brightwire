@@ -287,11 +287,11 @@ namespace ExampleCode.DataTableTrainers
             const int HIDDEN_LAYER_SIZE = 100;
 
             var forward = graph.Connect(engine)
-                .AddGru(new float[HIDDEN_LAYER_SIZE], "forward")
+                .AddGru(HIDDEN_LAYER_SIZE, "forward")
             ;
             var reverse = graph.Connect(engine)
                 .ReverseSequence()
-                .AddGru(new float[HIDDEN_LAYER_SIZE], "backward")
+                .AddGru(HIDDEN_LAYER_SIZE, "backward")
             ;
             graph.BidirectionalJoin(forward, reverse)
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow(), "joined")

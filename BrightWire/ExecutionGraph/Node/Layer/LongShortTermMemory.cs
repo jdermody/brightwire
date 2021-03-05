@@ -14,7 +14,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
     internal class LongShortTermMemory : NodeBase, IHaveMemoryNode
     {
         uint _inputSize;
-        MemoryFeeder _memory, _state;
+        MemoryFeeder _memory, _previous;
         NodeBase _input, _output;
         OneToMany _start;
 
@@ -30,7 +30,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             _inputSize = inputSize;
             var hiddenLayerSize = (uint)memory.Length;
             _memory = new MemoryFeeder(graph.Context, memory, Name ?? Id, null, memoryId);
-            _state = new MemoryFeeder(graph.Context, new float[memory.Length], null);
+            _previous = new MemoryFeeder(graph.Context, new float[hiddenLayerSize], null);
             _input = new FlowThrough();
 
             var wf = graph.Connect(inputSize, _input).AddFeedForward(hiddenLayerSize, "Wf");
@@ -47,9 +47,9 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             var it = graph.Add(wi, ui).Add(graph.SigmoidActivation("It"));
             var ot = graph.Add(wo, uo).Add(graph.SigmoidActivation("Ot"));
 
-            var ftCt1 = graph.Multiply(hiddenLayerSize, ft.LastNode!, _state);
+            var ftCt1 = graph.Multiply(hiddenLayerSize, ft.LastNode!, _memory);
             var ct = graph.Add(ftCt1, graph.Multiply(it, graph.Add(wc, uc).Add(graph.TanhActivation())))
-                .AddForwardAction(_state.SetMemoryAction)
+                .AddForwardAction(_memory.SetMemoryAction)
             ;
 
             _output = graph.Multiply(ot, ct.Add(graph.TanhActivation())).LastNode!;
@@ -67,7 +67,6 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             {
                 yield return _input;
                 yield return _memory;
-                yield return _state;
             }
         }
 

@@ -10,10 +10,13 @@ namespace BrightWire.ExecutionGraph.Node.Gate
 {
     class SequenceToSequenceGate : NodeBase
     {
+        readonly string _encoderName, _decoderName;
         ConcurrentStack<IGraphSequenceContext>? _encoderContext;
 
-        public SequenceToSequenceGate(string? name, string? id = null) : base(name, id)
+        public SequenceToSequenceGate(string encoderName, string decoderName, string? name, string? id = null) : base(name, id)
         {
+            _encoderName = encoderName;
+            _decoderName = decoderName;
         }
 
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)

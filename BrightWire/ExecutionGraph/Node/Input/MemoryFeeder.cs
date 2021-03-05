@@ -54,15 +54,19 @@ namespace BrightWire.ExecutionGraph.Node.Input
 	        set => value.Segment.CopyTo(_data);
         }
 
+        public bool LoadNextFromMemory { get; set; }
+
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
             IFloatMatrix memory;
-            if (context.BatchSequence.Type == MiniBatchSequenceType.SequenceStart) {
+            if (!LoadNextFromMemory && context.BatchSequence.Type == MiniBatchSequenceType.SequenceStart) {
                 memory = context.LinearAlgebraProvider.CreateMatrix(context.BatchSequence.MiniBatch.BatchSize, (uint)_data.Length, (x, y) => _data[y]);
                 context.ExecutionContext.SetMemory(Id, memory);
             }
-            else
+            else {
                 memory = context.ExecutionContext.GetMemory(Id);
+                LoadNextFromMemory = false;
+            }
 
             var next = new MatrixGraphData(memory);
             return (this, next, () => new Backpropagation(this));

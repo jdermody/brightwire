@@ -2745,7 +2745,7 @@
             <param name="other">Index list to compare to</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.IndexList.ToDense(System.Nullable{System.UInt32})">
+        <member name="M:BrightData.IndexList.AsDense(System.Nullable{System.UInt32})">
             <summary>
             Converts to a vector
             </summary>
@@ -6425,10 +6425,111 @@
         </member>
         <member name="M:BrightData.Serialisation.SerialisationHelper.WriteTo(System.String,System.IO.BinaryWriter)">
             <summary>
-            Writes a string
+            Writes the string
             </summary>
             <param name="str"></param>
             <param name="writer"></param>
+        </member>
+        <member name="M:BrightData.Serialisation.SerialisationHelper.WriteTo(System.Int32,System.IO.BinaryWriter)">
+            <summary>
+            Writes the integer
+            </summary>
+            <param name="val"></param>
+            <param name="writer"></param>
+        </member>
+        <member name="M:BrightData.Serialisation.SerialisationHelper.WriteTo(System.UInt32,System.IO.BinaryWriter)">
+            <summary>
+            Writes the uint
+            </summary>
+            <param name="val"></param>
+            <param name="writer"></param>
+        </member>
+        <member name="M:BrightData.Serialisation.SerialisationHelper.WriteTo(System.Double,System.IO.BinaryWriter)">
+            <summary>
+            Writes the double
+            </summary>
+            <param name="val"></param>
+            <param name="writer"></param>
+        </member>
+        <member name="M:BrightData.Serialisation.SerialisationHelper.WriteTo(System.Single,System.IO.BinaryWriter)">
+            <summary>
+            Writes the float
+            </summary>
+            <param name="val"></param>
+            <param name="writer"></param>
+        </member>
+        <member name="M:BrightData.Serialisation.SerialisationHelper.WriteTo``1(System.Nullable{``0},System.IO.BinaryWriter,System.Action{``0})">
+            <summary>
+            Conditionally writes a nullable value
+            </summary>
+            <param name="val"></param>
+            <param name="writer"></param>
+            <param name="onWrite"></param>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:BrightData.Serialisation.SerialisationHelper.ReadNullable``1(System.IO.BinaryReader,System.Func{``0})">
+            <summary>
+            Conditionally reads a nullable value
+            </summary>
+            <param name="reader"></param>
+            <param name="onRead"></param>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Serialisation.SerialisationHelper.WriteTo(System.Collections.Generic.IReadOnlyCollection{BrightData.ICanWriteToBinaryWriter},System.IO.BinaryWriter)">
+            <summary>
+            Writes the collection of items
+            </summary>
+            <param name="list"></param>
+            <param name="writer"></param>
+        </member>
+        <member name="M:BrightData.Serialisation.SerialisationHelper.WriteTo``1(``0[],System.IO.BinaryWriter)">
+            <summary>
+            Writes the array
+            </summary>
+            <param name="array"></param>
+            <param name="writer"></param>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:BrightData.Serialisation.SerialisationHelper.WriteTo(System.String[],System.IO.BinaryWriter)">
+            <summary>
+            Writes the array of strings
+            </summary>
+            <param name="array"></param>
+            <param name="writer"></param>
+        </member>
+        <member name="M:BrightData.Serialisation.SerialisationHelper.Create``1(BrightData.IBrightDataContext,System.IO.BinaryReader)">
+            <summary>
+            Creates a new object after reading its serialized data from the reader
+            </summary>
+            <param name="context"></param>
+            <param name="reader"></param>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Serialisation.SerialisationHelper.ReadArray``1(System.IO.BinaryReader,BrightData.IBrightDataContext)">
+            <summary>
+            Reads an array from the reader
+            </summary>
+            <param name="reader"></param>
+            <param name="context"></param>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Serialisation.SerialisationHelper.ReadStructArray``1(System.IO.BinaryReader)">
+            <summary>
+            Reads an array of structs from the reader
+            </summary>
+            <param name="reader"></param>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Serialisation.SerialisationHelper.ReadStringArray(System.IO.BinaryReader)">
+            <summary>
+            Reads an array of strings from the reader
+            </summary>
+            <param name="reader"></param>
+            <returns></returns>
         </member>
         <member name="T:BrightData.Transformation.ColumnConversion">
             <summary>

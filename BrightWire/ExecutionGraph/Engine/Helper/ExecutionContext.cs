@@ -63,6 +63,8 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             }
         }
 
+        public bool HasMemory(string index) => _memory.ContainsKey(index);
+
         public IFloatMatrix GetMemory(string index)
         {
             if (_memory.TryGetValue(index, out var output))

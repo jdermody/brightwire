@@ -519,33 +519,33 @@
             <param name="name">Optional name to give the node</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateSimpleRecurrent(System.UInt32,System.Single[],BrightWire.ExecutionGraph.Node.NodeBase,System.String)">
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateSimpleRecurrent(System.UInt32,System.UInt32,BrightWire.ExecutionGraph.Node.NodeBase,System.String)">
             <summary>
             Creates a simple recurrent layer
             </summary>
             <param name="inputSize">Number of incoming connections</param>
-            <param name="memory">Size of the layer memory</param>
+            <param name="memorySize">Size of the layer memory</param>
             <param name="activation">Activation layer</param>
             <param name="name">Optional name to give the node</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateElman(System.UInt32,System.Single[],BrightWire.ExecutionGraph.Node.NodeBase,BrightWire.ExecutionGraph.Node.NodeBase,System.String)">
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateElman(System.UInt32,System.UInt32,BrightWire.ExecutionGraph.Node.NodeBase,BrightWire.ExecutionGraph.Node.NodeBase,System.String)">
             <summary>
             Creates an Elman recurrent layer
             </summary>
             <param name="inputSize">Number of incoming connections</param>
-            <param name="memory">Size of the layer memory</param>
+            <param name="memorySize">Size of the layer memory</param>
             <param name="activation">First activation layer</param>
             <param name="activation2">Second activation layer</param>
             <param name="name">Optional name to give the node</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateJordan(System.UInt32,System.Single[],BrightWire.ExecutionGraph.Node.NodeBase,BrightWire.ExecutionGraph.Node.NodeBase,System.String)">
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateJordan(System.UInt32,System.UInt32,BrightWire.ExecutionGraph.Node.NodeBase,BrightWire.ExecutionGraph.Node.NodeBase,System.String)">
             <summary>
             Creates a Jordan recurrent layer
             </summary>
             <param name="inputSize">Number of incoming connections</param>
-            <param name="memory">Size of the layer memory</param>
+            <param name="memorySize">Size of the layer memory</param>
             <param name="activation">First activation layer</param>
             <param name="activation2">Second activation layer</param>
             <param name="name">Optional name to give the node</param>
@@ -573,30 +573,30 @@
             <param name="name">Optional name to give the node</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateGru(System.UInt32,System.Single[],System.String)">
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateGru(System.UInt32,System.UInt32,System.String)">
             <summary>
             Creates a GRU recurrent layer
             </summary>
             <param name="inputSize">Number of incoming connections</param>
-            <param name="memory">Size of the layer memory</param>
+            <param name="memorySize">Size of the layer memory</param>
             <param name="name">Optional name to give the node</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateRan(System.UInt32,System.Single[],System.String)">
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateRan(System.UInt32,System.UInt32,System.String)">
             <summary>
             Creates a Recurrent Additive Layer (recurrent)
             </summary>
             <param name="inputSize">Number of incoming connections</param>
-            <param name="memory">Size of the layer memory</param>
+            <param name="memorySize">Size of the layer memory</param>
             <param name="name">Optional name to give the node</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateLstm(System.UInt32,System.Single[],System.String)">
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateLstm(System.UInt32,System.UInt32,System.String)">
             <summary>
             Creates a LSTM recurrent layer
             </summary>
             <param name="inputSize">Number of incoming connections</param>
-            <param name="memory">Size of the layer memory</param>
+            <param name="memorySize">Size of the layer memory</param>
             <param name="name">Optional name to give the node</param>
             <returns></returns>
         </member>
@@ -1921,31 +1921,12 @@
             </summary>
             <param name="name">Optional name to give the node</param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.WireBuilder.AddSimpleRecurrent(BrightWire.ExecutionGraph.Node.NodeBase,System.Single[],System.String)">
-            <summary>
-            Adds a simple recurrent neural network layer
-            </summary>
-            <param name="activation">Activation layer</param>
-            <param name="initialMemory">Initial memory</param>
-            <param name="name">Optional name to give the node</param>
-            <returns></returns>
-        </member>
         <member name="M:BrightWire.ExecutionGraph.WireBuilder.AddSimpleRecurrent(BrightWire.ExecutionGraph.Node.NodeBase,System.UInt32,System.String)">
             <summary>
             Adds a simple recurrent neural network layer
             </summary>
             <param name="activation">Activation layer</param>
-            <param name="memorySize">Size of the memory buffer</param>
-            <param name="name">Optional name to give the node</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightWire.ExecutionGraph.WireBuilder.AddElman(BrightWire.ExecutionGraph.Node.NodeBase,BrightWire.ExecutionGraph.Node.NodeBase,System.Single[],System.String)">
-            <summary>
-            Adds an Elman recurrent neural network layer
-            </summary>
-            <param name="activation">First activation layer</param>
-            <param name="activation2">Second activation layer</param>
-            <param name="initialMemory">Initial memory</param>
+            <param name="memorySize">Size of the memory layer</param>
             <param name="name">Optional name to give the node</param>
             <returns></returns>
         </member>
@@ -1959,16 +1940,6 @@
             <param name="name">Optional name to give the node</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.WireBuilder.AddJordan(BrightWire.ExecutionGraph.Node.NodeBase,BrightWire.ExecutionGraph.Node.NodeBase,System.Single[],System.String)">
-            <summary>
-            Adds a Jordan recurrent neural network layer
-            </summary>
-            <param name="activation">First activation layer</param>
-            <param name="activation2">Second activation layer</param>
-            <param name="initialMemory">Initial memory</param>
-            <param name="name">Optional name to give the node</param>
-            <returns></returns>
-        </member>
         <member name="M:BrightWire.ExecutionGraph.WireBuilder.AddJordan(BrightWire.ExecutionGraph.Node.NodeBase,BrightWire.ExecutionGraph.Node.NodeBase,System.UInt32,System.String)">
             <summary>
             Adds a Jordan recurrent neural network layer
@@ -1976,14 +1947,6 @@
             <param name="activation">First activation layer</param>
             <param name="activation2">Second activation layer</param>
             <param name="memorySize">Size of the memory buffer</param>
-            <param name="name">Optional name to give the node</param>
-            <returns></returns>
-        </member>
-        <member name="M:BrightWire.ExecutionGraph.WireBuilder.AddGru(System.Single[],System.String)">
-            <summary>
-            Adds a gated recurrent unit recurrent neural network layer
-            </summary>
-            <param name="initialMemory">Initial memory</param>
             <param name="name">Optional name to give the node</param>
             <returns></returns>
         </member>
@@ -1995,27 +1958,12 @@
             <param name="name">Optional name to give the node</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.WireBuilder.AddRan(System.Single[],System.String)">
-            <summary>
-            Adds a recurrent additive layer (recurrent)
-            </summary>
-            <param name="initialMemory">Initial memory</param>
-            <param name="name">Optional name to give the node</param>
-        </member>
         <member name="M:BrightWire.ExecutionGraph.WireBuilder.AddRan(System.UInt32,System.String)">
             <summary>
             Adds a recurrent additive layer (recurrent)
             </summary>
             <param name="memorySize">Size of the memory buffer</param>
             <param name="name">Optional name to give the node</param>
-        </member>
-        <member name="M:BrightWire.ExecutionGraph.WireBuilder.AddLstm(System.Single[],System.String)">
-            <summary>
-            Adds a long short term memory recurrent neural network layer
-            </summary>
-            <param name="initialMemory">Initial memory</param>
-            <param name="name">Optional name to give the node</param>
-            <returns></returns>
         </member>
         <member name="M:BrightWire.ExecutionGraph.WireBuilder.AddLstm(System.UInt32,System.String)">
             <summary>
@@ -2085,10 +2033,12 @@
             <param name="name">Optional name to give the node</param>
             <returns></returns>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.WireBuilder.AddSequenceToSequencePivot(System.String)">
+        <member name="M:BrightWire.ExecutionGraph.WireBuilder.AddSequenceToSequencePivot(System.String,System.String,System.String)">
             <summary>
             Pivots between the encoder and decoder sequences (seq2seq)
             </summary>
+            <param name="encoderName">Encoder node name</param>
+            <param name="decoderName">Decoder node name</param>
             <param name="name">Optional name to give the node</param>
             <returns></returns>
         </member>
