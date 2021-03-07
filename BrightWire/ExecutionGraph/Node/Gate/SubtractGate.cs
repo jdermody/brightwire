@@ -12,8 +12,13 @@ namespace BrightWire.ExecutionGraph.Node.Gate
     {
         class Backpropagation : BackpropagationBase<SubtractGate>
         {
-            public Backpropagation(SubtractGate source) : base(source)
+            readonly NodeBase _primarySource;
+            readonly NodeBase _secondarySource;
+
+            public Backpropagation(SubtractGate source, NodeBase primarySource, NodeBase secondarySource) : base(source)
             {
+                _primarySource = primarySource;
+                _secondarySource = secondarySource;
             }
 
             public override IEnumerable<(IGraphData Signal, IGraphSequenceContext Context, NodeBase ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents)
@@ -22,16 +27,16 @@ namespace BrightWire.ExecutionGraph.Node.Gate
                 var negative = es.Clone();
                 negative.Multiply(-1f);
 
-                yield return (errorSignal, context, parents.First());
-                yield return (errorSignal.ReplaceWith(negative), context, parents.Last());
+                yield return (errorSignal, context, _primarySource);
+                yield return (errorSignal.ReplaceWith(negative), context, _secondarySource);
             }
         }
         public SubtractGate(string? name = null) : base(name) { }
 
-        protected override (IFloatMatrix Next, Func<IBackpropagate>? BackProp) Activate(IGraphSequenceContext context, IFloatMatrix primary, IFloatMatrix secondary)
+        protected override (IFloatMatrix Next, Func<IBackpropagate>? BackProp) Activate(IGraphSequenceContext context, IFloatMatrix primary, IFloatMatrix secondary, NodeBase primarySource, NodeBase secondarySource)
         {
             var output = primary.Subtract(secondary);
-            return (output, () => new Backpropagation(this));
+            return (output, () => new Backpropagation(this, primarySource, secondarySource));
         }
     }
 }

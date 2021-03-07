@@ -42,7 +42,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 	        }
 	        beta ??= new float[inputSize];
 
-	        _input = new FlowThrough();
+	        _input = new FlowThrough("input");
 	        _gamma = new VectorInput(graph.Context, gamma, "gamma");
 	        _beta = new VectorInput(graph.Context, beta, "beta");
 
@@ -58,9 +58,9 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
             var normalised = graph.Multiply(_inputSize, subtractMeanOutput, stdDev.LastNode!);
 	        var adjusted = graph.Multiply(_inputSize, _gamma, normalised.LastNode!);
-	        _output = graph.Add(_inputSize, _beta, adjusted.LastNode!).LastNode!;
+	        _output = graph.Add(_inputSize, _beta, adjusted.LastNode!, Name != null ? $"{Name}_last" : null).LastNode!;
 
-	        _start = new OneToMany(SubNodes, bp => { });
+	        _start = new OneToMany(SubNodes, Name != null ? $"{Name}_start" : null);
         }
 
 		public override IEnumerable<NodeBase> SubNodes

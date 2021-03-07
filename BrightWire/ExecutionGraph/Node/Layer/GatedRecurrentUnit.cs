@@ -32,7 +32,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             _inputSize = inputSize;
             var hiddenLayerSize = (uint)memory.Length;
             _memory = new MemoryFeeder(graph.Context, memory, Name ?? Id, null, memoryId);
-            _input = new FlowThrough();
+            _input = new FlowThrough(Name != null ? $"{Name}_start" : null);
 
             var wz = graph.Connect(inputSize, _input).AddFeedForward(hiddenLayerSize, "Wz");
             var uz = graph.Connect(hiddenLayerSize, _memory).AddFeedForward(hiddenLayerSize, "Uz");
@@ -56,7 +56,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             var previous = graph.Multiply(hiddenLayerSize, zt, _memory);
             _output = graph
                 .Add(h2, previous)
-                .AddForwardAction(_memory.SetMemoryAction)
+                .AddForwardAction(_memory.SetMemoryAction, Name != null ? $"{Name}_last" : null)
                 .LastNode!
             ;
             _start = new OneToMany(SubNodes);

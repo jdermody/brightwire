@@ -42,10 +42,10 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             _output = graph.Add(inputChannel, memoryChannel)
                 .AddBackwardAction(new ConstrainSignal())
                 .Add(activation)
-                .AddForwardAction(_memory.SetMemoryAction)
+                .AddForwardAction(_memory.SetMemoryAction, Name != null ? $"{Name}_last" : null)
                 .LastNode!
 			;
-            _start = new OneToMany(SubNodes);
+            _start = new OneToMany(SubNodes, Name != null ? $"{Name}_start" : null);
         }
 
         public override List<WireToNode> Output => _output.Output;

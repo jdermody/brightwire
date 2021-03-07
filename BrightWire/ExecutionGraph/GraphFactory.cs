@@ -340,6 +340,13 @@ namespace BrightWire.ExecutionGraph
 		/// <returns></returns>
 		public NodeBase CreateMaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, string? name = null) => new MaxPool(filterWidth, filterHeight, xStride, yStride, name);
 
+        /// <summary>
+        /// Creates a bridge between two recurrent nodes that will copy the hidden state from one to another and copy the error signal backwards between the two
+        /// </summary>
+        /// <param name="fromName">Name of the first recurrent node</param>
+        /// <param name="toName">Name of the second recurrent node</param>
+        /// <param name="name">Optional name to give the node</param>
+        /// <returns></returns>
         public NodeBase CreateRecurrentBridge(string fromName, string toName, string? name) => new RecurrentBridge(fromName, toName, name);
 
 		/// <summary>
@@ -444,7 +451,8 @@ namespace BrightWire.ExecutionGraph
 		/// <returns></returns>
 		public NodeBase CreateLstm(uint inputSize, uint memorySize, string? name = null)
 		{
-			return new LongShortTermMemory(this, inputSize, new float[memorySize], name);
+            return new LSTM(this, inputSize, new float[memorySize], name);
+			//return new LongShortTermMemory(this, inputSize, new float[memorySize], name);
 		}
 
 		/// <summary>

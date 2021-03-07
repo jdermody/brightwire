@@ -519,6 +519,15 @@
             <param name="name">Optional name to give the node</param>
             <returns></returns>
         </member>
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateRecurrentBridge(System.String,System.String,System.String)">
+            <summary>
+            Creates a bridge between two recurrent nodes that will copy the hidden state from one to another and copy the error signal backwards between the two
+            </summary>
+            <param name="fromName">Name of the first recurrent node</param>
+            <param name="toName">Name of the second recurrent node</param>
+            <param name="name">Optional name to give the node</param>
+            <returns></returns>
+        </member>
         <member name="M:BrightWire.ExecutionGraph.GraphFactory.CreateSimpleRecurrent(System.UInt32,System.UInt32,BrightWire.ExecutionGraph.Node.NodeBase,System.String)">
             <summary>
             Creates a simple recurrent layer
@@ -1299,13 +1308,15 @@
         <member name="M:BrightWire.ExecutionGraph.Node.Gate.BinaryGateBase.ForwardSingleStep(BrightWire.IGraphData,System.UInt32,BrightWire.IGraphSequenceContext,BrightWire.ExecutionGraph.Node.NodeBase)">
             <inheritdoc />
         </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.Gate.BinaryGateBase.Activate(BrightWire.IGraphSequenceContext,BrightData.IFloatMatrix,BrightData.IFloatMatrix)">
+        <member name="M:BrightWire.ExecutionGraph.Node.Gate.BinaryGateBase.Activate(BrightWire.IGraphSequenceContext,BrightData.IFloatMatrix,BrightData.IFloatMatrix,BrightWire.ExecutionGraph.Node.NodeBase,BrightWire.ExecutionGraph.Node.NodeBase)">
             <summary>
             When both the primary and secondary inputs have arrived
             </summary>
             <param name="context">Graph context</param>
             <param name="primary">Primary signal</param>
             <param name="secondary">Secondary signal</param>
+            <param name="primarySource">Primary source node</param>
+            <param name="secondarySource">Secondary source node</param>
         </member>
         <member name="T:BrightWire.ExecutionGraph.Node.Gate.MultiGateBase">
             <summary>
@@ -1377,15 +1388,6 @@
             </summary>
             <param name="context">The graph context</param>
             <param name="data">The list of incoming signals</param>
-        </member>
-        <member name="M:BrightWire.ExecutionGraph.Node.Gate.MultiGateBase.AddHistory(BrightWire.IGraphSequenceContext,System.Collections.Generic.List{BrightWire.ExecutionGraph.Node.Gate.MultiGateBase.IncomingChannel},BrightData.IFloatMatrix,System.Func{BrightWire.IBackpropagate})">
-            <summary>
-            Records the network activity
-            </summary>
-            <param name="context">The graph context</param>
-            <param name="data">The list of incoming signals</param>
-            <param name="output">Output signal</param>
-            <param name="backpropagation">Backpropagation creator (optional)</param>
         </member>
         <member name="M:BrightWire.ExecutionGraph.Node.Gate.MultiGateBase.GetInfo">
             <inheritdoc />
@@ -1920,6 +1922,16 @@
             Adds a batch normalisation layer
             </summary>
             <param name="name">Optional name to give the node</param>
+        </member>
+        <member name="M:BrightWire.ExecutionGraph.WireBuilder.AddRecurrentBridge(System.String,System.String,System.String)">
+            <summary>
+            Creates a bridge between two recurrent nodes that will copy the hidden state from one to another and copy the error signal backwards between the two
+            </summary>
+            <param name="fromName">Name of the first recurrent node</param>
+            <param name="toName">Name of the second recurrent node</param>
+            <param name="name">Optional name to give the node</param>
+            <param name="name">Optional name to give the node</param>
+            <returns></returns>
         </member>
         <member name="M:BrightWire.ExecutionGraph.WireBuilder.AddSimpleRecurrent(BrightWire.ExecutionGraph.Node.NodeBase,System.UInt32,System.String)">
             <summary>
@@ -2897,7 +2909,7 @@
             </summary>
             <param name="errorSignal">Error signal</param>
             <param name="context">Graph context</param>
-            <param name="parents">The current node's parents</param>
+            <param name="parents"></param>
         </member>
         <member name="T:BrightWire.IDataSource">
             <summary>

@@ -313,7 +313,7 @@ namespace BrightWire
         /// </summary>
         /// <param name="errorSignal">Error signal</param>
         /// <param name="context">Graph context</param>
-        /// <param name="parents">The current node's parents</param>
+        /// <param name="parents"></param>
         IEnumerable<(IGraphData Signal, IGraphSequenceContext Context, NodeBase ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents);
     }
 

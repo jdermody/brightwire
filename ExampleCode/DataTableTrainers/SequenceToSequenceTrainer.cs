@@ -99,7 +99,7 @@ namespace ExampleCode.DataTableTrainers
 
             const uint BATCH_SIZE = 8;
             const uint HIDDEN_LAYER_SIZE = 128;
-            const float TRAINING_RATE = 0.03f;
+            const float TRAINING_RATE = 0.1f;
 
             var trainingData = graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
@@ -108,6 +108,7 @@ namespace ExampleCode.DataTableTrainers
             graph.Connect(engine)
                 .AddGru(HIDDEN_LAYER_SIZE, "encoder")
                 .AddSequenceToSequencePivot("encoder", "decoder")
+                .AddRecurrentBridge("encoder", "decoder")
                 .AddGru(HIDDEN_LAYER_SIZE, "decoder")
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                 .Add(graph.SoftMaxActivation())

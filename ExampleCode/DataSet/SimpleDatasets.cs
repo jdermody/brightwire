@@ -107,6 +107,7 @@ namespace ExampleCode.DataSet
 
         public static SentimentDataTrainer SentimentData(this IBrightDataContext context)
         {
+            // http://dkotzias.com/papers/GICF.pdf
             var directory = ExtractToDirectory(context, "sentiment", "sentiment.zip", "https://archive.ics.uci.edu/ml/machine-learning-databases/00331/sentiment%20labelled%20sentences.zip");
             return new SentimentDataTrainer(context, directory);
         }

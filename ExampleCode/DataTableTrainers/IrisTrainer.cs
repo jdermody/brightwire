@@ -20,14 +20,14 @@ namespace ExampleCode.DataTableTrainers
             base.TrainSigmoidNeuralNetwork(hiddenLayerSize, numIterations, trainingRate, batchSize, 50);
         }
 
-        public void TrainWithSelu(uint numIterations = 1000, uint layerSize = 8, float trainingRate = 0.01f, uint batchSize = 32)
+        public void TrainWithSelu(uint numIterations = 1000, uint layerSize = 8, float trainingRate = 0.3f, uint batchSize = 32)
         {
             var graph = Table.Context.CreateGraphFactory();
             var trainingData = graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
 
             // one hot encoding uses the index of the output vector's maximum value as the classification label
-            var errorMetric = graph.ErrorMetric.CrossEntropy;
+            var errorMetric = graph.ErrorMetric.OneHotEncoding;
 
             // configure the network properties
             graph.CurrentPropertySet
@@ -42,16 +42,17 @@ namespace ExampleCode.DataTableTrainers
 
             // create the network with the custom activation function
             graph.Connect(engine)
+                .AddBatchNormalisation()
                 .AddFeedForward(layerSize)
                 .Add(Activation())
-                .AddFeedForward(layerSize)
-                .Add(Activation())
-                .AddFeedForward(layerSize)
-                .Add(Activation())
-                .AddFeedForward(layerSize)
-                .Add(Activation())
+                //.AddFeedForward(layerSize)
+                //.Add(Activation())
+                //.AddFeedForward(layerSize)
+                //.Add(Activation())
+                //.AddFeedForward(layerSize)
+                //.Add(Activation())
                 .AddFeedForward(trainingData.GetOutputSizeOrThrow())
-                .Add(graph.SoftMaxActivation())
+                .Add(graph.SigmoidActivation())
                 .AddBackpropagation()
             ;
 

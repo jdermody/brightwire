@@ -43,10 +43,10 @@ namespace BrightWire.ExecutionGraph.Node.Layer
 
             _output = graph
                 .Add(graph.Multiply(hiddenLayerSize, wx, it.LastNode!), graph.Multiply(hiddenLayerSize, _memory, ft.LastNode!))
-                .AddForwardAction(_memory.SetMemoryAction)
+                .AddForwardAction(_memory.SetMemoryAction, Name != null ? $"{Name}_last" : null)
                 .LastNode!
             ;
-            _start = new OneToMany(SubNodes);
+            _start = new OneToMany(SubNodes, Name != null ? $"{Name}_start" : null);
         }
 
         /// <summary>

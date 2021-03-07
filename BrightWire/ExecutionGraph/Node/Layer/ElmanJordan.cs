@@ -56,7 +56,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 h.AddForwardAction(_memory.SetMemoryAction);
 
             _output = h.LastNode!;
-            _start = new OneToMany(SubNodes);
+            _start = new OneToMany(SubNodes, Name != null ? $"{Name}_start" : null);
         }
 
         public override List<WireToNode> Output => _output.Output;

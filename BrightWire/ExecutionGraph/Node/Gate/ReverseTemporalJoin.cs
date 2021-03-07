@@ -11,22 +11,26 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         class Backpropagation : BackpropagationBase<ReverseTemporalJoin>
         {
             readonly uint _reverseSize;
+            readonly NodeBase _forward;
+            readonly NodeBase _backward;
 
-            public Backpropagation(ReverseTemporalJoin source, uint reverseSize) : base(source)
+            public Backpropagation(ReverseTemporalJoin source, uint reverseSize, NodeBase forward, NodeBase backward) : base(source)
             {
                 _reverseSize = reverseSize;
+                _forward = forward;
+                _backward = backward;
             }
 
             public override IEnumerable<(IGraphData Signal, IGraphSequenceContext Context, NodeBase ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents)
             {
                 var matrix = errorSignal.GetMatrix();
                 (IFloatMatrix left, IFloatMatrix right) = matrix.SplitAtColumn(matrix.ColumnCount - _reverseSize);
-                yield return (errorSignal.ReplaceWith(left), context, parents[0]);
+                yield return (errorSignal.ReplaceWith(left), context, _forward);
 
                 var batch = context.BatchSequence.MiniBatch;
                 var sequenceIndex = context.BatchSequence.SequenceIndex;
                 var reversedSequenceIndex = batch.SequenceCount - sequenceIndex - 1;
-                _source._reverseBackpropagation.Add(reversedSequenceIndex, (parents[1], errorSignal.ReplaceWith(right)));
+                _source._reverseBackpropagation.Add(reversedSequenceIndex, (_backward, errorSignal.ReplaceWith(right)));
                 _source._contextTable.Add(sequenceIndex, context);
 
                 if (sequenceIndex == 0) {
@@ -73,7 +77,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
 
             // concatenate the inputs
             var next = new MatrixGraphData(data.ConcatRows(floatMatrix));
-            context.AddForwardHistory(this, next, () => new Backpropagation(this, reversedSize));
+            context.AddForwardHistory(this, next, () => new Backpropagation(this, reversedSize, forwardParent, reverseParent));
             foreach(var wire in Output)
                 wire.SendTo.Forward(next, context, wire.Channel, this);
         }

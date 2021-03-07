@@ -8,16 +8,16 @@ namespace BrightWire.ExecutionGraph.Node.Helper
     /// </summary>
     internal class HookErrorSignal : NodeBase
     {
-        class Backpropagation : BackpropagationBase<HookErrorSignal>
+        class Backpropagation : SingleBackpropagationBase<HookErrorSignal>
         {
             public Backpropagation(HookErrorSignal source) : base(source)
             {
             }
 
-            public override IEnumerable<(IGraphData Signal, IGraphSequenceContext Context, NodeBase ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents)
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
             {
                 _source._tryRestore(context);
-                return ErrorTo(errorSignal, context, parents);
+                return errorSignal;
             }
         }
 

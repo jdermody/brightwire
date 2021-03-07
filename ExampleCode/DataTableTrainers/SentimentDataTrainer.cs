@@ -268,7 +268,7 @@ namespace ExampleCode.DataTableTrainers
             }
         }
 
-        public IGraphExecutionEngine TrainBiGru(IIndexListClassifier bernoulli, IIndexListClassifier multinomial)
+        public IGraphExecutionEngine TrainBiLstm(IIndexListClassifier bernoulli, IIndexListClassifier multinomial)
         {
             var graph = _context.CreateGraphFactory();
             var trainingTable = CreateTable(_indexedSentencesTraining, bernoulli, multinomial);
@@ -287,22 +287,20 @@ namespace ExampleCode.DataTableTrainers
             const int HIDDEN_LAYER_SIZE = 100;
 
             var forward = graph.Connect(engine)
-                .AddGru(HIDDEN_LAYER_SIZE, "forward")
+                .AddLstm(HIDDEN_LAYER_SIZE, "forward")
             ;
             var reverse = graph.Connect(engine)
                 .ReverseSequence()
-                .AddGru(HIDDEN_LAYER_SIZE, "backward")
+                .AddLstm(HIDDEN_LAYER_SIZE, "backward")
             ;
             graph.BidirectionalJoin(forward, reverse)
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow(), "joined")
-                .Add(graph.SoftMaxActivation())
+                .Add(graph.SigmoidActivation())
                 .AddBackpropagationThroughTime()
             ;
 
             ExecutionGraphModel? bestGraph = null;
-            engine.LearningContext.ScheduleLearningRate(10, 0.003f);
-            engine.LearningContext.ScheduleLearningRate(20, 0.001f);
-            engine.Train(30, test, bn => bestGraph = bn.Graph);
+            engine.Train(10, test, bn => bestGraph = bn.Graph);
             return engine.CreateExecutionEngine(bestGraph);
         }
 

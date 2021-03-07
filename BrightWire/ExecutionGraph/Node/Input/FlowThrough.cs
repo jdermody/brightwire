@@ -7,7 +7,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
     /// </summary>
     internal class FlowThrough : NodeBase
     {
-        public FlowThrough() : base(null)
+        public FlowThrough(string? name = null) : base(name)
         {
         }
 

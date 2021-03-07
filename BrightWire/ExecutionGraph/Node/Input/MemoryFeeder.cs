@@ -13,13 +13,13 @@ namespace BrightWire.ExecutionGraph.Node.Input
     /// </summary>
     internal class MemoryFeeder : NodeBase, IMemoryNode
     {
-        class Backpropagation : BackpropagationBase<MemoryFeeder>
+        class Backpropagation : SingleBackpropagationBase<MemoryFeeder>
         {
             public Backpropagation(MemoryFeeder source) : base(source)
             {
             }
 
-            public override IEnumerable<(IGraphData Signal, IGraphSequenceContext Context, NodeBase ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents)
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
             {
                 var es = errorSignal.GetMatrix();
                 using var columnSums = es.ColumnSums();
@@ -30,7 +30,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
 
                 if(_source._contextName != null)
                     context.SetData(_source._contextName, "hidden-backward", errorSignal);
-                return ErrorTo(GraphData.Null, context, parents);
+                return GraphData.Null;
             }
         }
 

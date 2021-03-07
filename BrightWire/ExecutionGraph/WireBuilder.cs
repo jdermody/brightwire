@@ -225,6 +225,14 @@ namespace BrightWire.ExecutionGraph
 			return this;
 		}
 
+        /// <summary>
+        /// Creates a bridge between two recurrent nodes that will copy the hidden state from one to another and copy the error signal backwards between the two
+        /// </summary>
+        /// <param name="fromName">Name of the first recurrent node</param>
+        /// <param name="toName">Name of the second recurrent node</param>
+        /// <param name="name">Optional name to give the node</param>
+        /// <param name="name">Optional name to give the node</param>
+        /// <returns></returns>
         public WireBuilder AddRecurrentBridge(string fromName, string toName, string? name = null)
         {
             SetNode(_factory.CreateRecurrentBridge(fromName, toName, name));

@@ -118,20 +118,7 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// <param name="data">The list of incoming signals</param>
         protected abstract (IFloatMatrix? Next, Func<IBackpropagate>? BackProp) Activate(IGraphSequenceContext context, List<IncomingChannel> data);
 
-        /// <summary>
-        /// Records the network activity
-        /// </summary>
-        /// <param name="context">The graph context</param>
-        /// <param name="data">The list of incoming signals</param>
-        /// <param name="output">Output signal</param>
-        /// <param name="backpropagation">Backpropagation creator (optional)</param>
-        protected void AddHistory(IGraphSequenceContext context, List<IncomingChannel> data, IFloatMatrix output, Func<IBackpropagate> backpropagation)
-        {
-            var sources = data.Where(d => d.Source != null).Select(d => d.Source!).ToArray();
-            context.AddForwardHistory(this, new MatrixGraphData(output), backpropagation, sources);
-        }
-
-	    /// <inheritdoc />
+        /// <inheritdoc />
 	    protected override (string Description, byte[] Data) GetInfo()
         {
             return ("MG", WriteData(WriteTo));

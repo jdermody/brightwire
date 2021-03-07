@@ -54,7 +54,7 @@ namespace ExampleCode.DataTableTrainers
         {
             var graph = _context.CreateGraphFactory();
 
-            var errorMetric = graph.ErrorMetric.CrossEntropy;
+            var errorMetric = graph.ErrorMetric.BinaryClassification;
 
             // configure the network properties
             graph.CurrentPropertySet
@@ -68,7 +68,7 @@ namespace ExampleCode.DataTableTrainers
             var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate: 0.3f, batchSize: 32);
 
             // build the network
-            const int HIDDEN_LAYER_SIZE = 30, TRAINING_ITERATIONS = 40;
+            const int HIDDEN_LAYER_SIZE = 40, TRAINING_ITERATIONS = 50;
             graph.Connect(engine)
                 .AddGru(HIDDEN_LAYER_SIZE, "layer1")
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
@@ -76,7 +76,7 @@ namespace ExampleCode.DataTableTrainers
                 .AddBackpropagationThroughTime()
             ;
 
-            engine.LearningContext.ScheduleLearningRate(20, 0.1f);
+            engine.LearningContext.ScheduleLearningRate(15, 0.1f);
             engine.LearningContext.ScheduleLearningRate(30, 0.03f);
             var model = engine.Train(TRAINING_ITERATIONS, testData);
             return engine.CreateExecutionEngine(model?.Graph);
@@ -86,7 +86,7 @@ namespace ExampleCode.DataTableTrainers
         {
             var graph = _context.CreateGraphFactory();
 
-            var errorMetric = graph.ErrorMetric.CrossEntropy;
+            var errorMetric = graph.ErrorMetric.BinaryClassification;
 
             // configure the network properties
             graph.CurrentPropertySet
@@ -97,10 +97,10 @@ namespace ExampleCode.DataTableTrainers
             // create the engine
             var trainingData = graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
-            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate: 0.1f, batchSize: 32);
+            var engine = graph.CreateTrainingEngine(trainingData, errorMetric, learningRate: 0.3f, batchSize: 32);
 
             // build the network
-            const int HIDDEN_LAYER_SIZE = 30, TRAINING_ITERATIONS = 35;
+            const int HIDDEN_LAYER_SIZE = 40, TRAINING_ITERATIONS = 50;
             graph.Connect(engine)
                 .AddLstm(HIDDEN_LAYER_SIZE)
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
@@ -108,7 +108,7 @@ namespace ExampleCode.DataTableTrainers
                 .AddBackpropagationThroughTime()
             ;
 
-            engine.LearningContext.ScheduleLearningRate(20, 0.1f);
+            engine.LearningContext.ScheduleLearningRate(15, 0.1f);
             engine.LearningContext.ScheduleLearningRate(30, 0.03f);
             var model = engine.Train(TRAINING_ITERATIONS, testData);
             return engine.CreateExecutionEngine(model?.Graph);

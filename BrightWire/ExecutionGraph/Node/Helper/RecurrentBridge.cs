@@ -9,7 +9,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
 {
     class RecurrentBridge : NodeBase
     {
-        class Backpropagation : BackpropagationBase<RecurrentBridge>
+        class Backpropagation : SingleBackpropagationBase<RecurrentBridge>
         {
             readonly MemoryFeeder _memoryFeeder;
 
@@ -18,14 +18,14 @@ namespace BrightWire.ExecutionGraph.Node.Helper
                 _memoryFeeder = memoryFeeder;
             }
 
-            public override IEnumerable<(IGraphData Signal, IGraphSequenceContext Context, NodeBase ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents)
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
             {
                 var hiddenBackward = context.GetData("hidden-backward").Single(d => d.Name == _source._toName);
 
                 // add the memory signal to the current 
                 errorSignal.GetMatrix().AddInPlace(hiddenBackward.Data.GetMatrix());
 
-                return ErrorTo(errorSignal, context, parents);
+                return errorSignal;
             }
         }
         string _fromName, _toName;

@@ -14,7 +14,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
     internal class LongShortTermMemory : NodeBase, IHaveMemoryNode
     {
         uint _inputSize;
-        MemoryFeeder _memory, _previous;
+        MemoryFeeder _memory;
         NodeBase _input, _output;
         OneToMany _start;
 
@@ -30,7 +30,6 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             _inputSize = inputSize;
             var hiddenLayerSize = (uint)memory.Length;
             _memory = new MemoryFeeder(graph.Context, memory, Name ?? Id, null, memoryId);
-            _previous = new MemoryFeeder(graph.Context, new float[hiddenLayerSize], null);
             _input = new FlowThrough();
 
             var wf = graph.Connect(inputSize, _input).AddFeedForward(hiddenLayerSize, "Wf");
@@ -52,8 +51,8 @@ namespace BrightWire.ExecutionGraph.Node.Layer
                 .AddForwardAction(_memory.SetMemoryAction)
             ;
 
-            _output = graph.Multiply(ot, ct.Add(graph.TanhActivation())).LastNode!;
-            _start = new OneToMany(SubNodes);
+            _output = graph.Multiply(ot, ct.Add(graph.TanhActivation()), Name != null ? $"{Name}_last" : null).LastNode!;
+            _start = new OneToMany(SubNodes, Name != null ? $"{Name}_start" : null);
         }
 
         public override List<WireToNode> Output => _output.Output;

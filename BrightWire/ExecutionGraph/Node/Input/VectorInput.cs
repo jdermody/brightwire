@@ -8,13 +8,13 @@ namespace BrightWire.ExecutionGraph.Node.Input
 {
     internal class VectorInput : NodeBase
 	{
-		class Backpropagation : BackpropagationBase<VectorInput>
+		class Backpropagation : SingleBackpropagationBase<VectorInput>
 		{
 			public Backpropagation(VectorInput source) : base(source)
 			{
 			}
 
-            public override IEnumerable<(IGraphData Signal, IGraphSequenceContext Context, NodeBase ToNode)> Backward(IGraphData errorSignal, IGraphSequenceContext context, NodeBase[] parents)
+            protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
             {
                 var es = errorSignal.GetMatrix();
 
@@ -28,7 +28,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
                     for (uint j = 0; j < _source._data.Length; j++)
                         _source._data[j] += delta[j] * learningContext.BatchLearningRate;
                 });
-                return ErrorTo(errorSignal, context, parents);
+                return errorSignal;
             }
         }
 

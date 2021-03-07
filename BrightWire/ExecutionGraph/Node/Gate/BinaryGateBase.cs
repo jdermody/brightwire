@@ -27,11 +27,11 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             if (channel == 0) {
                 _primarySource = source;
                 _primary = signal.GetMatrix();
-                (next, backProp) = TryComplete2(signal, context);
+                (next, backProp) = TryComplete(signal, context);
             }else if (channel == 1) {
                 _secondarySource = source;
                 _secondary = signal.GetMatrix();
-                (next, backProp) = TryComplete2(signal, context);
+                (next, backProp) = TryComplete(signal, context);
             }
             else
                 throw new NotImplementedException();
@@ -39,10 +39,10 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             return (this, next, backProp);
         }
 
-        (IGraphData Next, Func<IBackpropagate>? BackProp) TryComplete2(IGraphData signal, IGraphSequenceContext context)
+        (IGraphData Next, Func<IBackpropagate>? BackProp) TryComplete(IGraphData signal, IGraphSequenceContext context)
         {
-            if (_primary != null && _secondary != null) {
-                var (next, backProp) = Activate(context, _primary, _secondary);
+            if (_primary != null && _secondary != null && _primarySource != null && _secondarySource != null) {
+                var (next, backProp) = Activate(context, _primary, _secondary, _primarySource, _secondarySource);
                 _primary = _secondary = null;
                 _primarySource = _secondarySource = null;
                 return (signal.ReplaceWith(next), backProp);
@@ -57,6 +57,8 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         /// <param name="context">Graph context</param>
         /// <param name="primary">Primary signal</param>
         /// <param name="secondary">Secondary signal</param>
-        protected abstract (IFloatMatrix Next, Func<IBackpropagate>? BackProp) Activate(IGraphSequenceContext context, IFloatMatrix primary, IFloatMatrix secondary);
+        /// <param name="primarySource">Primary source node</param>
+        /// <param name="secondarySource">Secondary source node</param>
+        protected abstract (IFloatMatrix Next, Func<IBackpropagate>? BackProp) Activate(IGraphSequenceContext context, IFloatMatrix primary, IFloatMatrix secondary, NodeBase primarySource, NodeBase secondarySource);
     }
 }
