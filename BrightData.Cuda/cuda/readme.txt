@@ -29,3 +29,8 @@ nvcc brightwire.cu -use_fast_math -ptx -m 64 -arch sm_75 -o brightwire.ptx
 NOTE: The -arch flag can be modified as appropriate for your GPU, as described in:
 
 http://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html
+
+
+Finally, pass the path to your ptx file to the cuda provider:
+
+UseCudaLinearAlgebra(this IBrightDataContext context, string *cudaKernelPath*)

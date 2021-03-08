@@ -25,7 +25,55 @@
     <EmbeddedResource Remove="Properties\**" />
     <None Remove="Properties\**" />
     <None Remove="cuda\brightwire.ptx" />
+    <None Remove="cuda\brightwire_35.ptx" />
+    <None Remove="cuda\brightwire_37.ptx" />
+    <None Remove="cuda\brightwire_50.ptx" />
+    <None Remove="cuda\brightwire_52.ptx" />
+    <None Remove="cuda\brightwire_53.ptx" />
+    <None Remove="cuda\brightwire_60.ptx" />
+    <None Remove="cuda\brightwire_61.ptx" />
+    <None Remove="cuda\brightwire_62.ptx" />
+    <None Remove="cuda\brightwire_70.ptx" />
+    <None Remove="cuda\brightwire_72.ptx" />
+    <None Remove="cuda\brightwire_75.ptx" />
+    <None Remove="cuda\brightwire_80.ptx" />
     <Content Include="cuda\brightwire.ptx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="cuda\brightwire_35.ptx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="cuda\brightwire_37.ptx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="cuda\brightwire_50.ptx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="cuda\brightwire_52.ptx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="cuda\brightwire_53.ptx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="cuda\brightwire_60.ptx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="cuda\brightwire_61.ptx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="cuda\brightwire_62.ptx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="cuda\brightwire_70.ptx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="cuda\brightwire_72.ptx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="cuda\brightwire_75.ptx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="cuda\brightwire_80.ptx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="..\bw_favicon.png">
@@ -68,6 +116,10 @@
     <Reference Include="ManagedCuda.netCore">
       <HintPath>managed-cuda\ManagedCuda.netCore.dll</HintPath>
     </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
 
 </Project>

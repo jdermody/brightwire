@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using BrightData.Cuda.Helper;
@@ -157,12 +158,26 @@ namespace BrightData.Cuda
 		readonly ConcurrentDictionary<CUfunction, (int BlockSize, int MinGridSize)> _blockSize = new ConcurrentDictionary<CUfunction, (int, int)>();
 		bool _disposed = false;
 
-		public CudaProvider(IBrightDataContext context, string cudaKernelPath, uint memoryCacheSize)
+		public CudaProvider(IBrightDataContext context, string? cudaKernelPath, string? cudaDirectory, uint memoryCacheSize)
         {
             _context = context;
             _numerics = new NumericsProvider(context);
             _cuda = new CudaContext();
-			_cache = new DeviceMemory((int)memoryCacheSize);
+
+            if (cudaKernelPath == null) {
+                if (String.IsNullOrWhiteSpace(cudaDirectory))
+                    throw new ArgumentException("No kernel path or directory was passed");
+
+                var info = _cuda.GetDeviceInfo();
+                var kernelName = $"brightwire_{info.ComputeCapability.Major}{info.ComputeCapability.Minor}.ptx";
+                cudaKernelPath = Path.Combine(cudaDirectory, kernelName);
+                if (!File.Exists(cudaKernelPath))
+                    cudaKernelPath = Path.Combine(cudaDirectory, "brightwire.ptx");
+                if (!File.Exists(cudaKernelPath))
+                    throw new Exception($"No default kernel was found in {cudaDirectory}");
+            }
+
+            _cache = new DeviceMemory((int)memoryCacheSize);
 			_kernel = new KernelModule(_cuda, cudaKernelPath);
 			_blas = new CudaBlas(AtomicsMode.Allowed);
 			_cuda.SetCurrent();
