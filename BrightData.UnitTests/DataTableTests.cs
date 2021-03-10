@@ -105,7 +105,7 @@ namespace BrightData.UnitTests
             numericAnalysis.All(a => a.Max == 10).Should().BeTrue();
             numericAnalysis.All(a => a.Mean == 5.5).Should().BeTrue();
             numericAnalysis.All(a => a.Median == 5.5).Should().BeTrue();
-            numericAnalysis.All(a => Math.Round(a.SampleStdDev.Value) == 3).Should().BeTrue();
+            numericAnalysis.All(a => Math.Round(a.SampleStdDev!.Value) == 3).Should().BeTrue();
 
             var stringAnalysis = analysis[7].GetStringAnalysis();
             stringAnalysis.NumDistinct.Should().Be(10);
@@ -126,7 +126,7 @@ namespace BrightData.UnitTests
         {
             var table = GetSimpleTable();
             var table2 = table.Project(r => new object[] { Convert.ToDouble(r[0]) });
-            table2.ColumnTypes[0].Should().Be(ColumnType.Double);
+            table2!.ColumnTypes[0].Should().Be(ColumnType.Double);
             return table2;
         }
 
@@ -156,7 +156,7 @@ namespace BrightData.UnitTests
             var convertible = table.AsConvertible();
             var analysis = table.ColumnAnalysis(0).Single().MetaData.GetNumericAnalysis();
             var mean = analysis.Mean;
-            var stdDev = analysis.PopulationStdDev.Value;
+            var stdDev = analysis.PopulationStdDev!.Value;
             var normalised = table.AsColumnOriented().Normalize(NormalizationType.Standard).AsRowOriented().AsConvertible();
 
             RandomSample(normalised, (index, row) => {

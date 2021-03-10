@@ -175,12 +175,12 @@ namespace BrightData.Cuda
 	        return new Cuda4DTensor(_cuda, ret.Rows, ret.Columns, _depth, _count, ret.Data, true);
         }
 
-        public (I4DFloatTensor Result, I4DFloatTensor Indices) MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices)
+        public (I4DFloatTensor Result, I4DFloatTensor? Indices) MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices)
         {
 	        Debug.Assert(IsValid);
 	        var maxPool = _cuda.TensorMaxPool(_data, _rows, _columns, _depth, _count, filterWidth, filterHeight, xStride, yStride, saveIndices);
 	        var ret = new Cuda4DTensor(_cuda, maxPool.Rows, maxPool.Columns, _depth, _count, maxPool.Data, true);
-	        var indices = saveIndices ? new Cuda4DTensor(_cuda, maxPool.Rows, maxPool.Columns, _depth, _count, maxPool.Indices, true) : null;
+	        var indices = maxPool.Indices != null ? new Cuda4DTensor(_cuda, maxPool.Rows, maxPool.Columns, _depth, _count, maxPool.Indices, true) : null;
 	        return (ret, indices);
         }
 
@@ -207,7 +207,7 @@ namespace BrightData.Cuda
 
 		public IFloatVector ColumnSums()
         {
-            IFloatVector ret = null;
+            IFloatVector? ret = null;
             for (uint i = 0; i < Count; i++) {
                 var tensorAsMatrix = GetTensorAt(i).ReshapeAsMatrix();
                 var columnSums = tensorAsMatrix.ColumnSums();
@@ -216,7 +216,7 @@ namespace BrightData.Cuda
                 else
                     ret.AddInPlace(columnSums);
             }
-            return ret;
+            return ret ?? LinearAlgebraProvider.CreateVector(ColumnCount);;
         }
     }
 }

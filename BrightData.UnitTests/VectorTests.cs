@@ -601,8 +601,8 @@ namespace BrightData.UnitTests
         public void MultiCosineDistance2()
         {
             var distribution = new Normal(0, 5);
-            float[] dataNorm1 = null;
-            float[] dataNorm2 = null;
+            float[]? dataNorm1 = null;
+            float[]? dataNorm2 = null;
 
             var a = _cpu.CreateVector(5000, i => Convert.ToSingle(distribution.Sample())).AsIndexable();
             var b = _cpu.CreateVector(5000, i => Convert.ToSingle(distribution.Sample()));

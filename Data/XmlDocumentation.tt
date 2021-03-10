@@ -170,7 +170,7 @@ public Dictionary<string, string> GetParameterDocumentation(string xml) {
 		var doc = XElement.Parse(xml);
 		if(doc != null) {
 			foreach(var param in doc.Elements("param")) {
-				ret.Add(param.Attribute("name").Value, param.Value);
+				ret[param.Attribute("name").Value] = param.Value;
             }
         }
     }

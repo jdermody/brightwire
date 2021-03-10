@@ -142,7 +142,7 @@ namespace BrightData.Cuda.Helper
         }
         void DisposeMemory()
         {
-            while (_layer.TryPop(out Layer layer)) {
+            while (_layer.TryPop(out var layer)) {
                 lock (layer) {
                     layer.Release();
                 }
@@ -161,7 +161,7 @@ namespace BrightData.Cuda.Helper
 
         public void PopLayer()
         {
-            if (_layer.TryPop(out Layer layer)) {
+            if (_layer.TryPop(out var layer)) {
                 lock (layer) {
                     layer.Release();
                 }
@@ -179,7 +179,7 @@ namespace BrightData.Cuda.Helper
 
                 // check if we need to delete old items
                 while (_cache.Sum(kv => kv.Key * kv.Value.Count) > _maxSize) {
-                    Block oldestItem = null;
+                    Block? oldestItem = null;
                     foreach(var block in _cache) {
                         block.Value.ForEach(b => {
                             if (oldestItem == null || oldestItem.Index < b.Index)
@@ -198,28 +198,25 @@ namespace BrightData.Cuda.Helper
 
         public IDeviceMemoryPtr GetMemory(uint size)
         {
-            Block ret;
-
             if (_maxSize > 0) {
-                if (_cache.TryGetValue(size, out ThreadSafeHashSet<Block> temp)) {
-                    if (temp.TryPop(out ret))
+                if (_cache.TryGetValue(size, out var temp)) {
+                    if (temp.TryPop(out var ret))
                         return ret;
                 }
             }
 
-            ret = new Block(this, GetNextIndex(), size);
-            if (_layer.TryPeek(out Layer layer)) {
+            var newBlock = new Block(this, GetNextIndex(), size);
+            if (_layer.TryPeek(out var layer)) {
                 lock (layer) {
-                    layer.Add(ret);
+                    layer.Add(newBlock);
                 }
             }
-
-            return ret;
+            return newBlock;
         }
 
         public void Add(IDisposable disposable)
         {
-            if (_layer.TryPeek(out Layer layer)) {
+            if (_layer.TryPeek(out var layer)) {
                 lock (layer) {
                     layer.Add(disposable);
                 }

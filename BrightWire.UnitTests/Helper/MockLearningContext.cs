@@ -7,6 +7,12 @@ namespace BrightWire.UnitTests.Helper
 {
     internal class MockLearningContext : ILearningContext
     {
+#pragma warning disable 8618
+        public MockLearningContext()
+#pragma warning restore 8618
+        {
+        }
+
         public double EpochSeconds { get; set; }
         public long EpochMilliseconds { get; set; }
         public ILinearAlgebraProvider LinearAlgebraProvider { get; set; }
@@ -46,12 +52,12 @@ namespace BrightWire.UnitTests.Helper
             throw new NotImplementedException();
         }
 
-        public void DeferBackpropagation(IGraphData errorSignal, Func<IGraphData?, IGraphData?> update)
+        public void DeferBackpropagation(IGraphData? errorSignal, Func<IGraphData?, IGraphData?> update)
         {
             throw new NotImplementedException();
         }
 
-        public IGraphData? BackpropagateThroughTime(IGraphData signal, int maxDepth = 2147483647)
+        public IGraphData BackpropagateThroughTime(IGraphData? signal, int maxDepth = 2147483647)
         {
             throw new NotImplementedException();
         }

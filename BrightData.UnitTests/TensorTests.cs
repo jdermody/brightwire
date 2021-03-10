@@ -198,13 +198,13 @@ namespace BrightData.UnitTests
 			cpuTensor[2, 2, 1] = 4f;
 
 			var (cpuMaxPool, cpuIndex) = cpuTensor.MaxPool(FILTER_WIDTH, FILTER_HEIGHT, XSTRIDE, YSTRIDE, true);
-			var cpuReverseMaxPool = cpuMaxPool.ReverseMaxPool(cpuIndex, INPUT_HEIGHT, INPUT_WIDTH, FILTER_WIDTH, FILTER_HEIGHT, XSTRIDE, YSTRIDE).AsIndexable();
+			var cpuReverseMaxPool = cpuMaxPool.ReverseMaxPool(cpuIndex!, INPUT_HEIGHT, INPUT_WIDTH, FILTER_WIDTH, FILTER_HEIGHT, XSTRIDE, YSTRIDE).AsIndexable();
 			FloatMath.AreApproximatelyEqual(cpuTensor.AsIndexable(), cpuReverseMaxPool);
 
             using var gpuTensor = _cuda.Create3DTensor(cpuTensor.Data);
             var (gpuMaxPool, gpuIndex) = gpuTensor.MaxPool(FILTER_WIDTH, FILTER_HEIGHT, XSTRIDE, YSTRIDE, true);
             FloatMath.AreApproximatelyEqual(gpuMaxPool.AsIndexable(), cpuMaxPool.AsIndexable());
-            using var gpuReverseMaxPool = gpuMaxPool.ReverseMaxPool(gpuIndex, INPUT_HEIGHT, INPUT_WIDTH, FILTER_WIDTH, FILTER_HEIGHT, XSTRIDE, YSTRIDE);
+            using var gpuReverseMaxPool = gpuMaxPool.ReverseMaxPool(gpuIndex!, INPUT_HEIGHT, INPUT_WIDTH, FILTER_WIDTH, FILTER_HEIGHT, XSTRIDE, YSTRIDE);
             FloatMath.AreApproximatelyEqual(gpuReverseMaxPool.AsIndexable(), cpuReverseMaxPool);
         }
 
@@ -257,13 +257,13 @@ namespace BrightData.UnitTests
 			var cpuTensor = _cpu.Create3DTensor(Enumerable.Range(0, depth).Select(i => _cpu.CreateMatrix(rows, columns, (j, k) => 0)).ToArray()).AsIndexable();
 
 			var (cpuMaxPool, cpuIndices) = cpuTensor.MaxPool(filterWidth, filterHeight, xStride, yStride, true);
-			var cpuReverseMaxPool = cpuMaxPool.ReverseMaxPool(cpuIndices, rows, columns, filterWidth, filterHeight, xStride, yStride).AsIndexable();
+			var cpuReverseMaxPool = cpuMaxPool.ReverseMaxPool(cpuIndices!, rows, columns, filterWidth, filterHeight, xStride, yStride).AsIndexable();
 			AssertValuesAreInSamePlace(cpuReverseMaxPool, cpuTensor);
 
             using var gpuTensor = _cuda.Create3DTensor(cpuTensor.Data);
             var (gpuMaxPool, gpuIndices) = gpuTensor.MaxPool(filterWidth, filterHeight, xStride, yStride, true);
             FloatMath.AreApproximatelyEqual(gpuMaxPool.AsIndexable(), cpuMaxPool.AsIndexable());
-            FloatMath.AreApproximatelyEqual(gpuIndices.AsIndexable(), cpuIndices.AsIndexable());
+            FloatMath.AreApproximatelyEqual(gpuIndices!.AsIndexable(), cpuIndices!.AsIndexable());
             using var gpuReverseMaxPool = gpuMaxPool.ReverseMaxPool(gpuIndices, rows, columns, filterWidth, filterHeight, xStride, yStride);
             FloatMath.AreApproximatelyEqual(gpuReverseMaxPool.AsIndexable(), cpuReverseMaxPool);
         }
@@ -277,14 +277,14 @@ namespace BrightData.UnitTests
 			)).ToArray()).AsIndexable();
 
 			var (cpuMaxPool, cpuIndices) = cpuTensor.MaxPool(filterWidth, filterHeight, xStride, yStride, true);
-			var cpuReverseMaxPool = cpuMaxPool.ReverseMaxPool(cpuIndices, rows, columns, filterWidth, filterHeight, xStride, yStride).AsIndexable();
+			var cpuReverseMaxPool = cpuMaxPool.ReverseMaxPool(cpuIndices!, rows, columns, filterWidth, filterHeight, xStride, yStride).AsIndexable();
 			AssertValuesAreInSamePlace(cpuReverseMaxPool, cpuTensor);
 
             using var gpuTensor = _cuda.Create3DTensor(cpuTensor.Data);
             var (gpuMaxPool, gpuIndices) = gpuTensor.MaxPool(filterWidth, filterHeight, xStride, yStride, calculateIndices);
             FloatMath.AreApproximatelyEqual(gpuMaxPool.AsIndexable(), cpuMaxPool.AsIndexable());
             if (calculateIndices) {
-                FloatMath.AreApproximatelyEqual(gpuIndices.AsIndexable(), cpuIndices.AsIndexable());
+                FloatMath.AreApproximatelyEqual(gpuIndices!.AsIndexable(), cpuIndices!.AsIndexable());
                 using var gpuReverseMaxPool = gpuMaxPool.ReverseMaxPool(gpuIndices, rows, columns, filterWidth, filterHeight, xStride, yStride);
                 FloatMath.AreApproximatelyEqual(gpuReverseMaxPool.AsIndexable(), cpuReverseMaxPool);
             }
@@ -356,12 +356,12 @@ namespace BrightData.UnitTests
 			CheckTensorReverseIm2Col(10, 3, 1, 1, 1, 2, 10, 12);
 		}
 
-        Matrix<float> CheckCreateMatrix(uint depth, uint rows, uint columns, Func<uint, uint, uint, float> valueProvider)
+        Matrix<float> CheckCreateMatrix(uint depth, uint rows, uint columns, Func<uint, uint, uint, float>? valueProvider)
         {
             return _context.CreateMatrixFromRows(rows.AsRange().Select(i => _context.CreateVector(columns, j => valueProvider?.Invoke(i, j, depth) ?? 0f)).ToArray());
         }
 
-		Tensor3D<float> CheckCreateTensor(uint rows, uint columns, uint depth, Func<uint, uint, uint, float> valueProvider)
+		Tensor3D<float> CheckCreateTensor(uint rows, uint columns, uint depth, Func<uint, uint, uint, float>? valueProvider)
         {
             return _context.CreateTensor3D(depth.AsRange().Select(k => CheckCreateMatrix(k, rows, columns, valueProvider)).ToArray());
         }
@@ -468,11 +468,11 @@ namespace BrightData.UnitTests
 
 			var cpuTensor = _cpu.Create4DTensor(data);
 			var cpuResult = cpuTensor.MaxPool(2, 2, 2, 2, true);
-			var cpuReverseMaxPool = cpuResult.Result.ReverseMaxPool(cpuResult.Indices, 4, 4, 2, 2, 2, 2);
+			var cpuReverseMaxPool = cpuResult.Result.ReverseMaxPool(cpuResult.Indices!, 4, 4, 2, 2, 2, 2);
 
             using var gpuTensor = _cuda.Create4DTensor(data);
             var gpuResult = gpuTensor.MaxPool(2, 2, 2, 2, true);
-            using var gpuReverseMaxPool = gpuResult.Result.ReverseMaxPool(gpuResult.Indices, 4, 4, 2, 2, 2, 2);
+            using var gpuReverseMaxPool = gpuResult.Result.ReverseMaxPool(gpuResult.Indices!, 4, 4, 2, 2, 2, 2);
             FloatMath.AreApproximatelyEqual(cpuReverseMaxPool.AsIndexable(), gpuReverseMaxPool.AsIndexable());
         }
 

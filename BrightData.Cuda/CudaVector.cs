@@ -67,7 +67,7 @@ namespace BrightData.Cuda
 #endif
 		}
 
-		public override string ToString()
+		public override string? ToString()
 		{
 			return AsIndexable().ToString();
 		}
@@ -401,7 +401,7 @@ namespace BrightData.Cuda
             return ret.Data.Segment[0];
 		}
 
-		public IFloatVector CosineDistance(IFloatVector[] data, ref float[] dataNorm)
+		public IFloatVector CosineDistance(IFloatVector[] data, ref float[]? dataNorm)
 		{
 			Debug.Assert(IsValid && data.All(v => v.IsValid));
 			var norm = DotProduct(this);

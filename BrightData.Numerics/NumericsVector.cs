@@ -292,7 +292,7 @@ namespace BrightData.Numerics
             return GetDistanceFunc(distance)(other);
         }
 
-        public IFloatVector CosineDistance(IFloatVector[] data, ref float[] dataNorm)
+        public IFloatVector CosineDistance(IFloatVector[] data, ref float[]? dataNorm)
         {
             var norm = DotProduct(this);
             dataNorm ??= data.Select(d => d.DotProduct(d)).ToArray();
@@ -353,7 +353,7 @@ namespace BrightData.Numerics
         public IFloatVector[] Split(uint blockCount)
         {
             int index = 0, blockIndex = 0;
-            float[] curr = null;
+            float[]? curr = null;
             var ret = new IFloatVector[blockCount];
             var blockSize = Count / blockCount;
 
@@ -364,8 +364,7 @@ namespace BrightData.Numerics
                     curr = new float[blockSize];
                     index = 0;
                 }
-	            // ReSharper disable once PossibleNullReferenceException
-                curr[index++] = _vector[(int)i];
+                curr![index++] = _vector[(int)i];
             }
             ret[blockIndex] = new NumericsVector(Context, curr);
             return ret;

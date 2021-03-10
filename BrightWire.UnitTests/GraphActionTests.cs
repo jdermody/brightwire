@@ -20,7 +20,7 @@ namespace BrightWire.UnitTests
         void CheckTestAction(IAction action, IGraphData input, IGraphData expectedOutput)
         {
             var context = new TestingContext(_cpu);
-            var output = action.Execute(input, context, null);
+            var output = action.Execute(input, context, null!);
 
             FloatMath.AreApproximatelyEqual(output.GetMatrix().AsIndexable(), expectedOutput.GetMatrix().AsIndexable()).Should().BeTrue();
         }

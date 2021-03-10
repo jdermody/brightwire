@@ -16,14 +16,14 @@ namespace BrightData.UnitTests
             _context = new SerialisationFixture();
         }
 
-        void Encode<T>(T input, Func<EquivalencyAssertionOptions<T>, EquivalencyAssertionOptions<T>> optionsFunc = null)
+        void Encode<T>(T input, Func<EquivalencyAssertionOptions<T>, EquivalencyAssertionOptions<T>>? optionsFunc = null) where T: notnull
         {
             DataEncoder.Write(_context.Writer, input);
             var output = _context.Encoder.Read<T>(_context.ReadFromStart());
             output.Should().BeEquivalentTo(input, options => optionsFunc?.Invoke(options) ?? options);
         }
 
-        void EncodeArray<T>(T[] input, Func<EquivalencyAssertionOptions<T>, EquivalencyAssertionOptions<T>> optionsFunc = null)
+        void EncodeArray<T>(T[] input, Func<EquivalencyAssertionOptions<T>, EquivalencyAssertionOptions<T>>? optionsFunc = null) where T: notnull
         {
             DataEncoder.Write(_context.Writer, input);
             var output = _context.Encoder.ReadArray<T>(_context.ReadFromStart());

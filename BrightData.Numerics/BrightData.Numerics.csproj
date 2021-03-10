@@ -13,6 +13,7 @@
     <PackageTags>mkl</PackageTags>
     <PackageIcon>bw_favicon.png</PackageIcon>
     <PackageReleaseNotes>Beta release</PackageReleaseNotes>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

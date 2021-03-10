@@ -200,12 +200,12 @@ namespace BrightData.Cuda
 			return new Cuda3DTensor(_cuda, ret.Rows, ret.Columns, ret.Depth, ret.Data, true);
 		}
 
-		public (I3DFloatTensor Result, I3DFloatTensor Indices) MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices)
+		public (I3DFloatTensor Result, I3DFloatTensor? Indices) MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices)
 		{
 			Debug.Assert(IsValid);
 			var maxPool = _cuda.TensorMaxPool(_data, _rows, _columns, _depth, 1, filterWidth, filterHeight, xStride, yStride, saveIndices);
 			var ret = new Cuda3DTensor(_cuda, maxPool.Rows, maxPool.Columns, _depth, maxPool.Data, true);
-			var indices = saveIndices ? new Cuda3DTensor(_cuda, maxPool.Rows, maxPool.Columns, _depth, maxPool.Indices, true) : null;
+			var indices = maxPool.Indices != null ? new Cuda3DTensor(_cuda, maxPool.Rows, maxPool.Columns, _depth, maxPool.Indices, true) : null;
 			return (ret, indices);
 		}
 

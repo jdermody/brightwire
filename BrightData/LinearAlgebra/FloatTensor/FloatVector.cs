@@ -98,7 +98,7 @@ namespace BrightData.LinearAlgebra.FloatTensor
             throw new NotImplementedException();
         }
 
-        public IFloatVector CosineDistance(IFloatVector[] data, ref float[] dataNorm)
+        public IFloatVector CosineDistance(IFloatVector[] data, ref float[]? dataNorm)
         {
             throw new NotImplementedException();
         }

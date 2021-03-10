@@ -61,7 +61,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
             var (output, index) = tensor.MaxPool(_filterWidth, _filterHeight, _xStride, _yStride, true);
 
             var graphData = new Tensor4DGraphData(output);
-            return (this, graphData, () => new Backpropagation(this, index, tensor.ColumnCount, tensor.RowCount, output.ColumnCount, output.RowCount, output.Depth, _filterWidth, _filterHeight, _xStride, _yStride));
+            return (this, graphData, () => new Backpropagation(this, index!, tensor.ColumnCount, tensor.RowCount, output.ColumnCount, output.RowCount, output.Depth, _filterWidth, _filterHeight, _xStride, _yStride));
         }
 
         protected override (string Description, byte[] Data) GetInfo()

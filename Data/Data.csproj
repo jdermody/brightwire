@@ -2,12 +2,29 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="XmlDocumentation.tt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="XmlDocumentation.tt">
+      <LastGenOutput>XmlDocumentation.xml</LastGenOutput>
+      <Generator>TextTemplatingFileGenerator</Generator>
+    </Content>
+  </ItemGroup>
 
   <ItemGroup>
     <None Update="Embeddings.tt">
       <LastGenOutput>Embeddings.cs</LastGenOutput>
       <Generator>TextTemplatingFileGenerator</Generator>
+    </None>
+    <None Update="XmlDocumentation.xml">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>XmlDocumentation.tt</DependentUpon>
     </None>
   </ItemGroup>
 

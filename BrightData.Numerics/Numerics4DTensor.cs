@@ -87,9 +87,9 @@ namespace BrightData.Numerics
             return new Numerics4DTensor(Context, ret);
         }
 
-        public (I4DFloatTensor Result, I4DFloatTensor Indices) MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices)
+        public (I4DFloatTensor Result, I4DFloatTensor? Indices) MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices)
         {
-            IIndexable3DFloatTensor[] indexList = saveIndices 
+            IIndexable3DFloatTensor[]? indexList = saveIndices 
                 ? new IIndexable3DFloatTensor[Count]
                 : null;
             var ret = new IIndexable3DFloatTensor[Count];
@@ -97,10 +97,10 @@ namespace BrightData.Numerics
             for (uint i = 0; i < Count; i++) {
                 var (result, indices) = GetTensorAt(i).MaxPool(filterWidth, filterHeight, xStride, yStride, saveIndices);
                 ret[i] = result.AsIndexable();
-                if(indexList != null)
+                if(indexList != null && indices != null)
                     indexList[i] = indices.AsIndexable();
             }
-            return (new Numerics4DTensor(Context, ret), saveIndices ? new Numerics4DTensor(Context, indexList) : null);
+            return (new Numerics4DTensor(Context, ret), indexList != null ? new Numerics4DTensor(Context, indexList) : null);
         }
 
         public I4DFloatTensor ReverseMaxPool(I4DFloatTensor indices, uint outputRows, uint outputColumns, uint filterWidth, uint filterHeight, uint xStride, uint yStride)
@@ -167,7 +167,7 @@ namespace BrightData.Numerics
 
         public IFloatVector ColumnSums()
         {
-            IFloatVector ret = null;
+            IFloatVector? ret = null;
             for (uint i = 0; i < Count; i++) {
                 var tensorAsMatrix = GetTensorAt(i).ReshapeAsMatrix();
                 var columnSums = tensorAsMatrix.ColumnSums();
@@ -176,7 +176,7 @@ namespace BrightData.Numerics
                 else
                     ret.AddInPlace(columnSums);
             }
-            return ret;
+            return ret ?? Context.LinearAlgebraProvider.CreateVector(ColumnCount);
         }
 
 	    public float this[uint row, uint column, uint depth, uint index] {

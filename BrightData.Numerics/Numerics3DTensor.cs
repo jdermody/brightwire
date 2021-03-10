@@ -155,7 +155,7 @@ namespace BrightData.Numerics
 			return new Numerics4DTensor(Context, tensorList);
 		}
 
-		public (I3DFloatTensor Result, I3DFloatTensor Indices) MaxPool(
+		public (I3DFloatTensor Result, I3DFloatTensor? Indices) MaxPool(
             uint filterWidth, 
             uint filterHeight, 
             uint xStride,
@@ -190,15 +190,15 @@ namespace BrightData.Numerics
 		                }
 	                }
 
-					if(saveIndices)
+					if(indices != null)
 						indices[targetY, targetX] = bestOffset;
                     layer[targetY, targetX] = maxVal;
                 }
                 matrixList[k] = layer;
-                if(indexList != null)
+                if(indexList != null && indices != null)
 	                indexList[k] = indices;
             }
-            return (new Numerics3DTensor(Context, matrixList), saveIndices ? new Numerics3DTensor(Context, indexList) : null);
+            return (new Numerics3DTensor(Context, matrixList), indexList != null ? new Numerics3DTensor(Context, indexList) : null);
         }
 
         public I3DFloatTensor ReverseMaxPool(

@@ -11,7 +11,9 @@ namespace BrightWire.UnitTests.Helper
     {
         public List<(ExecutionHistory, IBackpropagate)> Forward { get; } = new List<(ExecutionHistory, IBackpropagate)>();
 
+#pragma warning disable 8618
         public TestingContext(ILinearAlgebraProvider lap)
+#pragma warning restore 8618
         {
             LinearAlgebraProvider = lap;
             LearningContext = new MockLearningContext();

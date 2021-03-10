@@ -8,7 +8,6 @@ using BrightData.Cuda;
 using BrightData.Numerics;
 using BrightWire;
 using ExampleCode.DataSet;
-using ExampleCode.DataTableTrainers;
 // ReSharper disable once RedundantUsingDirective
 using MathNet.Numerics;
 

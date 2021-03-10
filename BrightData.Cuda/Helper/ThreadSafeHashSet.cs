@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 
@@ -27,7 +28,7 @@ namespace BrightData.Cuda.Helper
         {
             if (disposing)
             {
-	            _lock?.Dispose();
+	            _lock.Dispose();
             }
         }
 
@@ -101,7 +102,7 @@ namespace BrightData.Cuda.Helper
             }
         }
 
-        public bool TryPop(out T ret)
+        public bool TryPop([MaybeNullWhen(false)]out T ret)
         {
             _lock.EnterWriteLock();
             try {
@@ -109,6 +110,7 @@ namespace BrightData.Cuda.Helper
                     ret = _hashSet.First();
                     return _hashSet.Remove(ret);
                 }
+
                 ret = default;
                 return false;
             }

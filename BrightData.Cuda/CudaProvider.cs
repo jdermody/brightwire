@@ -283,9 +283,9 @@ namespace BrightData.Cuda
 				string errorName = "", errorDesc = "";
 				IntPtr errorNamePtr = IntPtr.Zero, errorDescPtr = IntPtr.Zero;
 				if (DriverAPINativeMethods.ErrorHandling.cuGetErrorName(result, ref errorNamePtr) == CUResult.Success && errorNamePtr != IntPtr.Zero)
-					errorName = Marshal.PtrToStringUni(errorNamePtr);
+					errorName = Marshal.PtrToStringUni(errorNamePtr) ?? "Unknown error";
 				if(DriverAPINativeMethods.ErrorHandling.cuGetErrorString(result, ref errorDescPtr) == CUResult.Success && errorDescPtr != IntPtr.Zero)
-					errorDesc = Marshal.PtrToStringUni(errorDescPtr);
+					errorDesc = Marshal.PtrToStringUni(errorDescPtr) ?? "??";
 					
 				throw new Exception($"{result}: {errorName}-{errorDesc}");
 			}
@@ -824,7 +824,7 @@ namespace BrightData.Cuda
 			Invoke(_rotateInPlace, size, a.DevicePointer, size, blockCount, blockSize);
 		}
 
-		internal (IDeviceMemoryPtr Data, IDeviceMemoryPtr Indices, uint Rows, uint Columns) TensorMaxPool(
+		internal (IDeviceMemoryPtr Data, IDeviceMemoryPtr? Indices, uint Rows, uint Columns) TensorMaxPool(
 			IDeviceMemoryPtr tensor, 
 			uint rows, 
 			uint columns, 
@@ -849,7 +849,7 @@ namespace BrightData.Cuda
                 size,
                 tensor.DevicePointer,
                 ret.DevicePointer,
-                saveIndices ? indices.DevicePointer : new CUdeviceptr(),
+                indices != null ? indices.DevicePointer : new CUdeviceptr(),
                 convolutionData.X.DevicePointer,
                 convolutionData.Y.DevicePointer,
                 convolutions.Count,

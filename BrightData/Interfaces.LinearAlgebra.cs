@@ -378,7 +378,7 @@ namespace BrightData
         /// <param name="data">The list of target vectors</param>
         /// <param name="dataNorm">A buffer to hold the norms of the target vectors</param>
         /// <returns>A vector in which each element n is the cosine distance between the current and the nth target vector</returns>
-        IFloatVector CosineDistance(IFloatVector[] data, ref float[] dataNorm);
+        IFloatVector CosineDistance(IFloatVector[] data, ref float[]? dataNorm);
 
         /// <summary>
         /// Returns a vector (without in place modification) in which each element is the natural log of each element in the current vector
@@ -995,7 +995,7 @@ namespace BrightData
         /// <param name="yStride">Filter y stride</param>
         /// <param name="saveIndices">True to save the indices for a future reverse max pool operation</param>
         /// <returns>A max pooled tensor</returns>
-        (I3DFloatTensor Result, I3DFloatTensor Indices) MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices);
+        (I3DFloatTensor Result, I3DFloatTensor? Indices) MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices);
 
         /// <summary>
         /// Reverses a max pooling operation
@@ -1143,7 +1143,7 @@ namespace BrightData
         /// <param name="xStride">Filter x stride</param>
         /// <param name="yStride">Filter y stride</param>
         /// <param name="saveIndices">True to save the indices for a future reverse pool operation</param>
-        (I4DFloatTensor Result, I4DFloatTensor Indices) MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices);
+        (I4DFloatTensor Result, I4DFloatTensor? Indices) MaxPool(uint filterWidth, uint filterHeight, uint xStride, uint yStride, bool saveIndices);
 
         /// <summary>
         /// Reverses a max pool operation

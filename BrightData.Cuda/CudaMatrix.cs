@@ -73,7 +73,7 @@ namespace BrightData.Cuda
 #endif
         }
 
-        public override string ToString()
+        public override string? ToString()
         {
             return AsIndexable().ToString();
         }
@@ -418,7 +418,7 @@ namespace BrightData.Cuda
             var rowOutput = new List<CudaVector>();
             for (uint i = 0; i < _rows; i++) {
                 using var row = Row(i);
-                rowOutput.Add(row.Softmax() as CudaVector);
+                rowOutput.Add((CudaVector)row.Softmax());
             }
             var ret = _cuda.Allocate(_rows * _columns);
             for (var i = 0; i < _rows; i++) {
