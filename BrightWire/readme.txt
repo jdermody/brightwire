@@ -8,21 +8,18 @@
 
 
 Bright Wire - http://www.jackdermody.net/brightwire
-Copyright (c) 2016-2018 Jack Dermody - Open Source MIT License
+Copyright (c) 2016-2021 Jack Dermody - Open Source MIT License
 
 
 Bright Wire is an extensible machine learning library for .NET with GPU support (via CUDA).
 
 Bright Wire uses a directed graph based system of nodes and "wires" to create learning algorithms composed of modular components.
 
-Data flows into the graph from data tables and flows down wires. Nodes alter and reroute the data to each of their connected node(s).
+Data flows into the graph from data tables and flows through wires into nodes.
 
-Nodes adjust their state (and future behaviour) based on the backpropagation of error signals that flow backwards up the graph.
+Nodes can adjust their parameters based on the forward and backward (backpropagation) signals that flow through the graph.
 
-Nodes can perform actions (such as copying memory into named slots), transform their input signal, combine multiple input signals, and propagate signals to
+Nodes can also perform actions (such as copying memory into named slots), transform the input signal, combine multiple input signals, and propagate signals to
 any number of connected nodes.
 
-While this might all sound intimidatingly complex, in practice the overall modular design leads to a simpler machine learning experience 
-as Bright Wire comes with a large number of prebuilt nodes that can be snapped together like LEGO bricks.
-
-It is also easy to extend Bright Wire with additional nodes to tweak existing behaviour or implement new machine learning algorithms entirely.
+It possible to combine existing predefined node types into novel graph architectures, and to extend Bright Wire with additional node types to implement new machine learning algorithms entirely.
