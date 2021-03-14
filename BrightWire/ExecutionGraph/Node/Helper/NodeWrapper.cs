@@ -31,12 +31,6 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             public IMiniBatchSequence BatchSequence => _context.BatchSequence;
             public IGraphData? ErrorSignal => _context.ErrorSignal;
 
-            public void AddForward(ExecutionHistory action, Func<IBackpropagate>? callback)
-            {
-                
-                
-            }
-
             public void AddForwardHistory(NodeBase source, IGraphData data, Func<IBackpropagate>? callback, params NodeBase[] prev)
             {
                 // TODO: wrap the backpropagation?

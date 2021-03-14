@@ -849,7 +849,7 @@ namespace BrightData.Cuda
                 size,
                 tensor.DevicePointer,
                 ret.DevicePointer,
-                indices != null ? indices.DevicePointer : new CUdeviceptr(),
+                indices?.DevicePointer ?? new CUdeviceptr(),
                 convolutionData.X.DevicePointer,
                 convolutionData.Y.DevicePointer,
                 convolutions.Count,

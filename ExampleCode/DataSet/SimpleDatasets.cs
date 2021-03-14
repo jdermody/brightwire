@@ -175,7 +175,7 @@ namespace ExampleCode.DataSet
                 builder.AddRow(summary, output);
             }
 
-            return new SequenceToSequenceTrainer(context, grammar.DictionarySize, builder.BuildRowOriented());
+            return new SequenceToSequenceTrainer(context, builder.BuildRowOriented());
         }
 
         public static SequenceToSequenceTrainer ManyToOne(this IBrightDataContext context)
@@ -199,7 +199,7 @@ namespace ExampleCode.DataSet
                 var target = grammar.Encode(charSet.Select(ch2 => (ch2, 1f)));
                 builder.AddRow(context.CreateMatrixFromRows(rows), target);
             }
-            return new SequenceToSequenceTrainer(context, grammar.DictionarySize, builder.BuildRowOriented());
+            return new SequenceToSequenceTrainer(context, builder.BuildRowOriented());
         }
 
         static string Reverse(string str) => new string(str.Reverse().ToArray());
@@ -220,7 +220,7 @@ namespace ExampleCode.DataSet
                 builder.AddRow(encodedSequence, reversedSequence);
             }
 
-            return new SequenceToSequenceTrainer(context, grammar.DictionarySize, builder.BuildRowOriented());
+            return new SequenceToSequenceTrainer(context, builder.BuildRowOriented());
         }
 
         public static LinearTrainer SimpleLinear(this IBrightDataContext context)

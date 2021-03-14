@@ -9,7 +9,7 @@ using BrightWire.ExecutionGraph.Node.Input;
 
 namespace BrightWire.ExecutionGraph.Node.Layer
 {
-    class LSTM : NodeBase
+    class Lstm : NodeBase
     {
         uint _inputSize;
         FlowThrough _input;
@@ -18,7 +18,7 @@ namespace BrightWire.ExecutionGraph.Node.Layer
         OneToMany _start;
 
 #pragma warning disable 8618
-        public LSTM(GraphFactory graph, uint inputSize, float[] memory, string? name) : base(name)
+        public Lstm(GraphFactory graph, uint inputSize, float[] memory, string? name) : base(name)
 #pragma warning restore 8618
         {
             Create(graph, inputSize, memory, null);

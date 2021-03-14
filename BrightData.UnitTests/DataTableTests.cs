@@ -213,9 +213,9 @@ namespace BrightData.UnitTests
         public void GroupTable()
         {
             using var table = CreateComplexTable(_context);
-            foreach (var group in table.GroupBy(0)) {
-                group.Table.RowCount.Should().Be(table.RowCount / 2);
-                group.Table.Dispose();
+            foreach (var (_, rowOrientedDataTable) in table.GroupBy(0)) {
+                rowOrientedDataTable.RowCount.Should().Be(table.RowCount / 2);
+                rowOrientedDataTable.Dispose();
             }
         }
 
@@ -393,9 +393,9 @@ namespace BrightData.UnitTests
             var table = builder.BuildRowOriented();
             var folds = table.Fold(4).ToList();
             folds.Count.Should().Be(4);
-            foreach (var fold in folds) {
-                fold.Training.RowCount.Should().Be(3);
-                fold.Validation.RowCount.Should().Be(1);
+            foreach (var (training, validation) in folds) {
+                training.RowCount.Should().Be(3);
+                validation.RowCount.Should().Be(1);
             }
         }
 
@@ -452,7 +452,6 @@ namespace BrightData.UnitTests
                 builder.AddRow("rabbit", "rabbit");
             var table = builder.BuildRowOriented();
             var confusionMatrix = table.AsConvertible().CreateConfusionMatrix(1, 0);
-            var xml = confusionMatrix.AsXml;
 
             confusionMatrix.GetCount("cat", "dog").Should().Be(CAT_DOG);
             confusionMatrix.GetCount("dog", "rabbit").Should().Be(DOG_RABBIT);

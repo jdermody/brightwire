@@ -216,7 +216,7 @@ namespace BrightData.Cuda
                 else
                     ret.AddInPlace(columnSums);
             }
-            return ret ?? LinearAlgebraProvider.CreateVector(ColumnCount);;
+            return ret ?? LinearAlgebraProvider.CreateVector(ColumnCount);
         }
     }
 }

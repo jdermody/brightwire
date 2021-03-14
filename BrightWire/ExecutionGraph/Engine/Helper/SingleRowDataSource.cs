@@ -92,8 +92,6 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             return new SingleRowMiniBatch(this, new MatrixGraphData(data.ReshapeAsRowMatrix()), IsSequential, _sequenceType, _sequenceIndex);
         }
 
-        public IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rows) => Get(rows);
-
         public uint[][] GetSequentialBatches()
         {
             return new[] {

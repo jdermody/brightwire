@@ -81,8 +81,8 @@ namespace BrightWire.ExecutionGraph.Engine
                         foreach (var group in groups)
                             group.Key(group.Select(d => d.Context).ToArray());
 
-                        foreach (var item in additionalContext)
-                            yield return item.Context;
+                        foreach (var (context, _) in additionalContext)
+                            yield return context;
                     }
 
                     batch.Reset();

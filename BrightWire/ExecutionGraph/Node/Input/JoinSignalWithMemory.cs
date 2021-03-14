@@ -20,9 +20,9 @@ namespace BrightWire.ExecutionGraph.Node.Input
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
             {
                 var matrix = errorSignal.GetMatrix();
-                var parts = matrix.SplitAtColumn(matrix.ColumnCount - _memorySize);
-                parts.Right.Dispose();
-                return errorSignal.ReplaceWith(parts.Left);
+                var (left, right) = matrix.SplitAtColumn(matrix.ColumnCount - _memorySize);
+                right.Dispose();
+                return errorSignal.ReplaceWith(left);
             }
         }
         string _slotName;

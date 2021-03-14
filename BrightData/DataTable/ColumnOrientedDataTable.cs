@@ -341,14 +341,14 @@ namespace BrightData.DataTable
             var reinterpreted = columns.SelectMany(c => c.ColumnIndices.Select(i => (Column: c, Index: i)))
                 .ToDictionary(d => d.Index, d => d.Column);
 
-            foreach (var column in _columns)
+            foreach (var (info, segment) in _columns)
             {
-                if (reinterpreted.TryGetValue(column.Info.Index, out var rc))
+                if (reinterpreted.TryGetValue(info.Index, out var rc))
                 {
-                    if (column.Info.Index == rc.ColumnIndices[0])
+                    if (info.Index == rc.ColumnIndices[0])
                         newColumns.AddRange(rc.GetNewColumns(Context, tempStream, (uint)newColumns.Count, rc.ColumnIndices.Select(i => _columns[i]).ToArray()));
                 }else
-                    newColumns.Add(column.Segment);
+                    newColumns.Add(segment);
             }
 
             return newColumns.BuildColumnOrientedTable(MetaData, Context, RowCount, filePath);

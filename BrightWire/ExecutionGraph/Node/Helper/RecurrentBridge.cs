@@ -11,11 +11,8 @@ namespace BrightWire.ExecutionGraph.Node.Helper
     {
         class Backpropagation : SingleBackpropagationBase<RecurrentBridge>
         {
-            readonly MemoryFeeder _memoryFeeder;
-
-            public Backpropagation(RecurrentBridge source, MemoryFeeder memoryFeeder) : base(source)
+            public Backpropagation(RecurrentBridge source) : base(source)
             {
-                _memoryFeeder = memoryFeeder;
             }
 
             protected override IGraphData Backpropagate(IGraphData errorSignal, IGraphSequenceContext context)
@@ -48,7 +45,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             context.ExecutionContext.SetMemory(memoryFeeder.Id, hiddenForward.Data.GetMatrix());
             memoryFeeder.LoadNextFromMemory = true;
 
-            return (this, signal, () => new Backpropagation(this, memoryFeeder));
+            return (this, signal, () => new Backpropagation(this));
         }
 
         protected override (string Description, byte[] Data) GetInfo()

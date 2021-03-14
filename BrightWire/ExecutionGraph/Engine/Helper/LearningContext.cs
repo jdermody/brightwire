@@ -48,14 +48,6 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             if (!_updatesDisabled.Contains(fromNode)) {
                 _layerMatrixUpdate.Add((fromNode, update, updater));
             }
-
-            //var groups = _layerMatrixUpdate.Where(d => d.Node == fromNode).GroupBy(d => (d.Node, d.Error.RowCount));
-            //foreach (var group in groups) {
-            //    var count = group.Count();
-            //    if (count > 1) {
-            //        int i = 0;
-            //    }
-            //}
         }
 
         public void StoreUpdate(NodeBase fromNode, IFloatVector update, Action<IFloatVector> updater)
@@ -65,39 +57,9 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
             }
         }
 
-        void Update<T>(
-            List<(NodeBase Node, T Error, Action<T> Updater)> updates, 
-            Func<T, uint> getSize,
-            Func<T, T> cloner, 
-            Action<T, T> addInPlace, 
-            Action<int, T> divider
-        ) where T: class
+        void Update<T>(List<(NodeBase Node, T Error, Action<T> Updater)> updates) where T: class
         {
-            //foreach (var nodeGroup in updates.GroupBy(d => (d.Node, getSize(d.Error)))) {
-            //    T? update = null;
-            //    Action<T>? updater = null;
-            //    int count = 0;
-            //    foreach (var item in nodeGroup) {
-            //        if (update == null) {
-            //            updater = item.Updater;
-            //            update = item.Error;
-            //            count = 1;
-            //        }
-            //        else {
-            //            if (count == 1)
-            //                update = cloner(update!);
-            //            addInPlace(update, item.Error);
-            //            ++count;
-            //        }
-            //    }
-
-            //    if (count > 1)
-            //        divider(count, update!);
-            //    if (update != null)
-            //        updater!(update);
-            //}
-
-            foreach(var (fromNode, error, updater) in _layerMatrixUpdate)
+            foreach(var (fromNode, error, updater) in updates)
                 updater(error);
             updates.Clear();
         }
@@ -106,8 +68,8 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         {
             if(_deferredBackpropagation.Any())
                 BackpropagateThroughTime(null);
-            Update(_layerMatrixUpdate, m => m.RowCount, m => m.Clone(), (m, m2) => m.AddInPlace(m2), (m, c) => c.Multiply(1f / m));
-            Update(_layerVectorUpdate, m => m.Count, m => m.Clone(), (m, m2) => m.AddInPlace(m2), (m, c) => c.Multiply(1f / m));
+            Update(_layerMatrixUpdate);
+            Update(_layerVectorUpdate);
         }
 
         public void StartEpoch()

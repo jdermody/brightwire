@@ -122,7 +122,7 @@ namespace BrightData.Transformation
         {
             readonly uint _maxSize;
 
-            public IndexListVectoriser(ISingleTypeTableSegment column) : base(column.MetaData.GetIndex(), ((IDataTableSegment<IndexList>)column).EnumerateTyped().GetEnumerator()) { }
+            IndexListVectoriser(ISingleTypeTableSegment column) : base(column.MetaData.GetIndex(), ((IDataTableSegment<IndexList>)column).EnumerateTyped().GetEnumerator()) { }
             public IndexListVectoriser(uint maxSize, ISingleTypeTableSegment column) : this(column)
             {
                 _maxSize = maxSize;

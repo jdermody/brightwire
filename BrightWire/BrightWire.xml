@@ -624,12 +624,11 @@
             <param name="channel">Output channel</param>
             <param name="name">Optional name to give the node</param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.GraphFactory.Connect(BrightWire.IGraphTrainingEngine,System.UInt32)">
+        <member name="M:BrightWire.ExecutionGraph.GraphFactory.Connect(BrightWire.IGraphTrainingEngine)">
             <summary>
             Builds a new wire from the engine's input node
             </summary>
             <param name="engine">Graph engine to build with</param>
-            <param name="inputIndex">Input index to connect to</param>
             <returns></returns>
         </member>
         <member name="M:BrightWire.ExecutionGraph.GraphFactory.Connect(System.UInt32,BrightWire.ExecutionGraph.Node.NodeBase)">
@@ -1820,13 +1819,12 @@
             <param name="depth">Initial input depth</param>
             <param name="node">The node to build from</param>
         </member>
-        <member name="M:BrightWire.ExecutionGraph.WireBuilder.#ctor(BrightWire.ExecutionGraph.GraphFactory,BrightWire.IGraphTrainingEngine,System.UInt32)">
+        <member name="M:BrightWire.ExecutionGraph.WireBuilder.#ctor(BrightWire.ExecutionGraph.GraphFactory,BrightWire.IGraphTrainingEngine)">
             <summary>
             Connects new nodes to the engine output node
             </summary>
             <param name="factory">Graph factory</param>
             <param name="engine">Graph engine</param>
-            <param name="inputIndex">Input index to connect</param>
         </member>
         <member name="P:BrightWire.ExecutionGraph.WireBuilder.CurrentSize">
             <summary>
@@ -1929,7 +1927,6 @@
             </summary>
             <param name="fromName">Name of the first recurrent node</param>
             <param name="toName">Name of the second recurrent node</param>
-            <param name="name">Optional name to give the node</param>
             <param name="name">Optional name to give the node</param>
             <returns></returns>
         </member>

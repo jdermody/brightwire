@@ -162,9 +162,7 @@ namespace BrightData.Transformation
 
         static DateTime ParseDate(string str)
         {
-            DateTime ret;
-
-            if (DateTime.TryParse(str, out ret))
+            if (DateTime.TryParse(str, out var ret))
                 return ret;
 
             if (DateTime.TryParse(str, new DateTimeFormatInfo(), DateTimeStyles.AllowWhiteSpaces, out ret))

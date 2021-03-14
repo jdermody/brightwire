@@ -9,12 +9,10 @@ namespace ExampleCode.DataTableTrainers
     internal class SequenceToSequenceTrainer : DataTableTrainer
     {
         readonly IBrightDataContext _context;
-        readonly uint _dictionarySize;
 
-        public SequenceToSequenceTrainer(IBrightDataContext context, uint dictionarySize, IRowOrientedDataTable dataTable) : base(dataTable)
+        public SequenceToSequenceTrainer(IBrightDataContext context, IRowOrientedDataTable dataTable) : base(dataTable)
         {
             _context = context;
-            _dictionarySize = dictionarySize;
         }
 
         public void TrainLstm()
@@ -23,7 +21,7 @@ namespace ExampleCode.DataTableTrainers
             var errorMetric = graph.ErrorMetric.BinaryClassification;
 
             // create the property set
-            var propertySet = graph.CurrentPropertySet
+            graph.CurrentPropertySet
                 .Use(graph.GradientDescent.RmsProp)
                 .Use(graph.WeightInitialisation.Xavier)
             ;
@@ -108,7 +106,6 @@ namespace ExampleCode.DataTableTrainers
             graph.Connect(engine)
                 .AddGru(HIDDEN_LAYER_SIZE, "encoder")
                 .AddSequenceToSequencePivot("encoder", "decoder")
-                .AddRecurrentBridge("encoder", "decoder")
                 .AddGru(HIDDEN_LAYER_SIZE, "decoder")
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
                 .Add(graph.SoftMaxActivation())

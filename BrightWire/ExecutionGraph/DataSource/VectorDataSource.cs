@@ -39,8 +39,6 @@ namespace BrightWire.ExecutionGraph.DataSource
             return new MiniBatch(rows, this, new MatrixGraphData(input), null);
         }
 
-        public IMiniBatch Get(IGraphExecutionContext executionContext, uint[] rows) => Get(rows);
-
         public uint[][] GetSequentialBatches()
         {
             return new[] {

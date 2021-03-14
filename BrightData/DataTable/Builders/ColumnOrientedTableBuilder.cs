@@ -11,14 +11,12 @@ namespace BrightData.DataTable.Builders
     /// </summary>
     internal class ColumnOrientedTableBuilder : IDisposable
     {
-        readonly string? _filePath;
         readonly Stream _stream;
         readonly BinaryWriter _writer;
         bool _hasClosedStream = false;
 
         public ColumnOrientedTableBuilder(string? filePath = null)
         {
-            _filePath = filePath;
             _stream = filePath != null 
                 ? (Stream)new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite) 
                 : new MemoryStream();

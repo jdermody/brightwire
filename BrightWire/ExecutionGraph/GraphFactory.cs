@@ -451,7 +451,7 @@ namespace BrightWire.ExecutionGraph
 		/// <returns></returns>
 		public NodeBase CreateLstm(uint inputSize, uint memorySize, string? name = null)
 		{
-            return new LSTM(this, inputSize, new float[memorySize], name);
+            return new Lstm(this, inputSize, new float[memorySize], name);
 			//return new LongShortTermMemory(this, inputSize, new float[memorySize], name);
 		}
 
@@ -480,11 +480,10 @@ namespace BrightWire.ExecutionGraph
 		/// Builds a new wire from the engine's input node
 		/// </summary>
 		/// <param name="engine">Graph engine to build with</param>
-		/// <param name="inputIndex">Input index to connect to</param>
-		/// <returns></returns>
-		public WireBuilder Connect(IGraphTrainingEngine engine, uint inputIndex = 0)
+        /// <returns></returns>
+		public WireBuilder Connect(IGraphTrainingEngine engine)
 		{
-			return new WireBuilder(this, engine, inputIndex);
+			return new WireBuilder(this, engine);
 		}
 
 		/// <summary>

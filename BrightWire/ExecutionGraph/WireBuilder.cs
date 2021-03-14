@@ -55,8 +55,7 @@ namespace BrightWire.ExecutionGraph
         /// </summary>
         /// <param name="factory">Graph factory</param>
         /// <param name="engine">Graph engine</param>
-        /// <param name="inputIndex">Input index to connect</param>
-        public WireBuilder(GraphFactory factory, IGraphTrainingEngine engine, uint inputIndex = 0) 
+        public WireBuilder(GraphFactory factory, IGraphTrainingEngine engine) 
             : this(factory, engine.DataSource?.InputSize ?? throw new ArgumentException("No data source"), engine.Start)
         {
             if(engine.DataSource is IVolumeDataSource volumeDataSource) {
@@ -230,7 +229,6 @@ namespace BrightWire.ExecutionGraph
         /// </summary>
         /// <param name="fromName">Name of the first recurrent node</param>
         /// <param name="toName">Name of the second recurrent node</param>
-        /// <param name="name">Optional name to give the node</param>
         /// <param name="name">Optional name to give the node</param>
         /// <returns></returns>
         public WireBuilder AddRecurrentBridge(string fromName, string toName, string? name = null)
