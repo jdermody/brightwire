@@ -3,7 +3,7 @@
 namespace BrightData.Converter
 {
     internal class ConvertToLong<T> : ConverterBase<T>, ICanConvert<T, long>
-        where T : struct
+        where T : notnull
     {
         readonly Func<T, long> _converter;
 
@@ -12,6 +12,7 @@ namespace BrightData.Converter
             var typeCode = Type.GetTypeCode(typeof(T));
             _converter = typeCode switch
             {
+                TypeCode.String => FromString,
                 TypeCode.Single => FromSingle,
                 TypeCode.Double => FromDouble,
                 TypeCode.SByte => FromSByte,
@@ -27,6 +28,7 @@ namespace BrightData.Converter
             };
         }
 
+        long FromString(T str) => long.Parse(__refvalue(__makeref(str), string));
         long FromSingle(T data) => System.Convert.ToInt64(GetSingle(data));
         long FromDouble(T data) => System.Convert.ToInt64(GetDouble(data));
         long FromDecimal(T data) => System.Convert.ToInt64(GetDecimal(data));

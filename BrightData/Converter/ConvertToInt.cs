@@ -3,15 +3,15 @@
 namespace BrightData.Converter
 {
     internal class ConvertToInt<T> : ConverterBase<T>, ICanConvert<T, int>
-        where T : struct
+        where T : notnull
     {
         readonly Func<T, int> _converter;
 
         public ConvertToInt(bool throwOnFailure = false) : base(throwOnFailure)
         {
             var typeCode = Type.GetTypeCode(typeof(T));
-            _converter = typeCode switch
-            {
+            _converter = typeCode switch {
+                TypeCode.String => FromString,
                 TypeCode.Single => FromSingle,
                 TypeCode.Double => FromDouble,
                 TypeCode.SByte => FromSByte,
@@ -27,6 +27,7 @@ namespace BrightData.Converter
             };
         }
 
+        int FromString(T str) => int.Parse(__refvalue(__makeref(str), string));
         int FromSingle(T data) => System.Convert.ToInt32(GetSingle(data));
         int FromDouble(T data) => System.Convert.ToInt32(GetDouble(data));
         int FromDecimal(T data) => System.Convert.ToInt32(GetDecimal(data));

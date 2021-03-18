@@ -3,7 +3,7 @@
 namespace BrightData.Converter
 {
     internal class ConvertToSignedByte<T> : ConverterBase<T>, ICanConvert<T, sbyte>
-        where T : struct
+        where T : notnull
     {
         readonly Func<T, sbyte> _converter;
 
@@ -12,6 +12,7 @@ namespace BrightData.Converter
             var typeCode = Type.GetTypeCode(typeof(T));
             _converter = typeCode switch
             {
+                TypeCode.String => FromString,
                 TypeCode.Single => FromSingle,
                 TypeCode.Double => FromDouble,
                 TypeCode.SByte => GetSByte,
@@ -27,6 +28,7 @@ namespace BrightData.Converter
             };
         }
 
+        sbyte FromString(T str) => sbyte.Parse(__refvalue(__makeref(str), string));
         sbyte FromSingle(T data) => System.Convert.ToSByte(GetSingle(data));
         sbyte FromDouble(T data) => System.Convert.ToSByte(GetDouble(data));
         sbyte FromDecimal(T data) => System.Convert.ToSByte(GetDecimal(data));
