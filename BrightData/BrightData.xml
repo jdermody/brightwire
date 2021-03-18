@@ -403,6 +403,15 @@
             <param name="buffer">Buffer to write</param>
             <param name="stream">Stream to write to</param>
         </member>
+        <member name="M:BrightData.Buffer.EncodedStreamWriter.GetWriter``1(BrightData.ICanEnumerate{``0},System.Boolean)">
+            <summary>
+            Returns an writer that can write the buffer to a binary writer
+            </summary>
+            <param name="buffer">Buffer to write</param>
+            <param name="shouldEncode">If the values should be encoded</param>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
+        </member>
         <member name="T:BrightData.Buffer.GrowableSegment`1">
             <summary>
             A single type data table segment that can grow in size
@@ -429,6 +438,18 @@
             Hybrid buffers write to disk after their in memory cache is exhausted
             </summary>
             <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:BrightData.Buffer.InMemorySegment`1.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Buffer.InMemorySegment`1.MetaData">
+            <inheritdoc />
+        </member>
+        <member name="P:BrightData.Buffer.InMemorySegment`1.SingleType">
+            <inheritdoc />
+        </member>
+        <member name="M:BrightData.Buffer.InMemorySegment`1.WriteTo(System.IO.BinaryWriter)">
+            <inheritdoc />
         </member>
         <member name="T:BrightData.Buffer.StaticBuffers">
             <summary>
@@ -1407,9 +1428,23 @@
             <param name="maxCount">Maximum number of distinct items to track</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ParseCsv(BrightData.IBrightDataContext,System.IO.StreamReader,System.Boolean,System.Char,System.String,System.Boolean,System.Int32,System.UInt32,System.UInt16,System.String)">
+        <member name="M:BrightData.ExtensionMethods.ParseCsv(BrightData.IBrightDataContext,System.IO.StreamReader,System.Boolean,System.Char,System.Boolean,System.Int32,System.UInt16)">
             <summary>
-            Parse CSV into a column oriented data table
+            Parse CSV in memory
+            </summary>
+            <param name="context"></param>
+            <param name="reader"></param>
+            <param name="hasHeader"></param>
+            <param name="delimiter"></param>
+            <param name="writeProgress"></param>
+            <param name="maxRows"></param>
+            <param name="maxDistinct"></param>
+            <returns></returns>
+            <exception cref="T:System.Exception"></exception>
+        </member>
+        <member name="M:BrightData.ExtensionMethods.ParseLargeCsv(BrightData.IBrightDataContext,System.IO.StreamReader,System.Boolean,System.Char,System.String,System.Boolean,System.Int32,System.UInt32,System.UInt16,System.String)">
+            <summary>
+            Parse CSV into a column oriented data table using hybrid buffers
             </summary>
             <param name="context">Bright data context</param>
             <param name="reader">CSV</param>

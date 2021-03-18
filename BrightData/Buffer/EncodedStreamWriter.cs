@@ -22,18 +22,25 @@ namespace BrightData.Buffer
         /// <param name="stream">Stream to write to</param>
         public static void CopyTo<T>(IHybridBuffer<T> buffer, Stream stream) where T : notnull
         {
-            var writer = GetWriter(buffer);
+            var shouldEncode = buffer.NumDistinct.HasValue && buffer.NumDistinct.Value < buffer.Size / 2;
+            var writer = GetWriter(buffer, shouldEncode);
             using var binaryWriter = new BinaryWriter(stream, Encoding.UTF8, true);
             writer.WriteTo(binaryWriter);
         }
 
-        static ICanWriteToBinaryWriter GetWriter<T>(IHybridBuffer<T> buffer) where T : notnull
+        /// <summary>
+        /// Returns an writer that can write the buffer to a binary writer
+        /// </summary>
+        /// <param name="buffer">Buffer to write</param>
+        /// <param name="shouldEncode">If the values should be encoded</param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static ICanWriteToBinaryWriter GetWriter<T>(ICanEnumerate<T> buffer, bool shouldEncode) where T : notnull
         {
             var typeOfT = typeof(T);
-            var shouldEncode = buffer.NumDistinct.HasValue && buffer.NumDistinct.Value < buffer.Size / 2;
 
             if (typeOfT == typeof(string)) {
-                var stringBuffer = (IHybridBuffer<string>)buffer;
+                var stringBuffer = (ICanEnumerate<string>)buffer;
                 return shouldEncode
                     ? (ICanWriteToBinaryWriter)new StringEncoder(stringBuffer)
                     : new StringWriter(stringBuffer);
@@ -50,9 +57,9 @@ namespace BrightData.Buffer
         internal class StringEncoder : ICanWriteToBinaryWriter
         {
             readonly Dictionary<string, ushort> _table = new Dictionary<string, ushort>();
-            readonly IHybridBuffer<string> _buffer;
+            readonly ICanEnumerate<string> _buffer;
 
-            public StringEncoder(IHybridBuffer<string> buffer)
+            public StringEncoder(ICanEnumerate<string> buffer)
             {
                 _buffer = buffer;
 
@@ -96,9 +103,9 @@ namespace BrightData.Buffer
         internal class StructEncoder<T> : ICanWriteToBinaryWriter where T : struct
         {
             readonly Dictionary<T, ushort> _table = new Dictionary<T, ushort>();
-            readonly IHybridBuffer<T> _buffer;
+            readonly ICanEnumerate<T> _buffer;
 
-            public StructEncoder(IHybridBuffer<T> buffer)
+            public StructEncoder(ICanEnumerate<T> buffer)
             {
                 _buffer = buffer;
 
@@ -142,9 +149,9 @@ namespace BrightData.Buffer
         internal class ObjectWriter<T> : ICanWriteToBinaryWriter
             where T : ICanWriteToBinaryWriter
         {
-            readonly IHybridBuffer<T> _buffer;
+            readonly ICanEnumerate<T> _buffer;
 
-            public ObjectWriter(IHybridBuffer<T> buffer)
+            public ObjectWriter(ICanEnumerate<T> buffer)
             {
                 _buffer = buffer;
             }
@@ -170,9 +177,9 @@ namespace BrightData.Buffer
 
         internal class StringWriter : ICanWriteToBinaryWriter
         {
-            readonly IHybridBuffer<string> _buffer;
+            readonly ICanEnumerate<string> _buffer;
 
-            public StringWriter(IHybridBuffer<string> buffer)
+            public StringWriter(ICanEnumerate<string> buffer)
             {
                 _buffer = buffer;
             }
@@ -199,9 +206,9 @@ namespace BrightData.Buffer
         internal class StructWriter<T> : ICanWriteToBinaryWriter
             where T : struct
         {
-            readonly IHybridBuffer<T> _buffer;
+            readonly ICanEnumerate<T> _buffer;
 
-            public StructWriter(IHybridBuffer<T> buffer)
+            public StructWriter(ICanEnumerate<T> buffer)
             {
                 _buffer = buffer;
             }

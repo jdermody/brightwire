@@ -354,7 +354,81 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Parse CSV into a column oriented data table
+        /// Parse CSV in memory without writing to disk (for small data sets)
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="reader"></param>
+        /// <param name="hasHeader"></param>
+        /// <param name="delimiter"></param>
+        /// <param name="writeProgress"></param>
+        /// <param name="maxRows"></param>
+        /// <param name="maxDistinct"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public static IColumnOrientedDataTable ParseCsvIntoMemory(this IBrightDataContext context,
+            StreamReader reader,
+            bool hasHeader,
+            char delimiter = ',',
+            bool writeProgress = false,
+            int maxRows = int.MaxValue,
+            ushort maxDistinct = 1024
+        ) {
+            var parser = new CsvParser(reader, delimiter);
+            var columns = new List<InMemorySegment<string>>();
+            var isFirst = hasHeader;
+            uint rowCount = 0;
+
+            // write file metadata
+            var metaData = new MetaData();
+            if (reader.BaseStream is FileStream fs) {
+                metaData.Set(Consts.Name, Path.GetFileName(fs.Name));
+                metaData.Set(Consts.Source, fs.Name);
+            }
+
+            if (writeProgress) {
+                var progress = -1;
+                Console.WriteLine($"Parsing CSV...");
+                parser.OnProgress = p => p.WriteProgress(ref progress);
+                parser.OnComplete = Console.WriteLine;
+            }
+
+            foreach (var row in parser.Parse().Take(maxRows))
+            {
+                var cols = row.Length;
+
+                for (var i = columns.Count; i < cols; i++)
+                    columns.Add(new InMemorySegment<string>(context, ColumnType.String, new MetaData(), maxDistinct));
+
+                for (var i = 0; i < cols; i++) {
+                    var column = columns[i];
+                    var text = row[i];
+                    if (isFirst)
+                        column.MetaData.Set(Consts.Name, text);
+                    else
+                        column.Add(text);
+                }
+
+                if (isFirst)
+                    isFirst = false;
+                else
+                    ++rowCount;
+            }
+
+            var segments = columns.Cast<ISingleTypeTableSegment>().ToList();
+            if (segments.Any(s => s.Size != rowCount))
+                throw new Exception("Columns have irregular sizes");
+
+            if (writeProgress) {
+                Console.WriteLine();
+                Console.WriteLine($"Read {rowCount:N0} lines into {columns.Count:N0} columns");
+                int index = 1;
+                return segments.BuildColumnOrientedTable(metaData, context, rowCount, null, segment => Console.Write($"{index++}/{columns.Count}) {segment.MetaData.GetName()}..."), size => Console.WriteLine($"done ({size:N0} bytes)"));
+            }
+            return segments.BuildColumnOrientedTable(metaData, context, rowCount, null);
+        }
+
+        /// <summary>
+        /// Parse CSV into a column oriented data table using hybrid buffers
         /// </summary>
         /// <param name="context">Bright data context</param>
         /// <param name="reader">CSV</param>
@@ -427,6 +501,7 @@ namespace BrightData
                 throw new Exception("Columns have irregular sizes");
 
             if (writeProgress) {
+                Console.WriteLine();
                 Console.WriteLine($"Read {rowCount:N0} lines into {columns.Count:N0} columns");
                 int index = 1;
                 return segments.BuildColumnOrientedTable(metaData, context, rowCount, fileOutputPath, segment => Console.Write($"{index++}/{columns.Count}) {segment.MetaData.GetName()}..."), size => Console.WriteLine($"done ({size:N0} bytes)"));
@@ -819,7 +894,7 @@ namespace BrightData
             where T : struct
         {
             readonly List<float> _data = new List<float>();
-            readonly ICanConvert<T, float> _converter = StaticConverters.ConvertToFloat<T>();
+            readonly ICanConvert<T, float> _converter = StaticConverters.GetConverterToFloat<T>();
 
             public ColumnReader(uint columnIndex, ColumnType type)
             {

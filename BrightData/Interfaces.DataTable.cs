@@ -574,7 +574,42 @@ namespace BrightData
         /// <summary>
         /// Convert each value to an index within a dictionary
         /// </summary>
-        ToCategoricalIndex
+        ToCategoricalIndex,
+
+        /// <summary>
+        /// Convert to signed byte
+        /// </summary>
+        ToByte,
+
+        /// <summary>
+        /// Convert to short
+        /// </summary>
+        ToShort,
+
+        /// <summary>
+        /// Convert to int
+        /// </summary>
+        ToInt,
+
+        /// <summary>
+        /// Convert to long 
+        /// </summary>
+        ToLong,
+
+        /// <summary>
+        /// Convert to float
+        /// </summary>
+        ToFloat,
+
+        /// <summary>
+        /// Convert to double
+        /// </summary>
+        ToDouble,
+
+        /// <summary>
+        /// Convert to decimal
+        /// </summary>
+        ToDecimal
     }
 
     /// <summary>

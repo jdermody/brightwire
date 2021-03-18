@@ -1,4 +1,5 @@
 ﻿using System;
+using BrightData.Converter;
 using BrightData.Helper;
 
 namespace BrightData.Transformation
@@ -18,8 +19,8 @@ namespace BrightData.Transformation
 
             public NormalizeToFloat(NormalizationType type, IMetaData analysedMetaData)
             {
-                _convertToDouble = (ICanConvert<T, double>) typeof(double).GetConverter<T>();
-                _convertToFloat = (ICanConvert<double, float>)typeof(float).GetConverter<double>();
+                _convertToDouble = StaticConverters.GetConverter<T, double>();
+                _convertToFloat = StaticConverters.GetConverter<double, float>();
                 _normalize = new NormalizeTransformation(type, analysedMetaData);
             }
 
@@ -55,7 +56,7 @@ namespace BrightData.Transformation
 
             public NormalizeToDouble(NormalizationType type, IMetaData analysedMetaData)
             {
-                _convertToDouble = (ICanConvert<T, double>) typeof(double).GetConverter<T>();
+                _convertToDouble = StaticConverters.GetConverter<T, double>();
                 _normalize = new NormalizeTransformation(type, analysedMetaData);
             }
 

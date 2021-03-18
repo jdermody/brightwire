@@ -73,7 +73,7 @@ namespace BrightData.Transformation
         class NumericVectoriser<T> : VectoriserBase<T>
             where T : struct
         {
-            readonly ICanConvert<T, float> _converter = StaticConverters.ConvertToFloat<T>();
+            readonly ICanConvert<T, float> _converter = StaticConverters.GetConverterToFloat<T>();
 
             public NumericVectoriser(ISingleTypeTableSegment column)
                 : base(column.MetaData.GetIndex(), ((IDataTableSegment<T>)column).EnumerateTyped().GetEnumerator())

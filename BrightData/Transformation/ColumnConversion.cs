@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using BrightData.Buffer;
+using BrightData.Converter;
 using BrightData.Helper;
 using BrightData.LinearAlgebra;
 
@@ -37,8 +38,8 @@ namespace BrightData.Transformation
                     metaData.Set(Consts.IsNumeric, true);
             }
 
-            public Type From => typeof(TF);
-            public Type To => typeof(TT);
+            public Type From { get; } = typeof(TF);
+            public Type To { get; } = typeof(TT);
         }
 
         abstract class ConvertViaString<TF, TT> : ITransformColumn<TF, TT> where TF : notnull where TT : notnull
@@ -55,8 +56,8 @@ namespace BrightData.Transformation
             {
                 // nop
             }
-            public Type From => typeof(TF);
-            public Type To => typeof(TT);
+            public Type From { get; } = typeof(TF);
+            public Type To { get; } = typeof(TT);
         }
 
         class AnyToString<T> : ITransformColumn<T, string> where T : notnull
@@ -71,8 +72,8 @@ namespace BrightData.Transformation
             {
                 // nop
             }
-            public Type From => typeof(T);
-            public Type To => typeof(string);
+            public Type From { get; } = typeof(T);
+            public Type To { get; } = typeof(string);
         }
 
         class NumericConverter<TF, TT> : ITransformColumn<TF, TT> where TF : notnull where TT : notnull
@@ -84,8 +85,8 @@ namespace BrightData.Transformation
                 _list = data.GetEnumerator();
             }
 
-            public Type From => typeof(TF);
-            public Type To => typeof(TT);
+            public Type From { get; } = typeof(TF);
+            public Type To { get; } = typeof(TT);
             public bool Convert(TF input, IHybridBuffer<TT> buffer)
             {
                 if (_list.MoveNext()) {
@@ -122,6 +123,29 @@ namespace BrightData.Transformation
 
                 foreach (var category in _categoryIndex.OrderBy(d => d.Value))
                     metaData.Set(Consts.CategoryPrefix + category.Value, category.Key);
+            }
+        }
+
+        class StandardConverter<TF, TT> : ITransformColumn<TF, TT> where TF : notnull where TT : notnull
+        {
+            readonly ICanConvert<TF, TT> _converter;
+
+            public StandardConverter()
+            {
+                _converter = StaticConverters.GetConverter<TF, TT>();
+            }
+
+            public bool Convert(TF input, IHybridBuffer<TT> buffer)
+            {
+                buffer.Add(_converter.Convert(input));
+                return true;
+            }
+
+            public Type From { get; } = typeof(TF);
+            public Type To { get; } = typeof(TT);
+            public void Finalise(IMetaData metaData)
+            {
+                metaData.Set(Consts.IsNumeric, true);
             }
         }
 
@@ -255,6 +279,21 @@ namespace BrightData.Transformation
                     return GenericActivator.Create<ITransformColumn>(converterType, enumerable);
                 }
 
+                case ColumnConversionType.ToByte:
+                    return GetStandardConverter(fromType, ColumnType.Byte);
+                case ColumnConversionType.ToShort:
+                    return GetStandardConverter(fromType, ColumnType.Short);
+                case ColumnConversionType.ToInt:
+                    return GetStandardConverter(fromType, ColumnType.Int);
+                case ColumnConversionType.ToLong:
+                    return GetStandardConverter(fromType, ColumnType.Long);
+                case ColumnConversionType.ToFloat:
+                    return GetStandardConverter(fromType, ColumnType.Float);
+                case ColumnConversionType.ToDouble:
+                    return GetStandardConverter(fromType, ColumnType.Double);
+                case ColumnConversionType.ToDecimal:
+                    return GetStandardConverter(fromType, ColumnType.Decimal);
+
                 // to categorical index
                 case ColumnConversionType.ToCategoricalIndex:
                     return GenericActivator.Create<ITransformColumn>(typeof(CategoricalIndexConverter<>).MakeGenericType(fromType.GetDataType()));
@@ -283,6 +322,12 @@ namespace BrightData.Transformation
                 default:
                     throw new Exception($"Converting from {fromType} to {_toType} is not supported");
             }
+        }
+
+        ITransformColumn GetStandardConverter(ColumnType fromType, ColumnType toType)
+        {
+            var converterType = typeof(StandardConverter<,>).MakeGenericType(fromType.GetDataType(), toType.GetDataType());
+            return GenericActivator.Create<ITransformColumn>(converterType);
         }
 
         IEnumerable GetEnumerableNumbers(ColumnType toType, IEnumerable<double> numbers)

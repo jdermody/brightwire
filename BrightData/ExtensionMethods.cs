@@ -269,28 +269,6 @@ namespace BrightData
         }
 
         /// <summary>
-        /// Creates a type converter
-        /// </summary>
-        /// <param name="toType">Type converter type</param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
-        public static ICanConvert GetConverter<T>(this Type toType) where T : struct
-        {
-            var typeCode = Type.GetTypeCode(toType);
-            return typeCode switch {
-                TypeCode.Single => new ConvertToFloat<T>(),
-                TypeCode.Double => new ConvertToDouble<T>(),
-                TypeCode.SByte => new ConvertToSignedByte<T>(),
-                TypeCode.Int16 => new ConvertToShort<T>(),
-                TypeCode.Int32 => new ConvertToInt<T>(),
-                TypeCode.Int64 => new ConvertToLong<T>(),
-                TypeCode.Decimal => new ConvertToDecimal<T>(),
-                _ => throw new NotImplementedException()
-            };
-        }
-
-        /// <summary>
         /// Generates a range of positive integers
         /// </summary>
         /// <param name="count">Upper bound</param>
