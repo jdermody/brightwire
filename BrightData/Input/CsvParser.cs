@@ -13,6 +13,7 @@ namespace BrightData.Input
         readonly char[] _buffer;
         readonly char _quote;
         readonly List<StringBuilder> _columns = new List<StringBuilder>();
+        readonly Dictionary<int, string[]> _stringBuffers = new Dictionary<int, string[]>();
         int _currIndex;
         bool _inQuote;
 
@@ -80,14 +81,20 @@ namespace BrightData.Input
 
         string[] GetLine()
         {
-            var ret = new string[_columns.Count];
-            for (int i = 0, len = _columns.Count; i < len; i++)
-            {
+            var ret = GetBuffer(_columns.Count);
+            for (int i = 0, len = _columns.Count; i < len; i++) {
                 var sb = _columns[i];
                 ret[i] = sb.ToString();
                 sb.Clear();
             }
             _currIndex = 0;
+            return ret;
+        }
+
+        string[] GetBuffer(int length)
+        {
+            if (!_stringBuffers.TryGetValue(length, out var ret))
+                _stringBuffers.Add(length, ret = new string[length]);
             return ret;
         }
     }
