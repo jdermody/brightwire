@@ -16,7 +16,7 @@ Data tables are aligned for either row or column based access and can be stored 
 
 Row based data tables can be used as the input to Bright Wire's machine learning graph.
 
-Certian data table transformations/analysis are more efficient with column based data tables.
+Some data table transformations/analysis are possible or more efficient with column based data tables.
 
 Data tables can contain tensors (including vectors and matrices), binary data, strings, sparse vectors and numbers.
 
