@@ -43,7 +43,7 @@ namespace ExampleCode.DataTableTrainers
             graph.Connect(engine)
                 .AddGru(HIDDEN_LAYER_SIZE)
                 .AddFeedForward(engine.DataSource.GetOutputSizeOrThrow())
-                .Add(graph.SigmoidActivation())
+                .Add(graph.TanhActivation())
                 .AddBackpropagation()
             ;
 
@@ -139,6 +139,7 @@ namespace ExampleCode.DataTableTrainers
             const uint HIDDEN_LAYER_SIZE = 128;
             const float TRAINING_RATE = 0.1f;
 
+            // indicate that this is Sequence to Sequence as the sequence lengths are the same
             Training.MetaData.Set("Seq2Seq", true);
             var trainingData = graph.CreateDataSource(Training);
             var testData = trainingData.CloneWith(Test);
