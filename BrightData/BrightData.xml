@@ -540,53 +540,61 @@
             Static methods to create converters
             </summary>
         </member>
-        <member name="M:BrightData.Converter.StaticConverters.ConvertToDecimal``1">
+        <member name="M:BrightData.Converter.StaticConverters.GetConverterToDecimal``1">
             <summary>
             Creates a converter to decimals
             </summary>
             <typeparam name="T">Type to convert from</typeparam>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Converter.StaticConverters.ConvertToDouble``1">
+        <member name="M:BrightData.Converter.StaticConverters.GetConverterToDouble``1">
             <summary>
             Creates a converter to doubles
             </summary>
             <typeparam name="T">Type to convert from</typeparam>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Converter.StaticConverters.ConvertToFloat``1">
+        <member name="M:BrightData.Converter.StaticConverters.GetConverterToFloat``1">
             <summary>
             Creates a converter to floats
             </summary>
             <typeparam name="T">Type to convert from</typeparam>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Converter.StaticConverters.ConvertToInt``1">
+        <member name="M:BrightData.Converter.StaticConverters.GetConverterToInt``1">
             <summary>
             Creates a converter to ints
             </summary>
             <typeparam name="T">Type to convert from</typeparam>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Converter.StaticConverters.ConvertToLong``1">
+        <member name="M:BrightData.Converter.StaticConverters.GetConverterToLong``1">
             <summary>
             Creates a converter to longs (Int64)
             </summary>
             <typeparam name="T">Type to convert from</typeparam>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Converter.StaticConverters.ConvertToShort``1">
+        <member name="M:BrightData.Converter.StaticConverters.GetConverterToShort``1">
             <summary>
             Creates a converter to shorts (Int16)
             </summary>
             <typeparam name="T">Type to convert from</typeparam>
             <returns></returns>
         </member>
-        <member name="M:BrightData.Converter.StaticConverters.ConvertToSignedByte``1">
+        <member name="M:BrightData.Converter.StaticConverters.GetConverterToSignedByte``1">
             <summary>
             Creates a convert to signed bytes
             </summary>
             <typeparam name="T">Type to convert from</typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:BrightData.Converter.StaticConverters.GetConverter``2">
+            <summary>
+            Creates a converter from FT to TT
+            </summary>
+            <typeparam name="TF">Type to convert from</typeparam>
+            <typeparam name="TT">Type to convert to</typeparam>
             <returns></returns>
         </member>
         <member name="T:BrightData.DataTable.Builders.ColumnOrientedTableBuilder">
@@ -1126,15 +1134,6 @@
             <typeparam name="T"></typeparam>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.GetConverter``1(System.Type)">
-            <summary>
-            Creates a type converter
-            </summary>
-            <param name="toType">Type converter type</param>
-            <typeparam name="T"></typeparam>
-            <returns></returns>
-            <exception cref="T:System.NotImplementedException"></exception>
-        </member>
         <member name="M:BrightData.ExtensionMethods.AsRange(System.UInt32)">
             <summary>
             Generates a range of positive integers
@@ -1428,9 +1427,9 @@
             <param name="maxCount">Maximum number of distinct items to track</param>
             <returns></returns>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ParseCsv(BrightData.IBrightDataContext,System.IO.StreamReader,System.Boolean,System.Char,System.Boolean,System.Int32,System.UInt16)">
+        <member name="M:BrightData.ExtensionMethods.ParseCsvIntoMemory(BrightData.IBrightDataContext,System.IO.StreamReader,System.Boolean,System.Char,System.Boolean,System.Int32,System.UInt16)">
             <summary>
-            Parse CSV in memory
+            Parse CSV in memory without writing to disk (for small data sets)
             </summary>
             <param name="context"></param>
             <param name="reader"></param>
@@ -1442,7 +1441,7 @@
             <returns></returns>
             <exception cref="T:System.Exception"></exception>
         </member>
-        <member name="M:BrightData.ExtensionMethods.ParseLargeCsv(BrightData.IBrightDataContext,System.IO.StreamReader,System.Boolean,System.Char,System.String,System.Boolean,System.Int32,System.UInt32,System.UInt16,System.String)">
+        <member name="M:BrightData.ExtensionMethods.ParseCsv(BrightData.IBrightDataContext,System.IO.StreamReader,System.Boolean,System.Char,System.String,System.Boolean,System.Int32,System.UInt32,System.UInt16,System.String)">
             <summary>
             Parse CSV into a column oriented data table using hybrid buffers
             </summary>
@@ -4186,6 +4185,41 @@
         <member name="F:BrightData.ColumnConversionType.ToCategoricalIndex">
             <summary>
             Convert each value to an index within a dictionary
+            </summary>
+        </member>
+        <member name="F:BrightData.ColumnConversionType.ToByte">
+            <summary>
+            Convert to signed byte
+            </summary>
+        </member>
+        <member name="F:BrightData.ColumnConversionType.ToShort">
+            <summary>
+            Convert to short
+            </summary>
+        </member>
+        <member name="F:BrightData.ColumnConversionType.ToInt">
+            <summary>
+            Convert to int
+            </summary>
+        </member>
+        <member name="F:BrightData.ColumnConversionType.ToLong">
+            <summary>
+            Convert to long 
+            </summary>
+        </member>
+        <member name="F:BrightData.ColumnConversionType.ToFloat">
+            <summary>
+            Convert to float
+            </summary>
+        </member>
+        <member name="F:BrightData.ColumnConversionType.ToDouble">
+            <summary>
+            Convert to double
+            </summary>
+        </member>
+        <member name="F:BrightData.ColumnConversionType.ToDecimal">
+            <summary>
+            Convert to decimal
             </summary>
         </member>
         <member name="T:BrightData.ITransformColumn">

@@ -64,7 +64,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
                 inputList[i] = tensor;
             }
             var output = OutputSize > 0 
-                ? new MatrixGraphData(lap.CreateMatrix((uint)data.Length, OutputSize.Value, (x, y) => data[x].Data[y]))
+                ? lap.CreateMatrix((uint)data.Length, OutputSize.Value, (x, y) => data[x].Data[y]).AsGraphData()
                 : null;
             
             // TODO: change from single

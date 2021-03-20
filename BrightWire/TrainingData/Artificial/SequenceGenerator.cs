@@ -138,5 +138,7 @@ namespace BrightWire.TrainingData.Artificial
                 yield return NextSequence();
             // ReSharper disable once IteratorNeverReturns
         }
+
+        public string Decode(IEnumerable<uint> characters) => new String(characters.Select(i => Dictionary[i]).ToArray());
     }
 }

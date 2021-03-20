@@ -35,6 +35,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
 
         public override (NodeBase FromNode, IGraphData Output, Func<IBackpropagate>? BackProp) ForwardSingleStep(IGraphData signal, uint channel, IGraphSequenceContext context, NodeBase? source)
         {
+            // connect the hidden states
             var hiddenForward = context.GetData("hidden-forward").Single(d => d.Name == _fromName);
             MemoryFeeder memoryFeeder;
             if (FindByName(_toName) is IHaveMemoryNode node)

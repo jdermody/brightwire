@@ -66,7 +66,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
                     .ToDictionary(d => d.Index, d => d.Weight)
                 ).ToArray();
             var output = _lap.CreateMatrix((uint)resultList.Length, _indexer.OutputSize, (i, j) => resultList[i].TryGetValue(j, out var temp) ? temp : 0f);
-            return (this, new MatrixGraphData(output), () => new Backpropagation(this));
+            return (this, output.AsGraphData(), () => new Backpropagation(this));
         }
     }
 }

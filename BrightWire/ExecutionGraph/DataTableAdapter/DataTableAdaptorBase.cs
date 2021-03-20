@@ -86,11 +86,11 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
 
             for (uint i = 0; i < numInputs; i++) {
                 var i1 = i;
-                inputList[i] = new MatrixGraphData(lap.CreateMatrix((uint)data.Length, InputSize, (x, y) => data[(int)x].Input[i1][y]));
+                inputList[i] = lap.CreateMatrix((uint) data.Length, InputSize, (x, y) => data[(int) x].Input[i1][y]).AsGraphData();
             }
 
 	        var output = OutputSize > 0 
-                ? new MatrixGraphData(lap.CreateMatrix((uint)data.Length, (uint)OutputSize, (x, y) => data[(int)x].Output[y]))
+                ? lap.CreateMatrix((uint)data.Length, (uint)OutputSize, (x, y) => data[(int)x].Output[y]).AsGraphData()
                 : null;
 
             // TODO: change from single
@@ -128,14 +128,14 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
                 var input = lap.CreateMatrixFromRows(item.Value);
                 IGraphData? output = null;
                 if (outputData.TryGetValue(item.Key, out temp))
-                    output = new MatrixGraphData(lap.CreateMatrixFromRows(temp));
+                    output = lap.CreateMatrixFromRows(temp).AsGraphData();
                 var type = (item.Key == 0)
                     ? MiniBatchSequenceType.SequenceStart
                     : item.Key == (inputData.Count - 1)
                         ? MiniBatchSequenceType.SequenceEnd
                         : MiniBatchSequenceType.Standard
                 ;
-                miniBatch.Add(type, new MatrixGraphData(input), output);
+                miniBatch.Add(type, input.AsGraphData(), output);
             }
             return miniBatch;
         }

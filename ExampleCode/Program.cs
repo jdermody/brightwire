@@ -41,7 +41,6 @@ namespace ExampleCode
             OneToMany(context, useCuda);
             ManyToOne(context, useCuda);
             SequenceToSequence(context, useCuda);
-            TrainWithSelu(context);
             StockData(context, useCuda);
             SimpleLinearTest(context);
             PredictBicyclesWithLinearModel(context);
@@ -191,14 +190,14 @@ namespace ExampleCode
         {
             Start(context, useCuda);
             var sequences = context.OneToMany();
-            sequences.TrainLstm();
+            sequences.TrainOneToMany();
         }
 
         static void ManyToOne(IBrightDataContext context, bool useCuda)
         {
             Start(context, useCuda);
             var sequences = context.ManyToOne();
-            sequences.TrainGru();
+            sequences.TrainManyToOne();
         }
 
         static void SequenceToSequence(IBrightDataContext context, bool useCuda)
@@ -206,12 +205,6 @@ namespace ExampleCode
             Start(context, useCuda);
             var sequences = context.SequenceToSequence();
             sequences.TrainSequenceToSequence();
-        }
-
-        static void TrainWithSelu(IBrightDataContext context)
-        {
-            Start(context);
-            context.Iris().TrainWithSelu();
         }
 
         static void SimpleLinearTest(IBrightDataContext context)

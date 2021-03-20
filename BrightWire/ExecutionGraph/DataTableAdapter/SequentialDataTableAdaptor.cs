@@ -21,6 +21,8 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
         {
             if (_featureColumnIndices.Length > 1)
                 throw new NotImplementedException("Sequential datasets not supported with more than one input data column");
+            if (dataTable.MetaData.Get("Seq2Seq", false))
+                sequenceLengthsAreVaried = true;
             _featureColumns = featureColumns;
 
             _rowDepth = new uint[dataTable.RowCount];
@@ -88,7 +90,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
                             ? MiniBatchSequenceType.SequenceEnd
                             : MiniBatchSequenceType.Standard
                     ;
-                    encoderMiniBatch.Add(type, new MatrixGraphData(input), null);
+                    encoderMiniBatch.Add(type, input.AsGraphData(), null);
                 }
 
                 var decoderMiniBatch = new MiniBatch(rows, this);
@@ -100,7 +102,7 @@ namespace BrightWire.ExecutionGraph.DataTableAdapter
                             ? MiniBatchSequenceType.SequenceEnd
                             : MiniBatchSequenceType.Standard
                     ;
-                    decoderMiniBatch.Add(type, null, new MatrixGraphData(output));
+                    decoderMiniBatch.Add(type, null, output.AsGraphData());
                 }
 
                 encoderMiniBatch.NextMiniBatch = decoderMiniBatch;

@@ -68,8 +68,7 @@ namespace BrightWire.ExecutionGraph.Node.Input
                 LoadNextFromMemory = false;
             }
 
-            var next = new MatrixGraphData(memory);
-            return (this, next, () => new Backpropagation(this));
+            return (this, memory.AsGraphData(), () => new Backpropagation(this));
         }
 
         protected override (string Description, byte[] Data) GetInfo()

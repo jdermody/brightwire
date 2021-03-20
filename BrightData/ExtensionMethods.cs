@@ -167,7 +167,7 @@ namespace BrightData
         /// <returns></returns>
         public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> seq, Random rnd)
         {
-            return seq.OrderBy(e => rnd.Next()).ToList();
+            return seq.OrderBy(e => rnd.Next());
         }
 
         /// <summary>

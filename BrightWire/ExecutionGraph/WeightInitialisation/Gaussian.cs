@@ -44,7 +44,7 @@ namespace BrightWire.ExecutionGraph.WeightInitialisation
             var sample = _distribution.Sample();
             if(n > 0) {
                 if (_varianceCalibration == GaussianVarianceCalibration.SquareRootN)
-                    sample /= MathF.Sqrt(n);
+                    sample *= MathF.Sqrt(n);
                 else if (_varianceCalibration == GaussianVarianceCalibration.SquareRoot2N)
                     sample *= MathF.Sqrt(2.0f / n);
             }

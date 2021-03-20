@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
+using System.IO;
 using System.Linq;
-using BrightData;
+using BrightData.Serialisation;
 using BrightWire.ExecutionGraph.Helper;
+using BrightWire.ExecutionGraph.Node.Input;
 
 namespace BrightWire.ExecutionGraph.Node.Gate
 {
     class SequenceToSequenceGate : NodeBase
     {
-        readonly string _encoderName, _decoderName;
+        string _encoderName, _decoderName;
         ConcurrentStack<IGraphSequenceContext>? _encoderContext;
 
         public SequenceToSequenceGate(string encoderName, string decoderName, string? name, string? id = null) : base(name, id)
@@ -23,10 +23,21 @@ namespace BrightWire.ExecutionGraph.Node.Gate
         {
             _encoderContext ??= new ConcurrentStack<IGraphSequenceContext>();
             _encoderContext.Push(context);
+
             if (context.BatchSequence.Type == MiniBatchSequenceType.SequenceEnd) {
                 var nextBatch = context.BatchSequence.MiniBatch.NextMiniBatch;
                 if (nextBatch == null)
                     throw new Exception("No following mini batch was found");
+
+                // connect the hidden states of the encoder to the decoder
+                var hiddenForward = context.GetData("hidden-forward").Single(d => d.Name == _encoderName);
+                MemoryFeeder memoryFeeder;
+                if (FindByName(_decoderName) is IHaveMemoryNode node)
+                    memoryFeeder = (MemoryFeeder)node.Memory;
+                else
+                    throw new Exception($"{_decoderName} was not found or does not have a memory node");
+                context.ExecutionContext.SetMemory(memoryFeeder.Id, hiddenForward.Data.GetMatrix());
+                memoryFeeder.LoadNextFromMemory = true;
 
                 context.ExecutionContext.RegisterAdditionalMiniBatch(nextBatch, signal, OnStartEncoder, OnEndEncoder);
             }
@@ -42,17 +53,16 @@ namespace BrightWire.ExecutionGraph.Node.Gate
 
         void OnEndEncoder(IGraphSequenceContext[] context)
         {
-            var learningContext = context.FirstOrDefault()?.LearningContext;
+            var firstContext = context.FirstOrDefault();
+            var learningContext = firstContext?.LearningContext;
             if (learningContext != null) {
                 var gradient = learningContext.BackpropagateThroughTime(null);
 
-                //var firstContext = (ICanTrace)context.Single(c => c.BatchSequence.Type == MiniBatchSequenceType.SequenceStart);
-                //var lastContext = (ICanTrace)context.Single(c => c.BatchSequence.Type == MiniBatchSequenceType.SequenceEnd);
-
-                //firstContext.Trace();
-                //lastContext.Trace();
-                
                 if (gradient != null) {
+                    // add the memory signal to the current 
+                    var hiddenBackward = firstContext!.GetData("hidden-backward").Single(d => d.Name == _decoderName);
+                    gradient.GetMatrix().AddInPlace(hiddenBackward.Data.GetMatrix());
+
                     foreach (var item in _encoderContext!.Reverse())
                         learningContext.DeferBackpropagation(null, delta => item.Backpropagate(delta));
                     learningContext.BackpropagateThroughTime(gradient);
@@ -60,6 +70,23 @@ namespace BrightWire.ExecutionGraph.Node.Gate
             }
 
             _encoderContext?.Clear();
+        }
+
+        protected override (string Description, byte[] Data) GetInfo()
+        {
+            return ("S2S", WriteData(WriteTo));
+        }
+
+        public override void WriteTo(BinaryWriter writer)
+        {
+            _encoderName.WriteTo(writer);
+            _decoderName.WriteTo(writer);
+        }
+
+        public override void ReadFrom(GraphFactory factory, BinaryReader reader)
+        {
+            _encoderName = reader.ReadString();
+            _decoderName = reader.ReadString();
         }
     }
 }

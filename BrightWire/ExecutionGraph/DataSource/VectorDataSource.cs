@@ -36,7 +36,7 @@ namespace BrightWire.ExecutionGraph.DataSource
         {
             var data = rows.Select(i => _data[(int)i]).ToList();
             var input = _lap.CreateMatrix((uint)data.Count, InputSize, (x, y) => data[(int)x].Segment[y]);
-            return new MiniBatch(rows, this, new MatrixGraphData(input), null);
+            return new MiniBatch(rows, this, input.AsGraphData(), null);
         }
 
         public uint[][] GetSequentialBatches()

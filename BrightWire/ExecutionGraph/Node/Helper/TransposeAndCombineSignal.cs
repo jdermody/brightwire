@@ -53,7 +53,7 @@ namespace BrightWire.ExecutionGraph.Node.Helper
             }
             var output = context.LinearAlgebraProvider.CreateMatrixFromRows(rowList);
 
-            return (this, new MatrixGraphData(output), () => new Backpropagation(this, tensor));
+            return (this, output.AsGraphData(), () => new Backpropagation(this, tensor));
         }
     }
 }

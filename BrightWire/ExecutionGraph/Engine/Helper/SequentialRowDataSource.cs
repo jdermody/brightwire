@@ -43,7 +43,7 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
                     type = MiniBatchSequenceType.SequenceStart;
                 else if (index == _data.Length - 1)
                     type = MiniBatchSequenceType.SequenceEnd;
-                ret.Add(type, new MatrixGraphData(_lap.CreateVector(row).ReshapeAsRowMatrix()), null);
+                ret.Add(type, _lap.CreateVector(row).ReshapeAsRowMatrix().AsGraphData(), null);
                 ++index;
             }
             return ret;

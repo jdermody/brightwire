@@ -171,6 +171,8 @@ namespace BrightData.Cuda
                 var info = _cuda.GetDeviceInfo();
                 var kernelName = $"brightwire_{info.ComputeCapability.Major}{info.ComputeCapability.Minor}.ptx";
                 cudaKernelPath = Path.Combine(cudaDirectory, kernelName);
+
+				// try the default kernel
                 if (!File.Exists(cudaKernelPath))
                     cudaKernelPath = Path.Combine(cudaDirectory, "brightwire.ptx");
                 if (!File.Exists(cudaKernelPath))

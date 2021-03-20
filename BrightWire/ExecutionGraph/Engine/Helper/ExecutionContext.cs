@@ -52,13 +52,25 @@ namespace BrightWire.ExecutionGraph.Engine.Helper
         public IEnumerable<(IGraphSequenceContext Context, Action<IGraphSequenceContext[]> Callback)> ExecuteAdditionalMiniBatch(ILearningContext? learningContext)
         {
             while (_additionalBatches.TryPop(out var item)) {
-                IMiniBatchSequence? sequence;
+                IMiniBatchSequence? sequence, prev = null;
+
                 while ((sequence = item.Batch.GetNextSequence()) != null) {
                     var context = _createGraphContext.Create(this, sequence, learningContext);
-                    item.Start(context, item.Data);
-                    //while (context.HasNext)
-                    //    context.ExecuteNext();
+                    IGraphData? state;
+
+                    // otherwise take the hidden state of the last encoder
+                    if (prev?.GraphContext != null) {
+                        var previousState = prev.GraphContext.GetData("hidden-forward");
+                        state = previousState.Last().Data;
+                    }
+
+                    // otherwise take the context
+                    else
+                        state = item.Data;
+
+                    item.Start(context, state);
                     yield return (context, item.End);
+                    prev = sequence;
                 }
             }
         }

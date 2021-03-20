@@ -394,14 +394,14 @@ namespace BrightData
 
             foreach (var row in parser.Parse().Take(maxRows))
             {
-                var cols = row.Length;
+                var cols = row.Count;
 
                 for (var i = columns.Count; i < cols; i++)
                     columns.Add(new InMemorySegment<string>(context, ColumnType.String, new MetaData(), maxDistinct));
 
                 for (var i = 0; i < cols; i++) {
                     var column = columns[i];
-                    var text = row[i];
+                    var text = row[i].ToString();
                     if (isFirst)
                         column.MetaData.Set(Consts.Name, text);
                     else
@@ -474,7 +474,7 @@ namespace BrightData
 
             foreach (var row in parser.Parse().Take(maxRows))
             {
-                var cols = row.Length;
+                var cols = row.Count;
 
                 for (var i = columns.Count; i < cols; i++) {
                     var buffer = context.CreateHybridStringBuffer(tempStreams, inMemoryRowCount, maxDistinct);
@@ -483,7 +483,7 @@ namespace BrightData
 
                 for (var i = 0; i < cols; i++) {
                     var column = columns[i];
-                    var text = row[i];
+                    var text = row[i].ToString();
                     if (isFirst)
                         column.MetaData.Set(Consts.Name, text);
                     else
